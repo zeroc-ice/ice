@@ -260,6 +260,13 @@ generated from the section label.
 
     <class name="objectadapter" prefix-only="true">
         <suffix name="ACM" class="acm"/>
+        <!-- The replacement for ACM above -->
+        <suffix name="CloseTimeout" />
+        <suffix name="ConnectTimeout" />
+        <suffix name="EnableIdleCheck" />
+        <suffix name="IdleTimeout" />
+        <suffix name="InactivityTimeout" />
+        <!-- End ACM replacement -->
         <suffix name="AdapterId" />
         <suffix name="Endpoints" />
         <suffix name="Locator" class="proxy"/>
@@ -303,6 +310,13 @@ generated from the section label.
         <property name="ACM" class="acm"/>
         <property name="ACM.Client" class="acm"/>
         <property name="ACM.Server" class="acm"/>
+        <!-- The replacement for ACM above -->
+        <property name="CloseTimeout" />
+        <property name="ConnectTimeout" />
+        <property name="EnableIdleCheck" />
+        <property name="IdleTimeout" />
+        <property name="InactivityTimeout" />
+        <!-- End ACM replacement -->
         <property name="Admin" class="objectadapter" />
         <property name="Admin.DelayCreation" />
         <property name="Admin.Enabled" />

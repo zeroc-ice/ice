@@ -46,21 +46,7 @@ bool
 Timer::cancel(const TimerTaskPtr& task)
 {
     lock_guard lock(_mutex);
-    if (_destroyed)
-    {
-        return false;
-    }
-
-    auto p = _tasks.find(task);
-    if (p == _tasks.end())
-    {
-        return false;
-    }
-
-    _tokens.erase(Token{p->second, nullopt, p->first});
-    _tasks.erase(p);
-
-    return true;
+    return cancelNoSync(task);
 }
 
 void
@@ -156,6 +142,26 @@ Timer::run()
             }
         }
     }
+}
+
+bool
+Timer::cancelNoSync(const TimerTaskPtr& task)
+{
+    if (_destroyed)
+    {
+        return false;
+    }
+
+    auto p = _tasks.find(task);
+    if (p == _tasks.end())
+    {
+        return false;
+    }
+
+    _tokens.erase(Token{p->second, nullopt, p->first});
+    _tasks.erase(p);
+
+    return true;
 }
 
 void

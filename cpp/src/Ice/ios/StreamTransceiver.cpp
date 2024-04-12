@@ -420,6 +420,12 @@ IceObjC::StreamTransceiver::read(Buffer& buf)
     return SocketOperationNone;
 }
 
+bool
+IceObjC::StreamTransceiver::isWaitingToBeRead() const noexcept
+{
+    return hasBytesAvailable(_fd);
+}
+
 string
 IceObjC::StreamTransceiver::protocol() const
 {

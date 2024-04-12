@@ -15,6 +15,7 @@
 #include "Ice/OutgoingResponse.h"
 #include "Ice/Properties.h"
 #include "IceUtil/DisableWarnings.h"
+#include "IdleTimeoutTransceiverDecorator.h"
 #include "Instance.h"
 #include "ObjectAdapterI.h"   // For getThreadPool()
 #include "ProxyFactory.h"     // For createProxy().
@@ -2096,7 +2097,7 @@ Ice::ConnectionI::ConnectionI(
     const TransceiverPtr& transceiver,
     const ConnectorPtr& connector,
     const EndpointIPtr& endpoint,
-    const shared_ptr<ObjectAdapterI>& adapter)
+    const shared_ptr<ObjectAdapterI>& adapter) noexcept
     : _communicator(communicator),
       _instance(instance),
       _monitor(monitor),
@@ -2155,22 +2156,43 @@ Ice::ConnectionI::create(
     const InstancePtr& instance,
     const ACMMonitorPtr& monitor,
     const TransceiverPtr& transceiver,
+    const chrono::seconds& idleTimeout,
+    bool enableIdleCheck,
     const ConnectorPtr& connector,
     const EndpointIPtr& endpoint,
     const shared_ptr<ObjectAdapterI>& adapter)
 {
-    Ice::ConnectionIPtr conn(
-        new ConnectionI(communicator, instance, monitor, transceiver, connector, endpoint, adapter));
+    shared_ptr<IdleTimeoutTransceiverDecorator> decoratedTransceiver;
+    if (idleTimeout > chrono::milliseconds::zero())
+    {
+        decoratedTransceiver =
+            make_shared<IdleTimeoutTransceiverDecorator>(transceiver, idleTimeout, enableIdleCheck, instance->timer());
+    }
+
+    Ice::ConnectionIPtr connection(new ConnectionI(
+        communicator,
+        instance,
+        monitor,
+        decoratedTransceiver ? decoratedTransceiver : transceiver,
+        connector,
+        endpoint,
+        adapter));
+
+    if (decoratedTransceiver)
+    {
+        decoratedTransceiver->decoratorInit(connection);
+    }
+
     if (adapter)
     {
-        const_cast<ThreadPoolPtr&>(conn->_threadPool) = adapter->getThreadPool();
+        const_cast<ThreadPoolPtr&>(connection->_threadPool) = adapter->getThreadPool();
     }
     else
     {
-        const_cast<ThreadPoolPtr&>(conn->_threadPool) = conn->_instance->clientThreadPool();
+        const_cast<ThreadPoolPtr&>(connection->_threadPool) = connection->_instance->clientThreadPool();
     }
-    conn->_threadPool->initialize(conn);
-    return conn;
+    connection->_threadPool->initialize(connection);
+    return connection;
 }
 
 Ice::ConnectionI::~ConnectionI()
@@ -2513,9 +2535,60 @@ Ice::ConnectionI::initiateShutdown()
 }
 
 void
+Ice::ConnectionI::idleCheck(
+    const IceUtil::TimerTaskPtr& idleCheckTimerTask,
+    const chrono::seconds& idleTimeout) noexcept
+{
+    std::lock_guard lock(_mutex);
+    if (_state == StateActive || _state == StateHolding)
+    {
+        // _timer->cancel(task) returns true if a concurrent read rescheduled the timer task.
+        if (_transceiver->isWaitingToBeRead() || _timer->cancel(idleCheckTimerTask))
+        {
+            // Schedule or reschedule timer task. Reschedule in the rare case where a concurrent read scheduled the task
+            // already.
+            _timer->reschedule(idleCheckTimerTask, idleTimeout);
+
+            if (_instance->traceLevels()->network >= 3)
+            {
+                Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
+                out << "the idle check scheduled a new idle check in " << idleTimeout.count()
+                    << "s because the connection is waiting to be read\n";
+                out << _transceiver->toDetailedString();
+            }
+        }
+        else
+        {
+            if (_instance->traceLevels()->network >= 1)
+            {
+                Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
+                out << "connection aborted by idle check because it did not receive any byte for "
+                    << idleTimeout.count() << "s\n";
+                out << _transceiver->toDetailedString();
+            }
+
+            // TODO: replace by ConnectionIdleException.
+            setState(StateClosed, make_exception_ptr(TimeoutException(__FILE__, __LINE__)));
+        }
+    }
+    // else, nothing to do
+}
+
+void
+Ice::ConnectionI::sendHeartbeat() noexcept
+{
+    lock_guard lock(_mutex);
+    if (_state == StateActive || _state == StateHolding)
+    {
+        sendHeartbeatNow();
+    }
+    // else nothing to do
+}
+
+void
 Ice::ConnectionI::sendHeartbeatNow()
 {
-    assert(_state == StateActive);
+    assert(_state == StateActive || _state == StateHolding);
 
     if (!_endpoint->datagram())
     {

@@ -33,11 +33,10 @@ namespace IceInternal
         ssize_t read(char*, size_t);
         ssize_t write(const char*, size_t);
 
-#if defined(ICE_USE_IOCP)
-        AsyncInfo* getAsyncInfo(SocketOperation);
-#endif
+        bool isWaitingToBeRead() const noexcept;
 
 #if defined(ICE_USE_IOCP)
+        AsyncInfo* getAsyncInfo(SocketOperation);
         bool startWrite(Buffer&);
         void finishWrite(Buffer&);
         void startRead(Buffer&);
