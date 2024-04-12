@@ -50,6 +50,7 @@ namespace IceSSL::SChannel
         void startRead(IceInternal::Buffer&) final;
         void finishRead(IceInternal::Buffer&) final;
 #    endif
+        bool isWaitingToBeRead() const noexcept final;
         std::string protocol() const final;
         std::string toString() const final;
         std::string toDetailedString() const final;
