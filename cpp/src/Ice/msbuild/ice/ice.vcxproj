@@ -172,7 +172,6 @@
     <ClCompile Include="..\..\..\IceSSL\RFC2253.cpp" />
     <ClCompile Include="..\..\..\IceSSL\SChannelCertificateI.cpp" />
     <ClCompile Include="..\..\..\IceSSL\SChannelEngine.cpp" />
-    <ClCompile Include="..\..\..\IceSSL\SChannelPluginI.cpp" />
     <ClCompile Include="..\..\..\IceSSL\SChannelTransceiverI.cpp" />
     <ClCompile Include="..\..\..\IceSSL\SSLEngine.cpp" />
     <ClCompile Include="..\..\..\IceSSL\TrustManager.cpp" />

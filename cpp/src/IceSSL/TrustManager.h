@@ -5,7 +5,7 @@
 #ifndef ICESSL_TRUST_MANAGER_H
 #define ICESSL_TRUST_MANAGER_H
 
-#include "../Ice/InstanceF.h"
+#include "Ice/InstanceF.h"
 #include "IceSSL/Certificate.h"
 #include "IceSSL/ConnectionInfoF.h"
 #include "RFC2253.h"

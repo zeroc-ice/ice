@@ -8,7 +8,6 @@
 #include "Ice/Logger.h"
 #include "Ice/StringConverter.h"
 #include "Ice/UUID.h"
-#include "IceSSL/Plugin.h"
 #include "IceUtil/FileUtil.h"
 #include "IceUtil/StringUtil.h"
 #include "SChannelTransceiverI.h"

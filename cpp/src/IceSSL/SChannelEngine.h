@@ -7,9 +7,12 @@
 
 #ifdef _WIN32
 
-#    include "../Ice/InstanceF.h"
+#    include "Ice/InstanceF.h"
 #    include "SChannelEngineF.h"
 #    include "SSLEngine.h"
+
+#    include <string>
+#    include <vector>
 
 //
 // SECURITY_WIN32 or SECURITY_KERNEL, must be defined before including security.h

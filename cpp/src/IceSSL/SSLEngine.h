@@ -5,16 +5,15 @@
 #ifndef ICESSL_ENGINE_H
 #define ICESSL_ENGINE_H
 
+#include "../Ice/Network.h"
+#include "../Ice/TransceiverF.h"
+#include "Ice/CommunicatorF.h"
+#include "Ice/InstanceF.h"
 #include "IceSSL/Certificate.h"
 #include "SSLEngineF.h"
 #include "SSLInstanceF.h"
 #include "SSLUtil.h"
 #include "TrustManagerF.h"
-
-#include "../Ice/InstanceF.h"
-#include "../Ice/Network.h"
-#include "../Ice/TransceiverF.h"
-#include "Ice/CommunicatorF.h"
 
 #include <mutex>
 

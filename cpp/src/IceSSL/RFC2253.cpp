@@ -7,6 +7,8 @@
 #include "IceUtil/StringUtil.h"
 
 #include <cassert>
+#include <utility>
+#include <string>
 
 using namespace std;
 using namespace IceSSL;

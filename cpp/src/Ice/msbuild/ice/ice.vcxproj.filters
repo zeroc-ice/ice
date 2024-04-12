@@ -588,9 +588,6 @@
     <ClCompile Include="..\..\..\IceSSL\SChannelEngine.cpp">
       <Filter>Source Files\IceSSL</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IceSSL\SChannelPluginI.cpp">
-      <Filter>Source Files\IceSSL</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IceSSL\SChannelTransceiverI.cpp">
       <Filter>Source Files\IceSSL</Filter>
     </ClCompile>

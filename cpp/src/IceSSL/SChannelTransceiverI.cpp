@@ -3,15 +3,12 @@
 //
 
 #include "SChannelTransceiverI.h"
-
 #include "IceUtil/StringUtil.h"
-
 #include "Ice/Buffer.h"
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
 #include "IceSSL/ConnectionInfo.h"
-#include "PluginI.h"
 #include "SChannelEngine.h"
 #include "SSLInstance.h"
 #include "SSLUtil.h"
@@ -906,7 +903,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
     {
         _trustError = IceSSL::TrustError::HostNameMismatch;
         _verified = false;
-        dynamic_pointer_cast<ExtendedConnectionInfo>(info)->errorCode = IceSSL::TrustError::HostNameMismatch;
+        info->errorCode = IceSSL::TrustError::HostNameMismatch;
         info->verified = false;
         if (_engine->getVerifyPeer() > 0)
         {
@@ -1157,7 +1154,7 @@ SChannel::TransceiverI::toDetailedString() const
 Ice::ConnectionInfoPtr
 SChannel::TransceiverI::getInfo() const
 {
-    ExtendedConnectionInfoPtr info = std::make_shared<ExtendedConnectionInfo>();
+    auto info = std::make_shared<ConnectionInfo>();
     info->underlying = _delegate->getInfo();
     info->incoming = _incoming;
     info->adapterName = _adapterName;

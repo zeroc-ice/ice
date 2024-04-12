@@ -13,7 +13,6 @@
 #    include "../Ice/WSTransceiver.h"
 #    include "Ice/Buffer.h"
 #    include "Ice/Config.h"
-#    include "IceSSL/Plugin.h"
 #    include "SChannelEngineF.h"
 #    include "SSLInstanceF.h"
 

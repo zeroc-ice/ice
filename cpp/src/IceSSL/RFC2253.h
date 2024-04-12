@@ -7,6 +7,7 @@
 
 #include "Ice/Config.h"
 
+#include <string>
 #include <list>
 
 //
