@@ -236,6 +236,9 @@ namespace Ice
             const IceInternal::InstancePtr&,
             const IceInternal::ACMMonitorPtr&,
             const IceInternal::TransceiverPtr&,
+            const std::chrono::seconds& connectTimeout,
+            const std::chrono::seconds& closeTimeout,
+            const std::chrono::seconds& inactivityTimeout,
             const IceInternal::ConnectorPtr&,
             const IceInternal::EndpointIPtr&,
             const std::shared_ptr<ObjectAdapterI>&) noexcept;
@@ -245,8 +248,11 @@ namespace Ice
             const IceInternal::InstancePtr&,
             const IceInternal::ACMMonitorPtr&,
             const IceInternal::TransceiverPtr&,
+            const std::chrono::seconds& connectTimeout,
+            const std::chrono::seconds& closeTimeout,
             const std::chrono::seconds& idleTimeout,
             bool enableIdleCheck,
+            const std::chrono::seconds& inactivityTimeout,
             const IceInternal::ConnectorPtr&,
             const IceInternal::EndpointIPtr&,
             const std::shared_ptr<ObjectAdapterI>&);
@@ -333,6 +339,10 @@ namespace Ice
         bool _writeTimeoutScheduled;
         const IceUtil::TimerTaskPtr _readTimeout;
         bool _readTimeoutScheduled;
+
+        const std::chrono::seconds _connectTimeout;
+        const std::chrono::seconds _closeTimeout;
+        const std::chrono::seconds _inactivityTimeout;
 
         std::function<void(ConnectionIPtr)> _connectionStartCompleted;
         std::function<void(ConnectionIPtr, std::exception_ptr)> _connectionStartFailed;
