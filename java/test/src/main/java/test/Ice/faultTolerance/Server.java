@@ -15,7 +15,6 @@ public class Server extends test.TestHelper {
     java.util.List<String> remainingArgs = new java.util.ArrayList<String>();
     com.zeroc.Ice.Properties properties = createTestProperties(args, remainingArgs);
     properties.setProperty("Ice.Package.Test", "test.Ice.faultTolerance");
-    properties.setProperty("Ice.ServerIdleTime", "120");
     try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
       int port = 0;
       PrintWriter out = getWriter();
