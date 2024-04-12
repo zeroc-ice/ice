@@ -143,7 +143,7 @@ def create_platform_targets(project, platform, bindist)
 
     unless bindist
         #
-        # Ice for C++11 static libraries
+        # Ice for C++ static libraries
         #
         cpp_components = ["Ice", "IceDiscovery", "IceLocatorDiscovery"]
         cpp_source_dirs = { "Ice" => ["IceUtil", "Ice", "IceSSL"] }
@@ -166,7 +166,7 @@ def create_platform_targets(project, platform, bindist)
         ice_cpp_target = nil
 
         cpp_components.each do | component |
-            target = project.new_target(:static_library, "#{component} C++11 #{platform_name}", platform)
+            target = project.new_target(:static_library, "#{component} C++ #{platform_name}", platform)
             cpp_targets << target
 
             group = project_group(project, "slice/#{component}")

@@ -7,7 +7,7 @@
 
 #ifdef __APPLE__
 
-#    include "../Ice/InstanceF.h"
+#    include "Ice/InstanceF.h"
 #    include "Ice/UniqueRef.h"
 #    include "SSLEngine.h"
 
