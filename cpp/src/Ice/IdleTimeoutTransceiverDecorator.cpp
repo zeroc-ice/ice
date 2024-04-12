@@ -86,12 +86,10 @@ IdleTimeoutTransceiverDecorator::initialize(Buffer& readBuffer, Buffer& writeBuf
 
 IdleTimeoutTransceiverDecorator::~IdleTimeoutTransceiverDecorator()
 {
-    // If we destroy this object before calling decoratorInit(), _heartbeatTimerTask and _idleCheckTimerTask will be
-    // null.
-    if (_heartbeatTimerTask)
-    {
-        _timer->cancel(_heartbeatTimerTask);
-    }
+    // Since ConnectionI is noexcept, decoratorInit always sets _heartbeatTimerTask.
+    assert(_heartbeatTimerTask);
+    _timer->cancel(_heartbeatTimerTask);
+
     if (_idleCheckTimerTask)
     {
         _timer->cancel(_idleCheckTimerTask);

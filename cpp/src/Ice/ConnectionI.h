@@ -238,7 +238,7 @@ namespace Ice
             const IceInternal::TransceiverPtr&,
             const IceInternal::ConnectorPtr&,
             const IceInternal::EndpointIPtr&,
-            const std::shared_ptr<ObjectAdapterI>&);
+            const std::shared_ptr<ObjectAdapterI>&) noexcept;
 
         static ConnectionIPtr create(
             const Ice::CommunicatorPtr&,
