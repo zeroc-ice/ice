@@ -62,7 +62,6 @@ namespace IceSSL::SChannel
          */
         virtual CERT_SIGNED_CONTENT_INFO* getCert() const = 0;
     };
-
 }
 #endif
 
