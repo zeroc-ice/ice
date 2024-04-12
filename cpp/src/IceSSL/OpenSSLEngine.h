@@ -5,39 +5,35 @@
 #ifndef ICESSL_OPENSSL_ENGINE_H
 #define ICESSL_OPENSSL_ENGINE_H
 
+#include "../Ice/InstanceF.h"
+#include "Ice/BuiltinSequences.h"
 #include "OpenSSLUtil.h"
 #include "SSLEngine.h"
 #include "SSLInstanceF.h"
 
-#include "Ice/BuiltinSequences.h"
-
-namespace IceSSL
+namespace IceSSL::OpenSSL
 {
-    namespace OpenSSL
+    class SSLEngine final : public IceSSL::SSLEngine
     {
-        class SSLEngine final : public IceSSL::SSLEngine
-        {
-        public:
-            SSLEngine(const Ice::CommunicatorPtr&);
-            ~SSLEngine();
+    public:
+        SSLEngine(const IceInternal::InstancePtr&);
+        ~SSLEngine();
 
-            void initialize() final;
-            void destroy() final;
-            IceInternal::TransceiverPtr
-            createTransceiver(const IceSSL::InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool)
-                final;
-            SSL_CTX* context() const;
-            void context(SSL_CTX*);
-            std::string sslErrors() const;
-            std::string password() const { return _password; }
+        void initialize() final;
+        void destroy() final;
+        IceInternal::TransceiverPtr
+        createTransceiver(const IceSSL::InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool)
+            final;
+        SSL_CTX* context() const;
+        void context(SSL_CTX*);
+        std::string sslErrors() const;
+        std::string password() const { return _password; }
 
-        private:
-            SSL_CTX* _ctx;
-            std::string _password;
-        };
+    private:
+        SSL_CTX* _ctx;
+        std::string _password;
+    };
 
-    } // OpenSSL namespace end
-
-} // IceSSL namespace endif
+}
 
 #endif

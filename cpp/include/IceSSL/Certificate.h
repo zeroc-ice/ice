@@ -68,9 +68,7 @@ namespace IceSSL
         UnknownTrustFailure,
     };
 
-    ICE_API TrustError getTrustError(const IceSSL::ConnectionInfoPtr&);
     ICE_API std::string getTrustErrorDescription(TrustError);
-    ICE_API std::string getHost(const IceSSL::ConnectionInfoPtr&);
 
     /**
      * The key usage "digitalSignature" bit is set
@@ -394,7 +392,7 @@ namespace IceSSL
          * <b>KEY_USAGE_ENCIPHER_ONLY</b> and <b>KEY_USAGE_DECIPHER_ONLY</b> can be used to check what
          * key usage bits are set.
          */
-        unsigned int getKeyUsage() const;
+        virtual unsigned int getKeyUsage() const = 0;
 
         /**
          * Returns the value of the extended key usage extension. The flags <b>EXTENDED_KEY_USAGE_ANY_KEY_USAGE</b>,
@@ -403,7 +401,7 @@ namespace IceSSL
          * <b>EXTENDED_KEY_USAGE_TIME_STAMPING</b> and <b>EXTENDED_KEY_USAGE_OCSP_SIGNING</b> can be used to check what
          * extended key usage bits are set.
          */
-        unsigned int getExtendedKeyUsage() const;
+        virtual unsigned int getExtendedKeyUsage() const = 0;
 
         /**
          * Obtains the not-after validity time.

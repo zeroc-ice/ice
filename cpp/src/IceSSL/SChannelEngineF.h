@@ -11,14 +11,10 @@
 
 #    include <memory>
 
-namespace IceSSL
+namespace IceSSL::SChannel
 {
-    namespace SChannel
-    {
-        class SSLEngine;
-        using SSLEnginePtr = std::shared_ptr<SSLEngine>;
-
-    }
+    class SSLEngine;
+    using SSLEnginePtr = std::shared_ptr<SSLEngine>;
 }
 
 #endif

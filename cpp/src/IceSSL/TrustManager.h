@@ -5,8 +5,9 @@
 #ifndef ICESSL_TRUST_MANAGER_H
 #define ICESSL_TRUST_MANAGER_H
 
-#include "Ice/CommunicatorF.h"
-#include "IceSSL/Plugin.h"
+#include "../Ice/InstanceF.h"
+#include "IceSSL/Certificate.h"
+#include "IceSSL/ConnectionInfoF.h"
 #include "RFC2253.h"
 #include "TrustManagerF.h"
 #include <list>
@@ -17,7 +18,7 @@ namespace IceSSL
     class TrustManager
     {
     public:
-        TrustManager(const Ice::CommunicatorPtr&);
+        TrustManager(const IceInternal::InstancePtr&);
 
         bool verify(const ConnectionInfoPtr&, const std::string&);
 
@@ -25,9 +26,8 @@ namespace IceSSL
         bool match(const std::list<DistinguishedName>&, const DistinguishedName&) const;
         void parse(const std::string&, std::list<DistinguishedName>&, std::list<DistinguishedName>&) const;
 
-        const Ice::CommunicatorPtr _communicator;
         int _traceLevel;
-
+        IceInternal::InstancePtr _instance;
         std::list<DistinguishedName> _rejectAll;
         std::list<DistinguishedName> _rejectClient;
         std::list<DistinguishedName> _rejectAllServer;

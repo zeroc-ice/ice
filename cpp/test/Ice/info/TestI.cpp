@@ -4,7 +4,7 @@
 
 #include "TestI.h"
 #include "Ice/Ice.h"
-#include "IceSSL/IceSSL.h"
+#include "IceSSL/ConnectionInfo.h"
 #include "TestHelper.h"
 
 using namespace std;

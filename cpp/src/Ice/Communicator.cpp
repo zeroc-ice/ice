@@ -294,8 +294,7 @@ Ice::Communicator::create(const InitializationData& initData)
     Ice::CommunicatorPtr communicator = make_shared<Communicator>();
     try
     {
-        const_cast<InstancePtr&>(communicator->_instance) = Instance::create(initData);
-        communicator->_instance->initialize(communicator);
+        const_cast<InstancePtr&>(communicator->_instance) = Instance::create(communicator, initData);
     }
     catch (...)
     {

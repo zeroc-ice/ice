@@ -5,7 +5,7 @@
 #ifndef ICESSL_OPENSSL_H
 #define ICESSL_OPENSSL_H
 
-#include "Plugin.h"
+#include "Certificate.h"
 
 #include <openssl/pem.h>
 #include <openssl/x509v3.h>

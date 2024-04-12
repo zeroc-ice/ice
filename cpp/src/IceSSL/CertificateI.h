@@ -5,7 +5,7 @@
 #ifndef ICESSL_CERTIFICATE_I_H
 #define ICESSL_CERTIFICATE_I_H
 
-#include "IceSSL/Plugin.h"
+#include "IceSSL/Certificate.h"
 
 #include <string>
 #include <vector>
@@ -40,13 +40,8 @@ namespace IceSSL
         virtual std::string toString() const;
 
     protected:
-        //
-        // Implementations that support retrieving X509 extensions must
-        // reimplement this method to lazzy initialize the extensions
-        // list.
-        //
-        // The default implementation just throw FeatureNotSupportedException
-        //
+        // Implementations that support retrieving X509 extensions must reimplement this method to lazzy initialize
+        // the extensions list. The default implementation just throw FeatureNotSupportedException.
         virtual void loadX509Extensions() const;
         mutable std::vector<X509ExtensionPtr> _extensions;
     };

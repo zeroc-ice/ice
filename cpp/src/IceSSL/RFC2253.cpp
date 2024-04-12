@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "RFC2253.h"
+#include "IceSSL/Certificate.h"
 #include "IceUtil/StringUtil.h"
 
-#include "Ice/Object.h"
-#include "IceSSL/Plugin.h"
-#include "RFC2253.h"
+#include <cassert>
 
 using namespace std;
 using namespace IceSSL;

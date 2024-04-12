@@ -3,18 +3,16 @@
 //
 
 #include "SChannelEngine.h"
-#include "IceSSL/Plugin.h"
-#include "SChannelTransceiverI.h"
-#include "SSLUtil.h"
-
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"
 #include "Ice/Logger.h"
 #include "Ice/StringConverter.h"
-
 #include "Ice/UUID.h"
+#include "IceSSL/Plugin.h"
 #include "IceUtil/FileUtil.h"
 #include "IceUtil/StringUtil.h"
+#include "SChannelTransceiverI.h"
+#include "SSLUtil.h"
 
 #include <wincrypt.h>
 
@@ -540,8 +538,8 @@ namespace
     }
 }
 
-SChannel::SSLEngine::SSLEngine(const CommunicatorPtr& communicator)
-    : IceSSL::SSLEngine(communicator),
+SChannel::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)
+    : IceSSL::SSLEngine(instance),
       _rootStore(0),
       _chainEngine(0),
       _strongCrypto(false)
@@ -571,7 +569,7 @@ SChannel::SSLEngine::initialize()
     IceSSL::SSLEngine::initialize();
 
     const string prefix = "IceSSL.";
-    const PropertiesPtr properties = communicator()->getProperties();
+    const PropertiesPtr properties = getProperties();
 
     const_cast<bool&>(_strongCrypto) = properties->getPropertyAsIntWithDefault(prefix + "SchannelStrongCrypto", 0) > 0;
 

@@ -2,30 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "PluginI.h"
-#include "SSLEndpointI.h"
-#include "SSLEngine.h"
-#include "SSLInstance.h"
-
 #include "../Ice/ProtocolInstance.h"
 #include "../Ice/ProtocolPluginFacade.h"
 #include "Ice/LocalException.h"
 #include "Ice/RegisterPlugins.h"
+#include "IceSSL/Certificate.h"
+#include "SSLEndpointI.h"
+#include "SSLEngine.h"
+#include "SSLInstance.h"
 
 using namespace std;
 using namespace Ice;
 using namespace IceSSL;
-
-IceSSL::TrustError
-IceSSL::getTrustError(const IceSSL::ConnectionInfoPtr& info)
-{
-    auto extendedInfo = dynamic_pointer_cast<ExtendedConnectionInfo>(info);
-    if (extendedInfo)
-    {
-        return extendedInfo->errorCode;
-    }
-    return info->verified ? IceSSL::TrustError::NoError : IceSSL::TrustError::UnknownTrustFailure;
-}
 
 std::string
 IceSSL::getTrustErrorDescription(TrustError error)
@@ -121,11 +109,4 @@ IceSSL::getTrustErrorDescription(TrustError error)
     }
     assert(false);
     return "unknown failure";
-}
-
-std::string
-IceSSL::getHost(const IceSSL::ConnectionInfoPtr& info)
-{
-    auto extendedInfo = dynamic_pointer_cast<ExtendedConnectionInfo>(info);
-    return extendedInfo ? extendedInfo->host : "";
 }

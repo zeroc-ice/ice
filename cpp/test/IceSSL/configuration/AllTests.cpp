@@ -3,7 +3,8 @@
 //
 
 #include "Ice/Ice.h"
-#include "IceSSL/IceSSL.h"
+#include "IceSSL/Certificate.h"
+#include "IceSSL/ConnectionInfo.h"
 #include "Test.h"
 #include "TestHelper.h"
 
@@ -597,7 +598,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
             test(info->certs.size() == 2);
             test(info->verified);
-            test(getTrustError(info) == IceSSL::TrustError::NoError);
+            test(info->errorCode == IceSSL::TrustError::NoError);
 
             test(Ice::targetEqualTo(caCert, info->certs[1]));
             test(Ice::targetEqualTo(serverCert, info->certs[0]));
@@ -807,8 +808,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
             info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
             test(info->verified);
-            test(getHost(info) == "localhost");
-            test(getTrustError(info) == IceSSL::TrustError::NoError);
+            test(info->host == "localhost");
+            test(info->errorCode == IceSSL::TrustError::NoError);
 
             fact->destroyServer(server);
             comm->destroy();
@@ -828,8 +829,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
             info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
             test(!info->verified);
-            test(getTrustError(info) == IceSSL::TrustError::HostNameMismatch);
-            test(getHost(info) == "localhost");
+            test(info->errorCode == IceSSL::TrustError::HostNameMismatch);
+            test(info->host == "localhost");
 
             fact->destroyServer(server);
             comm->destroy();
@@ -852,13 +853,13 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             if (isCatalinaOrGreater || isIOS13OrGreater)
             {
                 test(!info->verified);
-                test(getTrustError(info) == IceSSL::TrustError::HostNameMismatch);
+                test(info->errorCode == IceSSL::TrustError::HostNameMismatch);
             }
             else
             {
                 test(info->verified);
             }
-            test(getHost(info) == "localhost");
+            test(info->host == "localhost");
 
             fact->destroyServer(server);
             comm->destroy();
@@ -879,8 +880,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
             info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
             test(!info->verified);
-            test(getTrustError(info) == IceSSL::TrustError::HostNameMismatch);
-            test(getHost(info) == "localhost");
+            test(info->errorCode == IceSSL::TrustError::HostNameMismatch);
+            test(info->host == "localhost");
 
             fact->destroyServer(server);
             comm->destroy();
@@ -901,8 +902,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
             info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
             test(!info->verified);
-            test(getTrustError(info) == IceSSL::TrustError::HostNameMismatch);
-            test(getHost(info) == "localhost");
+            test(info->errorCode == IceSSL::TrustError::HostNameMismatch);
+            test(info->host == "localhost");
 
             fact->destroyServer(server);
             comm->destroy();
@@ -927,8 +928,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
             info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
             test(info->verified);
-            test(getTrustError(info) == IceSSL::TrustError::NoError);
-            test(getHost(info) == "127.0.0.1");
+            test(info->errorCode == IceSSL::TrustError::NoError);
+            test(info->host == "127.0.0.1");
 
             fact->destroyServer(server);
             comm->destroy();
@@ -948,8 +949,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
             info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
             test(!info->verified);
-            test(getTrustError(info) == IceSSL::TrustError::HostNameMismatch);
-            test(getHost(info) == "127.0.0.1");
+            test(info->errorCode == IceSSL::TrustError::HostNameMismatch);
+            test(info->host == "127.0.0.1");
 
             fact->destroyServer(server);
             comm->destroy();
@@ -974,8 +975,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
             info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
             test(!info->verified);
-            test(getTrustError(info) == IceSSL::TrustError::HostNameMismatch);
-            test(getHost(info) == "127.0.0.1");
+            test(info->errorCode == IceSSL::TrustError::HostNameMismatch);
+            test(info->host == "127.0.0.1");
             fact->destroyServer(server);
             comm->destroy();
         }
@@ -1160,7 +1161,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
             test(info->certs.size() == 1);
             test(!info->verified);
-            test(getTrustError(info) == IceSSL::TrustError::PartialChain);
+            test(info->errorCode == IceSSL::TrustError::PartialChain);
         }
         catch (const Ice::LocalException& ex)
         {
@@ -1182,10 +1183,10 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
 #ifdef ICE_USE_OPENSSL
             test(info->certs.size() == 2); // TODO: Fix OpenSSL
-            test(getTrustError(info) == IceSSL::TrustError::UntrustedRoot);
+            test(info->errorCode == IceSSL::TrustError::UntrustedRoot);
 #else
             test(info->certs.size() == 1);
-            test(getTrustError(info) == IceSSL::TrustError::PartialChain);
+            test(info->errorCode == IceSSL::TrustError::PartialChain);
 #endif
             test(!info->verified);
         }
@@ -1212,10 +1213,10 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                 info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
 #if defined(ICE_USE_SCHANNEL)
                 test(info->certs.size() == 1); // SChannel never sends the root certificate
-                test(getTrustError(info) == IceSSL::TrustError::PartialChain);
+                test(info->errorCode == IceSSL::TrustError::PartialChain);
 #else
                 test(info->certs.size() == 2);
-                test(getTrustError(info) == IceSSL::TrustError::UntrustedRoot);
+                test(info->errorCode == IceSSL::TrustError::UntrustedRoot);
 #endif
                 test(!info->verified);
             }
@@ -1248,7 +1249,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                 info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
                 test(info->certs.size() == 2);
                 test(info->verified);
-                test(getTrustError(info) == IceSSL::TrustError::NoError);
+                test(info->errorCode == IceSSL::TrustError::NoError);
             }
             catch (const Ice::LocalException& ex)
             {
@@ -1383,7 +1384,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
         info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
         test(!info->verified);
-        test(getTrustError(info) == IceSSL::TrustError::InvalidTime);
+        test(info->errorCode == IceSSL::TrustError::InvalidTime);
 
         fact->destroyServer(server);
         comm->destroy();
@@ -2591,7 +2592,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
         server->ice_ping();
         info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
-        test(getTrustError(info) == IceSSL::TrustError::NoError);
+        test(info->errorCode == IceSSL::TrustError::NoError);
         test(info->verified);
         fact->destroyServer(server);
         comm->destroy();
@@ -2613,7 +2614,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
         server->ice_ping();
         info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
-        test(getTrustError(info) == IceSSL::TrustError::NoError);
+        test(info->errorCode == IceSSL::TrustError::NoError);
         test(info->verified);
         fact->destroyServer(server);
         comm->destroy();
@@ -2634,7 +2635,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         // Revoked certificate is accpeted because IceSSL.RevocationCheck=0 disable revocation checks
         server->ice_ping();
         info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
-        test(getTrustError(info) == IceSSL::TrustError::NoError);
+        test(info->errorCode == IceSSL::TrustError::NoError);
         test(info->verified);
         fact->destroyServer(server);
         comm->destroy();
@@ -2656,7 +2657,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         server->ice_ping();
         info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
         test(!info->verified);
-        test(getTrustError(info) == IceSSL::TrustError::Revoked);
+        test(info->errorCode == IceSSL::TrustError::Revoked);
 
         fact->destroyServer(server);
         comm->destroy();
@@ -2682,7 +2683,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         server->ice_ping();
         info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
         test(!info->verified);
-        test(getTrustError(info) == IceSSL::TrustError::Revoked);
+        test(info->errorCode == IceSSL::TrustError::Revoked);
 
         fact->destroyServer(server);
         comm->destroy();
@@ -2706,7 +2707,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         server->ice_ping();
         info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
         test(info->verified);
-        test(getTrustError(info) == IceSSL::TrustError::NoError);
+        test(info->errorCode == IceSSL::TrustError::NoError);
 
         fact->destroyServer(server);
         comm->destroy();
@@ -2737,7 +2738,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
         server->ice_ping();
         info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
-        test(getTrustError(info) == IceSSL::TrustError::NoError);
+        test(info->errorCode == IceSSL::TrustError::NoError);
         test(info->verified);
 
         fact->destroyServer(server);
@@ -2775,7 +2776,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
         server->ice_ping();
         info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
-        test(getTrustError(info) == IceSSL::TrustError::NoError);
+        test(info->errorCode == IceSSL::TrustError::NoError);
         test(info->verified);
         fact->destroyServer(server);
         comm->destroy();
@@ -2798,7 +2799,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         server->ice_ping();
         info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
         test(!info->verified);
-        test(getTrustError(info) == IceSSL::TrustError::Revoked);
+        test(info->errorCode == IceSSL::TrustError::Revoked);
         fact->destroyServer(server);
         comm->destroy();
 
@@ -2821,7 +2822,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         server->ice_ping();
         info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
         test(info->verified);
-        test(getTrustError(info) == IceSSL::TrustError::NoError);
+        test(info->errorCode == IceSSL::TrustError::NoError);
         fact->destroyServer(server);
         comm->destroy();
 #    endif
@@ -2843,7 +2844,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         server->ice_ping();
         info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
         test(!info->verified);
-        test(getTrustError(info) == IceSSL::TrustError::RevocationStatusUnknown);
+        test(info->errorCode == IceSSL::TrustError::RevocationStatusUnknown);
         fact->destroyServer(server);
         comm->destroy();
 
@@ -2927,7 +2928,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                     IceSSL::ConnectionInfoPtr sslInfo =
                         dynamic_pointer_cast<IceSSL::ConnectionInfo>(wsinfo->underlying);
                     test(sslInfo->verified);
-                    test(getHost(sslInfo) == "zeroc.com");
+                    test(sslInfo->host == "zeroc.com");
                     break;
                 }
                 catch (const Ice::LocalException& ex)

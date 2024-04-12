@@ -3,14 +3,12 @@
 //
 
 #include "SecureTransportTransceiverI.h"
+#include "Ice/LocalException.h"
+#include "Ice/LoggerUtil.h"
 #include "IceSSL/ConnectionInfo.h"
-#include "PluginI.h"
 #include "SSLInstance.h"
 #include "SecureTransportEngine.h"
 #include "SecureTransportUtil.h"
-
-#include "Ice/LocalException.h"
-#include "Ice/LoggerUtil.h"
 
 // Disable deprecation warnings from SecureTransport APIs
 #include "IceUtil/DisableWarnings.h"
@@ -613,7 +611,7 @@ IceSSL::SecureTransport::TransceiverI::toDetailedString() const
 Ice::ConnectionInfoPtr
 IceSSL::SecureTransport::TransceiverI::getInfo() const
 {
-    auto info = make_shared<IceSSL::ExtendedConnectionInfo>();
+    auto info = make_shared<IceSSL::ConnectionInfo>();
     info->underlying = _delegate->getInfo();
     info->incoming = _incoming;
     info->adapterName = _adapterName;

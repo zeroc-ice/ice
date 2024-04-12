@@ -6,7 +6,7 @@
 #define ICESSL_SCHANNEL_H
 
 #ifdef _WIN32
-#    include "Plugin.h"
+#    include "Certificate.h"
 // We need to include windows.h before wincrypt.h.
 // clang-format off
 #    ifndef NOMINMAX

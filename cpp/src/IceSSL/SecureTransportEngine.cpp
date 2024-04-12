@@ -2,25 +2,20 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/Config.h"
-
 #include "SecureTransportEngine.h"
-#include "SecureTransportEngineF.h"
-
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
-
-#include "Ice/Communicator.h"
+#include "Ice/Config.h"
 #include "Ice/LocalException.h"
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
-
-#include "IceSSL/Plugin.h"
+#include "IceSSL/Certificate.h"
+#include "IceUtil/FileUtil.h"
+#include "IceUtil/StringUtil.h"
 #include "SSLEngine.h"
+#include "SSLUtil.h"
+#include "SecureTransportEngineF.h"
 #include "SecureTransportTransceiverI.h"
 #include "SecureTransportUtil.h"
-#include "Util.h"
 
 #include <regex.h>
 
@@ -740,8 +735,8 @@ namespace
     map<string, SSLCipherSuite> CiphersHelper::ciphers() { return _ciphers; }
 }
 
-IceSSL::SecureTransport::SSLEngine::SSLEngine(const Ice::CommunicatorPtr& communicator)
-    : IceSSL::SSLEngine(communicator),
+IceSSL::SecureTransport::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)
+    : IceSSL::SSLEngine(instance),
       _certificateAuthorities(0),
       _chain(0)
 {
@@ -761,7 +756,7 @@ IceSSL::SecureTransport::SSLEngine::initialize()
 
     IceSSL::SSLEngine::initialize();
 
-    const PropertiesPtr properties = communicator()->getProperties();
+    const PropertiesPtr properties = getProperties();
 
     //
     // Check for a default directory. We look in this directory for

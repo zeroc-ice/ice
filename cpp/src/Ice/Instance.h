@@ -5,6 +5,7 @@
 #ifndef ICE_INSTANCE_H
 #define ICE_INSTANCE_H
 
+#include "../IceSSL/SSLEngineF.h"
 #include "ACM.h"
 #include "ConnectionFactoryF.h"
 #include "DefaultsAndOverridesF.h"
@@ -25,15 +26,12 @@
 #include "NetworkF.h"
 #include "NetworkProxyF.h"
 #include "ObjectAdapterFactoryF.h"
+#include "Protocol.h"
 #include "ReferenceFactoryF.h"
 #include "RetryQueueF.h"
 #include "RouterInfoF.h"
 #include "ThreadPoolF.h"
 #include "TraceLevelsF.h"
-
-#include "Protocol.h"
-
-#include "../IceSSL/SSLEngineF.h"
 
 #include <list>
 
@@ -74,7 +72,7 @@ namespace IceInternal
     class Instance : public std::enable_shared_from_this<Instance>
     {
     public:
-        static InstancePtr create(const Ice::InitializationData&);
+        static InstancePtr create(const Ice::CommunicatorPtr&, const Ice::InitializationData&);
         virtual ~Instance();
         bool destroyed() const;
         const Ice::InitializationData& initializationData() const { return _initData; }

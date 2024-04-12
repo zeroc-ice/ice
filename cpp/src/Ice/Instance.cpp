@@ -3,6 +3,8 @@
 //
 
 #include "Instance.h"
+#include "../IceSSL/SSLEngine.h"
+#include "CheckIdentity.h"
 #include "ConnectionFactory.h"
 #include "ConsoleUtil.h"
 #include "DefaultsAndOverrides.h"
@@ -16,7 +18,12 @@
 #include "Ice/LoggerUtil.h"
 #include "Ice/ObserverHelper.h"
 #include "Ice/Properties.h"
+#include "Ice/ProxyFunctions.h"
 #include "Ice/Router.h"
+#include "Ice/UUID.h"
+#include "IceUtil/DisableWarnings.h"
+#include "IceUtil/FileUtil.h"
+#include "IceUtil/StringUtil.h"
 #include "InstrumentationI.h"
 #include "LocatorInfo.h"
 #include "LoggerAdminI.h"
@@ -36,16 +43,6 @@
 #include "TraceLevels.h"
 #include "ValueFactoryManagerI.h"
 #include "WSEndpoint.h"
-
-#include "Ice/UUID.h"
-#include "IceUtil/DisableWarnings.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
-
-#include "CheckIdentity.h"
-#include "Ice/ProxyFunctions.h"
-
-#include "../IceSSL/SSLEngine.h"
 
 #include <list>
 #include <mutex>
@@ -883,9 +880,11 @@ namespace
 }
 
 InstancePtr
-IceInternal::Instance::create(const Ice::InitializationData& initData)
+IceInternal::Instance::create(const Ice::CommunicatorPtr& communicator, const Ice::InitializationData& initData)
 {
-    return shared_ptr<Instance>(new Instance(initData));
+    auto instance = shared_ptr<Instance>(new Instance(initData));
+    instance->initialize(communicator);
+    return instance;
 }
 
 IceInternal::Instance::Instance(const InitializationData& initData)
@@ -1273,13 +1272,12 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         }
 
 #if defined(_WIN32)
-        _sslEngine = make_shared<IceSSL::SChannel::SSLEngine>(communicator);
+        _sslEngine = make_shared<IceSSL::SChannel::SSLEngine>(shared_from_this());
 #elif defined(__APPLE__)
-        _sslEngine = make_shared<IceSSL::SecureTransport::SSLEngine>(communicator);
+        _sslEngine = make_shared<IceSSL::SecureTransport::SSLEngine>(shared_from_this());
 #else
-        _sslEngine = make_shared<IceSSL::OpenSSL::SSLEngine>(communicator);
+        _sslEngine = make_shared<IceSSL::OpenSSL::SSLEngine>(shared_from_this());
 #endif
-
         _sslEngine->initialize();
     }
     catch (...)

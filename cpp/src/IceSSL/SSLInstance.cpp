@@ -10,7 +10,7 @@ using namespace Ice;
 using namespace IceSSL;
 
 IceSSL::Instance::Instance(const SSLEnginePtr& engine, int16_t type, const string& protocol)
-    : ProtocolInstance(engine->communicator(), type, protocol, true),
+    : ProtocolInstance(engine->instance(), type, protocol, true),
       _engine(engine)
 {
 }

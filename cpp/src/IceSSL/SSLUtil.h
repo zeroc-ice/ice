@@ -5,8 +5,6 @@
 #ifndef ICESSL_UTIL_H
 #define ICESSL_UTIL_H
 
-#include "IceSSL/Plugin.h"
-
 #include <functional>
 #include <string>
 #include <vector>

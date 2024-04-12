@@ -3,20 +3,18 @@
 //
 
 #include "OpenSSLEngine.h"
-#include "OpenSSLEngineF.h"
-#include "OpenSSLTransceiverI.h"
-#include "SSLUtil.h"
-#include "TrustManager.h"
-
 #include "Ice/Communicator.h"
 #include "Ice/Config.h"
 #include "Ice/LocalException.h"
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
-
 #include "IceUtil/FileUtil.h"
 #include "IceUtil/StringUtil.h"
+#include "OpenSSLEngineF.h"
+#include "OpenSSLTransceiverI.h"
+#include "SSLUtil.h"
+#include "TrustManager.h"
 
 #include <mutex>
 
@@ -75,7 +73,7 @@ namespace
     }
 }
 
-OpenSSL::SSLEngine::SSLEngine(const CommunicatorPtr& communicator) : IceSSL::SSLEngine(communicator), _ctx(0) {}
+OpenSSL::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance) : IceSSL::SSLEngine(instance), _ctx(0) {}
 
 OpenSSL::SSLEngine::~SSLEngine() {}
 
@@ -93,7 +91,7 @@ OpenSSL::SSLEngine::initialize()
         IceSSL::SSLEngine::initialize();
 
         const string propPrefix = "IceSSL.";
-        PropertiesPtr properties = communicator()->getProperties();
+        PropertiesPtr properties = getProperties();
 
         // Create an SSL context if the application hasn't supplied one.
         if (!_ctx)

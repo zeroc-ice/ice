@@ -3,20 +3,18 @@
 //
 
 #include "OpenSSLTransceiverI.h"
-#include "OpenSSLEngine.h"
-
-#include "IceSSL/ConnectionInfo.h"
-#include "IceSSL/OpenSSL.h"
-#include "PluginI.h"
-#include "SSLEngine.h"
-#include "SSLInstance.h"
-#include "SSLUtil.h"
-
 #include "../Ice/Network.h"
 #include "Ice/Buffer.h"
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
+#include "IceSSL/ConnectionInfo.h"
+#include "IceSSL/OpenSSL.h"
+#include "OpenSSLEngine.h"
+#include "PluginI.h"
+#include "SSLEngine.h"
+#include "SSLInstance.h"
+#include "SSLUtil.h"
 
 #include <openssl/bio.h>
 #include <openssl/err.h>
@@ -876,7 +874,7 @@ OpenSSL::TransceiverI::toDetailedString() const
 Ice::ConnectionInfoPtr
 OpenSSL::TransceiverI::getInfo() const
 {
-    ExtendedConnectionInfoPtr info = std::make_shared<ExtendedConnectionInfo>();
+    auto info = std::make_shared<ConnectionInfo>();
     info->underlying = _delegate->getInfo();
     info->incoming = _incoming;
     info->adapterName = _adapterName;

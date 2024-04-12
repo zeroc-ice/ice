@@ -5,9 +5,9 @@
 #ifndef ICESSL_CONNECTION_INFO_H
 #define ICESSL_CONNECTION_INFO_H
 
+#include "Certificate.h"
 #include "ConnectionInfoF.h"
 #include "Ice/Connection.h"
-#include "Plugin.h"
 
 #if defined(__clang__)
 #    pragma clang diagnostic push
@@ -68,6 +68,9 @@ namespace IceSSL
          * The certificate chain verification status.
          */
         bool verified;
+
+        TrustError errorCode;
+        std::string host;
     };
 }
 
