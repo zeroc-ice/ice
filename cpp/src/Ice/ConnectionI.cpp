@@ -2095,12 +2095,10 @@ Ice::ConnectionI::ConnectionI(
     const InstancePtr& instance,
     const ACMMonitorPtr& monitor,
     const TransceiverPtr& transceiver,
-    const chrono::seconds& connectTimeout,
-    const chrono::seconds& closeTimeout,
-    const chrono::seconds& inactivityTimeout,
     const ConnectorPtr& connector,
     const EndpointIPtr& endpoint,
-    const shared_ptr<ObjectAdapterI>& adapter) noexcept
+    const shared_ptr<ObjectAdapterI>& adapter,
+    const ConnectionOptions& options) noexcept
     : _communicator(communicator),
       _instance(instance),
       _monitor(monitor),
@@ -2118,9 +2116,9 @@ Ice::ConnectionI::ConnectionI(
       _writeTimeoutScheduled(false),
       _readTimeout(new TimeoutCallback(this)),
       _readTimeoutScheduled(false),
-      _connectTimeout(connectTimeout),
-      _closeTimeout(closeTimeout),
-      _inactivityTimeout(inactivityTimeout),
+      _connectTimeout(options.connectTimeout),
+      _closeTimeout(options.closeTimeout),
+      _inactivityTimeout(options.inactivityTimeout),
       _warn(_instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Connections") > 0),
       _warnUdp(_instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Datagrams") > 0),
       _compressionLevel(1),
@@ -2162,20 +2160,19 @@ Ice::ConnectionI::create(
     const InstancePtr& instance,
     const ACMMonitorPtr& monitor,
     const TransceiverPtr& transceiver,
-    const chrono::seconds& connectTimeout,
-    const chrono::seconds& closeTimeout,
-    const chrono::seconds& idleTimeout,
-    bool enableIdleCheck,
-    const chrono::seconds& inactivityTimeout,
     const ConnectorPtr& connector,
     const EndpointIPtr& endpoint,
-    const shared_ptr<ObjectAdapterI>& adapter)
+    const shared_ptr<ObjectAdapterI>& adapter,
+    const ConnectionOptions& options)
 {
     shared_ptr<IdleTimeoutTransceiverDecorator> decoratedTransceiver;
-    if (idleTimeout > chrono::milliseconds::zero() && !endpoint->datagram())
+    if (options.idleTimeout > chrono::milliseconds::zero() && !endpoint->datagram())
     {
-        decoratedTransceiver =
-            make_shared<IdleTimeoutTransceiverDecorator>(transceiver, idleTimeout, enableIdleCheck, instance->timer());
+        decoratedTransceiver = make_shared<IdleTimeoutTransceiverDecorator>(
+            transceiver,
+            options.idleTimeout,
+            options.enableIdleCheck,
+            instance->timer());
     }
 
     Ice::ConnectionIPtr connection(new ConnectionI(
@@ -2183,12 +2180,10 @@ Ice::ConnectionI::create(
         instance,
         monitor,
         decoratedTransceiver ? decoratedTransceiver : transceiver,
-        connectTimeout,
-        closeTimeout,
-        inactivityTimeout,
         connector,
         endpoint,
-        adapter));
+        adapter,
+        options));
 
     if (decoratedTransceiver)
     {

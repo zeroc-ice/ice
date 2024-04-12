@@ -17,11 +17,13 @@ public:
 void
 Server::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    Ice::InitializationData initData;
+    initData.properties = createTestProperties(argc, argv);
+    initData.properties->setProperty("Ice.IdleTimeout", "1");
+
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
     IceUtil::TimerPtr timer = make_shared<IceUtil::Timer>();
     auto properties = communicator->getProperties();
-
-    properties->setProperty("Ice.IdleTimeout", "1");
 
     properties->setProperty("TestAdapter1.Endpoints", getTestEndpoint());
     properties->setProperty("TestAdapter1.ThreadPool.Size", "5");

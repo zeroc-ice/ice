@@ -7,6 +7,7 @@
 
 #include "ACM.h"
 #include "ConnectionFactoryF.h"
+#include "ConnectionOptions.h"
 #include "DefaultsAndOverridesF.h"
 #include "EndpointFactoryManagerF.h"
 #include "IPEndpointIF.h"
@@ -103,6 +104,9 @@ namespace IceInternal
         const ACMConfig& clientACM() const;
         const ACMConfig& serverACM() const;
 
+        const Ice::ConnectionOptions& clientConnectionOptions() const noexcept { return _clientConnectionOptions; }
+        Ice::ConnectionOptions serverConnectionOptions(const std::string& adapterName) const;
+
         Ice::ObjectPrx createAdmin(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
         std::optional<Ice::ObjectPrx> getAdmin();
         void addAdminFacet(const Ice::ObjectPtr&, const std::string&);
@@ -158,6 +162,7 @@ namespace IceInternal
         const bool _acceptClassCycles;                       // Immutable, not reset by destroy()
         ACMConfig _clientACM;
         ACMConfig _serverACM;
+        Ice::ConnectionOptions _clientConnectionOptions;
         RouterManagerPtr _routerManager;
         LocatorManagerPtr _locatorManager;
         ReferenceFactoryPtr _referenceFactory;

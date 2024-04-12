@@ -7,6 +7,7 @@
 
 #include "ACM.h"
 #include "ConnectionFactoryF.h"
+#include "ConnectionOptions.h"
 #include "ConnectorF.h"
 #include "EndpointIF.h"
 #include "EventHandler.h"
@@ -236,26 +237,20 @@ namespace Ice
             const IceInternal::InstancePtr&,
             const IceInternal::ACMMonitorPtr&,
             const IceInternal::TransceiverPtr&,
-            const std::chrono::seconds& connectTimeout,
-            const std::chrono::seconds& closeTimeout,
-            const std::chrono::seconds& inactivityTimeout,
             const IceInternal::ConnectorPtr&,
             const IceInternal::EndpointIPtr&,
-            const std::shared_ptr<ObjectAdapterI>&) noexcept;
+            const std::shared_ptr<ObjectAdapterI>&,
+            const ConnectionOptions&) noexcept;
 
         static ConnectionIPtr create(
             const Ice::CommunicatorPtr&,
             const IceInternal::InstancePtr&,
             const IceInternal::ACMMonitorPtr&,
             const IceInternal::TransceiverPtr&,
-            const std::chrono::seconds& connectTimeout,
-            const std::chrono::seconds& closeTimeout,
-            const std::chrono::seconds& idleTimeout,
-            bool enableIdleCheck,
-            const std::chrono::seconds& inactivityTimeout,
             const IceInternal::ConnectorPtr&,
             const IceInternal::EndpointIPtr&,
-            const std::shared_ptr<ObjectAdapterI>&);
+            const std::shared_ptr<ObjectAdapterI>&,
+            const ConnectionOptions&);
 
         enum State
         {
