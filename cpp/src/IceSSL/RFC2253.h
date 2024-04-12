@@ -7,8 +7,8 @@
 
 #include "Ice/Config.h"
 
-#include <string>
 #include <list>
+#include <string>
 
 //
 // The methods in the IceSSL::RFC2253 namespace implement a parser

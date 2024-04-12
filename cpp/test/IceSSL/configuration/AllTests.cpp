@@ -32,8 +32,15 @@
 #    endif
 #elif defined(_WIN32)
 #    define ICE_USE_SCHANNEL 1
+// We need to include windows.h before wincrypt.h.
+// clang-format off
+#    ifndef NOMINMAX
+#        define NOMINMAX
+#    endif
 #    include <windows.h>
 #    include <wincrypt.h>
+// clang-format on
+
 #else
 #    define ICE_USE_OPENSSL 1
 #endif

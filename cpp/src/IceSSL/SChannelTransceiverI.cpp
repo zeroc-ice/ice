@@ -3,12 +3,12 @@
 //
 
 #include "SChannelTransceiverI.h"
-#include "IceUtil/StringUtil.h"
 #include "Ice/Buffer.h"
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
 #include "IceSSL/ConnectionInfo.h"
+#include "IceUtil/StringUtil.h"
 #include "SChannelEngine.h"
 #include "SSLInstance.h"
 #include "SSLUtil.h"
