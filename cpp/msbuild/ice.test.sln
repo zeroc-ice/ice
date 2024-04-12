@@ -1127,8 +1127,14 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "idleTimeout", "idleTimeout", "{CC876411-1267-467B-B22D-8D3409747C66}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "..\test\Ice\idleTimeout\msbuild\client\client.vcxproj", "{40520FEA-841C-4701-AA97-9A4AD6B91987}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C} = {C7223CC8-0AAA-470B-ACB3-12B9DE75525C}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server", "..\test\Ice\idleTimeout\msbuild\server\server.vcxproj", "{BFD0FE53-9B37-451C-9576-4647B53B009A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C} = {C7223CC8-0AAA-470B-ACB3-12B9DE75525C}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
