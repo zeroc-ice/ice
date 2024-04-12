@@ -5,7 +5,6 @@
 #include "CertificateI.h"
 #include "IceSSL/OpenSSL.h"
 #include "OpenSSLUtil.h"
-#include "PluginI.h"
 #include "RFC2253.h"
 
 #include <cassert>

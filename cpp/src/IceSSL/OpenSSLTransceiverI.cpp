@@ -11,7 +11,6 @@
 #include "IceSSL/ConnectionInfo.h"
 #include "IceSSL/OpenSSL.h"
 #include "OpenSSLEngine.h"
-#include "PluginI.h"
 #include "SSLEngine.h"
 #include "SSLInstance.h"
 #include "SSLUtil.h"

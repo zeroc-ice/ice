@@ -10,7 +10,7 @@
 #include "../Ice/Transceiver.h"
 #include "../Ice/WSTransceiver.h"
 #include "Ice/Config.h"
-#include "IceSSL/Plugin.h"
+#include "IceSSL/Certificate.h"
 #include "OpenSSLEngineF.h"
 #include "SSLInstanceF.h"
 #include "SSLUtil.h"
