@@ -217,6 +217,17 @@ namespace Ice
 
         void closeCallback(const CloseCallback&);
 
+        /// Aborts the connection with a ConnectionIdleException unless any of the following is true:
+        /// - the connection is no longer active
+        /// - its transceiver is waiting to be read
+        /// - the idle check timer task has been rescheduled by a concurrent read
+        /// In the two latter cases, this function reschedules the idle check timer task in idle timeout.
+        void
+        idleCheck(const IceUtil::TimerTaskPtr& idleCheckTimerTask, const std::chrono::seconds& idleTimeout) noexcept;
+
+        // TODO: there are too many functions with similar names. This is the function called by the HeartbeatTimerTask.
+        void sendHeartbeat() noexcept;
+
         ~ConnectionI() final;
 
     private:
@@ -227,13 +238,15 @@ namespace Ice
             const IceInternal::TransceiverPtr&,
             const IceInternal::ConnectorPtr&,
             const IceInternal::EndpointIPtr&,
-            const std::shared_ptr<ObjectAdapterI>&);
+            const std::shared_ptr<ObjectAdapterI>&) noexcept;
 
         static ConnectionIPtr create(
             const Ice::CommunicatorPtr&,
             const IceInternal::InstancePtr&,
             const IceInternal::ACMMonitorPtr&,
             const IceInternal::TransceiverPtr&,
+            const std::chrono::seconds& idleTimeout,
+            bool enableIdleCheck,
             const IceInternal::ConnectorPtr&,
             const IceInternal::EndpointIPtr&,
             const std::shared_ptr<ObjectAdapterI>&);

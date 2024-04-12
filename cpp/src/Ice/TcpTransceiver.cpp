@@ -81,6 +81,12 @@ IceInternal::TcpTransceiver::finishRead(Buffer& buf)
 }
 #    endif
 
+bool
+IceInternal::TcpTransceiver::isWaitingToBeRead() const noexcept
+{
+    return _stream->isWaitingToBeRead();
+}
+
 string
 IceInternal::TcpTransceiver::protocol() const
 {

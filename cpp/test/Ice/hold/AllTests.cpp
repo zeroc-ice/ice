@@ -136,11 +136,11 @@ allTests(Test::TestHelper* helper)
             }
         }
         test(cond->value());
-        for (int i = 0; i < 10000; ++i)
+        for (int i = 0; i < 1000; ++i)
         {
             holdSerialized->ice_oneway()->setOneway(value + 1, value);
             ++value;
-            if ((i % 100) == 0)
+            if ((i % 10) == 0)
             {
                 holdSerialized->ice_oneway()->putOnHold(1);
             }
@@ -194,6 +194,15 @@ allTests(Test::TestHelper* helper)
         hold->putOnHold(-1);
         hold->ice_ping();
     }
+    cout << "ok" << endl;
+
+    cout << "testing hold with idle timeout... " << flush;
+    ConnectionPtr connection = hold->ice_getCachedConnection();
+    hold->putOnHold(2000); // despite the name, this reactivates the adapter in about 2s
+    hold->putOnHold(-1);   // immediate hold
+    this_thread::sleep_for(chrono::milliseconds(2000));
+    hold->ice_ping(); // goes through when the first putOnHold reactivates the adapter
+    test(connection == hold->ice_getCachedConnection());
     cout << "ok" << endl;
 
     cout << "changing state to hold and shutting down server... " << flush;

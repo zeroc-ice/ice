@@ -469,6 +469,14 @@ IceInternal::UdpTransceiver::finishRead(Buffer& buf)
 }
 #endif
 
+bool
+IceInternal::UdpTransceiver::isWaitingToBeRead() const noexcept
+{
+    // isWaitingToBeRead is used only by the idle check, and the idle check is not used for UDP.
+    assert(false);
+    return false;
+}
+
 string
 IceInternal::UdpTransceiver::protocol() const
 {
@@ -655,7 +663,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(
 #ifdef ICE_USE_IOCP
     //
     // On Windows when using IOCP, we must make sure that the socket is connected without
-    // blocking as there's no way to do a non-blocking datagram socket conection (ConnectEx
+    // blocking as there's no way to do a non-blocking datagram socket connection (ConnectEx
     // only supports connection oriented sockets). According to Microsoft documentation of
     // the connect() call, this should always be the case.
     //

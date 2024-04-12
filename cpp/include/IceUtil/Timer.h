@@ -7,6 +7,7 @@
 
 #include "Exception.h"
 
+#include <cassert>
 #include <chrono>
 #include <condition_variable>
 #include <functional>
@@ -43,7 +44,7 @@ namespace IceUtil
         // is the timer thread, join the timer execution thread otherwise.
         void destroy();
 
-        // Schedule a task for execution after a given delay.
+        // Schedule task for execution after a given delay.
         template<class Rep, class Period>
         void schedule(const TimerTaskPtr& task, const std::chrono::duration<Rep, Period>& delay)
         {
@@ -70,6 +71,40 @@ namespace IceUtil
             {
                 throw std::invalid_argument("task is already scheduled");
             }
+            _tokens.insert({time, std::nullopt, task});
+
+            if (_wakeUpTime == std::chrono::steady_clock::time_point() || time < _wakeUpTime)
+            {
+                _condition.notify_one();
+            }
+        }
+
+        // Reschedule a task for execution after a given delay. This function also succeeds if the task was not
+        // previously scheduled.
+        template<class Rep, class Period>
+        void reschedule(const TimerTaskPtr& task, const std::chrono::duration<Rep, Period>& delay)
+        {
+            std::lock_guard lock(_mutex);
+            if (_destroyed)
+            {
+                throw std::invalid_argument("timer destroyed");
+            }
+
+            if (delay < std::chrono::nanoseconds::zero())
+            {
+                throw std::invalid_argument("invalid negative delay");
+            }
+
+            auto now = std::chrono::steady_clock::now();
+            auto time = now + delay;
+            if (delay > std::chrono::nanoseconds::zero() && time < now)
+            {
+                throw std::invalid_argument("delay too large, resulting in overflow");
+            }
+
+            cancelNoSync(task);
+
+            _tasks.insert(make_pair(task, time));
             _tokens.insert({time, std::nullopt, task});
 
             if (_wakeUpTime == std::chrono::steady_clock::time_point() || time < _wakeUpTime)
@@ -145,6 +180,7 @@ namespace IceUtil
         };
 
         void run();
+        bool cancelNoSync(const TimerTaskPtr& task);
 
         std::mutex _mutex;
         std::condition_variable _condition;

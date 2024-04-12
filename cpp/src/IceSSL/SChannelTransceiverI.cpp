@@ -1133,6 +1133,12 @@ SChannel::TransceiverI::finishRead(IceInternal::Buffer& buf)
 }
 #endif
 
+bool
+SChannel::TransceiverI::isWaitingToBeRead() const noexcept
+{
+    return _delegate->isWaitingToBeRead();
+}
+
 string
 SChannel::TransceiverI::protocol() const
 {
