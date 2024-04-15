@@ -13,7 +13,7 @@
         <property name="IceGrid.Node.Name" value="${server}"/>
         <property name="IceGrid.Node.Data" value="${server.data}"/>
         <property name="IceGrid.Node.PropertiesOverride"
-                  value="${properties-override} Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0"/>
+                  value="${properties-override} Ice.PrintProcessId=0 Ice.PrintAdapterReady=0"/>
         <property name="Ice.Default.Locator" value="RepTestIceGrid/Locator:default -p 12050:default -p 12051:default -p 12052"/>
         <property name="IceGrid.Node.Trace.Replica" value="0"/>
         <property name="IceGrid.Node.Trace.Adapter" value="0"/>
