@@ -2,76 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "PluginI.h"
-#include "EndpointI.h"
-#include "Instance.h"
-#include "SSLEngine.h"
-
 #include "../Ice/ProtocolInstance.h"
 #include "../Ice/ProtocolPluginFacade.h"
 #include "Ice/LocalException.h"
 #include "Ice/RegisterPlugins.h"
+#include "IceSSL/Certificate.h"
+#include "SSLEndpointI.h"
+#include "SSLEngine.h"
+#include "SSLInstance.h"
 
 using namespace std;
 using namespace Ice;
 using namespace IceSSL;
-
-IceSSL::Plugin::~Plugin()
-{
-    // Out of line to avoid weak vtable
-}
-
-//
-// Plugin implementation.
-//
-PluginI::PluginI(const Ice::CommunicatorPtr& com, const SSLEnginePtr& engine) : _engine(engine)
-{
-    //
-    // Register the endpoint factory. We have to do this now, rather
-    // than in initialize, because the communicator may need to
-    // interpret proxies before the plug-in is fully initialized.
-    //
-    InstancePtr instance = make_shared<Instance>(_engine, SSLEndpointType, "ssl"); // SSL based on TCP
-    IceInternal::getProtocolPluginFacade(com)->addEndpointFactory(
-        make_shared<EndpointFactoryI>(instance, TCPEndpointType));
-}
-
-void
-PluginI::initialize()
-{
-    _engine->initialize();
-}
-
-void
-PluginI::destroy()
-{
-    _engine->destroy();
-    _engine = 0;
-}
-
-extern "C"
-{
-    ICESSL_API Ice::Plugin* createIceSSL(const CommunicatorPtr&, const string&, const StringSeq&);
-}
-
-namespace Ice
-{
-    ICESSL_API void registerIceSSL(bool loadOnInitialize)
-    {
-        Ice::registerPluginFactory("IceSSL", createIceSSL, loadOnInitialize);
-    }
-}
-
-IceSSL::TrustError
-IceSSL::getTrustError(const IceSSL::ConnectionInfoPtr& info)
-{
-    auto extendedInfo = dynamic_pointer_cast<ExtendedConnectionInfo>(info);
-    if (extendedInfo)
-    {
-        return extendedInfo->errorCode;
-    }
-    return info->verified ? IceSSL::TrustError::NoError : IceSSL::TrustError::UnknownTrustFailure;
-}
 
 std::string
 IceSSL::getTrustErrorDescription(TrustError error)
@@ -167,11 +109,4 @@ IceSSL::getTrustErrorDescription(TrustError error)
     }
     assert(false);
     return "unknown failure";
-}
-
-std::string
-IceSSL::getHost(const IceSSL::ConnectionInfoPtr& info)
-{
-    auto extendedInfo = dynamic_pointer_cast<ExtendedConnectionInfo>(info);
-    return extendedInfo ? extendedInfo->host : "";
 }

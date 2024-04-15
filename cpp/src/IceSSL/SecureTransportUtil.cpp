@@ -3,12 +3,9 @@
 //
 
 #include "SecureTransportUtil.h"
-#include "IceSSL/Plugin.h"
-
 #include "../Ice/Base64.h"
 #include "Ice/LocalException.h"
 #include "Ice/UniqueRef.h"
-
 #include "IceUtil/FileUtil.h"
 #include "IceUtil/StringUtil.h"
 

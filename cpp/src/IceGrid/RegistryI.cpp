@@ -2,30 +2,29 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "RegistryI.h"
 #include "../Ice/Network.h"
 #include "../Ice/ProtocolPluginFacade.h" // Just to get the hostname
-#include "Ice/Ice.h"
-#include "Ice/UUID.h"
-#include "IceUtil/FileUtil.h"
-
 #include "../IceStorm/Service.h"
-#include "Glacier2/NullPermissionsVerifier.h"
-#include "Glacier2/PermissionsVerifier.h"
-#include "IceSSL/IceSSL.h"
-
 #include "AdminCallbackRouter.h"
 #include "AdminI.h"
 #include "AdminSessionI.h"
 #include "Database.h"
 #include "FileCache.h"
 #include "FileUserAccountMapperI.h"
+#include "Glacier2/NullPermissionsVerifier.h"
+#include "Glacier2/PermissionsVerifier.h"
+#include "Ice/Ice.h"
+#include "Ice/UUID.h"
 #include "IceLocatorDiscovery.h"
+#include "IceSSL/Certificate.h"
+#include "IceSSL/ConnectionInfo.h"
+#include "IceUtil/FileUtil.h"
 #include "InternalRegistryI.h"
 #include "LocatorI.h"
 #include "LocatorRegistryI.h"
 #include "QueryI.h"
 #include "ReapThread.h"
-#include "RegistryI.h"
 #include "SessionI.h"
 #include "SessionServantManager.h"
 #include "TraceLevels.h"

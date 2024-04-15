@@ -3,22 +3,22 @@
 //
 
 #include "TrustManager.h"
-#include "IceSSL/ConnectionInfo.h"
-#include "RFC2253.h"
-
+#include "../Ice/Instance.h"
 #include "../Ice/Network.h"
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
+#include "IceSSL/ConnectionInfo.h"
+#include "RFC2253.h"
 
 using namespace std;
 using namespace IceSSL;
 
-TrustManager::TrustManager(const Ice::CommunicatorPtr& communicator) : _communicator(communicator)
+TrustManager::TrustManager(const IceInternal::InstancePtr& instance) : _instance(instance)
 {
-    Ice::PropertiesPtr properties = communicator->getProperties();
+    Ice::PropertiesPtr properties = _instance->initializationData().properties;
     _traceLevel = properties->getPropertyAsInt("IceSSL.Trace.Security");
     string key;
     try
@@ -126,7 +126,7 @@ TrustManager::verify(const ConnectionInfoPtr& info, const std::string& desc)
         DistinguishedName subject = info->certs[0]->getSubjectDN();
         if (_traceLevel > 0)
         {
-            Ice::Trace trace(_communicator->getLogger(), "Security");
+            Ice::Trace trace(_instance->initializationData().logger, "Security");
             if (info->incoming)
             {
                 trace << "trust manager evaluating client:\n"
@@ -146,7 +146,7 @@ TrustManager::verify(const ConnectionInfoPtr& info, const std::string& desc)
         {
             if (_traceLevel > 1)
             {
-                Ice::Trace trace(_communicator->getLogger(), "Security");
+                Ice::Trace trace(_instance->initializationData().logger, "Security");
                 trace << "trust manager rejecting PDNs:\n";
                 for (list<DistinguishedName>::const_iterator r = p->begin(); r != p->end(); ++r)
                 {
@@ -168,7 +168,7 @@ TrustManager::verify(const ConnectionInfoPtr& info, const std::string& desc)
         {
             if (_traceLevel > 1)
             {
-                Ice::Trace trace(_communicator->getLogger(), "Security");
+                Ice::Trace trace(_instance->initializationData().logger, "Security");
                 trace << "trust manager accepting PDNs:\n";
                 for (list<DistinguishedName>::const_iterator r = p->begin(); r != p->end(); ++r)
                 {

@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "AcceptorI.h"
-#include "EndpointI.h"
-#include "Instance.h"
+#include "SSLAcceptorI.h"
+#include "SSLEndpointI.h"
 #include "SSLEngine.h"
+#include "SSLInstance.h"
 
-#include "Util.h"
+#include "SSLUtil.h"
 
 #include "Ice/LocalException.h"
 
@@ -59,14 +59,6 @@ IceSSL::AcceptorI::finishAccept()
 IceInternal::TransceiverPtr
 IceSSL::AcceptorI::accept()
 {
-    //
-    // The plug-in may not be initialized.
-    //
-    if (!_instance->initialized())
-    {
-        throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: plug-in is not initialized");
-    }
-
     return _instance->engine()->createTransceiver(_instance, _delegate->accept(), _adapterName, true);
 }
 

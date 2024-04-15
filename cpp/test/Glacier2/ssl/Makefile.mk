@@ -3,6 +3,6 @@
 #
 
 $(test)_client_dependencies = Glacier2
-$(test)_server_dependencies = Glacier2 IceSSL
+$(test)_server_dependencies = Glacier2
 
 tests += $(test)

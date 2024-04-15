@@ -5,8 +5,6 @@
 #ifndef ICESSL_UTIL_H
 #define ICESSL_UTIL_H
 
-#include "IceSSL/Plugin.h"
-
 #include <functional>
 #include <string>
 #include <vector>
@@ -48,12 +46,12 @@ namespace IceSSL
     // const AltNameObjectIdentifier = 8;
 
     // Read a file into memory buffer.
-    ICESSL_API void readFile(const std::string&, std::vector<char>&);
+    ICE_API void readFile(const std::string&, std::vector<char>&);
 
     // Determine if a file or directory exists, with an optional default directory.
-    ICESSL_API bool checkPath(const std::string&, const std::string&, bool, std::string&);
+    ICE_API bool checkPath(const std::string&, const std::string&, bool, std::string&);
 
-    ICESSL_API bool parseBytes(const std::string&, std::vector<unsigned char>&);
+    ICE_API bool parseBytes(const std::string&, std::vector<unsigned char>&);
 }
 
 #endif
