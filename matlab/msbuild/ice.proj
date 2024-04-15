@@ -45,7 +45,7 @@
 
     <Target Name="BuildCppDist" Condition="'$(ICE_BIN_DIST)' == ''" DependsOnTargets="NuGetRestore">
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.sln"
-                 Targets="slice2matlab;ice;icessl;icediscovery;icelocatordiscovery"
+                 Targets="slice2matlab;ice;icediscovery;icelocatordiscovery"
                  BuildInParallel="true"
                  Properties="Platform=$(Platform);Configuration=$(Configuration)" />
     </Target>
