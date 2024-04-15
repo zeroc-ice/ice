@@ -362,7 +362,7 @@ namespace Ice
 
         Observer _observer;
 
-        int _dispatchCount;
+        int _upcallCount;
 
         State _state; // The current state.
         bool _shutdownInitiated;
