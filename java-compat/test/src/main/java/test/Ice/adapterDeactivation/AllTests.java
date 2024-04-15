@@ -212,6 +212,21 @@ public class AllTests
             out.println("ok");
         }
 
+        out.print("testing server idle time...");
+        out.flush();
+        {
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = communicator.getProperties()._clone();
+            initData.properties.setProperty("Ice.ServerIdleTime", "1");
+            try (Ice.Communicator idleCommunicator = Ice.Util.initialize(initData)) {
+                Ice.ObjectAdapter adapter =
+                    idleCommunicator.createObjectAdapterWithEndpoints("IdleAdapter", "tcp -h 127.0.0.1");
+                adapter.activate();
+                idleCommunicator.waitForShutdown();
+            }
+        }
+        out.println("ok");
+
         return obj;
     }
 }

@@ -14,8 +14,6 @@ public class Server extends test.TestHelper
         Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
         Ice.Properties properties = createTestProperties(argsH);
         properties.setProperty("Ice.Package.Test", "test.Ice.faultTolerance");
-        properties.setProperty("Ice.ServerIdleTime", "120");
-
         try(Ice.Communicator communicator = initialize(properties))
         {
             int port = 0;
