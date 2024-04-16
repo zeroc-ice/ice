@@ -843,12 +843,7 @@ classdef AllTests
             assert(strcmp(communicator.proxyToString(p2), 'test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000'));
 
             if communicator.getProperties().getPropertyAsInt('Ice.IPv6') == 0
-                % Working?
-                ssl = strcmp(communicator.getProperties().getProperty('Ice.Default.Protocol'), 'ssl');
-                tcp = strcmp(communicator.getProperties().getProperty('Ice.Default.Protocol'), 'tcp');
-                if tcp
-                    p1.ice_encodingVersion(Ice.EncodingVersion(1, 0)).ice_ping();
-                end
+                p1.ice_encodingVersion(Ice.EncodingVersion(1, 0)).ice_ping();
 
                 % Two legal TCP endpoints expressed as opaque endpoints
                 p1 = communicator.stringToProxy('test -e 1.0:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMusuAAAQJwAAAA==');
@@ -861,11 +856,7 @@ classdef AllTests
                 %
                 p1 = communicator.stringToProxy('test -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch');
                 pstr = communicator.proxyToString(p1);
-                if ssl
-                    assert(strcmp(pstr, 'test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch'));
-                elseif tcp
-                    assert(strcmp(pstr, 'test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch'));
-                end
+                assert(strcmp(pstr, 'test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch'));
 
                 %
                 % Try to invoke on the SSL endpoint to verify that we get a
@@ -876,13 +867,7 @@ classdef AllTests
                     p1.ice_encodingVersion(Ice.EncodingVersion(1, 0)).ice_ping();
                     assert(false);
                 catch ex
-                    if isa(ex, 'Ice.NoEndpointException')
-                        assert(~ssl);
-                    elseif isa(ex, 'Ice.ConnectFailedException')
-                        assert(~tcp);
-                    else
-                        rethrow(ex);
-                    end
+                    assert(isa(ex, 'Ice.ConnectFailedException'));
                 end
 
                 %
@@ -893,11 +878,7 @@ classdef AllTests
                 %
                 p2 = derived.echo(p1);
                 pstr = communicator.proxyToString(p2);
-                if ssl
-                    assert(strcmp(pstr, 'test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch'));
-                elseif tcp
-                    assert(strcmp(pstr, 'test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch'));
-                end
+                assert(strcmp(pstr, 'test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch'));
             end
 
             fprintf('ok\n');

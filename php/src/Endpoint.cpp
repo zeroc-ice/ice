@@ -3,9 +3,8 @@
 //
 
 #include "Endpoint.h"
-#include "Util.h"
-
 #include "IceSSL/EndpointInfo.h"
+#include "Util.h"
 
 using namespace std;
 using namespace IcePHP;

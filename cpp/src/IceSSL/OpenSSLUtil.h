@@ -7,48 +7,12 @@
 
 #include <openssl/ssl.h>
 
-#include <list>
-#include <memory>
-#include <mutex>
 #include <string>
 
-namespace IceSSL
+namespace IceSSL::OpenSSL
 {
-    namespace OpenSSL
-    {
-#ifndef OPENSSL_NO_DH
+    // Accumulate the OpenSSL error stack into a string.
+    std::string getSslErrors(bool);
 
-        class DHParams
-        {
-        public:
-            DHParams();
-            ~DHParams();
-
-            bool add(int, const std::string&);
-            DH* get(int);
-
-        private:
-            typedef std::pair<int, DH*> KeyParamPair;
-            typedef std::list<KeyParamPair> ParamList;
-            ParamList _params;
-            std::mutex _mutex;
-
-            DH* _dh512;
-            DH* _dh1024;
-            DH* _dh2048;
-            DH* _dh4096;
-        };
-        using DHParamsPtr = std::shared_ptr<DHParams>;
-
-#endif
-
-        //
-        // Accumulate the OpenSSL error stack into a string.
-        //
-        std::string getSslErrors(bool);
-
-    } // OpenSSL namespace end
-
-} // IceSSL namespace end
-
+}
 #endif

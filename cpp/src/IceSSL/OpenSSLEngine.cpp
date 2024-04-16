@@ -2,22 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceSSL/Config.h"
-
 #include "OpenSSLEngine.h"
-#include "OpenSSLEngineF.h"
-#include "OpenSSLTransceiverI.h"
-#include "TrustManager.h"
-#include "Util.h"
-
 #include "Ice/Communicator.h"
+#include "Ice/Config.h"
 #include "Ice/LocalException.h"
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
-
 #include "IceUtil/FileUtil.h"
 #include "IceUtil/StringUtil.h"
+#include "OpenSSLEngineF.h"
+#include "OpenSSLTransceiverI.h"
+#include "SSLUtil.h"
+#include "TrustManager.h"
 
 #include <mutex>
 
@@ -76,7 +73,7 @@ namespace
     }
 }
 
-OpenSSL::SSLEngine::SSLEngine(const CommunicatorPtr& communicator) : IceSSL::SSLEngine(communicator), _ctx(0) {}
+OpenSSL::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance) : IceSSL::SSLEngine(instance), _ctx(0) {}
 
 OpenSSL::SSLEngine::~SSLEngine() {}
 
@@ -84,17 +81,12 @@ void
 OpenSSL::SSLEngine::initialize()
 {
     lock_guard lock(_mutex);
-    if (_initialized)
-    {
-        return;
-    }
-
     try
     {
         IceSSL::SSLEngine::initialize();
 
         const string propPrefix = "IceSSL.";
-        PropertiesPtr properties = communicator()->getProperties();
+        PropertiesPtr properties = getProperties();
 
         // Create an SSL context if the application hasn't supplied one.
         if (!_ctx)
@@ -509,20 +501,6 @@ OpenSSL::SSLEngine::initialize()
         _ctx = nullptr;
         throw;
     }
-
-    _initialized = true;
-}
-
-void
-OpenSSL::SSLEngine::context(SSL_CTX* context)
-{
-    if (initialized())
-    {
-        throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: plug-in is already initialized");
-    }
-
-    assert(!_ctx);
-    _ctx = context;
 }
 
 SSL_CTX*

@@ -7,15 +7,9 @@
 
 #include <memory>
 
-namespace IceSSL
+namespace IceSSL::OpenSSL
 {
-    namespace OpenSSL
-    {
-        class SSLEngine;
-        using SSLEnginePtr = std::shared_ptr<SSLEngine>;
-
-    } // OpenSSL namespace end
-
-} // IceSSL namespace end
-
+    class SSLEngine;
+    using SSLEnginePtr = std::shared_ptr<SSLEngine>;
+}
 #endif

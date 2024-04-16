@@ -3,21 +3,19 @@
 //
 
 #include "SChannelEngine.h"
-#include "IceSSL/Plugin.h"
-#include "SChannelTransceiverI.h"
-#include "Util.h"
-
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"
 #include "Ice/Logger.h"
 #include "Ice/StringConverter.h"
-
 #include "Ice/UUID.h"
 #include "IceUtil/FileUtil.h"
 #include "IceUtil/StringUtil.h"
+#include "SChannelTransceiverI.h"
+#include "SSLUtil.h"
 
 #include <wincrypt.h>
 
+#include <iostream>
 #include <mutex>
 
 //
@@ -540,8 +538,8 @@ namespace
     }
 }
 
-SChannel::SSLEngine::SSLEngine(const CommunicatorPtr& communicator)
-    : IceSSL::SSLEngine(communicator),
+SChannel::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)
+    : IceSSL::SSLEngine(instance),
       _rootStore(0),
       _chainEngine(0),
       _strongCrypto(false)
@@ -558,20 +556,10 @@ SChannel::SSLEngine::initialize()
     //
     lock_guard globalLock(globalMutex);
 
-    //
-    // We still have to acquire the instance mutex because it is used by the base
-    // class to access _initialized data member.
-    //
-    lock_guard lock(_mutex);
-    if (_initialized)
-    {
-        return;
-    }
-
     IceSSL::SSLEngine::initialize();
 
     const string prefix = "IceSSL.";
-    const PropertiesPtr properties = communicator()->getProperties();
+    const PropertiesPtr properties = getProperties();
 
     const_cast<bool&>(_strongCrypto) = properties->getPropertyAsIntWithDefault(prefix + "SchannelStrongCrypto", 0) > 0;
 
@@ -1018,7 +1006,6 @@ SChannel::SSLEngine::initialize()
         }
         _allCerts.insert(_allCerts.end(), certs.begin(), certs.end());
     }
-    _initialized = true;
 }
 
 string

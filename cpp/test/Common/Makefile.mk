@@ -11,7 +11,7 @@ $(project)_caninstall   := no
 # because TestCommon isn't installed with the binary distribution.
 #
 TestCommon[shared]_targetdir    := $(call mappingdir,$(currentdir),lib)
-TestCommon_dependencies         := IceSSL Ice
+TestCommon_dependencies         := Ice
 TestCommon_cppflags             := -DTEST_API_EXPORTS -I$(includedir) -Itest/include
 
 projects += $(project)

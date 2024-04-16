@@ -14,7 +14,7 @@ icetoolbox_file = toolbox/ice-$(version)-R$(matlab_version)-linux.mltbx
 # Load C++ dependencies
 #
 $(eval $(call load-translator-dependencies,$(top_srcdir)/cpp/src/slice2matlab))
-$(eval $(call load-dependencies,$(addprefix $(top_srcdir)/cpp/src/,Ice IceSSL IceLocatorDiscovery IceDiscovery)))
+$(eval $(call load-dependencies,$(addprefix $(top_srcdir)/cpp/src/,Ice IceLocatorDiscovery IceDiscovery)))
 
 #
 # Load MATLAB rules after loading C++ dependencies
@@ -108,7 +108,6 @@ $(icetoolbox_file):: $(icethunk_target) $(slice2matlab_path) $(lang_srcdir)/lib/
 	cp -rf $(lang_srcdir)/lib/generated/+* $(lang_srcdir)/toolbox/build
 	cp -rf $(lang_srcdir)/lib/x86_64-linux-gnu/* $(lang_srcdir)/toolbox/build
 	cp -rLf $(cpp_libdir)/libIce.so.38a0 $(lang_srcdir)/toolbox/build
-	cp -rLf $(cpp_libdir)/libIceSSL.so.38a0 $(lang_srcdir)/toolbox/build
 	cp -rLf $(cpp_libdir)/libIceDiscovery.so.38a0 $(lang_srcdir)/toolbox/build
 	cp -rLf $(cpp_libdir)/libIceLocatorDiscovery.so.38a0 $(lang_srcdir)/toolbox/build
 	# Slice files

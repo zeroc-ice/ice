@@ -10,8 +10,8 @@
 #include "../Ice/IPEndpointI.h"
 #include "../Ice/Network.h"
 #include "IceSSL/EndpointInfo.h"
-#include "InstanceF.h"
 #include "SSLEngineF.h"
+#include "SSLInstanceF.h"
 
 namespace IceSSL
 {

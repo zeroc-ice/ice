@@ -7,8 +7,12 @@
 
 #ifdef _WIN32
 
+#    include "Ice/InstanceF.h"
 #    include "SChannelEngineF.h"
 #    include "SSLEngine.h"
+
+#    include <string>
+#    include <vector>
 
 //
 // SECURITY_WIN32 or SECURITY_KERNEL, must be defined before including security.h
@@ -26,50 +30,46 @@
 #    include <sspi.h>
 #    undef SECURITY_WIN32
 
-namespace IceSSL
+namespace IceSSL::SChannel
 {
-    namespace SChannel
+    class SSLEngine final : public IceSSL::SSLEngine
     {
-        class SSLEngine final : public IceSSL::SSLEngine
-        {
-        public:
-            SSLEngine(const Ice::CommunicatorPtr&);
+    public:
+        SSLEngine(const IceInternal::InstancePtr&);
 
-            //
-            // Setup the engine.
-            //
-            void initialize() final;
+        //
+        // Setup the engine.
+        //
+        void initialize() final;
 
-            IceInternal::TransceiverPtr
-            createTransceiver(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool) final;
+        IceInternal::TransceiverPtr
+        createTransceiver(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool) final;
 
-            //
-            // Destroy the engine.
-            //
-            void destroy() final;
+        //
+        // Destroy the engine.
+        //
+        void destroy() final;
 
-            std::string getCipherName(ALG_ID) const;
+        std::string getCipherName(ALG_ID) const;
 
-            CredHandle newCredentialsHandle(bool);
+        CredHandle newCredentialsHandle(bool);
 
-            HCERTCHAINENGINE chainEngine() const;
+        HCERTCHAINENGINE chainEngine() const;
 
-        private:
-            void parseCiphers(const std::string&);
+    private:
+        void parseCiphers(const std::string&);
 
-            std::vector<PCCERT_CONTEXT> _allCerts;
-            std::vector<PCCERT_CONTEXT> _importedCerts;
+        std::vector<PCCERT_CONTEXT> _allCerts;
+        std::vector<PCCERT_CONTEXT> _importedCerts;
 
-            std::vector<HCERTSTORE> _stores;
-            HCERTSTORE _rootStore;
+        std::vector<HCERTSTORE> _stores;
+        HCERTSTORE _rootStore;
 
-            HCERTCHAINENGINE _chainEngine;
-            std::vector<ALG_ID> _ciphers;
+        HCERTCHAINENGINE _chainEngine;
+        std::vector<ALG_ID> _ciphers;
 
-            const bool _strongCrypto;
-        };
-
-    }
+        const bool _strongCrypto;
+    };
 }
 
 #endif

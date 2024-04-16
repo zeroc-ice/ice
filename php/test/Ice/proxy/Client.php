@@ -645,7 +645,6 @@ function allTests($helper)
     // Working?
     if($communicator->getProperties()->getPropertyAsInt("Ice.IPv6") == 0)
     {
-        $ssl = $communicator->getProperties()->getProperty("Ice.Default.Protocol") == "ssl";
         $tcp = $communicator->getProperties()->getProperty("Ice.Default.Protocol") == "tcp";
 
         // Two legal TCP endpoints expressed as opaque endpoints
@@ -659,14 +658,7 @@ function allTests($helper)
         //
         $p1 = $communicator->stringToProxy("test -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
         $pstr = $communicator->proxyToString($p1);
-        if($ssl)
-        {
-            test($pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
-        }
-        elseif($tcp)
-        {
-            test($pstr == "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
-        }
+        test($pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
 
         //
         // Try to invoke on the SSL endpoint to verify that we get a
@@ -678,20 +670,8 @@ function allTests($helper)
             $p1->ice_encodingVersion($Ice_Encoding_1_0)->ice_ping();
             test(false);
         }
-        catch(Exception $ex)
+        catch(Ice\ConnectionRefusedException $ex)
         {
-            if($ex instanceof Ice\NoEndpointException)
-            {
-                test(!$ssl);
-            }
-            elseif($ex instanceof Ice\ConnectionRefusedException)
-            {
-                test(!$tcp);
-            }
-            else
-            {
-                throw $ex;
-            }
         }
 
         //
@@ -702,14 +682,7 @@ function allTests($helper)
         //
         $p2 = $derived->_echo($p1);
         $pstr = $communicator->proxyToString($p2);
-        if($ssl)
-        {
-            test($pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
-        }
-        elseif($tcp)
-        {
-            test($pstr == "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
-        }
+        test($pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
     }
     echo "ok\n";
 

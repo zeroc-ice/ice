@@ -12,11 +12,13 @@ extern "C"
     Ice::Plugin* createIceUDP(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
     Ice::Plugin* createIceTCP(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
     Ice::Plugin* createIceWS(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
+    Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
 }
 
 IceInternal::RegisterPluginsInit::RegisterPluginsInit()
 {
     Ice::registerPluginFactory("IceTCP", createIceTCP, true);
+    Ice::registerPluginFactory("IceSSL", createIceSSL, true);
 
     //
     // Only include the UDP and WS transport plugins with non-static builds or Gem/PyPI/Swift
