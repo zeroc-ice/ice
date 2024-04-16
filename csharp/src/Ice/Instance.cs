@@ -999,17 +999,6 @@ public sealed class Instance
             {
                 AssemblyUtil.preloadAssemblies();
             }
-
-#pragma warning disable 618
-            if (_initData.threadStart == null && _initData.threadHook != null)
-            {
-                _initData.threadStart = _initData.threadHook.start;
-            }
-            if (_initData.threadStop == null && _initData.threadHook != null)
-            {
-                _initData.threadStop = _initData.threadHook.stop;
-            }
-#pragma warning restore 618
         }
         catch (Ice.LocalException)
         {
