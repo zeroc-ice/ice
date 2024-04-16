@@ -3,6 +3,7 @@
 //
 
 #include "Instance.h"
+#include "../IceSSL/SSLEngine.h"
 #include "CheckIdentity.h"
 #include "ConnectionFactory.h"
 #include "ConsoleUtil.h"
@@ -46,6 +47,14 @@
 #include <list>
 #include <mutex>
 #include <stdio.h>
+
+#if defined(_WIN32)
+#    include "../IceSSL/SChannelEngine.h"
+#elif defined(__APPLE__)
+#    include "../IceSSL/SecureTransportEngine.h"
+#else
+#    include "../IceSSL/OpenSSLEngine.h"
+#endif
 
 #ifdef __APPLE__
 #    include "OSLogLoggerI.h"
@@ -1311,6 +1320,15 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                 _retryIntervals.push_back(v > 0 ? v : 0);
             }
         }
+
+#if defined(_WIN32)
+        _sslEngine = make_shared<IceSSL::SChannel::SSLEngine>(shared_from_this());
+#elif defined(__APPLE__)
+        _sslEngine = make_shared<IceSSL::SecureTransport::SSLEngine>(shared_from_this());
+#else
+        _sslEngine = make_shared<IceSSL::OpenSSL::SSLEngine>(shared_from_this());
+#endif
+        _sslEngine->initialize();
     }
     catch (...)
     {
@@ -1776,6 +1794,8 @@ IceInternal::Instance::destroy()
 
         _adminAdapter = nullptr;
         _adminFacets.clear();
+
+        _sslEngine = nullptr;
 
         _state = StateDestroyed;
         _conditionVariable.notify_all();

@@ -68,7 +68,7 @@
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>advapi32.lib;ws2_32.lib;Iphlpapi.lib;rpcrt4.lib;DbgHelp.lib;Shlwapi.lib</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;ws2_32.lib;Iphlpapi.lib;rpcrt4.lib;DbgHelp.lib;Shlwapi.lib;secur32.lib;crypt32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -77,7 +77,7 @@
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>advapi32.lib;ws2_32.lib;Iphlpapi.lib;rpcrt4.lib;DbgHelp.lib;Shlwapi.lib</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;ws2_32.lib;Iphlpapi.lib;rpcrt4.lib;DbgHelp.lib;Shlwapi.lib;secur32.lib;crypt32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -86,7 +86,7 @@
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>advapi32.lib;ws2_32.lib;Iphlpapi.lib;rpcrt4.lib;DbgHelp.lib;Shlwapi.lib</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;ws2_32.lib;Iphlpapi.lib;rpcrt4.lib;DbgHelp.lib;Shlwapi.lib;secur32.lib;crypt32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -95,7 +95,7 @@
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>advapi32.lib;ws2_32.lib;Iphlpapi.lib;rpcrt4.lib;DbgHelp.lib;Shlwapi.lib</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;ws2_32.lib;Iphlpapi.lib;rpcrt4.lib;DbgHelp.lib;Shlwapi.lib;secur32.lib;crypt32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Label="IceBuilder">
@@ -163,6 +163,19 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\IceSSL\PluginI.cpp" />
+    <ClCompile Include="..\..\..\IceSSL\SSLAcceptorI.cpp" />
+    <ClCompile Include="..\..\..\IceSSL\CertificateI.cpp" />
+    <ClCompile Include="..\..\..\IceSSL\SSLConnectorI.cpp" />
+    <ClCompile Include="..\..\..\IceSSL\SSLEndpointI.cpp" />
+    <ClCompile Include="..\..\..\IceSSL\SSLInstance.cpp" />
+    <ClCompile Include="..\..\..\IceSSL\RFC2253.cpp" />
+    <ClCompile Include="..\..\..\IceSSL\SChannelCertificateI.cpp" />
+    <ClCompile Include="..\..\..\IceSSL\SChannelEngine.cpp" />
+    <ClCompile Include="..\..\..\IceSSL\SChannelTransceiverI.cpp" />
+    <ClCompile Include="..\..\..\IceSSL\SSLEngine.cpp" />
+    <ClCompile Include="..\..\..\IceSSL\TrustManager.cpp" />
+    <ClCompile Include="..\..\..\IceSSL\SSLUtil.cpp" />
     <ClCompile Include="..\..\Communicator.cpp" />
     <ClCompile Include="..\..\CommunicatorFlushBatchAsync.cpp" />
     <ClCompile Include="..\..\Connection.cpp" />

@@ -1231,20 +1231,6 @@ allTests(TestHelper* helper)
     if (communicator->getProperties()->getPropertyAsInt("Ice.IPv6") == 0 &&
         communicator->getProperties()->getProperty("Ice.Default.Host") == "127.0.0.1")
     {
-        // SSL enabled?
-        bool ssl;
-        try
-        {
-            communicator->stringToProxy("dummy:ssl");
-            ssl = true;
-        }
-        catch (const Ice::EndpointParseException&)
-        {
-            ssl = false;
-        }
-
-        const bool tcp = communicator->getProperties()->getProperty("Ice.Default.Protocol") == "tcp";
-
         // Two legal TCP endpoints expressed as opaque endpoints
         p1 = communicator->stringToProxy("test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 "
                                          "-t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
@@ -1258,16 +1244,7 @@ allTests(TestHelper* helper)
         p1 = communicator->stringToProxy(
             "test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -e 1.0 -t 99 -v abch");
         pstr = communicator->proxyToString(p1);
-        if (ssl)
-        {
-            test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
-        }
-        else if (tcp)
-        {
-            test(
-                pstr ==
-                "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
-        }
+        test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
 
         //
         // Test that the proxy with an SSL endpoint and a nonsense
@@ -1277,20 +1254,7 @@ allTests(TestHelper* helper)
         //
         optional<ObjectPrx> p2 = derived->echo(p1);
         pstr = communicator->proxyToString(p2);
-        if (ssl)
-        {
-            test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
-        }
-        else if (tcp)
-        {
-            if (pstr != "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch")
-            {
-                cerr << pstr << endl;
-            }
-            test(
-                pstr ==
-                "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
-        }
+        test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
     }
 
     cout << "ok" << endl;

@@ -195,7 +195,6 @@
   <Target Name="CopyDependencies">
     <Copy SourceFiles="..\..\..\..\cpp\bin\$(Platform)\$(Configuration)\bzip2$(TargetSuffix).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="True" />
     <Copy SourceFiles="..\..\..\..\cpp\bin\$(Platform)\$(Configuration)\ice$(IceSoVersion)$(TargetSuffix).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="True" />
-    <Copy SourceFiles="..\..\..\..\cpp\bin\$(Platform)\$(Configuration)\icessl$(IceSoVersion)$(TargetSuffix).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="True" />
     <Copy SourceFiles="..\..\..\..\cpp\bin\$(Platform)\$(Configuration)\icediscovery$(IceSoVersion)$(TargetSuffix).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="True" />
     <Copy SourceFiles="..\..\..\..\cpp\bin\$(Platform)\$(Configuration)\icelocatordiscovery$(IceSoVersion)$(TargetSuffix).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="True" />
   </Target>

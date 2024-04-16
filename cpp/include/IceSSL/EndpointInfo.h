@@ -19,7 +19,6 @@ namespace IceSSL
 {
     /**
      * Provides access to an SSL endpoint information.
-     * \headerfile IceSSL/IceSSL.h
      */
     class EndpointInfo : public Ice::EndpointInfo
     {

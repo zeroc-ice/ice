@@ -1287,7 +1287,7 @@ class Mapping(object):
 
     def getSSLProps(self, process, current):
         sslProps = {
-            "Ice.Plugin.IceSSL": self.getPluginEntryPoint("IceSSL", process, current),
+            "Ice.Plugin.IceSSL": "",
             "IceSSL.Password": "password",
             "IceSSL.DefaultDir": ""
             if current.config.buildPlatform == "iphoneos"
@@ -3902,7 +3902,6 @@ class JavaMapping(Mapping):
 
 
 class CSharpMapping(Mapping):
-
     def getTargetFramework(self, current):
         return "net8.0"
 

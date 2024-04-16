@@ -179,11 +179,10 @@ endif
 endif
 
 IceUtil_system_libs                             = -lrt $(if $(filter yes,$(libbacktrace)),-lbacktrace)
-Ice_system_libs                                 = -ldl -lcrypto $(IceUtil_system_libs)
+Ice_system_libs                                 = -ldl -lssl -lcrypto $(IceUtil_system_libs)
 ifeq ($(shell pkg-config --exists libsystemd 2> /dev/null && echo yes),yes)
 Ice_system_libs                                 += $(shell pkg-config --libs libsystemd)
 endif
-IceSSL_system_libs                              = -lssl -lcrypto
 Glacier2CryptPermissionsVerifier_system_libs    = -lcrypt
 
 icegridadmin_system_libs                        = -ledit
@@ -196,6 +195,6 @@ icestormadmin_system_libs                       = -ledit
 #
 ifneq ($(filter debian ubuntu yocto poky,$(linux_id)),)
 ifeq ($(shell pkg-config --exists bluez dbus-1 2> /dev/null && echo yes),yes)
-IceBT_system_libs                               = $(IceSSL_system_libs) $(shell pkg-config --libs dbus-1)
+IceBT_system_libs                               = $(shell pkg-config --libs dbus-1)
 endif
 endif

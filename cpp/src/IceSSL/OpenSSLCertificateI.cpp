@@ -5,7 +5,6 @@
 #include "CertificateI.h"
 #include "IceSSL/OpenSSL.h"
 #include "OpenSSLUtil.h"
-#include "PluginI.h"
 #include "RFC2253.h"
 
 #include <cassert>
@@ -210,9 +209,7 @@ namespace
         x509_st* _cert;
     };
 
-    class OpenSSLCertificateI : public IceSSL::OpenSSL::Certificate,
-                                public CertificateI,
-                                public IceSSL::CertificateExtendedInfo
+    class OpenSSLCertificateI : public IceSSL::OpenSSL::Certificate, public CertificateI
     {
     public:
         OpenSSLCertificateI(x509_st*);
@@ -613,4 +610,16 @@ IceSSL::OpenSSL::Certificate::decode(const std::string& encoding)
         throw CertificateReadException(__FILE__, __LINE__, "error loading certificate:\n" + getSslErrors(false));
     }
     return make_shared<OpenSSLCertificateI>(x);
+}
+
+IceSSL::CertificatePtr
+IceSSL::Certificate::load(const std::string& file)
+{
+    return IceSSL::OpenSSL::Certificate::load(file);
+}
+
+IceSSL::CertificatePtr
+IceSSL::Certificate::decode(const std::string& encoding)
+{
+    return IceSSL::OpenSSL::Certificate::decode(encoding);
 }

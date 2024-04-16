@@ -55,9 +55,7 @@ namespace Ice
      * plug-in property is set to 1.
      */
     ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceWS(bool loadOnInitialize = true);
-#endif
 
-#ifndef ICESSL_API_EXPORTS
     /**
      * When using static libraries, calling this function ensures the SSL transport is
      * linked with the application.
@@ -119,7 +117,6 @@ namespace Ice
 #if defined(_MSC_VER) && !defined(ICE_BUILDING_SRC)
 #    pragma comment(lib, ICE_LIBNAME("IceDiscovery"))
 #    pragma comment(lib, ICE_LIBNAME("IceLocatorDiscovery"))
-#    pragma comment(lib, ICE_LIBNAME("IceSSL"))
 #endif
 }
 

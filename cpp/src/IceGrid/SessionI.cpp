@@ -7,10 +7,9 @@
 #include "Ice/Ice.h"
 #include "Ice/UUID.h"
 #include "IceGrid/Admin.h"
+#include "IceSSL/Certificate.h"
 #include "LocatorI.h"
 #include "QueryI.h"
-
-#include "IceSSL/Plugin.h"
 
 using namespace std;
 using namespace IceGrid;
