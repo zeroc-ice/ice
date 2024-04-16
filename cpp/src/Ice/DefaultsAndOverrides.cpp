@@ -14,10 +14,6 @@ using namespace IceInternal;
 IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& properties, const LoggerPtr& logger)
     : overrideTimeout(false),
       overrideTimeoutValue(-1),
-      overrideConnectTimeout(false),
-      overrideConnectTimeoutValue(-1),
-      overrideCloseTimeout(false),
-      overrideCloseTimeoutValue(-1),
       overrideCompress(false),
       overrideCompressValue(false),
       overrideSecure(false),
@@ -53,34 +49,6 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
             Warning out(logger);
             out << "invalid value for Ice.Override.Timeout `" << properties->getProperty("Ice.Override.Timeout")
                 << "': defaulting to -1";
-        }
-    }
-
-    value = properties->getProperty("Ice.Override.ConnectTimeout");
-    if (!value.empty())
-    {
-        const_cast<bool&>(overrideConnectTimeout) = true;
-        const_cast<int32_t&>(overrideConnectTimeoutValue) = properties->getPropertyAsInt("Ice.Override.ConnectTimeout");
-        if (overrideConnectTimeoutValue < 1 && overrideConnectTimeoutValue != -1)
-        {
-            const_cast<int32_t&>(overrideConnectTimeoutValue) = -1;
-            Warning out(logger);
-            out << "invalid value for Ice.Override.ConnectTimeout `"
-                << properties->getProperty("Ice.Override.ConnectTimeout") << "': defaulting to -1";
-        }
-    }
-
-    value = properties->getProperty("Ice.Override.CloseTimeout");
-    if (!value.empty())
-    {
-        const_cast<bool&>(overrideCloseTimeout) = true;
-        const_cast<int32_t&>(overrideCloseTimeoutValue) = properties->getPropertyAsInt("Ice.Override.CloseTimeout");
-        if (overrideCloseTimeoutValue < 1 && overrideCloseTimeoutValue != -1)
-        {
-            const_cast<int32_t&>(overrideCloseTimeoutValue) = -1;
-            Warning out(logger);
-            out << "invalid value for Ice.Override.CloseTimeout `"
-                << properties->getProperty("Ice.Override.CloseTimeout") << "': defaulting to -1";
         }
     }
 

@@ -502,6 +502,35 @@ IceInternal::Instance::pluginManager() const
     return _pluginManager;
 }
 
+ConnectionOptions
+IceInternal::Instance::serverConnectionOptions(const string& adapterName) const
+{
+    ConnectionOptions connectionOptions = _clientConnectionOptions;
+
+    if (!adapterName.empty())
+    {
+        // Override if any of these properties are set, otherwise keep previous value.
+        const PropertiesPtr& properties = _initData.properties;
+
+        connectionOptions.connectTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
+            adapterName + ".ConnectTimeout",
+            static_cast<int>(connectionOptions.connectTimeout.count())));
+        connectionOptions.closeTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
+            adapterName + ".CloseTimeout",
+            static_cast<int>(connectionOptions.closeTimeout.count())));
+        connectionOptions.idleTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
+            adapterName + ".IdleTimeout",
+            static_cast<int>(connectionOptions.idleTimeout.count())));
+        connectionOptions.enableIdleCheck = properties->getPropertyAsIntWithDefault(
+                                                adapterName + ".EnableIdleCheck",
+                                                connectionOptions.enableIdleCheck ? 1 : 0) > 0;
+        connectionOptions.inactivityTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
+            adapterName + ".InactivityTimeout",
+            static_cast<int>(connectionOptions.inactivityTimeout.count())));
+    }
+    return connectionOptions;
+}
+
 const ACMConfig&
 IceInternal::Instance::clientACM() const
 {
@@ -1099,6 +1128,27 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
         const_cast<ACMConfig&>(_serverACM) =
             ACMConfig(_initData.properties, _initData.logger, "Ice.ACM.Server", defaultServerACM);
+
+        {
+            const PropertiesPtr& properties = _initData.properties;
+            ConnectionOptions& connectionOptions = const_cast<ConnectionOptions&>(_clientConnectionOptions);
+
+            connectionOptions.connectTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
+                "Ice.ConnectTimeout",
+                static_cast<int>(connectionOptions.connectTimeout.count())));
+            connectionOptions.closeTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
+                "Ice.CloseTimeout",
+                static_cast<int>(connectionOptions.closeTimeout.count())));
+            connectionOptions.idleTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
+                "Ice.IdleTimeout",
+                static_cast<int>(connectionOptions.idleTimeout.count())));
+            connectionOptions.enableIdleCheck = properties->getPropertyAsIntWithDefault(
+                                                    "Ice.EnableIdleCheck",
+                                                    connectionOptions.enableIdleCheck ? 1 : 0) > 0;
+            connectionOptions.inactivityTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
+                "Ice.InactivityTimeout",
+                static_cast<int>(connectionOptions.inactivityTimeout.count())));
+        }
 
         {
             static const int defaultMessageSizeMax = 1024;

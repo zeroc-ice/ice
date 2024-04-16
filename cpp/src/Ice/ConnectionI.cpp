@@ -2097,7 +2097,8 @@ Ice::ConnectionI::ConnectionI(
     const TransceiverPtr& transceiver,
     const ConnectorPtr& connector,
     const EndpointIPtr& endpoint,
-    const shared_ptr<ObjectAdapterI>& adapter) noexcept
+    const shared_ptr<ObjectAdapterI>& adapter,
+    const ConnectionOptions& options) noexcept
     : _communicator(communicator),
       _instance(instance),
       _monitor(monitor),
@@ -2115,6 +2116,9 @@ Ice::ConnectionI::ConnectionI(
       _writeTimeoutScheduled(false),
       _readTimeout(new TimeoutCallback(this)),
       _readTimeoutScheduled(false),
+      _connectTimeout(options.connectTimeout),
+      _closeTimeout(options.closeTimeout),
+      _inactivityTimeout(options.inactivityTimeout),
       _warn(_instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Connections") > 0),
       _warnUdp(_instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Datagrams") > 0),
       _compressionLevel(1),
@@ -2156,17 +2160,19 @@ Ice::ConnectionI::create(
     const InstancePtr& instance,
     const ACMMonitorPtr& monitor,
     const TransceiverPtr& transceiver,
-    const chrono::seconds& idleTimeout,
-    bool enableIdleCheck,
     const ConnectorPtr& connector,
     const EndpointIPtr& endpoint,
-    const shared_ptr<ObjectAdapterI>& adapter)
+    const shared_ptr<ObjectAdapterI>& adapter,
+    const ConnectionOptions& options)
 {
     shared_ptr<IdleTimeoutTransceiverDecorator> decoratedTransceiver;
-    if (idleTimeout > chrono::milliseconds::zero())
+    if (options.idleTimeout > chrono::milliseconds::zero() && !endpoint->datagram())
     {
-        decoratedTransceiver =
-            make_shared<IdleTimeoutTransceiverDecorator>(transceiver, idleTimeout, enableIdleCheck, instance->timer());
+        decoratedTransceiver = make_shared<IdleTimeoutTransceiverDecorator>(
+            transceiver,
+            options.idleTimeout,
+            options.enableIdleCheck,
+            instance->timer());
     }
 
     Ice::ConnectionIPtr connection(new ConnectionI(
@@ -2176,7 +2182,8 @@ Ice::ConnectionI::create(
         decoratedTransceiver ? decoratedTransceiver : transceiver,
         connector,
         endpoint,
-        adapter));
+        adapter,
+        options));
 
     if (decoratedTransceiver)
     {
@@ -3535,15 +3542,7 @@ Ice::ConnectionI::scheduleTimeout(SocketOperation status)
     int timeout;
     if (_state < StateActive)
     {
-        DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
-        if (defaultsAndOverrides->overrideConnectTimeout)
-        {
-            timeout = defaultsAndOverrides->overrideConnectTimeoutValue;
-        }
-        else
-        {
-            timeout = _endpoint->timeout();
-        }
+        timeout = static_cast<int>(chrono::milliseconds(_connectTimeout).count());
     }
     else if (_state < StateClosingPending)
     {
@@ -3555,15 +3554,7 @@ Ice::ConnectionI::scheduleTimeout(SocketOperation status)
     }
     else
     {
-        DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
-        if (defaultsAndOverrides->overrideCloseTimeout)
-        {
-            timeout = defaultsAndOverrides->overrideCloseTimeoutValue;
-        }
-        else
-        {
-            timeout = _endpoint->timeout();
-        }
+        timeout = static_cast<int>(chrono::milliseconds(_closeTimeout).count());
     }
 
     if (timeout < 0)
