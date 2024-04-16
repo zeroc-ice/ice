@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICESSL_ENDPOINT_INFO_H
-#define ICESSL_ENDPOINT_INFO_H
+#ifndef ICE_SSL_ENDPOINT_INFO_H
+#define ICE_SSL_ENDPOINT_INFO_H
 
-#include "Ice/Endpoint.h"
+#include "Endpoint.h"
 
 #if defined(__clang__)
 #    pragma clang diagnostic push

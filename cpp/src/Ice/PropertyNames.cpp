@@ -1143,7 +1143,6 @@ const IceInternal::Property IceSSLPropsData[] = {
     IceInternal::Property("IceSSL.CertFile", false, 0),
     IceInternal::Property("IceSSL.CheckCertName", false, 0),
     IceInternal::Property("IceSSL.CheckCRL", false, 0),
-    IceInternal::Property("IceSSL.Ciphers", false, 0),
     IceInternal::Property("IceSSL.CertificateRevocationListFiles", false, 0),
     IceInternal::Property("IceSSL.DefaultDir", false, 0),
     IceInternal::Property("IceSSL.FindCert", false, 0),

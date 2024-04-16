@@ -7,10 +7,10 @@
 
 namespace IceInternal
 {
-    public sealed class PropertyNames
-    {
-        public static Property[] IceProps =
-        {
+     public sealed class PropertyNames
+     {
+          public static Property[] IceProps =
+          {
              new Property(@"^Ice\.AcceptClassCycles$", false, null),
              new Property(@"^Ice\.ACM\.Client$", true, null),
              new Property(@"^Ice\.ACM\.Server$", true, null),
@@ -200,8 +200,8 @@ namespace IceInternal
              new Property(@"^Ice\.ThreadInterruptSafe$", false, null),
         };
 
-        public static Property[] IceMXProps =
-        {
+          public static Property[] IceMXProps =
+          {
              new Property(@"^IceMX\.Metrics\.[^\s]+\.GroupBy$", false, null),
              new Property(@"^IceMX\.Metrics\.[^\s]+\.Map$", false, null),
              new Property(@"^IceMX\.Metrics\.[^\s]+\.RetainDetached$", false, null),
@@ -210,8 +210,8 @@ namespace IceInternal
              new Property(@"^IceMX\.Metrics\.[^\s]+$", false, null),
         };
 
-        public static Property[] IceDiscoveryProps =
-        {
+          public static Property[] IceDiscoveryProps =
+          {
              new Property(@"^IceDiscovery\.Multicast\.ACM\.Timeout$", false, null),
              new Property(@"^IceDiscovery\.Multicast\.ACM\.Heartbeat$", false, null),
              new Property(@"^IceDiscovery\.Multicast\.ACM\.Close$", false, null),
@@ -348,8 +348,8 @@ namespace IceInternal
              new Property(@"^IceDiscovery\.DomainId$", false, null),
         };
 
-        public static Property[] IceLocatorDiscoveryProps =
-        {
+          public static Property[] IceLocatorDiscoveryProps =
+          {
              new Property(@"^IceLocatorDiscovery\.Reply\.ACM\.Timeout$", false, null),
              new Property(@"^IceLocatorDiscovery\.Reply\.ACM\.Heartbeat$", false, null),
              new Property(@"^IceLocatorDiscovery\.Reply\.ACM\.Close$", false, null),
@@ -445,8 +445,8 @@ namespace IceInternal
              new Property(@"^IceLocatorDiscovery\.Trace\.Lookup$", false, null),
         };
 
-        public static Property[] IceBoxProps =
-        {
+          public static Property[] IceBoxProps =
+          {
              new Property(@"^IceBox\.InheritProperties$", false, null),
              new Property(@"^IceBox\.InstanceName$", true, null),
              new Property(@"^IceBox\.LoadOrder$", false, null),
@@ -466,8 +466,8 @@ namespace IceInternal
              new Property(@"^IceBox\.UseSharedCommunicator\.[^\s]+$", false, null),
         };
 
-        public static Property[] IceBoxAdminProps =
-        {
+          public static Property[] IceBoxAdminProps =
+          {
              new Property(@"^IceBoxAdmin\.ServiceManager\.Proxy\.EndpointSelection$", false, null),
              new Property(@"^IceBoxAdmin\.ServiceManager\.Proxy\.ConnectionCached$", false, null),
              new Property(@"^IceBoxAdmin\.ServiceManager\.Proxy\.PreferSecure$", false, null),
@@ -480,8 +480,8 @@ namespace IceInternal
              new Property(@"^IceBoxAdmin\.ServiceManager\.Proxy$", false, null),
         };
 
-        public static Property[] IceBridgeProps =
-        {
+          public static Property[] IceBridgeProps =
+          {
              new Property(@"^IceBridge\.Source\.ACM\.Timeout$", false, null),
              new Property(@"^IceBridge\.Source\.ACM\.Heartbeat$", false, null),
              new Property(@"^IceBridge\.Source\.ACM\.Close$", false, null),
@@ -528,8 +528,8 @@ namespace IceInternal
              new Property(@"^IceBridge\.InstanceName$", false, null),
         };
 
-        public static Property[] IceGridAdminProps =
-        {
+          public static Property[] IceGridAdminProps =
+          {
              new Property(@"^IceGridAdmin\.AuthenticateUsingSSL$", false, null),
              new Property(@"^IceGridAdmin\.MetricsConfig$", false, null),
              new Property(@"^IceGridAdmin\.Username$", false, null),
@@ -671,8 +671,8 @@ namespace IceInternal
              new Property(@"^IceGridAdmin\.Trace\.SaveToRegistry$", false, null),
         };
 
-        public static Property[] IceGridProps =
-        {
+          public static Property[] IceGridProps =
+          {
              new Property(@"^IceGrid\.AdminRouter\.ACM\.Timeout$", false, null),
              new Property(@"^IceGrid\.AdminRouter\.ACM\.Heartbeat$", false, null),
              new Property(@"^IceGrid\.AdminRouter\.ACM\.Close$", false, null),
@@ -1114,8 +1114,8 @@ namespace IceInternal
              new Property(@"^IceGrid\.Registry\.UserAccounts$", false, null),
         };
 
-        public static Property[] IceSSLProps =
-        {
+          public static Property[] IceSSLProps =
+          {
              new Property(@"^IceSSL\.Alias$", false, null),
              new Property(@"^IceSSL\.CAs$", false, null),
              new Property(@"^IceSSL\.CertStore$", false, null),
@@ -1123,7 +1123,6 @@ namespace IceInternal
              new Property(@"^IceSSL\.CertFile$", false, null),
              new Property(@"^IceSSL\.CheckCertName$", false, null),
              new Property(@"^IceSSL\.CheckCRL$", false, null),
-             new Property(@"^IceSSL\.Ciphers$", false, null),
              new Property(@"^IceSSL\.CertificateRevocationListFiles$", false, null),
              new Property(@"^IceSSL\.DefaultDir$", false, null),
              new Property(@"^IceSSL\.FindCert$", false, null),
@@ -1149,21 +1148,21 @@ namespace IceInternal
              new Property(@"^IceSSL\.VerifyPeer$", false, null),
         };
 
-        public static Property[] IceStormAdminProps =
-        {
+          public static Property[] IceStormAdminProps =
+          {
              new Property(@"^IceStormAdmin\.TopicManager\.[^\s]+$", false, null),
              new Property(@"^IceStormAdmin\.Host$", false, null),
              new Property(@"^IceStormAdmin\.Port$", false, null),
         };
 
-        public static Property[] IceBTProps =
-        {
+          public static Property[] IceBTProps =
+          {
              new Property(@"^IceBT\.RcvSize$", false, null),
              new Property(@"^IceBT\.SndSize$", false, null),
         };
 
-        public static Property[] Glacier2Props =
-        {
+          public static Property[] Glacier2Props =
+          {
              new Property(@"^Glacier2\.AddConnectionContext$", false, null),
              new Property(@"^Glacier2\.Client\.ACM\.Timeout$", false, null),
              new Property(@"^Glacier2\.Client\.ACM\.Heartbeat$", false, null),
@@ -1315,14 +1314,14 @@ namespace IceInternal
              new Property(@"^Glacier2\.Trace\.Session$", false, null),
         };
 
-        public static Property[] Glacier2CryptPermissionsVerifierProps =
-        {
+          public static Property[] Glacier2CryptPermissionsVerifierProps =
+          {
              new Property(@"^Glacier2CryptPermissionsVerifier\.[^\s]+\.PermissionsVerifier$", false, null),
              new Property(@"^Glacier2CryptPermissionsVerifier\.[^\s]+\.AdminPermissionsVerifier$", false, null),
         };
 
-        public static Property[][] validProps =
-        {
+          public static Property[][] validProps =
+          {
             IceProps,
             IceMXProps,
             IceDiscoveryProps,
@@ -1339,8 +1338,8 @@ namespace IceInternal
             Glacier2CryptPermissionsVerifierProps,
         };
 
-        public static string[] clPropNames =
-        {
+          public static string[] clPropNames =
+          {
             "Ice",
             "IceMX",
             "IceDiscovery",
@@ -1356,5 +1355,5 @@ namespace IceInternal
             "Glacier2",
             "Glacier2CryptPermissionsVerifier",
         };
-    }
+     }
 }

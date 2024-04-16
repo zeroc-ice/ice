@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICESSL_CONNECTION_INFO_H
-#define ICESSL_CONNECTION_INFO_H
+#ifndef ICE_SSL_CONNECTION_INFO_H
+#define ICE_SSL_CONNECTION_INFO_H
 
 #include "Certificate.h"
-#include "ConnectionInfoF.h"
 #include "Ice/Connection.h"
+#include "SSLConnectionInfoF.h"
 
 #if defined(__clang__)
 #    pragma clang diagnostic push

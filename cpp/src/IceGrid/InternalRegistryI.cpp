@@ -2,14 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/Ice.h"
 #include "IceUtil/DisableWarnings.h"
 
 #include "../IceSSL/RFC2253.h"
 #include "Database.h"
 #include "FileCache.h"
-#include "IceSSL/Certificate.h"
-#include "IceSSL/ConnectionInfo.h"
+#include "Ice/Ice.h"
 #include "InternalRegistryI.h"
 #include "NodeSessionI.h"
 #include "ReapThread.h"

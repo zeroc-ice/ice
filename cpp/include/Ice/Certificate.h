@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICESSL_PLUGIN_H
-#define ICESSL_PLUGIN_H
+#ifndef ICE_CERTIFICATE_H
+#define ICE_CERTIFICATE_H
 
-#include "ConnectionInfoF.h"
-#include "Ice/Config.h"
-#include "Ice/Exception.h"
-#include "Ice/Plugin.h"
+#include "Config.h"
+#include "Exception.h"
+#include "Plugin.h"
+#include "SSLConnectionInfoF.h"
 
 #include <chrono>
 #include <cstdint>

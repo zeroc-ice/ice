@@ -5,7 +5,7 @@
 #ifndef ICESSL_CERTIFICATE_I_H
 #define ICESSL_CERTIFICATE_I_H
 
-#include "IceSSL/Certificate.h"
+#include "Ice/Certificate.h"
 
 #include <string>
 #include <vector>

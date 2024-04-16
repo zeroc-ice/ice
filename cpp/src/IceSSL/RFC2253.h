@@ -25,14 +25,14 @@
 //
 namespace IceSSL::RFC2253
 {
-    typedef std::list<std::pair<std::string, std::string>> RDNSeq;
+    using RDNSeq = std::list<std::pair<std::string, std::string>>;
 
     struct ICE_API RDNEntry
     {
         RDNSeq rdn;
         bool negate;
     };
-    typedef std::list<RDNEntry> RDNEntrySeq;
+    using RDNEntrySeq = std::list<RDNEntry>;
 
     //
     // This function separates DNs with the ';' character. A list of RDN

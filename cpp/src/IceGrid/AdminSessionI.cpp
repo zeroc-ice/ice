@@ -7,7 +7,7 @@
 #include "Database.h"
 #include "Ice/Ice.h"
 #include "Ice/UUID.h"
-#include "IceSSL/Certificate.h"
+#include "Ice/Certificate.h"
 #include "RegistryI.h"
 #include "SynchronizationException.h"
 

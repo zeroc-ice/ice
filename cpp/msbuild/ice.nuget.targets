@@ -7,15 +7,11 @@
     <!-- Dynamic libraries and import libraries -->
     <ItemGroup>
         <Libraries Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\*.dll"
-                   Exclude="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\glacier2cryptpermissionsverifier*d.dll;
-                            $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icesslopenssl*.dll;
-                            $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\libeay32.dll;
-                            $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\ssleay32.dll"/>
+                   Exclude="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\glacier2cryptpermissionsverifier*d.dll"/>
 
         <ImportLibraries Include="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\*.lib"
                          Exclude="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\glacier2cryptpermissionsverifier*.lib;
                                   $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icedb*.lib;
-                                  $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icesslopenssl*.lib;
                                   $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icestormservice*.lib;
                                   $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\iceutil*.lib;
                                   $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icexml*.lib;

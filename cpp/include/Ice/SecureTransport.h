@@ -2,21 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICESSL_SCHANNEL_H
-#define ICESSL_SCHANNEL_H
+#ifndef ICE_SECURE_TRANSPORT_H
+#define ICE_SECURE_TRANSPORT_H
 
-#ifdef _WIN32
+#ifdef __APPLE__
+
 #    include "Certificate.h"
-// We need to include windows.h before wincrypt.h.
-// clang-format off
-#    ifndef NOMINMAX
-#        define NOMINMAX
-#    endif
-#    include <windows.h>
-#    include <wincrypt.h>
-// clang-format on
+#    include <Security/Security.h>
 
-namespace IceSSL::SChannel
+namespace IceSSL::SecureTransport
 {
     class Certificate;
     using CertificatePtr = std::shared_ptr<Certificate>;
@@ -31,10 +25,10 @@ namespace IceSSL::SChannel
          * Constructs a certificate using a native certificate.
          * The Certificate class assumes ownership of the given native
          * certificate.
-         * @param info The certificate data.
+         * @param cert The certificate cert.
          * @return The new certificate instance.
          */
-        static CertificatePtr create(CERT_SIGNED_CONTENT_INFO* info);
+        static CertificatePtr create(SecCertificateRef cert);
 
         /**
          * Loads the certificate from a file. The certificate must use the
@@ -57,11 +51,13 @@ namespace IceSSL::SChannel
          * Obtains the native X509 certificate value wrapped by this object.
          * @return A reference to the native certificate.
          * The returned reference is only valid for the lifetime of this
-         * object. The returned reference is a pointer to a struct.
+         * object. You can increment the reference count of the returned
+         * object with CFRetain.
          */
-        virtual CERT_SIGNED_CONTENT_INFO* getCert() const = 0;
+        virtual SecCertificateRef getCert() const = 0;
     };
 }
+
 #endif
 
 #endif

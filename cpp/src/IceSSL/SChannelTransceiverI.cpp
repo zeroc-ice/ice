@@ -7,7 +7,7 @@
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
-#include "IceSSL/ConnectionInfo.h"
+#include "Ice/SSLConnectionInfo.h"
 #include "IceUtil/StringUtil.h"
 #include "SChannelEngine.h"
 #include "SSLInstance.h"
