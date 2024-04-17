@@ -115,7 +115,16 @@ IceInternal::ObjectAdapterFactory::updateObservers(void (ObjectAdapterI::*fn)())
 }
 
 ObjectAdapterPtr
-IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const optional<RouterPrx>& router)
+IceInternal::ObjectAdapterFactory::createObjectAdapter(
+    const std::string& name,
+    const std::optional<Ice::RouterPrx>& router,
+#if defined(_WIN32)
+    CredHandle sslServerContext,
+    std::function<bool(CtxtHandle context)> sslClientCertificateValidationCallback
+#elif defined(__APPLE__)
+#else
+#endif
+)
 {
     shared_ptr<ObjectAdapterI> adapter;
     {

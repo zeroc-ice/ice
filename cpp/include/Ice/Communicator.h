@@ -148,6 +148,28 @@ namespace Ice
          */
         ObjectAdapterPtr createObjectAdapter(const std::string& name);
 
+#if defined(_WIN32)
+        /**
+         * Create a new object adapter. The endpoints for the object adapter are taken from the property
+         * <code><em>name</em>.Endpoints</code>.
+         * It is legal to create an object adapter with the empty string as its name. Such an object adapter is
+         * accessible via bidirectional connections or by collocated invocations that originate from the same
+         * communicator as is used by the adapter. Attempts to create a named object adapter for which no configuration
+         * can be found raise InitializationException.
+         * @param name The object adapter name.
+         * @return The new object adapter.
+         * @see #createObjectAdapterWithEndpoints
+         * @see ObjectAdapter
+         * @see Properties
+         */
+        ObjectAdapterPtr createObjectAdapter(
+            const std::string& name,
+            CredHandle sslServerContext,
+            std::function<bool(CtxtHandle context)> sslClientCertificateValidationCallback = nullptr);
+#elif defined(__APPLE__)
+#else
+#endif
+
         /**
          * Create a new object adapter with endpoints. This operation sets the property
          * <code><em>name</em>.Endpoints</code>, and then calls {@link #createObjectAdapter}. It is provided as a

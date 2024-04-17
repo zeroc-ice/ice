@@ -162,6 +162,13 @@ namespace Ice
         size_t _messageSizeMax;
         mutable std::recursive_mutex _mutex;
         std::condition_variable_any _conditionVariable;
+
+#if defined(_WIN32)
+        CredHandle _sslServerContext;
+        std::function<bool(CtxtHandle context)> _sslClientCertificateValidationCallback;
+#elif defined(__APPLE__)
+#else
+#endif
     };
 }
 

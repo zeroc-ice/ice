@@ -24,6 +24,15 @@ namespace IceInternal
         void updateObservers(void (Ice::ObjectAdapterI::*)());
 
         Ice::ObjectAdapterPtr createObjectAdapter(const std::string&, const std::optional<Ice::RouterPrx>&);
+#if defined(_WIN32)
+        ObjectAdapterPtr createObjectAdapter(
+            const std::string& name,
+            const std::optional<Ice::RouterPrx>&,
+            CredHandle sslServerContext,
+            std::function<bool(CtxtHandle context)> sslClientCertificateValidationCallback = nullptr);
+#elif defined(__APPLE__)
+#else
+#endif
         Ice::ObjectAdapterPtr findObjectAdapter(const IceInternal::ReferencePtr&);
         void removeObjectAdapter(const Ice::ObjectAdapterPtr&);
         void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&, Ice::CompressBatch) const;
