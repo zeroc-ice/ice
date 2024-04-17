@@ -3,7 +3,6 @@
 //
 
 #include "Ice/Ice.h"
-#include "IceSSL/EndpointInfo.h"
 #include "Util.h"
 #include "ice.h"
 

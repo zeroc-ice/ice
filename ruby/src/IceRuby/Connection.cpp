@@ -4,8 +4,7 @@
 
 #include "Connection.h"
 #include "Endpoint.h"
-#include "Ice/Object.h"
-#include "IceSSL/ConnectionInfo.h"
+#include "Ice/Ice.h"
 #include "Types.h"
 #include "Util.h"
 
