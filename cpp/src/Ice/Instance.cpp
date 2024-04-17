@@ -3,6 +3,8 @@
 //
 
 #include "Instance.h"
+#include "../IceSSL/SSLEngine.h"
+#include "CheckIdentity.h"
 #include "ConnectionFactory.h"
 #include "ConsoleUtil.h"
 #include "DefaultsAndOverrides.h"
@@ -16,7 +18,12 @@
 #include "Ice/LoggerUtil.h"
 #include "Ice/ObserverHelper.h"
 #include "Ice/Properties.h"
+#include "Ice/ProxyFunctions.h"
 #include "Ice/Router.h"
+#include "Ice/UUID.h"
+#include "IceUtil/DisableWarnings.h"
+#include "IceUtil/FileUtil.h"
+#include "IceUtil/StringUtil.h"
 #include "InstrumentationI.h"
 #include "LocatorInfo.h"
 #include "LoggerAdminI.h"
@@ -37,17 +44,17 @@
 #include "ValueFactoryManagerI.h"
 #include "WSEndpoint.h"
 
-#include "Ice/UUID.h"
-#include "IceUtil/DisableWarnings.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
-
-#include "CheckIdentity.h"
-#include "Ice/ProxyFunctions.h"
-
 #include <list>
 #include <mutex>
 #include <stdio.h>
+
+#if defined(_WIN32)
+#    include "../IceSSL/SChannelEngine.h"
+#elif defined(__APPLE__)
+#    include "../IceSSL/SecureTransportEngine.h"
+#else
+#    include "../IceSSL/OpenSSLEngine.h"
+#endif
 
 #ifdef __APPLE__
 #    include "OSLogLoggerI.h"
@@ -493,6 +500,35 @@ IceInternal::Instance::pluginManager() const
 
     assert(_pluginManager);
     return _pluginManager;
+}
+
+ConnectionOptions
+IceInternal::Instance::serverConnectionOptions(const string& adapterName) const
+{
+    ConnectionOptions connectionOptions = _clientConnectionOptions;
+
+    if (!adapterName.empty())
+    {
+        // Override if any of these properties are set, otherwise keep previous value.
+        const PropertiesPtr& properties = _initData.properties;
+
+        connectionOptions.connectTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
+            adapterName + ".ConnectTimeout",
+            static_cast<int>(connectionOptions.connectTimeout.count())));
+        connectionOptions.closeTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
+            adapterName + ".CloseTimeout",
+            static_cast<int>(connectionOptions.closeTimeout.count())));
+        connectionOptions.idleTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
+            adapterName + ".IdleTimeout",
+            static_cast<int>(connectionOptions.idleTimeout.count())));
+        connectionOptions.enableIdleCheck = properties->getPropertyAsIntWithDefault(
+                                                adapterName + ".EnableIdleCheck",
+                                                connectionOptions.enableIdleCheck ? 1 : 0) > 0;
+        connectionOptions.inactivityTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
+            adapterName + ".InactivityTimeout",
+            static_cast<int>(connectionOptions.inactivityTimeout.count())));
+    }
+    return connectionOptions;
 }
 
 const ACMConfig&
@@ -1094,6 +1130,27 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
             ACMConfig(_initData.properties, _initData.logger, "Ice.ACM.Server", defaultServerACM);
 
         {
+            const PropertiesPtr& properties = _initData.properties;
+            ConnectionOptions& connectionOptions = const_cast<ConnectionOptions&>(_clientConnectionOptions);
+
+            connectionOptions.connectTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
+                "Ice.ConnectTimeout",
+                static_cast<int>(connectionOptions.connectTimeout.count())));
+            connectionOptions.closeTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
+                "Ice.CloseTimeout",
+                static_cast<int>(connectionOptions.closeTimeout.count())));
+            connectionOptions.idleTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
+                "Ice.IdleTimeout",
+                static_cast<int>(connectionOptions.idleTimeout.count())));
+            connectionOptions.enableIdleCheck = properties->getPropertyAsIntWithDefault(
+                                                    "Ice.EnableIdleCheck",
+                                                    connectionOptions.enableIdleCheck ? 1 : 0) > 0;
+            connectionOptions.inactivityTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
+                "Ice.InactivityTimeout",
+                static_cast<int>(connectionOptions.inactivityTimeout.count())));
+        }
+
+        {
             static const int defaultMessageSizeMax = 1024;
             int32_t num =
                 _initData.properties->getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
@@ -1263,6 +1320,15 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                 _retryIntervals.push_back(v > 0 ? v : 0);
             }
         }
+
+#if defined(_WIN32)
+        _sslEngine = make_shared<IceSSL::SChannel::SSLEngine>(shared_from_this());
+#elif defined(__APPLE__)
+        _sslEngine = make_shared<IceSSL::SecureTransport::SSLEngine>(shared_from_this());
+#else
+        _sslEngine = make_shared<IceSSL::OpenSSL::SSLEngine>(shared_from_this());
+#endif
+        _sslEngine->initialize();
     }
     catch (...)
     {
@@ -1728,6 +1794,8 @@ IceInternal::Instance::destroy()
 
         _adminAdapter = nullptr;
         _adminFacets.clear();
+
+        _sslEngine = nullptr;
 
         _state = StateDestroyed;
         _conditionVariable.notify_all();

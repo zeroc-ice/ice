@@ -4,10 +4,9 @@
 
 #include "Connection.h"
 #include "Endpoint.h"
+#include "Ice/Ice.h"
 #include "Types.h"
 #include "Util.h"
-
-#include "IceSSL/IceSSL.h"
 
 using namespace std;
 using namespace IcePHP;

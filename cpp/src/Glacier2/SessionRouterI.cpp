@@ -6,11 +6,8 @@
 #include "SessionRouterI.h"
 #include "FilterManager.h"
 #include "Glacier2/PermissionsVerifier.h"
+#include "Ice/Ice.h"
 #include "RouterI.h"
-
-#include "Ice/UUID.h"
-
-#include "IceSSL/IceSSL.h"
 
 using namespace std;
 using namespace Ice;

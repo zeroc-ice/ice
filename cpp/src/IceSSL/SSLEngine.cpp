@@ -3,16 +3,15 @@
 //
 
 #include "SSLEngine.h"
-#include "IceSSL/ConnectionInfo.h"
-#include "TrustManager.h"
-
-#include "IceUtil/StringUtil.h"
-
+#include "../Ice/Instance.h"
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
+#include "Ice/SSLConnectionInfo.h"
+#include "IceUtil/StringUtil.h"
+#include "TrustManager.h"
 
 #include <string>
 
@@ -21,28 +20,31 @@ using namespace Ice;
 using namespace IceUtil;
 using namespace IceSSL;
 
-IceSSL::SSLEngine::SSLEngine(const Ice::CommunicatorPtr& communicator)
-    : _initialized(false),
-      _communicator(communicator),
-      _logger(communicator->getLogger()),
-      _trustManager(make_shared<TrustManager>(communicator)),
+IceSSL::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)
+    : _instance(instance),
+      _trustManager(make_shared<TrustManager>(instance)),
       _revocationCheckCacheOnly(false),
       _revocationCheck(0)
 {
 }
 
-bool
-IceSSL::SSLEngine::initialized() const
+Ice::LoggerPtr
+IceSSL::SSLEngine::getLogger() const
 {
-    lock_guard lock(_mutex);
-    return _initialized;
+    return _instance->initializationData().logger;
+}
+
+Ice::PropertiesPtr
+IceSSL::SSLEngine::getProperties() const
+{
+    return _instance->initializationData().properties;
 }
 
 void
 IceSSL::SSLEngine::initialize()
 {
     const string propPrefix = "IceSSL.";
-    const PropertiesPtr properties = communicator()->getProperties();
+    const PropertiesPtr properties = getProperties();
 
     // CheckCertName determines whether we compare the name in a peer's certificate against its hostname.
     _checkCertName = properties->getPropertyAsIntWithDefault(propPrefix + "CheckCertName", 0) > 0;
@@ -56,10 +58,7 @@ IceSSL::SSLEngine::initialize()
 
     if (_verifyPeer < 0 || _verifyPeer > 2)
     {
-        throw PluginInitializationException(
-            __FILE__,
-            __LINE__,
-            "IceSSL: invalid value for " + propPrefix + "VerifyPeer");
+        throw InitializationException(__FILE__, __LINE__, "IceSSL: invalid value for " + propPrefix + "VerifyPeer");
     }
 
     _securityTraceLevel = properties->getPropertyAsInt("IceSSL.Trace.Security");
@@ -138,7 +137,7 @@ IceSSL::SSLEngine::verifyPeerCertName(const string& address, const ConnectionInf
             string msg = ostr.str();
             if (_securityTraceLevel >= 1)
             {
-                Trace out(_logger, _securityTraceCategory);
+                Trace out(getLogger(), _securityTraceCategory);
                 out << msg;
             }
             throw SecurityException(__FILE__, __LINE__, msg);
@@ -154,7 +153,7 @@ IceSSL::SSLEngine::verifyPeer(const string& /*address*/, const ConnectionInfoPtr
         string msg = string(info->incoming ? "incoming" : "outgoing") + " connection rejected by trust manager";
         if (_securityTraceLevel >= 1)
         {
-            _logger->trace(_securityTraceCategory, msg + "\n" + desc);
+            getLogger()->trace(_securityTraceCategory, msg + "\n" + desc);
         }
         throw SecurityException(__FILE__, __LINE__, msg);
     }

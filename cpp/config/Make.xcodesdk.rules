@@ -15,7 +15,7 @@ xcodesdk_targetdir      = $(if $(filter %/build,$5),xcodesdk,$(if $(is-iostest-p
 xcodesdk_installdir     = $(if $(filter %/build,$5),xcodesdk,$(if $(is-iostest-program),,../sdk/$2.sdk/usr/lib))
 xcodesdk_targetrule     = $(if $(is-iostest-program),iostest,$(if $(filter-out program,$($1_target)),static))
 
-xcodesdk_components     = Ice IceSSL Glacier2 IceStorm IceGrid IceDiscovery IceLocatorDiscovery IceIAP TestCommon
+xcodesdk_components     = Ice Glacier2 IceStorm IceGrid IceDiscovery IceLocatorDiscovery IceIAP TestCommon
 xcodesdk_projects       = test/Ice/% test/IceSSL/configuration
 xcodesdk_excludes       = $(addprefix test/Ice/,background \
                                                 faultTolerance \

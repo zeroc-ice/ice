@@ -3,7 +3,6 @@
 //
 
 #include "Ice/Ice.h"
-#include "IceSSL/IceSSL.h"
 
 #if defined(__GNUC__)
 #    pragma GCC diagnostic ignored "-Wredundant-decls"

@@ -7,46 +7,34 @@
 
 #ifdef __APPLE__
 
+#    include "Ice/InstanceF.h"
 #    include "Ice/UniqueRef.h"
 #    include "SSLEngine.h"
 
 #    include <Security/SecureTransport.h>
 #    include <Security/Security.h>
 
-namespace IceSSL
+namespace IceSSL::SecureTransport
 {
-    namespace SecureTransport
+    class SSLEngine final : public IceSSL::SSLEngine
     {
-        class SSLEngine final : public IceSSL::SSLEngine
-        {
-        public:
-            SSLEngine(const Ice::CommunicatorPtr&);
+    public:
+        SSLEngine(const IceInternal::InstancePtr&);
 
-            void initialize() final;
-            void destroy() final;
-            IceInternal::TransceiverPtr
-            createTransceiver(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool) final;
+        void initialize() final;
+        void destroy() final;
+        IceInternal::TransceiverPtr
+        createTransceiver(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool) final;
 
-            SSLContextRef newContext(bool);
-            CFArrayRef getCertificateAuthorities() const;
-            std::string getCipherName(SSLCipherSuite) const;
+        SSLContextRef newContext(bool);
+        CFArrayRef getCertificateAuthorities() const;
+        std::string getCipherName(SSLCipherSuite) const;
 
-        private:
-            void parseCiphers(const std::string&);
-
-            IceInternal::UniqueRef<CFArrayRef> _certificateAuthorities;
-            IceInternal::UniqueRef<CFArrayRef> _chain;
-
-#    if TARGET_OS_IPHONE == 0
-            std::vector<char> _dhParams;
-#    endif
-            std::vector<SSLCipherSuite> _ciphers;
-        };
-
-    } // SecureTransport namespace end
-
-} // IceSSL namespace end
-
+    private:
+        IceInternal::UniqueRef<CFArrayRef> _certificateAuthorities;
+        IceInternal::UniqueRef<CFArrayRef> _chain;
+    };
+}
 #endif
 
 #endif

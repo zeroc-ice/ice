@@ -4,10 +4,10 @@
 
 #include "../Ice/StringUtil.h"
 #include "CertificateI.h"
+#include "Ice/Certificate.h"
+#include "Ice/SChannel.h"
 #include "Ice/StringConverter.h"
-#include "IceSSL/SChannel.h"
-#include "PluginI.h"
-#include "Util.h"
+#include "SSLUtil.h"
 
 #include <wincrypt.h>
 
@@ -48,9 +48,7 @@ namespace
         CertInfoHolderPtr _certInfo; // Keep a reference on the CERT_INFO struct that holds the extension
     };
 
-    class SChannelCertificateI : public SChannel::Certificate,
-                                 public CertificateI,
-                                 public IceSSL::CertificateExtendedInfo
+    class SChannelCertificateI : public SChannel::Certificate, public CertificateI
     {
     public:
         SChannelCertificateI(CERT_SIGNED_CONTENT_INFO*);
@@ -720,4 +718,16 @@ SChannel::Certificate::decode(const std::string& encoding)
     CERT_SIGNED_CONTENT_INFO* cert;
     loadCertificate(&cert, encoding.c_str(), static_cast<DWORD>(encoding.size()));
     return make_shared<SChannelCertificateI>(cert);
+}
+
+IceSSL::CertificatePtr
+IceSSL::Certificate::load(const std::string& file)
+{
+    return IceSSL::SChannel::Certificate::load(file);
+}
+
+IceSSL::CertificatePtr
+IceSSL::Certificate::decode(const std::string& encoding)
+{
+    return IceSSL::SChannel::Certificate::decode(encoding);
 }

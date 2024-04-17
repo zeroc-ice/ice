@@ -22,10 +22,7 @@ namespace
 {
     mutex outputMutex;
 
-    //
-    // Timeout in milliseconds after which rename will be attempted
-    // in case of failures renaming files. That is set to 5 minutes.
-    //
+    // Timeout after which rename will be attempted in case of failures renaming files. That is set to 5 minutes.
     const chrono::minutes retryTimeout = chrono::minutes(5);
 }
 

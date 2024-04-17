@@ -9,7 +9,7 @@ IcePy_targetname        := IcePy
 IcePy_targetdir         := $(lang_srcdir)/python
 IcePy_installdir        := $(install_pythondir)
 IcePy_cppflags          := $(ice_cpp_cppflags) -I$(top_srcdir)/cpp/src $(python_cppflags)
-IcePy_dependencies      := IceDiscovery IceLocatorDiscovery IceSSL Ice
+IcePy_dependencies      := IceDiscovery IceLocatorDiscovery Ice
 IcePy_libs              := mcpp
 IcePy_extra_sources     := $(wildcard $(top_srcdir)/cpp/src/Slice/*.cpp) \
                            $(top_srcdir)/cpp/src/slice2py/PythonUtil.cpp \

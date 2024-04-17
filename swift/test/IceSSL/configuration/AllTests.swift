@@ -104,22 +104,6 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
   let os = ProcessInfo().operatingSystemVersion
   let isCatalinaOrGreater = (os.majorVersion, os.minorVersion) >= (10, 15)
 
-  output.write("testing manual initialization... ")
-  do {
-    let properties = createClientProps(defaultProperties)
-    properties.setProperty(key: "Ice.InitPlugins", value: "0")
-    let comm = try helper.initialize(properties)
-    let p = try comm.stringToProxy("dummy:ssl -p 9999")!
-    do {
-      try p.ice_ping()
-      try test(false)
-    } catch is PluginInitializationException {
-      // Expected.
-    }
-    comm.destroy()
-  }
-  output.writeLine("ok")
-
   output.write("testing certificate verification... ")
   do {
     //
@@ -465,59 +449,6 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
   try server.ice_ping()
   try fact.destroyServer(server)
   comm.destroy()
-  output.writeLine("ok")
-
-  output.write("testing ciphers... ")
-
-  properties = createClientProps(
-    defaultProperties: defaultProperties, cert: "c_rsa_ca1", ca: "cacert1")
-  properties.setProperty(key: "IceSSL.Ciphers", value: "UNKNOWN")
-  do {
-    _ = try helper.initialize(properties)
-    try test(false)
-  } catch is Ice.PluginInitializationException {
-    // Expected
-  }
-
-  //
-  // The server has a certificate but the client doesn't. They should
-  // negotiate to use ADH since we explicitly enable it.
-  //
-  properties = createClientProps(defaultProperties)
-  properties.setProperty(key: "IceSSL.Ciphers", value: "(DH_anon*)")
-  comm = try helper.initialize(properties)
-  fact = try checkedCast(prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!
-  d = createServerProps(defaultProperties: defaultProperties, cert: "s_rsa_ca1", ca: "cacert1")
-  let cipherSub = "DH_anon"
-  d["IceSSL.Ciphers"] = "(RSA_*) (DH_anon*)"
-  d["IceSSL.VerifyPeer"] = "1"
-  server = try fact.createServer(d)!
-
-  do {
-    try server.checkCipher(cipherSub)
-    let info = try server.ice_getConnection()!.getInfo() as! SSLConnectionInfo
-    try test(info.cipher.starts(with: cipherSub))
-  } catch is LocalException {
-    //
-    // macOS 10.10 bug the handshake fails attempting client auth
-    // with anon cipher.
-    //
-  }
-  try fact.destroyServer(server)
-  comm.destroy()
-
-  //
-  // This should fail because the client disabled all ciphers.
-  //
-  properties = createClientProps(
-    defaultProperties: defaultProperties, cert: "c_rsa_ca1", ca: "cacert1")
-  properties.setProperty(key: "IceSSL.Ciphers", value: "NONE")
-  do {
-    comm = try helper.initialize(properties)
-    try test(false)
-  } catch is Ice.PluginInitializationException {
-    // Expected when disabled all cipher suites.
-  }
   output.writeLine("ok")
 
   output.write("testing IceSSL.TrustOnly... ")

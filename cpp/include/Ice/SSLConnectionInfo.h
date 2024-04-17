@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICESSL_CONNECTION_INFO_H
-#define ICESSL_CONNECTION_INFO_H
+#ifndef ICE_SSL_CONNECTION_INFO_H
+#define ICE_SSL_CONNECTION_INFO_H
 
-#include "ConnectionInfoF.h"
+#include "Certificate.h"
 #include "Ice/Connection.h"
-#include "Plugin.h"
+#include "SSLConnectionInfoF.h"
 
 #if defined(__clang__)
 #    pragma clang diagnostic push
@@ -20,8 +20,7 @@
 namespace IceSSL
 {
     /**
-     * Provides access to the connection details of an SSL connection
-     * \headerfile IceSSL/IceSSL.h
+     * Provides access to the connection details of an SSL connection.
      */
     class ConnectionInfo : public Ice::ConnectionInfo
     {
@@ -68,6 +67,9 @@ namespace IceSSL
          * The certificate chain verification status.
          */
         bool verified;
+
+        TrustError errorCode;
+        std::string host;
     };
 }
 

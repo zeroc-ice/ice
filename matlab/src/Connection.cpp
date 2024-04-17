@@ -4,7 +4,6 @@
 
 #include "Future.h"
 #include "Ice/Ice.h"
-#include "IceSSL/IceSSL.h"
 #include "Util.h"
 #include "ice.h"
 

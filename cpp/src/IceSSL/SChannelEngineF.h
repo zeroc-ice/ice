@@ -7,18 +7,14 @@
 
 #ifdef _WIN32
 
-#    include "IceSSL/SChannel.h"
+#    include "Ice/SChannel.h"
 
 #    include <memory>
 
-namespace IceSSL
+namespace IceSSL::SChannel
 {
-    namespace SChannel
-    {
-        class SSLEngine;
-        using SSLEnginePtr = std::shared_ptr<SSLEngine>;
-
-    }
+    class SSLEngine;
+    using SSLEnginePtr = std::shared_ptr<SSLEngine>;
 }
 
 #endif

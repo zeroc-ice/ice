@@ -1147,7 +1147,6 @@ public final class PropertyNames {
     new Property("IceSSL\\.CertFile", false, null),
     new Property("IceSSL\\.CheckCertName", false, null),
     new Property("IceSSL\\.CheckCRL", false, null),
-    new Property("IceSSL\\.Ciphers", false, null),
     new Property("IceSSL\\.CertificateRevocationListFiles", false, null),
     new Property("IceSSL\\.DefaultDir", false, null),
     new Property("IceSSL\\.FindCert", false, null),

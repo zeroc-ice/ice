@@ -34,10 +34,6 @@ namespace IceInternal
 
         bool overrideTimeout;
         std::int32_t overrideTimeoutValue;
-        bool overrideConnectTimeout;
-        std::int32_t overrideConnectTimeoutValue;
-        bool overrideCloseTimeout;
-        std::int32_t overrideCloseTimeoutValue;
         bool overrideCompress;
         bool overrideCompressValue;
         bool overrideSecure;

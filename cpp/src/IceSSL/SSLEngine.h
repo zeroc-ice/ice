@@ -5,32 +5,32 @@
 #ifndef ICESSL_ENGINE_H
 #define ICESSL_ENGINE_H
 
-#include "IceSSL/Plugin.h"
-#include "InstanceF.h"
-#include "SSLEngineF.h"
-#include "TrustManagerF.h"
-#include "Util.h"
-
 #include "../Ice/Network.h"
 #include "../Ice/TransceiverF.h"
+#include "Ice/Certificate.h"
 #include "Ice/CommunicatorF.h"
+#include "Ice/InstanceF.h"
+#include "SSLEngineF.h"
+#include "SSLInstanceF.h"
+#include "SSLUtil.h"
+#include "TrustManagerF.h"
 
 #include <mutex>
 
 namespace IceSSL
 {
-    class ICESSL_API SSLEngine
+    class ICE_API SSLEngine
     {
     public:
-        SSLEngine(const Ice::CommunicatorPtr&);
+        SSLEngine(const IceInternal::InstancePtr&);
 
-        Ice::CommunicatorPtr communicator() const { return _communicator; }
-        Ice::LoggerPtr getLogger() const { return _logger; };
+        Ice::LoggerPtr getLogger() const;
+        Ice::PropertiesPtr getProperties() const;
+
+        IceInternal::InstancePtr instance() const { return _instance; }
 
         // Setup the engine.
         virtual void initialize() = 0;
-
-        virtual bool initialized() const;
 
         // Destroy the engine.
         virtual void destroy() = 0;
@@ -52,12 +52,10 @@ namespace IceSSL
         std::string securityTraceCategory() const;
 
     protected:
-        bool _initialized;
         mutable std::mutex _mutex;
 
     private:
-        const Ice::CommunicatorPtr _communicator;
-        const Ice::LoggerPtr _logger;
+        const IceInternal::InstancePtr _instance;
         const TrustManagerPtr _trustManager;
 
         std::string _password;

@@ -3,7 +3,6 @@
 //
 
 #include "Ice/Ice.h"
-#include "IceSSL/IceSSL.h"
 #include "Test.h"
 #include "TestHelper.h"
 
@@ -11,6 +10,7 @@
 #include <chrono>
 #include <fstream>
 #include <thread>
+#include <vector>
 
 #include "Ice/UniqueRef.h"
 
@@ -29,15 +29,18 @@
 #        define ICE_USE_SECURE_TRANSPORT_MACOS 1
 #    endif
 #elif defined(_WIN32)
-#    if !defined(ICE_USE_OPENSSL)
-#        define ICE_USE_SCHANNEL 1
+#    define ICE_USE_SCHANNEL 1
+// We need to include windows.h before wincrypt.h.
+// clang-format off
+#    ifndef NOMINMAX
+#        define NOMINMAX
 #    endif
+#    include <windows.h>
+#    include <wincrypt.h>
+// clang-format on
+
 #else
 #    define ICE_USE_OPENSSL 1
-#endif
-
-#if defined(_WIN32) && defined(ICE_USE_OPENSSL)
-#    include "IceSSL/OpenSSL.h"
 #endif
 
 using namespace std;
@@ -275,12 +278,6 @@ static PropertiesPtr
 createClientProps(const Ice::PropertiesPtr& defaultProps, bool p12)
 {
     PropertiesPtr result = createProperties();
-    //
-    // Don't set the plugin property, the client registered the plugin with registerIceSSL.
-    //
-#if defined(_WIN32) && defined(ICE_USE_OPENSSL)
-    result->setProperty("Ice.Plugin.IceSSL", "IceSSLOpenSSL:createIceSSLOpenSSL");
-#endif
     result->setProperty("IceSSL.DefaultDir", defaultProps->getProperty("IceSSL.DefaultDir"));
     result->setProperty("Ice.Default.Host", defaultProps->getProperty("Ice.Default.Host"));
     if (!defaultProps->getProperty("Ice.IPv6").empty())
@@ -307,11 +304,6 @@ static Test::Properties
 createServerProps(const Ice::PropertiesPtr& defaultProps, bool p12)
 {
     Test::Properties result;
-#if defined(_WIN32) && defined(ICE_USE_OPENSSL)
-    result["Ice.Plugin.IceSSL"] = "IceSSLOpenSSL:createIceSSLOpenSSL";
-#else
-    result["Ice.Plugin.IceSSL"] = "IceSSL:createIceSSL";
-#endif
     result["IceSSL.DefaultDir"] = defaultProps->getProperty("IceSSL.DefaultDir");
     result["Ice.Default.Host"] = defaultProps->getProperty("Ice.Default.Host");
     if (!defaultProps->getProperty("Ice.IPv6").empty())
@@ -442,23 +434,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     string sep = ";";
 #else
     string sep = ":";
-#endif
-
-#ifdef ICE_USE_OPENSSL
-    int64_t openSSLVersion;
-    {
-        //
-        // Get the IceSSL engine name and version
-        //
-        InitializationData initData;
-        initData.properties = createClientProps(defaultProps, p12);
-        CommunicatorPtr comm = initialize(initData);
-        auto plugin = dynamic_pointer_cast<IceSSL::OpenSSL::Plugin>(comm->getPluginManager()->getPlugin("IceSSL"));
-        test(plugin);
-        openSSLVersion = plugin->getOpenSSLVersion();
-        comm->destroy();
-    }
-    const string anonCiphers = openSSLVersion >= 0x10100000L ? "ADH:@SECLEVEL=0" : "ADH";
 #endif
 
     IceSSL::ConnectionInfoPtr info;
@@ -631,7 +606,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
             test(info->certs.size() == 2);
             test(info->verified);
-            test(getTrustError(info) == IceSSL::TrustError::NoError);
+            test(info->errorCode == IceSSL::TrustError::NoError);
 
             test(Ice::targetEqualTo(caCert, info->certs[1]));
             test(Ice::targetEqualTo(serverCert, info->certs[0]));
@@ -841,8 +816,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
             info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
             test(info->verified);
-            test(getHost(info) == "localhost");
-            test(getTrustError(info) == IceSSL::TrustError::NoError);
+            test(info->host == "localhost");
+            test(info->errorCode == IceSSL::TrustError::NoError);
 
             fact->destroyServer(server);
             comm->destroy();
@@ -862,8 +837,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
             info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
             test(!info->verified);
-            test(getTrustError(info) == IceSSL::TrustError::HostNameMismatch);
-            test(getHost(info) == "localhost");
+            test(info->errorCode == IceSSL::TrustError::HostNameMismatch);
+            test(info->host == "localhost");
 
             fact->destroyServer(server);
             comm->destroy();
@@ -886,13 +861,13 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             if (isCatalinaOrGreater || isIOS13OrGreater)
             {
                 test(!info->verified);
-                test(getTrustError(info) == IceSSL::TrustError::HostNameMismatch);
+                test(info->errorCode == IceSSL::TrustError::HostNameMismatch);
             }
             else
             {
                 test(info->verified);
             }
-            test(getHost(info) == "localhost");
+            test(info->host == "localhost");
 
             fact->destroyServer(server);
             comm->destroy();
@@ -913,8 +888,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
             info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
             test(!info->verified);
-            test(getTrustError(info) == IceSSL::TrustError::HostNameMismatch);
-            test(getHost(info) == "localhost");
+            test(info->errorCode == IceSSL::TrustError::HostNameMismatch);
+            test(info->host == "localhost");
 
             fact->destroyServer(server);
             comm->destroy();
@@ -935,8 +910,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
             info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
             test(!info->verified);
-            test(getTrustError(info) == IceSSL::TrustError::HostNameMismatch);
-            test(getHost(info) == "localhost");
+            test(info->errorCode == IceSSL::TrustError::HostNameMismatch);
+            test(info->host == "localhost");
 
             fact->destroyServer(server);
             comm->destroy();
@@ -961,8 +936,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
             info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
             test(info->verified);
-            test(getTrustError(info) == IceSSL::TrustError::NoError);
-            test(getHost(info) == "127.0.0.1");
+            test(info->errorCode == IceSSL::TrustError::NoError);
+            test(info->host == "127.0.0.1");
 
             fact->destroyServer(server);
             comm->destroy();
@@ -982,8 +957,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
             info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
             test(!info->verified);
-            test(getTrustError(info) == IceSSL::TrustError::HostNameMismatch);
-            test(getHost(info) == "127.0.0.1");
+            test(info->errorCode == IceSSL::TrustError::HostNameMismatch);
+            test(info->host == "127.0.0.1");
 
             fact->destroyServer(server);
             comm->destroy();
@@ -1008,8 +983,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
             info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
             test(!info->verified);
-            test(getTrustError(info) == IceSSL::TrustError::HostNameMismatch);
-            test(getHost(info) == "127.0.0.1");
+            test(info->errorCode == IceSSL::TrustError::HostNameMismatch);
+            test(info->host == "127.0.0.1");
             fact->destroyServer(server);
             comm->destroy();
         }
@@ -1194,7 +1169,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
             test(info->certs.size() == 1);
             test(!info->verified);
-            test(getTrustError(info) == IceSSL::TrustError::PartialChain);
+            test(info->errorCode == IceSSL::TrustError::PartialChain);
         }
         catch (const Ice::LocalException& ex)
         {
@@ -1216,10 +1191,10 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
 #ifdef ICE_USE_OPENSSL
             test(info->certs.size() == 2); // TODO: Fix OpenSSL
-            test(getTrustError(info) == IceSSL::TrustError::UntrustedRoot);
+            test(info->errorCode == IceSSL::TrustError::UntrustedRoot);
 #else
             test(info->certs.size() == 1);
-            test(getTrustError(info) == IceSSL::TrustError::PartialChain);
+            test(info->errorCode == IceSSL::TrustError::PartialChain);
 #endif
             test(!info->verified);
         }
@@ -1246,10 +1221,10 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                 info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
 #if defined(ICE_USE_SCHANNEL)
                 test(info->certs.size() == 1); // SChannel never sends the root certificate
-                test(getTrustError(info) == IceSSL::TrustError::PartialChain);
+                test(info->errorCode == IceSSL::TrustError::PartialChain);
 #else
                 test(info->certs.size() == 2);
-                test(getTrustError(info) == IceSSL::TrustError::UntrustedRoot);
+                test(info->errorCode == IceSSL::TrustError::UntrustedRoot);
 #endif
                 test(!info->verified);
             }
@@ -1282,7 +1257,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                 info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
                 test(info->certs.size() == 2);
                 test(info->verified);
-                test(getTrustError(info) == IceSSL::TrustError::NoError);
+                test(info->errorCode == IceSSL::TrustError::NoError);
             }
             catch (const Ice::LocalException& ex)
             {
@@ -1417,7 +1392,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
         info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
         test(!info->verified);
-        test(getTrustError(info) == IceSSL::TrustError::InvalidTime);
+        test(info->errorCode == IceSSL::TrustError::InvalidTime);
 
         fact->destroyServer(server);
         comm->destroy();
@@ -1543,242 +1518,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     cout << "ok" << endl;
 #endif
 
-    // TODO disabled for now
-    /*
-        cout << "testing ciphers... " << flush;
-        {
-            //
-            // With OpenSSL 1.1.1 the initialization will success because TLS 1.3
-            // ciphersuites are still enabled. They are not affected by IceSSL.Ciphers
-            // properties
-            //
-    #if !(defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x1010100fL)
-            InitializationData initData;
-            initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-            initData.properties->setProperty("IceSSL.Ciphers", "UNKNOWN");
-            try
-            {
-                initialize(initData);
-                test(false);
-            }
-            catch(const Ice::PluginInitializationException&)
-            {
-            }
-    #endif
-        }
-    #ifndef ICE_USE_SCHANNEL
-        {
-            //
-            // The server has a certificate but the client doesn't. They should
-            // negotiate to use ADH since we explicitly enable it.
-            //
-            InitializationData initData;
-            initData.properties = createClientProps(defaultProps, p12);
-    #   ifdef ICE_USE_OPENSSL
-            initData.properties->setProperty("IceSSL.Ciphers", anonCiphers);
-    #       if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x1010100fL
-            //
-            // With OpenSSL 1.1 disable tls1.3 so that client and server negotiate
-            // an anon cipher
-            //
-            initData.properties->setProperty("IceSSL.Protocols", "tls1_2,tls1_1");
-    #       endif
-    #    else
-            initData.properties->setProperty("IceSSL.Ciphers", "(DH_anon*)");
-    #   endif
-            CommunicatorPtr comm = initialize(initData);
-            optional<Test::ServerFactoryPrx> fact = Test::ServerFactoryPrx(comm, factoryRef);
-            test(fact);
-            Test::Properties d = createServerProps(defaultProps, p12, "s_rsa_ca1", "cacert1");
-    #   ifdef ICE_USE_OPENSSL
-            //
-            // With OpenSSL 1.1.0 we need to set SECLEVEL=0 to allow ADH ciphers
-            //
-            string cipherSub = "ADH-";
-            d["IceSSL.Ciphers"] = "RSA:" + anonCiphers;
-    #   else
-            string cipherSub = "DH_";
-            d["IceSSL.Ciphers"] = "(RSA_*) (DH_anon*)";
-    #   endif
-            d["IceSSL.VerifyPeer"] = "1";
-            optional<Test::ServerPrx> server = fact->createServer(d);
-            try
-            {
-                server->checkCipher(cipherSub);
-                info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
-                test(info->cipher.compare(0, cipherSub.size(), cipherSub) == 0);
-            }
-            catch(const LocalException& ex)
-            {
-    #   ifndef ICE_USE_SECURE_TRANSPORT
-                //
-                // macOS 10.10 bug the handshake fails attempting client auth
-                // with anon cipher.
-                //
-                cerr << ex << endl;
-                test(false);
-    #   endif
-            }
-            fact->destroyServer(server);
-            comm->destroy();
-        }
-
-        {
-            //
-            // This should fail because we disabled all anonymous ciphers and the server doesn't
-            // provide a certificate.
-            //
-            InitializationData initData;
-            initData.properties = createClientProps(defaultProps, p12);
-    #   ifdef ICE_USE_OPENSSL
-            initData.properties->setProperty("IceSSL.Ciphers", "ALL:!ADH");
-    #   else
-            initData.properties->setProperty("IceSSL.Ciphers", "ALL !(DH_anon*)");
-    #   endif
-            CommunicatorPtr comm = initialize(initData);
-            optional<Test::ServerFactoryPrx> fact = Test::ServerFactoryPrx(comm, factoryRef);
-            test(fact);
-            Test::Properties d = createServerProps(defaultProps, p12);
-            d["IceSSL.VerifyPeer"] = "0";
-            optional<Test::ServerPrx> server = fact->createServer(d);
-            try
-            {
-                server->ice_ping();
-                test(false);
-            }
-            catch(const ProtocolException&)
-            {
-                // Expected
-            }
-            catch(const ConnectionLostException&)
-            {
-                // Expected
-            }
-            catch(const LocalException& ex)
-            {
-                cerr << ex << endl;
-                test(false);
-            }
-            fact->destroyServer(server);
-            comm->destroy();
-        }
-    #   ifdef ICE_USE_SECURE_TRANSPORT
-        {
-            //
-            // This should fail because the client disabled all ciphers.
-            //
-            InitializationData initData;
-            initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-            initData.properties->setProperty("IceSSL.Ciphers", "NONE");
-            try
-            {
-                CommunicatorPtr comm = initialize(initData);
-                test(false);
-            }
-            catch(const Ice::PluginInitializationException&)
-            {
-                //Expected when disabled all cipher suites.
-            }
-            catch(const Ice::LocalException& ex)
-            {
-                cerr << ex << endl;
-                test(false);
-            }
-        }
-
-        {
-            //
-            // Test IceSSL.DHParams
-            //
-            InitializationData initData;
-            initData.properties = createClientProps(defaultProps, p12);
-            initData.properties->setProperty("IceSSL.Ciphers", "(DH_anon*)");
-            CommunicatorPtr comm = initialize(initData);
-            optional<Test::ServerFactoryPrx> fact = Test::ServerFactoryPrx(comm, factoryRef);
-            test(fact);
-            Test::Properties d = createServerProps(defaultProps, p12);
-            d["IceSSL.Ciphers"] = "(DH_anon*)";
-            d["IceSSL.DHParams"] = "dh_params1024.der";
-            d["IceSSL.VerifyPeer"] = "0";
-            optional<Test::ServerPrx> server = fact->createServer(d);
-            try
-            {
-                server->checkCipher("DH_anon");
-            }
-            catch(const LocalException& ex)
-            {
-                cerr << ex << endl;
-                test(false);
-            }
-            fact->destroyServer(server);
-            comm->destroy();
-        }
-    #   endif
-    #else // SChannel ciphers
-        {
-            //
-            // Client and server should negotiate to use 3DES as it is enabled in both.
-            //
-            InitializationData initData;
-            initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-            initData.properties->setProperty("IceSSL.Ciphers", "3DES");
-
-            CommunicatorPtr comm = initialize(initData);
-            optional<Test::ServerFactoryPrx> fact = Test::ServerFactoryPrx(comm, factoryRef);
-            test(fact);
-
-            Test::Properties d = createServerProps(defaultProps, p12, "s_rsa_ca1", "cacert1");
-            d["IceSSL.Ciphers"] = "3DES AES_256";
-
-            optional<Test::ServerPrx> server = fact->createServer(d);
-            try
-            {
-                server->checkCipher("3DES");
-                info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
-                test(info->cipher.compare(0, 4, "3DES") == 0);
-            }
-            catch(const LocalException& ex)
-            {
-                cerr << ex << endl;
-                test(false);
-            }
-            fact->destroyServer(server);
-            comm->destroy();
-        }
-        {
-            //
-            // Client and server doesn't enable a common cipher negotiate to use 3DES as it is enabled in both.
-            //
-            InitializationData initData;
-            initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-            initData.properties->setProperty("IceSSL.Ciphers", "3DES");
-
-            CommunicatorPtr comm = initialize(initData);
-            optional<Test::ServerFactoryPrx> fact = Test::ServerFactoryPrx(comm, factoryRef);
-            test(fact);
-
-            Test::Properties d = createServerProps(defaultProps, p12, "s_rsa_ca1", "cacert1");
-            d["IceSSL.Ciphers"] = "AES_256";
-            optional<Test::ServerPrx> server = fact->createServer(d);
-            try
-            {
-                server->checkCipher("3DES");
-                test(false);
-            }
-            catch(const Ice::ConnectionLostException&)
-            {
-                //expected
-            }
-            catch(const LocalException& ex)
-            {
-                cerr << ex << endl;
-                test(false);
-            }
-            fact->destroyServer(server);
-            comm->destroy();
-        }
-    #endif
-    */
     cout << "testing IceSSL.TrustOnly... " << flush;
     //
     // iOS support only provides access to the CN of the certificate so we
@@ -2692,7 +2431,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                 import.cleanup();
                 test(false);
             }
-            catch (const PluginInitializationException&)
+            catch (const InitializationException&)
             {
                 // expected
             }
@@ -2720,7 +2459,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                 CommunicatorPtr comm = initialize(initData);
                 test(false);
             }
-            catch (const PluginInitializationException&)
+            catch (const InitializationException&)
             {
                 // expected
             }
@@ -2824,7 +2563,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                 printf("failed %s", failFindCertProperties[i]);
                 test(false);
             }
-            catch (const PluginInitializationException&)
+            catch (const InitializationException&)
             {
                 // expected
             }
@@ -2861,7 +2600,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
         server->ice_ping();
         info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
-        test(getTrustError(info) == IceSSL::TrustError::NoError);
+        test(info->errorCode == IceSSL::TrustError::NoError);
         test(info->verified);
         fact->destroyServer(server);
         comm->destroy();
@@ -2883,7 +2622,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
         server->ice_ping();
         info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
-        test(getTrustError(info) == IceSSL::TrustError::NoError);
+        test(info->errorCode == IceSSL::TrustError::NoError);
         test(info->verified);
         fact->destroyServer(server);
         comm->destroy();
@@ -2904,7 +2643,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         // Revoked certificate is accpeted because IceSSL.RevocationCheck=0 disable revocation checks
         server->ice_ping();
         info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
-        test(getTrustError(info) == IceSSL::TrustError::NoError);
+        test(info->errorCode == IceSSL::TrustError::NoError);
         test(info->verified);
         fact->destroyServer(server);
         comm->destroy();
@@ -2926,7 +2665,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         server->ice_ping();
         info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
         test(!info->verified);
-        test(getTrustError(info) == IceSSL::TrustError::Revoked);
+        test(info->errorCode == IceSSL::TrustError::Revoked);
 
         fact->destroyServer(server);
         comm->destroy();
@@ -2952,7 +2691,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         server->ice_ping();
         info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
         test(!info->verified);
-        test(getTrustError(info) == IceSSL::TrustError::Revoked);
+        test(info->errorCode == IceSSL::TrustError::Revoked);
 
         fact->destroyServer(server);
         comm->destroy();
@@ -2976,7 +2715,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         server->ice_ping();
         info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
         test(info->verified);
-        test(getTrustError(info) == IceSSL::TrustError::NoError);
+        test(info->errorCode == IceSSL::TrustError::NoError);
 
         fact->destroyServer(server);
         comm->destroy();
@@ -3007,7 +2746,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
         server->ice_ping();
         info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
-        test(getTrustError(info) == IceSSL::TrustError::NoError);
+        test(info->errorCode == IceSSL::TrustError::NoError);
         test(info->verified);
 
         fact->destroyServer(server);
@@ -3045,7 +2784,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
         server->ice_ping();
         info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
-        test(getTrustError(info) == IceSSL::TrustError::NoError);
+        test(info->errorCode == IceSSL::TrustError::NoError);
         test(info->verified);
         fact->destroyServer(server);
         comm->destroy();
@@ -3068,7 +2807,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         server->ice_ping();
         info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
         test(!info->verified);
-        test(getTrustError(info) == IceSSL::TrustError::Revoked);
+        test(info->errorCode == IceSSL::TrustError::Revoked);
         fact->destroyServer(server);
         comm->destroy();
 
@@ -3091,7 +2830,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         server->ice_ping();
         info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
         test(info->verified);
-        test(getTrustError(info) == IceSSL::TrustError::NoError);
+        test(info->errorCode == IceSSL::TrustError::NoError);
         fact->destroyServer(server);
         comm->destroy();
 #    endif
@@ -3113,7 +2852,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         server->ice_ping();
         info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
         test(!info->verified);
-        test(getTrustError(info) == IceSSL::TrustError::RevocationStatusUnknown);
+        test(info->errorCode == IceSSL::TrustError::RevocationStatusUnknown);
         fact->destroyServer(server);
         comm->destroy();
 
@@ -3197,7 +2936,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                     IceSSL::ConnectionInfoPtr sslInfo =
                         dynamic_pointer_cast<IceSSL::ConnectionInfo>(wsinfo->underlying);
                     test(sslInfo->verified);
-                    test(getHost(sslInfo) == "zeroc.com");
+                    test(sslInfo->host == "zeroc.com");
                     break;
                 }
                 catch (const Ice::LocalException& ex)

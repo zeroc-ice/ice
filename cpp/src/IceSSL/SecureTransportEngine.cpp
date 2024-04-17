@@ -2,27 +2,20 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceSSL/Config.h"
-
 #include "SecureTransportEngine.h"
-#include "SecureTransportEngineF.h"
-
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
-
-#include "Ice/Communicator.h"
+#include "Ice/Certificate.h"
+#include "Ice/Config.h"
 #include "Ice/LocalException.h"
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
-
-#include "IceSSL/Plugin.h"
+#include "IceUtil/FileUtil.h"
+#include "IceUtil/StringUtil.h"
 #include "SSLEngine.h"
+#include "SSLUtil.h"
+#include "SecureTransportEngineF.h"
 #include "SecureTransportTransceiverI.h"
 #include "SecureTransportUtil.h"
-#include "Util.h"
-
-#include <regex.h>
 
 // Disable deprecation warnings from SecureTransport APIs
 #include "IceUtil/DisableWarnings.h"
@@ -36,309 +29,13 @@ using namespace IceSSL::SecureTransport;
 
 namespace
 {
-    mutex staticMutex;
-
-    class RegExp
-    {
-    public:
-        RegExp(const string&);
-        ~RegExp();
-        bool match(const string&);
-
-    private:
-        regex_t _preg;
-    };
-    using RegExpPtr = shared_ptr<RegExp>;
-
-    RegExp::RegExp(const string& regexp)
-    {
-        int err = regcomp(&_preg, regexp.c_str(), REG_EXTENDED | REG_NOSUB);
-        if (err)
-        {
-            throw SyscallException(__FILE__, __LINE__, err);
-        }
-    }
-
-    RegExp::~RegExp() { regfree(&_preg); }
-
-    bool RegExp::match(const string& value) { return regexec(&_preg, value.c_str(), 0, 0, 0) == 0; }
-
-    struct CipherExpression
-    {
-        bool negation;
-        string cipher;
-        RegExpPtr re;
-    };
-
-    class CiphersHelper
-    {
-    public:
-        static void initialize();
-        static SSLCipherSuite cipherForName(const string& name);
-        static string cipherName(SSLCipherSuite cipher);
-        static map<string, SSLCipherSuite> ciphers();
-
-    private:
-        static map<string, SSLCipherSuite> _ciphers;
-    };
-
-    map<string, SSLCipherSuite> CiphersHelper::_ciphers;
-
-    //
-    // Initialize a dictionary with the names of ciphers
-    //
-    void CiphersHelper::initialize()
-    {
-        lock_guard sync(staticMutex);
-        if (_ciphers.empty())
-        {
-            _ciphers["NULL_WITH_NULL_NULL"] = SSL_NULL_WITH_NULL_NULL;
-            _ciphers["RSA_WITH_NULL_MD5"] = SSL_RSA_WITH_NULL_MD5;
-            _ciphers["RSA_WITH_NULL_SHA"] = SSL_RSA_WITH_NULL_SHA;
-            _ciphers["RSA_EXPORT_WITH_RC4_40_MD5"] = SSL_RSA_EXPORT_WITH_RC4_40_MD5;
-            _ciphers["RSA_WITH_RC4_128_MD5"] = SSL_RSA_WITH_RC4_128_MD5;
-            _ciphers["RSA_WITH_RC4_128_SHA"] = SSL_RSA_WITH_RC4_128_SHA;
-            _ciphers["RSA_EXPORT_WITH_RC2_CBC_40_MD5"] = SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5;
-            _ciphers["RSA_WITH_IDEA_CBC_SHA"] = SSL_RSA_WITH_IDEA_CBC_SHA;
-            _ciphers["RSA_EXPORT_WITH_DES40_CBC_SHA"] = SSL_RSA_EXPORT_WITH_DES40_CBC_SHA;
-            _ciphers["RSA_WITH_DES_CBC_SHA"] = SSL_RSA_WITH_DES_CBC_SHA;
-            _ciphers["RSA_WITH_3DES_EDE_CBC_SHA"] = SSL_RSA_WITH_3DES_EDE_CBC_SHA;
-            _ciphers["DH_DSS_EXPORT_WITH_DES40_CBC_SHA"] = SSL_DH_DSS_EXPORT_WITH_DES40_CBC_SHA;
-            _ciphers["DH_DSS_WITH_DES_CBC_SHA"] = SSL_DH_DSS_WITH_DES_CBC_SHA;
-            _ciphers["DH_DSS_WITH_3DES_EDE_CBC_SHA"] = SSL_DH_DSS_WITH_3DES_EDE_CBC_SHA;
-            _ciphers["DH_RSA_EXPORT_WITH_DES40_CBC_SHA"] = SSL_DH_RSA_EXPORT_WITH_DES40_CBC_SHA;
-            _ciphers["DH_RSA_WITH_DES_CBC_SHA"] = SSL_DH_RSA_WITH_DES_CBC_SHA;
-            _ciphers["DH_RSA_WITH_3DES_EDE_CBC_SHA"] = SSL_DH_RSA_WITH_3DES_EDE_CBC_SHA;
-            _ciphers["DHE_DSS_EXPORT_WITH_DES40_CBC_SHA"] = SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA;
-            _ciphers["DHE_DSS_WITH_DES_CBC_SHA"] = SSL_DHE_DSS_WITH_DES_CBC_SHA;
-            _ciphers["DHE_DSS_WITH_3DES_EDE_CBC_SHA"] = SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA;
-            _ciphers["DHE_RSA_EXPORT_WITH_DES40_CBC_SHA"] = SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA;
-            _ciphers["DHE_RSA_WITH_DES_CBC_SHA"] = SSL_DHE_RSA_WITH_DES_CBC_SHA;
-            _ciphers["DHE_RSA_WITH_3DES_EDE_CBC_SHA"] = SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA;
-            _ciphers["DH_anon_EXPORT_WITH_RC4_40_MD5"] = SSL_DH_anon_EXPORT_WITH_RC4_40_MD5;
-            _ciphers["DH_anon_WITH_RC4_128_MD5"] = SSL_DH_anon_WITH_RC4_128_MD5;
-            _ciphers["DH_anon_EXPORT_WITH_DES40_CBC_SHA"] = SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA;
-            _ciphers["DH_anon_WITH_DES_CBC_SHA"] = SSL_DH_anon_WITH_DES_CBC_SHA;
-            _ciphers["DH_anon_WITH_3DES_EDE_CBC_SHA"] = SSL_DH_anon_WITH_3DES_EDE_CBC_SHA;
-            _ciphers["FORTEZZA_DMS_WITH_NULL_SHA"] = SSL_FORTEZZA_DMS_WITH_NULL_SHA;
-            _ciphers["FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA"] = SSL_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA;
-
-            //
-            // TLS addenda using AES, per RFC 3268
-            //
-            _ciphers["RSA_WITH_AES_128_CBC_SHA"] = TLS_RSA_WITH_AES_128_CBC_SHA;
-            _ciphers["DH_DSS_WITH_AES_128_CBC_SHA"] = TLS_DH_DSS_WITH_AES_128_CBC_SHA;
-            _ciphers["DH_RSA_WITH_AES_128_CBC_SHA"] = TLS_DH_RSA_WITH_AES_128_CBC_SHA;
-            _ciphers["DHE_DSS_WITH_AES_128_CBC_SHA"] = TLS_DHE_DSS_WITH_AES_128_CBC_SHA;
-            _ciphers["DHE_RSA_WITH_AES_128_CBC_SHA"] = TLS_DHE_RSA_WITH_AES_128_CBC_SHA;
-            _ciphers["DH_anon_WITH_AES_128_CBC_SHA"] = TLS_DH_anon_WITH_AES_128_CBC_SHA;
-            _ciphers["RSA_WITH_AES_256_CBC_SHA"] = TLS_RSA_WITH_AES_256_CBC_SHA;
-            _ciphers["DH_DSS_WITH_AES_256_CBC_SHA"] = TLS_DH_DSS_WITH_AES_256_CBC_SHA;
-            _ciphers["DH_RSA_WITH_AES_256_CBC_SHA"] = TLS_DH_RSA_WITH_AES_256_CBC_SHA;
-            _ciphers["DHE_DSS_WITH_AES_256_CBC_SHA"] = TLS_DHE_DSS_WITH_AES_256_CBC_SHA;
-            _ciphers["DHE_RSA_WITH_AES_256_CBC_SHA"] = TLS_DHE_RSA_WITH_AES_256_CBC_SHA;
-            _ciphers["DH_anon_WITH_AES_256_CBC_SHA"] = TLS_DH_anon_WITH_AES_256_CBC_SHA;
-
-            //
-            // ECDSA addenda, RFC 4492
-            //
-            _ciphers["ECDH_ECDSA_WITH_NULL_SHA"] = TLS_ECDH_ECDSA_WITH_NULL_SHA;
-            _ciphers["ECDH_ECDSA_WITH_RC4_128_SHA"] = TLS_ECDH_ECDSA_WITH_RC4_128_SHA;
-            _ciphers["ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA"] = TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA;
-            _ciphers["ECDH_ECDSA_WITH_AES_128_CBC_SHA"] = TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA;
-            _ciphers["ECDH_ECDSA_WITH_AES_256_CBC_SHA"] = TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA;
-            _ciphers["ECDHE_ECDSA_WITH_NULL_SHA"] = TLS_ECDHE_ECDSA_WITH_NULL_SHA;
-            _ciphers["ECDHE_ECDSA_WITH_RC4_128_SHA"] = TLS_ECDHE_ECDSA_WITH_RC4_128_SHA;
-            _ciphers["ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA"] = TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA;
-            _ciphers["ECDHE_ECDSA_WITH_AES_128_CBC_SHA"] = TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA;
-            _ciphers["ECDHE_ECDSA_WITH_AES_256_CBC_SHA"] = TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA;
-            _ciphers["ECDH_RSA_WITH_NULL_SHA"] = TLS_ECDH_RSA_WITH_NULL_SHA;
-            _ciphers["ECDH_RSA_WITH_RC4_128_SHA"] = TLS_ECDH_RSA_WITH_RC4_128_SHA;
-            _ciphers["ECDH_RSA_WITH_3DES_EDE_CBC_SHA"] = TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA;
-            _ciphers["ECDH_RSA_WITH_AES_128_CBC_SHA"] = TLS_ECDH_RSA_WITH_AES_128_CBC_SHA;
-            _ciphers["ECDH_RSA_WITH_AES_256_CBC_SHA"] = TLS_ECDH_RSA_WITH_AES_256_CBC_SHA;
-            _ciphers["ECDHE_RSA_WITH_NULL_SHA"] = TLS_ECDHE_RSA_WITH_NULL_SHA;
-            _ciphers["ECDHE_RSA_WITH_RC4_128_SHA"] = TLS_ECDHE_RSA_WITH_RC4_128_SHA;
-            _ciphers["ECDHE_RSA_WITH_3DES_EDE_CBC_SHA"] = TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA;
-            _ciphers["ECDHE_RSA_WITH_AES_128_CBC_SHA"] = TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA;
-            _ciphers["ECDHE_RSA_WITH_AES_256_CBC_SHA"] = TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA;
-            _ciphers["ECDH_anon_WITH_NULL_SHA"] = TLS_ECDH_anon_WITH_NULL_SHA;
-            _ciphers["ECDH_anon_WITH_RC4_128_SHA"] = TLS_ECDH_anon_WITH_RC4_128_SHA;
-            _ciphers["ECDH_anon_WITH_3DES_EDE_CBC_SHA"] = TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA;
-            _ciphers["ECDH_anon_WITH_AES_128_CBC_SHA"] = TLS_ECDH_anon_WITH_AES_128_CBC_SHA;
-            _ciphers["ECDH_anon_WITH_AES_256_CBC_SHA"] = TLS_ECDH_anon_WITH_AES_256_CBC_SHA;
-
-            //
-            // TLS 1.2 addenda, RFC 5246
-            //
-            //_ciphers["NULL_WITH_NULL_NULL"] = TLS_NULL_WITH_NULL_NULL;
-
-            //
-            // Server provided RSA certificate for key exchange.
-            //
-            //_ciphers["RSA_WITH_NULL_MD5"] = TLS_RSA_WITH_NULL_MD5;
-            //_ciphers["RSA_WITH_NULL_SHA"] = TLS_RSA_WITH_NULL_SHA;
-            //_ciphers["RSA_WITH_RC4_128_MD5"] = TLS_RSA_WITH_RC4_128_MD5;
-            //_ciphers["RSA_WITH_RC4_128_SHA"] = TLS_RSA_WITH_RC4_128_SHA;
-            //_ciphers["RSA_WITH_3DES_EDE_CBC_SHA"] = TLS_RSA_WITH_3DES_EDE_CBC_SHA;
-            _ciphers["RSA_WITH_NULL_SHA256"] = TLS_RSA_WITH_NULL_SHA256;
-            _ciphers["RSA_WITH_AES_128_CBC_SHA256"] = TLS_RSA_WITH_AES_128_CBC_SHA256;
-            _ciphers["RSA_WITH_AES_256_CBC_SHA256"] = TLS_RSA_WITH_AES_256_CBC_SHA256;
-
-            //
-            // Server-authenticated (and optionally client-authenticated) Diffie-Hellman.
-            //
-            //_ciphers["DH_DSS_WITH_3DES_EDE_CBC_SHA"] = TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA;
-            //_ciphers["DH_RSA_WITH_3DES_EDE_CBC_SHA"] = TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA;
-            //_ciphers["DHE_DSS_WITH_3DES_EDE_CBC_SHA"] = TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA;
-            //_ciphers["DHE_RSA_WITH_3DES_EDE_CBC_SHA"] = TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA;
-            _ciphers["DH_DSS_WITH_AES_128_CBC_SHA256"] = TLS_DH_DSS_WITH_AES_128_CBC_SHA256;
-            _ciphers["DH_RSA_WITH_AES_128_CBC_SHA256"] = TLS_DH_RSA_WITH_AES_128_CBC_SHA256;
-            _ciphers["DHE_DSS_WITH_AES_128_CBC_SHA256"] = TLS_DHE_DSS_WITH_AES_128_CBC_SHA256;
-            _ciphers["DHE_RSA_WITH_AES_128_CBC_SHA256"] = TLS_DHE_RSA_WITH_AES_128_CBC_SHA256;
-            _ciphers["DH_DSS_WITH_AES_256_CBC_SHA256"] = TLS_DH_DSS_WITH_AES_256_CBC_SHA256;
-            _ciphers["DH_RSA_WITH_AES_256_CBC_SHA256"] = TLS_DH_RSA_WITH_AES_256_CBC_SHA256;
-            _ciphers["DHE_DSS_WITH_AES_256_CBC_SHA256"] = TLS_DHE_DSS_WITH_AES_256_CBC_SHA256;
-            _ciphers["DHE_RSA_WITH_AES_256_CBC_SHA256"] = TLS_DHE_RSA_WITH_AES_256_CBC_SHA256;
-
-            //
-            // Completely anonymous Diffie-Hellman
-            //
-            //_ciphers["DH_anon_WITH_RC4_128_MD5"] = TLS_DH_anon_WITH_RC4_128_MD5;
-            //_ciphers["DH_anon_WITH_3DES_EDE_CBC_SHA"] = TLS_DH_anon_WITH_3DES_EDE_CBC_SHA;
-            _ciphers["DH_anon_WITH_AES_128_CBC_SHA256"] = TLS_DH_anon_WITH_AES_128_CBC_SHA256;
-            _ciphers["DH_anon_WITH_AES_256_CBC_SHA256"] = TLS_DH_anon_WITH_AES_256_CBC_SHA256;
-
-            //
-            // Addendum from RFC 4279, TLS PSK
-            //
-            _ciphers["PSK_WITH_RC4_128_SHA"] = TLS_PSK_WITH_RC4_128_SHA;
-            _ciphers["PSK_WITH_3DES_EDE_CBC_SHA"] = TLS_PSK_WITH_3DES_EDE_CBC_SHA;
-            _ciphers["PSK_WITH_AES_128_CBC_SHA"] = TLS_PSK_WITH_AES_128_CBC_SHA;
-            _ciphers["PSK_WITH_AES_256_CBC_SHA"] = TLS_PSK_WITH_AES_256_CBC_SHA;
-            _ciphers["DHE_PSK_WITH_RC4_128_SHA"] = TLS_DHE_PSK_WITH_RC4_128_SHA;
-            _ciphers["DHE_PSK_WITH_3DES_EDE_CBC_SHA"] = TLS_DHE_PSK_WITH_3DES_EDE_CBC_SHA;
-            _ciphers["DHE_PSK_WITH_AES_128_CBC_SHA"] = TLS_DHE_PSK_WITH_AES_128_CBC_SHA;
-            _ciphers["DHE_PSK_WITH_AES_256_CBC_SHA"] = TLS_DHE_PSK_WITH_AES_256_CBC_SHA;
-            _ciphers["RSA_PSK_WITH_RC4_128_SHA"] = TLS_RSA_PSK_WITH_RC4_128_SHA;
-            _ciphers["RSA_PSK_WITH_3DES_EDE_CBC_SHA"] = TLS_RSA_PSK_WITH_3DES_EDE_CBC_SHA;
-            _ciphers["RSA_PSK_WITH_AES_128_CBC_SHA"] = TLS_RSA_PSK_WITH_AES_128_CBC_SHA;
-            _ciphers["RSA_PSK_WITH_AES_256_CBC_SHA"] = TLS_RSA_PSK_WITH_AES_256_CBC_SHA;
-
-            //
-            // RFC 4785 - Pre-Shared Key (PSK) Ciphersuites with NULL Encryption
-            //
-            _ciphers["PSK_WITH_NULL_SHA"] = TLS_PSK_WITH_NULL_SHA;
-            _ciphers["DHE_PSK_WITH_NULL_SHA"] = TLS_DHE_PSK_WITH_NULL_SHA;
-            _ciphers["RSA_PSK_WITH_NULL_SHA"] = TLS_RSA_PSK_WITH_NULL_SHA;
-
-            //
-            // Addenda from rfc 5288 AES Galois Counter Mode (GCM) Cipher Suites for TLS.
-            //
-            _ciphers["RSA_WITH_AES_128_GCM_SHA256"] = TLS_RSA_WITH_AES_128_GCM_SHA256;
-            _ciphers["RSA_WITH_AES_256_GCM_SHA384"] = TLS_RSA_WITH_AES_256_GCM_SHA384;
-            _ciphers["DHE_RSA_WITH_AES_128_GCM_SHA256"] = TLS_DHE_RSA_WITH_AES_128_GCM_SHA256;
-            _ciphers["DHE_RSA_WITH_AES_256_GCM_SHA384"] = TLS_DHE_RSA_WITH_AES_256_GCM_SHA384;
-            _ciphers["DH_RSA_WITH_AES_128_GCM_SHA256"] = TLS_DH_RSA_WITH_AES_128_GCM_SHA256;
-            _ciphers["DH_RSA_WITH_AES_256_GCM_SHA384"] = TLS_DH_RSA_WITH_AES_256_GCM_SHA384;
-            _ciphers["DHE_DSS_WITH_AES_128_GCM_SHA256"] = TLS_DHE_DSS_WITH_AES_128_GCM_SHA256;
-            _ciphers["DHE_DSS_WITH_AES_256_GCM_SHA384"] = TLS_DHE_DSS_WITH_AES_256_GCM_SHA384;
-            _ciphers["DH_DSS_WITH_AES_128_GCM_SHA256"] = TLS_DH_DSS_WITH_AES_128_GCM_SHA256;
-            _ciphers["DH_DSS_WITH_AES_256_GCM_SHA384"] = TLS_DH_DSS_WITH_AES_256_GCM_SHA384;
-            _ciphers["DH_anon_WITH_AES_128_GCM_SHA256"] = TLS_DH_anon_WITH_AES_128_GCM_SHA256;
-            _ciphers["DH_anon_WITH_AES_256_GCM_SHA384"] = TLS_DH_anon_WITH_AES_256_GCM_SHA384;
-
-            //
-            // RFC 5487 - PSK with SHA-256/384 and AES GCM
-            //
-            _ciphers["PSK_WITH_AES_128_GCM_SHA256"] = TLS_PSK_WITH_AES_128_GCM_SHA256;
-            _ciphers["PSK_WITH_AES_256_GCM_SHA384"] = TLS_PSK_WITH_AES_256_GCM_SHA384;
-            _ciphers["DHE_PSK_WITH_AES_128_GCM_SHA256"] = TLS_DHE_PSK_WITH_AES_128_GCM_SHA256;
-            _ciphers["DHE_PSK_WITH_AES_256_GCM_SHA384"] = TLS_DHE_PSK_WITH_AES_256_GCM_SHA384;
-            _ciphers["RSA_PSK_WITH_AES_128_GCM_SHA256"] = TLS_RSA_PSK_WITH_AES_128_GCM_SHA256;
-            _ciphers["RSA_PSK_WITH_AES_256_GCM_SHA384"] = TLS_RSA_PSK_WITH_AES_256_GCM_SHA384;
-
-            _ciphers["PSK_WITH_AES_128_CBC_SHA256"] = TLS_PSK_WITH_AES_128_CBC_SHA256;
-            _ciphers["PSK_WITH_AES_256_CBC_SHA384"] = TLS_PSK_WITH_AES_256_CBC_SHA384;
-            _ciphers["PSK_WITH_NULL_SHA256"] = TLS_PSK_WITH_NULL_SHA256;
-            _ciphers["PSK_WITH_NULL_SHA384"] = TLS_PSK_WITH_NULL_SHA384;
-
-            _ciphers["DHE_PSK_WITH_AES_128_CBC_SHA256"] = TLS_DHE_PSK_WITH_AES_128_CBC_SHA256;
-            _ciphers["DHE_PSK_WITH_AES_256_CBC_SHA384"] = TLS_DHE_PSK_WITH_AES_256_CBC_SHA384;
-            _ciphers["DHE_PSK_WITH_NULL_SHA256"] = TLS_DHE_PSK_WITH_NULL_SHA256;
-            _ciphers["DHE_PSK_WITH_NULL_SHA384"] = TLS_DHE_PSK_WITH_NULL_SHA384;
-
-            _ciphers["RSA_PSK_WITH_AES_128_CBC_SHA256"] = TLS_RSA_PSK_WITH_AES_128_CBC_SHA256;
-            _ciphers["RSA_PSK_WITH_AES_256_CBC_SHA384"] = TLS_RSA_PSK_WITH_AES_256_CBC_SHA384;
-            _ciphers["RSA_PSK_WITH_NULL_SHA256"] = TLS_RSA_PSK_WITH_NULL_SHA256;
-            _ciphers["RSA_PSK_WITH_NULL_SHA384"] = TLS_RSA_PSK_WITH_NULL_SHA384;
-
-            //
-            // Addenda from rfc 5289  Elliptic Curve Cipher Suites with HMAC SHA-256/384.
-            //
-            _ciphers["ECDHE_ECDSA_WITH_AES_128_CBC_SHA256"] = TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256;
-            _ciphers["ECDHE_ECDSA_WITH_AES_256_CBC_SHA384"] = TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384;
-            _ciphers["ECDH_ECDSA_WITH_AES_128_CBC_SHA256"] = TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256;
-            _ciphers["ECDH_ECDSA_WITH_AES_256_CBC_SHA384"] = TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384;
-            _ciphers["ECDHE_RSA_WITH_AES_128_CBC_SHA256"] = TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256;
-            _ciphers["ECDHE_RSA_WITH_AES_256_CBC_SHA384"] = TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384;
-            _ciphers["ECDH_RSA_WITH_AES_128_CBC_SHA256"] = TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256;
-            _ciphers["ECDH_RSA_WITH_AES_256_CBC_SHA384"] = TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384;
-
-            //
-            // Addenda from rfc 5289  Elliptic Curve Cipher Suites with SHA-256/384 and AES Galois Counter Mode (GCM)
-            //
-            _ciphers["ECDHE_ECDSA_WITH_AES_128_GCM_SHA256"] = TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256;
-            _ciphers["ECDHE_ECDSA_WITH_AES_256_GCM_SHA384"] = TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384;
-            _ciphers["ECDH_ECDSA_WITH_AES_128_GCM_SHA256"] = TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256;
-            _ciphers["ECDH_ECDSA_WITH_AES_256_GCM_SHA384"] = TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384;
-            _ciphers["ECDHE_RSA_WITH_AES_128_GCM_SHA256"] = TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256;
-            _ciphers["ECDHE_RSA_WITH_AES_256_GCM_SHA384"] = TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384;
-            _ciphers["ECDH_RSA_WITH_AES_128_GCM_SHA256"] = TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256;
-            _ciphers["ECDH_RSA_WITH_AES_256_GCM_SHA384"] = TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384;
-
-            //
-            // RFC 5746 - Secure Renegotiation
-            //
-            _ciphers["EMPTY_RENEGOTIATION_INFO_SCSV"] = TLS_EMPTY_RENEGOTIATION_INFO_SCSV;
-
-            //
-            // Tags for SSL 2 cipher kinds that are not specified for SSL 3.
-            //
-            _ciphers["RSA_WITH_RC2_CBC_MD5"] = SSL_RSA_WITH_RC2_CBC_MD5;
-            _ciphers["RSA_WITH_IDEA_CBC_MD5"] = SSL_RSA_WITH_IDEA_CBC_MD5;
-            _ciphers["RSA_WITH_DES_CBC_MD5"] = SSL_RSA_WITH_DES_CBC_MD5;
-            _ciphers["RSA_WITH_3DES_EDE_CBC_MD5"] = SSL_RSA_WITH_3DES_EDE_CBC_MD5;
-            _ciphers["NO_SUCH_CIPHERSUITE"] = SSL_NO_SUCH_CIPHERSUITE;
-
-            //
-            // TLS 1.3 standard cipher suites
-            //
-            _ciphers["TLS_AES_128_GCM_SHA256"] = TLS_AES_128_GCM_SHA256;
-            _ciphers["TLS_AES_256_GCM_SHA384"] = TLS_AES_256_GCM_SHA384;
-            _ciphers["TLS_CHACHA20_POLY1305_SHA256"] = TLS_CHACHA20_POLY1305_SHA256;
-            _ciphers["TLS_AES_128_CCM_SHA256"] = TLS_AES_128_CCM_SHA256;
-            _ciphers["TLS_AES_128_CCM_8_SHA256"] = TLS_AES_128_CCM_8_SHA256;
-        }
-    }
-
-    SSLCipherSuite CiphersHelper::cipherForName(const string& name)
-    {
-        map<string, SSLCipherSuite>::const_iterator i = _ciphers.find(name);
-        if (i == _ciphers.end() || i->second == SSL_NO_SUCH_CIPHERSUITE)
-        {
-            throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: no such cipher " + name);
-        }
-        return i->second;
-    }
-
     //
     // Retrieve the name of a cipher, SSLCipherSuite includes duplicated values for TLS/SSL
     // protocol ciphers, for example SSL_RSA_WITH_RC4_128_MD5/TLS_RSA_WITH_RC4_128_MD5
     // are represented by the same SSLCipherSuite value, the names return by this method
     // doesn't include a protocol prefix.
     //
-    string CiphersHelper::cipherName(SSLCipherSuite cipher)
+    string cipherName(SSLCipherSuite cipher)
     {
         switch (cipher)
         {
@@ -736,12 +433,10 @@ namespace
                 return "";
         }
     }
-
-    map<string, SSLCipherSuite> CiphersHelper::ciphers() { return _ciphers; }
 }
 
-IceSSL::SecureTransport::SSLEngine::SSLEngine(const Ice::CommunicatorPtr& communicator)
-    : IceSSL::SSLEngine(communicator),
+IceSSL::SecureTransport::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)
+    : IceSSL::SSLEngine(instance),
       _certificateAuthorities(0),
       _chain(0)
 {
@@ -753,15 +448,9 @@ IceSSL::SecureTransport::SSLEngine::SSLEngine(const Ice::CommunicatorPtr& commun
 void
 IceSSL::SecureTransport::SSLEngine::initialize()
 {
-    lock_guard lock(_mutex);
-    if (_initialized)
-    {
-        return;
-    }
-
     IceSSL::SSLEngine::initialize();
 
-    const PropertiesPtr properties = communicator()->getProperties();
+    const PropertiesPtr properties = getProperties();
 
     //
     // Check for a default directory. We look in this directory for
@@ -781,10 +470,7 @@ IceSSL::SecureTransport::SSLEngine::initialize()
             string resolved;
             if (!checkPath(caFile, defaultDir, false, resolved))
             {
-                throw PluginInitializationException(
-                    __FILE__,
-                    __LINE__,
-                    "IceSSL: CA certificate file not found:\n" + caFile);
+                throw InitializationException(__FILE__, __LINE__, "IceSSL: CA certificate file not found:\n" + caFile);
             }
             _certificateAuthorities.reset(loadCACertificates(resolved));
         }
@@ -796,7 +482,7 @@ IceSSL::SecureTransport::SSLEngine::initialize()
     }
     catch (const CertificateReadException& ce)
     {
-        throw PluginInitializationException(__FILE__, __LINE__, ce.reason);
+        throw InitializationException(__FILE__, __LINE__, ce.reason);
     }
 
     const string password = properties->getProperty("IceSSL.Password");
@@ -811,7 +497,7 @@ IceSSL::SecureTransport::SSLEngine::initialize()
         vector<string> files;
         if (!IceUtilInternal::splitString(certFile, IceUtilInternal::pathsep, files) || files.size() > 2)
         {
-            throw PluginInitializationException(
+            throw InitializationException(
                 __FILE__,
                 __LINE__,
                 "IceSSL: invalid value for IceSSL.CertFile:\n" + certFile);
@@ -823,14 +509,14 @@ IceSSL::SecureTransport::SSLEngine::initialize()
             {
                 if (!IceUtilInternal::splitString(keyFile, IceUtilInternal::pathsep, keyFiles) || keyFiles.size() > 2)
                 {
-                    throw PluginInitializationException(
+                    throw InitializationException(
                         __FILE__,
                         __LINE__,
                         "IceSSL: invalid value for IceSSL.KeyFile:\n" + keyFile);
                 }
                 if (files.size() != keyFiles.size())
                 {
-                    throw PluginInitializationException(
+                    throw InitializationException(
                         __FILE__,
                         __LINE__,
                         "IceSSL: IceSSL.KeyFile does not agree with IceSSL.CertFile");
@@ -846,7 +532,7 @@ IceSSL::SecureTransport::SSLEngine::initialize()
 
             if (!checkPath(file, defaultDir, false, resolved))
             {
-                throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: certificate file not found:\n" + file);
+                throw InitializationException(__FILE__, __LINE__, "IceSSL: certificate file not found:\n" + file);
             }
             file = resolved;
 
@@ -854,7 +540,7 @@ IceSSL::SecureTransport::SSLEngine::initialize()
             {
                 if (!checkPath(keyFile, defaultDir, false, resolved))
                 {
-                    throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: key file not found:\n" + keyFile);
+                    throw InitializationException(__FILE__, __LINE__, "IceSSL: key file not found:\n" + keyFile);
                 }
                 keyFile = resolved;
             }
@@ -867,12 +553,12 @@ IceSSL::SecureTransport::SSLEngine::initialize()
             catch (const CertificateReadException& ce)
             {
                 //
-                // If this is the last certificate rethrow the exception as PluginInitializationException,
+                // If this is the last certificate rethrow the exception as InitializationException,
                 // otherwise try the next certificate.
                 //
                 if (i == files.size() - 1)
                 {
-                    throw PluginInitializationException(__FILE__, __LINE__, ce.reason);
+                    throw InitializationException(__FILE__, __LINE__, ce.reason);
                 }
             }
         }
@@ -881,41 +567,6 @@ IceSSL::SecureTransport::SSLEngine::initialize()
     {
         _chain.reset(findCertificateChain(keychain, keychainPassword, findCert));
     }
-
-    //
-    // Establish the cipher list.
-    //
-    const string ciphers = properties->getProperty("IceSSL.Ciphers");
-    CiphersHelper::initialize();
-
-    if (!ciphers.empty())
-    {
-        parseCiphers(ciphers);
-    }
-
-    if (securityTraceLevel() >= 1)
-    {
-        ostringstream os;
-        os << "enabling SSL ciphersuites:";
-
-        if (_ciphers.empty())
-        {
-            map<string, SSLCipherSuite> enabled = CiphersHelper::ciphers();
-            for (map<string, SSLCipherSuite>::const_iterator i = enabled.begin(); i != enabled.end(); ++i)
-            {
-                os << "\n " << i->first;
-            }
-        }
-        else
-        {
-            for (vector<SSLCipherSuite>::const_iterator i = _ciphers.begin(); i != _ciphers.end(); ++i)
-            {
-                os << "\n " << getCipherName(*i);
-            }
-        }
-        getLogger()->trace(securityTraceCategory(), os.str());
-    }
-    _initialized = true;
 }
 
 //
@@ -982,17 +633,6 @@ IceSSL::SecureTransport::SSLEngine::newContext(bool incoming)
             "IceSSL: error while setting the SSL context certificate:\n" + sslErrorToString(err));
     }
 
-    if (!_ciphers.empty())
-    {
-        if ((err = SSLSetEnabledCiphers(ssl, &_ciphers[0], _ciphers.size())))
-        {
-            throw SecurityException(
-                __FILE__,
-                __LINE__,
-                "IceSSL: error while setting ciphers:\n" + sslErrorToString(err));
-        }
-    }
-
     if ((err = SSLSetSessionOption(
              ssl,
              incoming ? kSSLSessionOptionBreakOnClientAuth : kSSLSessionOptionBreakOnServerAuth,
@@ -1016,175 +656,5 @@ IceSSL::SecureTransport::SSLEngine::getCertificateAuthorities() const
 string
 IceSSL::SecureTransport::SSLEngine::getCipherName(SSLCipherSuite cipher) const
 {
-    return CiphersHelper::cipherName(cipher);
-}
-
-void
-IceSSL::SecureTransport::SSLEngine::parseCiphers(const string& ciphers)
-{
-    vector<string> tokens;
-    vector<CipherExpression> cipherExpressions;
-
-    bool allCiphers = false;
-    IceUtilInternal::splitString(ciphers, " \t", tokens);
-    for (vector<string>::const_iterator i = tokens.begin(); i != tokens.end(); ++i)
-    {
-        string token(*i);
-        if (token == "ALL")
-        {
-            if (i != tokens.begin())
-            {
-                throw PluginInitializationException(
-                    __FILE__,
-                    __LINE__,
-                    "IceSSL: `ALL' must be first in cipher list `" + ciphers + "'");
-            }
-            allCiphers = true;
-        }
-        else if (token == "NONE")
-        {
-            if (i != tokens.begin())
-            {
-                throw PluginInitializationException(
-                    __FILE__,
-                    __LINE__,
-                    "IceSSL: `NONE' must be first in cipher list `" + ciphers + "'");
-            }
-        }
-        else
-        {
-            CipherExpression ce;
-            if (token.find('!') == 0)
-            {
-                ce.negation = true;
-                if (token.size() > 1)
-                {
-                    token = token.substr(1);
-                }
-                else
-                {
-                    throw PluginInitializationException(
-                        __FILE__,
-                        __LINE__,
-                        "IceSSL: invalid cipher expression `" + token + "'");
-                }
-            }
-            else
-            {
-                ce.negation = false;
-            }
-
-            if (token.find('(') == 0)
-            {
-                if (token.rfind(')') != token.size() - 1)
-                {
-                    throw PluginInitializationException(
-                        __FILE__,
-                        __LINE__,
-                        "IceSSL: invalid cipher expression `" + token + "'");
-                }
-
-                try
-                {
-                    ce.re = make_shared<RegExp>(token.substr(1, token.size() - 2));
-                }
-                catch (const Ice::SyscallException&)
-                {
-                    throw PluginInitializationException(
-                        __FILE__,
-                        __LINE__,
-                        "IceSSL: invalid cipher expression `" + token + "'");
-                }
-            }
-            else
-            {
-                ce.cipher = token;
-            }
-
-            cipherExpressions.push_back(ce);
-        }
-    }
-
-    //
-    // Context used to get the cipher list
-    //
-    UniqueRef<SSLContextRef> ctx(SSLCreateContext(kCFAllocatorDefault, kSSLServerSide, kSSLStreamType));
-    size_t numSupportedCiphers = 0;
-    SSLGetNumberSupportedCiphers(ctx.get(), &numSupportedCiphers);
-
-    vector<SSLCipherSuite> supported;
-    supported.resize(numSupportedCiphers);
-
-    OSStatus err = SSLGetSupportedCiphers(ctx.get(), &supported[0], &numSupportedCiphers);
-    if (err)
-    {
-        throw PluginInitializationException(
-            __FILE__,
-            __LINE__,
-            "IceSSL: unable to get supported ciphers list:\n" + sslErrorToString(err));
-    }
-
-    vector<SSLCipherSuite> enabled;
-    if (allCiphers)
-    {
-        enabled = supported;
-    }
-
-    for (vector<CipherExpression>::const_iterator i = cipherExpressions.begin(); i != cipherExpressions.end(); ++i)
-    {
-        CipherExpression ce = *i;
-        if (ce.negation)
-        {
-            for (vector<SSLCipherSuite>::iterator j = enabled.begin(); j != enabled.end();)
-            {
-                string name = CiphersHelper::cipherName(*j);
-                if ((ce.cipher.empty() && ce.re->match(name)) || ce.cipher == name)
-                {
-                    j = enabled.erase(j);
-                }
-                else
-                {
-                    ++j;
-                }
-            }
-        }
-        else
-        {
-            if (ce.cipher.empty())
-            {
-                for (vector<SSLCipherSuite>::const_iterator j = supported.begin(); j != supported.end(); ++j)
-                {
-                    SSLCipherSuite cipher = *j;
-                    string name = CiphersHelper::cipherName(cipher);
-                    if (ce.re->match(name))
-                    {
-                        vector<SSLCipherSuite>::const_iterator k = find(enabled.begin(), enabled.end(), cipher);
-                        if (k == enabled.end())
-                        {
-                            enabled.push_back(cipher);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                SSLCipherSuite cipher = CiphersHelper::cipherForName(ce.cipher);
-                vector<SSLCipherSuite>::const_iterator k = find(enabled.begin(), enabled.end(), cipher);
-                if (k == enabled.end())
-                {
-                    enabled.push_back(cipher);
-                }
-            }
-        }
-    }
-    _ciphers = enabled;
-
-    if (_ciphers.empty())
-    {
-        throw PluginInitializationException(
-            __FILE__,
-            __LINE__,
-            "IceSSL: invalid value for IceSSL.Ciphers:\n" + ciphers +
-                "\nThe result cipher list does not contain any entries");
-    }
+    return cipherName(cipher);
 }

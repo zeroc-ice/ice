@@ -6,11 +6,7 @@
 #include "AdminI.h"
 #include "Database.h"
 #include "Ice/Ice.h"
-#include "Ice/UUID.h"
 #include "RegistryI.h"
-
-#include "IceSSL/Plugin.h"
-
 #include "SynchronizationException.h"
 
 using namespace std;

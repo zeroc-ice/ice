@@ -5,12 +5,9 @@
 #include "SessionI.h"
 #include "Database.h"
 #include "Ice/Ice.h"
-#include "Ice/UUID.h"
 #include "IceGrid/Admin.h"
 #include "LocatorI.h"
 #include "QueryI.h"
-
-#include "IceSSL/Plugin.h"
 
 using namespace std;
 using namespace IceGrid;

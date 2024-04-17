@@ -8,15 +8,13 @@
 //
 #include "IceUtil/DisableWarnings.h"
 
+#include "../Ice/Base64.h"
 #include "CertificateI.h"
-#include "IceSSL/SecureTransport.h"
-#include "PluginI.h"
+#include "Ice/LocalException.h"
+#include "Ice/SecureTransport.h"
+#include "Ice/UniqueRef.h"
 #include "RFC2253.h"
 #include "SecureTransportUtil.h"
-
-#include "../Ice/Base64.h"
-#include "Ice/LocalException.h"
-#include "Ice/UniqueRef.h"
 
 #include <Security/Security.h>
 
@@ -240,9 +238,7 @@ namespace
 
 #endif
 
-    class SecureTransportCertificateI final : public IceSSL::SecureTransport::Certificate,
-                                              public IceSSL::CertificateI,
-                                              public IceSSL::CertificateExtendedInfo
+    class SecureTransportCertificateI final : public IceSSL::SecureTransport::Certificate, public IceSSL::CertificateI
     {
     public:
         SecureTransportCertificateI(SecCertificateRef);
@@ -951,4 +947,16 @@ IceSSL::SecureTransport::Certificate::decode(const std::string& encoding)
     assert(SecCertificateGetTypeID() == CFGetTypeID(item.get()));
     return make_shared<SecureTransportCertificateI>(reinterpret_cast<SecCertificateRef>(item.release()));
 #endif
+}
+
+IceSSL::CertificatePtr
+IceSSL::Certificate::load(const std::string& file)
+{
+    return IceSSL::SecureTransport::Certificate::load(file);
+}
+
+IceSSL::CertificatePtr
+IceSSL::Certificate::decode(const std::string& encoding)
+{
+    return IceSSL::SecureTransport::Certificate::decode(encoding);
 }

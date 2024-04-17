@@ -5,8 +5,10 @@
 #ifndef ICE_INSTANCE_H
 #define ICE_INSTANCE_H
 
+#include "../IceSSL/SSLEngineF.h"
 #include "ACM.h"
 #include "ConnectionFactoryF.h"
+#include "ConnectionOptions.h"
 #include "DefaultsAndOverridesF.h"
 #include "EndpointFactoryManagerF.h"
 #include "IPEndpointIF.h"
@@ -25,13 +27,12 @@
 #include "NetworkF.h"
 #include "NetworkProxyF.h"
 #include "ObjectAdapterFactoryF.h"
+#include "Protocol.h"
 #include "ReferenceFactoryF.h"
 #include "RetryQueueF.h"
 #include "RouterInfoF.h"
 #include "ThreadPoolF.h"
 #include "TraceLevelsF.h"
-
-#include "Protocol.h"
 
 #include <list>
 
@@ -103,6 +104,9 @@ namespace IceInternal
         const ACMConfig& clientACM() const;
         const ACMConfig& serverACM() const;
 
+        const Ice::ConnectionOptions& clientConnectionOptions() const noexcept { return _clientConnectionOptions; }
+        Ice::ConnectionOptions serverConnectionOptions(const std::string& adapterName) const;
+
         Ice::ObjectPrx createAdmin(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
         std::optional<Ice::ObjectPrx> getAdmin();
         void addAdminFacet(const Ice::ObjectPtr&, const std::string&);
@@ -124,6 +128,8 @@ namespace IceInternal
         BufSizeWarnInfo getBufSizeWarn(std::int16_t type);
         void setSndBufSizeWarn(std::int16_t type, int size);
         void setRcvBufSizeWarn(std::int16_t type, int size);
+
+        IceSSL::SSLEnginePtr sslEngine() const { return _sslEngine; }
 
     private:
         Instance(const Ice::InitializationData&);
@@ -158,6 +164,7 @@ namespace IceInternal
         const bool _acceptClassCycles;                       // Immutable, not reset by destroy()
         ACMConfig _clientACM;
         ACMConfig _serverACM;
+        Ice::ConnectionOptions _clientConnectionOptions;
         RouterManagerPtr _routerManager;
         LocatorManagerPtr _locatorManager;
         ReferenceFactoryPtr _referenceFactory;
@@ -199,6 +206,7 @@ namespace IceInternal
         ImplicitContextKind _implicitContextKind;
         // Only set when _implicitContextKind == Shared.
         Ice::ImplicitContextPtr _sharedImplicitContext;
+        IceSSL::SSLEnginePtr _sslEngine;
     };
 
     class ProcessI : public Ice::Process

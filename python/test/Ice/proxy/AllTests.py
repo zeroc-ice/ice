@@ -478,7 +478,7 @@ def allTests(helper, communicator, collocated):
     # Verify that ToStringMode is passed correctly
     #
     euroStr = "\u20ac"
-    ident = Ice.Identity("test", "\x7F{}".format(euroStr))
+    ident = Ice.Identity("test", "\x7f{}".format(euroStr))
 
     idStr = Ice.identityToString(ident, Ice.ToStringMode.Unicode)
     test(idStr == "\\u007f{}/test".format(euroStr))
@@ -1002,10 +1002,6 @@ def allTests(helper, communicator, collocated):
     )
 
     if communicator.getProperties().getPropertyAsInt("Ice.IPv6") == 0:
-        # Working?
-        ssl = communicator.getProperties().getProperty("Ice.Default.Protocol") == "ssl"
-        tcp = communicator.getProperties().getProperty("Ice.Default.Protocol") == "tcp"
-
         # Two legal TCP endpoints expressed as opaque endpoints
         p1 = communicator.stringToProxy(
             "test -e 1.0:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMusuAAAQJwAAAA=="
@@ -1024,29 +1020,17 @@ def allTests(helper, communicator, collocated):
             "test -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch"
         )
         pstr = communicator.proxyToString(p1)
-        if ssl:
-            test(
-                pstr
-                == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch"
-            )
-        elif tcp:
-            test(
-                pstr
-                == "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch"
-            )
+        test(
+            pstr
+            == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch"
+        )
 
-        #
-        # Try to invoke on the SSL endpoint to verify that we get a
-        # NoEndpointException (or ConnectionRefusedException when
-        # running with SSL).
-        #
+        # Try to invoke on the SSL endpoint to verify that we get a ConnectionRefusedException.
         try:
             p1.ice_encodingVersion(Ice.Encoding_1_0).ice_ping()
             test(False)
-        except Ice.NoEndpointException:
-            test(not ssl)
         except Ice.ConnectFailedException:
-            test(not tcp)
+            pass
 
         #
         # Test that the proxy with an SSL endpoint and a nonsense
@@ -1056,16 +1040,10 @@ def allTests(helper, communicator, collocated):
         #
         p2 = derived.echo(p1)
         pstr = communicator.proxyToString(p2)
-        if ssl:
-            test(
-                pstr
-                == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch"
-            )
-        elif tcp:
-            test(
-                pstr
-                == "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch"
-            )
+        test(
+            pstr
+            == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch"
+        )
 
     print("ok")
 

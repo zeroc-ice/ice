@@ -28,14 +28,6 @@ public class SSLEngine {
     com.zeroc.Ice.Properties properties = communicator().getProperties();
 
     //
-    // Parse the cipher list.
-    //
-    String ciphers = properties.getProperty(prefix + "Ciphers");
-    if (ciphers.length() > 0) {
-      parseCiphers(ciphers);
-    }
-
-    //
     // CheckCertName determines whether we compare the name in a peer's
     // certificate against its hostname.
     //
@@ -369,24 +361,6 @@ public class SSLEngine {
       throw new com.zeroc.Ice.SecurityException("IceSSL: couldn't create SSL engine", ex);
     }
 
-    String[] cipherSuites =
-        filterCiphers(engine.getSupportedCipherSuites(), engine.getEnabledCipherSuites());
-    try {
-      engine.setEnabledCipherSuites(cipherSuites);
-    } catch (IllegalArgumentException ex) {
-      throw new com.zeroc.Ice.SecurityException("IceSSL: invalid ciphersuite", ex);
-    }
-
-    if (_securityTraceLevel >= 1) {
-      StringBuilder s = new StringBuilder(128);
-      s.append("enabling SSL ciphersuites:");
-      for (String suite : cipherSuites) {
-        s.append("\n  ");
-        s.append(suite);
-      }
-      _logger.trace(_securityTraceCategory, s.toString());
-    }
-
     if (incoming) {
       if (_verifyPeer == 0) {
         engine.setWantClientAuth(false);
@@ -423,57 +397,6 @@ public class SSLEngine {
     }
 
     return engine;
-  }
-
-  String[] filterCiphers(String[] supportedCiphers, String[] defaultCiphers) {
-    java.util.LinkedList<String> result = new java.util.LinkedList<>();
-    if (_allCiphers) {
-      for (String cipher : supportedCiphers) {
-        result.add(cipher);
-      }
-    } else if (!_noCiphers) {
-      for (String cipher : defaultCiphers) {
-        result.add(cipher);
-      }
-    }
-
-    if (_ciphers != null) {
-      for (CipherExpression ce : _ciphers) {
-        if (ce.not) {
-          java.util.Iterator<String> e = result.iterator();
-          while (e.hasNext()) {
-            String cipher = e.next();
-            if (ce.cipher != null) {
-              if (ce.cipher.equals(cipher)) {
-                e.remove();
-              }
-            } else {
-              assert (ce.re != null);
-              java.util.regex.Matcher m = ce.re.matcher(cipher);
-              if (m.find()) {
-                e.remove();
-              }
-            }
-          }
-        } else {
-          if (ce.cipher != null) {
-            result.add(0, ce.cipher);
-          } else {
-            assert (ce.re != null);
-            for (String cipher : supportedCiphers) {
-              java.util.regex.Matcher m = ce.re.matcher(cipher);
-              if (m.find()) {
-                result.add(0, cipher);
-              }
-            }
-          }
-        }
-      }
-    }
-
-    String[] arr = new String[result.size()];
-    result.toArray(arr);
-    return arr;
   }
 
   void traceConnection(String desc, javax.net.ssl.SSLEngine engine, boolean incoming) {
@@ -539,56 +462,6 @@ public class SSLEngine {
     }
   }
 
-  private void parseCiphers(String ciphers) {
-    java.util.ArrayList<CipherExpression> cipherList = new java.util.ArrayList<>();
-    String[] expr = ciphers.split("[ \t]+");
-    for (int i = 0; i < expr.length; ++i) {
-      if (expr[i].equals("ALL")) {
-        if (i != 0) {
-          throw new InitializationException(
-              "IceSSL: `ALL' must be first in cipher list `" + ciphers + "'");
-        }
-        _allCiphers = true;
-      } else if (expr[i].equals("NONE")) {
-        if (i != 0) {
-          throw new InitializationException(
-              "IceSSL: `NONE' must be first in cipher list `" + ciphers + "'");
-        }
-        _noCiphers = true;
-      } else {
-        CipherExpression ce = new CipherExpression();
-        String exp = expr[i];
-        if (exp.charAt(0) == '!') {
-          ce.not = true;
-          if (exp.length() > 1) {
-            exp = exp.substring(1);
-          } else {
-            throw new InitializationException("IceSSL: invalid cipher expression `" + exp + "'");
-          }
-        }
-
-        if (exp.charAt(0) == '(') {
-          if (!exp.endsWith(")")) {
-            throw new InitializationException("IceSSL: invalid cipher expression `" + exp + "'");
-          }
-
-          try {
-            ce.re = java.util.regex.Pattern.compile(exp.substring(1, exp.length() - 2));
-          } catch (java.util.regex.PatternSyntaxException ex) {
-            throw new InitializationException(
-                "IceSSL: invalid cipher expression `" + exp + "'", ex);
-          }
-        } else {
-          ce.cipher = exp;
-        }
-
-        cipherList.add(ce);
-      }
-    }
-    _ciphers = new CipherExpression[cipherList.size()];
-    cipherList.toArray(_ciphers);
-  }
-
   private java.io.InputStream openResource(String path) throws java.io.IOException {
     boolean isAbsolute = false;
     try {
@@ -621,26 +494,16 @@ public class SSLEngine {
     return stream;
   }
 
-  private static class CipherExpression {
-    boolean not;
-    String cipher;
-    java.util.regex.Pattern re;
-  }
-
   private com.zeroc.Ice.Communicator _communicator;
   private com.zeroc.Ice.Logger _logger;
   private int _securityTraceLevel;
   private String _securityTraceCategory;
   private javax.net.ssl.SSLContext _context;
   private String _defaultDir;
-  private CipherExpression[] _ciphers;
-  private boolean _allCiphers;
-  private boolean _noCiphers;
   private boolean _checkCertName;
   private boolean _serverNameIndication;
   private int _verifyPeer;
   private TrustManager _trustManager;
-
   private InputStream _keystoreStream;
   private InputStream _truststoreStream;
 }

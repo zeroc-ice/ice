@@ -7,28 +7,6 @@ using System.Net.Security;
 namespace Ice
 {
     /// <summary>
-    /// Interface for thread notification hooks. Applications can derive
-    /// a class tat implements the start and stop
-    /// methods to intercept creation and destruction of threads created
-    /// by the Ice run time.
-    /// </summary>
-    public interface ThreadNotification
-    {
-        /// <summary>
-        /// The Ice run time calls start for each new
-        /// thread it creates. The call is made by the newly-started thread.
-        /// </summary>
-        void start();
-
-        /// <summary>
-        /// The Ice run time calls stop before it destroys
-        /// a thread. The call is made by thread that is about to be
-        /// destroyed.
-        /// </summary>
-        void stop();
-    }
-
-    /// <summary>
     /// A class that encapsulates data to initialize a communicator.
     /// </summary>
     public class InitializationData : ICloneable
@@ -58,12 +36,6 @@ namespace Ice
         /// The communicator observer used by the Ice run-time.
         /// </summary>
         public Instrumentation.CommunicatorObserver observer;
-
-        /// <summary>
-        /// The thread hook for the communicator.
-        /// </summary>
-        [Obsolete("This data member is deprecated. Use threadStart or threadStop instead.")]
-        public ThreadNotification threadHook;
 
         /// <summary>
         /// The thread start hook for the communicator. The Ice run time

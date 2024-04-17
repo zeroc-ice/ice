@@ -6,7 +6,6 @@ import Ice
 import Test
 import sys
 import threading
-import time
 
 
 def test(b):
@@ -88,32 +87,6 @@ def allTestsWithController(helper, communicator, controller):
     timeout = Test.TimeoutPrx.checkedCast(obj)
     test(timeout is not None)
 
-    sys.stdout.write("testing connect timeout... ")
-    sys.stdout.flush()
-    #
-    # Expect ConnectTimeoutException.
-    #
-    to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(100))
-    controller.holdAdapter(-1)
-    try:
-        to.op()
-        test(False)
-    except Ice.ConnectTimeoutException:
-        pass  # Expected.
-    controller.resumeAdapter()
-    timeout.op()  # Ensure adapter is active.
-
-    #
-    # Expect success.
-    #
-    to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(-1))
-    controller.holdAdapter(100)
-    try:
-        to.op()
-    except Ice.ConnectTimeoutException:
-        test(False)
-    print("ok")
-
     sys.stdout.write("testing connection timeout... ")
     sys.stdout.flush()
     #
@@ -160,125 +133,6 @@ def allTestsWithController(helper, communicator, controller):
     except Ice.InvocationTimeoutException:
         test(False)
     test(connection == to.ice_getConnection())
-    print("ok")
-
-    sys.stdout.write("testing close timeout... ")
-    sys.stdout.flush()
-    to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(250))
-    connection = connect(to)
-    controller.holdAdapter(-1)
-    connection.close(Ice.ConnectionClose.GracefullyWithWait)
-    try:
-        connection.getInfo()  # getInfo() doesn't throw in the closing state.
-    except Ice.LocalException:
-        test(False)
-    while True:
-        try:
-            connection.getInfo()
-            time.sleep(0.001)
-        except Ice.ConnectionManuallyClosedException as ex:
-            # Expected.
-            test(ex.graceful)
-            break
-    controller.resumeAdapter()
-    timeout.op()  # Ensure adapter is active.
-    print("ok")
-
-    sys.stdout.write("testing timeout overrides... ")
-    sys.stdout.flush()
-
-    #
-    # Test Ice.Override.Timeout. This property overrides all
-    # endpoint timeouts.
-    #
-    initData = Ice.InitializationData()
-    initData.properties = communicator.getProperties().clone()
-    initData.properties.setProperty("Ice.Override.ConnectTimeout", "250")
-    initData.properties.setProperty("Ice.Override.Timeout", "100")
-    comm = Ice.initialize(initData)
-    to = Test.TimeoutPrx.uncheckedCast(comm.stringToProxy(sref))
-    connect(to)
-    controller.holdAdapter(-1)
-    try:
-        to.sendData(seq)
-        test(False)
-    except Ice.TimeoutException:
-        pass  # Expected.
-    controller.resumeAdapter()
-    timeout.op()  # Ensure adapter is active.
-
-    #
-    # Calling ice_timeout() should have no effect.
-    #
-    to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(1000))
-    connect(to)
-    controller.holdAdapter(-1)
-    try:
-        to.sendData(seq)
-        test(False)
-    except Ice.TimeoutException:
-        pass  # Expected.
-    controller.resumeAdapter()
-    timeout.op()  # Ensure adapter is active.
-    comm.destroy()
-    #
-    # Test Ice.Override.ConnectTimeout.
-    #
-    initData = Ice.InitializationData()
-    initData.properties = communicator.getProperties().clone()
-    initData.properties.setProperty("Ice.Override.ConnectTimeout", "250")
-    comm = Ice.initialize(initData)
-    controller.holdAdapter(-1)
-    to = Test.TimeoutPrx.uncheckedCast(comm.stringToProxy(sref))
-    try:
-        to.op()
-        test(False)
-    except Ice.ConnectTimeoutException:
-        pass  # Expected.
-    controller.resumeAdapter()
-    timeout.op()  # Ensure adapter is active.
-    #
-    # Calling ice_timeout() should have no effect on the connect timeout.
-    #
-    controller.holdAdapter(-1)
-    to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(1000))
-    try:
-        to.op()
-        test(False)
-    except Ice.ConnectTimeoutException:
-        pass  # Expected.
-    controller.resumeAdapter()
-    timeout.op()  # Ensure adapter is active.
-    #
-    # Verify that timeout set via ice_timeout() is still used for requests.
-    #
-    to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(250))
-    connect(to)
-    controller.holdAdapter(-1)
-    try:
-        to.sendData(seq)
-        test(False)
-    except Ice.TimeoutException:
-        pass  # Expected.
-    controller.resumeAdapter()
-    timeout.op()  # Ensure adapter is active.
-    comm.destroy()
-
-    #
-    # Test Ice.Override.CloseTimeout.
-    #
-    initData = Ice.InitializationData()
-    initData.properties = communicator.getProperties().clone()
-    initData.properties.setProperty("Ice.Override.CloseTimeout", "100")
-    comm = Ice.initialize(initData)
-    connection = comm.stringToProxy(sref).ice_getConnection()
-    controller.holdAdapter(-1)
-    s = time.perf_counter()
-    comm.destroy()
-    e = time.perf_counter()
-    test((s - e) < 1.0)
-    controller.resumeAdapter()
-
     print("ok")
 
     controller.shutdown()
