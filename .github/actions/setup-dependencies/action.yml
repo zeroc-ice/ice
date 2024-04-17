@@ -13,6 +13,16 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Set Linux MAKEFLAGS
+      run: echo "MAKEFLAGS=-j$(nproc) V=1" >> $GITHUB_ENV
+      shell: bash
+      if: runner.os == 'Linux'
+
+    - name: Set macOS MAKEFLAGS
+      run: echo "MAKEFLAGS=-j$(sysctl -n hw.ncpu) V=1" >> $GITHUB_ENV
+      shell: bash
+      if: runner.os == 'macOS'
+
     # Python3 is already installed though Homebrew
     - name: Install brew dependencies
       run: brew install ruby node php lmdb mcpp || true
@@ -27,7 +37,7 @@ runs:
       if: runner.os == 'macOS'
 
     - name: Install testing dependencies from pip
-      run: python3 -m pip install --break-system-packages passlib cryptography numpy
+      run: python3 -m pip install --break-system-packages --user passlib cryptography numpy
       shell: bash
       if: runner.os == 'macOS'
 
@@ -41,7 +51,7 @@ runs:
         # We should consider removing the dependency on ice-xcode-builder
         brew install zeroc-ice/tap/ice-builder-xcode
       shell: bash
-      if: (runner.os == 'macOS') && (matrix.name == 'xcodesdk')
+      if: (runner.os == 'macOS') && (matrix.config == 'xcodesdk')
 
     - name: Install apt dependencies
       run: |
@@ -51,7 +61,6 @@ runs:
             ruby ruby-dev php-cli php-dev \
             libbluetooth-dev libdbus-1-dev \
             libsystemd-dev
-
       shell: bash
       if: runner.os == 'Linux'
 
@@ -60,7 +69,11 @@ runs:
       with:
         distribution: "oracle"
         java-version: "17"
-      if: matrix.language == 'java'
+
+    - name: Setup .NET 8
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.x
 
     - name: Install testing dependencies from pip
       run: python3 -m pip install passlib cryptography numpy
@@ -86,29 +99,35 @@ runs:
       shell: powershell
       if: runner.os == 'Windows'
 
+    # # This choco install will overwrite the existing Python installation
+    # - name: Setup Debug Python
+    #   run: |
+    #     choco install python312 --installargs='/quiet Include_debug=1' -y --no-progress
+    #   shell: powershell
+    #   if: runner.os == 'Windows' && matrix.config == 'debug'
     - name: Install testing dependencies from pip
       run: python3 -m pip install passlib cryptography numpy
       shell: powershell
       if: runner.os == 'Windows'
 
-      # ———— MATLAB ———— #
+    # ———— MATLAB ———— #
     - name: Setup MATLAB
       uses: matlab-actions/setup-matlab@v2
       with:
-        release: 'R2023b'
-      if: matrix.language == 'matlab'
+        release: "R2023b"
+      if: matrix.config == 'matlab'
 
     - name: Set MATLAB_HOME
       run: |
         echo "MATLAB_HOME=/opt/hostedtoolcache/MATLAB/2023.2.999/x64" >> $GITHUB_ENV
       shell: bash
-      if: matrix.language == 'matlab' && runner.os == 'Linux'
+      if: runner.os == 'Linux' && matrix.config == 'matlab'
 
     - name: Set MATLAB_HOME
       run: |
         echo "MATLAB_HOME=C:\Program Files\MATLAB\R2023b\bin" >> $env:GITHUB_ENV
       shell: powershell
-      if: matrix.language == 'matlab' && runner.os == 'Windows'
+      if: runner.os == 'Windows' && matrix.config == 'matlab'
 
     # https://github.com/matlab-actions/run-command/issues/53
     - name: Get run-matlab-command
@@ -121,17 +140,16 @@ runs:
         echo "LD_PRELOAD=/lib/x86_64-linux-gnu/libstdc++.so.6" >> $GITHUB_ENV
 
       shell: bash
-      if: matrix.language == 'matlab' && runner.os == 'Linux'
+      if: runner.os == 'Linux' && matrix.config == 'matlab'
 
     # Windows is currently not working. We get an error: "'matlab' executable not found on the system path"
     # Is GITHUB_PATH set correctly?
     - name: Get run-matlab-command
       run: |
-        wget -O C:\Windows\System32\run-matlab-command.exe https://ssd.mathworks.com/supportfiles/ci/run-matlab-command/v2/win64/run-matlab-command.exe
+        Invoke-WebRequest https://ssd.mathworks.com/supportfiles/ci/run-matlab-command/v2/win64/run-matlab-command.exe -OutFile C:\Windows\System32\run-matlab-command.exe
         echo "MATLAB_COMMAND=C:\Windows\System32\run-matlab-command.exe" >> $env:GITHUB_ENV
-        echo "$env:MATLAB_HOME" >> $env:GITHUB_PATH
       shell: powershell
-      if: matrix.language == 'matlab' && runner.os == 'Windows'
+      if: runner.os == 'Windows' && matrix.config == 'matlab'
 
       # ———— Cache ———— #
     - name: Setup ccache
@@ -139,9 +157,9 @@ runs:
       with:
         # create-symlink: true
         append-timestamp: false
-        key: ci-${{ runner.os }}-${{matrix.name || matrix.language }}-${{ github.sha }}
+        key: ci-${{ runner.os }}-${{ matrix.config }}-${{ github.sha }}
         restore-keys: |
-          ci-${{ runner.os }}-${{matrix.name || matrix.language }}-
+          ci-${{ runner.os }}-${{ matrix.config }}-
           ci-${{ runner.os }}-
       if: inputs.use_ccache == 'true' && (runner.os == 'macOS' || runner.os == 'Linux')
 
@@ -162,8 +180,8 @@ runs:
     #       **/msbuild/**/x64
     #       **/include/generated
 
-    #     key: ci-${{ runner.os }}-${{matrix.name || matrix.language }}-${{ github.sha }}
+    #     key: ci-${{ runner.os }}-${{ matrix.config }}-${{ github.sha }}
     #     restore-keys: |
-    #       ci-${{ runner.os }}-${{matrix.name || matrix.language }}-
+    #       ci-${{ runner.os }}-${{ matrix.config }}-
     #       ci-${{ runner.os }}-
     #   if: inputs.cache && runner.os == 'Windows'

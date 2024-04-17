@@ -3,7 +3,7 @@ name: Build and test
 on:
   workflow_dispatch:
   push:
-    branches: ["main"]
+    branches: ["main", "restructure-ci"]
   pull_request:
     # The branches below must be a subset of the branches above
     branches: ["main"]
@@ -15,50 +15,78 @@ concurrency:
 
 jobs:
   ci:
-    name: ${{ matrix.name || matrix.language }} on ${{ matrix.os }}
+    name: ${{ matrix.config }} on ${{ matrix.os }}
     strategy:
-      matrix:
-        language: [cpp]
-        os: [macos-14, ubuntu-latest, windows-latest]
-        name: [""]
-        make_flags: [""]
-        test_flags: [""]
-        include:
-          - os: macos-14
-            language: swift
-          - os: macos-14
-            language: python
-          - os: macos-14
-            language: php
-          - os: macos-14
-            language: ruby
-          - os: macos-14
-            language: cpp
-            name: "xcodesdk"
-            make_flags: "CONFIGS=xcodesdk PLATFORMS=iphonesimulator"
-            test_flags: "--config=xcodesdk --platform=iphonesimulator --controller-app"
-
-          - os: ubuntu-latest
-            language: csharp
-          - os: ubuntu-latest
-            language: java
-          - os: ubuntu-latest
-            language: php
-          - os: ubuntu-latest
-            language: ruby
-          - os: ubuntu-latest
-            language: python
-          - os: ubuntu-latest
-            language: js
-          - os: ubuntu-latest
-            language: matlab
-
-          - os: windows-latest
-            language: python
-          - os: windows-latest
-            language: matlab
-
       fail-fast: false
+      matrix:
+        include:
+          # Release builds
+          - os: macos-14
+            config: "release"
+            build_flags: ""
+            # https://github.com/zeroc-ice/ice/issues/2061
+            test_flags: "--rfilter=csharp/Ice/adapterDeactivation"
+          - os: ubuntu-22.04
+            config: "release"
+            build_flags: ""
+            test_flags: ""
+          - os: windows-2022
+            config: "release"
+            build_flags: "/p:Platform=x64"
+            test_flags: "--platform=x64"
+          - os: windows-2022
+            config: "cpp-win32-release"
+            working_directory: "cpp"
+            build_flags: "/p:Platform=Win32"
+            msbuild_project: "msbuild/ice.proj"
+            test_flags: "--platform=Win32"
+
+          # Debug builds
+          - os: macos-14
+            config: "debug"
+            build_flags: "OPTIMIZE=no"
+            # https://github.com/zeroc-ice/ice/issues/2061
+            test_flags: "--swift-config=Debug --rfilter=csharp/Ice/adapterDeactivation"
+          - os: ubuntu-22.04
+            config: "debug"
+            build_flags: "OPTIMIZE=no"
+            test_flags: ""
+          # TODO - figure out how to properly install debug Python
+          # - os: windows-2022
+          #   config: "debug"
+          #   build_flags: "/p:Platform=x64 /p:Configuration=Debug"
+          #   test_flags: "--platform=x64 --config=Debug"
+
+          # Xcode SDK builds
+          # TODO - Should we also test the debug config here as well?
+          - os: macos-14
+            config: "xcodesdk"
+            working_directory: "cpp"
+            build_flags: "CONFIGS=xcodesdk PLATFORMS=iphonesimulator"
+            test_flags: "--config=xcodesdk --platform=iphonesimulator --controller-app"
+            build_cpp_and_python: true
+
+          # MATLAB
+          - os: ubuntu-22.04
+            config: "matlab"
+            working_directory: "matlab"
+            build_flags: ""
+            test_flags: ""
+            build_cpp_and_python: true
+          - os: windows-2022
+            config: "matlab"
+            working_directory: "matlab"
+            build_flags: "/p:Platform=x64"
+            msbuild_project: "msbuild/ice.proj"
+            test_flags: "--platform=x64"
+            build_cpp_and_python: true
+
+          # Cross tests
+          - os: ubuntu-22.04
+            config: "cross"
+            build_flags: ""
+            # These cross tests are currently failing
+            test_flags: "--all-cross --rfilter Ice/invoke --rfilter Ice/optional --rfilter Ice/slicing"
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -68,20 +96,23 @@ jobs:
       - name: Setup Dependencies
         uses: ./.github/actions/setup-dependencies
 
-      - name: Build ${{ matrix.name || matrix.language }} ${{matrix.make_flags}} on ${{ matrix.os }}
+      - name: Build ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/build
         timeout-minutes: 90
         with:
-          language: ${{ matrix.language }}
-          make_flags: ${{ matrix.make_flags }}
+          working_directory: ${{ matrix.working_directory || '.' }}
+          build_cpp_and_python: ${{ matrix.build_cpp_and_python || false }}
+          build_flags: ${{ matrix.build_flags || '' }}
+          msbuild_project: ${{ matrix.msbuild_project || 'ice.proj' }}
 
-      - name: Test ${{ matrix.name || matrix.language }} on ${{ matrix.os }}
+      - name: Test ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/test
         timeout-minutes: 90
         with:
+          working_directory: ${{ matrix.working_directory || '.' }}
           # See:
           # - https://github.com/zeroc-ice/ice/issues/1653 IceGrid/replication
           # - https://github.com/zeroc-ice/ice/issues/1945 matlab/Ice/slicing
-          flags: "--rfilter IceGrid/replication --rfilter matlab/Ice/slicing ${{ matrix.test_flags }}"
+          flags: "--rfilter=IceGrid/replication --rfilter=matlab/Ice/slicing ${{ matrix.test_flags }}"
         # Don't test matlab on Windows
-        if: matrix.language != 'matlab' || runner.os != 'Windows'
+        if: matrix.config != 'matlab' || runner.os != 'Windows'
