@@ -537,7 +537,7 @@ Ice::ConnectionI::isFinished() const
         return false;
     }
 
-    if (_state != StateFinished || _dispatchCount != 0)
+    if (_state != StateFinished || _upcallCount != 0)
     {
         return false;
     }
@@ -562,7 +562,7 @@ void
 Ice::ConnectionI::waitUntilHolding() const
 {
     std::unique_lock lock(_mutex);
-    _conditionVariable.wait(lock, [this] { return _state >= StateHolding && _dispatchCount == 0; });
+    _conditionVariable.wait(lock, [this] { return _state >= StateHolding && _upcallCount == 0; });
 }
 
 void
@@ -576,7 +576,7 @@ Ice::ConnectionI::waitUntilFinished()
     // guarantee that there are no outstanding calls when deactivate()
     // is called on the servant locators.
     //
-    _conditionVariable.wait(lock, [this] { return _state >= StateFinished && _dispatchCount == 0; });
+    _conditionVariable.wait(lock, [this] { return _state >= StateFinished && _upcallCount == 0; });
 
     assert(_state == StateFinished);
 
@@ -631,7 +631,7 @@ Ice::ConnectionI::monitor(const chrono::steady_clock::time_point& now, const ACM
         (acm.heartbeat != ACMHeartbeat::HeartbeatOff && _writeStream.b.empty() &&
          now >= (_acmLastActivity + chrono::duration_cast<chrono::nanoseconds>(acm.timeout) / 4)))
     {
-        if (acm.heartbeat != ACMHeartbeat::HeartbeatOnDispatch || _dispatchCount > 0)
+        if (acm.heartbeat != ACMHeartbeat::HeartbeatOnDispatch || _upcallCount > 0)
         {
             sendHeartbeatNow();
         }
@@ -660,7 +660,7 @@ Ice::ConnectionI::monitor(const chrono::steady_clock::time_point& now, const ACM
             setState(StateClosed, make_exception_ptr(ConnectionTimeoutException(__FILE__, __LINE__)));
         }
         else if (
-            acm.close != ACMClose::CloseOnInvocation && _dispatchCount == 0 && _batchRequestQueue->isEmpty() &&
+            acm.close != ACMClose::CloseOnInvocation && _upcallCount == 0 && _batchRequestQueue->isEmpty() &&
             _asyncRequests.empty())
         {
             //
@@ -1109,7 +1109,7 @@ Ice::ConnectionI::sendResponse(int32_t, OutputStream* os, uint8_t compressFlag)
 
     try
     {
-        if (--_dispatchCount == 0)
+        if (--_upcallCount == 0)
         {
             if (_state == StateFinished)
             {
@@ -1127,7 +1127,7 @@ Ice::ConnectionI::sendResponse(int32_t, OutputStream* os, uint8_t compressFlag)
         OutgoingMessage message(os, compressFlag > 0);
         sendMessage(message);
 
-        if (_state == StateClosing && _dispatchCount == 0)
+        if (_state == StateClosing && _upcallCount == 0)
         {
             initiateShutdown();
         }
@@ -1148,7 +1148,7 @@ Ice::ConnectionI::sendNoResponse()
 
     try
     {
-        if (--_dispatchCount == 0)
+        if (--_upcallCount == 0)
         {
             if (_state == StateFinished)
             {
@@ -1163,7 +1163,7 @@ Ice::ConnectionI::sendNoResponse()
             rethrow_exception(_exception);
         }
 
-        if (_state == StateClosing && _dispatchCount == 0)
+        if (_state == StateClosing && _upcallCount == 0)
         {
             initiateShutdown();
         }
@@ -1179,7 +1179,7 @@ Ice::ConnectionI::invokeException(int32_t, exception_ptr ex, int invokeNum)
 {
     //
     // Fatal exception while invoking a request. Since sendResponse/sendNoResponse isn't
-    // called in case of a fatal exception we decrement _dispatchCount here.
+    // called in case of a fatal exception we decrement _upcallCount here.
     //
 
     std::lock_guard lock(_mutex);
@@ -1187,9 +1187,9 @@ Ice::ConnectionI::invokeException(int32_t, exception_ptr ex, int invokeNum)
 
     if (invokeNum > 0)
     {
-        assert(_dispatchCount >= invokeNum);
-        _dispatchCount -= invokeNum;
-        if (_dispatchCount == 0)
+        assert(_upcallCount >= invokeNum);
+        _upcallCount -= invokeNum;
+        if (_upcallCount == 0)
         {
             if (_state == StateFinished)
             {
@@ -1382,7 +1382,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
     ObjectAdapterIPtr adapter;
     OutgoingAsyncBasePtr outAsync;
     HeartbeatCallback heartbeatCallback;
-    int dispatchCount = 0;
+    int upcallCount = 0;
 
     ThreadPoolMessage<ConnectionI> msg(current, *this);
     {
@@ -1399,14 +1399,15 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
             return;
         }
 
-        SocketOperation readyOp = current.operation;
         try
         {
             unscheduleTimeout(current.operation);
 
             SocketOperation writeOp = SocketOperationNone;
             SocketOperation readOp = SocketOperationNone;
-            if (readyOp & SocketOperationWrite)
+
+            // If writes are ready, write the data from the connection's write buffer (_writeStream)
+            if (current.operation & SocketOperationWrite)
             {
                 if (_observer)
                 {
@@ -1419,140 +1420,166 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                 }
             }
 
-            while (readyOp & SocketOperationRead)
+            // If reads are ready, read the data into the connection's read buffer (_readStream). The data is read
+            // until:
+            // - the full message is read (the transport read returns SocketOperationNone) and
+            //   the read buffer is fully filled
+            // - the read operation on the transport can't continue without blocking
+            if (current.operation & SocketOperationRead)
             {
-                if (_observer && !_readHeader)
+                while (true)
                 {
-                    _observer.startRead(_readStream);
-                }
+                    if (_observer && !_readHeader)
+                    {
+                        _observer.startRead(_readStream);
+                    }
 
-                readOp = read(_readStream);
-                if (readOp & SocketOperationRead)
-                {
+                    readOp = read(_readStream);
+                    if (readOp & SocketOperationRead)
+                    {
+                        // Can't continue without blocking, exit out of the loop.
+                        break;
+                    }
+
+                    if (_observer && !_readHeader)
+                    {
+                        assert(_readStream.i == _readStream.b.end());
+                        _observer.finishRead(_readStream);
+                    }
+
+                    // If read header is true, we're reading a new Ice protocol message and we need to read
+                    // the message header.
+                    if (_readHeader)
+                    {
+                        // The next read will read the remainder of the message.
+                        _readHeader = false;
+
+                        if (_observer)
+                        {
+                            _observer->receivedBytes(static_cast<int>(headerSize));
+                        }
+
+                        //
+                        // Connection is validated on first message. This is only used by
+                        // setState() to check wether or not we can print a connection
+                        // warning (a client might close the connection forcefully if the
+                        // connection isn't validated, we don't want to print a warning
+                        // in this case).
+                        //
+                        _validated = true;
+
+                        // Full header should be read because the size of _readStream is always headerSize (14) when
+                        // reading a new message (see the code that sets _readHeader = true).
+                        ptrdiff_t pos = _readStream.i - _readStream.b.begin();
+                        if (pos < headerSize)
+                        {
+                            //
+                            // This situation is possible for small UDP packets.
+                            //
+                            throw IllegalMessageSizeException(__FILE__, __LINE__);
+                        }
+
+                        // Decode the header.
+                        _readStream.i = _readStream.b.begin();
+                        const byte* m;
+                        _readStream.readBlob(m, static_cast<int32_t>(sizeof(magic)));
+                        if (m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
+                        {
+                            throw BadMagicException(__FILE__, __LINE__, "", Ice::ByteSeq(&m[0], &m[0] + sizeof(magic)));
+                        }
+                        ProtocolVersion pv;
+                        _readStream.read(pv);
+                        checkSupportedProtocol(pv);
+                        EncodingVersion ev;
+                        _readStream.read(ev);
+                        checkSupportedProtocolEncoding(ev);
+
+                        uint8_t messageType;
+                        _readStream.read(messageType);
+                        uint8_t compressByte;
+                        _readStream.read(compressByte);
+                        int32_t size;
+                        _readStream.read(size);
+                        if (size < headerSize)
+                        {
+                            throw IllegalMessageSizeException(__FILE__, __LINE__);
+                        }
+
+                        // Resize the read buffer to the message size.
+                        if (size > static_cast<int32_t>(_messageSizeMax))
+                        {
+                            Ex::throwMemoryLimitException(
+                                __FILE__,
+                                __LINE__,
+                                static_cast<size_t>(size),
+                                _messageSizeMax);
+                        }
+                        if (static_cast<size_t>(size) > _readStream.b.size())
+                        {
+                            _readStream.b.resize(static_cast<size_t>(size));
+                        }
+                        _readStream.i = _readStream.b.begin() + pos;
+                    }
+
+                    if (_readStream.i != _readStream.b.end())
+                    {
+                        if (_endpoint->datagram())
+                        {
+                            throw DatagramLimitException(__FILE__, __LINE__); // The message was truncated.
+                        }
+                        continue;
+                    }
                     break;
                 }
-                if (_observer && !_readHeader)
-                {
-                    assert(_readStream.i == _readStream.b.end());
-                    _observer.finishRead(_readStream);
-                }
-
-                if (_readHeader) // Read header if necessary.
-                {
-                    _readHeader = false;
-
-                    if (_observer)
-                    {
-                        _observer->receivedBytes(static_cast<int>(headerSize));
-                    }
-
-                    //
-                    // Connection is validated on first message. This is only used by
-                    // setState() to check wether or not we can print a connection
-                    // warning (a client might close the connection forcefully if the
-                    // connection isn't validated, we don't want to print a warning
-                    // in this case).
-                    //
-                    _validated = true;
-
-                    ptrdiff_t pos = _readStream.i - _readStream.b.begin();
-                    if (pos < headerSize)
-                    {
-                        //
-                        // This situation is possible for small UDP packets.
-                        //
-                        throw IllegalMessageSizeException(__FILE__, __LINE__);
-                    }
-
-                    _readStream.i = _readStream.b.begin();
-                    const byte* m;
-                    _readStream.readBlob(m, static_cast<int32_t>(sizeof(magic)));
-                    if (m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
-                    {
-                        throw BadMagicException(__FILE__, __LINE__, "", Ice::ByteSeq(&m[0], &m[0] + sizeof(magic)));
-                    }
-                    ProtocolVersion pv;
-                    _readStream.read(pv);
-                    checkSupportedProtocol(pv);
-                    EncodingVersion ev;
-                    _readStream.read(ev);
-                    checkSupportedProtocolEncoding(ev);
-
-                    uint8_t messageType;
-                    _readStream.read(messageType);
-                    uint8_t compressByte;
-                    _readStream.read(compressByte);
-                    int32_t size;
-                    _readStream.read(size);
-                    if (size < headerSize)
-                    {
-                        throw IllegalMessageSizeException(__FILE__, __LINE__);
-                    }
-
-                    if (size > static_cast<int32_t>(_messageSizeMax))
-                    {
-                        Ex::throwMemoryLimitException(__FILE__, __LINE__, static_cast<size_t>(size), _messageSizeMax);
-                    }
-                    if (static_cast<size_t>(size) > _readStream.b.size())
-                    {
-                        _readStream.b.resize(static_cast<size_t>(size));
-                    }
-                    _readStream.i = _readStream.b.begin() + pos;
-                }
-
-                if (_readStream.i != _readStream.b.end())
-                {
-                    if (_endpoint->datagram())
-                    {
-                        throw DatagramLimitException(__FILE__, __LINE__); // The message was truncated.
-                    }
-                    continue;
-                }
-                break;
             }
 
+            // readOp and writeOp are set to the operations that the transport read or write calls from above returned.
+            // They indicate which operations will need to be monitored by the thread pool's selector when this method
+            // returns.
             SocketOperation newOp = static_cast<SocketOperation>(readOp | writeOp);
-            readyOp = static_cast<SocketOperation>(readyOp & ~newOp);
-            assert(readyOp || newOp);
+
+            // Operations that are ready. For example, if message was called with SocketOperationRead and the transport
+            // read returned SocketOperationNone, reads are considered done: there's no additional data to read.
+            SocketOperation readyOp = static_cast<SocketOperation>(current.operation & ~newOp);
 
             if (_state <= StateNotValidated)
             {
+                // If the connection is still not validated and there's still data to read or write, continue waiting
+                // for data to read or write.
                 if (newOp)
                 {
-                    //
-                    // Wait for all the transceiver conditions to be
-                    // satisfied before continuing.
-                    //
                     scheduleTimeout(newOp);
                     _threadPool->update(shared_from_this(), current.operation, newOp);
                     return;
                 }
 
+                // Initialize the connection if it's not initialized yet.
                 if (_state == StateNotInitialized && !initialize(current.operation))
                 {
                     return;
                 }
 
+                // Validate the connection if it's not validated yet.
                 if (_state <= StateNotValidated && !validate(current.operation))
                 {
                     return;
                 }
 
+                // The connection is validated and doesn't need additional data to be read or written. So unregister
+                // it from the thread pool's selector.
                 _threadPool->unregister(shared_from_this(), current.operation);
 
-                //
-                // We start out in holding state.
-                //
+                // The connection starts in the holding state. It will be activated by the connection factory.
                 setState(StateHolding);
                 if (_connectionStartCompleted)
                 {
                     connectionStartCompleted = std::move(_connectionStartCompleted);
-                    ++dispatchCount;
+                    ++upcallCount;
                     _connectionStartCompleted = nullptr;
                     _connectionStartFailed = nullptr;
                 }
             }
-            else
+            else // The connection is active or waits for the CloseConnection message.
             {
                 assert(_state <= StateClosingPending);
 
@@ -1562,6 +1589,8 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                 //
                 if (readyOp & SocketOperationRead)
                 {
+                    // At this point, the protocol message is fully read and can therefore be decoded by parseMessage.
+                    // parseMessage returns the operation to wait for readiness next.
                     newOp = static_cast<SocketOperation>(
                         newOp | parseMessage(
                                     current.stream,
@@ -1571,18 +1600,22 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                                     adapter,
                                     outAsync,
                                     heartbeatCallback,
-                                    dispatchCount));
+                                    upcallCount));
                 }
 
                 if (readyOp & SocketOperationWrite)
                 {
+                    // At this point the message from _writeStream is fully written and the next message can be written.
+
                     newOp = static_cast<SocketOperation>(newOp | sendNextMessage(sentCBs));
                     if (!sentCBs.empty())
                     {
-                        ++dispatchCount;
+                        ++upcallCount;
                     }
                 }
 
+                // If the connection is not closed yet, we can schedule the read or write timeout and update the thread
+                // pool selector to wait for readiness of read, write or both operations.
                 if (_state < StateClosed)
                 {
                     scheduleTimeout(newOp);
@@ -1595,12 +1628,15 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                 _acmLastActivity = chrono::steady_clock::now();
             }
 
-            if (dispatchCount == 0)
+            if (upcallCount == 0)
             {
                 return; // Nothing to dispatch we're done!
             }
 
-            _dispatchCount += dispatchCount;
+            _upcallCount += upcallCount;
+
+            // There's something to dispatch so we mark IO as completed to elect a new leader thread and let IO be
+            // performed on this new leader thread while this thread continues with dispatching the up-calls.
             io.completed();
         }
         catch (const DatagramLimitException&) // Expected.
@@ -1786,8 +1822,8 @@ ConnectionI::dispatch(
     if (dispatchedCount > 0)
     {
         std::lock_guard lock(_mutex);
-        _dispatchCount -= dispatchedCount;
-        if (_dispatchCount == 0)
+        _upcallCount -= dispatchedCount;
+        if (_upcallCount == 0)
         {
             //
             // Only initiate shutdown if not already done. It might
@@ -2011,7 +2047,7 @@ Ice::ConnectionI::finish(bool close)
         std::lock_guard lock(_mutex);
         setState(StateFinished);
 
-        if (_dispatchCount == 0)
+        if (_upcallCount == 0)
         {
             reap();
         }
@@ -2129,7 +2165,7 @@ Ice::ConnectionI::ConnectionI(
       _readStream(_instance.get(), Ice::currentProtocolEncoding),
       _readHeader(false),
       _writeStream(_instance.get(), Ice::currentProtocolEncoding),
-      _dispatchCount(0),
+      _upcallCount(0),
       _state(StateNotInitialized),
       _shutdownInitiated(false),
       _initialized(false),
@@ -2209,7 +2245,7 @@ Ice::ConnectionI::~ConnectionI()
     assert(!_closeCallback);
     assert(!_heartbeatCallback);
     assert(_state == StateFinished);
-    assert(_dispatchCount == 0);
+    assert(_upcallCount == 0);
     assert(_sendStreams.empty());
     assert(_asyncRequests.empty());
 }
@@ -2483,7 +2519,7 @@ Ice::ConnectionI::setState(State state)
 
     _conditionVariable.notify_all();
 
-    if (_state == StateClosing && _dispatchCount == 0)
+    if (_state == StateClosing && _upcallCount == 0)
     {
         try
         {
@@ -2499,7 +2535,7 @@ Ice::ConnectionI::setState(State state)
 void
 Ice::ConnectionI::initiateShutdown()
 {
-    assert(_state == StateClosing && _dispatchCount == 0);
+    assert(_state == StateClosing && _upcallCount == 0);
 
     if (_shutdownInitiated)
     {
