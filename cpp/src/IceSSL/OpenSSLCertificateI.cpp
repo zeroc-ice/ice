@@ -214,11 +214,11 @@ namespace
         OpenSSLCertificateI(x509_st*);
         ~OpenSSLCertificateI();
 
-        virtual bool operator==(const Certificate&) const;
+        virtual bool operator==(const IceSSL::Certificate&) const;
 
         virtual vector<uint8_t> getAuthorityKeyIdentifier() const;
         virtual vector<uint8_t> getSubjectKeyIdentifier() const;
-        virtual bool verify(const CertificatePtr&) const;
+        virtual bool verify(const IceSSL::CertificatePtr&) const;
         virtual string encode() const;
 
         virtual chrono::system_clock::time_point getNotAfter() const;
@@ -300,7 +300,7 @@ OpenSSLCertificateI::~OpenSSLCertificateI()
 }
 
 bool
-OpenSSLCertificateI::operator==(const Certificate& r) const
+OpenSSLCertificateI::operator==(const IceSSL::Certificate& r) const
 {
     const OpenSSLCertificateI* p = dynamic_cast<const OpenSSLCertificateI*>(&r);
     if (!p)
@@ -358,7 +358,7 @@ OpenSSLCertificateI::getSubjectKeyIdentifier() const
 }
 
 bool
-OpenSSLCertificateI::verify(const CertificatePtr& cert) const
+OpenSSLCertificateI::verify(const IceSSL::CertificatePtr& cert) const
 {
     OpenSSLCertificateI* c = dynamic_cast<OpenSSLCertificateI*>(cert.get());
     if (c)
