@@ -1569,9 +1569,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                 // it from the thread pool's selector.
                 _threadPool->unregister(shared_from_this(), current.operation);
 
-                //
-                // We start out in holding state.
-                //
+                // The connection starts in the holding state. It will be activated by the connection factory.
                 setState(StateHolding);
                 if (_connectionStartCompleted)
                 {

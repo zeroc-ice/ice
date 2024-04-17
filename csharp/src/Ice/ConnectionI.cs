@@ -51,9 +51,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
                     return;
                 }
 
-                //
-                // We start out in holding state.
-                //
+                // The connection starts in the holding state. It will be activated by the connection factory.
                 setState(StateHolding);
             }
         }

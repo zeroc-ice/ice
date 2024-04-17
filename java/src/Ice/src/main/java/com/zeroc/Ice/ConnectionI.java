@@ -946,9 +946,8 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
           // written. So unregister it from the thread pool's selector.
           _threadPool.unregister(this, current.operation);
 
-          //
-          // We start out in holding state.
-          //
+          // The connection starts in the holding state. It will be activated by the
+          // connection factory.
           setState(StateHolding);
           if (_startCallback != null) {
             startCB = _startCallback;
