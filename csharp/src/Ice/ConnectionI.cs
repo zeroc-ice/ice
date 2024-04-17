@@ -219,7 +219,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
 
         try
         {
-            if (_state != StateFinished || _dispatchCount != 0)
+            if (_state != StateFinished || _upcallCount != 0)
             {
                 return false;
             }
@@ -249,7 +249,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
     {
         lock (this)
         {
-            while (_state < StateHolding || _dispatchCount > 0)
+            while (_state < StateHolding || _upcallCount > 0)
             {
                 Monitor.Wait(this);
             }
@@ -266,7 +266,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
             // guarantee that there are no outstanding calls when deactivate()
             // is called on the servant locators.
             //
-            while (_state < StateFinished || _dispatchCount > 0)
+            while (_state < StateFinished || _upcallCount > 0)
             {
                 Monitor.Wait(this);
             }
@@ -332,7 +332,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
                (acm.heartbeat != ACMHeartbeat.HeartbeatOff && _writeStream.isEmpty() &&
                 now >= (_acmLastActivity + acm.timeout / 4)))
             {
-                if (acm.heartbeat != ACMHeartbeat.HeartbeatOnDispatch || _dispatchCount > 0)
+                if (acm.heartbeat != ACMHeartbeat.HeartbeatOnDispatch || _upcallCount > 0)
                 {
                     sendHeartbeatNow();
                 }
@@ -361,7 +361,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
                     setState(StateClosed, new ConnectionTimeoutException());
                 }
                 else if (acm.close != ACMClose.CloseOnInvocation &&
-                        _dispatchCount == 0 && _batchRequestQueue.isEmpty() &&
+                        _upcallCount == 0 && _batchRequestQueue.isEmpty() &&
                         _asyncRequests.Count == 0)
                 {
                     //
@@ -736,7 +736,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
 
             try
             {
-                if (--_dispatchCount == 0)
+                if (--_upcallCount == 0)
                 {
                     if (_state == StateFinished)
                     {
@@ -753,7 +753,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
 
                 sendMessage(new OutgoingMessage(os, compressFlag > 0, true));
 
-                if (_state == StateClosing && _dispatchCount == 0)
+                if (_state == StateClosing && _upcallCount == 0)
                 {
                     initiateShutdown();
                 }
@@ -773,7 +773,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
 
             try
             {
-                if (--_dispatchCount == 0)
+                if (--_upcallCount == 0)
                 {
                     if (_state == StateFinished)
                     {
@@ -788,7 +788,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
                     throw _exception;
                 }
 
-                if (_state == StateClosing && _dispatchCount == 0)
+                if (_state == StateClosing && _upcallCount == 0)
                 {
                     initiateShutdown();
                 }
@@ -818,9 +818,9 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
 
             if (invokeNum > 0)
             {
-                Debug.Assert(_dispatchCount >= invokeNum);
-                _dispatchCount -= invokeNum;
-                if (_dispatchCount == 0)
+                Debug.Assert(_upcallCount >= invokeNum);
+                _upcallCount -= invokeNum;
+                if (_upcallCount == 0)
                 {
                     if (_state == StateFinished)
                     {
@@ -1023,7 +1023,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
         StartCallback startCB = null;
         Queue<OutgoingMessage> sentCBs = null;
         MessageInfo info = new MessageInfo();
-        int dispatchCount = 0;
+        int upcallCount = 0;
 
         ThreadPoolMessage msg = new ThreadPoolMessage(this);
         try
@@ -1040,14 +1040,15 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
                     return;
                 }
 
-                int readyOp = current.operation;
                 try
                 {
                     unscheduleTimeout(current.operation);
 
                     int writeOp = SocketOperation.None;
                     int readOp = SocketOperation.None;
-                    if ((readyOp & SocketOperation.Write) != 0)
+
+                    // If writes are ready, write the data from the connection's write buffer (_writeStream)
+                    if ((current.operation & SocketOperation.Write) != 0)
                     {
                         if (_observer != null)
                         {
@@ -1060,131 +1061,155 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
                         }
                     }
 
-                    while ((readyOp & SocketOperation.Read) != 0)
+                    // If reads are ready, read the data into the connection's read buffer (_readStream). The data is
+                    // read until:
+                    // - the full message is read (the transport read returns SocketOperationNone) and
+                    //   the read buffer is fully filled
+                    // - the read operation on the transport can't continue without blocking
+                    if ((current.operation & SocketOperation.Read) != 0)
                     {
-                        IceInternal.Buffer buf = _readStream.getBuffer();
-
-                        if (_observer != null && !_readHeader)
+                        while (true)
                         {
-                            observerStartRead(buf);
-                        }
+                            IceInternal.Buffer buf = _readStream.getBuffer();
 
-                        readOp = read(buf);
-                        if ((readOp & SocketOperation.Read) != 0)
-                        {
+                            if (_observer != null && !_readHeader)
+                            {
+                                observerStartRead(buf);
+                            }
+
+                            readOp = read(buf);
+                            if ((readOp & SocketOperation.Read) != 0)
+                            {
+                                // Can't continue without blocking, exit out of the loop.
+                                break;
+                            }
+                            if (_observer != null && !_readHeader)
+                            {
+                                Debug.Assert(!buf.b.hasRemaining());
+                                observerFinishRead(buf);
+                            }
+
+                            // If read header is true, we're reading a new Ice protocol message and we need to read
+                            // the message header.
+                            if (_readHeader)
+                            {
+                                // The next read will read the remainder of the message.
+                                _readHeader = false;
+
+                                if (_observer != null)
+                                {
+                                    _observer.receivedBytes(Protocol.headerSize);
+                                }
+
+                                //
+                                // Connection is validated on first message. This is only used by
+                                // setState() to check wether or not we can print a connection
+                                // warning (a client might close the connection forcefully if the
+                                // connection isn't validated, we don't want to print a warning
+                                // in this case).
+                                //
+                                _validated = true;
+
+                                // Full header should be read because the size of _readStream is always headerSize (14)
+                                // when reading a new message (see the code that sets _readHeader = true).
+                                int pos = _readStream.pos();
+                                if (pos < Protocol.headerSize)
+                                {
+                                    //
+                                    // This situation is possible for small UDP packets.
+                                    //
+                                    throw new IllegalMessageSizeException();
+                                }
+
+                                // Decode the header.
+                                _readStream.pos(0);
+                                byte[] m = new byte[4];
+                                m[0] = _readStream.readByte();
+                                m[1] = _readStream.readByte();
+                                m[2] = _readStream.readByte();
+                                m[3] = _readStream.readByte();
+                                if (m[0] != Protocol.magic[0] || m[1] != Protocol.magic[1] ||
+                                m[2] != Protocol.magic[2] || m[3] != Protocol.magic[3])
+                                {
+                                    BadMagicException ex = new BadMagicException();
+                                    ex.badMagic = m;
+                                    throw ex;
+                                }
+
+                                ProtocolVersion pv = new ProtocolVersion();
+                                pv.ice_readMembers(_readStream);
+                                Protocol.checkSupportedProtocol(pv);
+                                EncodingVersion ev = new EncodingVersion();
+                                ev.ice_readMembers(_readStream);
+                                Protocol.checkSupportedProtocolEncoding(ev);
+
+                                _readStream.readByte(); // messageType
+                                _readStream.readByte(); // compress
+                                int size = _readStream.readInt();
+                                if (size < Protocol.headerSize)
+                                {
+                                    throw new IllegalMessageSizeException();
+                                }
+
+                                // Resize the read buffer to the message size.
+                                if (size > _messageSizeMax)
+                                {
+                                    Ex.throwMemoryLimitException(size, _messageSizeMax);
+                                }
+                                if (size > _readStream.size())
+                                {
+                                    _readStream.resize(size);
+                                }
+                                _readStream.pos(pos);
+                            }
+
+                            if (buf.b.hasRemaining())
+                            {
+                                if (_endpoint.datagram())
+                                {
+                                    throw new DatagramLimitException(); // The message was truncated.
+                                }
+                                continue;
+                            }
                             break;
                         }
-                        if (_observer != null && !_readHeader)
-                        {
-                            Debug.Assert(!buf.b.hasRemaining());
-                            observerFinishRead(buf);
-                        }
-
-                        if (_readHeader) // Read header if necessary.
-                        {
-                            _readHeader = false;
-
-                            if (_observer != null)
-                            {
-                                _observer.receivedBytes(Protocol.headerSize);
-                            }
-
-                            //
-                            // Connection is validated on first message. This is only used by
-                            // setState() to check wether or not we can print a connection
-                            // warning (a client might close the connection forcefully if the
-                            // connection isn't validated, we don't want to print a warning
-                            // in this case).
-                            //
-                            _validated = true;
-
-                            int pos = _readStream.pos();
-                            if (pos < Protocol.headerSize)
-                            {
-                                //
-                                // This situation is possible for small UDP packets.
-                                //
-                                throw new IllegalMessageSizeException();
-                            }
-
-                            _readStream.pos(0);
-                            byte[] m = new byte[4];
-                            m[0] = _readStream.readByte();
-                            m[1] = _readStream.readByte();
-                            m[2] = _readStream.readByte();
-                            m[3] = _readStream.readByte();
-                            if (m[0] != Protocol.magic[0] || m[1] != Protocol.magic[1] ||
-                               m[2] != Protocol.magic[2] || m[3] != Protocol.magic[3])
-                            {
-                                BadMagicException ex = new BadMagicException();
-                                ex.badMagic = m;
-                                throw ex;
-                            }
-
-                            ProtocolVersion pv = new ProtocolVersion();
-                            pv.ice_readMembers(_readStream);
-                            Protocol.checkSupportedProtocol(pv);
-                            EncodingVersion ev = new EncodingVersion();
-                            ev.ice_readMembers(_readStream);
-                            Protocol.checkSupportedProtocolEncoding(ev);
-
-                            _readStream.readByte(); // messageType
-                            _readStream.readByte(); // compress
-                            int size = _readStream.readInt();
-                            if (size < Protocol.headerSize)
-                            {
-                                throw new IllegalMessageSizeException();
-                            }
-
-                            if (size > _messageSizeMax)
-                            {
-                                Ex.throwMemoryLimitException(size, _messageSizeMax);
-                            }
-                            if (size > _readStream.size())
-                            {
-                                _readStream.resize(size);
-                            }
-                            _readStream.pos(pos);
-                        }
-
-                        if (buf.b.hasRemaining())
-                        {
-                            if (_endpoint.datagram())
-                            {
-                                throw new DatagramLimitException(); // The message was truncated.
-                            }
-                            continue;
-                        }
-                        break;
                     }
 
+                    // readOp and writeOp are set to the operations that the transport read or write calls from above
+                    // returned. They indicate which operations will need to be monitored by the thread pool's selector
+                    // when this method returns.
                     int newOp = readOp | writeOp;
-                    readyOp &= ~newOp;
-                    Debug.Assert(readyOp != 0 || newOp != 0);
+
+                    // Operations that are ready. For example, if message was called with SocketOperationRead and the
+                    // transport read returned SocketOperationNone, reads are considered done: there's no additional
+                    // data to read.
+                    int readyOp = current.operation & ~newOp;
 
                     if (_state <= StateNotValidated)
                     {
+                        // If the connection is still not validated and there's still data to read or write, continue
+                        // waiting for data to read or write.
                         if (newOp != 0)
                         {
-                            //
-                            // Wait for all the transceiver conditions to be
-                            // satisfied before continuing.
-                            //
                             scheduleTimeout(newOp);
                             _threadPool.update(this, current.operation, newOp);
                             return;
                         }
 
+                        // Initialize the connection if it's not initialized yet.
                         if (_state == StateNotInitialized && !initialize(current.operation))
                         {
                             return;
                         }
 
+                        // Validate the connection if it's not validated yet.
                         if (_state <= StateNotValidated && !validate(current.operation))
                         {
                             return;
                         }
 
+                        // The connection is validated and doesn't need additional data to be read or written. So
+                        // unregister it from the thread pool's selector.
                         _threadPool.unregister(this, current.operation);
 
                         //
@@ -1197,7 +1222,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
                             _startCallback = null;
                             if (startCB != null)
                             {
-                                ++dispatchCount;
+                                ++upcallCount;
                             }
                         }
                     }
@@ -1211,19 +1236,26 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
                         //
                         if ((readyOp & SocketOperation.Read) != 0)
                         {
+                            // At this point, the protocol message is fully read and can therefore be decoded by
+                            // parseMessage. parseMessage returns the operation to wait for readiness next.
                             newOp |= parseMessage(ref info);
-                            dispatchCount += info.messageDispatchCount;
+                            upcallCount += info.messageDispatchCount;
                         }
 
                         if ((readyOp & SocketOperation.Write) != 0)
                         {
+                            // At this point the message from _writeStream is fully written and the next message can be
+                            // written.
+
                             newOp |= sendNextMessage(out sentCBs);
                             if (sentCBs != null)
                             {
-                                ++dispatchCount;
+                                ++upcallCount;
                             }
                         }
 
+                        // If the connection is not closed yet, we can schedule the read or write timeout and update the
+                        // thread pool selector to wait for readiness of read, write or both operations.
                         if (_state < StateClosed)
                         {
                             scheduleTimeout(newOp);
@@ -1236,13 +1268,15 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
                         _acmLastActivity = Time.currentMonotonicTimeMillis();
                     }
 
-                    if (dispatchCount == 0)
+                    if (upcallCount == 0)
                     {
                         return; // Nothing to dispatch we're done!
                     }
 
-                    _dispatchCount += dispatchCount;
+                    _upcallCount += upcallCount;
 
+                    // There's something to dispatch so we mark IO as completed to elect a new leader thread and let IO
+                    // be performed on this new leader thread while this thread continues with dispatching the up-calls.
                     msg.completed(ref current);
                 }
                 catch (DatagramLimitException) // Expected.
@@ -1378,8 +1412,8 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
         {
             lock (this)
             {
-                _dispatchCount -= dispatchedCount;
-                if (_dispatchCount == 0)
+                _upcallCount -= dispatchedCount;
+                if (_upcallCount == 0)
                 {
                     //
                     // Only initiate shutdown if not already done. It
@@ -1572,7 +1606,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
         {
             setState(StateFinished);
 
-            if (_dispatchCount == 0)
+            if (_upcallCount == 0)
             {
                 reap();
             }
@@ -1699,7 +1733,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
         _readStreamPos = -1;
         _writeStream = new OutputStream(instance, Util.currentProtocolEncoding);
         _writeStreamPos = -1;
-        _dispatchCount = 0;
+        _upcallCount = 0;
         _state = StateNotInitialized;
 
         _compressionLevel = initData.properties.getPropertyAsIntWithDefault("Ice.Compression.Level", 1);
@@ -1971,7 +2005,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
 
         Monitor.PulseAll(this);
 
-        if (_state == StateClosing && _dispatchCount == 0)
+        if (_state == StateClosing && _upcallCount == 0)
         {
             try
             {
@@ -1986,7 +2020,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
 
     private void initiateShutdown()
     {
-        Debug.Assert(_state == StateClosing && _dispatchCount == 0);
+        Debug.Assert(_state == StateClosing && _upcallCount == 0);
 
         if (_shutdownInitiated)
         {
@@ -3048,7 +3082,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
     private int _readStreamPos;
     private int _writeStreamPos;
 
-    private int _dispatchCount;
+    private int _upcallCount;
 
     private int _state; // The current state.
     private bool _shutdownInitiated;

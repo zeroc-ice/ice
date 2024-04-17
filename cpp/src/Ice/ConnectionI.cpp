@@ -1425,105 +1425,108 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
             // - the full message is read (the transport read returns SocketOperationNone) and
             //   the read buffer is fully filled
             // - the read operation on the transport can't continue without blocking
-            while (current.operation & SocketOperationRead)
+            if (current.operation & SocketOperationRead)
             {
-                if (_observer && !_readHeader)
+                while (true)
                 {
-                    _observer.startRead(_readStream);
-                }
+                    if (_observer && !_readHeader)
+                    {
+                        _observer.startRead(_readStream);
+                    }
 
-                readOp = read(_readStream);
-                if (readOp & SocketOperationRead)
-                {
-                    // Can't continue without blocking, exit out of the loop.
+                    readOp = read(_readStream);
+                    if (readOp & SocketOperationRead)
+                    {
+                        // Can't continue without blocking, exit out of the loop.
+                        break;
+                    }
+
+                    if (_observer && !_readHeader)
+                    {
+                        assert(_readStream.i == _readStream.b.end());
+                        _observer.finishRead(_readStream);
+                    }
+
+                    // If read header is true, we're reading a new Ice protocol message and we need to read
+                    // the message header.
+                    if (_readHeader)
+                    {
+                        // The next read will read the remainder of the message.
+                        _readHeader = false;
+
+                        if (_observer)
+                        {
+                            _observer->receivedBytes(static_cast<int>(headerSize));
+                        }
+
+                        //
+                        // Connection is validated on first message. This is only used by
+                        // setState() to check wether or not we can print a connection
+                        // warning (a client might close the connection forcefully if the
+                        // connection isn't validated, we don't want to print a warning
+                        // in this case).
+                        //
+                        _validated = true;
+
+                        // Full header should be read because the size of _readStream is always headerSize (14) when
+                        // reading a new message (see the code that sets _readHeader = true).
+                        ptrdiff_t pos = _readStream.i - _readStream.b.begin();
+                        if (pos < headerSize)
+                        {
+                            //
+                            // This situation is possible for small UDP packets.
+                            //
+                            throw IllegalMessageSizeException(__FILE__, __LINE__);
+                        }
+
+                        // Decode the header.
+                        _readStream.i = _readStream.b.begin();
+                        const byte* m;
+                        _readStream.readBlob(m, static_cast<int32_t>(sizeof(magic)));
+                        if (m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
+                        {
+                            throw BadMagicException(__FILE__, __LINE__, "", Ice::ByteSeq(&m[0], &m[0] + sizeof(magic)));
+                        }
+                        ProtocolVersion pv;
+                        _readStream.read(pv);
+                        checkSupportedProtocol(pv);
+                        EncodingVersion ev;
+                        _readStream.read(ev);
+                        checkSupportedProtocolEncoding(ev);
+
+                        uint8_t messageType;
+                        _readStream.read(messageType);
+                        uint8_t compressByte;
+                        _readStream.read(compressByte);
+                        int32_t size;
+                        _readStream.read(size);
+                        if (size < headerSize)
+                        {
+                            throw IllegalMessageSizeException(__FILE__, __LINE__);
+                        }
+
+                        // Resize the read buffer to the message size.
+                        if (size > static_cast<int32_t>(_messageSizeMax))
+                        {
+                            Ex::throwMemoryLimitException(__FILE__, __LINE__, static_cast<size_t>(size), _messageSizeMax);
+                        }
+                        if (static_cast<size_t>(size) > _readStream.b.size())
+                        {
+                            _readStream.b.resize(static_cast<size_t>(size));
+                        }
+                        _readStream.i = _readStream.b.begin() + pos;
+                    }
+
+                    if (_readStream.i != _readStream.b.end())
+                    {
+                        if (_endpoint->datagram())
+                        {
+                            throw DatagramLimitException(__FILE__, __LINE__); // The message was truncated.
+                        }
+                        continue;
+                    }
                     break;
                 }
-
-                if (_observer && !_readHeader)
-                {
-                    assert(_readStream.i == _readStream.b.end());
-                    _observer.finishRead(_readStream);
-                }
-
-                // If read header is true, we're reading a new Ice protocol message and we need to read
-                // the message header.
-                if (_readHeader)
-                {
-                    // The next read will read the reminder of the message.
-                    _readHeader = false;
-
-                    if (_observer)
-                    {
-                        _observer->receivedBytes(static_cast<int>(headerSize));
-                    }
-
-                    //
-                    // Connection is validated on first message. This is only used by
-                    // setState() to check wether or not we can print a connection
-                    // warning (a client might close the connection forcefully if the
-                    // connection isn't validated, we don't want to print a warning
-                    // in this case).
-                    //
-                    _validated = true;
-
-                    // Full header should be read because the size of _readStream is always headerSize (14) when
-                    // reading a new message (see the code that sets _readHeader = true).
-                    ptrdiff_t pos = _readStream.i - _readStream.b.begin();
-                    if (pos < headerSize)
-                    {
-                        //
-                        // This situation is possible for small UDP packets.
-                        //
-                        throw IllegalMessageSizeException(__FILE__, __LINE__);
-                    }
-
-                    // Decode the header.
-                    _readStream.i = _readStream.b.begin();
-                    const byte* m;
-                    _readStream.readBlob(m, static_cast<int32_t>(sizeof(magic)));
-                    if (m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
-                    {
-                        throw BadMagicException(__FILE__, __LINE__, "", Ice::ByteSeq(&m[0], &m[0] + sizeof(magic)));
-                    }
-                    ProtocolVersion pv;
-                    _readStream.read(pv);
-                    checkSupportedProtocol(pv);
-                    EncodingVersion ev;
-                    _readStream.read(ev);
-                    checkSupportedProtocolEncoding(ev);
-
-                    uint8_t messageType;
-                    _readStream.read(messageType);
-                    uint8_t compressByte;
-                    _readStream.read(compressByte);
-                    int32_t size;
-                    _readStream.read(size);
-                    if (size < headerSize)
-                    {
-                        throw IllegalMessageSizeException(__FILE__, __LINE__);
-                    }
-
-                    // Resize the read buffer to the message size.
-                    if (size > static_cast<int32_t>(_messageSizeMax))
-                    {
-                        Ex::throwMemoryLimitException(__FILE__, __LINE__, static_cast<size_t>(size), _messageSizeMax);
-                    }
-                    if (static_cast<size_t>(size) > _readStream.b.size())
-                    {
-                        _readStream.b.resize(static_cast<size_t>(size));
-                    }
-                    _readStream.i = _readStream.b.begin() + pos;
-                }
-
-                if (_readStream.i != _readStream.b.end())
-                {
-                    if (_endpoint->datagram())
-                    {
-                        throw DatagramLimitException(__FILE__, __LINE__); // The message was truncated.
-                    }
-                    continue;
-                }
-                break;
             }
 
             // readOp and writeOp are set to the operations that the transport read or write calls from above returned.
@@ -1534,7 +1537,6 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
             // Operations that are ready. For example, if message was called with SocketOperationRead and the transport
             // read returned SocketOperationNone, reads are considered done: there's no additional data to read.
             SocketOperation readyOp = static_cast<SocketOperation>(current.operation & ~newOp);
-            assert(readyOp || newOp);
 
             if (_state <= StateNotValidated)
             {
@@ -1542,9 +1544,6 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                 // for data to read or write.
                 if (newOp)
                 {
-                    //
-                    // Wait for all the transceiver conditions to be satisfied before continuing.
-                    //
                     scheduleTimeout(newOp);
                     _threadPool->update(shared_from_this(), current.operation, newOp);
                     return;
@@ -1556,7 +1555,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     return;
                 }
 
-                // Validate the connection if it's not validate yet.
+                // Validate the connection if it's not validated yet.
                 if (_state <= StateNotValidated && !validate(current.operation))
                 {
                     return;
