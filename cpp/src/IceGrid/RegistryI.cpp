@@ -17,8 +17,6 @@
 #include "Ice/Ice.h"
 #include "Ice/UUID.h"
 #include "IceLocatorDiscovery.h"
-#include "IceSSL/Certificate.h"
-#include "IceSSL/ConnectionInfo.h"
 #include "IceUtil/FileUtil.h"
 #include "InternalRegistryI.h"
 #include "LocatorI.h"

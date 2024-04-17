@@ -3,8 +3,6 @@
 //
 
 #include "Ice/Ice.h"
-#include "IceSSL/ConnectionInfo.h"
-#include "IceSSL/EndpointInfo.h"
 #include "TestHelper.h"
 #include "TestI.h"
 

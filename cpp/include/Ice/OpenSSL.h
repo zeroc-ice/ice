@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICESSL_OPENSSL_H
-#define ICESSL_OPENSSL_H
+#ifndef ICE_OPENSSL_H
+#define ICE_OPENSSL_H
 
 #include "Certificate.h"
 

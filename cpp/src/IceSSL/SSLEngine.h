@@ -7,9 +7,9 @@
 
 #include "../Ice/Network.h"
 #include "../Ice/TransceiverF.h"
+#include "Ice/Certificate.h"
 #include "Ice/CommunicatorF.h"
 #include "Ice/InstanceF.h"
-#include "IceSSL/Certificate.h"
 #include "SSLEngineF.h"
 #include "SSLInstanceF.h"
 #include "SSLUtil.h"

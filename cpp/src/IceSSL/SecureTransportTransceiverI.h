@@ -9,9 +9,9 @@
 
 #    include "../Ice/Network.h"
 #    include "../Ice/Transceiver.h"
+#    include "Ice/Certificate.h"
 #    include "Ice/Config.h"
 #    include "Ice/UniqueRef.h"
-#    include "IceSSL/Certificate.h"
 #    include "SSLInstanceF.h"
 #    include "SecureTransportEngineF.h"
 

@@ -11,8 +11,8 @@
 #include "../Ice/Base64.h"
 #include "CertificateI.h"
 #include "Ice/LocalException.h"
+#include "Ice/SecureTransport.h"
 #include "Ice/UniqueRef.h"
-#include "IceSSL/SecureTransport.h"
 #include "RFC2253.h"
 #include "SecureTransportUtil.h"
 

@@ -5,9 +5,7 @@
 #include "SessionI.h"
 #include "Database.h"
 #include "Ice/Ice.h"
-#include "Ice/UUID.h"
 #include "IceGrid/Admin.h"
-#include "IceSSL/Certificate.h"
 #include "LocatorI.h"
 #include "QueryI.h"
 

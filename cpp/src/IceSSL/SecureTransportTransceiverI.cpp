@@ -5,7 +5,7 @@
 #include "SecureTransportTransceiverI.h"
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
-#include "IceSSL/ConnectionInfo.h"
+#include "Ice/SSLConnectionInfo.h"
 #include "SSLInstance.h"
 #include "SecureTransportEngine.h"
 #include "SecureTransportUtil.h"

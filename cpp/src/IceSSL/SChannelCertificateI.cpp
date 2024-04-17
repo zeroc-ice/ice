@@ -4,9 +4,9 @@
 
 #include "../Ice/StringUtil.h"
 #include "CertificateI.h"
+#include "Ice/Certificate.h"
+#include "Ice/SChannel.h"
 #include "Ice/StringConverter.h"
-#include "IceSSL/Certificate.h"
-#include "IceSSL/SChannel.h"
 #include "SSLUtil.h"
 
 #include <wincrypt.h>

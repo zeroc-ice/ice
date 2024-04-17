@@ -6,8 +6,6 @@
 #include "AdminI.h"
 #include "Database.h"
 #include "Ice/Ice.h"
-#include "Ice/UUID.h"
-#include "IceSSL/Certificate.h"
 #include "RegistryI.h"
 #include "SynchronizationException.h"
 

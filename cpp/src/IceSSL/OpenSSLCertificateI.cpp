@@ -3,7 +3,7 @@
 //
 
 #include "CertificateI.h"
-#include "IceSSL/OpenSSL.h"
+#include "Ice/OpenSSL.h"
 #include "OpenSSLUtil.h"
 #include "RFC2253.h"
 
@@ -132,11 +132,10 @@ namespace
         return alt;
     }
 
-    class DistinguishedNameI : public IceSSL::DistinguishedName
+    class DistinguishedNameI : public DistinguishedName
     {
     public:
-        DistinguishedNameI(X509_name_st* name)
-            : IceSSL::DistinguishedName(IceSSL::RFC2253::parseStrict(convertX509NameToString(name)))
+        DistinguishedNameI(X509_name_st* name) : DistinguishedName(RFC2253::parseStrict(convertX509NameToString(name)))
         {
             unescape();
         }
@@ -194,7 +193,7 @@ namespace
         return chrono::system_clock::time_point(chrono::seconds(mktime(&tm) - int64_t{offset} * 60 + tzone));
     }
 
-    class OpenSSLX509ExtensionI : public IceSSL::X509Extension
+    class OpenSSLX509ExtensionI : public X509Extension
     {
     public:
         OpenSSLX509ExtensionI(struct X509_extension_st*, const string&, x509_st*);
@@ -209,7 +208,7 @@ namespace
         x509_st* _cert;
     };
 
-    class OpenSSLCertificateI : public IceSSL::OpenSSL::Certificate, public CertificateI
+    class OpenSSLCertificateI : public OpenSSL::Certificate, public CertificateI
     {
     public:
         OpenSSLCertificateI(x509_st*);
@@ -225,9 +224,9 @@ namespace
         virtual chrono::system_clock::time_point getNotAfter() const;
         virtual chrono::system_clock::time_point getNotBefore() const;
         virtual string getSerialNumber() const;
-        virtual IceSSL::DistinguishedName getIssuerDN() const;
+        virtual DistinguishedName getIssuerDN() const;
         virtual vector<pair<int, string>> getIssuerAlternativeNames() const;
-        virtual IceSSL::DistinguishedName getSubjectDN() const;
+        virtual DistinguishedName getSubjectDN() const;
         virtual vector<pair<int, string>> getSubjectAlternativeNames() const;
         virtual int getVersion() const;
         virtual x509_st* getCert() const;
@@ -325,7 +324,7 @@ OpenSSLCertificateI::getAuthorityKeyIdentifier() const
             AUTHORITY_KEYID* decoded = (AUTHORITY_KEYID*)X509V3_EXT_d2i(ext);
             if (!decoded)
             {
-                throw IceSSL::CertificateEncodingException(__FILE__, __LINE__, "the extension could not be decoded");
+                throw CertificateEncodingException(__FILE__, __LINE__, "the extension could not be decoded");
             }
             keyid.resize(decoded->keyid->length);
             memcpy(&keyid[0], decoded->keyid->data, decoded->keyid->length);
@@ -348,7 +347,7 @@ OpenSSLCertificateI::getSubjectKeyIdentifier() const
             ASN1_OCTET_STRING* decoded = static_cast<ASN1_OCTET_STRING*>(X509V3_EXT_d2i(ext));
             if (!decoded)
             {
-                throw IceSSL::CertificateEncodingException(__FILE__, __LINE__, "the extension could not be decoded");
+                throw CertificateEncodingException(__FILE__, __LINE__, "the extension could not be decoded");
             }
             keyid.resize(decoded->length);
             memcpy(&keyid[0], decoded->data, decoded->length);
@@ -380,7 +379,7 @@ OpenSSLCertificateI::encode() const
     if (i <= 0)
     {
         BIO_free(out);
-        throw IceSSL::CertificateEncodingException(__FILE__, __LINE__, IceSSL::OpenSSL::getSslErrors(false));
+        throw CertificateEncodingException(__FILE__, __LINE__, OpenSSL::getSslErrors(false));
     }
     BUF_MEM* p;
     BIO_get_mem_ptr(out, &p);
@@ -412,11 +411,10 @@ OpenSSLCertificateI::getSerialNumber() const
     return result;
 }
 
-IceSSL::DistinguishedName
+DistinguishedName
 OpenSSLCertificateI::getIssuerDN() const
 {
-    return IceSSL::DistinguishedName(
-        IceSSL::RFC2253::parseStrict(convertX509NameToString(X509_get_issuer_name(_cert))));
+    return DistinguishedName(RFC2253::parseStrict(convertX509NameToString(X509_get_issuer_name(_cert))));
 }
 
 vector<pair<int, string>>
@@ -425,11 +423,10 @@ OpenSSLCertificateI::getIssuerAlternativeNames() const
     return convertGeneralNames(reinterpret_cast<GENERAL_NAMES*>(X509_get_ext_d2i(_cert, NID_issuer_alt_name, 0, 0)));
 }
 
-IceSSL::DistinguishedName
+DistinguishedName
 OpenSSLCertificateI::getSubjectDN() const
 {
-    return IceSSL::DistinguishedName(
-        IceSSL::RFC2253::parseStrict(convertX509NameToString(X509_get_subject_name(_cert))));
+    return DistinguishedName(RFC2253::parseStrict(convertX509NameToString(X509_get_subject_name(_cert))));
 }
 
 vector<pair<int, string>>
@@ -471,7 +468,7 @@ OpenSSLCertificateI::loadX509Extensions() const
             len = OBJ_obj2txt(&oid[0], len, obj, 1);
             oid.resize(len);
             _extensions.push_back(
-                dynamic_pointer_cast<IceSSL::X509Extension>(make_shared<OpenSSLX509ExtensionI>(ext, oid, _cert)));
+                dynamic_pointer_cast<X509Extension>(make_shared<OpenSSLX509ExtensionI>(ext, oid, _cert)));
         }
     }
 }
@@ -564,14 +561,14 @@ OpenSSLCertificateI::getExtendedKeyUsage() const
     return extendedKeyUsage;
 }
 
-IceSSL::OpenSSL::CertificatePtr
-IceSSL::OpenSSL::Certificate::create(x509_st* cert)
+OpenSSL::CertificatePtr
+OpenSSL::Certificate::create(x509_st* cert)
 {
     return make_shared<OpenSSLCertificateI>(cert);
 }
 
-IceSSL::OpenSSL::CertificatePtr
-IceSSL::OpenSSL::Certificate::load(const std::string& file)
+OpenSSL::CertificatePtr
+OpenSSL::Certificate::load(const std::string& file)
 {
     BIO* cert = BIO_new(BIO_s_file());
     if (BIO_read_filename(cert, file.c_str()) <= 0)
@@ -594,8 +591,8 @@ IceSSL::OpenSSL::Certificate::load(const std::string& file)
     return make_shared<OpenSSLCertificateI>(x);
 }
 
-IceSSL::OpenSSL::CertificatePtr
-IceSSL::OpenSSL::Certificate::decode(const std::string& encoding)
+OpenSSL::CertificatePtr
+OpenSSL::Certificate::decode(const std::string& encoding)
 {
     BIO* cert = BIO_new_mem_buf(static_cast<void*>(const_cast<char*>(&encoding[0])), static_cast<int>(encoding.size()));
     x509_st* x = PEM_read_bio_X509(cert, nullptr, nullptr, nullptr);
@@ -612,14 +609,14 @@ IceSSL::OpenSSL::Certificate::decode(const std::string& encoding)
     return make_shared<OpenSSLCertificateI>(x);
 }
 
-IceSSL::CertificatePtr
-IceSSL::Certificate::load(const std::string& file)
+CertificatePtr
+Certificate::load(const std::string& file)
 {
-    return IceSSL::OpenSSL::Certificate::load(file);
+    return OpenSSL::Certificate::load(file);
 }
 
-IceSSL::CertificatePtr
-IceSSL::Certificate::decode(const std::string& encoding)
+CertificatePtr
+Certificate::decode(const std::string& encoding)
 {
-    return IceSSL::OpenSSL::Certificate::decode(encoding);
+    return OpenSSL::Certificate::decode(encoding);
 }

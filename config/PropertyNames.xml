@@ -564,7 +564,6 @@ generated from the section label.
         <property name="CertFile" />
         <property name="CheckCertName" />
         <property name="CheckCRL" />
-        <property name="Ciphers" />
         <property name="CertificateRevocationListFiles" />
         <property name="DefaultDir" />
         <property name="FindCert" />

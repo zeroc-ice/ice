@@ -3,8 +3,6 @@
 //
 
 #include "Ice/Ice.h"
-#include "IceSSL/Certificate.h"
-#include "IceSSL/ConnectionInfo.h"
 #include "Test.h"
 #include "TestHelper.h"
 
@@ -2433,7 +2431,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                 import.cleanup();
                 test(false);
             }
-            catch (const PluginInitializationException&)
+            catch (const InitializationException&)
             {
                 // expected
             }
@@ -2461,7 +2459,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                 CommunicatorPtr comm = initialize(initData);
                 test(false);
             }
-            catch (const PluginInitializationException&)
+            catch (const InitializationException&)
             {
                 // expected
             }
@@ -2565,7 +2563,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                 printf("failed %s", failFindCertProperties[i]);
                 test(false);
             }
-            catch (const PluginInitializationException&)
+            catch (const InitializationException&)
             {
                 // expected
             }

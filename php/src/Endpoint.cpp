@@ -3,7 +3,7 @@
 //
 
 #include "Endpoint.h"
-#include "IceSSL/EndpointInfo.h"
+#include "Ice/Ice.h"
 #include "Util.h"
 
 using namespace std;

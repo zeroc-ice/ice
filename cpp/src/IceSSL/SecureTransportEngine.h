@@ -31,15 +31,8 @@ namespace IceSSL::SecureTransport
         std::string getCipherName(SSLCipherSuite) const;
 
     private:
-        void parseCiphers(const std::string&);
-
         IceInternal::UniqueRef<CFArrayRef> _certificateAuthorities;
         IceInternal::UniqueRef<CFArrayRef> _chain;
-
-#    if TARGET_OS_IPHONE == 0
-        std::vector<char> _dhParams;
-#    endif
-        std::vector<SSLCipherSuite> _ciphers;
     };
 }
 #endif

@@ -179,7 +179,7 @@ namespace
         {
             if ((err = SecKeychainCopyDefault(&keychain.get())))
             {
-                throw PluginInitializationException(
+                throw InitializationException(
                     __FILE__,
                     __LINE__,
                     "IceSSL: unable to retrieve default keychain:\n" + sslErrorToString(err));
@@ -201,7 +201,7 @@ namespace
 
             if ((err = SecKeychainOpen(keychainPath.c_str(), &keychain.get())))
             {
-                throw PluginInitializationException(
+                throw InitializationException(
                     __FILE__,
                     __LINE__,
                     "IceSSL: unable to open keychain: `" + keychainPath + "'\n" + sslErrorToString(err));
@@ -216,7 +216,7 @@ namespace
             if ((err =
                      SecKeychainUnlock(keychain.get(), static_cast<UInt32>(keychainPassword.size()), pass, pass != 0)))
             {
-                throw PluginInitializationException(
+                throw InitializationException(
                     __FILE__,
                     __LINE__,
                     "IceSSL: unable to unlock keychain:\n" + sslErrorToString(err));
@@ -234,7 +234,7 @@ namespace
                      0,
                      &keychain.get())))
             {
-                throw PluginInitializationException(
+                throw InitializationException(
                     __FILE__,
                     __LINE__,
                     "IceSSL: unable to create keychain:\n" + sslErrorToString(err));
@@ -242,7 +242,7 @@ namespace
         }
         else
         {
-            throw PluginInitializationException(
+            throw InitializationException(
                 __FILE__,
                 __LINE__,
                 "IceSSL: unable to open keychain:\n" + sslErrorToString(err));
@@ -258,7 +258,7 @@ namespace
         settings.lockInterval = INT_MAX;
         if ((err = SecKeychainSetSettings(keychain.get(), &settings)))
         {
-            throw PluginInitializationException(
+            throw InitializationException(
                 __FILE__,
                 __LINE__,
                 "IceSSL: error setting keychain settings:\n" + sslErrorToString(err));
@@ -673,7 +673,7 @@ IceSSL::SecureTransport::findCertificateChain(
         string arg;
         if (field != "LABEL" && field != "SERIAL" && field != "SUBJECT" && field != "SUBJECTKEYID")
         {
-            throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: unknown key in `" + value + "'");
+            throw InitializationException(__FILE__, __LINE__, "IceSSL: unknown key in `" + value + "'");
         }
 
         start = pos + 1;
@@ -684,7 +684,7 @@ IceSSL::SecureTransport::findCertificateChain(
 
         if (start == value.size())
         {
-            throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: missing argument in `" + value + "'");
+            throw InitializationException(__FILE__, __LINE__, "IceSSL: missing argument in `" + value + "'");
         }
 
         if (value[start] == '"' || value[start] == '\'')
@@ -701,7 +701,7 @@ IceSSL::SecureTransport::findCertificateChain(
             }
             if (end == value.size() || value[end] != value[start])
             {
-                throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: unmatched quote in `" + value + "'");
+                throw InitializationException(__FILE__, __LINE__, "IceSSL: unmatched quote in `" + value + "'");
             }
             ++start;
             arg = value.substr(start, end - start);
@@ -733,7 +733,7 @@ IceSSL::SecureTransport::findCertificateChain(
             vector<unsigned char> buffer;
             if (!parseBytes(arg, buffer))
             {
-                throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: invalid value `" + value + "'");
+                throw InitializationException(__FILE__, __LINE__, "IceSSL: invalid value `" + value + "'");
             }
             UniqueRef<CFDataRef> v(CFDataCreate(kCFAllocatorDefault, &buffer[0], static_cast<CFIndex>(buffer.size())));
             CFDictionarySetValue(
@@ -746,14 +746,14 @@ IceSSL::SecureTransport::findCertificateChain(
 
     if (!valid)
     {
-        throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: invalid value `" + value + "'");
+        throw InitializationException(__FILE__, __LINE__, "IceSSL: invalid value `" + value + "'");
     }
 
     UniqueRef<SecCertificateRef> cert;
     OSStatus err = SecItemCopyMatching(query.get(), (CFTypeRef*)&cert.get());
     if (err != noErr)
     {
-        throw PluginInitializationException(
+        throw InitializationException(
             __FILE__,
             __LINE__,
             "IceSSL: find certificate `" + value + "' failed:\n" + sslErrorToString(err));
@@ -767,7 +767,7 @@ IceSSL::SecureTransport::findCertificateChain(
     err = SecTrustCreateWithCertificates(reinterpret_cast<CFArrayRef>(cert.get()), policy.get(), &trust.get());
     if (err || !trust)
     {
-        throw PluginInitializationException(
+        throw InitializationException(
             __FILE__,
             __LINE__,
             "IceSSL: error creating trust object" + (err ? ":\n" + sslErrorToString(err) : ""));
@@ -776,10 +776,7 @@ IceSSL::SecureTransport::findCertificateChain(
     SecTrustResultType trustResult;
     if ((err = SecTrustEvaluate(trust.get(), &trustResult)))
     {
-        throw PluginInitializationException(
-            __FILE__,
-            __LINE__,
-            "IceSSL: error evaluating trust:\n" + sslErrorToString(err));
+        throw InitializationException(__FILE__, __LINE__, "IceSSL: error evaluating trust:\n" + sslErrorToString(err));
     }
 
     CFIndex chainLength = SecTrustGetCertificateCount(trust.get());
@@ -811,7 +808,7 @@ IceSSL::SecureTransport::findCertificateChain(
     {
         ostringstream os;
         os << "IceSSL: couldn't create identity for certificate found in the keychain:\n" << sslErrorToString(err);
-        throw PluginInitializationException(__FILE__, __LINE__, os.str());
+        throw InitializationException(__FILE__, __LINE__, os.str());
     }
 
     // Now lookup the identity with the label
@@ -836,7 +833,7 @@ IceSSL::SecureTransport::findCertificateChain(
     {
         ostringstream os;
         os << "IceSSL: couldn't create identity for certificate found in the keychain:\n" << sslErrorToString(err);
-        throw PluginInitializationException(__FILE__, __LINE__, os.str());
+        throw InitializationException(__FILE__, __LINE__, os.str());
     }
     CFArraySetValueAtIndex(const_cast<CFMutableArrayRef>(items.get()), 0, identity.get());
     return items.release();

@@ -10,7 +10,7 @@
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
-#include "IceSSL/ConnectionInfo.h"
+#include "Ice/SSLConnectionInfo.h"
 #include "RFC2253.h"
 
 using namespace std;
@@ -48,10 +48,7 @@ TrustManager::TrustManager(const IceInternal::InstancePtr& instance) : _instance
     }
     catch (const ParseException& ex)
     {
-        throw Ice::PluginInitializationException(
-            __FILE__,
-            __LINE__,
-            "IceSSL: invalid property " + key + ":\n" + ex.reason);
+        throw Ice::InitializationException(__FILE__, __LINE__, "IceSSL: invalid property " + key + ":\n" + ex.reason);
     }
 }
 
