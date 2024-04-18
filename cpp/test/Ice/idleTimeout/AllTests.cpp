@@ -9,7 +9,7 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
-// The client and server have the same idle timeout (1s) and the server has EnableIdleCheck = 1.
+// The client and server have the same idle timeout (1s) and the server enables connection idle checks (the default).
 // We verify that the server's idle check does not abort the connection as long as this connection receives heartbeats,
 // even when the heartbeats are not read off the connection in a timely manner.
 // To verify this situation, we use an OA with a 1-thread thread pool and use this unique thread for a long synchronous
@@ -26,7 +26,7 @@ testIdleCheckDoesNotAbortConnectionWhenThreadPoolIsExhausted(const TestIntfPrx& 
 }
 
 // We verify that the idle check aborts the connection when the connection (here server connection) remains idle for
-// longer than idle timeout. Here, the server has an idle timeout of 1s and EnableIdleCheck = 1. We intentionally
+// longer than idle timeout. Here, the server has an idle timeout of 1s and idle checks enabled. We intentionally
 // misconfigure the client with an idle timeout of 3s to send heartbeats every 1.5s, which is too long to prevent the
 // server from aborting the connection.
 void
@@ -58,6 +58,37 @@ testConnectionAbortedByIdleCheck(const string& proxyString, const PropertiesPtr&
     cout << "ok" << endl;
 }
 
+// Verifies the behavior with the idle check enabled or disabled when the client and the server have mismatched idle
+// timeouts (here: 3s on the server side and 1s on the client side).
+void
+testEnableDisableIdleCheck(bool enabled, const string& proxyString, const PropertiesPtr& properties)
+{
+    cout << "testing connection with idle check " << (enabled ? "enabled" : "disabled") << "... " << flush;
+
+    // Create a new communicator with the desired properties.
+    Ice::InitializationData initData;
+    initData.properties = properties->clone();
+    initData.properties->setProperty("Ice.Connection.IdleTimeout", "1");
+    initData.properties->setProperty("Ice.Connection.EnableIdleCheck", enabled ? "1" : "0");
+    initData.properties->setProperty("Ice.Warn.Connections", "0");
+    Ice::CommunicatorHolder holder = initialize(initData);
+    TestIntfPrx p(holder.communicator(), proxyString);
+
+    ConnectionPtr connection = p->ice_getConnection();
+    test(connection);
+    try
+    {
+        p->sleep(2000); // the implementation in the server sleeps for 2,000ms
+        test(!enabled);
+    }
+    catch (const TimeoutException&)
+    {
+        test(enabled);
+    }
+
+    cout << "ok" << endl;
+}
+
 void
 allTests(TestHelper* helper)
 {
@@ -65,8 +96,12 @@ allTests(TestHelper* helper)
     string proxyString = "test: " + helper->getTestEndpoint();
     TestIntfPrx p(communicator, proxyString);
 
+    string proxyString3s = "test: " + helper->getTestEndpoint(1);
+
     testIdleCheckDoesNotAbortConnectionWhenThreadPoolIsExhausted(p);
     testConnectionAbortedByIdleCheck(proxyString, communicator->getProperties());
+    testEnableDisableIdleCheck(true, proxyString3s, communicator->getProperties());
+    testEnableDisableIdleCheck(false, proxyString3s, communicator->getProperties());
 
     p->shutdown();
 }
