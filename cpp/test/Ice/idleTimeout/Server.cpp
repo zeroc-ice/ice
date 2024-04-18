@@ -19,8 +19,8 @@ Server::run(int argc, char** argv)
     Ice::InitializationData initData;
     initData.properties = createTestProperties(argc, argv);
     initData.properties->setProperty("Ice.Warn.Connections", "0");
-    initData.properties->setProperty("TestAdapter.IdleTimeout", "1"); // 1 second
-    initData.properties->setProperty("TestAdapter.EnableIdleCheck", "1");
+    initData.properties->setProperty("TestAdapter.Connection.IdleTimeout", "1"); // 1 second
+    initData.properties->setProperty("TestAdapter.Connection.EnableIdleCheck", "1");
     initData.properties->setProperty("TestAdapter.ThreadPool.Size", "1"); // dedicated thread pool with a single thread
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);

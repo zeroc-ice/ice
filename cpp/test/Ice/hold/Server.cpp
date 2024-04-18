@@ -19,7 +19,7 @@ Server::run(int argc, char** argv)
 {
     Ice::InitializationData initData;
     initData.properties = createTestProperties(argc, argv);
-    initData.properties->setProperty("Ice.IdleTimeout", "1");
+    initData.properties->setProperty("Ice.Connection.IdleTimeout", "1");
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
     IceUtil::TimerPtr timer = make_shared<IceUtil::Timer>();
@@ -30,7 +30,7 @@ Server::run(int argc, char** argv)
     properties->setProperty("TestAdapter1.ThreadPool.SizeMax", "5");
     properties->setProperty("TestAdapter1.ThreadPool.SizeWarn", "0");
     properties->setProperty("TestAdapter1.ThreadPool.Serialize", "0");
-    properties->setProperty("TestAdapter1.EnableIdleCheck", "1");
+    properties->setProperty("TestAdapter1.Connection.EnableIdleCheck", "1");
 
     Ice::ObjectAdapterPtr adapter1 = communicator->createObjectAdapter("TestAdapter1");
     adapter1->add(make_shared<HoldI>(timer, adapter1), Ice::stringToIdentity("hold"));
@@ -40,7 +40,7 @@ Server::run(int argc, char** argv)
     properties->setProperty("TestAdapter2.ThreadPool.SizeMax", "5");
     properties->setProperty("TestAdapter2.ThreadPool.SizeWarn", "0");
     properties->setProperty("TestAdapter2.ThreadPool.Serialize", "1");
-    properties->setProperty("TestAdapter2.EnableIdleCheck", "1");
+    properties->setProperty("TestAdapter2.Connection.EnableIdleCheck", "1");
     Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("TestAdapter2");
     adapter2->add(make_shared<HoldI>(timer, adapter2), Ice::stringToIdentity("hold"));
 

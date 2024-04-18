@@ -248,6 +248,14 @@ generated from the section label.
         <suffix name="Close" />
     </class>
 
+    <class name="connection" prefix-only="false">
+        <suffix name="CloseTimeout" />
+        <suffix name="ConnectTimeout" />
+        <suffix name="EnableIdleCheck" />
+        <suffix name="IdleTimeout" />
+        <suffix name="InactivityTimeout" />
+    </class>
+
     <class name="threadpool" prefix-only="true">
         <suffix name="Size" />
         <suffix name="SizeMax" />
@@ -259,15 +267,9 @@ generated from the section label.
     </class>
 
     <class name="objectadapter" prefix-only="true">
-        <suffix name="ACM" class="acm"/>
-        <!-- The replacement for ACM above -->
-        <suffix name="CloseTimeout" />
-        <suffix name="ConnectTimeout" />
-        <suffix name="EnableIdleCheck" />
-        <suffix name="IdleTimeout" />
-        <suffix name="InactivityTimeout" />
-        <!-- End ACM replacement -->
+        <suffix name="ACM" class="acm"/> <!-- Getting replaced by Connection -->
         <suffix name="AdapterId" />
+        <suffix name="Connection" class="connection"/>
         <suffix name="Endpoints" />
         <suffix name="Locator" class="proxy"/>
         <suffix name="PublishedEndpoints" />
@@ -310,13 +312,6 @@ generated from the section label.
         <property name="ACM" class="acm"/>
         <property name="ACM.Client" class="acm"/>
         <property name="ACM.Server" class="acm"/>
-        <!-- The replacement for ACM above -->
-        <property name="CloseTimeout" />
-        <property name="ConnectTimeout" />
-        <property name="EnableIdleCheck" />
-        <property name="IdleTimeout" />
-        <property name="InactivityTimeout" />
-        <!-- End ACM replacement -->
         <property name="Admin" class="objectadapter" />
         <property name="Admin.DelayCreation" />
         <property name="Admin.Enabled" />
@@ -334,6 +329,7 @@ generated from the section label.
         <property name="ClientAccessPolicyProtocol" />
         <property name="Compression.Level" />
         <property name="Config" />
+        <property name="Connection" class="connection"/>
         <property name="ConsoleListener" />
         <property name="Default.CollocationOptimized" />
         <property name="Default.EncodingVersion" />
