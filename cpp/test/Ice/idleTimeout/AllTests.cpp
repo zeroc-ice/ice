@@ -26,7 +26,7 @@ testIdleCheckDoesNotAbortConnectionWhenThreadPoolIsExhausted(const TestIntfPrx& 
 }
 
 // We verify that the idle check aborts the connection when the connection (here server connection) remains idle for
-// longer than idle timeout. Here, the server has an idle timeout of 1s and idle checks enable. We intentionally
+// longer than idle timeout. Here, the server has an idle timeout of 1s and idle checks enabled. We intentionally
 // misconfigure the client with an idle timeout of 3s to send heartbeats every 1.5s, which is too long to prevent the
 // server from aborting the connection.
 void
