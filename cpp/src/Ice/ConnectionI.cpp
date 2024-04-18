@@ -50,16 +50,16 @@ namespace
         Ice::ConnectionI* _connection;
     };
 
-    class DispatchCall final : public ExecutorWorkItem
+    class ExecuteUpCall final : public ExecutorWorkItem
     {
     public:
-        DispatchCall(
+        ExecuteUpCall(
             const ConnectionIPtr& connection,
             function<void(ConnectionIPtr)> connectionStartCompleted,
             const vector<ConnectionI::OutgoingMessage>& sentCBs,
             uint8_t compress,
             int32_t requestId,
-            int32_t invokeNum,
+            int32_t dispatchCount,
             const ObjectAdapterIPtr& adapter,
             const OutgoingAsyncBasePtr& outAsync,
             const HeartbeatCallback& heartbeatCallback,
@@ -70,7 +70,7 @@ namespace
               _sentCBs(sentCBs),
               _compress(compress),
               _requestId(requestId),
-              _invokeNum(invokeNum),
+              _dispatchCount(dispatchCount),
               _adapter(adapter),
               _outAsync(outAsync),
               _heartbeatCallback(heartbeatCallback),
@@ -81,12 +81,12 @@ namespace
 
         void run() final
         {
-            _connection->dispatch(
+            _connection->upCall(
                 _connectionStartCompleted,
                 _sentCBs,
                 _compress,
                 _requestId,
-                _invokeNum,
+                _dispatchCount,
                 _adapter,
                 _outAsync,
                 _heartbeatCallback,
@@ -99,17 +99,17 @@ namespace
         const vector<ConnectionI::OutgoingMessage> _sentCBs;
         const uint8_t _compress;
         const int32_t _requestId;
-        const int32_t _invokeNum;
+        const int32_t _dispatchCount;
         const ObjectAdapterIPtr _adapter;
         const OutgoingAsyncBasePtr _outAsync;
         const HeartbeatCallback _heartbeatCallback;
         InputStream _stream;
     };
 
-    class FinishCall final : public ExecutorWorkItem
+    class ExecuteFinish final : public ExecutorWorkItem
     {
     public:
-        FinishCall(const Ice::ConnectionIPtr& connection, bool close)
+        ExecuteFinish(const Ice::ConnectionIPtr& connection, bool close)
             : ExecutorWorkItem(connection),
               _connection(connection),
               _close(close)
@@ -171,8 +171,8 @@ ConnectionFlushBatchAsync::invoke(string_view operation, Ice::CompressBatch comp
     {
         AsyncStatus status;
         bool compress;
-        int batchRequestNum = _connection->getBatchRequestQueue()->swap(&_os, compress);
-        if (batchRequestNum == 0)
+        int batchRequestCount = _connection->getBatchRequestQueue()->swap(&_os, compress);
+        if (batchRequestCount == 0)
         {
             status = AsyncStatusSent;
             if (sent())
@@ -190,7 +190,7 @@ ConnectionFlushBatchAsync::invoke(string_view operation, Ice::CompressBatch comp
             {
                 compress = false;
             }
-            status = _connection->sendAsyncRequest(shared_from_this(), compress, false, batchRequestNum);
+            status = _connection->sendAsyncRequest(shared_from_this(), compress, false, batchRequestCount);
         }
 
         if (status & AsyncStatusSent)
@@ -537,7 +537,7 @@ Ice::ConnectionI::isFinished() const
         return false;
     }
 
-    if (_state != StateFinished || _upcallCount != 0)
+    if (_state != StateFinished || _upCallCount != 0)
     {
         return false;
     }
@@ -562,7 +562,7 @@ void
 Ice::ConnectionI::waitUntilHolding() const
 {
     std::unique_lock lock(_mutex);
-    _conditionVariable.wait(lock, [this] { return _state >= StateHolding && _upcallCount == 0; });
+    _conditionVariable.wait(lock, [this] { return _state >= StateHolding && _upCallCount == 0; });
 }
 
 void
@@ -576,7 +576,7 @@ Ice::ConnectionI::waitUntilFinished()
     // guarantee that there are no outstanding calls when deactivate()
     // is called on the servant locators.
     //
-    _conditionVariable.wait(lock, [this] { return _state >= StateFinished && _upcallCount == 0; });
+    _conditionVariable.wait(lock, [this] { return _state >= StateFinished && _upCallCount == 0; });
 
     assert(_state == StateFinished);
 
@@ -631,7 +631,7 @@ Ice::ConnectionI::monitor(const chrono::steady_clock::time_point& now, const ACM
         (acm.heartbeat != ACMHeartbeat::HeartbeatOff && _writeStream.b.empty() &&
          now >= (_acmLastActivity + chrono::duration_cast<chrono::nanoseconds>(acm.timeout) / 4)))
     {
-        if (acm.heartbeat != ACMHeartbeat::HeartbeatOnDispatch || _upcallCount > 0)
+        if (acm.heartbeat != ACMHeartbeat::HeartbeatOnDispatch || _upCallCount > 0)
         {
             sendHeartbeatNow();
         }
@@ -660,7 +660,7 @@ Ice::ConnectionI::monitor(const chrono::steady_clock::time_point& now, const ACM
             setState(StateClosed, make_exception_ptr(ConnectionTimeoutException(__FILE__, __LINE__)));
         }
         else if (
-            acm.close != ACMClose::CloseOnInvocation && _upcallCount == 0 && _batchRequestQueue->isEmpty() &&
+            acm.close != ACMClose::CloseOnInvocation && _upCallCount == 0 && _batchRequestQueue->isEmpty() &&
             _asyncRequests.empty())
         {
             //
@@ -672,7 +672,7 @@ Ice::ConnectionI::monitor(const chrono::steady_clock::time_point& now, const ACM
 }
 
 AsyncStatus
-Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compress, bool response, int batchRequestNum)
+Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compress, bool response, int batchRequestCount)
 {
     OutputStream* os = out->getOs();
 
@@ -726,9 +726,9 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
             copy(p, p + sizeof(int32_t), os->b.begin() + headerSize);
         }
     }
-    else if (batchRequestNum > 0)
+    else if (batchRequestCount > 0)
     {
-        const byte* p = reinterpret_cast<const byte*>(&batchRequestNum);
+        const byte* p = reinterpret_cast<const byte*>(&batchRequestCount);
         if constexpr (endian::native == endian::big)
         {
             reverse_copy(p, p + sizeof(int32_t), os->b.begin() + headerSize);
@@ -1102,94 +1102,19 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
 }
 
 void
-Ice::ConnectionI::sendResponse(int32_t, OutputStream* os, uint8_t compressFlag)
+Ice::ConnectionI::dispatchException(exception_ptr ex, int dispatchCount)
 {
-    std::unique_lock lock(_mutex);
-    assert(_state > StateNotValidated);
-
-    try
-    {
-        if (--_upcallCount == 0)
-        {
-            if (_state == StateFinished)
-            {
-                reap();
-            }
-            _conditionVariable.notify_all();
-        }
-
-        if (_state >= StateClosed)
-        {
-            assert(_exception);
-            rethrow_exception(_exception);
-        }
-
-        OutgoingMessage message(os, compressFlag > 0);
-        sendMessage(message);
-
-        if (_state == StateClosing && _upcallCount == 0)
-        {
-            initiateShutdown();
-        }
-
-        return;
-    }
-    catch (const LocalException&)
-    {
-        setState(StateClosed, current_exception());
-    }
-}
-
-void
-Ice::ConnectionI::sendNoResponse()
-{
-    std::lock_guard lock(_mutex);
-    assert(_state > StateNotValidated);
-
-    try
-    {
-        if (--_upcallCount == 0)
-        {
-            if (_state == StateFinished)
-            {
-                reap();
-            }
-            _conditionVariable.notify_all();
-        }
-
-        if (_state >= StateClosed)
-        {
-            assert(_exception);
-            rethrow_exception(_exception);
-        }
-
-        if (_state == StateClosing && _upcallCount == 0)
-        {
-            initiateShutdown();
-        }
-    }
-    catch (const LocalException&)
-    {
-        setState(StateClosed, current_exception());
-    }
-}
-
-void
-Ice::ConnectionI::invokeException(int32_t, exception_ptr ex, int invokeNum)
-{
-    //
-    // Fatal exception while invoking a request. Since sendResponse/sendNoResponse isn't
-    // called in case of a fatal exception we decrement _upcallCount here.
-    //
+    // Fatal exception while dispatching a request. Since sendResponse/sendNoResponse isn't called in case of a fatal
+    // exception we decrement _upCallCount here.
 
     std::lock_guard lock(_mutex);
     setState(StateClosed, ex);
 
-    if (invokeNum > 0)
+    if (dispatchCount > 0)
     {
-        assert(_upcallCount >= invokeNum);
-        _upcallCount -= invokeNum;
-        if (_upcallCount == 0)
+        assert(_upCallCount >= dispatchCount);
+        _upCallCount -= dispatchCount;
+        if (_upCallCount == 0)
         {
             if (_state == StateFinished)
             {
@@ -1378,11 +1303,11 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
     vector<OutgoingMessage> sentCBs;
     uint8_t compress = 0;
     int32_t requestId = 0;
-    int32_t invokeNum = 0;
+    int32_t dispatchCount = 0;
     ObjectAdapterIPtr adapter;
     OutgoingAsyncBasePtr outAsync;
     HeartbeatCallback heartbeatCallback;
-    int upcallCount = 0;
+    int upCallCount = 0;
 
     ThreadPoolMessage<ConnectionI> msg(current, *this);
     {
@@ -1574,7 +1499,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                 if (_connectionStartCompleted)
                 {
                     connectionStartCompleted = std::move(_connectionStartCompleted);
-                    ++upcallCount;
+                    ++upCallCount;
                     _connectionStartCompleted = nullptr;
                     _connectionStartFailed = nullptr;
                 }
@@ -1594,13 +1519,13 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     newOp = static_cast<SocketOperation>(
                         newOp | parseMessage(
                                     current.stream,
-                                    invokeNum,
+                                    dispatchCount,
                                     requestId,
                                     compress,
                                     adapter,
                                     outAsync,
                                     heartbeatCallback,
-                                    upcallCount));
+                                    upCallCount));
                 }
 
                 if (readyOp & SocketOperationWrite)
@@ -1610,7 +1535,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     newOp = static_cast<SocketOperation>(newOp | sendNextMessage(sentCBs));
                     if (!sentCBs.empty())
                     {
-                        ++upcallCount;
+                        ++upCallCount;
                     }
                 }
 
@@ -1628,12 +1553,12 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                 _acmLastActivity = chrono::steady_clock::now();
             }
 
-            if (upcallCount == 0)
+            if (upCallCount == 0)
             {
                 return; // Nothing to dispatch we're done!
             }
 
-            _upcallCount += upcallCount;
+            _upCallCount += upCallCount;
 
             // There's something to dispatch so we mark IO as completed to elect a new leader thread and let IO be
             // performed on this new leader thread while this thread continues with dispatching the up-calls.
@@ -1679,13 +1604,13 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 
 // executeFromThisThread dispatches to the correct DispatchQueue
 #ifdef ICE_SWIFT
-    _threadPool->executeFromThisThread(make_shared<DispatchCall>(
+    _threadPool->executeFromThisThread(make_shared<ExecuteUpCall>(
         shared_from_this(),
         std::move(connectionStartCompleted),
         sentCBs,
         compress,
         requestId,
-        invokeNum,
+        dispatchCount,
         adapter,
         outAsync,
         heartbeatCallback,
@@ -1693,12 +1618,12 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 #else
     if (!_hasExecutor) // Optimization, call dispatch() directly if there's no executor.
     {
-        dispatch(
+        upCall(
             connectionStartCompleted,
             sentCBs,
             compress,
             requestId,
-            invokeNum,
+            dispatchCount,
             adapter,
             outAsync,
             heartbeatCallback,
@@ -1706,13 +1631,13 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
     }
     else
     {
-        _threadPool->executeFromThisThread(make_shared<DispatchCall>(
+        _threadPool->executeFromThisThread(make_shared<ExecuteUpCall>(
             shared_from_this(),
             std::move(connectionStartCompleted),
             sentCBs,
             compress,
             requestId,
-            invokeNum,
+            dispatchCount,
             adapter,
             outAsync,
             heartbeatCallback,
@@ -1722,18 +1647,18 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 }
 
 void
-ConnectionI::dispatch(
+ConnectionI::upCall(
     function<void(ConnectionIPtr)> connectionStartCompleted,
     const vector<OutgoingMessage>& sentCBs,
     uint8_t compress,
     int32_t requestId,
-    int32_t invokeNum,
+    int32_t dispatchCount,
     const ObjectAdapterIPtr& adapter,
     const OutgoingAsyncBasePtr& outAsync,
     const HeartbeatCallback& heartbeatCallback,
     InputStream& stream)
 {
-    int dispatchedCount = 0;
+    int completedUpCallCount = 0;
 
     //
     // Notify the factory that the connection establishment and
@@ -1742,7 +1667,7 @@ ConnectionI::dispatch(
     if (connectionStartCompleted)
     {
         connectionStartCompleted(shared_from_this());
-        ++dispatchedCount;
+        ++completedUpCallCount;
     }
 
     //
@@ -1769,7 +1694,7 @@ ConnectionI::dispatch(
             p->outAsync->invokeSent();
 #endif
         }
-        ++dispatchedCount;
+        ++completedUpCallCount;
     }
 
     //
@@ -1779,7 +1704,7 @@ ConnectionI::dispatch(
     if (outAsync)
     {
         outAsync->invokeResponse();
-        ++dispatchedCount;
+        ++completedUpCallCount;
     }
 
     if (heartbeatCallback)
@@ -1798,39 +1723,29 @@ ConnectionI::dispatch(
             Error out(_instance->initializationData().logger);
             out << "connection callback exception:\nunknown c++ exception" << '\n' << _desc;
         }
-        ++dispatchedCount;
+        ++completedUpCallCount;
     }
 
-    //
-    // Method invocation (or multiple invocations for batch messages)
-    // must be done outside the thread synchronization, so that nested
-    // calls are possible.
-    //
-    if (invokeNum)
+    // Dispatch must be done outside the thread synchronization, so that nested calls are possible.
+    if (dispatchCount > 0)
     {
-        invokeAll(stream, invokeNum, requestId, compress, adapter);
+        dispatchAll(stream, dispatchCount, requestId, compress, adapter);
 
-        //
-        // Don't increase count, the dispatch count is
-        // decreased when the incoming reply is sent.
-        //
+        // Don't increase completedUpCallCount for dispatches. _upCallCount will be decreased when the incoming reply is
+        // sent.
     }
 
     //
-    // Decrease dispatch count.
+    // Decrease the upCall count.
     //
-    if (dispatchedCount > 0)
+    if (completedUpCallCount > 0)
     {
         std::lock_guard lock(_mutex);
-        _upcallCount -= dispatchedCount;
-        if (_upcallCount == 0)
+        _upCallCount -= completedUpCallCount;
+        if (_upCallCount == 0)
         {
-            //
-            // Only initiate shutdown if not already done. It might
-            // have already been done if the sent callback or AMI
-            // callback was dispatched when the connection was already
-            // in the closing state.
-            //
+            // Only initiate shutdown if not already initiated. It might have already been initiated if the sent
+            // callback or AMI callback was called when the connection was in the closing state.
             if (_state == StateClosing)
             {
                 try
@@ -1860,11 +1775,9 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
         unscheduleTimeout(static_cast<SocketOperation>(SocketOperationRead | SocketOperationWrite));
     }
 
-    //
-    // If there are no callbacks to call, we don't call ioCompleted() since we're not going
-    // to call code that will potentially block (this avoids promoting a new leader and
-    // unecessary thread creation, especially if this is called on shutdown).
-    //
+    // If there are no callbacks to call, we don't call ioCompleted() since we're not going to call code that will
+    // potentially block (this avoids promoting a new leader and unecessary thread creation, especially if this is
+    // called on shutdown).
     if (!_connectionStartCompleted && !_connectionStartFailed && _sendStreams.empty() && _asyncRequests.empty() &&
         !_closeCallback && !_heartbeatCallback)
     {
@@ -1876,7 +1789,7 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
 
 // executeFromThisThread dispatches to the correct DispatchQueue
 #ifdef ICE_SWIFT
-    _threadPool->executeFromThisThread(make_shared<FinishCall>(shared_from_this(), close));
+    _threadPool->executeFromThisThread(make_shared<ExecuteFinish>(shared_from_this(), close));
 #else
     if (!_hasExecutor) // Optimization, call finish() directly if there's no executor.
     {
@@ -1884,7 +1797,7 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
     }
     else
     {
-        _threadPool->executeFromThisThread(make_shared<FinishCall>(shared_from_this(), close));
+        _threadPool->executeFromThisThread(make_shared<ExecuteFinish>(shared_from_this(), close));
     }
 #endif
 }
@@ -2047,7 +1960,7 @@ Ice::ConnectionI::finish(bool close)
         std::lock_guard lock(_mutex);
         setState(StateFinished);
 
-        if (_upcallCount == 0)
+        if (_upCallCount == 0)
         {
             reap();
         }
@@ -2165,7 +2078,7 @@ Ice::ConnectionI::ConnectionI(
       _readStream(_instance.get(), Ice::currentProtocolEncoding),
       _readHeader(false),
       _writeStream(_instance.get(), Ice::currentProtocolEncoding),
-      _upcallCount(0),
+      _upCallCount(0),
       _state(StateNotInitialized),
       _shutdownInitiated(false),
       _initialized(false),
@@ -2245,7 +2158,7 @@ Ice::ConnectionI::~ConnectionI()
     assert(!_closeCallback);
     assert(!_heartbeatCallback);
     assert(_state == StateFinished);
-    assert(_upcallCount == 0);
+    assert(_upCallCount == 0);
     assert(_sendStreams.empty());
     assert(_asyncRequests.empty());
 }
@@ -2519,7 +2432,7 @@ Ice::ConnectionI::setState(State state)
 
     _conditionVariable.notify_all();
 
-    if (_state == StateClosing && _upcallCount == 0)
+    if (_state == StateClosing && _upCallCount == 0)
     {
         try
         {
@@ -2535,7 +2448,7 @@ Ice::ConnectionI::setState(State state)
 void
 Ice::ConnectionI::initiateShutdown()
 {
-    assert(_state == StateClosing && _upcallCount == 0);
+    assert(_state == StateClosing && _upCallCount == 0);
 
     if (_shutdownInitiated)
     {
@@ -2662,23 +2575,49 @@ Ice::ConnectionI::sendHeartbeatNow()
 void
 Ice::ConnectionI::sendResponse(OutgoingResponse response, uint8_t compress)
 {
-    int32_t requestId = response.current().requestId;
-    bool isTwoWay = !_endpoint->datagram() && requestId != 0;
+    bool isTwoWay = !_endpoint->datagram() && response.current().requestId != 0;
 
     try
     {
-        if (isTwoWay)
+        std::unique_lock lock(_mutex);
+        assert(_state > StateNotValidated);
+
+        try
         {
-            sendResponse(requestId, &response.outputStream(), compress);
+            if (--_upCallCount == 0)
+            {
+                if (_state == StateFinished)
+                {
+                    reap();
+                }
+                _conditionVariable.notify_all();
+            }
+
+            if (_state >= StateClosed)
+            {
+                assert(_exception);
+                rethrow_exception(_exception);
+            }
+
+            if (isTwoWay)
+            {
+                OutgoingMessage message(&response.outputStream(), compress > 0);
+                sendMessage(message);
+            }
+
+            if (_state == StateClosing && _upCallCount == 0)
+            {
+                initiateShutdown();
+            }
         }
-        else
+        catch (const LocalException&)
         {
-            sendNoResponse();
+            setState(StateClosed, current_exception());
         }
     }
     catch (...)
     {
-        invokeException(requestId, current_exception(), 1);
+        dispatchException(current_exception(), 1);
     }
 }
 
@@ -3286,13 +3225,13 @@ Ice::ConnectionI::doUncompress(InputStream& compressed, InputStream& uncompresse
 SocketOperation
 Ice::ConnectionI::parseMessage(
     InputStream& stream,
-    int32_t& invokeNum,
+    int32_t& dispatchCount,
     int32_t& requestId,
     uint8_t& compress,
     ObjectAdapterIPtr& adapter,
     OutgoingAsyncBasePtr& outAsync,
     HeartbeatCallback& heartbeatCallback,
-    int& dispatchCount)
+    int& upCallCount)
 {
     assert(_state > StateNotValidated && _state < StateClosed);
 
@@ -3372,9 +3311,9 @@ Ice::ConnectionI::parseMessage(
                 {
                     traceRecv(stream, _logger, _traceLevels);
                     stream.read(requestId);
-                    invokeNum = 1;
+                    dispatchCount = 1;
                     adapter = _adapter;
-                    ++dispatchCount;
+                    ++upCallCount;
                 }
                 break;
             }
@@ -3392,14 +3331,14 @@ Ice::ConnectionI::parseMessage(
                 else
                 {
                     traceRecv(stream, _logger, _traceLevels);
-                    stream.read(invokeNum);
-                    if (invokeNum < 0)
+                    stream.read(dispatchCount);
+                    if (dispatchCount < 0)
                     {
-                        invokeNum = 0;
+                        dispatchCount = 0;
                         throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
                     }
                     adapter = _adapter;
-                    dispatchCount += invokeNum;
+                    upCallCount += dispatchCount;
                 }
                 break;
             }
@@ -3455,7 +3394,7 @@ Ice::ConnectionI::parseMessage(
                     }
                     else if (outAsync->response())
                     {
-                        ++dispatchCount;
+                        ++upCallCount;
                     }
                     else
                     {
@@ -3464,7 +3403,7 @@ Ice::ConnectionI::parseMessage(
 #else
                     if (outAsync->response())
                     {
-                        ++dispatchCount;
+                        ++upCallCount;
                     }
                     else
                     {
@@ -3483,7 +3422,7 @@ Ice::ConnectionI::parseMessage(
                 if (_heartbeatCallback)
                 {
                     heartbeatCallback = _heartbeatCallback;
-                    ++dispatchCount;
+                    ++upCallCount;
                 }
                 break;
             }
@@ -3515,21 +3454,19 @@ Ice::ConnectionI::parseMessage(
 }
 
 void
-Ice::ConnectionI::invokeAll(
+Ice::ConnectionI::dispatchAll(
     InputStream& stream,
-    int32_t invokeNum,
+    int32_t dispatchCount,
     int32_t requestId,
     uint8_t compress,
     const ObjectAdapterIPtr& adapter)
 {
-    //
-    // Note: In contrast to other private or protected methods, this
-    // operation must be called *without* the mutex locked.
-    //
+    // Note: In contrast to other private or protected methods, this operation must be called *without* the mutex
+    // locked.
 
     try
     {
-        while (invokeNum > 0)
+        while (dispatchCount > 0)
         {
             //
             // Start of the dispatch pipeline.
@@ -3561,14 +3498,14 @@ Ice::ConnectionI::invokeAll(
                     0);
             }
 
-            --invokeNum;
+            --dispatchCount;
         }
 
         stream.clear();
     }
     catch (...)
     {
-        invokeException(requestId, current_exception(), invokeNum); // Fatal invocation exception
+        dispatchException(current_exception(), dispatchCount); // Fatal invocation exception
     }
 }
 

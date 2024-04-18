@@ -204,7 +204,7 @@ namespace Ice
 
         void exception(std::exception_ptr);
 
-        void dispatch(
+        void upCall(
             std::function<void(ConnectionIPtr)>,
             const std::vector<OutgoingMessage>&,
             std::uint8_t,
@@ -274,9 +274,7 @@ namespace Ice
         void sendHeartbeatNow();
 
         void sendResponse(OutgoingResponse, std::uint8_t compress);
-        void sendResponse(std::int32_t, Ice::OutputStream*, std::uint8_t);
-        void sendNoResponse();
-        void invokeException(std::int32_t, std::exception_ptr, int);
+        void dispatchException(std::exception_ptr, int);
 
         bool initialize(IceInternal::SocketOperation = IceInternal::SocketOperationNone);
         bool validate(IceInternal::SocketOperation = IceInternal::SocketOperationNone);
@@ -298,7 +296,7 @@ namespace Ice
             HeartbeatCallback&,
             int&);
 
-        void invokeAll(Ice::InputStream&, std::int32_t, std::int32_t, std::uint8_t, const ObjectAdapterIPtr&);
+        void dispatchAll(Ice::InputStream&, std::int32_t, std::int32_t, std::uint8_t, const ObjectAdapterIPtr&);
 
         void scheduleTimeout(IceInternal::SocketOperation status);
         void unscheduleTimeout(IceInternal::SocketOperation status);
@@ -367,7 +365,7 @@ namespace Ice
 
         Observer _observer;
 
-        int _upcallCount;
+        int _upCallCount;
 
         State _state; // The current state.
         bool _shutdownInitiated;
