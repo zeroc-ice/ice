@@ -20,7 +20,7 @@
         <property name="Ice.Warn.Connections" value="0"/>
         <property name="Ice.Admin.Enabled" value="0"/>
         <!-- <property name="Ice.Override.ConnectTimeout" value="300"/> -->
-        <property name="Ice.ConnectTimeout" value="1"/>
+        <property name="Ice.Connection.ConnectTimeout" value="1"/>
         <property name="Ice.Default.EncodingVersion" value="${encoding}"/>
         <property name="Ice.StdErr" value="${server.data}/trace.log"/>
       </server>
@@ -58,7 +58,7 @@
         <property name="IceGrid.Registry.UserAccounts" value="${test.dir}/useraccounts.txt"/>
         <property name="Ice.Admin.Enabled" value="0"/>
         <!-- <property name="Ice.Override.ConnectTimeout" value="300"/> -->
-        <property name="Ice.ConnectTimeout" value="1"/>
+        <property name="Ice.Connection.ConnectTimeout" value="1"/>
         <property name="Ice.Default.EncodingVersion" value="${encoding}"/>
         <property name="Ice.StdErr" value="${server.data}/trace.log"/>
       </server>

@@ -513,19 +513,19 @@ IceInternal::Instance::serverConnectionOptions(const string& adapterName) const
         const PropertiesPtr& properties = _initData.properties;
 
         connectionOptions.connectTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
-            adapterName + ".ConnectTimeout",
+            adapterName + ".Connection.ConnectTimeout",
             static_cast<int>(connectionOptions.connectTimeout.count())));
         connectionOptions.closeTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
-            adapterName + ".CloseTimeout",
+            adapterName + ".Connection.CloseTimeout",
             static_cast<int>(connectionOptions.closeTimeout.count())));
         connectionOptions.idleTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
-            adapterName + ".IdleTimeout",
+            adapterName + ".Connection.IdleTimeout",
             static_cast<int>(connectionOptions.idleTimeout.count())));
         connectionOptions.enableIdleCheck = properties->getPropertyAsIntWithDefault(
-                                                adapterName + ".EnableIdleCheck",
+                                                adapterName + ".Connection.EnableIdleCheck",
                                                 connectionOptions.enableIdleCheck ? 1 : 0) > 0;
         connectionOptions.inactivityTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
-            adapterName + ".InactivityTimeout",
+            adapterName + ".Connection.InactivityTimeout",
             static_cast<int>(connectionOptions.inactivityTimeout.count())));
     }
     return connectionOptions;
@@ -1134,19 +1134,19 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
             ConnectionOptions& connectionOptions = const_cast<ConnectionOptions&>(_clientConnectionOptions);
 
             connectionOptions.connectTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
-                "Ice.ConnectTimeout",
+                "Ice.Connection.ConnectTimeout",
                 static_cast<int>(connectionOptions.connectTimeout.count())));
             connectionOptions.closeTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
-                "Ice.CloseTimeout",
+                "Ice.Connection.CloseTimeout",
                 static_cast<int>(connectionOptions.closeTimeout.count())));
             connectionOptions.idleTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
-                "Ice.IdleTimeout",
+                "Ice.Connection.IdleTimeout",
                 static_cast<int>(connectionOptions.idleTimeout.count())));
             connectionOptions.enableIdleCheck = properties->getPropertyAsIntWithDefault(
-                                                    "Ice.EnableIdleCheck",
+                                                    "Ice.Connection.EnableIdleCheck",
                                                     connectionOptions.enableIdleCheck ? 1 : 0) > 0;
             connectionOptions.inactivityTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault(
-                "Ice.InactivityTimeout",
+                "Ice.Connection.InactivityTimeout",
                 static_cast<int>(connectionOptions.inactivityTimeout.count())));
         }
 

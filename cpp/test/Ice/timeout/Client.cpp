@@ -25,8 +25,8 @@ Client::run(int argc, char** argv)
     //
     properties->setProperty("Ice.RetryIntervals", "-1");
 
-    properties->setProperty("Ice.ConnectTimeout", "1");
-    properties->setProperty("Ice.CloseTimeout", "1");
+    properties->setProperty("Ice.Connection.ConnectTimeout", "1");
+    properties->setProperty("Ice.Connection.CloseTimeout", "1");
 
     //
     // This test kills connections, so we don't want warnings.

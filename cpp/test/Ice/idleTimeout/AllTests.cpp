@@ -37,7 +37,7 @@ testConnectionAbortedByIdleCheck(const string& proxyString, const PropertiesPtr&
     // Create a new communicator with the desired properties.
     Ice::InitializationData initData;
     initData.properties = properties->clone();
-    initData.properties->setProperty("Ice.IdleTimeout", "3");
+    initData.properties->setProperty("Ice.Connection.IdleTimeout", "3");
     initData.properties->setProperty("Ice.Warn.Connections", "0");
     Ice::CommunicatorHolder holder = initialize(initData);
     TestIntfPrx p(holder.communicator(), proxyString);
