@@ -184,7 +184,9 @@ public class AllTests {
       try {
         java.security.cert.X509Certificate clientCert =
             loadCertificate(defaultDir + "/c_rsa_ca1.jks", "cert");
-        server.checkCert(clientCert.getSubjectDN().toString(), clientCert.getIssuerDN().toString());
+        server.checkCert(
+            clientCert.getSubjectX500Principal().toString(),
+            clientCert.getIssuerX500Principal().toString());
 
         java.security.cert.X509Certificate serverCert =
             loadCertificate(defaultDir + "/s_rsa_ca1.jks", "cert");
@@ -211,7 +213,9 @@ public class AllTests {
       try {
         java.security.cert.X509Certificate clientCert =
             loadCertificate(defaultDir + "/c_rsa_ca1.jks", "cert");
-        server.checkCert(clientCert.getSubjectDN().toString(), clientCert.getIssuerDN().toString());
+        server.checkCert(
+            clientCert.getSubjectX500Principal().toString(),
+            clientCert.getIssuerX500Principal().toString());
       } catch (Exception ex) {
         ex.printStackTrace();
         test(false);
