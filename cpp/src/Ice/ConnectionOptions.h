@@ -15,7 +15,7 @@ namespace Ice
         std::chrono::seconds connectTimeout = std::chrono::seconds(10);
         std::chrono::seconds closeTimeout = std::chrono::seconds(10);
         std::chrono::seconds idleTimeout = std::chrono::seconds(60);
-        bool enableIdleCheck = false; // TODO: switch to true
+        bool enableIdleCheck = true;
         std::chrono::seconds inactivityTimeout = std::chrono::seconds(300);
     };
 }
