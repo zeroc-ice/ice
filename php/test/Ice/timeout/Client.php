@@ -61,47 +61,6 @@ function allTestsWithController($helper, $controller)
     $timeout = $timeout->ice_checkedCast("::Test::Timeout");
     test($timeout);
 
-    // The sequence needs to be large enough to fill the write/recv buffers
-    $seq = array_fill(0, 1000000, 0x01);
-    echo("testing connection timeout... ");
-    flush();
-    {
-        //
-        // Expect TimeoutException.
-        //
-        $to = $timeout->ice_timeout(250)->ice_uncheckedCast("::Test::Timeout");
-        connect($to);
-        $controller->holdAdapter(-1);
-        try
-        {
-            $to->sendData($seq);
-            test(false);
-        }
-        catch(Ice\TimeoutException $ex)
-        {
-            // Expected.
-        }
-        $controller->resumeAdapter();
-        $timeout->op(); // Ensure adapter is active.
-    }
-    {
-        //
-        // Expect success.
-        //
-        $to = $timeout->ice_timeout(2000)->ice_uncheckedCast("::Test::Timeout");
-        $controller->holdAdapter(100);
-        try
-        {
-            $data = array_fill(0, 1000000, 0x01);
-            $to->sendData($data);
-        }
-        catch(Exception $ex)
-        {
-            test(false);
-        }
-    }
-    echo("ok\n");
-
     echo("testing invocation timeout... ");
     flush();
     {
@@ -122,22 +81,6 @@ function allTestsWithController($helper, $controller)
         test($connection == $to->ice_getConnection());
         $to->sleep(100);
         test($connection == $to->ice_getConnection());
-    }
-    {
-        //
-        // Backward compatible connection timeouts
-        //
-        $to = $timeout->ice_invocationTimeout(-2)->ice_timeout(250)->ice_uncheckedCast("::Test::Timeout");
-        $con = connect($to);
-        try
-        {
-            $to->sleep(750);
-            test(false);
-        }
-        catch(Ice\TimeoutException $ex)
-        {
-        }
-        $timeout->ice_ping();
     }
     echo("ok\n");
 

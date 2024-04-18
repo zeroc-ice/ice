@@ -39,15 +39,38 @@ using namespace IceInternal;
 
 namespace
 {
-    class TimeoutCallback final : public IceUtil::TimerTask
+    class ConnectTimerTask : public IceUtil::TimerTask
     {
     public:
-        TimeoutCallback(Ice::ConnectionI* connection) : _connection(connection) {}
+        ConnectTimerTask(const Ice::ConnectionIPtr& connection) : _connection(connection) {}
 
-        void runTimerTask() final { _connection->timedOut(); }
+        void runTimerTask() override
+        {
+            if (auto connection = _connection.lock())
+            {
+                connection->connectTimedOut();
+            }
+        }
 
     private:
-        Ice::ConnectionI* _connection;
+        const weak_ptr<Ice::ConnectionI> _connection;
+    };
+
+    class CloseTimerTask : public IceUtil::TimerTask
+    {
+    public:
+        CloseTimerTask(const Ice::ConnectionIPtr& connection) : _connection(connection) {}
+
+        void runTimerTask() override
+        {
+            if (auto connection = _connection.lock())
+            {
+                connection->closeTimedOut();
+            }
+        }
+
+    private:
+        const weak_ptr<Ice::ConnectionI> _connection;
     };
 
     class DispatchCall final : public ExecutorWorkItem
@@ -1401,8 +1424,6 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 
         try
         {
-            unscheduleTimeout(current.operation);
-
             SocketOperation writeOp = SocketOperationNone;
             SocketOperation readOp = SocketOperationNone;
 
@@ -1548,7 +1569,6 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                 // for data to read or write.
                 if (newOp)
                 {
-                    scheduleTimeout(newOp);
                     _threadPool->update(shared_from_this(), current.operation, newOp);
                     return;
                 }
@@ -1614,11 +1634,10 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     }
                 }
 
-                // If the connection is not closed yet, we can schedule the read or write timeout and update the thread
-                // pool selector to wait for readiness of read, write or both operations.
+                // If the connection is not closed yet, we update the thread pool selector to wait for readiness of
+                // read, write or both operations.
                 if (_state < StateClosed)
                 {
-                    scheduleTimeout(newOp);
                     _threadPool->update(shared_from_this(), current.operation, newOp);
                 }
             }
@@ -1854,12 +1873,6 @@ ConnectionI::dispatch(
 void
 Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
 {
-    {
-        std::lock_guard lock(_mutex);
-        assert(_state == StateClosed);
-        unscheduleTimeout(static_cast<SocketOperation>(SocketOperationRead | SocketOperationWrite));
-    }
-
     //
     // If there are no callbacks to call, we don't call ioCompleted() since we're not going
     // to call code that will potentially block (this avoids promoting a new leader and
@@ -2066,24 +2079,6 @@ Ice::ConnectionI::getNativeInfo()
     return _transceiver->getNativeInfo();
 }
 
-void
-Ice::ConnectionI::timedOut()
-{
-    std::lock_guard lock(_mutex);
-    if (_state <= StateNotValidated)
-    {
-        setState(StateClosed, make_exception_ptr(ConnectTimeoutException(__FILE__, __LINE__)));
-    }
-    else if (_state < StateClosing)
-    {
-        setState(StateClosed, make_exception_ptr(TimeoutException(__FILE__, __LINE__)));
-    }
-    else if (_state < StateClosed)
-    {
-        setState(StateClosed, make_exception_ptr(CloseTimeoutException(__FILE__, __LINE__)));
-    }
-}
-
 string
 Ice::ConnectionI::type() const noexcept
 {
@@ -2148,10 +2143,6 @@ Ice::ConnectionI::ConnectionI(
       _logger(_instance->initializationData().logger),        // Cached for better performance.
       _traceLevels(_instance->traceLevels()),                 // Cached for better performance.
       _timer(_instance->timer()),                             // Cached for better performance.
-      _writeTimeout(new TimeoutCallback(this)),
-      _writeTimeoutScheduled(false),
-      _readTimeout(new TimeoutCallback(this)),
-      _readTimeoutScheduled(false),
       _connectTimeout(options.connectTimeout),
       _closeTimeout(options.closeTimeout),
       _inactivityTimeout(options.inactivityTimeout),
@@ -2559,6 +2550,11 @@ Ice::ConnectionI::initiateShutdown()
         os.write(static_cast<uint8_t>(1)); // compression status: compression supported but not used.
         os.write(headerSize);              // Message size.
 
+        if (_closeTimeout > chrono::seconds::zero())
+        {
+            _timer->schedule(make_shared<CloseTimerTask>(shared_from_this()), _closeTimeout);
+        }
+
         OutgoingMessage message(&os, false);
         if (sendMessage(message) & AsyncStatusSent)
         {
@@ -2570,7 +2566,6 @@ Ice::ConnectionI::initiateShutdown()
             SocketOperation op = _transceiver->closing(true, _exception);
             if (op)
             {
-                scheduleTimeout(op);
                 _threadPool->_register(shared_from_this(), op);
             }
         }
@@ -2615,6 +2610,28 @@ Ice::ConnectionI::idleCheck(
         }
     }
     // else, nothing to do
+}
+
+void
+Ice::ConnectionI::connectTimedOut() noexcept
+{
+    std::lock_guard lock(_mutex);
+    if (_state < StateActive)
+    {
+        setState(StateClosed, make_exception_ptr(ConnectTimeoutException(__FILE__, __LINE__)));
+    }
+    // else ignore since we're no longer in the "connect" phase.
+}
+
+void
+Ice::ConnectionI::closeTimedOut() noexcept
+{
+    std::lock_guard lock(_mutex);
+    if (_state < StateClosed)
+    {
+        setState(StateClosed, make_exception_ptr(CloseTimeoutException(__FILE__, __LINE__)));
+    }
+    // else ignore since we're no longer in the "close" phase.
 }
 
 void
@@ -2685,10 +2702,14 @@ Ice::ConnectionI::sendResponse(OutgoingResponse response, uint8_t compress)
 bool
 Ice::ConnectionI::initialize(SocketOperation operation)
 {
+    if (_connectTimeout > chrono::seconds::zero())
+    {
+        _timer->schedule(make_shared<ConnectTimerTask>(shared_from_this()), _connectTimeout);
+    }
+
     SocketOperation s = _transceiver->initialize(_readStream, _writeStream);
     if (s != SocketOperationNone)
     {
-        scheduleTimeout(s);
         _threadPool->update(shared_from_this(), operation, s);
         return false;
     }
@@ -2735,7 +2756,6 @@ Ice::ConnectionI::validate(SocketOperation operation)
                 SocketOperation op = write(_writeStream);
                 if (op)
                 {
-                    scheduleTimeout(op);
                     _threadPool->update(shared_from_this(), operation, op);
                     return false;
                 }
@@ -2764,7 +2784,6 @@ Ice::ConnectionI::validate(SocketOperation operation)
                 SocketOperation op = read(_readStream);
                 if (op)
                 {
-                    scheduleTimeout(op);
                     _threadPool->update(shared_from_this(), operation, op);
                     return false;
                 }
@@ -2993,6 +3012,7 @@ Ice::ConnectionI::sendNextMessage(vector<OutgoingMessage>& callbacks)
 AsyncStatus
 Ice::ConnectionI::sendMessage(OutgoingMessage& message)
 {
+    assert(_state >= StateActive);
     assert(_state < StateClosed);
 
     message.stream->i = 0; // Reset the message stream iterator before starting sending the message.
@@ -3119,7 +3139,6 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
 #endif
 
     _writeStream.swap(*_sendStreams.back().stream);
-    scheduleTimeout(op);
     _threadPool->_register(shared_from_this(), op);
     return AsyncStatusQueued;
 }
@@ -3351,6 +3370,10 @@ Ice::ConnectionI::parseMessage(
                     SocketOperation op = _transceiver->closing(false, _exception);
                     if (op)
                     {
+                        if (_closeTimeout > chrono::seconds::zero())
+                        {
+                            _timer->schedule(make_shared<CloseTimerTask>(shared_from_this()), _closeTimeout);
+                        }
                         return op;
                     }
                     setState(StateClosed);
@@ -3569,75 +3592,6 @@ Ice::ConnectionI::invokeAll(
     catch (...)
     {
         invokeException(requestId, current_exception(), invokeNum); // Fatal invocation exception
-    }
-}
-
-void
-Ice::ConnectionI::scheduleTimeout(SocketOperation status)
-{
-    int timeout;
-    if (_state < StateActive)
-    {
-        timeout = static_cast<int>(chrono::milliseconds(_connectTimeout).count());
-    }
-    else if (_state < StateClosingPending)
-    {
-        if (_readHeader) // No timeout for reading the header.
-        {
-            status = static_cast<SocketOperation>(status & ~SocketOperationRead);
-        }
-        timeout = _endpoint->timeout();
-    }
-    else
-    {
-        timeout = static_cast<int>(chrono::milliseconds(_closeTimeout).count());
-    }
-
-    if (timeout < 0)
-    {
-        return;
-    }
-
-    try
-    {
-        if (status & IceInternal::SocketOperationRead)
-        {
-            if (_readTimeoutScheduled)
-            {
-                _timer->cancel(_readTimeout);
-            }
-            _timer->schedule(_readTimeout, chrono::milliseconds(timeout));
-            _readTimeoutScheduled = true;
-        }
-
-        if (status & (IceInternal::SocketOperationWrite | IceInternal::SocketOperationConnect))
-        {
-            if (_writeTimeoutScheduled)
-            {
-                _timer->cancel(_writeTimeout);
-            }
-            _timer->schedule(_writeTimeout, chrono::milliseconds(timeout));
-            _writeTimeoutScheduled = true;
-        }
-    }
-    catch (const IceUtil::Exception&)
-    {
-        assert(false);
-    }
-}
-
-void
-Ice::ConnectionI::unscheduleTimeout(SocketOperation status)
-{
-    if ((status & IceInternal::SocketOperationRead) && _readTimeoutScheduled)
-    {
-        _timer->cancel(_readTimeout);
-        _readTimeoutScheduled = false;
-    }
-    if ((status & (IceInternal::SocketOperationWrite | IceInternal::SocketOperationConnect)) && _writeTimeoutScheduled)
-    {
-        _timer->cancel(_writeTimeout);
-        _writeTimeoutScheduled = false;
     }
 }
 

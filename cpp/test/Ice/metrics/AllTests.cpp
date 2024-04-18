@@ -610,38 +610,6 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 
         metrics->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
 
-        metrics->ice_timeout(500)->ice_ping();
-        controller->hold();
-        try
-        {
-            Ice::ByteSeq seq;
-            seq.resize(10000000);
-            metrics->ice_timeout(500)->opByteS(seq);
-            test(false);
-        }
-        catch (const Ice::TimeoutException&)
-        {
-        }
-        controller->resume();
-
-        cm1 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(
-            clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
-        while (true)
-        {
-            sm1 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(
-                serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
-            if (sm1->failures >= 2)
-            {
-                break;
-            }
-            this_thread::sleep_for(chrono::milliseconds(10));
-        }
-        test(cm1->failures == 2 && sm1->failures >= 2);
-
-        checkFailure(clientMetrics, "Connection", cm1->id, "::Ice::TimeoutException", 1);
-        checkFailure(clientMetrics, "Connection", cm1->id, "::Ice::ConnectTimeoutException", 1);
-        checkFailure(serverMetrics, "Connection", sm1->id, "::Ice::ConnectionLostException");
-
         MetricsPrx m = metrics->ice_timeout(500)->ice_connectionId("Con1");
         m->ice_ping();
 

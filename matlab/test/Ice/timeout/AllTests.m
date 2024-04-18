@@ -48,45 +48,6 @@ classdef AllTests
             timeout = TimeoutPrx.checkedCast(obj);
             assert(~isempty(timeout));
 
-            % The sequence needs to be large enough to fill the write/recv buffers
-            bufSize = 2000000;
-            seq = zeros(1, bufSize, 'uint8');
-
-            fprintf('testing connection timeout... ');
-
-            %
-            % Expect TimeoutException.
-            %
-            to = timeout.ice_timeout(250);
-            AllTests.connect(to);
-            controller.holdAdapter(-1);
-            try
-                to.sendData(seq);
-                assert(false);
-            catch ex
-                % Expected.
-                assert(isa(ex, 'Ice.TimeoutException'));
-            end
-            controller.resumeAdapter();
-            timeout.op(); % Ensure adapter is active.
-
-            %
-            % Expect success.
-            %
-            to = timeout.ice_timeout(2000);
-            controller.holdAdapter(500);
-            try
-                to.sendData(zeros(1, 1000000, 'uint8'));
-            catch ex
-                if isa(ex, 'Ice.TimeoutException')
-                    assert(false);
-                else
-                    rethrow(ex);
-                end
-            end
-
-            fprintf('ok\n');
-
             fprintf('testing invocation timeout... ');
 
             connection = obj.ice_getConnection();
@@ -130,51 +91,6 @@ classdef AllTests
             to = timeout.ice_invocationTimeout(1000);
             f = to.sleepAsync(100);
             f.fetchOutputs();
-
-            %
-            % Backward compatible connection timeouts
-            %
-            to = timeout.ice_invocationTimeout(-2).ice_timeout(250);
-            con = AllTests.connect(to);
-            try
-                to.sleep(750);
-                assert(false);
-            catch ex
-                if isa(ex, 'Ice.TimeoutException')
-                    assert(~isempty(con));
-                    try
-                        con.getInfo();
-                        assert(false);
-                    catch ex
-                        if isa(ex, 'Ice.TimeoutException')
-                            % Connection got closed as well.
-                        else
-                            rethrow(ex);
-                        end
-                    end
-                end
-            end
-            obj.ice_ping();
-
-            try
-                con = AllTests.connect(to);
-                to.sleepAsync(750).fetchOutputs();
-                assert(false);
-            catch ex
-                assert(isa(ex, 'Ice.TimeoutException'));
-                assert(~isempty(con));
-                try
-                    con.getInfo();
-                    assert(false);
-                catch ex
-                    if isa(ex, 'Ice.TimeoutException')
-                        % Connection got closed as well.
-                    else
-                        rethrow(ex);
-                    end
-                end
-            end
-            obj.ice_ping();
 
             fprintf('ok\n');
 
