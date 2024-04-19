@@ -23,13 +23,10 @@ jobs:
           # Release builds
           - os: macos-14
             config: "release"
-            build_flags: ""
             # https://github.com/zeroc-ice/ice/issues/2061
             test_flags: "--rfilter=csharp/Ice/adapterDeactivation"
           - os: ubuntu-22.04
             config: "release"
-            build_flags: ""
-            test_flags: ""
           - os: windows-2022
             config: "release"
             build_flags: "/p:Platform=x64"
@@ -50,7 +47,6 @@ jobs:
           - os: ubuntu-22.04
             config: "debug"
             build_flags: "OPTIMIZE=no"
-            test_flags: ""
           # TODO - figure out how to properly install debug Python
           # - os: windows-2022
           #   config: "debug"
@@ -70,8 +66,6 @@ jobs:
           - os: ubuntu-22.04
             config: "matlab"
             working_directory: "matlab"
-            build_flags: ""
-            test_flags: ""
             build_cpp_and_python: true
           - os: windows-2022
             config: "matlab"
@@ -84,7 +78,6 @@ jobs:
           # Cross tests
           - os: ubuntu-22.04
             config: "cross"
-            build_flags: ""
             # These cross tests are currently failing
             test_flags: "--all-cross --rfilter Ice/invoke --rfilter Ice/optional --rfilter Ice/slicing"
 
