@@ -882,7 +882,8 @@ Ice::ObjectAdapterI::ObjectAdapterI(
     const CommunicatorPtr& communicator,
     const ObjectAdapterFactoryPtr& objectAdapterFactory,
     const string& name,
-    bool noConfig)
+    bool noConfig,
+    const optional<SSL::ServerAuthenticationOptions>& serverAuthenticationOptions)
     : _state(StateUninitialized),
       _instance(instance),
       _communicator(communicator),
@@ -892,7 +893,8 @@ Ice::ObjectAdapterI::ObjectAdapterI(
       _name(name),
       _directCount(0),
       _noConfig(noConfig),
-      _messageSizeMax(0)
+      _messageSizeMax(0),
+      _serverAuthenticationOptions(serverAuthenticationOptions)
 {
 }
 

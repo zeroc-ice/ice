@@ -3,13 +3,20 @@
 //
 
 #include "SSLAcceptorI.h"
+#include "Ice/LocalException.h"
 #include "SSLEndpointI.h"
 #include "SSLEngine.h"
 #include "SSLInstance.h"
-
 #include "SSLUtil.h"
 
-#include "Ice/LocalException.h"
+#if defined(_WIN32)
+#    include "SChannelEngine.h"
+#    include "SChannelTransceiverI.h"
+#elif defined(__APPLE__)
+#    include "SecureTransportTransceiverI.h"
+#else
+#    include "OpenSSLTransceiverI.h"
+#endif
 
 using namespace std;
 using namespace Ice;
@@ -59,7 +66,22 @@ IceSSL::AcceptorI::finishAccept()
 IceInternal::TransceiverPtr
 IceSSL::AcceptorI::accept()
 {
-    return _instance->engine()->createTransceiver(_instance, _delegate->accept(), _adapterName, true);
+#if defined(_WIN32)
+    optional<Ice::SSL::ServerAuthenticationOptions> serverAuthenticationOptions = _serverAuthenticationOptions;
+    if (!serverAuthenticationOptions)
+    {
+        serverAuthenticationOptions =
+            dynamic_pointer_cast<SChannel::SSLEngine>(_instance->engine())->createServerAuthenticationOptions();
+    }
+    assert(serverAuthenticationOptions);
+    return make_shared<IceSSL::SChannel::TransceiverI>(
+        _instance,
+        _delegate->accept(),
+        _adapterName,
+        *serverAuthenticationOptions);
+#elif defined(__APPLE__)
+#else
+#endif
 }
 
 string
@@ -84,11 +106,13 @@ IceSSL::AcceptorI::AcceptorI(
     const EndpointIPtr& endpoint,
     const InstancePtr& instance,
     const IceInternal::AcceptorPtr& del,
-    const string& adapterName)
+    const string& adapterName,
+    const optional<Ice::SSL::ServerAuthenticationOptions>& serverAuthenticationOptions)
     : _endpoint(endpoint),
       _instance(instance),
       _delegate(del),
-      _adapterName(adapterName)
+      _adapterName(adapterName),
+      _serverAuthenticationOptions(serverAuthenticationOptions)
 {
 }
 

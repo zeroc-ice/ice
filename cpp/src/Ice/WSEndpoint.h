@@ -10,7 +10,10 @@
 #include "IPEndpointIF.h"
 #include "Ice/Endpoint.h"
 #include "Ice/InstanceF.h"
+#include "Ice/SSL.h"
 #include "ProtocolInstance.h"
+
+#include <optional>
 
 namespace IceInternal
 {
@@ -41,7 +44,8 @@ namespace IceInternal
             Ice::EndpointSelectionType,
             std::function<void(std::vector<ConnectorPtr>)>,
             std::function<void(std::exception_ptr)>) const final;
-        AcceptorPtr acceptor(const std::string&) const final;
+        AcceptorPtr
+        acceptor(const std::string&, const std::optional<Ice::SSL::ServerAuthenticationOptions>&) const final;
         std::vector<EndpointIPtr> expandIfWildcard() const final;
         std::vector<EndpointIPtr> expandHost(EndpointIPtr&) const final;
         bool equivalent(const EndpointIPtr&) const final;

@@ -35,7 +35,16 @@ namespace IceSSL::SChannel
     class TransceiverI final : public IceInternal::Transceiver
     {
     public:
-        TransceiverI(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool);
+        TransceiverI(
+            const InstancePtr&,
+            const IceInternal::TransceiverPtr&,
+            const std::string&,
+            const Ice::SSL::ServerAuthenticationOptions&);
+        TransceiverI(
+            const InstancePtr&,
+            const IceInternal::TransceiverPtr&,
+            const std::string&,
+            const Ice::SSL::ClientAuthenticationOptions&);
         ~TransceiverI();
         IceInternal::NativeInfoPtr getNativeInfo() final;
 
@@ -109,11 +118,10 @@ namespace IceSSL::SChannel
         SecPkgContext_StreamSizes _sizes;
         std::string _cipher;
         std::vector<IceSSL::CertificatePtr> _certs;
-        bool _verified;
-        TrustError _trustError;
+        std::function<bool(CtxtHandle)> _certificateValidationCallback;
+        bool _clientCertificateRequired;
     };
     using TransceiverIPtr = std::shared_ptr<TransceiverI>;
-
 }
 #endif
 

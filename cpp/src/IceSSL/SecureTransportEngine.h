@@ -23,8 +23,6 @@ namespace IceSSL::SecureTransport
 
         void initialize() final;
         void destroy() final;
-        IceInternal::TransceiverPtr
-        createTransceiver(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool) final;
 
         SSLContextRef newContext(bool);
         CFArrayRef getCertificateAuthorities() const;

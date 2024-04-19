@@ -40,6 +40,12 @@ IceSSL::SSLEngine::getProperties() const
     return _instance->initializationData().properties;
 }
 
+Ice::InitializationData
+IceSSL::SSLEngine::getInitializationData() const
+{
+    return _instance->initializationData();
+}
+
 void
 IceSSL::SSLEngine::initialize()
 {
@@ -146,7 +152,7 @@ IceSSL::SSLEngine::verifyPeerCertName(const string& address, const ConnectionInf
 }
 
 void
-IceSSL::SSLEngine::verifyPeer(const string& /*address*/, const ConnectionInfoPtr& info, const string& desc)
+IceSSL::SSLEngine::verifyPeer(const ConnectionInfoPtr& info, const string& desc)
 {
     if (!_trustManager->verify(info, desc))
     {

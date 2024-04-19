@@ -482,13 +482,3 @@ OpenSSL::SSLEngine::destroy()
         _ctx = nullptr;
     }
 }
-
-IceInternal::TransceiverPtr
-OpenSSL::SSLEngine::createTransceiver(
-    const InstancePtr& instance,
-    const IceInternal::TransceiverPtr& delegate,
-    const string& hostOrAdapterName,
-    bool incoming)
-{
-    return make_shared<OpenSSL::TransceiverI>(instance, delegate, hostOrAdapterName, incoming);
-}

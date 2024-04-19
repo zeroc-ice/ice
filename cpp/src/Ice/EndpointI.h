@@ -10,7 +10,10 @@
 #include "EndpointIF.h"
 #include "Ice/Endpoint.h"
 #include "Ice/EndpointSelectionType.h"
+#include "Ice/SSL.h"
 #include "TransceiverF.h"
+
+#include <optional>
 
 namespace Ice
 {
@@ -106,7 +109,8 @@ namespace IceInternal
         // Return an acceptor for this endpoint, or null if no acceptors
         // is available.
         //
-        virtual AcceptorPtr acceptor(const std::string&) const = 0;
+        virtual AcceptorPtr
+        acceptor(const std::string&, const std::optional<Ice::SSL::ServerAuthenticationOptions>&) const = 0;
 
         //
         // Expand endpoint out into separate endpoints for each local

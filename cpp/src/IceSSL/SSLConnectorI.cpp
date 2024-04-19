@@ -10,6 +10,9 @@
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
+#include "Ice/SSL.h"
+#include "SChannelEngine.h"
+#include "SChannelTransceiverI.h"
 #include "SSLEndpointI.h"
 #include "SSLEngine.h"
 #include "SSLUtil.h"
@@ -21,7 +24,21 @@ using namespace IceSSL;
 IceInternal::TransceiverPtr
 IceSSL::ConnectorI::connect()
 {
-    return _instance->engine()->createTransceiver(_instance, _delegate->connect(), _host, false);
+#if defined(_WIN32)
+    optional<Ice::SSL::ClientAuthenticationOptions> clientAuthenticationOptions =
+        _instance->engine()->getInitializationData().clientAuthenticationOptions;
+    if (!clientAuthenticationOptions)
+    {
+        clientAuthenticationOptions =
+            dynamic_pointer_cast<SChannel::SSLEngine>(_instance->engine())->createClientAuthenticationOptions();
+    }
+    assert(clientAuthenticationOptions);
+    return make_shared<SChannel::TransceiverI>(_instance, _delegate->connect(), _host, *clientAuthenticationOptions);
+#elif defined(__APPLE__)
+    return make_shared<IceSSL::SecureTransport::TransceiverI>(
+#else
+    return make_shared<IceSSL::OpenSSL::TransceiverI>(
+#endif
 }
 
 int16_t

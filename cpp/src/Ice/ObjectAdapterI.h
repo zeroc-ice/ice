@@ -15,6 +15,7 @@
 #include "Ice/ObjectAdapter.h"
 #include "Ice/ObjectF.h"
 #include "Ice/Proxy.h"
+#include "Ice/SSL.h"
 #include "LocatorInfoF.h"
 #include "ObjectAdapterFactoryF.h"
 #include "RouterInfoF.h"
@@ -27,6 +28,7 @@
 
 #include <list>
 #include <mutex>
+#include <optional>
 
 namespace IceInternal
 {
@@ -110,8 +112,14 @@ namespace Ice
             const CommunicatorPtr&,
             const IceInternal::ObjectAdapterFactoryPtr&,
             const std::string&,
-            bool);
+            bool,
+            const std::optional<Ice::SSL::ServerAuthenticationOptions>&);
         virtual ~ObjectAdapterI();
+
+        std::optional<Ice::SSL::ServerAuthenticationOptions> getServerAuthenticationOptions() const
+        {
+            return _serverAuthenticationOptions;
+        }
 
     private:
         void initialize(std::optional<RouterPrx>);
@@ -162,13 +170,7 @@ namespace Ice
         size_t _messageSizeMax;
         mutable std::recursive_mutex _mutex;
         std::condition_variable_any _conditionVariable;
-
-#if defined(_WIN32)
-        CredHandle _sslServerContext;
-        std::function<bool(CtxtHandle context)> _sslClientCertificateValidationCallback;
-#elif defined(__APPLE__)
-#else
-#endif
+        const std::optional<Ice::SSL::ServerAuthenticationOptions> _serverAuthenticationOptions;
     };
 }
 

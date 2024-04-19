@@ -118,13 +118,7 @@ ObjectAdapterPtr
 IceInternal::ObjectAdapterFactory::createObjectAdapter(
     const std::string& name,
     const std::optional<Ice::RouterPrx>& router,
-#if defined(_WIN32)
-    CredHandle sslServerContext,
-    std::function<bool(CtxtHandle context)> sslClientCertificateValidationCallback
-#elif defined(__APPLE__)
-#else
-#endif
-)
+    const optional<SSL::ServerAuthenticationOptions>& serverAuthenticationOptions)
 {
     shared_ptr<ObjectAdapterI> adapter;
     {
@@ -138,7 +132,13 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(
         if (name.empty())
         {
             string uuid = Ice::generateUUID();
-            adapter = make_shared<ObjectAdapterI>(_instance, _communicator, shared_from_this(), uuid, true);
+            adapter = make_shared<ObjectAdapterI>(
+                _instance,
+                _communicator,
+                shared_from_this(),
+                uuid,
+                true,
+                serverAuthenticationOptions);
         }
         else
         {
@@ -146,7 +146,13 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(
             {
                 throw AlreadyRegisteredException(__FILE__, __LINE__, "object adapter", name);
             }
-            adapter = make_shared<ObjectAdapterI>(_instance, _communicator, shared_from_this(), name, false);
+            adapter = make_shared<ObjectAdapterI>(
+                _instance,
+                _communicator,
+                shared_from_this(),
+                name,
+                false,
+                serverAuthenticationOptions);
             _adapterNamesInUse.insert(name);
         }
     }

@@ -9,6 +9,7 @@
 #include "../Ice/TransceiverF.h"
 #include "Ice/Certificate.h"
 #include "Ice/CommunicatorF.h"
+#include "Ice/Initialize.h"
 #include "Ice/InstanceF.h"
 #include "SSLEngineF.h"
 #include "SSLInstanceF.h"
@@ -26,6 +27,7 @@ namespace IceSSL
 
         Ice::LoggerPtr getLogger() const;
         Ice::PropertiesPtr getProperties() const;
+        Ice::InitializationData getInitializationData() const;
 
         IceInternal::InstancePtr instance() const { return _instance; }
 
@@ -35,12 +37,8 @@ namespace IceSSL
         // Destroy the engine.
         virtual void destroy() = 0;
 
-        // Create a transceiver using the engine specific implementation.
-        virtual IceInternal::TransceiverPtr
-        createTransceiver(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool) = 0;
-
         // Verify peer certificate.
-        virtual void verifyPeer(const std::string&, const ConnectionInfoPtr&, const std::string&);
+        virtual void verifyPeer(const ConnectionInfoPtr&, const std::string&);
         void verifyPeerCertName(const std::string&, const ConnectionInfoPtr&);
 
         bool getCheckCertName() const;

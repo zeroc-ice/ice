@@ -577,16 +577,6 @@ IceSSL::SecureTransport::SSLEngine::destroy()
 {
 }
 
-IceInternal::TransceiverPtr
-IceSSL::SecureTransport::SSLEngine::createTransceiver(
-    const InstancePtr& instance,
-    const IceInternal::TransceiverPtr& delegate,
-    const string& hostOrAdapterName,
-    bool incoming)
-{
-    return make_shared<IceSSL::SecureTransport::TransceiverI>(instance, delegate, hostOrAdapterName, incoming);
-}
-
 SSLContextRef
 IceSSL::SecureTransport::SSLEngine::newContext(bool incoming)
 {

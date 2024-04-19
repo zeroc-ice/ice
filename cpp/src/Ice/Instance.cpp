@@ -574,7 +574,7 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
     {
         if (_initData.properties->getProperty("Ice.Admin.Endpoints") != "")
         {
-            adapter = _objectAdapterFactory->createObjectAdapter("Ice.Admin", nullopt);
+            adapter = _objectAdapterFactory->createObjectAdapter("Ice.Admin", nullopt, nullopt);
         }
         else
         {
@@ -629,7 +629,7 @@ IceInternal::Instance::getAdmin()
         ObjectAdapterPtr adapter;
         if (_initData.properties->getProperty("Ice.Admin.Endpoints") != "")
         {
-            adapter = _objectAdapterFactory->createObjectAdapter("Ice.Admin", nullopt);
+            adapter = _objectAdapterFactory->createObjectAdapter("Ice.Admin", nullopt, nullopt);
         }
         else
         {
