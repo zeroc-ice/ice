@@ -236,7 +236,6 @@ allTests(Test::TestHelper* helper)
             if (testIntf->ice_getConnection()->type() == "wss")
             {
                 IceSSL::ConnectionInfoPtr wssinfo = dynamic_pointer_cast<IceSSL::ConnectionInfo>(wsinfo->underlying);
-                test(wssinfo->verified);
 #if TARGET_OS_IPHONE == 0
                 test(!wssinfo->certs.empty());
 #endif

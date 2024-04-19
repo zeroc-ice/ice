@@ -281,7 +281,6 @@ CreateSession::CreateSession(shared_ptr<SessionRouterI> sessionRouter, const str
     ctx.erase("_con.remoteAddress");
     ctx.erase("_con.localPort");
     ctx.erase("_con.localAddress");
-    ctx.erase("_con.cipher");
     ctx.erase("_con.peerCert");
     const_cast<Ice::Current&>(_current).ctx = ctx;
 
@@ -306,7 +305,6 @@ CreateSession::CreateSession(shared_ptr<SessionRouterI> sessionRouter, const str
             auto info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(current.con->getInfo());
             if (info)
             {
-                _context["_con.cipher"] = info->cipher;
                 if (info->certs.size() > 0)
                 {
                     _context["_con.peerCert"] = info->certs[0]->encode();
@@ -651,7 +649,6 @@ SessionRouterI::createSessionFromSecureConnectionAsync(
         sslinfo.remoteHost = ipInfo->remoteAddress;
         sslinfo.localPort = ipInfo->localPort;
         sslinfo.localHost = ipInfo->localAddress;
-        sslinfo.cipher = info->cipher;
 
         for (const auto& cert : info->certs)
         {

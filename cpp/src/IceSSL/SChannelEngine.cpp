@@ -1072,7 +1072,7 @@ SChannel::SSLEngine::newCredentialsHandle(bool incoming) const
     }
     else
     {
-        cred.dwFlags = SCH_CRED_NO_SERVERNAME_CHECK | SCH_CRED_NO_DEFAULT_CREDS;
+        cred.dwFlags = SCH_CRED_MANUAL_CRED_VALIDATION | SCH_CRED_NO_SERVERNAME_CHECK | SCH_CRED_NO_DEFAULT_CREDS;
     }
 
     if (_strongCrypto)
@@ -1152,26 +1152,29 @@ SChannel::SSLEngine::createClientAuthenticationOptions() const
 {
     return Ice::SSL::ClientAuthenticationOptions{
         .credentialsHandler = newCredentialsHandle(false),
-        .serverCertificateValidationCallback = [self = shared_from_this()](CtxtHandle ssl) -> bool
-        { return self->validationCallback(ssl, false); }};
+        .serverCertificateValidationCallback =
+            [self = shared_from_this()](CtxtHandle ssl, const ConnectionInfoPtr& info) -> bool
+        { return self->validationCallback(ssl, info, false); }};
 }
 
 Ice::SSL::ServerAuthenticationOptions
 SChannel::SSLEngine::createServerAuthenticationOptions() const
 {
     return Ice::SSL::ServerAuthenticationOptions{
-        .credentialsHandler = newCredentialsHandle(false),
-        .clientCertificateValidationCallback = [self = shared_from_this()](CtxtHandle ssl) -> bool
-        { return self->validationCallback(ssl, false); }};
+        .credentialsHandler = newCredentialsHandle(true),
+        .clientCertificateRequired = getVerifyPeer() > 0,
+        .clientCertificateValidationCallback =
+            [self = shared_from_this()](CtxtHandle ssl, const ConnectionInfoPtr& info) -> bool
+        { return self->validationCallback(ssl, info, true); }};
 }
 
 bool
-SChannel::SSLEngine::validationCallback(CtxtHandle ssl, bool incoming) const
+SChannel::SSLEngine::validationCallback(CtxtHandle ssl, const ConnectionInfoPtr& info, bool incoming) const
 {
     // Build the peer certificate chain and verify it.
     PCCERT_CONTEXT cert = 0;
     SECURITY_STATUS err = QueryContextAttributes(&ssl, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &cert);
-    bool certificateRequired = incoming || getVerifyPeer() > 0;
+    bool certificateRequired = !incoming || getVerifyPeer() > 1;
     if (err && (err != SEC_E_NO_CREDENTIALS || certificateRequired))
     {
         ostringstream os;
@@ -1204,11 +1207,10 @@ SChannel::SSLEngine::validationCallback(CtxtHandle ssl, bool incoming) const
 
         if (!CertGetCertificateChain(_chainEngine, cert, 0, cert->hCertStore, &chainP, dwFlags, 0, &certChain))
         {
+            ostringstream os;
+            os << "IceSSL: certificate verification failure:\n" << lastErrorToString();
             CertFreeCertificateContext(cert);
-            throw SecurityException(
-                __FILE__,
-                __LINE__,
-                "IceSSL: certificate verification failure:\n" + lastErrorToString());
+            throw SecurityException(__FILE__, __LINE__, os.str());
         }
 
         DWORD errorStatus = certChain->TrustStatus.dwErrorStatus;
@@ -1219,6 +1221,8 @@ SChannel::SSLEngine::validationCallback(CtxtHandle ssl, bool incoming) const
         CertFreeCertificateChain(certChain);
         CertFreeCertificateContext(cert);
     }
+    verifyPeerCertName(info);
+    verifyPeer(info);
     return true;
 }
 

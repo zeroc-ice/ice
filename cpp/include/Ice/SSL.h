@@ -5,6 +5,8 @@
 #ifndef ICE_SSL_H
 #define ICE_SSL_H
 
+#include "SSLConnectionInfo.h"
+
 #include <functional>
 
 #ifdef _WIN32
@@ -59,7 +61,8 @@ namespace Ice::SSL
          * [See Manually Validating Schannel
          * Credentials](https://learn.microsoft.com/en-us/windows/win32/secauthn/manually-validating-schannel-credentials).
          */
-        std::function<bool(CtxtHandle context)> serverCertificateValidationCallback;
+        std::function<bool(CtxtHandle context, const IceSSL::ConnectionInfoPtr& info)>
+            serverCertificateValidationCallback;
 #elif defined(__APPLE__)
 #else
 #endif
@@ -94,7 +97,8 @@ namespace Ice::SSL
          * [See Manually Validating Schannel
          * Credentials](https://learn.microsoft.com/en-us/windows/win32/secauthn/manually-validating-schannel-credentials).
          */
-        std::function<bool(CtxtHandle context)> clientCertificateValidationCallback;
+        std::function<bool(CtxtHandle context, const IceSSL::ConnectionInfoPtr& info)>
+            clientCertificateValidationCallback;
 #elif defined(__APPLE__)
 #else
 #endif

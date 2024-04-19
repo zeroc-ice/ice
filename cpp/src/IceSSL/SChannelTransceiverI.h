@@ -118,7 +118,7 @@ namespace IceSSL::SChannel
         SecPkgContext_StreamSizes _sizes;
         std::string _cipher;
         std::vector<IceSSL::CertificatePtr> _certs;
-        std::function<bool(CtxtHandle)> _certificateValidationCallback;
+        std::function<bool(CtxtHandle, const IceSSL::ConnectionInfoPtr&)> _certificateValidationCallback;
         bool _clientCertificateRequired;
     };
     using TransceiverIPtr = std::shared_ptr<TransceiverI>;

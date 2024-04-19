@@ -9,6 +9,7 @@
 
 #    include "Ice/InstanceF.h"
 #    include "Ice/SSL.h"
+#    include "Ice/SSLConnectionInfo.h"
 #    include "SChannelEngineF.h"
 #    include "SSLEngine.h"
 
@@ -38,7 +39,7 @@ namespace IceSSL::SChannel
         Ice::SSL::ServerAuthenticationOptions createServerAuthenticationOptions() const;
 
     private:
-        bool validationCallback(CtxtHandle ssl, bool incoming) const;
+        bool validationCallback(CtxtHandle ssl, const IceSSL::ConnectionInfoPtr&, bool incoming) const;
         std::string errorStatusToString(DWORD errorStatus) const;
         CredHandle newCredentialsHandle(bool) const;
 

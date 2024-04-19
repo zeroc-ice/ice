@@ -20,7 +20,7 @@ namespace IceSSL
     public:
         TrustManager(const IceInternal::InstancePtr&);
 
-        bool verify(const ConnectionInfoPtr&, const std::string&);
+        bool verify(const ConnectionInfoPtr&) const;
 
     private:
         bool match(const std::list<DistinguishedName>&, const DistinguishedName&) const;

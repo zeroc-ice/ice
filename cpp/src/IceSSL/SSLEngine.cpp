@@ -76,8 +76,9 @@ IceSSL::SSLEngine::initialize()
 }
 
 void
-IceSSL::SSLEngine::verifyPeerCertName(const string& address, const ConnectionInfoPtr& info)
+IceSSL::SSLEngine::verifyPeerCertName(const ConnectionInfoPtr& info) const
 {
+    string address = info->host;
     // For an outgoing connection, we compare the proxy address (if any) against fields in the server's certificate
     // (if any).
     if (_checkCertName && !info->certs.empty() && !address.empty())
@@ -146,20 +147,24 @@ IceSSL::SSLEngine::verifyPeerCertName(const string& address, const ConnectionInf
                 Trace out(getLogger(), _securityTraceCategory);
                 out << msg;
             }
-            throw SecurityException(__FILE__, __LINE__, msg);
+
+            if (_verifyPeer > 0)
+            {
+                throw SecurityException(__FILE__, __LINE__, msg);
+            }
         }
     }
 }
 
 void
-IceSSL::SSLEngine::verifyPeer(const ConnectionInfoPtr& info, const string& desc)
+IceSSL::SSLEngine::verifyPeer(const ConnectionInfoPtr& info) const
 {
-    if (!_trustManager->verify(info, desc))
+    if (!_trustManager->verify(info))
     {
         string msg = string(info->incoming ? "incoming" : "outgoing") + " connection rejected by trust manager";
         if (_securityTraceLevel >= 1)
         {
-            getLogger()->trace(_securityTraceCategory, msg + "\n" + desc);
+            getLogger()->trace(_securityTraceCategory, msg + "\n" + info->desc);
         }
         throw SecurityException(__FILE__, __LINE__, msg);
     }

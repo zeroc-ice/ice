@@ -38,8 +38,8 @@ namespace IceSSL
         virtual void destroy() = 0;
 
         // Verify peer certificate.
-        virtual void verifyPeer(const ConnectionInfoPtr&, const std::string&);
-        void verifyPeerCertName(const std::string&, const ConnectionInfoPtr&);
+        virtual void verifyPeer(const ConnectionInfoPtr&) const;
+        void verifyPeerCertName(const ConnectionInfoPtr&) const;
 
         bool getCheckCertName() const;
         bool getServerNameIndication() const;

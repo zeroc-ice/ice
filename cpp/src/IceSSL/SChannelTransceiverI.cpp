@@ -13,6 +13,8 @@
 #include "SSLInstance.h"
 #include "SSLUtil.h"
 
+#include <iostream>
+
 using namespace std;
 using namespace Ice;
 using namespace IceSSL;
@@ -85,11 +87,10 @@ SChannel::TransceiverI::sslHandshake()
     else
     {
         flags |= ISC_REQ_USE_SUPPLIED_CREDS | ISC_RET_EXTENDED_ERROR;
-    }
-
-    if (_certificateValidationCallback)
-    {
-        flags |= SCH_CRED_MANUAL_CRED_VALIDATION;
+        if (_certificateValidationCallback)
+        {
+            flags |= ISC_REQ_MANUAL_CRED_VALIDATION;
+        }
     }
 
     SECURITY_STATUS err = SEC_E_OK;
@@ -194,9 +195,7 @@ SChannel::TransceiverI::sslHandshake()
                     0);
             }
 
-            //
             // If the message is incomplete we need to read more data.
-            //
             if (err == SEC_E_INCOMPLETE_MESSAGE)
             {
                 SecBuffer* missing = getSecBufferWithType(inBufferDesc, SECBUFFER_MISSING);
@@ -213,9 +212,7 @@ SChannel::TransceiverI::sslHandshake()
                     "SSL handshake failure:\n" + IceUtilInternal::errorToString(err));
             }
 
-            //
             // Copy out security tokens to the write buffer if any.
-            //
             SecBuffer* token = getSecBufferWithType(outBufferDesc, SECBUFFER_TOKEN);
             assert(token);
             if (token->cbBuffer)
@@ -226,9 +223,7 @@ SChannel::TransceiverI::sslHandshake()
                 FreeContextBuffer(token->pvBuffer);
             }
 
-            //
             // Check for remaining data in the input buffer.
-            //
             SecBuffer* extra = getSecBufferWithType(inBufferDesc, SECBUFFER_EXTRA);
             if (extra)
             {
@@ -361,6 +356,40 @@ SChannel::TransceiverI::sslHandshake()
             "IceSSL: failure to query stream sizes attributes:\n" + IceUtilInternal::errorToString(err));
     }
 
+    PCCERT_CONTEXT cert = 0;
+    err = QueryContextAttributes(&_ssl, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &cert);
+    if (err != SEC_E_OK && err != SEC_E_NO_CREDENTIALS)
+    {
+        throw SecurityException(
+            __FILE__,
+            __LINE__,
+            "IceSSL: failure to query remote certificate context:\n" + IceUtilInternal::errorToString(err));
+    }
+
+    if (cert)
+    {
+        PCERT_SIGNED_CONTENT_INFO pvStructInfo = nullptr;
+        DWORD pvStructInfoSize = 0;
+        if (!CryptDecodeObjectEx(
+                X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
+                X509_CERT,
+                cert->pbCertEncoded,
+                cert->cbCertEncoded,
+                CRYPT_DECODE_ALLOC_FLAG,
+                0,
+                &pvStructInfo,
+                &pvStructInfoSize))
+        {
+            CertFreeCertificateContext(cert);
+            throw SecurityException(
+                __FILE__,
+                __LINE__,
+                "IceSSL: error decoding peer certificate:\n" + IceUtilInternal::lastErrorToString());
+        }
+        _certs.push_back(SChannel::Certificate::create(pvStructInfo));
+        CertFreeCertificateContext(cert);
+    }
+
     size_t pos = _readBuffer.i - _readBuffer.b.begin();
     if (pos <= (_sizes.cbHeader + _sizes.cbMaximumMessage + _sizes.cbTrailer))
     {
@@ -397,19 +426,14 @@ SChannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
 
     while (true)
     {
-        //
-        // If we have filled the buffer or if nothing left to read from
-        // the read buffer, we're done.
-        //
+        // If we have filled the buffer or if nothing left to read from the read buffer, we're done.
         std::byte* i = buffer.i + length;
         if (i == buffer.b.end() || _readBuffer.i == _readBuffer.b.begin())
         {
             break;
         }
 
-        //
         // Try to decrypt the buffered data.
-        //
         SecBuffer inBuffers[4] = {
             {static_cast<DWORD>(_readBuffer.i - _readBuffer.b.begin()), SECBUFFER_DATA, _readBuffer.b.begin()},
             {0, SECBUFFER_EMPTY, 0},
@@ -420,21 +444,14 @@ SChannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
         SECURITY_STATUS err = DecryptMessage(&_ssl, &inBufferDesc, 0, 0);
         if (err == SEC_E_INCOMPLETE_MESSAGE)
         {
-            //
-            // There isn't enough data to decrypt the message. The input
-            // buffer is resized to the SSL max message size after the SSL
-            // handshake completes so an incomplete message can only occur
-            // if the read buffer is not full.
-            //
+            // There isn't enough data to decrypt the message. The input buffer is resized to the SSL max message size
+            // after the SSL handshake completes so an incomplete message can only occur if the read buffer is not full.
             assert(_readBuffer.i != _readBuffer.b.end());
             return length;
         }
         else if (err == SEC_I_CONTEXT_EXPIRED || err == SEC_I_RENEGOTIATE)
         {
-            //
-            // The message sender has finished using the connection and
-            // has initiated a shutdown.
-            //
+            // The message sender has finished using the connection and has initiated a shutdown.
             throw ConnectionLostException(__FILE__, __LINE__, 0);
         }
         else if (err != SEC_E_OK)
@@ -453,9 +470,7 @@ SChannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
         {
             memcpy(i, dataBuffer->pvBuffer, remaining);
 
-            //
-            // Copy remaining decrypted data to unprocessed buffer
-            //
+            // Copy remaining decrypted data to unprocessed buffer.
             if (dataBuffer->cbBuffer > remaining)
             {
                 _readUnprocessed.b.resize(dataBuffer->cbBuffer - remaining);
@@ -466,9 +481,7 @@ SChannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
             }
         }
 
-        //
-        // Move any remaining encrypted data to the begining of the input buffer
-        //
+        // Move any remaining encrypted data to the beginning of the input buffer.
         SecBuffer* extraBuffer = getSecBufferWithType(inBufferDesc, SECBUFFER_EXTRA);
         if (extraBuffer && extraBuffer->cbBuffer > 0)
         {
@@ -549,7 +562,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
 
     if (_certificateValidationCallback)
     {
-        if (!_certificateValidationCallback(_ssl))
+        if (!_certificateValidationCallback(_ssl, dynamic_pointer_cast<IceSSL::ConnectionInfo>(getInfo())))
         {
             throw SecurityException(__FILE__, __LINE__, "IceSSL: certificate validation failed");
         }
@@ -782,9 +795,9 @@ SChannel::TransceiverI::getInfo() const
     info->underlying = _delegate->getInfo();
     info->incoming = _incoming;
     info->adapterName = _adapterName;
-    info->cipher = _cipher;
     info->certs = _certs;
     info->host = _incoming ? "" : _host;
+    info->desc = toString();
     return info;
 }
 
@@ -829,7 +842,7 @@ SChannel::TransceiverI::TransceiverI(
       _engine(dynamic_pointer_cast<SChannel::SSLEngine>(instance->engine())),
       _host(host),
       _adapterName(""),
-      _incoming(true),
+      _incoming(false),
       _delegate(delegate),
       _state(StateNotInitialized),
       _bufferedW(0),

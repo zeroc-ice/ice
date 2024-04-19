@@ -33,22 +33,19 @@ namespace IceSSL
          * @param incoming Whether or not the connection is an incoming or outgoing connection.
          * @param adapterName The name of the adapter associated with the connection.
          * @param connectionId The connection id.
-         * @param cipher The negotiated cipher suite.
          * @param certs The certificate chain.
-         * @param verified The certificate chain verification status.
+         * @param host The host name.
          */
         ConnectionInfo(
             const Ice::ConnectionInfoPtr& underlying,
             bool incoming,
             const std::string& adapterName,
             const std::string& connectionId,
-            const std::string& cipher,
             const std::vector<CertificatePtr>& certs,
-            bool verified)
+            const std::string& host)
             : Ice::ConnectionInfo(underlying, incoming, adapterName, connectionId),
-              cipher(cipher),
               certs(certs),
-              verified(verified)
+              host(host)
         {
         }
 
@@ -56,20 +53,11 @@ namespace IceSSL
         ConnectionInfo& operator=(const ConnectionInfo&) = delete;
 
         /**
-         * The negotiated cipher suite.
-         */
-        std::string cipher;
-        /**
          * The certificate chain.
          */
         std::vector<CertificatePtr> certs;
-        /**
-         * The certificate chain verification status.
-         */
-        bool verified;
-
-        TrustError errorCode;
         std::string host;
+        std::string desc;
     };
 }
 
