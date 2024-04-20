@@ -1,26 +1,32 @@
 name: Test Ice
 
 inputs:
+  working_directory:
+    description: "The working directory to run the tests in"
+    type: string
+
   flags:
     description: "Flags to pass to the test"
-    required: false
+    type: string
     default: ""
 
 runs:
   using: "composite"
   steps:
-    - name: Test ${{ matrix.name || matrix.language }}
-      run: python3 allTests.py --debug --all --continue --workers=4  --export-xml=test-report.xml --languages=${{ matrix.language }} ${{ inputs.flags }}
+    - name: Test
+      working-directory: ${{ inputs.working_directory }}
+      run: python3 allTests.py --debug --all --continue --workers=4 --export-xml=test-report.xml ${{ inputs.flags }}
       shell: bash
       if: runner.os == 'macOS' || runner.os == 'Linux'
 
     - name: Test
-      run: python allTests.py --debug --all --continue --export-xml=test-report.xml --platform=x64 --config=Release --workers=4 --languages=${{ matrix.language }} ${{ inputs.flags }}
+      working-directory: ${{ inputs.working_directory }}
+      run: python allTests.py --debug --all --continue --workers=4 --export-xml=test-report.xml ${{ inputs.flags }}
       shell: powershell
       if: runner.os == 'Windows'
 
     - name: Test Summary
       uses: test-summary/action@v2
       with:
-        paths: "test-report.xml"
+        paths: "${{ inputs.working_directory }}/test-report.xml"
       if: always()

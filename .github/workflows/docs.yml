@@ -30,7 +30,7 @@ jobs:
 
       - name: Build C++
         working-directory: ./cpp
-        run: make -j3 V=1 srcs
+        run: make V=1 srcs
 
       - name: Generate Doxygen Documentation for Slice
         working-directory: ./doxygen
@@ -46,7 +46,7 @@ jobs:
       - name: Generate Documentation for Swift
         working-directory: ./swift
         run: |
-          make -j3 V=1
+          make V=1
 
           xcodebuild docbuild \
             -project ice.xcodeproj \
