@@ -114,7 +114,6 @@ namespace IceSSL::SChannel
         CtxtHandle _ssl;
         bool _sslInitialized;
         CredHandle _credentials;
-        bool _credentialsInitialized;
         SecPkgContext_StreamSizes _sizes;
         std::string _cipher;
         std::vector<IceSSL::CertificatePtr> _certs;

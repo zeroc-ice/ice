@@ -392,151 +392,15 @@ namespace
             first = false;
         }
     }
-
-    ALG_ID
-    algorithmId(const string& name)
-    {
-        if (name == "3DES")
-        {
-            return CALG_3DES;
-        }
-        else if (name == "3DES_112")
-        {
-            return CALG_3DES_112;
-        }
-        else if (name == "AES")
-        {
-            return CALG_AES;
-        }
-        else if (name == "AES_128")
-        {
-            return CALG_AES_128;
-        }
-        else if (name == "AES_192")
-        {
-            return CALG_AES_192;
-        }
-        else if (name == "AES_256")
-        {
-            return CALG_AES_256;
-        }
-        else if (name == "AGREEDKEY_ANY")
-        {
-            return CALG_AGREEDKEY_ANY;
-        }
-        else if (name == "CYLINK_MEK")
-        {
-            return CALG_CYLINK_MEK;
-        }
-        else if (name == "DES")
-        {
-            return CALG_DES;
-        }
-        else if (name == "DESX")
-        {
-            return CALG_DESX;
-        }
-        else if (name == "DH_EPHEM")
-        {
-            return CALG_DH_EPHEM;
-        }
-        else if (name == "DH_SF")
-        {
-            return CALG_DH_SF;
-        }
-        else if (name == "DSS_SIGN")
-        {
-            return CALG_DSS_SIGN;
-        }
-        else if (name == "ECDH")
-        {
-            return CALG_ECDH;
-        }
-        else if (name == "ECDH_EPHEM")
-        {
-            return ICESSL_CALG_ECDH_EPHEM;
-        }
-        else if (name == "ECDSA")
-        {
-            return CALG_ECDSA;
-        }
-        else if (name == "HASH_REPLACE_OWF")
-        {
-            return CALG_HASH_REPLACE_OWF;
-        }
-        else if (name == "HUGHES_MD5")
-        {
-            return CALG_HUGHES_MD5;
-        }
-        else if (name == "HMAC")
-        {
-            return CALG_HMAC;
-        }
-        else if (name == "MAC")
-        {
-            return CALG_MAC;
-        }
-        else if (name == "MD2")
-        {
-            return CALG_MD2;
-        }
-        else if (name == "MD4")
-        {
-            return CALG_MD4;
-        }
-        else if (name == "MD5")
-        {
-            return CALG_MD5;
-        }
-        else if (name == "NO_SIGN")
-        {
-            return CALG_NO_SIGN;
-        }
-        else if (name == "RC2")
-        {
-            return CALG_RC2;
-        }
-        else if (name == "RC4")
-        {
-            return CALG_RC4;
-        }
-        else if (name == "RC5")
-        {
-            return CALG_RC5;
-        }
-        else if (name == "RSA_KEYX")
-        {
-            return CALG_RSA_KEYX;
-        }
-        else if (name == "RSA_SIGN")
-        {
-            return CALG_RSA_SIGN;
-        }
-        else if (name == "SHA1")
-        {
-            return CALG_SHA1;
-        }
-        else if (name == "SHA_256")
-        {
-            return CALG_SHA_256;
-        }
-        else if (name == "SHA_384")
-        {
-            return CALG_SHA_384;
-        }
-        else if (name == "SHA_512")
-        {
-            return CALG_SHA_512;
-        }
-        return 0;
-    }
 }
 
 SChannel::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)
     : IceSSL::SSLEngine(instance),
       _rootStore(0),
       _chainEngine(0),
-      _strongCrypto(false)
+      _strongCrypto(false),
+      _clientCredentials({0, 0}),
+      _serverCredentials({0, 0})
 {
 }
 
@@ -1063,7 +927,7 @@ SChannel::SSLEngine::newCredentialsHandle(bool incoming) const
     {
         // Don't set SCH_SEND_ROOT_CERT as it seems to cause problems with Java certificate validation and SChannel
         // doesn't seems to send the root certificate either way.
-        cred.dwFlags = SCH_CRED_NO_SYSTEM_MAPPER;
+        cred.dwFlags = SCH_CRED_NO_SYSTEM_MAPPER | SCH_CRED_DISABLE_RECONNECTS;
 
         // There's no way to prevent SChannel from sending "CA names" to the client. Recent Windows versions don't CA
         // names but older ones do send all the trusted root CA names. We provide the root store to ensure that for
@@ -1107,6 +971,16 @@ SChannel::SSLEngine::newCredentialsHandle(bool incoming) const
 void
 SChannel::SSLEngine::destroy()
 {
+    if (_clientCredentials.dwLower != 0 || _clientCredentials.dwUpper != 0)
+    {
+        FreeCredentialsHandle(&_clientCredentials);
+    }
+
+    if (_serverCredentials.dwLower != 0 || _serverCredentials.dwUpper != 0)
+    {
+        FreeCredentialsHandle(&_serverCredentials);
+    }
+
     if (_chainEngine && _chainEngine != HCCE_CURRENT_USER && _chainEngine != HCCE_LOCAL_MACHINE)
     {
         CertFreeCertificateChainEngine(_chainEngine);
@@ -1150,8 +1024,13 @@ SChannel::SSLEngine::destroy()
 Ice::SSL::ClientAuthenticationOptions
 SChannel::SSLEngine::createClientAuthenticationOptions() const
 {
+    lock_guard lock(_mutex);
+    if (_clientCredentials.dwLower == 0 && _clientCredentials.dwUpper == 0)
+    {
+        const_cast<CredHandle&>(_clientCredentials) = newCredentialsHandle(false);
+    }
     return Ice::SSL::ClientAuthenticationOptions{
-        .credentialsHandler = newCredentialsHandle(false),
+        .credentialsHandler = _clientCredentials,
         .serverCertificateValidationCallback =
             [self = shared_from_this()](CtxtHandle ssl, const ConnectionInfoPtr& info) -> bool
         { return self->validationCallback(ssl, info, false); }};
@@ -1160,8 +1039,13 @@ SChannel::SSLEngine::createClientAuthenticationOptions() const
 Ice::SSL::ServerAuthenticationOptions
 SChannel::SSLEngine::createServerAuthenticationOptions() const
 {
+    lock_guard lock(_mutex);
+    if (_serverCredentials.dwLower == 0 && _serverCredentials.dwUpper == 0)
+    {
+        const_cast<CredHandle&>(_serverCredentials) = newCredentialsHandle(true);
+    }
     return Ice::SSL::ServerAuthenticationOptions{
-        .credentialsHandler = newCredentialsHandle(true),
+        .credentialsHandler = _serverCredentials,
         .clientCertificateRequired = getVerifyPeer() > 0,
         .clientCertificateValidationCallback =
             [self = shared_from_this()](CtxtHandle ssl, const ConnectionInfoPtr& info) -> bool
@@ -1221,6 +1105,7 @@ SChannel::SSLEngine::validationCallback(CtxtHandle ssl, const ConnectionInfoPtr&
         CertFreeCertificateChain(certChain);
         CertFreeCertificateContext(cert);
     }
+
     verifyPeerCertName(info);
     verifyPeer(info);
     return true;

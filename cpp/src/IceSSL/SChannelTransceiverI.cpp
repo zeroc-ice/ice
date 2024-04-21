@@ -74,23 +74,16 @@ SChannel::TransceiverI::getNativeInfo()
 IceInternal::SocketOperation
 SChannel::TransceiverI::sslHandshake()
 {
-    DWORD flags = ASC_REQ_SEQUENCE_DETECT | ASC_REQ_REPLAY_DETECT | ASC_REQ_CONFIDENTIALITY | ASC_REQ_ALLOCATE_MEMORY |
-                  ASC_REQ_STREAM;
+    DWORD flags = 0;
     if (_incoming)
     {
-        flags |= ASC_REQ_EXTENDED_ERROR;
-        if (_clientCertificateRequired)
-        {
-            flags |= ASC_REQ_MUTUAL_AUTH;
-        }
+        flags |= ASC_REQ_SEQUENCE_DETECT | ASC_REQ_REPLAY_DETECT | ASC_REQ_CONFIDENTIALITY | ASC_REQ_ALLOCATE_MEMORY |
+                 ASC_REQ_STREAM | ASC_REQ_EXTENDED_ERROR;
     }
     else
     {
-        flags |= ISC_REQ_USE_SUPPLIED_CREDS | ISC_RET_EXTENDED_ERROR;
-        if (_certificateValidationCallback)
-        {
-            flags |= ISC_REQ_MANUAL_CRED_VALIDATION;
-        }
+        flags |= ISC_REQ_SEQUENCE_DETECT | ISC_REQ_REPLAY_DETECT | ISC_REQ_CONFIDENTIALITY | ISC_REQ_ALLOCATE_MEMORY |
+                 ISC_REQ_STREAM | ISC_REQ_USE_SUPPLIED_CREDS | ISC_RET_EXTENDED_ERROR;
     }
 
     SECURITY_STATUS err = SEC_E_OK;
@@ -109,7 +102,7 @@ SChannel::TransceiverI::sslHandshake()
                 &_credentials,
                 0,
                 const_cast<char*>(_host.c_str()),
-                flags,
+                _certificateValidationCallback ? flags | ISC_REQ_MANUAL_CRED_VALIDATION : flags,
                 0,
                 0,
                 0,
@@ -120,10 +113,9 @@ SChannel::TransceiverI::sslHandshake()
                 0);
             if (err != SEC_E_OK && err != SEC_I_CONTINUE_NEEDED)
             {
-                throw SecurityException(
-                    __FILE__,
-                    __LINE__,
-                    "IceSSL: handshake failure:\n" + IceUtilInternal::errorToString(err));
+                ostringstream os;
+                os << "IceSSL: handshake failure:\n" << IceUtilInternal::errorToString(err);
+                throw SecurityException(__FILE__, __LINE__, os.str());
             }
             _sslInitialized = true;
 
@@ -167,7 +159,7 @@ SChannel::TransceiverI::sslHandshake()
                     &_credentials,
                     (_sslInitialized ? &_ssl : 0),
                     &inBufferDesc,
-                    flags,
+                    _clientCertificateRequired ? flags | ASC_REQ_MUTUAL_AUTH : flags,
                     0,
                     &_ssl,
                     &outBufferDesc,
@@ -206,10 +198,9 @@ SChannel::TransceiverI::sslHandshake()
             }
             else if (err != SEC_I_CONTINUE_NEEDED && err != SEC_E_OK)
             {
-                throw SecurityException(
-                    __FILE__,
-                    __LINE__,
-                    "SSL handshake failure:\n" + IceUtilInternal::errorToString(err));
+                ostringstream os;
+                os << "SSL handshake failure:\n" << IceUtilInternal::errorToString(err);
+                throw SecurityException(__FILE__, __LINE__, os.str());
             }
 
             // Copy out security tokens to the write buffer if any.
@@ -281,89 +272,89 @@ SChannel::TransceiverI::sslHandshake()
     //
     if (flags != _ctxFlags)
     {
+        ostringstream os;
         if (_incoming)
         {
             if (!(_ctxFlags & ASC_REQ_SEQUENCE_DETECT))
             {
-                throw SecurityException(__FILE__, __LINE__, "IceSSL: SChannel failed to setup sequence detect");
+                os << "\n - IceSSL: SChannel failed to setup sequence detect";
             }
 
             if (!(_ctxFlags & ASC_REQ_REPLAY_DETECT))
             {
-                throw SecurityException(__FILE__, __LINE__, "IceSSL: SChannel failed to setup replay detect");
+                os << "\n - IceSSL: SChannel failed to setup replay detect";
             }
 
             if (!(_ctxFlags & ASC_REQ_CONFIDENTIALITY))
             {
-                throw SecurityException(__FILE__, __LINE__, "IceSSL: SChannel failed to setup confidentiality");
+                os << "\n - IceSSL: SChannel failed to setup confidentiality";
             }
 
             if (!(_ctxFlags & ASC_REQ_EXTENDED_ERROR))
             {
-                throw SecurityException(__FILE__, __LINE__, "IceSSL: SChannel failed to setup extended error");
+                os << "\n - IceSSL: SChannel failed to setup extended error";
             }
 
             if (!(_ctxFlags & ASC_REQ_ALLOCATE_MEMORY))
             {
-                throw SecurityException(__FILE__, __LINE__, "IceSSL: SChannel failed to setup memory allocation");
+                os << "\n - IceSSL: SChannel failed to setup memory allocation";
             }
 
             if (!(_ctxFlags & ASC_REQ_STREAM))
             {
-                throw SecurityException(__FILE__, __LINE__, "IceSSL: SChannel failed to setup stream");
+                os << "\n - IceSSL: SChannel failed to setup stream";
             }
         }
         else
         {
             if (!(_ctxFlags & ISC_REQ_SEQUENCE_DETECT))
             {
-                throw SecurityException(__FILE__, __LINE__, "IceSSL: SChannel failed to setup sequence detect");
+                os << "\n - IceSSL: SChannel failed to setup sequence detect";
             }
 
             if (!(_ctxFlags & ISC_REQ_REPLAY_DETECT))
             {
-                throw SecurityException(__FILE__, __LINE__, "IceSSL: SChannel failed to setup replay detect");
+                os << "\n - IceSSL: SChannel failed to setup replay detect";
             }
 
             if (!(_ctxFlags & ISC_REQ_CONFIDENTIALITY))
             {
-                throw SecurityException(__FILE__, __LINE__, "IceSSL: SChannel failed to setup confidentiality");
+                os << "\n - IceSSL: SChannel failed to setup confidentiality";
             }
 
             if (!(_ctxFlags & ISC_REQ_EXTENDED_ERROR))
             {
-                throw SecurityException(__FILE__, __LINE__, "IceSSL: SChannel failed to setup extended error");
+                os << "\n - IceSSL: SChannel failed to setup extended error";
             }
 
             if (!(_ctxFlags & ISC_REQ_ALLOCATE_MEMORY))
             {
-                throw SecurityException(__FILE__, __LINE__, "IceSSL: SChannel failed to setup memory allocation");
+                os << "\n - IceSSL: SChannel failed to setup memory allocation";
             }
 
             if (!(_ctxFlags & ISC_REQ_STREAM))
             {
-                throw SecurityException(__FILE__, __LINE__, "IceSSL: SChannel failed to setup stream");
+                os << "\n - IceSSL: SChannel failed to setup stream";
             }
         }
+        throw SecurityException(__FILE__, __LINE__, os.str());
     }
 
     err = QueryContextAttributes(&_ssl, SECPKG_ATTR_STREAM_SIZES, &_sizes);
     if (err != SEC_E_OK)
     {
-        throw SecurityException(
-            __FILE__,
-            __LINE__,
-            "IceSSL: failure to query stream sizes attributes:\n" + IceUtilInternal::errorToString(err));
+        ostringstream os;
+        os << "IceSSL: failure to query stream sizes attributes:\n" << IceUtilInternal::errorToString(err);
+        throw SecurityException(__FILE__, __LINE__, os.str());
     }
 
     PCCERT_CONTEXT cert = 0;
     err = QueryContextAttributes(&_ssl, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &cert);
     if (err != SEC_E_OK && err != SEC_E_NO_CREDENTIALS)
     {
-        throw SecurityException(
-            __FILE__,
-            __LINE__,
-            "IceSSL: failure to query remote certificate context:\n" + IceUtilInternal::errorToString(err));
+        ostringstream os;
+        os << "IceSSL: failure to query remote certificate context:\n" << IceUtilInternal::errorToString(err);
+        throw SecurityException(__FILE__, __LINE__, os.str());
     }
 
     if (cert)
@@ -380,11 +371,10 @@ SChannel::TransceiverI::sslHandshake()
                 &pvStructInfo,
                 &pvStructInfoSize))
         {
+            ostringstream os;
+            os << "IceSSL: error decoding peer certificate:\n" << IceUtilInternal::lastErrorToString();
             CertFreeCertificateContext(cert);
-            throw SecurityException(
-                __FILE__,
-                __LINE__,
-                "IceSSL: error decoding peer certificate:\n" + IceUtilInternal::lastErrorToString());
+            throw SecurityException(__FILE__, __LINE__, os.str());
         }
         _certs.push_back(SChannel::Certificate::create(pvStructInfo));
         CertFreeCertificateContext(cert);
@@ -573,6 +563,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
     _delegate->getNativeInfo()->ready(
         IceInternal::SocketOperationRead,
         !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin());
+
     return IceInternal::SocketOperationNone;
 }
 
@@ -592,18 +583,9 @@ SChannel::TransceiverI::close()
         DeleteSecurityContext(&_ssl);
         _sslInitialized = false;
     }
-
-    if (_credentialsInitialized)
-    {
-        FreeCredentialsHandle(&_credentials);
-        _credentialsInitialized = false;
-    }
-
     _delegate->close();
 
-    //
     // Clear the buffers now instead of waiting for destruction.
-    //
     _writeBuffer.b.clear();
     _readBuffer.b.clear();
     _readUnprocessed.b.clear();
@@ -826,7 +808,6 @@ SChannel::TransceiverI::TransceiverI(
       _state(StateNotInitialized),
       _bufferedW(0),
       _sslInitialized(false),
-      _credentialsInitialized(false),
       _clientCertificateRequired(serverAuthenticationOptions.clientCertificateRequired)
 {
     _credentials = serverAuthenticationOptions.credentialsHandler;
@@ -847,7 +828,6 @@ SChannel::TransceiverI::TransceiverI(
       _state(StateNotInitialized),
       _bufferedW(0),
       _sslInitialized(false),
-      _credentialsInitialized(false),
       _clientCertificateRequired(false)
 {
     _credentials = clientAuthenticationOptions.credentialsHandler;

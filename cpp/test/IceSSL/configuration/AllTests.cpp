@@ -477,6 +477,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         try
         {
             server->noCert();
+            server->ice_getConnection()->close(ConnectionClose::GracefullyWithWait);
+            server->noCert();
         }
         catch (const LocalException& ex)
         {
@@ -484,9 +486,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             test(false);
         }
         fact->destroyServer(server);
-        //
+
         // Test IceSSL.VerifyPeer=1. Client does not have a certificate.
-        //
         d = createServerProps(defaultProps, p12, "s_rsa_ca1", "");
         d["IceSSL.VerifyPeer"] = "1";
         server = fact->createServer(d);
