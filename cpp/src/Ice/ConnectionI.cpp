@@ -414,6 +414,11 @@ Ice::ConnectionI::startAsync(
 
         if (!initialize() || !validate())
         {
+            if (_connectTimeout > chrono::seconds::zero())
+            {
+                _timer->schedule(make_shared<ConnectTimerTask>(shared_from_this()), _connectTimeout);
+            }
+
             if (connectionStartCompleted && connectionStartFailed)
             {
                 _connectionStartCompleted = std::move(connectionStartCompleted);
@@ -2620,7 +2625,7 @@ Ice::ConnectionI::connectTimedOut() noexcept
     {
         setState(StateClosed, make_exception_ptr(ConnectTimeoutException(__FILE__, __LINE__)));
     }
-    // else ignore since we're no longer in the "connect" phase.
+    // else ignore since we're already connected.
 }
 
 void
@@ -2631,7 +2636,7 @@ Ice::ConnectionI::closeTimedOut() noexcept
     {
         setState(StateClosed, make_exception_ptr(CloseTimeoutException(__FILE__, __LINE__)));
     }
-    // else ignore since we're no longer in the "close" phase.
+    // else ignore since we're already closed.
 }
 
 void
@@ -2702,11 +2707,6 @@ Ice::ConnectionI::sendResponse(OutgoingResponse response, uint8_t compress)
 bool
 Ice::ConnectionI::initialize(SocketOperation operation)
 {
-    if (_connectTimeout > chrono::seconds::zero())
-    {
-        _timer->schedule(make_shared<ConnectTimerTask>(shared_from_this()), _connectTimeout);
-    }
-
     SocketOperation s = _transceiver->initialize(_readStream, _writeStream);
     if (s != SocketOperationNone)
     {
