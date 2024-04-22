@@ -202,7 +202,8 @@ namespace
         }
         else if (view[map].size() != 1 || view[map][0]->id != value)
         {
-            cerr << "invalid attribute value: " << attr << " = " << value << " got " << view[map][0]->id << endl;
+            cerr << "size of view[ma] is: " << view[map].size() << endl;
+            cerr << "expected value for attribute " << attr << " = " << value << "; got " << view[map][0]->id << endl;
             test(false);
         }
 
