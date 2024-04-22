@@ -31,8 +31,8 @@ class ServerI implements Server {
       test(info.verified);
       test(
           info.certs.length == 1
-              && cert.getSubjectDN().toString().equals(subjectDN)
-              && cert.getIssuerDN().toString().equals(issuerDN));
+              && cert.getSubjectX500Principal().toString().equals(subjectDN)
+              && cert.getIssuerX500Principal().toString().equals(issuerDN));
     } catch (com.zeroc.Ice.LocalException ex) {
       test(false);
     }
