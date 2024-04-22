@@ -760,6 +760,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         // Verify that IceSSL.CheckCertName has no effect in a server.
         //
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
+        initData.properties->setProperty("IceSSL.CheckCertName", "0");
         comm = initialize(initData);
         fact = Test::ServerFactoryPrx(comm, factoryRef);
         test(fact);
@@ -853,7 +854,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             //
             initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
             initData.properties->setProperty("IceSSL.CheckCertName", "1");
-            initData.properties->setProperty("IceSSL.VerifyPeer", "0");
             comm = initialize(initData);
 
             fact = Test::ServerFactoryPrx(comm, factoryRef);
@@ -861,8 +861,14 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             d = createServerProps(props, p12, "s_rsa_ca1_cn4", "cacert1");
             server = fact->createServer(d);
 
-            info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
-            test(info->host == "localhost");
+            try
+            {
+                server->ice_ping();
+                test(false);
+            }
+            catch (const Ice::SecurityException&)
+            {
+            }
 
             fact->destroyServer(server);
             comm->destroy();
@@ -873,7 +879,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             //
             initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
             initData.properties->setProperty("IceSSL.CheckCertName", "1");
-            initData.properties->setProperty("IceSSL.VerifyPeer", "0");
             comm = initialize(initData);
 
             fact = Test::ServerFactoryPrx(comm, factoryRef);
@@ -881,8 +886,14 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             d = createServerProps(props, p12, "s_rsa_ca1_cn5", "cacert1");
             server = fact->createServer(d);
 
-            info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
-            test(info->host == "localhost");
+            try
+            {
+                server->ice_ping();
+                test(false);
+            }
+            catch (const Ice::SecurityException&)
+            {
+            }
 
             fact->destroyServer(server);
             comm->destroy();
@@ -915,7 +926,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             //
             initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
             initData.properties->setProperty("IceSSL.CheckCertName", "1");
-            initData.properties->setProperty("IceSSL.VerifyPeer", "0");
             comm = initialize(initData);
 
             fact = Test::ServerFactoryPrx(comm, factoryRef);
@@ -923,8 +933,14 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             d = createServerProps(defaultProps, p12, "s_rsa_ca1_cn7", "cacert1");
             server = fact->createServer(d);
 
-            info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
-            test(info->host == "127.0.0.1");
+            try
+            {
+                server->ice_ping();
+                test(false);
+            }
+            catch (const Ice::SecurityException&)
+            {
+            }
 
             fact->destroyServer(server);
             comm->destroy();
@@ -939,7 +955,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             //
             initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
             initData.properties->setProperty("IceSSL.CheckCertName", "1");
-            initData.properties->setProperty("IceSSL.VerifyPeer", "0");
             comm = initialize(initData);
 
             fact = Test::ServerFactoryPrx(comm, factoryRef);
@@ -947,8 +962,20 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             d = createServerProps(defaultProps, p12, "s_rsa_ca1_cn8", "cacert1");
             server = fact->createServer(d);
 
+#if defined(ICE_USE_SECURE_TRANSPORT)
             info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
             test(info->host == "127.0.0.1");
+#else
+            try
+            {
+                server->ice_ping();
+                test(false);
+            }
+            catch (const Ice::SecurityException&)
+            {
+            }
+#endif
+
             fact->destroyServer(server);
             comm->destroy();
         }

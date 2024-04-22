@@ -8,6 +8,7 @@
 #include "EndpointFactory.h"
 #include "IPEndpointI.h"
 #include "IceUtil/Config.h"
+#include "Ice/ServerAuthenticationOptions.h"
 #include "Network.h" // for IceIternal::Address
 
 namespace IceInternal

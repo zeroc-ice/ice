@@ -8,7 +8,7 @@
 #include "../Ice/Acceptor.h"
 #include "../Ice/Network.h"
 #include "../Ice/TransceiverF.h"
-#include "Ice/SSL.h"
+#include "Ice/ServerAuthenticationOptions.h"
 #include "SSLInstanceF.h"
 
 #include <optional>

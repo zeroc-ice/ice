@@ -39,7 +39,7 @@ namespace IceSSL
 
         // Verify peer certificate.
         virtual void verifyPeer(const ConnectionInfoPtr&) const;
-        void verifyPeerCertName(const ConnectionInfoPtr&) const;
+        void verifyPeerCertName(const ConnectionInfoPtr&, const std::string&) const;
 
         bool getCheckCertName() const;
         bool getServerNameIndication() const;

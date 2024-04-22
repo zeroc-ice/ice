@@ -20,6 +20,7 @@
 // We don't need to see the following headers when building the generated code.
 
 #    include "Certificate.h"
+#    include "ClientAuthenticationOptions.h"
 #    include "Communicator.h"
 #    include "Connection.h"
 #    include "IconvStringConverter.h"
@@ -38,6 +39,7 @@
 #    include "SSLConnectionInfo.h"
 #    include "SSLEndpointInfo.h"
 #    include "ServantLocator.h"
+#    include "ServerAuthenticationOptions.h"
 #    include "SlicedData.h"
 #    include "StringConverter.h"
 #    include "UUID.h"

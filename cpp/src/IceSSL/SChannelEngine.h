@@ -7,9 +7,10 @@
 
 #ifdef _WIN32
 
+#    include "Ice/ClientAuthenticationOptions.h"
 #    include "Ice/InstanceF.h"
-#    include "Ice/SSL.h"
 #    include "Ice/SSLConnectionInfo.h"
+#    include "Ice/ServerAuthenticationOptions.h"
 #    include "SChannelEngineF.h"
 #    include "SSLEngine.h"
 
@@ -36,12 +37,13 @@ namespace IceSSL::SChannel
 
         std::string getCipherName(ALG_ID) const;
 
-        Ice::SSL::ClientAuthenticationOptions createClientAuthenticationOptions() const;
+        Ice::SSL::ClientAuthenticationOptions createClientAuthenticationOptions(const std::string&) const;
         Ice::SSL::ServerAuthenticationOptions createServerAuthenticationOptions() const;
 
     private:
-        bool validationCallback(CtxtHandle ssl, const IceSSL::ConnectionInfoPtr&, bool incoming) const;
+        bool validationCallback(CtxtHandle, const IceSSL::ConnectionInfoPtr&, bool, const std::string&) const;
         std::string errorStatusToString(DWORD errorStatus) const;
+        std::string policyStatusToString(DWORD policyStatus) const;
         CredHandle newCredentialsHandle(bool) const;
 
         std::vector<PCCERT_CONTEXT> _allCerts;

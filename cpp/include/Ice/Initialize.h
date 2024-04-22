@@ -6,6 +6,7 @@
 #define ICE_INITIALIZE_H
 
 #include "BatchRequest.h"
+#include "ClientAuthenticationOptions.h"
 #include "CommunicatorF.h"
 #include "Connection.h"
 #include "Ice/BuiltinSequences.h"
@@ -15,7 +16,6 @@
 #include "Logger.h"
 #include "Plugin.h"
 #include "PropertiesF.h"
-#include "SSL.h"
 #include "ValueFactory.h"
 
 namespace Ice

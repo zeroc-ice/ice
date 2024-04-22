@@ -7,10 +7,10 @@
 
 #include "../Ice/NetworkProxy.h"
 #include "../Ice/StreamSocket.h"
+#include "Ice/ClientAuthenticationOptions.h"
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
-#include "Ice/SSL.h"
 #include "SChannelEngine.h"
 #include "SChannelTransceiverI.h"
 #include "SSLEndpointI.h"
@@ -30,7 +30,7 @@ IceSSL::ConnectorI::connect()
     if (!clientAuthenticationOptions)
     {
         clientAuthenticationOptions =
-            dynamic_pointer_cast<SChannel::SSLEngine>(_instance->engine())->createClientAuthenticationOptions();
+            dynamic_pointer_cast<SChannel::SSLEngine>(_instance->engine())->createClientAuthenticationOptions(_host);
     }
     assert(clientAuthenticationOptions);
     return make_shared<SChannel::TransceiverI>(_instance, _delegate->connect(), _host, *clientAuthenticationOptions);

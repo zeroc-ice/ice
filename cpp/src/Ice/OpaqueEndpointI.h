@@ -7,7 +7,7 @@
 
 #include "EndpointFactory.h"
 #include "EndpointI.h"
-#include "Ice/SSL.h"
+#include "Ice/ServerAuthenticationOptions.h"
 
 #include <optional>
 

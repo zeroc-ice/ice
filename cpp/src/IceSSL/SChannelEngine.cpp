@@ -27,6 +27,10 @@
 #    define SP_PROT_TLS1_3 (SP_PROT_TLS1_3_SERVER | SP_PROT_TLS1_3_CLIENT)
 #endif
 
+#ifndef SECURITY_FLAG_IGNORE_CERT_CN_INVALID
+#    define SECURITY_FLAG_IGNORE_CERT_CN_INVALID 0x00001000
+#endif
+
 //
 // CALG_ECDH_EPHEM algorithm constant is not defined in older version of the SDK headers
 //
@@ -1022,7 +1026,7 @@ SChannel::SSLEngine::destroy()
 }
 
 Ice::SSL::ClientAuthenticationOptions
-SChannel::SSLEngine::createClientAuthenticationOptions() const
+SChannel::SSLEngine::createClientAuthenticationOptions(const string& host) const
 {
     lock_guard lock(_mutex);
     if (_clientCredentials.dwLower == 0 && _clientCredentials.dwUpper == 0)
@@ -1031,9 +1035,9 @@ SChannel::SSLEngine::createClientAuthenticationOptions() const
     }
     return Ice::SSL::ClientAuthenticationOptions{
         .credentialsHandler = _clientCredentials,
-        .serverCertificateValidationCallback =
-            [self = shared_from_this()](CtxtHandle ssl, const ConnectionInfoPtr& info) -> bool
-        { return self->validationCallback(ssl, info, false); }};
+        .serverCertificateValidationCallback = [self = shared_from_this(),
+                                                host](CtxtHandle ssl, const ConnectionInfoPtr& info) -> bool
+        { return self->validationCallback(ssl, info, false, host); }};
 }
 
 Ice::SSL::ServerAuthenticationOptions
@@ -1049,11 +1053,32 @@ SChannel::SSLEngine::createServerAuthenticationOptions() const
         .clientCertificateRequired = getVerifyPeer() > 0,
         .clientCertificateValidationCallback =
             [self = shared_from_this()](CtxtHandle ssl, const ConnectionInfoPtr& info) -> bool
-        { return self->validationCallback(ssl, info, true); }};
+        { return self->validationCallback(ssl, info, true, ""); }};
+}
+
+namespace
+{
+    struct ScopedCertChainContext
+    {
+        ScopedCertChainContext(PCCERT_CHAIN_CONTEXT chain) : _chain(chain) {}
+        ~ScopedCertChainContext() { CertFreeCertificateChain(_chain); }
+        PCCERT_CHAIN_CONTEXT _chain;
+    };
+
+    struct ScopedCertContext
+    {
+        ScopedCertContext(PCCERT_CONTEXT cert) : _cert(cert) {}
+        ~ScopedCertContext() { CertFreeCertificateContext(_cert); }
+        PCCERT_CONTEXT _cert;
+    };
 }
 
 bool
-SChannel::SSLEngine::validationCallback(CtxtHandle ssl, const ConnectionInfoPtr& info, bool incoming) const
+SChannel::SSLEngine::validationCallback(
+    CtxtHandle ssl,
+    const ConnectionInfoPtr& info,
+    bool incoming,
+    const string& host) const
 {
     // Build the peer certificate chain and verify it.
     PCCERT_CONTEXT cert = 0;
@@ -1068,6 +1093,7 @@ SChannel::SSLEngine::validationCallback(CtxtHandle ssl, const ConnectionInfoPtr&
 
     if (cert) // Verify the remote certificate
     {
+        ScopedCertContext scopedCertContext(cert);
         CERT_CHAIN_PARA chainP;
         memset(&chainP, 0, sizeof(chainP));
         chainP.cbSize = sizeof(chainP);
@@ -1093,22 +1119,170 @@ SChannel::SSLEngine::validationCallback(CtxtHandle ssl, const ConnectionInfoPtr&
         {
             ostringstream os;
             os << "IceSSL: certificate verification failure:\n" << lastErrorToString();
-            CertFreeCertificateContext(cert);
             throw SecurityException(__FILE__, __LINE__, os.str());
         }
+        ScopedCertChainContext scopedChainContext(certChain);
 
         DWORD errorStatus = certChain->TrustStatus.dwErrorStatus;
         if (errorStatus != CERT_TRUST_NO_ERROR)
         {
             throw SecurityException(__FILE__, __LINE__, errorStatusToString(errorStatus));
         }
-        CertFreeCertificateChain(certChain);
-        CertFreeCertificateContext(cert);
-    }
 
-    verifyPeerCertName(info);
-    verifyPeer(info);
+        SSL_EXTRA_CERT_CHAIN_POLICY_PARA extraPolicyPara;
+        memset(&extraPolicyPara, 0, sizeof(extraPolicyPara));
+        extraPolicyPara.cbSize = sizeof(extraPolicyPara);
+        extraPolicyPara.dwAuthType = incoming ? AUTHTYPE_CLIENT : AUTHTYPE_SERVER;
+        // Disable because the policy only matches the CN of the certificate, not the SAN.
+        extraPolicyPara.fdwChecks = SECURITY_FLAG_IGNORE_CERT_CN_INVALID;
+        extraPolicyPara.pwszServerName = const_cast<wchar_t*>(IceUtil::stringToWstring(host).c_str());
+
+        CERT_CHAIN_POLICY_PARA policyPara;
+        memset(&policyPara, 0, sizeof(policyPara));
+        policyPara.cbSize = sizeof(policyPara);
+        policyPara.pvExtraPolicyPara = &extraPolicyPara;
+
+        CERT_CHAIN_POLICY_STATUS policyStatus;
+        memset(&policyStatus, 0, sizeof(policyStatus));
+        policyStatus.cbSize = sizeof(policyStatus);
+
+        if (!CertVerifyCertificateChainPolicy(CERT_CHAIN_POLICY_SSL, certChain, &policyPara, &policyStatus))
+        {
+            ostringstream os;
+            os << "IceSSL: certificate verification failure:\n" << lastErrorToString();
+            throw SecurityException(__FILE__, __LINE__, os.str());
+        }
+
+        if (policyStatus.dwError)
+        {
+            ostringstream os;
+            os << "IceSSL: certificate verification failure:\n" << policyStatusToString(policyStatus.dwError);
+            throw SecurityException(__FILE__, __LINE__, os.str());
+        }
+
+        if (!incoming)
+        {
+            verifyPeerCertName(info, host);
+        }
+        verifyPeer(info);
+    }
     return true;
+}
+
+string
+SChannel::SSLEngine::policyStatusToString(DWORD policyStatus) const
+{
+    assert(policyStatus);
+    ostringstream os;
+    switch (policyStatus)
+    {
+        case TRUST_E_CERT_SIGNATURE:
+        {
+            os << "The signature of the certificate cannot be verified.";
+            break;
+        }
+        case CRYPT_E_REVOKED:
+        {
+            os << "The certificate or signature has been revoked.";
+            break;
+        }
+        case CERT_E_UNTRUSTEDROOT:
+        {
+            os << "A certification chain processed correctly but terminated in a root certificate that is not "
+                  "trusted by "
+                  "the trust provider.";
+            break;
+        }
+        case CERT_E_UNTRUSTEDTESTROOT:
+        {
+            os << "The root certificate is a testing certificate, and policy settings disallow test certificates.";
+            break;
+        }
+        case CERT_E_CHAINING:
+        {
+            os << "A chain of certificates was not correctly created.";
+            break;
+        }
+        case CERT_E_WRONG_USAGE:
+        {
+            os << "The certificate is not valid for the requested usage.";
+            break;
+        }
+        case CERT_E_EXPIRED:
+        {
+            os << "A required certificate is not within its validity period.";
+            break;
+        }
+        case CERT_E_INVALID_NAME:
+        {
+            os << "The certificate has an invalid name. Either the name is not included in the permitted list, or "
+                  "it is "
+                  "explicitly excluded.";
+            break;
+        }
+        case CERT_E_INVALID_POLICY:
+        {
+            os << "The certificate has invalid policy.";
+            break;
+        }
+        case TRUST_E_BASIC_CONSTRAINTS:
+        {
+            os << "The basic constraints of the certificate are not valid, or they are missing.";
+            break;
+        }
+        case CERT_E_CRITICAL:
+        {
+            os << "The certificate is being used for a purpose other than the purpose specified by its CA.";
+            break;
+        }
+        case CERT_E_VALIDITYPERIODNESTING:
+        {
+            os << "The validity periods of the certification chain do not nest correctly.";
+            break;
+        }
+        case CRYPT_E_NO_REVOCATION_CHECK:
+        {
+            os << "The revocation function was unable to check revocation for the certificate.";
+            break;
+        }
+        case CRYPT_E_REVOCATION_OFFLINE:
+        {
+            os << "The revocation function was unable to check revocation because the revocation server was "
+                  "offline.";
+            break;
+        }
+        case CERT_E_CN_NO_MATCH:
+        {
+            os << "The certificate's CN name does not match the passed value.";
+            break;
+        }
+        case CERT_E_PURPOSE:
+        {
+            os << "The certificate is being used for a purpose other than the purpose specified by its CA.";
+            break;
+        }
+        case CERT_E_REVOKED:
+        {
+            os << "The certificate has been explicitly revoked by the issuer.";
+            break;
+        }
+        case CERT_E_REVOCATION_FAILURE:
+        {
+            os << "The revocation process could not continue, and the certificate could not be checked.";
+            break;
+        }
+        case CERT_E_ROLE:
+        {
+            os << "The certificate does not have a valid role.";
+            break;
+        }
+        default:
+        {
+            os << "Unknown policy status: " << policyStatus;
+            break;
+        }
+    }
+    return os.str();
 }
 
 string

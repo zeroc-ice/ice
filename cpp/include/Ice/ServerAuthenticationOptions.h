@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_SSL_H
-#define ICE_SSL_H
+#ifndef ICE_SERVER_AUTHENTICATION_OPTIONS_H
+#define ICE_SERVER_AUTHENTICATION_OPTIONS_H
 
 #include "SSLConnectionInfo.h"
 
@@ -34,40 +34,6 @@
 
 namespace Ice::SSL
 {
-    /**
-     * The SSL configuration properties for client connections.
-     */
-    struct ClientAuthenticationOptions
-    {
-#if defined(_WIN32)
-        /**
-         * The credentials handler to configure SSL client connections on Windows. When set the SSL transport would
-         * ignore all the IceSSL configuration properties and use the provided credentials handle.
-         *
-         * [See Schannel
-         * Credentials](https://learn.microsoft.com/en-us/windows/win32/api/schannel/ns-schannel-sch_credentials).
-         */
-        CredHandle credentialsHandler;
-
-        /**
-         * A callback that allows to manually validate the server certificate during SSL handshake on Windows. When the
-         * callback is not provided the server certificate will be validated using the platform default validation
-         * mechanism.
-         *
-         * @param context A security context is an opaque data structure that contains security data relevant to the
-         * current connection.
-         * @return true if the certificate is valid, false otherwise.
-         *
-         * [See Manually Validating Schannel
-         * Credentials](https://learn.microsoft.com/en-us/windows/win32/secauthn/manually-validating-schannel-credentials).
-         */
-        std::function<bool(CtxtHandle context, const IceSSL::ConnectionInfoPtr& info)>
-            serverCertificateValidationCallback;
-#elif defined(__APPLE__)
-#else
-#endif
-    };
-
     /**
      * The SSL configuration properties for client connections.
      */
@@ -103,7 +69,6 @@ namespace Ice::SSL
 #else
 #endif
     };
-
 }
 
 #endif
