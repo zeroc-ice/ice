@@ -204,16 +204,20 @@ namespace Ice
 
         void exception(std::exception_ptr);
 
-        void upCall(
-            std::function<void(ConnectionIPtr)>,
-            const std::vector<OutgoingMessage>&,
-            std::uint8_t,
-            std::int32_t,
-            std::int32_t,
-            const ObjectAdapterIPtr&,
-            const IceInternal::OutgoingAsyncBasePtr&,
-            const HeartbeatCallback&,
-            Ice::InputStream&);
+        // This method is called to execute user code (connection start completion callback, invocation sent callbacks,
+        // servant dispatch, invocation response, heartbeat callback). Only the invocation sent callbacks and one of the
+        // other callbacks can be set at the same time. TODO: improve this to use separate functions encapsulated with
+        // an std::function
+        void upcall(
+            std::function<void(ConnectionIPtr)> connectionStartCompleted,
+            const std::vector<OutgoingMessage>& sentMessages, // for calling invocation sent callbacks
+            std::uint8_t compress,
+            std::int32_t requestId,
+            std::int32_t dispatchCount,
+            const ObjectAdapterIPtr& adapter,
+            const IceInternal::OutgoingAsyncBasePtr& outAsync, // for callback the invocation response
+            const HeartbeatCallback& heartbeatCallback,
+            Ice::InputStream& stream); //
         void finish(bool);
 
         void closeCallback(const CloseCallback&);
@@ -278,7 +282,7 @@ namespace Ice
 
         bool initialize(IceInternal::SocketOperation = IceInternal::SocketOperationNone);
         bool validate(IceInternal::SocketOperation = IceInternal::SocketOperationNone);
-        IceInternal::SocketOperation sendNextMessage(std::vector<OutgoingMessage>&);
+        IceInternal::SocketOperation sendNextMessages(std::vector<OutgoingMessage>&);
         IceInternal::AsyncStatus sendMessage(OutgoingMessage&);
 
 #ifdef ICE_HAS_BZIP2
@@ -365,7 +369,8 @@ namespace Ice
 
         Observer _observer;
 
-        int _upCallCount;
+        // The number of user calls currently executed by the thread-pool (servant dispatch, invocation response, ...)
+        int _upcallCount;
 
         State _state; // The current state.
         bool _shutdownInitiated;
