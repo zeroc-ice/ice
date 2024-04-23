@@ -36,6 +36,8 @@ namespace
                 return "TLS 1.1";
             case kTLSProtocol12:
                 return "TLS 1.2";
+            case kTLSProtocol13:
+                return "TLS 1.3";
             default:
                 return "Unknown";
         }
