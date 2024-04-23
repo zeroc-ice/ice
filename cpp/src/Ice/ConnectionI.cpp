@@ -1658,7 +1658,7 @@ ConnectionI::upcall(
     const HeartbeatCallback& heartbeatCallback,
     InputStream& stream)
 {
-    int completedUpCallCount = 0;
+    int completedUpcallCount = 0;
 
     //
     // Notify the factory that the connection establishment and
@@ -1667,7 +1667,7 @@ ConnectionI::upcall(
     if (connectionStartCompleted)
     {
         connectionStartCompleted(shared_from_this());
-        ++completedUpCallCount;
+        ++completedUpcallCount;
     }
 
     //
@@ -1694,7 +1694,7 @@ ConnectionI::upcall(
             p->outAsync->invokeSent();
 #endif
         }
-        ++completedUpCallCount;
+        ++completedUpcallCount;
     }
 
     //
@@ -1704,7 +1704,7 @@ ConnectionI::upcall(
     if (outAsync)
     {
         outAsync->invokeResponse();
-        ++completedUpCallCount;
+        ++completedUpcallCount;
     }
 
     if (heartbeatCallback)
@@ -1723,7 +1723,7 @@ ConnectionI::upcall(
             Error out(_instance->initializationData().logger);
             out << "connection callback exception:\nunknown c++ exception" << '\n' << _desc;
         }
-        ++completedUpCallCount;
+        ++completedUpcallCount;
     }
 
     // Dispatch must be done outside the thread synchronization, so that nested calls are possible.
@@ -1738,10 +1738,10 @@ ConnectionI::upcall(
     //
     // Decrease the upcall count.
     //
-    if (completedUpCallCount > 0)
+    if (completedUpcallCount > 0)
     {
         std::lock_guard lock(_mutex);
-        _upcallCount -= completedUpCallCount;
+        _upcallCount -= completedUpcallCount;
         if (_upcallCount == 0)
         {
             // Only initiate shutdown if not already initiated. It might have already been initiated if the sent

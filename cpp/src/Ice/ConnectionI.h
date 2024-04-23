@@ -207,7 +207,7 @@ namespace Ice
         // This method is called to execute user code (connection start completion callback, invocation sent callbacks,
         // servant dispatch, invocation response, heartbeat callback). Only the invocation sent callbacks and one of the
         // other callbacks can be set at the same time. TODO: improve this to use separate functions encapsulated with
-        // an std::function
+        // a std::function
         void upcall(
             std::function<void(ConnectionIPtr)> connectionStartCompleted,
             const std::vector<OutgoingMessage>& sentMessages, // for calling invocation sent callbacks
@@ -217,7 +217,7 @@ namespace Ice
             const ObjectAdapterIPtr& adapter,
             const IceInternal::OutgoingAsyncBasePtr& outAsync, // for callback the invocation response
             const HeartbeatCallback& heartbeatCallback,
-            Ice::InputStream& stream); //
+            Ice::InputStream& stream); // the incoming request stream
         void finish(bool);
 
         void closeCallback(const CloseCallback&);
