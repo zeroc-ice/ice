@@ -8,9 +8,11 @@
 #include "../Ice/Network.h"
 #include "../Ice/TransceiverF.h"
 #include "Ice/Certificate.h"
+#include "Ice/ClientAuthenticationOptions.h"
 #include "Ice/CommunicatorF.h"
 #include "Ice/Initialize.h"
 #include "Ice/InstanceF.h"
+#include "Ice/ServerAuthenticationOptions.h"
 #include "SSLEngineF.h"
 #include "SSLInstanceF.h"
 #include "SSLUtil.h"
@@ -40,6 +42,10 @@ namespace IceSSL
         // Verify peer certificate.
         virtual void verifyPeer(const ConnectionInfoPtr&) const;
         void verifyPeerCertName(const ConnectionInfoPtr&, const std::string&) const;
+
+        virtual Ice::SSL::ClientAuthenticationOptions
+        createClientAuthenticationOptions(const std::string& host) const = 0;
+        virtual Ice::SSL::ServerAuthenticationOptions createServerAuthenticationOptions() const = 0;
 
         bool getCheckCertName() const;
         bool getServerNameIndication() const;

@@ -778,7 +778,7 @@ SChannel::TransceiverI::getInfo() const
     info->incoming = _incoming;
     info->adapterName = _adapterName;
     info->certs = _certs;
-    info->host = _incoming ? "" : _host;
+    info->host = _host;
     info->desc = toString();
     return info;
 }

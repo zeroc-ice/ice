@@ -11,11 +11,18 @@
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
-#include "SChannelEngine.h"
-#include "SChannelTransceiverI.h"
 #include "SSLEndpointI.h"
 #include "SSLEngine.h"
 #include "SSLUtil.h"
+
+#if defined(_WIN32)
+#    include "SChannelEngine.h"
+#    include "SChannelTransceiverI.h"
+#elif defined(__APPLE__)
+#    include "SecureTransportEngine.h"
+#    include "SecureTransportTransceiverI.h"
+#else
+#endif
 
 using namespace std;
 using namespace Ice;
@@ -24,20 +31,23 @@ using namespace IceSSL;
 IceInternal::TransceiverPtr
 IceSSL::ConnectorI::connect()
 {
-#if defined(_WIN32)
     optional<Ice::SSL::ClientAuthenticationOptions> clientAuthenticationOptions =
         _instance->engine()->getInitializationData().clientAuthenticationOptions;
     if (!clientAuthenticationOptions)
     {
-        clientAuthenticationOptions =
-            dynamic_pointer_cast<SChannel::SSLEngine>(_instance->engine())->createClientAuthenticationOptions(_host);
+        clientAuthenticationOptions = _instance->engine()->createClientAuthenticationOptions(_host);
     }
     assert(clientAuthenticationOptions);
+#if defined(_WIN32)
     return make_shared<SChannel::TransceiverI>(_instance, _delegate->connect(), _host, *clientAuthenticationOptions);
 #elif defined(__APPLE__)
     return make_shared<IceSSL::SecureTransport::TransceiverI>(
+        _instance,
+        _delegate->connect(),
+        _host,
+        *clientAuthenticationOptions);
 #else
-    return make_shared<IceSSL::OpenSSL::TransceiverI>(
+    return make_shared<IceSSL::OpenSSL::TransceiverI>();
 #endif
 }
 

@@ -37,8 +37,8 @@ namespace IceSSL::SChannel
 
         std::string getCipherName(ALG_ID) const;
 
-        Ice::SSL::ClientAuthenticationOptions createClientAuthenticationOptions(const std::string&) const;
-        Ice::SSL::ServerAuthenticationOptions createServerAuthenticationOptions() const;
+        Ice::SSL::ClientAuthenticationOptions createClientAuthenticationOptions(const std::string&) const final;
+        Ice::SSL::ServerAuthenticationOptions createServerAuthenticationOptions() const final;
 
     private:
         bool validationCallback(CtxtHandle, const IceSSL::ConnectionInfoPtr&, bool, const std::string&) const;

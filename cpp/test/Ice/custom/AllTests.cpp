@@ -235,29 +235,29 @@ allTests(TestHelper* helper)
     }
 
     {
-        deque<Fixed> in(5);
+        deque<Test::Fixed> in(5);
         in[0].s = 1;
         in[1].s = 2;
         in[2].s = 3;
         in[3].s = 4;
         in[4].s = 5;
 
-        deque<Fixed> out;
-        deque<Fixed> ret = t->opFixedSeq(in, out);
+        deque<Test::Fixed> out;
+        deque<Test::Fixed> ret = t->opFixedSeq(in, out);
         test(out == in);
         test(ret == in);
     }
 
     {
-        list<Fixed> in(5);
+        list<Test::Fixed> in(5);
         short num = 1;
-        for (list<Fixed>::iterator p = in.begin(); p != in.end(); ++p)
+        for (list<Test::Fixed>::iterator p = in.begin(); p != in.end(); ++p)
         {
             (*p).s = num++;
         }
 
-        list<Fixed> out;
-        list<Fixed> ret = t->opFixedList(in, out);
+        list<Test::Fixed> out;
+        list<Test::Fixed> ret = t->opFixedList(in, out);
         test(out == in);
         test(ret == in);
     }
@@ -697,7 +697,7 @@ allTests(TestHelper* helper)
         }
 
         {
-            deque<Fixed> in(5);
+            deque<Test::Fixed> in(5);
             in[0].s = 1;
             in[1].s = 2;
             in[2].s = 3;
@@ -710,9 +710,9 @@ allTests(TestHelper* helper)
         }
 
         {
-            list<Fixed> in(5);
+            list<Test::Fixed> in(5);
             short num = 1;
-            for (list<Fixed>::iterator p = in.begin(); p != in.end(); ++p)
+            for (list<Test::Fixed>::iterator p = in.begin(); p != in.end(); ++p)
             {
                 (*p).s = num++;
             }
@@ -1182,7 +1182,7 @@ allTests(TestHelper* helper)
     }
 
     {
-        deque<Fixed> in(5);
+        deque<Test::Fixed> in(5);
         in[0].s = 1;
         in[1].s = 2;
         in[2].s = 3;
@@ -1193,7 +1193,7 @@ allTests(TestHelper* helper)
 
         t->opFixedSeqAsync(
             in,
-            [&](deque<Fixed> ret, deque<Fixed> out)
+            [&](deque<Test::Fixed> ret, deque<Test::Fixed> out)
             {
                 test(ret == out);
                 test(ret == in);
@@ -1205,9 +1205,9 @@ allTests(TestHelper* helper)
     }
 
     {
-        list<Fixed> in(5);
+        list<Test::Fixed> in(5);
         short num = 1;
-        for (list<Fixed>::iterator p = in.begin(); p != in.end(); ++p)
+        for (list<Test::Fixed>::iterator p = in.begin(); p != in.end(); ++p)
         {
             (*p).s = num++;
         }
@@ -1216,7 +1216,7 @@ allTests(TestHelper* helper)
 
         t->opFixedListAsync(
             in,
-            [&](list<Fixed> ret, list<Fixed> out)
+            [&](list<Test::Fixed> ret, list<Test::Fixed> out)
             {
                 test(ret == out);
                 test(ret == in);

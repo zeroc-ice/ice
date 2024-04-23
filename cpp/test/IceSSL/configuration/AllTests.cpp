@@ -809,12 +809,10 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
             fact->destroyServer(server);
             comm->destroy();
-            //
+
             // Target host does not match the certificate DNS altName
-            //
             initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
             initData.properties->setProperty("IceSSL.CheckCertName", "1");
-            initData.properties->setProperty("IceSSL.VerifyPeer", "0");
             comm = initialize(initData);
 
             fact = Test::ServerFactoryPrx(comm, factoryRef);
@@ -822,8 +820,14 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             d = createServerProps(props, p12, "s_rsa_ca1_cn2", "cacert1");
             server = fact->createServer(d);
 
-            info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
-            test(info->host == "localhost");
+            try
+            {
+                server->ice_ping();
+            }
+            catch (const Ice::SecurityException&)
+            {
+                // Expected.
+            }
 
             fact->destroyServer(server);
             comm->destroy();
@@ -834,7 +838,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             //
             initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
             initData.properties->setProperty("IceSSL.CheckCertName", "1");
-            initData.properties->setProperty("IceSSL.VerifyPeer", "0");
             comm = initialize(initData);
 
             fact = Test::ServerFactoryPrx(comm, factoryRef);
@@ -842,16 +845,24 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             d = createServerProps(props, p12, "s_rsa_ca1_cn3", "cacert1");
             server = fact->createServer(d);
 
+#if defined(__APPLE__)
+            try
+            {
+                server->ice_ping();
+            }
+            catch (const Ice::SecurityException&)
+            {
+                // Expected.
+            }
+#else
             info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
             test(info->host == "localhost");
+#endif
 
             fact->destroyServer(server);
             comm->destroy();
 
-            //
-            // Target host does not match the certificate Common Name and the certificate does not
-            // include a DNS altName
-            //
+            // Target host does not match the certificate Common Name and the certificate does not include a DNS altName
             initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
             initData.properties->setProperty("IceSSL.CheckCertName", "1");
             comm = initialize(initData);
@@ -873,10 +884,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             fact->destroyServer(server);
             comm->destroy();
 
-            //
-            // Target host matches the certificate Common Name and the certificate has
-            // a DNS altName that does not matches the target host
-            //
+            // Target host matches the certificate Common Name and the certificate has a DNS altName that does not
+            // matches the target host.
             initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
             initData.properties->setProperty("IceSSL.CheckCertName", "1");
             comm = initialize(initData);
@@ -907,7 +916,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             //
             initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
             initData.properties->setProperty("IceSSL.CheckCertName", "1");
-            initData.properties->setProperty("IceSSL.VerifyPeer", "0");
             comm = initialize(initData);
 
             fact = Test::ServerFactoryPrx(comm, factoryRef);
@@ -941,17 +949,12 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             catch (const Ice::SecurityException&)
             {
             }
-
             fact->destroyServer(server);
             comm->destroy();
 
             //
             // Target host is an IP address that matches the CN and the certificate doesn't
             // include an IP altName.
-            //
-            // With SecureTransport implementation the target IP will match with the Certificate
-            // CN and the test will pass. With other implementations IP address is only match with
-            // the Certificate IP altName and the test will fail.
             //
             initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
             initData.properties->setProperty("IceSSL.CheckCertName", "1");
@@ -962,10 +965,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             d = createServerProps(defaultProps, p12, "s_rsa_ca1_cn8", "cacert1");
             server = fact->createServer(d);
 
-#if defined(ICE_USE_SECURE_TRANSPORT)
-            info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
-            test(info->host == "127.0.0.1");
-#else
             try
             {
                 server->ice_ping();
@@ -974,7 +973,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             catch (const Ice::SecurityException&)
             {
             }
-#endif
 
             fact->destroyServer(server);
             comm->destroy();
@@ -2472,8 +2470,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECTKEYID:'EB 4A 7A 79 09 65 0F 45 40 E8 8C E6 A8 27 74 34 AB EA AF 48'",
             "SERIAL:01",
             "SERIAL:01 LABEL:Server",
-            0
-        };
+            0};
 
         const char* failFindCertProperties[] = {
             "nolabel",
@@ -2487,8 +2484,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECTKEYID:'a6 42 aa 17 04 41 86 56 67 e4 04 64 59 34 30 c7 4c 6b ef ff'",
             "SERIAL:04",
             "SERIAL:04 LABEL:Client",
-            0
-        };
+            0};
 
         const char* certificates[] = {"/s_rsa_ca1.p12", "/c_rsa_ca1.p12", 0};
         ImportCerts import(defaultDir, certificates);

@@ -106,15 +106,15 @@ TestIntfI::opStringList(list<string> inSeq, list<string>& outSeq, const Current&
     return inSeq;
 }
 
-deque<Fixed>
-TestIntfI::opFixedSeq(deque<Fixed> inSeq, deque<Fixed>& outSeq, const Current&)
+deque<Test::Fixed>
+TestIntfI::opFixedSeq(deque<Test::Fixed> inSeq, deque<Test::Fixed>& outSeq, const Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
-list<Fixed>
-TestIntfI::opFixedList(list<Fixed> inSeq, list<Fixed>& outSeq, const Current&)
+list<Test::Fixed>
+TestIntfI::opFixedList(list<Test::Fixed> inSeq, list<Test::Fixed>& outSeq, const Current&)
 {
     outSeq = inSeq;
     return inSeq;

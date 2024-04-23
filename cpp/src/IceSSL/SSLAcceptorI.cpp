@@ -66,20 +66,24 @@ IceSSL::AcceptorI::finishAccept()
 IceInternal::TransceiverPtr
 IceSSL::AcceptorI::accept()
 {
-#if defined(_WIN32)
     optional<Ice::SSL::ServerAuthenticationOptions> serverAuthenticationOptions = _serverAuthenticationOptions;
     if (!serverAuthenticationOptions)
     {
-        serverAuthenticationOptions =
-            dynamic_pointer_cast<SChannel::SSLEngine>(_instance->engine())->createServerAuthenticationOptions();
+        serverAuthenticationOptions = _instance->engine()->createServerAuthenticationOptions();
     }
     assert(serverAuthenticationOptions);
+#if defined(_WIN32)
     return make_shared<IceSSL::SChannel::TransceiverI>(
         _instance,
         _delegate->accept(),
         _adapterName,
         *serverAuthenticationOptions);
 #elif defined(__APPLE__)
+    return make_shared<IceSSL::SecureTransport::TransceiverI>(
+        _instance,
+        _delegate->accept(),
+        _adapterName,
+        *serverAuthenticationOptions);
 #else
 #endif
 }

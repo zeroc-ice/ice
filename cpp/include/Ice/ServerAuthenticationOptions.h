@@ -9,7 +9,7 @@
 
 #include <functional>
 
-#ifdef _WIN32
+#if defined(_WIN32)
 // We need to include windows.h before wincrypt.h.
 // clang-format off
 #    ifndef NOMINMAX
@@ -30,6 +30,9 @@
 #    include <security.h>
 #    include <sspi.h>
 #    undef SECURITY_WIN32
+#elif defined(__APPLE__)
+#    include <Security/SecureTransport.h>
+#    include <Security/Security.h>
 #endif
 
 namespace Ice::SSL
@@ -66,6 +69,28 @@ namespace Ice::SSL
         std::function<bool(CtxtHandle context, const IceSSL::ConnectionInfoPtr& info)>
             clientCertificateValidationCallback;
 #elif defined(__APPLE__)
+        // The server's certificate chain.
+        CFArrayRef serverCeriticateChain;
+
+        // A callback that allows selecting a certificate chain based on the server's host name. When the callback is
+        // set it has preference over a certificate chain set in serverCertificateChain.
+        std::function<CFArrayRef(const std::string& host)> serverCertificateSelectionCallback;
+
+        // The trusted root certificates. If set, the client's certificate chain is validated against these
+        // certificates. If not set the system's root certificates are used.
+        CFArrayRef trustedRootCertificates;
+
+        // A callback that allows validating the client certificate chain. When set trustedRootCertificates are
+        // not used.
+        std::function<bool(SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)>
+            clientCertificateValidationCallback;
+
+        // the requirements for client-side authentication
+        SSLAuthenticate clientCertificateRequired;
+
+        // A callback that is called before ssl handshake is started. The callback can be used to set additional SSL
+        // contex parameters.
+        std::function<void(SSLContextRef)> sslContextSetup;
 #else
 #endif
     };
