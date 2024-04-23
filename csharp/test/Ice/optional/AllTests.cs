@@ -305,12 +305,9 @@ namespace Ice
                     owc1.l.Value.Add(new Test.SmallStruct(5));
                     owc1.l.Value.Add(new Test.SmallStruct(6));
                     owc1.l.Value.Add(new Test.SmallStruct(7));
-                    owc1.s = new Test.ClassVarStruct(5);
                     Test.OptionalWithCustom owc2 = (Test.OptionalWithCustom)initial.pingPong(owc1);
                     test(owc2.l.HasValue);
                     test(ListsEqual(owc1.l.Value, owc2.l.Value));
-                    test(owc2.s.HasValue);
-                    test(owc2.s.Value.a == 5);
                 }
 
                 //

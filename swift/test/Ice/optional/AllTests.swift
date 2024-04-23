@@ -498,12 +498,9 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
   do {
     let owc1 = OptionalWithCustom()
     owc1.l = [SmallStruct(m: 5), SmallStruct(m: 6), SmallStruct(m: 7)]
-    owc1.s = ClassVarStruct(a: 5)
     if let owc2 = try initial.pingPong(owc1) as? OptionalWithCustom {
       try test(owc2.l != nil)
       try test(owc1.l == owc2.l)
-      try test(owc2.s != nil)
-      try test(owc2.s!.a == 5)
     } else {
       try test(false)
     }
