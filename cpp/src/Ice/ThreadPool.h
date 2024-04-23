@@ -38,6 +38,7 @@ namespace IceInternal
     using ThreadPoolWorkItemPtr = std::shared_ptr<ThreadPoolWorkItem>;
 
     // A work item that is executed by the executor, if configured.
+    // TODO: look into replacing this class with a std::function.
     class ExecutorWorkItem : public ThreadPoolWorkItem, public std::enable_shared_from_this<ExecutorWorkItem>
     {
     public:
