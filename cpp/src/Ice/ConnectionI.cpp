@@ -61,18 +61,15 @@ namespace
             InputStream& messageStream)
             : ExecutorWorkItem(connection),
               _connection(connection),
-              _connectionStartCompleted(move(connectionStartCompleted)),
+              _connectionStartCompleted(std::move(connectionStartCompleted)),
               _sentCBs(sentCBs),
-              _messageUpcall(move(messageUpcall)),
+              _messageUpcall(std::move(messageUpcall)),
               _messageStream(messageStream.instance(), currentProtocolEncoding)
         {
             _messageStream.swap(messageStream);
         }
 
-        void run() final
-        {
-            _connection->upcall(_connectionStartCompleted, _sentCBs, _messageUpcall, _messageStream);
-        }
+        void run() final { _connection->upcall(_connectionStartCompleted, _sentCBs, _messageUpcall, _messageStream); }
 
     private:
         const ConnectionIPtr _connection;
@@ -369,8 +366,8 @@ Ice::ConnectionI::startAsync(
         {
             if (connectionStartCompleted && connectionStartFailed)
             {
-                _connectionStartCompleted = std::move(connectionStartCompleted);
-                _connectionStartFailed = std::move(connectionStartFailed);
+                _connectionStartCompleted = std::std::move(connectionStartCompleted);
+                _connectionStartFailed = std::std::move(connectionStartFailed);
                 return;
             }
 
@@ -762,7 +759,7 @@ Ice::ConnectionI::flushBatchRequestsAsync(
             std::function<void(std::exception_ptr)> ex,
             std::function<void(bool)> sent)
             : ConnectionFlushBatchAsync(connection, instance),
-              LambdaInvoke(std::move(ex), std::move(sent))
+              LambdaInvoke(std::std::move(ex), std::std::move(sent))
         {
         }
     };
@@ -855,7 +852,7 @@ Ice::ConnectionI::heartbeatAsync(::std::function<void(::std::exception_ptr)> ex,
             std::function<void(std::exception_ptr)> ex,
             std::function<void(bool)> sent)
             : HeartbeatAsync(connection, communicator, instance),
-              LambdaInvoke(std::move(ex), std::move(sent))
+              LambdaInvoke(std::std::move(ex), std::std::move(sent))
         {
         }
     };
@@ -872,7 +869,7 @@ Ice::ConnectionI::setHeartbeatCallback(HeartbeatCallback callback)
     {
         return;
     }
-    _heartbeatCallback = std::move(callback);
+    _heartbeatCallback = std::std::move(callback);
 }
 
 void
@@ -884,12 +881,12 @@ Ice::ConnectionI::setCloseCallback(CloseCallback callback)
         if (callback)
         {
             auto self = shared_from_this();
-            _threadPool->execute([self, callback = std::move(callback)]() { self->closeCallback(callback); });
+            _threadPool->execute([self, callback = std::std::move(callback)]() { self->closeCallback(callback); });
         }
     }
     else
     {
-        _closeCallback = std::move(callback);
+        _closeCallback = std::std::move(callback);
     }
 }
 
@@ -930,7 +927,7 @@ Ice::ConnectionI::setACM(
 
     if (_state == StateActive)
     {
-        _monitor->remove(shared_from_this());
+        _monitor->restd::move(shared_from_this());
     }
     _monitor = _monitor->acm(timeout, close, heartbeat);
 
@@ -1470,7 +1467,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                 setState(StateHolding);
                 if (_connectionStartCompleted)
                 {
-                    connectionStartCompleted = std::move(_connectionStartCompleted);
+                    connectionStartCompleted = std::std::move(_connectionStartCompleted);
                     ++upcallCount;
                     _connectionStartCompleted = nullptr;
                     _connectionStartFailed = nullptr;
@@ -1489,7 +1486,8 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     // At this point, the protocol message is fully read and can therefore be decoded by parseMessage.
                     // parseMessage returns the operation to wait for readiness next.
                     newOp = static_cast<SocketOperation>(
-                        newOp | parseMessage(upcallCount, messageUpcall, current.stream));
+                        newOp |
+                        parseMessage(upcallCount, messageUpcall, current.stream));
                 }
 
                 if (readyOp & SocketOperationWrite)
@@ -1570,22 +1568,22 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 #ifdef ICE_SWIFT
     _threadPool->executeFromThisThread(make_shared<ExecuteUpcall>(
         shared_from_this(),
-        move(connectionStartCompleted),
+        std::move(connectionStartCompleted),
         sentCBs,
-        move(messageUpcall),
+        std::move(messageUpcall),
         current.stream));
 #else
     if (!_hasExecutor) // Optimization, call dispatch() directly if there's no executor.
     {
-        upcall(connectionStartCompleted, sentCBs, move(messageUpcall), current.stream);
+        upcall(connectionStartCompleted, sentCBs, std::move(messageUpcall), current.stream);
     }
     else
     {
         _threadPool->executeFromThisThread(make_shared<ExecuteUpcall>(
             shared_from_this(),
-            move(connectionStartCompleted),
+            std::move(connectionStartCompleted),
             sentCBs,
-            move(messageUpcall),
+            std::move(messageUpcall),
             current.stream));
     }
 #endif
@@ -2283,7 +2281,7 @@ Ice::ConnectionI::setState(State state)
         }
         else if (_state == StateActive)
         {
-            _monitor->remove(shared_from_this());
+            _monitor->restd::move(shared_from_this());
         }
     }
 
@@ -3130,10 +3128,7 @@ Ice::ConnectionI::doUncompress(InputStream& compressed, InputStream& uncompresse
 #endif
 
 SocketOperation
-Ice::ConnectionI::parseMessage(
-    int32_t& upcallCount,
-    function<bool(InputStream&)>& upcall,
-    InputStream& stream)
+Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)>& upcall, InputStream& stream)
 {
     assert(_state > StateNotValidated && _state < StateClosed);
 
@@ -3220,7 +3215,7 @@ Ice::ConnectionI::parseMessage(
 
                     stream.read(requestId);
 
-                    upcall = [this, requestCount, requestId, adapter, compress](InputStream& messageStream)
+                    upcall = [this, requestId, adapter, compress](InputStream& messageStream)
                     {
                         dispatchAll(messageStream, requestCount, requestId, compress, adapter);
                         return false; // the upcall will be completed once the dispatch is done.
@@ -3255,7 +3250,7 @@ Ice::ConnectionI::parseMessage(
                         throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
                     }
 
-                    upcall = [this, requestCount, requestId, adapter, compress](InputStream& messageStream)
+                    upcall = [this, requestCount, adapter, compress](InputStream& messageStream)
                     {
                         dispatchAll(messageStream, requestCount, requestId, compress, adapter);
                         return false; // the upcall will be completed once the servant dispatch is done.
@@ -3416,7 +3411,7 @@ Ice::ConnectionI::dispatchAll(
                     adapter->dispatchPipeline()->dispatch(
                         request,
                         [self = shared_from_this(), compress](OutgoingResponse response)
-                        { self->sendResponse(std::move(response), compress); });
+                        { self->sendResponse(std::std::move(response), compress); });
                 }
                 catch (...)
                 {
