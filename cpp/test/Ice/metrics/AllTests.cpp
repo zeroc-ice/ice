@@ -202,7 +202,7 @@ namespace
         }
         else if (view[map].size() != 1 || view[map][0]->id != value)
         {
-            cerr << "size of view[ma] is: " << view[map].size() << endl;
+            cerr << "size of view[map] is: " << view[map].size() << endl;
             cerr << "expected value for attribute " << attr << " = " << value << "; got " << view[map][0]->id << endl;
             test(false);
         }
@@ -610,6 +610,9 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         updateProps(clientProps, serverProps, update.get(), props, "Connection");
 
         metrics->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+
+        // TODO: this appears necessary on slow macos VMs to give time to the server to clean-up the connection.
+        this_thread::sleep_for(chrono::milliseconds(100));
 
         MetricsPrx m = metrics->ice_timeout(500)->ice_connectionId("Con1");
         m->ice_ping();
