@@ -78,7 +78,6 @@ jobs:
           # Cross tests
           - os: ubuntu-22.04
             config: "cross"
-            # These cross tests are currently failing
             test_flags: "--all-cross"
 
     runs-on: ${{ matrix.os }}
