@@ -43,15 +43,13 @@ namespace IceInternal
 
         bool sentAsync(OutgoingAsyncBase*);
 
-        void invokeAll(Ice::OutputStream*, std::int32_t, std::int32_t);
+        void dispatchAll(Ice::InputStream&, std::int32_t, std::int32_t);
 
     private:
         void handleException(std::int32_t, std::exception_ptr);
 
         void sendResponse(Ice::OutgoingResponse);
-        void sendResponse(std::int32_t, Ice::OutputStream*);
-        void sendNoResponse();
-        void invokeException(std::int32_t, std::exception_ptr);
+        void dispatchException(std::int32_t, std::exception_ptr);
 
         const std::shared_ptr<Ice::ObjectAdapterI> _adapter;
         const bool _hasExecutor;
