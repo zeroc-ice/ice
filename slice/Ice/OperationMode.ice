@@ -40,13 +40,13 @@ module Ice
         /// instead.
         /// For C++, to retain the mapping of <code>nonmutating</code> operations to C++ <code>const</code> member
         /// functions, use the <code>["cpp:const"]</code> metadata directive.
-        \Nonmutating,
+        Nonmutating,
 
         /// Operations that use the Slice <code>idempotent</code> keyword can modify object state, but invoking an
         /// operation twice in a row must result in the same object state as invoking it once. For example,
         /// <code>x = 1</code> is an idempotent statement, whereas <code>x += 1</code> is not. For idempotent
         /// operations, the Ice run-time uses the same retry behavior as for nonmutating operations in case of a
         /// potentially recoverable error.
-        \Idempotent
+        Idempotent
     }
 }
