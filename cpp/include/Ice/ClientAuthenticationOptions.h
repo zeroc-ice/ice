@@ -52,7 +52,13 @@ namespace Ice::SSL
          * [See Schannel
          * Credentials](https://learn.microsoft.com/en-us/windows/win32/api/schannel/ns-schannel-sch_credentials).
          */
-        CredHandle credentialsHandler;
+        CredHandle clientCredentials;
+
+        /**
+         * A callback that allows selecting the credentials based on the target server's host name. When the
+         * callback is set it has preference over the credentials set in clientCredentials.
+         */
+        std::function<CredHandle(const std::string& host)> clientCredentialsSelectionCallback;
 
         /**
          * A callback that allows to manually validate the server certificate during SSL handshake on Windows. When the

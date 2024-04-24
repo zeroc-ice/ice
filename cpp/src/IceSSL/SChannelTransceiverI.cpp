@@ -89,6 +89,10 @@ SChannel::TransceiverI::sslHandshake()
     SECURITY_STATUS err = SEC_E_OK;
     if (_state == StateHandshakeNotStarted)
     {
+        if (_localCredentialsSelectionCallback)
+        {
+            _credentials = _localCredentialsSelectionCallback(_host);
+        }
         _ctxFlags = 0;
         _readBuffer.b.resize(2048);
         _readBuffer.i = _readBuffer.b.begin();
@@ -102,7 +106,7 @@ SChannel::TransceiverI::sslHandshake()
                 &_credentials,
                 0,
                 const_cast<char*>(_host.c_str()),
-                _certificateValidationCallback ? flags | ISC_REQ_MANUAL_CRED_VALIDATION : flags,
+                _remoteCertificateValidationCallback ? flags | ISC_REQ_MANUAL_CRED_VALIDATION : flags,
                 0,
                 0,
                 0,
@@ -550,12 +554,10 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
         return op;
     }
 
-    if (_certificateValidationCallback)
+    if (_remoteCertificateValidationCallback &&
+        !_remoteCertificateValidationCallback(_ssl, dynamic_pointer_cast<IceSSL::ConnectionInfo>(getInfo())))
     {
-        if (!_certificateValidationCallback(_ssl, dynamic_pointer_cast<IceSSL::ConnectionInfo>(getInfo())))
-        {
-            throw SecurityException(__FILE__, __LINE__, "IceSSL: certificate validation failed");
-        }
+        throw SecurityException(__FILE__, __LINE__, "IceSSL: certificate validation failed");
     }
 
     _state = StateHandshakeComplete;
@@ -808,10 +810,11 @@ SChannel::TransceiverI::TransceiverI(
       _state(StateNotInitialized),
       _bufferedW(0),
       _sslInitialized(false),
-      _clientCertificateRequired(serverAuthenticationOptions.clientCertificateRequired)
+      _clientCertificateRequired(serverAuthenticationOptions.clientCertificateRequired),
+      _credentials(serverAuthenticationOptions.serverCredentials),
+      _localCredentialsSelectionCallback(serverAuthenticationOptions.serverCredentialsSelectionCallback),
+      _remoteCertificateValidationCallback(serverAuthenticationOptions.clientCertificateValidationCallback)
 {
-    _credentials = serverAuthenticationOptions.credentialsHandler;
-    _certificateValidationCallback = serverAuthenticationOptions.clientCertificateValidationCallback;
 }
 
 SChannel::TransceiverI::TransceiverI(
@@ -828,10 +831,11 @@ SChannel::TransceiverI::TransceiverI(
       _state(StateNotInitialized),
       _bufferedW(0),
       _sslInitialized(false),
-      _clientCertificateRequired(false)
+      _clientCertificateRequired(false),
+      _credentials(clientAuthenticationOptions.clientCredentials),
+      _localCredentialsSelectionCallback(clientAuthenticationOptions.clientCredentialsSelectionCallback),
+      _remoteCertificateValidationCallback(clientAuthenticationOptions.serverCertificateValidationCallback)
 {
-    _credentials = clientAuthenticationOptions.credentialsHandler;
-    _certificateValidationCallback = clientAuthenticationOptions.serverCertificateValidationCallback;
 }
 
 SChannel::TransceiverI::~TransceiverI() {}
