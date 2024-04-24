@@ -1039,7 +1039,7 @@ Ice::ConnectionI::dispatchException(exception_ptr ex, int requestCount)
             }
         }
     }
-    if (finished)
+    if (finished && _removeFromFactory)
     {
         _removeFromFactory(shared_from_this());
     }
@@ -1680,7 +1680,7 @@ ConnectionI::upcall(
             _conditionVariable.notify_all();
         }
     }
-    if (finished)
+    if (finished && _removeFromFactory)
     {
         _removeFromFactory(shared_from_this());
     }
@@ -1882,7 +1882,7 @@ Ice::ConnectionI::finish(bool close)
             }
         }
     }
-    if (finished)
+    if (finished && _removeFromFactory)
     {
         _removeFromFactory(shared_from_this());
     }
@@ -2501,7 +2501,7 @@ Ice::ConnectionI::sendResponse(OutgoingResponse response, uint8_t compress)
                 exception_ptr exception = _exception;
                 assert(exception);
 
-                if (finished)
+                if (finished && _removeFromFactory)
                 {
                     lock.unlock();
                     _removeFromFactory(shared_from_this());
