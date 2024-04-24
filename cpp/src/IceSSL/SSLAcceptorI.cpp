@@ -85,6 +85,11 @@ IceSSL::AcceptorI::accept()
         _adapterName,
         *serverAuthenticationOptions);
 #else
+    return make_shared<IceSSL::OpenSSL::TransceiverI>(
+        _instance,
+        _delegate->accept(),
+        _adapterName,
+        *serverAuthenticationOptions);
 #endif
 }
 

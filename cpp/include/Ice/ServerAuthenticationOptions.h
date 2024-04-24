@@ -33,6 +33,8 @@
 #elif defined(__APPLE__)
 #    include <Security/SecureTransport.h>
 #    include <Security/Security.h>
+#else
+#    include <openssl/ssl.h>
 #endif
 
 namespace Ice::SSL
@@ -70,7 +72,7 @@ namespace Ice::SSL
             clientCertificateValidationCallback;
 #elif defined(__APPLE__)
         // The server's certificate chain.
-        CFArrayRef serverCeriticateChain;
+        CFArrayRef serverCertificateChain;
 
         // A callback that allows selecting a certificate chain based on the server's host name. When the callback is
         // set it has preference over a certificate chain set in serverCertificateChain.
@@ -89,9 +91,13 @@ namespace Ice::SSL
         SSLAuthenticate clientCertificateRequired;
 
         // A callback that is called before ssl handshake is started. The callback can be used to set additional SSL
-        // contex parameters.
+        // context parameters.
         std::function<void(SSLContextRef)> sslContextSetup;
 #else
+        SSL_CTX* sslContext;
+        std::function<int(int, X509_STORE_CTX*, const IceSSL::ConnectionInfoPtr& info)>
+            clientCertificateVerificationCallback;
+        std::function<void(::SSL* ssl, const std::string& host)> sslNewSessionCallback;
 #endif
     };
 }

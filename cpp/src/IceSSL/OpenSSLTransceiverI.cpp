@@ -19,114 +19,21 @@
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 
+#include <iostream>
 #include <mutex>
 
 using namespace std;
 using namespace Ice;
+using namespace Ice::SSL;
 using namespace IceSSL;
 
 extern "C"
 {
     int IceSSL_opensslVerifyCallback(int ok, X509_STORE_CTX* ctx)
     {
-        SSL* ssl = reinterpret_cast<SSL*>(X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx()));
+        ::SSL* ssl = reinterpret_cast<::SSL*>(X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx()));
         OpenSSL::TransceiverI* p = reinterpret_cast<OpenSSL::TransceiverI*>(SSL_get_ex_data(ssl, 0));
         return p->verifyCallback(ok, ctx);
-    }
-}
-
-namespace
-{
-    TrustError trustStatusToTrustError(long status)
-    {
-        switch (status)
-        {
-            case X509_V_OK:
-                return IceSSL::TrustError::NoError;
-
-            case X509_V_ERR_CERT_CHAIN_TOO_LONG:
-                return IceSSL::TrustError::ChainTooLong;
-
-            case X509_V_ERR_EXCLUDED_VIOLATION:
-                return IceSSL::TrustError::HasExcludedNameConstraint;
-
-            case X509_V_ERR_PERMITTED_VIOLATION:
-                return IceSSL::TrustError::HasNonPermittedNameConstraint;
-
-            case X509_V_ERR_UNHANDLED_CRITICAL_EXTENSION:
-                return IceSSL::TrustError::HasNonSupportedCriticalExtension;
-
-            case X509_V_ERR_UNSUPPORTED_CONSTRAINT_TYPE:
-            case X509_V_ERR_SUBTREE_MINMAX:
-                return IceSSL::TrustError::HasNonSupportedNameConstraint;
-
-            case X509_V_ERR_HOSTNAME_MISMATCH:
-            case X509_V_ERR_IP_ADDRESS_MISMATCH:
-                return IceSSL::TrustError::HostNameMismatch;
-
-            case X509_V_ERR_INVALID_CA:
-            case X509_V_ERR_INVALID_NON_CA:
-            case X509_V_ERR_PATH_LENGTH_EXCEEDED:
-            case X509_V_ERR_KEYUSAGE_NO_CERTSIGN:
-            case X509_V_ERR_KEYUSAGE_NO_DIGITAL_SIGNATURE:
-                return IceSSL::TrustError::InvalidBasicConstraints;
-
-            case X509_V_ERR_INVALID_EXTENSION:
-                return IceSSL::TrustError::InvalidExtension;
-
-            case X509_V_ERR_UNSUPPORTED_NAME_SYNTAX:
-                return IceSSL::TrustError::InvalidNameConstraints;
-
-            case X509_V_ERR_INVALID_POLICY_EXTENSION:
-            case X509_V_ERR_NO_EXPLICIT_POLICY:
-                return IceSSL::TrustError::InvalidPolicyConstraints;
-
-            case X509_V_ERR_INVALID_PURPOSE:
-                return IceSSL::TrustError::InvalidPurpose;
-
-            case X509_V_ERR_UNABLE_TO_DECRYPT_CERT_SIGNATURE:
-            case X509_V_ERR_UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY:
-            case X509_V_ERR_CERT_SIGNATURE_FAILURE:
-                return IceSSL::TrustError::InvalidSignature;
-
-            case X509_V_ERR_CERT_NOT_YET_VALID:
-            case X509_V_ERR_CERT_HAS_EXPIRED:
-            case X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD:
-            case X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD:
-                return IceSSL::TrustError::InvalidTime;
-
-            case X509_V_ERR_CERT_REJECTED:
-                return IceSSL::TrustError::NotTrusted;
-
-            case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
-            case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY:
-            case X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE:
-                return IceSSL::TrustError::PartialChain;
-
-            case X509_V_ERR_CRL_HAS_EXPIRED:
-            case X509_V_ERR_CRL_NOT_YET_VALID:
-            case X509_V_ERR_CRL_SIGNATURE_FAILURE:
-            case X509_V_ERR_ERROR_IN_CRL_LAST_UPDATE_FIELD:
-            case X509_V_ERR_ERROR_IN_CRL_NEXT_UPDATE_FIELD:
-            case X509_V_ERR_KEYUSAGE_NO_CRL_SIGN:
-            case X509_V_ERR_UNABLE_TO_DECRYPT_CRL_SIGNATURE:
-            case X509_V_ERR_UNABLE_TO_GET_CRL:
-            case X509_V_ERR_UNABLE_TO_GET_CRL_ISSUER:
-            case X509_V_ERR_UNHANDLED_CRITICAL_CRL_EXTENSION:
-            case X509_V_ERR_CRL_PATH_VALIDATION_ERROR:
-                return IceSSL::TrustError::RevocationStatusUnknown;
-
-            case X509_V_ERR_CERT_REVOKED:
-                return IceSSL::TrustError::Revoked;
-
-            case X509_V_ERR_CERT_UNTRUSTED:
-            case X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT:
-            case X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN:
-                return IceSSL::TrustError::UntrustedRoot;
-
-            default:
-                return IceSSL::TrustError::UnknownTrustFailure;
-        }
     }
 }
 
@@ -174,7 +81,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
             throw SecurityException(__FILE__, __LINE__, "openssl failure");
         }
 
-        _ssl = SSL_new(_engine->context());
+        _ssl = SSL_new(_sslContext);
         if (!_ssl)
         {
             BIO_free(bio);
@@ -187,69 +94,15 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
         }
         SSL_set_bio(_ssl, bio, bio);
 
-        //
-        // Store a pointer to ourself for use in OpenSSL callbacks.
-        //
-        SSL_set_ex_data(_ssl, 0, this);
-
-        //
-        // Determine whether a certificate is required from the peer.
-        //
+        if (_sslNewSessionCallback)
         {
-            int sslVerifyMode = SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
-            switch (_engine->getVerifyPeer())
-            {
-                case 0:
-                    sslVerifyMode = SSL_VERIFY_NONE;
-                    break;
-                case 1:
-                    sslVerifyMode = SSL_VERIFY_PEER;
-                    break;
-                case 2:
-                    sslVerifyMode = SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
-                    break;
-                default:
-                {
-                    assert(false);
-                }
-            }
-
-            if (_engine->getCheckCertName() && !_host.empty())
-            {
-                X509_VERIFY_PARAM* param = SSL_get0_param(_ssl);
-                if (IceInternal::isIpAddress(_host))
-                {
-                    if (!X509_VERIFY_PARAM_set1_ip_asc(param, _host.c_str()))
-                    {
-                        throw SecurityException(
-                            __FILE__,
-                            __LINE__,
-                            "IceSSL: error setting the expected IP address `" + _host + "'");
-                    }
-                }
-                else
-                {
-                    if (!X509_VERIFY_PARAM_set1_host(param, _host.c_str(), 0))
-                    {
-                        throw SecurityException(
-                            __FILE__,
-                            __LINE__,
-                            "IceSSL: error setting the expected host name `" + _host + "'");
-                    }
-                }
-            }
-            SSL_set_verify(_ssl, sslVerifyMode, IceSSL_opensslVerifyCallback);
+            _sslNewSessionCallback(_ssl, _host);
         }
 
-        //
-        // Enable SNI
-        //
-        if (!_incoming && _engine->getServerNameIndication() && !_host.empty() && !IceInternal::isIpAddress(_host))
+        if (_remoteCertificateVerificationCallback)
         {
-            if (!SSL_set_tlsext_host_name(_ssl, _host.c_str()))
-            {
-                throw SecurityException(__FILE__, __LINE__, "IceSSL: setting SNI host failed `" + _host + "'");
-            }
+            SSL_set_ex_data(_ssl, 0, this);
+            SSL_set_verify(_ssl, SSL_get_verify_mode(_ssl), IceSSL_opensslVerifyCallback);
         }
     }
 
@@ -326,60 +179,33 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
                 }
                 case SSL_ERROR_SSL:
                 {
-#if defined(SSL_R_UNEXPECTED_EOF_WHILE_READING)
-                    if (SSL_R_UNEXPECTED_EOF_WHILE_READING == ERR_GET_REASON(ERR_get_error()))
-                    {
-                        throw ConnectionLostException(__FILE__, __LINE__, 0);
-                    }
-                    else
-                    {
-#endif
-                        ostringstream ostr;
-                        ostr << "SSL error occurred for new " << (_incoming ? "incoming" : "outgoing")
-                             << " connection:\n"
-                             << _delegate->toString() << "\n"
-                             << _engine->sslErrors();
-                        throw ProtocolException(__FILE__, __LINE__, ostr.str());
-#if defined(SSL_R_UNEXPECTED_EOF_WHILE_READING)
-                    }
-#endif
+                    ostringstream os;
+                    os << "SSL error occurred for new " << (_incoming ? "incoming" : "outgoing") << " connection:\n"
+                       << _delegate->toString() << "\n"
+                       << _engine->sslErrors();
+                    throw ProtocolException(__FILE__, __LINE__, os.str());
                 }
             }
         }
     }
 
     long result = SSL_get_verify_result(_ssl);
-    _trustError = trustStatusToTrustError(result);
     if (result != X509_V_OK)
     {
-        if (_engine->getVerifyPeer() == 0)
+        ostringstream ostr;
+        ostr << "IceSSL: certificate verification failed:\n" << X509_verify_cert_error_string(result);
+        const string msg = ostr.str();
+        if (_engine->securityTraceLevel() >= 1)
         {
-            if (_engine->securityTraceLevel() >= 1)
-            {
-                ostringstream ostr;
-                ostr << "IceSSL: ignoring certificate verification failure:\n" << X509_verify_cert_error_string(result);
-                _instance->logger()->trace(_instance->traceCategory(), ostr.str());
-            }
+            _instance->logger()->trace(_instance->traceCategory(), msg);
         }
-        else
-        {
-            ostringstream ostr;
-            ostr << "IceSSL: certificate verification failed:\n" << X509_verify_cert_error_string(result);
-            const string msg = ostr.str();
-            if (_engine->securityTraceLevel() >= 1)
-            {
-                _instance->logger()->trace(_instance->traceCategory(), msg);
-            }
-            throw SecurityException(__FILE__, __LINE__, msg);
-        }
-    }
-    else
-    {
-        _verified = true;
+        throw SecurityException(__FILE__, __LINE__, msg);
     }
 
-    _cipher = SSL_get_cipher_name(_ssl); // Nothing needs to be free'd.
-    _engine->verifyPeer(_host, dynamic_pointer_cast<ConnectionInfo>(getInfo()), toString());
+    if (_verificationException)
+    {
+        rethrow_exception(_verificationException);
+    }
 
     if (_engine->securityTraceLevel() >= 1)
     {
@@ -737,11 +563,8 @@ OpenSSL::TransceiverI::getInfo() const
     info->underlying = _delegate->getInfo();
     info->incoming = _incoming;
     info->adapterName = _adapterName;
-    info->cipher = _cipher;
     info->certs = _certs;
-    info->verified = _verified;
-    info->errorCode = _trustError;
-    info->host = _incoming ? "" : _host;
+    info->host = _host;
     return info;
 }
 
@@ -757,69 +580,65 @@ OpenSSL::TransceiverI::setBufferSize(int rcvSize, int sndSize)
 }
 
 int
-OpenSSL::TransceiverI::verifyCallback(int ok, X509_STORE_CTX* c)
+OpenSSL::TransceiverI::verifyCallback(int ok, X509_STORE_CTX* ctx)
 {
-    if (!ok && _engine->securityTraceLevel() >= 1)
+    assert(_remoteCertificateVerificationCallback);
+    try
     {
-        X509* cert = X509_STORE_CTX_get_current_cert(c);
-        int err = X509_STORE_CTX_get_error(c);
-        char buf[256];
-
-        Trace out(_engine->getLogger(), _engine->securityTraceCategory());
-        out << "certificate verification failure\n";
-
-        X509_NAME_oneline(X509_get_issuer_name(cert), buf, static_cast<int>(sizeof(buf)));
-        out << "issuer = " << buf << '\n';
-        X509_NAME_oneline(X509_get_subject_name(cert), buf, static_cast<int>(sizeof(buf)));
-        out << "subject = " << buf << '\n';
-        out << "depth = " << X509_STORE_CTX_get_error_depth(c) << '\n';
-        out << "error = " << X509_verify_cert_error_string(err) << '\n';
-        out << toString();
+        return _remoteCertificateVerificationCallback(ok, ctx, dynamic_pointer_cast<ConnectionInfo>(getInfo()));
     }
-
-    //
-    // Initialize the native certs with the verified certificate chain. SSL_get_peer_cert_chain
-    // doesn't return the verified chain, it returns the chain sent by the peer.
-    //
-    STACK_OF(X509)* chain = X509_STORE_CTX_get1_chain(c);
-    if (chain != 0)
+    catch (...)
     {
-        _certs.clear();
-        for (int i = 0; i < sk_X509_num(chain); ++i)
-        {
-            CertificatePtr cert = OpenSSL::Certificate::create(X509_dup(sk_X509_value(chain, i)));
-            _certs.push_back(cert);
-        }
-        sk_X509_pop_free(chain, X509_free);
+        _verificationException = current_exception();
     }
-
-    //
-    // Always return 1 to prevent SSL_connect/SSL_accept from
-    // returning SSL_ERROR_SSL for verification failures. This ensure
-    // that we can raise SecurityException for verification failures
-    // rather than a ProtocolException.
-    //
+    // Allow the SSL handshake to continue, the transceiver initialization will throw an exception if the verification
+    // fails.
     return 1;
 }
 
 OpenSSL::TransceiverI::TransceiverI(
     const InstancePtr& instance,
     const IceInternal::TransceiverPtr& delegate,
-    const string& hostOrAdapterName,
-    bool incoming)
+    const string& adapterName,
+    const ServerAuthenticationOptions& serverAuthenticationOptions)
     : _instance(instance),
       _engine(dynamic_pointer_cast<OpenSSL::SSLEngine>(instance->engine())),
-      _host(incoming ? "" : hostOrAdapterName),
-      _adapterName(incoming ? hostOrAdapterName : ""),
-      _incoming(incoming),
+      _host(""),
+      _adapterName(adapterName),
+      _incoming(true),
       _delegate(delegate),
       _connected(false),
-      _verified(false),
       _ssl(0),
       _memBio(0),
       _sentBytes(0),
       _maxSendPacketSize(0),
-      _maxRecvPacketSize(0)
+      _maxRecvPacketSize(0),
+      _sslContext(serverAuthenticationOptions.sslContext),
+      _remoteCertificateVerificationCallback(serverAuthenticationOptions.clientCertificateVerificationCallback),
+      _sslNewSessionCallback(serverAuthenticationOptions.sslNewSessionCallback)
+{
+}
+
+OpenSSL::TransceiverI::TransceiverI(
+    const InstancePtr& instance,
+    const IceInternal::TransceiverPtr& delegate,
+    const string& host,
+    const ClientAuthenticationOptions& clientAuthenticationOptions)
+    : _instance(instance),
+      _engine(dynamic_pointer_cast<OpenSSL::SSLEngine>(instance->engine())),
+      _host(host),
+      _adapterName(""),
+      _incoming(false),
+      _delegate(delegate),
+      _connected(false),
+      _ssl(0),
+      _memBio(0),
+      _sentBytes(0),
+      _maxSendPacketSize(0),
+      _maxRecvPacketSize(0),
+      _sslContext(clientAuthenticationOptions.sslContext),
+      _remoteCertificateVerificationCallback(clientAuthenticationOptions.serverCertificateVerificationCallback),
+      _sslNewSessionCallback(clientAuthenticationOptions.sslNewSessionCallback)
 {
 }
 

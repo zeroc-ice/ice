@@ -491,7 +491,7 @@ IceSSL::SecureTransport::TransceiverI::TransceiverI(
       _buffered(0),
       _sslContextSetupCallback(serverAuthenticationOptions.sslContextSetup),
       _remotCertificateValidationCallback(serverAuthenticationOptions.clientCertificateValidationCallback),
-      _certificateChain(serverAuthenticationOptions.serverCeriticateChain),
+      _certificateChain(serverAuthenticationOptions.serverCertificateChain),
       _trustedRootCertificates(serverAuthenticationOptions.trustedRootCertificates),
       _localCertificateSelectionCallback(serverAuthenticationOptions.serverCertificateSelectionCallback),
       _clientCertificateRequired(serverAuthenticationOptions.clientCertificateRequired)
@@ -513,7 +513,7 @@ IceSSL::SecureTransport::TransceiverI::TransceiverI(
       _buffered(0),
       _sslContextSetupCallback(clientAuthenticationOptions.sslContextSetup),
       _remotCertificateValidationCallback(clientAuthenticationOptions.serverCertificateValidationCallback),
-      _certificateChain(clientAuthenticationOptions.clientCeriticateChain),
+      _certificateChain(clientAuthenticationOptions.clientCertificateChain),
       _trustedRootCertificates(clientAuthenticationOptions.trustedRootCertificates),
       _localCertificateSelectionCallback(clientAuthenticationOptions.clientCertificateSelectionCallback),
       _clientCertificateRequired(kNeverAuthenticate)

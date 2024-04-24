@@ -708,7 +708,7 @@ SecureTransport::SSLEngine::createClientAuthenticationOptions(const std::string&
             [self = shared_from_this(), host](SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)
         { return self->validationCallback(trust, info, false, host, self->_certificateAuthorities.get()); },
         .clientCertificateSelectionCallback = nullptr,
-        .clientCeriticateChain = _chain.get(),
+        .clientCertificateChain = _chain.get(),
         .sslContextSetup = nullptr};
 }
 
@@ -736,7 +736,7 @@ SecureTransport::SSLEngine::createServerAuthenticationOptions() const
         { return self->validationCallback(trust, info, true, "", self->_certificateAuthorities.get()); },
         .clientCertificateRequired = clientCertificateRequired,
         .serverCertificateSelectionCallback = nullptr,
-        .serverCeriticateChain = _chain.get(),
+        .serverCertificateChain = _chain.get(),
         .sslContextSetup = nullptr};
 }
 

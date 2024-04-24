@@ -7,6 +7,8 @@
 
 #include "../Ice/InstanceF.h"
 #include "Ice/BuiltinSequences.h"
+#include "Ice/ClientAuthenticationOptions.h"
+#include "Ice/ServerAuthenticationOptions.h"
 #include "OpenSSLUtil.h"
 #include "SSLEngine.h"
 #include "SSLInstanceF.h"
@@ -24,8 +26,11 @@ namespace IceSSL::OpenSSL
         SSL_CTX* context() const;
         std::string sslErrors() const;
         std::string password() const { return _password; }
+        Ice::SSL::ClientAuthenticationOptions createClientAuthenticationOptions(const std::string& host) const final;
+        Ice::SSL::ServerAuthenticationOptions createServerAuthenticationOptions() const final;
 
     private:
+        int validationCallback(int, X509_STORE_CTX*, const IceSSL::ConnectionInfoPtr&) const;
         SSL_CTX* _ctx;
         std::string _password;
     };

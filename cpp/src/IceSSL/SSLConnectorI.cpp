@@ -22,6 +22,8 @@
 #    include "SecureTransportEngine.h"
 #    include "SecureTransportTransceiverI.h"
 #else
+#    include "OpenSSLEngine.h"
+#    include "OpenSSLTransceiverI.h"
 #endif
 
 using namespace std;
@@ -47,7 +49,11 @@ IceSSL::ConnectorI::connect()
         _host,
         *clientAuthenticationOptions);
 #else
-    return make_shared<IceSSL::OpenSSL::TransceiverI>();
+    return make_shared<IceSSL::OpenSSL::TransceiverI>(
+        _instance,
+        _delegate->connect(),
+        _host,
+        *clientAuthenticationOptions);
 #endif
 }
 
