@@ -6,4 +6,4 @@
 from Glacier2Util import Glacier2TestSuite
 
 
-Glacier2TestSuite(__name__, routerProps={"Glacier2.SessionTimeout": 30})
+Glacier2TestSuite(__name__, routerProps={"Glacier2.Client.Connection.IdleTimeout": 30})

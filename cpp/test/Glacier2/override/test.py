@@ -19,7 +19,7 @@ routerProps = {
     "Glacier2.Filter.Category.Accept": '"c"',
     "Glacier2.PermissionsVerifier": "Glacier2/NullPermissionsVerifier",
     "Glacier2.Client.ForwardContext": "1",
-    "Glacier2.Client.ACM.Timeout": '"30"',
+    "Glacier2.Client.Connection.IdleTimeout": '"30"',
     "Glacier2.Client.Trace.Override": "0",
     "Glacier2.Client.Trace.Request": "0",
     "Glacier2.Server.Trace.Override": "0",

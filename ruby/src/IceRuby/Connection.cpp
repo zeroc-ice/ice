@@ -98,97 +98,6 @@ IceRuby_Connection_heartbeat(VALUE self)
 }
 
 extern "C" VALUE
-IceRuby_Connection_setACM(VALUE self, VALUE t, VALUE c, VALUE h)
-{
-    ICE_RUBY_TRY
-    {
-        Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
-        assert(p);
-
-        optional<int32_t> timeout;
-        optional<Ice::ACMClose> close;
-        optional<Ice::ACMHeartbeat> heartbeat;
-
-        if (t != Unset)
-        {
-            timeout = static_cast<int32_t>(getInteger(t));
-        }
-
-        if (c != Unset)
-        {
-            volatile VALUE type = callRuby(rb_path2class, "Ice::ACMClose");
-            if (callRuby(rb_obj_is_instance_of, c, type) != Qtrue)
-            {
-                throw RubyException(
-                    rb_eTypeError,
-                    "value for 'close' argument must be Unset or an enumerator of Ice.ACMClose");
-            }
-            volatile VALUE closeValue = callRuby(rb_funcall, c, rb_intern("to_i"), 0);
-            assert(TYPE(closeValue) == T_FIXNUM);
-            close = static_cast<Ice::ACMClose>(FIX2LONG(closeValue));
-        }
-
-        if (h != Unset)
-        {
-            volatile VALUE type = callRuby(rb_path2class, "Ice::ACMHeartbeat");
-            if (callRuby(rb_obj_is_instance_of, h, type) != Qtrue)
-            {
-                throw RubyException(
-                    rb_eTypeError,
-                    "value for 'heartbeat' argument must be Unset or an enumerator of Ice.ACMHeartbeat");
-            }
-            volatile VALUE heartbeatValue = callRuby(rb_funcall, h, rb_intern("to_i"), 0);
-            assert(TYPE(heartbeatValue) == T_FIXNUM);
-            heartbeat = static_cast<Ice::ACMHeartbeat>(FIX2LONG(heartbeatValue));
-        }
-
-        try
-        {
-            (*p)->setACM(timeout, close, heartbeat);
-        }
-        catch (const invalid_argument& ex)
-        {
-            throw RubyException(rb_eArgError, ex.what());
-        }
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C" VALUE
-IceRuby_Connection_getACM(VALUE self)
-{
-    ICE_RUBY_TRY
-    {
-        Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
-        assert(p);
-
-        Ice::ACM acm = (*p)->getACM();
-        volatile VALUE type = callRuby(rb_path2class, "Ice::ACM");
-        assert(type != Qnil);
-        volatile VALUE r = callRuby(rb_class_new_instance, 0, static_cast<VALUE*>(0), type);
-        assert(r != Qnil);
-
-        callRuby(rb_ivar_set, r, rb_intern("@timeout"), LONG2FIX(acm.timeout));
-
-        type = callRuby(rb_path2class, "Ice::ACMClose");
-        assert(type != Qnil);
-        volatile VALUE c = callRuby(rb_funcall, type, rb_intern("from_int"), 1, LONG2NUM(static_cast<int>(acm.close)));
-        callRuby(rb_ivar_set, r, rb_intern("@close"), c);
-
-        type = callRuby(rb_path2class, "Ice::ACMHeartbeat");
-        assert(type != Qnil);
-        volatile VALUE h =
-            callRuby(rb_funcall, type, rb_intern("from_int"), 1, LONG2NUM(static_cast<int>(acm.heartbeat)));
-        callRuby(rb_ivar_set, r, rb_intern("@heartbeat"), h);
-
-        return r;
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C" VALUE
 IceRuby_Connection_type(VALUE self)
 {
     ICE_RUBY_TRY
@@ -420,8 +329,6 @@ IceRuby::initConnection(VALUE iceModule)
     rb_define_method(_connectionClass, "close", CAST_METHOD(IceRuby_Connection_close), 1);
     rb_define_method(_connectionClass, "flushBatchRequests", CAST_METHOD(IceRuby_Connection_flushBatchRequests), 1);
     rb_define_method(_connectionClass, "heartbeat", CAST_METHOD(IceRuby_Connection_heartbeat), 0);
-    rb_define_method(_connectionClass, "setACM", CAST_METHOD(IceRuby_Connection_setACM), 3);
-    rb_define_method(_connectionClass, "getACM", CAST_METHOD(IceRuby_Connection_getACM), 0);
     rb_define_method(_connectionClass, "type", CAST_METHOD(IceRuby_Connection_type), 0);
     rb_define_method(_connectionClass, "timeout", CAST_METHOD(IceRuby_Connection_timeout), 0);
     rb_define_method(_connectionClass, "getInfo", CAST_METHOD(IceRuby_Connection_getInfo), 0);

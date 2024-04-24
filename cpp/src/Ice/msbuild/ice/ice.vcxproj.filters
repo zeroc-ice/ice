@@ -243,9 +243,6 @@
     <ClCompile Include="..\..\..\IceUtil\UUID.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ACM.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\ArgVector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

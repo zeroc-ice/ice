@@ -450,19 +450,21 @@ SessionHelperI::connected(const Glacier2::RouterPrx& router, const optional<Glac
     //
     Ice::ConnectionPtr conn = router->ice_getCachedConnection();
     string category = router->getCategoryForClient();
-    int32_t acmTimeout = 0;
+    int32_t remoteIdleTimeout = 0;
     try
     {
-        acmTimeout = router->getACMTimeout();
+        remoteIdleTimeout = router->getACMTimeout();
     }
     catch (const Ice::OperationNotExistException&)
     {
     }
 
-    if (acmTimeout <= 0)
+    if (remoteIdleTimeout <= 0)
     {
-        acmTimeout = static_cast<int32_t>(router->getSessionTimeout());
+        remoteIdleTimeout = static_cast<int32_t>(router->getSessionTimeout());
     }
+
+    // TODO: verify remote idle timeout is compatible with local idle timeout
 
     //
     // We create the callback object adapter here because createObjectAdapter internally
@@ -495,14 +497,9 @@ SessionHelperI::connected(const Glacier2::RouterPrx& router, const optional<Glac
             _session = session;
             _connected = true;
 
-            if (acmTimeout > 0)
-            {
-                Ice::ConnectionPtr connection = _router->ice_getCachedConnection();
-                assert(connection);
-                connection->setACM(acmTimeout, nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
-                auto self = shared_from_this();
-                connection->setCloseCallback([self](Ice::ConnectionPtr) { self->destroy(); });
-            }
+            Ice::ConnectionPtr connection = _router->ice_getCachedConnection();
+            assert(connection);
+            connection->setCloseCallback([self = shared_from_this()](Ice::ConnectionPtr) { self->destroy(); });
         }
     }
 

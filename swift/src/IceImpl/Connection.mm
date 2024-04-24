@@ -202,38 +202,6 @@
     }
 }
 
-- (void)setACM:(NSNumber* _Nullable)timeout close:(NSNumber* _Nullable)close heartbeat:(NSNumber* _Nullable)heartbeat
-{
-    std::optional<int> opTimeout;
-    std::optional<Ice::ACMClose> opClose;
-    std::optional<Ice::ACMHeartbeat> opHeartbeat;
-
-    if (timeout != nil)
-    {
-        opTimeout = [timeout intValue];
-    }
-
-    if (close != nil)
-    {
-        opClose = Ice::ACMClose([close unsignedCharValue]);
-    }
-
-    if (heartbeat != nil)
-    {
-        opHeartbeat = Ice::ACMHeartbeat([heartbeat unsignedCharValue]);
-    }
-
-    self.connection->setACM(opTimeout, opClose, opHeartbeat);
-}
-
-- (void)getACM:(int32_t*)timeout close:(std::uint8_t*)close heartbeat:(std::uint8_t*)heartbeat
-{
-    auto acm = self.connection->getACM();
-    *timeout = acm.timeout;
-    *close = static_cast<std::uint8_t>(acm.close);
-    *heartbeat = static_cast<std::uint8_t>(acm.heartbeat);
-}
-
 - (NSString*)type
 {
     return toNSString(self.connection->type());

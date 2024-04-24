@@ -855,15 +855,6 @@ Ice::ObjectAdapterI::getThreadPool() const
     }
 }
 
-IceInternal::ACMConfig
-Ice::ObjectAdapterI::getACM() const
-{
-    // Not check for deactivation here!
-
-    assert(_instance); // Must not be called after destroy().
-    return _acm;
-}
-
 void
 Ice::ObjectAdapterI::setAdapterOnConnection(const Ice::ConnectionIPtr& connection)
 {
@@ -902,7 +893,6 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
     if (_noConfig)
     {
         _reference = _instance->referenceFactory()->create("dummy -t", "");
-        const_cast<ACMConfig&>(_acm) = _instance->serverACM();
         return;
     }
 
@@ -952,9 +942,6 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
                 __LINE__,
                 "invalid proxy options `" + proxyOptions + "' for object adapter `" + _name + "'");
         }
-
-        const_cast<ACMConfig&>(_acm) =
-            ACMConfig(properties, _communicator->getLogger(), _name + ".ACM", _instance->serverACM());
 
         {
             const int defaultMessageSizeMax = static_cast<int>(_instance->messageSizeMax() / 1024);
@@ -1381,10 +1368,6 @@ bool
 Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
 {
     static const string suffixes[] = {
-        "ACM",
-        "ACM.Close",
-        "ACM.Heartbeat",
-        "ACM.Timeout",
         "AdapterId",
         "Connection.CloseTimeout",
         "Connection.ConnectTimeout",

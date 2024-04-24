@@ -47,87 +47,6 @@ namespace Ice
     };
 
     /**
-     * Specifies the close semantics for Active Connection Management.
-     */
-    enum class ACMClose : std::uint8_t
-    {
-        /**
-         * Disables automatic connection closure.
-         */
-        CloseOff,
-        /**
-         * Gracefully closes a connection that has been idle for the configured timeout period.
-         */
-        CloseOnIdle,
-        /**
-         * Forcefully closes a connection that has been idle for the configured timeout period, but only if the
-         * connection has pending invocations.
-         */
-        CloseOnInvocation,
-        /**
-         * Combines the behaviors of CloseOnIdle and CloseOnInvocation.
-         */
-        CloseOnInvocationAndIdle,
-        /**
-         * Forcefully closes a connection that has been idle for the configured timeout period, regardless of whether
-         * the connection has pending invocations or dispatch.
-         */
-        CloseOnIdleForceful
-    };
-
-    /**
-     * Specifies the heartbeat semantics for Active Connection Management.
-     */
-    enum class ACMHeartbeat : std::uint8_t
-    {
-        /**
-         * Disables heartbeats.
-         */
-        HeartbeatOff,
-        /**
-         * Send a heartbeat at regular intervals if the connection is idle and only if there are pending dispatch.
-         */
-        HeartbeatOnDispatch,
-        /**
-         * Send a heartbeat at regular intervals when the connection is idle.
-         */
-        HeartbeatOnIdle,
-        /**
-         * Send a heartbeat at regular intervals until the connection is closed.
-         */
-        HeartbeatAlways
-    };
-
-    /**
-     * A collection of Active Connection Management configuration settings.
-     * \headerfile Ice/Ice.h
-     */
-    struct ACM
-    {
-        /**
-         * A timeout value in seconds.
-         */
-        int timeout;
-        /**
-         * The close semantics.
-         */
-        ACMClose close;
-        /**
-         * The heartbeat semantics.
-         */
-        ACMHeartbeat heartbeat;
-
-        /**
-         * Obtains a tuple containing all of the struct's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const int&, const ACMClose&, const ACMHeartbeat&> ice_tuple() const
-        {
-            return std::tie(timeout, close, heartbeat);
-        }
-    };
-
-    /**
      * Determines the behavior when manually closing a connection.
      */
     enum class ConnectionClose : std::uint8_t
@@ -337,23 +256,6 @@ namespace Ice
          * @return The future object for the invocation.
          */
         std::future<void> heartbeatAsync();
-
-        /**
-         * Set the active connection management parameters.
-         * @param timeout The timeout value in seconds, must be &gt;= 0.
-         * @param close The close condition
-         * @param heartbeat The heartbeat condition
-         */
-        virtual void setACM(
-            const std::optional<int>& timeout,
-            const std::optional<ACMClose>& close,
-            const std::optional<ACMHeartbeat>& heartbeat) = 0;
-
-        /**
-         * Get the ACM parameters.
-         * @return The ACM parameters.
-         */
-        virtual ACM getACM() noexcept = 0;
 
         /**
          * Return the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.

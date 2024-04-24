@@ -61,7 +61,8 @@ ReapThread::run()
                     }
                     else if ((chrono::steady_clock::now() - p->item->timestamp()) > p->timeout)
                     {
-                        reap.push_back(*p);
+                        // TODO: for now, we no longer reap anything. All this code should be removed in a follow-up PR.
+                        // reap.push_back(*p);
                     }
                     else
                     {

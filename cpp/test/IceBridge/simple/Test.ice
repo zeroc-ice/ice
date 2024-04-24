@@ -35,7 +35,6 @@ interface MyClass
     ["amd"] int getCallbackDatagramCount();
 
     int getHeartbeatCount();
-    void enableHeartbeats();
 
     void shutdown();
 }

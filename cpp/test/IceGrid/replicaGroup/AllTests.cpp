@@ -115,8 +115,6 @@ allTests(Test::TestHelper* helper)
     IceGrid::QueryPrx query(comm, comm->getDefaultLocator()->ice_getIdentity().category + "/Query");
     auto session = registry->createAdminSession("foo", "bar");
 
-    session->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
-
     auto admin = session->getAdmin();
     test(admin);
 

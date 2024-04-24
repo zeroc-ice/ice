@@ -196,26 +196,7 @@ allTests(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
-    cout << "testing heartbeats... " << flush;
-    {
-        test(cl->getHeartbeatCount() == 0); // No heartbeats enabled by default
-
-        auto p = cl->ice_connectionId("heartbeat");
-        p->ice_getConnection()->setACM(1, nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
-
-        auto p2 = cl->ice_connectionId("heartbeat2");
-        atomic_int counter = 0;
-        p2->ice_getConnection()->setHeartbeatCallback([&counter](const auto&) { counter++; });
-        p2->enableHeartbeats();
-
-        int nRetry = 20;
-        while ((p->getHeartbeatCount() < 1 || counter.load() < 1) && --nRetry > 0)
-        {
-            this_thread::sleep_for(500ms); // TODO: check sleep time
-        }
-        test(p->getHeartbeatCount() > 0 && counter.load() > 0);
-    }
-    cout << "ok" << endl;
+    // TODO: add heartbeat test
 
     cout << "testing server shutdown... " << flush;
     cl->shutdown();

@@ -36,7 +36,6 @@ public:
         const Ice::Current&) override;
 
     int getHeartbeatCount(const Ice::Current&) override;
-    void enableHeartbeats(const Ice::Current&) override;
 
     void shutdown(const Ice::Current&) override;
 

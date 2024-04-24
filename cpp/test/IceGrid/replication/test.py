@@ -18,7 +18,6 @@ traceProps = {
     "Ice.Trace.Network": 2,
     "Ice.Trace.Retry": 1,
     "Ice.Trace.Protocol": 1,
-    "Ice.ACM.Client.Heartbeat": 2,
 }
 
 if isinstance(platform, Windows) or os.getuid() != 0:
