@@ -1,60 +1,55 @@
 name: Build Ice
 
 inputs:
-  language:
-    description: "The programming language to build"
-    required: true
+  working_directory:
+    description: "The working directory to run the build in"
+    default: "."
     type: string
-  make_flags:
-    description: "Additional flags to pass to make"
-    required: false
+
+  build_flags:
+    description: "Additional flags to pass to the build"
     default: ""
     type: string
+
+  msbuild_project:
+    description: "The project file to build"
+    default: "ice.proj"
+    type: string
+
+  build_cpp_and_python:
+    description: "Build C++ and Python"
+    type: choice
+    default: "false"
+    options:
+      - true
+      - false
 
 runs:
   using: "composite"
   steps:
-    # Linux / macOS
-    - name: Build C++ Dependencies
-      working-directory: ./cpp
-      run: make -j3 V=1 srcs
-      shell: bash
-      if: (runner.os == 'macOS' || runner.os == 'Linux') && (inputs.language != 'cpp' || matrix.name == 'xcodesdk')
-
-    - name: Build C++ Tests for Scripting Languages
-      working-directory: ./cpp
-      run: make -j3 V=1 tests
-      shell: bash
-      if: (runner.os == 'macOS' || runner.os == 'Linux') && (inputs.language == 'php' || inputs.language == 'js' || inputs.language == 'ruby')
-
-    - name: Build Ice for Python
-      working-directory: ./python
-      run: make -j3 V=1
-      shell: bash
-      if: (runner.os == 'macOS' || runner.os == 'Linux') && (inputs.language == 'matlab' || matrix.name == 'xcodesdk')
-
-    - name: Build ${{ matrix.name || matrix.language }}
-      working-directory: ./${{ inputs.language }}
+    # macOS and Linux
+    - name: Build C++ and Python
       run: |
-        make ${{ inputs.make_flags }} -j3 V=1
+        make -C cpp srcs
+        make -C python
+      shell: bash
+      if: (runner.os == 'macOS' || runner.os == 'Linux') && inputs.build_cpp_and_python == 'true'
+    - name: Build
+      working-directory: ${{ inputs.working_directory }}
+      run: make ${{ inputs.build_flags }}
       shell: bash
       if: runner.os == 'macOS' || runner.os == 'Linux'
 
     # Windows
-    - name: Build C++ Dependencies
-      run: msbuild /m /p:Platform=x64 msbuild/ice.proj
-      working-directory: ./cpp
+    - name: Build C++ and Python
+      run: |
+        msbuild /m ${{ inputs.build_flags }} /t:BuildDist cpp/msbuild/ice.proj
+        msbuild /m ${{ inputs.build_flags }} python/msbuild/ice.proj
       shell: powershell
-      if: (runner.os == 'Windows') && (inputs.language != 'cpp')
+      if: runner.os == 'Windows' && inputs.build_cpp_and_python == 'true'
 
-    - name: Build Ice for Python
-      run: msbuild /m /p:Platform=x64 msbuild/ice.proj
-      working-directory: ./python
-      shell: powershell
-      if: runner.os == 'Windows' && inputs.language == 'matlab'
-
-    - name: Build ${{ matrix.name || matrix.language }}
-      run: msbuild /m /p:Platform=x64 msbuild/ice.proj
-      working-directory: ./${{ inputs.language }}
+    - name: Build
+      working-directory: ${{ inputs.working_directory }}
+      run: msbuild /m ${{ inputs.build_flags }} ${{ inputs.msbuild_project }}
       shell: powershell
       if: runner.os == 'Windows'

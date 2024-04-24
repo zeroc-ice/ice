@@ -2165,19 +2165,15 @@ public class AllTests {
       //
       // ex.slicedData.obj.slicedData.obj
       //
+      test(PreservedI.counter == 0);
+
       try {
-        test(PreservedI.counter == 0);
-
-        try {
-          test.throwPreservedException();
-        } catch (PreservedException ex) {
-          test(PreservedI.counter == 1);
-        }
-
-        PreservedI.counter = 0;
-      } catch (Exception ex) {
-        test(false);
+        test.throwPreservedException();
+      } catch (PreservedException ex) {
+        test(PreservedI.counter == 1);
       }
+
+      PreservedI.counter = 0;
     } catch (com.zeroc.Ice.OperationNotExistException ex) {
     }
 

@@ -183,7 +183,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   }
 
   public synchronized boolean isFinished() {
-    if (_state != StateFinished || _dispatchCount != 0) {
+    if (_state != StateFinished || _upcallCount != 0) {
       return false;
     }
 
@@ -199,7 +199,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   }
 
   public synchronized void waitUntilHolding() throws InterruptedException {
-    while (_state < StateHolding || _dispatchCount > 0) {
+    while (_state < StateHolding || _upcallCount > 0) {
       wait();
     }
   }
@@ -211,7 +211,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     // guarantee that there are no outstanding calls when deactivate()
     // is called on the servant locators.
     //
-    while (_state < StateFinished || _dispatchCount > 0) {
+    while (_state < StateFinished || _upcallCount > 0) {
       wait();
     }
 
@@ -265,7 +265,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         || (acm.heartbeat != ACMHeartbeat.HeartbeatOff
             && _writeStream.isEmpty()
             && now >= (_acmLastActivity + acm.timeout / 4))) {
-      if (acm.heartbeat != ACMHeartbeat.HeartbeatOnDispatch || _dispatchCount > 0) {
+      if (acm.heartbeat != ACMHeartbeat.HeartbeatOnDispatch || _upcallCount > 0) {
         sendHeartbeatNow();
       }
     }
@@ -289,7 +289,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         //
         setState(StateClosed, new ConnectionTimeoutException());
       } else if (acm.close != ACMClose.CloseOnInvocation
-          && _dispatchCount == 0
+          && _upcallCount == 0
           && _batchRequestQueue.isEmpty()
           && _asyncRequests.isEmpty()) {
         //
@@ -620,7 +620,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
   private synchronized void sendResponseImpl(OutputStream os, byte compressFlag) {
     try {
-      if (--_dispatchCount == 0) {
+      if (--_upcallCount == 0) {
         if (_state == StateFinished) {
           reap();
         }
@@ -630,7 +630,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       if (_state < StateClosed) {
         sendMessage(new OutgoingMessage(os, compressFlag != 0, true));
 
-        if (_state == StateClosing && _dispatchCount == 0) {
+        if (_state == StateClosing && _upcallCount == 0) {
           initiateShutdown();
         }
       }
@@ -646,7 +646,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     synchronized (this) {
       assert (_state > StateNotValidated);
       try {
-        if (--_dispatchCount == 0) {
+        if (--_upcallCount == 0) {
           if (_state == StateFinished) {
             reap();
           }
@@ -658,7 +658,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
           throw (LocalException) _exception.fillInStackTrace();
         }
 
-        if (_state == StateClosing && _dispatchCount == 0) {
+        if (_state == StateClosing && _upcallCount == 0) {
           //
           // We may be executing on the "main thread" (e.g., in Android together with a custom
           // dispatcher)
@@ -696,10 +696,10 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     setState(StateClosed, ex);
 
     if (invokeNum > 0) {
-      assert (_dispatchCount > 0);
-      _dispatchCount -= invokeNum;
-      assert (_dispatchCount >= 0);
-      if (_dispatchCount == 0) {
+      assert (_upcallCount > 0);
+      _upcallCount -= invokeNum;
+      assert (_upcallCount >= 0);
+      if (_upcallCount == 0) {
         if (_state == StateFinished) {
           reap();
         }
@@ -781,7 +781,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     StartCallback startCB = null;
     java.util.List<OutgoingMessage> sentCBs = null;
     MessageInfo info = null;
-    int dispatchCount = 0;
+    int upcallCount = 0;
 
     synchronized (this) {
       if (_state >= StateClosed) {
@@ -792,14 +792,15 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         return;
       }
 
-      int readyOp = current.operation;
       try {
         unscheduleTimeout(current.operation);
 
         int writeOp = SocketOperation.None;
         int readOp = SocketOperation.None;
 
-        if ((readyOp & SocketOperation.Write) != 0) {
+        // If writes are ready, write the data from the connection's write buffer
+        // (_writeStream)
+        if ((current.operation & SocketOperation.Write) != 0) {
           final Buffer buf = _writeStream.getBuffer();
           if (_observer != null) {
             observerStartWrite(buf);
@@ -810,130 +811,152 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
           }
         }
 
-        while ((readyOp & SocketOperation.Read) != 0) {
-          final Buffer buf = _readStream.getBuffer();
-          if (_observer != null && !_readHeader) {
-            observerStartRead(buf);
-          }
+        // If reads are ready, read the data into the connection's read buffer
+        // (_readStream). The data is read until:
+        // - the full message is read (the transport read returns SocketOperationNone)
+        // and the read buffer is fully filled
+        // - the read operation on the transport can't continue without blocking
+        if ((current.operation & SocketOperation.Read) != 0) {
+          while (true) {
+            final Buffer buf = _readStream.getBuffer();
+            if (_observer != null && !_readHeader) {
+              observerStartRead(buf);
+            }
 
-          readOp = read(buf);
-          if ((readOp & SocketOperation.Read) != 0) {
+            readOp = read(buf);
+            if ((readOp & SocketOperation.Read) != 0) {
+              // Can't continue without blocking, exit out of the loop.
+              break;
+            }
+            if (_observer != null && !_readHeader) {
+              assert (!buf.b.hasRemaining());
+              observerFinishRead(buf);
+            }
+
+            // If read header is true, we're reading a new Ice protocol message and we need
+            // to read the message header.
+            if (_readHeader) {
+              // The next read will read the remainder of the message.
+              _readHeader = false;
+
+              if (_observer != null) {
+                _observer.receivedBytes(Protocol.headerSize);
+              }
+
+              //
+              // Connection is validated on first message. This is only used by
+              // setState() to check wether or not we can print a connection
+              // warning (a client might close the connection forcefully if the
+              // connection isn't validated, we don't want to print a warning
+              // in this case).
+              //
+              _validated = true;
+
+              // Full header should be read because the size of _readStream is always
+              // headerSize (14) when reading a new message (see the code that sets
+              // _readHeader = true).
+              int pos = _readStream.pos();
+              if (pos < Protocol.headerSize) {
+                //
+                // This situation is possible for small UDP packets.
+                //
+                throw new IllegalMessageSizeException();
+              }
+
+              // Decode the header.
+              _readStream.pos(0);
+              byte[] m = new byte[4];
+              m[0] = _readStream.readByte();
+              m[1] = _readStream.readByte();
+              m[2] = _readStream.readByte();
+              m[3] = _readStream.readByte();
+              if (m[0] != Protocol.magic[0]
+                  || m[1] != Protocol.magic[1]
+                  || m[2] != Protocol.magic[2]
+                  || m[3] != Protocol.magic[3]) {
+                BadMagicException ex = new BadMagicException();
+                ex.badMagic = m;
+                throw ex;
+              }
+
+              _readProtocol.ice_readMembers(_readStream);
+              Protocol.checkSupportedProtocol(_readProtocol);
+
+              _readProtocolEncoding.ice_readMembers(_readStream);
+              Protocol.checkSupportedProtocolEncoding(_readProtocolEncoding);
+
+              _readStream.readByte(); // messageType
+              _readStream.readByte(); // compress
+              int size = _readStream.readInt();
+              if (size < Protocol.headerSize) {
+                throw new IllegalMessageSizeException();
+              }
+
+              // Resize the read buffer to the message size.
+              if (size > _messageSizeMax) {
+                com.zeroc.IceInternal.Ex.throwMemoryLimitException(size, _messageSizeMax);
+              }
+              if (size > _readStream.size()) {
+                _readStream.resize(size);
+              }
+              _readStream.pos(pos);
+            }
+
+            if (_readStream.pos() != _readStream.size()) {
+              if (_endpoint.datagram()) {
+                // The message was truncated.
+                throw new DatagramLimitException();
+              }
+              continue;
+            }
             break;
           }
-          if (_observer != null && !_readHeader) {
-            assert (!buf.b.hasRemaining());
-            observerFinishRead(buf);
-          }
-
-          if (_readHeader) // Read header if necessary.
-          {
-            _readHeader = false;
-
-            if (_observer != null) {
-              _observer.receivedBytes(Protocol.headerSize);
-            }
-
-            //
-            // Connection is validated on first message. This is only used by
-            // setState() to check wether or not we can print a connection
-            // warning (a client might close the connection forcefully if the
-            // connection isn't validated, we don't want to print a warning
-            // in this case).
-            //
-            _validated = true;
-
-            int pos = _readStream.pos();
-            if (pos < Protocol.headerSize) {
-              //
-              // This situation is possible for small UDP packets.
-              //
-              throw new IllegalMessageSizeException();
-            }
-
-            _readStream.pos(0);
-            byte[] m = new byte[4];
-            m[0] = _readStream.readByte();
-            m[1] = _readStream.readByte();
-            m[2] = _readStream.readByte();
-            m[3] = _readStream.readByte();
-            if (m[0] != Protocol.magic[0]
-                || m[1] != Protocol.magic[1]
-                || m[2] != Protocol.magic[2]
-                || m[3] != Protocol.magic[3]) {
-              BadMagicException ex = new BadMagicException();
-              ex.badMagic = m;
-              throw ex;
-            }
-
-            _readProtocol.ice_readMembers(_readStream);
-            Protocol.checkSupportedProtocol(_readProtocol);
-
-            _readProtocolEncoding.ice_readMembers(_readStream);
-            Protocol.checkSupportedProtocolEncoding(_readProtocolEncoding);
-
-            _readStream.readByte(); // messageType
-            _readStream.readByte(); // compress
-            int size = _readStream.readInt();
-            if (size < Protocol.headerSize) {
-              throw new IllegalMessageSizeException();
-            }
-
-            if (size > _messageSizeMax) {
-              com.zeroc.IceInternal.Ex.throwMemoryLimitException(size, _messageSizeMax);
-            }
-            if (size > _readStream.size()) {
-              _readStream.resize(size);
-            }
-            _readStream.pos(pos);
-          }
-
-          if (_readStream.pos() != _readStream.size()) {
-            if (_endpoint.datagram()) {
-              // The message was truncated.
-              throw new DatagramLimitException();
-            }
-            continue;
-          }
-          break;
         }
 
+        // readOp and writeOp are set to the operations that the transport read or write
+        // calls from above returned. They indicate which operations will need to be
+        // monitored by the thread pool's selector when this method returns.
         int newOp = readOp | writeOp;
-        readyOp = readyOp & ~newOp;
-        assert (readyOp != 0 || newOp != 0);
+
+        // Operations that are ready. For example, if message was called with
+        // SocketOperationRead and the transport read returned SocketOperationNone,
+        // reads are considered done: there's no additional data to read.
+        int readyOp = current.operation & ~newOp;
 
         if (_state <= StateNotValidated) {
+          // If the connection is still not validated and there's still data to read or
+          // write, continue waiting for data to read or write.
           if (newOp != 0) {
-            //
-            // Wait for all the transceiver conditions to be
-            // satisfied before continuing.
-            //
             scheduleTimeout(newOp);
             _threadPool.update(this, current.operation, newOp);
             return;
           }
 
+          // Initialize the connection if it's not initialized yet.
           if (_state == StateNotInitialized && !initialize(current.operation)) {
             return;
           }
 
+          // Validate the connection if it's not validate yet.
           if (_state <= StateNotValidated && !validate(current.operation)) {
             return;
           }
 
+          // The connection is validated and doesn't need additional data to be read or
+          // written. So unregister it from the thread pool's selector.
           _threadPool.unregister(this, current.operation);
 
-          //
-          // We start out in holding state.
-          //
+          // The connection starts in the holding state. It will be activated by the
+          // connection factory.
           setState(StateHolding);
           if (_startCallback != null) {
             startCB = _startCallback;
             _startCallback = null;
             if (startCB != null) {
-              ++dispatchCount;
+              ++upcallCount;
             }
           }
-        } else {
+        } else { // The connection is active or waits for the CloseConnection message.
           assert (_state <= StateClosingPending);
 
           //
@@ -943,20 +966,29 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
           if ((readyOp & SocketOperation.Read) != 0) {
             // Optimization: use the thread's stream.
             info = new MessageInfo(current.stream);
+
+            // At this point, the protocol message is fully read and can therefore be
+            // decoded by parseMessage. parseMessage returns the operation to wait for
+            // readiness next.
             newOp |= parseMessage(info);
-            dispatchCount += info.messageDispatchCount;
+            upcallCount += info.messageDispatchCount;
           }
 
           if ((readyOp & SocketOperation.Write) != 0) {
+            // At this point the message from _writeStream is fully written and the next
+            // message can be written.
             sentCBs = new java.util.LinkedList<>();
             newOp |= sendNextMessage(sentCBs);
             if (!sentCBs.isEmpty()) {
-              ++dispatchCount;
+              ++upcallCount;
             } else {
               sentCBs = null;
             }
           }
 
+          // If the connection is not closed yet, we can schedule the read or write
+          // timeout and update the thread pool selector to wait for readiness of
+          // read, write or both operations.
           if (_state < StateClosed) {
             scheduleTimeout(newOp);
             _threadPool.update(this, current.operation, newOp);
@@ -967,11 +999,15 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
           _acmLastActivity = Time.currentMonotonicTimeMillis();
         }
 
-        if (dispatchCount == 0) {
+        if (upcallCount == 0) {
           return; // Nothing to dispatch we're done!
         }
 
-        _dispatchCount += dispatchCount;
+        _upcallCount += upcallCount;
+
+        // There's something to dispatch so we mark IO as completed to elect a new
+        // leader thread and let IO be performed on this new leader thread while
+        // this thread continues with dispatching the up-calls.
         current.ioCompleted();
       } catch (DatagramLimitException ex) // Expected.
       {
@@ -1100,8 +1136,8 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       boolean shutdown = false;
 
       synchronized (this) {
-        _dispatchCount -= dispatchedCount;
-        if (_dispatchCount == 0) {
+        _upcallCount -= dispatchedCount;
+        if (_upcallCount == 0) {
           //
           // Only initiate shutdown if not already done. It might
           // have already been done if the sent callback or AMI
@@ -1318,7 +1354,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     synchronized (this) {
       setState(StateFinished);
 
-      if (_dispatchCount == 0) {
+      if (_upcallCount == 0) {
         reap();
       }
     }
@@ -1434,7 +1470,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     _readStreamPos = -1;
     _writeStream = new OutputStream(instance, Protocol.currentProtocolEncoding);
     _writeStreamPos = -1;
-    _dispatchCount = 0;
+    _upcallCount = 0;
     _state = StateNotInitialized;
 
     int compressionLevel =
@@ -1472,7 +1508,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     try {
       com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_startCallback == null);
       com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_state == StateFinished);
-      com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_dispatchCount == 0);
+      com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_upcallCount == 0);
       com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_sendStreams.isEmpty());
       com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_asyncRequests.isEmpty());
     } catch (java.lang.Exception ex) {
@@ -1696,7 +1732,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
     notifyAll();
 
-    if (_state == StateClosing && _dispatchCount == 0) {
+    if (_state == StateClosing && _upcallCount == 0) {
       try {
         initiateShutdown();
       } catch (LocalException ex) {
@@ -1706,7 +1742,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   }
 
   private void initiateShutdown() {
-    assert (_state == StateClosing && _dispatchCount == 0);
+    assert (_state == StateClosing && _upcallCount == 0);
 
     if (_shutdownInitiated) {
       return;
@@ -2690,7 +2726,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   private int _readStreamPos;
   private int _writeStreamPos;
 
-  private int _dispatchCount;
+  private int _upcallCount;
 
   private int _state; // The current state.
   private boolean _shutdownInitiated = false;
