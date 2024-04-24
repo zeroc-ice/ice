@@ -366,8 +366,8 @@ Ice::ConnectionI::startAsync(
         {
             if (connectionStartCompleted && connectionStartFailed)
             {
-                _connectionStartCompleted = std::std::move(connectionStartCompleted);
-                _connectionStartFailed = std::std::move(connectionStartFailed);
+                _connectionStartCompleted = std::move(connectionStartCompleted);
+                _connectionStartFailed = std::move(connectionStartFailed);
                 return;
             }
 
@@ -759,7 +759,7 @@ Ice::ConnectionI::flushBatchRequestsAsync(
             std::function<void(std::exception_ptr)> ex,
             std::function<void(bool)> sent)
             : ConnectionFlushBatchAsync(connection, instance),
-              LambdaInvoke(std::std::move(ex), std::std::move(sent))
+              LambdaInvoke(std::move(ex), std::move(sent))
         {
         }
     };
@@ -852,7 +852,7 @@ Ice::ConnectionI::heartbeatAsync(::std::function<void(::std::exception_ptr)> ex,
             std::function<void(std::exception_ptr)> ex,
             std::function<void(bool)> sent)
             : HeartbeatAsync(connection, communicator, instance),
-              LambdaInvoke(std::std::move(ex), std::std::move(sent))
+              LambdaInvoke(std::move(ex), std::move(sent))
         {
         }
     };
@@ -869,7 +869,7 @@ Ice::ConnectionI::setHeartbeatCallback(HeartbeatCallback callback)
     {
         return;
     }
-    _heartbeatCallback = std::std::move(callback);
+    _heartbeatCallback = std::move(callback);
 }
 
 void
@@ -881,12 +881,12 @@ Ice::ConnectionI::setCloseCallback(CloseCallback callback)
         if (callback)
         {
             auto self = shared_from_this();
-            _threadPool->execute([self, callback = std::std::move(callback)]() { self->closeCallback(callback); });
+            _threadPool->execute([self, callback = std::move(callback)]() { self->closeCallback(callback); });
         }
     }
     else
     {
-        _closeCallback = std::std::move(callback);
+        _closeCallback = std::move(callback);
     }
 }
 
@@ -927,7 +927,7 @@ Ice::ConnectionI::setACM(
 
     if (_state == StateActive)
     {
-        _monitor->restd::move(shared_from_this());
+        _monitor->remove(shared_from_this());
     }
     _monitor = _monitor->acm(timeout, close, heartbeat);
 
@@ -1467,7 +1467,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                 setState(StateHolding);
                 if (_connectionStartCompleted)
                 {
-                    connectionStartCompleted = std::std::move(_connectionStartCompleted);
+                    connectionStartCompleted = std::move(_connectionStartCompleted);
                     ++upcallCount;
                     _connectionStartCompleted = nullptr;
                     _connectionStartFailed = nullptr;
@@ -2281,7 +2281,7 @@ Ice::ConnectionI::setState(State state)
         }
         else if (_state == StateActive)
         {
-            _monitor->restd::move(shared_from_this());
+            _monitor->remove(shared_from_this());
         }
     }
 
@@ -3411,7 +3411,7 @@ Ice::ConnectionI::dispatchAll(
                     adapter->dispatchPipeline()->dispatch(
                         request,
                         [self = shared_from_this(), compress](OutgoingResponse response)
-                        { self->sendResponse(std::std::move(response), compress); });
+                        { self->sendResponse(std::move(response), compress); });
                 }
                 catch (...)
                 {
