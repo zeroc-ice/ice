@@ -3,7 +3,6 @@
 //
 
 #include "ConnectionI.h"
-#include "ACM.h"
 #include "BatchRequestQueue.h"
 #include "CheckIdentity.h"
 #include "DefaultsAndOverrides.h"
@@ -472,10 +471,6 @@ Ice::ConnectionI::activate()
     {
         return;
     }
-    if (_acmLastActivity != chrono::steady_clock::time_point())
-    {
-        _acmLastActivity = chrono::steady_clock::now();
-    }
     setState(StateActive);
 }
 
@@ -631,72 +626,6 @@ Ice::ConnectionI::updateObserver()
         toConnectionState(_state),
         _observer.get());
     _observer.attach(o);
-}
-
-void
-Ice::ConnectionI::monitor(const chrono::steady_clock::time_point& now, const ACMConfig& acm)
-{
-    lock_guard lock(_mutex);
-    if (_state != StateActive)
-    {
-        return;
-    }
-    assert(acm.timeout != chrono::seconds::zero());
-
-    //
-    // We send a heartbeat if there was no activity in the last
-    // (timeout / 4) period. Sending a heartbeat sooner than really
-    // needed is safer to ensure that the receiver will receive the
-    // heartbeat in time. Sending the heartbeat if there was no
-    // activity in the last (timeout / 2) period isn't enough since
-    // monitor() is called only every (timeout / 2) period.
-    //
-    // Note that this doesn't imply that we are sending 4 heartbeats
-    // per timeout period because the monitor() method is still only
-    // called every (timeout / 2) period.
-    //
-    if (acm.heartbeat == ACMHeartbeat::HeartbeatAlways ||
-        (acm.heartbeat != ACMHeartbeat::HeartbeatOff && _writeStream.b.empty() &&
-         now >= (_acmLastActivity + chrono::duration_cast<chrono::nanoseconds>(acm.timeout) / 4)))
-    {
-        if (acm.heartbeat != ACMHeartbeat::HeartbeatOnDispatch || _upcallCount > 0)
-        {
-            sendHeartbeatNow();
-        }
-    }
-
-    if (static_cast<int32_t>(_readStream.b.size()) > headerSize || !_writeStream.b.empty())
-    {
-        //
-        // If writing or reading, nothing to do, the connection
-        // timeout will kick-in if writes or reads don't progress.
-        // This check is necessary because the activity timer is
-        // only set when a message is fully read/written.
-        //
-        return;
-    }
-
-    if (acm.close != ACMClose::CloseOff && now >= (_acmLastActivity + acm.timeout))
-    {
-        if (acm.close == ACMClose::CloseOnIdleForceful ||
-            (acm.close != ACMClose::CloseOnIdle && !_asyncRequests.empty()))
-        {
-            //
-            // Close the connection if we didn't receive a heartbeat in
-            // the last period.
-            //
-            setState(StateClosed, make_exception_ptr(ConnectionTimeoutException(__FILE__, __LINE__)));
-        }
-        else if (
-            acm.close != ACMClose::CloseOnInvocation && _upcallCount == 0 && _batchRequestQueue->isEmpty() &&
-            _asyncRequests.empty())
-        {
-            //
-            // The connection is idle, close it.
-            //
-            setState(StateClosing, make_exception_ptr(ConnectionTimeoutException(__FILE__, __LINE__)));
-        }
-    }
 }
 
 AsyncStatus
@@ -965,54 +894,6 @@ Ice::ConnectionI::closeCallback(const CloseCallback& callback)
 }
 
 void
-Ice::ConnectionI::setACM(
-    const optional<int>& timeout,
-    const optional<Ice::ACMClose>& close,
-    const optional<Ice::ACMHeartbeat>& heartbeat)
-{
-    std::lock_guard lock(_mutex);
-    if (timeout && *timeout < 0)
-    {
-        throw invalid_argument("invalid negative ACM timeout value");
-    }
-    if (!_monitor || _state >= StateClosed)
-    {
-        return;
-    }
-
-    if (_state == StateActive)
-    {
-        _monitor->remove(shared_from_this());
-    }
-    _monitor = _monitor->acm(timeout, close, heartbeat);
-
-    if (_monitor->getACM().timeout <= 0)
-    {
-        _acmLastActivity = chrono::steady_clock::time_point(); // Disable the recording of last activity.
-    }
-    else if (_acmLastActivity == chrono::steady_clock::time_point() && _state == StateActive)
-    {
-        _acmLastActivity = chrono::steady_clock::now();
-    }
-
-    if (_state == StateActive)
-    {
-        _monitor->add(shared_from_this());
-    }
-}
-
-ACM
-Ice::ConnectionI::getACM() noexcept
-{
-    std::lock_guard lock(_mutex);
-    ACM acm;
-    acm.timeout = 0;
-    acm.close = ACMClose::CloseOff;
-    acm.heartbeat = ACMHeartbeat::HeartbeatOff;
-    return _monitor ? _monitor->getACM() : acm;
-}
-
-void
 Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exception_ptr ex)
 {
     //
@@ -1135,21 +1016,32 @@ Ice::ConnectionI::dispatchException(exception_ptr ex, int requestCount)
     // Fatal exception while dispatching a request. Since sendResponse isn't called in case of a fatal exception we
     // decrement _upcallCount here.
 
-    std::lock_guard lock(_mutex);
-    setState(StateClosed, ex);
-
-    if (requestCount > 0)
+    bool finished = false;
     {
-        assert(_upcallCount >= requestCount);
-        _upcallCount -= requestCount;
-        if (_upcallCount == 0)
+        std::lock_guard lock(_mutex);
+        setState(StateClosed, ex);
+
+        if (requestCount > 0)
         {
-            if (_state == StateFinished)
+            assert(_upcallCount >= requestCount);
+            _upcallCount -= requestCount;
+            if (_upcallCount == 0)
             {
-                reap();
+                if (_state == StateFinished)
+                {
+                    finished = true;
+                    if (_observer)
+                    {
+                        _observer.detach();
+                    }
+                }
+                _conditionVariable.notify_all();
             }
-            _conditionVariable.notify_all();
         }
+    }
+    if (finished && _removeFromFactory)
+    {
+        _removeFromFactory(shared_from_this());
     }
 }
 
@@ -1572,11 +1464,6 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                 }
             }
 
-            if (_acmLastActivity != chrono::steady_clock::time_point())
-            {
-                _acmLastActivity = chrono::steady_clock::now();
-            }
-
             if (upcallCount == 0)
             {
                 return; // Nothing to dispatch we're done!
@@ -1762,6 +1649,7 @@ ConnectionI::upcall(
     //
     // Decrease the upcall count.
     //
+    bool finished = false;
     if (completedUpcallCount > 0)
     {
         std::lock_guard lock(_mutex);
@@ -1783,10 +1671,18 @@ ConnectionI::upcall(
             }
             else if (_state == StateFinished)
             {
-                reap();
+                finished = true;
+                if (_observer)
+                {
+                    _observer.detach();
+                }
             }
             _conditionVariable.notify_all();
         }
+    }
+    if (finished && _removeFromFactory)
+    {
+        _removeFromFactory(shared_from_this());
     }
 }
 
@@ -1970,18 +1866,25 @@ Ice::ConnectionI::finish(bool close)
 
     _heartbeatCallback = nullptr;
 
-    //
     // This must be done last as this will cause waitUntilFinished() to return (and communicator
     // objects such as the timer might be destroyed too).
-    //
+    bool finished = false;
     {
         std::lock_guard lock(_mutex);
         setState(StateFinished);
 
         if (_upcallCount == 0)
         {
-            reap();
+            finished = true;
+            if (_observer)
+            {
+                _observer.detach();
+            }
         }
+    }
+    if (finished && _removeFromFactory)
+    {
+        _removeFromFactory(shared_from_this());
     }
 }
 
@@ -2042,15 +1945,14 @@ Ice::ConnectionI::exception(std::exception_ptr ex)
 Ice::ConnectionI::ConnectionI(
     const CommunicatorPtr& communicator,
     const InstancePtr& instance,
-    const ACMMonitorPtr& monitor,
     const TransceiverPtr& transceiver,
     const ConnectorPtr& connector,
     const EndpointIPtr& endpoint,
     const shared_ptr<ObjectAdapterI>& adapter,
+    std::function<void(const ConnectionIPtr&)> removeFromFactory,
     const ConnectionOptions& options) noexcept
     : _communicator(communicator),
       _instance(instance),
-      _monitor(monitor),
       _transceiver(transceiver),
       _desc(transceiver->toString()),
       _type(transceiver->protocol()),
@@ -2064,6 +1966,7 @@ Ice::ConnectionI::ConnectionI(
       _connectTimeout(options.connectTimeout),
       _closeTimeout(options.closeTimeout),
       _inactivityTimeout(options.inactivityTimeout),
+      _removeFromFactory(std::move(removeFromFactory)),
       _warn(_instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Connections") > 0),
       _warnUdp(_instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Datagrams") > 0),
       _compressionLevel(1),
@@ -2092,22 +1995,17 @@ Ice::ConnectionI::ConnectionI(
     {
         compressionLevel = 9;
     }
-
-    if (_monitor && _monitor->getACM().timeout > 0)
-    {
-        _acmLastActivity = chrono::steady_clock::now();
-    }
 }
 
 Ice::ConnectionIPtr
 Ice::ConnectionI::create(
     const CommunicatorPtr& communicator,
     const InstancePtr& instance,
-    const ACMMonitorPtr& monitor,
     const TransceiverPtr& transceiver,
     const ConnectorPtr& connector,
     const EndpointIPtr& endpoint,
     const shared_ptr<ObjectAdapterI>& adapter,
+    std::function<void(const ConnectionIPtr&)> removeFromFactory,
     const ConnectionOptions& options)
 {
     shared_ptr<IdleTimeoutTransceiverDecorator> decoratedTransceiver;
@@ -2123,11 +2021,11 @@ Ice::ConnectionI::create(
     Ice::ConnectionIPtr connection(new ConnectionI(
         communicator,
         instance,
-        monitor,
         decoratedTransceiver ? decoratedTransceiver : transceiver,
         connector,
         endpoint,
         adapter,
+        std::move(removeFromFactory),
         options));
 
     if (decoratedTransceiver)
@@ -2354,28 +2252,6 @@ Ice::ConnectionI::setState(State state)
         out << "unexpected connection exception:\n" << ex << '\n' << _desc;
     }
 
-    //
-    // We only register with the connection monitor if our new state
-    // is StateActive. Otherwise we unregister with the connection
-    // monitor, but only if we were registered before, i.e., if our
-    // old state was StateActive.
-    //
-    if (_monitor)
-    {
-        if (state == StateActive)
-        {
-            if (_acmLastActivity != chrono::steady_clock::time_point())
-            {
-                _acmLastActivity = chrono::steady_clock::now();
-            }
-            _monitor->add(shared_from_this());
-        }
-        else if (_state == StateActive)
-        {
-            _monitor->remove(shared_from_this());
-        }
-    }
-
     if (_instance->initializationData().observer)
     {
         ConnectionState oldState = toConnectionState(_state);
@@ -2599,6 +2475,7 @@ Ice::ConnectionI::sendResponse(OutgoingResponse response, uint8_t compress)
 {
     bool isTwoWay = !_endpoint->datagram() && response.current().requestId != 0;
 
+    bool finished = false;
     try
     {
         std::unique_lock lock(_mutex);
@@ -2610,16 +2487,29 @@ Ice::ConnectionI::sendResponse(OutgoingResponse response, uint8_t compress)
             {
                 if (_state == StateFinished)
                 {
-                    reap();
+                    finished = true;
+                    if (_observer)
+                    {
+                        _observer.detach();
+                    }
                 }
                 _conditionVariable.notify_all();
             }
 
             if (_state >= StateClosed)
             {
-                assert(_exception);
-                rethrow_exception(_exception);
+                exception_ptr exception = _exception;
+                assert(exception);
+
+                if (finished && _removeFromFactory)
+                {
+                    lock.unlock();
+                    _removeFromFactory(shared_from_this());
+                }
+
+                rethrow_exception(exception);
             }
+            assert(!finished);
 
             if (isTwoWay)
             {
@@ -3007,10 +2897,6 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
             {
                 status = static_cast<AsyncStatus>(status | AsyncStatusInvokeSentCallback);
             }
-            if (_acmLastActivity != chrono::steady_clock::time_point())
-            {
-                _acmLastActivity = chrono::steady_clock::now();
-            }
             return status;
         }
 
@@ -3063,10 +2949,6 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
             if (message.sent())
             {
                 status = static_cast<AsyncStatus>(status | AsyncStatusInvokeSentCallback);
-            }
-            if (_acmLastActivity != chrono::steady_clock::time_point())
-            {
-                _acmLastActivity = chrono::steady_clock::now();
             }
             return status;
         }
@@ -3604,17 +3486,4 @@ ConnectionI::write(Buffer& buf)
         out << " bytes via " << _endpoint->protocol() << "\n" << toString();
     }
     return op;
-}
-
-void
-ConnectionI::reap()
-{
-    if (_monitor)
-    {
-        _monitor->reap(shared_from_this());
-    }
-    if (_observer)
-    {
-        _observer.detach();
-    }
 }

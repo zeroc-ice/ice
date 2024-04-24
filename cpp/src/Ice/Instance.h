@@ -6,7 +6,6 @@
 #define ICE_INSTANCE_H
 
 #include "../IceSSL/SSLEngineF.h"
-#include "ACM.h"
 #include "ConnectionFactoryF.h"
 #include "ConnectionOptions.h"
 #include "DefaultsAndOverridesF.h"
@@ -101,8 +100,6 @@ namespace IceInternal
         size_t classGraphDepthMax() const { return _classGraphDepthMax; }
         Ice::ToStringMode toStringMode() const { return _toStringMode; }
         bool acceptClassCycles() const { return _acceptClassCycles; }
-        const ACMConfig& clientACM() const;
-        const ACMConfig& serverACM() const;
 
         const Ice::ConnectionOptions& clientConnectionOptions() const noexcept { return _clientConnectionOptions; }
         Ice::ConnectionOptions serverConnectionOptions(const std::string& adapterName) const;
@@ -162,8 +159,6 @@ namespace IceInternal
         const size_t _classGraphDepthMax;                    // Immutable, not reset by destroy().
         const Ice::ToStringMode _toStringMode;               // Immutable, not reset by destroy()
         const bool _acceptClassCycles;                       // Immutable, not reset by destroy()
-        ACMConfig _clientACM;
-        ACMConfig _serverACM;
         Ice::ConnectionOptions _clientConnectionOptions;
         RouterManagerPtr _routerManager;
         LocatorManagerPtr _locatorManager;

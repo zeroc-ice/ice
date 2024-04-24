@@ -102,7 +102,7 @@ function Init()
         {
             res.writeHead(302,
             {
-                "Location": "/test/Ice/acm/controller.html&port=15002"
+                "Location": "/test/Ice/adapterDeactivation/controller.html&port=15002"
             });
             res.end();
         }
@@ -160,11 +160,11 @@ function Init()
             {
                 res.writeHead(302,
                               {
-                                  "Location": "/test/Ice/acm/index.html"
+                                  "Location": "/test/Ice/adapterDeactivation/index.html"
                               });
                 res.end();
                 console.log("HTTP/302 (Found) " + req.method + " " + req.url.pathname + " -> " +
-                            "/test/Ice/acm/index.html");
+                            "/test/Ice/adapterDeactivation/index.html");
             }
             else if((ext == "js" || ext == "css" || ext == "map") && req.headers["accept-encoding"].indexOf("gzip") !== -1)
             {

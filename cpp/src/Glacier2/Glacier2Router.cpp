@@ -141,11 +141,6 @@ RouterService::start(int argc, char* argv[], int& status)
         return false;
     }
 
-    if (properties->getProperty("Glacier2.Client.ACM.Close").empty())
-    {
-        properties->setProperty("Glacier2.Client.ACM.Close", "4"); // Forcefull close on invocation and idle.
-    }
-
     auto clientAdapter = communicator()->createObjectAdapter("Glacier2.Client");
 
     //
@@ -450,22 +445,11 @@ RouterService::initializeCommunicator(
         }
     }
 
-    //
-    // Active connection management is permitted with Glacier2. For
-    // the client object adapter, the ACM timeout is set to the
-    // session timeout to ensure client connections are not closed
-    // prematurely,
-    //
-    // initData.properties->setProperty("Ice.ACM.Client", "0");
-    // initData.properties->setProperty("Ice.ACM.Server", "0");
-
-    //
     // We do not need to set Ice.RetryIntervals to -1, i.e., we do
     // not have to disable connection retry. It is safe for
     // Glacier2 to retry outgoing connections to servers. Retry
     // for incoming connections from clients must be disabled in
     // the clients.
-    //
 
     return Service::initializeCommunicator(argc, argv, initData, version);
 }

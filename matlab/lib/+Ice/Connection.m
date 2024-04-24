@@ -15,8 +15,6 @@ classdef Connection < IceInternal.WrapperObject
     %     connection.
     %   heartbeat - Send a heartbeat message.
     %   heartbeatAsync - Send a heartbeat message.
-    %   setACM - Set the active connection management parameters.
-    %   getACM - Get the ACM parameters.
     %   type - Return the connection type.
     %   timeout - Get the timeout for the connection.
     %   toString - Return a description of the connection as human readable
@@ -150,41 +148,6 @@ classdef Connection < IceInternal.WrapperObject
             obj.iceCall('heartbeatAsync', future);
             assert(~isNull(future));
             r = Ice.Future(future, 'heartbeat', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
-        end
-        function setACM(obj, timeout, close, heartbeat)
-            % setACM   Set the active connection management parameters.
-            %
-            % Parameters:
-            %   timeout (int32) - The timeout value in milliseconds.
-            %   close (Ice.ACMClose) - The close condition.
-            %   heartbeat (Ice.ACMHeartbeat) - The hertbeat condition.
-
-            if timeout == Ice.Unset
-                timeout = [];
-            end
-            if close == Ice.Unset
-                close = [];
-            end
-            if heartbeat == Ice.Unset
-                heartbeat = [];
-            end
-            obj.iceCall('setACM', timeout, close, heartbeat);
-        end
-        function r = getACM(obj)
-            % getACM   Get the ACM parameters.
-            %
-            % Returns (Ice.ACM) - The ACM parameters.
-
-            r = obj.iceCallWithResult('getACM');
-            if isempty(r.timeout)
-                r.timeout = Ice.Unset;
-            end
-            if isempty(r.close)
-                r.close = Ice.Unset;
-            end
-            if isempty(r.heartbeat)
-                r.heartbeat = Ice.Unset;
-            end
         end
         function r = type(obj)
             % type   Return the connection type. This corresponds to the

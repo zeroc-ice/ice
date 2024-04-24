@@ -65,67 +65,6 @@ namespace Ice
 
 namespace Ice
 {
-    global $Ice__t_ACMClose;
-    class ACMClose
-    {
-        const CloseOff = 0;
-        const CloseOnIdle = 1;
-        const CloseOnInvocation = 2;
-        const CloseOnInvocationAndIdle = 3;
-        const CloseOnIdleForceful = 4;
-    }
-
-    $Ice__t_ACMClose = IcePHP_defineEnum('::Ice::ACMClose', array('CloseOff', 0, 'CloseOnIdle', 1, 'CloseOnInvocation', 2, 'CloseOnInvocationAndIdle', 3, 'CloseOnIdleForceful', 4));
-}
-
-namespace Ice
-{
-    global $Ice__t_ACMHeartbeat;
-    class ACMHeartbeat
-    {
-        const HeartbeatOff = 0;
-        const HeartbeatOnDispatch = 1;
-        const HeartbeatOnIdle = 2;
-        const HeartbeatAlways = 3;
-    }
-
-    $Ice__t_ACMHeartbeat = IcePHP_defineEnum('::Ice::ACMHeartbeat', array('HeartbeatOff', 0, 'HeartbeatOnDispatch', 1, 'HeartbeatOnIdle', 2, 'HeartbeatAlways', 3));
-}
-
-namespace Ice
-{
-    global $Ice__t_ACM;
-    class ACM
-    {
-        public function __construct($timeout=0, $close=\Ice\ACMClose::CloseOff, $heartbeat=\Ice\ACMHeartbeat::HeartbeatOff)
-        {
-            $this->timeout = $timeout;
-            $this->close = $close;
-            $this->heartbeat = $heartbeat;
-        }
-
-        public function __toString(): string
-        {
-            global $Ice__t_ACM;
-            return IcePHP_stringify($this, $Ice__t_ACM);
-        }
-
-        public $timeout;
-        public $close;
-        public $heartbeat;
-    }
-
-    global $IcePHP__t_int;
-    global $Ice__t_ACMClose;
-    global $Ice__t_ACMHeartbeat;
-    $Ice__t_ACM = IcePHP_defineStruct('::Ice::ACM', '\\Ice\\ACM', array(
-        array('timeout', $IcePHP__t_int),
-        array('close', $Ice__t_ACMClose),
-        array('heartbeat', $Ice__t_ACMHeartbeat)));
-}
-
-namespace Ice
-{
     global $Ice__t_ConnectionClose;
     class ConnectionClose
     {

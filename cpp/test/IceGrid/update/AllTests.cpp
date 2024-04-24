@@ -69,9 +69,6 @@ allTests(Test::TestHelper* helper)
         communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry");
 
     optional<AdminSessionPrx> session = registry->createAdminSession("foo", "bar");
-
-    session->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
-
     optional<AdminPrx> admin = session->getAdmin();
     test(admin);
 

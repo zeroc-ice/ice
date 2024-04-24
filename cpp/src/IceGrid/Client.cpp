@@ -299,16 +299,15 @@ run(const Ice::StringSeq& args)
     int status = 0;
     try
     {
-        int acmTimeout = 0;
+        [[maybe_unused]] int remoteIdleTimeout = 0;
         if (!communicator->getDefaultLocator() && !communicator->getDefaultRouter())
         {
             if (!host.empty())
             {
-                const int timeout = 3000; // 3s connection timeout.
                 ostringstream os;
                 os << "Ice/LocatorFinder" << (ssl ? " -s" : "");
-                os << ":tcp -h \"" << host << "\" -p " << (port == 0 ? 4061 : port) << " -t " << timeout;
-                os << ":ssl -h \"" << host << "\" -p " << (port == 0 ? 4062 : port) << " -t " << timeout;
+                os << ":tcp -h \"" << host << "\" -p " << (port == 0 ? 4061 : port);
+                os << ":ssl -h \"" << host << "\" -p " << (port == 0 ? 4062 : port);
                 Ice::LocatorFinderPrx finder{communicator, os.str()};
                 try
                 {
@@ -443,7 +442,7 @@ run(const Ice::StringSeq& args)
 
             try
             {
-                acmTimeout = router->getACMTimeout();
+                remoteIdleTimeout = router->getACMTimeout();
             }
             catch (const Ice::OperationNotExistException&)
             {
@@ -592,7 +591,7 @@ run(const Ice::StringSeq& args)
 
             try
             {
-                acmTimeout = registry->getACMTimeout();
+                remoteIdleTimeout = registry->getACMTimeout();
             }
             catch (const Ice::OperationNotExistException&)
             {
@@ -607,10 +606,7 @@ run(const Ice::StringSeq& args)
             return 1;
         }
 
-        if (acmTimeout > 0)
-        {
-            session->ice_getConnection()->setACM(acmTimeout, nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
-        }
+        // TODO: fail if the remote idle timeout is not compatible with the local idle timeout.
 
         {
             lock_guard lock(staticMutex);

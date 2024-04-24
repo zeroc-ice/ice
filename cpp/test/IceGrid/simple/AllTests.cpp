@@ -283,9 +283,6 @@ allTestsWithDeploy(Test::TestHelper* helper)
         communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry");
 
     optional<IceGrid::AdminSessionPrx> session = registry->createAdminSession("foo", "bar");
-
-    session->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
-
     optional<IceGrid::AdminPrx> admin = session->getAdmin();
     admin->enableServer("server", false);
     admin->stopServer("server");

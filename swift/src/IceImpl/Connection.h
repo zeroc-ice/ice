@@ -27,8 +27,6 @@ ICEIMPL_API @interface ICEConnection : ICELocalObject
 - (BOOL)heartbeat:(NSError* _Nullable* _Nullable)error;
 - (void)heartbeatAsync:(void (^)(NSError*))exception
                   sent:(void (^_Nullable)(bool))sent NS_SWIFT_NAME(heartbeatAsync(exception:sent:));
-- (void)setACM:(NSNumber* _Nullable)timeout close:(NSNumber* _Nullable)close heartbeat:(NSNumber* _Nullable)heartbeat;
-- (void)getACM:(int32_t*)timeout close:(uint8_t*)close heartbeat:(uint8_t*)heartbeat;
 - (NSString*)type;
 - (int32_t)timeout;
 - (NSString*)toString;
