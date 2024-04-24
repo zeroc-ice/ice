@@ -23,7 +23,6 @@ namespace IceSSL::OpenSSL
 
         void initialize() final;
         void destroy() final;
-        SSL_CTX* context() const;
         std::string sslErrors() const;
         std::string password() const { return _password; }
         Ice::SSL::ClientAuthenticationOptions createClientAuthenticationOptions(const std::string& host) const final;
