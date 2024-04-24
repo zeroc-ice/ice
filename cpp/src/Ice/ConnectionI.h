@@ -194,8 +194,6 @@ namespace Ice
         std::string toString() const noexcept final; // From Connection and EventHandler.
         IceInternal::NativeInfoPtr getNativeInfo() final;
 
-        void timedOut();
-
         std::string type() const noexcept final;     // From Connection.
         std::int32_t timeout() const noexcept final; // From Connection.
         ConnectionInfoPtr getInfo() const final;     // From Connection
@@ -229,6 +227,12 @@ namespace Ice
         /// In the two latter cases, this function reschedules the idle check timer task in idle timeout.
         void
         idleCheck(const IceUtil::TimerTaskPtr& idleCheckTimerTask, const std::chrono::seconds& idleTimeout) noexcept;
+
+        /// Aborts the connection if its state is < StateActive.
+        void connectTimedOut() noexcept;
+
+        /// Aborts the connection if its state is < StateClosed.
+        void closeTimedOut() noexcept;
 
         // TODO: there are too many functions with similar names. This is the function called by the HeartbeatTimerTask.
         void sendHeartbeat() noexcept;
@@ -302,9 +306,6 @@ namespace Ice
 
         void dispatchAll(Ice::InputStream&, std::int32_t, std::int32_t, std::uint8_t, const ObjectAdapterIPtr&);
 
-        void scheduleTimeout(IceInternal::SocketOperation status);
-        void unscheduleTimeout(IceInternal::SocketOperation status);
-
         Ice::ConnectionInfoPtr initConnectionInfo() const;
         Ice::Instrumentation::ConnectionState toConnectionState(State) const;
 
@@ -332,10 +333,6 @@ namespace Ice
         const IceInternal::ThreadPoolPtr _threadPool;
 
         const IceUtil::TimerPtr _timer;
-        const IceUtil::TimerTaskPtr _writeTimeout;
-        bool _writeTimeoutScheduled;
-        const IceUtil::TimerTaskPtr _readTimeout;
-        bool _readTimeoutScheduled;
 
         const std::chrono::seconds _connectTimeout;
         const std::chrono::seconds _closeTimeout;
