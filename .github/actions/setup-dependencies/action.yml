@@ -5,7 +5,7 @@ inputs:
     description: "Indicates whether to install and configure ccache"
     type: choice
     required: true
-    default: "false"
+    default: "true"
     options:
       - true
       - false
@@ -13,6 +13,10 @@ inputs:
 runs:
   using: "composite"
   steps:
+    #
+    # Linux and macOS
+    #
+
     - name: Set Linux MAKEFLAGS
       run: echo "MAKEFLAGS=-j$(nproc) V=1" >> $GITHUB_ENV
       shell: bash
@@ -80,7 +84,10 @@ runs:
       shell: bash
       if: runner.os == 'Linux'
 
-      # ———— Windows ———— #
+    #
+    # Windows
+    #
+
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
       with:
@@ -110,7 +117,10 @@ runs:
       shell: powershell
       if: runner.os == 'Windows'
 
-    # ———— MATLAB ———— #
+    #
+    # MATLAB
+    #
+
     - name: Setup MATLAB
       id: setup-matlab
       uses: matlab-actions/setup-matlab@v2
@@ -144,7 +154,7 @@ runs:
       if: runner.os == 'Linux' && matrix.config == 'matlab'
 
     # Windows is currently not working. We get an error: "'matlab' executable not found on the system path"
-    # Is GITHUB_PATH set correctly?
+    # However, MATLAB is installed and the path is (seemingly) set correctly
     - name: Get run-matlab-command
       run: |
         Invoke-WebRequest https://ssd.mathworks.com/supportfiles/ci/run-matlab-command/v2/win64/run-matlab-command.exe -OutFile C:\Windows\System32\run-matlab-command.exe
@@ -152,7 +162,9 @@ runs:
       shell: powershell
       if: runner.os == 'Windows' && matrix.config == 'matlab'
 
-      # ———— Cache ———— #
+    #
+    # Cache
+    #
     - name: Setup ccache
       uses: hendrikmuhs/ccache-action@v1.2
       with:
