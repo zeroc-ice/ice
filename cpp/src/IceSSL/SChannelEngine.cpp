@@ -1034,7 +1034,7 @@ SChannel::SSLEngine::createClientAuthenticationOptions(const string& host) const
         const_cast<CredHandle&>(_clientCredentials) = newCredentialsHandle(false);
     }
     return Ice::SSL::ClientAuthenticationOptions{
-        .clientCredentials = _clientCredentials,
+        .clientCredentialsSelectionCallback = [this](const string&) { return _clientCredentials; },
         .serverCertificateValidationCallback = [self = shared_from_this(),
                                                 host](CtxtHandle ssl, const ConnectionInfoPtr& info) -> bool
         { return self->validationCallback(ssl, info, false, host); }};
@@ -1049,7 +1049,7 @@ SChannel::SSLEngine::createServerAuthenticationOptions() const
         const_cast<CredHandle&>(_serverCredentials) = newCredentialsHandle(true);
     }
     return Ice::SSL::ServerAuthenticationOptions{
-        .serverCredentials = _serverCredentials,
+        .serverCredentialsSelectionCallback = [this](const string&) { return _serverCredentials; },
         .clientCertificateRequired = getVerifyPeer() > 0,
         .clientCertificateValidationCallback =
             [self = shared_from_this()](CtxtHandle ssl, const ConnectionInfoPtr& info) -> bool

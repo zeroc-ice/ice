@@ -114,7 +114,7 @@ namespace IceSSL::SChannel
         CtxtHandle _ssl;
         bool _sslInitialized;
         CredHandle _credentials;
-        std::function<CredHandle(const std::string& host)> _localCredentialsSelectionCallback;
+        std::function<CredHandle(const std::string&)> _localCredentialsSelectionCallback;
         SecPkgContext_StreamSizes _sizes;
         std::string _cipher;
         std::vector<IceSSL::CertificatePtr> _certs;

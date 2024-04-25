@@ -189,19 +189,6 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
         }
     }
 
-    long result = SSL_get_verify_result(_ssl);
-    if (result != X509_V_OK)
-    {
-        ostringstream ostr;
-        ostr << "IceSSL: certificate verification failed:\n" << X509_verify_cert_error_string(result);
-        const string msg = ostr.str();
-        if (_engine->securityTraceLevel() >= 1)
-        {
-            _instance->logger()->trace(_instance->traceCategory(), msg);
-        }
-        throw SecurityException(__FILE__, __LINE__, msg);
-    }
-
     if (_verificationException)
     {
         rethrow_exception(_verificationException);
@@ -585,7 +572,31 @@ OpenSSL::TransceiverI::verifyCallback(int ok, X509_STORE_CTX* ctx)
     assert(_remoteCertificateVerificationCallback);
     try
     {
-        return _remoteCertificateVerificationCallback(ok, ctx, dynamic_pointer_cast<ConnectionInfo>(getInfo()));
+        bool verified =
+            _remoteCertificateVerificationCallback(ok, ctx, dynamic_pointer_cast<ConnectionInfo>(getInfo()));
+        if (!verified)
+        {
+            long result = SSL_get_verify_result(_ssl);
+            if (result == X509_V_OK)
+            {
+                throw SecurityException(
+                    __FILE__,
+                    __LINE__,
+                    "IceSSL: certificate verification failed. the certificate was explicitly rejected by the remote "
+                    "certificate verifier callback.");
+            }
+            else
+            {
+                ostringstream os;
+                os << "IceSSL: certificate verification failed:\n" << X509_verify_cert_error_string(result);
+                const string msg = os.str();
+                if (_engine->securityTraceLevel() >= 1)
+                {
+                    _instance->logger()->trace(_instance->traceCategory(), msg);
+                }
+                throw SecurityException(__FILE__, __LINE__, msg);
+            }
+        }
     }
     catch (...)
     {

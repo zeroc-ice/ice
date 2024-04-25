@@ -557,7 +557,11 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
     if (_remoteCertificateValidationCallback &&
         !_remoteCertificateValidationCallback(_ssl, dynamic_pointer_cast<IceSSL::ConnectionInfo>(getInfo())))
     {
-        throw SecurityException(__FILE__, __LINE__, "IceSSL: certificate validation failed");
+        throw SecurityException(
+            __FILE__,
+            __LINE__,
+            "IceSSL: certificate verification failed. the certificate was explicitly rejected by the remote "
+            "certificate verifier callback.");
     }
 
     _state = StateHandshakeComplete;
@@ -811,7 +815,6 @@ SChannel::TransceiverI::TransceiverI(
       _bufferedW(0),
       _sslInitialized(false),
       _clientCertificateRequired(serverAuthenticationOptions.clientCertificateRequired),
-      _credentials(serverAuthenticationOptions.serverCredentials),
       _localCredentialsSelectionCallback(serverAuthenticationOptions.serverCredentialsSelectionCallback),
       _remoteCertificateValidationCallback(serverAuthenticationOptions.clientCertificateValidationCallback)
 {
@@ -832,7 +835,6 @@ SChannel::TransceiverI::TransceiverI(
       _bufferedW(0),
       _sslInitialized(false),
       _clientCertificateRequired(false),
-      _credentials(clientAuthenticationOptions.clientCredentials),
       _localCredentialsSelectionCallback(clientAuthenticationOptions.clientCredentialsSelectionCallback),
       _remoteCertificateValidationCallback(clientAuthenticationOptions.serverCertificateValidationCallback)
 {

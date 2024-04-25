@@ -40,27 +40,21 @@
 namespace Ice::SSL
 {
     /**
-     * The SSL configuration properties for client connections.
+     * The SSL configuration properties for server connections.
      */
     struct ServerAuthenticationOptions
     {
 #if defined(_WIN32)
         /**
-         * The server credentials.
+         * A callback that allows selecting the server credentials based on the server's adapter name.
          *
-         * [See Schannel
-         * Credentials](https://learn.microsoft.com/en-us/windows/win32/api/schannel/ns-schannel-sch_credentials).
-         */
-        CredHandle serverCredentials;
-
-        /**
-         * A callback that allows selecting the server credentials based on the server's host name. When the
-         * callback is set it has preference over the credentials set in serverCredentials.
+         * @param adapterName The server's adapter name.
+         * @return The server credentials. The credentials must remain valid for the duration of the connection.
          *
-         * @param host The target server's host name.
-         * @return The server credentials.
+         * [See Detailed Schannel documentation on Schannel credentials](
+         * https://learn.microsoft.com/en-us/windows/win32/secauthn/acquirecredentialshandle--schannel)
          */
-        std::function<CredHandle(const std::string& host)> serverCredentialsSelectionCallback;
+        std::function<CredHandle(const std::string& adapterName)> serverCredentialsSelectionCallback;
 
         /**
          * A value indicating whether or not the server sends a client certificate request to the client.
@@ -68,36 +62,38 @@ namespace Ice::SSL
         bool clientCertificateRequired;
 
         /**
-         * A callback that allows to manually validate the client certificate. When the callback is not provided the
-         * client certificate will be validated using the platform default validation mechanism.
+         * A callback that allows manual validation of the client certificate chain during the SSL handshake. Unlike
+         * other implementations, Schannel does not automatically validate the client certificate chain. This callback
+         * allows for implementing custom verification logic. When the verification callback returns false, the
+         * connection will be aborted with an \link Ice::SecurityException.
          *
-         * The validation callback should return true if the certificate chain is valid, false otherwise. Alternatively
-         * an exception can be throw to indicate an error.
+         * @param context A CtxtHandle representing the security context associated with the current connection. This
+         * context contains security data relevant for validation, such as the client's certificate chain and cipher
+         * suite.
+         * @param info The IceSSL::ConnectionInfoPtr object that provides additional connection-related data
+         * which might be relevant for contextual certificate validation.
+         * @return true if the certificate chain is valid and the connection should proceed; false if the certificate
+         * chain is invalid and the connection should be aborted. An exception may be thrown to indicate a custom
+         * error during the validation process.
          *
-         * @param context A security context is an opaque data structure that contains security data relevant to the
-         * current connection.
-         * @param info The connection information.
-         * @return true if the certificate is valid, false otherwise.
-         *
-         * [See Manually Validating Schannel
-         * Credentials](https://learn.microsoft.com/en-us/windows/win32/secauthn/manually-validating-schannel-credentials).
+         * [See Manually Validating Schannel Credentials for more
+         * details](https://learn.microsoft.com/en-us/windows/win32/secauthn/manually-validating-schannel-credentials).
          */
         std::function<bool(CtxtHandle context, const IceSSL::ConnectionInfoPtr& info)>
             clientCertificateValidationCallback;
+
 #elif defined(__APPLE__)
         /**
-         * The server's certificate chain.
-         */
-        CFArrayRef serverCertificateChain;
-
-        /**
-         * A callback that allows selecting a certificate chain based on the server's host name. When the callback is
-         * set it has preference over a certificate chain set in serverCertificateChain.
+         * A callback that allows selecting the server's certificate chain based on the server's adapter name.
          *
-         * @param host The server's host name.
-         * @return The server's certificate chain.
+         * @param adapterName The server's adapter name.
+         * @return The server's certificate chain. The certificate chain must remain valid for the duration of the
+         * connection.
+         *
+         * The requirements for the Secure Transport certificates are documented in
+         * https://developer.apple.com/documentation/security/1392400-sslsetcertificate?changes=_3&language=objc
          */
-        std::function<CFArrayRef(const std::string& host)> serverCertificateSelectionCallback;
+        std::function<CFArrayRef(const std::string& adapterName)> serverCertificateSelectionCallback;
 
         /**
          * The trusted root certificates. If set, the client's certificate chain is validated against these
@@ -106,54 +102,84 @@ namespace Ice::SSL
         CFArrayRef trustedRootCertificates;
 
         /**
-         * A callback that allows manually validating the client certificate chain.
-         *
-         * The validation callback should return true if the certificate chain is valid, false otherwise. Alternatively
-         * an exception can be throw to indicate an error.
-         *
-         * @param trust The trust object that contains the client's certificate chain.
-         * @param info The connection information.
-         * @return true if the certificate chain is valid, false otherwise.
-         */
-        std::function<bool(SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)>
-            clientCertificateValidationCallback;
-
-        /**
          * the requirements for client-side authentication
          * @see https://developer.apple.com/documentation/security/sslauthenticate
          */
         SSLAuthenticate clientCertificateRequired;
 
         /**
-         * A callback that is called before a new SSL handshake starts. The callback can be used to set additional SSL
-         * context parameters.
+         * A callback that is invoked before initiating a new SSL handshake. This callback provides an opportunity to
+         * customize the SSL parameters for the session based on specific server settings or requirements.
+         *
+         * @param context An opaque type that represents an SSL session context object.
+         * @param adapterName The server's adapter name.
          */
-        std::function<void(SSLContextRef)> sslNewSessionCallback;
+        std::function<void(SSLContextRef context, const std::string& adapterName)> sslNewSessionCallback;
+
+        /**
+         * A callback that allows manually validating the client certificate chain. When the verification callback
+         * returns false, the connection will be aborted with an \link Ice::SecurityException.
+         *
+         * @param trust The trust object that contains the client's certificate chain.
+         * @param info The IceSSL::ConnectionInfoPtr object that provides additional connection-related data which might
+         * be relevant for contextual certificate validation.
+         * @return true if the certificate chain is valid and the connection should proceed; false if the certificate
+         * chain is invalid and the connection should be aborted. An exception may be thrown to indicate a custom
+         * error during the validation process.
+         */
+        std::function<bool(SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)>
+            clientCertificateValidationCallback;
 #else
         /**
-         * The server's SSL context, this objects holds configuration relevant the SSL session establishment.
+         * A callback that allows selecting the server's SSL context based on the server's adapter name. This callback
+         * is used to associate a specific SSL configuration with a server instance, identified by the adapter name.
+         *
+         * @param adapterName The server's adapter name.
+         * @return A pointer to an SSL_CTX object that represents the SSL configuration for the specified server
+         * adapter.
+         *
+         * @see Detailed OpenSSL documentation on SSL_CTX management:
+         * https://www.openssl.org/docs/manmaster/man3/SSL_CTX_new.html
          */
-        SSL_CTX* serverSslContext;
+        std::function<SSL_CTX*(const std::string& adapterName)> serverSslContextSelectionCallback;
 
         /**
-         * A callback that is called before a new SSL handshake starts. The callback can be used to set additional SSL
-         * parameters.
+         * A callback that is invoked before initiating a new SSL handshake. This callback provides an opportunity to
+         * customize the SSL parameters for the session based on specific server settings or requirements.
+         *
+         * @param ssl A pointer to the SSL object representing the connection.
+         * @param adapterName The server's adapter name.
+         *
+         * @see Detailed OpenSSL documentation on SSL object management:
+         * https://www.openssl.org/docs/manmaster/man3/SSL_new.html
          */
-        std::function<void(::SSL* ssl, const std::string& host)> sslNewSessionCallback;
+        std::function<void(::SSL* ssl, const std::string& adapterName)> sslNewSessionCallback;
 
         /**
-         * A callback that allows manually validating the client certificate chain.
+         * A callback that allows manual validation of the client certificate chain during the SSL handshake. This
+         * callback is called from the SSL_verify_cb function in OpenSSL and provides an interface for custom
+         * verification logic beyond the standard certificate checking process. When the verification callback returns
+         * false, the connection will be aborted with an \link Ice::SecurityException.
          *
-         * The validation callback should return true if the certificate chain is valid, false otherwise. Alternatively
-         * an exception can be throw to indicate an error.
+         * @param verified A boolean indicating whether the preliminary certificate verification done by OpenSSL's
+         * built-in mechanisms succeeded or failed. True if the preliminary checks passed, false otherwise.
+         * @param ctx A pointer to an X509_STORE_CTX object, which contains the certificate chain to be verified.
+         * @param info The IceSSL::ConnectionInfoPtr object that provides additional connection-related data
+         * which might be relevant for contextual certificate validation.
+         * @return true if the certificate chain is valid and the connection should proceed; false if the certificate
+         * chain is invalid and the connection should be aborted. An exception may be thrown to indicate a custom
+         * error during the validation process.
          *
-         * @param ok Whether the verification of the certificate in question was passed (ok=1) or not (ok=0).
-         * @param ctx The X509_STORE_CTX object that holds the certificate chain to be verified.
-         * @param info The connection information.
-         * @return true if the certificate chain is valid, false otherwise.
+         * @note Throwing an exception from this callback will result in the termination of the connection.
+         *
+         * @see More details on certificate verification in OpenSSL:
+         * https://www.openssl.org/docs/manmaster/man3/SSL_set_verify.html
+         * @see More about X509_STORE_CTX management:
+         * https://www.openssl.org/docs/manmaster/man3/X509_STORE_CTX_new.html
          */
-        std::function<int(int ok, X509_STORE_CTX*, const IceSSL::ConnectionInfoPtr& info)>
-            clientCertificateVerificationCallback;
+        std::function<bool(bool verified, X509_STORE_CTX* ctx, const IceSSL::ConnectionInfoPtr& info)>
+            clientCertificateValidationCallback;
+
 #endif
     };
 }
