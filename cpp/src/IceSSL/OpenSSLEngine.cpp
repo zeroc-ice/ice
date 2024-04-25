@@ -412,10 +412,7 @@ ClientAuthenticationOptions
 OpenSSL::SSLEngine::createClientAuthenticationOptions(const std::string&) const
 {
     return ClientAuthenticationOptions{
-        .sslContext = _ctx,
-        .serverCertificateVerificationCallback =
-            [this](int ok, X509_STORE_CTX* ctx, const IceSSL::ConnectionInfoPtr& info)
-        { return validationCallback(ok, ctx, info); },
+        .clientSslContextSelectionCallback = [this](const string&) { return _ctx; },
         .sslNewSessionCallback =
             [this](::SSL* ssl, const string& host)
         {
@@ -453,17 +450,18 @@ OpenSSL::SSLEngine::createClientAuthenticationOptions(const std::string&) const
                 }
             }
             SSL_set_verify(ssl, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, 0);
-        }};
+        },
+        .serverCertificateValidationCallback =
+            [this](bool ok, X509_STORE_CTX* ctx, const IceSSL::ConnectionInfoPtr& info)
+        { return validationCallback(ok, ctx, info); },
+    };
 }
 
 ServerAuthenticationOptions
 OpenSSL::SSLEngine::createServerAuthenticationOptions() const
 {
     return ServerAuthenticationOptions{
-        .sslContext = _ctx,
-        .clientCertificateVerificationCallback =
-            [this](int ok, X509_STORE_CTX* ctx, const IceSSL::ConnectionInfoPtr& info)
-        { return validationCallback(ok, ctx, info); },
+        .serverSslContextSelectionCallback = [this](const string&) { return _ctx; },
         .sslNewSessionCallback =
             [this](::SSL* ssl, const string&)
         {
@@ -482,32 +480,35 @@ OpenSSL::SSLEngine::createServerAuthenticationOptions() const
             }
             SSL_set_verify(ssl, sslVerifyMode, 0);
         },
-    };
+        .clientCertificateValidationCallback =
+            [this](bool ok, X509_STORE_CTX* ctx, const IceSSL::ConnectionInfoPtr& info)
+        { return validationCallback(ok, ctx, info); }};
 }
 
-int
-OpenSSL::SSLEngine::validationCallback(int, X509_STORE_CTX* ctx, const IceSSL::ConnectionInfoPtr& info) const
+bool
+OpenSSL::SSLEngine::validationCallback(bool ok, X509_STORE_CTX* ctx, const IceSSL::ConnectionInfoPtr& info) const
 {
     // At this point before the SSL handshake is completed, the connection info doesn't contain the peer's
     // certificate chain required for verifyPeer. We set it here.
 
-    // TODO we should refactor verifyPeer to not depend on the Certificate API in a follow-up PR.
-    vector<IceSSL::CertificatePtr> certs;
-    STACK_OF(X509)* chain = X509_STORE_CTX_get1_chain(ctx);
-    if (chain != 0)
+    if (ok)
     {
-        for (int i = 0; i < sk_X509_num(chain); ++i)
+        // TODO we should refactor verifyPeer to not depend on the Certificate API in a follow-up PR.
+        vector<IceSSL::CertificatePtr> certs;
+        STACK_OF(X509)* chain = X509_STORE_CTX_get1_chain(ctx);
+        if (chain != 0)
         {
-            CertificatePtr cert = OpenSSL::Certificate::create(X509_dup(sk_X509_value(chain, i)));
-            certs.push_back(cert);
+            for (int i = 0; i < sk_X509_num(chain); ++i)
+            {
+                CertificatePtr cert = OpenSSL::Certificate::create(X509_dup(sk_X509_value(chain, i)));
+                certs.push_back(cert);
+            }
+            sk_X509_pop_free(chain, X509_free);
         }
-        sk_X509_pop_free(chain, X509_free);
+        const_cast<IceSSL::ConnectionInfoPtr&>(info)->certs = certs;
+        verifyPeer(info);
     }
-    const_cast<IceSSL::ConnectionInfoPtr&>(info)->certs = certs;
-    verifyPeer(info);
-    // Allow the connection to proceed, the connection initialization will throw an exception with the verification
-    // results, if verification failed.
-    return 1;
+    return ok;
 }
 
 string

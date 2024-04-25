@@ -79,10 +79,9 @@ namespace IceSSL::SecureTransport
         size_t _maxRecvPacketSize;
         std::vector<CertificatePtr> _certs;
         size_t _buffered;
-        std::function<void(SSLContextRef)> _sslContextSetupCallback;
+        std::function<void(SSLContextRef, const std::string&)> _sslNewSessionCallback;
         std::function<bool(SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)>
-            _remotCertificateValidationCallback;
-        CFArrayRef _certificateChain;
+            _remoteCertificateValidationCallback;
         CFArrayRef _trustedRootCertificates;
         std::function<CFArrayRef(const std::string& host)> _localCertificateSelectionCallback;
         SSLAuthenticate _clientCertificateRequired;

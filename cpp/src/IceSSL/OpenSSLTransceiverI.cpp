@@ -81,7 +81,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
             throw SecurityException(__FILE__, __LINE__, "openssl failure");
         }
 
-        _ssl = SSL_new(_sslContext);
+        _ssl = SSL_new(_localSslContextSelectionCallback(_incoming ? _adapterName : _host));
         if (!_ssl)
         {
             BIO_free(bio);
@@ -103,6 +103,10 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
         {
             SSL_set_ex_data(_ssl, 0, this);
             SSL_set_verify(_ssl, SSL_get_verify_mode(_ssl), IceSSL_opensslVerifyCallback);
+        }
+        else
+        {
+            // TODO add a default callback that aborts the connection using the default verification proccess.
         }
     }
 
@@ -624,8 +628,8 @@ OpenSSL::TransceiverI::TransceiverI(
       _sentBytes(0),
       _maxSendPacketSize(0),
       _maxRecvPacketSize(0),
-      _sslContext(serverAuthenticationOptions.sslContext),
-      _remoteCertificateVerificationCallback(serverAuthenticationOptions.clientCertificateVerificationCallback),
+      _localSslContextSelectionCallback(serverAuthenticationOptions.serverSslContextSelectionCallback),
+      _remoteCertificateVerificationCallback(serverAuthenticationOptions.clientCertificateValidationCallback),
       _sslNewSessionCallback(serverAuthenticationOptions.sslNewSessionCallback)
 {
 }
@@ -647,8 +651,8 @@ OpenSSL::TransceiverI::TransceiverI(
       _sentBytes(0),
       _maxSendPacketSize(0),
       _maxRecvPacketSize(0),
-      _sslContext(clientAuthenticationOptions.sslContext),
-      _remoteCertificateVerificationCallback(clientAuthenticationOptions.serverCertificateVerificationCallback),
+      _localSslContextSelectionCallback(clientAuthenticationOptions.clientSslContextSelectionCallback),
+      _remoteCertificateVerificationCallback(clientAuthenticationOptions.serverCertificateValidationCallback),
       _sslNewSessionCallback(clientAuthenticationOptions.sslNewSessionCallback)
 {
 }

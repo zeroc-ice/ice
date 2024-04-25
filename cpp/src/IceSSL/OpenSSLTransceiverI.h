@@ -78,10 +78,10 @@ namespace IceSSL::OpenSSL
         int _sentBytes;
         size_t _maxSendPacketSize;
         size_t _maxRecvPacketSize;
-        SSL_CTX* _sslContext;
+        std::function<SSL_CTX*(const std::string&)> _localSslContextSelectionCallback;
         std::function<int(int, X509_STORE_CTX*, const IceSSL::ConnectionInfoPtr& info)>
             _remoteCertificateVerificationCallback;
-        std::function<void(::SSL* ssl, const std::string& host)> _sslNewSessionCallback;
+        std::function<void(::SSL*, const std::string&)> _sslNewSessionCallback;
         std::exception_ptr _verificationException;
     };
     using TransceiverIPtr = std::shared_ptr<TransceiverI>;

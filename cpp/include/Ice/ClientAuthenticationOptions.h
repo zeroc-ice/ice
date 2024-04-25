@@ -128,7 +128,7 @@ namespace Ice::SSL
          * @see Detailed OpenSSL documentation on SSL_CTX management:
          * https://www.openssl.org/docs/manmaster/man3/SSL_CTX_new.html
          */
-        std::function<SSL_CTX*(const std::string& host)> serverSslContextSelectionCallback;
+        std::function<SSL_CTX*(const std::string& host)> clientSslContextSelectionCallback;
 
         /**
          * A callback that is invoked before initiating a new SSL handshake. This callback provides an opportunity to

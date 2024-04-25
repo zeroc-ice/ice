@@ -707,9 +707,8 @@ SecureTransport::SSLEngine::createClientAuthenticationOptions(const std::string&
         .serverCertificateValidationCallback =
             [self = shared_from_this(), host](SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)
         { return self->validationCallback(trust, info, false, host, self->_certificateAuthorities.get()); },
-        .clientCertificateSelectionCallback = nullptr,
-        .clientCertificateChain = _chain.get(),
-        .sslContextSetup = nullptr};
+        .clientCertificateSelectionCallback = [this](const string&) { return _chain.get(); },
+        .sslNewSessionCallback = nullptr};
 }
 
 ServerAuthenticationOptions
@@ -735,9 +734,8 @@ SecureTransport::SSLEngine::createServerAuthenticationOptions() const
             [self = shared_from_this()](SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)
         { return self->validationCallback(trust, info, true, "", self->_certificateAuthorities.get()); },
         .clientCertificateRequired = clientCertificateRequired,
-        .serverCertificateSelectionCallback = nullptr,
-        .serverCertificateChain = _chain.get(),
-        .sslContextSetup = nullptr};
+        .serverCertificateSelectionCallback = [this](const string&) { return _chain.get(); },
+        .sslNewSessionCallback = nullptr};
 }
 
 SSLContextRef

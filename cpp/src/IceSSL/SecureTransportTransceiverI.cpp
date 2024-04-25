@@ -107,9 +107,9 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
         // Initialize SSL context
         //
         _ssl.reset(_engine->newContext(_incoming));
-        if (_sslContextSetupCallback)
+        if (_sslNewSessionCallback)
         {
-            _sslContextSetupCallback(_ssl.get());
+            _sslNewSessionCallback(_ssl.get(), _incoming ? _adapterName : _host);
         }
 
         if (_incoming)
@@ -117,9 +117,7 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
             SSLSetClientSideAuthenticate(_ssl.get(), _clientCertificateRequired);
         }
 
-        CFArrayRef certificateChain = _localCertificateSelectionCallback
-                                          ? _localCertificateSelectionCallback(_incoming ? _adapterName : _host)
-                                          : _certificateChain;
+        CFArrayRef certificateChain = _localCertificateSelectionCallback(_incoming ? _adapterName : _host);
         if (certificateChain && (err = SSLSetCertificate(_ssl.get(), certificateChain)))
         {
             throw SecurityException(
@@ -198,16 +196,23 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
             }
 
             function<bool(SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)>
-                remotCertificateValidationCallback =
-                    _remotCertificateValidationCallback
-                        ? _remotCertificateValidationCallback
+                remoteCertificateValidationCallback =
+                    _remoteCertificateValidationCallback
+                        ? _remoteCertificateValidationCallback
                         : [this](SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)
-            { return _engine->validationCallback(trust, info, _incoming, _host, _trustedRootCertificates); };
+            {
+                return _engine->validationCallback(
+                    trust,
+                    info,
+                    _incoming,
+                    _incoming ? _adapterName : _host,
+                    _trustedRootCertificates);
+            };
 
             if (err == noErr &&
-                remotCertificateValidationCallback(_trust.get(), dynamic_pointer_cast<ConnectionInfo>(getInfo())))
+                remoteCertificateValidationCallback(_trust.get(), dynamic_pointer_cast<ConnectionInfo>(getInfo())))
             {
-                continue; // Call SSLHandshake to resume the handsake.
+                continue; // Call SSLHandshake to resume the handshake.
             }
             // Let it fall through, this will raise a SecurityException with the SSLCopyPeerTrust error.
         }
@@ -489,9 +494,8 @@ IceSSL::SecureTransport::TransceiverI::TransceiverI(
       _delegate(delegate),
       _connected(false),
       _buffered(0),
-      _sslContextSetupCallback(serverAuthenticationOptions.sslContextSetup),
-      _remotCertificateValidationCallback(serverAuthenticationOptions.clientCertificateValidationCallback),
-      _certificateChain(serverAuthenticationOptions.serverCertificateChain),
+      _sslNewSessionCallback(serverAuthenticationOptions.sslNewSessionCallback),
+      _remoteCertificateValidationCallback(serverAuthenticationOptions.clientCertificateValidationCallback),
       _trustedRootCertificates(serverAuthenticationOptions.trustedRootCertificates),
       _localCertificateSelectionCallback(serverAuthenticationOptions.serverCertificateSelectionCallback),
       _clientCertificateRequired(serverAuthenticationOptions.clientCertificateRequired)
@@ -511,9 +515,8 @@ IceSSL::SecureTransport::TransceiverI::TransceiverI(
       _delegate(delegate),
       _connected(false),
       _buffered(0),
-      _sslContextSetupCallback(clientAuthenticationOptions.sslContextSetup),
-      _remotCertificateValidationCallback(clientAuthenticationOptions.serverCertificateValidationCallback),
-      _certificateChain(clientAuthenticationOptions.clientCertificateChain),
+      _sslNewSessionCallback(clientAuthenticationOptions.sslNewSessionCallback),
+      _remoteCertificateValidationCallback(clientAuthenticationOptions.serverCertificateValidationCallback),
       _trustedRootCertificates(clientAuthenticationOptions.trustedRootCertificates),
       _localCertificateSelectionCallback(clientAuthenticationOptions.clientCertificateSelectionCallback),
       _clientCertificateRequired(kNeverAuthenticate)

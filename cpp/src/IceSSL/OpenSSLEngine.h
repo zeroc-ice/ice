@@ -29,7 +29,7 @@ namespace IceSSL::OpenSSL
         Ice::SSL::ServerAuthenticationOptions createServerAuthenticationOptions() const final;
 
     private:
-        int validationCallback(int, X509_STORE_CTX*, const IceSSL::ConnectionInfoPtr&) const;
+        bool validationCallback(bool, X509_STORE_CTX*, const IceSSL::ConnectionInfoPtr&) const;
         SSL_CTX* _ctx;
         std::string _password;
     };
