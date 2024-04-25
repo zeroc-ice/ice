@@ -46,10 +46,10 @@ namespace Ice::SSL
     {
 #if defined(_WIN32)
         /**
-         * A callback that allows selecting the client credentials based on the target server host name.
+         * A callback that allows selecting the client's credentials based on the target server host name.
          *
          * @param host The target server host name.
-         * @return The server credentials. The credentials must remain valid for the duration of the connection.
+         * @return The client credentials. The credentials must remain valid for the duration of the connection.
          *
          * [See Detailed Schannel documentation on Schannel credentials](
          * https://learn.microsoft.com/en-us/windows/win32/secauthn/acquirecredentialshandle--schannel)
@@ -57,9 +57,8 @@ namespace Ice::SSL
         std::function<CredHandle(const std::string& host)> clientCredentialsSelectionCallback;
 
         /**
-         * A callback that allows manual validation of the client server's certificate chain during the SSL handshake.
-         * This callback allows for implementing custom verification logic. When the verification callback returns
-         * false, the connection will be aborted with an Ice::SecurityException.
+         * A callback that allows manually validating the server certificate chain. When the verification callback
+         * returns false, the connection will be aborted with an Ice::SecurityException.
          *
          * @param context A CtxtHandle representing the security context associated with the current connection. This
          * context contains security data relevant for validation, such as the server's certificate chain and cipher
@@ -83,7 +82,7 @@ namespace Ice::SSL
          * @return The client's certificate chain. The certificate chain must remain valid for the duration of the
          * connection.
          *
-         * The requirements for the Secure Transport certificates are documented in
+         * The requirements for the Secure Transport certificate chain are documented in
          * https://developer.apple.com/documentation/security/1392400-sslsetcertificate?changes=_3&language=objc
          */
         std::function<CFArrayRef(const std::string& host)> clientCertificateSelectionCallback;
@@ -143,10 +142,8 @@ namespace Ice::SSL
         std::function<void(::SSL* ssl, const std::string& host)> sslNewSessionCallback;
 
         /**
-         * A callback that allows manual validation of the server certificate chain during the SSL handshake. This
-         * callback is called from the SSL_verify_cb function in OpenSSL and provides an interface for custom
-         * verification logic beyond the standard certificate checking process. When the verification callback returns
-         * false, the connection will be aborted with an Ice::SecurityException.
+         * A callback that allows manually validating the server certificate chain. When the verification callback
+         * returns false, the connection will be aborted with an Ice::SecurityException.
          *
          * @param verified A boolean indicating whether the preliminary certificate verification done by OpenSSL's
          * built-in mechanisms succeeded or failed. True if the preliminary checks passed, false otherwise.

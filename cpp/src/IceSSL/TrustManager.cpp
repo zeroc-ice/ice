@@ -135,7 +135,6 @@ TrustManager::verify(const ConnectionInfoPtr& info) const
                 trace << "trust manager evaluating server:\n"
                       << "subject = " << string(subject) << '\n';
             }
-            trace << info->desc;
         }
 
         // Fail if we match anything in the reject set.

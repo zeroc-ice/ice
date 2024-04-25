@@ -99,12 +99,12 @@ namespace Ice
         void decDirectCount();
 
         IceInternal::ThreadPoolPtr getThreadPool() const;
-        void setAdapterOnConnection(const Ice::ConnectionIPtr&);
+        void setAdapterOnConnection(const ConnectionIPtr&);
         size_t messageSizeMax() const { return _messageSizeMax; }
 
         // The dispatch pipeline is the dispatcher plus the logger and observer middleware. They are installed in the
         // dispatch pipeline only when the communicator configuration enables them.
-        const Ice::ObjectPtr& dispatchPipeline() const noexcept { return _dispatchPipeline; }
+        const ObjectPtr& dispatchPipeline() const noexcept { return _dispatchPipeline; }
 
         ObjectAdapterI(
             const IceInternal::InstancePtr&,
@@ -112,10 +112,10 @@ namespace Ice
             const IceInternal::ObjectAdapterFactoryPtr&,
             const std::string&,
             bool,
-            const std::optional<Ice::SSL::ServerAuthenticationOptions>&);
+            const std::optional<SSL::ServerAuthenticationOptions>&);
         virtual ~ObjectAdapterI();
 
-        std::optional<Ice::SSL::ServerAuthenticationOptions> getServerAuthenticationOptions() const
+        std::optional<SSL::ServerAuthenticationOptions> getServerAuthenticationOptions() const
         {
             return _serverAuthenticationOptions;
         }
@@ -130,8 +130,8 @@ namespace Ice
         void checkForDeactivation() const;
         std::vector<IceInternal::EndpointIPtr> parseEndpoints(const std::string&, bool) const;
         std::vector<IceInternal::EndpointIPtr> computePublishedEndpoints();
-        void updateLocatorRegistry(const IceInternal::LocatorInfoPtr&, const std::optional<Ice::ObjectPrx>&);
-        bool filterProperties(Ice::StringSeq&);
+        void updateLocatorRegistry(const IceInternal::LocatorInfoPtr&, const std::optional<ObjectPrx>&);
+        bool filterProperties(StringSeq&);
 
         enum State
         {
@@ -168,7 +168,7 @@ namespace Ice
         size_t _messageSizeMax;
         mutable std::recursive_mutex _mutex;
         std::condition_variable_any _conditionVariable;
-        const std::optional<Ice::SSL::ServerAuthenticationOptions> _serverAuthenticationOptions;
+        const std::optional<SSL::ServerAuthenticationOptions> _serverAuthenticationOptions;
     };
 }
 

@@ -62,10 +62,8 @@ namespace Ice::SSL
         bool clientCertificateRequired;
 
         /**
-         * A callback that allows manual validation of the client certificate chain during the SSL handshake. Unlike
-         * other implementations, Schannel does not automatically validate the client certificate chain. This callback
-         * allows for implementing custom verification logic. When the verification callback returns false, the
-         * connection will be aborted with an Ice::SecurityException.
+         * A callback that allows manually validating the client certificate chain. When the verification callback
+         * returns false, the connection will be aborted with an Ice::SecurityException.
          *
          * @param context A CtxtHandle representing the security context associated with the current connection. This
          * context contains security data relevant for validation, such as the client's certificate chain and cipher
@@ -156,10 +154,8 @@ namespace Ice::SSL
         std::function<void(::SSL* ssl, const std::string& adapterName)> sslNewSessionCallback;
 
         /**
-         * A callback that allows manual validation of the client certificate chain during the SSL handshake. This
-         * callback is called from the SSL_verify_cb function in OpenSSL and provides an interface for custom
-         * verification logic beyond the standard certificate checking process. When the verification callback returns
-         * false, the connection will be aborted with an Ice::SecurityException.
+         * A callback that allows manually validating the client certificate chain. When the verification callback
+         * returns false, the connection will be aborted with an Ice::SecurityException.
          *
          * @param verified A boolean indicating whether the preliminary certificate verification done by OpenSSL's
          * built-in mechanisms succeeded or failed. True if the preliminary checks passed, false otherwise.

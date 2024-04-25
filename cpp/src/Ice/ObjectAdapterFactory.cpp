@@ -116,8 +116,8 @@ IceInternal::ObjectAdapterFactory::updateObservers(void (ObjectAdapterI::*fn)())
 
 ObjectAdapterPtr
 IceInternal::ObjectAdapterFactory::createObjectAdapter(
-    const std::string& name,
-    const std::optional<Ice::RouterPrx>& router,
+    const string& name,
+    const optional<Ice::RouterPrx>& router,
     const optional<SSL::ServerAuthenticationOptions>& serverAuthenticationOptions)
 {
     shared_ptr<ObjectAdapterI> adapter;

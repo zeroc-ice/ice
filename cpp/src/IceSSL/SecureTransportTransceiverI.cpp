@@ -466,7 +466,6 @@ IceSSL::SecureTransport::TransceiverI::getInfo() const
     info->incoming = _incoming;
     info->adapterName = _adapterName;
     info->certs = _certs;
-    info->host = _host;
     return info;
 }
 

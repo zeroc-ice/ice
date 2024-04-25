@@ -82,9 +82,7 @@ ICEIMPL_API @protocol ICEConnectionInfoFactory
                      incoming:(BOOL)incoming
                   adapterName:(NSString*)adapterName
                  connectionId:(NSString*)connectionId
-                       cipher:(NSString*)cipher
-                        certs:(NSArray<NSString*>*)certs
-                     verified:(BOOL)verified;
+                        certs:(NSArray<NSString*>*)certs;
 
 #if TARGET_OS_IPHONE
 

@@ -111,7 +111,6 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
     // and doesn't trust the server certificate.
     //
     let properties = createClientProps(defaultProperties: defaultProperties, cert: "", ca: "")
-    properties.setProperty(key: "IceSSL.VerifyPeer", value: "0")
     let comm = try helper.initialize(properties)
     let fact = try checkedCast(
       prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!
@@ -120,8 +119,14 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
     d["IceSSL.VerifyPeer"] = "0"
     let server = try fact.createServer(d)!
 
-    try server.noCert()
-    try test(!(server.ice_getConnection()!.getInfo() as! SSLConnectionInfo).verified)
+    do {
+      try server.noCert()
+      try test(false)
+    } catch is SecurityException {
+      // Expected, if reported as an SSL alert by the server.
+    } catch is ConnectionLostException {
+      // Expected.
+    }
     try fact.destroyServer(server)
     comm.destroy()
   }
@@ -142,7 +147,6 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
     var server = try fact.createServer(d)!
     do {
       try server.noCert()
-      try test((server.ice_getConnection()!.getInfo() as! SSLConnectionInfo).verified)
     }
     try fact.destroyServer(server)
     //

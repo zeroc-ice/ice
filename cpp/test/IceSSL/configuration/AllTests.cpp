@@ -803,8 +803,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             d = createServerProps(props, p12, "s_rsa_ca1_cn1", "cacert1");
             server = fact->createServer(d);
 
-            info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
-            test(info->host == "localhost");
+            server->ice_ping();
 
             fact->destroyServer(server);
             comm->destroy();
@@ -854,8 +853,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                 // Expected.
             }
 #else
-            info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
-            test(info->host == "localhost");
+            server->ice_ping();
 #endif
 
             fact->destroyServer(server);
@@ -922,8 +920,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             d = createServerProps(defaultProps, p12, "s_rsa_ca1_cn6", "cacert1");
             server = fact->createServer(d);
 
-            info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
-            test(info->host == "127.0.0.1");
+            server->ice_ping();
 
             fact->destroyServer(server);
             comm->destroy();
@@ -2917,11 +2914,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             {
                 try
                 {
-                    Ice::WSConnectionInfoPtr wsinfo =
-                        dynamic_pointer_cast<Ice::WSConnectionInfo>(p->ice_getConnection()->getInfo());
-                    IceSSL::ConnectionInfoPtr sslInfo =
-                        dynamic_pointer_cast<IceSSL::ConnectionInfo>(wsinfo->underlying);
-                    test(sslInfo->host == "zeroc.com");
+                    p->ice_ping();
                     break;
                 }
                 catch (const Ice::LocalException& ex)

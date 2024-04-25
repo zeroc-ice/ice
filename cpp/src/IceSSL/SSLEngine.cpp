@@ -163,7 +163,7 @@ IceSSL::SSLEngine::verifyPeer(const ConnectionInfoPtr& info) const
         string msg = string(info->incoming ? "incoming" : "outgoing") + " connection rejected by trust manager";
         if (_securityTraceLevel >= 1)
         {
-            getLogger()->trace(_securityTraceCategory, msg + "\n" + info->desc);
+            getLogger()->trace(_securityTraceCategory, msg);
         }
         throw SecurityException(__FILE__, __LINE__, msg);
     }

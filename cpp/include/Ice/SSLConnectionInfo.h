@@ -34,18 +34,15 @@ namespace IceSSL
          * @param adapterName The name of the adapter associated with the connection.
          * @param connectionId The connection id.
          * @param certs The certificate chain.
-         * @param host The host name.
          */
         ConnectionInfo(
             const Ice::ConnectionInfoPtr& underlying,
             bool incoming,
             const std::string& adapterName,
             const std::string& connectionId,
-            const std::vector<CertificatePtr>& certs,
-            const std::string& host)
+            const std::vector<CertificatePtr>& certs)
             : Ice::ConnectionInfo(underlying, incoming, adapterName, connectionId),
-              certs(certs),
-              host(host)
+              certs(certs)
         {
         }
 
@@ -56,8 +53,6 @@ namespace IceSSL
          * The certificate chain.
          */
         std::vector<CertificatePtr> certs;
-        std::string host;
-        std::string desc;
     };
 }
 
