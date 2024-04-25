@@ -119,15 +119,17 @@ runs:
 
     - name: Set MATLAB_HOME
       run: |
-        which matlab
-        echo "MATLAB_HOME=/opt/hostedtoolcache/MATLAB/R2024.2.999/x64" >> $GITHUB_ENV
-        echo "/opt/hostedtoolcache/MATLAB/2024.2.999/x64" >> $GITHUB_PATH
+        # MATLAB is located somewhere like /opt/hostedtoolcache/MATLAB/R2024.1.999/x64/bin/matlab
+        MATLAB_BIN=$(dirname $(which matlab))
+        echo "MATLAB_HOME=$(dirname $MATLAB_BIN)" >> $GITHUB_ENV
       shell: bash
       if: runner.os == 'Linux' && matrix.config == 'matlab'
 
     - name: Set MATLAB_HOME
       run: |
+        Get-Item Env:PATH
         where matlab
+        Split-Path -Path $profile
         echo "MATLAB_HOME=C:\Program Files\MATLAB\R2024a\bin" >> $env:GITHUB_ENV
         echo "C:\Program Files\MATLAB\R2024a\bin" >> $env:GITHUB_PATH
       shell: powershell
