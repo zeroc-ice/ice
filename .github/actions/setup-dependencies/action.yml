@@ -126,7 +126,6 @@ runs:
 
     - name: Set MATLAB_HOME
       run: |
-        $env:path.split(";")
         echo "MATLAB_HOME=${{ steps.setup-matlab.outputs.matlabroot }}" >> $GITHUB_ENV
       shell: powershell
       if: runner.os == 'Windows' && matrix.config == 'matlab'
