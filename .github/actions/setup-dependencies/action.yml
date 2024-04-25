@@ -16,7 +16,6 @@ runs:
     #
     # Linux and macOS
     #
-
     - name: Set Linux MAKEFLAGS
       run: echo "MAKEFLAGS=-j$(nproc) V=1" >> $GITHUB_ENV
       shell: bash
@@ -87,7 +86,6 @@ runs:
     #
     # Windows
     #
-
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
       with:
@@ -120,7 +118,6 @@ runs:
     #
     # MATLAB
     #
-
     - name: Setup MATLAB
       id: setup-matlab
       uses: matlab-actions/setup-matlab@v2
