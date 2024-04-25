@@ -59,7 +59,7 @@ namespace Ice::SSL
         /**
          * A callback that allows manual validation of the client server's certificate chain during the SSL handshake.
          * This callback allows for implementing custom verification logic. When the verification callback returns
-         * false, the connection will be aborted with an \link Ice::SecurityException.
+         * false, the connection will be aborted with an Ice::SecurityException.
          *
          * @param context A CtxtHandle representing the security context associated with the current connection. This
          * context contains security data relevant for validation, such as the server's certificate chain and cipher
@@ -105,7 +105,7 @@ namespace Ice::SSL
 
         /**
          * A callback that allows manually validating the server certificate chain. When the verification callback
-         * returns false, the connection will be aborted with an \link Ice::SecurityException.
+         * returns false, the connection will be aborted with an Ice::SecurityException.
          *
          * @param trust The trust object that contains the server's certificate chain.
          * @param info The IceSSL::ConnectionInfoPtr object that provides additional connection-related data which might
@@ -146,7 +146,7 @@ namespace Ice::SSL
          * A callback that allows manual validation of the server certificate chain during the SSL handshake. This
          * callback is called from the SSL_verify_cb function in OpenSSL and provides an interface for custom
          * verification logic beyond the standard certificate checking process. When the verification callback returns
-         * false, the connection will be aborted with an \link Ice::SecurityException.
+         * false, the connection will be aborted with an Ice::SecurityException.
          *
          * @param verified A boolean indicating whether the preliminary certificate verification done by OpenSSL's
          * built-in mechanisms succeeded or failed. True if the preliminary checks passed, false otherwise.
