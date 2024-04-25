@@ -130,6 +130,7 @@ runs:
 
     - name: Set MATLAB_HOME
       run: |
+        sudo apt install -y libgtk2.0-0
         echo "MATLAB_HOME=${{ steps.setup-matlab.outputs.matlabroot }}" >> $GITHUB_ENV
       shell: bash
       if: runner.os == 'Linux' && matrix.config == 'matlab'
