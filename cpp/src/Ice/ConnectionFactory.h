@@ -5,7 +5,6 @@
 #ifndef ICE_CONNECTION_FACTORY_H
 #define ICE_CONNECTION_FACTORY_H
 
-#include "ACMF.h"
 #include "AcceptorF.h"
 #include "ConnectionFactoryF.h"
 #include "ConnectionI.h"
@@ -60,6 +59,8 @@ namespace IceInternal
         void setRouterInfo(const RouterInfoPtr&);
         void removeAdapter(const Ice::ObjectAdapterPtr&);
         void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&, Ice::CompressBatch);
+
+        void removeConnection(const Ice::ConnectionIPtr&) noexcept;
 
         OutgoingConnectionFactory(const Ice::CommunicatorPtr&, const InstancePtr&);
         ~OutgoingConnectionFactory();
@@ -148,7 +149,6 @@ namespace IceInternal
 
         Ice::CommunicatorPtr _communicator;
         const InstancePtr _instance;
-        const FactoryACMMonitorPtr _monitor;
         const Ice::ConnectionOptions _connectionOptions;
 
         bool _destroyed;
@@ -188,6 +188,8 @@ namespace IceInternal
         bool isLocal(const EndpointIPtr&) const;
         EndpointIPtr endpoint() const;
         std::list<Ice::ConnectionIPtr> connections() const;
+        void removeConnection(const Ice::ConnectionIPtr&) noexcept;
+
         void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&, Ice::CompressBatch);
 
         //
@@ -234,7 +236,6 @@ namespace IceInternal
         void closeAcceptor();
 
         const InstancePtr _instance;
-        const FactoryACMMonitorPtr _monitor;
         const Ice::ConnectionOptions _connectionOptions;
 
         AcceptorPtr _acceptor;

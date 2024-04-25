@@ -5,7 +5,6 @@
 #ifndef ICE_CONNECTION_I_H
 #define ICE_CONNECTION_I_H
 
-#include "ACM.h"
 #include "ConnectionFactoryF.h"
 #include "ConnectionOptions.h"
 #include "ConnectorF.h"
@@ -148,8 +147,6 @@ namespace Ice
 
         void updateObserver();
 
-        void monitor(const std::chrono::steady_clock::time_point&, const IceInternal::ACMConfig&);
-
         IceInternal::AsyncStatus sendAsyncRequest(const IceInternal::OutgoingAsyncBasePtr&, bool, bool, int);
 
         const IceInternal::BatchRequestQueuePtr& getBatchRequestQueue() const;
@@ -164,10 +161,6 @@ namespace Ice
 
         std::function<void()>
             heartbeatAsync(std::function<void(std::exception_ptr)>, std::function<void(bool)> = nullptr) final;
-
-        void
-        setACM(const std::optional<int>&, const std::optional<ACMClose>&, const std::optional<ACMHeartbeat>&) final;
-        ACM getACM() noexcept final;
 
         void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, std::exception_ptr) final;
 
@@ -193,8 +186,6 @@ namespace Ice
         void finished(IceInternal::ThreadPoolCurrent&, bool) final;
         std::string toString() const noexcept final; // From Connection and EventHandler.
         IceInternal::NativeInfoPtr getNativeInfo() final;
-
-        void timedOut();
 
         std::string type() const noexcept final;     // From Connection.
         std::int32_t timeout() const noexcept final; // From Connection.
@@ -230,6 +221,12 @@ namespace Ice
         void
         idleCheck(const IceUtil::TimerTaskPtr& idleCheckTimerTask, const std::chrono::seconds& idleTimeout) noexcept;
 
+        /// Aborts the connection if its state is < StateActive.
+        void connectTimedOut() noexcept;
+
+        /// Aborts the connection if its state is < StateClosed.
+        void closeTimedOut() noexcept;
+
         // TODO: there are too many functions with similar names. This is the function called by the HeartbeatTimerTask.
         void sendHeartbeat() noexcept;
 
@@ -239,21 +236,21 @@ namespace Ice
         ConnectionI(
             const Ice::CommunicatorPtr&,
             const IceInternal::InstancePtr&,
-            const IceInternal::ACMMonitorPtr&,
             const IceInternal::TransceiverPtr&,
             const IceInternal::ConnectorPtr&,
             const IceInternal::EndpointIPtr&,
             const std::shared_ptr<ObjectAdapterI>&,
+            std::function<void(const ConnectionIPtr&)>,
             const ConnectionOptions&) noexcept;
 
         static ConnectionIPtr create(
             const Ice::CommunicatorPtr&,
             const IceInternal::InstancePtr&,
-            const IceInternal::ACMMonitorPtr&,
             const IceInternal::TransceiverPtr&,
             const IceInternal::ConnectorPtr&,
             const IceInternal::EndpointIPtr&,
             const std::shared_ptr<ObjectAdapterI>&,
+            std::function<void(const ConnectionIPtr&)>,
             const ConnectionOptions&);
 
         enum State
@@ -302,20 +299,14 @@ namespace Ice
 
         void dispatchAll(Ice::InputStream&, std::int32_t, std::int32_t, std::uint8_t, const ObjectAdapterIPtr&);
 
-        void scheduleTimeout(IceInternal::SocketOperation status);
-        void unscheduleTimeout(IceInternal::SocketOperation status);
-
         Ice::ConnectionInfoPtr initConnectionInfo() const;
         Ice::Instrumentation::ConnectionState toConnectionState(State) const;
 
         IceInternal::SocketOperation read(IceInternal::Buffer&);
         IceInternal::SocketOperation write(IceInternal::Buffer&);
 
-        void reap();
-
         Ice::CommunicatorPtr _communicator;
         const IceInternal::InstancePtr _instance;
-        IceInternal::ACMMonitorPtr _monitor;
         const IceInternal::TransceiverPtr _transceiver;
         const std::string _desc;
         const std::string _type;
@@ -332,10 +323,6 @@ namespace Ice
         const IceInternal::ThreadPoolPtr _threadPool;
 
         const IceUtil::TimerPtr _timer;
-        const IceUtil::TimerTaskPtr _writeTimeout;
-        bool _writeTimeoutScheduled;
-        const IceUtil::TimerTaskPtr _readTimeout;
-        bool _readTimeoutScheduled;
 
         const std::chrono::seconds _connectTimeout;
         const std::chrono::seconds _closeTimeout;
@@ -344,10 +331,11 @@ namespace Ice
         std::function<void(ConnectionIPtr)> _connectionStartCompleted;
         std::function<void(ConnectionIPtr, std::exception_ptr)> _connectionStartFailed;
 
+        // This function must be called outside the ConnectionI lock to avoid lock acquisition deadlocks.
+        const std::function<void(const ConnectionIPtr&)> _removeFromFactory;
+
         const bool _warn;
         const bool _warnUdp;
-
-        std::chrono::steady_clock::time_point _acmLastActivity;
 
         const int _compressionLevel;
 

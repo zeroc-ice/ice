@@ -175,103 +175,6 @@ ZEND_METHOD(Ice_Connection, heartbeat)
     }
 }
 
-ZEND_BEGIN_ARG_INFO_EX(Ice_Connection_setACM_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(3))
-ZEND_ARG_INFO(0, timeout)
-ZEND_ARG_INFO(0, close)
-ZEND_ARG_INFO(0, heartbeat)
-ZEND_END_ARG_INFO()
-
-ZEND_METHOD(Ice_Connection, setACM)
-{
-    Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
-    assert(_this);
-
-    zval* t;
-    zval* c;
-    zval* h;
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("zzz"), &t, &c, &h) != SUCCESS)
-    {
-        RETURN_NULL();
-    }
-
-    optional<int32_t> timeout;
-    optional<Ice::ACMClose> close;
-    optional<Ice::ACMHeartbeat> heartbeat;
-
-    if (!isUnset(t))
-    {
-        if (Z_TYPE_P(t) != IS_LONG)
-        {
-            invalidArgument("value for 'timeout' argument must be Unset or an integer");
-            RETURN_NULL();
-        }
-        timeout = static_cast<int32_t>(Z_LVAL_P(t));
-    }
-
-    if (!isUnset(c))
-    {
-        if (Z_TYPE_P(c) != IS_LONG)
-        {
-            invalidArgument("value for 'close' argument must be Unset or an enumerator of ACMClose");
-            RETURN_NULL();
-        }
-        close = static_cast<Ice::ACMClose>(Z_LVAL_P(c));
-    }
-
-    if (!isUnset(h))
-    {
-        if (Z_TYPE_P(h) != IS_LONG)
-        {
-            invalidArgument("value for 'heartbeat' argument must be Unset or an enumerator of ACMHeartbeat");
-            RETURN_NULL();
-        }
-        heartbeat = static_cast<Ice::ACMHeartbeat>(Z_LVAL_P(h));
-    }
-
-    try
-    {
-        _this->setACM(timeout, close, heartbeat);
-    }
-    catch (...)
-    {
-        throwException(current_exception());
-        RETURN_NULL();
-    }
-}
-
-ZEND_METHOD(Ice_Connection, getACM)
-{
-    if (ZEND_NUM_ARGS() > 0)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
-    assert(_this);
-
-    try
-    {
-        Ice::ACM acm = _this->getACM();
-
-        zend_class_entry* acmClass = idToClass("::Ice::ACM");
-
-        if (object_init_ex(return_value, const_cast<zend_class_entry*>(acmClass)) != SUCCESS)
-        {
-            runtimeError("unable to initialize object of type %s", acmClass->name);
-            RETURN_NULL();
-        }
-
-        add_property_long(return_value, "timeout", static_cast<long>(acm.timeout));
-        add_property_long(return_value, "close", static_cast<long>(acm.close));
-        add_property_long(return_value, "heartbeat", static_cast<long>(acm.heartbeat));
-    }
-    catch (...)
-    {
-        throwException(current_exception());
-        RETURN_NULL();
-    }
-}
-
 ZEND_METHOD(Ice_Connection, type)
 {
     if (ZEND_NUM_ARGS() > 0)
@@ -440,23 +343,19 @@ static zend_function_entry _connectionClassMethods[] = {
         __toString,
         ice_to_string_arginfo,
         ZEND_ACC_PUBLIC) ZEND_ME(Ice_Connection, close, Ice_Connection_close_arginfo, ZEND_ACC_PUBLIC)
-        ZEND_ME(Ice_Connection, getEndpoint, ice_void_arginfo, ZEND_ACC_PUBLIC)
-            ZEND_ME(Ice_Connection, flushBatchRequests, Ice_Connection_flushBatchRequests_arginfo, ZEND_ACC_PUBLIC)
-                ZEND_ME(Ice_Connection, heartbeat, ice_void_arginfo, ZEND_ACC_PUBLIC)
-                    ZEND_ME(Ice_Connection, setACM, Ice_Connection_setACM_arginfo, ZEND_ACC_PUBLIC)
-                        ZEND_ME(Ice_Connection, getACM, ice_void_arginfo, ZEND_ACC_PUBLIC)
-                            ZEND_ME(Ice_Connection, type, ice_void_arginfo, ZEND_ACC_PUBLIC)
-                                ZEND_ME(Ice_Connection, timeout, ice_void_arginfo, ZEND_ACC_PUBLIC)
-                                    ZEND_ME(Ice_Connection, toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
-                                        ZEND_ME(Ice_Connection, getInfo, ice_void_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(
-                                            Ice_Connection,
-                                            setBufferSize,
-                                            Ice_Connection_setBufferSize_arginfo,
-                                            ZEND_ACC_PUBLIC)
-                                            ZEND_ME(Ice_Connection, throwException, ice_void_arginfo, ZEND_ACC_PUBLIC){
-                                                0,
-                                                0,
-                                                0}};
+        ZEND_ME(Ice_Connection, getEndpoint, ice_void_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(
+            Ice_Connection,
+            flushBatchRequests,
+            Ice_Connection_flushBatchRequests_arginfo,
+            ZEND_ACC_PUBLIC) ZEND_ME(Ice_Connection, heartbeat, ice_void_arginfo, ZEND_ACC_PUBLIC)
+            ZEND_ME(Ice_Connection, type, ice_void_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(
+                Ice_Connection,
+                timeout,
+                ice_void_arginfo,
+                ZEND_ACC_PUBLIC) ZEND_ME(Ice_Connection, toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
+                ZEND_ME(Ice_Connection, getInfo, ice_void_arginfo, ZEND_ACC_PUBLIC)
+                    ZEND_ME(Ice_Connection, setBufferSize, Ice_Connection_setBufferSize_arginfo, ZEND_ACC_PUBLIC)
+                        ZEND_ME(Ice_Connection, throwException, ice_void_arginfo, ZEND_ACC_PUBLIC){0, 0, 0}};
 
 ZEND_METHOD(Ice_ConnectionInfo, __construct) { runtimeError("ConnectionInfo cannot be instantiated"); }
 

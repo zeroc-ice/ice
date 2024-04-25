@@ -248,7 +248,9 @@ RegistryI::startImpl()
 
     _replicaName = properties->getPropertyWithDefault("IceGrid.Registry.ReplicaName", "Master");
     _master = _replicaName == "Master";
-    _sessionTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault("IceGrid.Registry.SessionTimeout", 30));
+
+    // TODO: temporary. For now, synchronized with the default idle timeout.
+    _sessionTimeout = chrono::seconds(properties->getPropertyAsIntWithDefault("IceGrid.Registry.SessionTimeout", 60));
 
     if (!_initFromReplica.empty() && (_initFromReplica == _replicaName || (_master && _initFromReplica == "Master")))
     {
@@ -256,25 +258,6 @@ RegistryI::startImpl()
         out << "invalid --initdb-from-replica option: identical replica";
         return false;
     }
-
-    if (_sessionTimeout > 0s && properties->getProperty("IceGrid.Registry.Client.ACM.Timeout").empty())
-    {
-        properties->setProperty("IceGrid.Registry.Client.ACM.Timeout", to_string(secondsToInt(_sessionTimeout)));
-    }
-
-    if (properties->getProperty("IceGrid.Registry.Server.ACM.Timeout").empty())
-    {
-        properties->setProperty("IceGrid.Registry.Server.ACM.Timeout", "30");
-    }
-
-    if (properties->getProperty("IceGrid.Registry.Internal.ACM.Timeout").empty())
-    {
-        int nt = properties->getPropertyAsIntWithDefault("IceGrid.Registry.NodeSessionTimeout", 30);
-        int rt = properties->getPropertyAsIntWithDefault("IceGrid.Registry.ReplicaSessionTimeout", 30);
-        properties->setProperty("IceGrid.Registry.Internal.ACM.Timeout", to_string(max(nt, rt)));
-    }
-
-    properties->setProperty("Ice.ACM.Server.Close", "3"); // Close on invocation and idle.
 
     if (!_master && !_communicator->getDefaultLocator())
     {
@@ -1104,9 +1087,12 @@ RegistryI::getSessionTimeout(const Ice::Current&) const
 }
 
 int
-RegistryI::getACMTimeout(const Ice::Current& current) const
+RegistryI::getACMTimeout(const Ice::Current&) const
 {
-    return current.con->getACM().timeout;
+    // TODO: better way to retrieve idle timeout
+    auto properties = _communicator->getProperties();
+    int idleTimeout = properties->getPropertyAsIntWithDefault("Ice.Connection.IdleTimeout", 60);
+    return properties->getPropertyAsIntWithDefault("IceGrid.Registry.Client.Connection.IdleTimeout", idleTimeout);
 }
 
 string

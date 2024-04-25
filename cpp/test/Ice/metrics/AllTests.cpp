@@ -202,7 +202,8 @@ namespace
         }
         else if (view[map].size() != 1 || view[map][0]->id != value)
         {
-            cerr << "invalid attribute value: " << attr << " = " << value << " got " << view[map][0]->id << endl;
+            cerr << "size of view[map] is: " << view[map].size() << endl;
+            cerr << "expected value for attribute " << attr << " = " << value << "; got " << view[map][0]->id << endl;
             test(false);
         }
 
@@ -610,37 +611,8 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 
         metrics->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
 
-        metrics->ice_timeout(500)->ice_ping();
-        controller->hold();
-        try
-        {
-            Ice::ByteSeq seq;
-            seq.resize(10000000);
-            metrics->ice_timeout(500)->opByteS(seq);
-            test(false);
-        }
-        catch (const Ice::TimeoutException&)
-        {
-        }
-        controller->resume();
-
-        cm1 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(
-            clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
-        while (true)
-        {
-            sm1 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(
-                serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
-            if (sm1->failures >= 2)
-            {
-                break;
-            }
-            this_thread::sleep_for(chrono::milliseconds(10));
-        }
-        test(cm1->failures == 2 && sm1->failures >= 2);
-
-        checkFailure(clientMetrics, "Connection", cm1->id, "::Ice::TimeoutException", 1);
-        checkFailure(clientMetrics, "Connection", cm1->id, "::Ice::ConnectTimeoutException", 1);
-        checkFailure(serverMetrics, "Connection", sm1->id, "::Ice::ConnectionLostException");
+        // TODO: this appears necessary on slow macos VMs to give time to the server to clean-up the connection.
+        this_thread::sleep_for(chrono::milliseconds(100));
 
         MetricsPrx m = metrics->ice_timeout(500)->ice_connectionId("Con1");
         m->ice_ping();

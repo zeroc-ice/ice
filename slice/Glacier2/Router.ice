@@ -87,14 +87,12 @@ module Glacier2
         void destroySession()
             throws SessionNotExistException;
 
-        /// Get the value of the session timeout. Sessions are destroyed if they see no activity for this period of
-        /// time.
-        /// @return The timeout (in seconds).
+        /// Get the idle timeout used by the server-side of the connection.
+        /// @return The idle timeout (in seconds).
         ["cpp:const"] idempotent long getSessionTimeout();
 
-        /// Get the value of the ACM timeout. Clients supporting connection heartbeats can enable them instead of
-        /// explicitly sending keep alives requests. This method is only available since Ice 3.6.
-        /// @return The timeout (in seconds).
+        /// Get the idle timeout used by the server-side of the connection.
+        /// @return The idle timeout (in seconds).
         ["cpp:const"] idempotent int getACMTimeout();
     }
 }

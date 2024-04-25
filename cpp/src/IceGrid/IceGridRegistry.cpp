@@ -195,11 +195,6 @@ RegistryService::initializeCommunicator(
     //
     setupThreadPool(initData.properties, "Ice.ThreadPool.Client", 1, 100);
 
-    //
-    // Close idle connections
-    //
-    initData.properties->setProperty("Ice.ACM.Close", "3");
-
     return Service::initializeCommunicator(argc, argv, initData, version);
 }
 

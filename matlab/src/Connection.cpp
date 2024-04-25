@@ -282,62 +282,6 @@ extern "C"
         return 0;
     }
 
-    mxArray* Ice_Connection_setACM(void* self, mxArray* t, mxArray* c, mxArray* h)
-    {
-        optional<int> timeout;
-        optional<Ice::ACMClose> close;
-        optional<Ice::ACMHeartbeat> heartbeat;
-
-        try
-        {
-            if (!mxIsEmpty(t))
-            {
-                if (!mxIsScalar(t))
-                {
-                    throw invalid_argument("scalar value required for timeout");
-                }
-                if (!mxIsNumeric(t))
-                {
-                    throw invalid_argument("numeric value required for timeout");
-                }
-                timeout = static_cast<int>(mxGetScalar(t));
-            }
-            if (!mxIsEmpty(c))
-            {
-                close = static_cast<Ice::ACMClose>(getEnumerator(c, "Ice.ACMClose"));
-            }
-            if (!mxIsEmpty(h))
-            {
-                heartbeat = static_cast<Ice::ACMHeartbeat>(getEnumerator(h, "Ice.ACMHeartbeat"));
-            }
-            deref<Ice::Connection>(self)->setACM(timeout, close, heartbeat);
-        }
-        catch (...)
-        {
-            return convertException(std::current_exception());
-        }
-        return 0;
-    }
-
-    mxArray* Ice_Connection_getACM(void* self)
-    {
-        try
-        {
-            auto acm = deref<Ice::Connection>(self)->getACM();
-            mxArray* params[3];
-            params[0] = createInt(acm.timeout);
-            params[1] = createInt(static_cast<int>(acm.close));     // The integer is converted to the enumerator.
-            params[2] = createInt(static_cast<int>(acm.heartbeat)); // The integer is converted to the enumerator.
-            mxArray* r;
-            mexCallMATLAB(1, &r, 3, params, "Ice.ACM");
-            return createResultValue(r);
-        }
-        catch (...)
-        {
-            return createResultException(convertException(std::current_exception()));
-        }
-    }
-
     mxArray* Ice_Connection_type(void* self)
     {
         try

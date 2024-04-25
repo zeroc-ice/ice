@@ -122,24 +122,6 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
     }
   }
 
-  func setACM(timeout: Int32?, close: ACMClose?, heartbeat: ACMHeartbeat?) {
-    precondition(timeout ?? 0 >= 0, "Invalid negative ACM timeout value")
-    handle.setACM(
-      timeout as NSNumber?,
-      close: close != nil ? close.unsafelyUnwrapped.rawValue as NSNumber : nil,
-      heartbeat: heartbeat != nil ? heartbeat.unsafelyUnwrapped.rawValue as NSNumber : nil)
-  }
-
-  func getACM() -> ACM {
-    var timeout = Int32()
-    var close = UInt8()
-    var heartbeat = UInt8()
-    handle.getACM(&timeout, close: &close, heartbeat: &heartbeat)
-    return ACM(
-      timeout: timeout, close: ACMClose(rawValue: close)!,
-      heartbeat: ACMHeartbeat(rawValue: heartbeat)!)
-  }
-
   func type() -> String {
     return handle.type()
   }

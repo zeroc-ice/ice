@@ -19,7 +19,6 @@ $macOSDeploymentTarget = "11"
 $iOSDeploymentTarget = "12.0"
 
 $tests = [
-    "Ice/acm",
     "Ice/adapterDeactivation",
     "Ice/admin",
     "Ice/ami",

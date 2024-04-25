@@ -147,22 +147,18 @@ class Application(Ice.Application):
                     status = 1
 
                 if sessionCreated:
-                    acmTimeout = 0
+                    remoteIdleTimeout = 0
                     try:
-                        acmTimeout = Application._router.getACMTimeout()
+                        remoteIdleTimeout = Application._router.getACMTimeout()
                     except Ice.OperationNotExistException:
                         pass
-                    if acmTimeout <= 0:
-                        acmTimeout = Application._router.getSessionTimeout()
-                    if acmTimeout > 0:
-                        connection = Application._router.ice_getCachedConnection()
-                        assert connection
-                        connection.setACM(
-                            acmTimeout, Ice.Unset, Ice.ACMHeartbeat.HeartbeatAlways
-                        )
-                        connection.setCloseCallback(
-                            lambda conn: self.sessionDestroyed()
-                        )
+                    if remoteIdleTimeout <= 0:
+                        remoteIdleTimeout = Application._router.getSessionTimeout()
+                    # TODO: verify that the local idle timeout is compatible with the remote idle timeout.
+                    connection = Application._router.ice_getCachedConnection()
+                    assert connection
+                    connection.setCloseCallback(
+                        lambda conn: self.sessionDestroyed())
                     Application._category = Application._router.getCategoryForClient()
                     status = self.runWithSession(args)
 

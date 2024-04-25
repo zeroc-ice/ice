@@ -76,41 +76,6 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
   }
   output.writeLine("ok")
 
-  // The sequence needs to be large enough to fill the write/recv buffers
-  let seq = ByteSeq(repeating: 0, count: 2_000_000)
-
-  output.write("testing connection timeout... ")
-  do {
-    //
-    // Expect TimeoutException.
-    //
-    let to = timeout.ice_timeout(250)
-    _ = try connect(to)
-    try controller.holdAdapter(-1)
-    do {
-      try to.sendData(seq)
-      try test(false)
-    } catch is Ice.TimeoutException {
-      // Expected.
-    }
-    try controller.resumeAdapter()
-    try timeout.op()  // Ensure adapter is active.
-  }
-
-  do {
-    //
-    // Expect success.
-    //
-    let to = timeout.ice_timeout(2000)
-    try controller.holdAdapter(100)
-    do {
-      try to.sendData(ByteSeq(repeating: 0, count: 1_000_000))
-    } catch is Ice.TimeoutException {
-      try test(false)
-    }
-  }
-  output.writeLine("ok")
-
   output.write("testing invocation timeout... ")
   do {
     let connection = try obj.ice_getConnection()
@@ -153,40 +118,6 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
     } catch {
       try test(false)
     }
-  }
-
-  do {
-    //
-    // Backward compatible connection timeouts
-    //
-    let to = timeout.ice_invocationTimeout(-2).ice_timeout(250)
-    var con = try connect(to)
-    do {
-      try to.sleep(750)
-      try test(false)
-    } catch is Ice.TimeoutException {
-      do {
-        _ = try con.getInfo()
-        try test(false)
-      } catch is Ice.TimeoutException {
-        // Connection got closed as well.
-      }
-    }
-    try timeout.ice_ping()
-
-    do {
-      con = try connect(to)
-      try to.sleepAsync(750).wait()
-      try test(false)
-    } catch is Ice.TimeoutException {
-      do {
-        _ = try con.getInfo()
-        try test(false)
-      } catch is Ice.TimeoutException {
-        // Connection got closed as well.
-      }
-    }
-    try obj.ice_ping()
   }
   output.writeLine("ok")
 

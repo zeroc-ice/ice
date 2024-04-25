@@ -821,13 +821,15 @@ SessionRouterI::destroySession(const ConnectionPtr& connection)
 int64_t
 SessionRouterI::getSessionTimeout(const Ice::Current& current) const
 {
-    return current.con->getACM().timeout;
+    return getACMTimeout(current);
 }
 
 int
-SessionRouterI::getACMTimeout(const Ice::Current& current) const
+SessionRouterI::getACMTimeout(const Ice::Current&) const
 {
-    return current.con->getACM().timeout;
+    // TODO: better way to retrieve idle timeout
+    int idleTimeout = _instance->properties()->getPropertyAsIntWithDefault("Ice.Connection.IdleTimeout", 60);
+    return _instance->properties()->getPropertyAsIntWithDefault("Glacier2.Client.Connection.IdleTimeout", idleTimeout);
 }
 
 void

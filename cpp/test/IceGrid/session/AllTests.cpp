@@ -416,8 +416,6 @@ allTests(TestHelper* helper)
     RegistryPrx registry(communicator, communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry");
 
     auto session = registry->createAdminSession("admin3", "test3");
-    session->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
-
     auto admin = session->getAdmin();
     test(admin);
 
@@ -1045,9 +1043,6 @@ allTests(TestHelper* helper)
         auto session1 = registry->createAdminSession("admin1", "test1");
         auto session2 = registry->createAdminSession("admin2", "test2");
 
-        session1->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
-        session2->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
-
         auto admin1 = session1->getAdmin();
         auto admin2 = session2->getAdmin();
 
@@ -1297,9 +1292,6 @@ allTests(TestHelper* helper)
         cout << "testing application observer... " << flush;
         auto session1 = registry->createAdminSession("admin1", "test1");
         auto admin1 = session1->getAdmin();
-
-        session1->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
-
         auto adpt1 = communicator->createObjectAdapter("");
         auto appObs1 = make_shared<ApplicationObserverI>("appObs1.2");
         auto app1 = adpt1->addWithUUID(appObs1);
@@ -1394,9 +1386,6 @@ allTests(TestHelper* helper)
 
         optional<AdminSessionPrx> session1(registry->createAdminSession("admin1", "test1"));
         auto admin1 = session1->getAdmin();
-
-        session1->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
-
         auto adpt1 = communicator->createObjectAdapter("");
         auto adptObs1 = make_shared<AdapterObserverI>("adptObs1");
         auto adapter1 = adpt1->addWithUUID(adptObs1);
@@ -1479,9 +1468,6 @@ allTests(TestHelper* helper)
 
         optional<AdminSessionPrx> session1(registry->createAdminSession("admin1", "test1"));
         auto admin1 = session1->getAdmin();
-
-        session1->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
-
         auto adpt1 = communicator->createObjectAdapter("");
         auto objectObs1 = make_shared<ObjectObserverI>("objectObs1");
         auto object1 = adpt1->addWithUUID(objectObs1);
@@ -1532,9 +1518,6 @@ allTests(TestHelper* helper)
     {
         cout << "testing node observer... " << flush;
         auto session1 = registry->createAdminSession("admin1", "test1");
-
-        session1->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
-
         auto adpt1 = communicator->createObjectAdapter("");
         auto appObs1 = make_shared<ApplicationObserverI>("appObs1.3");
         auto app1 = adpt1->addWithUUID(appObs1);
@@ -1682,9 +1665,6 @@ allTests(TestHelper* helper)
     {
         cout << "testing registry observer... " << flush;
         auto session1 = registry->createAdminSession("admin1", "test1");
-
-        session1->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
-
         auto adpt1 = communicator->createObjectAdapter("");
         auto appObs1 = make_shared<ApplicationObserverI>("appObs1.4");
         auto app1 = adpt1->addWithUUID(appObs1);
@@ -1724,9 +1704,6 @@ allTests(TestHelper* helper)
     {
         cout << "testing observer with direct proxy... " << flush;
         auto session1 = registry->createAdminSession("admin1", "test1");
-
-        session1->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
-
         auto adpt1 = communicator->createObjectAdapterWithEndpoints("", "tcp");
         auto nodeObs1 = make_shared<NodeObserverI>("nodeObs1");
         NodeObserverPrx no1(adpt1->addWithUUID(nodeObs1));
