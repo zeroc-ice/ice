@@ -205,17 +205,6 @@ extern "C"
 extern "C"
 #endif
     static PyObject*
-    sslConnectionInfoGetCipher(ConnectionInfoObject* self, PyObject* /*args*/)
-{
-    auto info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(*self->connectionInfo);
-    assert(info);
-    return createString(info->cipher);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
     sslConnectionInfoGetCerts(ConnectionInfoObject* self, PyObject* /*args*/)
 {
     auto info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(*self->connectionInfo);
@@ -228,17 +217,6 @@ extern "C"
     }
     stringSeqToList(encoded, certs);
     return certs;
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    sslConnectionInfoGetVerified(ConnectionInfoObject* self, PyObject* /*args*/)
-{
-    auto info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(*self->connectionInfo);
-    assert(info);
-    return info->incoming ? incTrue() : incFalse();
 }
 
 static PyGetSetDef ConnectionInfoGetters[] = {
@@ -332,20 +310,10 @@ static PyGetSetDef WSConnectionInfoGetters[] = {
 };
 
 static PyGetSetDef SSLConnectionInfoGetters[] = {
-    {STRCAST("cipher"),
-     reinterpret_cast<getter>(sslConnectionInfoGetCipher),
-     0,
-     PyDoc_STR(STRCAST("negotiated cipher suite")),
-     0},
     {STRCAST("certs"),
      reinterpret_cast<getter>(sslConnectionInfoGetCerts),
      0,
      PyDoc_STR(STRCAST("certificate chain")),
-     0},
-    {STRCAST("verified"),
-     reinterpret_cast<getter>(sslConnectionInfoGetVerified),
-     0,
-     PyDoc_STR(STRCAST("certificate chain verification status")),
      0},
     {0, 0} /* sentinel */
 };

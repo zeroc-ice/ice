@@ -2066,8 +2066,8 @@ IceRuby::ClassInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* valueMap, 
 
     if (NIL_P(p))
     {
-        shared_ptr<Ice::Value> nil;
-        os->write(nil);
+        shared_ptr<Ice::Value> value; // nullptr
+        os->write(value);
         return;
     }
 
