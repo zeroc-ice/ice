@@ -129,9 +129,7 @@ runs:
 
     - name: Set MATLAB_HOME
       run: |
-        where.exe matlab
-        where.exe git
-        where.exe echo
+        # where.exe matlab
         dir "${{ steps.setup-matlab.outputs.matlabroot }}\bin"
         echo "MATLAB_HOME=${{ steps.setup-matlab.outputs.matlabroot }}" >> $env:GITHUB_ENV
       shell: powershell
