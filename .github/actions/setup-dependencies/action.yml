@@ -157,9 +157,7 @@ runs:
       shell: powershell
       if: runner.os == 'Windows' && matrix.config == 'matlab'
 
-    #
-    # Cache
-    #
+    # ———— Cache ———— #
     - name: Setup ccache
       uses: hendrikmuhs/ccache-action@v1.2
       with:
