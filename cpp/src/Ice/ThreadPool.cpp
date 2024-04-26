@@ -23,65 +23,6 @@ using namespace IceInternal;
 
 namespace
 {
-    class ShutdownWorkItem final : public ThreadPoolWorkItem
-    {
-    public:
-        ShutdownWorkItem(const InstancePtr& instance) : _instance(instance) {}
-
-        void execute(ThreadPoolCurrent& current) final
-        {
-            current.ioCompleted();
-            try
-            {
-                _instance->objectAdapterFactory()->shutdown();
-            }
-            catch (const CommunicatorDestroyedException&)
-            {
-            }
-        }
-
-    private:
-        const InstancePtr _instance;
-    };
-
-    class FinishedWorkItem final : public ThreadPoolWorkItem
-    {
-    public:
-        FinishedWorkItem(const EventHandlerPtr& handler, bool close) : _handler(handler), _close(close) {}
-
-        void execute(ThreadPoolCurrent& current) final
-        {
-            _handler->finished(current, _close);
-
-            //
-            // Break cyclic reference count.
-            //
-            if (_handler->getNativeInfo())
-            {
-                _handler->getNativeInfo()->setReadyCallback(nullptr);
-            }
-        }
-
-    private:
-        const EventHandlerPtr _handler;
-        const bool _close;
-    };
-
-    class JoinThreadWorkItem final : public ThreadPoolWorkItem
-    {
-    public:
-        JoinThreadWorkItem(const ThreadPool::EventHandlerThreadPtr& thread) : _thread(thread) {}
-
-        void execute(ThreadPoolCurrent&) final
-        {
-            // No call to ioCompleted, this shouldn't block (and we don't want to cause a new thread to be started).
-            _thread->join();
-        }
-
-    private:
-        ThreadPool::EventHandlerThreadPtr _thread;
-    };
-
     //
     // Exception raised by the thread pool work queue when the thread pool
     // is destroyed.
@@ -114,17 +55,6 @@ namespace
 #endif
 }
 
-IceInternal::ExecutorWorkItem::ExecutorWorkItem() {}
-
-IceInternal::ExecutorWorkItem::ExecutorWorkItem(const Ice::ConnectionPtr& connection) : _connection(connection) {}
-
-void
-IceInternal::ExecutorWorkItem::execute(ThreadPoolCurrent& current)
-{
-    current.ioCompleted(); // Promote follower
-    current.executeFromThisThread(shared_from_this());
-}
-
 IceInternal::ThreadPoolWorkQueue::ThreadPoolWorkQueue(ThreadPool& threadPool)
     : _threadPool(threadPool),
       _destroyed(false)
@@ -146,10 +76,10 @@ IceInternal::ThreadPoolWorkQueue::destroy()
 }
 
 void
-IceInternal::ThreadPoolWorkQueue::queue(const ThreadPoolWorkItemPtr& item)
+IceInternal::ThreadPoolWorkQueue::queue(function<void(ThreadPoolCurrent&)> item, const Ice::ConnectionPtr& connection)
 {
     // lock_guard lock(_mutex); Called with the thread pool locked
-    _workItems.push_back(item);
+    _workItems.push_back(make_pair(item, connection));
 #if defined(ICE_USE_IOCP)
     _threadPool._selector.completed(this, SocketOperationRead);
 #else
@@ -179,12 +109,12 @@ IceInternal::ThreadPoolWorkQueue::finishAsync(SocketOperation)
 void
 IceInternal::ThreadPoolWorkQueue::message(ThreadPoolCurrent& current)
 {
-    ThreadPoolWorkItemPtr workItem;
+    optional<pair<function<void(ThreadPoolCurrent&)>, Ice::ConnectionPtr>> workItem;
     {
         lock_guard lock(_threadPool._mutex);
         if (!_workItems.empty())
         {
-            workItem = _workItems.front();
+            workItem = std::move(_workItems.front());
             _workItems.pop_front();
         }
 #if defined(ICE_USE_IOCP)
@@ -203,7 +133,7 @@ IceInternal::ThreadPoolWorkQueue::message(ThreadPoolCurrent& current)
 
     if (workItem)
     {
-        workItem->execute(current);
+        workItem.first(current);
     }
     else
     {
@@ -493,7 +423,18 @@ IceInternal::ThreadPool::finish(const EventHandlerPtr& handler, bool closeNow)
     assert(!_destroyed);
 #if !defined(ICE_USE_IOCP)
     closeNow = _selector.finish(handler.get(), closeNow); // This must be called before!
-    _workQueue->queue(make_shared<FinishedWorkItem>(handler, !closeNow));
+    _workQueue->queue([handler, closeNow](ThreadPoolCurrent& current)
+        {
+            handler->finished(current, !closeNow);
+
+            //
+            // Break cyclic reference count.
+            //
+            if (handler->getNativeInfo())
+            {
+                handler->getNativeInfo()->setReadyCallback(nullptr);
+            }
+        });
     return closeNow;
 #else
     UNREFERENCED_PARAMETER(closeNow);
@@ -501,7 +442,18 @@ IceInternal::ThreadPool::finish(const EventHandlerPtr& handler, bool closeNow)
     // If there are no pending asynchronous operations, we can call finish on the handler now.
     if (!handler->_pending)
     {
-        _workQueue->queue(make_shared<FinishedWorkItem>(handler, false));
+        _workQueue->queue([handler, closeNow](ThreadPoolCurrent& current)
+            {
+                handler->finished(current, false);
+
+                //
+                // Break cyclic reference count.
+                //
+                if (handler->getNativeInfo())
+                {
+                    handler->getNativeInfo()->setReadyCallback(nullptr);
+                }
+            });
         _selector.finish(handler.get());
     }
     else
@@ -524,7 +476,7 @@ IceInternal::ThreadPool::ready(const EventHandlerPtr& handler, SocketOperation o
 }
 
 void
-IceInternal::ThreadPool::executeFromThisThread(const ExecutorWorkItemPtr& workItem)
+IceInternal::ThreadPool::executeFromThisThread(function<void()> call, const Ice::ConnectionPtr& connection)
 {
 #ifdef ICE_SWIFT
     dispatch_sync(_dispatchQueue, ^{
@@ -535,7 +487,7 @@ IceInternal::ThreadPool::executeFromThisThread(const ExecutorWorkItemPtr& workIt
     {
         try
         {
-            _executor([workItem]() { workItem->run(); }, workItem->getConnection());
+            _executor(call, connection);
         }
         catch (const std::exception& ex)
         {
@@ -556,37 +508,26 @@ IceInternal::ThreadPool::executeFromThisThread(const ExecutorWorkItemPtr& workIt
     }
     else
     {
-        workItem->run();
+        call();
     }
 #endif
 }
 
 void
-IceInternal::ThreadPool::execute(const ExecutorWorkItemPtr& workItem)
+IceInternal::ThreadPool::execute(function<void()> call, const Ice::ConnectionPtr& connection)
 {
     lock_guard lock(_mutex);
     if (_destroyed)
     {
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
-    _workQueue->queue(workItem);
-}
 
-void
-IceInternal::ThreadPool::execute(function<void()> call)
-{
-    class WorkItem final : public IceInternal::ExecutorWorkItem
-    {
-    public:
-        WorkItem(function<void()> call) : _call(std::move(call)) {}
-
-        void run() final { _call(); }
-
-    private:
-        function<void()> _call;
-    };
-
-    execute(make_shared<WorkItem>(std::move(call)));
+    _workQueue->queue([self = shared_from_this(), call = std::move(call)](ThreadPoolCurrent& current)
+        {
+            current.ioCompleted(); // Promote new leader
+            self->executeFromThisThread(call);
+        },
+        connection);
 }
 
 void
@@ -667,7 +608,17 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                 lock_guard lock(_mutex);
                 if (!_destroyed && _inUse == 0)
                 {
-                    _workQueue->queue(make_shared<ShutdownWorkItem>(_instance)); // Select timed-out.
+                    _workQueue->queue([instance = _instance](ThreadPoolCurrent& executeThreadCurrent)
+                    {
+                        executeThreadCurrent.ioCompleted();
+                        try
+                        {
+                            instance->objectAdapterFactory()->shutdown();
+                        }
+                        catch (const CommunicatorDestroyedException&)
+                        {
+                        }
+                    }); // Select timed-out.
                 }
                 continue;
             }
@@ -1106,7 +1057,12 @@ IceInternal::ThreadPool::followerWait(ThreadPoolCurrent& current, unique_lock<mu
                     }
                     assert(_threads.size() > 1); // Can only be called by a waiting follower thread.
                     _threads.erase(current._thread);
-                    _workQueue->queue(make_shared<JoinThreadWorkItem>(current._thread));
+                    _workQueue->queue([thread = current._thread](ThreadPoolCurrent&)
+                    {
+                        // No call to ioCompleted, this shouldn't block (and we don't want to cause a new thread to be
+                        // started).
+                        thread->join();
+                    });
                     return true;
                 }
             }

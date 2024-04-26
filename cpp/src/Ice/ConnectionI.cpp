@@ -50,79 +50,6 @@ namespace
         Ice::ConnectionI* _connection;
     };
 
-    class ExecuteUpCall final : public ExecutorWorkItem
-    {
-    public:
-        ExecuteUpCall(
-            const ConnectionIPtr& connection,
-            function<void(ConnectionIPtr)> connectionStartCompleted,
-            const vector<ConnectionI::OutgoingMessage>& sentCBs,
-            uint8_t compress,
-            int32_t requestId,
-            int32_t requestCount,
-            const ObjectAdapterIPtr& adapter,
-            const OutgoingAsyncBasePtr& outAsync,
-            const HeartbeatCallback& heartbeatCallback,
-            InputStream& stream)
-            : ExecutorWorkItem(connection),
-              _connection(connection),
-              _connectionStartCompleted(std::move(connectionStartCompleted)),
-              _sentCBs(sentCBs),
-              _compress(compress),
-              _requestId(requestId),
-              _requestCount(requestCount),
-              _adapter(adapter),
-              _outAsync(outAsync),
-              _heartbeatCallback(heartbeatCallback),
-              _stream(stream.instance(), currentProtocolEncoding)
-        {
-            _stream.swap(stream);
-        }
-
-        void run() final
-        {
-            _connection->upcall(
-                _connectionStartCompleted,
-                _sentCBs,
-                _compress,
-                _requestId,
-                _requestCount,
-                _adapter,
-                _outAsync,
-                _heartbeatCallback,
-                _stream);
-        }
-
-    private:
-        const ConnectionIPtr _connection;
-        const function<void(Ice::ConnectionIPtr)> _connectionStartCompleted;
-        const vector<ConnectionI::OutgoingMessage> _sentCBs;
-        const uint8_t _compress;
-        const int32_t _requestId;
-        const int32_t _requestCount;
-        const ObjectAdapterIPtr _adapter;
-        const OutgoingAsyncBasePtr _outAsync;
-        const HeartbeatCallback _heartbeatCallback;
-        InputStream _stream;
-    };
-
-    class ExecuteFinish final : public ExecutorWorkItem
-    {
-    public:
-        ExecuteFinish(const Ice::ConnectionIPtr& connection, bool close)
-            : ExecutorWorkItem(connection),
-              _connection(connection),
-              _close(close)
-        {
-        }
-
-        void run() final { _connection->finish(_close); }
-
-    private:
-        const ConnectionIPtr _connection;
-        const bool _close;
-    };
-
     //
     // Class for handling Ice::Connection::begin_flushBatchRequests
     //
@@ -1604,17 +1531,35 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 
 // executeFromThisThread dispatches to the correct DispatchQueue
 #ifdef ICE_SWIFT
-    _threadPool->executeFromThisThread(make_shared<ExecuteUpCall>(
-        shared_from_this(),
-        std::move(connectionStartCompleted),
-        sentCBs,
-        compress,
-        requestId,
-        requestCount,
-        adapter,
-        outAsync,
-        heartbeatCallback,
-        current.stream));
+    auto stream = make_shared<InputStream>();
+    current.stream.swap(*stream);
+
+    _threadPool->executeFromThisThread(
+        [
+            this,
+            connectionStartCompleted = std::move(connectionStartCompleted),
+            sentCBs = std::move(sentCBs),
+            compress,
+            requestId,
+            requestCount,
+            adapter,
+            outAsync,
+            heartbeatCallback,
+            stream
+        ]()
+        {
+            upcall(
+                connectionStartCompleted,
+                sentCBs,
+                compress,
+                requestId,
+                requestCount,
+                adapter,
+                outAsync,
+                heartbeatCallback,
+                *stream);
+        },
+        shared_from_this());
 #else
     if (!_hasExecutor) // Optimization, call dispatch() directly if there's no executor.
     {
@@ -1631,17 +1576,35 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
     }
     else
     {
-        _threadPool->executeFromThisThread(make_shared<ExecuteUpCall>(
-            shared_from_this(),
-            std::move(connectionStartCompleted),
-            sentCBs,
-            compress,
-            requestId,
-            requestCount,
-            adapter,
-            outAsync,
-            heartbeatCallback,
-            current.stream));
+        auto stream = make_shared<InputStream>();
+        current.stream.swap(*stream);
+
+        _threadPool->executeFromThisThread(
+            [
+                this,
+                connectionStartCompleted = std::move(connectionStartCompleted),
+                sentCBs = std::move(sentCBs),
+                compress,
+                requestId,
+                requestCount,
+                adapter,
+                outAsync,
+                heartbeatCallback,
+                stream
+            ]()
+            {
+                upcall(
+                    connectionStartCompleted,
+                    sentCBs,
+                    compress,
+                    requestId,
+                    requestCount,
+                    adapter,
+                    outAsync,
+                    heartbeatCallback,
+                    *stream);
+            },
+            shared_from_this());
     }
 #endif
 }
@@ -1789,7 +1752,7 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
 
 // executeFromThisThread dispatches to the correct DispatchQueue
 #ifdef ICE_SWIFT
-    _threadPool->executeFromThisThread(make_shared<ExecuteFinish>(shared_from_this(), close));
+    _threadPool->executeFromThisThread([this, close]() { finish(close); }, shared_from_this());
 #else
     if (!_hasExecutor) // Optimization, call finish() directly if there's no executor.
     {
@@ -1797,7 +1760,7 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
     }
     else
     {
-        _threadPool->executeFromThisThread(make_shared<ExecuteFinish>(shared_from_this(), close));
+        _threadPool->executeFromThisThread([this, close]() { finish(close); }, shared_from_this());
     }
 #endif
 }

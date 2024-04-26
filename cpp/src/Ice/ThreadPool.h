@@ -30,31 +30,6 @@ namespace IceInternal
     class ThreadPoolWorkQueue;
     using ThreadPoolWorkQueuePtr = std::shared_ptr<ThreadPoolWorkQueue>;
 
-    class ThreadPoolWorkItem
-    {
-    public:
-        virtual void execute(ThreadPoolCurrent&) = 0;
-    };
-    using ThreadPoolWorkItemPtr = std::shared_ptr<ThreadPoolWorkItem>;
-
-    // A work item that is executed by the executor, if configured.
-    class ExecutorWorkItem : public ThreadPoolWorkItem, public std::enable_shared_from_this<ExecutorWorkItem>
-    {
-    public:
-        ExecutorWorkItem();
-        ExecutorWorkItem(const Ice::ConnectionPtr& connection);
-
-        const Ice::ConnectionPtr& getConnection() { return _connection; }
-
-        virtual void run() = 0;
-
-    private:
-        virtual void execute(ThreadPoolCurrent&);
-
-        const Ice::ConnectionPtr _connection;
-    };
-    using ExecutorWorkItemPtr = std::shared_ptr<ExecutorWorkItem>;
-
     class ThreadPool : public std::enable_shared_from_this<ThreadPool>
     {
     public:
@@ -99,9 +74,8 @@ namespace IceInternal
         bool finish(const EventHandlerPtr&, bool);
         void ready(const EventHandlerPtr&, SocketOperation, bool);
 
-        void executeFromThisThread(const ExecutorWorkItemPtr&);
-        void execute(const ExecutorWorkItemPtr&);
-        void execute(std::function<void()>);
+        void executeFromThisThread(std::function<void()>, const Ice::ConnectionPtr& = nullptr);
+        void execute(std::function<void()>, const Ice::ConnectionPtr& = nullptr);
 
         void joinWithAllThreads();
 
@@ -187,11 +161,6 @@ namespace IceInternal
         bool ioReady() { return (_handler->_registered & operation) != 0; }
 #endif
 
-        void executeFromThisThread(const ExecutorWorkItemPtr& workItem)
-        {
-            _threadPool->executeFromThisThread(workItem);
-        }
-
     private:
         ThreadPool* _threadPool;
         ThreadPool::EventHandlerThreadPtr _thread;
@@ -212,7 +181,7 @@ namespace IceInternal
         ThreadPoolWorkQueue(ThreadPool&);
 
         void destroy();
-        void queue(const ThreadPoolWorkItemPtr&);
+        void queue(std::function<void(ThreadPoolCurrent&)>, const Ice::ConnectionPtr& = nullptr);
 
 #if defined(ICE_USE_IOCP)
         bool startAsync(SocketOperation);
@@ -227,7 +196,7 @@ namespace IceInternal
     private:
         ThreadPool& _threadPool;
         bool _destroyed;
-        std::list<ThreadPoolWorkItemPtr> _workItems;
+        std::list<std::pair<std::function<void(ThreadPoolCurrent&)>, Ice::ConnectionPtr>> _workItems;
     };
 
 //

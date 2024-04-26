@@ -51,21 +51,6 @@ OutgoingAsyncBase::response()
 void
 OutgoingAsyncBase::invokeSentAsync()
 {
-    class AsynchronousSent final : public ExecutorWorkItem
-    {
-    public:
-        AsynchronousSent(const ConnectionPtr& connection, const OutgoingAsyncBasePtr& outAsync)
-            : ExecutorWorkItem(connection),
-              _outAsync(outAsync)
-        {
-        }
-
-        void run() final { _outAsync->invokeSent(); }
-
-    private:
-        const OutgoingAsyncBasePtr _outAsync;
-    };
-
     //
     // This is called when it's not safe to call the sent callback
     // synchronously from this thread. Instead the exception callback
@@ -73,7 +58,9 @@ OutgoingAsyncBase::invokeSentAsync()
     //
     try
     {
-        _instance->clientThreadPool()->execute(make_shared<AsynchronousSent>(_cachedConnection, shared_from_this()));
+        _instance->clientThreadPool()->execute(
+            [self = shared_from_this()]() { self->invokeSent(); },
+            _cachedConnection);
     }
     catch (const CommunicatorDestroyedException&)
     {
@@ -83,49 +70,23 @@ OutgoingAsyncBase::invokeSentAsync()
 void
 OutgoingAsyncBase::invokeExceptionAsync()
 {
-    class AsynchronousException final : public ExecutorWorkItem
-    {
-    public:
-        AsynchronousException(const ConnectionPtr& c, const OutgoingAsyncBasePtr& outAsync)
-            : ExecutorWorkItem(c),
-              _outAsync(outAsync)
-        {
-        }
-
-        void run() final { _outAsync->invokeException(); }
-
-    private:
-        const OutgoingAsyncBasePtr _outAsync;
-    };
-
     //
     // CommunicatorDestroyedException is the only exception that can propagate directly from this method.
     //
-    _instance->clientThreadPool()->execute(make_shared<AsynchronousException>(_cachedConnection, shared_from_this()));
+    _instance->clientThreadPool()->execute(
+        [self = shared_from_this()]() { self->invokeException(); },
+        _cachedConnection);
 }
 
 void
 OutgoingAsyncBase::invokeResponseAsync()
 {
-    class AsynchronousResponse final : public ExecutorWorkItem
-    {
-    public:
-        AsynchronousResponse(const ConnectionPtr& connection, const OutgoingAsyncBasePtr& outAsync)
-            : ExecutorWorkItem(connection),
-              _outAsync(outAsync)
-        {
-        }
-
-        void run() final { _outAsync->invokeResponse(); }
-
-    private:
-        const OutgoingAsyncBasePtr _outAsync;
-    };
-
     //
     // CommunicatorDestroyedException is the only exception that can propagate directly from this method.
     //
-    _instance->clientThreadPool()->execute(make_shared<AsynchronousResponse>(_cachedConnection, shared_from_this()));
+    _instance->clientThreadPool()->execute(
+        [self = shared_from_this()]() { self->invokeResponse(); },
+        _cachedConnection);
 }
 
 void
