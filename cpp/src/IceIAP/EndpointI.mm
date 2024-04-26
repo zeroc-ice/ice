@@ -20,6 +20,7 @@
 #    include "Ice/OutputStream.h"
 #    include "Ice/Properties.h"
 #    include "Ice/RegisterPlugins.h"
+#    include "IceIAP/ConnectionInfo.h"
 #    include "IceIAP/EndpointInfo.h"
 
 #    include <CoreFoundation/CoreFoundation.h>
