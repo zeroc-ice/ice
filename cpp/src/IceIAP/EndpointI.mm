@@ -77,6 +77,9 @@ namespace Ice
     }
 }
 
+IceIAP::ConnectionInfo::~ConnectionInfo() {}
+IceIAP::EndpointInfo::~EndpointInfo() {}
+
 IceObjC::iAPEndpointI::iAPEndpointI(
     const ProtocolInstancePtr& instance,
     const string& m,

@@ -58,6 +58,14 @@ namespace
     }
 }
 
+IceSSL::ConnectionInfo::~ConnectionInfo()
+{
+}
+
+IceSSL::EndpointInfo::~EndpointInfo()
+{
+}
+
 IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const IceInternal::EndpointIPtr& del)
     : _instance(instance),
       _delegate(del)

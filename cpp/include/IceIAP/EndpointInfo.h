@@ -52,6 +52,8 @@ namespace IceIAP
         {
         }
 
+        ~EndpointInfo() override;
+
         EndpointInfo(const EndpointInfo&) = delete;
         EndpointInfo& operator=(const EndpointInfo&) = delete;
 

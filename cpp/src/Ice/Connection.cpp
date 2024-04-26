@@ -7,6 +7,12 @@
 using namespace Ice;
 using namespace std;
 
+Ice::ConnectionInfo::~ConnectionInfo() {}
+Ice::IPConnectionInfo::~IPConnectionInfo() {}
+Ice::TCPConnectionInfo::~TCPConnectionInfo() {}
+Ice::UDPConnectionInfo::~UDPConnectionInfo() {}
+Ice::WSConnectionInfo::~WSConnectionInfo() {}
+
 Ice::Connection::~Connection() {}
 
 void

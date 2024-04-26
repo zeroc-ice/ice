@@ -6,6 +6,7 @@
 #define ICE_BT_CONNECTION_INFO_H
 
 #include "Ice/Connection.h"
+#include "Types.h"
 
 #if defined(__clang__)
 #    pragma clang diagnostic push
@@ -21,7 +22,7 @@ namespace IceBT
      * Provides access to the details of a Bluetooth connection.
      * \headerfile IceBT/IceBT.h
      */
-    class ConnectionInfo : public Ice::ConnectionInfo
+    class ICEBT_API ConnectionInfo : public Ice::ConnectionInfo
     {
     public:
         ConnectionInfo()
@@ -34,6 +35,8 @@ namespace IceBT
               sndSize(0)
         {
         }
+
+        ~ConnectionInfo() override;
 
         ConnectionInfo(const ConnectionInfo&) = delete;
         ConnectionInfo& operator=(const ConnectionInfo&) = delete;

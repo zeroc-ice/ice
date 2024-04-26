@@ -20,6 +20,9 @@ using namespace std;
 using namespace Ice;
 using namespace IceBT;
 
+IceBT::ConnectionInfo::~ConnectionInfo() {}
+ICeBT::EndpointInfo::~EndpointInfo() {}
+
 IceBT::EndpointI::EndpointI(
     const InstancePtr& instance,
     const string& addr,
