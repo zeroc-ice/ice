@@ -210,6 +210,19 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
         rethrow_exception(_verificationException);
     }
 
+    // Retrieve the certificate chain.
+    STACK_OF(X509)* chain = SSL_get_peer_cert_chain(_ssl);
+    if (chain != 0)
+    {
+        _certs.clear();
+        for (int i = 0; i < sk_X509_num(chain); ++i)
+        {
+            CertificatePtr cert = OpenSSL::Certificate::create(X509_dup(sk_X509_value(chain, i)));
+            _certs.push_back(cert);
+        }
+        sk_X509_pop_free(chain, X509_free);
+    }
+
     if (_engine->securityTraceLevel() >= 1)
     {
         Trace out(_instance->logger(), _instance->traceCategory());
