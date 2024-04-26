@@ -2298,7 +2298,7 @@ Ice::ConnectionI::idleCheck(
             if (_instance->traceLevels()->network >= 1)
             {
                 Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
-                out << "connection aborted by idle check because it did not receive any byte for "
+                out << "connection aborted by the idle check because it did not receive any byte for "
                     << idleTimeout.count() << "s\n";
                 out << _transceiver->toDetailedString();
             }

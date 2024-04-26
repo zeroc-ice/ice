@@ -1128,7 +1128,7 @@ void
 Ice::ConnectionIdleException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nconnection was aborted by the idle check";
+    out << ":\nconnection aborted by the idle check";
 }
 
 void

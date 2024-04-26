@@ -438,7 +438,7 @@ extension ConnectionIdleException {
   var _ConnectionIdleExceptionDescription: String {
     var s = String()
 
-    s.sep("connection aborted by idle check")
+    s.sep("connection aborted by the idle check")
 
     return s
   }
