@@ -201,7 +201,8 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
     // Test IceSSL.VerifyPeer=1. This should fail because the server doesn't
     // trust the client's CA.
     //
-    properties = createClientProps(defaultProperties: defaultProperties, cert: "c_rsa_ca2", ca: "cacert1")
+    properties = createClientProps(
+      defaultProperties: defaultProperties, cert: "c_rsa_ca2", ca: "cacert1")
     comm = try helper.initialize(properties)
     fact = try checkedCast(prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!
     d = createServerProps(defaultProperties: defaultProperties, cert: "s_rsa_ca1", ca: "")

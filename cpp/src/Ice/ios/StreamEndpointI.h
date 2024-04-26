@@ -14,10 +14,13 @@
 #    include "../ProtocolInstance.h"
 #    include "../WSEndpoint.h"
 #    include "Ice/InstanceF.h"
+#    include "Ice/ServerAuthenticationOptions.h"
 #    include "Ice/UniqueRef.h"
 
 #    include <CFNetwork/CFNetwork.h>
 #    include <CoreFoundation/CFDictionary.h>
+
+#    include <optional>
 
 namespace Ice
 {
@@ -84,7 +87,8 @@ namespace IceObjC
             std::function<void(std::vector<IceInternal::ConnectorPtr>)> response,
             std::function<void(std::exception_ptr)> exception) const;
         IceInternal::TransceiverPtr transceiver() const final;
-        IceInternal::AcceptorPtr acceptor(const std::string&) const final;
+        IceInternal::AcceptorPtr
+        acceptor(const std::string&, const std::optional<Ice::SSL::ServerAuthenticationOptions>&) const final;
         std::string options() const final;
 
         std::shared_ptr<StreamEndpointI> shared_from_this()
