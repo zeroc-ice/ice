@@ -7,6 +7,7 @@
 using namespace Ice;
 using namespace std;
 
+// Implement virtual destructors out of line to avoid weak vtables.
 Ice::ConnectionInfo::~ConnectionInfo() {}
 Ice::IPConnectionInfo::~IPConnectionInfo() {}
 Ice::TCPConnectionInfo::~TCPConnectionInfo() {}

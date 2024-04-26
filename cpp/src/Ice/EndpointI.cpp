@@ -99,27 +99,9 @@ IceInternal::EndpointI::checkOption(const string&, const string&, const string&)
     return false;
 }
 
-Ice::IPEndpointInfo::~IPEndpointInfo()
-{
-    // out of line to avoid weak vtable
-}
-
-Ice::TCPEndpointInfo::~TCPEndpointInfo()
-{
-    // out of line to avoid weak vtable
-}
-
-Ice::UDPEndpointInfo::~UDPEndpointInfo()
-{
-    // out of line to avoid weak vtable
-}
-
-Ice::WSEndpointInfo::~WSEndpointInfo()
-{
-    // out of line to avoid weak vtable
-}
-
-Ice::OpaqueEndpointInfo::~OpaqueEndpointInfo()
-{
-    // out of line to avoid weak vtable
-}
+// Implement virtual destructors out of line to avoid weak vtables.
+Ice::IPEndpointInfo::~IPEndpointInfo() {}
+Ice::TCPEndpointInfo::~TCPEndpointInfo() {}
+Ice::UDPEndpointInfo::~UDPEndpointInfo() {}
+Ice::WSEndpointInfo::~WSEndpointInfo() {}
+Ice::OpaqueEndpointInfo::~OpaqueEndpointInfo() {}
