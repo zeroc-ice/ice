@@ -37,6 +37,25 @@ extern "C"
     }
 }
 
+namespace
+{
+    std::function<bool(bool, X509_STORE_CTX* ctx, const IceSSL::ConnectionInfoPtr&)> createDefaultVerificationCallback()
+    {
+        return [](bool, X509_STORE_CTX* ctx, const IceSSL::ConnectionInfoPtr&)
+        {
+            ::SSL* ssl = static_cast<::SSL*>(X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx()));
+            long result = SSL_get_verify_result(ssl);
+            if (result != X509_V_OK)
+            {
+                ostringstream os;
+                os << "IceSSL: certificate verification failed:\n" << X509_verify_cert_error_string(result);
+                throw SecurityException(__FILE__, __LINE__, os.str());
+            }
+            return true;
+        };
+    }
+}
+
 IceInternal::NativeInfoPtr
 OpenSSL::TransceiverI::getNativeInfo()
 {
@@ -94,19 +113,12 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
         }
         SSL_set_bio(_ssl, bio, bio);
 
+        SSL_set_ex_data(_ssl, 0, this);
+        SSL_set_verify(_ssl, SSL_get_verify_mode(_ssl), IceSSL_opensslVerifyCallback);
+
         if (_sslNewSessionCallback)
         {
-            _sslNewSessionCallback(_ssl, _host);
-        }
-
-        if (_remoteCertificateVerificationCallback)
-        {
-            SSL_set_ex_data(_ssl, 0, this);
-            SSL_set_verify(_ssl, SSL_get_verify_mode(_ssl), IceSSL_opensslVerifyCallback);
-        }
-        else
-        {
-            // TODO add a default callback that aborts the connection using the default verification proccess.
+            _sslNewSessionCallback(_ssl, _incoming ? _adapterName : _host);
         }
     }
 
@@ -665,7 +677,10 @@ OpenSSL::TransceiverI::TransceiverI(
       _maxSendPacketSize(0),
       _maxRecvPacketSize(0),
       _localSslContextSelectionCallback(serverAuthenticationOptions.serverSslContextSelectionCallback),
-      _remoteCertificateVerificationCallback(serverAuthenticationOptions.clientCertificateValidationCallback),
+      _remoteCertificateVerificationCallback(
+          serverAuthenticationOptions.clientCertificateValidationCallback
+              ? serverAuthenticationOptions.clientCertificateValidationCallback
+              : createDefaultVerificationCallback()),
       _sslNewSessionCallback(serverAuthenticationOptions.sslNewSessionCallback)
 {
 }
@@ -688,7 +703,10 @@ OpenSSL::TransceiverI::TransceiverI(
       _maxSendPacketSize(0),
       _maxRecvPacketSize(0),
       _localSslContextSelectionCallback(clientAuthenticationOptions.clientSslContextSelectionCallback),
-      _remoteCertificateVerificationCallback(clientAuthenticationOptions.serverCertificateValidationCallback),
+      _remoteCertificateVerificationCallback(
+          clientAuthenticationOptions.serverCertificateValidationCallback
+              ? clientAuthenticationOptions.serverCertificateValidationCallback
+              : createDefaultVerificationCallback()),
       _sslNewSessionCallback(clientAuthenticationOptions.sslNewSessionCallback)
 {
 }
