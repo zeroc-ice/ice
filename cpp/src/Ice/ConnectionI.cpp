@@ -1485,9 +1485,8 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                 {
                     // At this point, the protocol message is fully read and can therefore be decoded by parseMessage.
                     // parseMessage returns the operation to wait for readiness next.
-                    newOp = static_cast<SocketOperation>(
-                        newOp |
-                        parseMessage(upcallCount, messageUpcall, current.stream));
+                    newOp =
+                        static_cast<SocketOperation>(newOp | parseMessage(upcallCount, messageUpcall, current.stream));
                 }
 
                 if (readyOp & SocketOperationWrite)
