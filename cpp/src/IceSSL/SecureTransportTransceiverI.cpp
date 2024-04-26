@@ -180,39 +180,50 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
             assert(!_trust);
             err = SSLCopyPeerTrust(_ssl.get(), &_trust.get());
 
-            if (_incoming && _engine->getVerifyPeer() == 1 && (err == errSSLBadCert || !_trust))
+            if (err == noErr)
             {
-                // This is expected if the client doesn't provide a certificate. With 10.10 and 10.11 errSSLBadCert
-                // is expected, the server is configured to verify but not require the client
-                // certificate so we ignore the failure. In 10.12 there is no error and trust is 0.
-                continue;
-            }
+                if (_incoming &&
+                    (_clientCertificateRequired == kTryAuthenticate ||
+                     _clientCertificateRequired == kNeverAuthenticate) &&
+                    !_trust)
+                {
+                    // This is expected if the client doesn't provide a certificate.
+                    continue; // Call SSLHandshake to resume the handshake.
+                }
+                else if (_trust)
+                {
+                    for (CFIndex i = 0, count = SecTrustGetCertificateCount(_trust.get()); i < count; ++i)
+                    {
+                        SecCertificateRef cert = SecTrustGetCertificateAtIndex(_trust.get(), i);
+                        CFRetain(cert);
+                        _certs.push_back(IceSSL::SecureTransport::Certificate::create(cert));
+                    }
 
-            for (CFIndex i = 0, count = SecTrustGetCertificateCount(_trust.get()); i < count; ++i)
-            {
-                SecCertificateRef cert = SecTrustGetCertificateAtIndex(_trust.get(), i);
-                CFRetain(cert);
-                _certs.push_back(IceSSL::SecureTransport::Certificate::create(cert));
-            }
+                    function<bool(SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)>
+                        remoteCertificateValidationCallback =
+                            _remoteCertificateValidationCallback
+                                ? _remoteCertificateValidationCallback
+                                : [this](SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)
+                    {
+                        return _engine->validationCallback(
+                            trust,
+                            info,
+                            _incoming,
+                            _incoming ? _adapterName : _host,
+                            _trustedRootCertificates);
+                    };
 
-            function<bool(SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)>
-                remoteCertificateValidationCallback =
-                    _remoteCertificateValidationCallback
-                        ? _remoteCertificateValidationCallback
-                        : [this](SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)
-            {
-                return _engine->validationCallback(
-                    trust,
-                    info,
-                    _incoming,
-                    _incoming ? _adapterName : _host,
-                    _trustedRootCertificates);
-            };
-
-            if (err == noErr &&
-                remoteCertificateValidationCallback(_trust.get(), dynamic_pointer_cast<ConnectionInfo>(getInfo())))
-            {
-                continue; // Call SSLHandshake to resume the handshake.
+                    if (remoteCertificateValidationCallback(
+                            _trust.get(),
+                            dynamic_pointer_cast<ConnectionInfo>(getInfo())))
+                    {
+                        continue; // Call SSLHandshake to resume the handshake.
+                    }
+                }
+                else
+                {
+                    continue; // Call SSLHandshake to resume the handshake.
+                }
             }
             // Let it fall through, this will raise a SecurityException with the SSLCopyPeerTrust error.
         }
