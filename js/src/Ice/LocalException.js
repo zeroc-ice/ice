@@ -803,27 +803,6 @@ Ice.OperationInterruptedException = class extends Ice.LocalException
 };
 
 /**
- *  This exception indicates that a connection was aborted by the idle check.
- **/
-Ice.ConnectionIdleException = class extends Ice.LocalException
-{
-    constructor(_cause = "")
-    {
-        super(_cause);
-    }
-
-    static get _parent()
-    {
-        return Ice.TimeoutException;
-    }
-
-    static get _id()
-    {
-        return "::Ice::ConnectionIdleException";
-    }
-};
-
-/**
  *  This exception indicates a timeout condition.
  **/
 Ice.TimeoutException = class extends Ice.LocalException
@@ -883,6 +862,27 @@ Ice.CloseTimeoutException = class extends Ice.TimeoutException
     static get _id()
     {
         return "::Ice::CloseTimeoutException";
+    }
+};
+
+/**
+ *  This exception indicates that a connection has been shut down because it has been idle for some time.
+ **/
+Ice.ConnectionTimeoutException = class extends Ice.TimeoutException
+{
+    constructor(_cause = "")
+    {
+        super(_cause);
+    }
+
+    static get _parent()
+    {
+        return Ice.TimeoutException;
+    }
+
+    static get _id()
+    {
+        return "::Ice::ConnectionTimeoutException";
     }
 };
 
