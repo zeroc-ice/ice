@@ -211,16 +211,28 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
     }
 
     // Retrieve the certificate chain.
-    STACK_OF(X509)* chain = SSL_get_peer_cert_chain(_ssl);
-    if (chain != 0)
+
+    // When calling on the server side the peer certificate is not included in SSL_get_peer_cert_chain and must be
+    // obtabined separately using SSL_get_peer_certificate.
+    if (_incoming)
     {
-        _certs.clear();
+        X509* peerCertificate = SSL_get_peer_certificate(_ssl);
+        if (peerCertificate)
+        {
+            _certs.clear();
+            CertificatePtr cert = OpenSSL::Certificate::create(peerCertificate);
+            _certs.push_back(cert);
+        }
+    }
+
+    STACK_OF(X509)* chain = SSL_get_peer_cert_chain(_ssl);
+    if (chain)
+    {
         for (int i = 0; i < sk_X509_num(chain); ++i)
         {
             CertificatePtr cert = OpenSSL::Certificate::create(X509_dup(sk_X509_value(chain, i)));
             _certs.push_back(cert);
         }
-        sk_X509_pop_free(chain, X509_free);
     }
 
     if (_engine->securityTraceLevel() >= 1)
