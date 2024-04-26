@@ -967,6 +967,31 @@ namespace Ice
 
 namespace Ice
 {
+    global $Ice__t_ConnectionIdleException;
+    class ConnectionIdleException extends \Ice\LocalException
+    {
+        public function __construct()
+        {
+            parent::__construct();
+        }
+
+        public function ice_id()
+        {
+            return '::Ice::ConnectionIdleException';
+        }
+
+        public function __toString(): string
+        {
+            global $Ice__t_ConnectionIdleException;
+            return IcePHP_stringifyException($this, $Ice__t_ConnectionIdleException);
+        }
+    }
+
+    $Ice__t_ConnectionIdleException = IcePHP_defineException('::Ice::ConnectionIdleException', '\\Ice\\ConnectionIdleException', null, null);
+}
+
+namespace Ice
+{
     global $Ice__t_TimeoutException;
     class TimeoutException extends \Ice\LocalException
     {
@@ -1037,31 +1062,6 @@ namespace Ice
     }
 
     $Ice__t_CloseTimeoutException = IcePHP_defineException('::Ice::CloseTimeoutException', '\\Ice\\CloseTimeoutException', $Ice__t_TimeoutException, null);
-}
-
-namespace Ice
-{
-    global $Ice__t_ConnectionTimeoutException;
-    class ConnectionTimeoutException extends \Ice\TimeoutException
-    {
-        public function __construct()
-        {
-            parent::__construct();
-        }
-
-        public function ice_id()
-        {
-            return '::Ice::ConnectionTimeoutException';
-        }
-
-        public function __toString(): string
-        {
-            global $Ice__t_ConnectionTimeoutException;
-            return IcePHP_stringifyException($this, $Ice__t_ConnectionTimeoutException);
-        }
-    }
-
-    $Ice__t_ConnectionTimeoutException = IcePHP_defineException('::Ice::ConnectionTimeoutException', '\\Ice\\ConnectionTimeoutException', $Ice__t_TimeoutException, null);
 }
 
 namespace Ice

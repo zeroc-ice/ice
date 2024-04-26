@@ -189,16 +189,16 @@ class ExceptionFactory: ICEExceptionFactory {
     return SyscallException(error: error, file: file, line: line)
   }
 
+  static func connectionIdleException(_ file: String, line: Int) -> Error {
+    return ConnectionIdleException(file: file, line: line)
+  }
+
   static func connectTimeoutException(_ file: String, line: Int) -> Error {
     return ConnectTimeoutException(file: file, line: line)
   }
 
   static func closeTimeoutException(_ file: String, line: Int) -> Error {
     return CloseTimeoutException(file: file, line: line)
-  }
-
-  static func connectionTimeoutException(_ file: String, line: Int) -> Error {
-    return ConnectionTimeoutException(file: file, line: line)
   }
 
   static func invocationTimeoutException(_ file: String, line: Int) -> Error {

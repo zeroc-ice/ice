@@ -484,6 +484,19 @@ Ice::OperationInterruptedException::ice_staticId() noexcept
 }
 
 string
+Ice::ConnectionIdleException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::ConnectionIdleException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::ConnectionIdleException";
+    return typeId;
+}
+
+string
 Ice::TimeoutException::ice_id() const
 {
     return string{ice_staticId()};
@@ -519,19 +532,6 @@ string_view
 Ice::CloseTimeoutException::ice_staticId() noexcept
 {
     static constexpr string_view typeId = "::Ice::CloseTimeoutException";
-    return typeId;
-}
-
-string
-Ice::ConnectionTimeoutException::ice_id() const
-{
-    return string{ice_staticId()};
-}
-
-string_view
-Ice::ConnectionTimeoutException::ice_staticId() noexcept
-{
-    static constexpr string_view typeId = "::Ice::ConnectionTimeoutException";
     return typeId;
 }
 
@@ -1125,6 +1125,13 @@ Ice::OperationInterruptedException::ice_print(ostream& out) const
 }
 
 void
+Ice::ConnectionIdleException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nconnection was aborted by the idle check";
+}
+
+void
 Ice::TimeoutException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
@@ -1143,13 +1150,6 @@ Ice::CloseTimeoutException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\ntimeout while closing a connection";
-}
-
-void
-Ice::ConnectionTimeoutException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nconnection has timed out";
 }
 
 void

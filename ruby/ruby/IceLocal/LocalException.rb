@@ -552,6 +552,19 @@ module ::Ice
         T_OperationInterruptedException = ::Ice::__defineException('::Ice::OperationInterruptedException', OperationInterruptedException, nil, [])
     end
 
+    if not defined?(::Ice::ConnectionIdleException)
+        class ConnectionIdleException < ::Ice::LocalException
+            def initialize
+            end
+
+            def to_s
+                '::Ice::ConnectionIdleException'
+            end
+        end
+
+        T_ConnectionIdleException = ::Ice::__defineException('::Ice::ConnectionIdleException', ConnectionIdleException, nil, [])
+    end
+
     if not defined?(::Ice::TimeoutException)
         class TimeoutException < Ice::LocalException
             def initialize
@@ -589,19 +602,6 @@ module ::Ice
         end
 
         T_CloseTimeoutException = ::Ice::__defineException('::Ice::CloseTimeoutException', CloseTimeoutException, ::Ice::T_TimeoutException, [])
-    end
-
-    if not defined?(::Ice::ConnectionTimeoutException)
-        class ConnectionTimeoutException < ::Ice::TimeoutException
-            def initialize
-            end
-
-            def to_s
-                '::Ice::ConnectionTimeoutException'
-            end
-        end
-
-        T_ConnectionTimeoutException = ::Ice::__defineException('::Ice::ConnectionTimeoutException', ConnectionTimeoutException, ::Ice::T_TimeoutException, [])
     end
 
     if not defined?(::Ice::InvocationTimeoutException)

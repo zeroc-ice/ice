@@ -434,11 +434,11 @@ extension CloseTimeoutException {
   }
 }
 
-extension ConnectionTimeoutException {
-  var _ConnectionTimeoutExceptionDescription: String {
+extension ConnectionIdleException {
+  var _ConnectionIdleExceptionDescription: String {
     var s = String()
 
-    s.sep("connection has timed out")
+    s.sep("connection aborted by idle check")
 
     return s
   }
