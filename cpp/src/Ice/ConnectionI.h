@@ -196,19 +196,13 @@ namespace Ice
         void exception(std::exception_ptr);
 
         // This method is called to execute user code (connection start completion callback, invocation sent callbacks,
-        // servant dispatch, invocation response, heartbeat callback). Only the invocation sent callbacks and one of the
-        // other callbacks can be set at the same time. TODO: improve this to use separate functions encapsulated with
-        // a std::function
+        // or an upcall issued from an incoming message). The invocation sent callbacks and the message upcall might
+        // both be set.
         void upcall(
             std::function<void(ConnectionIPtr)> connectionStartCompleted,
-            const std::vector<OutgoingMessage>& sentMessages, // for calling invocation sent callbacks
-            std::uint8_t compress,
-            std::int32_t requestId,
-            std::int32_t dispatchCount,
-            const ObjectAdapterIPtr& adapter,
-            const IceInternal::OutgoingAsyncBasePtr& outAsync, // for callback the invocation response
-            const HeartbeatCallback& heartbeatCallback,
-            Ice::InputStream& stream); // the incoming request stream
+            const std::vector<OutgoingMessage>& sentMessages,
+            std::function<bool(InputStream&)> messageUpcall,
+            InputStream& messageStream);
         void finish(bool);
 
         void closeCallback(const CloseCallback&);
@@ -288,14 +282,9 @@ namespace Ice
 #endif
 
         IceInternal::SocketOperation parseMessage(
-            Ice::InputStream&,
-            std::int32_t&,
-            std::int32_t&,
-            std::uint8_t&,
-            ObjectAdapterIPtr&,
-            IceInternal::OutgoingAsyncBasePtr&,
-            HeartbeatCallback&,
-            int&);
+            std::int32_t& upcallCount,
+            std::function<bool(InputStream&)>& messageUpcall,
+            Ice::InputStream& messageStream);
 
         void dispatchAll(Ice::InputStream&, std::int32_t, std::int32_t, std::uint8_t, const ObjectAdapterIPtr&);
 

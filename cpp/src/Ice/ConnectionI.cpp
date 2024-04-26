@@ -72,60 +72,33 @@ namespace
         const weak_ptr<Ice::ConnectionI> _connection;
     };
 
-    class ExecuteUpCall final : public ExecutorWorkItem
+    class ExecuteUpcall final : public ExecutorWorkItem
     {
     public:
-        ExecuteUpCall(
+        ExecuteUpcall(
             const ConnectionIPtr& connection,
             function<void(ConnectionIPtr)> connectionStartCompleted,
             const vector<ConnectionI::OutgoingMessage>& sentCBs,
-            uint8_t compress,
-            int32_t requestId,
-            int32_t requestCount,
-            const ObjectAdapterIPtr& adapter,
-            const OutgoingAsyncBasePtr& outAsync,
-            const HeartbeatCallback& heartbeatCallback,
-            InputStream& stream)
+            const function<bool(InputStream&)> messageUpcall,
+            InputStream& messageStream)
             : ExecutorWorkItem(connection),
               _connection(connection),
               _connectionStartCompleted(std::move(connectionStartCompleted)),
               _sentCBs(sentCBs),
-              _compress(compress),
-              _requestId(requestId),
-              _requestCount(requestCount),
-              _adapter(adapter),
-              _outAsync(outAsync),
-              _heartbeatCallback(heartbeatCallback),
-              _stream(stream.instance(), currentProtocolEncoding)
+              _messageUpcall(std::move(messageUpcall)),
+              _messageStream(messageStream.instance(), currentProtocolEncoding)
         {
-            _stream.swap(stream);
+            _messageStream.swap(messageStream);
         }
 
-        void run() final
-        {
-            _connection->upcall(
-                _connectionStartCompleted,
-                _sentCBs,
-                _compress,
-                _requestId,
-                _requestCount,
-                _adapter,
-                _outAsync,
-                _heartbeatCallback,
-                _stream);
-        }
+        void run() final { _connection->upcall(_connectionStartCompleted, _sentCBs, _messageUpcall, _messageStream); }
 
     private:
         const ConnectionIPtr _connection;
         const function<void(Ice::ConnectionIPtr)> _connectionStartCompleted;
         const vector<ConnectionI::OutgoingMessage> _sentCBs;
-        const uint8_t _compress;
-        const int32_t _requestId;
-        const int32_t _requestCount;
-        const ObjectAdapterIPtr _adapter;
-        const OutgoingAsyncBasePtr _outAsync;
-        const HeartbeatCallback _heartbeatCallback;
-        InputStream _stream;
+        const function<bool(InputStream&)> _messageUpcall;
+        InputStream _messageStream;
     };
 
     class ExecuteFinish final : public ExecutorWorkItem
@@ -1219,15 +1192,11 @@ Ice::ConnectionI::finishAsync(SocketOperation operation)
 void
 Ice::ConnectionI::message(ThreadPoolCurrent& current)
 {
+    int upcallCount = 0;
+
     function<void(ConnectionIPtr)> connectionStartCompleted;
     vector<OutgoingMessage> sentCBs;
-    uint8_t compress = 0;
-    int32_t requestId = 0;
-    int32_t requestCount = 0;
-    ObjectAdapterIPtr adapter;
-    OutgoingAsyncBasePtr outAsync;
-    HeartbeatCallback heartbeatCallback;
-    int upcallCount = 0;
+    function<bool(InputStream&)> messageUpcall;
 
     ThreadPoolMessage<ConnectionI> msg(current, *this);
     {
@@ -1433,16 +1402,8 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                 {
                     // At this point, the protocol message is fully read and can therefore be decoded by parseMessage.
                     // parseMessage returns the operation to wait for readiness next.
-                    newOp = static_cast<SocketOperation>(
-                        newOp | parseMessage(
-                                    current.stream,
-                                    requestCount,
-                                    requestId,
-                                    compress,
-                                    adapter,
-                                    outAsync,
-                                    heartbeatCallback,
-                                    upcallCount));
+                    newOp =
+                        static_cast<SocketOperation>(newOp | parseMessage(upcallCount, messageUpcall, current.stream));
                 }
 
                 if (readyOp & SocketOperationWrite)
@@ -1515,43 +1476,24 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 
 // executeFromThisThread dispatches to the correct DispatchQueue
 #ifdef ICE_SWIFT
-    _threadPool->executeFromThisThread(make_shared<ExecuteUpCall>(
+    _threadPool->executeFromThisThread(make_shared<ExecuteUpcall>(
         shared_from_this(),
         std::move(connectionStartCompleted),
         sentCBs,
-        compress,
-        requestId,
-        requestCount,
-        adapter,
-        outAsync,
-        heartbeatCallback,
+        std::move(messageUpcall),
         current.stream));
 #else
     if (!_hasExecutor) // Optimization, call dispatch() directly if there's no executor.
     {
-        upcall(
-            connectionStartCompleted,
-            sentCBs,
-            compress,
-            requestId,
-            requestCount,
-            adapter,
-            outAsync,
-            heartbeatCallback,
-            current.stream);
+        upcall(connectionStartCompleted, sentCBs, std::move(messageUpcall), current.stream);
     }
     else
     {
-        _threadPool->executeFromThisThread(make_shared<ExecuteUpCall>(
+        _threadPool->executeFromThisThread(make_shared<ExecuteUpcall>(
             shared_from_this(),
             std::move(connectionStartCompleted),
             sentCBs,
-            compress,
-            requestId,
-            requestCount,
-            adapter,
-            outAsync,
-            heartbeatCallback,
+            std::move(messageUpcall),
             current.stream));
     }
 #endif
@@ -1561,13 +1503,8 @@ void
 ConnectionI::upcall(
     function<void(ConnectionIPtr)> connectionStartCompleted,
     const vector<OutgoingMessage>& sentCBs,
-    uint8_t compress,
-    int32_t requestId,
-    int32_t requestCount,
-    const ObjectAdapterIPtr& adapter,
-    const OutgoingAsyncBasePtr& outAsync,
-    const HeartbeatCallback& heartbeatCallback,
-    InputStream& stream)
+    function<bool(InputStream&)> messageUpcall,
+    InputStream& messageStream)
 {
     int completedUpcallCount = 0;
 
@@ -1608,42 +1545,9 @@ ConnectionI::upcall(
         ++completedUpcallCount;
     }
 
-    //
-    // Asynchronous replies must be handled outside the thread
-    // synchronization, so that nested calls are possible.
-    //
-    if (outAsync)
+    if (messageUpcall && messageUpcall(messageStream))
     {
-        outAsync->invokeResponse();
         ++completedUpcallCount;
-    }
-
-    if (heartbeatCallback)
-    {
-        try
-        {
-            heartbeatCallback(shared_from_this());
-        }
-        catch (const std::exception& ex)
-        {
-            Error out(_instance->initializationData().logger);
-            out << "connection callback exception:\n" << ex << '\n' << _desc;
-        }
-        catch (...)
-        {
-            Error out(_instance->initializationData().logger);
-            out << "connection callback exception:\nunknown c++ exception" << '\n' << _desc;
-        }
-        ++completedUpcallCount;
-    }
-
-    // Dispatch must be done outside the thread synchronization, so that nested calls are possible.
-    if (requestCount > 0)
-    {
-        dispatchAll(stream, requestCount, requestId, compress, adapter);
-
-        // Don't increase completedUpCallCount for dispatches. _upcallCount will be decreased when the outgoing reply is
-        // sent.
     }
 
     //
@@ -3124,15 +3028,7 @@ Ice::ConnectionI::doUncompress(InputStream& compressed, InputStream& uncompresse
 #endif
 
 SocketOperation
-Ice::ConnectionI::parseMessage(
-    InputStream& stream,
-    int32_t& requestCount,
-    int32_t& requestId,
-    uint8_t& compress,
-    ObjectAdapterIPtr& adapter,
-    OutgoingAsyncBasePtr& outAsync,
-    HeartbeatCallback& heartbeatCallback,
-    int& upcallCount)
+Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)>& upcall, InputStream& stream)
 {
     assert(_state > StateNotValidated && _state < StateClosed);
 
@@ -3154,6 +3050,7 @@ Ice::ConnectionI::parseMessage(
         stream.i = stream.b.begin() + 8;
         uint8_t messageType;
         stream.read(messageType);
+        uint8_t compress;
         stream.read(compress);
 
         if (compress == 2)
@@ -3215,9 +3112,18 @@ Ice::ConnectionI::parseMessage(
                 else
                 {
                     traceRecv(stream, _logger, _traceLevels);
+
+                    auto adapter = _adapter;
+                    const int32_t requestCount = 1;
+                    int32_t requestId;
+
                     stream.read(requestId);
-                    requestCount = 1;
-                    adapter = _adapter;
+
+                    upcall = [this, requestId, adapter, compress](InputStream& messageStream)
+                    {
+                        dispatchAll(messageStream, requestCount, requestId, compress, adapter);
+                        return false; // the upcall will be completed once the dispatch is done.
+                    };
                     ++upcallCount;
                 }
                 break;
@@ -3236,13 +3142,23 @@ Ice::ConnectionI::parseMessage(
                 else
                 {
                     traceRecv(stream, _logger, _traceLevels);
+
+                    auto adapter = _adapter;
+                    const int32_t requestId = 0;
+                    int32_t requestCount;
+
                     stream.read(requestCount);
                     if (requestCount < 0)
                     {
                         requestCount = 0;
                         throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
                     }
-                    adapter = _adapter;
+
+                    upcall = [this, requestCount, adapter, compress](InputStream& messageStream)
+                    {
+                        dispatchAll(messageStream, requestCount, requestId, compress, adapter);
+                        return false; // the upcall will be completed once the servant dispatch is done.
+                    };
                     upcallCount += requestCount;
                 }
                 break;
@@ -3252,6 +3168,7 @@ Ice::ConnectionI::parseMessage(
             {
                 traceRecv(stream, _logger, _traceLevels);
 
+                int32_t requestId;
                 stream.read(requestId);
 
                 map<int32_t, OutgoingAsyncBasePtr>::iterator q = _asyncRequests.end();
@@ -3271,7 +3188,7 @@ Ice::ConnectionI::parseMessage(
 
                 if (q != _asyncRequests.end())
                 {
-                    outAsync = q->second;
+                    auto outAsync = q->second;
 
                     if (q == _asyncRequestsHint)
                     {
@@ -3283,6 +3200,7 @@ Ice::ConnectionI::parseMessage(
                         _asyncRequests.erase(q);
                     }
 
+                    // The message stream is adopted by the outgoing.
                     stream.swap(*outAsync->getIs());
 
 #if defined(ICE_USE_IOCP)
@@ -3297,24 +3215,17 @@ Ice::ConnectionI::parseMessage(
                         message->receivedReply = true;
                         outAsync = 0;
                     }
-                    else if (outAsync->response())
-                    {
-                        ++upcallCount;
-                    }
-                    else
-                    {
-                        outAsync = 0;
-                    }
-#else
-                    if (outAsync->response())
-                    {
-                        ++upcallCount;
-                    }
-                    else
-                    {
-                        outAsync = 0;
-                    }
 #endif
+                    if (outAsync && outAsync->response())
+                    {
+                        // The message stream is not used here because it has been adopted above.
+                        upcall = [outAsync](InputStream&)
+                        {
+                            outAsync->invokeResponse();
+                            return true; // upcall is done
+                        };
+                        ++upcallCount;
+                    }
                     _conditionVariable.notify_all(); // Notify threads blocked in close(false)
                 }
 
@@ -3326,7 +3237,25 @@ Ice::ConnectionI::parseMessage(
                 traceRecv(stream, _logger, _traceLevels);
                 if (_heartbeatCallback)
                 {
-                    heartbeatCallback = _heartbeatCallback;
+                    auto heartbeatCallback = _heartbeatCallback;
+                    upcall = [this, heartbeatCallback](InputStream&)
+                    {
+                        try
+                        {
+                            heartbeatCallback(shared_from_this());
+                        }
+                        catch (const std::exception& ex)
+                        {
+                            Error out(_instance->initializationData().logger);
+                            out << "connection callback exception:\n" << ex << '\n' << _desc;
+                        }
+                        catch (...)
+                        {
+                            Error out(_instance->initializationData().logger);
+                            out << "connection callback exception:\nunknown c++ exception" << '\n' << _desc;
+                        }
+                        return true; // upcall is done
+                    };
                     ++upcallCount;
                 }
                 break;
