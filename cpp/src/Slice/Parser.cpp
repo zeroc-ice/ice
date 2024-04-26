@@ -4651,7 +4651,7 @@ Slice::Operation::mode() const
 Operation::Mode
 Slice::Operation::sendMode() const
 {
-    if (_mode == Operation::Idempotent)
+    if (_mode == Operation::Idempotent && hasMetaData("nonmutating"))
     {
         return Operation::Nonmutating;
     }
