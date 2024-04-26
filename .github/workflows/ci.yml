@@ -3,7 +3,7 @@ name: Build and test
 on:
   workflow_dispatch:
   push:
-    branches: ["main", "2037-matlab-2024a"]
+    branches: ["main"]
   pull_request:
     # The branches below must be a subset of the branches above
     branches: ["main"]
