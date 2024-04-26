@@ -1,0 +1,18 @@
+{
+    "version": "0.2",
+    "language": "en",
+    "words": [
+        "decoratee",
+        "ICESTORM",
+        "unmarshal",
+        "unmarshaling"
+    ],
+    "dictionaries": [
+        "csharp",
+        "softwareTerms",
+        "en_US"
+    ],
+    "enableFiletypes": [
+        "ice"
+    ]
+}
