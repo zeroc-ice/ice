@@ -12,6 +12,7 @@
 #include "Ice/Object.h"
 #include "Ice/Properties.h"
 #include "Ice/UUID.h"
+#include "IceBT/ConnectionInfo.h"
 #include "IceUtil/StringUtil.h"
 #include "Instance.h"
 #include "Util.h"
