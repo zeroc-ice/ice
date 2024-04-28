@@ -38,12 +38,12 @@ using namespace IceInternal;
 
 namespace
 {
-    class ConnectTimerTask : public IceUtil::TimerTask
+    class ConnectTimerTask final : public IceUtil::TimerTask
     {
     public:
         ConnectTimerTask(const Ice::ConnectionIPtr& connection) : _connection(connection) {}
 
-        void runTimerTask() override
+        void runTimerTask() final
         {
             if (auto connection = _connection.lock())
             {
@@ -55,16 +55,33 @@ namespace
         const weak_ptr<Ice::ConnectionI> _connection;
     };
 
-    class CloseTimerTask : public IceUtil::TimerTask
+    class CloseTimerTask final : public IceUtil::TimerTask
     {
     public:
         CloseTimerTask(const Ice::ConnectionIPtr& connection) : _connection(connection) {}
 
-        void runTimerTask() override
+        void runTimerTask() final
         {
             if (auto connection = _connection.lock())
             {
                 connection->closeTimedOut();
+            }
+        }
+
+    private:
+        const weak_ptr<Ice::ConnectionI> _connection;
+    };
+
+    class InactivityTimerTask final : public IceUtil::TimerTask
+    {
+    public:
+        InactivityTimerTask(const Ice::ConnectionIPtr& connection) : _connection(connection) {}
+
+        void runTimerTask() final
+        {
+            if (auto connection = _connection.lock())
+            {
+                connection->inactivityCheck();
             }
         }
 
@@ -334,11 +351,13 @@ Ice::ConnectionI::OutgoingMessage::canceled(bool adoptStream)
 bool
 Ice::ConnectionI::OutgoingMessage::sent()
 {
+    // This function is called with the connection mutex locked.
+
     if (adopted)
     {
         delete stream;
     }
-    stream = 0;
+    stream = nullptr;
 
     if (outAsync)
     {
@@ -674,6 +693,12 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
     AsyncStatus status = AsyncStatusQueued;
     try
     {
+        if (isAtRest())
+        {
+            // If we were at rest, we're not anymore since we're sending a request.
+            cancelInactivityTimerTask();
+        }
+
         OutgoingMessage message(out, os, compress, requestId);
         status = sendMessage(message);
     }
@@ -686,11 +711,13 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
 
     if (response)
     {
-        //
-        // Add to the async requests map.
-        //
         _asyncRequestsHint =
             _asyncRequests.insert(_asyncRequests.end(), pair<const int32_t, OutgoingAsyncBasePtr>(requestId, out));
+    }
+    else if (isAtRest())
+    {
+        // A oneway invocation is considered completed as soon as sendMessage returns.
+        scheduleInactivityTimerTask();
     }
     return status;
 }
@@ -885,15 +912,22 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
         {
             if (o->requestId)
             {
+                bool removed = false;
                 if (_asyncRequestsHint != _asyncRequests.end() &&
                     _asyncRequestsHint->second == dynamic_pointer_cast<OutgoingAsync>(outAsync))
                 {
                     _asyncRequests.erase(_asyncRequestsHint);
                     _asyncRequestsHint = _asyncRequests.end();
+                    removed = true;
                 }
                 else
                 {
-                    _asyncRequests.erase(o->requestId);
+                    removed = _asyncRequests.erase(o->requestId) == 1;
+                }
+
+                if (removed && isAtRest())
+                {
+                    scheduleInactivityTimerTask();
                 }
             }
 
@@ -947,6 +981,12 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
                 {
                     _asyncRequests.erase(_asyncRequestsHint);
                     _asyncRequestsHint = _asyncRequests.end();
+
+                    if (isAtRest())
+                    {
+                        scheduleInactivityTimerTask();
+                    }
+
                     if (outAsync->exception(ex))
                     {
                         outAsync->invokeExceptionAsync();
@@ -972,6 +1012,12 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
                 {
                     assert(p != _asyncRequestsHint);
                     _asyncRequests.erase(p);
+
+                    if (isAtRest())
+                    {
+                        scheduleInactivityTimerTask();
+                    }
+
                     if (outAsync->exception(ex))
                     {
                         outAsync->invokeExceptionAsync();
@@ -1009,6 +1055,12 @@ Ice::ConnectionI::dispatchException(exception_ptr ex, int requestCount)
                     }
                 }
                 _conditionVariable.notify_all();
+            }
+
+            _dispatchCount -= requestCount;
+            if (isAtRest())
+            {
+                scheduleInactivityTimerTask();
             }
         }
     }
@@ -1737,7 +1789,10 @@ Ice::ConnectionI::finish(bool close)
             o->completed(_exception);
             if (o->requestId) // Make sure finished isn't called twice.
             {
-                _asyncRequests.erase(o->requestId);
+                if (_asyncRequests.erase(o->requestId) == 1 && isAtRest())
+                {
+                    scheduleInactivityTimerTask();
+                }
             }
         }
 
@@ -1932,6 +1987,11 @@ Ice::ConnectionI::create(
         std::move(removeFromFactory),
         options));
 
+    if (connection->_inactivityTimeout > chrono::seconds::zero())
+    {
+        connection->_inactivityTimerTask = make_shared<InactivityTimerTask>(connection);
+    }
+
     if (decoratedTransceiver)
     {
         decoratedTransceiver->decoratorInit(connection);
@@ -2088,6 +2148,7 @@ Ice::ConnectionI::setState(State state)
                 {
                     return;
                 }
+
                 _threadPool->_register(shared_from_this(), SocketOperationRead);
                 break;
             }
@@ -2102,6 +2163,10 @@ Ice::ConnectionI::setState(State state)
                 {
                     return;
                 }
+
+                // We don't shut down the connection due to inactivity when it's in the Holding state.
+                cancelInactivityTimerTask();
+
                 if (_state == StateActive)
                 {
                     _threadPool->unregister(shared_from_this(), SocketOperationRead);
@@ -2205,7 +2270,6 @@ Ice::ConnectionI::setState(State state)
         }
     }
     _state = state;
-
     _conditionVariable.notify_all();
 
     if (_state == StateClosing && _upcallCount == 0)
@@ -2218,6 +2282,13 @@ Ice::ConnectionI::setState(State state)
         {
             setState(StateClosed, current_exception());
         }
+    }
+
+    if (isAtRest())
+    {
+        // If the connection became active and there is no outstanding invocation or dispatch (very common case), we
+        // schedule the inactivity timer task.
+        scheduleInactivityTimerTask();
     }
 }
 
@@ -2308,6 +2379,19 @@ Ice::ConnectionI::idleCheck(
         }
     }
     // else, nothing to do
+}
+
+void
+Ice::ConnectionI::inactivityCheck() noexcept
+{
+    // Called by the InactivityTimerTask.
+    std::lock_guard lock(_mutex);
+    if (isAtRest())
+    {
+        setState(
+            StateClosing,
+            make_exception_ptr(CloseConnectionException{__FILE__, __LINE__, "connection closed by inactivity timer"}));
+    }
 }
 
 void
@@ -2424,6 +2508,12 @@ Ice::ConnectionI::sendResponse(OutgoingResponse response, uint8_t compress)
             if (_state == StateClosing && _upcallCount == 0)
             {
                 initiateShutdown();
+            }
+
+            --_dispatchCount;
+            if (isAtRest())
+            {
+                scheduleInactivityTimerTask();
             }
         }
         catch (const LocalException&)
@@ -3125,6 +3215,12 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                         return false; // the upcall will be completed once the dispatch is done.
                     };
                     ++upcallCount;
+
+                    if (isAtRest())
+                    {
+                        cancelInactivityTimerTask();
+                    }
+                    ++_dispatchCount;
                 }
                 break;
             }
@@ -3160,6 +3256,12 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                         return false; // the upcall will be completed once the servant dispatch is done.
                     };
                     upcallCount += requestCount;
+
+                    if (isAtRest())
+                    {
+                        cancelInactivityTimerTask();
+                    }
+                    _dispatchCount += requestCount;
                 }
                 break;
             }
@@ -3198,6 +3300,11 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                     else
                     {
                         _asyncRequests.erase(q);
+                    }
+
+                    if (isAtRest())
+                    {
+                        scheduleInactivityTimerTask();
                     }
 
                     // The message stream is adopted by the outgoing.
@@ -3258,6 +3365,7 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                     };
                     ++upcallCount;
                 }
+                // a heartbeat has no effect on the dispatch count or the inactivity timer task.
                 break;
             }
 
@@ -3415,4 +3523,26 @@ ConnectionI::write(Buffer& buf)
         out << " bytes via " << _endpoint->protocol() << "\n" << toString();
     }
     return op;
+}
+
+void
+ConnectionI::scheduleInactivityTimerTask()
+{
+    // Called with the ConnectionI mutex locked.
+    if (_inactivityTimeout > chrono::seconds::zero())
+    {
+        assert(_inactivityTimerTask);
+        _timer->schedule(_inactivityTimerTask, _inactivityTimeout);
+    }
+}
+
+void
+ConnectionI::cancelInactivityTimerTask()
+{
+    // Called with the ConnectionI mutex locked.
+    if (_inactivityTimeout > chrono::seconds::zero())
+    {
+        assert(_inactivityTimerTask);
+        _timer->cancel(_inactivityTimerTask);
+    }
 }
