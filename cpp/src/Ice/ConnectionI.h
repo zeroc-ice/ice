@@ -235,7 +235,7 @@ namespace Ice
         /// Aborts the connection if its state is < StateClosed.
         void closeTimedOut() noexcept;
 
-        // TODO: there are too many functions with similar names. This is the function called by the HeartbeatTimerTask.
+        /// Sends a heartbeat.
         void sendHeartbeat() noexcept;
 
         ~ConnectionI() final;
@@ -280,7 +280,6 @@ namespace Ice
         void setState(State);
 
         void initiateShutdown();
-        void sendHeartbeatNow();
 
         void sendResponse(OutgoingResponse, std::uint8_t compress);
         void dispatchException(std::exception_ptr, int);

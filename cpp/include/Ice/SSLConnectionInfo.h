@@ -22,7 +22,7 @@ namespace IceSSL
     /**
      * Provides access to the connection details of an SSL connection.
      */
-    class ConnectionInfo : public Ice::ConnectionInfo
+    class ICE_API ConnectionInfo : public Ice::ConnectionInfo
     {
     public:
         ConnectionInfo() = default;
@@ -51,6 +51,8 @@ namespace IceSSL
               verified(verified)
         {
         }
+
+        ~ConnectionInfo() override;
 
         ConnectionInfo(const ConnectionInfo&) = delete;
         ConnectionInfo& operator=(const ConnectionInfo&) = delete;

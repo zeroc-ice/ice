@@ -2420,20 +2420,10 @@ Ice::ConnectionI::closeTimedOut() noexcept
 void
 Ice::ConnectionI::sendHeartbeat() noexcept
 {
+    assert(!_endpoint->datagram());
+
     lock_guard lock(_mutex);
     if (_state == StateActive || _state == StateHolding)
-    {
-        sendHeartbeatNow();
-    }
-    // else nothing to do
-}
-
-void
-Ice::ConnectionI::sendHeartbeatNow()
-{
-    assert(_state == StateActive || _state == StateHolding);
-
-    if (!_endpoint->datagram())
     {
         OutputStream os(_instance.get(), Ice::currentProtocolEncoding);
         os.write(magic[0]);
@@ -2451,12 +2441,12 @@ Ice::ConnectionI::sendHeartbeatNow()
             OutgoingMessage message(&os, false);
             sendMessage(message);
         }
-        catch (const LocalException&)
+        catch (...)
         {
             setState(StateClosed, current_exception());
-            assert(_exception);
         }
     }
+    // else nothing to do
 }
 
 void
