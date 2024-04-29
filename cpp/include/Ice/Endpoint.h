@@ -24,7 +24,7 @@ namespace Ice
      * Base class providing access to the endpoint details.
      * \headerfile Ice/Ice.h
      */
-    class EndpointInfo
+    class ICE_API EndpointInfo
     {
     public:
         EndpointInfo() = default;
@@ -42,7 +42,7 @@ namespace Ice
         {
         }
 
-        virtual ~EndpointInfo() = default;
+        virtual ~EndpointInfo();
 
         EndpointInfo(const EndpointInfo&) = delete;
         EndpointInfo& operator=(const EndpointInfo&) = delete;
@@ -82,11 +82,11 @@ namespace Ice
      * The user-level interface to an endpoint.
      * \headerfile Ice/Ice.h
      */
-    class Endpoint
+    class ICE_API Endpoint
     {
     public:
         Endpoint() = default;
-        virtual ~Endpoint() = default;
+        virtual ~Endpoint();
 
         Endpoint(const Endpoint&) = delete;
         Endpoint& operator=(const Endpoint&) = delete;
@@ -112,7 +112,7 @@ namespace Ice
      * @see Endpoint
      * \headerfile Ice/Ice.h
      */
-    class IPEndpointInfo : public EndpointInfo
+    class ICE_API IPEndpointInfo : public EndpointInfo
     {
     public:
         IPEndpointInfo() = default;
@@ -140,6 +140,8 @@ namespace Ice
         {
         }
 
+        ~IPEndpointInfo() override;
+
         IPEndpointInfo(const IPEndpointInfo&) = delete;
         IPEndpointInfo& operator=(const IPEndpointInfo&) = delete;
 
@@ -162,7 +164,7 @@ namespace Ice
      * @see Endpoint
      * \headerfile Ice/Ice.h
      */
-    class TCPEndpointInfo : public IPEndpointInfo
+    class ICE_API TCPEndpointInfo : public IPEndpointInfo
     {
     public:
         TCPEndpointInfo() = default;
@@ -187,6 +189,8 @@ namespace Ice
         {
         }
 
+        ~TCPEndpointInfo() override;
+
         TCPEndpointInfo(const TCPEndpointInfo&) = delete;
         TCPEndpointInfo& operator=(const TCPEndpointInfo&) = delete;
     };
@@ -196,7 +200,7 @@ namespace Ice
      * @see Endpoint
      * \headerfile Ice/Ice.h
      */
-    class UDPEndpointInfo : public IPEndpointInfo
+    class ICE_API UDPEndpointInfo : public IPEndpointInfo
     {
     public:
         UDPEndpointInfo() = default;
@@ -227,6 +231,8 @@ namespace Ice
         {
         }
 
+        ~UDPEndpointInfo() override;
+
         UDPEndpointInfo(const UDPEndpointInfo&) = delete;
         UDPEndpointInfo& operator=(const UDPEndpointInfo&) = delete;
 
@@ -244,7 +250,7 @@ namespace Ice
      * Provides access to a WebSocket endpoint information.
      * \headerfile Ice/Ice.h
      */
-    class WSEndpointInfo : public EndpointInfo
+    class ICE_API WSEndpointInfo : public EndpointInfo
     {
     public:
         WSEndpointInfo() = default;
@@ -262,6 +268,8 @@ namespace Ice
         {
         }
 
+        ~WSEndpointInfo() override;
+
         WSEndpointInfo(const WSEndpointInfo&) = delete;
         WSEndpointInfo& operator=(const WSEndpointInfo&) = delete;
 
@@ -276,7 +284,7 @@ namespace Ice
      * @see Endpoint
      * \headerfile Ice/Ice.h
      */
-    class OpaqueEndpointInfo : public EndpointInfo
+    class ICE_API OpaqueEndpointInfo : public EndpointInfo
     {
     public:
         OpaqueEndpointInfo() = default;
@@ -300,6 +308,8 @@ namespace Ice
               rawBytes(std::move(rawBytes))
         {
         }
+
+        ~OpaqueEndpointInfo() override;
 
         OpaqueEndpointInfo(const OpaqueEndpointInfo&) = delete;
         OpaqueEndpointInfo& operator=(const OpaqueEndpointInfo&) = delete;
