@@ -57,7 +57,8 @@ namespace IceGrid
 
         Ice::ObjectPrx _register(const std::shared_ptr<SessionServantManager>&, const Ice::ConnectionPtr&);
 
-        void keepAlive(const Ice::Current&) final {} // no-op
+        // keepAlive is deprecated and kept only for compatibility with old clients. It does nothing now.
+        void keepAlive(const Ice::Current&) final {}
         void allocateObjectByIdAsync(
             Ice::Identity id,
             std::function<void(const std::optional<Ice::ObjectPrx>& returnValue)> response,
