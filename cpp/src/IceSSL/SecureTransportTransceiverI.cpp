@@ -117,13 +117,17 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
             SSLSetClientSideAuthenticate(_ssl.get(), _clientCertificateRequired);
         }
 
-        CFArrayRef certificateChain = _localCertificateSelectionCallback(_incoming ? _adapterName : _host);
-        if (certificateChain && (err = SSLSetCertificate(_ssl.get(), certificateChain)))
+        _certificates = _localCertificateSelectionCallback(_incoming ? _adapterName : _host);
+        if (_certificates)
         {
-            throw SecurityException(
-                __FILE__,
-                __LINE__,
-                "IceSSL: error while setting the SSL context certificate:\n" + sslErrorToString(err));
+            CFRetain(_certificates);
+            if (err = SSLSetCertificate(_ssl.get(), _certificates))
+            {
+                throw SecurityException(
+                    __FILE__,
+                    __LINE__,
+                    "IceSSL: error while setting the SSL context certificate:\n" + sslErrorToString(err));
+            }
         }
 
         if ((err = SSLSetIOFuncs(_ssl.get(), socketRead, socketWrite)))
@@ -196,7 +200,7 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
                     {
                         SecCertificateRef cert = SecTrustGetCertificateAtIndex(_trust.get(), i);
                         CFRetain(cert);
-                        _certs.push_back(IceSSL::SecureTransport::Certificate::create(cert));
+                        _peerCerts.push_back(IceSSL::SecureTransport::Certificate::create(cert));
                     }
 
                     function<bool(SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)>
@@ -286,6 +290,18 @@ IceSSL::SecureTransport::TransceiverI::close()
         SSLClose(_ssl.get());
     }
     _ssl.reset(0);
+
+    if (_certificates)
+    {
+        CFRelease(_certificates);
+        _certificates = 0;
+    }
+
+    if (_trustedRootCertificates)
+    {
+        CFRelease(_trustedRootCertificates);
+        _trustedRootCertificates = 0;
+    }
 
     _delegate->close();
 }
@@ -476,7 +492,7 @@ IceSSL::SecureTransport::TransceiverI::getInfo() const
     info->underlying = _delegate->getInfo();
     info->incoming = _incoming;
     info->adapterName = _adapterName;
-    info->certs = _certs;
+    info->certs = _peerCerts;
     return info;
 }
 
@@ -506,10 +522,15 @@ IceSSL::SecureTransport::TransceiverI::TransceiverI(
       _buffered(0),
       _sslNewSessionCallback(serverAuthenticationOptions.sslNewSessionCallback),
       _remoteCertificateValidationCallback(serverAuthenticationOptions.clientCertificateValidationCallback),
-      _trustedRootCertificates(serverAuthenticationOptions.trustedRootCertificates),
       _localCertificateSelectionCallback(serverAuthenticationOptions.serverCertificateSelectionCallback),
-      _clientCertificateRequired(serverAuthenticationOptions.clientCertificateRequired)
+      _clientCertificateRequired(serverAuthenticationOptions.clientCertificateRequired),
+      _certificates(0),
+      _trustedRootCertificates(serverAuthenticationOptions.trustedRootCertificates)
 {
+    if (_trustedRootCertificates)
+    {
+        CFRetain(_trustedRootCertificates);
+    }
 }
 
 IceSSL::SecureTransport::TransceiverI::TransceiverI(
@@ -527,10 +548,15 @@ IceSSL::SecureTransport::TransceiverI::TransceiverI(
       _buffered(0),
       _sslNewSessionCallback(clientAuthenticationOptions.sslNewSessionCallback),
       _remoteCertificateValidationCallback(clientAuthenticationOptions.serverCertificateValidationCallback),
-      _trustedRootCertificates(clientAuthenticationOptions.trustedRootCertificates),
       _localCertificateSelectionCallback(clientAuthenticationOptions.clientCertificateSelectionCallback),
-      _clientCertificateRequired(kNeverAuthenticate)
+      _clientCertificateRequired(kNeverAuthenticate),
+      _certificates(0),
+      _trustedRootCertificates(clientAuthenticationOptions.trustedRootCertificates)
 {
+    if (_trustedRootCertificates)
+    {
+        CFRetain(_trustedRootCertificates);
+    }
 }
 
 IceSSL::SecureTransport::TransceiverI::~TransceiverI() {}

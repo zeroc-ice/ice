@@ -77,14 +77,15 @@ namespace IceSSL::SecureTransport
         mutable std::uint8_t _tflags;
         size_t _maxSendPacketSize;
         size_t _maxRecvPacketSize;
-        std::vector<CertificatePtr> _certs;
+        std::vector<CertificatePtr> _peerCerts;
         size_t _buffered;
         std::function<void(SSLContextRef, const std::string&)> _sslNewSessionCallback;
         std::function<bool(SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)>
             _remoteCertificateValidationCallback;
-        CFArrayRef _trustedRootCertificates;
         std::function<CFArrayRef(const std::string& host)> _localCertificateSelectionCallback;
         SSLAuthenticate _clientCertificateRequired;
+        CFArrayRef _certificates;
+        CFArrayRef _trustedRootCertificates;
     };
     using TransceiverIPtr = std::shared_ptr<TransceiverI>;
 
