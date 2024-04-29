@@ -15,7 +15,6 @@
             <property name="Glacier2.Client.Endpoints" value="${client-endpoints}"/>
             <property name="Glacier2.Server.Endpoints" value="${server-endpoints}"/>
             <property name="Glacier2.InstanceName" value="${instance-name}"/>
-            <property name="Glacier2.SessionTimeout" value="${session-timeout}"/>
          </properties>
       </server>
 

@@ -247,7 +247,6 @@ else
 }
 
 const tests = [
-    "test/Ice/acm",
     "test/Ice/adapterDeactivation",
     "test/Ice/ami",
     "test/Ice/binding",
@@ -375,7 +374,6 @@ gulp.task(
 // TypeScript tests
 //
 const tstests = [
-    "test/typescript/Ice/acm",
     "test/typescript/Ice/adapterDeactivation",
     "test/typescript/Ice/ami",
     "test/typescript/Ice/binding",

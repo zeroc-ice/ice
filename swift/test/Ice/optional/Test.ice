@@ -39,11 +39,6 @@ struct VarStruct
     string m;
 }
 
-struct ClassVarStruct
-{
-    int a;
-}
-
 sequence<byte> ByteSeq;
 sequence<bool> BoolSeq;
 sequence<short> ShortSeq;
@@ -163,7 +158,6 @@ class OptionalWithCustom
 {
     optional(1) SmallStructList l;
     ["protected"] optional(2) SmallStructList lp;
-    optional(3) ClassVarStruct s;
 }
 
 class E

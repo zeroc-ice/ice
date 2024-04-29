@@ -96,8 +96,6 @@ allTests(Test::TestHelper* helper)
 
     optional<IceGrid::AdminSessionPrx> adminSession = registry->createAdminSession("foo", "bar");
 
-    adminSession->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
-
     optional<IceGrid::AdminPrx> admin = adminSession->getAdmin();
     test(admin);
 

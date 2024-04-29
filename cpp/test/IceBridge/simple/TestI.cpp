@@ -140,13 +140,6 @@ MyClassI::getHeartbeatCount(const Ice::Current& current)
 }
 
 void
-MyClassI::enableHeartbeats(const Ice::Current& current)
-{
-    checkConnection(current.con);
-    current.con->setACM(1, nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
-}
-
-void
 MyClassI::shutdown(const Ice::Current& current)
 {
     checkConnection(current.con);

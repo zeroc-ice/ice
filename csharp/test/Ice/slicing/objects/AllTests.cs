@@ -2168,26 +2168,19 @@ public class AllTests : Test.AllTests
             //
             // ex.slicedData_.obj.iceSlicedData_.obj
             //
+            test(PreservedI.counter == 0);
+
             try
             {
-                test(PreservedI.counter == 0);
-
-                try
-                {
-                    testPrx.throwPreservedException();
-                }
-                catch (PreservedException)
-                {
-                    test(PreservedI.counter == 1);
-                }
-
-                PreservedI.counter = 0;
+                testPrx.throwPreservedException();
             }
-            catch (Exception ex)
+            catch (PreservedException)
             {
-                output.WriteLine(ex.ToString());
-                test(false);
+                test(PreservedI.counter == 1);
             }
+
+            PreservedI.counter = 0;
+
         }
         catch (Ice.OperationNotExistException)
         {

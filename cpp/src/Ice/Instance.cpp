@@ -531,20 +531,6 @@ IceInternal::Instance::serverConnectionOptions(const string& adapterName) const
     return connectionOptions;
 }
 
-const ACMConfig&
-IceInternal::Instance::clientACM() const
-{
-    // No mutex lock, immutable.
-    return _clientACM;
-}
-
-const ACMConfig&
-IceInternal::Instance::serverACM() const
-{
-    // No mutex lock, immutable.
-    return _serverACM;
-}
-
 Ice::ObjectPrx
 IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const Identity& adminIdentity)
 {
@@ -1119,15 +1105,6 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
         const_cast<DefaultsAndOverridesPtr&>(_defaultsAndOverrides) =
             make_shared<DefaultsAndOverrides>(_initData.properties, _initData.logger);
-
-        const ACMConfig defaultClientACM(_initData.properties, _initData.logger, "Ice.ACM", ACMConfig(false));
-        const ACMConfig defaultServerACM(_initData.properties, _initData.logger, "Ice.ACM", ACMConfig(true));
-
-        const_cast<ACMConfig&>(_clientACM) =
-            ACMConfig(_initData.properties, _initData.logger, "Ice.ACM.Client", defaultClientACM);
-
-        const_cast<ACMConfig&>(_serverACM) =
-            ACMConfig(_initData.properties, _initData.logger, "Ice.ACM.Server", defaultServerACM);
 
         {
             const PropertiesPtr& properties = _initData.properties;

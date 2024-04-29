@@ -553,5 +553,5 @@ InitialI::supportsCsharpSerializableAsync(
 void
 InitialI::supportsNullOptionalAsync(function<void(bool)> response, function<void(exception_ptr)>, const Ice::Current&)
 {
-    response(true);
+    response(false);
 }

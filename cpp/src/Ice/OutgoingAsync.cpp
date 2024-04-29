@@ -567,14 +567,7 @@ ProxyOutgoingAsyncBase::responseImpl(bool ok, bool invoke)
 void
 ProxyOutgoingAsyncBase::runTimerTask()
 {
-    if (_proxy._getReference()->getInvocationTimeout() == -2)
-    {
-        cancel(make_exception_ptr(ConnectionTimeoutException(__FILE__, __LINE__)));
-    }
-    else
-    {
-        cancel(make_exception_ptr(InvocationTimeoutException(__FILE__, __LINE__)));
-    }
+    cancel(make_exception_ptr(InvocationTimeoutException(__FILE__, __LINE__)));
 }
 
 OutgoingAsync::OutgoingAsync(ObjectPrx proxy, bool synchronous)

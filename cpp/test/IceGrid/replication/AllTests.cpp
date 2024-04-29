@@ -241,9 +241,6 @@ allTests(Test::TestHelper* helper)
         communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry");
 
     auto adminSession = registry->createAdminSession("foo", "bar");
-
-    adminSession->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
-
     auto admin = adminSession->getAdmin();
     test(admin);
 

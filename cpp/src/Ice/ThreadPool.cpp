@@ -76,10 +76,10 @@ IceInternal::ThreadPoolWorkQueue::destroy()
 }
 
 void
-IceInternal::ThreadPoolWorkQueue::queue(function<void(ThreadPoolCurrent&)> item, const Ice::ConnectionPtr& connection)
+IceInternal::ThreadPoolWorkQueue::queue(function<void(ThreadPoolCurrent&)> item)
 {
     // lock_guard lock(_mutex); Called with the thread pool locked
-    _workItems.push_back(make_pair(item, connection));
+    _workItems.push_back(item);
 #if defined(ICE_USE_IOCP)
     _threadPool._selector.completed(this, SocketOperationRead);
 #else
@@ -109,7 +109,7 @@ IceInternal::ThreadPoolWorkQueue::finishAsync(SocketOperation)
 void
 IceInternal::ThreadPoolWorkQueue::message(ThreadPoolCurrent& current)
 {
-    optional<pair<function<void(ThreadPoolCurrent&)>, Ice::ConnectionPtr>> workItem;
+    function<void(ThreadPoolCurrent&)> workItem;
     {
         lock_guard lock(_threadPool._mutex);
         if (!_workItems.empty())
@@ -133,7 +133,7 @@ IceInternal::ThreadPoolWorkQueue::message(ThreadPoolCurrent& current)
 
     if (workItem)
     {
-        workItem.first(current);
+        workItem(current);
     }
     else
     {
@@ -522,12 +522,11 @@ IceInternal::ThreadPool::execute(function<void()> call, const Ice::ConnectionPtr
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    _workQueue->queue([self = shared_from_this(), call = std::move(call)](ThreadPoolCurrent& current)
+    _workQueue->queue([self = shared_from_this(), call = std::move(call), connection](ThreadPoolCurrent& current)
         {
             current.ioCompleted(); // Promote new leader
-            self->executeFromThisThread(call);
-        },
-        connection);
+            self->executeFromThisThread(call, connection);
+        });
 }
 
 void

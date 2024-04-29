@@ -38,36 +38,6 @@ def allTestsWithController(helper, communicator, controller)
     timeout = Test::TimeoutPrx::checkedCast(obj)
     test(timeout)
 
-    print "testing connection timeout... "
-    STDOUT.flush
-    #
-    # Expect TimeoutException.
-    #
-    seq = "\0" * 10000000 # 10,000,000 entries
-    to = Test::TimeoutPrx::uncheckedCast(obj.ice_timeout(250))
-    connect(to)
-    controller.holdAdapter(-1)
-    begin
-        to.sendData(seq)
-        test(false)
-    rescue Ice::TimeoutException
-      # Expected.
-    end
-    controller.resumeAdapter()
-    timeout.op() # Ensure adapter is active.
-    #
-    # Expect success.
-    #
-    to = Test::TimeoutPrx::uncheckedCast(obj.ice_timeout(2000))
-    controller.holdAdapter(100)
-    begin
-        seq2 = "\0" * 1000000 # 1,000,000 entries
-        to.sendData(seq2)
-    rescue Ice::TimeoutException
-        test(false)
-    end
-    puts "ok"
-
     print "testing invocation timeout... "
     STDOUT.flush
     connection = obj.ice_getConnection()

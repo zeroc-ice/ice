@@ -5,8 +5,8 @@
 #ifndef ICE_OBJECT_ADAPTER_I_H
 #define ICE_OBJECT_ADAPTER_I_H
 
-#include "ACM.h"
 #include "ConnectionFactoryF.h"
+#include "ConnectionI.h"
 #include "EndpointIF.h"
 #include "Ice/BuiltinSequences.h"
 #include "Ice/CommunicatorF.h"
@@ -97,7 +97,6 @@ namespace Ice
         void decDirectCount();
 
         IceInternal::ThreadPoolPtr getThreadPool() const;
-        IceInternal::ACMConfig getACM() const;
         void setAdapterOnConnection(const Ice::ConnectionIPtr&);
         size_t messageSizeMax() const { return _messageSizeMax; }
 
@@ -142,7 +141,6 @@ namespace Ice
         CommunicatorPtr _communicator;
         IceInternal::ObjectAdapterFactoryPtr _objectAdapterFactory;
         IceInternal::ThreadPoolPtr _threadPool;
-        IceInternal::ACMConfig _acm;
         const IceInternal::ServantManagerPtr _servantManager;
 
         // There is no need to clear _dispatchPipeline during destroy because _dispatchPipeline does not hold onto this

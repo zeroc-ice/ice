@@ -181,7 +181,7 @@ namespace IceInternal
         ThreadPoolWorkQueue(ThreadPool&);
 
         void destroy();
-        void queue(std::function<void(ThreadPoolCurrent&)>, const Ice::ConnectionPtr& = nullptr);
+        void queue(std::function<void(ThreadPoolCurrent&)>);
 
 #if defined(ICE_USE_IOCP)
         bool startAsync(SocketOperation);
@@ -196,7 +196,7 @@ namespace IceInternal
     private:
         ThreadPool& _threadPool;
         bool _destroyed;
-        std::list<std::pair<std::function<void(ThreadPoolCurrent&)>, Ice::ConnectionPtr>> _workItems;
+        std::list<std::function<void(ThreadPoolCurrent&)>> _workItems;
     };
 
 //

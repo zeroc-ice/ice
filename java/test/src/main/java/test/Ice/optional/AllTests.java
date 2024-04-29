@@ -343,12 +343,9 @@ public class AllTests {
       l.add(new SmallStruct((byte) 6));
       l.add(new SmallStruct((byte) 7));
       owc1.setL(l);
-      owc1.setS(new ClassVarStruct(5));
       OptionalWithCustom owc2 = (OptionalWithCustom) initial.pingPong(owc1);
       test(owc2.hasL());
       test(owc2.getL().equals(l));
-      test(owc2.hasS());
-      test(owc2.getS().a == 5);
     }
 
     //
