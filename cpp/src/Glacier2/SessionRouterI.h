@@ -68,37 +68,35 @@ namespace Glacier2
             std::optional<SessionManagerPrx>,
             std::optional<SSLPermissionsVerifierPrx>,
             std::optional<SSLSessionManagerPrx>);
-        ~SessionRouterI() override;
+        ~SessionRouterI() final;
         void destroy();
 
-        std::optional<Ice::ObjectPrx> getClientProxy(std::optional<bool>&, const Ice::Current&) const override;
-        std::optional<Ice::ObjectPrx> getServerProxy(const Ice::Current&) const override;
-        Ice::ObjectProxySeq addProxies(Ice::ObjectProxySeq, const Ice::Current&) override;
-        std::string getCategoryForClient(const Ice::Current&) const override;
+        std::optional<Ice::ObjectPrx> getClientProxy(std::optional<bool>&, const Ice::Current&) const final;
+        std::optional<Ice::ObjectPrx> getServerProxy(const Ice::Current&) const final;
+        Ice::ObjectProxySeq addProxies(Ice::ObjectProxySeq, const Ice::Current&) final;
+        std::string getCategoryForClient(const Ice::Current&) const final;
         void createSessionAsync(
             std::string,
             std::string,
             std::function<void(const std::optional<SessionPrx>&)>,
             std::function<void(std::exception_ptr)>,
-            const Ice::Current&) override;
+            const Ice::Current&) final;
         void createSessionFromSecureConnectionAsync(
             std::function<void(const std::optional<SessionPrx>&)>,
             std::function<void(std::exception_ptr)>,
-            const Ice::Current&) override;
-        void refreshSessionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&)
-            override;
-        void destroySession(const Ice::Current&) override;
-        std::int64_t getSessionTimeout(const Ice::Current&) const override;
-        int getACMTimeout(const Ice::Current&) const override;
+            const Ice::Current&) final;
+        void refreshSession(const Ice::Current&) final {}
+        void destroySession(const Ice::Current&) final;
+        std::int64_t getSessionTimeout(const Ice::Current&) const final;
+        int getACMTimeout(const Ice::Current&) const final;
 
-        void updateSessionObservers() override;
+        void updateSessionObservers() final;
 
         std::shared_ptr<RouterI> getRouter(const Ice::ConnectionPtr&, const Ice::Identity&, bool = true) const;
 
         Ice::ObjectPtr getClientBlobject(const Ice::ConnectionPtr&, const Ice::Identity&) const;
         Ice::ObjectPtr getServerBlobject(const std::string&) const;
 
-        void refreshSession(const Ice::ConnectionPtr&);
         void destroySession(const Ice::ConnectionPtr&);
 
         int sessionTraceLevel() const { return _sessionTraceLevel; }

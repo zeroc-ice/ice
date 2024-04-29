@@ -690,83 +690,6 @@ SessionRouterI::destroySession(const Current& current)
 }
 
 void
-SessionRouterI::refreshSessionAsync(
-    function<void()> response,
-    function<void(exception_ptr)> exception,
-    const Ice::Current& current)
-{
-    shared_ptr<RouterI> router;
-    {
-        lock_guard<mutex> lg(_mutex);
-        router = getRouterImpl(current.con, current.id, false); // getRouter updates the session timestamp.
-        if (!router)
-        {
-            exception(make_exception_ptr(SessionNotExistException()));
-            return;
-        }
-    }
-
-    auto session = router->getSession();
-    if (session)
-    {
-        //
-        // Ping the session to ensure it does not timeout.
-        //
-
-        session->ice_pingAsync(
-            [responseCb = std::move(response)] { responseCb(); },
-            [exceptionCb = std::move(exception), sessionRouter = shared_from_this(), connection = current.con](
-                exception_ptr e)
-            {
-                exceptionCb(e);
-                sessionRouter->destroySession(connection);
-            });
-    }
-    else
-    {
-        response();
-    }
-}
-
-void
-SessionRouterI::refreshSession(const ConnectionPtr& con)
-{
-    shared_ptr<RouterI> router;
-    {
-        lock_guard<mutex> lg(_mutex);
-        router = getRouterImpl(con, Ice::Identity(), false); // getRouter updates the session timestamp.
-        if (!router)
-        {
-            //
-            // Close the connection otherwise the peer has no way to know that the
-            // session has gone.
-            //
-            con->close(ConnectionClose::Forcefully);
-            throw SessionNotExistException();
-        }
-    }
-
-    auto session = router->getSession();
-    if (session)
-    {
-        //
-        // Ping the session to ensure it does not timeout.
-        //
-        session->ice_pingAsync(
-            nullptr,
-            [sessionRouter = shared_from_this(), con](exception_ptr)
-            {
-                //
-                // Close the connection otherwise the peer has no way to know that
-                // the session has gone.
-                //
-                con->close(ConnectionClose::Forcefully);
-                sessionRouter->destroySession(con);
-            });
-    }
-}
-
-void
 SessionRouterI::destroySession(const ConnectionPtr& connection)
 {
     shared_ptr<RouterI> router;
@@ -906,7 +829,6 @@ SessionRouterI::getRouterImpl(const ConnectionPtr& connection, const Ice::Identi
 
     if (_routersByConnectionHint != _routersByConnection.cend() && _routersByConnectionHint->first == connection)
     {
-        _routersByConnectionHint->second->updateTimestamp();
         return _routersByConnectionHint->second;
     }
 
@@ -915,7 +837,6 @@ SessionRouterI::getRouterImpl(const ConnectionPtr& connection, const Ice::Identi
     if (p != _routersByConnection.cend())
     {
         _routersByConnectionHint = p;
-        p->second->updateTimestamp();
         return p->second;
     }
     else if (close)
@@ -1041,18 +962,6 @@ SessionRouterI::finishCreateSession(const ConnectionPtr& connection, const share
             try
             {
                 self->destroySession(c);
-            }
-            catch (const std::exception&)
-            {
-            }
-        });
-
-    connection->setHeartbeatCallback(
-        [self = shared_from_this()](const ConnectionPtr& c)
-        {
-            try
-            {
-                self->refreshSession(c);
             }
             catch (const std::exception&)
             {

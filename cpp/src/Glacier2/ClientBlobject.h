@@ -26,7 +26,7 @@ namespace Glacier2
             std::pair<const std::byte*, const std::byte*> inEncaps,
             std::function<void(bool, std::pair<const std::byte*, const std::byte*>)> response,
             std::function<void(std::exception_ptr)> error,
-            const Ice::Current& current) override;
+            const Ice::Current& current) final;
 
         std::shared_ptr<StringSet> categories();
         std::shared_ptr<StringSet> adapterIds();
