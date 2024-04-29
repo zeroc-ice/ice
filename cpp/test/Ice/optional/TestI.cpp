@@ -344,7 +344,7 @@ InitialI::sendOptionalStruct(bool, optional<FixedStruct>, const Ice::Current&)
 void
 InitialI::returnOptionalStruct(bool, optional<FixedStruct>& fs, const Ice::Current&)
 {
-    fs = FixedStruct(53);
+    fs = FixedStruct{53};
 }
 
 GPtr
