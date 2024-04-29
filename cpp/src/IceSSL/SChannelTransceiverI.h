@@ -111,15 +111,16 @@ namespace IceSSL::SChannel
         //
         IceInternal::Buffer _readUnprocessed;
 
-        CtxtHandle _ssl;
-        bool _sslInitialized;
-        CredHandle _credentials;
-        std::function<CredHandle(const std::string&)> _localCredentialsSelectionCallback;
+        std::function<SCHANNEL_CRED(std::string_view)> _localCredentialsSelectionCallback;
         SecPkgContext_StreamSizes _sizes;
         std::string _cipher;
-        std::vector<IceSSL::CertificatePtr> _certs;
+        std::vector<IceSSL::CertificatePtr> _peerCerts;
         std::function<bool(CtxtHandle, const IceSSL::ConnectionInfoPtr&)> _remoteCertificateValidationCallback;
         bool _clientCertificateRequired;
+        std::vector<PCCERT_CONTEXT> _certs;
+        HCERTSTORE _rootStore;
+        CredHandle _credentials;
+        CtxtHandle _ssl;
     };
     using TransceiverIPtr = std::shared_ptr<TransceiverI>;
 }

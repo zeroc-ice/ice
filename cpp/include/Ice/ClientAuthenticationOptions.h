@@ -5,37 +5,10 @@
 #ifndef ICE_CLIENT_AUTHENTICATION_OPTIONS_H
 #define ICE_CLIENT_AUTHENTICATION_OPTIONS_H
 
+#include "SSLConfig.h"
 #include "SSLConnectionInfo.h"
 
 #include <functional>
-
-#if defined(_WIN32)
-// We need to include windows.h before wincrypt.h.
-// clang-format off
-#    ifndef NOMINMAX
-#        define NOMINMAX
-#    endif
-#    include <windows.h>
-#    include <wincrypt.h>
-// clang-format on
-// SECURITY_WIN32 or SECURITY_KERNEL, must be defined before including security.h indicating who is compiling the code.
-#    ifdef SECURITY_WIN32
-#        undef SECURITY_WIN32
-#    endif
-#    ifdef SECURITY_KERNEL
-#        undef SECURITY_KERNEL
-#    endif
-#    define SECURITY_WIN32 1
-#    include <schannel.h>
-#    include <security.h>
-#    include <sspi.h>
-#    undef SECURITY_WIN32
-#elif defined(__APPLE__)
-#    include <Security/SecureTransport.h>
-#    include <Security/Security.h>
-#else
-#    include <openssl/ssl.h>
-#endif
 
 namespace Ice::SSL
 {
@@ -54,7 +27,7 @@ namespace Ice::SSL
          * [See Detailed Schannel documentation on Schannel credentials](
          * https://learn.microsoft.com/en-us/windows/win32/secauthn/acquirecredentialshandle--schannel)
          */
-        std::function<CredHandle(const std::string& host)> clientCredentialsSelectionCallback;
+        std::function<SCHANNEL_CRED(std::string_view host)> clientCredentialsSelectionCallback;
 
         /**
          * A callback that allows manually validating the server certificate chain. When the verification callback
@@ -85,7 +58,7 @@ namespace Ice::SSL
          * The requirements for the Secure Transport certificate chain are documented in
          * https://developer.apple.com/documentation/security/1392400-sslsetcertificate?changes=_3&language=objc
          */
-        std::function<CFArrayRef(const std::string& host)> clientCertificateSelectionCallback;
+        std::function<CFArrayRef(std::string_view host)> clientCertificateSelectionCallback;
 
         /**
          * The trusted root certificates. If set, the server's certificate chain is validated against these
@@ -100,7 +73,7 @@ namespace Ice::SSL
          * @param context An opaque type that represents an SSL session context object.
          * @param host The target server host name.
          */
-        std::function<void(SSLContextRef context, const std::string& host)> sslNewSessionCallback;
+        std::function<void(SSLContextRef context, std::string_view host)> sslNewSessionCallback;
 
         /**
          * A callback that allows manually validating the server certificate chain. When the verification callback
@@ -127,7 +100,7 @@ namespace Ice::SSL
          * @see Detailed OpenSSL documentation on SSL_CTX management:
          * https://www.openssl.org/docs/manmaster/man3/SSL_CTX_new.html
          */
-        std::function<SSL_CTX*(const std::string& host)> clientSslContextSelectionCallback;
+        std::function<SSL_CTX*(std::string_view host)> clientSslContextSelectionCallback;
 
         /**
          * A callback that is invoked before initiating a new SSL handshake. This callback provides an opportunity to
@@ -139,7 +112,7 @@ namespace Ice::SSL
          * @see Detailed OpenSSL documentation on SSL object management:
          * https://www.openssl.org/docs/manmaster/man3/SSL_new.html
          */
-        std::function<void(::SSL* ssl, const std::string& host)> sslNewSessionCallback;
+        std::function<void(::SSL* ssl, std::string_view host)> sslNewSessionCallback;
 
         /**
          * A callback that allows manually validating the server certificate chain. When the verification callback

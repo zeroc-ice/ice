@@ -37,14 +37,14 @@ namespace IceSSL::SChannel
 
         std::string getCipherName(ALG_ID) const;
 
-        Ice::SSL::ClientAuthenticationOptions createClientAuthenticationOptions(const std::string&) const final;
+        Ice::SSL::ClientAuthenticationOptions createClientAuthenticationOptions(std::string_view) const final;
         Ice::SSL::ServerAuthenticationOptions createServerAuthenticationOptions() const final;
 
     private:
-        bool validationCallback(CtxtHandle, const IceSSL::ConnectionInfoPtr&, bool, const std::string&) const;
+        bool validationCallback(CtxtHandle, const IceSSL::ConnectionInfoPtr&, bool, std::string_view) const;
         std::string errorStatusToString(DWORD errorStatus) const;
         std::string policyStatusToString(DWORD policyStatus) const;
-        CredHandle newCredentialsHandle(bool) const;
+        SCHANNEL_CRED newCredentialsHandle(bool) const;
 
         std::vector<PCCERT_CONTEXT> _allCerts;
         std::vector<PCCERT_CONTEXT> _importedCerts;

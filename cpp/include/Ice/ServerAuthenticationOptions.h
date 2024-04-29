@@ -5,37 +5,10 @@
 #ifndef ICE_SERVER_AUTHENTICATION_OPTIONS_H
 #define ICE_SERVER_AUTHENTICATION_OPTIONS_H
 
+#include "SSLConfig.h"
 #include "SSLConnectionInfo.h"
 
 #include <functional>
-
-#if defined(_WIN32)
-// We need to include windows.h before wincrypt.h.
-// clang-format off
-#    ifndef NOMINMAX
-#        define NOMINMAX
-#    endif
-#    include <windows.h>
-#    include <wincrypt.h>
-// clang-format on
-// SECURITY_WIN32 or SECURITY_KERNEL, must be defined before including security.h indicating who is compiling the code.
-#    ifdef SECURITY_WIN32
-#        undef SECURITY_WIN32
-#    endif
-#    ifdef SECURITY_KERNEL
-#        undef SECURITY_KERNEL
-#    endif
-#    define SECURITY_WIN32 1
-#    include <schannel.h>
-#    include <security.h>
-#    include <sspi.h>
-#    undef SECURITY_WIN32
-#elif defined(__APPLE__)
-#    include <Security/SecureTransport.h>
-#    include <Security/Security.h>
-#else
-#    include <openssl/ssl.h>
-#endif
 
 namespace Ice::SSL
 {
@@ -46,18 +19,19 @@ namespace Ice::SSL
     {
 #if defined(_WIN32)
         /**
-         * A callback that allows selecting the server credentials based on the server's adapter name.
+         * A callback that allows selecting the server credentials based on the name of the object adapter that
+         * accepts the connection.
          *
-         * @param adapterName The server's adapter name.
+         * @param adapterName The name of the object adapter that accepted the connection.
          * @return The server credentials. The credentials must remain valid for the duration of the connection.
          *
          * [See Detailed Schannel documentation on Schannel credentials](
          * https://learn.microsoft.com/en-us/windows/win32/secauthn/acquirecredentialshandle--schannel)
          */
-        std::function<CredHandle(const std::string& adapterName)> serverCredentialsSelectionCallback;
+        std::function<SCHANNEL_CRED(std::string_view adapterName)> serverCredentialsSelectionCallback;
 
         /**
-         * A value indicating whether or not the server sends a client certificate request to the client.
+         * Whether or not the server requires that the client provides a certificate.
          */
         bool clientCertificateRequired;
 
@@ -82,16 +56,17 @@ namespace Ice::SSL
 
 #elif defined(__APPLE__)
         /**
-         * A callback that allows selecting the server's certificate chain based on the server's adapter name.
+         * A callback that allows selecting the server's certificate chain based on the name of the object adapter that
+         * accepts the connection.
          *
-         * @param adapterName The server's adapter name.
+         * @param adapterName The name of the object adapter that accepted the connection.
          * @return The server's certificate chain. The certificate chain must remain valid for the duration of the
          * connection.
          *
          * The requirements for the Secure Transport certificates are documented in
          * https://developer.apple.com/documentation/security/1392400-sslsetcertificate?changes=_3&language=objc
          */
-        std::function<CFArrayRef(const std::string& adapterName)> serverCertificateSelectionCallback;
+        std::function<CFArrayRef(std::string_view adapterName)> serverCertificateSelectionCallback;
 
         /**
          * The trusted root certificates. If set, the client's certificate chain is validated against these
@@ -100,7 +75,7 @@ namespace Ice::SSL
         CFArrayRef trustedRootCertificates;
 
         /**
-         * the requirements for client-side authentication
+         * The requirements for client-side authentication
          * @see https://developer.apple.com/documentation/security/sslauthenticate
          */
         SSLAuthenticate clientCertificateRequired;
@@ -110,9 +85,9 @@ namespace Ice::SSL
          * customize the SSL parameters for the session based on specific server settings or requirements.
          *
          * @param context An opaque type that represents an SSL session context object.
-         * @param adapterName The server's adapter name.
+         * @param adapterName The name of the object adapter that accepted the connection.
          */
-        std::function<void(SSLContextRef context, const std::string& adapterName)> sslNewSessionCallback;
+        std::function<void(SSLContextRef context, std::string_view adapterName)> sslNewSessionCallback;
 
         /**
          * A callback that allows manually validating the client certificate chain. When the verification callback
@@ -132,26 +107,26 @@ namespace Ice::SSL
          * A callback that allows selecting the server's SSL context based on the server's adapter name. This callback
          * is used to associate a specific SSL configuration with a server instance, identified by the adapter name.
          *
-         * @param adapterName The server's adapter name.
-         * @return A pointer to an SSL_CTX object that represents the SSL configuration for the specified server
+         * @param adapterName The name of the object adapter that accepted the connection.
+         * @return A pointer to an SSL_CTX object that represents the SSL configuration for the specified object
          * adapter.
          *
          * @see Detailed OpenSSL documentation on SSL_CTX management:
          * https://www.openssl.org/docs/manmaster/man3/SSL_CTX_new.html
          */
-        std::function<SSL_CTX*(const std::string& adapterName)> serverSslContextSelectionCallback;
+        std::function<SSL_CTX*(std::string_view adapterName)> serverSslContextSelectionCallback;
 
         /**
          * A callback that is invoked before initiating a new SSL handshake. This callback provides an opportunity to
          * customize the SSL parameters for the session based on specific server settings or requirements.
          *
          * @param ssl A pointer to the SSL object representing the connection.
-         * @param adapterName The server's adapter name.
+         * @param adapterName The name of the object adapter that accepted the connection.
          *
          * @see Detailed OpenSSL documentation on SSL object management:
          * https://www.openssl.org/docs/manmaster/man3/SSL_new.html
          */
-        std::function<void(::SSL* ssl, const std::string& adapterName)> sslNewSessionCallback;
+        std::function<void(::SSL* ssl, std::string_view adapterName)> sslNewSessionCallback;
 
         /**
          * A callback that allows manually validating the client certificate chain. When the verification callback

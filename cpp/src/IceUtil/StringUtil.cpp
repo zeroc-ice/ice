@@ -1067,7 +1067,7 @@ IceUtilInternal::lastErrorToString()
 #endif
 
 string
-IceUtilInternal::toLower(const std::string& s)
+IceUtilInternal::toLower(std::string_view s)
 {
     string result;
     result.reserve(s.size());
@@ -1086,7 +1086,7 @@ IceUtilInternal::toLower(const std::string& s)
 }
 
 string
-IceUtilInternal::toUpper(const std::string& s)
+IceUtilInternal::toUpper(std::string_view s)
 {
     string result;
     result.reserve(s.size());

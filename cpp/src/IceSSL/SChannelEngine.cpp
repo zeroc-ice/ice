@@ -914,7 +914,7 @@ SChannel::SSLEngine::getCipherName(ALG_ID cipher) const
     }
 }
 
-CredHandle
+SCHANNEL_CRED
 SChannel::SSLEngine::newCredentialsHandle(bool incoming) const
 {
     SCHANNEL_CRED cred;
@@ -947,44 +947,12 @@ SChannel::SSLEngine::newCredentialsHandle(bool incoming) const
     {
         cred.dwFlags |= SCH_USE_STRONG_CRYPTO;
     }
-
-    CredHandle credHandle;
-    memset(&credHandle, 0, sizeof(credHandle));
-
-    SECURITY_STATUS err = AcquireCredentialsHandle(
-        0,
-        const_cast<char*>(UNISP_NAME),
-        (incoming ? SECPKG_CRED_INBOUND : SECPKG_CRED_OUTBOUND),
-        0,
-        &cred,
-        0,
-        0,
-        &credHandle,
-        0);
-
-    if (err != SEC_E_OK)
-    {
-        throw SecurityException(
-            __FILE__,
-            __LINE__,
-            "IceSSL: failed to acquire credentials handle:\n" + lastErrorToString());
-    }
-    return credHandle;
+    return cred;
 }
 
 void
 SChannel::SSLEngine::destroy()
 {
-    if (_clientCredentials.dwLower != 0 || _clientCredentials.dwUpper != 0)
-    {
-        FreeCredentialsHandle(&_clientCredentials);
-    }
-
-    if (_serverCredentials.dwLower != 0 || _serverCredentials.dwUpper != 0)
-    {
-        FreeCredentialsHandle(&_serverCredentials);
-    }
-
     if (_chainEngine && _chainEngine != HCCE_CURRENT_USER && _chainEngine != HCCE_LOCAL_MACHINE)
     {
         CertFreeCertificateChainEngine(_chainEngine);
@@ -1026,15 +994,10 @@ SChannel::SSLEngine::destroy()
 }
 
 Ice::SSL::ClientAuthenticationOptions
-SChannel::SSLEngine::createClientAuthenticationOptions(const string& host) const
+SChannel::SSLEngine::createClientAuthenticationOptions(string_view host) const
 {
-    lock_guard lock(_mutex);
-    if (_clientCredentials.dwLower == 0 && _clientCredentials.dwUpper == 0)
-    {
-        const_cast<CredHandle&>(_clientCredentials) = newCredentialsHandle(false);
-    }
     return Ice::SSL::ClientAuthenticationOptions{
-        .clientCredentialsSelectionCallback = [this](const string&) { return _clientCredentials; },
+        .clientCredentialsSelectionCallback = [this](string_view) { return newCredentialsHandle(false); },
         .serverCertificateValidationCallback = [self = shared_from_this(),
                                                 host](CtxtHandle ssl, const ConnectionInfoPtr& info) -> bool
         { return self->validationCallback(ssl, info, false, host); }};
@@ -1043,13 +1006,8 @@ SChannel::SSLEngine::createClientAuthenticationOptions(const string& host) const
 Ice::SSL::ServerAuthenticationOptions
 SChannel::SSLEngine::createServerAuthenticationOptions() const
 {
-    lock_guard lock(_mutex);
-    if (_serverCredentials.dwLower == 0 && _serverCredentials.dwUpper == 0)
-    {
-        const_cast<CredHandle&>(_serverCredentials) = newCredentialsHandle(true);
-    }
     return Ice::SSL::ServerAuthenticationOptions{
-        .serverCredentialsSelectionCallback = [this](const string&) { return _serverCredentials; },
+        .serverCredentialsSelectionCallback = [this](string_view) { return newCredentialsHandle(true); },
         .clientCertificateRequired = getVerifyPeer() > 0,
         .clientCertificateValidationCallback =
             [self = shared_from_this()](CtxtHandle ssl, const ConnectionInfoPtr& info) -> bool
@@ -1074,11 +1032,8 @@ namespace
 }
 
 bool
-SChannel::SSLEngine::validationCallback(
-    CtxtHandle ssl,
-    const ConnectionInfoPtr& info,
-    bool incoming,
-    const string& host) const
+SChannel::SSLEngine::validationCallback(CtxtHandle ssl, const ConnectionInfoPtr& info, bool incoming, string_view host)
+    const
 {
     // Build the peer certificate chain and verify it.
     PCCERT_CONTEXT cert = 0;

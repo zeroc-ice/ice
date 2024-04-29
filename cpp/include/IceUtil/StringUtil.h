@@ -84,8 +84,8 @@ namespace IceUtilInternal
     // UTF8 string/characters but ignore non ASCII characters. Unlike, the
     // C methods, these methods are not local dependent.
     //
-    ICE_API std::string toLower(const std::string&);
-    ICE_API std::string toUpper(const std::string&);
+    ICE_API std::string toLower(std::string_view);
+    ICE_API std::string toUpper(std::string_view);
     ICE_API bool isAlpha(char);
     ICE_API bool isDigit(char);
 

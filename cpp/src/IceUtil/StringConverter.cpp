@@ -292,7 +292,7 @@ IceUtil::wstringToString(const wstring& v, const StringConverterPtr& converter, 
 }
 
 wstring
-IceUtil::stringToWstring(const string& v, const StringConverterPtr& converter, const WstringConverterPtr& wConverter)
+IceUtil::stringToWstring(string_view v, const StringConverterPtr& converter, const WstringConverterPtr& wConverter)
 {
     wstring target;
     if (!v.empty())

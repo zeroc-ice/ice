@@ -124,7 +124,7 @@ namespace IceUtil
      * @return A wide string.
      */
     ICE_API std::wstring
-    stringToWstring(const std::string& str, const StringConverterPtr& nc = 0, const WstringConverterPtr& wc = 0);
+    stringToWstring(std::string_view, const StringConverterPtr& nc = 0, const WstringConverterPtr& wc = 0);
 
     /**
      * Converts the given string from the native narrow string encoding to

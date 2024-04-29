@@ -89,10 +89,56 @@ SChannel::TransceiverI::sslHandshake()
     SECURITY_STATUS err = SEC_E_OK;
     if (_state == StateHandshakeNotStarted)
     {
+        SCHANNEL_CRED cred;
         if (_localCredentialsSelectionCallback)
         {
-            _credentials = _localCredentialsSelectionCallback(_host);
+            cred = _localCredentialsSelectionCallback(_host);
         }
+        else
+        {
+            memset(&cred, 0, sizeof(cred));
+            cred.dwVersion = SCHANNEL_CRED_VERSION;
+        }
+
+        if (cred.hRootStore)
+        {
+            // Increment the reference count.
+            CertDuplicateStore(cred.hRootStore);
+            _rootStore = cred.hRootStore;
+        }
+
+        if (cred.cCreds)
+        {
+            // Increase the reference count of the certificates.
+            _certs.resize(cred.cCreds);
+            for (DWORD i = 0; i < cred.cCreds; ++i)
+            {
+                _certs[i] = CertDuplicateCertificateContext(cred.paCred[i]);
+            }
+            cred.paCred = const_cast<PCCERT_CONTEXT*>(&_certs[0]);
+        }
+
+        memset(&_credentials, 0, sizeof(_credentials));
+
+        err = AcquireCredentialsHandle(
+            0,
+            const_cast<char*>(UNISP_NAME),
+            (_incoming ? SECPKG_CRED_INBOUND : SECPKG_CRED_OUTBOUND),
+            0,
+            &cred,
+            0,
+            0,
+            &_credentials,
+            0);
+
+        if (err != SEC_E_OK)
+        {
+            throw SecurityException(
+                __FILE__,
+                __LINE__,
+                "IceSSL: failed to acquire credentials handle:\n" + IceUtilInternal::lastErrorToString());
+        }
+
         _ctxFlags = 0;
         _readBuffer.b.resize(2048);
         _readBuffer.i = _readBuffer.b.begin();
@@ -121,7 +167,6 @@ SChannel::TransceiverI::sslHandshake()
                 os << "IceSSL: handshake failure:\n" << IceUtilInternal::errorToString(err);
                 throw SecurityException(__FILE__, __LINE__, os.str());
             }
-            _sslInitialized = true;
 
             //
             // Copy the data to the write buffer
@@ -161,7 +206,7 @@ SChannel::TransceiverI::sslHandshake()
             {
                 err = AcceptSecurityContext(
                     &_credentials,
-                    (_sslInitialized ? &_ssl : 0),
+                    (_ssl.dwLower || _ssl.dwUpper) ? &_ssl : 0,
                     &inBufferDesc,
                     _clientCertificateRequired ? flags | ASC_REQ_MUTUAL_AUTH : flags,
                     0,
@@ -169,10 +214,6 @@ SChannel::TransceiverI::sslHandshake()
                     &outBufferDesc,
                     &_ctxFlags,
                     0);
-                if (err == SEC_I_CONTINUE_NEEDED || err == SEC_E_OK)
-                {
-                    _sslInitialized = true;
-                }
             }
             else
             {
@@ -380,7 +421,7 @@ SChannel::TransceiverI::sslHandshake()
             CertFreeCertificateContext(cert);
             throw SecurityException(__FILE__, __LINE__, os.str());
         }
-        _certs.push_back(SChannel::Certificate::create(pvStructInfo));
+        _peerCerts.push_back(SChannel::Certificate::create(pvStructInfo));
         CertFreeCertificateContext(cert);
     }
 
@@ -584,11 +625,29 @@ SChannel::TransceiverI::closing(bool initiator, exception_ptr)
 void
 SChannel::TransceiverI::close()
 {
-    if (_sslInitialized)
+    if (_ssl.dwLower || _ssl.dwUpper)
     {
         DeleteSecurityContext(&_ssl);
-        _sslInitialized = false;
+        _ssl = {0, 0};
     }
+
+    if (_credentials.dwLower || _credentials.dwUpper)
+    {
+        FreeCredentialsHandle(&_credentials);
+        _credentials = {0, 0};
+    }
+
+    for (PCCERT_CONTEXT cert : _certs)
+    {
+        CertFreeCertificateContext(cert);
+    }
+
+    if (_rootStore)
+    {
+        CertCloseStore(_rootStore, 0);
+        _rootStore = 0;
+    }
+
     _delegate->close();
 
     // Clear the buffers now instead of waiting for destruction.
@@ -783,7 +842,7 @@ SChannel::TransceiverI::getInfo() const
     info->underlying = _delegate->getInfo();
     info->incoming = _incoming;
     info->adapterName = _adapterName;
-    info->certs = _certs;
+    info->certs = _peerCerts;
     return info;
 }
 
@@ -811,10 +870,12 @@ SChannel::TransceiverI::TransceiverI(
       _delegate(delegate),
       _state(StateNotInitialized),
       _bufferedW(0),
-      _sslInitialized(false),
       _clientCertificateRequired(serverAuthenticationOptions.clientCertificateRequired),
       _localCredentialsSelectionCallback(serverAuthenticationOptions.serverCredentialsSelectionCallback),
-      _remoteCertificateValidationCallback(serverAuthenticationOptions.clientCertificateValidationCallback)
+      _remoteCertificateValidationCallback(serverAuthenticationOptions.clientCertificateValidationCallback),
+      _rootStore(0),
+      _credentials({0, 0}),
+      _ssl({0, 0})
 {
 }
 
@@ -831,10 +892,12 @@ SChannel::TransceiverI::TransceiverI(
       _delegate(delegate),
       _state(StateNotInitialized),
       _bufferedW(0),
-      _sslInitialized(false),
       _clientCertificateRequired(false),
       _localCredentialsSelectionCallback(clientAuthenticationOptions.clientCredentialsSelectionCallback),
-      _remoteCertificateValidationCallback(clientAuthenticationOptions.serverCertificateValidationCallback)
+      _remoteCertificateValidationCallback(clientAuthenticationOptions.serverCertificateValidationCallback),
+      _rootStore(0),
+      _credentials({0, 0}),
+      _ssl({0, 0})
 {
 }
 
