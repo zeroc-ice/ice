@@ -1147,6 +1147,37 @@ if "OperationInterruptedException" not in _M_Ice.__dict__:
     _M_Ice.OperationInterruptedException = OperationInterruptedException
     del OperationInterruptedException
 
+
+if "ConnectionIdleException" not in _M_Ice.__dict__:
+    _M_Ice.ConnectionIdleException = Ice.createTempClass()
+
+    class ConnectionIdleException(Ice.LocalException):
+        """
+        This exception indicates that a connection was aborted by the idle check.
+        """
+
+        def __init__(self):
+            pass
+
+        def __str__(self):
+            return IcePy.stringifyException(self)
+
+        __repr__ = __str__
+
+        _ice_id = "::Ice::ConnectionIdleException"
+
+    _M_Ice._t_ConnectionIdleException = IcePy.defineException(
+        "::Ice::ConnectionIdleException",
+        ConnectionIdleException,
+        (),
+        None,
+        (),
+    )
+    ConnectionIdleException._ice_type = _M_Ice._t_ConnectionIdleException
+
+    _M_Ice.ConnectionIdleException = ConnectionIdleException
+    del ConnectionIdleException
+
 if "TimeoutException" not in _M_Ice.__dict__:
     _M_Ice.TimeoutException = Ice.createTempClass()
 
@@ -1232,36 +1263,6 @@ if "CloseTimeoutException" not in _M_Ice.__dict__:
 
     _M_Ice.CloseTimeoutException = CloseTimeoutException
     del CloseTimeoutException
-
-if "ConnectionTimeoutException" not in _M_Ice.__dict__:
-    _M_Ice.ConnectionTimeoutException = Ice.createTempClass()
-
-    class ConnectionTimeoutException(_M_Ice.TimeoutException):
-        """
-        This exception indicates that a connection has been shut down because it has been idle for some time.
-        """
-
-        def __init__(self):
-            _M_Ice.TimeoutException.__init__(self)
-
-        def __str__(self):
-            return IcePy.stringifyException(self)
-
-        __repr__ = __str__
-
-        _ice_id = "::Ice::ConnectionTimeoutException"
-
-    _M_Ice._t_ConnectionTimeoutException = IcePy.defineException(
-        "::Ice::ConnectionTimeoutException",
-        ConnectionTimeoutException,
-        (),
-        _M_Ice._t_TimeoutException,
-        (),
-    )
-    ConnectionTimeoutException._ice_type = _M_Ice._t_ConnectionTimeoutException
-
-    _M_Ice.ConnectionTimeoutException = ConnectionTimeoutException
-    del ConnectionTimeoutException
 
 if "InvocationTimeoutException" not in _M_Ice.__dict__:
     _M_Ice.InvocationTimeoutException = Ice.createTempClass()

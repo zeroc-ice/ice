@@ -20,6 +20,7 @@
 #    include "Ice/OutputStream.h"
 #    include "Ice/Properties.h"
 #    include "Ice/RegisterPlugins.h"
+#    include "IceIAP/ConnectionInfo.h"
 #    include "IceIAP/EndpointInfo.h"
 
 #    include <CoreFoundation/CoreFoundation.h>
@@ -76,6 +77,10 @@ namespace Ice
         Ice::registerPluginFactory("IceIAP", createIceIAP, loadOnInitialize);
     }
 }
+
+// Implement virtual destructors out of line to avoid weak vtables.
+IceIAP::ConnectionInfo::~ConnectionInfo() {}
+IceIAP::EndpointInfo::~EndpointInfo() {}
 
 IceObjC::iAPEndpointI::iAPEndpointI(
     const ProtocolInstancePtr& instance,

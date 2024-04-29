@@ -207,9 +207,9 @@ convertException(std::exception_ptr exc)
     {
         return [factory closeTimeoutException:toNSString(e.ice_file()) line:e.ice_line()];
     }
-    catch (const Ice::ConnectionTimeoutException& e)
+    catch (const Ice::ConnectionIdleException& e)
     {
-        return [factory connectionTimeoutException:toNSString(e.ice_file()) line:e.ice_line()];
+        return [factory connectionIdleException:toNSString(e.ice_file()) line:e.ice_line()];
     }
     catch (const Ice::InvocationTimeoutException& e)
     {

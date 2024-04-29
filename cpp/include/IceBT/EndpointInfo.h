@@ -6,6 +6,7 @@
 #define ICE_BT_ENDPOINT_INFO_H
 
 #include "Ice/Endpoint.h"
+#include "Types.h"
 
 #if defined(__clang__)
 #    pragma clang diagnostic push
@@ -21,7 +22,7 @@ namespace IceBT
      * Provides access to Bluetooth endpoint information.
      * \headerfile IceBT/IceBT.h
      */
-    class EndpointInfo : public Ice::EndpointInfo
+    class ICEBT_API EndpointInfo : public Ice::EndpointInfo
     {
     public:
         EndpointInfo() = default;
@@ -45,6 +46,8 @@ namespace IceBT
               uuid(uuid)
         {
         }
+
+        ~EndpointInfo() override;
 
         EndpointInfo(const EndpointInfo&) = delete;
         EndpointInfo& operator=(const EndpointInfo&) = delete;

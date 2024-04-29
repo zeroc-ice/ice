@@ -9,6 +9,16 @@
 
 using namespace std;
 
+Ice::EndpointInfo::~EndpointInfo()
+{
+    // out of line to avoid weak vtable
+}
+
+Ice::Endpoint::~Endpoint()
+{
+    // out of line to avoid weak vtable
+}
+
 void
 IceInternal::EndpointI::streamWrite(Ice::OutputStream* s) const
 {
@@ -88,3 +98,10 @@ IceInternal::EndpointI::checkOption(const string&, const string&, const string&)
     // Must be overridden to check for options.
     return false;
 }
+
+// Implement virtual destructors out of line to avoid weak vtables.
+Ice::IPEndpointInfo::~IPEndpointInfo() {}
+Ice::TCPEndpointInfo::~TCPEndpointInfo() {}
+Ice::UDPEndpointInfo::~UDPEndpointInfo() {}
+Ice::WSEndpointInfo::~WSEndpointInfo() {}
+Ice::OpaqueEndpointInfo::~OpaqueEndpointInfo() {}

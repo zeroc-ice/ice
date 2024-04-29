@@ -1291,6 +1291,26 @@ namespace Ice
     };
 
     /**
+     * This exception indicates that a connection was aborted by the idle check.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API ConnectionIdleException : public LocalException
+    {
+    public:
+        using LocalException::LocalException;
+
+        /**
+         * Obtains the Slice type ID of this exception.
+         * @return The fully-scoped type ID.
+         */
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+    };
+
+    /**
      * This exception indicates a timeout condition.
      * \headerfile Ice/Ice.h
      */
@@ -1335,26 +1355,6 @@ namespace Ice
      * \headerfile Ice/Ice.h
      */
     class ICE_API CloseTimeoutException : public TimeoutException
-    {
-    public:
-        using TimeoutException::TimeoutException;
-
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception indicates that a connection has been shut down because it has been idle for some time.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API ConnectionTimeoutException : public TimeoutException
     {
     public:
         using TimeoutException::TimeoutException;
