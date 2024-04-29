@@ -118,9 +118,7 @@ public:
 
     void opOneOptionalAsync(
         std::shared_ptr<Test::OneOptional>,
-        std::function<void(
-            const std::shared_ptr<Test::OneOptional>&,
-            const std::shared_ptr<Test::OneOptional>&)>,
+        std::function<void(const std::shared_ptr<Test::OneOptional>&, const std::shared_ptr<Test::OneOptional>&)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
@@ -250,8 +248,7 @@ public:
 
     void opIntOneOptionalDictAsync(
         Test::IntOneOptionalDict,
-        std::function<
-            void(const Test::IntOneOptionalDict&, const Test::IntOneOptionalDict&)>,
+        std::function<void(const Test::IntOneOptionalDict&, const Test::IntOneOptionalDict&)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 

@@ -66,8 +66,7 @@ public:
     virtual std::optional<Test::VarStruct>
     opVarStruct(std::optional<Test::VarStruct>, std::optional<Test::VarStruct>&, const Ice::Current&);
 
-    virtual Test::OneOptionalPtr
-    opOneOptional(Test::OneOptionalPtr, Test::OneOptionalPtr&, const Ice::Current&);
+    virtual Test::OneOptionalPtr opOneOptional(Test::OneOptionalPtr, Test::OneOptionalPtr&, const Ice::Current&);
 
     virtual std::optional<Test::MyInterfacePrx>
     opMyInterfaceProxy(std::optional<Test::MyInterfacePrx>, std::optional<Test::MyInterfacePrx>&, const Ice::Current&);
@@ -140,10 +139,8 @@ public:
     virtual std::optional<::Test::StringIntDict>
     opStringIntDict(std::optional<::Test::StringIntDict>, std::optional<::Test::StringIntDict>&, const Ice::Current&);
 
-    virtual ::Test::IntOneOptionalDict opIntOneOptionalDict(
-        ::Test::IntOneOptionalDict,
-        ::Test::IntOneOptionalDict&,
-        const Ice::Current&);
+    virtual ::Test::IntOneOptionalDict
+    opIntOneOptionalDict(::Test::IntOneOptionalDict, ::Test::IntOneOptionalDict&, const Ice::Current&);
 
     virtual void opClassAndUnknownOptional(Test::APtr, const Ice::Current&);
 

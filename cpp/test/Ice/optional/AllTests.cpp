@@ -641,10 +641,10 @@ allTests(Test::TestHelper* helper, bool)
     test(!ofs);
 
     GPtr g = make_shared<G>();
-    g->gg1Opt = G1{ "gg1Opt" };
-    g->gg2 = G2{ 10 };
-    g->gg2Opt = G2{ 20 };
-    g->gg1 = G1{ "gg1" };
+    g->gg1Opt = G1{"gg1Opt"};
+    g->gg2 = G2{10};
+    g->gg2Opt = G2{20};
+    g->gg1 = G1{"gg1"};
     GPtr r = initial->opG(g);
     test("gg1Opt" == r->gg1Opt.value().a);
     test(10 == r->gg2.a);
@@ -1804,9 +1804,9 @@ allTests(Test::TestHelper* helper, bool)
         {
             Test::GPtr p1, p2, p3;
             p1 = make_shared<Test::G>();
-            p1->gg1 = G1{ "gg1" };
-            p1->gg2 = G2{ 10 };
-            p1->gg2Opt = G2 { 20 };
+            p1->gg1 = G1{"gg1"};
+            p1->gg2 = G2{10};
+            p1->gg2Opt = G2{20};
 
             p3 = initial->opMG2(p1, p2);
             test(*p3 == *p2);
