@@ -1923,8 +1923,9 @@ Ice::ConnectionI::ConnectionI(
       _traceLevels(_instance->traceLevels()),                 // Cached for better performance.
       _timer(_instance->timer()),                             // Cached for better performance.
       _connectTimeout(options.connectTimeout),
-      _closeTimeout(options.closeTimeout),
-      _inactivityTimeout(options.inactivityTimeout),
+      _closeTimeout(options.closeTimeout), // not used for datagram connections
+      // suppress inactivity timeout for datagram connections
+      _inactivityTimeout(endpoint->datagram() ? chrono::seconds::zero() : options.inactivityTimeout),
       _removeFromFactory(std::move(removeFromFactory)),
       _warn(_instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Connections") > 0),
       _warnUdp(_instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Datagrams") > 0),

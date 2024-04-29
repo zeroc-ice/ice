@@ -18,6 +18,7 @@ Client::run(int argc, char** argv)
 {
     Ice::InitializationData initData;
     initData.properties = createTestProperties(argc, argv);
+    // We configure a low idle timeout to make sure we send heartbeats frequently.
     initData.properties->setProperty("Ice.Connection.IdleTimeout", "1");
     initData.properties->setProperty("Ice.Connection.InactivityTimeout", "1");
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
