@@ -155,6 +155,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
     // dispatched. Otherwise, the handler could be deleted during the dispatch
     // if a retry occurs.
     //
+    auto self = shared_from_this();
 
     if (!synchronous || !_response || _reference->getInvocationTimeout() > 0)
     {
@@ -163,7 +164,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
 
         // Don't invoke from the user thread if async or invocation timeout is set
         _adapter->getThreadPool()->execute(
-            [self = shared_from_this(), outAsync = outAsync->shared_from_this(), stream, requestId, dispatchCount]()
+            [self, outAsync = outAsync->shared_from_this(), stream, requestId, dispatchCount]()
             {
                 if (self->sentAsync(outAsync.get()))
                 {
@@ -177,7 +178,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
         is.swap(*stream);
 
         _adapter->getThreadPool()->executeFromThisThread(
-            [self = shared_from_this(), outAsync = outAsync->shared_from_this(), stream, requestId, dispatchCount]()
+            [self, outAsync = outAsync->shared_from_this(), stream, requestId, dispatchCount]()
             {
                 if (self->sentAsync(outAsync.get()))
                 {

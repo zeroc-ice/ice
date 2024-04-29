@@ -423,7 +423,8 @@ IceInternal::ThreadPool::finish(const EventHandlerPtr& handler, bool closeNow)
     assert(!_destroyed);
 #if !defined(ICE_USE_IOCP)
     closeNow = _selector.finish(handler.get(), closeNow); // This must be called before!
-    _workQueue->queue([handler, closeNow](ThreadPoolCurrent& current)
+    _workQueue->queue(
+        [handler, closeNow](ThreadPoolCurrent& current)
         {
             handler->finished(current, !closeNow);
 
@@ -442,7 +443,8 @@ IceInternal::ThreadPool::finish(const EventHandlerPtr& handler, bool closeNow)
     // If there are no pending asynchronous operations, we can call finish on the handler now.
     if (!handler->_pending)
     {
-        _workQueue->queue([handler, closeNow](ThreadPoolCurrent& current)
+        _workQueue->queue(
+            [handler](ThreadPoolCurrent& current)
             {
                 handler->finished(current, false);
 
@@ -522,7 +524,8 @@ IceInternal::ThreadPool::execute(function<void()> call, const Ice::ConnectionPtr
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    _workQueue->queue([self = shared_from_this(), call = std::move(call), connection](ThreadPoolCurrent& current)
+    _workQueue->queue(
+        [self = shared_from_this(), call = std::move(call), connection](ThreadPoolCurrent& current)
         {
             current.ioCompleted(); // Promote new leader
             self->executeFromThisThread(call, connection);
@@ -607,17 +610,8 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                 lock_guard lock(_mutex);
                 if (!_destroyed && _inUse == 0)
                 {
-                    _workQueue->queue([instance = _instance](ThreadPoolCurrent& executeThreadCurrent)
-                    {
-                        executeThreadCurrent.ioCompleted();
-                        try
-                        {
-                            instance->objectAdapterFactory()->shutdown();
-                        }
-                        catch (const CommunicatorDestroyedException&)
-                        {
-                        }
-                    }); // Select timed-out.
+                    _workQueue->queue([instance = _instance](ThreadPoolCurrent& shutdownCurrent)
+                                      { shutdown(shutdownCurrent, instance); });
                 }
                 continue;
             }
@@ -759,7 +753,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                         out << "shrinking " << _prefix << ": Size = " << (_threads.size() - 1);
                     }
                     _threads.erase(thread);
-                    _workQueue->queue(make_shared<JoinThreadWorkItem>(thread));
+                    _workQueue->queue([thread](ThreadPoolCurrent&) { joinThread(thread); });
                     return;
                 }
                 else if (_inUse > 0)
@@ -785,7 +779,8 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                 lock_guard lock(_mutex);
                 if (!_destroyed)
                 {
-                    _workQueue->queue(make_shared<ShutdownWorkItem>(_instance));
+                    _workQueue->queue([instance = _instance](ThreadPoolCurrent& shutdownCurrent)
+                                      { shutdown(shutdownCurrent, instance); });
                 }
                 continue;
             }
@@ -871,7 +866,9 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
         {
             Warning out(_instance->initializationData().logger);
             out << "thread pool `" << _prefix << "' is running low on threads\n"
-                << "Size=" << _size << ", " << "SizeMax=" << _sizeMax << ", " << "SizeWarn=" << _sizeWarn;
+                << "Size=" << _size << ", "
+                << "SizeMax=" << _sizeMax << ", "
+                << "SizeWarn=" << _sizeWarn;
         }
 
         if (!_destroyed)
@@ -919,14 +916,14 @@ IceInternal::ThreadPool::startMessage(ThreadPoolCurrent& current)
         info->count = current._count;
         info->error = current._error;
 
+        bool finish = false;
+
         if (!current._handler->finishAsync(current.operation)) // Returns false if the handler is finished.
         {
             current._handler->_pending = static_cast<SocketOperation>(current._handler->_pending & ~current.operation);
             if (!current._handler->_pending && current._handler->_finish)
             {
-                lock_guard lock(_mutex);
-                _workQueue->queue(make_shared<FinishedWorkItem>(current._handler, false));
-                _selector.finish(current._handler.get());
+                finish(current._handler, false);
             }
             return false;
         }
@@ -943,9 +940,7 @@ IceInternal::ThreadPool::startMessage(ThreadPoolCurrent& current)
             current._handler->_pending = static_cast<SocketOperation>(current._handler->_pending & ~current.operation);
             if (!current._handler->_pending && current._handler->_finish)
             {
-                lock_guard lock(_mutex);
-                _workQueue->queue(make_shared<FinishedWorkItem>(current._handler, false));
-                _selector.finish(current._handler.get());
+                finish(current._handler, false);
             }
             return false;
         }
@@ -967,9 +962,7 @@ IceInternal::ThreadPool::startMessage(ThreadPoolCurrent& current)
         current._handler->_pending = static_cast<SocketOperation>(current._handler->_pending & ~current.operation);
         if (!current._handler->_pending && current._handler->_finish)
         {
-            lock_guard lock(_mutex);
-            _workQueue->queue(make_shared<FinishedWorkItem>(current._handler, false));
-            _selector.finish(current._handler.get());
+            finish(current._handler, false);
         }
         return false;
     }
@@ -1002,10 +995,7 @@ IceInternal::ThreadPool::finishMessage(ThreadPoolCurrent& current)
 
     if (!current._handler->_pending && current._handler->_finish)
     {
-        // There are no more pending async operations, it's time to call finish.
-        lock_guard lock(_mutex);
-        _workQueue->queue(make_shared<FinishedWorkItem>(current._handler, false));
-        _selector.finish(current._handler.get());
+        finish(current._handler, false);
     }
 }
 #else
@@ -1056,12 +1046,7 @@ IceInternal::ThreadPool::followerWait(ThreadPoolCurrent& current, unique_lock<mu
                     }
                     assert(_threads.size() > 1); // Can only be called by a waiting follower thread.
                     _threads.erase(current._thread);
-                    _workQueue->queue([thread = current._thread](ThreadPoolCurrent&)
-                    {
-                        // No call to ioCompleted, this shouldn't block (and we don't want to cause a new thread to be
-                        // started).
-                        thread->join();
-                    });
+                    _workQueue->queue([thread = current._thread](ThreadPoolCurrent&) { joinThread(thread); });
                     return true;
                 }
             }
@@ -1083,6 +1068,27 @@ IceInternal::ThreadPool::nextThreadId()
     ostringstream os;
     os << _prefix << "-" << _nextThreadId++;
     return os.str();
+}
+
+void
+IceInternal::ThreadPool::joinThread(const EventHandlerThreadPtr& thread)
+{
+    // No call to ioCompleted, this shouldn't block (and we don't want to cause a new thread to
+    // be started).
+    thread->join();
+}
+
+void
+IceInternal::ThreadPool::shutdown(const ThreadPoolCurrent& current, const InstancePtr& instance)
+{
+    current.ioCompleted();
+    try
+    {
+        instance->objectAdapterFactory()->shutdown();
+    }
+    catch (const CommunicatorDestroyedException&)
+    {
+    }
 }
 
 IceInternal::ThreadPool::EventHandlerThread::EventHandlerThread(const ThreadPoolPtr& pool, const string& name)
@@ -1122,7 +1128,7 @@ void
 IceInternal::ThreadPool::EventHandlerThread::start()
 {
     assert(!_thread.joinable()); // Not started yet
-    // It is safe to use this pointer here, because the thread pool keeps a refernce to all threads and join them
+    // It is safe to use this pointer here, because the thread pool keeps a reference to all threads and join them
     // before exiting.
     _thread = thread(&EventHandlerThread::run, this);
 }

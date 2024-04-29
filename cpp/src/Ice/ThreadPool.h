@@ -103,6 +103,9 @@ namespace IceInternal
 
         std::string nextThreadId();
 
+        static void joinThread(const EventHandlerThreadPtr&);
+        static void shutdown(const ThreadPoolCurrent&, const InstancePtr&);
+
         const InstancePtr _instance;
 #ifdef ICE_SWIFT
         const dispatch_queue_t _dispatchQueue;
