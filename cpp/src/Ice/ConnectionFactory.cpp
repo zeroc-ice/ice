@@ -1811,7 +1811,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
             else
             {
 #if TARGET_OS_IPHONE != 0
-                _adapter->getThreadPool()->execute([self = shared_from_this()]() { self->finish(); });
+                _adapter->getThreadPool()->execute([self = shared_from_this()]() { self->finish(); }, nullptr);
 #endif
                 state = StateFinished;
             }

@@ -74,8 +74,8 @@ namespace IceInternal
         bool finish(const EventHandlerPtr&, bool);
         void ready(const EventHandlerPtr&, SocketOperation, bool);
 
-        void executeFromThisThread(std::function<void()>, const Ice::ConnectionPtr& = nullptr);
-        void execute(std::function<void()>, const Ice::ConnectionPtr& = nullptr);
+        void executeFromThisThread(std::function<void()>, const Ice::ConnectionPtr&);
+        void execute(std::function<void()>, const Ice::ConnectionPtr&);
 
         void joinWithAllThreads();
 

@@ -170,7 +170,8 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
                 {
                     self->dispatchAll(*stream, requestId, dispatchCount);
                 }
-            });
+            },
+            nullptr);
     }
     else if (_hasExecutor)
     {
@@ -184,7 +185,8 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
                 {
                     self->dispatchAll(*stream, requestId, dispatchCount);
                 }
-            });
+            },
+            nullptr);
     }
     else // Optimization: directly call dispatchAll if there's no custom executor.
     {
