@@ -49,14 +49,13 @@ sequence<double> DoubleSeq;
 sequence<string> StringSeq;
 sequence<MyEnum> MyEnumSeq;
 sequence<SmallStruct> SmallStructSeq;
-["cs:generic:List"] sequence<SmallStruct> SmallStructList;
+sequence<SmallStruct> SmallStructList;
 sequence<FixedStruct> FixedStructSeq;
-["cs:generic:LinkedList"] sequence<FixedStruct> FixedStructList;
+sequence<FixedStruct> FixedStructList;
 sequence<VarStruct> VarStructSeq;
 sequence<OneOptional> OneOptionalSeq;
 sequence<MyInterface*> MyInterfacePrxSeq;
 
-["cs:serializable:Ice.optional.Test.SerializableClass"]
 sequence<byte> Serializable;
 
 dictionary<int, int> IntIntDict;
@@ -153,7 +152,6 @@ exception RequiredException extends OptionalException
     OneOptional o2;
 }
 
-["cs:property"]
 class OptionalWithCustom
 {
     optional(1) SmallStructList l;

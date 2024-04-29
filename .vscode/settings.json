@@ -82,10 +82,4 @@
         "__memory": "cpp"
     },
     "C_Cpp.default.cppStandard": "c++20",
-    "cSpell.words": [
-        "decoratee",
-        "ICESTORM",
-        "unmarshal",
-        "unmarshaling"
-    ],
 }
