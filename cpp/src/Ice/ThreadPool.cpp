@@ -482,14 +482,14 @@ IceInternal::ThreadPool::executeFromThisThread(function<void()> call, const Ice:
 {
 #ifdef ICE_SWIFT
     dispatch_sync(_dispatchQueue, ^{
-      workItem->run();
+      call();
     });
 #else
     if (_executor)
     {
         try
         {
-            _executor(call, connection);
+            _executor(std::move(call), connection);
         }
         catch (const std::exception& ex)
         {
@@ -915,8 +915,6 @@ IceInternal::ThreadPool::startMessage(ThreadPoolCurrent& current)
         AsyncInfo* info = current._handler->getNativeInfo()->getAsyncInfo(current.operation);
         info->count = current._count;
         info->error = current._error;
-
-        bool finish = false;
 
         if (!current._handler->finishAsync(current.operation)) // Returns false if the handler is finished.
         {
