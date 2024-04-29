@@ -77,10 +77,12 @@ ICEIMPL_API @protocol ICEExceptionFactory
 + (NSError*)socketException:(int32_t)error file:(NSString*)file line:(size_t)line;
 + (NSError*)syscallException:(int32_t)error file:(NSString*)file line:(size_t)line;
 
+// ConnectionIdleException
++ (NSError*)connectionIdleException:(NSString*)file line:(size_t)line;
+
 // TimeoutException
 + (NSError*)connectTimeoutException:(NSString*)file line:(size_t)line;
 + (NSError*)closeTimeoutException:(NSString*)file line:(size_t)line;
-+ (NSError*)connectionTimeoutException:(NSString*)file line:(size_t)line;
 + (NSError*)invocationTimeoutException:(NSString*)file line:(size_t)line;
 + (NSError*)timeoutException:(NSString*)file line:(size_t)line;
 

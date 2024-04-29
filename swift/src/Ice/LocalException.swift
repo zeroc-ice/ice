@@ -899,6 +899,23 @@ open class OperationInterruptedException: LocalException {
   }
 }
 
+/// This exception indicates that a connection was aborted by the idle check.
+open class ConnectionIdleException: TimeoutException {
+  /// Returns the Slice type ID of this exception.
+  ///
+  /// - returns: `Swift.String` - the Slice type ID of this exception.
+  override open class func ice_staticId() -> Swift.String {
+    return "::Ice::ConnectionIdleException"
+  }
+
+  /// Returns a string representation of this exception
+  ///
+  /// - returns: `Swift.String` - The string representaton of this exception.
+  override open func ice_print() -> Swift.String {
+    return _ConnectionIdleExceptionDescription
+  }
+}
+
 /// This exception indicates a timeout condition.
 open class TimeoutException: LocalException {
   /// Returns the Slice type ID of this exception.
@@ -947,23 +964,6 @@ open class CloseTimeoutException: TimeoutException {
   /// - returns: `Swift.String` - The string representaton of this exception.
   override open func ice_print() -> Swift.String {
     return _CloseTimeoutExceptionDescription
-  }
-}
-
-/// This exception indicates that a connection has been shut down because it has been idle for some time.
-open class ConnectionTimeoutException: TimeoutException {
-  /// Returns the Slice type ID of this exception.
-  ///
-  /// - returns: `Swift.String` - the Slice type ID of this exception.
-  override open class func ice_staticId() -> Swift.String {
-    return "::Ice::ConnectionTimeoutException"
-  }
-
-  /// Returns a string representation of this exception
-  ///
-  /// - returns: `Swift.String` - The string representaton of this exception.
-  override open func ice_print() -> Swift.String {
-    return _ConnectionTimeoutExceptionDescription
   }
 }
 

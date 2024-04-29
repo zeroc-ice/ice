@@ -81,7 +81,7 @@ testEnableDisableIdleCheck(bool enabled, const string& proxyString, const Proper
         p->sleep(2000); // the implementation in the server sleeps for 2,000ms
         test(!enabled);
     }
-    catch (const TimeoutException&)
+    catch (const ConnectionIdleException&)
     {
         test(enabled);
     }
