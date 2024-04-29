@@ -23,7 +23,7 @@ public:
     void opOptionalExceptionAsync(
         std::optional<std::int32_t>,
         std::optional<std::string>,
-        std::optional<std::shared_ptr<Test::OneOptional>>,
+        std::shared_ptr<Test::OneOptional>,
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
@@ -31,7 +31,7 @@ public:
     void opDerivedExceptionAsync(
         std::optional<std::int32_t>,
         std::optional<std::string>,
-        std::optional<std::shared_ptr<Test::OneOptional>>,
+        std::shared_ptr<Test::OneOptional>,
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
@@ -39,7 +39,7 @@ public:
     void opRequiredExceptionAsync(
         std::optional<std::int32_t>,
         std::optional<std::string>,
-        std::optional<std::shared_ptr<Test::OneOptional>>,
+        std::shared_ptr<Test::OneOptional>,
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
@@ -117,10 +117,10 @@ public:
         const Ice::Current&) final;
 
     void opOneOptionalAsync(
-        std::optional<std::shared_ptr<Test::OneOptional>>,
+        std::shared_ptr<Test::OneOptional>,
         std::function<void(
-            const std::optional<std::shared_ptr<Test::OneOptional>>&,
-            const std::optional<std::shared_ptr<Test::OneOptional>>&)>,
+            const std::shared_ptr<Test::OneOptional>&,
+            const std::shared_ptr<Test::OneOptional>&)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
@@ -249,9 +249,9 @@ public:
         const Ice::Current&) final;
 
     void opIntOneOptionalDictAsync(
-        std::optional<Test::IntOneOptionalDict>,
+        Test::IntOneOptionalDict,
         std::function<
-            void(const std::optional<Test::IntOneOptionalDict>&, const std::optional<Test::IntOneOptionalDict>&)>,
+            void(const Test::IntOneOptionalDict&, const Test::IntOneOptionalDict&)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
@@ -261,16 +261,16 @@ public:
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
-    void sendOptionalClassAsync(
+    void sendOptionalStructAsync(
         bool,
-        std::optional<std::shared_ptr<Test::OneOptional>>,
+        std::optional<Test::FixedStruct>,
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
-    void returnOptionalClassAsync(
+    void returnOptionalStructAsync(
         bool,
-        std::function<void(const std::optional<std::shared_ptr<Test::OneOptional>>&)>,
+        std::function<void(const std::optional<Test::FixedStruct>&)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
@@ -321,7 +321,7 @@ public:
         const Ice::Current&) final;
 
     void opMG2Async(
-        std::optional<Test::GPtr>,
+        Test::GPtr,
         std::function<void(OpMG2MarshaledResult)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
@@ -337,11 +337,6 @@ public:
         const Ice::Current&) final;
 
     void supportsCsharpSerializableAsync(
-        std::function<void(bool)>,
-        std::function<void(std::exception_ptr)>,
-        const Ice::Current&) final;
-
-    void supportsNullOptionalAsync(
         std::function<void(bool)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;

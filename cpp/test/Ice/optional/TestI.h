@@ -18,19 +18,19 @@ public:
     virtual void opOptionalException(
         std::optional<std::int32_t>,
         std::optional<std::string>,
-        std::optional<Test::OneOptionalPtr>,
+        Test::OneOptionalPtr,
         const Ice::Current&);
 
     virtual void opDerivedException(
         std::optional<std::int32_t>,
         std::optional<std::string>,
-        std::optional<Test::OneOptionalPtr>,
+        Test::OneOptionalPtr,
         const Ice::Current&);
 
     virtual void opRequiredException(
         std::optional<std::int32_t>,
         std::optional<std::string>,
-        std::optional<Test::OneOptionalPtr>,
+        Test::OneOptionalPtr,
         const Ice::Current&);
 
     virtual std::optional<std::uint8_t>
@@ -66,8 +66,8 @@ public:
     virtual std::optional<Test::VarStruct>
     opVarStruct(std::optional<Test::VarStruct>, std::optional<Test::VarStruct>&, const Ice::Current&);
 
-    virtual std::optional<Test::OneOptionalPtr>
-    opOneOptional(std::optional<Test::OneOptionalPtr>, std::optional<Test::OneOptionalPtr>&, const Ice::Current&);
+    virtual Test::OneOptionalPtr
+    opOneOptional(Test::OneOptionalPtr, Test::OneOptionalPtr&, const Ice::Current&);
 
     virtual std::optional<Test::MyInterfacePrx>
     opMyInterfaceProxy(std::optional<Test::MyInterfacePrx>, std::optional<Test::MyInterfacePrx>&, const Ice::Current&);
@@ -140,16 +140,16 @@ public:
     virtual std::optional<::Test::StringIntDict>
     opStringIntDict(std::optional<::Test::StringIntDict>, std::optional<::Test::StringIntDict>&, const Ice::Current&);
 
-    virtual std::optional<::Test::IntOneOptionalDict> opIntOneOptionalDict(
-        std::optional<::Test::IntOneOptionalDict>,
-        std::optional<::Test::IntOneOptionalDict>&,
+    virtual ::Test::IntOneOptionalDict opIntOneOptionalDict(
+        ::Test::IntOneOptionalDict,
+        ::Test::IntOneOptionalDict&,
         const Ice::Current&);
 
     virtual void opClassAndUnknownOptional(Test::APtr, const Ice::Current&);
 
-    virtual void sendOptionalClass(bool, std::optional<Test::OneOptionalPtr>, const Ice::Current&);
+    virtual void sendOptionalStruct(bool, std::optional<Test::FixedStruct>, const Ice::Current&);
 
-    virtual void returnOptionalClass(bool, std::optional<Test::OneOptionalPtr>&, const Ice::Current&);
+    virtual void returnOptionalStruct(bool, std::optional<Test::FixedStruct>&, const Ice::Current&);
 
     virtual ::Test::GPtr opG(::Test::GPtr g, const Ice::Current&);
 
@@ -169,15 +169,13 @@ public:
 
     virtual OpMG1MarshaledResult opMG1(const Ice::Current&);
 
-    virtual OpMG2MarshaledResult opMG2(std::optional<Test::GPtr>, const Ice::Current&);
+    virtual OpMG2MarshaledResult opMG2(Test::GPtr, const Ice::Current&);
 
     virtual bool supportsRequiredParams(const Ice::Current&);
 
     virtual bool supportsJavaSerializable(const Ice::Current&);
 
     virtual bool supportsCsharpSerializable(const Ice::Current&);
-
-    virtual bool supportsNullOptional(const Ice::Current&);
 };
 
 #endif

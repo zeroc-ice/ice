@@ -21,17 +21,11 @@ InitialI::shutdown(const Current& current)
 Test::Initial::PingPongMarshaledResult
 InitialI::pingPong(shared_ptr<Value> obj, const Current& current)
 {
-    auto result = PingPongMarshaledResult(obj, current);
-    if (dynamic_pointer_cast<MultiOptional>(obj))
-    {
-        // Break cyclic reference count
-        dynamic_pointer_cast<MultiOptional>(obj)->k = shared_ptr<MultiOptional>();
-    }
-    return result;
+    return PingPongMarshaledResult(obj, current);
 }
 
 void
-InitialI::opOptionalException(optional<int32_t> a, optional<string> b, optional<OneOptionalPtr> o, const Ice::Current&)
+InitialI::opOptionalException(optional<int32_t> a, optional<string> b, OneOptionalPtr o, const Ice::Current&)
 {
     OptionalException ex;
     ex.a = a;
@@ -41,7 +35,7 @@ InitialI::opOptionalException(optional<int32_t> a, optional<string> b, optional<
 }
 
 void
-InitialI::opDerivedException(optional<int32_t> a, optional<string> b, optional<OneOptionalPtr> o, const Ice::Current&)
+InitialI::opDerivedException(optional<int32_t> a, optional<string> b, OneOptionalPtr o, const Ice::Current&)
 {
     DerivedException ex;
     ex.a = a;
@@ -55,7 +49,7 @@ InitialI::opDerivedException(optional<int32_t> a, optional<string> b, optional<O
 }
 
 void
-InitialI::opRequiredException(optional<int32_t> a, optional<string> b, optional<OneOptionalPtr> o, const Ice::Current&)
+InitialI::opRequiredException(optional<int32_t> a, optional<string> b, OneOptionalPtr o, const Ice::Current&)
 {
     RequiredException ex;
     ex.a = a;
@@ -65,10 +59,7 @@ InitialI::opRequiredException(optional<int32_t> a, optional<string> b, optional<
     {
         ex.ss = b.value();
     }
-    if (o)
-    {
-        ex.o2 = o.value();
-    }
+    ex.o2 = o;
     throw ex;
 }
 
@@ -156,8 +147,8 @@ InitialI::opVarStruct(optional<VarStruct> p1, optional<VarStruct>& p3, const Cur
     return p1;
 }
 
-optional<OneOptionalPtr>
-InitialI::opOneOptional(optional<OneOptionalPtr> p1, optional<OneOptionalPtr>& p3, const Current&)
+OneOptionalPtr
+InitialI::opOneOptional(OneOptionalPtr p1, OneOptionalPtr& p3, const Current&)
 {
     p3 = p1;
     return p1;
@@ -333,8 +324,8 @@ InitialI::opStringIntDict(optional<StringIntDict> p1, optional<StringIntDict>& p
     return p3;
 }
 
-optional<IntOneOptionalDict>
-InitialI::opIntOneOptionalDict(optional<IntOneOptionalDict> p1, optional<IntOneOptionalDict>& p3, const Current&)
+IntOneOptionalDict
+InitialI::opIntOneOptionalDict(IntOneOptionalDict p1, IntOneOptionalDict& p3, const Current&)
 {
     p3 = p1;
     return p3;
@@ -346,14 +337,14 @@ InitialI::opClassAndUnknownOptional(APtr, const Ice::Current&)
 }
 
 void
-InitialI::sendOptionalClass(bool, optional<OneOptionalPtr>, const Ice::Current&)
+InitialI::sendOptionalStruct(bool, optional<FixedStruct>, const Ice::Current&)
 {
 }
 
 void
-InitialI::returnOptionalClass(bool, optional<OneOptionalPtr>& o, const Ice::Current&)
+InitialI::returnOptionalStruct(bool, optional<FixedStruct>& fs, const Ice::Current&)
 {
-    o = make_shared<OneOptional>(53);
+    fs = FixedStruct(53);
 }
 
 GPtr
@@ -410,7 +401,7 @@ InitialI::opMG1(const Ice::Current& current)
 }
 
 InitialI::OpMG2MarshaledResult
-InitialI::opMG2(optional<Test::GPtr> p1, const Ice::Current& current)
+InitialI::opMG2(Test::GPtr p1, const Ice::Current& current)
 {
     return OpMG2MarshaledResult(p1, p1, current);
 }
@@ -431,10 +422,4 @@ bool
 InitialI::supportsCsharpSerializable(const Ice::Current&)
 {
     return true;
-}
-
-bool
-InitialI::supportsNullOptional(const Ice::Current&)
-{
-    return false;
 }

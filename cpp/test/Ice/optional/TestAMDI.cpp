@@ -27,18 +27,13 @@ InitialI::pingPongAsync(
     const Ice::Current&)
 {
     response(obj);
-    if (dynamic_pointer_cast<MultiOptional>(obj))
-    {
-        // Break cyclic reference count
-        dynamic_pointer_cast<MultiOptional>(obj)->k = shared_ptr<MultiOptional>();
-    }
 }
 
 void
 InitialI::opOptionalExceptionAsync(
     optional<int> a,
     optional<string> b,
-    optional<shared_ptr<Test::OneOptional>> o,
+    shared_ptr<Test::OneOptional> o,
     function<void()>,
     function<void(exception_ptr)> ex,
     const Ice::Current&)
@@ -50,7 +45,7 @@ void
 InitialI::opDerivedExceptionAsync(
     optional<int> a,
     optional<string> b,
-    optional<shared_ptr<Test::OneOptional>> o,
+    shared_ptr<Test::OneOptional> o,
     function<void()>,
     function<void(exception_ptr)> ex,
     const Ice::Current&)
@@ -62,7 +57,7 @@ void
 InitialI::opRequiredExceptionAsync(
     optional<int> a,
     optional<string> b,
-    optional<shared_ptr<Test::OneOptional>> o,
+    shared_ptr<Test::OneOptional> o,
     function<void()>,
     function<void(exception_ptr)> ex,
     const Ice::Current&)
@@ -75,10 +70,7 @@ InitialI::opRequiredExceptionAsync(
     {
         e.ss = b.value();
     }
-    if (o)
-    {
-        e.o2 = o.value();
-    }
+    e.o2 = o;
 
     ex(make_exception_ptr(e));
 }
@@ -205,9 +197,8 @@ InitialI::opVarStructAsync(
 
 void
 InitialI::opOneOptionalAsync(
-    optional<shared_ptr<Test::OneOptional>> p1,
-    function<void(const optional<shared_ptr<Test::OneOptional>>&, const optional<shared_ptr<Test::OneOptional>>&)>
-        response,
+    shared_ptr<Test::OneOptional> p1,
+    function<void(const shared_ptr<Test::OneOptional>&, const shared_ptr<Test::OneOptional>&)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
@@ -395,8 +386,8 @@ InitialI::opStringIntDictAsync(
 
 void
 InitialI::opIntOneOptionalDictAsync(
-    optional<Test::IntOneOptionalDict> p1,
-    function<void(const optional<Test::IntOneOptionalDict>&, const optional<Test::IntOneOptionalDict>&)> response,
+    Test::IntOneOptionalDict p1,
+    function<void(const Test::IntOneOptionalDict&, const Test::IntOneOptionalDict&)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
@@ -414,9 +405,9 @@ InitialI::opClassAndUnknownOptionalAsync(
 }
 
 void
-InitialI::sendOptionalClassAsync(
+InitialI::sendOptionalStructAsync(
     bool,
-    optional<shared_ptr<Test::OneOptional>>,
+    optional<Test::FixedStruct>,
     function<void()> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
@@ -425,13 +416,13 @@ InitialI::sendOptionalClassAsync(
 }
 
 void
-InitialI::returnOptionalClassAsync(
+InitialI::returnOptionalStructAsync(
     bool,
-    function<void(const optional<shared_ptr<Test::OneOptional>>&)> response,
+    function<void(const optional<Test::FixedStruct>&)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
-    response(make_shared<OneOptional>(53));
+    response(Test::FixedStruct(53));
 }
 
 void
@@ -518,7 +509,7 @@ InitialI::opMG1Async(
 
 void
 InitialI::opMG2Async(
-    optional<GPtr> p1,
+    GPtr p1,
     function<void(OpMG2MarshaledResult)> response,
     function<void(exception_ptr)>,
     const Ice::Current& current)
@@ -548,10 +539,4 @@ InitialI::supportsCsharpSerializableAsync(
     const Ice::Current&)
 {
     response(true);
-}
-
-void
-InitialI::supportsNullOptionalAsync(function<void(bool)> response, function<void(exception_ptr)>, const Ice::Current&)
-{
-    response(false);
 }
