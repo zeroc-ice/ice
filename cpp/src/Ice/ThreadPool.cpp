@@ -866,9 +866,7 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
         {
             Warning out(_instance->initializationData().logger);
             out << "thread pool `" << _prefix << "' is running low on threads\n"
-                << "Size=" << _size << ", "
-                << "SizeMax=" << _sizeMax << ", "
-                << "SizeWarn=" << _sizeWarn;
+                << "Size=" << _size << ", " << "SizeMax=" << _sizeMax << ", " << "SizeWarn=" << _sizeWarn;
         }
 
         if (!_destroyed)
