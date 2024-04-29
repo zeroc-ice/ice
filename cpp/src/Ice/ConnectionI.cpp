@@ -1430,8 +1430,8 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 
 // executeFromThisThread dispatches to the correct DispatchQueue
 #ifdef ICE_SWIFT
-    auto stream = make_shared<InputStream>();
-    current.stream.swap(*stream);
+    auto stream = make_shared<InputStream>(current.stream.instance(), currentProtocolEncoding);
+    stream->swap(current.stream);
 
     auto self = shared_from_this();
     _threadPool->executeFromThisThread(
@@ -1448,8 +1448,8 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
     }
     else
     {
-        auto stream = make_shared<InputStream>();
-        current.stream.swap(*stream);
+        auto stream = make_shared<InputStream>(current.stream.instance(), currentProtocolEncoding);
+        stream->swap(current.stream);
 
         auto self = shared_from_this();
         _threadPool->executeFromThisThread(
