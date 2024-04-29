@@ -4,7 +4,7 @@
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
 
-classdef ConnectionIdleException < Ice.LOcalException
+classdef ConnectionIdleException < Ice.LocalException
     methods
         function obj = ConnectionIdleException(ice_exid, ice_exmsg)
             if nargin == 0 || isempty(ice_exid)
