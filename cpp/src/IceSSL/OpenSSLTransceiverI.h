@@ -83,6 +83,7 @@ namespace IceSSL::OpenSSL
             _remoteCertificateVerificationCallback;
         std::function<void(::SSL*, const std::string&)> _sslNewSessionCallback;
         std::exception_ptr _verificationException;
+        SSL_CTX* _sslCtx;
     };
     using TransceiverIPtr = std::shared_ptr<TransceiverI>;
 

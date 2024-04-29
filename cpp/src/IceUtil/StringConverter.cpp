@@ -260,7 +260,7 @@ IceUtil::setProcessWstringConverter(const WstringConverterPtr& converter)
 }
 
 string
-IceUtil::wstringToString(const wstring& v, const StringConverterPtr& converter, const WstringConverterPtr& wConverter)
+IceUtil::wstringToString(wstring_view v, const StringConverterPtr& converter, const WstringConverterPtr& wConverter)
 {
     string target;
     if (!v.empty())

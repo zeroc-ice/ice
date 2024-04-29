@@ -121,7 +121,8 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
         if (_certificates)
         {
             CFRetain(_certificates);
-            if (err = SSLSetCertificate(_ssl.get(), _certificates))
+            err = SSLSetCertificate(_ssl.get(), _certificates);
+            if (err)
             {
                 throw SecurityException(
                     __FILE__,

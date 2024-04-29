@@ -27,7 +27,7 @@ namespace Ice::SSL
          * [See Detailed Schannel documentation on Schannel credentials](
          * https://learn.microsoft.com/en-us/windows/win32/secauthn/acquirecredentialshandle--schannel)
          */
-        std::function<SCHANNEL_CRED(std::string_view host)> clientCredentialsSelectionCallback;
+        std::function<SCHANNEL_CRED(const std::string& host)> clientCredentialsSelectionCallback;
 
         /**
          * A callback that allows manually validating the server certificate chain. When the verification callback
@@ -58,7 +58,7 @@ namespace Ice::SSL
          * The requirements for the Secure Transport certificate chain are documented in
          * https://developer.apple.com/documentation/security/1392400-sslsetcertificate?changes=_3&language=objc
          */
-        std::function<CFArrayRef(std::string_view host)> clientCertificateSelectionCallback;
+        std::function<CFArrayRef(const std::string& host)> clientCertificateSelectionCallback;
 
         /**
          * The trusted root certificates. If set, the server's certificate chain is validated against these
@@ -73,7 +73,7 @@ namespace Ice::SSL
          * @param context An opaque type that represents an SSL session context object.
          * @param host The target server host name.
          */
-        std::function<void(SSLContextRef context, std::string_view host)> sslNewSessionCallback;
+        std::function<void(SSLContextRef context, const std::string& host)> sslNewSessionCallback;
 
         /**
          * A callback that allows manually validating the server certificate chain. When the verification callback
@@ -100,7 +100,7 @@ namespace Ice::SSL
          * @see Detailed OpenSSL documentation on SSL_CTX management:
          * https://www.openssl.org/docs/manmaster/man3/SSL_CTX_new.html
          */
-        std::function<SSL_CTX*(std::string_view host)> clientSslContextSelectionCallback;
+        std::function<SSL_CTX*(const std::string& host)> clientSslContextSelectionCallback;
 
         /**
          * A callback that is invoked before initiating a new SSL handshake. This callback provides an opportunity to
@@ -112,7 +112,7 @@ namespace Ice::SSL
          * @see Detailed OpenSSL documentation on SSL object management:
          * https://www.openssl.org/docs/manmaster/man3/SSL_new.html
          */
-        std::function<void(::SSL* ssl, std::string_view host)> sslNewSessionCallback;
+        std::function<void(::SSL* ssl, const std::string& host)> sslNewSessionCallback;
 
         /**
          * A callback that allows manually validating the server certificate chain. When the verification callback

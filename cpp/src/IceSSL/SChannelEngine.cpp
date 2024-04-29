@@ -994,10 +994,10 @@ SChannel::SSLEngine::destroy()
 }
 
 Ice::SSL::ClientAuthenticationOptions
-SChannel::SSLEngine::createClientAuthenticationOptions(string_view host) const
+SChannel::SSLEngine::createClientAuthenticationOptions(const string& host) const
 {
     return Ice::SSL::ClientAuthenticationOptions{
-        .clientCredentialsSelectionCallback = [this](string_view) { return newCredentialsHandle(false); },
+        .clientCredentialsSelectionCallback = [this](const string&) { return newCredentialsHandle(false); },
         .serverCertificateValidationCallback = [self = shared_from_this(),
                                                 host](CtxtHandle ssl, const ConnectionInfoPtr& info) -> bool
         { return self->validationCallback(ssl, info, false, host); }};
@@ -1007,7 +1007,7 @@ Ice::SSL::ServerAuthenticationOptions
 SChannel::SSLEngine::createServerAuthenticationOptions() const
 {
     return Ice::SSL::ServerAuthenticationOptions{
-        .serverCredentialsSelectionCallback = [this](string_view) { return newCredentialsHandle(true); },
+        .serverCredentialsSelectionCallback = [this](const string&) { return newCredentialsHandle(true); },
         .clientCertificateRequired = getVerifyPeer() > 0,
         .clientCertificateValidationCallback =
             [self = shared_from_this()](CtxtHandle ssl, const ConnectionInfoPtr& info) -> bool
@@ -1032,8 +1032,11 @@ namespace
 }
 
 bool
-SChannel::SSLEngine::validationCallback(CtxtHandle ssl, const ConnectionInfoPtr& info, bool incoming, string_view host)
-    const
+SChannel::SSLEngine::validationCallback(
+    CtxtHandle ssl,
+    const ConnectionInfoPtr& info,
+    bool incoming,
+    const string& host) const
 {
     // Build the peer certificate chain and verify it.
     PCCERT_CONTEXT cert = 0;

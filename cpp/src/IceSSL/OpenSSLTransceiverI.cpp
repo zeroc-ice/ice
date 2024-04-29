@@ -100,7 +100,15 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
             throw SecurityException(__FILE__, __LINE__, "openssl failure");
         }
 
-        _ssl = SSL_new(_localSslContextSelectionCallback(_incoming ? _adapterName : _host));
+        _sslCtx = _localSslContextSelectionCallback(_incoming ? _adapterName : _host);
+        if (!_sslCtx)
+        {
+            throw SecurityException(__FILE__, __LINE__, "SSL error: the SSL context selection callback returned null");
+        }
+        // Increase the reference count of the SSL_CTX object.
+        SSL_CTX_up_ref(_sslCtx);
+
+        _ssl = SSL_new(_sslCtx);
         if (!_ssl)
         {
             BIO_free(bio);
@@ -203,12 +211,11 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
                     else
                     {
 #endif
-                        ostringstream ostr;
-                        ostr << "SSL error occurred for new " << (_incoming ? "incoming" : "outgoing")
-                             << " connection:\n"
-                             << _delegate->toString() << "\n"
-                             << _engine->sslErrors();
-                        throw ProtocolException(__FILE__, __LINE__, ostr.str());
+                        ostringstream os;
+                        os << "SSL error occurred for new " << (_incoming ? "incoming" : "outgoing") << " connection:\n"
+                           << _delegate->toString() << "\n"
+                           << _engine->sslErrors();
+                        throw ProtocolException(__FILE__, __LINE__, os.str());
 #if defined(SSL_R_UNEXPECTED_EOF_WHILE_READING)
                     }
 #endif
@@ -298,6 +305,12 @@ OpenSSL::TransceiverI::close()
 
         SSL_free(_ssl);
         _ssl = 0;
+    }
+
+    if (_sslCtx)
+    {
+        SSL_CTX_free(_sslCtx);
+        _sslCtx = 0;
     }
 
     if (_memBio)

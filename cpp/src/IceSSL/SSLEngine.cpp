@@ -76,7 +76,7 @@ IceSSL::SSLEngine::initialize()
 }
 
 void
-IceSSL::SSLEngine::verifyPeerCertName(const ConnectionInfoPtr& info, string_view address) const
+IceSSL::SSLEngine::verifyPeerCertName(const ConnectionInfoPtr& info, const string& address) const
 {
     // For an outgoing connection, we compare the proxy address (if any) against fields in the server's certificate
     // (if any).

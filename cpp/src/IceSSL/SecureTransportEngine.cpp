@@ -700,7 +700,7 @@ SecureTransport::SSLEngine::destroy()
 }
 
 ClientAuthenticationOptions
-SecureTransport::SSLEngine::createClientAuthenticationOptions(const std::string& host) const
+SecureTransport::SSLEngine::createClientAuthenticationOptions(const string& host) const
 {
     return ClientAuthenticationOptions{
         .trustedRootCertificates = 0,
@@ -786,7 +786,7 @@ SecureTransport::SSLEngine::validationCallback(
     // Add SSL trust policy if we need to check the certificate name, otherwise use basic x509 policy.
     if (getCheckCertName() && !host.empty())
     {
-        UniqueRef<CFStringRef> hostref(toCFString(host));
+        UniqueRef<CFStringRef> hostref(toCFString(string(host)));
         UniqueRef<SecPolicyRef> policy(SecPolicyCreateSSL(true, hostref.get()));
         CFArrayAppendValue(policies.get(), policy.get());
     }

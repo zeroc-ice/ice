@@ -111,7 +111,7 @@ namespace IceSSL::SChannel
         //
         IceInternal::Buffer _readUnprocessed;
 
-        std::function<SCHANNEL_CRED(std::string_view)> _localCredentialsSelectionCallback;
+        std::function<SCHANNEL_CRED(const std::string&)> _localCredentialsSelectionCallback;
         SecPkgContext_StreamSizes _sizes;
         std::string _cipher;
         std::vector<IceSSL::CertificatePtr> _peerCerts;
