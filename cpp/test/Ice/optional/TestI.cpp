@@ -340,14 +340,14 @@ InitialI::opClassAndUnknownOptional(APtr, const Ice::Current&)
 }
 
 void
-InitialI::sendOptionalClass(bool, optional<OneOptionalPtr>, const Ice::Current&)
+InitialI::sendOptionalStruct(bool, optional<FixedStruct>, const Ice::Current&)
 {
 }
 
 void
-InitialI::returnOptionalClass(bool, optional<OneOptionalPtr>& o, const Ice::Current&)
+InitialI::returnOptionalStruct(bool, optional<FixedStruct>& ofs, const Ice::Current&)
 {
-    o = make_shared<OneOptional>(53);
+    ofs = FixedStruct{53};
 }
 
 GPtr

@@ -253,7 +253,7 @@
         {
         }
 
-        sendOptionalClass(req, current)
+        sendOptionalStruct(req, current)
         {
         }
 
@@ -306,9 +306,9 @@
             return [p1, p1];
         }
 
-        returnOptionalClass(req, current)
+        returnOptionalStruct(req, current)
         {
-            return new Test.OneOptional(53);
+            return new Test.FixedStruct(53);
         }
 
         supportsRequiredParams(current)

@@ -252,13 +252,13 @@ export class InitialI extends Test.Initial
     {
     }
 
-    sendOptionalClass(req:boolean, one:Test.OneOptional, current:Ice.Current):void
+    sendOptionalStruct(req:boolean, one:Test.FixedStruct, current:Ice.Current):void
     {
     }
 
-    returnOptionalClass(req:boolean, current:Ice.Current):Test.OneOptional
+    returnOptionalStruct(req:boolean, current:Ice.Current):Test.FixedStruct
     {
-        return new Test.OneOptional(53);
+        return new Test.FixedStruct(53);
     }
 
     opG(g:Test.G, current:Ice.Current):Test.G

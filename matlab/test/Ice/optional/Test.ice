@@ -158,20 +158,20 @@ class OptionalWithCustom
 
 class E
 {
-    A ae;
+    FixedStruct fse;
 }
 
 class F extends E
 {
-    optional(1) A af;
+    optional(1) FixedStruct fsf;
 }
 
-class G1
+struct G1
 {
     string a;
 }
 
-class G2
+struct G2
 {
     long a;
 }
@@ -271,9 +271,9 @@ interface Initial
 
     void opClassAndUnknownOptional(A p);
 
-    void sendOptionalClass(bool req, optional(1) OneOptional o);
+    void sendOptionalStruct(bool req, optional(1) FixedStruct ofs);
 
-    void returnOptionalClass(bool req, out optional(1) OneOptional o);
+    void returnOptionalStruct(bool req, out optional(1) FixedStruct ofs);
 
     G opG(G g);
 

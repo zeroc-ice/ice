@@ -147,9 +147,9 @@ public:
 
     virtual void opClassAndUnknownOptional(Test::APtr, const Ice::Current&);
 
-    virtual void sendOptionalClass(bool, std::optional<Test::OneOptionalPtr>, const Ice::Current&);
+    virtual void sendOptionalStruct(bool, std::optional<Test::FixedStruct>, const Ice::Current&);
 
-    virtual void returnOptionalClass(bool, std::optional<Test::OneOptionalPtr>&, const Ice::Current&);
+    virtual void returnOptionalStruct(bool, std::optional<Test::FixedStruct>&, const Ice::Current&);
 
     virtual ::Test::GPtr opG(::Test::GPtr g, const Ice::Current&);
 

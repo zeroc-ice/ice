@@ -204,11 +204,11 @@ public:
         _f = make_shared<F>();
         in->startValue();
         in->startSlice();
-        // Don't read af on purpose
-        // in.read(1, _f->af);
+        // Don't read fsf on purpose
+        // in.read(1, _f->fsf);
         in->endSlice();
         in->startSlice();
-        in->read(_f->ae);
+        in->read(_f->fse);
         in->endSlice();
         in->endValue();
     }
@@ -645,27 +645,27 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     //
-    // Use the 1.0 encoding with operations whose only class parameters are optional.
+    // Test that optional parameters are handled correctly (ignored) with the 1.0 encoding.
     //
-    optional<OneOptionalPtr> oo(make_shared<OneOptional>(53));
-    initial->sendOptionalClass(true, oo);
-    initial->ice_encodingVersion(Ice::Encoding_1_0)->sendOptionalClass(true, oo);
+    optional<FixedStruct> ofs{{53}};
+    initial->sendOptionalStruct(true, ofs);
+    initial->ice_encodingVersion(Ice::Encoding_1_0)->sendOptionalStruct(true, ofs);
 
-    initial->returnOptionalClass(true, oo);
-    test(oo);
-    initial->ice_encodingVersion(Ice::Encoding_1_0)->returnOptionalClass(true, oo);
-    test(!oo);
+    initial->returnOptionalStruct(true, ofs);
+    test(ofs);
+    initial->ice_encodingVersion(Ice::Encoding_1_0)->returnOptionalStruct(true, ofs);
+    test(!ofs);
 
     GPtr g = make_shared<G>();
-    g->gg1Opt = make_shared<G1>("gg1Opt");
-    g->gg2 = make_shared<G2>(10);
-    g->gg2Opt = make_shared<G2>(20);
-    g->gg1 = make_shared<G1>("gg1");
+    g->gg1Opt = G1{"gg1Opt"};
+    g->gg2 = G2{10};
+    g->gg2Opt = G2{20};
+    g->gg1 = G1{"gg1"};
     GPtr r = initial->opG(g);
-    test("gg1Opt" == r->gg1Opt.value()->a);
-    test(10 == r->gg2->a);
-    test(20 == r->gg2Opt.value()->a);
-    test("gg1" == r->gg1->a);
+    test("gg1Opt" == r->gg1Opt.value().a);
+    test(10 == r->gg2.a);
+    test(20 == r->gg2Opt.value().a);
+    test("gg1" == r->gg1.a);
 
     initial->opVoid();
 
@@ -765,15 +765,15 @@ allTests(Test::TestHelper* helper, bool)
 
     cout << "ok" << endl;
 
-    cout << "testing marshaling of objects with optional objects..." << flush;
+    cout << "testing marshaling of objects with optional members..." << flush;
     {
         FPtr f = make_shared<F>();
 
-        f->af = make_shared<A>();
-        f->ae = *f->af;
+        f->fsf = FixedStruct{56};
+        f->fse = *f->fsf;
 
         FPtr rf = dynamic_pointer_cast<F>(initial->pingPong(f));
-        test(rf->ae == *rf->af);
+        test(rf->fse == *rf->fsf);
 
         factory->setEnabled(true);
         Ice::OutputStream out(communicator);
@@ -789,7 +789,7 @@ allTests(Test::TestHelper* helper, bool)
         factory->setEnabled(false);
 
         rf = dynamic_cast<FObjectReader*>(obj.get())->getF();
-        test(rf->ae && !rf->af);
+        test(rf->fse.m == 56 && !rf->fsf);
     }
     cout << "ok" << endl;
 
@@ -1294,23 +1294,22 @@ allTests(Test::TestHelper* helper, bool)
 
     {
         FPtr f = make_shared<F>();
-        f->af = make_shared<A>();
-        (*f->af)->requiredA = 56;
-        f->ae = *f->af;
+        f->fsf = FixedStruct();
+        (*f->fsf).m = 56;
+        f->fse = *f->fsf;
 
         Ice::OutputStream out(communicator);
         out.startEncapsulation();
         out.write(1, make_optional(f));
-        out.write(2, make_optional(f->ae));
+        out.write(2, make_optional(f->fse));
         out.endEncapsulation();
         out.finished(inEncaps);
 
         Ice::InputStream in(communicator, out.getEncoding(), inEncaps);
         in.startEncapsulation();
-        optional<APtr> a;
-        in.read(2, a);
+        in.read(2, ofs);
         in.endEncapsulation();
-        test(a && *a && (*a)->requiredA == 56);
+        test(ofs && (*ofs).m == 56);
     }
     cout << "ok" << endl;
 

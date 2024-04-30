@@ -253,13 +253,13 @@
         {
         }
 
-        sendOptionalClass(req, current)
+        sendOptionalStruct(req, current)
         {
         }
 
-        returnOptionalClass(req, current)
+        returnOptionalStruct(req, current)
         {
-            return new Test.OneOptional(53);
+            return new Test.FixedStruct(53);
         }
 
         opG(g, current)

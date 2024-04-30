@@ -299,14 +299,14 @@ classdef AllTests
             assert(mo9.bos == Ice.Unset);
 
             %
-            % Use the 1.0 encoding with operations whose only class parameters are optional.
+            % Test that optional parameters are handled correctly (ignored) with the 1.0 encoding.
             %
-            initial.sendOptionalClass(true, OneOptional(53));
-            initial.ice_encodingVersion(Ice.EncodingVersion(1, 0)).sendOptionalClass(true, OneOptional(53));
+            initial.sendOptionalStruct(true, FixedStruct(53));
+            initial.ice_encodingVersion(Ice.EncodingVersion(1, 0)).sendOptionalStruct(true, FixedStruct(53));
 
-            r = initial.returnOptionalClass(true);
+            r = initial.returnOptionalStruct(true);
             assert(r ~= Ice.Unset)
-            r = initial.ice_encodingVersion(Ice.EncodingVersion(1, 0)).returnOptionalClass(true);
+            r = initial.ice_encodingVersion(Ice.EncodingVersion(1, 0)).returnOptionalStruct(true);
             assert(r == Ice.Unset);
 
             g = G();
@@ -371,15 +371,15 @@ classdef AllTests
 
             fprintf('ok\n');
 
-            fprintf('testing marshaling of objects with optional objects... ');
+            fprintf('testing marshaling of objects with optional members... ');
 
             f = F();
 
-            f.af = A();
-            f.ae = f.af;
+            f.fsf = FixedStruct();
+            f.fse = f.fsf;
 
             rf = initial.pingPong(f);
-            assert(rf.ae == rf.af);
+            assert(rf.fse == rf.fsf);
 
             fprintf('ok\n');
 

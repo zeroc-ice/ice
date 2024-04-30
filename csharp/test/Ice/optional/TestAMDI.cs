@@ -246,15 +246,15 @@ namespace Ice
                 }
 
                 public override Task
-                sendOptionalClassAsync(bool req, Ice.Optional<Test.OneOptional> o, Ice.Current current)
+                sendOptionalStructAsync(bool req, Ice.Optional<Test.FixedStruct> ofs, Ice.Current current)
                 {
                     return null;
                 }
 
-                public override Task<Ice.Optional<Test.OneOptional>>
-                returnOptionalClassAsync(bool req, Ice.Current current)
+                public override Task<Ice.Optional<Test.FixedStruct>>
+                returnOptionalStructAsync(bool req, Ice.Current current)
                 {
-                    return Task.FromResult(new Ice.Optional<Test.OneOptional>(new Test.OneOptional(53)));
+                    return Task.FromResult(new Ice.Optional<Test.FixedStruct>(new Test.FixedStruct(53)));
                 }
 
                 public override Task<Test.G>

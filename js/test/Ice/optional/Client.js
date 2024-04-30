@@ -254,17 +254,17 @@
             test(mo9.bos === undefined);
 
             //
-            // Use the 1.0 encoding with operations whose only class parameters are optional.
+            // Test that optional parameters are handled correctly (ignored) with the 1.0 encoding.
             //
             const initial2 = initial.ice_encodingVersion(Ice.Encoding_1_0);
-            const oo = new Test.OneOptional(53);
+            let ofs = new Test.FixedStruct(53);
 
-            await initial.sendOptionalClass(true, oo);
-            await initial2.sendOptionalClass(true, oo);
-            oo1 = await initial.returnOptionalClass(true);
-            test(oo1 !== undefined && oo1.a == 53);
-            oo1 = await initial2.returnOptionalClass(true);
-            test(oo1 === undefined);
+            await initial.sendOptionalStruct(true, ofs);
+            await initial2.sendOptionalStruct(true, ofs);
+            ofs = await initial.returnOptionalStruct(true);
+            test(ofs !== undefined && ofs.m == 53);
+            ofs = await initial2.returnOptionalStruct(true);
+            test(ofs === undefined);
 
             let g = new Test.G();
             g.gg1Opt = new Test.G1("gg1Opt");
@@ -329,12 +329,12 @@
             test(b.md == 13);
             out.writeLine("ok");
 
-            out.write("testing marshaling of objects with optional objects... ");
+            out.write("testing marshaling of objects with optional members... ");
             let f = new Test.F();
-            f.af = new Test.A();
-            f.ae = f.af;
+            f.fsf = new Test.FixedStruct();
+            f.fse = f.fsf;
             f = await initial.pingPong(f);
-            test(f.ae === f.af);
+            test(f.fse.equals(f.fsf));
             out.writeLine("ok");
 
             out.write("testing optional with default values... ");

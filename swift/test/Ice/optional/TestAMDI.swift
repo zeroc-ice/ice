@@ -250,12 +250,12 @@ class InitialI: Initial {
     return Promise.value(())
   }
 
-  func sendOptionalClassAsync(req _: Bool, o _: OneOptional?, current _: Current) -> Promise<Void> {
+  func sendOptionalStructAsync(req _: Bool, ofs _: FixedStruct?, current _: Current) -> Promise<Void> {
     return Promise.value(())
   }
 
-  func returnOptionalClassAsync(req _: Bool, current _: Current) -> Promise<OneOptional?> {
-    return Promise.value(OneOptional(a: 53))
+  func returnOptionalStructAsync(req _: Bool, current _: Current) -> Promise<FixedStruct?> {
+    return Promise.value(FixedStruct(m: 53))
   }
 
   func opGAsync(g: G?, current _: Current) -> Promise<G?> {
