@@ -376,7 +376,8 @@ namespace Ice
         // The number of user calls currently executed by the thread-pool (servant dispatch, invocation response, ...)
         int _upcallCount;
 
-        // The number of outstanding dispatches, include heartbeat callback "dispatches".
+        // The number of outstanding dispatches. This does not include heartbeat messages, even when the heartbeat
+        // callback is not null.
         int _dispatchCount = 0;
 
         State _state; // The current state.
