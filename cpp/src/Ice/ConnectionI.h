@@ -226,7 +226,7 @@ namespace Ice
         void
         idleCheck(const IceUtil::TimerTaskPtr& idleCheckTimerTask, const std::chrono::seconds& idleTimeout) noexcept;
 
-        /// Shuts down the connection gracefully if it's inactive when this function is called.
+        /// Shuts down the connection gracefully if it's at rest when this function is called.
         void inactivityCheck() noexcept;
 
         /// Aborts the connection if its state is < StateActive.
