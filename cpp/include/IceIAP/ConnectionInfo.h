@@ -60,6 +60,8 @@ namespace IceIAP
         {
         }
 
+        ~ConnectionInfo() override;
+
         ConnectionInfo(const ConnectionInfo&) = delete;
         ConnectionInfo& operator=(const ConnectionInfo&) = delete;
 

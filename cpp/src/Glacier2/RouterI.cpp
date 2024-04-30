@@ -30,8 +30,7 @@ Glacier2::RouterI::RouterI(
       _userId(userId),
       _session(std::move(session)),
       _controlId(controlId),
-      _context(context),
-      _timestamp(chrono::steady_clock::now())
+      _context(context)
 {
     //
     // If Glacier2 will be used with pre 3.2 clients, then the client proxy must be set.
@@ -160,12 +159,6 @@ Glacier2::RouterI::createSessionFromSecureConnectionAsync(
 }
 
 void
-Glacier2::RouterI::refreshSessionAsync(function<void()>, function<void(exception_ptr)>, const Current&)
-{
-    assert(false); // Must not be called in this router implementation.
-}
-
-void
 Glacier2::RouterI::destroySession(const Current&)
 {
     assert(false); // Must not be called in this router implementation.
@@ -211,20 +204,6 @@ optional<SessionPrx>
 Glacier2::RouterI::getSession() const
 {
     return _session; // No mutex lock necessary, _session is immutable.
-}
-
-chrono::steady_clock::time_point
-Glacier2::RouterI::getTimestamp() const
-{
-    // Can only be called with the SessionRouterI mutex locked
-    return _timestamp;
-}
-
-void
-Glacier2::RouterI::updateTimestamp() const
-{
-    // Can only be called with the SessionRouterI mutex locked
-    _timestamp = chrono::steady_clock::now();
 }
 
 void

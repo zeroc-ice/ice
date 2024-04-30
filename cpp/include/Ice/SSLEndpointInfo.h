@@ -20,7 +20,7 @@ namespace IceSSL
     /**
      * Provides access to an SSL endpoint information.
      */
-    class EndpointInfo : public Ice::EndpointInfo
+    class ICE_API EndpointInfo : public Ice::EndpointInfo
     {
     public:
         EndpointInfo() = default;
@@ -35,6 +35,8 @@ namespace IceSSL
             : Ice::EndpointInfo(underlying, timeout, compress)
         {
         }
+
+        ~EndpointInfo() override;
 
         EndpointInfo(const EndpointInfo&) = delete;
         EndpointInfo& operator=(const EndpointInfo&) = delete;

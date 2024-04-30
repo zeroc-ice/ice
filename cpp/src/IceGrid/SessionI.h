@@ -24,8 +24,6 @@ namespace IceGrid
     public:
         virtual ~BaseSessionI() = default;
 
-        virtual void keepAlive(const Ice::Current&);
-
         std::chrono::steady_clock::time_point timestamp() const;
         void shutdown();
         std::optional<Glacier2::IdentitySetPrx> getGlacier2IdentitySet();
@@ -59,20 +57,21 @@ namespace IceGrid
 
         Ice::ObjectPrx _register(const std::shared_ptr<SessionServantManager>&, const Ice::ConnectionPtr&);
 
-        void keepAlive(const Ice::Current& current) override { BaseSessionI::keepAlive(current); }
+        // keepAlive is deprecated and kept only for compatibility with old clients. It does nothing now.
+        void keepAlive(const Ice::Current&) final {}
         void allocateObjectByIdAsync(
             Ice::Identity id,
             std::function<void(const std::optional<Ice::ObjectPrx>& returnValue)> response,
             std::function<void(std::exception_ptr)> exception,
-            const Ice::Current& current) override;
+            const Ice::Current& current) final;
         void allocateObjectByTypeAsync(
             std::string,
             std::function<void(const std::optional<Ice::ObjectPrx>& returnValue)> response,
             std::function<void(std::exception_ptr)> exception,
-            const Ice::Current& current) override;
-        void releaseObject(Ice::Identity, const Ice::Current&) override;
-        void setAllocationTimeout(int, const Ice::Current&) override;
-        void destroy(const Ice::Current&) override;
+            const Ice::Current& current) final;
+        void releaseObject(Ice::Identity, const Ice::Current&) final;
+        void setAllocationTimeout(int, const Ice::Current&) final;
+        void destroy(const Ice::Current&) final;
 
         int getAllocationTimeout() const;
         const IceUtil::TimerPtr& getTimer() const { return _timer; }
@@ -82,8 +81,8 @@ namespace IceGrid
         void addAllocation(const std::shared_ptr<Allocatable>&);
         void removeAllocation(const std::shared_ptr<Allocatable>&);
 
-    protected:
-        void destroyImpl(bool) override;
+    private:
+        void destroyImpl(bool) final;
 
         const IceUtil::TimerPtr _timer;
         int _allocationTimeout;

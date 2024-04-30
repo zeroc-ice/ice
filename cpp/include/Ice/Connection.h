@@ -79,15 +79,10 @@ namespace Ice
      * Base class providing access to the connection details.
      * \headerfile Ice/Ice.h
      */
-    class ConnectionInfo
+    class ICE_API ConnectionInfo
     {
     public:
         ConnectionInfo() = default;
-        virtual ~ConnectionInfo() = default;
-
-        // Deleted to prevent accidental slicing.
-        ConnectionInfo(const ConnectionInfo&) = delete;
-        ConnectionInfo& operator=(const ConnectionInfo&) = delete;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -107,6 +102,12 @@ namespace Ice
               connectionId(connectionId)
         {
         }
+
+        virtual ~ConnectionInfo();
+
+        // Deleted to prevent accidental slicing.
+        ConnectionInfo(const ConnectionInfo&) = delete;
+        ConnectionInfo& operator=(const ConnectionInfo&) = delete;
 
         /**
          * The information of the underlying transport or null if there's no underlying transport.
@@ -301,7 +302,7 @@ namespace Ice
      * Provides access to the connection details of an IP connection
      * \headerfile Ice/Ice.h
      */
-    class IPConnectionInfo : public ConnectionInfo
+    class ICE_API IPConnectionInfo : public ConnectionInfo
     {
     public:
         IPConnectionInfo() : localAddress(""), localPort(-1), remoteAddress(""), remotePort(-1) {}
@@ -334,6 +335,12 @@ namespace Ice
         {
         }
 
+        ~IPConnectionInfo() override;
+
+        // Deleted to prevent accidental slicing.
+        IPConnectionInfo(const IPConnectionInfo&) = delete;
+        IPConnectionInfo& operator=(const IPConnectionInfo&) = delete;
+
         /**
          * The local address.
          */
@@ -356,7 +363,7 @@ namespace Ice
      * Provides access to the connection details of a TCP connection
      * \headerfile Ice/Ice.h
      */
-    class TCPConnectionInfo : public IPConnectionInfo
+    class ICE_API TCPConnectionInfo : public IPConnectionInfo
     {
     public:
         TCPConnectionInfo() : rcvSize(0), sndSize(0) {}
@@ -399,6 +406,8 @@ namespace Ice
         {
         }
 
+        ~TCPConnectionInfo() override;
+
         // Deleted to prevent accidental slicing.
         TCPConnectionInfo(const TCPConnectionInfo&) = delete;
         TCPConnectionInfo& operator=(const TCPConnectionInfo&) = delete;
@@ -417,7 +426,7 @@ namespace Ice
      * Provides access to the connection details of a UDP connection
      * \headerfile Ice/Ice.h
      */
-    class UDPConnectionInfo : public IPConnectionInfo
+    class ICE_API UDPConnectionInfo : public IPConnectionInfo
     {
     public:
         UDPConnectionInfo() : mcastPort(-1), rcvSize(0), sndSize(0) {}
@@ -466,6 +475,8 @@ namespace Ice
         {
         }
 
+        ~UDPConnectionInfo() override;
+
         // Deleted to prevent accidental slicing.
         UDPConnectionInfo(const UDPConnectionInfo&) = delete;
         UDPConnectionInfo& operator=(const UDPConnectionInfo&) = delete;
@@ -492,7 +503,7 @@ namespace Ice
      * Provides access to the connection details of a WebSocket connection
      * \headerfile Ice/Ice.h
      */
-    class WSConnectionInfo : public ConnectionInfo
+    class ICE_API WSConnectionInfo : public ConnectionInfo
     {
     public:
         WSConnectionInfo() = default;
@@ -515,6 +526,8 @@ namespace Ice
               headers(headers)
         {
         }
+
+        ~WSConnectionInfo() override;
 
         // Deleted to prevent accidental slicing.
         WSConnectionInfo(const WSConnectionInfo&) = delete;

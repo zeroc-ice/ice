@@ -582,19 +582,19 @@ class CSPropertyHandler(PropertyHandler):
 
     def deprecatedImpl(self, propertyName):
         self.srcFile.write(
-            '             new Property(@"^%s\.%s$", true, null),\n'
+            r'             new Property(@"^%s\.%s$", true, null),\n'
             % (self.currentSection, self.fix(propertyName))
         )
 
     def deprecatedImplWithReplacementImpl(self, propertyName, deprecatedBy):
         self.srcFile.write(
-            '             new Property(@"^%s\.%s$", true, @"%s"),\n'
+            r'             new Property(@"^%s\.%s$", true, @"%s"),\n'
             % (self.currentSection, self.fix(propertyName), deprecatedBy)
         )
 
     def propertyImpl(self, propertyName):
         self.srcFile.write(
-            '             new Property(@"^%s\.%s$", false, null),\n'
+            r'             new Property(@"^%s\.%s$", false, null),\n'
             % (self.currentSection, self.fix(propertyName))
         )
 
@@ -657,21 +657,21 @@ class JSPropertyHandler(PropertyHandler):
     def deprecatedImpl(self, propertyName):
         if self.currentSection in self.validSections:
             self.srcFile.write(
-                '    new Property("/^%s\.%s/", true, null),\n'
+                r'    new Property("/^%s\.%s/", true, null),\n'
                 % (self.currentSection, self.fix(propertyName))
             )
 
     def deprecatedImplWithReplacementImpl(self, propertyName, deprecatedBy):
         if self.currentSection in self.validSections:
             self.srcFile.write(
-                '    new Property("/^%s\.%s/", true, "%s"),\n'
+                r'    new Property("/^%s\.%s/", true, "%s"),\n'
                 % (self.currentSection, self.fix(propertyName), deprecatedBy)
             )
 
     def propertyImpl(self, propertyName):
         if self.currentSection in self.validSections:
             self.srcFile.write(
-                '    new Property("/^%s\.%s/", false, null),\n'
+                r'    new Property("/^%s\.%s/", false, null),\n'
                 % (self.currentSection, self.fix(propertyName))
             )
 

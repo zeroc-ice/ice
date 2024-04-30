@@ -753,9 +753,8 @@ module IceGrid
     /// @see Registry
     interface AdminSession extends Glacier2::Session
     {
-        /// Keep the session alive. Clients should call this operation regularly to prevent the server from reaping the
-        /// session.
-        /// @see Registry#getSessionTimeout
+        /// Keep the session alive. This operation is provided for backwards compatibility. As of Ice 3.8, there is no
+        /// need to call this operation and its implementation does nothing.
         idempotent void keepAlive();
 
         /// Get the admin interface. The admin object returned by this operation can only be accessed by the session.
@@ -897,5 +896,4 @@ module IceGrid
         FileIterator * openRegistryStdOut(string name, int count)
             throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException;
     }
-
 }

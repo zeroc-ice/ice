@@ -901,7 +901,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
             {
                 rethrow_exception(ex);
             }
-            catch (const Ice::ConnectionTimeoutException&)
+            catch (const ConnectionIdleException&)
             {
                 setState(StateClosed, ex);
             }
@@ -939,7 +939,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
                 {
                     rethrow_exception(ex);
                 }
-                catch (const Ice::ConnectionTimeoutException&)
+                catch (const ConnectionIdleException&)
                 {
                     setState(StateClosed, ex);
                 }
@@ -964,7 +964,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
                 {
                     rethrow_exception(ex);
                 }
-                catch (const Ice::ConnectionTimeoutException&)
+                catch (const ConnectionIdleException&)
                 {
                     setState(StateClosed, ex);
                 }
@@ -1659,7 +1659,7 @@ Ice::ConnectionI::finish(bool close)
             catch (const ConnectionManuallyClosedException&)
             {
             }
-            catch (const ConnectionTimeoutException&)
+            catch (const ConnectionIdleException&)
             {
             }
             catch (const CommunicatorDestroyedException&)
@@ -2000,7 +2000,7 @@ Ice::ConnectionI::setState(State state, exception_ptr ex)
             catch (const ConnectionManuallyClosedException&)
             {
             }
-            catch (const ConnectionTimeoutException&)
+            catch (const ConnectionIdleException&)
             {
             }
             catch (const CommunicatorDestroyedException&)
@@ -2178,7 +2178,7 @@ Ice::ConnectionI::setState(State state)
             catch (const ConnectionManuallyClosedException&)
             {
             }
-            catch (const ConnectionTimeoutException&)
+            catch (const ConnectionIdleException&)
             {
             }
             catch (const CommunicatorDestroyedException&)
@@ -2298,13 +2298,12 @@ Ice::ConnectionI::idleCheck(
             if (_instance->traceLevels()->network >= 1)
             {
                 Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
-                out << "connection aborted by idle check because it did not receive any byte for "
+                out << "connection aborted by the idle check because it did not receive any byte for "
                     << idleTimeout.count() << "s\n";
                 out << _transceiver->toDetailedString();
             }
 
-            // TODO: replace by ConnectionIdleException.
-            setState(StateClosed, make_exception_ptr(TimeoutException(__FILE__, __LINE__)));
+            setState(StateClosed, make_exception_ptr(ConnectionIdleException(__FILE__, __LINE__)));
         }
     }
     // else, nothing to do
@@ -2335,20 +2334,10 @@ Ice::ConnectionI::closeTimedOut() noexcept
 void
 Ice::ConnectionI::sendHeartbeat() noexcept
 {
+    assert(!_endpoint->datagram());
+
     lock_guard lock(_mutex);
     if (_state == StateActive || _state == StateHolding)
-    {
-        sendHeartbeatNow();
-    }
-    // else nothing to do
-}
-
-void
-Ice::ConnectionI::sendHeartbeatNow()
-{
-    assert(_state == StateActive || _state == StateHolding);
-
-    if (!_endpoint->datagram())
     {
         OutputStream os(_instance.get(), Ice::currentProtocolEncoding);
         os.write(magic[0]);
@@ -2366,12 +2355,12 @@ Ice::ConnectionI::sendHeartbeatNow()
             OutgoingMessage message(&os, false);
             sendMessage(message);
         }
-        catch (const LocalException&)
+        catch (...)
         {
             setState(StateClosed, current_exception());
-            assert(_exception);
         }
     }
+    // else nothing to do
 }
 
 void
