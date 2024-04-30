@@ -570,7 +570,7 @@ void
 IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
 {
 #if !defined(ICE_USE_IOCP)
-    ThreadPoolCurrent current(_instance, shared_from_this(), thread);
+    ThreadPoolCurrent current(shared_from_this(), thread);
     bool select = false;
     while (true)
     {
@@ -718,7 +718,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
         }
     }
 #else
-    ThreadPoolCurrent current(_instance, shared_from_this(), thread);
+    ThreadPoolCurrent current(shared_from_this(), thread);
     while (true)
     {
         try
@@ -1016,12 +1016,9 @@ IceInternal::ThreadPool::followerWait(ThreadPoolCurrent& current, unique_lock<mu
 
     //
     // It's important to clear the handler before waiting to make sure that
-    // resources for the handler are released now if it's finished. We also
-    // clear the per-thread stream.
+    // resources for the handler are released now if it's finished.
     //
     current._handler = nullptr;
-    current.stream.clear();
-    current.stream.b.clear();
 
     //
     // Wait to be promoted and for all the IO threads to be done.
@@ -1197,12 +1194,8 @@ IceInternal::ThreadPool::EventHandlerThread::join()
     }
 }
 
-ThreadPoolCurrent::ThreadPoolCurrent(
-    const InstancePtr& instance,
-    const ThreadPoolPtr& threadPool,
-    const ThreadPool::EventHandlerThreadPtr& thread)
+ThreadPoolCurrent::ThreadPoolCurrent(const ThreadPoolPtr& threadPool, const ThreadPool::EventHandlerThreadPtr& thread)
     : operation(SocketOperationNone),
-      stream(instance.get(), Ice::currentProtocolEncoding),
       _threadPool(threadPool.get()),
       _thread(thread),
       _ioCompleted(false)

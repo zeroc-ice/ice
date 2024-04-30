@@ -149,10 +149,9 @@ namespace IceInternal
     class ThreadPoolCurrent
     {
     public:
-        ThreadPoolCurrent(const InstancePtr&, const ThreadPoolPtr&, const ThreadPool::EventHandlerThreadPtr&);
+        ThreadPoolCurrent(const ThreadPoolPtr&, const ThreadPool::EventHandlerThreadPtr&);
 
         SocketOperation operation;
-        Ice::InputStream stream; // A per-thread stream to be used by event handlers for optimization.
 
         bool ioCompleted() const { return _threadPool->ioCompleted(const_cast<ThreadPoolCurrent&>(*this)); }
 

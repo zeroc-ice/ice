@@ -1151,6 +1151,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
     function<void(ConnectionIPtr)> connectionStartCompleted;
     vector<OutgoingMessage> sentCBs;
     function<bool(InputStream&)> messageUpcall;
+    InputStream messageStream(_instance.get(), currentProtocolEncoding);
 
     ThreadPoolMessage<ConnectionI> msg(current, *this);
     {
@@ -1357,7 +1358,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     // At this point, the protocol message is fully read and can therefore be decoded by parseMessage.
                     // parseMessage returns the operation to wait for readiness next.
                     newOp =
-                        static_cast<SocketOperation>(newOp | parseMessage(upcallCount, messageUpcall, current.stream));
+                        static_cast<SocketOperation>(newOp | parseMessage(upcallCount, messageUpcall, messageStream));
                 }
 
                 if (readyOp & SocketOperationWrite)
@@ -1431,7 +1432,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 // executeFromThisThread dispatches to the correct DispatchQueue
 #ifdef ICE_SWIFT
     auto stream = make_shared<InputStream>();
-    current.stream.swap(*stream);
+    stream->swap(messageStream);
 
     auto self = shared_from_this();
     _threadPool->executeFromThisThread(
@@ -1444,12 +1445,12 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 #else
     if (!_hasExecutor) // Optimization, call dispatch() directly if there's no executor.
     {
-        upcall(connectionStartCompleted, sentCBs, std::move(messageUpcall), current.stream);
+        upcall(connectionStartCompleted, sentCBs, std::move(messageUpcall), messageStream);
     }
     else
     {
         auto stream = make_shared<InputStream>();
-        current.stream.swap(*stream);
+        stream->swap(messageStream);
 
         auto self = shared_from_this();
         _threadPool->executeFromThisThread(
