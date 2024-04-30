@@ -13,6 +13,8 @@
 // Disable deprecation warnings from SecureTransport APIs
 #include "IceUtil/DisableWarnings.h"
 
+#include <iostream>
+
 using namespace std;
 using namespace Ice;
 using namespace Ice::SSL;
@@ -117,17 +119,19 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
             SSLSetClientSideAuthenticate(_ssl.get(), _clientCertificateRequired);
         }
 
-        _certificates = _localCertificateSelectionCallback(_incoming ? _adapterName : _host);
-        if (_certificates)
+        if (_localCertificateSelectionCallback)
         {
-            CFRetain(_certificates);
-            err = SSLSetCertificate(_ssl.get(), _certificates);
-            if (err)
+            _certificates = _localCertificateSelectionCallback(_incoming ? _adapterName : _host).release();
+            if (_certificates)
             {
-                throw SecurityException(
-                    __FILE__,
-                    __LINE__,
-                    "IceSSL: error while setting the SSL context certificate:\n" + sslErrorToString(err));
+                err = SSLSetCertificate(_ssl.get(), _certificates);
+                if (err)
+                {
+                    throw SecurityException(
+                        __FILE__,
+                        __LINE__,
+                        "IceSSL: error while setting the SSL context certificate:\n" + sslErrorToString(err));
+                }
             }
         }
 

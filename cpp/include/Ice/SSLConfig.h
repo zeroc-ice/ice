@@ -6,6 +6,7 @@
 #define ICE_SSL_CONFIG
 
 #if defined(_WIN32)
+#    define ICE_USE_SCHANNEL
 // We need to include windows.h before wincrypt.h.
 // clang-format off
 #    ifndef NOMINMAX
@@ -27,9 +28,12 @@
 #    include <sspi.h>
 #    undef SECURITY_WIN32
 #elif defined(__APPLE__)
+#    define ICE_USE_SECURE_TRANSPORT
 #    include <Security/SecureTransport.h>
 #    include <Security/Security.h>
 #else
+#    define ICE_USE_OPENSSL
 #    include <openssl/ssl.h>
 #endif
+
 #endif

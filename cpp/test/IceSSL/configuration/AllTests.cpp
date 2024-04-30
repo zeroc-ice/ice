@@ -22,7 +22,6 @@
 #endif
 
 #if defined(__APPLE__)
-#    define ICE_USE_SECURE_TRANSPORT 1
 #    if defined(__APPLE__) && TARGET_OS_IPHONE != 0
 #        define ICE_USE_SECURE_TRANSPORT_IOS 1
 #    else

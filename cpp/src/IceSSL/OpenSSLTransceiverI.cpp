@@ -100,14 +100,11 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
             throw SecurityException(__FILE__, __LINE__, "openssl failure");
         }
 
-        _sslCtx = _localSslContextSelectionCallback(_incoming ? _adapterName : _host);
+        _sslCtx = _localSslContextSelectionCallback(_incoming ? _adapterName : _host).release();
         if (!_sslCtx)
         {
             throw SecurityException(__FILE__, __LINE__, "SSL error: the SSL context selection callback returned null");
         }
-        // Increase the reference count of the SSL_CTX object.
-        SSL_CTX_up_ref(_sslCtx);
-
         _ssl = SSL_new(_sslCtx);
         if (!_ssl)
         {

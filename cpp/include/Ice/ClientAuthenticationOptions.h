@@ -5,8 +5,10 @@
 #ifndef ICE_CLIENT_AUTHENTICATION_OPTIONS_H
 #define ICE_CLIENT_AUTHENTICATION_OPTIONS_H
 
+#include "SSLCertificateChain.h"
 #include "SSLConfig.h"
 #include "SSLConnectionInfo.h"
+#include "SSLContext.h"
 
 #include <functional>
 
@@ -19,7 +21,10 @@ namespace Ice::SSL
     {
 #if defined(_WIN32)
         /**
-         * A callback that allows selecting the client's credentials based on the target server host name.
+         * A callback that allows selecting the client's credentials based on the target server host name. The SSL
+         * transport calls this callback to obtain the credentials for new outgoing connections. The caller increase the
+         * reference count of the paCred, and the hRootStore representing the client certificate chain and the trusted
+         * root certificates store. The transport releases the reference count when the connection is closed.
          *
          * @param host The target server host name.
          * @return The client credentials. The credentials must remain valid for the duration of the connection.
@@ -58,7 +63,7 @@ namespace Ice::SSL
          * The requirements for the Secure Transport certificate chain are documented in
          * https://developer.apple.com/documentation/security/1392400-sslsetcertificate?changes=_3&language=objc
          */
-        std::function<CFArrayRef(const std::string& host)> clientCertificateSelectionCallback;
+        std::function<CertificateChain(const std::string& host)> clientCertificateSelectionCallback;
 
         /**
          * The trusted root certificates. If set, the server's certificate chain is validated against these
@@ -100,7 +105,7 @@ namespace Ice::SSL
          * @see Detailed OpenSSL documentation on SSL_CTX management:
          * https://www.openssl.org/docs/manmaster/man3/SSL_CTX_new.html
          */
-        std::function<SSL_CTX*(const std::string& host)> clientSslContextSelectionCallback;
+        std::function<SslContext(const std::string& host)> clientSslContextSelectionCallback;
 
         /**
          * A callback that is invoked before initiating a new SSL handshake. This callback provides an opportunity to

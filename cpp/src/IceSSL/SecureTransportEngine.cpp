@@ -707,7 +707,7 @@ SecureTransport::SSLEngine::createClientAuthenticationOptions(const string& host
         .serverCertificateValidationCallback =
             [self = shared_from_this(), host](SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)
         { return self->validationCallback(trust, info, false, host, self->_certificateAuthorities.get()); },
-        .clientCertificateSelectionCallback = [this](const string&) { return _chain.get(); },
+        .clientCertificateSelectionCallback = [this](const string&) { return CertificateChain(_chain.get()); },
         .sslNewSessionCallback = nullptr};
 }
 
@@ -734,7 +734,7 @@ SecureTransport::SSLEngine::createServerAuthenticationOptions() const
             [self = shared_from_this()](SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)
         { return self->validationCallback(trust, info, true, "", self->_certificateAuthorities.get()); },
         .clientCertificateRequired = clientCertificateRequired,
-        .serverCertificateSelectionCallback = [this](const string&) { return _chain.get(); },
+        .serverCertificateSelectionCallback = [this](const string&) { return CertificateChain(_chain.get()); },
         .sslNewSessionCallback = nullptr};
 }
 

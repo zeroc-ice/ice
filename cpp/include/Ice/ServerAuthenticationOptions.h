@@ -2,11 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_SERVER_AUTHENTICATION_OPTIONS_H
-#define ICE_SERVER_AUTHENTICATION_OPTIONS_H
+#ifndef ICE_SSL_SERVER_AUTHENTICATION_OPTIONS_H
+#define ICE_SSL_SERVER_AUTHENTICATION_OPTIONS_H
 
+#include "SSLCertificateChain.h"
 #include "SSLConfig.h"
 #include "SSLConnectionInfo.h"
+#include "SSLContext.h"
 
 #include <functional>
 
@@ -66,7 +68,7 @@ namespace Ice::SSL
          * The requirements for the Secure Transport certificates are documented in
          * https://developer.apple.com/documentation/security/1392400-sslsetcertificate?changes=_3&language=objc
          */
-        std::function<CFArrayRef(const std::string& adapterName)> serverCertificateSelectionCallback;
+        std::function<CertificateChain(const std::string& adapterName)> serverCertificateSelectionCallback;
 
         /**
          * The trusted root certificates. If set, the client's certificate chain is validated against these
@@ -114,7 +116,7 @@ namespace Ice::SSL
          * @see Detailed OpenSSL documentation on SSL_CTX management:
          * https://www.openssl.org/docs/manmaster/man3/SSL_CTX_new.html
          */
-        std::function<SSL_CTX*(const std::string& adapterName)> serverSslContextSelectionCallback;
+        std::function<SslContext(const std::string& adapterName)> serverSslContextSelectionCallback;
 
         /**
          * A callback that is invoked before initiating a new SSL handshake. This callback provides an opportunity to
