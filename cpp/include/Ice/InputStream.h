@@ -178,13 +178,13 @@ namespace Ice
 
         /**
          * Move constructor.
-         * @param other The output stream to move into this output stream.
+         * @param other The input stream to move into this input stream.
          */
         InputStream(InputStream&& other) noexcept;
 
         /**
          * Move assignment operator.
-         * @param other The output stream to move into this output stream.
+         * @param other The input stream to move into this input stream.
          */
         InputStream& operator=(InputStream&& other) noexcept;
 
