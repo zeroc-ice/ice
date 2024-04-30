@@ -15,7 +15,7 @@
 #    include <windows.h>
 #    include <wincrypt.h>
 // clang-format on
-// SECURITY_WIN32 or SECURITY_KERNEL, must be defined before including security.h indicating who is compiling the code.
+// SECURITY_WIN32 or SECURITY_KERNEL are defined before including security.h indicating who is compiling the code.
 #    ifdef SECURITY_WIN32
 #        undef SECURITY_WIN32
 #    endif

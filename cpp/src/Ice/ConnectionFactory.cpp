@@ -1853,7 +1853,7 @@ IceInternal::IncomingConnectionFactory::createAcceptor()
     try
     {
         assert(!_acceptorStarted);
-        _acceptor = _endpoint->acceptor(_adapter->getName(), _adapter->getServerAuthenticationOptions());
+        _acceptor = _endpoint->acceptor(_adapter->getName(), _adapter->serverAuthenticationOptions());
         assert(_acceptor);
         if (_instance->traceLevels()->network >= 2)
         {
