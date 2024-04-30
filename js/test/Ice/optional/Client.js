@@ -52,7 +52,6 @@
             test(mo4.h === undefined);
             test(mo4.i === undefined);
             test(mo4.j === undefined);
-            test(mo4.k === undefined);
             test(mo4.bs === undefined);
             test(mo4.ss === undefined);
             test(mo4.iid === undefined);
@@ -88,7 +87,6 @@
             mo1.h = "test";
             mo1.i = Test.MyEnum.MyEnumMember;
             mo1.j = communicator.stringToProxy("test");
-            mo1.k = mo1;
             mo1.bs = new Uint8Array([5]);
             mo1.ss = ["test", "test2"];
             mo1.iid = new Map();
@@ -132,7 +130,6 @@
             test(mo1.h == mo5.h);
             test(mo1.i == mo5.i);
             test(mo1.j.equals(mo5.j));
-            test(mo5.k == mo5);
             test(ArrayUtil.equals(mo5.bs, mo1.bs));
             test(ArrayUtil.equals(mo5.ss, mo1.ss));
             test(mo5.iid.get(4) == 3);
@@ -182,7 +179,6 @@
             test(mo7.h == mo1.h);
             test(mo7.i === undefined);
             test(mo7.j.equals(mo1.j));
-            test(mo7.k === undefined);
             test(ArrayUtil.equals(mo7.bs, mo1.bs));
             test(mo7.ss === undefined);
             test(mo7.iid.get(4) == 3);
@@ -211,7 +207,6 @@
             mo8.e = mo1.e;
             mo8.g = mo1.g;
             mo8.i = mo1.i;
-            mo8.k = mo8;
             mo8.ss = mo1.ss;
             mo8.sid = mo1.sid;
             mo8.vs = mo1.vs;
@@ -236,7 +231,6 @@
             test(mo9.h === undefined);
             test(mo9.i == mo1.i);
             test(mo9.j === undefined);
-            test(mo9.k == mo9);
             test(mo9.bs === undefined);
             test(ArrayUtil.equals(mo9.ss, mo1.ss));
             test(mo9.iid === undefined);

@@ -27,11 +27,6 @@ InitialI::pingPongAsync(
     const Ice::Current&)
 {
     response(obj);
-    if (dynamic_pointer_cast<MultiOptional>(obj))
-    {
-        // Break cyclic reference count
-        dynamic_pointer_cast<MultiOptional>(obj)->k = shared_ptr<MultiOptional>();
-    }
 }
 
 void

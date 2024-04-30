@@ -49,7 +49,6 @@ namespace Ice
                 mo1.h = "test";
                 mo1.i = Test.MyEnum.MyEnumMember;
                 mo1.j = new Ice.Optional<Test.MyInterfacePrx>(Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test")));
-                mo1.k = mo1;
                 mo1.bs = new byte[] { 5 };
                 mo1.ss = new string[] { "test", "test2" };
                 mo1.iid = new Dictionary<int, int>();
@@ -93,7 +92,6 @@ namespace Ice
                 test(mo1.h.Value == "test");
                 test(mo1.i.Value == Test.MyEnum.MyEnumMember);
                 test(mo1.j.Value.Equals(communicator.stringToProxy("test")));
-                test(mo1.k.Value == mo1);
                 test(ArraysEqual(mo1.bs.Value, new byte[] { (byte)5 }));
                 test(ArraysEqual(mo1.ss.Value, new String[] { "test", "test2" }));
                 test(mo1.iid.Value[4] == 3);
@@ -138,7 +136,6 @@ namespace Ice
                 test(!mo4.h.HasValue);
                 test(!mo4.i.HasValue);
                 test(!mo4.j.HasValue);
-                test(!mo4.k.HasValue);
                 test(!mo4.bs.HasValue);
                 test(!mo4.ss.HasValue);
                 test(!mo4.iid.HasValue);
@@ -172,7 +169,6 @@ namespace Ice
                 test(mo5.h.Value.Equals(mo1.h.Value));
                 test(mo5.i.Value == mo1.i.Value);
                 test(mo5.j.Value.Equals(mo1.j.Value));
-                test(mo5.k.Value == mo5);
                 test(ArraysEqual(mo5.bs.Value, mo1.bs.Value));
                 test(ArraysEqual(mo5.ss.Value, mo1.ss.Value));
                 test(mo5.iid.Value[4] == 3);
@@ -222,7 +218,6 @@ namespace Ice
                 test(mo7.h.Equals(mo1.h));
                 test(!mo7.i.HasValue);
                 test(mo7.j.Equals(mo1.j));
-                test(!mo7.k.HasValue);
                 test(ArraysEqual(mo7.bs.Value, mo1.bs.Value));
                 test(!mo7.ss.HasValue);
                 test(mo7.iid.Value[4] == 3);
@@ -252,7 +247,6 @@ namespace Ice
                 mo8.e = mo5.e;
                 mo8.g = mo5.g;
                 mo8.i = mo5.i;
-                mo8.k = mo8;
                 mo8.ss = mo5.ss;
                 mo8.sid = mo5.sid;
                 mo8.vs = mo5.vs;
@@ -276,7 +270,6 @@ namespace Ice
                 test(!mo9.h.HasValue);
                 test(mo9.i.Equals(mo1.i));
                 test(!mo9.j.HasValue);
-                test(mo9.k.Value == mo9);
                 test(!mo9.bs.HasValue);
                 test(ArraysEqual(mo9.ss.Value, mo1.ss.Value));
                 test(!mo9.iid.HasValue);
