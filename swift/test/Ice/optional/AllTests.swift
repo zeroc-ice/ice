@@ -133,7 +133,7 @@ class FValueReader: Ice.Value {
     // in.read(1, _f.fsf);
     try istr.endSlice()
     _ = try istr.startSlice()
-    self._f.fsa = try istr.read()
+    self._f.fse = try istr.read()
     try istr.endSlice()
     _ = try istr.endValue()
   }
@@ -551,9 +551,9 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
   //
   do {
     var ofs: FixedStruct? = FixedStruct(m: 53)
-    try initial.sendOptionalStruct(req: true, o: ofs)
+    try initial.sendOptionalStruct(req: true, ofs)
     let initial2 = initial.ice_encodingVersion(Ice.Encoding_1_0)
-    try initial2.sendOptionalStruct(req: true, o: ofs)
+    try initial2.sendOptionalStruct(req: true, ofs)
 
     ofs = try initial.returnOptionalStruct(true)
     try test(ofs != nil && ofs!.m == 53)
@@ -567,9 +567,9 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     g.gg1 = G1(a: "gg1")
     g = try initial.opG(g)
     try test(g.gg1Opt!.a == "gg1Opt")
-    try test(g.gg2!.a == 10)
+    try test(g.gg2.a == 10)
     try test(g.gg2Opt!.a == 20)
-    try test(g.gg1!.a == "gg1")
+    try test(g.gg1.a == "gg1")
 
     try initial.opVoid()
 
@@ -665,7 +665,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     let f = F()
 
     f.fsf = FixedStruct()
-    f.fse = f.fsf
+    f.fse = f.fsf!
 
     var rf = try initial.pingPong(f) as! F
     try test(rf.fse == rf.fsf)
@@ -683,7 +683,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     try istr.endEncapsulation()
     factory.setEnabled(enabled: false)
     rf = (v as! FValueReader).getF()!
-    try test(rf.fse != nil && rf.fsf == nil)
+    try test(rf.fse.m == 0 && rf.fsf == nil)
   }
   output.writeLine("ok")
 
@@ -3082,7 +3082,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     let f = F()
     f.fsf = FixedStruct()
     f.fsf!.m = 56
-    f.fse = f.fsf
+    f.fse = f.fsf!
 
     ostr = Ice.OutputStream(communicator: communicator)
     ostr.startEncapsulation()
@@ -3093,9 +3093,9 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
 
     istr = Ice.InputStream(communicator: communicator, bytes: inEncaps)
     _ = try istr.startEncapsulation()
-    let fs1: FixedStruct? = try istr.ead(tag: 2);
+    let fs1: FixedStruct? = try istr.read(tag: 2)
     try istr.endEncapsulation()
-    try test(fs1 != nil && (fs1 as! FixedStruct).m == 56)
+    try test(fs1 != nil && fs1!.m == 56)
   }
 
   do {
