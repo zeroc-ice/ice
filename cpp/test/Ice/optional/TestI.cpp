@@ -21,13 +21,7 @@ InitialI::shutdown(const Current& current)
 Test::Initial::PingPongMarshaledResult
 InitialI::pingPong(shared_ptr<Value> obj, const Current& current)
 {
-    auto result = PingPongMarshaledResult(obj, current);
-    if (dynamic_pointer_cast<MultiOptional>(obj))
-    {
-        // Break cyclic reference count
-        dynamic_pointer_cast<MultiOptional>(obj)->k = shared_ptr<MultiOptional>();
-    }
-    return result;
+    return PingPongMarshaledResult(obj, current);
 }
 
 void

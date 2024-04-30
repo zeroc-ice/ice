@@ -48,7 +48,6 @@ def allTests(helper, communicator):
     test(mo1.h is Ice.Unset)
     test(mo1.i is Ice.Unset)
     test(mo1.j is Ice.Unset)
-    test(mo1.k is Ice.Unset)
     test(mo1.bs is Ice.Unset)
     test(mo1.ss is Ice.Unset)
     test(mo1.iid is Ice.Unset)
@@ -85,7 +84,6 @@ def allTests(helper, communicator):
         "test",
         Test.MyEnum.MyEnumMember,
         Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")),
-        None,
         [5],
         ["test", "test2"],
         {4: 3},
@@ -116,7 +114,6 @@ def allTests(helper, communicator):
     test(mo1.h == "test")
     test(mo1.i == Test.MyEnum.MyEnumMember)
     test(mo1.j == communicator.stringToProxy("test"))
-    test(mo1.k is None)
     test(mo1.bs == [5])
     test(mo1.ss == ["test", "test2"])
     test(mo1.iid[4] == 3)
@@ -171,7 +168,6 @@ def allTests(helper, communicator):
     test(mo4.h is Ice.Unset)
     test(mo4.i is Ice.Unset)
     test(mo4.j is Ice.Unset)
-    test(mo4.k is Ice.Unset)
     test(mo4.bs is Ice.Unset)
     test(mo4.ss is Ice.Unset)
     test(mo4.iid is Ice.Unset)
@@ -205,11 +201,6 @@ def allTests(helper, communicator):
     test(mo5.h == mo1.h)
     test(mo5.i == mo1.i)
     test(mo5.j == mo1.j)
-    #
-    # With Swift mapping you cannot distinguish null from unset
-    # so we test for both here to support cross testing.
-    #
-    test(mo5.k is None or mo5.k is Ice.Unset)
     test(mo5.bs[0] == 5)
     test(mo5.ss == mo1.ss)
     test(mo5.iid[4] == 3)
@@ -261,7 +252,6 @@ def allTests(helper, communicator):
     test(mo7.h == mo1.h)
     test(mo7.i is Ice.Unset)
     test(mo7.j == mo1.j)
-    test(mo7.k is Ice.Unset)
     test(mo7.bs[0] == 5)
     test(mo7.ss is Ice.Unset)
     test(mo7.iid[4] == 3)
@@ -291,7 +281,6 @@ def allTests(helper, communicator):
     mo8.e = mo5.e
     mo8.g = mo5.g
     mo8.i = mo5.i
-    mo8.k = mo8
     mo8.ss = mo5.ss
     mo8.sid = mo5.sid
     mo8.vs = mo5.vs
@@ -315,7 +304,6 @@ def allTests(helper, communicator):
     test(mo9.h is Ice.Unset)
     test(mo9.i == mo1.i)
     test(mo9.j is Ice.Unset)
-    test(mo9.k == mo9)
     test(mo9.bs is Ice.Unset)
     test(mo9.ss == mo1.ss)
     test(mo9.iid is Ice.Unset)

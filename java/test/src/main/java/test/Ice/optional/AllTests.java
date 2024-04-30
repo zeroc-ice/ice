@@ -69,7 +69,6 @@ public class AllTests {
     mo1.setH("test");
     mo1.setI(MyEnum.MyEnumMember);
     mo1.setJ(MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")));
-    mo1.setK(mo1);
     mo1.setBs(new byte[] {(byte) 5});
     mo1.setSs(new String[] {"test", "test2"});
     mo1.setIid(new java.util.HashMap<>());
@@ -117,7 +116,6 @@ public class AllTests {
     test(mo1.getH().equals("test"));
     test(mo1.getI() == MyEnum.MyEnumMember);
     test(mo1.getJ().equals(communicator.stringToProxy("test")));
-    test(mo1.getK() == mo1);
     test(java.util.Arrays.equals(mo1.getBs(), new byte[] {(byte) 5}));
     test(java.util.Arrays.equals(mo1.getSs(), new String[] {"test", "test2"}));
     test(mo1.getIid().get(4) == 3);
@@ -164,7 +162,6 @@ public class AllTests {
     test(!mo4.hasH());
     test(!mo4.hasI());
     test(!mo4.hasJ());
-    test(!mo4.hasK());
     test(!mo4.hasBs());
     test(!mo4.hasSs());
     test(!mo4.hasIid());
@@ -205,7 +202,6 @@ public class AllTests {
     test(mo5.getH().equals(mo1.getH()));
     test(mo5.getI() == mo1.getI());
     test(mo5.getJ().equals(mo1.getJ()));
-    test(mo5.getK() == mo5);
     test(java.util.Arrays.equals(mo5.getBs(), mo1.getBs()));
     test(java.util.Arrays.equals(mo5.getSs(), mo1.getSs()));
     test(mo5.getIid().get(4) == 3);
@@ -259,7 +255,6 @@ public class AllTests {
     test(mo7.getH().equals(mo1.getH()));
     test(!mo7.hasI());
     test(mo7.getJ().equals(mo1.getJ()));
-    test(!mo7.hasK());
     test(java.util.Arrays.equals(mo7.getBs(), mo1.getBs()));
     test(!mo7.hasSs());
     test(mo7.getIid().get(4) == 3);
@@ -289,7 +284,6 @@ public class AllTests {
     mo8.setE(mo5.getE());
     mo8.setG(mo5.getG());
     mo8.setI(mo5.getI());
-    mo8.setK(mo8);
     mo8.setSs(mo5.getSs());
     mo8.setSid(mo5.getSid());
     mo8.setVs(mo5.getVs());
@@ -313,7 +307,6 @@ public class AllTests {
     test(!mo9.hasH());
     test(mo9.getI() == mo1.getI());
     test(!mo9.hasJ());
-    test(mo9.getK() == mo9);
     test(!mo9.hasBs());
     test(java.util.Arrays.equals(mo9.getSs(), mo1.getSs()));
     test(!mo9.hasIid());
