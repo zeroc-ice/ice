@@ -127,19 +127,19 @@ Ice::InputStream::InputStream(Instance* instance, const EncodingVersion& encodin
     initialize(instance, encoding);
 }
 
-Ice::InputStream::InputStream(InputStream&& other) noexcept :
-    Buffer(std::move(other)),
-    _instance(other._instance),
-    _encoding(std::move(other._encoding)),
-    _traceSlicing(other._traceSlicing),
-    _classGraphDepthMax(other._classGraphDepthMax),
-    _closure(other._closure),
-    _sliceValues(other._sliceValues),
-    _startSeq(other._startSeq),
-    _minSeqSize(other._minSeqSize),
-    _valueFactoryManager(std::move(other._valueFactoryManager)),
-    _logger(std::move(other._logger)),
-    _compactIdResolver(std::move(other._compactIdResolver))
+Ice::InputStream::InputStream(InputStream&& other) noexcept
+    : Buffer(std::move(other)),
+      _instance(other._instance),
+      _encoding(std::move(other._encoding)),
+      _traceSlicing(other._traceSlicing),
+      _classGraphDepthMax(other._classGraphDepthMax),
+      _closure(other._closure),
+      _sliceValues(other._sliceValues),
+      _startSeq(other._startSeq),
+      _minSeqSize(other._minSeqSize),
+      _valueFactoryManager(std::move(other._valueFactoryManager)),
+      _logger(std::move(other._logger)),
+      _compactIdResolver(std::move(other._compactIdResolver))
 {
     // Reset other to its default state. See initialize().
 
