@@ -311,7 +311,6 @@ allTests(Test::TestHelper* helper, bool)
     mo1->h = string("test");
     mo1->i = MyEnum::MyEnumMember;
     mo1->j = MyInterfacePrx(communicator, "test");
-    mo1->k = mo1;
     mo1->bs = ByteSeq();
     (*mo1->bs).push_back(byte{5});
     mo1->ss = StringSeq();
@@ -374,7 +373,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo3->h == string("test"));
     test(mo3->i = MyEnum::MyEnumMember);
     test(mo3->j = MyInterfacePrx(communicator, "test"));
-    test(mo3->k == mo1);
     test(mo3->bs == mo1->bs);
     test(mo3->ss == mo1->ss);
     test(mo3->iid == mo1->iid);
@@ -437,7 +435,6 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo4->h);
     test(!mo4->i);
     test(!mo4->j);
-    test(!mo4->k);
     test(!mo4->bs);
     test(!mo4->ss);
     test(!mo4->iid);
@@ -460,7 +457,6 @@ allTests(Test::TestHelper* helper, bool)
 
     test(!mo4->bos);
 
-    mo1->k = mo1;
     MultiOptionalPtr mo5 = dynamic_pointer_cast<MultiOptional>(initial->pingPong(mo1));
 
     test(mo5->a == mo1->a);
@@ -473,7 +469,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo5->h == mo1->h);
     test(mo5->i == mo1->i);
     test(mo5->j == mo1->j);
-    test(mo5->k == mo5->k);
     test(mo5->bs == mo1->bs);
     test(mo5->ss == mo1->ss);
     test(mo5->iid == mo1->iid);
@@ -513,7 +508,6 @@ allTests(Test::TestHelper* helper, bool)
     mo6->e = nullopt;
     mo6->g = nullopt;
     mo6->i = nullopt;
-    mo6->k = nullopt;
     mo6->ss = nullopt;
     mo6->sid = nullopt;
     mo6->vs = nullopt;
@@ -537,7 +531,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo7->h == mo1->h);
     test(!mo7->i);
     test(mo7->j == mo1->j);
-    test(!mo7->k);
     test(mo7->bs == mo1->bs);
     test(!mo7->ss);
     test(mo7->iid == mo1->iid);
@@ -576,7 +569,6 @@ allTests(Test::TestHelper* helper, bool)
     mo8->ifsd = nullopt;
     mo8->iood = nullopt;
 
-    mo8->k = mo8;
     MultiOptionalPtr mo9 = dynamic_pointer_cast<MultiOptional>(initial->pingPong(mo8));
     test(mo9->a == mo1->a);
     test(!mo9->b);
@@ -588,7 +580,6 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo9->h);
     test(mo9->i == mo1->i);
     test(!mo9->j);
-    test(mo9->k == mo9);
     test(!mo9->bs);
     test(mo9->ss == mo1->ss);
     test(!mo9->iid);
@@ -652,16 +643,6 @@ allTests(Test::TestHelper* helper, bool)
         test(obj && dynamic_cast<TestObjectReader*>(obj.get()));
         factory->setEnabled(false);
     }
-
-    mo1->k = nullptr;
-    mo2->k = nullptr;
-    mo3->k = nullptr;
-    mo4->k = nullptr;
-    mo5->k = nullptr;
-    mo6->k = nullptr;
-    mo7->k = nullptr;
-    mo8->k = nullptr;
-    mo9->k = nullptr;
 
     //
     // Use the 1.0 encoding with operations whose only class parameters are optional.
