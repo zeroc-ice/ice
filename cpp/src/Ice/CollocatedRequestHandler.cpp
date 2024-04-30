@@ -28,12 +28,11 @@ namespace
             int32_t requestId,
             int32_t dispatchCount)
             : _outAsync(outAsync),
-              _stream(stream.instance(), currentProtocolEncoding),
+              _stream(std::move(stream)),
               _handler(handler),
               _requestId(requestId),
               _dispatchCount(dispatchCount)
         {
-            _stream.swap(stream);
         }
 
         void run() final

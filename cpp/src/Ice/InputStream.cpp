@@ -142,7 +142,9 @@ Ice::InputStream::InputStream(InputStream&& other) noexcept :
     _compactIdResolver(std::move(other._compactIdResolver))
 {
     // Reset other to its default state. See initialize().
-    other._instance = nullptr;
+
+    // TODO: reset instance
+    // other._instance = nullptr;
     other._encoding = currentEncoding;
     other._traceSlicing = false;
     other._classGraphDepthMax = 0x7fffffff;
@@ -174,7 +176,9 @@ Ice::InputStream::operator=(InputStream&& other) noexcept
         _compactIdResolver = std::move(other._compactIdResolver);
 
         // Reset other to its default state. See initialize().
-        other._instance = nullptr;
+
+        // TODO: reset _instance.
+        // other._instance = nullptr;
         other._encoding = currentEncoding;
         other._traceSlicing = false;
         other._classGraphDepthMax = 0x7fffffff;

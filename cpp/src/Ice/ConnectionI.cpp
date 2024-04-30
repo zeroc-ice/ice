@@ -86,9 +86,8 @@ namespace
               _connectionStartCompleted(std::move(connectionStartCompleted)),
               _sentCBs(sentCBs),
               _messageUpcall(std::move(messageUpcall)),
-              _messageStream(messageStream.instance(), currentProtocolEncoding)
+              _messageStream(std::move(messageStream))
         {
-            _messageStream.swap(messageStream);
         }
 
         void run() final { _connection->upcall(_connectionStartCompleted, _sentCBs, _messageUpcall, _messageStream); }
@@ -3190,7 +3189,7 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                     }
 
                     // The message stream is adopted by the outgoing.
-                    stream.swap(*outAsync->getIs());
+                    *outAsync->getIs() = std::move(stream);
 
 #if defined(ICE_USE_IOCP)
                     //
