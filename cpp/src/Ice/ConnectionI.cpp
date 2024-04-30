@@ -1437,16 +1437,11 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
     auto self = shared_from_this();
     _threadPool->executeFromThisThread(
         [self,
-            connectionStartCompleted = std::move(connectionStartCompleted),
-            sentCBs = std::move(sentCBs),
-            messageUpcall = std::move(messageUpcall),
-            stream]() {
-            self->upcall(
-                std::move(connectionStartCompleted),
-                std::move(sentCBs),
-                std::move(messageUpcall),
-                *stream);
-        },
+         connectionStartCompleted = std::move(connectionStartCompleted),
+         sentCBs = std::move(sentCBs),
+         messageUpcall = std::move(messageUpcall),
+         stream]()
+        { self->upcall(std::move(connectionStartCompleted), std::move(sentCBs), std::move(messageUpcall), *stream); },
         self);
 #else
     if (!_hasExecutor) // Optimization, call dispatch() directly if there's no executor.
