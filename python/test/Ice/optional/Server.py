@@ -130,10 +130,10 @@ class InitialI(Test.Initial):
     def opClassAndUnknownOptional(self, p, current=None):
         pass
 
-    def sendOptionalFixedStruct(self, req, ofs, current=None):
+    def sendOptionalStruct(self, req, ofs, current=None):
         pass
 
-    def returnOptionalFixedStruct(self, req, current=None):
+    def returnOptionalStruct(self, req, current=None):
         return Test.FixedStruct(53)
 
     def opG(self, g, current=None):

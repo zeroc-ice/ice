@@ -551,9 +551,9 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
   //
   do {
     var ofs: FixedStruct? = FixedStruct(m: 53)
-    try initial.sendOptionalStruct(req: true, ofs)
+    try initial.sendOptionalStruct(req: true, ofs: ofs)
     let initial2 = initial.ice_encodingVersion(Ice.Encoding_1_0)
-    try initial2.sendOptionalStruct(req: true, ofs)
+    try initial2.sendOptionalStruct(req: true, ofs: ofs)
 
     ofs = try initial.returnOptionalStruct(true)
     try test(ofs != nil && ofs!.m == 53)
