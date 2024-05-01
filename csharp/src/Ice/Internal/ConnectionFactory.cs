@@ -3,7 +3,7 @@
 using System.Diagnostics;
 using System.Text;
 
-namespace IceInternal;
+namespace Ice.Internal;
 public class MultiDictionary<K, V> : Dictionary<K, ICollection<V>>
 {
     public void
@@ -171,7 +171,7 @@ public sealed class OutgoingConnectionFactory
         cb.getConnectors();
     }
 
-    public void setRouterInfo(IceInternal.RouterInfo routerInfo)
+    public void setRouterInfo(Ice.Internal.RouterInfo routerInfo)
     {
         Debug.Assert(routerInfo != null);
         Ice.ObjectAdapter adapter = routerInfo.getAdapter();

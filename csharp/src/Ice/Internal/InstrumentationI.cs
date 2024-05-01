@@ -4,7 +4,7 @@ using IceMX;
 using System.Diagnostics;
 using System.Text;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 public class ObserverWithDelegate<T, O> : Observer<T>
     where T : Metrics, new()

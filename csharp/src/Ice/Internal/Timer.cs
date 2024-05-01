@@ -6,7 +6,7 @@
 // scheduling and cancelling timers.
 //
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 using System.Collections.Generic;
 using System.Diagnostics;

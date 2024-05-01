@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 internal class TcpAcceptor : Acceptor
 {
@@ -50,7 +50,7 @@ internal class TcpAcceptor : Acceptor
                                           }
                                       }, state);
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             throw new Ice.SocketException(ex);
         }
@@ -66,7 +66,7 @@ internal class TcpAcceptor : Acceptor
             {
                 _acceptFd = _fd.EndAccept(_result);
             }
-            catch (SocketException ex)
+            catch (System.Net.Sockets.SocketException ex)
             {
                 _acceptError = ex;
             }
@@ -141,7 +141,7 @@ internal class TcpAcceptor : Acceptor
     private ProtocolInstance _instance;
     private Socket _fd;
     private Socket _acceptFd;
-    private Exception _acceptError;
+    private System.Exception _acceptError;
     private int _backlog;
     private IPEndPoint _addr;
     private IAsyncResult _result;

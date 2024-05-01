@@ -2,7 +2,7 @@
 
 using Ice.Instrumentation;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 public sealed class ObserverHelper
 {

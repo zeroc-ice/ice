@@ -3,7 +3,7 @@
 using System.Diagnostics;
 using System.Globalization;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 public static class Ex
 {

@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 internal sealed class WSConnector : Connector
 {

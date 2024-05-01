@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 public class ReferenceFactory
 {
@@ -82,7 +82,7 @@ public class ReferenceFactory
         int beg;
         int end = 0;
 
-        beg = IceUtilInternal.StringUtil.findFirstNotOf(s, delim, end);
+        beg = Ice.UtilInternal.StringUtil.findFirstNotOf(s, delim, end);
         if (beg == -1)
         {
             Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -95,7 +95,7 @@ public class ReferenceFactory
         // or double quotation marks.
         //
         string idstr = null;
-        end = IceUtilInternal.StringUtil.checkQuote(s, beg);
+        end = Ice.UtilInternal.StringUtil.checkQuote(s, beg);
         if (end == -1)
         {
             Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -104,7 +104,7 @@ public class ReferenceFactory
         }
         else if (end == 0)
         {
-            end = IceUtilInternal.StringUtil.findFirstOf(s, delim + ":@", beg);
+            end = Ice.UtilInternal.StringUtil.findFirstOf(s, delim + ":@", beg);
             if (end == -1)
             {
                 end = s.Length;
@@ -148,7 +148,7 @@ public class ReferenceFactory
             // a null proxy, but only if nothing follows the
             // quotes.
             //
-            else if (IceUtilInternal.StringUtil.findFirstNotOf(s, delim, end) != -1)
+            else if (Ice.UtilInternal.StringUtil.findFirstNotOf(s, delim, end) != -1)
             {
                 Ice.ProxyParseException e = new Ice.ProxyParseException();
                 e.str = "invalid characters after identity in `" + s + "'";
@@ -169,7 +169,7 @@ public class ReferenceFactory
 
         while (true)
         {
-            beg = IceUtilInternal.StringUtil.findFirstNotOf(s, delim, end);
+            beg = Ice.UtilInternal.StringUtil.findFirstNotOf(s, delim, end);
             if (beg == -1)
             {
                 break;
@@ -180,7 +180,7 @@ public class ReferenceFactory
                 break;
             }
 
-            end = IceUtilInternal.StringUtil.findFirstOf(s, delim + ":@", beg);
+            end = Ice.UtilInternal.StringUtil.findFirstOf(s, delim + ":@", beg);
             if (end == -1)
             {
                 end = s.Length;
@@ -205,14 +205,14 @@ public class ReferenceFactory
             // quotation marks.
             //
             string argument = null;
-            int argumentBeg = IceUtilInternal.StringUtil.findFirstNotOf(s, delim, end);
+            int argumentBeg = Ice.UtilInternal.StringUtil.findFirstNotOf(s, delim, end);
             if (argumentBeg != -1)
             {
                 char ch = s[argumentBeg];
                 if (ch != '@' && ch != ':' && ch != '-')
                 {
                     beg = argumentBeg;
-                    end = IceUtilInternal.StringUtil.checkQuote(s, beg);
+                    end = Ice.UtilInternal.StringUtil.checkQuote(s, beg);
                     if (end == -1)
                     {
                         Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -221,7 +221,7 @@ public class ReferenceFactory
                     }
                     else if (end == 0)
                     {
-                        end = IceUtilInternal.StringUtil.findFirstOf(s, delim + ":@", beg);
+                        end = Ice.UtilInternal.StringUtil.findFirstOf(s, delim + ":@", beg);
                         if (end == -1)
                         {
                             end = s.Length;
@@ -239,7 +239,7 @@ public class ReferenceFactory
 
             //
             // If any new options are added here,
-            // IceInternal::Reference::toString() and its derived classes must be updated as well.
+            // Ice.Internal::Reference::toString() and its derived classes must be updated as well.
             //
             switch (option[1])
             {
@@ -254,7 +254,7 @@ public class ReferenceFactory
 
                     try
                     {
-                        facet = IceUtilInternal.StringUtil.unescapeString(argument, 0, argument.Length, "");
+                        facet = Ice.UtilInternal.StringUtil.unescapeString(argument, 0, argument.Length, "");
                     }
                     catch (ArgumentException argEx)
                     {
@@ -481,7 +481,7 @@ public class ReferenceFactory
         }
         else if (s[beg] == '@')
         {
-            beg = IceUtilInternal.StringUtil.findFirstNotOf(s, delim, beg + 1);
+            beg = Ice.UtilInternal.StringUtil.findFirstNotOf(s, delim, beg + 1);
             if (beg == -1)
             {
                 Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -490,7 +490,7 @@ public class ReferenceFactory
             }
 
             string adapterstr = null;
-            end = IceUtilInternal.StringUtil.checkQuote(s, beg);
+            end = Ice.UtilInternal.StringUtil.checkQuote(s, beg);
             if (end == -1)
             {
                 Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -499,7 +499,7 @@ public class ReferenceFactory
             }
             else if (end == 0)
             {
-                end = IceUtilInternal.StringUtil.findFirstOf(s, delim, beg);
+                end = Ice.UtilInternal.StringUtil.findFirstOf(s, delim, beg);
                 if (end == -1)
                 {
                     end = s.Length;
@@ -513,7 +513,7 @@ public class ReferenceFactory
                 end++; // Skip trailing quote
             }
 
-            if (end != s.Length && IceUtilInternal.StringUtil.findFirstNotOf(s, delim, end) != -1)
+            if (end != s.Length && Ice.UtilInternal.StringUtil.findFirstNotOf(s, delim, end) != -1)
             {
                 Ice.ProxyParseException e = new Ice.ProxyParseException();
                 e.str = "invalid trailing characters after `" + s.Substring(0, end + 1) + "' in `" + s + "'";
@@ -522,7 +522,7 @@ public class ReferenceFactory
 
             try
             {
-                adapter = IceUtilInternal.StringUtil.unescapeString(adapterstr, 0, adapterstr.Length, "");
+                adapter = Ice.UtilInternal.StringUtil.unescapeString(adapterstr, 0, adapterstr.Length, "");
             }
             catch (ArgumentException argEx)
             {

@@ -2,9 +2,9 @@
 
 namespace IceSSL;
 
-internal sealed class ConnectorI : IceInternal.Connector
+internal sealed class ConnectorI : Ice.Internal.Connector
 {
-    public IceInternal.Transceiver connect() =>
+    public Ice.Internal.Transceiver connect() =>
         new TransceiverI(
             _instance,
             _delegate.connect(),
@@ -35,14 +35,14 @@ internal sealed class ConnectorI : IceInternal.Connector
     public override string ToString() => _delegate.ToString();
 
     // Only for use by EndpointI.
-    internal ConnectorI(Instance instance, IceInternal.Connector del, string host)
+    internal ConnectorI(Instance instance, Ice.Internal.Connector del, string host)
     {
         _instance = instance;
         _delegate = del;
         _host = host;
     }
 
-    private readonly IceInternal.Connector _delegate;
+    private readonly Ice.Internal.Connector _delegate;
     private readonly string _host;
     private readonly Instance _instance;
 }

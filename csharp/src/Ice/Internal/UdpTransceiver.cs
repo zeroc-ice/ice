@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 internal sealed class UdpTransceiver : Transceiver
 {
@@ -27,7 +27,7 @@ internal sealed class UdpTransceiver : Transceiver
                 }
                 _fd.Connect(_addr);
             }
-            catch (SocketException ex)
+            catch (System.Net.Sockets.SocketException ex)
             {
                 if (Network.wouldBlock(ex))
                 {
@@ -148,7 +148,7 @@ internal sealed class UdpTransceiver : Transceiver
                 }
                 break;
             }
-            catch (SocketException ex)
+            catch (System.Net.Sockets.SocketException ex)
             {
                 if (Network.interrupted(ex))
                 {
@@ -227,7 +227,7 @@ internal sealed class UdpTransceiver : Transceiver
                 }
                 break;
             }
-            catch (SocketException e)
+            catch (System.Net.Sockets.SocketException e)
             {
                 if (Network.recvTruncated(e))
                 {
@@ -320,7 +320,7 @@ internal sealed class UdpTransceiver : Transceiver
                 return !_fd.ReceiveFromAsync(_readEventArgs);
             }
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             if (Network.recvTruncated(ex))
             {
@@ -353,7 +353,7 @@ internal sealed class UdpTransceiver : Transceiver
         {
             if (_readEventArgs.SocketError != SocketError.Success)
             {
-                throw new SocketException((int)_readEventArgs.SocketError);
+                throw new System.Net.Sockets.SocketException((int)_readEventArgs.SocketError);
             }
             ret = _readEventArgs.BytesTransferred;
             // TODO: Workaround for https://github.com/dotnet/corefx/issues/31182
@@ -363,7 +363,7 @@ internal sealed class UdpTransceiver : Transceiver
                 _peerAddr = _readEventArgs.RemoteEndPoint;
             }
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             if (Network.recvTruncated(ex))
             {
@@ -464,7 +464,7 @@ internal sealed class UdpTransceiver : Transceiver
                 completedSynchronously = !_fd.SendToAsync(_writeEventArgs);
             }
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             if (Network.connectionLost(ex))
             {
@@ -493,7 +493,7 @@ internal sealed class UdpTransceiver : Transceiver
         {
             if (_writeEventArgs.SocketError != SocketError.Success)
             {
-                SocketException ex = new SocketException((int)_writeEventArgs.SocketError);
+                System.Net.Sockets.SocketException ex = new System.Net.Sockets.SocketException((int)_writeEventArgs.SocketError);
                 if (Network.connectionRefused(ex))
                 {
                     throw new Ice.ConnectionRefusedException(ex);
@@ -511,11 +511,11 @@ internal sealed class UdpTransceiver : Transceiver
         {
             if (_writeEventArgs.SocketError != SocketError.Success)
             {
-                throw new SocketException((int)_writeEventArgs.SocketError);
+                throw new System.Net.Sockets.SocketException((int)_writeEventArgs.SocketError);
             }
             ret = _writeEventArgs.BytesTransferred;
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             if (Network.connectionLost(ex))
             {

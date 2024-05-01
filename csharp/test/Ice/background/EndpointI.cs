@@ -3,11 +3,11 @@
 using System.Diagnostics;
 using System.Net.Security;
 
-internal class EndpointI : IceInternal.EndpointI
+internal class EndpointI : Ice.Internal.EndpointI
 {
     internal static short TYPE_BASE = 100;
 
-    internal EndpointI(IceInternal.EndpointI endpoint)
+    internal EndpointI(Ice.Internal.EndpointI endpoint)
     {
         _endpoint = endpoint;
         _configuration = Configuration.getInstance();
@@ -44,9 +44,9 @@ internal class EndpointI : IceInternal.EndpointI
         return _endpoint.timeout();
     }
 
-    public override IceInternal.EndpointI timeout(int timeout)
+    public override Ice.Internal.EndpointI timeout(int timeout)
     {
-        IceInternal.EndpointI endpoint = _endpoint.timeout(timeout);
+        Ice.Internal.EndpointI endpoint = _endpoint.timeout(timeout);
         if (endpoint == _endpoint)
         {
             return this;
@@ -62,9 +62,9 @@ internal class EndpointI : IceInternal.EndpointI
         return _endpoint.connectionId();
     }
 
-    public override IceInternal.EndpointI connectionId(string connectionId)
+    public override Ice.Internal.EndpointI connectionId(string connectionId)
     {
-        IceInternal.EndpointI endpoint = _endpoint.connectionId(connectionId);
+        Ice.Internal.EndpointI endpoint = _endpoint.connectionId(connectionId);
         if (endpoint == _endpoint)
         {
             return this;
@@ -80,9 +80,9 @@ internal class EndpointI : IceInternal.EndpointI
         return _endpoint.compress();
     }
 
-    public override IceInternal.EndpointI compress(bool compress)
+    public override Ice.Internal.EndpointI compress(bool compress)
     {
-        IceInternal.EndpointI endpoint = _endpoint.compress(compress);
+        Ice.Internal.EndpointI endpoint = _endpoint.compress(compress);
         if (endpoint == _endpoint)
         {
             return this;
@@ -103,9 +103,9 @@ internal class EndpointI : IceInternal.EndpointI
         return _endpoint.secure();
     }
 
-    public override IceInternal.Transceiver transceiver()
+    public override Ice.Internal.Transceiver transceiver()
     {
-        IceInternal.Transceiver transceiver = _endpoint.transceiver();
+        Ice.Internal.Transceiver transceiver = _endpoint.transceiver();
         if (transceiver != null)
         {
             return new Transceiver(transceiver);
@@ -116,17 +116,17 @@ internal class EndpointI : IceInternal.EndpointI
         }
     }
 
-    private class ConnectorsCallback : IceInternal.EndpointI_connectors
+    private class ConnectorsCallback : Ice.Internal.EndpointI_connectors
     {
-        internal ConnectorsCallback(IceInternal.EndpointI_connectors cb)
+        internal ConnectorsCallback(Ice.Internal.EndpointI_connectors cb)
         {
             _callback = cb;
         }
 
-        public void connectors(List<IceInternal.Connector> cons)
+        public void connectors(List<Ice.Internal.Connector> cons)
         {
-            List<IceInternal.Connector> connectors = new List<IceInternal.Connector>();
-            foreach (IceInternal.Connector connector in cons)
+            List<Ice.Internal.Connector> connectors = new List<Ice.Internal.Connector>();
+            foreach (Ice.Internal.Connector connector in cons)
             {
                 connectors.Add(new Connector(connector));
             }
@@ -138,10 +138,10 @@ internal class EndpointI : IceInternal.EndpointI
             _callback.exception(exception);
         }
 
-        private IceInternal.EndpointI_connectors _callback;
+        private Ice.Internal.EndpointI_connectors _callback;
     }
 
-    public override void connectors_async(Ice.EndpointSelectionType selType, IceInternal.EndpointI_connectors cb)
+    public override void connectors_async(Ice.EndpointSelectionType selType, Ice.Internal.EndpointI_connectors cb)
     {
         try
         {
@@ -154,14 +154,14 @@ internal class EndpointI : IceInternal.EndpointI
         }
     }
 
-    public override IceInternal.Acceptor acceptor(
+    public override Ice.Internal.Acceptor acceptor(
         string adapterName,
         SslServerAuthenticationOptions serverAuthenticationOptions)
     {
         return new Acceptor(this, _endpoint.acceptor(adapterName, serverAuthenticationOptions));
     }
 
-    public EndpointI endpoint(IceInternal.EndpointI delEndp)
+    public EndpointI endpoint(Ice.Internal.EndpointI delEndp)
     {
         if (delEndp == _endpoint)
         {
@@ -173,20 +173,20 @@ internal class EndpointI : IceInternal.EndpointI
         }
     }
 
-    public override List<IceInternal.EndpointI> expandIfWildcard()
+    public override List<Ice.Internal.EndpointI> expandIfWildcard()
     {
-        List<IceInternal.EndpointI> endps = new List<IceInternal.EndpointI>();
-        foreach (IceInternal.EndpointI endpt in _endpoint.expandIfWildcard())
+        List<Ice.Internal.EndpointI> endps = new List<Ice.Internal.EndpointI>();
+        foreach (Ice.Internal.EndpointI endpt in _endpoint.expandIfWildcard())
         {
             endps.Add(endpt == _endpoint ? this : new EndpointI(endpt));
         }
         return endps;
     }
 
-    public override List<IceInternal.EndpointI> expandHost(out IceInternal.EndpointI publish)
+    public override List<Ice.Internal.EndpointI> expandHost(out Ice.Internal.EndpointI publish)
     {
-        List<IceInternal.EndpointI> endps = new List<IceInternal.EndpointI>();
-        foreach (IceInternal.EndpointI endpt in _endpoint.expandHost(out publish))
+        List<Ice.Internal.EndpointI> endps = new List<Ice.Internal.EndpointI>();
+        foreach (Ice.Internal.EndpointI endpt in _endpoint.expandHost(out publish))
         {
             endps.Add(endpt == _endpoint ? this : new EndpointI(endpt));
         }
@@ -197,7 +197,7 @@ internal class EndpointI : IceInternal.EndpointI
         return endps;
     }
 
-    public override bool equivalent(IceInternal.EndpointI endpoint)
+    public override bool equivalent(Ice.Internal.EndpointI endpoint)
     {
         EndpointI testEndpoint = null;
         try
@@ -221,7 +221,7 @@ internal class EndpointI : IceInternal.EndpointI
         return _endpoint.GetHashCode();
     }
 
-    public override int CompareTo(IceInternal.EndpointI obj)
+    public override int CompareTo(Ice.Internal.EndpointI obj)
     {
         EndpointI p = null;
 
@@ -249,11 +249,11 @@ internal class EndpointI : IceInternal.EndpointI
         return _endpoint.CompareTo(p._endpoint);
     }
 
-    public IceInternal.EndpointI getDelegate()
+    public Ice.Internal.EndpointI getDelegate()
     {
         return _endpoint;
     }
 
-    private IceInternal.EndpointI _endpoint;
+    private Ice.Internal.EndpointI _endpoint;
     private Configuration _configuration;
 }

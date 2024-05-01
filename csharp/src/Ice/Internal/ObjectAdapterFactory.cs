@@ -2,7 +2,7 @@
 
 using System.Net.Security;
 
-namespace IceInternal;
+namespace Ice.Internal;
 public sealed class ObjectAdapterFactory
 {
     public void shutdown()

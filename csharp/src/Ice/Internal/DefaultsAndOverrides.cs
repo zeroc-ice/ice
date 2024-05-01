@@ -3,7 +3,7 @@
 using System.Net;
 using System.Text;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 public sealed class DefaultsAndOverrides
 {

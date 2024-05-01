@@ -13,7 +13,7 @@ namespace Ice
                 Ice.Properties properties = createTestProperties(ref args);
                 properties.setProperty("Ice.Warn.Connections", "0");
                 properties.setProperty("Ice.UDP.RcvSize", "16384");
-                if (IceInternal.AssemblyUtil.isMacOS && properties.getPropertyAsInt("Ice.IPv6") > 0)
+                if (Ice.Internal.AssemblyUtil.isMacOS && properties.getPropertyAsInt("Ice.IPv6") > 0)
                 {
                     // Disable dual mode sockets on macOS, see https://github.com/dotnet/corefx/issues/31182
                     properties.setProperty("Ice.IPv4", "0");
@@ -50,7 +50,7 @@ namespace Ice
                     if (properties.getProperty("Ice.IPv6") == "1")
                     {
                         endpoint.Append("udp -h \"ff15::1:1\"");
-                        if (IceInternal.AssemblyUtil.isWindows || IceInternal.AssemblyUtil.isMacOS)
+                        if (Ice.Internal.AssemblyUtil.isWindows || Ice.Internal.AssemblyUtil.isMacOS)
                         {
                             endpoint.Append(" --interface \"::1\"");
                         }
@@ -58,7 +58,7 @@ namespace Ice
                     else
                     {
                         endpoint.Append("udp -h 239.255.1.1");
-                        if (IceInternal.AssemblyUtil.isWindows || IceInternal.AssemblyUtil.isMacOS)
+                        if (Ice.Internal.AssemblyUtil.isWindows || Ice.Internal.AssemblyUtil.isMacOS)
                         {
                             endpoint.Append(" --interface 127.0.0.1");
                         }

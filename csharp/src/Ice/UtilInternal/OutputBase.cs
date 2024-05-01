@@ -2,7 +2,7 @@
 
 using System.Diagnostics;
 
-namespace IceUtilInternal;
+namespace Ice.UtilInternal;
 
 public class OutputBase
 {

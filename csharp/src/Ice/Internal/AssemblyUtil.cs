@@ -4,7 +4,7 @@ using System.Collections;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 public sealed class AssemblyUtil
 {

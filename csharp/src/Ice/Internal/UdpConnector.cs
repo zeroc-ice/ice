@@ -2,7 +2,7 @@
 
 using System.Net;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 internal sealed class UdpConnector : Connector
 {

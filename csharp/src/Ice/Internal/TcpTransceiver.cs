@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 internal sealed class TcpTransceiver : Transceiver
 {

@@ -3,7 +3,7 @@
 using System.Diagnostics;
 using System.Globalization;
 
-namespace IceInternal;
+namespace Ice.Internal;
 internal sealed class TraceUtil
 {
     internal static void traceSend(Ice.OutputStream str, Ice.Logger logger, TraceLevels tl)
@@ -180,7 +180,7 @@ internal sealed class TraceUtil
             s.Write("\nfacet = ");
             if (facet.Length > 0)
             {
-                s.Write(IceUtilInternal.StringUtil.escapeString(facet[0], "", toStringMode));
+                s.Write(Ice.UtilInternal.StringUtil.escapeString(facet[0], "", toStringMode));
             }
 
             string operation = str.readString();

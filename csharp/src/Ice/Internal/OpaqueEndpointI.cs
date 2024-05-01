@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Net.Security;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 internal sealed class OpaqueEndpointI : EndpointI
 {

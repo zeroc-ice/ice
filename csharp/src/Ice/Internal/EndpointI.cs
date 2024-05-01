@@ -3,7 +3,7 @@
 using System.Diagnostics;
 using System.Net.Security;
 
-namespace IceInternal;
+namespace Ice.Internal;
 public interface EndpointI_connectors
 {
     void connectors(List<Connector> connectors);
@@ -165,7 +165,7 @@ public abstract class EndpointI : Ice.Endpoint, IComparable<EndpointI>
         string str = "`" + protocol() + " ";
         foreach (string p in args)
         {
-            if (IceUtilInternal.StringUtil.findFirstOf(p, " \t\n\r") != -1)
+            if (Ice.UtilInternal.StringUtil.findFirstOf(p, " \t\n\r") != -1)
             {
                 str += " \"" + p + "\"";
             }

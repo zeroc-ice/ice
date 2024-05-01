@@ -5,22 +5,22 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace IceSSL;
 
-internal class AcceptorI : IceInternal.Acceptor
+internal class AcceptorI : Ice.Internal.Acceptor
 {
     public void close() => _delegate.close();
 
-    public IceInternal.EndpointI listen()
+    public Ice.Internal.EndpointI listen()
     {
         _endpoint = _endpoint.endpoint(_delegate.listen());
         return _endpoint;
     }
 
-    public bool startAccept(IceInternal.AsyncCallback callback, object state) =>
+    public bool startAccept(Ice.Internal.AsyncCallback callback, object state) =>
         _delegate.startAccept(callback, state);
 
     public void finishAccept() => _delegate.finishAccept();
 
-    public IceInternal.Transceiver accept() =>
+    public Ice.Internal.Transceiver accept() =>
         new TransceiverI(
             _instance,
             _delegate.accept(),
@@ -37,7 +37,7 @@ internal class AcceptorI : IceInternal.Acceptor
     internal AcceptorI(
         EndpointI endpoint,
         Instance instance,
-        IceInternal.Acceptor del,
+        Ice.Internal.Acceptor del,
         string adapterName,
         SslServerAuthenticationOptions authenticationOptions)
     {
@@ -56,7 +56,7 @@ internal class AcceptorI : IceInternal.Acceptor
     }
 
     private readonly string _adapterName;
-    private readonly IceInternal.Acceptor _delegate;
+    private readonly Ice.Internal.Acceptor _delegate;
     private EndpointI _endpoint;
     private readonly Instance _instance;
     private readonly SslServerAuthenticationOptions _serverAuthenticationOptions;

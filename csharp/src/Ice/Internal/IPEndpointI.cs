@@ -3,7 +3,7 @@
 using System.Globalization;
 using System.Net;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 public abstract class IPEndpointI : EndpointI
 {

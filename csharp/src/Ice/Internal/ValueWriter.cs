@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
+namespace Ice.Internal;
 
-using IceUtilInternal;
+using Ice.UtilInternal;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;

@@ -2,7 +2,7 @@
 
 using System.Diagnostics;
 
-namespace IceInternal;
+namespace Ice.Internal;
 public sealed class EndpointFactoryManager
 {
     internal EndpointFactoryManager(Instance instance)
@@ -51,7 +51,7 @@ public sealed class EndpointFactoryManager
 
     public EndpointI create(string str, bool oaEndpoint)
     {
-        string[] arr = IceUtilInternal.StringUtil.splitString(str, " \t\r\n");
+        string[] arr = Ice.UtilInternal.StringUtil.splitString(str, " \t\r\n");
         if (arr == null)
         {
             Ice.EndpointParseException e = new Ice.EndpointParseException();
@@ -109,7 +109,7 @@ public sealed class EndpointFactoryManager
             Buffer buf = bs.getBuffer();
             buf.b.position(0);
             short type = bs.readShort();
-            EndpointI ue = new IceInternal.OpaqueEndpointI(type, bs);
+            EndpointI ue = new Ice.Internal.OpaqueEndpointI(type, bs);
             System.Console.Error.WriteLine("Normal: " + e);
             System.Console.Error.WriteLine("Opaque: " + ue);
             return e;

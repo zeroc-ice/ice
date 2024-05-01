@@ -4,7 +4,7 @@ using System.Collections;
 using System.Globalization;
 using System.Net.Security;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 public sealed class HashUtil
 {
@@ -55,7 +55,7 @@ public sealed class HashUtil
     {
         if (arr != null)
         {
-            hashCode = unchecked(((hashCode << 5) + hashCode) ^ IceUtilInternal.Arrays.GetHashCode(arr));
+            hashCode = unchecked(((hashCode << 5) + hashCode) ^ Ice.UtilInternal.Arrays.GetHashCode(arr));
         }
     }
 
@@ -63,7 +63,7 @@ public sealed class HashUtil
     {
         if (arr != null)
         {
-            hashCode = unchecked(((hashCode << 5) + hashCode) ^ IceUtilInternal.Arrays.GetHashCode(arr));
+            hashCode = unchecked(((hashCode << 5) + hashCode) ^ Ice.UtilInternal.Arrays.GetHashCode(arr));
         }
     }
 
@@ -71,7 +71,7 @@ public sealed class HashUtil
     {
         if (s != null)
         {
-            hashCode = unchecked(((hashCode << 5) + hashCode) ^ IceUtilInternal.Collections.SequenceGetHashCode(s));
+            hashCode = unchecked(((hashCode << 5) + hashCode) ^ Ice.UtilInternal.Collections.SequenceGetHashCode(s));
         }
     }
 
@@ -79,7 +79,7 @@ public sealed class HashUtil
     {
         if (d != null)
         {
-            hashCode = unchecked(((hashCode << 5) + hashCode) ^ IceUtilInternal.Collections.DictionaryGetHashCode(d));
+            hashCode = unchecked(((hashCode << 5) + hashCode) ^ Ice.UtilInternal.Collections.DictionaryGetHashCode(d));
         }
     }
 }

@@ -2,7 +2,7 @@
 
 using System.Diagnostics;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 public class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCallback, RouterInfo.AddProxyCallback
 {

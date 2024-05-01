@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Net;
 using System.Net.Security;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 internal sealed class UdpEndpointI : IPEndpointI
 {

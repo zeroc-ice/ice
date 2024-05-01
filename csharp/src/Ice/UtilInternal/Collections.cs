@@ -3,7 +3,7 @@
 using System.Collections;
 using System.Diagnostics;
 
-namespace IceUtilInternal;
+namespace Ice.UtilInternal;
 
 public sealed class Collections
 {
@@ -92,7 +92,7 @@ public sealed class Collections
         IEnumerator e = seq.GetEnumerator();
         while (e.MoveNext())
         {
-            IceInternal.HashUtil.hashAdd(ref h, e.Current);
+            Ice.Internal.HashUtil.hashAdd(ref h, e.Current);
         }
         return h;
     }
@@ -145,8 +145,8 @@ public sealed class Collections
         IDictionaryEnumerator e = d.GetEnumerator();
         while (e.MoveNext())
         {
-            IceInternal.HashUtil.hashAdd(ref h, e.Key);
-            IceInternal.HashUtil.hashAdd(ref h, e.Value);
+            Ice.Internal.HashUtil.hashAdd(ref h, e.Key);
+            Ice.Internal.HashUtil.hashAdd(ref h, e.Value);
         }
         return h;
     }

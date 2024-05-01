@@ -124,7 +124,7 @@ internal class VoidLocatorI : Ice.LocatorDisp_
     }
 };
 
-internal class LocatorI : Ice.BlobjectAsync, IceInternal.TimerTask
+internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
 {
     public
     LocatorI(string name, LookupPrx lookup, Ice.Properties properties, string instanceName,
@@ -146,7 +146,7 @@ internal class LocatorI : Ice.BlobjectAsync, IceInternal.TimerTask
         {
             _retryDelay = 0;
         }
-        _timer = IceInternal.Util.getInstance(lookup.ice_getCommunicator()).timer();
+        _timer = Ice.Internal.Util.getInstance(lookup.ice_getCommunicator()).timer();
         _traceLevel = properties.getPropertyAsInt(name + ".Trace.Lookup");
         _instanceName = instanceName;
         _warned = false;
@@ -399,7 +399,7 @@ internal class LocatorI : Ice.BlobjectAsync, IceInternal.TimerTask
             {
                 request.invoke(_locator);
             }
-            else if (request != null && IceInternal.Time.currentMonotonicTimeMillis() < _nextRetry)
+            else if (request != null && Ice.Internal.Time.currentMonotonicTimeMillis() < _nextRetry)
             {
                 request.invoke(_voidLocator); // Don't retry to find a locator before the retry delay expires
             }
@@ -601,14 +601,14 @@ internal class LocatorI : Ice.BlobjectAsync, IceInternal.TimerTask
                 }
                 _pendingRequests.Clear();
             }
-            _nextRetry = IceInternal.Time.currentMonotonicTimeMillis() + _retryDelay;
+            _nextRetry = Ice.Internal.Time.currentMonotonicTimeMillis() + _retryDelay;
         }
     }
 
     private LookupPrx _lookup;
     private Dictionary<LookupPrx, LookupReplyPrx> _lookups = new Dictionary<LookupPrx, LookupReplyPrx>();
     private int _timeout;
-    private IceInternal.Timer _timer;
+    private Ice.Internal.Timer _timer;
     private int _traceLevel;
     private int _retryCount;
     private int _retryDelay;
@@ -674,8 +674,8 @@ internal class PluginI : Ice.Plugin
         string lookupEndpoints = properties.getProperty(_name + ".Lookup");
         if (lookupEndpoints.Length == 0)
         {
-            int protocol = ipv4 && !preferIPv6 ? IceInternal.Network.EnableIPv4 : IceInternal.Network.EnableIPv6;
-            var interfaces = IceInternal.Network.getInterfacesForMulticast(intf, protocol);
+            int protocol = ipv4 && !preferIPv6 ? Ice.Internal.Network.EnableIPv4 : Ice.Internal.Network.EnableIPv6;
+            var interfaces = Ice.Internal.Network.getInterfacesForMulticast(intf, protocol);
             foreach (string p in interfaces)
             {
                 if (p != interfaces[0])

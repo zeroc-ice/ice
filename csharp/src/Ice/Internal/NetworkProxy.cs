@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 public interface NetworkProxy
 {

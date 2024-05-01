@@ -3,7 +3,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 internal static class SafeNativeMethods
 {
@@ -366,7 +366,7 @@ public static class BZip2
         }
         if (uncompressedSize > messageSizeMax)
         {
-            IceInternal.Ex.throwMemoryLimitException(uncompressedSize, messageSizeMax);
+            Ice.Internal.Ex.throwMemoryLimitException(uncompressedSize, messageSizeMax);
         }
 
         int compressedLen = buf.size() - headerSize - 4;

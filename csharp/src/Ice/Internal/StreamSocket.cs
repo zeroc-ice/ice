@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 public sealed class StreamSocket
 {
@@ -53,7 +53,7 @@ public sealed class StreamSocket
         {
             if (_writeEventArgs.SocketError != SocketError.Success)
             {
-                SocketException ex = new SocketException((int)_writeEventArgs.SocketError);
+                System.Net.Sockets.SocketException ex = new System.Net.Sockets.SocketException((int)_writeEventArgs.SocketError);
                 if (Network.connectionRefused(ex))
                 {
                     throw new Ice.ConnectionRefusedException(ex);
@@ -173,7 +173,7 @@ public sealed class StreamSocket
             _readEventArgs.SetBuffer(buf.b.rawBytes(), buf.b.position(), packetSize);
             return !_fd.ReceiveAsync(_readEventArgs);
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             if (Network.connectionLost(ex))
             {
@@ -195,7 +195,7 @@ public sealed class StreamSocket
         {
             if (_readEventArgs.SocketError != SocketError.Success)
             {
-                throw new SocketException((int)_readEventArgs.SocketError);
+                throw new System.Net.Sockets.SocketException((int)_readEventArgs.SocketError);
             }
             int ret = _readEventArgs.BytesTransferred;
             _readEventArgs.SetBuffer(null, 0, 0);
@@ -213,7 +213,7 @@ public sealed class StreamSocket
                 _state = toState(_proxy.endRead(buf));
             }
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             if (Network.connectionLost(ex))
             {
@@ -261,7 +261,7 @@ public sealed class StreamSocket
             completed = packetSize == buf.b.remaining();
             return completedSynchronously;
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             if (Network.connectionLost(ex))
             {
@@ -297,7 +297,7 @@ public sealed class StreamSocket
         {
             if (_writeEventArgs.SocketError != SocketError.Success)
             {
-                throw new SocketException((int)_writeEventArgs.SocketError);
+                throw new System.Net.Sockets.SocketException((int)_writeEventArgs.SocketError);
             }
             int ret = _writeEventArgs.BytesTransferred;
             _writeEventArgs.SetBuffer(null, 0, 0);
@@ -314,7 +314,7 @@ public sealed class StreamSocket
                 _state = toState(_proxy.endWrite(buf));
             }
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             if (Network.connectionLost(ex))
             {
@@ -370,7 +370,7 @@ public sealed class StreamSocket
                 read += ret;
                 buf.position(buf.position() + ret);
             }
-            catch (SocketException ex)
+            catch (System.Net.Sockets.SocketException ex)
             {
                 if (Network.wouldBlock(ex))
                 {
@@ -423,7 +423,7 @@ public sealed class StreamSocket
                     packetSize = buf.remaining();
                 }
             }
-            catch (SocketException ex)
+            catch (System.Net.Sockets.SocketException ex)
             {
                 if (Network.wouldBlock(ex))
                 {

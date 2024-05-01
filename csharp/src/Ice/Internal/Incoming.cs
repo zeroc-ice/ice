@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.ExceptionServices;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 public class Incoming : Ice.Request
 {
@@ -560,12 +560,12 @@ public class Incoming : Ice.Request
 
         using (StringWriter sw = new StringWriter(CultureInfo.CurrentCulture))
         {
-            IceUtilInternal.OutputBase output = new IceUtilInternal.OutputBase(sw);
+            Ice.UtilInternal.OutputBase output = new Ice.UtilInternal.OutputBase(sw);
             Ice.ToStringMode toStringMode = _instance.toStringMode();
             output.setUseTab(false);
             output.print("dispatch exception:");
             output.print("\nidentity: " + Ice.Util.identityToString(_current.id, toStringMode));
-            output.print("\nfacet: " + IceUtilInternal.StringUtil.escapeString(_current.facet, "", toStringMode));
+            output.print("\nfacet: " + Ice.UtilInternal.StringUtil.escapeString(_current.facet, "", toStringMode));
             output.print("\noperation: " + _current.operation);
             if (_current.con != null)
             {

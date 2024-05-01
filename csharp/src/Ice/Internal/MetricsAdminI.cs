@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 using System;
 using System.Collections.Generic;
@@ -581,7 +581,7 @@ internal class MetricsViewI
 
         IMetricsMap m;
         if (_maps.TryGetValue(mapName, out m) &&
-           IceUtilInternal.Collections.DictionaryEquals(m.getProperties(), mapProps))
+           Ice.UtilInternal.Collections.DictionaryEquals(m.getProperties(), mapProps))
         {
             return false; // The map configuration didn't change, no need to re-create.
         }
@@ -677,7 +677,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_, Ice.PropertiesAdminUpdateC
             bool valid = false;
             foreach (string suffix in suffixes)
             {
-                if (IceUtilInternal.StringUtil.match(prop, prefix + suffix, false))
+                if (Ice.UtilInternal.StringUtil.match(prop, prefix + suffix, false))
                 {
                     valid = true;
                     break;

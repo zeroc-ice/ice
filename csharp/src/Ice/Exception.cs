@@ -54,11 +54,11 @@ public abstract class Exception : System.Exception
         // doesn't appear to be possible to reformat it.
         //
         System.IO.StringWriter sw = new System.IO.StringWriter(CultureInfo.CurrentCulture);
-        IceUtilInternal.OutputBase op = new IceUtilInternal.OutputBase(sw);
+        Ice.UtilInternal.OutputBase op = new Ice.UtilInternal.OutputBase(sw);
         op.setUseTab(false);
         op.print(GetType().FullName);
         op.inc();
-        IceInternal.ValueWriter.write(this, op);
+        Ice.Internal.ValueWriter.write(this, op);
         sw.Write("\n");
         sw.Write(StackTrace);
 

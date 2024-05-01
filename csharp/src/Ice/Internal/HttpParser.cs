@@ -3,7 +3,7 @@
 using System.Diagnostics;
 using System.Text;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 public sealed class WebSocketException : System.Exception
 {

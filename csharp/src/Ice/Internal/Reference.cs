@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 public abstract class Reference : ICloneable
 {
@@ -319,7 +319,7 @@ public abstract class Reference : ICloneable
         // the identity string in quotes.
         //
         string id = Ice.Util.identityToString(_identity, toStringMode);
-        if (IceUtilInternal.StringUtil.findFirstOf(id, " :@") != -1)
+        if (Ice.UtilInternal.StringUtil.findFirstOf(id, " :@") != -1)
         {
             s.Append('"');
             s.Append(id);
@@ -338,8 +338,8 @@ public abstract class Reference : ICloneable
             // the facet string in quotes.
             //
             s.Append(" -f ");
-            string fs = IceUtilInternal.StringUtil.escapeString(_facet, "", toStringMode);
-            if (IceUtilInternal.StringUtil.findFirstOf(fs, " :@") != -1)
+            string fs = Ice.UtilInternal.StringUtil.escapeString(_facet, "", toStringMode);
+            if (Ice.UtilInternal.StringUtil.findFirstOf(fs, " :@") != -1)
             {
                 s.Append('"');
                 s.Append(fs);
@@ -1125,8 +1125,8 @@ public class RoutableReference : Reference
             // the reference parser uses as separators, then we enclose
             // the adapter id string in quotes.
             //
-            string a = IceUtilInternal.StringUtil.escapeString(_adapterId, null, getInstance().toStringMode());
-            if (IceUtilInternal.StringUtil.findFirstOf(a, " :@") != -1)
+            string a = Ice.UtilInternal.StringUtil.escapeString(_adapterId, null, getInstance().toStringMode());
+            if (Ice.UtilInternal.StringUtil.findFirstOf(a, " :@") != -1)
             {
                 s.Append('"');
                 s.Append(a);
@@ -1255,7 +1255,7 @@ public class RoutableReference : Reference
         {
             return false;
         }
-        if (!IceUtilInternal.Arrays.Equals(_endpoints, rhs._endpoints))
+        if (!Ice.UtilInternal.Arrays.Equals(_endpoints, rhs._endpoints))
         {
             return false;
         }
@@ -1591,11 +1591,11 @@ public class RoutableReference : Reference
         }
         else if (getPreferSecure())
         {
-            IceUtilInternal.Collections.Sort(ref endpoints, _preferSecureEndpointComparator);
+            Ice.UtilInternal.Collections.Sort(ref endpoints, _preferSecureEndpointComparator);
         }
         else
         {
-            IceUtilInternal.Collections.Sort(ref endpoints, _preferNonSecureEndpointComparator);
+            Ice.UtilInternal.Collections.Sort(ref endpoints, _preferNonSecureEndpointComparator);
         }
 
         EndpointI[] arr = new EndpointI[endpoints.Count];

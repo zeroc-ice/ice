@@ -2,7 +2,7 @@
 
 using System.Reflection;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 public sealed class Patcher
 {

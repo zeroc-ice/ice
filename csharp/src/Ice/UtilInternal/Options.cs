@@ -3,7 +3,7 @@
 using System.Diagnostics;
 using System.Globalization;
 
-namespace IceUtilInternal;
+namespace Ice.UtilInternal;
 
 public sealed class Options
 {

@@ -2,7 +2,7 @@
 
 using System.Collections;
 
-namespace IceUtilInternal;
+namespace Ice.UtilInternal;
 
 public sealed class Arrays
 {
@@ -88,7 +88,7 @@ public sealed class Arrays
             object o = arr[i];
             if (o != null)
             {
-                IceInternal.HashUtil.hashAdd(ref h, o);
+                Ice.Internal.HashUtil.hashAdd(ref h, o);
             }
         }
 
@@ -103,7 +103,7 @@ public sealed class Arrays
         {
             if (o != null)
             {
-                IceInternal.HashUtil.hashAdd(ref h, o);
+                Ice.Internal.HashUtil.hashAdd(ref h, o);
             }
         }
 

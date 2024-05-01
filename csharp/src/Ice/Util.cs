@@ -287,7 +287,7 @@ public sealed class Util
             ident.category = "";
             try
             {
-                ident.name = IceUtilInternal.StringUtil.unescapeString(s, 0, s.Length, "/");
+                ident.name = Ice.UtilInternal.StringUtil.unescapeString(s, 0, s.Length, "/");
             }
             catch (ArgumentException e)
             {
@@ -300,7 +300,7 @@ public sealed class Util
         {
             try
             {
-                ident.category = IceUtilInternal.StringUtil.unescapeString(s, 0, slash, "/");
+                ident.category = Ice.UtilInternal.StringUtil.unescapeString(s, 0, slash, "/");
             }
             catch (ArgumentException e)
             {
@@ -312,7 +312,7 @@ public sealed class Util
             {
                 try
                 {
-                    ident.name = IceUtilInternal.StringUtil.unescapeString(s, slash + 1, s.Length, "/");
+                    ident.name = Ice.UtilInternal.StringUtil.unescapeString(s, slash + 1, s.Length, "/");
                 }
                 catch (ArgumentException e)
                 {
@@ -340,12 +340,12 @@ public sealed class Util
     {
         if (ident.category == null || ident.category.Length == 0)
         {
-            return IceUtilInternal.StringUtil.escapeString(ident.name, "/", toStringMode);
+            return Ice.UtilInternal.StringUtil.escapeString(ident.name, "/", toStringMode);
         }
         else
         {
-            return IceUtilInternal.StringUtil.escapeString(ident.category, "/", toStringMode) + '/' +
-                IceUtilInternal.StringUtil.escapeString(ident.name, "/", toStringMode);
+            return Ice.UtilInternal.StringUtil.escapeString(ident.category, "/", toStringMode) + '/' +
+                Ice.UtilInternal.StringUtil.escapeString(ident.name, "/", toStringMode);
         }
     }
 
@@ -589,14 +589,14 @@ public sealed class Util
     }
 
     public static readonly ProtocolVersion currentProtocol =
-        new ProtocolVersion(IceInternal.Protocol.protocolMajor, IceInternal.Protocol.protocolMinor);
+        new ProtocolVersion(Ice.Internal.Protocol.protocolMajor, Ice.Internal.Protocol.protocolMinor);
 
     public static readonly EncodingVersion currentProtocolEncoding =
-        new EncodingVersion(IceInternal.Protocol.protocolEncodingMajor,
-                            IceInternal.Protocol.protocolEncodingMinor);
+        new EncodingVersion(Ice.Internal.Protocol.protocolEncodingMajor,
+                            Ice.Internal.Protocol.protocolEncodingMinor);
 
     public static readonly EncodingVersion currentEncoding =
-        new EncodingVersion(IceInternal.Protocol.encodingMajor, IceInternal.Protocol.encodingMinor);
+        new EncodingVersion(Ice.Internal.Protocol.encodingMajor, Ice.Internal.Protocol.encodingMinor);
 
     public static readonly ProtocolVersion Protocol_1_0 = new ProtocolVersion(1, 0);
 

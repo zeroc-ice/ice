@@ -2,7 +2,7 @@
 
 using System.Diagnostics;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
 {

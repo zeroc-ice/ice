@@ -3,7 +3,7 @@
 using System.Diagnostics;
 using System.Text;
 
-namespace IceUtilInternal;
+namespace Ice.UtilInternal;
 
 public sealed class StringUtil
 {

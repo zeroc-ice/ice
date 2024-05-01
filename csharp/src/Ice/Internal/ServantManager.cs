@@ -2,7 +2,7 @@
 
 using System.Diagnostics;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 public sealed class ServantManager
 {
@@ -32,7 +32,7 @@ public sealed class ServantManager
                     ex.kindOfObject = "servant";
                     if (facet.Length > 0)
                     {
-                        ex.id += " -f " + IceUtilInternal.StringUtil.escapeString(facet, "", _instance.toStringMode());
+                        ex.id += " -f " + Ice.UtilInternal.StringUtil.escapeString(facet, "", _instance.toStringMode());
                     }
                     throw ex;
                 }
@@ -82,7 +82,7 @@ public sealed class ServantManager
                 ex.kindOfObject = "servant";
                 if (facet.Length > 0)
                 {
-                    ex.id += " -f " + IceUtilInternal.StringUtil.escapeString(facet, "", _instance.toStringMode());
+                    ex.id += " -f " + Ice.UtilInternal.StringUtil.escapeString(facet, "", _instance.toStringMode());
                 }
                 throw ex;
             }
@@ -242,7 +242,7 @@ public sealed class ServantManager
             if (l != null)
             {
                 Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-                ex.id = IceUtilInternal.StringUtil.escapeString(category, "", _instance.toStringMode());
+                ex.id = Ice.UtilInternal.StringUtil.escapeString(category, "", _instance.toStringMode());
                 ex.kindOfObject = "servant locator";
                 throw ex;
             }
@@ -262,7 +262,7 @@ public sealed class ServantManager
             if (l == null)
             {
                 Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
-                ex.id = IceUtilInternal.StringUtil.escapeString(category, "", _instance.toStringMode());
+                ex.id = Ice.UtilInternal.StringUtil.escapeString(category, "", _instance.toStringMode());
                 ex.kindOfObject = "servant locator";
                 throw ex;
             }

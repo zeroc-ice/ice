@@ -3,7 +3,7 @@
 using System.Diagnostics;
 using System.Text;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 public sealed class BufSizeWarnInfo
 {
@@ -1166,10 +1166,8 @@ public sealed class Instance
         {
             if (!_printProcessIdDone && _initData.properties.getPropertyAsInt("Ice.PrintProcessId") > 0)
             {
-                using (Process p = Process.GetCurrentProcess())
-                {
-                    Console.WriteLine(p.Id);
-                }
+                using var p = System.Diagnostics.Process.GetCurrentProcess();
+                Console.WriteLine(p.Id);
                 _printProcessIdDone = true;
             }
         }

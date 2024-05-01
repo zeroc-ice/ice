@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-using IceInternal;
+using Ice.Internal;
 using System.Net.Security;
 
 namespace Ice;

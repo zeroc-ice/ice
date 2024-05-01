@@ -623,7 +623,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
                         //
                         try
                         {
-                            info.service = (Service)IceInternal.AssemblyUtil.createInstance(c);
+                            info.service = (Service)Ice.Internal.AssemblyUtil.createInstance(c);
                             if (info.service == null)
                             {
                                 FailureException e = new FailureException();
@@ -859,9 +859,9 @@ internal class ServiceManagerI : ServiceManagerDisp_
 
             try
             {
-                args = IceUtilInternal.Options.split(value);
+                args = Ice.UtilInternal.Options.split(value);
             }
-            catch (IceUtilInternal.Options.BadQuote ex)
+            catch (Ice.UtilInternal.Options.BadQuote ex)
             {
                 FailureException e = new FailureException();
                 e.reason = "ServiceManager: invalid arguments for service `" + name + "':\n" + ex.Message;

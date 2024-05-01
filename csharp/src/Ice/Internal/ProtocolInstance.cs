@@ -2,7 +2,7 @@
 
 using System.Net;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 public class ProtocolInstance
 {

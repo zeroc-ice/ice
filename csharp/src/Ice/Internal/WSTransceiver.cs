@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 internal sealed class WSTransceiver : Transceiver
 {
@@ -795,7 +795,7 @@ internal sealed class WSTransceiver : Transceiver
         val = _parser.getHeader("Sec-WebSocket-Protocol", true);
         if (val != null)
         {
-            string[] protocols = IceUtilInternal.StringUtil.splitString(val, ",");
+            string[] protocols = Ice.UtilInternal.StringUtil.splitString(val, ",");
             if (protocols == null)
             {
                 throw new WebSocketException("invalid value `" + val + "' for WebSocket protocol");

@@ -2,7 +2,7 @@
 
 using System.Net.Security;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 internal sealed class WSEndpoint : EndpointI
 {

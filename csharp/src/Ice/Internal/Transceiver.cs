@@ -2,7 +2,7 @@
 
 using System.Net.Sockets;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 public interface Transceiver
 {

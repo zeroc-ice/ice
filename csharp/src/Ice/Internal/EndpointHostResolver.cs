@@ -3,7 +3,7 @@
 using System.Diagnostics;
 using System.Net;
 
-namespace IceInternal;
+namespace Ice.Internal;
 public class EndpointHostResolver
 {
     internal EndpointHostResolver(Instance instance)

@@ -2,7 +2,7 @@
 
 using System.Diagnostics;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 public sealed class ACMConfig : System.ICloneable
 {
@@ -108,7 +108,7 @@ internal class FactoryACMMonitor : ACMMonitor
             {
                 //
                 // Ensure all the connections have been cleared, it's important to wait here
-                // to prevent the timer destruction in IceInternal::Instance::destroy.
+                // to prevent the timer destruction in Ice.Internal::Instance::destroy.
                 //
                 while (_connections.Count > 0)
                 {

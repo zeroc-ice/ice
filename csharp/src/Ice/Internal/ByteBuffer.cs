@@ -2,7 +2,7 @@
 
 using System.Runtime.InteropServices;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 public class ByteBuffer
 {

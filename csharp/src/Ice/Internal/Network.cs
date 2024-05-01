@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 
-namespace IceInternal;
+namespace Ice.Internal;
 
 public sealed class Network
 {
@@ -14,17 +14,17 @@ public sealed class Network
     public const int EnableIPv6 = 1;
     public const int EnableBoth = 2;
 
-    public static SocketError socketErrorCode(SocketException ex)
+    public static SocketError socketErrorCode(System.Net.Sockets.SocketException ex)
     {
         return ex.SocketErrorCode;
     }
 
-    public static bool interrupted(SocketException ex)
+    public static bool interrupted(System.Net.Sockets.SocketException ex)
     {
         return socketErrorCode(ex) == SocketError.Interrupted;
     }
 
-    public static bool acceptInterrupted(SocketException ex)
+    public static bool acceptInterrupted(System.Net.Sockets.SocketException ex)
     {
         if (interrupted(ex))
         {
@@ -36,19 +36,19 @@ public sealed class Network
                error == SocketError.TimedOut;
     }
 
-    public static bool noBuffers(SocketException ex)
+    public static bool noBuffers(System.Net.Sockets.SocketException ex)
     {
         SocketError error = socketErrorCode(ex);
         return error == SocketError.NoBufferSpaceAvailable ||
                error == SocketError.Fault;
     }
 
-    public static bool wouldBlock(SocketException ex)
+    public static bool wouldBlock(System.Net.Sockets.SocketException ex)
     {
         return socketErrorCode(ex) == SocketError.WouldBlock;
     }
 
-    public static bool connectFailed(SocketException ex)
+    public static bool connectFailed(System.Net.Sockets.SocketException ex)
     {
         SocketError error = socketErrorCode(ex);
         return error == SocketError.ConnectionRefused ||
@@ -61,14 +61,14 @@ public sealed class Network
                error == SocketError.NetworkDown;
     }
 
-    public static bool connectInProgress(SocketException ex)
+    public static bool connectInProgress(System.Net.Sockets.SocketException ex)
     {
         SocketError error = socketErrorCode(ex);
         return error == SocketError.WouldBlock ||
                error == SocketError.InProgress;
     }
 
-    public static bool connectionLost(SocketException ex)
+    public static bool connectionLost(System.Net.Sockets.SocketException ex)
     {
         SocketError error = socketErrorCode(ex);
         return error == SocketError.ConnectionReset ||
@@ -84,9 +84,9 @@ public sealed class Network
         // In some cases the IOException has an inner exception that we can pass directly
         // to the other overloading of connectionLost().
         //
-        if (ex.InnerException != null && ex.InnerException is SocketException)
+        if (ex.InnerException != null && ex.InnerException is System.Net.Sockets.SocketException)
         {
-            return connectionLost(ex.InnerException as SocketException);
+            return connectionLost(ex.InnerException as System.Net.Sockets.SocketException);
         }
 
         //
@@ -111,12 +111,12 @@ public sealed class Network
         return false;
     }
 
-    public static bool connectionRefused(SocketException ex)
+    public static bool connectionRefused(System.Net.Sockets.SocketException ex)
     {
         return socketErrorCode(ex) == SocketError.ConnectionRefused;
     }
 
-    public static bool notConnected(SocketException ex)
+    public static bool notConnected(System.Net.Sockets.SocketException ex)
     {
         // BUGFIX: SocketError.InvalidArgument because shutdown() under macOS returns EINVAL
         // if the server side is gone.
@@ -127,12 +127,12 @@ public sealed class Network
                error == SocketError.ConnectionReset;
     }
 
-    public static bool recvTruncated(SocketException ex)
+    public static bool recvTruncated(System.Net.Sockets.SocketException ex)
     {
         return socketErrorCode(ex) == SocketError.MessageSize;
     }
 
-    public static bool operationAborted(SocketException ex)
+    public static bool operationAborted(System.Net.Sockets.SocketException ex)
     {
         return socketErrorCode(ex) == SocketError.OperationAborted;
     }
@@ -150,7 +150,7 @@ public sealed class Network
     {
         try
         {
-            return ex != null && socketErrorCode((SocketException)ex) == SocketError.TooManyOpenSockets;
+            return ex != null && socketErrorCode((System.Net.Sockets.SocketException)ex) == SocketError.TooManyOpenSockets;
         }
         catch (InvalidCastException)
         {
@@ -196,7 +196,7 @@ public sealed class Network
             closeSocketNoThrow(socket);
             return true;
         }
-        catch (SocketException)
+        catch (System.Net.Sockets.SocketException)
         {
             return false;
         }
@@ -217,7 +217,7 @@ public sealed class Network
                 socket = new Socket(family, SocketType.Stream, ProtocolType.Tcp);
             }
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             throw new Ice.SocketException(ex);
         }
@@ -233,7 +233,7 @@ public sealed class Network
                 setTcpNoDelay(socket);
                 socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
             }
-            catch (SocketException ex)
+            catch (System.Net.Sockets.SocketException ex)
             {
                 closeSocketNoThrow(socket);
                 throw new Ice.SocketException(ex);
@@ -252,7 +252,7 @@ public sealed class Network
                 int flag = protocol == EnableIPv6 ? 1 : 0;
                 socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, flag);
             }
-            catch (SocketException ex)
+            catch (System.Net.Sockets.SocketException ex)
             {
                 closeSocketNoThrow(socket);
                 throw new Ice.SocketException(ex);
@@ -271,7 +271,7 @@ public sealed class Network
         {
             socket.Close();
         }
-        catch (SocketException)
+        catch (System.Net.Sockets.SocketException)
         {
             // Ignore
         }
@@ -287,7 +287,7 @@ public sealed class Network
         {
             socket.Close();
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             throw new Ice.SocketException(ex);
         }
@@ -312,7 +312,7 @@ public sealed class Network
         {
             socket.Blocking = block;
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             closeSocketNoThrow(socket);
             throw new Ice.SocketException(ex);
@@ -338,7 +338,7 @@ public sealed class Network
         {
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer, sz);
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             closeSocketNoThrow(socket);
             throw new Ice.SocketException(ex);
@@ -352,7 +352,7 @@ public sealed class Network
         {
             sz = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer);
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             closeSocketNoThrow(socket);
             throw new Ice.SocketException(ex);
@@ -366,7 +366,7 @@ public sealed class Network
         {
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, sz);
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             closeSocketNoThrow(socket);
             throw new Ice.SocketException(ex);
@@ -380,7 +380,7 @@ public sealed class Network
         {
             sz = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer);
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             closeSocketNoThrow(socket);
             throw new Ice.SocketException(ex);
@@ -394,7 +394,7 @@ public sealed class Network
         {
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, reuse ? 1 : 0);
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             closeSocketNoThrow(socket);
             throw new Ice.SocketException(ex);
@@ -484,7 +484,7 @@ public sealed class Network
                 socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.MulticastTimeToLive, ttl);
             }
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             closeSocketNoThrow(socket);
             throw new Ice.SocketException(ex);
@@ -498,7 +498,7 @@ public sealed class Network
             socket.Bind(addr);
             return (IPEndPoint)socket.LocalEndPoint;
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             closeSocketNoThrow(socket);
             throw new Ice.SocketException(ex);
@@ -514,7 +514,7 @@ public sealed class Network
         {
             socket.Listen(backlog);
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             if (interrupted(ex))
             {
@@ -552,7 +552,7 @@ public sealed class Network
             }
             fd.EndConnect(result);
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             if (interrupted(ex))
             {
@@ -624,7 +624,7 @@ public sealed class Network
                                        }
                                    }, state);
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             if (interrupted(ex))
             {
@@ -652,7 +652,7 @@ public sealed class Network
         {
             fd.EndConnect(result);
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             if (connectionRefused(ex))
             {
@@ -719,11 +719,11 @@ public sealed class Network
             {
                 if (preferIPv6)
                 {
-                    IceUtilInternal.Collections.Sort(ref addresses, _preferIPv6Comparator);
+                    Ice.UtilInternal.Collections.Sort(ref addresses, _preferIPv6Comparator);
                 }
                 else
                 {
-                    IceUtilInternal.Collections.Sort(ref addresses, _preferIPv4Comparator);
+                    Ice.UtilInternal.Collections.Sort(ref addresses, _preferIPv4Comparator);
                 }
             }
             return addresses;
@@ -772,22 +772,22 @@ public sealed class Network
 
             if (selType == Ice.EndpointSelectionType.Random)
             {
-                IceUtilInternal.Collections.Shuffle(ref addresses);
+                Ice.UtilInternal.Collections.Shuffle(ref addresses);
             }
 
             if (protocol == EnableBoth)
             {
                 if (preferIPv6)
                 {
-                    IceUtilInternal.Collections.Sort(ref addresses, _preferIPv6Comparator);
+                    Ice.UtilInternal.Collections.Sort(ref addresses, _preferIPv6Comparator);
                 }
                 else
                 {
-                    IceUtilInternal.Collections.Sort(ref addresses, _preferIPv4Comparator);
+                    Ice.UtilInternal.Collections.Sort(ref addresses, _preferIPv4Comparator);
                 }
             }
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             if (socketErrorCode(ex) == SocketError.TryAgain && --retry >= 0)
             {
@@ -848,7 +848,7 @@ public sealed class Network
                 }
             }
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             if (socketErrorCode(ex) == SocketError.TryAgain && --retry >= 0)
             {
@@ -1088,7 +1088,7 @@ public sealed class Network
         {
             return socket.LocalEndPoint;
         }
-        catch (SocketException ex)
+        catch (System.Net.Sockets.SocketException ex)
         {
             throw new Ice.SocketException(ex);
         }
@@ -1101,7 +1101,7 @@ public sealed class Network
         {
             return socket.RemoteEndPoint;
         }
-        catch (SocketException)
+        catch (System.Net.Sockets.SocketException)
         {
         }
         return null;
