@@ -112,7 +112,7 @@ namespace Ice
         StringSeq getPropertyAsList(std::string_view key) noexcept;
 
         /**
-         * Get a Ice property as a list of strings.  The strings must be separated by whitespace or comma. If the
+         * Get an Ice property as a list of strings. The strings must be separated by whitespace or comma. If the
          * property is not set, its default list is returned. The strings in the list can contain whitespace and commas
          * if they are enclosed in single or double quotes. If quotes are mismatched, the default list is returned.
          * Within single quotes or double quotes, you can escape the quote in question with a backslash, e.g. O'Reilly
