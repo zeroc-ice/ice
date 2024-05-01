@@ -5,7 +5,7 @@ using System.Text;
 
 namespace IceInternal;
 
-public sealed class WebSocketException : Exception
+public sealed class WebSocketException : System.Exception
 {
     public WebSocketException(string message) :
         base(message, null)

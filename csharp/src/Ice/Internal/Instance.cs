@@ -691,7 +691,7 @@ public sealed class Instance
                         c = helper.GetProperty("targetClass").PropertyType;
                         break; // foreach
                     }
-                    catch (Exception)
+                    catch (System.Exception)
                     {
                     }
                 }
@@ -733,7 +733,7 @@ public sealed class Instance
                     break; // foreach
                 }
             }
-            catch (Exception)
+            catch (System.Exception)
             {
             }
         }
@@ -1116,7 +1116,7 @@ public sealed class Instance
             _timer = new Timer(this, Util.stringToThreadPriority(
                                             initializationData().properties.getProperty("Ice.ThreadPriority")));
         }
-        catch (Exception ex)
+        catch (System.Exception ex)
         {
             string s = "cannot create thread for timer:\n" + ex;
             _initData.logger.error(s);
@@ -1127,7 +1127,7 @@ public sealed class Instance
         {
             _endpointHostResolver = new EndpointHostResolver(this);
         }
-        catch (Exception ex)
+        catch (System.Exception ex)
         {
             string s = "cannot create thread for endpoint host resolver:\n" + ex;
             _initData.logger.error(s);

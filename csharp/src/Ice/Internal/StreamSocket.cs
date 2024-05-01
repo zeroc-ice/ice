@@ -29,7 +29,7 @@ public sealed class StreamSocket
         {
             _desc = Network.fdToString(_fd);
         }
-        catch (Exception)
+        catch (System.Exception)
         {
             Network.closeSocketNoThrow(_fd);
             throw;
@@ -245,7 +245,7 @@ public sealed class StreamSocket
                 _writeEventArgs.UserToken = state;
                 return !_fd.ConnectAsync(_writeEventArgs);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 throw new Ice.SocketException(ex);
             }

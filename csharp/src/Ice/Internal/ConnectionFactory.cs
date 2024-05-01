@@ -1128,7 +1128,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
             {
                 createAcceptor();
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 string s = "acceptor creation failed:\n" + ex + '\n' + _acceptor.ToString();
                 _instance.initializationData().logger.error(s);
@@ -1601,7 +1601,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
                 createAcceptor();
             }
         }
-        catch (Exception ex)
+        catch (System.Exception ex)
         {
             //
             // Clean up.

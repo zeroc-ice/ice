@@ -146,7 +146,7 @@ public sealed class Network
         return ex.Message.Contains("period of time");
     }
 
-    public static bool noMoreFds(Exception ex)
+    public static bool noMoreFds(System.Exception ex)
     {
         try
         {
@@ -299,7 +299,7 @@ public sealed class Network
         {
             socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, 1);
         }
-        catch (Exception ex)
+        catch (System.Exception ex)
         {
             closeSocketNoThrow(socket);
             throw new Ice.SocketException(ex);
@@ -325,7 +325,7 @@ public sealed class Network
         {
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
         }
-        catch (Exception ex)
+        catch (System.Exception ex)
         {
             closeSocketNoThrow(socket);
             throw new Ice.SocketException(ex);
@@ -417,7 +417,7 @@ public sealed class Network
                                        getInterfaceIndex(iface, family));
             }
         }
-        catch (Exception ex)
+        catch (System.Exception ex)
         {
             closeSocketNoThrow(socket);
             throw new Ice.SocketException(ex);
@@ -464,7 +464,7 @@ public sealed class Network
                 }
             }
         }
-        catch (Exception ex)
+        catch (System.Exception ex)
         {
             closeSocketNoThrow(s);
             throw new Ice.SocketException(ex);
@@ -797,7 +797,7 @@ public sealed class Network
             e.host = host;
             throw e;
         }
-        catch (Exception ex)
+        catch (System.Exception ex)
         {
             Ice.DNSException e = new Ice.DNSException(ex);
             e.host = host;
@@ -858,7 +858,7 @@ public sealed class Network
             e.host = "0.0.0.0";
             throw e;
         }
-        catch (Exception ex)
+        catch (System.Exception ex)
         {
             Ice.DNSException e = new Ice.DNSException(ex);
             e.host = "0.0.0.0";
@@ -1309,7 +1309,7 @@ public sealed class Network
             }
             return addr.Equals(IPAddress.IPv6Any);
         }
-        catch (Exception)
+        catch (System.Exception)
         {
         }
 

@@ -178,7 +178,7 @@ public class CollocatedRequestHandler : RequestHandler, ResponseHandler
                 _sendAsyncRequests.Add(outAsync, requestId);
             }
         }
-        catch (Exception)
+        catch (System.Exception)
         {
             _adapter.decDirectCount();
             throw;

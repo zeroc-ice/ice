@@ -35,7 +35,7 @@ internal sealed class UdpTransceiver : Transceiver
                 }
                 throw new Ice.ConnectFailedException(ex);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 throw new Ice.ConnectFailedException(ex);
             }
@@ -169,7 +169,7 @@ internal sealed class UdpTransceiver : Transceiver
                     throw new Ice.SocketException(ex);
                 }
             }
-            catch (Exception e)
+            catch (System.Exception e)
             {
                 throw new Ice.SyscallException(e);
             }
@@ -257,7 +257,7 @@ internal sealed class UdpTransceiver : Transceiver
                     throw new Ice.SocketException(e);
                 }
             }
-            catch (Exception e)
+            catch (System.Exception e)
             {
                 throw new Ice.SyscallException(e);
             }

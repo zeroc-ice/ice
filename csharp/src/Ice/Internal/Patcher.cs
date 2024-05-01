@@ -111,7 +111,7 @@ public sealed class Patcher
             {
                 return (int)_countMethod.Invoke(seq, null);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 throw new Ice.MarshalException("Could not read Count property during patching", ex);
             }
@@ -124,7 +124,7 @@ public sealed class Patcher
                 object[] arg = new object[] { v };
                 _addMethod.Invoke(seq, arg);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 throw new Ice.MarshalException("Could not invoke Add method during patching", ex);
             }
@@ -137,7 +137,7 @@ public sealed class Patcher
                 object[] args = new object[] { index, v };
                 _setMethod.Invoke(seq, args);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 throw new Ice.MarshalException("Could not call indexer during patching", ex);
             }

@@ -2,112 +2,111 @@
 
 using System.Collections;
 
-namespace IceUtilInternal
+namespace IceUtilInternal;
+
+public sealed class Arrays
 {
-    public sealed class Arrays
+    public static bool Equals(object[] arr1, object[] arr2)
     {
-        public static bool Equals(object[] arr1, object[] arr2)
+        if (object.ReferenceEquals(arr1, arr2))
         {
-            if (object.ReferenceEquals(arr1, arr2))
-            {
-                return true;
-            }
+            return true;
+        }
 
-            if ((arr1 == null && arr2 != null) || (arr1 != null && arr2 == null))
-            {
-                return false;
-            }
+        if ((arr1 == null && arr2 != null) || (arr1 != null && arr2 == null))
+        {
+            return false;
+        }
 
-            if (arr1.Length == arr2.Length)
+        if (arr1.Length == arr2.Length)
+        {
+            for (int i = 0; i < arr1.Length; i++)
             {
-                for (int i = 0; i < arr1.Length; i++)
+                if (arr1[i] == null)
                 {
-                    if (arr1[i] == null)
-                    {
-                        if (arr2[i] != null)
-                        {
-                            return false;
-                        }
-                    }
-                    else if (!arr1[i].Equals(arr2[i]))
+                    if (arr2[i] != null)
                     {
                         return false;
                     }
                 }
-
-                return true;
+                else if (!arr1[i].Equals(arr2[i]))
+                {
+                    return false;
+                }
             }
 
+            return true;
+        }
+
+        return false;
+    }
+
+    public static bool Equals(Array arr1, Array arr2)
+    {
+        if (object.ReferenceEquals(arr1, arr2))
+        {
+            return true;
+        }
+
+        if ((arr1 == null && arr2 != null) || (arr1 != null && arr2 == null))
+        {
             return false;
         }
 
-        public static bool Equals(Array arr1, Array arr2)
+        if (arr1.Length == arr2.Length)
         {
-            if (object.ReferenceEquals(arr1, arr2))
+            IEnumerator e1 = arr1.GetEnumerator();
+            IEnumerator e2 = arr2.GetEnumerator();
+            while (e1.MoveNext())
             {
-                return true;
-            }
-
-            if ((arr1 == null && arr2 != null) || (arr1 != null && arr2 == null))
-            {
-                return false;
-            }
-
-            if (arr1.Length == arr2.Length)
-            {
-                IEnumerator e1 = arr1.GetEnumerator();
-                IEnumerator e2 = arr2.GetEnumerator();
-                while (e1.MoveNext())
+                e2.MoveNext();
+                if (e1.Current == null)
                 {
-                    e2.MoveNext();
-                    if (e1.Current == null)
-                    {
-                        if (e2.Current != null)
-                        {
-                            return false;
-                        }
-                    }
-                    else if (!e1.Current.Equals(e2.Current))
+                    if (e2.Current != null)
                     {
                         return false;
                     }
                 }
-
-                return true;
-            }
-
-            return false;
-        }
-
-        public static int GetHashCode(object[] arr)
-        {
-            int h = 5381;
-
-            for (int i = 0; i < arr.Length; i++)
-            {
-                object o = arr[i];
-                if (o != null)
+                else if (!e1.Current.Equals(e2.Current))
                 {
-                    IceInternal.HashUtil.hashAdd(ref h, o);
+                    return false;
                 }
             }
 
-            return h;
+            return true;
         }
 
-        public static int GetHashCode(Array arr)
+        return false;
+    }
+
+    public static int GetHashCode(object[] arr)
+    {
+        int h = 5381;
+
+        for (int i = 0; i < arr.Length; i++)
         {
-            int h = 0;
-
-            foreach (object o in arr)
+            object o = arr[i];
+            if (o != null)
             {
-                if (o != null)
-                {
-                    IceInternal.HashUtil.hashAdd(ref h, o);
-                }
+                IceInternal.HashUtil.hashAdd(ref h, o);
             }
-
-            return h;
         }
+
+        return h;
+    }
+
+    public static int GetHashCode(Array arr)
+    {
+        int h = 0;
+
+        foreach (object o in arr)
+        {
+            if (o != null)
+            {
+                IceInternal.HashUtil.hashAdd(ref h, o);
+            }
+        }
+
+        return h;
     }
 }

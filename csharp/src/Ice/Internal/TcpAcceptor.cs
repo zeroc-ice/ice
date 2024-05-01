@@ -130,7 +130,7 @@ internal class TcpAcceptor : Acceptor
             Network.setBlock(_fd, false);
             Network.setTcpBufSize(_fd, _instance);
         }
-        catch (Exception)
+        catch (System.Exception)
         {
             _fd = null;
             throw;

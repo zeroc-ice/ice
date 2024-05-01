@@ -156,7 +156,7 @@ internal class ConnectionHelper : MetricsHelper<ConnectionMetrics>
                 add("state", cl.GetMethod("getState"));
                 AttrsUtil.addConnectionAttributes(this, cl);
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 Debug.Assert(false);
             }
@@ -290,7 +290,7 @@ internal class DispatchHelper : MetricsHelper<DispatchMetrics>
                 add("requestId", cl.GetMethod("getCurrent"), clc.GetField("requestId"));
                 add("mode", cl.GetMethod("getMode"));
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 Debug.Assert(false);
             }
@@ -417,7 +417,7 @@ internal class InvocationHelper : MetricsHelper<InvocationMetrics>
                 add("mode", cl.GetMethod("getMode"));
                 add("proxy", cl.GetMethod("getProxy"));
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 Debug.Assert(false);
             }
@@ -558,7 +558,7 @@ internal class ThreadHelper : MetricsHelper<ThreadMetrics>
                 add("parent", cl.GetField("_parent"));
                 add("id", cl.GetField("_id"));
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 Debug.Assert(false);
             }
@@ -610,7 +610,7 @@ internal class EndpointHelper : MetricsHelper<Metrics>
                 add("id", cl.GetMethod("getId"));
                 AttrsUtil.addEndpointAttributes(this, cl);
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 Debug.Assert(false);
             }
@@ -677,7 +677,7 @@ public class RemoteInvocationHelper : MetricsHelper<RemoteMetrics>
                 add("requestId", cl.GetMethod("getRequestId"));
                 AttrsUtil.addConnectionAttributes(this, cl);
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 Debug.Assert(false);
             }
@@ -770,7 +770,7 @@ public class CollocatedInvocationHelper : MetricsHelper<CollocatedMetrics>
                 add("id", cl.GetMethod("getId"));
                 add("requestId", cl.GetMethod("getRequestId"));
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 Debug.Assert(false);
             }
@@ -1054,7 +1054,7 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
             _invocations.registerSubMap<RemoteMetrics>("Remote", cl.GetField("remotes"));
             _invocations.registerSubMap<CollocatedMetrics>("Collocated", cl.GetField("collocated"));
         }
-        catch (Exception)
+        catch (System.Exception)
         {
             Debug.Assert(false);
         }
@@ -1073,7 +1073,7 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
                 }
                 return _connects.getObserver(new EndpointHelper(endpt, connector), del);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
             }
@@ -1094,7 +1094,7 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
                 }
                 return _endpointLookups.getObserver(new EndpointHelper(endpt), del);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
             }
@@ -1119,7 +1119,7 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
                 }
                 return _connections.getObserver(new ConnectionHelper(c, e, s), obsv, del);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
             }
@@ -1143,7 +1143,7 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
                 }
                 return _threads.getObserver(new ThreadHelper(parent, id, s), obsv, del);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
             }
@@ -1165,7 +1165,7 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
                 }
                 return _invocations.getObserver(new InvocationHelper(prx, operation, ctx), del);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
             }
@@ -1186,7 +1186,7 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
                 }
                 return _dispatch.getObserver(new DispatchHelper(c, size), del);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
             }

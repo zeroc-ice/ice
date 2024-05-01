@@ -144,7 +144,7 @@ public sealed class AssemblyUtil
                         _loadedAssemblies[ra.FullName] = ra;
                         loadReferencedAssemblies(ra);
                     }
-                    catch (Exception)
+                    catch (System.Exception)
                     {
                         // Ignore assemblies that cannot be loaded.
                     }

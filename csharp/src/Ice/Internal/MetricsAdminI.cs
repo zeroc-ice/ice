@@ -57,7 +57,7 @@ internal class SubMap<S> : ISubMap where S : IceMX.Metrics, new()
         {
             _field.SetValue(metrics, _map.getMetrics());
         }
-        catch (Exception)
+        catch (System.Exception)
         {
             Debug.Assert(false);
         }
@@ -429,7 +429,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
                 key = os.ToString();
             }
         }
-        catch (Exception)
+        catch (System.Exception)
         {
             return null;
         }
@@ -455,7 +455,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
                     e = new Entry(this, t);
                     _objects.Add(key, e);
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     Debug.Assert(false);
                 }
@@ -519,7 +519,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
         {
             value = helper.resolve(attribute);
         }
-        catch (Exception)
+        catch (System.Exception)
         {
             return !reject;
         }
@@ -590,7 +590,7 @@ internal class MetricsViewI
         {
             _maps[mapName] = factory.create(mapPrefix, properties);
         }
-        catch (Exception ex)
+        catch (System.Exception ex)
         {
             logger.warning("unexpected exception while creating metrics map:\n" + ex);
             _maps.Remove(mapName);
@@ -975,7 +975,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_, Ice.PropertiesAdminUpdateC
                 {
                     updateViews();
                 }
-                catch (Exception ex)
+                catch (System.Exception ex)
                 {
                     _logger.warning("unexpected exception while updating metrics view configuration:\n" +
                                     ex.ToString());
