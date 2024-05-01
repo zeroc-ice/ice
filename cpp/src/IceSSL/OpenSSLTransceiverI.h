@@ -72,6 +72,7 @@ namespace IceSSL::OpenSSL
         std::string _cipher;
         std::vector<IceSSL::CertificatePtr> _certs;
         ::SSL* _ssl;
+        SSL_CTX* _sslCtx;
         BIO* _memBio;
         IceInternal::Buffer _writeBuffer;
         IceInternal::Buffer _readBuffer;
@@ -83,7 +84,6 @@ namespace IceSSL::OpenSSL
             _remoteCertificateVerificationCallback;
         std::function<void(::SSL*, const std::string&)> _sslNewSessionCallback;
         std::exception_ptr _verificationException;
-        SSL_CTX* _sslCtx;
     };
     using TransceiverIPtr = std::shared_ptr<TransceiverI>;
 
