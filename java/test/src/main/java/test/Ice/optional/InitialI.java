@@ -436,14 +436,6 @@ public final class InitialI implements Initial {
   public void opClassAndUnknownOptional(A p, Current current) {}
 
   @Override
-  public void sendOptionalStruct(boolean req, Optional<FixedStruct> ofs, Current current) {}
-
-  @Override
-  public Optional<FixedStruct> returnOptionalStruct(boolean req, Current current) {
-    return Optional.of(new FixedStruct(53));
-  }
-
-  @Override
   public G opG(G g, Current current) {
     return g;
   }

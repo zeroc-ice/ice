@@ -261,19 +261,6 @@ public:
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
-    void sendOptionalStructAsync(
-        bool,
-        std::optional<Test::FixedStruct>,
-        std::function<void()>,
-        std::function<void(std::exception_ptr)>,
-        const Ice::Current&) final;
-
-    void returnOptionalStructAsync(
-        bool,
-        std::function<void(const std::optional<Test::FixedStruct>&)>,
-        std::function<void(std::exception_ptr)>,
-        const Ice::Current&) final;
-
     void opGAsync(
         std::shared_ptr<Test::G>,
         std::function<void(const std::shared_ptr<Test::G>&)>,

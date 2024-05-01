@@ -252,15 +252,6 @@ export class AMDInitialI extends Test.Initial
     {
     }
 
-    sendOptionalStruct(req:boolean, one:Test.FixedStruct, current:Ice.Current):void
-    {
-    }
-
-    returnOptionalStruct(req:boolean, current:Ice.Current):Test.FixedStruct
-    {
-        return new Test.FixedStruct(53);
-    }
-
     opG(g:Test.G, current:Ice.Current):Test.G
     {
         return g;

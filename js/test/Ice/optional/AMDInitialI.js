@@ -253,15 +253,6 @@
         {
         }
 
-        sendOptionalStruct(req, current)
-        {
-        }
-
-        returnOptionalStruct(req, current)
-        {
-            return new Test.FixedStruct(53);
-        }
-
         opG(g, current)
         {
             return g;

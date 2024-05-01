@@ -309,11 +309,6 @@ interface Initial
 
     void opClassAndUnknownOptional(A p);
 
-    void sendOptionalStruct(bool req, optional(1) FixedStruct ofs);
-
-    ["java:optional"]
-    void returnOptionalStruct(bool req, out optional(1) FixedStruct ofs);
-
     G opG(G g);
 
     void opVoid();

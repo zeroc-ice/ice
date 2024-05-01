@@ -339,17 +339,6 @@ InitialI::opClassAndUnknownOptional(APtr, const Ice::Current&)
 {
 }
 
-void
-InitialI::sendOptionalStruct(bool, optional<FixedStruct>, const Ice::Current&)
-{
-}
-
-void
-InitialI::returnOptionalStruct(bool, optional<FixedStruct>& ofs, const Ice::Current&)
-{
-    ofs = FixedStruct{53};
-}
-
 GPtr
 InitialI::opG(GPtr g, const Ice::Current&)
 {

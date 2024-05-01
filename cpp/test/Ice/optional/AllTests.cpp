@@ -644,18 +644,6 @@ allTests(Test::TestHelper* helper, bool)
         factory->setEnabled(false);
     }
 
-    //
-    // Test that optional parameters are handled correctly (ignored) with the 1.0 encoding.
-    //
-    optional<FixedStruct> ofs{{53}};
-    initial->sendOptionalStruct(true, ofs);
-    initial->ice_encodingVersion(Ice::Encoding_1_0)->sendOptionalStruct(true, ofs);
-
-    initial->returnOptionalStruct(true, ofs);
-    test(ofs);
-    initial->ice_encodingVersion(Ice::Encoding_1_0)->returnOptionalStruct(true, ofs);
-    test(!ofs);
-
     GPtr g = make_shared<G>();
     g->gg1Opt = G1{"gg1Opt"};
     g->gg2 = G2{10};

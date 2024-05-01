@@ -250,19 +250,6 @@ export class Client extends TestHelper
 
         test(mo9.bos === undefined);
 
-        //
-        // Test that optional parameters are handled correctly (ignored) with the 1.0 encoding.
-        //
-        const initial2 = initial.ice_encodingVersion(Ice.Encoding_1_0);
-        let ofs = new Test.FixedStruct(53);
-
-        await initial.sendOptionalStruct(true, ofs);
-        await initial2.sendOptionalStruct(true, ofs);
-        ofs = await initial.returnOptionalStruct(true);
-        test(ofs !== undefined && ofs.m == 53);
-        ofs = await initial2.returnOptionalStruct(true);
-        test(ofs === undefined);
-
         let g = new Test.G();
         g.gg1Opt = new Test.G1("gg1Opt");
         g.gg2 = new Test.G2(new Ice.Long(0, 10));

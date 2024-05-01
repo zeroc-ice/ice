@@ -267,10 +267,6 @@ interface Initial
     void opOptionalAfterRequired(int p1, optional(1) int p2, optional(2) int p3, out int p4, out optional(3) int p5,
                                  out optional(4) int p6);
 
-    void sendOptionalStruct(bool req, optional(1) FixedStruct ofs);
-
-    void returnOptionalStruct(bool req, out optional(1) FixedStruct ofs);
-
     G opG(G g);
 
     void opVoid();

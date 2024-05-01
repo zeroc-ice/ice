@@ -136,12 +136,6 @@ class InitialI(Test.Initial):
     def opClassAndUnknownOptional(self, p, current=None):
         return Ice.Future.completed(None)
 
-    def sendOptionalStruct(self, req, ofs, current=None):
-        return Ice.Future.completed(None)
-
-    def returnOptionalStruct(self, req, current=None):
-        return Ice.Future.completed(Test.FixedStruct(53))
-
     def opG(self, g, current=None):
         return Ice.Future.completed(g)
 

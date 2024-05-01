@@ -409,27 +409,6 @@ InitialI::opClassAndUnknownOptionalAsync(
 }
 
 void
-InitialI::sendOptionalStructAsync(
-    bool,
-    optional<Test::FixedStruct>,
-    function<void()> response,
-    function<void(exception_ptr)>,
-    const Ice::Current&)
-{
-    response();
-}
-
-void
-InitialI::returnOptionalStructAsync(
-    bool,
-    function<void(const optional<Test::FixedStruct>&)> response,
-    function<void(exception_ptr)>,
-    const Ice::Current&)
-{
-    response(Test::FixedStruct{53});
-}
-
-void
 InitialI::opGAsync(
     shared_ptr<Test::G> g,
     function<void(const shared_ptr<Test::G>&)> response,

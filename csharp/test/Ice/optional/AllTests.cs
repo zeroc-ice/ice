@@ -336,19 +336,6 @@ namespace Ice
                 test(cb.obj != null && cb.obj is TestValueReader);
                 factory.setEnabled(false);
 
-                //
-                // Test that optional parameters are handled correctly (ignored) with the 1.0 encoding.
-                //
-                var ofs = new Ice.Optional<Test.FixedStruct>(new Test.FixedStruct(53));
-                initial.sendOptionalStruct(true, ofs);
-                Test.InitialPrx initial2 = (Test.InitialPrx)initial.ice_encodingVersion(Ice.Util.Encoding_1_0);
-                initial2.sendOptionalStruct(true, ofs);
-
-                initial.returnOptionalStruct(true, out ofs);
-                test(ofs.HasValue);
-                initial2.returnOptionalStruct(true, out ofs);
-                test(!ofs.HasValue);
-
                 Test.G g = new Test.G();
                 g.gg1Opt = new Ice.Optional<Test.G1>(new Test.G1("gg1Opt"));
                 g.gg2 = new Test.G2(10);

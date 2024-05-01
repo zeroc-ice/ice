@@ -376,19 +376,6 @@ public class AllTests {
     test(cb.value != null);
     factory.setEnabled(false);
 
-    //
-    // Test that optional parameters are handled correctly (ignored) with the 1.0 encoding.
-    //
-    Optional<FixedStruct> ofs = Optional.of(new FixedStruct(53));
-    initial.sendOptionalStruct(true, ofs);
-    InitialPrx initial2 = initial.ice_encodingVersion(com.zeroc.Ice.Util.Encoding_1_0);
-    initial2.sendOptionalStruct(true, ofs);
-
-    ofs = initial.returnOptionalStruct(true);
-    test(ofs.isPresent());
-    ofs = initial2.returnOptionalStruct(true);
-    test(!ofs.isPresent());
-
     G g = new G();
     g.setGg1Opt(new G1("gg1Opt"));
     g.gg2 = new G2(10);

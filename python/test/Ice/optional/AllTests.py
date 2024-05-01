@@ -328,19 +328,6 @@ def allTests(helper, communicator):
 
     test(mo9.bos is Ice.Unset)
 
-    #
-    # Test that optional parameters are handled correctly (ignored) with the 1.0 encoding.
-    #
-    initial.sendOptionalStruct(True, Test.FixedStruct(53))
-    initial.ice_encodingVersion(Ice.Encoding_1_0).sendOptionalStruct(
-        True, Test.FixedStruct(53)
-    )
-
-    r = initial.returnOptionalStruct(True)
-    test(r != Ice.Unset)
-    r = initial.ice_encodingVersion(Ice.Encoding_1_0).returnOptionalStruct(True)
-    test(r is Ice.Unset)
-
     g = Test.G()
     g.gg1Opt = Test.G1("gg1Opt")
     g.gg2 = Test.G2(10)

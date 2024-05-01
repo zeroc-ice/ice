@@ -298,17 +298,6 @@ classdef AllTests
 
             assert(mo9.bos == Ice.Unset);
 
-            %
-            % Test that optional parameters are handled correctly (ignored) with the 1.0 encoding.
-            %
-            initial.sendOptionalStruct(true, FixedStruct(53));
-            initial.ice_encodingVersion(Ice.EncodingVersion(1, 0)).sendOptionalStruct(true, FixedStruct(53));
-
-            r = initial.returnOptionalStruct(true);
-            assert(r ~= Ice.Unset)
-            r = initial.ice_encodingVersion(Ice.EncodingVersion(1, 0)).returnOptionalStruct(true);
-            assert(r == Ice.Unset);
-
             g = G();
             g.gg1Opt = G1('gg1Opt');
             g.gg2 = G2(10);

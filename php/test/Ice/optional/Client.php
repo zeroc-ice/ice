@@ -293,18 +293,6 @@ function allTests($helper)
 
     test($mo9->bos == Ice\None);
 
-    //
-    // Test that optional parameters are handled correctly (ignored) with the 1.0 encoding.
-    //
-    $ofs = new Test\FixedStruct(53);
-    $initial->sendOptionalStruct(true, $ofs);
-    $initial->ice_encodingVersion($Ice_Encoding_1_0)->sendOptionalStruct(true, $ofs);
-
-    $initial->returnOptionalStruct(true, $ofs);
-    test($ofs != Ice\None);
-    $initial->ice_encodingVersion($Ice_Encoding_1_0)->returnOptionalStruct(true, $ofs);
-    test($ofs == Ice\None);
-
     $g = new Test\G;
     $g->gg1Opt = new Test\G1("gg1Opt");
     $g->gg2 = new Test\G2(10);

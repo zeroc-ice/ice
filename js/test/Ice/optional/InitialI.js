@@ -253,10 +253,6 @@
         {
         }
 
-        sendOptionalStruct(req, current)
-        {
-        }
-
         opG(g, current)
         {
             return g;
@@ -304,11 +300,6 @@
         opMG2(p1, current)
         {
             return [p1, p1];
-        }
-
-        returnOptionalStruct(req, current)
-        {
-            return new Test.FixedStruct(53);
         }
 
         supportsRequiredParams(current)
