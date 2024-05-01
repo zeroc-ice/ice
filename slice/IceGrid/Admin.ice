@@ -628,12 +628,12 @@ module IceGrid
         /// @param registries The current state of the registries.
         void registryInit(RegistryInfoSeq registries);
 
-        /// The <code>nodeUp</code> operation is called to notify an observer that a node came up.
-        /// @param node The node state.
-        void registryUp(RegistryInfo node);
+        /// The <code>registryUp</code> operation is called to notify an observer that a registry replica came up.
+        /// @param registryReplica The registry state.
+        void registryUp(RegistryInfo registryReplica);
 
-        /// The <code>nodeDown</code> operation is called to notify an observer that a node went down.
-        /// @param name The node name.
+        /// The <code>registryDown</code> operation is called to notify an observer that a registry replica went down.
+        /// @param name The registry name.
         void registryDown(string name);
     }
 

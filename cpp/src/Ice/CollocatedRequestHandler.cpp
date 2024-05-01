@@ -18,39 +18,6 @@ using namespace IceInternal;
 
 namespace
 {
-    class ExecuteDispatchAll final : public ExecutorWorkItem
-    {
-    public:
-        ExecuteDispatchAll(
-            const OutgoingAsyncBasePtr& outAsync,
-            InputStream& stream,
-            const CollocatedRequestHandlerPtr& handler,
-            int32_t requestId,
-            int32_t dispatchCount)
-            : _outAsync(outAsync),
-              _stream(std::move(stream)),
-              _handler(handler),
-              _requestId(requestId),
-              _dispatchCount(dispatchCount)
-        {
-        }
-
-        void run() final
-        {
-            if (_handler->sentAsync(_outAsync.get()))
-            {
-                _handler->dispatchAll(_stream, _requestId, _dispatchCount);
-            }
-        }
-
-    private:
-        OutgoingAsyncBasePtr _outAsync;
-        InputStream _stream;
-        CollocatedRequestHandlerPtr _handler;
-        int32_t _requestId;
-        int32_t _dispatchCount;
-    };
-
     void fillInValue(OutputStream* os, int pos, int32_t value)
     {
         const byte* p = reinterpret_cast<const byte*>(&value);
@@ -183,34 +150,46 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
 
     int dispatchCount = batchRequestCount == 0 ? 1 : batchRequestCount;
 
+    //
+    // Make sure to hold a reference on this handler while the call is being
+    // dispatched. Otherwise, the handler could be deleted during the dispatch
+    // if a retry occurs.
+    //
+    auto self = shared_from_this();
+
     if (!synchronous || !_response || _reference->getInvocationTimeout() > 0)
     {
+        auto stream = make_shared<InputStream>();
+        is.swap(*stream);
+
         // Don't invoke from the user thread if async or invocation timeout is set
-        _adapter->getThreadPool()->execute(make_shared<ExecuteDispatchAll>(
-            outAsync->shared_from_this(),
-            is,
-            shared_from_this(),
-            requestId,
-            dispatchCount));
+        _adapter->getThreadPool()->execute(
+            [self, outAsync = outAsync->shared_from_this(), stream, requestId, dispatchCount]()
+            {
+                if (self->sentAsync(outAsync.get()))
+                {
+                    self->dispatchAll(*stream, requestId, dispatchCount);
+                }
+            },
+            nullptr);
     }
     else if (_hasExecutor)
     {
-        _adapter->getThreadPool()->executeFromThisThread(make_shared<ExecuteDispatchAll>(
-            outAsync->shared_from_this(),
-            is,
-            shared_from_this(),
-            requestId,
-            dispatchCount));
+        auto stream = make_shared<InputStream>();
+        is.swap(*stream);
+
+        _adapter->getThreadPool()->executeFromThisThread(
+            [self, outAsync = outAsync->shared_from_this(), stream, requestId, dispatchCount]()
+            {
+                if (self->sentAsync(outAsync.get()))
+                {
+                    self->dispatchAll(*stream, requestId, dispatchCount);
+                }
+            },
+            nullptr);
     }
     else // Optimization: directly call dispatchAll if there's no custom executor.
     {
-        //
-        // Make sure to hold a reference on this handler while the call is being
-        // dispatched. Otherwise, the handler could be deleted during the dispatch
-        // if a retry occurs.
-        //
-
-        CollocatedRequestHandlerPtr self(shared_from_this());
         if (sentAsync(outAsync))
         {
             dispatchAll(is, requestId, dispatchCount);
