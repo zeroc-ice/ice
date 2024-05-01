@@ -116,12 +116,12 @@ Client::run(int, char**)
         cout << "testing ice properties with set default values... " << flush;
         Ice::PropertiesPtr properties = Ice::createProperties();
         string toStringMode = properties->getIceProperty("Ice.ToStringMode");
-        assert(toStringMode == "Unicode");
+        test(toStringMode == "Unicode");
         int32_t closeTimeout = properties->getIcePropertyAsInt("Ice.Connection.CloseTimeout");
-        assert(closeTimeout == 10);
+        test(closeTimeout == 10);
         vector<string> retryIntervals = properties->getIcePropertyAsList("Ice.RetryIntervals");
-        assert(retryIntervals.size() == 1);
-        assert(retryIntervals[0] == "0");
+        test(retryIntervals.size() == 1);
+        test(retryIntervals[0] == "0");
         cout << "ok" << endl;
     }
 
@@ -129,11 +129,11 @@ Client::run(int, char**)
         cout << "testing ice properties with unset default values... " << flush;
         Ice::PropertiesPtr properties = Ice::createProperties();
         string stringValue = properties->getIceProperty("Ice.Admin.Router");
-        assert(stringValue == "");
+        test(stringValue == "");
         int32_t intValue = properties->getIcePropertyAsInt("Ice.Admin.Router");
-        assert(intValue == 0);
+        test(intValue == 0);
         vector<string> listValue = properties->getIcePropertyAsList("Ice.Admin.Router");
-        assert(listValue.size() == 0);
+        test(listValue.size() == 0);
         cout << "ok" << endl;
     }
 
