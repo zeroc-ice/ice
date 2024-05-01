@@ -253,15 +253,6 @@
         {
         }
 
-        sendOptionalClass(req, current)
-        {
-        }
-
-        returnOptionalClass(req, current)
-        {
-            return new Test.OneOptional(53);
-        }
-
         opG(g, current)
         {
             return g;
