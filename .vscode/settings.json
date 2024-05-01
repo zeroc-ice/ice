@@ -6,7 +6,6 @@
         "--rcfile=tox.ini"
     ],
     "files.associations": {
-        "*.gohtml": "html",
         "Make.*": "makefile",
         "vector": "cpp",
         "__bit_reference": "cpp",
