@@ -17,7 +17,7 @@ namespace Slice
     public:
         JsGenerator() = default;
         JsGenerator(const JsGenerator&) = delete;
-        virtual ~JsGenerator() {};
+        virtual ~JsGenerator(){};
 
         JsGenerator& operator=(const JsGenerator&) = delete;
 
