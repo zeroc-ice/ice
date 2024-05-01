@@ -100,7 +100,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
             throw SecurityException(__FILE__, __LINE__, "openssl failure");
         }
 
-        _sslCtx = _localSslContextSelectionCallback(_incoming ? _adapterName : _host).release();
+        _sslCtx = _localSslContextSelectionCallback(_incoming ? _adapterName : _host);
         if (!_sslCtx)
         {
             throw SecurityException(__FILE__, __LINE__, "SSL error: the SSL context selection callback returned null");

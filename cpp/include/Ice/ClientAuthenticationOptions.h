@@ -71,7 +71,7 @@ namespace Ice::SSL
          * auto initData = Ice::InitializationData {
          *   ...
          *   .clientAuthenticationOptions = ClientAuthenticationOptions {
-         *      .cientCertificateSelectionCallback = [this](const std::string&)
+         *      .clientCertificateSelectionCallback = [this](const std::string&)
          *      {
          *        // Retain the client certificate chain to ensure it remains valid for the duration
          *        // of the connection. The SSL transport will release it after closing the connection.
@@ -197,9 +197,9 @@ namespace Ice::SSL
          * A callback that allows selecting the client's SSL_CTX object based on the target host name.
          *
          * @remarks This callback is used to associate a specific SSL configuration with an outgoing connection
-         * identified by the target host name. The returned SSL_CTX pointer is wrapped in an SslContextPtr object, which
-         * ensures that the SSL_CTX object is not destroyed until the caller releases it. The returned SslContextPtr
-         * object must hold a pointer to a valid SSL_CTX object which was previously initialized using OpenSSL API.
+         * identified by the target host name. The callback must return a pointer to a valid SSL_CTX object which was
+         * previously initialized using OpenSSL API. The SSL transport takes ownership of the returned SSL_CTX pointer
+         * and releases it after closing the connection.
          *
          * If the application does not provide a callback, the Ice SSL transport will use a SSL_CTX object created
          * with SSL_CTX_new() for the connection, which uses the systems default OpenSSL configuration.
@@ -208,13 +208,32 @@ namespace Ice::SSL
          * it starts the SSL handshake.
          *
          * @param host The target host name.
-         * @return A SslContextPtr that holds the SSL_CTX representing the SSL configuration for the new outgoing
-         * connection.
+         * @return A pointer to a SSL_CTX objet representing the SSL configuration for the new outgoing connection.
+         *
+         * Example of setting clientSslContextSelectionCallback:
+         * ```cpp
+         * SSL_CTX* _sslContext = SSL_CTX_new(TLS_method());
+         * ...
+         * auto initData = Ice::InitializationData {
+         *   ...
+         *   .clientAuthenticationOptions = ClientAuthenticationOptions {
+         *     .clientSslContextSelectionCallback = [this](const std::string&) {
+         *       // Ensure the SSL context remains valid for the lifetime of the connection.
+         *       SSL_CTX_up_ref(_sslContext);
+         *       return _sslContext;
+         *     }
+         *   }
+         * };
+         *
+         * auto communicator = Ice::initialize(initData);
+         * ...
+         * SSL_CTX_free(_sslContext); // Release ssl context when no longer needed
+         * ```
          *
          * @see Detailed OpenSSL documentation on SSL_CTX management:
          * https://www.openssl.org/docs/manmaster/man3/SSL_CTX_new.html
          */
-        std::function<SslContextPtr(const std::string& host)> clientSslContextSelectionCallback;
+        std::function<SSL_CTX*(const std::string& host)> clientSslContextSelectionCallback;
 
         /**
          * A callback that is invoked before initiating a new SSL handshake. This callback provides an opportunity to
@@ -222,6 +241,22 @@ namespace Ice::SSL
          *
          * @param ssl A pointer to the SSL object representing the connection.
          * @param host The target server host name.
+         *
+         * Example of setting sslNewSessionCallback:
+         * ```cpp
+         * auto initData = Ice::InitializationData {
+         *   ...
+         *   .clientAuthenticationOptions = ClientAuthenticationOptions {
+         *     .sslNewSessionCallback = [this](SSL* ssl, const std::string&) {
+         *       if (!SSL_set_tlsext_host_name(ssl, host.c_str())) {
+         *          // Handle error
+         *       }
+         *     }
+         *   }
+         * };
+         *
+         * auto communicator = Ice::initialize(initData);
+         * ```
          *
          * @see Detailed OpenSSL documentation on SSL object management:
          * https://www.openssl.org/docs/manmaster/man3/SSL_new.html
@@ -238,10 +273,23 @@ namespace Ice::SSL
          * @param info The IceSSL::ConnectionInfoPtr object that provides additional connection-related data
          * which might be relevant for contextual certificate validation.
          * @return true if the certificate chain is valid and the connection should proceed; false if the certificate
-         * chain is invalid and the connection should be aborted. An exception may be thrown to indicate a custom
-         * error during the validation process.
+         * chain is invalid and the connection should be aborted.
+         * @throws Ice::SecurityException if the certificate chain is invalid and the connection should be aborted.
          *
-         * @note Throwing an exception from this callback will result in the termination of the connection.
+         * Example of setting serverCertificateValidationCallback:
+         * ```cpp
+         * auto initData = Ice::InitializationData {
+         *   ...
+         *   .clientAuthenticationOptions = ClientAuthenticationOptions {
+         *     .serverCertificateValidationCallback =
+         *     [this](bool verified, X509_STORE_CTX* ctx, const IceSSL::ConnectionInfoPtr& info) {
+         *       ...
+         *       return verified;
+         *     }
+         *   }
+         * };
+         * auto communicator = Ice::initialize(initData);
+         * ```
          *
          * @see More details on certificate verification in OpenSSL:
          * https://www.openssl.org/docs/manmaster/man3/SSL_set_verify.html
