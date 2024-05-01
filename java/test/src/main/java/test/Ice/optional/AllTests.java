@@ -2003,6 +2003,7 @@ public class AllTests {
         //
         // Use the 1.0 encoding with an exception whose only class members are optional.
         //
+        InitialPrx initial2 = initial.ice_encodingVersion(com.zeroc.Ice.Util.Encoding_1_0);
         OptionalInt a = OptionalInt.of(30);
         Optional<String> b = Optional.of("test");
         Optional<OneOptional> o = Optional.of(new OneOptional(53));

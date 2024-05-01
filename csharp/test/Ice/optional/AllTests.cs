@@ -1964,6 +1964,7 @@ namespace Ice
                         //
                         // Use the 1.0 encoding with an exception whose only class members are optional.
                         //
+                        Test.InitialPrx initial2 = (Test.InitialPrx)initial.ice_encodingVersion(Ice.Util.Encoding_1_0);
                         Ice.Optional<int> a = new Ice.Optional<int>(30);
                         Ice.Optional<string> b = new Ice.Optional<string>("test");
                         Ice.Optional<Test.OneOptional> o = new Ice.Optional<Test.OneOptional>(new Test.OneOptional(53));
