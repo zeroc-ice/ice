@@ -404,8 +404,9 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
     _out << sp;
     _out << nl << "public override bool ice_isA(string s, " << getUnqualified("Ice.Current", ns) << " current = null)";
     _out << sb;
-    _out << nl
-         << "return global::System.Array.BinarySearch(_ids, s, Ice.UtilInternal.StringUtil.OrdinalStringComparer) >= 0;";
+    _out
+        << nl
+        << "return global::System.Array.BinarySearch(_ids, s, Ice.UtilInternal.StringUtil.OrdinalStringComparer) >= 0;";
     _out << eb;
 
     _out << sp;
@@ -3040,8 +3041,8 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, u
                     //
                     // Equals() for generic types does not have value semantics.
                     //
-                    _out << nl << "if(!global::Ice.UtilInternal.Collections.SequenceEquals(this." << memberName << ", o."
-                         << memberName << "))";
+                    _out << nl << "if(!global::Ice.UtilInternal.Collections.SequenceEquals(this." << memberName
+                         << ", o." << memberName << "))";
                 }
             }
             else
