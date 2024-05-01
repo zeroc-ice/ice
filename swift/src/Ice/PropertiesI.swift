@@ -9,6 +9,13 @@ class PropertiesI: LocalObject<ICEProperties>, Properties {
     return handle.getProperty(key)
   }
 
+  public func getIceProperty(_ key: String) throws -> String {
+      guard let value = handle.getIceProperty(key) else {
+          throw RuntimeError("unknown ice property: \(key)")
+      }
+      return value;
+  }
+
   public func getPropertyWithDefault(key: String, value: String) -> String {
     return handle.getPropertyWithDefault(key, value: value)
   }
@@ -17,12 +24,26 @@ class PropertiesI: LocalObject<ICEProperties>, Properties {
     return handle.getPropertyAsInt(key)
   }
 
+  public func getIcePropertyAsInt(_ key: String) throws -> Int32 {
+      guard let value = handle.getIcePropertyAsInt(key) as? Int32 else {
+          throw RuntimeError("unknown ice property: \(key)")
+      }
+      return value;
+  }
+
   public func getPropertyAsIntWithDefault(key: String, value: Int32) -> Int32 {
     return handle.getPropertyAsIntWithDefault(key: key, value: value)
   }
 
   public func getPropertyAsList(_ key: String) -> StringSeq {
     return handle.getPropertyAsList(key)
+  }
+
+  public func getIcePropertyAsList(_ key: String) throws -> StringSeq {
+      guard let value = handle.getIcePropertyAsList(key) else {
+          throw RuntimeError("unknown ice property: \(key)")
+      }
+      return value
   }
 
   public func getPropertyAsListWithDefault(key: String, value: StringSeq) -> StringSeq {

@@ -6,6 +6,8 @@
         "--rcfile=tox.ini"
     ],
     "files.associations": {
+        "*.gohtml": "html",
+        "Make.*": "makefile",
         "vector": "cpp",
         "__bit_reference": "cpp",
         "__config": "cpp",
@@ -79,7 +81,8 @@
         "cassert": "cpp",
         "span": "cpp",
         "functional": "cpp",
-        "__memory": "cpp"
+        "__memory": "cpp",
+        "queue": "cpp"
     },
     "C_Cpp.default.cppStandard": "c++20",
 }

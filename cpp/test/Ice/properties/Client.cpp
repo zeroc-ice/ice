@@ -111,6 +111,45 @@ Client::run(int, char**)
         }
         cout << "ok" << endl;
     }
+
+    {
+        cout << "testing ice properties with set default values... " << flush;
+        Ice::PropertiesPtr properties = Ice::createProperties();
+        string toStringMode = properties->getIceProperty("Ice.ToStringMode");
+        assert(toStringMode == "Unicode");
+        int32_t closeTimeout = properties->getIcePropertyAsInt("Ice.Connection.CloseTimeout");
+        assert(closeTimeout == 10);
+        vector<string> retryIntervals = properties->getIcePropertyAsList("Ice.RetryIntervals");
+        assert(retryIntervals.size() == 1);
+        assert(retryIntervals[0] == "0");
+        cout << "ok" << endl;
+    }
+
+    {
+        cout << "testing ice properties with unset default values... " << flush;
+        Ice::PropertiesPtr properties = Ice::createProperties();
+        string stringValue = properties->getIceProperty("Ice.Admin.Router");
+        assert(stringValue == "");
+        int32_t intValue = properties->getIcePropertyAsInt("Ice.Admin.Router");
+        assert(intValue == 0);
+        vector<string> listValue = properties->getIcePropertyAsList("Ice.Admin.Router");
+        assert(listValue.size() == 0);
+        cout << "ok" << endl;
+    }
+
+    {
+        cout << "testing that getting an unknown Ice property throws an exception... " << flush;
+        try
+        {
+            Ice::PropertiesPtr properties = Ice::createProperties();
+            properties->getIceProperty("Ice.UnknownProperty");
+            test(false);
+        }
+        catch (const std::invalid_argument&)
+        {
+        }
+        cout << "ok" << endl;
+    }
 }
 
 DEFINE_TEST(Client)

@@ -4,6 +4,8 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.IceInternal.Property;
+
 public final class PropertiesI implements Properties {
   static class PropertyValue {
     public PropertyValue(PropertyValue v) {
@@ -32,6 +34,17 @@ public final class PropertiesI implements Properties {
   }
 
   @Override
+  public synchronized String getIceProperty(String key) {
+    PropertyValue pv = _properties.get(key);
+    if (pv != null) {
+      pv.used = true;
+      return pv.value;
+    } else {
+      return getDefaultProperty(key);
+    }
+  }
+
+  @Override
   public synchronized String getPropertyWithDefault(String key, String value) {
     PropertyValue pv = _properties.get(key);
     if (pv != null) {
@@ -45,6 +58,17 @@ public final class PropertiesI implements Properties {
   @Override
   public int getPropertyAsInt(String key) {
     return getPropertyAsIntWithDefault(key, 0);
+  }
+
+  @Override
+  public synchronized int getIcePropertyAsInt(String key) {
+    String defaultValueString = getDefaultProperty(key);
+    int defaultValue = 0;
+    if (defaultValueString != "") {
+      defaultValue = Integer.parseInt(defaultValueString);
+    }
+
+    return getPropertyAsIntWithDefault(key, defaultValue);
   }
 
   @Override
@@ -68,6 +92,13 @@ public final class PropertiesI implements Properties {
   @Override
   public String[] getPropertyAsList(String key) {
     return getPropertyAsListWithDefault(key, null);
+  }
+
+  @Override
+  public synchronized String[] getIcePropertyAsList(String key) {
+    String[] defaultList =
+        com.zeroc.IceUtilInternal.StringUtil.splitString(getDefaultProperty(key), ", \t\r\n");
+    return getPropertyAsListWithDefault(key, defaultList);
   }
 
   @Override
@@ -118,65 +149,16 @@ public final class PropertiesI implements Properties {
       key = key.trim();
     }
 
-    //
-    // Check if the property is legal.
-    //
-    Logger logger = Util.getProcessLogger();
     if (key == null || key.length() == 0) {
       throw new InitializationException("Attempt to set property with empty key");
     }
 
-    int dotPos = key.indexOf('.');
-    if (dotPos != -1) {
-      String prefix = key.substring(0, dotPos);
-      for (int i = 0; com.zeroc.IceInternal.PropertyNames.validProps[i] != null; ++i) {
-        String pattern = com.zeroc.IceInternal.PropertyNames.validProps[i][0].pattern();
-        dotPos = pattern.indexOf('.');
-        //
-        // Each top level prefix describes a non-empty namespace. Having a string without a
-        // prefix followed by a dot is an error.
-        //
-        assert (dotPos != -1);
-        String propPrefix = pattern.substring(0, dotPos - 1);
-        boolean mismatchCase = false;
-        String otherKey = "";
-        if (!propPrefix.toUpperCase().equals(prefix.toUpperCase())) {
-          continue;
-        }
+    // Find the property, log warnings if necessary
+    Property prop = findProperty(key, true);
 
-        boolean found = false;
-        for (int j = 0;
-            com.zeroc.IceInternal.PropertyNames.validProps[i][j] != null && !found;
-            ++j) {
-          pattern = com.zeroc.IceInternal.PropertyNames.validProps[i][j].pattern();
-          java.util.regex.Pattern pComp = java.util.regex.Pattern.compile(pattern);
-          java.util.regex.Matcher m = pComp.matcher(key);
-          found = m.matches();
-
-          if (found && com.zeroc.IceInternal.PropertyNames.validProps[i][j].deprecated()) {
-            logger.warning("deprecated property: " + key);
-            if (com.zeroc.IceInternal.PropertyNames.validProps[i][j].deprecatedBy() != null) {
-              key = com.zeroc.IceInternal.PropertyNames.validProps[i][j].deprecatedBy();
-            }
-          }
-
-          if (!found) {
-            pComp = java.util.regex.Pattern.compile(pattern.toUpperCase());
-            m = pComp.matcher(key.toUpperCase());
-            if (m.matches()) {
-              found = true;
-              mismatchCase = true;
-              otherKey = pattern.replaceAll("\\\\", "");
-              break;
-            }
-          }
-        }
-        if (!found) {
-          logger.warning("unknown property: " + key);
-        } else if (mismatchCase) {
-          logger.warning("unknown property: `" + key + "'; did you mean `" + otherKey + "'");
-        }
-      }
+    // If the property is deprecated by another property, use the new property key
+    if (prop != null && prop.deprecatedBy() != null) {
+      key = prop.deprecatedBy();
     }
 
     synchronized (this) {
@@ -607,6 +589,84 @@ public final class PropertiesI implements Properties {
 
       _properties.put("Ice.Config", new PropertyValue(value, true));
     }
+  }
+
+  /*
+   * Find a property by key.
+   * @param key The property key.
+   * @param logWarnings Whether to log if the property is a known Ice property.
+   * @return The property or null if the property is unknown.
+   */
+  private static Property findProperty(String key, Boolean logWarnings) {
+    // Check if the property is a known Ice property and log warnings if necessary
+    Logger logger = Util.getProcessLogger();
+
+    int dotPos = key.indexOf('.');
+    if (dotPos != -1) {
+      String prefix = key.substring(0, dotPos);
+      for (int i = 0; com.zeroc.IceInternal.PropertyNames.validProps[i] != null; ++i) {
+        String pattern = com.zeroc.IceInternal.PropertyNames.validProps[i][0].pattern();
+        dotPos = pattern.indexOf('.');
+        //
+        // Each top level prefix describes a non-empty namespace. Having a string without a
+        // prefix followed by a dot is an error.
+        //
+        assert (dotPos != -1);
+        String propPrefix = pattern.substring(0, dotPos - 1);
+
+        // If the prefix is not the same, skip to the next set of properties
+        if (!propPrefix.toUpperCase().equals(prefix.toUpperCase())) {
+          continue;
+        }
+
+        for (int j = 0; com.zeroc.IceInternal.PropertyNames.validProps[i][j] != null; ++j) {
+          Property prop = com.zeroc.IceInternal.PropertyNames.validProps[i][j];
+          java.util.regex.Pattern pComp = java.util.regex.Pattern.compile(prop.pattern());
+          java.util.regex.Matcher m = pComp.matcher(key);
+
+          if (m.matches()) {
+            if (prop.deprecated() && logWarnings) {
+              logger.warning("deprecated property: " + key);
+            }
+            return prop;
+          }
+
+          // Check for case-insensitive match
+          pComp = java.util.regex.Pattern.compile(pattern.toUpperCase());
+          m = pComp.matcher(key.toUpperCase());
+          if (m.matches()) {
+            if (logWarnings) {
+              String otherKey = pattern.replaceAll("\\\\", "");
+              logger.warning("unknown property: `" + key + "'; did you mean `" + otherKey + "'");
+            }
+            return null;
+          }
+        }
+
+        // If we reach this point, the property is unknown
+        if (logWarnings) {
+          logger.warning("unknown property: " + key);
+        }
+        return null;
+      }
+    }
+
+    // The key does not match a known Ice property
+    return null;
+  }
+
+  /*
+   * Gets the default value for a given Ice property.
+   * @param key The property key.
+   * @return The default value.
+   * @throws IllegalArgumentException if the property is unknown.
+   */
+  private static String getDefaultProperty(String key) {
+    Property prop = findProperty(key, false);
+    if (prop == null) {
+      throw new IllegalArgumentException("unknown ice property: " + key);
+    }
+    return prop.defaultValue();
   }
 
   private java.util.HashMap<String, PropertyValue> _properties = new java.util.HashMap<>();

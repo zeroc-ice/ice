@@ -71,5 +71,42 @@ class Client < ::TestHelper
             test(properties.getProperty(key) == value)
         end
         puts "ok"
+
+        print "testing ice properties with set default values..."
+        properties = Ice.createProperties(args)
+
+        toStringMode = properties.getIceProperty("Ice.ToStringMode")
+        test(toStringMode == "Unicode")
+
+        closeTimeout = properties.getIcePropertyAsInt("Ice.Connection.CloseTimeout")
+        test(closeTimeout == 10)
+
+        retryIntervals = properties.getIcePropertyAsList("Ice.RetryIntervals")
+        test(retryIntervals == ["0"])
+        puts "ok"
+
+        print "testing ice properties with unset default values..."
+        properties = Ice.createProperties(args)
+
+        stringValue = properties.getIceProperty("Ice.Admin.Router")
+        test(stringValue == "")
+
+        intValue = properties.getIcePropertyAsInt("Ice.Admin.Router")
+        test(intValue == 0)
+
+        listValue = properties.getIcePropertyAsList("Ice.Admin.Router")
+        test(listValue == [])
+        puts "ok"
+
+        print "testing that getting an unknown ice property throws an exception..."
+        begin
+            properties = Ice.createProperties(args)
+            properties.getIceProperty("Ice.UnknownProperty")
+            test(false)
+        rescue RuntimeError => ex
+            test ex.to_s == "unknown ice property: Ice.UnknownProperty"
+        end
+        puts "ok"
+
     end
 end

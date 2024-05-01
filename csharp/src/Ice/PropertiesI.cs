@@ -41,6 +41,11 @@ internal sealed class PropertiesI : Properties
         }
     }
 
+    public string getIceProperty(string key)
+    {
+        return getPropertyWithDefault(key, getDefaultProperty(key));
+    }
+
     public string getPropertyWithDefault(string key, string val)
     {
         lock (this)
@@ -59,6 +64,18 @@ internal sealed class PropertiesI : Properties
     public int getPropertyAsInt(string key)
     {
         return getPropertyAsIntWithDefault(key, 0);
+    }
+
+    public int getIcePropertyAsInt(string key)
+    {
+        string defaultValueString = getDefaultProperty(key);
+        int defaultValue = 0;
+        if (!string.IsNullOrEmpty(defaultValueString))
+        {
+            defaultValue = int.Parse(defaultValueString, CultureInfo.InvariantCulture);
+        }
+
+        return getPropertyAsIntWithDefault(key, defaultValue);
     }
 
     public int getPropertyAsIntWithDefault(string key, int val)
@@ -87,6 +104,12 @@ internal sealed class PropertiesI : Properties
     public string[] getPropertyAsList(string key)
     {
         return getPropertyAsListWithDefault(key, null);
+    }
+
+    public string[] getIcePropertyAsList(string key)
+    {
+        string[] defaultList = IceUtilInternal.StringUtil.splitString(getDefaultProperty(key), ", \t\r\n");
+        return getPropertyAsListWithDefault(key, defaultList);
     }
 
     public string[] getPropertyAsListWithDefault(string key, string[] val)
@@ -153,68 +176,13 @@ internal sealed class PropertiesI : Properties
             throw new InitializationException("Attempt to set property with empty key");
         }
 
-        //
-        // Check if the property is legal.
-        //
-        Logger logger = Util.getProcessLogger();
-        int dotPos = key.IndexOf('.');
-        if (dotPos != -1)
+        // Find the property, log warnings if necessary
+        var prop = findProperty(key, true);
+
+        // If the property is deprecated by another property, use the new property key
+        if (prop != null && prop.deprecatedBy() != null)
         {
-            string prefix = key.Substring(0, dotPos);
-            foreach (var validProps in IceInternal.PropertyNames.validProps)
-            {
-                string pattern = validProps[0].pattern();
-                dotPos = pattern.IndexOf('.');
-                Debug.Assert(dotPos != -1);
-                string propPrefix = pattern.Substring(1, dotPos - 2);
-                bool mismatchCase = false;
-                string otherKey = "";
-                if (!propPrefix.ToUpper().Equals(prefix.ToUpper()))
-                {
-                    continue;
-                }
-
-                bool found = false;
-                foreach (var prop in validProps)
-                {
-                    Regex r = new Regex(prop.pattern());
-                    Match m = r.Match(key);
-                    found = m.Success;
-                    if (found)
-                    {
-                        if (prop.deprecated())
-                        {
-                            logger.warning("deprecated property: " + key);
-                            if (prop.deprecatedBy() != null)
-                            {
-                                key = prop.deprecatedBy();
-                            }
-                        }
-                        break;
-                    }
-
-                    if (!found)
-                    {
-                        r = new Regex(prop.pattern().ToUpper());
-                        m = r.Match(key.ToUpper());
-                        if (m.Success)
-                        {
-                            found = true;
-                            mismatchCase = true;
-                            otherKey = prop.pattern().Replace("\\", "").Replace("^", "").Replace("$", "");
-                            break;
-                        }
-                    }
-                }
-                if (!found)
-                {
-                    logger.warning("unknown property: " + key);
-                }
-                else if (mismatchCase)
-                {
-                    logger.warning("unknown property: `" + key + "'; did you mean `" + otherKey + "'");
-                }
-            }
+            key = prop.deprecatedBy();
         }
 
         lock (this)
@@ -449,136 +417,136 @@ internal sealed class PropertiesI : Properties
             switch (state)
             {
                 case ParseStateKey:
-                {
-                    switch (c)
                     {
-                        case '\\':
-                            if (i < line.Length - 1)
-                            {
-                                c = line[++i];
-                                switch (c)
+                        switch (c)
+                        {
+                            case '\\':
+                                if (i < line.Length - 1)
                                 {
-                                    case '\\':
-                                    case '#':
-                                    case '=':
-                                        key += whitespace;
-                                        whitespace = "";
-                                        key += c;
-                                        break;
+                                    c = line[++i];
+                                    switch (c)
+                                    {
+                                        case '\\':
+                                        case '#':
+                                        case '=':
+                                            key += whitespace;
+                                            whitespace = "";
+                                            key += c;
+                                            break;
 
-                                    case ' ':
-                                        if (key.Length != 0)
-                                        {
-                                            whitespace += c;
-                                        }
-                                        break;
+                                        case ' ':
+                                            if (key.Length != 0)
+                                            {
+                                                whitespace += c;
+                                            }
+                                            break;
 
-                                    default:
-                                        key += whitespace;
-                                        whitespace = "";
-                                        key += '\\';
-                                        key += c;
-                                        break;
+                                        default:
+                                            key += whitespace;
+                                            whitespace = "";
+                                            key += '\\';
+                                            key += c;
+                                            break;
+                                    }
                                 }
-                            }
-                            else
-                            {
+                                else
+                                {
+                                    key += whitespace;
+                                    key += c;
+                                }
+                                break;
+
+                            case ' ':
+                            case '\t':
+                            case '\r':
+                            case '\n':
+                                if (key.Length != 0)
+                                {
+                                    whitespace += c;
+                                }
+                                break;
+
+                            case '=':
+                                whitespace = "";
+                                state = ParseStateValue;
+                                break;
+
+                            case '#':
+                                finished = true;
+                                break;
+
+                            default:
                                 key += whitespace;
+                                whitespace = "";
                                 key += c;
-                            }
-                            break;
-
-                        case ' ':
-                        case '\t':
-                        case '\r':
-                        case '\n':
-                            if (key.Length != 0)
-                            {
-                                whitespace += c;
-                            }
-                            break;
-
-                        case '=':
-                            whitespace = "";
-                            state = ParseStateValue;
-                            break;
-
-                        case '#':
-                            finished = true;
-                            break;
-
-                        default:
-                            key += whitespace;
-                            whitespace = "";
-                            key += c;
-                            break;
+                                break;
+                        }
+                        break;
                     }
-                    break;
-                }
 
                 case ParseStateValue:
-                {
-                    switch (c)
                     {
-                        case '\\':
-                            if (i < line.Length - 1)
-                            {
-                                c = line[++i];
-                                switch (c)
+                        switch (c)
+                        {
+                            case '\\':
+                                if (i < line.Length - 1)
                                 {
-                                    case '\\':
-                                    case '#':
-                                    case '=':
-                                        val += val.Length == 0 ? escapedspace : whitespace;
-                                        whitespace = "";
-                                        escapedspace = "";
-                                        val += c;
-                                        break;
+                                    c = line[++i];
+                                    switch (c)
+                                    {
+                                        case '\\':
+                                        case '#':
+                                        case '=':
+                                            val += val.Length == 0 ? escapedspace : whitespace;
+                                            whitespace = "";
+                                            escapedspace = "";
+                                            val += c;
+                                            break;
 
-                                    case ' ':
-                                        whitespace += c;
-                                        escapedspace += c;
-                                        break;
+                                        case ' ':
+                                            whitespace += c;
+                                            escapedspace += c;
+                                            break;
 
-                                    default:
-                                        val += val.Length == 0 ? escapedspace : whitespace;
-                                        whitespace = "";
-                                        escapedspace = "";
-                                        val += '\\';
-                                        val += c;
-                                        break;
+                                        default:
+                                            val += val.Length == 0 ? escapedspace : whitespace;
+                                            whitespace = "";
+                                            escapedspace = "";
+                                            val += '\\';
+                                            val += c;
+                                            break;
+                                    }
                                 }
-                            }
-                            else
-                            {
+                                else
+                                {
+                                    val += val.Length == 0 ? escapedspace : whitespace;
+                                    val += c;
+                                }
+                                break;
+
+                            case ' ':
+                            case '\t':
+                            case '\r':
+                            case '\n':
+                                if (val.Length != 0)
+                                {
+                                    whitespace += c;
+                                }
+                                break;
+
+                            case '#':
+                                finished = true;
+                                break;
+
+                            default:
                                 val += val.Length == 0 ? escapedspace : whitespace;
+                                whitespace = "";
+                                escapedspace = "";
                                 val += c;
-                            }
-                            break;
-
-                        case ' ':
-                        case '\t':
-                        case '\r':
-                        case '\n':
-                            if (val.Length != 0)
-                            {
-                                whitespace += c;
-                            }
-                            break;
-
-                        case '#':
-                            finished = true;
-                            break;
-
-                        default:
-                            val += val.Length == 0 ? escapedspace : whitespace;
-                            whitespace = "";
-                            escapedspace = "";
-                            val += c;
-                            break;
+                                break;
+                        }
+                        break;
                     }
-                    break;
-                }
             }
             if (finished)
             {
@@ -623,6 +591,90 @@ internal sealed class PropertiesI : Properties
 
             _properties["Ice.Config"] = new PropertyValue(val, true);
         }
+    }
+
+    /// <summary>
+    ///  Find a property in the Ice property set.
+    /// </summary>
+    /// <param name="key">The property's key.</param>
+    /// <param name="logWarnings">Whether to log relevant warnings.</param>
+    /// <returns>The found property</returns>
+    private static IceInternal.Property findProperty(string key, bool logWarnings)
+    {
+        // Check if the property is a known Ice property and log warnings if necessary
+        Logger logger = Util.getProcessLogger();
+        int dotPos = key.IndexOf('.');
+        if (dotPos != -1)
+        {
+            string prefix = key.Substring(0, dotPos);
+            foreach (var validProps in IceInternal.PropertyNames.validProps)
+            {
+                string pattern = validProps[0].pattern();
+                dotPos = pattern.IndexOf('.');
+                Debug.Assert(dotPos != -1);
+                string propPrefix = pattern.Substring(1, dotPos - 2);
+
+                // If the prefix is not the same, skip to the next set of properties
+                if (!propPrefix.ToUpper().Equals(prefix.ToUpper()))
+                {
+                    continue;
+                }
+
+                foreach (var prop in validProps)
+                {
+                    Regex r = new Regex(prop.pattern());
+                    Match m = r.Match(key);
+                    if (m.Success)
+                    {
+                        if (prop.deprecated() && logWarnings)
+                        {
+                            logger.warning("deprecated property: " + key);
+                        }
+                        return prop;
+                    }
+
+                    // Check for case-insensitive match
+                    r = new Regex(prop.pattern().ToUpper());
+                    m = r.Match(key.ToUpper());
+                    if (m.Success)
+                    {
+                        if (logWarnings)
+                        {
+                            string otherKey = prop.pattern().Replace("\\", "").Replace("^", "").Replace("$", "");
+                            logger.warning("unknown property: `" + key + "'; did you mean `" + otherKey + "'");
+                        }
+                        return null;
+                    }
+                }
+
+                // If we get here, the prefix is valid but the property is unknown
+                if (logWarnings)
+                {
+                    logger.warning("unknown property: " + key);
+                }
+                return null;
+            }
+        }
+
+        // The key does not match a known Ice property
+        return null;
+    }
+
+    /// <summary>
+    /// Gets the default value for a given Ice property.
+    /// </summary>
+    /// <param name="key">The Ice property key</param>
+    /// <returns>The default property value, or an empty string the default is unspecified.</returns>
+    /// <exception cref="ArgumentException"></exception>
+    static private string getDefaultProperty(string key)
+    {
+        // Find the property, don't log any warnings.
+        var prop = findProperty(key, false);
+        if (prop == null)
+        {
+            throw new ArgumentException("unknown ice property: " + key);
+        }
+        return prop.defaultValue();
     }
 
     private Dictionary<string, PropertyValue> _properties;

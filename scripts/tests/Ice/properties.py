@@ -3,11 +3,16 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-from Util import Client, ClientTestCase, TestSuite
+from Util import Client, ClientTestCase, MatlabMapping, PhpMapping, TestSuite
 
 
 class PropertiesTestSuite(TestSuite):
     def setup(self, current):
+        if isinstance(self.getMapping(), PhpMapping) or isinstance(
+            self.getMapping(), MatlabMapping
+        ):
+            return
+
         name = "\u4e2d\u56fd_client.config"
         current.createFile(
             "./config/" + name,

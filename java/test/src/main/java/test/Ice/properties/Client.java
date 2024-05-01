@@ -92,6 +92,50 @@ public class Client extends test.TestHelper {
       }
       System.out.println("ok");
     }
+
+    {
+      System.out.print("testing ice properties with set default values...");
+      Properties properties = Util.createProperties();
+
+      String toStringMode = properties.getIceProperty("Ice.ToStringMode");
+      test(toStringMode.equals("Unicode"));
+
+      int closeTimeout = properties.getIcePropertyAsInt("Ice.Connection.CloseTimeout");
+      test(closeTimeout == 10);
+
+      String[] retryIntervals = properties.getIcePropertyAsList("Ice.RetryIntervals");
+      test(retryIntervals.length == 1);
+      test(retryIntervals[0].equals("0"));
+
+      System.out.println("ok");
+    }
+
+    {
+      System.out.print("testing ice properties with unset default values...");
+      Properties properties = Util.createProperties();
+
+      String stringValue = properties.getIceProperty("IceSSL.CAs");
+      test(stringValue.isEmpty());
+
+      int intValue = properties.getIcePropertyAsInt("IceSSL.CAs");
+      test(intValue == 0);
+
+      String[] listValue = properties.getIcePropertyAsList("IceSSL.CAs");
+      test(listValue.length == 0);
+
+      System.out.println("ok");
+    }
+
+    {
+      System.out.print("testing that getting an unknown ice property throws an exception...");
+      Properties properties = Util.createProperties();
+      try {
+        properties.getIceProperty("Ice.UnknownProperty");
+        test(false);
+      } catch (IllegalArgumentException ex) {
+      }
+      System.out.println("ok");
+    }
   }
 
   private static String configPath = "./config/\u4E2D\u56FD_client.config";

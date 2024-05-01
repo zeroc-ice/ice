@@ -26,6 +26,15 @@ public protocol Properties: Swift.AnyObject {
   /// - returns: `Swift.String` - The property value.
   func getProperty(_ key: Swift.String) -> Swift.String
 
+  /// Get an Ice property by key. If the property is not set, its default value is returned.
+  ///
+  /// - parameter key: `Swift.String` The property key.
+  ///
+  /// - returns: `Swift.String` - The property value or the default value.
+  ///
+  /// - throws: `NSException` if the key is not a valid Ice property
+  func getIceProperty(_ key: Swift.String) throws -> Swift.String
+
   /// Get a property by key. If the property is not set, the given default value is returned.
   ///
   /// - parameter key: `Swift.String` The property key.
@@ -41,6 +50,15 @@ public protocol Properties: Swift.AnyObject {
   ///
   /// - returns: `Swift.Int32` - The property value interpreted as an integer.
   func getPropertyAsInt(_ key: Swift.String) -> Swift.Int32
+
+  /// Get an Ice property as an integer. If the property is not set,its default value is returned.
+  ///
+  /// - parameter key: `Swift.String` The property key.
+  ///
+  /// - returns: `Swift.Int32` - The property value interpreted as an integer, or the default value.
+  ///
+  /// - throws: `NSException` if the key is not a valid Ice property
+  func getIcePropertyAsInt(_ key: Swift.String) throws -> Swift.Int32
 
   /// Get a property as an integer. If the property is not set, the given default value is returned.
   ///
@@ -61,6 +79,19 @@ public protocol Properties: Swift.AnyObject {
   ///
   /// - returns: `StringSeq` - The property value interpreted as a list of strings.
   func getPropertyAsList(_ key: Swift.String) -> StringSeq
+
+  /// Get an Ice property as a list of strings.  The strings must be separated by whitespace or comma. If the property
+  /// is not set, its default list is returned. The strings in the list can contain whitespace and commas if they are
+  /// enclosed in single or double quotes. If quotes are mismatched, the default list is returned. Within single
+  /// quotes or double quotes, you can escape the quote in question with a backslash, e.g. O'Reilly can be written as
+  /// O'Reilly, "O'Reilly" or 'O\'Reilly'.
+  ///
+  /// - parameter key: `Swift.String` The property key.
+  ///
+  /// - returns: `StringSeq` - The property value interpreted as list of strings, or the default value.
+  ///
+  /// - throws: `NSException` if the key is not a valid Ice property
+  func getIcePropertyAsList(_ key: Swift.String) throws -> StringSeq
 
   /// Get a property as a list of strings.  The strings must be separated by whitespace or comma. If the property is
   /// not set, the default list is returned. The strings in the list can contain whitespace and commas if they are
