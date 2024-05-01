@@ -121,7 +121,7 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
 
         if (_localCertificateSelectionCallback)
         {
-            _certificates = _localCertificateSelectionCallback(_incoming ? _adapterName : _host).release();
+            _certificates = _localCertificateSelectionCallback(_incoming ? _adapterName : _host);
             if (_certificates)
             {
                 err = SSLSetCertificate(_ssl.get(), _certificates);
@@ -208,19 +208,31 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
                         _peerCerts.push_back(IceSSL::SecureTransport::Certificate::create(cert));
                     }
 
+                    if (_trustedRootCertificates)
+                    {
+                        if ((err = SecTrustSetAnchorCertificates(_trust.get(), _trustedRootCertificates)))
+                        {
+                            throw SecurityException(
+                                __FILE__,
+                                __LINE__,
+                                "IceSSL: handshake failure:\n" + sslErrorToString(err));
+                        }
+
+                        if ((err = SecTrustSetAnchorCertificatesOnly(_trust.get(), true)))
+                        {
+                            throw SecurityException(
+                                __FILE__,
+                                __LINE__,
+                                "IceSSL: handshake failure:\n" + sslErrorToString(err));
+                        }
+                    }
+
                     function<bool(SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)>
                         remoteCertificateValidationCallback =
                             _remoteCertificateValidationCallback
                                 ? _remoteCertificateValidationCallback
                                 : [this](SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)
-                    {
-                        return _engine->validationCallback(
-                            trust,
-                            info,
-                            _incoming,
-                            _incoming ? _adapterName : _host,
-                            _trustedRootCertificates);
-                    };
+                    { return _engine->validationCallback(trust, info, _incoming ? _adapterName : _host); };
 
                     if (remoteCertificateValidationCallback(
                             _trust.get(),
@@ -300,12 +312,6 @@ IceSSL::SecureTransport::TransceiverI::close()
     {
         CFRelease(_certificates);
         _certificates = 0;
-    }
-
-    if (_trustedRootCertificates)
-    {
-        CFRelease(_trustedRootCertificates);
-        _trustedRootCertificates = 0;
     }
 
     _delegate->close();
@@ -532,10 +538,6 @@ IceSSL::SecureTransport::TransceiverI::TransceiverI(
       _certificates(0),
       _trustedRootCertificates(serverAuthenticationOptions.trustedRootCertificates)
 {
-    if (_trustedRootCertificates)
-    {
-        CFRetain(_trustedRootCertificates);
-    }
 }
 
 IceSSL::SecureTransport::TransceiverI::TransceiverI(
@@ -558,10 +560,6 @@ IceSSL::SecureTransport::TransceiverI::TransceiverI(
       _certificates(0),
       _trustedRootCertificates(clientAuthenticationOptions.trustedRootCertificates)
 {
-    if (_trustedRootCertificates)
-    {
-        CFRetain(_trustedRootCertificates);
-    }
 }
 
 IceSSL::SecureTransport::TransceiverI::~TransceiverI() {}

@@ -2,13 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_CLIENT_AUTHENTICATION_OPTIONS_H
-#define ICE_CLIENT_AUTHENTICATION_OPTIONS_H
+#ifndef ICE_SSL_CLIENT_AUTHENTICATION_OPTIONS_H
+#define ICE_SSL_CLIENT_AUTHENTICATION_OPTIONS_H
 
-#include "SSLCertificateChain.h"
 #include "SSLConfig.h"
 #include "SSLConnectionInfo.h"
-#include "SSLContext.h"
 
 #include <functional>
 
@@ -54,26 +52,103 @@ namespace Ice::SSL
             serverCertificateValidationCallback;
 #elif defined(__APPLE__)
         /**
-         * A callback that allows selecting the client's certificate chain based on the target server host name.
+         * A callback that allows selecting the client's SSL certificate chain based on the target server host name.
+         *
+         * @remarks This callback is invoked by the SSL transport for each new outgoing connection before starting the
+         * SSL handshake to determine the appropriate client certificate chain. The callback should return a CFArrayRef
+         * that represents the client's certificate chain, or NULL if no certificate chain should be used for the
+         * connection. The SSL transport takes ownership of the returned CFArrayRef and releases it when the connection
+         * is closed.
          *
          * @param host The target server host name.
-         * @return The client's certificate chain. The certificate chain must remain valid for the duration of the
-         * connection.
+         * @return CFArrayRef containing the client's certificate chain, or NULL to indicate that no certificate is
+         * used.
          *
-         * The requirements for the Secure Transport certificate chain are documented in
-         * https://developer.apple.com/documentation/security/1392400-sslsetcertificate?changes=_3&language=objc
+         * Example of setting clientCertificateSelectionCallback:
+         * ```cpp
+         * _clientCertificateChain = CFArrayCreate(...); // Populate with X.509 certificate/key pair
+         *
+         * auto initData = Ice::InitializationData {
+         *   ...
+         *   .clientAuthenticationOptions = ClientAuthenticationOptions {
+         *      .cientCertificateSelectionCallback = [this](const std::string&)
+         *      {
+         *        // Retain the client certificate chain to ensure it remains valid for the duration
+         *        // of the connection. The SSL transport will release it after closing the connection.
+         *        CFRetain(_clientCertificateChain);
+         *        return _clientCertificateChain;
+         *      }
+         * };
+         *
+         * auto communicator = Ice::initialize(initData);
+         * ...
+         * CFRelease(_clientCertificateChain); // Release the CFArrayRef when no longer needed
+         * ```
+         *
+         * See the Secure Transport documentation for requirements on the certificate chain format:
+         * [SSLSetCertificate](https://developer.apple.com/documentation/security/1392400-sslsetcertificate?changes=_3&language=objc)
          */
-        std::function<CertificateChain(const std::string& host)> clientCertificateSelectionCallback;
+        std::function<CFArrayRef(const std::string& host)> clientCertificateSelectionCallback;
 
         /**
-         * The trusted root certificates. If set, the server's certificate chain is validated against these
-         * certificates. If not set the system's root certificates are used.
+         * The trusted root certificates used for validating the server's certificate chain. If this field is set, the
+         * server's certificate chain is validated against these certificates; otherwise, the system's default root
+         * certificates are used.
+         *
+         * @remarks The trusted root certificates are used by both the default validation callback, and by custom
+         * validation callback set in clientCertificateValidationCallback.
+         *
+         * This is equivalent to calling
+         * [SecTrustSetAnchorCertificates](https://developer.apple.com/documentation/security/1396098-sectrustsetanchorcertificates?language=objc)
+         * with the CFArrayRef object; and
+         * [SecTrustSetAnchorCertificatesOnly](https://developer.apple.com/documentation/security/1399071-sectrustsetanchorcertificatesonl?language=objc)
+         * with the `anchorCertificatesOnly` parameter set to true.
+         *
+         * The application must ensure that the CFArrayRef remains valid during the setup of the Communicator. It is
+         * also the application's responsibility to release the CFArrayRef object after the Communicator has been
+         * created to prevent memory leaks.
+         *
+         * Example of setting trustedRootCertificates:
+         * ```cpp
+         * CFArrayRef rootCerts = CFArrayCreate(...); // Populate with X.509 certificates
+         *
+         * auto initData = Ice::InitializationData {
+         *   ...
+         *   .clientAuthenticationOptions = ClientAuthenticationOptions {
+         *      .trustedRootCertificates = rootCerts;
+         *   }
+         * };
+         *
+         * auto communicator = Ice::initialize(initData);
+         * CFRelease(rootCerts); // It is safe to release the rootCerts now.
+         * ```
          */
         CFArrayRef trustedRootCertificates;
 
         /**
          * A callback that is invoked before initiating a new SSL handshake. This callback provides an opportunity to
-         * customize the SSL parameters for the session.
+         * customize the SSL parameters for the session based on specific client settings or requirements.
+         *
+         * Example of setting sslNewSessionCallback:
+         * ```cpp
+         * auto initData = Ice::InitializationData {
+         *   ...
+         *   .clientAuthenticationOptions = ClientAuthenticationOptions{
+         *     .sslNewSessionCallback =
+         *       [](SSLContextRef context, const std::string& host)
+         *       {
+         *         // Customize the ssl context using SecureTransport API.
+         *         OSStatus status = SSLSetProtocolVersionMin(context, kTLSProtocol13);
+         *         if(status != noErr)
+         *         {
+         *            // Handle error
+         *         }
+         *         ...
+         *       }
+         *     }
+         * };
+         * auto communicator = Ice::initialize(initData);
+         * ```
          *
          * @param context An opaque type that represents an SSL session context object.
          * @param host The target server host name.
@@ -81,31 +156,65 @@ namespace Ice::SSL
         std::function<void(SSLContextRef context, const std::string& host)> sslNewSessionCallback;
 
         /**
-         * A callback that allows manually validating the server certificate chain. When the verification callback
+         * A callback that allows manually validating the client server chain. When the verification callback
          * returns false, the connection will be aborted with an Ice::SecurityException.
+         *
+         * @remarks The server certificate chain is validated using the trust object passed to the callback. When this
+         * callback is set, it replaces the default validation callback and must perform all necessary validation
+         * steps. If trustedRootCertificates is set, the passed trust object will use them as the anchor certificates
+         * for evaluating trust. This setting can be modified by the application using
+         * [SecTrustSetAnchorCertificates](https://developer.apple.com/documentation/security/1396098-sectrustsetanchorcertificates?language=objc)
+         *
+         * Example of setting serverCertificateValidationCallback:
+         * ```cpp
+         * auto initData = Ice::InitializationData {
+         *   ...
+         *   .clientAuthenticationOptions = ClientAuthenticationOptions{
+         *     .serverCertificateValidationCallback =
+         *       [](SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)
+         *       {
+         *          ...
+         *          return SecTrustEvaluateWithError(trust, nullptr);
+         *       }
+         * });
+         * auto communicator = Ice::initialize(initData);
+         * ```
          *
          * @param trust The trust object that contains the server's certificate chain.
          * @param info The IceSSL::ConnectionInfoPtr object that provides additional connection-related data which might
          * be relevant for contextual certificate validation.
          * @return true if the certificate chain is valid and the connection should proceed; false if the certificate
-         * chain is invalid and the connection should be aborted. An exception may be thrown to indicate a custom
-         * error during the validation process.
+         * chain is invalid and the connection should be aborted.
+         * @throws Ice::SecurityException if the certificate chain is invalid and the connection should be aborted.
+         *
+         * [See
+         * SecTrustEvaluateWithError](https://developer.apple.com/documentation/security/2980705-sectrustevaluatewitherror?language=objc)
          */
         std::function<bool(SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)>
             serverCertificateValidationCallback;
 #else
         /**
-         * A callback that allows selecting the client's SSL context based on the target server host name. This callback
-         * is used to associate a specific SSL configuration with a client connection instance, identified by the
-         * target server host name.
+         * A callback that allows selecting the client's SSL_CTX object based on the target host name.
          *
-         * @param host The target server host name.
-         * @return A pointer to an SSL_CTX object that represents the SSL configuration for the connection.
+         * @remarks This callback is used to associate a specific SSL configuration with an outgoing connection
+         * identified by the target host name. The returned SSL_CTX pointer is wrapped in an SslContextPtr object, which
+         * ensures that the SSL_CTX object is not destroyed until the caller releases it. The returned SslContextPtr
+         * object must hold a pointer to a valid SSL_CTX object which was previously initialized using OpenSSL API.
+         *
+         * If the application does not provide a callback, the Ice SSL transport will use a SSL_CTX object created
+         * with SSL_CTX_new() for the connection, which uses the systems default OpenSSL configuration.
+         *
+         * The SSL transports calls this callback for each new outgoing connection to obtain the SSL_CTX object before
+         * it starts the SSL handshake.
+         *
+         * @param host The target host name.
+         * @return A SslContextPtr that holds the SSL_CTX representing the SSL configuration for the new outgoing
+         * connection.
          *
          * @see Detailed OpenSSL documentation on SSL_CTX management:
          * https://www.openssl.org/docs/manmaster/man3/SSL_CTX_new.html
          */
-        std::function<SslContext(const std::string& host)> clientSslContextSelectionCallback;
+        std::function<SslContextPtr(const std::string& host)> clientSslContextSelectionCallback;
 
         /**
          * A callback that is invoked before initiating a new SSL handshake. This callback provides an opportunity to

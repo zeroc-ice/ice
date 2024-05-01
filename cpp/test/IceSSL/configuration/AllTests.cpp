@@ -27,19 +27,6 @@
 #    else
 #        define ICE_USE_SECURE_TRANSPORT_MACOS 1
 #    endif
-#elif defined(_WIN32)
-#    define ICE_USE_SCHANNEL 1
-// We need to include windows.h before wincrypt.h.
-// clang-format off
-#    ifndef NOMINMAX
-#        define NOMINMAX
-#    endif
-#    include <windows.h>
-#    include <wincrypt.h>
-// clang-format on
-
-#else
-#    define ICE_USE_OPENSSL 1
 #endif
 
 using namespace std;
@@ -2465,7 +2452,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECTKEYID:'EB 4A 7A 79 09 65 0F 45 40 E8 8C E6 A8 27 74 34 AB EA AF 48'",
             "SERIAL:01",
             "SERIAL:01 LABEL:Server",
-            0};
+            0
+        };
 
         const char* failFindCertProperties[] = {
             "nolabel",
@@ -2479,7 +2467,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECTKEYID:'a6 42 aa 17 04 41 86 56 67 e4 04 64 59 34 30 c7 4c 6b ef ff'",
             "SERIAL:04",
             "SERIAL:04 LABEL:Client",
-            0};
+            0
+        };
 
         const char* certificates[] = {"/s_rsa_ca1.p12", "/c_rsa_ca1.p12", 0};
         ImportCerts import(defaultDir, certificates);

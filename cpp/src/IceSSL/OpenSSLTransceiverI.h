@@ -78,7 +78,7 @@ namespace IceSSL::OpenSSL
         int _sentBytes;
         size_t _maxSendPacketSize;
         size_t _maxRecvPacketSize;
-        std::function<Ice::SSL::SslContext(const std::string&)> _localSslContextSelectionCallback;
+        std::function<Ice::SSL::SslContextPtr(const std::string&)> _localSslContextSelectionCallback;
         std::function<bool(bool, X509_STORE_CTX*, const IceSSL::ConnectionInfoPtr&)>
             _remoteCertificateVerificationCallback;
         std::function<void(::SSL*, const std::string&)> _sslNewSessionCallback;

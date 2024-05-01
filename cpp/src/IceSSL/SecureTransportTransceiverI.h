@@ -82,7 +82,7 @@ namespace IceSSL::SecureTransport
         std::function<void(SSLContextRef, const std::string&)> _sslNewSessionCallback;
         std::function<bool(SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)>
             _remoteCertificateValidationCallback;
-        std::function<Ice::SSL::CertificateChain(const std::string&)> _localCertificateSelectionCallback;
+        std::function<CFArrayRef(const std::string&)> _localCertificateSelectionCallback;
         SSLAuthenticate _clientCertificateRequired;
         CFArrayRef _certificates;
         CFArrayRef _trustedRootCertificates;

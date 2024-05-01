@@ -702,12 +702,22 @@ SecureTransport::SSLEngine::destroy()
 ClientAuthenticationOptions
 SecureTransport::SSLEngine::createClientAuthenticationOptions(const string& host) const
 {
+    // It is safe to capture 'this' in the callbacks below as SSLEngine is managed by the communicator
+    // and is guaranteed to outlive all connections.
     return ClientAuthenticationOptions{
-        .trustedRootCertificates = 0,
-        .serverCertificateValidationCallback =
-            [self = shared_from_this(), host](SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)
-        { return self->validationCallback(trust, info, false, host, self->_certificateAuthorities.get()); },
-        .clientCertificateSelectionCallback = [this](const string&) { return CertificateChain(_chain.get()); },
+        .trustedRootCertificates = _certificateAuthorities.get(),
+        .serverCertificateValidationCallback = [this, host](SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)
+        { return validationCallback(trust, info, host); },
+        .clientCertificateSelectionCallback =
+            [this](const string&)
+        {
+            CFArrayRef chain = _chain.get();
+            if (chain)
+            {
+                CFRetain(chain);
+            }
+            return chain;
+        },
         .sslNewSessionCallback = nullptr};
 }
 
@@ -728,13 +738,23 @@ SecureTransport::SSLEngine::createServerAuthenticationOptions() const
             break;
     }
 
+    // It is safe to capture 'this' in the callbacks below as SSLEngine is managed by the communicator
+    // and is guaranteed to outlive all connections.
     return ServerAuthenticationOptions{
-        .trustedRootCertificates = 0,
-        .clientCertificateValidationCallback =
-            [self = shared_from_this()](SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)
-        { return self->validationCallback(trust, info, true, "", self->_certificateAuthorities.get()); },
+        .trustedRootCertificates = _certificateAuthorities.get(),
+        .clientCertificateValidationCallback = [this](SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)
+        { return validationCallback(trust, info, ""); },
         .clientCertificateRequired = clientCertificateRequired,
-        .serverCertificateSelectionCallback = [this](const string&) { return CertificateChain(_chain.get()); },
+        .serverCertificateSelectionCallback =
+            [this](const string&)
+        {
+            CFArrayRef chain = _chain.get();
+            if (chain)
+            {
+                CFRetain(chain);
+            }
+            return chain;
+        },
         .sslNewSessionCallback = nullptr};
 }
 
@@ -765,12 +785,8 @@ SecureTransport::SSLEngine::newContext(bool incoming) const
 }
 
 bool
-SecureTransport::SSLEngine::validationCallback(
-    SecTrustRef trust,
-    const ConnectionInfoPtr& info,
-    bool /*incoming*/,
-    const string& host,
-    CFArrayRef certificateAuthorities) const
+SecureTransport::SSLEngine::validationCallback(SecTrustRef trust, const ConnectionInfoPtr& info, const string& host)
+    const
 {
     OSStatus err = noErr;
     UniqueRef<CFErrorRef> trustErr;
@@ -816,15 +832,6 @@ SecureTransport::SSLEngine::validationCallback(
     if ((err = SecTrustSetPolicies(trust, policies.get())))
     {
         throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + sslErrorToString(err));
-    }
-
-    if (certificateAuthorities != 0)
-    {
-        if ((err = SecTrustSetAnchorCertificates(trust, certificateAuthorities)))
-        {
-            throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + sslErrorToString(err));
-        }
-        SecTrustSetAnchorCertificatesOnly(trust, true);
     }
 
     //

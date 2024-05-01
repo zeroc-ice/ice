@@ -29,12 +29,7 @@ namespace IceSSL::SecureTransport
         Ice::SSL::ClientAuthenticationOptions createClientAuthenticationOptions(const std::string& host) const final;
         Ice::SSL::ServerAuthenticationOptions createServerAuthenticationOptions() const final;
         SSLContextRef newContext(bool) const;
-        bool validationCallback(
-            SecTrustRef trust,
-            const IceSSL::ConnectionInfoPtr&,
-            bool,
-            const std::string&,
-            CFArrayRef certificateAuthorities) const;
+        bool validationCallback(SecTrustRef trust, const IceSSL::ConnectionInfoPtr&, const std::string&) const;
 
         std::string getCipherName(SSLCipherSuite) const;
 

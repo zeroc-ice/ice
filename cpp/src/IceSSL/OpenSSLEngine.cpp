@@ -412,7 +412,7 @@ ClientAuthenticationOptions
 OpenSSL::SSLEngine::createClientAuthenticationOptions(const std::string&) const
 {
     return ClientAuthenticationOptions{
-        .clientSslContextSelectionCallback = [this](const string&) { return _ctx; },
+        .clientSslContextSelectionCallback = [this](const string&) { return SslCtxPtr(_ctx); },
         .sslNewSessionCallback =
             [this](::SSL* ssl, const string& host)
         {
@@ -461,7 +461,7 @@ ServerAuthenticationOptions
 OpenSSL::SSLEngine::createServerAuthenticationOptions() const
 {
     return ServerAuthenticationOptions{
-        .serverSslContextSelectionCallback = [this](const string&) { return _ctx; },
+        .serverSslContextSelectionCallback = [this](const string&) { return SslCtxPtr(_ctx); },
         .sslNewSessionCallback =
             [this](::SSL* ssl, const string&)
         {
