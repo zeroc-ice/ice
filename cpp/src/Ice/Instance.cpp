@@ -914,6 +914,12 @@ IceInternal::Instance::Instance(const InitializationData& initData)
       _wstringConverter(Ice::getProcessWstringConverter()),
       _adminEnabled(false)
 {
+#ifdef ICE_USE_SECURE_TRANSPORT
+    if (_initData.clientAuthenticationOptions && _initData.clientAuthenticationOptions->trustedRootCertificates)
+    {
+        CFRetain(_initData.clientAuthenticationOptions->trustedRootCertificates);
+    }
+#endif
 }
 
 void
@@ -1665,6 +1671,14 @@ IceInternal::Instance::destroy()
         }
         _initData.observer->setObserverUpdater(0); // Break cyclic reference count.
     }
+
+#ifdef ICE_USE_SECURE_TRANSPORT
+    if (_initData.clientAuthenticationOptions && _initData.clientAuthenticationOptions->trustedRootCertificates)
+    {
+        CFRelease(_initData.clientAuthenticationOptions->trustedRootCertificates);
+        const_cast<Ice::InitializationData&>(_initData).clientAuthenticationOptions = nullopt;
+    }
+#endif
 
     LoggerAdminLoggerPtr logger = dynamic_pointer_cast<LoggerAdminLogger>(_initData.logger);
     if (logger)

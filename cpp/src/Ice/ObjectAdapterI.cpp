@@ -373,6 +373,14 @@ Ice::ObjectAdapterI::destroy() noexcept
         _reference = 0;
         _objectAdapterFactory = 0;
 
+#ifdef ICE_USE_SECURE_TRANSPORT
+        if (_serverAuthenticationOptions && _serverAuthenticationOptions->trustedRootCertificates)
+        {
+            CFRelease(_serverAuthenticationOptions->trustedRootCertificates);
+            const_cast<optional<SSL::ServerAuthenticationOptions>&>(_serverAuthenticationOptions) = nullopt;
+        }
+#endif
+
         _state = StateDestroyed;
         _conditionVariable.notify_all();
     }
@@ -887,6 +895,12 @@ Ice::ObjectAdapterI::ObjectAdapterI(
       _messageSizeMax(0),
       _serverAuthenticationOptions(serverAuthenticationOptions)
 {
+#ifdef ICE_USE_SECURE_TRANSPORT
+    if (_serverAuthenticationOptions && _serverAuthenticationOptions->trustedRootCertificates)
+    {
+        CFRetain(_serverAuthenticationOptions->trustedRootCertificates);
+    }
+#endif
 }
 
 void
