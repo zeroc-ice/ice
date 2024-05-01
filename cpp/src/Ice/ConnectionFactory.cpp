@@ -96,19 +96,6 @@ namespace
         IncomingConnectionFactoryPtr _factory;
         InstancePtr _instance;
     };
-
-#if TARGET_OS_IPHONE != 0
-    class ExecuteFinish final : public ExecutorWorkItem
-    {
-    public:
-        ExecuteFinish(const IncomingConnectionFactoryPtr& factory) : _factory(factory) {}
-
-        void run() final { _factory->finish(); }
-
-    private:
-        const IncomingConnectionFactoryPtr _factory;
-    };
-#endif
 }
 
 bool
@@ -1824,7 +1811,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
             else
             {
 #if TARGET_OS_IPHONE != 0
-                _adapter->getThreadPool()->execute(make_shared<ExecuteFinish>(shared_from_this()));
+                _adapter->getThreadPool()->execute([self = shared_from_this()]() { self->finish(); }, nullptr);
 #endif
                 state = StateFinished;
             }

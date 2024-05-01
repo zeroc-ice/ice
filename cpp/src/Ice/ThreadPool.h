@@ -30,32 +30,6 @@ namespace IceInternal
     class ThreadPoolWorkQueue;
     using ThreadPoolWorkQueuePtr = std::shared_ptr<ThreadPoolWorkQueue>;
 
-    class ThreadPoolWorkItem
-    {
-    public:
-        virtual void execute(ThreadPoolCurrent&) = 0;
-    };
-    using ThreadPoolWorkItemPtr = std::shared_ptr<ThreadPoolWorkItem>;
-
-    // A work item that is executed by the executor, if configured.
-    // TODO: look into replacing this class with a std::function.
-    class ExecutorWorkItem : public ThreadPoolWorkItem, public std::enable_shared_from_this<ExecutorWorkItem>
-    {
-    public:
-        ExecutorWorkItem();
-        ExecutorWorkItem(const Ice::ConnectionPtr& connection);
-
-        const Ice::ConnectionPtr& getConnection() { return _connection; }
-
-        virtual void run() = 0;
-
-    private:
-        virtual void execute(ThreadPoolCurrent&);
-
-        const Ice::ConnectionPtr _connection;
-    };
-    using ExecutorWorkItemPtr = std::shared_ptr<ExecutorWorkItem>;
-
     class ThreadPool : public std::enable_shared_from_this<ThreadPool>
     {
     public:
@@ -100,9 +74,8 @@ namespace IceInternal
         bool finish(const EventHandlerPtr&, bool);
         void ready(const EventHandlerPtr&, SocketOperation, bool);
 
-        void executeFromThisThread(const ExecutorWorkItemPtr&);
-        void execute(const ExecutorWorkItemPtr&);
-        void execute(std::function<void()>);
+        void executeFromThisThread(std::function<void()>, const Ice::ConnectionPtr&);
+        void execute(std::function<void()>, const Ice::ConnectionPtr&);
 
         void joinWithAllThreads();
 
@@ -129,6 +102,9 @@ namespace IceInternal
 #endif
 
         std::string nextThreadId();
+
+        static void joinThread(const EventHandlerThreadPtr&);
+        static void shutdown(const ThreadPoolCurrent&, const InstancePtr&);
 
         const InstancePtr _instance;
 #ifdef ICE_SWIFT
@@ -173,10 +149,9 @@ namespace IceInternal
     class ThreadPoolCurrent
     {
     public:
-        ThreadPoolCurrent(const InstancePtr&, const ThreadPoolPtr&, const ThreadPool::EventHandlerThreadPtr&);
+        ThreadPoolCurrent(const ThreadPoolPtr&, const ThreadPool::EventHandlerThreadPtr&);
 
         SocketOperation operation;
-        Ice::InputStream stream; // A per-thread stream to be used by event handlers for optimization.
 
         bool ioCompleted() const { return _threadPool->ioCompleted(const_cast<ThreadPoolCurrent&>(*this)); }
 
@@ -187,11 +162,6 @@ namespace IceInternal
 #else
         bool ioReady() { return (_handler->_registered & operation) != 0; }
 #endif
-
-        void executeFromThisThread(const ExecutorWorkItemPtr& workItem)
-        {
-            _threadPool->executeFromThisThread(workItem);
-        }
 
     private:
         ThreadPool* _threadPool;
@@ -213,7 +183,7 @@ namespace IceInternal
         ThreadPoolWorkQueue(ThreadPool&);
 
         void destroy();
-        void queue(const ThreadPoolWorkItemPtr&);
+        void queue(std::function<void(ThreadPoolCurrent&)>);
 
 #if defined(ICE_USE_IOCP)
         bool startAsync(SocketOperation);
@@ -228,7 +198,7 @@ namespace IceInternal
     private:
         ThreadPool& _threadPool;
         bool _destroyed;
-        std::list<ThreadPoolWorkItemPtr> _workItems;
+        std::list<std::function<void(ThreadPoolCurrent&)>> _workItems;
     };
 
 //
