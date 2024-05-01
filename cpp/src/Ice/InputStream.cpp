@@ -141,19 +141,11 @@ Ice::InputStream::InputStream(InputStream&& other) noexcept
       _logger(std::move(other._logger)),
       _compactIdResolver(std::move(other._compactIdResolver))
 {
-    // Reset other to its default state. See initialize().
-
-    other._instance = nullptr;
-    other._encoding = currentEncoding;
-    other._traceSlicing = false;
-    other._classGraphDepthMax = 0x7fffffff;
-    other._closure = nullptr;
-    other._sliceValues = true;
-    other._startSeq = -1;
-    other._minSeqSize = 0;
-
     resetEncapsulation();
+
+    // Reset other to its default state
     other.resetEncapsulation();
+    other.initialize(currentEncoding);
 }
 
 InputStream&
@@ -174,19 +166,11 @@ Ice::InputStream::operator=(InputStream&& other) noexcept
         _logger = std::move(other._logger);
         _compactIdResolver = std::move(other._compactIdResolver);
 
-        // Reset other to its default state. See initialize().
-
-        other._instance = nullptr;
-        other._encoding = currentEncoding;
-        other._traceSlicing = false;
-        other._classGraphDepthMax = 0x7fffffff;
-        other._closure = nullptr;
-        other._sliceValues = true;
-        other._startSeq = -1;
-        other._minSeqSize = 0;
-
         resetEncapsulation();
+
+        // Reset other to its default state.
         other.resetEncapsulation();
+        other.initialize(currentEncoding);
     }
     return *this;
 }
