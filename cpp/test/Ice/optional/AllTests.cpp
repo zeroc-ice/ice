@@ -1293,6 +1293,7 @@ allTests(Test::TestHelper* helper, bool)
         out.endEncapsulation();
         out.finished(inEncaps);
 
+        optional<FixedStruct> ofs;
         Ice::InputStream in(communicator, out.getEncoding(), inEncaps);
         in.startEncapsulation();
         in.read(2, ofs);
