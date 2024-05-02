@@ -60,7 +60,7 @@ public interface Object : ICloneable
     /// <returns>The task if dispatched asynchronously, null otherwise.</returns>
     Task<OutputStream> ice_dispatch(Request request);
 
-    Task<OutputStream> iceDispatch(IceInternal.Incoming inc, Current current);
+    Task<OutputStream> iceDispatch(Ice.Internal.Incoming inc, Current current);
 }
 
 /// <summary>
@@ -102,7 +102,7 @@ public abstract class ObjectImpl : Object
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Task<OutputStream> iceD_ice_isA(Object obj, IceInternal.Incoming inS, Current current)
+    public static Task<OutputStream> iceD_ice_isA(Object obj, Ice.Internal.Incoming inS, Current current)
     {
         InputStream istr = inS.startReadParams();
         var id = istr.readString();
@@ -125,7 +125,7 @@ public abstract class ObjectImpl : Object
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Task<OutputStream> iceD_ice_ping(Object obj, IceInternal.Incoming inS, Current current)
+    public static Task<OutputStream> iceD_ice_ping(Object obj, Ice.Internal.Incoming inS, Current current)
     {
         inS.readEmptyParams();
         obj.ice_ping(current);
@@ -144,7 +144,7 @@ public abstract class ObjectImpl : Object
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Task<OutputStream> iceD_ice_ids(Object obj, IceInternal.Incoming inS, Current current)
+    public static Task<OutputStream> iceD_ice_ids(Object obj, Ice.Internal.Incoming inS, Current current)
     {
         inS.readEmptyParams();
         var ret = obj.ice_ids(current);
@@ -166,7 +166,7 @@ public abstract class ObjectImpl : Object
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Task<OutputStream> iceD_ice_id(Object obj, IceInternal.Incoming inS, Current current)
+    public static Task<OutputStream> iceD_ice_id(Object obj, Ice.Internal.Incoming inS, Current current)
     {
         inS.readEmptyParams();
         var ret = obj.ice_id(current);
@@ -199,13 +199,13 @@ public abstract class ObjectImpl : Object
     /// <returns>The task if dispatched asynchronously, null otherwise.</returns>
     public virtual Task<OutputStream> ice_dispatch(Request request)
     {
-        var inc = (IceInternal.Incoming)request;
+        var inc = (Ice.Internal.Incoming)request;
         inc.startOver();
         return iceDispatch(inc, inc.getCurrent());
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual Task<OutputStream> iceDispatch(IceInternal.Incoming inc, Current current)
+    public virtual Task<OutputStream> iceDispatch(Ice.Internal.Incoming inc, Current current)
     {
         int pos = Array.BinarySearch(_all, current.operation);
         if (pos < 0)
@@ -300,7 +300,7 @@ public abstract class Blobject : ObjectImpl
     public abstract bool ice_invoke(byte[] inParams, out byte[] outParams, Current current);
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public override Task<OutputStream> iceDispatch(IceInternal.Incoming inS, Current current)
+    public override Task<OutputStream> iceDispatch(Ice.Internal.Incoming inS, Current current)
     {
         byte[] inEncaps = inS.readParamEncaps();
         byte[] outEncaps;
@@ -315,7 +315,7 @@ public abstract class BlobjectAsync : ObjectImpl
     public abstract Task<Ice.Object_Ice_invokeResult> ice_invokeAsync(byte[] inEncaps, Current current);
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public override Task<Ice.OutputStream> iceDispatch(IceInternal.Incoming inS, Current current)
+    public override Task<Ice.OutputStream> iceDispatch(Ice.Internal.Incoming inS, Current current)
     {
         byte[] inEncaps = inS.readParamEncaps();
         var task = ice_invokeAsync(inEncaps, current);

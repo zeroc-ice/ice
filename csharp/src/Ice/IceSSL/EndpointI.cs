@@ -4,9 +4,9 @@ using System.Net.Security;
 
 namespace IceSSL;
 
-internal sealed class EndpointI : IceInternal.EndpointI
+internal sealed class EndpointI : Ice.Internal.EndpointI
 {
-    internal EndpointI(Instance instance, IceInternal.EndpointI del)
+    internal EndpointI(Instance instance, Ice.Internal.EndpointI del)
     {
         _instance = instance;
         _delegate = del;
@@ -42,7 +42,7 @@ internal sealed class EndpointI : IceInternal.EndpointI
 
     public override int timeout() => _delegate.timeout();
 
-    public override IceInternal.EndpointI timeout(int timeout)
+    public override Ice.Internal.EndpointI timeout(int timeout)
     {
         if (timeout == _delegate.timeout())
         {
@@ -56,7 +56,7 @@ internal sealed class EndpointI : IceInternal.EndpointI
 
     public override string connectionId() => _delegate.connectionId();
 
-    public override IceInternal.EndpointI connectionId(string connectionId)
+    public override Ice.Internal.EndpointI connectionId(string connectionId)
     {
         if (connectionId.Equals(_delegate.connectionId()))
         {
@@ -70,7 +70,7 @@ internal sealed class EndpointI : IceInternal.EndpointI
 
     public override bool compress() => _delegate.compress();
 
-    public override IceInternal.EndpointI compress(bool compress)
+    public override Ice.Internal.EndpointI compress(bool compress)
     {
         if (compress == _delegate.compress())
         {
@@ -86,21 +86,21 @@ internal sealed class EndpointI : IceInternal.EndpointI
 
     public override bool secure() => _delegate.secure();
 
-    public override IceInternal.Transceiver transceiver() => null;
+    public override Ice.Internal.Transceiver transceiver() => null;
 
-    private sealed class EndpointI_connectorsI : IceInternal.EndpointI_connectors
+    private sealed class EndpointI_connectorsI : Ice.Internal.EndpointI_connectors
     {
-        public EndpointI_connectorsI(Instance instance, string host, IceInternal.EndpointI_connectors cb)
+        public EndpointI_connectorsI(Instance instance, string host, Ice.Internal.EndpointI_connectors cb)
         {
             _instance = instance;
             _host = host;
             _callback = cb;
         }
 
-        public void connectors(List<IceInternal.Connector> connectors)
+        public void connectors(List<Ice.Internal.Connector> connectors)
         {
-            var l = new List<IceInternal.Connector>();
-            foreach (IceInternal.Connector c in connectors)
+            var l = new List<Ice.Internal.Connector>();
+            foreach (Ice.Internal.Connector c in connectors)
             {
                 l.Add(new ConnectorI(_instance, c, _host));
             }
@@ -111,12 +111,12 @@ internal sealed class EndpointI : IceInternal.EndpointI
 
         private readonly Instance _instance;
         private readonly string _host;
-        private readonly IceInternal.EndpointI_connectors _callback;
+        private readonly Ice.Internal.EndpointI_connectors _callback;
     }
 
     public override void connectors_async(
         Ice.EndpointSelectionType selType,
-        IceInternal.EndpointI_connectors callback)
+        Ice.Internal.EndpointI_connectors callback)
     {
         string host = "";
         for (Ice.EndpointInfo p = _delegate.getInfo(); p != null; p = p.underlying)
@@ -130,7 +130,7 @@ internal sealed class EndpointI : IceInternal.EndpointI
         _delegate.connectors_async(selType, new EndpointI_connectorsI(_instance, host, callback));
     }
 
-    public override IceInternal.Acceptor acceptor(
+    public override Ice.Internal.Acceptor acceptor(
         string adapterName,
         SslServerAuthenticationOptions authenticationOptions) =>
         new AcceptorI(
@@ -140,7 +140,7 @@ internal sealed class EndpointI : IceInternal.EndpointI
             adapterName,
             authenticationOptions);
 
-    public EndpointI endpoint(IceInternal.EndpointI del)
+    public EndpointI endpoint(Ice.Internal.EndpointI del)
     {
         if (del == _delegate)
         {
@@ -152,20 +152,20 @@ internal sealed class EndpointI : IceInternal.EndpointI
         }
     }
 
-    public override List<IceInternal.EndpointI> expandIfWildcard()
+    public override List<Ice.Internal.EndpointI> expandIfWildcard()
     {
-        var l = new List<IceInternal.EndpointI>();
-        foreach (IceInternal.EndpointI e in _delegate.expandIfWildcard())
+        var l = new List<Ice.Internal.EndpointI>();
+        foreach (Ice.Internal.EndpointI e in _delegate.expandIfWildcard())
         {
             l.Add(e == _delegate ? this : new EndpointI(_instance, e));
         }
         return l;
     }
 
-    public override List<IceInternal.EndpointI> expandHost(out IceInternal.EndpointI publish)
+    public override List<Ice.Internal.EndpointI> expandHost(out Ice.Internal.EndpointI publish)
     {
-        var l = new List<IceInternal.EndpointI>();
-        foreach (IceInternal.EndpointI e in _delegate.expandHost(out publish))
+        var l = new List<Ice.Internal.EndpointI>();
+        foreach (Ice.Internal.EndpointI e in _delegate.expandHost(out publish))
         {
             l.Add(e == _delegate ? this : new EndpointI(_instance, e));
         }
@@ -176,7 +176,7 @@ internal sealed class EndpointI : IceInternal.EndpointI
         return l;
     }
 
-    public override bool equivalent(IceInternal.EndpointI endpoint)
+    public override bool equivalent(Ice.Internal.EndpointI endpoint)
     {
         if (endpoint is not EndpointI)
         {
@@ -189,7 +189,7 @@ internal sealed class EndpointI : IceInternal.EndpointI
     public override string options() => _delegate.options();
 
     // Compare endpoints for sorting purposes
-    public override int CompareTo(IceInternal.EndpointI obj)
+    public override int CompareTo(Ice.Internal.EndpointI obj)
     {
         if (obj is not EndpointI)
         {
@@ -210,23 +210,23 @@ internal sealed class EndpointI : IceInternal.EndpointI
     protected override bool checkOption(string option, string argument, string endpoint) => false;
 
     private readonly Instance _instance;
-    private readonly IceInternal.EndpointI _delegate;
+    private readonly Ice.Internal.EndpointI _delegate;
 }
 
-internal sealed class EndpointFactoryI : IceInternal.EndpointFactoryWithUnderlying
+internal sealed class EndpointFactoryI : Ice.Internal.EndpointFactoryWithUnderlying
 {
     public EndpointFactoryI(Instance instance, short type) : base(instance, type) => _instance = instance;
 
-    public override IceInternal.EndpointFactory
-    cloneWithUnderlying(IceInternal.ProtocolInstance instance, short underlying) =>
+    public override Ice.Internal.EndpointFactory
+    cloneWithUnderlying(Ice.Internal.ProtocolInstance instance, short underlying) =>
         new EndpointFactoryI(new Instance(_instance.engine(), instance.type(), instance.protocol()), underlying);
 
-    protected override IceInternal.EndpointI
-    createWithUnderlying(IceInternal.EndpointI underlying, List<string> args, bool oaEndpoint) =>
+    protected override Ice.Internal.EndpointI
+    createWithUnderlying(Ice.Internal.EndpointI underlying, List<string> args, bool oaEndpoint) =>
         new EndpointI(_instance, underlying);
 
-    protected override IceInternal.EndpointI
-    readWithUnderlying(IceInternal.EndpointI underlying, Ice.InputStream s) => new EndpointI(_instance, underlying);
+    protected override Ice.Internal.EndpointI
+    readWithUnderlying(Ice.Internal.EndpointI underlying, Ice.InputStream s) => new EndpointI(_instance, underlying);
 
     private readonly Instance _instance;
 }

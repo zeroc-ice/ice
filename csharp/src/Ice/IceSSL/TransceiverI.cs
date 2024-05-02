@@ -8,29 +8,29 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace IceSSL;
 
-internal sealed class TransceiverI : IceInternal.Transceiver
+internal sealed class TransceiverI : Ice.Internal.Transceiver
 {
     public Socket fd() => _delegate.fd();
 
-    public int initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer, ref bool hasMoreData)
+    public int initialize(Ice.Internal.Buffer readBuffer, Ice.Internal.Buffer writeBuffer, ref bool hasMoreData)
     {
         if (!_isConnected)
         {
             int status = _delegate.initialize(readBuffer, writeBuffer, ref hasMoreData);
-            if (status != IceInternal.SocketOperation.None)
+            if (status != Ice.Internal.SocketOperation.None)
             {
                 return status;
             }
             _isConnected = true;
         }
 
-        IceInternal.Network.setBlock(fd(), true); // SSL requires a blocking socket
+        Ice.Internal.Network.setBlock(fd(), true); // SSL requires a blocking socket
 
         // For timeouts to work properly, we need to receive/send the data in several chunks. Otherwise, we would only
         // be notified when all the data is received/written. The connection timeout could easily be triggered when
         // receiving/sending large messages.
-        _maxSendPacketSize = Math.Max(512, IceInternal.Network.getSendBufferSize(fd()));
-        _maxRecvPacketSize = Math.Max(512, IceInternal.Network.getRecvBufferSize(fd()));
+        _maxSendPacketSize = Math.Max(512, Ice.Internal.Network.getSendBufferSize(fd()));
+        _maxRecvPacketSize = Math.Max(512, Ice.Internal.Network.getRecvBufferSize(fd()));
 
         if (_sslStream == null)
         {
@@ -42,7 +42,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
             }
             catch (IOException ex)
             {
-                if (IceInternal.Network.connectionLost(ex))
+                if (Ice.Internal.Network.connectionLost(ex))
                 {
                     throw new Ice.ConnectionLostException(ex);
                 }
@@ -51,7 +51,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
                     throw new Ice.SocketException(ex);
                 }
             }
-            return IceInternal.SocketOperation.Connect;
+            return Ice.Internal.SocketOperation.Connect;
         }
 
         Debug.Assert(_sslStream.IsAuthenticated);
@@ -64,7 +64,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         {
             _instance.traceStream(_sslStream, ToString());
         }
-        return IceInternal.SocketOperation.None;
+        return Ice.Internal.SocketOperation.None;
     }
 
     public int closing(bool initiator, Ice.LocalException ex) => _delegate.closing(initiator, ex);
@@ -80,7 +80,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         _delegate.close();
     }
 
-    public IceInternal.EndpointI bind()
+    public Ice.Internal.EndpointI bind()
     {
         Debug.Assert(false);
         return null;
@@ -88,15 +88,15 @@ internal sealed class TransceiverI : IceInternal.Transceiver
 
     public void destroy() => _delegate.destroy();
 
-    public int write(IceInternal.Buffer buf) =>
+    public int write(Ice.Internal.Buffer buf) =>
         // Force caller to use async write.
-        buf.b.hasRemaining() ? IceInternal.SocketOperation.Write : IceInternal.SocketOperation.None;
+        buf.b.hasRemaining() ? Ice.Internal.SocketOperation.Write : Ice.Internal.SocketOperation.None;
 
-    public int read(IceInternal.Buffer buf, ref bool hasMoreData) =>
+    public int read(Ice.Internal.Buffer buf, ref bool hasMoreData) =>
         // Force caller to use async read.
-        buf.b.hasRemaining() ? IceInternal.SocketOperation.Read : IceInternal.SocketOperation.None;
+        buf.b.hasRemaining() ? Ice.Internal.SocketOperation.Read : Ice.Internal.SocketOperation.None;
 
-    public bool startRead(IceInternal.Buffer buf, IceInternal.AsyncCallback callback, object state)
+    public bool startRead(Ice.Internal.Buffer buf, Ice.Internal.AsyncCallback callback, object state)
     {
         if (!_isConnected)
         {
@@ -114,11 +114,11 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         }
         catch (IOException ex)
         {
-            if (IceInternal.Network.connectionLost(ex))
+            if (Ice.Internal.Network.connectionLost(ex))
             {
                 throw new Ice.ConnectionLostException(ex);
             }
-            if (IceInternal.Network.timeout(ex))
+            if (Ice.Internal.Network.timeout(ex))
             {
                 throw new Ice.TimeoutException();
             }
@@ -134,7 +134,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         }
     }
 
-    public void finishRead(IceInternal.Buffer buf)
+    public void finishRead(Ice.Internal.Buffer buf)
     {
         if (!_isConnected)
         {
@@ -173,11 +173,11 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         }
         catch (IOException ex)
         {
-            if (IceInternal.Network.connectionLost(ex))
+            if (Ice.Internal.Network.connectionLost(ex))
             {
                 throw new Ice.ConnectionLostException(ex);
             }
-            if (IceInternal.Network.timeout(ex))
+            if (Ice.Internal.Network.timeout(ex))
             {
                 throw new Ice.TimeoutException();
             }
@@ -193,7 +193,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         }
     }
 
-    public bool startWrite(IceInternal.Buffer buf, IceInternal.AsyncCallback cb, object state, out bool completed)
+    public bool startWrite(Ice.Internal.Buffer buf, Ice.Internal.AsyncCallback cb, object state, out bool completed)
     {
         if (!_isConnected)
         {
@@ -218,11 +218,11 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         }
         catch (IOException ex)
         {
-            if (IceInternal.Network.connectionLost(ex))
+            if (Ice.Internal.Network.connectionLost(ex))
             {
                 throw new Ice.ConnectionLostException(ex);
             }
-            if (IceInternal.Network.timeout(ex))
+            if (Ice.Internal.Network.timeout(ex))
             {
                 throw new Ice.TimeoutException();
             }
@@ -238,7 +238,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         }
     }
 
-    public void finishWrite(IceInternal.Buffer buf)
+    public void finishWrite(Ice.Internal.Buffer buf)
     {
         if (!_isConnected)
         {
@@ -276,11 +276,11 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         }
         catch (IOException ex)
         {
-            if (IceInternal.Network.connectionLost(ex))
+            if (Ice.Internal.Network.connectionLost(ex))
             {
                 throw new Ice.ConnectionLostException(ex);
             }
-            if (IceInternal.Network.timeout(ex))
+            if (Ice.Internal.Network.timeout(ex))
             {
                 throw new Ice.TimeoutException();
             }
@@ -317,7 +317,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         return info;
     }
 
-    public void checkSendSize(IceInternal.Buffer buf) => _delegate.checkSendSize(buf);
+    public void checkSendSize(Ice.Internal.Buffer buf) => _delegate.checkSendSize(buf);
 
     public void setBufferSize(int rcvSize, int sndSize) => _delegate.setBufferSize(rcvSize, sndSize);
 
@@ -328,7 +328,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
     // Only for use by ConnectorI, AcceptorI.
     internal TransceiverI(
         Instance instance,
-        IceInternal.Transceiver del,
+        Ice.Internal.Transceiver del,
         string hostOrAdapterName,
         bool incoming,
         SslServerAuthenticationOptions serverAuthenticationOptions)
@@ -352,7 +352,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         _verifyPeer = _instance.properties().getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
     }
 
-    private bool startAuthenticate(IceInternal.AsyncCallback callback, object state)
+    private bool startAuthenticate(Ice.Internal.AsyncCallback callback, object state)
     {
         try
         {
@@ -390,7 +390,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         }
         catch (IOException ex)
         {
-            if (IceInternal.Network.connectionLost(ex))
+            if (Ice.Internal.Network.connectionLost(ex))
             {
                 // This situation occurs when connectToSelf is called; the "remote" end closes the socket immediately.
                 throw new Ice.ConnectionLostException();
@@ -428,7 +428,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         }
         catch (IOException ex)
         {
-            if (IceInternal.Network.connectionLost(ex))
+            if (Ice.Internal.Network.connectionLost(ex))
             {
                 // This situation occurs when connectToSelf is called; the "remote" end closes the socket immediately.
                 throw new Ice.ConnectionLostException();
@@ -487,7 +487,7 @@ internal sealed class TransceiverI : IceInternal.Transceiver
         _maxRecvPacketSize > 0 ? Math.Min(length, _maxRecvPacketSize) : length;
 
     private readonly Instance _instance;
-    private readonly IceInternal.Transceiver _delegate;
+    private readonly Ice.Internal.Transceiver _delegate;
     private readonly string _host = "";
     private readonly string _adapterName = "";
     private readonly bool _incoming;

@@ -5,7 +5,7 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace IceSSL;
 
-internal class Instance : IceInternal.ProtocolInstance
+internal class Instance : Ice.Internal.ProtocolInstance
 {
     internal Instance(SSLEngine engine, short type, string protocol) :
         base(engine.communicator(), type, protocol, true) => _engine = engine;
@@ -24,7 +24,7 @@ internal class Instance : IceInternal.ProtocolInstance
         _engine.verifyPeer(info, description);
 
     internal Ice.InitializationData initializationData() =>
-        IceInternal.Util.getInstance(_engine.communicator()).initializationData();
+        Ice.Internal.Util.getInstance(_engine.communicator()).initializationData();
 
     private readonly SSLEngine _engine;
 }

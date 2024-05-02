@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
-internal class Connector : IceInternal.Connector
+internal class Connector : Ice.Internal.Connector
 {
-    public IceInternal.Transceiver connect()
+    public Ice.Internal.Transceiver connect()
     {
         _configuration.checkConnectException();
         return new Transceiver(_connector.connect());
@@ -16,7 +16,7 @@ internal class Connector : IceInternal.Connector
     //
     // Only for use by Endpoint
     //
-    internal Connector(IceInternal.Connector connector)
+    internal Connector(Ice.Internal.Connector connector)
     {
         _configuration = Configuration.getInstance();
         _connector = connector;
@@ -53,6 +53,6 @@ internal class Connector : IceInternal.Connector
         return _connector.GetHashCode();
     }
 
-    private IceInternal.Connector _connector;
+    private Ice.Internal.Connector _connector;
     private Configuration _configuration;
 }

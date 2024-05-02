@@ -17,7 +17,7 @@ public class ProxyIdentityKey : System.Collections.IEqualityComparer, System.Col
     public int GetHashCode(object obj)
     {
         int h = 5381;
-        IceInternal.HashUtil.hashAdd(ref h, ((ObjectPrx)obj).ice_getIdentity());
+        Ice.Internal.HashUtil.hashAdd(ref h, ((ObjectPrx)obj).ice_getIdentity());
         return h;
     }
 
@@ -78,8 +78,8 @@ public class ProxyIdentityFacetKey : System.Collections.IEqualityComparer, Syste
         Identity identity = o.ice_getIdentity();
         string facet = o.ice_getFacet();
         int h = 5381;
-        IceInternal.HashUtil.hashAdd(ref h, identity);
-        IceInternal.HashUtil.hashAdd(ref h, facet);
+        Ice.Internal.HashUtil.hashAdd(ref h, identity);
+        Ice.Internal.HashUtil.hashAdd(ref h, facet);
         return h;
     }
 

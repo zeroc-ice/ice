@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-using IceInternal;
+using Ice.Internal;
 using System.Diagnostics;
 using System.Net.Security;
 using System.Text;
@@ -716,7 +716,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
 
     public void updateThreadObservers()
     {
-        IceInternal.ThreadPool threadPool = null;
+        Ice.Internal.ThreadPool threadPool = null;
         lock (this)
         {
             threadPool = _threadPool;
@@ -755,7 +755,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
         }
     }
 
-    public IceInternal.ThreadPool getThreadPool()
+    public Ice.Internal.ThreadPool getThreadPool()
     {
         // No mutex lock necessary, _threadPool and _instance are
         // immutable after creation until they are removed in
@@ -917,7 +917,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
             int threadPoolSizeMax = properties.getPropertyAsInt(_name + ".ThreadPool.SizeMax");
             if (threadPoolSize > 0 || threadPoolSizeMax > 0)
             {
-                _threadPool = new IceInternal.ThreadPool(_instance, _name + ".ThreadPool", 0);
+                _threadPool = new Ice.Internal.ThreadPool(_instance, _name + ".ThreadPool", 0);
             }
 
             if (router == null)
@@ -964,7 +964,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
                 foreach (EndpointI endp in endpoints)
                 {
                     EndpointI publishedEndpoint;
-                    foreach (IceInternal.EndpointI expanded in endp.expandHost(out publishedEndpoint))
+                    foreach (Ice.Internal.EndpointI expanded in endp.expandHost(out publishedEndpoint))
                     {
                         IncomingConnectionFactory factory = new IncomingConnectionFactory(instance,
                                                                                           expanded,
@@ -1086,7 +1086,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
         List<EndpointI> endpoints = new List<EndpointI>();
         while (end < endpts.Length)
         {
-            beg = IceUtilInternal.StringUtil.findFirstNotOf(endpts, delim, end);
+            beg = Ice.UtilInternal.StringUtil.findFirstNotOf(endpts, delim, end);
             if (beg == -1)
             {
                 if (endpoints.Count != 0)
@@ -1437,7 +1437,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
     private Instance _instance;
     private Communicator _communicator;
     private ObjectAdapterFactory _objectAdapterFactory;
-    private IceInternal.ThreadPool _threadPool;
+    private Ice.Internal.ThreadPool _threadPool;
     private ACMConfig _acm;
     private ServantManager _servantManager;
     private readonly string _name;
