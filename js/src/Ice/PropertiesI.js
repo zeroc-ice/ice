@@ -56,6 +56,11 @@ class Properties
         return this.getPropertyWithDefault(key, "");
     }
 
+    getIceProperty(key)
+    {
+        return this.getPropertyWithDefault(key, Properties.getDefaultProperty(key));
+    }
+
     getPropertyWithDefault(key, value)
     {
         const pv = this._properties.get(key);
@@ -75,6 +80,17 @@ class Properties
         return this.getPropertyAsIntWithDefault(key, 0);
     }
 
+    getIcePropertyAsInt(key)
+    {
+        const defaultValueString = Properties.getDefaultProperty(key);
+        var defaultValue = 0;
+        if (defaultValueString != "")
+        {
+            defaultValue = parseInt(defaultValueString);
+        }
+        return this.getPropertyAsIntWithDefault(key, defaultValue);
+    }
+
     getPropertyAsIntWithDefault(key, value)
     {
         const pv = this._properties.get(key);
@@ -92,6 +108,12 @@ class Properties
     getPropertyAsList(key)
     {
         return this.getPropertyAsListWithDefault(key, 0);
+    }
+
+    getIcePropertyAsList(key)
+    {
+        var defaultPropertyList = StringUtil.splitString(Properties.getDefaultProperty(key), ", \t\r\n");
+        return this.getPropertyAsListWithDefault(key, defaultPropertyList);
     }
 
     getPropertyAsListWithDefault(key, value)
@@ -148,79 +170,18 @@ class Properties
             key = key.trim();
         }
 
-        //
-        // Check if the property is legal.
-        //
-        const logger = getProcessLogger();
         if(key === null || key.length === 0)
         {
             throw new InitializationException("Attempt to set property with empty key");
         }
 
-        let dotPos = key.indexOf(".");
-        if(dotPos !== -1)
+        // Find the property, log warnings if necessary
+        const prop = Properties.findProperty(key, true);
+
+        // If the property is deprecated by another property, use the new property key
+        if (prop !== null && prop.deprecatedBy != null)
         {
-            const prefix = key.substr(0, dotPos);
-            for(let i = 0; i < PropertyNames.validProps.length; ++i)
-            {
-                let pattern = PropertyNames.validProps[i][0].pattern;
-                dotPos = pattern.indexOf(".");
-                //
-                // Each top level prefix describes a non-empty namespace. Having a string without a
-                // prefix followed by a dot is an error.
-                //
-                Debug.assert(dotPos != -1);
-                if(pattern.substring(0, dotPos - 1) != prefix)
-                {
-                    continue;
-                }
-
-                let found = false;
-                let mismatchCase = false;
-                let otherKey;
-                for(let j = 0; j < PropertyNames.validProps[i][j].length && !found; ++j)
-                {
-                    pattern = PropertyNames.validProps[i][j].pattern();
-                    let pComp = new RegExp(pattern);
-                    found = pComp.test(key);
-
-                    if(found && PropertyNames.validProps[i][j].deprecated)
-                    {
-                        logger.warning("deprecated property: " + key);
-                        if(PropertyNames.validProps[i][j].deprecatedBy !== null)
-                        {
-                            key = PropertyNames.validProps[i][j].deprecatedBy;
-                        }
-                    }
-
-                    if(found)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        pComp = new RegExp(pattern.toUpperCase());
-                        found = pComp.test(key.toUpperCase());
-                        if(found)
-                        {
-                            mismatchCase = true;
-                            otherKey = pattern.substr(2);
-                            otherKey = otherKey.substr(0, otherKey.length - 1);
-                            otherKey = otherKey.replace(/\\/g, "");
-                            break;
-                        }
-                    }
-                }
-
-                if(!found)
-                {
-                    logger.warning("unknown property: " + key);
-                }
-                else if(mismatchCase)
-                {
-                    logger.warning("unknown property: `" + key + "'; did you mean `" + otherKey + "'");
-                }
-            }
+            key = prop.deprecatedBy;
         }
 
         //
@@ -494,6 +455,84 @@ class Properties
     static createProperties(args, defaults)
     {
         return new Properties(args, defaults);
+    }
+
+    static findProperty(key, logWarnings)
+    {
+        // Check if the property is a known Ice property and log warnings if necessary
+        const logger = getProcessLogger();
+
+        let dotPos = key.indexOf(".");
+        if(dotPos !== -1)
+        {
+            const prefix = key.substr(0, dotPos);
+            for(let i = 0; i < PropertyNames.validProps.length; ++i)
+            {
+                let pattern = PropertyNames.validProps[i][0].pattern;
+                dotPos = pattern.indexOf(".");
+                //
+                // Each top level prefix describes a non-empty namespace. Having a string without a
+                // prefix followed by a dot is an error.
+                //
+                Debug.assert(dotPos != -1);
+
+                // If the prefix is not the same, skip to the next set of properties
+                if(pattern.substring(1, dotPos) != prefix)
+                {
+                    continue;
+                }
+
+                for(let j = 0; j < PropertyNames.validProps[i].length; ++j)
+                {
+                    const prop = PropertyNames.validProps[i][j];
+                    let pComp = new RegExp(prop.pattern);
+
+                    if (pComp.test(key))
+                    {
+                        if (prop.deprecated && logWarnings)
+                        {
+                            logger.warning("deprecated property: " + key);
+                        }
+                        return prop;
+                    }
+
+                    // Check for case-insensitive match
+                    pComp = new RegExp(pattern.toUpperCase());
+                    if(pComp.test(key.toUpperCase()))
+                    {
+                        if (logWarnings)
+                        {
+                            var otherKey = pattern.substr(2);
+                            otherKey = otherKey.substr(0, otherKey.length - 1);
+                            otherKey = otherKey.replace(/\\/g, "");
+                            logger.warning("unknown property: `" + key + "'; did you mean `" + otherKey + "'");
+                        }
+                        return null;
+                    }
+                }
+
+                // If we get here, the prefix is valid but the property is unknown
+                if (logWarnings)
+                {
+                    logger.warning("unknown property: " + key);
+                }
+                return null;
+            }
+        }
+
+        // The key does not match a known Ice property
+        return null;
+    }
+
+    static getDefaultProperty(key)
+    {
+        // Find the property, don't log any warnings.
+        const prop = Properties.findProperty(key, false);
+        if (prop === null)
+        {
+            throw new Error("unknown ice property: " + key);
+        }
+        return prop.defaultValue;
     }
 }
 

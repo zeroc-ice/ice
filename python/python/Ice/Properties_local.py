@@ -48,6 +48,15 @@ if "Properties" not in _M_Ice.__dict__:
             """
             raise NotImplementedError("method 'getProperty' not implemented")
 
+        def getIceProperty(self, key):
+            """
+             Get an Ice property by key. If the property is not set, its default value is returned.
+            Arguments:
+            key -- The property key.
+            Returns: The property value or the default value.
+            """
+            raise NotImplementedError("method 'getIceProperty' not implemented")
+
         def getPropertyWithDefault(self, key, value):
             """
              Get a property by key. If the property is not set, the given default value is returned.
@@ -66,6 +75,15 @@ if "Properties" not in _M_Ice.__dict__:
             Returns: The property value interpreted as an integer.
             """
             raise NotImplementedError("method 'getPropertyAsInt' not implemented")
+
+        def getIcePropertyAsInt(self, key):
+            """
+             Get an Ice property as an integer. If the property is not set, its default value is returned.
+            Arguments:
+            key -- The property key.
+            Returns: The property value interpreted as an integer, or the default value.
+            """
+            raise NotImplementedError("method 'getIcePropertyAsInt' not implemented")
 
         def getPropertyAsIntWithDefault(self, key, value):
             """
@@ -91,6 +109,19 @@ if "Properties" not in _M_Ice.__dict__:
             Returns: The property value interpreted as a list of strings.
             """
             raise NotImplementedError("method 'getPropertyAsList' not implemented")
+
+        def getIcePropertyAsList(self, key):
+            """
+             Get an Ice property as a list of strings. The strings must be separated by whitespace or comma. If the property
+             is not set, its default list is returned. The strings in the list can contain whitespace and commas if they are
+             enclosed in single or double quotes. If quotes are mismatched, the default list is returned. Within single
+             quotes or double quotes, you can escape the quote in question with a backslash, e.g. O'Reilly can be written as
+             O'Reilly, "O'Reilly" or 'O\'Reilly'.
+            Arguments:
+            key -- The property key.
+            Returns: The property value interpreted as list of strings, or the default value.
+            """
+            raise NotImplementedError("method 'getIcePropertyAsList' not implemented")
 
         def getPropertyAsListWithDefault(self, key, value):
             """

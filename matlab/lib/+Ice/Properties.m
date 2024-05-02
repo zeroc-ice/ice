@@ -8,10 +8,13 @@ classdef Properties < IceInternal.WrapperObject
     %
     % Property Methods:
     %   getProperty - Get a property by key.
+    %   getIceProperty - Get an Ice property by key.
     %   getPropertyWithDefault - Get a property by key.
     %   getPropertyAsInt - Get a property as an integer.
+    %   getIcePropertyAsInt - Get an Ice property as an integer.
     %   getPropertyAsIntWithDefault - Get a property as an integer.
     %   getPropertyAsList - Get a property as a list of strings.
+    %   getIcePropertyAsList - Get an Ice property as a list of strings.
     %   getPropertyAsListWithDefault - Get a property as a list of strings.
     %   getPropertiesForPrefix - Get all properties whose keys begins with
     %     a prefix.
@@ -45,6 +48,17 @@ classdef Properties < IceInternal.WrapperObject
 
             r = obj.iceCallWithResult('getProperty', key);
         end
+        function r = getIceProperty(obj, key)
+            % getIceProperty - Get an Ice property by key. If the property is not set,
+            %   its default value is returned.
+            %
+            % Parameters:
+            %   key (char) - The property key.
+            %
+            % Returns (char) - The property value.
+
+            r = obj.iceCallWithResult('getIceProperty', key);
+        end
         function r = getPropertyWithDefault(obj, key, def)
             % getPropertyWithDefault - Get a property by key. If the property
             %   is not set, the given default value is returned.
@@ -69,6 +83,19 @@ classdef Properties < IceInternal.WrapperObject
 
             v = libpointer('int32Ptr', 0);
             obj.iceCall('getPropertyAsInt', key, v);
+            r = v.Value;
+        end
+        function r = getIcePropertyAsInt(obj, key)
+            % getIcePropertyAsInt - Get an Ice property as an integer. If the property
+            %   is not set, its default value is returned.
+            %
+            % Parameters:
+            %   key (char) - The property key.
+            %
+            % Returns (int32) - The property value interpreted as an integer.
+
+            v = libpointer('int32Ptr', 0);
+            obj.iceCall('getIcePropertyAsInt', key, v);
             r = v.Value;
         end
         function r = getPropertyAsIntWithDefault(obj, key, def)
@@ -104,6 +131,24 @@ classdef Properties < IceInternal.WrapperObject
             %   a list of strings.
 
             r = obj.iceCallWithResult('getPropertyAsList', key);
+        end
+        function r = getIcePropertyAsList(obj, key)
+            % getIcePropertyAsList - Get an Ice property as a list of strings. The
+            %   strings must be separated by whitespace or comma. If the
+            %   property is not set, its default is returned. The strings
+            %   in the list can contain whitespace and commas if they are
+            %   enclosed in single or double quotes. If quotes are mismatched,
+            %   an empty list is returned. Within single quotes or double
+            %   quotes, you can escape the quote in question with \, e.g.
+            %   O'Reilly can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
+            %
+            % Parameters:
+            %   key (char) - The property key.
+            %
+            % Returns (cell arry of char) - The property value interpreted as
+            %   a list of strings.
+
+            r = obj.iceCallWithResult('getIcePropertyAsList', key);
         end
         function r = getPropertyAsListWithDefault(obj, key, def)
             % getPropertyAsListWithDefault - Get a property as a list of

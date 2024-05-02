@@ -58,6 +58,15 @@ namespace Ice
         std::string getProperty(std::string_view key) noexcept;
 
         /**
+         * Get an Ice property by key. If the property is not set, its default value is returned.
+         * @param key The property key.
+         * @return The property value or the default value.
+         * @throws std::invalid_argument If the property is not a known Ice property.
+         * @see #setProperty
+         */
+        std::string getIceProperty(std::string_view key);
+
+        /**
          * Get a property by key. If the property is not set, the given default value is returned.
          * @param key The property key.
          * @param value The default value to use if the property does not exist.
@@ -73,6 +82,15 @@ namespace Ice
          * @see #setProperty
          */
         int getPropertyAsInt(std::string_view key) noexcept;
+
+        /**
+         * Get an Ice property as an integer. If the property is not set, its default value is returned.
+         * @param key The property key.
+         * @return The property value interpreted as an integer, or the default value.
+         * @throws std::invalid_argument If the property is not a known Ice property.
+         * @see #setProperty
+         */
+        int getIcePropertyAsInt(std::string_view key);
 
         /**
          * Get a property as an integer. If the property is not set, the given default value is returned.
@@ -94,6 +112,19 @@ namespace Ice
          * @see #setProperty
          */
         StringSeq getPropertyAsList(std::string_view key) noexcept;
+
+        /**
+         * Get an Ice property as a list of strings. The strings must be separated by whitespace or comma. If the
+         * property is not set, its default list is returned. The strings in the list can contain whitespace and commas
+         * if they are enclosed in single or double quotes. If quotes are mismatched, the default list is returned.
+         * Within single quotes or double quotes, you can escape the quote in question with a backslash, e.g. O'Reilly
+         * can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
+         * @param key The property key.
+         * @return The property value interpreted as list of strings, or the default value.
+         * @throws std::invalid_argument If the property is not a known Ice property.
+         * @see #setProperty
+         */
+        StringSeq getIcePropertyAsList(std::string_view key);
 
         /**
          * Get a property as a list of strings.  The strings must be separated by whitespace or comma. If the property

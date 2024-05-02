@@ -40,7 +40,7 @@ namespace IceUtilInternal
     // Split a string using the given delimiters. Considers single and double quotes;
     // returns false for unbalanced quote, true otherwise.
     //
-    ICE_API bool splitString(const std::string&, const std::string&, std::vector<std::string>&);
+    ICE_API bool splitString(std::string_view, std::string_view, std::vector<std::string>&);
 
     //
     // Join a list of strings using the given delimiter.

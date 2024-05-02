@@ -83,6 +83,54 @@
                         });
             }
             out.writeLine("ok");
+
+            {
+                out.write("testing ice properties with set default values...");
+                const properties = Ice.createProperties();
+
+                const toStringMode = properties.getIceProperty("Ice.ToStringMode");
+                test(toStringMode == "Unicode");
+
+                const closeTimeout = properties.getIcePropertyAsInt("Ice.Connection.CloseTimeout");
+                test(closeTimeout == 10);
+
+                const retryIntervals = properties.getIcePropertyAsList("Ice.RetryIntervals");
+                test(retryIntervals.length == 1);
+                test(retryIntervals[0] == "0");
+
+                out.writeLine("ok");
+            }
+
+            {
+                out.write("testing ice properties with unset default values...");
+                const properties = Ice.createProperties();
+
+                const stringValue = properties.getIceProperty("Ice.Admin.Router");
+                test(stringValue == "");
+
+                const intValue = properties.getIcePropertyAsInt("Ice.Admin.Router");
+                test(intValue == 0);
+
+                const listValue = properties.getIcePropertyAsList("Ice.Admin.Router");
+                test(listValue.length == 0);
+
+                out.writeLine("ok");
+            }
+
+            {
+                out.write("testing that getting an unknown ice property throws an exception...");
+                const properties = Ice.createProperties();
+                try
+                {
+                    properties.getIceProperty("Ice.UnknownProperty");
+                    test(false);
+                }
+                catch(ex)
+                {
+                    test(ex.message == "unknown ice property: Ice.UnknownProperty");
+                }
+                out.writeLine("ok");
+            }
         }
 
         async run(args)

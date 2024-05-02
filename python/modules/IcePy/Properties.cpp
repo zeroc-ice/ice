@@ -200,6 +200,39 @@ extern "C"
 extern "C"
 #endif
     static PyObject*
+    propertiesGetIceProperty(PropertiesObject* self, PyObject* args)
+{
+    PyObject* keyObj;
+    if (!PyArg_ParseTuple(args, STRCAST("O"), &keyObj))
+    {
+        return 0;
+    }
+
+    string key;
+    if (!getStringArg(keyObj, "key", key))
+    {
+        return 0;
+    }
+
+    assert(self->properties);
+    string value;
+    try
+    {
+        value = (*self->properties)->getIceProperty(key);
+    }
+    catch (...)
+    {
+        setPythonException(current_exception());
+        return 0;
+    }
+
+    return createString(value);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+    static PyObject*
     propertiesGetPropertyWithDefault(PropertiesObject* self, PyObject* args)
 {
     PyObject* keyObj;
@@ -272,6 +305,39 @@ extern "C"
 extern "C"
 #endif
     static PyObject*
+    propertiesGetIcePropertyAsInt(PropertiesObject* self, PyObject* args)
+{
+    PyObject* keyObj;
+    if (!PyArg_ParseTuple(args, STRCAST("O"), &keyObj))
+    {
+        return 0;
+    }
+
+    string key;
+    if (!getStringArg(keyObj, "key", key))
+    {
+        return 0;
+    }
+
+    assert(self->properties);
+    int32_t value;
+    try
+    {
+        value = (*self->properties)->getIcePropertyAsInt(key);
+    }
+    catch (...)
+    {
+        setPythonException(current_exception());
+        return 0;
+    }
+
+    return PyLong_FromLong(value);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+    static PyObject*
     propertiesGetPropertyAsIntWithDefault(PropertiesObject* self, PyObject* args)
 {
     PyObject* keyObj;
@@ -325,6 +391,49 @@ extern "C"
     try
     {
         value = (*self->properties)->getPropertyAsList(key);
+    }
+    catch (...)
+    {
+        setPythonException(current_exception());
+        return 0;
+    }
+
+    PyObject* list = PyList_New(0);
+    if (!list)
+    {
+        return 0;
+    }
+    if (!stringSeqToList(value, list))
+    {
+        return 0;
+    }
+
+    return list;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+    static PyObject*
+    propertiesGetIcePropertyAsList(PropertiesObject* self, PyObject* args)
+{
+    PyObject* keyObj;
+    if (!PyArg_ParseTuple(args, STRCAST("O"), &keyObj))
+    {
+        return 0;
+    }
+
+    string key;
+    if (!getStringArg(keyObj, "key", key))
+    {
+        return 0;
+    }
+
+    assert(self->properties);
+    Ice::StringSeq value;
+    try
+    {
+        value = (*self->properties)->getIcePropertyAsList(key);
     }
     catch (...)
     {
@@ -664,6 +773,10 @@ static PyMethodDef PropertyMethods[] = {
      reinterpret_cast<PyCFunction>(propertiesGetProperty),
      METH_VARARGS,
      PyDoc_STR(STRCAST("getProperty(key) -> string"))},
+    {STRCAST("getIceProperty"),
+     reinterpret_cast<PyCFunction>(propertiesGetIceProperty),
+     METH_VARARGS,
+     PyDoc_STR(STRCAST("getIceProperty(key) -> string"))},
     {STRCAST("getPropertyWithDefault"),
      reinterpret_cast<PyCFunction>(propertiesGetPropertyWithDefault),
      METH_VARARGS,
@@ -672,6 +785,10 @@ static PyMethodDef PropertyMethods[] = {
      reinterpret_cast<PyCFunction>(propertiesGetPropertyAsInt),
      METH_VARARGS,
      PyDoc_STR(STRCAST("getPropertyAsInt(key) -> int"))},
+    {STRCAST("getIcePropertyAsInt"),
+     reinterpret_cast<PyCFunction>(propertiesGetIcePropertyAsInt),
+     METH_VARARGS,
+     PyDoc_STR(STRCAST("getIcePropertyAsInt(key) -> int"))},
     {STRCAST("getPropertyAsIntWithDefault"),
      reinterpret_cast<PyCFunction>(propertiesGetPropertyAsIntWithDefault),
      METH_VARARGS,
@@ -680,6 +797,10 @@ static PyMethodDef PropertyMethods[] = {
      reinterpret_cast<PyCFunction>(propertiesGetPropertyAsList),
      METH_VARARGS,
      PyDoc_STR(STRCAST("getPropertyAsList(key) -> list"))},
+    {STRCAST("getIcePropertyAsList"),
+     reinterpret_cast<PyCFunction>(propertiesGetIcePropertyAsList),
+     METH_VARARGS,
+     PyDoc_STR(STRCAST("getIcePropertyAsList(key) -> list"))},
     {STRCAST("getPropertyAsListWithDefault"),
      reinterpret_cast<PyCFunction>(propertiesGetPropertyAsListWithDefault),
      METH_VARARGS,

@@ -18,6 +18,105 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+namespace
+{
+    /// Find a property in the Ice property set.
+    /// @param key The property name.
+    /// @param logWarnings Whether to log relevant warnings.
+    /// @return The property if found, nullopt otherwise.
+    optional<Property> findProperty(string_view key, bool logWarnings)
+    {
+        // Check if the property is legal.
+        LoggerPtr logger = getProcessLogger();
+        string::size_type dotPos = key.find('.');
+        if (dotPos != string::npos)
+        {
+            string_view prefix = key.substr(0, dotPos);
+            for (int i = 0; IceInternal::PropertyNames::validProps[i].properties != 0; ++i)
+            {
+                string pattern{IceInternal::PropertyNames::validProps[i].properties[0].pattern};
+
+                dotPos = pattern.find('.');
+
+                //
+                // Each top level prefix describes a non-empty
+                // namespace. Having a string without a prefix followed by a
+                // dot is an error.
+                //
+                assert(dotPos != string::npos);
+                string propPrefix = pattern.substr(0, dotPos);
+
+                // If the prefix doesn't match, continue to the next prefix.
+                if (IceUtilInternal::toUpper(propPrefix) != IceUtilInternal::toUpper(string{prefix}))
+                {
+                    continue;
+                }
+
+                for (int j = 0; j < IceInternal::PropertyNames::validProps[i].length; ++j)
+                {
+                    const IceInternal::Property& prop = IceInternal::PropertyNames::validProps[i].properties[j];
+
+                    if (IceUtilInternal::match(string{key}, prop.pattern))
+                    {
+                        if (prop.deprecated && logWarnings)
+                        {
+                            logger->warning("deprecated property: " + string{key});
+                        }
+                        return prop;
+                    }
+
+                    // Check for case-insensitive match.
+
+                    if (IceUtilInternal::match(
+                            IceUtilInternal::toUpper(string{key}),
+                            IceUtilInternal::toUpper(prop.pattern)))
+                    {
+                        if (logWarnings)
+                        {
+                            ostringstream os;
+                            os << "unknown property: `" << key << "'; did you mean `" << prop.pattern << "'";
+                            logger->warning(os.str());
+                        }
+                        return nullopt;
+                    }
+                }
+
+                if (logWarnings)
+                {
+                    ostringstream os;
+                    os << "unknown property: `" << key << "'";
+                    logger->warning(os.str());
+                }
+                return nullopt;
+            }
+        }
+
+        // The key does not match a known Ice property
+        return nullopt;
+    }
+
+    /// Find the default value for an Ice property. If there is no default value, return an empty string.
+    /// @param key The ice property name.
+    /// @return The default value for the property.
+    /// @throws std::invalid_argument if the property is unknown.
+    string_view getDefaultValue(string_view key)
+    {
+        for (int i = 0; IceInternal::PropertyNames::validProps[i].properties != 0; ++i)
+        {
+            for (int j = 0; j < IceInternal::PropertyNames::validProps[i].length; ++j)
+            {
+                const IceInternal::Property& prop = IceInternal::PropertyNames::validProps[i].properties[j];
+                if (IceUtilInternal::match(string{key}, prop.pattern))
+                {
+                    // There's always a non-null default value.
+                    return prop.defaultValue;
+                }
+            }
+        }
+        throw invalid_argument("unknown ice property: " + string{key});
+    }
+}
+
 Ice::Properties::Properties(const Properties& p)
 {
     lock_guard lock(p._mutex);
@@ -113,6 +212,13 @@ Ice::Properties::getProperty(string_view key) noexcept
 }
 
 string
+Ice::Properties::getIceProperty(string_view key)
+{
+    string_view defaultValue = getDefaultValue(key);
+    return getPropertyWithDefault(key, defaultValue);
+}
+
+string
 Ice::Properties::getPropertyWithDefault(string_view key, string_view value) noexcept
 {
     lock_guard lock(_mutex);
@@ -133,6 +239,22 @@ int32_t
 Ice::Properties::getPropertyAsInt(string_view key) noexcept
 {
     return getPropertyAsIntWithDefault(key, 0);
+}
+
+int32_t
+Ice::Properties::getIcePropertyAsInt(string_view key)
+{
+    string defaultValueString{getDefaultValue(key)};
+    int32_t defaultValue{0};
+
+    if (!defaultValueString.empty())
+    {
+        // If the default value is not empty, it should be a number.
+        // These come from the IceInternal::PropertyNames::validProps array so they should be valid.
+        defaultValue = stoi(defaultValueString);
+    }
+
+    return getPropertyAsIntWithDefault(key, defaultValue);
 }
 
 int32_t
@@ -161,6 +283,15 @@ Ice::StringSeq
 Ice::Properties::getPropertyAsList(string_view key) noexcept
 {
     return getPropertyAsListWithDefault(key, StringSeq());
+}
+
+Ice::StringSeq
+Ice::Properties::getIcePropertyAsList(string_view key)
+{
+    string_view defaultValue = getDefaultValue(key);
+    StringSeq defaultList;
+    IceUtilInternal::splitString(defaultValue, ", \t\r\n", defaultList);
+    return getPropertyAsListWithDefault(key, defaultList);
 }
 
 Ice::StringSeq
@@ -221,70 +352,13 @@ Ice::Properties::setProperty(string_view key, string_view value)
         throw InitializationException(__FILE__, __LINE__, "Attempt to set property with empty key");
     }
 
-    //
-    // Check if the property is legal.
-    //
-    LoggerPtr logger = getProcessLogger();
-    string::size_type dotPos = currentKey.find('.');
-    if (dotPos != string::npos)
+    // Find the property, log warnings if necessary
+    auto prop = findProperty(key, true);
+
+    // If the property is deprecated by another property, use the new property key
+    if (prop && prop->deprecatedBy)
     {
-        string prefix = currentKey.substr(0, dotPos);
-        for (int i = 0; IceInternal::PropertyNames::validProps[i].properties != 0; ++i)
-        {
-            string pattern(IceInternal::PropertyNames::validProps[i].properties[0].pattern);
-
-            dotPos = pattern.find('.');
-
-            //
-            // Each top level prefix describes a non-empty
-            // namespace. Having a string without a prefix followed by a
-            // dot is an error.
-            //
-            assert(dotPos != string::npos);
-
-            bool mismatchCase = false;
-            string otherKey;
-            string propPrefix = pattern.substr(0, dotPos);
-            if (IceUtilInternal::toUpper(propPrefix) != IceUtilInternal::toUpper(prefix))
-            {
-                continue;
-            }
-
-            bool found = false;
-
-            for (int j = 0; j < IceInternal::PropertyNames::validProps[i].length && !found; ++j)
-            {
-                const IceInternal::Property& prop = IceInternal::PropertyNames::validProps[i].properties[j];
-                found = IceUtilInternal::match(currentKey, prop.pattern);
-
-                if (found && prop.deprecated)
-                {
-                    logger->warning("deprecated property: " + currentKey);
-                    if (prop.deprecatedBy != 0)
-                    {
-                        currentKey = prop.deprecatedBy;
-                    }
-                }
-
-                if (!found && IceUtilInternal::match(
-                                  IceUtilInternal::toUpper(currentKey),
-                                  IceUtilInternal::toUpper(prop.pattern)))
-                {
-                    found = true;
-                    mismatchCase = true;
-                    otherKey = prop.pattern;
-                    break;
-                }
-            }
-            if (!found)
-            {
-                logger->warning("unknown property: `" + currentKey + "'");
-            }
-            else if (mismatchCase)
-            {
-                logger->warning("unknown property: `" + currentKey + "'; did you mean `" + otherKey + "'");
-            }
-        }
+        currentKey = prop->deprecatedBy;
     }
 
     lock_guard lock(_mutex);
