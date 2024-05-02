@@ -2686,7 +2686,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         _out << sb;
         _out << nl << "int h_ = 5381;";
         _out << nl << "global::Ice.Internal.HashUtil.hashAdd(ref h_, \"" << p->scoped() << "\");";
-        writeMemberHashCode(dataMembers, DotNet::ICloneable);
+        writeMemberHashCode(dataMembers);
         _out << nl << "return h_;";
         _out << eb;
 
@@ -2706,13 +2706,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         _out << sb;
         _out << nl << "return false;";
         _out << eb;
-
-        if (!dataMembers.empty())
-        {
-            // TODO: temporary - just use other directly
-            _out << nl << name << " o = other;";
-            writeMemberEquals(dataMembers, DotNet::ICloneable);
-        }
+        writeMemberEquals(dataMembers);
         _out << nl << "return true;";
         _out << eb;
 
@@ -2937,11 +2931,11 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers, unsigned int baseTypes)
+Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers)
 {
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        _out << nl << "global::Ice.Internal.HashUtil.hashAdd(ref h_, " << fixId((*q)->name(), baseTypes);
+        _out << nl << "global::Ice.Internal.HashUtil.hashAdd(ref h_, " << fixId((*q)->name(), DotNet::ICloneable);
         if ((*q)->optional())
         {
             _out << ".Value";
@@ -2951,17 +2945,17 @@ Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers,
 }
 
 void
-Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, unsigned int baseTypes)
+Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers)
 {
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        string memberName = fixId((*q)->name(), baseTypes);
+        string memberName = fixId((*q)->name(), DotNet::ICloneable);
         TypePtr memberType = (*q)->type();
         if (!(*q)->optional() && !isValueType(memberType))
         {
             _out << nl << "if (this." << memberName << " is null)";
             _out << sb;
-            _out << nl << "if (o." << memberName << " is not null)";
+            _out << nl << "if (other." << memberName << " is not null)";
             _out << sb;
             _out << nl << "return false;";
             _out << eb;
@@ -2979,7 +2973,7 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, u
                     //
                     // Equals() for native arrays does not have value semantics.
                     //
-                    _out << nl << "if (!Ice.UtilInternal.Arrays.Equals(this." << memberName << ", o." << memberName
+                    _out << nl << "if (!Ice.UtilInternal.Arrays.Equals(this." << memberName << ", other." << memberName
                          << "))";
                 }
                 else if (isGeneric)
@@ -2988,7 +2982,7 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, u
                     // Equals() for generic types does not have value semantics.
                     //
                     _out << nl << "if (!global::Ice.UtilInternal.Collections.SequenceEquals(this." << memberName
-                         << ", o." << memberName << "))";
+                         << ", other." << memberName << "))";
                 }
             }
             else
@@ -3000,11 +2994,11 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, u
                     // Equals() for generic types does not have value semantics.
                     //
                     _out << nl << "if (!global::Ice.UtilInternal.Collections.DictionaryEquals(this." << memberName
-                         << ", o." << memberName << "))";
+                         << ", other." << memberName << "))";
                 }
                 else
                 {
-                    _out << nl << "if (!this." << memberName << ".Equals(o." << memberName << "))";
+                    _out << nl << "if (!this." << memberName << ".Equals(other." << memberName << "))";
                 }
             }
             _out << sb;
@@ -3015,7 +3009,7 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, u
         else
         {
             // The nicer != syntax doesn't work for proxy fields.
-            _out << nl << "if (!this." << memberName << ".Equals(o." << memberName << "))";
+            _out << nl << "if (!this." << memberName << ".Equals(other." << memberName << "))";
             _out << sb;
             _out << nl << "return false;";
             _out << eb;

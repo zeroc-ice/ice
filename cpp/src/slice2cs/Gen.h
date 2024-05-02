@@ -162,8 +162,9 @@ namespace Slice
             virtual void visitDataMember(const DataMemberPtr&);
 
         private:
-            void writeMemberHashCode(const DataMemberList&, unsigned int);
-            void writeMemberEquals(const DataMemberList&, unsigned int);
+            // For Slice structs mapped to C# classes
+            void writeMemberHashCode(const DataMemberList&);
+            void writeMemberEquals(const DataMemberList&);
         };
 
         class AsyncDelegateVisitor : public CsVisitor
