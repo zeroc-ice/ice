@@ -2572,13 +2572,14 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     emitAttributes(p);
     emitPartialTypeAttributes();
-    _out << nl << "public " << (classMapping ? " sealed partial class" : "partial record struct") << ' ' << name;
+    _out << nl << "public " << (classMapping ? "sealed partial class" : "partial record struct") << ' ' << name;
 
     StringList baseNames;
 
     if (classMapping)
     {
         baseNames.push_back("System.ICloneable");
+        baseNames.push_back("System.IEquatable<" + name + ">");
     }
 
     //
@@ -2691,7 +2692,11 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         _out << sp;
         emitGeneratedCodeAttribute();
-        _out << nl << "public override bool Equals(object other)";
+        _out << nl << "public override bool Equals(object other) => Equals(other as " << name << ");";
+
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public bool Equals(" << name << " other)"; // TODO: should be name? other.
         _out << sb;
         _out << nl << "if (object.ReferenceEquals(this, other))";
         _out << sb;
@@ -2701,15 +2706,13 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         _out << sb;
         _out << nl << "return false;";
         _out << eb;
-        _out << nl << "if (GetType() != other.GetType())";
-        _out << sb;
-        _out << nl << "return false;";
-        _out << eb;
+
         if (!dataMembers.empty())
         {
-            _out << nl << name << " o = (" << name << ")other;";
+            // TODO: temporary - just use other directly
+            _out << nl << name << " o = other;";
+            writeMemberEquals(dataMembers, DotNet::ICloneable);
         }
-        writeMemberEquals(dataMembers, DotNet::ICloneable);
         _out << nl << "return true;";
         _out << eb;
 
@@ -2721,14 +2724,14 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         emitGeneratedCodeAttribute();
         _out << nl << "public static bool operator==(" << name << " lhs, " << name << " rhs)";
         _out << sb;
-        _out << nl << "return Equals(lhs, rhs);";
+        _out << nl << "return (object)lhs == rhs || (lhs is not null && lhs.Equals(rhs));";
         _out << eb;
 
         _out << sp;
         emitGeneratedCodeAttribute();
         _out << nl << "public static bool operator!=(" << name << " lhs, " << name << " rhs)";
         _out << sb;
-        _out << nl << "return !Equals(lhs, rhs);";
+        _out << nl << "return !(lhs == rhs);";
         _out << eb;
 
         _out << sp << nl << "#endregion"; // Comparison members
@@ -3011,7 +3014,7 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, u
         }
         else
         {
-            // TODO: the nicer != syntax doesn't work for proxy fields.
+            // The nicer != syntax doesn't work for proxy fields.
             _out << nl << "if (!this." << memberName << ".Equals(o." << memberName << "))";
             _out << sb;
             _out << nl << "return false;";
