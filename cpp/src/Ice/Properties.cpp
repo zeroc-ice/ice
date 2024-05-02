@@ -73,8 +73,9 @@ namespace
                     {
                         if (logWarnings)
                         {
-                            logger->warning(
-                                "unknown property: `" + string{key} + "'; did you mean `" + prop.pattern + "'");
+                            ostringstream os;
+                            os << "unknown property: `" << key << "'; did you mean `" << prop.pattern << "'";
+                            logger->warning(os.str());
                         }
                         return nullopt;
                     }
