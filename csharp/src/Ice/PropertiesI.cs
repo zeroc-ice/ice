@@ -106,7 +106,7 @@ internal sealed class PropertiesI : Properties
 
             pv.used = true;
 
-            string[] result = IceUtilInternal.StringUtil.splitString(pv.val, ", \t\r\n");
+            string[] result = Ice.UtilInternal.StringUtil.splitString(pv.val, ", \t\r\n");
             if (result == null)
             {
                 Util.getProcessLogger().warning("mismatched quotes in property " + key
@@ -161,7 +161,7 @@ internal sealed class PropertiesI : Properties
         if (dotPos != -1)
         {
             string prefix = key.Substring(0, dotPos);
-            foreach (var validProps in IceInternal.PropertyNames.validProps)
+            foreach (var validProps in Ice.Internal.PropertyNames.validProps)
             {
                 string pattern = validProps[0].pattern();
                 dotPos = pattern.IndexOf('.');
@@ -294,7 +294,7 @@ internal sealed class PropertiesI : Properties
     public string[] parseIceCommandLineOptions(string[] options)
     {
         string[] args = options;
-        foreach (var name in IceInternal.PropertyNames.clPropNames)
+        foreach (var name in Ice.Internal.PropertyNames.clPropNames)
         {
             args = parseCommandLineOptions(name, args);
         }

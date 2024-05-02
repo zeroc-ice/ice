@@ -31,10 +31,10 @@ namespace Ice
                 {
                     lock (this)
                     {
-                        long end = IceInternal.Time.currentMonotonicTimeMillis() + timeout;
+                        long end = Ice.Internal.Time.currentMonotonicTimeMillis() + timeout;
                         while (_replies < expectedReplies)
                         {
-                            int delay = (int)(end - IceInternal.Time.currentMonotonicTimeMillis());
+                            int delay = (int)(end - Ice.Internal.Time.currentMonotonicTimeMillis());
                             if (delay > 0)
                             {
                                 System.Threading.Monitor.Wait(this, delay);
@@ -149,7 +149,7 @@ namespace Ice
                 if (communicator.getProperties().getProperty("Ice.IPv6") == "1")
                 {
                     endpoint.Append("udp -h \"ff15::1:1\"");
-                    if (IceInternal.AssemblyUtil.isWindows || IceInternal.AssemblyUtil.isMacOS)
+                    if (Ice.Internal.AssemblyUtil.isWindows || Ice.Internal.AssemblyUtil.isMacOS)
                     {
                         endpoint.Append(" --interface \"::1\"");
                     }
@@ -157,7 +157,7 @@ namespace Ice
                 else
                 {
                     endpoint.Append("udp -h 239.255.1.1");
-                    if (IceInternal.AssemblyUtil.isWindows || IceInternal.AssemblyUtil.isMacOS)
+                    if (Ice.Internal.AssemblyUtil.isWindows || Ice.Internal.AssemblyUtil.isMacOS)
                     {
                         endpoint.Append(" --interface 127.0.0.1");
                     }

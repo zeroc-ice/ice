@@ -1297,17 +1297,17 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
                         string patcherName;
                         if (isArray)
                         {
-                            patcherName = "global::IceInternal.Patcher.arrayReadValue";
+                            patcherName = "global::Ice.Internal.Patcher.arrayReadValue";
                             out << getUnqualified("Ice.Value", scope) << "[" << param << "_lenx];";
                         }
                         else if (isCustom)
                         {
-                            patcherName = "global::IceInternal.Patcher.customSeqReadValue";
+                            patcherName = "global::Ice.Internal.Patcher.customSeqReadValue";
                             out << "global::" << genericType << "<" << getUnqualified("Ice.Value", scope) << ">();";
                         }
                         else
                         {
-                            patcherName = "global::IceInternal.Patcher.listReadValue";
+                            patcherName = "global::Ice.Internal.Patcher.listReadValue";
                             out << "global::System.Collections.Generic." << genericType << "<"
                                 << getUnqualified("Ice.Value", scope) << ">(" << param << "_lenx);";
                         }
@@ -1463,17 +1463,17 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
             string patcherName;
             if (isArray)
             {
-                patcherName = "global::IceInternal.Patcher.arrayReadValue";
+                patcherName = "global::Ice.Internal.Patcher.arrayReadValue";
                 out << toArrayAlloc(typeS + "[]", "szx") << ";";
             }
             else if (isCustom)
             {
-                patcherName = "global::IceInternal.Patcher.customSeqReadValue";
+                patcherName = "global::Ice.Internal.Patcher.customSeqReadValue";
                 out << "global::" << genericType << "<" << typeS << ">();";
             }
             else
             {
-                patcherName = "global::IceInternal.Patcher.listReadValue";
+                patcherName = "global::Ice.Internal.Patcher.listReadValue";
                 out << "global::System.Collections.Generic." << genericType << "<" << typeS << ">(szx);";
             }
             out << nl << "for(int ix = 0; ix < szx; ++ix)";

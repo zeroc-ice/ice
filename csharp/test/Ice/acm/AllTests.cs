@@ -234,11 +234,11 @@ namespace Ice
             {
                 lock (this)
                 {
-                    long now = IceInternal.Time.currentMonotonicTimeMillis();
+                    long now = Ice.Internal.Time.currentMonotonicTimeMillis();
                     while (!_closed)
                     {
                         Monitor.Wait(this, 30000);
-                        if (IceInternal.Time.currentMonotonicTimeMillis() - now > 30000)
+                        if (Ice.Internal.Time.currentMonotonicTimeMillis() - now > 30000)
                         {
                             System.Diagnostics.Debug.Assert(false); // Waited for more than 30s for close, something's wrong.
                             throw new System.Exception();

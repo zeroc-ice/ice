@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
-using IceInternal;
-using IceUtilInternal;
+using Ice.Internal;
+using Ice.UtilInternal;
 using System.ComponentModel;
 using System.Diagnostics;
 
@@ -1606,7 +1606,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// </returns>
     public bool ice_isFixed()
     {
-        return _reference is IceInternal.FixedReference;
+        return _reference is Ice.Internal.FixedReference;
     }
 
     public class GetConnectionTaskCompletionCallback : TaskCompletionCallback<Connection>

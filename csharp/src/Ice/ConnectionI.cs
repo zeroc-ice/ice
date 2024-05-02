@@ -1,13 +1,13 @@
 // Copyright (c) ZeroC, Inc.
 
 using Ice.Instrumentation;
-using IceInternal;
+using Ice.Internal;
 using System.Diagnostics;
 using System.Text;
 
 namespace Ice;
 
-public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, CancellationHandler, Connection
+public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, CancellationHandler, Connection
 {
     public interface StartCallback
     {
@@ -558,12 +558,12 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
         {
             try
             {
-                os_.writeBlob(IceInternal.Protocol.magic);
+                os_.writeBlob(Ice.Internal.Protocol.magic);
                 ProtocolVersion.ice_write(os_, Ice.Util.currentProtocol);
                 EncodingVersion.ice_write(os_, Ice.Util.currentProtocolEncoding);
-                os_.writeByte(IceInternal.Protocol.validateConnectionMsg);
+                os_.writeByte(Ice.Internal.Protocol.validateConnectionMsg);
                 os_.writeByte((byte)0);
-                os_.writeInt(IceInternal.Protocol.headerSize); // Message size.
+                os_.writeInt(Ice.Internal.Protocol.headerSize); // Message size.
 
                 int status = _connection.sendAsyncRequest(this, false, false, 0);
 
@@ -889,7 +889,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
         return _instance.proxyFactory().referenceToProxy(_instance.referenceFactory().create(ident, this));
     }
 
-    public void setAdapterAndServantManager(ObjectAdapter adapter, IceInternal.ServantManager servantManager)
+    public void setAdapterAndServantManager(ObjectAdapter adapter, Ice.Internal.ServantManager servantManager)
     {
         lock (this)
         {
@@ -906,7 +906,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
     //
     // Operations from EventHandler
     //
-    public override bool startAsync(int operation, IceInternal.AsyncCallback cb, ref bool completedSynchronously)
+    public override bool startAsync(int operation, Ice.Internal.AsyncCallback cb, ref bool completedSynchronously)
     {
         if (_state >= StateClosed)
         {
@@ -954,7 +954,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
         {
             if ((operation & SocketOperation.Write) != 0)
             {
-                IceInternal.Buffer buf = _writeStream.getBuffer();
+                Ice.Internal.Buffer buf = _writeStream.getBuffer();
                 int start = buf.b.position();
                 _transceiver.finishWrite(buf);
                 if (_instance.traceLevels().network >= 3 && buf.b.position() != start)
@@ -980,7 +980,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
             }
             else if ((operation & SocketOperation.Read) != 0)
             {
-                IceInternal.Buffer buf = _readStream.getBuffer();
+                Ice.Internal.Buffer buf = _readStream.getBuffer();
                 int start = buf.b.position();
                 _transceiver.finishRead(buf);
                 if (_instance.traceLevels().network >= 3 && buf.b.position() != start)
@@ -1068,7 +1068,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
                     {
                         while (true)
                         {
-                            IceInternal.Buffer buf = _readStream.getBuffer();
+                            Ice.Internal.Buffer buf = _readStream.getBuffer();
 
                             if (_observer != null && !_readHeader)
                             {
@@ -1683,7 +1683,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
         }
     }
 
-    public IceInternal.ThreadPool getThreadPool()
+    public Ice.Internal.ThreadPool getThreadPool()
     {
         return _threadPool;
     }
@@ -2423,7 +2423,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
                 //
                 // Do compression.
                 //
-                IceInternal.Buffer cbuf = BZip2.compress(uncompressed.getBuffer(), Protocol.headerSize,
+                Ice.Internal.Buffer cbuf = BZip2.compress(uncompressed.getBuffer(), Protocol.headerSize,
                                                          _compressionLevel);
                 if (cbuf != null)
                 {
@@ -2504,7 +2504,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
             {
                 if (_compressionSupported)
                 {
-                    IceInternal.Buffer ubuf = BZip2.uncompress(info.stream.getBuffer(), Protocol.headerSize,
+                    Ice.Internal.Buffer ubuf = BZip2.uncompress(info.stream.getBuffer(), Protocol.headerSize,
                                                                _messageSizeMax);
                     info.stream = new InputStream(info.stream.instance(), info.stream.getEncoding(), ubuf, true);
                 }
@@ -2830,7 +2830,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
         _logger.warning(msg + ":\n" + ex + "\n" + _transceiver.ToString());
     }
 
-    private void observerStartRead(IceInternal.Buffer buf)
+    private void observerStartRead(Ice.Internal.Buffer buf)
     {
         if (_readStreamPos >= 0)
         {
@@ -2840,7 +2840,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
         _readStreamPos = buf.empty() ? -1 : buf.b.position();
     }
 
-    private void observerFinishRead(IceInternal.Buffer buf)
+    private void observerFinishRead(Ice.Internal.Buffer buf)
     {
         if (_readStreamPos == -1)
         {
@@ -2851,7 +2851,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
         _readStreamPos = -1;
     }
 
-    private void observerStartWrite(IceInternal.Buffer buf)
+    private void observerStartWrite(Ice.Internal.Buffer buf)
     {
         if (_writeStreamPos >= 0)
         {
@@ -2861,7 +2861,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
         _writeStreamPos = buf.empty() ? -1 : buf.b.position();
     }
 
-    private void observerFinishWrite(IceInternal.Buffer buf)
+    private void observerFinishWrite(Ice.Internal.Buffer buf)
     {
         if (_writeStreamPos == -1)
         {
@@ -2915,7 +2915,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
         }
     }
 
-    private int read(IceInternal.Buffer buf)
+    private int read(Ice.Internal.Buffer buf)
     {
         int start = buf.b.position();
         int op = _transceiver.read(buf, ref _hasMoreData);
@@ -2941,7 +2941,7 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
         return op;
     }
 
-    private int write(IceInternal.Buffer buf)
+    private int write(Ice.Internal.Buffer buf)
     {
         int start = buf.b.position();
         int op = _transceiver.write(buf);
@@ -3044,9 +3044,9 @@ public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, Can
 
     private Logger _logger;
     private TraceLevels _traceLevels;
-    private IceInternal.ThreadPool _threadPool;
+    private Ice.Internal.ThreadPool _threadPool;
 
-    private IceInternal.Timer _timer;
+    private Ice.Internal.Timer _timer;
     private TimerTask _writeTimeout;
     private bool _writeTimeoutScheduled;
     private TimerTask _readTimeout;

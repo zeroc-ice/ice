@@ -109,7 +109,7 @@ internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
             {
                 return null;
             }
-            IceUtilInternal.Collections.Shuffle(ref adapterIds);
+            Ice.UtilInternal.Collections.Shuffle(ref adapterIds);
             return prx.ice_adapterId(adapterIds[0]);
         }
     }

@@ -122,7 +122,7 @@ public class AllTests
 
         X509Store store = new X509Store(StoreName.AuthRoot, StoreLocation.LocalMachine);
         bool isAdministrator = false;
-        if (IceInternal.AssemblyUtil.isWindows)
+        if (Ice.Internal.AssemblyUtil.isWindows)
         {
             try
             {
@@ -491,7 +491,7 @@ public class AllTests
                         catch (Ice.LocalException ex)
                         {
                             // macOS catalina or greater does not check the certificate common name
-                            if (!IceInternal.AssemblyUtil.isMacOS)
+                            if (!Ice.Internal.AssemblyUtil.isMacOS)
                             {
                                 Console.WriteLine(ex.ToString());
                                 test(false);
@@ -546,7 +546,7 @@ public class AllTests
                         catch (Ice.LocalException)
                         {
                             // macOS >= Catalina requires a DNS altName. DNS name as the Common Name is not trusted
-                            test(IceInternal.AssemblyUtil.isMacOS);
+                            test(Ice.Internal.AssemblyUtil.isMacOS);
                         }
                         fact.destroyServer(server);
                         comm.destroy();
@@ -677,7 +677,7 @@ public class AllTests
                         catch (Ice.SecurityException ex)
                         {
                             // macOS catalina or greater does not check the certificate common name
-                            if (!IceInternal.AssemblyUtil.isMacOS)
+                            if (!Ice.Internal.AssemblyUtil.isMacOS)
                             {
                                 Console.WriteLine(ex.ToString());
                                 test(false);
@@ -845,7 +845,7 @@ public class AllTests
             }
             Console.Out.WriteLine("ok");
 
-            if (IceInternal.AssemblyUtil.isWindows && isAdministrator)
+            if (Ice.Internal.AssemblyUtil.isWindows && isAdministrator)
             {
                 // LocalMachine certificate store is not supported on non Windows platforms.
                 Console.Out.Write("testing multiple CA certificates... ");
@@ -1614,7 +1614,7 @@ public class AllTests
             }
             Console.Out.WriteLine("ok");
 
-            if (!IceInternal.AssemblyUtil.isMacOS)
+            if (!Ice.Internal.AssemblyUtil.isMacOS)
             {
                 Console.Out.Write("testing IceSSL.FindCerts properties... ");
                 Console.Out.Flush();
@@ -1843,7 +1843,7 @@ public class AllTests
         }
         finally
         {
-            if (IceInternal.AssemblyUtil.isWindows && isAdministrator)
+            if (Ice.Internal.AssemblyUtil.isWindows && isAdministrator)
             {
                 store.Remove(caCert1);
                 store.Remove(caCert2);

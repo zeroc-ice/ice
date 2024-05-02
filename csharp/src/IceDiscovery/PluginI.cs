@@ -53,8 +53,8 @@ public sealed class PluginI : Ice.Plugin
         string lookupEndpoints = properties.getProperty("IceDiscovery.Lookup");
         if (lookupEndpoints.Length == 0)
         {
-            int protocol = ipv4 && !preferIPv6 ? IceInternal.Network.EnableIPv4 : IceInternal.Network.EnableIPv6;
-            var interfaces = IceInternal.Network.getInterfacesForMulticast(intf, protocol);
+            int protocol = ipv4 && !preferIPv6 ? Ice.Internal.Network.EnableIPv4 : Ice.Internal.Network.EnableIPv6;
+            var interfaces = Ice.Internal.Network.getInterfacesForMulticast(intf, protocol);
             foreach (string p in interfaces)
             {
                 if (p != interfaces[0])

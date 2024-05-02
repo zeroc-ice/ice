@@ -74,7 +74,7 @@ internal abstract class Request<T>
     protected T _id;
 };
 
-internal class AdapterRequest : Request<string>, IceInternal.TimerTask
+internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
 {
     public AdapterRequest(LookupI lookup, string id, int retryCount) : base(lookup, id, retryCount)
     {
@@ -172,7 +172,7 @@ internal class AdapterRequest : Request<string>, IceInternal.TimerTask
     private long _latency;
 };
 
-internal class ObjectRequest : Request<Ice.Identity>, IceInternal.TimerTask
+internal class ObjectRequest : Request<Ice.Identity>, Ice.Internal.TimerTask
 {
     public ObjectRequest(LookupI lookup, Ice.Identity id, int retryCount) : base(lookup, id, retryCount)
     {
@@ -223,7 +223,7 @@ internal class LookupI : LookupDisp_
         _retryCount = properties.getPropertyAsIntWithDefault("IceDiscovery.RetryCount", 3);
         _latencyMultiplier = properties.getPropertyAsIntWithDefault("IceDiscovery.LatencyMultiplier", 1);
         _domainId = properties.getProperty("IceDiscovery.DomainId");
-        _timer = IceInternal.Util.getInstance(lookup.ice_getCommunicator()).timer();
+        _timer = Ice.Internal.Util.getInstance(lookup.ice_getCommunicator()).timer();
 
         //
         // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast
@@ -527,7 +527,7 @@ internal class LookupI : LookupDisp_
         }
     }
 
-    internal IceInternal.Timer timer()
+    internal Ice.Internal.Timer timer()
     {
         return _timer;
     }
@@ -545,7 +545,7 @@ internal class LookupI : LookupDisp_
     private readonly int _latencyMultiplier;
     private readonly string _domainId;
 
-    private IceInternal.Timer _timer;
+    private Ice.Internal.Timer _timer;
     private bool _warnOnce = true;
     private Dictionary<Ice.Identity, ObjectRequest> _objectRequests = new Dictionary<Ice.Identity, ObjectRequest>();
     private Dictionary<string, AdapterRequest> _adapterRequests = new Dictionary<string, AdapterRequest>();

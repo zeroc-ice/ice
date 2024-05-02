@@ -30,7 +30,7 @@ namespace Ice
 
                 public bool supportsCompress(Ice.Current current)
                 {
-                    return IceInternal.BZip2.supported();
+                    return Ice.Internal.BZip2.supported();
                 }
 
                 public void opVoid(Ice.Current current)

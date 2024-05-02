@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-using IceInternal;
+using Ice.Internal;
 using System.Diagnostics;
 
 namespace IceMX;
@@ -332,7 +332,7 @@ public class Observer<T> : Stopwatch, Ice.Instrumentation.Observer where T : Met
 
 public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T>, new()
 {
-    public ObserverFactory(IceInternal.MetricsAdminI metrics, string name)
+    public ObserverFactory(Ice.Internal.MetricsAdminI metrics, string name)
     {
         _metrics = metrics;
         _name = name;
