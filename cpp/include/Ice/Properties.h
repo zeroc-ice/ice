@@ -61,6 +61,7 @@ namespace Ice
          * Get an Ice property by key. If the property is not set, its default value is returned.
          * @param key The property key.
          * @return The property value or the default value.
+         * @throws std::invalid_argument If the property is not a known Ice property.
          * @see #setProperty
          */
         std::string getIceProperty(std::string_view key);
@@ -86,6 +87,7 @@ namespace Ice
          * Get an Ice property as an integer. If the property is not set, its default value is returned.
          * @param key The property key.
          * @return The property value interpreted as an integer, or the default value.
+         * @throws std::invalid_argument If the property is not a known Ice property.
          * @see #setProperty
          */
         int getIcePropertyAsInt(std::string_view key);
@@ -119,6 +121,7 @@ namespace Ice
          * can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
          * @param key The property key.
          * @return The property value interpreted as list of strings, or the default value.
+         * @throws std::invalid_argument If the property is not a known Ice property.
          * @see #setProperty
          */
         StringSeq getIcePropertyAsList(std::string_view key);
