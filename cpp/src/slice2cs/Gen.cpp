@@ -2894,13 +2894,13 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 {
     unsigned int baseTypes = 0;
     bool isClass = false;
-    bool isProperty = false;
     bool isValue = false;
     bool isProtected = false;
-    bool isPrivate = false;
     const bool isOptional = p->optional();
+
     ContainedPtr cont = dynamic_pointer_cast<Contained>(p->container());
     assert(cont);
+    bool isProperty = cont->hasMetaData("cs:property");
 
     StructPtr st = dynamic_pointer_cast<Struct>(cont);
     ExceptionPtr ex = dynamic_pointer_cast<Exception>(cont);
@@ -2913,26 +2913,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         {
             baseTypes = DotNet::ICloneable;
         }
-        if (cont->hasMetaData("cs:property"))
-        {
-            isProperty = true;
-        }
-        //
-        // C# structs are implicit sealed and cannot use `protected' modifier,
-        // we must use either public or private. For Slice structs using the
-        // class mapping we can still use protected modifier.
-        //
-        if (cont->hasMetaData("protected") || p->hasMetaData("protected"))
-        {
-            if (isValue)
-            {
-                isPrivate = true;
-            }
-            else
-            {
-                isProtected = true;
-            }
-        }
     }
     else if (ex)
     {
@@ -2943,10 +2923,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         assert(cl);
         baseTypes = DotNet::ICloneable;
         isClass = true;
-        if (cont->hasMetaData("cs:property"))
-        {
-            isProperty = true;
-        }
         isProtected = cont->hasMetaData("protected") || p->hasMetaData("protected");
     }
 
@@ -2959,11 +2935,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     emitAttributes(p);
     emitGeneratedCodeAttribute();
-    if (isPrivate)
-    {
-        _out << nl << "private";
-    }
-    else if (isProtected)
+    if (isProtected)
     {
         _out << nl << "protected";
     }
@@ -2971,13 +2943,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     {
         _out << nl << "public";
     }
-
-    if (isProperty && !isValue)
-    {
-        // TODO: consider dropping this virtual
-        _out << " virtual";
-    }
-
     _out << ' ' << type << ' ' << dataMemberName;
 
     if (isProperty)

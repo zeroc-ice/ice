@@ -263,10 +263,6 @@ struct StructProperty
     double zeroDotD = 0;
 }
 
-//
-// Exceptions don't support "cs:property" metadata, but
-// we want to ensure that the generated code compiles.
-//
 ["cs:property"]
 exception ExceptionProperty
 {
