@@ -716,7 +716,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
     {
         if (marshal)
         {
-            if (!isValueType(st))
+            if (isMappedToClass(st))
             {
                 out << nl << typeToString(st, package) << ".ice_write(" << stream << ", " << param << ");";
             }
@@ -727,12 +727,13 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
         }
         else
         {
-            if (!isValueType(st))
+            if (isMappedToClass(st))
             {
                 out << nl << param << " = " << typeToString(type, package) << ".ice_read(" << stream << ");";
             }
             else
             {
+                // It is slightly more efficient to read the members directly and not make a copy with ice_read.
                 out << nl << param << ".ice_readMembers(" << stream << ");";
             }
         }
@@ -1044,14 +1045,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(
             }
             string typeS = typeToString(type, scope);
             string tmp = "tmpVal";
-            if (isValueType(st))
-            {
-                out << nl << typeS << ' ' << tmp << " = new " << typeS << "();";
-            }
-            else
-            {
-                out << nl << typeS << ' ' << tmp << " = null;";
-            }
+            out << nl << typeS << ' ' << tmp << " = default;";
             writeMarshalUnmarshalCode(out, type, scope, tmp, marshal, customStream);
             out << nl << param << " = new " << getUnqualified("Ice.Optional", scope) << "<" << typeS << ">(" << tmp
                 << ");";
@@ -1602,7 +1596,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
             if (isArray || isStack)
             {
                 string v = isArray ? param : param + "_tmp";
-                if (!isValueType(st))
+                if (isMappedToClass(st))
                 {
                     out << nl << v << "[ix] = new " << typeS << "();";
                 }
