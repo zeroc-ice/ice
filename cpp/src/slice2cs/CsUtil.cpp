@@ -2245,7 +2245,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                     continue;
                 }
             }
-            else if (dynamic_pointer_cast<ClassDef>(cont))
+            else if (dynamic_pointer_cast<ClassDef>(cont) || dynamic_pointer_cast<Exception>(cont))
             {
                 if (s.substr(csPrefix.size()) == "property")
                 {
