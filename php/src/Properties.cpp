@@ -79,7 +79,7 @@ ZEND_METHOD(Ice_Properties, getProperty)
     Ice::PropertiesPtr _this = Wrapper<Ice::PropertiesPtr>::value(getThis());
     assert(_this);
 
-    string propName(name, nameLen);
+    string_view propName(name, nameLen);
     try
     {
         string val = _this->getProperty(propName);
@@ -105,7 +105,7 @@ ZEND_METHOD(Ice_Properties, getIceProperty)
     Ice::PropertiesPtr _this = Wrapper<Ice::PropertiesPtr>::value(getThis());
     assert(_this);
 
-    string propName(name, nameLen);
+    string_view propName(name, nameLen);
     try
     {
         string val = _this->getIceProperty(propName);
@@ -138,7 +138,7 @@ ZEND_METHOD(Ice_Properties, getPropertyWithDefault)
     Ice::PropertiesPtr _this = Wrapper<Ice::PropertiesPtr>::value(getThis());
     assert(_this);
 
-    string propName(name, nameLen);
+    string_view propName(name, nameLen);
     string defaultValue;
     if (def)
     {
@@ -174,7 +174,7 @@ ZEND_METHOD(Ice_Properties, getPropertyAsInt)
     Ice::PropertiesPtr _this = Wrapper<Ice::PropertiesPtr>::value(getThis());
     assert(_this);
 
-    string propName(name, nameLen);
+    string_view propName(name, nameLen);
     try
     {
         int32_t val = _this->getPropertyAsInt(propName);
@@ -200,7 +200,7 @@ ZEND_METHOD(Ice_Properties, getIcePropertyAsInt)
     Ice::PropertiesPtr _this = Wrapper<Ice::PropertiesPtr>::value(getThis());
     assert(_this);
 
-    string propName(name, nameLen);
+    string_view propName(name, nameLen);
     try
     {
         int32_t val = _this->getIcePropertyAsInt(propName);
@@ -236,7 +236,7 @@ ZEND_METHOD(Ice_Properties, getPropertyAsIntWithDefault)
     Ice::PropertiesPtr _this = Wrapper<Ice::PropertiesPtr>::value(getThis());
     assert(_this);
 
-    string propName(name, nameLen);
+    string_view propName(name, nameLen);
     try
     {
         // TODO: Range check
@@ -267,7 +267,7 @@ ZEND_METHOD(Ice_Properties, getPropertyAsList)
     Ice::PropertiesPtr _this = Wrapper<Ice::PropertiesPtr>::value(getThis());
     assert(_this);
 
-    string propName(name, nameLen);
+    string_view propName(name, nameLen);
     try
     {
         Ice::StringSeq val = _this->getPropertyAsList(propName);
@@ -296,7 +296,7 @@ ZEND_METHOD(Ice_Properties, getIcePropertyAsList)
     Ice::PropertiesPtr _this = Wrapper<Ice::PropertiesPtr>::value(getThis());
     assert(_this);
 
-    string propName(name, nameLen);
+    string_view propName(name, nameLen);
     try
     {
         Ice::StringSeq val = _this->getIcePropertyAsList(propName);
@@ -335,7 +335,7 @@ ZEND_METHOD(Ice_Properties, getPropertyAsListWithDefault)
     Ice::PropertiesPtr _this = Wrapper<Ice::PropertiesPtr>::value(getThis());
     assert(_this);
 
-    string propName(name, nameLen);
+    string_view propName(name, nameLen);
     Ice::StringSeq defaultValue;
     if (def && !extractStringArray(def, defaultValue))
     {
@@ -415,7 +415,7 @@ ZEND_METHOD(Ice_Properties, setProperty)
     Ice::PropertiesPtr _this = Wrapper<Ice::PropertiesPtr>::value(getThis());
     assert(_this);
 
-    string propName(name, nameLen);
+    string_view propName(name, nameLen);
     string propValue;
     if (val)
     {
