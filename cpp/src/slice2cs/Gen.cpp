@@ -2572,10 +2572,11 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     emitAttributes(p);
     emitPartialTypeAttributes();
-    _out << nl << "public partial " << (classMapping ? "class" : "struct") << ' ' << name;
+    _out << nl << "public " << (classMapping ? " sealed partial class" : "partial record struct") << ' ' << name;
 
     StringList baseNames;
-    if (classMapping) // TODO: remove
+
+    if (classMapping)
     {
         baseNames.push_back("System.ICloneable");
     }
@@ -2678,73 +2679,73 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         _out << eb;
 
         _out << sp << nl << "#endregion"; // ICloneable members
-    }
 
-    _out << sp << nl << "#region Object members";
+        _out << sp << nl << "#region Object members";
 
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public override int GetHashCode()";
-    _out << sb;
-    _out << nl << "int h_ = 5381;";
-    _out << nl << "global::Ice.Internal.HashUtil.hashAdd(ref h_, \"" << p->scoped() << "\");";
-    writeMemberHashCode(dataMembers, classMapping ? DotNet::ICloneable : 0);
-    _out << nl << "return h_;";
-    _out << eb;
-
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public override bool Equals(object other)";
-    _out << sb;
-    if (classMapping)
-    {
-        _out << nl << "if(object.ReferenceEquals(this, other))";
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public override int GetHashCode()";
         _out << sb;
-        _out << nl << "return true;";
+        _out << nl << "int h_ = 5381;";
+        _out << nl << "global::Ice.Internal.HashUtil.hashAdd(ref h_, \"" << p->scoped() << "\");";
+        writeMemberHashCode(dataMembers, classMapping ? DotNet::ICloneable : 0);
+        _out << nl << "return h_;";
         _out << eb;
-    }
-    if (classMapping)
-    {
-        _out << nl << "if(other == null)";
+
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public override bool Equals(object other)";
+        _out << sb;
+        if (classMapping)
+        {
+            _out << nl << "if(object.ReferenceEquals(this, other))";
+            _out << sb;
+            _out << nl << "return true;";
+            _out << eb;
+        }
+        if (classMapping)
+        {
+            _out << nl << "if(other == null)";
+            _out << sb;
+            _out << nl << "return false;";
+            _out << eb;
+            _out << nl << "if(GetType() != other.GetType())";
+        }
+        else
+        {
+            _out << nl << "if(!(other is " << name << "))";
+        }
         _out << sb;
         _out << nl << "return false;";
         _out << eb;
-        _out << nl << "if(GetType() != other.GetType())";
+        if (!dataMembers.empty())
+        {
+            _out << nl << name << " o = (" << name << ")other;";
+        }
+        writeMemberEquals(dataMembers, classMapping ? DotNet::ICloneable : 0);
+        _out << nl << "return true;";
+        _out << eb;
+
+        _out << sp << nl << "#endregion"; // Object members
+
+        _out << sp << nl << "#region Comparison members";
+
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public static bool operator==(" << name << " lhs, " << name << " rhs)";
+        _out << sb;
+        _out << nl << "return Equals(lhs, rhs);";
+        _out << eb;
+
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public static bool operator!=(" << name << " lhs, " << name << " rhs)";
+        _out << sb;
+        _out << nl << "return !Equals(lhs, rhs);";
+        _out << eb;
+
+        _out << sp << nl << "#endregion"; // Comparison members
     }
-    else
-    {
-        _out << nl << "if(!(other is " << name << "))";
-    }
-    _out << sb;
-    _out << nl << "return false;";
-    _out << eb;
-    if (!dataMembers.empty())
-    {
-        _out << nl << name << " o = (" << name << ")other;";
-    }
-    writeMemberEquals(dataMembers, classMapping ? DotNet::ICloneable : 0);
-    _out << nl << "return true;";
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // Object members
-
-    _out << sp << nl << "#region Comparison members";
-
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public static bool operator==(" << name << " lhs, " << name << " rhs)";
-    _out << sb;
-    _out << nl << "return Equals(lhs, rhs);";
-    _out << eb;
-
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public static bool operator!=(" << name << " lhs, " << name << " rhs)";
-    _out << sb;
-    _out << nl << "return !Equals(lhs, rhs);";
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // Comparison members
 
     _out << sp << nl << "#region Marshaling support";
 
