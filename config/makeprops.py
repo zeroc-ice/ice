@@ -117,10 +117,10 @@ public final class %(classname)s
 csPreamble = (
     commonPreamble
     + """
-namespace IceInternal
+namespace Ice.Internal;
+
+public sealed class %(classname)s
 {
-    public sealed class %(classname)s
-    {
 """
 )
 
@@ -537,7 +537,7 @@ class CSPropertyHandler(PropertyHandler):
             deprecated="true" if deprecated else "false",
             deprecatedBy=f'"{deprecatedBy}"' if deprecatedBy else "null",
         )
-        self.srcFile.write(f"             {line},\n")
+        self.srcFile.write(f"         {line},\n")
 
     def newSection(self):
         self.srcFile.write(
