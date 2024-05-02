@@ -96,7 +96,7 @@ namespace
     /// @param key The ice property name.
     /// @return The default value for the property.
     /// @throws std::invalid_argument if the property is unknown.
-    string getDefaultValue(string_view key)
+    string_view getDefaultValue(string_view key)
     {
         for (int i = 0; IceInternal::PropertyNames::validProps[i].properties != 0; ++i)
         {
@@ -211,7 +211,7 @@ Ice::Properties::getProperty(string_view key) noexcept
 string
 Ice::Properties::getIceProperty(string_view key)
 {
-    string defaultValue = getDefaultValue(key);
+    string_view defaultValue = getDefaultValue(key);
     return getPropertyWithDefault(key, defaultValue);
 }
 
@@ -241,7 +241,7 @@ Ice::Properties::getPropertyAsInt(string_view key) noexcept
 int32_t
 Ice::Properties::getIcePropertyAsInt(string_view key)
 {
-    string defaultValueString = getDefaultValue(key);
+    string defaultValueString{getDefaultValue(key)};
     int32_t defaultValue{0};
 
     if (!defaultValueString.empty())
@@ -285,7 +285,7 @@ Ice::Properties::getPropertyAsList(string_view key) noexcept
 Ice::StringSeq
 Ice::Properties::getIcePropertyAsList(string_view key)
 {
-    string defaultValue = getDefaultValue(key);
+    string_view defaultValue = getDefaultValue(key);
     StringSeq defaultList;
     IceUtilInternal::splitString(defaultValue, ", \t\r\n", defaultList);
     return getPropertyAsListWithDefault(key, defaultList);
