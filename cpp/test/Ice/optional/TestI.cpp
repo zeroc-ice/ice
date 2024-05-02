@@ -339,17 +339,6 @@ InitialI::opClassAndUnknownOptional(APtr, const Ice::Current&)
 {
 }
 
-void
-InitialI::sendOptionalClass(bool, optional<OneOptionalPtr>, const Ice::Current&)
-{
-}
-
-void
-InitialI::returnOptionalClass(bool, optional<OneOptionalPtr>& o, const Ice::Current&)
-{
-    o = make_shared<OneOptional>(53);
-}
-
 GPtr
 InitialI::opG(GPtr g, const Ice::Current&)
 {

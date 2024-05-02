@@ -409,27 +409,6 @@ InitialI::opClassAndUnknownOptionalAsync(
 }
 
 void
-InitialI::sendOptionalClassAsync(
-    bool,
-    optional<shared_ptr<Test::OneOptional>>,
-    function<void()> response,
-    function<void(exception_ptr)>,
-    const Ice::Current&)
-{
-    response();
-}
-
-void
-InitialI::returnOptionalClassAsync(
-    bool,
-    function<void(const optional<shared_ptr<Test::OneOptional>>&)> response,
-    function<void(exception_ptr)>,
-    const Ice::Current&)
-{
-    response(make_shared<OneOptional>(53));
-}
-
-void
 InitialI::opGAsync(
     shared_ptr<Test::G> g,
     function<void(const shared_ptr<Test::G>&)> response,

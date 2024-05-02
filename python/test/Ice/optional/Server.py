@@ -130,12 +130,6 @@ class InitialI(Test.Initial):
     def opClassAndUnknownOptional(self, p, current=None):
         pass
 
-    def sendOptionalClass(self, req, o, current=None):
-        pass
-
-    def returnOptionalClass(self, req, current=None):
-        return Test.OneOptional(53)
-
     def opG(self, g, current=None):
         return g
 
