@@ -921,12 +921,7 @@ SChannel::SSLEngine::newCredentialsHandle(bool incoming) const
     memset(&cred, 0, sizeof(cred));
     cred.dwVersion = SCHANNEL_CRED_VERSION;
 
-    if (!_allCerts.empty())
-    {
-        cred.cCreds = static_cast<DWORD>(_allCerts.size());
-        cred.paCred = const_cast<PCCERT_CONTEXT*>(&_allCerts[0]);
-    }
-
+    // TODO move this flags to the newSessionCallback for the properties configuration.
     if (incoming)
     {
         // Don't set SCH_SEND_ROOT_CERT as it seems to cause problems with Java certificate validation and SChannel
@@ -997,7 +992,17 @@ Ice::SSL::ClientAuthenticationOptions
 SChannel::SSLEngine::createClientAuthenticationOptions(const string& host) const
 {
     return Ice::SSL::ClientAuthenticationOptions{
-        .clientCredentialsSelectionCallback = [this](const string&) { return newCredentialsHandle(false); },
+        .clientCertificateSelectionCallback =
+            [this](const string&)
+        {
+            PCCERT_CONTEXT cert = nullptr;
+            if (_allCerts.size() > 0)
+            {
+                cert = CertDuplicateCertificateContext(_allCerts[0]);
+            }
+            return cert;
+        },
+        .trustedRootCertificates = _rootStore,
         .serverCertificateValidationCallback = [self = shared_from_this(),
                                                 host](CtxtHandle ssl, const ConnectionInfoPtr& info) -> bool
         { return self->validationCallback(ssl, info, false, host); }};
@@ -1007,7 +1012,19 @@ Ice::SSL::ServerAuthenticationOptions
 SChannel::SSLEngine::createServerAuthenticationOptions() const
 {
     return Ice::SSL::ServerAuthenticationOptions{
-        .serverCredentialsSelectionCallback = [this](const string&) { return newCredentialsHandle(true); },
+        .serverCertificateSelectionCallback =
+            [this](const string&)
+        {
+            {
+                PCCERT_CONTEXT cert = nullptr;
+                if (_allCerts.size() > 0)
+                {
+                    cert = CertDuplicateCertificateContext(_allCerts[0]);
+                }
+                return cert;
+            }
+        },
+        .trustedRootCertificates = _rootStore,
         .clientCertificateRequired = getVerifyPeer() > 0,
         .clientCertificateValidationCallback =
             [self = shared_from_this()](CtxtHandle ssl, const ConnectionInfoPtr& info) -> bool

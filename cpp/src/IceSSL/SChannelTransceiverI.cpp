@@ -89,33 +89,17 @@ SChannel::TransceiverI::sslHandshake()
     SECURITY_STATUS err = SEC_E_OK;
     if (_state == StateHandshakeNotStarted)
     {
-        SCHANNEL_CRED cred;
-        if (_localCredentialsSelectionCallback)
+        SCHANNEL_CRED cred = _engine->newCredentialsHandle(_incoming);
+        _certificate = _localCertificateSelectionCallback(_incoming ? _adapterName : _host);
+        if (_certificate)
         {
-            cred = _localCredentialsSelectionCallback(_host);
-        }
-        else
-        {
-            memset(&cred, 0, sizeof(cred));
-            cred.dwVersion = SCHANNEL_CRED_VERSION;
+            cred.cCreds = 1;
+            cred.paCred = &_certificate;
         }
 
-        if (cred.hRootStore)
+        if (_rootStore)
         {
-            // Increment the reference count.
-            CertDuplicateStore(cred.hRootStore);
-            _rootStore = cred.hRootStore;
-        }
-
-        if (cred.cCreds)
-        {
-            // Increase the reference count of the certificates.
-            _certs.resize(cred.cCreds);
-            for (DWORD i = 0; i < cred.cCreds; ++i)
-            {
-                _certs[i] = CertDuplicateCertificateContext(cred.paCred[i]);
-            }
-            cred.paCred = const_cast<PCCERT_CONTEXT*>(&_certs[0]);
+            cred.hRootStore = _rootStore;
         }
 
         memset(&_credentials, 0, sizeof(_credentials));
@@ -168,6 +152,11 @@ SChannel::TransceiverI::sslHandshake()
                 throw SecurityException(__FILE__, __LINE__, os.str());
             }
 
+            if (_sslNewSessionCallback)
+            {
+                _sslNewSessionCallback(_ssl, _host);
+            }
+
             //
             // Copy the data to the write buffer
             //
@@ -204,9 +193,10 @@ SChannel::TransceiverI::sslHandshake()
 
             if (_incoming)
             {
+                bool newSession = _ssl.dwLower == 0 && _ssl.dwUpper == 0;
                 err = AcceptSecurityContext(
                     &_credentials,
-                    (_ssl.dwLower || _ssl.dwUpper) ? &_ssl : 0,
+                    newSession ? 0 : &_ssl,
                     &inBufferDesc,
                     _clientCertificateRequired ? flags | ASC_REQ_MUTUAL_AUTH : flags,
                     0,
@@ -214,6 +204,11 @@ SChannel::TransceiverI::sslHandshake()
                     &outBufferDesc,
                     &_ctxFlags,
                     0);
+
+                if (newSession && _sslNewSessionCallback)
+                {
+                    _sslNewSessionCallback(_ssl, _host);
+                }
             }
             else
             {
@@ -421,7 +416,7 @@ SChannel::TransceiverI::sslHandshake()
             CertFreeCertificateContext(cert);
             throw SecurityException(__FILE__, __LINE__, os.str());
         }
-        _peerCerts.push_back(SChannel::Certificate::create(pvStructInfo));
+        _peerCertificates.push_back(SChannel::Certificate::create(pvStructInfo));
         CertFreeCertificateContext(cert);
     }
 
@@ -637,15 +632,10 @@ SChannel::TransceiverI::close()
         _credentials = {0, 0};
     }
 
-    for (PCCERT_CONTEXT cert : _certs)
+    if (_certificate)
     {
-        CertFreeCertificateContext(cert);
-    }
-
-    if (_rootStore)
-    {
-        CertCloseStore(_rootStore, 0);
-        _rootStore = 0;
+        CertFreeCertificateContext(_certificate);
+        _certificate = nullptr;
     }
 
     _delegate->close();
@@ -842,7 +832,7 @@ SChannel::TransceiverI::getInfo() const
     info->underlying = _delegate->getInfo();
     info->incoming = _incoming;
     info->adapterName = _adapterName;
-    info->certs = _peerCerts;
+    info->certs = _peerCertificates;
     return info;
 }
 
@@ -871,9 +861,11 @@ SChannel::TransceiverI::TransceiverI(
       _state(StateNotInitialized),
       _bufferedW(0),
       _clientCertificateRequired(serverAuthenticationOptions.clientCertificateRequired),
-      _localCredentialsSelectionCallback(serverAuthenticationOptions.serverCredentialsSelectionCallback),
+      _localCertificateSelectionCallback(serverAuthenticationOptions.serverCertificateSelectionCallback),
+      _sslNewSessionCallback(serverAuthenticationOptions.sslNewSessionCallback),
       _remoteCertificateValidationCallback(serverAuthenticationOptions.clientCertificateValidationCallback),
-      _rootStore(0),
+      _certificate(nullptr),
+      _rootStore(nullptr),
       _credentials({0, 0}),
       _ssl({0, 0})
 {
@@ -893,9 +885,11 @@ SChannel::TransceiverI::TransceiverI(
       _state(StateNotInitialized),
       _bufferedW(0),
       _clientCertificateRequired(false),
-      _localCredentialsSelectionCallback(clientAuthenticationOptions.clientCredentialsSelectionCallback),
+      _localCertificateSelectionCallback(clientAuthenticationOptions.clientCertificateSelectionCallback),
+      _sslNewSessionCallback(clientAuthenticationOptions.sslNewSessionCallback),
       _remoteCertificateValidationCallback(clientAuthenticationOptions.serverCertificateValidationCallback),
-      _rootStore(0),
+      _certificate(nullptr),
+      _rootStore(nullptr),
       _credentials({0, 0}),
       _ssl({0, 0})
 {

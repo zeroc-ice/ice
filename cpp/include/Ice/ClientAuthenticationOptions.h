@@ -19,34 +19,143 @@ namespace Ice::SSL
     {
 #if defined(_WIN32)
         /**
-         * A callback that allows selecting the client's credentials based on the target server host name. The SSL
-         * transport calls this callback to obtain the credentials for new outgoing connections. The caller increase the
-         * reference count of the paCred, and the hRootStore representing the client certificate chain and the trusted
-         * root certificates store. The transport releases the reference count when the connection is closed.
+         * A callback that allows selecting the client's SSL certificate based on the target server host name.
+         *
+         * @remarks This callback is invoked by the SSL transport for each new outgoing connection before starting the
+         * SSL handshake to determine the appropriate client certificate. The callback should return a PCCERT_CONTEXT
+         * that represents the client's certificate. The SSL transport takes ownership of the returned certificate and
+         * releases it when the connection is closed.
          *
          * @param host The target server host name.
-         * @return The client credentials. The credentials must remain valid for the duration of the connection.
+         * @return The client's certificate, or nullptr to indicate that no certificate is used by the connection.
          *
-         * [See Detailed Schannel documentation on Schannel credentials](
-         * https://learn.microsoft.com/en-us/windows/win32/secauthn/acquirecredentialshandle--schannel)
+         * Example of setting clientCertificateSelectionCallback:
+         * ```cpp
+         * PCCERT_CONTEXT _clientCertificate = ...; // Load the client certificate using WinCrypt API
+         *
+         * auto initData = Ice::InitializationData {
+         *   ...
+         *   .clientAuthenticationOptions = ClientAuthenticationOptions {
+         *      .clientCertificateSelectionCallback = [this](const std::string&)
+         *      {
+         *        // Increment the certificate context reference count to ensure it remains
+         *        // valid for the duration of the connection. The SSL transport will release
+         *        // it after closing the connection.
+         *        CertDuplicateCertificateContext(_clientCertificate);
+         *        return _clientCertificate;
+         *      }
+         * };
+         *
+         * auto communicator = Ice::initialize(initData);
+         * ...
+         * CertFreeCertificateContext(_clientCertificate); // Release the certificate when no longer needed
+         * ```
+         *
+         * See Detailed Wincrypt documentation for [CERT_CONTEXT](
+         * https://learn.microsoft.com/en-us/windows/win32/api/wincrypt/ns-wincrypt-cert_context) and
+         * [CertCreateCertificateContext](https://learn.microsoft.com/en-us/windows/win32/api/wincrypt/nf-wincrypt-certcreatecertificatecontext)
          */
-        std::function<SCHANNEL_CRED(const std::string& host)> clientCredentialsSelectionCallback;
+        std::function<PCCERT_CONTEXT(const std::string& host)> clientCertificateSelectionCallback;
+
+        /**
+         * The trusted root certificates used for validating the server's certificate chain. If this field is set, the
+         * server's certificate chain is validated against these certificates; otherwise, the system's default root
+         * certificates are used.
+         *
+         * @remarks The trusted root certificates are used by both the default validation callback, and by custom
+         * validation callback set in clientCertificateValidationCallback.
+         *
+         * The application must ensure that the certificate store remains valid during the setup of the Communicator. It
+         * is also the application's responsibility to release the certificate store object after the Communicator has
+         * been created to prevent memory leaks.
+         *
+         * Example of setting trustedRootCertificates:
+         * ```cpp
+         * HCERTSTORE rootCerts = ...; // Populate with X.509 certificates
+         *
+         * auto initData = Ice::InitializationData {
+         *   ...
+         *   .clientAuthenticationOptions = ClientAuthenticationOptions {
+         *      .trustedRootCertificates = rootCerts;
+         *   }
+         * };
+         *
+         * auto communicator = Ice::initialize(initData);
+         * CertCloseStore(rootCerts); // It is safe to close the rootCerts store now.
+         * ```
+         */
+        HCERTSTORE trustedRootCertificates;
+
+        /**
+         * A callback that is invoked before initiating a new SSL handshake. This callback provides an opportunity to
+         * customize the SSL parameters for the session based on specific client settings or requirements.
+         *
+         * Example of setting sslNewSessionCallback:
+         * ```cpp
+         * auto initData = Ice::InitializationData {
+         *   ...
+         *   .clientAuthenticationOptions = ClientAuthenticationOptions {
+         *     .sslNewSessionCallback =
+         *       [](CtxtHandle context, const std::string& host) {
+         *         SecPkgContext_ConnectionInfo connInfo;
+         *         connInfo.dwProtocol = SP_PROT_TLS1_3;
+         *         SECURITY_STATUS status = SetContextAttributes(
+         *           &ctxHandle,
+         *           SECPKG_ATTR_CONNECTION_INFO,
+         *           &connInfo,
+         *           sizeof(connInfo));
+         *
+         *         if (status != SEC_E_OK) {
+         *           // Handle error
+         *           ...
+         *         }
+         *       }
+         *     }
+         * };
+         * auto communicator = Ice::initialize(initData);
+         * ```
+         *
+         * @param context The CtxtHandle representing the security context associated with the current connection.
+         * @param host The target server host name.
+         */
+        std::function<void(CtxtHandle context, const std::string& host)> sslNewSessionCallback;
 
         /**
          * A callback that allows manually validating the server certificate chain. When the verification callback
          * returns false, the connection will be aborted with an Ice::SecurityException.
          *
-         * @param context A CtxtHandle representing the security context associated with the current connection. This
-         * context contains security data relevant for validation, such as the server's certificate chain and cipher
-         * suite.
-         * @param info The IceSSL::ConnectionInfoPtr object that provides additional connection-related data
-         * which might be relevant for contextual certificate validation.
-         * @return true if the certificate chain is valid and the connection should proceed; false if the certificate
-         * chain is invalid and the connection should be aborted. An exception may be thrown to indicate a custom
-         * error during the validation process.
+         * @remarks The server certificate chain is validated using the context object passed to the callback. When this
+         * callback is set, it replaces the default validation callback and must perform all necessary validation
+         * steps. If trustedRootCertificates is set, the passed context object will use them as the trusted root
+         * certificates for validation. This setting can be modified by the application using
+         * [SecTrustSetAnchorCertificates](https://developer.apple.com/documentation/security/1396098-sectrustsetanchorcertificates?language=objc)
          *
-         * [See Manually Validating Schannel Credentials for more
-         * details](https://learn.microsoft.com/en-us/windows/win32/secauthn/manually-validating-schannel-credentials).
+         * Example of setting serverCertificateValidationCallback:
+         * ```cpp
+         * auto initData = Ice::InitializationData {
+         *   ...
+         *   .clientAuthenticationOptions = ClientAuthenticationOptions{
+         *     .serverCertificateValidationCallback =
+         *       [](SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)
+         *       {
+         *          ...
+         *          return SecTrustEvaluateWithError(trust, nullptr);
+         *       }
+         * });
+         * auto communicator = Ice::initialize(initData);
+         * ```
+         *
+         * @param context A CtxtHandle representing the security context associated with the current connection. This
+         * context contains security data relevant for validation, such as the client's certificate chain and cipher
+         * suite.
+         * @param info The IceSSL::ConnectionInfoPtr object that provides additional connection-related data which might
+         * be relevant for contextual certificate validation.
+         * @return true if the certificate chain is valid and the connection should proceed; false if the certificate
+         * chain is invalid and the connection should be aborted.
+         * @throws Ice::SecurityException if the certificate chain is invalid and the connection should be aborted.
+         *
+         * [See
+         * SecTrustEvaluateWithError](https://developer.apple.com/documentation/security/2980705-sectrustevaluatewitherror?language=objc)
          */
         std::function<bool(CtxtHandle context, const IceSSL::ConnectionInfoPtr& info)>
             serverCertificateValidationCallback;
@@ -156,7 +265,7 @@ namespace Ice::SSL
         std::function<void(SSLContextRef context, const std::string& host)> sslNewSessionCallback;
 
         /**
-         * A callback that allows manually validating the client server chain. When the verification callback
+         * A callback that allows manually validating the server certificate chain. When the verification callback
          * returns false, the connection will be aborted with an Ice::SecurityException.
          *
          * @remarks The server certificate chain is validated using the trust object passed to the callback. When this

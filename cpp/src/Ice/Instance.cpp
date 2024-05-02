@@ -914,7 +914,12 @@ IceInternal::Instance::Instance(const InitializationData& initData)
       _wstringConverter(Ice::getProcessWstringConverter()),
       _adminEnabled(false)
 {
-#ifdef ICE_USE_SECURE_TRANSPORT
+#if defined(ICE_USE_SCHANNEL)
+    if (_initData.clientAuthenticationOptions && _initData.clientAuthenticationOptions->trustedRootCertificates)
+    {
+        CertDuplicateStore(_initData.clientAuthenticationOptions->trustedRootCertificates);
+    }
+#elif defined(ICE_USE_SECURE_TRANSPORT)
     if (_initData.clientAuthenticationOptions && _initData.clientAuthenticationOptions->trustedRootCertificates)
     {
         CFRetain(_initData.clientAuthenticationOptions->trustedRootCertificates);
@@ -1672,7 +1677,13 @@ IceInternal::Instance::destroy()
         _initData.observer->setObserverUpdater(0); // Break cyclic reference count.
     }
 
-#ifdef ICE_USE_SECURE_TRANSPORT
+#if defined(ICE_USE_SCHANNEL)
+    if (_initData.clientAuthenticationOptions && _initData.clientAuthenticationOptions->trustedRootCertificates)
+    {
+        CertCloseStore(_initData.clientAuthenticationOptions->trustedRootCertificates, 0);
+        const_cast<Ice::InitializationData&>(_initData).clientAuthenticationOptions = nullopt;
+    }
+#elif defined(ICE_USE_SECURE_TRANSPORT)
     if (_initData.clientAuthenticationOptions && _initData.clientAuthenticationOptions->trustedRootCertificates)
     {
         CFRelease(_initData.clientAuthenticationOptions->trustedRootCertificates);
