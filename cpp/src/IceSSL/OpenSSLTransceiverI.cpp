@@ -78,7 +78,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
     if (!_ssl)
     {
         SOCKET fd = _delegate->getNativeInfo()->fd();
-        BIO* bio = 0;
+        BIO* bio = nulptr;
         if (fd == INVALID_SOCKET)
         {
             assert(_sentBytes == 0);
@@ -86,8 +86,8 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
             _maxRecvPacketSize = 128 * 1024; // 128KB
             if (!BIO_new_bio_pair(&bio, _maxSendPacketSize, &_memBio, _maxRecvPacketSize))
             {
-                bio = 0;
-                _memBio = 0;
+                bio = nulptr;
+                _memBio = nulptr;
             }
         }
         else
@@ -112,7 +112,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
             if (_memBio)
             {
                 BIO_free(_memBio);
-                _memBio = 0;
+                _memBio = nulptr;
             }
             throw SecurityException(__FILE__, __LINE__, "openssl failure");
         }
@@ -301,7 +301,7 @@ OpenSSL::TransceiverI::close()
         }
 
         SSL_free(_ssl);
-        _ssl = 0;
+        _ssl = nullptr;
     }
 
     if (_sslCtx)
@@ -313,7 +313,7 @@ OpenSSL::TransceiverI::close()
     if (_memBio)
     {
         BIO_free(_memBio);
-        _memBio = 0;
+        _memBio = nulptr;
     }
 
     _delegate->close();
@@ -681,9 +681,9 @@ OpenSSL::TransceiverI::TransceiverI(
       _incoming(true),
       _delegate(delegate),
       _connected(false),
-      _ssl(0),
-      _sslCtx(0),
-      _memBio(0),
+      _ssl(nullptr),
+      _sslCtx(nullptr),
+      _memBio(nullptr),
       _sentBytes(0),
       _maxSendPacketSize(0),
       _maxRecvPacketSize(0),
@@ -708,9 +708,9 @@ OpenSSL::TransceiverI::TransceiverI(
       _incoming(false),
       _delegate(delegate),
       _connected(false),
-      _ssl(0),
+      _ssl(nullptr),
       _sslCtx(nullptr),
-      _memBio(0),
+      _memBio(nullptr),
       _sentBytes(0),
       _maxSendPacketSize(0),
       _maxRecvPacketSize(0),

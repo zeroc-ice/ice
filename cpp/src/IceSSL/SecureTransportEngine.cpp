@@ -559,8 +559,8 @@ namespace
 
 SecureTransport::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)
     : IceSSL::SSLEngine(instance),
-      _certificateAuthorities(0),
-      _chain(0)
+      _certificateAuthorities(nullptr),
+      _chain(nullptr)
 {
 }
 
@@ -717,8 +717,7 @@ SecureTransport::SSLEngine::createClientAuthenticationOptions(const string& host
                 CFRetain(chain);
             }
             return chain;
-        },
-        .sslNewSessionCallback = nullptr};
+        }};
 }
 
 ServerAuthenticationOptions
@@ -754,8 +753,7 @@ SecureTransport::SSLEngine::createServerAuthenticationOptions() const
                 CFRetain(chain);
             }
             return chain;
-        },
-        .sslNewSessionCallback = nullptr};
+        }};
 }
 
 SSLContextRef

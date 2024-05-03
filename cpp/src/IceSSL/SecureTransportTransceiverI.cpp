@@ -301,12 +301,16 @@ IceSSL::SecureTransport::TransceiverI::closing(bool initiator, exception_ptr)
 void
 IceSSL::SecureTransport::TransceiverI::close()
 {
-    _trust.reset(0);
+    if (_trust)
+    {
+        _trust.reset(nullptr);
+    }
+
     if (_ssl)
     {
         SSLClose(_ssl.get());
+        _ssl.reset(nullptr);
     }
-    _ssl.reset(0);
 
     if (_certificates)
     {
@@ -557,7 +561,7 @@ IceSSL::SecureTransport::TransceiverI::TransceiverI(
       _remoteCertificateValidationCallback(clientAuthenticationOptions.serverCertificateValidationCallback),
       _localCertificateSelectionCallback(clientAuthenticationOptions.clientCertificateSelectionCallback),
       _clientCertificateRequired(kNeverAuthenticate),
-      _certificates(0),
+      _certificates(nullptr),
       _trustedRootCertificates(clientAuthenticationOptions.trustedRootCertificates)
 {
 }

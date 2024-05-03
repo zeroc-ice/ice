@@ -12,12 +12,12 @@
 
 namespace Ice::SSL
 {
+#if defined(ICE_USE_SCHANNEL)
     /**
      * The SSL configuration properties for client connections.
      */
-    struct ClientAuthenticationOptions
+    struct SchannelClientAuthenticationOptions
     {
-#if defined(_WIN32)
         /**
          * A callback that allows selecting the client's SSL certificate based on the target server host name.
          *
@@ -84,7 +84,7 @@ namespace Ice::SSL
          * CertCloseStore(rootCerts); // It is safe to close the rootCerts store now.
          * ```
          */
-        HCERTSTORE trustedRootCertificates;
+        HCERTSTORE trustedRootCertificates = nullptr;
 
         /**
          * A callback that is invoked before initiating a new SSL handshake. This callback provides an opportunity to
@@ -159,18 +159,26 @@ namespace Ice::SSL
          */
         std::function<bool(CtxtHandle context, const IceSSL::ConnectionInfoPtr& info)>
             serverCertificateValidationCallback;
-#elif defined(__APPLE__)
+    };
+    // Alias for portable code
+    using ClientAuthenticationOptions = SchannelClientAuthenticationOptions;
+#elif defined(ICE_USE_SECURE_TRANSPORT)
+    /**
+     * The SSL configuration properties for client connections.
+     */
+    struct SecureTransportClientAuthenticationOptions
+    {
         /**
          * A callback that allows selecting the client's SSL certificate chain based on the target server host name.
          *
          * @remarks This callback is invoked by the SSL transport for each new outgoing connection before starting the
          * SSL handshake to determine the appropriate client certificate chain. The callback should return a CFArrayRef
-         * that represents the client's certificate chain, or NULL if no certificate chain should be used for the
+         * that represents the client's certificate chain, or nullptr if no certificate chain should be used for the
          * connection. The SSL transport takes ownership of the returned CFArrayRef and releases it when the connection
          * is closed.
          *
          * @param host The target server host name.
-         * @return CFArrayRef containing the client's certificate chain, or NULL to indicate that no certificate is
+         * @return CFArrayRef containing the client's certificate chain, or nullptr to indicate that no certificate is
          * used.
          *
          * Example of setting clientCertificateSelectionCallback:
@@ -232,7 +240,7 @@ namespace Ice::SSL
          * CFRelease(rootCerts); // It is safe to release the rootCerts now.
          * ```
          */
-        CFArrayRef trustedRootCertificates;
+        CFArrayRef trustedRootCertificates = nullptr;
 
         /**
          * A callback that is invoked before initiating a new SSL handshake. This callback provides an opportunity to
@@ -301,7 +309,15 @@ namespace Ice::SSL
          */
         std::function<bool(SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)>
             serverCertificateValidationCallback;
+    };
+    // Alias for portable code
+    using ClientAuthenticationOptions = SecureTransportClientAuthenticationOptions;
 #else
+    /**
+     * The SSL configuration properties for client connections.
+     */
+    struct OpenSSLAuthenticationOptions
+    {
         /**
          * A callback that allows selecting the client's SSL_CTX object based on the target host name.
          *
@@ -407,8 +423,11 @@ namespace Ice::SSL
          */
         std::function<bool(bool verified, X509_STORE_CTX* ctx, const IceSSL::ConnectionInfoPtr& info)>
             serverCertificateValidationCallback;
-#endif
     };
+    // Alias for portable code
+    using ClientAuthenticationOptions = OpenSSLClientAuthenticationOptions;
+#endif
+
 }
 
 #endif

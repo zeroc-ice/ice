@@ -259,7 +259,7 @@ namespace
                         }
 
                         CRYPT_INTEGER_BLOB serial = {static_cast<DWORD>(buffer.size()), &buffer[0]};
-                        PCCERT_CONTEXT next = 0;
+                        PCCERT_CONTEXT next = nullptr;
                         do
                         {
                             if ((next = CertFindCertificateInStore(
@@ -299,7 +299,7 @@ namespace
             if (tmpStore)
             {
                 CertCloseStore(tmpStore, 0);
-                tmpStore = 0;
+                tmpStore = nullptr;
             }
             throw;
         }
@@ -307,7 +307,7 @@ namespace
         vector<PCCERT_CONTEXT> certs;
         if (store)
         {
-            PCCERT_CONTEXT next = 0;
+            PCCERT_CONTEXT next = nullptr;
             do
             {
                 if ((next = CertFindCertificateInStore(
@@ -326,7 +326,7 @@ namespace
         return certs;
     }
 
-    void addCertificatesToStore(const string& file, HCERTSTORE store, PCCERT_CONTEXT* cert = 0)
+    void addCertificatesToStore(const string& file, HCERTSTORE store, PCCERT_CONTEXT* cert = nullptr)
     {
         vector<char> buffer;
         readFile(file, buffer);
@@ -400,11 +400,9 @@ namespace
 
 SChannel::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)
     : IceSSL::SSLEngine(instance),
-      _rootStore(0),
-      _chainEngine(0),
-      _strongCrypto(false),
-      _clientCredentials({0, 0}),
-      _serverCredentials({0, 0})
+      _rootStore(nullptr),
+      _chainEngine(nullptr),
+      _strongCrypto(false)
 {
 }
 
@@ -550,7 +548,7 @@ SChannel::SSLEngine::initialize()
             pfxBlob.cbData = static_cast<DWORD>(buffer.size());
             pfxBlob.pbData = reinterpret_cast<BYTE*>(&buffer[0]);
 
-            PCCERT_CONTEXT cert = 0;
+            PCCERT_CONTEXT cert = nullptr;
             DWORD importFlags = (certStoreLocation == "LocalMachine") ? CRYPT_MACHINE_KEYSET : CRYPT_USER_KEYSET;
             HCERTSTORE store = PFXImportCertStore(
                 &pfxBlob,
@@ -565,7 +563,7 @@ SChannel::SSLEngine::initialize()
                 memset(&para, 0, sizeof(CERT_CHAIN_FIND_BY_ISSUER_PARA));
                 para.cbSize = sizeof(CERT_CHAIN_FIND_BY_ISSUER_PARA);
 
-                PCCERT_CHAIN_CONTEXT chain = 0;
+                PCCERT_CHAIN_CONTEXT chain = nullptr;
                 while (!cert)
                 {
                     chain = CertFindChainInStore(
@@ -653,8 +651,8 @@ SChannel::SSLEngine::initialize()
                     "IceSSL: error decoding key `" + keyFile + "':\n" + lastErrorToString());
             }
 
-            PCRYPT_PRIVATE_KEY_INFO keyInfo = 0;
-            BYTE* key = 0;
+            PCRYPT_PRIVATE_KEY_INFO keyInfo = nullptr;
+            BYTE* key = nulptr;
             HCRYPTKEY hKey = 0;
             try
             {
@@ -696,7 +694,7 @@ SChannel::SSLEngine::initialize()
                             "IceSSL: error decoding key `" + keyFile + "':\n" + lastErrorToString());
                     }
                     LocalFree(keyInfo);
-                    keyInfo = 0;
+                    keyInfo = nullptr;
                 }
                 else
                 {
@@ -752,7 +750,7 @@ SChannel::SSLEngine::initialize()
                         "IceSSL: error importing key `" + keyFile + "':\n" + lastErrorToString());
                 }
                 LocalFree(key);
-                key = 0;
+                key = nullptr;
 
                 CryptDestroyKey(hKey);
                 hKey = 0;

@@ -54,8 +54,6 @@ namespace IceSSL::SChannel
 
         HCERTCHAINENGINE _chainEngine;
         const bool _strongCrypto;
-        CredHandle _clientCredentials;
-        CredHandle _serverCredentials;
         mutable std::mutex _mutex;
     };
 }

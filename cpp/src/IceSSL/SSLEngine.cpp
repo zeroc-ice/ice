@@ -102,7 +102,7 @@ IceSSL::SSLEngine::verifyPeerCertName(const ConnectionInfoPtr& info, const strin
 
         bool certNameOK = false;
         string addrLower = IceUtilInternal::toLower(address);
-        bool isIpAddress = IceInternal::isIpAddress(string(address));
+        bool isIpAddress = IceInternal::isIpAddress(address);
 
         // If address is an IP address, compare it to the subject alternative names IP address
         if (isIpAddress)
