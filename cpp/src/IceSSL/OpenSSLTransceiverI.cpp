@@ -709,7 +709,7 @@ OpenSSL::TransceiverI::TransceiverI(
       _delegate(delegate),
       _connected(false),
       _ssl(0),
-      _sslCtx(0),
+      _sslCtx(nullptr),
       _memBio(0),
       _sentBytes(0),
       _maxSendPacketSize(0),
