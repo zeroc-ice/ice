@@ -116,21 +116,21 @@ runs:
       id: setup-matlab
       uses: matlab-actions/setup-matlab@v2
       with:
-        release: "R2023b"
+        release: "R2024a"
       if: matrix.config == 'matlab'
 
-    - name: Set MATLAB_HOME
+    - name: Set MATLAB_HOME and MATLAB_VERSION
       run: |
-        # needed for MATLAB R2024a
-        # sudo apt install -y libgtk2.0-0
+        # Beeded for MATLAB R2024a
+        sudo apt install -y libgtk2.0-0
+        echo "MATLAB_VERSION=R2024a" >> $GITHUB_ENV
         echo "MATLAB_HOME=${{ steps.setup-matlab.outputs.matlabroot }}" >> $GITHUB_ENV
       shell: bash
       if: runner.os == 'Linux' && matrix.config == 'matlab'
 
-    - name: Set MATLAB_HOME
+    - name: Set MATLAB_HOME and MATLAB_VERSION
       run: |
-        # where.exe matlab
-        dir "${{ steps.setup-matlab.outputs.matlabroot }}\bin"
+        echo "MATLAB_VERSION=R2024a" >> $env:GITHUB_ENV
         echo "MATLAB_HOME=${{ steps.setup-matlab.outputs.matlabroot }}" >> $env:GITHUB_ENV
       shell: powershell
       if: runner.os == 'Windows' && matrix.config == 'matlab'
