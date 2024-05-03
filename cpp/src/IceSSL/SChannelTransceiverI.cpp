@@ -388,7 +388,7 @@ SChannel::TransceiverI::sslHandshake()
         throw SecurityException(__FILE__, __LINE__, os.str());
     }
 
-    PCCERT_CONTEXT cert = 0;
+    PCCERT_CONTEXT cert = nullptr;
     err = QueryContextAttributes(&_ssl, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &cert);
     if (err != SEC_E_OK && err != SEC_E_NO_CREDENTIALS)
     {
