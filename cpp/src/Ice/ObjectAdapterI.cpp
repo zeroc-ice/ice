@@ -373,20 +373,6 @@ Ice::ObjectAdapterI::destroy() noexcept
         _reference = 0;
         _objectAdapterFactory = 0;
 
-#if defined(ICE_USE_SCHANNEL)
-        if (_serverAuthenticationOptions && _serverAuthenticationOptions->trustedRootCertificates)
-        {
-            CertCloseStore(_serverAuthenticationOptions->trustedRootCertificates, 0);
-            const_cast<optional<SSL::ServerAuthenticationOptions>&>(_serverAuthenticationOptions) = nullopt;
-        }
-#elif defined(ICE_USE_SECURE_TRANSPORT)
-        if (_serverAuthenticationOptions && _serverAuthenticationOptions->trustedRootCertificates)
-        {
-            CFRelease(_serverAuthenticationOptions->trustedRootCertificates);
-            const_cast<optional<SSL::ServerAuthenticationOptions>&>(_serverAuthenticationOptions) = nullopt;
-        }
-#endif
-
         _state = StateDestroyed;
         _conditionVariable.notify_all();
     }
@@ -1083,6 +1069,17 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
 
 Ice::ObjectAdapterI::~ObjectAdapterI()
 {
+#if defined(ICE_USE_SCHANNEL)
+    if (_serverAuthenticationOptions && _serverAuthenticationOptions->trustedRootCertificates)
+    {
+        CertCloseStore(_serverAuthenticationOptions->trustedRootCertificates, 0);
+    }
+#elif defined(ICE_USE_SECURE_TRANSPORT)
+    if (_serverAuthenticationOptions && _serverAuthenticationOptions->trustedRootCertificates)
+    {
+        CFRelease(_serverAuthenticationOptions->trustedRootCertificates);
+    }
+#endif
     if (_state < StateDeactivated)
     {
         Warning out(_instance->initializationData().logger);

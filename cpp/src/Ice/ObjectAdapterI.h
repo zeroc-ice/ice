@@ -115,7 +115,7 @@ namespace Ice
             const std::optional<SSL::ServerAuthenticationOptions>&);
         virtual ~ObjectAdapterI();
 
-        std::optional<SSL::ServerAuthenticationOptions> serverAuthenticationOptions() const
+        const std::optional<SSL::ServerAuthenticationOptions>& serverAuthenticationOptions() const noexcept
         {
             return _serverAuthenticationOptions;
         }
