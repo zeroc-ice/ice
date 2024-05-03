@@ -14,7 +14,6 @@ public:
 
     virtual void noCert(const Ice::Current&);
     virtual void checkCert(std::string, std::string, const Ice::Current&);
-    virtual void checkCipher(std::string, const Ice::Current&);
 
     void destroy();
 

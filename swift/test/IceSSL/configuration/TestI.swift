@@ -26,17 +26,7 @@ class ServerI: SSLServer {
   func checkCert(subjectDN _: String, issuerDN _: String, current: Ice.Current) throws {
     do {
       let info = try current.con!.getInfo() as! SSLConnectionInfo
-      try _helper.test(info.verified)
       try _helper.test(info.certs.count == 2)
-    } catch is Ice.LocalException {
-      try _helper.test(false)
-    }
-  }
-
-  func checkCipher(cipher: String, current: Ice.Current) throws {
-    do {
-      let info = try current.con!.getInfo() as! SSLConnectionInfo
-      try _helper.test(info.cipher.contains(cipher))
     } catch is Ice.LocalException {
       try _helper.test(false)
     }

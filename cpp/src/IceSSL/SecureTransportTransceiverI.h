@@ -10,7 +10,9 @@
 #    include "../Ice/Network.h"
 #    include "../Ice/Transceiver.h"
 #    include "Ice/Certificate.h"
+#    include "Ice/ClientAuthenticationOptions.h"
 #    include "Ice/Config.h"
+#    include "Ice/ServerAuthenticationOptions.h"
 #    include "Ice/UniqueRef.h"
 #    include "SSLInstanceF.h"
 #    include "SecureTransportEngineF.h"
@@ -24,7 +26,16 @@ namespace IceSSL::SecureTransport
     class TransceiverI final : public IceInternal::Transceiver
     {
     public:
-        TransceiverI(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool);
+        TransceiverI(
+            const InstancePtr&,
+            const IceInternal::TransceiverPtr&,
+            const std::string&,
+            const Ice::SSL::ServerAuthenticationOptions&);
+        TransceiverI(
+            const InstancePtr&,
+            const IceInternal::TransceiverPtr&,
+            const std::string&,
+            const Ice::SSL::ClientAuthenticationOptions&);
         ~TransceiverI();
         IceInternal::NativeInfoPtr getNativeInfo() final;
 
@@ -66,11 +77,15 @@ namespace IceSSL::SecureTransport
         mutable std::uint8_t _tflags;
         size_t _maxSendPacketSize;
         size_t _maxRecvPacketSize;
-        std::string _cipher;
-        std::vector<CertificatePtr> _certs;
-        TrustError _trustError;
-        bool _verified;
+        std::vector<CertificatePtr> _peerCerts;
         size_t _buffered;
+        std::function<void(SSLContextRef, const std::string&)> _sslNewSessionCallback;
+        std::function<bool(SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)>
+            _remoteCertificateValidationCallback;
+        std::function<CFArrayRef(const std::string&)> _localCertificateSelectionCallback;
+        SSLAuthenticate _clientCertificateRequired;
+        CFArrayRef _certificates;
+        CFArrayRef _trustedRootCertificates;
     };
     using TransceiverIPtr = std::shared_ptr<TransceiverI>;
 

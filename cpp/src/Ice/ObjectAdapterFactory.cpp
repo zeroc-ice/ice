@@ -115,7 +115,10 @@ IceInternal::ObjectAdapterFactory::updateObservers(void (ObjectAdapterI::*fn)())
 }
 
 ObjectAdapterPtr
-IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const optional<RouterPrx>& router)
+IceInternal::ObjectAdapterFactory::createObjectAdapter(
+    const string& name,
+    const optional<Ice::RouterPrx>& router,
+    const optional<SSL::ServerAuthenticationOptions>& serverAuthenticationOptions)
 {
     shared_ptr<ObjectAdapterI> adapter;
     {
@@ -129,7 +132,13 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
         if (name.empty())
         {
             string uuid = Ice::generateUUID();
-            adapter = make_shared<ObjectAdapterI>(_instance, _communicator, shared_from_this(), uuid, true);
+            adapter = make_shared<ObjectAdapterI>(
+                _instance,
+                _communicator,
+                shared_from_this(),
+                uuid,
+                true,
+                serverAuthenticationOptions);
         }
         else
         {
@@ -137,7 +146,13 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
             {
                 throw AlreadyRegisteredException(__FILE__, __LINE__, "object adapter", name);
             }
-            adapter = make_shared<ObjectAdapterI>(_instance, _communicator, shared_from_this(), name, false);
+            adapter = make_shared<ObjectAdapterI>(
+                _instance,
+                _communicator,
+                shared_from_this(),
+                name,
+                false,
+                serverAuthenticationOptions);
             _adapterNamesInUse.insert(name);
         }
     }

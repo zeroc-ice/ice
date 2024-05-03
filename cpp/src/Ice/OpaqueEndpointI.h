@@ -7,49 +7,53 @@
 
 #include "EndpointFactory.h"
 #include "EndpointI.h"
+#include "Ice/ServerAuthenticationOptions.h"
+
+#include <optional>
 
 namespace IceInternal
 {
-    class OpaqueEndpointI : public EndpointI, public std::enable_shared_from_this<OpaqueEndpointI>
+    class OpaqueEndpointI final : public EndpointI, public std::enable_shared_from_this<OpaqueEndpointI>
     {
     public:
         OpaqueEndpointI(std::vector<std::string>&);
         OpaqueEndpointI(std::int16_t, Ice::InputStream*);
 
-        virtual void streamWrite(Ice::OutputStream*) const;
-        virtual Ice::EndpointInfoPtr getInfo() const noexcept;
-        virtual std::int16_t type() const;
-        virtual const std::string& protocol() const;
+        void streamWrite(Ice::OutputStream*) const final;
+        Ice::EndpointInfoPtr getInfo() const noexcept final;
+        std::int16_t type() const final;
+        const std::string& protocol() const final;
 
-        virtual std::int32_t timeout() const;
-        virtual EndpointIPtr timeout(std::int32_t) const;
-        virtual const std::string& connectionId() const;
-        virtual EndpointIPtr connectionId(const std::string&) const;
-        virtual bool compress() const;
-        virtual EndpointIPtr compress(bool) const;
-        virtual bool datagram() const;
-        virtual bool secure() const;
+        std::int32_t timeout() const final;
+        EndpointIPtr timeout(std::int32_t) const final;
+        const std::string& connectionId() const final;
+        EndpointIPtr connectionId(const std::string&) const final;
+        bool compress() const final;
+        EndpointIPtr compress(bool) const final;
+        bool datagram() const final;
+        bool secure() const final;
 
-        virtual TransceiverPtr transceiver() const;
-        virtual void connectorsAsync(
+        TransceiverPtr transceiver() const final;
+        void connectorsAsync(
             Ice::EndpointSelectionType,
             std::function<void(std::vector<IceInternal::ConnectorPtr>)>,
-            std::function<void(std::exception_ptr)>) const;
-        virtual AcceptorPtr acceptor(const std::string&) const;
-        virtual std::vector<EndpointIPtr> expandIfWildcard() const;
-        virtual std::vector<EndpointIPtr> expandHost(EndpointIPtr&) const;
-        virtual bool equivalent(const EndpointIPtr&) const;
-        virtual std::int32_t hash() const;
-        virtual std::string options() const;
+            std::function<void(std::exception_ptr)>) const final;
+        AcceptorPtr
+        acceptor(const std::string&, const std::optional<Ice::SSL::ServerAuthenticationOptions>&) const final;
+        std::vector<EndpointIPtr> expandIfWildcard() const final;
+        std::vector<EndpointIPtr> expandHost(EndpointIPtr&) const final;
+        bool equivalent(const EndpointIPtr&) const final;
+        std::int32_t hash() const final;
+        std::string options() const final;
 
-        virtual bool operator==(const Ice::Endpoint&) const;
-        virtual bool operator<(const Ice::Endpoint&) const;
+        bool operator==(const Ice::Endpoint&) const final;
+        bool operator<(const Ice::Endpoint&) const final;
 
         using EndpointI::connectionId;
 
     protected:
-        virtual void streamWriteImpl(Ice::OutputStream*) const;
-        virtual bool checkOption(const std::string&, const std::string&, const std::string&);
+        void streamWriteImpl(Ice::OutputStream*) const final;
+        bool checkOption(const std::string&, const std::string&, const std::string&) final;
 
     private:
         //

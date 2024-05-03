@@ -8,6 +8,7 @@
 #include "Ice/LocalException.h"
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
+#include "Ice/OpenSSL.h"
 #include "Ice/Properties.h"
 #include "IceUtil/FileUtil.h"
 #include "IceUtil/StringUtil.h"
@@ -32,6 +33,7 @@
 
 using namespace std;
 using namespace Ice;
+using namespace Ice::SSL;
 using namespace IceSSL;
 
 extern "C"
@@ -69,7 +71,7 @@ namespace
     }
 }
 
-OpenSSL::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance) : IceSSL::SSLEngine(instance), _ctx(0) {}
+OpenSSL::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance) : IceSSL::SSLEngine(instance), _ctx(nullptr) {}
 
 OpenSSL::SSLEngine::~SSLEngine() {}
 
@@ -84,351 +86,300 @@ OpenSSL::SSLEngine::initialize()
         const string propPrefix = "IceSSL.";
         PropertiesPtr properties = getProperties();
 
-        // Create an SSL context if the application hasn't supplied one.
+        // Create an SSL context.
+        _ctx = SSL_CTX_new(TLS_method());
         if (!_ctx)
         {
-            _ctx = SSL_CTX_new(TLS_method());
-            if (!_ctx)
+            throw InitializationException(__FILE__, __LINE__, "IceSSL: unable to create SSL context:\n" + sslErrors());
+        }
+
+        int securityLevel = properties->getPropertyAsIntWithDefault(propPrefix + "SecurityLevel", -1);
+        if (securityLevel != -1)
+        {
+            SSL_CTX_set_security_level(_ctx, securityLevel);
+            if (SSL_CTX_get_security_level(_ctx) != securityLevel)
             {
                 throw InitializationException(
                     __FILE__,
                     __LINE__,
-                    "IceSSL: unable to create SSL context:\n" + sslErrors());
+                    "IceSSL: unable to set SSL security level:\n" + sslErrors());
             }
+        }
 
-            int securityLevel = properties->getPropertyAsIntWithDefault(propPrefix + "SecurityLevel", -1);
-            if (securityLevel != -1)
+        // Check for a default directory. We look in this directory for files mentioned in the configuration.
+        const string defaultDir = properties->getProperty(propPrefix + "DefaultDir");
+
+        _password = properties->getProperty(propPrefix + "Password");
+
+        // Establish the location of CA certificates.
+        {
+            string path = properties->getProperty(propPrefix + "CAs");
+            string resolved;
+            const char* file = nullptr;
+            const char* dir = nullptr;
+            if (!path.empty())
             {
-                SSL_CTX_set_security_level(_ctx, securityLevel);
-                if (SSL_CTX_get_security_level(_ctx) != securityLevel)
+                if (checkPath(path, defaultDir, false, resolved))
                 {
-                    throw InitializationException(
-                        __FILE__,
-                        __LINE__,
-                        "IceSSL: unable to set SSL security level:\n" + sslErrors());
+                    path = resolved;
+                    file = path.c_str();
                 }
-            }
 
-            // Check for a default directory. We look in this directory for files mentioned in the configuration.
-            const string defaultDir = properties->getProperty(propPrefix + "DefaultDir");
-
-            _password = properties->getProperty(propPrefix + "Password");
-
-            // Establish the location of CA certificates.
-            {
-                string path = properties->getProperty(propPrefix + "CAs");
-                string resolved;
-                const char* file = nullptr;
-                const char* dir = nullptr;
-                if (!path.empty())
+                if (!file)
                 {
-                    if (checkPath(path, defaultDir, false, resolved))
+                    if (checkPath(path, defaultDir, true, resolved))
                     {
                         path = resolved;
-                        file = path.c_str();
-                    }
-
-                    if (!file)
-                    {
-                        if (checkPath(path, defaultDir, true, resolved))
-                        {
-                            path = resolved;
-                            dir = path.c_str();
-                        }
-                    }
-
-                    if (!file && !dir)
-                    {
-                        throw InitializationException(
-                            __FILE__,
-                            __LINE__,
-                            "IceSSL: CA certificate path not found:\n" + path);
+                        dir = path.c_str();
                     }
                 }
 
-                if (file || dir)
-                {
-                    // The certificate may be stored in an encrypted file.
-                    if (!SSL_CTX_load_verify_locations(_ctx, file, dir))
-                    {
-                        string msg = "IceSSL: unable to establish CA certificates";
-                        if (passwordError())
-                        {
-                            msg += ":\ninvalid password";
-                        }
-                        else
-                        {
-                            string err = sslErrors();
-                            if (!err.empty())
-                            {
-                                msg += ":\n" + err;
-                            }
-                        }
-                        throw InitializationException(__FILE__, __LINE__, msg);
-                    }
-                }
-                else if (properties->getPropertyAsInt("IceSSL.UsePlatformCAs") > 0)
-                {
-                    SSL_CTX_set_default_verify_paths(_ctx);
-                }
-            }
-
-            // Establish the certificate chains and private keys. One RSA certificate and one DSA certificate are
-            // allowed.
-            string certFile = properties->getProperty(propPrefix + "CertFile");
-            string keyFile = properties->getProperty(propPrefix + "KeyFile");
-            bool keyLoaded = false;
-
-            vector<string>::size_type numCerts = 0;
-            if (!certFile.empty())
-            {
-                vector<string> files;
-                if (!IceUtilInternal::splitString(certFile, IceUtilInternal::pathsep, files) || files.size() > 2)
+                if (!file && !dir)
                 {
                     throw InitializationException(
                         __FILE__,
                         __LINE__,
-                        "IceSSL: invalid value for " + propPrefix + "CertFile:\n" + certFile);
+                        "IceSSL: CA certificate path not found:\n" + path);
                 }
-                numCerts = files.size();
-                for (const string& file : files)
+            }
+
+            if (file || dir)
+            {
+                // The certificate may be stored in an encrypted file.
+                if (!SSL_CTX_load_verify_locations(_ctx, file, dir))
                 {
-                    string resolved;
-                    if (!checkPath(file, defaultDir, false, resolved))
+                    string msg = "IceSSL: unable to establish CA certificates";
+                    if (passwordError())
                     {
-                        throw InitializationException(
-                            __FILE__,
-                            __LINE__,
-                            "IceSSL: certificate file not found:\n" + file);
-                    }
-
-                    // First we try to load the certificate using PKCS12 format if that fails we fallback to PEM format.
-                    vector<char> buffer;
-                    readFile(resolved, buffer);
-                    int success = 0;
-
-                    const unsigned char* b =
-                        const_cast<const unsigned char*>(reinterpret_cast<unsigned char*>(&buffer[0]));
-                    PKCS12* p12 = d2i_PKCS12(0, &b, static_cast<long>(buffer.size()));
-                    if (p12)
-                    {
-                        EVP_PKEY* key = nullptr;
-                        X509* cert = nullptr;
-                        STACK_OF(X509)* chain = nullptr;
-
-                        try
-                        {
-                            success = PKCS12_parse(p12, _password.c_str(), &key, &cert, &chain);
-
-                            if (!cert || !SSL_CTX_use_certificate(_ctx, cert))
-                            {
-                                throw InitializationException(
-                                    __FILE__,
-                                    __LINE__,
-                                    "IceSSL: unable to load SSL certificate:\n" +
-                                        (cert ? sslErrors() : "certificate not found"));
-                            }
-
-                            if (!key || !SSL_CTX_use_PrivateKey(_ctx, key))
-                            {
-                                throw InitializationException(
-                                    __FILE__,
-                                    __LINE__,
-                                    "IceSSL: unable to load SSL private key:\n" +
-                                        (key ? sslErrors() : "key not found"));
-                            }
-                            keyLoaded = true;
-
-                            if (chain && sk_X509_num(chain))
-                            {
-                                // Pop each cert from the stack so we can free the stack later.
-                                // The CTX destruction will take care of the certificates
-                                X509* c = nullptr;
-                                while ((c = sk_X509_pop(chain)) != 0)
-                                {
-                                    if (!SSL_CTX_add_extra_chain_cert(_ctx, c))
-                                    {
-                                        throw InitializationException(
-                                            __FILE__,
-                                            __LINE__,
-                                            "IceSSL: unable to add extra SSL certificate:\n" + sslErrors());
-                                    }
-                                }
-                            }
-
-                            if (chain)
-                            {
-                                // This chain should now be empty. No need to call sk_X509_pop_free()
-                                sk_X509_free(chain);
-                            }
-                            assert(key && cert);
-                            EVP_PKEY_free(key);
-                            X509_free(cert);
-                            PKCS12_free(p12);
-                        }
-                        catch (...)
-                        {
-                            PKCS12_free(p12);
-                            if (chain)
-                            {
-                                sk_X509_pop_free(chain, X509_free);
-                            }
-
-                            if (key)
-                            {
-                                EVP_PKEY_free(key);
-                            }
-
-                            if (cert)
-                            {
-                                X509_free(cert);
-                            }
-                            throw;
-                        }
+                        msg += ":\ninvalid password";
                     }
                     else
                     {
-                        // The certificate may be stored in an encrypted file.
-                        success = SSL_CTX_use_certificate_chain_file(_ctx, resolved.c_str());
-                    }
-
-                    if (!success)
-                    {
-                        string msg = "IceSSL: unable to load certificate chain from file " + file;
-                        if (passwordError())
+                        string err = sslErrors();
+                        if (!err.empty())
                         {
-                            msg += ":\ninvalid password";
+                            msg += ":\n" + err;
                         }
-                        else
-                        {
-                            string err = sslErrors();
-                            if (!err.empty())
-                            {
-                                msg += ":\n" + err;
-                            }
-                        }
-                        throw InitializationException(__FILE__, __LINE__, msg);
                     }
+                    throw InitializationException(__FILE__, __LINE__, msg);
                 }
             }
-
-            if (keyFile.empty())
+            else if (properties->getPropertyAsInt("IceSSL.UsePlatformCAs") > 0)
             {
-                keyFile = certFile; // Assume the certificate file also contains the private key.
+                SSL_CTX_set_default_verify_paths(_ctx);
+            }
+        }
+
+        // Establish the certificate chain and private key.
+        string certFile = properties->getProperty(propPrefix + "CertFile");
+        string keyFile = properties->getProperty(propPrefix + "KeyFile");
+        bool keyLoaded = false;
+
+        if (!certFile.empty())
+        {
+            string resolved;
+            if (!checkPath(certFile, defaultDir, false, resolved))
+            {
+                ostringstream os;
+                os << "IceSSL: certificate file not found `" << certFile << "'";
+                throw InitializationException(__FILE__, __LINE__, os.str());
             }
 
-            if (!keyLoaded && !keyFile.empty())
+            // First we try to load the certificate using PKCS12 format if that fails we fallback to PEM format.
+            vector<char> buffer;
+            readFile(resolved, buffer);
+            int success = 0;
+
+            const unsigned char* b = const_cast<const unsigned char*>(reinterpret_cast<unsigned char*>(&buffer[0]));
+            PKCS12* p12 = d2i_PKCS12(0, &b, static_cast<long>(buffer.size()));
+            if (p12)
             {
-                vector<string> files;
-                if (!IceUtilInternal::splitString(keyFile, IceUtilInternal::pathsep, files) || files.size() > 2)
-                {
-                    throw InitializationException(
-                        __FILE__,
-                        __LINE__,
-                        "IceSSL: invalid value for " + propPrefix + "KeyFile:\n" + keyFile);
-                }
-                if (files.size() != numCerts)
-                {
-                    throw InitializationException(
-                        __FILE__,
-                        __LINE__,
-                        "IceSSL: " + propPrefix + "KeyFile does not agree with " + propPrefix + "CertFile");
-                }
+                EVP_PKEY* key = nullptr;
+                X509* cert = nullptr;
+                STACK_OF(X509)* chain = nullptr;
 
-                for (const auto& file : files)
+                try
                 {
-                    string resolved;
-                    if (!checkPath(file, defaultDir, false, resolved))
-                    {
-                        throw InitializationException(__FILE__, __LINE__, "IceSSL: key file not found:\n" + file);
-                    }
+                    success = PKCS12_parse(p12, _password.c_str(), &key, &cert, &chain);
 
-                    // The private key may be stored in an encrypted file.
-                    if (!SSL_CTX_use_PrivateKey_file(_ctx, resolved.c_str(), SSL_FILETYPE_PEM))
+                    if (!cert)
                     {
                         ostringstream os;
-                        os << "IceSSL: unable to load private key from file " << file;
-                        if (passwordError())
-                        {
-                            os << ":\ninvalid password";
-                        }
-                        else
-                        {
-                            string errStr = sslErrors();
-                            if (!errStr.empty())
-                            {
-                                os << ":\n" << errStr;
-                            }
-                        }
+                        os << "IceSSL: error loading SSL certificate from PKCS12 file `" << certFile << "':\n"
+                           << "certificate not found";
                         throw InitializationException(__FILE__, __LINE__, os.str());
                     }
+
+                    if (!SSL_CTX_use_certificate(_ctx, cert))
+                    {
+                        ostringstream os;
+                        os << "IceSSL: error loading SSL certificate from PKCS12 file `" << certFile << "':\n"
+                           << sslErrors();
+                        throw InitializationException(__FILE__, __LINE__, os.str());
+                    }
+
+                    if (!key)
+                    {
+                        ostringstream os;
+                        os << "IceSSL: error loading SSL private key from PKCS12 file `" << certFile << "':\n"
+                           << "key not found";
+                        throw InitializationException(__FILE__, __LINE__, os.str());
+                    }
+
+                    if (!SSL_CTX_use_PrivateKey(_ctx, key))
+                    {
+                        ostringstream os;
+                        os << "IceSSL: error loading SSL private key from PKCS12 file `" << certFile << "':\n"
+                           << sslErrors();
+                        throw InitializationException(__FILE__, __LINE__, os.str());
+                    }
+                    keyLoaded = true;
+
+                    if (chain && sk_X509_num(chain))
+                    {
+                        // Pop each cert from the stack so we can free the stack later.
+                        // The CTX destruction will take care of the certificates
+                        X509* c = nullptr;
+                        while ((c = sk_X509_pop(chain)) != 0)
+                        {
+                            if (!SSL_CTX_add_extra_chain_cert(_ctx, c))
+                            {
+                                ostringstream os;
+                                os << "IceSSL: unable to add extra SSL certificate:\n" << sslErrors();
+                                throw InitializationException(__FILE__, __LINE__, os.str());
+                            }
+                        }
+                    }
+
+                    if (chain)
+                    {
+                        // This chain should now be empty. No need to call sk_X509_pop_free()
+                        sk_X509_free(chain);
+                    }
+                    assert(key && cert);
+                    EVP_PKEY_free(key);
+                    X509_free(cert);
+                    PKCS12_free(p12);
                 }
-                keyLoaded = true;
+                catch (...)
+                {
+                    PKCS12_free(p12);
+                    if (chain)
+                    {
+                        sk_X509_pop_free(chain, X509_free);
+                    }
+
+                    if (key)
+                    {
+                        EVP_PKEY_free(key);
+                    }
+
+                    if (cert)
+                    {
+                        X509_free(cert);
+                    }
+                    throw;
+                }
+            }
+            else
+            {
+                // The certificate may be stored in an encrypted file.
+                success = SSL_CTX_use_certificate_chain_file(_ctx, resolved.c_str());
             }
 
-            if (keyLoaded && !SSL_CTX_check_private_key(_ctx))
+            if (!success)
+            {
+                ostringstream os;
+                os << "IceSSL: unable to load certificate chain from file `" << certFile << "':\n" << sslErrors();
+                throw InitializationException(__FILE__, __LINE__, os.str());
+            }
+        }
+
+        if (keyFile.empty())
+        {
+            keyFile = certFile; // Assume the certificate file also contains the private key.
+        }
+
+        if (!keyLoaded && !keyFile.empty())
+        {
+            string resolved;
+            if (!checkPath(keyFile, defaultDir, false, resolved))
+            {
+                ostringstream os;
+                os << "IceSSL: key file not found: `" << keyFile << "'";
+                throw InitializationException(__FILE__, __LINE__, os.str());
+            }
+
+            // The private key may be stored in an encrypted file.
+            if (!SSL_CTX_use_PrivateKey_file(_ctx, resolved.c_str(), SSL_FILETYPE_PEM))
+            {
+                ostringstream os;
+                os << "IceSSL: error loading SSL private key from `" << keyFile << "':\n" << sslErrors();
+                throw InitializationException(__FILE__, __LINE__, os.str());
+            }
+            keyLoaded = true;
+        }
+
+        if (keyLoaded && !SSL_CTX_check_private_key(_ctx))
+        {
+            ostringstream os;
+            os << "IceSSL: unable to validate private key:\n" << sslErrors();
+            throw InitializationException(__FILE__, __LINE__, os.str());
+        }
+
+        int revocationCheck = getRevocationCheck();
+        if (revocationCheck > 0)
+        {
+            vector<string> crlFiles = properties->getPropertyAsList(propPrefix + "CertificateRevocationListFiles");
+            if (crlFiles.empty())
             {
                 throw InitializationException(
                     __FILE__,
                     __LINE__,
-                    "IceSSL: unable to validate private key(s):\n" + sslErrors());
+                    "IceSSL: cannot enable revocation checks without setting certificate revocation list files");
             }
 
-            int revocationCheck = getRevocationCheck();
-            if (revocationCheck > 0)
+            X509_STORE* store = SSL_CTX_get_cert_store(_ctx);
+            if (!store)
             {
-                vector<string> crlFiles = properties->getPropertyAsList(propPrefix + "CertificateRevocationListFiles");
-                if (crlFiles.empty())
-                {
-                    throw InitializationException(
-                        __FILE__,
-                        __LINE__,
-                        "IceSSL: cannot enable revocation checks without setting certificate revocation list files");
-                }
-
-                X509_STORE* store = SSL_CTX_get_cert_store(_ctx);
-                if (!store)
-                {
-                    throw InitializationException(__FILE__, __LINE__, "IceSSL: unable to obtain the certificate store");
-                }
-
-                X509_LOOKUP* lookup = X509_STORE_add_lookup(store, X509_LOOKUP_file());
-                if (!lookup)
-                {
-                    throw InitializationException(__FILE__, __LINE__, "IceSSL: add lookup failed");
-                }
-
-                for (const string& crlFile : crlFiles)
-                {
-                    string resolved;
-                    if (!checkPath(crlFile, defaultDir, false, resolved))
-                    {
-                        throw InitializationException(
-                            __FILE__,
-                            __LINE__,
-                            "IceSSL: CRL file not found `" + crlFile + "'");
-                    }
-
-                    if (X509_LOOKUP_load_file(lookup, resolved.c_str(), X509_FILETYPE_PEM) == 0)
-                    {
-                        throw InitializationException(__FILE__, __LINE__, "IceSSL: CRL load failure `" + crlFile + "'");
-                    }
-                }
-
-                unsigned long flags = X509_V_FLAG_CRL_CHECK;
-                if (revocationCheck > 1)
-                {
-                    flags |= X509_V_FLAG_CRL_CHECK_ALL;
-                }
-                X509_STORE_set_flags(store, flags);
+                throw InitializationException(__FILE__, __LINE__, "IceSSL: unable to obtain the certificate store");
             }
 
-            SSL_CTX_set_mode(_ctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
+            X509_LOOKUP* lookup = X509_STORE_add_lookup(store, X509_LOOKUP_file());
+            if (!lookup)
+            {
+                throw InitializationException(__FILE__, __LINE__, "IceSSL: add lookup failed");
+            }
+
+            for (const string& crlFile : crlFiles)
+            {
+                string resolved;
+                if (!checkPath(crlFile, defaultDir, false, resolved))
+                {
+                    ostringstream os;
+                    os << "IceSSL: CRL file not found `" << crlFile << "'";
+                    throw InitializationException(__FILE__, __LINE__, os.str());
+                }
+
+                if (X509_LOOKUP_load_file(lookup, resolved.c_str(), X509_FILETYPE_PEM) == 0)
+                {
+                    ostringstream os;
+                    os << "IceSSL: CRL load failure `" << crlFile << "'";
+                    throw InitializationException(__FILE__, __LINE__, os.str());
+                }
+            }
+
+            unsigned long flags = X509_V_FLAG_CRL_CHECK;
+            if (revocationCheck > 1)
+            {
+                flags |= X509_V_FLAG_CRL_CHECK_ALL;
+            }
+            X509_STORE_set_flags(store, flags);
         }
 
-        //
+        SSL_CTX_set_mode(_ctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
+
         // Store a pointer to ourself for use in OpenSSL callbacks.
-        //
         SSL_CTX_set_ex_data(_ctx, 0, this);
 
         //
@@ -442,7 +393,7 @@ OpenSSL::SSLEngine::initialize()
         //
         // Although we disable session caching, we still need to set a session ID
         // context (ICE-5103). The value can be anything; here we just use the
-        // pointer to this SharedInstance object.
+        // pointer to this object.
         //
         SSL_CTX_set_session_id_context(
             _ctx,
@@ -451,20 +402,125 @@ OpenSSL::SSLEngine::initialize()
     }
     catch (...)
     {
-        //
-        // We free the SSL context regardless of whether the plugin created it
-        // or the application supplied it.
-        //
         SSL_CTX_free(_ctx);
         _ctx = nullptr;
         throw;
     }
 }
 
-SSL_CTX*
-OpenSSL::SSLEngine::context() const
+ClientAuthenticationOptions
+OpenSSL::SSLEngine::createClientAuthenticationOptions(const std::string&) const
 {
-    return _ctx;
+    return ClientAuthenticationOptions{
+        .clientSslContextSelectionCallback =
+            [this](const string&)
+        {
+            // Ensure the SSL context remains valid for the lifetime of the connection.
+            SSL_CTX_up_ref(_ctx);
+            return _ctx;
+        },
+        .sslNewSessionCallback =
+            [this](::SSL* ssl, const string& host)
+        {
+            if (getCheckCertName())
+            {
+                X509_VERIFY_PARAM* param = SSL_get0_param(ssl);
+                if (IceInternal::isIpAddress(host))
+                {
+                    if (!X509_VERIFY_PARAM_set1_ip_asc(param, host.c_str()))
+                    {
+                        ostringstream os;
+                        os << "IceSSL: error setting the expected IP address `" << host << "'";
+                        throw SecurityException(__FILE__, __LINE__, os.str());
+                    }
+                }
+                else
+                {
+                    if (!X509_VERIFY_PARAM_set1_host(param, host.c_str(), 0))
+                    {
+                        ostringstream os;
+                        os << "IceSSL: error setting the expected host name `" << host << "'";
+                        throw SecurityException(__FILE__, __LINE__, os.str());
+                    }
+                }
+            }
+
+            // Enable SNI
+            if (getServerNameIndication() && !IceInternal::isIpAddress(host))
+            {
+                if (!SSL_set_tlsext_host_name(ssl, host.c_str()))
+                {
+                    ostringstream os;
+                    os << "IceSSL: setting SNI host failed `" << host << "'";
+                    throw SecurityException(__FILE__, __LINE__, os.str());
+                }
+            }
+            SSL_set_verify(ssl, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, 0);
+        },
+        .serverCertificateValidationCallback =
+            [this](bool ok, X509_STORE_CTX* ctx, const IceSSL::ConnectionInfoPtr& info)
+        { return validationCallback(ok, ctx, info); },
+    };
+}
+
+ServerAuthenticationOptions
+OpenSSL::SSLEngine::createServerAuthenticationOptions() const
+{
+    return ServerAuthenticationOptions{
+        .serverSslContextSelectionCallback =
+            [this](const string&)
+        {
+            // Ensure the SSL context remains valid for the lifetime of the connection.
+            SSL_CTX_up_ref(_ctx);
+            return _ctx;
+        },
+        .sslNewSessionCallback =
+            [this](::SSL* ssl, const string&)
+        {
+            int sslVerifyMode;
+            switch (getVerifyPeer())
+            {
+                case 0:
+                    sslVerifyMode = SSL_VERIFY_NONE;
+                    break;
+                case 1:
+                    sslVerifyMode = SSL_VERIFY_PEER;
+                    break;
+                default:
+                    sslVerifyMode = SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
+                    break;
+            }
+            SSL_set_verify(ssl, sslVerifyMode, 0);
+        },
+        .clientCertificateValidationCallback =
+            [this](bool ok, X509_STORE_CTX* ctx, const IceSSL::ConnectionInfoPtr& info)
+        { return validationCallback(ok, ctx, info); }};
+}
+
+bool
+OpenSSL::SSLEngine::validationCallback(bool ok, X509_STORE_CTX* ctx, const IceSSL::ConnectionInfoPtr& info) const
+{
+    // At this point before the SSL handshake is completed, the connection info doesn't contain the peer's
+    // certificate chain required for verifyPeer. We set it here.
+
+    if (ok)
+    {
+        // TODO we should refactor verifyPeer to not depend on the Certificate API in a follow-up PR.
+        vector<IceSSL::CertificatePtr> certs;
+        STACK_OF(X509)* chain = X509_STORE_CTX_get1_chain(ctx);
+        if (chain != 0)
+        {
+            for (int i = 0; i < sk_X509_num(chain); ++i)
+            {
+                CertificatePtr cert = OpenSSL::Certificate::create(X509_dup(sk_X509_value(chain, i)));
+                certs.push_back(cert);
+            }
+            sk_X509_pop_free(chain, X509_free);
+        }
+        const_cast<IceSSL::ConnectionInfoPtr&>(info)->certs = certs;
+        verifyPeer(info);
+    }
+    return ok;
 }
 
 string
@@ -481,14 +537,4 @@ OpenSSL::SSLEngine::destroy()
         SSL_CTX_free(_ctx);
         _ctx = nullptr;
     }
-}
-
-IceInternal::TransceiverPtr
-OpenSSL::SSLEngine::createTransceiver(
-    const InstancePtr& instance,
-    const IceInternal::TransceiverPtr& delegate,
-    const string& hostOrAdapterName,
-    bool incoming)
-{
-    return make_shared<OpenSSL::TransceiverI>(instance, delegate, hostOrAdapterName, incoming);
 }

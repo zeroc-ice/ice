@@ -40,6 +40,12 @@ IceSSL::SSLEngine::getProperties() const
     return _instance->initializationData().properties;
 }
 
+Ice::InitializationData
+IceSSL::SSLEngine::getInitializationData() const
+{
+    return _instance->initializationData();
+}
+
 void
 IceSSL::SSLEngine::initialize()
 {
@@ -70,7 +76,7 @@ IceSSL::SSLEngine::initialize()
 }
 
 void
-IceSSL::SSLEngine::verifyPeerCertName(const string& address, const ConnectionInfoPtr& info)
+IceSSL::SSLEngine::verifyPeerCertName(const ConnectionInfoPtr& info, const string& address) const
 {
     // For an outgoing connection, we compare the proxy address (if any) against fields in the server's certificate
     // (if any).
@@ -140,20 +146,24 @@ IceSSL::SSLEngine::verifyPeerCertName(const string& address, const ConnectionInf
                 Trace out(getLogger(), _securityTraceCategory);
                 out << msg;
             }
-            throw SecurityException(__FILE__, __LINE__, msg);
+
+            if (_verifyPeer > 0)
+            {
+                throw SecurityException(__FILE__, __LINE__, msg);
+            }
         }
     }
 }
 
 void
-IceSSL::SSLEngine::verifyPeer(const string& /*address*/, const ConnectionInfoPtr& info, const string& desc)
+IceSSL::SSLEngine::verifyPeer(const ConnectionInfoPtr& info) const
 {
-    if (!_trustManager->verify(info, desc))
+    if (!_trustManager->verify(info))
     {
         string msg = string(info->incoming ? "incoming" : "outgoing") + " connection rejected by trust manager";
         if (_securityTraceLevel >= 1)
         {
-            getLogger()->trace(_securityTraceCategory, msg + "\n" + desc);
+            getLogger()->trace(_securityTraceCategory, msg);
         }
         throw SecurityException(__FILE__, __LINE__, msg);
     }

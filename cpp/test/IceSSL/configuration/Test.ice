@@ -11,7 +11,6 @@ interface Server
 {
     void noCert();
     void checkCert(string subjectDN, string issuerDN);
-    void checkCipher(string cipher);
 }
 
 dictionary<string, string> Properties;

@@ -19,58 +19,6 @@
 namespace IceSSL
 {
     /**
-     * The reason for an IceSSL certificate verification failure.
-     */
-    enum class TrustError : std::uint8_t
-    {
-        /** The certification verification succeed  */
-        NoError = 0,
-        /** The certificate chain length is greater than the specified maximum depth **/
-        ChainTooLong,
-        /** The X509 chain is invalid because a certificate has excluded a name constraint **/
-        HasExcludedNameConstraint,
-        /** The certificate has an undefined name constraint **/
-        HasNonDefinedNameConstraint,
-        /** The certificate has a non permitted name constraint **/
-        HasNonPermittedNameConstraint,
-        /** The certificate does not support a critical extension **/
-        HasNonSupportedCriticalExtension,
-        /** The certificate does not have a supported name constraint or has a name constraint that is unsupported **/
-        HasNonSupportedNameConstraint,
-        /** A host name mismatch has occurred **/
-        HostNameMismatch,
-        /** The X509 chain is invalid due to invalid basic constraints **/
-        InvalidBasicConstraints,
-        /** The X509 chain is invalid due to an invalid extension **/
-        InvalidExtension,
-        /** The X509 chain is invalid due to invalid name constraints **/
-        InvalidNameConstraints,
-        /** The X509 chain is invalid due to invalid policy constraints **/
-        InvalidPolicyConstraints,
-        /** The supplied certificate cannot be used for the specified purpose **/
-        InvalidPurpose,
-        /** The X509 chain is invalid due to an invalid certificate signature **/
-        InvalidSignature,
-        /** The X509 chain is not valid due to an invalid time value, such as a value that indicates an expired
-            certificate **/
-        InvalidTime,
-        /** The certificate is explicitly not trusted **/
-        NotTrusted,
-        /** The X509 chain could not be built up to the root certificate **/
-        PartialChain,
-        /** It is not possible to determine whether the certificate has been revoked **/
-        RevocationStatusUnknown,
-        /** The X509 chain is invalid due to a revoked certificate **/
-        Revoked,
-        /** The X509 chain is invalid due to an untrusted root certificate **/
-        UntrustedRoot,
-        /** The X509 chain is invalid due to other unknown failure **/
-        UnknownTrustFailure,
-    };
-
-    ICE_API std::string getTrustErrorDescription(TrustError);
-
-    /**
      * The key usage "digitalSignature" bit is set
      */
     const unsigned int KEY_USAGE_DIGITAL_SIGNATURE = 1u << 0;

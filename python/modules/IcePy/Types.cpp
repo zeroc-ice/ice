@@ -3206,8 +3206,8 @@ IcePy::ValueInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* objectM
 
     if (p == Py_None)
     {
-        std::shared_ptr<Ice::Value> nil;
-        os->write(nil);
+        std::shared_ptr<Ice::Value> value; // nulptr
+        os->write(value);
         return;
     }
 

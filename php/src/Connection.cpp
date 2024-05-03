@@ -468,9 +468,7 @@ IcePHP::connectionInit(void)
     INIT_NS_CLASS_ENTRY(ce, "Ice", "SSLConnectionInfo", nullptr);
     ce.create_object = handleConnectionInfoAlloc;
     sslConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry);
-    zend_declare_property_string(sslConnectionInfoClassEntry, "cipher", sizeof("cipher") - 1, "", ZEND_ACC_PUBLIC);
     zend_declare_property_string(sslConnectionInfoClassEntry, "certs", sizeof("certs") - 1, "", ZEND_ACC_PUBLIC);
-    zend_declare_property_bool(sslConnectionInfoClassEntry, "verified", sizeof("verified") - 1, 0, ZEND_ACC_PUBLIC);
 
     return true;
 }
@@ -585,8 +583,6 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
     if (dynamic_pointer_cast<IceSSL::ConnectionInfo>(p))
     {
         auto info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(p);
-        add_property_string(zv, "cipher", const_cast<char*>(info->cipher.c_str()));
-        add_property_bool(zv, "verified", info->verified ? 1 : 0);
 
         zval zarr;
         AutoDestroy listDestroyer(&zarr);

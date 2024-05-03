@@ -10,11 +10,14 @@
 #include "SecureTransportEngine.h"
 #include "SecureTransportUtil.h"
 
+#include <sstream>
+
 // Disable deprecation warnings from SecureTransport APIs
 #include "IceUtil/DisableWarnings.h"
 
 using namespace std;
 using namespace Ice;
+using namespace Ice::SSL;
 using namespace IceInternal;
 using namespace IceSSL;
 using namespace IceSSL::SecureTransport;
@@ -35,6 +38,8 @@ namespace
                 return "TLS 1.1";
             case kTLSProtocol12:
                 return "TLS 1.2";
+            case kTLSProtocol13:
+                return "TLS 1.3";
             default:
                 return "Unknown";
         }
@@ -58,191 +63,6 @@ namespace
         const TransceiverI* transceiver = static_cast<const TransceiverI*>(connection);
         assert(transceiver);
         return transceiver->readRaw(reinterpret_cast<byte*>(data), length);
-    }
-
-    TrustError errorToTrustError(CFErrorRef err)
-    {
-        long errorCode = CFErrorGetCode(err);
-        switch (errorCode)
-        {
-            case errSecPathLengthConstraintExceeded:
-            {
-                return IceSSL::TrustError::ChainTooLong;
-            }
-            case errSecUnknownCRLExtension:
-            case errSecUnknownCriticalExtensionFlag:
-            {
-                return IceSSL::TrustError::HasNonSupportedCriticalExtension;
-            }
-            case errSecHostNameMismatch:
-            {
-                return IceSSL::TrustError::HostNameMismatch;
-            }
-            case errSecCodeSigningNoBasicConstraints:
-            case errSecNoBasicConstraints:
-            case errSecNoBasicConstraintsCA:
-            {
-                return IceSSL::TrustError::InvalidBasicConstraints;
-            }
-            case errSecMissingRequiredExtension:
-            case errSecUnknownCertExtension:
-            {
-                return IceSSL::TrustError::InvalidExtension;
-            }
-            case errSecCertificateNameNotAllowed:
-            case errSecInvalidName:
-            {
-                return IceSSL::TrustError::InvalidNameConstraints;
-            }
-            case errSecCertificatePolicyNotAllowed:
-            case errSecInvalidPolicyIdentifiers:
-            case errSecInvalidCertificateRef:
-            case errSecInvalidDigestAlgorithm:
-            case errSecUnsupportedKeySize:
-            {
-                return IceSSL::TrustError::InvalidPolicyConstraints;
-            }
-            case errSecInvalidExtendedKeyUsage:
-            case errSecInvalidKeyUsageForPolicy:
-            {
-                return IceSSL::TrustError::InvalidPurpose;
-            }
-            case errSecInvalidSignature:
-            {
-                return IceSSL::TrustError::InvalidSignature;
-            }
-            case errSecCertificateExpired:
-            case errSecCertificateNotValidYet:
-            case errSecCertificateValidityPeriodTooLong:
-            {
-                return IceSSL::TrustError::InvalidTime;
-            }
-            case errSecCreateChainFailed:
-            {
-                return IceSSL::TrustError::PartialChain;
-            }
-            case errSecCertificateRevoked:
-            {
-                return IceSSL::TrustError::Revoked;
-            }
-            case errSecIncompleteCertRevocationCheck:
-            case errSecOCSPNotTrustedToAnchor:
-            {
-                return IceSSL::TrustError::RevocationStatusUnknown;
-            }
-            case errSecNotTrusted:
-            case errSecVerifyActionFailed:
-            {
-                return IceSSL::TrustError::UntrustedRoot;
-            }
-            default:
-            {
-                return IceSSL::TrustError::UnknownTrustFailure;
-            }
-        }
-    }
-
-    TrustError checkTrustResult(
-        SecTrustRef trust,
-        const IceSSL::SecureTransport::SSLEnginePtr& engine,
-        const IceSSL::InstancePtr& instance,
-        const string& host)
-    {
-        OSStatus err = noErr;
-        UniqueRef<CFErrorRef> trustErr;
-        if (trust)
-        {
-            // Do not allow to fetch missing intermediate certificates from the network.
-            if ((err = SecTrustSetNetworkFetchAllowed(trust, false)))
-            {
-                throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + sslErrorToString(err));
-            }
-
-            UniqueRef<CFMutableArrayRef> policies(CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks));
-            // Add SSL trust policy if we need to check the certificate name, otherwise use basic x509 policy.
-            if (engine->getCheckCertName() && !host.empty())
-            {
-                UniqueRef<CFStringRef> hostref(toCFString(host));
-                UniqueRef<SecPolicyRef> policy(SecPolicyCreateSSL(true, hostref.get()));
-                CFArrayAppendValue(policies.get(), policy.get());
-            }
-            else
-            {
-                UniqueRef<SecPolicyRef> policy(SecPolicyCreateBasicX509());
-                CFArrayAppendValue(policies.get(), policy.get());
-            }
-
-            int revocationCheck = engine->getRevocationCheck();
-            if (revocationCheck > 0)
-            {
-                CFOptionFlags revocationFlags =
-                    kSecRevocationUseAnyAvailableMethod | kSecRevocationRequirePositiveResponse;
-                if (engine->getRevocationCheckCacheOnly())
-                {
-                    revocationFlags |= kSecRevocationNetworkAccessDisabled;
-                }
-
-                UniqueRef<SecPolicyRef> revocationPolicy(SecPolicyCreateRevocation(revocationFlags));
-                if (!revocationPolicy)
-                {
-                    throw SecurityException(
-                        __FILE__,
-                        __LINE__,
-                        "IceSSL: handshake failure: error creating revocation policy");
-                }
-                CFArrayAppendValue(policies.get(), revocationPolicy.get());
-            }
-
-            if ((err = SecTrustSetPolicies(trust, policies.get())))
-            {
-                throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + sslErrorToString(err));
-            }
-
-            CFArrayRef certificateAuthorities = engine->getCertificateAuthorities();
-            if (certificateAuthorities != 0)
-            {
-                if ((err = SecTrustSetAnchorCertificates(trust, certificateAuthorities)))
-                {
-                    throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + sslErrorToString(err));
-                }
-                SecTrustSetAnchorCertificatesOnly(trust, true);
-            }
-
-            //
-            // Evaluate the trust
-            //
-            if (SecTrustEvaluateWithError(trust, &trustErr.get()))
-            {
-                return IceSSL::TrustError::NoError;
-            }
-            else
-            {
-                TrustError trustError = errorToTrustError(trustErr.get());
-                if (engine->getVerifyPeer() == 0)
-                {
-                    if (instance->traceLevel() >= 1)
-                    {
-                        ostringstream os;
-                        os << "IceSSL: ignoring certificate verification failure:\n"
-                           << getTrustErrorDescription(trustError);
-                        instance->logger()->trace(instance->traceCategory(), os.str());
-                    }
-                    return trustError;
-                }
-                else
-                {
-                    ostringstream os;
-                    os << "IceSSL: certificate verification failure:\n" << getTrustErrorDescription(trustError);
-                    string msg = os.str();
-                    if (instance->traceLevel() >= 1)
-                    {
-                        instance->logger()->trace(instance->traceCategory(), msg);
-                    }
-                    throw SecurityException(__FILE__, __LINE__, msg);
-                }
-            }
-        }
-        return IceSSL::TrustError::UnknownTrustFailure;
     }
 }
 
@@ -289,6 +109,32 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
         // Initialize SSL context
         //
         _ssl.reset(_engine->newContext(_incoming));
+        if (_sslNewSessionCallback)
+        {
+            _sslNewSessionCallback(_ssl.get(), _incoming ? _adapterName : _host);
+        }
+
+        if (_incoming)
+        {
+            SSLSetClientSideAuthenticate(_ssl.get(), _clientCertificateRequired);
+        }
+
+        if (_localCertificateSelectionCallback)
+        {
+            _certificates = _localCertificateSelectionCallback(_incoming ? _adapterName : _host);
+            if (_certificates)
+            {
+                err = SSLSetCertificate(_ssl.get(), _certificates);
+                if (err)
+                {
+                    throw SecurityException(
+                        __FILE__,
+                        __LINE__,
+                        "IceSSL: error while setting the SSL context certificate:\n" + sslErrorToString(err));
+                }
+            }
+        }
+
         if ((err = SSLSetIOFuncs(_ssl.get(), socketRead, socketWrite)))
         {
             throw SecurityException(
@@ -343,18 +189,62 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
             assert(!_trust);
             err = SSLCopyPeerTrust(_ssl.get(), &_trust.get());
 
-            if (_incoming && _engine->getVerifyPeer() == 1 && (err == errSSLBadCert || !_trust))
-            {
-                // This is expected if the client doesn't provide a certificate. With 10.10 and 10.11 errSSLBadCert
-                // is expected, the server is configured to verify but not require the client
-                // certificate so we ignore the failure. In 10.12 there is no error and trust is 0.
-                continue;
-            }
             if (err == noErr)
             {
-                _trustError = checkTrustResult(_trust.get(), _engine, _instance, _host);
-                _verified = _trustError == IceSSL::TrustError::NoError;
-                continue; // Call SSLHandshake to resume the handsake.
+                if (_incoming &&
+                    (_clientCertificateRequired == kTryAuthenticate ||
+                     _clientCertificateRequired == kNeverAuthenticate) &&
+                    !_trust)
+                {
+                    // This is expected if the client doesn't provide a certificate.
+                    continue; // Call SSLHandshake to resume the handshake.
+                }
+                else if (_trust)
+                {
+                    for (CFIndex i = 0, count = SecTrustGetCertificateCount(_trust.get()); i < count; ++i)
+                    {
+                        SecCertificateRef cert = SecTrustGetCertificateAtIndex(_trust.get(), i);
+                        CFRetain(cert);
+                        _peerCerts.push_back(IceSSL::SecureTransport::Certificate::create(cert));
+                    }
+
+                    if (_trustedRootCertificates)
+                    {
+                        if ((err = SecTrustSetAnchorCertificates(_trust.get(), _trustedRootCertificates)))
+                        {
+                            throw SecurityException(
+                                __FILE__,
+                                __LINE__,
+                                "IceSSL: handshake failure:\n" + sslErrorToString(err));
+                        }
+
+                        if ((err = SecTrustSetAnchorCertificatesOnly(_trust.get(), true)))
+                        {
+                            throw SecurityException(
+                                __FILE__,
+                                __LINE__,
+                                "IceSSL: handshake failure:\n" + sslErrorToString(err));
+                        }
+                    }
+
+                    function<bool(SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)>
+                        remoteCertificateValidationCallback =
+                            _remoteCertificateValidationCallback
+                                ? _remoteCertificateValidationCallback
+                                : [this](SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)
+                    { return _engine->validationCallback(trust, info, _incoming ? _adapterName : _host); };
+
+                    if (remoteCertificateValidationCallback(
+                            _trust.get(),
+                            dynamic_pointer_cast<ConnectionInfo>(getInfo())))
+                    {
+                        continue; // Call SSLHandshake to resume the handshake.
+                    }
+                }
+                else
+                {
+                    continue; // Call SSLHandshake to resume the handshake.
+                }
             }
             // Let it fall through, this will raise a SecurityException with the SSLCopyPeerTrust error.
         }
@@ -370,21 +260,7 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
         throw ProtocolException(__FILE__, __LINE__, os.str());
     }
 
-    for (CFIndex i = 0, count = SecTrustGetCertificateCount(_trust.get()); i < count; ++i)
-    {
-        SecCertificateRef cert = SecTrustGetCertificateAtIndex(_trust.get(), i);
-        CFRetain(cert);
-        _certs.push_back(IceSSL::SecureTransport::Certificate::create(cert));
-    }
-
     assert(_ssl);
-    {
-        SSLCipherSuite cipher;
-        SSLGetNegotiatedCipher(_ssl.get(), &cipher);
-        _cipher = _engine->getCipherName(cipher);
-    }
-
-    _engine->verifyPeer(_host, dynamic_pointer_cast<ConnectionInfo>(getInfo()), toString());
 
     if (_instance->engine()->securityTraceLevel() >= 1)
     {
@@ -425,12 +301,22 @@ IceSSL::SecureTransport::TransceiverI::closing(bool initiator, exception_ptr)
 void
 IceSSL::SecureTransport::TransceiverI::close()
 {
-    _trust.reset(0);
+    if (_trust)
+    {
+        _trust.reset(nullptr);
+    }
+
     if (_ssl)
     {
         SSLClose(_ssl.get());
+        _ssl.reset(nullptr);
     }
-    _ssl.reset(0);
+
+    if (_certificates)
+    {
+        CFRelease(_certificates);
+        _certificates = nullptr;
+    }
 
     _delegate->close();
 }
@@ -621,11 +507,7 @@ IceSSL::SecureTransport::TransceiverI::getInfo() const
     info->underlying = _delegate->getInfo();
     info->incoming = _incoming;
     info->adapterName = _adapterName;
-    info->cipher = _cipher;
-    info->certs = _certs;
-    info->verified = _verified;
-    info->errorCode = _trustError;
-    info->host = _incoming ? "" : _host;
+    info->certs = _peerCerts;
     return info;
 }
 
@@ -643,17 +525,44 @@ IceSSL::SecureTransport::TransceiverI::setBufferSize(int rcvSize, int sndSize)
 IceSSL::SecureTransport::TransceiverI::TransceiverI(
     const IceSSL::InstancePtr& instance,
     const IceInternal::TransceiverPtr& delegate,
-    const string& hostOrAdapterName,
-    bool incoming)
+    const string& adapterName,
+    const ServerAuthenticationOptions& serverAuthenticationOptions)
     : _instance(instance),
       _engine(dynamic_pointer_cast<IceSSL::SecureTransport::SSLEngine>(instance->engine())),
-      _host(incoming ? "" : hostOrAdapterName),
-      _adapterName(incoming ? hostOrAdapterName : ""),
-      _incoming(incoming),
+      _host(""),
+      _adapterName(adapterName),
+      _incoming(true),
       _delegate(delegate),
       _connected(false),
-      _verified(false),
-      _buffered(0)
+      _buffered(0),
+      _sslNewSessionCallback(serverAuthenticationOptions.sslNewSessionCallback),
+      _remoteCertificateValidationCallback(serverAuthenticationOptions.clientCertificateValidationCallback),
+      _localCertificateSelectionCallback(serverAuthenticationOptions.serverCertificateSelectionCallback),
+      _clientCertificateRequired(serverAuthenticationOptions.clientCertificateRequired),
+      _certificates(nullptr),
+      _trustedRootCertificates(serverAuthenticationOptions.trustedRootCertificates)
+{
+}
+
+IceSSL::SecureTransport::TransceiverI::TransceiverI(
+    const IceSSL::InstancePtr& instance,
+    const IceInternal::TransceiverPtr& delegate,
+    const string& host,
+    const ClientAuthenticationOptions& clientAuthenticationOptions)
+    : _instance(instance),
+      _engine(dynamic_pointer_cast<IceSSL::SecureTransport::SSLEngine>(instance->engine())),
+      _host(host),
+      _adapterName(""),
+      _incoming(false),
+      _delegate(delegate),
+      _connected(false),
+      _buffered(0),
+      _sslNewSessionCallback(clientAuthenticationOptions.sslNewSessionCallback),
+      _remoteCertificateValidationCallback(clientAuthenticationOptions.serverCertificateValidationCallback),
+      _localCertificateSelectionCallback(clientAuthenticationOptions.clientCertificateSelectionCallback),
+      _clientCertificateRequired(kNeverAuthenticate),
+      _certificates(nullptr),
+      _trustedRootCertificates(clientAuthenticationOptions.trustedRootCertificates)
 {
 }
 

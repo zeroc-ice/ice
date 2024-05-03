@@ -158,7 +158,7 @@ IceInternal::OpaqueEndpointI::connectorsAsync(
 }
 
 AcceptorPtr
-IceInternal::OpaqueEndpointI::acceptor(const string&) const
+IceInternal::OpaqueEndpointI::acceptor(const string&, const optional<Ice::SSL::ServerAuthenticationOptions>&) const
 {
     return nullptr;
 }

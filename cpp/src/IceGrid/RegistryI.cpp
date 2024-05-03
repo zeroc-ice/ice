@@ -1208,7 +1208,6 @@ RegistryI::getSSLInfo(const ConnectionPtr& connection, string& userDN)
         sslinfo.remoteHost = ipInfo->remoteAddress;
         sslinfo.localPort = ipInfo->localPort;
         sslinfo.localHost = ipInfo->localAddress;
-        sslinfo.cipher = info->cipher;
         for (const auto& cert : info->certs)
         {
             sslinfo.certs.push_back(cert->encode());

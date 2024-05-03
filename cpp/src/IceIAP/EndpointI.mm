@@ -298,7 +298,7 @@ IceObjC::iAPEndpointI::connectorsAsync(
 }
 
 AcceptorPtr
-IceObjC::iAPEndpointI::acceptor(const string&) const
+IceObjC::iAPEndpointI::acceptor(const string&, const optional<SSL::ServerAuthenticationOptions>&) const
 {
     assert(false);
     return nullptr;

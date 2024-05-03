@@ -7,8 +7,11 @@
 
 #include "EndpointFactory.h"
 #include "IPEndpointI.h"
+#include "Ice/ServerAuthenticationOptions.h"
 #include "IceUtil/Config.h"
 #include "Network.h"
+
+#include <optional>
 
 namespace IceInternal
 {
@@ -39,7 +42,8 @@ namespace IceInternal
         bool datagram() const final;
 
         TransceiverPtr transceiver() const final;
-        AcceptorPtr acceptor(const std::string&) const final;
+        AcceptorPtr
+        acceptor(const std::string&, const std::optional<Ice::SSL::ServerAuthenticationOptions>&) const final;
         std::string options() const final;
 
         bool operator==(const Ice::Endpoint&) const final;

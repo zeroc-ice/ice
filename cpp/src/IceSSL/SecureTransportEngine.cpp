@@ -3,6 +3,8 @@
 //
 
 #include "SecureTransportEngine.h"
+#include "../Ice/Instance.h"
+#include "../Ice/TraceLevels.h"
 #include "Ice/Certificate.h"
 #include "Ice/Config.h"
 #include "Ice/LocalException.h"
@@ -23,6 +25,7 @@
 using namespace std;
 using namespace IceUtil;
 using namespace Ice;
+using namespace Ice::SSL;
 using namespace IceInternal;
 using namespace IceSSL;
 using namespace IceSSL::SecureTransport;
@@ -433,12 +436,131 @@ namespace
                 return "";
         }
     }
+
+    string trustErrorToString(CFErrorRef err)
+    {
+        long errorCode = CFErrorGetCode(err);
+        switch (errorCode)
+        {
+            case errSecPathLengthConstraintExceeded:
+            {
+                return "The path length constraint was exceeded.";
+            }
+            case errSecUnknownCRLExtension:
+            {
+                return "An unknown CRL extension was encountered.";
+            }
+            case errSecUnknownCriticalExtensionFlag:
+            {
+                return "There is an unknown critical extension flag.";
+            }
+            case errSecHostNameMismatch:
+            {
+                return "A host name mismatch has occurred.";
+            }
+            case errSecNoBasicConstraints:
+            {
+                return "No basic constraints were found.";
+            }
+            case errSecNoBasicConstraintsCA:
+            {
+                return "No basic CA constraints were found.";
+            }
+            case errSecMissingRequiredExtension:
+            {
+                return "A required certificate extension is missing.";
+            }
+            case errSecUnknownCertExtension:
+            {
+                return "An unknown certificate extension was detected.";
+            }
+            case errSecCertificateNameNotAllowed:
+            {
+                return "The requested name isn’t allowed for this certificate.";
+            }
+            case errSecInvalidName:
+            {
+                return "An invalid name was detected.";
+            }
+            case errSecInvalidPolicyIdentifiers:
+            {
+                return "The policy identifiers are not valid.";
+            }
+            case errSecInvalidCertificateRef:
+            {
+                return "An invalid certificate reference was detected.";
+            }
+            case errSecInvalidDigestAlgorithm:
+            {
+                return "An invalid digest algorithm was detected.";
+            }
+            case errSecUnsupportedKeySize:
+            {
+                return "The key size is not supported.";
+            }
+            case errSecInvalidExtendedKeyUsage:
+            {
+                return "The extended key usage is not valid.";
+            }
+            case errSecInvalidKeyUsageForPolicy:
+            {
+                return "The key usage is not valid for the specified policy.";
+            }
+            case errSecInvalidSignature:
+            {
+                return "An invalid signature was detected.";
+            }
+            case errSecCertificateExpired:
+            {
+                return "An expired certificate was detected.";
+            }
+            case errSecCertificateNotValidYet:
+            {
+                return "The certificate is not yet valid.";
+            }
+            case errSecCertificateValidityPeriodTooLong:
+            {
+                return "The validity period in the certificate exceeds the maximum allowed period.";
+            }
+            case errSecCreateChainFailed:
+            {
+                return "The attempt to create a certificate chain failed.";
+            }
+            case errSecCertificateRevoked:
+            {
+                return "The certificate was revoked.";
+            }
+            case errSecIncompleteCertRevocationCheck:
+            {
+                return "An incomplete certificate revocation check occurred.";
+            }
+            case errSecOCSPNotTrustedToAnchor:
+            {
+                return "The online certificate status protocol (OCSP) response is not trusted to a root or anchor "
+                       "certificate.";
+            }
+            case errSecNotTrusted:
+            {
+                return "The trust policy is not trusted.";
+            }
+            case errSecVerifyActionFailed:
+            {
+                return "A verify action failed.";
+            }
+            default:
+            {
+                ostringstream os;
+                os << "An unknown trust failure occurred: " << errorCode;
+                return os.str();
+            }
+        }
+    }
 }
 
-IceSSL::SecureTransport::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)
+SecureTransport::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)
     : IceSSL::SSLEngine(instance),
-      _certificateAuthorities(0),
-      _chain(0)
+      _certificateAuthorities(nullptr),
+      _chain(nullptr)
 {
 }
 
@@ -446,7 +568,7 @@ IceSSL::SecureTransport::SSLEngine::SSLEngine(const IceInternal::InstancePtr& in
 // Setup the engine.
 //
 void
-IceSSL::SecureTransport::SSLEngine::initialize()
+SecureTransport::SSLEngine::initialize()
 {
     IceSSL::SSLEngine::initialize();
 
@@ -573,22 +695,69 @@ IceSSL::SecureTransport::SSLEngine::initialize()
 // Destroy the engine.
 //
 void
-IceSSL::SecureTransport::SSLEngine::destroy()
+SecureTransport::SSLEngine::destroy()
 {
 }
 
-IceInternal::TransceiverPtr
-IceSSL::SecureTransport::SSLEngine::createTransceiver(
-    const InstancePtr& instance,
-    const IceInternal::TransceiverPtr& delegate,
-    const string& hostOrAdapterName,
-    bool incoming)
+ClientAuthenticationOptions
+SecureTransport::SSLEngine::createClientAuthenticationOptions(const string& host) const
 {
-    return make_shared<IceSSL::SecureTransport::TransceiverI>(instance, delegate, hostOrAdapterName, incoming);
+    // It is safe to capture 'this' in the callbacks below as SSLEngine is managed by the communicator
+    // and is guaranteed to outlive all connections.
+    return ClientAuthenticationOptions{
+        .clientCertificateSelectionCallback =
+            [this](const string&)
+        {
+            CFArrayRef chain = _chain.get();
+            if (chain)
+            {
+                CFRetain(chain);
+            }
+            return chain;
+        },
+        .trustedRootCertificates = _certificateAuthorities.get(),
+        .serverCertificateValidationCallback = [this, host](SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)
+        { return validationCallback(trust, info, host); }};
+}
+
+ServerAuthenticationOptions
+SecureTransport::SSLEngine::createServerAuthenticationOptions() const
+{
+    SSLAuthenticate clientCertificateRequired;
+    switch (getVerifyPeer())
+    {
+        case 0:
+            clientCertificateRequired = kNeverAuthenticate;
+            break;
+        case 1:
+            clientCertificateRequired = kTryAuthenticate;
+            break;
+        default:
+            clientCertificateRequired = kAlwaysAuthenticate;
+            break;
+    }
+
+    // It is safe to capture 'this' in the callbacks below as SSLEngine is managed by the communicator
+    // and is guaranteed to outlive all connections.
+    return ServerAuthenticationOptions{
+        .clientCertificateValidationCallback = [this](SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)
+        { return validationCallback(trust, info, ""); },
+        .clientCertificateRequired = clientCertificateRequired,
+        .trustedRootCertificates = _certificateAuthorities.get(),
+        .serverCertificateSelectionCallback =
+            [this](const string&)
+        {
+            CFArrayRef chain = _chain.get();
+            if (chain)
+            {
+                CFRetain(chain);
+            }
+            return chain;
+        }};
 }
 
 SSLContextRef
-IceSSL::SecureTransport::SSLEngine::newContext(bool incoming)
+SecureTransport::SSLEngine::newContext(bool incoming) const
 {
     SSLContextRef ssl =
         SSLCreateContext(kCFAllocatorDefault, incoming ? kSSLServerSide : kSSLClientSide, kSSLStreamType);
@@ -597,46 +766,12 @@ IceSSL::SecureTransport::SSLEngine::newContext(bool incoming)
         throw SecurityException(__FILE__, __LINE__, "IceSSL: unable to create SSL context");
     }
 
-    OSStatus err = noErr;
-    if (incoming)
-    {
-        switch (getVerifyPeer())
-        {
-            case 0:
-            {
-                SSLSetClientSideAuthenticate(ssl, kNeverAuthenticate);
-                break;
-            }
-            case 1:
-            {
-                SSLSetClientSideAuthenticate(ssl, kTryAuthenticate);
-                break;
-            }
-            case 2:
-            {
-                SSLSetClientSideAuthenticate(ssl, kAlwaysAuthenticate);
-                break;
-            }
-            default:
-            {
-                assert(false);
-                break;
-            }
-        }
-    }
+    OSStatus err = SSLSetSessionOption(
+        ssl,
+        incoming ? kSSLSessionOptionBreakOnClientAuth : kSSLSessionOptionBreakOnServerAuth,
+        true);
 
-    if (_chain && (err = SSLSetCertificate(ssl, _chain.get())))
-    {
-        throw SecurityException(
-            __FILE__,
-            __LINE__,
-            "IceSSL: error while setting the SSL context certificate:\n" + sslErrorToString(err));
-    }
-
-    if ((err = SSLSetSessionOption(
-             ssl,
-             incoming ? kSSLSessionOptionBreakOnClientAuth : kSSLSessionOptionBreakOnServerAuth,
-             true)))
+    if (err != noErr)
     {
         throw SecurityException(
             __FILE__,
@@ -647,14 +782,76 @@ IceSSL::SecureTransport::SSLEngine::newContext(bool incoming)
     return ssl;
 }
 
-CFArrayRef
-IceSSL::SecureTransport::SSLEngine::getCertificateAuthorities() const
+bool
+SecureTransport::SSLEngine::validationCallback(SecTrustRef trust, const ConnectionInfoPtr& info, const string& host)
+    const
 {
-    return _certificateAuthorities.get();
+    OSStatus err = noErr;
+    UniqueRef<CFErrorRef> trustErr;
+    assert(trust);
+
+    // Do not allow to fetch missing intermediate certificates from the network.
+    if ((err = SecTrustSetNetworkFetchAllowed(trust, false)))
+    {
+        throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + sslErrorToString(err));
+    }
+
+    UniqueRef<CFMutableArrayRef> policies(CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks));
+    // Add SSL trust policy if we need to check the certificate name, otherwise use basic x509 policy.
+    if (getCheckCertName() && !host.empty())
+    {
+        UniqueRef<CFStringRef> hostref(toCFString(string(host)));
+        UniqueRef<SecPolicyRef> policy(SecPolicyCreateSSL(true, hostref.get()));
+        CFArrayAppendValue(policies.get(), policy.get());
+    }
+    else
+    {
+        UniqueRef<SecPolicyRef> policy(SecPolicyCreateBasicX509());
+        CFArrayAppendValue(policies.get(), policy.get());
+    }
+
+    int revocationCheck = getRevocationCheck();
+    if (revocationCheck > 0)
+    {
+        CFOptionFlags revocationFlags = kSecRevocationUseAnyAvailableMethod | kSecRevocationRequirePositiveResponse;
+        if (getRevocationCheckCacheOnly())
+        {
+            revocationFlags |= kSecRevocationNetworkAccessDisabled;
+        }
+
+        UniqueRef<SecPolicyRef> revocationPolicy(SecPolicyCreateRevocation(revocationFlags));
+        if (!revocationPolicy)
+        {
+            throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure: error creating revocation policy");
+        }
+        CFArrayAppendValue(policies.get(), revocationPolicy.get());
+    }
+
+    if ((err = SecTrustSetPolicies(trust, policies.get())))
+    {
+        throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + sslErrorToString(err));
+    }
+
+    //
+    // Evaluate the trust
+    //
+    if (!SecTrustEvaluateWithError(trust, &trustErr.get()))
+    {
+        ostringstream os;
+        os << "IceSSL: certificate verification failure:\n" << trustErrorToString(trustErr.get());
+        string msg = os.str();
+        if (instance()->traceLevels()->network >= 1)
+        {
+            getLogger()->trace(instance()->traceLevels()->networkCat, msg);
+        }
+        throw SecurityException(__FILE__, __LINE__, msg);
+    }
+    verifyPeer(info);
+    return true;
 }
 
 string
-IceSSL::SecureTransport::SSLEngine::getCipherName(SSLCipherSuite cipher) const
+SecureTransport::SSLEngine::getCipherName(SSLCipherSuite cipher) const
 {
     return cipherName(cipher);
 }

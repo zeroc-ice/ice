@@ -96,15 +96,12 @@ private class WSConnectionInfoI: ConnectionInfoI, WSConnectionInfo {
 }
 
 private class SSLConnectionInfoI: ConnectionInfoI, SSLConnectionInfo {
-  var cipher: String
   var certs: [SecCertificate]
-  var verified: Bool
 
   init(
     underlying: ConnectionInfo?, incoming: Bool, adapterName: String, connectionId: String,
-    cipher: String, certs: StringSeq, verified: Bool
+    certs: StringSeq
   ) {
-    self.cipher = cipher
     self.certs = []
     let beginPrefix = "-----BEGIN CERTIFICATE-----\n"
     let endPrefix = "\n-----END CERTIFICATE-----\n"
@@ -122,7 +119,6 @@ private class SSLConnectionInfoI: ConnectionInfoI, SSLConnectionInfo {
         }
       }
     }
-    self.verified = verified
     super.init(
       underlying: underlying, incoming: incoming, adapterName: adapterName,
       connectionId: connectionId)
@@ -249,17 +245,14 @@ class ConnectionInfoFactory: ICEConnectionInfoFactory {
     incoming: Bool,
     adapterName: String,
     connectionId: String,
-    cipher: String,
-    certs: [String], verified: Bool
+    certs: [String]
   ) -> Any {
     return SSLConnectionInfoI(
       underlying: getUnderlying(underlying),
       incoming: incoming,
       adapterName: adapterName,
       connectionId: connectionId,
-      cipher: cipher,
-      certs: certs,
-      verified: verified)
+      certs: certs)
   }
 
   #if os(iOS) || os(watchOS) || os(tvOS)
