@@ -55,8 +55,15 @@ namespace Slice
         static std::string getOptionalFormat(const TypePtr&, const std::string&);
         static std::string getStaticId(const TypePtr&);
         static std::string typeToString(const TypePtr&, const std::string&, bool = false);
+
+        // Is this Slice type a Slice class - also true for the built-in Value/Object type.
         static bool isClassType(const TypePtr&);
+
+        // Is this Slice type mapped to a C# value type?
         static bool isValueType(const TypePtr&);
+
+        // Is this Slice struct mapped to a C# class?
+        static bool isMappedToClass(const StructPtr& p) { return !isValueType(p); }
 
         //
         // Generate code to marshal or unmarshal a type

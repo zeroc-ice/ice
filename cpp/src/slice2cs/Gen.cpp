@@ -480,16 +480,7 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
                 }
                 else
                 {
-                    _out << nl << typeS << ' ' << param << ';';
-                    StructPtr st = dynamic_pointer_cast<Struct>((*pli)->type());
-                    if (st && isValueType(st))
-                    {
-                        _out << nl << param << " = new " << typeS << "();";
-                    }
-                    else if (st || isClass)
-                    {
-                        _out << nl << param << " = null;";
-                    }
+                    _out << nl << typeS << ' ' << param << " = default;";
                 }
             }
             writeMarshalUnmarshalParams(inParams, 0, false, ns);
@@ -1021,16 +1012,9 @@ Slice::CsVisitor::writeValue(const TypePtr& type, const string& ns)
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
-    if (st)
+    if (st && !isMappedToClass(st))
     {
-        if (st->hasMetaData("cs:class"))
-        {
-            return "null";
-        }
-        else
-        {
-            return "new " + typeToString(type, ns) + "()";
-        }
+        return "default";
     }
 
     return "null";
@@ -1077,15 +1061,8 @@ Slice::CsVisitor::requiresDataMemberInitializers(const DataMemberList& members)
 {
     for (DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
-        if ((*p)->defaultValueType())
-        {
-            return true;
-        }
-        else if ((*p)->optional())
-        {
-            return true;
-        }
-        else if (dynamic_pointer_cast<Builtin>((*p)->type()) || dynamic_pointer_cast<Struct>((*p)->type()))
+        StructPtr st = dynamic_pointer_cast<Struct>((*p)->type());
+        if (st && isMappedToClass(st))
         {
             return true;
         }
@@ -1094,35 +1071,15 @@ Slice::CsVisitor::requiresDataMemberInitializers(const DataMemberList& members)
 }
 
 void
-Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, const string& ns, unsigned int baseTypes)
+Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, unsigned int baseTypes)
 {
+    // Generates "= new()" for each struct field mapped to a class.
     for (DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
-        if ((*p)->defaultValueType())
+        StructPtr st = dynamic_pointer_cast<Struct>((*p)->type());
+        if (st && isMappedToClass(st))
         {
-            _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = ";
-            writeConstantValue((*p)->type(), (*p)->defaultValueType(), (*p)->defaultValue());
-            _out << ';';
-        }
-        else if ((*p)->optional())
-        {
-            _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = new " << typeToString((*p)->type(), ns, true)
-                 << "();";
-        }
-        else
-        {
-            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>((*p)->type());
-            if (builtin && builtin->kind() == Builtin::KindString)
-            {
-                _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = \"\";";
-            }
-
-            StructPtr st = dynamic_pointer_cast<Struct>((*p)->type());
-            if (st)
-            {
-                _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = new " << typeToString(st, ns, false)
-                     << "();";
-            }
+            _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = new();";
         }
     }
 }
@@ -2196,7 +2153,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             _out << " : base()";
         }
         _out << sb;
-        writeDataMemberInitializers(dataMembers, ns, DotNet::ICloneable);
+        writeDataMemberInitializers(dataMembers, DotNet::ICloneable);
         _out << nl << "ice_initialize();";
         _out << eb;
 
@@ -2415,7 +2372,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         emitGeneratedCodeAttribute();
         _out << nl << "private void _initDM()";
         _out << sb;
-        writeDataMemberInitializers(dataMembers, ns, DotNet::Exception);
+        writeDataMemberInitializers(dataMembers, DotNet::Exception);
         _out << eb;
     }
 
@@ -2575,17 +2532,20 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     string name = fixId(p->name());
     string ns = getNamespace(p);
     _out << sp;
+    const bool classMapping = isMappedToClass(p);
 
     emitDeprecate(p, 0, _out, "type");
 
     emitAttributes(p);
     emitPartialTypeAttributes();
-    _out << nl << "public partial " << (isValueType(p) ? "struct" : "class") << ' ' << name;
+    _out << nl << "public " << (classMapping ? "sealed partial class" : "partial record struct") << ' ' << name;
 
     StringList baseNames;
-    if (!isValueType(p))
+
+    if (classMapping)
     {
         baseNames.push_back("System.ICloneable");
+        baseNames.push_back("System.IEquatable<" + name + ">");
     }
 
     //
@@ -2631,10 +2591,10 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     DataMemberList dataMembers = p->dataMembers();
     _out << sp << nl << "#endregion"; // Slice data members
 
-    const bool isClass = !isValueType(p);
+    const bool classMapping = isMappedToClass(p);
     _out << sp << nl << "partial void ice_initialize();";
     _out << sp << nl << "#region Constructor";
-    if (isClass)
+    if (classMapping)
     {
         //
         // Default values for struct data members are only generated if the struct
@@ -2647,7 +2607,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         emitGeneratedCodeAttribute();
         _out << nl << "public " << name << "()";
         _out << sb;
-        writeDataMemberInitializers(dataMembers, ns, DotNet::ICloneable);
+        writeDataMemberInitializers(dataMembers, DotNet::ICloneable);
         _out << nl << "ice_initialize();";
         _out << eb;
     }
@@ -2658,7 +2618,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     vector<string> paramDecl;
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        string memberName = fixId((*q)->name(), isClass ? DotNet::ICloneable : 0);
+        string memberName = fixId((*q)->name(), classMapping ? DotNet::ICloneable : 0);
         string memberType = typeToString((*q)->type(), ns, false);
         paramDecl.push_back(memberType + " " + memberName);
     }
@@ -2666,7 +2626,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sb;
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        string paramName = fixId((*q)->name(), isClass ? DotNet::ICloneable : 0);
+        string paramName = fixId((*q)->name(), classMapping ? DotNet::ICloneable : 0);
         _out << nl << "this." << paramName << " = " << paramName << ';';
     }
     _out << nl << "ice_initialize();";
@@ -2674,85 +2634,68 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << sp << nl << "#endregion"; // Constructor(s)
 
-    if (isClass)
+    if (classMapping)
     {
         _out << sp << nl << "#region ICloneable members";
 
         _out << sp;
         emitGeneratedCodeAttribute();
-        _out << nl << "public object Clone()";
-        _out << sb;
-        _out << nl << "return MemberwiseClone();";
-        _out << eb;
+        _out << nl << "public object Clone() => MemberwiseClone();";
 
         _out << sp << nl << "#endregion"; // ICloneable members
-    }
 
-    _out << sp << nl << "#region Object members";
+        _out << sp << nl << "#region Object members";
 
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public override int GetHashCode()";
-    _out << sb;
-    _out << nl << "int h_ = 5381;";
-    _out << nl << "global::Ice.Internal.HashUtil.hashAdd(ref h_, \"" << p->scoped() << "\");";
-    writeMemberHashCode(dataMembers, isClass ? DotNet::ICloneable : 0);
-    _out << nl << "return h_;";
-    _out << eb;
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public override int GetHashCode()";
+        _out << sb;
+        _out << nl << "int h_ = 5381;";
+        _out << nl << "global::Ice.Internal.HashUtil.hashAdd(ref h_, \"" << p->scoped() << "\");";
+        writeMemberHashCode(dataMembers);
+        _out << nl << "return h_;";
+        _out << eb;
 
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public override bool Equals(object other)";
-    _out << sb;
-    if (isClass)
-    {
-        _out << nl << "if(object.ReferenceEquals(this, other))";
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public override bool Equals(object other) => Equals(other as " << name << ");";
+
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public bool Equals(" << name << " other)";
+        _out << sb;
+        _out << nl << "if (object.ReferenceEquals(this, other))";
         _out << sb;
         _out << nl << "return true;";
         _out << eb;
-    }
-    if (isClass)
-    {
-        _out << nl << "if(other == null)";
+        _out << nl << "if (other is null)";
         _out << sb;
         _out << nl << "return false;";
         _out << eb;
-        _out << nl << "if(GetType() != other.GetType())";
+        writeMemberEquals(dataMembers);
+        _out << nl << "return true;";
+        _out << eb;
+
+        _out << sp << nl << "#endregion"; // Object members
+
+        _out << sp << nl << "#region Comparison members";
+
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public static bool operator==(" << name << " lhs, " << name << " rhs)";
+        _out << sb;
+        _out << nl << "return (object)lhs == rhs || (lhs is not null && lhs.Equals(rhs));";
+        _out << eb;
+
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public static bool operator!=(" << name << " lhs, " << name << " rhs)";
+        _out << sb;
+        _out << nl << "return !(lhs == rhs);";
+        _out << eb;
+
+        _out << sp << nl << "#endregion"; // Comparison members
     }
-    else
-    {
-        _out << nl << "if(!(other is " << name << "))";
-    }
-    _out << sb;
-    _out << nl << "return false;";
-    _out << eb;
-    if (!dataMembers.empty())
-    {
-        _out << nl << name << " o = (" << name << ")other;";
-    }
-    writeMemberEquals(dataMembers, isClass ? DotNet::ICloneable : 0);
-    _out << nl << "return true;";
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // Object members
-
-    _out << sp << nl << "#region Comparison members";
-
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public static bool operator==(" << name << " lhs, " << name << " rhs)";
-    _out << sb;
-    _out << nl << "return Equals(lhs, rhs);";
-    _out << eb;
-
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public static bool operator!=(" << name << " lhs, " << name << " rhs)";
-    _out << sb;
-    _out << nl << "return !Equals(lhs, rhs);";
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // Comparison members
 
     _out << sp << nl << "#region Marshaling support";
 
@@ -2762,7 +2705,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sb;
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        writeMarshalDataMember(*q, fixId((*q)->name(), isClass ? DotNet::ICloneable : 0), ns, true);
+        writeMarshalDataMember(*q, fixId((*q)->name(), classMapping ? DotNet::ICloneable : 0), ns, true);
     }
     _out << eb;
 
@@ -2772,7 +2715,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sb;
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        writeUnmarshalDataMember(*q, fixId((*q)->name(), isClass ? DotNet::ICloneable : 0), ns, true);
+        writeUnmarshalDataMember(*q, fixId((*q)->name(), classMapping ? DotNet::ICloneable : 0), ns, true);
     }
     _out << eb;
 
@@ -2781,9 +2724,9 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << nl << "public static void ice_write(" << getUnqualified("Ice.OutputStream", ns) << " ostr, " << name
          << " v)";
     _out << sb;
-    if (isClass)
+    if (classMapping)
     {
-        _out << nl << "if(v == null)";
+        _out << nl << "if (v is null)";
         _out << sb;
         _out << nl << "_nullMarshalValue.ice_writeMembers(ostr);";
         _out << eb;
@@ -2807,7 +2750,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << nl << "return v;";
     _out << eb;
 
-    if (isClass)
+    if (classMapping)
     {
         _out << sp << nl << "private static readonly " << name << " _nullMarshalValue = new " << name << "();";
     }
@@ -2894,7 +2837,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 {
     unsigned int baseTypes = 0;
     bool isClass = false;
-    bool isValue = false;
     bool isProtected = false;
     const bool isOptional = p->optional();
 
@@ -2908,8 +2850,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     string ns = getNamespace(cont);
     if (st)
     {
-        isValue = isValueType(st);
-        if (!isValue)
+        if (isMappedToClass(st))
         {
             baseTypes = DotNet::ICloneable;
         }
@@ -2945,22 +2886,57 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     }
     _out << ' ' << type << ' ' << dataMemberName;
 
+    bool addSemicolon = true;
     if (isProperty)
     {
         _out << " { get; set; }";
+        addSemicolon = false;
     }
-    else
+
+    // Generate the default value for this field unless the enclosing type is a struct.
+    if (!st || isMappedToClass(st))
+    {
+        if (p->defaultValueType())
+        {
+            _out << " = ";
+            writeConstantValue(p->type(), p->defaultValueType(), p->defaultValue());
+            addSemicolon = true;
+        }
+        else if (p->optional()) // TODO: remove once we fix the optional mapping
+        {
+            _out << " = new " << typeToString(p->type(), ns, true) << "()";
+            addSemicolon = true;
+        }
+        else
+        {
+            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
+            if (builtin && builtin->kind() == Builtin::KindString)
+            {
+                // This behavior is unfortunate but kept for backwards compatibility.
+                _out << " = \"\"";
+                addSemicolon = true;
+            }
+
+            if (st && !isMappedToClass(st))
+            {
+                _out << " = new " << typeToString(p->type(), ns, false) << "()";
+                addSemicolon = true;
+            }
+        }
+    }
+
+    if (addSemicolon)
     {
         _out << ';';
     }
 }
 
 void
-Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers, unsigned int baseTypes)
+Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers)
 {
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        _out << nl << "global::Ice.Internal.HashUtil.hashAdd(ref h_, " << fixId((*q)->name(), baseTypes);
+        _out << nl << "global::Ice.Internal.HashUtil.hashAdd(ref h_, " << fixId((*q)->name(), DotNet::ICloneable);
         if ((*q)->optional())
         {
             _out << ".Value";
@@ -2970,17 +2946,17 @@ Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers,
 }
 
 void
-Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, unsigned int baseTypes)
+Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers)
 {
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        string memberName = fixId((*q)->name(), baseTypes);
+        string memberName = fixId((*q)->name(), DotNet::ICloneable);
         TypePtr memberType = (*q)->type();
         if (!(*q)->optional() && !isValueType(memberType))
         {
-            _out << nl << "if(this." << memberName << " == null)";
+            _out << nl << "if (this." << memberName << " is null)";
             _out << sb;
-            _out << nl << "if(o." << memberName << " != null)";
+            _out << nl << "if (other." << memberName << " is not null)";
             _out << sb;
             _out << nl << "return false;";
             _out << eb;
@@ -2998,7 +2974,7 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, u
                     //
                     // Equals() for native arrays does not have value semantics.
                     //
-                    _out << nl << "if(!Ice.UtilInternal.Arrays.Equals(this." << memberName << ", o." << memberName
+                    _out << nl << "if (!Ice.UtilInternal.Arrays.Equals(this." << memberName << ", other." << memberName
                          << "))";
                 }
                 else if (isGeneric)
@@ -3006,8 +2982,8 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, u
                     //
                     // Equals() for generic types does not have value semantics.
                     //
-                    _out << nl << "if(!global::Ice.UtilInternal.Collections.SequenceEquals(this." << memberName
-                         << ", o." << memberName << "))";
+                    _out << nl << "if (!global::Ice.UtilInternal.Collections.SequenceEquals(this." << memberName
+                         << ", other." << memberName << "))";
                 }
             }
             else
@@ -3018,12 +2994,12 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, u
                     //
                     // Equals() for generic types does not have value semantics.
                     //
-                    _out << nl << "if(!global::Ice.UtilInternal.Collections.DictionaryEquals(this." << memberName
-                         << ", o." << memberName << "))";
+                    _out << nl << "if (!global::Ice.UtilInternal.Collections.DictionaryEquals(this." << memberName
+                         << ", other." << memberName << "))";
                 }
                 else
                 {
-                    _out << nl << "if(!this." << memberName << ".Equals(o." << memberName << "))";
+                    _out << nl << "if (!this." << memberName << ".Equals(other." << memberName << "))";
                 }
             }
             _out << sb;
@@ -3033,7 +3009,8 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, u
         }
         else
         {
-            _out << nl << "if(!this." << memberName << ".Equals(o." << memberName << "))";
+            // The nicer != syntax doesn't work for proxy fields.
+            _out << nl << "if (!this." << memberName << ".Equals(other." << memberName << "))";
             _out << sb;
             _out << nl << "return false;";
             _out << eb;
@@ -3808,24 +3785,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             _out << sb;
             if (outParams.empty())
             {
-                _out << nl << returnTypeS << " ret";
-                if (!op->returnIsOptional())
-                {
-                    StructPtr st = dynamic_pointer_cast<Struct>(ret);
-                    if (st && isValueType(st))
-                    {
-                        _out << " = " << "new " + returnTypeS + "()";
-                    }
-                    else if (isClassType(ret) || st)
-                    {
-                        _out << " = null";
-                    }
-                }
-                else if (isClassType(ret))
-                {
-                    _out << " = " << getUnqualified("Ice.Util", ns) << ".None";
-                }
-                _out << ";";
+                _out << nl << returnTypeS << " ret = default;";
             }
             else if (ret || outParams.size() > 1)
             {
@@ -3835,24 +3795,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 TypePtr t = outParams.front()->type();
                 _out << nl << typeToString(t, ns, (outParams.front()->optional())) << " iceP_"
-                     << outParams.front()->name();
-                if (!outParams.front()->optional())
-                {
-                    StructPtr st = dynamic_pointer_cast<Struct>(t);
-                    if (st && isValueType(st))
-                    {
-                        _out << " = " << "new " << typeToString(t, ns) << "()";
-                    }
-                    else if (isClassType(t) || st)
-                    {
-                        _out << " = null";
-                    }
-                }
-                else if (isClassType(t))
-                {
-                    _out << " = " << getUnqualified("Ice.Util", ns) << ".None";
-                }
-                _out << ";";
+                     << outParams.front()->name() << " = default;";
             }
 
             writeMarshalUnmarshalParams(outParams, op, false, ns, true);
@@ -4161,19 +4104,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << nl << name << " r = new " << name << "();";
     _out << nl << "for(int i = 0; i < sz; ++i)";
     _out << sb;
-    _out << nl << keyS << " k;";
-    StructPtr st = dynamic_pointer_cast<Struct>(key);
-    if (st)
-    {
-        if (isValueType(st))
-        {
-            _out << nl << "k = new " << typeToString(key, ns) << "();";
-        }
-        else
-        {
-            _out << nl << "k = null;";
-        }
-    }
+    _out << nl << keyS << " k = default;";
     writeMarshalUnmarshalCode(_out, key, ns, "k", false);
 
     if (isClassType(value))
@@ -4184,19 +4115,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     }
     else
     {
-        _out << nl << valueS << " v;";
-        StructPtr stv = dynamic_pointer_cast<Struct>(value);
-        if (stv)
-        {
-            if (isValueType(stv))
-            {
-                _out << nl << "v = new " << typeToString(value, ns) << "();";
-            }
-            else
-            {
-                _out << nl << "v = null;";
-            }
-        }
+        _out << nl << valueS << " v = default;";
         writeMarshalUnmarshalCode(_out, value, ns, "v", false);
         _out << nl << "r[k] = v;";
     }
