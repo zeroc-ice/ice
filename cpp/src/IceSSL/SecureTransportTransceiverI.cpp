@@ -311,7 +311,7 @@ IceSSL::SecureTransport::TransceiverI::close()
     if (_certificates)
     {
         CFRelease(_certificates);
-        _certificates = 0;
+        _certificates = nullptr;
     }
 
     _delegate->close();
