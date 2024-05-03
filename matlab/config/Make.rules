@@ -16,7 +16,6 @@ MATLAB_HOME    ?= /usr/local/MATLAB/$(MATLAB_VERSION)
 
 matlab          ?= $(MATLAB_HOME)/bin/matlab
 matlab_run_args ?= -nodisplay -nosplash -r
-mex             := $(MATLAB_HOME)/bin/mex
 
 matlab_cflags = -fexceptions \
     -fno-omit-frame-pointer \
