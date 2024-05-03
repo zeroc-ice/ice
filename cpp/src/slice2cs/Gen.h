@@ -54,11 +54,11 @@ namespace Slice
 
         void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
 
-        //
-        // Generate assignment statements for those data members that have default values.
-        //
+        // Returns true when the type has a struct field mapped to a class.
         bool requiresDataMemberInitializers(const DataMemberList&);
-        void writeDataMemberInitializers(const DataMemberList&, const std::string&, unsigned int = 0);
+
+        // Generates "new()" for each struct field mapped to a class.
+        void writeDataMemberInitializers(const DataMemberList&, unsigned int);
 
         std::string toCsIdent(const std::string&);
         std::string editMarkup(const std::string&);

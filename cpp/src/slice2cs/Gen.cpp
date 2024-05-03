@@ -1068,15 +1068,8 @@ Slice::CsVisitor::requiresDataMemberInitializers(const DataMemberList& members)
 {
     for (DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
-        if ((*p)->defaultValueType())
-        {
-            return true;
-        }
-        else if ((*p)->optional())
-        {
-            return true;
-        }
-        else if (dynamic_pointer_cast<Builtin>((*p)->type()) || dynamic_pointer_cast<Struct>((*p)->type()))
+        StructPtr st = dynamic_pointer_cast<Struct>((*p)->type());
+        if (st && isMappedToClass(st))
         {
             return true;
         }
@@ -1085,35 +1078,15 @@ Slice::CsVisitor::requiresDataMemberInitializers(const DataMemberList& members)
 }
 
 void
-Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, const string& ns, unsigned int baseTypes)
+Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, unsigned int baseTypes)
 {
+    // Generates "= new()" for each struct field mapped to a class.
     for (DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
-        if ((*p)->defaultValueType())
+        StructPtr st = dynamic_pointer_cast<Struct>((*p)->type());
+        if (st && isMappedToClass(st))
         {
-            _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = ";
-            writeConstantValue((*p)->type(), (*p)->defaultValueType(), (*p)->defaultValue());
-            _out << ';';
-        }
-        else if ((*p)->optional())
-        {
-            _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = new " << typeToString((*p)->type(), ns, true)
-                 << "();";
-        }
-        else
-        {
-            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>((*p)->type());
-            if (builtin && builtin->kind() == Builtin::KindString)
-            {
-                _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = \"\";";
-            }
-
-            StructPtr st = dynamic_pointer_cast<Struct>((*p)->type());
-            if (st)
-            {
-                _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = new " << typeToString(st, ns, false)
-                     << "();";
-            }
+            _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = new();";
         }
     }
 }
@@ -2187,7 +2160,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             _out << " : base()";
         }
         _out << sb;
-        writeDataMemberInitializers(dataMembers, ns, DotNet::ICloneable);
+        writeDataMemberInitializers(dataMembers, DotNet::ICloneable);
         _out << nl << "ice_initialize();";
         _out << eb;
 
@@ -2406,7 +2379,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         emitGeneratedCodeAttribute();
         _out << nl << "private void _initDM()";
         _out << sb;
-        writeDataMemberInitializers(dataMembers, ns, DotNet::Exception);
+        writeDataMemberInitializers(dataMembers, DotNet::Exception);
         _out << eb;
     }
 
@@ -2641,7 +2614,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         emitGeneratedCodeAttribute();
         _out << nl << "public " << name << "()";
         _out << sb;
-        writeDataMemberInitializers(dataMembers, ns, DotNet::ICloneable);
+        writeDataMemberInitializers(dataMembers, DotNet::ICloneable);
         _out << nl << "ice_initialize();";
         _out << eb;
     }
@@ -2696,13 +2669,13 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         _out << sp;
         emitGeneratedCodeAttribute();
-        _out << nl << "public bool Equals(" << name << " other)"; // TODO: should be name? other.
+        _out << nl << "public bool Equals(" << name << " other)";
         _out << sb;
         _out << nl << "if (object.ReferenceEquals(this, other))";
         _out << sb;
         _out << nl << "return true;";
         _out << eb;
-        _out << nl << "if (other == null)";
+        _out << nl << "if (other is null)";
         _out << sb;
         _out << nl << "return false;";
         _out << eb;
@@ -2920,11 +2893,46 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     }
     _out << ' ' << type << ' ' << dataMemberName;
 
+    bool addSemicolon = true;
     if (isProperty)
     {
         _out << " { get; set; }";
+        addSemicolon = false;
     }
-    else
+
+    // Generate the default value for this field unless the enclosing type is a struct.
+    if (!st || isMappedToClass(st))
+    {
+        if (p->defaultValueType())
+        {
+            _out << " = ";
+            writeConstantValue(p->type(), p->defaultValueType(), p->defaultValue());
+            addSemicolon = true;
+        }
+        else if (p->optional()) // TODO: remove once we fix the optional mapping
+        {
+            _out << " = new " << typeToString(p->type(), ns, true) << "()";
+            addSemicolon = true;
+        }
+        else
+        {
+            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
+            if (builtin && builtin->kind() == Builtin::KindString)
+            {
+                // This behavior is unfortunate but kept for backwards compatibility.
+                _out << " = \"\"";
+                addSemicolon = true;
+            }
+
+            if (st && !isMappedToClass(st))
+            {
+                _out << " = new " << typeToString(p->type(), ns, false) << "()";
+                addSemicolon = true;
+            }
+        }
+    }
+
+    if (addSemicolon)
     {
         _out << ';';
     }
