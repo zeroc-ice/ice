@@ -58,35 +58,6 @@ namespace Ice::SSL
         std::function<PCCERT_CONTEXT(const std::string& host)> clientCertificateSelectionCallback;
 
         /**
-         * The trusted root certificates used for validating the server's certificate chain. If this field is set, the
-         * server's certificate chain is validated against these certificates; otherwise, the system's default root
-         * certificates are used.
-         *
-         * @remarks The trusted root certificates are used by both the default validation callback, and by custom
-         * validation callback set in clientCertificateValidationCallback.
-         *
-         * The application must ensure that the certificate store remains valid during the setup of the Communicator. It
-         * is also the application's responsibility to release the certificate store object after the Communicator has
-         * been created to prevent memory leaks.
-         *
-         * Example of setting trustedRootCertificates:
-         * ```cpp
-         * HCERTSTORE rootCerts = ...; // Populate with X.509 certificates
-         *
-         * auto initData = Ice::InitializationData {
-         *   ...
-         *   .clientAuthenticationOptions = ClientAuthenticationOptions {
-         *      .trustedRootCertificates = rootCerts;
-         *   }
-         * };
-         *
-         * auto communicator = Ice::initialize(initData);
-         * CertCloseStore(rootCerts); // It is safe to close the rootCerts store now.
-         * ```
-         */
-        HCERTSTORE trustedRootCertificates = nullptr;
-
-        /**
          * A callback that is invoked before initiating a new SSL handshake. This callback provides an opportunity to
          * customize the SSL parameters for the session based on specific client settings or requirements.
          *
@@ -119,6 +90,31 @@ namespace Ice::SSL
          * @param host The target server host name.
          */
         std::function<void(CtxtHandle context, const std::string& host)> sslNewSessionCallback;
+
+        /**
+         * The trusted root certificates used for validating the server's certificate chain. If this field is set, the
+         * server's certificate chain is validated against these certificates; otherwise, the system's default root
+         * certificates are used.
+         *
+         * @remarks The trusted root certificates are used by both the default validation callback, and by custom
+         * validation callback set in clientCertificateValidationCallback.
+         *
+         * Example of setting trustedRootCertificates:
+         * ```cpp
+         * HCERTSTORE rootCerts = ...; // Populate with X.509 certificates
+         *
+         * auto initData = Ice::InitializationData {
+         *   ...
+         *   .clientAuthenticationOptions = ClientAuthenticationOptions {
+         *      .trustedRootCertificates = rootCerts;
+         *   }
+         * };
+         *
+         * auto communicator = Ice::initialize(initData);
+         * CertCloseStore(rootCerts); // It is safe to close the rootCerts store now.
+         * ```
+         */
+        HCERTSTORE trustedRootCertificates = nullptr;
 
         /**
          * A callback that allows manually validating the server certificate chain. When the verification callback
@@ -221,10 +217,6 @@ namespace Ice::SSL
          * [SecTrustSetAnchorCertificatesOnly](https://developer.apple.com/documentation/security/1399071-sectrustsetanchorcertificatesonl?language=objc)
          * with the `anchorCertificatesOnly` parameter set to true.
          *
-         * The application must ensure that the CFArrayRef remains valid during the setup of the Communicator. It is
-         * also the application's responsibility to release the CFArrayRef object after the Communicator has been
-         * created to prevent memory leaks.
-         *
          * Example of setting trustedRootCertificates:
          * ```cpp
          * CFArrayRef rootCerts = CFArrayCreate(...); // Populate with X.509 certificates
@@ -323,13 +315,13 @@ namespace Ice::SSL
          *
          * @remarks This callback is used to associate a specific SSL configuration with an outgoing connection
          * identified by the target host name. The callback must return a pointer to a valid SSL_CTX object which was
-         * previously initialized using OpenSSL API. The SSL transport takes ownership of the returned SSL_CTX pointer
-         * and releases it after closing the connection.
+         * previously initialized using the OpenSSL API. The SSL transport takes ownership of the returned SSL_CTX
+         * pointer and releases it after closing the connection.
          *
          * If the application does not provide a callback, the Ice SSL transport will use a SSL_CTX object created
-         * with SSL_CTX_new() for the connection, which uses the systems default OpenSSL configuration.
+         * with SSL_CTX_new() for the connection, which uses the default OpenSSL configuration.
          *
-         * The SSL transports calls this callback for each new outgoing connection to obtain the SSL_CTX object before
+         * The SSL transport calls this callback for each new outgoing connection to obtain the SSL_CTX object before
          * it starts the SSL handshake.
          *
          * @param host The target host name.

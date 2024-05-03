@@ -57,39 +57,6 @@ namespace Ice::SSL
         std::function<PCCERT_CONTEXT(const std::string& host)> serverCertificateSelectionCallback;
 
         /**
-         * The trusted root certificates used for validating the client's certificate chain. If this field is set, the
-         * server's certificate chain is validated against these certificates; otherwise, the system's default root
-         * certificates are used.
-         *
-         * @remarks The trusted root certificates are only used by the default validation callback, they are ignored by
-         * custom validation callbacks set with clientCertificateValidationCallback.
-         *
-         * The application must ensure that the certificate store remains valid during the setup of the ObjectAdapter.
-         * It is also the application's responsibility to release the certificate store object after the ObjectAdapter
-         * has been created to prevent memory leaks.
-         *
-         * Example of setting trustedRootCertificates:
-         * ```cpp
-         * HCERTSTORE rootCerts = ...; // Populate with X.509 certificates
-         *
-         * communicator->createObjectAdapterWithEndpoints(
-         *   "Hello",
-         *   "ssl -h 127.0.0.1 -p 10000",
-         *   ServerAuthenticationOptions { .trustedRootCertificates = rootCerts; }
-         * });
-         *
-         * auto communicator = Ice::initialize(initData);
-         * CertCloseStore(rootCerts); // It is safe to close the rootCerts store now.
-         * ```
-         */
-        HCERTSTORE trustedRootCertificates = nullptr;
-
-        /**
-         * Whether or not the client must provide a certificate. The default value is false.
-         */
-        bool clientCertificateRequired = false;
-
-        /**
          * A callback that is invoked before initiating a new SSL handshake. This callback provides an opportunity to
          * customize the SSL parameters for the session based on specific server settings or requirements.
          *
@@ -121,6 +88,39 @@ namespace Ice::SSL
          * @param adapterName The name of the object adapter that accepted the connection.
          */
         std::function<void(CtxtHandle context, const std::string& adapterName)> sslNewSessionCallback;
+
+        /**
+         * Whether or not the client must provide a certificate. The default value is false.
+         */
+        bool clientCertificateRequired = false;
+
+        /**
+         * The trusted root certificates used for validating the client's certificate chain. If this field is set, the
+         * server's certificate chain is validated against these certificates; otherwise, the system's default root
+         * certificates are used.
+         *
+         * @remarks The trusted root certificates are only used by the default validation callback; they are ignored by
+         * custom validation callbacks set with clientCertificateValidationCallback.
+         *
+         * The application must ensure that the certificate store remains valid during the setup of the ObjectAdapter.
+         * It is also the application's responsibility to release the certificate store object after the ObjectAdapter
+         * has been created to prevent memory leaks.
+         *
+         * Example of setting trustedRootCertificates:
+         * ```cpp
+         * HCERTSTORE rootCerts = ...; // Populate with X.509 certificates
+         *
+         * communicator->createObjectAdapterWithEndpoints(
+         *   "Hello",
+         *   "ssl -h 127.0.0.1 -p 10000",
+         *   ServerAuthenticationOptions { .trustedRootCertificates = rootCerts; }
+         * });
+         *
+         * auto communicator = Ice::initialize(initData);
+         * CertCloseStore(rootCerts); // It is safe to close the rootCerts store now.
+         * ```
+         */
+        HCERTSTORE trustedRootCertificates = nullptr;
 
         /**
          * A callback that allows manually validating the client certificate chain. When the verification callback
@@ -207,6 +207,42 @@ namespace Ice::SSL
         std::function<CFArrayRef(const std::string& adapterName)> serverCertificateSelectionCallback;
 
         /**
+         * A callback that is invoked before initiating a new SSL handshake. This callback provides an opportunity to
+         * customize the SSL parameters for the session based on specific server settings or requirements.
+         *
+         * Example of setting sslNewSessionCallback:
+         * ```cpp
+         * communicator->createObjectAdapterWithEndpoints(
+         *   "Hello",
+         *   "ssl -h 127.0.0.1 -p 10000",
+         *   ServerAuthenticationOptions{
+         *     .sslNewSessionCallback =
+         *       [](SSLContextRef context, const std::string& adapterName)
+         *       {
+         *         // Customize the ssl context using SecureTransport API.
+         *         OSStatus status = SSLSetProtocolVersionMin(context, kTLSProtocol13);
+         *         if(status != noErr)
+         *         {
+         *            // Handle error
+         *         }
+         *         ...
+         *       }
+         * });
+         * ```
+         *
+         * @param context An opaque type that represents an SSL session context object.
+         * @param adapterName The name of the object adapter that accepted the connection.
+         */
+        std::function<void(SSLContextRef context, const std::string& adapterName)> sslNewSessionCallback;
+
+        /**
+         * The requirements for client-side authentication. The default is kNeverAuthenticate.
+         *
+         * [see SSLAuthenticate](https://developer.apple.com/documentation/security/sslauthenticate)
+         */
+        SSLAuthenticate clientCertificateRequired = kNeverAuthenticate;
+
+        /**
          * The trusted root certificates used for validating the client's certificate chain. If this field is set, the
          * client's certificate chain is validated against these certificates; otherwise, the system's default root
          * certificates are used.
@@ -235,42 +271,6 @@ namespace Ice::SSL
          * ```
          */
         CFArrayRef trustedRootCertificates = nullptr;
-
-        /**
-         * The requirements for client-side authentication. The default is kNeverAuthenticate.
-         *
-         * [see SSLAuthenticate](https://developer.apple.com/documentation/security/sslauthenticate)
-         */
-        SSLAuthenticate clientCertificateRequired = kNeverAuthenticate;
-
-        /**
-         * A callback that is invoked before initiating a new SSL handshake. This callback provides an opportunity to
-         * customize the SSL parameters for the session based on specific server settings or requirements.
-         *
-         * Example of setting sslNewSessionCallback:
-         * ```cpp
-         * communicator->createObjectAdapterWithEndpoints(
-         *   "Hello",
-         *   "ssl -h 127.0.0.1 -p 10000",
-         *   ServerAuthenticationOptions{
-         *     .sslNewSessionCallback =
-         *       [](SSLContextRef context, const std::string& adapterName)
-         *       {
-         *         // Customize the ssl context using SecureTransport API.
-         *         OSStatus status = SSLSetProtocolVersionMin(context, kTLSProtocol13);
-         *         if(status != noErr)
-         *         {
-         *            // Handle error
-         *         }
-         *         ...
-         *       }
-         * });
-         * ```
-         *
-         * @param context An opaque type that represents an SSL session context object.
-         * @param adapterName The name of the object adapter that accepted the connection.
-         */
-        std::function<void(SSLContextRef context, const std::string& adapterName)> sslNewSessionCallback;
 
         /**
          * A callback that allows manually validating the client certificate chain. When the verification callback
