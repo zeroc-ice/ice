@@ -535,7 +535,7 @@ IceSSL::SecureTransport::TransceiverI::TransceiverI(
       _remoteCertificateValidationCallback(serverAuthenticationOptions.clientCertificateValidationCallback),
       _localCertificateSelectionCallback(serverAuthenticationOptions.serverCertificateSelectionCallback),
       _clientCertificateRequired(serverAuthenticationOptions.clientCertificateRequired),
-      _certificates(0),
+      _certificates(nullptr),
       _trustedRootCertificates(serverAuthenticationOptions.trustedRootCertificates)
 {
 }
