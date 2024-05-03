@@ -85,3 +85,46 @@ class Client(TestHelper):
         for k in props.keys():
             test(properties.getProperty(k) == props[k])
         print("ok")
+
+        sys.stdout.write("testing ice properties with set default values...")
+        sys.stdout.flush()
+        properties = Ice.createProperties()
+
+        toStringMode = properties.getIceProperty("Ice.ToStringMode")
+        test(toStringMode == "Unicode")
+
+        closeTimeout = properties.getIcePropertyAsInt("Ice.Connection.CloseTimeout")
+        test(closeTimeout == 10)
+
+        retryIntervals = properties.getIcePropertyAsList("Ice.RetryIntervals")
+        test(retryIntervals == ["0"])
+
+        print("ok")
+
+        sys.stdout.write("testing ice properties with unset default values...")
+        sys.stdout.flush()
+        properties = Ice.createProperties()
+
+        stringValue = properties.getIceProperty("Ice.Admin.Router")
+        test(stringValue == "")
+
+        intValue = properties.getIcePropertyAsInt("Ice.Admin.Router")
+        test(intValue == 0)
+
+        listValue = properties.getIcePropertyAsList("Ice.Admin.Router")
+        test(listValue == [])
+
+        print("ok")
+
+        sys.stdout.write(
+            "testing that getting an unknown ice property throws an exception..."
+        )
+        sys.stdout.flush()
+        try:
+            properties = Ice.createProperties()
+            properties.getIceProperty("Ice.UnknownProperty")
+            test(False)
+        except Ice.UnknownException:
+            # We dont' have a specific exception for unknown properties
+            pass
+        print("ok")

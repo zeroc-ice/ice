@@ -18,6 +18,19 @@
     return toNSString(self.properties->getProperty(fromNSString(key)));
 }
 
+- (NSString*)getIceProperty:(NSString*)key
+{
+    try
+    {
+        toNSString(self.properties->getIceProperty(fromNSString(key)));
+    }
+    catch (const std::invalid_argument&)
+    {
+        return nil;
+    }
+    return toNSString(self.properties->getIceProperty(fromNSString(key)));
+}
+
 - (NSString*)getPropertyWithDefault:(NSString*)key value:(NSString*)value
 {
     return toNSString(self.properties->getPropertyWithDefault(fromNSString(key), fromNSString(value)));
@@ -28,6 +41,19 @@
     return self.properties->getPropertyAsInt(fromNSString(key));
 }
 
+- (id)getIcePropertyAsInt:(NSString*)key
+{
+    try
+    {
+        int32_t value = self.properties->getIcePropertyAsInt(fromNSString(key));
+        return [NSNumber numberWithInt:value];
+    }
+    catch (const std::invalid_argument&)
+    {
+        return nil;
+    }
+}
+
 - (int32_t)getPropertyAsIntWithDefault:(NSString*)key value:(int32_t)value
 {
     return self.properties->getPropertyAsIntWithDefault(fromNSString(key), value);
@@ -36,6 +62,11 @@
 - (NSArray<NSString*>*)getPropertyAsList:(NSString*)key
 {
     return toNSArray(self.properties->getPropertyAsList(fromNSString(key)));
+}
+
+- (NSArray<NSString*>*)getIcePropertyAsList:(NSString*)key
+{
+    return toNSArray(self.properties->getIcePropertyAsList(fromNSString(key)));
 }
 
 - (NSArray<NSString*>*)getPropertyAsListWithDefault:(NSString*)key value:(NSArray<NSString*>*)value

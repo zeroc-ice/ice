@@ -1,14 +1,13 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice;
+
+/// <summary>
+/// This enumeration describes the possible formats for classes and exceptions.
+/// </summary>
+public enum FormatType
 {
-    /// <summary>
-    /// This enumeration describes the possible formats for classes and exceptions.
-    /// </summary>
-    public enum FormatType
-    {
-        DefaultFormat,
-        CompactFormat,
-        SlicedFormat
-    }
+    DefaultFormat,
+    CompactFormat,
+    SlicedFormat
 }

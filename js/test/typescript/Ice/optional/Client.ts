@@ -250,19 +250,6 @@ export class Client extends TestHelper
 
         test(mo9.bos === undefined);
 
-        //
-        // Use the 1.0 encoding with operations whose only class parameters are optional.
-        //
-        const initial2 = initial.ice_encodingVersion(Ice.Encoding_1_0);
-        const oo = new Test.OneOptional(53);
-
-        await initial.sendOptionalClass(true, oo);
-        await initial2.sendOptionalClass(true, oo);
-        oo1 = await initial.returnOptionalClass(true);
-        test(oo1 !== undefined && oo1.a == 53);
-        oo1 = await initial2.returnOptionalClass(true);
-        test(oo1 === undefined);
-
         let g = new Test.G();
         g.gg1Opt = new Test.G1("gg1Opt");
         g.gg2 = new Test.G2(new Ice.Long(0, 10));
@@ -326,12 +313,12 @@ export class Client extends TestHelper
         test(b.md == 13);
         out.writeLine("ok");
 
-        out.write("testing marshaling of objects with optional objects... ");
+        out.write("testing marshaling of objects with optional members... ");
         let f = new Test.F();
-        f.af = new Test.A();
-        f.ae = f.af;
+        f.fsf = new Test.FixedStruct();
+        f.fse = f.fsf;
         f = await initial.pingPong(f) as Test.F;
-        test(f.ae === f.af);
+        test(f.fse.equals(f.fsf));
         out.writeLine("ok");
 
         out.write("testing optional with default values... ");

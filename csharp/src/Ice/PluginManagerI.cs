@@ -358,9 +358,9 @@ public sealed class PluginManagerI : PluginManager
             //
             try
             {
-                args = IceUtilInternal.Options.split(pluginSpec);
+                args = Ice.UtilInternal.Options.split(pluginSpec);
             }
-            catch (IceUtilInternal.Options.BadQuote ex)
+            catch (Ice.UtilInternal.Options.BadQuote ex)
             {
                 PluginInitializationException e = new PluginInitializationException();
                 e.reason = "invalid arguments for plug-in `" + name + "':\n" + ex.Message;
@@ -477,7 +477,7 @@ public sealed class PluginManagerI : PluginManager
 
             try
             {
-                pluginFactory = (PluginFactory)IceInternal.AssemblyUtil.createInstance(c);
+                pluginFactory = (PluginFactory)Ice.Internal.AssemblyUtil.createInstance(c);
                 if (pluginFactory == null)
                 {
                     PluginInitializationException e = new PluginInitializationException();

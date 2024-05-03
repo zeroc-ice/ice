@@ -293,18 +293,6 @@ function allTests($helper)
 
     test($mo9->bos == Ice\None);
 
-    //
-    // Use the 1.0 encoding with operations whose only class parameters are optional.
-    //
-    $oo = new Test\OneOptional(53);
-    $initial->sendOptionalClass(true, $oo);
-    $initial->ice_encodingVersion($Ice_Encoding_1_0)->sendOptionalClass(true, $oo);
-
-    $initial->returnOptionalClass(true, $oo);
-    test($oo != Ice\None);
-    $initial->ice_encodingVersion($Ice_Encoding_1_0)->returnOptionalClass(true, $oo);
-    test($oo == Ice\None);
-
     $g = new Test\G;
     $g->gg1Opt = new Test\G1("gg1Opt");
     $g->gg2 = new Test\G2(10);
@@ -376,16 +364,16 @@ function allTests($helper)
 
     echo "ok\n";
 
-    echo "testing marshaling of objects with optional objects...";
+    echo "testing marshaling of objects with optional members...";
     flush();
 
     $f = new Test\F;
 
-    $f->af = new Test\A;
-    $f->ae = $f->af;
+    $f->fsf = new Test\FixedStruct;
+    $f->fse = $f->fsf;
 
     $rf = $initial->pingPong($f);
-    test($rf->ae == $rf->af);
+    test($rf->fse == $rf->fsf);
 
     echo "ok\n";
 

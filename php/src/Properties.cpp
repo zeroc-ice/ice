@@ -79,10 +79,36 @@ ZEND_METHOD(Ice_Properties, getProperty)
     Ice::PropertiesPtr _this = Wrapper<Ice::PropertiesPtr>::value(getThis());
     assert(_this);
 
-    string propName(name, nameLen);
+    string_view propName(name, nameLen);
     try
     {
         string val = _this->getProperty(propName);
+        RETURN_STRINGL(val.c_str(), static_cast<int>(val.length()));
+    }
+    catch (...)
+    {
+        throwException(current_exception());
+        RETURN_NULL();
+    }
+}
+
+ZEND_METHOD(Ice_Properties, getIceProperty)
+{
+    char* name;
+    size_t nameLen;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &name, &nameLen) == FAILURE)
+    {
+        RETURN_NULL();
+    }
+
+    Ice::PropertiesPtr _this = Wrapper<Ice::PropertiesPtr>::value(getThis());
+    assert(_this);
+
+    string_view propName(name, nameLen);
+    try
+    {
+        string val = _this->getIceProperty(propName);
         RETURN_STRINGL(val.c_str(), static_cast<int>(val.length()));
     }
     catch (...)
@@ -112,7 +138,7 @@ ZEND_METHOD(Ice_Properties, getPropertyWithDefault)
     Ice::PropertiesPtr _this = Wrapper<Ice::PropertiesPtr>::value(getThis());
     assert(_this);
 
-    string propName(name, nameLen);
+    string_view propName(name, nameLen);
     string defaultValue;
     if (def)
     {
@@ -148,10 +174,36 @@ ZEND_METHOD(Ice_Properties, getPropertyAsInt)
     Ice::PropertiesPtr _this = Wrapper<Ice::PropertiesPtr>::value(getThis());
     assert(_this);
 
-    string propName(name, nameLen);
+    string_view propName(name, nameLen);
     try
     {
         int32_t val = _this->getPropertyAsInt(propName);
+        RETURN_LONG(static_cast<long>(val));
+    }
+    catch (...)
+    {
+        throwException(current_exception());
+        RETURN_NULL();
+    }
+}
+
+ZEND_METHOD(Ice_Properties, getIcePropertyAsInt)
+{
+    char* name;
+    size_t nameLen;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &name, &nameLen) == FAILURE)
+    {
+        RETURN_NULL();
+    }
+
+    Ice::PropertiesPtr _this = Wrapper<Ice::PropertiesPtr>::value(getThis());
+    assert(_this);
+
+    string_view propName(name, nameLen);
+    try
+    {
+        int32_t val = _this->getIcePropertyAsInt(propName);
         RETURN_LONG(static_cast<long>(val));
     }
     catch (...)
@@ -184,7 +236,7 @@ ZEND_METHOD(Ice_Properties, getPropertyAsIntWithDefault)
     Ice::PropertiesPtr _this = Wrapper<Ice::PropertiesPtr>::value(getThis());
     assert(_this);
 
-    string propName(name, nameLen);
+    string_view propName(name, nameLen);
     try
     {
         // TODO: Range check
@@ -215,10 +267,39 @@ ZEND_METHOD(Ice_Properties, getPropertyAsList)
     Ice::PropertiesPtr _this = Wrapper<Ice::PropertiesPtr>::value(getThis());
     assert(_this);
 
-    string propName(name, nameLen);
+    string_view propName(name, nameLen);
     try
     {
         Ice::StringSeq val = _this->getPropertyAsList(propName);
+        if (!createStringArray(return_value, val))
+        {
+            RETURN_NULL();
+        }
+    }
+    catch (...)
+    {
+        throwException(current_exception());
+        RETURN_NULL();
+    }
+}
+
+ZEND_METHOD(Ice_Properties, getIcePropertyAsList)
+{
+    char* name;
+    size_t nameLen;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &name, &nameLen) == FAILURE)
+    {
+        RETURN_NULL();
+    }
+
+    Ice::PropertiesPtr _this = Wrapper<Ice::PropertiesPtr>::value(getThis());
+    assert(_this);
+
+    string_view propName(name, nameLen);
+    try
+    {
+        Ice::StringSeq val = _this->getIcePropertyAsList(propName);
         if (!createStringArray(return_value, val))
         {
             RETURN_NULL();
@@ -254,7 +335,7 @@ ZEND_METHOD(Ice_Properties, getPropertyAsListWithDefault)
     Ice::PropertiesPtr _this = Wrapper<Ice::PropertiesPtr>::value(getThis());
     assert(_this);
 
-    string propName(name, nameLen);
+    string_view propName(name, nameLen);
     Ice::StringSeq defaultValue;
     if (def && !extractStringArray(def, defaultValue))
     {
@@ -334,7 +415,7 @@ ZEND_METHOD(Ice_Properties, setProperty)
     Ice::PropertiesPtr _this = Wrapper<Ice::PropertiesPtr>::value(getThis());
     assert(_this);
 
-    string propName(name, nameLen);
+    string_view propName(name, nameLen);
     string propValue;
     if (val)
     {
@@ -624,45 +705,54 @@ ZEND_FUNCTION(Ice_createProperties)
 static zend_function_entry _interfaceMethods[] = {{0, 0, 0}};
 
 static zend_function_entry _classMethods[] = {
-    ZEND_ME(Ice_Properties, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR) ZEND_ME(
+    // constructor
+    ZEND_ME(Ice_Properties, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
+    // toString
+    ZEND_ME(Ice_Properties, __toString, ice_to_string_arginfo, ZEND_ACC_PUBLIC)
+    // getProperty
+    ZEND_ME(Ice_Properties, getProperty, Ice_Properties_getProperty_arginfo, ZEND_ACC_PUBLIC)
+    // getIceProperty
+    ZEND_ME(Ice_Properties, getIceProperty, Ice_Properties_getProperty_arginfo, ZEND_ACC_PUBLIC)
+    // getPropertyWithDefault
+    ZEND_ME(Ice_Properties, getPropertyWithDefault, Ice_Properties_getPropertyWithDefault_arginfo, ZEND_ACC_PUBLIC)
+    // getPropertyAsInt
+    ZEND_ME(Ice_Properties, getPropertyAsInt, Ice_Properties_getPropertyAsInt_arginfo, ZEND_ACC_PUBLIC)
+    // getIcePropertyAsInt
+    ZEND_ME(Ice_Properties, getIcePropertyAsInt, Ice_Properties_getPropertyAsInt_arginfo, ZEND_ACC_PUBLIC)
+    // getPropertyAsIntWithDefault
+    ZEND_ME(
         Ice_Properties,
-        __toString,
-        ice_to_string_arginfo,
-        ZEND_ACC_PUBLIC) ZEND_ME(Ice_Properties, getProperty, Ice_Properties_getProperty_arginfo, ZEND_ACC_PUBLIC)
-        ZEND_ME(Ice_Properties, getPropertyWithDefault, Ice_Properties_getPropertyWithDefault_arginfo, ZEND_ACC_PUBLIC)
-            ZEND_ME(Ice_Properties, getPropertyAsInt, Ice_Properties_getPropertyAsInt_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(
-                Ice_Properties,
-                getPropertyAsIntWithDefault,
-                Ice_Properties_getPropertyAsIntWithDefault_arginfo,
-                ZEND_ACC_PUBLIC)
-                ZEND_ME(Ice_Properties, getPropertyAsList, Ice_Properties_getPropertyAsList_arginfo, ZEND_ACC_PUBLIC)
-                    ZEND_ME(
-                        Ice_Properties,
-                        getPropertyAsListWithDefault,
-                        Ice_Properties_getPropertyAsListWithDefault_arginfo,
-                        ZEND_ACC_PUBLIC)
-                        ZEND_ME(
-                            Ice_Properties,
-                            getPropertiesForPrefix,
-                            Ice_Properties_getPropertiesForPrefix_arginfo,
-                            ZEND_ACC_PUBLIC)
-                            ZEND_ME(Ice_Properties, setProperty, Ice_Properties_setProperty_arginfo, ZEND_ACC_PUBLIC)
-                                ZEND_ME(Ice_Properties, getCommandLineOptions, ice_void_arginfo, ZEND_ACC_PUBLIC)
-                                    ZEND_ME(
-                                        Ice_Properties,
-                                        parseCommandLineOptions,
-                                        Ice_Properties_parseCommandLineOptions_arginfo,
-                                        ZEND_ACC_PUBLIC)
-                                        ZEND_ME(
-                                            Ice_Properties,
-                                            parseIceCommandLineOptions,
-                                            Ice_Properties_parseIceCommandLineOptions_arginfo,
-                                            ZEND_ACC_PUBLIC)
-                                            ZEND_ME(Ice_Properties, load, Ice_Properties_load_arginfo, ZEND_ACC_PUBLIC)
-                                                ZEND_ME(Ice_Properties, clone, ice_void_arginfo, ZEND_ACC_PUBLIC){
-                                                    0,
-                                                    0,
-                                                    0}};
+        getPropertyAsIntWithDefault,
+        Ice_Properties_getPropertyAsIntWithDefault_arginfo,
+        ZEND_ACC_PUBLIC)
+    // getPropertyAsList
+    ZEND_ME(Ice_Properties, getPropertyAsList, Ice_Properties_getPropertyAsList_arginfo, ZEND_ACC_PUBLIC)
+    // getIcePropertyAsList
+    ZEND_ME(Ice_Properties, getIcePropertyAsList, Ice_Properties_getPropertyAsList_arginfo, ZEND_ACC_PUBLIC)
+    // getPropertyAsListWithDefault
+    ZEND_ME(
+        Ice_Properties,
+        getPropertyAsListWithDefault,
+        Ice_Properties_getPropertyAsListWithDefault_arginfo,
+        ZEND_ACC_PUBLIC)
+    // getPropertiesForPrefix
+    ZEND_ME(Ice_Properties, getPropertiesForPrefix, Ice_Properties_getPropertiesForPrefix_arginfo, ZEND_ACC_PUBLIC)
+    // setProperty
+    ZEND_ME(Ice_Properties, setProperty, Ice_Properties_setProperty_arginfo, ZEND_ACC_PUBLIC)
+    // getCommandLineOptions
+    ZEND_ME(Ice_Properties, getCommandLineOptions, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    // parseCommandLineOptions
+    ZEND_ME(Ice_Properties, parseCommandLineOptions, Ice_Properties_parseCommandLineOptions_arginfo, ZEND_ACC_PUBLIC)
+    // parseIceCommandLineOptions
+    ZEND_ME(
+        Ice_Properties,
+        parseIceCommandLineOptions,
+        Ice_Properties_parseIceCommandLineOptions_arginfo,
+        ZEND_ACC_PUBLIC)
+    // load
+    ZEND_ME(Ice_Properties, load, Ice_Properties_load_arginfo, ZEND_ACC_PUBLIC)
+    // clone
+    ZEND_ME(Ice_Properties, clone, ice_void_arginfo, ZEND_ACC_PUBLIC){0, 0, 0}};
 
 bool
 IcePHP::propertiesInit(void)

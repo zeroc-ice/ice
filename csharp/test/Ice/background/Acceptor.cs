@@ -1,19 +1,19 @@
 // Copyright (c) ZeroC, Inc.
 
-internal class Acceptor : IceInternal.Acceptor
+internal class Acceptor : Ice.Internal.Acceptor
 {
     public void close()
     {
         _acceptor.close();
     }
 
-    public IceInternal.EndpointI listen()
+    public Ice.Internal.EndpointI listen()
     {
         _endpoint = _endpoint.endpoint(_acceptor.listen());
         return _endpoint;
     }
 
-    public bool startAccept(IceInternal.AsyncCallback callback, object state)
+    public bool startAccept(Ice.Internal.AsyncCallback callback, object state)
     {
         return _acceptor.startAccept(callback, state);
     }
@@ -23,7 +23,7 @@ internal class Acceptor : IceInternal.Acceptor
         _acceptor.finishAccept();
     }
 
-    public IceInternal.Transceiver accept()
+    public Ice.Internal.Transceiver accept()
     {
         return new Transceiver(_acceptor.accept());
     }
@@ -43,17 +43,17 @@ internal class Acceptor : IceInternal.Acceptor
         return _acceptor.toDetailedString();
     }
 
-    public IceInternal.Acceptor getDelegate()
+    public Ice.Internal.Acceptor getDelegate()
     {
         return _acceptor;
     }
 
-    internal Acceptor(EndpointI endpoint, IceInternal.Acceptor acceptor)
+    internal Acceptor(EndpointI endpoint, Ice.Internal.Acceptor acceptor)
     {
         _endpoint = endpoint;
         _acceptor = acceptor;
     }
 
     private EndpointI _endpoint;
-    private IceInternal.Acceptor _acceptor;
+    private Ice.Internal.Acceptor _acceptor;
 }

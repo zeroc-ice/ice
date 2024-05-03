@@ -76,6 +76,47 @@ public class Client : Test.TestHelper
             }
             Console.Out.WriteLine("ok");
         }
+
+        {
+            Console.Out.Write("testing ice properties with set default values...");
+            Console.Out.Flush();
+            Ice.Properties properties = Ice.Util.createProperties();
+            string toStringMode = properties.getIceProperty("Ice.ToStringMode");
+            test(toStringMode == "Unicode");
+            int closeTimeout = properties.getIcePropertyAsInt("Ice.Connection.CloseTimeout");
+            test(closeTimeout == 10);
+            string[] retryIntervals = properties.getIcePropertyAsList("Ice.RetryIntervals");
+            test(retryIntervals.Length == 1);
+            test(retryIntervals[0] == "0");
+            Console.Out.WriteLine("ok");
+        }
+
+        {
+            Console.Out.Write("testing ice properties with unset default values...");
+            Console.Out.Flush();
+            Ice.Properties properties = Ice.Util.createProperties();
+            string stringValue = properties.getIceProperty("Ice.Admin.Router");
+            test(stringValue == "");
+            int intValue = properties.getIcePropertyAsInt("Ice.Admin.Router");
+            test(intValue == 0);
+            string[] listValue = properties.getIcePropertyAsList("Ice.Admin.Router");
+            test(listValue.Length == 0);
+            Console.Out.WriteLine("ok");
+        }
+
+        {
+            Console.Out.Write("testing that getting an unknown ice property throws an exception...");
+            Console.Out.Flush();
+            Ice.Properties properties = Ice.Util.createProperties();
+            try
+            {
+                properties.getIceProperty("Ice.UnknownProperty");
+                test(false);
+            }
+            catch (System.ArgumentException)
+            {
+            }
+        }
     }
 
     public static Task<int> Main(string[] args) =>

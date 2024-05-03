@@ -55,6 +55,18 @@ extern "C"
         }
     }
 
+    mxArray* Ice_Properties_getIceProperty(void* self, const char* key)
+    {
+        try
+        {
+            return createResultValue(createStringFromUTF8(deref<Ice::Properties>(self)->getIceProperty(key)));
+        }
+        catch (...)
+        {
+            return createResultException(convertException(std::current_exception()));
+        }
+    }
+
     mxArray* Ice_Properties_getPropertyWithDefault(void* self, const char* key, const char* dflt)
     {
         try
@@ -81,6 +93,19 @@ extern "C"
         return 0;
     }
 
+    mxArray* Ice_Properties_getIcePropertyAsInt(void* self, const char* key, int* r)
+    {
+        try
+        {
+            *r = deref<Ice::Properties>(self)->getIcePropertyAsInt(key);
+        }
+        catch (...)
+        {
+            return convertException(std::current_exception());
+        }
+        return 0;
+    }
+
     mxArray* Ice_Properties_getPropertyAsIntWithDefault(void* self, const char* key, int dflt, int* r)
     {
         try
@@ -99,6 +124,19 @@ extern "C"
         try
         {
             auto l = deref<Ice::Properties>(self)->getPropertyAsList(key);
+            return createResultValue(createStringList(l));
+        }
+        catch (...)
+        {
+            return createResultException(convertException(std::current_exception()));
+        }
+    }
+
+    mxArray* Ice_Properties_getIcePropertyAsList(void* self, const char* key)
+    {
+        try
+        {
+            auto l = deref<Ice::Properties>(self)->getIcePropertyAsList(key);
             return createResultValue(createStringList(l));
         }
         catch (...)

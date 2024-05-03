@@ -97,5 +97,51 @@ public class Client: TestHelperI {
       try test(args1 == ["--Foo=1", "-T", "--Bar=2"])
       output.writeLine("ok")
     }
+
+    do {
+      output.write("testing ice properties with set default values...")
+      let properties = Ice.createProperties()
+
+      let toStringMode = try properties.getIceProperty("Ice.ToStringMode")
+      try test(toStringMode == "Unicode")
+
+      let closeTimeout = try properties.getIcePropertyAsInt("Ice.Connection.CloseTimeout")
+      try test(closeTimeout == 10)
+
+      let retryIntervals = try properties.getIcePropertyAsList("Ice.RetryIntervals")
+      try test(retryIntervals == ["0"])
+
+      output.writeLine("ok")
+    }
+
+    do {
+      output.write("testing ice properties with unset default values...")
+      let properties = Ice.createProperties()
+
+      let stringValue = try properties.getIceProperty("Ice.Admin.Router")
+      try test(stringValue == "")
+
+      let intValue = try properties.getIcePropertyAsInt("Ice.Admin.Router")
+      try test(intValue == 0)
+
+      let listValue = try properties.getIcePropertyAsList("Ice.Admin.Router")
+      try test(listValue == [])
+
+      output.writeLine("ok")
+    }
+
+    do {
+      output.write("testing that getting an unknown ice property throws an exception...")
+      let properties = Ice.createProperties()
+
+      do {
+        _ = try properties.getIceProperty("Ice.UnknownProperty")
+        try test(false)
+      } catch let error as RuntimeError {
+        try test(error.description == "unknown ice property: Ice.UnknownProperty")
+      }
+
+      output.write("ok")
+    }
   }
 }

@@ -404,8 +404,9 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
     _out << sp;
     _out << nl << "public override bool ice_isA(string s, " << getUnqualified("Ice.Current", ns) << " current = null)";
     _out << sb;
-    _out << nl
-         << "return global::System.Array.BinarySearch(_ids, s, IceUtilInternal.StringUtil.OrdinalStringComparer) >= 0;";
+    _out
+        << nl
+        << "return global::System.Array.BinarySearch(_ids, s, Ice.UtilInternal.StringUtil.OrdinalStringComparer) >= 0;";
     _out << eb;
 
     _out << sp;
@@ -446,7 +447,7 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
         _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1011\")]";
         _out << nl << "public static global::System.Threading.Tasks.Task<" << getUnqualified("Ice.OutputStream", ns)
              << ">";
-        _out << nl << "iceD_" << opName << "(" << name << " obj, " << "global::IceInternal.Incoming inS, "
+        _out << nl << "iceD_" << opName << "(" << name << " obj, " << "global::Ice.Internal.Incoming inS, "
              << getUnqualified("Ice.Current", ns) << " current)";
         _out << sb;
 
@@ -626,11 +627,11 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
         _out << sp;
         _out << nl << "public override global::System.Threading.Tasks.Task<" << getUnqualified("Ice.OutputStream", ns)
              << ">";
-        _out << nl << "iceDispatch(global::IceInternal.Incoming inS, " << getUnqualified("Ice.Current", ns)
+        _out << nl << "iceDispatch(global::Ice.Internal.Incoming inS, " << getUnqualified("Ice.Current", ns)
              << " current)";
         _out << sb;
         _out << nl << "int pos = global::System.Array.BinarySearch(_all, current.operation, "
-             << "global::IceUtilInternal.StringUtil.OrdinalStringComparer);";
+             << "global::Ice.UtilInternal.StringUtil.OrdinalStringComparer);";
         _out << nl << "if(pos < 0)";
         _out << sb;
         _out << nl << "throw new " << getUnqualified("Ice.OperationNotExistException", ns)
@@ -2694,7 +2695,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << nl << "public override int GetHashCode()";
     _out << sb;
     _out << nl << "int h_ = 5381;";
-    _out << nl << "global::IceInternal.HashUtil.hashAdd(ref h_, \"" << p->scoped() << "\");";
+    _out << nl << "global::Ice.Internal.HashUtil.hashAdd(ref h_, \"" << p->scoped() << "\");";
     writeMemberHashCode(dataMembers, isClass ? DotNet::ICloneable : 0);
     _out << nl << "return h_;";
     _out << eb;
@@ -2893,13 +2894,13 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 {
     unsigned int baseTypes = 0;
     bool isClass = false;
-    bool isProperty = false;
     bool isValue = false;
     bool isProtected = false;
-    bool isPrivate = false;
     const bool isOptional = p->optional();
+
     ContainedPtr cont = dynamic_pointer_cast<Contained>(p->container());
     assert(cont);
+    bool isProperty = cont->hasMetaData("cs:property");
 
     StructPtr st = dynamic_pointer_cast<Struct>(cont);
     ExceptionPtr ex = dynamic_pointer_cast<Exception>(cont);
@@ -2912,26 +2913,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         {
             baseTypes = DotNet::ICloneable;
         }
-        if (cont->hasMetaData("cs:property"))
-        {
-            isProperty = true;
-        }
-        //
-        // C# structs are implicit sealed and cannot use `protected' modifier,
-        // we must use either public or private. For Slice structs using the
-        // class mapping we can still use protected modifier.
-        //
-        if (cont->hasMetaData("protected") || p->hasMetaData("protected"))
-        {
-            if (isValue)
-            {
-                isPrivate = true;
-            }
-            else
-            {
-                isProtected = true;
-            }
-        }
     }
     else if (ex)
     {
@@ -2942,10 +2923,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         assert(cl);
         baseTypes = DotNet::ICloneable;
         isClass = true;
-        if (cont->hasMetaData("cs:property"))
-        {
-            isProperty = true;
-        }
         isProtected = cont->hasMetaData("protected") || p->hasMetaData("protected");
     }
 
@@ -2958,11 +2935,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     emitAttributes(p);
     emitGeneratedCodeAttribute();
-    if (isPrivate)
-    {
-        _out << nl << "private";
-    }
-    else if (isProtected)
+    if (isProtected)
     {
         _out << nl << "protected";
     }
@@ -2970,13 +2943,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     {
         _out << nl << "public";
     }
-
-    if (isProperty && !isValue)
-    {
-        // TODO: consider dropping this virtual
-        _out << " virtual";
-    }
-
     _out << ' ' << type << ' ' << dataMemberName;
 
     if (isProperty)
@@ -2994,7 +2960,7 @@ Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers,
 {
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        _out << nl << "global::IceInternal.HashUtil.hashAdd(ref h_, " << fixId((*q)->name(), baseTypes);
+        _out << nl << "global::Ice.Internal.HashUtil.hashAdd(ref h_, " << fixId((*q)->name(), baseTypes);
         if ((*q)->optional())
         {
             _out << ".Value";
@@ -3032,7 +2998,7 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, u
                     //
                     // Equals() for native arrays does not have value semantics.
                     //
-                    _out << nl << "if(!IceUtilInternal.Arrays.Equals(this." << memberName << ", o." << memberName
+                    _out << nl << "if(!Ice.UtilInternal.Arrays.Equals(this." << memberName << ", o." << memberName
                          << "))";
                 }
                 else if (isGeneric)
@@ -3040,8 +3006,8 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, u
                     //
                     // Equals() for generic types does not have value semantics.
                     //
-                    _out << nl << "if(!global::IceUtilInternal.Collections.SequenceEquals(this." << memberName << ", o."
-                         << memberName << "))";
+                    _out << nl << "if(!global::Ice.UtilInternal.Collections.SequenceEquals(this." << memberName
+                         << ", o." << memberName << "))";
                 }
             }
             else
@@ -3052,7 +3018,7 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, u
                     //
                     // Equals() for generic types does not have value semantics.
                     //
-                    _out << nl << "if(!global::IceUtilInternal.Collections.DictionaryEquals(this." << memberName
+                    _out << nl << "if(!global::Ice.UtilInternal.Collections.DictionaryEquals(this." << memberName
                          << ", o." << memberName << "))";
                 }
                 else
@@ -3226,7 +3192,7 @@ Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
         _out << nl << "public " << name << spar << getOutParams(p, ns, true, false)
              << getUnqualified("Ice.Current", ns) + " current" << epar;
         _out << sb;
-        _out << nl << "_ostr = global::IceInternal.Incoming.createResponseOutputStream(current);";
+        _out << nl << "_ostr = global::Ice.Internal.Incoming.createResponseOutputStream(current);";
         _out << nl << "_ostr.startEncapsulation(current.encoding, " << opFormatTypeToString(p, ns) << ");";
         writeMarshalUnmarshalParams(outParams, p, true, ns, false, true, "_ostr");
         if (p->returnsClasses(false))
@@ -3753,11 +3719,11 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         if (returnTypeS.empty())
         {
             _out << nl << "var completed = "
-                 << "new global::IceInternal.OperationTaskCompletionCallback<object>(progress, cancel);";
+                 << "new global::Ice.Internal.OperationTaskCompletionCallback<object>(progress, cancel);";
         }
         else
         {
-            _out << nl << "var completed = " << "new global::IceInternal.OperationTaskCompletionCallback<"
+            _out << nl << "var completed = " << "new global::Ice.Internal.OperationTaskCompletionCallback<"
                  << returnTypeS << ">(progress, cancel);";
         }
 
@@ -3775,7 +3741,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << sp << nl;
         _out << "private void _iceI_" << op->name() << spar << getInParams(op, ns, true)
              << "global::System.Collections.Generic.Dictionary<string, string> context" << "bool synchronous"
-             << "global::IceInternal.OutgoingAsyncCompletionCallback completed" << epar;
+             << "global::Ice.Internal.OutgoingAsyncCompletionCallback completed" << epar;
         _out << sb;
 
         if (returnTypeS.empty())

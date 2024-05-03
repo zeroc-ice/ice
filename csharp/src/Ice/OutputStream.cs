@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 using System.Diagnostics;
-using Protocol = IceInternal.Protocol;
+using Protocol = Ice.Internal.Protocol;
 
 namespace Ice;
 
@@ -19,7 +19,7 @@ public class OutputStream
     /// </summary>
     public OutputStream()
     {
-        _buf = new IceInternal.Buffer();
+        _buf = new Ice.Internal.Buffer();
         _instance = null;
         _closure = null;
         _encoding = Util.currentEncoding;
@@ -33,7 +33,7 @@ public class OutputStream
     public OutputStream(Communicator communicator)
     {
         Debug.Assert(communicator != null);
-        IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
+        Ice.Internal.Instance instance = Ice.Internal.Util.getInstance(communicator);
         initialize(instance, instance.defaultsAndOverrides().defaultEncoding);
     }
 
@@ -45,24 +45,24 @@ public class OutputStream
     public OutputStream(Communicator communicator, EncodingVersion encoding)
     {
         Debug.Assert(communicator != null);
-        IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
+        Ice.Internal.Instance instance = Ice.Internal.Util.getInstance(communicator);
         initialize(instance, encoding);
     }
 
-    public OutputStream(IceInternal.Instance instance, EncodingVersion encoding)
+    public OutputStream(Ice.Internal.Instance instance, EncodingVersion encoding)
     {
         initialize(instance, encoding);
     }
 
-    public OutputStream(IceInternal.Instance instance, EncodingVersion encoding, IceInternal.Buffer buf, bool adopt)
+    public OutputStream(Ice.Internal.Instance instance, EncodingVersion encoding, Ice.Internal.Buffer buf, bool adopt)
     {
-        initialize(instance, encoding, new IceInternal.Buffer(buf, adopt));
+        initialize(instance, encoding, new Ice.Internal.Buffer(buf, adopt));
     }
 
-    public OutputStream(IceInternal.Instance instance, EncodingVersion encoding, byte[] data)
+    public OutputStream(Ice.Internal.Instance instance, EncodingVersion encoding, byte[] data)
     {
         initialize(instance, encoding);
-        _buf = new IceInternal.Buffer(data);
+        _buf = new Ice.Internal.Buffer(data);
     }
 
     /// <summary>
@@ -73,7 +73,7 @@ public class OutputStream
     public void initialize(Communicator communicator)
     {
         Debug.Assert(communicator != null);
-        IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
+        Ice.Internal.Instance instance = Ice.Internal.Util.getInstance(communicator);
         initialize(instance, instance.defaultsAndOverrides().defaultEncoding);
     }
 
@@ -86,16 +86,16 @@ public class OutputStream
     public void initialize(Communicator communicator, EncodingVersion encoding)
     {
         Debug.Assert(communicator != null);
-        IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
+        Ice.Internal.Instance instance = Ice.Internal.Util.getInstance(communicator);
         initialize(instance, encoding);
     }
 
-    private void initialize(IceInternal.Instance instance, EncodingVersion encoding)
+    private void initialize(Ice.Internal.Instance instance, EncodingVersion encoding)
     {
-        initialize(instance, encoding, new IceInternal.Buffer());
+        initialize(instance, encoding, new Ice.Internal.Buffer());
     }
 
-    private void initialize(IceInternal.Instance instance, EncodingVersion encoding, IceInternal.Buffer buf)
+    private void initialize(Ice.Internal.Instance instance, EncodingVersion encoding, Ice.Internal.Buffer buf)
     {
         Debug.Assert(instance != null);
 
@@ -135,7 +135,7 @@ public class OutputStream
         }
     }
 
-    public IceInternal.Instance instance()
+    public Ice.Internal.Instance instance()
     {
         return _instance;
     }
@@ -176,7 +176,7 @@ public class OutputStream
     /// <returns>The byte sequence containing the encoded request or reply.</returns>
     public byte[] finished()
     {
-        IceInternal.Buffer buf = prepareWrite();
+        Ice.Internal.Buffer buf = prepareWrite();
         byte[] result = new byte[buf.b.limit()];
         buf.b.get(result);
         return result;
@@ -190,7 +190,7 @@ public class OutputStream
     {
         Debug.Assert(_instance == other._instance);
 
-        IceInternal.Buffer tmpBuf = other._buf;
+        Ice.Internal.Buffer tmpBuf = other._buf;
         other._buf = _buf;
         _buf = tmpBuf;
 
@@ -229,7 +229,7 @@ public class OutputStream
     /// <summary>
     /// Prepares the internal data buffer to be written to a socket.
     /// </summary>
-    public IceInternal.Buffer prepareWrite()
+    public Ice.Internal.Buffer prepareWrite()
     {
         _buf.b.limit(_buf.size());
         _buf.b.position(0);
@@ -240,7 +240,7 @@ public class OutputStream
     /// Retrieves the internal data buffer.
     /// </summary>
     /// <returns>The buffer.</returns>
-    public IceInternal.Buffer getBuffer()
+    public Ice.Internal.Buffer getBuffer()
     {
         return _buf;
     }
@@ -2125,8 +2125,8 @@ public class OutputStream
         _buf.expand(n);
     }
 
-    private IceInternal.Instance _instance;
-    private IceInternal.Buffer _buf;
+    private Ice.Internal.Instance _instance;
+    private Ice.Internal.Buffer _buf;
     private object _closure;
     private FormatType _format;
 

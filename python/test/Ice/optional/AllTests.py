@@ -328,19 +328,6 @@ def allTests(helper, communicator):
 
     test(mo9.bos is Ice.Unset)
 
-    #
-    # Use the 1.0 encoding with operations whose only class parameters are optional.
-    #
-    initial.sendOptionalClass(True, Test.OneOptional(53))
-    initial.ice_encodingVersion(Ice.Encoding_1_0).sendOptionalClass(
-        True, Test.OneOptional(53)
-    )
-
-    r = initial.returnOptionalClass(True)
-    test(r != Ice.Unset)
-    r = initial.ice_encodingVersion(Ice.Encoding_1_0).returnOptionalClass(True)
-    test(r is Ice.Unset)
-
     g = Test.G()
     g.gg1Opt = Test.G1("gg1Opt")
     g.gg2 = Test.G2(10)
@@ -409,16 +396,16 @@ def allTests(helper, communicator):
 
     print("ok")
 
-    sys.stdout.write("testing marshaling of objects with optional objects...")
+    sys.stdout.write("testing marshaling of objects with optional members...")
     sys.stdout.flush()
 
     f = Test.F()
 
-    f.af = Test.A()
-    f.ae = f.af
+    f.fsf = Test.FixedStruct()
+    f.fse = f.fsf
 
     rf = initial.pingPong(f)
-    test(rf.ae == rf.af)
+    test(rf.fse == rf.fsf)
 
     print("ok")
 
