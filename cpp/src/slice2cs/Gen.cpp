@@ -1012,16 +1012,9 @@ Slice::CsVisitor::writeValue(const TypePtr& type, const string& ns)
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
-    if (st)
+    if (st && !isMappedToClass(st))
     {
-        if (isMappedToClass(st))
-        {
-            return "null";
-        }
-        else
-        {
-            return "default";
-        }
+        return "default";
     }
 
     return "null";
