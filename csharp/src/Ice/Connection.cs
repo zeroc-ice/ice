@@ -285,7 +285,7 @@ namespace Ice
         /// <param name="close">The close condition
         ///  </param>
         /// <param name="heartbeat">The hertbeat condition</param>
-        void setACM(Optional<int> timeout, Optional<ACMClose> close, Optional<ACMHeartbeat> heartbeat);
+        void setACM(int? timeout, ACMClose? close, ACMHeartbeat? heartbeat);
 
         /// <summary>
         /// Get the ACM parameters.

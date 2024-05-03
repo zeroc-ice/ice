@@ -11,7 +11,6 @@ namespace Ice;
 /// </summary>
 public class OutputStream
 {
-
     /// <summary>
     /// Constructing an OutputStream without providing a communicator means the stream will
     /// use the default encoding version and the default format for class encoding.
@@ -536,7 +535,7 @@ public class OutputStream
     /// </summary>
     /// <param name="tag">The optional tag.</param>
     /// <param name="v">The optional byte to write to the stream.</param>
-    public void writeByte(int tag, Optional<byte> v)
+    public void writeByte(int tag, byte? v)
     {
         if (v.HasValue)
         {
@@ -653,38 +652,10 @@ public class OutputStream
     /// Writes an optional byte sequence to the stream.
     /// </summary>
     /// <param name="tag">The optional tag.</param>
-    /// <param name="v">The optional byte sequence to write to the stream.</param>
-    public void writeByteSeq(int tag, Optional<byte[]> v)
-    {
-        if (v.HasValue)
-        {
-            writeByteSeq(tag, v.Value);
-        }
-    }
-
-    /// <summary>
-    /// Writes an optional byte sequence to the stream.
-    /// </summary>
-    /// <param name="tag">The optional tag.</param>
-    /// <param name="count">The number of elements in the sequence.</param>
-    /// <param name="v">An enumerator for the optional byte sequence.</param>
-    public void writeByteSeq<T>(int tag, int count, Optional<T> v)
-        where T : IEnumerable<byte>
-    {
-        if (v.HasValue && writeOptional(tag, OptionalFormat.VSize))
-        {
-            writeByteSeq(count, v.Value);
-        }
-    }
-
-    /// <summary>
-    /// Writes an optional byte sequence to the stream.
-    /// </summary>
-    /// <param name="tag">The optional tag.</param>
     /// <param name="v">The byte sequence to write to the stream.</param>
     public void writeByteSeq(int tag, byte[] v)
     {
-        if (writeOptional(tag, OptionalFormat.VSize))
+        if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
             writeByteSeq(v);
         }
@@ -698,7 +669,7 @@ public class OutputStream
     /// <param name="v">An enumerator for the byte sequence.</param>
     public void writeByteSeq(int tag, int count, IEnumerable<byte> v)
     {
-        if (writeOptional(tag, OptionalFormat.VSize))
+        if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
             writeByteSeq(count, v);
         }
@@ -719,7 +690,7 @@ public class OutputStream
     /// </summary>
     /// <param name="tag">The optional tag.</param>
     /// <param name="v">The optional boolean to write to the stream.</param>
-    public void writeBool(int tag, Optional<bool> v)
+    public void writeBool(int tag, bool? v)
     {
         if (v.HasValue)
         {
@@ -836,38 +807,10 @@ public class OutputStream
     /// Writes an optional boolean sequence to the stream.
     /// </summary>
     /// <param name="tag">The optional tag.</param>
-    /// <param name="v">The optional boolean sequence to write to the stream.</param>
-    public void writeBoolSeq(int tag, Optional<bool[]> v)
-    {
-        if (v.HasValue)
-        {
-            writeBoolSeq(tag, v.Value);
-        }
-    }
-
-    /// <summary>
-    /// Writes an optional boolean sequence to the stream.
-    /// </summary>
-    /// <param name="tag">The optional tag.</param>
-    /// <param name="count">The number of elements in the sequence.</param>
-    /// <param name="v">An enumerator for the optional boolean sequence.</param>
-    public void writeBoolSeq<T>(int tag, int count, Optional<T> v)
-        where T : IEnumerable<bool>
-    {
-        if (v.HasValue && writeOptional(tag, OptionalFormat.VSize))
-        {
-            writeBoolSeq(count, v.Value);
-        }
-    }
-
-    /// <summary>
-    /// Writes an optional boolean sequence to the stream.
-    /// </summary>
-    /// <param name="tag">The optional tag.</param>
     /// <param name="v">The boolean sequence to write to the stream.</param>
     public void writeBoolSeq(int tag, bool[] v)
     {
-        if (writeOptional(tag, OptionalFormat.VSize))
+        if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
             writeBoolSeq(v);
         }
@@ -881,7 +824,7 @@ public class OutputStream
     /// <param name="v">An enumerator for the boolean sequence.</param>
     public void writeBoolSeq(int tag, int count, IEnumerable<bool> v)
     {
-        if (writeOptional(tag, OptionalFormat.VSize))
+        if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
             writeBoolSeq(count, v);
         }
@@ -902,7 +845,7 @@ public class OutputStream
     /// </summary>
     /// <param name="tag">The optional tag.</param>
     /// <param name="v">The optional short to write to the stream.</param>
-    public void writeShort(int tag, Optional<short> v)
+    public void writeShort(int tag, short? v)
     {
         if (v.HasValue)
         {
@@ -1009,41 +952,12 @@ public class OutputStream
     /// Writes an optional short sequence to the stream.
     /// </summary>
     /// <param name="tag">The optional tag.</param>
-    /// <param name="v">The optional short sequence to write to the stream.</param>
-    public void writeShortSeq(int tag, Optional<short[]> v)
-    {
-        if (v.HasValue)
-        {
-            writeShortSeq(tag, v.Value);
-        }
-    }
-
-    /// <summary>
-    /// Writes an optional short sequence to the stream.
-    /// </summary>
-    /// <param name="tag">The optional tag.</param>
-    /// <param name="count">The number of elements in the sequence.</param>
-    /// <param name="v">An enumerator for the optional short sequence.</param>
-    public void writeShortSeq<T>(int tag, int count, Optional<T> v)
-        where T : IEnumerable<short>
-    {
-        if (v.HasValue && writeOptional(tag, OptionalFormat.VSize))
-        {
-            writeSize(count == 0 ? 1 : count * 2 + (count > 254 ? 5 : 1));
-            writeShortSeq(count, v.Value);
-        }
-    }
-
-    /// <summary>
-    /// Writes an optional short sequence to the stream.
-    /// </summary>
-    /// <param name="tag">The optional tag.</param>
     /// <param name="v">The short sequence to write to the stream.</param>
     public void writeShortSeq(int tag, short[] v)
     {
-        if (writeOptional(tag, OptionalFormat.VSize))
+        if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
-            writeSize(v == null || v.Length == 0 ? 1 : v.Length * 2 + (v.Length > 254 ? 5 : 1));
+            writeSize(v.Length == 0 ? 1 : v.Length * 2 + (v.Length > 254 ? 5 : 1));
             writeShortSeq(v);
         }
     }
@@ -1056,9 +970,9 @@ public class OutputStream
     /// <param name="v">An enumerator for the short sequence.</param>
     public void writeShortSeq(int tag, int count, IEnumerable<short> v)
     {
-        if (writeOptional(tag, OptionalFormat.VSize))
+        if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
-            writeSize(v == null || count == 0 ? 1 : count * 2 + (count > 254 ? 5 : 1));
+            writeSize(count == 0 ? 1 : count * 2 + (count > 254 ? 5 : 1));
             writeShortSeq(count, v);
         }
     }
@@ -1078,7 +992,7 @@ public class OutputStream
     /// </summary>
     /// <param name="tag">The optional tag.</param>
     /// <param name="v">The optional int to write to the stream.</param>
-    public void writeInt(int tag, Optional<int> v)
+    public void writeInt(int tag, int? v)
     {
         if (v.HasValue)
         {
@@ -1195,41 +1109,12 @@ public class OutputStream
     /// Writes an optional int sequence to the stream.
     /// </summary>
     /// <param name="tag">The optional tag.</param>
-    /// <param name="v">The optional int sequence to write to the stream.</param>
-    public void writeIntSeq(int tag, Optional<int[]> v)
-    {
-        if (v.HasValue)
-        {
-            writeIntSeq(tag, v.Value);
-        }
-    }
-
-    /// <summary>
-    /// Writes an optional int sequence to the stream.
-    /// </summary>
-    /// <param name="tag">The optional tag.</param>
-    /// <param name="count">The number of elements in the sequence.</param>
-    /// <param name="v">An enumerator for the optional byte sequence.</param>
-    public void writeIntSeq<T>(int tag, int count, Optional<T> v)
-        where T : IEnumerable<int>
-    {
-        if (v.HasValue && writeOptional(tag, OptionalFormat.VSize))
-        {
-            writeSize(count == 0 ? 1 : count * 4 + (count > 254 ? 5 : 1));
-            writeIntSeq(count, v.Value);
-        }
-    }
-
-    /// <summary>
-    /// Writes an optional int sequence to the stream.
-    /// </summary>
-    /// <param name="tag">The optional tag.</param>
     /// <param name="v">The int sequence to write to the stream.</param>
     public void writeIntSeq(int tag, int[] v)
     {
-        if (writeOptional(tag, OptionalFormat.VSize))
+        if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
-            writeSize(v == null || v.Length == 0 ? 1 : v.Length * 4 + (v.Length > 254 ? 5 : 1));
+            writeSize(v.Length == 0 ? 1 : v.Length * 4 + (v.Length > 254 ? 5 : 1));
             writeIntSeq(v);
         }
     }
@@ -1242,9 +1127,9 @@ public class OutputStream
     /// <param name="v">An enumerator for the int sequence.</param>
     public void writeIntSeq(int tag, int count, IEnumerable<int> v)
     {
-        if (writeOptional(tag, OptionalFormat.VSize))
+        if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
-            writeSize(v == null || count == 0 ? 1 : count * 4 + (count > 254 ? 5 : 1));
+            writeSize(count == 0 ? 1 : count * 4 + (count > 254 ? 5 : 1));
             writeIntSeq(count, v);
         }
     }
@@ -1264,7 +1149,7 @@ public class OutputStream
     /// </summary>
     /// <param name="tag">The optional tag.</param>
     /// <param name="v">The optional long to write to the stream.</param>
-    public void writeLong(int tag, Optional<long> v)
+    public void writeLong(int tag, long? v)
     {
         if (v.HasValue)
         {
@@ -1371,41 +1256,12 @@ public class OutputStream
     /// Writes an optional long sequence to the stream.
     /// </summary>
     /// <param name="tag">The optional tag.</param>
-    /// <param name="v">The optional long sequence to write to the stream.</param>
-    public void writeLongSeq(int tag, Optional<long[]> v)
-    {
-        if (v.HasValue)
-        {
-            writeLongSeq(tag, v.Value);
-        }
-    }
-
-    /// <summary>
-    /// Writes an optional long sequence to the stream.
-    /// </summary>
-    /// <param name="tag">The optional tag.</param>
-    /// <param name="count">The number of elements in the sequence.</param>
-    /// <param name="v">An enumerator for the optional long sequence.</param>
-    public void writeLongSeq<T>(int tag, int count, Optional<T> v)
-        where T : IEnumerable<long>
-    {
-        if (v.HasValue && writeOptional(tag, OptionalFormat.VSize))
-        {
-            writeSize(count == 0 ? 1 : count * 8 + (count > 254 ? 5 : 1));
-            writeLongSeq(count, v.Value);
-        }
-    }
-
-    /// <summary>
-    /// Writes an optional long sequence to the stream.
-    /// </summary>
-    /// <param name="tag">The optional tag.</param>
     /// <param name="v">The long sequence to write to the stream.</param>
     public void writeLongSeq(int tag, long[] v)
     {
-        if (writeOptional(tag, OptionalFormat.VSize))
+        if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
-            writeSize(v == null || v.Length == 0 ? 1 : v.Length * 8 + (v.Length > 254 ? 5 : 1));
+            writeSize(v.Length == 0 ? 1 : v.Length * 8 + (v.Length > 254 ? 5 : 1));
             writeLongSeq(v);
         }
     }
@@ -1418,9 +1274,9 @@ public class OutputStream
     /// <param name="v">An enumerator for the long sequence.</param>
     public void writeLongSeq(int tag, int count, IEnumerable<long> v)
     {
-        if (writeOptional(tag, OptionalFormat.VSize))
+        if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
-            writeSize(v == null || count == 0 ? 1 : count * 8 + (count > 254 ? 5 : 1));
+            writeSize(count == 0 ? 1 : count * 8 + (count > 254 ? 5 : 1));
             writeLongSeq(count, v);
         }
     }
@@ -1440,7 +1296,7 @@ public class OutputStream
     /// </summary>
     /// <param name="tag">The optional tag.</param>
     /// <param name="v">The optional float to write to the stream.</param>
-    public void writeFloat(int tag, Optional<float> v)
+    public void writeFloat(int tag, float? v)
     {
         if (v.HasValue)
         {
@@ -1547,41 +1403,12 @@ public class OutputStream
     /// Writes an optional float sequence to the stream.
     /// </summary>
     /// <param name="tag">The optional tag.</param>
-    /// <param name="v">The optional float sequence to write to the stream.</param>
-    public void writeFloatSeq(int tag, Optional<float[]> v)
-    {
-        if (v.HasValue)
-        {
-            writeFloatSeq(tag, v.Value);
-        }
-    }
-
-    /// <summary>
-    /// Writes an optional float sequence to the stream.
-    /// </summary>
-    /// <param name="tag">The optional tag.</param>
-    /// <param name="count">The number of elements in the sequence.</param>
-    /// <param name="v">An enumerator for the optional float sequence.</param>
-    public void writeFloatSeq<T>(int tag, int count, Optional<T> v)
-        where T : IEnumerable<float>
-    {
-        if (v.HasValue && writeOptional(tag, OptionalFormat.VSize))
-        {
-            writeSize(count == 0 ? 1 : count * 4 + (count > 254 ? 5 : 1));
-            writeFloatSeq(count, v.Value);
-        }
-    }
-
-    /// <summary>
-    /// Writes an optional float sequence to the stream.
-    /// </summary>
-    /// <param name="tag">The optional tag.</param>
     /// <param name="v">The float sequence to write to the stream.</param>
     public void writeFloatSeq(int tag, float[] v)
     {
-        if (writeOptional(tag, OptionalFormat.VSize))
+        if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
-            writeSize(v == null || v.Length == 0 ? 1 : v.Length * 4 + (v.Length > 254 ? 5 : 1));
+            writeSize(v.Length == 0 ? 1 : v.Length * 4 + (v.Length > 254 ? 5 : 1));
             writeFloatSeq(v);
         }
     }
@@ -1594,9 +1421,9 @@ public class OutputStream
     /// <param name="v">An enumerator for the float sequence.</param>
     public void writeFloatSeq(int tag, int count, IEnumerable<float> v)
     {
-        if (writeOptional(tag, OptionalFormat.VSize))
+        if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
-            writeSize(v == null || count == 0 ? 1 : count * 4 + (count > 254 ? 5 : 1));
+            writeSize(count == 0 ? 1 : count * 4 + (count > 254 ? 5 : 1));
             writeFloatSeq(count, v);
         }
     }
@@ -1616,7 +1443,7 @@ public class OutputStream
     /// </summary>
     /// <param name="tag">The optional tag.</param>
     /// <param name="v">The optional double to write to the stream.</param>
-    public void writeDouble(int tag, Optional<double> v)
+    public void writeDouble(int tag, double? v)
     {
         if (v.HasValue)
         {
@@ -1723,41 +1550,12 @@ public class OutputStream
     /// Writes an optional double sequence to the stream.
     /// </summary>
     /// <param name="tag">The optional tag.</param>
-    /// <param name="v">The optional double sequence to write to the stream.</param>
-    public void writeDoubleSeq(int tag, Optional<double[]> v)
-    {
-        if (v.HasValue)
-        {
-            writeDoubleSeq(tag, v.Value);
-        }
-    }
-
-    /// <summary>
-    /// Writes an optional double sequence to the stream.
-    /// </summary>
-    /// <param name="tag">The optional tag.</param>
-    /// <param name="count">The number of elements in the sequence.</param>
-    /// <param name="v">An enumerator for the optional double sequence.</param>
-    public void writeDoubleSeq<T>(int tag, int count, Optional<T> v)
-        where T : IEnumerable<double>
-    {
-        if (v.HasValue && writeOptional(tag, OptionalFormat.VSize))
-        {
-            writeSize(count == 0 ? 1 : count * 8 + (count > 254 ? 5 : 1));
-            writeDoubleSeq(count, v.Value);
-        }
-    }
-
-    /// <summary>
-    /// Writes an optional double sequence to the stream.
-    /// </summary>
-    /// <param name="tag">The optional tag.</param>
     /// <param name="v">The double sequence to write to the stream.</param>
     public void writeDoubleSeq(int tag, double[] v)
     {
-        if (writeOptional(tag, OptionalFormat.VSize))
+        if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
-            writeSize(v == null || v.Length == 0 ? 1 : v.Length * 8 + (v.Length > 254 ? 5 : 1));
+            writeSize(v.Length == 0 ? 1 : v.Length * 8 + (v.Length > 254 ? 5 : 1));
             writeDoubleSeq(v);
         }
     }
@@ -1770,9 +1568,9 @@ public class OutputStream
     /// <param name="v">An enumerator for the double sequence.</param>
     public void writeDoubleSeq(int tag, int count, IEnumerable<double> v)
     {
-        if (writeOptional(tag, OptionalFormat.VSize))
+        if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
-            writeSize(v == null || count == 0 ? 1 : count * 8 + (count > 254 ? 5 : 1));
+            writeSize(count == 0 ? 1 : count * 8 + (count > 254 ? 5 : 1));
             writeDoubleSeq(count, v);
         }
     }
@@ -1801,23 +1599,10 @@ public class OutputStream
     /// Writes an optional string to the stream.
     /// </summary>
     /// <param name="tag">The optional tag.</param>
-    /// <param name="v">The optional string to write to the stream.</param>
-    public void writeString(int tag, Optional<string> v)
-    {
-        if (v.HasValue)
-        {
-            writeString(tag, v.Value);
-        }
-    }
-
-    /// <summary>
-    /// Writes an optional string to the stream.
-    /// </summary>
-    /// <param name="tag">The optional tag.</param>
     /// <param name="v">The string to write to the stream.</param>
     public void writeString(int tag, string v)
     {
-        if (writeOptional(tag, OptionalFormat.VSize))
+        if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
             writeString(v);
         }
@@ -1865,40 +1650,10 @@ public class OutputStream
     /// Writes an optional string sequence to the stream.
     /// </summary>
     /// <param name="tag">The optional tag.</param>
-    /// <param name="v">The optional string sequence to write to the stream.</param>
-    public void writeStringSeq(int tag, Optional<string[]> v)
-    {
-        if (v.HasValue)
-        {
-            writeStringSeq(tag, v.Value);
-        }
-    }
-
-    /// <summary>
-    /// Writes an optional string sequence to the stream.
-    /// </summary>
-    /// <param name="tag">The optional tag.</param>
-    /// <param name="count">The number of elements in the sequence.</param>
-    /// <param name="v">An enumerator for the optional string sequence.</param>
-    public void writeStringSeq<T>(int tag, int count, Optional<T> v)
-        where T : IEnumerable<string>
-    {
-        if (v.HasValue && writeOptional(tag, OptionalFormat.FSize))
-        {
-            int pos = startSize();
-            writeStringSeq(count, v.Value);
-            endSize(pos);
-        }
-    }
-
-    /// <summary>
-    /// Writes an optional string sequence to the stream.
-    /// </summary>
-    /// <param name="tag">The optional tag.</param>
     /// <param name="v">The string sequence to write to the stream.</param>
     public void writeStringSeq(int tag, string[] v)
     {
-        if (writeOptional(tag, OptionalFormat.FSize))
+        if (v is not null && writeOptional(tag, OptionalFormat.FSize))
         {
             int pos = startSize();
             writeStringSeq(v);
@@ -1914,7 +1669,7 @@ public class OutputStream
     /// <param name="v">An enumerator for the string sequence.</param>
     public void writeStringSeq(int tag, int count, IEnumerable<string> v)
     {
-        if (writeOptional(tag, OptionalFormat.FSize))
+        if (v is not null && writeOptional(tag, OptionalFormat.FSize))
         {
             int pos = startSize();
             writeStringSeq(count, v);
@@ -1943,23 +1698,11 @@ public class OutputStream
     /// Writes an optional proxy to the stream.
     /// </summary>
     /// <param name="tag">The optional tag.</param>
-    /// <param name="v">The optional proxy to write.</param>
-    public void writeProxy(int tag, Optional<ObjectPrx> v)
-    {
-        if (v.HasValue)
-        {
-            writeProxy(tag, v.Value);
-        }
-    }
-
-    /// <summary>
-    /// Writes an optional proxy to the stream.
-    /// </summary>
-    /// <param name="tag">The optional tag.</param>
     /// <param name="v">The proxy to write.</param>
     public void writeProxy(int tag, ObjectPrx v)
     {
-        if (writeOptional(tag, OptionalFormat.FSize))
+        // We don't write anything for an optional proxy with a null value.
+        if (v is not null && writeOptional(tag, OptionalFormat.FSize))
         {
             int pos = startSize();
             writeProxy(v);
@@ -2018,32 +1761,6 @@ public class OutputStream
     {
         initEncaps();
         _encapsStack.encoder.writeValue(v);
-    }
-
-    /// <summary>
-    /// Writes an optional class instance to the stream.
-    /// </summary>
-    /// <param name="tag">The optional tag.</param>
-    /// <param name="v">The optional value to write.</param>
-    public void writeValue<T>(int tag, Optional<T> v) where T : Value
-    {
-        if (v.HasValue)
-        {
-            writeValue(tag, v.Value);
-        }
-    }
-
-    /// <summary>
-    /// Writes an optional class instance to the stream.
-    /// </summary>
-    /// <param name="tag">The optional tag.</param>
-    /// <param name="v">The value to write.</param>
-    public void writeValue(int tag, Value v)
-    {
-        if (writeOptional(tag, OptionalFormat.Class))
-        {
-            writeValue(v);
-        }
     }
 
     /// <summary>

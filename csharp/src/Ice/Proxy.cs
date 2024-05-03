@@ -476,7 +476,7 @@ public interface ObjectPrx
     /// </summary>
     /// <returns>The compression override setting. If no optional value is present, no override is
     /// set. Otherwise, true if compression is enabled, false otherwise.</returns>
-    Ice.Optional<bool> ice_getCompress();
+    bool? ice_getCompress();
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for its timeout setting.
@@ -490,7 +490,7 @@ public interface ObjectPrx
     /// </summary>
     /// <returns>The timeout override. If no optional value is present, no override is set. Otherwise,
     /// returns the timeout override value.</returns>
-    Ice.Optional<int> ice_getTimeout();
+    int? ice_getTimeout();
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for its connection ID.
@@ -1507,7 +1507,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// </summary>
     /// <returns>The compression override setting. If no optional value is present, no override is
     /// set. Otherwise, true if compression is enabled, false otherwise.</returns>
-    public Ice.Optional<bool> ice_getCompress()
+    public bool? ice_getCompress()
     {
         return _reference.getCompress();
     }
@@ -1539,7 +1539,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// </summary>
     /// <returns>The timeout override. If no optional value is present, no override is set. Otherwise,
     /// returns the timeout override value.</returns>
-    public Ice.Optional<int> ice_getTimeout()
+    public int? ice_getTimeout()
     {
         return _reference.getTimeout();
     }

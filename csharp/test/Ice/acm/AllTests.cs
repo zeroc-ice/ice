@@ -555,7 +555,7 @@ namespace Ice
 
                     try
                     {
-                        con.setACM(-19, Ice.Util.None, Ice.Util.None);
+                        con.setACM(-19, null, null);
                         test(false);
                     }
                     catch (ArgumentException)
@@ -568,7 +568,7 @@ namespace Ice
                     test(acm.close == Ice.ACMClose.CloseOnIdleForceful);
                     test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOff);
 
-                    con.setACM(Ice.Util.None, Ice.Util.None, Ice.Util.None);
+                    con.setACM(null, null, null);
                     acm = con.getACM();
                     test(acm.timeout == 15);
                     test(acm.close == Ice.ACMClose.CloseOnIdleForceful);
