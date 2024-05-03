@@ -5,7 +5,7 @@
 #
 # the location of the MATLAB installation.
 #
-MATLAB_VERSION ?= R2024a
+MATLAB_VERSION ?= 2024a
 MATLAB_HOME    ?= /usr/local/MATLAB/$(MATLAB_VERSION)
 
 # ----------------------------------------------------------------------
