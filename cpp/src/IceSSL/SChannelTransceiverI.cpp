@@ -13,7 +13,7 @@
 #include "SSLInstance.h"
 #include "SSLUtil.h"
 
-#include <iostream>
+#include <sstream>
 
 using namespace std;
 using namespace Ice;
@@ -597,7 +597,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
             __FILE__,
             __LINE__,
             "IceSSL: certificate verification failed. the certificate was explicitly rejected by the remote "
-            "certificate verifier callback.");
+            "certificate validation callback.");
     }
 
     _state = StateHandshakeComplete;

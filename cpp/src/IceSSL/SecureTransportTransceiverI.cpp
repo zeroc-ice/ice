@@ -10,10 +10,10 @@
 #include "SecureTransportEngine.h"
 #include "SecureTransportUtil.h"
 
+#include <sstream>
+
 // Disable deprecation warnings from SecureTransport APIs
 #include "IceUtil/DisableWarnings.h"
-
-#include <iostream>
 
 using namespace std;
 using namespace Ice;

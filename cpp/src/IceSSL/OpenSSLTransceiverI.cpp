@@ -645,7 +645,7 @@ OpenSSL::TransceiverI::verifyCallback(int ok, X509_STORE_CTX* ctx)
                     __FILE__,
                     __LINE__,
                     "IceSSL: certificate verification failed. the certificate was explicitly rejected by the remote "
-                    "certificate verifier callback.");
+                    "certificate validation callback.");
             }
             else
             {
