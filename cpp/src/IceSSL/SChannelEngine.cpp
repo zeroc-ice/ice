@@ -1056,7 +1056,7 @@ SChannel::SSLEngine::validationCallback(
     const string& host) const
 {
     // Build the peer certificate chain and verify it.
-    PCCERT_CONTEXT cert = 0;
+    PCCERT_CONTEXT cert = nullptr;
     SECURITY_STATUS err = QueryContextAttributes(&ssl, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &cert);
     bool certificateRequired = !incoming || getVerifyPeer() > 1;
     if (err && (err != SEC_E_NO_CREDENTIALS || certificateRequired))
