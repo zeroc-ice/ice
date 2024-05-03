@@ -10,20 +10,19 @@ internal sealed class PropertiesI : Properties
 {
     private class PropertyValue
     {
-        public PropertyValue(PropertyValue v)
+        public string value { get; set; }
+        public bool used { get; set; }
+        public PropertyValue(string value, bool used)
         {
-            val = v.val;
-            used = v.used;
+            this.value = value;
+            this.used = used;
         }
 
-        public PropertyValue(string v, bool u)
+        public PropertyValue(PropertyValue propertyValue)
         {
-            val = v;
-            used = u;
+            value = propertyValue.value;
+            used = propertyValue.used;
         }
-
-        public string val;
-        public bool used;
     }
 
     public string getProperty(string key)
@@ -35,7 +34,7 @@ internal sealed class PropertiesI : Properties
             if (_properties.TryGetValue(key, out pv))
             {
                 pv.used = true;
-                result = pv.val;
+                result = pv.value;
             }
             return result;
         }
@@ -55,7 +54,7 @@ internal sealed class PropertiesI : Properties
             if (_properties.TryGetValue(key, out pv))
             {
                 pv.used = true;
-                result = pv.val;
+                result = pv.value;
             }
             return result;
         }
@@ -90,7 +89,7 @@ internal sealed class PropertiesI : Properties
             pv.used = true;
             try
             {
-                return int.Parse(pv.val, CultureInfo.InvariantCulture);
+                return int.Parse(pv.value, CultureInfo.InvariantCulture);
             }
             catch (FormatException)
             {
@@ -129,7 +128,7 @@ internal sealed class PropertiesI : Properties
 
             pv.used = true;
 
-            string[] result = Ice.UtilInternal.StringUtil.splitString(pv.val, ", \t\r\n");
+            string[] result = Ice.UtilInternal.StringUtil.splitString(pv.value, ", \t\r\n");
             if (result == null)
             {
                 Util.getProcessLogger().warning("mismatched quotes in property " + key
@@ -155,7 +154,7 @@ internal sealed class PropertiesI : Properties
                 {
                     PropertyValue pv = _properties[s];
                     pv.used = true;
-                    result[s] = pv.val;
+                    result[s] = pv.value;
                 }
             }
             return result;
@@ -180,9 +179,9 @@ internal sealed class PropertiesI : Properties
         var prop = findProperty(key, true);
 
         // If the property is deprecated by another property, use the new property key
-        if (prop != null && prop.deprecatedBy() != null)
+        if (prop != null && prop.deprecatedBy != null)
         {
-            key = prop.deprecatedBy();
+            key = prop.deprecatedBy;
         }
 
         lock (this)
@@ -196,7 +195,7 @@ internal sealed class PropertiesI : Properties
                 PropertyValue pv;
                 if (_properties.TryGetValue(key, out pv))
                 {
-                    pv.val = val;
+                    pv.value = val;
                 }
                 else
                 {
@@ -219,7 +218,7 @@ internal sealed class PropertiesI : Properties
             int i = 0;
             foreach (KeyValuePair<string, PropertyValue> entry in _properties)
             {
-                result[i++] = "--" + entry.Key + "=" + entry.Value.val;
+                result[i++] = "--" + entry.Key + "=" + entry.Value.value;
             }
             return result;
         }
@@ -609,7 +608,7 @@ internal sealed class PropertiesI : Properties
             string prefix = key.Substring(0, dotPos);
             foreach (var validProps in Ice.Internal.PropertyNames.validProps)
             {
-                string pattern = validProps[0].pattern();
+                string pattern = validProps[0].pattern;
                 dotPos = pattern.IndexOf('.');
                 Debug.Assert(dotPos != -1);
                 string propPrefix = pattern.Substring(1, dotPos - 2);
@@ -622,11 +621,11 @@ internal sealed class PropertiesI : Properties
 
                 foreach (var prop in validProps)
                 {
-                    Regex r = new Regex(prop.pattern());
+                    Regex r = new Regex(prop.pattern);
                     Match m = r.Match(key);
                     if (m.Success)
                     {
-                        if (prop.deprecated() && logWarnings)
+                        if (prop.deprecated && logWarnings)
                         {
                             logger.warning("deprecated property: " + key);
                         }
@@ -634,13 +633,13 @@ internal sealed class PropertiesI : Properties
                     }
 
                     // Check for case-insensitive match
-                    r = new Regex(prop.pattern().ToUpper());
+                    r = new Regex(prop.pattern.ToUpper());
                     m = r.Match(key.ToUpper());
                     if (m.Success)
                     {
                         if (logWarnings)
                         {
-                            string otherKey = prop.pattern().Replace("\\", "").Replace("^", "").Replace("$", "");
+                            string otherKey = prop.pattern.Replace("\\", "").Replace("^", "").Replace("$", "");
                             logger.warning("unknown property: `" + key + "'; did you mean `" + otherKey + "'");
                         }
                         return null;
@@ -674,7 +673,7 @@ internal sealed class PropertiesI : Properties
         {
             throw new ArgumentException("unknown ice property: " + key);
         }
-        return prop.defaultValue();
+        return prop.defaultValue;
     }
 
     private Dictionary<string, PropertyValue> _properties;
