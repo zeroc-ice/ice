@@ -17,13 +17,13 @@ namespace Ice
                 output.Flush();
                 string @ref = "initial:" + helper.getTestEndpoint(0);
                 var @base = communicator.stringToProxy(@ref);
-                test(@base != null);
+                test(@base is not null);
                 output.WriteLine("ok");
 
                 output.Write("testing checked cast... ");
                 output.Flush();
                 Test.InitialPrx initial = Test.InitialPrxHelper.checkedCast(@base);
-                test(initial != null);
+                test(initial is not null);
                 test(initial.Equals(@base));
                 output.WriteLine("ok");
 
@@ -306,7 +306,7 @@ namespace Ice
                 ReadValueCallbackI cb = new ReadValueCallbackI();
                 @in.readValue(cb.invoke);
                 @in.endEncapsulation();
-                test(cb.obj != null && cb.obj is TestValueReader);
+                test(cb.obj is not null && cb.obj is TestValueReader);
 
                 os = new Ice.OutputStream(communicator);
                 os.startEncapsulation();
@@ -318,7 +318,7 @@ namespace Ice
                 @in.startEncapsulation();
                 @in.readValue(cb.invoke);
                 @in.endEncapsulation();
-                test(cb.obj != null && cb.obj is TestValueReader);
+                test(cb.obj is not null && cb.obj is TestValueReader);
                 factory.setEnabled(false);
 
                 Test.G g = new Test.G();
@@ -382,7 +382,7 @@ namespace Ice
                 @in.startEncapsulation();
                 @in.readValue(cb.invoke);
                 @in.endEncapsulation();
-                test(cb.obj != null && cb.obj is TestValueReader);
+                test(cb.obj is not null && cb.obj is TestValueReader);
                 factory.setEnabled(false);
 
                 output.WriteLine("ok");
@@ -418,7 +418,7 @@ namespace Ice
                     @in.startEncapsulation();
                     @in.readValue(cb.invoke);
                     @in.endEncapsulation();
-                    test(cb.obj != null);
+                    test(cb.obj is not null);
                     factory.setEnabled(false);
                 }
                 output.WriteLine("ok");
@@ -447,7 +447,7 @@ namespace Ice
                     @in.endEncapsulation();
                     factory.setEnabled(false);
                     rf = ((FValueReader)rocb.obj).getF();
-                    test(rf.fse != null && rf.fsf is null);
+                    test(rf.fsf is null);
                 }
                 output.WriteLine("ok");
 
@@ -499,7 +499,7 @@ namespace Ice
                         @in.startEncapsulation();
                         @in.readValue(cb.invoke);
                         @in.endEncapsulation();
-                        test(cb.obj != null && cb.obj is DValueReader);
+                        test(cb.obj is not null && cb.obj is DValueReader);
                         ((DValueReader)cb.obj).check();
                         factory.setEnabled(false);
                     }
@@ -542,7 +542,7 @@ namespace Ice
                     var result = await initial.opByteAsync(p1);
                     test(result.returnValue.Value == 56 && result.p3.Value == 56);
 
-                    p2 = initial.opByte(new byte?(), out p3);
+                    p2 = initial.opByte(null, out p3);
                     test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -578,7 +578,7 @@ namespace Ice
                     var result = await initial.opBoolAsync(p1);
                     test(result.returnValue.Value == true && result.p3.Value == true);
 
-                    p2 = initial.opBool(new bool?(), out p3);
+                    p2 = initial.opBool(null, out p3);
                     test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -614,7 +614,7 @@ namespace Ice
                     var result = await initial.opShortAsync(p1);
                     test(result.returnValue.Value == 56 && result.p3.Value == 56);
 
-                    p2 = initial.opShort(new short?(), out p3);
+                    p2 = initial.opShort(null, out p3);
                     test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -650,7 +650,7 @@ namespace Ice
                     var result = await initial.opIntAsync(p1);
                     test(result.returnValue.Value == 56 && result.p3.Value == 56);
 
-                    p2 = initial.opInt(new int?(), out p3);
+                    p2 = initial.opInt(null, out p3);
                     test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -686,7 +686,7 @@ namespace Ice
                     var result = await initial.opLongAsync(p1);
                     test(result.returnValue.Value == 56 && p3.Value == 56);
 
-                    p2 = initial.opLong(new long?(), out p3);
+                    p2 = initial.opLong(null, out p3);
                     test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -722,7 +722,7 @@ namespace Ice
                     var result = await initial.opFloatAsync(p1);
                     test(result.returnValue.Value == 1.0 && result.p3.Value == 1.0);
 
-                    p2 = initial.opFloat(new float?(), out p3);
+                    p2 = initial.opFloat(null, out p3);
                     test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -757,7 +757,7 @@ namespace Ice
                     var result = await initial.opDoubleAsync(p1);
                     test(result.returnValue.Value == 1.0 && result.p3.Value == 1.0);
 
-                    p2 = initial.opDouble(new double?(), out p3);
+                    p2 = initial.opDouble(null, out p3);
                     test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -832,7 +832,7 @@ namespace Ice
                          result.p3.Value == Test.MyEnum.MyEnumMember);
                     p2 = initial.opMyEnum(p1.Value, out p3);
 
-                    p2 = initial.opMyEnum(new Test.MyEnum?(), out p3);
+                    p2 = initial.opMyEnum(null, out p3);
                     test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -868,7 +868,7 @@ namespace Ice
                     var result = await initial.opSmallStructAsync(p1);
                     test(result.returnValue.Value.m == 56 && result.p3.Value.m == 56);
 
-                    p2 = initial.opSmallStruct(new Test.SmallStruct?(), out p3);
+                    p2 = initial.opSmallStruct(null, out p3);
                     test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -910,7 +910,7 @@ namespace Ice
                     var result = await initial.opFixedStructAsync(p1);
                     test(result.returnValue.Value.m == 56 && result.p3.Value.m == 56);
 
-                    p2 = initial.opFixedStruct(new Test.FixedStruct?(), out p3);
+                    p2 = initial.opFixedStruct(null, out p3);
                     test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
@@ -1685,7 +1685,7 @@ namespace Ice
                     @in.skipSize();
                     Test.FixedStruct fs1 = Test.FixedStruct.ice_read(@in);
                     @in.endEncapsulation();
-                    test(fs1 != null && fs1.m == 56);
+                    test(fs1.m == 56);
                 }
 
                 output.WriteLine("ok");
@@ -1707,8 +1707,8 @@ namespace Ice
 
                     try
                     {
-                        int? a = new int?(30);
-                        string b = new string("test");
+                        int? a = 30;
+                        string b = "test";
                         initial.opOptionalException(a, b);
                     }
                     catch (Test.OptionalException ex)
@@ -1723,7 +1723,7 @@ namespace Ice
                         // Use the 1.0 encoding with an exception whose only class members are optional.
                         //
                         Test.InitialPrx initial2 = (Test.InitialPrx)initial.ice_encodingVersion(Ice.Util.Encoding_1_0);
-                        int? a = new int?(30);
+                        int? a = 30;
                         string b = "test";
                         initial2.opOptionalException(a, b);
                     }
@@ -1750,8 +1750,8 @@ namespace Ice
 
                     try
                     {
-                        int? a = new int?(30);
-                        string b = new string("test2");
+                        int? a = 30;
+                        string b = "test2";
                         initial.opDerivedException(a, b);
                     }
                     catch (Test.DerivedException ex)
@@ -1841,7 +1841,7 @@ namespace Ice
                     return true;
                 }
 
-                if (a1 == null || a2 == null)
+                if (a1 is null || a2 is null)
                 {
                     return false;
                 }
@@ -1870,7 +1870,7 @@ namespace Ice
                     return true;
                 }
 
-                if (a1 == null || a2 == null)
+                if (a1 is null || a2 is null)
                 {
                     return false;
                 }
@@ -1901,7 +1901,7 @@ namespace Ice
                     return true;
                 }
 
-                if (d1 == null || d2 == null)
+                if (d1 is null || d2 is null)
                 {
                     return false;
                 }

@@ -2455,43 +2455,6 @@ public class InputStream
     }
 
     /// <summary>
-    /// Extracts the index of an optional Slice value from the stream.
-    /// </summary>
-    /// <param name="tag">The numeric tag associated with the value.</param>
-    /// <param name="cb">The callback to notify the application when the extracted instance is available (if any).
-    /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
-    /// corresponding instance has been fully unmarshaled.</param>
-    public void readValue<T>(int tag, System.Action<T> cb) where T : Value
-    {
-        readValue(tag, v =>
-        {
-            if (v == null || v is T)
-            {
-                cb((T)v);
-            }
-            else
-            {
-                Ice.Internal.Ex.throwUOE(typeof(T), v);
-            }
-        });
-    }
-
-    /// <summary>
-    /// Extracts the index of an optional Slice value from the stream.
-    /// </summary>
-    /// <param name="tag">The numeric tag associated with the value.</param>
-    /// <param name="cb">The callback to notify the application when the extracted instance is available (if any).
-    /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
-    /// corresponding instance has been fully unmarshaled.</param>
-    public void readValue(int tag, System.Action<Value> cb)
-    {
-        if (readOptional(tag, OptionalFormat.Class))
-        {
-            readValue(cb);
-        }
-    }
-
-    /// <summary>
     /// Extracts a user exception from the stream and throws it.
     /// </summary>
     public void throwException()
