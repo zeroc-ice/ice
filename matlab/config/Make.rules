@@ -14,9 +14,6 @@ MATLAB_HOME    ?= /usr/local/MATLAB/$(MATLAB_VERSION)
 
 -include        $(lang_srcdir)/config/Make.rules.$(os)
 
-matlab          ?= $(MATLAB_HOME)/bin/matlab
-matlab_run_args ?= -nodisplay -nosplash -r
-
 matlab_cflags = -fexceptions \
     -fno-omit-frame-pointer \
     -pthread \

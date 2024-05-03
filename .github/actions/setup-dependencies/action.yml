@@ -136,7 +136,7 @@ runs:
       if: runner.os == 'Windows' && matrix.config == 'matlab'
 
     # https://github.com/matlab-actions/run-command/issues/53
-    - name: Get run-matlab-command and set MATLAB_VERSION
+    - name: Get run-matlab-command
       run: |
         wget -O /usr/local/bin/run-matlab-command https://ssd.mathworks.com/supportfiles/ci/run-matlab-command/v2/glnxa64/run-matlab-command
         chmod +x /usr/local/bin/run-matlab-command
