@@ -5,7 +5,8 @@
 #
 # the location of the MATLAB installation.
 #
-MATLAB_HOME ?= /usr/local/MATLAB/R2019b
+MATLAB_VERSION ?= R2024a
+MATLAB_HOME    ?= /usr/local/MATLAB/$(MATLAB_VERSION)
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
@@ -13,8 +14,9 @@ MATLAB_HOME ?= /usr/local/MATLAB/R2019b
 
 -include        $(lang_srcdir)/config/Make.rules.$(os)
 
-matlab := $(MATLAB_HOME)/bin/matlab
-mex    := $(MATLAB_HOME)/bin/mex
+matlab          ?= $(MATLAB_HOME)/bin/matlab
+matlab_run_args ?= -nodisplay -nosplash -r
+mex             := $(MATLAB_HOME)/bin/mex
 
 matlab_cflags = -fexceptions \
     -fno-omit-frame-pointer \

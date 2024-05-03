@@ -7,9 +7,7 @@ lang_srcdir     := $(top_srcdir)/$(notdir $(patsubst %/,%,$(dir $(lastword $(abs
 
 include $(top_srcdir)/config/Make.rules
 
-# matlab_version  = $(patsubst @@%@@,%,$(filter VERSION-%,$(shell $(matlab) -nodesktop -nosplash -r "fprintf('@@%s@@', version('-release'));exit(0);")))
-matlab_version  ?= 2024a
-icetoolbox_file = toolbox/ice-$(version)-R$(matlab_version)-linux.mltbx
+icetoolbox_file = toolbox/ice-$(version)-R$(MATLAB_VERSION)-linux.mltbx
 
 #
 # Load C++ dependencies
@@ -96,12 +94,12 @@ $(icetoolbox_file):: $(icethunk_target) $(slice2matlab_path) $(lang_srcdir)/lib/
 	sed -i 's|@RootDir@|$(lang_srcdir)|g' $(lang_srcdir)/toolbox/toolbox.prj
 	sed -i 's|@MatlabHome@|$(MATLAB_HOME)|g' $(lang_srcdir)/toolbox/toolbox.prj
 	sed -i 's/@IceVersion@/$(version)/g' $(lang_srcdir)/toolbox/toolbox.prj
-	sed -i 's/@MatlabVersion@/R$(matlab_version)/g' $(lang_srcdir)/toolbox/toolbox.prj
+	sed -i 's/@MatlabVersion@/R$(MATLAB_VERSION)/g' $(lang_srcdir)/toolbox/toolbox.prj
 	sed -i 's/@SLICE2MATLAB@/slice2matlab/g' $(lang_srcdir)/toolbox/toolbox.prj
 	sed -i 's/@IS_WINDOWS@/false/g' $(lang_srcdir)/toolbox/toolbox.prj
 	sed -i 's/@IS_LINUX@/true/g' $(lang_srcdir)/toolbox/toolbox.prj
 	cp $(lang_srcdir)/toolbox/info.template.xml $(lang_srcdir)/toolbox/info.xml
-	sed -i 's/@MatlabVersion@/R$(matlab_version)/g' $(lang_srcdir)/toolbox/info.xml
+	sed -i 's/@MatlabVersion@/R$(MATLAB_VERSION)/g' $(lang_srcdir)/toolbox/info.xml
 	# Sources and libraries
 	mkdir -p $(lang_srcdir)/toolbox/build
 	cp -rf $(lang_srcdir)/lib/*.m $(lang_srcdir)/toolbox/build
