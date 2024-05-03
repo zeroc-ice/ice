@@ -3802,7 +3802,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 TypePtr t = outParams.front()->type();
                 _out << nl << typeToString(t, ns, (outParams.front()->optional())) << " iceP_"
-                    << outParams.front()->name() << " = default;";
+                     << outParams.front()->name() << " = default;";
             }
 
             writeMarshalUnmarshalParams(outParams, op, false, ns, true);
