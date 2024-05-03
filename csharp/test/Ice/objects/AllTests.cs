@@ -38,7 +38,7 @@ namespace Ice
                 }
             }
 
-            public partial struct S1
+            public partial record struct S1
             {
                 partial void ice_initialize()
                 {
