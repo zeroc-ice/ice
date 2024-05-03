@@ -387,8 +387,8 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
             string customType = meta.substr(prefix.size());
             if (customType == "List" || customType == "LinkedList" || customType == "Queue" || customType == "Stack")
             {
-                return "global::System.Collections.Generic." + customType + "<" +
-                       typeToString(seq->type(), package) + ">";
+                return "global::System.Collections.Generic." + customType + "<" + typeToString(seq->type(), package) +
+                       ">";
             }
             else
             {
@@ -413,8 +413,8 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         {
             typeName = "Dictionary";
         }
-        return "global::System.Collections.Generic." + typeName + "<" + typeToString(d->keyType(), package) +
-               ", " + typeToString(d->valueType(), package) + ">";
+        return "global::System.Collections.Generic." + typeName + "<" + typeToString(d->keyType(), package) + ", " +
+               typeToString(d->valueType(), package) + ">";
     }
 
     ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
@@ -1024,7 +1024,13 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(
                 out << nl << stream << ".writeSize(" << st->minWireSize() << ");";
             }
 
-            writeMarshalUnmarshalCode(out, type, scope, isMappedToClass(st) ? param : param + ".Value", marshal, customStream);
+            writeMarshalUnmarshalCode(
+                out,
+                type,
+                scope,
+                isMappedToClass(st) ? param : param + ".Value",
+                marshal,
+                customStream);
             if (st->isVariableLength())
             {
                 out << nl << stream << ".endSize(pos);";
@@ -1110,8 +1116,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(
         else
         {
             out << nl << stream << ".writeSize(" << param << ".Count * "
-                << (keyType->minWireSize() + valueType->minWireSize()) << " + (" << param
-                << ".Count > 254 ? 5 : 1));";
+                << (keyType->minWireSize() + valueType->minWireSize()) << " + (" << param << ".Count > 254 ? 5 : 1));";
         }
         writeMarshalUnmarshalCode(out, type, scope, param, marshal, customStream);
         if (keyType->isVariableLength() || valueType->isVariableLength())
@@ -1863,7 +1868,8 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(
                     {
                         out << nl << "if (" << param << " is not null";
                         out << sb;
-                        out << nl << stream << ".write" << func << "Seq(" << tag << ", " << param << ".Count, " << param << ");";
+                        out << nl << stream << ".write" << func << "Seq(" << tag << ", " << param << ".Count, " << param
+                            << ");";
                         out << eb;
                     }
                 }
@@ -1944,8 +1950,8 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(
             }
             else if (st->minWireSize() > 1)
             {
-                out << nl << stream << ".writeSize(" << length << " * "
-                    << st->minWireSize() << " + (" << length << " > 254 ? 5 : 1));";
+                out << nl << stream << ".writeSize(" << length << " * " << st->minWireSize() << " + (" << length
+                    << " > 254 ? 5 : 1));";
             }
             writeSequenceMarshalUnmarshalCode(out, seq, scope, param, marshal, true, stream);
             if (st->isVariableLength())
