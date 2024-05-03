@@ -96,8 +96,8 @@ namespace Ice::SSL
          * server's certificate chain is validated against these certificates; otherwise, the system's default root
          * certificates are used.
          *
-         * @remarks The trusted root certificates are used by both the default validation callback, and by custom
-         * validation callback set in clientCertificateValidationCallback.
+         * @remarks The trusted root certificates are only used by the default validation callback; they are ignored by
+         * custom validation callbacks set with serverCertificateValidationCallback.
          *
          * Example of setting trustedRootCertificates:
          * ```cpp
@@ -209,7 +209,7 @@ namespace Ice::SSL
          * certificates are used.
          *
          * @remarks The trusted root certificates are used by both the default validation callback, and by custom
-         * validation callback set in clientCertificateValidationCallback.
+         * validation callback set in serverCertificateValidationCallback.
          *
          * This is equivalent to calling
          * [SecTrustSetAnchorCertificates](https://developer.apple.com/documentation/security/1396098-sectrustsetanchorcertificates?language=objc)

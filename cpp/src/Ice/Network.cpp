@@ -2170,7 +2170,7 @@ IceInternal::doFinishConnectAsync(SOCKET fd, AsyncInfo& info)
 #endif
 
 bool
-IceInternal::misIpAddress(const string& name)
+IceInternal::isIpAddress(const string& name)
 {
     in_addr addr;
     in6_addr addr6;
