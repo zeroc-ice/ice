@@ -307,7 +307,7 @@ OpenSSL::TransceiverI::close()
     if (_sslCtx)
     {
         SSL_CTX_free(_sslCtx);
-        _sslCtx = 0;
+        _sslCtx = nullptr;
     }
 
     if (_memBio)
