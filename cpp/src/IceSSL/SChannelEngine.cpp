@@ -652,7 +652,7 @@ SChannel::SSLEngine::initialize()
             }
 
             PCRYPT_PRIVATE_KEY_INFO keyInfo = nullptr;
-            BYTE* key = nulptr;
+            BYTE* key = nullptr;
             HCRYPTKEY hKey = 0;
             try
             {
@@ -1022,8 +1022,8 @@ SChannel::SSLEngine::createServerAuthenticationOptions() const
                 return cert;
             }
         },
-        .trustedRootCertificates = _rootStore,
         .clientCertificateRequired = getVerifyPeer() > 0,
+        .trustedRootCertificates = _rootStore,
         .clientCertificateValidationCallback =
             [self = shared_from_this()](CtxtHandle ssl, const ConnectionInfoPtr& info) -> bool
         { return self->validationCallback(ssl, info, true, ""); }};

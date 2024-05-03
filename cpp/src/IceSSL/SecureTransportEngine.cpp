@@ -705,9 +705,6 @@ SecureTransport::SSLEngine::createClientAuthenticationOptions(const string& host
     // It is safe to capture 'this' in the callbacks below as SSLEngine is managed by the communicator
     // and is guaranteed to outlive all connections.
     return ClientAuthenticationOptions{
-        .trustedRootCertificates = _certificateAuthorities.get(),
-        .serverCertificateValidationCallback = [this, host](SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)
-        { return validationCallback(trust, info, host); },
         .clientCertificateSelectionCallback =
             [this](const string&)
         {
@@ -717,7 +714,10 @@ SecureTransport::SSLEngine::createClientAuthenticationOptions(const string& host
                 CFRetain(chain);
             }
             return chain;
-        }};
+        },
+        .trustedRootCertificates = _certificateAuthorities.get(),
+        .serverCertificateValidationCallback = [this, host](SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)
+        { return validationCallback(trust, info, host); }};
 }
 
 ServerAuthenticationOptions
@@ -740,10 +740,10 @@ SecureTransport::SSLEngine::createServerAuthenticationOptions() const
     // It is safe to capture 'this' in the callbacks below as SSLEngine is managed by the communicator
     // and is guaranteed to outlive all connections.
     return ServerAuthenticationOptions{
-        .trustedRootCertificates = _certificateAuthorities.get(),
         .clientCertificateValidationCallback = [this](SecTrustRef trust, const IceSSL::ConnectionInfoPtr& info)
         { return validationCallback(trust, info, ""); },
         .clientCertificateRequired = clientCertificateRequired,
+        .trustedRootCertificates = _certificateAuthorities.get(),
         .serverCertificateSelectionCallback =
             [this](const string&)
         {

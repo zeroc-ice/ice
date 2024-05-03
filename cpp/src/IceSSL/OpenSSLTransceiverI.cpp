@@ -78,7 +78,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
     if (!_ssl)
     {
         SOCKET fd = _delegate->getNativeInfo()->fd();
-        BIO* bio = nulptr;
+        BIO* bio = nullptr;
         if (fd == INVALID_SOCKET)
         {
             assert(_sentBytes == 0);
@@ -86,8 +86,8 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
             _maxRecvPacketSize = 128 * 1024; // 128KB
             if (!BIO_new_bio_pair(&bio, _maxSendPacketSize, &_memBio, _maxRecvPacketSize))
             {
-                bio = nulptr;
-                _memBio = nulptr;
+                bio = nullptr;
+                _memBio = nullptr;
             }
         }
         else
@@ -112,7 +112,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
             if (_memBio)
             {
                 BIO_free(_memBio);
-                _memBio = nulptr;
+                _memBio = nullptr;
             }
             throw SecurityException(__FILE__, __LINE__, "openssl failure");
         }
@@ -313,7 +313,7 @@ OpenSSL::TransceiverI::close()
     if (_memBio)
     {
         BIO_free(_memBio);
-        _memBio = nulptr;
+        _memBio = nullptr;
     }
 
     _delegate->close();

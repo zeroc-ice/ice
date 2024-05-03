@@ -308,7 +308,7 @@ namespace Ice::SSL
     /**
      * The SSL configuration properties for client connections.
      */
-    struct OpenSSLAuthenticationOptions
+    struct OpenSSLClientAuthenticationOptions
     {
         /**
          * A callback that allows selecting the client's SSL_CTX object based on the target host name.
