@@ -129,11 +129,11 @@ class FValueReader: Ice.Value {
     _f = F()
     istr.startValue()
     _ = try istr.startSlice()
-    // Don't read af on purpose
-    // in.read(1, _f.af);
+    // Don't read fsf on purpose
+    // in.read(1, _f.fsf);
     try istr.endSlice()
     _ = try istr.startSlice()
-    try istr.read(A.self) { self._f.ae = $0 }
+    self._f.fse = try istr.read()
     try istr.endSlice()
     _ = try istr.endValue()
   }
@@ -546,20 +546,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
   }
   factory.setEnabled(enabled: false)
 
-  //
-  // Use the 1.0 encoding with operations whose only class parameters are optional.
-  //
   do {
-    var oo: OneOptional? = OneOptional(a: 53)
-    try initial.sendOptionalClass(req: true, o: oo)
-    let initial2 = initial.ice_encodingVersion(Ice.Encoding_1_0)
-    try initial2.sendOptionalClass(req: true, o: oo)
-
-    oo = try initial.returnOptionalClass(true)
-    try test(oo != nil && oo!.a == 53)
-    oo = try initial2.returnOptionalClass(true)
-    try test(oo == nil)
-
     var g: G! = G()
     g.gg1Opt = G1(a: "gg1Opt")
     g.gg2 = G2(a: 10)
@@ -567,9 +554,9 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     g.gg1 = G1(a: "gg1")
     g = try initial.opG(g)
     try test(g.gg1Opt!.a == "gg1Opt")
-    try test(g.gg2!.a == 10)
+    try test(g.gg2.a == 10)
     try test(g.gg2Opt!.a == 20)
-    try test(g.gg1!.a == "gg1")
+    try test(g.gg1.a == "gg1")
 
     try initial.opVoid()
 
@@ -660,15 +647,15 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
   }
   output.writeLine("ok")
 
-  output.write("testing marshaling of objects with optional objects...")
+  output.write("testing marshaling of objects with optional members...")
   do {
     let f = F()
 
-    f.af = A()
-    f.ae = f.af
+    f.fsf = FixedStruct()
+    f.fse = f.fsf!
 
     var rf = try initial.pingPong(f) as! F
-    try test(rf.ae === rf.af)
+    try test(rf.fse == rf.fsf)
 
     factory.setEnabled(enabled: true)
     let ostr = Ice.OutputStream(communicator: communicator)
@@ -683,7 +670,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     try istr.endEncapsulation()
     factory.setEnabled(enabled: false)
     rf = (v as! FValueReader).getF()!
-    try test(rf.ae != nil && rf.af == nil)
+    try test(rf.fse.m == 0 && rf.fsf == nil)
   }
   output.writeLine("ok")
 
@@ -3080,23 +3067,22 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     try istr.endEncapsulation()
 
     let f = F()
-    f.af = A()
-    f.af!.requiredA = 56
-    f.ae = f.af
+    f.fsf = FixedStruct()
+    f.fsf!.m = 56
+    f.fse = f.fsf!
 
     ostr = Ice.OutputStream(communicator: communicator)
     ostr.startEncapsulation()
     ostr.write(tag: 1, value: f)
-    ostr.write(tag: 2, value: f.ae)
+    ostr.write(tag: 2, value: f.fse)
     ostr.endEncapsulation()
     inEncaps = ostr.finished()
 
     istr = Ice.InputStream(communicator: communicator, bytes: inEncaps)
     _ = try istr.startEncapsulation()
-    var a: Value?
-    try istr.read(tag: 2) { a = $0 }
+    let fs1: FixedStruct? = try istr.read(tag: 2)
     try istr.endEncapsulation()
-    try test(a != nil && (a as! A).requiredA == 56)
+    try test(fs1 != nil && fs1!.m == 56)
   }
 
   do {

@@ -303,6 +303,7 @@ class InvocationFuture(Future):
 
     def operation(self):
         return self._operation
+
     def _warn(self, msg):
         communicator = self.communicator()
         if communicator:
@@ -1239,17 +1240,26 @@ class PropertiesI(Properties):
     def getProperty(self, key):
         return self._impl.getProperty(key)
 
+    def getIceProperty(self, key):
+        return self._impl.getIceProperty(key)
+
     def getPropertyWithDefault(self, key, value):
         return self._impl.getPropertyWithDefault(key, value)
 
     def getPropertyAsInt(self, key):
         return self._impl.getPropertyAsInt(key)
 
+    def getIcePropertyAsInt(self, key):
+        return self._impl.getIcePropertyAsInt(key)
+
     def getPropertyAsIntWithDefault(self, key, value):
         return self._impl.getPropertyAsIntWithDefault(key, value)
 
     def getPropertyAsList(self, key):
         return self._impl.getPropertyAsList(key)
+
+    def getIcePropertyAsList(self, key):
+        return self._impl.getIcePropertyAsList(key)
 
     def getPropertyAsListWithDefault(self, key, value):
         return self._impl.getPropertyAsListWithDefault(key, value)
@@ -1932,9 +1942,7 @@ class Application(object):
 # Define Ice::Value and Ice::ObjectPrx.
 #
 IcePy._t_Object = IcePy.defineClass("::Ice::Object", Object, (), None, ())
-IcePy._t_Value = IcePy.defineValue(
-    "::Ice::Object", Value, -1, (), False, None, ()
-)
+IcePy._t_Value = IcePy.defineValue("::Ice::Object", Value, -1, (), False, None, ())
 IcePy._t_ObjectPrx = IcePy.defineProxy("::Ice::Object", ObjectPrx)
 Object._ice_type = IcePy._t_Object
 

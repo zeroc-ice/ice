@@ -628,7 +628,7 @@ IceUtilInternal::unescapeString(const string& s, string::size_type start, string
 }
 
 bool
-IceUtilInternal::splitString(const string& str, const string& delim, vector<string>& result)
+IceUtilInternal::splitString(string_view str, string_view delim, vector<string>& result)
 {
     string::size_type pos = 0;
     string::size_type length = str.length();

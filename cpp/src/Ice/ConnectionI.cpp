@@ -72,52 +72,6 @@ namespace
         const weak_ptr<Ice::ConnectionI> _connection;
     };
 
-    class ExecuteUpcall final : public ExecutorWorkItem
-    {
-    public:
-        ExecuteUpcall(
-            const ConnectionIPtr& connection,
-            function<void(ConnectionIPtr)> connectionStartCompleted,
-            const vector<ConnectionI::OutgoingMessage>& sentCBs,
-            const function<bool(InputStream&)> messageUpcall,
-            InputStream& messageStream)
-            : ExecutorWorkItem(connection),
-              _connection(connection),
-              _connectionStartCompleted(std::move(connectionStartCompleted)),
-              _sentCBs(sentCBs),
-              _messageUpcall(std::move(messageUpcall)),
-              _messageStream(messageStream.instance(), currentProtocolEncoding)
-        {
-            _messageStream.swap(messageStream);
-        }
-
-        void run() final { _connection->upcall(_connectionStartCompleted, _sentCBs, _messageUpcall, _messageStream); }
-
-    private:
-        const ConnectionIPtr _connection;
-        const function<void(Ice::ConnectionIPtr)> _connectionStartCompleted;
-        const vector<ConnectionI::OutgoingMessage> _sentCBs;
-        const function<bool(InputStream&)> _messageUpcall;
-        InputStream _messageStream;
-    };
-
-    class ExecuteFinish final : public ExecutorWorkItem
-    {
-    public:
-        ExecuteFinish(const Ice::ConnectionIPtr& connection, bool close)
-            : ExecutorWorkItem(connection),
-              _connection(connection),
-              _close(close)
-        {
-        }
-
-        void run() final { _connection->finish(_close); }
-
-    private:
-        const ConnectionIPtr _connection;
-        const bool _close;
-    };
-
     //
     // Class for handling Ice::Connection::begin_flushBatchRequests
     //
@@ -838,7 +792,7 @@ Ice::ConnectionI::setCloseCallback(CloseCallback callback)
         if (callback)
         {
             auto self = shared_from_this();
-            _threadPool->execute([self, callback = std::move(callback)]() { self->closeCallback(callback); });
+            _threadPool->execute([self, callback = std::move(callback)]() { self->closeCallback(callback); }, self);
         }
     }
     else
@@ -1197,6 +1151,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
     function<void(ConnectionIPtr)> connectionStartCompleted;
     vector<OutgoingMessage> sentCBs;
     function<bool(InputStream&)> messageUpcall;
+    InputStream messageStream(_instance.get(), currentProtocolEncoding);
 
     ThreadPoolMessage<ConnectionI> msg(current, *this);
     {
@@ -1403,7 +1358,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     // At this point, the protocol message is fully read and can therefore be decoded by parseMessage.
                     // parseMessage returns the operation to wait for readiness next.
                     newOp =
-                        static_cast<SocketOperation>(newOp | parseMessage(upcallCount, messageUpcall, current.stream));
+                        static_cast<SocketOperation>(newOp | parseMessage(upcallCount, messageUpcall, messageStream));
                 }
 
                 if (readyOp & SocketOperationWrite)
@@ -1476,25 +1431,42 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 
 // executeFromThisThread dispatches to the correct DispatchQueue
 #ifdef ICE_SWIFT
-    _threadPool->executeFromThisThread(make_shared<ExecuteUpcall>(
-        shared_from_this(),
-        std::move(connectionStartCompleted),
-        sentCBs,
-        std::move(messageUpcall),
-        current.stream));
+    auto stream = make_shared<InputStream>();
+    stream->swap(messageStream);
+
+    auto self = shared_from_this();
+    _threadPool->executeFromThisThread(
+        [self,
+         connectionStartCompleted = std::move(connectionStartCompleted),
+         sentCBs = std::move(sentCBs),
+         messageUpcall = std::move(messageUpcall),
+         stream]()
+        { self->upcall(std::move(connectionStartCompleted), std::move(sentCBs), std::move(messageUpcall), *stream); },
+        self);
 #else
     if (!_hasExecutor) // Optimization, call dispatch() directly if there's no executor.
     {
-        upcall(connectionStartCompleted, sentCBs, std::move(messageUpcall), current.stream);
+        upcall(std::move(connectionStartCompleted), std::move(sentCBs), std::move(messageUpcall), messageStream);
     }
     else
     {
-        _threadPool->executeFromThisThread(make_shared<ExecuteUpcall>(
-            shared_from_this(),
-            std::move(connectionStartCompleted),
-            sentCBs,
-            std::move(messageUpcall),
-            current.stream));
+        auto stream = make_shared<InputStream>();
+        stream->swap(messageStream);
+
+        auto self = shared_from_this();
+        _threadPool->executeFromThisThread(
+            [self,
+             connectionStartCompleted = std::move(connectionStartCompleted),
+             sentCBs = std::move(sentCBs),
+             messageUpcall = std::move(messageUpcall),
+             stream]() {
+                self->upcall(
+                    std::move(connectionStartCompleted),
+                    std::move(sentCBs),
+                    std::move(messageUpcall),
+                    *stream);
+            },
+            self);
     }
 #endif
 }
@@ -1605,9 +1577,10 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
 
     current.ioCompleted();
 
-// executeFromThisThread dispatches to the correct DispatchQueue
+    // executeFromThisThread dispatches to the correct DispatchQueue
 #ifdef ICE_SWIFT
-    _threadPool->executeFromThisThread(make_shared<ExecuteFinish>(shared_from_this(), close));
+    auto self = shared_from_this();
+    _threadPool->executeFromThisThread([self, close]() { self->finish(close); }, self);
 #else
     if (!_hasExecutor) // Optimization, call finish() directly if there's no executor.
     {
@@ -1615,7 +1588,8 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
     }
     else
     {
-        _threadPool->executeFromThisThread(make_shared<ExecuteFinish>(shared_from_this(), close));
+        auto self = shared_from_this();
+        _threadPool->executeFromThisThread([self, close]() { self->finish(close); }, self);
     }
 #endif
 }
@@ -3108,9 +3082,9 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
 
                     stream.read(requestId);
 
-                    upcall = [this, requestId, adapter, compress](InputStream& messageStream)
+                    upcall = [self = shared_from_this(), requestId, adapter, compress](InputStream& messageStream)
                     {
-                        dispatchAll(messageStream, requestCount, requestId, compress, adapter);
+                        self->dispatchAll(messageStream, requestCount, requestId, compress, adapter);
                         return false; // the upcall will be completed once the dispatch is done.
                     };
                     ++upcallCount;
@@ -3143,9 +3117,9 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                         throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
                     }
 
-                    upcall = [this, requestCount, adapter, compress](InputStream& messageStream)
+                    upcall = [self = shared_from_this(), requestCount, adapter, compress](InputStream& messageStream)
                     {
-                        dispatchAll(messageStream, requestCount, requestId, compress, adapter);
+                        self->dispatchAll(messageStream, requestCount, requestId, compress, adapter);
                         return false; // the upcall will be completed once the servant dispatch is done.
                     };
                     upcallCount += requestCount;
@@ -3226,22 +3200,21 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                 traceRecv(stream, _logger, _traceLevels);
                 if (_heartbeatCallback)
                 {
-                    auto heartbeatCallback = _heartbeatCallback;
-                    upcall = [this, heartbeatCallback](InputStream&)
+                    upcall = [self = shared_from_this(), heartbeatCallback = _heartbeatCallback](InputStream&)
                     {
                         try
                         {
-                            heartbeatCallback(shared_from_this());
+                            heartbeatCallback(self);
                         }
                         catch (const std::exception& ex)
                         {
-                            Error out(_instance->initializationData().logger);
-                            out << "connection callback exception:\n" << ex << '\n' << _desc;
+                            Error out(self->_instance->initializationData().logger);
+                            out << "connection callback exception:\n" << ex << '\n' << self->_desc;
                         }
                         catch (...)
                         {
-                            Error out(_instance->initializationData().logger);
-                            out << "connection callback exception:\nunknown c++ exception" << '\n' << _desc;
+                            Error out(self->_instance->initializationData().logger);
+                            out << "connection callback exception:\nunknown c++ exception" << '\n' << self->_desc;
                         }
                         return true; // upcall is done
                     };

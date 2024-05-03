@@ -230,7 +230,7 @@ Ice::Communicator::getServerDispatchQueue() const
 void
 Ice::Communicator::postToClientThreadPool(function<void()> call)
 {
-    _instance->clientThreadPool()->execute(call);
+    _instance->clientThreadPool()->execute(call, nullptr);
 }
 
 ::std::function<void()>

@@ -95,6 +95,20 @@ IceRuby_Properties_getProperty(VALUE self, VALUE key)
 }
 
 extern "C" VALUE
+IceRuby_Properties_getIceProperty(VALUE self, VALUE key)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::PropertiesPtr p = getProperties(self);
+        string k = getString(key);
+        string v = p->getIceProperty(k);
+        return createString(v);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C" VALUE
 IceRuby_Properties_getPropertyWithDefault(VALUE self, VALUE key, VALUE def)
 {
     ICE_RUBY_TRY
@@ -124,6 +138,20 @@ IceRuby_Properties_getPropertyAsInt(VALUE self, VALUE key)
 }
 
 extern "C" VALUE
+IceRuby_Properties_getIcePropertyAsInt(VALUE self, VALUE key)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::PropertiesPtr p = getProperties(self);
+        string k = getString(key);
+        int32_t v = p->getIcePropertyAsInt(k);
+        return INT2FIX(v);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C" VALUE
 IceRuby_Properties_getPropertyAsIntWithDefault(VALUE self, VALUE key, VALUE def)
 {
     ICE_RUBY_TRY
@@ -146,6 +174,20 @@ IceRuby_Properties_getPropertyAsList(VALUE self, VALUE key)
         Ice::PropertiesPtr p = getProperties(self);
         string k = getString(key);
         Ice::StringSeq v = p->getPropertyAsList(k);
+        return stringSeqToArray(v);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C" VALUE
+IceRuby_Properties_getIcePropertyAsList(VALUE self, VALUE key)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::PropertiesPtr p = getProperties(self);
+        string k = getString(key);
+        Ice::StringSeq v = p->getIcePropertyAsList(k);
         return stringSeqToArray(v);
     }
     ICE_RUBY_CATCH
@@ -312,18 +354,21 @@ IceRuby::initProperties(VALUE iceModule)
     _propertiesClass = rb_define_class_under(iceModule, "PropertiesI", rb_cObject);
     rb_undef_alloc_func(_propertiesClass);
     rb_define_method(_propertiesClass, "getProperty", CAST_METHOD(IceRuby_Properties_getProperty), 1);
+    rb_define_method(_propertiesClass, "getIceProperty", CAST_METHOD(IceRuby_Properties_getIceProperty), 1);
     rb_define_method(
         _propertiesClass,
         "getPropertyWithDefault",
         CAST_METHOD(IceRuby_Properties_getPropertyWithDefault),
         2);
     rb_define_method(_propertiesClass, "getPropertyAsInt", CAST_METHOD(IceRuby_Properties_getPropertyAsInt), 1);
+    rb_define_method(_propertiesClass, "getIcePropertyAsInt", CAST_METHOD(IceRuby_Properties_getIcePropertyAsInt), 1);
     rb_define_method(
         _propertiesClass,
         "getPropertyAsIntWithDefault",
         CAST_METHOD(IceRuby_Properties_getPropertyAsIntWithDefault),
         2);
     rb_define_method(_propertiesClass, "getPropertyAsList", CAST_METHOD(IceRuby_Properties_getPropertyAsList), 1);
+    rb_define_method(_propertiesClass, "getIcePropertyAsList", CAST_METHOD(IceRuby_Properties_getIcePropertyAsList), 1);
     rb_define_method(
         _propertiesClass,
         "getPropertyAsListWithDefault",

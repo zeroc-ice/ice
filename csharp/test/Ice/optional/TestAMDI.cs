@@ -245,18 +245,6 @@ namespace Ice
                     return null;
                 }
 
-                public override Task
-                sendOptionalClassAsync(bool req, Ice.Optional<Test.OneOptional> o, Ice.Current current)
-                {
-                    return null;
-                }
-
-                public override Task<Ice.Optional<Test.OneOptional>>
-                returnOptionalClassAsync(bool req, Ice.Current current)
-                {
-                    return Task.FromResult(new Ice.Optional<Test.OneOptional>(new Test.OneOptional(53)));
-                }
-
                 public override Task<Test.G>
                 opGAsync(Test.G g, Ice.Current current)
                 {

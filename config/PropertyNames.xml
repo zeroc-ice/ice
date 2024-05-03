@@ -249,11 +249,11 @@ generated from the section label.
     </class>
 
     <class name="connection" prefix-only="false">
-        <suffix name="CloseTimeout" />
-        <suffix name="ConnectTimeout" />
-        <suffix name="EnableIdleCheck" />
-        <suffix name="IdleTimeout" />
-        <suffix name="InactivityTimeout" />
+        <suffix name="CloseTimeout" default="10" />
+        <suffix name="ConnectTimeout" default="10" />
+        <suffix name="EnableIdleCheck" default="1" />
+        <suffix name="IdleTimeout" default="60" />
+        <suffix name="InactivityTimeout" default="300" />
     </class>
 
     <class name="threadpool" prefix-only="true">
@@ -267,7 +267,8 @@ generated from the section label.
     </class>
 
     <class name="objectadapter" prefix-only="true">
-        <suffix name="ACM" class="acm"/> <!-- Getting replaced by Connection -->
+        <!-- ACM is getting replaced by Connection -->
+        <suffix name="ACM" class="acm"/>
         <suffix name="AdapterId" />
         <suffix name="Connection" class="connection"/>
         <suffix name="Endpoints" />
@@ -372,7 +373,7 @@ generated from the section label.
         <property name="PrintProcessId" />
         <property name="PrintStackTraces" />
         <property name="ProgramName" />
-        <property name="RetryIntervals" />
+        <property name="RetryIntervals" default="0" />
         <property name="ServerIdleTime" />
         <property name="SOCKSProxyHost" />
         <property name="SOCKSProxyPort" />
@@ -382,7 +383,7 @@ generated from the section label.
         <property name="ThreadPool.Client" class="threadpool" />
         <property name="ThreadPool.Server" class="threadpool" />
         <property name="ThreadPriority"/>
-        <property name="ToStringMode" />
+        <property name="ToStringMode" default="Unicode" />
         <property name="Trace.Admin.Properties" />
         <property name="Trace.Admin.Logger" />
         <property name="Trace.Locator" />

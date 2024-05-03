@@ -250,12 +250,6 @@ class InitialI: Initial {
 
   func opClassAndUnknownOptional(p _: A?, current _: Ice.Current) throws {}
 
-  func sendOptionalClass(req _: Bool, o _: OneOptional?, current _: Ice.Current) throws {}
-
-  func returnOptionalClass(req _: Bool, current _: Ice.Current) throws -> OneOptional? {
-    return OneOptional(a: 53)
-  }
-
   func opG(g: G?, current _: Ice.Current) throws -> G? {
     return g
   }

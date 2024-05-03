@@ -336,19 +336,6 @@ namespace Ice
                 test(cb.obj != null && cb.obj is TestValueReader);
                 factory.setEnabled(false);
 
-                //
-                // Use the 1.0 encoding with operations whose only class parameters are optional.
-                //
-                var oo = new Ice.Optional<Test.OneOptional>(new Test.OneOptional(53));
-                initial.sendOptionalClass(true, oo);
-                Test.InitialPrx initial2 = (Test.InitialPrx)initial.ice_encodingVersion(Ice.Util.Encoding_1_0);
-                initial2.sendOptionalClass(true, oo);
-
-                initial.returnOptionalClass(true, out oo);
-                test(oo.HasValue);
-                initial2.returnOptionalClass(true, out oo);
-                test(!oo.HasValue);
-
                 Test.G g = new Test.G();
                 g.gg1Opt = new Ice.Optional<Test.G1>(new Test.G1("gg1Opt"));
                 g.gg2 = new Test.G2(10);
@@ -451,16 +438,16 @@ namespace Ice
                 }
                 output.WriteLine("ok");
 
-                output.Write("testing marshaling of objects with optional objects...");
+                output.Write("testing marshaling of objects with optional members...");
                 output.Flush();
                 {
                     Test.F f = new Test.F();
 
-                    f.af = new Test.A();
-                    f.ae = (Test.A)f.af;
+                    f.fsf = new Test.FixedStruct();
+                    f.fse = (Test.FixedStruct)f.fsf;
 
                     Test.F rf = (Test.F)initial.pingPong(f);
-                    test(rf.ae == rf.af.Value);
+                    test(rf.fse == rf.fsf.Value);
 
                     factory.setEnabled(true);
                     os = new Ice.OutputStream(communicator);
@@ -475,7 +462,7 @@ namespace Ice
                     @in.endEncapsulation();
                     factory.setEnabled(false);
                     rf = ((FValueReader)rocb.obj).getF();
-                    test(rf.ae != null && !rf.af.HasValue);
+                    test(rf.fse != null && !rf.fsf.HasValue);
                 }
                 output.WriteLine("ok");
 
@@ -1867,27 +1854,26 @@ namespace Ice
                     @in.endEncapsulation();
 
                     Test.F f = new Test.F();
-                    f.af = new Test.A();
-                    f.af.Value.requiredA = 56;
-                    f.ae = f.af.Value;
+                    f.fsf = new Test.FixedStruct(56);
+                    f.fse = f.fsf.Value;
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
                     os.writeOptional(1, OptionalFormat.Class);
                     os.writeValue(f);
-                    os.writeOptional(2, OptionalFormat.Class);
-                    os.writeValue(f.ae);
+                    os.writeOptional(2, OptionalFormat.VSize);
+                    os.writeSize(4);
+                    Test.FixedStruct.ice_write(os, f.fse);
                     os.endEncapsulation();
                     inEncaps = os.finished();
 
                     @in = new InputStream(communicator, inEncaps);
                     @in.startEncapsulation();
-                    test(@in.readOptional(2, OptionalFormat.Class));
-                    ReadValueCallbackI rocb = new ReadValueCallbackI();
-                    @in.readValue(rocb.invoke);
+                    test(@in.readOptional(2, OptionalFormat.VSize));
+                    @in.skipSize();
+                    Test.FixedStruct fs1 = Test.FixedStruct.ice_read(@in);
                     @in.endEncapsulation();
-                    Test.A a = (Test.A)rocb.obj;
-                    test(a != null && a.requiredA == 56);
+                    test(fs1 != null && fs1.m == 56);
                 }
 
                 {
@@ -1978,6 +1964,7 @@ namespace Ice
                         //
                         // Use the 1.0 encoding with an exception whose only class members are optional.
                         //
+                        Test.InitialPrx initial2 = (Test.InitialPrx)initial.ice_encodingVersion(Ice.Util.Encoding_1_0);
                         Ice.Optional<int> a = new Ice.Optional<int>(30);
                         Ice.Optional<string> b = new Ice.Optional<string>("test");
                         Ice.Optional<Test.OneOptional> o = new Ice.Optional<Test.OneOptional>(new Test.OneOptional(53));
@@ -2333,15 +2320,13 @@ namespace Ice
                     _f = new Test.F();
                     @in.startValue();
                     @in.startSlice();
-                    // Don't read af on purpose
-                    //in.read(1, _f.af);
+                    // Don't read fsf on purpose
+                    //@in.read(1, _f.fsf);
                     @in.endSlice();
                     @in.startSlice();
-                    ReadValueCallbackI rocb = new ReadValueCallbackI();
-                    @in.readValue(rocb.invoke);
+                    _f.fse = Test.FixedStruct.ice_read(@in);
                     @in.endSlice();
                     @in.endValue();
-                    _f.ae = (Test.A)rocb.obj;
                 }
 
                 public Test.F getF()

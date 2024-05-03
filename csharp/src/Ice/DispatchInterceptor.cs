@@ -22,7 +22,7 @@ public abstract class DispatchInterceptor : ObjectImpl
     dispatch(Request request);
 
     public override System.Threading.Tasks.Task<OutputStream>
-    iceDispatch(IceInternal.Incoming inc, Current current)
+    iceDispatch(Ice.Internal.Incoming inc, Current current)
     {
         try
         {

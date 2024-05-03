@@ -125,10 +125,10 @@ namespace Ice
         public override int GetHashCode()
         {
             int h_ = 5381;
-            IceInternal.HashUtil.hashAdd(ref h_, "::Ice::ACM");
-            IceInternal.HashUtil.hashAdd(ref h_, timeout);
-            IceInternal.HashUtil.hashAdd(ref h_, close);
-            IceInternal.HashUtil.hashAdd(ref h_, heartbeat);
+            Ice.Internal.HashUtil.hashAdd(ref h_, "::Ice::ACM");
+            Ice.Internal.HashUtil.hashAdd(ref h_, timeout);
+            Ice.Internal.HashUtil.hashAdd(ref h_, close);
+            Ice.Internal.HashUtil.hashAdd(ref h_, heartbeat);
             return h_;
         }
 

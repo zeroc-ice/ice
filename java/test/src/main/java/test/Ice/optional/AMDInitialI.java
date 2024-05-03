@@ -466,18 +466,6 @@ public final class AMDInitialI implements Initial {
   }
 
   @Override
-  public CompletionStage<Void> sendOptionalClassAsync(
-      boolean req, Optional<OneOptional> o, Current current) {
-    return CompletableFuture.completedFuture(null);
-  }
-
-  @Override
-  public CompletionStage<Optional<OneOptional>> returnOptionalClassAsync(
-      boolean req, Current current) {
-    return CompletableFuture.completedFuture(Optional.of(new OneOptional(53)));
-  }
-
-  @Override
   public CompletionStage<G> opGAsync(G g, Current current) {
     return CompletableFuture.completedFuture(g);
   }

@@ -81,8 +81,8 @@ namespace Ice
                     test(adapter.getPublishedEndpoints().Length == 2);
                     Ice.Identity id = new Ice.Identity();
                     id.name = "dummy";
-                    test(IceUtilInternal.Arrays.Equals(adapter.createProxy(id).ice_getEndpoints(), prx.ice_getEndpoints()));
-                    test(IceUtilInternal.Arrays.Equals(adapter.getPublishedEndpoints(), prx.ice_getEndpoints()));
+                    test(Ice.UtilInternal.Arrays.Equals(adapter.createProxy(id).ice_getEndpoints(), prx.ice_getEndpoints()));
+                    test(Ice.UtilInternal.Arrays.Equals(adapter.getPublishedEndpoints(), prx.ice_getEndpoints()));
                     adapter.refreshPublishedEndpoints();
                     test(adapter.getPublishedEndpoints().Length == 1);
                     test(adapter.getPublishedEndpoints()[0].Equals(endpt));

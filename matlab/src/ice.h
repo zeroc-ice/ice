@@ -144,10 +144,13 @@ extern "C"
     ICE_MATLAB_API mxArray* Ice_createProperties(mxArray*, void*, void**);
     ICE_MATLAB_API mxArray* Ice_Properties_unref(void*);
     ICE_MATLAB_API mxArray* Ice_Properties_getProperty(void*, const char*);
+    ICE_MATLAB_API mxArray* Ice_Properties_getIceProperty(void*, const char*);
     ICE_MATLAB_API mxArray* Ice_Properties_getPropertyWithDefault(void*, const char*, const char*);
     ICE_MATLAB_API mxArray* Ice_Properties_getPropertyAsInt(void*, const char*, int*);
+    ICE_MATLAB_API mxArray* Ice_Properties_getIcePropertyAsInt(void*, const char*, int*);
     ICE_MATLAB_API mxArray* Ice_Properties_getPropertyAsIntWithDefault(void*, const char*, int, int*);
     ICE_MATLAB_API mxArray* Ice_Properties_getPropertyAsList(void*, const char*);
+    ICE_MATLAB_API mxArray* Ice_Properties_getIcePropertyAsList(void*, const char*);
     ICE_MATLAB_API mxArray* Ice_Properties_getPropertyAsListWithDefault(void*, const char*, mxArray*);
     ICE_MATLAB_API mxArray* Ice_Properties_getPropertiesForPrefix(void*, const char*);
     ICE_MATLAB_API mxArray* Ice_Properties_setProperty(void*, const char*, const char*);

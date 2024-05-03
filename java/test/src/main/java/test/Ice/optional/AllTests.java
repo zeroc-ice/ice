@@ -376,19 +376,6 @@ public class AllTests {
     test(cb.value != null);
     factory.setEnabled(false);
 
-    //
-    // Use the 1.0 encoding with operations whose only class parameters are optional.
-    //
-    Optional<OneOptional> oo = Optional.of(new OneOptional(53));
-    initial.sendOptionalClass(true, oo);
-    InitialPrx initial2 = initial.ice_encodingVersion(com.zeroc.Ice.Util.Encoding_1_0);
-    initial2.sendOptionalClass(true, oo);
-
-    oo = initial.returnOptionalClass(true);
-    test(oo.isPresent());
-    oo = initial2.returnOptionalClass(true);
-    test(!oo.isPresent());
-
     G g = new G();
     g.setGg1Opt(new G1("gg1Opt"));
     g.gg2 = new G2(10);
@@ -493,16 +480,16 @@ public class AllTests {
     }
     out.println("ok");
 
-    out.print("testing marshaling of objects with optional objects...");
+    out.print("testing marshaling of objects with optional members...");
     out.flush();
     {
       F f = new F();
 
-      f.setAf(new A());
-      f.ae = f.getAf();
+      f.setFsf(new FixedStruct());
+      f.fse = f.getFsf();
 
       F rf = (F) initial.pingPong(f);
-      test(rf.ae == rf.getAf());
+      test(rf.fse.equals(rf.getFsf()));
 
       factory.setEnabled(true);
       os = new OutputStream(communicator);
@@ -516,7 +503,7 @@ public class AllTests {
       in.readValue(v -> w.value = v.getF(), FObjectReader.class);
       in.endEncapsulation();
       factory.setEnabled(false);
-      test(w.value.ae != null && !w.value.hasAf());
+      test(w.value.fse != null && !w.value.hasFsf());
     }
     out.println("ok");
 
@@ -1963,25 +1950,27 @@ public class AllTests {
 
     {
       F f = new F();
-      f.setAf(new A());
-      f.getAf().requiredA = 56;
-      f.ae = f.getAf();
+      f.setFsf(new FixedStruct());
+      f.getFsf().m = 56;
+      f.fse = f.getFsf();
 
       os = new OutputStream(communicator);
       os.startEncapsulation();
       os.writeOptional(1, OptionalFormat.Class);
       os.writeValue(f);
-      os.writeOptional(2, OptionalFormat.Class);
-      os.writeValue(f.ae);
+      os.writeOptional(2, OptionalFormat.VSize);
+      os.writeSize(4);
+      FixedStruct.ice_write(os, f.fse);
       os.endEncapsulation();
       inEncaps = os.finished();
 
       in = new InputStream(communicator, inEncaps);
       in.startEncapsulation();
-      final Wrapper<java.util.Optional<A>> w = new Wrapper<>();
-      in.readValue(2, v -> w.value = v, A.class);
+      test(in.readOptional(2, OptionalFormat.VSize));
+      in.skipSize();
+      FixedStruct fs1 = FixedStruct.ice_read(in);
       in.endEncapsulation();
-      test(w.value.get() != null && w.value.get().requiredA == 56);
+      test(fs1 != null && fs1.m == 56);
     }
     out.println("ok");
 
@@ -2014,6 +2003,7 @@ public class AllTests {
         //
         // Use the 1.0 encoding with an exception whose only class members are optional.
         //
+        InitialPrx initial2 = initial.ice_encodingVersion(com.zeroc.Ice.Util.Encoding_1_0);
         OptionalInt a = OptionalInt.of(30);
         Optional<String> b = Optional.of("test");
         Optional<OneOptional> o = Optional.of(new OneOptional(53));
@@ -2255,11 +2245,11 @@ public class AllTests {
       _f = new F();
       in.startValue();
       in.startSlice();
-      // Don't read af on purpose
-      // in.read(1, _f.af);
+      // Don't read fsf on purpose
+      // in.read(1, _f.fsf);
       in.endSlice();
       in.startSlice();
-      in.readValue(v -> _f.ae = v, A.class);
+      _f.fse = FixedStruct.ice_read(in);
       in.endSlice();
       in.endValue();
     }

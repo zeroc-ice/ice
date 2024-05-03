@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 using System.Diagnostics;
-using Protocol = IceInternal.Protocol;
+using Protocol = Ice.Internal.Protocol;
 
 namespace Ice;
 
@@ -27,7 +27,7 @@ public class InputStream
     public InputStream()
     {
         initialize(Util.currentEncoding);
-        _buf = new IceInternal.Buffer();
+        _buf = new Ice.Internal.Buffer();
     }
 
     /// <summary>
@@ -39,24 +39,24 @@ public class InputStream
     public InputStream(byte[] data)
     {
         initialize(Util.currentEncoding);
-        _buf = new IceInternal.Buffer(data);
+        _buf = new Ice.Internal.Buffer(data);
     }
 
-    public InputStream(IceInternal.ByteBuffer buf)
+    public InputStream(Ice.Internal.ByteBuffer buf)
     {
         initialize(Util.currentEncoding);
-        _buf = new IceInternal.Buffer(buf);
+        _buf = new Ice.Internal.Buffer(buf);
     }
 
-    public InputStream(IceInternal.Buffer buf) :
+    public InputStream(Ice.Internal.Buffer buf) :
         this(buf, false)
     {
     }
 
-    public InputStream(IceInternal.Buffer buf, bool adopt)
+    public InputStream(Ice.Internal.Buffer buf, bool adopt)
     {
         initialize(Util.currentEncoding);
-        _buf = new IceInternal.Buffer(buf, adopt);
+        _buf = new Ice.Internal.Buffer(buf, adopt);
     }
 
     /// <summary>
@@ -66,7 +66,7 @@ public class InputStream
     public InputStream(Communicator communicator)
     {
         initialize(communicator);
-        _buf = new IceInternal.Buffer();
+        _buf = new Ice.Internal.Buffer();
     }
 
     /// <summary>
@@ -77,24 +77,24 @@ public class InputStream
     public InputStream(Communicator communicator, byte[] data)
     {
         initialize(communicator);
-        _buf = new IceInternal.Buffer(data);
+        _buf = new Ice.Internal.Buffer(data);
     }
 
-    public InputStream(Communicator communicator, IceInternal.ByteBuffer buf)
+    public InputStream(Communicator communicator, Ice.Internal.ByteBuffer buf)
     {
         initialize(communicator);
-        _buf = new IceInternal.Buffer(buf);
+        _buf = new Ice.Internal.Buffer(buf);
     }
 
-    public InputStream(Communicator communicator, IceInternal.Buffer buf) :
+    public InputStream(Communicator communicator, Ice.Internal.Buffer buf) :
         this(communicator, buf, false)
     {
     }
 
-    public InputStream(Communicator communicator, IceInternal.Buffer buf, bool adopt)
+    public InputStream(Communicator communicator, Ice.Internal.Buffer buf, bool adopt)
     {
         initialize(communicator);
-        _buf = new IceInternal.Buffer(buf, adopt);
+        _buf = new Ice.Internal.Buffer(buf, adopt);
     }
 
     /// <summary>
@@ -104,7 +104,7 @@ public class InputStream
     public InputStream(EncodingVersion encoding)
     {
         initialize(encoding);
-        _buf = new IceInternal.Buffer();
+        _buf = new Ice.Internal.Buffer();
     }
 
     /// <summary>
@@ -115,24 +115,24 @@ public class InputStream
     public InputStream(EncodingVersion encoding, byte[] data)
     {
         initialize(encoding);
-        _buf = new IceInternal.Buffer(data);
+        _buf = new Ice.Internal.Buffer(data);
     }
 
-    public InputStream(EncodingVersion encoding, IceInternal.ByteBuffer buf)
+    public InputStream(EncodingVersion encoding, Ice.Internal.ByteBuffer buf)
     {
         initialize(encoding);
-        _buf = new IceInternal.Buffer(buf);
+        _buf = new Ice.Internal.Buffer(buf);
     }
 
-    public InputStream(EncodingVersion encoding, IceInternal.Buffer buf) :
+    public InputStream(EncodingVersion encoding, Ice.Internal.Buffer buf) :
         this(encoding, buf, false)
     {
     }
 
-    public InputStream(EncodingVersion encoding, IceInternal.Buffer buf, bool adopt)
+    public InputStream(EncodingVersion encoding, Ice.Internal.Buffer buf, bool adopt)
     {
         initialize(encoding);
-        _buf = new IceInternal.Buffer(buf, adopt);
+        _buf = new Ice.Internal.Buffer(buf, adopt);
     }
 
     /// <summary>
@@ -143,7 +143,7 @@ public class InputStream
     public InputStream(Communicator communicator, EncodingVersion encoding)
     {
         initialize(communicator, encoding);
-        _buf = new IceInternal.Buffer();
+        _buf = new Ice.Internal.Buffer();
     }
 
     /// <summary>
@@ -155,53 +155,53 @@ public class InputStream
     public InputStream(Communicator communicator, EncodingVersion encoding, byte[] data)
     {
         initialize(communicator, encoding);
-        _buf = new IceInternal.Buffer(data);
+        _buf = new Ice.Internal.Buffer(data);
     }
 
-    public InputStream(Communicator communicator, EncodingVersion encoding, IceInternal.ByteBuffer buf)
+    public InputStream(Communicator communicator, EncodingVersion encoding, Ice.Internal.ByteBuffer buf)
     {
         initialize(communicator, encoding);
-        _buf = new IceInternal.Buffer(buf);
+        _buf = new Ice.Internal.Buffer(buf);
     }
 
-    public InputStream(Communicator communicator, EncodingVersion encoding, IceInternal.Buffer buf) :
+    public InputStream(Communicator communicator, EncodingVersion encoding, Ice.Internal.Buffer buf) :
         this(communicator, encoding, buf, false)
     {
     }
 
-    public InputStream(Communicator communicator, EncodingVersion encoding, IceInternal.Buffer buf, bool adopt)
+    public InputStream(Communicator communicator, EncodingVersion encoding, Ice.Internal.Buffer buf, bool adopt)
     {
         initialize(communicator, encoding);
-        _buf = new IceInternal.Buffer(buf, adopt);
+        _buf = new Ice.Internal.Buffer(buf, adopt);
     }
 
-    public InputStream(IceInternal.Instance instance, EncodingVersion encoding)
+    public InputStream(Ice.Internal.Instance instance, EncodingVersion encoding)
     {
         initialize(instance, encoding);
-        _buf = new IceInternal.Buffer();
+        _buf = new Ice.Internal.Buffer();
     }
 
-    public InputStream(IceInternal.Instance instance, EncodingVersion encoding, byte[] data)
+    public InputStream(Ice.Internal.Instance instance, EncodingVersion encoding, byte[] data)
     {
         initialize(instance, encoding);
-        _buf = new IceInternal.Buffer(data);
+        _buf = new Ice.Internal.Buffer(data);
     }
 
-    public InputStream(IceInternal.Instance instance, EncodingVersion encoding, IceInternal.ByteBuffer buf)
+    public InputStream(Ice.Internal.Instance instance, EncodingVersion encoding, Ice.Internal.ByteBuffer buf)
     {
         initialize(instance, encoding);
-        _buf = new IceInternal.Buffer(buf);
+        _buf = new Ice.Internal.Buffer(buf);
     }
 
-    public InputStream(IceInternal.Instance instance, EncodingVersion encoding, IceInternal.Buffer buf) :
+    public InputStream(Ice.Internal.Instance instance, EncodingVersion encoding, Ice.Internal.Buffer buf) :
         this(instance, encoding, buf, false)
     {
     }
 
-    public InputStream(IceInternal.Instance instance, EncodingVersion encoding, IceInternal.Buffer buf, bool adopt)
+    public InputStream(Ice.Internal.Instance instance, EncodingVersion encoding, Ice.Internal.Buffer buf, bool adopt)
     {
         initialize(instance, encoding);
-        _buf = new IceInternal.Buffer(buf, adopt);
+        _buf = new Ice.Internal.Buffer(buf, adopt);
     }
 
     /// <summary>
@@ -211,7 +211,7 @@ public class InputStream
     public void initialize(Communicator communicator)
     {
         Debug.Assert(communicator != null);
-        IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
+        Ice.Internal.Instance instance = Ice.Internal.Util.getInstance(communicator);
         initialize(instance, instance.defaultsAndOverrides().defaultEncoding);
     }
 
@@ -223,11 +223,11 @@ public class InputStream
     public void initialize(Communicator communicator, EncodingVersion encoding)
     {
         Debug.Assert(communicator != null);
-        IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
+        Ice.Internal.Instance instance = Ice.Internal.Util.getInstance(communicator);
         initialize(instance, encoding);
     }
 
-    private void initialize(IceInternal.Instance instance, EncodingVersion encoding)
+    private void initialize(Ice.Internal.Instance instance, EncodingVersion encoding)
     {
         initialize(encoding);
 
@@ -385,7 +385,7 @@ public class InputStream
         return prev;
     }
 
-    public IceInternal.Instance instance()
+    public Ice.Internal.Instance instance()
     {
         return _instance;
     }
@@ -398,7 +398,7 @@ public class InputStream
     {
         Debug.Assert(_instance == other._instance);
 
-        IceInternal.Buffer tmpBuf = other._buf;
+        Ice.Internal.Buffer tmpBuf = other._buf;
         other._buf = _buf;
         _buf = tmpBuf;
 
@@ -470,7 +470,7 @@ public class InputStream
         _buf.b.position(sz);
     }
 
-    public IceInternal.Buffer getBuffer()
+    public Ice.Internal.Buffer getBuffer()
     {
         return _buf;
     }
@@ -2437,7 +2437,7 @@ public class InputStream
                 }
                 else
                 {
-                    IceInternal.Ex.throwUOE(typeof(T), v);
+                    Ice.Internal.Ex.throwUOE(typeof(T), v);
                 }
             });
         }
@@ -2471,7 +2471,7 @@ public class InputStream
             }
             else
             {
-                IceInternal.Ex.throwUOE(typeof(T), v);
+                Ice.Internal.Ex.throwUOE(typeof(T), v);
             }
         });
     }
@@ -2705,7 +2705,7 @@ public class InputStream
                 if (c != null)
                 {
                     Debug.Assert(!c.IsAbstract && !c.IsInterface);
-                    userEx = (UserException)IceInternal.AssemblyUtil.createInstance(c);
+                    userEx = (UserException)Ice.Internal.AssemblyUtil.createInstance(c);
                 }
             }
         }
@@ -2717,8 +2717,8 @@ public class InputStream
         return userEx;
     }
 
-    private IceInternal.Instance _instance;
-    private IceInternal.Buffer _buf;
+    private Ice.Internal.Instance _instance;
+    private Ice.Internal.Buffer _buf;
     private object _closure;
     private byte[] _stringBytes; // Reusable array for reading strings.
 
@@ -2868,7 +2868,7 @@ public class InputStream
                     try
                     {
                         Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
-                        v = (Value)IceInternal.AssemblyUtil.createInstance(cls);
+                        v = (Value)Ice.Internal.AssemblyUtil.createInstance(cls);
                     }
                     catch (Exception ex)
                     {
@@ -3217,11 +3217,11 @@ public class InputStream
                 string slicingCat = _stream.instance().traceLevels().slicingCat;
                 if (_sliceType == SliceType.ValueSlice)
                 {
-                    IceInternal.TraceUtil.traceSlicing("object", _typeId, slicingCat, logger);
+                    Ice.Internal.TraceUtil.traceSlicing("object", _typeId, slicingCat, logger);
                 }
                 else
                 {
-                    IceInternal.TraceUtil.traceSlicing("exception", _typeId, slicingCat, logger);
+                    Ice.Internal.TraceUtil.traceSlicing("exception", _typeId, slicingCat, logger);
                 }
             }
 
@@ -3620,11 +3620,11 @@ public class InputStream
                 string slicingCat = _stream.instance().traceLevels().slicingCat;
                 if (_current.sliceType == SliceType.ExceptionSlice)
                 {
-                    IceInternal.TraceUtil.traceSlicing("exception", _current.typeId, slicingCat, logger);
+                    Ice.Internal.TraceUtil.traceSlicing("exception", _current.typeId, slicingCat, logger);
                 }
                 else
                 {
-                    IceInternal.TraceUtil.traceSlicing("object", _current.typeId, slicingCat, logger);
+                    Ice.Internal.TraceUtil.traceSlicing("object", _current.typeId, slicingCat, logger);
                 }
             }
 
@@ -3666,7 +3666,7 @@ public class InputStream
                 info.compactId = _current.compactId;
                 info.hasOptionalMembers = (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
                 info.isLastSlice = (_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0;
-                IceInternal.ByteBuffer b = _stream.getBuffer().b;
+                Ice.Internal.ByteBuffer b = _stream.getBuffer().b;
                 int end = b.position();
                 int dataEnd = end;
                 if (info.hasOptionalMembers)
@@ -3783,7 +3783,7 @@ public class InputStream
                             try
                             {
                                 Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
-                                v = (Value)IceInternal.AssemblyUtil.createInstance(cls);
+                                v = (Value)Ice.Internal.AssemblyUtil.createInstance(cls);
                                 updateCache = false;
                             }
                             catch (Exception ex)
