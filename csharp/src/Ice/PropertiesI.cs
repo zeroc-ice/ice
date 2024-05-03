@@ -12,6 +12,7 @@ internal sealed class PropertiesI : Properties
     {
         public string value { get; set; }
         public bool used { get; set; }
+
         public PropertyValue(string value, bool used)
         {
             this.value = value;
