@@ -162,7 +162,7 @@ IceInternal::UdpEndpointI::transceiver() const
 }
 
 AcceptorPtr
-IceInternal::UdpEndpointI::acceptor(const string&) const
+IceInternal::UdpEndpointI::acceptor(const string&, const optional<Ice::SSL::ServerAuthenticationOptions>&) const
 {
     return 0;
 }

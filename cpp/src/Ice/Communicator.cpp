@@ -110,13 +110,18 @@ Ice::Communicator::identityToString(const Identity& ident) const
 }
 
 ObjectAdapterPtr
-Ice::Communicator::createObjectAdapter(const string& name)
+Ice::Communicator::createObjectAdapter(
+    const string& name,
+    const optional<SSL::ServerAuthenticationOptions>& serverAuthenticationOptions)
 {
-    return _instance->objectAdapterFactory()->createObjectAdapter(name, nullopt);
+    return _instance->objectAdapterFactory()->createObjectAdapter(name, nullopt, serverAuthenticationOptions);
 }
 
 ObjectAdapterPtr
-Ice::Communicator::createObjectAdapterWithEndpoints(const string& name, const string& endpoints)
+Ice::Communicator::createObjectAdapterWithEndpoints(
+    const string& name,
+    const string& endpoints,
+    const optional<SSL::ServerAuthenticationOptions>& serverAuthenticationOptions)
 {
     string oaName = name;
     if (oaName.empty())
@@ -125,7 +130,7 @@ Ice::Communicator::createObjectAdapterWithEndpoints(const string& name, const st
     }
 
     getProperties()->setProperty(oaName + ".Endpoints", endpoints);
-    return _instance->objectAdapterFactory()->createObjectAdapter(oaName, nullopt);
+    return _instance->objectAdapterFactory()->createObjectAdapter(oaName, nullopt, serverAuthenticationOptions);
 }
 
 ObjectAdapterPtr
@@ -143,7 +148,7 @@ Ice::Communicator::createObjectAdapterWithRouter(const string& name, const Route
         getProperties()->setProperty(p->first, p->second);
     }
 
-    return _instance->objectAdapterFactory()->createObjectAdapter(oaName, router);
+    return _instance->objectAdapterFactory()->createObjectAdapter(oaName, router, nullopt);
 }
 
 PropertiesPtr

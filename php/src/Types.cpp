@@ -2342,8 +2342,8 @@ IcePHP::ClassInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* objectMap
 
     if (Z_TYPE_P(zv) == IS_NULL)
     {
-        shared_ptr<Ice::Value> nil;
-        os->write(nil);
+        shared_ptr<Ice::Value> value; // nullptr
+        os->write(value);
         return;
     }
 

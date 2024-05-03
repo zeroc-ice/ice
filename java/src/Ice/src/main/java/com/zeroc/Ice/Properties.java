@@ -31,6 +31,15 @@ public interface Properties {
   String getProperty(String key);
 
   /**
+   * Get an Ice property by key. If the property is not set, its default value is returned.
+   *
+   * @param key The property key.
+   * @return The property value or the default value.
+   * @see #setProperty
+   */
+  String getIceProperty(String key);
+
+  /**
    * Get a property by key. If the property is not set, the given default value is returned.
    *
    * @param key The property key.
@@ -48,6 +57,15 @@ public interface Properties {
    * @see #setProperty
    */
   int getPropertyAsInt(String key);
+
+  /**
+   * Get an Ice property as an integer. If the property is not set, its default value is returned.
+   *
+   * @param key The property key.
+   * @return The property value interpreted as an integer, or the default value.
+   * @see #setProperty
+   */
+  int getIcePropertyAsInt(String key);
 
   /**
    * Get a property as an integer. If the property is not set, the given default value is returned.
@@ -72,6 +90,20 @@ public interface Properties {
    * @see #setProperty
    */
   String[] getPropertyAsList(String key);
+
+  /**
+   * Get an Ice property as a list of strings. The strings must be separated by whitespace or comma.
+   * If the property is not set, its default list is returned. The strings in the list can contain
+   * whitespace and commas if they are enclosed in single or double quotes. If quotes are
+   * mismatched, the default list is returned. Within single quotes or double quotes, you can escape
+   * the quote in question with a backslash, e.g. O'Reilly can be written as O'Reilly, "O'Reilly" or
+   * 'O\'Reilly'.
+   *
+   * @param key The property key.
+   * @return The property value interpreted as list of strings, or the default value.
+   * @see #setProperty
+   */
+  String[] getIcePropertyAsList(String key);
 
   /**
    * Get a property as a list of strings. The strings must be separated by whitespace or comma. If

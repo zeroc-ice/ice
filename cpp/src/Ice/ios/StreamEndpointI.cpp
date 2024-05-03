@@ -216,7 +216,7 @@ IceObjC::StreamEndpointI::transceiver() const
 }
 
 AcceptorPtr
-IceObjC::StreamEndpointI::acceptor(const string&) const
+IceObjC::StreamEndpointI::acceptor(const string&, const optional<SSL::ServerAuthenticationOptions>&) const
 {
     return make_shared<StreamAcceptor>(
         const_cast<StreamEndpointI*>(this)->shared_from_this(),

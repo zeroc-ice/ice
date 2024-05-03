@@ -128,7 +128,7 @@ IceInternal::TcpEndpointI::transceiver() const
 }
 
 AcceptorPtr
-IceInternal::TcpEndpointI::acceptor(const string&) const
+IceInternal::TcpEndpointI::acceptor(const string&, const optional<Ice::SSL::ServerAuthenticationOptions>&) const
 {
     return make_shared<TcpAcceptor>(
         dynamic_pointer_cast<TcpEndpointI>(const_cast<TcpEndpointI*>(this)->shared_from_this()),

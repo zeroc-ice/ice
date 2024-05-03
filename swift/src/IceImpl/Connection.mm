@@ -329,9 +329,7 @@ createConnectionInfo(std::shared_ptr<Ice::ConnectionInfo> infoPtr)
                                        incoming:sslInfo->incoming
                                     adapterName:toNSString(sslInfo->adapterName)
                                    connectionId:toNSString(sslInfo->connectionId)
-                                         cipher:toNSString(sslInfo->cipher)
-                                          certs:toNSArray(sslInfo->certs)
-                                       verified:sslInfo->verified];
+                                          certs:toNSArray(sslInfo->certs)];
     }
 
 #if TARGET_OS_IPHONE

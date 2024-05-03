@@ -49,9 +49,7 @@ namespace
         "mcastAddress",
         "mcastPort",
         "headers",
-        "cipher",
-        "certs",
-        "verified"};
+        "certs"};
 
     mxArray* createInfo(const shared_ptr<Ice::ConnectionInfo>& info)
     {
@@ -113,9 +111,7 @@ namespace
         if (sslInfo)
         {
             type = "ssl";
-            mxSetFieldByNumber(r, 0, Field::Cipher, createStringFromUTF8(sslInfo->cipher));
             mxSetFieldByNumber(r, 0, Field::Certs, createCertificateList(sslInfo->certs));
-            mxSetFieldByNumber(r, 0, Field::Verified, createBool(sslInfo->verified));
         }
 
         mxSetFieldByNumber(r, 0, Field::Type, createStringFromUTF8(type));

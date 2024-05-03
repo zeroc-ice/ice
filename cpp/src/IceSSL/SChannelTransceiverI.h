@@ -35,7 +35,16 @@ namespace IceSSL::SChannel
     class TransceiverI final : public IceInternal::Transceiver
     {
     public:
-        TransceiverI(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool);
+        TransceiverI(
+            const InstancePtr&,
+            const IceInternal::TransceiverPtr&,
+            const std::string&,
+            const Ice::SSL::ServerAuthenticationOptions&);
+        TransceiverI(
+            const InstancePtr&,
+            const IceInternal::TransceiverPtr&,
+            const std::string&,
+            const Ice::SSL::ClientAuthenticationOptions&);
         ~TransceiverI();
         IceInternal::NativeInfoPtr getNativeInfo() final;
 
@@ -102,18 +111,19 @@ namespace IceSSL::SChannel
         //
         IceInternal::Buffer _readUnprocessed;
 
-        CtxtHandle _ssl;
-        bool _sslInitialized;
-        CredHandle _credentials;
-        bool _credentialsInitialized;
+        std::function<PCCERT_CONTEXT(const std::string&)> _localCertificateSelectionCallback;
+        std::function<void(CtxtHandle context, const std::string& host)> _sslNewSessionCallback;
         SecPkgContext_StreamSizes _sizes;
         std::string _cipher;
-        std::vector<IceSSL::CertificatePtr> _certs;
-        bool _verified;
-        TrustError _trustError;
+        std::vector<IceSSL::CertificatePtr> _peerCertificates;
+        std::function<bool(CtxtHandle, const IceSSL::ConnectionInfoPtr&)> _remoteCertificateValidationCallback;
+        bool _clientCertificateRequired;
+        PCCERT_CONTEXT _certificate;
+        HCERTSTORE _rootStore;
+        CredHandle _credentials;
+        CtxtHandle _ssl;
     };
     using TransceiverIPtr = std::shared_ptr<TransceiverI>;
-
 }
 #endif
 

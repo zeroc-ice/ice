@@ -565,10 +565,7 @@ IceSSL::SecureTransport::loadCertificateChain(
     }
     else
     {
-        //
-        // Load the certificate, don't load into the keychain as it
-        // might already have been imported.
-        //
+        // Load the certificate, don't load into the keychain as it might already have been imported.
         UniqueRef<CFArrayRef> items(loadKeychainItems(file, kSecItemTypeCertificate, 0, password));
         SecCertificateRef cert =
             static_cast<SecCertificateRef>(const_cast<void*>(CFArrayGetValueAtIndex(items.get(), 0)));

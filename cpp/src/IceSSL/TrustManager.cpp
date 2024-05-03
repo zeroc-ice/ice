@@ -53,7 +53,7 @@ TrustManager::TrustManager(const IceInternal::InstancePtr& instance) : _instance
 }
 
 bool
-TrustManager::verify(const ConnectionInfoPtr& info, const std::string& desc)
+TrustManager::verify(const ConnectionInfoPtr& info) const
 {
     list<list<DistinguishedName>> reject, accept;
 
@@ -135,7 +135,6 @@ TrustManager::verify(const ConnectionInfoPtr& info, const std::string& desc)
                 trace << "trust manager evaluating server:\n"
                       << "subject = " << string(subject) << '\n';
             }
-            trace << desc;
         }
 
         // Fail if we match anything in the reject set.

@@ -163,9 +163,13 @@ EndpointI::connectorsAsync(
 }
 
 IceInternal::AcceptorPtr
-EndpointI::acceptor(const string& adapterName) const
+EndpointI::acceptor(
+    const string& adapterName,
+    const std::optional<Ice::SSL::ServerAuthenticationOptions>& serverAuthenticationOptions) const
 {
-    return make_shared<Acceptor>(const_cast<EndpointI*>(this)->shared_from_this(), _endpoint->acceptor(adapterName));
+    return make_shared<Acceptor>(
+        const_cast<EndpointI*>(this)->shared_from_this(),
+        _endpoint->acceptor(adapterName, serverAuthenticationOptions));
 }
 
 EndpointIPtr

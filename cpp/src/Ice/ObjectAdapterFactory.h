@@ -23,7 +23,11 @@ namespace IceInternal
 
         void updateObservers(void (Ice::ObjectAdapterI::*)());
 
-        Ice::ObjectAdapterPtr createObjectAdapter(const std::string&, const std::optional<Ice::RouterPrx>&);
+        Ice::ObjectAdapterPtr createObjectAdapter(
+            const std::string& name,
+            const std::optional<Ice::RouterPrx>&,
+            const std::optional<Ice::SSL::ServerAuthenticationOptions>&);
+
         Ice::ObjectAdapterPtr findObjectAdapter(const IceInternal::ReferencePtr&);
         void removeObjectAdapter(const Ice::ObjectAdapterPtr&);
         void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&, Ice::CompressBatch) const;

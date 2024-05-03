@@ -7,6 +7,8 @@
 
 #include "../Ice/InstanceF.h"
 #include "Ice/BuiltinSequences.h"
+#include "Ice/ClientAuthenticationOptions.h"
+#include "Ice/ServerAuthenticationOptions.h"
 #include "OpenSSLUtil.h"
 #include "SSLEngine.h"
 #include "SSLInstanceF.h"
@@ -21,14 +23,15 @@ namespace IceSSL::OpenSSL
 
         void initialize() final;
         void destroy() final;
-        IceInternal::TransceiverPtr
-        createTransceiver(const IceSSL::InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool)
-            final;
-        SSL_CTX* context() const;
         std::string sslErrors() const;
         std::string password() const { return _password; }
+        Ice::SSL::ClientAuthenticationOptions createClientAuthenticationOptions(const std::string&) const final;
+        Ice::SSL::ServerAuthenticationOptions createServerAuthenticationOptions() const final;
 
     private:
+        bool validationCallback(bool, X509_STORE_CTX*, const IceSSL::ConnectionInfoPtr&) const;
+        // The SSL_CTX object configured with IceSSL properties. This object is shared across all SSL incoming and
+        // outgoing connections that do not specify custom ServerAuthenticationOptions or ClientAuthenticationOptions.
         SSL_CTX* _ctx;
         std::string _password;
     };

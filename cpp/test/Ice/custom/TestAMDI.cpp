@@ -124,8 +124,8 @@ TestIntfI::opStringListAsync(
 
 void
 TestIntfI::opFixedSeqAsync(
-    deque<Fixed> in,
-    function<void(const deque<Fixed>&, const deque<Fixed>&)> response,
+    deque<Test::Fixed> in,
+    function<void(const deque<Test::Fixed>&, const deque<Test::Fixed>&)> response,
     function<void(exception_ptr)>,
     const Current&)
 {

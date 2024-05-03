@@ -6,6 +6,7 @@
 #define ICE_INITIALIZE_H
 
 #include "BatchRequest.h"
+#include "ClientAuthenticationOptions.h"
 #include "CommunicatorF.h"
 #include "Connection.h"
 #include "Ice/BuiltinSequences.h"
@@ -330,6 +331,12 @@ namespace Ice
          * The value factory manager.
          */
         ValueFactoryManagerPtr valueFactoryManager;
+
+        /**
+         * The authentication options for SSL client connections. When set, the SSL transport ignores all IceSSL
+         * configuration properties and uses the provided options.
+         */
+        std::optional<SSL::ClientAuthenticationOptions> clientAuthenticationOptions;
     };
 
     /**

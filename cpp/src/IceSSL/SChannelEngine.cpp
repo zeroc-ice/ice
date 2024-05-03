@@ -27,6 +27,10 @@
 #    define SP_PROT_TLS1_3 (SP_PROT_TLS1_3_SERVER | SP_PROT_TLS1_3_CLIENT)
 #endif
 
+#ifndef SECURITY_FLAG_IGNORE_CERT_CN_INVALID
+#    define SECURITY_FLAG_IGNORE_CERT_CN_INVALID 0x00001000
+#endif
+
 //
 // CALG_ECDH_EPHEM algorithm constant is not defined in older version of the SDK headers
 //
@@ -255,7 +259,7 @@ namespace
                         }
 
                         CRYPT_INTEGER_BLOB serial = {static_cast<DWORD>(buffer.size()), &buffer[0]};
-                        PCCERT_CONTEXT next = 0;
+                        PCCERT_CONTEXT next = nullptr;
                         do
                         {
                             if ((next = CertFindCertificateInStore(
@@ -295,7 +299,7 @@ namespace
             if (tmpStore)
             {
                 CertCloseStore(tmpStore, 0);
-                tmpStore = 0;
+                tmpStore = nullptr;
             }
             throw;
         }
@@ -303,7 +307,7 @@ namespace
         vector<PCCERT_CONTEXT> certs;
         if (store)
         {
-            PCCERT_CONTEXT next = 0;
+            PCCERT_CONTEXT next = nullptr;
             do
             {
                 if ((next = CertFindCertificateInStore(
@@ -322,7 +326,7 @@ namespace
         return certs;
     }
 
-    void addCertificatesToStore(const string& file, HCERTSTORE store, PCCERT_CONTEXT* cert = 0)
+    void addCertificatesToStore(const string& file, HCERTSTORE store, PCCERT_CONTEXT* cert = nullptr)
     {
         vector<char> buffer;
         readFile(file, buffer);
@@ -392,150 +396,12 @@ namespace
             first = false;
         }
     }
-
-    ALG_ID
-    algorithmId(const string& name)
-    {
-        if (name == "3DES")
-        {
-            return CALG_3DES;
-        }
-        else if (name == "3DES_112")
-        {
-            return CALG_3DES_112;
-        }
-        else if (name == "AES")
-        {
-            return CALG_AES;
-        }
-        else if (name == "AES_128")
-        {
-            return CALG_AES_128;
-        }
-        else if (name == "AES_192")
-        {
-            return CALG_AES_192;
-        }
-        else if (name == "AES_256")
-        {
-            return CALG_AES_256;
-        }
-        else if (name == "AGREEDKEY_ANY")
-        {
-            return CALG_AGREEDKEY_ANY;
-        }
-        else if (name == "CYLINK_MEK")
-        {
-            return CALG_CYLINK_MEK;
-        }
-        else if (name == "DES")
-        {
-            return CALG_DES;
-        }
-        else if (name == "DESX")
-        {
-            return CALG_DESX;
-        }
-        else if (name == "DH_EPHEM")
-        {
-            return CALG_DH_EPHEM;
-        }
-        else if (name == "DH_SF")
-        {
-            return CALG_DH_SF;
-        }
-        else if (name == "DSS_SIGN")
-        {
-            return CALG_DSS_SIGN;
-        }
-        else if (name == "ECDH")
-        {
-            return CALG_ECDH;
-        }
-        else if (name == "ECDH_EPHEM")
-        {
-            return ICESSL_CALG_ECDH_EPHEM;
-        }
-        else if (name == "ECDSA")
-        {
-            return CALG_ECDSA;
-        }
-        else if (name == "HASH_REPLACE_OWF")
-        {
-            return CALG_HASH_REPLACE_OWF;
-        }
-        else if (name == "HUGHES_MD5")
-        {
-            return CALG_HUGHES_MD5;
-        }
-        else if (name == "HMAC")
-        {
-            return CALG_HMAC;
-        }
-        else if (name == "MAC")
-        {
-            return CALG_MAC;
-        }
-        else if (name == "MD2")
-        {
-            return CALG_MD2;
-        }
-        else if (name == "MD4")
-        {
-            return CALG_MD4;
-        }
-        else if (name == "MD5")
-        {
-            return CALG_MD5;
-        }
-        else if (name == "NO_SIGN")
-        {
-            return CALG_NO_SIGN;
-        }
-        else if (name == "RC2")
-        {
-            return CALG_RC2;
-        }
-        else if (name == "RC4")
-        {
-            return CALG_RC4;
-        }
-        else if (name == "RC5")
-        {
-            return CALG_RC5;
-        }
-        else if (name == "RSA_KEYX")
-        {
-            return CALG_RSA_KEYX;
-        }
-        else if (name == "RSA_SIGN")
-        {
-            return CALG_RSA_SIGN;
-        }
-        else if (name == "SHA1")
-        {
-            return CALG_SHA1;
-        }
-        else if (name == "SHA_256")
-        {
-            return CALG_SHA_256;
-        }
-        else if (name == "SHA_384")
-        {
-            return CALG_SHA_384;
-        }
-        else if (name == "SHA_512")
-        {
-            return CALG_SHA_512;
-        }
-        return 0;
-    }
 }
 
 SChannel::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)
     : IceSSL::SSLEngine(instance),
-      _rootStore(0),
-      _chainEngine(0),
+      _rootStore(nullptr),
+      _chainEngine(nullptr),
       _strongCrypto(false)
 {
 }
@@ -682,7 +548,7 @@ SChannel::SSLEngine::initialize()
             pfxBlob.cbData = static_cast<DWORD>(buffer.size());
             pfxBlob.pbData = reinterpret_cast<BYTE*>(&buffer[0]);
 
-            PCCERT_CONTEXT cert = 0;
+            PCCERT_CONTEXT cert = nullptr;
             DWORD importFlags = (certStoreLocation == "LocalMachine") ? CRYPT_MACHINE_KEYSET : CRYPT_USER_KEYSET;
             HCERTSTORE store = PFXImportCertStore(
                 &pfxBlob,
@@ -697,7 +563,7 @@ SChannel::SSLEngine::initialize()
                 memset(&para, 0, sizeof(CERT_CHAIN_FIND_BY_ISSUER_PARA));
                 para.cbSize = sizeof(CERT_CHAIN_FIND_BY_ISSUER_PARA);
 
-                PCCERT_CHAIN_CONTEXT chain = 0;
+                PCCERT_CHAIN_CONTEXT chain = nullptr;
                 while (!cert)
                 {
                     chain = CertFindChainInStore(
@@ -785,8 +651,8 @@ SChannel::SSLEngine::initialize()
                     "IceSSL: error decoding key `" + keyFile + "':\n" + lastErrorToString());
             }
 
-            PCRYPT_PRIVATE_KEY_INFO keyInfo = 0;
-            BYTE* key = 0;
+            PCRYPT_PRIVATE_KEY_INFO keyInfo = nullptr;
+            BYTE* key = nullptr;
             HCRYPTKEY hKey = 0;
             try
             {
@@ -828,7 +694,7 @@ SChannel::SSLEngine::initialize()
                             "IceSSL: error decoding key `" + keyFile + "':\n" + lastErrorToString());
                     }
                     LocalFree(keyInfo);
-                    keyInfo = 0;
+                    keyInfo = nullptr;
                 }
                 else
                 {
@@ -884,7 +750,7 @@ SChannel::SSLEngine::initialize()
                         "IceSSL: error importing key `" + keyFile + "':\n" + lastErrorToString());
                 }
                 LocalFree(key);
-                key = 0;
+                key = nullptr;
 
                 CryptDestroyKey(hKey);
                 hKey = 0;
@@ -1046,24 +912,19 @@ SChannel::SSLEngine::getCipherName(ALG_ID cipher) const
     }
 }
 
-CredHandle
-SChannel::SSLEngine::newCredentialsHandle(bool incoming)
+SCHANNEL_CRED
+SChannel::SSLEngine::newCredentialsHandle(bool incoming) const
 {
     SCHANNEL_CRED cred;
     memset(&cred, 0, sizeof(cred));
     cred.dwVersion = SCHANNEL_CRED_VERSION;
 
-    if (!_allCerts.empty())
-    {
-        cred.cCreds = static_cast<DWORD>(_allCerts.size());
-        cred.paCred = &_allCerts[0];
-    }
-
+    // TODO move this flags to the newSessionCallback for the properties configuration.
     if (incoming)
     {
         // Don't set SCH_SEND_ROOT_CERT as it seems to cause problems with Java certificate validation and SChannel
         // doesn't seems to send the root certificate either way.
-        cred.dwFlags = SCH_CRED_NO_SYSTEM_MAPPER;
+        cred.dwFlags = SCH_CRED_NO_SYSTEM_MAPPER | SCH_CRED_DISABLE_RECONNECTS;
 
         // There's no way to prevent SChannel from sending "CA names" to the client. Recent Windows versions don't CA
         // names but older ones do send all the trusted root CA names. We provide the root store to ensure that for
@@ -1079,33 +940,8 @@ SChannel::SSLEngine::newCredentialsHandle(bool incoming)
     {
         cred.dwFlags |= SCH_USE_STRONG_CRYPTO;
     }
-
-    CredHandle credHandle;
-    memset(&credHandle, 0, sizeof(credHandle));
-
-    SECURITY_STATUS err = AcquireCredentialsHandle(
-        0,
-        const_cast<char*>(UNISP_NAME),
-        (incoming ? SECPKG_CRED_INBOUND : SECPKG_CRED_OUTBOUND),
-        0,
-        &cred,
-        0,
-        0,
-        &credHandle,
-        0);
-
-    if (err != SEC_E_OK)
-    {
-        throw SecurityException(
-            __FILE__,
-            __LINE__,
-            "IceSSL: failed to acquire credentials handle:\n" + lastErrorToString());
-    }
-    return credHandle;
+    return cred;
 }
-
-HCERTCHAINENGINE
-SChannel::SSLEngine::chainEngine() const { return _chainEngine; }
 
 void
 SChannel::SSLEngine::destroy()
@@ -1150,12 +986,416 @@ SChannel::SSLEngine::destroy()
     }
 }
 
-IceInternal::TransceiverPtr
-SChannel::SSLEngine::createTransceiver(
-    const InstancePtr& instance,
-    const IceInternal::TransceiverPtr& delegate,
-    const string& hostOrAdapterName,
-    bool incoming)
+Ice::SSL::ClientAuthenticationOptions
+SChannel::SSLEngine::createClientAuthenticationOptions(const string& host) const
 {
-    return make_shared<SChannel::TransceiverI>(instance, delegate, hostOrAdapterName, incoming);
+    return Ice::SSL::ClientAuthenticationOptions{
+        .clientCertificateSelectionCallback =
+            [this](const string&)
+        {
+            PCCERT_CONTEXT cert = nullptr;
+            if (_allCerts.size() > 0)
+            {
+                cert = CertDuplicateCertificateContext(_allCerts[0]);
+            }
+            return cert;
+        },
+        .trustedRootCertificates = _rootStore,
+        .serverCertificateValidationCallback = [self = shared_from_this(),
+                                                host](CtxtHandle ssl, const ConnectionInfoPtr& info) -> bool
+        { return self->validationCallback(ssl, info, false, host); }};
+}
+
+Ice::SSL::ServerAuthenticationOptions
+SChannel::SSLEngine::createServerAuthenticationOptions() const
+{
+    return Ice::SSL::ServerAuthenticationOptions{
+        .serverCertificateSelectionCallback =
+            [this](const string&)
+        {
+            {
+                PCCERT_CONTEXT cert = nullptr;
+                if (_allCerts.size() > 0)
+                {
+                    cert = CertDuplicateCertificateContext(_allCerts[0]);
+                }
+                return cert;
+            }
+        },
+        .clientCertificateRequired = getVerifyPeer() > 0,
+        .trustedRootCertificates = _rootStore,
+        .clientCertificateValidationCallback =
+            [self = shared_from_this()](CtxtHandle ssl, const ConnectionInfoPtr& info) -> bool
+        { return self->validationCallback(ssl, info, true, ""); }};
+}
+
+namespace
+{
+    struct ScopedCertChainContext
+    {
+        ScopedCertChainContext(PCCERT_CHAIN_CONTEXT chain) : _chain(chain) {}
+        ~ScopedCertChainContext() { CertFreeCertificateChain(_chain); }
+        PCCERT_CHAIN_CONTEXT _chain;
+    };
+
+    struct ScopedCertContext
+    {
+        ScopedCertContext(PCCERT_CONTEXT cert) : _cert(cert) {}
+        ~ScopedCertContext() { CertFreeCertificateContext(_cert); }
+        PCCERT_CONTEXT _cert;
+    };
+}
+
+bool
+SChannel::SSLEngine::validationCallback(
+    CtxtHandle ssl,
+    const ConnectionInfoPtr& info,
+    bool incoming,
+    const string& host) const
+{
+    // Build the peer certificate chain and verify it.
+    PCCERT_CONTEXT cert = nullptr;
+    SECURITY_STATUS err = QueryContextAttributes(&ssl, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &cert);
+    bool certificateRequired = !incoming || getVerifyPeer() > 1;
+    if (err && (err != SEC_E_NO_CREDENTIALS || certificateRequired))
+    {
+        ostringstream os;
+        os << "IceSSL: certificate verification failure:\n" << IceUtilInternal::errorToString(err);
+        throw SecurityException(__FILE__, __LINE__, os.str());
+    }
+
+    if (cert) // Verify the remote certificate
+    {
+        ScopedCertContext scopedCertContext(cert);
+        CERT_CHAIN_PARA chainP;
+        memset(&chainP, 0, sizeof(chainP));
+        chainP.cbSize = sizeof(chainP);
+
+        string trustError;
+        PCCERT_CHAIN_CONTEXT certChain;
+        DWORD dwFlags = 0;
+        int revocationCheck = getRevocationCheck();
+        if (revocationCheck > 0)
+        {
+            if (getRevocationCheckCacheOnly())
+            {
+                // Disable network I/O for revocation checks.
+                dwFlags = CERT_CHAIN_REVOCATION_CHECK_CACHE_ONLY | CERT_CHAIN_DISABLE_AIA;
+            }
+
+            dwFlags |=
+                (revocationCheck == 1 ? CERT_CHAIN_REVOCATION_CHECK_END_CERT
+                                      : CERT_CHAIN_REVOCATION_CHECK_CHAIN_EXCLUDE_ROOT);
+        }
+
+        if (!CertGetCertificateChain(_chainEngine, cert, 0, cert->hCertStore, &chainP, dwFlags, 0, &certChain))
+        {
+            ostringstream os;
+            os << "IceSSL: certificate verification failure:\n" << lastErrorToString();
+            throw SecurityException(__FILE__, __LINE__, os.str());
+        }
+        ScopedCertChainContext scopedChainContext(certChain);
+
+        DWORD errorStatus = certChain->TrustStatus.dwErrorStatus;
+        if (errorStatus != CERT_TRUST_NO_ERROR)
+        {
+            throw SecurityException(__FILE__, __LINE__, errorStatusToString(errorStatus));
+        }
+
+        SSL_EXTRA_CERT_CHAIN_POLICY_PARA extraPolicyPara;
+        memset(&extraPolicyPara, 0, sizeof(extraPolicyPara));
+        extraPolicyPara.cbSize = sizeof(extraPolicyPara);
+        extraPolicyPara.dwAuthType = incoming ? AUTHTYPE_CLIENT : AUTHTYPE_SERVER;
+        // Disable because the policy only matches the CN of the certificate, not the SAN.
+        extraPolicyPara.fdwChecks = SECURITY_FLAG_IGNORE_CERT_CN_INVALID;
+        extraPolicyPara.pwszServerName = const_cast<wchar_t*>(IceUtil::stringToWstring(host).c_str());
+
+        CERT_CHAIN_POLICY_PARA policyPara;
+        memset(&policyPara, 0, sizeof(policyPara));
+        policyPara.cbSize = sizeof(policyPara);
+        policyPara.pvExtraPolicyPara = &extraPolicyPara;
+
+        CERT_CHAIN_POLICY_STATUS policyStatus;
+        memset(&policyStatus, 0, sizeof(policyStatus));
+        policyStatus.cbSize = sizeof(policyStatus);
+
+        if (!CertVerifyCertificateChainPolicy(CERT_CHAIN_POLICY_SSL, certChain, &policyPara, &policyStatus))
+        {
+            ostringstream os;
+            os << "IceSSL: certificate verification failure:\n" << lastErrorToString();
+            throw SecurityException(__FILE__, __LINE__, os.str());
+        }
+
+        if (policyStatus.dwError)
+        {
+            ostringstream os;
+            os << "IceSSL: certificate verification failure:\n" << policyStatusToString(policyStatus.dwError);
+            throw SecurityException(__FILE__, __LINE__, os.str());
+        }
+
+        if (!incoming)
+        {
+            verifyPeerCertName(info, host);
+        }
+        verifyPeer(info);
+    }
+    return true;
+}
+
+string
+SChannel::SSLEngine::policyStatusToString(DWORD policyStatus) const
+{
+    assert(policyStatus);
+    ostringstream os;
+    switch (policyStatus)
+    {
+        case TRUST_E_CERT_SIGNATURE:
+        {
+            os << "The signature of the certificate cannot be verified.";
+            break;
+        }
+        case CRYPT_E_REVOKED:
+        {
+            os << "The certificate or signature has been revoked.";
+            break;
+        }
+        case CERT_E_UNTRUSTEDROOT:
+        {
+            os << "A certification chain processed correctly but terminated in a root certificate that is not "
+                  "trusted by "
+                  "the trust provider.";
+            break;
+        }
+        case CERT_E_UNTRUSTEDTESTROOT:
+        {
+            os << "The root certificate is a testing certificate, and policy settings disallow test certificates.";
+            break;
+        }
+        case CERT_E_CHAINING:
+        {
+            os << "A chain of certificates was not correctly created.";
+            break;
+        }
+        case CERT_E_WRONG_USAGE:
+        {
+            os << "The certificate is not valid for the requested usage.";
+            break;
+        }
+        case CERT_E_EXPIRED:
+        {
+            os << "A required certificate is not within its validity period.";
+            break;
+        }
+        case CERT_E_INVALID_NAME:
+        {
+            os << "The certificate has an invalid name. Either the name is not included in the permitted list, or "
+                  "it is "
+                  "explicitly excluded.";
+            break;
+        }
+        case CERT_E_INVALID_POLICY:
+        {
+            os << "The certificate has invalid policy.";
+            break;
+        }
+        case TRUST_E_BASIC_CONSTRAINTS:
+        {
+            os << "The basic constraints of the certificate are not valid, or they are missing.";
+            break;
+        }
+        case CERT_E_CRITICAL:
+        {
+            os << "The certificate is being used for a purpose other than the purpose specified by its CA.";
+            break;
+        }
+        case CERT_E_VALIDITYPERIODNESTING:
+        {
+            os << "The validity periods of the certification chain do not nest correctly.";
+            break;
+        }
+        case CRYPT_E_NO_REVOCATION_CHECK:
+        {
+            os << "The revocation function was unable to check revocation for the certificate.";
+            break;
+        }
+        case CRYPT_E_REVOCATION_OFFLINE:
+        {
+            os << "The revocation function was unable to check revocation because the revocation server was "
+                  "offline.";
+            break;
+        }
+        case CERT_E_CN_NO_MATCH:
+        {
+            os << "The certificate's CN name does not match the passed value.";
+            break;
+        }
+        case CERT_E_PURPOSE:
+        {
+            os << "The certificate is being used for a purpose other than the purpose specified by its CA.";
+            break;
+        }
+        case CERT_E_REVOKED:
+        {
+            os << "The certificate has been explicitly revoked by the issuer.";
+            break;
+        }
+        case CERT_E_REVOCATION_FAILURE:
+        {
+            os << "The revocation process could not continue, and the certificate could not be checked.";
+            break;
+        }
+        case CERT_E_ROLE:
+        {
+            os << "The certificate does not have a valid role.";
+            break;
+        }
+        default:
+        {
+            os << "Unknown policy status: " << policyStatus;
+            break;
+        }
+    }
+    return os.str();
+}
+
+string
+SChannel::SSLEngine::errorStatusToString(DWORD errorStatus) const
+{
+    assert(errorStatus != CERT_TRUST_NO_ERROR);
+    ostringstream os;
+    os << "IceSSL: certificate verification failure:";
+
+    if (errorStatus & CERT_TRUST_IS_NOT_TIME_VALID)
+    {
+        os << "\n  - This certificate or one of the certificates in the certificate chain is not time valid.";
+    }
+
+    if (errorStatus & CERT_TRUST_IS_REVOKED)
+    {
+        os << "\n  - Trust for this certificate or one of the certificates in the certificate chain has been "
+              "revoked.";
+    }
+
+    if (errorStatus & CERT_TRUST_IS_NOT_SIGNATURE_VALID)
+    {
+        os << "\n  - The certificate or one of the certificates in the certificate chain does not have a valid "
+              "signature.";
+    }
+
+    if (errorStatus & CERT_TRUST_IS_NOT_VALID_FOR_USAGE)
+    {
+        os << "\n  - The certificate or certificate chain is not valid for its proposed usage.";
+    }
+
+    if (errorStatus & CERT_TRUST_IS_UNTRUSTED_ROOT)
+    {
+        os << "\n  - The certificate or certificate chain is based on an untrusted root.";
+    }
+
+    if (errorStatus & CERT_TRUST_REVOCATION_STATUS_UNKNOWN)
+    {
+        os << "\n  - The revocation status of the certificate or one of the certificates in the certificate "
+              "chain is unknown.";
+    }
+
+    if (errorStatus & CERT_TRUST_IS_CYCLIC)
+    {
+        os << "\n  - One of the certificates in the chain was issued by a certificate in the chain.";
+    }
+
+    if (errorStatus & CERT_TRUST_INVALID_EXTENSION)
+    {
+        os << "\n  - One of the certificates has an extension that is not valid.";
+    }
+
+    if (errorStatus & CERT_TRUST_INVALID_POLICY_CONSTRAINTS)
+    {
+        os << "\n  - The certificate or one of the certificates in the certificate chain has a policy "
+              "constraints extension, and one of the issued certificates has a disallowed policy mapping "
+              "extension or does not have a required issuance policies extension.";
+    }
+
+    if (errorStatus & CERT_TRUST_INVALID_BASIC_CONSTRAINTS)
+    {
+        os << "\n  - The certificate or one of the certificates in the certificate chain has a basic "
+              "constraints "
+              "extension, and either the certificate cannot be used to issue other certificates, or the chain "
+              "path length has been exceeded.";
+    }
+
+    if (errorStatus & CERT_TRUST_HAS_NOT_SUPPORTED_NAME_CONSTRAINT)
+    {
+        os << "\n  - The certificate or one of the certificates in the certificate chain has a name "
+              "constraints extension that contains unsupported fields.";
+    }
+
+    if (errorStatus & CERT_TRUST_HAS_NOT_DEFINED_NAME_CONSTRAINT)
+    {
+        os << "\n  - The certificate or one of the certificates in the certificate chain has a name "
+              "constraints extension and a name constraint is missing for one of the name choices in the end "
+              "certificate.";
+    }
+
+    if (errorStatus & CERT_TRUST_HAS_NOT_PERMITTED_NAME_CONSTRAINT)
+    {
+        os << "\n  - The certificate or one of the certificates in the certificate chain has a name "
+              "constraints extension, and there is not a permitted name constraint for one of the name choices "
+              "in the end certificate.";
+    }
+
+    if (errorStatus & CERT_TRUST_HAS_EXCLUDED_NAME_CONSTRAINT)
+    {
+        os << "\n  - The certificate or one of the certificates in the certificate chain has a name "
+              "constraints extension, and one of the name choices in the end certificate is explicitly "
+              "excluded.";
+    }
+
+    if (errorStatus & CERT_TRUST_IS_OFFLINE_REVOCATION)
+    {
+        os << "\n  - The revocation status of the certificate or one of the certificates in the certificate "
+              "chain is either offline or stale.";
+    }
+
+    if (errorStatus & CERT_TRUST_NO_ISSUANCE_CHAIN_POLICY)
+    {
+        os << "\n  - The end certificate does not have any resultant issuance policies, and one of the issuing "
+              "certification authority certificates has a policy constraints extension requiring it.";
+    }
+
+    if (errorStatus & CERT_TRUST_IS_EXPLICIT_DISTRUST)
+    {
+        os << "\n  - The certificate is explicitly distrusted.";
+    }
+
+    if (errorStatus & CERT_TRUST_HAS_NOT_SUPPORTED_CRITICAL_EXT)
+    {
+        os << "\n  - The certificate does not support a critical extension.";
+    }
+
+    if (errorStatus & CERT_TRUST_HAS_WEAK_SIGNATURE)
+    {
+        os << "\n  - The certificate has not been strong signed.";
+    }
+
+    if (errorStatus & CERT_TRUST_IS_PARTIAL_CHAIN)
+    {
+        os << "\n  - The certificate chain is not complete.";
+    }
+
+    if (errorStatus & CERT_TRUST_CTL_IS_NOT_TIME_VALID)
+    {
+        os << "\n  - A certificate trust list (CTL) used to create this chain was not time valid.";
+    }
+
+    if (errorStatus & CERT_TRUST_CTL_IS_NOT_SIGNATURE_VALID)
+    {
+        os << "\n  - A CTL used to create this chain did not have a valid signature.";
+    }
+
+    if (errorStatus & CERT_TRUST_CTL_IS_NOT_VALID_FOR_USAGE)
+    {
+        os << "\n  - A CTL used to create this chain is not valid for this usage.";
+    }
+
+    return os.str();
 }

@@ -7,32 +7,20 @@
 
 #ifdef _WIN32
 
+#    include "Ice/ClientAuthenticationOptions.h"
 #    include "Ice/InstanceF.h"
+#    include "Ice/SSLConnectionInfo.h"
+#    include "Ice/ServerAuthenticationOptions.h"
 #    include "SChannelEngineF.h"
 #    include "SSLEngine.h"
 
+#    include <mutex>
 #    include <string>
 #    include <vector>
 
-//
-// SECURITY_WIN32 or SECURITY_KERNEL, must be defined before including security.h
-// indicating who is compiling the code.
-//
-#    ifdef SECURITY_WIN32
-#        undef SECURITY_WIN32
-#    endif
-#    ifdef SECURITY_KERNEL
-#        undef SECURITY_KERNEL
-#    endif
-#    define SECURITY_WIN32 1
-#    include <schannel.h>
-#    include <security.h>
-#    include <sspi.h>
-#    undef SECURITY_WIN32
-
 namespace IceSSL::SChannel
 {
-    class SSLEngine final : public IceSSL::SSLEngine
+    class SSLEngine final : public IceSSL::SSLEngine, public std::enable_shared_from_this<SSLEngine>
     {
     public:
         SSLEngine(const IceInternal::InstancePtr&);
@@ -42,9 +30,6 @@ namespace IceSSL::SChannel
         //
         void initialize() final;
 
-        IceInternal::TransceiverPtr
-        createTransceiver(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool) final;
-
         //
         // Destroy the engine.
         //
@@ -52,11 +37,15 @@ namespace IceSSL::SChannel
 
         std::string getCipherName(ALG_ID) const;
 
-        CredHandle newCredentialsHandle(bool);
-
-        HCERTCHAINENGINE chainEngine() const;
+        Ice::SSL::ClientAuthenticationOptions createClientAuthenticationOptions(const std::string&) const final;
+        Ice::SSL::ServerAuthenticationOptions createServerAuthenticationOptions() const final;
+        SCHANNEL_CRED newCredentialsHandle(bool) const;
 
     private:
+        bool validationCallback(CtxtHandle, const IceSSL::ConnectionInfoPtr&, bool, const std::string&) const;
+        std::string errorStatusToString(DWORD errorStatus) const;
+        std::string policyStatusToString(DWORD policyStatus) const;
+
         std::vector<PCCERT_CONTEXT> _allCerts;
         std::vector<PCCERT_CONTEXT> _importedCerts;
 
@@ -65,6 +54,7 @@ namespace IceSSL::SChannel
 
         HCERTCHAINENGINE _chainEngine;
         const bool _strongCrypto;
+        mutable std::mutex _mutex;
     };
 }
 

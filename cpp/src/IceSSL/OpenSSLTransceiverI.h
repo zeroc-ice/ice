@@ -10,7 +10,9 @@
 #include "../Ice/Transceiver.h"
 #include "../Ice/WSTransceiver.h"
 #include "Ice/Certificate.h"
+#include "Ice/ClientAuthenticationOptions.h"
 #include "Ice/Config.h"
+#include "Ice/ServerAuthenticationOptions.h"
 #include "OpenSSLEngineF.h"
 #include "SSLInstanceF.h"
 #include "SSLUtil.h"
@@ -25,7 +27,17 @@ namespace IceSSL::OpenSSL
     class TransceiverI final : public IceInternal::Transceiver
     {
     public:
-        TransceiverI(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool);
+        TransceiverI(
+            const InstancePtr&,
+            const IceInternal::TransceiverPtr&,
+            const std::string&,
+            const Ice::SSL::ServerAuthenticationOptions&);
+        TransceiverI(
+            const InstancePtr&,
+            const IceInternal::TransceiverPtr&,
+            const std::string&,
+            const Ice::SSL::ClientAuthenticationOptions&);
+
         ~TransceiverI();
         IceInternal::NativeInfoPtr getNativeInfo() final;
 
@@ -34,12 +46,6 @@ namespace IceSSL::OpenSSL
         void close() final;
         IceInternal::SocketOperation write(IceInternal::Buffer&) final;
         IceInternal::SocketOperation read(IceInternal::Buffer&) final;
-#ifdef ICE_USE_IOCP
-        bool startWrite(IceInternal::Buffer&) final;
-        void finishWrite(IceInternal::Buffer&) final;
-        void startRead(IceInternal::Buffer&) final;
-        void finishRead(IceInternal::Buffer&) final;
-#endif
         bool isWaitingToBeRead() const noexcept final;
         std::string protocol() const final;
         std::string toString() const final;
@@ -65,16 +71,19 @@ namespace IceSSL::OpenSSL
         bool _connected;
         std::string _cipher;
         std::vector<IceSSL::CertificatePtr> _certs;
-        bool _verified;
-        TrustError _trustError;
-
-        SSL* _ssl;
+        ::SSL* _ssl;
+        SSL_CTX* _sslCtx;
         BIO* _memBio;
         IceInternal::Buffer _writeBuffer;
         IceInternal::Buffer _readBuffer;
         int _sentBytes;
         size_t _maxSendPacketSize;
         size_t _maxRecvPacketSize;
+        std::function<SSL_CTX*(const std::string&)> _localSslContextSelectionCallback;
+        std::function<bool(bool, X509_STORE_CTX*, const IceSSL::ConnectionInfoPtr&)>
+            _remoteCertificateVerificationCallback;
+        std::function<void(::SSL*, const std::string&)> _sslNewSessionCallback;
+        std::exception_ptr _verificationException;
     };
     using TransceiverIPtr = std::shared_ptr<TransceiverI>;
 

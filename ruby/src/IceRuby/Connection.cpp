@@ -279,8 +279,6 @@ IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
         info = Data_Wrap_Struct(_sslConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
 
         IceSSL::ConnectionInfoPtr ssl = dynamic_pointer_cast<IceSSL::ConnectionInfo>(p);
-        rb_ivar_set(info, rb_intern("@cipher"), createString(ssl->cipher));
-
         Ice::StringSeq encoded;
         for (vector<IceSSL::CertificatePtr>::const_iterator i = ssl->certs.begin(); i != ssl->certs.end(); ++i)
         {
@@ -288,7 +286,6 @@ IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
         }
 
         rb_ivar_set(info, rb_intern("@certs"), stringSeqToArray(encoded));
-        rb_ivar_set(info, rb_intern("@verified"), ssl->verified ? Qtrue : Qfalse);
     }
     else if (dynamic_pointer_cast<Ice::IPConnectionInfo>(p))
     {
@@ -407,9 +404,7 @@ IceRuby::initConnection(VALUE iceModule)
     //
     // Instance members.
     //
-    rb_define_attr(_sslConnectionInfoClass, "cipher", 1, 0);
     rb_define_attr(_sslConnectionInfoClass, "certs", 1, 0);
-    rb_define_attr(_sslConnectionInfoClass, "verified", 1, 0);
 }
 
 Ice::ConnectionPtr

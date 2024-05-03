@@ -873,7 +873,8 @@ Ice::ObjectAdapterI::ObjectAdapterI(
     const CommunicatorPtr& communicator,
     const ObjectAdapterFactoryPtr& objectAdapterFactory,
     const string& name,
-    bool noConfig)
+    bool noConfig,
+    const optional<SSL::ServerAuthenticationOptions>& serverAuthenticationOptions)
     : _state(StateUninitialized),
       _instance(instance),
       _communicator(communicator),
@@ -883,8 +884,20 @@ Ice::ObjectAdapterI::ObjectAdapterI(
       _name(name),
       _directCount(0),
       _noConfig(noConfig),
-      _messageSizeMax(0)
+      _messageSizeMax(0),
+      _serverAuthenticationOptions(serverAuthenticationOptions)
 {
+#if defined(ICE_USE_SCHANNEL)
+    if (_serverAuthenticationOptions && _serverAuthenticationOptions->trustedRootCertificates)
+    {
+        CertDuplicateStore(_serverAuthenticationOptions->trustedRootCertificates);
+    }
+#elif defined(ICE_USE_SECURE_TRANSPORT)
+    if (_serverAuthenticationOptions && _serverAuthenticationOptions->trustedRootCertificates)
+    {
+        CFRetain(_serverAuthenticationOptions->trustedRootCertificates);
+    }
+#endif
 }
 
 void
@@ -1056,6 +1069,17 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
 
 Ice::ObjectAdapterI::~ObjectAdapterI()
 {
+#if defined(ICE_USE_SCHANNEL)
+    if (_serverAuthenticationOptions && _serverAuthenticationOptions->trustedRootCertificates)
+    {
+        CertCloseStore(_serverAuthenticationOptions->trustedRootCertificates, 0);
+    }
+#elif defined(ICE_USE_SECURE_TRANSPORT)
+    if (_serverAuthenticationOptions && _serverAuthenticationOptions->trustedRootCertificates)
+    {
+        CFRelease(_serverAuthenticationOptions->trustedRootCertificates);
+    }
+#endif
     if (_state < StateDeactivated)
     {
         Warning out(_instance->initializationData().logger);
