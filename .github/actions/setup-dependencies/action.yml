@@ -145,6 +145,8 @@ runs:
         # https://www.mathworks.com/matlabcentral/answers/1907290-how-to-manually-select-the-libstdc-library-to-use-to-resolve-a-version-glibcxx_-not-found
         echo "LD_PRELOAD=/lib/x86_64-linux-gnu/libstdc++.so.6" >> $GITHUB_ENV
 
+        /usr/local/bin/run-matlab-command -nodesktop -r "fprintf('%s', version('-release'));exit(0);"
+
       shell: bash
       if: runner.os == 'Linux' && matrix.config == 'matlab'
 
