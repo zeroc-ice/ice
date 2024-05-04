@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Ice.Internal;
 
-public abstract class Reference
+public abstract class Reference : IEquatable<Reference>
 {
     public enum Mode
     {
@@ -211,34 +211,6 @@ public abstract class Reference
     public abstract Reference changeConnectionId(string connectionId);
     public abstract Reference changeConnection(Ice.ConnectionI connection);
 
-    public override int GetHashCode()
-    {
-        lock (this)
-        {
-            if (hashInitialized_)
-            {
-                return hashValue_;
-            }
-            int h = 5381;
-            HashUtil.hashAdd(ref h, _mode);
-            HashUtil.hashAdd(ref h, secure_);
-            HashUtil.hashAdd(ref h, _identity);
-            HashUtil.hashAdd(ref h, _context);
-            HashUtil.hashAdd(ref h, _facet);
-            HashUtil.hashAdd(ref h, overrideCompress_);
-            if (overrideCompress_)
-            {
-                HashUtil.hashAdd(ref h, compress_);
-            }
-            HashUtil.hashAdd(ref h, _protocol);
-            HashUtil.hashAdd(ref h, _encoding);
-            HashUtil.hashAdd(ref h, _invocationTimeout);
-            hashValue_ = h;
-            hashInitialized_ = true;
-            return hashValue_;
-        }
-    }
-
     public bool getCompressOverride(out bool compress)
     {
         DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
@@ -419,6 +391,37 @@ public abstract class Reference
     public abstract RequestHandler getRequestHandler(Ice.ObjectPrxHelperBase proxy);
 
     public abstract BatchRequestQueue getBatchRequestQueue();
+
+    public static bool operator ==(Reference lhs, Reference rhs) => lhs is null ? rhs is null : lhs.Equals(rhs);
+    public static bool operator !=(Reference lhs, Reference rhs) => !(lhs == rhs);
+
+    public override int GetHashCode()
+    {
+        lock (this)
+        {
+            if (hashInitialized_)
+            {
+                return hashValue_;
+            }
+            int h = 5381;
+            HashUtil.hashAdd(ref h, _mode);
+            HashUtil.hashAdd(ref h, secure_);
+            HashUtil.hashAdd(ref h, _identity);
+            HashUtil.hashAdd(ref h, _context);
+            HashUtil.hashAdd(ref h, _facet);
+            HashUtil.hashAdd(ref h, overrideCompress_);
+            if (overrideCompress_)
+            {
+                HashUtil.hashAdd(ref h, compress_);
+            }
+            HashUtil.hashAdd(ref h, _protocol);
+            HashUtil.hashAdd(ref h, _encoding);
+            HashUtil.hashAdd(ref h, _invocationTimeout);
+            hashValue_ = h;
+            hashInitialized_ = true;
+            return hashValue_;
+        }
+    }
 
     public virtual bool Equals(Reference other)
     {
