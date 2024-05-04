@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Ice.Internal;
 
-public abstract class Reference : ICloneable
+public abstract class Reference
 {
     public enum Mode
     {
