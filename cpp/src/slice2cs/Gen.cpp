@@ -2682,18 +2682,12 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         _out << sp;
         emitGeneratedCodeAttribute();
-        _out << nl << "public static bool operator==(" << name << " lhs, " << name << " rhs)";
-        _out << sb;
-        _out << nl << "return (object)lhs == rhs || (lhs is not null && lhs.Equals(rhs));";
-        _out << eb;
+        _out << nl << "public static bool operator==(" << name << " lhs, " << name << " rhs) => ";
+        _out << "lhs is null ? rhs is null : lhs.Equals(rhs);";
 
         _out << sp;
         emitGeneratedCodeAttribute();
-        _out << nl << "public static bool operator!=(" << name << " lhs, " << name << " rhs)";
-        _out << sb;
-        _out << nl << "return !(lhs == rhs);";
-        _out << eb;
-
+        _out << nl << "public static bool operator!=(" << name << " lhs, " << name << " rhs) => !(lhs == rhs);";
         _out << sp << nl << "#endregion"; // Comparison members
     }
 
