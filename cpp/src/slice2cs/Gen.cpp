@@ -2954,20 +2954,10 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers)
 
         if (SequencePtr seq = dynamic_pointer_cast<Sequence>(memberType))
         {
-            string meta;
-            bool isGeneric = seq->findMetaData("cs:generic:", meta);
-            bool isArray = !isGeneric;
-            if (isArray)
-            {
-                // Equals() for native arrays does not have value semantics.
-                _out << "Ice.UtilInternal.Arrays.Equals(this." << memberName << ", other." << memberName << ")";
-            }
-            else if (isGeneric)
-            {
-                // Equals() for generic types does not have value semantics.
-                _out << "Ice.UtilInternal.Collections.SequenceEquals(this." << memberName << ", other." << memberName
-                     << ")";
-            }
+            // Enumerable.SequenceEqual requires non-null arguments.
+            _out << "(this." << memberName << " is not null ? other." << memberName << " is not null && this."
+                << memberName << ".SequenceEqual(other." << memberName
+                << ") : other." << memberName << " is null)";
         }
         else if (DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(memberType))
         {
