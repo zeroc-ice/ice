@@ -420,73 +420,29 @@ public abstract class Reference
 
     public abstract BatchRequestQueue getBatchRequestQueue();
 
-    public override bool Equals(object obj)
+    public override bool Equals(object r)
     {
-        //
-        // Note: if(this == obj) and type test are performed by each non-abstract derived class.
-        //
-
-        Reference r = (Reference)obj; // Guaranteed to succeed.
-
-        if (_mode != r._mode)
+        if (r is null)
         {
             return false;
         }
 
-        if (secure_ != r.secure_)
-        {
-            return false;
-        }
+        Reference other = (Reference)r;
 
-        if (!_identity.Equals(r._identity))
-        {
-            return false;
-        }
-
-        if (!Ice.CollectionComparer.Equals(_context, r._context))
-        {
-            return false;
-        }
-
-        if (!_facet.Equals(r._facet))
-        {
-            return false;
-        }
-
-        if (overrideCompress_ != r.overrideCompress_)
-        {
-            return false;
-        }
-        if (overrideCompress_ && compress_ != r.compress_)
-        {
-            return false;
-        }
-
-        if (!_protocol.Equals(r._protocol))
-        {
-            return false;
-        }
-
-        if (!_encoding.Equals(r._encoding))
-        {
-            return false;
-        }
-
-        if (_invocationTimeout != r._invocationTimeout)
-        {
-            return false;
-        }
-
-        return true;
+        return ReferenceEquals(this, other) ||
+            _mode == other._mode &&
+            secure_ == other.secure_ &&
+            _identity == other._identity &&
+            Ice.CollectionComparer.Equals(_context, other._context) &&
+            _facet == other._facet &&
+            overrideCompress_ == other.overrideCompress_ &&
+            (overrideCompress_ ? compress_ == other.compress_ : true) &&
+            _protocol == other._protocol &&
+            _encoding == other._encoding &&
+            _invocationTimeout == other._invocationTimeout;
     }
 
-    public object Clone()
-    {
-        //
-        // A member-wise copy is safe because the members are immutable.
-        //
-        return MemberwiseClone();
-    }
+    public object Clone() => MemberwiseClone();
 
     protected int hashValue_;
     protected bool hashInitialized_;
