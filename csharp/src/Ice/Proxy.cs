@@ -47,7 +47,7 @@ public struct OptionalContext
 /// <summary>
 /// Base interface of all object proxies.
 /// </summary>
-public interface ObjectPrx
+public interface ObjectPrx : IEquatable<ObjectPrx>
 {
     /// <summary>
     /// Returns the communicator that created this proxy.
@@ -568,9 +568,25 @@ public struct Object_Ice_invokeResult
 /// </summary>
 public class ObjectPrxHelperBase : ObjectPrx
 {
+    public static bool operator==(ObjectPrxHelperBase lhs, ObjectPrxHelperBase rhs) =>
+        lhs is null ? rhs is null : lhs._reference == rhs._reference;
+
+    public static bool operator!=(ObjectPrxHelperBase lhs, ObjectPrxHelperBase rhs) => !(lhs == rhs);
+
     public ObjectPrxHelperBase()
     {
     }
+
+    /// <summary>
+    /// Returns whether this proxy equals the passed object. Two proxies are equal if they are equal in all
+    /// respects, that is, if their object identity, endpoints timeout settings, and so on are all equal.
+    /// </summary>
+    /// <param name="r">The proxy to compare this proxy with.</param>
+    /// <returns>True if this proxy is equal to r; false, otherwise.</returns>
+    public bool Equals(ObjectPrx other) =>
+        other is not null && _reference == ((ObjectPrxHelperBase)other)._reference;
+
+    public override bool Equals(object other) => Equals(other as ObjectPrx);
 
     /// <summary>
     /// Returns a hash code for this proxy.
@@ -1702,54 +1718,6 @@ public class ObjectPrxHelperBase : ObjectPrx
     public System.Threading.Tasks.TaskScheduler ice_scheduler()
     {
         return _reference.getThreadPool();
-    }
-
-    /// <summary>
-    /// Returns whether this proxy equals the passed object. Two proxies are equal if they are equal in all
-    /// respects, that is, if their object identity, endpoints timeout settings, and so on are all equal.
-    /// </summary>
-    /// <param name="r">The object to compare this proxy with.</param>
-    /// <returns>True if this proxy is equal to r; false, otherwise.</returns>
-    public override bool Equals(object r)
-    {
-        var rhs = r as ObjectPrxHelperBase;
-        return ReferenceEquals(rhs, null) ? false : _reference.Equals(rhs._reference);
-    }
-
-    /// <summary>
-    /// Returns whether two proxies are equal. Two proxies are equal if they are equal in all
-    /// respects, that is, if their object identity, endpoints timeout settings, and so on are all equal.
-    /// </summary>
-    /// <param name="lhs">A proxy to compare with the proxy rhs.</param>
-    /// <param name="rhs">A proxy to compare with the proxy lhs.</param>
-    /// <returns>True if the proxies are equal; false, otherwise.</returns>
-    public static bool Equals(ObjectPrxHelperBase lhs, ObjectPrxHelperBase rhs)
-    {
-        return ReferenceEquals(lhs, null) ? ReferenceEquals(rhs, null) : lhs.Equals(rhs);
-    }
-
-    /// <summary>
-    /// Returns whether two proxies are equal. Two proxies are equal if they are equal in all
-    /// respects, that is, if their object identity, endpoints timeout settings, and so on are all equal.
-    /// </summary>
-    /// <param name="lhs">A proxy to compare with the proxy rhs.</param>
-    /// <param name="rhs">A proxy to compare with the proxy lhs.</param>
-    /// <returns>True if the proxies are equal; false, otherwise.</returns>
-    public static bool operator ==(ObjectPrxHelperBase lhs, ObjectPrxHelperBase rhs)
-    {
-        return Equals(lhs, rhs);
-    }
-
-    /// <summary>
-    /// Returns whether two proxies are not equal. Two proxies are equal if they are equal in all
-    /// respects, that is, if their object identity, endpoints timeout settings, and so on are all equal.
-    /// </summary>
-    /// <param name="lhs">A proxy to compare with the proxy rhs.</param>
-    /// <param name="rhs">A proxy to compare with the proxy lhs.</param>
-    /// <returns>True if the proxies are not equal; false, otherwise.</returns>
-    public static bool operator !=(ObjectPrxHelperBase lhs, ObjectPrxHelperBase rhs)
-    {
-        return !Equals(lhs, rhs);
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]

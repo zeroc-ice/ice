@@ -1116,9 +1116,6 @@ public class RoutableReference : Reference
         return properties;
     }
 
-    //
-    // If we override Equals, we must also override GetHashCode.
-    //
     public override int GetHashCode()
     {
         lock (this)

@@ -247,18 +247,8 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
     public static bool operator==(LocatorInfo lhs, LocatorInfo rhs) => lhs is null ? rhs is null : lhs.Equals(rhs);
     public static bool operator!=(LocatorInfo lhs, LocatorInfo rhs) => !(lhs == rhs);
 
-    public bool Equals(LocatorInfo other)
-    {
-        if (ReferenceEquals(this, other))
-        {
-            return true;
-        }
-        if (other is null)
-        {
-            return false;
-        }
-        return _locator.Equals(other._locator);
-    }
+    public bool Equals(LocatorInfo other) =>
+        ReferenceEquals(this, other) || (other is not null && _locator.Equals(other._locator));
 
     public override bool Equals(object obj) => Equals(obj as LocatorInfo);
 
