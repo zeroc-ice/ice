@@ -420,17 +420,12 @@ public abstract class Reference
 
     public abstract BatchRequestQueue getBatchRequestQueue();
 
-    public override bool Equals(object r)
+    public virtual bool Equals(Reference other)
     {
-        if (r is null)
-        {
-            return false;
-        }
+        // The derived class checks ReferenceEquals and guarantees other is not null
+        Debug.Assert(other is not null);
 
-        Reference other = (Reference)r;
-
-        return ReferenceEquals(this, other) ||
-            _mode == other._mode &&
+        return _mode == other._mode &&
             secure_ == other.secure_ &&
             _identity == other._identity &&
             Ice.CollectionComparer.Equals(_context, other._context) &&
@@ -441,6 +436,8 @@ public abstract class Reference
             _encoding == other._encoding &&
             _invocationTimeout == other._invocationTimeout;
     }
+
+    public override bool Equals(object other) => Equals(other as Reference);
 
     public object Clone() => MemberwiseClone();
 
@@ -734,30 +731,14 @@ public class FixedReference : Reference
         return _fixedConnection.getBatchRequestQueue();
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(Reference other)
     {
-        if (ReferenceEquals(this, obj))
+        if (ReferenceEquals(this, other))
         {
             return true;
         }
-        FixedReference rhs = obj as FixedReference;
-        if (rhs == null)
-        {
-            return false;
-        }
-        if (!base.Equals(rhs))
-        {
-            return false;
-        }
-        return _fixedConnection.Equals(rhs._fixedConnection);
-    }
-
-    //
-    // If we override Equals, we must also override GetHashCode.
-    //
-    public override int GetHashCode()
-    {
-        return base.GetHashCode();
+        FixedReference rhs = other as FixedReference;
+        return rhs is not null && base.Equals(rhs) && _fixedConnection.Equals(rhs._fixedConnection);
     }
 
     private Ice.ConnectionI _fixedConnection;
@@ -1149,20 +1130,20 @@ public class RoutableReference : Reference
         }
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(Reference other)
     {
-        if (ReferenceEquals(this, obj))
+        if (ReferenceEquals(this, other))
         {
             return true;
         }
+        RoutableReference rhs = other as RoutableReference;
 
-        RoutableReference rhs = obj as RoutableReference;
         if (rhs == null)
         {
             return false;
         }
 
-        if (!base.Equals(obj))
+        if (!base.Equals(rhs))
         {
             return false;
         }
