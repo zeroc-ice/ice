@@ -422,7 +422,7 @@ public abstract class Reference
 
     public virtual bool Equals(Reference other)
     {
-        // The derived class checks ReferenceEquals and guarantees other is not null
+        // The derived class checks ReferenceEquals and guarantees other is not null.
         Debug.Assert(other is not null);
 
         return _mode == other._mode &&
@@ -431,7 +431,7 @@ public abstract class Reference
             Ice.CollectionComparer.Equals(_context, other._context) &&
             _facet == other._facet &&
             overrideCompress_ == other.overrideCompress_ &&
-            (overrideCompress_ ? compress_ == other.compress_ : true) &&
+            (!overrideCompress_ || compress_ == other.compress_) &&
             _protocol == other._protocol &&
             _encoding == other._encoding &&
             _invocationTimeout == other._invocationTimeout;
@@ -1136,67 +1136,22 @@ public class RoutableReference : Reference
         {
             return true;
         }
-        RoutableReference rhs = other as RoutableReference;
+        var rhs = other as RoutableReference;
 
-        if (rhs == null)
-        {
-            return false;
-        }
-
-        if (!base.Equals(rhs))
-        {
-            return false;
-        }
-
-        if (_locatorInfo == null ? rhs._locatorInfo != null : !_locatorInfo.Equals(rhs._locatorInfo))
-        {
-            return false;
-        }
-        if (_routerInfo == null ? rhs._routerInfo != null : !_routerInfo.Equals(rhs._routerInfo))
-        {
-            return false;
-        }
-        if (_collocationOptimized != rhs._collocationOptimized)
-        {
-            return false;
-        }
-        if (_cacheConnection != rhs._cacheConnection)
-        {
-            return false;
-        }
-        if (_preferSecure != rhs._preferSecure)
-        {
-            return false;
-        }
-        if (_endpointSelection != rhs._endpointSelection)
-        {
-            return false;
-        }
-        if (_locatorCacheTimeout != rhs._locatorCacheTimeout)
-        {
-            return false;
-        }
-        if (_overrideTimeout != rhs._overrideTimeout)
-        {
-            return false;
-        }
-        if (_overrideTimeout && _timeout != rhs._timeout)
-        {
-            return false;
-        }
-        if (!_connectionId.Equals(rhs._connectionId))
-        {
-            return false;
-        }
-        if (!_adapterId.Equals(rhs._adapterId))
-        {
-            return false;
-        }
-        if (!Ice.UtilInternal.Arrays.Equals(_endpoints, rhs._endpoints))
-        {
-            return false;
-        }
-        return true;
+        return rhs is not null &&
+            base.Equals(rhs) &&
+            _locatorInfo == rhs._locatorInfo &&
+            _routerInfo == rhs._routerInfo &&
+            _collocationOptimized == rhs._collocationOptimized &&
+            _cacheConnection == rhs._cacheConnection &&
+            _preferSecure == rhs._preferSecure &&
+            _endpointSelection == rhs._endpointSelection &&
+            _locatorCacheTimeout == rhs._locatorCacheTimeout &&
+            _overrideTimeout == rhs._overrideTimeout &&
+            (!_overrideTimeout || _timeout == rhs._timeout) &&
+            _connectionId == rhs._connectionId &&
+            _adapterId == rhs._adapterId &&
+            UtilInternal.Arrays.Equals(_endpoints, rhs._endpoints);
     }
 
     private sealed class RouterEndpointsCallback : RouterInfo.GetClientEndpointsCallback

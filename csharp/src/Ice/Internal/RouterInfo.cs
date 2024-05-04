@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace Ice.Internal;
 
-public sealed class RouterInfo
+public sealed class RouterInfo : IEquatable<RouterInfo>
 {
     public interface GetClientEndpointsCallback
     {
@@ -35,21 +35,25 @@ public sealed class RouterInfo
         }
     }
 
-    public override bool Equals(object obj)
+    public static bool operator ==(RouterInfo lhs, RouterInfo rhs) => lhs is null ? rhs is null : lhs.Equals(rhs);
+    public static bool operator !=(RouterInfo lhs, RouterInfo rhs) => !(lhs == rhs);
+
+    public bool Equals(RouterInfo other)
     {
-        if (ReferenceEquals(this, obj))
+        if (ReferenceEquals(this, other))
         {
             return true;
         }
-
-        RouterInfo rhs = obj as RouterInfo;
-        return rhs == null ? false : _router.Equals(rhs._router);
+        if (other is null)
+        {
+            return false;
+        }
+        return _router.Equals(other._router);
     }
 
-    public override int GetHashCode()
-    {
-        return _router.GetHashCode();
-    }
+    public override bool Equals(object obj) => Equals(obj as RouterInfo);
+
+    public override int GetHashCode() => _router.GetHashCode();
 
     public Ice.RouterPrx getRouter()
     {

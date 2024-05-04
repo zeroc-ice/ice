@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace Ice.Internal;
 
-public sealed class LocatorInfo
+public sealed class LocatorInfo : IEquatable<LocatorInfo>
 {
     public interface GetEndpointsCallback
     {
@@ -244,21 +244,25 @@ public sealed class LocatorInfo
         }
     }
 
-    public override bool Equals(object obj)
+    public static bool operator==(LocatorInfo lhs, LocatorInfo rhs) => lhs is null ? rhs is null : lhs.Equals(rhs);
+    public static bool operator!=(LocatorInfo lhs, LocatorInfo rhs) => !(lhs == rhs);
+
+    public bool Equals(LocatorInfo other)
     {
-        if (ReferenceEquals(this, obj))
+        if (ReferenceEquals(this, other))
         {
             return true;
         }
-
-        LocatorInfo rhs = obj as LocatorInfo;
-        return rhs == null ? false : _locator.Equals(rhs._locator);
+        if (other is null)
+        {
+            return false;
+        }
+        return _locator.Equals(other._locator);
     }
 
-    public override int GetHashCode()
-    {
-        return _locator.GetHashCode();
-    }
+    public override bool Equals(object obj) => Equals(obj as LocatorInfo);
+
+    public override int GetHashCode() => _locator.GetHashCode();
 
     public Ice.LocatorPrx getLocator()
     {
