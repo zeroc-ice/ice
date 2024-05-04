@@ -35,7 +35,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
         }
     }
 
-    public static bool operator ==(RouterInfo lhs, RouterInfo rhs) => lhs is null ? rhs is null : lhs.Equals(rhs);
+    public static bool operator ==(RouterInfo lhs, RouterInfo rhs) => lhs is not null ? lhs.Equals(rhs) : rhs is null;
     public static bool operator !=(RouterInfo lhs, RouterInfo rhs) => !(lhs == rhs);
 
     public bool Equals(RouterInfo other) =>
