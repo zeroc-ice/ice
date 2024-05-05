@@ -7,6 +7,23 @@ namespace Ice.UtilInternal;
 
 public sealed class Collections
 {
+    // Just like Enumerable.SequenceEqual except it also handles null sequences.
+    // TODO: the generated hash code is not consistent with the "null is equivalent to empty" logic implemented by
+    // this method. Note that this code would be removed by proposal #2115.
+    public static bool NullableSequenceEqual<TSource>(IEnumerable<TSource> lhs, IEnumerable<TSource> rhs)
+    {
+        if (lhs is null)
+        {
+            return rhs is null || !rhs.Any();
+        }
+        if (rhs is null)
+        {
+            return !lhs.Any();
+        }
+
+        return lhs.SequenceEqual(rhs);
+    }
+
     public static int SequenceGetHashCode(IEnumerable seq)
     {
         int h = 5381;

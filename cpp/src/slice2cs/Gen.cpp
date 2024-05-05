@@ -2954,22 +2954,20 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers)
 
         if (SequencePtr seq = dynamic_pointer_cast<Sequence>(memberType))
         {
-            // Enumerable.SequenceEqual requires non-null arguments.
-            _out << "(this." << memberName << " is not null ? other." << memberName << " is not null && this."
-                << memberName << ".SequenceEqual(other." << memberName
-                << ") : other." << memberName << " is null)";
+            _out << "Ice.UtilInternal.Collections.NullableSequenceEqual(this." << memberName << ", other." << memberName
+                << ")";
         }
         else if (DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(memberType))
         {
             // Equals() for generic types does not have value semantics.
             _out << "Ice.UtilInternal.Collections.DictionaryEquals(this." << memberName << ", other." << memberName
-                 << ")";
+                << ")";
         }
         else if (isProxyType(memberType))
         {
             // We need to cast it to the base concrete type to get ==
             _out << "(Ice.ObjectPrxHelperBase)this." << memberName << " == (Ice.ObjectPrxHelperBase)other."
-                 << memberName;
+                << memberName;
         }
         else
         {
