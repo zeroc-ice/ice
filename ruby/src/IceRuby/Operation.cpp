@@ -40,7 +40,7 @@ namespace IceRuby
     class OperationI final : public Operation
     {
     public:
-        OperationI(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE);
+        OperationI(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE);
 
         VALUE invoke(const Ice::ObjectPrx&, VALUE, VALUE) final;
         void deprecate(const string&) final;
