@@ -46,16 +46,7 @@ namespace IcePy
     class Operation
     {
     public:
-        Operation(
-            const char*,
-            PyObject*,
-            int,
-            PyObject*,
-            PyObject*,
-            PyObject*,
-            PyObject*,
-            PyObject*,
-            PyObject*);
+        Operation(const char*, PyObject*, int, PyObject*, PyObject*, PyObject*, PyObject*, PyObject*, PyObject*);
 
         void marshalResult(Ice::OutputStream&, PyObject*);
 
@@ -387,8 +378,7 @@ extern "C"
     }
 
     self->op = new OperationPtr(
-        make_shared<
-            Operation>(name, mode, amd, format, metaData, inParams, outParams, returnType, exceptions));
+        make_shared<Operation>(name, mode, amd, format, metaData, inParams, outParams, returnType, exceptions));
     return 0;
 }
 
@@ -1678,12 +1668,8 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
 
         {
             AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-            status = _prx->ice_invoke(
-                _op->name,
-                _op->mode,
-                params,
-                result,
-                pyctx == Py_None ? Ice::noExplicitContext : ctx);
+            status =
+                _prx->ice_invoke(_op->name, _op->mode, params, result, pyctx == Py_None ? Ice::noExplicitContext : ctx);
         }
 
         //
