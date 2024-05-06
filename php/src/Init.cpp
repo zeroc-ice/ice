@@ -80,7 +80,7 @@ ZEND_ARG_INFO(0, id)
 ZEND_ARG_INFO(0, element)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(Ice_defineOperation_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(9))
+ZEND_BEGIN_ARG_INFO_EX(Ice_defineOperation_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(8))
 ZEND_ARG_INFO(0, cls)
 ZEND_ARG_INFO(0, name)
 ZEND_ARG_INFO(0, mode)
