@@ -1930,7 +1930,7 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
         C << nl << "_checkTwowayOnly(operationName);";
     }
     C << nl << "outAsync->invoke(operationName, ";
-    C << getUnqualified(operationModeToString(p->sendMode()), interfaceScope) << ", "
+    C << getUnqualified(operationModeToString(p->mode()), interfaceScope) << ", "
       << getUnqualified(opFormatTypeToString(p), interfaceScope) << ", context,";
     C.inc();
     C << nl;

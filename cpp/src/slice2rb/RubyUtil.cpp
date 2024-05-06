@@ -591,16 +591,6 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 _out << "::Ice::OperationMode::Idempotent";
                 break;
         }
-        _out << ", ";
-        switch ((*s)->sendMode())
-        {
-            case Operation::Normal:
-                _out << "::Ice::OperationMode::Normal";
-                break;
-            case Operation::Idempotent:
-                _out << "::Ice::OperationMode::Idempotent";
-                break;
-        }
         _out << ", " << ((p->hasMetaData("amd") || (*s)->hasMetaData("amd")) ? "true" : "false") << ", " << format
              << ", [";
         for (t = params.begin(), count = 0; t != params.end(); ++t)

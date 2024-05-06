@@ -84,7 +84,6 @@ ZEND_BEGIN_ARG_INFO_EX(Ice_defineOperation_arginfo, 1, ZEND_RETURN_VALUE, static
 ZEND_ARG_INFO(0, cls)
 ZEND_ARG_INFO(0, name)
 ZEND_ARG_INFO(0, mode)
-ZEND_ARG_INFO(0, sendMode)
 ZEND_ARG_INFO(0, format)
 ZEND_ARG_INFO(0, inParams)
 ZEND_ARG_INFO(0, outParams)

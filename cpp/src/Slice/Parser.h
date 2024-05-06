@@ -669,7 +669,6 @@ namespace Slice
         bool returnIsOptional() const;
         int returnTag() const;
         Mode mode() const;
-        Mode sendMode() const;
         bool hasMarshaledResult() const;
         ParamDeclPtr createParamDecl(const std::string&, const TypePtr&, bool, bool, int);
         ParamDeclList parameters() const;

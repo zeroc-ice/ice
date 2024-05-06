@@ -3688,7 +3688,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << nl << "outAsync.invoke(";
         _out.inc();
         _out << nl << flatName << ",";
-        _out << nl << sliceModeToIceMode(op->sendMode(), ns) << ",";
+        _out << nl << sliceModeToIceMode(op->mode(), ns) << ",";
         _out << nl << opFormatTypeToString(op, ns) << ",";
         _out << nl << "context,";
         _out << nl << "synchronous";

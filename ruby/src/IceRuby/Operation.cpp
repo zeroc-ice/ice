@@ -48,7 +48,6 @@ namespace IceRuby
     private:
         string _name;
         Ice::OperationMode _mode;
-        Ice::OperationMode _sendMode;
         bool _amd;
         Ice::FormatType _format;
         ParamInfoList _inParams;
@@ -84,7 +83,6 @@ IceRuby_defineOperation(
     VALUE /*self*/,
     VALUE name,
     VALUE mode,
-    VALUE sendMode,
     VALUE amd,
     VALUE format,
     VALUE inParams,
@@ -95,7 +93,7 @@ IceRuby_defineOperation(
     ICE_RUBY_TRY
     {
         OperationIPtr op =
-            make_shared<OperationI>(name, mode, sendMode, amd, format, inParams, outParams, returnType, exceptions);
+            make_shared<OperationI>(name, mode, amd, format, inParams, outParams, returnType, exceptions);
         return Data_Wrap_Struct(_operationClass, 0, IceRuby_Operation_free, new OperationPtr(op));
     }
     ICE_RUBY_CATCH
@@ -153,7 +151,6 @@ IceRuby::ParamInfo::unmarshaled(VALUE val, VALUE target, void* closure)
 IceRuby::OperationI::OperationI(
     VALUE name,
     VALUE mode,
-    VALUE sendMode,
     VALUE amd,
     VALUE format,
     VALUE inParams,
@@ -178,13 +175,6 @@ IceRuby::OperationI::OperationI(
     volatile VALUE modeValue = callRuby(rb_funcall, mode, rb_intern("to_i"), 0);
     assert(TYPE(modeValue) == T_FIXNUM);
     _mode = static_cast<Ice::OperationMode>(FIX2LONG(modeValue));
-
-    //
-    // sendMode
-    //
-    volatile VALUE sendModeValue = callRuby(rb_funcall, sendMode, rb_intern("to_i"), 0);
-    assert(TYPE(sendModeValue) == T_FIXNUM);
-    _sendMode = static_cast<Ice::OperationMode>(FIX2LONG(sendModeValue));
 
     //
     // format
@@ -296,11 +286,11 @@ IceRuby::OperationI::invoke(const Ice::ObjectPrx& proxy, VALUE args, VALUE hctx)
             throw RubyException(rb_eArgError, "context argument must be nil or a hash");
         }
 
-        status = proxy->ice_invoke(_name, _sendMode, params, result, ctx);
+        status = proxy->ice_invoke(_name, _mode, params, result, ctx);
     }
     else
     {
-        status = proxy->ice_invoke(_name, _sendMode, params, result);
+        status = proxy->ice_invoke(_name, _mode, params, result);
     }
 
     //

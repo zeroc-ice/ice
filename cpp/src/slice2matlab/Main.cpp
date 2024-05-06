@@ -2207,7 +2207,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             out << "is_ = ";
         }
-        out << self << ".iceInvoke('" << op->name() << "', " << getOperationMode(op->sendMode()) << ", "
+        out << self << ".iceInvoke('" << op->name() << "', " << getOperationMode(op->mode()) << ", "
             << (twowayOnly ? "true" : "false") << ", " << (allInParams.empty() ? "[]" : "os_") << ", "
             << (!allOutParams.empty() ? "true" : "false");
         if (exceptions.empty())
@@ -2472,7 +2472,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             out << nl << "end";
         }
 
-        out << nl << "r_ = " << self << ".iceInvokeAsync('" << op->name() << "', " << getOperationMode(op->sendMode())
+        out << nl << "r_ = " << self << ".iceInvokeAsync('" << op->name() << "', " << getOperationMode(op->mode())
             << ", " << (twowayOnly ? "true" : "false") << ", " << (allInParams.empty() ? "[]" : "os_") << ", "
             << allOutParams.size() << ", " << (twowayOnly && !allOutParams.empty() ? "@unmarshal" : "[]");
         if (exceptions.empty())

@@ -4648,21 +4648,6 @@ Slice::Operation::mode() const
     return _mode;
 }
 
-// TODO REMOVE this function
-Operation::Mode
-Slice::Operation::sendMode() const
-{
-    if (_mode == Operation::Idempotent && hasMetaData("nonmutating"))
-    {
-        // return Operation::Nonmutating;
-        return _mode;
-    }
-    else
-    {
-        return _mode;
-    }
-}
-
 bool
 Slice::Operation::hasMarshaledResult() const
 {
