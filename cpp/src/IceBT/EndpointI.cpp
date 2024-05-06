@@ -367,12 +367,6 @@ IceBT::EndpointI::operator<(const Ice::Endpoint& r) const
     return false;
 }
 
-size_t
-IceBT::EndpointI::hash() const noexcept
-{
-    return _hashValue;
-}
-
 string
 IceBT::EndpointI::options() const
 {

@@ -75,7 +75,6 @@ namespace IceBT
         const std::int32_t _timeout;
         const std::string _connectionId;
         const bool _compress;
-        const std::size_t _hashValue;
     };
 
     class EndpointInfoI final : public EndpointInfo
