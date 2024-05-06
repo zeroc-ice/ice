@@ -337,7 +337,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
     {
         return typeToString(type, package) + "?";
     }
-    // else, just use the return mapping. null represents "not set",
+    // else, just use the regular mapping. null represents "not set",
 
     static const char* builtinTable[] = {
         "byte",
@@ -1236,7 +1236,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
             {
                 if (marshal)
                 {
-                    out << nl << "if (" << param << " == null)";
+                    out << nl << "if (" << param << " is null)";
                     out << sb;
                     out << nl << stream << ".writeSize(0);";
                     out << eb;
@@ -1422,7 +1422,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
     {
         if (marshal)
         {
-            out << nl << "if (" << param << " == null)";
+            out << nl << "if (" << param << " is null)";
             out << sb;
             out << nl << stream << ".writeSize(0);";
             out << eb;
@@ -1488,7 +1488,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
     {
         if (marshal)
         {
-            out << nl << "if (" << param << " == null)";
+            out << nl << "if (" << param << " is null)";
             out << sb;
             out << nl << stream << ".writeSize(0);";
             out << eb;
@@ -1628,7 +1628,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
     {
         if (marshal)
         {
-            out << nl << "if (" << param << " == null)";
+            out << nl << "if (" << param << " is null)";
             out << sb;
             out << nl << stream << ".writeSize(0);";
             out << eb;
@@ -1732,7 +1732,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
     if (marshal)
     {
         func = "write";
-        out << nl << "if (" << param << " == null)";
+        out << nl << "if (" << param << " is null)";
         out << sb;
         out << nl << stream << ".writeSize(0);";
         out << eb;

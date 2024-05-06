@@ -2917,12 +2917,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
                 _out << " = \"\"";
                 addSemicolon = true;
             }
-
-            if (st && !isMappedToClass(st))
-            {
-                _out << " = new " << typeToString(p->type(), ns) << "()";
-                addSemicolon = true;
-            }
         }
     }
 
