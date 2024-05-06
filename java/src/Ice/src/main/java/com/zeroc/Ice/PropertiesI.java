@@ -602,56 +602,59 @@ public final class PropertiesI implements Properties {
     Logger logger = Util.getProcessLogger();
 
     int dotPos = key.indexOf('.');
-    if (dotPos != -1) {
-      String prefix = key.substring(0, dotPos);
-      for (int i = 0; com.zeroc.IceInternal.PropertyNames.validProps[i] != null; ++i) {
-        String pattern = com.zeroc.IceInternal.PropertyNames.validProps[i][0].pattern();
-        dotPos = pattern.indexOf('.');
-        //
-        // Each top level prefix describes a non-empty namespace. Having a string without a
-        // prefix followed by a dot is an error.
-        //
-        assert (dotPos != -1);
-        String propPrefix = pattern.substring(0, dotPos - 1);
 
-        // If the prefix is not the same, skip to the next set of properties
-        if (!propPrefix.toUpperCase().equals(prefix.toUpperCase())) {
-          continue;
-        }
+    // If the key doesn't contain a dot, it's not a valid Ice property.
+    if (dotPos == -1) {
+      return null;
+    }
 
-        for (int j = 0; com.zeroc.IceInternal.PropertyNames.validProps[i][j] != null; ++j) {
-          Property prop = com.zeroc.IceInternal.PropertyNames.validProps[i][j];
-          java.util.regex.Pattern pComp = java.util.regex.Pattern.compile(prop.pattern());
-          java.util.regex.Matcher m = pComp.matcher(key);
+    String prefix = key.substring(0, dotPos);
+    com.zeroc.IceInternal.Property[] propertyArray = null;
 
-          if (m.matches()) {
-            if (prop.deprecated() && logWarnings) {
-              logger.warning("deprecated property: " + key);
-            }
-            return prop;
-          }
+    for (int i = 0; com.zeroc.IceInternal.PropertyNames.validProps[i] != null; ++i) {
+      String pattern = com.zeroc.IceInternal.PropertyNames.validProps[i][0].pattern();
+      dotPos = pattern.indexOf('.');
 
-          // Check for case-insensitive match
-          pComp = java.util.regex.Pattern.compile(pattern.toUpperCase());
-          m = pComp.matcher(key.toUpperCase());
-          if (m.matches()) {
-            if (logWarnings) {
-              String otherKey = pattern.replaceAll("\\\\", "");
-              logger.warning("unknown property: `" + key + "'; did you mean `" + otherKey + "'");
-            }
-            return null;
-          }
-        }
+      // Each top level prefix describes a non-empty namespace. Having a string without a
+      // prefix followed by a dot is an error.
+      assert (dotPos != -1);
 
-        // If we reach this point, the property is unknown
-        if (logWarnings) {
-          logger.warning("unknown property: " + key);
-        }
+      // Strip any trailing backslashes from the pattern
+      String propPrefix = pattern.substring(0, dotPos).replaceAll("\\\\", "");
+
+      if (propPrefix.equals(prefix)) {
+        propertyArray = com.zeroc.IceInternal.PropertyNames.validProps[i];
+        break;
+      }
+
+      if (logWarnings && propPrefix.toUpperCase().equals(prefix.toUpperCase())) {
+        logger.warning("unknown property prefix: `" + key + "'; did you mean `" + propPrefix + "'");
         return null;
       }
     }
 
-    // The key does not match a known Ice property
+    if (propertyArray == null) {
+      // The prefix is not a valid Ice property.
+      return null;
+    }
+
+    for (int j = 0; propertyArray[j] != null; ++j) {
+      Property prop = propertyArray[j];
+
+      Boolean matches = prop.usesRegex() ? key.matches(prop.pattern()) : key.equals(prop.pattern());
+
+      if (matches) {
+        if (prop.deprecated() && logWarnings) {
+          logger.warning("deprecated property: " + key);
+        }
+        return prop;
+      }
+    }
+
+    // If we reach this point, the property is unknown
+    if (logWarnings) {
+      logger.warning("unknown property: " + key);
+    }
     return null;
   }
 
