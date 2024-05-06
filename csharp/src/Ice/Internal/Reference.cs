@@ -619,7 +619,7 @@ public class FixedReference : Reference
 
     public override int? getTimeout()
     {
-        return new int?();
+        return null;
     }
 
     public override ThreadPool getThreadPool()
