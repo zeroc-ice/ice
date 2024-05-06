@@ -8,43 +8,6 @@ using System.Diagnostics;
 namespace Ice;
 
 /// <summary>
-/// Value type to allow differentiate between a context that is explicitly set to
-/// empty (empty or null dictionary) and a context that has non been set.
-/// </summary>
-public struct OptionalContext
-{
-    private OptionalContext(Dictionary<string, string> ctx)
-    {
-        _ctx = ctx == null ? _emptyContext : ctx;
-    }
-
-    /// <summary>
-    /// Implicit conversion between Dictionary&lt;string, string&gt; and
-    /// OptionalContext.
-    /// </summary>
-    /// <param name="ctx">Dictionary to convert.</param>
-    /// <returns>OptionalContext value representing the dictionary</returns>
-    public static implicit operator OptionalContext(Dictionary<string, string> ctx)
-    {
-        return new OptionalContext(ctx);
-    }
-
-    /// <summary>
-    /// Implicit conversion between OptionalContext and
-    /// Dictionary&lt;string, string&gt;
-    /// </summary>
-    /// <param name="value">OptionalContext value to convert</param>
-    /// <returns>The Dictionary object.</returns>
-    public static implicit operator Dictionary<string, string>(OptionalContext value)
-    {
-        return value._ctx;
-    }
-
-    private Dictionary<string, string> _ctx;
-    static private Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
-}
-
-/// <summary>
 /// Base interface of all object proxies.
 /// </summary>
 public interface ObjectPrx : IEquatable<ObjectPrx>
@@ -62,7 +25,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="context">The context dictionary for the invocation.</param>
     /// <returns>True if the target object has the interface specified by id or derives
     /// from the interface specified by id.</returns>
-    bool ice_isA(string id, OptionalContext context = new OptionalContext());
+    bool ice_isA(string id, Dictionary<string, string> context = null);
 
     /// <summary>
     /// Tests whether this object supports a specific Slice interface.
@@ -73,15 +36,15 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
     Task<bool> ice_isAAsync(string id,
-                            OptionalContext context = new OptionalContext(),
+                            Dictionary<string, string> context = null,
                             IProgress<bool> progress = null,
-                            CancellationToken cancel = new CancellationToken());
+                            CancellationToken cancel = default);
 
     /// <summary>
     /// Tests whether the target object of this proxy can be reached.
     /// </summary>
     /// <param name="context">The context dictionary for the invocation.</param>
-    void ice_ping(OptionalContext context = new OptionalContext());
+    void ice_ping(Dictionary<string, string> context = null);
 
     /// <summary>
     /// Tests whether the target object of this proxy can be reached.
@@ -90,9 +53,9 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
-    Task ice_pingAsync(OptionalContext context = new OptionalContext(),
+    Task ice_pingAsync(Dictionary<string, string> context = null,
                        IProgress<bool> progress = null,
-                       CancellationToken cancel = new CancellationToken());
+                       CancellationToken cancel = default);
 
     /// <summary>
     /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
@@ -100,7 +63,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="context">The context dictionary for the invocation.</param>
     /// <returns>The Slice type IDs of the interfaces supported by the target object, in alphabetical order.
     /// </returns>
-    string[] ice_ids(OptionalContext context = new OptionalContext());
+    string[] ice_ids(Dictionary<string, string> context = null);
 
     /// <summary>
     /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
@@ -109,16 +72,16 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
-    Task<string[]> ice_idsAsync(OptionalContext context = new OptionalContext(),
+    Task<string[]> ice_idsAsync(Dictionary<string, string> context = null,
                                 IProgress<bool> progress = null,
-                                CancellationToken cancel = new CancellationToken());
+                                CancellationToken cancel = default);
 
     /// <summary>
     /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
     /// </summary>
     /// <param name="context">The context dictionary for the invocation.</param>
     /// <returns>The Slice type ID of the most-derived interface.</returns>
-    string ice_id(OptionalContext context = new OptionalContext());
+    string ice_id(Dictionary<string, string> context = null);
 
     /// <summary>
     /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
@@ -127,9 +90,9 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
-    Task<string> ice_idAsync(OptionalContext context = new OptionalContext(),
+    Task<string> ice_idAsync(Dictionary<string, string> context = null,
                              IProgress<bool> progress = null,
-                             CancellationToken cancel = new CancellationToken());
+                             CancellationToken cancel = default);
 
     /// <summary>
     /// Invokes an operation dynamically.
@@ -146,7 +109,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// contains the encoded user exception. If the operation raises a run-time exception,
     /// it throws it directly.</returns>
     bool ice_invoke(string operation, OperationMode mode, byte[] inEncaps, out byte[] outEncaps,
-                    OptionalContext context = new OptionalContext());
+                    Dictionary<string, string> context = null);
 
     /// <summary>
     /// Invokes an operation dynamically.
@@ -162,9 +125,9 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     ice_invokeAsync(string operation,
                     OperationMode mode,
                     byte[] inEncaps,
-                    OptionalContext context = new OptionalContext(),
+                    Dictionary<string, string> context = null,
                     IProgress<bool> progress = null,
-                    CancellationToken cancel = new CancellationToken());
+                    CancellationToken cancel = default);
 
     /// <summary>
     /// Returns the identity embedded in this proxy.
@@ -498,7 +461,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
     Task<Connection> ice_getConnectionAsync(IProgress<bool> progress = null,
-                                            CancellationToken cancel = new CancellationToken());
+                                            CancellationToken cancel = default);
 
     /// <summary>
     /// Returns the cached Connection for this proxy. If the proxy does not yet have an established
@@ -520,7 +483,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
     Task ice_flushBatchRequestsAsync(IProgress<bool> progress = null,
-                                     CancellationToken cancel = new CancellationToken());
+                                     CancellationToken cancel = default);
 
     /// <summary>
     /// Write a proxy to the output stream.
@@ -622,7 +585,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// <param name="context">The context dictionary for the invocation.</param>
     /// <returns>True if the target object has the interface specified by id or derives
     /// from the interface specified by id.</returns>
-    public bool ice_isA(string id, OptionalContext context = new OptionalContext())
+    public bool ice_isA(string id, Dictionary<string, string> context = null)
     {
         try
         {
@@ -643,15 +606,15 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
     public Task<bool> ice_isAAsync(string id,
-                                   OptionalContext context = new OptionalContext(),
+                                   Dictionary<string, string> context = null,
                                    IProgress<bool> progress = null,
-                                   CancellationToken cancel = new CancellationToken())
+                                   CancellationToken cancel = default)
     {
         return iceI_ice_isAAsync(id, context, progress, cancel, false);
     }
 
     private Task<bool>
-    iceI_ice_isAAsync(string id, OptionalContext context, IProgress<bool> progress, CancellationToken cancel,
+    iceI_ice_isAAsync(string id, Dictionary<string, string> context, IProgress<bool> progress, CancellationToken cancel,
                       bool synchronous)
     {
         iceCheckTwowayOnly(_ice_isA_name);
@@ -682,7 +645,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// Tests whether the target object of this proxy can be reached.
     /// </summary>
     /// <param name="context">The context dictionary for the invocation.</param>
-    public void ice_ping(OptionalContext context = new OptionalContext())
+    public void ice_ping(Dictionary<string, string> context = null)
     {
         try
         {
@@ -701,15 +664,15 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
-    public Task ice_pingAsync(OptionalContext context = new OptionalContext(),
+    public Task ice_pingAsync(Dictionary<string, string> context = null,
                               IProgress<bool> progress = null,
-                              CancellationToken cancel = new CancellationToken())
+                              CancellationToken cancel = default)
     {
         return iceI_ice_pingAsync(context, progress, cancel, false);
     }
 
     private Task
-    iceI_ice_pingAsync(OptionalContext context, IProgress<bool> progress, CancellationToken cancel, bool synchronous)
+    iceI_ice_pingAsync(Dictionary<string, string> context, IProgress<bool> progress, CancellationToken cancel, bool synchronous)
     {
         var completed = new OperationTaskCompletionCallback<object>(progress, cancel);
         iceI_ice_ping(context, completed, synchronous);
@@ -734,7 +697,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// <param name="context">The context dictionary for the invocation.</param>
     /// <returns>The Slice type IDs of the interfaces supported by the target object, in alphabetical order.
     /// </returns>
-    public string[] ice_ids(OptionalContext context = new OptionalContext())
+    public string[] ice_ids(Dictionary<string, string> context = null)
     {
         try
         {
@@ -754,14 +717,14 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
     public Task<string[]>
-    ice_idsAsync(OptionalContext context = new OptionalContext(),
+    ice_idsAsync(Dictionary<string, string> context = null,
                  IProgress<bool> progress = null,
-                 CancellationToken cancel = new CancellationToken())
+                 CancellationToken cancel = default)
     {
         return iceI_ice_idsAsync(context, progress, cancel, false);
     }
 
-    private Task<string[]> iceI_ice_idsAsync(OptionalContext context, IProgress<bool> progress, CancellationToken cancel,
+    private Task<string[]> iceI_ice_idsAsync(Dictionary<string, string> context, IProgress<bool> progress, CancellationToken cancel,
                                              bool synchronous)
     {
         iceCheckTwowayOnly(_ice_ids_name);
@@ -788,7 +751,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
     /// </summary>
     /// <returns>The Slice type ID of the most-derived interface.</returns>
-    public string ice_id(OptionalContext context = new OptionalContext())
+    public string ice_id(Dictionary<string, string> context = null)
     {
         try
         {
@@ -807,15 +770,15 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
-    public Task<string> ice_idAsync(OptionalContext context = new OptionalContext(),
+    public Task<string> ice_idAsync(Dictionary<string, string> context = null,
                                     IProgress<bool> progress = null,
-                                    CancellationToken cancel = new CancellationToken())
+                                    CancellationToken cancel = default)
     {
         return iceI_ice_idAsync(context, progress, cancel, false);
     }
 
     private Task<string>
-    iceI_ice_idAsync(OptionalContext context, IProgress<bool> progress, CancellationToken cancel, bool synchronous)
+    iceI_ice_idAsync(Dictionary<string, string> context, IProgress<bool> progress, CancellationToken cancel, bool synchronous)
     {
         iceCheckTwowayOnly(_ice_id_name);
         var completed = new OperationTaskCompletionCallback<string>(progress, cancel);
@@ -855,7 +818,7 @@ public class ObjectPrxHelperBase : ObjectPrx
                            OperationMode mode,
                            byte[] inEncaps,
                            out byte[] outEncaps,
-                           OptionalContext context = new OptionalContext())
+                           Dictionary<string, string> context = null)
     {
         try
         {
@@ -883,9 +846,9 @@ public class ObjectPrxHelperBase : ObjectPrx
     ice_invokeAsync(string operation,
                     OperationMode mode,
                     byte[] inEncaps,
-                    OptionalContext context = new OptionalContext(),
+                    Dictionary<string, string> context = null,
                     IProgress<bool> progress = null,
-                    CancellationToken cancel = new CancellationToken())
+                    CancellationToken cancel = default)
     {
         return iceI_ice_invokeAsync(operation, mode, inEncaps, context, progress, cancel, false);
     }
@@ -894,7 +857,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     iceI_ice_invokeAsync(string operation,
                          OperationMode mode,
                          byte[] inEncaps,
-                         OptionalContext context,
+                         Dictionary<string, string> context,
                          IProgress<bool> progress,
                          CancellationToken cancel,
                          bool synchronous)
@@ -1592,7 +1555,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     {
         public GetConnectionTaskCompletionCallback(ObjectPrx proxy,
                                                    IProgress<bool> progress = null,
-                                                   CancellationToken cancellationToken = new CancellationToken()) :
+                                                   CancellationToken cancellationToken = default) :
             base(progress, cancellationToken)
         {
             _proxy = proxy;
@@ -1626,7 +1589,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     }
 
     public Task<Connection> ice_getConnectionAsync(IProgress<bool> progress = null,
-                                                   CancellationToken cancel = new CancellationToken())
+                                                   CancellationToken cancel = default)
     {
         var completed = new GetConnectionTaskCompletionCallback(this, progress, cancel);
         iceI_ice_getConnection(completed, false);
@@ -1695,7 +1658,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     internal const string _ice_flushBatchRequests_name = "ice_flushBatchRequests";
 
     public Task ice_flushBatchRequestsAsync(IProgress<bool> progress = null,
-                                            CancellationToken cancel = new CancellationToken())
+                                            CancellationToken cancel = default)
     {
         var completed = new FlushBatchTaskCompletionCallback(progress, cancel);
         iceI_ice_flushBatchRequests(completed, false);

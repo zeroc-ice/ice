@@ -3254,8 +3254,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
         }
         _out << nl << retS << " " << name << spar << getParams(p, ns)
-             << (getUnqualified("Ice.OptionalContext", ns) + " " + context + " = new " +
-                 getUnqualified("Ice.OptionalContext", ns) + "()")
+             << ("global::System.Collections.Generic.Dictionary<string, string> " + context + " = null")
              << epar << ';';
     }
 
@@ -3280,11 +3279,10 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         }
         _out << nl << taskResultType(p, ns);
         _out << " " << p->name() << "Async" << spar << inParams
-             << (getUnqualified("Ice.OptionalContext", ns) + " " + context + " = new " +
-                 getUnqualified("Ice.OptionalContext", ns) + "()")
+             << ("global::System.Collections.Generic.Dictionary<string, string> " + context + " = null")
              << ("global::System.IProgress<bool> " + progress + " = null")
              << ("global::System.Threading.CancellationToken " + cancel +
-                 " = new global::System.Threading.CancellationToken()")
+                 " = default")
              << epar << ";";
     }
 }
@@ -3511,8 +3509,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         _out << sp;
         _out << nl << "public " << retS << " " << opName << spar << params
-             << (getUnqualified("Ice.OptionalContext", ns) + " " + context + " = new " +
-                 getUnqualified("Ice.OptionalContext", ns) + "()")
+             << ("global::System.Collections.Generic.Dictionary<string, string> " + context + " = null")
              << epar;
         _out << sb;
         _out << nl << "try";
@@ -3622,11 +3619,10 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             _out << "<" << returnTypeS << ">";
         }
         _out << " " << opName << "Async" << spar << paramsAMI
-             << (getUnqualified("Ice.OptionalContext", ns) + " " + context + " = new " +
-                 getUnqualified("Ice.OptionalContext", ns) + "()")
+             << ("global::System.Collections.Generic.Dictionary<string, string> " + context + " = null")
              << ("global::System.IProgress<bool> " + progress + " = null")
              << ("global::System.Threading.CancellationToken " + cancel +
-                 " = new global::System.Threading.CancellationToken()")
+                 " = default")
              << epar;
 
         _out << sb;
@@ -3644,7 +3640,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             _out << "<" << returnTypeS << ">";
         }
         _out << " _iceI_" << opName << "Async" << spar << getInParams(op, ns, true)
-             << getUnqualified("Ice.OptionalContext", ns) + " context" << "global::System.IProgress<bool> progress"
+             << "global::System.Collections.Generic.Dictionary<string, string> context" << "global::System.IProgress<bool> progress"
              << "global::System.Threading.CancellationToken cancel" << "bool synchronous" << epar;
         _out << sb;
 
