@@ -51,7 +51,7 @@ namespace IcePHP
     class OperationI final : public Operation
     {
     public:
-        OperationI(const char*, Ice::OperationMode, Ice::OperationMode, Ice::FormatType, zval*, zval*, zval*, zval*);
+        OperationI(const char*, Ice::OperationMode, Ice::FormatType, zval*, zval*, zval*, zval*);
         ~OperationI();
 
         zend_function* function() final;
