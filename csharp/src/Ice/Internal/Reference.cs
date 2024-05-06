@@ -73,7 +73,7 @@ public abstract class Reference : ICloneable
     public bool?
     getCompress()
     {
-        return overrideCompress_ ? compress_ : new bool?();
+        return overrideCompress_ ? compress_ : null;
     }
 
     public Ice.Communicator getCommunicator()
