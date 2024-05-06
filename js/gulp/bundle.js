@@ -222,7 +222,7 @@ var StringBuffer = function()
 
 StringBuffer.prototype.write = function(data)
 {
-    // Use new Buffer.from(string, encoding) if Buffer.alloc is avilable, Buffer constructors are deprecated.
+    // Use new Buffer.from(string, encoding) if Buffer.alloc is available, Buffer constructors are deprecated.
     // NOTE: we don't check for Buffer.from which already exists but only accepts array.
     this.buffer = Buffer.concat([this.buffer,
                     typeof(Buffer.alloc) === 'function' ? Buffer.from(data, "utf8") : new Buffer(data, "utf8")]);
