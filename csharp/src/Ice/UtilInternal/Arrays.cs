@@ -78,35 +78,4 @@ public sealed class Arrays
 
         return false;
     }
-
-    public static int GetHashCode(object[] arr)
-    {
-        int h = 5381;
-
-        for (int i = 0; i < arr.Length; i++)
-        {
-            object o = arr[i];
-            if (o != null)
-            {
-                Ice.Internal.HashUtil.hashAdd(ref h, o);
-            }
-        }
-
-        return h;
-    }
-
-    public static int GetHashCode(Array arr)
-    {
-        int h = 0;
-
-        foreach (object o in arr)
-        {
-            if (o != null)
-            {
-                Ice.Internal.HashUtil.hashAdd(ref h, o);
-            }
-        }
-
-        return h;
-    }
 }

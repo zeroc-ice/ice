@@ -14,12 +14,7 @@ public class ProxyIdentityKey : System.Collections.IEqualityComparer, System.Col
     /// </summary>
     /// <param name="obj">The proxy whose hash value to compute.</param>
     /// <returns>The hash value for the proxy based on the identity.</returns>
-    public int GetHashCode(object obj)
-    {
-        int h = 5381;
-        Ice.Internal.HashUtil.hashAdd(ref h, ((ObjectPrx)obj).ice_getIdentity());
-        return h;
-    }
+    public int GetHashCode(object obj) => ((ObjectPrx)obj).ice_getIdentity().GetHashCode();
 
     /// Compares two proxies for equality.
     /// <param name="obj1">A proxy to compare.</param>
@@ -74,13 +69,8 @@ public class ProxyIdentityFacetKey : System.Collections.IEqualityComparer, Syste
     /// <returns>The hash value for the proxy based on the identity and facet.</returns>
     public int GetHashCode(object obj)
     {
-        ObjectPrx o = (ObjectPrx)obj;
-        Identity identity = o.ice_getIdentity();
-        string facet = o.ice_getFacet();
-        int h = 5381;
-        Ice.Internal.HashUtil.hashAdd(ref h, identity);
-        Ice.Internal.HashUtil.hashAdd(ref h, facet);
-        return h;
+        var o = (ObjectPrx)obj;
+        return HashCode.Combine(o.ice_getIdentity(), o.ice_getFacet());
     }
 
     /// Compares two proxies for equality.

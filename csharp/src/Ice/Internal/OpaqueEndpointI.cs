@@ -24,8 +24,6 @@ internal sealed class OpaqueEndpointI : EndpointI
         {
             throw new Ice.EndpointParseException("no -v option in endpoint " + ToString());
         }
-
-        calcHashValue();
     }
 
     public OpaqueEndpointI(short type, Ice.InputStream s)
@@ -35,8 +33,6 @@ internal sealed class OpaqueEndpointI : EndpointI
         int sz = s.getEncapsulationSize();
         _rawBytes = new byte[sz];
         s.readBlob(_rawBytes);
-
-        calcHashValue();
     }
 
     //
@@ -245,7 +241,11 @@ internal sealed class OpaqueEndpointI : EndpointI
 
     public override int GetHashCode()
     {
-        return _hashCode;
+        var hash = new HashCode();
+        hash.Add(_type);
+        hash.Add(_rawEncoding);
+        hash.AddBytes(_rawBytes);
+        return hash.ToHashCode();
     }
 
     public override string options()
@@ -414,17 +414,7 @@ internal sealed class OpaqueEndpointI : EndpointI
         }
     }
 
-    private void calcHashValue()
-    {
-        int h = 5381;
-        HashUtil.hashAdd(ref h, _type);
-        HashUtil.hashAdd(ref h, _rawEncoding);
-        HashUtil.hashAdd(ref h, _rawBytes);
-        _hashCode = h;
-    }
-
     private short _type;
     private Ice.EncodingVersion _rawEncoding;
     private byte[] _rawBytes;
-    private int _hashCode;
 }

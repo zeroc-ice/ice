@@ -8,8 +8,7 @@ namespace Ice.UtilInternal;
 public sealed class Collections
 {
     // Just like Enumerable.SequenceEqual except it also handles null sequences.
-    // TODO: the generated hash code is not consistent with the "null is equivalent to empty" logic implemented by
-    // this method. Note that this code would be removed by proposal #2115.
+    // TODO: Note that this code would be removed by proposal #2115.
     public static bool NullableSequenceEqual<TSource>(IEnumerable<TSource> lhs, IEnumerable<TSource> rhs)
     {
         if (lhs is null)
@@ -24,17 +23,19 @@ public sealed class Collections
         return lhs.SequenceEqual(rhs);
     }
 
-    public static int SequenceGetHashCode(IEnumerable seq)
+    // Seq is a nullable seq.
+    public static void HashCodeAdd<TSource>(ref HashCode hash, IEnumerable<TSource> seq)
     {
-        int h = 5381;
-        IEnumerator e = seq.GetEnumerator();
-        while (e.MoveNext())
+        if (seq is not null)
         {
-            Ice.Internal.HashUtil.hashAdd(ref h, e.Current);
+            foreach (TSource item in seq)
+            {
+                hash.Add(item);
+            }
         }
-        return h;
     }
 
+    // TODO: not consistent with HashCodeAdd wrt null vs empty.
     public static bool DictionaryEquals(IDictionary d1, IDictionary d2)
     {
         if (ReferenceEquals(d1, d2))
@@ -77,16 +78,16 @@ public sealed class Collections
         return false;
     }
 
-    public static int DictionaryGetHashCode(IDictionary d)
+    public static void HashCodeAdd<TKey, TValue>(ref HashCode hash, IDictionary<TKey, TValue> d) where TKey : notnull
     {
-        int h = 5381;
-        IDictionaryEnumerator e = d.GetEnumerator();
-        while (e.MoveNext())
+        if (d is not null)
         {
-            Ice.Internal.HashUtil.hashAdd(ref h, e.Key);
-            Ice.Internal.HashUtil.hashAdd(ref h, e.Value);
+            foreach (KeyValuePair<TKey, TValue> pair in d)
+            {
+                hash.Add(pair.Key);
+                hash.Add(pair.Value);
+            }
         }
-        return h;
     }
 
     public static void Shuffle<T>(ref List<T> l)

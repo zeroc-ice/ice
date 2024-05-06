@@ -14,7 +14,6 @@ public abstract class IPEndpointI : EndpointI
         port_ = port;
         sourceAddr_ = sourceAddr;
         connectionId_ = connectionId;
-        _hashInitialized = false;
     }
 
     public IPEndpointI(ProtocolInstance instance)
@@ -24,7 +23,6 @@ public abstract class IPEndpointI : EndpointI
         port_ = 0;
         sourceAddr_ = null;
         connectionId_ = "";
-        _hashInitialized = false;
     }
 
     public IPEndpointI(ProtocolInstance instance, Ice.InputStream s)
@@ -34,7 +32,6 @@ public abstract class IPEndpointI : EndpointI
         port_ = s.readInt();
         sourceAddr_ = null;
         connectionId_ = "";
-        _hashInitialized = false;
     }
 
     private sealed class InfoI : Ice.IPEndpointInfo
@@ -238,17 +235,16 @@ public abstract class IPEndpointI : EndpointI
 
     public override int GetHashCode()
     {
-        lock (this)
+        var hash = new HashCode();
+        hash.Add(host_);
+        hash.Add(port_);
+        if (sourceAddr_ is not null)
         {
-            if (!_hashInitialized)
-            {
-                _hashValue = 5381;
-                HashUtil.hashAdd(ref _hashValue, type());
-                hashInit(ref _hashValue);
-                _hashInitialized = true;
-            }
-            return _hashValue;
+            hash.Add(sourceAddr_);
         }
+        hash.Add(connectionId_);
+        hash.Add(type());
+        return hash.ToHashCode();
     }
 
     public override int CompareTo(EndpointI obj)
@@ -293,17 +289,6 @@ public abstract class IPEndpointI : EndpointI
     {
         s.writeString(host_);
         s.writeInt(port_);
-    }
-
-    public virtual void hashInit(ref int h)
-    {
-        HashUtil.hashAdd(ref h, host_);
-        HashUtil.hashAdd(ref h, port_);
-        if (sourceAddr_ != null)
-        {
-            HashUtil.hashAdd(ref h, sourceAddr_);
-        }
-        HashUtil.hashAdd(ref h, connectionId_);
     }
 
     public virtual void fillEndpointInfo(Ice.IPEndpointInfo info)
@@ -417,6 +402,4 @@ public abstract class IPEndpointI : EndpointI
     protected int port_;
     protected EndPoint sourceAddr_;
     protected string connectionId_;
-    private bool _hashInitialized;
-    private int _hashValue;
 }
