@@ -20,7 +20,7 @@
 using namespace std;
 
 string
-Ice::SSL::OpenSSL::getSslErrors(bool verbose)
+Ice::SSL::OpenSSL::getErrors(bool verbose)
 {
     ostringstream ostr;
 

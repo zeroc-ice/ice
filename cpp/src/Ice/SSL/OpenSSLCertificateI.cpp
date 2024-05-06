@@ -379,7 +379,7 @@ OpenSSLCertificateI::encode() const
     if (i <= 0)
     {
         BIO_free(out);
-        throw CertificateEncodingException(__FILE__, __LINE__, OpenSSL::getSslErrors(false));
+        throw CertificateEncodingException(__FILE__, __LINE__, OpenSSL::getErrors(false));
     }
     BUF_MEM* p;
     BIO_get_mem_ptr(out, &p);
@@ -581,12 +581,12 @@ OpenSSL::Certificate::load(const std::string& file)
     BIO_free(cert);
     if (x == nullptr)
     {
-        throw CertificateReadException(__FILE__, __LINE__, "error reading file:\n" + getSslErrors(false));
+        throw CertificateReadException(__FILE__, __LINE__, "error reading file:\n" + getErrors(false));
     }
     // Calling it with -1 for the side effects, this ensure that the extensions info is loaded
     if (X509_check_purpose(x, -1, -1) == -1)
     {
-        throw CertificateReadException(__FILE__, __LINE__, "error loading certificate:\n" + getSslErrors(false));
+        throw CertificateReadException(__FILE__, __LINE__, "error loading certificate:\n" + getErrors(false));
     }
     return make_shared<OpenSSLCertificateI>(x);
 }
@@ -599,12 +599,12 @@ OpenSSL::Certificate::decode(const std::string& encoding)
     BIO_free(cert);
     if (x == nullptr)
     {
-        throw CertificateEncodingException(__FILE__, __LINE__, getSslErrors(false));
+        throw CertificateEncodingException(__FILE__, __LINE__, getErrors(false));
     }
     // Calling it with -1 for the side effects, this ensure that the extensions info is loaded
     if (X509_check_purpose(x, -1, -1) == -1)
     {
-        throw CertificateReadException(__FILE__, __LINE__, "error loading certificate:\n" + getSslErrors(false));
+        throw CertificateReadException(__FILE__, __LINE__, "error loading certificate:\n" + getErrors(false));
     }
     return make_shared<OpenSSLCertificateI>(x);
 }

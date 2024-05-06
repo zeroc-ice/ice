@@ -413,7 +413,7 @@ ClientAuthenticationOptions
 OpenSSL::SSLEngine::createClientAuthenticationOptions(const std::string&) const
 {
     return ClientAuthenticationOptions{
-        .clientSslContextSelectionCallback =
+        .clientSSLContextSelectionCallback =
             [this](const string&)
         {
             // Ensure the SSL context remains valid for the lifetime of the connection.
@@ -468,7 +468,7 @@ ServerAuthenticationOptions
 OpenSSL::SSLEngine::createServerAuthenticationOptions() const
 {
     return ServerAuthenticationOptions{
-        .serverSslContextSelectionCallback =
+        .serverSSLContextSelectionCallback =
             [this](const string&)
         {
             // Ensure the SSL context remains valid for the lifetime of the connection.
@@ -527,7 +527,7 @@ OpenSSL::SSLEngine::validationCallback(bool ok, X509_STORE_CTX* ctx, const Ice::
 string
 OpenSSL::SSLEngine::sslErrors() const
 {
-    return getSslErrors(securityTraceLevel() >= 1);
+    return getErrors(securityTraceLevel() >= 1);
 }
 
 void

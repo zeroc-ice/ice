@@ -12,7 +12,7 @@
 namespace Ice::SSL::OpenSSL
 {
     // Accumulate the OpenSSL error stack into a string.
-    std::string getSslErrors(bool);
+    std::string getErrors(bool);
 
 }
 #endif

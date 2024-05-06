@@ -99,7 +99,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
             throw SecurityException(__FILE__, __LINE__, "openssl failure");
         }
 
-        _sslCtx = _localSslContextSelectionCallback(_incoming ? _adapterName : _host);
+        _sslCtx = _localSSLContextSelectionCallback(_incoming ? _adapterName : _host);
         if (!_sslCtx)
         {
             throw SecurityException(__FILE__, __LINE__, "SSL error: the SSL context selection callback returned null");
@@ -686,7 +686,7 @@ OpenSSL::TransceiverI::TransceiverI(
       _sentBytes(0),
       _maxSendPacketSize(0),
       _maxRecvPacketSize(0),
-      _localSslContextSelectionCallback(serverAuthenticationOptions.serverSslContextSelectionCallback),
+      _localSSLContextSelectionCallback(serverAuthenticationOptions.serverSSLContextSelectionCallback),
       _remoteCertificateVerificationCallback(
           serverAuthenticationOptions.clientCertificateValidationCallback
               ? serverAuthenticationOptions.clientCertificateValidationCallback
@@ -713,7 +713,7 @@ OpenSSL::TransceiverI::TransceiverI(
       _sentBytes(0),
       _maxSendPacketSize(0),
       _maxRecvPacketSize(0),
-      _localSslContextSelectionCallback(clientAuthenticationOptions.clientSslContextSelectionCallback),
+      _localSSLContextSelectionCallback(clientAuthenticationOptions.clientSSLContextSelectionCallback),
       _remoteCertificateVerificationCallback(
           clientAuthenticationOptions.serverCertificateValidationCallback
               ? clientAuthenticationOptions.serverCertificateValidationCallback

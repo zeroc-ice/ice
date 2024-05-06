@@ -325,14 +325,14 @@ namespace Ice::SSL
          * @param host The target host name.
          * @return A pointer to a SSL_CTX objet representing the SSL configuration for the new outgoing connection.
          *
-         * Example of setting clientSslContextSelectionCallback:
+         * Example of setting clientSSLContextSelectionCallback:
          * ```cpp
          * SSL_CTX* _sslContext = SSL_CTX_new(TLS_method());
          * ...
          * auto initData = Ice::InitializationData {
          *   ...
          *   .clientAuthenticationOptions = ClientAuthenticationOptions {
-         *     .clientSslContextSelectionCallback = [this](const std::string&) {
+         *     .clientSSLContextSelectionCallback = [this](const std::string&) {
          *       // Ensure the SSL context remains valid for the lifetime of the connection.
          *       SSL_CTX_up_ref(_sslContext);
          *       return _sslContext;
@@ -348,7 +348,7 @@ namespace Ice::SSL
          * @see Detailed OpenSSL documentation on SSL_CTX management:
          * https://www.openssl.org/docs/manmaster/man3/SSL_CTX_new.html
          */
-        std::function<SSL_CTX*(const std::string& host)> clientSslContextSelectionCallback;
+        std::function<SSL_CTX*(const std::string& host)> clientSSLContextSelectionCallback;
 
         /**
          * A callback that is invoked before initiating a new SSL handshake. This callback provides an opportunity to
