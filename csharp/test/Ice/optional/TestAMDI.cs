@@ -21,222 +21,202 @@ namespace Ice
                 }
 
                 public override Task
-                opOptionalExceptionAsync(Ice.Optional<int> a,
-                                         Ice.Optional<string> b,
-                                         Ice.Optional<Test.OneOptional> o,
+                opOptionalExceptionAsync(int? a,
+                                         string b,
                                          Ice.Current c)
                 {
-                    throw new Test.OptionalException(false, a, b, o);
+                    throw new Test.OptionalException(false, a, b);
                 }
 
                 public override Task
-                opDerivedExceptionAsync(Ice.Optional<int> a,
-                                        Ice.Optional<string> b,
-                                        Ice.Optional<Test.OneOptional> o,
+                opDerivedExceptionAsync(int? a,
+                                        string b,
                                         Ice.Current c)
                 {
-                    throw new Test.DerivedException(false, a, b, o, "d1", b, o, "d2");
+                    throw new Test.DerivedException(false, a, b, "d1", b, "d2");
                 }
 
                 public override Task
-                opRequiredExceptionAsync(Ice.Optional<int> a,
-                                         Ice.Optional<string> b,
-                                         Ice.Optional<Test.OneOptional> o,
+                opRequiredExceptionAsync(int? a,
+                                         string b,
                                          Ice.Current c)
                 {
                     var e = new Test.RequiredException();
                     e.a = a;
                     e.b = b;
-                    e.o = o;
-                    if (b.HasValue)
+                    if (b is not null)
                     {
-                        e.ss = b.Value;
-                    }
-                    if (o.HasValue)
-                    {
-                        e.o2 = o.Value;
+                        e.ss = b;
                     }
                     throw e;
                 }
 
                 public override Task<Test.Initial_OpByteResult>
-                opByteAsync(Ice.Optional<byte> p1, Ice.Current current)
+                opByteAsync(byte? p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpByteResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpBoolResult>
-                opBoolAsync(Ice.Optional<bool> p1, Ice.Current current)
+                opBoolAsync(bool? p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpBoolResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpShortResult>
-                opShortAsync(Ice.Optional<short> p1, Ice.Current current)
+                opShortAsync(short? p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpShortResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpIntResult>
-                opIntAsync(Ice.Optional<int> p1, Ice.Current current)
+                opIntAsync(int? p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpIntResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpLongResult>
-                opLongAsync(Ice.Optional<long> p1, Ice.Current current)
+                opLongAsync(long? p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpLongResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpFloatResult>
-                opFloatAsync(Ice.Optional<float> p1, Ice.Current current)
+                opFloatAsync(float? p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpFloatResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpDoubleResult>
-                opDoubleAsync(Ice.Optional<double> p1, Ice.Current current)
+                opDoubleAsync(double? p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpDoubleResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpStringResult>
-                opStringAsync(Ice.Optional<string> p1, Ice.Current current)
+                opStringAsync(string p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpStringResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpMyEnumResult>
-                opMyEnumAsync(Ice.Optional<Test.MyEnum> p1, Ice.Current current)
+                opMyEnumAsync(Test.MyEnum? p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpMyEnumResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpSmallStructResult>
-                opSmallStructAsync(Ice.Optional<Test.SmallStruct> p1, Ice.Current current)
+                opSmallStructAsync(Test.SmallStruct? p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpSmallStructResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpFixedStructResult>
-                opFixedStructAsync(Ice.Optional<Test.FixedStruct> p1, Ice.Current current)
+                opFixedStructAsync(Test.FixedStruct? p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpFixedStructResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpVarStructResult>
-                opVarStructAsync(Ice.Optional<Test.VarStruct> p1, Ice.Current current)
+                opVarStructAsync(Test.VarStruct p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpVarStructResult(p1, p1));
                 }
 
-                public override Task<Test.Initial_OpOneOptionalResult>
-                opOneOptionalAsync(Ice.Optional<Test.OneOptional> p1, Ice.Current current)
-                {
-                    return Task.FromResult(new Test.Initial_OpOneOptionalResult(p1, p1));
-                }
-
                 public override Task<Test.Initial_OpMyInterfaceProxyResult>
-                opMyInterfaceProxyAsync(Ice.Optional<Test.MyInterfacePrx> p1, Ice.Current current)
+                opMyInterfaceProxyAsync(Test.MyInterfacePrx p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpMyInterfaceProxyResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpByteSeqResult>
-                opByteSeqAsync(Ice.Optional<byte[]> p1, Ice.Current current)
+                opByteSeqAsync(byte[] p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpByteSeqResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpBoolSeqResult>
-                opBoolSeqAsync(Ice.Optional<bool[]> p1, Ice.Current current)
+                opBoolSeqAsync(bool[] p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpBoolSeqResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpShortSeqResult>
-                opShortSeqAsync(Ice.Optional<short[]> p1, Ice.Current current)
+                opShortSeqAsync(short[] p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpShortSeqResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpIntSeqResult>
-                opIntSeqAsync(Ice.Optional<int[]> p1, Ice.Current current)
+                opIntSeqAsync(int[] p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpIntSeqResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpLongSeqResult>
-                opLongSeqAsync(Ice.Optional<long[]> p1, Ice.Current current)
+                opLongSeqAsync(long[] p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpLongSeqResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpFloatSeqResult>
-                opFloatSeqAsync(Ice.Optional<float[]> p1, Ice.Current current)
+                opFloatSeqAsync(float[] p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpFloatSeqResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpDoubleSeqResult>
-                opDoubleSeqAsync(Ice.Optional<double[]> p1, Ice.Current current)
+                opDoubleSeqAsync(double[] p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpDoubleSeqResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpStringSeqResult>
-                opStringSeqAsync(Ice.Optional<string[]> p1, Ice.Current current)
+                opStringSeqAsync(string[] p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpStringSeqResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpSmallStructSeqResult>
-                opSmallStructSeqAsync(Ice.Optional<Test.SmallStruct[]> p1, Ice.Current current)
+                opSmallStructSeqAsync(Test.SmallStruct[] p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpSmallStructSeqResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpSmallStructListResult>
-                opSmallStructListAsync(Ice.Optional<List<Test.SmallStruct>> p1, Ice.Current current)
+                opSmallStructListAsync(List<Test.SmallStruct> p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpSmallStructListResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpFixedStructSeqResult>
-                opFixedStructSeqAsync(Ice.Optional<Test.FixedStruct[]> p1, Ice.Current current)
+                opFixedStructSeqAsync(Test.FixedStruct[] p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpFixedStructSeqResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpFixedStructListResult>
-                opFixedStructListAsync(Ice.Optional<LinkedList<Test.FixedStruct>> p1, Ice.Current current)
+                opFixedStructListAsync(LinkedList<Test.FixedStruct> p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpFixedStructListResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpVarStructSeqResult>
-                opVarStructSeqAsync(Ice.Optional<Test.VarStruct[]> p1, Ice.Current current)
+                opVarStructSeqAsync(Test.VarStruct[] p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpVarStructSeqResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpIntIntDictResult>
-                opIntIntDictAsync(Ice.Optional<Dictionary<int, int>> p1, Ice.Current current)
+                opIntIntDictAsync(Dictionary<int, int> p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpIntIntDictResult(p1, p1));
                 }
 
                 public override Task<Test.Initial_OpStringIntDictResult>
-                opStringIntDictAsync(Ice.Optional<Dictionary<string, int>> p1, Ice.Current current)
+                opStringIntDictAsync(Dictionary<string, int> p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpStringIntDictResult(p1, p1));
-                }
-
-                public override Task<Test.Initial_OpIntOneOptionalDictResult>
-                opIntOneOptionalDictAsync(Ice.Optional<Dictionary<int, Test.OneOptional>> p1, Ice.Current current)
-                {
-                    return Task.FromResult(new Test.Initial_OpIntOneOptionalDictResult(p1, p1));
                 }
 
                 public override Task
@@ -265,7 +245,7 @@ namespace Ice
                 }
 
                 public async override Task<Test.Initial_OpMStruct2MarshaledResult>
-                opMStruct2Async(Ice.Optional<Test.SmallStruct> p1, Ice.Current current)
+                opMStruct2Async(Test.SmallStruct? p1, Ice.Current current)
                 {
                     await Task.Delay(0);
                     return new Test.Initial_OpMStruct2MarshaledResult(p1, p1, current);
@@ -279,7 +259,7 @@ namespace Ice
                 }
 
                 public async override Task<Test.Initial_OpMSeq2MarshaledResult>
-                opMSeq2Async(Ice.Optional<string[]> p1, Ice.Current current)
+                opMSeq2Async(string[] p1, Ice.Current current)
                 {
                     await Task.Delay(0);
                     return new Test.Initial_OpMSeq2MarshaledResult(p1, p1, current);
@@ -293,24 +273,10 @@ namespace Ice
                 }
 
                 public async override Task<Test.Initial_OpMDict2MarshaledResult>
-                opMDict2Async(Ice.Optional<Dictionary<string, int>> p1, Ice.Current current)
+                opMDict2Async(Dictionary<string, int> p1, Ice.Current current)
                 {
                     await Task.Delay(0);
                     return new Test.Initial_OpMDict2MarshaledResult(p1, p1, current);
-                }
-
-                public async override Task<Test.Initial_OpMG1MarshaledResult>
-                opMG1Async(Ice.Current current)
-                {
-                    await Task.Delay(0);
-                    return new Test.Initial_OpMG1MarshaledResult(new Test.G(), current);
-                }
-
-                public async override Task<Test.Initial_OpMG2MarshaledResult>
-                opMG2Async(Ice.Optional<Test.G> p1, Ice.Current current)
-                {
-                    await Task.Delay(0);
-                    return new Test.Initial_OpMG2MarshaledResult(p1, p1, current);
                 }
 
                 public override Task<bool>

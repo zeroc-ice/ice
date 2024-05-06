@@ -1061,10 +1061,13 @@ Slice::CsVisitor::requiresDataMemberInitializers(const DataMemberList& members)
 {
     for (DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
-        StructPtr st = dynamic_pointer_cast<Struct>((*p)->type());
-        if (st && isMappedToClass(st))
+        if (!(*p)->optional())
         {
-            return true;
+            StructPtr st = dynamic_pointer_cast<Struct>((*p)->type());
+            if (st && isMappedToClass(st))
+            {
+                return true;
+            }
         }
     }
     return false;
@@ -1076,10 +1079,13 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, uns
     // Generates "= new()" for each struct field mapped to a class.
     for (DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
-        StructPtr st = dynamic_pointer_cast<Struct>((*p)->type());
-        if (st && isMappedToClass(st))
+        if (!(*p)->optional())
         {
-            _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = new();";
+            StructPtr st = dynamic_pointer_cast<Struct>((*p)->type());
+            if (st && isMappedToClass(st))
+            {
+                _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = new();";
+            }
         }
     }
 }
@@ -2887,24 +2893,13 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             writeConstantValue(p->type(), p->defaultValueType(), p->defaultValue());
             addSemicolon = true;
         }
-        else if (p->optional()) // TODO: remove once we fix the optional mapping
-        {
-            _out << " = new " << typeToString(p->type(), ns, true) << "()";
-            addSemicolon = true;
-        }
-        else
+        else if (!p->optional())
         {
             BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
             if (builtin && builtin->kind() == Builtin::KindString)
             {
                 // This behavior is unfortunate but kept for backwards compatibility.
                 _out << " = \"\"";
-                addSemicolon = true;
-            }
-
-            if (st && !isMappedToClass(st))
-            {
-                _out << " = new " << typeToString(p->type(), ns, false) << "()";
                 addSemicolon = true;
             }
         }

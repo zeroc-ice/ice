@@ -70,10 +70,10 @@ public abstract class Reference : IEquatable<Reference>
         return _invocationTimeout;
     }
 
-    public Ice.Optional<bool>
+    public bool?
     getCompress()
     {
-        return overrideCompress_ ? compress_ : new Ice.Optional<bool>();
+        return overrideCompress_ ? compress_ : null;
     }
 
     public Ice.Communicator getCommunicator()
@@ -91,7 +91,7 @@ public abstract class Reference : IEquatable<Reference>
     public abstract Ice.EndpointSelectionType getEndpointSelection();
     public abstract int getLocatorCacheTimeout();
     public abstract string getConnectionId();
-    public abstract Ice.Optional<int> getTimeout();
+    public abstract int? getTimeout();
     public abstract ThreadPool getThreadPool();
 
     //
@@ -512,7 +512,7 @@ public class FixedReference : Reference
                           Ice.ConnectionI connection,
                           int invocationTimeout,
                           Dictionary<string, string> context,
-                          Ice.Optional<bool> compress)
+                          bool? compress)
     : base(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
     {
         _fixedConnection = connection;
@@ -573,9 +573,9 @@ public class FixedReference : Reference
         return "";
     }
 
-    public override Ice.Optional<int> getTimeout()
+    public override int? getTimeout()
     {
-        return new Ice.Optional<int>();
+        return null;
     }
 
     public override ThreadPool getThreadPool()
@@ -800,9 +800,9 @@ public class RoutableReference : Reference
         return _connectionId;
     }
 
-    public override Ice.Optional<int> getTimeout()
+    public override int? getTimeout()
     {
-        return _overrideTimeout ? _timeout : new Ice.Optional<int>();
+        return _overrideTimeout ? _timeout : null;
     }
 
     public override ThreadPool getThreadPool()

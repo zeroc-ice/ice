@@ -63,7 +63,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
             }
         }
 
-        Ice.Optional<bool> hasRoutingTable;
+        bool? hasRoutingTable;
         var proxy = _router.getClientProxy(out hasRoutingTable);
         return setClientEndpoints(proxy, hasRoutingTable.HasValue ? hasRoutingTable.Value : true);
     }

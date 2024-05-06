@@ -130,21 +130,18 @@ exception OptionalException
     bool req = false;
     optional(1) int a = 5;
     optional(2) string b;
-    optional(50) OneOptional o;
 }
 
 exception DerivedException extends OptionalException
 {
     string d1;
     optional(600) string ss = "test";
-    optional(601) OneOptional o2;
     string d2;
 }
 
 exception RequiredException extends OptionalException
 {
     string ss = "test";
-    OneOptional o2;
 }
 
 ["cs:property"]
@@ -189,13 +186,13 @@ interface Initial
 
     Object pingPong(Object o);
 
-    void opOptionalException(optional(1) int a, optional(2) string b, optional(3) OneOptional o)
+    void opOptionalException(optional(1) int a, optional(2) string b)
         throws OptionalException;
 
-    void opDerivedException(optional(1) int a, optional(2) string b, optional(3) OneOptional o)
+    void opDerivedException(optional(1) int a, optional(2) string b)
         throws OptionalException;
 
-    void opRequiredException(optional(1) int a, optional(2) string b, optional(3) OneOptional o)
+    void opRequiredException(optional(1) int a, optional(2) string b)
         throws OptionalException;
 
     optional(1) byte opByte(optional(2) byte p1, out optional(3) byte p3);
@@ -221,8 +218,6 @@ interface Initial
     optional(1) FixedStruct opFixedStruct(optional(2) FixedStruct p1, out optional(3) FixedStruct p3);
 
     optional(1) VarStruct opVarStruct(optional(2) VarStruct p1, out optional(3) VarStruct p3);
-
-    optional(1) OneOptional opOneOptional(optional(2) OneOptional p1, out optional(3) OneOptional p3);
 
     optional(1) MyInterface* opMyInterfaceProxy(optional(2) MyInterface* p1, out optional(3) MyInterface* p3);
 
@@ -256,9 +251,6 @@ interface Initial
 
     optional(1) StringIntDict opStringIntDict(optional(2) StringIntDict p1, out optional(3) StringIntDict p3);
 
-    optional(1) IntOneOptionalDict opIntOneOptionalDict(optional(2) IntOneOptionalDict p1,
-                                                        out optional(3) IntOneOptionalDict p3);
-
     void opClassAndUnknownOptional(A p);
 
     G opG(G g);
@@ -276,9 +268,6 @@ interface Initial
     ["marshaled-result"] optional(1) StringIntDict opMDict1();
     ["marshaled-result"] optional(1) StringIntDict opMDict2(optional(2) StringIntDict p1,
                                                             out optional(3) StringIntDict p2);
-
-    ["marshaled-result"] optional(1) G opMG1();
-    ["marshaled-result"] optional(1) G opMG2(optional(2) G p1, out optional(3) G p2);
 
     bool supportsRequiredParams();
 

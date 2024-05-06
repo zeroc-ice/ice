@@ -17,13 +17,13 @@ namespace Ice
                 output.Flush();
                 string @ref = "initial:" + helper.getTestEndpoint(0);
                 var @base = communicator.stringToProxy(@ref);
-                test(@base != null);
+                test(@base is not null);
                 output.WriteLine("ok");
 
                 output.Write("testing checked cast... ");
                 output.Flush();
                 Test.InitialPrx initial = Test.InitialPrxHelper.checkedCast(@base);
-                test(initial != null);
+                test(initial is not null);
                 test(initial.Equals(@base));
                 output.WriteLine("ok");
 
@@ -31,12 +31,12 @@ namespace Ice
                 output.Flush();
 
                 Test.OneOptional oo1 = new Test.OneOptional();
-                test(!oo1.a.HasValue);
+                test(oo1.a is null);
                 oo1.a = 15;
-                test(oo1.a.HasValue && oo1.a.Value == 15);
+                test(oo1.a is not null && oo1.a.Value == 15);
 
                 Test.OneOptional oo2 = new Test.OneOptional(16);
-                test(oo2.a.HasValue && oo2.a.Value == 16);
+                test(oo2.a is not null && oo2.a.Value == 16);
 
                 Test.MultiOptional mo1 = new Test.MultiOptional();
                 mo1.a = 15;
@@ -48,13 +48,13 @@ namespace Ice
                 mo1.g = 1.0;
                 mo1.h = "test";
                 mo1.i = Test.MyEnum.MyEnumMember;
-                mo1.j = new Ice.Optional<Test.MyInterfacePrx>(Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test")));
+                mo1.j = Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test"));
                 mo1.bs = new byte[] { 5 };
                 mo1.ss = new string[] { "test", "test2" };
                 mo1.iid = new Dictionary<int, int>();
-                mo1.iid.Value.Add(4, 3);
+                mo1.iid.Add(4, 3);
                 mo1.sid = new Dictionary<string, int>();
-                mo1.sid.Value.Add("test", 10);
+                mo1.sid.Add("test", 10);
                 Test.FixedStruct fs = new Test.FixedStruct();
                 fs.m = 78;
                 mo1.fs = fs;
@@ -66,19 +66,16 @@ namespace Ice
                 mo1.es = new Test.MyEnum[] { Test.MyEnum.MyEnumMember, Test.MyEnum.MyEnumMember };
                 mo1.fss = new Test.FixedStruct[] { fs };
                 mo1.vss = new Test.VarStruct[] { vs };
-                mo1.oos = new Test.OneOptional[] { oo1 };
                 mo1.mips = new Test.MyInterfacePrx[] { Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test")) };
 
                 mo1.ied = new Dictionary<int, Test.MyEnum>();
-                mo1.ied.Value.Add(4, Test.MyEnum.MyEnumMember);
+                mo1.ied.Add(4, Test.MyEnum.MyEnumMember);
                 mo1.ifsd = new Dictionary<int, Test.FixedStruct>();
-                mo1.ifsd.Value.Add(4, fs);
+                mo1.ifsd.Add(4, fs);
                 mo1.ivsd = new Dictionary<int, Test.VarStruct>();
-                mo1.ivsd.Value.Add(5, vs);
-                mo1.iood = new Dictionary<int, Test.OneOptional>();
-                mo1.iood.Value.Add(5, new Test.OneOptional(15));
+                mo1.ivsd.Add(5, vs);
                 mo1.imipd = new Dictionary<int, Test.MyInterfacePrx>();
-                mo1.imipd.Value.Add(5, Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test")));
+                mo1.imipd.Add(5, Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test")));
 
                 mo1.bos = new bool[] { false, true, false };
 
@@ -89,30 +86,28 @@ namespace Ice
                 test(mo1.e.Value == 99);
                 test(mo1.f.Value == (float)5.5);
                 test(mo1.g.Value == 1.0);
-                test(mo1.h.Value == "test");
+                test(mo1.h == "test");
                 test(mo1.i.Value == Test.MyEnum.MyEnumMember);
-                test(mo1.j.Value.Equals(communicator.stringToProxy("test")));
-                test(ArraysEqual(mo1.bs.Value, new byte[] { (byte)5 }));
-                test(ArraysEqual(mo1.ss.Value, new String[] { "test", "test2" }));
-                test(mo1.iid.Value[4] == 3);
-                test(mo1.sid.Value["test"] == 10);
+                test(mo1.j.Equals(communicator.stringToProxy("test")));
+                test(ArraysEqual(mo1.bs, new byte[] { (byte)5 }));
+                test(ArraysEqual(mo1.ss, new String[] { "test", "test2" }));
+                test(mo1.iid[4] == 3);
+                test(mo1.sid["test"] == 10);
                 test(mo1.fs.Value.Equals(new Test.FixedStruct(78)));
-                test(mo1.vs.Value.Equals(new Test.VarStruct("hello")));
+                test(mo1.vs.Equals(new Test.VarStruct("hello")));
 
-                test(mo1.shs.Value[0] == (short)1);
-                test(mo1.es.Value[0] == Test.MyEnum.MyEnumMember && mo1.es.Value[1] == Test.MyEnum.MyEnumMember);
-                test(mo1.fss.Value[0].Equals(new Test.FixedStruct(78)));
-                test(mo1.vss.Value[0].Equals(new Test.VarStruct("hello")));
-                test(mo1.oos.Value[0] == oo1);
-                test(mo1.mips.Value[0].Equals(communicator.stringToProxy("test")));
+                test(mo1.shs[0] == (short)1);
+                test(mo1.es[0] == Test.MyEnum.MyEnumMember && mo1.es[1] == Test.MyEnum.MyEnumMember);
+                test(mo1.fss[0].Equals(new Test.FixedStruct(78)));
+                test(mo1.vss[0].Equals(new Test.VarStruct("hello")));
+                test(mo1.mips[0].Equals(communicator.stringToProxy("test")));
 
-                test(mo1.ied.Value[4] == Test.MyEnum.MyEnumMember);
-                test(mo1.ifsd.Value[4].Equals(new Test.FixedStruct(78)));
-                test(mo1.ivsd.Value[5].Equals(new Test.VarStruct("hello")));
-                test(mo1.iood.Value[5].a.Value == 15);
-                test(mo1.imipd.Value[5].Equals(communicator.stringToProxy("test")));
+                test(mo1.ied[4] == Test.MyEnum.MyEnumMember);
+                test(mo1.ifsd[4].Equals(new Test.FixedStruct(78)));
+                test(mo1.ivsd[5].Equals(new Test.VarStruct("hello")));
+                test(mo1.imipd[5].Equals(communicator.stringToProxy("test")));
 
-                test(ArraysEqual(mo1.bos.Value, new bool[] { false, true, false }));
+                test(ArraysEqual(mo1.bos, new bool[] { false, true, false }));
 
                 output.WriteLine("ok");
 
@@ -120,43 +115,41 @@ namespace Ice
                 output.Flush();
 
                 Test.OneOptional oo4 = (Test.OneOptional)initial.pingPong(new Test.OneOptional());
-                test(!oo4.a.HasValue);
+                test(oo4.a is null);
 
                 Test.OneOptional oo5 = (Test.OneOptional)initial.pingPong(oo1);
                 test(oo1.a.Value == oo5.a.Value);
 
                 Test.MultiOptional mo4 = (Test.MultiOptional)initial.pingPong(new Test.MultiOptional());
-                test(!mo4.a.HasValue);
-                test(!mo4.b.HasValue);
-                test(!mo4.c.HasValue);
-                test(!mo4.d.HasValue);
-                test(!mo4.e.HasValue);
-                test(!mo4.f.HasValue);
-                test(!mo4.g.HasValue);
-                test(!mo4.h.HasValue);
-                test(!mo4.i.HasValue);
-                test(!mo4.j.HasValue);
-                test(!mo4.bs.HasValue);
-                test(!mo4.ss.HasValue);
-                test(!mo4.iid.HasValue);
-                test(!mo4.sid.HasValue);
-                test(!mo4.fs.HasValue);
-                test(!mo4.vs.HasValue);
+                test(mo4.a is null);
+                test(mo4.b is null);
+                test(mo4.c is null);
+                test(mo4.d is null);
+                test(mo4.e is null);
+                test(mo4.f is null);
+                test(mo4.g is null);
+                test(mo4.h is null);
+                test(mo4.i is null);
+                test(mo4.j is null);
+                test(mo4.bs is null);
+                test(mo4.ss is null);
+                test(mo4.iid is null);
+                test(mo4.sid is null);
+                test(mo4.fs is null);
+                test(mo4.vs is null);
 
-                test(!mo4.shs.HasValue);
-                test(!mo4.es.HasValue);
-                test(!mo4.fss.HasValue);
-                test(!mo4.vss.HasValue);
-                test(!mo4.oos.HasValue);
-                test(!mo4.mips.HasValue);
+                test(mo4.shs is null);
+                test(mo4.es is null);
+                test(mo4.fss is null);
+                test(mo4.vss is null);
+                test(mo4.mips is null);
 
-                test(!mo4.ied.HasValue);
-                test(!mo4.ifsd.HasValue);
-                test(!mo4.ivsd.HasValue);
-                test(!mo4.iood.HasValue);
-                test(!mo4.imipd.HasValue);
+                test(mo4.ied is null);
+                test(mo4.ifsd is null);
+                test(mo4.ivsd is null);
+                test(mo4.imipd is null);
 
-                test(!mo4.bos.HasValue);
+                test(mo4.bos is null);
 
                 Test.MultiOptional mo5 = (Test.MultiOptional)initial.pingPong(mo1);
                 test(mo5.a.Value == mo1.a.Value);
@@ -166,29 +159,27 @@ namespace Ice
                 test(mo5.e.Value == mo1.e.Value);
                 test(mo5.f.Value == mo1.f.Value);
                 test(mo5.g.Value == mo1.g.Value);
-                test(mo5.h.Value.Equals(mo1.h.Value));
+                test(mo5.h.Equals(mo1.h));
                 test(mo5.i.Value == mo1.i.Value);
-                test(mo5.j.Value.Equals(mo1.j.Value));
-                test(ArraysEqual(mo5.bs.Value, mo1.bs.Value));
-                test(ArraysEqual(mo5.ss.Value, mo1.ss.Value));
-                test(mo5.iid.Value[4] == 3);
-                test(mo5.sid.Value["test"] == 10);
+                test(mo5.j.Equals(mo1.j));
+                test(ArraysEqual(mo5.bs, mo1.bs));
+                test(ArraysEqual(mo5.ss, mo1.ss));
+                test(mo5.iid[4] == 3);
+                test(mo5.sid["test"] == 10);
                 test(mo5.fs.Value.Equals(mo1.fs.Value));
-                test(mo5.vs.Value.Equals(mo1.vs.Value));
-                test(ArraysEqual(mo5.shs.Value, mo1.shs.Value));
-                test(mo5.es.Value[0] == Test.MyEnum.MyEnumMember && mo1.es.Value[1] == Test.MyEnum.MyEnumMember);
-                test(mo5.fss.Value[0].Equals(new Test.FixedStruct(78)));
-                test(mo5.vss.Value[0].Equals(new Test.VarStruct("hello")));
-                test(mo5.oos.Value[0].a.Value == 15);
-                test(mo5.mips.Value[0].Equals(communicator.stringToProxy("test")));
+                test(mo5.vs.Equals(mo1.vs));
+                test(ArraysEqual(mo5.shs, mo1.shs));
+                test(mo5.es[0] == Test.MyEnum.MyEnumMember && mo1.es[1] == Test.MyEnum.MyEnumMember);
+                test(mo5.fss[0].Equals(new Test.FixedStruct(78)));
+                test(mo5.vss[0].Equals(new Test.VarStruct("hello")));
+                test(mo5.mips[0].Equals(communicator.stringToProxy("test")));
 
-                test(mo5.ied.Value[4] == Test.MyEnum.MyEnumMember);
-                test(mo5.ifsd.Value[4].Equals(new Test.FixedStruct(78)));
-                test(mo5.ivsd.Value[5].Equals(new Test.VarStruct("hello")));
-                test(mo5.iood.Value[5].a.Value == 15);
-                test(mo5.imipd.Value[5].Equals(communicator.stringToProxy("test")));
+                test(mo5.ied[4] == Test.MyEnum.MyEnumMember);
+                test(mo5.ifsd[4].Equals(new Test.FixedStruct(78)));
+                test(mo5.ivsd[5].Equals(new Test.VarStruct("hello")));
+                test(mo5.imipd[5].Equals(communicator.stringToProxy("test")));
 
-                test(ArraysEqual(mo5.bos.Value, new bool[] { false, true, false }));
+                test(ArraysEqual(mo5.bos, new bool[] { false, true, false }));
 
                 // Clear the first half of the optional members
                 Test.MultiOptional mo6 = new Test.MultiOptional();
@@ -202,43 +193,39 @@ namespace Ice
                 mo6.fs = mo5.fs;
                 mo6.shs = mo5.shs;
                 mo6.fss = mo5.fss;
-                mo6.oos = mo5.oos;
                 mo6.ifsd = mo5.ifsd;
-                mo6.iood = mo5.iood;
                 mo6.bos = mo5.bos;
 
                 Test.MultiOptional mo7 = (Test.MultiOptional)initial.pingPong(mo6);
-                test(!mo7.a.HasValue);
+                test(mo7.a is null);
                 test(mo7.b.Equals(mo1.b));
-                test(!mo7.c.HasValue);
+                test(mo7.c is null);
                 test(mo7.d.Equals(mo1.d));
-                test(!mo7.e.HasValue);
+                test(mo7.e is null);
                 test(mo7.f.Equals(mo1.f));
-                test(!mo7.g.HasValue);
+                test(mo7.g is null);
                 test(mo7.h.Equals(mo1.h));
-                test(!mo7.i.HasValue);
+                test(mo7.i is null);
                 test(mo7.j.Equals(mo1.j));
-                test(ArraysEqual(mo7.bs.Value, mo1.bs.Value));
-                test(!mo7.ss.HasValue);
-                test(mo7.iid.Value[4] == 3);
-                test(!mo7.sid.HasValue);
+                test(ArraysEqual(mo7.bs, mo1.bs));
+                test(mo7.ss is null);
+                test(mo7.iid[4] == 3);
+                test(mo7.sid is null);
                 test(mo7.fs.Equals(mo1.fs));
-                test(!mo7.vs.HasValue);
+                test(mo7.vs is null);
 
-                test(ArraysEqual(mo7.shs.Value, mo1.shs.Value));
-                test(!mo7.es.HasValue);
-                test(mo7.fss.Value[0].Equals(new Test.FixedStruct(78)));
-                test(!mo7.vss.HasValue);
-                test(mo7.oos.Value[0].a.Value == 15);
-                test(!mo7.mips.HasValue);
+                test(ArraysEqual(mo7.shs, mo1.shs));
+                test(mo7.es is null);
+                test(mo7.fss[0].Equals(new Test.FixedStruct(78)));
+                test(mo7.vss is null);
+                test(mo7.mips is null);
 
-                test(!mo7.ied.HasValue);
-                test(mo7.ifsd.Value[4].Equals(new Test.FixedStruct(78)));
-                test(!mo7.ivsd.HasValue);
-                test(mo7.iood.Value[5].a.Value == 15);
-                test(!mo7.imipd.HasValue);
+                test(mo7.ied is null);
+                test(mo7.ifsd[4].Equals(new Test.FixedStruct(78)));
+                test(mo7.ivsd is null);
+                test(mo7.imipd is null);
 
-                test(ArraysEqual(mo7.bos.Value, new bool[] { false, true, false }));
+                test(ArraysEqual(mo7.bos, new bool[] { false, true, false }));
 
                 // Clear the second half of the optional members
                 Test.MultiOptional mo8 = new Test.MultiOptional();
@@ -261,46 +248,44 @@ namespace Ice
 
                 Test.MultiOptional mo9 = (Test.MultiOptional)initial.pingPong(mo8);
                 test(mo9.a.Equals(mo1.a));
-                test(!mo9.b.HasValue);
+                test(mo9.b is null);
                 test(mo9.c.Equals(mo1.c));
-                test(!mo9.d.HasValue);
+                test(mo9.d is null);
                 test(mo9.e.Equals(mo1.e));
-                test(!mo9.f.HasValue);
+                test(mo9.f is null);
                 test(mo9.g.Equals(mo1.g));
-                test(!mo9.h.HasValue);
+                test(mo9.h is null);
                 test(mo9.i.Equals(mo1.i));
-                test(!mo9.j.HasValue);
-                test(!mo9.bs.HasValue);
-                test(ArraysEqual(mo9.ss.Value, mo1.ss.Value));
-                test(!mo9.iid.HasValue);
-                test(mo9.sid.Value["test"] == 10);
-                test(!mo9.fs.HasValue);
+                test(mo9.j is null);
+                test(mo9.bs is null);
+                test(ArraysEqual(mo9.ss, mo1.ss));
+                test(mo9.iid is null);
+                test(mo9.sid["test"] == 10);
+                test(mo9.fs is null);
                 test(mo9.vs.Equals(mo1.vs));
 
-                test(!mo9.shs.HasValue);
-                test(mo9.es.Value[0] == Test.MyEnum.MyEnumMember && mo9.es.Value[1] == Test.MyEnum.MyEnumMember);
-                test(!mo9.fss.HasValue);
-                test(mo9.vss.Value[0].Equals(new Test.VarStruct("hello")));
-                test(!mo9.oos.HasValue);
-                test(mo9.mips.Value[0].Equals(communicator.stringToProxy("test")));
+                test(mo9.shs is null);
+                test(mo9.es[0] == Test.MyEnum.MyEnumMember && mo9.es[1] == Test.MyEnum.MyEnumMember);
+                test(mo9.fss is null);
+                test(mo9.vss[0].Equals(new Test.VarStruct("hello")));
+                test(mo9.mips[0].Equals(communicator.stringToProxy("test")));
 
-                test(mo9.ied.Value[4] == Test.MyEnum.MyEnumMember);
-                test(!mo9.ifsd.HasValue);
-                test(mo9.ivsd.Value[5].Equals(new Test.VarStruct("hello")));
-                test(!mo9.iood.HasValue);
-                test(mo9.imipd.Value[5].Equals(communicator.stringToProxy("test")));
+                test(mo9.ied[4] == Test.MyEnum.MyEnumMember);
+                test(mo9.ifsd is null);
+                test(mo9.ivsd[5].Equals(new Test.VarStruct("hello")));
+                test(mo9.imipd[5].Equals(communicator.stringToProxy("test")));
 
-                test(!mo9.bos.HasValue);
+                test(mo9.bos is null);
 
                 {
                     Test.OptionalWithCustom owc1 = new Test.OptionalWithCustom();
                     owc1.l = new List<Test.SmallStruct>();
-                    owc1.l.Value.Add(new Test.SmallStruct(5));
-                    owc1.l.Value.Add(new Test.SmallStruct(6));
-                    owc1.l.Value.Add(new Test.SmallStruct(7));
+                    owc1.l.Add(new Test.SmallStruct(5));
+                    owc1.l.Add(new Test.SmallStruct(6));
+                    owc1.l.Add(new Test.SmallStruct(7));
                     Test.OptionalWithCustom owc2 = (Test.OptionalWithCustom)initial.pingPong(owc1);
-                    test(owc2.l.HasValue);
-                    test(ListsEqual(owc1.l.Value, owc2.l.Value));
+                    test(owc2.l is not null);
+                    test(ListsEqual(owc1.l, owc2.l));
                 }
 
                 //
@@ -321,7 +306,7 @@ namespace Ice
                 ReadValueCallbackI cb = new ReadValueCallbackI();
                 @in.readValue(cb.invoke);
                 @in.endEncapsulation();
-                test(cb.obj != null && cb.obj is TestValueReader);
+                test(cb.obj is not null && cb.obj is TestValueReader);
 
                 os = new Ice.OutputStream(communicator);
                 os.startEncapsulation();
@@ -333,16 +318,16 @@ namespace Ice
                 @in.startEncapsulation();
                 @in.readValue(cb.invoke);
                 @in.endEncapsulation();
-                test(cb.obj != null && cb.obj is TestValueReader);
+                test(cb.obj is not null && cb.obj is TestValueReader);
                 factory.setEnabled(false);
 
                 Test.G g = new Test.G();
-                g.gg1Opt = new Ice.Optional<Test.G1>(new Test.G1("gg1Opt"));
+                g.gg1Opt = new Test.G1("gg1Opt");
                 g.gg2 = new Test.G2(10);
-                g.gg2Opt = new Ice.Optional<Test.G2>(new Test.G2(20));
+                g.gg2Opt = new Test.G2(20);
                 g.gg1 = new Test.G1("gg1");
                 g = initial.opG(g);
-                test("gg1Opt".Equals(g.gg1Opt.Value.a));
+                test("gg1Opt".Equals(g.gg1Opt.a));
                 test(10 == g.gg2.a);
                 test(20 == g.gg2Opt.Value.a);
                 test("gg1".Equals(g.gg1.a));
@@ -371,20 +356,20 @@ namespace Ice
                 mc.fss = new Test.FixedStruct[300];
                 for (int i = 0; i < 300; ++i)
                 {
-                    mc.fss.Value[i] = new Test.FixedStruct();
+                    mc.fss[i] = new Test.FixedStruct();
                 }
 
                 mc.ifsd = new Dictionary<int, Test.FixedStruct>();
                 for (int i = 0; i < 300; ++i)
                 {
-                    mc.ifsd.Value.Add(i, new Test.FixedStruct());
+                    mc.ifsd.Add(i, new Test.FixedStruct());
                 }
 
                 mc = (Test.MultiOptional)initial.pingPong(mc);
-                test(mc.bs.Value.Length == 1000);
-                test(mc.shs.Value.Length == 300);
-                test(mc.fss.Value.Length == 300);
-                test(mc.ifsd.Value.Count == 300);
+                test(mc.bs.Length == 1000);
+                test(mc.shs.Length == 300);
+                test(mc.fss.Length == 300);
+                test(mc.ifsd.Count == 300);
 
                 factory.setEnabled(true);
                 os = new Ice.OutputStream(communicator);
@@ -397,7 +382,7 @@ namespace Ice
                 @in.startEncapsulation();
                 @in.readValue(cb.invoke);
                 @in.endEncapsulation();
-                test(cb.obj != null && cb.obj is TestValueReader);
+                test(cb.obj is not null && cb.obj is TestValueReader);
                 factory.setEnabled(false);
 
                 output.WriteLine("ok");
@@ -407,9 +392,9 @@ namespace Ice
                 {
                     Test.B b = new Test.B();
                     Test.B b2 = (Test.B)initial.pingPong(b);
-                    test(!b2.ma.HasValue);
-                    test(!b2.mb.HasValue);
-                    test(!b2.mc.HasValue);
+                    test(b2.ma is null);
+                    test(b2.mb is null);
+                    test(b2.mc is null);
 
                     b.ma = 10;
                     b.mb = 11;
@@ -433,7 +418,7 @@ namespace Ice
                     @in.startEncapsulation();
                     @in.readValue(cb.invoke);
                     @in.endEncapsulation();
-                    test(cb.obj != null);
+                    test(cb.obj is not null);
                     factory.setEnabled(false);
                 }
                 output.WriteLine("ok");
@@ -462,7 +447,7 @@ namespace Ice
                     @in.endEncapsulation();
                     factory.setEnabled(false);
                     rf = ((FValueReader)rocb.obj).getF();
-                    test(rf.fse != null && !rf.fsf.HasValue);
+                    test(rf.fsf is null);
                 }
                 output.WriteLine("ok");
 
@@ -471,12 +456,12 @@ namespace Ice
                 {
                     Test.WD wd = (Test.WD)initial.pingPong(new Test.WD());
                     test(wd.a.Value == 5);
-                    test(wd.s.Value == "test");
-                    wd.a = Ice.Util.None;
-                    wd.s = Ice.Util.None;
+                    test(wd.s == "test");
+                    wd.a = null;
+                    wd.s = null;
                     wd = (Test.WD)initial.pingPong(wd);
-                    test(!wd.a.HasValue);
-                    test(!wd.s.HasValue);
+                    test(wd.a is null);
+                    test(wd.s is null);
                 }
                 output.WriteLine("ok");
 
@@ -514,7 +499,7 @@ namespace Ice
                         @in.startEncapsulation();
                         @in.readValue(cb.invoke);
                         @in.endEncapsulation();
-                        test(cb.obj != null && cb.obj is DValueReader);
+                        test(cb.obj is not null && cb.obj is DValueReader);
                         ((DValueReader)cb.obj).check();
                         factory.setEnabled(false);
                     }
@@ -545,12 +530,10 @@ namespace Ice
                 output.Write("testing optional parameters... ");
                 output.Flush();
                 {
-                    var p1 = new Optional<byte>();
-                    Optional<byte> p3;
-                    Optional<byte> p2 = initial.opByte(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opByte(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    byte? p1 = null;
+                    byte? p3;
+                    byte? p2 = initial.opByte(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = 56;
                     p2 = initial.opByte(p1, out p3);
@@ -559,8 +542,8 @@ namespace Ice
                     var result = await initial.opByteAsync(p1);
                     test(result.returnValue.Value == 56 && result.p3.Value == 56);
 
-                    p2 = initial.opByte(new Optional<byte>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opByte(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
@@ -583,12 +566,10 @@ namespace Ice
                 }
 
                 {
-                    Optional<bool> p1 = new Optional<bool>();
-                    Optional<bool> p3;
-                    Optional<bool> p2 = initial.opBool(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opBool(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    bool? p1 = null;
+                    bool? p3;
+                    bool? p2 = initial.opBool(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = true;
                     p2 = initial.opBool(p1, out p3);
@@ -597,8 +578,8 @@ namespace Ice
                     var result = await initial.opBoolAsync(p1);
                     test(result.returnValue.Value == true && result.p3.Value == true);
 
-                    p2 = initial.opBool(new Optional<bool>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opBool(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
@@ -621,12 +602,10 @@ namespace Ice
                 }
 
                 {
-                    Optional<short> p1 = new Optional<short>();
-                    Optional<short> p3;
-                    Optional<short> p2 = initial.opShort(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opShort(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    short? p1 = null;
+                    short? p3;
+                    short? p2 = initial.opShort(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = 56;
                     p2 = initial.opShort(p1, out p3);
@@ -635,8 +614,8 @@ namespace Ice
                     var result = await initial.opShortAsync(p1);
                     test(result.returnValue.Value == 56 && result.p3.Value == 56);
 
-                    p2 = initial.opShort(new Optional<short>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opShort(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
@@ -659,12 +638,10 @@ namespace Ice
                 }
 
                 {
-                    Optional<int> p1 = new Optional<int>();
-                    Optional<int> p3;
-                    Optional<int> p2 = initial.opInt(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opInt(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    int? p1 = null;
+                    int? p3;
+                    int? p2 = initial.opInt(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = 56;
                     p2 = initial.opInt(p1, out p3);
@@ -673,8 +650,8 @@ namespace Ice
                     var result = await initial.opIntAsync(p1);
                     test(result.returnValue.Value == 56 && result.p3.Value == 56);
 
-                    p2 = initial.opInt(new Optional<int>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opInt(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
@@ -697,12 +674,10 @@ namespace Ice
                 }
 
                 {
-                    Optional<long> p1 = new Optional<long>();
-                    Optional<long> p3;
-                    Optional<long> p2 = initial.opLong(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opLong(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    long? p1 = null;
+                    long? p3;
+                    long? p2 = initial.opLong(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = 56;
                     p2 = initial.opLong(p1, out p3);
@@ -711,8 +686,8 @@ namespace Ice
                     var result = await initial.opLongAsync(p1);
                     test(result.returnValue.Value == 56 && p3.Value == 56);
 
-                    p2 = initial.opLong(new Optional<long>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opLong(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
@@ -735,12 +710,10 @@ namespace Ice
                 }
 
                 {
-                    Optional<float> p1 = new Optional<float>();
-                    Optional<float> p3;
-                    Optional<float> p2 = initial.opFloat(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opFloat(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    float? p1 = null;
+                    float? p3;
+                    float? p2 = initial.opFloat(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = (float)1.0;
                     p2 = initial.opFloat(p1, out p3);
@@ -749,8 +722,8 @@ namespace Ice
                     var result = await initial.opFloatAsync(p1);
                     test(result.returnValue.Value == 1.0 && result.p3.Value == 1.0);
 
-                    p2 = initial.opFloat(new Optional<float>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opFloat(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
@@ -773,12 +746,10 @@ namespace Ice
                 }
 
                 {
-                    Optional<double> p1 = new Optional<double>();
-                    Optional<double> p3;
-                    Optional<double> p2 = initial.opDouble(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opDouble(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    double? p1 = null;
+                    double? p3;
+                    double? p2 = initial.opDouble(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = 1.0;
                     p2 = initial.opDouble(p1, out p3);
@@ -786,8 +757,8 @@ namespace Ice
                     var result = await initial.opDoubleAsync(p1);
                     test(result.returnValue.Value == 1.0 && result.p3.Value == 1.0);
 
-                    p2 = initial.opDouble(new Optional<double>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opDouble(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
@@ -810,32 +781,26 @@ namespace Ice
                 }
 
                 {
-                    Optional<string> p1 = new Optional<string>();
-                    Optional<string> p3;
+                    string p1 = null;
+                    string p3;
 
-                    Optional<string> p2 = initial.opString(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opString(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opString(null, out p3); // Implicitly converts to Optional<string>(null)
-                    test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
+                    string p2 = initial.opString(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = "test";
                     p2 = initial.opString(p1, out p3);
-                    test(p2.Value == "test" && p3.Value == "test");
+                    test(p2 == "test" && p3 == "test");
 
                     var result = await initial.opStringAsync(p1);
-                    test(result.returnValue.Value == "test" && result.p3.Value == "test");
+                    test(result.returnValue == "test" && result.p3 == "test");
 
-                    p2 = initial.opString(new Optional<string>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opString(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
                     os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeString(p1.Value);
+                    os.writeString(p1);
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opString", OperationMode.Normal, inEncaps, out outEncaps);
@@ -853,12 +818,10 @@ namespace Ice
                 }
 
                 {
-                    Optional<Test.MyEnum> p1 = new Optional<Test.MyEnum>();
-                    Optional<Test.MyEnum> p3;
-                    Optional<Test.MyEnum> p2 = initial.opMyEnum(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opMyEnum(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    Test.MyEnum? p1 = null;
+                    Test.MyEnum? p3;
+                    Test.MyEnum? p2 = initial.opMyEnum(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = Test.MyEnum.MyEnumMember;
                     p2 = initial.opMyEnum(p1, out p3);
@@ -869,8 +832,8 @@ namespace Ice
                          result.p3.Value == Test.MyEnum.MyEnumMember);
                     p2 = initial.opMyEnum(p1.Value, out p3);
 
-                    p2 = initial.opMyEnum(new Optional<Test.MyEnum>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opMyEnum(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
@@ -893,12 +856,10 @@ namespace Ice
                 }
 
                 {
-                    Optional<Test.SmallStruct> p1 = new Optional<Test.SmallStruct>();
-                    Optional<Test.SmallStruct> p3;
-                    Optional<Test.SmallStruct> p2 = initial.opSmallStruct(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opSmallStruct(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    Test.SmallStruct? p1 = null;
+                    Test.SmallStruct? p3;
+                    Test.SmallStruct? p2 = initial.opSmallStruct(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = new Test.SmallStruct(56);
                     p2 = initial.opSmallStruct(p1, out p3);
@@ -907,8 +868,8 @@ namespace Ice
                     var result = await initial.opSmallStructAsync(p1);
                     test(result.returnValue.Value.m == 56 && result.p3.Value.m == 56);
 
-                    p2 = initial.opSmallStruct(new Optional<Test.SmallStruct>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opSmallStruct(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
@@ -937,12 +898,10 @@ namespace Ice
                 }
 
                 {
-                    Optional<Test.FixedStruct> p1 = new Optional<Test.FixedStruct>();
-                    Optional<Test.FixedStruct> p3;
-                    Optional<Test.FixedStruct> p2 = initial.opFixedStruct(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opFixedStruct(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    Test.FixedStruct? p1 = null;
+                    Test.FixedStruct? p3;
+                    Test.FixedStruct? p2 = initial.opFixedStruct(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = new Test.FixedStruct(56);
                     p2 = initial.opFixedStruct(p1, out p3);
@@ -951,8 +910,8 @@ namespace Ice
                     var result = await initial.opFixedStructAsync(p1);
                     test(result.returnValue.Value.m == 56 && result.p3.Value.m == 56);
 
-                    p2 = initial.opFixedStruct(new Optional<Test.FixedStruct>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opFixedStruct(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
@@ -981,32 +940,26 @@ namespace Ice
                 }
 
                 {
-                    Optional<Test.VarStruct> p1 = new Optional<Test.VarStruct>();
-                    Optional<Test.VarStruct> p3;
-                    Optional<Test.VarStruct> p2 = initial.opVarStruct(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opVarStruct(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    Test.VarStruct p1 = null;
+                    Test.VarStruct p3;
+                    Test.VarStruct p2 = initial.opVarStruct(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = new Test.VarStruct("test");
                     p2 = initial.opVarStruct(p1, out p3);
-                    test(p2.Value.m == "test" && p3.Value.m == "test");
-
-                    // Test null struct
-                    p2 = initial.opVarStruct((Test.VarStruct)null, out p3);
-                    test(p2.Value.m.Length == 0 && p3.Value.m.Length == 0);
+                    test(p2.m == "test" && p3.m == "test");
 
                     var result = await initial.opVarStructAsync(p1);
-                    test(result.returnValue.Value.m == "test" && result.p3.Value.m == "test");
+                    test(result.returnValue.m == "test" && result.p3.m == "test");
 
-                    p2 = initial.opVarStruct(new Optional<Test.VarStruct>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opVarStruct(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
                     os.writeOptional(2, OptionalFormat.FSize);
                     int pos = os.startSize();
-                    p1.Value.ice_writeMembers(os);
+                    p1.ice_writeMembers(os);
                     os.endSize(pos);
                     os.endEncapsulation();
                     inEncaps = os.finished();
@@ -1030,86 +983,29 @@ namespace Ice
                 }
 
                 {
-                    Optional<Test.OneOptional> p1 = new Optional<Test.OneOptional>();
-                    Optional<Test.OneOptional> p3;
-                    Optional<Test.OneOptional> p2 = initial.opOneOptional(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opOneOptional(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    if (initial.supportsNullOptional())
-                    {
-                        p2 = initial.opOneOptional(null, out p3); // Implicitly converts to Optional<OneOptional>(null)
-                        test(p2.HasValue && p2.Value == null && p3.HasValue && p3.Value == null);
-
-                        p2 = initial.opOneOptional(new Optional<Test.OneOptional>((Test.OneOptional)null), out p3);
-                        test(p2.HasValue && p3.HasValue && p2.Value == null && p3.Value == null);
-                    }
-
-                    p1 = new Test.OneOptional(58);
-                    p2 = initial.opOneOptional(p1, out p3);
-                    test(p2.Value.a.Value == 58 && p3.Value.a.Value == 58);
-
-                    var result = await initial.opOneOptionalAsync(p1);
-                    test(result.returnValue.Value.a.Value == 58 && result.p3.Value.a.Value == 58);
-
-                    p2 = initial.opOneOptional(new Optional<Test.OneOptional>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
-
-                    os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.Class);
-                    os.writeValue(p1.Value);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
-                    initial.ice_invoke("opOneOptional", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.Class));
-                    ReadValueCallbackI p2cb = new ReadValueCallbackI();
-                    @in.readValue(p2cb.invoke);
-                    test(@in.readOptional(3, OptionalFormat.Class));
-                    ReadValueCallbackI p3cb = new ReadValueCallbackI();
-                    @in.readValue(p3cb.invoke);
-                    @in.endEncapsulation();
-                    test(((Test.OneOptional)p2cb.obj).a.Value == 58 && ((Test.OneOptional)p3cb.obj).a.Value == 58);
-
-                    @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
-                }
-
-                {
-                    Ice.Optional<Test.MyInterfacePrx> p1 = new Ice.Optional<Test.MyInterfacePrx>();
-                    Ice.Optional<Test.MyInterfacePrx> p3;
-                    Ice.Optional<Test.MyInterfacePrx> p2 = initial.opMyInterfaceProxy(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    Test.MyInterfacePrx p1 = null;
+                    Test.MyInterfacePrx p3;
+                    Test.MyInterfacePrx p2 = initial.opMyInterfaceProxy(p1, out p3);
+                    test(p2 is null && p3 is null);
                     p2 = initial.opMyInterfaceProxy(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opMyInterfaceProxy(Ice.Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    if (initial.supportsNullOptional())
-                    {
-                        p2 = initial.opMyInterfaceProxy(null, out p3);
-                        test(p2.HasValue && p3.HasValue && p2.Value == null && p3.Value == null);
-                    }
+                    test(p2 is null && p3 is null);
 
-                    p1 = new Ice.Optional<Test.MyInterfacePrx>(
-                        Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test")));
+                    p1 = Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test"));
                     p2 = initial.opMyInterfaceProxy(p1, out p3);
-                    test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
+                    test(p2.Equals(p1) && p3.Equals(p1));
 
                     var result = await initial.opMyInterfaceProxyAsync(p1);
-                    test(result.returnValue.Value.Equals(p1.Value) && result.p3.Value.Equals(p1.Value));
+                    test(result.returnValue.Equals(p1) && result.p3.Equals(p1));
                     p2 = initial.opMyInterfaceProxy(p1, out p3);
-                    test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
+                    test(p2.Equals(p1) && p3.Equals(p1));
                     result = await initial.opMyInterfaceProxyAsync(p1);
-                    test(result.returnValue.Value.Equals(p1.Value) && result.p3.Value.Equals(p1.Value));
+                    test(result.returnValue.Equals(p1) && result.p3.Equals(p1));
 
                     os = new Ice.OutputStream(communicator);
                     os.startEncapsulation();
                     os.writeOptional(2, Ice.OptionalFormat.FSize);
                     int pos = os.startSize();
-                    os.writeProxy(p1.Value);
+                    os.writeProxy(p1);
                     os.endSize(pos);
                     os.endEncapsulation();
                     inEncaps = os.finished();
@@ -1118,10 +1014,10 @@ namespace Ice
                     @in.startEncapsulation();
                     test(@in.readOptional(1, Ice.OptionalFormat.FSize));
                     @in.skip(4);
-                    test(@in.readProxy().Equals(p1.Value));
+                    test(@in.readProxy().Equals(p1));
                     test(@in.readOptional(3, Ice.OptionalFormat.FSize));
                     @in.skip(4);
-                    test(@in.readProxy().Equals(p1.Value));
+                    test(@in.readProxy().Equals(p1));
                     @in.endEncapsulation();
 
                     @in = new Ice.InputStream(communicator, outEncaps);
@@ -1130,39 +1026,35 @@ namespace Ice
                 }
 
                 {
-                    Optional<byte[]> p1 = new Optional<byte[]>();
-                    Optional<byte[]> p3;
-                    Optional<byte[]> p2 = initial.opByteSeq(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opByteSeq(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opByteSeq(null, out p3);
-                    test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
+                    byte[] p1 = null;
+                    byte[] p3;
+                    byte[] p2 = initial.opByteSeq(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = new byte[100];
-                    Populate(p1.Value, (byte)56);
+                    Populate(p1, (byte)56);
                     p2 = initial.opByteSeq(p1, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
+                    test(ArraysEqual(p2, p1) && ArraysEqual(p3, p1));
 
                     var result = await initial.opByteSeqAsync(p1);
-                    test(ArraysEqual(result.returnValue.Value, p1.Value) && ArraysEqual(result.p3.Value, p1.Value));
+                    test(ArraysEqual(result.returnValue, p1) && ArraysEqual(result.p3, p1));
 
-                    p2 = initial.opByteSeq(new Optional<byte[]>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opByteSeq(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
                     os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeByteSeq(p1.Value);
+                    os.writeByteSeq(p1);
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opByteSeq", OperationMode.Normal, inEncaps, out outEncaps);
                     @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
-                    test(ArraysEqual(@in.readByteSeq(), p1.Value));
+                    test(ArraysEqual(@in.readByteSeq(), p1));
                     test(@in.readOptional(3, OptionalFormat.VSize));
-                    test(ArraysEqual(@in.readByteSeq(), p1.Value));
+                    test(ArraysEqual(@in.readByteSeq(), p1));
                     @in.endEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
@@ -1171,39 +1063,35 @@ namespace Ice
                 }
 
                 {
-                    Optional<bool[]> p1 = new Optional<bool[]>();
-                    Optional<bool[]> p3;
-                    Optional<bool[]> p2 = initial.opBoolSeq(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opBoolSeq(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opBoolSeq(null, out p3);
-                    test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
+                    bool[] p1 = null;
+                    bool[] p3;
+                    bool[] p2 = initial.opBoolSeq(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = new bool[100];
-                    Populate(p1.Value, true);
+                    Populate(p1, true);
                     p2 = initial.opBoolSeq(p1, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
+                    test(ArraysEqual(p2, p1) && ArraysEqual(p3, p1));
 
                     var result = await initial.opBoolSeqAsync(p1);
-                    test(ArraysEqual(result.returnValue.Value, p1.Value) && ArraysEqual(result.p3.Value, p1.Value));
+                    test(ArraysEqual(result.returnValue, p1) && ArraysEqual(result.p3, p1));
 
-                    p2 = initial.opBoolSeq(new Optional<bool[]>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opBoolSeq(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
                     os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeBoolSeq(p1.Value);
+                    os.writeBoolSeq(p1);
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opBoolSeq", OperationMode.Normal, inEncaps, out outEncaps);
                     @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
-                    test(ArraysEqual(@in.readBoolSeq(), p1.Value));
+                    test(ArraysEqual(@in.readBoolSeq(), p1));
                     test(@in.readOptional(3, OptionalFormat.VSize));
-                    test(ArraysEqual(@in.readBoolSeq(), p1.Value));
+                    test(ArraysEqual(@in.readBoolSeq(), p1));
                     @in.endEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
@@ -1212,34 +1100,28 @@ namespace Ice
                 }
 
                 {
-                    Optional<short[]> p1 = new Optional<short[]>();
-                    Optional<short[]> p3;
+                    short[] p1 = null;
+                    short[] p3;
 
-                    Optional<short[]> p2 = initial.opShortSeq(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opShortSeq(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opShortSeq(null, out p3);
-                    test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
+                    short[] p2 = initial.opShortSeq(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = new short[100];
-                    Populate(p1.Value, (short)56);
+                    Populate(p1, (short)56);
                     p2 = initial.opShortSeq(p1, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
+                    test(ArraysEqual(p2, p1) && ArraysEqual(p3, p1));
 
                     var result = await initial.opShortSeqAsync(p1);
-                    test(ArraysEqual(result.returnValue.Value, p1.Value) && ArraysEqual(result.p3.Value, p1.Value));
+                    test(ArraysEqual(result.returnValue, p1) && ArraysEqual(result.p3, p1));
 
-                    p2 = initial.opShortSeq(new Optional<short[]>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opShortSeq(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
                     os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeSize(p1.Value.Length * 2 + (p1.Value.Length > 254 ? 5 : 1));
-                    os.writeShortSeq(p1.Value);
+                    os.writeSize(p1.Length * 2 + (p1.Length > 254 ? 5 : 1));
+                    os.writeShortSeq(p1);
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opShortSeq", OperationMode.Normal, inEncaps, out outEncaps);
@@ -1247,10 +1129,10 @@ namespace Ice
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
-                    test(ArraysEqual(@in.readShortSeq(), p1.Value));
+                    test(ArraysEqual(@in.readShortSeq(), p1));
                     test(@in.readOptional(3, OptionalFormat.VSize));
                     @in.skipSize();
-                    test(ArraysEqual(@in.readShortSeq(), p1.Value));
+                    test(ArraysEqual(@in.readShortSeq(), p1));
                     @in.endEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
@@ -1259,34 +1141,28 @@ namespace Ice
                 }
 
                 {
-                    Optional<int[]> p1 = new Optional<int[]>();
-                    Optional<int[]> p3;
+                    int[] p1 = null;
+                    int[] p3;
 
-                    Optional<int[]> p2 = initial.opIntSeq(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opIntSeq(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opIntSeq(null, out p3);
-                    test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
+                    int[] p2 = initial.opIntSeq(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = new int[100];
-                    Populate(p1.Value, 56);
+                    Populate(p1, 56);
                     p2 = initial.opIntSeq(p1, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
+                    test(ArraysEqual(p2, p1) && ArraysEqual(p3, p1));
 
                     var result = await initial.opIntSeqAsync(p1);
-                    test(ArraysEqual(result.returnValue.Value, p1.Value) && ArraysEqual(result.p3.Value, p1.Value));
+                    test(ArraysEqual(result.returnValue, p1) && ArraysEqual(result.p3, p1));
 
-                    p2 = initial.opIntSeq(new Optional<int[]>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opIntSeq(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
                     os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeSize(p1.Value.Length * 4 + (p1.Value.Length > 254 ? 5 : 1));
-                    os.writeIntSeq(p1.Value);
+                    os.writeSize(p1.Length * 4 + (p1.Length > 254 ? 5 : 1));
+                    os.writeIntSeq(p1);
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opIntSeq", OperationMode.Normal, inEncaps, out outEncaps);
@@ -1294,10 +1170,10 @@ namespace Ice
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
-                    test(ArraysEqual(@in.readIntSeq(), p1.Value));
+                    test(ArraysEqual(@in.readIntSeq(), p1));
                     test(@in.readOptional(3, OptionalFormat.VSize));
                     @in.skipSize();
-                    test(ArraysEqual(@in.readIntSeq(), p1.Value));
+                    test(ArraysEqual(@in.readIntSeq(), p1));
                     @in.endEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
@@ -1306,34 +1182,28 @@ namespace Ice
                 }
 
                 {
-                    Optional<long[]> p1 = new Optional<long[]>();
-                    Optional<long[]> p3;
+                    long[] p1 = null;
+                    long[] p3;
 
-                    Optional<long[]> p2 = initial.opLongSeq(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opLongSeq(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opLongSeq(null, out p3);
-                    test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
+                    long[] p2 = initial.opLongSeq(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = new long[100];
-                    Populate(p1.Value, 56);
+                    Populate(p1, 56);
                     p2 = initial.opLongSeq(p1, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
+                    test(ArraysEqual(p2, p1) && ArraysEqual(p3, p1));
 
                     var result = await initial.opLongSeqAsync(p1);
-                    test(ArraysEqual(result.returnValue.Value, p1.Value) && ArraysEqual(result.p3.Value, p1.Value));
+                    test(ArraysEqual(result.returnValue, p1) && ArraysEqual(result.p3, p1));
 
-                    p2 = initial.opLongSeq(new Optional<long[]>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opLongSeq(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
                     os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeSize(p1.Value.Length * 8 + (p1.Value.Length > 254 ? 5 : 1));
-                    os.writeLongSeq(p1.Value);
+                    os.writeSize(p1.Length * 8 + (p1.Length > 254 ? 5 : 1));
+                    os.writeLongSeq(p1);
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opLongSeq", OperationMode.Normal, inEncaps, out outEncaps);
@@ -1341,10 +1211,10 @@ namespace Ice
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
-                    test(ArraysEqual(@in.readLongSeq(), p1.Value));
+                    test(ArraysEqual(@in.readLongSeq(), p1));
                     test(@in.readOptional(3, OptionalFormat.VSize));
                     @in.skipSize();
-                    test(ArraysEqual(@in.readLongSeq(), p1.Value));
+                    test(ArraysEqual(@in.readLongSeq(), p1));
                     @in.endEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
@@ -1353,34 +1223,28 @@ namespace Ice
                 }
 
                 {
-                    Optional<float[]> p1 = new Optional<float[]>();
-                    Optional<float[]> p3;
+                    float[] p1 = null;
+                    float[] p3;
 
-                    Optional<float[]> p2 = initial.opFloatSeq(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opFloatSeq(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opFloatSeq(null, out p3);
-                    test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
+                    float[] p2 = initial.opFloatSeq(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = new float[100];
-                    Populate(p1.Value, (float)1.0);
+                    Populate(p1, (float)1.0);
                     p2 = initial.opFloatSeq(p1, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
+                    test(ArraysEqual(p2, p1) && ArraysEqual(p3, p1));
 
                     var result = await initial.opFloatSeqAsync(p1);
-                    test(ArraysEqual(result.returnValue.Value, p1.Value) && ArraysEqual(result.p3.Value, p1.Value));
+                    test(ArraysEqual(result.returnValue, p1) && ArraysEqual(result.p3, p1));
 
-                    p2 = initial.opFloatSeq(new Optional<float[]>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opFloatSeq(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
                     os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeSize(p1.Value.Length * 4 + (p1.Value.Length > 254 ? 5 : 1));
-                    os.writeFloatSeq(p1.Value);
+                    os.writeSize(p1.Length * 4 + (p1.Length > 254 ? 5 : 1));
+                    os.writeFloatSeq(p1);
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opFloatSeq", OperationMode.Normal, inEncaps, out outEncaps);
@@ -1388,10 +1252,10 @@ namespace Ice
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
-                    test(ArraysEqual(@in.readFloatSeq(), p1.Value));
+                    test(ArraysEqual(@in.readFloatSeq(), p1));
                     test(@in.readOptional(3, OptionalFormat.VSize));
                     @in.skipSize();
-                    test(ArraysEqual(@in.readFloatSeq(), p1.Value));
+                    test(ArraysEqual(@in.readFloatSeq(), p1));
                     @in.endEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
@@ -1400,31 +1264,27 @@ namespace Ice
                 }
 
                 {
-                    Optional<double[]> p1 = new Optional<double[]>();
-                    Optional<double[]> p3;
-                    Optional<double[]> p2 = initial.opDoubleSeq(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opDoubleSeq(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opDoubleSeq(null, out p3);
-                    test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
+                    double[] p1 = null;
+                    double[] p3;
+                    double[] p2 = initial.opDoubleSeq(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = new double[100];
-                    Populate(p1.Value, 1.0);
+                    Populate(p1, 1.0);
                     p2 = initial.opDoubleSeq(p1, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
+                    test(ArraysEqual(p2, p1) && ArraysEqual(p3, p1));
 
                     var result = await initial.opDoubleSeqAsync(p1);
-                    test(ArraysEqual(result.returnValue.Value, p1.Value) && ArraysEqual(result.p3.Value, p1.Value));
+                    test(ArraysEqual(result.returnValue, p1) && ArraysEqual(result.p3, p1));
 
-                    p2 = initial.opDoubleSeq(new Optional<double[]>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opDoubleSeq(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
                     os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeSize(p1.Value.Length * 8 + (p1.Value.Length > 254 ? 5 : 1));
-                    os.writeDoubleSeq(p1.Value);
+                    os.writeSize(p1.Length * 8 + (p1.Length > 254 ? 5 : 1));
+                    os.writeDoubleSeq(p1);
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opDoubleSeq", OperationMode.Normal, inEncaps, out outEncaps);
@@ -1432,10 +1292,10 @@ namespace Ice
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
-                    test(ArraysEqual(@in.readDoubleSeq(), p1.Value));
+                    test(ArraysEqual(@in.readDoubleSeq(), p1));
                     test(@in.readOptional(3, OptionalFormat.VSize));
                     @in.skipSize();
-                    test(ArraysEqual(@in.readDoubleSeq(), p1.Value));
+                    test(ArraysEqual(@in.readDoubleSeq(), p1));
                     @in.endEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
@@ -1444,34 +1304,28 @@ namespace Ice
                 }
 
                 {
-                    var p1 = new Optional<string[]>();
-                    Optional<string[]> p3;
+                    string[] p1 = null;
+                    string[] p3;
 
-                    Optional<string[]> p2 = initial.opStringSeq(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opStringSeq(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opStringSeq(null, out p3);
-                    test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
+                    string[] p2 = initial.opStringSeq(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = new string[10];
-                    Populate(p1.Value, "test1");
+                    Populate(p1, "test1");
                     p2 = initial.opStringSeq(p1, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
+                    test(ArraysEqual(p2, p1) && ArraysEqual(p3, p1));
 
                     var result = await initial.opStringSeqAsync(p1);
-                    test(ArraysEqual(result.returnValue.Value, p1.Value) && ArraysEqual(result.p3.Value, p1.Value));
+                    test(ArraysEqual(result.returnValue, p1) && ArraysEqual(result.p3, p1));
 
-                    p2 = initial.opStringSeq(new Optional<string[]>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opStringSeq(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
                     os.writeOptional(2, OptionalFormat.FSize);
                     int pos = os.startSize();
-                    os.writeStringSeq(p1.Value);
+                    os.writeStringSeq(p1);
                     os.endSize(pos);
                     os.endEncapsulation();
                     inEncaps = os.finished();
@@ -1480,10 +1334,10 @@ namespace Ice
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.FSize));
                     @in.skip(4);
-                    test(ArraysEqual(@in.readStringSeq(), p1.Value));
+                    test(ArraysEqual(@in.readStringSeq(), p1));
                     test(@in.readOptional(3, OptionalFormat.FSize));
                     @in.skip(4);
-                    test(ArraysEqual(@in.readStringSeq(), p1.Value));
+                    test(ArraysEqual(@in.readStringSeq(), p1));
                     @in.endEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
@@ -1492,36 +1346,30 @@ namespace Ice
                 }
 
                 {
-                    var p1 = new Optional<Test.SmallStruct[]>();
-                    Optional<Test.SmallStruct[]> p3;
+                    Test.SmallStruct[] p1 = null;
+                    Test.SmallStruct[] p3;
 
-                    Optional<Test.SmallStruct[]> p2 = initial.opSmallStructSeq(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opSmallStructSeq(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opSmallStructSeq(null, out p3);
-                    test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
+                    Test.SmallStruct[] p2 = initial.opSmallStructSeq(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = new Test.SmallStruct[10];
-                    for (int i = 0; i < p1.Value.Length; ++i)
+                    for (int i = 0; i < p1.Length; ++i)
                     {
-                        p1.Value[i] = new Test.SmallStruct();
+                        p1[i] = new Test.SmallStruct();
                     }
                     p2 = initial.opSmallStructSeq(p1, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
+                    test(ArraysEqual(p2, p1) && ArraysEqual(p3, p1));
 
                     var result = await initial.opSmallStructSeqAsync(p1);
-                    test(ArraysEqual(result.returnValue.Value, p1.Value) && ArraysEqual(result.p3.Value, p1.Value));
+                    test(ArraysEqual(result.returnValue, p1) && ArraysEqual(result.p3, p1));
 
-                    p2 = initial.opSmallStructSeq(new Optional<Test.SmallStruct[]>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opSmallStructSeq(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
                     os.writeOptional(2, OptionalFormat.VSize);
-                    Test.SmallStructSeqHelper.write(os, p1.Value);
+                    Test.SmallStructSeqHelper.write(os, p1);
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opSmallStructSeq", OperationMode.Normal, inEncaps, out outEncaps);
@@ -1529,10 +1377,10 @@ namespace Ice
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     Test.SmallStruct[] arr = Test.SmallStructSeqHelper.read(@in);
-                    test(ArraysEqual(arr, p1.Value));
+                    test(ArraysEqual(arr, p1));
                     test(@in.readOptional(3, OptionalFormat.VSize));
                     arr = Test.SmallStructSeqHelper.read(@in);
-                    test(ArraysEqual(arr, p1.Value));
+                    test(ArraysEqual(arr, p1));
                     @in.endEncapsulation();
 
                     // Check the outEncaps size matches the expected size, 6 bytes for the encapsulation, plus each
@@ -1545,37 +1393,31 @@ namespace Ice
                 }
 
                 {
-                    var p1 = new Optional<List<Test.SmallStruct>>();
-                    Optional<List<Test.SmallStruct>> p3;
+                    List<Test.SmallStruct> p1 = null;
+                    List<Test.SmallStruct> p3;
 
-                    Optional<List<Test.SmallStruct>> p2 = initial.opSmallStructList(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opSmallStructList(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opSmallStructList(null, out p3);
-                    test(p2.HasValue && p2.Value.Count == 0 && p3.HasValue && p3.Value.Count == 0);
+                    List<Test.SmallStruct> p2 = initial.opSmallStructList(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = new List<Test.SmallStruct>();
                     for (int i = 0; i < 10; ++i)
                     {
-                        p1.Value.Add(new Test.SmallStruct());
+                        p1.Add(new Test.SmallStruct());
                     }
                     p2 = initial.opSmallStructList(p1, out p3);
-                    test(ListsEqual(p2.Value, p1.Value));
+                    test(ListsEqual(p2, p1));
 
                     var result = await initial.opSmallStructListAsync(p1);
-                    test(ListsEqual(result.returnValue.Value, p1.Value) && ListsEqual(result.p3.Value, p1.Value));
+                    test(ListsEqual(result.returnValue, p1) && ListsEqual(result.p3, p1));
 
-                    p2 = initial.opSmallStructList(new Optional<List<Test.SmallStruct>>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opSmallStructList(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
                     os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeSize(p1.Value.Count + (p1.Value.Count > 254 ? 5 : 1));
-                    Test.SmallStructListHelper.write(os, p1.Value);
+                    os.writeSize(p1.Count + (p1.Count > 254 ? 5 : 1));
+                    Test.SmallStructListHelper.write(os, p1);
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opSmallStructList", OperationMode.Normal, inEncaps, out outEncaps);
@@ -1584,11 +1426,11 @@ namespace Ice
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
                     List<Test.SmallStruct> arr = Test.SmallStructListHelper.read(@in);
-                    test(ListsEqual(arr, p1.Value));
+                    test(ListsEqual(arr, p1));
                     test(@in.readOptional(3, OptionalFormat.VSize));
                     @in.skipSize();
                     arr = Test.SmallStructListHelper.read(@in);
-                    test(ListsEqual(arr, p1.Value));
+                    test(ListsEqual(arr, p1));
                     @in.endEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
@@ -1597,37 +1439,31 @@ namespace Ice
                 }
 
                 {
-                    var p1 = new Optional<Test.FixedStruct[]>();
-                    Optional<Test.FixedStruct[]> p3;
+                    Test.FixedStruct[] p1 = null;
+                    Test.FixedStruct[] p3;
 
-                    Optional<Test.FixedStruct[]> p2 = initial.opFixedStructSeq(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opFixedStructSeq(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opFixedStructSeq(null, out p3);
-                    test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
+                    Test.FixedStruct[] p2 = initial.opFixedStructSeq(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = new Test.FixedStruct[10];
-                    for (int i = 0; i < p1.Value.Length; ++i)
+                    for (int i = 0; i < p1.Length; ++i)
                     {
-                        p1.Value[i] = new Test.FixedStruct();
+                        p1[i] = new Test.FixedStruct();
                     }
                     p2 = initial.opFixedStructSeq(p1, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
+                    test(ArraysEqual(p2, p1) && ArraysEqual(p3, p1));
 
                     var result = await initial.opFixedStructSeqAsync(p1);
-                    test(ArraysEqual(result.returnValue.Value, p1.Value) && ArraysEqual(result.p3.Value, p1.Value));
+                    test(ArraysEqual(result.returnValue, p1) && ArraysEqual(result.p3, p1));
 
-                    p2 = initial.opFixedStructSeq(new Optional<Test.FixedStruct[]>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opFixedStructSeq(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
                     os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeSize(p1.Value.Length * 4 + (p1.Value.Length > 254 ? 5 : 1));
-                    Test.FixedStructSeqHelper.write(os, p1.Value);
+                    os.writeSize(p1.Length * 4 + (p1.Length > 254 ? 5 : 1));
+                    Test.FixedStructSeqHelper.write(os, p1);
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opFixedStructSeq", OperationMode.Normal, inEncaps, out outEncaps);
@@ -1636,11 +1472,11 @@ namespace Ice
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
                     Test.FixedStruct[] arr = Test.FixedStructSeqHelper.read(@in);
-                    test(ArraysEqual(arr, p1.Value));
+                    test(ArraysEqual(arr, p1));
                     test(@in.readOptional(3, OptionalFormat.VSize));
                     @in.skipSize();
                     arr = Test.FixedStructSeqHelper.read(@in);
-                    test(ArraysEqual(arr, p1.Value));
+                    test(ArraysEqual(arr, p1));
                     @in.endEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
@@ -1649,37 +1485,31 @@ namespace Ice
                 }
 
                 {
-                    var p1 = new Optional<LinkedList<Test.FixedStruct>>();
-                    Optional<LinkedList<Test.FixedStruct>> p3;
+                    LinkedList<Test.FixedStruct> p1 = null;
+                    LinkedList<Test.FixedStruct> p3;
 
-                    Optional<LinkedList<Test.FixedStruct>> p2 = initial.opFixedStructList(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opFixedStructList(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opFixedStructList(null, out p3);
-                    test(p2.HasValue && p2.Value.Count == 0 && p3.HasValue && p3.Value.Count == 0);
+                    LinkedList<Test.FixedStruct> p2 = initial.opFixedStructList(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = new LinkedList<Test.FixedStruct>();
                     for (int i = 0; i < 10; ++i)
                     {
-                        p1.Value.AddLast(new Test.FixedStruct());
+                        p1.AddLast(new Test.FixedStruct());
                     }
                     p2 = initial.opFixedStructList(p1, out p3);
-                    test(ListsEqual(p2.Value, p1.Value) && ListsEqual(p3.Value, p1.Value));
+                    test(ListsEqual(p2, p1) && ListsEqual(p3, p1));
 
                     var result = await initial.opFixedStructListAsync(p1);
-                    test(ListsEqual(result.returnValue.Value, p1.Value) && ListsEqual(result.p3.Value, p1.Value));
+                    test(ListsEqual(result.returnValue, p1) && ListsEqual(result.p3, p1));
 
-                    p2 = initial.opFixedStructList(new Optional<LinkedList<Test.FixedStruct>>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opFixedStructList(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
                     os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeSize(p1.Value.Count * 4 + (p1.Value.Count > 254 ? 5 : 1));
-                    Test.FixedStructListHelper.write(os, p1.Value);
+                    os.writeSize(p1.Count * 4 + (p1.Count > 254 ? 5 : 1));
+                    Test.FixedStructListHelper.write(os, p1);
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opFixedStructList", OperationMode.Normal, inEncaps, out outEncaps);
@@ -1688,11 +1518,11 @@ namespace Ice
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
                     LinkedList<Test.FixedStruct> arr = Test.FixedStructListHelper.read(@in);
-                    test(ListsEqual(arr, p1.Value));
+                    test(ListsEqual(arr, p1));
                     test(@in.readOptional(3, OptionalFormat.VSize));
                     @in.skipSize();
                     arr = Test.FixedStructListHelper.read(@in);
-                    test(ListsEqual(arr, p1.Value));
+                    test(ListsEqual(arr, p1));
                     @in.endEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
@@ -1701,37 +1531,31 @@ namespace Ice
                 }
 
                 {
-                    var p1 = new Optional<Test.VarStruct[]>();
-                    Optional<Test.VarStruct[]> p3;
+                    Test.VarStruct[] p1 = null;
+                    Test.VarStruct[] p3;
 
-                    Optional<Test.VarStruct[]> p2 = initial.opVarStructSeq(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opVarStructSeq(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opVarStructSeq(null, out p3);
-                    test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
+                    Test.VarStruct[] p2 = initial.opVarStructSeq(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = new Test.VarStruct[10];
-                    for (int i = 0; i < p1.Value.Length; ++i)
+                    for (int i = 0; i < p1.Length; ++i)
                     {
-                        p1.Value[i] = new Test.VarStruct("");
+                        p1[i] = new Test.VarStruct("");
                     }
                     p2 = initial.opVarStructSeq(p1, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
+                    test(ArraysEqual(p2, p1) && ArraysEqual(p3, p1));
 
                     var result = await initial.opVarStructSeqAsync(p1);
-                    test(ArraysEqual(result.returnValue.Value, p1.Value) && ArraysEqual(result.p3.Value, p1.Value));
+                    test(ArraysEqual(result.returnValue, p1) && ArraysEqual(result.p3, p1));
 
-                    p2 = initial.opVarStructSeq(new Optional<Test.VarStruct[]>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opVarStructSeq(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
                     os.writeOptional(2, OptionalFormat.FSize);
                     int pos = os.startSize();
-                    Test.VarStructSeqHelper.write(os, p1.Value);
+                    Test.VarStructSeqHelper.write(os, p1);
                     os.endSize(pos);
                     os.endEncapsulation();
                     inEncaps = os.finished();
@@ -1741,11 +1565,11 @@ namespace Ice
                     test(@in.readOptional(1, OptionalFormat.FSize));
                     @in.skip(4);
                     Test.VarStruct[] arr = Test.VarStructSeqHelper.read(@in);
-                    test(ArraysEqual(arr, p1.Value));
+                    test(ArraysEqual(arr, p1));
                     test(@in.readOptional(3, OptionalFormat.FSize));
                     @in.skip(4);
                     arr = Test.VarStructSeqHelper.read(@in);
-                    test(ArraysEqual(arr, p1.Value));
+                    test(ArraysEqual(arr, p1));
                     @in.endEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
@@ -1754,35 +1578,29 @@ namespace Ice
                 }
 
                 {
-                    var p1 = new Optional<Dictionary<int, int>>();
-                    Optional<Dictionary<int, int>> p3;
+                    Dictionary<int, int> p1 = null;
+                    Dictionary<int, int> p3;
 
-                    Optional<Dictionary<int, int>> p2 = initial.opIntIntDict(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opIntIntDict(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opIntIntDict(null, out p3);
-                    test(p2.HasValue && p2.Value.Count == 0 && p3.HasValue && p3.Value.Count == 0);
+                    Dictionary<int, int> p2 = initial.opIntIntDict(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = new Dictionary<int, int>();
-                    p1.Value.Add(1, 2);
-                    p1.Value.Add(2, 3);
+                    p1.Add(1, 2);
+                    p1.Add(2, 3);
                     p2 = initial.opIntIntDict(p1, out p3);
-                    test(MapsEqual(p2.Value, p1.Value) && MapsEqual(p3.Value, p1.Value));
+                    test(MapsEqual(p2, p1) && MapsEqual(p3, p1));
 
                     var result = await initial.opIntIntDictAsync(p1);
-                    test(MapsEqual(result.returnValue.Value, p1.Value) && MapsEqual(p3.Value, p1.Value));
+                    test(MapsEqual(result.returnValue, p1) && MapsEqual(p3, p1));
 
-                    p2 = initial.opIntIntDict(new Optional<Dictionary<int, int>>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opIntIntDict(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
                     os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeSize(p1.Value.Count * 8 + (p1.Value.Count > 254 ? 5 : 1));
-                    Test.IntIntDictHelper.write(os, p1.Value);
+                    os.writeSize(p1.Count * 8 + (p1.Count > 254 ? 5 : 1));
+                    Test.IntIntDictHelper.write(os, p1);
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opIntIntDict", OperationMode.Normal, inEncaps, out outEncaps);
@@ -1791,11 +1609,11 @@ namespace Ice
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
                     Dictionary<int, int> m = Test.IntIntDictHelper.read(@in);
-                    test(MapsEqual(m, p1.Value));
+                    test(MapsEqual(m, p1));
                     test(@in.readOptional(3, OptionalFormat.VSize));
                     @in.skipSize();
                     m = Test.IntIntDictHelper.read(@in);
-                    test(MapsEqual(m, p1.Value));
+                    test(MapsEqual(m, p1));
                     @in.endEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
@@ -1804,35 +1622,29 @@ namespace Ice
                 }
 
                 {
-                    var p1 = new Optional<Dictionary<string, int>>();
-                    Optional<Dictionary<string, int>> p3;
+                    Dictionary<string, int> p1 = null;
+                    Dictionary<string, int> p3;
 
-                    Optional<Dictionary<string, int>> p2 = initial.opStringIntDict(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opStringIntDict(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opStringIntDict(null, out p3);
-                    test(p2.HasValue && p2.Value.Count == 0 && p3.HasValue && p3.Value.Count == 0);
+                    Dictionary<string, int> p2 = initial.opStringIntDict(p1, out p3);
+                    test(p2 is null && p3 is null);
 
                     p1 = new Dictionary<string, int>();
-                    p1.Value.Add("1", 1);
-                    p1.Value.Add("2", 2);
+                    p1.Add("1", 1);
+                    p1.Add("2", 2);
                     p2 = initial.opStringIntDict(p1, out p3);
-                    test(MapsEqual(p2.Value, p1.Value) && MapsEqual(p3.Value, p1.Value));
+                    test(MapsEqual(p2, p1) && MapsEqual(p3, p1));
 
                     var result = await initial.opStringIntDictAsync(p1);
-                    test(MapsEqual(result.returnValue.Value, p1.Value) && MapsEqual(result.p3.Value, p1.Value));
+                    test(MapsEqual(result.returnValue, p1) && MapsEqual(result.p3, p1));
 
-                    p2 = initial.opStringIntDict(new Optional<Dictionary<string, int>>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opStringIntDict(null, out p3);
+                    test(p2 is null && p3 is null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
                     os.writeOptional(2, OptionalFormat.FSize);
                     int pos = os.startSize();
-                    Test.StringIntDictHelper.write(os, p1.Value);
+                    Test.StringIntDictHelper.write(os, p1);
                     os.endSize(pos);
                     os.endEncapsulation();
                     inEncaps = os.finished();
@@ -1842,11 +1654,11 @@ namespace Ice
                     test(@in.readOptional(1, OptionalFormat.FSize));
                     @in.skip(4);
                     Dictionary<string, int> m = Test.StringIntDictHelper.read(@in);
-                    test(MapsEqual(m, p1.Value));
+                    test(MapsEqual(m, p1));
                     test(@in.readOptional(3, OptionalFormat.FSize));
                     @in.skip(4);
                     m = Test.StringIntDictHelper.read(@in);
-                    test(MapsEqual(m, p1.Value));
+                    test(MapsEqual(m, p1));
                     @in.endEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
@@ -1873,59 +1685,9 @@ namespace Ice
                     @in.skipSize();
                     Test.FixedStruct fs1 = Test.FixedStruct.ice_read(@in);
                     @in.endEncapsulation();
-                    test(fs1 != null && fs1.m == 56);
+                    test(fs1.m == 56);
                 }
 
-                {
-                    var p1 = new Optional<Dictionary<int, Test.OneOptional>>();
-                    Optional<Dictionary<int, Test.OneOptional>> p3;
-
-                    Optional<Dictionary<int, Test.OneOptional>> p2 = initial.opIntOneOptionalDict(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opIntOneOptionalDict(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p2 = initial.opIntOneOptionalDict(null, out p3);
-                    test(p2.HasValue && p2.Value.Count == 0 && p3.HasValue && p3.Value.Count == 0);
-
-                    p1 = new Dictionary<int, Test.OneOptional>();
-                    p1.Value.Add(1, new Test.OneOptional(58));
-                    p1.Value.Add(2, new Test.OneOptional(59));
-                    p2 = initial.opIntOneOptionalDict(p1, out p3);
-                    test(p2.Value[1].a.Value == 58 && p3.Value[1].a.Value == 58);
-
-                    var result = await initial.opIntOneOptionalDictAsync(p1);
-                    test(result.returnValue.Value[1].a.Value == 58 && result.p3.Value[1].a.Value == 58);
-
-                    p2 = initial.opIntOneOptionalDict(new Optional<Dictionary<int, Test.OneOptional>>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
-
-                    os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.FSize);
-                    int pos = os.startSize();
-                    Test.IntOneOptionalDictHelper.write(os, p1.Value);
-                    os.endSize(pos);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
-                    initial.ice_invoke("opIntOneOptionalDict", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.FSize));
-                    @in.skip(4);
-                    Dictionary<int, Test.OneOptional> m = Test.IntOneOptionalDictHelper.read(@in);
-                    test(m[1].a.Value == 58);
-                    test(@in.readOptional(3, OptionalFormat.FSize));
-                    @in.skip(4);
-                    m = Test.IntOneOptionalDictHelper.read(@in);
-                    test(m[1].a.Value == 58);
-                    @in.endEncapsulation();
-
-                    @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
-                }
                 output.WriteLine("ok");
 
                 output.Write("testing exception optionals... ");
@@ -1933,30 +1695,26 @@ namespace Ice
                 {
                     try
                     {
-                        Ice.Optional<int> a = new Ice.Optional<int>();
-                        Ice.Optional<string> b = new Ice.Optional<string>();
-                        Ice.Optional<Test.OneOptional> o = new Ice.Optional<Test.OneOptional>();
-                        initial.opOptionalException(a, b, o);
+                        int? a = null;
+                        string b = null;
+                        initial.opOptionalException(a, b);
                     }
                     catch (Test.OptionalException ex)
                     {
-                        test(!ex.a.HasValue);
-                        test(!ex.b.HasValue);
-                        test(!ex.o.HasValue);
+                        test(ex.a is null);
+                        test(ex.b is null);
                     }
 
                     try
                     {
-                        Ice.Optional<int> a = new Ice.Optional<int>(30);
-                        Ice.Optional<string> b = new Ice.Optional<string>("test");
-                        Ice.Optional<Test.OneOptional> o = new Ice.Optional<Test.OneOptional>(new Test.OneOptional(53));
-                        initial.opOptionalException(a, b, o);
+                        int? a = 30;
+                        string b = "test";
+                        initial.opOptionalException(a, b);
                     }
                     catch (Test.OptionalException ex)
                     {
                         test(ex.a.Value == 30);
-                        test(ex.b.Value == "test");
-                        test(ex.o.Value.a.Value == 53);
+                        test(ex.b == "test");
                     }
 
                     try
@@ -1965,84 +1723,70 @@ namespace Ice
                         // Use the 1.0 encoding with an exception whose only class members are optional.
                         //
                         Test.InitialPrx initial2 = (Test.InitialPrx)initial.ice_encodingVersion(Ice.Util.Encoding_1_0);
-                        Ice.Optional<int> a = new Ice.Optional<int>(30);
-                        Ice.Optional<string> b = new Ice.Optional<string>("test");
-                        Ice.Optional<Test.OneOptional> o = new Ice.Optional<Test.OneOptional>(new Test.OneOptional(53));
-                        initial2.opOptionalException(a, b, o);
+                        int? a = 30;
+                        string b = "test";
+                        initial2.opOptionalException(a, b);
                     }
                     catch (Test.OptionalException ex)
                     {
-                        test(!ex.a.HasValue);
-                        test(!ex.b.HasValue);
-                        test(!ex.o.HasValue);
+                        test(ex.a is null);
+                        test(ex.b is null);
                     }
 
                     try
                     {
-                        Ice.Optional<int> a = new Ice.Optional<int>();
-                        Ice.Optional<string> b = new Ice.Optional<string>();
-                        Ice.Optional<Test.OneOptional> o = new Ice.Optional<Test.OneOptional>();
-                        initial.opDerivedException(a, b, o);
+                        int? a = null;
+                        string b = null;
+                        initial.opDerivedException(a, b);
                     }
                     catch (Test.DerivedException ex)
                     {
-                        test(!ex.a.HasValue);
-                        test(!ex.b.HasValue);
-                        test(!ex.o.HasValue);
-                        test(!ex.ss.HasValue);
-                        test(!ex.o2.HasValue);
+                        test(ex.a is null);
+                        test(ex.b is null);
+                        test(ex.ss is null);
                         test(ex.d1 == "d1");
                         test(ex.d2 == "d2");
                     }
 
                     try
                     {
-                        Ice.Optional<int> a = new Ice.Optional<int>(30);
-                        Ice.Optional<string> b = new Ice.Optional<string>("test2");
-                        Ice.Optional<Test.OneOptional> o = new Ice.Optional<Test.OneOptional>(new Test.OneOptional(53));
-                        initial.opDerivedException(a, b, o);
+                        int? a = 30;
+                        string b = "test2";
+                        initial.opDerivedException(a, b);
                     }
                     catch (Test.DerivedException ex)
                     {
                         test(ex.a.Value == 30);
-                        test(ex.b.Value == "test2");
-                        test(ex.o.Value.a.Value == 53);
-                        test(ex.ss.Value == "test2");
-                        test(ex.o2.Value.a.Value == 53);
-                        test(ex.d1 == "d1");
-                        test(ex.d2 == "d2");
-                    }
-
-                    try
-                    {
-                        Ice.Optional<int> a = new Ice.Optional<int>();
-                        Ice.Optional<string> b = new Ice.Optional<string>();
-                        Ice.Optional<Test.OneOptional> o = new Ice.Optional<Test.OneOptional>();
-                        initial.opRequiredException(a, b, o);
-                    }
-                    catch (Test.RequiredException ex)
-                    {
-                        test(!ex.a.HasValue);
-                        test(!ex.b.HasValue);
-                        test(!ex.o.HasValue);
-                        test(ex.ss == "test");
-                        test(ex.o2 == null);
-                    }
-
-                    try
-                    {
-                        Ice.Optional<int> a = new Ice.Optional<int>(30);
-                        Ice.Optional<string> b = new Ice.Optional<string>("test2");
-                        Ice.Optional<Test.OneOptional> o = new Ice.Optional<Test.OneOptional>(new Test.OneOptional(53));
-                        initial.opRequiredException(a, b, o);
-                    }
-                    catch (Test.RequiredException ex)
-                    {
-                        test(ex.a.Value == 30);
-                        test(ex.b.Value == "test2");
-                        test(ex.o.Value.a.Value == 53);
+                        test(ex.b == "test2");
                         test(ex.ss == "test2");
-                        test(ex.o2.a.Value == 53);
+                        test(ex.d1 == "d1");
+                        test(ex.d2 == "d2");
+                    }
+
+                    try
+                    {
+                        int? a = null;
+                        string b = null;
+                        initial.opRequiredException(a, b);
+                    }
+                    catch (Test.RequiredException ex)
+                    {
+                        test(ex.a is null);
+                        test(ex.b is null);
+                        test(ex.ss == "test");
+                    }
+
+                    try
+                    {
+                        int? a = 30;
+                        string b = "test2";
+                        initial.opRequiredException(a, b);
+                    }
+                    catch (Test.RequiredException ex)
+                    {
+                        test(ex.a.Value == 30);
+                        test(ex.b == "test2");
+                        test(ex.ss == "test2");
                     }
                 }
                 output.WriteLine("ok");
@@ -2050,49 +1794,39 @@ namespace Ice
                 output.Write("testing optionals with marshaled results... ");
                 output.Flush();
                 {
-                    test(initial.opMStruct1().HasValue);
-                    test(initial.opMDict1().HasValue);
-                    test(initial.opMSeq1().HasValue);
-                    test(initial.opMG1().HasValue);
+                    test(initial.opMStruct1() is not null);
+                    test(initial.opMDict1() is not null);
+                    test(initial.opMSeq1() is not null);
 
                     {
-                        Ice.Optional<Test.SmallStruct> p1, p2, p3;
-                        p3 = initial.opMStruct2(Ice.Util.None, out p2);
-                        test(!p2.HasValue && !p3.HasValue);
+                        Test.SmallStruct? p1, p2, p3;
+                        p3 = initial.opMStruct2(null, out p2);
+                        test(p2 is null && p3 is null);
 
                         p1 = new Test.SmallStruct();
                         p3 = initial.opMStruct2(p1, out p2);
                         test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
                     }
                     {
-                        Ice.Optional<string[]> p1, p2, p3;
-                        p3 = initial.opMSeq2(Ice.Util.None, out p2);
-                        test(!p2.HasValue && !p3.HasValue);
+                        string[] p1, p2, p3;
+                        p3 = initial.opMSeq2(null, out p2);
+                        test(p2 is null && p3 is null);
 
                         p1 = new string[1] { "hello" };
                         p3 = initial.opMSeq2(p1, out p2);
-                        test(Ice.CollectionComparer.Equals(p2.Value, p1.Value) &&
-                             Ice.CollectionComparer.Equals(p3.Value, p1.Value));
+                        test(Ice.CollectionComparer.Equals(p2, p1) &&
+                             Ice.CollectionComparer.Equals(p3, p1));
                     }
                     {
-                        Ice.Optional<Dictionary<string, int>> p1, p2, p3;
-                        p3 = initial.opMDict2(Ice.Util.None, out p2);
-                        test(!p2.HasValue && !p3.HasValue);
+                        Dictionary<string, int> p1, p2, p3;
+                        p3 = initial.opMDict2(null, out p2);
+                        test(p2 is null && p3 is null);
 
                         p1 = new Dictionary<string, int>();
-                        p1.Value["test"] = 54;
+                        p1["test"] = 54;
                         p3 = initial.opMDict2(p1, out p2);
-                        test(Ice.CollectionComparer.Equals(p2.Value, p1.Value) &&
-                             Ice.CollectionComparer.Equals(p3.Value, p1.Value));
-                    }
-                    {
-                        Ice.Optional<Test.G> p1, p2, p3;
-                        p3 = initial.opMG2(Ice.Util.None, out p2);
-                        test(!p2.HasValue && !p3.HasValue);
-
-                        p1 = new Test.G();
-                        p3 = initial.opMG2(p1, out p2);
-                        test(p2.HasValue && p3.HasValue && p3.Value == p2.Value);
+                        test(Ice.CollectionComparer.Equals(p2, p1) &&
+                             Ice.CollectionComparer.Equals(p3, p1));
                     }
                 }
                 output.WriteLine("ok");
@@ -2107,7 +1841,7 @@ namespace Ice
                     return true;
                 }
 
-                if (a1 == null || a2 == null)
+                if (a1 is null || a2 is null)
                 {
                     return false;
                 }
@@ -2136,7 +1870,7 @@ namespace Ice
                     return true;
                 }
 
-                if (a1 == null || a2 == null)
+                if (a1 is null || a2 is null)
                 {
                     return false;
                 }
@@ -2167,7 +1901,7 @@ namespace Ice
                     return true;
                 }
 
-                if (d1 == null || d2 == null)
+                if (d1 is null || d2 is null)
                 {
                     return false;
                 }
