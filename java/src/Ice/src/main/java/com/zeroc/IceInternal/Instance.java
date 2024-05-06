@@ -878,7 +878,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
       _networkProxy = createNetworkProxy(_initData.properties, _protocolSupport);
 
-      _sslEngine = new com.zeroc.IceSSL.SSLEngine(communicator);
+      _sslEngine = new com.zeroc.Ice.SSL.SSLEngine(communicator);
       _endpointFactoryManager = new EndpointFactoryManager(this);
 
       ProtocolInstance tcpProtocol =
@@ -889,10 +889,10 @@ public final class Instance implements java.util.function.Function<String, Class
           new ProtocolInstance(this, com.zeroc.Ice.UDPEndpointType.value, "udp", false);
       _endpointFactoryManager.add(new UdpEndpointFactory(udpProtocol));
 
-      com.zeroc.IceSSL.Instance sslInstance =
-          new com.zeroc.IceSSL.Instance(_sslEngine, com.zeroc.Ice.SSLEndpointType.value, "ssl");
+      com.zeroc.Ice.SSL.Instance sslInstance =
+          new com.zeroc.Ice.SSL.Instance(_sslEngine, com.zeroc.Ice.SSLEndpointType.value, "ssl");
       _endpointFactoryManager.add(
-          new com.zeroc.IceSSL.EndpointFactoryI(sslInstance, com.zeroc.Ice.TCPEndpointType.value));
+          new com.zeroc.Ice.SSL.EndpointFactoryI(sslInstance, com.zeroc.Ice.TCPEndpointType.value));
 
       ProtocolInstance wsProtocol =
           new ProtocolInstance(this, com.zeroc.Ice.WSEndpointType.value, "ws", false);
@@ -1552,7 +1552,7 @@ public final class Instance implements java.util.function.Function<String, Class
   private static boolean _oneOffDone = false;
   private QueueExecutorService _queueExecutorService;
   private QueueExecutor _queueExecutor;
-  private com.zeroc.IceSSL.SSLEngine _sslEngine;
+  private com.zeroc.Ice.SSL.SSLEngine _sslEngine;
 
   private Map<String, String[]> _builtInModulePackagePrefixes =
       java.util.Collections.unmodifiableMap(

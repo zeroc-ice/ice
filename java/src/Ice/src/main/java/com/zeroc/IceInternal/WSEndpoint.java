@@ -4,8 +4,8 @@
 
 package com.zeroc.IceInternal;
 
+import com.zeroc.Ice.SSL.SSLEngineFactory;
 import com.zeroc.Ice.WSEndpointInfo;
-import com.zeroc.IceSSL.SSLEngineFactory;
 
 final class WSEndpoint extends EndpointI {
   public WSEndpoint(ProtocolInstance instance, EndpointI del, String res) {

@@ -2,27 +2,27 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-package com.zeroc.IceSSL;
+package com.zeroc.Ice.SSL;
 
 class TrustManager {
   TrustManager(com.zeroc.Ice.Communicator communicator) {
     assert communicator != null;
     _communicator = communicator;
     com.zeroc.Ice.Properties properties = communicator.getProperties();
-    _traceLevel = properties.getPropertyAsInt("IceSSL.Trace.Security");
+    _traceLevel = properties.getPropertyAsInt("Ice.SSL.Trace.Security");
     String key = null;
     try {
-      key = "IceSSL.TrustOnly";
+      key = "Ice.SSL.TrustOnly";
       parse(properties.getProperty(key), _rejectAll, _acceptAll);
-      key = "IceSSL.TrustOnly.Client";
+      key = "Ice.SSL.TrustOnly.Client";
       parse(properties.getProperty(key), _rejectClient, _acceptClient);
-      key = "IceSSL.TrustOnly.Server";
+      key = "Ice.SSL.TrustOnly.Server";
       parse(properties.getProperty(key), _rejectAllServer, _acceptAllServer);
       java.util.Map<String, String> dict =
-          properties.getPropertiesForPrefix("IceSSL.TrustOnly.Server.");
+          properties.getPropertiesForPrefix("Ice.SSL.TrustOnly.Server.");
       for (java.util.Map.Entry<String, String> p : dict.entrySet()) {
         key = p.getKey();
-        String name = key.substring("IceSSL.TrustOnly.Server.".length());
+        String name = key.substring("Ice.SSL.TrustOnly.Server.".length());
         java.util.List<java.util.List<RFC2253.RDNPair>> reject =
             new java.util.LinkedList<java.util.List<RFC2253.RDNPair>>();
         java.util.List<java.util.List<RFC2253.RDNPair>> accept =
@@ -37,7 +37,7 @@ class TrustManager {
       }
     } catch (RFC2253.ParseException e) {
       throw new com.zeroc.Ice.InitializationException(
-          "IceSSL: invalid property " + key + ":\n" + e.reason);
+          "Ice.SSL: invalid property " + key + ":\n" + e.reason);
     }
   }
 
@@ -162,7 +162,7 @@ class TrustManager {
         _communicator
             .getLogger()
             .warning(
-                "IceSSL: unable to parse certificate DN `"
+                "Ice.SSL: unable to parse certificate DN `"
                     + subjectName
                     + "'\nreason: "
                     + e.reason);

@@ -3,7 +3,7 @@
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 
-namespace IceSSL;
+namespace Ice.SSL;
 
 internal class Instance : Ice.Internal.ProtocolInstance
 {

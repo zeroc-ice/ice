@@ -114,13 +114,13 @@ public class Client extends test.TestHelper {
       System.out.print("testing ice properties with unset default values...");
       Properties properties = Util.createProperties();
 
-      String stringValue = properties.getIceProperty("IceSSL.CAs");
+      String stringValue = properties.getIceProperty("Ice.SSL.CAs");
       test(stringValue.isEmpty());
 
-      int intValue = properties.getIcePropertyAsInt("IceSSL.CAs");
+      int intValue = properties.getIcePropertyAsInt("Ice.SSL.CAs");
       test(intValue == 0);
 
-      String[] listValue = properties.getIcePropertyAsList("IceSSL.CAs");
+      String[] listValue = properties.getIcePropertyAsList("Ice.SSL.CAs");
       test(listValue.length == 0);
 
       System.out.println("ok");

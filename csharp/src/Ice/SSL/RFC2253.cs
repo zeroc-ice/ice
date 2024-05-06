@@ -6,11 +6,11 @@ using System.Text;
 //
 // See RFC 2253 and RFC 1779.
 //
-namespace IceSSL;
+namespace Ice.SSL;
 
 internal class RFC2253
 {
-    public class ParseException : Exception
+    public class ParseException : System.Exception
     {
         public ParseException(string reason) => this.reason = reason;
 

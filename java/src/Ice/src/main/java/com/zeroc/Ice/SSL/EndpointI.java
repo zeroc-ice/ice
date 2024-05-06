@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-package com.zeroc.IceSSL;
+package com.zeroc.Ice.SSL;
 
 final class EndpointI extends com.zeroc.IceInternal.EndpointI {
   public EndpointI(Instance instance, com.zeroc.IceInternal.EndpointI delegate) {

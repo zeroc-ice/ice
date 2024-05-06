@@ -26,7 +26,7 @@ class ServerFactoryI implements ServerFactory {
     for (java.util.Map.Entry<String, String> i : props.entrySet()) {
       initData.properties.setProperty(i.getKey(), i.getValue());
     }
-    initData.properties.setProperty("IceSSL.DefaultDir", _defaultDir);
+    initData.properties.setProperty("Ice.SSL.DefaultDir", _defaultDir);
     com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(initData);
     com.zeroc.Ice.ObjectAdapter adapter =
         communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");

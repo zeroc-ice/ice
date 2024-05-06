@@ -11,7 +11,7 @@
 
 @class ICERuntimeException;
 
-namespace IceSSL
+namespace Ice::SSL
 {
     class Certificate;
 }
@@ -46,7 +46,7 @@ fromObjC(id object, std::string& s)
 NSObject* toObjC(const std::shared_ptr<Ice::Endpoint>& endpoint);
 void fromObjC(id object, std::shared_ptr<Ice::Endpoint>& endpoint);
 
-NSObject* toObjC(const std::shared_ptr<IceSSL::Certificate>& cert);
+NSObject* toObjC(const std::shared_ptr<Ice::SSL::Certificate>& cert);
 
 template<typename T>
 NSMutableArray*

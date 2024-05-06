@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-package com.zeroc.IceSSL;
+package com.zeroc.Ice.SSL;
 
 import com.zeroc.Ice.InitializationData;
 

@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceSSL;
+namespace Ice.SSL;
 
 internal sealed class ConnectorI : Ice.Internal.Connector
 {

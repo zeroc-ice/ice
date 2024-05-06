@@ -2,7 +2,7 @@
 
 using System.Net.Security;
 
-namespace IceSSL;
+namespace Ice.SSL;
 
 internal sealed class EndpointI : Ice.Internal.EndpointI
 {

@@ -113,7 +113,7 @@ public abstract class EndpointI implements com.zeroc.Ice.Endpoint, java.lang.Com
   // is available.
   //
   public abstract Acceptor acceptor(
-      String adapterName, com.zeroc.IceSSL.SSLEngineFactory sslEngineFactory);
+      String adapterName, com.zeroc.Ice.SSL.SSLEngineFactory sslEngineFactory);
 
   //
   // Expand endpoint out in to separate endpoints for each local

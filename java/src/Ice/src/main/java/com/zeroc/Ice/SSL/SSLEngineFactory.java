@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-package com.zeroc.IceSSL;
+package com.zeroc.Ice.SSL;
 
 /** A factory for javax.net.ssl.SSLEngine objects. */
 @FunctionalInterface

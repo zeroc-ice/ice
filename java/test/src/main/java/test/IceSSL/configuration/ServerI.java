@@ -14,8 +14,8 @@ class ServerI implements Server {
   @Override
   public void noCert(com.zeroc.Ice.Current current) {
     try {
-      com.zeroc.IceSSL.ConnectionInfo info =
-          (com.zeroc.IceSSL.ConnectionInfo) current.con.getInfo();
+      com.zeroc.Ice.SSL.ConnectionInfo info =
+          (com.zeroc.Ice.SSL.ConnectionInfo) current.con.getInfo();
       test(info.certs == null);
     } catch (com.zeroc.Ice.LocalException ex) {
       test(false);
@@ -25,8 +25,8 @@ class ServerI implements Server {
   @Override
   public void checkCert(String subjectDN, String issuerDN, com.zeroc.Ice.Current current) {
     try {
-      com.zeroc.IceSSL.ConnectionInfo info =
-          (com.zeroc.IceSSL.ConnectionInfo) current.con.getInfo();
+      com.zeroc.Ice.SSL.ConnectionInfo info =
+          (com.zeroc.Ice.SSL.ConnectionInfo) current.con.getInfo();
       java.security.cert.X509Certificate cert = (java.security.cert.X509Certificate) info.certs[0];
       test(info.verified);
       test(
@@ -41,8 +41,8 @@ class ServerI implements Server {
   @Override
   public void checkCipher(String cipher, com.zeroc.Ice.Current current) {
     try {
-      com.zeroc.IceSSL.ConnectionInfo info =
-          (com.zeroc.IceSSL.ConnectionInfo) current.con.getInfo();
+      com.zeroc.Ice.SSL.ConnectionInfo info =
+          (com.zeroc.Ice.SSL.ConnectionInfo) current.con.getInfo();
       test(info.cipher.indexOf(cipher) >= 0);
     } catch (com.zeroc.Ice.LocalException ex) {
       test(false);

@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-package com.zeroc.IceSSL;
+package com.zeroc.Ice.SSL;
 
 //
 // See RFC 2253 and RFC 1779.

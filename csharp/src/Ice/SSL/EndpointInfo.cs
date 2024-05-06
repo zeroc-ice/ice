@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace IceSSL;
+namespace Ice.SSL;
 
 public abstract class EndpointInfo : Ice.EndpointInfo
 {

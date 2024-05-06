@@ -2,7 +2,7 @@
 
 using System.Security.Cryptography.X509Certificates;
 
-namespace IceSSL;
+namespace Ice.SSL;
 
 public class ConnectionInfo : Ice.ConnectionInfo
 {

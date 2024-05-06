@@ -561,7 +561,7 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
             add_property_long(zv, "sndSize", static_cast<long>(info->sndSize));
         }
     }
-    else if (dynamic_pointer_cast<IceSSL::ConnectionInfo>(p))
+    else if (dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(p))
     {
         status = object_init_ex(zv, sslConnectionInfoClassEntry);
     }
@@ -580,9 +580,9 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
         return false;
     }
 
-    if (dynamic_pointer_cast<IceSSL::ConnectionInfo>(p))
+    if (dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(p))
     {
-        auto info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(p);
+        auto info = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(p);
 
         zval zarr;
         AutoDestroy listDestroyer(&zarr);

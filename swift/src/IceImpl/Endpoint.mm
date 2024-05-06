@@ -117,7 +117,7 @@
                                     resource:toNSString(wsInfo->resource)];
     }
 
-    if (std::dynamic_pointer_cast<IceSSL::EndpointInfo>(infoPtr))
+    if (std::dynamic_pointer_cast<Ice::SSL::EndpointInfo>(infoPtr))
     {
         return [factory createSSLEndpointInfo:handle
                                    underlying:underlying

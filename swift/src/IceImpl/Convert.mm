@@ -418,7 +418,7 @@ fromObjC(id object, std::shared_ptr<Ice::Endpoint>& endpoint)
 }
 
 NSObject*
-toObjC(const std::shared_ptr<IceSSL::Certificate>& cert)
+toObjC(const std::shared_ptr<Ice::SSL::Certificate>& cert)
 {
     return toNSString(cert->encode());
 }

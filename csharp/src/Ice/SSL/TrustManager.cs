@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
-namespace IceSSL;
+namespace Ice.SSL;
 
 internal sealed class TrustManager
 {

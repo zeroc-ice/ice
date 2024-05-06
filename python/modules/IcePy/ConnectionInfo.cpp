@@ -207,11 +207,11 @@ extern "C"
     static PyObject*
     sslConnectionInfoGetCerts(ConnectionInfoObject* self, PyObject* /*args*/)
 {
-    auto info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(*self->connectionInfo);
+    auto info = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(*self->connectionInfo);
     assert(info);
     PyObject* certs = PyList_New(0);
     Ice::StringSeq encoded;
-    for (vector<IceSSL::CertificatePtr>::const_iterator i = info->certs.begin(); i != info->certs.end(); ++i)
+    for (vector<Ice::SSL::CertificatePtr>::const_iterator i = info->certs.begin(); i != info->certs.end(); ++i)
     {
         encoded.push_back((*i)->encode());
     }
@@ -692,7 +692,7 @@ IcePy::createConnectionInfo(const Ice::ConnectionInfoPtr& connectionInfo)
     {
         type = &UDPConnectionInfoType;
     }
-    else if (dynamic_pointer_cast<IceSSL::ConnectionInfo>(connectionInfo))
+    else if (dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(connectionInfo))
     {
         type = &SSLConnectionInfoType;
     }

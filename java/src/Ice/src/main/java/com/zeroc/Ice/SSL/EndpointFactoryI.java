@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-package com.zeroc.IceSSL;
+package com.zeroc.Ice.SSL;
 
 public final class EndpointFactoryI extends com.zeroc.IceInternal.EndpointFactoryWithUnderlying {
   public EndpointFactoryI(Instance instance, short type) {

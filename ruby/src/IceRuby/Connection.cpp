@@ -274,13 +274,13 @@ IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
         rb_ivar_set(info, rb_intern("@rcvSize"), INT2FIX(udp->rcvSize));
         rb_ivar_set(info, rb_intern("@sndSize"), INT2FIX(udp->sndSize));
     }
-    else if (dynamic_pointer_cast<IceSSL::ConnectionInfo>(p))
+    else if (dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(p))
     {
         info = Data_Wrap_Struct(_sslConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
 
-        IceSSL::ConnectionInfoPtr ssl = dynamic_pointer_cast<IceSSL::ConnectionInfo>(p);
+        Ice::SSL::ConnectionInfoPtr ssl = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(p);
         Ice::StringSeq encoded;
-        for (vector<IceSSL::CertificatePtr>::const_iterator i = ssl->certs.begin(); i != ssl->certs.end(); ++i)
+        for (vector<Ice::SSL::CertificatePtr>::const_iterator i = ssl->certs.begin(); i != ssl->certs.end(); ++i)
         {
             encoded.push_back((*i)->encode());
         }

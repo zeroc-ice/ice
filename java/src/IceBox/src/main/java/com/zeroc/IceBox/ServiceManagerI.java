@@ -504,7 +504,7 @@ public class ServiceManagerI implements ServiceManager {
 
         //
         // Remaining command line options are passed to the communicator. This is
-        // necessary for Ice plug-in properties (e.g.: IceSSL).
+        // necessary for Ice plug-in properties (e.g.: Ice.SSL).
         //
         java.util.List<String> remainingArgs = new java.util.ArrayList<>();
         info.communicator = Util.initialize(serviceArgs, initData, remainingArgs);

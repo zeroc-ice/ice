@@ -163,10 +163,10 @@ public interface Communicator extends java.lang.AutoCloseable {
    *
    * @param name The object adapter name.
    * @param sslEngineFactory The SSL engine factory used by the server-side ssl transport of the new
-   *     object adapter. When set to a non-null value all IceSSL configuration properties are
+   *     object adapter. When set to a non-null value all Ice.SSL configuration properties are
    *     ignored, and any SSL configuration must be done through the SSLEngineFactory. Pass null if
    *     the object adapter does not use secure endpoints, or if the ssl transport is configured
-   *     through IceSSL configuration properties. Passing null is equivalent to calling {@link
+   *     through Ice.SSL configuration properties. Passing null is equivalent to calling {@link
    *     createObjectAdapterWithEndpoints(String, String)}.
    * @return The new object adapter.
    * @see #createObjectAdapterWithEndpoints
@@ -174,7 +174,7 @@ public interface Communicator extends java.lang.AutoCloseable {
    * @see Properties
    */
   ObjectAdapter createObjectAdapter(
-      String name, com.zeroc.IceSSL.SSLEngineFactory sslEngineFactory);
+      String name, com.zeroc.Ice.SSL.SSLEngineFactory sslEngineFactory);
 
   /**
    * Create a new object adapter with endpoints. This operation sets the property <code>
@@ -200,10 +200,10 @@ public interface Communicator extends java.lang.AutoCloseable {
    * @param name The object adapter name.
    * @param endpoints The endpoints for the object adapter.
    * @param sslEngineFactory The SSL engine factory used by the server-side ssl transport of the new
-   *     object adapter. When set to a non-null value all IceSSL configuration properties are
+   *     object adapter. When set to a non-null value all Ice.SSL configuration properties are
    *     ignored, and any SSL configuration must be done through the SSLEngineFactory. Pass null if
    *     the object adapter does not use secure endpoints, or if the ssl transport is configured
-   *     through IceSSL configuration properties. Passing null is equivalent to calling {@link
+   *     through Ice.SSL configuration properties. Passing null is equivalent to calling {@link
    *     createObjectAdapterWithEndpoints(String, String)}.
    * @return The new object adapter.
    * @see #createObjectAdapter
@@ -211,7 +211,7 @@ public interface Communicator extends java.lang.AutoCloseable {
    * @see Properties
    */
   ObjectAdapter createObjectAdapterWithEndpoints(
-      String name, String endpoints, com.zeroc.IceSSL.SSLEngineFactory sslEngineFactory);
+      String name, String endpoints, com.zeroc.Ice.SSL.SSLEngineFactory sslEngineFactory);
 
   /**
    * Create a new object adapter with a router. This operation creates a routed object adapter.

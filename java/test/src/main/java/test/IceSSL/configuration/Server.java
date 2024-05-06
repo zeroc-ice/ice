@@ -12,7 +12,7 @@ public class Server extends test.TestHelper {
       throw new RuntimeException("Usage: server testdir");
     }
 
-    properties.setProperty("Ice.Package.Test", "test.IceSSL.configuration");
+    properties.setProperty("Ice.Package.Test", "test.Ice.SSL.configuration");
     try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
       communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0, "tcp"));
       com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

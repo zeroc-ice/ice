@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-package com.zeroc.IceSSL;
+package com.zeroc.Ice.SSL;
 
 import javax.net.ssl.X509ExtendedKeyManager;
 
@@ -16,7 +16,7 @@ final class X509KeyManagerI extends X509ExtendedKeyManager {
   @Override
   public String chooseClientAlias(
       String[] keyType, java.security.Principal[] issuers, java.net.Socket socket) {
-    // Don't bother checking for acceptable issuers if the user configured IceSSL.Alias
+    // Don't bother checking for acceptable issuers if the user configured Ice.SSL.Alias
     if (!_override) {
       String alias = _delegate.chooseClientAlias(keyType, issuers, socket);
       if (alias != null && !alias.isEmpty()) {
@@ -29,7 +29,7 @@ final class X509KeyManagerI extends X509ExtendedKeyManager {
   @Override
   public String chooseEngineClientAlias(
       String[] keyType, java.security.Principal[] issuers, javax.net.ssl.SSLEngine engine) {
-    // Don't bother checking for acceptable issuers if the user configured IceSSL.Alias
+    // Don't bother checking for acceptable issuers if the user configured Ice.SSL.Alias
     if (!_override) {
       String alias = _delegate.chooseEngineClientAlias(keyType, issuers, engine);
       if (alias != null && !alias.isEmpty()) {
@@ -43,7 +43,7 @@ final class X509KeyManagerI extends X509ExtendedKeyManager {
   public String chooseServerAlias(
       String keyType, java.security.Principal[] issuers, java.net.Socket socket) {
     if (!_override) {
-      // Don't bother checking for acceptable issuers if the user configured IceSSL.Alias.
+      // Don't bother checking for acceptable issuers if the user configured Ice.SSL.Alias.
       String alias = _delegate.chooseServerAlias(keyType, issuers, socket);
       if (alias != null && !alias.isEmpty()) {
         return alias;
@@ -55,7 +55,7 @@ final class X509KeyManagerI extends X509ExtendedKeyManager {
   @Override
   public String chooseEngineServerAlias(
       String keyType, java.security.Principal[] issuers, javax.net.ssl.SSLEngine engine) {
-    // Don't bother checking for acceptable issuers if the user configured IceSSL.Alias
+    // Don't bother checking for acceptable issuers if the user configured Ice.SSL.Alias
     if (!_override) {
       String alias = _delegate.chooseEngineServerAlias(keyType, issuers, engine);
       if (alias != null && !alias.isEmpty()) {
