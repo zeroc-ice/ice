@@ -34,10 +34,10 @@ namespace
     };
     using CertInfoHolderPtr = shared_ptr<CertInfoHolder>;
 
-    class ScHannelX509ExtensionI : public X509Extension
+    class SchannelX509ExtensionI : public X509Extension
     {
     public:
-        ScHannelX509ExtensionI(CERT_EXTENSION, const string&, const CertInfoHolderPtr&);
+        SchannelX509ExtensionI(CERT_EXTENSION, const string&, const CertInfoHolderPtr&);
         virtual bool isCritical() const;
         virtual string getOID() const;
         virtual vector<uint8_t> getData() const;
@@ -264,7 +264,7 @@ namespace
 
 } // End anonymous namespace
 
-ScHannelX509ExtensionI::ScHannelX509ExtensionI(CERT_EXTENSION extension, const string& oid, const CertInfoHolderPtr& ci)
+SchannelX509ExtensionI::SchannelX509ExtensionI(CERT_EXTENSION extension, const string& oid, const CertInfoHolderPtr& ci)
     : _extension(extension),
       _oid(oid),
       _certInfo(ci)
@@ -272,19 +272,19 @@ ScHannelX509ExtensionI::ScHannelX509ExtensionI(CERT_EXTENSION extension, const s
 }
 
 bool
-ScHannelX509ExtensionI::isCritical() const
+SchannelX509ExtensionI::isCritical() const
 {
     return _extension.fCritical != 0;
 }
 
 string
-ScHannelX509ExtensionI::getOID() const
+SchannelX509ExtensionI::getOID() const
 {
     return _oid;
 }
 
 vector<uint8_t>
-ScHannelX509ExtensionI::getData() const
+SchannelX509ExtensionI::getData() const
 {
     vector<uint8_t> data;
     data.resize(_extension.Value.cbData);
@@ -557,7 +557,7 @@ SchannelCertificateI::loadX509Extensions() const
         for (size_t i = 0; i < _certInfo->cExtension; ++i)
         {
             CERT_EXTENSION ext = _certInfo->rgExtension[i];
-            _extensions.push_back(std::make_shared<ScHannelX509ExtensionI>(ext, ext.pszObjId, _certInfoHolder));
+            _extensions.push_back(std::make_shared<SchannelX509ExtensionI>(ext, ext.pszObjId, _certInfoHolder));
         }
     }
 }

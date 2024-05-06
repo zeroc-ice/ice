@@ -3,7 +3,6 @@
 //
 
 #include "Instance.h"
-#include "../Ice/SSL/SSLEngine.h"
 #include "CheckIdentity.h"
 #include "ConnectionFactory.h"
 #include "ConsoleUtil.h"
@@ -38,6 +37,7 @@
 #include "RegisterPluginsInit.h"
 #include "RetryQueue.h"
 #include "RouterInfo.h"
+#include "SSL/SSLEngine.h"
 #include "ThreadPool.h"
 #include "TimeUtil.h"
 #include "TraceLevels.h"
