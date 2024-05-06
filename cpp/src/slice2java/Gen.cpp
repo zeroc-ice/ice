@@ -26,9 +26,6 @@ namespace
             case Operation::Normal:
                 mode = "null"; // shorthand for most common case
                 break;
-            case Operation::Nonmutating:
-                mode += "Nonmutating";
-                break;
             case Operation::Idempotent:
                 mode += "Idempotent";
                 break;

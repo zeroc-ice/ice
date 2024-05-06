@@ -1289,11 +1289,6 @@ SwiftGenerator::modeToString(Operation::Mode opMode)
             mode = ".Normal";
             break;
         }
-        case Operation::Nonmutating:
-        {
-            mode = ".Nonmutating";
-            break;
-        }
         case Operation::Idempotent:
         {
             mode = ".Idempotent";

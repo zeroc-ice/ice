@@ -39,11 +39,6 @@ namespace
                 mode = CsGenerator::getUnqualified("Ice.OperationMode.Normal", ns);
                 break;
             }
-            case Operation::Nonmutating:
-            {
-                mode = CsGenerator::getUnqualified("Ice.OperationMode.Nonmutating", ns);
-                break;
-            }
             case Operation::Idempotent:
             {
                 mode = CsGenerator::getUnqualified("Ice.OperationMode.Idempotent", ns);

@@ -3718,8 +3718,6 @@ CodeVisitor::getOperationMode(Slice::Operation::Mode mode)
     {
         case Operation::Normal:
             return "0";
-        case Operation::Nonmutating:
-            return "1";
         case Operation::Idempotent:
             return "2";
         default:

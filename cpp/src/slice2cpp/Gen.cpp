@@ -3094,7 +3094,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         C << eb;
     }
 
-    string isConst = ((p->mode() == Operation::Nonmutating) || p->hasMetaData("cpp:const")) ? " const" : "";
+    string isConst = p->hasMetaData("cpp:const") ? " const" : "";
 
     string opName = amd ? (name + "Async") : fixKwd(name);
     string deprecateSymbol = getDeprecateSymbol(p, interface);

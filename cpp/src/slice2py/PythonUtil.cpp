@@ -1939,9 +1939,6 @@ Slice::Python::CodeVisitor::getOperationMode(Slice::Operation::Mode mode)
         case Operation::Normal:
             result = "Ice.OperationMode.Normal";
             break;
-        case Operation::Nonmutating:
-            result = "Ice.OperationMode.Nonmutating";
-            break;
         case Operation::Idempotent:
             result = "Ice.OperationMode.Idempotent";
             break;

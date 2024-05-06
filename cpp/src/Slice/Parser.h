@@ -654,14 +654,13 @@ namespace Slice
     {
     public:
         //
-        // Note: The order of definitions here *must* match the order of
-        // definitions of Ice::OperationMode in slice/Ice/OperationMode.ice!
+        // Note: The values of enumerators here *must* match the values for
+        // enumerators of Ice::OperationMode in slice/Ice/OperationMode.ice!
         //
         enum Mode
         {
-            Normal,
-            Nonmutating,
-            Idempotent
+            Normal = 0,
+            Idempotent = 2
         };
 
         Operation(const ContainerPtr&, const std::string&, const TypePtr&, bool, int, Mode);

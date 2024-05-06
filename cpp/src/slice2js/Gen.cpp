@@ -28,8 +28,6 @@ namespace
         {
             case Operation::Normal:
                 return "0";
-            case Operation::Nonmutating:
-                return "1";
             case Operation::Idempotent:
                 return "2";
             default:
