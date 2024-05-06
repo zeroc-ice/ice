@@ -44,7 +44,7 @@ public class Server : Test.TestHelper
     {
         public override Ice.ObjectPrx getClientProxy(out bool? hasRoutingTable, Ice.Current current)
         {
-            hasRoutingTable = new bool?(true);
+            hasRoutingTable = true;
             _controller.checkCallPause(current);
             return null;
         }
