@@ -7,83 +7,21 @@ namespace Ice.UtilInternal;
 
 public sealed class Collections
 {
-    public static bool SequenceEquals(ICollection seq1, ICollection seq2)
+    // Just like Enumerable.SequenceEqual except it also handles null sequences.
+    // TODO: the generated hash code is not consistent with the "null is equivalent to empty" logic implemented by
+    // this method. Note that this code would be removed by proposal #2115.
+    public static bool NullableSequenceEqual<TSource>(IEnumerable<TSource> lhs, IEnumerable<TSource> rhs)
     {
-        if (ReferenceEquals(seq1, seq2))
+        if (lhs is null)
         {
-            return true;
+            return rhs is null || !rhs.Any();
+        }
+        if (rhs is null)
+        {
+            return !lhs.Any();
         }
 
-        if ((seq1 == null && seq2 != null) || (seq1 != null && seq2 == null))
-        {
-            return false;
-        }
-
-        if (seq1.Count == seq2.Count)
-        {
-            IEnumerator e1 = seq1.GetEnumerator();
-            IEnumerator e2 = seq2.GetEnumerator();
-            while (e1.MoveNext())
-            {
-                e2.MoveNext();
-                if (e1.Current == null)
-                {
-                    if (e2.Current != null)
-                    {
-                        return false;
-                    }
-                }
-                else if (!e1.Current.Equals(e2.Current))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    public static bool SequenceEquals(IEnumerable seq1, IEnumerable seq2)
-    {
-        if (ReferenceEquals(seq1, seq2))
-        {
-            return true;
-        }
-
-        if ((seq1 == null && seq2 != null) || (seq1 != null && seq2 == null))
-        {
-            return false;
-        }
-
-        IEnumerator e1 = seq1.GetEnumerator();
-        IEnumerator e2 = seq2.GetEnumerator();
-        while (e1.MoveNext())
-        {
-            if (!e2.MoveNext())
-            {
-                return false;
-            }
-            if (e1.Current == null)
-            {
-                if (e2.Current != null)
-                {
-                    return false;
-                }
-            }
-            else if (!e1.Current.Equals(e2.Current))
-            {
-                return false;
-            }
-        }
-
-        if (e2.MoveNext())
-        {
-            return false;
-        }
-
-        return true;
+        return lhs.SequenceEqual(rhs);
     }
 
     public static int SequenceGetHashCode(IEnumerable seq)

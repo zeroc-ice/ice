@@ -6,7 +6,7 @@ module Test
 {
 
 sequence<string> StringSeq;
-sequence<int> IntList;
+["cs:generic:List"]sequence<int> IntList;
 dictionary<string, string> StringDict;
 
 class C

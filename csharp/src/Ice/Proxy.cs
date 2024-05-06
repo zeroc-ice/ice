@@ -8,43 +8,6 @@ using System.Diagnostics;
 namespace Ice;
 
 /// <summary>
-/// Delegate for a successful <code>ice_isA</code> invocation.
-/// <param name="ret">True if the remote object supports the type, false otherwise.</param>
-/// </summary>
-public delegate void Callback_Object_ice_isA(bool ret);
-
-/// <summary>
-/// Delegate for a successful <code>ice_ids</code> invocation.
-/// <param name="ret">The array of Slice type ids supported by the remote object.</param>
-/// </summary>
-public delegate void Callback_Object_ice_ids(string[] ret);
-
-/// <summary>
-/// Delegate for a successful <code>ice_id</code> invocation.
-/// <param name="ret">The Slice type id of the most-derived interface supported by the remote object.</param>
-/// </summary>
-public delegate void Callback_Object_ice_id(string ret);
-
-/// <summary>
-/// Delegate for a successful <code>ice_ping</code> invocation.
-/// </summary>
-public delegate void Callback_Object_ice_ping();
-
-/// <summary>
-/// Delegate for a successful <code>ice_invoke</code> invocation.
-/// <param name="ret">True if the invocation succeeded, or false if the invocation
-/// raised a user exception.</param>
-/// <param name="outEncaps">The encoded out-parameters or user exception.</param>
-/// </summary>
-public delegate void Callback_Object_ice_invoke(bool ret, byte[] outEncaps);
-
-/// <summary>
-/// Delegate for a successful <code>ice_getConnection</code> invocation.
-/// <param name="ret">The connection used by the proxy.</param>
-/// </summary>
-public delegate void Callback_Object_ice_getConnection(Connection ret);
-
-/// <summary>
 /// Value type to allow differentiate between a context that is explicitly set to
 /// empty (empty or null dictionary) and a context that has non been set.
 /// </summary>
@@ -84,7 +47,7 @@ public struct OptionalContext
 /// <summary>
 /// Base interface of all object proxies.
 /// </summary>
-public interface ObjectPrx
+public interface ObjectPrx : IEquatable<ObjectPrx>
 {
     /// <summary>
     /// Returns the communicator that created this proxy.
@@ -605,9 +568,25 @@ public struct Object_Ice_invokeResult
 /// </summary>
 public class ObjectPrxHelperBase : ObjectPrx
 {
+    public static bool operator ==(ObjectPrxHelperBase lhs, ObjectPrxHelperBase rhs) =>
+        lhs is not null ? lhs.Equals(rhs) : rhs is null;
+
+    public static bool operator !=(ObjectPrxHelperBase lhs, ObjectPrxHelperBase rhs) => !(lhs == rhs);
+
     public ObjectPrxHelperBase()
     {
     }
+
+    /// <summary>
+    /// Returns whether this proxy equals the passed object. Two proxies are equal if they are equal in all
+    /// respects, that is, if their object identity, endpoints timeout settings, and so on are all equal.
+    /// </summary>
+    /// <param name="r">The proxy to compare this proxy with.</param>
+    /// <returns>True if this proxy is equal to r; false, otherwise.</returns>
+    public bool Equals(ObjectPrx other) =>
+        other is not null && _reference == ((ObjectPrxHelperBase)other)._reference;
+
+    public override bool Equals(object other) => Equals(other as ObjectPrx);
 
     /// <summary>
     /// Returns a hash code for this proxy.
@@ -1739,54 +1718,6 @@ public class ObjectPrxHelperBase : ObjectPrx
     public System.Threading.Tasks.TaskScheduler ice_scheduler()
     {
         return _reference.getThreadPool();
-    }
-
-    /// <summary>
-    /// Returns whether this proxy equals the passed object. Two proxies are equal if they are equal in all
-    /// respects, that is, if their object identity, endpoints timeout settings, and so on are all equal.
-    /// </summary>
-    /// <param name="r">The object to compare this proxy with.</param>
-    /// <returns>True if this proxy is equal to r; false, otherwise.</returns>
-    public override bool Equals(object r)
-    {
-        var rhs = r as ObjectPrxHelperBase;
-        return ReferenceEquals(rhs, null) ? false : _reference.Equals(rhs._reference);
-    }
-
-    /// <summary>
-    /// Returns whether two proxies are equal. Two proxies are equal if they are equal in all
-    /// respects, that is, if their object identity, endpoints timeout settings, and so on are all equal.
-    /// </summary>
-    /// <param name="lhs">A proxy to compare with the proxy rhs.</param>
-    /// <param name="rhs">A proxy to compare with the proxy lhs.</param>
-    /// <returns>True if the proxies are equal; false, otherwise.</returns>
-    public static bool Equals(ObjectPrxHelperBase lhs, ObjectPrxHelperBase rhs)
-    {
-        return ReferenceEquals(lhs, null) ? ReferenceEquals(rhs, null) : lhs.Equals(rhs);
-    }
-
-    /// <summary>
-    /// Returns whether two proxies are equal. Two proxies are equal if they are equal in all
-    /// respects, that is, if their object identity, endpoints timeout settings, and so on are all equal.
-    /// </summary>
-    /// <param name="lhs">A proxy to compare with the proxy rhs.</param>
-    /// <param name="rhs">A proxy to compare with the proxy lhs.</param>
-    /// <returns>True if the proxies are equal; false, otherwise.</returns>
-    public static bool operator ==(ObjectPrxHelperBase lhs, ObjectPrxHelperBase rhs)
-    {
-        return Equals(lhs, rhs);
-    }
-
-    /// <summary>
-    /// Returns whether two proxies are not equal. Two proxies are equal if they are equal in all
-    /// respects, that is, if their object identity, endpoints timeout settings, and so on are all equal.
-    /// </summary>
-    /// <param name="lhs">A proxy to compare with the proxy rhs.</param>
-    /// <param name="rhs">A proxy to compare with the proxy lhs.</param>
-    /// <returns>True if the proxies are not equal; false, otherwise.</returns>
-    public static bool operator !=(ObjectPrxHelperBase lhs, ObjectPrxHelperBase rhs)
-    {
-        return !Equals(lhs, rhs);
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]

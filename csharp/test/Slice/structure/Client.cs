@@ -15,10 +15,7 @@ public class Client : TestHelper
         C def_cls = new C(5);
         S1 def_s = new S1("name");
         string[] def_ss = new string[] { "one", "two", "three" };
-        int[] def_il = new int[3];
-        def_il[0] = 1;
-        def_il[1] = 2;
-        def_il[2] = 3;
+        var def_il = new List<int> { 1, 2, 3 };
         Dictionary<string, string> def_sd = new Dictionary<string, string>();
         def_sd.Add("abc", "def");
         Ice.ObjectPrx def_prx = communicator.stringToProxy("test");
@@ -129,11 +126,11 @@ public class Client : TestHelper
             S2 v1, v2;
 
             v1 = (S2)def_s2.Clone();
-            v1.il = (int[])def_s2.il.Clone();
+            v1.il = new List<int>(def_s2.il);
             test(v1.Equals(def_s2));
 
             v1 = (S2)def_s2.Clone();
-            v1.il = new int[3] { 0, 0, 0 };
+            v1.il = new List<int> { 0, 0, 0 };
             test(!v1.Equals(def_s2));
 
             v1 = (S2)def_s2.Clone();
