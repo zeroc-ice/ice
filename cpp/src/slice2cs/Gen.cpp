@@ -1865,13 +1865,6 @@ Slice::Gen::generate(const UnitPtr& p)
     TypeIdVisitor typeIdVisitor(_out);
     p->visit(&typeIdVisitor, false);
 
-    //
-    // The async delegates are emitted before the proxy definition
-    // because the proxy methods need to know the type.
-    //
-    AsyncDelegateVisitor asyncDelegateVisitor(_out);
-    p->visit(&asyncDelegateVisitor, false);
-
     ResultVisitor resultVisitor(_out);
     p->visit(&resultVisitor, false);
 
@@ -3287,58 +3280,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::AsyncDelegateVisitor::AsyncDelegateVisitor(IceUtilInternal::Output& out) : CsVisitor(out) {}
-
-bool
-Slice::Gen::AsyncDelegateVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if (p->hasOperations())
-    {
-        moduleStart(p);
-        _out << sp << nl << "namespace " << fixId(p->name());
-        _out << sb;
-        return true;
-    }
-    return false;
-}
-
-void
-Slice::Gen::AsyncDelegateVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    _out << eb;
-    moduleEnd(p);
-}
-
-bool
-Slice::Gen::AsyncDelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    return p->hasOperations();
-}
-
-void
-Slice::Gen::AsyncDelegateVisitor::visitClassDefEnd(const ClassDefPtr&)
-{
-}
-
-void
-Slice::Gen::AsyncDelegateVisitor::visitOperation(const OperationPtr& p)
-{
-    InterfaceDefPtr interface = p->interface();
-    string ns = getNamespace(interface);
-    vector<string> paramDeclAMI = getOutParams(p, ns, false, false);
-    string retS = typeToString(p->returnType(), ns, p->returnIsOptional());
-    string delName = "Callback_" + interface->name() + "_" + p->name();
-
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public delegate void " << delName << spar;
-    if (p->returnType())
-    {
-        _out << retS + " ret";
-    }
-    _out << paramDeclAMI << epar << ';';
-}
-
 Slice::Gen::OpsVisitor::OpsVisitor(IceUtilInternal::Output& out) : CsVisitor(out) {}
 
 bool
@@ -3779,80 +3720,32 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << sp << nl << "#region Checked and unchecked cast operations";
 
-    _out << sp << nl << "public static " << name << "Prx checkedCast(" << getUnqualified("Ice.ObjectPrx", ns) << " b)";
+    _out << sp << nl << "public static " << name << "Prx checkedCast(" << getUnqualified("Ice.ObjectPrx", ns)
+         << " b, global::System.Collections.Generic.Dictionary<string, string> ctx = null)";
     _out << sb;
-    _out << nl << "if(b == null)";
+    _out << nl << "if (b is not null && b.ice_isA(ice_staticId(), ctx))";
     _out << sb;
+    _out << nl << name << "PrxHelper prx = new " << name << "PrxHelper();";
+    _out << nl << "prx.iceCopyFrom(b);";
+    _out << nl << "return prx;";
+    _out << eb;
     _out << nl << "return null;";
-    _out << eb;
-    _out << nl << name << "Prx r = b as " << name << "Prx;";
-    _out << nl << "if((r == null) && b.ice_isA(ice_staticId()))";
-    _out << sb;
-    _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    _out << nl << "h.iceCopyFrom(b);";
-    _out << nl << "r = h;";
-    _out << eb;
-    _out << nl << "return r;";
     _out << eb;
 
     _out << sp << nl << "public static " << name << "Prx checkedCast(" << getUnqualified("Ice.ObjectPrx", ns)
-         << " b, global::System.Collections.Generic.Dictionary<string, string> ctx)";
+         << " b, string f, " << "global::System.Collections.Generic.Dictionary<string, string> ctx = null)";
     _out << sb;
-    _out << nl << "if(b == null)";
-    _out << sb;
-    _out << nl << "return null;";
-    _out << eb;
-    _out << nl << name << "Prx r = b as " << name << "Prx;";
-    _out << nl << "if((r == null) && b.ice_isA(ice_staticId(), ctx))";
-    _out << sb;
-    _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    _out << nl << "h.iceCopyFrom(b);";
-    _out << nl << "r = h;";
-    _out << eb;
-    _out << nl << "return r;";
-    _out << eb;
-
-    _out << sp << nl << "public static " << name << "Prx checkedCast(" << getUnqualified("Ice.ObjectPrx", ns)
-         << " b, string f)";
-    _out << sb;
-    _out << nl << "if(b == null)";
-    _out << sb;
-    _out << nl << "return null;";
-    _out << eb;
-    _out << nl << getUnqualified("Ice.ObjectPrx", ns) << " bb = b.ice_facet(f);";
+    _out << nl << getUnqualified("Ice.ObjectPrx", ns) << " bb = b?.ice_facet(f);";
     _out << nl << "try";
     _out << sb;
-    _out << nl << "if(bb.ice_isA(ice_staticId()))";
+    _out << nl << "if (bb is not null && bb.ice_isA(ice_staticId(), ctx))";
     _out << sb;
-    _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    _out << nl << "h.iceCopyFrom(bb);";
-    _out << nl << "return h;";
+    _out << nl << name << "PrxHelper prx = new " << name << "PrxHelper();";
+    _out << nl << "prx.iceCopyFrom(bb);";
+    _out << nl << "return prx;";
     _out << eb;
     _out << eb;
-    _out << nl << "catch(" << getUnqualified("Ice.FacetNotExistException", ns) << ")";
-    _out << sb;
-    _out << eb;
-    _out << nl << "return null;";
-    _out << eb;
-
-    _out << sp << nl << "public static " << name << "Prx checkedCast(" << getUnqualified("Ice.ObjectPrx", ns)
-         << " b, string f, " << "global::System.Collections.Generic.Dictionary<string, string> ctx)";
-    _out << sb;
-    _out << nl << "if(b == null)";
-    _out << sb;
-    _out << nl << "return null;";
-    _out << eb;
-    _out << nl << getUnqualified("Ice.ObjectPrx", ns) << " bb = b.ice_facet(f);";
-    _out << nl << "try";
-    _out << sb;
-    _out << nl << "if(bb.ice_isA(ice_staticId(), ctx))";
-    _out << sb;
-    _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    _out << nl << "h.iceCopyFrom(bb);";
-    _out << nl << "return h;";
-    _out << eb;
-    _out << eb;
-    _out << nl << "catch(" << getUnqualified("Ice.FacetNotExistException", ns) << ")";
+    _out << nl << "catch (" << getUnqualified("Ice.FacetNotExistException", ns) << ")";
     _out << sb;
     _out << eb;
     _out << nl << "return null;";
