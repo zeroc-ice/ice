@@ -7,9 +7,10 @@
 
 #ifdef _WIN32
 
-#    include "Ice/ClientAuthenticationOptions.h"
+
 #    include "Ice/InstanceF.h"
 #    include "Ice/SSL/ConnectionInfo.h"
+#    include "Ice/SSL/ClientAuthenticationOptions.h"
 #    include "Ice/SSL/ServerAuthenticationOptions.h"
 #    include "SSLEngine.h"
 #    include "SchannelEngineF.h"

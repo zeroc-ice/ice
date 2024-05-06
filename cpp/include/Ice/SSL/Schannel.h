@@ -9,7 +9,7 @@
 #    include "Certificate.h"
 #    include "Config.h"
 
-namespace Ice::SSL::SChannel
+namespace Ice::SSL::Schannel
 {
     class Certificate;
     using CertificatePtr = std::shared_ptr<Certificate>;

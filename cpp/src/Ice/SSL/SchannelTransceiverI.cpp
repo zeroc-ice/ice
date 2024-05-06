@@ -8,6 +8,7 @@
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/SSL/ConnectionInfo.h"
+#include "Ice/SSL/Schannel.h"
 #include "IceUtil/StringUtil.h"
 #include "SSLInstance.h"
 #include "SSLUtil.h"

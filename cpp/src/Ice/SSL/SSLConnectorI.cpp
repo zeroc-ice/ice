@@ -16,8 +16,8 @@
 #include "SSLUtil.h"
 
 #if defined(_WIN32)
-#    include "SChannelEngine.h"
-#    include "SChannelTransceiverI.h"
+#    include "SchannelEngine.h"
+#    include "SchannelTransceiverI.h"
 #elif defined(__APPLE__)
 #    include "SecureTransportEngine.h"
 #    include "SecureTransportTransceiverI.h"
@@ -41,7 +41,7 @@ Ice::SSL::ConnectorI::connect()
     }
     assert(clientAuthenticationOptions);
 #if defined(_WIN32)
-    return make_shared<SChannel::TransceiverI>(_instance, _delegate->connect(), _host, *clientAuthenticationOptions);
+    return make_shared<Schannel::TransceiverI>(_instance, _delegate->connect(), _host, *clientAuthenticationOptions);
 #elif defined(__APPLE__)
     return make_shared<SecureTransport::TransceiverI>(
         _instance,

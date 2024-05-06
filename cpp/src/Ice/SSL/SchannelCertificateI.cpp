@@ -5,7 +5,7 @@
 #include "../StringUtil.h"
 #include "CertificateI.h"
 #include "Ice/SSL/Certificate.h"
-#include "Ice/Schannel.h"
+#include "Ice/SSL/Schannel.h"
 #include "Ice/StringConverter.h"
 #include "SSLUtil.h"
 

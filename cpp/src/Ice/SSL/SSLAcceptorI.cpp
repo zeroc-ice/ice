@@ -10,8 +10,8 @@
 #include "SSLUtil.h"
 
 #if defined(_WIN32)
-#    include "SChannelEngine.h"
-#    include "SChannelTransceiverI.h"
+#    include "SchannelEngine.h"
+#    include "SchannelTransceiverI.h"
 #elif defined(__APPLE__)
 #    include "SecureTransportTransceiverI.h"
 #else
@@ -73,7 +73,7 @@ Ice::SSL::AcceptorI::accept()
     }
     assert(serverAuthenticationOptions);
 #if defined(_WIN32)
-    return make_shared<Ice::SSL::SChannel::TransceiverI>(
+    return make_shared<Ice::SSL::Schannel::TransceiverI>(
         _instance,
         _delegate->accept(),
         _adapterName,

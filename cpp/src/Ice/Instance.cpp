@@ -1310,7 +1310,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         }
 
 #if defined(_WIN32)
-        _sslEngine = make_shared<Ice::SSL::SChannel::SSLEngine>(shared_from_this());
+        _sslEngine = make_shared<Ice::SSL::Schannel::SSLEngine>(shared_from_this());
 #elif defined(__APPLE__)
         _sslEngine = make_shared<Ice::SSL::SecureTransport::SSLEngine>(shared_from_this());
 #else

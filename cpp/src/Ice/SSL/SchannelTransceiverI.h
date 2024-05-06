@@ -7,10 +7,10 @@
 
 #ifdef _WIN32
 
-#    include "../Ice/Network.h"
-#    include "../Ice/StreamSocket.h"
-#    include "../Ice/Transceiver.h"
-#    include "../Ice/WSTransceiver.h"
+#    include "../Network.h"
+#    include "../StreamSocket.h"
+#    include "../Transceiver.h"
+#    include "../WSTransceiver.h"
 #    include "Ice/Buffer.h"
 #    include "Ice/Config.h"
 #    include "SSLInstanceF.h"
