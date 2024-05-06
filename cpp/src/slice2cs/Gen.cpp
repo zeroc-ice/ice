@@ -2670,16 +2670,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         emitGeneratedCodeAttribute();
         _out << nl << "public bool Equals(" << name << " other)";
         _out << sb;
-        _out << nl << "if (object.ReferenceEquals(this, other))";
-        _out << sb;
-        _out << nl << "return true;";
-        _out << eb;
-        _out << nl << "if (other is null)";
-        _out << sb;
-        _out << nl << "return false;";
-        _out << eb;
         writeMemberEquals(dataMembers);
-        _out << nl << "return true;";
         _out << eb;
 
         _out << sp << nl << "#endregion"; // Object members
@@ -2688,18 +2679,12 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         _out << sp;
         emitGeneratedCodeAttribute();
-        _out << nl << "public static bool operator==(" << name << " lhs, " << name << " rhs)";
-        _out << sb;
-        _out << nl << "return (object)lhs == rhs || (lhs is not null && lhs.Equals(rhs));";
-        _out << eb;
+        _out << nl << "public static bool operator ==(" << name << " lhs, " << name << " rhs) => ";
+        _out << "lhs is not null ? lhs.Equals(rhs) : rhs is null;";
 
         _out << sp;
         emitGeneratedCodeAttribute();
-        _out << nl << "public static bool operator!=(" << name << " lhs, " << name << " rhs)";
-        _out << sb;
-        _out << nl << "return !(lhs == rhs);";
-        _out << eb;
-
+        _out << nl << "public static bool operator !=(" << name << " lhs, " << name << " rhs) => !(lhs == rhs);";
         _out << sp << nl << "#endregion"; // Comparison members
     }
 
@@ -2943,74 +2928,49 @@ Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers)
 void
 Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers)
 {
+    _out << nl << "if (ReferenceEquals(this, other))";
+    _out << sb;
+    _out << nl << "return true;";
+    _out << eb;
+    _out << nl << "return other is not null";
+
+    assert(!dataMembers.empty()); // a Slice struct must have at least one field.
+
+    _out.inc();
+
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
+        assert(!(*q)->optional()); // a Slice struct does not have optional fields.
+
+        _out << " && " << nl;
+
         string memberName = fixId((*q)->name(), DotNet::ICloneable);
         TypePtr memberType = (*q)->type();
-        if (!(*q)->optional() && !isValueType(memberType))
+
+        if (SequencePtr seq = dynamic_pointer_cast<Sequence>(memberType))
         {
-            _out << nl << "if (this." << memberName << " is null)";
-            _out << sb;
-            _out << nl << "if (other." << memberName << " is not null)";
-            _out << sb;
-            _out << nl << "return false;";
-            _out << eb;
-            _out << eb;
-            _out << nl << "else";
-            _out << sb;
-            SequencePtr seq = dynamic_pointer_cast<Sequence>(memberType);
-            if (seq)
-            {
-                string meta;
-                bool isGeneric = seq->findMetaData("cs:generic:", meta);
-                bool isArray = !isGeneric;
-                if (isArray)
-                {
-                    //
-                    // Equals() for native arrays does not have value semantics.
-                    //
-                    _out << nl << "if (!Ice.UtilInternal.Arrays.Equals(this." << memberName << ", other." << memberName
-                         << "))";
-                }
-                else if (isGeneric)
-                {
-                    //
-                    // Equals() for generic types does not have value semantics.
-                    //
-                    _out << nl << "if (!global::Ice.UtilInternal.Collections.SequenceEquals(this." << memberName
-                         << ", other." << memberName << "))";
-                }
-            }
-            else
-            {
-                DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(memberType);
-                if (dict)
-                {
-                    //
-                    // Equals() for generic types does not have value semantics.
-                    //
-                    _out << nl << "if (!global::Ice.UtilInternal.Collections.DictionaryEquals(this." << memberName
-                         << ", other." << memberName << "))";
-                }
-                else
-                {
-                    _out << nl << "if (!this." << memberName << ".Equals(other." << memberName << "))";
-                }
-            }
-            _out << sb;
-            _out << nl << "return false;";
-            _out << eb;
-            _out << eb;
+            _out << "Ice.UtilInternal.Collections.NullableSequenceEqual(this." << memberName << ", other." << memberName
+                 << ")";
+        }
+        else if (DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(memberType))
+        {
+            // Equals() for generic types does not have value semantics.
+            _out << "Ice.UtilInternal.Collections.DictionaryEquals(this." << memberName << ", other." << memberName
+                 << ")";
+        }
+        else if (isProxyType(memberType))
+        {
+            // We need to cast it to the base concrete type to get ==
+            _out << "(Ice.ObjectPrxHelperBase)this." << memberName << " == (Ice.ObjectPrxHelperBase)other."
+                 << memberName;
         }
         else
         {
-            // The nicer != syntax doesn't work for proxy fields.
-            _out << nl << "if (!this." << memberName << ".Equals(other." << memberName << "))";
-            _out << sb;
-            _out << nl << "return false;";
-            _out << eb;
+            _out << "this." << memberName << " == other." << memberName;
         }
     }
+    _out.dec();
+    _out << ";";
 }
 
 Slice::Gen::ResultVisitor::ResultVisitor(::IceUtilInternal::Output& out) : CsVisitor(out) {}

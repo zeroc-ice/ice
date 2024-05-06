@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Ice.Internal;
 
-public abstract class Reference : ICloneable
+public abstract class Reference : IEquatable<Reference>
 {
     public enum Mode
     {
@@ -211,34 +211,6 @@ public abstract class Reference : ICloneable
     public abstract Reference changeConnectionId(string connectionId);
     public abstract Reference changeConnection(Ice.ConnectionI connection);
 
-    public override int GetHashCode()
-    {
-        lock (this)
-        {
-            if (hashInitialized_)
-            {
-                return hashValue_;
-            }
-            int h = 5381;
-            HashUtil.hashAdd(ref h, _mode);
-            HashUtil.hashAdd(ref h, secure_);
-            HashUtil.hashAdd(ref h, _identity);
-            HashUtil.hashAdd(ref h, _context);
-            HashUtil.hashAdd(ref h, _facet);
-            HashUtil.hashAdd(ref h, overrideCompress_);
-            if (overrideCompress_)
-            {
-                HashUtil.hashAdd(ref h, compress_);
-            }
-            HashUtil.hashAdd(ref h, _protocol);
-            HashUtil.hashAdd(ref h, _encoding);
-            HashUtil.hashAdd(ref h, _invocationTimeout);
-            hashValue_ = h;
-            hashInitialized_ = true;
-            return hashValue_;
-        }
-    }
-
     public bool getCompressOverride(out bool compress)
     {
         DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
@@ -420,73 +392,57 @@ public abstract class Reference : ICloneable
 
     public abstract BatchRequestQueue getBatchRequestQueue();
 
-    public override bool Equals(object obj)
+    public static bool operator ==(Reference lhs, Reference rhs) => lhs is null ? rhs is null : lhs.Equals(rhs);
+    public static bool operator !=(Reference lhs, Reference rhs) => !(lhs == rhs);
+
+    public override int GetHashCode()
     {
-        //
-        // Note: if(this == obj) and type test are performed by each non-abstract derived class.
-        //
-
-        Reference r = (Reference)obj; // Guaranteed to succeed.
-
-        if (_mode != r._mode)
+        lock (this)
         {
-            return false;
+            if (hashInitialized_)
+            {
+                return hashValue_;
+            }
+            int h = 5381;
+            HashUtil.hashAdd(ref h, _mode);
+            HashUtil.hashAdd(ref h, secure_);
+            HashUtil.hashAdd(ref h, _identity);
+            HashUtil.hashAdd(ref h, _context);
+            HashUtil.hashAdd(ref h, _facet);
+            HashUtil.hashAdd(ref h, overrideCompress_);
+            if (overrideCompress_)
+            {
+                HashUtil.hashAdd(ref h, compress_);
+            }
+            HashUtil.hashAdd(ref h, _protocol);
+            HashUtil.hashAdd(ref h, _encoding);
+            HashUtil.hashAdd(ref h, _invocationTimeout);
+            hashValue_ = h;
+            hashInitialized_ = true;
+            return hashValue_;
         }
-
-        if (secure_ != r.secure_)
-        {
-            return false;
-        }
-
-        if (!_identity.Equals(r._identity))
-        {
-            return false;
-        }
-
-        if (!Ice.CollectionComparer.Equals(_context, r._context))
-        {
-            return false;
-        }
-
-        if (!_facet.Equals(r._facet))
-        {
-            return false;
-        }
-
-        if (overrideCompress_ != r.overrideCompress_)
-        {
-            return false;
-        }
-        if (overrideCompress_ && compress_ != r.compress_)
-        {
-            return false;
-        }
-
-        if (!_protocol.Equals(r._protocol))
-        {
-            return false;
-        }
-
-        if (!_encoding.Equals(r._encoding))
-        {
-            return false;
-        }
-
-        if (_invocationTimeout != r._invocationTimeout)
-        {
-            return false;
-        }
-
-        return true;
     }
 
-    public object Clone()
+    public virtual bool Equals(Reference other)
     {
-        //
-        // A member-wise copy is safe because the members are immutable.
-        //
-        return MemberwiseClone();
+        // The derived class checks ReferenceEquals and guarantees other is not null.
+        Debug.Assert(other is not null);
+
+        return _mode == other._mode &&
+            secure_ == other.secure_ &&
+            _identity == other._identity &&
+            Ice.CollectionComparer.Equals(_context, other._context) &&
+            _facet == other._facet &&
+            overrideCompress_ == other.overrideCompress_ &&
+            (!overrideCompress_ || compress_ == other.compress_) &&
+            _protocol == other._protocol &&
+            _encoding == other._encoding &&
+            _invocationTimeout == other._invocationTimeout;
     }
+
+    public override bool Equals(object other) => Equals(other as Reference);
+
+    public object Clone() => MemberwiseClone();
 
     protected int hashValue_;
     protected bool hashInitialized_;
@@ -778,30 +734,14 @@ public class FixedReference : Reference
         return _fixedConnection.getBatchRequestQueue();
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(Reference other)
     {
-        if (ReferenceEquals(this, obj))
+        if (ReferenceEquals(this, other))
         {
             return true;
         }
-        FixedReference rhs = obj as FixedReference;
-        if (rhs == null)
-        {
-            return false;
-        }
-        if (!base.Equals(rhs))
-        {
-            return false;
-        }
-        return _fixedConnection.Equals(rhs._fixedConnection);
-    }
-
-    //
-    // If we override Equals, we must also override GetHashCode.
-    //
-    public override int GetHashCode()
-    {
-        return base.GetHashCode();
+        FixedReference rhs = other as FixedReference;
+        return rhs is not null && base.Equals(rhs) && _fixedConnection.Equals(rhs._fixedConnection);
     }
 
     private Ice.ConnectionI _fixedConnection;
@@ -1176,9 +1116,6 @@ public class RoutableReference : Reference
         return properties;
     }
 
-    //
-    // If we override Equals, we must also override GetHashCode.
-    //
     public override int GetHashCode()
     {
         lock (this)
@@ -1193,73 +1130,28 @@ public class RoutableReference : Reference
         }
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(Reference other)
     {
-        if (ReferenceEquals(this, obj))
+        if (ReferenceEquals(this, other))
         {
             return true;
         }
+        var rhs = other as RoutableReference;
 
-        RoutableReference rhs = obj as RoutableReference;
-        if (rhs == null)
-        {
-            return false;
-        }
-
-        if (!base.Equals(obj))
-        {
-            return false;
-        }
-
-        if (_locatorInfo == null ? rhs._locatorInfo != null : !_locatorInfo.Equals(rhs._locatorInfo))
-        {
-            return false;
-        }
-        if (_routerInfo == null ? rhs._routerInfo != null : !_routerInfo.Equals(rhs._routerInfo))
-        {
-            return false;
-        }
-        if (_collocationOptimized != rhs._collocationOptimized)
-        {
-            return false;
-        }
-        if (_cacheConnection != rhs._cacheConnection)
-        {
-            return false;
-        }
-        if (_preferSecure != rhs._preferSecure)
-        {
-            return false;
-        }
-        if (_endpointSelection != rhs._endpointSelection)
-        {
-            return false;
-        }
-        if (_locatorCacheTimeout != rhs._locatorCacheTimeout)
-        {
-            return false;
-        }
-        if (_overrideTimeout != rhs._overrideTimeout)
-        {
-            return false;
-        }
-        if (_overrideTimeout && _timeout != rhs._timeout)
-        {
-            return false;
-        }
-        if (!_connectionId.Equals(rhs._connectionId))
-        {
-            return false;
-        }
-        if (!_adapterId.Equals(rhs._adapterId))
-        {
-            return false;
-        }
-        if (!Ice.UtilInternal.Arrays.Equals(_endpoints, rhs._endpoints))
-        {
-            return false;
-        }
-        return true;
+        return rhs is not null &&
+            base.Equals(rhs) &&
+            _locatorInfo == rhs._locatorInfo &&
+            _routerInfo == rhs._routerInfo &&
+            _collocationOptimized == rhs._collocationOptimized &&
+            _cacheConnection == rhs._cacheConnection &&
+            _preferSecure == rhs._preferSecure &&
+            _endpointSelection == rhs._endpointSelection &&
+            _locatorCacheTimeout == rhs._locatorCacheTimeout &&
+            _overrideTimeout == rhs._overrideTimeout &&
+            (!_overrideTimeout || _timeout == rhs._timeout) &&
+            _connectionId == rhs._connectionId &&
+            _adapterId == rhs._adapterId &&
+            UtilInternal.Arrays.Equals(_endpoints, rhs._endpoints);
     }
 
     private sealed class RouterEndpointsCallback : RouterInfo.GetClientEndpointsCallback
