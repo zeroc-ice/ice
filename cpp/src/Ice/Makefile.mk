@@ -13,9 +13,9 @@ Ice_libs                := bz2
 Ice_extra_sources       := $(wildcard src/IceUtil/*.cpp)
 
 ifeq ($(os),Darwin)
-Ice_extra_sources       += $(filter-out src/IceSSL/OpenSSL%.cpp src/IceSSL/SChannel%.cpp, $(wildcard src/IceSSL/*.cpp))
+Ice_extra_sources       += $(filter-out src/Ice/SSL/OpenSSL%.cpp src/Ice/SSL/Schannel%.cpp, $(wildcard src/Ice/SSL/*.cpp))
 else
-Ice_extra_sources       += $(filter-out src/IceSSL/SecureTransport%.cpp src/IceSSL/SChannel%.cpp, $(wildcard src/IceSSL/*.cpp))
+Ice_extra_sources       += $(filter-out src/Ice/SSL/SecureTransport%.cpp src/Ice/SSL/Schannel%.cpp, $(wildcard src/Ice/SSL/*.cpp))
 endif
 Ice_excludes            = src/Ice/DLLMain.cpp
 

@@ -52,14 +52,14 @@ public:
     {
         testContext(true, current.adapter->getCommunicator(), current.ctx);
 
-        auto cert = IceSSL::Certificate::decode(info.certs[0]);
+        auto cert = Ice::SSL::Certificate::decode(info.certs[0]);
         test(
             cert->getIssuerDN() ==
-            IceSSL::DistinguishedName(
+            Ice::SSL::DistinguishedName(
                 "emailAddress=info@zeroc.com,C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=Ice Tests CA"));
         test(
             cert->getSubjectDN() ==
-            IceSSL::DistinguishedName(
+            Ice::SSL::DistinguishedName(
                 "emailAddress=info@zeroc.com,C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=client"));
         test(cert->checkValidity());
 
@@ -120,18 +120,18 @@ public:
 
         try
         {
-            auto cert = IceSSL::Certificate::decode(info.certs[0]);
+            auto cert = Ice::SSL::Certificate::decode(info.certs[0]);
             test(
                 cert->getIssuerDN() ==
-                IceSSL::DistinguishedName(
+                Ice::SSL::DistinguishedName(
                     "emailAddress=info@zeroc.com,C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=Ice Tests CA"));
             test(
                 cert->getSubjectDN() ==
-                IceSSL::DistinguishedName(
+                Ice::SSL::DistinguishedName(
                     "emailAddress=info@zeroc.com,C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=client"));
             test(cert->checkValidity());
         }
-        catch (const IceSSL::CertificateReadException&)
+        catch (const Ice::SSL::CertificateReadException&)
         {
             test(false);
         }

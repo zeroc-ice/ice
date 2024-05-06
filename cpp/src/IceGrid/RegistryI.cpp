@@ -1197,7 +1197,7 @@ RegistryI::getSSLInfo(const ConnectionPtr& connection, string& userDN)
     Glacier2::SSLInfo sslinfo;
     try
     {
-        auto info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(connection->getInfo());
+        auto info = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(connection->getInfo());
         if (!info)
         {
             throw PermissionDeniedException("not ssl connection");
@@ -1217,7 +1217,7 @@ RegistryI::getSSLInfo(const ConnectionPtr& connection, string& userDN)
             userDN = info->certs[0]->getSubjectDN();
         }
     }
-    catch (const IceSSL::CertificateEncodingException&)
+    catch (const Ice::SSL::CertificateEncodingException&)
     {
         throw PermissionDeniedException("certificate encoding exception");
     }

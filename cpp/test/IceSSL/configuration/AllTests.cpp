@@ -181,10 +181,10 @@ public:
         for (int i = 0; certificates[i] != 0; ++i)
         {
             string resolved;
-            if (IceSSL::checkPath(certificates[i], defaultDir, false, resolved))
+            if (Ice::SSL::checkPath(certificates[i], defaultDir, false, resolved))
             {
                 IceInternal::UniqueRef<CFArrayRef> certs(
-                    IceSSL::SecureTransport::loadCertificateChain(resolved, "", "", "", "password"));
+                    Ice::SSL::SecureTransport::loadCertificateChain(resolved, "", "", "", "password"));
                 SecIdentityRef identity =
                     static_cast<SecIdentityRef>(const_cast<void*>(CFArrayGetValueAtIndex(certs.get(), 0)));
                 CFRetain(identity);
@@ -210,7 +210,7 @@ public:
                 // for(int i = 0; i < CFArrayGetCount(array); ++i)
                 // {
                 //     printf("Cert %d: %s\n", i, (new
-                //     IceSSL::Certificate((SecCertificateRef)CFArrayGetValueAtIndex(array, i)))->toString().c_str());
+                //     Ice::SSL::Certificate((SecCertificateRef)CFArrayGetValueAtIndex(array, i)))->toString().c_str());
                 // }
             }
         }
@@ -363,7 +363,7 @@ createClientProps(const Ice::PropertiesPtr& defaultProps, bool p12, const string
 }
 
 void
-verify(const IceSSL::CertificatePtr& cert, const IceSSL::CertificatePtr& ca)
+verify(const Ice::SSL::CertificatePtr& cert, const Ice::SSL::CertificatePtr& ca)
 {
     cerr << "Verify signature: ";
     if (cert->verify(ca))
@@ -404,7 +404,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     string sep = ":";
 #endif
 
-    IceSSL::ConnectionInfoPtr info;
+    Ice::SSL::ConnectionInfoPtr info;
 
     cout << "testing certificate verification... " << flush;
     {
@@ -534,9 +534,10 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         try
         {
 #if defined(_WIN32) && defined(ICE_USE_OPENSSL)
-            IceSSL::CertificatePtr clientCert = IceSSL::OpenSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
+            Ice::SSL::CertificatePtr clientCert =
+                Ice::SSL::OpenSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
 #else
-            IceSSL::CertificatePtr clientCert = IceSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
+            Ice::SSL::CertificatePtr clientCert = Ice::SSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
 #endif
             server->checkCert(clientCert->getSubjectDN().toString(), clientCert->getIssuerDN().toString());
 
@@ -547,11 +548,12 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             // Validate some aspects of the Certificate class.
             //
 #if defined(_WIN32) && defined(ICE_USE_OPENSSL)
-            IceSSL::CertificatePtr serverCert = IceSSL::OpenSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
-            test(Ice::targetEqualTo(IceSSL::OpenSSL::Certificate::decode(serverCert->encode()), serverCert));
+            Ice::SSL::CertificatePtr serverCert =
+                Ice::SSL::OpenSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
+            test(Ice::targetEqualTo(Ice::SSL::OpenSSL::Certificate::decode(serverCert->encode()), serverCert));
 #else
-            IceSSL::CertificatePtr serverCert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
-            test(Ice::targetEqualTo(IceSSL::Certificate::decode(serverCert->encode()), serverCert));
+            Ice::SSL::CertificatePtr serverCert = Ice::SSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
+            test(Ice::targetEqualTo(Ice::SSL::Certificate::decode(serverCert->encode()), serverCert));
 #endif
             test(Ice::targetEqualTo(serverCert, serverCert));
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
@@ -561,11 +563,11 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #endif
 
 #if defined(_WIN32) && defined(ICE_USE_OPENSSL)
-            IceSSL::CertificatePtr caCert = IceSSL::OpenSSL::Certificate::load(defaultDir + "/cacert1.pem");
-            IceSSL::CertificatePtr caCert2 = IceSSL::OpenSSL::Certificate::load(defaultDir + "/cacert2.pem");
+            Ice::SSL::CertificatePtr caCert = Ice::SSL::OpenSSL::Certificate::load(defaultDir + "/cacert1.pem");
+            Ice::SSL::CertificatePtr caCert2 = Ice::SSL::OpenSSL::Certificate::load(defaultDir + "/cacert2.pem");
 #else
-            IceSSL::CertificatePtr caCert = IceSSL::Certificate::load(defaultDir + "/cacert1.pem");
-            IceSSL::CertificatePtr caCert2 = IceSSL::Certificate::load(defaultDir + "/cacert2.pem");
+            Ice::SSL::CertificatePtr caCert = Ice::SSL::Certificate::load(defaultDir + "/cacert1.pem");
+            Ice::SSL::CertificatePtr caCert2 = Ice::SSL::Certificate::load(defaultDir + "/cacert2.pem");
 #endif
             test(Ice::targetEqualTo(caCert, caCert));
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
@@ -579,7 +581,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             test(!serverCert->verify(caCert2));
             test(caCert->verify(caCert));
 
-            info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
+            info = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
             // TODO provide the peer certificate.
             /*test(info->certs.size() == 2);
 
@@ -617,9 +619,10 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         try
         {
 #if defined(_WIN32) && defined(ICE_USE_OPENSSL)
-            IceSSL::CertificatePtr clientCert = IceSSL::OpenSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
+            Ice::SSL::CertificatePtr clientCert =
+                Ice::SSL::OpenSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
 #else
-            IceSSL::CertificatePtr clientCert = IceSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
+            Ice::SSL::CertificatePtr clientCert = Ice::SSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
 #endif
             server->checkCert(clientCert->getSubjectDN().toString(), clientCert->getIssuerDN().toString());
         }
@@ -981,64 +984,64 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
         for (int i = 0; certificates[i] != 0; ++i)
         {
-            IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + certificates[i]);
+            Ice::SSL::CertificatePtr cert = Ice::SSL::Certificate::load(defaultDir + certificates[i]);
             test(toHexString(cert->getAuthorityKeyIdentifier()) == authorities[i]);
             test(toHexString(cert->getSubjectKeyIdentifier()) == subjects[i]);
         }
 
-        IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/cacert1.pem");
+        Ice::SSL::CertificatePtr cert = Ice::SSL::Certificate::load(defaultDir + "/cacert1.pem");
         unsigned int keyUsage = cert->getKeyUsage();
         test(
             keyUsage ==
-            (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE | IceSSL::KEY_USAGE_KEY_CERT_SIGN | IceSSL::KEY_USAGE_CRL_SIGN));
+            (Ice::SSL::KEY_USAGE_DIGITAL_SIGNATURE | Ice::SSL::KEY_USAGE_KEY_CERT_SIGN | Ice::SSL::KEY_USAGE_CRL_SIGN));
 
         //  Digital Signature, Certificate Sign, CRL Sign
-        cert = IceSSL::Certificate::load(defaultDir + "/cacert3.pem");
+        cert = Ice::SSL::Certificate::load(defaultDir + "/cacert3.pem");
         keyUsage = cert->getKeyUsage();
         test(
             keyUsage ==
-            (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE | IceSSL::KEY_USAGE_KEY_CERT_SIGN | IceSSL::KEY_USAGE_CRL_SIGN));
+            (Ice::SSL::KEY_USAGE_DIGITAL_SIGNATURE | Ice::SSL::KEY_USAGE_KEY_CERT_SIGN | Ice::SSL::KEY_USAGE_CRL_SIGN));
 
         //  Digital Signature, Certificate Sign, CRL Sign
-        cert = IceSSL::Certificate::load(defaultDir + "/cacert4.pem");
+        cert = Ice::SSL::Certificate::load(defaultDir + "/cacert4.pem");
         keyUsage = cert->getKeyUsage();
         test(
             keyUsage ==
-            (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE | IceSSL::KEY_USAGE_KEY_CERT_SIGN | IceSSL::KEY_USAGE_CRL_SIGN));
+            (Ice::SSL::KEY_USAGE_DIGITAL_SIGNATURE | Ice::SSL::KEY_USAGE_KEY_CERT_SIGN | Ice::SSL::KEY_USAGE_CRL_SIGN));
     }
 
     {
-        IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_none_pub.pem");
+        Ice::SSL::CertificatePtr cert = Ice::SSL::Certificate::load(defaultDir + "/rsa_ca1_none_pub.pem");
         unsigned int keyUsage = cert->getExtendedKeyUsage();
         test(keyUsage == 0);
 
-        cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_serverAuth_pub.pem");
+        cert = Ice::SSL::Certificate::load(defaultDir + "/rsa_ca1_serverAuth_pub.pem");
         keyUsage = cert->getExtendedKeyUsage();
-        test(keyUsage == IceSSL::EXTENDED_KEY_USAGE_SERVER_AUTH);
+        test(keyUsage == Ice::SSL::EXTENDED_KEY_USAGE_SERVER_AUTH);
 
-        cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_clientAuth_pub.pem");
+        cert = Ice::SSL::Certificate::load(defaultDir + "/rsa_ca1_clientAuth_pub.pem");
         keyUsage = cert->getExtendedKeyUsage();
-        test(keyUsage == IceSSL::EXTENDED_KEY_USAGE_CLIENT_AUTH);
+        test(keyUsage == Ice::SSL::EXTENDED_KEY_USAGE_CLIENT_AUTH);
 
-        cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_codeSigning_pub.pem");
+        cert = Ice::SSL::Certificate::load(defaultDir + "/rsa_ca1_codeSigning_pub.pem");
         keyUsage = cert->getExtendedKeyUsage();
-        test(keyUsage == IceSSL::EXTENDED_KEY_USAGE_CODE_SIGNING);
+        test(keyUsage == Ice::SSL::EXTENDED_KEY_USAGE_CODE_SIGNING);
 
-        cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_emailProtection_pub.pem");
+        cert = Ice::SSL::Certificate::load(defaultDir + "/rsa_ca1_emailProtection_pub.pem");
         keyUsage = cert->getExtendedKeyUsage();
-        test(keyUsage == IceSSL::EXTENDED_KEY_USAGE_EMAIL_PROTECTION);
+        test(keyUsage == Ice::SSL::EXTENDED_KEY_USAGE_EMAIL_PROTECTION);
 
-        cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_timeStamping_pub.pem");
+        cert = Ice::SSL::Certificate::load(defaultDir + "/rsa_ca1_timeStamping_pub.pem");
         keyUsage = cert->getExtendedKeyUsage();
-        test(keyUsage == IceSSL::EXTENDED_KEY_USAGE_TIME_STAMPING);
+        test(keyUsage == Ice::SSL::EXTENDED_KEY_USAGE_TIME_STAMPING);
 
-        cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_ocspSigning_pub.pem");
+        cert = Ice::SSL::Certificate::load(defaultDir + "/rsa_ca1_ocspSigning_pub.pem");
         keyUsage = cert->getExtendedKeyUsage();
-        test(keyUsage == IceSSL::EXTENDED_KEY_USAGE_OCSP_SIGNING);
+        test(keyUsage == Ice::SSL::EXTENDED_KEY_USAGE_OCSP_SIGNING);
 
-        cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_anyExtendedKeyUsage_pub.pem");
+        cert = Ice::SSL::Certificate::load(defaultDir + "/rsa_ca1_anyExtendedKeyUsage_pub.pem");
         keyUsage = cert->getExtendedKeyUsage();
-        test(keyUsage == IceSSL::EXTENDED_KEY_USAGE_ANY_KEY_USAGE);
+        test(keyUsage == Ice::SSL::EXTENDED_KEY_USAGE_ANY_KEY_USAGE);
     }
 
     {
@@ -1046,45 +1049,45 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         vector<pair<int, string>> expectedAltNames;
         expectedAltNames.push_back(make_pair(7, "127.0.0.1"));
         expectedAltNames.push_back(make_pair(2, "client"));
-        IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
+        Ice::SSL::CertificatePtr cert = Ice::SSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
         test(cert->getSubjectAlternativeNames() == expectedAltNames);
         // Digital Signature, Non Repudiation, Key Encipherment
         unsigned int keyUsage = cert->getKeyUsage();
         test(
-            keyUsage == (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE | IceSSL::KEY_USAGE_NON_REPUDIATION |
-                         IceSSL::KEY_USAGE_KEY_ENCIPHERMENT));
+            keyUsage == (Ice::SSL::KEY_USAGE_DIGITAL_SIGNATURE | Ice::SSL::KEY_USAGE_NON_REPUDIATION |
+                         Ice::SSL::KEY_USAGE_KEY_ENCIPHERMENT));
 
         expectedAltNames.clear();
         expectedAltNames.push_back(make_pair(7, "127.0.0.1"));
         expectedAltNames.push_back(make_pair(2, "server"));
-        cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
+        cert = Ice::SSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
         test(cert->getSubjectAlternativeNames() == expectedAltNames);
         keyUsage = cert->getKeyUsage();
         test(
-            keyUsage == (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE | IceSSL::KEY_USAGE_NON_REPUDIATION |
-                         IceSSL::KEY_USAGE_KEY_ENCIPHERMENT));
+            keyUsage == (Ice::SSL::KEY_USAGE_DIGITAL_SIGNATURE | Ice::SSL::KEY_USAGE_NON_REPUDIATION |
+                         Ice::SSL::KEY_USAGE_KEY_ENCIPHERMENT));
 
         expectedAltNames.clear();
         expectedAltNames.push_back(make_pair(2, "localhost"));
-        cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn1_pub.pem");
+        cert = Ice::SSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn1_pub.pem");
         test(cert->getSubjectAlternativeNames() == expectedAltNames);
 
         expectedAltNames.clear();
         expectedAltNames.push_back(make_pair(2, "localhostXX"));
-        cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn2_pub.pem");
+        cert = Ice::SSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn2_pub.pem");
         test(cert->getSubjectAlternativeNames() == expectedAltNames);
 
         expectedAltNames.clear();
         expectedAltNames.push_back(make_pair(7, "127.0.0.1"));
-        cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn6_pub.pem");
+        cert = Ice::SSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn6_pub.pem");
         test(cert->getSubjectAlternativeNames() == expectedAltNames);
 
         expectedAltNames.clear();
         expectedAltNames.push_back(make_pair(7, "127.0.0.2"));
-        cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn7_pub.pem");
+        cert = Ice::SSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn7_pub.pem");
         test(cert->getSubjectAlternativeNames() == expectedAltNames);
 
-        cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn8_pub.pem");
+        cert = Ice::SSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn8_pub.pem");
         test(cert->getSubjectAlternativeNames().empty());
 
         expectedAltNames.clear();
@@ -1093,13 +1096,13 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #        ifdef ICE_USE_SECURE_TRANSPORT
         expectedAltNames.push_back(make_pair(7, "0000:0000:0000:0000:0000:0000:0000:0001"));
 #        endif
-        cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn9_pub.pem");
+        cert = Ice::SSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn9_pub.pem");
         test(cert->getSubjectAlternativeNames() == expectedAltNames);
 
         expectedAltNames.clear();
         expectedAltNames.push_back(make_pair(2, "host1"));
         expectedAltNames.push_back(make_pair(2, "host2"));
-        cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn10_pub.pem");
+        cert = Ice::SSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn10_pub.pem");
         test(cert->getSubjectAlternativeNames() == expectedAltNames);
 
         expectedAltNames.clear();
@@ -1107,7 +1110,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         expectedAltNames.push_back(make_pair(7, "127.0.0.2"));
         expectedAltNames.push_back(make_pair(2, "host1"));
         expectedAltNames.push_back(make_pair(2, "host2"));
-        cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn11_pub.pem");
+        cert = Ice::SSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn11_pub.pem");
         test(cert->getSubjectAlternativeNames() == expectedAltNames);
 #    endif
     }
@@ -1271,11 +1274,11 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
         const string customExt413 = "30:17:01:01:FF:0C:0E:4D:79:20:55:54:46:38:20:53:74:72:69:6E:67:02:02:03:FF";
 
-        IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/cacert_custom.pem");
-        vector<IceSSL::X509ExtensionPtr> extensions = cert->getX509Extensions();
+        Ice::SSL::CertificatePtr cert = Ice::SSL::Certificate::load(defaultDir + "/cacert_custom.pem");
+        vector<Ice::SSL::X509ExtensionPtr> extensions = cert->getX509Extensions();
         test(extensions.size() == 7);
 
-        IceSSL::X509ExtensionPtr ext = cert->getX509Extension("2.5.29.19"); // Subject key identifier
+        Ice::SSL::X509ExtensionPtr ext = cert->getX509Extension("2.5.29.19"); // Subject key identifier
         test(ext);
         test(toHexString(ext->getData()) == basicConstraints);
         test(ext->getOID() == "2.5.29.19");
@@ -1327,7 +1330,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         //
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
         {
-            IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_exp_pub.pem");
+            Ice::SSL::CertificatePtr cert = Ice::SSL::Certificate::load(defaultDir + "/s_rsa_ca1_exp_pub.pem");
             test(!cert->checkValidity());
         }
 #endif
@@ -1361,7 +1364,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         //
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
         {
-            IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/c_rsa_ca1_exp_pub.pem");
+            Ice::SSL::CertificatePtr cert = Ice::SSL::Certificate::load(defaultDir + "/c_rsa_ca1_exp_pub.pem");
             test(!cert->checkValidity());
         }
 #endif
@@ -2562,7 +2565,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         optional<Test::ServerPrx> server = fact->createServer(d);
 
         server->ice_ping();
-        info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
+        info = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
         fact->destroyServer(server);
         comm->destroy();
 
@@ -2582,7 +2585,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         server = fact->createServer(d);
 
         server->ice_ping();
-        info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
+        info = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
         fact->destroyServer(server);
         comm->destroy();
 
@@ -2601,7 +2604,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
         // Revoked certificate is accepted because IceSSL.RevocationCheck=0 disable revocation checks
         server->ice_ping();
-        info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
+        info = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
         fact->destroyServer(server);
         comm->destroy();
 
@@ -2680,7 +2683,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         server = fact->createServer(d);
 
         server->ice_ping();
-        info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
+        info = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
 
         fact->destroyServer(server);
         comm->destroy();
@@ -2710,7 +2713,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         optional<Test::ServerPrx> server = fact->createServer(d);
 
         server->ice_ping();
-        info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
+        info = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
 
         fact->destroyServer(server);
         comm->destroy();
@@ -2746,7 +2749,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         server = fact->createServer(d);
 
         server->ice_ping();
-        info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
+        info = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
         fact->destroyServer(server);
         comm->destroy();
 
@@ -2794,7 +2797,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         server = fact->createServer(d);
 
         server->ice_ping();
-        info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
+        info = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
         fact->destroyServer(server);
         comm->destroy();
 #    endif
