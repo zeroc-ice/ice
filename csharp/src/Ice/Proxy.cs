@@ -568,10 +568,10 @@ public struct Object_Ice_invokeResult
 /// </summary>
 public class ObjectPrxHelperBase : ObjectPrx
 {
-    public static bool operator==(ObjectPrxHelperBase lhs, ObjectPrxHelperBase rhs) =>
+    public static bool operator ==(ObjectPrxHelperBase lhs, ObjectPrxHelperBase rhs) =>
         lhs is not null ? lhs.Equals(rhs) : rhs is null;
 
-    public static bool operator!=(ObjectPrxHelperBase lhs, ObjectPrxHelperBase rhs) => !(lhs == rhs);
+    public static bool operator !=(ObjectPrxHelperBase lhs, ObjectPrxHelperBase rhs) => !(lhs == rhs);
 
     public ObjectPrxHelperBase()
     {
