@@ -489,11 +489,7 @@ IceInternal::IPEndpointI::IPEndpointI(
 {
 }
 
-IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance)
-    : _instance(instance),
-      _port(0)
-{
-}
+IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance) : _instance(instance), _port(0) {}
 
 IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance, InputStream* s)
     : _instance(instance),

@@ -83,13 +83,20 @@ Client::run(int argc, char** argv)
     test(hash<ObjectPrx>{}(*communicator->stringToProxy("Glacier2/router:tcp -p 10010")) == proxyMap["prx1"]);
     test(hash<ObjectPrx>{}(*communicator->stringToProxy("Glacier2/router:ssl -p 10011")) == proxyMap["prx2"]);
     test(hash<ObjectPrx>{}(*communicator->stringToProxy("Glacier2/router:udp -p 10012")) == proxyMap["prx3"]);
-    test(hash<ObjectPrx>{}(*communicator->stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010")) == proxyMap["prx4"]);
-    test(hash<ObjectPrx>{}(*communicator->stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011")) == proxyMap["prx5"]);
-    test(hash<ObjectPrx>{}(*communicator->stringToProxy("Glacier2/router:udp -h zeroc.com -p 10012")) == proxyMap["prx6"]);
+    test(
+        hash<ObjectPrx>{}(*communicator->stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010")) ==
+        proxyMap["prx4"]);
+    test(
+        hash<ObjectPrx>{}(*communicator->stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011")) ==
+        proxyMap["prx5"]);
+    test(
+        hash<ObjectPrx>{}(*communicator->stringToProxy("Glacier2/router:udp -h zeroc.com -p 10012")) ==
+        proxyMap["prx6"]);
     test(hash<ObjectPrx>{}(*communicator->stringToProxy("Glacier2/router:tcp -p 10010 -t 10000")) == proxyMap["prx7"]);
     test(hash<ObjectPrx>{}(*communicator->stringToProxy("Glacier2/router:ssl -p 10011 -t 10000")) == proxyMap["prx8"]);
     test(
-        hash<ObjectPrx>{}(*communicator->stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000")) == proxyMap["prx9"]);
+        hash<ObjectPrx>{}(*communicator->stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000")) ==
+        proxyMap["prx9"]);
     test(
         hash<ObjectPrx>{}(*communicator->stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000")) ==
         proxyMap["prx10"]);

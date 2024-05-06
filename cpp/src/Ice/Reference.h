@@ -355,8 +355,7 @@ namespace IceInternal
 namespace std
 {
     // Specialization of std::hash for Reference.
-    template<>
-    struct hash<IceInternal::Reference>
+    template<> struct hash<IceInternal::Reference>
     {
         std::size_t operator()(const IceInternal::Reference& r) const { return r.hash(); }
     };

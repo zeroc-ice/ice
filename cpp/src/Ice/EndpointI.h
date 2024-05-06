@@ -173,10 +173,7 @@ namespace std
     /// Specialization of std::hash for EndpointI.
     template<> struct hash<IceInternal::EndpointI>
     {
-        std::size_t operator()(const IceInternal::EndpointI& endpoint) const noexcept
-        {
-            return endpoint.hash();
-        }
+        std::size_t operator()(const IceInternal::EndpointI& endpoint) const noexcept { return endpoint.hash(); }
     };
 }
 
