@@ -41,18 +41,15 @@ IceBT::EndpointI::EndpointI(
       _channel(channel),
       _timeout(timeout),
       _connectionId(connectionId),
-      _compress(compress),
-      _hashValue(0)
+      _compress(compress)
 {
-    hashInit();
 }
 
 IceBT::EndpointI::EndpointI(const InstancePtr& instance)
     : _instance(instance),
       _channel(0),
       _timeout(instance->defaultTimeout()),
-      _compress(false),
-      _hashValue(0)
+      _compress(false)
 {
 }
 
@@ -61,7 +58,6 @@ IceBT::EndpointI::EndpointI(const InstancePtr& instance, InputStream* s)
       _channel(0),
       _timeout(-1),
       _compress(false),
-      _hashValue(0)
 {
     //
     // _name and _channel are not marshaled.
@@ -70,7 +66,6 @@ IceBT::EndpointI::EndpointI(const InstancePtr& instance, InputStream* s)
     s->read(const_cast<string&>(_uuid), false);
     s->read(const_cast<int32_t&>(_timeout));
     s->read(const_cast<bool&>(_compress));
-    hashInit();
 }
 
 void
@@ -372,8 +367,8 @@ IceBT::EndpointI::operator<(const Ice::Endpoint& r) const
     return false;
 }
 
-int32_t
-IceBT::EndpointI::hash() const
+size_t
+IceBT::EndpointI::hash() const noexcept
 {
     return _hashValue;
 }
@@ -504,8 +499,6 @@ IceBT::EndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
     {
         throw EndpointParseException(__FILE__, __LINE__, "the -c option can only be used for object adapter endpoints");
     }
-
-    hashInit();
 }
 
 IceBT::EndpointIPtr
@@ -515,16 +508,16 @@ IceBT::EndpointI::endpoint(const AcceptorIPtr& acceptor) const
         EndpointI>(_instance, _addr, _uuid, _name, acceptor->effectiveChannel(), _timeout, _connectionId, _compress);
 }
 
-void
-IceBT::EndpointI::hashInit()
+size_t
+IceBT::EndpointI::hash() const noexcept
 {
-    int32_t h = 5381;
+    size_t h = 5381;
     IceInternal::hashAdd(h, _addr);
     IceInternal::hashAdd(h, _uuid);
     IceInternal::hashAdd(h, _timeout);
     IceInternal::hashAdd(h, _connectionId);
     IceInternal::hashAdd(h, _compress);
-    const_cast<int32_t&>(_hashValue) = h;
+    return h;
 }
 
 bool

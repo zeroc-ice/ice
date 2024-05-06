@@ -552,10 +552,10 @@ IceObjC::iAPEndpointI::options() const
     return s.str();
 }
 
-int32_t
-IceObjC::iAPEndpointI::hash() const
+size_t
+IceObjC::iAPEndpointI::hash() const noexcept
 {
-    int32_t h = 5381;
+    size_t h = 5381;
     hashAdd(h, _manufacturer);
     hashAdd(h, _modelNumber);
     hashAdd(h, _name);

@@ -99,13 +99,14 @@ namespace IceObjC
         bool operator==(const Ice::Endpoint&) const final;
         bool operator<(const Ice::Endpoint&) const final;
 
+        std::size_t hash() const noexcept final;
+
         StreamEndpointIPtr endpoint(const StreamAcceptorPtr&) const;
 
         using IPEndpointI::connectionId;
 
     protected:
         void streamWriteImpl(Ice::OutputStream*) const final;
-        void hashInit(std::int32_t&) const final;
         bool checkOption(const std::string&, const std::string&, const std::string&) final;
 
         IceInternal::ConnectorPtr

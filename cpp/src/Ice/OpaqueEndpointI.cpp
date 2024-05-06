@@ -185,11 +185,10 @@ IceInternal::OpaqueEndpointI::equivalent(const EndpointIPtr&) const
     return false;
 }
 
-int32_t
-IceInternal::OpaqueEndpointI::hash() const
+size_t
+IceInternal::OpaqueEndpointI::hash() const noexcept
 {
-    int32_t h = 5381;
-    hashAdd(h, type());
+    size_t h = 5381;
     hashAdd(h, _rawEncoding.major);
     hashAdd(h, _rawEncoding.minor);
     hashAdd(h, _rawBytes);

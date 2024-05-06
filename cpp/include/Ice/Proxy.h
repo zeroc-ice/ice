@@ -760,7 +760,7 @@ namespace Ice
 
         void _checkTwowayOnly(std::string_view) const;
 
-        int _hash() const;
+        size_t _hash() const noexcept;
 
         void _write(OutputStream&) const;
         /// \endcond
@@ -804,6 +804,15 @@ namespace Ice
         // Only the assignment operators can change these fields. All other member functions must be const.
         IceInternal::ReferencePtr _reference;
         IceInternal::RequestHandlerCachePtr _requestHandlerCache;
+    };
+}
+
+namespace std
+{
+    /// Specialization of std::hash for Ice::ObjectPrx.
+    template<> struct hash<Ice::ObjectPrx>
+    {
+        std::size_t operator()(const Ice::ObjectPrx& p) const noexcept { return p._hash(); }
     };
 }
 

@@ -186,18 +186,18 @@ IceInternal::IPEndpointI::equivalent(const EndpointIPtr& endpoint) const
     return ipEndpointI->type() == type() && ipEndpointI->_host == _host && ipEndpointI->_port == _port;
 }
 
-int32_t
-IceInternal::IPEndpointI::hash() const
+size_t
+IceInternal::IPEndpointI::hash() const noexcept
 {
-    lock_guard lock(_hashMutex);
-    if (!_hashInitialized)
+    size_t h = 5381;
+    hashAdd(h, _host);
+    hashAdd(h, _port);
+    hashAdd(h, _connectionId);
+    if (isAddressValid(_sourceAddr))
     {
-        _hashValue = 5381;
-        hashAdd(_hashValue, type());
-        hashInit(_hashValue);
-        _hashInitialized = true;
+        hashAdd(h, inetAddrToString(_sourceAddr));
     }
-    return _hashValue;
+    return h;
 }
 
 string
@@ -364,18 +364,6 @@ IceInternal::IPEndpointI::connectors(const vector<Address>& addresses, const Net
 }
 
 void
-IceInternal::IPEndpointI::hashInit(int32_t& h) const
-{
-    hashAdd(h, _host);
-    hashAdd(h, _port);
-    hashAdd(h, _connectionId);
-    if (isAddressValid(_sourceAddr))
-    {
-        hashAdd(h, inetAddrToString(_sourceAddr));
-    }
-}
-
-void
 IceInternal::IPEndpointI::fillEndpointInfo(Ice::IPEndpointInfo* info) const
 {
     info->host = _host;
@@ -497,22 +485,19 @@ IceInternal::IPEndpointI::IPEndpointI(
       _host(host),
       _port(port),
       _sourceAddr(sourceAddr),
-      _connectionId(connectionId),
-      _hashInitialized(false)
+      _connectionId(connectionId)
 {
 }
 
 IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance)
     : _instance(instance),
-      _port(0),
-      _hashInitialized(false)
+      _port(0)
 {
 }
 
 IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance, InputStream* s)
     : _instance(instance),
-      _port(0),
-      _hashInitialized(false)
+      _port(0)
 {
     s->read(const_cast<string&>(_host), false);
     s->read(const_cast<int32_t&>(_port));

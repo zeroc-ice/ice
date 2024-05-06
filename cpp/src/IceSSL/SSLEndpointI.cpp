@@ -274,8 +274,8 @@ IceSSL::EndpointI::equivalent(const IceInternal::EndpointIPtr& endpoint) const
     return _delegate->equivalent(endpointI->_delegate);
 }
 
-int32_t
-IceSSL::EndpointI::hash() const
+size_t
+IceSSL::EndpointI::hash() const noexcept
 {
     return _delegate->hash();
 }

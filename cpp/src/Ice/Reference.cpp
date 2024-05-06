@@ -125,16 +125,27 @@ IceInternal::Reference::getCompressOverride(bool& compress) const
     return true;
 }
 
-int32_t
-Reference::hash() const
+size_t
+Reference::hash() const noexcept
 {
-    lock_guard lock(_hashMutex);
-    if (!_hashInitialized)
+    size_t h = 5381;
+    hashAdd(h, static_cast<int32_t>(_mode));
+    hashAdd(h, _secure);
+    hashAdd(h, _identity.name);
+    hashAdd(h, _identity.category);
+    hashAdd(h, _context->getValue());
+    hashAdd(h, _facet);
+    hashAdd(h, _overrideCompress);
+    if (_overrideCompress)
     {
-        _hashValue = hashInit();
-        _hashInitialized = true;
+        hashAdd(h, _compress);
     }
-    return _hashValue;
+    hashAdd(h, _protocol.major);
+    hashAdd(h, _protocol.minor);
+    hashAdd(h, _encoding.major);
+    hashAdd(h, _encoding.minor);
+    hashAdd(h, _invocationTimeout);
+    return h;
 }
 
 void
@@ -459,7 +470,6 @@ IceInternal::Reference::Reference(
       _identity(id),
       _context(make_shared<SharedContext>(ctx)),
       _facet(facet),
-      _hashInitialized(false),
       _protocol(protocol),
       _encoding(encoding),
       _invocationTimeout(invocationTimeout)
@@ -477,34 +487,10 @@ IceInternal::Reference::Reference(const Reference& r)
       _identity(r._identity),
       _context(r._context),
       _facet(r._facet),
-      _hashInitialized(false),
       _protocol(r._protocol),
       _encoding(r._encoding),
       _invocationTimeout(r._invocationTimeout)
 {
-}
-
-int
-IceInternal::Reference::hashInit() const
-{
-    int32_t h = 5381;
-    hashAdd(h, static_cast<int32_t>(_mode));
-    hashAdd(h, _secure);
-    hashAdd(h, _identity.name);
-    hashAdd(h, _identity.category);
-    hashAdd(h, _context->getValue());
-    hashAdd(h, _facet);
-    hashAdd(h, _overrideCompress);
-    if (_overrideCompress)
-    {
-        hashAdd(h, _compress);
-    }
-    hashAdd(h, _protocol.major);
-    hashAdd(h, _protocol.minor);
-    hashAdd(h, _encoding.major);
-    hashAdd(h, _encoding.minor);
-    hashAdd(h, _invocationTimeout);
-    return h;
 }
 
 IceInternal::FixedReference::FixedReference(
@@ -1206,12 +1192,13 @@ IceInternal::RoutableReference::toProperty(const string& prefix) const
     return properties;
 }
 
-int
-IceInternal::RoutableReference::hashInit() const
+size_t
+IceInternal::RoutableReference::hash() const noexcept
 {
-    int value = Reference::hashInit();
-    hashAdd(value, _adapterId);
-    return value;
+    size_t h = Reference::hash();
+    hashAdd(h, _endpoints);
+    hashAdd(h, _adapterId);
+    return h;
 }
 
 bool

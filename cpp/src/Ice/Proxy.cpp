@@ -278,10 +278,10 @@ Ice::ObjectPrx::ice_toString() const
     return _reference->toString();
 }
 
-int32_t
-Ice::ObjectPrx::_hash() const
+size_t
+Ice::ObjectPrx::_hash() const noexcept
 {
-    return _reference->hash();
+    return hash<Reference>{}(*_reference);
 }
 
 void

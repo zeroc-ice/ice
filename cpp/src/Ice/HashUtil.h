@@ -7,50 +7,60 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <map>
 #include <string>
 #include <vector>
 
+#include "EndpointI.h"
+
+// All these functions are for hashing proxies and endpoints. They are not general purpose.
+
 namespace IceInternal
 {
-    inline void hashAdd(std::int32_t& hashCode, std::int32_t value)
+    inline void hashAdd(std::size_t& hashCode, std::size_t value)
     {
-        hashCode = ((hashCode << 5) + hashCode) ^ static_cast<std::int32_t>(2654435761u) * value;
+        hashCode = ((hashCode << 5) + hashCode) ^ 2654435761u * value;
     }
 
-    inline void hashAdd(std::int32_t& hashCode, bool value)
+    inline void hashAdd(std::size_t& hashCode, std::int32_t value)
+    {
+        hashAdd(hashCode, static_cast<std::size_t>(value));
+    }
+
+    inline void hashAdd(std::size_t& hashCode, bool value)
     {
         hashCode = ((hashCode << 5) + hashCode) ^ (value ? 1 : 0);
     }
 
-    inline void hashAdd(std::int32_t& hashCode, std::byte value)
+    inline void hashAdd(std::size_t& hashCode, const std::string& value)
     {
-        // TODO: better hash function for std::byte
-        hashAdd(hashCode, static_cast<std::int32_t>(value));
+        hashAdd(hashCode, std::hash<std::string>{}(value));
     }
 
-    inline void hashAdd(std::int32_t& hashCode, const std::string& value)
+    inline void hashAdd(std::size_t& hashCode, const std::vector<EndpointIPtr>& seq)
     {
-        for (std::string::const_iterator p = value.begin(); p != value.end(); ++p)
+        for (const auto& p : seq)
         {
-            hashCode = ((hashCode << 5) + hashCode) ^ *p;
+            hashAdd(hashCode, std::hash<EndpointI>{}(*p));
         }
     }
 
-    template<typename T> void hashAdd(std::int32_t& hashCode, const std::vector<T>& seq)
+    inline void hashAdd(std::size_t& hashCode, const std::vector<std::byte>& seq)
     {
-        for (typename std::vector<T>::const_iterator p = seq.begin(); p != seq.end(); ++p)
+        // TODO: better hash function for vector<byte> (used for opaque endpoints).
+        for (const auto& p : seq)
         {
-            hashAdd(hashCode, *p);
+            hashAdd(hashCode, static_cast<std::size_t>(p));
         }
     }
 
-    template<typename K, typename V> void hashAdd(std::int32_t& hashCode, const std::map<K, V>& map)
+    inline void hashAdd(std::size_t& hashCode, const std::map<std::string, std::string>& map)
     {
-        for (typename std::map<K, V>::const_iterator p = map.begin(); p != map.end(); ++p)
+        for (const auto& p : map)
         {
-            hashAdd(hashCode, p->first);
-            hashAdd(hashCode, p->second);
+            hashAdd(hashCode, p.first);
+            hashAdd(hashCode, p.second);
         }
     }
 }

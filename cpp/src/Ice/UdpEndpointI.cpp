@@ -357,14 +357,15 @@ IceInternal::UdpEndpointI::operator<(const Endpoint& r) const
     return IPEndpointI::operator<(r);
 }
 
-void
-IceInternal::UdpEndpointI::hashInit(int32_t& h) const
+size_t
+IceInternal::UdpEndpointI::hash() const noexcept
 {
-    IPEndpointI::hashInit(h);
+    size_t h = IPEndpointI::hash();
     hashAdd(h, _mcastInterface);
     hashAdd(h, _mcastTtl);
     hashAdd(h, _connect);
     hashAdd(h, _compress);
+    return h;
 }
 
 void

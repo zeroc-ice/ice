@@ -62,7 +62,7 @@ namespace IceObjC
         bool operator<(const Ice::Endpoint&) const final;
 
         std::string options() const final;
-        std::int32_t hash() const final;
+        std::size_t hash() const noexcept final;
 
     private:
         bool checkOption(const std::string&, const std::string&, const std::string&) final;

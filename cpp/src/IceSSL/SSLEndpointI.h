@@ -45,7 +45,7 @@ namespace IceSSL
         std::vector<IceInternal::EndpointIPtr> expandIfWildcard() const final;
         std::vector<IceInternal::EndpointIPtr> expandHost(IceInternal::EndpointIPtr&) const final;
         bool equivalent(const IceInternal::EndpointIPtr&) const final;
-        std::int32_t hash() const final;
+        std::size_t hash() const noexcept final;
         std::string options() const final;
 
         EndpointIPtr endpoint(const IceInternal::EndpointIPtr&) const;

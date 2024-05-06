@@ -49,6 +49,8 @@ namespace IceInternal
         bool operator==(const Ice::Endpoint&) const final;
         bool operator<(const Ice::Endpoint&) const final;
 
+        std::size_t hash() const noexcept final;
+
         UdpEndpointIPtr endpoint(const UdpTransceiverPtr&) const;
 
         using IPEndpointI::connectionId;
@@ -56,7 +58,6 @@ namespace IceInternal
         void initWithOptions(std::vector<std::string>&, bool) final;
 
     protected:
-        void hashInit(std::int32_t&) const final;
         void fillEndpointInfo(Ice::IPEndpointInfo*) const final;
         bool checkOption(const std::string&, const std::string&, const std::string&) final;
 

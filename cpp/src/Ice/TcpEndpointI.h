@@ -44,12 +44,14 @@ namespace IceInternal
 
         bool operator==(const Ice::Endpoint&) const final;
         bool operator<(const Ice::Endpoint&) const final;
+
+        std::size_t hash() const noexcept final;
+
         TcpEndpointIPtr endpoint(const TcpAcceptorPtr&) const;
 
         using IPEndpointI::connectionId;
 
     protected:
-        void hashInit(std::int32_t&) const final;
         void fillEndpointInfo(Ice::IPEndpointInfo*) const final;
         bool checkOption(const std::string&, const std::string&, const std::string&) final;
 

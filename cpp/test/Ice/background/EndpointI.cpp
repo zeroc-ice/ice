@@ -274,8 +274,8 @@ EndpointI::operator<(const Ice::Endpoint& r) const
     return *p->_endpoint < *_endpoint;
 }
 
-int
-EndpointI::hash() const
+size_t
+EndpointI::hash() const noexcept
 {
     return _endpoint->hash();
 }
