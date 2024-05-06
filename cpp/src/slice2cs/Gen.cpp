@@ -3754,31 +3754,26 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sp << nl << "public static " << name << "Prx uncheckedCast(" << getUnqualified("Ice.ObjectPrx", ns)
          << " b)";
     _out << sb;
-    _out << nl << "if(b == null)";
+    _out << nl << "if (b is not null)";
     _out << sb;
+    _out << nl << name << "PrxHelper prx = new " << name << "PrxHelper();";
+    _out << nl << "prx.iceCopyFrom(b);";
+    _out << nl << "return prx;";
+    _out << eb;
     _out << nl << "return null;";
-    _out << eb;
-    _out << nl << name << "Prx r = b as " << name << "Prx;";
-    _out << nl << "if(r == null)";
-    _out << sb;
-    _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    _out << nl << "h.iceCopyFrom(b);";
-    _out << nl << "r = h;";
-    _out << eb;
-    _out << nl << "return r;";
     _out << eb;
 
     _out << sp << nl << "public static " << name << "Prx uncheckedCast(" << getUnqualified("Ice.ObjectPrx", ns)
          << " b, string f)";
     _out << sb;
-    _out << nl << "if(b == null)";
+    _out << nl << "if (b is not null)";
     _out << sb;
-    _out << nl << "return null;";
-    _out << eb;
     _out << nl << getUnqualified("Ice.ObjectPrx", ns) << " bb = b.ice_facet(f);";
-    _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    _out << nl << "h.iceCopyFrom(bb);";
-    _out << nl << "return h;";
+    _out << nl << name << "PrxHelper prx = new " << name << "PrxHelper();";
+    _out << nl << "prx.iceCopyFrom(bb);";
+    _out << nl << "return prx;";
+    _out << eb;
+    _out << nl << "return null;";
     _out << eb;
 
     string scoped = p->scoped();

@@ -2060,57 +2060,19 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
 {
     /// <summary>
     /// Casts a proxy to {@link ObjectPrx}. This call contacts
-    /// the server and will throw an Ice run-time exception if the target
-    /// object does not exist or the server cannot be reached.
-    /// </summary>
-    /// <param name="b">The proxy to cast to ObjectPrx.</param>
-    /// <returns>b.</returns>
-    public static ObjectPrx checkedCast(ObjectPrx b)
-    {
-        return b;
-    }
-
-    /// <summary>
-    /// Casts a proxy to {@link ObjectPrx}. This call contacts
     /// the server and throws an Ice run-time exception if the target
     /// object does not exist or the server cannot be reached.
     /// </summary>
     /// <param name="b">The proxy to cast to ObjectPrx.</param>
     /// <param name="ctx">The Context map for the invocation.</param>
     /// <returns>b.</returns>
-    public static ObjectPrx checkedCast(ObjectPrx b, Dictionary<string, string> ctx)
+    public static ObjectPrx checkedCast(ObjectPrx b, Dictionary<string, string> ctx = null)
     {
-        return b;
-    }
-
-    /// <summary>
-    /// Creates a new proxy that is identical to the passed proxy, except
-    /// for its facet. This call contacts
-    /// the server and throws an Ice run-time exception if the target
-    /// object does not exist, the specified facet does not exist, or the server cannot be reached.
-    /// </summary>
-    /// <param name="b">The proxy to cast to ObjectPrx.</param>
-    /// <param name="f">The facet for the new proxy.</param>
-    /// <returns>The new proxy with the specified facet.</returns>
-    public static ObjectPrx checkedCast(ObjectPrx b, string f)
-    {
-        ObjectPrx d = null;
-        if (b != null)
+        if (b is not null && b.ice_isA("::Ice::Object", ctx))
         {
-            try
-            {
-                var bb = b.ice_facet(f);
-                var ok = bb.ice_isA("::Ice::Object");
-                Debug.Assert(ok);
-                ObjectPrxHelper h = new ObjectPrxHelper();
-                h.iceCopyFrom(bb);
-                d = h;
-            }
-            catch (FacetNotExistException)
-            {
-            }
+            return b;
         }
-        return d;
+        return null;
     }
 
     /// <summary>
@@ -2123,25 +2085,20 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// <param name="f">The facet for the new proxy.</param>
     /// <param name="ctx">The Context map for the invocation.</param>
     /// <returns>The new proxy with the specified facet.</returns>
-    public static ObjectPrx checkedCast(ObjectPrx b, string f, Dictionary<string, string> ctx)
+    public static ObjectPrx checkedCast(ObjectPrx b, string f, Dictionary<string, string> ctx = null)
     {
-        ObjectPrx d = null;
-        if (b != null)
+        ObjectPrx bb = b?.ice_facet(f);
+        try
         {
-            try
+            if (bb is not null && bb.ice_isA("::Ice::Object", ctx))
             {
-                var bb = b.ice_facet(f);
-                var ok = bb.ice_isA("::Ice::Object", ctx);
-                Debug.Assert(ok);
-                ObjectPrxHelper h = new ObjectPrxHelper();
-                h.iceCopyFrom(bb);
-                d = h;
-            }
-            catch (FacetNotExistException)
-            {
+                return bb;
             }
         }
-        return d;
+        catch (FacetNotExistException)
+        {
+        }
+        return null;
     }
 
     /// <summary>
@@ -2150,10 +2107,7 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// </summary>
     /// <param name="b">The proxy to cast to ObjectPrx.</param>
     /// <returns>b.</returns>
-    public static ObjectPrx uncheckedCast(ObjectPrx b)
-    {
-        return b;
-    }
+    public static ObjectPrx uncheckedCast(ObjectPrx b) => b;
 
     /// <summary>
     /// Creates a new proxy that is identical to the passed proxy, except
@@ -2162,18 +2116,7 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// <param name="b">The proxy to cast to ObjectPrx.</param>
     /// <param name="f">The facet for the new proxy.</param>
     /// <returns>The new proxy with the specified facet.</returns>
-    public static ObjectPrx uncheckedCast(ObjectPrx b, string f)
-    {
-        ObjectPrx d = null;
-        if (b != null)
-        {
-            var bb = b.ice_facet(f);
-            var h = new ObjectPrxHelper();
-            h.iceCopyFrom(bb);
-            d = h;
-        }
-        return d;
-    }
+    public static ObjectPrx uncheckedCast(ObjectPrx b, string f) => b?.ice_facet(f);
 
     /// <summary>
     /// Returns the Slice type id of the interface or class associated
