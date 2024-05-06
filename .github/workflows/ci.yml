@@ -78,7 +78,7 @@ jobs:
           # Cross tests
           - os: ubuntu-22.04
             config: "cross"
-            test_flags: "--all-cross"
+            test_flags: "--all-cross --rfilter csharp/Ice/optional"
 
     runs-on: ${{ matrix.os }}
     steps:

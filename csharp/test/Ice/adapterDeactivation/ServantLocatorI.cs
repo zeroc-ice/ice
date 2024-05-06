@@ -8,7 +8,7 @@ namespace Ice
     {
         public class RouterI : Ice.RouterDisp_
         {
-            public override Ice.ObjectPrx getClientProxy(out Ice.Optional<bool> hasRoutingTable,
+            public override Ice.ObjectPrx getClientProxy(out bool? hasRoutingTable,
                 Ice.Current current)
             {
                 hasRoutingTable = false;

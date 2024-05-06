@@ -932,15 +932,15 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public Optional<byte> readByte(int tag)
+    public byte? readByte(int tag)
     {
         if (readOptional(tag, OptionalFormat.F1))
         {
-            return new Optional<byte>(readByte());
+            return readByte();
         }
         else
         {
-            return new Optional<byte>();
+            return null;
         }
     }
 
@@ -1043,15 +1043,15 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public Optional<byte[]> readByteSeq(int tag)
+    public byte[] readByteSeq(int tag)
     {
         if (readOptional(tag, OptionalFormat.VSize))
         {
-            return new Optional<byte[]>(readByteSeq());
+            return readByteSeq();
         }
         else
         {
-            return new Optional<byte[]>();
+            return null;
         }
     }
 
@@ -1094,15 +1094,15 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public Optional<bool> readBool(int tag)
+    public bool? readBool(int tag)
     {
         if (readOptional(tag, OptionalFormat.F1))
         {
-            return new Optional<bool>(readBool());
+            return readBool();
         }
         else
         {
-            return new Optional<bool>();
+            return null;
         }
     }
 
@@ -1205,15 +1205,15 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public Optional<bool[]> readBoolSeq(int tag)
+    public bool[] readBoolSeq(int tag)
     {
         if (readOptional(tag, OptionalFormat.VSize))
         {
-            return new Optional<bool[]>(readBoolSeq());
+            return readBoolSeq();
         }
         else
         {
-            return new Optional<bool[]>();
+            return null;
         }
     }
 
@@ -1256,15 +1256,15 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public Optional<short> readShort(int tag)
+    public short? readShort(int tag)
     {
         if (readOptional(tag, OptionalFormat.F2))
         {
-            return new Optional<short>(readShort());
+            return readShort();
         }
         else
         {
-            return new Optional<short>();
+            return null;
         }
     }
 
@@ -1367,16 +1367,16 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public Optional<short[]> readShortSeq(int tag)
+    public short[] readShortSeq(int tag)
     {
         if (readOptional(tag, OptionalFormat.VSize))
         {
             skipSize();
-            return new Optional<short[]>(readShortSeq());
+            return readShortSeq();
         }
         else
         {
-            return new Optional<short[]>();
+            return null;
         }
     }
 
@@ -1420,15 +1420,15 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public Optional<int> readInt(int tag)
+    public int? readInt(int tag)
     {
         if (readOptional(tag, OptionalFormat.F4))
         {
-            return new Optional<int>(readInt());
+            return readInt();
         }
         else
         {
-            return new Optional<int>();
+            return null;
         }
     }
 
@@ -1551,16 +1551,16 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public Optional<int[]> readIntSeq(int tag)
+    public int[] readIntSeq(int tag)
     {
         if (readOptional(tag, OptionalFormat.VSize))
         {
             skipSize();
-            return new Optional<int[]>(readIntSeq());
+            return readIntSeq();
         }
         else
         {
-            return new Optional<int[]>();
+            return null;
         }
     }
 
@@ -1604,15 +1604,15 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public Optional<long> readLong(int tag)
+    public long? readLong(int tag)
     {
         if (readOptional(tag, OptionalFormat.F8))
         {
-            return new Optional<long>(readLong());
+            return readLong();
         }
         else
         {
-            return new Optional<long>();
+            return null;
         }
     }
 
@@ -1735,16 +1735,16 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public Optional<long[]> readLongSeq(int tag)
+    public long[] readLongSeq(int tag)
     {
         if (readOptional(tag, OptionalFormat.VSize))
         {
             skipSize();
-            return new Optional<long[]>(readLongSeq());
+            return readLongSeq();
         }
         else
         {
-            return new Optional<long[]>();
+            return null;
         }
     }
 
@@ -1788,15 +1788,15 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public Optional<float> readFloat(int tag)
+    public float? readFloat(int tag)
     {
         if (readOptional(tag, OptionalFormat.F4))
         {
-            return new Optional<float>(readFloat());
+            return readFloat();
         }
         else
         {
-            return new Optional<float>();
+            return null;
         }
     }
 
@@ -1919,16 +1919,16 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public Optional<float[]> readFloatSeq(int tag)
+    public float[] readFloatSeq(int tag)
     {
         if (readOptional(tag, OptionalFormat.VSize))
         {
             skipSize();
-            return new Optional<float[]>(readFloatSeq());
+            return readFloatSeq();
         }
         else
         {
-            return new Optional<float[]>();
+            return null;
         }
     }
 
@@ -1972,15 +1972,15 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public Optional<double> readDouble(int tag)
+    public double? readDouble(int tag)
     {
         if (readOptional(tag, OptionalFormat.F8))
         {
-            return new Optional<double>(readDouble());
+            return readDouble();
         }
         else
         {
-            return new Optional<double>();
+            return null;
         }
     }
 
@@ -2103,16 +2103,16 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public Optional<double[]> readDoubleSeq(int tag)
+    public double[] readDoubleSeq(int tag)
     {
         if (readOptional(tag, OptionalFormat.VSize))
         {
             skipSize();
-            return new Optional<double[]>(readDoubleSeq());
+            return readDoubleSeq();
         }
         else
         {
-            return new Optional<double[]>();
+            return null;
         }
     }
 
@@ -2186,15 +2186,15 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public Optional<string> readString(int tag)
+    public string readString(int tag)
     {
         if (readOptional(tag, OptionalFormat.VSize))
         {
-            return new Optional<string>(readString());
+            return readString();
         }
         else
         {
-            return new Optional<string>();
+            return null;
         }
     }
 
@@ -2308,16 +2308,16 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public Optional<string[]> readStringSeq(int tag)
+    public string[] readStringSeq(int tag)
     {
         if (readOptional(tag, OptionalFormat.FSize))
         {
             skip(4);
-            return new Optional<string[]>(readStringSeq());
+            return readStringSeq();
         }
         else
         {
-            return new Optional<string[]>();
+            return null;
         }
     }
 
@@ -2354,16 +2354,16 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public Optional<ObjectPrx> readProxy(int tag)
+    public ObjectPrx readProxy(int tag)
     {
         if (readOptional(tag, OptionalFormat.FSize))
         {
             skip(4);
-            return new Optional<ObjectPrx>(readProxy());
+            return readProxy();
         }
         else
         {
-            return new Optional<ObjectPrx>();
+            return null;
         }
     }
 
@@ -2452,43 +2452,6 @@ public class InputStream
     public void readValue(System.Action<Value> cb)
     {
         readValue<Value>(cb);
-    }
-
-    /// <summary>
-    /// Extracts the index of an optional Slice value from the stream.
-    /// </summary>
-    /// <param name="tag">The numeric tag associated with the value.</param>
-    /// <param name="cb">The callback to notify the application when the extracted instance is available (if any).
-    /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
-    /// corresponding instance has been fully unmarshaled.</param>
-    public void readValue<T>(int tag, System.Action<T> cb) where T : Value
-    {
-        readValue(tag, v =>
-        {
-            if (v == null || v is T)
-            {
-                cb((T)v);
-            }
-            else
-            {
-                Ice.Internal.Ex.throwUOE(typeof(T), v);
-            }
-        });
-    }
-
-    /// <summary>
-    /// Extracts the index of an optional Slice value from the stream.
-    /// </summary>
-    /// <param name="tag">The numeric tag associated with the value.</param>
-    /// <param name="cb">The callback to notify the application when the extracted instance is available (if any).
-    /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
-    /// corresponding instance has been fully unmarshaled.</param>
-    public void readValue(int tag, System.Action<Value> cb)
-    {
-        if (readOptional(tag, OptionalFormat.Class))
-        {
-            readValue(cb);
-        }
     }
 
     /// <summary>

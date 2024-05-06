@@ -76,7 +76,7 @@ public interface ACMMonitor : TimerTask
     void remove(Ice.ConnectionI con);
     void reap(Ice.ConnectionI con);
 
-    ACMMonitor acm(Ice.Optional<int> timeout, Ice.Optional<Ice.ACMClose> c, Ice.Optional<Ice.ACMHeartbeat> h);
+    ACMMonitor acm(int? timeout, Ice.ACMClose? c, Ice.ACMHeartbeat? h);
     Ice.ACM getACM();
 }
 
@@ -183,7 +183,7 @@ internal class FactoryACMMonitor : ACMMonitor
         }
     }
 
-    public ACMMonitor acm(Ice.Optional<int> timeout, Ice.Optional<Ice.ACMClose> c, Ice.Optional<Ice.ACMHeartbeat> h)
+    public ACMMonitor acm(int? timeout, Ice.ACMClose? c, Ice.ACMHeartbeat? h)
     {
         Debug.Assert(_instance != null);
 
@@ -335,7 +335,7 @@ internal class ConnectionACMMonitor : ACMMonitor
         _parent.reap(connection);
     }
 
-    public ACMMonitor acm(Ice.Optional<int> timeout, Ice.Optional<Ice.ACMClose> c, Ice.Optional<Ice.ACMHeartbeat> h)
+    public ACMMonitor acm(int? timeout, Ice.ACMClose? c, Ice.ACMHeartbeat? h)
     {
         return _parent.acm(timeout, c, h);
     }

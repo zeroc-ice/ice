@@ -610,7 +610,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
         return completed.Task;
     }
 
-    public void setACM(Optional<int> timeout, Optional<ACMClose> close, Optional<ACMHeartbeat> heartbeat)
+    public void setACM(int? timeout, ACMClose? close, ACMHeartbeat? heartbeat)
     {
         lock (this)
         {

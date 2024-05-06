@@ -276,7 +276,7 @@ public class SessionHelper
             {
                 Ice.Connection connection = _router.ice_getCachedConnection();
                 Debug.Assert(connection != null);
-                connection.setACM(acmTimeout, Ice.Util.None, Ice.ACMHeartbeat.HeartbeatAlways);
+                connection.setACM(acmTimeout, null, Ice.ACMHeartbeat.HeartbeatAlways);
                 connection.setCloseCallback(_ => destroy());
             }
         }

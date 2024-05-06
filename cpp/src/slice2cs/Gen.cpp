@@ -1061,10 +1061,13 @@ Slice::CsVisitor::requiresDataMemberInitializers(const DataMemberList& members)
 {
     for (DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
-        StructPtr st = dynamic_pointer_cast<Struct>((*p)->type());
-        if (st && isMappedToClass(st))
+        if (!(*p)->optional())
         {
-            return true;
+            StructPtr st = dynamic_pointer_cast<Struct>((*p)->type());
+            if (st && isMappedToClass(st))
+            {
+                return true;
+            }
         }
     }
     return false;
@@ -1076,10 +1079,13 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, uns
     // Generates "= new()" for each struct field mapped to a class.
     for (DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
-        StructPtr st = dynamic_pointer_cast<Struct>((*p)->type());
-        if (st && isMappedToClass(st))
+        if (!(*p)->optional())
         {
-            _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = new();";
+            StructPtr st = dynamic_pointer_cast<Struct>((*p)->type());
+            if (st && isMappedToClass(st))
+            {
+                _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = new();";
+            }
         }
     }
 }
@@ -1864,13 +1870,6 @@ Slice::Gen::generate(const UnitPtr& p)
 
     TypeIdVisitor typeIdVisitor(_out);
     p->visit(&typeIdVisitor, false);
-
-    //
-    // The async delegates are emitted before the proxy definition
-    // because the proxy methods need to know the type.
-    //
-    AsyncDelegateVisitor asyncDelegateVisitor(_out);
-    p->visit(&asyncDelegateVisitor, false);
 
     ResultVisitor resultVisitor(_out);
     p->visit(&resultVisitor, false);
@@ -2664,16 +2663,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         emitGeneratedCodeAttribute();
         _out << nl << "public bool Equals(" << name << " other)";
         _out << sb;
-        _out << nl << "if (object.ReferenceEquals(this, other))";
-        _out << sb;
-        _out << nl << "return true;";
-        _out << eb;
-        _out << nl << "if (other is null)";
-        _out << sb;
-        _out << nl << "return false;";
-        _out << eb;
         writeMemberEquals(dataMembers);
-        _out << nl << "return true;";
         _out << eb;
 
         _out << sp << nl << "#endregion"; // Object members
@@ -2682,18 +2672,12 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         _out << sp;
         emitGeneratedCodeAttribute();
-        _out << nl << "public static bool operator==(" << name << " lhs, " << name << " rhs)";
-        _out << sb;
-        _out << nl << "return (object)lhs == rhs || (lhs is not null && lhs.Equals(rhs));";
-        _out << eb;
+        _out << nl << "public static bool operator ==(" << name << " lhs, " << name << " rhs) => ";
+        _out << "lhs is not null ? lhs.Equals(rhs) : rhs is null;";
 
         _out << sp;
         emitGeneratedCodeAttribute();
-        _out << nl << "public static bool operator!=(" << name << " lhs, " << name << " rhs)";
-        _out << sb;
-        _out << nl << "return !(lhs == rhs);";
-        _out << eb;
-
+        _out << nl << "public static bool operator !=(" << name << " lhs, " << name << " rhs) => !(lhs == rhs);";
         _out << sp << nl << "#endregion"; // Comparison members
     }
 
@@ -2902,24 +2886,13 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             writeConstantValue(p->type(), p->defaultValueType(), p->defaultValue());
             addSemicolon = true;
         }
-        else if (p->optional()) // TODO: remove once we fix the optional mapping
-        {
-            _out << " = new " << typeToString(p->type(), ns, true) << "()";
-            addSemicolon = true;
-        }
-        else
+        else if (!p->optional())
         {
             BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
             if (builtin && builtin->kind() == Builtin::KindString)
             {
                 // This behavior is unfortunate but kept for backwards compatibility.
                 _out << " = \"\"";
-                addSemicolon = true;
-            }
-
-            if (st && !isMappedToClass(st))
-            {
-                _out << " = new " << typeToString(p->type(), ns, false) << "()";
                 addSemicolon = true;
             }
         }
@@ -2948,74 +2921,49 @@ Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers)
 void
 Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers)
 {
+    _out << nl << "if (ReferenceEquals(this, other))";
+    _out << sb;
+    _out << nl << "return true;";
+    _out << eb;
+    _out << nl << "return other is not null";
+
+    assert(!dataMembers.empty()); // a Slice struct must have at least one field.
+
+    _out.inc();
+
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
+        assert(!(*q)->optional()); // a Slice struct does not have optional fields.
+
+        _out << " && " << nl;
+
         string memberName = fixId((*q)->name(), DotNet::ICloneable);
         TypePtr memberType = (*q)->type();
-        if (!(*q)->optional() && !isValueType(memberType))
+
+        if (SequencePtr seq = dynamic_pointer_cast<Sequence>(memberType))
         {
-            _out << nl << "if (this." << memberName << " is null)";
-            _out << sb;
-            _out << nl << "if (other." << memberName << " is not null)";
-            _out << sb;
-            _out << nl << "return false;";
-            _out << eb;
-            _out << eb;
-            _out << nl << "else";
-            _out << sb;
-            SequencePtr seq = dynamic_pointer_cast<Sequence>(memberType);
-            if (seq)
-            {
-                string meta;
-                bool isGeneric = seq->findMetaData("cs:generic:", meta);
-                bool isArray = !isGeneric;
-                if (isArray)
-                {
-                    //
-                    // Equals() for native arrays does not have value semantics.
-                    //
-                    _out << nl << "if (!Ice.UtilInternal.Arrays.Equals(this." << memberName << ", other." << memberName
-                         << "))";
-                }
-                else if (isGeneric)
-                {
-                    //
-                    // Equals() for generic types does not have value semantics.
-                    //
-                    _out << nl << "if (!global::Ice.UtilInternal.Collections.SequenceEquals(this." << memberName
-                         << ", other." << memberName << "))";
-                }
-            }
-            else
-            {
-                DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(memberType);
-                if (dict)
-                {
-                    //
-                    // Equals() for generic types does not have value semantics.
-                    //
-                    _out << nl << "if (!global::Ice.UtilInternal.Collections.DictionaryEquals(this." << memberName
-                         << ", other." << memberName << "))";
-                }
-                else
-                {
-                    _out << nl << "if (!this." << memberName << ".Equals(other." << memberName << "))";
-                }
-            }
-            _out << sb;
-            _out << nl << "return false;";
-            _out << eb;
-            _out << eb;
+            _out << "Ice.UtilInternal.Collections.NullableSequenceEqual(this." << memberName << ", other." << memberName
+                 << ")";
+        }
+        else if (DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(memberType))
+        {
+            // Equals() for generic types does not have value semantics.
+            _out << "Ice.UtilInternal.Collections.DictionaryEquals(this." << memberName << ", other." << memberName
+                 << ")";
+        }
+        else if (isProxyType(memberType))
+        {
+            // We need to cast it to the base concrete type to get ==
+            _out << "(Ice.ObjectPrxHelperBase)this." << memberName << " == (Ice.ObjectPrxHelperBase)other."
+                 << memberName;
         }
         else
         {
-            // The nicer != syntax doesn't work for proxy fields.
-            _out << nl << "if (!this." << memberName << ".Equals(other." << memberName << "))";
-            _out << sb;
-            _out << nl << "return false;";
-            _out << eb;
+            _out << "this." << memberName << " == other." << memberName;
         }
     }
+    _out.dec();
+    _out << ";";
 }
 
 Slice::Gen::ResultVisitor::ResultVisitor(::IceUtilInternal::Output& out) : CsVisitor(out) {}
@@ -3294,9 +3242,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
         }
         _out << nl << retS << " " << name << spar << getParams(p, ns)
-             << (getUnqualified("Ice.OptionalContext", ns) + " " + context + " = new " +
-                 getUnqualified("Ice.OptionalContext", ns) + "()")
-             << epar << ';';
+             << ("global::System.Collections.Generic.Dictionary<string, string> " + context + " = null") << epar << ';';
     }
 
     {
@@ -3320,65 +3266,10 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         }
         _out << nl << taskResultType(p, ns);
         _out << " " << p->name() << "Async" << spar << inParams
-             << (getUnqualified("Ice.OptionalContext", ns) + " " + context + " = new " +
-                 getUnqualified("Ice.OptionalContext", ns) + "()")
+             << ("global::System.Collections.Generic.Dictionary<string, string> " + context + " = null")
              << ("global::System.IProgress<bool> " + progress + " = null")
-             << ("global::System.Threading.CancellationToken " + cancel +
-                 " = new global::System.Threading.CancellationToken()")
-             << epar << ";";
+             << ("global::System.Threading.CancellationToken " + cancel + " = default") << epar << ";";
     }
-}
-
-Slice::Gen::AsyncDelegateVisitor::AsyncDelegateVisitor(IceUtilInternal::Output& out) : CsVisitor(out) {}
-
-bool
-Slice::Gen::AsyncDelegateVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if (p->hasOperations())
-    {
-        moduleStart(p);
-        _out << sp << nl << "namespace " << fixId(p->name());
-        _out << sb;
-        return true;
-    }
-    return false;
-}
-
-void
-Slice::Gen::AsyncDelegateVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    _out << eb;
-    moduleEnd(p);
-}
-
-bool
-Slice::Gen::AsyncDelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    return p->hasOperations();
-}
-
-void
-Slice::Gen::AsyncDelegateVisitor::visitClassDefEnd(const ClassDefPtr&)
-{
-}
-
-void
-Slice::Gen::AsyncDelegateVisitor::visitOperation(const OperationPtr& p)
-{
-    InterfaceDefPtr interface = p->interface();
-    string ns = getNamespace(interface);
-    vector<string> paramDeclAMI = getOutParams(p, ns, false, false);
-    string retS = typeToString(p->returnType(), ns, p->returnIsOptional());
-    string delName = "Callback_" + interface->name() + "_" + p->name();
-
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public delegate void " << delName << spar;
-    if (p->returnType())
-    {
-        _out << retS + " ret";
-    }
-    _out << paramDeclAMI << epar << ';';
 }
 
 Slice::Gen::OpsVisitor::OpsVisitor(IceUtilInternal::Output& out) : CsVisitor(out) {}
@@ -3551,9 +3442,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         _out << sp;
         _out << nl << "public " << retS << " " << opName << spar << params
-             << (getUnqualified("Ice.OptionalContext", ns) + " " + context + " = new " +
-                 getUnqualified("Ice.OptionalContext", ns) + "()")
-             << epar;
+             << ("global::System.Collections.Generic.Dictionary<string, string> " + context + " = null") << epar;
         _out << sb;
         _out << nl << "try";
         _out << sb;
@@ -3662,12 +3551,9 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             _out << "<" << returnTypeS << ">";
         }
         _out << " " << opName << "Async" << spar << paramsAMI
-             << (getUnqualified("Ice.OptionalContext", ns) + " " + context + " = new " +
-                 getUnqualified("Ice.OptionalContext", ns) + "()")
+             << ("global::System.Collections.Generic.Dictionary<string, string> " + context + " = null")
              << ("global::System.IProgress<bool> " + progress + " = null")
-             << ("global::System.Threading.CancellationToken " + cancel +
-                 " = new global::System.Threading.CancellationToken()")
-             << epar;
+             << ("global::System.Threading.CancellationToken " + cancel + " = default") << epar;
 
         _out << sb;
         _out << nl << "return _iceI_" << opName << "Async" << spar << argsAMI << context << progress << cancel
@@ -3684,8 +3570,9 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             _out << "<" << returnTypeS << ">";
         }
         _out << " _iceI_" << opName << "Async" << spar << getInParams(op, ns, true)
-             << getUnqualified("Ice.OptionalContext", ns) + " context" << "global::System.IProgress<bool> progress"
-             << "global::System.Threading.CancellationToken cancel" << "bool synchronous" << epar;
+             << "global::System.Collections.Generic.Dictionary<string, string> context"
+             << "global::System.IProgress<bool> progress" << "global::System.Threading.CancellationToken cancel"
+             << "bool synchronous" << epar;
         _out << sb;
 
         string flatName = "_" + opName + "_name";
@@ -3823,80 +3710,32 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << sp << nl << "#region Checked and unchecked cast operations";
 
-    _out << sp << nl << "public static " << name << "Prx checkedCast(" << getUnqualified("Ice.ObjectPrx", ns) << " b)";
+    _out << sp << nl << "public static " << name << "Prx checkedCast(" << getUnqualified("Ice.ObjectPrx", ns)
+         << " b, global::System.Collections.Generic.Dictionary<string, string> ctx = null)";
     _out << sb;
-    _out << nl << "if(b == null)";
+    _out << nl << "if (b is not null && b.ice_isA(ice_staticId(), ctx))";
     _out << sb;
+    _out << nl << name << "PrxHelper prx = new " << name << "PrxHelper();";
+    _out << nl << "prx.iceCopyFrom(b);";
+    _out << nl << "return prx;";
+    _out << eb;
     _out << nl << "return null;";
-    _out << eb;
-    _out << nl << name << "Prx r = b as " << name << "Prx;";
-    _out << nl << "if((r == null) && b.ice_isA(ice_staticId()))";
-    _out << sb;
-    _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    _out << nl << "h.iceCopyFrom(b);";
-    _out << nl << "r = h;";
-    _out << eb;
-    _out << nl << "return r;";
     _out << eb;
 
     _out << sp << nl << "public static " << name << "Prx checkedCast(" << getUnqualified("Ice.ObjectPrx", ns)
-         << " b, global::System.Collections.Generic.Dictionary<string, string> ctx)";
+         << " b, string f, " << "global::System.Collections.Generic.Dictionary<string, string> ctx = null)";
     _out << sb;
-    _out << nl << "if(b == null)";
-    _out << sb;
-    _out << nl << "return null;";
-    _out << eb;
-    _out << nl << name << "Prx r = b as " << name << "Prx;";
-    _out << nl << "if((r == null) && b.ice_isA(ice_staticId(), ctx))";
-    _out << sb;
-    _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    _out << nl << "h.iceCopyFrom(b);";
-    _out << nl << "r = h;";
-    _out << eb;
-    _out << nl << "return r;";
-    _out << eb;
-
-    _out << sp << nl << "public static " << name << "Prx checkedCast(" << getUnqualified("Ice.ObjectPrx", ns)
-         << " b, string f)";
-    _out << sb;
-    _out << nl << "if(b == null)";
-    _out << sb;
-    _out << nl << "return null;";
-    _out << eb;
-    _out << nl << getUnqualified("Ice.ObjectPrx", ns) << " bb = b.ice_facet(f);";
+    _out << nl << getUnqualified("Ice.ObjectPrx", ns) << " bb = b?.ice_facet(f);";
     _out << nl << "try";
     _out << sb;
-    _out << nl << "if(bb.ice_isA(ice_staticId()))";
+    _out << nl << "if (bb is not null && bb.ice_isA(ice_staticId(), ctx))";
     _out << sb;
-    _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    _out << nl << "h.iceCopyFrom(bb);";
-    _out << nl << "return h;";
+    _out << nl << name << "PrxHelper prx = new " << name << "PrxHelper();";
+    _out << nl << "prx.iceCopyFrom(bb);";
+    _out << nl << "return prx;";
     _out << eb;
     _out << eb;
-    _out << nl << "catch(" << getUnqualified("Ice.FacetNotExistException", ns) << ")";
-    _out << sb;
-    _out << eb;
-    _out << nl << "return null;";
-    _out << eb;
-
-    _out << sp << nl << "public static " << name << "Prx checkedCast(" << getUnqualified("Ice.ObjectPrx", ns)
-         << " b, string f, " << "global::System.Collections.Generic.Dictionary<string, string> ctx)";
-    _out << sb;
-    _out << nl << "if(b == null)";
-    _out << sb;
-    _out << nl << "return null;";
-    _out << eb;
-    _out << nl << getUnqualified("Ice.ObjectPrx", ns) << " bb = b.ice_facet(f);";
-    _out << nl << "try";
-    _out << sb;
-    _out << nl << "if(bb.ice_isA(ice_staticId(), ctx))";
-    _out << sb;
-    _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    _out << nl << "h.iceCopyFrom(bb);";
-    _out << nl << "return h;";
-    _out << eb;
-    _out << eb;
-    _out << nl << "catch(" << getUnqualified("Ice.FacetNotExistException", ns) << ")";
+    _out << nl << "catch (" << getUnqualified("Ice.FacetNotExistException", ns) << ")";
     _out << sb;
     _out << eb;
     _out << nl << "return null;";
@@ -3905,31 +3744,26 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sp << nl << "public static " << name << "Prx uncheckedCast(" << getUnqualified("Ice.ObjectPrx", ns)
          << " b)";
     _out << sb;
-    _out << nl << "if(b == null)";
+    _out << nl << "if (b is not null)";
     _out << sb;
+    _out << nl << name << "PrxHelper prx = new " << name << "PrxHelper();";
+    _out << nl << "prx.iceCopyFrom(b);";
+    _out << nl << "return prx;";
+    _out << eb;
     _out << nl << "return null;";
-    _out << eb;
-    _out << nl << name << "Prx r = b as " << name << "Prx;";
-    _out << nl << "if(r == null)";
-    _out << sb;
-    _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    _out << nl << "h.iceCopyFrom(b);";
-    _out << nl << "r = h;";
-    _out << eb;
-    _out << nl << "return r;";
     _out << eb;
 
     _out << sp << nl << "public static " << name << "Prx uncheckedCast(" << getUnqualified("Ice.ObjectPrx", ns)
          << " b, string f)";
     _out << sb;
-    _out << nl << "if(b == null)";
+    _out << nl << "if (b is not null)";
     _out << sb;
-    _out << nl << "return null;";
-    _out << eb;
     _out << nl << getUnqualified("Ice.ObjectPrx", ns) << " bb = b.ice_facet(f);";
-    _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    _out << nl << "h.iceCopyFrom(bb);";
-    _out << nl << "return h;";
+    _out << nl << name << "PrxHelper prx = new " << name << "PrxHelper();";
+    _out << nl << "prx.iceCopyFrom(bb);";
+    _out << nl << "return prx;";
+    _out << eb;
+    _out << nl << "return null;";
     _out << eb;
 
     string scoped = p->scoped();

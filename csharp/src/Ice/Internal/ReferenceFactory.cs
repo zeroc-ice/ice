@@ -57,7 +57,7 @@ public class ReferenceFactory
             connection,
             -1,
             null,
-            new Ice.Optional<bool>());
+            null);
     }
 
     public Reference copy(Reference r)
