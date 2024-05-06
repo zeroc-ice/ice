@@ -3247,8 +3247,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
         }
         _out << nl << retS << " " << name << spar << getParams(p, ns)
-             << ("global::System.Collections.Generic.Dictionary<string, string> " + context + " = null")
-             << epar << ';';
+             << ("global::System.Collections.Generic.Dictionary<string, string> " + context + " = null") << epar << ';';
     }
 
     {
@@ -3274,9 +3273,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         _out << " " << p->name() << "Async" << spar << inParams
              << ("global::System.Collections.Generic.Dictionary<string, string> " + context + " = null")
              << ("global::System.IProgress<bool> " + progress + " = null")
-             << ("global::System.Threading.CancellationToken " + cancel +
-                 " = default")
-             << epar << ";";
+             << ("global::System.Threading.CancellationToken " + cancel + " = default") << epar << ";";
     }
 }
 
@@ -3450,8 +3447,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         _out << sp;
         _out << nl << "public " << retS << " " << opName << spar << params
-             << ("global::System.Collections.Generic.Dictionary<string, string> " + context + " = null")
-             << epar;
+             << ("global::System.Collections.Generic.Dictionary<string, string> " + context + " = null") << epar;
         _out << sb;
         _out << nl << "try";
         _out << sb;
@@ -3562,9 +3558,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << " " << opName << "Async" << spar << paramsAMI
              << ("global::System.Collections.Generic.Dictionary<string, string> " + context + " = null")
              << ("global::System.IProgress<bool> " + progress + " = null")
-             << ("global::System.Threading.CancellationToken " + cancel +
-                 " = default")
-             << epar;
+             << ("global::System.Threading.CancellationToken " + cancel + " = default") << epar;
 
         _out << sb;
         _out << nl << "return _iceI_" << opName << "Async" << spar << argsAMI << context << progress << cancel
@@ -3581,8 +3575,9 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             _out << "<" << returnTypeS << ">";
         }
         _out << " _iceI_" << opName << "Async" << spar << getInParams(op, ns, true)
-             << "global::System.Collections.Generic.Dictionary<string, string> context" << "global::System.IProgress<bool> progress"
-             << "global::System.Threading.CancellationToken cancel" << "bool synchronous" << epar;
+             << "global::System.Collections.Generic.Dictionary<string, string> context"
+             << "global::System.IProgress<bool> progress" << "global::System.Threading.CancellationToken cancel"
+             << "bool synchronous" << epar;
         _out << sb;
 
         string flatName = "_" + opName + "_name";
