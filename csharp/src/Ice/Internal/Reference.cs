@@ -862,7 +862,7 @@ public class RoutableReference : Reference
 
     public override int? getTimeout()
     {
-        return _overrideTimeout ? _timeout : new int?();
+        return _overrideTimeout ? _timeout : null;
     }
 
     public override ThreadPool getThreadPool()
