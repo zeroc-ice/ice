@@ -57,7 +57,7 @@ public class ReferenceFactory
             connection,
             -1,
             null,
-            new bool?());
+            null);
     }
 
     public Reference copy(Reference r)
