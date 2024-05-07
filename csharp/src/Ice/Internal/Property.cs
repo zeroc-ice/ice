@@ -2,4 +2,9 @@
 
 namespace Ice.Internal;
 
-public sealed record class Property(string pattern, bool usesRegex, string defaultValue, bool deprecated, string deprecatedBy);
+public sealed record class Property(
+    string pattern,
+    bool usesRegex,
+    string defaultValue,
+    bool deprecated,
+    string deprecatedBy);
