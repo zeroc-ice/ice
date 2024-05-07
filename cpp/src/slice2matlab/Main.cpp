@@ -887,19 +887,12 @@ namespace
     {
         DocElements doc;
 
-        doc.deprecated = false;
+        doc.deprecated = p->isDeprecated(false);
 
-        //
         // First check metadata for a deprecated tag.
-        //
-        string deprecateMetadata;
-        if (p->findMetaData("deprecate", deprecateMetadata))
+        if (auto reason = p->getDeprecateReason(false))
         {
-            doc.deprecated = true;
-            if (deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
-            {
-                doc.deprecateReason.push_back(IceUtilInternal::trim(deprecateMetadata.substr(10)));
-            }
+            doc.deprecateReason.push_back(IceUtilInternal::trim(*reason));
         }
 
         //

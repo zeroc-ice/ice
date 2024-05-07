@@ -86,13 +86,6 @@ namespace
         return name;
     }
 
-    bool isDeprecated(const ContainedPtr& p1, const ContainedPtr& p2)
-    {
-        string deprecateMetadata;
-        return p1->findMetaData("deprecate", deprecateMetadata) ||
-               (p2 != 0 && p2->findMetaData("deprecate", deprecateMetadata));
-    }
-
     bool isValue(const TypePtr& type)
     {
         BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
@@ -1625,15 +1618,10 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
 
         out << sp;
         writeHiddenDocComment(out);
-        for (OperationList::iterator r = allOps.begin(); r != allOps.end(); ++r)
+        for (const OperationPtr& op : allOps)
         {
-            //
             // Suppress deprecation warnings if this method dispatches to a deprecated operation.
-            //
-            OperationPtr op = *r;
-            InterfaceDefPtr interface = op->interface();
-            assert(interface);
-            if (isDeprecated(op, interface))
+            if (op->isDeprecated(true))
             {
                 out << nl << "@SuppressWarnings(\"deprecation\")";
                 break;
