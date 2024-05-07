@@ -17,7 +17,7 @@
 #if defined(__APPLE__)
 #    include <sys/sysctl.h>
 #    if TARGET_OS_IPHONE != 0
-#        include "IceSSL/SecureTransportUtil.h" // For loadCertificateChain
+#        include "Ice/SSL/SecureTransportUtil.h" // For loadCertificateChain
 #    endif
 #endif
 
