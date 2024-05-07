@@ -71,7 +71,6 @@
   <ItemGroup>
     <ClCompile Include="..\Client.cpp"/>
   </ItemGroup>
-  </ItemGroup>
   <ItemGroup>
     <None Include="packages.config"/>
   </ItemGroup>
