@@ -7,7 +7,7 @@ package com.zeroc.IceInternal;
 public class Property {
   public Property(
       String pattern,
-      Boolean usesRegex,
+      boolean usesRegex,
       String defaultValue,
       boolean deprecated,
       String deprecatedBy) {
