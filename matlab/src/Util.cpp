@@ -614,7 +614,7 @@ IceMatlab::createByteList(const vector<byte>& bytes)
 }
 
 mxArray*
-IceMatlab::createCertificateList(const vector<IceSSL::CertificatePtr>& certs)
+IceMatlab::createCertificateList(const vector<Ice::SSL::CertificatePtr>& certs)
 {
     auto r = mxCreateCellMatrix(1, static_cast<int>(certs.size()));
     mwIndex i = 0;

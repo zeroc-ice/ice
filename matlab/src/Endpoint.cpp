@@ -111,7 +111,7 @@ namespace
             mxSetFieldByNumber(r, 0, Field::Resource, createStringFromUTF8(wsInfo->resource));
         }
 
-        if (dynamic_pointer_cast<IceSSL::EndpointInfo>(info))
+        if (dynamic_pointer_cast<Ice::SSL::EndpointInfo>(info))
         {
             mxSetFieldByNumber(r, 0, Field::InfoType, createInt(Ice::SSLEndpointType));
         }
