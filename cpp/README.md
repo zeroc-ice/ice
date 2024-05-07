@@ -1,6 +1,6 @@
 # Ice for C++
 
-[Getting started C++11] | [Examples C++11] | [Getting started C++98] | [Examples C++98] | [NuGet packages] | [Documentation] | [Building from source]
+[Getting started] | [Examples] | [NuGet packages] | [Documentation] | [Building from source]
 
 The [Ice framework] provides everything you need to build networked applications,
 including RPC, pub/sub, server deployment, and more.
@@ -110,8 +110,8 @@ public:
 }
 ```
 
-[Getting started with Ice C++]: https://doc.zeroc.com/ice/3.8/hello-world-application/writing-an-ice-application-with-c++
-[C++ Examples]: https://github.com/zeroc-ice/ice-demos/tree/3.8/cpp
+[Getting started]: https://doc.zeroc.com/ice/3.8/hello-world-application/writing-an-ice-application-with-c++
+[Examples]: https://github.com/zeroc-ice/ice-demos/tree/3.8/cpp
 [NuGet packages]: https://www.nuget.org/packages?q=zeroc.ice.v
 [Documentation]: https://doc.zeroc.com/ice/3.8
 [Building from source]: https://github.com/zeroc-ice/ice/blob/3.8/cpp/BUILDING.md

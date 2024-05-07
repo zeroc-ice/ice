@@ -285,7 +285,7 @@ IceInternal::ThreadPool::initialize()
 
 #if defined(__APPLE__)
     //
-    // We use a default stack size of 1MB on macOS and the new C++11 mapping to allow transmitting
+    // We use a default stack size of 1MB on macOS. The C++ mapping allows transmitting
     // class graphs with a depth of 100 (maximum default), 512KB is not enough otherwise.
     //
     int defaultStackSize = 1024 * 1024; // 1MB
@@ -866,7 +866,9 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
         {
             Warning out(_instance->initializationData().logger);
             out << "thread pool `" << _prefix << "' is running low on threads\n"
-                << "Size=" << _size << ", " << "SizeMax=" << _sizeMax << ", " << "SizeWarn=" << _sizeWarn;
+                << "Size=" << _size << ", "
+                << "SizeMax=" << _sizeMax << ", "
+                << "SizeWarn=" << _sizeWarn;
         }
 
         if (!_destroyed)
