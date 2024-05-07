@@ -457,71 +457,70 @@ class Properties
         return new Properties(args, defaults);
     }
 
-    static findProperty(key, logWarnings)
-    {
+    static findProperty(key, logWarnings) {
         // Check if the property is a known Ice property and log warnings if necessary
         const logger = getProcessLogger();
 
         let dotPos = key.indexOf(".");
-        if(dotPos !== -1)
-        {
-            const prefix = key.substr(0, dotPos);
-            for(let i = 0; i < PropertyNames.validProps.length; ++i)
-            {
-                let pattern = PropertyNames.validProps[i][0].pattern;
-                dotPos = pattern.indexOf(".");
-                //
-                // Each top level prefix describes a non-empty namespace. Having a string without a
-                // prefix followed by a dot is an error.
-                //
-                Debug.assert(dotPos != -1);
 
-                // If the prefix is not the same, skip to the next set of properties
-                if(pattern.substring(1, dotPos) != prefix)
-                {
-                    continue;
-                }
+        // If the key doesn't contain a dot, it's not a valid Ice property.
+        if (dotPos === -1) {
+            return null;
+        }
 
-                for(let j = 0; j < PropertyNames.validProps[i].length; ++j)
-                {
-                    const prop = PropertyNames.validProps[i][j];
-                    let pComp = new RegExp(prop.pattern);
+        const prefix = key.substr(0, dotPos);
+        var propertyPrefix = null;
 
-                    if (pComp.test(key))
-                    {
-                        if (prop.deprecated && logWarnings)
-                        {
-                            logger.warning("deprecated property: " + key);
-                        }
-                        return prop;
-                    }
+        // Search for the property prefix
+        for (let i = 0; i < PropertyNames.validProps.length; ++i) {
+            let pattern = PropertyNames.validProps[i][0].pattern;
+            dotPos = pattern.indexOf(".");
 
-                    // Check for case-insensitive match
-                    pComp = new RegExp(pattern.toUpperCase());
-                    if(pComp.test(key.toUpperCase()))
-                    {
-                        if (logWarnings)
-                        {
-                            var otherKey = pattern.substr(2);
-                            otherKey = otherKey.substr(0, otherKey.length - 1);
-                            otherKey = otherKey.replace(/\\/g, "");
-                            logger.warning("unknown property: `" + key + "'; did you mean `" + otherKey + "'");
-                        }
-                        return null;
-                    }
-                }
+            // Each top level prefix describes a non-empty namespace. Having a string without a
+            // prefix followed by a dot is an error.
+            Debug.assert(dotPos != -1);
 
-                // If we get here, the prefix is valid but the property is unknown
-                if (logWarnings)
-                {
-                    logger.warning("unknown property: " + key);
-                }
+            const propPrefix = pattern.substring(0, dotPos).replace(/\\|^/g, "");
+
+            if (propPrefix === prefix) {
+                propertyPrefix = PropertyNames.validProps[i]
+                break;
+            }
+
+            if  (logWarnings && propPrefix.toUpperCase() === prefix.toUpperCase()) {
+                logger.warning("unknown property prefix: `" + prefix + "'; did you mean `" + propPrefix + "'?");
                 return null;
             }
         }
 
-        // The key does not match a known Ice property
+        if (propertyPrefix === null) {
+            // The prefix is not a valid Ice property.
+            return null;
+        }
+
+        for(let j = 0; j < propertyPrefix.length; ++j)
+        {
+            const prop = propertyPrefix[j];
+
+            const matches = prop.usesRegex ? key.match(prop.pattern) : key === prop.pattern;
+
+            if (matches)
+            {
+                if (prop.deprecated && logWarnings)
+                {
+                    logger.warning("deprecated property: " + key);
+                }
+                return prop;
+            }
+        }
+
+        // If we get here, the prefix is valid but the property is unknown
+        if (logWarnings)
+        {
+            logger.warning("unknown property: " + key);
+        }
         return null;
+
     }
 
     static getDefaultProperty(key)

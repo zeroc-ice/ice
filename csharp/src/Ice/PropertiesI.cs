@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
+using Ice.Internal;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -599,64 +600,76 @@ internal sealed class PropertiesI : Properties
     /// <param name="key">The property's key.</param>
     /// <param name="logWarnings">Whether to log relevant warnings.</param>
     /// <returns>The found property</returns>
-    private static Ice.Internal.Property findProperty(string key, bool logWarnings)
+    private static Property findProperty(string key, bool logWarnings)
     {
         // Check if the property is a known Ice property and log warnings if necessary
         Logger logger = Util.getProcessLogger();
         int dotPos = key.IndexOf('.');
-        if (dotPos != -1)
+
+        // If the key doesn't contain a dot, it's not a valid Ice property
+        if (dotPos == -1)
         {
-            string prefix = key.Substring(0, dotPos);
-            foreach (var validProps in Ice.Internal.PropertyNames.validProps)
+            return null;
+        }
+
+        string prefix = key.Substring(0, dotPos);
+
+        Property[] propertyArray = null;
+
+        // Search for the property list that matches the prefix
+        foreach (var validProps in PropertyNames.validProps)
+        {
+            string pattern = validProps[0].pattern;
+            dotPos = pattern.IndexOf('.');
+
+            // Each top level prefix describes a non-empty
+            // namespace. Having a string without a prefix followed by a
+            // dot is an error.
+            Debug.Assert(dotPos != -1);
+
+            // Trim any leading/trailing ^, $, or \ characters from the prefix
+            string propPrefix = pattern.Substring(0, dotPos).TrimStart(['^', '$', '\\']);
+
+            if (propPrefix == prefix)
             {
-                string pattern = validProps[0].pattern;
-                dotPos = pattern.IndexOf('.');
-                Debug.Assert(dotPos != -1);
-                string propPrefix = pattern.Substring(1, dotPos - 2);
+                // We found the property list that matches the prefix
+                propertyArray = validProps;
+                break;
+            }
 
-                // If the prefix is not the same, skip to the next set of properties
-                if (!propPrefix.ToUpper().Equals(prefix.ToUpper()))
-                {
-                    continue;
-                }
-
-                foreach (var prop in validProps)
-                {
-                    Regex r = new Regex(prop.pattern);
-                    Match m = r.Match(key);
-                    if (m.Success)
-                    {
-                        if (prop.deprecated && logWarnings)
-                        {
-                            logger.warning("deprecated property: " + key);
-                        }
-                        return prop;
-                    }
-
-                    // Check for case-insensitive match
-                    r = new Regex(prop.pattern.ToUpper());
-                    m = r.Match(key.ToUpper());
-                    if (m.Success)
-                    {
-                        if (logWarnings)
-                        {
-                            string otherKey = prop.pattern.Replace("\\", "").Replace("^", "").Replace("$", "");
-                            logger.warning("unknown property: `" + key + "'; did you mean `" + otherKey + "'");
-                        }
-                        return null;
-                    }
-                }
-
-                // If we get here, the prefix is valid but the property is unknown
-                if (logWarnings)
-                {
-                    logger.warning("unknown property: " + key);
-                }
+            // As a courtesy to the user, perform a case-insensitive match and suggest the correct property.
+            // Otherwise no other warning is issued.
+            if (logWarnings && propPrefix.ToUpper().Equals(prefix.ToUpper()))
+            {
+                logger.warning("unknown property: `" + key + "'; did you mean `" + propPrefix + "'?");
                 return null;
             }
         }
 
-        // The key does not match a known Ice property
+        if (propertyArray == null)
+        {
+            // The prefix is not a valid Ice property
+            return null;
+        }
+
+        foreach (var prop in propertyArray)
+        {
+            bool matches = prop.usesRegex ? Regex.IsMatch(key, prop.pattern) : key == prop.pattern;
+            if (matches)
+            {
+                if (prop.deprecated && logWarnings)
+                {
+                    logger.warning("deprecated property: " + key);
+                }
+                return prop;
+            }
+        }
+
+        // If we get here, the prefix is valid but the property is unknown
+        if (logWarnings)
+        {
+            logger.warning("unknown property: " + key);
+        }
         return null;
     }
 
