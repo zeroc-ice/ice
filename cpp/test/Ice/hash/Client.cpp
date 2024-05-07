@@ -30,8 +30,7 @@ Client::run(int argc, char** argv)
     CommunicatorHolder holder = initialize(argc, argv, properties);
     auto communicator = holder.communicator();
     cout << "testing proxy hash algorithm collisions... " << flush;
-    map<int32_t, optional<ObjectPrx>> seenProxy;
-    map<int32_t, EndpointPtr> seenEndpoint;
+    map<size_t, optional<ObjectPrx>> seenProxy;
     unsigned int proxyCollisions = 0;
     unsigned int i = 0;
     unsigned int maxCollisions = 10;
