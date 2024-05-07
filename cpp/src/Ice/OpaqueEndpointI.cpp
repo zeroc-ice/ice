@@ -189,8 +189,7 @@ size_t
 IceInternal::OpaqueEndpointI::hash() const noexcept
 {
     size_t h = 5381;
-    hashAdd(h, _rawEncoding.major);
-    hashAdd(h, _rawEncoding.minor);
+    hashAdd(h, _type);
     hashAdd(h, _rawBytes);
     return h;
 }

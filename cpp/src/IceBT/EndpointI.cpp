@@ -57,7 +57,7 @@ IceBT::EndpointI::EndpointI(const InstancePtr& instance, InputStream* s)
     : _instance(instance),
       _channel(0),
       _timeout(-1),
-      _compress(false),
+      _compress(false)
 {
     //
     // _name and _channel are not marshaled.

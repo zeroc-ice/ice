@@ -33,16 +33,16 @@ namespace IceInternal
         hashCode = ((hashCode << 5) + hashCode) ^ (value ? 1 : 0);
     }
 
-    inline void hashAdd(std::size_t& hashCode, const std::string& value)
+    template<class T> inline void hashAdd(std::size_t& hashCode, const T& value)
     {
-        hashAdd(hashCode, std::hash<std::string>{}(value));
+        hashAdd(hashCode, std::hash<T>{}(value));
     }
 
     inline void hashAdd(std::size_t& hashCode, const std::vector<EndpointIPtr>& seq)
     {
         for (const auto& p : seq)
         {
-            hashAdd(hashCode, std::hash<EndpointI>{}(*p));
+            hashAdd(hashCode, *p);
         }
     }
 

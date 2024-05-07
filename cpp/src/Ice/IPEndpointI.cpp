@@ -190,6 +190,7 @@ size_t
 IceInternal::IPEndpointI::hash() const noexcept
 {
     size_t h = 5381;
+    hashAdd(h, type());
     hashAdd(h, _host);
     hashAdd(h, _port);
     hashAdd(h, _connectionId);

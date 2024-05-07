@@ -4,7 +4,6 @@
 
 #include "Ice/Ice.h"
 #include "IceUtil/Random.h"
-#include "Test.h"
 #include "TestHelper.h"
 
 #if defined(__GNUC__)
@@ -102,6 +101,34 @@ Client::run(int argc, char** argv)
         proxyMap["prx10"]);
 
     cerr << "ok" << endl;
+
+    cout << "testing proxy hash of slightly different proxies... " << flush;
+
+    // Many similar proxies that should have different hash values.
+    static constexpr string_view proxyString[] =
+    {
+        "test:tcp -p 10001 -h hello.zeroc.com",
+        "test:udp -p 10001 -h hello.zeroc.com",
+        "test:ssl -p 10001 -h hello.zeroc.com",
+        "test:tcp -p 10001 -h hello.zeroc.com -t 10000",
+        "test -f fa:tcp -p 10001 -h hello.zeroc.com",
+        "test @ adapt",
+        "test @ adapt2",
+        "test:opaque -t 12 -v abc",
+        "test:opaque -t 13 -v abc",
+        "test:opaque -t 13 -v abcd",
+    };
+
+    set<size_t> hashes;
+
+    for (const auto s : proxyString)
+    {
+        bool inserted = hashes.insert(hash<ObjectPrx>{}(*communicator->stringToProxy(string{s}))).second;
+        test(inserted);
+    }
+
+    cerr << "ok" << endl;
+
 }
 
 DEFINE_TEST(Client)
