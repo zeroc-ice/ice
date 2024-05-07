@@ -3715,7 +3715,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
          << " communicator, string proxyString) =>";
     _out.inc();
     _out << nl << "uncheckedCast(" << getUnqualified("Ice.ObjectPrxHelper", ns)
-        << ".createProxy(communicator, proxyString));";
+         << ".createProxy(communicator, proxyString));";
     _out.dec();
 
     _out << sp << nl << "public static " << name << "Prx checkedCast(" << getUnqualified("Ice.ObjectPrx", ns)
