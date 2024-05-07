@@ -62,7 +62,7 @@ classdef Endpoint < IceInternal.WrapperObject
                                                 info.host, info.port, info.sourceAddress);
 
                     case Ice.SSLEndpointType.value
-                        r = IceSSL.EndpointInfo(info.type, info.secure, underlying, info.timeout, info.compress);
+                        r = Ice.SSL.EndpointInfo(info.type, info.secure, underlying, info.timeout, info.compress);
 
                     case Ice.UDPEndpointType.value
                         r = Ice.UDPEndpointInfo(info.type, underlying, info.timeout,  info.compress, info.host, ...
