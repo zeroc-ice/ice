@@ -641,7 +641,7 @@ public final class PropertiesI implements Properties {
     for (int j = 0; propertyArray[j] != null; ++j) {
       Property prop = propertyArray[j];
 
-      Boolean matches = prop.usesRegex() ? key.matches(prop.pattern()) : key.equals(prop.pattern());
+      boolean matches = prop.usesRegex() ? key.matches(prop.pattern()) : key.equals(prop.pattern());
 
       if (matches) {
         if (prop.deprecated() && logWarnings) {
