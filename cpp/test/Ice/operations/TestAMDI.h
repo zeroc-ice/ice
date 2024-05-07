@@ -12,14 +12,6 @@ class MyDerivedClassI final : public Test::MyDerivedClass
 public:
     MyDerivedClassI();
 
-    //
-    // Override the Object "pseudo" operations to verify the operation mode.
-    //
-    bool ice_isA(std::string, const Ice::Current&) const;
-    void ice_ping(const Ice::Current&) const;
-    std::vector<std::string> ice_ids(const Ice::Current&) const;
-    std::string ice_id(const Ice::Current&) const;
-
     void shutdownAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) final;
 
     void supportsCompressAsync(std::function<void(bool)>, std::function<void(std::exception_ptr)>, const Ice::Current&)
