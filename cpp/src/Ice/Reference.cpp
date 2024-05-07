@@ -140,10 +140,7 @@ Reference::hash() const noexcept
     {
         hashAdd(h, _compress);
     }
-    hashAdd(h, _protocol.major);
-    hashAdd(h, _protocol.minor);
-    hashAdd(h, _encoding.major);
-    hashAdd(h, _encoding.minor);
+    // We don't include protocol and encoding in the hash; they are using 1.0 and 1.1, respectively.
     hashAdd(h, _invocationTimeout);
     return h;
 }
