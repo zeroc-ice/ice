@@ -374,7 +374,7 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p)
             zval_ptr_dtor(&rawBytes); // add_property_zval increased the refcount of rawBytes
         }
     }
-    else if (dynamic_pointer_cast<IceSSL::EndpointInfo>(p))
+    else if (dynamic_pointer_cast<Ice::SSL::EndpointInfo>(p))
     {
         status = object_init_ex(zv, sslEndpointInfoClassEntry);
     }

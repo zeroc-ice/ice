@@ -345,7 +345,7 @@ ClientSSLSessionManagerI::create(
     {
         try
         {
-            auto cert = IceSSL::Certificate::decode(info.certs[0]);
+            auto cert = Ice::SSL::Certificate::decode(info.certs[0]);
             userDN = cert->getSubjectDN();
         }
         catch (const Ice::Exception& e)

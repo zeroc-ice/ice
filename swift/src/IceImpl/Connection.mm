@@ -322,7 +322,7 @@ createConnectionInfo(std::shared_ptr<Ice::ConnectionInfo> infoPtr)
                                        headers:toNSDictionary(wsInfo->headers)];
     }
 
-    auto sslInfo = std::dynamic_pointer_cast<IceSSL::ConnectionInfo>(infoPtr);
+    auto sslInfo = std::dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(infoPtr);
     if (sslInfo)
     {
         return [factory createSSLConnectionInfo:underlying

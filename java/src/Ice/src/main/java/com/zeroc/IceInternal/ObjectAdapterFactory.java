@@ -6,7 +6,7 @@ package com.zeroc.IceInternal;
 
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.ObjectAdapterI;
-import com.zeroc.IceSSL.SSLEngineFactory;
+import com.zeroc.Ice.SSL.SSLEngineFactory;
 
 public final class ObjectAdapterFactory {
   public void shutdown() {

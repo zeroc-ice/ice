@@ -15,7 +15,7 @@
 #include "Ice/ObjectAdapter.h"
 #include "Ice/ObjectF.h"
 #include "Ice/Proxy.h"
-#include "Ice/ServerAuthenticationOptions.h"
+#include "Ice/SSL/ServerAuthenticationOptions.h"
 #include "LocatorInfoF.h"
 #include "ObjectAdapterFactoryF.h"
 #include "RouterInfoF.h"

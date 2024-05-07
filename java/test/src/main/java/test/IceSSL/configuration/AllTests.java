@@ -107,7 +107,7 @@ public class AllTests {
       InitializationData initData;
 
       //
-      // Test IceSSL.VerifyPeer=0. Client does not have a certificate,
+      // Test Ice.SSL.VerifyPeer=0. Client does not have a certificate,
       // but it still verifies the server's.
       //
       initData = createClientProps(defaultProperties, "", "cacert1");
@@ -119,7 +119,7 @@ public class AllTests {
       ServerPrx server = fact.createServer(d);
       try {
         server.noCert();
-        test(((com.zeroc.IceSSL.ConnectionInfo) server.ice_getConnection().getInfo()).verified);
+        test(((com.zeroc.Ice.SSL.ConnectionInfo) server.ice_getConnection().getInfo()).verified);
       } catch (com.zeroc.Ice.LocalException ex) {
         ex.printStackTrace();
         test(false);
@@ -128,7 +128,7 @@ public class AllTests {
       comm.destroy();
 
       //
-      // Test IceSSL.VerifyPeer=1. Client does not have a certificate.
+      // Test Ice.SSL.VerifyPeer=1. Client does not have a certificate.
       //
       initData = createClientProps(defaultProperties, "", "cacert1");
       comm = Util.initialize(args, initData);
@@ -146,7 +146,7 @@ public class AllTests {
       fact.destroyServer(server);
 
       //
-      // Test IceSSL.VerifyPeer=2. This should fail because the client
+      // Test Ice.SSL.VerifyPeer=2. This should fail because the client
       // does not supply a certificate.
       //
       d = createServerProps(defaultProperties, "s_rsa_ca1", "");
@@ -168,7 +168,7 @@ public class AllTests {
       comm.destroy();
 
       //
-      // Test IceSSL.VerifyPeer=1. Client has a certificate.
+      // Test Ice.SSL.VerifyPeer=1. Client has a certificate.
       //
       // Provide "cacert1" to the client to verify the server
       // certificate (without this the client connection wouln't be
@@ -191,8 +191,8 @@ public class AllTests {
         java.security.cert.X509Certificate serverCert =
             loadCertificate(defaultDir + "/s_rsa_ca1.jks", "cert");
 
-        com.zeroc.IceSSL.ConnectionInfo info =
-            (com.zeroc.IceSSL.ConnectionInfo) server.ice_getConnection().getInfo();
+        com.zeroc.Ice.SSL.ConnectionInfo info =
+            (com.zeroc.Ice.SSL.ConnectionInfo) server.ice_getConnection().getInfo();
 
         test(info.certs.length == 1);
         test(info.verified);
@@ -205,7 +205,7 @@ public class AllTests {
       fact.destroyServer(server);
 
       //
-      // Test IceSSL.VerifyPeer=2. Client has a certificate.
+      // Test Ice.SSL.VerifyPeer=2. Client has a certificate.
       //
       d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
       d.put("IceSSL.VerifyPeer", "2");
@@ -225,7 +225,7 @@ public class AllTests {
       comm.destroy();
 
       //
-      // Test IceSSL.VerifyPeer=1. This should fail because the
+      // Test Ice.SSL.VerifyPeer=1. This should fail because the
       // client doesn't trust the server's CA.
       //
       initData = createClientProps(defaultProperties, "", "");
@@ -250,7 +250,7 @@ public class AllTests {
       comm.destroy();
 
       //
-      // Test IceSSL.VerifyPeer=1. This should fail because the
+      // Test Ice.SSL.VerifyPeer=1. This should fail because the
       // server doesn't trust the client's CA.
       //
       initData = createClientProps(defaultProperties, "c_rsa_ca2", "");
@@ -322,7 +322,7 @@ public class AllTests {
       comm.destroy();
 
       //
-      // Verify that IceSSL.CheckCertName has no effect in a server.
+      // Verify that Ice.SSL.CheckCertName has no effect in a server.
       //
       initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
       comm = Util.initialize(args, initData);
@@ -539,7 +539,7 @@ public class AllTests {
         //
         // Target host does not match the certificate DNS altName, connection should
         // succeed
-        // because IceSSL.CheckCertName is set to 0.
+        // because Ice.SSL.CheckCertName is set to 0.
         //
         {
           initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -659,7 +659,7 @@ public class AllTests {
     }
     out.println("ok");
 
-    out.print("testing IceSSL.TrustOnly... ");
+    out.print("testing Ice.SSL.TrustOnly... ");
     out.flush();
     {
       initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -1012,7 +1012,7 @@ public class AllTests {
     }
     out.println("ok");
 
-    out.print("testing IceSSL.TrustOnly.Client... ");
+    out.print("testing Ice.SSL.TrustOnly.Client... ");
     out.flush();
     {
       initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -1113,7 +1113,7 @@ public class AllTests {
     }
     out.println("ok");
 
-    out.print("testing IceSSL.TrustOnly.Server... ");
+    out.print("testing Ice.SSL.TrustOnly.Server... ");
     out.flush();
     {
       initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -1213,7 +1213,7 @@ public class AllTests {
     }
     out.println("ok");
 
-    out.print("testing IceSSL.TrustOnly.Server.<AdapterName>... ");
+    out.print("testing Ice.SSL.TrustOnly.Server.<AdapterName>... ");
     out.flush();
     {
       initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -1347,8 +1347,8 @@ public class AllTests {
         try {
           com.zeroc.Ice.WSConnectionInfo info =
               (com.zeroc.Ice.WSConnectionInfo) p.ice_getConnection().getInfo();
-          com.zeroc.IceSSL.ConnectionInfo sslinfo =
-              (com.zeroc.IceSSL.ConnectionInfo) info.underlying;
+          com.zeroc.Ice.SSL.ConnectionInfo sslinfo =
+              (com.zeroc.Ice.SSL.ConnectionInfo) info.underlying;
           test(sslinfo.verified);
           break;
         } catch (com.zeroc.Ice.LocalException ex) {

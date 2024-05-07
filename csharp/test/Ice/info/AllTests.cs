@@ -58,7 +58,7 @@ namespace Ice
                          tcpEndpoint.type() == Ice.WSEndpointType.value && !tcpEndpoint.secure() ||
                          tcpEndpoint.type() == Ice.WSSEndpointType.value && tcpEndpoint.secure());
                     test(tcpEndpoint.type() == Ice.TCPEndpointType.value && info is Ice.TCPEndpointInfo ||
-                         tcpEndpoint.type() == Ice.SSLEndpointType.value && info is IceSSL.EndpointInfo ||
+                         tcpEndpoint.type() == Ice.SSLEndpointType.value && info is Ice.SSL.EndpointInfo ||
                          tcpEndpoint.type() == Ice.WSEndpointType.value && info is Ice.WSEndpointInfo ||
                          tcpEndpoint.type() == Ice.WSSEndpointType.value && info is Ice.WSEndpointInfo);
 

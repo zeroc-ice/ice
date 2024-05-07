@@ -4,7 +4,7 @@
 
 #include "IceUtil/DisableWarnings.h"
 
-#include "../IceSSL/RFC2253.h"
+#include "../Ice/SSL/RFC2253.h"
 #include "Database.h"
 #include "FileCache.h"
 #include "Ice/Ice.h"
@@ -65,7 +65,7 @@ InternalRegistryI::registerNode(
     {
         try
         {
-            auto sslConnInfo = dynamic_pointer_cast<IceSSL::ConnectionInfo>(current.con->getInfo());
+            auto sslConnInfo = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(current.con->getInfo());
             if (sslConnInfo)
             {
                 if (sslConnInfo->certs.empty() || !sslConnInfo->certs[0]->getSubjectDN().match("CN=" + info->name))
@@ -138,7 +138,7 @@ InternalRegistryI::registerReplica(
     {
         try
         {
-            auto sslConnInfo = dynamic_pointer_cast<IceSSL::ConnectionInfo>(current.con->getInfo());
+            auto sslConnInfo = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(current.con->getInfo());
             if (sslConnInfo)
             {
                 if (sslConnInfo->certs.empty() || !sslConnInfo->certs[0]->getSubjectDN().match("CN=" + info->name))

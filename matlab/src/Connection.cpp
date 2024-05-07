@@ -72,7 +72,7 @@ namespace
 
         string type = "other";
 
-        shared_ptr<Ice::IPConnectionInfo> ipInfo = dynamic_pointer_cast<Ice::IPConnectionInfo>(info);
+        auto ipInfo = dynamic_pointer_cast<Ice::IPConnectionInfo>(info);
         if (ipInfo)
         {
             type = "ip";
@@ -82,7 +82,7 @@ namespace
             mxSetFieldByNumber(r, 0, Field::RemotePort, createInt(ipInfo->remotePort));
         }
 
-        shared_ptr<Ice::UDPConnectionInfo> udpInfo = dynamic_pointer_cast<Ice::UDPConnectionInfo>(info);
+        auto udpInfo = dynamic_pointer_cast<Ice::UDPConnectionInfo>(info);
         if (udpInfo)
         {
             type = "udp";
@@ -92,7 +92,7 @@ namespace
             mxSetFieldByNumber(r, 0, Field::SndSize, createInt(udpInfo->sndSize));
         }
 
-        shared_ptr<Ice::TCPConnectionInfo> tcpInfo = dynamic_pointer_cast<Ice::TCPConnectionInfo>(info);
+        auto tcpInfo = dynamic_pointer_cast<Ice::TCPConnectionInfo>(info);
         if (tcpInfo)
         {
             type = "tcp";
@@ -100,14 +100,14 @@ namespace
             mxSetFieldByNumber(r, 0, Field::SndSize, createInt(tcpInfo->sndSize));
         }
 
-        shared_ptr<Ice::WSConnectionInfo> wsInfo = dynamic_pointer_cast<Ice::WSConnectionInfo>(info);
+        auto wsInfo = dynamic_pointer_cast<Ice::WSConnectionInfo>(info);
         if (wsInfo)
         {
             type = "ws";
             mxSetFieldByNumber(r, 0, Field::Headers, createStringMap(wsInfo->headers));
         }
 
-        shared_ptr<IceSSL::ConnectionInfo> sslInfo = dynamic_pointer_cast<IceSSL::ConnectionInfo>(info);
+        auto sslInfo = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(info);
         if (sslInfo)
         {
             type = "ssl";

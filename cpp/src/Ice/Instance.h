@@ -5,7 +5,6 @@
 #ifndef ICE_INSTANCE_H
 #define ICE_INSTANCE_H
 
-#include "../IceSSL/SSLEngineF.h"
 #include "ConnectionFactoryF.h"
 #include "ConnectionOptions.h"
 #include "DefaultsAndOverridesF.h"
@@ -30,6 +29,7 @@
 #include "ReferenceFactoryF.h"
 #include "RetryQueueF.h"
 #include "RouterInfoF.h"
+#include "SSL/SSLEngineF.h"
 #include "ThreadPoolF.h"
 #include "TraceLevelsF.h"
 
@@ -126,7 +126,7 @@ namespace IceInternal
         void setSndBufSizeWarn(std::int16_t type, int size);
         void setRcvBufSizeWarn(std::int16_t type, int size);
 
-        IceSSL::SSLEnginePtr sslEngine() const { return _sslEngine; }
+        Ice::SSL::SSLEnginePtr sslEngine() const { return _sslEngine; }
 
     private:
         Instance(const Ice::InitializationData&);
@@ -201,7 +201,7 @@ namespace IceInternal
         ImplicitContextKind _implicitContextKind;
         // Only set when _implicitContextKind == Shared.
         Ice::ImplicitContextPtr _sharedImplicitContext;
-        IceSSL::SSLEnginePtr _sslEngine;
+        Ice::SSL::SSLEnginePtr _sslEngine;
     };
 
     class ProcessI : public Ice::Process
