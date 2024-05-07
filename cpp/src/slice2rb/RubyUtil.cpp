@@ -670,7 +670,6 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         _out << "])";
 
-
         if ((*s)->isDeprecated(true))
         {
             // Get the deprecation reason if present, or default to an empty string.

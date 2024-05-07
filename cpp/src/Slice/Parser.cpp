@@ -999,23 +999,23 @@ Slice::Contained::parseFormatMetaData(const list<string>& metaData)
 }
 
 bool
-Slice::Contained::isDeprecated(bool check_parent) const
+Slice::Contained::isDeprecated(bool checkParent) const
 {
     const string deprecate = "deprecate";
     string metadata;
-    ContainedPtr parent = check_parent ? dynamic_pointer_cast<Contained>(_container) : nullptr;
+    ContainedPtr parent = checkParent ? dynamic_pointer_cast<Contained>(_container) : nullptr;
 
-    return (findMetaData(deprecate, metadata) || parent && parent->findMetaData(deprecate, metadata));
+    return (findMetaData(deprecate, metadata) || (parent && parent->findMetaData(deprecate, metadata)));
 }
 
 optional<string>
-Slice::Contained::getDeprecateReason(bool check_parent) const
+Slice::Contained::getDeprecateReason(bool checkParent) const
 {
     const string prefix = "deprecate:";
     string metadata;
-    ContainedPtr parent = check_parent ? dynamic_pointer_cast<Contained>(_container) : nullptr;
+    ContainedPtr parent = checkParent ? dynamic_pointer_cast<Contained>(_container) : nullptr;
 
-    if (findMetaData(prefix, metadata) || parent && parent->findMetaData(prefix, metadata))
+    if (findMetaData(prefix, metadata) || (parent && parent->findMetaData(prefix, metadata)))
     {
         assert(metadata.find(prefix) == 0);
         return metadata.substr(prefix.size());
