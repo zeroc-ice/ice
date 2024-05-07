@@ -171,12 +171,7 @@ make V=1 -j8 srcs
 ```
 
 The build system supports specifying additional preprocessor, compiler and
-linker options with the `CPPFLAGS`, `CXXFLAGS` and `LDFLAGS` variables. For
-example, to build with `-std=c++20`, you can use:
-
-```shell
-make CXXFLAGS=-std=c++20
-```
+linker options with the `CPPFLAGS`, `CXXFLAGS` and `LDFLAGS` variables.
 
 To build the test suite using a binary distribution use:
 
