@@ -2152,7 +2152,7 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     }
 
     PyObjectHandle modeValue = getAttr(mode, "value", true);
-    Ice::OperationMode op_mode = (Ice::OperationMode) static_cast<int>(PyLong_AsLong(modeValue.get()));
+    Ice::OperationMode opMode = (Ice::OperationMode) static_cast<int>(PyLong_AsLong(modeValue.get()));
     assert(!PyErr_Occurred());
 
     Py_ssize_t sz = PyBytes_GET_SIZE(inParams);
@@ -2181,7 +2181,7 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
             AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
             ok = _prx->ice_invoke(
                 operation,
-                op_mode,
+                opMode,
                 in,
                 out,
                 ctx == 0 || ctx == Py_None ? Ice::noExplicitContext : context);
@@ -2252,7 +2252,7 @@ IcePy::AsyncBlobjectInvocation::handleInvoke(PyObject* args, PyObject* /* kwds *
     _op = operation;
 
     PyObjectHandle modeValue = getAttr(mode, "value", true);
-    Ice::OperationMode op_mode = (Ice::OperationMode) static_cast<int>(PyLong_AsLong(modeValue.get()));
+    Ice::OperationMode opMode = (Ice::OperationMode) static_cast<int>(PyLong_AsLong(modeValue.get()));
     assert(!PyErr_Occurred());
 
     Py_ssize_t sz = PyBytes_GET_SIZE(inParams);
@@ -2275,7 +2275,7 @@ IcePy::AsyncBlobjectInvocation::handleInvoke(PyObject* args, PyObject* /* kwds *
     auto self = shared_from_this();
     return _prx->ice_invokeAsync(
         operation,
-        op_mode,
+        opMode,
         params,
         [self](bool ok, pair<const byte*, const byte*> results) { self->response(ok, results); },
         [self](exception_ptr ex) { self->exception(ex); },
