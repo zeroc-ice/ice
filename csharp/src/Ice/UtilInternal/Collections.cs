@@ -35,7 +35,6 @@ public sealed class Collections
         }
     }
 
-    // TODO: not consistent with HashCodeAdd wrt null vs empty.
     public static bool DictionaryEquals(IDictionary d1, IDictionary d2)
     {
         if (ReferenceEquals(d1, d2))

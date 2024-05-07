@@ -236,6 +236,7 @@ public abstract class IPEndpointI : EndpointI
     public override int GetHashCode()
     {
         var hash = new HashCode();
+        hash.Add(type());
         hash.Add(host_);
         hash.Add(port_);
         if (sourceAddr_ is not null)
@@ -243,7 +244,6 @@ public abstract class IPEndpointI : EndpointI
             hash.Add(sourceAddr_);
         }
         hash.Add(connectionId_);
-        hash.Add(type());
         return hash.ToHashCode();
     }
 

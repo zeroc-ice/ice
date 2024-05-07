@@ -243,7 +243,6 @@ internal sealed class OpaqueEndpointI : EndpointI
     {
         var hash = new HashCode();
         hash.Add(_type);
-        hash.Add(_rawEncoding);
         hash.AddBytes(_rawBytes);
         return hash.ToHashCode();
     }

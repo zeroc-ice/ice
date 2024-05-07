@@ -395,9 +395,23 @@ public abstract class Reference : IEquatable<Reference>
     public static bool operator ==(Reference lhs, Reference rhs) => lhs is null ? rhs is null : lhs.Equals(rhs);
     public static bool operator !=(Reference lhs, Reference rhs) => !(lhs == rhs);
 
-    // We hash only a subset of the fields for speed.
-    public override int GetHashCode() =>
-        HashCode.Combine(_mode, secure_, _identity, _context.Count, _facet, overrideCompress_, _invocationTimeout);
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        hash.Add(_mode);
+        hash.Add(secure_);
+        hash.Add(_identity);
+        UtilInternal.Collections.HashCodeAdd(ref hash, _context);
+        hash.Add(_facet);
+        hash.Add(overrideCompress_);
+        if (overrideCompress_)
+        {
+            hash.Add(compress_);
+        }
+        // We don't hash protocol and encoding; they are usually "1.0" and "1.1" respectively.
+        hash.Add(_invocationTimeout);
+        return hash.ToHashCode();
+    }
 
     public virtual bool Equals(Reference other)
     {
@@ -1089,7 +1103,14 @@ public class RoutableReference : Reference
         return properties;
     }
 
-    public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), _adapterId);
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        hash.Add(base.GetHashCode());
+        hash.Add(_adapterId);
+        UtilInternal.Collections.HashCodeAdd(ref hash, _endpoints);
+        return hash.ToHashCode();
+    }
 
     public override bool Equals(Reference other)
     {
