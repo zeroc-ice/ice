@@ -907,7 +907,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     // Define each operation. The arguments to the IcePy.Operation constructor are:
     //
-    // 'opName', Mode, SendMode, AMD, Format, MetaData, (InParams), (OutParams), ReturnParam, (Exceptions)
+    // 'opName', Mode, AMD, Format, MetaData, (InParams), (OutParams), ReturnParam, (Exceptions)
     //
     // where InParams and OutParams are tuples of type descriptions, and Exceptions
     // is a tuple of exception type ids.
@@ -936,7 +936,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
 
         _out << nl << className << "._op_" << (*s)->name() << " = IcePy.Operation('" << (*s)->name() << "', "
-             << getOperationMode((*s)->mode()) << ", " << getOperationMode((*s)->sendMode()) << ", "
+             << getOperationMode((*s)->mode()) << ", "
              << ((p->hasMetaData("amd") || (*s)->hasMetaData("amd")) ? "True" : "False") << ", " << format << ", ";
         writeMetaData((*s)->getMetaData());
         _out << ", (";
@@ -1938,9 +1938,6 @@ Slice::Python::CodeVisitor::getOperationMode(Slice::Operation::Mode mode)
     {
         case Operation::Normal:
             result = "Ice.OperationMode.Normal";
-            break;
-        case Operation::Nonmutating:
-            result = "Ice.OperationMode.Nonmutating";
             break;
         case Operation::Idempotent:
             result = "Ice.OperationMode.Idempotent";

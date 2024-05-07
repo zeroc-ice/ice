@@ -55,14 +55,13 @@ function parseParam(p)
 //  0: native method name in case of a keyword conflict (e.g., "_while"),
 //     otherwise an empty string
 //  1: mode (undefined == Normal or int)
-//  2: sendMode (undefined == Normal or int)
-//  3: format (undefined == Default or int)
-//  4: return type (undefined if void, or [type, tag])
-//  5: in params (undefined if none, or array of [type, tag])
-//  6: out params (undefined if none, or array of [type, tag])
-//  7: exceptions (undefined if none, or array of types)
-//  8: sends classes (true or undefined)
-//  9: returns classes (true or undefined)
+//  2: format (undefined == Default or int)
+//  3: return type (undefined if void, or [type, tag])
+//  4: in params (undefined if none, or array of [type, tag])
+//  5: out params (undefined if none, or array of [type, tag])
+//  6: exceptions (undefined if none, or array of types)
+//  7: sends classes (true or undefined)
+//  8: returns classes (true or undefined)
 //
 function parseOperation(name, arr)
 {
@@ -71,24 +70,23 @@ function parseOperation(name, arr)
     r.name = name;
     r.servantMethod = arr[0] ? arr[0] : name;
     r.mode = arr[1] ? Ice.OperationMode.valueOf(arr[1]) : Ice.OperationMode.Normal;
-    r.sendMode = arr[2] ? Ice.OperationMode.valueOf(arr[2]) : Ice.OperationMode.Normal;
-    r.format = arr[3] ? Ice.FormatType.valueOf(arr[3]) : Ice.FormatType.DefaultFormat;
+    r.format = arr[2] ? Ice.FormatType.valueOf(arr[2]) : Ice.FormatType.DefaultFormat;
 
     let ret;
-    if(arr[4])
+    if(arr[3])
     {
-        ret = parseParam(arr[4]);
+        ret = parseParam(arr[3]);
         ret.pos = 0;
     }
     r.returns = ret;
 
     const inParams = [];
     const inParamsOpt = [];
-    if(arr[5])
+    if(arr[4])
     {
-        for(let i = 0; i < arr[5].length; ++i)
+        for(let i = 0; i < arr[4].length; ++i)
         {
-            const p = parseParam(arr[5][i]);
+            const p = parseParam(arr[4][i]);
             p.pos = i;
             inParams.push(p);
             if(p.tag)
@@ -103,12 +101,12 @@ function parseOperation(name, arr)
 
     const outParams = [];
     const outParamsOpt = [];
-    if(arr[6])
+    if(arr[5])
     {
         const offs = ret ? 1 : 0;
-        for(let i = 0; i < arr[6].length; ++i)
+        for(let i = 0; i < arr[5].length; ++i)
         {
-            const p = parseParam(arr[6][i]);
+            const p = parseParam(arr[5][i]);
             p.pos = i + offs;
             outParams.push(p);
             if(p.tag)
@@ -126,17 +124,17 @@ function parseOperation(name, arr)
     r.outParamsOpt = outParamsOpt;
 
     const exceptions = [];
-    if(arr[7])
+    if(arr[6])
     {
-        for(let i = 0; i < arr[7].length; ++i)
+        for(let i = 0; i < arr[6].length; ++i)
         {
-            exceptions.push(arr[7][i]);
+            exceptions.push(arr[6][i]);
         }
     }
     r.exceptions = exceptions;
 
-    r.sendsClasses = arr[8] === true;
-    r.returnsClasses = arr[9] === true;
+    r.sendsClasses = arr[7] === true;
+    r.returnsClasses = arr[8] === true;
 
     return r;
 }
@@ -556,7 +554,7 @@ function addProxyOperation(proxyType, name, data)
                 return results.length == 1 ? results[0] : results;
             };
         }
-        return Ice.ObjectPrx._invoke(this, op.name, op.sendMode, op.format, ctx, marshalFn, unmarshalFn,
+        return Ice.ObjectPrx._invoke(this, op.name, op.mode, op.format, ctx, marshalFn, unmarshalFn,
                                      op.exceptions, Array.prototype.slice.call(args));
     };
 }
@@ -641,10 +639,10 @@ Slice.defineOperations = function(classType, proxyType, ids, id, ops)
 //
 Slice.defineOperations(Ice.Object, Ice.ObjectPrx, ["::Ice::Object"], "::Ice::Object",
 {
-    ice_ping: [undefined, 1, 1, undefined, undefined, undefined, undefined, undefined],
-    ice_isA: [undefined, 1, 1, undefined, [1], [[7]], undefined, undefined],
-    ice_id: [undefined, 1, 1, undefined, [7], undefined, undefined, undefined],
-    ice_ids: [undefined, 1, 1, undefined, ["Ice.StringSeqHelper"], undefined, undefined, undefined]
+    ice_ping: [undefined, 1, undefined, undefined, undefined, undefined, undefined],
+    ice_isA: [undefined, 1, undefined, [1], [[7]], undefined, undefined],
+    ice_id: [undefined, 1, undefined, [7], undefined, undefined, undefined],
+    ice_ids: [undefined, 1, undefined, ["Ice.StringSeqHelper"], undefined, undefined, undefined]
 });
 
 module.exports.Ice = Ice;

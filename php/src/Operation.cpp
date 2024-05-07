@@ -51,14 +51,13 @@ namespace IcePHP
     class OperationI final : public Operation
     {
     public:
-        OperationI(const char*, Ice::OperationMode, Ice::OperationMode, Ice::FormatType, zval*, zval*, zval*, zval*);
+        OperationI(const char*, Ice::OperationMode, Ice::FormatType, zval*, zval*, zval*, zval*);
         ~OperationI();
 
         zend_function* function() final;
 
         string name; // On-the-wire name.
         Ice::OperationMode mode;
-        Ice::OperationMode sendMode;
         Ice::FormatType format;
         ParamInfoList inParams;
         ParamInfoList optionalInParams;
@@ -152,7 +151,6 @@ IcePHP::ResultCallback::unset(void)
 IcePHP::OperationI::OperationI(
     const char* n,
     Ice::OperationMode m,
-    Ice::OperationMode sm,
     Ice::FormatType f,
     zval* in,
     zval* out,
@@ -160,7 +158,6 @@ IcePHP::OperationI::OperationI(
     zval* ex)
     : name(n),
       mode(m),
-      sendMode(sm),
       format(f),
       _zendFunction(0)
 {
@@ -647,11 +644,11 @@ IcePHP::SyncTypedInvocation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         {
             if (hasCtx)
             {
-                status = _prx->ice_invoke(_op->name, _op->sendMode, params, result, ctx);
+                status = _prx->ice_invoke(_op->name, _op->mode, params, result, ctx);
             }
             else
             {
-                status = _prx->ice_invoke(_op->name, _op->sendMode, params, result);
+                status = _prx->ice_invoke(_op->name, _op->mode, params, result);
             }
         }
 
@@ -704,7 +701,6 @@ ZEND_FUNCTION(IcePHP_defineOperation)
     char* name;
     size_t nameLen;
     zend_long mode;
-    zend_long sendMode;
     zend_long format;
     zval* inParams;
     zval* outParams;
@@ -713,12 +709,11 @@ ZEND_FUNCTION(IcePHP_defineOperation)
 
     if (zend_parse_parameters(
             ZEND_NUM_ARGS(),
-            const_cast<char*>("osllla!a!a!a!"),
+            const_cast<char*>("oslla!a!a!a!"),
             &cls,
             &name,
             &nameLen,
             &mode,
-            &sendMode,
             &format,
             &inParams,
             &outParams,
@@ -735,7 +730,6 @@ ZEND_FUNCTION(IcePHP_defineOperation)
     auto op = make_shared<OperationI>(
         name,
         static_cast<Ice::OperationMode>(mode),
-        static_cast<Ice::OperationMode>(sendMode),
         static_cast<Ice::FormatType>(format),
         inParams,
         outParams,

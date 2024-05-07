@@ -39,11 +39,6 @@ namespace
                 mode = CsGenerator::getUnqualified("Ice.OperationMode.Normal", ns);
                 break;
             }
-            case Operation::Nonmutating:
-            {
-                mode = CsGenerator::getUnqualified("Ice.OperationMode.Nonmutating", ns);
-                break;
-            }
             case Operation::Idempotent:
             {
                 mode = CsGenerator::getUnqualified("Ice.OperationMode.Idempotent", ns);
@@ -3620,7 +3615,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << nl << "outAsync.invoke(";
         _out.inc();
         _out << nl << flatName << ",";
-        _out << nl << sliceModeToIceMode(op->sendMode(), ns) << ",";
+        _out << nl << sliceModeToIceMode(op->mode(), ns) << ",";
         _out << nl << opFormatTypeToString(op, ns) << ",";
         _out << nl << "context,";
         _out << nl << "synchronous";

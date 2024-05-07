@@ -46,17 +46,7 @@ namespace IcePy
     class Operation
     {
     public:
-        Operation(
-            const char*,
-            PyObject*,
-            PyObject*,
-            int,
-            PyObject*,
-            PyObject*,
-            PyObject*,
-            PyObject*,
-            PyObject*,
-            PyObject*);
+        Operation(const char*, PyObject*, int, PyObject*, PyObject*, PyObject*, PyObject*, PyObject*, PyObject*);
 
         void marshalResult(Ice::OutputStream&, PyObject*);
 
@@ -64,7 +54,6 @@ namespace IcePy
 
         string name;
         Ice::OperationMode mode;
-        Ice::OperationMode sendMode;
         bool amd;
         Ice::FormatType format;
         Ice::StringSeq metaData;
@@ -360,7 +349,6 @@ extern "C"
     PyObject* modeType = lookupType("Ice.OperationMode");
     assert(modeType);
     PyObject* mode;
-    PyObject* sendMode;
     int amd;
     PyObject* format;
     PyObject* metaData;
@@ -370,12 +358,10 @@ extern "C"
     PyObject* exceptions;
     if (!PyArg_ParseTuple(
             args,
-            STRCAST("sO!O!iOO!O!O!OO!"),
+            STRCAST("sO!iOO!O!O!OO!"),
             &name,
             modeType,
             &mode,
-            modeType,
-            &sendMode,
             &amd,
             &format,
             &PyTuple_Type,
@@ -392,8 +378,7 @@ extern "C"
     }
 
     self->op = new OperationPtr(
-        make_shared<
-            Operation>(name, mode, sendMode, amd, format, metaData, inParams, outParams, returnType, exceptions));
+        make_shared<Operation>(name, mode, amd, format, metaData, inParams, outParams, returnType, exceptions));
     return 0;
 }
 
@@ -755,7 +740,6 @@ IcePy::ParamInfo::unmarshaled(PyObject* val, PyObject* target, void* closure)
 IcePy::Operation::Operation(
     const char* n,
     PyObject* m,
-    PyObject* sm,
     int amdFlag,
     PyObject* fmt,
     PyObject* meta,
@@ -771,13 +755,6 @@ IcePy::Operation::Operation(
     //
     PyObjectHandle modeValue = getAttr(m, "value", true);
     mode = (Ice::OperationMode) static_cast<int>(PyLong_AsLong(modeValue.get()));
-    assert(!PyErr_Occurred());
-
-    //
-    // sendMode
-    //
-    PyObjectHandle sendModeValue = getAttr(sm, "value", true);
-    sendMode = (Ice::OperationMode) static_cast<int>(PyLong_AsLong(sendModeValue.get()));
     assert(!PyErr_Occurred());
 
     //
@@ -1691,12 +1668,8 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
 
         {
             AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-            status = _prx->ice_invoke(
-                _op->name,
-                _op->sendMode,
-                params,
-                result,
-                pyctx == Py_None ? Ice::noExplicitContext : ctx);
+            status =
+                _prx->ice_invoke(_op->name, _op->mode, params, result, pyctx == Py_None ? Ice::noExplicitContext : ctx);
         }
 
         //
@@ -2084,7 +2057,7 @@ IcePy::AsyncTypedInvocation::handleInvoke(PyObject* args, PyObject* /* kwds */)
     auto self = shared_from_this();
     return _prx->ice_invokeAsync(
         _op->name,
-        _op->sendMode,
+        _op->mode,
         params,
         [self](bool ok, pair<const byte*, const byte*> results) { self->response(ok, results); },
         [self](exception_ptr ex) { self->exception(ex); },
@@ -2179,7 +2152,7 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     }
 
     PyObjectHandle modeValue = getAttr(mode, "value", true);
-    Ice::OperationMode sendMode = (Ice::OperationMode) static_cast<int>(PyLong_AsLong(modeValue.get()));
+    Ice::OperationMode opMode = (Ice::OperationMode) static_cast<int>(PyLong_AsLong(modeValue.get()));
     assert(!PyErr_Occurred());
 
     Py_ssize_t sz = PyBytes_GET_SIZE(inParams);
@@ -2208,7 +2181,7 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
             AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
             ok = _prx->ice_invoke(
                 operation,
-                sendMode,
+                opMode,
                 in,
                 out,
                 ctx == 0 || ctx == Py_None ? Ice::noExplicitContext : context);
@@ -2279,7 +2252,7 @@ IcePy::AsyncBlobjectInvocation::handleInvoke(PyObject* args, PyObject* /* kwds *
     _op = operation;
 
     PyObjectHandle modeValue = getAttr(mode, "value", true);
-    Ice::OperationMode sendMode = (Ice::OperationMode) static_cast<int>(PyLong_AsLong(modeValue.get()));
+    Ice::OperationMode opMode = (Ice::OperationMode) static_cast<int>(PyLong_AsLong(modeValue.get()));
     assert(!PyErr_Occurred());
 
     Py_ssize_t sz = PyBytes_GET_SIZE(inParams);
@@ -2302,7 +2275,7 @@ IcePy::AsyncBlobjectInvocation::handleInvoke(PyObject* args, PyObject* /* kwds *
     auto self = shared_from_this();
     return _prx->ice_invokeAsync(
         operation,
-        sendMode,
+        opMode,
         params,
         [self](bool ok, pair<const byte*, const byte*> results) { self->response(ok, results); },
         [self](exception_ptr ex) { self->exception(ex); },

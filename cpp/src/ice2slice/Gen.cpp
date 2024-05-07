@@ -480,7 +480,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             out << nl << "[cs::encodedReturn]";
         }
         out << nl;
-        if (op->mode() == Operation::Idempotent || op->mode() == Operation::Nonmutating)
+        if (op->mode() == Operation::Idempotent)
         {
             out << "idempotent ";
         }
