@@ -4,9 +4,9 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.SSL.SSLEngineFactory;
 import com.zeroc.IceInternal.EndpointI;
 import com.zeroc.IceInternal.IncomingConnectionFactory;
-import com.zeroc.IceSSL.SSLEngineFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -702,7 +702,7 @@ public final class ObjectAdapterI implements ObjectAdapter {
       String name,
       RouterPrx router,
       boolean noConfig,
-      com.zeroc.IceSSL.SSLEngineFactory sslEngineFactory) {
+      com.zeroc.Ice.SSL.SSLEngineFactory sslEngineFactory) {
     _instance = instance;
     _communicator = communicator;
     _objectAdapterFactory = objectAdapterFactory;
@@ -1294,5 +1294,5 @@ public final class ObjectAdapterI implements ObjectAdapter {
   private int _directCount; // The number of direct proxies dispatching on this object adapter.
   private boolean _noConfig;
   private final int _messageSizeMax;
-  private final com.zeroc.IceSSL.SSLEngineFactory _sslEngineFactory;
+  private final com.zeroc.Ice.SSL.SSLEngineFactory _sslEngineFactory;
 }

@@ -163,18 +163,6 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\IceSSL\SSLAcceptorI.cpp" />
-    <ClCompile Include="..\..\..\IceSSL\CertificateI.cpp" />
-    <ClCompile Include="..\..\..\IceSSL\SSLConnectorI.cpp" />
-    <ClCompile Include="..\..\..\IceSSL\SSLEndpointI.cpp" />
-    <ClCompile Include="..\..\..\IceSSL\SSLInstance.cpp" />
-    <ClCompile Include="..\..\..\IceSSL\RFC2253.cpp" />
-    <ClCompile Include="..\..\..\IceSSL\SChannelCertificateI.cpp" />
-    <ClCompile Include="..\..\..\IceSSL\SChannelEngine.cpp" />
-    <ClCompile Include="..\..\..\IceSSL\SChannelTransceiverI.cpp" />
-    <ClCompile Include="..\..\..\IceSSL\SSLEngine.cpp" />
-    <ClCompile Include="..\..\..\IceSSL\TrustManager.cpp" />
-    <ClCompile Include="..\..\..\IceSSL\SSLUtil.cpp" />
     <ClCompile Include="..\..\Communicator.cpp" />
     <ClCompile Include="..\..\CommunicatorFlushBatchAsync.cpp" />
     <ClCompile Include="..\..\Connection.cpp" />
@@ -185,6 +173,18 @@
     <ClCompile Include="..\..\Properties.cpp" />
     <ClCompile Include="..\..\ProxyAsync.cpp" />
     <ClCompile Include="..\..\RequestHandlerCache.cpp" />
+    <ClCompile Include="..\..\SSL\CertificateI.cpp" />
+    <ClCompile Include="..\..\SSL\RFC2253.cpp" />
+    <ClCompile Include="..\..\SSL\SchannelCertificateI.cpp" />
+    <ClCompile Include="..\..\SSL\SchannelEngine.cpp" />
+    <ClCompile Include="..\..\SSL\SchannelTransceiverI.cpp" />
+    <ClCompile Include="..\..\SSL\SSLAcceptorI.cpp" />
+    <ClCompile Include="..\..\SSL\SSLConnectorI.cpp" />
+    <ClCompile Include="..\..\SSL\SSLEndpointI.cpp" />
+    <ClCompile Include="..\..\SSL\SSLEngine.cpp" />
+    <ClCompile Include="..\..\SSL\SSLInstance.cpp" />
+    <ClCompile Include="..\..\SSL\SSLUtil.cpp" />
+    <ClCompile Include="..\..\SSL\TrustManager.cpp" />
     <ClCompile Include="..\..\TimeUtil.cpp" />
     <ClCompile Include="..\..\UserException.cpp" />
     <ClCompile Include="..\..\ValueFactory.cpp" />
@@ -985,6 +985,21 @@
     <ClInclude Include="..\..\..\..\include\Ice\ValueF.h" />
     <ClInclude Include="..\..\..\..\include\Ice\ValueFactory.h" />
     <ClInclude Include="..\..\EndpointI.h" />
+    <ClInclude Include="..\..\SSL\CertificateI.h" />
+    <ClInclude Include="..\..\SSL\RFC2253.h" />
+    <ClInclude Include="..\..\SSL\SchannelEngine.h" />
+    <ClInclude Include="..\..\SSL\SchannelEngineF.h" />
+    <ClInclude Include="..\..\SSL\SchannelTransceiverI.h" />
+    <ClInclude Include="..\..\SSL\SSLAcceptorI.h" />
+    <ClInclude Include="..\..\SSL\SSLConnectorI.h" />
+    <ClInclude Include="..\..\SSL\SSLEndpointI.h" />
+    <ClInclude Include="..\..\SSL\SSLEngine.h" />
+    <ClInclude Include="..\..\SSL\SSLEngineF.h" />
+    <ClInclude Include="..\..\SSL\SSLInstance.h" />
+    <ClInclude Include="..\..\SSL\SSLInstanceF.h" />
+    <ClInclude Include="..\..\SSL\SSLUtil.h" />
+    <ClInclude Include="..\..\SSL\TrustManager.h" />
+    <ClInclude Include="..\..\SSL\TrustManagerF.h" />
   </ItemGroup>
   <ItemGroup>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\PropertyDict.ice" />

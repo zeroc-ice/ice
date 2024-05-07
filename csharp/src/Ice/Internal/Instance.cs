@@ -963,7 +963,7 @@ public sealed class Instance
 
             _networkProxy = createNetworkProxy(_initData.properties, _protocolSupport);
 
-            _sslEngine = new IceSSL.SSLEngine(communicator);
+            _sslEngine = new Ice.SSL.SSLEngine(communicator);
 
             _endpointFactoryManager = new EndpointFactoryManager(this);
 
@@ -976,8 +976,8 @@ public sealed class Instance
             ProtocolInstance wsInstance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws", false);
             _endpointFactoryManager.add(new WSEndpointFactory(wsInstance, Ice.TCPEndpointType.value));
 
-            var sslInstance = new IceSSL.Instance(_sslEngine, Ice.SSLEndpointType.value, "ssl");
-            _endpointFactoryManager.add(new IceSSL.EndpointFactoryI(sslInstance, Ice.TCPEndpointType.value));
+            var sslInstance = new Ice.SSL.Instance(_sslEngine, Ice.SSLEndpointType.value, "ssl");
+            _endpointFactoryManager.add(new Ice.SSL.EndpointFactoryI(sslInstance, Ice.TCPEndpointType.value));
 
             ProtocolInstance wssInstance = new ProtocolInstance(this, Ice.WSSEndpointType.value, "wss", true);
             _endpointFactoryManager.add(new WSEndpointFactory(wssInstance, Ice.SSLEndpointType.value));
@@ -1609,7 +1609,7 @@ public sealed class Instance
     private HashSet<string> _adminFacetFilter = new();
     private Ice.Identity _adminIdentity;
     private Dictionary<short, BufSizeWarnInfo> _setBufSizeWarn = new();
-    private IceSSL.SSLEngine _sslEngine;
+    private Ice.SSL.SSLEngine _sslEngine;
     private static bool _printProcessIdDone;
     private static bool _oneOffDone;
     private static readonly object _staticLock = new object();

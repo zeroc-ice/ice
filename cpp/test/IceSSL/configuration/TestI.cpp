@@ -16,7 +16,7 @@ ServerI::noCert(const Ice::Current& c)
 {
     try
     {
-        IceSSL::ConnectionInfoPtr info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(c.con->getInfo());
+        Ice::SSL::ConnectionInfoPtr info = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(c.con->getInfo());
         test(info->certs.size() == 0);
     }
     catch (const Ice::LocalException& ex)
@@ -33,11 +33,11 @@ ServerI::checkCert(string, string, const Ice::Current&)
     /*
     try
     {
-        IceSSL::ConnectionInfoPtr info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(c.con->getInfo());
+        Ice::SSL::ConnectionInfoPtr info = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(c.con->getInfo());
 
         test(info->certs.size() == 2);
-        test(info->certs[0]->getSubjectDN() == IceSSL::DistinguishedName(subjectDN));
-        test(info->certs[0]->getIssuerDN() == IceSSL::DistinguishedName(issuerDN));
+        test(info->certs[0]->getSubjectDN() == Ice::SSL::DistinguishedName(subjectDN));
+        test(info->certs[0]->getIssuerDN() == Ice::SSL::DistinguishedName(issuerDN));
     }
     catch (const Ice::LocalException&)
     {

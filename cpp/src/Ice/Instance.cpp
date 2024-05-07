@@ -3,7 +3,6 @@
 //
 
 #include "Instance.h"
-#include "../IceSSL/SSLEngine.h"
 #include "CheckIdentity.h"
 #include "ConnectionFactory.h"
 #include "ConsoleUtil.h"
@@ -38,6 +37,7 @@
 #include "RegisterPluginsInit.h"
 #include "RetryQueue.h"
 #include "RouterInfo.h"
+#include "SSL/SSLEngine.h"
 #include "ThreadPool.h"
 #include "TimeUtil.h"
 #include "TraceLevels.h"
@@ -49,11 +49,11 @@
 #include <stdio.h>
 
 #if defined(_WIN32)
-#    include "../IceSSL/SChannelEngine.h"
+#    include "SSL/SchannelEngine.h"
 #elif defined(__APPLE__)
-#    include "../IceSSL/SecureTransportEngine.h"
+#    include "SSL/SecureTransportEngine.h"
 #else
-#    include "../IceSSL/OpenSSLEngine.h"
+#    include "SSL/OpenSSLEngine.h"
 #endif
 
 #ifdef __APPLE__
@@ -1310,11 +1310,11 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         }
 
 #if defined(_WIN32)
-        _sslEngine = make_shared<IceSSL::SChannel::SSLEngine>(shared_from_this());
+        _sslEngine = make_shared<Ice::SSL::Schannel::SSLEngine>(shared_from_this());
 #elif defined(__APPLE__)
-        _sslEngine = make_shared<IceSSL::SecureTransport::SSLEngine>(shared_from_this());
+        _sslEngine = make_shared<Ice::SSL::SecureTransport::SSLEngine>(shared_from_this());
 #else
-        _sslEngine = make_shared<IceSSL::OpenSSL::SSLEngine>(shared_from_this());
+        _sslEngine = make_shared<Ice::SSL::OpenSSL::SSLEngine>(shared_from_this());
 #endif
         _sslEngine->initialize();
     }

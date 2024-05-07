@@ -5,7 +5,7 @@
 package com.zeroc.IceInternal;
 
 import com.zeroc.Ice.EndpointParseException;
-import com.zeroc.IceSSL.SSLEngineFactory;
+import com.zeroc.Ice.SSL.SSLEngineFactory;
 
 final class UdpEndpointI extends IPEndpointI {
   public UdpEndpointI(

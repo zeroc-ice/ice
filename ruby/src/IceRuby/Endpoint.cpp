@@ -149,7 +149,7 @@ IceRuby::createEndpointInfo(const Ice::EndpointInfoPtr& p)
         rb_ivar_set(info, rb_intern("@rawBytes"), v);
         rb_ivar_set(info, rb_intern("@rawEncoding"), createEncodingVersion(opaque->rawEncoding));
     }
-    else if (dynamic_pointer_cast<IceSSL::EndpointInfo>(p))
+    else if (dynamic_pointer_cast<Ice::SSL::EndpointInfo>(p))
     {
         info = Data_Wrap_Struct(_sslEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
     }

@@ -10,7 +10,7 @@
 #include "EndpointIF.h"
 #include "Ice/Endpoint.h"
 #include "Ice/EndpointSelectionType.h"
-#include "Ice/ServerAuthenticationOptions.h"
+#include "Ice/SSL/ServerAuthenticationOptions.h"
 #include "TransceiverF.h"
 
 #include <optional>

@@ -215,7 +215,7 @@ public class AllTests
                 try
                 {
                     server.noCert();
-                    test(((IceSSL.ConnectionInfo)server.ice_getConnection().getInfo()).verified);
+                    test(((Ice.SSL.ConnectionInfo)server.ice_getConnection().getInfo()).verified);
                 }
                 catch (Ice.LocalException ex)
                 {
@@ -292,7 +292,7 @@ public class AllTests
                         new X509Certificate2(defaultDir + "/s_rsa_ca1.p12", "password");
                     X509Certificate2 caCert = new X509Certificate2(defaultDir + "/cacert1.pem");
 
-                    IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                    Ice.SSL.ConnectionInfo info = (Ice.SSL.ConnectionInfo)server.ice_getConnection().getInfo();
                     test(info.certs.Length == 1);
                     test(info.verified);
 
@@ -737,7 +737,7 @@ public class AllTests
                         clientCommunicator.stringToProxy(serverCommunicator.proxyToString(proxy)));
                     pingable.ping();
 
-                    IceSSL.ConnectionInfo connectionInfo = pingable.ice_getCachedConnection().getInfo() as IceSSL.ConnectionInfo;
+                    Ice.SSL.ConnectionInfo connectionInfo = pingable.ice_getCachedConnection().getInfo() as Ice.SSL.ConnectionInfo;
                     test(connectionInfo is not null);
                     test(connectionInfo.verified);
                     test(connectionInfo.certs.Length == 1);
@@ -781,7 +781,7 @@ public class AllTests
                     PingablePrx pingable = PingablePrxHelper.uncheckedCast(clientCommunicator.stringToProxy(serverCommunicator.proxyToString(proxy)));
                     pingable.ping();
 
-                    IceSSL.ConnectionInfo connectionInfo = pingable.ice_getCachedConnection().getInfo() as IceSSL.ConnectionInfo;
+                    Ice.SSL.ConnectionInfo connectionInfo = pingable.ice_getCachedConnection().getInfo() as Ice.SSL.ConnectionInfo;
                     test(connectionInfo is not null);
                     test(connectionInfo.verified);
                     test(connectionInfo.certs.Length == 1);
@@ -1813,7 +1813,7 @@ public class AllTests
                 {
                     try
                     {
-                        IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)p.ice_getConnection().getInfo().underlying;
+                        Ice.SSL.ConnectionInfo info = (Ice.SSL.ConnectionInfo)p.ice_getConnection().getInfo().underlying;
                         test(info.verified);
                         break;
                     }

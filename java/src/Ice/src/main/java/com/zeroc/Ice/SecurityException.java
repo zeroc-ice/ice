@@ -15,7 +15,7 @@
 
 package com.zeroc.Ice;
 
-/** This exception indicates a failure in a security subsystem, such as the IceSSL plug-in. */
+/** This exception indicates a failure in a security subsystem, such as the Ice.SSL plug-in. */
 public class SecurityException extends LocalException {
   public SecurityException() {
     this.reason = "";

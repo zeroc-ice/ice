@@ -739,7 +739,7 @@ IcePy::createEndpointInfo(const Ice::EndpointInfoPtr& endpointInfo)
     {
         type = &UDPEndpointInfoType;
     }
-    else if (dynamic_pointer_cast<IceSSL::EndpointInfo>(endpointInfo))
+    else if (dynamic_pointer_cast<Ice::SSL::EndpointInfo>(endpointInfo))
     {
         type = &SSLEndpointInfoType;
     }
