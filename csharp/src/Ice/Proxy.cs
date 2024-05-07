@@ -2036,7 +2036,7 @@ public class ObjectPrxHelperBase : ObjectPrx
 
     private ObjectPrxHelperBase newInstance(Reference @ref)
     {
-        var proxy = (ObjectPrxHelperBase)Activator.CreateInstance(GetType());
+        var proxy = (ObjectPrxHelperBase)System.Activator.CreateInstance(GetType());
         proxy.setup(@ref);
         return proxy;
     }

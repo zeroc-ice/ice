@@ -2072,8 +2072,12 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     emitComVisibleAttribute();
     emitPartialTypeAttributes();
-    _out << nl << "public ";
-    _out << "partial class " << fixId(name);
+    _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
+    if (p->compactId() >= 0)
+    {
+        _out << nl << "[Ice.CompactSliceTypeId(" << p->compactId() << ")]";
+    }
+    _out << nl << "public partial class " << fixId(name);
 
     if (base)
     {
@@ -2288,6 +2292,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1032\")]";
 
     emitPartialTypeAttributes();
+    _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
     _out << nl << "public partial class " << name << " : ";
     if (base)
     {

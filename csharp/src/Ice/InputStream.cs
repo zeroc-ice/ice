@@ -2658,26 +2658,14 @@ public class InputStream
 
     private UserException createUserException(string id)
     {
-        UserException userEx = null;
-
         try
         {
-            if (_classResolver != null)
-            {
-                Type c = _classResolver(id);
-                if (c != null)
-                {
-                    Debug.Assert(!c.IsAbstract && !c.IsInterface);
-                    userEx = (UserException)Ice.Internal.AssemblyUtil.createInstance(c);
-                }
-            }
+            return (UserException)_instance.getActivator().CreateInstance(id);
         }
         catch (Exception ex)
         {
             throw new MarshalException(ex);
         }
-
-        return userEx;
     }
 
     private Ice.Internal.Instance _instance;
@@ -2810,7 +2798,7 @@ public class InputStream
             // If that fails, invoke the default factory if one has been
             // registered.
             //
-            if (v == null)
+            if (v is null)
             {
                 userFactory = _valueFactoryManager.find("");
                 if (userFactory != null)
@@ -2822,21 +2810,15 @@ public class InputStream
             //
             // Last chance: try to instantiate the class dynamically.
             //
-            if (v == null)
+            if (v is null)
             {
-                Type cls = resolveClass(typeId);
-
-                if (cls != null)
+                try
                 {
-                    try
-                    {
-                        Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
-                        v = (Value)Ice.Internal.AssemblyUtil.createInstance(cls);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new NoValueFactoryException("no value factory", typeId, ex);
-                    }
+                    v = (Value)_stream._instance.getActivator().CreateInstance(typeId);
+                }
+                catch (Exception ex)
+                {
+                    throw new NoValueFactoryException("no value factory", typeId, ex);
                 }
             }
 

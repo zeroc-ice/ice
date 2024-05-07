@@ -1546,6 +1546,8 @@ public sealed class Instance
         }
     }
 
+    internal IActivator getActivator() => _activator.Value;
+
     private NetworkProxy createNetworkProxy(Ice.Properties props, int protocolSupport)
     {
         string proxyHost;
@@ -1573,6 +1575,12 @@ public sealed class Instance
     private const int StateActive = 0;
     private const int StateDestroyInProgress = 1;
     private const int StateDestroyed = 2;
+
+    // The lazy initialization ensures GetAssemblies is only called the first time we decode a Slice class or exception,
+    // which should only occur once all the assemblies have been loaded.
+    private readonly Lazy<IActivator> _activator =
+        new(() => IActivator.FromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
+
     private int _state;
     private Ice.InitializationData _initData; // Immutable, not reset by destroy().
     private TraceLevels _traceLevels; // Immutable, not reset by destroy().
