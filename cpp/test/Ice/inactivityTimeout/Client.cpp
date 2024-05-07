@@ -25,7 +25,6 @@ Client::run(int argc, char** argv)
     initData.properties->setProperty("Ice.TCP.SndSize", "50000");
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
 
-
     void allTests(Test::TestHelper*);
     allTests(this);
 }

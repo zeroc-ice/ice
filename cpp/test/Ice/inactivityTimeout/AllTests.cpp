@@ -92,6 +92,7 @@ testWithOutstandingOnewaySend(TestIntfPrx p, TestIntfControllerPrx controller)
 
     p = p->ice_oneway();
     p->ice_ping();
+    ConnectionPtr connection1 = p->ice_getCachedConnection();
 
     // Hold the server adapter and send 10 MB with a oneway request. The sending should block. The connection inactivity
     // timeout shouldn't be triggered while the connection is waiting for sending the payload.
@@ -112,6 +113,9 @@ testWithOutstandingOnewaySend(TestIntfPrx p, TestIntfControllerPrx controller)
     test(future.wait_for(chrono::seconds(0)) != future_status::ready);
     controller->resumeAdapter();
     future.get();
+
+    p->ice_ping();
+    test(connection1 == p->ice_getCachedConnection());
 
     cout << "ok" << endl;
 }
