@@ -3,6 +3,7 @@
 //
 
 #include "TestI.h"
+#include <Ice/ObjectAdapter.h>
 
 #include <chrono>
 
@@ -15,7 +16,26 @@ TestIntfI::sleep(int32_t ms, const Ice::Current&)
 }
 
 void
+TestIntfI::sendPayload(Ice::ByteSeq, const Ice::Current&)
+{
+}
+
+void
 TestIntfI::shutdown(const Ice::Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
 }
+
+void
+TestIntfControllerI::holdAdapter(const Ice::Current&)
+{
+    _adapter->hold();
+}
+
+void
+TestIntfControllerI::resumeAdapter(const Ice::Current&)
+{
+    _adapter->activate();
+}
+
+TestIntfControllerI::TestIntfControllerI(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter) {}

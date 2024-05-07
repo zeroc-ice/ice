@@ -21,7 +21,10 @@ Client::run(int argc, char** argv)
     // We configure a low idle timeout to make sure we send heartbeats frequently.
     initData.properties->setProperty("Ice.Connection.IdleTimeout", "1");
     initData.properties->setProperty("Ice.Connection.InactivityTimeout", "1");
+    // Limit the send buffer size, this test relies on the socket send() blocking after sending a given amount of data.
+    initData.properties->setProperty("Ice.TCP.SndSize", "50000");
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
+
 
     void allTests(Test::TestHelper*);
     allTests(this);

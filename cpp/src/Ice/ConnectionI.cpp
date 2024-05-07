@@ -646,12 +646,6 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
     AsyncStatus status = AsyncStatusQueued;
     try
     {
-        if (isAtRest())
-        {
-            // If we were at rest, we're not anymore since we're sending a request.
-            cancelInactivityTimerTask();
-        }
-
         OutgoingMessage message(out, os, compress, requestId);
         status = sendMessage(message);
     }
@@ -664,14 +658,14 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
 
     if (response)
     {
+        if (isAtRest())
+        {
+            cancelInactivityTimerTask();
+        }
         _asyncRequestsHint =
             _asyncRequests.insert(_asyncRequests.end(), pair<const int32_t, OutgoingAsyncBasePtr>(requestId, out));
     }
-    else if (isAtRest())
-    {
-        // A oneway invocation is considered completed as soon as sendMessage returns.
-        scheduleInactivityTimerTask();
-    }
+
     return status;
 }
 
@@ -1223,6 +1217,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
         {
             SocketOperation writeOp = SocketOperationNone;
             SocketOperation readOp = SocketOperationNone;
+            bool wasAtRest = isAtRest();
 
             // If writes are ready, write the data from the connection's write buffer (_writeStream)
             if (current.operation & SocketOperationWrite)
@@ -1245,6 +1240,8 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
             // - the read operation on the transport can't continue without blocking
             if (current.operation & SocketOperationRead)
             {
+                assert(_readHeader || !isAtRest());
+
                 while (true)
                 {
                     if (_observer && !_readHeader)
@@ -1400,10 +1397,12 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
             {
                 assert(_state <= StateClosingPending);
 
-                //
-                // We parse messages first, if we receive a close
-                // connection message we won't send more messages.
-                //
+                if (wasAtRest && !isAtRest())
+                {
+                    cancelInactivityTimerTask();
+                }
+
+                // We parse messages first, if we receive a close connection message we won't send more messages.
                 if (readyOp & SocketOperationRead)
                 {
                     // At this point, the protocol message is fully read and can therefore be decoded by parseMessage.
@@ -1421,6 +1420,11 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     {
                         ++upcallCount;
                     }
+                }
+
+                if (!wasAtRest && isAtRest())
+                {
+                    scheduleInactivityTimerTask();
                 }
 
                 // If the connection is not closed yet, we update the thread pool selector to wait for readiness of
@@ -2817,9 +2821,17 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
 
     if (!_sendStreams.empty())
     {
+        assert(!isAtRest());
         _sendStreams.push_back(message);
         _sendStreams.back().adopt(0);
         return AsyncStatusQueued;
+    }
+
+    bool isValidateConnectionMsg = static_cast<uint8_t>(message.stream->b[8]) == validateConnectionMsg;
+    if (isAtRest() && !isValidateConnectionMsg)
+    {
+        // The connection is no longer at rest when sending a message which is not a connection validation message.
+        cancelInactivityTimerTask();
     }
 
     //
@@ -2859,6 +2871,12 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
             if (_observer)
             {
                 _observer.finishWrite(stream);
+            }
+
+            if (isAtRest() && !isValidateConnectionMsg)
+            {
+                // Message is sent and the connection is at rest, schedule the inactivity timer.
+                scheduleInactivityTimerTask();
             }
 
             AsyncStatus status = AsyncStatusSent;
@@ -2914,6 +2932,13 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
             {
                 _observer.finishWrite(*message.stream);
             }
+
+            if (isAtRest() && !isValidateConnectionMsg)
+            {
+                // Message is sent and the connection is at rest, schedule the inactivity timer.
+                scheduleInactivityTimerTask();
+            }
+
             AsyncStatus status = AsyncStatusSent;
             if (message.sent())
             {
@@ -3190,11 +3215,6 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                         return false; // the upcall will be completed once the dispatch is done.
                     };
                     ++upcallCount;
-
-                    if (isAtRest())
-                    {
-                        cancelInactivityTimerTask();
-                    }
                     ++_dispatchCount;
                 }
                 break;
@@ -3231,11 +3251,6 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                         return false; // the upcall will be completed once the servant dispatch is done.
                     };
                     upcallCount += requestCount;
-
-                    if (isAtRest())
-                    {
-                        cancelInactivityTimerTask();
-                    }
                     _dispatchCount += requestCount;
                 }
                 break;
@@ -3275,11 +3290,6 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                     else
                     {
                         _asyncRequests.erase(q);
-                    }
-
-                    if (isAtRest())
-                    {
-                        scheduleInactivityTimerTask();
                     }
 
                     // The message stream is adopted by the outgoing.

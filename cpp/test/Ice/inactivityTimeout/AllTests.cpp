@@ -85,18 +85,55 @@ testWithOutstandingRequest(TestIntfPrx p, bool oneway)
 }
 
 void
+testWithOutstandingOnewaySend(TestIntfPrx p, TestIntfControllerPrx controller)
+{
+    cout << "testing the inactivity timeout with outstanding one-way request to send... "
+         << flush;
+
+    p = p->ice_oneway();
+    p->ice_ping();
+
+    // Hold the server adapter and send 10 MB with a oneway request. The sending should block. The connection inactivity
+    // timeout shouldn't be triggered while the connection is waiting for sending the payload.
+    controller->holdAdapter();
+
+    // Send the payload. The payload shouldn't be fully sent until the adapter is resumed.
+    Ice::ByteSeq seq;
+    seq.resize(10 * 1024 * 1024);
+    promise<void> sent;
+    auto future = sent.get_future();
+    p->sendPayloadAsync(seq, []() {}, [](exception_ptr) { test(false); }, [&sent](bool) { sent.set_value(); });
+    test(future.wait_for(chrono::milliseconds(100)) != future_status::ready);
+
+    // The inactivity timeout is 1s on the client side.
+    this_thread::sleep_for(chrono::seconds(2));
+
+    // Resume the adapter and ensure the request is sent.
+    test(future.wait_for(chrono::seconds(0)) != future_status::ready);
+    controller->resumeAdapter();
+    future.get();
+
+    cout << "ok" << endl;
+}
+
+void
 allTests(TestHelper* helper)
 {
     CommunicatorPtr communicator = helper->communicator();
+
     string proxyString = "test: " + helper->getTestEndpoint();
     TestIntfPrx p(communicator, proxyString);
 
     string proxyString1s = "test: " + helper->getTestEndpoint(1);
 
+    string controllerProxyString = "testController: " + helper->getTestEndpoint(2);
+    TestIntfControllerPrx controller(communicator, controllerProxyString);
+
     testClientInactivityTimeout(p);
     testServerInactivityTimeout(proxyString1s, communicator->getProperties());
     testWithOutstandingRequest(p, false);
     testWithOutstandingRequest(p, true);
+    testWithOutstandingOnewaySend(p, controller);
 
     p->shutdown();
 }
