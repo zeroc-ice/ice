@@ -639,10 +639,10 @@ Slice.defineOperations = function(classType, proxyType, ids, id, ops)
 //
 Slice.defineOperations(Ice.Object, Ice.ObjectPrx, ["::Ice::Object"], "::Ice::Object",
 {
-    ice_ping: [undefined, 1, undefined, undefined, undefined, undefined, undefined],
-    ice_isA: [undefined, 1, undefined, [1], [[7]], undefined, undefined],
-    ice_id: [undefined, 1, undefined, [7], undefined, undefined, undefined],
-    ice_ids: [undefined, 1, undefined, ["Ice.StringSeqHelper"], undefined, undefined, undefined]
+    ice_ping: [undefined, 2, undefined, undefined, undefined, undefined, undefined],
+    ice_isA: [undefined, 2, undefined, [1], [[7]], undefined, undefined],
+    ice_id: [undefined, 2, undefined, [7], undefined, undefined, undefined],
+    ice_ids: [undefined, 2, undefined, ["Ice.StringSeqHelper"], undefined, undefined, undefined]
 });
 
 module.exports.Ice = Ice;

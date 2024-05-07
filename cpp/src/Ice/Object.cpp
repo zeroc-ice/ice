@@ -177,9 +177,7 @@ Ice::Object::_iceCheckMode(OperationMode expected, OperationMode received)
         assert(expected != OperationMode::Nonmutating); // We never expect Nonmutating
         if (expected == OperationMode::Idempotent && received == OperationMode::Nonmutating)
         {
-            //
             // Fine: typically an old client still using the deprecated nonmutating keyword
-            //
         }
         else
         {

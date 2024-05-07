@@ -185,7 +185,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % Parameters:
             %   context - Optional context map for the invocation.
 
-            obj.iceInvoke('ice_ping', 1, false, [], false, {}, varargin{:});
+            obj.iceInvoke('ice_ping', 2, false, [], false, {}, varargin{:});
         end
 
         function r = ice_pingAsync(obj, varargin)
@@ -198,7 +198,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % Returns (Ice.Future) - A future that will be completed when the
             %   invocation completes.
 
-            r = obj.iceInvokeAsync('ice_ping', 1, false, [], 0, [], {}, varargin{:});
+            r = obj.iceInvokeAsync('ice_ping', 2, false, [], 0, [], {}, varargin{:});
         end
 
         function r = ice_isA(obj, id, varargin)
@@ -215,7 +215,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             os = obj.iceStartWriteParams([]);
             os.writeString(id);
             obj.iceEndWriteParams(os);
-            is = obj.iceInvoke('ice_isA', 1, true, os, true, {}, varargin{:});
+            is = obj.iceInvoke('ice_isA', 2, true, os, true, {}, varargin{:});
             is.startEncapsulation();
             r = is.readBool();
             is.endEncapsulation();
@@ -240,7 +240,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 varargout{1} = is.readBool();
                 is.endEncapsulation();
             end
-            r = obj.iceInvokeAsync('ice_isA', 1, true, os, 1, @unmarshal, {}, varargin{:});
+            r = obj.iceInvokeAsync('ice_isA', 2, true, os, 1, @unmarshal, {}, varargin{:});
         end
 
         function r = ice_id(obj, varargin)
@@ -252,7 +252,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns (char) - The Slice type ID of the most-derived interface.
 
-            is = obj.iceInvoke('ice_id', 1, true, [], true, {}, varargin{:});
+            is = obj.iceInvoke('ice_id', 2, true, [], true, {}, varargin{:});
             is.startEncapsulation();
             r = is.readString();
             is.endEncapsulation();
@@ -273,7 +273,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 varargout{1} = is.readString();
                 is.endEncapsulation();
             end
-            r = obj.iceInvokeAsync('ice_id', 1, true, [], 1, @unmarshal, {}, varargin{:});
+            r = obj.iceInvokeAsync('ice_id', 2, true, [], 1, @unmarshal, {}, varargin{:});
         end
 
         function r = ice_ids(obj, varargin)
@@ -286,7 +286,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % Returns (cell array of char) - The Slice type IDs of the
             %   interfaces supported by the target object, in alphabetical order.
 
-            is = obj.iceInvoke('ice_ids', 1, true, [], true, {}, varargin{:});
+            is = obj.iceInvoke('ice_ids', 2, true, [], true, {}, varargin{:});
             is.startEncapsulation();
             r = is.readStringSeq();
             is.endEncapsulation();
@@ -307,7 +307,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 varargout{1} = is.readStringSeq();
                 is.endEncapsulation();
             end
-            r = obj.iceInvokeAsync('ice_ids', 1, true, [], 1, @unmarshal, {}, varargin{:});
+            r = obj.iceInvokeAsync('ice_ids', 2, true, [], 1, @unmarshal, {}, varargin{:});
         end
 
         function r = ice_getIdentity(obj)

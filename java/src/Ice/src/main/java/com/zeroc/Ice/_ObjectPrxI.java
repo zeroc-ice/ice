@@ -35,7 +35,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
   private OutgoingAsync<Boolean> _iceI_ice_isAAsync(
       String id, Map<String, String> context, boolean sync) {
     OutgoingAsync<Boolean> f =
-        new OutgoingAsync<>(this, "ice_isA", OperationMode.Nonmutating, sync, null);
+        new OutgoingAsync<>(this, "ice_isA", OperationMode.Idempotent, sync, null);
     f.invoke(true, context, null, ostr -> ostr.writeString(id), istr -> istr.readBool());
     return f;
   }
@@ -58,7 +58,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
 
   private OutgoingAsync<Void> _iceI_ice_pingAsync(Map<String, String> context, boolean sync) {
     OutgoingAsync<Void> f =
-        new OutgoingAsync<>(this, "ice_ping", OperationMode.Nonmutating, sync, null);
+        new OutgoingAsync<>(this, "ice_ping", OperationMode.Idempotent, sync, null);
     f.invoke(false, context, null, null, null);
     return f;
   }
@@ -81,7 +81,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
 
   private OutgoingAsync<String[]> _iceI_ice_idsAsync(Map<String, String> context, boolean sync) {
     OutgoingAsync<String[]> f =
-        new OutgoingAsync<>(this, "ice_ids", OperationMode.Nonmutating, sync, null);
+        new OutgoingAsync<>(this, "ice_ids", OperationMode.Idempotent, sync, null);
     f.invoke(true, context, null, null, istr -> istr.readStringSeq());
     return f;
   }
@@ -104,7 +104,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
 
   private OutgoingAsync<String> _iceI_ice_idAsync(Map<String, String> context, boolean sync) {
     OutgoingAsync<String> f =
-        new OutgoingAsync<>(this, "ice_id", OperationMode.Nonmutating, sync, null);
+        new OutgoingAsync<>(this, "ice_id", OperationMode.Idempotent, sync, null);
     f.invoke(true, context, null, null, istr -> istr.readString());
     return f;
   }
