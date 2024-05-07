@@ -29,69 +29,74 @@ namespace
         // Check if the property is legal.
         LoggerPtr logger = getProcessLogger();
         string::size_type dotPos = key.find('.');
-        if (dotPos != string::npos)
+
+        // If the key doesn't contain a dot, it's not a valid Ice property.
+        if (dotPos == string::npos)
         {
-            string_view prefix = key.substr(0, dotPos);
-            for (int i = 0; IceInternal::PropertyNames::validProps[i].properties != 0; ++i)
+            return nullopt;
+        }
+
+        string_view prefix = key.substr(0, dotPos);
+
+        // Find the property list for the given prefix.
+        const IceInternal::PropertyArray* propertyArray = nullptr;
+
+        for (int i = 0; IceInternal::PropertyNames::validProps[i].properties != nullptr; ++i)
+        {
+            string_view pattern{IceInternal::PropertyNames::validProps[i].properties[0].pattern};
+            dotPos = pattern.find('.');
+
+            // Each top level prefix describes a non-empty
+            // namespace. Having a string without a prefix followed by a
+            // dot is an error.
+            assert(dotPos != string::npos);
+            string_view propPrefix = pattern.substr(0, dotPos);
+
+            if (propPrefix == prefix)
             {
-                string pattern{IceInternal::PropertyNames::validProps[i].properties[0].pattern};
+                // We've found the property list for the given prefix.
+                propertyArray = &IceInternal::PropertyNames::validProps[i];
+                break;
+            }
 
-                dotPos = pattern.find('.');
-
-                //
-                // Each top level prefix describes a non-empty
-                // namespace. Having a string without a prefix followed by a
-                // dot is an error.
-                //
-                assert(dotPos != string::npos);
-                string propPrefix = pattern.substr(0, dotPos);
-
-                // If the prefix doesn't match, continue to the next prefix.
-                if (IceUtilInternal::toUpper(propPrefix) != IceUtilInternal::toUpper(string{prefix}))
-                {
-                    continue;
-                }
-
-                for (int j = 0; j < IceInternal::PropertyNames::validProps[i].length; ++j)
-                {
-                    const IceInternal::Property& prop = IceInternal::PropertyNames::validProps[i].properties[j];
-
-                    if (IceUtilInternal::match(string{key}, prop.pattern))
-                    {
-                        if (prop.deprecated && logWarnings)
-                        {
-                            logger->warning("deprecated property: " + string{key});
-                        }
-                        return prop;
-                    }
-
-                    // Check for case-insensitive match.
-
-                    if (IceUtilInternal::match(
-                            IceUtilInternal::toUpper(string{key}),
-                            IceUtilInternal::toUpper(prop.pattern)))
-                    {
-                        if (logWarnings)
-                        {
-                            ostringstream os;
-                            os << "unknown property: `" << key << "'; did you mean `" << prop.pattern << "'";
-                            logger->warning(os.str());
-                        }
-                        return nullopt;
-                    }
-                }
-
-                if (logWarnings)
-                {
-                    ostringstream os;
-                    os << "unknown property: `" << key << "'";
-                    logger->warning(os.str());
-                }
+            // As a courtesy to the user, perform a case-insensitive match and suggest the correct property.
+            // Otherwise no other warning is issued.
+            if (logWarnings && IceUtilInternal::toLower(propPrefix) == IceUtilInternal::toLower(prefix))
+            {
+                ostringstream os;
+                os << "unknown property prefix: `" << prefix << "'; did you mean `" << propPrefix << "'?";
                 return nullopt;
             }
         }
 
-        // The key does not match a known Ice property
+        if (!propertyArray)
+        {
+            // The prefix is not a valid Ice property.
+            return nullopt;
+        }
+
+        for (int i = 0; i < propertyArray->length; ++i)
+        {
+            auto prop = propertyArray->properties[i];
+
+            bool matches = prop.usesRegex ? IceUtilInternal::match(string{key}, prop.pattern) : key == prop.pattern;
+
+            if (matches)
+            {
+                if (prop.deprecated && logWarnings)
+                {
+                    logger->warning("deprecated property: " + string{key});
+                }
+                return prop;
+            }
+        }
+
+        if (logWarnings)
+        {
+            ostringstream os;
+            os << "unknown property: `" << key << "'";
+            logger->warning(os.str());
+        }
         return nullopt;
     }
 

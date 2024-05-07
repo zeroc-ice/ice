@@ -39,11 +39,6 @@ namespace
                 mode = CsGenerator::getUnqualified("Ice.OperationMode.Normal", ns);
                 break;
             }
-            case Operation::Nonmutating:
-            {
-                mode = CsGenerator::getUnqualified("Ice.OperationMode.Nonmutating", ns);
-                break;
-            }
             case Operation::Idempotent:
             {
                 mode = CsGenerator::getUnqualified("Ice.OperationMode.Idempotent", ns);
@@ -2649,10 +2644,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         emitGeneratedCodeAttribute();
         _out << nl << "public override int GetHashCode()";
         _out << sb;
-        _out << nl << "int h_ = 5381;";
-        _out << nl << "global::Ice.Internal.HashUtil.hashAdd(ref h_, \"" << p->scoped() << "\");";
         writeMemberHashCode(dataMembers);
-        _out << nl << "return h_;";
         _out << eb;
 
         _out << sp;
@@ -2907,15 +2899,24 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 void
 Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers)
 {
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    _out << nl << "var hash = new global::System.HashCode();";
+    assert(dataMembers.size() > 0); // a Slice struct must have at least one field.
+
+    for (const auto& q : dataMembers)
     {
-        _out << nl << "global::Ice.Internal.HashUtil.hashAdd(ref h_, " << fixId((*q)->name(), DotNet::ICloneable);
-        if ((*q)->optional())
+        TypePtr memberType = q->type();
+        string memberName = fixId(q->name(), DotNet::ICloneable);
+
+        if (dynamic_pointer_cast<Sequence>(memberType) || dynamic_pointer_cast<Dictionary>(memberType))
         {
-            _out << ".Value";
+            _out << nl << "Ice.UtilInternal.Collections.HashCodeAdd(ref hash, this." << memberName << ");";
         }
-        _out << ");";
+        else
+        {
+            _out << nl << "hash.Add(this." << memberName << ");";
+        }
     }
+    _out << nl << "return hash.ToHashCode();";
 }
 
 void
@@ -3620,7 +3621,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << nl << "outAsync.invoke(";
         _out.inc();
         _out << nl << flatName << ",";
-        _out << nl << sliceModeToIceMode(op->sendMode(), ns) << ",";
+        _out << nl << sliceModeToIceMode(op->mode(), ns) << ",";
         _out << nl << opFormatTypeToString(op, ns) << ",";
         _out << nl << "context,";
         _out << nl << "synchronous";

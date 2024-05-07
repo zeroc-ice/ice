@@ -1509,7 +1509,7 @@ public class OperationTaskCompletionCallback<T> : TaskCompletionCallback<T>
 public class FlushBatchTaskCompletionCallback : TaskCompletionCallback<object>
 {
     public FlushBatchTaskCompletionCallback(System.IProgress<bool> progress = null,
-                                            CancellationToken cancellationToken = new CancellationToken()) :
+                                            CancellationToken cancellationToken = default) :
         base(progress, cancellationToken)
     {
     }

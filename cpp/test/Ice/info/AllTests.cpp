@@ -69,7 +69,7 @@ allTests(Test::TestHelper* helper)
 
         test(
             (ipEndpoint->type() == Ice::TCPEndpointType && dynamic_pointer_cast<Ice::TCPEndpointInfo>(info)) ||
-            (ipEndpoint->type() == Ice::SSLEndpointType && dynamic_pointer_cast<IceSSL::EndpointInfo>(info)) ||
+            (ipEndpoint->type() == Ice::SSLEndpointType && dynamic_pointer_cast<Ice::SSL::EndpointInfo>(info)) ||
             (ipEndpoint->type() == Ice::WSEndpointType && dynamic_pointer_cast<Ice::WSEndpointInfo>(info)) ||
             (ipEndpoint->type() == Ice::WSSEndpointType && dynamic_pointer_cast<Ice::WSEndpointInfo>(info)));
 
@@ -235,7 +235,7 @@ allTests(Test::TestHelper* helper)
 
             if (testIntf->ice_getConnection()->type() == "wss")
             {
-                IceSSL::ConnectionInfoPtr wssinfo = dynamic_pointer_cast<IceSSL::ConnectionInfo>(wsinfo->underlying);
+                auto wssinfo = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(wsinfo->underlying);
 #if TARGET_OS_IPHONE == 0
                 test(!wssinfo->certs.empty());
 #endif

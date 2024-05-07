@@ -19,8 +19,6 @@
 
 // We don't need to see the following headers when building the generated code.
 
-#    include "Certificate.h"
-#    include "ClientAuthenticationOptions.h"
 #    include "Communicator.h"
 #    include "Connection.h"
 #    include "IconvStringConverter.h"
@@ -36,10 +34,12 @@
 #    include "Properties.h"
 #    include "ProxyFunctions.h"
 #    include "RegisterPlugins.h"
-#    include "SSLConnectionInfo.h"
-#    include "SSLEndpointInfo.h"
+#    include "SSL/Certificate.h"
+#    include "SSL/ClientAuthenticationOptions.h"
+#    include "SSL/ConnectionInfo.h"
+#    include "SSL/EndpointInfo.h"
+#    include "SSL/ServerAuthenticationOptions.h"
 #    include "ServantLocator.h"
-#    include "ServerAuthenticationOptions.h"
 #    include "SlicedData.h"
 #    include "StringConverter.h"
 #    include "UUID.h"

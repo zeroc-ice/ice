@@ -10,7 +10,7 @@
 #include "IPEndpointIF.h"
 #include "Ice/Endpoint.h"
 #include "Ice/InstanceF.h"
-#include "Ice/ServerAuthenticationOptions.h"
+#include "Ice/SSL/ServerAuthenticationOptions.h"
 #include "ProtocolInstance.h"
 
 #include <optional>

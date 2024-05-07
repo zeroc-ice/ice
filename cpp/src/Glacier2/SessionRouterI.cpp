@@ -302,7 +302,7 @@ CreateSession::CreateSession(shared_ptr<SessionRouterI> sessionRouter, const str
             }
         }
         {
-            auto info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(current.con->getInfo());
+            auto info = dynamic_pointer_cast<SSL::ConnectionInfo>(current.con->getInfo());
             if (info)
             {
                 if (info->certs.size() > 0)
@@ -637,7 +637,7 @@ SessionRouterI::createSessionFromSecureConnectionAsync(
     //
     try
     {
-        auto info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(current.con->getInfo());
+        auto info = dynamic_pointer_cast<SSL::ConnectionInfo>(current.con->getInfo());
         if (!info)
         {
             exception(make_exception_ptr(PermissionDeniedException("not ssl connection")));
@@ -659,7 +659,7 @@ SessionRouterI::createSessionFromSecureConnectionAsync(
             userDN = info->certs[0]->getSubjectDN();
         }
     }
-    catch (const IceSSL::CertificateEncodingException&)
+    catch (const SSL::CertificateEncodingException&)
     {
         exception(make_exception_ptr(PermissionDeniedException("certificate encoding exception")));
         return;

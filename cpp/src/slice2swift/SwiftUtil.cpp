@@ -1289,11 +1289,6 @@ SwiftGenerator::modeToString(Operation::Mode opMode)
             mode = ".Normal";
             break;
         }
-        case Operation::Nonmutating:
-        {
-            mode = ".Nonmutating";
-            break;
-        }
         case Operation::Idempotent:
         {
             mode = ".Idempotent";
@@ -2543,7 +2538,7 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
 
     out.useCurrentPosAsIndent();
     out << "operation: \"" << op->name() << "\",";
-    out << nl << "mode: " << modeToString(op->sendMode()) << ",";
+    out << nl << "mode: " << modeToString(op->mode()) << ",";
 
     if (op->format() != DefaultFormat)
     {
@@ -2631,7 +2626,7 @@ SwiftGenerator::writeProxyAsyncOperation(::IceUtilInternal::Output& out, const O
 
     out.useCurrentPosAsIndent();
     out << "operation: \"" << op->name() << "\",";
-    out << nl << "mode: " << modeToString(op->sendMode()) << ",";
+    out << nl << "mode: " << modeToString(op->mode()) << ",";
 
     if (op->format() != DefaultFormat)
     {

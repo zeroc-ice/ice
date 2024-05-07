@@ -276,8 +276,8 @@ public class ControllerApp extends Application {
     public void communicatorInitialized(Communicator communicator) {
       com.zeroc.Ice.Properties properties = communicator.getProperties();
       if (properties.getProperty("Ice.Plugin.IceSSL").equals("com.zeroc.IceSSL.PluginFactory")) {
-        com.zeroc.IceSSL.Plugin plugin =
-            (com.zeroc.IceSSL.Plugin) communicator.getPluginManager().getPlugin("IceSSL");
+        com.zeroc.Ice.SSL.Plugin plugin =
+            (com.zeroc.Ice.SSL.Plugin) communicator.getPluginManager().getPlugin("IceSSL");
         String keystore = communicator.getProperties().getProperty("IceSSL.Keystore");
         properties.setProperty("IceSSL.Keystore", "");
         int resource = keystore.equals("client.bks") ? R.raw.client : R.raw.server;

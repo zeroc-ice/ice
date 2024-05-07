@@ -14,7 +14,7 @@
 #    include "../ProtocolInstance.h"
 #    include "../WSEndpoint.h"
 #    include "Ice/InstanceF.h"
-#    include "Ice/ServerAuthenticationOptions.h"
+#    include "Ice/SSL/ServerAuthenticationOptions.h"
 #    include "Ice/UniqueRef.h"
 
 #    include <CFNetwork/CFNetwork.h>

@@ -122,15 +122,7 @@ namespace Ice
             this.heartbeat = heartbeat;
         }
 
-        public override int GetHashCode()
-        {
-            int h_ = 5381;
-            Ice.Internal.HashUtil.hashAdd(ref h_, "::Ice::ACM");
-            Ice.Internal.HashUtil.hashAdd(ref h_, timeout);
-            Ice.Internal.HashUtil.hashAdd(ref h_, close);
-            Ice.Internal.HashUtil.hashAdd(ref h_, heartbeat);
-            return h_;
-        }
+        public override int GetHashCode() => HashCode.Combine(timeout, close, heartbeat);
 
         public override bool Equals(object other)
         {

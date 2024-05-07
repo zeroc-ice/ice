@@ -8,7 +8,7 @@
 #include "../Ice/EndpointFactory.h"
 #include "../Ice/EndpointI.h"
 #include "../Ice/ProtocolInstanceF.h"
-#include "Ice/ServerAuthenticationOptions.h"
+#include "Ice/SSL/ServerAuthenticationOptions.h"
 
 #include <optional>
 

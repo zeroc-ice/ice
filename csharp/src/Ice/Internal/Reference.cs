@@ -397,30 +397,20 @@ public abstract class Reference : IEquatable<Reference>
 
     public override int GetHashCode()
     {
-        lock (this)
+        var hash = new HashCode();
+        hash.Add(_mode);
+        hash.Add(secure_);
+        hash.Add(_identity);
+        UtilInternal.Collections.HashCodeAdd(ref hash, _context);
+        hash.Add(_facet);
+        hash.Add(overrideCompress_);
+        if (overrideCompress_)
         {
-            if (hashInitialized_)
-            {
-                return hashValue_;
-            }
-            int h = 5381;
-            HashUtil.hashAdd(ref h, _mode);
-            HashUtil.hashAdd(ref h, secure_);
-            HashUtil.hashAdd(ref h, _identity);
-            HashUtil.hashAdd(ref h, _context);
-            HashUtil.hashAdd(ref h, _facet);
-            HashUtil.hashAdd(ref h, overrideCompress_);
-            if (overrideCompress_)
-            {
-                HashUtil.hashAdd(ref h, compress_);
-            }
-            HashUtil.hashAdd(ref h, _protocol);
-            HashUtil.hashAdd(ref h, _encoding);
-            HashUtil.hashAdd(ref h, _invocationTimeout);
-            hashValue_ = h;
-            hashInitialized_ = true;
-            return hashValue_;
+            hash.Add(compress_);
         }
+        // We don't hash protocol and encoding; they are usually "1.0" and "1.1" respectively.
+        hash.Add(_invocationTimeout);
+        return hash.ToHashCode();
     }
 
     public virtual bool Equals(Reference other)
@@ -444,8 +434,6 @@ public abstract class Reference : IEquatable<Reference>
 
     public object Clone() => MemberwiseClone();
 
-    protected int hashValue_;
-    protected bool hashInitialized_;
     private static Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
 
     private Instance _instance;
@@ -491,7 +479,6 @@ public abstract class Reference : IEquatable<Reference>
         _encoding = encoding;
         _invocationTimeout = invocationTimeout;
         secure_ = secure;
-        hashInitialized_ = false;
         overrideCompress_ = false;
         compress_ = false;
     }
@@ -1118,16 +1105,11 @@ public class RoutableReference : Reference
 
     public override int GetHashCode()
     {
-        lock (this)
-        {
-            if (!hashInitialized_)
-            {
-                int h = base.GetHashCode(); // Initializes hashValue_.
-                HashUtil.hashAdd(ref h, _adapterId);
-                hashValue_ = h;
-            }
-            return hashValue_;
-        }
+        var hash = new HashCode();
+        hash.Add(base.GetHashCode());
+        hash.Add(_adapterId);
+        UtilInternal.Collections.HashCodeAdd(ref hash, _endpoints);
+        return hash.ToHashCode();
     }
 
     public override bool Equals(Reference other)

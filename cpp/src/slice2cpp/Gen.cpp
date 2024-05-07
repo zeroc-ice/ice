@@ -1930,7 +1930,7 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
         C << nl << "_checkTwowayOnly(operationName);";
     }
     C << nl << "outAsync->invoke(operationName, ";
-    C << getUnqualified(operationModeToString(p->sendMode()), interfaceScope) << ", "
+    C << getUnqualified(operationModeToString(p->mode()), interfaceScope) << ", "
       << getUnqualified(opFormatTypeToString(p), interfaceScope) << ", context,";
     C.inc();
     C << nl;
@@ -3094,7 +3094,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         C << eb;
     }
 
-    string isConst = ((p->mode() == Operation::Nonmutating) || p->hasMetaData("cpp:const")) ? " const" : "";
+    string isConst = p->hasMetaData("cpp:const") ? " const" : "";
 
     string opName = amd ? (name + "Async") : fixKwd(name);
     string deprecateSymbol = getDeprecateSymbol(p, interface);

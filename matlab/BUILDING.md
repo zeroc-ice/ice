@@ -5,18 +5,19 @@ This document describes how to build and install Ice for MATLAB from source.
 ZeroC provides Ice for MATLAB [toolboxes][1] for MATLAB on Windows and Linux, so building Ice for MATLAB from source is
 usually unnecessary.
 
-* [Building Ice for MATLAB on Windows](#building-ice-for-matlab-on-windows)
-  * [Prerequisites](#prerequisites)
-  * [Build Instructions](#build-instructions)
-  * [Packaging the Ice Toolbox](#packaging-the-ice-toolbox)
-* [Building Ice for MATLAB on Linux](#building-ice-for-matlab-on-linux)
-  * [Prerequisites](#prerequisites-1)
-  * [Build Instructions](#build-instructions-1)
-* [Using Ice for MATLAB](#using-ice-for-matlab)
-  * [Search Path](#search-path)
-  * [Slice Files](#slice-files)
-  * [Loading the Library](#loading-the-library)
-  * [Running the Tests](#running-the-tests)
+- [Ice for MATLAB Build Instructions](#ice-for-matlab-build-instructions)
+  - [Building Ice for MATLAB on Windows](#building-ice-for-matlab-on-windows)
+    - [Prerequisites](#prerequisites)
+    - [Build Instructions](#build-instructions)
+    - [Packaging the Ice Toolbox](#packaging-the-ice-toolbox)
+  - [Building Ice for MATLAB on Linux](#building-ice-for-matlab-on-linux)
+    - [Prerequisites](#prerequisites-1)
+    - [Build Instructions](#build-instructions-1)
+  - [Using Ice for MATLAB](#using-ice-for-matlab)
+    - [Search Path](#search-path)
+    - [Slice Files](#slice-files)
+    - [Loading the Library](#loading-the-library)
+    - [Running the Tests](#running-the-tests)
 
 ## Building Ice for MATLAB on Windows
 
@@ -48,12 +49,12 @@ msbuild msbuild\ice.proj /p:Configuration=Debug
 
 Upon completion, a build in release mode generates the following components:
 
-* Ice for C++11 libraries, located in `cpp\bin\x64\Release`
-* slice2matlab executable, located in `cpp\bin\x64\Release`
-* ice.mexw64 MEX file, located in `matlab\lib\x64\Release`
-* Prototype and thunk files, located in `matlab\lib\x64\Release`
-* MATLAB code for core Slice files, located in `matlab\lib\generated`
-* MATLAB code for test Slice files, located in `matlab\test\**\generated`
+- Ice for C++ libraries, located in `cpp\bin\x64\Release`
+- slice2matlab executable, located in `cpp\bin\x64\Release`
+- ice.mexw64 MEX file, located in `matlab\lib\x64\Release`
+- Prototype and thunk files, located in `matlab\lib\x64\Release`
+- MATLAB code for core Slice files, located in `matlab\lib\generated`
+- MATLAB code for test Slice files, located in `matlab\test\**\generated`
 
 The MATLAB extension depends on Ice for C++ components from the `cpp`
 subdirectory, and those are built if required. It is also possible to build the
@@ -82,13 +83,13 @@ You can install the toolbox from within MATLAB by double-clicking on the file.
 
 The build system requires MATLAB 2017b or MATLAB 2019b for Linux, with a supported C++ compiler and a Perl installation.
 
-* Use GCC 4.9 for 2017b, see [MATLAB 2017b supported compilers][2].
-* Use GCC 6.3 for 2019b, see [MATLAB 2019b supported compilers][3].
+- Use GCC 4.9 for 2017b, see [MATLAB 2017b supported compilers][2].
+- Use GCC 6.3 for 2019b, see [MATLAB 2019b supported compilers][3].
 
 We recommend using the following build environments:
 
-* Ubuntu 16.04 (Xenial) with g++-4.9 compiler, for MATLAB 2017b.
-* Debian 9 (Stretch) with the default g++ compiler, for MATLAB 2019b.
+- Ubuntu 16.04 (Xenial) with g++-4.9 compiler, for MATLAB 2017b.
+- Debian 9 (Stretch) with the default g++ compiler, for MATLAB 2019b.
 
 ### Build Instructions
 
@@ -131,10 +132,10 @@ CXX=g++-4.9
 
 To use a source build, add the following directories to your MATLAB path:
 
-* `matlab\lib`
-* `matlab\lib\generated`
-* `matlab\lib\x64\Release` (only on Windows platforms)
-* `matlab\lib\x86_64-linux-gnu` (only on Linux platforms)
+- `matlab\lib`
+- `matlab\lib\generated`
+- `matlab\lib\x64\Release` (only on Windows platforms)
+- `matlab\lib\x86_64-linux-gnu` (only on Linux platforms)
 
 ### Slice Files
 

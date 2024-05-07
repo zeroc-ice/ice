@@ -31,14 +31,14 @@ public:
             throw Glacier2::PermissionDeniedException("reason");
         }
         test(info.certs.size() > 0);
-        auto cert = IceSSL::Certificate::decode(info.certs[0]);
+        auto cert = Ice::SSL::Certificate::decode(info.certs[0]);
         test(
             cert->getIssuerDN() ==
-            IceSSL::DistinguishedName(
+            Ice::SSL::DistinguishedName(
                 "emailAddress=info@zeroc.com,C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=Ice Tests CA"));
         test(
             cert->getSubjectDN() ==
-            IceSSL::DistinguishedName(
+            Ice::SSL::DistinguishedName(
                 "emailAddress=info@zeroc.com,C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=client"));
         test(cert->checkValidity());
 

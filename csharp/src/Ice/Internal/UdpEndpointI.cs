@@ -294,14 +294,7 @@ internal sealed class UdpEndpointI : IPEndpointI
         s.writeBool(_compress);
     }
 
-    public override void hashInit(ref int h)
-    {
-        base.hashInit(ref h);
-        HashUtil.hashAdd(ref h, _mcastInterface);
-        HashUtil.hashAdd(ref h, _mcastTtl);
-        HashUtil.hashAdd(ref h, _connect);
-        HashUtil.hashAdd(ref h, _compress);
-    }
+    public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), _mcastInterface, _mcastTtl, _connect, _compress);
 
     public override void fillEndpointInfo(Ice.IPEndpointInfo info)
     {

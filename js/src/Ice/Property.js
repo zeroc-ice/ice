@@ -6,9 +6,10 @@ const Ice = require("../Ice/ModuleRegistry").Ice;
 
 Ice.Property = class
 {
-    constructor(pattern, defaultValue, deprecated, deprecatedBy)
+    constructor(pattern, usesRegex, defaultValue, deprecated, deprecatedBy)
     {
         this._pattern = pattern;
+        this._usesRegex = usesRegex;
         this._default = defaultValue;
         this._deprecated = deprecated;
         this._deprecatedBy = deprecatedBy;
@@ -17,6 +18,11 @@ Ice.Property = class
     get pattern()
     {
         return this._pattern;
+    }
+
+    get usesRegex()
+    {
+        return this._usesRegex;
     }
 
     get defaultValue()

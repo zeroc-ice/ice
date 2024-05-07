@@ -4,7 +4,7 @@
 
 package com.zeroc.IceInternal;
 
-import com.zeroc.IceSSL.SSLEngineFactory;
+import com.zeroc.Ice.SSL.SSLEngineFactory;
 
 final class TcpEndpointI extends IPEndpointI {
   public TcpEndpointI(

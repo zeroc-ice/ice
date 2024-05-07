@@ -67,6 +67,14 @@ $$(eval $$(call install-data-files,$$(wildcard include/IceUtil/*.h),include,\
         $(install_sdkdir)/$3.sdk/usr/include,$5_install))
 endif
 
+ifneq ($$(and $(filter Ice,$2),$(filter-out $(sdk_includedirs),$3-Ice/SSL)),)
+sdk_includedirs += $3-Ice/SSL
+$$(eval $$(call install-data-files,$$(wildcard include/Ice/SSL/*.h),include,\
+        $(top_srcdir)/sdk/$3.sdk/usr/include,$5))
+$$(eval $$(call install-data-files,$$(wildcard include/Ice/SSL/*.h),include,\
+        $(install_sdkdir)/$3.sdk/usr/include,$5_install))
+endif
+
 $5_clean::
 	$(Q)$(RM) -r $(top_srcdir)/sdk/$3.sdk/usr/include/$2
 

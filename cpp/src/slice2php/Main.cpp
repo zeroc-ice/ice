@@ -423,7 +423,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     // Define each operation. The arguments to IcePHP_defineOperation are:
     //
-    // $ClassType, 'opName', Mode, SendMode, FormatType, (InParams), (OutParams), ReturnParam, (Exceptions)
+    // $ClassType, 'opName', Mode, FormatType, (InParams), (OutParams), ReturnParam, (Exceptions)
     //
     // where InParams and OutParams are arrays of type descriptions, and Exceptions
     // is an array of exception type ids.
@@ -462,8 +462,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             int count;
 
             _out << nl << "IcePHP_defineOperation(" << prxType << ", '" << (*oli)->name() << "', "
-                 << getOperationMode((*oli)->mode()) << ", " << getOperationMode((*oli)->sendMode()) << ", "
-                 << static_cast<int>((*oli)->format()) << ", ";
+                 << getOperationMode((*oli)->mode()) << ", " << static_cast<int>((*oli)->format()) << ", ";
             for (t = params.begin(), count = 0; t != params.end(); ++t)
             {
                 if (!(*t)->isOutParam())

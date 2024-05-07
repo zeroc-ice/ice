@@ -52,12 +52,14 @@ namespace IceInternal
 struct Property
 {
     const char* pattern;
+    bool usesRegex;
     const char* defaultValue;
     bool deprecated;
     const char* deprecatedBy;
 
-    Property(const char* n, const char* dv, bool d, const char* b) :
+    Property(const char* n, bool r, const char* dv, bool d, const char* b) :
         pattern(n),
+        usesRegex(r),
         defaultValue(dv),
         deprecated(d),
         deprecatedBy(b)
@@ -242,7 +244,9 @@ class PropertyHandler(ContentHandler):
         """Needs to be overridden in derived class"""
         pass
 
-    def propertyImpl(self, propertyName, defaultValue, deprecated, deprecatedBy):
+    def propertyImpl(
+        self, propertyName, usesRegex, defaultValue, deprecated, deprecatedBy
+    ):
         """Needs to be overridden in derived class"""
         pass
 
@@ -262,9 +266,13 @@ class PropertyHandler(ContentHandler):
         self.sections.append(sectionName)
         self.newSection()
 
-    def handleProperty(self, propertyName, defaultValue, deprecated, deprecatedBy):
+    def handleProperty(
+        self, propertyName, usesRegex, defaultValue, deprecated, deprecatedBy
+    ):
         self.properties[propertyName] = deprecatedBy if deprecatedBy else ""
-        self.propertyImpl(propertyName, defaultValue, deprecated, deprecatedBy)
+        self.propertyImpl(
+            propertyName, usesRegex, defaultValue, deprecated, deprecatedBy
+        )
 
     def startElement(self, name, attrs):
         if name == "properties":
@@ -304,10 +312,13 @@ class PropertyHandler(ContentHandler):
                 if c.isPrefixOnly():
                     return
 
+            usesRegex = "[any]" in propertyName
             deprecatedBy = attrs.get("deprecatedBy", None)
             deprecated = attrs.get("deprecated", "false").lower() == "true"
             defaultValue = attrs.get("default", None) or ""
-            self.handleProperty(propertyName, defaultValue, deprecated, deprecatedBy)
+            self.handleProperty(
+                propertyName, usesRegex, defaultValue, deprecated, deprecatedBy
+            )
 
     def endElement(self, name):
         if name == "properties":
@@ -372,10 +383,14 @@ class CppPropertyHandler(PropertyHandler):
     def fix(self, propertyName):
         return propertyName.replace("[any]", "*")
 
-    def propertyImpl(self, propertyName, defaultValue, deprecated, deprecatedBy):
-        propertyLine = 'IceInternal::Property("{section}.{name}", {defaultValue}, {deprecated}, {deprecatedBy})'.format(
-            section=self.currentSection,
-            name=self.fix(propertyName),
+    def propertyImpl(
+        self, propertyName, usesRegex, defaultValue, deprecated, deprecatedBy
+    ):
+        name = f"{self.currentSection}.{propertyName}"
+
+        propertyLine = 'IceInternal::Property("{pattern}", {usesRegex}, {defaultValue}, {deprecated}, {deprecatedBy})'.format(
+            pattern=self.fix(name) if usesRegex else name,
+            usesRegex="true" if usesRegex else "false",
             defaultValue=f'"{defaultValue}"',
             deprecated="true" if deprecated else "false",
             deprecatedBy=f'"{deprecatedBy}"' if deprecatedBy else "nullptr",
@@ -455,10 +470,13 @@ class JavaPropertyHandler(PropertyHandler):
         #
         return propertyName.replace(".", r"\\.").replace("[any]", r"[^\\s]+")
 
-    def propertyImpl(self, propertyName, defaultValue, deprecated, deprecatedBy):
-        line = 'new Property("{section}\\\\.{name}", {defaultValue}, {deprecated}, {deprecatedBy})'.format(
-            section=self.currentSection,
-            name=self.fix(propertyName),
+    def propertyImpl(
+        self, propertyName, usesRegex, defaultValue, deprecated, deprecatedBy
+    ):
+        name = f"{self.currentSection}.{propertyName}"
+        line = 'new Property("{pattern}", {usesRegex}, {defaultValue}, {deprecated}, {deprecatedBy})'.format(
+            pattern=self.fix(name) if usesRegex else name,
+            usesRegex="true" if usesRegex else "false",
             defaultValue=f'"{defaultValue}"',
             deprecated="true" if deprecated else "false",
             deprecatedBy=f'"{deprecatedBy}"' if deprecatedBy else "null",
@@ -529,10 +547,13 @@ class CSPropertyHandler(PropertyHandler):
     def fix(self, propertyName):
         return propertyName.replace(".", r"\.").replace("[any]", r"[^\s]+")
 
-    def propertyImpl(self, propertyName, defaultValue, deprecated, deprecatedBy):
-        line = 'new Property(@"^{section}\\.{name}$", {defaultValue}, {deprecated}, {deprecatedBy})'.format(
-            section=self.currentSection,
-            name=self.fix(propertyName),
+    def propertyImpl(
+        self, propertyName, usesRegex, defaultValue, deprecated, deprecatedBy
+    ):
+        name = f"{self.currentSection}.{propertyName}"
+        line = 'new(@"{pattern}", {usesRegex}, {defaultValue}, {deprecated}, {deprecatedBy})'.format(
+            pattern=f"^{self.fix(name)}$" if usesRegex else name,
+            usesRegex="true" if usesRegex else "false",
             defaultValue=f'"{defaultValue}"',
             deprecated="true" if deprecated else "false",
             deprecatedBy=f'"{deprecatedBy}"' if deprecatedBy else "null",
@@ -595,11 +616,14 @@ class JSPropertyHandler(PropertyHandler):
     def fix(self, propertyName):
         return propertyName.replace(".", "\\.").replace("[any]", ".")
 
-    def propertyImpl(self, propertyName, defaultValue, deprecated, deprecatedBy):
+    def propertyImpl(
+        self, propertyName, usesRegex, defaultValue, deprecated, deprecatedBy
+    ):
         if self.currentSection in self.validSections:
-            line = 'new Property("^{section}\\.{name}$", {defaultValue}, {deprecated}, {deprecatedBy})'.format(
-                section=self.currentSection,
-                name=self.fix(propertyName),
+            name = f"{self.currentSection}.{propertyName}"
+            line = 'new Property("{pattern}", {usesRegex}, {defaultValue}, {deprecated}, {deprecatedBy})'.format(
+                pattern=f"^{self.fix(name)}" if usesRegex else name,
+                usesRegex="true" if usesRegex else "false",
                 defaultValue=f'"{defaultValue}"',
                 deprecated="true" if deprecated else "false",
                 deprecatedBy=f'"{deprecatedBy}"' if deprecatedBy else "null",
@@ -657,10 +681,10 @@ class MultiHandler(PropertyHandler):
             f.handleNewSection(sectionName, cmdLine)
 
     def handleProperty(
-        self, propertyName, default=None, deprecated=False, deprecatedBy=None
+        self, propertyName, usesRegex, default, deprecated, deprecatedBy
     ):
         for f in self.handlers:
-            f.handleProperty(propertyName, default, deprecated, deprecatedBy)
+            f.handleProperty(propertyName, usesRegex, default, deprecated, deprecatedBy)
 
     def startElement(self, name, attrs):
         for f in self.handlers:

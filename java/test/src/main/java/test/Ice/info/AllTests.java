@@ -77,7 +77,7 @@ public class AllTests {
       test(
           tcpEndpoint.type() == TCPEndpointType.value && info instanceof TCPEndpointInfo
               || tcpEndpoint.type() == SSLEndpointType.value
-                  && info instanceof com.zeroc.IceSSL.EndpointInfo
+                  && info instanceof com.zeroc.Ice.SSL.EndpointInfo
               || tcpEndpoint.type() == WSEndpointType.value && info instanceof WSEndpointInfo
               || tcpEndpoint.type() == WSSEndpointType.value && info instanceof WSEndpointInfo);
 

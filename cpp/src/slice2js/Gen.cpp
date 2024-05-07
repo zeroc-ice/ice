@@ -28,8 +28,6 @@ namespace
         {
             case Operation::Normal:
                 return "0";
-            case Operation::Nonmutating:
-                return "1";
             case Operation::Idempotent:
                 return "2";
             default:
@@ -1552,15 +1550,13 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             //  0: servant method name in case of a keyword conflict (e.g., "_while"),
             //     otherwise an empty string
             //  1: mode (undefined == Normal or int)
-            //  2: sendMode (undefined == Normal or int)
-            //  3: amd (undefined or 1)
-            //  4: format (undefined == Default or int)
-            //  5: return type (undefined if void, or [type, tag])
-            //  6: in params (undefined if none, or array of [type, tag])
-            //  7: out params (undefined if none, or array of [type, tag])
-            //  8: exceptions (undefined if none, or array of types)
-            //  9: sends classes (true or undefined)
-            // 10: returns classes (true or undefined)
+            //  2: format (undefined == Default or int)
+            //  3: return type (undefined if void, or [type, tag])
+            //  4: in params (undefined if none, or array of [type, tag])
+            //  5: out params (undefined if none, or array of [type, tag])
+            //  6: exceptions (undefined if none, or array of types)
+            //  7: sends classes (true or undefined)
+            //  8: returns classes (true or undefined)
             //
             _out << nl << "\"" << op->name() << "\": ["; // Operation name over-the-wire.
 
@@ -1573,12 +1569,6 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             if (op->mode() != Operation::Normal)
             {
                 _out << sliceModeToIceMode(op->mode()); // Mode.
-            }
-            _out << ", ";
-
-            if (op->sendMode() != Operation::Normal)
-            {
-                _out << sliceModeToIceMode(op->sendMode()); // Send mode.
             }
             _out << ", ";
 

@@ -7,7 +7,7 @@
 
 #include "Configuration.h"
 #include "Ice/EndpointI.h"
-#include "Ice/ServerAuthenticationOptions.h"
+#include "Ice/SSL/ServerAuthenticationOptions.h"
 #include "Test.h"
 
 class EndpointI;

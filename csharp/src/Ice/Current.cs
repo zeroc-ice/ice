@@ -51,18 +51,17 @@ public class Current : ICloneable
 
     public override int GetHashCode()
     {
-        int h_ = 5381;
-        Ice.Internal.HashUtil.hashAdd(ref h_, "::Ice::Current");
-        Ice.Internal.HashUtil.hashAdd(ref h_, adapter);
-        Ice.Internal.HashUtil.hashAdd(ref h_, con);
-        Ice.Internal.HashUtil.hashAdd(ref h_, id);
-        Ice.Internal.HashUtil.hashAdd(ref h_, facet);
-        Ice.Internal.HashUtil.hashAdd(ref h_, operation);
-        Ice.Internal.HashUtil.hashAdd(ref h_, mode);
-        Ice.Internal.HashUtil.hashAdd(ref h_, ctx);
-        Ice.Internal.HashUtil.hashAdd(ref h_, requestId);
-        Ice.Internal.HashUtil.hashAdd(ref h_, encoding);
-        return h_;
+        var hash = new HashCode();
+        hash.Add(adapter);
+        hash.Add(con);
+        hash.Add(id);
+        hash.Add(facet);
+        hash.Add(operation);
+        hash.Add(mode);
+        UtilInternal.Collections.HashCodeAdd(ref hash, ctx);
+        hash.Add(requestId);
+        hash.Add(encoding);
+        return hash.ToHashCode();
     }
 
     public override bool Equals(object other)

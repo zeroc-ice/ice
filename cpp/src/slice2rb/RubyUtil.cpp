@@ -587,22 +587,6 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             case Operation::Normal:
                 _out << "::Ice::OperationMode::Normal";
                 break;
-            case Operation::Nonmutating:
-                _out << "::Ice::OperationMode::Nonmutating";
-                break;
-            case Operation::Idempotent:
-                _out << "::Ice::OperationMode::Idempotent";
-                break;
-        }
-        _out << ", ";
-        switch ((*s)->sendMode())
-        {
-            case Operation::Normal:
-                _out << "::Ice::OperationMode::Normal";
-                break;
-            case Operation::Nonmutating:
-                _out << "::Ice::OperationMode::Nonmutating";
-                break;
             case Operation::Idempotent:
                 _out << "::Ice::OperationMode::Idempotent";
                 break;

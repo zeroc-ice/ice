@@ -26,9 +26,6 @@ namespace
             case Operation::Normal:
                 mode = "null"; // shorthand for most common case
                 break;
-            case Operation::Nonmutating:
-                mode += "Nonmutating";
-                break;
             case Operation::Idempotent:
                 mode += "Idempotent";
                 break;
@@ -5110,7 +5107,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         << getParamsProxy(p, package, false, true) << "java.util.Map<String, String> context" << "boolean sync" << epar;
     out << sb;
     out << nl << futureImpl << " f = new " << getUnqualified("com.zeroc.IceInternal.OutgoingAsync", package)
-        << "<>(this, \"" << p->name() << "\", " << sliceModeToIceMode(p->sendMode()) << ", sync, "
+        << "<>(this, \"" << p->name() << "\", " << sliceModeToIceMode(p->mode()) << ", sync, "
         << (throws.empty() ? "null" : "_iceE_" + p->name()) << ");";
 
     out << nl << "f.invoke(";
@@ -5200,7 +5197,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             << epar;
         out << sb;
         out << nl << futureImpl << " f = new " << getUnqualified("com.zeroc.IceInternal.OutgoingAsync", package)
-            << "<>(this, \"" << p->name() << "\", " << sliceModeToIceMode(p->sendMode()) << ", sync, "
+            << "<>(this, \"" << p->name() << "\", " << sliceModeToIceMode(p->mode()) << ", sync, "
             << (throws.empty() ? "null" : "_iceE_" + p->name()) << ");";
 
         out << nl << "f.invoke(";

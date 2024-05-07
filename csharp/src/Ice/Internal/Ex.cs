@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 using System.Diagnostics;
-using System.Globalization;
 
 namespace Ice.Internal;
 

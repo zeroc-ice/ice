@@ -352,7 +352,6 @@ final class LoggerAdminI implements com.zeroc.Ice.LoggerAdmin {
     com.zeroc.Ice.Properties mainProps = communicator.getProperties();
 
     copyProperties("Ice.Default.Locator", mainProps, initData.properties);
-    copyProperties("Ice.Plugin.IceSSL", mainProps, initData.properties);
     copyProperties("IceSSL.", mainProps, initData.properties);
 
     String[] extraProps = mainProps.getPropertyAsList("Ice.Admin.Logger.Properties");

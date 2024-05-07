@@ -589,11 +589,6 @@ Slice::operationModeToString(Operation::Mode mode)
             return "::Ice::OperationMode::Normal";
         }
 
-        case Operation::Nonmutating:
-        {
-            return "::Ice::OperationMode::Nonmutating";
-        }
-
         case Operation::Idempotent:
         {
             return "::Ice::OperationMode::Idempotent";

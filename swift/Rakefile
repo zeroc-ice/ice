@@ -145,7 +145,7 @@ def create_platform_targets(project, platform, bindist)
         # Ice for C++ static libraries
         #
         cpp_components = ["Ice", "IceDiscovery", "IceLocatorDiscovery"]
-        cpp_source_dirs = { "Ice" => ["IceUtil", "Ice", "IceSSL"] }
+        cpp_source_dirs = { "Ice" => ["IceUtil", "Ice", "Ice/SSL"] }
         if platform == :ios then
             cpp_source_dirs["Ice"] << "IceIAP"
             cpp_source_dirs["Ice"] << "Ice/ios"
@@ -154,7 +154,7 @@ def create_platform_targets(project, platform, bindist)
         excludes = {
             "Ice" => ["DLLMain.cpp",
                       "OpenSSL*",
-                      "SChannel*"]
+                      "Schannel*"]
         }
 
         if platform == :ios then
@@ -196,7 +196,7 @@ def create_platform_targets(project, platform, bindist)
                     target.add_dependency(ice_cpp_target)
                 end
             }
-            target_set_common_build_settings(target, "#{component}++11#{platform_name}", platform)
+            target_set_common_build_settings(target, "#{component}#{platform_name}", platform)
 
             source_dirs = cpp_source_dirs[component] || [component]
             source_dirs.each do |d|

@@ -8,13 +8,11 @@
         <IceConfiguration Condition="'$(UseDebugLibraries)' != 'true'">Release</IceConfiguration>
         <LocalDebuggerEnvironment Condition="'$(LocalDebuggerEnvironment)' == ''">PATH=$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)</LocalDebuggerEnvironment>
         <IceDllDebugSuffix Condition="'$(IceConfiguration)' == 'Debug'">d</IceDllDebugSuffix>
-        <IceDLLSuffix Condition="'$(IceCppMapping)' == 'cpp11'">37++11$(IceDllDebugSuffix)</IceDLLSuffix>
-        <IceDLLSuffix Condition="'$(IceCppMapping)' == 'cpp98'">37$(IceDllDebugSuffix)</IceDLLSuffix>
+        <IceDLLSuffix>37$(IceDllDebugSuffix)</IceDLLSuffix>
     </PropertyGroup>
 
     <ItemGroup>
-        <_Ice_DLLs_v143 Include="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\*$(IceDLLSuffix).dll"
-                        Exclude="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\icedb37*.dll"/>
+        <_Ice_DLLs_v143 Include="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\*$(IceDLLSuffix).dll" Exclude="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\icedb37*.dll"/>
         <_Ice_DLLs_v143 Include="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\libssl*.dll"/>
         <_Ice_DLLs_v143 Include="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\libcrypto*.dll"/>
         <_Ice_DLLs_v143 Include="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\bzip2*.dll"/>
@@ -30,13 +28,10 @@
     </ItemDefinitionGroup>
 
     <Target Name="ValidateSliceCompilerVersion" BeforeTargets="CLCompile">
-        <Error Text="Detected invalid Ice NuGet package version '$(IceNugetPackageVersion)' expected '3.8a0'"
-               Condition="'$(IceNugetPackageVersion)' != '3.8a0'" />
+        <Error Text="Detected invalid Ice NuGet package version '$(IceNugetPackageVersion)' expected '3.8a0'" Condition="'$(IceNugetPackageVersion)' != '3.8a0'" />
     </Target>
 
     <Target Name="Ice_CopyDLLs_v143" AfterTargets="Build" Condition="'$(PlatformToolset)' == 'v143' and '$(Ice_CopyDLLs)' == 'Yes'">
-        <Copy SourceFiles="@(_Ice_DLLs_v143)"
-              DestinationFolder="$(OutDir)"
-              SkipUnchangedFiles="true"/>
+        <Copy SourceFiles="@(_Ice_DLLs_v143)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
     </Target>
 </Project>

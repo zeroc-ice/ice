@@ -15,7 +15,7 @@
 #include "Plugin.h"
 #include "Properties.h"
 #include "Proxy.h"
-#include "ServerAuthenticationOptions.h"
+#include "SSL/ServerAuthenticationOptions.h"
 
 #ifdef ICE_SWIFT
 #    include <dispatch/dispatch.h>

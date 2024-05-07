@@ -28,15 +28,6 @@ internal sealed class TcpConnector : Connector
         _sourceAddr = sourceAddr;
         _timeout = timeout;
         _connectionId = connectionId;
-
-        _hashCode = 5381;
-        HashUtil.hashAdd(ref _hashCode, _addr);
-        if (_sourceAddr != null)
-        {
-            HashUtil.hashAdd(ref _hashCode, _sourceAddr);
-        }
-        HashUtil.hashAdd(ref _hashCode, _timeout);
-        HashUtil.hashAdd(ref _hashCode, _connectionId);
     }
 
     public override bool Equals(object obj)
@@ -77,7 +68,15 @@ internal sealed class TcpConnector : Connector
 
     public override int GetHashCode()
     {
-        return _hashCode;
+        var hash = new HashCode();
+        hash.Add(_addr);
+        if (_sourceAddr is not null)
+        {
+            hash.Add(_sourceAddr);
+        }
+        hash.Add(_timeout);
+        hash.Add(_connectionId);
+        return hash.ToHashCode();
     }
 
     private ProtocolInstance _instance;
@@ -86,5 +85,4 @@ internal sealed class TcpConnector : Connector
     private EndPoint _sourceAddr;
     private int _timeout;
     private string _connectionId;
-    private int _hashCode;
 }

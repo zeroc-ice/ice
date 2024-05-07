@@ -318,13 +318,7 @@ public sealed class Timer
             return t == null ? false : CompareTo(t) == 0;
         }
 
-        public override int GetHashCode()
-        {
-            int h = 5381;
-            HashUtil.hashAdd(ref h, id);
-            HashUtil.hashAdd(ref h, scheduledTime);
-            return h;
-        }
+        public override int GetHashCode() => HashCode.Combine(id, scheduledTime);
 
         public long scheduledTime;
         public int id; // Since we can't compare references, we need to use another id.

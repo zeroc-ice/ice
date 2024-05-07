@@ -4648,19 +4648,6 @@ Slice::Operation::mode() const
     return _mode;
 }
 
-Operation::Mode
-Slice::Operation::sendMode() const
-{
-    if (_mode == Operation::Idempotent && hasMetaData("nonmutating"))
-    {
-        return Operation::Nonmutating;
-    }
-    else
-    {
-        return _mode;
-    }
-}
-
 bool
 Slice::Operation::hasMarshaledResult() const
 {
