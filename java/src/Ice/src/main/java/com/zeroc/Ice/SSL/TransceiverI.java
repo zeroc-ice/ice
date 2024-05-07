@@ -46,7 +46,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver {
         _engine.beginHandshake();
       } catch (javax.net.ssl.SSLException ex) {
         _engine = null;
-        throw new com.zeroc.Ice.SecurityException("Ice.SSL: handshake error", ex);
+        throw new com.zeroc.Ice.SecurityException("SSL transport: handshake error", ex);
       }
 
       _appInput = ByteBuffer.allocate(_engine.getSession().getApplicationBufferSize() * 2);
@@ -121,12 +121,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver {
           }
         }
       } catch (SSLException ex) {
-        //
         // We can't throw in close.
-        //
-        // Ice.SecurityException se = new Ice.SecurityException(
-        //     "Ice.SSL: SSL failure while shutting down socket", ex);
-        //
       }
 
       try {
@@ -140,7 +135,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver {
         // We would probably need to wait for a response in shutdown() to avoid this.
         // For now, we'll ignore this exception.
         //
-        // _instance.logger().error("Ice.SSL: error during close\n" + ex.getMessage());
+        // _instance.logger().error("SSL transport: error during close\n" + ex.getMessage());
       }
     }
 
@@ -219,7 +214,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver {
         // the buffer with a complete request which must be processed.
       }
     } catch (SSLException ex) {
-      throw new com.zeroc.Ice.SecurityException("Ice.SSL: error during read", ex);
+      throw new com.zeroc.Ice.SecurityException("SSL transport: error during read", ex);
     }
 
     //
@@ -399,7 +394,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver {
         }
       }
     } catch (SSLException ex) {
-      throw new com.zeroc.Ice.SecurityException("Ice.SSL: handshake error", ex);
+      throw new com.zeroc.Ice.SecurityException("SSL transport: handshake error", ex);
     }
     return SocketOperation.None;
   }
@@ -446,7 +441,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver {
         }
       }
     } catch (SSLException ex) {
-      throw new com.zeroc.Ice.SecurityException("Ice.SSL: error while encoding message", ex);
+      throw new com.zeroc.Ice.SecurityException("SSL transport: error while encoding message", ex);
     }
 
     assert (_netOutput.b.position() == 0);

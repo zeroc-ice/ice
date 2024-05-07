@@ -9,20 +9,20 @@ class TrustManager {
     assert communicator != null;
     _communicator = communicator;
     com.zeroc.Ice.Properties properties = communicator.getProperties();
-    _traceLevel = properties.getPropertyAsInt("Ice.SSL.Trace.Security");
+    _traceLevel = properties.getPropertyAsInt("IceSSL.Trace.Security");
     String key = null;
     try {
-      key = "Ice.SSL.TrustOnly";
+      key = "IceSSL.TrustOnly";
       parse(properties.getProperty(key), _rejectAll, _acceptAll);
-      key = "Ice.SSL.TrustOnly.Client";
+      key = "IceSSL.TrustOnly.Client";
       parse(properties.getProperty(key), _rejectClient, _acceptClient);
-      key = "Ice.SSL.TrustOnly.Server";
+      key = "IceSSL.TrustOnly.Server";
       parse(properties.getProperty(key), _rejectAllServer, _acceptAllServer);
       java.util.Map<String, String> dict =
-          properties.getPropertiesForPrefix("Ice.SSL.TrustOnly.Server.");
+          properties.getPropertiesForPrefix("IceSSL.TrustOnly.Server.");
       for (java.util.Map.Entry<String, String> p : dict.entrySet()) {
         key = p.getKey();
-        String name = key.substring("Ice.SSL.TrustOnly.Server.".length());
+        String name = key.substring("IceSSL.TrustOnly.Server.".length());
         java.util.List<java.util.List<RFC2253.RDNPair>> reject =
             new java.util.LinkedList<java.util.List<RFC2253.RDNPair>>();
         java.util.List<java.util.List<RFC2253.RDNPair>> accept =

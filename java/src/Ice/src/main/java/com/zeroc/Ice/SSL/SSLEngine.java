@@ -18,13 +18,13 @@ public class SSLEngine {
     _communicator = communicator;
     _logger = _communicator.getLogger();
     _securityTraceLevel =
-        _communicator.getProperties().getPropertyAsIntWithDefault("Ice.SSL.Trace.Security", 0);
+        _communicator.getProperties().getPropertyAsIntWithDefault("IceSSL.Trace.Security", 0);
     _securityTraceCategory = "Security";
     _trustManager = new TrustManager(_communicator);
   }
 
   public void initialize() {
-    final String prefix = "Ice.SSL.";
+    final String prefix = "IceSSL.";
     com.zeroc.Ice.Properties properties = communicator().getProperties();
 
     //
@@ -45,7 +45,7 @@ public class SSLEngine {
     // VerifyPeer determines whether certificate validation failures abort a
     // connection.
     //
-    _verifyPeer = properties.getPropertyAsIntWithDefault("Ice.SSL.VerifyPeer", 2);
+    _verifyPeer = properties.getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
 
     //
     // If the user doesn't supply an SSLContext, we need to create one based
@@ -121,7 +121,8 @@ public class SSLEngine {
             } else {
               keystoreStream = openResource(keystorePath);
               if (keystoreStream == null) {
-                throw new InitializationException("Ice.SSL: keystore not found:\n" + keystorePath);
+                throw new InitializationException(
+                    "SSL transport: keystore not found:\n" + keystorePath);
               }
             }
 
@@ -142,7 +143,7 @@ public class SSLEngine {
             keystorePassword = null;
           } catch (java.io.IOException ex) {
             throw new InitializationException(
-                "Ice.SSL: unable to load keystore:\n" + keystorePath, ex);
+                "SSL transport: unable to load keystore:\n" + keystorePath, ex);
           } finally {
             if (keystoreStream != null) {
               try {
@@ -192,7 +193,7 @@ public class SSLEngine {
             //
             if (!keys.isKeyEntry(alias)) {
               throw new InitializationException(
-                  "Ice.SSL: keystore does not contain an entry with alias `" + alias + "'");
+                  "SSL trasnsport: keystore does not contain an entry with alias `" + alias + "'");
             }
 
             for (int i = 0; i < keyManagers.length; ++i) {
@@ -225,7 +226,7 @@ public class SSLEngine {
                 truststoreStream = openResource(truststorePath);
                 if (truststoreStream == null) {
                   throw new InitializationException(
-                      "Ice.SSL: truststore not found:\n" + truststorePath);
+                      "SSL transport: truststore not found:\n" + truststorePath);
                 }
               }
 
@@ -247,7 +248,7 @@ public class SSLEngine {
               truststorePassword = null;
             } catch (java.io.IOException ex) {
               throw new InitializationException(
-                  "Ice.SSL: unable to load truststore:\n" + truststorePath, ex);
+                  "SSL transport: unable to load truststore:\n" + truststorePath, ex);
             } finally {
               if (truststoreStream != null) {
                 try {
@@ -261,7 +262,7 @@ public class SSLEngine {
         }
 
         //
-        // Collect the trust managers. Use Ice.SSL.Truststore if
+        // Collect the trust managers. Use IceSSL.Truststore if
         // specified, otherwise use the Java root CAs if
         // Ice.Use.PlatformCAs is enabled. If none of these are enabled,
         // use the keystore or a dummy trust manager which rejects any
@@ -275,7 +276,7 @@ public class SSLEngine {
           java.security.KeyStore trustStore = null;
           if (ts != null) {
             trustStore = ts;
-          } else if (properties.getPropertyAsInt("Ice.SSL.UsePlatformCAs") <= 0) {
+          } else if (properties.getPropertyAsInt("IceSSL.UsePlatformCAs") <= 0) {
             if (keys != null) {
               trustStore = keys;
             } else {
@@ -313,7 +314,7 @@ public class SSLEngine {
           // must be non-empty
           //
           if (trustStore != null && trustStore.size() == 0) {
-            throw new InitializationException("Ice.SSL: truststore is empty");
+            throw new InitializationException("SSL transport: truststore is empty");
           }
 
           if (trustManagers == null) {
@@ -329,7 +330,7 @@ public class SSLEngine {
         _context = javax.net.ssl.SSLContext.getInstance("TLS");
         _context.init(keyManagers, trustManagers, null);
       } catch (java.security.GeneralSecurityException ex) {
-        throw new InitializationException("Ice.SSL: unable to initialize context", ex);
+        throw new InitializationException("SSL transport: unable to initialize context", ex);
       }
     }
 
@@ -358,7 +359,7 @@ public class SSLEngine {
       }
       engine.setUseClientMode(!incoming);
     } catch (Exception ex) {
-      throw new com.zeroc.Ice.SecurityException("Ice.SSL: couldn't create SSL engine", ex);
+      throw new com.zeroc.Ice.SecurityException("SSL transport: couldn't create SSL engine", ex);
     }
 
     if (incoming) {
@@ -421,12 +422,13 @@ public class SSLEngine {
 
   void verifyPeer(String address, ConnectionInfo info, String desc) {
     //
-    // Ice.SSL.VerifyPeer is translated into the proper SSLEngine configuration
+    // IceSSL.VerifyPeer is translated into the proper SSLEngine configuration
     // for a server, but we have to do it ourselves for a client.
     //
     if (!info.incoming) {
       if (_verifyPeer > 0 && !info.verified) {
-        throw new com.zeroc.Ice.SecurityException("Ice.SSL: server did not supply a certificate");
+        throw new com.zeroc.Ice.SecurityException(
+            "SSL trasnsport: server did not supply a certificate");
       }
     }
 
@@ -476,7 +478,7 @@ public class SSLEngine {
         com.zeroc.IceInternal.Util.openResource(getClass().getClassLoader(), path);
 
     //
-    // If the first attempt fails and Ice.SSL.DefaultDir is defined and the original
+    // If the first attempt fails and IceSSL.DefaultDir is defined and the original
     // path is
     // relative,
     // we prepend the default directory and try again.
