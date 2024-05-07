@@ -121,16 +121,12 @@ namespace Ice
             public static async Task allTestsAsync(global::Test.TestHelper helper, bool collocated)
             {
                 Ice.Communicator communicator = helper.communicator();
+
                 string sref = "test:" + helper.getTestEndpoint(0);
-                Ice.ObjectPrx obj = communicator.stringToProxy(sref);
-                test(obj != null);
+                var p = Test.TestIntfPrxHelper.createProxy(communicator, sref);
 
-                Test.TestIntfPrx p = Test.TestIntfPrxHelper.uncheckedCast(obj);
                 sref = "testController:" + helper.getTestEndpoint(1);
-                obj = communicator.stringToProxy(sref);
-                test(obj != null);
-
-                Test.TestIntfControllerPrx testController = Test.TestIntfControllerPrxHelper.uncheckedCast(obj);
+                var testController = Test.TestIntfControllerPrxHelper.createProxy(communicator, sref);
 
                 var output = helper.getWriter();
 
@@ -222,8 +218,7 @@ namespace Ice
                         var initData = new InitializationData();
                         initData.properties = communicator.getProperties().ice_clone_();
                         Communicator ic = helper.initialize(initData);
-                        ObjectPrx o = ic.stringToProxy(p.ToString());
-                        Test.TestIntfPrx p2 = Test.TestIntfPrxHelper.checkedCast(o);
+                        Test.TestIntfPrx p2 = Test.TestIntfPrxHelper.createProxy(ic, p.ToString());
                         ic.destroy();
 
                         try
@@ -926,8 +921,8 @@ namespace Ice
                 output.Write("testing result struct... ");
                 output.Flush();
                 {
-                    var q = Test.Outer.Inner.TestIntfPrxHelper.uncheckedCast(
-                        communicator.stringToProxy("test2:" + helper.getTestEndpoint(0)));
+                    var q = Test.Outer.Inner.TestIntfPrxHelper.createProxy(
+                        communicator, "test2:" + helper.getTestEndpoint(0));
                     var r = await q.opAsync(1);
                     test(r.returnValue == 1);
                     test(r.j == 1);

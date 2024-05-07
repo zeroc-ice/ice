@@ -3709,7 +3709,14 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << sp << nl << "#endregion"; // Asynchronous Task operations
 
-    _out << sp << nl << "#region Checked and unchecked cast operations";
+    _out << sp << nl << "#region Factory operations";
+
+    _out << sp << nl << "public static " << name << "Prx createProxy(" << getUnqualified("Ice.Communicator", ns)
+         << " communicator, string proxyString) =>";
+    _out.inc();
+    _out << nl << "uncheckedCast(" << getUnqualified("Ice.ObjectPrxHelper", ns)
+        << ".createProxy(communicator, proxyString));";
+    _out.dec();
 
     _out << sp << nl << "public static " << name << "Prx checkedCast(" << getUnqualified("Ice.ObjectPrx", ns)
          << " b, global::System.Collections.Generic.Dictionary<string, string> ctx = null)";

@@ -12,9 +12,8 @@ namespace Ice
                 var output = helper.getWriter();
                 output.Flush();
                 string rf = "test:" + helper.getTestEndpoint(0);
-                Ice.ObjectPrx baseProxy = communicator.stringToProxy(rf);
-                var cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
-                var derivedProxy = Test.MyDerivedClassPrxHelper.checkedCast(cl);
+                var cl = Test.MyClassPrxHelper.createProxy(communicator, rf);
+                var derivedProxy = Test.MyDerivedClassPrxHelper.uncheckedCast(cl);
 
                 output.Write("testing twoway operations... ");
                 output.Flush();

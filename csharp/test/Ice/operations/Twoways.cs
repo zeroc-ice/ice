@@ -1442,8 +1442,7 @@ namespace Ice
                         ctx["two"] = "TWO";
                         ctx["three"] = "THREE";
 
-                        var p3 = Test.MyClassPrxHelper.uncheckedCast(
-                            ic.stringToProxy("test:" + helper.getTestEndpoint(0)));
+                        var p3 = Test.MyClassPrxHelper.createProxy(ic, "test:" + helper.getTestEndpoint(0));
 
                         ic.getImplicitContext().setContext(ctx);
                         test(Ice.CollectionComparer.Equals(ic.getImplicitContext().getContext(), ctx));
