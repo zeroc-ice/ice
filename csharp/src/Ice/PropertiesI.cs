@@ -637,11 +637,11 @@ internal sealed class PropertiesI : Properties
                 break;
             }
 
-            // As a curtsey to the user, perform a case-insensitive match and suggest the correct property.
+            // As a courtesy to the user, perform a case-insensitive match and suggest the correct property.
             // Otherwise no other warning is issued.
             if (logWarnings && propPrefix.ToUpper().Equals(prefix.ToUpper()))
             {
-                logger.warning("unknown property: `" + key + "'; did you mean `" + propPrefix + "'");
+                logger.warning("unknown property: `" + key + "'; did you mean `" + propPrefix + "'?");
                 return null;
             }
         }

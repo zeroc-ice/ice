@@ -488,7 +488,7 @@ class Properties
             }
 
             if  (logWarnings && propPrefix.toUpperCase() === prefix.toUpperCase()) {
-                logger.warning("unknown property prefix: `" + prefix + "'; did you mean `" + propPrefix + "'");
+                logger.warning("unknown property prefix: `" + prefix + "'; did you mean `" + propPrefix + "'?");
                 return null;
             }
         }

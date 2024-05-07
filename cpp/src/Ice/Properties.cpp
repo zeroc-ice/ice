@@ -13,7 +13,6 @@
 
 #include <cassert>
 #include <fstream>
-#include <iostream>
 
 using namespace std;
 using namespace Ice;
@@ -60,12 +59,12 @@ namespace
                 break;
             }
 
-            // As a curtsey to the user, perform a case-insensitive match and suggest the correct property.
+            // As a courtesy to the user, perform a case-insensitive match and suggest the correct property.
             // Otherwise no other warning is issued.
             if (logWarnings && IceUtilInternal::toLower(propPrefix) == IceUtilInternal::toLower(prefix))
             {
                 ostringstream os;
-                os << "unknown property prefix : `" << prefix << "'; did you mean `" << propPrefix << "'";
+                os << "unknown property prefix: `" << prefix << "'; did you mean `" << propPrefix << "'?";
                 return nullopt;
             }
         }

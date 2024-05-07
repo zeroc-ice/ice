@@ -628,7 +628,7 @@ public final class PropertiesI implements Properties {
       }
 
       if (logWarnings && propPrefix.toUpperCase().equals(prefix.toUpperCase())) {
-        logger.warning("unknown property prefix: `" + key + "'; did you mean `" + propPrefix + "'");
+        logger.warning("unknown property prefix: `" + key + "'; did you mean `" + propPrefix + "'?");
         return null;
       }
     }
