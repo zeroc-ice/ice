@@ -1948,7 +1948,7 @@ Object._ice_type = IcePy._t_Object
 
 Object._op_ice_isA = IcePy.Operation(
     "ice_isA",
-    OperationMode.Nonmutating,
+    OperationMode.Idempotent,
     False,
     None,
     (),
@@ -1959,7 +1959,7 @@ Object._op_ice_isA = IcePy.Operation(
 )
 Object._op_ice_ping = IcePy.Operation(
     "ice_ping",
-    OperationMode.Nonmutating,
+    OperationMode.Idempotent,
     False,
     None,
     (),
@@ -1970,7 +1970,7 @@ Object._op_ice_ping = IcePy.Operation(
 )
 Object._op_ice_ids = IcePy.Operation(
     "ice_ids",
-    OperationMode.Nonmutating,
+    OperationMode.Idempotent,
     False,
     None,
     (),
@@ -1981,7 +1981,7 @@ Object._op_ice_ids = IcePy.Operation(
 )
 Object._op_ice_id = IcePy.Operation(
     "ice_id",
-    OperationMode.Nonmutating,
+    OperationMode.Idempotent,
     False,
     None,
     (),

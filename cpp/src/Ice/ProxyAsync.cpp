@@ -334,7 +334,7 @@ Ice::ObjectPrx::_iceI_isA(const shared_ptr<OutgoingAsyncT<bool>>& outAsync, stri
     _checkTwowayOnly(operationName);
     outAsync->invoke(
         operationName,
-        OperationMode::Nonmutating,
+        OperationMode::Idempotent,
         FormatType::DefaultFormat,
         ctx,
         [&](Ice::OutputStream* os) { os->write(typeId, false); },
@@ -373,7 +373,7 @@ void
 Ice::ObjectPrx::_iceI_ping(const shared_ptr<OutgoingAsyncT<void>>& outAsync, const Context& ctx) const
 {
     static constexpr string_view operationName = "ice_ping";
-    outAsync->invoke(operationName, OperationMode::Nonmutating, FormatType::DefaultFormat, ctx, nullptr, nullptr);
+    outAsync->invoke(operationName, OperationMode::Idempotent, FormatType::DefaultFormat, ctx, nullptr, nullptr);
 }
 
 vector<string>
@@ -411,7 +411,7 @@ Ice::ObjectPrx::_iceI_ids(const shared_ptr<OutgoingAsyncT<vector<string>>>& outA
     _checkTwowayOnly(operationName);
     outAsync->invoke(
         operationName,
-        OperationMode::Nonmutating,
+        OperationMode::Idempotent,
         FormatType::DefaultFormat,
         ctx,
         nullptr,
@@ -459,7 +459,7 @@ Ice::ObjectPrx::_iceI_id(const shared_ptr<OutgoingAsyncT<string>>& outAsync, con
     _checkTwowayOnly(operationName);
     outAsync->invoke(
         operationName,
-        OperationMode::Nonmutating,
+        OperationMode::Idempotent,
         FormatType::DefaultFormat,
         ctx,
         nullptr,

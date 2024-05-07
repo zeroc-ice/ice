@@ -9,38 +9,11 @@ const test = TestHelper.test;
 
 export class AMDMyDerivedClassI extends Test.MyDerivedClass
 {
-    //
-    // Override the Object "pseudo" operations to verify the operation mode.
-    //
     constructor(endpoints:Ice.Endpoint[])
     {
         super();
         this._opByteSOnewayCount = 0;
         this._endpoints = endpoints;
-    }
-
-    ice_isA(id:string, current:Ice.Current):boolean
-    {
-        test(current.mode === Ice.OperationMode.Nonmutating);
-        return Ice.Object.prototype.ice_isA.call(this, id, current);
-    }
-
-    ice_ping(current:Ice.Current):void
-    {
-        test(current.mode === Ice.OperationMode.Nonmutating);
-        Ice.Object.prototype.ice_ping.call(this, current);
-    }
-
-    ice_ids(current:Ice.Current):Ice.StringSeq
-    {
-        test(current.mode === Ice.OperationMode.Nonmutating);
-        return Ice.Object.prototype.ice_ids.call(this, current);
-    }
-
-    ice_id(current:Ice.Current):string
-    {
-        test(current.mode === Ice.OperationMode.Nonmutating);
-        return Ice.Object.prototype.ice_id.call(this, current);
     }
 
     shutdown(current:Ice.Current):void

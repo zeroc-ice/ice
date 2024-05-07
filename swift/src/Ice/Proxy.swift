@@ -386,7 +386,7 @@ public func == (lhs: ObjectPrx?, rhs: ObjectPrx?) -> Bool {
 }
 
 extension ObjectPrx {
-  /// Returns the underdlying implementation object (Ice internal).
+  /// Returns the underlying implementation object (Ice internal).
   public var _impl: ObjectPrxI {
     return self as! ObjectPrxI
   }
@@ -400,7 +400,7 @@ extension ObjectPrx {
   public func ice_ping(context: Context? = nil) throws {
     try _impl._invoke(
       operation: "ice_ping",
-      mode: OperationMode.Nonmutating,
+      mode: OperationMode.Idempotent,
       context: context)
   }
 
@@ -426,7 +426,7 @@ extension ObjectPrx {
   ) -> Promise<Void> {
     return _impl._invokeAsync(
       operation: "ice_ping",
-      mode: .Nonmutating,
+      mode: .Idempotent,
       context: context,
       sentOn: sentOn,
       sentFlags: sentFlags,
@@ -444,7 +444,7 @@ extension ObjectPrx {
   public func ice_isA(id: String, context: Context? = nil) throws -> Bool {
     return try _impl._invoke(
       operation: "ice_isA",
-      mode: .Nonmutating,
+      mode: .Idempotent,
       write: { ostr in
         ostr.write(id)
       },
@@ -476,7 +476,7 @@ extension ObjectPrx {
   ) -> Promise<Bool> {
     return _impl._invokeAsync(
       operation: "ice_isA",
-      mode: .Nonmutating,
+      mode: .Idempotent,
       write: { ostr in
         ostr.write(id)
       },
@@ -495,7 +495,7 @@ extension ObjectPrx {
   public func ice_id(context: Context? = nil) throws -> String {
     return try _impl._invoke(
       operation: "ice_id",
-      mode: .Nonmutating,
+      mode: .Idempotent,
       read: { istr in try istr.read() as String },
       context: context)
   }
@@ -522,7 +522,7 @@ extension ObjectPrx {
   ) -> Promise<String> {
     return _impl._invokeAsync(
       operation: "ice_id",
-      mode: .Nonmutating,
+      mode: .Idempotent,
       read: { istr in try istr.read() as String },
       context: context,
       sentOn: sentOn,
@@ -539,7 +539,7 @@ extension ObjectPrx {
   public func ice_ids(context: Context? = nil) throws -> StringSeq {
     return try _impl._invoke(
       operation: "ice_ids",
-      mode: .Nonmutating,
+      mode: .Idempotent,
       read: { istr in try istr.read() as StringSeq },
       context: context)
   }
@@ -566,7 +566,7 @@ extension ObjectPrx {
   ) -> Promise<StringSeq> {
     return _impl._invokeAsync(
       operation: "ice_ids",
-      mode: .Nonmutating,
+      mode: .Idempotent,
       read: { istr in try istr.read() as StringSeq },
       context: context,
       sentOn: sentOn,

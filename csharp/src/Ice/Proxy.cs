@@ -632,7 +632,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     {
         iceCheckAsyncTwowayOnly(_ice_isA_name);
         getOutgoingAsync<bool>(completed).invoke(_ice_isA_name,
-                                                 OperationMode.Nonmutating,
+                                                 OperationMode.Idempotent,
                                                  FormatType.DefaultFormat,
                                                  context,
                                                  synchronous,
@@ -685,7 +685,7 @@ public class ObjectPrxHelperBase : ObjectPrx
                                    bool synchronous)
     {
         getOutgoingAsync<object>(completed).invoke(_ice_ping_name,
-                                                   OperationMode.Nonmutating,
+                                                   OperationMode.Idempotent,
                                                    FormatType.DefaultFormat,
                                                    context,
                                                    synchronous);
@@ -740,7 +740,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     {
         iceCheckAsyncTwowayOnly(_ice_ids_name);
         getOutgoingAsync<string[]>(completed).invoke(_ice_ids_name,
-                                                     OperationMode.Nonmutating,
+                                                     OperationMode.Idempotent,
                                                      FormatType.DefaultFormat,
                                                      context,
                                                      synchronous,
@@ -793,7 +793,7 @@ public class ObjectPrxHelperBase : ObjectPrx
                              bool synchronous)
     {
         getOutgoingAsync<string>(completed).invoke(_ice_id_name,
-                                                   OperationMode.Nonmutating,
+                                                   OperationMode.Idempotent,
                                                    FormatType.DefaultFormat,
                                                    context,
                                                    synchronous,

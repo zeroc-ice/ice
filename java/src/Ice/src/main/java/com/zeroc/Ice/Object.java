@@ -280,12 +280,10 @@ public interface Object {
       expected = OperationMode.Normal;
     }
 
+    assert expected != OperationMode.Nonmutating; // We never expect Nonmutating
     if (expected != received) {
       if (expected == OperationMode.Idempotent && received == OperationMode.Nonmutating) {
-        //
-        // Fine: typically an old client still using the
-        // deprecated nonmutating keyword
-        //
+        // Fine: typically an old client still using the deprecated nonmutating keyword
       } else {
         MarshalException ex = new MarshalException();
         ex.reason =

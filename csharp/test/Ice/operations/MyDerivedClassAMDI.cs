@@ -47,33 +47,6 @@ namespace Ice
                     private Thread _thread;
                 }
 
-                //
-                // Override the Object "pseudo" operations to verify the operation mode.
-                //
-                public override bool ice_isA(String id, Ice.Current current)
-                {
-                    test(current.mode == Ice.OperationMode.Nonmutating);
-                    return base.ice_isA(id, current);
-                }
-
-                public override void ice_ping(Ice.Current current)
-                {
-                    test(current.mode == Ice.OperationMode.Nonmutating);
-                    base.ice_ping(current);
-                }
-
-                public override string[] ice_ids(Ice.Current current)
-                {
-                    test(current.mode == Ice.OperationMode.Nonmutating);
-                    return base.ice_ids(current);
-                }
-
-                public override string ice_id(Ice.Current current)
-                {
-                    test(current.mode == Ice.OperationMode.Nonmutating);
-                    return base.ice_id(current);
-                }
-
                 public override Task shutdownAsync(Ice.Current current)
                 {
                     while (_opVoidThread != null)
