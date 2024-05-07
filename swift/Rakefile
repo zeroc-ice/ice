@@ -196,7 +196,7 @@ def create_platform_targets(project, platform, bindist)
                     target.add_dependency(ice_cpp_target)
                 end
             }
-            target_set_common_build_settings(target, "#{component}++11#{platform_name}", platform)
+            target_set_common_build_settings(target, "#{component}#{platform_name}", platform)
 
             source_dirs = cpp_source_dirs[component] || [component]
             source_dirs.each do |d|

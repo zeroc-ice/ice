@@ -49,7 +49,7 @@ Ice has dependencies on a number of third-party libraries:
 - [bzip2][3] 1.0
 - [expat][4] 2.1 or later
 - [libedit][12] (Linux and macOS)
-- [LMDB][5] 0.9 (LMDB is not required with the C++11 mapping)
+- [LMDB][5] 0.9
 - [mcpp][6] 2.7.2 with patches
 - [OpenSSL][7] 1.0.0 or later (on AIX and Linux)
 
@@ -171,12 +171,7 @@ make V=1 -j8 srcs
 ```
 
 The build system supports specifying additional preprocessor, compiler and
-linker options with the `CPPFLAGS`, `CXXFLAGS` and `LDFLAGS` variables. For
-example, to build the Ice C++98 mapping with `-std=c++11`, you can use:
-
-```shell
-make CXXFLAGS=-std=c++11
-```
+linker options with the `CPPFLAGS`, `CXXFLAGS` and `LDFLAGS` variables.
 
 To build the test suite using a binary distribution use:
 
@@ -189,7 +184,7 @@ where the C++ compiler can automatically find the header and library files, you 
 need to set `ICE_HOME`
 
 ```shell
-make ICE_HOME=/opt/Ice-3.7.10 ICE_BIN_DIST=all
+make ICE_HOME=/opt/Ice-3.8.0 ICE_BIN_DIST=all
 ```
 
 ### Build configurations and platforms
@@ -216,8 +211,7 @@ configurations. The [Ice Builder for Xcode][13] must be installed before buildin
 the SDKs:
 
 ```shell
-make CONFIGS=xcodesdk -j8 srcs         # Build the C++98 mapping Xcode SDK
-make CONFIGS=cpp11-xcodesdk -j8 srcs   # Build the C++11 mapping Xcode SDK
+make CONFIGS=xcodesdk -j8 srcs         # Build the C++ Xcode SDK
 ```
 
 The Xcode SDKs are built into `ice/sdk`.
@@ -302,29 +296,20 @@ The solution provide a project for each Ice component and each component can be
 built separately. When you build a component its dependencies are built
 automatically.
 
-The solutions organize the projects in two solution folders, C++11 and C++98, which
-correspond to the C++11 and C++98 mappings. If you want to build all the C++11 mapping
-components, build the C++11 solution folder; likewise if you want to build all
-the C++98 mapping components, build the C++98 solution folder.
-
 The test suite is built using separate Visual Studio solutions:
 
 - Ice Test Suite  [msbuild/ice.test.sln](./msbuild/ice.test.sln)
 - Ice OpenSSL Test Suite [msbuild/ice.openssl.test.sln](./msbuild/ice.openssl.test.sln)
 
-The solution provides a separate project for each test component, the
-`Cpp11-Release` and `Cpp11-Debug` build configurations are setup to use the
-C++11 mapping in release and debug mode respectively, and are only supported
-with Visual Studio 2019, Visual Studio 2017 and Visual Studio 2015. The
-`Release` and `Debug` build configurations are setup to use the C++98 mapping in
-release and debug mode respectively.
+The solution provides a separate project for each test component. the
+`Release` and `Debug` build configurations are setup build release and debug mode
+respectively.
 
 The building of the test uses by default the local source build, and you must
 have built the Ice source with the same platform and configuration than you are
 attempting to build the tests.
 
-For example to build the `Cpp11-Release/x64` tests you must have built first the
-C++11 mapping using `Release/x64`.
+For example to build the `Release/x64` tests you must have built the C++ mapping using `Release/x64`.
 
 It is also possible to build the tests using a C++ binary distribution, to do
 that you must set the `ICE_BIN_DIST` environment variable to `all` before

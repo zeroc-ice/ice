@@ -160,12 +160,10 @@ namespace
 
             case OperationMode::Idempotent:
                 return "::Ice::Idempotent";
+            default:
+                assert(false);
+                return "";
         }
-        //
-        // This could not happen with C++11 strong type enums
-        //
-        assert(false);
-        return "";
     }
 }
 
