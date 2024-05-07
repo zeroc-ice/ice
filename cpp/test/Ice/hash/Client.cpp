@@ -105,8 +105,7 @@ Client::run(int argc, char** argv)
     cout << "testing proxy hash of slightly different proxies... " << flush;
 
     // Many similar proxies that should have different hash values.
-    static constexpr string_view proxyString[] =
-    {
+    static constexpr string_view proxyString[] = {
         "test:tcp -p 10001 -h hello.zeroc.com",
         "test:udp -p 10001 -h hello.zeroc.com",
         "test:ssl -p 10001 -h hello.zeroc.com",
@@ -128,7 +127,6 @@ Client::run(int argc, char** argv)
     }
 
     cerr << "ok" << endl;
-
 }
 
 DEFINE_TEST(Client)
