@@ -15,28 +15,6 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
     _helper = helper
   }
 
-  //
-  // Override the Object "pseudo" operations to verify the operation mode.
-  //
-  override func ice_isA(id: String, current: Ice.Current) throws -> Bool {
-    try _helper.test(current.mode == .Nonmutating)
-    return try super.ice_isA(id: id, current: current)
-  }
-
-  override func ice_ping(current: Ice.Current) throws {
-    try _helper.test(current.mode == .Nonmutating)
-  }
-
-  override func ice_ids(current: Ice.Current) throws -> [String] {
-    try _helper.test(current.mode == .Nonmutating)
-    return try super.ice_ids(current: current)
-  }
-
-  override func ice_id(current: Ice.Current) throws -> String {
-    try _helper.test(current.mode == .Nonmutating)
-    return try super.ice_id(current: current)
-  }
-
   func shutdown(current: Ice.Current) throws {
     current.adapter!.getCommunicator().shutdown()
   }

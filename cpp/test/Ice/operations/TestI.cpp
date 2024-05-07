@@ -14,34 +14,6 @@ using namespace std;
 
 MyDerivedClassI::MyDerivedClassI() : _opByteSOnewayCallCount(0) {}
 
-bool
-MyDerivedClassI::ice_isA(string id, const Ice::Current& current) const
-{
-    test(current.mode == OperationMode::Nonmutating);
-    return Test::MyDerivedClass::ice_isA(std::move(id), current);
-}
-
-void
-MyDerivedClassI::ice_ping(const Ice::Current& current) const
-{
-    test(current.mode == OperationMode::Nonmutating);
-    Test::MyDerivedClass::ice_ping(current);
-}
-
-std::vector<std::string>
-MyDerivedClassI::ice_ids(const Ice::Current& current) const
-{
-    test(current.mode == OperationMode::Nonmutating);
-    return Test::MyDerivedClass::ice_ids(current);
-}
-
-std::string
-MyDerivedClassI::ice_id(const Ice::Current& current) const
-{
-    test(current.mode == OperationMode::Nonmutating);
-    return Test::MyDerivedClass::ice_id(current);
-}
-
 void
 MyDerivedClassI::shutdown(const Ice::Current& current)
 {

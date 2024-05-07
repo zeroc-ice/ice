@@ -10,38 +10,11 @@
 
     class AMDMyDerivedClassI extends Test.MyDerivedClass
     {
-        //
-        // Override the Object "pseudo" operations to verify the operation mode.
-        //
         constructor(endpoints)
         {
             super();
             this._opByteSOnewayCount = 0;
             this._endpoints = endpoints;
-        }
-
-        ice_isA(id, current)
-        {
-            test(current.mode === Ice.OperationMode.Nonmutating);
-            return Ice.Object.prototype.ice_isA.call(this, id, current);
-        }
-
-        ice_ping(current)
-        {
-            test(current.mode === Ice.OperationMode.Nonmutating);
-            Ice.Object.prototype.ice_ping.call(this, current);
-        }
-
-        ice_ids(current)
-        {
-            test(current.mode === Ice.OperationMode.Nonmutating);
-            return Ice.Object.prototype.ice_ids.call(this, current);
-        }
-
-        ice_id(current)
-        {
-            test(current.mode === Ice.OperationMode.Nonmutating);
-            return Ice.Object.prototype.ice_id.call(this, current);
         }
 
         shutdown(current)

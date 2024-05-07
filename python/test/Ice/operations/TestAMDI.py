@@ -40,22 +40,6 @@ class MyDerivedClassI(Test.MyDerivedClass):
         self.lock = threading.Lock()
         self.opByteSOnewayCount = 0
 
-    def ice_isA(self, id, current=None):
-        test(current.mode == Ice.OperationMode.Nonmutating)
-        return Test.MyDerivedClass.ice_isA(self, id, current)
-
-    def ice_ping(self, current=None):
-        test(current.mode == Ice.OperationMode.Nonmutating)
-        Test.MyDerivedClass.ice_ping(self, current)
-
-    def ice_ids(self, current=None):
-        test(current.mode == Ice.OperationMode.Nonmutating)
-        return Test.MyDerivedClass.ice_ids(self, current)
-
-    def ice_id(self, current=None):
-        test(current.mode == Ice.OperationMode.Nonmutating)
-        return Test.MyDerivedClass.ice_id(self, current)
-
     def shutdown(self, current=None):
         with self.threadLock:
             for thread in self.threads:

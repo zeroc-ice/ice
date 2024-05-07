@@ -30,34 +30,6 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
     private CompletableFuture<Void> _future;
   }
 
-  //
-  // Override the Object "pseudo" operations to verify the operation mode.
-  //
-
-  @Override
-  public boolean ice_isA(String id, Current current) {
-    test(current.mode == com.zeroc.Ice.OperationMode.Nonmutating);
-    return MyDerivedClass.super.ice_isA(id, current);
-  }
-
-  @Override
-  public void ice_ping(Current current) {
-    test(current.mode == com.zeroc.Ice.OperationMode.Nonmutating);
-    MyDerivedClass.super.ice_ping(current);
-  }
-
-  @Override
-  public String[] ice_ids(Current current) {
-    test(current.mode == com.zeroc.Ice.OperationMode.Nonmutating);
-    return MyDerivedClass.super.ice_ids(current);
-  }
-
-  @Override
-  public String ice_id(Current current) {
-    test(current.mode == com.zeroc.Ice.OperationMode.Nonmutating);
-    return MyDerivedClass.super.ice_id(current);
-  }
-
   @Override
   public synchronized CompletionStage<Void> shutdownAsync(Current current) {
     while (_opVoidThread != null) {
