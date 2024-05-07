@@ -160,6 +160,9 @@ namespace
 
             case OperationMode::Idempotent:
                 return "::Ice::Idempotent";
+            default:
+                assert(false);
+                return "";
         }
     }
 }
