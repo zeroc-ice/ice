@@ -277,12 +277,7 @@ internal sealed class WSEndpoint : EndpointI
         return s;
     }
 
-    public override int GetHashCode()
-    {
-        int h = _delegate.GetHashCode();
-        HashUtil.hashAdd(ref h, _resource);
-        return h;
-    }
+    public override int GetHashCode() => HashCode.Combine(_delegate.GetHashCode(), _resource);
 
     public override int CompareTo(EndpointI obj)
     {

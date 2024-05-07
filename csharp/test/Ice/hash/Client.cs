@@ -159,38 +159,38 @@ public class Client : Test.TestHelper
             Ice.ProxyIdentityFacetKey ifComparer = new Ice.ProxyIdentityFacetKey();
 
             Ice.ObjectPrx prx1 = communicator.stringToProxy("Glacier2/router:tcp -p 10010");
-            //Ice.ObjectPrx prx2 = communicator.stringToProxy("Glacier2/router:ssl -p 10011");
+            Ice.ObjectPrx prx2 = communicator.stringToProxy("Glacier2/router:ssl -p 10011");
             Ice.ObjectPrx prx3 = communicator.stringToProxy("Glacier2/router:udp -p 10012");
             Ice.ObjectPrx prx4 = communicator.stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010");
-            //Ice.ObjectPrx prx5 = communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011");
+            Ice.ObjectPrx prx5 = communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011");
             Ice.ObjectPrx prx6 = communicator.stringToProxy("Glacier2/router:udp -h zeroc.com -p 10012");
             Ice.ObjectPrx prx7 = communicator.stringToProxy("Glacier2/router:tcp -p 10010 -t 10000");
-            //Ice.ObjectPrx prx8 = communicator.stringToProxy("Glacier2/router:ssl -p 10011 -t 10000");
+            Ice.ObjectPrx prx8 = communicator.stringToProxy("Glacier2/router:ssl -p 10011 -t 10000");
             Ice.ObjectPrx prx9 = communicator.stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000");
-            //Ice.ObjectPrx prx10 = communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000");
+            Ice.ObjectPrx prx10 = communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000");
 
             Dictionary<string, int> proxyMap = new Dictionary<string, int>();
             proxyMap["prx1"] = prx1.GetHashCode();
-            //proxyMap["prx2"] = prx2.GetHashCode();
+            proxyMap["prx2"] = prx2.GetHashCode();
             proxyMap["prx3"] = prx3.GetHashCode();
             proxyMap["prx4"] = prx4.GetHashCode();
-            //proxyMap["prx5"] = prx5.GetHashCode();
+            proxyMap["prx5"] = prx5.GetHashCode();
             proxyMap["prx6"] = prx6.GetHashCode();
             proxyMap["prx7"] = prx7.GetHashCode();
-            //proxyMap["prx8"] = prx8.GetHashCode();
+            proxyMap["prx8"] = prx8.GetHashCode();
             proxyMap["prx9"] = prx9.GetHashCode();
-            //proxyMap["prx10"] = prx10.GetHashCode();
+            proxyMap["prx10"] = prx10.GetHashCode();
 
             test(communicator.stringToProxy("Glacier2/router:tcp -p 10010").GetHashCode() == proxyMap["prx1"]);
-            //test(communicator.stringToProxy("Glacier2/router:ssl -p 10011").GetHashCode() == proxyMap["prx2"]);
+            test(communicator.stringToProxy("Glacier2/router:ssl -p 10011").GetHashCode() == proxyMap["prx2"]);
             test(communicator.stringToProxy("Glacier2/router:udp -p 10012").GetHashCode() == proxyMap["prx3"]);
             test(communicator.stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010").GetHashCode() == proxyMap["prx4"]);
-            //test(communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011").GetHashCode() == proxyMap["prx5"]);
+            test(communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011").GetHashCode() == proxyMap["prx5"]);
             test(communicator.stringToProxy("Glacier2/router:udp -h zeroc.com -p 10012").GetHashCode() == proxyMap["prx6"]);
             test(communicator.stringToProxy("Glacier2/router:tcp -p 10010 -t 10000").GetHashCode() == proxyMap["prx7"]);
-            //test(communicator.stringToProxy("Glacier2/router:ssl -p 10011 -t 10000").GetHashCode() == proxyMap["prx8"]);
+            test(communicator.stringToProxy("Glacier2/router:ssl -p 10011 -t 10000").GetHashCode() == proxyMap["prx8"]);
             test(communicator.stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000").GetHashCode() == proxyMap["prx9"]);
-            //test(communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000").GetHashCode() == proxyMap["prx10"]);
+            test(communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000").GetHashCode() == proxyMap["prx10"]);
 
             test(iComparer.GetHashCode(prx1) == iComparer.GetHashCode(prx1));
             test(ifComparer.GetHashCode(prx1) == ifComparer.GetHashCode(prx1));
@@ -209,6 +209,32 @@ public class Client : Test.TestHelper
 
             test(iComparer.GetHashCode(prx9) == iComparer.GetHashCode(prx9));
             test(ifComparer.GetHashCode(prx9) == ifComparer.GetHashCode(prx9));
+
+            Console.Error.WriteLine("ok");
+
+            Console.Error.Write("testing proxy hash of slightly different proxies... ");
+
+            var proxyString = new string[]
+            {
+                "test:tcp -p 10001 -h hello.zeroc.com",
+                "test:udp -p 10001 -h hello.zeroc.com",
+                "test:ssl -p 10001 -h hello.zeroc.com",
+                "test:tcp -p 10001 -h hello.zeroc.com -t 10000",
+                "test -f fa:tcp -p 10001 -h hello.zeroc.com",
+                "test @ adapt",
+                "test @ adapt2",
+                "test:opaque -t 12 -v abcd",
+                "test:opaque -t 13 -v abcd",
+                "test:opaque -t 13 -v abce",
+            };
+
+            var hashes = new HashSet<int>();
+
+            foreach (var s in proxyString)
+            {
+                bool inserted = hashes.Add(communicator.stringToProxy(s).GetHashCode());
+                test(inserted);
+            }
 
             Console.Error.WriteLine("ok");
 

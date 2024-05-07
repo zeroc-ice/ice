@@ -195,12 +195,7 @@ internal sealed class TcpEndpointI : IPEndpointI
         return base.CompareTo(p);
     }
 
-    public override void hashInit(ref int h)
-    {
-        base.hashInit(ref h);
-        HashUtil.hashAdd(ref h, _timeout);
-        HashUtil.hashAdd(ref h, _compress);
-    }
+    public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), _timeout, _compress);
 
     public override void fillEndpointInfo(Ice.IPEndpointInfo info)
     {

@@ -6,7 +6,7 @@ using System.Diagnostics;
 namespace IceBox;
 
 //
-// NOTE: the class isn't final on purpose to allow users to extend it.
+// NOTE: the class isn't sealed on purpose to allow users to extend it.
 //
 internal class ServiceManagerI : ServiceManagerDisp_
 {

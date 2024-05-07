@@ -475,7 +475,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
 
     public Task flushBatchRequestsAsync(CompressBatch compressBatch,
                                         IProgress<bool> progress = null,
-                                        CancellationToken cancel = new CancellationToken())
+                                        CancellationToken cancel = default)
     {
         var completed = new FlushBatchTaskCompletionCallback(progress, cancel);
         var outgoing = new ConnectionFlushBatchAsync(this, _instance, completed);
@@ -602,7 +602,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
         private readonly Ice.ConnectionI _connection;
     }
 
-    public Task heartbeatAsync(IProgress<bool> progress = null, CancellationToken cancel = new CancellationToken())
+    public Task heartbeatAsync(IProgress<bool> progress = null, CancellationToken cancel = default)
     {
         var completed = new HeartbeatTaskCompletionCallback(progress, cancel);
         var outgoing = new HeartbeatAsync(this, _instance, completed);

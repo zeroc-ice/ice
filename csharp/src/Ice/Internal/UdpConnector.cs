@@ -28,16 +28,6 @@ internal sealed class UdpConnector : Connector
         _mcastInterface = mcastInterface;
         _mcastTtl = mcastTtl;
         _connectionId = connectionId;
-
-        _hashCode = 5381;
-        HashUtil.hashAdd(ref _hashCode, _addr);
-        if (sourceAddr != null)
-        {
-            HashUtil.hashAdd(ref _hashCode, _sourceAddr);
-        }
-        HashUtil.hashAdd(ref _hashCode, _mcastInterface);
-        HashUtil.hashAdd(ref _hashCode, _mcastTtl);
-        HashUtil.hashAdd(ref _hashCode, _connectionId);
     }
 
     public override bool Equals(object obj)
@@ -83,7 +73,16 @@ internal sealed class UdpConnector : Connector
 
     public override int GetHashCode()
     {
-        return _hashCode;
+        var hash = new HashCode();
+        hash.Add(_addr);
+        if (_sourceAddr is not null)
+        {
+            hash.Add(_sourceAddr);
+        }
+        hash.Add(_mcastInterface);
+        hash.Add(_mcastTtl);
+        hash.Add(_connectionId);
+        return hash.ToHashCode();
     }
 
     private ProtocolInstance _instance;
@@ -92,5 +91,4 @@ internal sealed class UdpConnector : Connector
     private string _mcastInterface;
     private int _mcastTtl;
     private string _connectionId;
-    private int _hashCode;
 }

@@ -699,13 +699,7 @@ public sealed class LocatorManager
             return true;
         }
 
-        public override int GetHashCode()
-        {
-            int h = 5381;
-            HashUtil.hashAdd(ref h, _id);
-            HashUtil.hashAdd(ref h, _encoding);
-            return h;
-        }
+        public override int GetHashCode() => HashCode.Combine(_id, _encoding);
 
         private Ice.Identity _id;
         private Ice.EncodingVersion _encoding;

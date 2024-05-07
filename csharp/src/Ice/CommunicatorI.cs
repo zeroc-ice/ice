@@ -175,7 +175,7 @@ internal sealed class CommunicatorI : Communicator
 
     public Task flushBatchRequestsAsync(Ice.CompressBatch compressBatch,
                                         IProgress<bool> progress = null,
-                                        CancellationToken cancel = new CancellationToken())
+                                        CancellationToken cancel = default)
     {
         var completed = new FlushBatchTaskCompletionCallback(progress, cancel);
         var outgoing = new CommunicatorFlushBatchAsync(_instance, completed);
