@@ -3798,7 +3798,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << sp << nl << "public static string ice_staticId() => \"" << scoped << "\";";
 
-    _out << sp << nl << "#endregion"; // Checked and unchecked cast operations
+    _out << sp << nl << "#endregion"; // Factory operations
 
     _out << sp << nl << "#region Marshaling support";
 
