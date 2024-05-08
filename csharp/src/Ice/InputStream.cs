@@ -1,6 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
 using System.Diagnostics;
+using System.Globalization;
+
 using Protocol = Ice.Internal.Protocol;
 
 namespace Ice;
@@ -3648,90 +3650,16 @@ public class InputStream
             Value v = null;
             while (true)
             {
-                bool updateCache = false;
+                string typeId = _current.compactId >= 0 ? _current.compactId.ToString(CultureInfo.InvariantCulture) :
+                    _current.typeId;
 
-                if (_current.compactId >= 0)
+                if (typeId.Length > 0)
                 {
-                    updateCache = true;
-
-                    //
-                    // Translate a compact (numeric) type ID into a class.
-                    //
-                    if (_compactIdCache == null)
+                    v = newInstance(typeId);
+                    if (v is not null)
                     {
-                        _compactIdCache = new Dictionary<int, Type>(); // Lazy initialization.
+                        break;
                     }
-                    else
-                    {
-                        //
-                        // Check the cache to see if we've already translated the compact type ID into a class.
-                        //
-                        Type cls = null;
-                        _compactIdCache.TryGetValue(_current.compactId, out cls);
-                        if (cls != null)
-                        {
-                            try
-                            {
-                                Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
-                                v = (Value)Ice.Internal.AssemblyUtil.createInstance(cls);
-                                updateCache = false;
-                            }
-                            catch (Exception ex)
-                            {
-                                throw new NoValueFactoryException("no value factory", "compact ID " +
-                                                                  _current.compactId, ex);
-                            }
-                        }
-                    }
-
-                    //
-                    // If we haven't already cached a class for the compact ID, then try to translate the
-                    // compact ID into a type ID.
-                    //
-                    if (v == null)
-                    {
-                        _current.typeId = "";
-                        if (_compactIdResolver != null)
-                        {
-                            try
-                            {
-                                _current.typeId = _compactIdResolver(_current.compactId);
-                            }
-                            catch (LocalException)
-                            {
-                                throw;
-                            }
-                            catch (System.Exception ex)
-                            {
-                                throw new MarshalException("exception in CompactIdResolver for ID " +
-                                                               _current.compactId, ex);
-                            }
-                        }
-
-                        if (_current.typeId.Length == 0)
-                        {
-                            _current.typeId = _stream.instance().resolveCompactId(_current.compactId);
-                        }
-                    }
-                }
-
-                if (v == null && _current.typeId.Length > 0)
-                {
-                    v = newInstance(_current.typeId);
-                }
-
-                if (v != null)
-                {
-                    if (updateCache)
-                    {
-                        Debug.Assert(_current.compactId >= 0);
-                        _compactIdCache.Add(_current.compactId, v.GetType());
-                    }
-
-                    //
-                    // We have an instance, get out of this loop.
-                    //
-                    break;
                 }
 
                 //
@@ -3739,8 +3667,7 @@ public class InputStream
                 //
                 if (!_sliceValues)
                 {
-                    throw new NoValueFactoryException("no value factory found and slicing is disabled",
-                                                      _current.typeId);
+                    throw new NoValueFactoryException("no value factory found and slicing is disabled", typeId);
                 }
 
                 //
@@ -3760,7 +3687,7 @@ public class InputStream
                     // last chance to preserve the instance.
                     //
                     v = newInstance(Value.ice_staticId());
-                    if (v == null)
+                    if (v is null)
                     {
                         v = new UnknownSlicedValue(mostDerivedId);
                     }
@@ -3884,7 +3811,6 @@ public class InputStream
         private System.Func<int, string> _compactIdResolver;
         private InstanceData _current;
         private int _valueIdIndex; // The ID of the next instance to unmarshal.
-        private Dictionary<int, Type> _compactIdCache;
     }
 
     private sealed class Encaps
