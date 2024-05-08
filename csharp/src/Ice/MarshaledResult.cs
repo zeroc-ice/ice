@@ -4,5 +4,5 @@ namespace Ice;
 
 public interface MarshaledResult
 {
-    OutputStream getOutputStream(Current current);
+    OutputStream outputStream { get; }
 };

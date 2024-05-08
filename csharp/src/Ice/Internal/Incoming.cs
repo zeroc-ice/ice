@@ -233,20 +233,14 @@ public class Incoming : Ice.Request
     public Task<Ice.OutputStream> setResult(Ice.OutputStream os)
     {
         _os = os;
-        return null; // Response is cached in the Incoming to not have to create unecessary Task
+        return null; // Response is cached in the Incoming to not have to create unnecessary Task
     }
 
     public Task<Ice.OutputStream> setMarshaledResult<T>(T result) where T : Ice.MarshaledResult
     {
-        if (result == null)
-        {
-            _os = default(T).getOutputStream(_current);
-        }
-        else
-        {
-            _os = result.getOutputStream(_current);
-        }
-        return null; // Response is cached in the Incoming to not have to create unecessary Task
+        Debug.Assert(result is not null);
+        _os = result.outputStream;
+        return null; // Response is cached in the Incoming to not have to create unnecessary Task
     }
 
     public Task<Ice.OutputStream> setResultTask<R>(Task<R> task, Action<Ice.OutputStream, R> write)
@@ -309,22 +303,16 @@ public class Incoming : Ice.Request
 
     public Task<Ice.OutputStream> setMarshaledResultTask<T>(Task<T> task) where T : Ice.MarshaledResult
     {
-        if (task == null)
+        Debug.Assert(task is not null);
+        //
+        // NOTE: it's important that the continuation doesn't mutate the Incoming state to
+        // guarantee thread-safety. Multiple continuations can execute concurrently if the
+        // user installed a dispatch interceptor and the dispatch is retried.
+        //
+        return task.ContinueWith((Task<T> t) =>
         {
-            return setResult(default(T).getOutputStream(_current));
-        }
-        else
-        {
-            //
-            // NOTE: it's important that the continuation doesn't mutate the Incoming state to
-            // guarantee thread-safety. Multiple continuations can execute concurrently if the
-            // user installed a dispatch interceptor and the dispatch is retried.
-            //
-            return task.ContinueWith((Task<T> t) =>
-            {
-                return Task.FromResult(t.GetAwaiter().GetResult().getOutputStream(_current));
-            }, TaskContinuationOptions.ExecuteSynchronously).Unwrap();
-        }
+            return Task.FromResult(t.GetAwaiter().GetResult().outputStream);
+        }, TaskContinuationOptions.ExecuteSynchronously).Unwrap();
     }
 
     public void completed(System.Exception exc, bool amd)

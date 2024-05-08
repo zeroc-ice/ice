@@ -2952,11 +2952,11 @@ Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
 
         _out << sp;
         emitGeneratedCodeAttribute();
-        _out << nl << "public struct " << name << " : " << getUnqualified("Ice.MarshaledResult", ns);
+        _out << nl << "public readonly record struct " << name << " : " << getUnqualified("Ice.MarshaledResult", ns);
         _out << sb;
 
         //
-        // One shot constructor
+        // Marshaling constructor
         //
         _out << nl << "public " << name << spar << getOutParams(p, ns, true, false)
              << getUnqualified("Ice.Current", ns) + " current" << epar;
@@ -2971,26 +2971,9 @@ Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
         _out << nl << "_ostr.endEncapsulation();";
         _out << eb;
         _out << sp;
-        _out << nl << "public " << getUnqualified("Ice.OutputStream", ns) << " getOutputStream("
-             << getUnqualified("Ice.Current", ns) << " current)";
-        _out << sb;
-        _out << nl << "if(_ostr == null)";
-        _out << sb;
-        _out << nl << "return new " << name << spar;
-        if (ret)
-        {
-            _out << writeValue(ret, ns);
-        }
-        for (ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
-        {
-            _out << writeValue((*i)->type(), ns);
-        }
-        _out << "current" << epar << ".getOutputStream(current);";
-        _out << eb;
-        _out << nl << "return _ostr;";
-        _out << eb;
+        _out << nl << "public " << getUnqualified("Ice.OutputStream", ns) << " outputStream => _ostr;";
         _out << sp;
-        _out << nl << "private " << getUnqualified("Ice.OutputStream", ns) << " _ostr;";
+        _out << nl << "private readonly " << getUnqualified("Ice.OutputStream", ns) << " _ostr;";
         _out << eb;
     }
 }
