@@ -7,7 +7,7 @@
 //
 // Suppress warnings
 //
-[["suppress-warning:invalid-metadata, deprecated", "cs:typeid-namespace:Ice.defaultValue.TypeId"]]
+[["suppress-warning:invalid-metadata, deprecated"]]
 ["cs:namespace:Ice.defaultValue"]
 
 module Test

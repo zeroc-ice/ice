@@ -6,8 +6,6 @@
 
 #include "Ice/BuiltinSequences.ice"
 
-[["cs:typeid-namespace:Ice.exceptions.AMD.TypeId"]]
-
 ["cs:namespace:Ice.exceptions.AMD"]
 module Test
 {

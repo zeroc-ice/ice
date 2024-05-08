@@ -4,8 +4,6 @@
 
 #pragma once
 
-[["cs:typeid-namespace:Ice.servantLocator.TypeId"]]
-
 ["cs:namespace:Ice.servantLocator"]
 module Test
 {

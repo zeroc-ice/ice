@@ -6,8 +6,6 @@
 
 #include "Ice/Context.ice"
 
-[["cs:typeid-namespace:Ice.operations.AMD.TypeId"]]
-
 ["cs:namespace:Ice.operations.AMD"]
 module Test
 {
