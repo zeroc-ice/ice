@@ -41,7 +41,6 @@ namespace IceMatlab
     void getStringList(mxArray*, std::vector<std::string>&);
     mxArray* createByteArray(const std::byte*, const std::byte*);
     mxArray* createByteList(const std::vector<std::byte>&);
-    mxArray* createCertificateList(const std::vector<Ice::SSL::CertificatePtr>&);
 
     std::string idToClass(const std::string&);
 
