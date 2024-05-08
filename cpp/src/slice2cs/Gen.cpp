@@ -2522,6 +2522,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     {
         writeUnmarshalDataMember(q, fixId(q->name(), classMapping ? DotNet::ICloneable : 0), ns, true);
     }
+    _out << nl << "ice_initialize();";
     _out << eb;
 
     _out << sp << nl << "#endregion"; // Constructor(s)
