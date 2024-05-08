@@ -936,7 +936,8 @@ Slice::CsVisitor::emitGeneratedCodeAttribute()
 void
 Slice::CsVisitor::emitNonBrowsableAttribute()
 {
-    _out << nl << "[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]";
+    _out << nl
+         << "[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]";
 }
 
 void
@@ -1061,8 +1062,7 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& dataMembers,
         {
             StructPtr st = dynamic_pointer_cast<Struct>(q->type());
 
-            if (dynamic_pointer_cast<Sequence>(q->type()) ||
-                dynamic_pointer_cast<Dictionary>(q->type()) ||
+            if (dynamic_pointer_cast<Sequence>(q->type()) || dynamic_pointer_cast<Dictionary>(q->type()) ||
                 (st && isMappedToClass(st)))
             {
                 _out << nl << "this." << fixId(q->name(), baseTypes) << " = null;"; // should be null!
@@ -2027,8 +2027,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             paramDecl.push_back(memberType + " " + memberName);
 
             StructPtr st = dynamic_pointer_cast<Struct>(q->type());
-            if (dynamic_pointer_cast<Sequence>(q->type()) ||
-                dynamic_pointer_cast<Dictionary>(q->type()) ||
+            if (dynamic_pointer_cast<Sequence>(q->type()) || dynamic_pointer_cast<Dictionary>(q->type()) ||
                 (st && isMappedToClass(st)))
             {
                 secondaryCtorParams.push_back(memberType + " " + memberName);
@@ -2052,8 +2051,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 baseParamNames.push_back(memberName);
 
                 StructPtr st = dynamic_pointer_cast<Struct>(q->type());
-                if (dynamic_pointer_cast<Sequence>(q->type()) ||
-                    dynamic_pointer_cast<Dictionary>(q->type()) ||
+                if (dynamic_pointer_cast<Sequence>(q->type()) || dynamic_pointer_cast<Dictionary>(q->type()) ||
                     (st && isMappedToClass(st)))
                 {
                     secondaryCtorBaseParamNames.push_back(memberName);
@@ -2512,8 +2510,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         {
             StructPtr st = dynamic_pointer_cast<Struct>(q->type());
 
-            if (dynamic_pointer_cast<Sequence>(q->type()) ||
-                dynamic_pointer_cast<Dictionary>(q->type()) ||
+            if (dynamic_pointer_cast<Sequence>(q->type()) || dynamic_pointer_cast<Dictionary>(q->type()) ||
                 (st && isMappedToClass(st)))
             {
                 string memberName = fixId(q->name(), DotNet::ICloneable);
@@ -2642,7 +2639,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sp;
     emitGeneratedCodeAttribute();
     _out << nl << "public static " << name << " ice_read(" << getUnqualified("Ice.InputStream", ns)
-        << " istr) => new(istr);";
+         << " istr) => new(istr);";
 
     _out << sp << nl << "#endregion"; // marshaling support
 
