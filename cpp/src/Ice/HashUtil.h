@@ -5,14 +5,14 @@
 #ifndef ICE_HASH_UTIL_H
 #define ICE_HASH_UTIL_H
 
+#include "EndpointI.h"
+
 #include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <map>
 #include <string>
 #include <vector>
-
-#include "EndpointI.h"
 
 // All these functions are for hashing proxies and endpoints. They are not general purpose.
 
