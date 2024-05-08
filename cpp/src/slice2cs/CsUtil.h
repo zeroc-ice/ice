@@ -46,7 +46,6 @@ namespace Slice
         // Returns the namespace prefix of a Contained entity.
         //
         static std::string getNamespacePrefix(const ContainedPtr&);
-        static std::string getCustomTypeIdNamespace(const UnitPtr&);
 
         static std::string resultStructName(const std::string&, const std::string&, bool = false);
         static std::string resultType(const OperationPtr&, const std::string&, bool = false);
