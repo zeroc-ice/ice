@@ -63,11 +63,11 @@ public:
     virtual std::optional<Test::VarStruct>
     opVarStruct(std::optional<Test::VarStruct>, std::optional<Test::VarStruct>&, const Ice::Current&);
 
-    virtual std::optional<Test::OneOptionalPtr>
-    opOneOptional(std::optional<Test::OneOptionalPtr>, std::optional<Test::OneOptionalPtr>&, const Ice::Current&);
-
     virtual std::optional<Test::MyInterfacePrx>
     opMyInterfaceProxy(std::optional<Test::MyInterfacePrx>, std::optional<Test::MyInterfacePrx>&, const Ice::Current&);
+
+    virtual Test::OneOptionalPtr
+    opOneOptional(Test::OneOptionalPtr, Test::OneOptionalPtr&, const Ice::Current&);
 
     virtual std::optional<::Test::ByteSeq> opByteSeq(
         std::optional<std::pair<const std::byte*, const std::byte*>>,

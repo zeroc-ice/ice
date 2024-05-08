@@ -149,6 +149,14 @@ namespace Ice
                 return p1;
             }
 
+            public override Test.OneOptional opOneOptional(Test.OneOptional p1,
+                                                           out Test.OneOptional p3,
+                                                           Ice.Current current)
+            {
+                p3 = p1;
+                return p1;
+            }
+
             public override byte[] opByteSeq(byte[] p1,
                                                                    out byte[] p3,
                                                                    Ice.Current current)

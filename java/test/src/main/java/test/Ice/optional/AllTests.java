@@ -1049,41 +1049,31 @@ public class AllTests {
     }
 
     {
-      Optional<OneOptional> p1 = Optional.empty();
-      Initial.OpOneOptionalResult r = initial.opOneOptional(p1);
-      test(!r.returnValue.isPresent() && !r.p3.isPresent());
-
-      p1 = Optional.of(new OneOptional(58));
-      r = initial.opOneOptional(p1);
-      test(r.returnValue.get().getA() == 58 && r.p3.get().getA() == 58);
-      r = initial.opOneOptionalAsync(p1).join();
-      test(r.returnValue.get().getA() == 58 && r.p3.get().getA() == 58);
-
       if (reqParams) {
-        Initial.OpOneOptionalReqResult rr = initial.opOneOptionalReq(p1.get());
-        test(rr.returnValue.get().getA() == 58 && rr.p3.get().getA() == 58);
-        rr = initial.opOneOptionalReqAsync(p1.get()).join();
-        test(rr.returnValue.get().getA() == 58 && rr.p3.get().getA() == 58);
+        OneOptional p1 = new OneOptional();
+        Initial.OpOneOptionalResult r = initial.opOneOptional(p1);
+        test(!r.returnValue.hasA() && !r.p3.hasA());
+        r = initial.opOneOptionalAsync(p1).join();
+        test(!r.returnValue.hasA() && !r.p3.hasA());
+
+        p1 = new OneOptional(58);
+        r = initial.opOneOptional(p1);
+        test(r.returnValue.getA() == 58 && r.p3.getA() == 58);
+        r = initial.opOneOptionalAsync(p1).join();
+        test(r.returnValue.getA() == 58 && r.p3.getA() == 58);
 
         os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.Class);
-        os.writeValue(p1.get());
-        os.endEncapsulation();
+        os.writeValue(p1);
+        os.writePendingValues();
         inEncaps = os.finished();
         inv = initial.ice_invoke("opOneOptionalReq", OperationMode.Normal, inEncaps);
         in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        Wrapper<java.util.Optional<OneOptional>> p2cb = new Wrapper<>();
-        in.readValue(1, v -> p2cb.value = v, OneOptional.class);
-        Wrapper<java.util.Optional<OneOptional>> p3cb = new Wrapper<>();
-        in.readValue(3, v -> p3cb.value = v, OneOptional.class);
-        in.endEncapsulation();
-        test(p2cb.value.get().getA() == 58 && p3cb.value.get().getA() == 58);
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
+        Wrapper<OneOptional> p2cb = new Wrapper<>();
+        in.readValue(v -> p2cb.value = v, OneOptional.class);
+        Wrapper<OneOptional> p3cb = new Wrapper<>();
+        in.readValue(v -> p3cb.value = v, OneOptional.class);
+        in.readPendingValues();
+        test(p2cb.value.getA() == 58 && p3cb.value.getA() == 58);
       }
     }
 

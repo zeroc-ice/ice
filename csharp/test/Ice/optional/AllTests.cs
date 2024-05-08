@@ -1026,6 +1026,36 @@ namespace Ice
                 }
 
                 {
+                    Test.OneOptional p1 = new Test.OneOptional();
+                    Test.OneOptional p3;
+                    Test.OneOptional p2 = initial.opOneOptional(p1, out p3);
+                    test(!p2.a.HasValue && !p3.a.HasValue);
+
+                    p1 = new Test.OneOptional(58);
+                    p2 = initial.opOneOptional(p1, out p3);
+                    test(p2.a.Value == 58 && p3.a.Value == 58);
+
+                    var result = await initial.opOneOptionalAsync(p1);
+                    test(result.returnValue.a.Value == 58 && result.p3.a.Value == 58);
+
+                    p2 = initial.opOneOptional(new Test.OneOptional(), out p3);
+                    test(!p2.a.HasValue && !p3.a.HasValue); // Ensure out parameter is cleared.
+
+                    os = new OutputStream(communicator);
+                    os.writeValue(p1);
+                    os.writePendingValues();
+                    inEncaps = os.finished();
+                    initial.ice_invoke("opOneOptional", OperationMode.Normal, inEncaps, out outEncaps);
+                    @in = new InputStream(communicator, outEncaps);
+                    ReadValueCallbackI p2cb = new ReadValueCallbackI();
+                    @in.readValue(p2cb.invoke);
+                    ReadValueCallbackI p3cb = new ReadValueCallbackI();
+                    @in.readValue(p3cb.invoke);
+                    @in.readPendingValues();
+                    test(((Test.OneOptional)p2cb.obj).a.Value == 58 && ((Test.OneOptional)p3cb.obj).a.Value == 58);
+                }
+
+                {
                     byte[] p1 = null;
                     byte[] p3;
                     byte[] p2 = initial.opByteSeq(p1, out p3);

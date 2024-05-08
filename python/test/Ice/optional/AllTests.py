@@ -558,11 +558,9 @@ def allTests(helper, communicator):
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
-    (p2, p3) = initial.opOneOptional(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
-    if initial.supportsNullOptional():
-        (p2, p3) = initial.opOneOptional(None)
-        test(p2 is None and p3 is None)
+    p1 = Test.OneOptional()
+    (p2, p3) = initial.opOneOptional(p1)
+    test(p2.a is Ice.Unset and p3.a is Ice.Unset)
     p1 = Test.OneOptional(58)
     (p2, p3) = initial.opOneOptional(p1)
     test(p2.a == p1.a and p3.a == p1.a)

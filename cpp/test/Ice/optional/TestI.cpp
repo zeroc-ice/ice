@@ -142,15 +142,15 @@ InitialI::opVarStruct(optional<VarStruct> p1, optional<VarStruct>& p3, const Cur
     return p1;
 }
 
-optional<OneOptionalPtr>
-InitialI::opOneOptional(optional<OneOptionalPtr> p1, optional<OneOptionalPtr>& p3, const Current&)
+optional<MyInterfacePrx>
+InitialI::opMyInterfaceProxy(optional<MyInterfacePrx> p1, optional<MyInterfacePrx>& p3, const Current&)
 {
     p3 = p1;
     return p1;
 }
 
-optional<MyInterfacePrx>
-InitialI::opMyInterfaceProxy(optional<MyInterfacePrx> p1, optional<MyInterfacePrx>& p3, const Current&)
+OneOptionalPtr
+InitialI::opOneOptional(OneOptionalPtr p1, OneOptionalPtr& p3, const Current&)
 {
     p3 = p1;
     return p1;

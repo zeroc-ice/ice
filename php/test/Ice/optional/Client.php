@@ -493,13 +493,9 @@ function allTests($helper)
     $p3 = $initial->opVarStruct($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opOneOptional(Ice\None, $p2);
-    test($p2 == Ice\None && $p3 == Ice\None);
-    if($initial->supportsNullOptional())
-    {
-        $p3 = $initial->opOneOptional(null, $p2);
-        test($p2 == null && $p3 == null);
-    }
+    $p1 = new Test\OneOptional(58);
+    $p3 = $initial->opOneOptional($p1, $p2);
+    test($p2->a == Ice\None && $p3->a == Ice\None);
     $p1 = new Test\OneOptional(58);
     $p3 = $initial->opOneOptional($p1, $p2);
     test($p2->a == $p1->a && $p3->a == $p1->a);

@@ -1809,31 +1809,15 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     var p2: OneOptional?
     var p3: OneOptional?
 
+    p1 = OneOptional()
     (p2, p3) = try initial.opOneOptional(p1)
-    try test(p2 == nil && p3 == nil)
-
-    (p2, p3) = try initial.opOneOptional(nil)
-    try test(p2 == nil && p3 == nil)
-
-    (p2, p3) = try initial.opOneOptional()
-    try test(p2 == nil && p3 == nil)
+    try test(p2!.a == nil && p3!.a == nil)
 
     try Promise<Void> { seal in
       firstly {
-        initial.opOneOptionalAsync(nil)
+        initial.opOneOptionalAsync(p1)
       }.done { p2, p3 in
-        try test(p2 == nil && p3 == nil)
-        seal.fulfill(())
-      }.catch { e in
-        seal.reject(e)
-      }
-    }.wait()
-
-    try Promise<Void> { seal in
-      firstly {
-        initial.opOneOptionalAsync()
-      }.done { p2, p3 in
-        try test(p2 == nil && p3 == nil)
+        try test(p2!.a == nil && p3!.a == nil)
         seal.fulfill(())
       }.catch { e in
         seal.reject(e)
@@ -1855,44 +1839,22 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
       }
     }.wait()
 
-    (p2, p3) = try initial.opOneOptional(OneOptional(a: 58))
-    try test(p2!.a! == 58 && p3!.a! == 58)
-
-    try Promise<Void> { seal in
-      firstly {
-        initial.opOneOptionalAsync(OneOptional(a: 58))
-      }.done { p2, p3 in
-        try test(p2!.a! == 58 && p3!.a! == 58)
-        seal.fulfill(())
-      }.catch { e in
-        seal.reject(e)
-      }
-    }.wait()
-
-    (p2, p3) = try initial.opOneOptional(nil)
-    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+    (p2, p3) = try initial.opOneOptional(OneOptional())
+    try test(p2!.a == nil && p3!.a == nil)  // Ensure out parameter is cleared.
 
     let ostr = Ice.OutputStream(communicator: communicator)
-    ostr.startEncapsulation()
-    ostr.write(tag: 2, value: p1)
-    ostr.endEncapsulation()
+    ostr.write(p1)
+    outS.writePendingValues()
     let inEncaps = ostr.finished()
     let result = try initial.ice_invoke(
       operation: "opOneOptional", mode: .Normal, inEncaps: inEncaps)
     var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-    _ = try istr.startEncapsulation()
-    try test(istr.readOptional(tag: 1, expectedFormat: .Class))
-    var v1: Ice.Value?
+    var v1: OneOptional?
     try istr.read { v1 = $0 }
-    try test(istr.readOptional(tag: 3, expectedFormat: .Class))
-    var v2: Ice.Value?
+    var v2: OneOptional?
     try istr.read { v2 = $0 }
-    try istr.endEncapsulation()
-    try test((v1 as! OneOptional).a! == 58 && (v2 as! OneOptional).a == 58)
-
-    istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-    _ = try istr.startEncapsulation()
-    try istr.endEncapsulation()
+    try istr.readPendingValues()
+    try test(v1!.a! == 58 && v2!.a == 58)
   }
 
   do {

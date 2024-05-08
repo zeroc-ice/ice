@@ -113,17 +113,17 @@ public:
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
-    void opOneOptionalAsync(
-        std::optional<std::shared_ptr<Test::OneOptional>>,
-        std::function<void(
-            const std::optional<std::shared_ptr<Test::OneOptional>>&,
-            const std::optional<std::shared_ptr<Test::OneOptional>>&)>,
-        std::function<void(std::exception_ptr)>,
-        const Ice::Current&) final;
-
     void opMyInterfaceProxyAsync(
         std::optional<Test::MyInterfacePrx>,
         std::function<void(const std::optional<Test::MyInterfacePrx>&, const std::optional<Test::MyInterfacePrx>&)>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&) final;
+
+    void opOneOptionalAsync(
+        std::shared_ptr<Test::OneOptional>,
+        std::function<void(
+            const std::shared_ptr<Test::OneOptional>&,
+            const std::shared_ptr<Test::OneOptional>&)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 

@@ -219,18 +219,6 @@ public final class AMDInitialI implements Initial {
   }
 
   @Override
-  public CompletionStage<Initial.OpOneOptionalResult> opOneOptionalAsync(
-      Optional<OneOptional> p1, Current current) {
-    return CompletableFuture.completedFuture(new Initial.OpOneOptionalResult(p1, p1));
-  }
-
-  @Override
-  public CompletionStage<Initial.OpOneOptionalReqResult> opOneOptionalReqAsync(
-      Optional<OneOptional> p1, Current current) {
-    return CompletableFuture.completedFuture(new Initial.OpOneOptionalReqResult(p1, p1));
-  }
-
-  @Override
   public CompletionStage<Initial.OpMyInterfaceProxyResult> opMyInterfaceProxyAsync(
       Optional<MyInterfacePrx> p1, Current current) {
     return CompletableFuture.completedFuture(new Initial.OpMyInterfaceProxyResult(p1, p1));
@@ -240,6 +228,12 @@ public final class AMDInitialI implements Initial {
   public CompletionStage<Initial.OpMyInterfaceProxyReqResult> opMyInterfaceProxyReqAsync(
       Optional<MyInterfacePrx> p1, Current current) {
     return CompletableFuture.completedFuture(new Initial.OpMyInterfaceProxyReqResult(p1, p1));
+  }
+
+  @Override
+  public CompletionStage<Initial.OpOneOptionalResult> opOneOptionalAsync(
+      OneOptional p1, Current current) {
+    return CompletableFuture.completedFuture(new Initial.OpOneOptionalResult(p1, p1));
   }
 
   @Override

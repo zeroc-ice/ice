@@ -191,10 +191,9 @@ InitialI::opVarStructAsync(
 }
 
 void
-InitialI::opOneOptionalAsync(
-    optional<shared_ptr<Test::OneOptional>> p1,
-    function<void(const optional<shared_ptr<Test::OneOptional>>&, const optional<shared_ptr<Test::OneOptional>>&)>
-        response,
+InitialI::opMyInterfaceProxyAsync(
+    optional<::MyInterfacePrx> p1,
+    function<void(const optional<::MyInterfacePrx>&, const optional<::MyInterfacePrx>&)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
@@ -202,9 +201,10 @@ InitialI::opOneOptionalAsync(
 }
 
 void
-InitialI::opMyInterfaceProxyAsync(
-    optional<::MyInterfacePrx> p1,
-    function<void(const optional<::MyInterfacePrx>&, const optional<::MyInterfacePrx>&)> response,
+InitialI::opOneOptionalAsync(
+    shared_ptr<Test::OneOptional> p1,
+    function<void(const shared_ptr<Test::OneOptional>&, const shared_ptr<Test::OneOptional>&)>
+        response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
