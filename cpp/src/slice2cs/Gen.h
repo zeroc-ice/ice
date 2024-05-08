@@ -152,8 +152,6 @@ namespace Slice
 
             virtual bool visitModuleStart(const ModulePtr&);
             virtual void visitModuleEnd(const ModulePtr&);
-            virtual bool visitClassDefStart(const ClassDefPtr&);
-            virtual void visitClassDefEnd(const ClassDefPtr&);
             virtual void visitOperation(const OperationPtr&);
         };
 

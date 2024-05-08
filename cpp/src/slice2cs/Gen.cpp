@@ -2910,17 +2910,6 @@ Slice::Gen::ResultVisitor::visitModuleEnd(const ModulePtr& p)
     moduleEnd(p);
 }
 
-bool
-Slice::Gen::ResultVisitor::visitClassDefStart(const ClassDefPtr&)
-{
-    return true;
-}
-
-void
-Slice::Gen::ResultVisitor::visitClassDefEnd(const ClassDefPtr&)
-{
-}
-
 void
 Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
 {
@@ -2942,52 +2931,19 @@ Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
         }
 
         _out << sp;
-        _out << nl << "public struct " << name;
-        _out << sb;
-
-        //
-        // One shot constructor
-        //
-        _out << nl << "public " << name << spar;
+        _out << nl << "public record struct " << name;
+        _out << spar;
         if (ret)
         {
             _out << (retS + " " + retSName);
         }
-        for (ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
+
+        for (const auto& q : outParams)
         {
-            _out << (typeToString((*i)->type(), ns, (*i)->optional()) + " " + fixId((*i)->name()));
+            _out << (typeToString(q->type(), ns, q->optional()) + " " + fixId(q->name()));
         }
         _out << epar;
-
-        _out << sb;
-
-        if (ret)
-        {
-            _out << nl << "this." << retSName << " = " << retSName << ";";
-        }
-
-        for (ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
-        {
-            _out << nl << "this." << fixId((*i)->name()) << " = " << fixId((*i)->name()) << ";";
-        }
-
-        _out << eb;
-
-        //
-        // Data members
-        //
-        _out << sp;
-        if (ret)
-        {
-            _out << nl << "public " << retS << " " << retSName << ";";
-        }
-
-        for (ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
-        {
-            _out << nl << "public " << typeToString((*i)->type(), ns, (*i)->optional()) << " " << fixId((*i)->name())
-                 << ";";
-        }
-        _out << eb;
+        _out << ";";
     }
 
     if (p->hasMarshaledResult())
