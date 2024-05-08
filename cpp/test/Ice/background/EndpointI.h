@@ -50,7 +50,7 @@ public:
     bool operator==(const Ice::Endpoint&) const final;
     bool operator<(const Ice::Endpoint&) const final;
 
-    int hash() const final;
+    std::size_t hash() const noexcept final;
     std::string options() const final;
 
     IceInternal::EndpointIPtr delegate() const;

@@ -54,7 +54,7 @@ namespace IceBT
         bool operator==(const Ice::Endpoint&) const final;
         bool operator<(const Ice::Endpoint&) const final;
 
-        std::int32_t hash() const final;
+        std::size_t hash() const noexcept final;
 
         std::string options() const final;
 
@@ -65,7 +65,6 @@ namespace IceBT
         EndpointIPtr endpoint(const AcceptorIPtr&) const;
 
     private:
-        void hashInit();
         bool checkOption(const std::string&, const std::string&, const std::string&);
 
         const InstancePtr _instance;
@@ -76,7 +75,6 @@ namespace IceBT
         const std::int32_t _timeout;
         const std::string _connectionId;
         const bool _compress;
-        const std::int32_t _hashValue;
     };
 
     class EndpointInfoI final : public EndpointInfo

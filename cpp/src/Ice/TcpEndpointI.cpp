@@ -253,12 +253,13 @@ IceInternal::TcpEndpointI::operator<(const Endpoint& r) const
     return IPEndpointI::operator<(r);
 }
 
-void
-IceInternal::TcpEndpointI::hashInit(int32_t& h) const
+size_t
+IceInternal::TcpEndpointI::hash() const noexcept
 {
-    IPEndpointI::hashInit(h);
+    size_t h = IPEndpointI::hash();
     hashAdd(h, _timeout);
     hashAdd(h, _compress);
+    return h;
 }
 
 void

@@ -70,7 +70,7 @@ IceRuby_ObjectPrx_hash(VALUE self)
     ICE_RUBY_TRY
     {
         Ice::ObjectPrx p = getProxy(self);
-        return INT2FIX(p->_hash());
+        return INT2FIX(std::hash<Ice::ObjectPrx>{}(p));
     }
     ICE_RUBY_CATCH
     return Qnil;

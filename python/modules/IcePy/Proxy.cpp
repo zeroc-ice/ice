@@ -158,7 +158,7 @@ extern "C"
     static long
     proxyHash(ProxyObject* self)
 {
-    return static_cast<long>((*self->proxy)->_hash());
+    return static_cast<long>(std::hash<Ice::ObjectPrx>{}(*self->proxy));
 }
 
 #ifdef WIN32

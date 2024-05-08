@@ -49,7 +49,7 @@ namespace IceInternal
         std::vector<EndpointIPtr> expandIfWildcard() const final;
         std::vector<EndpointIPtr> expandHost(EndpointIPtr&) const final;
         bool equivalent(const EndpointIPtr&) const final;
-        std::int32_t hash() const final;
+        std::size_t hash() const noexcept final;
         std::string options() const final;
 
         WSEndpointPtr endpoint(const EndpointIPtr&) const;

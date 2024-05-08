@@ -51,7 +51,7 @@ namespace IceInternal
         std::vector<EndpointIPtr> expandIfWildcard() const override;
         std::vector<EndpointIPtr> expandHost(EndpointIPtr&) const override;
         bool equivalent(const EndpointIPtr&) const override;
-        std::int32_t hash() const override;
+        std::size_t hash() const noexcept override;
         std::string options() const override;
 
         bool operator==(const Ice::Endpoint&) const override;
@@ -59,7 +59,6 @@ namespace IceInternal
 
         virtual std::vector<ConnectorPtr> connectors(const std::vector<Address>&, const NetworkProxyPtr&) const;
 
-        virtual void hashInit(std::int32_t&) const;
         virtual void fillEndpointInfo(Ice::IPEndpointInfo*) const;
 
         using EndpointI::connectionId;
@@ -83,11 +82,6 @@ namespace IceInternal
         const int _port;
         const Address _sourceAddr;
         const std::string _connectionId;
-
-    private:
-        mutable bool _hashInitialized;
-        mutable std::int32_t _hashValue;
-        mutable std::mutex _hashMutex;
     };
 
     class ICE_API EndpointHostResolver final

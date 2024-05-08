@@ -278,10 +278,10 @@ Ice::ObjectPrx::ice_toString() const
     return _reference->toString();
 }
 
-int32_t
-Ice::ObjectPrx::_hash() const
+size_t
+Ice::ObjectPrx::_hash() const noexcept
 {
-    return _reference->hash();
+    return hash<Reference>{}(*_reference);
 }
 
 void
@@ -479,7 +479,7 @@ Ice::ObjectPrx::_fixed(ConnectionPtr connection) const
 }
 
 ReferencePtr
-Ice::ObjectPrx::_invocationTimeout(int32_t newTimeout) const
+Ice::ObjectPrx::_invocationTimeout(int newTimeout) const
 {
     if (newTimeout < 1 && newTimeout != -1 && newTimeout != -2)
     {
@@ -512,7 +512,7 @@ Ice::ObjectPrx::_locator(const std::optional<LocatorPrx>& locator) const
 }
 
 ReferencePtr
-Ice::ObjectPrx::_locatorCacheTimeout(int32_t newTimeout) const
+Ice::ObjectPrx::_locatorCacheTimeout(int newTimeout) const
 {
     if (newTimeout < -1)
     {

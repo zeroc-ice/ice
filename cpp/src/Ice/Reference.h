@@ -103,7 +103,7 @@ namespace IceInternal
         virtual ReferencePtr changeConnectionId(std::string) const = 0;
         virtual ReferencePtr changeConnection(Ice::ConnectionIPtr) const = 0;
 
-        int hash() const; // Conceptually const.
+        virtual std::size_t hash() const noexcept;
 
         bool getCompressOverride(bool&) const;
 
@@ -157,8 +157,6 @@ namespace IceInternal
             const Ice::Context& ctx);
         Reference(const Reference&);
 
-        virtual std::int32_t hashInit() const;
-
         const InstancePtr _instance;
         bool _overrideCompress;
         bool _compress; // Only used if _overrideCompress == true
@@ -171,9 +169,6 @@ namespace IceInternal
         Ice::Identity _identity;
         SharedContextPtr _context;
         std::string _facet;
-        mutable std::int32_t _hashValue;
-        mutable bool _hashInitialized;
-        mutable std::mutex _hashMutex;
         Ice::ProtocolVersion _protocol;
         Ice::EncodingVersion _encoding;
         int _invocationTimeout;
@@ -307,6 +302,8 @@ namespace IceInternal
         bool operator==(const Reference&) const final;
         bool operator<(const Reference&) const final;
 
+        std::size_t hash() const noexcept final;
+
         ReferencePtr clone() const final;
 
         RequestHandlerPtr getRequestHandler() const final;
@@ -320,8 +317,6 @@ namespace IceInternal
 
     protected:
         std::vector<EndpointIPtr> filterEndpoints(const std::vector<EndpointIPtr>&) const;
-
-        int hashInit() const final;
 
     private:
         void createConnectionAsync(
@@ -355,6 +350,15 @@ namespace IceInternal
     };
 
     using RoutableReferencePtr = std::shared_ptr<RoutableReference>;
+}
+
+namespace std
+{
+    // Specialization of std::hash for Reference.
+    template<> struct hash<IceInternal::Reference>
+    {
+        std::size_t operator()(const IceInternal::Reference& r) const { return r.hash(); }
+    };
 }
 
 #endif

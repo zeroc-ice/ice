@@ -357,12 +357,13 @@ IceObjC::StreamEndpointI::streamWriteImpl(Ice::OutputStream* s) const
     s->write(_compress);
 }
 
-void
-IceObjC::StreamEndpointI::hashInit(int32_t& h) const
+size_t
+IceObjC::StreamEndpointI::hash() const noexcept
 {
-    IPEndpointI::hashInit(h);
+    size_t h = IPEndpointI::hash();
     hashAdd(h, _timeout);
     hashAdd(h, _compress);
+    return h;
 }
 
 bool

@@ -134,7 +134,7 @@ namespace IceInternal
         //
         virtual bool equivalent(const EndpointIPtr&) const = 0;
 
-        virtual std::int32_t hash() const = 0;
+        virtual std::size_t hash() const noexcept = 0;
 
         //
         // Returns the stringified options
@@ -165,6 +165,15 @@ namespace IceInternal
 
     private:
         const EndpointIPtr _endpoint;
+    };
+}
+
+namespace std
+{
+    /// Specialization of std::hash for EndpointI.
+    template<> struct hash<IceInternal::EndpointI>
+    {
+        std::size_t operator()(const IceInternal::EndpointI& endpoint) const noexcept { return endpoint.hash(); }
     };
 }
 

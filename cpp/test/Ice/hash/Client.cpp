@@ -4,7 +4,6 @@
 
 #include "Ice/Ice.h"
 #include "IceUtil/Random.h"
-#include "Test.h"
 #include "TestHelper.h"
 
 #if defined(__GNUC__)
@@ -31,8 +30,7 @@ Client::run(int argc, char** argv)
     CommunicatorHolder holder = initialize(argc, argv, properties);
     auto communicator = holder.communicator();
     cout << "testing proxy hash algorithm collisions... " << flush;
-    map<int32_t, optional<ObjectPrx>> seenProxy;
-    map<int32_t, EndpointPtr> seenEndpoint;
+    map<size_t, optional<ObjectPrx>> seenProxy;
     unsigned int proxyCollisions = 0;
     unsigned int i = 0;
     unsigned int maxCollisions = 10;
@@ -46,11 +44,11 @@ Client::run(int argc, char** argv)
 
         ObjectPrx obj(communicator, os.str());
         EndpointSeq endpoints = obj->ice_getEndpoints();
-        if (!seenProxy.insert(make_pair(obj->_hash(), obj)).second)
+        if (!seenProxy.insert(make_pair(hash<ObjectPrx>{}(obj), obj)).second)
         {
             ++proxyCollisions;
         }
-        test(obj->_hash() == obj->_hash());
+        test(hash<ObjectPrx>{}(obj) == hash<ObjectPrx>{}(obj));
     }
     test(proxyCollisions < maxCollisions);
 
@@ -68,31 +66,64 @@ Client::run(int argc, char** argv)
     ObjectPrx prx9(communicator, "Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000");
     ObjectPrx prx10(communicator, "Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000");
 
-    map<string, int> proxyMap;
-    proxyMap["prx1"] = prx1->_hash();
-    proxyMap["prx2"] = prx2->_hash();
-    proxyMap["prx3"] = prx3->_hash();
-    proxyMap["prx4"] = prx4->_hash();
-    proxyMap["prx5"] = prx5->_hash();
-    proxyMap["prx6"] = prx6->_hash();
-    proxyMap["prx7"] = prx7->_hash();
-    proxyMap["prx8"] = prx8->_hash();
-    proxyMap["prx9"] = prx9->_hash();
-    proxyMap["prx10"] = prx10->_hash();
+    map<string, size_t> proxyMap;
+    proxyMap["prx1"] = hash<ObjectPrx>{}(prx1);
+    proxyMap["prx2"] = hash<ObjectPrx>{}(prx2);
+    proxyMap["prx3"] = hash<ObjectPrx>{}(prx3);
+    proxyMap["prx4"] = hash<ObjectPrx>{}(prx4);
+    proxyMap["prx5"] = hash<ObjectPrx>{}(prx5);
+    proxyMap["prx6"] = hash<ObjectPrx>{}(prx6);
+    proxyMap["prx7"] = hash<ObjectPrx>{}(prx7);
+    proxyMap["prx8"] = hash<ObjectPrx>{}(prx8);
+    proxyMap["prx9"] = hash<ObjectPrx>{}(prx9);
+    proxyMap["prx10"] = hash<ObjectPrx>{}(prx10);
 
-    test(communicator->stringToProxy("Glacier2/router:tcp -p 10010")->_hash() == proxyMap["prx1"]);
-    test(communicator->stringToProxy("Glacier2/router:ssl -p 10011")->_hash() == proxyMap["prx2"]);
-    test(communicator->stringToProxy("Glacier2/router:udp -p 10012")->_hash() == proxyMap["prx3"]);
-    test(communicator->stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010")->_hash() == proxyMap["prx4"]);
-    test(communicator->stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011")->_hash() == proxyMap["prx5"]);
-    test(communicator->stringToProxy("Glacier2/router:udp -h zeroc.com -p 10012")->_hash() == proxyMap["prx6"]);
-    test(communicator->stringToProxy("Glacier2/router:tcp -p 10010 -t 10000")->_hash() == proxyMap["prx7"]);
-    test(communicator->stringToProxy("Glacier2/router:ssl -p 10011 -t 10000")->_hash() == proxyMap["prx8"]);
+    test(hash<ObjectPrx>{}(*communicator->stringToProxy("Glacier2/router:tcp -p 10010")) == proxyMap["prx1"]);
+    test(hash<ObjectPrx>{}(*communicator->stringToProxy("Glacier2/router:ssl -p 10011")) == proxyMap["prx2"]);
+    test(hash<ObjectPrx>{}(*communicator->stringToProxy("Glacier2/router:udp -p 10012")) == proxyMap["prx3"]);
     test(
-        communicator->stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000")->_hash() == proxyMap["prx9"]);
+        hash<ObjectPrx>{}(*communicator->stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010")) ==
+        proxyMap["prx4"]);
     test(
-        communicator->stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000")->_hash() ==
+        hash<ObjectPrx>{}(*communicator->stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011")) ==
+        proxyMap["prx5"]);
+    test(
+        hash<ObjectPrx>{}(*communicator->stringToProxy("Glacier2/router:udp -h zeroc.com -p 10012")) ==
+        proxyMap["prx6"]);
+    test(hash<ObjectPrx>{}(*communicator->stringToProxy("Glacier2/router:tcp -p 10010 -t 10000")) == proxyMap["prx7"]);
+    test(hash<ObjectPrx>{}(*communicator->stringToProxy("Glacier2/router:ssl -p 10011 -t 10000")) == proxyMap["prx8"]);
+    test(
+        hash<ObjectPrx>{}(*communicator->stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000")) ==
+        proxyMap["prx9"]);
+    test(
+        hash<ObjectPrx>{}(*communicator->stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000")) ==
         proxyMap["prx10"]);
+
+    cerr << "ok" << endl;
+
+    cout << "testing proxy hash of slightly different proxies... " << flush;
+
+    // Many similar proxies that should have different hash values.
+    static constexpr string_view proxyString[] = {
+        "test:tcp -p 10001 -h hello.zeroc.com",
+        "test:udp -p 10001 -h hello.zeroc.com",
+        "test:ssl -p 10001 -h hello.zeroc.com",
+        "test:tcp -p 10001 -h hello.zeroc.com -t 10000",
+        "test -f fa:tcp -p 10001 -h hello.zeroc.com",
+        "test @ adapt",
+        "test @ adapt2",
+        "test:opaque -t 12 -v abc",
+        "test:opaque -t 13 -v abc",
+        "test:opaque -t 13 -v abcd",
+    };
+
+    set<size_t> hashes;
+
+    for (const auto s : proxyString)
+    {
+        bool inserted = hashes.insert(hash<ObjectPrx>{}(*communicator->stringToProxy(string{s}))).second;
+        test(inserted);
+    }
 
     cerr << "ok" << endl;
 }

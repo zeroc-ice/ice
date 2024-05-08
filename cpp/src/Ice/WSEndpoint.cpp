@@ -314,10 +314,10 @@ IceInternal::WSEndpoint::equivalent(const EndpointIPtr& endpoint) const
     return _delegate->equivalent(wsEndpointI->_delegate);
 }
 
-int32_t
-IceInternal::WSEndpoint::hash() const
+size_t
+IceInternal::WSEndpoint::hash() const noexcept
 {
-    int h = _delegate->hash();
+    size_t h = _delegate->hash();
     hashAdd(h, _resource);
     return h;
 }
