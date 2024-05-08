@@ -9,7 +9,6 @@
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
-#include "Ice/SSL/OpenSSL.h"
 #include "IceUtil/FileUtil.h"
 #include "IceUtil/StringUtil.h"
 #include "OpenSSLEngineF.h"
@@ -499,26 +498,13 @@ OpenSSL::SSLEngine::createServerAuthenticationOptions() const
 }
 
 bool
-OpenSSL::SSLEngine::validationCallback(bool ok, X509_STORE_CTX* ctx, const Ice::SSL::ConnectionInfoPtr& info) const
+OpenSSL::SSLEngine::validationCallback(bool ok, X509_STORE_CTX*, const Ice::SSL::ConnectionInfoPtr& info) const
 {
     // At this point before the SSL handshake is completed, the connection info doesn't contain the peer's
     // certificate chain required for verifyPeer. We set it here.
 
     if (ok)
     {
-        // TODO we should refactor verifyPeer to not depend on the Certificate API in a follow-up PR.
-        vector<Ice::SSL::CertificatePtr> certs;
-        STACK_OF(X509)* chain = X509_STORE_CTX_get1_chain(ctx);
-        if (chain != 0)
-        {
-            for (int i = 0; i < sk_X509_num(chain); ++i)
-            {
-                CertificatePtr cert = OpenSSL::Certificate::create(X509_dup(sk_X509_value(chain, i)));
-                certs.push_back(cert);
-            }
-            sk_X509_pop_free(chain, X509_free);
-        }
-        const_cast<Ice::SSL::ConnectionInfoPtr&>(info)->certs = certs;
         verifyPeer(info);
     }
     return ok;

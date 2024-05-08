@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../../src/Ice/SSL/SSLUtil.h"
 #include "Glacier2/PermissionsVerifier.h"
 #include "Ice/Ice.h"
 #include "TestHelper.h"
@@ -31,17 +32,11 @@ public:
             throw Glacier2::PermissionDeniedException("reason");
         }
         test(info.certs.size() > 0);
-        auto cert = Ice::SSL::Certificate::decode(info.certs[0]);
+        auto cert = Ice::SSL::decodeCertificate(info.certs[0]);
         test(
-            cert->getIssuerDN() ==
-            Ice::SSL::DistinguishedName(
-                "emailAddress=info@zeroc.com,C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=Ice Tests CA"));
-        test(
-            cert->getSubjectDN() ==
+            Ice::SSL::getSubjectName(cert) ==
             Ice::SSL::DistinguishedName(
                 "emailAddress=info@zeroc.com,C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=client"));
-        test(cert->checkValidity());
-
         return true;
     }
 };

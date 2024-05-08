@@ -5,6 +5,7 @@
 #include "IceUtil/DisableWarnings.h"
 
 #include "../Ice/SSL/RFC2253.h"
+#include "../Ice/SSL/SSLUtil.h"
 #include "Database.h"
 #include "FileCache.h"
 #include "Ice/Ice.h"
@@ -68,7 +69,8 @@ InternalRegistryI::registerNode(
             auto sslConnInfo = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(current.con->getInfo());
             if (sslConnInfo)
             {
-                if (sslConnInfo->certs.empty() || !sslConnInfo->certs[0]->getSubjectDN().match("CN=" + info->name))
+                if (!sslConnInfo->peerCertificate ||
+                    !Ice::SSL::getSubjectName(sslConnInfo->peerCertificate).match("CN=" + info->name))
                 {
                     if (traceLevels->node > 0)
                     {
@@ -141,7 +143,8 @@ InternalRegistryI::registerReplica(
             auto sslConnInfo = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(current.con->getInfo());
             if (sslConnInfo)
             {
-                if (sslConnInfo->certs.empty() || !sslConnInfo->certs[0]->getSubjectDN().match("CN=" + info->name))
+                if (!sslConnInfo->peerCertificate ||
+                    !Ice::SSL::getSubjectName(sslConnInfo->peerCertificate).match("CN=" + info->name))
                 {
                     if (traceLevels->replica > 0)
                     {

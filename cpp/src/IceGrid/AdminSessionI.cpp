@@ -3,6 +3,7 @@
 //
 
 #include "AdminSessionI.h"
+#include "../Ice/SSL/SSLUtil.h"
 #include "AdminI.h"
 #include "Database.h"
 #include "Ice/Ice.h"
@@ -540,8 +541,8 @@ AdminSSLSessionManagerI::create(Glacier2::SSLInfo info, optional<Glacier2::Sessi
     {
         try
         {
-            auto cert = Ice::SSL::Certificate::decode(info.certs[0]);
-            userDN = cert->getSubjectDN();
+            auto cert = Ice::SSL::decodeCertificate(info.certs[0]);
+            userDN = Ice::SSL::getSubjectName(cert);
         }
         catch (const Ice::Exception& ex)
         {

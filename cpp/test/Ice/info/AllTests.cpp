@@ -237,7 +237,7 @@ allTests(Test::TestHelper* helper)
             {
                 auto wssinfo = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(wsinfo->underlying);
 #if TARGET_OS_IPHONE == 0
-                test(!wssinfo->certs.empty());
+                test(wssinfo->peerCertificate);
 #endif
             }
 

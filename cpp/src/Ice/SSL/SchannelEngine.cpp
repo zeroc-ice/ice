@@ -400,6 +400,78 @@ namespace
             first = false;
         }
     }
+
+    void verifyPeerCertName(
+        PCCERT_CONTEXT cert,
+        const string& address,
+        const Ice::LoggerPtr& logger,
+        int traceLevel,
+        const string& traceCategory)
+    {
+        // For an outgoing connection, we compare the proxy address (if any) against fields in the server's certificate
+        // (if any).
+
+        // Extract the IP addresses and the DNS names from the subject alternative names.
+        vector<pair<int, string>> subjectAltNames = getSubjectAltNames(cert);
+        vector<string> ipAddresses;
+        vector<string> dnsNames;
+        for (vector<pair<int, string>>::const_iterator p = subjectAltNames.begin(); p != subjectAltNames.end(); ++p)
+        {
+            if (p->first == AltNAmeIP)
+            {
+                ipAddresses.push_back(IceUtilInternal::toLower(p->second));
+            }
+            else if (p->first == AltNameDNS)
+            {
+                dnsNames.push_back(IceUtilInternal::toLower(p->second));
+            }
+        }
+
+        bool certNameOK = false;
+        string addrLower = IceUtilInternal::toLower(address);
+        bool isIpAddress = IceInternal::isIpAddress(address);
+
+        // If address is an IP address, compare it to the subject alternative names IP address
+        if (isIpAddress)
+        {
+            certNameOK = find(ipAddresses.begin(), ipAddresses.end(), addrLower) != ipAddresses.end();
+        }
+        else
+        {
+            // If subjectAlt is empty compare it to the subject CN, otherwise compare it to the to the subject alt
+            // name dnsNames.
+            if (dnsNames.empty())
+            {
+                DistinguishedName d = getSubjectName(cert);
+                string dn = IceUtilInternal::toLower(string(d));
+                string cn = "cn=" + addrLower;
+                string::size_type pos = dn.find(cn);
+                if (pos != string::npos)
+                {
+                    // Ensure we match the entire common name.
+                    certNameOK = (pos + cn.size() == dn.size()) || (dn[pos + cn.size()] == ',');
+                }
+            }
+            else
+            {
+                certNameOK = find(dnsNames.begin(), dnsNames.end(), addrLower) != dnsNames.end();
+            }
+        }
+
+        if (!certNameOK)
+        {
+            ostringstream os;
+            os << "SSL transport: certificate verification failure "
+               << (isIpAddress ? "IP address mismatch" : "Hostname mismatch");
+            string msg = os.str();
+            if (traceLevel >= 1)
+            {
+                Trace out(logger, traceCategory);
+                out << msg;
+            }
+            throw SecurityException(__FILE__, __LINE__, msg);
+        }
+    }
 }
 
 Schannel::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)
@@ -1140,9 +1212,9 @@ Schannel::SSLEngine::validationCallback(
             throw SecurityException(__FILE__, __LINE__, os.str());
         }
 
-        if (!incoming)
+        if (!incoming && getCheckCertName() && info->peerCertificate && !host.empty())
         {
-            verifyPeerCertName(info, host);
+            verifyPeerCertName(info->peerCertificate, host, getLogger(), securityTraceLevel(), securityTraceCategory());
         }
         verifyPeer(info);
     }

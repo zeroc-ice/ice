@@ -8,7 +8,6 @@
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/SSL/ConnectionInfo.h"
-#include "Ice/SSL/OpenSSL.h"
 #include "OpenSSLEngine.h"
 #include "SSLEngine.h"
 #include "SSLInstance.h"
@@ -225,28 +224,27 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
         rethrow_exception(_verificationException);
     }
 
-    // Retrieve the certificate chain.
+    // Retrieve the certificate chain if the verification callback has not already fill it.
 
-    // When calling on the server side the peer certificate is not included in SSL_get_peer_cert_chain and must be
-    // obtabined separately using SSL_get_peer_certificate.
-    if (_incoming)
+    if (!_peerCertificate)
     {
-        X509* peerCertificate = SSL_get_peer_certificate(_ssl);
-        if (peerCertificate)
+        // When calling on the server side the peer certificate is not included in SSL_get_peer_cert_chain and must be
+        // obtained separately using SSL_get_peer_certificate.
+        if (_incoming)
         {
-            _certs.clear();
-            CertificatePtr cert = OpenSSL::Certificate::create(peerCertificate);
-            _certs.push_back(cert);
+            X509* peerCertificate = SSL_get_peer_certificate(_ssl);
+            if (peerCertificate)
+            {
+                _peerCertificate = X509_dup(peerCertificate);
+            }
         }
-    }
-
-    STACK_OF(X509)* chain = SSL_get_peer_cert_chain(_ssl);
-    if (chain)
-    {
-        for (int i = 0; i < sk_X509_num(chain); ++i)
+        else
         {
-            CertificatePtr cert = OpenSSL::Certificate::create(X509_dup(sk_X509_value(chain, i)));
-            _certs.push_back(cert);
+            STACK_OF(X509)* chain = SSL_get_peer_cert_chain(_ssl);
+            if (chain && sk_X509_num(chain) > 0)
+            {
+                _peerCertificate = X509_dup(sk_X509_value(chain, 0));
+            }
         }
     }
 
@@ -307,6 +305,12 @@ OpenSSL::TransceiverI::close()
     {
         SSL_CTX_free(_sslCtx);
         _sslCtx = nullptr;
+    }
+
+    if (_peerCertificate)
+    {
+        X509_free(_peerCertificate);
+        _peerCertificate = nullptr;
     }
 
     if (_memBio)
@@ -612,7 +616,14 @@ OpenSSL::TransceiverI::getInfo() const
     info->underlying = _delegate->getInfo();
     info->incoming = _incoming;
     info->adapterName = _adapterName;
-    info->certs = _certs;
+    if (_peerCertificate)
+    {
+        info->peerCertificate = X509_dup(_peerCertificate);
+    }
+    else
+    {
+        info->peerCertificate = nullptr;
+    }
     return info;
 }
 
@@ -633,6 +644,14 @@ OpenSSL::TransceiverI::verifyCallback(int ok, X509_STORE_CTX* ctx)
     assert(_remoteCertificateVerificationCallback);
     try
     {
+        STACK_OF(X509)* chain = X509_STORE_CTX_get1_chain(ctx);
+        if (chain && sk_X509_num(chain) > 0)
+        {
+            assert(!_peerCertificate);
+            _peerCertificate = X509_dup(sk_X509_value(chain, 0));
+
+            sk_X509_pop_free(chain, X509_free);
+        }
         bool verified =
             _remoteCertificateVerificationCallback(ok, ctx, dynamic_pointer_cast<ConnectionInfo>(getInfo()));
         if (!verified)

@@ -5,6 +5,7 @@
 #include "RegistryI.h"
 #include "../Ice/Network.h"
 #include "../Ice/ProtocolPluginFacade.h" // Just to get the hostname
+#include "../Ice/SSL/SSLUtil.h"
 #include "../IceStorm/Service.h"
 #include "AdminCallbackRouter.h"
 #include "AdminI.h"
@@ -1208,13 +1209,10 @@ RegistryI::getSSLInfo(const ConnectionPtr& connection, string& userDN)
         sslinfo.remoteHost = ipInfo->remoteAddress;
         sslinfo.localPort = ipInfo->localPort;
         sslinfo.localHost = ipInfo->localAddress;
-        for (const auto& cert : info->certs)
+        if (info->peerCertificate)
         {
-            sslinfo.certs.push_back(cert->encode());
-        }
-        if (info->certs.size() > 0)
-        {
-            userDN = info->certs[0]->getSubjectDN();
+            sslinfo.certs.push_back(Ice::SSL::encodeCertificate(info->peerCertificate));
+            userDN = Ice::SSL::getSubjectName(info->peerCertificate);
         }
     }
     catch (const Ice::SSL::CertificateEncodingException&)

@@ -2,21 +2,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_SSL_UTIL_H
-#define ICE_SSL_UTIL_H
+#ifndef ICE_SSL_SSL_UTIL_H
+#define ICE_SSL_SSL_UTIL_H
+
+#include "Ice/Config.h"
+#include "Ice/SSL/Certificate.h"
+#include "Ice/SSL/Config.h"
 
 #include <functional>
 #include <string>
+#include <utility>
 #include <vector>
-
-#if defined(__APPLE__)
-#    include <CoreFoundation/CoreFoundation.h>
-#    if TARGET_OS_IPHONE != 0
-#        define ICE_USE_SECURE_TRANSPORT_IOS 1
-#    else
-#        define ICE_USE_SECURE_TRANSPORT_MACOS 1
-#    endif
-#endif
 
 namespace Ice::SSL
 {
@@ -46,12 +42,31 @@ namespace Ice::SSL
     // const AltNameObjectIdentifier = 8;
 
     // Read a file into memory buffer.
-    ICE_API void readFile(const std::string&, std::vector<char>&);
+    void readFile(const std::string&, std::vector<char>&);
 
     // Determine if a file or directory exists, with an optional default directory.
-    ICE_API bool checkPath(const std::string&, const std::string&, bool, std::string&);
+    bool checkPath(const std::string&, const std::string&, bool, std::string&);
 
-    ICE_API bool parseBytes(const std::string&, std::vector<unsigned char>&);
+    bool parseBytes(const std::string&, std::vector<unsigned char>&);
+
+#if defined(ICE_USE_SCHANNEL)
+    ICE_API DistinguishedName getSubjectName(PCCERT_CONTEXT);
+    ICE_API std::vector<std::pair<int, std::string>> getSubjectAltNames(PCCERT_CONTEXT);
+    ICE_API std::string encodeCertificate(PCCERT_CONTEXT);
+#elif defined(ICE_USE_SECURE_TRANSPORT)
+    std::string certificateOIDAlias(const std::string&);
+    ICE_API DistinguishedName getSubjectName(SecCertificateRef);
+    ICE_API std::vector<std::pair<int, std::string>> getSubjectAltNames(SecCertificateRef);
+    ICE_API std::string encodeCertificate(SecCertificateRef);
+    ICE_API SecCertificateRef decodeCertificate(const std::string&);
+#elif defined(ICE_USE_OPENSSL)
+    // Accumulate the OpenSSL error stack into a string.
+    std::string getErrors(bool);
+    ICE_API DistinguishedName getSubjectName(X509*);
+    ICE_API std::vector<std::pair<int, std::string>> getSubjectAltNames(X509*);
+    ICE_API std::string encodeCertificate(X509*);
+    ICE_API X509* decodeCertificate(const std::string&);
+#endif
 }
 
 #endif
