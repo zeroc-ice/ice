@@ -1509,33 +1509,12 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
             }
             else
             {
-                if (isValueType(type))
+                call = param;
+                if (isStack)
                 {
-                    call = param;
-                    if (isStack)
-                    {
-                        call += "_tmp";
-                    }
-                }
-                else
-                {
-                    call = "(";
-                    call += param;
-                    if (isStack)
-                    {
-                        call += "_tmp";
-                    }
-                    call += "[ix] == null ? new " + typeS + "() : " + param;
-                    if (isStack)
-                    {
-                        call += "_tmp";
-                    }
+                    call += "_tmp";
                 }
                 call += "[ix]";
-                if (!isValueType(type))
-                {
-                    call += ")";
-                }
             }
             call += ".";
             call += "ice_writeMembers";

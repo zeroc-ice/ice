@@ -921,7 +921,8 @@ namespace Ice
                     opMStruct1Async(Ice.Current current)
                     {
                         await Task.Delay(0);
-                        return new Test.MyClass_OpMStruct1MarshaledResult(new Test.Structure(), current);
+                        return new Test.MyClass_OpMStruct1MarshaledResult(
+                            new Test.Structure(new Test.AnotherStruct()), current);
                     }
 
                     public async Task<Test.MyClass_OpMStruct2MarshaledResult>

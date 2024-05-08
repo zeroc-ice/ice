@@ -307,7 +307,7 @@ namespace Ice
                         retS = initial.opBaseSeq(inS, out outS);
 
                         inS = new Test.Base[1];
-                        inS[0] = new Test.Base(new S(), "");
+                        inS[0] = new Test.Base(new S(""), "");
                         retS = initial.opBaseSeq(inS, out outS);
                         test(retS.Length == 1 && outS.Length == 1);
                     }

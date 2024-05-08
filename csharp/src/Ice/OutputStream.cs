@@ -1683,7 +1683,7 @@ public class OutputStream
     /// <param name="v">The proxy to write.</param>
     public void writeProxy(ObjectPrx v)
     {
-        if (v != null)
+        if (v is not null)
         {
             v.iceWrite(this);
         }

@@ -33,8 +33,7 @@ namespace Ice
                 r = oa.findDefaultServant("bar");
                 test(r == null);
 
-                Ice.Identity identity = new Ice.Identity();
-                identity.category = "foo";
+                Ice.Identity identity = new Ice.Identity("", "foo");
 
                 string[] names = new string[] { "foo", "bar", "x", "y", "abcdefg" };
 

@@ -1079,7 +1079,7 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, uns
             StructPtr st = dynamic_pointer_cast<Struct>((*p)->type());
             if (st && isMappedToClass(st))
             {
-                _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = new();";
+                _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = null;"; // should be null!
             }
         }
     }
@@ -2475,39 +2475,61 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     const bool classMapping = isMappedToClass(p);
     _out << sp << nl << "partial void ice_initialize();";
     _out << sp << nl << "#region Constructor";
+
     if (classMapping)
     {
-        //
-        // Default values for struct data members are only generated if the struct
-        // is mapped to a C# class. We cannot generate a parameterless constructor
-        // or assign default values to data members if the struct maps to a value
-        // type (a C# struct) instead.
-        //
-        _out << "s";
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public " << name << "()";
-        _out << sb;
-        writeDataMemberInitializers(dataMembers, DotNet::ICloneable);
-        _out << nl << "ice_initialize();";
-        _out << eb;
+        // We generate a constructor that initializes all non-nullable fields (collections and structs mapped to
+        // classes). It can be parameterless.
+
+        vector<string> ctorParams;
+        vector<string> ctorParamNames;
+        for (const auto& q : dataMembers)
+        {
+            StructPtr st = dynamic_pointer_cast<Struct>(q->type());
+
+            if (dynamic_pointer_cast<Sequence>(q->type()) ||
+                dynamic_pointer_cast<Dictionary>(q->type()) ||
+                (st && isMappedToClass(st)))
+            {
+                string memberName = fixId(q->name(), DotNet::ICloneable);
+                string memberType = typeToString(q->type(), ns, false);
+                ctorParams.push_back(memberType + " " + memberName);
+                ctorParamNames.push_back(memberName);
+            }
+        }
+
+        // We only generate this ctor if it's different from the primary constructor.
+        if (ctorParams.size() != dataMembers.size())
+        {
+            _out << sp;
+            emitGeneratedCodeAttribute();
+            _out << nl << "public " << name << spar << ctorParams << epar;
+            _out << sb;
+            for (const auto& q : ctorParamNames)
+            {
+                _out << nl << "this." << q << " = " << q << ';';
+            }
+            // All the other fields keep their default values (explicit or implicit).
+            _out << nl << "ice_initialize();";
+            _out << eb;
+        }
     }
 
     _out << sp;
     emitGeneratedCodeAttribute();
     _out << nl << "public " << name << spar;
     vector<string> paramDecl;
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (const auto& q : dataMembers)
     {
-        string memberName = fixId((*q)->name(), classMapping ? DotNet::ICloneable : 0);
-        string memberType = typeToString((*q)->type(), ns, false);
+        string memberName = fixId(q->name(), classMapping ? DotNet::ICloneable : 0);
+        string memberType = typeToString(q->type(), ns, false);
         paramDecl.push_back(memberType + " " + memberName);
     }
     _out << paramDecl << epar;
     _out << sb;
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (const auto& q : dataMembers)
     {
-        string paramName = fixId((*q)->name(), classMapping ? DotNet::ICloneable : 0);
+        string paramName = fixId(q->name(), classMapping ? DotNet::ICloneable : 0);
         _out << nl << "this." << paramName << " = " << paramName << ';';
     }
     _out << nl << "ice_initialize();";
@@ -2589,21 +2611,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << nl << "public static void ice_write(" << getUnqualified("Ice.OutputStream", ns) << " ostr, " << name
          << " v)";
     _out << sb;
-    if (classMapping)
-    {
-        _out << nl << "if (v is null)";
-        _out << sb;
-        _out << nl << "_nullMarshalValue.ice_writeMembers(ostr);";
-        _out << eb;
-        _out << nl << "else";
-        _out << sb;
-        _out << nl << "v.ice_writeMembers(ostr);";
-        _out << eb;
-    }
-    else
-    {
-        _out << nl << "v.ice_writeMembers(ostr);";
-    }
+    _out << nl << "v.ice_writeMembers(ostr);";
     _out << eb;
 
     _out << sp;
@@ -2611,10 +2619,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << nl << "public static " << name << " ice_read(" << getUnqualified("Ice.InputStream", ns)
         << " istr) => new(istr);";
 
-    if (classMapping)
-    {
-        _out << sp << nl << "private static readonly " << name << " _nullMarshalValue = new " << name << "();";
-    }
     _out << sp << nl << "#endregion"; // marshaling support
 
     _out << eb;

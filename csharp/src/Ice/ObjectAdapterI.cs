@@ -63,8 +63,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
 
         try
         {
-            Identity dummy = new Identity();
-            dummy.name = "dummy";
+            var dummy = new Identity(name: "dummy", "");
             updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
         }
         catch (LocalException)
@@ -323,10 +322,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
             // Create a copy of the Identity argument, in case the caller
             // reuses it.
             //
-            Identity id = new Identity();
-            id.category = ident.category;
-            id.name = ident.name;
-
+            var id = new Identity(ident.name, ident.category);
             _servantManager.addServant(obj, id, facet);
 
             return newProxy(id, facet);
@@ -340,10 +336,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
 
     public ObjectPrx addFacetWithUUID(Object obj, string facet)
     {
-        Identity ident = new Identity();
-        ident.category = "";
-        ident.name = Guid.NewGuid().ToString();
-
+        var ident = new Identity(Guid.NewGuid().ToString(), "");
         return addFacet(obj, ident, facet);
     }
 
@@ -564,8 +557,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
 
         try
         {
-            Identity dummy = new Identity();
-            dummy.name = "dummy";
+            var dummy = new Identity("dummy", "");
             updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
         }
         catch (LocalException)
@@ -610,8 +602,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
 
         try
         {
-            Identity dummy = new Identity();
-            dummy.name = "dummy";
+            var dummy = new Identity("dummy", "");
             updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
         }
         catch (LocalException)
