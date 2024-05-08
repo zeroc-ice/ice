@@ -1720,7 +1720,7 @@ namespace Ice
                     try
                     {
                         //
-                        // Use the 1.0 encoding with an exception whose only class members are optional.
+                        // Use the 1.0 encoding with an exception whose only data members are optional.
                         //
                         Test.InitialPrx initial2 = (Test.InitialPrx)initial.ice_encodingVersion(Ice.Util.Encoding_1_0);
                         int? a = 30;

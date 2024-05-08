@@ -665,7 +665,7 @@ function allTests($helper)
     try
     {
         //
-        // Use the 1.0 encoding with an exception whose only class members are optional.
+        // Use the 1.0 encoding with an exception whose only data members are optional.
         //
         $initial->ice_encodingVersion($Ice_Encoding_1_0)->opOptionalException(30, "test");
     }
