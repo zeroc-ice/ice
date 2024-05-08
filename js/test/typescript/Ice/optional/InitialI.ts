@@ -291,9 +291,4 @@ export class InitialI extends Test.Initial
     {
         return false;
     }
-
-    supportsNullOptional(current:Ice.Current):boolean
-    {
-        return true;
-    }
 }

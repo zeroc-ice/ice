@@ -324,8 +324,6 @@ interface Initial
     bool supportsJavaSerializable();
 
     bool supportsCsharpSerializable();
-
-    bool supportsNullOptional();
 }
 
 }

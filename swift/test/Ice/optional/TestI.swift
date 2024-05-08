@@ -263,10 +263,6 @@ class InitialI: Initial {
     return false
   }
 
-  func supportsNullOptional(current _: Ice.Current) throws -> Bool {
-    return false
-  }
-
   func opMStruct1(current _: Current) throws -> SmallStruct? {
     return SmallStruct()
   }

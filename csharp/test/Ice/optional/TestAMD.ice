@@ -272,8 +272,6 @@ interface Initial
     bool supportsRequiredParams();
 
     bool supportsJavaSerializable();
-
-    bool supportsNullOptional();
 }
 
 }

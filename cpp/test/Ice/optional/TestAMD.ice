@@ -296,9 +296,6 @@ interface Initial
     bool supportsJavaSerializable();
 
     bool supportsCsharpSerializable();
-
-    // TODO: remove. See Test.ice comment.
-    bool supportsNullOptional();
 }
 
 }

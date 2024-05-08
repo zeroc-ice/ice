@@ -468,13 +468,4 @@ public final class InitialI implements Initial {
   public boolean supportsCsharpSerializable(Current current) {
     return false;
   }
-
-  @Override
-  public boolean supportsNullOptional(Current current) {
-    //
-    // The java.util.Optional class does not support a null value. Constructing an Optional
-    // using Optional.ofNullable(null) returns an optional whose value is NOT present.
-    //
-    return false;
-  }
 }

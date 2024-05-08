@@ -301,8 +301,4 @@ class InitialI: Initial {
   func supportsCsharpSerializableAsync(current _: Current) -> Promise<Bool> {
     return Promise.value(false)
   }
-
-  func supportsNullOptionalAsync(current _: Current) -> Promise<Bool> {
-    return Promise.value(false)
-  }
 }

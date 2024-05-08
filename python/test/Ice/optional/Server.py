@@ -166,9 +166,6 @@ class InitialI(Test.Initial):
     def supportsCsharpSerializable(self, current=None):
         return True
 
-    def supportsNullOptional(self, current=None):
-        return True
-
 
 class Server(TestHelper):
     def run(self, args):
