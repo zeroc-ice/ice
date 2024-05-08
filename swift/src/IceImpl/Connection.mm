@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "../../cpp/src/Ice/SSL/SSLUtil.h"
 #import "Connection.h"
+#import "../../cpp/src/Ice/SSL/SSLUtil.h"
 #import "Convert.h"
 #import "Endpoint.h"
 #import "IceUtil.h"
