@@ -1835,8 +1835,8 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
 
     printGeneratedHeader(_out, fileBase + ".ice");
 
-    _out << sp << nl << "using _System = global::System;";
-
+    _out << nl << "using _System = global::System;";
+    _out << sp << nl << "[assembly:Ice.Slice(\"" << fileBase << ".ice\")]";
     _out << sp << nl << "#pragma warning disable 1591"; // See bug 3654
 }
 

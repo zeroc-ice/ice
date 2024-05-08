@@ -60,8 +60,7 @@ internal class ActivatorFactory
         {
             return activator;
         }
-        // else if (assembly.GetCustomAttributes<SliceAttribute>().Any())
-        else
+        else if (assembly.GetCustomAttributes<SliceAttribute>().Any())
         {
             return _cache.GetOrAdd(
                 assembly,
@@ -92,13 +91,11 @@ internal class ActivatorFactory
                                 new Activator(dict)));
                 });
         }
-        /*
         else
         {
             // We don't cache an assembly with no Slice attribute, and don't load/process its referenced assemblies.
             return Activator.Empty;
         }
-        */
 
         static ActivateObject CreateActivateObject(Type type)
         {
