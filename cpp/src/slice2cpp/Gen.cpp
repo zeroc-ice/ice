@@ -74,19 +74,19 @@ namespace
 
     string getDeprecateSymbol(const ContainedPtr& p1)
     {
-        string deprecateSymbol;
+        string deprecatedSymbol;
         if (p1->isDeprecated(true))
         {
-            if (auto reason = p1->getDeprecateReason(false))
+            if (auto reason = p1->getDeprecationReason(false))
             {
-                deprecateSymbol = "[[deprecated(\"" + *reason + "\")]] ";
+                deprecatedSymbol = "[[deprecated(\"" + *reason + "\")]] ";
             }
             else
             {
-                deprecateSymbol = "[[deprecated]] ";
+                deprecatedSymbol = "[[deprecated]] ";
             }
         }
-        return deprecateSymbol;
+        return deprecatedSymbol;
     }
 
     void writeConstantValue(

@@ -564,7 +564,7 @@ Slice::JsVisitor::writeDocCommentFor(const ContainedPtr& p)
     if (isDeprecated)
     {
         _out << nl << " * @deprecated";
-        if (auto reason = p->getDeprecateReason(false))
+        if (auto reason = p->getDeprecationReason(false))
         {
             // If a reason was supplied, append it after the `@deprecated` tag.
             _out << " " << *reason;

@@ -407,7 +407,7 @@ namespace Slice
         /// @param checkParent If true, this item's immediate container will also be checked for `deprecate` messages.
         /// @return The message provided to the `deprecate` metadata, if present. If `checkParent` is true, and both
         /// this item and its parent have 'deprecate' messages, the item's message is returned, not its container's.
-        std::optional<std::string> getDeprecateReason(bool checkParent) const;
+        std::optional<std::string> getDeprecationReason(bool checkParent) const;
 
         enum ContainedType
         {

@@ -88,7 +88,7 @@ namespace
         string deprecateReason;
         if (p1->isDeprecated(true))
         {
-            if (auto reason = p1->getDeprecateReason(true))
+            if (auto reason = p1->getDeprecationReason(true))
             {
                 deprecateReason = *reason;
             }
@@ -104,7 +104,7 @@ namespace
     {
         if (p1->isDeprecated(true))
         {
-            if (auto reason = p1->getDeprecateReason(true))
+            if (auto reason = p1->getDeprecationReason(true))
             {
                 out << nl << "[global::System.Obsolete(\"" << *reason << "\")]";
             }

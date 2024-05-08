@@ -753,7 +753,7 @@ Slice::Contained::parseComment(bool stripMarkup) const
     //
     // First check metadata for a deprecated tag.
     //
-    if (auto reason = getDeprecateReason(false))
+    if (auto reason = getDeprecationReason(false))
     {
         comment->_deprecated.push_back(IceUtilInternal::trim(*reason));
     }
@@ -1009,7 +1009,7 @@ Slice::Contained::isDeprecated(bool checkParent) const
 }
 
 optional<string>
-Slice::Contained::getDeprecateReason(bool checkParent) const
+Slice::Contained::getDeprecationReason(bool checkParent) const
 {
     const string prefix = "deprecate:";
     string metadata;
