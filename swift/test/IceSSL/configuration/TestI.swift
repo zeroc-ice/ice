@@ -17,7 +17,7 @@ class ServerI: SSLServer {
   func noCert(current: Ice.Current) throws {
     do {
       let info = try current.con!.getInfo() as! SSLConnectionInfo
-      try _helper.test(info.certs.count == 0)
+      try _helper.test(info.peerCertificate == nil)
     } catch is Ice.LocalException {
       try _helper.test(false)
     }
@@ -26,7 +26,7 @@ class ServerI: SSLServer {
   func checkCert(subjectDN _: String, issuerDN _: String, current: Ice.Current) throws {
     do {
       let info = try current.con!.getInfo() as! SSLConnectionInfo
-      try _helper.test(info.certs.count == 2)
+      try _helper.test(info.peerCertificate != nil)
     } catch is Ice.LocalException {
       try _helper.test(false)
     }
