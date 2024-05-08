@@ -664,37 +664,6 @@ public sealed class Instance
         _initData.threadStop = threadStop;
     }
 
-    public string resolveCompactId(int compactId)
-    {
-        string[] defaultVal = { "IceCompactId" };
-        var compactIdNamespaces = new List<string>(defaultVal);
-
-        if (_initData.typeIdNamespaces != null)
-        {
-            compactIdNamespaces.AddRange(_initData.typeIdNamespaces);
-        }
-
-        string result = "";
-
-        foreach (var ns in compactIdNamespaces)
-        {
-            string className = ns + ".TypeId_" + compactId;
-            try
-            {
-                Type c = AssemblyUtil.findType(this, className);
-                if (c != null)
-                {
-                    result = (string)c.GetField("typeId").GetValue(null);
-                    break; // foreach
-                }
-            }
-            catch (System.Exception)
-            {
-            }
-        }
-        return result;
-    }
-
     //
     // Only for use by Ice.CommunicatorI
     //

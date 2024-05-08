@@ -305,17 +305,6 @@ public class InputStream
     }
 
     /// <summary>
-    /// Sets the compact ID resolver to use when unmarshaling value and exception
-    /// instances. If the stream was initialized with a communicator, the communicator's
-    /// resolver will be used by default.
-    /// </summary>
-    /// <param name="r">The compact ID resolver.</param>
-    public void setCompactIdResolver(System.Func<int, string> r)
-    {
-        _compactIdResolver = r;
-    }
-
-    /// <summary>
     /// Determines the behavior of the stream when extracting instances of Slice classes.
     /// An instance is "sliced" when a factory cannot be found for a Slice type ID.
     /// The stream's default behavior is to slice instances.
@@ -435,10 +424,6 @@ public class InputStream
         Logger tmpLogger = other._logger;
         other._logger = _logger;
         _logger = tmpLogger;
-
-        System.Func<int, string> tmpCompactIdResolver = other._compactIdResolver;
-        other._compactIdResolver = _compactIdResolver;
-        _compactIdResolver = tmpCompactIdResolver;
     }
 
     private void resetEncapsulation()
@@ -3240,10 +3225,9 @@ public class InputStream
     private sealed class EncapsDecoder11 : EncapsDecoder
     {
         internal EncapsDecoder11(InputStream stream, Encaps encaps, bool sliceValues, int classGraphDepthMax,
-                                 ValueFactoryManager f, System.Func<int, string> r)
+                                 ValueFactoryManager f)
             : base(stream, encaps, sliceValues, classGraphDepthMax, f)
         {
-            _compactIdResolver = r;
             _current = null;
             _valueIdIndex = 1;
         }
@@ -3808,7 +3792,6 @@ public class InputStream
             internal InstanceData next;
         }
 
-        private System.Func<int, string> _compactIdResolver;
         private InstanceData _current;
         private int _valueIdIndex; // The ID of the next instance to unmarshal.
     }
@@ -3877,7 +3860,7 @@ public class InputStream
             else
             {
                 _encapsStack.decoder = new EncapsDecoder11(this, _encapsStack, _sliceValues, _classGraphDepthMax,
-                                                           _valueFactoryManager, _compactIdResolver);
+                                                           _valueFactoryManager);
             }
         }
     }
@@ -3891,7 +3874,6 @@ public class InputStream
 
     private ValueFactoryManager _valueFactoryManager;
     private Logger _logger;
-    private System.Func<int, string> _compactIdResolver;
 }
 
 /// <summary>
