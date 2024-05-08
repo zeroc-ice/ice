@@ -53,12 +53,46 @@ namespace Ice::SSL
     ICE_API DistinguishedName getSubjectName(PCCERT_CONTEXT);
     ICE_API std::vector<std::pair<int, std::string>> getSubjectAltNames(PCCERT_CONTEXT);
     ICE_API std::string encodeCertificate(PCCERT_CONTEXT);
+
+    class ICE_API ScopedCertificate
+    {
+    public:
+        ScopedCertificate(PCCERT_CONTEXT certificate) : _certificate(certificate) {}
+        ~ScopedCertificate()
+        {
+            if (_certificate)
+            {
+                CertFreeCertificateContext(_certificate);
+            }
+        }
+        PCCERT_CONTEXT get() const { return _certificate; }
+
+    private:
+        PCCERT_CONTEXT _certificate;
+    };
     ICE_API PCCERT_CONTEXT decodeCertificate(const std::string&);
 #elif defined(ICE_USE_SECURE_TRANSPORT)
     std::string certificateOIDAlias(const std::string&);
     ICE_API DistinguishedName getSubjectName(SecCertificateRef);
     ICE_API std::vector<std::pair<int, std::string>> getSubjectAltNames(SecCertificateRef);
     ICE_API std::string encodeCertificate(SecCertificateRef);
+
+    class ICE_API ScopedCertificate
+    {
+    public:
+        ScopedCertificate(SecCertificateRef certificate) : _certificate(certificate) {}
+        ~ScopedCertificate()
+        {
+            if (_certificate)
+            {
+                CFRelease(_certificate);
+            }
+        }
+        SecCertificateRef get() const { return _certificate; }
+
+    private:
+        SecCertificateRef _certificate;
+    };
     ICE_API SecCertificateRef decodeCertificate(const std::string&);
 #elif defined(ICE_USE_OPENSSL)
     // Accumulate the OpenSSL error stack into a string.
@@ -66,6 +100,22 @@ namespace Ice::SSL
     ICE_API DistinguishedName getSubjectName(X509*);
     ICE_API std::vector<std::pair<int, std::string>> getSubjectAltNames(X509*);
     ICE_API std::string encodeCertificate(X509*);
+    class ICE_API ScopedCertificate
+    {
+    public:
+        ScopedCertificate(X509* certificate) : _certificate(certificate) {}
+        ~ScopedCertificate()
+        {
+            if (_certificate)
+            {
+                X509_free(_certificate);
+            }
+        }
+        X509* get() const { return _certificate; }
+
+    private:
+        X509* _certificate;
+    };
     ICE_API X509* decodeCertificate(const std::string&);
 #endif
 }

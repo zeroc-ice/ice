@@ -1116,13 +1116,6 @@ namespace
         ~ScopedCertChainContext() { CertFreeCertificateChain(_chain); }
         PCCERT_CHAIN_CONTEXT _chain;
     };
-
-    struct ScopedCertContext
-    {
-        ScopedCertContext(PCCERT_CONTEXT cert) : _cert(cert) {}
-        ~ScopedCertContext() { CertFreeCertificateContext(_cert); }
-        PCCERT_CONTEXT _cert;
-    };
 }
 
 bool
@@ -1145,7 +1138,7 @@ Schannel::SSLEngine::validationCallback(
 
     if (cert) // Verify the remote certificate
     {
-        ScopedCertContext scopedCertContext(cert);
+        ScopedCertificate scopedCertificate(cert);
         CERT_CHAIN_PARA chainP;
         memset(&chainP, 0, sizeof(chainP));
         chainP.cbSize = sizeof(chainP);

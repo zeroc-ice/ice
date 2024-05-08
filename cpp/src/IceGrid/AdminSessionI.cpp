@@ -541,8 +541,8 @@ AdminSSLSessionManagerI::create(Glacier2::SSLInfo info, optional<Glacier2::Sessi
     {
         try
         {
-            auto cert = Ice::SSL::decodeCertificate(info.certs[0]);
-            userDN = Ice::SSL::getSubjectName(cert);
+            Ice::SSL::ScopedCertificate cert = Ice::SSL::decodeCertificate(info.certs[0]);
+            userDN = Ice::SSL::getSubjectName(cert.get());
         }
         catch (const Ice::Exception& ex)
         {

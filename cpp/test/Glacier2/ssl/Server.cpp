@@ -53,9 +53,9 @@ public:
     {
         testContext(true, current.adapter->getCommunicator(), current.ctx);
 
-        auto cert = Ice::SSL::decodeCertificate(info.certs[0]);
+        Ice::SSL::ScopedCertificate cert = Ice::SSL::decodeCertificate(info.certs[0]);
         test(
-            Ice::SSL::getSubjectName(cert) ==
+            Ice::SSL::getSubjectName(cert.get()) ==
             Ice::SSL::DistinguishedName(
                 "emailAddress=info@zeroc.com,C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=client"));
         return true;

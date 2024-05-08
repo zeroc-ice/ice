@@ -177,23 +177,6 @@ namespace
     const int certificateOIDSSize = sizeof(certificateOIDS) / sizeof(pair<string, string>);
 }
 
-#ifdef ICE_USE_SECURE_TRANSPORT
-string
-Ice::SSL::certificateOIDAlias(const string& name)
-{
-    for (int i = 0; i < certificateOIDSSize; ++i)
-    {
-        const pair<string, string>* certificateOID = &certificateOIDS[i];
-        assert(certificateOID);
-        if (name == certificateOID->first)
-        {
-            return certificateOID->second;
-        }
-    }
-    return name;
-}
-#endif
-
 #if defined(ICE_USE_SCHANNEL)
 namespace
 {
@@ -403,6 +386,21 @@ Ice::SSL::decodeCertificate(const std::string& data)
         throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
     }
     return certContext;
+}
+#elif defined(ICE_USE_SECURE_TRANSPORT)
+string
+Ice::SSL::certificateOIDAlias(const string& name)
+{
+    for (int i = 0; i < certificateOIDSSize; ++i)
+    {
+        const pair<string, string>* certificateOID = &certificateOIDS[i];
+        assert(certificateOID);
+        if (name == certificateOID->first)
+        {
+            return certificateOID->second;
+        }
+    }
+    return name;
 }
 #elif defined(ICE_USE_OPENSSL)
 
