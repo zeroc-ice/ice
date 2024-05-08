@@ -1668,59 +1668,52 @@ allTests(Test::TestHelper* helper, bool)
     {
         try
         {
-            initial->opOptionalException(nullopt, nullopt, nullopt);
+            initial->opOptionalException(nullopt, nullopt);
             test(false);
         }
         catch (const OptionalException& ex)
         {
             test(!ex.a);
             test(!ex.b);
-            test(!ex.o);
         }
 
         try
         {
-            initial->opOptionalException(30, string("test"), make_shared<OneOptional>(53));
+            initial->opOptionalException(30, string("test"));
             test(false);
         }
         catch (const OptionalException& ex)
         {
             test(ex.a == 30);
             test(ex.b == string("test"));
-            test((*ex.o)->a = 53);
         }
 
         try
         {
             //
-            // Use the 1.0 encoding with an exception whose only class members are optional.
+            // Use the 1.0 encoding with an exception whose only data members are optional.
             //
-            initial->ice_encodingVersion(Ice::Encoding_1_0)
-                ->opOptionalException(30, string("test"), make_shared<OneOptional>(53));
+            initial->ice_encodingVersion(Ice::Encoding_1_0)->opOptionalException(30, string("test"));
             test(false);
         }
         catch (const OptionalException& ex)
         {
             test(!ex.a);
             test(!ex.b);
-            test(!ex.o);
         }
 
         try
         {
             optional<int32_t> a;
             optional<string> b;
-            optional<OneOptionalPtr> o;
-            initial->opDerivedException(a, b, o);
+            initial->opDerivedException(a, b);
             test(false);
         }
         catch (const DerivedException& ex)
         {
             test(!ex.a);
             test(!ex.b);
-            test(!ex.o);
             test(!ex.ss);
-            test(!ex.o2);
             test(ex.d1 == "d1");
             test(ex.d2 == "d2");
         }
@@ -1733,17 +1726,14 @@ allTests(Test::TestHelper* helper, bool)
         {
             optional<int32_t> a = 30;
             optional<string> b = string("test2");
-            optional<OneOptionalPtr> o = make_shared<OneOptional>(53);
-            initial->opDerivedException(a, b, o);
+            initial->opDerivedException(a, b);
             test(false);
         }
         catch (const DerivedException& ex)
         {
             test(ex.a == 30);
             test(ex.b == string("test2"));
-            test((*ex.o)->a == 53);
             test(ex.ss == string("test2"));
-            test((*ex.o2)->a == 53);
             test(ex.d1 == "d1");
             test(ex.d2 == "d2");
         }
@@ -1756,17 +1746,14 @@ allTests(Test::TestHelper* helper, bool)
         {
             optional<int32_t> a;
             optional<string> b;
-            optional<OneOptionalPtr> o;
-            initial->opRequiredException(a, b, o);
+            initial->opRequiredException(a, b);
             test(false);
         }
         catch (const RequiredException& ex)
         {
             test(!ex.a);
             test(!ex.b);
-            test(!ex.o);
             test(ex.ss == string("test"));
-            test(!ex.o2);
         }
         catch (const OptionalException&)
         {
@@ -1777,17 +1764,14 @@ allTests(Test::TestHelper* helper, bool)
         {
             optional<int32_t> a = 30;
             optional<string> b = string("test2");
-            optional<OneOptionalPtr> o = make_shared<OneOptional>(53);
-            initial->opRequiredException(a, b, o);
+            initial->opRequiredException(a, b);
             test(false);
         }
         catch (const RequiredException& ex)
         {
             test(ex.a == 30);
             test(ex.b == string("test2"));
-            test((*ex.o)->a == 53);
             test(ex.ss == string("test2"));
-            test(ex.o2->a == 53);
         }
         catch (const OptionalException&)
         {

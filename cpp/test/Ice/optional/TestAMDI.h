@@ -23,7 +23,6 @@ public:
     void opOptionalExceptionAsync(
         std::optional<std::int32_t>,
         std::optional<std::string>,
-        std::optional<std::shared_ptr<Test::OneOptional>>,
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
@@ -31,7 +30,6 @@ public:
     void opDerivedExceptionAsync(
         std::optional<std::int32_t>,
         std::optional<std::string>,
-        std::optional<std::shared_ptr<Test::OneOptional>>,
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
@@ -39,7 +37,6 @@ public:
     void opRequiredExceptionAsync(
         std::optional<std::int32_t>,
         std::optional<std::string>,
-        std::optional<std::shared_ptr<Test::OneOptional>>,
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;

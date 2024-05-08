@@ -18,19 +18,16 @@ public:
     virtual void opOptionalException(
         std::optional<std::int32_t>,
         std::optional<std::string>,
-        std::optional<Test::OneOptionalPtr>,
         const Ice::Current&);
 
     virtual void opDerivedException(
         std::optional<std::int32_t>,
         std::optional<std::string>,
-        std::optional<Test::OneOptionalPtr>,
         const Ice::Current&);
 
     virtual void opRequiredException(
         std::optional<std::int32_t>,
         std::optional<std::string>,
-        std::optional<Test::OneOptionalPtr>,
         const Ice::Current&);
 
     virtual std::optional<std::uint8_t>

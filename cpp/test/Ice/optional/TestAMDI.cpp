@@ -33,31 +33,28 @@ void
 InitialI::opOptionalExceptionAsync(
     optional<int> a,
     optional<string> b,
-    optional<shared_ptr<Test::OneOptional>> o,
     function<void()>,
     function<void(exception_ptr)> ex,
     const Ice::Current&)
 {
-    ex(make_exception_ptr(OptionalException(false, a, b, o)));
+    ex(make_exception_ptr(OptionalException(false, a, b)));
 }
 
 void
 InitialI::opDerivedExceptionAsync(
     optional<int> a,
     optional<string> b,
-    optional<shared_ptr<Test::OneOptional>> o,
     function<void()>,
     function<void(exception_ptr)> ex,
     const Ice::Current&)
 {
-    ex(make_exception_ptr(DerivedException(false, a, b, o, "d1", b, o, "d2")));
+    ex(make_exception_ptr(DerivedException(false, a, b, "d1", b, "d2")));
 }
 
 void
 InitialI::opRequiredExceptionAsync(
     optional<int> a,
     optional<string> b,
-    optional<shared_ptr<Test::OneOptional>> o,
     function<void()>,
     function<void(exception_ptr)> ex,
     const Ice::Current&)
@@ -65,14 +62,9 @@ InitialI::opRequiredExceptionAsync(
     RequiredException e;
     e.a = a;
     e.b = b;
-    e.o = o;
     if (b)
     {
         e.ss = b.value();
-    }
-    if (o)
-    {
-        e.o2 = o.value();
     }
 
     ex(make_exception_ptr(e));

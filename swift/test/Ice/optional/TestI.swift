@@ -18,35 +18,30 @@ class InitialI: Initial {
   func opOptionalException(
     a: Int32?,
     b: String?,
-    o: OneOptional?,
     current _: Ice.Current
   ) throws {
-    throw OptionalException(req: false, a: a, b: b, o: o)
+    throw OptionalException(req: false, a: a, b: b)
   }
 
   func opDerivedException(
     a: Int32?,
     b: String?,
-    o: OneOptional?,
     current _: Ice.Current
   ) throws {
-    throw DerivedException(req: false, a: a, b: b, o: o, d1: "d1", ss: b, o2: o, d2: "d2")
+    throw DerivedException(req: false, a: a, b: b, d1: "d1", ss: b, d2: "d2")
   }
 
   func opRequiredException(
     a: Int32?,
     b: String?,
-    o: OneOptional?,
     current _: Ice.Current
   ) throws {
     let e = RequiredException()
     e.a = a
     e.b = b
-    e.o = o
     if let b = b {
       e.ss = b
     }
-    e.o2 = o
     throw e
   }
 

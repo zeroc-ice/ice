@@ -28,8 +28,7 @@ public final class AMDInitialI implements Initial {
 
   @Override
   public CompletionStage<Void> opOptionalExceptionAsync(
-      OptionalInt a, Optional<String> b, Optional<OneOptional> o, Current current)
-      throws OptionalException {
+      OptionalInt a, Optional<String> b, Current current) throws OptionalException {
     OptionalException ex = new OptionalException();
     if (a.isPresent()) {
       ex.setA(a.getAsInt());
@@ -39,9 +38,6 @@ public final class AMDInitialI implements Initial {
     if (b.isPresent()) {
       ex.setB(b.get());
     }
-    if (o.isPresent()) {
-      ex.setO(o.get());
-    }
     CompletableFuture<Void> f = new CompletableFuture<>();
     f.completeExceptionally(ex);
     return f;
@@ -49,8 +45,7 @@ public final class AMDInitialI implements Initial {
 
   @Override
   public CompletionStage<Void> opDerivedExceptionAsync(
-      OptionalInt a, Optional<String> b, Optional<OneOptional> o, Current current)
-      throws OptionalException {
+      OptionalInt a, Optional<String> b, Current current) throws OptionalException {
     DerivedException ex = new DerivedException();
     if (a.isPresent()) {
       ex.setA(a.getAsInt());
@@ -63,10 +58,6 @@ public final class AMDInitialI implements Initial {
     } else {
       ex.clearSs(); // The member "ss" has a default value.
     }
-    if (o.isPresent()) {
-      ex.setO(o.get());
-      ex.setO2(o.get());
-    }
     ex.d1 = "d1";
     ex.d2 = "d2";
     CompletableFuture<Void> f = new CompletableFuture<>();
@@ -76,8 +67,7 @@ public final class AMDInitialI implements Initial {
 
   @Override
   public CompletionStage<Void> opRequiredExceptionAsync(
-      OptionalInt a, Optional<String> b, Optional<OneOptional> o, Current current)
-      throws OptionalException {
+      OptionalInt a, Optional<String> b, Current current) throws OptionalException {
     RequiredException ex = new RequiredException();
     if (a.isPresent()) {
       ex.setA(a.getAsInt());
@@ -87,10 +77,6 @@ public final class AMDInitialI implements Initial {
     if (b.isPresent()) {
       ex.setB(b.get());
       ex.ss = b.get();
-    }
-    if (o.isPresent()) {
-      ex.setO(o.get());
-      ex.o2 = o.get();
     }
     CompletableFuture<Void> f = new CompletableFuture<>();
     f.completeExceptionally(ex);

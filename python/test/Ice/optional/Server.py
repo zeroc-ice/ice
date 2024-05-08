@@ -17,21 +17,18 @@ class InitialI(Test.Initial):
     def pingPong(self, o, current=None):
         return o
 
-    def opOptionalException(self, a, b, o, current=None):
-        raise Test.OptionalException(False, a, b, o)
+    def opOptionalException(self, a, b, current=None):
+        raise Test.OptionalException(False, a, b)
 
-    def opDerivedException(self, a, b, o, current=None):
-        raise Test.DerivedException(False, a, b, o, "d1", b, o, "d2")
+    def opDerivedException(self, a, b, current=None):
+        raise Test.DerivedException(False, a, b, "d1", b, "d2")
 
-    def opRequiredException(self, a, b, o, current=None):
+    def opRequiredException(self, a, b, current=None):
         e = Test.RequiredException()
         e.a = a
         e.b = b
-        e.o = o
         if b is not Ice.Unset:
             e.ss = b
-        if o is not Ice.Unset:
-            e.o2 = o
         raise e
 
     def opByte(self, p1, current=None):

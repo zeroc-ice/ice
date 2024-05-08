@@ -18,7 +18,7 @@
             return obj;
         }
 
-        opOptionalException(a, b, o, current)
+        opOptionalException(a, b, current)
         {
             const ex = new Test.OptionalException();
             if(a !== undefined)
@@ -33,14 +33,10 @@
             {
                 ex.b = b;
             }
-            if(o !== undefined)
-            {
-                ex.o = o;
-            }
             throw ex;
         }
 
-        opDerivedException(a, b, o, current)
+        opDerivedException(a, b, current)
         {
             const ex = new Test.DerivedException();
             if(a !== undefined)
@@ -60,17 +56,12 @@
             {
                 ex.ss = undefined; // The member "ss" has a default value.
             }
-            if(o !== undefined)
-            {
-                ex.o = o;
-                ex.o2 = o;
-            }
             ex.d1 = "d1";
             ex.d2 = "d2";
             throw ex;
         }
 
-        opRequiredException(a, b, o, current)
+        opRequiredException(a, b, current)
         {
             const ex = new Test.RequiredException();
             if(a !== undefined)
@@ -85,11 +76,6 @@
             {
                 ex.b = b;
                 ex.ss = b;
-            }
-            if(o !== undefined)
-            {
-                ex.o = o;
-                ex.o2 = o;
             }
             throw ex;
         }

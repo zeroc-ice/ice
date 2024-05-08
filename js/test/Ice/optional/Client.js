@@ -661,12 +661,11 @@
                 test(ex instanceof Test.OptionalException, ex);
                 test(ex.a === undefined);
                 test(ex.b === undefined);
-                test(ex.o === undefined);
             }
 
             try
             {
-                await initial.opOptionalException(30, "test", new Test.OneOptional(53));
+                await initial.opOptionalException(30, "test");
                 test(false);
             }
             catch(ex)
@@ -674,7 +673,6 @@
                 test(ex instanceof Test.OptionalException, ex);
                 test(ex.a === 30);
                 test(ex.b == "test");
-                test(ex.o.a == 53);
             }
 
             try
@@ -687,16 +685,14 @@
                 test(ex instanceof Test.DerivedException, ex);
                 test(ex.a === undefined);
                 test(ex.b === undefined);
-                test(ex.o === undefined);
                 test(ex.ss === undefined);
-                test(ex.o2 === undefined);
                 test(ex.d1 == "d1");
                 test(ex.d2 == "d2");
             }
 
             try
             {
-                await initial.opDerivedException(30, "test2", new Test.OneOptional(53));
+                await initial.opDerivedException(30, "test2");
                 test(false);
             }
             catch(ex)
@@ -704,9 +700,7 @@
                 test(ex instanceof Test.DerivedException, ex);
                 test(ex.a === 30);
                 test(ex.b == "test2");
-                test(ex.o.a === 53);
                 test(ex.ss == "test2");
-                test(ex.o2.a === 53);
             }
 
             out.writeLine("ok");

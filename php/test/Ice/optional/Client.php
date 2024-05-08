@@ -644,24 +644,22 @@ function allTests($helper)
 
     try
     {
-        $initial->opOptionalException(Ice\None, Ice\None, Ice\None);
+        $initial->opOptionalException(Ice\None, Ice\None);
     }
     catch(Test\OptionalException $ex)
     {
         test($ex->a == Ice\None);
         test($ex->b == Ice\None);
-        test($ex->o == Ice\None);
     }
 
     try
     {
-        $initial->opOptionalException(30, "test", new Test\OneOptional(53));
+        $initial->opOptionalException(30, "test");
     }
     catch(Exception $ex)
     {
         test($ex->a == 30);
         test($ex->b == "test");
-        test($ex->o->a == 53);
     }
 
     try
@@ -669,69 +667,60 @@ function allTests($helper)
         //
         // Use the 1.0 encoding with an exception whose only class members are optional.
         //
-        $initial->ice_encodingVersion($Ice_Encoding_1_0)->opOptionalException(30, "test", new Test\OneOptional(53));
+        $initial->ice_encodingVersion($Ice_Encoding_1_0)->opOptionalException(30, "test");
     }
     catch(Exception $ex)
     {
         test($ex->a == Ice\None);
         test($ex->b == Ice\None);
-        test($ex->o == Ice\None);
     }
 
     try
     {
-        $initial->opDerivedException(Ice\None, Ice\None, Ice\None);
+        $initial->opDerivedException(Ice\None, Ice\None);
     }
     catch(Exception $ex)
     {
         test($ex->a == Ice\None);
         test($ex->b == Ice\None);
-        test($ex->o == Ice\None);
         test($ex->ss == Ice\None);
-        test($ex->o2 == Ice\None);
         test($ex->d1 == "d1");
         test($ex->d2 == "d2");
     }
 
     try
     {
-        $initial->opDerivedException(30, "test", new Test\OneOptional(53));
+        $initial->opDerivedException(30, "test");
     }
     catch(Exception $ex)
     {
         test($ex->a == 30);
         test($ex->b == "test");
-        test($ex->o->a == 53);
         test($ex->ss == "test");
-        test($ex->o2 == $ex->o);
         test($ex->d1 == "d1");
         test($ex->d2 == "d2");
     }
 
     try
     {
-        $initial->opRequiredException(Ice\None, Ice\None, Ice\None);
+        $initial->opRequiredException(Ice\None, Ice\None);
     }
     catch(Exception $ex)
     {
         test($ex->a == Ice\None);
         test($ex->b == Ice\None);
-        test($ex->o == Ice\None);
         test($ex->ss != Ice\None);
-        test($ex->o2 != Ice\None);
     }
 
     try
     {
-        $initial->opRequiredException(30, "test", new Test\OneOptional(53));
+        $initial->opRequiredException(30, "test");
     }
     catch(Exception $ex)
     {
         test($ex->a == 30);
         test($ex->b == "test");
-        test($ex->o->a == 53);
         test($ex->ss == "test");
-        test($ex->o2 == $ex->o);
     }
 
     echo "ok\n";

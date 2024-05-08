@@ -1980,23 +1980,19 @@ public class AllTests {
       try {
         OptionalInt a = OptionalInt.empty();
         Optional<String> b = Optional.empty();
-        Optional<OneOptional> o = Optional.empty();
-        initial.opOptionalException(a, b, o);
+        initial.opOptionalException(a, b);
       } catch (OptionalException ex) {
         test(!ex.hasA());
         test(!ex.hasB());
-        test(!ex.hasO());
       }
 
       try {
         OptionalInt a = OptionalInt.of(30);
         Optional<String> b = Optional.of("test");
-        Optional<OneOptional> o = Optional.of(new OneOptional(53));
-        initial.opOptionalException(a, b, o);
+        initial.opOptionalException(a, b);
       } catch (OptionalException ex) {
         test(ex.getA() == 30);
         test(ex.getB().equals("test"));
-        test(ex.getO().getA() == 53);
       }
 
       try {
@@ -2006,25 +2002,20 @@ public class AllTests {
         InitialPrx initial2 = initial.ice_encodingVersion(com.zeroc.Ice.Util.Encoding_1_0);
         OptionalInt a = OptionalInt.of(30);
         Optional<String> b = Optional.of("test");
-        Optional<OneOptional> o = Optional.of(new OneOptional(53));
-        initial2.opOptionalException(a, b, o);
+        initial2.opOptionalException(a, b);
       } catch (OptionalException ex) {
         test(!ex.hasA());
         test(!ex.hasB());
-        test(!ex.hasO());
       }
 
       try {
         OptionalInt a = OptionalInt.empty();
         Optional<String> b = Optional.empty();
-        Optional<OneOptional> o = Optional.empty();
-        initial.opDerivedException(a, b, o);
+        initial.opDerivedException(a, b);
       } catch (DerivedException ex) {
         test(!ex.hasA());
         test(!ex.hasB());
-        test(!ex.hasO());
         test(!ex.hasSs());
-        test(!ex.hasO2());
         test(ex.d1.equals("d1"));
         test(ex.d2.equals("d2"));
       } catch (OptionalException ex) {
@@ -2034,14 +2025,11 @@ public class AllTests {
       try {
         OptionalInt a = OptionalInt.of(30);
         Optional<String> b = Optional.of("test2");
-        Optional<OneOptional> o = Optional.of(new OneOptional(53));
-        initial.opDerivedException(a, b, o);
+        initial.opDerivedException(a, b);
       } catch (DerivedException ex) {
         test(ex.getA() == 30);
         test(ex.getB().equals("test2"));
-        test(ex.getO().getA() == 53);
         test(ex.getSs().equals("test2"));
-        test(ex.getO2().getA() == 53);
         test(ex.d1.equals("d1"));
         test(ex.d2.equals("d2"));
       } catch (OptionalException ex) {
@@ -2051,14 +2039,11 @@ public class AllTests {
       try {
         OptionalInt a = OptionalInt.empty();
         Optional<String> b = Optional.empty();
-        Optional<OneOptional> o = Optional.empty();
-        initial.opRequiredException(a, b, o);
+        initial.opRequiredException(a, b);
       } catch (RequiredException ex) {
         test(!ex.hasA());
         test(!ex.hasB());
-        test(!ex.hasO());
         test(ex.ss.equals("test"));
-        test(ex.o2 == null);
       } catch (OptionalException ex) {
         test(false);
       }
@@ -2066,14 +2051,11 @@ public class AllTests {
       try {
         OptionalInt a = OptionalInt.of(30);
         Optional<String> b = Optional.of("test2");
-        Optional<OneOptional> o = Optional.of(new OneOptional(53));
-        initial.opRequiredException(a, b, o);
+        initial.opRequiredException(a, b);
       } catch (RequiredException ex) {
         test(ex.getA() == 30);
         test(ex.getB().equals("test2"));
-        test(ex.getO().getA() == 53);
         test(ex.ss.equals("test2"));
-        test(ex.o2.getA() == 53);
       } catch (OptionalException ex) {
         test(false);
       }

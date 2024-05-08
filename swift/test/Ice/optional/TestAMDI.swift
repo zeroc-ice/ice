@@ -19,34 +19,32 @@ class InitialI: Initial {
     return Promise.value(o)
   }
 
-  func opOptionalExceptionAsync(a: Int32?, b: String?, o: OneOptional?, current _: Current)
+  func opOptionalExceptionAsync(a: Int32?, b: String?, current _: Current)
     -> Promise<Void>
   {
     return Promise { seal in
-      seal.reject(OptionalException(req: false, a: a, b: b, o: o))
+      seal.reject(OptionalException(req: false, a: a, b: b))
     }
   }
 
-  func opDerivedExceptionAsync(a: Int32?, b: String?, o: OneOptional?, current _: Current)
+  func opDerivedExceptionAsync(a: Int32?, b: String?, current _: Current)
     -> Promise<Void>
   {
     return Promise { seal in
-      seal.reject(DerivedException(req: false, a: a, b: b, o: o, d1: "d1", ss: b, o2: o, d2: "d2"))
+      seal.reject(DerivedException(req: false, a: a, b: b, d1: "d1", ss: b, d2: "d2"))
     }
   }
 
-  func opRequiredExceptionAsync(a: Int32?, b: String?, o: OneOptional?, current _: Current)
+  func opRequiredExceptionAsync(a: Int32?, b: String?, current _: Current)
     -> Promise<Void>
   {
     return Promise { seal in
       let e = RequiredException()
       e.a = a
       e.b = b
-      e.o = o
       if let b = b {
         e.ss = b
       }
-      e.o2 = o
 
       seal.reject(e)
     }
