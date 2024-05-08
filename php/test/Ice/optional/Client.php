@@ -731,7 +731,6 @@ function allTests($helper)
     test($initial->opMStruct1() != Ice\None);
     test($initial->opMDict1() != Ice\None);
     test($initial->opMSeq1() != Ice\None);
-    test($initial->opMG1() != Ice\None);
 
     $p3 = $initial->opMStruct2(Ice\None, $p2);
     test($p2 == Ice\None && $p3 == Ice\None);
@@ -753,13 +752,6 @@ function allTests($helper)
     $p1 = array("test" => 54);
     $p3 = $initial->opMDict2($p1, $p2);
     test($p2["test"] == 54 && $p3["test"] == 54);
-
-    $p3 = $initial->opMG2(Ice\None, $p2);
-    test($p2 == Ice\None && $p3 == Ice\None);
-
-    $p1 = new Test\G;
-    $p3 = $initial->opMG2($p1, $p2);
-    test($p2 != Ice\None && $p3 != Ice\None && $p3 == $p2);
 
     echo "ok\n";
 

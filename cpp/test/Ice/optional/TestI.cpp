@@ -378,18 +378,6 @@ InitialI::opMDict2(optional<Test::StringIntDict> p1, const Ice::Current& current
     return OpMDict2MarshaledResult(p1, p1, current);
 }
 
-InitialI::OpMG1MarshaledResult
-InitialI::opMG1(const Ice::Current& current)
-{
-    return OpMG1MarshaledResult(make_shared<G>(), current);
-}
-
-InitialI::OpMG2MarshaledResult
-InitialI::opMG2(optional<Test::GPtr> p1, const Ice::Current& current)
-{
-    return OpMG2MarshaledResult(p1, p1, current);
-}
-
 bool
 InitialI::supportsRequiredParams(const Ice::Current&)
 {

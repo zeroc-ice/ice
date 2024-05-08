@@ -1785,7 +1785,6 @@ allTests(Test::TestHelper* helper, bool)
         test(initial->opMStruct1());
         test(initial->opMDict1());
         test(initial->opMSeq1());
-        test(initial->opMG1());
 
         {
             optional<Test::SmallStruct> p1, p2, p3;
@@ -1817,15 +1816,6 @@ allTests(Test::TestHelper* helper, bool)
             p1 = dict;
             p3 = initial->opMDict2(p1, p2);
             test(p2 == p1 && p3 == p1);
-        }
-        {
-            optional<Test::GPtr> p1, p2, p3;
-            p3 = initial->opMG2(nullopt, p2);
-            test(!p2 && !p3);
-
-            p1 = make_shared<Test::G>();
-            p3 = initial->opMG2(p1, p2);
-            test(p2 && p3 && *p3 == *p2);
         }
     }
     cout << "ok" << endl;

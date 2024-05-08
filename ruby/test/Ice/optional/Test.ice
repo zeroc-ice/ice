@@ -276,9 +276,6 @@ interface Initial
     ["marshaled-result"] optional(1) StringIntDict opMDict2(optional(2) StringIntDict p1,
                                                             out optional(3) StringIntDict p2);
 
-    ["marshaled-result"] optional(1) G opMG1();
-    ["marshaled-result"] optional(1) G opMG2(optional(2) G p1, out optional(3) G p2);
-
     bool supportsRequiredParams();
 
     bool supportsJavaSerializable();

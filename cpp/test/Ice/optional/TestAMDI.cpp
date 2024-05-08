@@ -474,25 +474,6 @@ InitialI::opMDict2Async(
 }
 
 void
-InitialI::opMG1Async(
-    function<void(OpMG1MarshaledResult)> response,
-    function<void(exception_ptr)>,
-    const Ice::Current& current)
-{
-    response(OpMG1MarshaledResult(std::make_shared<G>(), current));
-}
-
-void
-InitialI::opMG2Async(
-    optional<GPtr> p1,
-    function<void(OpMG2MarshaledResult)> response,
-    function<void(exception_ptr)>,
-    const Ice::Current& current)
-{
-    response(OpMG2MarshaledResult(p1, p1, current));
-}
-
-void
 InitialI::supportsRequiredParamsAsync(function<void(bool)> response, function<void(exception_ptr)>, const Ice::Current&)
 {
     response(false);

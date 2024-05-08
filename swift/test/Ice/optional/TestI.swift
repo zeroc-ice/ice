@@ -296,12 +296,4 @@ class InitialI: Initial {
   ) {
     return (p1, p1)
   }
-
-  func opMG1(current _: Current) throws -> G? {
-    return G()
-  }
-
-  func opMG2(p1: G?, current _: Current) throws -> (returnValue: G?, p2: G?) {
-    return (p1, p1)
-  }
 }

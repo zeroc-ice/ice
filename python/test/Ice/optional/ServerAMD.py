@@ -165,16 +165,6 @@ class InitialI(Test.Initial):
             Test.Initial.OpMDict2MarshaledResult((p1, p1), current)
         )
 
-    def opMG1(self, current):
-        return Ice.Future.completed(
-            Test.Initial.OpMG1MarshaledResult(Test.G(), current)
-        )
-
-    def opMG2(self, p1, current):
-        return Ice.Future.completed(
-            Test.Initial.OpMG2MarshaledResult((p1, p1), current)
-        )
-
     def opRequiredAfterOptional(self, p1, p2, p3, current):
         return Ice.Future.completed((p1, p2, p3))
 

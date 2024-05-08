@@ -710,7 +710,6 @@
             test(await initial.opMStruct1() !== undefined);
             test(await initial.opMDict1() !== undefined);
             test(await initial.opMSeq1() !== undefined);
-            test(await initial.opMG1() !== undefined);
 
             {
                 let [p3, p2] = await initial.opMStruct2();
@@ -738,14 +737,6 @@
                 p1.set("test", 54);
                 [p3, p2] = await initial.opMDict2(p1);
                 test(Ice.MapUtil.equals(p2, p1) && Ice.MapUtil.equals(p3, p1));
-            }
-            {
-                let [p3, p2] = await initial.opMG2();
-                test(p2 === undefined && p3 === undefined);
-
-                const p1 = new Test.G();
-                [p3, p2] = await initial.opMG2(p1);
-                test(p3 !== undefined && p2 !== undefined && p3 === p2);
             }
 
             out.writeLine("ok");

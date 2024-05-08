@@ -290,14 +290,6 @@ class InitialI: Initial {
     return Promise.value((p1, p1))
   }
 
-  func opMG1Async(current _: Current) -> Promise<G?> {
-    return Promise.value(G())
-  }
-
-  func opMG2Async(p1: G?, current _: Current) -> Promise<(returnValue: G?, p2: G?)> {
-    return Promise.value((p1, p1))
-  }
-
   func supportsRequiredParamsAsync(current _: Current) -> Promise<Bool> {
     return Promise.value(false)
   }

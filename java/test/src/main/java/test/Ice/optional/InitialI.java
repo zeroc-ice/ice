@@ -461,16 +461,6 @@ public final class InitialI implements Initial {
   }
 
   @Override
-  public OpMG1MarshaledResult opMG1(Current current) {
-    return new OpMG1MarshaledResult(Optional.of(new G()), current);
-  }
-
-  @Override
-  public OpMG2MarshaledResult opMG2(Optional<G> p1, Current current) {
-    return new OpMG2MarshaledResult(p1, p1, current);
-  }
-
-  @Override
   public boolean supportsRequiredParams(Current current) {
     return true;
   }

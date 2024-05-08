@@ -277,16 +277,6 @@ export class InitialI extends Test.Initial
         return [p1, p1];
     }
 
-    opMG1(current:Ice.Current):Test.G
-    {
-        return new Test.G();
-    }
-
-    opMG2(p1:Test.G, current:Ice.Current):[Test.G, Test.G]
-    {
-        return [p1, p1];
-    }
-
     supportsRequiredParams(current:Ice.Current):boolean
     {
         return false;

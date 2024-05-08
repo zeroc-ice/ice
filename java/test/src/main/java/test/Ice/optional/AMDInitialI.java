@@ -498,17 +498,6 @@ public final class AMDInitialI implements Initial {
   }
 
   @Override
-  public CompletionStage<OpMG1MarshaledResult> opMG1Async(Current current) {
-    return CompletableFuture.completedFuture(
-        new OpMG1MarshaledResult(Optional.of(new G()), current));
-  }
-
-  @Override
-  public CompletionStage<OpMG2MarshaledResult> opMG2Async(Optional<G> p1, Current current) {
-    return CompletableFuture.completedFuture(new OpMG2MarshaledResult(p1, p1, current));
-  }
-
-  @Override
   public CompletionStage<Boolean> supportsRequiredParamsAsync(Current current) {
     return CompletableFuture.completedFuture(true);
   }

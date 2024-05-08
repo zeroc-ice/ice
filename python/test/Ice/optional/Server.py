@@ -151,12 +151,6 @@ class InitialI(Test.Initial):
     def opMDict2(self, p1, current):
         return Test.Initial.OpMDict2MarshaledResult((p1, p1), current)
 
-    def opMG1(self, current):
-        return Test.Initial.OpMG1MarshaledResult(Test.G(), current)
-
-    def opMG2(self, p1, current):
-        return Test.Initial.OpMG2MarshaledResult((p1, p1), current)
-
     def opRequiredAfterOptional(self, p1, p2, p3, current):
         return (p1, p2, p3)
 

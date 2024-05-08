@@ -2068,7 +2068,6 @@ public class AllTests {
       test(initial.opMStruct1().isPresent());
       test(initial.opMDict1().isPresent());
       test(initial.opMSeq1().isPresent());
-      test(initial.opMG1().isPresent());
 
       {
         Initial.OpMStruct2Result result = initial.opMStruct2(Optional.empty());
@@ -2096,14 +2095,6 @@ public class AllTests {
         p1.put("test", 54);
         result = initial.opMDict2(Optional.of(p1));
         test(result.p2.get().equals(p1) && result.returnValue.get().equals(p1));
-      }
-      {
-        Initial.OpMG2Result result = initial.opMG2(Optional.empty());
-        test(!result.p2.isPresent() && !result.returnValue.isPresent());
-
-        G p1 = new G();
-        result = initial.opMG2(Optional.of(p1));
-        test(result.p2.get() == result.returnValue.get());
       }
     }
     out.println("ok");

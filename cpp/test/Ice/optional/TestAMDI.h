@@ -299,17 +299,6 @@ public:
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
-    void opMG1Async(
-        std::function<void(OpMG1MarshaledResult)>,
-        std::function<void(std::exception_ptr)>,
-        const Ice::Current&) final;
-
-    void opMG2Async(
-        std::optional<Test::GPtr>,
-        std::function<void(OpMG2MarshaledResult)>,
-        std::function<void(std::exception_ptr)>,
-        const Ice::Current&) final;
-
     void supportsRequiredParamsAsync(
         std::function<void(bool)>,
         std::function<void(std::exception_ptr)>,
