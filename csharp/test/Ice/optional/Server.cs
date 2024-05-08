@@ -11,12 +11,17 @@ namespace Ice
             public override void run(string[] args)
             {
                 var initData = new InitializationData();
-                initData.typeIdNamespaces = new string[] { "Ice.optional.TypeId" };
-                initData.properties = createTestProperties(ref args);
+                initData.typeIdNamespaces = new string[] {
+                    
+                     "Ice.optional.TypeId" }  ;
+                initData.     properties = createTestProperties(ref args);
                 using (var communicator = initialize(initData))
                 {
-                    communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    communicator.getProperties()    .   setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     var adapter = communicator.createObjectAdapter("TestAdapter");
+
+
+                    
                     adapter.add(new InitialI(), Ice.Util.stringToIdentity("initial"));
                     adapter.activate();
                     serverReady();
