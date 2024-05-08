@@ -1063,16 +1063,18 @@ public class AllTests {
         test(r.returnValue.getA() == 58 && r.p3.getA() == 58);
 
         os = new OutputStream(communicator);
+        os.startEncapsulation();
         os.writeValue(p1);
-        os.writePendingValues();
+        os.endEncapsulation();
         inEncaps = os.finished();
         inv = initial.ice_invoke("opOneOptionalReq", OperationMode.Normal, inEncaps);
         in = new InputStream(communicator, inv.outParams);
+        in.startEncapsulation();
         Wrapper<OneOptional> p2cb = new Wrapper<>();
         in.readValue(v -> p2cb.value = v, OneOptional.class);
         Wrapper<OneOptional> p3cb = new Wrapper<>();
         in.readValue(v -> p3cb.value = v, OneOptional.class);
-        in.readPendingValues();
+        os.endEncapsulation();
         test(p2cb.value.getA() == 58 && p3cb.value.getA() == 58);
       }
     }

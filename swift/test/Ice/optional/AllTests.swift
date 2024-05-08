@@ -1843,17 +1843,19 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     try test(p2!.a == nil && p3!.a == nil)  // Ensure out parameter is cleared.
 
     let ostr = Ice.OutputStream(communicator: communicator)
+    ostr.startEncapsulation()
     ostr.write(p1)
-    outS.writePendingValues()
+    ostr.endEncapsulation();
     let inEncaps = ostr.finished()
     let result = try initial.ice_invoke(
       operation: "opOneOptional", mode: .Normal, inEncaps: inEncaps)
     var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    _ = try istr.startEncapsulation();
     var v1: OneOptional?
     try istr.read { v1 = $0 }
     var v2: OneOptional?
     try istr.read { v2 = $0 }
-    try istr.readPendingValues()
+    try istr.endEncapsulation()
     try test(v1!.a! == 58 && v2!.a == 58)
   }
 

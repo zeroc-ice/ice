@@ -1042,16 +1042,18 @@ namespace Ice
                     test(!p2.a.HasValue && !p3.a.HasValue); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
+                    os.startEncapsulation();
                     os.writeValue(p1);
-                    os.writePendingValues();
+                    os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opOneOptional", OperationMode.Normal, inEncaps, out outEncaps);
                     @in = new InputStream(communicator, outEncaps);
+                    @in.startEncapsulation();
                     ReadValueCallbackI p2cb = new ReadValueCallbackI();
                     @in.readValue(p2cb.invoke);
                     ReadValueCallbackI p3cb = new ReadValueCallbackI();
                     @in.readValue(p3cb.invoke);
-                    @in.readPendingValues();
+                    @in.endEncapsulation();
                     test(((Test.OneOptional)p2cb.obj).a.Value == 58 && ((Test.OneOptional)p3cb.obj).a.Value == 58);
                 }
 
