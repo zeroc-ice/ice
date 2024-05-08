@@ -2513,6 +2513,17 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << nl << "ice_initialize();";
     _out << eb;
 
+    // Unmarshaling constructor
+    _out << sp;
+    emitGeneratedCodeAttribute();
+    _out << nl << "public " << name << "(" << getUnqualified("Ice.InputStream", ns) << " istr)";
+    _out << sb;
+    for (const auto& q : dataMembers)
+    {
+        writeUnmarshalDataMember(q, fixId(q->name(), classMapping ? DotNet::ICloneable : 0), ns, true);
+    }
+    _out << eb;
+
     _out << sp << nl << "#endregion"; // Constructor(s)
 
     if (classMapping)
@@ -2574,16 +2585,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public void ice_readMembers(" << getUnqualified("Ice.InputStream", ns) << " istr)";
-    _out << sb;
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        writeUnmarshalDataMember(*q, fixId((*q)->name(), classMapping ? DotNet::ICloneable : 0), ns, true);
-    }
-    _out << eb;
-
-    _out << sp;
-    emitGeneratedCodeAttribute();
     _out << nl << "public static void ice_write(" << getUnqualified("Ice.OutputStream", ns) << " ostr, " << name
          << " v)";
     _out << sb;
@@ -2606,12 +2607,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public static " << name << " ice_read(" << getUnqualified("Ice.InputStream", ns) << " istr)";
-    _out << sb;
-    _out << nl << "var v = new " << name << "();";
-    _out << nl << "v.ice_readMembers(istr);";
-    _out << nl << "return v;";
-    _out << eb;
+    _out << nl << "public static " << name << " ice_read(" << getUnqualified("Ice.InputStream", ns)
+        << " istr) => new(istr);";
 
     if (classMapping)
     {

@@ -783,8 +783,7 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
                 case ReplyStatus.replyFacetNotExist:
                 case ReplyStatus.replyOperationNotExist:
                 {
-                    var ident = new Ice.Identity();
-                    ident.ice_readMembers(is_);
+                    var ident = new Ice.Identity(is_);
 
                     //
                     // For compatibility with the old FacetPath.

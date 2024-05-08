@@ -48,8 +48,7 @@ public sealed class ProxyFactory
 
     public Ice.ObjectPrx streamToProxy(Ice.InputStream s)
     {
-        Ice.Identity ident = new Ice.Identity();
-        ident.ice_readMembers(s);
+        var ident = new Ice.Identity(s);
 
         Reference r = _instance.referenceFactory().create(ident, s);
         return referenceToProxy(r);

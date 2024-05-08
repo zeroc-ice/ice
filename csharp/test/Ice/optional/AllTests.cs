@@ -883,12 +883,11 @@ namespace Ice
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
-                    Test.SmallStruct f = new Test.SmallStruct();
-                    f.ice_readMembers(@in);
+                    Test.SmallStruct f = new Test.SmallStruct(@in);
                     test(f.m == (byte)56);
                     test(@in.readOptional(3, OptionalFormat.VSize));
                     @in.skipSize();
-                    f.ice_readMembers(@in);
+                    f = new Test.SmallStruct(@in);
                     test(f.m == (byte)56);
                     @in.endEncapsulation();
 
@@ -925,12 +924,11 @@ namespace Ice
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
-                    Test.FixedStruct f = new Test.FixedStruct();
-                    f.ice_readMembers(@in);
+                    Test.FixedStruct f = new Test.FixedStruct(@in);
                     test(f.m == 56);
                     test(@in.readOptional(3, OptionalFormat.VSize));
                     @in.skipSize();
-                    f.ice_readMembers(@in);
+                    f = new Test.FixedStruct(@in);
                     test(f.m == 56);
                     @in.endEncapsulation();
 
@@ -968,12 +966,11 @@ namespace Ice
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.FSize));
                     @in.skip(4);
-                    Test.VarStruct v = new Test.VarStruct();
-                    v.ice_readMembers(@in);
+                    Test.VarStruct v = new Test.VarStruct(@in);
                     test(v.m == "test");
                     test(@in.readOptional(3, OptionalFormat.FSize));
                     @in.skip(4);
-                    v.ice_readMembers(@in);
+                    v = new Test.VarStruct(@in);
                     test(v.m == "test");
                     @in.endEncapsulation();
 
