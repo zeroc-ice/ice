@@ -2059,6 +2059,16 @@ public class ObjectPrxHelperBase : ObjectPrx
 public class ObjectPrxHelper : ObjectPrxHelperBase
 {
     /// <summary>
+    /// Creates a new proxy that implements <see cref="ObjectPrx" />
+    /// <summary>
+    /// <param name="communicator">The communicator of the new proxy.</param>
+    /// <param name="proxyString">The string representation of the proxy.</param>
+    /// <returns>The new proxy.</returns>
+    /// <exception name="ProxyParseException">Thrown when <paramref name="proxyString" /> is not a valid proxy string.
+    /// </exception>
+    public static ObjectPrx createProxy(Communicator communicator, string proxyString) =>
+        communicator.stringToProxy(proxyString);
+
     /// Casts a proxy to {@link ObjectPrx}. This call contacts
     /// the server and throws an Ice run-time exception if the target
     /// object does not exist or the server cannot be reached.
