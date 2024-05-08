@@ -416,9 +416,3 @@ fromObjC(id object, std::shared_ptr<Ice::Endpoint>& endpoint)
     ICEEndpoint* endpt = object;
     endpoint = object == [NSNull null] ? nullptr : [endpt endpoint];
 }
-
-NSObject*
-toObjC(const std::shared_ptr<Ice::SSL::Certificate>& cert)
-{
-    return toNSString(cert->encode());
-}

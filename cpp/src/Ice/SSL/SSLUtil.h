@@ -58,13 +58,7 @@ namespace Ice::SSL
     {
     public:
         ScopedCertificate(PCCERT_CONTEXT certificate) : _certificate(certificate) {}
-        ~ScopedCertificate()
-        {
-            if (_certificate)
-            {
-                CertFreeCertificateContext(_certificate);
-            }
-        }
+        ~ScopedCertificate();
         PCCERT_CONTEXT get() const { return _certificate; }
 
     private:
@@ -81,13 +75,7 @@ namespace Ice::SSL
     {
     public:
         ScopedCertificate(SecCertificateRef certificate) : _certificate(certificate) {}
-        ~ScopedCertificate()
-        {
-            if (_certificate)
-            {
-                CFRelease(_certificate);
-            }
-        }
+        ~ScopedCertificate();
         SecCertificateRef get() const { return _certificate; }
 
     private:
@@ -104,13 +92,7 @@ namespace Ice::SSL
     {
     public:
         ScopedCertificate(X509* certificate) : _certificate(certificate) {}
-        ~ScopedCertificate()
-        {
-            if (_certificate)
-            {
-                X509_free(_certificate);
-            }
-        }
+        ~ScopedCertificate();
         X509* get() const { return _certificate; }
 
     private:

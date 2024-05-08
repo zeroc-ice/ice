@@ -218,6 +218,14 @@ namespace
     }
 }
 
+Ice::SSL::ScopedCertificate::~ScopedCertificate()
+{
+    if (_certificate)
+    {
+        CertFreeCertificateContext(_certificate);
+    }
+}
+
 DistinguishedName
 Ice::SSL::getSubjectName(PCCERT_CONTEXT cert)
 {
@@ -402,6 +410,14 @@ Ice::SSL::certificateOIDAlias(const string& name)
     }
     return name;
 }
+
+Ice::SSL::ScopedCertificate::~ScopedCertificate()
+{
+    if (_certificate)
+    {
+        CFRelease(_certificate);
+    }
+}
 #elif defined(ICE_USE_OPENSSL)
 
 //
@@ -512,6 +528,14 @@ namespace
         }
         sk_GENERAL_NAME_pop_free(gens, GENERAL_NAME_free);
         return alt;
+    }
+}
+
+Ice::SSL::ScopedCertificate::~ScopedCertificate()
+{
+    if (_certificate)
+    {
+        X509_free(_certificate);
     }
 }
 

@@ -4,10 +4,10 @@
 //
 
 #include "SessionRouterI.h"
+#include "../Ice/SSL/SSLUtil.h"
 #include "FilterManager.h"
 #include "Glacier2/PermissionsVerifier.h"
 #include "Ice/Ice.h"
-#include "../Ice/SSL/SSLUtil.h"
 #include "RouterI.h"
 
 using namespace std;
