@@ -359,6 +359,51 @@ Ice::SSL::encodeCertificate(PCCERT_CONTEXT cert)
     s.assign(&encoded[0]);
     return s;
 }
+
+PCCERT_CONTEXT
+Ice::SSL::decodeCertificate(const std::string& data)
+{
+    CERT_SIGNED_CONTENT_INFO* cert = nullptr;
+    DWORD derLength = static_cast<DWORD>(data.size());
+    vector<BYTE> derBuffer;
+    derBuffer.resize(derLength);
+
+    if (!CryptStringToBinary(
+            &data.c_str()[0],
+            static_cast<DWORD>(data.size()),
+            CRYPT_STRING_BASE64HEADER,
+            &derBuffer[0],
+            &derLength,
+            nullptr,
+            nullptr))
+    {
+        // Base64 data should always be bigger than binary
+        assert(GetLastError() != ERROR_MORE_DATA);
+        throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+    }
+
+    DWORD decodedLeng = 0;
+    if (!CryptDecodeObjectEx(
+            X509_ASN_ENCODING,
+            X509_CERT,
+            &derBuffer[0],
+            derLength,
+            CRYPT_DECODE_ALLOC_FLAG,
+            nullptr,
+            &cert,
+            &decodedLeng))
+    {
+        throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+    }
+    PCCERT_CONTEXT certContext =
+        CertCreateCertificateContext(X509_ASN_ENCODING, cert->ToBeSigned.pbData, cert->ToBeSigned.cbData);
+    LocalFree(cert);
+    if (!certContext)
+    {
+        throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+    }
+    return certContext;
+}
 #elif defined(ICE_USE_OPENSSL)
 
 //

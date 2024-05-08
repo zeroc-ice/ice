@@ -53,6 +53,7 @@ namespace Ice::SSL
     ICE_API DistinguishedName getSubjectName(PCCERT_CONTEXT);
     ICE_API std::vector<std::pair<int, std::string>> getSubjectAltNames(PCCERT_CONTEXT);
     ICE_API std::string encodeCertificate(PCCERT_CONTEXT);
+    ICE_API PCCERT_CONTEXT decodeCertificate(const std::string&);
 #elif defined(ICE_USE_SECURE_TRANSPORT)
     std::string certificateOIDAlias(const std::string&);
     ICE_API DistinguishedName getSubjectName(SecCertificateRef);
