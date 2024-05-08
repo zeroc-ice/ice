@@ -4,8 +4,6 @@
 
 #pragma once
 
-[["cs:typeid-namespace:Ice.seqMapping.TypeId"]]
-
 ["cs:namespace:Ice.seqMapping"]
 module Test
 {

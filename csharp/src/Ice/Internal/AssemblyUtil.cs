@@ -6,75 +6,17 @@ using System.Runtime.InteropServices;
 
 namespace Ice.Internal;
 
-public sealed class AssemblyUtil
+public static class AssemblyUtil
 {
     public static readonly bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
     public static readonly bool isMacOS = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
     public static readonly bool isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
-    public static Type findType(Instance instance, string csharpId)
-    {
-        lock (_mutex)
-        {
-            Type t;
-            if (_typeTable.TryGetValue(csharpId, out t))
-            {
-                return t;
-            }
-
-            loadAssemblies(); // Lazy initialization
-            foreach (Assembly a in _loadedAssemblies.Values)
-            {
-                if ((t = a.GetType(csharpId)) != null)
-                {
-                    _typeTable[csharpId] = t;
-                    return t;
-                }
-            }
-        }
-        return null;
-    }
-
-    public static Type[] findTypesWithPrefix(string prefix)
-    {
-        LinkedList<Type> l = new LinkedList<Type>();
-
-        lock (_mutex)
-        {
-            loadAssemblies(); // Lazy initialization
-            foreach (Assembly a in _loadedAssemblies.Values)
-            {
-                try
-                {
-                    Type[] types = a.GetTypes();
-                    foreach (Type t in types)
-                    {
-                        if (t.AssemblyQualifiedName.StartsWith(prefix, StringComparison.Ordinal))
-                        {
-                            l.AddLast(t);
-                        }
-                    }
-                }
-                catch (ReflectionTypeLoadException)
-                {
-                    // Failed to load types from the assembly, ignore and continue
-                }
-            }
-        }
-
-        Type[] result = new Type[l.Count];
-        if (l.Count > 0)
-        {
-            l.CopyTo(result, 0);
-        }
-        return result;
-    }
-
     public static object createInstance(Type t)
     {
         try
         {
-            return Activator.CreateInstance(t);
+            return System.Activator.CreateInstance(t);
         }
         catch (MemberAccessException)
         {
@@ -158,6 +100,5 @@ public sealed class AssemblyUtil
     }
 
     private static readonly Hashtable _loadedAssemblies = []; // <string, Assembly> pairs.
-    private static readonly Dictionary<string, Type> _typeTable = []; // <type name, Type> pairs.
     private static readonly object _mutex = new();
 }

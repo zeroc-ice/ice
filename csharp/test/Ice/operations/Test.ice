@@ -6,8 +6,6 @@
 
 #include "Ice/Context.ice"
 
-[["cs:typeid-namespace:Ice.operations.TypeId"]]
-
 ["cs:namespace:Ice.operations"]
 module Test
 {

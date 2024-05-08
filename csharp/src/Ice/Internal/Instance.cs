@@ -665,91 +665,6 @@ public sealed class Instance
     }
 
     //
-    // Return the C# class associated with this Slice type-id
-    // Used for both non-local Slice classes and exceptions
-    //
-    public Type resolveClass(string id)
-    {
-        // First attempt corresponds to no cs:namespace metadata in the
-        // enclosing top-level module
-        //
-        string className = typeToClass(id);
-        Type c = AssemblyUtil.findType(this, className);
-
-        //
-        // If this fails, look for helper classes in the typeIdNamespaces namespace(s)
-        //
-        if (c == null && _initData.typeIdNamespaces != null)
-        {
-            foreach (var ns in _initData.typeIdNamespaces)
-            {
-                Type helper = AssemblyUtil.findType(this, ns + "." + className);
-                if (helper != null)
-                {
-                    try
-                    {
-                        c = helper.GetProperty("targetClass").PropertyType;
-                        break; // foreach
-                    }
-                    catch (System.Exception)
-                    {
-                    }
-                }
-            }
-        }
-
-        //
-        // Ensure the class is instantiable.
-        //
-        if (c != null && !c.IsAbstract && !c.IsInterface)
-        {
-            return c;
-        }
-
-        return null;
-    }
-
-    public string resolveCompactId(int compactId)
-    {
-        string[] defaultVal = { "IceCompactId" };
-        var compactIdNamespaces = new List<string>(defaultVal);
-
-        if (_initData.typeIdNamespaces != null)
-        {
-            compactIdNamespaces.AddRange(_initData.typeIdNamespaces);
-        }
-
-        string result = "";
-
-        foreach (var ns in compactIdNamespaces)
-        {
-            string className = ns + ".TypeId_" + compactId;
-            try
-            {
-                Type c = AssemblyUtil.findType(this, className);
-                if (c != null)
-                {
-                    result = (string)c.GetField("typeId").GetValue(null);
-                    break; // foreach
-                }
-            }
-            catch (System.Exception)
-            {
-            }
-        }
-        return result;
-    }
-
-    private static string typeToClass(string id)
-    {
-        if (!id.StartsWith("::", StringComparison.Ordinal))
-        {
-            throw new Ice.MarshalException("expected type id but received `" + id + "'");
-        }
-        return id.Substring(2).Replace("::", ".");
-    }
-
-    //
     // Only for use by Ice.CommunicatorI
     //
     internal void initialize(Ice.Communicator communicator, Ice.InitializationData initData)
@@ -1546,6 +1461,8 @@ public sealed class Instance
         }
     }
 
+    internal IActivator getActivator() => _activator.Value;
+
     private NetworkProxy createNetworkProxy(Ice.Properties props, int protocolSupport)
     {
         string proxyHost;
@@ -1573,6 +1490,12 @@ public sealed class Instance
     private const int StateActive = 0;
     private const int StateDestroyInProgress = 1;
     private const int StateDestroyed = 2;
+
+    // The lazy initialization ensures GetAssemblies is only called the first time we decode a Slice class or exception,
+    // which should only occur once all the assemblies have been loaded.
+    private readonly Lazy<IActivator> _activator =
+        new(() => IActivator.FromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
+
     private int _state;
     private Ice.InitializationData _initData; // Immutable, not reset by destroy().
     private TraceLevels _traceLevels; // Immutable, not reset by destroy().

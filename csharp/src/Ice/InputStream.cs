@@ -1,6 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
 using System.Diagnostics;
+using System.Globalization;
+
 using Protocol = Ice.Internal.Protocol;
 
 namespace Ice;
@@ -236,7 +238,6 @@ public class InputStream
         _classGraphDepthMax = _instance.classGraphDepthMax();
         _valueFactoryManager = _instance.initializationData().valueFactoryManager;
         _logger = _instance.initializationData().logger;
-        _classResolver = _instance.resolveClass;
     }
 
     private void initialize(EncodingVersion encoding)
@@ -301,28 +302,6 @@ public class InputStream
     public void setLogger(Logger logger)
     {
         _logger = logger;
-    }
-
-    /// <summary>
-    /// Sets the compact ID resolver to use when unmarshaling value and exception
-    /// instances. If the stream was initialized with a communicator, the communicator's
-    /// resolver will be used by default.
-    /// </summary>
-    /// <param name="r">The compact ID resolver.</param>
-    public void setCompactIdResolver(System.Func<int, string> r)
-    {
-        _compactIdResolver = r;
-    }
-
-    /// <summary>
-    /// Sets the class resolver, which the stream will use when attempting to unmarshal
-    /// a value or exception. If the stream was initialized with a communicator, the communicator's
-    /// resolver will be used by default.
-    /// </summary>
-    /// <param name="r">The class resolver.</param>
-    public void setClassResolver(System.Func<string, Type> r)
-    {
-        _classResolver = r;
     }
 
     /// <summary>
@@ -445,14 +424,6 @@ public class InputStream
         Logger tmpLogger = other._logger;
         other._logger = _logger;
         _logger = tmpLogger;
-
-        System.Func<int, string> tmpCompactIdResolver = other._compactIdResolver;
-        other._compactIdResolver = _compactIdResolver;
-        _compactIdResolver = tmpCompactIdResolver;
-
-        System.Func<string, Type> tmpClassResolver = other._classResolver;
-        other._classResolver = _classResolver;
-        _classResolver = tmpClassResolver;
     }
 
     private void resetEncapsulation()
@@ -2658,26 +2629,14 @@ public class InputStream
 
     private UserException createUserException(string id)
     {
-        UserException userEx = null;
-
         try
         {
-            if (_classResolver != null)
-            {
-                Type c = _classResolver(id);
-                if (c != null)
-                {
-                    Debug.Assert(!c.IsAbstract && !c.IsInterface);
-                    userEx = (UserException)Ice.Internal.AssemblyUtil.createInstance(c);
-                }
-            }
+            return (UserException)_instance.getActivator().CreateInstance(id);
         }
         catch (Exception ex)
         {
             throw new MarshalException(ex);
         }
-
-        return userEx;
     }
 
     private Ice.Internal.Instance _instance;
@@ -2702,8 +2661,7 @@ public class InputStream
         };
 
         internal EncapsDecoder(InputStream stream, Encaps encaps, bool sliceValues,
-                               int classGraphDepthMax, ValueFactoryManager f,
-                               System.Func<string, Type> cr)
+                               int classGraphDepthMax, ValueFactoryManager f)
         {
             _stream = stream;
             _encaps = encaps;
@@ -2711,7 +2669,6 @@ public class InputStream
             _classGraphDepthMax = classGraphDepthMax;
             _classGraphDepth = 0;
             _valueFactoryManager = f;
-            _classResolver = cr;
             _typeIdIndex = 0;
             _unmarshaledMap = new Dictionary<int, Value>();
         }
@@ -2759,41 +2716,6 @@ public class InputStream
             }
         }
 
-        protected Type resolveClass(string typeId)
-        {
-            Type cls = null;
-            if (_typeIdCache == null)
-            {
-                _typeIdCache = new Dictionary<string, Type>(); // Lazy initialization.
-            }
-            else
-            {
-                _typeIdCache.TryGetValue(typeId, out cls);
-            }
-
-            if (cls == typeof(EncapsDecoder)) // Marker for non-existent class.
-            {
-                cls = null;
-            }
-            else if (cls == null)
-            {
-                try
-                {
-                    if (_classResolver != null)
-                    {
-                        cls = _classResolver(typeId);
-                        _typeIdCache.Add(typeId, cls != null ? cls : typeof(EncapsDecoder));
-                    }
-                }
-                catch (Exception ex)
-                {
-                    throw new NoValueFactoryException("no value factory", typeId, ex);
-                }
-            }
-
-            return cls;
-        }
-
         protected Value newInstance(string typeId)
         {
             //
@@ -2810,7 +2732,7 @@ public class InputStream
             // If that fails, invoke the default factory if one has been
             // registered.
             //
-            if (v == null)
+            if (v is null)
             {
                 userFactory = _valueFactoryManager.find("");
                 if (userFactory != null)
@@ -2822,21 +2744,15 @@ public class InputStream
             //
             // Last chance: try to instantiate the class dynamically.
             //
-            if (v == null)
+            if (v is null)
             {
-                Type cls = resolveClass(typeId);
-
-                if (cls != null)
+                try
                 {
-                    try
-                    {
-                        Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
-                        v = (Value)Ice.Internal.AssemblyUtil.createInstance(cls);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new NoValueFactoryException("no value factory", typeId, ex);
-                    }
+                    v = (Value)_stream._instance.getActivator().CreateInstance(typeId);
+                }
+                catch (Exception ex)
+                {
+                    throw new NoValueFactoryException("no value factory", typeId, ex);
                 }
             }
 
@@ -2975,7 +2891,6 @@ public class InputStream
         protected readonly int _classGraphDepthMax;
         protected int _classGraphDepth;
         protected ValueFactoryManager _valueFactoryManager;
-        protected System.Func<string, Type> _classResolver;
 
         //
         // Encapsulation attributes for object unmarshaling.
@@ -2985,14 +2900,13 @@ public class InputStream
         private Dictionary<int, string> _typeIdMap;
         private int _typeIdIndex;
         private List<Value> _valueList;
-        private Dictionary<string, Type> _typeIdCache;
     }
 
     private sealed class EncapsDecoder10 : EncapsDecoder
     {
         internal EncapsDecoder10(InputStream stream, Encaps encaps, bool sliceValues, int classGraphDepthMax,
-                                 ValueFactoryManager f, System.Func<string, Type> cr)
-            : base(stream, encaps, sliceValues, classGraphDepthMax, f, cr)
+                                 ValueFactoryManager f)
+            : base(stream, encaps, sliceValues, classGraphDepthMax, f)
         {
             _sliceType = SliceType.NoSlice;
         }
@@ -3311,10 +3225,9 @@ public class InputStream
     private sealed class EncapsDecoder11 : EncapsDecoder
     {
         internal EncapsDecoder11(InputStream stream, Encaps encaps, bool sliceValues, int classGraphDepthMax,
-                                 ValueFactoryManager f, System.Func<string, Type> cr, System.Func<int, string> r)
-            : base(stream, encaps, sliceValues, classGraphDepthMax, f, cr)
+                                 ValueFactoryManager f)
+            : base(stream, encaps, sliceValues, classGraphDepthMax, f)
         {
-            _compactIdResolver = r;
             _current = null;
             _valueIdIndex = 1;
         }
@@ -3721,90 +3634,16 @@ public class InputStream
             Value v = null;
             while (true)
             {
-                bool updateCache = false;
+                string typeId = _current.compactId >= 0 ? _current.compactId.ToString(CultureInfo.InvariantCulture) :
+                    _current.typeId;
 
-                if (_current.compactId >= 0)
+                if (typeId.Length > 0)
                 {
-                    updateCache = true;
-
-                    //
-                    // Translate a compact (numeric) type ID into a class.
-                    //
-                    if (_compactIdCache == null)
+                    v = newInstance(typeId);
+                    if (v is not null)
                     {
-                        _compactIdCache = new Dictionary<int, Type>(); // Lazy initialization.
+                        break;
                     }
-                    else
-                    {
-                        //
-                        // Check the cache to see if we've already translated the compact type ID into a class.
-                        //
-                        Type cls = null;
-                        _compactIdCache.TryGetValue(_current.compactId, out cls);
-                        if (cls != null)
-                        {
-                            try
-                            {
-                                Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
-                                v = (Value)Ice.Internal.AssemblyUtil.createInstance(cls);
-                                updateCache = false;
-                            }
-                            catch (Exception ex)
-                            {
-                                throw new NoValueFactoryException("no value factory", "compact ID " +
-                                                                  _current.compactId, ex);
-                            }
-                        }
-                    }
-
-                    //
-                    // If we haven't already cached a class for the compact ID, then try to translate the
-                    // compact ID into a type ID.
-                    //
-                    if (v == null)
-                    {
-                        _current.typeId = "";
-                        if (_compactIdResolver != null)
-                        {
-                            try
-                            {
-                                _current.typeId = _compactIdResolver(_current.compactId);
-                            }
-                            catch (LocalException)
-                            {
-                                throw;
-                            }
-                            catch (System.Exception ex)
-                            {
-                                throw new MarshalException("exception in CompactIdResolver for ID " +
-                                                               _current.compactId, ex);
-                            }
-                        }
-
-                        if (_current.typeId.Length == 0)
-                        {
-                            _current.typeId = _stream.instance().resolveCompactId(_current.compactId);
-                        }
-                    }
-                }
-
-                if (v == null && _current.typeId.Length > 0)
-                {
-                    v = newInstance(_current.typeId);
-                }
-
-                if (v != null)
-                {
-                    if (updateCache)
-                    {
-                        Debug.Assert(_current.compactId >= 0);
-                        _compactIdCache.Add(_current.compactId, v.GetType());
-                    }
-
-                    //
-                    // We have an instance, get out of this loop.
-                    //
-                    break;
                 }
 
                 //
@@ -3812,8 +3651,7 @@ public class InputStream
                 //
                 if (!_sliceValues)
                 {
-                    throw new NoValueFactoryException("no value factory found and slicing is disabled",
-                                                      _current.typeId);
+                    throw new NoValueFactoryException("no value factory found and slicing is disabled", typeId);
                 }
 
                 //
@@ -3833,7 +3671,7 @@ public class InputStream
                     // last chance to preserve the instance.
                     //
                     v = newInstance(Value.ice_staticId());
-                    if (v == null)
+                    if (v is null)
                     {
                         v = new UnknownSlicedValue(mostDerivedId);
                     }
@@ -3954,10 +3792,8 @@ public class InputStream
             internal InstanceData next;
         }
 
-        private System.Func<int, string> _compactIdResolver;
         private InstanceData _current;
         private int _valueIdIndex; // The ID of the next instance to unmarshal.
-        private Dictionary<int, Type> _compactIdCache;
     }
 
     private sealed class Encaps
@@ -4019,12 +3855,12 @@ public class InputStream
             if (_encapsStack.encoding_1_0)
             {
                 _encapsStack.decoder = new EncapsDecoder10(this, _encapsStack, _sliceValues, _classGraphDepthMax,
-                                                           _valueFactoryManager, _classResolver);
+                                                           _valueFactoryManager);
             }
             else
             {
                 _encapsStack.decoder = new EncapsDecoder11(this, _encapsStack, _sliceValues, _classGraphDepthMax,
-                                                           _valueFactoryManager, _classResolver, _compactIdResolver);
+                                                           _valueFactoryManager);
             }
         }
     }
@@ -4038,8 +3874,6 @@ public class InputStream
 
     private ValueFactoryManager _valueFactoryManager;
     private Logger _logger;
-    private System.Func<int, string> _compactIdResolver;
-    private System.Func<string, Type> _classResolver;
 }
 
 /// <summary>

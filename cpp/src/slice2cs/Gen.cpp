@@ -1835,8 +1835,8 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
 
     printGeneratedHeader(_out, fileBase + ".ice");
 
-    _out << sp << nl << "using _System = global::System;";
-
+    _out << nl << "using _System = global::System;";
+    _out << sp << nl << "[assembly:Ice.Slice(\"" << fileBase << ".ice\")]";
     _out << sp << nl << "#pragma warning disable 1591"; // See bug 3654
 }
 
@@ -1857,14 +1857,8 @@ Slice::Gen::generate(const UnitPtr& p)
     UnitVisitor unitVisitor(_out);
     p->visit(&unitVisitor, false);
 
-    CompactIdVisitor compactIdVisitor(_out);
-    p->visit(&compactIdVisitor, false);
-
     TypesVisitor typesVisitor(_out);
     p->visit(&typesVisitor, false);
-
-    TypeIdVisitor typeIdVisitor(_out);
-    p->visit(&typeIdVisitor, false);
 
     ResultVisitor resultVisitor(_out);
     p->visit(&resultVisitor, false);
@@ -1924,119 +1918,7 @@ Slice::Gen::UnitVisitor::visitUnitStart(const UnitPtr& p)
     return false;
 }
 
-Slice::Gen::CompactIdVisitor::CompactIdVisitor(IceUtilInternal::Output& out) : CsVisitor(out) {}
-
-bool
-Slice::Gen::CompactIdVisitor::visitUnitStart(const UnitPtr& p)
-{
-    if (p->hasCompactTypeId())
-    {
-        string typeIdNs = getCustomTypeIdNamespace(p);
-
-        if (typeIdNs.empty())
-        {
-            // TODO: replace by namespace Ice.TypeId, see issue #239
-            //
-            _out << sp << nl << "namespace IceCompactId";
-        }
-        else
-        {
-            _out << sp << nl << "namespace " << typeIdNs;
-        }
-
-        _out << sb;
-        return true;
-    }
-    return false;
-}
-
-void
-Slice::Gen::CompactIdVisitor::visitUnitEnd(const UnitPtr&)
-{
-    _out << eb;
-}
-
-bool
-Slice::Gen::CompactIdVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if (p->compactId() >= 0)
-    {
-        _out << sp;
-        emitGeneratedCodeAttribute();
-
-        // TODO: rename to class Compact_Xxx, see issue #239
-        //
-        _out << nl << "public sealed class TypeId_" << p->compactId();
-        _out << sb;
-        _out << nl << "public const string typeId = \"" << p->scoped() << "\";";
-        _out << eb;
-    }
-    return false;
-}
-
-Slice::Gen::TypeIdVisitor::TypeIdVisitor(IceUtilInternal::Output& out) : CsVisitor(out) {}
-
-bool
-Slice::Gen::TypeIdVisitor::visitModuleStart(const ModulePtr& p)
-{
-    string ns = getNamespacePrefix(p);
-
-    if (!ns.empty() && (p->hasValueDefs() || p->hasExceptions()))
-    {
-        string name = fixId(p->name());
-        if (!dynamic_pointer_cast<Contained>(p->container()))
-        {
-            // Top-level module
-            //
-            string typeIdNs = getCustomTypeIdNamespace(p->unit());
-            if (typeIdNs.empty())
-            {
-                typeIdNs = "Ice.TypeId";
-            }
-
-            name = typeIdNs + "." + name;
-        }
-        _out << sp << nl << "namespace " << name;
-        _out << sb;
-        return true;
-    }
-    return false;
-}
-
-void
-Slice::Gen::TypeIdVisitor::visitModuleEnd(const ModulePtr&)
-{
-    _out << eb;
-}
-
-bool
-Slice::Gen::TypeIdVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    generateHelperClass(p);
-    return false;
-}
-
-bool
-Slice::Gen::TypeIdVisitor::visitExceptionStart(const ExceptionPtr& p)
-{
-    generateHelperClass(p);
-    return false;
-}
-
-void
-Slice::Gen::TypeIdVisitor::generateHelperClass(const ContainedPtr& p)
-{
-    string name = fixId(p->name());
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public abstract class " << name;
-    _out << sb;
-    _out << nl << "public abstract global::" << getNamespace(p) << "." << name << " targetClass { get; }";
-    _out << eb;
-}
-
 Slice::Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& out) : CsVisitor(out) {}
-
 bool
 Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
@@ -2072,8 +1954,12 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     emitComVisibleAttribute();
     emitPartialTypeAttributes();
-    _out << nl << "public ";
-    _out << "partial class " << fixId(name);
+    _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
+    if (p->compactId() >= 0)
+    {
+        _out << nl << "[Ice.CompactSliceTypeId(" << p->compactId() << ")]";
+    }
+    _out << nl << "public partial class " << fixId(name);
 
     if (base)
     {
@@ -2288,6 +2174,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1032\")]";
 
     emitPartialTypeAttributes();
+    _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
     _out << nl << "public partial class " << name << " : ";
     if (base)
     {

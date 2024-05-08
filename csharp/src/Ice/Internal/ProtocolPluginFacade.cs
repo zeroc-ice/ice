@@ -19,11 +19,6 @@ public interface ProtocolPluginFacade
     // Get an EndpointFactory.
     //
     EndpointFactory getEndpointFactory(short type);
-
-    //
-    // Obtain the type for a name.
-    //
-    System.Type findType(string name);
 }
 
 public sealed class ProtocolPluginFacadeI : ProtocolPluginFacade
@@ -57,14 +52,6 @@ public sealed class ProtocolPluginFacadeI : ProtocolPluginFacade
     public EndpointFactory getEndpointFactory(short type)
     {
         return _instance.endpointFactoryManager().get(type);
-    }
-
-    //
-    // Obtain the type for a name.
-    //
-    public System.Type findType(string name)
-    {
-        return AssemblyUtil.findType(_instance, name);
     }
 
     private Instance _instance;

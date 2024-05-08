@@ -3,8 +3,6 @@
 //
 
 #pragma once
-
-[["cs:typeid-namespace:Ice.optional.AMD.TypeId"]]
 ["cs:namespace:Ice.optional.AMD"]
 module Test
 {

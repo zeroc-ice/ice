@@ -3,8 +3,6 @@
 //
 
 #pragma once
-
-[["cs:typeid-namespace:Ice.scope.TypeId"]]
 ["cs:namespace:Ice.scope"]
 module Test
 {
