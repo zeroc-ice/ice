@@ -77,7 +77,7 @@ namespace
         string deprecatedSymbol;
         if (p1->isDeprecated(true))
         {
-            if (auto reason = p1->getDeprecationReason(false))
+            if (auto reason = p1->getDeprecationReason(true))
             {
                 deprecatedSymbol = "[[deprecated(\"" + *reason + "\")]] ";
             }
