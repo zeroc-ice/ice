@@ -1067,14 +1067,14 @@ public class AllTests {
         os.writeValue(p1);
         os.endEncapsulation();
         inEncaps = os.finished();
-        inv = initial.ice_invoke("opOneOptionalReq", OperationMode.Normal, inEncaps);
+        inv = initial.ice_invoke("opOneOptional", OperationMode.Normal, inEncaps);
         in = new InputStream(communicator, inv.outParams);
         in.startEncapsulation();
         Wrapper<OneOptional> p2cb = new Wrapper<>();
         in.readValue(v -> p2cb.value = v, OneOptional.class);
         Wrapper<OneOptional> p3cb = new Wrapper<>();
         in.readValue(v -> p3cb.value = v, OneOptional.class);
-        os.endEncapsulation();
+        in.endEncapsulation();
         test(p2cb.value.getA() == 58 && p3cb.value.getA() == 58);
       }
     }

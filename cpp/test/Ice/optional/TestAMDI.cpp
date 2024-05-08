@@ -203,8 +203,7 @@ InitialI::opMyInterfaceProxyAsync(
 void
 InitialI::opOneOptionalAsync(
     shared_ptr<Test::OneOptional> p1,
-    function<void(const shared_ptr<Test::OneOptional>&, const shared_ptr<Test::OneOptional>&)>
-        response,
+    function<void(const shared_ptr<Test::OneOptional>&, const shared_ptr<Test::OneOptional>&)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {

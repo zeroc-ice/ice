@@ -121,9 +121,7 @@ public:
 
     void opOneOptionalAsync(
         std::shared_ptr<Test::OneOptional>,
-        std::function<void(
-            const std::shared_ptr<Test::OneOptional>&,
-            const std::shared_ptr<Test::OneOptional>&)>,
+        std::function<void(const std::shared_ptr<Test::OneOptional>&, const std::shared_ptr<Test::OneOptional>&)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 

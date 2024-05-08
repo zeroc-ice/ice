@@ -130,7 +130,7 @@ class FValueReader: Ice.Value {
     istr.startValue()
     _ = try istr.startSlice()
     // Don't read fsf on purpose
-    // in.read(1, _f.fsf);
+    // in.read(1, _f.fsf)
     try istr.endSlice()
     _ = try istr.startSlice()
     self._f.fse = try istr.read()
@@ -1845,12 +1845,12 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     let ostr = Ice.OutputStream(communicator: communicator)
     ostr.startEncapsulation()
     ostr.write(p1)
-    ostr.endEncapsulation();
+    ostr.endEncapsulation()
     let inEncaps = ostr.finished()
     let result = try initial.ice_invoke(
       operation: "opOneOptional", mode: .Normal, inEncaps: inEncaps)
     var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-    _ = try istr.startEncapsulation();
+    _ = try istr.startEncapsulation()
     var v1: OneOptional?
     try istr.read { v1 = $0 }
     var v2: OneOptional?
