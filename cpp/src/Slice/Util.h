@@ -59,5 +59,7 @@ namespace Slice
     bool checkIdentifier(const std::string&);
 
     bool isProxyType(const TypePtr& type);
+
+    bool contains(const DataMemberList&, const DataMemberPtr&);
 }
 #endif

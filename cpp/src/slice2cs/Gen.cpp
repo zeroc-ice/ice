@@ -462,16 +462,10 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
             {
                 string param = "iceP_" + (*pli)->name();
                 string typeS = typeToString((*pli)->type(), ns, (*pli)->optional());
-                const bool isClass = isClassType((*pli)->type());
 
                 if ((*pli)->optional())
                 {
-                    _out << nl << typeS << ' ' << param;
-                    if (isClass)
-                    {
-                        _out << " = " << getUnqualified("Ice.Util", ns) << ".None";
-                    }
-                    _out << ';';
+                    _out << nl << typeS << ' ' << param << ";";
                 }
                 else
                 {
@@ -1055,23 +1049,6 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
             _out << value;
         }
     }
-}
-
-bool
-Slice::CsVisitor::requiresDataMemberInitializers(const DataMemberList& members)
-{
-    for (DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
-    {
-        if (!(*p)->optional())
-        {
-            StructPtr st = dynamic_pointer_cast<Struct>((*p)->type());
-            if (st && isMappedToClass(st))
-            {
-                return true;
-            }
-        }
-    }
-    return false;
 }
 
 void
@@ -2041,7 +2018,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
         vector<string> paramDecl;
         vector<string> secondaryCtorParams;
-        vector<string> secondaryCtorParamNames;
+        vector<string> secondaryCtorMemberNames;
         vector<string> secondaryCtorBaseParamNames;
         for (const auto& q : allDataMembers)
         {
@@ -2055,10 +2032,15 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 (st && isMappedToClass(st)))
             {
                 secondaryCtorParams.push_back(memberType + " " + memberName);
-                secondaryCtorParamNames.push_back(memberName);
+
+                if (contains(dataMembers, q))
+                {
+                    secondaryCtorMemberNames.push_back(memberName);
+                }
             }
         }
         _out << paramDecl << epar;
+
         if (base && allDataMembers.size() != dataMembers.size())
         {
             _out << " : base" << spar;
@@ -2082,24 +2064,24 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         _out << sb;
         for (const auto& q : dataMembers)
         {
-            const string paramName = fixId(q->name(), DotNet::ICloneable);
-            _out << nl << "this." << paramName << " = " << paramName << ';';
+            const string memberName = fixId(q->name(), DotNet::ICloneable);
+            _out << nl << "this." << memberName << " = " << memberName << ';';
         }
         _out << nl << "ice_initialize();";
         _out << eb;
 
         // Non-primary constructor. Can be parameterless.
-        if (secondaryCtorParams.size() != allDataMembers.size())
+        if (secondaryCtorParams.size() != paramDecl.size())
         {
             _out << sp;
             emitGeneratedCodeAttribute();
             _out << nl << "public " << name << spar << secondaryCtorParams << epar;
-            if (base)
+            if (base && secondaryCtorBaseParamNames.size() > 0)
             {
                 _out << " : base" << spar << secondaryCtorBaseParamNames << epar;
             }
             _out << sb;
-            for (const auto& q : secondaryCtorParamNames)
+            for (const auto& q : secondaryCtorMemberNames)
             {
                 _out << nl << "this." << q << " = " << q << ';';
             }
@@ -2256,40 +2238,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     DataMemberList allClassMembers = p->allClassDataMembers();
     DataMemberList classMembers = p->classDataMembers();
     DataMemberList optionalMembers = p->orderedOptionalDataMembers();
-
-    vector<string> allParamDecl;
-    for (DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
-    {
-        string memberName = fixId((*q)->name());
-        string memberType = typeToString((*q)->type(), ns, (*q)->optional());
-        allParamDecl.push_back(memberType + " " + memberName);
-    }
-
-    vector<string> paramNames;
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        paramNames.push_back(fixId((*q)->name()));
-    }
-
-    vector<string> paramDecl;
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        string memberName = fixId((*q)->name());
-        string memberType = typeToString((*q)->type(), ns, (*q)->optional());
-        paramDecl.push_back(memberType + " " + memberName);
-    }
-
-    vector<string> baseParamNames;
-    DataMemberList baseDataMembers;
-
-    if (p->base())
-    {
-        baseDataMembers = p->base()->allDataMembers();
-        for (DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
-        {
-            baseParamNames.push_back(fixId((*q)->name()));
-        }
-    }
+    ExceptionPtr base = p->base();
 
     if (!dataMembers.empty())
     {
@@ -2298,87 +2247,112 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     _out << sp << nl << "#region Constructors";
 
-    const bool hasDataMemberInitializers = requiresDataMemberInitializers(dataMembers);
-    if (hasDataMemberInitializers)
+    string exParam = getEscapedParamName(allDataMembers, "innerException");
+
+    // Primary constructor.
+    _out << sp;
+    emitGeneratedCodeAttribute();
+    _out << nl << "public " << name << spar;
+
+    vector<string> paramDecl;
+    vector<string> secondaryCtorParams;
+    vector<string> secondaryCtorMemberNames;
+    vector<string> secondaryCtorBaseParamNames;
+    bool hideParameterlessCtor = false;
+
+    for (const auto& q : allDataMembers)
+    {
+        string memberName = fixId(q->name(), DotNet::Exception);
+        string memberType = typeToString(q->type(), ns, q->optional());
+        paramDecl.push_back(memberType + " " + memberName);
+
+        StructPtr st = dynamic_pointer_cast<Struct>(q->type());
+        if (dynamic_pointer_cast<Sequence>(q->type()) || dynamic_pointer_cast<Dictionary>(q->type()) ||
+            (st && isMappedToClass(st)))
+        {
+            secondaryCtorParams.push_back(memberType + " " + memberName);
+            if (contains(dataMembers, q))
+            {
+                secondaryCtorMemberNames.push_back(memberName);
+            }
+            hideParameterlessCtor = true;
+        }
+    }
+    // Add exception for inner exception. It's defaulted to null only if it's not the only parameter.
+    if (paramDecl.size() > 0)
+    {
+        paramDecl.push_back("global::System.Exception " + exParam + " = null");
+    }
+    else
+    {
+        paramDecl.push_back("global::System.Exception " + exParam);
+    }
+    if (secondaryCtorParams.size() > 0)
+    {
+        secondaryCtorParams.push_back("global::System.Exception " + exParam + " = null");
+    }
+    else
+    {
+        secondaryCtorParams.push_back("global::System.Exception " + exParam);
+    }
+
+    _out << paramDecl << epar;
+    _out << " : base" << spar;
+    vector<string> baseParamNames;
+    if (base)
+    {
+        DataMemberList baseDataMembers = base->allDataMembers();
+        for (const auto& q : baseDataMembers)
+        {
+            string memberName = fixId(q->name(), DotNet::Exception);
+            baseParamNames.push_back(memberName);
+
+            StructPtr st = dynamic_pointer_cast<Struct>(q->type());
+            if (dynamic_pointer_cast<Sequence>(q->type()) || dynamic_pointer_cast<Dictionary>(q->type()) ||
+                (st && isMappedToClass(st)))
+            {
+                secondaryCtorBaseParamNames.push_back(memberName);
+            }
+        }
+    }
+    baseParamNames.push_back(exParam);
+    secondaryCtorBaseParamNames.push_back(exParam);
+
+    _out << baseParamNames << epar;
+    _out << sb;
+    for (const auto& q : dataMembers)
+    {
+        const string memberName = fixId(q->name(), DotNet::Exception);
+        _out << nl << "this." << memberName << " = " << memberName << ';';
+    }
+    _out << eb;
+
+    // Non-primary constructor. If generated, it has at least one parameter without a default value.
+    if (secondaryCtorParams.size() != paramDecl.size())
     {
         _out << sp;
         emitGeneratedCodeAttribute();
-        _out << nl << "private void _initDM()";
+        _out << nl << "public " << name << spar << secondaryCtorParams << epar;
+        _out << " : base" << spar << secondaryCtorBaseParamNames << epar;
         _out << sb;
-        writeDataMemberInitializers(dataMembers, DotNet::Exception);
+        for (const auto& q : secondaryCtorMemberNames)
+        {
+            _out << nl << "this." << q << " = " << q << ';';
+        }
         _out << eb;
     }
 
+    // Parameterless constructor. Required for unmarshaling.
     _out << sp;
     emitGeneratedCodeAttribute();
+    if (hideParameterlessCtor)
+    {
+        emitNonBrowsableAttribute();
+    }
     _out << nl << "public " << name << "()";
     _out << sb;
-    if (hasDataMemberInitializers)
-    {
-        _out << nl << "_initDM();";
-    }
+    writeDataMemberInitializers(dataMembers, DotNet::Exception);
     _out << eb;
-
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public " << name << "(global::System.Exception ex) : base(ex)";
-    _out << sb;
-    if (hasDataMemberInitializers)
-    {
-        _out << nl << "_initDM();";
-    }
-    _out << eb;
-
-    if (!allDataMembers.empty())
-    {
-        if (!dataMembers.empty())
-        {
-            _out << sp;
-            emitGeneratedCodeAttribute();
-            _out << nl << "private void _initDM" << spar << paramDecl << epar;
-            _out << sb;
-            for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-            {
-                string memberName = fixId((*q)->name(), DotNet::Exception, false);
-                _out << nl << "this." << memberName << " = " << fixId((*q)->name()) << ';';
-            }
-            _out << eb;
-        }
-
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public " << name << spar << allParamDecl << epar;
-        if (p->base() && allDataMembers.size() != dataMembers.size())
-        {
-            _out << " : base" << spar << baseParamNames << epar;
-        }
-        _out << sb;
-        if (!dataMembers.empty())
-        {
-            _out << nl << "_initDM" << spar << paramNames << epar << ';';
-        }
-        _out << eb;
-
-        string exParam = getEscapedParamName(allDataMembers, "ex");
-        vector<string> exceptionParam;
-        exceptionParam.push_back(exParam);
-        vector<string> exceptionDecl;
-        exceptionDecl.push_back("global::System.Exception " + exParam);
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public " << name << spar << allParamDecl << exceptionDecl << epar << " : base" << spar;
-        if (p->base() && allDataMembers.size() != dataMembers.size())
-        {
-            _out << baseParamNames;
-        }
-        _out << exceptionParam << epar;
-        _out << sb;
-        if (!dataMembers.empty())
-        {
-            _out << nl << "_initDM" << spar << paramNames << epar << ';';
-        }
-        _out << eb;
-    }
 
     _out << sp << nl << "#endregion"; // Constructors
 
@@ -2392,7 +2366,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << sp << nl << "#region Marshaling support";
 
     string scoped = p->scoped();
-    ExceptionPtr base = p->base();
 
     _out << sp;
     emitGeneratedCodeAttribute();
