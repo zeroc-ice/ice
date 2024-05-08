@@ -236,7 +236,6 @@ public class InputStream
         _classGraphDepthMax = _instance.classGraphDepthMax();
         _valueFactoryManager = _instance.initializationData().valueFactoryManager;
         _logger = _instance.initializationData().logger;
-        _classResolver = _instance.resolveClass;
     }
 
     private void initialize(EncodingVersion encoding)
@@ -312,17 +311,6 @@ public class InputStream
     public void setCompactIdResolver(System.Func<int, string> r)
     {
         _compactIdResolver = r;
-    }
-
-    /// <summary>
-    /// Sets the class resolver, which the stream will use when attempting to unmarshal
-    /// a value or exception. If the stream was initialized with a communicator, the communicator's
-    /// resolver will be used by default.
-    /// </summary>
-    /// <param name="r">The class resolver.</param>
-    public void setClassResolver(System.Func<string, Type> r)
-    {
-        _classResolver = r;
     }
 
     /// <summary>
@@ -449,10 +437,6 @@ public class InputStream
         System.Func<int, string> tmpCompactIdResolver = other._compactIdResolver;
         other._compactIdResolver = _compactIdResolver;
         _compactIdResolver = tmpCompactIdResolver;
-
-        System.Func<string, Type> tmpClassResolver = other._classResolver;
-        other._classResolver = _classResolver;
-        _classResolver = tmpClassResolver;
     }
 
     private void resetEncapsulation()
@@ -2690,8 +2674,7 @@ public class InputStream
         };
 
         internal EncapsDecoder(InputStream stream, Encaps encaps, bool sliceValues,
-                               int classGraphDepthMax, ValueFactoryManager f,
-                               System.Func<string, Type> cr)
+                               int classGraphDepthMax, ValueFactoryManager f)
         {
             _stream = stream;
             _encaps = encaps;
@@ -2699,7 +2682,6 @@ public class InputStream
             _classGraphDepthMax = classGraphDepthMax;
             _classGraphDepth = 0;
             _valueFactoryManager = f;
-            _classResolver = cr;
             _typeIdIndex = 0;
             _unmarshaledMap = new Dictionary<int, Value>();
         }
@@ -2745,41 +2727,6 @@ public class InputStream
                 _typeIdMap.Add(++_typeIdIndex, typeId);
                 return typeId;
             }
-        }
-
-        protected Type resolveClass(string typeId)
-        {
-            Type cls = null;
-            if (_typeIdCache == null)
-            {
-                _typeIdCache = new Dictionary<string, Type>(); // Lazy initialization.
-            }
-            else
-            {
-                _typeIdCache.TryGetValue(typeId, out cls);
-            }
-
-            if (cls == typeof(EncapsDecoder)) // Marker for non-existent class.
-            {
-                cls = null;
-            }
-            else if (cls == null)
-            {
-                try
-                {
-                    if (_classResolver != null)
-                    {
-                        cls = _classResolver(typeId);
-                        _typeIdCache.Add(typeId, cls != null ? cls : typeof(EncapsDecoder));
-                    }
-                }
-                catch (Exception ex)
-                {
-                    throw new NoValueFactoryException("no value factory", typeId, ex);
-                }
-            }
-
-            return cls;
         }
 
         protected Value newInstance(string typeId)
@@ -2957,7 +2904,6 @@ public class InputStream
         protected readonly int _classGraphDepthMax;
         protected int _classGraphDepth;
         protected ValueFactoryManager _valueFactoryManager;
-        protected System.Func<string, Type> _classResolver;
 
         //
         // Encapsulation attributes for object unmarshaling.
@@ -2967,14 +2913,13 @@ public class InputStream
         private Dictionary<int, string> _typeIdMap;
         private int _typeIdIndex;
         private List<Value> _valueList;
-        private Dictionary<string, Type> _typeIdCache;
     }
 
     private sealed class EncapsDecoder10 : EncapsDecoder
     {
         internal EncapsDecoder10(InputStream stream, Encaps encaps, bool sliceValues, int classGraphDepthMax,
-                                 ValueFactoryManager f, System.Func<string, Type> cr)
-            : base(stream, encaps, sliceValues, classGraphDepthMax, f, cr)
+                                 ValueFactoryManager f)
+            : base(stream, encaps, sliceValues, classGraphDepthMax, f)
         {
             _sliceType = SliceType.NoSlice;
         }
@@ -3293,8 +3238,8 @@ public class InputStream
     private sealed class EncapsDecoder11 : EncapsDecoder
     {
         internal EncapsDecoder11(InputStream stream, Encaps encaps, bool sliceValues, int classGraphDepthMax,
-                                 ValueFactoryManager f, System.Func<string, Type> cr, System.Func<int, string> r)
-            : base(stream, encaps, sliceValues, classGraphDepthMax, f, cr)
+                                 ValueFactoryManager f, System.Func<int, string> r)
+            : base(stream, encaps, sliceValues, classGraphDepthMax, f)
         {
             _compactIdResolver = r;
             _current = null;
@@ -4001,12 +3946,12 @@ public class InputStream
             if (_encapsStack.encoding_1_0)
             {
                 _encapsStack.decoder = new EncapsDecoder10(this, _encapsStack, _sliceValues, _classGraphDepthMax,
-                                                           _valueFactoryManager, _classResolver);
+                                                           _valueFactoryManager);
             }
             else
             {
                 _encapsStack.decoder = new EncapsDecoder11(this, _encapsStack, _sliceValues, _classGraphDepthMax,
-                                                           _valueFactoryManager, _classResolver, _compactIdResolver);
+                                                           _valueFactoryManager, _compactIdResolver);
             }
         }
     }
@@ -4021,7 +3966,6 @@ public class InputStream
     private ValueFactoryManager _valueFactoryManager;
     private Logger _logger;
     private System.Func<int, string> _compactIdResolver;
-    private System.Func<string, Type> _classResolver;
 }
 
 /// <summary>

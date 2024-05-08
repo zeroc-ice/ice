@@ -664,51 +664,6 @@ public sealed class Instance
         _initData.threadStop = threadStop;
     }
 
-    //
-    // Return the C# class associated with this Slice type-id
-    // Used for both non-local Slice classes and exceptions
-    //
-    public Type resolveClass(string id)
-    {
-        // First attempt corresponds to no cs:namespace metadata in the
-        // enclosing top-level module
-        //
-        string className = typeToClass(id);
-        Type c = AssemblyUtil.findType(this, className);
-
-        //
-        // If this fails, look for helper classes in the typeIdNamespaces namespace(s)
-        //
-        if (c == null && _initData.typeIdNamespaces != null)
-        {
-            foreach (var ns in _initData.typeIdNamespaces)
-            {
-                Type helper = AssemblyUtil.findType(this, ns + "." + className);
-                if (helper != null)
-                {
-                    try
-                    {
-                        c = helper.GetProperty("targetClass").PropertyType;
-                        break; // foreach
-                    }
-                    catch (System.Exception)
-                    {
-                    }
-                }
-            }
-        }
-
-        //
-        // Ensure the class is instantiable.
-        //
-        if (c != null && !c.IsAbstract && !c.IsInterface)
-        {
-            return c;
-        }
-
-        return null;
-    }
-
     public string resolveCompactId(int compactId)
     {
         string[] defaultVal = { "IceCompactId" };
@@ -738,15 +693,6 @@ public sealed class Instance
             }
         }
         return result;
-    }
-
-    private static string typeToClass(string id)
-    {
-        if (!id.StartsWith("::", StringComparison.Ordinal))
-        {
-            throw new Ice.MarshalException("expected type id but received `" + id + "'");
-        }
-        return id.Substring(2).Replace("::", ".");
     }
 
     //
