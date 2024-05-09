@@ -3,7 +3,7 @@
 //
 
 #include "RFC2253.h"
-#include "Ice/SSL/Certificate.h"
+#include "Ice/SSL/Exception.h"
 #include "IceUtil/StringUtil.h"
 
 #include <cassert>

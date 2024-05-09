@@ -10,7 +10,7 @@
 #include "../Base64.h"
 #include "../Network.h"
 #include "Ice/LocalException.h"
-#include "Ice/SSL/Certificate.h"
+#include "Ice/SSL/Exception.h"
 #include "Ice/StringConverter.h"
 #include "Ice/UniqueRef.h"
 #include "IceUtil/FileUtil.h"

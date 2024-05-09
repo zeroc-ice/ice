@@ -5,8 +5,8 @@
 #ifndef ICE_SSL_SSL_UTIL_H
 #define ICE_SSL_SSL_UTIL_H
 
+#include "DistinguishedName.h"
 #include "Ice/Config.h"
-#include "Ice/SSL/Certificate.h"
 #include "Ice/SSL/Config.h"
 
 #include <functional>

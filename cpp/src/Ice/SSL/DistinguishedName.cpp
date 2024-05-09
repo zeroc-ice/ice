@@ -2,14 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/SSL/Certificate.h"
+#include "DistinguishedName.h"
 #include "RFC2253.h"
 
 #include <sstream>
 
 using namespace std;
 using namespace Ice;
-using namespace IceInternal;
 using namespace Ice::SSL;
 
 DistinguishedName::DistinguishedName(const string& dn) : _rdns(RFC2253::parseStrict(dn)) { unescape(); }
