@@ -216,6 +216,8 @@ interface Initial
 
     optional(1) MyInterface* opMyInterfaceProxy(optional(2) MyInterface* p1, out optional(3) MyInterface* p3);
 
+    OneOptional opOneOptional(OneOptional p1, out OneOptional p3);
+
     optional(1) ByteSeq opByteSeq(optional(2) ByteSeq p1, out optional(3) ByteSeq p3);
 
     optional(1) BoolSeq opBoolSeq(optional(2) BoolSeq p1, out optional(3) BoolSeq p3);
@@ -267,8 +269,6 @@ interface Initial
     bool supportsRequiredParams();
 
     bool supportsJavaSerializable();
-
-    bool supportsNullOptional();
 }
 
 }

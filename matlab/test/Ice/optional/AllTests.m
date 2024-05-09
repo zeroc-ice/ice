@@ -518,12 +518,9 @@ classdef AllTests
             [p2, p3] = f.fetchOutputs();
             assert(p2 == p1 && p3 == p1);
 
-            [p2, p3] = initial.opOneOptional(Ice.Unset);
-            assert(p2 == Ice.Unset && p3 == Ice.Unset);
-            if initial.supportsNullOptional()
-                [p2, p3] = initial.opOneOptional([]);
-                assert(isempty(p2) && isempty(p3));
-            end
+            p1 = OneOptional();
+            [p2, p3] = initial.opOneOptional(p1);
+            assert(p2.a == Ice.Unset && p3.a == Ice.Unset);
             p1 = OneOptional(58);
             [p2, p3] = initial.opOneOptional(p1);
             assert(p2.a == p1.a && p3.a == p1.a);
@@ -729,81 +726,70 @@ classdef AllTests
             fprintf('testing exception optionals... ');
 
             try
-                initial.opOptionalException(Ice.Unset, Ice.Unset, Ice.Unset);
+                initial.opOptionalException(Ice.Unset, Ice.Unset);
             catch ex
                 assert(isa(ex, 'Test.OptionalException'));
                 assert(ex.a == Ice.Unset);
                 assert(ex.b == Ice.Unset);
-                assert(ex.o == Ice.Unset);
             end
 
             try
-                initial.opOptionalException(30, 'test', OneOptional(53));
+                initial.opOptionalException(30, 'test');
             catch ex
                 assert(isa(ex, 'Test.OptionalException'));
                 assert(ex.a == 30);
                 assert(strcmp(ex.b, 'test'));
-                assert(ex.o.a == 53);
             end
 
             try
                 %
-                % Use the 1.0 encoding with an exception whose only class members are optional.
+                % Use the 1.0 encoding with an exception whose only data members are optional.
                 %
-                initial.ice_encodingVersion(Ice.EncodingVersion(1, 0)).opOptionalException(30, 'test', OneOptional(53));
+                initial.ice_encodingVersion(Ice.EncodingVersion(1, 0)).opOptionalException(30, 'test');
             catch ex
                 assert(isa(ex, 'Test.OptionalException'));
                 assert(ex.a == Ice.Unset);
                 assert(ex.b == Ice.Unset);
-                assert(ex.o == Ice.Unset);
             end
 
             try
-                initial.opDerivedException(Ice.Unset, Ice.Unset, Ice.Unset);
+                initial.opDerivedException(Ice.Unset, Ice.Unset);
             catch ex
                 assert(isa(ex, 'Test.DerivedException'));
                 assert(ex.a == Ice.Unset);
                 assert(ex.b == Ice.Unset);
-                assert(ex.o == Ice.Unset);
                 assert(ex.ss == Ice.Unset);
-                assert(ex.o2 == Ice.Unset);
                 assert(strcmp(ex.d1, 'd1'));
                 assert(strcmp(ex.d2, 'd2'));
             end
 
             try
-                initial.opDerivedException(30, 'test2', OneOptional(53));
+                initial.opDerivedException(30, 'test2');
             catch ex
                 assert(isa(ex, 'Test.DerivedException'));
                 assert(ex.a == 30);
                 assert(strcmp(ex.b, 'test2'));
-                assert(ex.o.a == 53);
                 assert(strcmp(ex.ss, 'test2'));
-                assert(ex.o2 == ex.o);
                 assert(strcmp(ex.d1, 'd1'));
                 assert(strcmp(ex.d2, 'd2'));
             end
 
             try
-                initial.opRequiredException(Ice.Unset, Ice.Unset, Ice.Unset);
+                initial.opRequiredException(Ice.Unset, Ice.Unset);
             catch ex
                 assert(isa(ex, 'Test.RequiredException'));
                 assert(ex.a == Ice.Unset);
                 assert(ex.b == Ice.Unset);
-                assert(ex.o == Ice.Unset);
                 assert(strcmp(ex.ss, 'test'));
-                assert(isempty(ex.o2));
             end
 
             try
-                initial.opRequiredException(30, 'test2', OneOptional(53));
+                initial.opRequiredException(30, 'test2');
             catch ex
                 assert(isa(ex, 'Test.RequiredException'));
                 assert(ex.a == 30);
                 assert(strcmp(ex.b, 'test2'));
-                assert(ex.o.a == 53);
                 assert(strcmp(ex.ss, 'test2'));
-                assert(ex.o2 == ex.o);
             end
 
             fprintf('ok\n');

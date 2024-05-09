@@ -25,43 +25,35 @@ InitialI::pingPong(shared_ptr<Value> obj, const Current& current)
 }
 
 void
-InitialI::opOptionalException(optional<int32_t> a, optional<string> b, optional<OneOptionalPtr> o, const Ice::Current&)
+InitialI::opOptionalException(optional<int32_t> a, optional<string> b, const Ice::Current&)
 {
     OptionalException ex;
     ex.a = a;
     ex.b = b;
-    ex.o = o;
     throw ex;
 }
 
 void
-InitialI::opDerivedException(optional<int32_t> a, optional<string> b, optional<OneOptionalPtr> o, const Ice::Current&)
+InitialI::opDerivedException(optional<int32_t> a, optional<string> b, const Ice::Current&)
 {
     DerivedException ex;
     ex.a = a;
     ex.b = b;
-    ex.o = o;
     ex.ss = b;
-    ex.o2 = o;
     ex.d1 = "d1";
     ex.d2 = "d2";
     throw ex;
 }
 
 void
-InitialI::opRequiredException(optional<int32_t> a, optional<string> b, optional<OneOptionalPtr> o, const Ice::Current&)
+InitialI::opRequiredException(optional<int32_t> a, optional<string> b, const Ice::Current&)
 {
     RequiredException ex;
     ex.a = a;
     ex.b = b;
-    ex.o = o;
     if (b)
     {
         ex.ss = b.value();
-    }
-    if (o)
-    {
-        ex.o2 = o.value();
     }
     throw ex;
 }
@@ -150,15 +142,15 @@ InitialI::opVarStruct(optional<VarStruct> p1, optional<VarStruct>& p3, const Cur
     return p1;
 }
 
-optional<OneOptionalPtr>
-InitialI::opOneOptional(optional<OneOptionalPtr> p1, optional<OneOptionalPtr>& p3, const Current&)
+optional<MyInterfacePrx>
+InitialI::opMyInterfaceProxy(optional<MyInterfacePrx> p1, optional<MyInterfacePrx>& p3, const Current&)
 {
     p3 = p1;
     return p1;
 }
 
-optional<MyInterfacePrx>
-InitialI::opMyInterfaceProxy(optional<MyInterfacePrx> p1, optional<MyInterfacePrx>& p3, const Current&)
+OneOptionalPtr
+InitialI::opOneOptional(OneOptionalPtr p1, OneOptionalPtr& p3, const Current&)
 {
     p3 = p1;
     return p1;
@@ -386,18 +378,6 @@ InitialI::opMDict2(optional<Test::StringIntDict> p1, const Ice::Current& current
     return OpMDict2MarshaledResult(p1, p1, current);
 }
 
-InitialI::OpMG1MarshaledResult
-InitialI::opMG1(const Ice::Current& current)
-{
-    return OpMG1MarshaledResult(make_shared<G>(), current);
-}
-
-InitialI::OpMG2MarshaledResult
-InitialI::opMG2(optional<Test::GPtr> p1, const Ice::Current& current)
-{
-    return OpMG2MarshaledResult(p1, p1, current);
-}
-
 bool
 InitialI::supportsRequiredParams(const Ice::Current&)
 {
@@ -414,10 +394,4 @@ bool
 InitialI::supportsCsharpSerializable(const Ice::Current&)
 {
     return true;
-}
-
-bool
-InitialI::supportsNullOptional(const Ice::Current&)
-{
-    return false;
 }
