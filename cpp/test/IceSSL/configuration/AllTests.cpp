@@ -1112,6 +1112,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     cout << "ok" << endl;
 #endif
 
+#ifndef ICE_USE_SECURE_TRANSPORT_IOS
     cout << "testing IceSSL.TrustOnly... " << flush;
     //
     // iOS support only provides access to the CN of the certificate so we
@@ -1932,6 +1933,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         comm->destroy();
     }
     cout << "ok" << endl;
+#endif
 
     {
 #if defined(ICE_USE_SCHANNEL)

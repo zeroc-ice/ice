@@ -23,7 +23,7 @@ namespace Ice::SSL
     /**
      * Provides access to the connection details of an SSL connection.
      */
-    class ICE_API SchannelConnectionInfo : public Ice::ConnectionInfo
+    class ICE_API SchannelConnectionInfo final : public Ice::ConnectionInfo
     {
     public:
         SchannelConnectionInfo() = default;
@@ -63,7 +63,7 @@ namespace Ice::SSL
     /**
      * Provides access to the connection details of an SSL connection.
      */
-    class ICE_API SecureTransportConnectionInfo : public Ice::ConnectionInfo
+    class ICE_API SecureTransportConnectionInfo final : public Ice::ConnectionInfo
     {
     public:
         SecureTransportConnectionInfo() = default;
@@ -103,7 +103,7 @@ namespace Ice::SSL
     /**
      * Provides access to the connection details of an SSL connection.
      */
-    class ICE_API OpenSSLConnectionInfo : public Ice::ConnectionInfo
+    class ICE_API OpenSSLConnectionInfo final : public Ice::ConnectionInfo
     {
     public:
         OpenSSLConnectionInfo() = default;
