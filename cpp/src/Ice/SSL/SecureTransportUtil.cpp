@@ -50,6 +50,7 @@ namespace
         return data.release();
     }
 
+#if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
     // Map alternative name alias to its types.
     const char* certificateAlternativeNameTypes[] =
         {"", "Email Address", "DNS Name", "", "Directory Name", "", "URI", "IP Address"};
@@ -192,6 +193,7 @@ namespace
         }
         return pairs;
     }
+#endif
 }
 
 string
@@ -985,24 +987,41 @@ Ice::SSL::SecureTransport::findCertificateChain(
     return items.release();
 }
 
+#ifdef ICE_USE_SECURE_TRANSPORT_IOS
+DistinguishedName
+Ice::SSL::getSubjectName(SecCertificateRef)
+{
+    throw FeatureNotSupportedException(__FILE__, __LINE__);
+}
+
+std::vector<std::pair<int, std::string>>
+Ice::SSL::getSubjectAltNames(SecCertificateRef)
+{
+    throw FeatureNotSupportedException(__FILE__, __LINE__);
+}
+
+std::string
+Ice::SSL::encodeCertificate(SecCertificateRef)
+{
+    throw FeatureNotSupportedException(__FILE__, __LINE__);
+}
+
+SecCertificateRef
+Ice::SSL::decodeCertificate(const std::string&)
+{
+    throw FeatureNotSupportedException(__FILE__, __LINE__);
+}
+#else // macOS
 DistinguishedName
 Ice::SSL::getSubjectName(SecCertificateRef certificate)
 {
-#ifdef ICE_USE_SECURE_TRANSPORT_IOS
-    throw FeatureNotSupportedException(__FILE__, __LINE__);
-#else // macOS
     return getX509Name(certificate, kSecOIDX509V1SubjectName);
-#endif
 }
 
 std::vector<std::pair<int, std::string>>
 Ice::SSL::getSubjectAltNames(SecCertificateRef certificate)
 {
-#ifdef ICE_USE_SECURE_TRANSPORT_IOS
-    throw FeatureNotSupportedException(__FILE__, __LINE__);
-#else // macOS
     return getX509AltName(certificate, kSecOIDSubjectAltName);
-#endif
 }
 
 std::string
@@ -1022,9 +1041,6 @@ Ice::SSL::encodeCertificate(SecCertificateRef certificate)
 SecCertificateRef
 Ice::SSL::decodeCertificate(const std::string& data)
 {
-#ifdef ICE_USE_SECURE_TRANSPORT_IOS
-    throw FeatureNotSupportedException(__FILE__, __LINE__);
-#else // macOS
     UniqueRef<CFDataRef> buffer(CFDataCreateWithBytesNoCopy(
         kCFAllocatorDefault,
         reinterpret_cast<const UInt8*>(data.c_str()),
@@ -1049,5 +1065,5 @@ Ice::SSL::decodeCertificate(const std::string& data)
     item.retain(static_cast<SecKeychainItemRef>(const_cast<void*>(CFArrayGetValueAtIndex(items.get(), 0))));
     assert(SecCertificateGetTypeID() == CFGetTypeID(item.get()));
     return reinterpret_cast<SecCertificateRef>(item.release());
-#endif
 }
+#endif
