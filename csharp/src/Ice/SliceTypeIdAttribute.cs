@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 namespace Ice;
 
 /// <summary>Assigns a Slice type ID to a class, interface, or struct.</summary>

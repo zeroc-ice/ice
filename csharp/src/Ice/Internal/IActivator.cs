@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 using System.Reflection;
 
 namespace Ice.Internal;
@@ -32,5 +34,5 @@ internal interface IActivator
     /// implementation cannot find the corresponding class.</returns>
     /// <remarks>This implementation of this method can also throw an exception if the class is found but the activation
     /// of an instance fails.</remarks>
-    object CreateInstance(string typeId);
+    object? CreateInstance(string typeId);
 }

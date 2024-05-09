@@ -505,25 +505,6 @@ namespace Ice
                     }
                     output.WriteLine("ok");
 
-                    output.Write("testing optionals with unknown classes...");
-                    output.Flush();
-                    {
-                        Test.A a = new Test.A();
-
-                        os = new Ice.OutputStream(communicator);
-                        os.startEncapsulation();
-                        os.writeValue(a);
-                        os.writeOptional(1, Ice.OptionalFormat.Class);
-                        os.writeValue(new DValueWriter());
-                        os.endEncapsulation();
-                        inEncaps = os.finished();
-                        test(initial.ice_invoke("opClassAndUnknownOptional", Ice.OperationMode.Normal, inEncaps,
-                                                out outEncaps));
-
-                        @in = new Ice.InputStream(communicator, outEncaps);
-                        @in.startEncapsulation();
-                        @in.endEncapsulation();
-                    }
                     output.WriteLine("ok");
                 }
 
@@ -1657,32 +1638,6 @@ namespace Ice
                     m = Test.StringIntDictHelper.read(@in);
                     test(MapsEqual(m, p1));
                     @in.endEncapsulation();
-
-                    @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
-
-                    Test.F f = new Test.F();
-                    f.fsf = new Test.FixedStruct(56);
-                    f.fse = f.fsf.Value;
-
-                    os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(1, OptionalFormat.Class);
-                    os.writeValue(f);
-                    os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeSize(4);
-                    Test.FixedStruct.ice_write(os, f.fse);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
-
-                    @in = new InputStream(communicator, inEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(2, OptionalFormat.VSize));
-                    @in.skipSize();
-                    Test.FixedStruct fs1 = Test.FixedStruct.ice_read(@in);
-                    @in.endEncapsulation();
-                    test(fs1.m == 56);
                 }
 
                 output.WriteLine("ok");

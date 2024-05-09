@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 using System.Diagnostics;
 using Protocol = Ice.Internal.Protocol;
 
@@ -33,6 +35,7 @@ public class OutputStream
     {
         Debug.Assert(communicator != null);
         Ice.Internal.Instance instance = Ice.Internal.Util.getInstance(communicator);
+        _buf = null!; // set by initialize
         initialize(instance, instance.defaultsAndOverrides().defaultEncoding);
     }
 
@@ -45,16 +48,19 @@ public class OutputStream
     {
         Debug.Assert(communicator != null);
         Ice.Internal.Instance instance = Ice.Internal.Util.getInstance(communicator);
+        _buf = null!; // set by initialize
         initialize(instance, encoding);
     }
 
     public OutputStream(Ice.Internal.Instance instance, EncodingVersion encoding)
     {
+        _buf = null!; // set by initialize
         initialize(instance, encoding);
     }
 
     public OutputStream(Ice.Internal.Instance instance, EncodingVersion encoding, Ice.Internal.Buffer buf, bool adopt)
     {
+        _buf = null!; // set by initialize
         initialize(instance, encoding, new Ice.Internal.Buffer(buf, adopt));
     }
 
@@ -134,7 +140,7 @@ public class OutputStream
         }
     }
 
-    public Ice.Internal.Instance instance()
+    public Ice.Internal.Instance? instance()
     {
         return _instance;
     }
@@ -152,7 +158,7 @@ public class OutputStream
     /// Retrieves the closure object associated with this stream.
     /// </summary>
     /// <returns>The closure object.</returns>
-    public object getClosure()
+    public object? getClosure()
     {
         return _closure;
     }
@@ -162,9 +168,9 @@ public class OutputStream
     /// </summary>
     /// <param name="p">The new closure object.</param>
     /// <returns>The previous closure object, or null.</returns>
-    public object setClosure(object p)
+    public object? setClosure(object p)
     {
-        object prev = _closure;
+        object? prev = _closure;
         _closure = p;
         return prev;
     }
@@ -197,7 +203,7 @@ public class OutputStream
         other._encoding = _encoding;
         _encoding = tmpEncoding;
 
-        object tmpClosure = other._closure;
+        object? tmpClosure = other._closure;
         other._closure = _closure;
         _closure = tmpClosure;
 
@@ -311,11 +317,11 @@ public class OutputStream
     {
         Protocol.checkSupportedEncoding(encoding);
 
-        Encaps curr = _encapsCache;
+        Encaps? curr = _encapsCache;
         if (curr != null)
         {
             curr.reset();
-            _encapsCache = _encapsCache.next;
+            _encapsCache = _encapsCache!.next;
         }
         else
         {
@@ -599,7 +605,7 @@ public class OutputStream
         }
 
         {
-            List<byte> value = v as List<byte>;
+            List<byte>? value = v as List<byte>;
             if (value != null)
             {
                 writeByteSeq(value.ToArray());
@@ -608,7 +614,7 @@ public class OutputStream
         }
 
         {
-            LinkedList<byte> value = v as LinkedList<byte>;
+            LinkedList<byte>? value = v as LinkedList<byte>;
             if (value != null)
             {
                 writeSize(count);
@@ -623,7 +629,7 @@ public class OutputStream
         }
 
         {
-            Queue<byte> value = v as Queue<byte>;
+            Queue<byte>? value = v as Queue<byte>;
             if (value != null)
             {
                 writeByteSeq(value.ToArray());
@@ -632,7 +638,7 @@ public class OutputStream
         }
 
         {
-            Stack<byte> value = v as Stack<byte>;
+            Stack<byte>? value = v as Stack<byte>;
             if (value != null)
             {
                 writeByteSeq(value.ToArray());
@@ -653,7 +659,7 @@ public class OutputStream
     /// </summary>
     /// <param name="tag">The optional tag.</param>
     /// <param name="v">The byte sequence to write to the stream.</param>
-    public void writeByteSeq(int tag, byte[] v)
+    public void writeByteSeq(int tag, byte[]? v)
     {
         if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
@@ -667,7 +673,7 @@ public class OutputStream
     /// <param name="tag">The optional tag.</param>
     /// <param name="count">The number of elements in the sequence.</param>
     /// <param name="v">An enumerator for the byte sequence.</param>
-    public void writeByteSeq(int tag, int count, IEnumerable<byte> v)
+    public void writeByteSeq(int tag, int count, IEnumerable<byte>? v)
     {
         if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
@@ -754,7 +760,7 @@ public class OutputStream
         }
 
         {
-            List<bool> value = v as List<bool>;
+            List<bool>? value = v as List<bool>;
             if (value != null)
             {
                 writeBoolSeq(value.ToArray());
@@ -763,7 +769,7 @@ public class OutputStream
         }
 
         {
-            LinkedList<bool> value = v as LinkedList<bool>;
+            LinkedList<bool>? value = v as LinkedList<bool>;
             if (value != null)
             {
                 writeSize(count);
@@ -778,7 +784,7 @@ public class OutputStream
         }
 
         {
-            Queue<bool> value = v as Queue<bool>;
+            Queue<bool>? value = v as Queue<bool>;
             if (value != null)
             {
                 writeBoolSeq(value.ToArray());
@@ -787,7 +793,7 @@ public class OutputStream
         }
 
         {
-            Stack<bool> value = v as Stack<bool>;
+            Stack<bool>? value = v as Stack<bool>;
             if (value != null)
             {
                 writeBoolSeq(value.ToArray());
@@ -808,7 +814,7 @@ public class OutputStream
     /// </summary>
     /// <param name="tag">The optional tag.</param>
     /// <param name="v">The boolean sequence to write to the stream.</param>
-    public void writeBoolSeq(int tag, bool[] v)
+    public void writeBoolSeq(int tag, bool[]? v)
     {
         if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
@@ -822,7 +828,7 @@ public class OutputStream
     /// <param name="tag">The optional tag.</param>
     /// <param name="count">The number of elements in the sequence.</param>
     /// <param name="v">An enumerator for the boolean sequence.</param>
-    public void writeBoolSeq(int tag, int count, IEnumerable<bool> v)
+    public void writeBoolSeq(int tag, int count, IEnumerable<bool>? v)
     {
         if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
@@ -899,7 +905,7 @@ public class OutputStream
         }
 
         {
-            List<short> value = v as List<short>;
+            List<short>? value = v as List<short>;
             if (value != null)
             {
                 writeShortSeq(value.ToArray());
@@ -908,7 +914,7 @@ public class OutputStream
         }
 
         {
-            LinkedList<short> value = v as LinkedList<short>;
+            LinkedList<short>? value = v as LinkedList<short>;
             if (value != null)
             {
                 writeSize(count);
@@ -923,7 +929,7 @@ public class OutputStream
         }
 
         {
-            Queue<short> value = v as Queue<short>;
+            Queue<short>? value = v as Queue<short>;
             if (value != null)
             {
                 writeShortSeq(value.ToArray());
@@ -932,7 +938,7 @@ public class OutputStream
         }
 
         {
-            Stack<short> value = v as Stack<short>;
+            Stack<short>? value = v as Stack<short>;
             if (value != null)
             {
                 writeShortSeq(value.ToArray());
@@ -953,7 +959,7 @@ public class OutputStream
     /// </summary>
     /// <param name="tag">The optional tag.</param>
     /// <param name="v">The short sequence to write to the stream.</param>
-    public void writeShortSeq(int tag, short[] v)
+    public void writeShortSeq(int tag, short[]? v)
     {
         if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
@@ -968,7 +974,7 @@ public class OutputStream
     /// <param name="tag">The optional tag.</param>
     /// <param name="count">The number of elements in the sequence.</param>
     /// <param name="v">An enumerator for the short sequence.</param>
-    public void writeShortSeq(int tag, int count, IEnumerable<short> v)
+    public void writeShortSeq(int tag, int count, IEnumerable<short>? v)
     {
         if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
@@ -1056,7 +1062,7 @@ public class OutputStream
         }
 
         {
-            List<int> value = v as List<int>;
+            List<int>? value = v as List<int>;
             if (value != null)
             {
                 writeIntSeq(value.ToArray());
@@ -1065,7 +1071,7 @@ public class OutputStream
         }
 
         {
-            LinkedList<int> value = v as LinkedList<int>;
+            LinkedList<int>? value = v as LinkedList<int>;
             if (value != null)
             {
                 writeSize(count);
@@ -1080,7 +1086,7 @@ public class OutputStream
         }
 
         {
-            Queue<int> value = v as Queue<int>;
+            Queue<int>? value = v as Queue<int>;
             if (value != null)
             {
                 writeIntSeq(value.ToArray());
@@ -1089,7 +1095,7 @@ public class OutputStream
         }
 
         {
-            Stack<int> value = v as Stack<int>;
+            Stack<int>? value = v as Stack<int>;
             if (value != null)
             {
                 writeIntSeq(value.ToArray());
@@ -1110,7 +1116,7 @@ public class OutputStream
     /// </summary>
     /// <param name="tag">The optional tag.</param>
     /// <param name="v">The int sequence to write to the stream.</param>
-    public void writeIntSeq(int tag, int[] v)
+    public void writeIntSeq(int tag, int[]? v)
     {
         if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
@@ -1125,7 +1131,7 @@ public class OutputStream
     /// <param name="tag">The optional tag.</param>
     /// <param name="count">The number of elements in the sequence.</param>
     /// <param name="v">An enumerator for the int sequence.</param>
-    public void writeIntSeq(int tag, int count, IEnumerable<int> v)
+    public void writeIntSeq(int tag, int count, IEnumerable<int>? v)
     {
         if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
@@ -1203,7 +1209,7 @@ public class OutputStream
         }
 
         {
-            List<long> value = v as List<long>;
+            List<long>? value = v as List<long>;
             if (value != null)
             {
                 writeLongSeq(value.ToArray());
@@ -1212,7 +1218,7 @@ public class OutputStream
         }
 
         {
-            LinkedList<long> value = v as LinkedList<long>;
+            LinkedList<long>? value = v as LinkedList<long>;
             if (value != null)
             {
                 writeSize(count);
@@ -1227,7 +1233,7 @@ public class OutputStream
         }
 
         {
-            Queue<long> value = v as Queue<long>;
+            Queue<long>? value = v as Queue<long>;
             if (value != null)
             {
                 writeLongSeq(value.ToArray());
@@ -1236,7 +1242,7 @@ public class OutputStream
         }
 
         {
-            Stack<long> value = v as Stack<long>;
+            Stack<long>? value = v as Stack<long>;
             if (value != null)
             {
                 writeLongSeq(value.ToArray());
@@ -1257,7 +1263,7 @@ public class OutputStream
     /// </summary>
     /// <param name="tag">The optional tag.</param>
     /// <param name="v">The long sequence to write to the stream.</param>
-    public void writeLongSeq(int tag, long[] v)
+    public void writeLongSeq(int tag, long[]? v)
     {
         if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
@@ -1272,7 +1278,7 @@ public class OutputStream
     /// <param name="tag">The optional tag.</param>
     /// <param name="count">The number of elements in the sequence.</param>
     /// <param name="v">An enumerator for the long sequence.</param>
-    public void writeLongSeq(int tag, int count, IEnumerable<long> v)
+    public void writeLongSeq(int tag, int count, IEnumerable<long>? v)
     {
         if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
@@ -1350,7 +1356,7 @@ public class OutputStream
         }
 
         {
-            List<float> value = v as List<float>;
+            List<float>? value = v as List<float>;
             if (value != null)
             {
                 writeFloatSeq(value.ToArray());
@@ -1359,7 +1365,7 @@ public class OutputStream
         }
 
         {
-            LinkedList<float> value = v as LinkedList<float>;
+            LinkedList<float>? value = v as LinkedList<float>;
             if (value != null)
             {
                 writeSize(count);
@@ -1374,7 +1380,7 @@ public class OutputStream
         }
 
         {
-            Queue<float> value = v as Queue<float>;
+            Queue<float>? value = v as Queue<float>;
             if (value != null)
             {
                 writeFloatSeq(value.ToArray());
@@ -1383,7 +1389,7 @@ public class OutputStream
         }
 
         {
-            Stack<float> value = v as Stack<float>;
+            Stack<float>? value = v as Stack<float>;
             if (value != null)
             {
                 writeFloatSeq(value.ToArray());
@@ -1404,7 +1410,7 @@ public class OutputStream
     /// </summary>
     /// <param name="tag">The optional tag.</param>
     /// <param name="v">The float sequence to write to the stream.</param>
-    public void writeFloatSeq(int tag, float[] v)
+    public void writeFloatSeq(int tag, float[]? v)
     {
         if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
@@ -1419,7 +1425,7 @@ public class OutputStream
     /// <param name="tag">The optional tag.</param>
     /// <param name="count">The number of elements in the sequence.</param>
     /// <param name="v">An enumerator for the float sequence.</param>
-    public void writeFloatSeq(int tag, int count, IEnumerable<float> v)
+    public void writeFloatSeq(int tag, int count, IEnumerable<float>? v)
     {
         if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
@@ -1497,7 +1503,7 @@ public class OutputStream
         }
 
         {
-            List<double> value = v as List<double>;
+            List<double>? value = v as List<double>;
             if (value != null)
             {
                 writeDoubleSeq(value.ToArray());
@@ -1506,7 +1512,7 @@ public class OutputStream
         }
 
         {
-            LinkedList<double> value = v as LinkedList<double>;
+            LinkedList<double>? value = v as LinkedList<double>;
             if (value != null)
             {
                 writeSize(count);
@@ -1521,7 +1527,7 @@ public class OutputStream
         }
 
         {
-            Queue<double> value = v as Queue<double>;
+            Queue<double>? value = v as Queue<double>;
             if (value != null)
             {
                 writeDoubleSeq(value.ToArray());
@@ -1530,7 +1536,7 @@ public class OutputStream
         }
 
         {
-            Stack<double> value = v as Stack<double>;
+            Stack<double>? value = v as Stack<double>;
             if (value != null)
             {
                 writeDoubleSeq(value.ToArray());
@@ -1551,7 +1557,7 @@ public class OutputStream
     /// </summary>
     /// <param name="tag">The optional tag.</param>
     /// <param name="v">The double sequence to write to the stream.</param>
-    public void writeDoubleSeq(int tag, double[] v)
+    public void writeDoubleSeq(int tag, double[]? v)
     {
         if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
@@ -1566,7 +1572,7 @@ public class OutputStream
     /// <param name="tag">The optional tag.</param>
     /// <param name="count">The number of elements in the sequence.</param>
     /// <param name="v">An enumerator for the double sequence.</param>
-    public void writeDoubleSeq(int tag, int count, IEnumerable<double> v)
+    public void writeDoubleSeq(int tag, int count, IEnumerable<double>? v)
     {
         if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
@@ -1600,7 +1606,7 @@ public class OutputStream
     /// </summary>
     /// <param name="tag">The optional tag.</param>
     /// <param name="v">The string to write to the stream.</param>
-    public void writeString(int tag, string v)
+    public void writeString(int tag, string? v)
     {
         if (v is not null && writeOptional(tag, OptionalFormat.VSize))
         {
@@ -1651,7 +1657,7 @@ public class OutputStream
     /// </summary>
     /// <param name="tag">The optional tag.</param>
     /// <param name="v">The string sequence to write to the stream.</param>
-    public void writeStringSeq(int tag, string[] v)
+    public void writeStringSeq(int tag, string[]? v)
     {
         if (v is not null && writeOptional(tag, OptionalFormat.FSize))
         {
@@ -1667,7 +1673,7 @@ public class OutputStream
     /// <param name="tag">The optional tag.</param>
     /// <param name="count">The number of elements in the sequence.</param>
     /// <param name="v">An enumerator for the string sequence.</param>
-    public void writeStringSeq(int tag, int count, IEnumerable<string> v)
+    public void writeStringSeq(int tag, int count, IEnumerable<string>? v)
     {
         if (v is not null && writeOptional(tag, OptionalFormat.FSize))
         {
@@ -1699,7 +1705,7 @@ public class OutputStream
     /// </summary>
     /// <param name="tag">The optional tag.</param>
     /// <param name="v">The proxy to write.</param>
-    public void writeProxy(int tag, ObjectPrx v)
+    public void writeProxy(int tag, ObjectPrx? v)
     {
         // We don't write anything for an optional proxy with a null value.
         if (v is not null && writeOptional(tag, OptionalFormat.FSize))
@@ -1760,7 +1766,7 @@ public class OutputStream
     public void writeValue(Value v)
     {
         initEncaps();
-        _encapsStack.encoder.writeValue(v);
+        _encapsStack!.encoder!.writeValue(v);
     }
 
     /// <summary>
@@ -1771,8 +1777,8 @@ public class OutputStream
     {
         initEncaps();
         // Exceptions are always encoded with the sliced format.
-        _encapsStack.format = FormatType.SlicedFormat;
-        _encapsStack.encoder.writeException(v);
+        _encapsStack!.format = FormatType.SlicedFormat;
+        _encapsStack!.encoder!.writeException(v);
     }
 
     private bool writeOptionalImpl(int tag, OptionalFormat format)
@@ -1842,9 +1848,9 @@ public class OutputStream
         _buf.expand(n);
     }
 
-    private Ice.Internal.Instance _instance;
+    private Ice.Internal.Instance? _instance;
     private Ice.Internal.Buffer _buf;
-    private object _closure;
+    private object? _closure;
     private FormatType _format;
 
     private enum SliceType { NoSlice, ValueSlice, ExceptionSlice }
@@ -1862,7 +1868,7 @@ public class OutputStream
         internal abstract void writeValue(Value v);
         internal abstract void writeException(UserException v);
 
-        internal abstract void startInstance(SliceType type, SlicedData data);
+        internal abstract void startInstance(SliceType type, SlicedData? data);
         internal abstract void endInstance();
         internal abstract void startSlice(string typeId, int compactId, bool last);
         internal abstract void endSlice();
@@ -1902,7 +1908,7 @@ public class OutputStream
         protected readonly Dictionary<Value, int> _marshaledMap;
 
         // Encapsulation attributes for instance marshaling.
-        private Dictionary<string, int> _typeIdMap;
+        private Dictionary<string, int>? _typeIdMap;
         private int _typeIdIndex;
     }
 
@@ -1949,7 +1955,7 @@ public class OutputStream
             }
         }
 
-        internal override void startInstance(SliceType sliceType, SlicedData sliceData)
+        internal override void startInstance(SliceType sliceType, SlicedData? sliceData)
         {
             _sliceType = sliceType;
         }
@@ -2042,7 +2048,7 @@ public class OutputStream
                     catch (System.Exception ex)
                     {
                         string s = "exception raised by ice_preMarshal:\n" + ex;
-                        _stream.instance().initializationData().logger.warning(s);
+                        _stream.instance()!.initializationData().logger.warning(s);
                     }
 
                     p.Key.iceWrite(_stream);
@@ -2118,7 +2124,7 @@ public class OutputStream
                 // format, write an index from the instance indirection table.
                 //
                 int index;
-                if (!_current.indirectionMap.TryGetValue(v, out index))
+                if (!_current.indirectionMap!.TryGetValue(v, out index))
                 {
                     _current.indirectionTable.Add(v);
                     int idx = _current.indirectionTable.Count; // Position + 1 (0 is reserved for nil)
@@ -2141,7 +2147,7 @@ public class OutputStream
             v.iceWrite(_stream);
         }
 
-        internal override void startInstance(SliceType sliceType, SlicedData data)
+        internal override void startInstance(SliceType sliceType, SlicedData? data)
         {
             if (_current == null)
             {
@@ -2162,12 +2168,12 @@ public class OutputStream
 
         internal override void endInstance()
         {
-            _current = _current.previous;
+            _current = _current!.previous;
         }
 
         internal override void startSlice(string typeId, int compactId, bool last)
         {
-            Debug.Assert((_current.indirectionTable == null || _current.indirectionTable.Count == 0) &&
+            Debug.Assert((_current!.indirectionTable == null || _current.indirectionTable.Count == 0) &&
                          (_current.indirectionMap == null || _current.indirectionMap.Count == 0));
 
             _current.sliceFlagsPos = _stream.pos();
@@ -2242,7 +2248,7 @@ public class OutputStream
             // were encoded. Note that the optional members are encoded before
             // the indirection table and are included in the slice size.
             //
-            if ((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
+            if ((_current!.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
             {
                 _stream.writeByte(Protocol.OPTIONAL_END_MARKER);
             }
@@ -2273,7 +2279,7 @@ public class OutputStream
                     writeInstance(v);
                 }
                 _current.indirectionTable.Clear();
-                _current.indirectionMap.Clear();
+                _current.indirectionMap!.Clear();
             }
 
             //
@@ -2328,7 +2334,7 @@ public class OutputStream
 
                 if (info.hasOptionalMembers)
                 {
-                    _current.sliceFlags |= Protocol.FLAG_HAS_OPTIONAL_MEMBERS;
+                    _current!.sliceFlags |= Protocol.FLAG_HAS_OPTIONAL_MEMBERS;
                 }
 
                 //
@@ -2336,7 +2342,7 @@ public class OutputStream
                 //
                 if (info.instances != null && info.instances.Length > 0)
                 {
-                    if (_current.indirectionTable == null)
+                    if (_current!.indirectionTable == null)
                     {
                         _current.indirectionTable = new List<Value>();
                         _current.indirectionMap = new Dictionary<Value, int>();
@@ -2378,7 +2384,7 @@ public class OutputStream
             catch (System.Exception ex)
             {
                 string s = "exception raised by ice_preMarshal:\n" + ex;
-                _stream.instance().initializationData().logger.warning(s);
+                _stream.instance()!.initializationData().logger.warning(s);
             }
 
             _stream.writeSize(1); // Object instance marker.
@@ -2387,7 +2393,7 @@ public class OutputStream
 
         private sealed class InstanceData
         {
-            internal InstanceData(InstanceData previous)
+            internal InstanceData(InstanceData? previous)
             {
                 if (previous != null)
                 {
@@ -2405,16 +2411,16 @@ public class OutputStream
             internal byte sliceFlags;
             internal int writeSlice;    // Position of the slice data members
             internal int sliceFlagsPos; // Position of the slice flags
-            internal List<Value> indirectionTable;
-            internal Dictionary<Value, int> indirectionMap;
+            internal List<Value>? indirectionTable;
+            internal Dictionary<Value, int>? indirectionMap;
 
-            internal InstanceData previous;
-            internal InstanceData next;
+            internal InstanceData? previous;
+            internal InstanceData? next;
         }
 
-        private InstanceData _current;
+        private InstanceData? _current;
 
-        private int _valueIdIndex; // The ID of the next instance to marhsal
+        private int _valueIdIndex; // The ID of the next instance to marshal
     }
 
     private sealed class Encaps
@@ -2435,9 +2441,9 @@ public class OutputStream
         internal bool encoding_1_0;
         internal FormatType format = FormatType.DefaultFormat;
 
-        internal EncapsEncoder encoder;
+        internal EncapsEncoder? encoder;
 
-        internal Encaps next;
+        internal Encaps? next;
     }
 
     //
@@ -2453,8 +2459,8 @@ public class OutputStream
         return _encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.Equals(Util.Encoding_1_0);
     }
 
-    private Encaps _encapsStack;
-    private Encaps _encapsCache;
+    private Encaps? _encapsStack;
+    private Encaps? _encapsCache;
 
     private void initEncaps()
     {
@@ -2463,7 +2469,7 @@ public class OutputStream
             _encapsStack = _encapsCache;
             if (_encapsStack != null)
             {
-                _encapsCache = _encapsCache.next;
+                _encapsCache = _encapsCache!.next;
             }
             else
             {
