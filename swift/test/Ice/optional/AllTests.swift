@@ -1851,12 +1851,12 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
       operation: "opOneOptional", mode: .Normal, inEncaps: inEncaps)
     var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
     _ = try istr.startEncapsulation()
-    var v1: OneOptional?
+    var v1: Ice.Value?
     try istr.read { v1 = $0 }
-    var v2: OneOptional?
+    var v2: Ice.Value?
     try istr.read { v2 = $0 }
     try istr.endEncapsulation()
-    try test(v1!.a! == 58 && v2!.a == 58)
+    try test((v1 as! OneOptional).a! == 58 && (v2 as! OneOptional).a == 58)
   }
 
   do {
