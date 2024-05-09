@@ -2710,7 +2710,7 @@ public class InputStream
             //
             // Try to find a factory registered for the specific type.
             //
-            var userFactory = _valueFactoryManager?.find(typeId);
+            var userFactory = _valueFactoryManager!.find(typeId);
             Value? v = null;
             if (userFactory != null)
             {
@@ -2723,7 +2723,7 @@ public class InputStream
             //
             if (v is null)
             {
-                userFactory = _valueFactoryManager?.find("");
+                userFactory = _valueFactoryManager!.find("");
                 if (userFactory != null)
                 {
                     v = userFactory(typeId);
@@ -2876,6 +2876,8 @@ public class InputStream
         protected readonly bool _sliceValues;
         protected readonly int _classGraphDepthMax;
         protected int _classGraphDepth;
+
+        // It's null when _instance is null. We can't decode classes/exceptions/proxies in this case.
         protected ValueFactoryManager? _valueFactoryManager;
 
         //
