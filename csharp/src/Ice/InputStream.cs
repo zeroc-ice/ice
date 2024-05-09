@@ -3175,7 +3175,7 @@ public class InputStream
             // keep the biggest one.
             //
             _classGraphDepth = 0;
-            if (_patchMap != null && _patchMap.TryGetValue(index, out  LinkedList<PatchEntry>? l))
+            if (_patchMap != null && _patchMap.TryGetValue(index, out LinkedList<PatchEntry>? l))
             {
                 Debug.Assert(l.Count > 0);
                 foreach (PatchEntry entry in l)
