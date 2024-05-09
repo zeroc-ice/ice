@@ -579,13 +579,7 @@
     <ClCompile Include="..\..\IdleTimeoutTransceiverDecorator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\SSL\CertificateI.cpp">
-      <Filter>Source Files\SSL</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\SSL\RFC2253.cpp">
-      <Filter>Source Files\SSL</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SSL\SchannelCertificateI.cpp">
       <Filter>Source Files\SSL</Filter>
     </ClCompile>
     <ClCompile Include="..\..\SSL\SchannelEngine.cpp">
@@ -613,6 +607,12 @@
       <Filter>Source Files\SSL</Filter>
     </ClCompile>
     <ClCompile Include="..\..\SSL\TrustManager.cpp">
+      <Filter>Source Files\SSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSL\DistinguishedName.cpp">
+      <Filter>Source Files\SSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSL\SSLException.cpp">
       <Filter>Source Files\SSL</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1005,9 +1005,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\Ice\ValueFactory.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\SSL\CertificateI.h">
-      <Filter>Source Files\SSL</Filter>
     </ClInclude>
     <ClInclude Include="..\..\SSL\RFC2253.h">
       <Filter>Source Files\SSL</Filter>

@@ -96,29 +96,28 @@ private class WSConnectionInfoI: ConnectionInfoI, WSConnectionInfo {
 }
 
 private class SSLConnectionInfoI: ConnectionInfoI, SSLConnectionInfo {
-  var certs: [SecCertificate]
+  var peerCertificate: SecCertificate?
 
   init(
     underlying: ConnectionInfo?, incoming: Bool, adapterName: String, connectionId: String,
-    certs: StringSeq
+    peerCertificate: String
   ) {
-    self.certs = []
     let beginPrefix = "-----BEGIN CERTIFICATE-----\n"
     let endPrefix = "\n-----END CERTIFICATE-----\n"
 
-    for cert in certs {
-      var raw = cert
-      if raw.hasPrefix(beginPrefix) {
-        raw = String(raw.dropFirst(beginPrefix.count))
-        raw = String(raw.dropLast(endPrefix.count))
-      }
+    var raw = peerCertificate
+    if raw.hasPrefix(beginPrefix) {
+      raw = String(raw.dropFirst(beginPrefix.count))
+      raw = String(raw.dropLast(endPrefix.count))
+    }
 
-      if let data = NSData(base64Encoded: raw, options: .ignoreUnknownCharacters) {
-        if let c = SecCertificateCreateWithData(kCFAllocatorDefault, data) {
-          self.certs.append(c)
-        }
+    self.peerCertificate = nil
+    if let data = NSData(base64Encoded: raw, options: .ignoreUnknownCharacters) {
+      if let c = SecCertificateCreateWithData(kCFAllocatorDefault, data) {
+        self.peerCertificate = c
       }
     }
+
     super.init(
       underlying: underlying, incoming: incoming, adapterName: adapterName,
       connectionId: connectionId)
@@ -245,14 +244,14 @@ class ConnectionInfoFactory: ICEConnectionInfoFactory {
     incoming: Bool,
     adapterName: String,
     connectionId: String,
-    certs: [String]
+    peerCertificate: String
   ) -> Any {
     return SSLConnectionInfoI(
       underlying: getUnderlying(underlying),
       incoming: incoming,
       adapterName: adapterName,
       connectionId: connectionId,
-      certs: certs)
+      peerCertificate: peerCertificate)
   }
 
   #if os(iOS) || os(watchOS) || os(tvOS)

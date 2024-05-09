@@ -202,9 +202,9 @@ Ice::SSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuf
                 {
                     for (CFIndex i = 0, count = SecTrustGetCertificateCount(_trust.get()); i < count; ++i)
                     {
-                        SecCertificateRef cert = SecTrustGetCertificateAtIndex(_trust.get(), i);
-                        CFRetain(cert);
-                        _peerCerts.push_back(Ice::SSL::SecureTransport::Certificate::create(cert));
+                        SecCertificateRef peerCertificate = SecTrustGetCertificateAtIndex(_trust.get(), i);
+                        CFRetain(peerCertificate);
+                        _peerCertificate.reset(peerCertificate);
                     }
 
                     if (_trustedRootCertificates)
@@ -512,7 +512,17 @@ Ice::SSL::SecureTransport::TransceiverI::getInfo() const
     info->underlying = _delegate->getInfo();
     info->incoming = _incoming;
     info->adapterName = _adapterName;
-    info->certs = _peerCerts;
+    if (_peerCertificate)
+    {
+        SecCertificateRef peerCertificate = _peerCertificate.get();
+        CFRetain(peerCertificate);
+        info->peerCertificate = peerCertificate;
+    }
+    else
+    {
+        info->peerCertificate = nullptr;
+    }
+
     return info;
 }
 

@@ -4,6 +4,7 @@
 //
 
 #include "SessionRouterI.h"
+#include "../Ice/SSL/SSLUtil.h"
 #include "FilterManager.h"
 #include "Glacier2/PermissionsVerifier.h"
 #include "Ice/Ice.h"
@@ -303,12 +304,9 @@ CreateSession::CreateSession(shared_ptr<SessionRouterI> sessionRouter, const str
         }
         {
             auto info = dynamic_pointer_cast<SSL::ConnectionInfo>(current.con->getInfo());
-            if (info)
+            if (info && info->peerCertificate)
             {
-                if (info->certs.size() > 0)
-                {
-                    _context["_con.peerCert"] = info->certs[0]->encode();
-                }
+                _context["_con.peerCert"] = Ice::SSL::encodeCertificate(info->peerCertificate);
             }
         }
     }
@@ -650,13 +648,10 @@ SessionRouterI::createSessionFromSecureConnectionAsync(
         sslinfo.localPort = ipInfo->localPort;
         sslinfo.localHost = ipInfo->localAddress;
 
-        for (const auto& cert : info->certs)
+        if (info->peerCertificate)
         {
-            sslinfo.certs.push_back(cert->encode());
-        }
-        if (info->certs.size() > 0)
-        {
-            userDN = info->certs[0]->getSubjectDN();
+            sslinfo.certs.push_back(Ice::SSL::encodeCertificate(info->peerCertificate));
+            userDN = Ice::SSL::getSubjectName(info->peerCertificate);
         }
     }
     catch (const SSL::CertificateEncodingException&)

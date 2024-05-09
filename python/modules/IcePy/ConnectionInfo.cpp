@@ -3,6 +3,7 @@
 //
 
 #include "ConnectionInfo.h"
+#include "../../cpp/src/Ice/SSL/SSLUtil.h"
 #include "EndpointInfo.h"
 #include "Ice/Ice.h"
 #include "Util.h"
@@ -205,18 +206,16 @@ extern "C"
 extern "C"
 #endif
     static PyObject*
-    sslConnectionInfoGetCerts(ConnectionInfoObject* self, PyObject* /*args*/)
+    sslConnectionInfoGetPeerCertificiate(ConnectionInfoObject* self, PyObject* /*args*/)
 {
     auto info = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(*self->connectionInfo);
     assert(info);
-    PyObject* certs = PyList_New(0);
-    Ice::StringSeq encoded;
-    for (vector<Ice::SSL::CertificatePtr>::const_iterator i = info->certs.begin(); i != info->certs.end(); ++i)
+    string encoded;
+    if (info->peerCertificate)
     {
-        encoded.push_back((*i)->encode());
+        encoded = Ice::SSL::encodeCertificate(info->peerCertificate);
     }
-    stringSeqToList(encoded, certs);
-    return certs;
+    return createString(encoded);
 }
 
 static PyGetSetDef ConnectionInfoGetters[] = {
@@ -310,10 +309,10 @@ static PyGetSetDef WSConnectionInfoGetters[] = {
 };
 
 static PyGetSetDef SSLConnectionInfoGetters[] = {
-    {STRCAST("certs"),
-     reinterpret_cast<getter>(sslConnectionInfoGetCerts),
+    {STRCAST("peerCertificate"),
+     reinterpret_cast<getter>(sslConnectionInfoGetPeerCertificiate),
      0,
-     PyDoc_STR(STRCAST("certificate chain")),
+     PyDoc_STR(STRCAST("peer certificate")),
      0},
     {0, 0} /* sentinel */
 };

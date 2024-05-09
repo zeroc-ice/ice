@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../../cpp/src/Ice/SSL/SSLUtil.h"
 #include "Future.h"
 #include "Ice/Ice.h"
 #include "Util.h"
@@ -28,9 +29,7 @@ namespace
         McastAddress,
         McastPort,
         Headers,
-        Cipher,
-        Certs,
-        Verified,
+        PeerCertificate,
         NumFields // Number of fields in structure, must be last
     };
 
@@ -49,7 +48,7 @@ namespace
         "mcastAddress",
         "mcastPort",
         "headers",
-        "certs"};
+        "peerCertificate"};
 
     mxArray* createInfo(const shared_ptr<Ice::ConnectionInfo>& info)
     {
@@ -111,7 +110,12 @@ namespace
         if (sslInfo)
         {
             type = "ssl";
-            mxSetFieldByNumber(r, 0, Field::Certs, createCertificateList(sslInfo->certs));
+            string encoded;
+            if (sslInfo->peerCertificate)
+            {
+                encoded = Ice::SSL::encodeCertificate(sslInfo->peerCertificate);
+            }
+            mxSetFieldByNumber(r, 0, Field::PeerCertificate, createStringFromUTF8(encoded));
         }
 
         mxSetFieldByNumber(r, 0, Field::Type, createStringFromUTF8(type));

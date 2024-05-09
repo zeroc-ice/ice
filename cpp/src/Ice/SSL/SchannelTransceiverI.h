@@ -115,7 +115,7 @@ namespace Ice::SSL::Schannel
         std::function<void(CtxtHandle context, const std::string& host)> _sslNewSessionCallback;
         SecPkgContext_StreamSizes _sizes;
         std::string _cipher;
-        std::vector<Ice::SSL::CertificatePtr> _peerCertificates;
+        PCCERT_CONTEXT _peerCertificate;
         std::function<bool(CtxtHandle, const Ice::SSL::ConnectionInfoPtr&)> _remoteCertificateValidationCallback;
         bool _clientCertificateRequired;
         PCCERT_CONTEXT _certificate;
