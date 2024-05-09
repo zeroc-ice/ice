@@ -463,14 +463,7 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
                 string param = "iceP_" + (*pli)->name();
                 string typeS = typeToString((*pli)->type(), ns, (*pli)->optional());
 
-                if ((*pli)->optional())
-                {
-                    _out << nl << typeS << ' ' << param << ";";
-                }
-                else
-                {
-                    _out << nl << typeS << ' ' << param << " = default;";
-                }
+                _out << nl << typeS << ' ' << param << " = default;";
             }
             writeMarshalUnmarshalParams(inParams, 0, false, ns);
             if (op->sendsClasses(false))
@@ -1065,7 +1058,7 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& dataMembers,
             if (dynamic_pointer_cast<Sequence>(q->type()) || dynamic_pointer_cast<Dictionary>(q->type()) ||
                 (st && isMappedToClass(st)))
             {
-                _out << nl << "this." << fixId(q->name(), baseTypes) << " = null;"; // should be null!
+                _out << nl << "this." << fixId(q->name(), baseTypes) << " = null;"; // TODO: should be null!
             }
         }
     }
@@ -2026,15 +2019,19 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             string memberType = typeToString(q->type(), ns, q->optional());
             paramDecl.push_back(memberType + " " + memberName);
 
-            StructPtr st = dynamic_pointer_cast<Struct>(q->type());
-            if (dynamic_pointer_cast<Sequence>(q->type()) || dynamic_pointer_cast<Dictionary>(q->type()) ||
-                (st && isMappedToClass(st)))
+            // Look for non-nullable fields to be initialized by the secondary constructor.
+            if (!q->optional())
             {
-                secondaryCtorParams.push_back(memberType + " " + memberName);
-
-                if (contains(dataMembers, q))
+                StructPtr st = dynamic_pointer_cast<Struct>(q->type());
+                if (dynamic_pointer_cast<Sequence>(q->type()) || dynamic_pointer_cast<Dictionary>(q->type()) ||
+                    (st && isMappedToClass(st)))
                 {
-                    secondaryCtorMemberNames.push_back(memberName);
+                    secondaryCtorParams.push_back(memberType + " " + memberName);
+
+                    if (find(dataMembers.begin(), dataMembers.end(), q) != dataMembers.end())
+                    {
+                        secondaryCtorMemberNames.push_back(memberName);
+                    }
                 }
             }
         }
@@ -2264,16 +2261,20 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         string memberType = typeToString(q->type(), ns, q->optional());
         paramDecl.push_back(memberType + " " + memberName);
 
-        StructPtr st = dynamic_pointer_cast<Struct>(q->type());
-        if (dynamic_pointer_cast<Sequence>(q->type()) || dynamic_pointer_cast<Dictionary>(q->type()) ||
-            (st && isMappedToClass(st)))
+        // Look for non-nullable fields to be initialized by the secondary constructor.
+        if (!q->optional())
         {
-            secondaryCtorParams.push_back(memberType + " " + memberName);
-            if (contains(dataMembers, q))
+            StructPtr st = dynamic_pointer_cast<Struct>(q->type());
+            if (dynamic_pointer_cast<Sequence>(q->type()) || dynamic_pointer_cast<Dictionary>(q->type()) ||
+                (st && isMappedToClass(st)))
             {
-                secondaryCtorMemberNames.push_back(memberName);
+                secondaryCtorParams.push_back(memberType + " " + memberName);
+                if (find(dataMembers.begin(), dataMembers.end(), q) != dataMembers.end())
+                {
+                    secondaryCtorMemberNames.push_back(memberName);
+                }
+                hideParameterlessCtor = true;
             }
-            hideParameterlessCtor = true;
         }
     }
     // Add exception for inner exception. It's defaulted to null only if it's not the only parameter.

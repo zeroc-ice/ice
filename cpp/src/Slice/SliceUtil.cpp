@@ -534,9 +534,3 @@ Slice::isProxyType(const TypePtr& type)
     }
     return false;
 }
-
-bool
-Slice::contains(const DataMemberList& dataMembers, const DataMemberPtr& dataMember)
-{
-    return find(dataMembers.begin(), dataMembers.end(), dataMember) != dataMembers.end();
-}
