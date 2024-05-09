@@ -225,7 +225,6 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
     }
 
     // Retrieve the certificate chain if the verification callback has not already fill it.
-
     if (!_peerCertificate)
     {
         // When calling on the server side the peer certificate is not included in SSL_get_peer_cert_chain and must be
@@ -644,13 +643,15 @@ OpenSSL::TransceiverI::verifyCallback(int ok, X509_STORE_CTX* ctx)
     assert(_remoteCertificateVerificationCallback);
     try
     {
-        STACK_OF(X509)* chain = X509_STORE_CTX_get1_chain(ctx);
-        if (chain && sk_X509_num(chain) > 0)
+        if (!_peerCertificate)
         {
-            assert(!_peerCertificate);
-            _peerCertificate = X509_dup(sk_X509_value(chain, 0));
-
-            sk_X509_pop_free(chain, X509_free);
+            // Retrieve the peer certificate if not already set by a previous call to the verification callback.
+            STACK_OF(X509)* chain = X509_STORE_CTX_get1_chain(ctx);
+            if (chain && sk_X509_num(chain) > 0)
+            {
+                _peerCertificate = X509_dup(sk_X509_value(chain, 0));
+                sk_X509_pop_free(chain, X509_free);
+            }
         }
         bool verified =
             _remoteCertificateVerificationCallback(ok, ctx, dynamic_pointer_cast<ConnectionInfo>(getInfo()));

@@ -498,13 +498,14 @@ OpenSSL::SSLEngine::createServerAuthenticationOptions() const
 }
 
 bool
-OpenSSL::SSLEngine::validationCallback(bool ok, X509_STORE_CTX*, const Ice::SSL::ConnectionInfoPtr& info) const
+OpenSSL::SSLEngine::validationCallback(bool ok, X509_STORE_CTX* ctx, const Ice::SSL::ConnectionInfoPtr& info) const
 {
     // At this point before the SSL handshake is completed, the connection info doesn't contain the peer's
     // certificate chain required for verifyPeer. We set it here.
-
-    if (ok)
+    int depth = X509_STORE_CTX_get_error_depth(ctx);
+    if (ok && depth == 0)
     {
+        // Only called for the peer certificate.
         verifyPeer(info);
     }
     return ok;
