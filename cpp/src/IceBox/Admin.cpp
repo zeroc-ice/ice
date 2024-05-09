@@ -109,13 +109,13 @@ run(const Ice::StringSeq& args)
         Ice::PropertiesPtr properties = communicator->getProperties();
 
         Ice::Identity managerIdentity;
-        managerIdentity.category = properties->getPropertyWithDefault("IceBox.InstanceName", "IceBox");
+        managerIdentity.category = properties->getIceProperty("IceBox.InstanceName");
         managerIdentity.name = "ServiceManager";
 
         string managerProxy;
-        if (properties->getProperty("Ice.Default.Locator").empty())
+        if (properties->getIceProperty("Ice.Default.Locator").empty())
         {
-            string managerEndpoints = properties->getProperty("IceBox.ServiceManager.Endpoints");
+            string managerEndpoints = properties->getIceProperty("IceBox.ServiceManager.Endpoints");
             if (managerEndpoints.empty())
             {
                 consoleErr << args[0] << ": property `IceBoxAdmin.ServiceManager.Proxy' is not set" << endl;

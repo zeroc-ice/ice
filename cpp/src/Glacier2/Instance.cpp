@@ -12,10 +12,10 @@ using namespace Glacier2;
 
 namespace
 {
-    const string serverSleepTime = "Glacier2.Server.SleepTime";
-    const string clientSleepTime = "Glacier2.Client.SleepTime";
-    const string serverBuffered = "Glacier2.Server.Buffered";
-    const string clientBuffered = "Glacier2.Client.Buffered";
+    constexpr string_view serverSleepTime = "Glacier2.Server.SleepTime";
+    constexpr string_view clientSleepTime = "Glacier2.Client.SleepTime";
+    constexpr string_view serverBuffered = "Glacier2.Server.Buffered";
+    constexpr string_view clientBuffered = "Glacier2.Client.Buffered";
 }
 
 Glacier2::Instance::Instance(
@@ -29,16 +29,16 @@ Glacier2::Instance::Instance(
       _serverAdapter(std::move(serverAdapter)),
       _proxyVerifier(make_shared<ProxyVerifier>(_communicator))
 {
-    if (_properties->getPropertyAsIntWithDefault(serverBuffered, 0) > 0)
+    if (_properties->getIcePropertyAsInt(serverBuffered) > 0)
     {
-        auto sleepTime = chrono::milliseconds(_properties->getPropertyAsInt(serverSleepTime));
+        auto sleepTime = chrono::milliseconds(_properties->getIcePropertyAsInt(serverSleepTime));
         const_cast<shared_ptr<RequestQueueThread>&>(_serverRequestQueueThread) =
             make_shared<RequestQueueThread>(sleepTime);
     }
 
-    if (_properties->getPropertyAsIntWithDefault(clientBuffered, 0) > 0)
+    if (_properties->getIcePropertyAsInt(clientBuffered) > 0)
     {
-        auto sleepTime = chrono::milliseconds(_properties->getPropertyAsInt(clientSleepTime));
+        auto sleepTime = chrono::milliseconds(_properties->getIcePropertyAsInt(clientSleepTime));
         const_cast<shared_ptr<RequestQueueThread>&>(_clientRequestQueueThread) =
             make_shared<RequestQueueThread>(sleepTime);
     }
@@ -49,9 +49,8 @@ Glacier2::Instance::Instance(
     auto o = dynamic_pointer_cast<IceInternal::CommunicatorObserverI>(_communicator->getObserver());
     if (o)
     {
-        const_cast<shared_ptr<Instrumentation::RouterObserver>&>(_observer) = make_shared<RouterObserverI>(
-            o->getFacet(),
-            _properties->getPropertyWithDefault("Glacier2.InstanceName", "Glacier2"));
+        const_cast<shared_ptr<Instrumentation::RouterObserver>&>(_observer) =
+            make_shared<RouterObserverI>(o->getFacet(), _properties->getIceProperty("Glacier2.InstanceName"));
     }
 }
 

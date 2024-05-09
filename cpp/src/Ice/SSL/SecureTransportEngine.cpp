@@ -579,7 +579,7 @@ SecureTransport::SSLEngine::initialize()
     // Check for a default directory. We look in this directory for
     // files mentioned in the configuration.
     //
-    const string defaultDir = properties->getProperty("IceSSL.DefaultDir");
+    const string defaultDir = properties->getIceProperty("IceSSL.DefaultDir");
 
     //
     // Load the CA certificates used to authenticate peers into
@@ -587,7 +587,7 @@ SecureTransport::SSLEngine::initialize()
     //
     try
     {
-        string caFile = properties->getProperty("IceSSL.CAs");
+        string caFile = properties->getIceProperty("IceSSL.CAs");
         if (!caFile.empty())
         {
             string resolved;
@@ -600,7 +600,7 @@ SecureTransport::SSLEngine::initialize()
             }
             _certificateAuthorities.reset(loadCACertificates(resolved));
         }
-        else if (properties->getPropertyAsInt("IceSSL.UsePlatformCAs") <= 0)
+        else if (properties->getIcePropertyAsInt("IceSSL.UsePlatformCAs") <= 0)
         {
             // Setup an empty list of Root CAs to not use the system root CAs.
             _certificateAuthorities.reset(CFArrayCreate(0, 0, 0, 0));
@@ -611,12 +611,12 @@ SecureTransport::SSLEngine::initialize()
         throw InitializationException(__FILE__, __LINE__, ce.reason);
     }
 
-    const string password = properties->getProperty("IceSSL.Password");
+    const string password = properties->getIceProperty("IceSSL.Password");
 
-    string certFile = properties->getProperty("IceSSL.CertFile");
-    string findCert = properties->getProperty("IceSSL.FindCert");
-    string keychain = properties->getProperty("IceSSL.Keychain");
-    string keychainPassword = properties->getProperty("IceSSL.KeychainPassword");
+    string certFile = properties->getIceProperty("IceSSL.CertFile");
+    string findCert = properties->getIceProperty("IceSSL.FindCert");
+    string keychain = properties->getIceProperty("IceSSL.Keychain");
+    string keychainPassword = properties->getIceProperty("IceSSL.KeychainPassword");
 
     if (!certFile.empty())
     {
@@ -630,7 +630,7 @@ SecureTransport::SSLEngine::initialize()
         }
         vector<string> keyFiles;
         {
-            string keyFile = properties->getProperty("IceSSL.KeyFile");
+            string keyFile = properties->getIceProperty("IceSSL.KeyFile");
             if (!keyFile.empty())
             {
                 if (!IceUtilInternal::splitString(keyFile, IceUtilInternal::pathsep, keyFiles) || keyFiles.size() > 2)

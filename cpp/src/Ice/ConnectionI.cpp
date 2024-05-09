@@ -1845,8 +1845,8 @@ Ice::ConnectionI::ConnectionI(
       _closeTimeout(options.closeTimeout),
       _inactivityTimeout(options.inactivityTimeout),
       _removeFromFactory(std::move(removeFromFactory)),
-      _warn(_instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Connections") > 0),
-      _warnUdp(_instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Datagrams") > 0),
+      _warn(_instance->initializationData().properties->getIcePropertyAsInt("Ice.Warn.Connections") > 0),
+      _warnUdp(_instance->initializationData().properties->getIcePropertyAsInt("Ice.Warn.Datagrams") > 0),
       _compressionLevel(1),
       _nextRequestId(1),
       _asyncRequestsHint(_asyncRequests.end()),
@@ -1864,7 +1864,7 @@ Ice::ConnectionI::ConnectionI(
     const Ice::PropertiesPtr& properties = _instance->initializationData().properties;
 
     int& compressionLevel = const_cast<int&>(_compressionLevel);
-    compressionLevel = properties->getPropertyAsIntWithDefault("Ice.Compression.Level", 1);
+    compressionLevel = properties->getIcePropertyAsInt("Ice.Compression.Level");
     if (compressionLevel < 1)
     {
         compressionLevel = 1;

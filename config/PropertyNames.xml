@@ -301,64 +301,64 @@ generated from the section label.
     <class name="mx" prefix-only="false">
         <suffix name="GroupBy" />
         <suffix name="Map" />
-        <suffix name="RetainDetached" />
+        <suffix name="RetainDetached" default="10" />
         <suffix name="Accept" />
         <suffix name="Reject" />
     </class>
 
     <section name="Ice">
-        <property name="AcceptClassCycles" />
+        <property name="AcceptClassCycles" default="0" />
         <property name="ACM.Client" deprecated="true"/>
         <property name="ACM.Server" deprecated="true"/>
         <property name="ACM" class="acm"/>
         <property name="ACM.Client" class="acm"/>
         <property name="ACM.Server" class="acm"/>
         <property name="Admin" class="objectadapter" />
-        <property name="Admin.DelayCreation" />
+        <property name="Admin.DelayCreation" default="0" />
         <property name="Admin.Enabled" />
         <property name="Admin.Facets" />
         <property name="Admin.InstanceName" />
-        <property name="Admin.Logger.KeepLogs" />
-        <property name="Admin.Logger.KeepTraces" />
+        <property name="Admin.Logger.KeepLogs" default="100" />
+        <property name="Admin.Logger.KeepTraces" default="100" />
         <property name="Admin.Logger.Properties" />
         <property name="Admin.ServerId" />
-        <property name="BackgroundLocatorCacheUpdates"/>
+        <property name="BackgroundLocatorCacheUpdates" default="0" />
         <property name="BatchAutoFlush" deprecated="true"/>
-        <property name="BatchAutoFlushSize" />
+        <property name="BatchAutoFlushSize" default="1024" />
         <property name="ChangeUser" />
-        <property name="ClassGraphDepthMax" />
+        <property name="ClassGraphDepthMax" default="100" />
         <property name="ClientAccessPolicyProtocol" />
-        <property name="Compression.Level" />
+        <property name="Compression.Level" default="1" />
         <property name="Config" />
         <property name="Connection" class="connection"/>
         <property name="ConsoleListener" />
-        <property name="Default.CollocationOptimized" />
-        <property name="Default.EncodingVersion" />
-        <property name="Default.EndpointSelection" />
+        <property name="Default.CollocationOptimized" default="1" />
+        <property name="Default.EncodingVersion" default="1.1"/>
+        <property name="Default.EndpointSelection" default="Random" />
         <property name="Default.Host" />
         <property name="Default.Locator" class="proxy" />
-        <property name="Default.LocatorCacheTimeout" />
-        <property name="Default.InvocationTimeout" />
+        <property name="Default.LocatorCacheTimeout" default="-1" />
+        <property name="Default.InvocationTimeout" default="-1" />
         <property name="Default.Package" />
-        <property name="Default.PreferSecure" />
-        <property name="Default.Protocol" />
+        <property name="Default.PreferSecure" default="0" />
+        <property name="Default.Protocol" default="tcp" />
         <property name="Default.Router" class="proxy" />
-        <property name="Default.SlicedFormat" />
+        <property name="Default.SlicedFormat" default="0" />
         <property name="Default.SourceAddress" />
-        <property name="Default.Timeout" />
+        <property name="Default.Timeout" default="60000" />
         <property name="EventLog.Source" />
         <property name="FactoryAssemblies" />
         <property name="HTTPProxyHost" />
-        <property name="HTTPProxyPort" />
-        <property name="ImplicitContext" />
-        <property name="InitPlugins" />
-        <property name="IPv4" />
-        <property name="IPv6" />
+        <property name="HTTPProxyPort" default="1080" />
+        <property name="ImplicitContext" default="None" />
+        <property name="InitPlugins" default="1" />
+        <property name="IPv4" default="1" />
+        <property name="IPv6" default="1" />
         <property name="LogFile" />
-        <property name="LogFile.SizeMax" />
-        <property name="LogStdErr.Convert"/>
-        <property name="MessageSizeMax" />
-        <property name="Nohup" />
+        <property name="LogFile.SizeMax" default="0" />
+        <property name="LogStdErr.Convert" default="1" />
+        <property name="MessageSizeMax" default="1024" />
+        <property name="Nohup" default="1" />
         <property name="Override.CloseTimeout" />
         <property name="Override.Compress" />
         <property name="Override.ConnectTimeout" />
@@ -367,25 +367,25 @@ generated from the section label.
         <property name="Package.[any]" />
         <property name="Plugin.[any]" />
         <property name="PluginLoadOrder" />
-        <property name="PreferIPv6Address" />
+        <property name="PreferIPv6Address" default="0" />
         <property name="PreloadAssemblies" />
         <property name="PrintAdapterReady" />
         <property name="PrintProcessId" />
-        <property name="PrintStackTraces" />
+        <property name="PrintStackTraces" default="0" />
         <property name="ProgramName" />
         <property name="RetryIntervals" default="0" />
-        <property name="ServerIdleTime" />
+        <property name="ServerIdleTime" default="0" />
         <property name="SOCKSProxyHost" />
-        <property name="SOCKSProxyPort" />
+        <property name="SOCKSProxyPort" default="1080" />
         <property name="StdErr" />
         <property name="StdOut" />
-        <property name="SyslogFacility" />
+        <property name="SyslogFacility" default="LOG_USER" />
         <property name="ThreadPool.Client" class="threadpool" />
         <property name="ThreadPool.Server" class="threadpool" />
         <property name="ThreadPriority"/>
         <property name="ToStringMode" default="Unicode" />
-        <property name="Trace.Admin.Properties" />
-        <property name="Trace.Admin.Logger" />
+        <property name="Trace.Admin.Properties" default="0" />
+        <property name="Trace.Admin.Logger" default="0" />
         <property name="Trace.Locator" />
         <property name="Trace.Network" />
         <property name="Trace.Protocol" />
@@ -398,16 +398,16 @@ generated from the section label.
         <property name="TCP.RcvSize" />
         <property name="TCP.SndSize" />
         <property name="UseApplicationClassLoader" />
-        <property name="UseOSLog" />
-        <property name="UseSyslog" />
-        <property name="UseSystemdJournal" />
-        <property name="Warn.AMICallback" />
-        <property name="Warn.Connections" />
-        <property name="Warn.Datagrams" />
-        <property name="Warn.Dispatch" />
-        <property name="Warn.Endpoints" />
-        <property name="Warn.UnknownProperties" />
-        <property name="Warn.UnusedProperties" />
+        <property name="UseOSLog" default="0" />
+        <property name="UseSyslog" default="0" />
+        <property name="UseSystemdJournal" default="0" />
+        <property name="Warn.AMICallback" default="1" />
+        <property name="Warn.Connections" default="0" />
+        <property name="Warn.Datagrams" default="0" />
+        <property name="Warn.Dispatch" default="1" />
+        <property name="Warn.Endpoints" default="1" />
+        <property name="Warn.UnknownProperties" default="1" />
+        <property name="Warn.UnusedProperties" default="0" />
         <property name="CacheMessageBuffers" />
         <property name="ThreadInterruptSafe" />
     </section>
@@ -421,13 +421,14 @@ generated from the section label.
         <property name="Reply" class="objectadapter" />
         <property name="Locator" class="objectadapter" />
         <property name="Lookup"/>
-        <property name="Timeout"/>
-        <property name="RetryCount"/>
-        <property name="LatencyMultiplier"/>
+        <property name="Timeout" default="300" />
+        <property name="RetryCount" default="3" />
+        <property name="LatencyMultiplier" default="1" />
+        <!-- We dont' set a default for Address as it depends on Ice.IPV4 and Ice.PreferIPv6Address -->
         <property name="Address"/>
-        <property name="Port"/>
+        <property name="Port" default="4061"/>
         <property name="Interface"/>
-        <property name="DomainId"/>
+        <property name="DomainId" default=""/>
     </section>
 
     <section name="IceLocatorDiscovery">
@@ -440,13 +441,13 @@ generated from the section label.
         <property name="Address"/>
         <property name="Port"/>
         <property name="Interface"/>
-        <property name="InstanceName"/>
-        <property name="Trace.Lookup"/>
+        <property name="InstanceName" default="IceLocatorDiscovery" />
+        <property name="Trace.Lookup" />
     </section>
 
     <section name="IceBox">
         <property name="InheritProperties" />
-        <property name="InstanceName" deprecated="true" />
+        <property name="InstanceName" deprecated="true" default="IceBox" />
         <property name="LoadOrder" />
         <property name="PrintServicesReady" />
         <property name="Service.[any]" />
@@ -462,7 +463,7 @@ generated from the section label.
     <section name="IceBridge">
         <property name="Source" class="objectadapter" />
         <property name="Target.Endpoints" />
-        <property name="InstanceName" />
+        <property name="InstanceName" default="IceBridge" />
     </section>
 
     <section name="IceGridAdmin">
@@ -473,7 +474,7 @@ generated from the section label.
         <property name="Replica" />
         <property name="Host" />
         <property name="Port" />
-        <property name="InstanceName" />
+        <property name="InstanceName" default="IceGridAdmin" />
         <property name="Server" class="objectadapter" />
         <property name="Discovery.Address" />
         <property name="Discovery.Interface" />
@@ -486,19 +487,19 @@ generated from the section label.
 
     <section name="IceGrid">
         <property name="AdminRouter" class="objectadapter" />
-        <property name="InstanceName" />
+        <property name="InstanceName" default="IceGrid" />
         <property name="Node" class="objectadapter" />
         <property name="Node.AllowRunningServersAsRoot" />
-        <property name="Node.AllowEndpointsOverride" />
+        <property name="Node.AllowEndpointsOverride" default="0"/>
         <property name="Node.CollocateRegistry" />
         <property name="Node.Data" />
-        <property name="Node.DisableOnFailure" />
+        <property name="Node.DisableOnFailure" default="0" />
         <property name="Node.Name" />
         <property name="Node.Output" />
         <property name="Node.ProcessorSocketCount" />
         <property name="Node.PrintServersReady" />
         <property name="Node.PropertiesOverride" />
-        <property name="Node.RedirectErrToOut" />
+        <property name="Node.RedirectErrToOut" default="0"/>
         <property name="Node.Trace.Activator" />
         <property name="Node.Trace.Adapter" />
         <property name="Node.Trace.Admin" />
@@ -507,30 +508,30 @@ generated from the section label.
         <property name="Node.Trace.Server" />
         <property name="Node.UserAccounts" />
         <property name="Node.UserAccountMapper" class="proxy" />
-        <property name="Node.WaitTime" />
+        <property name="Node.WaitTime" default="60" />
         <property name="Registry.AdminCryptPasswords" />
         <property name="Registry.AdminPermissionsVerifier" class="proxy" />
-        <property name="Registry.AdminSessionFilters" />
+        <property name="Registry.AdminSessionFilters" default="0" />
         <property name="Registry.AdminSessionManager" class="objectadapter" />
         <property name="Registry.AdminSSLPermissionsVerifier" class="proxy" />
         <property name="Registry.Client" class="objectadapter" />
         <property name="Registry.CryptPasswords" />
         <property name="Registry.DefaultTemplates" />
         <property name="Registry.Discovery" class="objectadapter" />
-        <property name="Registry.Discovery.Enabled" />
+        <property name="Registry.Discovery.Enabled" default="1" />
         <property name="Registry.Discovery.Address" />
-        <property name="Registry.Discovery.Port" />
+        <property name="Registry.Discovery.Port" default="4061" />
         <property name="Registry.Discovery.Interface" />
         <property name="Registry.DynamicRegistration" />
         <property name="Registry.Internal" class="objectadapter" />
         <property name="Registry.LMDB.MapSize" />
         <property name="Registry.LMDB.Path" />
         <property name="Registry.PermissionsVerifier" class="proxy" />
-        <property name="Registry.ReplicaName" />
+        <property name="Registry.ReplicaName" default="Master" />
         <property name="Registry.RequireNodeCertCN" />
         <property name="Registry.RequireReplicaCertCN" />
         <property name="Registry.Server" class="objectadapter" />
-        <property name="Registry.SessionFilters" />
+        <property name="Registry.SessionFilters" default="0" />
         <property name="Registry.SessionManager" class="objectadapter" />
         <property name="Registry.SSLPermissionsVerifier" class="proxy"/>
         <property name="Registry.Trace.Admin" />
@@ -553,10 +554,10 @@ generated from the section label.
     <section name="IceSSL">
         <property name="Alias" />
         <property name="CAs"/>
-        <property name="CertStore" />
-        <property name="CertStoreLocation" />
+        <property name="CertStore" default="My" />
+        <property name="CertStoreLocation" default="CurrentUser" />
         <property name="CertFile" />
-        <property name="CheckCertName" />
+        <property name="CheckCertName" default="0" />
         <property name="CheckCRL" />
         <property name="CertificateRevocationListFiles" />
         <property name="DefaultDir" />
@@ -568,10 +569,10 @@ generated from the section label.
         <property name="KeystorePassword" />
         <property name="KeystoreType" />
         <property name="Password" />
-        <property name="RevocationCheck" />
-        <property name="RevocationCheckCacheOnly" />
-        <property name="SchannelStrongCrypto" />
-        <property name="Trace.Security" />
+        <property name="RevocationCheck" default="0"/>
+        <property name="RevocationCheckCacheOnly" default="0" />
+        <property name="SchannelStrongCrypto" default="0" />
+        <property name="Trace.Security" default="0" />
         <property name="TrustOnly" />
         <property name="TrustOnly.Client" />
         <property name="TrustOnly.Server" />
@@ -579,8 +580,8 @@ generated from the section label.
         <property name="Truststore" />
         <property name="TruststorePassword" />
         <property name="TruststoreType" />
-        <property name="UsePlatformCAs" />
-        <property name="VerifyPeer" />
+        <property name="UsePlatformCAs" default="0" />
+        <property name="VerifyPeer" default="2" />
     </section>
 
     <section name="IceStormAdmin">
@@ -595,14 +596,14 @@ generated from the section label.
     </section>
 
     <section name="Glacier2">
-        <property name="AddConnectionContext"/>
+        <property name="AddConnectionContext" default="0" />
         <property name="Client" class="objectadapter"/>
-        <property name="Client.Buffered" />
-        <property name="Client.ForwardContext" />
-        <property name="Client.SleepTime" />
-        <property name="Client.Trace.Override" />
-        <property name="Client.Trace.Reject" />
-        <property name="Client.Trace.Request" />
+        <property name="Client.Buffered" default="1" />
+        <property name="Client.ForwardContext" default="0" />
+        <property name="Client.SleepTime" default="0" />
+        <property name="Client.Trace.Override" default="0" />
+        <property name="Client.Trace.Reject" default="0" />
+        <property name="Client.Trace.Request" default="0" />
         <property name="CryptPasswords" />
         <property name="Filter.Address.Reject" />
         <property name="Filter.Address.Accept" />
@@ -611,21 +612,21 @@ generated from the section label.
         <property name="Filter.Category.AcceptUser" />
         <property name="Filter.AdapterId.Accept" />
         <property name="Filter.Identity.Accept" />
-        <property name="InstanceName" />
+        <property name="InstanceName" default="Glacier2" />
         <property name="PermissionsVerifier" class="proxy" />
-        <property name="ReturnClientProxy" />
+        <property name="ReturnClientProxy" defalut="0" />
         <property name="SSLPermissionsVerifier" class="proxy" />
-        <property name="RoutingTable.MaxSize" />
+        <property name="RoutingTable.MaxSize" default="1000" />
         <property name="Server" class="objectadapter" />
-        <property name="Server.Buffered" />
-        <property name="Server.ForwardContext" />
-        <property name="Server.SleepTime" />
-        <property name="Server.Trace.Override" />
-        <property name="Server.Trace.Request" />
+        <property name="Server.Buffered" default="1" />
+        <property name="Server.ForwardContext" default="0" />
+        <property name="Server.SleepTime" default="0" />
+        <property name="Server.Trace.Override" default="0" />
+        <property name="Server.Trace.Request" default="0" />
         <property name="SessionManager" class="proxy" />
         <property name="SSLSessionManager" class="proxy" />
-        <property name="Trace.RoutingTable" />
-        <property name="Trace.Session" />
+        <property name="Trace.RoutingTable" default="0" />
+        <property name="Trace.Session" default="0" />
     </section>
 
     <section name="Glacier2CryptPermissionsVerifier">

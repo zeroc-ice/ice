@@ -282,23 +282,21 @@ IceInternal::createNetworkProxy(const Ice::PropertiesPtr& properties, ProtocolSu
 {
     string proxyHost;
 
-    proxyHost = properties->getProperty("Ice.SOCKSProxyHost");
+    proxyHost = properties->getIceProperty("Ice.SOCKSProxyHost");
     if (!proxyHost.empty())
     {
         if (protocolSupport == EnableIPv6)
         {
             throw Ice::InitializationException(__FILE__, __LINE__, "IPv6 only is not supported with SOCKS4 proxies");
         }
-        int proxyPort = properties->getPropertyAsIntWithDefault("Ice.SOCKSProxyPort", 1080);
+        int proxyPort = properties->getIcePropertyAsInt("Ice.SOCKSProxyPort");
         return make_shared<SOCKSNetworkProxy>(proxyHost, proxyPort);
     }
 
-    proxyHost = properties->getProperty("Ice.HTTPProxyHost");
+    proxyHost = properties->getIceProperty("Ice.HTTPProxyHost");
     if (!proxyHost.empty())
     {
-        return make_shared<HTTPNetworkProxy>(
-            proxyHost,
-            properties->getPropertyAsIntWithDefault("Ice.HTTPProxyPort", 1080));
+        return make_shared<HTTPNetworkProxy>(proxyHost, properties->getIcePropertyAsInt("Ice.HTTPProxyPort"));
     }
 
     return nullptr;

@@ -412,7 +412,7 @@ AdminSessionI::addFileIterator(FileReaderPrx reader, const string& filename, int
     }
 
     auto properties = reader->ice_getCommunicator()->getProperties();
-    int messageSizeMax = properties->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024) * 1024;
+    int messageSizeMax = properties->getIcePropertyAsInt("Ice.MessageSizeMax") * 1024;
 
     auto self = static_pointer_cast<AdminSessionI>(shared_from_this());
     auto obj = _servantManager->add(
@@ -472,7 +472,7 @@ AdminSessionFactory::AdminSessionFactory(
     if (_servantManager) // Not set if Glacier2 session manager adapter not enabled
     {
         auto props = database->getCommunicator()->getProperties();
-        const_cast<bool&>(_filters) = props->getPropertyAsIntWithDefault("IceGrid.Registry.AdminSessionFilters", 0) > 0;
+        const_cast<bool&>(_filters) = props->getIcePropertyAsInt("IceGrid.Registry.AdminSessionFilters") > 0;
     }
 }
 

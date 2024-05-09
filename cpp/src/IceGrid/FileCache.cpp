@@ -17,7 +17,7 @@ using namespace std;
 using namespace IceGrid;
 
 FileCache::FileCache(const shared_ptr<Ice::Communicator>& com)
-    : _messageSizeMax(com->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024) * 1024 - 256)
+    : _messageSizeMax(com->getProperties()->getIcePropertyAsInt("Ice.MessageSizeMax") * 1024 - 256)
 {
 }
 

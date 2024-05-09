@@ -37,8 +37,8 @@ InternalRegistryI::InternalRegistryI(
     // TODO: temporary. For now, synchronized with the default idle timeout.
     _nodeSessionTimeout = chrono::seconds(60);
     _replicaSessionTimeout = chrono::seconds(60);
-    _requireNodeCertCN = properties->getPropertyAsIntWithDefault("IceGrid.Registry.RequireNodeCertCN", 0);
-    _requireReplicaCertCN = properties->getPropertyAsIntWithDefault("IceGrid.Registry.RequireReplicaCertCN", 0);
+    _requireNodeCertCN = properties->getIcePropertyAsInt("IceGrid.Registry.RequireNodeCertCN");
+    _requireReplicaCertCN = properties->getIcePropertyAsInt("IceGrid.Registry.RequireReplicaCertCN");
 }
 
 optional<NodeSessionPrx>

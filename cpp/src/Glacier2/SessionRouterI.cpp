@@ -284,7 +284,7 @@ CreateSession::CreateSession(shared_ptr<SessionRouterI> sessionRouter, const str
     ctx.erase("_con.peerCert");
     const_cast<Ice::Current&>(_current).ctx = ctx;
 
-    if (_instance->properties()->getPropertyAsInt("Glacier2.AddConnectionContext") > 0)
+    if (_instance->properties()->getIcePropertyAsInt("Glacier2.AddConnectionContext") > 0)
     {
         _context["_con.type"] = current.con->type();
         {
@@ -414,7 +414,7 @@ CreateSession::sessionCreated(const optional<SessionPrx>& session)
             ident = _control->ice_getIdentity();
         }
 
-        if (_instance->properties()->getPropertyAsInt("Glacier2.AddConnectionContext") == 1)
+        if (_instance->properties()->getIcePropertyAsInt("Glacier2.AddConnectionContext") == 1)
         {
             router = make_shared<RouterI>(_instance, _current.con, _user, session, ident, _filterManager, _context);
         }
@@ -508,8 +508,8 @@ SessionRouterI::SessionRouterI(
     optional<SSLPermissionsVerifierPrx> sslVerifier,
     optional<SSLSessionManagerPrx> sslSessionManager)
     : _instance(std::move(instance)),
-      _sessionTraceLevel(_instance->properties()->getPropertyAsInt("Glacier2.Trace.Session")),
-      _rejectTraceLevel(_instance->properties()->getPropertyAsInt("Glacier2.Client.Trace.Reject")),
+      _sessionTraceLevel(_instance->properties()->getIcePropertyAsInt("Glacier2.Trace.Session")),
+      _rejectTraceLevel(_instance->properties()->getIcePropertyAsInt("Glacier2.Client.Trace.Reject")),
       _verifier(std::move(verifier)),
       _sessionManager(std::move(sessionManager)),
       _sslVerifier(std::move(sslVerifier)),
@@ -750,8 +750,7 @@ SessionRouterI::getSessionTimeout(const Ice::Current& current) const
 int
 SessionRouterI::getACMTimeout(const Ice::Current&) const
 {
-    // TODO: better way to retrieve idle timeout
-    int idleTimeout = _instance->properties()->getPropertyAsIntWithDefault("Ice.Connection.IdleTimeout", 60);
+    int idleTimeout = _instance->properties()->getIcePropertyAsInt("Ice.Connection.IdleTimeout");
     return _instance->properties()->getPropertyAsIntWithDefault("Glacier2.Client.Connection.IdleTimeout", idleTimeout);
 }
 

@@ -135,7 +135,7 @@ RouterService::start(int argc, char* argv[], int& status)
     // Initialize the client object adapter.
     //
     const string clientEndpointsProperty = "Glacier2.Client.Endpoints";
-    if (properties->getProperty(clientEndpointsProperty).empty())
+    if (properties->getIceProperty(clientEndpointsProperty).empty())
     {
         error("property `" + clientEndpointsProperty + "' is not set");
         return false;
@@ -149,12 +149,12 @@ RouterService::start(int argc, char* argv[], int& status)
     //
     const string serverEndpointsProperty = "Glacier2.Server.Endpoints";
     ObjectAdapterPtr serverAdapter;
-    if (!properties->getProperty(serverEndpointsProperty).empty())
+    if (!properties->getIceProperty(serverEndpointsProperty).empty())
     {
         serverAdapter = communicator()->createObjectAdapter("Glacier2.Server");
     }
 
-    string instanceName = communicator()->getProperties()->getPropertyWithDefault("Glacier2.InstanceName", "Glacier2");
+    string instanceName = communicator()->getProperties()->getIceProperty("Glacier2.InstanceName");
 
     vector<string> verifierProperties;
     verifierProperties.push_back("Glacier2.PermissionsVerifier");
@@ -428,10 +428,9 @@ RouterService::initializeCommunicator(
     // If Glacier2.PermissionsVerifier is not set and Glacier2.CryptPasswords is set,
     // load the Glacier2CryptPermissionsVerifier plug-in
     //
-    string verifier = "Glacier2.PermissionsVerifier";
-    if (initData.properties->getProperty(verifier).empty())
+    if (initData.properties->getIceProperty("Glacier2.PermissionsVerifier").empty())
     {
-        string cryptPasswords = initData.properties->getProperty("Glacier2.CryptPasswords");
+        string cryptPasswords = initData.properties->getIceProperty("Glacier2.CryptPasswords");
 
         if (!cryptPasswords.empty())
         {

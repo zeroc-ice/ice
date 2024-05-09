@@ -779,13 +779,13 @@ namespace Glacier2
 
 Glacier2::ProxyVerifier::ProxyVerifier(CommunicatorPtr communicator)
     : _communicator(std::move(communicator)),
-      _traceLevel(_communicator->getProperties()->getPropertyAsInt("Glacier2.Client.Trace.Reject"))
+      _traceLevel(_communicator->getProperties()->getIcePropertyAsInt("Glacier2.Client.Trace.Reject"))
 {
     //
     // Evaluation order is dependant on how the rules are stored to the
     // rules vectors.
     //
-    string s = _communicator->getProperties()->getProperty("Glacier2.Filter.Address.Accept");
+    string s = _communicator->getProperties()->getIceProperty("Glacier2.Filter.Address.Accept");
     if (s != "")
     {
         try
@@ -800,7 +800,7 @@ Glacier2::ProxyVerifier::ProxyVerifier(CommunicatorPtr communicator)
         }
     }
 
-    s = _communicator->getProperties()->getProperty("Glacier2.Filter.Address.Reject");
+    s = _communicator->getProperties()->getIceProperty("Glacier2.Filter.Address.Reject");
     if (s != "")
     {
         try
@@ -815,7 +815,7 @@ Glacier2::ProxyVerifier::ProxyVerifier(CommunicatorPtr communicator)
         }
     }
 
-    s = _communicator->getProperties()->getProperty("Glacier2.Filter.ProxySizeMax");
+    s = _communicator->getProperties()->getIceProperty("Glacier2.Filter.ProxySizeMax");
     if (s != "")
     {
         try

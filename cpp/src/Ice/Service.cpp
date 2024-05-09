@@ -649,10 +649,10 @@ Ice::Service::main(int argc, const char* const argv[], const InitializationData&
         _logger = getProcessLogger();
         if (dynamic_pointer_cast<LoggerI>(_logger))
         {
-            const bool convert = initData.properties->getPropertyAsIntWithDefault("Ice.LogStdErr.Convert", 1) > 0 &&
-                                 initData.properties->getProperty("Ice.StdErr").empty();
+            const bool convert = initData.properties->getIcePropertyAsInt("Ice.LogStdErr.Convert") > 0 &&
+                                 initData.properties->getIceProperty("Ice.StdErr").empty();
 
-            _logger = make_shared<LoggerI>(initData.properties->getProperty("Ice.ProgramName"), "", convert);
+            _logger = make_shared<LoggerI>(initData.properties->getIceProperty("Ice.ProgramName"), "", convert);
             setProcessLogger(_logger);
         }
     }
@@ -750,7 +750,7 @@ Ice::Service::run(int argc, const char* const argv[], const InitializationData& 
         //
         // Determines whether we ignore SIGHUP/CTRL_LOGOFF_EVENT.
         //
-        _nohup = _communicator->getProperties()->getPropertyAsIntWithDefault("Ice.Nohup", 1) > 0;
+        _nohup = _communicator->getProperties()->getIcePropertyAsInt("Ice.Nohup") > 0;
 
         //
         // Start the service.
@@ -1264,7 +1264,7 @@ Ice::Service::serviceMain(int argc, const wchar_t* const argv[])
     //
     // Determines whether we ignore SIGHUP/CTRL_LOGOFF_EVENT.
     //
-    _nohup = _communicator->getProperties()->getPropertyAsIntWithDefault("Ice.Nohup", 1) > 0;
+    _nohup = _communicator->getProperties()->getIcePropertyAsInt("Ice.Nohup") > 0;
 
     DWORD status = EXIT_FAILURE;
     try
@@ -1626,8 +1626,8 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             // Close unnecessary file descriptors.
             //
             PropertiesPtr properties = _communicator->getProperties();
-            string stdOut = properties->getProperty("Ice.StdOut");
-            string stdErr = properties->getProperty("Ice.StdErr");
+            string stdOut = properties->getIceProperty("Ice.StdOut");
+            string stdErr = properties->getIceProperty("Ice.StdErr");
 
             for (vector<int>::const_iterator p = fdsToClose.begin(); p != fdsToClose.end(); ++p)
             {
