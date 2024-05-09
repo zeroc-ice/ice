@@ -1849,7 +1849,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     let inEncaps = ostr.finished()
     let result = try initial.ice_invoke(
       operation: "opOneOptional", mode: .Normal, inEncaps: inEncaps)
-    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    let istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
     _ = try istr.startEncapsulation()
     var v1: Ice.Value?
     try istr.read { v1 = $0 }
