@@ -493,7 +493,7 @@ function allTests($helper)
     $p3 = $initial->opVarStruct($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p1 = new Test\OneOptional(58);
+    $p1 = new Test\OneOptional;
     $p3 = $initial->opOneOptional($p1, $p2);
     test($p2->a == Ice\None && $p3->a == Ice\None);
     $p1 = new Test\OneOptional(58);
