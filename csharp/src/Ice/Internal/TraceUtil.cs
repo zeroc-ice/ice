@@ -172,8 +172,7 @@ internal sealed class TraceUtil
                 toStringMode = str.instance().toStringMode();
             }
 
-            Ice.Identity identity = new Ice.Identity();
-            identity.ice_readMembers(str);
+            var identity = new Ice.Identity(str);
             s.Write("\nidentity = " + Ice.Util.identityToString(identity, toStringMode));
 
             string[] facet = str.readStringSeq();

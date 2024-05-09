@@ -7,7 +7,7 @@ function client(args)
         loadlibrary('ice', @iceproto)
     end
 
-    props = Ice.createProperties()
+    props = Ice.createProperties();
 
     fprintf('testing ice properties with set default values...');
     toStringMode = props.getIceProperty('Ice.ToStringMode');

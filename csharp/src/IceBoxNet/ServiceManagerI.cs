@@ -249,9 +249,9 @@ internal class ServiceManagerI : ServiceManagerDisp_
             {
                 adapter = _communicator.createObjectAdapter("IceBox.ServiceManager");
 
-                Ice.Identity identity = new Ice.Identity();
-                identity.category = properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox");
-                identity.name = "ServiceManager";
+                var identity = new Ice.Identity(
+                    "ServiceManager",
+                    properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox"));
                 adapter.add(this, identity);
             }
 

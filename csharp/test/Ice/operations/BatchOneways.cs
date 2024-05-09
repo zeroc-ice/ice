@@ -107,8 +107,7 @@ namespace Ice
                     batch2.ice_ping();
                 }
 
-                Ice.Identity identity = new Ice.Identity();
-                identity.name = "invalid";
+                Ice.Identity identity = new Ice.Identity("invalid", "");
                 Ice.ObjectPrx batch3 = batch.ice_identity(identity);
                 batch3.ice_ping();
                 batch3.ice_flushBatchRequests();

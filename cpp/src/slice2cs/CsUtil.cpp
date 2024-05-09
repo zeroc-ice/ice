@@ -713,15 +713,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
         }
         else
         {
-            if (isMappedToClass(st))
-            {
-                out << nl << param << " = " << typeToString(type, package) << ".ice_read(" << stream << ");";
-            }
-            else
-            {
-                // It is slightly more efficient to read the members directly and not make a copy with ice_read.
-                out << nl << param << ".ice_readMembers(" << stream << ");";
-            }
+            out << nl << param << " = new " << typeToString(type, package) << "(" << stream << ");";
         }
         return;
     }
@@ -1517,33 +1509,12 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
             }
             else
             {
-                if (isValueType(type))
+                call = param;
+                if (isStack)
                 {
-                    call = param;
-                    if (isStack)
-                    {
-                        call += "_tmp";
-                    }
-                }
-                else
-                {
-                    call = "(";
-                    call += param;
-                    if (isStack)
-                    {
-                        call += "_tmp";
-                    }
-                    call += "[ix] == null ? new " + typeS + "() : " + param;
-                    if (isStack)
-                    {
-                        call += "_tmp";
-                    }
+                    call += "_tmp";
                 }
                 call += "[ix]";
-                if (!isValueType(type))
-                {
-                    call += ")";
-                }
             }
             call += ".";
             call += "ice_writeMembers";
@@ -1584,16 +1555,11 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
             if (isArray || isStack)
             {
                 string v = isArray ? param : param + "_tmp";
-                if (isMappedToClass(st))
-                {
-                    out << nl << v << "[ix] = new " << typeS << "();";
-                }
-                out << nl << v << "[ix].ice_readMembers(" << stream << ");";
+                out << nl << v << "[ix] = new " << typeS << "(istr);";
             }
             else
             {
-                out << nl << typeS << " val = new " << typeS << "();";
-                out << nl << "val.ice_readMembers(" << stream << ");";
+                out << nl << typeS << " val = new " << typeS << "(istr);";
                 out << nl << param << "." << addMethod << "(val);";
             }
             out << eb;

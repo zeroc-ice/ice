@@ -12,6 +12,7 @@
 #include "Ice/Properties.h"
 #include "Ice/SSL/ConnectionInfo.h"
 #include "RFC2253.h"
+#include "SSLUtil.h"
 
 using namespace std;
 using namespace Ice::SSL;
@@ -121,9 +122,9 @@ TrustManager::verify(const ConnectionInfoPtr& info) const
     }
 
     // If there is no certificate then we match false.
-    if (info->certs.size() != 0)
+    if (info->peerCertificate)
     {
-        DistinguishedName subject = info->certs[0]->getSubjectDN();
+        DistinguishedName subject = getSubjectName(info->peerCertificate);
         if (_traceLevel > 0)
         {
             Ice::Trace trace(_instance->initializationData().logger, "Security");

@@ -9,9 +9,9 @@
 #include "Ice/BuiltinSequences.h"
 #include "Ice/SSL/ClientAuthenticationOptions.h"
 #include "Ice/SSL/ServerAuthenticationOptions.h"
-#include "OpenSSLUtil.h"
 #include "SSLEngine.h"
 #include "SSLInstanceF.h"
+#include "SSLUtil.h"
 
 namespace Ice::SSL::OpenSSL
 {

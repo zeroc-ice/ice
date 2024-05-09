@@ -28,8 +28,7 @@ public sealed class ControllerI : Test.ControllerDisp_
     addObject(string oaName, string id, Ice.Current current)
     {
         Debug.Assert(_adapters.ContainsKey(oaName));
-        Ice.Identity identity = new Ice.Identity();
-        identity.name = id;
+        var identity = new Ice.Identity(id, "");
         _adapters[oaName].add(new TestIntfI(), identity);
     }
 
@@ -37,8 +36,7 @@ public sealed class ControllerI : Test.ControllerDisp_
     removeObject(string oaName, string id, Ice.Current current)
     {
         Debug.Assert(_adapters.ContainsKey(oaName));
-        Ice.Identity identity = new Ice.Identity();
-        identity.name = id;
+        var identity = new Ice.Identity(id, "");
         _adapters[oaName].remove(identity);
     }
 

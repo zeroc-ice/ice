@@ -105,15 +105,13 @@ namespace Ice
                 }
 
                 {
-                    var si1 = new Test.Structure();
+                    var si1 = new Test.Structure(new Test.AnotherStruct());
                     si1.p = p;
                     si1.e = Test.MyEnum.enum3;
-                    si1.s = new Test.AnotherStruct();
                     si1.s.s = "abc";
-                    var si2 = new Test.Structure();
+                    var si2 = new Test.Structure(new Test.AnotherStruct());
                     si2.p = null;
                     si2.e = Test.MyEnum.enum2;
-                    si2.s = new Test.AnotherStruct();
                     si2.s.s = "def";
 
                     var ret = p.opStructAsync(si1, si2).Result;

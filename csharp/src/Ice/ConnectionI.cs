@@ -1134,11 +1134,9 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
                                     throw ex;
                                 }
 
-                                ProtocolVersion pv = new ProtocolVersion();
-                                pv.ice_readMembers(_readStream);
+                                ProtocolVersion pv = new ProtocolVersion(_readStream);
                                 Protocol.checkSupportedProtocol(pv);
-                                EncodingVersion ev = new EncodingVersion();
-                                ev.ice_readMembers(_readStream);
+                                EncodingVersion ev = new EncodingVersion(_readStream);
                                 Protocol.checkSupportedProtocolEncoding(ev);
 
                                 _readStream.readByte(); // messageType
@@ -2182,12 +2180,10 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
                     throw ex;
                 }
 
-                ProtocolVersion pv = new ProtocolVersion();
-                pv.ice_readMembers(_readStream);
+                ProtocolVersion pv = new ProtocolVersion(_readStream);
                 Protocol.checkSupportedProtocol(pv);
 
-                EncodingVersion ev = new EncodingVersion();
-                ev.ice_readMembers(_readStream);
+                EncodingVersion ev = new EncodingVersion(_readStream);
                 Protocol.checkSupportedProtocolEncoding(ev);
 
                 byte messageType = _readStream.readByte();

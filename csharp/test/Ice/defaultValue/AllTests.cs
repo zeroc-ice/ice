@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+using Ice.defaultValue.Test;
+
 namespace Ice
 {
     namespace defaultValue
@@ -268,10 +270,10 @@ namespace Ice
 
                 output.WriteLine("ok");
 
-                output.Write("testing default constructor... ");
+                output.Write("testing non-primary constructor... ");
                 output.Flush();
                 {
-                    Test.StructNoDefaults v = new Test.StructNoDefaults();
+                    Test.StructNoDefaults v = new Test.StructNoDefaults(bs: null, iseq: null, st2: null, dict: null);
                     test(v.bo == false);
                     test(v.b == 0);
                     test(v.s == 0);
@@ -284,7 +286,7 @@ namespace Ice
                     test(v.bs == null);
                     test(v.iseq == null);
                     test(v.st.a == 0);
-                    test(v.st2 != null);
+                    test(v.st2 == null);
                     test(v.dict == null);
 
                     Test.ExceptionNoDefaults e = new Test.ExceptionNoDefaults();
@@ -292,7 +294,7 @@ namespace Ice
                     test(e.c1 == Test.Color.red);
                     test(e.bs == null);
                     test(e.st.a == 0);
-                    test(e.st2 != null);
+                    test(e.st2 == null);
                     test(e.dict == null);
 
                     Test.ClassNoDefaults cl = new Test.ClassNoDefaults();
@@ -300,7 +302,7 @@ namespace Ice
                     test(cl.c1 == Test.Color.red);
                     test(cl.bs == null);
                     test(cl.st.a == 0);
-                    test(cl.st2 != null);
+                    test(cl.st2 == null);
                     test(cl.dict == null);
                 }
                 output.WriteLine("ok");

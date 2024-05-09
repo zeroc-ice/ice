@@ -23,13 +23,6 @@ public class Client : TestHelper
                            def_s, def_cls, def_prx);
 
         //
-        // Compare default-constructed structures.
-        //
-        {
-            test(new S2().Equals(new S2()));
-        }
-
-        //
         // Change one primitive member at a time.
         //
         {

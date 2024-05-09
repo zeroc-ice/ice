@@ -184,10 +184,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
             {
                 return null;
             }
-            IceMX.MetricsFailures f = new IceMX.MetricsFailures();
-            f.id = _object.id;
-            f.failures = new Dictionary<string, int>(_failures);
-            return f;
+            return new IceMX.MetricsFailures(_object.id, new Dictionary<string, int>(_failures));
         }
 
         internal void attach(IceMX.MetricsHelper<T> helper)
@@ -884,7 +881,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_, Ice.PropertiesAdminUpdateC
             {
                 return view.getFailures(mapName, id);
             }
-            return new IceMX.MetricsFailures();
+            return new IceMX.MetricsFailures("", null); // null == dictionary
         }
     }
 

@@ -488,12 +488,9 @@ def allTests(helper, communicator)
     p2, p3 = initial.opVarStruct(p1)
     test(p2 == p1 && p3 == p1)
 
-    p2, p3 = initial.opOneOptional(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
-    if initial.supportsNullOptional() then
-        p2, p3 = initial.opOneOptional(nil)
-        test(p2 == nil && p3 == nil)
-    end
+    p1 = Test::OneOptional.new()
+    p2, p3 = initial.opOneOptional(p1)
+    test(p2.a == Ice::Unset && p3.a == Ice::Unset)
     p1 = Test::OneOptional.new(58)
     p2, p3 = initial.opOneOptional(p1)
     test(p2.a == p1.a && p3.a == p1.a)
@@ -647,74 +644,63 @@ def allTests(helper, communicator)
     STDOUT.flush
 
     begin
-        initial.opOptionalException(Ice::Unset, Ice::Unset, Ice::Unset)
+        initial.opOptionalException(Ice::Unset, Ice::Unset)
     rescue Test::OptionalException => ex
         test(ex.a == Ice::Unset)
         test(ex.b == Ice::Unset)
-        test(ex.o == Ice::Unset)
     end
 
     begin
-        initial.opOptionalException(30, "test", Test::OneOptional.new(53))
+        initial.opOptionalException(30, "test")
     rescue Test::OptionalException => ex
         test(ex.a == 30)
         test(ex.b == "test")
-        test(ex.o.a == 53)
     end
 
     begin
         #
-        # Use the 1.0 encoding with an exception whose only class members are optional.
+        # Use the 1.0 encoding with an exception whose only data members are optional.
         #
-        initial.ice_encodingVersion(Ice::Encoding_1_0).opOptionalException(30, "test", Test::OneOptional.new(53))
+        initial.ice_encodingVersion(Ice::Encoding_1_0).opOptionalException(30, "test")
     rescue Test::OptionalException => ex
         test(ex.a == Ice::Unset)
         test(ex.b == Ice::Unset)
-        test(ex.o == Ice::Unset)
     end
 
     begin
-        initial.opDerivedException(Ice::Unset, Ice::Unset, Ice::Unset)
+        initial.opDerivedException(Ice::Unset, Ice::Unset)
     rescue Test::DerivedException => ex
         test(ex.a == Ice::Unset)
         test(ex.b == Ice::Unset)
-        test(ex.o == Ice::Unset)
         test(ex.ss == Ice::Unset)
-        test(ex.o2 == Ice::Unset)
         test(ex.d1 == "d1")
         test(ex.d2 == "d2")
     end
 
     begin
-        initial.opDerivedException(30, "test", Test::OneOptional.new(53))
+        initial.opDerivedException(30, "test")
     rescue Test::DerivedException => ex
         test(ex.a == 30)
         test(ex.b == "test")
-        test(ex.o.a == 53)
         test(ex.ss == "test")
-        test(ex.o2 == ex.o)
         test(ex.d1 == "d1")
         test(ex.d2 == "d2")
     end
 
     begin
-        initial.opRequiredException(Ice::Unset, Ice::Unset, Ice::Unset)
+        initial.opRequiredException(Ice::Unset, Ice::Unset)
     rescue Test::RequiredException => ex
         test(ex.a == Ice::Unset)
         test(ex.b == Ice::Unset)
-        test(ex.o == Ice::Unset)
         test(ex.ss != Ice::Unset)
-        test(ex.o2 != Ice::Unset)
     end
 
     begin
-        initial.opRequiredException(30, "test", Test::OneOptional.new(53))
+        initial.opRequiredException(30, "test")
     rescue Test::RequiredException => ex
         test(ex.a == 30)
         test(ex.b == "test")
-        test(ex.o.a == 53)
         test(ex.ss == "test")
-        test(ex.o2 == ex.o)
     end
 
     puts "ok"
@@ -726,7 +712,6 @@ def allTests(helper, communicator)
     #test(initial.opMStruct1() != Ice::Unset)
     test(initial.opMDict1() != Ice::Unset)
     test(initial.opMSeq1() != Ice::Unset)
-    test(initial.opMG1() != Ice::Unset)
 
     (p3, p2) = initial.opMStruct2(Ice::Unset)
     test(p2 == Ice::Unset && p3 == Ice::Unset)
@@ -748,13 +733,6 @@ def allTests(helper, communicator)
     p1 = {"test" => 54}
     (p3, p2) = initial.opMDict2(p1)
     test(p2["test"] == 54 && p3["test"] == 54)
-
-    (p3, p2) = initial.opMG2(Ice::Unset)
-    test(p2 == Ice::Unset && p3 == Ice::Unset)
-
-    p1 = Test::G.new()
-    (p3, p2) = initial.opMG2(p1)
-    test(p2 != Ice::Unset && p3 != Ice::Unset && p3 == p2)
 
     puts "ok"
 

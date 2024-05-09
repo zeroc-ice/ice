@@ -70,7 +70,7 @@ namespace Ice::SSL::OpenSSL
         const IceInternal::TransceiverPtr _delegate;
         bool _connected;
         std::string _cipher;
-        std::vector<Ice::SSL::CertificatePtr> _certs;
+        X509* _peerCertificate;
         ::SSL* _ssl;
         SSL_CTX* _sslCtx;
         BIO* _memBio;

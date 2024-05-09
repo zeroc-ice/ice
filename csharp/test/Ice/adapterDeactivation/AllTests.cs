@@ -79,8 +79,7 @@ namespace Ice
                         communicator.stringToProxy("dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000");
                     adapter.setPublishedEndpoints(prx.ice_getEndpoints());
                     test(adapter.getPublishedEndpoints().Length == 2);
-                    Ice.Identity id = new Ice.Identity();
-                    id.name = "dummy";
+                    Ice.Identity id = new Ice.Identity("dummy", "");
                     test(Ice.UtilInternal.Arrays.Equals(adapter.createProxy(id).ice_getEndpoints(), prx.ice_getEndpoints()));
                     test(Ice.UtilInternal.Arrays.Equals(adapter.getPublishedEndpoints(), prx.ice_getEndpoints()));
                     adapter.refreshPublishedEndpoints();
@@ -117,8 +116,7 @@ namespace Ice
                 output.Write("testing object adapter with router... ");
                 output.Flush();
                 {
-                    Ice.Identity routerId = new Ice.Identity();
-                    routerId.name = "router";
+                    Ice.Identity routerId = new Ice.Identity("router", "");
                     Ice.RouterPrx router =
                         Ice.RouterPrxHelper.uncheckedCast(@base.ice_identity(routerId).ice_connectionId("rc"));
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithRouter("", router);

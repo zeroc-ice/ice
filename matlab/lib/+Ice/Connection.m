@@ -217,7 +217,7 @@ classdef Connection < IceInternal.WrapperObject
 
                 case 'ssl'
                     r = Ice.SSL.ConnectionInfo(underlying, info.incoming, info.adapterName, info.connectionId, ...
-                                               info.cipher, info.certs, info.verified);
+                                               info.peerCertificate);
 
                 case 'udp'
                     r = Ice.UDPConnectionInfo(underlying, info.incoming, info.adapterName, info.connectionId, ...

@@ -838,7 +838,8 @@ namespace Ice
 
             public override Test.MyClass_OpMStruct1MarshaledResult opMStruct1(Ice.Current current)
             {
-                return new Test.MyClass_OpMStruct1MarshaledResult(new Test.Structure(), current);
+                return new Test.MyClass_OpMStruct1MarshaledResult(
+                    new Test.Structure(new Test.AnotherStruct()), current);
             }
 
             public override Test.MyClass_OpMStruct2MarshaledResult opMStruct2(Test.Structure p1, Ice.Current current)

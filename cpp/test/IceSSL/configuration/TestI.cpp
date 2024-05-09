@@ -17,7 +17,7 @@ ServerI::noCert(const Ice::Current& c)
     try
     {
         Ice::SSL::ConnectionInfoPtr info = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(c.con->getInfo());
-        test(info->certs.size() == 0);
+        test(!info->peerCertificate);
     }
     catch (const Ice::LocalException& ex)
     {

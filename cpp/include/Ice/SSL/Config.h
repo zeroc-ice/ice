@@ -28,12 +28,20 @@
 #    include <sspi.h>
 #    undef SECURITY_WIN32
 #elif defined(__APPLE__)
+#    include <TargetConditionals.h>
 #    define ICE_USE_SECURE_TRANSPORT
+#    if TARGET_OS_IPHONE != 0
+#        define ICE_USE_SECURE_TRANSPORT_IOS 1
+#    else
+#        define ICE_USE_SECURE_TRANSPORT_MACOS 1
+#    endif
 #    include <Security/SecureTransport.h>
 #    include <Security/Security.h>
 #else
 #    define ICE_USE_OPENSSL
+#    include <openssl/err.h>
 #    include <openssl/ssl.h>
+#    include <openssl/x509v3.h>
 #endif
 
 #endif

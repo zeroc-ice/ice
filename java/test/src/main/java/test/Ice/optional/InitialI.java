@@ -23,8 +23,7 @@ public final class InitialI implements Initial {
   }
 
   @Override
-  public void opOptionalException(
-      OptionalInt a, Optional<String> b, Optional<OneOptional> o, Current current)
+  public void opOptionalException(OptionalInt a, Optional<String> b, Current current)
       throws OptionalException {
     OptionalException ex = new OptionalException();
     if (a.isPresent()) {
@@ -35,15 +34,11 @@ public final class InitialI implements Initial {
     if (b.isPresent()) {
       ex.setB(b.get());
     }
-    if (o.isPresent()) {
-      ex.setO(o.get());
-    }
     throw ex;
   }
 
   @Override
-  public void opDerivedException(
-      OptionalInt a, Optional<String> b, Optional<OneOptional> o, Current current)
+  public void opDerivedException(OptionalInt a, Optional<String> b, Current current)
       throws OptionalException {
     DerivedException ex = new DerivedException();
     if (a.isPresent()) {
@@ -57,18 +52,13 @@ public final class InitialI implements Initial {
     } else {
       ex.clearSs(); // The member "ss" has a default value.
     }
-    if (o.isPresent()) {
-      ex.setO(o.get());
-      ex.setO2(o.get());
-    }
     ex.d1 = "d1";
     ex.d2 = "d2";
     throw ex;
   }
 
   @Override
-  public void opRequiredException(
-      OptionalInt a, Optional<String> b, Optional<OneOptional> o, Current current)
+  public void opRequiredException(OptionalInt a, Optional<String> b, Current current)
       throws OptionalException {
     RequiredException ex = new RequiredException();
     if (a.isPresent()) {
@@ -79,10 +69,6 @@ public final class InitialI implements Initial {
     if (b.isPresent()) {
       ex.setB(b.get());
       ex.ss = b.get();
-    }
-    if (o.isPresent()) {
-      ex.setO(o.get());
-      ex.o2 = o.get();
     }
     throw ex;
   }
@@ -223,17 +209,6 @@ public final class InitialI implements Initial {
   }
 
   @Override
-  public Initial.OpOneOptionalResult opOneOptional(Optional<OneOptional> p1, Current current) {
-    return new Initial.OpOneOptionalResult(p1, p1);
-  }
-
-  @Override
-  public Initial.OpOneOptionalReqResult opOneOptionalReq(
-      Optional<OneOptional> p1, Current current) {
-    return new Initial.OpOneOptionalReqResult(p1, p1);
-  }
-
-  @Override
   public Initial.OpMyInterfaceProxyResult opMyInterfaceProxy(
       Optional<MyInterfacePrx> p1, Current current) {
     return new Initial.OpMyInterfaceProxyResult(p1, p1);
@@ -243,6 +218,11 @@ public final class InitialI implements Initial {
   public Initial.OpMyInterfaceProxyReqResult opMyInterfaceProxyReq(
       Optional<MyInterfacePrx> p1, Current current) {
     return new Initial.OpMyInterfaceProxyReqResult(p1, p1);
+  }
+
+  @Override
+  public Initial.OpOneOptionalResult opOneOptional(OneOptional p1, Current current) {
+    return new Initial.OpOneOptionalResult(p1, p1);
   }
 
   @Override
@@ -475,16 +455,6 @@ public final class InitialI implements Initial {
   }
 
   @Override
-  public OpMG1MarshaledResult opMG1(Current current) {
-    return new OpMG1MarshaledResult(Optional.of(new G()), current);
-  }
-
-  @Override
-  public OpMG2MarshaledResult opMG2(Optional<G> p1, Current current) {
-    return new OpMG2MarshaledResult(p1, p1, current);
-  }
-
-  @Override
   public boolean supportsRequiredParams(Current current) {
     return true;
   }
@@ -496,15 +466,6 @@ public final class InitialI implements Initial {
 
   @Override
   public boolean supportsCsharpSerializable(Current current) {
-    return false;
-  }
-
-  @Override
-  public boolean supportsNullOptional(Current current) {
-    //
-    // The java.util.Optional class does not support a null value. Constructing an Optional
-    // using Optional.ofNullable(null) returns an optional whose value is NOT present.
-    //
     return false;
   }
 }
