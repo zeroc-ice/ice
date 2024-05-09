@@ -94,7 +94,7 @@ public class Incoming : Ice.Request
         //
         // Read the current.
         //
-        _current.id.ice_readMembers(_is);
+        _current.id = new Identity(_is);
 
         //
         // For compatibility with the old FacetPath.

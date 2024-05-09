@@ -711,9 +711,7 @@ internal class PluginI : Ice.Plugin
         Ice.LocatorPrx voidLo = Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(new VoidLocatorI()));
 
         string instanceName = properties.getProperty(_name + ".InstanceName");
-        Ice.Identity id = new Ice.Identity();
-        id.name = "Locator";
-        id.category = instanceName.Length > 0 ? instanceName : Guid.NewGuid().ToString();
+        var id = new Ice.Identity("Locator", instanceName.Length > 0 ? instanceName : Guid.NewGuid().ToString());
 
         _defaultLocator = _communicator.getDefaultLocator();
         _locator = new LocatorI(_name, LookupPrxHelper.uncheckedCast(lookupPrx), properties, instanceName, voidLo);

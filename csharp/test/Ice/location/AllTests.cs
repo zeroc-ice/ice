@@ -579,8 +579,7 @@ namespace Ice
                 communicator.getProperties().setProperty("Hello.AdapterId", Guid.NewGuid().ToString());
                 Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "default");
 
-                Ice.Identity id = new Ice.Identity();
-                id.name = Guid.NewGuid().ToString();
+                var id = new Ice.Identity(Guid.NewGuid().ToString(), "");
                 adapter.add(new HelloI(), id);
                 adapter.activate();
 

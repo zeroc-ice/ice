@@ -46,6 +46,7 @@ namespace Slice
         void emitAttributes(const ContainedPtr&);
         void emitComVisibleAttribute();
         void emitGeneratedCodeAttribute();
+        void emitNonBrowsableAttribute();
         void emitPartialTypeAttributes();
 
         static std::string getParamAttributes(const ParamDeclPtr&);
@@ -54,10 +55,7 @@ namespace Slice
 
         void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
 
-        // Returns true when the type has a struct field mapped to a class.
-        bool requiresDataMemberInitializers(const DataMemberList&);
-
-        // Generates "new()" for each struct field mapped to a class.
+        // Generates "= null!" for non-nullable fields (Slice class and exception only).
         void writeDataMemberInitializers(const DataMemberList&, unsigned int);
 
         std::string toCsIdent(const std::string&);

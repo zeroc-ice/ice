@@ -586,10 +586,8 @@ public class ReferenceFactory
         Ice.EncodingVersion encoding;
         if (!s.getEncoding().Equals(Ice.Util.Encoding_1_0))
         {
-            protocol = new Ice.ProtocolVersion();
-            protocol.ice_readMembers(s);
-            encoding = new Ice.EncodingVersion();
-            encoding.ice_readMembers(s);
+            protocol = new Ice.ProtocolVersion(s);
+            encoding = new Ice.EncodingVersion(s);
         }
         else
         {

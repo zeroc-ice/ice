@@ -260,15 +260,13 @@ namespace Ice
                 }
 
                 {
-                    Test.Structure si1 = new Test.Structure();
+                    Test.Structure si1 = new Test.Structure(new Test.AnotherStruct());
                     si1.p = p;
                     si1.e = Test.MyEnum.enum3;
-                    si1.s = new Test.AnotherStruct();
                     si1.s.s = "abc";
-                    Test.Structure si2 = new Test.Structure();
+                    Test.Structure si2 = new Test.Structure(new Test.AnotherStruct());
                     si2.p = null;
                     si2.e = Test.MyEnum.enum2;
-                    si2.s = new Test.AnotherStruct();
                     si2.s.s = "def";
 
                     Test.Structure so;
@@ -282,12 +280,11 @@ namespace Ice
                     so.p.opVoid();
 
                     //
-                    // Test marshaling of null structs and structs with null members.
+                    // Test marshaling of empty structs
                     //
-                    si1 = new Test.Structure();
-                    si2 = null;
+                    si1 = new Test.Structure(new Test.AnotherStruct());
 
-                    rso = p.opStruct(si1, si2, out so);
+                    rso = p.opStruct(si1, si1, out so);
                     test(rso.p == null);
                     test(rso.e == Test.MyEnum.enum1);
                     test(rso.s.s.Length == 0);
