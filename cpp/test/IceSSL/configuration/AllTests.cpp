@@ -2112,11 +2112,12 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             initData.properties->setProperty("IceSSL.Keychain", "../certs/Find.keychain");
             initData.properties->setProperty("IceSSL.KeychainPassword", "password");
             initData.properties->setProperty("IceSSL.FindCert", clientFindCertProperties[i]);
-            //
-            // Use TrustOnly to ensure the peer has pick the expected certificate.
-            //
+//
+// Use TrustOnly to ensure the peer has pick the expected certificate.
+//
+#    ifndef ICE_USE_SECURE_TRANSPORT_IOS
             initData.properties->setProperty("IceSSL.TrustOnly", "CN=Server");
-
+#    endif
             CommunicatorPtr comm = initialize(initData);
 
             optional<Test::ServerFactoryPrx> fact = Test::ServerFactoryPrx(comm, factoryRef);
