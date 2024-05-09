@@ -81,6 +81,7 @@
         "span": "cpp",
         "functional": "cpp",
         "__memory": "cpp",
+        "chrono": "cpp",
         "queue": "cpp"
     },
     "C_Cpp.default.cppStandard": "c++20",

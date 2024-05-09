@@ -484,6 +484,19 @@ Ice::OperationInterruptedException::ice_staticId() noexcept
 }
 
 string
+Ice::ConnectionClosedException::ice_id() const
+{
+    return string{ice_staticId()};
+}
+
+string_view
+Ice::ConnectionClosedException::ice_staticId() noexcept
+{
+    static constexpr string_view typeId = "::Ice::ConnectionClosedException";
+    return typeId;
+}
+
+string
 Ice::ConnectionIdleException::ice_id() const
 {
     return string{ice_staticId()};
@@ -1122,6 +1135,13 @@ Ice::OperationInterruptedException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\noperation interrupted";
+}
+
+void
+Ice::ConnectionClosedException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\n" << message;
 }
 
 void

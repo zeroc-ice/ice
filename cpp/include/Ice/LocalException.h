@@ -1291,6 +1291,35 @@ namespace Ice
     };
 
     /**
+     * This exception indicates that a connection was closed gracefully.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API ConnectionClosedException : public LocalException
+    {
+    public:
+        ConnectionClosedException(const char* file, int line, std::string message) noexcept
+            : LocalException(file, line),
+              message(std::move(message))
+        {
+        }
+
+        /**
+         * Obtains the Slice type ID of this exception.
+         * @return The fully-scoped type ID.
+         */
+        static std::string_view ice_staticId() noexcept;
+
+        std::string ice_id() const override;
+
+        void ice_print(std::ostream& stream) const override;
+
+        /**
+         * The error message.
+         */
+        std::string message;
+    };
+
+    /**
      * This exception indicates that a connection was aborted by the idle check.
      * \headerfile Ice/Ice.h
      */

@@ -147,7 +147,18 @@ namespace Ice
 
         void updateObserver();
 
-        IceInternal::AsyncStatus sendAsyncRequest(const IceInternal::OutgoingAsyncBasePtr&, bool, bool, int);
+        /// Sends a request.
+        /// @param out The outgoing request.
+        /// @param compress True to compress the request; otherwise, false.
+        /// @param response True for a two-way request; false for a one-way request.
+        /// @param batchRequestCount The number of requests in the batch (for one-way requests); ignored for two-way
+        /// requests.
+        /// @return The sent status.
+        IceInternal::AsyncStatus sendAsyncRequest(
+            const IceInternal::OutgoingAsyncBasePtr& out,
+            bool compress,
+            bool response,
+            int batchRequestCount);
 
         const IceInternal::BatchRequestQueuePtr& getBatchRequestQueue() const;
 
@@ -214,6 +225,9 @@ namespace Ice
         /// In the two latter cases, this function reschedules the idle check timer task in idle timeout.
         void
         idleCheck(const IceUtil::TimerTaskPtr& idleCheckTimerTask, const std::chrono::seconds& idleTimeout) noexcept;
+
+        /// Shuts down the connection gracefully if it's at rest when this function is called.
+        void inactivityCheck() noexcept;
 
         /// Aborts the connection if its state is < StateActive.
         void connectTimedOut() noexcept;
@@ -293,6 +307,18 @@ namespace Ice
         IceInternal::SocketOperation read(IceInternal::Buffer&);
         IceInternal::SocketOperation write(IceInternal::Buffer&);
 
+        // A connection is at rest if it is active and has no outstanding invocations or dispatches.
+        // We schedule the inactivity timer task when it enters the "at rest" state, and we cancel this timer task when
+        // the connection is about to leave this state.
+        // Must be called with _mutex locked.
+        bool isAtRest() const noexcept
+        {
+            return _state == StateActive && _dispatchCount == 0 && _asyncRequests.empty();
+        }
+
+        void scheduleInactivityTimerTask();
+        void cancelInactivityTimerTask();
+
         Ice::CommunicatorPtr _communicator;
         const IceInternal::InstancePtr _instance;
         const IceInternal::TransceiverPtr _transceiver;
@@ -315,6 +341,8 @@ namespace Ice
         const std::chrono::seconds _connectTimeout;
         const std::chrono::seconds _closeTimeout;
         const std::chrono::seconds _inactivityTimeout;
+
+        IceUtil::TimerTaskPtr _inactivityTimerTask;
 
         std::function<void(ConnectionIPtr)> _connectionStartCompleted;
         std::function<void(ConnectionIPtr, std::exception_ptr)> _connectionStartFailed;
@@ -347,6 +375,10 @@ namespace Ice
 
         // The number of user calls currently executed by the thread-pool (servant dispatch, invocation response, ...)
         int _upcallCount;
+
+        // The number of outstanding dispatches. This does not include heartbeat messages, even when the heartbeat
+        // callback is not null.
+        int _dispatchCount = 0;
 
         State _state; // The current state.
         bool _shutdownInitiated;
