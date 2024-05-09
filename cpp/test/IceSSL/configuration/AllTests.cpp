@@ -2130,8 +2130,9 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             //
             // Use TrustOnly to ensure the peer has pick the expected certificate.
             //
+#    ifndef ICE_USE_SECURE_TRANSPORT_IOS
             d["IceSSL.TrustOnly"] = "CN=Client";
-
+#    endif
             optional<Test::ServerPrx> server = fact->createServer(d);
             try
             {
@@ -2464,11 +2465,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #endif
     }
 
-#if !defined(_AIX) && !(defined(_WIN32) && defined(ICE_USE_OPENSSL))
-    //
+#if !defined(_AIX)
     // On AIX 6.1, the default root certificates don't validate demo.zeroc.com.
-    // On Windows with OpenSSL there aren't any system CAs.
-    //
     cout << "testing system CAs... " << flush;
     {
         //
