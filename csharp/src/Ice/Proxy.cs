@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 using Ice.Internal;
 using Ice.UtilInternal;
 using System.ComponentModel;
@@ -25,7 +27,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="context">The context dictionary for the invocation.</param>
     /// <returns>True if the target object has the interface specified by id or derives
     /// from the interface specified by id.</returns>
-    bool ice_isA(string id, Dictionary<string, string> context = null);
+    bool ice_isA(string id, Dictionary<string, string>? context = null);
 
     /// <summary>
     /// Tests whether this object supports a specific Slice interface.
@@ -36,15 +38,15 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
     Task<bool> ice_isAAsync(string id,
-                            Dictionary<string, string> context = null,
-                            IProgress<bool> progress = null,
+                            Dictionary<string, string>? context = null,
+                            IProgress<bool>? progress = null,
                             CancellationToken cancel = default);
 
     /// <summary>
     /// Tests whether the target object of this proxy can be reached.
     /// </summary>
     /// <param name="context">The context dictionary for the invocation.</param>
-    void ice_ping(Dictionary<string, string> context = null);
+    void ice_ping(Dictionary<string, string>? context = null);
 
     /// <summary>
     /// Tests whether the target object of this proxy can be reached.
@@ -53,8 +55,8 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
-    Task ice_pingAsync(Dictionary<string, string> context = null,
-                       IProgress<bool> progress = null,
+    Task ice_pingAsync(Dictionary<string, string>? context = null,
+                       IProgress<bool>? progress = null,
                        CancellationToken cancel = default);
 
     /// <summary>
@@ -63,7 +65,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="context">The context dictionary for the invocation.</param>
     /// <returns>The Slice type IDs of the interfaces supported by the target object, in alphabetical order.
     /// </returns>
-    string[] ice_ids(Dictionary<string, string> context = null);
+    string[] ice_ids(Dictionary<string, string>? context = null);
 
     /// <summary>
     /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
@@ -72,8 +74,8 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
-    Task<string[]> ice_idsAsync(Dictionary<string, string> context = null,
-                                IProgress<bool> progress = null,
+    Task<string[]> ice_idsAsync(Dictionary<string, string>? context = null,
+                                IProgress<bool>? progress = null,
                                 CancellationToken cancel = default);
 
     /// <summary>
@@ -81,7 +83,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// </summary>
     /// <param name="context">The context dictionary for the invocation.</param>
     /// <returns>The Slice type ID of the most-derived interface.</returns>
-    string ice_id(Dictionary<string, string> context = null);
+    string ice_id(Dictionary<string, string>? context = null);
 
     /// <summary>
     /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
@@ -90,8 +92,8 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
-    Task<string> ice_idAsync(Dictionary<string, string> context = null,
-                             IProgress<bool> progress = null,
+    Task<string> ice_idAsync(Dictionary<string, string>? context = null,
+                             IProgress<bool>? progress = null,
                              CancellationToken cancel = default);
 
     /// <summary>
@@ -109,7 +111,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// contains the encoded user exception. If the operation raises a run-time exception,
     /// it throws it directly.</returns>
     bool ice_invoke(string operation, OperationMode mode, byte[] inEncaps, out byte[] outEncaps,
-                    Dictionary<string, string> context = null);
+                    Dictionary<string, string>? context = null);
 
     /// <summary>
     /// Invokes an operation dynamically.
@@ -125,8 +127,8 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     ice_invokeAsync(string operation,
                     OperationMode mode,
                     byte[] inEncaps,
-                    Dictionary<string, string> context = null,
-                    IProgress<bool> progress = null,
+                    Dictionary<string, string>? context = null,
+                    IProgress<bool>? progress = null,
                     CancellationToken cancel = default);
 
     /// <summary>
@@ -295,27 +297,27 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// </summary>
     /// <returns>The router for the proxy. If no router is configured for the proxy, the return value
     /// is null.</returns>
-    RouterPrx ice_getRouter();
+    RouterPrx? ice_getRouter();
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the router.
     /// </summary>
     /// <param name="router">The router for the new proxy.</param>
     /// <returns>The new proxy with the specified router.</returns>
-    ObjectPrx ice_router(RouterPrx router);
+    ObjectPrx ice_router(RouterPrx? router);
 
     /// <summary>
     /// Returns the locator for this proxy.
     /// </summary>
     /// <returns>The locator for this proxy. If no locator is configured, the return value is null.</returns>
-    LocatorPrx ice_getLocator();
+    LocatorPrx? ice_getLocator();
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the locator.
     /// </summary>
     /// <param name="locator">The locator for the new proxy.</param>
     /// <returns>The new proxy with the specified locator.</returns>
-    ObjectPrx ice_locator(LocatorPrx locator);
+    ObjectPrx ice_locator(LocatorPrx? locator);
 
     /// <summary>
     /// Returns whether this proxy uses collocation optimization.
@@ -460,7 +462,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
-    Task<Connection> ice_getConnectionAsync(IProgress<bool> progress = null,
+    Task<Connection> ice_getConnectionAsync(IProgress<bool>? progress = null,
                                             CancellationToken cancel = default);
 
     /// <summary>
@@ -469,7 +471,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// </summary>
     /// <returns>The cached Connection for this proxy (null if the proxy does not have
     /// an established connection).</returns>
-    Connection ice_getCachedConnection();
+    Connection? ice_getCachedConnection();
 
     /// <summary>
     /// Flushes any pending batched requests for this proxy. The call blocks until the flush is complete.
@@ -482,7 +484,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
-    Task ice_flushBatchRequestsAsync(IProgress<bool> progress = null,
+    Task ice_flushBatchRequestsAsync(IProgress<bool>? progress = null,
                                      CancellationToken cancel = default);
 
     /// <summary>
@@ -496,35 +498,13 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// Returns a scheduler object that uses the Ice thread pool.
     /// </summary>
     /// <returns>The task scheduler object.</returns>
-    System.Threading.Tasks.TaskScheduler ice_scheduler();
+    TaskScheduler ice_scheduler();
 }
 
 /// <summary>
 /// Represent the result of the ice_invokeAsync operation
 /// </summary>
-public struct Object_Ice_invokeResult
-{
-    public Object_Ice_invokeResult(bool returnValue, byte[] outEncaps)
-    {
-        this.returnValue = returnValue;
-        this.outEncaps = outEncaps;
-    }
-
-    /// <summary>
-    /// If the operation completed successfully, the return value
-    /// is true. If the operation raises a user exception,
-    /// the return value is false; in this case, outEncaps
-    /// contains the encoded user exception.
-    /// </summary>
-    public bool returnValue;
-
-    /// <summary>
-    /// The encoded out-paramaters and return value for the operation.
-    /// The return value follows any out-parameters. If returnValue is
-    /// false it contains the encoded user exception.
-    /// </summary>
-    public byte[] outEncaps;
-};
+public record struct Object_Ice_invokeResult(bool returnValue, byte[] outEncaps);
 
 /// <summary>
 /// Base class of all object proxies.
@@ -536,9 +516,8 @@ public class ObjectPrxHelperBase : ObjectPrx
 
     public static bool operator !=(ObjectPrxHelperBase lhs, ObjectPrxHelperBase rhs) => !(lhs == rhs);
 
-    public ObjectPrxHelperBase()
-    {
-    }
+    // TODO: _reference is initialized by setup and iceCopyFrom. We should refactor this code.
+    public ObjectPrxHelperBase() => _reference = null!;
 
     /// <summary>
     /// Returns whether this proxy equals the passed object. Two proxies are equal if they are equal in all
@@ -546,10 +525,10 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// </summary>
     /// <param name="r">The proxy to compare this proxy with.</param>
     /// <returns>True if this proxy is equal to r; false, otherwise.</returns>
-    public bool Equals(ObjectPrx other) =>
+    public bool Equals(ObjectPrx? other) =>
         other is not null && _reference == ((ObjectPrxHelperBase)other)._reference;
 
-    public override bool Equals(object other) => Equals(other as ObjectPrx);
+    public override bool Equals(object? other) => Equals(other as ObjectPrx);
 
     /// <summary>
     /// Returns a hash code for this proxy.
@@ -585,7 +564,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// <param name="context">The context dictionary for the invocation.</param>
     /// <returns>True if the target object has the interface specified by id or derives
     /// from the interface specified by id.</returns>
-    public bool ice_isA(string id, Dictionary<string, string> context = null)
+    public bool ice_isA(string id, Dictionary<string, string>? context = null)
     {
         try
         {
@@ -593,7 +572,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         catch (AggregateException ex)
         {
-            throw ex.InnerException;
+            throw ex.InnerException!;
         }
     }
 
@@ -606,15 +585,15 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
     public Task<bool> ice_isAAsync(string id,
-                                   Dictionary<string, string> context = null,
-                                   IProgress<bool> progress = null,
+                                   Dictionary<string, string>? context = null,
+                                   IProgress<bool>? progress = null,
                                    CancellationToken cancel = default)
     {
         return iceI_ice_isAAsync(id, context, progress, cancel, false);
     }
 
     private Task<bool>
-    iceI_ice_isAAsync(string id, Dictionary<string, string> context, IProgress<bool> progress, CancellationToken cancel,
+    iceI_ice_isAAsync(string id, Dictionary<string, string>? context, IProgress<bool>? progress, CancellationToken cancel,
                       bool synchronous)
     {
         iceCheckTwowayOnly(_ice_isA_name);
@@ -626,7 +605,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     private const string _ice_isA_name = "ice_isA";
 
     private void iceI_ice_isA(string id,
-                              Dictionary<string, string> context,
+                              Dictionary<string, string>? context,
                               OutgoingAsyncCompletionCallback completed,
                               bool synchronous)
     {
@@ -645,7 +624,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// Tests whether the target object of this proxy can be reached.
     /// </summary>
     /// <param name="context">The context dictionary for the invocation.</param>
-    public void ice_ping(Dictionary<string, string> context = null)
+    public void ice_ping(Dictionary<string, string>? context = null)
     {
         try
         {
@@ -653,7 +632,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         catch (AggregateException ex)
         {
-            throw ex.InnerException;
+            throw ex.InnerException!;
         }
     }
 
@@ -664,15 +643,15 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
-    public Task ice_pingAsync(Dictionary<string, string> context = null,
-                              IProgress<bool> progress = null,
+    public Task ice_pingAsync(Dictionary<string, string>? context = null,
+                              IProgress<bool>? progress = null,
                               CancellationToken cancel = default)
     {
         return iceI_ice_pingAsync(context, progress, cancel, false);
     }
 
     private Task
-    iceI_ice_pingAsync(Dictionary<string, string> context, IProgress<bool> progress, CancellationToken cancel, bool synchronous)
+    iceI_ice_pingAsync(Dictionary<string, string>? context, IProgress<bool>? progress, CancellationToken cancel, bool synchronous)
     {
         var completed = new OperationTaskCompletionCallback<object>(progress, cancel);
         iceI_ice_ping(context, completed, synchronous);
@@ -681,7 +660,7 @@ public class ObjectPrxHelperBase : ObjectPrx
 
     private const string _ice_ping_name = "ice_ping";
 
-    private void iceI_ice_ping(Dictionary<string, string> context, OutgoingAsyncCompletionCallback completed,
+    private void iceI_ice_ping(Dictionary<string, string>? context, OutgoingAsyncCompletionCallback completed,
                                    bool synchronous)
     {
         getOutgoingAsync<object>(completed).invoke(_ice_ping_name,
@@ -697,7 +676,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// <param name="context">The context dictionary for the invocation.</param>
     /// <returns>The Slice type IDs of the interfaces supported by the target object, in alphabetical order.
     /// </returns>
-    public string[] ice_ids(Dictionary<string, string> context = null)
+    public string[] ice_ids(Dictionary<string, string>? context = null)
     {
         try
         {
@@ -705,7 +684,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         catch (AggregateException ex)
         {
-            throw ex.InnerException;
+            throw ex.InnerException!;
         }
     }
 
@@ -717,14 +696,14 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
     public Task<string[]>
-    ice_idsAsync(Dictionary<string, string> context = null,
-                 IProgress<bool> progress = null,
+    ice_idsAsync(Dictionary<string, string>? context = null,
+                 IProgress<bool>? progress = null,
                  CancellationToken cancel = default)
     {
         return iceI_ice_idsAsync(context, progress, cancel, false);
     }
 
-    private Task<string[]> iceI_ice_idsAsync(Dictionary<string, string> context, IProgress<bool> progress, CancellationToken cancel,
+    private Task<string[]> iceI_ice_idsAsync(Dictionary<string, string>? context, IProgress<bool>? progress, CancellationToken cancel,
                                              bool synchronous)
     {
         iceCheckTwowayOnly(_ice_ids_name);
@@ -735,7 +714,7 @@ public class ObjectPrxHelperBase : ObjectPrx
 
     private const string _ice_ids_name = "ice_ids";
 
-    private void iceI_ice_ids(Dictionary<string, string> context, OutgoingAsyncCompletionCallback completed,
+    private void iceI_ice_ids(Dictionary<string, string>? context, OutgoingAsyncCompletionCallback completed,
                               bool synchronous)
     {
         iceCheckAsyncTwowayOnly(_ice_ids_name);
@@ -751,7 +730,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
     /// </summary>
     /// <returns>The Slice type ID of the most-derived interface.</returns>
-    public string ice_id(Dictionary<string, string> context = null)
+    public string ice_id(Dictionary<string, string>? context = null)
     {
         try
         {
@@ -759,7 +738,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         catch (AggregateException ex)
         {
-            throw ex.InnerException;
+            throw ex.InnerException!;
         }
     }
 
@@ -770,15 +749,15 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
-    public Task<string> ice_idAsync(Dictionary<string, string> context = null,
-                                    IProgress<bool> progress = null,
+    public Task<string> ice_idAsync(Dictionary<string, string>? context = null,
+                                    IProgress<bool>? progress = null,
                                     CancellationToken cancel = default)
     {
         return iceI_ice_idAsync(context, progress, cancel, false);
     }
 
     private Task<string>
-    iceI_ice_idAsync(Dictionary<string, string> context, IProgress<bool> progress, CancellationToken cancel, bool synchronous)
+    iceI_ice_idAsync(Dictionary<string, string>? context, IProgress<bool>? progress, CancellationToken cancel, bool synchronous)
     {
         iceCheckTwowayOnly(_ice_id_name);
         var completed = new OperationTaskCompletionCallback<string>(progress, cancel);
@@ -788,7 +767,7 @@ public class ObjectPrxHelperBase : ObjectPrx
 
     private const string _ice_id_name = "ice_id";
 
-    private void iceI_ice_id(Dictionary<string, string> context,
+    private void iceI_ice_id(Dictionary<string, string>? context,
                              OutgoingAsyncCompletionCallback completed,
                              bool synchronous)
     {
@@ -806,7 +785,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// <param name="operation">The name of the operation to invoke.</param>
     /// <param name="mode">The operation mode (normal or idempotent).</param>
     /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
-    /// <param name="outEncaps">The encoded out-paramaters and return value
+    /// <param name="outEncaps">The encoded out-parameters and return value
     /// for the operation. The return value follows any out-parameters.</param>
     /// <param name="context">The context dictionary for the invocation.</param>
     /// <returns>If the operation completed successfully, the return value
@@ -818,7 +797,7 @@ public class ObjectPrxHelperBase : ObjectPrx
                            OperationMode mode,
                            byte[] inEncaps,
                            out byte[] outEncaps,
-                           Dictionary<string, string> context = null)
+                           Dictionary<string, string>? context = null)
     {
         try
         {
@@ -828,7 +807,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         catch (AggregateException ex)
         {
-            throw ex.InnerException;
+            throw ex.InnerException!;
         }
     }
 
@@ -846,8 +825,8 @@ public class ObjectPrxHelperBase : ObjectPrx
     ice_invokeAsync(string operation,
                     OperationMode mode,
                     byte[] inEncaps,
-                    Dictionary<string, string> context = null,
-                    IProgress<bool> progress = null,
+                    Dictionary<string, string>? context = null,
+                    IProgress<bool>? progress = null,
                     CancellationToken cancel = default)
     {
         return iceI_ice_invokeAsync(operation, mode, inEncaps, context, progress, cancel, false);
@@ -857,8 +836,8 @@ public class ObjectPrxHelperBase : ObjectPrx
     iceI_ice_invokeAsync(string operation,
                          OperationMode mode,
                          byte[] inEncaps,
-                         Dictionary<string, string> context,
-                         IProgress<bool> progress,
+                         Dictionary<string, string>? context,
+                         IProgress<bool>? progress,
                          CancellationToken cancel,
                          bool synchronous)
     {
@@ -870,7 +849,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     private void iceI_ice_invoke(string operation,
                                  OperationMode mode,
                                  byte[] inEncaps,
-                                 Dictionary<string, string> context,
+                                 Dictionary<string, string>? context,
                                  OutgoingAsyncCompletionCallback completed,
                                  bool synchronous)
     {
@@ -946,12 +925,9 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// <returns>The proxy with the new facet.</returns>
     public ObjectPrx ice_facet(string newFacet)
     {
-        if (newFacet == null)
-        {
-            newFacet = "";
-        }
+        newFacet ??= "";
 
-        if (newFacet.Equals(_reference.getFacet()))
+        if (newFacet == _reference.getFacet())
         {
             return this;
         }
@@ -980,12 +956,9 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// <returns>The proxy with the new adapter ID.</returns>
     public ObjectPrx ice_adapterId(string newAdapterId)
     {
-        if (newAdapterId == null)
-        {
-            newAdapterId = "";
-        }
+        newAdapterId ??= "";
 
-        if (newAdapterId.Equals(_reference.getAdapterId()))
+        if (newAdapterId == _reference.getAdapterId())
         {
             return this;
         }
@@ -1223,7 +1196,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// </summary>
     /// <returns>The router for the proxy. If no router is configured for the proxy, the return value
     /// is null.</returns>
-    public RouterPrx ice_getRouter()
+    public RouterPrx? ice_getRouter()
     {
         RouterInfo ri = _reference.getRouterInfo();
         return ri != null ? ri.getRouter() : null;
@@ -1234,7 +1207,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// </summary>
     /// <param name="router">The router for the new proxy.</param>
     /// <returns>The new proxy with the specified router.</returns>
-    public ObjectPrx ice_router(RouterPrx router)
+    public ObjectPrx ice_router(RouterPrx? router)
     {
         Reference @ref = _reference.changeRouter(router);
         if (@ref.Equals(_reference))
@@ -1251,7 +1224,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// Returns the locator for this proxy.
     /// </summary>
     /// <returns>The locator for this proxy. If no locator is configured, the return value is null.</returns>
-    public LocatorPrx ice_getLocator()
+    public LocatorPrx? ice_getLocator()
     {
         var li = _reference.getLocatorInfo();
         return li != null ? li.getLocator() : null;
@@ -1262,7 +1235,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// </summary>
     /// <param name="locator">The locator for the new proxy.</param>
     /// <returns>The new proxy with the specified locator.</returns>
-    public ObjectPrx ice_locator(LocatorPrx locator)
+    public ObjectPrx ice_locator(LocatorPrx? locator)
     {
         var @ref = _reference.changeLocator(locator);
         if (@ref.Equals(_reference))
@@ -1522,7 +1495,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// <returns>A fixed proxy bound to the given connection.</returns>
     public ObjectPrx ice_fixed(Ice.Connection connection)
     {
-        if (connection == null)
+        if (connection is null)
         {
             throw new ArgumentException("invalid null connection passed to ice_fixed");
         }
@@ -1554,7 +1527,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     public class GetConnectionTaskCompletionCallback : TaskCompletionCallback<Connection>
     {
         public GetConnectionTaskCompletionCallback(ObjectPrx proxy,
-                                                   IProgress<bool> progress = null,
+                                                   IProgress<bool>? progress = null,
                                                    CancellationToken cancellationToken = default) :
             base(progress, cancellationToken)
         {
@@ -1584,11 +1557,11 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         catch (AggregateException ex)
         {
-            throw ex.InnerException;
+            throw ex.InnerException!;
         }
     }
 
-    public Task<Connection> ice_getConnectionAsync(IProgress<bool> progress = null,
+    public Task<Connection> ice_getConnectionAsync(IProgress<bool>? progress = null,
                                                    CancellationToken cancel = default)
     {
         var completed = new GetConnectionTaskCompletionCallback(this, progress, cancel);
@@ -1617,9 +1590,9 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// </summary>
     /// <returns>The cached Connection for this proxy (null if the proxy does not have
     /// an established connection).</returns>
-    public Connection ice_getCachedConnection()
+    public Connection? ice_getCachedConnection()
     {
-        RequestHandler handler;
+        RequestHandler? handler;
         lock (this)
         {
             handler = _requestHandler;
@@ -1651,13 +1624,13 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         catch (AggregateException ex)
         {
-            throw ex.InnerException;
+            throw ex.InnerException!;
         }
     }
 
     internal const string _ice_flushBatchRequests_name = "ice_flushBatchRequests";
 
-    public Task ice_flushBatchRequestsAsync(IProgress<bool> progress = null,
+    public Task ice_flushBatchRequestsAsync(IProgress<bool>? progress = null,
                                             CancellationToken cancel = default)
     {
         var completed = new FlushBatchTaskCompletionCallback(progress, cancel);
@@ -1803,10 +1776,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     {
         lock (this)
         {
-            if (_batchRequestQueue == null)
-            {
-                _batchRequestQueue = _reference.getBatchRequestQueue();
-            }
+            _batchRequestQueue ??= _reference.getBatchRequestQueue();
             return _batchRequestQueue;
         }
     }
@@ -1819,10 +1789,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         {
             lock (this)
             {
-                if (_requestHandler == null)
-                {
-                    _requestHandler = handler;
-                }
+                _requestHandler ??= handler;
                 return _requestHandler;
             }
         }
@@ -1830,7 +1797,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public void iceUpdateRequestHandler(RequestHandler previous, RequestHandler handler)
+    public void iceUpdateRequestHandler(RequestHandler? previous, RequestHandler? handler)
     {
         if (_reference.getCacheConnection() && previous != null)
         {
@@ -1855,8 +1822,8 @@ public class ObjectPrxHelperBase : ObjectPrx
     getOutgoingAsync<T>(OutgoingAsyncCompletionCallback completed)
     {
         bool haveEntry = false;
-        InputStream iss = null;
-        OutputStream os = null;
+        InputStream? iss = null;
+        OutputStream? os = null;
 
         if (_reference.getInstance().cacheMessageBuffers() > 0)
         {
@@ -1865,7 +1832,7 @@ public class ObjectPrxHelperBase : ObjectPrx
                 if (_streamCache != null && _streamCache.Count > 0)
                 {
                     haveEntry = true;
-                    iss = _streamCache.First.Value.iss;
+                    iss = _streamCache.First!.Value.iss;
                     os = _streamCache.First.Value.os;
 
                     _streamCache.RemoveFirst();
@@ -1886,18 +1853,18 @@ public class ObjectPrxHelperBase : ObjectPrx
     {
         public InvokeOutgoingAsyncT(ObjectPrxHelperBase prx,
                                     OutgoingAsyncCompletionCallback completionCallback,
-                                    OutputStream os = null,
-                                    InputStream iss = null) : base(prx, completionCallback, os, iss)
+                                    OutputStream? os = null,
+                                    InputStream? iss = null) : base(prx, completionCallback, os, iss)
         {
         }
 
         public void invoke(string operation, OperationMode mode, byte[] inParams,
-                           Dictionary<string, string> context, bool synchronous)
+                           Dictionary<string, string>? context, bool synchronous)
         {
             try
             {
                 prepare(operation, mode, context);
-                if (inParams == null || inParams.Length == 0)
+                if (inParams is null || inParams.Length == 0)
                 {
                     os_.writeEmptyEncapsulation(encoding_);
                 }
@@ -1926,7 +1893,7 @@ public class ObjectPrxHelperBase : ObjectPrx
                 }
                 else
                 {
-                    ret.outEncaps = null;
+                    ret.outEncaps = [];
                 }
                 ret.returnValue = ok;
                 return ret;
@@ -1940,7 +1907,7 @@ public class ObjectPrxHelperBase : ObjectPrx
 
     private class InvokeTaskCompletionCallback : TaskCompletionCallback<Object_Ice_invokeResult>
     {
-        public InvokeTaskCompletionCallback(IProgress<bool> progress, CancellationToken cancellationToken) :
+        public InvokeTaskCompletionCallback(IProgress<bool>? progress, CancellationToken cancellationToken) :
             base(progress, cancellationToken)
         {
         }
@@ -1954,7 +1921,7 @@ public class ObjectPrxHelperBase : ObjectPrx
             }
             if (done)
             {
-                SetResult(new Object_Ice_invokeResult(true, null));
+                SetResult(new Object_Ice_invokeResult(true, []));
             }
         }
 
@@ -1968,8 +1935,8 @@ public class ObjectPrxHelperBase : ObjectPrx
     getInvokeOutgoingAsync(OutgoingAsyncCompletionCallback completed)
     {
         bool haveEntry = false;
-        InputStream iss = null;
-        OutputStream os = null;
+        InputStream? iss = null;
+        OutputStream? os = null;
 
         if (_reference.getInstance().cacheMessageBuffers() > 0)
         {
@@ -1978,7 +1945,7 @@ public class ObjectPrxHelperBase : ObjectPrx
                 if (_streamCache != null && _streamCache.Count > 0)
                 {
                     haveEntry = true;
-                    iss = _streamCache.First.Value.iss;
+                    iss = _streamCache.First!.Value.iss;
                     os = _streamCache.First.Value.os;
 
                     _streamCache.RemoveFirst();
@@ -2006,10 +1973,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     {
         lock (this)
         {
-            if (_streamCache == null)
-            {
-                _streamCache = new LinkedList<StreamCacheEntry>();
-            }
+            _streamCache ??= new LinkedList<StreamCacheEntry>();
             StreamCacheEntry cacheEntry;
             cacheEntry.iss = iss;
             cacheEntry.os = os;
@@ -2028,29 +1992,29 @@ public class ObjectPrxHelperBase : ObjectPrx
         // No need to synchronize, as this operation is only called
         // upon initial initialization.
         //
-        Debug.Assert(_reference == null);
-        Debug.Assert(_requestHandler == null);
+        Debug.Assert(_reference is null);
+        Debug.Assert(_requestHandler is null);
 
         _reference = @ref;
     }
 
     private ObjectPrxHelperBase newInstance(Reference @ref)
     {
-        var proxy = (ObjectPrxHelperBase)System.Activator.CreateInstance(GetType());
+        var proxy = (ObjectPrxHelperBase)System.Activator.CreateInstance(GetType())!;
         proxy.setup(@ref);
         return proxy;
     }
 
     private Reference _reference;
-    private RequestHandler _requestHandler;
-    private BatchRequestQueue _batchRequestQueue;
+    private RequestHandler? _requestHandler;
+    private BatchRequestQueue? _batchRequestQueue;
     private struct StreamCacheEntry
     {
         public InputStream iss;
         public OutputStream os;
     }
 
-    private LinkedList<StreamCacheEntry> _streamCache;
+    private LinkedList<StreamCacheEntry>? _streamCache;
 }
 
 /// <summary>
@@ -2066,7 +2030,7 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// <returns>The new proxy.</returns>
     /// <exception name="ProxyParseException">Thrown when <paramref name="proxyString" /> is not a valid proxy string.
     /// </exception>
-    public static ObjectPrx createProxy(Communicator communicator, string proxyString) =>
+    public static ObjectPrx? createProxy(Communicator communicator, string proxyString) =>
         communicator.stringToProxy(proxyString);
 
     /// Casts a proxy to {@link ObjectPrx}. This call contacts
@@ -2076,9 +2040,9 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// <param name="b">The proxy to cast to ObjectPrx.</param>
     /// <param name="ctx">The Context map for the invocation.</param>
     /// <returns>b.</returns>
-    public static ObjectPrx checkedCast(ObjectPrx b, Dictionary<string, string> ctx = null)
+    public static ObjectPrx? checkedCast(ObjectPrx? b, Dictionary<string, string>? context = null)
     {
-        if (b is not null && b.ice_isA("::Ice::Object", ctx))
+        if (b is not null && b.ice_isA("::Ice::Object", context))
         {
             return b;
         }
@@ -2093,14 +2057,14 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// </summary>
     /// <param name="b">The proxy to cast to ObjectPrx.</param>
     /// <param name="f">The facet for the new proxy.</param>
-    /// <param name="ctx">The Context map for the invocation.</param>
+    /// <param name="context">The Context map for the invocation.</param>
     /// <returns>The new proxy with the specified facet.</returns>
-    public static ObjectPrx checkedCast(ObjectPrx b, string f, Dictionary<string, string> ctx = null)
+    public static ObjectPrx? checkedCast(ObjectPrx? b, string f, Dictionary<string, string>? context = null)
     {
-        ObjectPrx bb = b?.ice_facet(f);
+        ObjectPrx? bb = b?.ice_facet(f);
         try
         {
-            if (bb is not null && bb.ice_isA("::Ice::Object", ctx))
+            if (bb is not null && bb.ice_isA("::Ice::Object", context))
             {
                 return bb;
             }
@@ -2117,7 +2081,7 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// </summary>
     /// <param name="b">The proxy to cast to ObjectPrx.</param>
     /// <returns>b.</returns>
-    public static ObjectPrx uncheckedCast(ObjectPrx b) => b;
+    public static ObjectPrx? uncheckedCast(ObjectPrx? b) => b;
 
     /// <summary>
     /// Creates a new proxy that is identical to the passed proxy, except
@@ -2126,7 +2090,7 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// <param name="b">The proxy to cast to ObjectPrx.</param>
     /// <param name="f">The facet for the new proxy.</param>
     /// <returns>The new proxy with the specified facet.</returns>
-    public static ObjectPrx uncheckedCast(ObjectPrx b, string f) => b?.ice_facet(f);
+    public static ObjectPrx? uncheckedCast(ObjectPrx? b, string f) => b?.ice_facet(f);
 
     /// <summary>
     /// Returns the Slice type id of the interface or class associated

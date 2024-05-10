@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 using System.Diagnostics;
 using System.Globalization;
 
@@ -347,7 +349,7 @@ public class InputStream
     /// Retrieves the closure object associated with this stream.
     /// </summary>
     /// <returns>The closure object.</returns>
-    public object getClosure()
+    public object? getClosure()
     {
         return _closure;
     }
@@ -357,17 +359,14 @@ public class InputStream
     /// </summary>
     /// <param name="p">The new closure object.</param>
     /// <returns>The previous closure object, or null.</returns>
-    public object setClosure(object p)
+    public object? setClosure(object p)
     {
-        object prev = _closure;
+        object? prev = _closure;
         _closure = p;
         return prev;
     }
 
-    public Ice.Internal.Instance instance()
-    {
-        return _instance;
-    }
+    internal Ice.Internal.Instance? instance() => _instance;
 
     /// <summary>
     /// Swaps the contents of one stream with another.
@@ -389,7 +388,7 @@ public class InputStream
         other._traceSlicing = _traceSlicing;
         _traceSlicing = tmpTraceSlicing;
 
-        object tmpClosure = other._closure;
+        object? tmpClosure = other._closure;
         other._closure = _closure;
         _closure = tmpClosure;
 
@@ -417,11 +416,11 @@ public class InputStream
         other._minSeqSize = _minSeqSize;
         _minSeqSize = tmpMinSeqSize;
 
-        ValueFactoryManager tmpVfm = other._valueFactoryManager;
+        ValueFactoryManager? tmpVfm = other._valueFactoryManager;
         other._valueFactoryManager = _valueFactoryManager;
         _valueFactoryManager = tmpVfm;
 
-        Logger tmpLogger = other._logger;
+        Logger? tmpLogger = other._logger;
         other._logger = _logger;
         _logger = tmpLogger;
     }
@@ -459,7 +458,7 @@ public class InputStream
     /// Marks the end of a class instance.
     /// </summary>
     /// <returns>A SlicedData object containing the preserved slices for unknown types.</returns>
-    public SlicedData endValue()
+    public SlicedData? endValue()
     {
         Debug.Assert(_encapsStack != null && _encapsStack.decoder != null);
         return _encapsStack.decoder.endInstance();
@@ -489,11 +488,11 @@ public class InputStream
     /// <returns>The encapsulation encoding version.</returns>
     public EncodingVersion startEncapsulation()
     {
-        Encaps curr = _encapsCache;
+        Encaps? curr = _encapsCache;
         if (curr != null)
         {
             curr.reset();
-            _encapsCache = _encapsCache.next;
+            _encapsCache = _encapsCache!.next;
         }
         else
         {
@@ -1010,7 +1009,7 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public byte[] readByteSeq(int tag)
+    public byte[]? readByteSeq(int tag)
     {
         if (readOptional(tag, OptionalFormat.VSize))
         {
@@ -1028,7 +1027,7 @@ public class InputStream
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <param name="isset">True if the optional value is present, false otherwise.</param>
     /// <param name="v">The optional value.</param>
-    public void readByteSeq(int tag, out bool isset, out byte[] v)
+    public void readByteSeq(int tag, out bool isset, out byte[]? v)
     {
         if (isset = readOptional(tag, OptionalFormat.VSize))
         {
@@ -1172,7 +1171,7 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public bool[] readBoolSeq(int tag)
+    public bool[]? readBoolSeq(int tag)
     {
         if (readOptional(tag, OptionalFormat.VSize))
         {
@@ -1190,7 +1189,7 @@ public class InputStream
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <param name="isset">True if the optional value is present, false otherwise.</param>
     /// <param name="v">The optional value.</param>
-    public void readBoolSeq(int tag, out bool isset, out bool[] v)
+    public void readBoolSeq(int tag, out bool isset, out bool[]? v)
     {
         if (isset = readOptional(tag, OptionalFormat.VSize))
         {
@@ -1334,7 +1333,7 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public short[] readShortSeq(int tag)
+    public short[]? readShortSeq(int tag)
     {
         if (readOptional(tag, OptionalFormat.VSize))
         {
@@ -1353,7 +1352,7 @@ public class InputStream
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <param name="isset">True if the optional value is present, false otherwise.</param>
     /// <param name="v">The optional value.</param>
-    public void readShortSeq(int tag, out bool isset, out short[] v)
+    public void readShortSeq(int tag, out bool isset, out short[]? v)
     {
         if (isset = readOptional(tag, OptionalFormat.VSize))
         {
@@ -1518,7 +1517,7 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public int[] readIntSeq(int tag)
+    public int[]? readIntSeq(int tag)
     {
         if (readOptional(tag, OptionalFormat.VSize))
         {
@@ -1537,7 +1536,7 @@ public class InputStream
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <param name="isset">True if the optional value is present, false otherwise.</param>
     /// <param name="v">The optional value.</param>
-    public void readIntSeq(int tag, out bool isset, out int[] v)
+    public void readIntSeq(int tag, out bool isset, out int[]? v)
     {
         if (isset = readOptional(tag, OptionalFormat.VSize))
         {
@@ -1702,7 +1701,7 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public long[] readLongSeq(int tag)
+    public long[]? readLongSeq(int tag)
     {
         if (readOptional(tag, OptionalFormat.VSize))
         {
@@ -1721,7 +1720,7 @@ public class InputStream
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <param name="isset">True if the optional value is present, false otherwise.</param>
     /// <param name="v">The optional value.</param>
-    public void readLongSeq(int tag, out bool isset, out long[] v)
+    public void readLongSeq(int tag, out bool isset, out long[]? v)
     {
         if (isset = readOptional(tag, OptionalFormat.VSize))
         {
@@ -1886,7 +1885,7 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public float[] readFloatSeq(int tag)
+    public float[]? readFloatSeq(int tag)
     {
         if (readOptional(tag, OptionalFormat.VSize))
         {
@@ -1905,7 +1904,7 @@ public class InputStream
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <param name="isset">True if the optional value is present, false otherwise.</param>
     /// <param name="v">The optional value.</param>
-    public void readFloatSeq(int tag, out bool isset, out float[] v)
+    public void readFloatSeq(int tag, out bool isset, out float[]? v)
     {
         if (isset = readOptional(tag, OptionalFormat.VSize))
         {
@@ -2070,7 +2069,7 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public double[] readDoubleSeq(int tag)
+    public double[]? readDoubleSeq(int tag)
     {
         if (readOptional(tag, OptionalFormat.VSize))
         {
@@ -2089,7 +2088,7 @@ public class InputStream
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <param name="isset">True if the optional value is present, false otherwise.</param>
     /// <param name="v">The optional value.</param>
-    public void readDoubleSeq(int tag, out bool isset, out double[] v)
+    public void readDoubleSeq(int tag, out bool isset, out double[]? v)
     {
         if (isset = readOptional(tag, OptionalFormat.VSize))
         {
@@ -2153,7 +2152,7 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public string readString(int tag)
+    public string? readString(int tag)
     {
         if (readOptional(tag, OptionalFormat.VSize))
         {
@@ -2171,7 +2170,7 @@ public class InputStream
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <param name="isset">True if the optional value is present, false otherwise.</param>
     /// <param name="v">The optional value.</param>
-    public void readString(int tag, out bool isset, out string v)
+    public void readString(int tag, out bool isset, out string? v)
     {
         if (isset = readOptional(tag, OptionalFormat.VSize))
         {
@@ -2275,7 +2274,7 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public string[] readStringSeq(int tag)
+    public string[]? readStringSeq(int tag)
     {
         if (readOptional(tag, OptionalFormat.FSize))
         {
@@ -2294,7 +2293,7 @@ public class InputStream
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <param name="isset">True if the optional value is present, false otherwise.</param>
     /// <param name="v">The optional value.</param>
-    public void readStringSeq(int tag, out bool isset, out string[] v)
+    public void readStringSeq(int tag, out bool isset, out string[]? v)
     {
         if (isset = readOptional(tag, OptionalFormat.FSize))
         {
@@ -2313,7 +2312,7 @@ public class InputStream
     /// <returns>The extracted proxy.</returns>
     public ObjectPrx readProxy()
     {
-        return _instance.proxyFactory().streamToProxy(this);
+        return _instance!.proxyFactory().streamToProxy(this);
     }
 
     /// <summary>
@@ -2321,7 +2320,7 @@ public class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
-    public ObjectPrx readProxy(int tag)
+    public ObjectPrx? readProxy(int tag)
     {
         if (readOptional(tag, OptionalFormat.FSize))
         {
@@ -2340,7 +2339,7 @@ public class InputStream
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <param name="isset">True if the optional value is present, false otherwise.</param>
     /// <param name="v">The optional value.</param>
-    public void readProxy(int tag, out bool isset, out ObjectPrx v)
+    public void readProxy(int tag, out bool isset, out ObjectPrx? v)
     {
         if (isset = readOptional(tag, OptionalFormat.FSize))
         {
@@ -2387,27 +2386,20 @@ public class InputStream
     /// <param name="cb">The callback to notify the application when the extracted instance is available.
     /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
     /// corresponding instance has been fully unmarshaled.</param>
-    public void readValue<T>(System.Action<T> cb) where T : Value
+    public void readValue<T>(System.Action<T?> cb) where T : Value
     {
         initEncaps();
-        if (cb == null)
+        _encapsStack!.decoder!.readValue(v =>
         {
-            _encapsStack.decoder.readValue(null);
-        }
-        else
-        {
-            _encapsStack.decoder.readValue(v =>
+            if (v == null || v is T)
             {
-                if (v == null || v is T)
-                {
-                    cb((T)v);
-                }
-                else
-                {
-                    Ice.Internal.Ex.throwUOE(typeof(T), v);
-                }
-            });
-        }
+                cb((T?)v);
+            }
+            else
+            {
+                Ice.Internal.Ex.throwUOE(typeof(T), v);
+            }
+        });
     }
 
     /// <summary>
@@ -2416,7 +2408,7 @@ public class InputStream
     /// <param name="cb">The callback to notify the application when the extracted instance is available.
     /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
     /// corresponding instance has been fully unmarshaled.</param>
-    public void readValue(System.Action<Value> cb)
+    public void readValue(System.Action<Value?> cb)
     {
         readValue<Value>(cb);
     }
@@ -2433,10 +2425,10 @@ public class InputStream
     /// Extracts a user exception from the stream and throws it.
     /// </summary>
     /// <param name="factory">The user exception factory, or null to use the stream's default behavior.</param>
-    public void throwException(UserExceptionFactory factory)
+    public void throwException(UserExceptionFactory? factory)
     {
         initEncaps();
-        _encapsStack.decoder.throwException(factory);
+        _encapsStack!.decoder!.throwException(factory);
     }
 
     /// <summary>
@@ -2509,7 +2501,7 @@ public class InputStream
 
         while (true)
         {
-            if (_buf.b.position() >= _encapsStack.start + _encapsStack.sz)
+            if (_buf.b.position() >= _encapsStack!.start + _encapsStack.sz)
             {
                 return false; // End of encapsulation also indicates end of optionals.
             }
@@ -2590,8 +2582,7 @@ public class InputStream
             }
             case OptionalFormat.Class:
             {
-                readValue(null);
-                break;
+                throw new MarshalException("cannot unmarshal or skip an \"optional class\" parameter or field");
             }
         }
     }
@@ -2603,7 +2594,7 @@ public class InputStream
         //
         while (true)
         {
-            if (_buf.b.position() >= _encapsStack.start + _encapsStack.sz)
+            if (_buf.b.position() >= _encapsStack!.start + _encapsStack.sz)
             {
                 return false; // End of encapsulation also indicates end of optionals.
             }
@@ -2623,11 +2614,11 @@ public class InputStream
         }
     }
 
-    private UserException createUserException(string id)
+    private UserException? createUserException(string id)
     {
         try
         {
-            return (UserException)_instance.getActivator().CreateInstance(id);
+            return (UserException?)_instance!.getActivator().CreateInstance(id);
         }
         catch (Exception ex)
         {
@@ -2635,10 +2626,10 @@ public class InputStream
         }
     }
 
-    private Ice.Internal.Instance _instance;
+    private Ice.Internal.Instance? _instance;
     private Ice.Internal.Buffer _buf;
-    private object _closure;
-    private byte[] _stringBytes; // Reusable array for reading strings.
+    private object? _closure;
+    private byte[]? _stringBytes; // Reusable array for reading strings.
 
     private enum SliceType { NoSlice, ValueSlice, ExceptionSlice }
 
@@ -2657,7 +2648,7 @@ public class InputStream
         };
 
         internal EncapsDecoder(InputStream stream, Encaps encaps, bool sliceValues,
-                               int classGraphDepthMax, ValueFactoryManager f)
+                               int classGraphDepthMax, ValueFactoryManager? f)
         {
             _stream = stream;
             _encaps = encaps;
@@ -2669,11 +2660,11 @@ public class InputStream
             _unmarshaledMap = new Dictionary<int, Value>();
         }
 
-        internal abstract void readValue(System.Action<Value> cb);
-        internal abstract void throwException(UserExceptionFactory factory);
+        internal abstract void readValue(System.Action<Value?> cb);
+        internal abstract void throwException(UserExceptionFactory? factory);
 
         internal abstract void startInstance(SliceType type);
-        internal abstract SlicedData endInstance();
+        internal abstract SlicedData? endInstance();
         internal abstract string startSlice();
         internal abstract void endSlice();
         internal abstract void skipSlice();
@@ -2697,8 +2688,7 @@ public class InputStream
             if (isIndex)
             {
                 int index = _stream.readSize();
-                string typeId;
-                if (!_typeIdMap.TryGetValue(index, out typeId))
+                if (!_typeIdMap.TryGetValue(index, out string? typeId))
                 {
                     throw new UnmarshalOutOfBoundsException();
                 }
@@ -2712,13 +2702,13 @@ public class InputStream
             }
         }
 
-        protected Value newInstance(string typeId)
+        protected Value? newInstance(string typeId)
         {
             //
             // Try to find a factory registered for the specific type.
             //
-            var userFactory = _valueFactoryManager.find(typeId);
-            Value v = null;
+            var userFactory = _valueFactoryManager!.find(typeId);
+            Value? v = null;
             if (userFactory != null)
             {
                 v = userFactory(typeId);
@@ -2730,7 +2720,7 @@ public class InputStream
             //
             if (v is null)
             {
-                userFactory = _valueFactoryManager.find("");
+                userFactory = _valueFactoryManager!.find("");
                 if (userFactory != null)
                 {
                     v = userFactory(typeId);
@@ -2744,7 +2734,7 @@ public class InputStream
             {
                 try
                 {
-                    v = (Value)_stream._instance.getActivator().CreateInstance(typeId);
+                    v = (Value?)_stream._instance!.getActivator().CreateInstance(typeId);
                 }
                 catch (Exception ex)
                 {
@@ -2763,8 +2753,7 @@ public class InputStream
             // Check if we already unmarshaled the instance. If that's the case,
             // just call the callback and we're done.
             //
-            Value obj;
-            if (_unmarshaledMap.TryGetValue(index, out obj))
+            if (_unmarshaledMap.TryGetValue(index, out Value? obj))
             {
                 cb(obj);
                 return;
@@ -2780,8 +2769,7 @@ public class InputStream
             // the callback will be called when the instance is
             // unmarshaled.
             //
-            LinkedList<PatchEntry> l;
-            if (!_patchMap.TryGetValue(index, out l))
+            if (!_patchMap.TryGetValue(index, out LinkedList<PatchEntry>? l))
             {
                 //
                 // We have no outstanding instances to be patched for this
@@ -2815,8 +2803,7 @@ public class InputStream
                 //
                 // Patch all instances now that the instance is unmarshaled.
                 //
-                LinkedList<PatchEntry> l;
-                if (_patchMap.TryGetValue(index, out l))
+                if (_patchMap.TryGetValue(index, out LinkedList<PatchEntry>? l))
                 {
                     Debug.Assert(l.Count > 0);
 
@@ -2845,7 +2832,7 @@ public class InputStream
                 catch (System.Exception ex)
                 {
                     string s = "exception raised by ice_postUnmarshal:\n" + ex;
-                    _stream.instance().initializationData().logger.warning(s);
+                    _stream.instance()!.initializationData().logger.warning(s);
                 }
             }
             else
@@ -2873,7 +2860,7 @@ public class InputStream
                         catch (System.Exception ex)
                         {
                             string s = "exception raised by ice_postUnmarshal:\n" + ex;
-                            _stream.instance().initializationData().logger.warning(s);
+                            _stream.instance()!.initializationData().logger.warning(s);
                         }
                     }
                     _valueList.Clear();
@@ -2886,28 +2873,30 @@ public class InputStream
         protected readonly bool _sliceValues;
         protected readonly int _classGraphDepthMax;
         protected int _classGraphDepth;
-        protected ValueFactoryManager _valueFactoryManager;
+
+        // It's null when _instance is null. We can't decode classes/exceptions/proxies in this case.
+        protected ValueFactoryManager? _valueFactoryManager;
 
         //
         // Encapsulation attributes for object unmarshaling.
         //
-        protected Dictionary<int, LinkedList<PatchEntry>> _patchMap;
+        protected Dictionary<int, LinkedList<PatchEntry>>? _patchMap;
         private Dictionary<int, Value> _unmarshaledMap;
-        private Dictionary<int, string> _typeIdMap;
+        private Dictionary<int, string>? _typeIdMap;
         private int _typeIdIndex;
-        private List<Value> _valueList;
+        private List<Value>? _valueList;
     }
 
     private sealed class EncapsDecoder10 : EncapsDecoder
     {
         internal EncapsDecoder10(InputStream stream, Encaps encaps, bool sliceValues, int classGraphDepthMax,
-                                 ValueFactoryManager f)
+                                 ValueFactoryManager? f)
             : base(stream, encaps, sliceValues, classGraphDepthMax, f)
         {
             _sliceType = SliceType.NoSlice;
         }
 
-        internal override void readValue(System.Action<Value> cb)
+        internal override void readValue(System.Action<Value?> cb)
         {
             Debug.Assert(cb != null);
 
@@ -2931,7 +2920,7 @@ public class InputStream
             }
         }
 
-        internal override void throwException(UserExceptionFactory factory)
+        internal override void throwException(UserExceptionFactory? factory)
         {
             Debug.Assert(_sliceType == SliceType.NoSlice);
 
@@ -2951,10 +2940,11 @@ public class InputStream
             // Read the first slice header.
             //
             startSlice();
+            Debug.Assert(_typeId is not null);
             string mostDerivedId = _typeId;
             while (true)
             {
-                UserException userEx = null;
+                UserException? userEx = null;
 
                 //
                 // Use a factory if one was provided.
@@ -3021,7 +3011,7 @@ public class InputStream
             _skipFirstSlice = true;
         }
 
-        internal override SlicedData endInstance()
+        internal override SlicedData? endInstance()
         {
             //
             // Read the Ice::Object slice.
@@ -3050,6 +3040,7 @@ public class InputStream
             if (_skipFirstSlice)
             {
                 _skipFirstSlice = false;
+                Debug.Assert(_typeId is not null);
                 return _typeId;
             }
 
@@ -3084,10 +3075,10 @@ public class InputStream
 
         internal override void skipSlice()
         {
-            if (_stream.instance().traceLevels().slicing > 0)
+            if (_stream.instance()!.traceLevels().slicing > 0)
             {
-                Logger logger = _stream.instance().initializationData().logger;
-                string slicingCat = _stream.instance().traceLevels().slicingCat;
+                Logger logger = _stream.instance()!.initializationData().logger;
+                string slicingCat = _stream.instance()!.traceLevels().slicingCat;
                 if (_sliceType == SliceType.ValueSlice)
                 {
                     Ice.Internal.TraceUtil.traceSlicing("object", _typeId, slicingCat, logger);
@@ -3141,15 +3132,16 @@ public class InputStream
             // Read the first slice header.
             //
             startSlice();
+            Debug.Assert(_typeId is not null);
             string mostDerivedId = _typeId;
-            Value v = null;
+            Value? v = null;
             while (true)
             {
                 //
                 // For the 1.0 encoding, the type ID for the base Object class
                 // marks the last slice.
                 //
-                if (_typeId.Equals(Value.ice_staticId()))
+                if (_typeId == Value.ice_staticId())
                 {
                     throw new NoValueFactoryException("", mostDerivedId);
                 }
@@ -3185,8 +3177,7 @@ public class InputStream
             // keep the biggest one.
             //
             _classGraphDepth = 0;
-            LinkedList<PatchEntry> l;
-            if (_patchMap != null && _patchMap.TryGetValue(index, out l))
+            if (_patchMap != null && _patchMap.TryGetValue(index, out LinkedList<PatchEntry>? l))
             {
                 Debug.Assert(l.Count > 0);
                 foreach (PatchEntry entry in l)
@@ -3215,20 +3206,20 @@ public class InputStream
 
         // Slice attributes
         private int _sliceSize;
-        private string _typeId;
+        private string? _typeId;
     }
 
     private sealed class EncapsDecoder11 : EncapsDecoder
     {
         internal EncapsDecoder11(InputStream stream, Encaps encaps, bool sliceValues, int classGraphDepthMax,
-                                 ValueFactoryManager f)
+                                 ValueFactoryManager? f)
             : base(stream, encaps, sliceValues, classGraphDepthMax, f)
         {
             _current = null;
             _valueIdIndex = 1;
         }
 
-        internal override void readValue(System.Action<Value> cb)
+        internal override void readValue(System.Action<Value?> cb)
         {
             int index = _stream.readSize();
             if (index < 0)
@@ -3261,9 +3252,7 @@ public class InputStream
                     {
                         _current.indirectPatchList = new Stack<IndirectPatchEntry>();
                     }
-                    IndirectPatchEntry e = new IndirectPatchEntry();
-                    e.index = index - 1;
-                    e.patcher = cb;
+                    IndirectPatchEntry e = new IndirectPatchEntry(index - 1, cb);
                     _current.indirectPatchList.Push(e);
                 }
             }
@@ -3273,7 +3262,7 @@ public class InputStream
             }
         }
 
-        internal override void throwException(UserExceptionFactory factory)
+        internal override void throwException(UserExceptionFactory? factory)
         {
             Debug.Assert(_current == null);
 
@@ -3283,10 +3272,10 @@ public class InputStream
             // Read the first slice header.
             //
             startSlice();
-            string mostDerivedId = _current.typeId;
+            string mostDerivedId = _current!.typeId!;
             while (true)
             {
-                UserException userEx = null;
+                UserException? userEx = null;
 
                 //
                 // Use a factory if one was provided.
@@ -3295,7 +3284,7 @@ public class InputStream
                 {
                     try
                     {
-                        factory(_current.typeId);
+                        factory(_current!.typeId!);
                     }
                     catch (UserException ex)
                     {
@@ -3305,7 +3294,7 @@ public class InputStream
 
                 if (userEx == null)
                 {
-                    userEx = _stream.createUserException(_current.typeId);
+                    userEx = _stream.createUserException(_current!.typeId!);
                 }
 
                 //
@@ -3342,14 +3331,14 @@ public class InputStream
 
         internal override void startInstance(SliceType sliceType)
         {
-            Debug.Assert(_current.sliceType == sliceType);
+            Debug.Assert(_current!.sliceType == sliceType);
             _current.skipFirstSlice = true;
         }
 
-        internal override SlicedData endInstance()
+        internal override SlicedData? endInstance()
         {
-            SlicedData slicedData = readSlicedData();
-            if (_current.slices != null)
+            SlicedData? slicedData = readSlicedData();
+            if (_current!.slices != null)
             {
                 _current.slices.Clear();
             }
@@ -3367,10 +3356,10 @@ public class InputStream
             // If first slice, don't read the header, it was already read in
             // readInstance or throwException to find the factory.
             //
-            if (_current.skipFirstSlice)
+            if (_current!.skipFirstSlice)
             {
                 _current.skipFirstSlice = false;
-                return _current.typeId;
+                return _current.typeId!;
             }
 
             _current.sliceFlags = _stream.readByte();
@@ -3430,7 +3419,7 @@ public class InputStream
 
         internal override void endSlice()
         {
-            if ((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
+            if ((_current!.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
             {
                 _stream.skipOptionals();
             }
@@ -3486,11 +3475,11 @@ public class InputStream
 
         internal override void skipSlice()
         {
-            if (_stream.instance().traceLevels().slicing > 0)
+            if (_stream.instance()!.traceLevels().slicing > 0)
             {
-                Logger logger = _stream.instance().initializationData().logger;
-                string slicingCat = _stream.instance().traceLevels().slicingCat;
-                if (_current.sliceType == SliceType.ExceptionSlice)
+                Logger logger = _stream.instance()!.initializationData().logger;
+                string slicingCat = _stream.instance()!.traceLevels().slicingCat;
+                if (_current!.sliceType == SliceType.ExceptionSlice)
                 {
                     Ice.Internal.TraceUtil.traceSlicing("exception", _current.typeId, slicingCat, logger);
                 }
@@ -3502,7 +3491,7 @@ public class InputStream
 
             int start = _stream.pos();
 
-            if ((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
+            if ((_current!.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
             {
                 Debug.Assert(_current.sliceSize >= 4);
                 _stream.skip(_current.sliceSize - 4);
@@ -3517,7 +3506,7 @@ public class InputStream
                 }
                 else
                 {
-                    if (_current.typeId.StartsWith("::", StringComparison.Ordinal))
+                    if (_current.typeId!.StartsWith("::", StringComparison.Ordinal))
                     {
                         throw new UnknownUserException(_current.typeId.Substring(2));
                     }
@@ -3569,7 +3558,7 @@ public class InputStream
 
             if (_current.indirectionTables == null)
             {
-                _current.indirectionTables = new List<int[]>();
+                _current.indirectionTables = new List<int[]?>();
             }
 
             if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
@@ -3600,7 +3589,7 @@ public class InputStream
             return false;
         }
 
-        private int readInstance(int index, System.Action<Value> cb)
+        private int readInstance(int index, System.Action<Value>? cb)
         {
             Debug.Assert(index > 0);
 
@@ -3626,12 +3615,12 @@ public class InputStream
             // Read the first slice header.
             //
             startSlice();
-            string mostDerivedId = _current.typeId;
-            Value v = null;
+            string mostDerivedId = _current!.typeId!;
+            Value? v = null;
             while (true)
             {
                 string typeId = _current.compactId >= 0 ? _current.compactId.ToString(CultureInfo.InvariantCulture) :
-                    _current.typeId;
+                    _current.typeId!;
 
                 if (typeId.Length > 0)
                 {
@@ -3706,9 +3695,9 @@ public class InputStream
             return index;
         }
 
-        private SlicedData readSlicedData()
+        private SlicedData? readSlicedData()
         {
-            if (_current.slices == null) // No preserved slices.
+            if (_current!.slices == null) // No preserved slices.
             {
                 return null;
             }
@@ -3717,7 +3706,7 @@ public class InputStream
             // The _indirectionTables member holds the indirection table for each slice
             // in _slices.
             //
-            Debug.Assert(_current.slices.Count == _current.indirectionTables.Count);
+            Debug.Assert(_current.slices.Count == _current.indirectionTables!.Count);
             for (int n = 0; n < _current.slices.Count; ++n)
             {
                 //
@@ -3726,13 +3715,13 @@ public class InputStream
                 // been read yet in the case of a circular reference to an
                 // enclosing instance.
                 //
-                int[] table = _current.indirectionTables[n];
+                int[]? table = _current.indirectionTables[n];
                 SliceInfo info = _current.slices[n];
                 info.instances = new Value[table != null ? table.Length : 0];
                 for (int j = 0; j < info.instances.Length; ++j)
                 {
                     var cj = j;
-                    addPatchEntry(table[j], (Ice.Value v) => info.instances[cj] = v);
+                    addPatchEntry(table![j], (Ice.Value v) => info.instances[cj] = v);
                 }
             }
 
@@ -3753,15 +3742,11 @@ public class InputStream
             _current.skipFirstSlice = false;
         }
 
-        private sealed class IndirectPatchEntry
-        {
-            public int index;
-            public System.Action<Value> patcher;
-        }
+        private sealed record class IndirectPatchEntry(int index, Action<Value?> patcher);
 
         private sealed class InstanceData
         {
-            internal InstanceData(InstanceData previous)
+            internal InstanceData(InstanceData? previous)
             {
                 if (previous != null)
                 {
@@ -3774,21 +3759,21 @@ public class InputStream
             // Instance attributes
             internal SliceType sliceType;
             internal bool skipFirstSlice;
-            internal List<SliceInfo> slices;     // Preserved slices.
-            internal List<int[]> indirectionTables;
+            internal List<SliceInfo>? slices;     // Preserved slices.
+            internal List<int[]?>? indirectionTables;
 
             // Slice attributes
             internal byte sliceFlags;
             internal int sliceSize;
-            internal string typeId;
+            internal string? typeId;
             internal int compactId;
-            internal Stack<IndirectPatchEntry> indirectPatchList;
+            internal Stack<IndirectPatchEntry>? indirectPatchList;
 
-            internal InstanceData previous;
-            internal InstanceData next;
+            internal InstanceData? previous;
+            internal InstanceData? next;
         }
 
-        private InstanceData _current;
+        private InstanceData? _current;
         private int _valueIdIndex; // The ID of the next instance to unmarshal.
     }
 
@@ -3810,9 +3795,9 @@ public class InputStream
         internal EncodingVersion encoding;
         internal bool encoding_1_0;
 
-        internal EncapsDecoder decoder;
+        internal EncapsDecoder? decoder;
 
-        internal Encaps next;
+        internal Encaps? next;
     }
 
     //
@@ -3826,8 +3811,8 @@ public class InputStream
         return _encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.Equals(Util.Encoding_1_0);
     }
 
-    private Encaps _encapsStack;
-    private Encaps _encapsCache;
+    private Encaps? _encapsStack;
+    private Encaps? _encapsCache;
 
     private void initEncaps()
     {
@@ -3836,7 +3821,7 @@ public class InputStream
             _encapsStack = _encapsCache;
             if (_encapsStack != null)
             {
-                _encapsCache = _encapsCache.next;
+                _encapsCache = _encapsCache!.next;
             }
             else
             {
@@ -3868,8 +3853,8 @@ public class InputStream
     private int _startSeq;
     private int _minSeqSize;
 
-    private ValueFactoryManager _valueFactoryManager;
-    private Logger _logger;
+    private ValueFactoryManager? _valueFactoryManager;
+    private Logger? _logger;
 }
 
 /// <summary>
