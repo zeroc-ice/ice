@@ -83,7 +83,7 @@ namespace
         return "???";
     }
 
-    string getDeprecateReason(const ContainedPtr& p1, const string& type)
+    string getDeprecationMessageForComment(const ContainedPtr& p1, const string& type)
     {
         string deprecateReason;
         if (p1->isDeprecated(true))
@@ -1685,7 +1685,7 @@ Slice::CsVisitor::writeDocCommentTaskAsyncAMI(
 void
 Slice::CsVisitor::writeDocCommentAMD(const OperationPtr& p, const string& extraParam)
 {
-    string deprecateReason = getDeprecateReason(p, "operation");
+    string deprecateReason = getDeprecationMessageForComment(p, "operation");
 
     StringList summaryLines;
     StringList remarksLines;
@@ -2332,7 +2332,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     ExceptionPtr base = p->base();
 
     _out << sp;
-    writeDocComment(p, getDeprecateReason(p, "type"));
+    writeDocComment(p, getDeprecationMessageForComment(p, "type"));
     emitObsoleteAttribute(p, _out);
     emitAttributes(p);
     emitComVisibleAttribute();
@@ -2837,7 +2837,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     _out << sp;
     emitObsoleteAttribute(p, _out);
-    writeDocComment(p, getDeprecateReason(p, "type"));
+    writeDocComment(p, getDeprecationMessageForComment(p, "type"));
     emitAttributes(p);
     emitGeneratedCodeAttribute();
     _out << nl << "public enum " << name;
@@ -3297,7 +3297,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     InterfaceList bases = p->bases();
 
     _out << sp;
-    writeDocComment(p, getDeprecateReason(p, "interface"));
+    writeDocComment(p, getDeprecationMessageForComment(p, "interface"));
     emitGeneratedCodeAttribute();
     _out << nl << "public interface " << name << "Prx : ";
 
@@ -3340,7 +3340,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     vector<string> inParams = getInParams(p, ns);
     ParamDeclList inParamDecls = p->inParameters();
     string retS = typeToString(p->returnType(), ns, p->returnIsOptional());
-    string deprecateReason = getDeprecateReason(p, "operation");
+    string deprecateReason = getDeprecationMessageForComment(p, "operation");
 
     {
         //
@@ -3470,7 +3470,7 @@ Slice::Gen::OpsVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     string opIntfName = "Operations";
 
     _out << sp;
-    writeDocComment(p, getDeprecateReason(p, "interface"));
+    writeDocComment(p, getDeprecationMessageForComment(p, "interface"));
     emitGeneratedCodeAttribute();
     _out << nl << "public interface " << name << opIntfName << '_';
     if (bases.size() > 0)
@@ -3513,7 +3513,7 @@ Slice::Gen::OpsVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             writeDocComment(
                 op,
-                getDeprecateReason(op, "operation"),
+                getDeprecationMessageForComment(op, "operation"),
                 "<param name=\"" + args.back() + "\">The Current object for the invocation.</param>");
         }
         emitAttributes(op);
@@ -3587,7 +3587,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         vector<string> args = getArgs(op);
         vector<string> argsAMI = getInArgs(op);
 
-        string deprecateReason = getDeprecateReason(op, "operation");
+        string deprecateReason = getDeprecationMessageForComment(op, "operation");
 
         ParamDeclList inParams = op->inParameters();
         ParamDeclList outParams = op->outParameters();

@@ -1620,6 +1620,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
         writeHiddenDocComment(out);
         for (const OperationPtr& op : allOps)
         {
+            // TODO: remove this when we fix where deprecation messages are applied.
             // Suppress deprecation warnings if this method dispatches to a deprecated operation.
             if (op->isDeprecated(true))
             {
