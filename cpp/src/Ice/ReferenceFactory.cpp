@@ -18,7 +18,6 @@
 #include "Instance.h"
 #include "LocatorInfo.h"
 #include "PropertyNames.h"
-#include "ProxyFactory.h"
 #include "RouterInfo.h"
 #include "StringUtil.h"
 

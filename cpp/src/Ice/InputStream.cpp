@@ -14,7 +14,6 @@
 #include "Ice/ValueFactory.h"
 #include "IceUtil/DisableWarnings.h"
 #include "Instance.h"
-#include "ProxyFactory.h"
 #include "TraceLevels.h"
 #include "TraceUtil.h"
 

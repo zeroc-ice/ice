@@ -6,7 +6,6 @@
 #include "CommunicatorFlushBatchAsync.h"
 #include "Instance.h"
 #include "ObjectAdapterFactory.h"
-#include "ProxyFactory.h"
 #include "ReferenceFactory.h"
 #include "ThreadPool.h"
 
@@ -82,25 +81,42 @@ Ice::Communicator::isShutdown() const noexcept
 std::optional<ObjectPrx>
 Ice::Communicator::stringToProxy(const string& s) const
 {
-    return _instance->proxyFactory()->stringToProxy(s);
+    ReferencePtr ref = _instance->referenceFactory()->create(s, "");
+    if (ref)
+    {
+        return ObjectPrx::_fromReference(std::move(ref));
+    }
+    else
+    {
+        return nullopt;
+    }
 }
 
 string
 Ice::Communicator::proxyToString(const std::optional<ObjectPrx>& proxy) const
 {
-    return _instance->proxyFactory()->proxyToString(proxy);
+    return proxy ? proxy->_getReference()->toString() : "";
 }
 
 std::optional<ObjectPrx>
 Ice::Communicator::_propertyToProxy(const string& p) const
 {
-    return _instance->proxyFactory()->propertyToProxy(p);
+    string proxy = _instance->initializationData().properties->getProperty(p);
+    ReferencePtr ref = _instance->referenceFactory()->create(proxy, p);
+    if (ref)
+    {
+        return ObjectPrx::_fromReference(std::move(ref));
+    }
+    else
+    {
+        return nullopt;
+    }
 }
 
 PropertyDict
 Ice::Communicator::proxyToProperty(const std::optional<ObjectPrx>& proxy, const string& property) const
 {
-    return _instance->proxyFactory()->proxyToProperty(proxy, property);
+    return proxy ? proxy->_getReference()->toProperty(property) : PropertyDict();
 }
 
 string

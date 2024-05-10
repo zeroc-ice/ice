@@ -32,7 +32,6 @@
 #include "PluginManagerI.h"
 #include "PropertiesAdminI.h"
 #include "ProtocolInstance.h"
-#include "ProxyFactory.h"
 #include "ReferenceFactory.h"
 #include "RegisterPluginsInit.h"
 #include "RetryQueue.h"
@@ -334,20 +333,6 @@ IceInternal::Instance::referenceFactory() const
 
     assert(_referenceFactory);
     return _referenceFactory;
-}
-
-ProxyFactoryPtr
-IceInternal::Instance::proxyFactory() const
-{
-    lock_guard lock(_mutex);
-
-    if (_state == StateDestroyed)
-    {
-        throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
-    assert(_proxyFactory);
-    return _proxyFactory;
 }
 
 OutgoingConnectionFactoryPtr
@@ -713,7 +698,7 @@ IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapte
             throw InitializationException(
                 __FILE__,
                 __LINE__,
-                "Locator `" + _proxyFactory->proxyToString(locator) + "' knows nothing about server `" + serverId +
+                "Locator `" + locator->ice_toString() + "' knows nothing about server `" + serverId +
                     "'");
         }
         catch (const LocalException& ex)
@@ -1240,8 +1225,6 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
         _referenceFactory = make_shared<ReferenceFactory>(shared_from_this(), communicator);
 
-        _proxyFactory = make_shared<ProxyFactory>(shared_from_this());
-
         const bool isIPv6Supported = IceInternal::isIPv6Supported();
         const bool ipv4 = _initData.properties->getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
         const bool ipv6 = _initData.properties->getPropertyAsIntWithDefault("Ice.IPv6", isIPv6Supported ? 1 : 0) > 0;
@@ -1366,7 +1349,6 @@ IceInternal::Instance::~Instance()
 {
     assert(_state == StateDestroyed);
     assert(!_referenceFactory);
-    assert(!_proxyFactory);
     assert(!_outgoingConnectionFactory);
 
     assert(!_objectAdapterFactory);
@@ -1546,7 +1528,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     //
     if (!_referenceFactory->getDefaultRouter())
     {
-        optional<RouterPrx> router{_proxyFactory->propertyToProxy("Ice.Default.Router")};
+        optional<RouterPrx> router{communicator->propertyToProxy("Ice.Default.Router")};
         if (router)
         {
             _referenceFactory = _referenceFactory->setDefaultRouter(router);
@@ -1555,7 +1537,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
 
     if (!_referenceFactory->getDefaultLocator())
     {
-        optional<LocatorPrx> locator{_proxyFactory->propertyToProxy("Ice.Default.Locator")};
+        optional<LocatorPrx> locator{communicator->propertyToProxy("Ice.Default.Locator")};
         if (locator)
         {
             _referenceFactory = _referenceFactory->setDefaultLocator(locator);
@@ -1788,7 +1770,6 @@ IceInternal::Instance::destroy()
         _timer = nullptr;
 
         _referenceFactory = nullptr;
-        _proxyFactory = nullptr;
         _routerManager = nullptr;
         _locatorManager = nullptr;
         _endpointFactoryManager = nullptr;
