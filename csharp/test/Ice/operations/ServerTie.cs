@@ -13,12 +13,11 @@ namespace Ice
                 public override void run(string[] args)
                 {
                     var initData = new InitializationData();
-                    initData.typeIdNamespaces = new string[] { "Ice.operations.TypeId" };
                     initData.properties = createTestProperties(ref args);
                     //
                     // Its possible to have batch oneway requests dispatched
                     // after the adapter is deactivated due to thread
-                    // scheduling so we supress this warning.
+                    // scheduling so we suppress this warning.
                     //
                     initData.properties.setProperty("Ice.Warn.Dispatch", "0");
                     //
