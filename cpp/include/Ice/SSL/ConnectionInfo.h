@@ -5,7 +5,7 @@
 #ifndef ICE_SSL_CONNECTION_INFO_H
 #define ICE_SSL_CONNECTION_INFO_H
 
-#include "Certificate.h"
+#include "Config.h"
 #include "ConnectionInfoF.h"
 #include "Ice/Connection.h"
 
@@ -19,13 +19,14 @@
 
 namespace Ice::SSL
 {
+#if defined(ICE_USE_SCHANNEL)
     /**
      * Provides access to the connection details of an SSL connection.
      */
-    class ICE_API ConnectionInfo : public Ice::ConnectionInfo
+    class ICE_API SchannelConnectionInfo final : public Ice::ConnectionInfo
     {
     public:
-        ConnectionInfo() = default;
+        SchannelConnectionInfo() = default;
 
         /**
          * One-shot constructor to initialize all data members.
@@ -33,29 +34,112 @@ namespace Ice::SSL
          * @param incoming Whether or not the connection is an incoming or outgoing connection.
          * @param adapterName The name of the adapter associated with the connection.
          * @param connectionId The connection id.
-         * @param certs The certificate chain.
+         * @param peerCertificate The peer certificate.
          */
-        ConnectionInfo(
+        SchannelConnectionInfo(
             const Ice::ConnectionInfoPtr& underlying,
             bool incoming,
             const std::string& adapterName,
             const std::string& connectionId,
-            const std::vector<CertificatePtr>& certs)
+            PCCERT_CONTEXT peerCertificate)
             : Ice::ConnectionInfo(underlying, incoming, adapterName, connectionId),
-              certs(certs)
+              peerCertificate(peerCertificate)
         {
         }
 
-        ~ConnectionInfo() override;
+        ~SchannelConnectionInfo() override;
 
-        ConnectionInfo(const ConnectionInfo&) = delete;
-        ConnectionInfo& operator=(const ConnectionInfo&) = delete;
+        SchannelConnectionInfo(const SchannelConnectionInfo&) = delete;
+        SchannelConnectionInfo& operator=(const SchannelConnectionInfo&) = delete;
 
         /**
-         * The certificate chain.
+         * The peer certificate.
          */
-        std::vector<CertificatePtr> certs;
+        PCCERT_CONTEXT peerCertificate = nullptr;
     };
+    // Alias for portable code
+    using ConnectionInfo = SchannelConnectionInfo;
+#elif defined(ICE_USE_SECURE_TRANSPORT)
+    /**
+     * Provides access to the connection details of an SSL connection.
+     */
+    class ICE_API SecureTransportConnectionInfo final : public Ice::ConnectionInfo
+    {
+    public:
+        SecureTransportConnectionInfo() = default;
+
+        /**
+         * One-shot constructor to initialize all data members.
+         * @param underlying The information of the underlying transport or null if there's no underlying transport.
+         * @param incoming Whether or not the connection is an incoming or outgoing connection.
+         * @param adapterName The name of the adapter associated with the connection.
+         * @param connectionId The connection id.
+         * @param peerCertificate The peer certificate.
+         */
+        SecureTransportConnectionInfo(
+            const Ice::ConnectionInfoPtr& underlying,
+            bool incoming,
+            const std::string& adapterName,
+            const std::string& connectionId,
+            SecCertificateRef peerCertificate)
+            : Ice::ConnectionInfo(underlying, incoming, adapterName, connectionId),
+              peerCertificate(peerCertificate)
+        {
+        }
+
+        ~SecureTransportConnectionInfo() override;
+
+        SecureTransportConnectionInfo(const SecureTransportConnectionInfo&) = delete;
+        SecureTransportConnectionInfo& operator=(const SecureTransportConnectionInfo&) = delete;
+
+        /**
+         * The peer certificate.
+         */
+        SecCertificateRef peerCertificate = nullptr;
+    };
+    // Alias for portable code
+    using ConnectionInfo = SecureTransportConnectionInfo;
+#else // ICE_USE_OPENSSL
+    /**
+     * Provides access to the connection details of an SSL connection.
+     */
+    class ICE_API OpenSSLConnectionInfo final : public Ice::ConnectionInfo
+    {
+    public:
+        OpenSSLConnectionInfo() = default;
+
+        /**
+         * One-shot constructor to initialize all data members.
+         * @param underlying The information of the underlying transport or null if there's no underlying transport.
+         * @param incoming Whether or not the connection is an incoming or outgoing connection.
+         * @param adapterName The name of the adapter associated with the connection.
+         * @param connectionId The connection id.
+         * @param peerCertificate The peer certificate.
+         */
+        OpenSSLConnectionInfo(
+            const Ice::ConnectionInfoPtr& underlying,
+            bool incoming,
+            const std::string& adapterName,
+            const std::string& connectionId,
+            X509* peerCertificate)
+            : Ice::ConnectionInfo(underlying, incoming, adapterName, connectionId),
+              peerCertificate(peerCertificate)
+        {
+        }
+
+        ~OpenSSLConnectionInfo() override;
+
+        OpenSSLConnectionInfo(const OpenSSLConnectionInfo&) = delete;
+        OpenSSLConnectionInfo& operator=(const OpenSSLConnectionInfo&) = delete;
+
+        /**
+         * The peer certificate.
+         */
+        X509* peerCertificate = nullptr;
+    };
+    // Alias for portable code
+    using ConnectionInfo = OpenSSLConnectionInfo;
+#endif
 }
 
 #if defined(__clang__)

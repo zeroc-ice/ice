@@ -362,21 +362,6 @@ createClientProps(const Ice::PropertiesPtr& defaultProps, bool p12, const string
     return properties;
 }
 
-void
-verify(const Ice::SSL::CertificatePtr& cert, const Ice::SSL::CertificatePtr& ca)
-{
-    cerr << "Verify signature: ";
-    if (cert->verify(ca))
-    {
-        cerr << " VALID";
-    }
-    else
-    {
-        cerr << " INVALID";
-    }
-    cerr << endl;
-}
-
 Test::ServerFactoryPrx
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
 allTests(Test::TestHelper* helper, const string& testDir, bool p12)
@@ -514,125 +499,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             test(false);
         }
         fact->destroyServer(server);
-        comm->destroy();
-        //
-        // Test IceSSL.VerifyPeer=1. Client has a certificate.
-        //
-        // Provide "cacert1" to the client to verify the server
-        // certificate (without this the client connection wouldn't be
-        // able to provide the certificate chain).
-        //
-        initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-
-        comm = initialize(initData);
-        fact = Test::ServerFactoryPrx(comm, factoryRef);
-        test(fact);
-
-        d = createServerProps(defaultProps, p12, "s_rsa_ca1", "cacert1");
-        d["IceSSL.VerifyPeer"] = "1";
-        server = fact->createServer(d);
-        try
-        {
-#if defined(_WIN32) && defined(ICE_USE_OPENSSL)
-            Ice::SSL::CertificatePtr clientCert =
-                Ice::SSL::OpenSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
-#else
-            Ice::SSL::CertificatePtr clientCert = Ice::SSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
-#endif
-            server->checkCert(clientCert->getSubjectDN().toString(), clientCert->getIssuerDN().toString());
-
-            //
-            // Validate that we can get the connection info. Validate
-            // that the certificates have the same DN.
-            //
-            // Validate some aspects of the Certificate class.
-            //
-#if defined(_WIN32) && defined(ICE_USE_OPENSSL)
-            Ice::SSL::CertificatePtr serverCert =
-                Ice::SSL::OpenSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
-            test(Ice::targetEqualTo(Ice::SSL::OpenSSL::Certificate::decode(serverCert->encode()), serverCert));
-#else
-            Ice::SSL::CertificatePtr serverCert = Ice::SSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
-            test(Ice::targetEqualTo(Ice::SSL::Certificate::decode(serverCert->encode()), serverCert));
-#endif
-            test(Ice::targetEqualTo(serverCert, serverCert));
-#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
-            test(serverCert->checkValidity());
-
-            test(!serverCert->checkValidity(std::chrono::system_clock::time_point()));
-#endif
-
-#if defined(_WIN32) && defined(ICE_USE_OPENSSL)
-            Ice::SSL::CertificatePtr caCert = Ice::SSL::OpenSSL::Certificate::load(defaultDir + "/cacert1.pem");
-            Ice::SSL::CertificatePtr caCert2 = Ice::SSL::OpenSSL::Certificate::load(defaultDir + "/cacert2.pem");
-#else
-            Ice::SSL::CertificatePtr caCert = Ice::SSL::Certificate::load(defaultDir + "/cacert1.pem");
-            Ice::SSL::CertificatePtr caCert2 = Ice::SSL::Certificate::load(defaultDir + "/cacert2.pem");
-#endif
-            test(Ice::targetEqualTo(caCert, caCert));
-#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
-            test(caCert->checkValidity());
-
-            test(!caCert->checkValidity(std::chrono::system_clock::time_point()));
-#endif
-
-            test(!serverCert->verify(serverCert));
-            test(serverCert->verify(caCert));
-            test(!serverCert->verify(caCert2));
-            test(caCert->verify(caCert));
-
-            info = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(server->ice_getConnection()->getInfo());
-            // TODO provide the peer certificate.
-            /*test(info->certs.size() == 2);
-
-            test(Ice::targetEqualTo(caCert, info->certs[1]));
-            test(Ice::targetEqualTo(serverCert, info->certs[0]));
-
-            test(!Ice::targetEqualTo(serverCert, info->certs[1]));
-            test(!Ice::targetEqualTo(caCert, info->certs[0]));*/
-
-#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
-            /*test(info->certs[0]->checkValidity() && info->certs[1]->checkValidity());
-
-            test(
-                !info->certs[0]->checkValidity(std::chrono::system_clock::time_point()) &&
-                !info->certs[1]->checkValidity(std::chrono::system_clock::time_point()));*/
-#endif
-
-            /*test(
-                info->certs.size() == 2 && info->certs[0]->getSubjectDN() == serverCert->getSubjectDN() &&
-                info->certs[0]->getIssuerDN() == serverCert->getIssuerDN());*/
-        }
-        catch (const LocalException& ex)
-        {
-            cerr << ex << endl;
-            test(false);
-        }
-        fact->destroyServer(server);
-
-        //
-        // Test IceSSL.VerifyPeer=2. Client has a certificate.
-        //
-        d = createServerProps(defaultProps, p12, "s_rsa_ca1", "cacert1");
-        d["IceSSL.VerifyPeer"] = "2";
-        server = fact->createServer(d);
-        try
-        {
-#if defined(_WIN32) && defined(ICE_USE_OPENSSL)
-            Ice::SSL::CertificatePtr clientCert =
-                Ice::SSL::OpenSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
-#else
-            Ice::SSL::CertificatePtr clientCert = Ice::SSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
-#endif
-            server->checkCert(clientCert->getSubjectDN().toString(), clientCert->getIssuerDN().toString());
-        }
-        catch (const LocalException& ex)
-        {
-            cerr << ex << endl;
-            test(false);
-        }
-        fact->destroyServer(server);
-
         comm->destroy();
 
         //
@@ -965,158 +831,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     cout << "ok" << endl;
 
-#if !defined(ICE_USE_SECURE_TRANSPORT_IOS)
-    cout << "testing certificate info... " << flush;
-    {
-        const char* certificates[] = {"/cacert1.pem", "/c_rsa_ca1_pub.pem", "/s_rsa_ca1_pub.pem", 0};
-
-        const char* authorities[] = {
-            "", // Self signed CA cert has not X509v3 Authority Key Identifier extension
-            "02:FD:1B:E9:6F:4E:96:8F:0C:0E:99:61:8F:45:48:6B:2B:14:3C:31",
-            "02:FD:1B:E9:6F:4E:96:8F:0C:0E:99:61:8F:45:48:6B:2B:14:3C:31",
-            0};
-
-        const char* subjects[] = {
-            "02:FD:1B:E9:6F:4E:96:8F:0C:0E:99:61:8F:45:48:6B:2B:14:3C:31",
-            "7F:4D:BF:80:65:E0:EE:A4:18:D5:6A:87:33:63:B3:76:7D:42:82:06",
-            "EB:4A:7A:79:09:65:0F:45:40:E8:8C:E6:A8:27:74:34:AB:EA:AF:48",
-            0};
-
-        for (int i = 0; certificates[i] != 0; ++i)
-        {
-            Ice::SSL::CertificatePtr cert = Ice::SSL::Certificate::load(defaultDir + certificates[i]);
-            test(toHexString(cert->getAuthorityKeyIdentifier()) == authorities[i]);
-            test(toHexString(cert->getSubjectKeyIdentifier()) == subjects[i]);
-        }
-
-        Ice::SSL::CertificatePtr cert = Ice::SSL::Certificate::load(defaultDir + "/cacert1.pem");
-        unsigned int keyUsage = cert->getKeyUsage();
-        test(
-            keyUsage ==
-            (Ice::SSL::KEY_USAGE_DIGITAL_SIGNATURE | Ice::SSL::KEY_USAGE_KEY_CERT_SIGN | Ice::SSL::KEY_USAGE_CRL_SIGN));
-
-        //  Digital Signature, Certificate Sign, CRL Sign
-        cert = Ice::SSL::Certificate::load(defaultDir + "/cacert3.pem");
-        keyUsage = cert->getKeyUsage();
-        test(
-            keyUsage ==
-            (Ice::SSL::KEY_USAGE_DIGITAL_SIGNATURE | Ice::SSL::KEY_USAGE_KEY_CERT_SIGN | Ice::SSL::KEY_USAGE_CRL_SIGN));
-
-        //  Digital Signature, Certificate Sign, CRL Sign
-        cert = Ice::SSL::Certificate::load(defaultDir + "/cacert4.pem");
-        keyUsage = cert->getKeyUsage();
-        test(
-            keyUsage ==
-            (Ice::SSL::KEY_USAGE_DIGITAL_SIGNATURE | Ice::SSL::KEY_USAGE_KEY_CERT_SIGN | Ice::SSL::KEY_USAGE_CRL_SIGN));
-    }
-
-    {
-        Ice::SSL::CertificatePtr cert = Ice::SSL::Certificate::load(defaultDir + "/rsa_ca1_none_pub.pem");
-        unsigned int keyUsage = cert->getExtendedKeyUsage();
-        test(keyUsage == 0);
-
-        cert = Ice::SSL::Certificate::load(defaultDir + "/rsa_ca1_serverAuth_pub.pem");
-        keyUsage = cert->getExtendedKeyUsage();
-        test(keyUsage == Ice::SSL::EXTENDED_KEY_USAGE_SERVER_AUTH);
-
-        cert = Ice::SSL::Certificate::load(defaultDir + "/rsa_ca1_clientAuth_pub.pem");
-        keyUsage = cert->getExtendedKeyUsage();
-        test(keyUsage == Ice::SSL::EXTENDED_KEY_USAGE_CLIENT_AUTH);
-
-        cert = Ice::SSL::Certificate::load(defaultDir + "/rsa_ca1_codeSigning_pub.pem");
-        keyUsage = cert->getExtendedKeyUsage();
-        test(keyUsage == Ice::SSL::EXTENDED_KEY_USAGE_CODE_SIGNING);
-
-        cert = Ice::SSL::Certificate::load(defaultDir + "/rsa_ca1_emailProtection_pub.pem");
-        keyUsage = cert->getExtendedKeyUsage();
-        test(keyUsage == Ice::SSL::EXTENDED_KEY_USAGE_EMAIL_PROTECTION);
-
-        cert = Ice::SSL::Certificate::load(defaultDir + "/rsa_ca1_timeStamping_pub.pem");
-        keyUsage = cert->getExtendedKeyUsage();
-        test(keyUsage == Ice::SSL::EXTENDED_KEY_USAGE_TIME_STAMPING);
-
-        cert = Ice::SSL::Certificate::load(defaultDir + "/rsa_ca1_ocspSigning_pub.pem");
-        keyUsage = cert->getExtendedKeyUsage();
-        test(keyUsage == Ice::SSL::EXTENDED_KEY_USAGE_OCSP_SIGNING);
-
-        cert = Ice::SSL::Certificate::load(defaultDir + "/rsa_ca1_anyExtendedKeyUsage_pub.pem");
-        keyUsage = cert->getExtendedKeyUsage();
-        test(keyUsage == Ice::SSL::EXTENDED_KEY_USAGE_ANY_KEY_USAGE);
-    }
-
-    {
-#    if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
-        vector<pair<int, string>> expectedAltNames;
-        expectedAltNames.push_back(make_pair(7, "127.0.0.1"));
-        expectedAltNames.push_back(make_pair(2, "client"));
-        Ice::SSL::CertificatePtr cert = Ice::SSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
-        test(cert->getSubjectAlternativeNames() == expectedAltNames);
-        // Digital Signature, Non Repudiation, Key Encipherment
-        unsigned int keyUsage = cert->getKeyUsage();
-        test(
-            keyUsage == (Ice::SSL::KEY_USAGE_DIGITAL_SIGNATURE | Ice::SSL::KEY_USAGE_NON_REPUDIATION |
-                         Ice::SSL::KEY_USAGE_KEY_ENCIPHERMENT));
-
-        expectedAltNames.clear();
-        expectedAltNames.push_back(make_pair(7, "127.0.0.1"));
-        expectedAltNames.push_back(make_pair(2, "server"));
-        cert = Ice::SSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
-        test(cert->getSubjectAlternativeNames() == expectedAltNames);
-        keyUsage = cert->getKeyUsage();
-        test(
-            keyUsage == (Ice::SSL::KEY_USAGE_DIGITAL_SIGNATURE | Ice::SSL::KEY_USAGE_NON_REPUDIATION |
-                         Ice::SSL::KEY_USAGE_KEY_ENCIPHERMENT));
-
-        expectedAltNames.clear();
-        expectedAltNames.push_back(make_pair(2, "localhost"));
-        cert = Ice::SSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn1_pub.pem");
-        test(cert->getSubjectAlternativeNames() == expectedAltNames);
-
-        expectedAltNames.clear();
-        expectedAltNames.push_back(make_pair(2, "localhostXX"));
-        cert = Ice::SSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn2_pub.pem");
-        test(cert->getSubjectAlternativeNames() == expectedAltNames);
-
-        expectedAltNames.clear();
-        expectedAltNames.push_back(make_pair(7, "127.0.0.1"));
-        cert = Ice::SSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn6_pub.pem");
-        test(cert->getSubjectAlternativeNames() == expectedAltNames);
-
-        expectedAltNames.clear();
-        expectedAltNames.push_back(make_pair(7, "127.0.0.2"));
-        cert = Ice::SSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn7_pub.pem");
-        test(cert->getSubjectAlternativeNames() == expectedAltNames);
-
-        cert = Ice::SSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn8_pub.pem");
-        test(cert->getSubjectAlternativeNames().empty());
-
-        expectedAltNames.clear();
-        expectedAltNames.push_back(make_pair(7, "127.0.0.1"));
-// IPv6 address parsing is not implemented with SChannel and OpenSSL IceSSL implementations
-#        ifdef ICE_USE_SECURE_TRANSPORT
-        expectedAltNames.push_back(make_pair(7, "0000:0000:0000:0000:0000:0000:0000:0001"));
-#        endif
-        cert = Ice::SSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn9_pub.pem");
-        test(cert->getSubjectAlternativeNames() == expectedAltNames);
-
-        expectedAltNames.clear();
-        expectedAltNames.push_back(make_pair(2, "host1"));
-        expectedAltNames.push_back(make_pair(2, "host2"));
-        cert = Ice::SSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn10_pub.pem");
-        test(cert->getSubjectAlternativeNames() == expectedAltNames);
-
-        expectedAltNames.clear();
-        expectedAltNames.push_back(make_pair(7, "127.0.0.1"));
-        expectedAltNames.push_back(make_pair(7, "127.0.0.2"));
-        expectedAltNames.push_back(make_pair(2, "host1"));
-        expectedAltNames.push_back(make_pair(2, "host2"));
-        cert = Ice::SSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn11_pub.pem");
-        test(cert->getSubjectAlternativeNames() == expectedAltNames);
-#    endif
-    }
-    cout << "ok" << endl;
-#endif
-
     cout << "testing certificate chains... " << flush;
     {
         const char* certificates[] = {"/s_rsa_cai2.p12", 0};
@@ -1250,90 +964,11 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         cout << "ok" << endl;
     }
 
-#if defined(ICE_USE_OPENSSL) || defined(ICE_USE_SCHANNEL)
-    cout << "testing certificate extensions... " << flush;
-    {
-        const string basicConstraints = "30:03:01:01:FF";
-
-        const string subjectKeyIdentifier = "04:14:13:FA:72:67:FE:34:05:9A:C9:3E:61:D2:91:D6:BA:03:65:1B:8A:9A";
-
-        const string authorityKeyIdentifier = "30:81:A2:80:14:13:FA:72:67:FE:34:05:9A:C9:3E:61:D2:91:D6:BA:03:65:"
-                                              "1B:8A:9A:A1:7F:A4:7D:30:7B:31:0B:30:09:06:03:55:04:06:13:02:55:53:"
-                                              "31:10:30:0E:06:03:55:04:08:0C:07:46:6C:6F:72:69:64:61:31:10:30:0E:"
-                                              "06:03:55:04:07:0C:07:4A:75:70:69:74:65:72:31:0E:30:0C:06:03:55:04:"
-                                              "0A:0C:05:5A:65:72:6F:43:31:0C:30:0A:06:03:55:04:0B:0C:03:49:63:65:"
-                                              "31:0B:30:09:06:03:55:04:03:0C:02:43:41:31:1D:30:1B:06:09:2A:86:48:"
-                                              "86:F7:0D:01:09:01:16:0E:69:6E:66:6F:40:7A:65:72:6F:63:2E:63:6F:6D:"
-                                              "82:09:00:EA:2A:B7:FB:3B:A3:DF:5A";
-
-        const string subjectAltName = "30:0B:82:09:7A:65:72:6F:63:2E:63:6F:6D";
-
-        const string issuerAltName = "30:0B:82:09:7A:65:72:6F:63:2E:63:6F:6D";
-
-        const string customExt412 = "0C:0B:43:75:73:74:6F:6D:20:64:61:74:61";
-
-        const string customExt413 = "30:17:01:01:FF:0C:0E:4D:79:20:55:54:46:38:20:53:74:72:69:6E:67:02:02:03:FF";
-
-        Ice::SSL::CertificatePtr cert = Ice::SSL::Certificate::load(defaultDir + "/cacert_custom.pem");
-        vector<Ice::SSL::X509ExtensionPtr> extensions = cert->getX509Extensions();
-        test(extensions.size() == 7);
-
-        Ice::SSL::X509ExtensionPtr ext = cert->getX509Extension("2.5.29.19"); // Subject key identifier
-        test(ext);
-        test(toHexString(ext->getData()) == basicConstraints);
-        test(ext->getOID() == "2.5.29.19");
-        test(ext->isCritical() == false);
-
-        ext = cert->getX509Extension("2.5.29.14"); // Subject key identifier
-        test(ext);
-        test(toHexString(ext->getData()) == subjectKeyIdentifier);
-        test(ext->getOID() == "2.5.29.14");
-        test(ext->isCritical() == false);
-
-        ext = cert->getX509Extension("2.5.29.35"); // Authority key identifier
-        test(ext);
-        test(toHexString(ext->getData()) == authorityKeyIdentifier);
-        test(ext->getOID() == "2.5.29.35");
-        test(ext->isCritical() == false);
-
-        ext = cert->getX509Extension("2.5.29.17"); // Subject alternative name
-        test(ext);
-        test(toHexString(ext->getData()) == subjectAltName);
-        test(ext->getOID() == "2.5.29.17");
-        test(ext->isCritical() == false);
-
-        ext = cert->getX509Extension("2.5.29.18"); // Issuer alternative name
-        test(ext);
-        test(toHexString(ext->getData()) == issuerAltName);
-        test(ext->getOID() == "2.5.29.18");
-        test(ext->isCritical() == false);
-
-        ext = cert->getX509Extension("1.2.3.412"); // Custom extension
-        test(ext);
-        test(toHexString(ext->getData()) == customExt412);
-        test(ext->getOID() == "1.2.3.412");
-        test(ext->isCritical() == false);
-
-        ext = cert->getX509Extension("1.2.3.413"); // Custom extension
-        test(ext);
-        test(toHexString(ext->getData()) == customExt413);
-        test(ext->getOID() == "1.2.3.413");
-        test(ext->isCritical() == false);
-    }
-    cout << "ok" << endl;
-#endif
-
     cout << "testing expired certificates... " << flush;
     {
         //
         // This should fail because the server's certificate is expired.
         //
-#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
-        {
-            Ice::SSL::CertificatePtr cert = Ice::SSL::Certificate::load(defaultDir + "/s_rsa_ca1_exp_pub.pem");
-            test(!cert->checkValidity());
-        }
-#endif
 
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
@@ -1362,13 +997,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         //
         // This should fail because the client's certificate is expired.
         //
-#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
-        {
-            Ice::SSL::CertificatePtr cert = Ice::SSL::Certificate::load(defaultDir + "/c_rsa_ca1_exp_pub.pem");
-            test(!cert->checkValidity());
-        }
-#endif
-
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1_exp", "cacert1");
         comm = initialize(initData);
         fact = Test::ServerFactoryPrx(comm, factoryRef);
@@ -1484,6 +1112,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     cout << "ok" << endl;
 #endif
 
+#ifndef ICE_USE_SECURE_TRANSPORT_IOS
     cout << "testing IceSSL.TrustOnly... " << flush;
     //
     // iOS support only provides access to the CN of the certificate so we
@@ -2304,6 +1933,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         comm->destroy();
     }
     cout << "ok" << endl;
+#endif
 
     {
 #if defined(ICE_USE_SCHANNEL)
@@ -2482,11 +2112,12 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             initData.properties->setProperty("IceSSL.Keychain", "../certs/Find.keychain");
             initData.properties->setProperty("IceSSL.KeychainPassword", "password");
             initData.properties->setProperty("IceSSL.FindCert", clientFindCertProperties[i]);
-            //
-            // Use TrustOnly to ensure the peer has pick the expected certificate.
-            //
+//
+// Use TrustOnly to ensure the peer has pick the expected certificate.
+//
+#    ifndef ICE_USE_SECURE_TRANSPORT_IOS
             initData.properties->setProperty("IceSSL.TrustOnly", "CN=Server");
-
+#    endif
             CommunicatorPtr comm = initialize(initData);
 
             optional<Test::ServerFactoryPrx> fact = Test::ServerFactoryPrx(comm, factoryRef);
@@ -2500,8 +2131,9 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             //
             // Use TrustOnly to ensure the peer has pick the expected certificate.
             //
+#    ifndef ICE_USE_SECURE_TRANSPORT_IOS
             d["IceSSL.TrustOnly"] = "CN=Client";
-
+#    endif
             optional<Test::ServerPrx> server = fact->createServer(d);
             try
             {
@@ -2834,11 +2466,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #endif
     }
 
-#if !defined(_AIX) && !(defined(_WIN32) && defined(ICE_USE_OPENSSL))
-    //
+#if !defined(_AIX)
     // On AIX 6.1, the default root certificates don't validate demo.zeroc.com.
-    // On Windows with OpenSSL there aren't any system CAs.
-    //
     cout << "testing system CAs... " << flush;
     {
         //

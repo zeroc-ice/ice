@@ -129,6 +129,12 @@ namespace Ice
                     return Task.FromResult(new Test.Initial_OpMyInterfaceProxyResult(p1, p1));
                 }
 
+                public override Task<Test.Initial_OpOneOptionalResult>
+                opOneOptionalAsync(Test.OneOptional p1, Ice.Current current)
+                {
+                    return Task.FromResult(new Test.Initial_OpOneOptionalResult(p1, p1));
+                }
+
                 public override Task<Test.Initial_OpByteSeqResult>
                 opByteSeqAsync(byte[] p1, Ice.Current current)
                 {
@@ -289,12 +295,6 @@ namespace Ice
                 supportsJavaSerializableAsync(Ice.Current current)
                 {
                     return Task.FromResult<bool>(false);
-                }
-
-                public override Task<bool>
-                supportsNullOptionalAsync(Ice.Current current)
-                {
-                    return Task.FromResult<bool>(true);
                 }
             }
         }

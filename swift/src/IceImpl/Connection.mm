@@ -3,6 +3,7 @@
 //
 
 #import "Connection.h"
+#import "../../cpp/src/Ice/SSL/SSLUtil.h"
 #import "Convert.h"
 #import "Endpoint.h"
 #import "IceUtil.h"
@@ -325,11 +326,16 @@ createConnectionInfo(std::shared_ptr<Ice::ConnectionInfo> infoPtr)
     auto sslInfo = std::dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(infoPtr);
     if (sslInfo)
     {
+        std::string encoded;
+        if (sslInfo->peerCertificate)
+        {
+            encoded = Ice::SSL::encodeCertificate(sslInfo->peerCertificate);
+        }
         return [factory createSSLConnectionInfo:underlying
                                        incoming:sslInfo->incoming
                                     adapterName:toNSString(sslInfo->adapterName)
                                    connectionId:toNSString(sslInfo->connectionId)
-                                          certs:toNSArray(sslInfo->certs)];
+                                peerCertificate:toNSString(encoded)];
     }
 
 #if TARGET_OS_IPHONE

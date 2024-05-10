@@ -33,31 +33,28 @@ void
 InitialI::opOptionalExceptionAsync(
     optional<int> a,
     optional<string> b,
-    optional<shared_ptr<Test::OneOptional>> o,
     function<void()>,
     function<void(exception_ptr)> ex,
     const Ice::Current&)
 {
-    ex(make_exception_ptr(OptionalException(false, a, b, o)));
+    ex(make_exception_ptr(OptionalException(false, a, b)));
 }
 
 void
 InitialI::opDerivedExceptionAsync(
     optional<int> a,
     optional<string> b,
-    optional<shared_ptr<Test::OneOptional>> o,
     function<void()>,
     function<void(exception_ptr)> ex,
     const Ice::Current&)
 {
-    ex(make_exception_ptr(DerivedException(false, a, b, o, "d1", b, o, "d2")));
+    ex(make_exception_ptr(DerivedException(false, a, b, "d1", b, "d2")));
 }
 
 void
 InitialI::opRequiredExceptionAsync(
     optional<int> a,
     optional<string> b,
-    optional<shared_ptr<Test::OneOptional>> o,
     function<void()>,
     function<void(exception_ptr)> ex,
     const Ice::Current&)
@@ -65,14 +62,9 @@ InitialI::opRequiredExceptionAsync(
     RequiredException e;
     e.a = a;
     e.b = b;
-    e.o = o;
     if (b)
     {
         e.ss = b.value();
-    }
-    if (o)
-    {
-        e.o2 = o.value();
     }
 
     ex(make_exception_ptr(e));
@@ -199,10 +191,9 @@ InitialI::opVarStructAsync(
 }
 
 void
-InitialI::opOneOptionalAsync(
-    optional<shared_ptr<Test::OneOptional>> p1,
-    function<void(const optional<shared_ptr<Test::OneOptional>>&, const optional<shared_ptr<Test::OneOptional>>&)>
-        response,
+InitialI::opMyInterfaceProxyAsync(
+    optional<::MyInterfacePrx> p1,
+    function<void(const optional<::MyInterfacePrx>&, const optional<::MyInterfacePrx>&)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
@@ -210,9 +201,9 @@ InitialI::opOneOptionalAsync(
 }
 
 void
-InitialI::opMyInterfaceProxyAsync(
-    optional<::MyInterfacePrx> p1,
-    function<void(const optional<::MyInterfacePrx>&, const optional<::MyInterfacePrx>&)> response,
+InitialI::opOneOptionalAsync(
+    shared_ptr<Test::OneOptional> p1,
+    function<void(const shared_ptr<Test::OneOptional>&, const shared_ptr<Test::OneOptional>&)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
@@ -482,25 +473,6 @@ InitialI::opMDict2Async(
 }
 
 void
-InitialI::opMG1Async(
-    function<void(OpMG1MarshaledResult)> response,
-    function<void(exception_ptr)>,
-    const Ice::Current& current)
-{
-    response(OpMG1MarshaledResult(std::make_shared<G>(), current));
-}
-
-void
-InitialI::opMG2Async(
-    optional<GPtr> p1,
-    function<void(OpMG2MarshaledResult)> response,
-    function<void(exception_ptr)>,
-    const Ice::Current& current)
-{
-    response(OpMG2MarshaledResult(p1, p1, current));
-}
-
-void
 InitialI::supportsRequiredParamsAsync(function<void(bool)> response, function<void(exception_ptr)>, const Ice::Current&)
 {
     response(false);
@@ -522,10 +494,4 @@ InitialI::supportsCsharpSerializableAsync(
     const Ice::Current&)
 {
     response(true);
-}
-
-void
-InitialI::supportsNullOptionalAsync(function<void(bool)> response, function<void(exception_ptr)>, const Ice::Current&)
-{
-    response(false);
 }

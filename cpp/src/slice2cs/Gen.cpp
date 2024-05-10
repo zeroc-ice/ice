@@ -2048,11 +2048,15 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 string memberName = fixId(q->name(), DotNet::ICloneable);
                 baseParamNames.push_back(memberName);
 
-                StructPtr st = dynamic_pointer_cast<Struct>(q->type());
-                if (dynamic_pointer_cast<Sequence>(q->type()) || dynamic_pointer_cast<Dictionary>(q->type()) ||
-                    (st && isMappedToClass(st)))
+                // Look for non-nullable fields
+                if (!q->optional())
                 {
-                    secondaryCtorBaseParamNames.push_back(memberName);
+                    StructPtr st = dynamic_pointer_cast<Struct>(q->type());
+                    if (dynamic_pointer_cast<Sequence>(q->type()) || dynamic_pointer_cast<Dictionary>(q->type()) ||
+                        (st && isMappedToClass(st)))
+                    {
+                        secondaryCtorBaseParamNames.push_back(memberName);
+                    }
                 }
             }
             _out << baseParamNames << epar;
@@ -2307,11 +2311,15 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             string memberName = fixId(q->name(), DotNet::Exception);
             baseParamNames.push_back(memberName);
 
-            StructPtr st = dynamic_pointer_cast<Struct>(q->type());
-            if (dynamic_pointer_cast<Sequence>(q->type()) || dynamic_pointer_cast<Dictionary>(q->type()) ||
-                (st && isMappedToClass(st)))
+            // Look for non-nullable fields
+            if (!q->optional())
             {
-                secondaryCtorBaseParamNames.push_back(memberName);
+                StructPtr st = dynamic_pointer_cast<Struct>(q->type());
+                if (dynamic_pointer_cast<Sequence>(q->type()) || dynamic_pointer_cast<Dictionary>(q->type()) ||
+                    (st && isMappedToClass(st)))
+                {
+                    secondaryCtorBaseParamNames.push_back(memberName);
+                }
             }
         }
     }

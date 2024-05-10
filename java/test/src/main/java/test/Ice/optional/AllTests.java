@@ -1049,41 +1049,33 @@ public class AllTests {
     }
 
     {
-      Optional<OneOptional> p1 = Optional.empty();
-      Initial.OpOneOptionalResult r = initial.opOneOptional(p1);
-      test(!r.returnValue.isPresent() && !r.p3.isPresent());
-
-      p1 = Optional.of(new OneOptional(58));
-      r = initial.opOneOptional(p1);
-      test(r.returnValue.get().getA() == 58 && r.p3.get().getA() == 58);
-      r = initial.opOneOptionalAsync(p1).join();
-      test(r.returnValue.get().getA() == 58 && r.p3.get().getA() == 58);
-
       if (reqParams) {
-        Initial.OpOneOptionalReqResult rr = initial.opOneOptionalReq(p1.get());
-        test(rr.returnValue.get().getA() == 58 && rr.p3.get().getA() == 58);
-        rr = initial.opOneOptionalReqAsync(p1.get()).join();
-        test(rr.returnValue.get().getA() == 58 && rr.p3.get().getA() == 58);
+        OneOptional p1 = new OneOptional();
+        Initial.OpOneOptionalResult r = initial.opOneOptional(p1);
+        test(!r.returnValue.hasA() && !r.p3.hasA());
+        r = initial.opOneOptionalAsync(p1).join();
+        test(!r.returnValue.hasA() && !r.p3.hasA());
+
+        p1 = new OneOptional(58);
+        r = initial.opOneOptional(p1);
+        test(r.returnValue.getA() == 58 && r.p3.getA() == 58);
+        r = initial.opOneOptionalAsync(p1).join();
+        test(r.returnValue.getA() == 58 && r.p3.getA() == 58);
 
         os = new OutputStream(communicator);
         os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.Class);
-        os.writeValue(p1.get());
+        os.writeValue(p1);
         os.endEncapsulation();
         inEncaps = os.finished();
-        inv = initial.ice_invoke("opOneOptionalReq", OperationMode.Normal, inEncaps);
+        inv = initial.ice_invoke("opOneOptional", OperationMode.Normal, inEncaps);
         in = new InputStream(communicator, inv.outParams);
         in.startEncapsulation();
-        Wrapper<java.util.Optional<OneOptional>> p2cb = new Wrapper<>();
-        in.readValue(1, v -> p2cb.value = v, OneOptional.class);
-        Wrapper<java.util.Optional<OneOptional>> p3cb = new Wrapper<>();
-        in.readValue(3, v -> p3cb.value = v, OneOptional.class);
+        Wrapper<OneOptional> p2cb = new Wrapper<>();
+        in.readValue(v -> p2cb.value = v, OneOptional.class);
+        Wrapper<OneOptional> p3cb = new Wrapper<>();
+        in.readValue(v -> p3cb.value = v, OneOptional.class);
         in.endEncapsulation();
-        test(p2cb.value.get().getA() == 58 && p3cb.value.get().getA() == 58);
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
+        test(p2cb.value.getA() == 58 && p3cb.value.getA() == 58);
       }
     }
 
@@ -1980,51 +1972,42 @@ public class AllTests {
       try {
         OptionalInt a = OptionalInt.empty();
         Optional<String> b = Optional.empty();
-        Optional<OneOptional> o = Optional.empty();
-        initial.opOptionalException(a, b, o);
+        initial.opOptionalException(a, b);
       } catch (OptionalException ex) {
         test(!ex.hasA());
         test(!ex.hasB());
-        test(!ex.hasO());
       }
 
       try {
         OptionalInt a = OptionalInt.of(30);
         Optional<String> b = Optional.of("test");
-        Optional<OneOptional> o = Optional.of(new OneOptional(53));
-        initial.opOptionalException(a, b, o);
+        initial.opOptionalException(a, b);
       } catch (OptionalException ex) {
         test(ex.getA() == 30);
         test(ex.getB().equals("test"));
-        test(ex.getO().getA() == 53);
       }
 
       try {
         //
-        // Use the 1.0 encoding with an exception whose only class members are optional.
+        // Use the 1.0 encoding with an exception whose only data members are optional.
         //
         InitialPrx initial2 = initial.ice_encodingVersion(com.zeroc.Ice.Util.Encoding_1_0);
         OptionalInt a = OptionalInt.of(30);
         Optional<String> b = Optional.of("test");
-        Optional<OneOptional> o = Optional.of(new OneOptional(53));
-        initial2.opOptionalException(a, b, o);
+        initial2.opOptionalException(a, b);
       } catch (OptionalException ex) {
         test(!ex.hasA());
         test(!ex.hasB());
-        test(!ex.hasO());
       }
 
       try {
         OptionalInt a = OptionalInt.empty();
         Optional<String> b = Optional.empty();
-        Optional<OneOptional> o = Optional.empty();
-        initial.opDerivedException(a, b, o);
+        initial.opDerivedException(a, b);
       } catch (DerivedException ex) {
         test(!ex.hasA());
         test(!ex.hasB());
-        test(!ex.hasO());
         test(!ex.hasSs());
-        test(!ex.hasO2());
         test(ex.d1.equals("d1"));
         test(ex.d2.equals("d2"));
       } catch (OptionalException ex) {
@@ -2034,14 +2017,11 @@ public class AllTests {
       try {
         OptionalInt a = OptionalInt.of(30);
         Optional<String> b = Optional.of("test2");
-        Optional<OneOptional> o = Optional.of(new OneOptional(53));
-        initial.opDerivedException(a, b, o);
+        initial.opDerivedException(a, b);
       } catch (DerivedException ex) {
         test(ex.getA() == 30);
         test(ex.getB().equals("test2"));
-        test(ex.getO().getA() == 53);
         test(ex.getSs().equals("test2"));
-        test(ex.getO2().getA() == 53);
         test(ex.d1.equals("d1"));
         test(ex.d2.equals("d2"));
       } catch (OptionalException ex) {
@@ -2051,14 +2031,11 @@ public class AllTests {
       try {
         OptionalInt a = OptionalInt.empty();
         Optional<String> b = Optional.empty();
-        Optional<OneOptional> o = Optional.empty();
-        initial.opRequiredException(a, b, o);
+        initial.opRequiredException(a, b);
       } catch (RequiredException ex) {
         test(!ex.hasA());
         test(!ex.hasB());
-        test(!ex.hasO());
         test(ex.ss.equals("test"));
-        test(ex.o2 == null);
       } catch (OptionalException ex) {
         test(false);
       }
@@ -2066,14 +2043,11 @@ public class AllTests {
       try {
         OptionalInt a = OptionalInt.of(30);
         Optional<String> b = Optional.of("test2");
-        Optional<OneOptional> o = Optional.of(new OneOptional(53));
-        initial.opRequiredException(a, b, o);
+        initial.opRequiredException(a, b);
       } catch (RequiredException ex) {
         test(ex.getA() == 30);
         test(ex.getB().equals("test2"));
-        test(ex.getO().getA() == 53);
         test(ex.ss.equals("test2"));
-        test(ex.o2.getA() == 53);
       } catch (OptionalException ex) {
         test(false);
       }
@@ -2086,7 +2060,6 @@ public class AllTests {
       test(initial.opMStruct1().isPresent());
       test(initial.opMDict1().isPresent());
       test(initial.opMSeq1().isPresent());
-      test(initial.opMG1().isPresent());
 
       {
         Initial.OpMStruct2Result result = initial.opMStruct2(Optional.empty());
@@ -2114,14 +2087,6 @@ public class AllTests {
         p1.put("test", 54);
         result = initial.opMDict2(Optional.of(p1));
         test(result.p2.get().equals(p1) && result.returnValue.get().equals(p1));
-      }
-      {
-        Initial.OpMG2Result result = initial.opMG2(Optional.empty());
-        test(!result.p2.isPresent() && !result.returnValue.isPresent());
-
-        G p1 = new G();
-        result = initial.opMG2(Optional.of(p1));
-        test(result.p2.get() == result.returnValue.get());
       }
     }
     out.println("ok");

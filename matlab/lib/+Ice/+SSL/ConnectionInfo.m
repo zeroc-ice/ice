@@ -4,38 +4,26 @@ classdef ConnectionInfo < Ice.ConnectionInfo
     % Provides access to the connection detaisl of an SSL connection.
     %
     % ConnectionInfo Properties:
-    %   cipher - The negotiated cipher suite.
-    %   certs - The certificate chain.
-    %   verified - The certificate chain verification status.
+    %   peerCertificate - The peer certificate.
 
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
     methods
-        function obj = ConnectionInfo(underlying, incoming, adapterName, connectionId, cipher, ...
-                                      certs, verified)
+        function obj = ConnectionInfo(underlying, incoming, adapterName, connectionId, ...
+                                      peerCertificate)
             if nargin == 0
                 underlying = [];
                 incoming = false;
                 adapterName = '';
                 connectionId = '';
-                cipher = '';
-                certs = [];
-                verified = false;
+                peerCertificate = '';
             end
             obj = obj@Ice.ConnectionInfo(underlying, incoming, adapterName, connectionId);
-            obj.cipher = cipher;
-            obj.certs = certs;
-            obj.verified = verified;
+            obj.peerCertificate = peerCertificate;
         end
     end
     properties(SetAccess=private)
-        % cipher - The negotiated cipher suite.
-        cipher char
-
-        % certs - The certificate chain.
-        certs
-
-        % verified - The certificate chain verification status.
-        verified logical
+        % peerCertificate - The peer certificate.
+        peerCertificate
     end
 end

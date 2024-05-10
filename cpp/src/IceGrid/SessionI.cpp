@@ -3,6 +3,7 @@
 //
 
 #include "SessionI.h"
+#include "../Ice/SSL/SSLUtil.h"
 #include "Database.h"
 #include "Ice/Ice.h"
 #include "IceGrid/Admin.h"
@@ -345,8 +346,8 @@ ClientSSLSessionManagerI::create(
     {
         try
         {
-            auto cert = Ice::SSL::Certificate::decode(info.certs[0]);
-            userDN = cert->getSubjectDN();
+            Ice::SSL::ScopedCertificate cert = Ice::SSL::decodeCertificate(info.certs[0]);
+            userDN = Ice::SSL::getSubjectName(cert.get());
         }
         catch (const Ice::Exception& e)
         {

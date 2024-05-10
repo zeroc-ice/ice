@@ -493,13 +493,9 @@ function allTests($helper)
     $p3 = $initial->opVarStruct($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opOneOptional(Ice\None, $p2);
-    test($p2 == Ice\None && $p3 == Ice\None);
-    if($initial->supportsNullOptional())
-    {
-        $p3 = $initial->opOneOptional(null, $p2);
-        test($p2 == null && $p3 == null);
-    }
+    $p1 = new Test\OneOptional;
+    $p3 = $initial->opOneOptional($p1, $p2);
+    test($p2->a == Ice\None && $p3->a == Ice\None);
     $p1 = new Test\OneOptional(58);
     $p3 = $initial->opOneOptional($p1, $p2);
     test($p2->a == $p1->a && $p3->a == $p1->a);
@@ -644,94 +640,83 @@ function allTests($helper)
 
     try
     {
-        $initial->opOptionalException(Ice\None, Ice\None, Ice\None);
+        $initial->opOptionalException(Ice\None, Ice\None);
     }
     catch(Test\OptionalException $ex)
     {
         test($ex->a == Ice\None);
         test($ex->b == Ice\None);
-        test($ex->o == Ice\None);
     }
 
     try
     {
-        $initial->opOptionalException(30, "test", new Test\OneOptional(53));
+        $initial->opOptionalException(30, "test");
     }
     catch(Exception $ex)
     {
         test($ex->a == 30);
         test($ex->b == "test");
-        test($ex->o->a == 53);
     }
 
     try
     {
         //
-        // Use the 1.0 encoding with an exception whose only class members are optional.
+        // Use the 1.0 encoding with an exception whose only data members are optional.
         //
-        $initial->ice_encodingVersion($Ice_Encoding_1_0)->opOptionalException(30, "test", new Test\OneOptional(53));
+        $initial->ice_encodingVersion($Ice_Encoding_1_0)->opOptionalException(30, "test");
     }
     catch(Exception $ex)
     {
         test($ex->a == Ice\None);
         test($ex->b == Ice\None);
-        test($ex->o == Ice\None);
     }
 
     try
     {
-        $initial->opDerivedException(Ice\None, Ice\None, Ice\None);
+        $initial->opDerivedException(Ice\None, Ice\None);
     }
     catch(Exception $ex)
     {
         test($ex->a == Ice\None);
         test($ex->b == Ice\None);
-        test($ex->o == Ice\None);
         test($ex->ss == Ice\None);
-        test($ex->o2 == Ice\None);
         test($ex->d1 == "d1");
         test($ex->d2 == "d2");
     }
 
     try
     {
-        $initial->opDerivedException(30, "test", new Test\OneOptional(53));
+        $initial->opDerivedException(30, "test");
     }
     catch(Exception $ex)
     {
         test($ex->a == 30);
         test($ex->b == "test");
-        test($ex->o->a == 53);
         test($ex->ss == "test");
-        test($ex->o2 == $ex->o);
         test($ex->d1 == "d1");
         test($ex->d2 == "d2");
     }
 
     try
     {
-        $initial->opRequiredException(Ice\None, Ice\None, Ice\None);
+        $initial->opRequiredException(Ice\None, Ice\None);
     }
     catch(Exception $ex)
     {
         test($ex->a == Ice\None);
         test($ex->b == Ice\None);
-        test($ex->o == Ice\None);
         test($ex->ss != Ice\None);
-        test($ex->o2 != Ice\None);
     }
 
     try
     {
-        $initial->opRequiredException(30, "test", new Test\OneOptional(53));
+        $initial->opRequiredException(30, "test");
     }
     catch(Exception $ex)
     {
         test($ex->a == 30);
         test($ex->b == "test");
-        test($ex->o->a == 53);
         test($ex->ss == "test");
-        test($ex->o2 == $ex->o);
     }
 
     echo "ok\n";
@@ -742,7 +727,6 @@ function allTests($helper)
     test($initial->opMStruct1() != Ice\None);
     test($initial->opMDict1() != Ice\None);
     test($initial->opMSeq1() != Ice\None);
-    test($initial->opMG1() != Ice\None);
 
     $p3 = $initial->opMStruct2(Ice\None, $p2);
     test($p2 == Ice\None && $p3 == Ice\None);
@@ -764,13 +748,6 @@ function allTests($helper)
     $p1 = array("test" => 54);
     $p3 = $initial->opMDict2($p1, $p2);
     test($p2["test"] == 54 && $p3["test"] == 54);
-
-    $p3 = $initial->opMG2(Ice\None, $p2);
-    test($p2 == Ice\None && $p3 == Ice\None);
-
-    $p1 = new Test\G;
-    $p3 = $initial->opMG2($p1, $p2);
-    test($p2 != Ice\None && $p3 != Ice\None && $p3 == $p2);
 
     echo "ok\n";
 

@@ -3,6 +3,7 @@
 //
 
 #include "Connection.h"
+#include "../../cpp/src/Ice/SSL/SSLUtil.h"
 #include "Endpoint.h"
 #include "Ice/Ice.h"
 #include "Types.h"
@@ -468,7 +469,12 @@ IcePHP::connectionInit(void)
     INIT_NS_CLASS_ENTRY(ce, "Ice", "SSLConnectionInfo", nullptr);
     ce.create_object = handleConnectionInfoAlloc;
     sslConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry);
-    zend_declare_property_string(sslConnectionInfoClassEntry, "certs", sizeof("certs") - 1, "", ZEND_ACC_PUBLIC);
+    zend_declare_property_string(
+        sslConnectionInfoClassEntry,
+        "peerCertificate",
+        sizeof("peerCertificate") - 1,
+        "",
+        ZEND_ACC_PUBLIC);
 
     return true;
 }
@@ -584,24 +590,12 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
     {
         auto info = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(p);
 
-        zval zarr;
-        AutoDestroy listDestroyer(&zarr);
-
-        Ice::StringSeq encoded;
-        transform(
-            info->certs.cbegin(),
-            info->certs.cend(),
-            back_inserter(encoded),
-            [](const auto& cert) { return cert->encode(); });
-
-        if (createStringArray(&zarr, encoded))
+        string encoded;
+        if (info->peerCertificate)
         {
-            add_property_zval(zv, "certs", &zarr);
+            encoded = Ice::SSL::encodeCertificate(info->peerCertificate);
         }
-        else
-        {
-            return false;
-        }
+        add_property_string(zv, "peerCertificate", const_cast<char*>(encoded.c_str()));
     }
 
     if (dynamic_pointer_cast<Ice::IPConnectionInfo>(p))

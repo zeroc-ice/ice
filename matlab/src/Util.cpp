@@ -613,18 +613,6 @@ IceMatlab::createByteList(const vector<byte>& bytes)
     return r;
 }
 
-mxArray*
-IceMatlab::createCertificateList(const vector<Ice::SSL::CertificatePtr>& certs)
-{
-    auto r = mxCreateCellMatrix(1, static_cast<int>(certs.size()));
-    mwIndex i = 0;
-    for (auto cert : certs)
-    {
-        mxSetCell(r, i++, createStringFromUTF8(cert->encode()));
-    }
-    return r;
-}
-
 namespace
 {
     string lookupKwd(const string& name)
