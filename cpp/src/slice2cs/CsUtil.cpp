@@ -1304,7 +1304,8 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
                         }
                         else if (isCustom)
                         {
-                            out << "global::" << genericType << "<" << getUnqualified("Ice.ObjectPrx?", scope) << ">();";
+                            out << "global::" << genericType << "<" << getUnqualified("Ice.ObjectPrx?", scope)
+                                << ">();";
                         }
                         else
                         {
@@ -1458,7 +1459,8 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
             string scoped = dynamic_pointer_cast<Contained>(type)->scoped();
             // Remove trailing '?'
             string nonNullableTypeS = typeS.substr(0, typeS.size() - 1);
-            out << nl << stream << ".readValue(" << patcherName << '<' << nonNullableTypeS << ">(" << param << ", ix));";
+            out << nl << stream << ".readValue(" << patcherName << '<' << nonNullableTypeS << ">(" << param
+                << ", ix));";
             out << eb;
             out << eb;
         }

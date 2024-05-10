@@ -3103,7 +3103,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
         }
         _out << nl << retS << " " << name << spar << getParams(p, ns)
-             << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null") << epar << ';';
+             << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null") << epar
+             << ';';
     }
 
     {
