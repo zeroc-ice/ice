@@ -55,7 +55,7 @@ public interface Object : ICloneable
     string ice_id(Current current);
 
     /// <summary>
-    /// Dispatches an dispatch to a servant. This method is used by dispatch interceptors to forward an dispatch
+    /// Dispatches a dispatch to a servant. This method is used by dispatch interceptors to forward a dispatch
     /// to a servant (or to another interceptor).
     /// </summary>
     /// <param name="request">The details of the dispatch.</param>
@@ -194,7 +194,7 @@ public abstract class ObjectImpl : Object
     };
 
     /// <summary>
-    /// Dispatches an dispatch to a servant. This method is used by dispatch interceptors to forward an dispatch
+    /// Dispatches a dispatch to a servant. This method is used by dispatch interceptors to forward a dispatch
     /// to a servant (or to another interceptor).
     /// </summary>
     /// <param name="request">The details of the dispatch.</param>

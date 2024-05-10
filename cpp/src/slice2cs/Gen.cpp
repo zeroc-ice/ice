@@ -3202,14 +3202,14 @@ Slice::Gen::OpsVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             writeDocCommentAMD(
                 op,
-                "<param name=\"" + args.back() + "\">The Current object for the invocation.</param>");
+                "<param name=\"" + args.back() + "\">The Current object for the dispatch.</param>");
         }
         else
         {
             writeDocComment(
                 op,
                 getDeprecationMessageForComment(op, "operation"),
-                "<param name=\"" + args.back() + "\">The Current object for the invocation.</param>");
+                "<param name=\"" + args.back() + "\">The Current object for the dispatch.</param>");
         }
         emitAttributes(op);
         emitObsoleteAttribute(op, _out);
