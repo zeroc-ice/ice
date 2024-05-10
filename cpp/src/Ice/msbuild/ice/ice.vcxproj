@@ -173,15 +173,15 @@
     <ClCompile Include="..\..\Properties.cpp" />
     <ClCompile Include="..\..\ProxyAsync.cpp" />
     <ClCompile Include="..\..\RequestHandlerCache.cpp" />
-    <ClCompile Include="..\..\SSL\CertificateI.cpp" />
+    <ClCompile Include="..\..\SSL\DistinguishedName.cpp" />
     <ClCompile Include="..\..\SSL\RFC2253.cpp" />
-    <ClCompile Include="..\..\SSL\SchannelCertificateI.cpp" />
     <ClCompile Include="..\..\SSL\SchannelEngine.cpp" />
     <ClCompile Include="..\..\SSL\SchannelTransceiverI.cpp" />
     <ClCompile Include="..\..\SSL\SSLAcceptorI.cpp" />
     <ClCompile Include="..\..\SSL\SSLConnectorI.cpp" />
     <ClCompile Include="..\..\SSL\SSLEndpointI.cpp" />
     <ClCompile Include="..\..\SSL\SSLEngine.cpp" />
+    <ClCompile Include="..\..\SSL\SSLException.cpp" />
     <ClCompile Include="..\..\SSL\SSLInstance.cpp" />
     <ClCompile Include="..\..\SSL\SSLUtil.cpp" />
     <ClCompile Include="..\..\SSL\TrustManager.cpp" />
@@ -985,7 +985,6 @@
     <ClInclude Include="..\..\..\..\include\Ice\ValueF.h" />
     <ClInclude Include="..\..\..\..\include\Ice\ValueFactory.h" />
     <ClInclude Include="..\..\EndpointI.h" />
-    <ClInclude Include="..\..\SSL\CertificateI.h" />
     <ClInclude Include="..\..\SSL\RFC2253.h" />
     <ClInclude Include="..\..\SSL\SchannelEngine.h" />
     <ClInclude Include="..\..\SSL\SchannelEngineF.h" />

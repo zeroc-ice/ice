@@ -58,7 +58,35 @@ namespace
     }
 }
 // Implement virtual destructors out of line to avoid weak vtables.
-Ice::SSL::ConnectionInfo::~ConnectionInfo() {}
+#if defined(ICE_USE_SCHANNEL)
+Ice::SSL::SchannelConnectionInfo::~SchannelConnectionInfo()
+{
+    if (peerCertificate)
+    {
+        CertFreeCertificateContext(peerCertificate);
+        peerCertificate = nullptr;
+    }
+}
+#elif defined(ICE_USE_SECURE_TRANSPORT)
+Ice::SSL::SecureTransportConnectionInfo::~SecureTransportConnectionInfo()
+{
+    if (peerCertificate)
+    {
+        CFRelease(peerCertificate);
+        peerCertificate = nullptr;
+    }
+}
+#else
+Ice::SSL::OpenSSLConnectionInfo::~OpenSSLConnectionInfo()
+{
+    if (peerCertificate)
+    {
+        X509_free(peerCertificate);
+        peerCertificate = nullptr;
+    }
+}
+#endif
+
 Ice::SSL::EndpointInfo::~EndpointInfo() {}
 
 Ice::SSL::EndpointI::EndpointI(const InstancePtr& instance, const IceInternal::EndpointIPtr& del)

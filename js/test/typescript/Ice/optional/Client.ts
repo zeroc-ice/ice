@@ -450,16 +450,9 @@ export class Client extends TestHelper
         }
 
         {
-            let [p1, p2] = await initial.opOneOptional();
-            test(p1 === undefined);
-            test(p2 === undefined);
-            if(await initial.supportsNullOptional())
-            {
-
-                [p1, p2] = await initial.opOneOptional(null);
-                test(p1 === null);
-                test(p2 === null);
-            }
+            let [p1, p2] = await initial.opOneOptional(new Test.OneOptional());
+            test(p1 === p2);
+            test(p2.a === undefined);
             [p1, p2] = await initial.opOneOptional(new Test.OneOptional(58));
             test(p1 === p2);
             test(p2.a === 58);
@@ -738,12 +731,11 @@ export class Client extends TestHelper
             test(ex instanceof Test.OptionalException, ex);
             test(ex.a === undefined);
             test(ex.b === undefined);
-            test(ex.o === undefined);
         }
 
         try
         {
-            await initial.opOptionalException(30, "test", new Test.OneOptional(53));
+            await initial.opOptionalException(30, "test");
             test(false);
         }
         catch(ex)
@@ -751,7 +743,6 @@ export class Client extends TestHelper
             test(ex instanceof Test.OptionalException, ex);
             test(ex.a === 30);
             test(ex.b == "test");
-            test(ex.o.a == 53);
         }
 
         try
@@ -764,16 +755,14 @@ export class Client extends TestHelper
             test(ex instanceof Test.DerivedException, ex);
             test(ex.a === undefined);
             test(ex.b === undefined);
-            test(ex.o === undefined);
             test(ex.ss === undefined);
-            test(ex.o2 === undefined);
             test(ex.d1 == "d1");
             test(ex.d2 == "d2");
         }
 
         try
         {
-            await initial.opDerivedException(30, "test2", new Test.OneOptional(53));
+            await initial.opDerivedException(30, "test2");
             test(false);
         }
         catch(ex)
@@ -781,9 +770,7 @@ export class Client extends TestHelper
             test(ex instanceof Test.DerivedException, ex);
             test(ex.a === 30);
             test(ex.b == "test2");
-            test(ex.o.a === 53);
             test(ex.ss == "test2");
-            test(ex.o2.a === 53);
             test(ex.d1 == "d1");
             test(ex.d2 == "d2");
         }
@@ -795,7 +782,6 @@ export class Client extends TestHelper
         test(await initial.opMStruct1() !== undefined);
         test(await initial.opMDict1() !== undefined);
         test(await initial.opMSeq1() !== undefined);
-        test(await initial.opMG1() !== undefined);
 
         {
             let [p3, p2] = await initial.opMStruct2();
@@ -823,14 +809,6 @@ export class Client extends TestHelper
             p1.set("test", 54);
             [p3, p2] = await initial.opMDict2(p1);
             test(Ice.MapUtil.equals(p2, p1) && Ice.MapUtil.equals(p3, p1));
-        }
-        {
-            let [p3, p2] = await initial.opMG2();
-            test(p2 === undefined && p3 === undefined);
-
-            const p1 = new Test.G();
-            [p3, p2] = await initial.opMG2(p1);
-            test(p3 !== undefined && p2 !== undefined && p3 === p2);
         }
 
         out.writeLine("ok");

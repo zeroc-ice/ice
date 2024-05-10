@@ -77,7 +77,7 @@ namespace Ice::SSL::SecureTransport
         mutable std::uint8_t _tflags;
         size_t _maxSendPacketSize;
         size_t _maxRecvPacketSize;
-        std::vector<CertificatePtr> _peerCerts;
+        IceInternal::UniqueRef<SecCertificateRef> _peerCertificate;
         size_t _buffered;
         std::function<void(SSLContextRef, const std::string&)> _sslNewSessionCallback;
         std::function<bool(SecTrustRef trust, const Ice::SSL::ConnectionInfoPtr& info)>

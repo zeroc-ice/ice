@@ -1216,38 +1216,27 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        // TODO: remove this testing for tagged classes alongside the tagged class support.
-        optional<OneOptionalPtr> p1;
-        optional<OneOptionalPtr> p3;
-        optional<OneOptionalPtr> p2 = initial->opOneOptional(p1, p3);
-        test(!p2 && !p3);
-
-        if (initial->supportsNullOptional())
-        {
-            p2 = initial->opOneOptional(OneOptionalPtr(), p3);
-            test(*p2 == nullptr && *p3 == nullptr);
-        }
+        OneOptionalPtr p1 = make_shared<OneOptional>();
+        OneOptionalPtr p3;
+        OneOptionalPtr p2 = initial->opOneOptional(p1, p3);
+        test(!p2->a && !p3->a);
 
         p1 = make_shared<OneOptional>(58);
         p2 = initial->opOneOptional(p1, p3);
-        test((*p2)->a == 58 && (*p3)->a == 58);
+        test(p2->a == 58 && p3->a == 58);
 
         Ice::OutputStream out(communicator);
         out.startEncapsulation();
-        out.write(2, p1);
+        out.write(p1);
         out.endEncapsulation();
         out.finished(inEncaps);
         initial->ice_invoke("opOneOptional", Ice::OperationMode::Normal, inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
-        in.read(1, p2);
-        in.read(3, p3);
+        in.read(p2);
+        in.read(p3);
         in.endEncapsulation();
-        test((*p2)->a == 58 && (*p3)->a == 58);
-
-        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
-        in2.startEncapsulation();
-        in2.endEncapsulation();
+        test(p2->a == 58 && p3->a == 58);
     }
 
     {
@@ -1668,59 +1657,52 @@ allTests(Test::TestHelper* helper, bool)
     {
         try
         {
-            initial->opOptionalException(nullopt, nullopt, nullopt);
+            initial->opOptionalException(nullopt, nullopt);
             test(false);
         }
         catch (const OptionalException& ex)
         {
             test(!ex.a);
             test(!ex.b);
-            test(!ex.o);
         }
 
         try
         {
-            initial->opOptionalException(30, string("test"), make_shared<OneOptional>(53));
+            initial->opOptionalException(30, string("test"));
             test(false);
         }
         catch (const OptionalException& ex)
         {
             test(ex.a == 30);
             test(ex.b == string("test"));
-            test((*ex.o)->a = 53);
         }
 
         try
         {
             //
-            // Use the 1.0 encoding with an exception whose only class members are optional.
+            // Use the 1.0 encoding with an exception whose only data members are optional.
             //
-            initial->ice_encodingVersion(Ice::Encoding_1_0)
-                ->opOptionalException(30, string("test"), make_shared<OneOptional>(53));
+            initial->ice_encodingVersion(Ice::Encoding_1_0)->opOptionalException(30, string("test"));
             test(false);
         }
         catch (const OptionalException& ex)
         {
             test(!ex.a);
             test(!ex.b);
-            test(!ex.o);
         }
 
         try
         {
             optional<int32_t> a;
             optional<string> b;
-            optional<OneOptionalPtr> o;
-            initial->opDerivedException(a, b, o);
+            initial->opDerivedException(a, b);
             test(false);
         }
         catch (const DerivedException& ex)
         {
             test(!ex.a);
             test(!ex.b);
-            test(!ex.o);
             test(!ex.ss);
-            test(!ex.o2);
             test(ex.d1 == "d1");
             test(ex.d2 == "d2");
         }
@@ -1733,17 +1715,14 @@ allTests(Test::TestHelper* helper, bool)
         {
             optional<int32_t> a = 30;
             optional<string> b = string("test2");
-            optional<OneOptionalPtr> o = make_shared<OneOptional>(53);
-            initial->opDerivedException(a, b, o);
+            initial->opDerivedException(a, b);
             test(false);
         }
         catch (const DerivedException& ex)
         {
             test(ex.a == 30);
             test(ex.b == string("test2"));
-            test((*ex.o)->a == 53);
             test(ex.ss == string("test2"));
-            test((*ex.o2)->a == 53);
             test(ex.d1 == "d1");
             test(ex.d2 == "d2");
         }
@@ -1756,17 +1735,14 @@ allTests(Test::TestHelper* helper, bool)
         {
             optional<int32_t> a;
             optional<string> b;
-            optional<OneOptionalPtr> o;
-            initial->opRequiredException(a, b, o);
+            initial->opRequiredException(a, b);
             test(false);
         }
         catch (const RequiredException& ex)
         {
             test(!ex.a);
             test(!ex.b);
-            test(!ex.o);
             test(ex.ss == string("test"));
-            test(!ex.o2);
         }
         catch (const OptionalException&)
         {
@@ -1777,17 +1753,14 @@ allTests(Test::TestHelper* helper, bool)
         {
             optional<int32_t> a = 30;
             optional<string> b = string("test2");
-            optional<OneOptionalPtr> o = make_shared<OneOptional>(53);
-            initial->opRequiredException(a, b, o);
+            initial->opRequiredException(a, b);
             test(false);
         }
         catch (const RequiredException& ex)
         {
             test(ex.a == 30);
             test(ex.b == string("test2"));
-            test((*ex.o)->a == 53);
             test(ex.ss == string("test2"));
-            test(ex.o2->a == 53);
         }
         catch (const OptionalException&)
         {
@@ -1801,7 +1774,6 @@ allTests(Test::TestHelper* helper, bool)
         test(initial->opMStruct1());
         test(initial->opMDict1());
         test(initial->opMSeq1());
-        test(initial->opMG1());
 
         {
             optional<Test::SmallStruct> p1, p2, p3;
@@ -1833,15 +1805,6 @@ allTests(Test::TestHelper* helper, bool)
             p1 = dict;
             p3 = initial->opMDict2(p1, p2);
             test(p2 == p1 && p3 == p1);
-        }
-        {
-            optional<Test::GPtr> p1, p2, p3;
-            p3 = initial->opMG2(nullopt, p2);
-            test(!p2 && !p3);
-
-            p1 = make_shared<Test::G>();
-            p3 = initial->opMG2(p1, p2);
-            test(p2 && p3 && *p3 == *p2);
         }
     }
     cout << "ok" << endl;

@@ -17,25 +17,22 @@ class InitialI(Test.Initial):
     def pingPong(self, o, current=None):
         return Ice.Future.completed(o)
 
-    def opOptionalException(self, a, b, o, current=None):
+    def opOptionalException(self, a, b, current=None):
         f = Ice.Future()
-        f.set_exception(Test.OptionalException(False, a, b, o))
+        f.set_exception(Test.OptionalException(False, a, b))
         return f
 
-    def opDerivedException(self, a, b, o, current=None):
+    def opDerivedException(self, a, b, current=None):
         f = Ice.Future()
-        f.set_exception(Test.DerivedException(False, a, b, o, "d1", b, o, "d2"))
+        f.set_exception(Test.DerivedException(False, a, b, "d1", b, "d2"))
         return f
 
-    def opRequiredException(self, a, b, o, current=None):
+    def opRequiredException(self, a, b, current=None):
         e = Test.RequiredException()
         e.a = a
         e.b = b
-        e.o = o
         if b is not Ice.Unset:
             e.ss = b
-        if o is not Ice.Unset:
-            e.o2 = o
         f = Ice.Future()
         f.set_exception(e)
         return f
@@ -168,16 +165,6 @@ class InitialI(Test.Initial):
             Test.Initial.OpMDict2MarshaledResult((p1, p1), current)
         )
 
-    def opMG1(self, current):
-        return Ice.Future.completed(
-            Test.Initial.OpMG1MarshaledResult(Test.G(), current)
-        )
-
-    def opMG2(self, p1, current):
-        return Ice.Future.completed(
-            Test.Initial.OpMG2MarshaledResult((p1, p1), current)
-        )
-
     def opRequiredAfterOptional(self, p1, p2, p3, current):
         return Ice.Future.completed((p1, p2, p3))
 
@@ -192,9 +179,6 @@ class InitialI(Test.Initial):
 
     def supportsCsharpSerializable(self, current=None):
         return Ice.Future.completed(False)
-
-    def supportsNullOptional(self, current=None):
-        return Ice.Future.completed(True)
 
 
 class ServerAMD(TestHelper):

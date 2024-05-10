@@ -15,23 +15,11 @@ public:
     virtual void shutdown(const Ice::Current&);
     virtual PingPongMarshaledResult pingPong(Ice::ValuePtr, const Ice::Current&);
 
-    virtual void opOptionalException(
-        std::optional<std::int32_t>,
-        std::optional<std::string>,
-        std::optional<Test::OneOptionalPtr>,
-        const Ice::Current&);
+    virtual void opOptionalException(std::optional<std::int32_t>, std::optional<std::string>, const Ice::Current&);
 
-    virtual void opDerivedException(
-        std::optional<std::int32_t>,
-        std::optional<std::string>,
-        std::optional<Test::OneOptionalPtr>,
-        const Ice::Current&);
+    virtual void opDerivedException(std::optional<std::int32_t>, std::optional<std::string>, const Ice::Current&);
 
-    virtual void opRequiredException(
-        std::optional<std::int32_t>,
-        std::optional<std::string>,
-        std::optional<Test::OneOptionalPtr>,
-        const Ice::Current&);
+    virtual void opRequiredException(std::optional<std::int32_t>, std::optional<std::string>, const Ice::Current&);
 
     virtual std::optional<std::uint8_t>
     opByte(std::optional<std::uint8_t>, std::optional<std::uint8_t>&, const Ice::Current&);
@@ -66,11 +54,10 @@ public:
     virtual std::optional<Test::VarStruct>
     opVarStruct(std::optional<Test::VarStruct>, std::optional<Test::VarStruct>&, const Ice::Current&);
 
-    virtual std::optional<Test::OneOptionalPtr>
-    opOneOptional(std::optional<Test::OneOptionalPtr>, std::optional<Test::OneOptionalPtr>&, const Ice::Current&);
-
     virtual std::optional<Test::MyInterfacePrx>
     opMyInterfaceProxy(std::optional<Test::MyInterfacePrx>, std::optional<Test::MyInterfacePrx>&, const Ice::Current&);
+
+    virtual Test::OneOptionalPtr opOneOptional(Test::OneOptionalPtr, Test::OneOptionalPtr&, const Ice::Current&);
 
     virtual std::optional<::Test::ByteSeq> opByteSeq(
         std::optional<std::pair<const std::byte*, const std::byte*>>,
@@ -163,17 +150,11 @@ public:
 
     virtual OpMDict2MarshaledResult opMDict2(std::optional<Test::StringIntDict>, const Ice::Current&);
 
-    virtual OpMG1MarshaledResult opMG1(const Ice::Current&);
-
-    virtual OpMG2MarshaledResult opMG2(std::optional<Test::GPtr>, const Ice::Current&);
-
     virtual bool supportsRequiredParams(const Ice::Current&);
 
     virtual bool supportsJavaSerializable(const Ice::Current&);
 
     virtual bool supportsCsharpSerializable(const Ice::Current&);
-
-    virtual bool supportsNullOptional(const Ice::Current&);
 };
 
 #endif

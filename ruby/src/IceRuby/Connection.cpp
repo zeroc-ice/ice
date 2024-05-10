@@ -3,6 +3,7 @@
 //
 
 #include "Connection.h"
+#include "../../cpp/src/Ice/SSL/SSLUtil.h"
 #include "Endpoint.h"
 #include "Ice/Ice.h"
 #include "Types.h"
@@ -279,13 +280,12 @@ IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
         info = Data_Wrap_Struct(_sslConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
 
         Ice::SSL::ConnectionInfoPtr ssl = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(p);
-        Ice::StringSeq encoded;
-        for (vector<Ice::SSL::CertificatePtr>::const_iterator i = ssl->certs.begin(); i != ssl->certs.end(); ++i)
+        string encoded;
+        if (ssl->peerCertificate)
         {
-            encoded.push_back((*i)->encode());
+            encoded = Ice::SSL::encodeCertificate(ssl->peerCertificate);
         }
-
-        rb_ivar_set(info, rb_intern("@certs"), stringSeqToArray(encoded));
+        rb_ivar_set(info, rb_intern("@peerCertificate"), createString(encoded));
     }
     else if (dynamic_pointer_cast<Ice::IPConnectionInfo>(p))
     {
@@ -404,7 +404,7 @@ IceRuby::initConnection(VALUE iceModule)
     //
     // Instance members.
     //
-    rb_define_attr(_sslConnectionInfoClass, "certs", 1, 0);
+    rb_define_attr(_sslConnectionInfoClass, "peerCertificate", 1, 0);
 }
 
 Ice::ConnectionPtr

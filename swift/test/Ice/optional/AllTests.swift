@@ -130,7 +130,7 @@ class FValueReader: Ice.Value {
     istr.startValue()
     _ = try istr.startSlice()
     // Don't read fsf on purpose
-    // in.read(1, _f.fsf);
+    // in.read(1, _f.fsf)
     try istr.endSlice()
     _ = try istr.startSlice()
     self._f.fse = try istr.read()
@@ -1809,31 +1809,15 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     var p2: OneOptional?
     var p3: OneOptional?
 
+    p1 = OneOptional()
     (p2, p3) = try initial.opOneOptional(p1)
-    try test(p2 == nil && p3 == nil)
-
-    (p2, p3) = try initial.opOneOptional(nil)
-    try test(p2 == nil && p3 == nil)
-
-    (p2, p3) = try initial.opOneOptional()
-    try test(p2 == nil && p3 == nil)
+    try test(p2!.a == nil && p3!.a == nil)
 
     try Promise<Void> { seal in
       firstly {
-        initial.opOneOptionalAsync(nil)
+        initial.opOneOptionalAsync(p1)
       }.done { p2, p3 in
-        try test(p2 == nil && p3 == nil)
-        seal.fulfill(())
-      }.catch { e in
-        seal.reject(e)
-      }
-    }.wait()
-
-    try Promise<Void> { seal in
-      firstly {
-        initial.opOneOptionalAsync()
-      }.done { p2, p3 in
-        try test(p2 == nil && p3 == nil)
+        try test(p2!.a == nil && p3!.a == nil)
         seal.fulfill(())
       }.catch { e in
         seal.reject(e)
@@ -1855,44 +1839,24 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
       }
     }.wait()
 
-    (p2, p3) = try initial.opOneOptional(OneOptional(a: 58))
-    try test(p2!.a! == 58 && p3!.a! == 58)
-
-    try Promise<Void> { seal in
-      firstly {
-        initial.opOneOptionalAsync(OneOptional(a: 58))
-      }.done { p2, p3 in
-        try test(p2!.a! == 58 && p3!.a! == 58)
-        seal.fulfill(())
-      }.catch { e in
-        seal.reject(e)
-      }
-    }.wait()
-
-    (p2, p3) = try initial.opOneOptional(nil)
-    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
+    (p2, p3) = try initial.opOneOptional(OneOptional())
+    try test(p2!.a == nil && p3!.a == nil)  // Ensure out parameter is cleared.
 
     let ostr = Ice.OutputStream(communicator: communicator)
     ostr.startEncapsulation()
-    ostr.write(tag: 2, value: p1)
+    ostr.write(p1)
     ostr.endEncapsulation()
     let inEncaps = ostr.finished()
     let result = try initial.ice_invoke(
       operation: "opOneOptional", mode: .Normal, inEncaps: inEncaps)
-    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+    let istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
     _ = try istr.startEncapsulation()
-    try test(istr.readOptional(tag: 1, expectedFormat: .Class))
     var v1: Ice.Value?
     try istr.read { v1 = $0 }
-    try test(istr.readOptional(tag: 3, expectedFormat: .Class))
     var v2: Ice.Value?
     try istr.read { v2 = $0 }
     try istr.endEncapsulation()
     try test((v1 as! OneOptional).a! == 58 && (v2 as! OneOptional).a == 58)
-
-    istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-    _ = try istr.startEncapsulation()
-    try istr.endEncapsulation()
   }
 
   do {
@@ -3176,27 +3140,10 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
 
   output.write("testing exception optionals... ")
   do {
-    try initial.opOptionalException(a: nil, b: nil, o: nil)
+    try initial.opOptionalException(a: nil, b: nil)
   } catch let ex as OptionalException {
     try test(ex.a == nil)
     try test(ex.b == nil)
-    try test(ex.o == nil)
-  }
-
-  do {
-    try initial.opOptionalException(o: nil)
-  } catch let ex as OptionalException {
-    try test(ex.a == nil)
-    try test(ex.b == nil)
-    try test(ex.o == nil)
-  }
-
-  do {
-    try initial.opOptionalException(b: nil)
-  } catch let ex as OptionalException {
-    try test(ex.a == nil)
-    try test(ex.b == nil)
-    try test(ex.o == nil)
   }
 
   do {
@@ -3204,61 +3151,66 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
   } catch let ex as OptionalException {
     try test(ex.a == nil)
     try test(ex.b == nil)
-    try test(ex.o == nil)
   }
 
   do {
-    try initial.opOptionalException(a: 30, b: "test", o: OneOptional(a: 53))
+    try initial.opOptionalException(b: nil)
+  } catch let ex as OptionalException {
+    try test(ex.a == nil)
+    try test(ex.b == nil)
+  }
+
+  do {
+    try initial.opOptionalException()
+  } catch let ex as OptionalException {
+    try test(ex.a == nil)
+    try test(ex.b == nil)
+  }
+
+  do {
+    try initial.opOptionalException(a: 30, b: "test")
   } catch let ex as OptionalException {
     try test(ex.a == 30)
     try test(ex.b == "test")
-    try test(ex.o!.a == 53)
   }
 
   do {
     //
-    // Use the 1.0 encoding with an exception whose only class members are optional.
+    // Use the 1.0 encoding with an exception whose only data members are optional.
     //
     let initial2 = initial.ice_encodingVersion(Ice.Encoding_1_0)
-    try initial2.opOptionalException(a: 30, b: "test", o: OneOptional(a: 53))
+    try initial2.opOptionalException(a: 30, b: "test")
   } catch let ex as OptionalException {
     try test(ex.a == nil)
     try test(ex.b == nil)
-    try test(ex.o == nil)
   }
 
   do {
-    try initial.opDerivedException(a: nil, b: nil, o: nil)
+    try initial.opDerivedException(a: nil, b: nil)
   } catch let ex as DerivedException {
     try test(ex.a == nil)
     try test(ex.b == nil)
-    try test(ex.o == nil)
     try test(ex.ss == nil)
-    try test(ex.o2 == nil)
     try test(ex.d1 == "d1")
     try test(ex.d2 == "d2")
   }
 
   do {
-    try initial.opDerivedException(a: 30, b: "test2", o: OneOptional(a: 53))
+    try initial.opDerivedException(a: 30, b: "test2")
   } catch let ex as DerivedException {
     try test(ex.a == 30)
     try test(ex.b == "test2")
-    try test(ex.o!.a == 53)
     try test(ex.ss == "test2")
-    try test(ex.o2!.a == 53)
     try test(ex.d1 == "d1")
     try test(ex.d2 == "d2")
   }
 
   do {
-    try initial.opRequiredException(a: nil, b: nil, o: nil)
+    try initial.opRequiredException(a: nil, b: nil)
   } catch let ex as RequiredException {
     try test(ex.a == nil)
     try test(ex.b == nil)
-    try test(ex.o == nil)
     try test(ex.ss == "test")
-    try test(ex.o2 == nil)
   }
 
   do {
@@ -3266,19 +3218,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
   } catch let ex as RequiredException {
     try test(ex.a == nil)
     try test(ex.b == nil)
-    try test(ex.o == nil)
     try test(ex.ss == "test")
-    try test(ex.o2 == nil)
-  }
-
-  do {
-    try initial.opRequiredException(o: nil)
-  } catch let ex as RequiredException {
-    try test(ex.a == nil)
-    try test(ex.b == nil)
-    try test(ex.o == nil)
-    try test(ex.ss == "test")
-    try test(ex.o2 == nil)
   }
 
   do {
@@ -3286,19 +3226,23 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
   } catch let ex as RequiredException {
     try test(ex.a == nil)
     try test(ex.b == nil)
-    try test(ex.o == nil)
     try test(ex.ss == "test")
-    try test(ex.o2 == nil)
   }
 
   do {
-    try initial.opRequiredException(a: 30, b: "test2", o: OneOptional(a: 53))
+    try initial.opRequiredException()
+  } catch let ex as RequiredException {
+    try test(ex.a == nil)
+    try test(ex.b == nil)
+    try test(ex.ss == "test")
+  }
+
+  do {
+    try initial.opRequiredException(a: 30, b: "test2")
   } catch let ex as RequiredException {
     try test(ex.a == 30)
     try test(ex.b == "test2")
-    try test(ex.o!.a == 53)
     try test(ex.ss == "test2")
-    try test(ex.o2!.a == 53)
   }
   output.writeLine("ok")
 

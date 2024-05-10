@@ -8,7 +8,6 @@
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/SSL/ConnectionInfo.h"
-#include "Ice/SSL/Schannel.h"
 #include "IceUtil/StringUtil.h"
 #include "SSLInstance.h"
 #include "SSLUtil.h"
@@ -389,36 +388,13 @@ Schannel::TransceiverI::sslHandshake()
         throw SecurityException(__FILE__, __LINE__, os.str());
     }
 
-    PCCERT_CONTEXT cert = nullptr;
-    err = QueryContextAttributes(&_ssl, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &cert);
+    assert(!_peerCertificate);
+    err = QueryContextAttributes(&_ssl, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &_peerCertificate);
     if (err != SEC_E_OK && err != SEC_E_NO_CREDENTIALS)
     {
         ostringstream os;
         os << "SSL transport: failure to query remote certificate context:\n" << IceUtilInternal::errorToString(err);
         throw SecurityException(__FILE__, __LINE__, os.str());
-    }
-
-    if (cert)
-    {
-        PCERT_SIGNED_CONTENT_INFO pvStructInfo = nullptr;
-        DWORD pvStructInfoSize = 0;
-        if (!CryptDecodeObjectEx(
-                X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
-                X509_CERT,
-                cert->pbCertEncoded,
-                cert->cbCertEncoded,
-                CRYPT_DECODE_ALLOC_FLAG,
-                0,
-                &pvStructInfo,
-                &pvStructInfoSize))
-        {
-            ostringstream os;
-            os << "SSL transport: error decoding peer certificate:\n" << IceUtilInternal::lastErrorToString();
-            CertFreeCertificateContext(cert);
-            throw SecurityException(__FILE__, __LINE__, os.str());
-        }
-        _peerCertificates.push_back(Schannel::Certificate::create(pvStructInfo));
-        CertFreeCertificateContext(cert);
     }
 
     size_t pos = _readBuffer.i - _readBuffer.b.begin();
@@ -639,6 +615,12 @@ Schannel::TransceiverI::close()
         _certificate = nullptr;
     }
 
+    if (_peerCertificate)
+    {
+        CertFreeCertificateContext(_peerCertificate);
+        _peerCertificate = nullptr;
+    }
+
     _delegate->close();
 
     // Clear the buffers now instead of waiting for destruction.
@@ -833,7 +815,7 @@ Schannel::TransceiverI::getInfo() const
     info->underlying = _delegate->getInfo();
     info->incoming = _incoming;
     info->adapterName = _adapterName;
-    info->certs = _peerCertificates;
+    info->peerCertificate = CertDuplicateCertificateContext(_peerCertificate);
     return info;
 }
 
@@ -864,6 +846,7 @@ Schannel::TransceiverI::TransceiverI(
       _clientCertificateRequired(serverAuthenticationOptions.clientCertificateRequired),
       _localCertificateSelectionCallback(serverAuthenticationOptions.serverCertificateSelectionCallback),
       _sslNewSessionCallback(serverAuthenticationOptions.sslNewSessionCallback),
+      _peerCertificate(nullptr),
       _remoteCertificateValidationCallback(serverAuthenticationOptions.clientCertificateValidationCallback),
       _certificate(nullptr),
       _rootStore(nullptr),
@@ -888,6 +871,7 @@ Schannel::TransceiverI::TransceiverI(
       _clientCertificateRequired(false),
       _localCertificateSelectionCallback(clientAuthenticationOptions.clientCertificateSelectionCallback),
       _sslNewSessionCallback(clientAuthenticationOptions.sslNewSessionCallback),
+      _peerCertificate(nullptr),
       _remoteCertificateValidationCallback(clientAuthenticationOptions.serverCertificateValidationCallback),
       _certificate(nullptr),
       _rootStore(nullptr),
