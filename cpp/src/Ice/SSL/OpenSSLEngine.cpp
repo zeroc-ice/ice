@@ -83,7 +83,6 @@ OpenSSL::SSLEngine::initialize()
     {
         Ice::SSL::SSLEngine::initialize();
 
-        const string propPrefix = "IceSSL.";
         PropertiesPtr properties = getProperties();
 
         // Create an SSL context.
@@ -93,27 +92,14 @@ OpenSSL::SSLEngine::initialize()
             throw InitializationException(__FILE__, __LINE__, "IceSSL: unable to create SSL context:\n" + sslErrors());
         }
 
-        int securityLevel = properties->getPropertyAsIntWithDefault(propPrefix + "SecurityLevel", -1);
-        if (securityLevel != -1)
-        {
-            SSL_CTX_set_security_level(_ctx, securityLevel);
-            if (SSL_CTX_get_security_level(_ctx) != securityLevel)
-            {
-                throw InitializationException(
-                    __FILE__,
-                    __LINE__,
-                    "IceSSL: unable to set SSL security level:\n" + sslErrors());
-            }
-        }
-
         // Check for a default directory. We look in this directory for files mentioned in the configuration.
-        const string defaultDir = properties->getProperty(propPrefix + "DefaultDir");
+        const string defaultDir = properties->getIceProperty("IceSSL.DefaultDir");
 
-        _password = properties->getProperty(propPrefix + "Password");
+        _password = properties->getIceProperty("IceSSL.Password");
 
         // Establish the location of CA certificates.
         {
-            string path = properties->getProperty(propPrefix + "CAs");
+            string path = properties->getIceProperty("IceSSL.CAs");
             string resolved;
             const char* file = nullptr;
             const char* dir = nullptr;
@@ -164,15 +150,15 @@ OpenSSL::SSLEngine::initialize()
                     throw InitializationException(__FILE__, __LINE__, msg);
                 }
             }
-            else if (properties->getPropertyAsInt("IceSSL.UsePlatformCAs") > 0)
+            else if (properties->getIcePropertyAsInt("IceSSL.UsePlatformCAs") > 0)
             {
                 SSL_CTX_set_default_verify_paths(_ctx);
             }
         }
 
         // Establish the certificate chain and private key.
-        string certFile = properties->getProperty(propPrefix + "CertFile");
-        string keyFile = properties->getProperty(propPrefix + "KeyFile");
+        string certFile = properties->getIceProperty("IceSSL.CertFile");
+        string keyFile = properties->getIceProperty("IceSSL.KeyFile");
         bool keyLoaded = false;
 
         if (!certFile.empty())
@@ -330,7 +316,7 @@ OpenSSL::SSLEngine::initialize()
         int revocationCheck = getRevocationCheck();
         if (revocationCheck > 0)
         {
-            vector<string> crlFiles = properties->getPropertyAsList(propPrefix + "CertificateRevocationListFiles");
+            vector<string> crlFiles = properties->getIcePropertyAsList("IceSSL.CertificateRevocationListFiles");
             if (crlFiles.empty())
             {
                 throw InitializationException(

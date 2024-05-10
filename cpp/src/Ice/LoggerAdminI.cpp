@@ -232,7 +232,7 @@ namespace
         copyProperties("Ice.Plugin.IceSSL", mainProps, initData.properties);
         copyProperties("IceSSL.", mainProps, initData.properties);
 
-        StringSeq extraProps = mainProps->getPropertyAsList("Ice.Admin.Logger.Properties");
+        StringSeq extraProps = mainProps->getIcePropertyAsList("Ice.Admin.Logger.Properties");
 
         if (!extraProps.empty())
         {
@@ -255,10 +255,10 @@ namespace
 
     LoggerAdminI::LoggerAdminI(const PropertiesPtr& props)
         : _logCount(0),
-          _maxLogCount(props->getPropertyAsIntWithDefault("Ice.Admin.Logger.KeepLogs", 100)),
+          _maxLogCount(props->getIcePropertyAsInt("Ice.Admin.Logger.KeepLogs")),
           _traceCount(0),
-          _maxTraceCount(props->getPropertyAsIntWithDefault("Ice.Admin.Logger.KeepTraces", 100)),
-          _traceLevel(props->getPropertyAsInt("Ice.Trace.Admin.Logger")),
+          _maxTraceCount(props->getIcePropertyAsInt("Ice.Admin.Logger.KeepTraces")),
+          _traceLevel(props->getIcePropertyAsInt("Ice.Trace.Admin.Logger")),
           _destroyed(false)
     {
         _oldestLog = _queue.end();

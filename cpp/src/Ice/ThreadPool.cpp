@@ -493,7 +493,7 @@ IceInternal::ThreadPool::executeFromThisThread(function<void()> call, const Ice:
         }
         catch (const std::exception& ex)
         {
-            if (_instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+            if (_instance->initializationData().properties->getIcePropertyAsInt("Ice.Warn.Dispatch") > 1)
             {
                 Warning out(_instance->initializationData().logger);
                 out << "dispatch exception:\n" << ex;
@@ -501,7 +501,7 @@ IceInternal::ThreadPool::executeFromThisThread(function<void()> call, const Ice:
         }
         catch (...)
         {
-            if (_instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+            if (_instance->initializationData().properties->getIcePropertyAsInt("Ice.Warn.Dispatch") > 1)
             {
                 Warning out(_instance->initializationData().logger);
                 out << "dispatch exception:\nunknown c++ exception";
@@ -866,7 +866,9 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
         {
             Warning out(_instance->initializationData().logger);
             out << "thread pool `" << _prefix << "' is running low on threads\n"
-                << "Size=" << _size << ", " << "SizeMax=" << _sizeMax << ", " << "SizeWarn=" << _sizeWarn;
+                << "Size=" << _size << ", "
+                << "SizeMax=" << _sizeMax << ", "
+                << "SizeWarn=" << _sizeWarn;
         }
 
         if (!_destroyed)

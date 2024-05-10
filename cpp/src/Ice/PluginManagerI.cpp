@@ -275,7 +275,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
     // specified plug-ins in the specified order, then load any
     // remaining plug-ins.
     //
-    StringSeq loadOrder = properties->getPropertyAsList("Ice.PluginLoadOrder");
+    StringSeq loadOrder = properties->getIcePropertyAsList("Ice.PluginLoadOrder");
     for (StringSeq::const_iterator p = loadOrder.begin(); p != loadOrder.end(); ++p)
     {
         string name = *p;

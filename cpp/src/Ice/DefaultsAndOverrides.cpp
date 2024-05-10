@@ -19,13 +19,13 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
       overrideSecure(false),
       overrideSecureValue(false)
 {
-    const_cast<string&>(defaultProtocol) = properties->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+    const_cast<string&>(defaultProtocol) = properties->getIceProperty("Ice.Default.Protocol");
 
-    const_cast<string&>(defaultHost) = properties->getProperty("Ice.Default.Host");
+    const_cast<string&>(defaultHost) = properties->getIceProperty("Ice.Default.Host");
 
     string value;
 
-    value = properties->getProperty("Ice.Default.SourceAddress");
+    value = properties->getIceProperty("Ice.Default.SourceAddress");
     if (!value.empty())
     {
         const_cast<Address&>(defaultSourceAddress) = getNumericAddress(value);
@@ -38,38 +38,38 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
         }
     }
 
-    value = properties->getProperty("Ice.Override.Timeout");
+    value = properties->getIceProperty("Ice.Override.Timeout");
     if (!value.empty())
     {
         const_cast<bool&>(overrideTimeout) = true;
-        const_cast<int32_t&>(overrideTimeoutValue) = properties->getPropertyAsInt("Ice.Override.Timeout");
+        const_cast<int32_t&>(overrideTimeoutValue) = properties->getIcePropertyAsInt("Ice.Override.Timeout");
         if (overrideTimeoutValue < 1 && overrideTimeoutValue != -1)
         {
             const_cast<int32_t&>(overrideTimeoutValue) = -1;
             Warning out(logger);
-            out << "invalid value for Ice.Override.Timeout `" << properties->getProperty("Ice.Override.Timeout")
+            out << "invalid value for Ice.Override.Timeout `" << properties->getIceProperty("Ice.Override.Timeout")
                 << "': defaulting to -1";
         }
     }
 
-    value = properties->getProperty("Ice.Override.Compress");
+    value = properties->getIceProperty("Ice.Override.Compress");
     if (!value.empty())
     {
         const_cast<bool&>(overrideCompress) = true;
-        const_cast<bool&>(overrideCompressValue) = properties->getPropertyAsInt("Ice.Override.Compress") > 0;
+        const_cast<bool&>(overrideCompressValue) = properties->getIcePropertyAsInt("Ice.Override.Compress") > 0;
     }
 
-    value = properties->getProperty("Ice.Override.Secure");
+    value = properties->getIceProperty("Ice.Override.Secure");
     if (!value.empty())
     {
         const_cast<bool&>(overrideSecure) = true;
-        const_cast<bool&>(overrideSecureValue) = properties->getPropertyAsInt("Ice.Override.Secure") > 0;
+        const_cast<bool&>(overrideSecureValue) = properties->getIcePropertyAsInt("Ice.Override.Secure") > 0;
     }
 
     const_cast<bool&>(defaultCollocationOptimization) =
-        properties->getPropertyAsIntWithDefault("Ice.Default.CollocationOptimized", 1) > 0;
+        properties->getIcePropertyAsInt("Ice.Default.CollocationOptimized") > 0;
 
-    value = properties->getPropertyWithDefault("Ice.Default.EndpointSelection", "Random");
+    value = properties->getIceProperty("Ice.Default.EndpointSelection");
     if (value == "Random")
     {
         defaultEndpointSelection = EndpointSelectionType::Random;
@@ -86,41 +86,39 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
             "illegal value `" + value + "'; expected `Random' or `Ordered'");
     }
 
-    const_cast<int&>(defaultTimeout) = properties->getPropertyAsIntWithDefault("Ice.Default.Timeout", 60000);
+    const_cast<int&>(defaultTimeout) = properties->getIcePropertyAsInt("Ice.Default.Timeout");
     if (defaultTimeout < 1 && defaultTimeout != -1)
     {
         const_cast<int32_t&>(defaultTimeout) = 60000;
         Warning out(logger);
-        out << "invalid value for Ice.Default.Timeout `" << properties->getProperty("Ice.Default.Timeout")
+        out << "invalid value for Ice.Default.Timeout `" << properties->getIceProperty("Ice.Default.Timeout")
             << "': defaulting to 60000";
     }
 
-    const_cast<int&>(defaultInvocationTimeout) =
-        properties->getPropertyAsIntWithDefault("Ice.Default.InvocationTimeout", -1);
+    const_cast<int&>(defaultInvocationTimeout) = properties->getIcePropertyAsInt("Ice.Default.InvocationTimeout");
     if (defaultInvocationTimeout < 1 && defaultInvocationTimeout != -1 && defaultInvocationTimeout != -2)
     {
         const_cast<int32_t&>(defaultInvocationTimeout) = -1;
         Warning out(logger);
         out << "invalid value for Ice.Default.InvocationTimeout `"
-            << properties->getProperty("Ice.Default.InvocationTimeout") << "': defaulting to -1";
+            << properties->getIceProperty("Ice.Default.InvocationTimeout") << "': defaulting to -1";
     }
 
-    const_cast<int&>(defaultLocatorCacheTimeout) =
-        properties->getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
+    const_cast<int&>(defaultLocatorCacheTimeout) = properties->getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout");
     if (defaultLocatorCacheTimeout < -1)
     {
         const_cast<int32_t&>(defaultLocatorCacheTimeout) = -1;
         Warning out(logger);
         out << "invalid value for Ice.Default.LocatorCacheTimeout `"
-            << properties->getProperty("Ice.Default.LocatorCacheTimeout") << "': defaulting to -1";
+            << properties->getIceProperty("Ice.Default.LocatorCacheTimeout") << "': defaulting to -1";
     }
 
-    const_cast<bool&>(defaultPreferSecure) = properties->getPropertyAsIntWithDefault("Ice.Default.PreferSecure", 0) > 0;
+    const_cast<bool&>(defaultPreferSecure) = properties->getIcePropertyAsInt("Ice.Default.PreferSecure") > 0;
 
     value = properties->getPropertyWithDefault("Ice.Default.EncodingVersion", encodingVersionToString(currentEncoding));
     defaultEncoding = stringToEncodingVersion(value);
     checkSupportedEncoding(defaultEncoding);
 
-    bool slicedFormat = properties->getPropertyAsIntWithDefault("Ice.Default.SlicedFormat", 0) > 0;
+    bool slicedFormat = properties->getIcePropertyAsInt("Ice.Default.SlicedFormat") > 0;
     const_cast<FormatType&>(defaultFormat) = slicedFormat ? FormatType::SlicedFormat : FormatType::CompactFormat;
 }

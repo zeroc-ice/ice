@@ -77,15 +77,15 @@ NodeI::NodeI(
     const_cast<string&>(_dataDir) = _platform.getDataDir();
     const_cast<string&>(_serversDir) = _dataDir + "/servers";
     const_cast<string&>(_tmpDir) = _dataDir + "/tmp";
-    const_cast<int&>(_waitTime) = props->getPropertyAsIntWithDefault("IceGrid.Node.WaitTime", 60);
-    const_cast<string&>(_outputDir) = props->getProperty("IceGrid.Node.Output");
-    const_cast<bool&>(_redirectErrToOut) = props->getPropertyAsInt("IceGrid.Node.RedirectErrToOut") > 0;
-    const_cast<bool&>(_allowEndpointsOverride) = props->getPropertyAsInt("IceGrid.Node.AllowEndpointsOverride") > 0;
+    const_cast<int&>(_waitTime) = props->getIcePropertyAsInt("IceGrid.Node.WaitTime");
+    const_cast<string&>(_outputDir) = props->getIceProperty("IceGrid.Node.Output");
+    const_cast<bool&>(_redirectErrToOut) = props->getIcePropertyAsInt("IceGrid.Node.RedirectErrToOut") > 0;
+    const_cast<bool&>(_allowEndpointsOverride) = props->getIcePropertyAsInt("IceGrid.Node.AllowEndpointsOverride") > 0;
 
     //
     // Parse the properties override property.
     //
-    vector<string> overrides = props->getPropertyAsList("IceGrid.Node.PropertiesOverride");
+    vector<string> overrides = props->getIcePropertyAsList("IceGrid.Node.PropertiesOverride");
     if (!overrides.empty())
     {
         for (vector<string>::iterator p = overrides.begin(); p != overrides.end(); ++p)

@@ -23,7 +23,7 @@ Glacier2::ClientBlobject::ClientBlobject(
       Glacier2::Blobject(std::move(instance), nullptr, sslContext),
       _routingTable(std::move(routingTable)),
       _filters(std::move(filters)),
-      _rejectTraceLevel(_instance->properties()->getPropertyAsInt("Glacier2.Client.Trace.Reject"))
+      _rejectTraceLevel(_instance->properties()->getIcePropertyAsInt("Glacier2.Client.Trace.Reject"))
 {
 }
 
