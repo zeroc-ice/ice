@@ -449,8 +449,8 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
         _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1011\")]";
         _out << nl << "public static global::System.Threading.Tasks.Task<" << getUnqualified("Ice.OutputStream", ns)
              << ">";
-        _out << nl << "iceD_" << opName << "(" << name << " obj, " << "global::Ice.Internal.Incoming inS, "
-             << getUnqualified("Ice.Current", ns) << " current)";
+        _out << nl << "iceD_" << opName << "(" << name << " obj, "
+             << "global::Ice.Internal.Incoming inS, " << getUnqualified("Ice.Current", ns) << " current)";
         _out << sb;
 
         TypePtr ret = op->returnType();
@@ -513,7 +513,8 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
                 _out.inc();
                 if (!ret && outParams.size() == 1)
                 {
-                    _out << nl << "(ostr, " << "iceP_" << outParams.front()->name() << ") =>";
+                    _out << nl << "(ostr, "
+                         << "iceP_" << outParams.front()->name() << ") =>";
                 }
                 else
                 {
@@ -3324,7 +3325,8 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
         }
         _out << "_iceI_" << op->name() << "Async" << spar << argsAMI << context << "null"
-             << "global::System.Threading.CancellationToken.None" << "true" << epar;
+             << "global::System.Threading.CancellationToken.None"
+             << "true" << epar;
 
         if (ret || outParams.size() > 0)
         {
@@ -3430,7 +3432,8 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         _out << " _iceI_" << opName << "Async" << spar << getInParams(op, ns, true)
              << "global::System.Collections.Generic.Dictionary<string, string>? context"
-             << "global::System.IProgress<bool>? progress" << "global::System.Threading.CancellationToken cancel"
+             << "global::System.IProgress<bool>? progress"
+             << "global::System.Threading.CancellationToken cancel"
              << "bool synchronous" << epar;
         _out << sb;
 
@@ -3446,12 +3449,14 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         else
         {
-            _out << nl << "var completed = " << "new global::Ice.Internal.OperationTaskCompletionCallback<"
-                 << returnTypeS << ">(progress, cancel);";
+            _out << nl << "var completed = "
+                 << "new global::Ice.Internal.OperationTaskCompletionCallback<" << returnTypeS
+                 << ">(progress, cancel);";
         }
 
-        _out << nl << "_iceI_" << opName << spar << getInArgs(op, true) << "context" << "synchronous" << "completed"
-             << epar << ";";
+        _out << nl << "_iceI_" << opName << spar << getInArgs(op, true) << "context"
+             << "synchronous"
+             << "completed" << epar << ";";
         _out << nl << "return completed.Task;";
 
         _out << eb;
@@ -3463,7 +3468,8 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         //
         _out << sp << nl;
         _out << "private void _iceI_" << op->name() << spar << getInParams(op, ns, true)
-             << "global::System.Collections.Generic.Dictionary<string, string>? context" << "bool synchronous"
+             << "global::System.Collections.Generic.Dictionary<string, string>? context"
+             << "bool synchronous"
              << "global::Ice.Internal.OutgoingAsyncCompletionCallback completed" << epar;
         _out << sb;
 
@@ -3590,7 +3596,8 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << eb;
 
     _out << sp << nl << "public static " << name << "Prx? checkedCast(" << getUnqualified("Ice.ObjectPrx", ns)
-         << " b, string f, " << "global::System.Collections.Generic.Dictionary<string, string>? ctx = null)";
+         << " b, string f, "
+         << "global::System.Collections.Generic.Dictionary<string, string>? ctx = null)";
     _out << sb;
     _out << nl << getUnqualified("Ice.ObjectPrx?", ns) << " bb = b?.ice_facet(f);";
     _out << nl << "try";
