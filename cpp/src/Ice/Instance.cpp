@@ -698,8 +698,7 @@ IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapte
             throw InitializationException(
                 __FILE__,
                 __LINE__,
-                "Locator `" + locator->ice_toString() + "' knows nothing about server `" + serverId +
-                    "'");
+                "Locator `" + locator->ice_toString() + "' knows nothing about server `" + serverId + "'");
         }
         catch (const LocalException& ex)
         {
