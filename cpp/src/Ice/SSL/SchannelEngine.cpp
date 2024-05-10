@@ -3,6 +3,7 @@
 //
 
 #include "SchannelEngine.h"
+#include "DistinguishedName.h"
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"
 #include "Ice/Logger.h"

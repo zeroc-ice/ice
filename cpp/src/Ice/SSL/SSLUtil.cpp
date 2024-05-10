@@ -5,6 +5,7 @@
 #include "SSLUtil.h"
 #include "../Base64.h"
 #include "../Network.h"
+#include "DistinguishedName.h"
 #include "Ice/LocalException.h"
 #include "Ice/SSL/SSLException.h"
 #include "Ice/StringConverter.h"
