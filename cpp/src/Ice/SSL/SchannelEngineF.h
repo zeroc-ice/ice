@@ -3,11 +3,11 @@
 //
 
 #ifndef ICE_SSL_SCHANNEL_ENGINE_F_H
-#    define ICE_ßSSL_SCHANNEL_ENGINE_F_H
+#define ICE_SSL_SCHANNEL_ENGINE_F_H
 
-#    ifdef _WIN32
+#ifdef _WIN32
 
-#        include <memory>
+#    include <memory>
 
 namespace Ice::SSL::Schannel
 {
@@ -15,6 +15,6 @@ namespace Ice::SSL::Schannel
     using SSLEnginePtr = std::shared_ptr<SSLEngine>;
 }
 
-#    endif
+#endif
 
 #endif

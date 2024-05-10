@@ -124,7 +124,7 @@ TrustManager::verify(const ConnectionInfoPtr& info) const
     // If there is no certificate then we match false.
     if (info->peerCertificate)
     {
-        DistinguishedName subject = getSubjectName(info->peerCertificate);
+        auto subject = DistinguishedName(getSubjectName(info->peerCertificate));
         if (_traceLevel > 0)
         {
             Ice::Trace trace(_instance->initializationData().logger, "Security");

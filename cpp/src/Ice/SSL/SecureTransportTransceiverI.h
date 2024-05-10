@@ -10,7 +10,6 @@
 #    include "../Network.h"
 #    include "../Transceiver.h"
 #    include "Ice/Config.h"
-#    include "Ice/SSL/Certificate.h"
 #    include "Ice/SSL/ClientAuthenticationOptions.h"
 #    include "Ice/SSL/ServerAuthenticationOptions.h"
 #    include "Ice/UniqueRef.h"
