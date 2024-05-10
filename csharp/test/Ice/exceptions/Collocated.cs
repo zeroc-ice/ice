@@ -11,7 +11,6 @@ namespace Ice
             public override async Task runAsync(string[] args)
             {
                 var initData = new InitializationData();
-                initData.typeIdNamespaces = new string[] { "Ice.exceptions.TypeId" };
                 initData.properties = createTestProperties(ref args);
                 initData.properties.setProperty("Ice.Warn.Connections", "0");
                 initData.properties.setProperty("Ice.Warn.Dispatch", "0");

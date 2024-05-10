@@ -26,7 +26,6 @@ namespace Ice
             public override void run(string[] args)
             {
                 var initData = new InitializationData();
-                initData.typeIdNamespaces = new string[] { "Ice.objects.TypeId" };
                 initData.properties = createTestProperties(ref args);
                 initData.properties.setProperty("Ice.Warn.Dispatch", "0");
                 using (var communicator = initialize(initData))
