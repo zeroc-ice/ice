@@ -25,7 +25,7 @@ namespace Ice::SSL
      * provided in the constructor (i.e., "ZeroC, Inc." will not turn
      * into ZeroC\, Inc.).
      */
-    class ICE_API DistinguishedName
+    class DistinguishedName
     {
     public:
         /**

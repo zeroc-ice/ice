@@ -2,21 +2,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/Config.h"
-#if defined(_WIN32)
-#    include <winsock2.h>
-#endif
-
+#include "SSLUtil.h"
 #include "../Base64.h"
 #include "../Network.h"
 #include "Ice/LocalException.h"
-#include "Ice/SSL/Exception.h"
+#include "Ice/SSL/SSLException.h"
 #include "Ice/StringConverter.h"
 #include "Ice/UniqueRef.h"
+#include "IceUtil/Config.h"
 #include "IceUtil/FileUtil.h"
 #include "IceUtil/StringUtil.h"
 #include "RFC2253.h"
-#include "SSLUtil.h"
 
 #include <fstream>
 

@@ -10,7 +10,7 @@
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
-#include "Ice/SSL/Exception.h"
+#include "Ice/SSL/SSLException.h"
 #include "IceUtil/FileUtil.h"
 #include "IceUtil/StringUtil.h"
 #include "SSLEngine.h"

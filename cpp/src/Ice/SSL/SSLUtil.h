@@ -51,7 +51,7 @@ namespace Ice::SSL
 
 #if defined(ICE_USE_SCHANNEL)
     ICE_API DistinguishedName getSubjectName(PCCERT_CONTEXT);
-    ICE_API std::vector<std::pair<int, std::string>> getSubjectAltNames(PCCERT_CONTEXT);
+    std::vector<std::pair<int, std::string>> getSubjectAltNames(PCCERT_CONTEXT);
     ICE_API std::string encodeCertificate(PCCERT_CONTEXT);
 
     class ICE_API ScopedCertificate
@@ -68,7 +68,7 @@ namespace Ice::SSL
 #elif defined(ICE_USE_SECURE_TRANSPORT)
     std::string certificateOIDAlias(const std::string&);
     ICE_API DistinguishedName getSubjectName(SecCertificateRef);
-    ICE_API std::vector<std::pair<int, std::string>> getSubjectAltNames(SecCertificateRef);
+    std::vector<std::pair<int, std::string>> getSubjectAltNames(SecCertificateRef);
     ICE_API std::string encodeCertificate(SecCertificateRef);
 
     class ICE_API ScopedCertificate
@@ -86,7 +86,7 @@ namespace Ice::SSL
     // Accumulate the OpenSSL error stack into a string.
     std::string getErrors(bool);
     ICE_API DistinguishedName getSubjectName(X509*);
-    ICE_API std::vector<std::pair<int, std::string>> getSubjectAltNames(X509*);
+    std::vector<std::pair<int, std::string>> getSubjectAltNames(X509*);
     ICE_API std::string encodeCertificate(X509*);
     class ICE_API ScopedCertificate
     {

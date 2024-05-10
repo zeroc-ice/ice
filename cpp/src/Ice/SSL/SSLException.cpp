@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/SSL/Exception.h"
+#include "Ice/SSL/SSLException.h"
 
 #include <string>
 

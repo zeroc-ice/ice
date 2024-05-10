@@ -37,7 +37,7 @@
 #    include "SSL/ClientAuthenticationOptions.h"
 #    include "SSL/ConnectionInfo.h"
 #    include "SSL/EndpointInfo.h"
-#    include "SSL/Exception.h"
+#    include "SSL/SSLException.h"
 #    include "SSL/ServerAuthenticationOptions.h"
 #    include "ServantLocator.h"
 #    include "SlicedData.h"

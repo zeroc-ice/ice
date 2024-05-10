@@ -11,7 +11,6 @@
 #include "Ice/Initialize.h"
 #include "Ice/InstanceF.h"
 #include "Ice/SSL/ClientAuthenticationOptions.h"
-#include "Ice/SSL/Exception.h"
 #include "Ice/SSL/ServerAuthenticationOptions.h"
 #include "SSLEngineF.h"
 #include "SSLInstanceF.h"
