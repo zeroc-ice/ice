@@ -4,6 +4,13 @@
 
 $(test)_dependencies = TestCommon Ice
 
+$(test)_client_sources := Client.cpp AllTests.cpp Test.ice TestI.cpp
+
+ifeq ($(os),Darwin)
+$(test)_client_sources += SecureTransportTests.cpp
+$(test)_client_ldflags = -framework Security -framework CoreFoundation
+endif
+
 #
 # Disable var tracking assignments for Linux with this test
 #

@@ -239,6 +239,14 @@ Ice::SSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuf
                     {
                         continue; // Call SSLHandshake to resume the handshake.
                     }
+                    else
+                    {
+                        throw SecurityException(
+                            __FILE__,
+                            __LINE__,
+                            "IceSSL: certificate verification failed. the certificate was explicitly rejected by the "
+                            "remote certificate validation callback.");
+                    }
                 }
                 else
                 {

@@ -46,6 +46,13 @@ Client::run(int argc, char** argv)
     testdir = argv[1];
 #endif
 
+#if defined(ICE_USE_SECURE_TRANSPORT)
+    void allSecureTransportTests(Test::TestHelper*, const string&);
+
+    cerr << "testing with SecureTransport native APIs..." << endl;
+    allSecureTransportTests(this, testdir);
+#endif
+
     Test::ServerFactoryPrx allTests(Test::TestHelper*, const string&, bool);
 
     cerr << "testing with PKCS12 certificates..." << endl;
