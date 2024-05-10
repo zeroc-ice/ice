@@ -366,10 +366,7 @@ public class InputStream
         return prev;
     }
 
-    public Ice.Internal.Instance? instance()
-    {
-        return _instance;
-    }
+    internal Ice.Internal.Instance? instance() => _instance;
 
     /// <summary>
     /// Swaps the contents of one stream with another.
@@ -2943,7 +2940,8 @@ public class InputStream
             // Read the first slice header.
             //
             startSlice();
-            string mostDerivedId = _typeId!;
+            Debug.Assert(_typeId is not null);
+            string mostDerivedId = _typeId;
             while (true)
             {
                 UserException? userEx = null;
@@ -2955,7 +2953,7 @@ public class InputStream
                 {
                     try
                     {
-                        factory(_typeId!);
+                        factory(_typeId);
                     }
                     catch (UserException ex)
                     {
@@ -2965,7 +2963,7 @@ public class InputStream
 
                 if (userEx == null)
                 {
-                    userEx = _stream.createUserException(_typeId!);
+                    userEx = _stream.createUserException(_typeId);
                 }
 
                 //
@@ -3042,7 +3040,8 @@ public class InputStream
             if (_skipFirstSlice)
             {
                 _skipFirstSlice = false;
-                return _typeId!;
+                Debug.Assert(_typeId is not null);
+                return _typeId;
             }
 
             //
@@ -3133,7 +3132,8 @@ public class InputStream
             // Read the first slice header.
             //
             startSlice();
-            string mostDerivedId = _typeId!;
+            Debug.Assert(_typeId is not null);
+            string mostDerivedId = _typeId;
             Value? v = null;
             while (true)
             {
@@ -3146,7 +3146,7 @@ public class InputStream
                     throw new NoValueFactoryException("", mostDerivedId);
                 }
 
-                v = newInstance(_typeId!);
+                v = newInstance(_typeId);
 
                 //
                 // We found a factory, we get out of this loop.
