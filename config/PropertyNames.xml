@@ -242,6 +242,7 @@ generated from the section label.
         <suffix name="Context.[any]" />
     </class>
 
+    <!-- TODO remove -->
     <class name="acm" prefix-only="false">
         <suffix name="Timeout" />
         <suffix name="Heartbeat" />
@@ -267,7 +268,7 @@ generated from the section label.
     </class>
 
     <class name="objectadapter" prefix-only="true">
-        <!-- ACM is getting replaced by Connection -->
+        <!-- TODO: Remove ACM as it's getting replaced by Connection -->
         <suffix name="ACM" class="acm"/>
         <suffix name="AdapterId" />
         <suffix name="Connection" class="connection"/>
@@ -327,7 +328,6 @@ generated from the section label.
         <property name="BatchAutoFlushSize" default="1024" />
         <property name="ChangeUser" />
         <property name="ClassGraphDepthMax" default="100" />
-        <property name="ClientAccessPolicyProtocol" />
         <property name="Compression.Level" default="1" />
         <property name="Config" />
         <property name="Connection" class="connection"/>
@@ -345,6 +345,7 @@ generated from the section label.
         <property name="Default.Router" class="proxy" />
         <property name="Default.SlicedFormat" default="0" />
         <property name="Default.SourceAddress" />
+        <!-- TODO: Remove Defualt.Timeout-->
         <property name="Default.Timeout" default="60000" />
         <property name="EventLog.Source" />
         <property name="FactoryAssemblies" />
