@@ -388,7 +388,8 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "end";
     _classHistory.insert(scoped); // Avoid redundant declarations.
 
-    _out << sp << nl << "T_" << name << ".defineClass(" << name << ", " << p->compactId() << ", " << "false, ";
+    _out << sp << nl << "T_" << name << ".defineClass(" << name << ", " << p->compactId() << ", "
+         << "false, ";
     if (!base)
     {
         _out << "nil";

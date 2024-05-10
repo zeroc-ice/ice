@@ -1377,8 +1377,8 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
                     else if (isCustom)
                     {
                         out << sb;
-                        out << nl << param << " = new " << "global::" << genericType << "<" << typeToString(type, scope)
-                            << ">();";
+                        out << nl << param << " = new "
+                            << "global::" << genericType << "<" << typeToString(type, scope) << ">();";
                         out << nl << "int szx = " << stream << ".readSize();";
                         out << nl << "for(int ix = 0; ix < szx; ++ix)";
                         out << sb;
