@@ -60,8 +60,6 @@ namespace IceGrid
         ReplicaSessionManager& _session;
         std::chrono::seconds _nodeSessionTimeout;
         std::chrono::seconds _replicaSessionTimeout;
-        bool _requireNodeCertCN;
-        bool _requireReplicaCertCN;
     };
 
 };

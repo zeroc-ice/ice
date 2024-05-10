@@ -222,7 +222,7 @@ Ice::SSL::ScopedCertificate::~ScopedCertificate()
     }
 }
 
-DistinguishedName
+string
 Ice::SSL::getSubjectName(PCCERT_CONTEXT cert)
 {
     return DistinguishedName(certNameToString(&cert->pCertInfo->Subject));
@@ -332,7 +332,7 @@ Ice::SSL::encodeCertificate(PCCERT_CONTEXT cert)
         throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
     }
 
-    std::vector<char> encoded;
+    vector<char> encoded;
     encoded.resize(encodedLength);
     if (!CryptBinaryToString(
             cert->pbCertEncoded,
@@ -348,7 +348,7 @@ Ice::SSL::encodeCertificate(PCCERT_CONTEXT cert)
 }
 
 PCCERT_CONTEXT
-Ice::SSL::decodeCertificate(const std::string& data)
+Ice::SSL::decodeCertificate(const string& data)
 {
     CERT_SIGNED_CONTENT_INFO* cert = nullptr;
     DWORD derLength = static_cast<DWORD>(data.size());
@@ -590,13 +590,13 @@ Ice::SSL::getErrors(bool verbose)
     return ostr.str();
 }
 
-Ice::SSL::DistinguishedName
+string
 Ice::SSL::getSubjectName(X509* certificate)
 {
     return DistinguishedName(RFC2253::parseStrict(convertX509NameToString(X509_get_subject_name(certificate))));
 }
 
-std::vector<std::pair<int, string>>
+vector<pair<int, string>>
 Ice::SSL::getSubjectAltNames(X509* certificate)
 {
     return convertGeneralNames(
