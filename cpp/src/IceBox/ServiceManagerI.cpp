@@ -81,20 +81,20 @@ IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc
     _logger = _communicator->getLogger();
 
     PropertiesPtr props = _communicator->getProperties();
-    _traceServiceObserver = props->getPropertyAsInt("IceBox.Trace.ServiceObserver");
+    _traceServiceObserver = props->getIcePropertyAsInt("IceBox.Trace.ServiceObserver");
 
-    if (props->getProperty("Ice.Admin.Enabled") == "")
+    if (props->getIceProperty("Ice.Admin.Enabled") == "")
     {
-        _adminEnabled = props->getProperty("Ice.Admin.Endpoints") != "";
+        _adminEnabled = props->getIceProperty("Ice.Admin.Endpoints") != "";
     }
     else
     {
-        _adminEnabled = props->getPropertyAsInt("Ice.Admin.Enabled") > 0;
+        _adminEnabled = props->getIcePropertyAsInt("Ice.Admin.Enabled") > 0;
     }
 
     if (_adminEnabled)
     {
-        StringSeq facetSeq = props->getPropertyAsList("Ice.Admin.Facets");
+        StringSeq facetSeq = props->getIcePropertyAsList("Ice.Admin.Facets");
         if (!facetSeq.empty())
         {
             _adminFacetFilter.insert(facetSeq.begin(), facetSeq.end());
@@ -320,12 +320,12 @@ IceBox::ServiceManagerI::start()
         // will most likely need to be firewalled for security reasons.
         //
         ObjectAdapterPtr adapter;
-        if (properties->getProperty("IceBox.ServiceManager.Endpoints") != "")
+        if (properties->getIceProperty("IceBox.ServiceManager.Endpoints") != "")
         {
             adapter = _communicator->createObjectAdapter("IceBox.ServiceManager");
 
             Identity identity;
-            identity.category = properties->getPropertyWithDefault("IceBox.InstanceName", "IceBox");
+            identity.category = properties->getIceProperty("IceBox.InstanceName");
             identity.name = "ServiceManager";
             adapter->add(obj, identity);
         }
@@ -349,7 +349,7 @@ IceBox::ServiceManagerI::start()
                 "ServiceManager: configuration must include at least one IceBox service");
         }
 
-        StringSeq loadOrder = properties->getPropertyAsList("IceBox.LoadOrder");
+        StringSeq loadOrder = properties->getIcePropertyAsList("IceBox.LoadOrder");
         vector<StartServiceInfo> servicesInfo;
         for (StringSeq::const_iterator q = loadOrder.begin(); q != loadOrder.end(); ++q)
         {
@@ -380,7 +380,7 @@ IceBox::ServiceManagerI::start()
 
             for (vector<StartServiceInfo>::iterator q = servicesInfo.begin(); q != servicesInfo.end(); ++q)
             {
-                if (properties->getPropertyAsInt("IceBox.UseSharedCommunicator." + q->name) <= 0)
+                if (properties->getIcePropertyAsInt("IceBox.UseSharedCommunicator." + q->name) <= 0)
                 {
                     continue;
                 }
@@ -470,7 +470,7 @@ IceBox::ServiceManagerI::start()
         // This must be done after start() has been invoked on the
         // services.
         //
-        string bundleName = properties->getProperty("IceBox.PrintServicesReady");
+        string bundleName = properties->getIceProperty("IceBox.PrintServicesReady");
         if (!bundleName.empty())
         {
             consoleOut << bundleName << " ready" << endl;

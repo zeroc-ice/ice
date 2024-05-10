@@ -13,26 +13,26 @@ using namespace Glacier2::Instrumentation;
 
 namespace
 {
-    const string serverForwardContext = "Glacier2.Server.ForwardContext";
-    const string clientForwardContext = "Glacier2.Client.ForwardContext";
-    const string serverTraceRequest = "Glacier2.Server.Trace.Request";
-    const string clientTraceRequest = "Glacier2.Client.Trace.Request";
-    const string serverTraceOverride = "Glacier2.Server.Trace.Override";
-    const string clientTraceOverride = "Glacier2.Client.Trace.Override";
+    constexpr string_view serverForwardContext = "Glacier2.Server.ForwardContext";
+    constexpr string_view clientForwardContext = "Glacier2.Client.ForwardContext";
+    constexpr string_view serverTraceRequest = "Glacier2.Server.Trace.Request";
+    constexpr string_view clientTraceRequest = "Glacier2.Client.Trace.Request";
+    constexpr string_view serverTraceOverride = "Glacier2.Server.Trace.Override";
+    constexpr string_view clientTraceOverride = "Glacier2.Client.Trace.Override";
 }
 
 Glacier2::Blobject::Blobject(shared_ptr<Instance> instance, ConnectionPtr reverseConnection, const Context& context)
     : _instance(std::move(instance)),
       _reverseConnection(std::move(reverseConnection)),
       _forwardContext(
-          _reverseConnection ? _instance->properties()->getPropertyAsInt(serverForwardContext) > 0
-                             : _instance->properties()->getPropertyAsInt(clientForwardContext) > 0),
+          _reverseConnection ? _instance->properties()->getIcePropertyAsInt(serverForwardContext) > 0
+                             : _instance->properties()->getIcePropertyAsInt(clientForwardContext) > 0),
       _requestTraceLevel(
-          _reverseConnection ? _instance->properties()->getPropertyAsInt(serverTraceRequest)
-                             : _instance->properties()->getPropertyAsInt(clientTraceRequest)),
+          _reverseConnection ? _instance->properties()->getIcePropertyAsInt(serverTraceRequest)
+                             : _instance->properties()->getIcePropertyAsInt(clientTraceRequest)),
       _overrideTraceLevel(
-          reverseConnection ? _instance->properties()->getPropertyAsInt(serverTraceOverride)
-                            : _instance->properties()->getPropertyAsInt(clientTraceOverride)),
+          reverseConnection ? _instance->properties()->getIcePropertyAsInt(serverTraceOverride)
+                            : _instance->properties()->getIcePropertyAsInt(clientTraceOverride)),
       _context(context)
 {
     auto t = _reverseConnection ? _instance->serverRequestQueueThread() : _instance->clientRequestQueueThread();

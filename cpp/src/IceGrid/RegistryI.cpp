@@ -247,7 +247,7 @@ RegistryI::startImpl()
     setupThreadPool(properties, "IceGrid.Registry.AdminSessionManager.ThreadPool", 1, 10);
     setupThreadPool(properties, "IceGrid.Registry.Internal.ThreadPool", 1, 100);
 
-    _replicaName = properties->getPropertyWithDefault("IceGrid.Registry.ReplicaName", "Master");
+    _replicaName = properties->getIceProperty("IceGrid.Registry.ReplicaName");
     _master = _replicaName == "Master";
 
     // TODO: temporary. For now, synchronized with the default idle timeout.
@@ -583,10 +583,10 @@ RegistryI::startImpl()
     // servant to receive multicast lookup queries.
     //
     ObjectAdapterPtr discoveryAdapter;
-    if (properties->getPropertyAsIntWithDefault("IceGrid.Registry.Discovery.Enabled", 1) > 0)
+    if (properties->getIcePropertyAsInt("IceGrid.Registry.Discovery.Enabled") > 0)
     {
-        bool ipv4 = properties->getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
-        bool preferIPv6 = properties->getPropertyAsInt("Ice.PreferIPv6Address") > 0;
+        bool ipv4 = properties->getIcePropertyAsInt("Ice.IPv4") > 0;
+        bool preferIPv6 = properties->getIcePropertyAsInt("Ice.PreferIPv6Address") > 0;
         string address;
         if (ipv4 && !preferIPv6)
         {
@@ -596,8 +596,8 @@ RegistryI::startImpl()
         {
             address = properties->getPropertyWithDefault("IceGrid.Registry.Discovery.Address", "ff15::1");
         }
-        int port = properties->getPropertyAsIntWithDefault("IceGrid.Registry.Discovery.Port", 4061);
-        string interface = properties->getProperty("IceGrid.Registry.Discovery.Interface");
+        int port = properties->getIcePropertyAsInt("IceGrid.Registry.Discovery.Port");
+        string interface = properties->getIceProperty("IceGrid.Registry.Discovery.Interface");
         if (properties->getProperty("IceGrid.Registry.Discovery.Endpoints").empty())
         {
             ostringstream os;
@@ -1090,9 +1090,8 @@ RegistryI::getSessionTimeout(const Ice::Current&) const
 int
 RegistryI::getACMTimeout(const Ice::Current&) const
 {
-    // TODO: better way to retrieve idle timeout
     auto properties = _communicator->getProperties();
-    int idleTimeout = properties->getPropertyAsIntWithDefault("Ice.Connection.IdleTimeout", 60);
+    int idleTimeout = properties->getIcePropertyAsInt("Ice.Connection.IdleTimeout");
     return properties->getPropertyAsIntWithDefault("IceGrid.Registry.Client.Connection.IdleTimeout", idleTimeout);
 }
 

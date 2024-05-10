@@ -832,19 +832,9 @@ Glacier2::SessionFactoryHelper::createInitData()
     Ice::InitializationData initData = _initData;
     initData.properties = initData.properties->clone();
 
-    if (initData.properties->getProperty("Ice.Default.Router").size() == 0 && !_identity.name.empty())
+    if (initData.properties->getIceProperty("Ice.Default.Router").size() == 0 && !_identity.name.empty())
     {
         initData.properties->setProperty("Ice.Default.Router", createProxyStr(_identity));
-    }
-
-    //
-    // If using a secure connection setup the IceSSL plug-in, if IceSSL
-    // plug-in has already been setup we don't want to override the
-    // configuration so it can be loaded from a custom location.
-    //
-    if ((_protocol == "ssl" || _protocol == "wss") && initData.properties->getProperty("Ice.Plugin.IceSSL").empty())
-    {
-        initData.properties->setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL");
     }
 
     return initData;

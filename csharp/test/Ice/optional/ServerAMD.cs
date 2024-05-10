@@ -13,7 +13,6 @@ namespace Ice
                 public override void run(string[] args)
                 {
                     var initData = new InitializationData();
-                    initData.typeIdNamespaces = new string[] { "Ice.optional.AMD.TypeId" };
                     initData.properties = createTestProperties(ref args);
                     using (var communicator = initialize(initData))
                     {

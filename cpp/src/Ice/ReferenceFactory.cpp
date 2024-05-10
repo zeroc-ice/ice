@@ -478,7 +478,7 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
             }
             else if (
                 unknownEndpoints.size() != 0 &&
-                _instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1) > 0)
+                _instance->initializationData().properties->getIcePropertyAsInt("Ice.Warn.Endpoints") > 0)
             {
                 Warning out(_instance->initializationData().logger);
                 out << "Proxy contains unknown endpoints:";
@@ -770,7 +770,7 @@ IceInternal::ReferenceFactory::create(
     if (!propertyPrefix.empty())
     {
         PropertiesPtr properties = _instance->initializationData().properties;
-        if (properties->getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
+        if (properties->getIcePropertyAsInt("Ice.Warn.UnknownProperties") > 0)
         {
             checkForUnknownProperties(propertyPrefix);
         }

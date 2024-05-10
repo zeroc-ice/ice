@@ -11,7 +11,6 @@ namespace Ice
             public override async Task runAsync(string[] args)
             {
                 var initData = new InitializationData();
-                initData.typeIdNamespaces = new string[] { "Ice.operations.TypeId" };
                 initData.properties = createTestProperties(ref args);
                 initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2");
                 initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");

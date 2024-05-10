@@ -10,7 +10,6 @@
 #include "Ice/CommunicatorF.h"
 #include "Ice/Initialize.h"
 #include "Ice/InstanceF.h"
-#include "Ice/SSL/Certificate.h"
 #include "Ice/SSL/ClientAuthenticationOptions.h"
 #include "Ice/SSL/ServerAuthenticationOptions.h"
 #include "SSLEngineF.h"

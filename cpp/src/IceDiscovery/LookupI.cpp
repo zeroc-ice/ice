@@ -172,10 +172,10 @@ ObjectRequest::runTimerTask()
 LookupI::LookupI(const LocatorRegistryIPtr& registry, const LookupPrx& lookup, const Ice::PropertiesPtr& properties)
     : _registry(registry),
       _lookup(lookup),
-      _timeout(chrono::milliseconds(properties->getPropertyAsIntWithDefault("IceDiscovery.Timeout", 300))),
-      _retryCount(properties->getPropertyAsIntWithDefault("IceDiscovery.RetryCount", 3)),
-      _latencyMultiplier(properties->getPropertyAsIntWithDefault("IceDiscovery.LatencyMultiplier", 1)),
-      _domainId(properties->getProperty("IceDiscovery.DomainId")),
+      _timeout(chrono::milliseconds(properties->getIcePropertyAsInt("IceDiscovery.Timeout"))),
+      _retryCount(properties->getIcePropertyAsInt("IceDiscovery.RetryCount")),
+      _latencyMultiplier(properties->getIcePropertyAsInt("IceDiscovery.LatencyMultiplier")),
+      _domainId(properties->getIceProperty("IceDiscovery.DomainId")),
       _timer(IceInternal::getInstanceTimer(lookup->ice_getCommunicator())),
       _warnOnce(true)
 {

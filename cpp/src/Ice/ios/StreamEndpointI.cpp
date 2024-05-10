@@ -57,7 +57,7 @@ IceObjC::Instance::Instance(const Ice::CommunicatorPtr& com, int16_t type, const
     //
     // Proxy settings
     //
-    _proxyHost = properties->getProperty("Ice.SOCKSProxyHost");
+    _proxyHost = properties->getIceProperty("Ice.SOCKSProxyHost");
     if (!_proxyHost.empty())
     {
 #    if TARGET_IPHONE_SIMULATOR != 0
@@ -66,7 +66,7 @@ IceObjC::Instance::Instance(const Ice::CommunicatorPtr& com, int16_t type, const
         _proxySettings.reset(
             CFDictionaryCreateMutable(0, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
 
-        _proxyPort = properties->getPropertyAsIntWithDefault("Ice.SOCKSProxyPort", 1080);
+        _proxyPort = properties->getIcePropertyAsInt("Ice.SOCKSProxyPort");
 
         UniqueRef<CFStringRef> host(toCFString(_proxyHost));
         CFDictionarySetValue(_proxySettings.get(), kCFStreamPropertySOCKSProxyHost, host.get());

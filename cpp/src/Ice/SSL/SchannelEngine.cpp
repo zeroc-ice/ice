@@ -3,6 +3,7 @@
 //
 
 #include "SchannelEngine.h"
+#include "DistinguishedName.h"
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"
 #include "Ice/Logger.h"
@@ -442,7 +443,7 @@ namespace
             // name dnsNames.
             if (dnsNames.empty())
             {
-                DistinguishedName d = getSubjectName(cert);
+                auto d = DistinguishedName(getSubjectName(cert));
                 string dn = IceUtilInternal::toLower(string(d));
                 string cn = "cn=" + addrLower;
                 string::size_type pos = dn.find(cn);
@@ -494,15 +495,14 @@ Schannel::SSLEngine::initialize()
 
     Ice::SSL::SSLEngine::initialize();
 
-    const string prefix = "IceSSL.";
     const PropertiesPtr properties = getProperties();
 
-    const_cast<bool&>(_strongCrypto) = properties->getPropertyAsIntWithDefault(prefix + "SchannelStrongCrypto", 0) > 0;
+    const_cast<bool&>(_strongCrypto) = properties->getIcePropertyAsInt("IceSSL.SchannelStrongCrypto") > 0;
 
     // Check for a default directory. We look in this directory for files mentioned in the configuration.
-    const string defaultDir = properties->getProperty(prefix + "DefaultDir");
+    const string defaultDir = properties->getIceProperty("IceSSL.DefaultDir");
 
-    string certStoreLocation = properties->getPropertyWithDefault(prefix + "CertStoreLocation", "CurrentUser");
+    string certStoreLocation = properties->getIceProperty("IceSSL.CertStoreLocation");
     if (certStoreLocation != "CurrentUser" && certStoreLocation != "LocalMachine")
     {
         getLogger()->warning(
@@ -513,8 +513,8 @@ Schannel::SSLEngine::initialize()
     //
     // Create trusted CA store with contents of IceSSL.CAs
     //
-    string caFile = properties->getProperty(prefix + "CAs");
-    if (!caFile.empty() || properties->getPropertyAsInt("IceSSL.UsePlatformCAs") <= 0)
+    string caFile = properties->getIceProperty("IceSSL.CAs");
+    if (!caFile.empty() || properties->getIcePropertyAsInt("IceSSL.UsePlatformCAs") <= 0)
     {
         _rootStore = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, 0, 0, 0);
         if (!_rootStore)
@@ -571,9 +571,9 @@ Schannel::SSLEngine::initialize()
         _chainEngine = (certStoreLocation == "LocalMachine") ? HCCE_LOCAL_MACHINE : HCCE_CURRENT_USER;
     }
 
-    string certFileValue = properties->getProperty(prefix + "CertFile");
-    string keyFile = properties->getProperty(prefix + "KeyFile");
-    string findCert = properties->getProperty("IceSSL.FindCert");
+    string certFileValue = properties->getIceProperty("IceSSL.CertFile");
+    string keyFile = properties->getIceProperty("IceSSL.KeyFile");
+    string findCert = properties->getIceProperty("IceSSL.FindCert");
 
     if (!certFileValue.empty())
     {
@@ -583,7 +583,7 @@ Schannel::SSLEngine::initialize()
             throw InitializationException(
                 __FILE__,
                 __LINE__,
-                "SSL transport: invalid value for " + prefix + "CertFile:\n" + certFileValue);
+                "SSL transport: invalid value for IceSSL.CertFile:\n" + certFileValue);
         }
 
         vector<string> keyFiles;
@@ -594,7 +594,7 @@ Schannel::SSLEngine::initialize()
                 throw InitializationException(
                     __FILE__,
                     __LINE__,
-                    "SSL transport: invalid value for " + prefix + "KeyFile:\n" + keyFile);
+                    "SSL transport: invalid value for IceSSL.KeyFile:\n" + keyFile);
             }
 
             if (certFiles.size() != keyFiles.size())
@@ -602,7 +602,7 @@ Schannel::SSLEngine::initialize()
                 throw InitializationException(
                     __FILE__,
                     __LINE__,
-                    "SSL transport: " + prefix + "KeyFile does not agree with " + prefix + "CertFile");
+                    "SSL transport: IceSSL.KeyFile does not agree with IceSSL.CertFile");
             }
         }
 
@@ -637,7 +637,7 @@ Schannel::SSLEngine::initialize()
             DWORD importFlags = (certStoreLocation == "LocalMachine") ? CRYPT_MACHINE_KEYSET : CRYPT_USER_KEYSET;
             HCERTSTORE store = PFXImportCertStore(
                 &pfxBlob,
-                Ice::stringToWstring(properties->getProperty(prefix + "Password")).c_str(),
+                Ice::stringToWstring(properties->getIceProperty("IceSSL.Password")).c_str(),
                 importFlags);
             int err = store ? 0 : GetLastError();
 
@@ -901,7 +901,7 @@ Schannel::SSLEngine::initialize()
     }
     else if (!findCert.empty())
     {
-        string certStore = properties->getPropertyWithDefault(prefix + "CertStore", "My");
+        string certStore = properties->getIceProperty("IceSSL.CertStore");
         vector<PCCERT_CONTEXT> certs = findCertificates(certStoreLocation, certStore, findCert, _stores);
         if (certs.empty())
         {

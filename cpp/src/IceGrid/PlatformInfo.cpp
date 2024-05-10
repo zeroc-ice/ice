@@ -275,7 +275,7 @@ PlatformInfo::PlatformInfo(
     //
     // Try to obtain the number of processor sockets.
     //
-    _nProcessorSockets = properties->getPropertyAsIntWithDefault("IceGrid.Node.ProcessorSocketCount", 0);
+    _nProcessorSockets = properties->getIcePropertyAsInt("IceGrid.Node.ProcessorSocketCount");
     if (_nProcessorSockets == 0)
     {
 #if defined(_WIN32)
@@ -309,12 +309,12 @@ PlatformInfo::PlatformInfo(
     string endpointsPrefix;
     if (prefix == "IceGrid.Registry")
     {
-        _name = properties->getPropertyWithDefault("IceGrid.Registry.ReplicaName", "Master");
+        _name = properties->getIceProperty("IceGrid.Registry.ReplicaName");
         endpointsPrefix = prefix + ".Client";
     }
     else
     {
-        _name = properties->getProperty(prefix + ".Name");
+        _name = properties->getIceProperty(prefix + ".Name");
         endpointsPrefix = prefix;
     }
 

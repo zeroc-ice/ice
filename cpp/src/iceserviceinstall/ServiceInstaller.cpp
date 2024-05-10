@@ -50,13 +50,13 @@ IceServiceInstaller::IceServiceInstaller(int serviceType, const string& configFi
 
     if (_serviceType == icegridregistry)
     {
-        _icegridInstanceName = _serviceProperties->getPropertyWithDefault("IceGrid.InstanceName", "IceGrid");
+        _icegridInstanceName = _serviceProperties->getIceProperty("IceGrid.InstanceName");
         _serviceName = serviceTypeToLowerString(_serviceType) + "." + _icegridInstanceName;
     }
     else
     {
         auto defaultLocator = Ice::uncheckedCast<LocatorPrx>(
-            _communicator->stringToProxy(_serviceProperties->getProperty("Ice.Default.Locator")));
+            _communicator->stringToProxy(_serviceProperties->getIceProperty("Ice.Default.Locator")));
         if (defaultLocator != nullopt)
         {
             _icegridInstanceName = defaultLocator->ice_getIdentity().category;
@@ -77,7 +77,7 @@ IceServiceInstaller::IceServiceInstaller(int serviceType, const string& configFi
         }
         else if (_serviceType == glacier2router)
         {
-            _glacier2InstanceName = _serviceProperties->getPropertyWithDefault("Glacier2.InstanceName", "Glacier2");
+            _glacier2InstanceName = _serviceProperties->getIceProperty("Glacier2.InstanceName");
             _serviceName = serviceTypeToLowerString(_serviceType) + "." + _glacier2InstanceName;
         }
         else

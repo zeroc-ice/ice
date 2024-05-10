@@ -57,11 +57,6 @@ public class InitializationData : ICloneable
     public System.Action<System.Action, Connection> dispatcher;
 
     /// <summary>
-    /// The compact type ID resolver.
-    /// </summary>
-    public System.Func<int, string> compactIdResolver;
-
-    /// <summary>
     /// The batch request interceptor.
     /// </summary>
     public System.Action<BatchRequest, int, int> batchRequestInterceptor;
@@ -70,11 +65,6 @@ public class InitializationData : ICloneable
     /// The value factory manager.
     /// </summary>
     public ValueFactoryManager valueFactoryManager;
-
-    /// <summary>
-    /// The list of TypeId namespaces. Default is Ice.TypeId.
-    /// </summary>
-    public string[] typeIdNamespaces = { "Ice.TypeId" };
 
     /// <summary>
     /// The <see cref="SslClientAuthenticationOptions"/> used by the client-side ssl transport.

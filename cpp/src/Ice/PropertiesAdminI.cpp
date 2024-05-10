@@ -47,7 +47,7 @@ namespace IceInternal
 
         PropertyDict old = _properties->getPropertiesForPrefix("");
         PropertyDict::const_iterator p;
-        const int traceLevel = _properties->getPropertyAsInt("Ice.Trace.Admin.Properties");
+        const int traceLevel = _properties->getIcePropertyAsInt("Ice.Trace.Admin.Properties");
 
         //
         // Compute the difference between the new property set and the existing property set:
@@ -172,7 +172,7 @@ namespace IceInternal
                 }
                 catch (const std::exception& ex)
                 {
-                    if (_properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+                    if (_properties->getIcePropertyAsInt("Ice.Warn.Dispatch") > 1)
                     {
                         Warning out(_logger);
                         out << "properties admin update callback raised unexpected exception:\n" << ex;
@@ -180,7 +180,7 @@ namespace IceInternal
                 }
                 catch (...)
                 {
-                    if (_properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+                    if (_properties->getIcePropertyAsInt("Ice.Warn.Dispatch") > 1)
                     {
                         Warning out(_logger);
                         out << "properties admin update callback raised unexpected exception:\nunknown c++ exception";

@@ -51,33 +51,29 @@ Ice::SSL::SSLEngine::getInitializationData() const
 void
 Ice::SSL::SSLEngine::initialize()
 {
-    const string propPrefix = "IceSSL.";
     const PropertiesPtr properties = getProperties();
 
     // CheckCertName determines whether we compare the name in a peer's certificate against its hostname.
-    _checkCertName = properties->getPropertyAsIntWithDefault(propPrefix + "CheckCertName", 0) > 0;
+    _checkCertName = properties->getIcePropertyAsInt("IceSSL.CheckCertName") > 0;
 
     // CheckCertName > 1 enables SNI, the SNI extension applies to client connections, indicating the hostname to the
     // server (must be DNS hostname, not an IP address).
-    _serverNameIndication = properties->getPropertyAsIntWithDefault(propPrefix + "CheckCertName", 0) > 1;
+    _serverNameIndication = properties->getIcePropertyAsInt("IceSSL.CheckCertName") > 1;
 
     // VerifyPeer determines whether certificate validation failures abort a connection.
-    _verifyPeer = properties->getPropertyAsIntWithDefault(propPrefix + "VerifyPeer", 2);
+    _verifyPeer = properties->getIcePropertyAsInt("IceSSL.VerifyPeer");
 
     if (_verifyPeer < 0 || _verifyPeer > 2)
     {
-        throw InitializationException(
-            __FILE__,
-            __LINE__,
-            "SSL transport: invalid value for " + propPrefix + "VerifyPeer");
+        throw InitializationException(__FILE__, __LINE__, "SSL transport: invalid value for IceSSL.VerifyPeer");
     }
 
-    _securityTraceLevel = properties->getPropertyAsInt("IceSSL.Trace.Security");
+    _securityTraceLevel = properties->getIcePropertyAsInt("IceSSL.Trace.Security");
     _securityTraceCategory = "Security";
 
     const_cast<bool&>(_revocationCheckCacheOnly) =
-        properties->getPropertyAsIntWithDefault("IceSSL.RevocationCheckCacheOnly", 1) > 0;
-    const_cast<int&>(_revocationCheck) = properties->getPropertyAsIntWithDefault("IceSSL.RevocationCheck", 0);
+        properties->getIcePropertyAsInt("IceSSL.RevocationCheckCacheOnly") > 0;
+    const_cast<int&>(_revocationCheck) = properties->getIcePropertyAsInt("IceSSL.RevocationCheck");
 }
 
 void

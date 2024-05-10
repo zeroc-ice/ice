@@ -717,7 +717,7 @@ ServerI::ServerI(
       _waitTime(wt),
       _serverDir(serversDir + "/" + id),
       _disableOnFailure(
-          _node->getCommunicator()->getProperties()->getPropertyAsIntWithDefault("IceGrid.Node.DisableOnFailure", 0)),
+          _node->getCommunicator()->getProperties()->getIcePropertyAsInt("IceGrid.Node.DisableOnFailure")),
       _state(ServerI::Inactive),
       _activation(ServerI::Disabled),
       _failureTime(chrono::steady_clock::now()), // Ensure that _activation is init. in updateImpl().

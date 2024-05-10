@@ -583,7 +583,7 @@ BridgeService::start(int argc, char* argv[], int& status)
         return false;
     }
 
-    string instanceName = properties->getPropertyWithDefault("IceBridge.InstanceName", "IceBridge");
+    string instanceName = properties->getIceProperty("IceBridge.InstanceName");
     RouterPrx router(adapter->add(make_shared<RouterI>(), stringToIdentity(instanceName + "/router")));
     adapter->add(make_shared<FinderI>(router), stringToIdentity("Ice/RouterFinder"));
 
@@ -628,7 +628,7 @@ BridgeService::initializeCommunicator(
     //
     // Disable automatic retry by default.
     //
-    if (initData.properties->getProperty("Ice.RetryIntervals").empty())
+    if (initData.properties->getIceProperty("Ice.RetryIntervals").empty())
     {
         initData.properties->setProperty("Ice.RetryIntervals", "-1");
     }
