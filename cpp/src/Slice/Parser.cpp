@@ -748,19 +748,14 @@ Slice::Contained::parseComment(bool stripMarkup) const
 {
     CommentPtr comment = make_shared<Comment>();
 
-    comment->_isDeprecated = false;
+    comment->_isDeprecated = isDeprecated(false);
 
     //
     // First check metadata for a deprecated tag.
     //
-    string deprecateMetadata;
-    if (findMetaData("deprecate", deprecateMetadata))
+    if (auto reason = getDeprecationReason(false))
     {
-        comment->_isDeprecated = true;
-        if (deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
-        {
-            comment->_deprecated.push_back(IceUtilInternal::trim(deprecateMetadata.substr(10)));
-        }
+        comment->_deprecated.push_back(IceUtilInternal::trim(*reason));
     }
 
     if (!comment->_isDeprecated && _comment.empty())
@@ -1001,6 +996,31 @@ Slice::Contained::parseFormatMetaData(const list<string>& metaData)
     }
 
     return result;
+}
+
+bool
+Slice::Contained::isDeprecated(bool checkParent) const
+{
+    const string deprecate = "deprecate";
+    string metadata;
+    ContainedPtr parent = checkParent ? dynamic_pointer_cast<Contained>(_container) : nullptr;
+
+    return (findMetaData(deprecate, metadata) || (parent && parent->findMetaData(deprecate, metadata)));
+}
+
+optional<string>
+Slice::Contained::getDeprecationReason(bool checkParent) const
+{
+    const string prefix = "deprecate:";
+    string metadata;
+    ContainedPtr parent = checkParent ? dynamic_pointer_cast<Contained>(_container) : nullptr;
+
+    if (findMetaData(prefix, metadata) || (parent && parent->findMetaData(prefix, metadata)))
+    {
+        assert(metadata.find(prefix) == 0);
+        return metadata.substr(prefix.size());
+    }
+    return nullopt;
 }
 
 Slice::Contained::Contained(const ContainerPtr& container, const string& name)
