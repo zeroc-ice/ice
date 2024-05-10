@@ -147,7 +147,7 @@ public abstract class Reference : IEquatable<Reference>
         }
         Reference r = _instance.referenceFactory().copy(this);
         // Identity is a reference type, therefore we make a copy of newIdentity.
-        r._identity = (Ice.Identity)newIdentity.Clone();
+        r._identity = newIdentity.Clone();
         return r;
     }
 
@@ -432,7 +432,7 @@ public abstract class Reference : IEquatable<Reference>
 
     public override bool Equals(object other) => Equals(other as Reference);
 
-    public object Clone() => MemberwiseClone();
+    public Reference Clone() => (Reference)MemberwiseClone();
 
     private static Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
 

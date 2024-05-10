@@ -885,7 +885,7 @@ Slice::CsVisitor::getDispatchParams(
     }
     else if (op->hasMarshaledResult())
     {
-        name = fixId(op->name(), DotNet::ICloneable, true);
+        name = fixId(op->name(), DotNet::Object, true);
         params = getInParams(op, ns);
         args = getInArgs(op);
         paramDecls = op->inParameters();
@@ -893,7 +893,7 @@ Slice::CsVisitor::getDispatchParams(
     }
     else
     {
-        name = fixId(op->name(), DotNet::ICloneable, true);
+        name = fixId(op->name(), DotNet::Object, true);
         params = getParams(op, ns);
         args = getArgs(op);
         paramDecls = op->parameters();
@@ -2464,7 +2464,6 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     if (classMapping)
     {
-        baseNames.push_back("System.ICloneable");
         baseNames.push_back("System.IEquatable<" + name + ">");
     }
 
@@ -2589,11 +2588,11 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     if (classMapping)
     {
-        _out << sp << nl << "#region ICloneable members";
+        _out << sp << nl << "#region Clone method";
 
         _out << sp;
         emitGeneratedCodeAttribute();
-        _out << nl << "public object Clone() => MemberwiseClone();";
+        _out << nl << "public " << name << " Clone() => (" << name << ")MemberwiseClone();";
 
         _out << sp << nl << "#endregion"; // ICloneable members
 

@@ -9,18 +9,12 @@ namespace Ice;
 /// <summary>
 /// A class that encapsulates data to initialize a communicator.
 /// </summary>
-public class InitializationData : ICloneable
+public class InitializationData
 {
     /// <summary>
     /// Creates and returns a copy of this object.
     /// </summary>
-    public object Clone()
-    {
-        //
-        // A member-wise copy is safe because the members are immutable.
-        //
-        return MemberwiseClone();
-    }
+    public InitializationData Clone() =>(InitializationData)MemberwiseClone();
 
     /// <summary>
     /// The properties for the communicator.
@@ -149,7 +143,7 @@ public sealed class Util
         }
         else
         {
-            initData = (InitializationData)initData.Clone();
+            initData = initData.Clone();
         }
 
         initData.properties = createProperties(ref args, initData.properties);
@@ -193,7 +187,7 @@ public sealed class Util
         }
         else
         {
-            initData = (InitializationData)initData.Clone();
+            initData = initData.Clone();
         }
 
         CommunicatorI result = new CommunicatorI(initData);
