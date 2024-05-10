@@ -8,19 +8,7 @@ using System.Diagnostics;
 namespace Ice;
 
 /// <summary>
-/// Interface for incoming requests.
-/// </summary>
-public interface Request
-{
-    /// <summary>
-    /// Returns the {@link Current} object for this the request.
-    /// </summary>
-    /// <returns>The Current object for this request.</returns>
-    Current getCurrent();
-}
-
-/// <summary>
-/// the base interface for servants.
+/// The base interface for servants.
 /// </summary>
 public interface Object : ICloneable
 {
@@ -53,14 +41,6 @@ public interface Object : ICloneable
     /// <param name="current">The Current object for the dispatch.</param>
     /// <returns>The Slice type ID of the most-derived interface.</returns>
     string ice_id(Current current);
-
-    /// <summary>
-    /// Dispatches a request to a servant. This method is used by dispatch interceptors to forward a dispatch
-    /// to a servant (or to another interceptor).
-    /// </summary>
-    /// <param name="request">The details of the dispatch.</param>
-    /// <returns>The task if dispatched asynchronously, null otherwise.</returns>
-    Task<OutputStream>? ice_dispatch(Request request);
 
     Task<OutputStream>? iceDispatch(Ice.Internal.Incoming inc, Current current);
 }
@@ -192,19 +172,6 @@ public abstract class ObjectImpl : Object
     {
         "ice_id", "ice_ids", "ice_isA", "ice_ping"
     };
-
-    /// <summary>
-    /// Dispatches a dispatch to a servant. This method is used by dispatch interceptors to forward a dispatch
-    /// to a servant (or to another interceptor).
-    /// </summary>
-    /// <param name="request">The details of the dispatch.</param>
-    /// <returns>The task if dispatched asynchronously, null otherwise.</returns>
-    public virtual Task<OutputStream>? ice_dispatch(Request request)
-    {
-        var inc = (Ice.Internal.Incoming)request;
-        inc.startOver();
-        return iceDispatch(inc, inc.getCurrent());
-    }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual Task<OutputStream>? iceDispatch(Ice.Internal.Incoming inc, Current current)
