@@ -177,7 +177,7 @@ Slice::CsVisitor::writeMarshalUnmarshalParams(
         if (!marshal && isClassType(type))
         {
             ostringstream os;
-            os << '(' << typeToString(type, ns) << " v) => {" << paramPrefix << param << " = v; }";
+            os << '(' << typeToString(type, ns) << " v) => { " << paramPrefix << param << " = v; }";
             param = os.str();
         }
         else
@@ -463,7 +463,7 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
                 string param = "iceP_" + (*pli)->name();
                 string typeS = typeToString((*pli)->type(), ns, (*pli)->optional());
 
-                _out << nl << typeS << ' ' << param << ";";
+                _out << nl << typeS << ' ' << param << (isClassType((*pli)->type()) ? " = null;" : ";");
             }
             writeMarshalUnmarshalParams(inParams, 0, false, ns);
             if (op->sendsClasses(false))
@@ -3533,17 +3533,18 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             _out << sb;
             if (outParams.empty())
             {
-                _out << nl << returnTypeS << " ret;";
+                _out << nl << returnTypeS << " ret" << (isClassType(ret) ? " = null;" : ";");
             }
             else if (ret || outParams.size() > 1)
             {
-                _out << nl << returnTypeS << " ret = new " << returnTypeS << "();";
+                // Generated OpResult struct
+                _out << nl << "var ret = new " << returnTypeS << "();";
             }
             else
             {
                 TypePtr t = outParams.front()->type();
                 _out << nl << typeToString(t, ns, (outParams.front()->optional())) << " iceP_"
-                     << outParams.front()->name() << " = default;";
+                     << outParams.front()->name() << (isClassType(t) ? " = null;" : ";");
             }
 
             writeMarshalUnmarshalParams(outParams, op, false, ns, true);
@@ -3919,7 +3920,7 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << nl << "_ice_delegate = del;";
         _out << eb;
 
-        _out << sp << nl << "public object ice_delegate()";
+        _out << sp << nl << "public object? ice_delegate()";
         _out << sb;
         _out << nl << "return _ice_delegate;";
         _out << eb;
@@ -3934,17 +3935,17 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << nl << "return _ice_delegate == null ? 0 : _ice_delegate.GetHashCode();";
         _out << eb;
 
-        _out << sp << nl << "public override bool Equals(object rhs)";
+        _out << sp << nl << "public override bool Equals(object? rhs)";
         _out << sb;
-        _out << nl << "if(object.ReferenceEquals(this, rhs))";
+        _out << nl << "if (object.ReferenceEquals(this, rhs))";
         _out << sb;
         _out << nl << "return true;";
         _out << eb;
-        _out << nl << "if(!(rhs is " << name << "Tie_))";
+        _out << nl << "if (!(rhs is " << name << "Tie_))";
         _out << sb;
         _out << nl << "return false;";
         _out << eb;
-        _out << nl << "if(_ice_delegate == null)";
+        _out << nl << "if (_ice_delegate == null)";
         _out << sb;
         _out << nl << "return ((" << name << "Tie_)rhs)._ice_delegate == null;";
         _out << eb;
@@ -3953,7 +3954,7 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         writeTieOperations(p);
 
-        _out << sp << nl << "private " << name << opIntfName << "_ _ice_delegate;";
+        _out << sp << nl << "private " << name << opIntfName << "_? _ice_delegate;";
     }
 
     return true;
@@ -3991,7 +3992,7 @@ Slice::Gen::DispatcherVisitor::writeTieOperations(const InterfaceDefPtr& p, Name
         {
             _out << "return ";
         }
-        _out << "_ice_delegate." << opName << spar << args << epar << ';';
+        _out << "_ice_delegate!." << opName << spar << args << epar << ';';
         _out << eb;
     }
 

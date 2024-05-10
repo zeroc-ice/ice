@@ -1029,7 +1029,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(
             }
             string typeS = typeToString(type, scope);
             string tmp = "tmpVal";
-            out << nl << typeS << ' ' << tmp << " = default;";
+            out << nl << typeS << ' ' << tmp << ";";
             writeMarshalUnmarshalCode(out, type, scope, tmp, marshal, customStream);
             out << nl << param << " = " << tmp << ";";
             out << eb;
