@@ -397,7 +397,7 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
     _out << eb << ";";
 
     _out << sp;
-    _out << nl << "public override bool ice_isA(string s, " << getUnqualified("Ice.Current", ns) << " current = null)";
+    _out << nl << "public override bool ice_isA(string s, " << getUnqualified("Ice.Current?", ns) << " current = null)";
     _out << sb;
     _out
         << nl
@@ -405,13 +405,13 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
     _out << eb;
 
     _out << sp;
-    _out << nl << "public override string[] ice_ids(" << getUnqualified("Ice.Current", ns) << " current = null)";
+    _out << nl << "public override string[] ice_ids(" << getUnqualified("Ice.Current?", ns) << " current = null)";
     _out << sb;
     _out << nl << "return _ids;";
     _out << eb;
 
     _out << sp;
-    _out << nl << "public override string ice_id(" << getUnqualified("Ice.Current", ns) << " current = null)";
+    _out << nl << "public override string ice_id(" << getUnqualified("Ice.Current?", ns) << " current = null)";
     _out << sb;
     _out << nl << "return ice_staticId();";
     _out << eb;
@@ -463,7 +463,7 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
                 string param = "iceP_" + (*pli)->name();
                 string typeS = typeToString((*pli)->type(), ns, (*pli)->optional());
 
-                _out << nl << typeS << ' ' << param << " = default;";
+                _out << nl << typeS << ' ' << param << ";";
             }
             writeMarshalUnmarshalParams(inParams, 0, false, ns);
             if (op->sendsClasses(false))
@@ -894,7 +894,7 @@ Slice::CsVisitor::getDispatchParams(
     }
 
     string currentParamName = getEscapedParamName(op, "current");
-    params.push_back(getUnqualified("Ice.Current", ns) + " " + currentParamName + " = null");
+    params.push_back(getUnqualified("Ice.Current?", ns) + " " + currentParamName + " = null");
     args.push_back(currentParamName);
     return name;
 }
@@ -1058,7 +1058,7 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& dataMembers,
             if (dynamic_pointer_cast<Sequence>(q->type()) || dynamic_pointer_cast<Dictionary>(q->type()) ||
                 (st && isMappedToClass(st)))
             {
-                _out << nl << "this." << fixId(q->name(), baseTypes) << " = null;"; // TODO: should be null!
+                _out << nl << "this." << fixId(q->name(), baseTypes) << " = null!;";
             }
         }
     }
@@ -1814,7 +1814,8 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
 
     printGeneratedHeader(_out, fileBase + ".ice");
 
-    _out << nl << "using _System = global::System;";
+    _out << nl << "#nullable enable";
+    _out << sp << nl << "using _System = global::System;";
     _out << sp << nl << "[assembly:Ice.Slice(\"" << fileBase << ".ice\")]";
     _out << sp << nl << "#pragma warning disable 1591"; // See bug 3654
 }
@@ -2284,19 +2285,19 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     // Add exception for inner exception. It's defaulted to null only if it's not the only parameter.
     if (paramDecl.size() > 0)
     {
-        paramDecl.push_back("global::System.Exception " + exParam + " = null");
+        paramDecl.push_back("global::System.Exception? " + exParam + " = null");
     }
     else
     {
-        paramDecl.push_back("global::System.Exception " + exParam);
+        paramDecl.push_back("global::System.Exception? " + exParam);
     }
     if (secondaryCtorParams.size() > 0)
     {
-        secondaryCtorParams.push_back("global::System.Exception " + exParam + " = null");
+        secondaryCtorParams.push_back("global::System.Exception? " + exParam + " = null");
     }
     else
     {
-        secondaryCtorParams.push_back("global::System.Exception " + exParam);
+        secondaryCtorParams.push_back("global::System.Exception? " + exParam);
     }
 
     _out << paramDecl << epar;
@@ -2601,11 +2602,11 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         _out << sp;
         emitGeneratedCodeAttribute();
-        _out << nl << "public override bool Equals(object other) => Equals(other as " << name << ");";
+        _out << nl << "public override bool Equals(object? other) => Equals(other as " << name << ");";
 
         _out << sp;
         emitGeneratedCodeAttribute();
-        _out << nl << "public bool Equals(" << name << " other)";
+        _out << nl << "public bool Equals(" << name << "? other)";
         _out << sb;
         writeMemberEquals(dataMembers);
         _out << eb;
@@ -2616,12 +2617,12 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         _out << sp;
         emitGeneratedCodeAttribute();
-        _out << nl << "public static bool operator ==(" << name << " lhs, " << name << " rhs) => ";
+        _out << nl << "public static bool operator ==(" << name << "? lhs, " << name << "? rhs) => ";
         _out << "lhs is not null ? lhs.Equals(rhs) : rhs is null;";
 
         _out << sp;
         emitGeneratedCodeAttribute();
-        _out << nl << "public static bool operator !=(" << name << " lhs, " << name << " rhs) => !(lhs == rhs);";
+        _out << nl << "public static bool operator !=(" << name << "? lhs, " << name << "? rhs) => !(lhs == rhs);";
         _out << sp << nl << "#endregion"; // Comparison members
     }
 
@@ -2875,7 +2876,7 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers)
         else if (isProxyType(memberType))
         {
             // We need to cast it to the base concrete type to get ==
-            _out << "(Ice.ObjectPrxHelperBase)this." << memberName << " == (Ice.ObjectPrxHelperBase)other."
+            _out << "(Ice.ObjectPrxHelperBase?)this." << memberName << " == (Ice.ObjectPrxHelperBase?)other."
                  << memberName;
         }
         else
@@ -3102,7 +3103,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
         }
         _out << nl << retS << " " << name << spar << getParams(p, ns)
-             << ("global::System.Collections.Generic.Dictionary<string, string> " + context + " = null") << epar << ';';
+             << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null") << epar << ';';
     }
 
     {
@@ -3126,8 +3127,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         }
         _out << nl << taskResultType(p, ns);
         _out << " " << p->name() << "Async" << spar << inParams
-             << ("global::System.Collections.Generic.Dictionary<string, string> " + context + " = null")
-             << ("global::System.IProgress<bool> " + progress + " = null")
+             << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null")
+             << ("global::System.IProgress<bool>? " + progress + " = null")
              << ("global::System.Threading.CancellationToken " + cancel + " = default") << epar << ";";
     }
 }
@@ -3302,7 +3303,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         _out << sp;
         _out << nl << "public " << retS << " " << opName << spar << params
-             << ("global::System.Collections.Generic.Dictionary<string, string> " + context + " = null") << epar;
+             << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null") << epar;
         _out << sb;
         _out << nl << "try";
         _out << sb;
@@ -3350,9 +3351,9 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
         }
         _out << eb;
-        _out << nl << "catch(global::System.AggregateException ex_)";
+        _out << nl << "catch (global::System.AggregateException ex_)";
         _out << sb;
-        _out << nl << "throw ex_.InnerException;";
+        _out << nl << "throw ex_.InnerException!;";
         _out << eb;
         _out << eb;
     }
@@ -3411,8 +3412,8 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             _out << "<" << returnTypeS << ">";
         }
         _out << " " << opName << "Async" << spar << paramsAMI
-             << ("global::System.Collections.Generic.Dictionary<string, string> " + context + " = null")
-             << ("global::System.IProgress<bool> " + progress + " = null")
+             << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null")
+             << ("global::System.IProgress<bool>? " + progress + " = null")
              << ("global::System.Threading.CancellationToken " + cancel + " = default") << epar;
 
         _out << sb;
@@ -3430,8 +3431,8 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             _out << "<" << returnTypeS << ">";
         }
         _out << " _iceI_" << opName << "Async" << spar << getInParams(op, ns, true)
-             << "global::System.Collections.Generic.Dictionary<string, string> context"
-             << "global::System.IProgress<bool> progress" << "global::System.Threading.CancellationToken cancel"
+             << "global::System.Collections.Generic.Dictionary<string, string>? context"
+             << "global::System.IProgress<bool>? progress" << "global::System.Threading.CancellationToken cancel"
              << "bool synchronous" << epar;
         _out << sb;
 
@@ -3464,7 +3465,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         //
         _out << sp << nl;
         _out << "private void _iceI_" << op->name() << spar << getInParams(op, ns, true)
-             << "global::System.Collections.Generic.Dictionary<string, string> context" << "bool synchronous"
+             << "global::System.Collections.Generic.Dictionary<string, string>? context" << "bool synchronous"
              << "global::Ice.Internal.OutgoingAsyncCompletionCallback completed" << epar;
         _out << sb;
 
@@ -3532,7 +3533,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             _out << sb;
             if (outParams.empty())
             {
-                _out << nl << returnTypeS << " ret = default;";
+                _out << nl << returnTypeS << " ret;";
             }
             else if (ret || outParams.size() > 1)
             {
@@ -3577,8 +3578,8 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
          << ".createProxy(communicator, proxyString));";
     _out.dec();
 
-    _out << sp << nl << "public static " << name << "Prx checkedCast(" << getUnqualified("Ice.ObjectPrx", ns)
-         << " b, global::System.Collections.Generic.Dictionary<string, string> ctx = null)";
+    _out << sp << nl << "public static " << name << "Prx? checkedCast(" << getUnqualified("Ice.ObjectPrx", ns)
+         << " b, global::System.Collections.Generic.Dictionary<string, string>? ctx = null)";
     _out << sb;
     _out << nl << "if (b is not null && b.ice_isA(ice_staticId(), ctx))";
     _out << sb;
@@ -3589,10 +3590,10 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "return null;";
     _out << eb;
 
-    _out << sp << nl << "public static " << name << "Prx checkedCast(" << getUnqualified("Ice.ObjectPrx", ns)
-         << " b, string f, " << "global::System.Collections.Generic.Dictionary<string, string> ctx = null)";
+    _out << sp << nl << "public static " << name << "Prx? checkedCast(" << getUnqualified("Ice.ObjectPrx", ns)
+         << " b, string f, " << "global::System.Collections.Generic.Dictionary<string, string>? ctx = null)";
     _out << sb;
-    _out << nl << getUnqualified("Ice.ObjectPrx", ns) << " bb = b?.ice_facet(f);";
+    _out << nl << getUnqualified("Ice.ObjectPrx?", ns) << " bb = b?.ice_facet(f);";
     _out << nl << "try";
     _out << sb;
     _out << nl << "if (bb is not null && bb.ice_isA(ice_staticId(), ctx))";
@@ -3608,25 +3609,27 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "return null;";
     _out << eb;
 
-    _out << sp << nl << "public static " << name << "Prx uncheckedCast(" << getUnqualified("Ice.ObjectPrx", ns)
+    _out << sp << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(b))]";
+    _out << sp << nl << "public static " << name << "Prx? uncheckedCast(" << getUnqualified("Ice.ObjectPrx?", ns)
          << " b)";
     _out << sb;
     _out << nl << "if (b is not null)";
     _out << sb;
-    _out << nl << name << "PrxHelper prx = new " << name << "PrxHelper();";
+    _out << nl << "var prx = new " << name << "PrxHelper();";
     _out << nl << "prx.iceCopyFrom(b);";
     _out << nl << "return prx;";
     _out << eb;
     _out << nl << "return null;";
     _out << eb;
 
-    _out << sp << nl << "public static " << name << "Prx uncheckedCast(" << getUnqualified("Ice.ObjectPrx", ns)
+    _out << sp << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(b))]";
+    _out << sp << nl << "public static " << name << "Prx? uncheckedCast(" << getUnqualified("Ice.ObjectPrx?", ns)
          << " b, string f)";
     _out << sb;
     _out << nl << "if (b is not null)";
     _out << sb;
-    _out << nl << getUnqualified("Ice.ObjectPrx", ns) << " bb = b.ice_facet(f);";
-    _out << nl << name << "PrxHelper prx = new " << name << "PrxHelper();";
+    _out << nl << getUnqualified("Ice.ObjectPrx?", ns) << " bb = b.ice_facet(f);";
+    _out << nl << "var prx = new " << name << "PrxHelper();";
     _out << nl << "prx.iceCopyFrom(bb);";
     _out << nl << "return prx;";
     _out << eb;
@@ -3662,17 +3665,17 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sp << nl << "#region Marshaling support";
 
     _out << sp << nl << "public static void write(" << getUnqualified("Ice.OutputStream", ns) << " ostr, " << name
-         << "Prx v)";
+         << "Prx? v)";
     _out << sb;
     _out << nl << "ostr.writeProxy(v);";
     _out << eb;
 
-    _out << sp << nl << "public static " << name << "Prx read(" << getUnqualified("Ice.InputStream", ns) << " istr)";
+    _out << sp << nl << "public static " << name << "Prx? read(" << getUnqualified("Ice.InputStream", ns) << " istr)";
     _out << sb;
-    _out << nl << getUnqualified("Ice.ObjectPrx", ns) << " proxy = istr.readProxy();";
-    _out << nl << "if(proxy != null)";
+    _out << nl << getUnqualified("Ice.ObjectPrx?", ns) << " proxy = istr.readProxy();";
+    _out << nl << "if (proxy is not null)";
     _out << sb;
-    _out << nl << name << "PrxHelper result = new " << name << "PrxHelper();";
+    _out << nl << " var result = new " << name << "PrxHelper();";
     _out << nl << "result.iceCopyFrom(proxy);";
     _out << nl << "return result;";
     _out << eb;
@@ -3805,7 +3808,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << nl << name << " r = new " << name << "();";
     _out << nl << "for(int i = 0; i < sz; ++i)";
     _out << sb;
-    _out << nl << keyS << " k = default;";
+    _out << nl << keyS << " k;";
     writeMarshalUnmarshalCode(_out, key, ns, "k", false);
 
     if (isClassType(value))
@@ -3816,7 +3819,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     }
     else
     {
-        _out << nl << valueS << " v = default;";
+        _out << nl << valueS << " v;";
         writeMarshalUnmarshalCode(_out, value, ns, "v", false);
         _out << nl << "r[k] = v;";
     }
