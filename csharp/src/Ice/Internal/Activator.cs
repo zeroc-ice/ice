@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Globalization;
@@ -19,8 +21,8 @@ internal class Activator : IActivator
 
     private readonly IReadOnlyDictionary<string, Lazy<ActivateObject>> _dict;
 
-    public object CreateInstance(string typeId) =>
-        _dict.TryGetValue(typeId, out Lazy<ActivateObject> factory) ? factory.Value() : null;
+    public object? CreateInstance(string typeId) =>
+        _dict.TryGetValue(typeId, out Lazy<ActivateObject>? factory) ? factory.Value() : null;
 
     /// <summary>Merge activators into a single activator; duplicate entries are ignored.</summary>
     internal static Activator Merge(IEnumerable<Activator> activators)
@@ -56,7 +58,7 @@ internal class ActivatorFactory
 
     internal Activator Get(Assembly assembly)
     {
-        if (_cache.TryGetValue(assembly, out Activator activator))
+        if (_cache.TryGetValue(assembly, out Activator? activator))
         {
             return activator;
         }

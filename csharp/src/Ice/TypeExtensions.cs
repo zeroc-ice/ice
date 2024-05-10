@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 namespace Ice;
 
 /// <summary>Provides extension methods for <see cref="Type" />.</summary>
@@ -12,7 +14,7 @@ public static class TypeExtensions
     /// <returns>The Slice type ID, or <see langword="null" /> if <paramref name="type" /> does not carry the
     /// <see cref="SliceTypeIdAttribute"/> attribute.
     /// </returns>
-    public static string GetSliceTypeId(this Type type)
+    public static string? GetSliceTypeId(this Type type)
     {
         object[] attributes = type.GetCustomAttributes(typeof(SliceTypeIdAttribute), false);
         return attributes.Length == 1 && attributes[0] is SliceTypeIdAttribute typeId ? typeId.Value : null;
