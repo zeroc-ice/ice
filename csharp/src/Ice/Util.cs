@@ -14,7 +14,7 @@ public class InitializationData
     /// <summary>
     /// Creates and returns a copy of this object.
     /// </summary>
-    public InitializationData Clone() =>(InitializationData)MemberwiseClone();
+    public InitializationData Clone() => (InitializationData)MemberwiseClone();
 
     /// <summary>
     /// The properties for the communicator.
