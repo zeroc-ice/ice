@@ -404,7 +404,7 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
     _out << eb << ";";
 
     _out << sp;
-    _out << nl << "public override bool ice_isA(string s, " << getUnqualified("Ice.Current?", ns) << " current = null)";
+    _out << nl << "public override bool ice_isA(string s, " << getUnqualified("Ice.Current", ns) << " current)";
     _out << sb;
     _out
         << nl
@@ -412,13 +412,13 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
     _out << eb;
 
     _out << sp;
-    _out << nl << "public override string[] ice_ids(" << getUnqualified("Ice.Current?", ns) << " current = null)";
+    _out << nl << "public override string[] ice_ids(" << getUnqualified("Ice.Current", ns) << " current)";
     _out << sb;
     _out << nl << "return _ids;";
     _out << eb;
 
     _out << sp;
-    _out << nl << "public override string ice_id(" << getUnqualified("Ice.Current?", ns) << " current = null)";
+    _out << nl << "public override string ice_id(" << getUnqualified("Ice.Current", ns) << " current)";
     _out << sb;
     _out << nl << "return ice_staticId();";
     _out << eb;
@@ -607,7 +607,7 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
 
         _out << sp;
         _out << nl << "public override global::System.Threading.Tasks.Task<" << getUnqualified("Ice.OutputStream", ns)
-             << ">";
+             << ">?";
         _out << nl << "iceDispatch(global::Ice.Internal.Incoming inS, " << getUnqualified("Ice.Current", ns)
              << " current)";
         _out << sb;
@@ -902,7 +902,7 @@ Slice::CsVisitor::getDispatchParams(
     }
 
     string currentParamName = getEscapedParamName(op, "current");
-    params.push_back(getUnqualified("Ice.Current?", ns) + " " + currentParamName + " = null");
+    params.push_back(getUnqualified("Ice.Current", ns) + " " + currentParamName);
     args.push_back(currentParamName);
     return name;
 }
@@ -1822,7 +1822,6 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     printGeneratedHeader(_out, fileBase + ".ice");
 
     _out << nl << "#nullable enable";
-    _out << sp << nl << "using _System = global::System;";
     _out << sp << nl << "[assembly:Ice.Slice(\"" << fileBase << ".ice\")]";
     _out << sp << nl << "#pragma warning disable 1591"; // See bug 3654
 }
@@ -3201,16 +3200,14 @@ Slice::Gen::OpsVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << sp;
         if (amd)
         {
-            writeDocCommentAMD(
-                op,
-                "<param name=\"" + args.back() + "\">The Current object for the invocation.</param>");
+            writeDocCommentAMD(op, "<param name=\"" + args.back() + "\">The Current object for the dispatch.</param>");
         }
         else
         {
             writeDocComment(
                 op,
                 getDeprecationMessageForComment(op, "operation"),
-                "<param name=\"" + args.back() + "\">The Current object for the invocation.</param>");
+                "<param name=\"" + args.back() + "\">The Current object for the dispatch.</param>");
         }
         emitAttributes(op);
         emitObsoleteAttribute(op, _out);

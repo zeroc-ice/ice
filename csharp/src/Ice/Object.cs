@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 using System.ComponentModel;
 using System.Diagnostics;
 
@@ -27,40 +29,40 @@ public interface Object
     /// </summary>
     ///
     /// <param name="s">The type ID of the Slice interface to test against.</param>
-    /// <param name="current">The Current object for the invocation.</param>
+    /// <param name="current">The Current object for the dispatch.</param>
     /// <returns>True if this object has the interface
     /// specified by s or derives from the interface specified by s.</returns>
-    bool ice_isA(string s, Current current = null);
+    bool ice_isA(string s, Current current);
 
     /// <summary>
     /// Tests whether this object can be reached.
     /// </summary>
-    /// <param name="current">The Current object for the invocation.</param>
-    void ice_ping(Current current = null);
+    /// <param name="current">The Current object for the dispatch.</param>
+    void ice_ping(Current current);
 
     /// <summary>
     /// Returns the Slice type IDs of the interfaces supported by this object.
     /// </summary>
-    /// <param name="current">The Current object for the invocation.</param>
+    /// <param name="current">The Current object for the dispatch.</param>
     /// <returns>The Slice type IDs of the interfaces supported by this object, in alphabetical order.</returns>
-    string[] ice_ids(Current current = null);
+    string[] ice_ids(Current current);
 
     /// <summary>
     /// Returns the Slice type ID of the most-derived interface supported by this object.
     /// </summary>
-    /// <param name="current">The Current object for the invocation.</param>
+    /// <param name="current">The Current object for the dispatch.</param>
     /// <returns>The Slice type ID of the most-derived interface.</returns>
-    string ice_id(Current current = null);
+    string ice_id(Current current);
 
     /// <summary>
-    /// Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
+    /// Dispatches a request to a servant. This method is used by dispatch interceptors to forward a dispatch
     /// to a servant (or to another interceptor).
     /// </summary>
-    /// <param name="request">The details of the invocation.</param>
+    /// <param name="request">The details of the dispatch.</param>
     /// <returns>The task if dispatched asynchronously, null otherwise.</returns>
-    Task<OutputStream> ice_dispatch(Request request);
+    Task<OutputStream>? ice_dispatch(Request request);
 
-    Task<OutputStream> iceDispatch(Ice.Internal.Incoming inc, Current current);
+    Task<OutputStream>? iceDispatch(Ice.Internal.Incoming inc, Current current);
 }
 
 /// <summary>
@@ -84,15 +86,15 @@ public abstract class ObjectImpl : Object
     /// Tests whether this object supports a specific Slice interface.
     /// </summary>
     /// <param name="s">The type ID of the Slice interface to test against.</param>
-    /// <param name="current">The Current object for the invocation.</param>
+    /// <param name="current">The Current object for the dispatch.</param>
     /// <returns>The return value is true if s is ::Ice::Object.</returns>
-    public virtual bool ice_isA(string s, Current current = null)
+    public virtual bool ice_isA(string s, Current current)
     {
         return s.Equals(_ids[0]);
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Task<OutputStream> iceD_ice_isA(Object obj, Ice.Internal.Incoming inS, Current current)
+    public static Task<OutputStream>? iceD_ice_isA(Object obj, Ice.Internal.Incoming inS, Current current)
     {
         InputStream istr = inS.startReadParams();
         var id = istr.readString();
@@ -107,15 +109,15 @@ public abstract class ObjectImpl : Object
 
     /// <summary>
     /// Tests whether this object can be reached.
-    /// <param name="current">The Current object for the invocation.</param>
+    /// <param name="current">The Current object for the dispatch.</param>
     /// </summary>
-    public virtual void ice_ping(Current current = null)
+    public virtual void ice_ping(Current current)
     {
         // Nothing to do.
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Task<OutputStream> iceD_ice_ping(Object obj, Ice.Internal.Incoming inS, Current current)
+    public static Task<OutputStream>? iceD_ice_ping(Object obj, Ice.Internal.Incoming inS, Current current)
     {
         inS.readEmptyParams();
         obj.ice_ping(current);
@@ -126,15 +128,15 @@ public abstract class ObjectImpl : Object
     /// <summary>
     /// Returns the Slice type IDs of the interfaces supported by this object.
     /// </summary>
-    /// <param name="current">The Current object for the invocation.</param>
+    /// <param name="current">The Current object for the dispatch.</param>
     /// <returns>An array whose only element is ::Ice::Object.</returns>
-    public virtual string[] ice_ids(Current current = null)
+    public virtual string[] ice_ids(Current current)
     {
         return _ids;
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Task<OutputStream> iceD_ice_ids(Object obj, Ice.Internal.Incoming inS, Current current)
+    public static Task<OutputStream>? iceD_ice_ids(Object obj, Ice.Internal.Incoming inS, Current current)
     {
         inS.readEmptyParams();
         var ret = obj.ice_ids(current);
@@ -148,15 +150,15 @@ public abstract class ObjectImpl : Object
     /// <summary>
     /// Returns the Slice type ID of the most-derived interface supported by this object.
     /// </summary>
-    /// <param name="current">The Current object for the invocation.</param>
+    /// <param name="current">The Current object for the dispatch.</param>
     /// <returns>The return value is always ::Ice::Object.</returns>
-    public virtual string ice_id(Current current = null)
+    public virtual string ice_id(Current current)
     {
         return _ids[0];
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Task<OutputStream> iceD_ice_id(Object obj, Ice.Internal.Incoming inS, Current current)
+    public static Task<OutputStream>? iceD_ice_id(Object obj, Ice.Internal.Incoming inS, Current current)
     {
         inS.readEmptyParams();
         var ret = obj.ice_id(current);
@@ -182,12 +184,12 @@ public abstract class ObjectImpl : Object
     };
 
     /// <summary>
-    /// Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
+    /// Dispatches a dispatch to a servant. This method is used by dispatch interceptors to forward a dispatch
     /// to a servant (or to another interceptor).
     /// </summary>
-    /// <param name="request">The details of the invocation.</param>
+    /// <param name="request">The details of the dispatch.</param>
     /// <returns>The task if dispatched asynchronously, null otherwise.</returns>
-    public virtual Task<OutputStream> ice_dispatch(Request request)
+    public virtual Task<OutputStream>? ice_dispatch(Request request)
     {
         var inc = (Ice.Internal.Incoming)request;
         inc.startOver();
@@ -195,7 +197,7 @@ public abstract class ObjectImpl : Object
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual Task<OutputStream> iceDispatch(Ice.Internal.Incoming inc, Current current)
+    public virtual Task<OutputStream>? iceDispatch(Ice.Internal.Incoming inc, Current current)
     {
         int pos = Array.BinarySearch(_all, current.operation);
         if (pos < 0)
@@ -277,7 +279,7 @@ public abstract class Blobject : ObjectImpl
     /// Dispatch an incoming request.
     /// </summary>
     /// <param name="inParams">The encoded in-parameters for the operation.</param>
-    /// <param name="outParams">The encoded out-paramaters and return value
+    /// <param name="outParams">The encoded out-parameters and return value
     /// for the operation. The return value follows any out-parameters.</param>
     /// <param name="current">The Current object to pass to the operation.</param>
     /// <returns>If the operation completed successfully, the return value
@@ -288,7 +290,7 @@ public abstract class Blobject : ObjectImpl
     public abstract bool ice_invoke(byte[] inParams, out byte[] outParams, Current current);
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public override Task<OutputStream> iceDispatch(Ice.Internal.Incoming inS, Current current)
+    public override Task<OutputStream>? iceDispatch(Ice.Internal.Incoming inS, Current current)
     {
         byte[] inEncaps = inS.readParamEncaps();
         byte[] outEncaps;
