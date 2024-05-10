@@ -529,8 +529,6 @@ generated from the section label.
         <property name="Registry.LMDB.Path" />
         <property name="Registry.PermissionsVerifier" class="proxy" />
         <property name="Registry.ReplicaName" default="Master" />
-        <property name="Registry.RequireNodeCertCN" />
-        <property name="Registry.RequireReplicaCertCN" />
         <property name="Registry.Server" class="objectadapter" />
         <property name="Registry.SessionFilters" default="0" />
         <property name="Registry.SessionManager" class="objectadapter" />

@@ -5,11 +5,12 @@
 #ifndef ICE_SSL_TRUST_MANAGER_H
 #define ICE_SSL_TRUST_MANAGER_H
 
+#include "DistinguishedName.h"
 #include "Ice/InstanceF.h"
-#include "Ice/SSL/Certificate.h"
 #include "Ice/SSL/ConnectionInfoF.h"
 #include "RFC2253.h"
 #include "TrustManagerF.h"
+
 #include <list>
 #include <map>
 

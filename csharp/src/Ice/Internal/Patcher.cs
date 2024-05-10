@@ -1,26 +1,28 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 using System.Reflection;
 
 namespace Ice.Internal;
 
 public sealed class Patcher
 {
-    static public System.Action<T> arrayReadValue<T>(T[] arr, int index) where T : Ice.Value
+    static public System.Action<T?> arrayReadValue<T>(T?[] arr, int index) where T : Ice.Value
     {
-        return (T v) => { arr[index] = v; };
+        return (T? v) => { arr[index] = v; };
     }
 
-    static public System.Action<T> listReadValue<T>(List<T> seq, int index) where T : Ice.Value
+    static public System.Action<T?> listReadValue<T>(List<T?> seq, int index) where T : Ice.Value
     {
-        return (T v) =>
+        return (T? v) =>
         {
             int count = seq.Count;
             if (index >= count) // Need to grow the sequence.
             {
                 for (int i = count; i < index; i++)
                 {
-                    seq.Add(default(T));
+                    seq.Add(null);
                 }
                 seq.Add(v);
             }
@@ -31,9 +33,9 @@ public sealed class Patcher
         };
     }
 
-    static public System.Action<T> customSeqReadValue<T>(IEnumerable<T> seq, int index) where T : Ice.Value
+    static public System.Action<T?> customSeqReadValue<T>(IEnumerable<T?> seq, int index) where T : Ice.Value
     {
-        return (T v) =>
+        return (T? v) =>
         {
             var info = getInvokeInfo<T>(seq.GetType());
             int count = info.getCount(seq);
@@ -41,7 +43,7 @@ public sealed class Patcher
             {
                 for (int i = count; i < index; i++)
                 {
-                    info.invokeAdd(seq, default(T));
+                    info.invokeAdd(seq, null);
                 }
                 info.invokeAdd(seq, v);
             }
@@ -56,24 +58,23 @@ public sealed class Patcher
     {
         lock (_methodTable)
         {
-            InvokeInfo i;
-            if (_methodTable.TryGetValue(t, out i))
+            if (_methodTable.TryGetValue(t, out InvokeInfo? i))
             {
                 return i;
             }
 
-            MethodInfo am = t.GetMethod("Add", new Type[] { typeof(T) });
+            MethodInfo? am = t.GetMethod("Add", [typeof(T)]);
             if (am == null)
             {
                 throw new Ice.MarshalException("Cannot patch a collection without an Add() method");
             }
 
-            PropertyInfo pi = t.GetProperty("Item");
+            PropertyInfo? pi = t.GetProperty("Item");
             if (pi == null)
             {
                 throw new Ice.MarshalException("Cannot patch a collection without an indexer");
             }
-            MethodInfo sm = pi.GetSetMethod();
+            MethodInfo? sm = pi.GetSetMethod();
             if (sm == null)
             {
                 throw new Ice.MarshalException("Cannot patch a collection without an indexer to set a value");
@@ -84,7 +85,7 @@ public sealed class Patcher
             {
                 throw new Ice.MarshalException("Cannot patch a collection without a Count property");
             }
-            MethodInfo cm = pi.GetGetMethod();
+            MethodInfo? cm = pi.GetGetMethod();
             if (cm == null)
             {
                 throw new Ice.MarshalException("Cannot patch a collection without a readable Count property");
@@ -109,7 +110,7 @@ public sealed class Patcher
         {
             try
             {
-                return (int)_countMethod.Invoke(seq, null);
+                return (int)_countMethod.Invoke(seq, null)!;
             }
             catch (System.Exception ex)
             {
@@ -117,11 +118,11 @@ public sealed class Patcher
             }
         }
 
-        internal void invokeAdd(System.Collections.IEnumerable seq, object v)
+        internal void invokeAdd(System.Collections.IEnumerable seq, object? v)
         {
             try
             {
-                object[] arg = new object[] { v };
+                var arg = new object?[] { v };
                 _addMethod.Invoke(seq, arg);
             }
             catch (System.Exception ex)
@@ -130,11 +131,11 @@ public sealed class Patcher
             }
         }
 
-        internal void invokeSet(System.Collections.IEnumerable seq, int index, object v)
+        internal void invokeSet(System.Collections.IEnumerable seq, int index, object? v)
         {
             try
             {
-                object[] args = new object[] { index, v };
+                var args = new object?[] { index, v };
                 _setMethod.Invoke(seq, args);
             }
             catch (System.Exception ex)

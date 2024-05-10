@@ -38,8 +38,6 @@ InternalRegistryI::InternalRegistryI(
     // TODO: temporary. For now, synchronized with the default idle timeout.
     _nodeSessionTimeout = chrono::seconds(60);
     _replicaSessionTimeout = chrono::seconds(60);
-    _requireNodeCertCN = properties->getIcePropertyAsInt("IceGrid.Registry.RequireNodeCertCN");
-    _requireReplicaCertCN = properties->getIcePropertyAsInt("IceGrid.Registry.RequireReplicaCertCN");
 }
 
 optional<NodeSessionPrx>
@@ -60,49 +58,6 @@ InternalRegistryI::registerNode(
         os << "null node info passed to " << current.operation << " on object "
            << current.adapter->getCommunicator()->identityToString(current.id);
         throw Ice::MarshalException{__FILE__, __LINE__, os.str()};
-    }
-
-    if (_requireNodeCertCN)
-    {
-        try
-        {
-            auto sslConnInfo = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(current.con->getInfo());
-            if (sslConnInfo)
-            {
-                if (!sslConnInfo->peerCertificate ||
-                    !Ice::SSL::getSubjectName(sslConnInfo->peerCertificate).match("CN=" + info->name))
-                {
-                    if (traceLevels->node > 0)
-                    {
-                        Ice::Trace out(logger, traceLevels->nodeCat);
-                        out << "certificate CN doesn't match node name `" << info->name << "'";
-                    }
-                    throw PermissionDeniedException("certificate CN doesn't match node name `" + info->name + "'");
-                }
-            }
-            else
-            {
-                if (traceLevels->node > 0)
-                {
-                    Ice::Trace out(logger, traceLevels->nodeCat);
-                    out << "node certificate for `" << info->name << "' is required to connect to this registry";
-                }
-                throw PermissionDeniedException("node certificate is required to connect to this registry");
-            }
-        }
-        catch (const PermissionDeniedException&)
-        {
-            throw;
-        }
-        catch (const IceUtil::Exception&)
-        {
-            if (traceLevels->node > 0)
-            {
-                Ice::Trace out(logger, traceLevels->nodeCat);
-                out << "unexpected exception while verifying certificate for node `" << info->name << "'";
-            }
-            throw PermissionDeniedException("unable to verify certificate for node `" + info->name + "'");
-        }
     }
 
     try
@@ -134,49 +89,6 @@ InternalRegistryI::registerReplica(
         os << "null replica info passed to " << current.operation << " on object "
            << current.adapter->getCommunicator()->identityToString(current.id);
         throw Ice::MarshalException{__FILE__, __LINE__, os.str()};
-    }
-
-    if (_requireReplicaCertCN)
-    {
-        try
-        {
-            auto sslConnInfo = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(current.con->getInfo());
-            if (sslConnInfo)
-            {
-                if (!sslConnInfo->peerCertificate ||
-                    !Ice::SSL::getSubjectName(sslConnInfo->peerCertificate).match("CN=" + info->name))
-                {
-                    if (traceLevels->replica > 0)
-                    {
-                        Ice::Trace out(logger, traceLevels->replicaCat);
-                        out << "certificate CN doesn't match replica name `" << info->name << "'";
-                    }
-                    throw PermissionDeniedException("certificate CN doesn't match replica name `" + info->name + "'");
-                }
-            }
-            else
-            {
-                if (traceLevels->replica > 0)
-                {
-                    Ice::Trace out(logger, traceLevels->replicaCat);
-                    out << "replica certificate for `" << info->name << "' is required to connect to this registry";
-                }
-                throw PermissionDeniedException("replica certificate is required to connect to this registry");
-            }
-        }
-        catch (const PermissionDeniedException&)
-        {
-            throw;
-        }
-        catch (const IceUtil::Exception&)
-        {
-            if (traceLevels->replica > 0)
-            {
-                Ice::Trace out(logger, traceLevels->replicaCat);
-                out << "unexpected exception while verifying certificate for replica `" << info->name << "'";
-            }
-            throw PermissionDeniedException("unable to verify certificate for replica `" + info->name + "'");
-        }
     }
 
     try

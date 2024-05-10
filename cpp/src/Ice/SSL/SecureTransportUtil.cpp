@@ -4,8 +4,9 @@
 
 #include "SecureTransportUtil.h"
 #include "../Base64.h"
+#include "DistinguishedName.h"
 #include "Ice/LocalException.h"
-#include "Ice/SSL/Certificate.h"
+#include "Ice/SSL/SSLException.h"
 #include "Ice/UniqueRef.h"
 #include "IceUtil/FileUtil.h"
 #include "IceUtil/StringUtil.h"
@@ -316,7 +317,7 @@ namespace
         return items.release();
     }
 
-    SecKeychainRef openKeychain(const std::string& path, const std::string& keychainPassword)
+    SecKeychainRef openKeychain(const string& path, const string& keychainPassword)
     {
         string keychainPath = path;
         UniqueRef<SecKeychainRef> keychain;
@@ -657,11 +658,11 @@ Ice::SSL::SecureTransport::loadCertificateChain(
     const string& file,
 #if defined(ICE_USE_SECURE_TRANSPORT_IOS)
     const string& /*keyFile*/,
-    const std::string& /*keychainPath*/,
+    const string& /*keychainPath*/,
     const string& /*keychainPassword*/,
 #else
     const string& keyFile,
-    const std::string& keychainPath,
+    const string& keychainPath,
     const string& keychainPassword,
 #endif
     const string& password)
@@ -775,11 +776,11 @@ Ice::SSL::SecureTransport::loadCACertificates(const string& file)
 
 CFArrayRef
 #if defined(ICE_USE_SECURE_TRANSPORT_IOS)
-Ice::SSL::SecureTransport::findCertificateChain(const std::string&, const std::string&, const string& value)
+Ice::SSL::SecureTransport::findCertificateChain(const string&, const string&, const string& value)
 #else
 Ice::SSL::SecureTransport::findCertificateChain(
-    const std::string& keychainPath,
-    const std::string& keychainPassword,
+    const string& keychainPath,
+    const string& keychainPassword,
     const string& value)
 #endif
 {
@@ -988,43 +989,43 @@ Ice::SSL::SecureTransport::findCertificateChain(
 }
 
 #ifdef ICE_USE_SECURE_TRANSPORT_IOS
-DistinguishedName
+string
 Ice::SSL::getSubjectName(SecCertificateRef)
 {
     throw FeatureNotSupportedException(__FILE__, __LINE__);
 }
 
-std::vector<std::pair<int, std::string>>
+vector<pair<int, string>>
 Ice::SSL::getSubjectAltNames(SecCertificateRef)
 {
     throw FeatureNotSupportedException(__FILE__, __LINE__);
 }
 
-std::string
+string
 Ice::SSL::encodeCertificate(SecCertificateRef)
 {
     throw FeatureNotSupportedException(__FILE__, __LINE__);
 }
 
 SecCertificateRef
-Ice::SSL::decodeCertificate(const std::string&)
+Ice::SSL::decodeCertificate(const string&)
 {
     throw FeatureNotSupportedException(__FILE__, __LINE__);
 }
 #else // macOS
-DistinguishedName
+string
 Ice::SSL::getSubjectName(SecCertificateRef certificate)
 {
     return getX509Name(certificate, kSecOIDX509V1SubjectName);
 }
 
-std::vector<std::pair<int, std::string>>
+vector<pair<int, string>>
 Ice::SSL::getSubjectAltNames(SecCertificateRef certificate)
 {
     return getX509AltName(certificate, kSecOIDSubjectAltName);
 }
 
-std::string
+string
 Ice::SSL::encodeCertificate(SecCertificateRef certificate)
 {
     UniqueRef<CFDataRef> exported;
@@ -1039,7 +1040,7 @@ Ice::SSL::encodeCertificate(SecCertificateRef certificate)
 }
 
 SecCertificateRef
-Ice::SSL::decodeCertificate(const std::string& data)
+Ice::SSL::decodeCertificate(const string& data)
 {
     UniqueRef<CFDataRef> buffer(CFDataCreateWithBytesNoCopy(
         kCFAllocatorDefault,
