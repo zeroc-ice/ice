@@ -1017,16 +1017,11 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         _out << "))";
 
-        string deprecateMetadata;
-        if ((*s)->findMetaData("deprecate", deprecateMetadata) || p->findMetaData("deprecate", deprecateMetadata))
+        if ((*s)->isDeprecated(true))
         {
-            string msg;
-            string::size_type pos = deprecateMetadata.find(':');
-            if (pos != string::npos && pos < deprecateMetadata.size() - 1)
-            {
-                msg = deprecateMetadata.substr(pos + 1);
-            }
-            _out << nl << className << "._op_" << (*s)->name() << ".deprecate(\"" << msg << "\")";
+            // Get the deprecation reason if present, or default to an empty string.
+            string reason = (*s)->getDeprecationReason(true).value_or("");
+            _out << nl << className << "._op_" << (*s)->name() << ".deprecate(\"" << reason << "\")";
         }
     }
 
