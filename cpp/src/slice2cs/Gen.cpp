@@ -3200,9 +3200,7 @@ Slice::Gen::OpsVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << sp;
         if (amd)
         {
-            writeDocCommentAMD(
-                op,
-                "<param name=\"" + args.back() + "\">The Current object for the dispatch.</param>");
+            writeDocCommentAMD(op, "<param name=\"" + args.back() + "\">The Current object for the dispatch.</param>");
         }
         else
         {
