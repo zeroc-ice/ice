@@ -13,7 +13,6 @@
 #include "Ice/StringConverter.h"
 #include "Ice/ValueFactory.h"
 #include "Instance.h"
-#include "ProxyFactory.h"
 #include "TraceUtil.h"
 
 #include <iterator>

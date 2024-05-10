@@ -17,7 +17,6 @@
 #include "IdleTimeoutTransceiverDecorator.h"
 #include "Instance.h"
 #include "ObjectAdapterI.h"   // For getThreadPool()
-#include "ProxyFactory.h"     // For createProxy().
 #include "ReferenceFactory.h" // For createProxy().
 #include "RequestHandler.h"   // For RetryException
 #include "ThreadPool.h"

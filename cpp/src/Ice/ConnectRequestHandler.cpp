@@ -8,7 +8,6 @@
 #include "Ice/Properties.h"
 #include "Ice/Proxy.h"
 #include "Instance.h"
-#include "ProxyFactory.h"
 #include "RouterInfo.h"
 #include "ThreadPool.h"
 

@@ -562,7 +562,6 @@
     <ClCompile Include="..\..\ProtocolInstance.cpp" />
     <ClCompile Include="..\..\ProtocolPluginFacade.cpp" />
     <ClCompile Include="..\..\Proxy.cpp" />
-    <ClCompile Include="..\..\ProxyFactory.cpp" />
     <ClCompile Include="..\..\Reference.cpp" />
     <ClCompile Include="..\..\ReferenceFactory.cpp" />
     <ClCompile Include="..\..\RegisterPluginsInit.cpp" />

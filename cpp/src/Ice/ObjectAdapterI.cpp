@@ -24,7 +24,6 @@
 #include "ObjectAdapterFactory.h"
 #include "ObserverMiddleware.h"
 #include "PropertyNames.h"
-#include "ProxyFactory.h"
 #include "ReferenceFactory.h"
 #include "RouterInfo.h"
 #include "ServantManager.h"
