@@ -442,7 +442,7 @@ namespace
             // name dnsNames.
             if (dnsNames.empty())
             {
-                DistinguishedName d = getSubjectName(cert);
+                auto d = DistinguishedName(getSubjectName(cert));
                 string dn = IceUtilInternal::toLower(string(d));
                 string cn = "cn=" + addrLower;
                 string::size_type pos = dn.find(cn);

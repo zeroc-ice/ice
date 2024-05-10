@@ -6,8 +6,7 @@
 
 #include "PropertyNames.h"
 
-const IceInternal::Property IcePropsData[] =
-{
+const IceInternal::Property IcePropsData[] = {
     IceInternal::Property("Ice.AcceptClassCycles", false, "", false, nullptr),
     IceInternal::Property("Ice.ACM.Client", false, "", true, nullptr),
     IceInternal::Property("Ice.ACM.Server", false, "", true, nullptr),
@@ -200,11 +199,9 @@ const IceInternal::Property IcePropsData[] =
 };
 
 const IceInternal::PropertyArray
-    IceInternal::PropertyNames::IceProps(IcePropsData,
-                                                sizeof(IcePropsData)/sizeof(IcePropsData[0]));
+    IceInternal::PropertyNames::IceProps(IcePropsData, sizeof(IcePropsData) / sizeof(IcePropsData[0]));
 
-const IceInternal::Property IceMXPropsData[] =
-{
+const IceInternal::Property IceMXPropsData[] = {
     IceInternal::Property("IceMX.Metrics.*.GroupBy", true, "", false, nullptr),
     IceInternal::Property("IceMX.Metrics.*.Map", true, "", false, nullptr),
     IceInternal::Property("IceMX.Metrics.*.RetainDetached", true, "", false, nullptr),
@@ -214,11 +211,9 @@ const IceInternal::Property IceMXPropsData[] =
 };
 
 const IceInternal::PropertyArray
-    IceInternal::PropertyNames::IceMXProps(IceMXPropsData,
-                                                sizeof(IceMXPropsData)/sizeof(IceMXPropsData[0]));
+    IceInternal::PropertyNames::IceMXProps(IceMXPropsData, sizeof(IceMXPropsData) / sizeof(IceMXPropsData[0]));
 
-const IceInternal::Property IceDiscoveryPropsData[] =
-{
+const IceInternal::Property IceDiscoveryPropsData[] = {
     IceInternal::Property("IceDiscovery.Multicast.ACM.Timeout", false, "", false, nullptr),
     IceInternal::Property("IceDiscovery.Multicast.ACM.Heartbeat", false, "", false, nullptr),
     IceInternal::Property("IceDiscovery.Multicast.ACM.Close", false, "", false, nullptr),
@@ -358,12 +353,11 @@ const IceInternal::Property IceDiscoveryPropsData[] =
     IceInternal::Property("IceDiscovery.DomainId", false, "", false, nullptr),
 };
 
-const IceInternal::PropertyArray
-    IceInternal::PropertyNames::IceDiscoveryProps(IceDiscoveryPropsData,
-                                                sizeof(IceDiscoveryPropsData)/sizeof(IceDiscoveryPropsData[0]));
+const IceInternal::PropertyArray IceInternal::PropertyNames::IceDiscoveryProps(
+    IceDiscoveryPropsData,
+    sizeof(IceDiscoveryPropsData) / sizeof(IceDiscoveryPropsData[0]));
 
-const IceInternal::Property IceLocatorDiscoveryPropsData[] =
-{
+const IceInternal::Property IceLocatorDiscoveryPropsData[] = {
     IceInternal::Property("IceLocatorDiscovery.Reply.ACM.Timeout", false, "", false, nullptr),
     IceInternal::Property("IceLocatorDiscovery.Reply.ACM.Heartbeat", false, "", false, nullptr),
     IceInternal::Property("IceLocatorDiscovery.Reply.ACM.Close", false, "", false, nullptr),
@@ -461,12 +455,11 @@ const IceInternal::Property IceLocatorDiscoveryPropsData[] =
     IceInternal::Property("IceLocatorDiscovery.Trace.Lookup", false, "", false, nullptr),
 };
 
-const IceInternal::PropertyArray
-    IceInternal::PropertyNames::IceLocatorDiscoveryProps(IceLocatorDiscoveryPropsData,
-                                                sizeof(IceLocatorDiscoveryPropsData)/sizeof(IceLocatorDiscoveryPropsData[0]));
+const IceInternal::PropertyArray IceInternal::PropertyNames::IceLocatorDiscoveryProps(
+    IceLocatorDiscoveryPropsData,
+    sizeof(IceLocatorDiscoveryPropsData) / sizeof(IceLocatorDiscoveryPropsData[0]));
 
-const IceInternal::Property IceBoxPropsData[] =
-{
+const IceInternal::Property IceBoxPropsData[] = {
     IceInternal::Property("IceBox.InheritProperties", false, "", false, nullptr),
     IceInternal::Property("IceBox.InstanceName", false, "", true, nullptr),
     IceInternal::Property("IceBox.LoadOrder", false, "", false, nullptr),
@@ -487,11 +480,9 @@ const IceInternal::Property IceBoxPropsData[] =
 };
 
 const IceInternal::PropertyArray
-    IceInternal::PropertyNames::IceBoxProps(IceBoxPropsData,
-                                                sizeof(IceBoxPropsData)/sizeof(IceBoxPropsData[0]));
+    IceInternal::PropertyNames::IceBoxProps(IceBoxPropsData, sizeof(IceBoxPropsData) / sizeof(IceBoxPropsData[0]));
 
-const IceInternal::Property IceBoxAdminPropsData[] =
-{
+const IceInternal::Property IceBoxAdminPropsData[] = {
     IceInternal::Property("IceBoxAdmin.ServiceManager.Proxy.EndpointSelection", false, "", false, nullptr),
     IceInternal::Property("IceBoxAdmin.ServiceManager.Proxy.ConnectionCached", false, "", false, nullptr),
     IceInternal::Property("IceBoxAdmin.ServiceManager.Proxy.PreferSecure", false, "", false, nullptr),
@@ -504,12 +495,11 @@ const IceInternal::Property IceBoxAdminPropsData[] =
     IceInternal::Property("IceBoxAdmin.ServiceManager.Proxy", false, "", false, nullptr),
 };
 
-const IceInternal::PropertyArray
-    IceInternal::PropertyNames::IceBoxAdminProps(IceBoxAdminPropsData,
-                                                sizeof(IceBoxAdminPropsData)/sizeof(IceBoxAdminPropsData[0]));
+const IceInternal::PropertyArray IceInternal::PropertyNames::IceBoxAdminProps(
+    IceBoxAdminPropsData,
+    sizeof(IceBoxAdminPropsData) / sizeof(IceBoxAdminPropsData[0]));
 
-const IceInternal::Property IceBridgePropsData[] =
-{
+const IceInternal::Property IceBridgePropsData[] = {
     IceInternal::Property("IceBridge.Source.ACM.Timeout", false, "", false, nullptr),
     IceInternal::Property("IceBridge.Source.ACM.Heartbeat", false, "", false, nullptr),
     IceInternal::Property("IceBridge.Source.ACM.Close", false, "", false, nullptr),
@@ -557,12 +547,11 @@ const IceInternal::Property IceBridgePropsData[] =
     IceInternal::Property("IceBridge.InstanceName", false, "", false, nullptr),
 };
 
-const IceInternal::PropertyArray
-    IceInternal::PropertyNames::IceBridgeProps(IceBridgePropsData,
-                                                sizeof(IceBridgePropsData)/sizeof(IceBridgePropsData[0]));
+const IceInternal::PropertyArray IceInternal::PropertyNames::IceBridgeProps(
+    IceBridgePropsData,
+    sizeof(IceBridgePropsData) / sizeof(IceBridgePropsData[0]));
 
-const IceInternal::Property IceGridAdminPropsData[] =
-{
+const IceInternal::Property IceGridAdminPropsData[] = {
     IceInternal::Property("IceGridAdmin.AuthenticateUsingSSL", false, "", false, nullptr),
     IceInternal::Property("IceGridAdmin.MetricsConfig", false, "", false, nullptr),
     IceInternal::Property("IceGridAdmin.Username", false, "", false, nullptr),
@@ -707,12 +696,11 @@ const IceInternal::Property IceGridAdminPropsData[] =
     IceInternal::Property("IceGridAdmin.Trace.SaveToRegistry", false, "", false, nullptr),
 };
 
-const IceInternal::PropertyArray
-    IceInternal::PropertyNames::IceGridAdminProps(IceGridAdminPropsData,
-                                                sizeof(IceGridAdminPropsData)/sizeof(IceGridAdminPropsData[0]));
+const IceInternal::PropertyArray IceInternal::PropertyNames::IceGridAdminProps(
+    IceGridAdminPropsData,
+    sizeof(IceGridAdminPropsData) / sizeof(IceGridAdminPropsData[0]));
 
-const IceInternal::Property IceGridPropsData[] =
-{
+const IceInternal::Property IceGridPropsData[] = {
     IceInternal::Property("IceGrid.AdminRouter.ACM.Timeout", false, "", false, nullptr),
     IceInternal::Property("IceGrid.AdminRouter.ACM.Heartbeat", false, "", false, nullptr),
     IceInternal::Property("IceGrid.AdminRouter.ACM.Close", false, "", false, nullptr),
@@ -847,20 +835,45 @@ const IceInternal::Property IceGridPropsData[] =
     IceInternal::Property("IceGrid.Registry.AdminSessionManager.ACM", false, "", false, nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSessionManager.AdapterId", false, "", false, nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSessionManager.Connection.CloseTimeout", false, "10", false, nullptr),
-    IceInternal::Property("IceGrid.Registry.AdminSessionManager.Connection.ConnectTimeout", false, "10", false, nullptr),
-    IceInternal::Property("IceGrid.Registry.AdminSessionManager.Connection.EnableIdleCheck", false, "1", false, nullptr),
+    IceInternal::Property(
+        "IceGrid.Registry.AdminSessionManager.Connection.ConnectTimeout",
+        false,
+        "10",
+        false,
+        nullptr),
+    IceInternal::Property(
+        "IceGrid.Registry.AdminSessionManager.Connection.EnableIdleCheck",
+        false,
+        "1",
+        false,
+        nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSessionManager.Connection.IdleTimeout", false, "60", false, nullptr),
-    IceInternal::Property("IceGrid.Registry.AdminSessionManager.Connection.InactivityTimeout", false, "300", false, nullptr),
+    IceInternal::Property(
+        "IceGrid.Registry.AdminSessionManager.Connection.InactivityTimeout",
+        false,
+        "300",
+        false,
+        nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSessionManager.Connection", false, "", false, nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSessionManager.Endpoints", false, "", false, nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSessionManager.Locator.EndpointSelection", false, "", false, nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSessionManager.Locator.ConnectionCached", false, "", false, nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSessionManager.Locator.PreferSecure", false, "", false, nullptr),
-    IceInternal::Property("IceGrid.Registry.AdminSessionManager.Locator.LocatorCacheTimeout", false, "", false, nullptr),
+    IceInternal::Property(
+        "IceGrid.Registry.AdminSessionManager.Locator.LocatorCacheTimeout",
+        false,
+        "",
+        false,
+        nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSessionManager.Locator.InvocationTimeout", false, "", false, nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSessionManager.Locator.Locator", false, "", false, nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSessionManager.Locator.Router", false, "", false, nullptr),
-    IceInternal::Property("IceGrid.Registry.AdminSessionManager.Locator.CollocationOptimized", false, "", false, nullptr),
+    IceInternal::Property(
+        "IceGrid.Registry.AdminSessionManager.Locator.CollocationOptimized",
+        false,
+        "",
+        false,
+        nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSessionManager.Locator.Context.*", true, "", false, nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSessionManager.Locator", false, "", false, nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSessionManager.PublishedEndpoints", false, "", false, nullptr),
@@ -872,7 +885,12 @@ const IceInternal::Property IceGridPropsData[] =
     IceInternal::Property("IceGrid.Registry.AdminSessionManager.Router.InvocationTimeout", false, "", false, nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSessionManager.Router.Locator", false, "", false, nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSessionManager.Router.Router", false, "", false, nullptr),
-    IceInternal::Property("IceGrid.Registry.AdminSessionManager.Router.CollocationOptimized", false, "", false, nullptr),
+    IceInternal::Property(
+        "IceGrid.Registry.AdminSessionManager.Router.CollocationOptimized",
+        false,
+        "",
+        false,
+        nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSessionManager.Router.Context.*", true, "", false, nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSessionManager.Router", false, "", false, nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSessionManager.ProxyOptions", false, "", false, nullptr),
@@ -887,11 +905,21 @@ const IceInternal::Property IceGridPropsData[] =
     IceInternal::Property("IceGrid.Registry.AdminSSLPermissionsVerifier.EndpointSelection", false, "", false, nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSSLPermissionsVerifier.ConnectionCached", false, "", false, nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSSLPermissionsVerifier.PreferSecure", false, "", false, nullptr),
-    IceInternal::Property("IceGrid.Registry.AdminSSLPermissionsVerifier.LocatorCacheTimeout", false, "", false, nullptr),
+    IceInternal::Property(
+        "IceGrid.Registry.AdminSSLPermissionsVerifier.LocatorCacheTimeout",
+        false,
+        "",
+        false,
+        nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSSLPermissionsVerifier.InvocationTimeout", false, "", false, nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSSLPermissionsVerifier.Locator", false, "", false, nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSSLPermissionsVerifier.Router", false, "", false, nullptr),
-    IceInternal::Property("IceGrid.Registry.AdminSSLPermissionsVerifier.CollocationOptimized", false, "", false, nullptr),
+    IceInternal::Property(
+        "IceGrid.Registry.AdminSSLPermissionsVerifier.CollocationOptimized",
+        false,
+        "",
+        false,
+        nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSSLPermissionsVerifier.Context.*", true, "", false, nullptr),
     IceInternal::Property("IceGrid.Registry.AdminSSLPermissionsVerifier", false, "", false, nullptr),
     IceInternal::Property("IceGrid.Registry.Client.ACM.Timeout", false, "", false, nullptr),
@@ -1158,11 +1186,9 @@ const IceInternal::Property IceGridPropsData[] =
 };
 
 const IceInternal::PropertyArray
-    IceInternal::PropertyNames::IceGridProps(IceGridPropsData,
-                                                sizeof(IceGridPropsData)/sizeof(IceGridPropsData[0]));
+    IceInternal::PropertyNames::IceGridProps(IceGridPropsData, sizeof(IceGridPropsData) / sizeof(IceGridPropsData[0]));
 
-const IceInternal::Property IceSSLPropsData[] =
-{
+const IceInternal::Property IceSSLPropsData[] = {
     IceInternal::Property("IceSSL.Alias", false, "", false, nullptr),
     IceInternal::Property("IceSSL.CAs", false, "", false, nullptr),
     IceInternal::Property("IceSSL.CertStore", false, "", false, nullptr),
@@ -1196,32 +1222,27 @@ const IceInternal::Property IceSSLPropsData[] =
 };
 
 const IceInternal::PropertyArray
-    IceInternal::PropertyNames::IceSSLProps(IceSSLPropsData,
-                                                sizeof(IceSSLPropsData)/sizeof(IceSSLPropsData[0]));
+    IceInternal::PropertyNames::IceSSLProps(IceSSLPropsData, sizeof(IceSSLPropsData) / sizeof(IceSSLPropsData[0]));
 
-const IceInternal::Property IceStormAdminPropsData[] =
-{
+const IceInternal::Property IceStormAdminPropsData[] = {
     IceInternal::Property("IceStormAdmin.TopicManager.*", true, "", false, nullptr),
     IceInternal::Property("IceStormAdmin.Host", false, "", false, nullptr),
     IceInternal::Property("IceStormAdmin.Port", false, "", false, nullptr),
 };
 
-const IceInternal::PropertyArray
-    IceInternal::PropertyNames::IceStormAdminProps(IceStormAdminPropsData,
-                                                sizeof(IceStormAdminPropsData)/sizeof(IceStormAdminPropsData[0]));
+const IceInternal::PropertyArray IceInternal::PropertyNames::IceStormAdminProps(
+    IceStormAdminPropsData,
+    sizeof(IceStormAdminPropsData) / sizeof(IceStormAdminPropsData[0]));
 
-const IceInternal::Property IceBTPropsData[] =
-{
+const IceInternal::Property IceBTPropsData[] = {
     IceInternal::Property("IceBT.RcvSize", false, "", false, nullptr),
     IceInternal::Property("IceBT.SndSize", false, "", false, nullptr),
 };
 
 const IceInternal::PropertyArray
-    IceInternal::PropertyNames::IceBTProps(IceBTPropsData,
-                                                sizeof(IceBTPropsData)/sizeof(IceBTPropsData[0]));
+    IceInternal::PropertyNames::IceBTProps(IceBTPropsData, sizeof(IceBTPropsData) / sizeof(IceBTPropsData[0]));
 
-const IceInternal::Property Glacier2PropsData[] =
-{
+const IceInternal::Property Glacier2PropsData[] = {
     IceInternal::Property("Glacier2.AddConnectionContext", false, "", false, nullptr),
     IceInternal::Property("Glacier2.Client.ACM.Timeout", false, "", false, nullptr),
     IceInternal::Property("Glacier2.Client.ACM.Heartbeat", false, "", false, nullptr),
@@ -1375,22 +1396,20 @@ const IceInternal::Property Glacier2PropsData[] =
     IceInternal::Property("Glacier2.Trace.Session", false, "", false, nullptr),
 };
 
-const IceInternal::PropertyArray
-    IceInternal::PropertyNames::Glacier2Props(Glacier2PropsData,
-                                                sizeof(Glacier2PropsData)/sizeof(Glacier2PropsData[0]));
+const IceInternal::PropertyArray IceInternal::PropertyNames::Glacier2Props(
+    Glacier2PropsData,
+    sizeof(Glacier2PropsData) / sizeof(Glacier2PropsData[0]));
 
-const IceInternal::Property Glacier2CryptPermissionsVerifierPropsData[] =
-{
+const IceInternal::Property Glacier2CryptPermissionsVerifierPropsData[] = {
     IceInternal::Property("Glacier2CryptPermissionsVerifier.*.PermissionsVerifier", true, "", false, nullptr),
     IceInternal::Property("Glacier2CryptPermissionsVerifier.*.AdminPermissionsVerifier", true, "", false, nullptr),
 };
 
-const IceInternal::PropertyArray
-    IceInternal::PropertyNames::Glacier2CryptPermissionsVerifierProps(Glacier2CryptPermissionsVerifierPropsData,
-                                                sizeof(Glacier2CryptPermissionsVerifierPropsData)/sizeof(Glacier2CryptPermissionsVerifierPropsData[0]));
+const IceInternal::PropertyArray IceInternal::PropertyNames::Glacier2CryptPermissionsVerifierProps(
+    Glacier2CryptPermissionsVerifierPropsData,
+    sizeof(Glacier2CryptPermissionsVerifierPropsData) / sizeof(Glacier2CryptPermissionsVerifierPropsData[0]));
 
-const IceInternal::PropertyArray IceInternal::PropertyNames::validProps[] =
-{
+const IceInternal::PropertyArray IceInternal::PropertyNames::validProps[] = {
     IceProps,
     IceMXProps,
     IceDiscoveryProps,
@@ -1405,11 +1424,9 @@ const IceInternal::PropertyArray IceInternal::PropertyNames::validProps[] =
     IceBTProps,
     Glacier2Props,
     Glacier2CryptPermissionsVerifierProps,
-    IceInternal::PropertyArray(0,0)
-};
+    IceInternal::PropertyArray(0, 0)};
 
-const char* IceInternal::PropertyNames::clPropNames[] =
-{
+const char* IceInternal::PropertyNames::clPropNames[] = {
     "Ice",
     "IceMX",
     "IceDiscovery",
@@ -1424,5 +1441,4 @@ const char* IceInternal::PropertyNames::clPropNames[] =
     "IceBT",
     "Glacier2",
     "Glacier2CryptPermissionsVerifier",
-    0
-};
+    0};

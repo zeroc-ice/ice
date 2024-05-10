@@ -47,12 +47,12 @@ namespace Ice::SSL
         /**
          * Performs an exact match. The order of the RDN components is important.
          */
-        friend ICE_API bool operator==(const DistinguishedName&, const DistinguishedName&);
+        friend bool operator==(const DistinguishedName&, const DistinguishedName&);
 
         /**
          * Performs an exact match. The order of the RDN components is important.
          */
-        friend ICE_API bool operator<(const DistinguishedName&, const DistinguishedName&);
+        friend bool operator<(const DistinguishedName&, const DistinguishedName&);
 
         /**
          * Performs a partial match with another DistinguishedName.
