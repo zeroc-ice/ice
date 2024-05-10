@@ -6,6 +6,7 @@ using Ice.Internal;
 using Ice.UtilInternal;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Ice;
 
@@ -511,10 +512,10 @@ public record struct Object_Ice_invokeResult(bool returnValue, byte[] outEncaps)
 /// </summary>
 public class ObjectPrxHelperBase : ObjectPrx
 {
-    public static bool operator ==(ObjectPrxHelperBase lhs, ObjectPrxHelperBase rhs) =>
+    public static bool operator ==(ObjectPrxHelperBase? lhs, ObjectPrxHelperBase? rhs) =>
         lhs is not null ? lhs.Equals(rhs) : rhs is null;
 
-    public static bool operator !=(ObjectPrxHelperBase lhs, ObjectPrxHelperBase rhs) => !(lhs == rhs);
+    public static bool operator !=(ObjectPrxHelperBase? lhs, ObjectPrxHelperBase? rhs) => !(lhs == rhs);
 
     // TODO: _reference is initialized by setup and iceCopyFrom. We should refactor this code.
     public ObjectPrxHelperBase() => _reference = null!;
@@ -2030,8 +2031,15 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// <returns>The new proxy.</returns>
     /// <exception name="ProxyParseException">Thrown when <paramref name="proxyString" /> is not a valid proxy string.
     /// </exception>
-    public static ObjectPrx? createProxy(Communicator communicator, string proxyString) =>
-        communicator.stringToProxy(proxyString);
+    public static ObjectPrx createProxy(Communicator communicator, string proxyString)
+    {
+        // TODO: rework this implementation
+        if (proxyString.Length == 0)
+        {
+            throw new ProxyParseException("Invalid empty proxy string.");
+        }
+        return communicator.stringToProxy(proxyString);
+    }
 
     /// Casts a proxy to {@link ObjectPrx}. This call contacts
     /// the server and throws an Ice run-time exception if the target
@@ -2081,6 +2089,7 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// </summary>
     /// <param name="b">The proxy to cast to ObjectPrx.</param>
     /// <returns>b.</returns>
+    [return: NotNullIfNotNull("b")]
     public static ObjectPrx? uncheckedCast(ObjectPrx? b) => b;
 
     /// <summary>
@@ -2090,6 +2099,7 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// <param name="b">The proxy to cast to ObjectPrx.</param>
     /// <param name="f">The facet for the new proxy.</param>
     /// <returns>The new proxy with the specified facet.</returns>
+    [return: NotNullIfNotNull("b")]
     public static ObjectPrx? uncheckedCast(ObjectPrx? b, string f) => b?.ice_facet(f);
 
     /// <summary>
