@@ -1687,7 +1687,7 @@ public class OutputStream
     /// Writes a proxy to the stream.
     /// </summary>
     /// <param name="v">The proxy to write.</param>
-    public void writeProxy(ObjectPrx v)
+    public void writeProxy(ObjectPrx? v)
     {
         if (v is not null)
         {
@@ -1763,7 +1763,7 @@ public class OutputStream
     /// </summary>
     /// <param name="v">The value to write. This method writes the index of an instance; the state of the value is
     /// written once writePendingValues() is called.</param>
-    public void writeValue(Value v)
+    public void writeValue(Value? v)
     {
         initEncaps();
         _encapsStack!.encoder!.writeValue(v);
@@ -1865,7 +1865,7 @@ public class OutputStream
             _marshaledMap = new Dictionary<Value, int>();
         }
 
-        internal abstract void writeValue(Value v);
+        internal abstract void writeValue(Value? v);
         internal abstract void writeException(UserException v);
 
         internal abstract void startInstance(SliceType type, SlicedData? data);
@@ -1921,7 +1921,7 @@ public class OutputStream
             _toBeMarshaledMap = new Dictionary<Value, int>();
         }
 
-        internal override void writeValue(Value v)
+        internal override void writeValue(Value? v)
         {
             //
             // Object references are encoded as a negative integer in 1.0.
@@ -2105,7 +2105,7 @@ public class OutputStream
             _valueIdIndex = 1;
         }
 
-        internal override void writeValue(Value v)
+        internal override void writeValue(Value? v)
         {
             if (v == null)
             {
