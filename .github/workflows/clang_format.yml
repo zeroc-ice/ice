@@ -17,7 +17,7 @@ jobs:
 
       - name: Install Clang Format
         run: |
-          # Make sure we’re using the latest Homebrew package list.
+          # Make sure we're using the latest Homebrew package list.
           brew update
           brew install clang-format
         if: runner.os == 'macOS'
