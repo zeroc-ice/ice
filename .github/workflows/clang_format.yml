@@ -20,6 +20,7 @@ jobs:
           # Make sure we're using the latest Homebrew package list.
           brew update
           brew install clang-format
+          clang-format --version
         if: runner.os == 'macOS'
 
       - name: Install Clang Format
@@ -36,4 +37,4 @@ jobs:
       - name: Run Clang Format
         run: |
           find . -name "*.h" -o -name "*.c" -o -name "*.cpp" -o -name "*.mm" | xargs clang-format --style=file --fallback-style=none --Werror --dry-run
-          find cpp -name "*.m" | xargs clang-format-18 --style=file --fallback-style=none --Werror --dry-run
+          find cpp -name "*.m" | xargs clang-format --style=file --fallback-style=none --Werror --dry-run
