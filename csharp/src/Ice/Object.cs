@@ -22,7 +22,7 @@ public interface Request
 /// <summary>
 /// the base interface for servants.
 /// </summary>
-public interface Object : ICloneable
+public interface Object
 {
     /// <summary>
     /// Tests whether this object supports a specific Slice interface.
@@ -75,16 +75,6 @@ public abstract class ObjectImpl : Object
     /// </summary>
     public ObjectImpl()
     {
-    }
-
-    /// <summary>
-    /// Returns a copy of the object. The cloned object contains field-for-field copies
-    /// of the state.
-    /// </summary>
-    /// <returns>The cloned object.</returns>
-    public object Clone()
-    {
-        return MemberwiseClone();
     }
 
     private static readonly string[] _ids =

@@ -2,7 +2,7 @@
 
 namespace Ice;
 
-public class Current : ICloneable
+public class Current
 {
     public ObjectAdapter adapter;
     public Connection con;
@@ -44,10 +44,7 @@ public class Current : ICloneable
         this.encoding = encoding;
     }
 
-    public object Clone()
-    {
-        return MemberwiseClone();
-    }
+    public Current Clone() => (Current)MemberwiseClone();
 
     public override int GetHashCode()
     {

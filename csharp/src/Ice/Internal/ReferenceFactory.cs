@@ -67,7 +67,7 @@ public class ReferenceFactory
         {
             return null;
         }
-        return (Reference)r.Clone();
+        return r.Clone();
     }
 
     public Reference create(string s, string propertyPrefix)

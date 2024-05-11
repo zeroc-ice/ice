@@ -4,7 +4,7 @@ using System.ComponentModel;
 
 namespace Ice;
 
-public abstract class Value : ICloneable
+public abstract class Value
 {
     private const string _id = "::Ice::Object";
 
@@ -83,10 +83,7 @@ public abstract class Value : ICloneable
     /// of the state.
     /// </summary>
     /// <returns>The cloned object.</returns>
-    public object Clone()
-    {
-        return MemberwiseClone();
-    }
+    public Value Clone() => (Value)MemberwiseClone();
 
     private SlicedData _slicedData;
 }
