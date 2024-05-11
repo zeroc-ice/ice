@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace Ice.Internal;
 
-public sealed class ACMConfig : System.ICloneable
+public sealed class ACMConfig
 {
     internal ACMConfig(bool server)
     {
@@ -60,10 +60,7 @@ public sealed class ACMConfig : System.ICloneable
         }
     }
 
-    public object Clone()
-    {
-        return MemberwiseClone();
-    }
+    public ACMConfig Clone() => (ACMConfig)MemberwiseClone();
 
     public int timeout;
     public Ice.ACMHeartbeat heartbeat;
@@ -187,7 +184,7 @@ internal class FactoryACMMonitor : ACMMonitor
     {
         Debug.Assert(_instance != null);
 
-        ACMConfig config = (ACMConfig)_config.Clone();
+        ACMConfig config = _config.Clone();
         if (timeout.HasValue)
         {
             config.timeout = timeout.Value * 1000; // To milliseconds

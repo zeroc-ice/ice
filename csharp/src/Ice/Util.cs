@@ -9,18 +9,12 @@ namespace Ice;
 /// <summary>
 /// A class that encapsulates data to initialize a communicator.
 /// </summary>
-public class InitializationData : ICloneable
+public class InitializationData
 {
     /// <summary>
     /// Creates and returns a copy of this object.
     /// </summary>
-    public object Clone()
-    {
-        //
-        // A member-wise copy is safe because the members are immutable.
-        //
-        return MemberwiseClone();
-    }
+    public InitializationData Clone() => (InitializationData)MemberwiseClone();
 
     /// <summary>
     /// The properties for the communicator.
@@ -57,11 +51,6 @@ public class InitializationData : ICloneable
     public System.Action<System.Action, Connection> dispatcher;
 
     /// <summary>
-    /// The compact type ID resolver.
-    /// </summary>
-    public System.Func<int, string> compactIdResolver;
-
-    /// <summary>
     /// The batch request interceptor.
     /// </summary>
     public System.Action<BatchRequest, int, int> batchRequestInterceptor;
@@ -70,11 +59,6 @@ public class InitializationData : ICloneable
     /// The value factory manager.
     /// </summary>
     public ValueFactoryManager valueFactoryManager;
-
-    /// <summary>
-    /// The list of TypeId namespaces. Default is Ice.TypeId.
-    /// </summary>
-    public string[] typeIdNamespaces = { "Ice.TypeId" };
 
     /// <summary>
     /// The <see cref="SslClientAuthenticationOptions"/> used by the client-side ssl transport.
@@ -159,7 +143,7 @@ public sealed class Util
         }
         else
         {
-            initData = (InitializationData)initData.Clone();
+            initData = initData.Clone();
         }
 
         initData.properties = createProperties(ref args, initData.properties);
@@ -203,7 +187,7 @@ public sealed class Util
         }
         else
         {
-            initData = (InitializationData)initData.Clone();
+            initData = initData.Clone();
         }
 
         CommunicatorI result = new CommunicatorI(initData);

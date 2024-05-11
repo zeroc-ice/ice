@@ -24,7 +24,6 @@
 #include "ObjectAdapterFactory.h"
 #include "ObserverMiddleware.h"
 #include "PropertyNames.h"
-#include "ProxyFactory.h"
 #include "ReferenceFactory.h"
 #include "RouterInfo.h"
 #include "ServantManager.h"
@@ -67,8 +66,7 @@ namespace
         const auto& logger = instance->initializationData().logger;
         if (logger)
         {
-            int warningLevel =
-                instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1);
+            int warningLevel = instance->initializationData().properties->getIcePropertyAsInt("Ice.Warn.Dispatch");
             if (warningLevel > 0)
             {
                 dispatcher = make_shared<LoggerMiddleware>(
@@ -134,7 +132,7 @@ Ice::ObjectAdapterI::activate()
         if (!_noConfig)
         {
             PropertiesPtr properties = _instance->initializationData().properties;
-            printAdapterReady = properties->getPropertyAsInt("Ice.PrintAdapterReady") > 0;
+            printAdapterReady = properties->getIcePropertyAsInt("Ice.PrintAdapterReady") > 0;
         }
     }
 
@@ -916,7 +914,7 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
     //
     // Warn about unknown object adapter properties.
     //
-    if (unknownProps.size() != 0 && properties->getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
+    if (unknownProps.size() != 0 && properties->getIcePropertyAsInt("Ice.Warn.UnknownProperties") > 0)
     {
         Warning out(_instance->initializationData().logger);
         out << "found unknown properties for object adapter `" << _name << "':";

@@ -32,7 +32,6 @@
 #include "PluginManagerI.h"
 #include "PropertiesAdminI.h"
 #include "ProtocolInstance.h"
-#include "ProxyFactory.h"
 #include "ReferenceFactory.h"
 #include "RegisterPluginsInit.h"
 #include "RetryQueue.h"
@@ -336,20 +335,6 @@ IceInternal::Instance::referenceFactory() const
     return _referenceFactory;
 }
 
-ProxyFactoryPtr
-IceInternal::Instance::proxyFactory() const
-{
-    lock_guard lock(_mutex);
-
-    if (_state == StateDestroyed)
-    {
-        throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
-    assert(_proxyFactory);
-    return _proxyFactory;
-}
-
 OutgoingConnectionFactoryPtr
 IceInternal::Instance::outgoingConnectionFactory() const
 {
@@ -426,7 +411,7 @@ IceInternal::Instance::serverThreadPool()
         {
             throw CommunicatorDestroyedException(__FILE__, __LINE__);
         }
-        int timeout = _initData.properties->getPropertyAsInt("Ice.ServerIdleTime");
+        int timeout = _initData.properties->getIcePropertyAsInt("Ice.ServerIdleTime");
         _serverThreadPool = ThreadPool::create(shared_from_this(), "Ice.ThreadPool.Server", timeout);
     }
 
@@ -558,7 +543,7 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
 
     if (createAdapter)
     {
-        if (_initData.properties->getProperty("Ice.Admin.Endpoints") != "")
+        if (_initData.properties->getIceProperty("Ice.Admin.Endpoints") != "")
         {
             adapter = _objectAdapterFactory->createObjectAdapter("Ice.Admin", nullopt, nullopt);
         }
@@ -613,7 +598,7 @@ IceInternal::Instance::getAdmin()
     else if (_adminEnabled)
     {
         ObjectAdapterPtr adapter;
-        if (_initData.properties->getProperty("Ice.Admin.Endpoints") != "")
+        if (_initData.properties->getIceProperty("Ice.Admin.Endpoints") != "")
         {
             adapter = _objectAdapterFactory->createObjectAdapter("Ice.Admin", nullopt, nullopt);
         }
@@ -624,7 +609,7 @@ IceInternal::Instance::getAdmin()
 
         Identity adminIdentity;
         adminIdentity.name = "admin";
-        adminIdentity.category = _initData.properties->getProperty("Ice.Admin.InstanceName");
+        adminIdentity.category = _initData.properties->getIceProperty("Ice.Admin.InstanceName");
         if (adminIdentity.category.empty())
         {
             adminIdentity.category = Ice::generateUUID();
@@ -689,7 +674,7 @@ IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapte
 {
     ObjectPrx admin = adminAdapter->createProxy(adminIdentity);
     optional<LocatorPrx> locator = adminAdapter->getLocator();
-    const string serverId = _initData.properties->getProperty("Ice.Admin.ServerId");
+    const string serverId = _initData.properties->getIceProperty("Ice.Admin.ServerId");
     if (locator && serverId != "")
     {
         ProcessPrx process{admin->ice_facet("Process")};
@@ -713,8 +698,7 @@ IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapte
             throw InitializationException(
                 __FILE__,
                 __LINE__,
-                "Locator `" + _proxyFactory->proxyToString(locator) + "' knows nothing about server `" + serverId +
-                    "'");
+                "Locator `" + locator->ice_toString() + "' knows nothing about server `" + serverId + "'");
         }
         catch (const LocalException& ex)
         {
@@ -946,8 +930,8 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                 //
                 // StdOut and StdErr redirection
                 //
-                string stdOutFilename = _initData.properties->getProperty("Ice.StdOut");
-                string stdErrFilename = _initData.properties->getProperty("Ice.StdErr");
+                string stdOutFilename = _initData.properties->getIceProperty("Ice.StdOut");
+                string stdErrFilename = _initData.properties->getIceProperty("Ice.StdErr");
 
                 if (stdOutFilename != "")
                 {
@@ -968,7 +952,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                 }
 
 #ifdef NDEBUG
-                if (_initData.properties->getPropertyAsIntWithDefault("Ice.PrintStackTraces", 0) > 0)
+                if (_initData.properties->getIcePropertyAsInt("Ice.PrintStackTraces") > 0)
                 {
                     IceUtilInternal::printStackTraces = true;
                 }
@@ -980,7 +964,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 #endif
 
 #ifndef _WIN32
-                string newUser = _initData.properties->getProperty("Ice.ChangeUser");
+                string newUser = _initData.properties->getIceProperty("Ice.ChangeUser");
                 if (!newUser.empty())
                 {
                     struct passwd pwbuf;
@@ -1037,9 +1021,9 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                 sigemptyset(&action.sa_mask);
                 action.sa_flags = 0;
                 sigaction(SIGPIPE, &action, &oldAction);
-                if (_initData.properties->getPropertyAsInt("Ice.UseSyslog") > 0)
+                if (_initData.properties->getIcePropertyAsInt("Ice.UseSyslog") > 0)
                 {
-                    identForOpenlog = _initData.properties->getProperty("Ice.ProgramName");
+                    identForOpenlog = _initData.properties->getIceProperty("Ice.ProgramName");
                     if (identForOpenlog.empty())
                     {
                         identForOpenlog = "<Unknown Ice Program>";
@@ -1047,17 +1031,17 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                     openlog(identForOpenlog.c_str(), LOG_PID, LOG_USER);
                 }
 #else
-                logStdErrConvert = _initData.properties->getPropertyAsIntWithDefault("Ice.LogStdErr.Convert", 1) > 0 &&
-                                   _initData.properties->getProperty("Ice.StdErr").empty();
+                logStdErrConvert = _initData.properties->getIcePropertyAsInt("Ice.LogStdErr.Convert") > 0 &&
+                                   _initData.properties->getIceProperty("Ice.StdErr").empty();
 #endif
             }
         }
 
         if (!_initData.logger)
         {
-            string logfile = _initData.properties->getProperty("Ice.LogFile");
+            string logfile = _initData.properties->getIceProperty("Ice.LogFile");
 #ifndef _WIN32
-            if (_initData.properties->getPropertyAsInt("Ice.UseSyslog") > 0)
+            if (_initData.properties->getIcePropertyAsInt("Ice.UseSyslog") > 0)
             {
                 if (!logfile.empty())
                 {
@@ -1065,36 +1049,37 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                 }
 
                 _initData.logger = make_shared<SysLoggerI>(
-                    _initData.properties->getProperty("Ice.ProgramName"),
-                    _initData.properties->getPropertyWithDefault("Ice.SyslogFacility", "LOG_USER"));
+                    _initData.properties->getIceProperty("Ice.ProgramName"),
+                    _initData.properties->getIceProperty("Ice.SyslogFacility"));
             }
             else
 #endif
 
 #ifdef ICE_SWIFT
-                if (!_initData.logger && _initData.properties->getPropertyAsInt("Ice.UseOSLog") > 0)
+                if (!_initData.logger && _initData.properties->getIcePropertyAsInt("Ice.UseOSLog") > 0)
             {
-                _initData.logger = make_shared<OSLogLoggerI>(_initData.properties->getProperty("Ice.ProgramName"));
+                _initData.logger = make_shared<OSLogLoggerI>(_initData.properties->getIceProperty("Ice.ProgramName"));
             }
             else
 #endif
 
 #ifdef ICE_USE_SYSTEMD
-                if (_initData.properties->getPropertyAsInt("Ice.UseSystemdJournal") > 0)
+                if (_initData.properties->getIcePropertyAsInt("Ice.UseSystemdJournal") > 0)
             {
-                _initData.logger = make_shared<SystemdJournalI>(_initData.properties->getProperty("Ice.ProgramName"));
+                _initData.logger =
+                    make_shared<SystemdJournalI>(_initData.properties->getIceProperty("Ice.ProgramName"));
             }
             else
 #endif
                 if (!logfile.empty())
             {
-                int32_t sz = _initData.properties->getPropertyAsIntWithDefault("Ice.LogFile.SizeMax", 0);
+                int32_t sz = _initData.properties->getIcePropertyAsInt("Ice.LogFile.SizeMax");
                 if (sz < 0)
                 {
                     sz = 0;
                 }
                 _initData.logger = make_shared<LoggerI>(
-                    _initData.properties->getProperty("Ice.ProgramName"),
+                    _initData.properties->getIceProperty("Ice.ProgramName"),
                     logfile,
                     true,
                     static_cast<size_t>(sz));
@@ -1105,7 +1090,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                 if (dynamic_pointer_cast<LoggerI>(_initData.logger))
                 {
                     _initData.logger = make_shared<LoggerI>(
-                        _initData.properties->getProperty("Ice.ProgramName"),
+                        _initData.properties->getIceProperty("Ice.ProgramName"),
                         "",
                         logStdErrConvert);
                 }
@@ -1139,9 +1124,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         }
 
         {
-            static const int defaultMessageSizeMax = 1024;
-            int32_t num =
-                _initData.properties->getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
+            int32_t num = _initData.properties->getIcePropertyAsInt("Ice.MessageSizeMax");
             if (num < 1 || static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff / 1024))
             {
                 const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(0x7fffffff);
@@ -1153,18 +1136,17 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
             }
         }
 
-        if (_initData.properties->getProperty("Ice.BatchAutoFlushSize").empty() &&
-            !_initData.properties->getProperty("Ice.BatchAutoFlush").empty())
+        if (_initData.properties->getIceProperty("Ice.BatchAutoFlushSize").empty() &&
+            !_initData.properties->getIceProperty("Ice.BatchAutoFlush").empty())
         {
-            if (_initData.properties->getPropertyAsInt("Ice.BatchAutoFlush") > 0)
+            if (_initData.properties->getIcePropertyAsInt("Ice.BatchAutoFlush") > 0)
             {
                 const_cast<size_t&>(_batchAutoFlushSize) = _messageSizeMax;
             }
         }
         else
         {
-            int32_t num =
-                _initData.properties->getPropertyAsIntWithDefault("Ice.BatchAutoFlushSize", 1024); // 1MB default
+            int32_t num = _initData.properties->getIcePropertyAsInt("Ice.BatchAutoFlushSize"); // 1MB default
             if (num < 1)
             {
                 const_cast<size_t&>(_batchAutoFlushSize) = static_cast<size_t>(num);
@@ -1181,8 +1163,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         }
 
         {
-            static const int defaultValue = 100;
-            int32_t num = _initData.properties->getPropertyAsIntWithDefault("Ice.ClassGraphDepthMax", defaultValue);
+            int32_t num = _initData.properties->getIcePropertyAsInt("Ice.ClassGraphDepthMax");
             if (num < 1 || static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff))
             {
                 const_cast<size_t&>(_classGraphDepthMax) = static_cast<size_t>(0x7fffffff);
@@ -1193,7 +1174,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
             }
         }
 
-        string toStringModeStr = _initData.properties->getPropertyWithDefault("Ice.ToStringMode", "Unicode");
+        string toStringModeStr = _initData.properties->getIceProperty("Ice.ToStringMode");
         if (toStringModeStr == "ASCII")
         {
             const_cast<ToStringMode&>(_toStringMode) = ToStringMode::ASCII;
@@ -1210,9 +1191,9 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                 "The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
         }
 
-        const_cast<bool&>(_acceptClassCycles) = _initData.properties->getPropertyAsInt("Ice.AcceptClassCycles") > 0;
+        const_cast<bool&>(_acceptClassCycles) = _initData.properties->getIcePropertyAsInt("Ice.AcceptClassCycles") > 0;
 
-        string implicitContextKind = _initData.properties->getPropertyWithDefault("Ice.ImplicitContext", "None");
+        string implicitContextKind = _initData.properties->getIceProperty("Ice.ImplicitContext");
         if (implicitContextKind == "Shared")
         {
             _implicitContextKind = ImplicitContextKind::Shared;
@@ -1240,11 +1221,9 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
         _referenceFactory = make_shared<ReferenceFactory>(shared_from_this(), communicator);
 
-        _proxyFactory = make_shared<ProxyFactory>(shared_from_this());
-
         const bool isIPv6Supported = IceInternal::isIPv6Supported();
-        const bool ipv4 = _initData.properties->getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
-        const bool ipv6 = _initData.properties->getPropertyAsIntWithDefault("Ice.IPv6", isIPv6Supported ? 1 : 0) > 0;
+        const bool ipv4 = _initData.properties->getIcePropertyAsInt("Ice.IPv4") > 0;
+        const bool ipv6 = isIPv6Supported ? (_initData.properties->getIcePropertyAsInt("Ice.IPv6") > 0) : false;
         if (!ipv4 && !ipv6)
         {
             throw InitializationException(__FILE__, __LINE__, "Both IPV4 and IPv6 support cannot be disabled.");
@@ -1261,7 +1240,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         {
             _protocolSupport = EnableIPv6;
         }
-        _preferIPv6 = _initData.properties->getPropertyAsInt("Ice.PreferIPv6Address") > 0;
+        _preferIPv6 = _initData.properties->getIcePropertyAsInt("Ice.PreferIPv6Address") > 0;
 
         _networkProxy = IceInternal::createNetworkProxy(_initData.properties, _protocolSupport);
 
@@ -1280,7 +1259,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
         _retryQueue = make_shared<RetryQueue>(shared_from_this());
 
-        StringSeq retryValues = _initData.properties->getPropertyAsList("Ice.RetryIntervals");
+        StringSeq retryValues = _initData.properties->getIcePropertyAsList("Ice.RetryIntervals");
         if (retryValues.size() == 0)
         {
             _retryIntervals.push_back(0);
@@ -1366,7 +1345,6 @@ IceInternal::Instance::~Instance()
 {
     assert(_state == StateDestroyed);
     assert(!_referenceFactory);
-    assert(!_proxyFactory);
     assert(!_outgoingConnectionFactory);
 
     assert(!_objectAdapterFactory);
@@ -1434,16 +1412,16 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     // since one of these plugins can be a Logger plugin that sets a new logger during loading
     //
 
-    if (_initData.properties->getProperty("Ice.Admin.Enabled") == "")
+    if (_initData.properties->getIceProperty("Ice.Admin.Enabled") == "")
     {
-        _adminEnabled = _initData.properties->getProperty("Ice.Admin.Endpoints") != "";
+        _adminEnabled = _initData.properties->getIceProperty("Ice.Admin.Endpoints") != "";
     }
     else
     {
-        _adminEnabled = _initData.properties->getPropertyAsInt("Ice.Admin.Enabled") > 0;
+        _adminEnabled = _initData.properties->getIcePropertyAsInt("Ice.Admin.Enabled") > 0;
     }
 
-    StringSeq facetSeq = _initData.properties->getPropertyAsList("Ice.Admin.Facets");
+    StringSeq facetSeq = _initData.properties->getIcePropertyAsList("Ice.Admin.Facets");
     if (!facetSeq.empty())
     {
         _adminFacetFilter.insert(facetSeq.begin(), facetSeq.end());
@@ -1546,7 +1524,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     //
     if (!_referenceFactory->getDefaultRouter())
     {
-        optional<RouterPrx> router{_proxyFactory->propertyToProxy("Ice.Default.Router")};
+        optional<RouterPrx> router{communicator->propertyToProxy("Ice.Default.Router")};
         if (router)
         {
             _referenceFactory = _referenceFactory->setDefaultRouter(router);
@@ -1555,7 +1533,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
 
     if (!_referenceFactory->getDefaultLocator())
     {
-        optional<LocatorPrx> locator{_proxyFactory->propertyToProxy("Ice.Default.Locator")};
+        optional<LocatorPrx> locator{communicator->propertyToProxy("Ice.Default.Locator")};
         if (locator)
         {
             _referenceFactory = _referenceFactory->setDefaultLocator(locator);
@@ -1566,7 +1544,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     // Show process id if requested (but only once).
     //
     bool printProcessId = false;
-    if (!printProcessIdDone && _initData.properties->getPropertyAsInt("Ice.PrintProcessId") > 0)
+    if (!printProcessIdDone && _initData.properties->getIcePropertyAsInt("Ice.PrintProcessId") > 0)
     {
         //
         // Safe double-check locking (no dependent variable!)
@@ -1598,7 +1576,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     // initialization until after it has interacted directly with the
     // plug-ins.
     //
-    if (_initData.properties->getPropertyAsIntWithDefault("Ice.InitPlugins", 1) > 0)
+    if (_initData.properties->getIcePropertyAsInt("Ice.InitPlugins") > 0)
     {
         pluginManagerImpl->initializePlugins();
     }
@@ -1612,7 +1590,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     // application set Ice.Admin.Enabled but did not set Ice.Admin.Endpoints
     // and one or more of the properties required to create the Admin object.
     //
-    if (_adminEnabled && _initData.properties->getPropertyAsIntWithDefault("Ice.Admin.DelayCreation", 0) <= 0)
+    if (_adminEnabled && _initData.properties->getIcePropertyAsInt("Ice.Admin.DelayCreation") <= 0)
     {
         getAdmin();
     }
@@ -1753,7 +1731,7 @@ IceInternal::Instance::destroy()
         _endpointFactoryManager->destroy();
     }
 
-    if (_initData.properties->getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
+    if (_initData.properties->getIcePropertyAsInt("Ice.Warn.UnusedProperties") > 0)
     {
         set<string> unusedProperties = _initData.properties.get()->getUnusedProperties();
         if (unusedProperties.size() != 0)
@@ -1788,7 +1766,6 @@ IceInternal::Instance::destroy()
         _timer = nullptr;
 
         _referenceFactory = nullptr;
-        _proxyFactory = nullptr;
         _routerManager = nullptr;
         _locatorManager = nullptr;
         _endpointFactoryManager = nullptr;

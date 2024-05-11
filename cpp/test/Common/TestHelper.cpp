@@ -257,7 +257,7 @@ Test::TestHelper::getTestProtocol()
 string
 Test::TestHelper::getTestProtocol(const Ice::PropertiesPtr& properties)
 {
-    return properties->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+    return properties->getIceProperty("Ice.Default.Protocol");
 }
 
 int

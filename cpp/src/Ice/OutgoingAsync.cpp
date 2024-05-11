@@ -293,7 +293,7 @@ OutgoingAsyncBase::cancel(std::exception_ptr ex)
 void
 OutgoingAsyncBase::warning(string_view callbackName, std::exception_ptr eptr) const
 {
-    if (_instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+    if (_instance->initializationData().properties->getIcePropertyAsInt("Ice.Warn.AMICallback") > 0)
     {
         Warning out(_instance->initializationData().logger);
         try

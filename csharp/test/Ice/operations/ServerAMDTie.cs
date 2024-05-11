@@ -15,8 +15,6 @@ namespace Ice
                     public override void run(string[] args)
                     {
                         var initData = new InitializationData();
-                        initData.typeIdNamespaces = new string[] { "Ice.operations.AMD.TypeId" };
-
                         initData.properties = createTestProperties(ref args);
                         //
                         // Its possible to have batch oneway requests dispatched

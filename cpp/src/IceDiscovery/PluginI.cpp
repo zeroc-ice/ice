@@ -51,8 +51,8 @@ PluginI::initialize()
 {
     Ice::PropertiesPtr properties = _communicator->getProperties();
 
-    bool ipv4 = properties->getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
-    bool preferIPv6 = properties->getPropertyAsInt("Ice.PreferIPv6Address") > 0;
+    bool ipv4 = properties->getIcePropertyAsInt("Ice.IPv4") > 0;
+    bool preferIPv6 = properties->getIcePropertyAsInt("Ice.PreferIPv6Address") > 0;
     string address;
     if (ipv4 && !preferIPv6)
     {
@@ -62,10 +62,10 @@ PluginI::initialize()
     {
         address = properties->getPropertyWithDefault("IceDiscovery.Address", "ff15::1");
     }
-    int port = properties->getPropertyAsIntWithDefault("IceDiscovery.Port", 4061);
-    string intf = properties->getProperty("IceDiscovery.Interface");
+    int port = properties->getIcePropertyAsInt("IceDiscovery.Port");
+    string intf = properties->getIceProperty("IceDiscovery.Interface");
 
-    if (properties->getProperty("IceDiscovery.Multicast.Endpoints").empty())
+    if (properties->getIceProperty("IceDiscovery.Multicast.Endpoints").empty())
     {
         ostringstream os;
         os << "udp -h \"" << address << "\" -p " << port;
@@ -76,7 +76,7 @@ PluginI::initialize()
         properties->setProperty("IceDiscovery.Multicast.Endpoints", os.str());
     }
 
-    string lookupEndpoints = properties->getProperty("IceDiscovery.Lookup");
+    string lookupEndpoints = properties->getIceProperty("IceDiscovery.Lookup");
     if (lookupEndpoints.empty())
     {
         //
@@ -112,7 +112,7 @@ PluginI::initialize()
     _locatorAdapter = _communicator->createObjectAdapter("IceDiscovery.Locator");
 
     //
-    // Setup locatory registry.
+    // Setup locator registry.
     //
     auto locatorRegistry = make_shared<LocatorRegistryI>(_communicator);
     Ice::LocatorRegistryPrx locatorRegistryPrx(_locatorAdapter->addWithUUID(locatorRegistry));

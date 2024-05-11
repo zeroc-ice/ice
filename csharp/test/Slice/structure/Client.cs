@@ -28,38 +28,38 @@ public class Client : TestHelper
         {
             S2 v;
 
-            v = (S2)def_s2.Clone();
+            v = def_s2.Clone();
             test(v.Equals(def_s2));
 
-            v = (S2)def_s2.Clone();
+            v = def_s2.Clone();
             v.bo = false;
             test(!v.Equals(def_s2));
 
-            v = (S2)def_s2.Clone();
+            v = def_s2.Clone();
             v.by--;
             test(!v.Equals(def_s2));
 
-            v = (S2)def_s2.Clone();
+            v = def_s2.Clone();
             v.sh--;
             test(!v.Equals(def_s2));
 
-            v = (S2)def_s2.Clone();
+            v = def_s2.Clone();
             v.i--;
             test(!v.Equals(def_s2));
 
-            v = (S2)def_s2.Clone();
+            v = def_s2.Clone();
             v.l--;
             test(!v.Equals(def_s2));
 
-            v = (S2)def_s2.Clone();
+            v = def_s2.Clone();
             v.f--;
             test(!v.Equals(def_s2));
 
-            v = (S2)def_s2.Clone();
+            v = def_s2.Clone();
             v.d--;
             test(!v.Equals(def_s2));
 
-            v = (S2)def_s2.Clone();
+            v = def_s2.Clone();
             v.str = "";
             test(!v.Equals(def_s2));
         }
@@ -70,22 +70,22 @@ public class Client : TestHelper
         {
             S2 v1, v2;
 
-            v1 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
             v1.str = (string)def_s2.str.Clone();
             test(v1.Equals(def_s2));
 
-            v1 = (S2)def_s2.Clone();
-            v2 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
+            v2 = def_s2.Clone();
             v1.str = null;
             test(!v1.Equals(v2));
 
-            v1 = (S2)def_s2.Clone();
-            v2 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
+            v2 = def_s2.Clone();
             v2.str = null;
             test(!v1.Equals(v2));
 
-            v1 = (S2)def_s2.Clone();
-            v2 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
+            v2 = def_s2.Clone();
             v1.str = null;
             v2.str = null;
             test(v1.Equals(v2));
@@ -97,17 +97,17 @@ public class Client : TestHelper
         {
             S2 v1, v2;
 
-            v1 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
             v1.ss = (string[])def_s2.ss.Clone();
             test(v1.Equals(def_s2));
 
-            v1 = (S2)def_s2.Clone();
-            v2 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
+            v2 = def_s2.Clone();
             v1.ss = null;
             test(!v1.Equals(v2));
 
-            v1 = (S2)def_s2.Clone();
-            v2 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
+            v2 = def_s2.Clone();
             v2.ss = null;
             test(!v1.Equals(v2));
         }
@@ -118,21 +118,21 @@ public class Client : TestHelper
         {
             S2 v1, v2;
 
-            v1 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
             v1.il = new List<int>(def_s2.il);
             test(v1.Equals(def_s2));
 
-            v1 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
             v1.il = new List<int> { 0, 0, 0 };
             test(!v1.Equals(def_s2));
 
-            v1 = (S2)def_s2.Clone();
-            v2 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
+            v2 = def_s2.Clone();
             v1.il = null;
             test(!v1.Equals(v2));
 
-            v1 = (S2)def_s2.Clone();
-            v2 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
+            v2 = def_s2.Clone();
             v2.il = null;
             test(!v1.Equals(v2));
         }
@@ -143,21 +143,21 @@ public class Client : TestHelper
         {
             S2 v1, v2;
 
-            v1 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
             v1.sd = new Dictionary<string, string>(def_s2.sd);
             test(v1.Equals(def_s2));
 
-            v1 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
             v1.sd = new Dictionary<string, string>();
             test(!v1.Equals(def_s2));
 
-            v1 = (S2)def_s2.Clone();
-            v2 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
+            v2 = def_s2.Clone();
             v1.sd = null;
             test(!v1.Equals(v2));
 
-            v1 = (S2)def_s2.Clone();
-            v2 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
+            v2 = def_s2.Clone();
             v2.sd = null;
             test(!v1.Equals(v2));
         }
@@ -168,25 +168,25 @@ public class Client : TestHelper
         {
             S2 v1, v2;
 
-            v1 = (S2)def_s2.Clone();
-            v1.s = (S1)def_s2.s.Clone();
+            v1 = def_s2.Clone();
+            v1.s = def_s2.s.Clone();
             test(v1.Equals(def_s2));
 
-            v1 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
             v1.s = new S1("name");
             test(v1.Equals(def_s2));
 
-            v1 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
             v1.s = new S1("noname");
             test(!v1.Equals(def_s2));
 
-            v1 = (S2)def_s2.Clone();
-            v2 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
+            v2 = def_s2.Clone();
             v1.s = null;
             test(!v1.Equals(v2));
 
-            v1 = (S2)def_s2.Clone();
-            v2 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
+            v2 = def_s2.Clone();
             v2.s = null;
             test(!v1.Equals(v2));
         }
@@ -197,17 +197,17 @@ public class Client : TestHelper
         {
             S2 v1, v2;
 
-            v1 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
             v1.cls = (C)def_s2.cls.Clone();
             test(!v1.Equals(def_s2));
 
-            v1 = (S2)def_s2.Clone();
-            v2 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
+            v2 = def_s2.Clone();
             v1.cls = null;
             test(!v1.Equals(v2));
 
-            v1 = (S2)def_s2.Clone();
-            v2 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
+            v2 = def_s2.Clone();
             v2.cls = null;
             test(!v1.Equals(v2));
         }
@@ -218,21 +218,21 @@ public class Client : TestHelper
         {
             S2 v1, v2;
 
-            v1 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
             v1.prx = communicator.stringToProxy("test");
             test(v1.Equals(def_s2));
 
-            v1 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
             v1.prx = communicator.stringToProxy("test2");
             test(!v1.Equals(def_s2));
 
-            v1 = (S2)def_s2.Clone();
-            v2 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
+            v2 = def_s2.Clone();
             v1.prx = null;
             test(!v1.Equals(v2));
 
-            v1 = (S2)def_s2.Clone();
-            v2 = (S2)def_s2.Clone();
+            v1 = def_s2.Clone();
+            v2 = def_s2.Clone();
             v2.prx = null;
             test(!v1.Equals(v2));
         }

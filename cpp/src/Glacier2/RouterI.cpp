@@ -36,7 +36,7 @@ Glacier2::RouterI::RouterI(
     // If Glacier2 will be used with pre 3.2 clients, then the client proxy must be set.
     // Otherwise getClientProxy just needs to return a nil proxy.
     //
-    if (_instance->properties()->getPropertyAsInt("Glacier2.ReturnClientProxy") > 0)
+    if (_instance->properties()->getIcePropertyAsInt("Glacier2.ReturnClientProxy") > 0)
     {
         const_cast<optional<ObjectPrx>&>(_clientProxy) =
             _instance->clientObjectAdapter()->createProxy(stringToIdentity("dummy"));

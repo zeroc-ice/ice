@@ -861,10 +861,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// Returns the identity embedded in this proxy.
     /// <returns>The identity of the target object.</returns>
     /// </summary>
-    public Identity ice_getIdentity()
-    {
-        return (Identity)_reference.getIdentity().Clone();
-    }
+    public Identity ice_getIdentity() => _reference.getIdentity().Clone();
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the per-proxy context.

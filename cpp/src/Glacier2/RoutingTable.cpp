@@ -11,8 +11,8 @@ using namespace Glacier2;
 
 Glacier2::RoutingTable::RoutingTable(CommunicatorPtr communicator, shared_ptr<ProxyVerifier> verifier)
     : _communicator(std::move(communicator)),
-      _traceLevel(_communicator->getProperties()->getPropertyAsInt("Glacier2.Trace.RoutingTable")),
-      _maxSize(_communicator->getProperties()->getPropertyAsIntWithDefault("Glacier2.RoutingTable.MaxSize", 1000)),
+      _traceLevel(_communicator->getProperties()->getIcePropertyAsInt("Glacier2.Trace.RoutingTable")),
+      _maxSize(_communicator->getProperties()->getIcePropertyAsInt("Glacier2.RoutingTable.MaxSize")),
       _verifier(std::move(verifier))
 {
 }

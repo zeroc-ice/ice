@@ -2672,7 +2672,8 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // Constructor
     //
-    out << nl << "function " << self << " = " << name << spar << "ice_exid" << "ice_exmsg" << allNames << epar;
+    out << nl << "function " << self << " = " << name << spar << "ice_exid"
+        << "ice_exmsg" << allNames << epar;
     out.inc();
     string exid = abs;
     const string exmsg = abs;
@@ -2713,12 +2714,14 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     if (!base)
     {
-        out << nl << self << " = " << self << "@" << "Ice.UserException" << spar << "ice_exid" << "ice_exmsg" << epar
-            << ';';
+        out << nl << self << " = " << self << "@"
+            << "Ice.UserException" << spar << "ice_exid"
+            << "ice_exmsg" << epar << ';';
     }
     else
     {
-        out << nl << self << " = " << self << "@" << getAbsolute(base) << spar << "ice_exid" << "ice_exmsg";
+        out << nl << self << " = " << self << "@" << getAbsolute(base) << spar << "ice_exid"
+            << "ice_exmsg";
         for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
         {
             if (q->inherited)
@@ -4862,7 +4865,8 @@ main(int argc, char* argv[])
     }
     catch (...)
     {
-        consoleErr << args[0] << ": error:" << "unknown exception" << endl;
+        consoleErr << args[0] << ": error:"
+                   << "unknown exception" << endl;
         return EXIT_FAILURE;
     }
 }

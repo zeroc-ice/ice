@@ -399,9 +399,6 @@
     <ClCompile Include="..\..\Proxy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ProxyFactory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Reference.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

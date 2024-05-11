@@ -137,7 +137,7 @@ namespace Ice
                 return new Test.CompactExt();
             }
 
-            public override void shutdown(Ice.Current current = null)
+            public override void shutdown(Ice.Current current)
             {
                 _adapter.getCommunicator().shutdown();
             }

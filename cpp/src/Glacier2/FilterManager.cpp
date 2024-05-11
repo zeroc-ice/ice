@@ -169,17 +169,13 @@ shared_ptr<Glacier2::FilterManager>
 Glacier2::FilterManager::create(shared_ptr<Instance> instance, const string& userId, bool allowAddUser)
 {
     auto props = instance->properties();
-    string allow = props->getProperty("Glacier2.Filter.Category.Accept");
+    string allow = props->getIceProperty("Glacier2.Filter.Category.Accept");
     vector<string> allowSeq;
     stringToSeq(allow, allowSeq);
 
     if (allowAddUser)
     {
-        int addUserMode = 0;
-        if (!props->getProperty("Glacier2.Filter.Category.AcceptUser").empty())
-        {
-            addUserMode = props->getPropertyAsInt("Glacier2.Filter.Category.AcceptUser");
-        }
+        int addUserMode = props->getIcePropertyAsInt("Glacier2.Filter.Category.AcceptUser");
 
         if (addUserMode > 0 && !userId.empty())
         {
@@ -199,7 +195,7 @@ Glacier2::FilterManager::create(shared_ptr<Instance> instance, const string& use
     //
     // TODO: refactor initialization of filters.
     //
-    allow = props->getProperty("Glacier2.Filter.AdapterId.Accept");
+    allow = props->getIceProperty("Glacier2.Filter.AdapterId.Accept");
     stringToSeq(allow, allowSeq);
     auto adapterIdFilter = make_shared<Glacier2::StringSetI>(allowSeq);
 
@@ -207,7 +203,7 @@ Glacier2::FilterManager::create(shared_ptr<Instance> instance, const string& use
     // TODO: Object id's from configurations?
     //
     IdentitySeq allowIdSeq;
-    allow = props->getProperty("Glacier2.Filter.Identity.Accept");
+    allow = props->getIceProperty("Glacier2.Filter.Identity.Accept");
     stringToSeq(allow, allowIdSeq);
     auto identityFilter = make_shared<Glacier2::IdentitySetI>(allowIdSeq);
 

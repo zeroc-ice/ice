@@ -10,10 +10,18 @@ on:
 
 jobs:
   clang-format:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Install Clang Format
+        run: |
+          # Make sure we're using the latest Homebrew package list.
+          brew update
+          brew install clang-format
+          clang-format --version
+        if: runner.os == 'macOS'
 
       - name: Install Clang Format
         run: |
@@ -23,11 +31,10 @@ jobs:
           sudo /tmp/llvm.sh 18
           sudo apt-get install -y clang-format-18
           rm /tmp/llvm.sh
-
-      - name: Clang format version
-        run: clang-format-18 --version
+          clang-format-18 --version
+        if: runner.os == 'Linux'
 
       - name: Run Clang Format
         run: |
-          find . -name "*.h" -o -name "*.c" -o -name "*.cpp" -o -name "*.mm" | xargs clang-format-18 --style=file --fallback-style=none --Werror --dry-run
-          find cpp -name "*.m" | xargs clang-format-18 --style=file --fallback-style=none --Werror --dry-run
+          find . -name "*.h" -o -name "*.c" -o -name "*.cpp" -o -name "*.mm" | xargs clang-format --style=file --fallback-style=none --Werror --dry-run
+          find cpp -name "*.m" | xargs clang-format --style=file --fallback-style=none --Werror --dry-run

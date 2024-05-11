@@ -48,9 +48,6 @@ namespace IceInternal
     class MetricsAdminI;
     using MetricsAdminIPtr = std::shared_ptr<MetricsAdminI>;
 
-    class ProxyFactory;
-    using ProxyFactoryPtr = std::shared_ptr<ProxyFactory>;
-
     //
     // Structure to track warnings for attempts to set socket buffer sizes
     //
@@ -81,7 +78,6 @@ namespace IceInternal
         RouterManagerPtr routerManager() const;
         LocatorManagerPtr locatorManager() const;
         ReferenceFactoryPtr referenceFactory() const;
-        ProxyFactoryPtr proxyFactory() const;
         OutgoingConnectionFactoryPtr outgoingConnectionFactory() const;
         ObjectAdapterFactoryPtr objectAdapterFactory() const;
         ProtocolSupport protocolSupport() const;
@@ -163,7 +159,6 @@ namespace IceInternal
         RouterManagerPtr _routerManager;
         LocatorManagerPtr _locatorManager;
         ReferenceFactoryPtr _referenceFactory;
-        ProxyFactoryPtr _proxyFactory;
         OutgoingConnectionFactoryPtr _outgoingConnectionFactory;
         ObjectAdapterFactoryPtr _objectAdapterFactory;
         ProtocolSupport _protocolSupport;

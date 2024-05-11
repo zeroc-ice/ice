@@ -51,12 +51,11 @@ namespace Ice
                 return null;
             }
 
-            public override void addObject(Ice.ObjectPrx obj, Ice.Current current = null)
-            {
-                _objects[obj.ice_getIdentity()] = obj;
-            }
+            public override void addObject(Ice.ObjectPrx obj, Ice.Current current) => addObject(obj);
 
-            public virtual Ice.ObjectPrx getAdapter(string adapter)
+            internal void addObject(Ice.ObjectPrx obj) => _objects[obj.ice_getIdentity()] = obj;
+
+            internal Ice.ObjectPrx getAdapter(string adapter)
             {
                 object obj = _adapters[adapter];
                 if (obj == null)
@@ -66,7 +65,7 @@ namespace Ice
                 return (Ice.ObjectPrx)obj;
             }
 
-            public virtual Ice.ObjectPrx getObject(Ice.Identity id)
+            internal Ice.ObjectPrx getObject(Ice.Identity id)
             {
                 object obj = _objects[id];
                 if (obj == null)

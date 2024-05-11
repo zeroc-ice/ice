@@ -404,7 +404,7 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
     _out << eb << ";";
 
     _out << sp;
-    _out << nl << "public override bool ice_isA(string s, " << getUnqualified("Ice.Current?", ns) << " current = null)";
+    _out << nl << "public override bool ice_isA(string s, " << getUnqualified("Ice.Current", ns) << " current)";
     _out << sb;
     _out
         << nl
@@ -412,13 +412,13 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
     _out << eb;
 
     _out << sp;
-    _out << nl << "public override string[] ice_ids(" << getUnqualified("Ice.Current?", ns) << " current = null)";
+    _out << nl << "public override string[] ice_ids(" << getUnqualified("Ice.Current", ns) << " current)";
     _out << sb;
     _out << nl << "return _ids;";
     _out << eb;
 
     _out << sp;
-    _out << nl << "public override string ice_id(" << getUnqualified("Ice.Current?", ns) << " current = null)";
+    _out << nl << "public override string ice_id(" << getUnqualified("Ice.Current", ns) << " current)";
     _out << sb;
     _out << nl << "return ice_staticId();";
     _out << eb;
@@ -449,8 +449,8 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
         _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1011\")]";
         _out << nl << "public static global::System.Threading.Tasks.Task<" << getUnqualified("Ice.OutputStream", ns)
              << ">";
-        _out << nl << "iceD_" << opName << "(" << name << " obj, " << "global::Ice.Internal.Incoming inS, "
-             << getUnqualified("Ice.Current", ns) << " current)";
+        _out << nl << "iceD_" << opName << "(" << name << " obj, "
+             << "global::Ice.Internal.Incoming inS, " << getUnqualified("Ice.Current", ns) << " current)";
         _out << sb;
 
         TypePtr ret = op->returnType();
@@ -513,7 +513,8 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
                 _out.inc();
                 if (!ret && outParams.size() == 1)
                 {
-                    _out << nl << "(ostr, " << "iceP_" << outParams.front()->name() << ") =>";
+                    _out << nl << "(ostr, "
+                         << "iceP_" << outParams.front()->name() << ") =>";
                 }
                 else
                 {
@@ -606,7 +607,7 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
 
         _out << sp;
         _out << nl << "public override global::System.Threading.Tasks.Task<" << getUnqualified("Ice.OutputStream", ns)
-             << ">";
+             << ">?";
         _out << nl << "iceDispatch(global::Ice.Internal.Incoming inS, " << getUnqualified("Ice.Current", ns)
              << " current)";
         _out << sb;
@@ -885,7 +886,7 @@ Slice::CsVisitor::getDispatchParams(
     }
     else if (op->hasMarshaledResult())
     {
-        name = fixId(op->name(), DotNet::ICloneable, true);
+        name = fixId(op->name(), DotNet::Object, true);
         params = getInParams(op, ns);
         args = getInArgs(op);
         paramDecls = op->inParameters();
@@ -893,7 +894,7 @@ Slice::CsVisitor::getDispatchParams(
     }
     else
     {
-        name = fixId(op->name(), DotNet::ICloneable, true);
+        name = fixId(op->name(), DotNet::Object, true);
         params = getParams(op, ns);
         args = getArgs(op);
         paramDecls = op->parameters();
@@ -901,7 +902,7 @@ Slice::CsVisitor::getDispatchParams(
     }
 
     string currentParamName = getEscapedParamName(op, "current");
-    params.push_back(getUnqualified("Ice.Current?", ns) + " " + currentParamName + " = null");
+    params.push_back(getUnqualified("Ice.Current", ns) + " " + currentParamName);
     args.push_back(currentParamName);
     return name;
 }
@@ -1821,7 +1822,6 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     printGeneratedHeader(_out, fileBase + ".ice");
 
     _out << nl << "#nullable enable";
-    _out << sp << nl << "using _System = global::System;";
     _out << sp << nl << "[assembly:Ice.Slice(\"" << fileBase << ".ice\")]";
     _out << sp << nl << "#pragma warning disable 1591"; // See bug 3654
 }
@@ -2464,7 +2464,6 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     if (classMapping)
     {
-        baseNames.push_back("System.ICloneable");
         baseNames.push_back("System.IEquatable<" + name + ">");
     }
 
@@ -2589,11 +2588,11 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     if (classMapping)
     {
-        _out << sp << nl << "#region ICloneable members";
+        _out << sp << nl << "#region Clone method";
 
         _out << sp;
         emitGeneratedCodeAttribute();
-        _out << nl << "public object Clone() => MemberwiseClone();";
+        _out << nl << "public " << name << " Clone() => (" << name << ")MemberwiseClone();";
 
         _out << sp << nl << "#endregion"; // ICloneable members
 
@@ -3201,16 +3200,14 @@ Slice::Gen::OpsVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << sp;
         if (amd)
         {
-            writeDocCommentAMD(
-                op,
-                "<param name=\"" + args.back() + "\">The Current object for the invocation.</param>");
+            writeDocCommentAMD(op, "<param name=\"" + args.back() + "\">The Current object for the dispatch.</param>");
         }
         else
         {
             writeDocComment(
                 op,
                 getDeprecationMessageForComment(op, "operation"),
-                "<param name=\"" + args.back() + "\">The Current object for the invocation.</param>");
+                "<param name=\"" + args.back() + "\">The Current object for the dispatch.</param>");
         }
         emitAttributes(op);
         emitObsoleteAttribute(op, _out);
@@ -3327,7 +3324,8 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
         }
         _out << "_iceI_" << op->name() << "Async" << spar << argsAMI << context << "null"
-             << "global::System.Threading.CancellationToken.None" << "true" << epar;
+             << "global::System.Threading.CancellationToken.None"
+             << "true" << epar;
 
         if (ret || outParams.size() > 0)
         {
@@ -3433,7 +3431,8 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         _out << " _iceI_" << opName << "Async" << spar << getInParams(op, ns, true)
              << "global::System.Collections.Generic.Dictionary<string, string>? context"
-             << "global::System.IProgress<bool>? progress" << "global::System.Threading.CancellationToken cancel"
+             << "global::System.IProgress<bool>? progress"
+             << "global::System.Threading.CancellationToken cancel"
              << "bool synchronous" << epar;
         _out << sb;
 
@@ -3449,12 +3448,14 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         else
         {
-            _out << nl << "var completed = " << "new global::Ice.Internal.OperationTaskCompletionCallback<"
-                 << returnTypeS << ">(progress, cancel);";
+            _out << nl << "var completed = "
+                 << "new global::Ice.Internal.OperationTaskCompletionCallback<" << returnTypeS
+                 << ">(progress, cancel);";
         }
 
-        _out << nl << "_iceI_" << opName << spar << getInArgs(op, true) << "context" << "synchronous" << "completed"
-             << epar << ";";
+        _out << nl << "_iceI_" << opName << spar << getInArgs(op, true) << "context"
+             << "synchronous"
+             << "completed" << epar << ";";
         _out << nl << "return completed.Task;";
 
         _out << eb;
@@ -3466,7 +3467,8 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         //
         _out << sp << nl;
         _out << "private void _iceI_" << op->name() << spar << getInParams(op, ns, true)
-             << "global::System.Collections.Generic.Dictionary<string, string>? context" << "bool synchronous"
+             << "global::System.Collections.Generic.Dictionary<string, string>? context"
+             << "bool synchronous"
              << "global::Ice.Internal.OutgoingAsyncCompletionCallback completed" << epar;
         _out << sb;
 
@@ -3593,7 +3595,8 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << eb;
 
     _out << sp << nl << "public static " << name << "Prx? checkedCast(" << getUnqualified("Ice.ObjectPrx", ns)
-         << " b, string f, " << "global::System.Collections.Generic.Dictionary<string, string>? ctx = null)";
+         << " b, string f, "
+         << "global::System.Collections.Generic.Dictionary<string, string>? ctx = null)";
     _out << sb;
     _out << nl << getUnqualified("Ice.ObjectPrx?", ns) << " bb = b?.ice_facet(f);";
     _out << nl << "try";

@@ -11,7 +11,6 @@ namespace Ice
             public override void run(string[] args)
             {
                 var initData = new InitializationData();
-                initData.typeIdNamespaces = new string[] { "Ice.objects.TypeId" };
                 initData.properties = createTestProperties(ref args);
                 initData.properties.setProperty("Ice.Warn.Dispatch", "0");
                 using (var communicator = initialize(initData))
@@ -24,9 +23,9 @@ namespace Ice
                     adapter.add(f2, Ice.Util.stringToIdentity("F21"));
                     var uet = new UnexpectedObjectExceptionTestI();
                     adapter.add(uet, Ice.Util.stringToIdentity("uoet"));
-                    Test.AllTests.allTests(this);
+                    var initialProxy = Test.AllTests.allTests(this);
                     // We must call shutdown even in the collocated case for cyclic dependency cleanup
-                    initial.shutdown();
+                    initialProxy.shutdown();
                 }
             }
 

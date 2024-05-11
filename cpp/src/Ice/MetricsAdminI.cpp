@@ -54,7 +54,7 @@ namespace
             }
         }
 
-        if (!unknownProps.empty() && properties->getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
+        if (!unknownProps.empty() && properties->getIcePropertyAsInt("Ice.Warn.UnknownProperties") > 0)
         {
             Warning out(getProcessLogger());
             out << "found unknown IceMX properties for '" << prefix.substr(0, prefix.size() - 1) << "':";
@@ -103,7 +103,7 @@ MetricsMapI::~MetricsMapI()
 
 MetricsMapI::MetricsMapI(const std::string& mapPrefix, const PropertiesPtr& properties)
     : _properties(properties->getPropertiesForPrefix(mapPrefix)),
-      _retain(properties->getPropertyAsIntWithDefault(mapPrefix + "RetainDetached", 10)),
+      _retain(properties->getIcePropertyAsInt(mapPrefix + "RetainDetached")),
       _accept(parseRule(properties, mapPrefix + "Accept")),
       _reject(parseRule(properties, mapPrefix + "Reject"))
 {
