@@ -46,7 +46,7 @@ Client::run(int argc, char** argv)
     testdir = argv[1];
 #endif
 
-#if defined(ICE_USE_SECURE_TRANSPORT)
+#if defined(ICE_USE_SECURE_TRANSPORT_MACOS) // TODO add iOS support
     void allSecureTransportTests(Test::TestHelper*, const string&);
 
     cerr << "testing with SecureTransport native APIs..." << endl;
