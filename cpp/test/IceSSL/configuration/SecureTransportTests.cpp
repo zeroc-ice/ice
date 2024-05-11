@@ -452,12 +452,15 @@ serverRejectsClientUsingValidationCallback(Test::TestHelper* helper, const strin
     cout << "ok" << endl;
 }
 
+#    ifdef ICE_USE_SECURE_TRANSPORT_IOS
+void
+allSecureTransportTests(Test::TestHelper* helper, const string&)
+{
+    const string certificatesPath = "certs";
+#    else
 void
 allSecureTransportTests(Test::TestHelper* helper, const string& testDir)
 {
-#    ifdef ICE_USE_SECURE_TRANSPORT_IOS
-    const string certificatesPath = "certs";
-#    else
     const string certificatesPath = testDir + "/../certs";
 #    endif
     clientValidatesServerSettingTrustedRootCertificates(helper, certificatesPath);
