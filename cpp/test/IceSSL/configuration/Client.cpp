@@ -51,6 +51,12 @@ Client::run(int argc, char** argv)
 
     cerr << "testing with SecureTransport native APIs..." << endl;
     allSecureTransportTests(this, testdir);
+#elif defined(ICE_USE_OPENSSL)
+    void allOpenSSLTests(Test::TestHelper*, const string&);
+
+    cerr << "testing with OpenSSL native APIs..." << endl;
+    allOpenSSLTests(this, testdir);
+
 #endif
 
     Test::ServerFactoryPrx allTests(Test::TestHelper*, const string&, bool);

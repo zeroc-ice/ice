@@ -39,18 +39,7 @@ namespace
     std::function<bool(bool, X509_STORE_CTX* ctx, const Ice::SSL::ConnectionInfoPtr&)>
     createDefaultVerificationCallback()
     {
-        return [](bool, X509_STORE_CTX* ctx, const Ice::SSL::ConnectionInfoPtr&)
-        {
-            ::SSL* ssl = static_cast<::SSL*>(X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx()));
-            long result = SSL_get_verify_result(ssl);
-            if (result != X509_V_OK)
-            {
-                ostringstream os;
-                os << "IceSSL: certificate verification failed:\n" << X509_verify_cert_error_string(result);
-                throw SecurityException(__FILE__, __LINE__, os.str());
-            }
-            return true;
-        };
+        return [](bool ok, X509_STORE_CTX*, const Ice::SSL::ConnectionInfoPtr&) { return ok; };
     }
 }
 
@@ -199,7 +188,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
                 case SSL_ERROR_SSL:
                 {
 #if defined(SSL_R_UNEXPECTED_EOF_WHILE_READING)
-                    if (SSL_R_UNEXPECTED_EOF_WHILE_READING == ERR_GET_REASON(ERR_get_error()))
+                    if (SSL_R_UNEXPECTED_EOF_WHILE_READING == ERR_GET_REASON(ERR_peek_error()))
                     {
                         throw ConnectionLostException(__FILE__, __LINE__, 0);
                     }
