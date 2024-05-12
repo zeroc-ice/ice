@@ -573,8 +573,8 @@ Schannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
         throw SecurityException(
             __FILE__,
             __LINE__,
-            "SSL transport: certificate verification failed. the certificate was explicitly rejected by the remote "
-            "certificate validation callback.");
+            "IceSSL: certificate verification failed. The certificate was rejected by the remote certificate "
+            "validation callback.");
     }
 
     _state = StateHandshakeComplete;

@@ -7,6 +7,7 @@
 
 #ifdef __APPLE__
 
+#    include "Ice/Config.h"
 #    include "SSLUtil.h"
 
 namespace Ice::SSL::SecureTransport
@@ -24,7 +25,7 @@ namespace Ice::SSL::SecureTransport
     //
     // Read certificate from a file.
     //
-    CFArrayRef loadCertificateChain(
+    ICE_API CFArrayRef loadCertificateChain(
         const std::string&,
         const std::string&,
         const std::string&,
@@ -32,8 +33,8 @@ namespace Ice::SSL::SecureTransport
         const std::string&);
 
     SecCertificateRef loadCertificate(const std::string&);
-    CFArrayRef loadCACertificates(const std::string&);
-    CFArrayRef findCertificateChain(const std::string&, const std::string&, const std::string&);
+    ICE_API CFArrayRef loadCACertificates(const std::string&);
+    ICE_API CFArrayRef findCertificateChain(const std::string&, const std::string&, const std::string&);
 
 }
 #endif
