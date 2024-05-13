@@ -89,7 +89,7 @@ internal sealed class ServerFactoryI : ServerFactoryDisp_
     public override ServerPrx createServer(Dictionary<string, string> props, Ice.Current current)
     {
         Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = Ice.Util.createProperties();
+        initData.properties = new Ice.Properties();
         foreach (string key in props.Keys)
         {
             initData.properties.setProperty(key, props[key]);

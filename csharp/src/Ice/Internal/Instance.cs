@@ -676,7 +676,7 @@ public sealed class Instance
         {
             if (_initData.properties == null)
             {
-                _initData.properties = Ice.Util.createProperties();
+                _initData.properties = new Ice.Properties();
             }
 
             lock (_staticLock)

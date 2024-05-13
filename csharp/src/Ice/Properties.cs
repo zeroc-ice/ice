@@ -47,14 +47,14 @@ public sealed class Properties
     /// files and args override these defaults. May be null.</param>
     /// <returns>A property set initialized with the property settings
     /// that were removed from args.</returns>
-    public Properties(ref string[] args, Properties? defaults)
+    public Properties(ref string[] args, Properties? defaults = null)
     {
         _properties = [];
         if (defaults is not null)
         {
-            foreach (KeyValuePair<string, PropertyValue> entry in ((Properties)defaults)._properties)
+            foreach (KeyValuePair<string, PropertyValue> entry in defaults._properties)
             {
-                _properties[entry.Key] = new PropertyValue(entry.Value);
+                _properties[entry.Key] = entry.Value.Clone();
             }
         }
 
