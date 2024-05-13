@@ -314,11 +314,6 @@ public final class AMDInitialI implements Initial {
   }
 
   @Override
-  public CompletionStage<Boolean> supportsRequiredParamsAsync(Current current) {
-    return CompletableFuture.completedFuture(true);
-  }
-
-  @Override
   public CompletionStage<Boolean> supportsJavaSerializableAsync(Current current) {
     return CompletableFuture.completedFuture(true);
   }

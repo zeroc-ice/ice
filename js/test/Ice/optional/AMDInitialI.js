@@ -278,11 +278,6 @@
             return [p1, p1];
         }
 
-        supportsRequiredParams(current)
-        {
-            return false;
-        }
-
         supportsJavaSerializable(current)
         {
             return false;

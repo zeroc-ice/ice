@@ -280,11 +280,6 @@ public final class InitialI implements Initial {
   }
 
   @Override
-  public boolean supportsRequiredParams(Current current) {
-    return true;
-  }
-
-  @Override
   public boolean supportsJavaSerializable(Current current) {
     return true;
   }

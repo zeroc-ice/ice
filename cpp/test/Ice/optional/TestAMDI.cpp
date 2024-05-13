@@ -473,12 +473,6 @@ InitialI::opMDict2Async(
 }
 
 void
-InitialI::supportsRequiredParamsAsync(function<void(bool)> response, function<void(exception_ptr)>, const Ice::Current&)
-{
-    response(false);
-}
-
-void
 InitialI::supportsJavaSerializableAsync(
     function<void(bool)> response,
     function<void(exception_ptr)>,

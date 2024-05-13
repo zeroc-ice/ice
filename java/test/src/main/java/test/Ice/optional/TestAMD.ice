@@ -277,8 +277,6 @@ interface Initial
     ["marshaled-result"] optional(1) StringIntDict opMDict2(optional(2) StringIntDict p1,
                                                             out optional(3) StringIntDict p2);
 
-    bool supportsRequiredParams();
-
     bool supportsJavaSerializable();
 
     bool supportsCsharpSerializable();

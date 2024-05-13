@@ -277,11 +277,6 @@ export class InitialI extends Test.Initial
         return [p1, p1];
     }
 
-    supportsRequiredParams(current:Ice.Current):boolean
-    {
-        return false;
-    }
-
     supportsJavaSerializable(current:Ice.Current):boolean
     {
         return false;
