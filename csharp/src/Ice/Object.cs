@@ -43,6 +43,9 @@ public interface Object
     string ice_id(Current current);
 
     Task<OutputStream>? iceDispatch(Ice.Internal.Incoming inc, Current current);
+
+    public ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request) =>
+        throw new NotImplementedException();
 }
 
 /// <summary>
