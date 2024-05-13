@@ -77,7 +77,7 @@ public sealed class Util
     /// <returns>A new empty property set.</returns>
     public static Properties createProperties()
     {
-        return new PropertiesI();
+        return new Properties();
     }
 
     /// <summary>
@@ -93,7 +93,7 @@ public sealed class Util
     /// that were removed from args.</returns>
     public static Properties createProperties(ref string[] args)
     {
-        return new PropertiesI(ref args, null);
+        return new Properties(ref args, null);
     }
 
     /// <summary>
@@ -111,7 +111,7 @@ public sealed class Util
     /// that were removed from args.</returns>
     public static Properties createProperties(ref string[] args, Properties defaults)
     {
-        return new PropertiesI(ref args, defaults);
+        return new Properties(ref args, defaults);
     }
 
     /// <summary>

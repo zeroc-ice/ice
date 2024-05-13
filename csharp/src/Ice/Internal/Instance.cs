@@ -1244,7 +1244,7 @@ public sealed class Instance
 
         if (_initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
         {
-            List<string> unusedProperties = ((Ice.PropertiesI)_initData.properties).getUnusedProperties();
+            List<string> unusedProperties = _initData.properties.getUnusedProperties();
             if (unusedProperties.Count != 0)
             {
                 StringBuilder message = new StringBuilder("The following properties were set but never read:");
