@@ -60,11 +60,6 @@ class Exception extends Error
         }
     }
 
-    ice_name()
-    {
-        return this.constructor._id.substr(2);
-    }
-
     ice_id()
     {
         return this.constructor._id;

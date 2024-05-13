@@ -23,17 +23,6 @@ public abstract class Exception : System.Exception
     public Exception(System.Exception ex) : base("", ex) { }
 
     /// <summary>
-    /// ice_name() is deprecated, use ice_id() instead.
-    /// Returns the name of this exception.
-    /// </summary>
-    /// <returns>The name of this exception.</returns>
-    [Obsolete("ice_name() is deprecated, use ice_id() instead.")]
-    public string ice_name()
-    {
-        return ice_id().Substring(2);
-    }
-
-    /// <summary>
     /// Returns the type id of this exception.
     /// </summary>
     /// <returns>The type id of this exception.</returns>
