@@ -15,7 +15,6 @@ interface Retry
 
     idempotent int opIdempotent(int c);
     void opNotIdempotent();
-    void opSystemException();
 
     idempotent void shutdown();
 }
