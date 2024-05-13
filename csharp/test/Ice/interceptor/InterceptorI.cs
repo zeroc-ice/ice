@@ -36,10 +36,6 @@ namespace Ice
                     {
                         throw new Ice.ObjectNotExistException();
                     }
-                    else if (context == "system")
-                    {
-                        throw new MySystemException();
-                    }
                 }
 
                 lastOperation_ = current.operation;
@@ -92,10 +88,6 @@ namespace Ice
                     else if (context == "notExist")
                     {
                         throw new Ice.ObjectNotExistException();
-                    }
-                    else if (context == "system")
-                    {
-                        throw new MySystemException();
                     }
                 }
 

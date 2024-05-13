@@ -100,25 +100,6 @@ public abstract class LocalException : Exception
 }
 
 /// <summary>
-/// Base class for Ice system exceptions.
-/// Ice system exceptions are currently Ice internal, non-documented exceptions.
-/// </summary>
-public abstract class SystemException : Exception
-{
-    /// <summary>
-    /// Creates a default-initialized system exception.
-    /// </summary>
-    public SystemException() { }
-
-    /// <summary>
-    /// Creates a default-initialized system exception and sets the InnerException
-    /// property to the passed exception.
-    /// </summary>
-    /// <param name="ex">The inner exception.</param>
-    public SystemException(System.Exception ex) : base(ex) { }
-}
-
-/// <summary>
 /// Base class for Slice user exceptions.
 /// </summary>
 public abstract class UserException : Exception

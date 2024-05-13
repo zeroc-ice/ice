@@ -583,14 +583,6 @@ public class Incoming : Ice.Request
     {
         Debug.Assert(_responseHandler != null);
 
-        if (exc is Ice.SystemException)
-        {
-            if (_responseHandler.systemException(_current.requestId, (Ice.SystemException)exc, amd))
-            {
-                return;
-            }
-        }
-
         if (_response)
         {
             //

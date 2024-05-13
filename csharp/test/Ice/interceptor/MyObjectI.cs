@@ -4,20 +4,6 @@ namespace Ice
 {
     namespace interceptor
     {
-        internal class MySystemException : Ice.SystemException
-        {
-            public
-            MySystemException()
-            {
-            }
-
-            override public string
-            ice_id()
-            {
-                return "::MySystemException";
-            }
-        };
-
         internal class MyRetryException : Ice.LocalException
         {
             override public string ice_id()
@@ -68,12 +54,6 @@ namespace Ice
                 throw new Ice.ObjectNotExistException();
             }
 
-            public override int
-            badSystemAdd(int x, int y, Ice.Current current)
-            {
-                throw new MySystemException();
-            }
-
             //
             // AMD
             //
@@ -110,13 +90,6 @@ namespace Ice
             {
                 await Task.Delay(10);
                 throw new Ice.ObjectNotExistException();
-            }
-
-            public override async Task<int>
-            amdBadSystemAddAsync(int x, int y, Ice.Current current)
-            {
-                await Task.Delay(10);
-                throw new MySystemException();
             }
         }
     }

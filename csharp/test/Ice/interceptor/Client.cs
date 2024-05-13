@@ -63,29 +63,6 @@ namespace Ice
                 test(interceptor.getLastOperation() == "notExistAdd");
                 test(!interceptor.getLastStatus());
                 output.WriteLine("ok");
-                output.Write("testing system exception... ");
-                output.Flush();
-                interceptor.clear();
-                try
-                {
-                    prx.badSystemAdd(33, 12);
-                    test(false);
-                }
-                catch (Ice.UnknownException)
-                {
-                    test(!prx.ice_isCollocationOptimized());
-                }
-                catch (MySystemException)
-                {
-                    test(prx.ice_isCollocationOptimized());
-                }
-                catch (Exception)
-                {
-                    test(false);
-                }
-                test(interceptor.getLastOperation() == "badSystemAdd");
-                test(!interceptor.getLastStatus());
-                output.WriteLine("ok");
 
                 output.Write("testing exceptions raised by the interceptor... ");
                 output.Flush();
@@ -154,30 +131,6 @@ namespace Ice
                 test(interceptor.getLastStatus());
                 output.WriteLine("ok");
 
-                output.Write("testing system exception... ");
-                output.Flush();
-                interceptor.clear();
-                try
-                {
-                    prx.amdBadSystemAdd(33, 12);
-                    test(false);
-                }
-                catch (Ice.UnknownException)
-                {
-                    test(!prx.ice_isCollocationOptimized());
-                }
-                catch (MySystemException)
-                {
-                    test(prx.ice_isCollocationOptimized());
-                }
-                catch (Exception)
-                {
-                    test(false);
-                }
-                test(interceptor.getLastOperation() == "amdBadSystemAdd");
-                test(interceptor.getLastStatus());
-                output.WriteLine("ok");
-
                 output.Write("testing exceptions raised by the interceptor... ");
                 output.Flush();
                 testInterceptorExceptions(prx);
@@ -229,10 +182,8 @@ namespace Ice
                 var exceptions = new List<Tuple<string, string>>();
                 exceptions.Add(new Tuple<string, string>("raiseBeforeDispatch", "user"));
                 exceptions.Add(new Tuple<string, string>("raiseBeforeDispatch", "notExist"));
-                exceptions.Add(new Tuple<string, string>("raiseBeforeDispatch", "system"));
                 exceptions.Add(new Tuple<string, string>("raiseAfterDispatch", "user"));
                 exceptions.Add(new Tuple<string, string>("raiseAfterDispatch", "notExist"));
-                exceptions.Add(new Tuple<string, string>("raiseAfterDispatch", "system"));
                 foreach (var e in exceptions)
                 {
                     var ctx = new Dictionary<string, string>();
@@ -254,10 +205,6 @@ namespace Ice
                     {
                         test(e.Item2 == "system"); // non-collocated
                     }
-                    catch (MySystemException)
-                    {
-                        test(e.Item2 == "system"); // collocated
-                    }
                     {
                         Ice.ObjectPrx batch = prx.ice_batchOneway();
                         batch.ice_ping(ctx);
@@ -265,7 +212,7 @@ namespace Ice
                         batch.ice_flushBatchRequests();
 
                         // Force the last batch request to be dispatched by the server thread using invocation timeouts
-                        // This is required to preven threading issue with the test interceptor implementation which
+                        // This is required to prevent threading issue with the test interceptor implementation which
                         // isn't thread safe
                         prx.ice_invocationTimeout(10000).ice_ping();
                     }
