@@ -258,12 +258,12 @@ generated from the section label.
     </class>
 
     <class name="threadpool" prefix-only="true">
-        <suffix name="Size" />
+        <suffix name="Size" default="1" />
         <suffix name="SizeMax" />
-        <suffix name="SizeWarn" />
-        <suffix name="StackSize" />
-        <suffix name="Serialize" />
-        <suffix name="ThreadIdleTime" />
+        <suffix name="SizeWarn" default="0" />
+        <suffix name="StackSize" default="0" />
+        <suffix name="Serialize" default="0" />
+        <suffix name="ThreadIdleTime" default="60" />
         <suffix name="ThreadPriority" />
     </class>
 
@@ -387,12 +387,12 @@ generated from the section label.
         <property name="ToStringMode" default="Unicode" />
         <property name="Trace.Admin.Properties" default="0" />
         <property name="Trace.Admin.Logger" default="0" />
-        <property name="Trace.Locator" />
-        <property name="Trace.Network" />
-        <property name="Trace.Protocol" />
-        <property name="Trace.Retry" />
-        <property name="Trace.Slicing" />
-        <property name="Trace.ThreadPool" />
+        <property name="Trace.Locator" default="0" />
+        <property name="Trace.Network" default="0" />
+        <property name="Trace.Protocol" default="0" />
+        <property name="Trace.Retry" default="0" />
+        <property name="Trace.Slicing" default="0" />
+        <property name="Trace.ThreadPool" default="0" />
         <property name="UDP.RcvSize" />
         <property name="UDP.SndSize" />
         <property name="TCP.Backlog" />
@@ -436,14 +436,14 @@ generated from the section label.
         <property name="Reply" class="objectadapter" />
         <property name="Locator" class="objectadapter" />
         <property name="Lookup"/>
-        <property name="Timeout"/>
-        <property name="RetryCount"/>
-        <property name="RetryDelay"/>
+        <property name="Timeout" defualt="300" />
+        <property name="RetryCount" default="3" />
+        <property name="RetryDelay" default="2000" />
         <property name="Address"/>
-        <property name="Port"/>
+        <property name="Port" default="4061" />
         <property name="Interface"/>
         <property name="InstanceName" default="IceLocatorDiscovery" />
-        <property name="Trace.Lookup" />
+        <property name="Trace.Lookup" default="0" />
     </section>
 
     <section name="IceBox">
@@ -500,13 +500,13 @@ generated from the section label.
         <property name="Node.ProcessorSocketCount" />
         <property name="Node.PrintServersReady" />
         <property name="Node.PropertiesOverride" />
-        <property name="Node.RedirectErrToOut" default="0"/>
-        <property name="Node.Trace.Activator" />
-        <property name="Node.Trace.Adapter" />
-        <property name="Node.Trace.Admin" />
-        <property name="Node.Trace.Patch" />
-        <property name="Node.Trace.Replica" />
-        <property name="Node.Trace.Server" />
+        <property name="Node.RedirectErrToOut" default="0" />
+        <property name="Node.Trace.Activator" default="0" />
+        <property name="Node.Trace.Adapter" default="0" />
+        <property name="Node.Trace.Admin" default="0" />
+        <property name="Node.Trace.Patch" default="0" />
+        <property name="Node.Trace.Replica" default="0" />
+        <property name="Node.Trace.Server" default="0" />
         <property name="Node.UserAccounts" />
         <property name="Node.UserAccountMapper" class="proxy" />
         <property name="Node.WaitTime" default="60" />
@@ -533,20 +533,20 @@ generated from the section label.
         <property name="Registry.SessionFilters" default="0" />
         <property name="Registry.SessionManager" class="objectadapter" />
         <property name="Registry.SSLPermissionsVerifier" class="proxy"/>
-        <property name="Registry.Trace.Admin" />
-        <property name="Registry.Trace.Application" />
-        <property name="Registry.Trace.Adapter" />
-        <property name="Registry.Trace.Discovery" />
-        <property name="Registry.Trace.Locator" />
-        <property name="Registry.Trace.Node" />
-        <property name="Registry.Trace.Object" />
-        <property name="Registry.Trace.Patch" />
-        <property name="Registry.Trace.Replica" />
-        <property name="Registry.Trace.Server" />
-        <property name="Registry.Trace.Session" />
-        <property name="Registry.Trace.Subscriber"/>
-        <property name="Registry.Trace.Topic"/>
-        <property name="Registry.Trace.TopicManager"/>
+        <property name="Registry.Trace.Admin" default="0" />
+        <property name="Registry.Trace.Application" default="0" />
+        <property name="Registry.Trace.Adapter" default="0" />
+        <property name="Registry.Trace.Discovery" default="0" />
+        <property name="Registry.Trace.Locator" default="0" />
+        <property name="Registry.Trace.Node" default="0" />
+        <property name="Registry.Trace.Object" default="0" />
+        <property name="Registry.Trace.Patch" default="0" />
+        <property name="Registry.Trace.Replica" default="0" />
+        <property name="Registry.Trace.Server" default="0" />
+        <property name="Registry.Trace.Session" default="0" />
+        <property name="Registry.Trace.Subscriber" default="0" />
+        <property name="Registry.Trace.Topic" default="0" />
+        <property name="Registry.Trace.TopicManager" default="0" />
         <property name="Registry.UserAccounts" />
     </section>
 
@@ -557,7 +557,7 @@ generated from the section label.
         <property name="CertStoreLocation" default="CurrentUser" />
         <property name="CertFile" />
         <property name="CheckCertName" default="0" />
-        <property name="CheckCRL" />
+        <property name="CheckCRL" default="0" />
         <property name="CertificateRevocationListFiles" />
         <property name="DefaultDir" />
         <property name="FindCert" />
@@ -578,7 +578,7 @@ generated from the section label.
         <property name="TrustOnly.Server.[any]" />
         <property name="Truststore" />
         <property name="TruststorePassword" />
-        <property name="TruststoreType" />
+        <property name="TruststoreType" default="JKS" />
         <property name="UsePlatformCAs" default="0" />
         <property name="VerifyPeer" default="2" />
     </section>

@@ -6,7 +6,7 @@ using System.Runtime.ExceptionServices;
 
 namespace Ice.Internal;
 
-public class Incoming : Ice.Request
+public class Incoming
 {
     public Incoming(Instance instance, ResponseHandler handler, Ice.ConnectionI connection,
                     Ice.ObjectAdapter adapter, bool response, byte compress, int requestId)
@@ -80,12 +80,7 @@ public class Incoming : Ice.Request
         return true;
     }
 
-    public Ice.Current getCurrent()
-    {
-        return _current;
-    }
-
-    public void invoke(ServantManager servantManager, Ice.InputStream stream)
+    public void dispatch(ServantManager servantManager, Ice.InputStream stream)
     {
         _is = stream;
 
@@ -354,7 +349,7 @@ public class Incoming : Ice.Request
         }
         catch (Ice.LocalException ex)
         {
-            _responseHandler.invokeException(_current.requestId, ex, 1, amd);
+            _responseHandler.dispatchException(_current.requestId, ex, 1, amd);
         }
         finally
         {
