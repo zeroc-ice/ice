@@ -30,8 +30,6 @@ class InterceptorI extends com.zeroc.Ice.DispatchInterceptor {
         throw new InvalidInputException();
       } else if (context.equals("notExist")) {
         throw new com.zeroc.Ice.ObjectNotExistException();
-      } else if (context.equals("system")) {
-        throw new MySystemException();
       }
     }
 
@@ -68,8 +66,6 @@ class InterceptorI extends com.zeroc.Ice.DispatchInterceptor {
         throw new InvalidInputException();
       } else if (context.equals("notExist")) {
         throw new com.zeroc.Ice.ObjectNotExistException();
-      } else if (context.equals("system")) {
-        throw new MySystemException();
       }
     }
     return f;

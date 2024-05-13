@@ -36,11 +36,6 @@ interface MyObject
     int notExistAdd(int x, int y);
 
     //
-    // Raise system exception
-    //
-    int badSystemAdd(int x, int y);
-
-    //
     // AMD version of the above:
     //
 
@@ -63,12 +58,6 @@ interface MyObject
     // Raise ONE
     //
     ["amd"] int amdNotExistAdd(int x, int y);
-
-    //
-    // Raise system exception
-    //
-    ["amd"] int amdBadSystemAdd(int x, int y);
-
 }
 
 }

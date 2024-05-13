@@ -57,22 +57,6 @@ public class Client extends test.TestHelper {
     test(interceptor.getLastOperation().equals("notExistAdd"));
     test(!interceptor.getLastStatus());
     out.println("ok");
-    out.print("testing system exception... ");
-    out.flush();
-    interceptor.clear();
-    try {
-      prx.badSystemAdd(33, 12);
-      test(false);
-    } catch (com.zeroc.Ice.UnknownException e) {
-      test(!prx.ice_isCollocationOptimized());
-    } catch (MySystemException e) {
-      test(prx.ice_isCollocationOptimized());
-    } catch (Throwable ex) {
-      test(false);
-    }
-    test(interceptor.getLastOperation().equals("badSystemAdd"));
-    test(!interceptor.getLastStatus());
-    out.println("ok");
 
     out.print("testing exceptions raised by the interceptor... ");
     out.flush();
@@ -125,22 +109,6 @@ public class Client extends test.TestHelper {
       // expected
     }
     test(interceptor.getLastOperation().equals("amdNotExistAdd"));
-    test(interceptor.getLastStatus());
-    out.println("ok");
-    out.print("testing system exception... ");
-    out.flush();
-    interceptor.clear();
-    try {
-      prx.amdBadSystemAdd(33, 12);
-      test(false);
-    } catch (com.zeroc.Ice.UnknownException e) {
-      test(!prx.ice_isCollocationOptimized());
-    } catch (MySystemException e) {
-      test(prx.ice_isCollocationOptimized());
-    } catch (Throwable ex) {
-      test(false);
-    }
-    test(interceptor.getLastOperation().equals("amdBadSystemAdd"));
     test(interceptor.getLastStatus());
     out.println("ok");
 
@@ -201,10 +169,8 @@ public class Client extends test.TestHelper {
     java.util.List<ExceptionPoint> exceptions = new java.util.ArrayList<>();
     exceptions.add(new ExceptionPoint("raiseBeforeDispatch", "user"));
     exceptions.add(new ExceptionPoint("raiseBeforeDispatch", "notExist"));
-    exceptions.add(new ExceptionPoint("raiseBeforeDispatch", "system"));
     exceptions.add(new ExceptionPoint("raiseAfterDispatch", "user"));
     exceptions.add(new ExceptionPoint("raiseAfterDispatch", "notExist"));
-    exceptions.add(new ExceptionPoint("raiseAfterDispatch", "system"));
     for (ExceptionPoint e : exceptions) {
       java.util.Map<String, String> ctx = new java.util.HashMap<>();
       ctx.put(e.point, e.exception);
@@ -217,8 +183,6 @@ public class Client extends test.TestHelper {
         test(e.exception.equals("notExist"));
       } catch (com.zeroc.Ice.UnknownException ex) {
         test(e.exception.equals("system")); // non-collocated
-      } catch (MySystemException ex) {
-        test(e.exception.equals("system")); // collocated
       }
       {
         com.zeroc.Ice.ObjectPrx batch = prx.ice_batchOneway();

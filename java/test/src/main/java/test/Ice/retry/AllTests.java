@@ -189,30 +189,6 @@ public class AllTests {
     instrumentation.testRetryCount(0);
     out.println("ok");
 
-    if (retry1.ice_getConnection() == null) {
-      instrumentation.testInvocationCount(1);
-
-      out.print("testing system exception... ");
-      try {
-        retry1.opSystemException();
-        test(false);
-      } catch (SystemFailure ex) {
-      }
-      instrumentation.testInvocationCount(1);
-      instrumentation.testFailureCount(1);
-      instrumentation.testRetryCount(0);
-      try {
-        retry1.opSystemExceptionAsync().join();
-        test(false);
-      } catch (java.util.concurrent.CompletionException ex) {
-        test(ex.getCause() instanceof SystemFailure);
-      }
-      instrumentation.testInvocationCount(1);
-      instrumentation.testFailureCount(1);
-      instrumentation.testRetryCount(0);
-      out.println("ok");
-    }
-
     {
       out.print("testing invocation timeout and retries... ");
       out.flush();

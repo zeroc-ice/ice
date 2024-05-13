@@ -43,11 +43,6 @@ public final class RetryI implements Retry {
   }
 
   @Override
-  public void opSystemException(com.zeroc.Ice.Current c) {
-    throw new SystemFailure();
-  }
-
-  @Override
   public void sleep(int delay, com.zeroc.Ice.Current c) {
     while (true) {
       try {

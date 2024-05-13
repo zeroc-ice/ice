@@ -5,9 +5,9 @@
 package com.zeroc.Ice;
 
 /**
- * Base class for Ice local and system exceptions. Those exceptions are not checked so we inherit
- * from java.lang.RuntimeException. User exceptions are checked exceptions and therefore inherit
- * directly from java.lang.Exception.
+ * Base class for Ice local exceptions. Those exceptions are not checked so we inherit from
+ * java.lang.RuntimeException. User exceptions are checked exceptions and therefore inherit directly
+ * from java.lang.Exception.
  */
 public abstract class Exception extends RuntimeException implements Cloneable {
   public Exception() {}
