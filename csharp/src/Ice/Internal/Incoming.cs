@@ -6,7 +6,7 @@ using System.Runtime.ExceptionServices;
 
 namespace Ice.Internal;
 
-public class Incoming : Ice.Request
+public class Incoming
 {
     public Incoming(Instance instance, ResponseHandler handler, Ice.ConnectionI connection,
                     Ice.ObjectAdapter adapter, bool response, byte compress, int requestId)
@@ -78,11 +78,6 @@ public class Incoming : Ice.Request
         _inParamPos = -1;
 
         return true;
-    }
-
-    public Ice.Current getCurrent()
-    {
-        return _current;
     }
 
     public void invoke(ServantManager servantManager, Ice.InputStream stream)
