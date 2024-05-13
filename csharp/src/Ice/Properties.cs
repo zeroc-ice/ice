@@ -26,11 +26,85 @@ public sealed class Properties
             this.used = used;
         }
 
-        public PropertyValue(PropertyValue propertyValue)
+        public PropertyValue Clone() => new(value, used);
+    }
+
+    /// <summary>
+    /// Creates a new empty property set.
+    /// </summary>
+    public Properties() => _properties = [];
+
+    /// <summary>
+    /// Creates a property set initialized from an argument vector.
+    /// </summary>
+    /// <param name="args">A command-line argument vector, possibly containing
+    /// options to set properties. If the command-line options include
+    /// a --Ice.Config option, the corresponding configuration
+    /// files are parsed. If the same property is set in a configuration
+    /// file and in the argument vector, the argument vector takes precedence.
+    /// This method modifies the argument vector by removing any Ice-related options.</param>
+    /// <param name="defaults">Default values for the property set. Settings in configuration
+    /// files and args override these defaults. May be null.</param>
+    /// <returns>A property set initialized with the property settings
+    /// that were removed from args.</returns>
+    public Properties(ref string[] args, Properties? defaults)
+    {
+        _properties = [];
+        if (defaults != null)
         {
-            value = propertyValue.value;
-            used = propertyValue.used;
+            foreach (KeyValuePair<string, PropertyValue> entry in ((Properties)defaults)._properties)
+            {
+                _properties[entry.Key] = new PropertyValue(entry.Value);
+            }
         }
+
+        if (_properties.TryGetValue("Ice.ProgramName", out PropertyValue? pv))
+        {
+            pv.used = true;
+        }
+        else
+        {
+            _properties["Ice.ProgramName"] = new PropertyValue(AppDomain.CurrentDomain.FriendlyName, true);
+        }
+
+        bool loadConfigFiles = false;
+
+        for (int i = 0; i < args.Length; i++)
+        {
+            if (args[i].StartsWith("--Ice.Config", StringComparison.Ordinal))
+            {
+                string line = args[i];
+                if (!line.Contains('='))
+                {
+                    line += "=1";
+                }
+                parseLine(line.Substring(2));
+                loadConfigFiles = true;
+
+                string[] arr = new string[args.Length - 1];
+                Array.Copy(args, 0, arr, 0, i);
+                if (i < args.Length - 1)
+                {
+                    Array.Copy(args, i + 1, arr, i, args.Length - i - 1);
+                }
+                args = arr;
+            }
+        }
+
+        if (!loadConfigFiles)
+        {
+            //
+            // If Ice.Config is not set, load from ICE_CONFIG (if set)
+            //
+            loadConfigFiles = !_properties.ContainsKey("Ice.Config");
+        }
+
+        if (loadConfigFiles)
+        {
+            loadConfig();
+        }
+
+        args = parseIceCommandLineOptions(args);
     }
 
     /// <summary>
@@ -46,8 +120,7 @@ public sealed class Properties
         lock (this)
         {
             string result = "";
-            PropertyValue? pv;
-            if (_properties.TryGetValue(key, out pv))
+            if (_properties.TryGetValue(key, out PropertyValue? pv))
             {
                 pv.used = true;
                 result = pv.value;
@@ -64,10 +137,7 @@ public sealed class Properties
     ///  </param>
     /// <returns>The property value or the default value.
     ///  </returns>
-    public string getIceProperty(string key)
-    {
-        return getPropertyWithDefault(key, getDefaultProperty(key));
-    }
+    public string getIceProperty(string key) => getPropertyWithDefault(key, getDefaultProperty(key));
 
     /// <summary>
     /// Get a property by key.
@@ -84,8 +154,7 @@ public sealed class Properties
         lock (this)
         {
             string result = val;
-            PropertyValue? pv;
-            if (_properties.TryGetValue(key, out pv))
+            if (_properties.TryGetValue(key, out PropertyValue? pv))
             {
                 pv.used = true;
                 result = pv.value;
@@ -102,10 +171,7 @@ public sealed class Properties
     ///  </param>
     /// <returns>The property value interpreted as an integer.
     ///  </returns>
-    public int getPropertyAsInt(string key)
-    {
-        return getPropertyAsIntWithDefault(key, 0);
-    }
+    public int getPropertyAsInt(string key) => getPropertyAsIntWithDefault(key, 0);
 
     /// <summary>
     /// Get an Ice property as an integer.
@@ -141,8 +207,7 @@ public sealed class Properties
     {
         lock (this)
         {
-            PropertyValue? pv;
-            if (!_properties.TryGetValue(key, out pv))
+            if (!_properties.TryGetValue(key, out PropertyValue? pv))
             {
                 return val;
             }
@@ -172,10 +237,7 @@ public sealed class Properties
     ///  </param>
     /// <returns>The property value interpreted as a list of strings.
     ///  </returns>
-    public string[] getPropertyAsList(string key)
-    {
-        return getPropertyAsListWithDefault(key, []);
-    }
+    public string[] getPropertyAsList(string key) => getPropertyAsListWithDefault(key, []);
 
     /// <summary>
     /// Get an Ice property as a list of strings.
@@ -193,7 +255,7 @@ public sealed class Properties
     ///  </returns>
     public string[] getIcePropertyAsList(string key)
     {
-        string[] defaultList = Ice.UtilInternal.StringUtil.splitString(getDefaultProperty(key), ", \t\r\n");
+        string[] defaultList = UtilInternal.StringUtil.splitString(getDefaultProperty(key), ", \t\r\n");
         return getPropertyAsListWithDefault(key, defaultList);
     }
 
@@ -213,15 +275,11 @@ public sealed class Properties
     ///  </returns>
     public string[] getPropertyAsListWithDefault(string key, string[] val)
     {
-        if (val == null)
-        {
-            val = [];
-        }
+        val ??= [];
 
         lock (this)
         {
-            PropertyValue? pv;
-            if (!_properties.TryGetValue(key, out pv))
+            if (!_properties.TryGetValue(key, out PropertyValue? pv))
             {
                 return val;
             }
@@ -254,7 +312,7 @@ public sealed class Properties
     {
         lock (this)
         {
-            Dictionary<string, string> result = new Dictionary<string, string>();
+            var result = new Dictionary<string, string>();
 
             foreach (string s in _properties.Keys)
             {
@@ -292,7 +350,7 @@ public sealed class Properties
         }
 
         // Find the property, log warnings if necessary
-        var prop = findProperty(key, true);
+        Property? prop = findProperty(key, true);
 
         // If the property is deprecated by another property, use the new property key
         if (prop != null && prop.deprecatedBy != null)
@@ -308,8 +366,7 @@ public sealed class Properties
             //
             if (val != null && val.Length > 0)
             {
-                PropertyValue? pv;
-                if (_properties.TryGetValue(key, out pv))
+                if (_properties.TryGetValue(key, out PropertyValue? pv))
                 {
                     pv.value = val;
                 }
@@ -359,13 +416,13 @@ public sealed class Properties
     /// <returns>The command-line options that do not start with the specified prefix, in their original order.</returns>
     public string[] parseCommandLineOptions(string pfx, string[] options)
     {
-        if (pfx.Length > 0 && pfx[pfx.Length - 1] != '.')
+        if (pfx.Length > 0 && pfx[^1] != '.')
         {
             pfx += '.';
         }
         pfx = "--" + pfx;
 
-        List<string> result = new List<string>();
+        List<string> result = [];
         for (int i = 0; i < options.Length; i++)
         {
             string opt = options[i];
@@ -403,7 +460,7 @@ public sealed class Properties
     public string[] parseIceCommandLineOptions(string[] options)
     {
         string[] args = options;
-        foreach (var name in Ice.Internal.PropertyNames.clPropNames)
+        foreach (string? name in PropertyNames.clPropNames)
         {
             args = parseCommandLineOptions(name, args);
         }
@@ -418,7 +475,7 @@ public sealed class Properties
     {
         try
         {
-            using StreamReader sr = new StreamReader(file);
+            using var sr = new StreamReader(file);
             parse(sr);
         }
         catch (IOException ex)
@@ -435,10 +492,15 @@ public sealed class Properties
     /// <returns>A copy of this property set.</returns>
     public Properties ice_clone_()
     {
+        var clonedProperties = new Properties();
         lock (this)
         {
-            return new Properties(this);
+            foreach (KeyValuePair<string, PropertyValue> entry in _properties)
+            {
+                clonedProperties._properties[entry.Key] = entry.Value.Clone();
+            }
         }
+        return clonedProperties;
     }
 
     public List<string> getUnusedProperties()
@@ -457,80 +519,7 @@ public sealed class Properties
         }
     }
 
-    internal Properties(Properties p) : this()
-    {
-        foreach (KeyValuePair<string, PropertyValue> entry in p._properties)
-        {
-            _properties[entry.Key] = new PropertyValue(entry.Value);
-        }
-    }
-
-    internal Properties()
-    {
-        _properties = new Dictionary<string, PropertyValue>();
-    }
-
-    internal Properties(ref string[] args, Properties defaults) : this()
-    {
-        if (defaults != null)
-        {
-            foreach (KeyValuePair<string, PropertyValue> entry in ((Properties)defaults)._properties)
-            {
-                _properties[entry.Key] = new PropertyValue(entry.Value);
-            }
-        }
-
-        PropertyValue? pv;
-        if (_properties.TryGetValue("Ice.ProgramName", out pv))
-        {
-            pv.used = true;
-        }
-        else
-        {
-            _properties["Ice.ProgramName"] = new PropertyValue(AppDomain.CurrentDomain.FriendlyName, true);
-        }
-
-        bool loadConfigFiles = false;
-
-        for (int i = 0; i < args.Length; i++)
-        {
-            if (args[i].StartsWith("--Ice.Config", StringComparison.Ordinal))
-            {
-                string line = args[i];
-                if (!line.Contains('='))
-                {
-                    line += "=1";
-                }
-                parseLine(line.Substring(2));
-                loadConfigFiles = true;
-
-                string[] arr = new string[args.Length - 1];
-                Array.Copy(args, 0, arr, 0, i);
-                if (i < args.Length - 1)
-                {
-                    Array.Copy(args, i + 1, arr, i, args.Length - i - 1);
-                }
-                args = arr;
-            }
-        }
-
-        if (!loadConfigFiles)
-        {
-            //
-            // If Ice.Config is not set, load from ICE_CONFIG (if set)
-            //
-            loadConfigFiles = !_properties.ContainsKey("Ice.Config");
-        }
-
-        if (loadConfigFiles)
-        {
-            loadConfig();
-        }
-
-        args = parseIceCommandLineOptions(args);
-    }
-
-    private void parse(System.IO.StreamReader input)
+    private void parse(StreamReader input)
     {
         try
         {
@@ -540,7 +529,7 @@ public sealed class Properties
                 parseLine(line);
             }
         }
-        catch (System.IO.IOException ex)
+        catch (IOException ex)
         {
             SyscallException se = new SyscallException(ex);
             throw se;
@@ -558,7 +547,7 @@ public sealed class Properties
         int state = ParseStateKey;
 
         string whitespace = "";
-        string escapedspace = "";
+        string escapedSpace = "";
         bool finished = false;
         for (int i = 0; i < line.Length; ++i)
         {
@@ -646,21 +635,21 @@ public sealed class Properties
                                     case '\\':
                                     case '#':
                                     case '=':
-                                        val += val.Length == 0 ? escapedspace : whitespace;
+                                        val += val.Length == 0 ? escapedSpace : whitespace;
                                         whitespace = "";
-                                        escapedspace = "";
+                                        escapedSpace = "";
                                         val += c;
                                         break;
 
                                     case ' ':
                                         whitespace += c;
-                                        escapedspace += c;
+                                        escapedSpace += c;
                                         break;
 
                                     default:
-                                        val += val.Length == 0 ? escapedspace : whitespace;
+                                        val += val.Length == 0 ? escapedSpace : whitespace;
                                         whitespace = "";
-                                        escapedspace = "";
+                                        escapedSpace = "";
                                         val += '\\';
                                         val += c;
                                         break;
@@ -668,7 +657,7 @@ public sealed class Properties
                             }
                             else
                             {
-                                val += val.Length == 0 ? escapedspace : whitespace;
+                                val += val.Length == 0 ? escapedSpace : whitespace;
                                 val += c;
                             }
                             break;
@@ -688,9 +677,9 @@ public sealed class Properties
                             break;
 
                         default:
-                            val += val.Length == 0 ? escapedspace : whitespace;
+                            val += val.Length == 0 ? escapedSpace : whitespace;
                             whitespace = "";
-                            escapedspace = "";
+                            escapedSpace = "";
                             val += c;
                             break;
                     }
@@ -702,7 +691,7 @@ public sealed class Properties
                 break;
             }
         }
-        val += escapedspace;
+        val += escapedSpace;
 
         if ((state == ParseStateKey && key.Length != 0) || (state == ParseStateValue && key.Length == 0))
         {
@@ -765,7 +754,7 @@ public sealed class Properties
         Property[]? propertyArray = null;
 
         // Search for the property list that matches the prefix
-        foreach (var validProps in PropertyNames.validProps)
+        foreach (Property[]? validProps in PropertyNames.validProps)
         {
             string pattern = validProps[0].pattern;
             dotPos = pattern.IndexOf('.');
@@ -827,14 +816,10 @@ public sealed class Properties
     /// <param name="key">The Ice property key</param>
     /// <returns>The default property value, or an empty string the default is unspecified.</returns>
     /// <exception cref="ArgumentException"></exception>
-    static private string getDefaultProperty(string key)
+    private static string getDefaultProperty(string key)
     {
         // Find the property, don't log any warnings.
-        var prop = findProperty(key, false);
-        if (prop == null)
-        {
-            throw new ArgumentException("unknown ice property: " + key);
-        }
+        Property? prop = findProperty(key, false) ?? throw new ArgumentException("unknown ice property: " + key);
         return prop.defaultValue;
     }
 
