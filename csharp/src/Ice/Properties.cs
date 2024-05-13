@@ -360,10 +360,7 @@ public sealed class Properties
 
         lock (this)
         {
-            //
-            //
             // Set or clear the property.
-            //
             if (val != null && val.Length > 0)
             {
                 if (_properties.TryGetValue(key, out PropertyValue? pv))
