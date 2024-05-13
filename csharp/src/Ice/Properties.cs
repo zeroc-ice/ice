@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 using Ice.Internal;
 using System.Diagnostics;
 using System.Globalization;
@@ -44,7 +46,7 @@ public sealed class Properties
         lock (this)
         {
             string result = "";
-            PropertyValue pv;
+            PropertyValue? pv;
             if (_properties.TryGetValue(key, out pv))
             {
                 pv.used = true;
@@ -82,7 +84,7 @@ public sealed class Properties
         lock (this)
         {
             string result = val;
-            PropertyValue pv;
+            PropertyValue? pv;
             if (_properties.TryGetValue(key, out pv))
             {
                 pv.used = true;
@@ -139,7 +141,7 @@ public sealed class Properties
     {
         lock (this)
         {
-            PropertyValue pv;
+            PropertyValue? pv;
             if (!_properties.TryGetValue(key, out pv))
             {
                 return val;
@@ -172,7 +174,7 @@ public sealed class Properties
     ///  </returns>
     public string[] getPropertyAsList(string key)
     {
-        return getPropertyAsListWithDefault(key, null);
+        return getPropertyAsListWithDefault(key, []);
     }
 
     /// <summary>
@@ -218,7 +220,7 @@ public sealed class Properties
 
         lock (this)
         {
-            PropertyValue pv;
+            PropertyValue? pv;
             if (!_properties.TryGetValue(key, out pv))
             {
                 return val;
@@ -306,7 +308,7 @@ public sealed class Properties
             //
             if (val != null && val.Length > 0)
             {
-                PropertyValue pv;
+                PropertyValue? pv;
                 if (_properties.TryGetValue(key, out pv))
                 {
                     pv.value = val;
@@ -478,7 +480,7 @@ public sealed class Properties
             }
         }
 
-        PropertyValue pv;
+        PropertyValue? pv;
         if (_properties.TryGetValue("Ice.ProgramName", out pv))
         {
             pv.used = true;
@@ -532,7 +534,7 @@ public sealed class Properties
     {
         try
         {
-            string line;
+            string? line;
             while ((line = input.ReadLine()) != null)
             {
                 parseLine(line);
@@ -720,7 +722,7 @@ public sealed class Properties
         string val = getProperty("Ice.Config");
         if (val.Length == 0 || val == "1")
         {
-            string s = Environment.GetEnvironmentVariable("ICE_CONFIG");
+            string? s = Environment.GetEnvironmentVariable("ICE_CONFIG");
             if (s != null && s.Length != 0)
             {
                 val = s;
@@ -746,7 +748,7 @@ public sealed class Properties
     /// <param name="key">The property's key.</param>
     /// <param name="logWarnings">Whether to log relevant warnings.</param>
     /// <returns>The found property</returns>
-    private static Property findProperty(string key, bool logWarnings)
+    private static Property? findProperty(string key, bool logWarnings)
     {
         // Check if the property is a known Ice property and log warnings if necessary
         Logger logger = Util.getProcessLogger();
@@ -760,7 +762,7 @@ public sealed class Properties
 
         string prefix = key.Substring(0, dotPos);
 
-        Property[] propertyArray = null;
+        Property[]? propertyArray = null;
 
         // Search for the property list that matches the prefix
         foreach (var validProps in PropertyNames.validProps)
