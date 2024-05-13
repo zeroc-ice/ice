@@ -165,7 +165,7 @@ public sealed class Util
         if (configFile != null)
         {
             initData = new InitializationData();
-            initData.properties = default;
+            initData.properties = new Properties();
             initData.properties.load(configFile);
         }
         return initialize(ref args, initData);
@@ -205,7 +205,7 @@ public sealed class Util
         if (configFile != null)
         {
             initData = new InitializationData();
-            initData.properties = default;
+            initData.properties = new Properties();
             initData.properties.load(configFile);
         }
         return initialize(initData);

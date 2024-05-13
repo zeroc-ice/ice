@@ -50,7 +50,7 @@ public sealed class Properties
     public Properties(ref string[] args, Properties? defaults)
     {
         _properties = [];
-        if (defaults != null)
+        if (defaults is not null)
         {
             foreach (KeyValuePair<string, PropertyValue> entry in ((Properties)defaults)._properties)
             {
@@ -185,7 +185,7 @@ public sealed class Properties
     {
         string defaultValueString = getDefaultProperty(key);
         int defaultValue = 0;
-        if (!string.IsNullOrEmpty(defaultValueString))
+        if (defaultValueString.Length > 0)
         {
             defaultValue = int.Parse(defaultValueString, CultureInfo.InvariantCulture);
         }
@@ -524,7 +524,7 @@ public sealed class Properties
         try
         {
             string? line;
-            while ((line = input.ReadLine()) != null)
+            while ((line = input.ReadLine()) is not null)
             {
                 parseLine(line);
             }
