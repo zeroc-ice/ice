@@ -372,7 +372,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
     }
 
     public int sendAsyncRequest(OutgoingAsyncBase og, bool compress, bool response,
-                                int batchRequestNum)
+                                int batchRequestCount)
     {
         OutputStream os = og.getOs();
 
@@ -421,10 +421,10 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
                 os.pos(Protocol.headerSize);
                 os.writeInt(requestId);
             }
-            else if (batchRequestNum > 0)
+            else if (batchRequestCount > 0)
             {
                 os.pos(Protocol.headerSize);
-                os.writeInt(batchRequestNum);
+                os.writeInt(batchRequestCount);
             }
 
             og.attachRemoteObserver(initConnectionInfo(), _endpoint, requestId);
@@ -798,21 +798,21 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
         }
     }
 
-    public void invokeException(int requestId, LocalException ex, int invokeNum, bool amd)
+    public void dispatchException(int requestId, LocalException ex, int requestCount, bool amd)
     {
         //
-        // Fatal exception while invoking a request. Since sendResponse/sendNoResponse isn't
-        // called in case of a fatal exception we decrement _dispatchCount here.
+        // Fatal exception while dispatching a request. Since sendResponse/sendNoResponse isn't
+        // called in case of a fatal exception we decrement _upcallCount here.
         //
 
         lock (this)
         {
             setState(StateClosed, ex);
 
-            if (invokeNum > 0)
+            if (requestCount > 0)
             {
-                Debug.Assert(_upcallCount >= invokeNum);
-                _upcallCount -= invokeNum;
+                Debug.Assert(_upcallCount >= requestCount);
+                _upcallCount -= requestCount;
                 if (_upcallCount == 0)
                 {
                     if (_state == StateFinished)
@@ -1230,7 +1230,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
                             // At this point, the protocol message is fully read and can therefore be decoded by
                             // parseMessage. parseMessage returns the operation to wait for readiness next.
                             newOp |= parseMessage(ref info);
-                            upcallCount += info.messageDispatchCount;
+                            upcallCount += info.upcallCount;
                         }
 
                         if ((readyOp & SocketOperation.Write) != 0)
@@ -1308,7 +1308,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
                 ThreadPoolCurrent c = current;
                 _threadPool.dispatch(() =>
                 {
-                    dispatch(startCB, sentCBs, info);
+                    upcall(startCB, sentCBs, info);
                     msg.destroy(ref c);
                 }, this);
             }
@@ -1320,9 +1320,9 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
 
     }
 
-    private void dispatch(StartCallback startCB, Queue<OutgoingMessage> sentCBs, MessageInfo info)
+    private void upcall(StartCallback startCB, Queue<OutgoingMessage> sentCBs, MessageInfo info)
     {
-        int dispatchedCount = 0;
+        int completedUpcallCount = 0;
 
         //
         // Notify the factory that the connection establishment and
@@ -1331,7 +1331,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
         if (startCB != null)
         {
             startCB.connectionStartCompleted(this);
-            ++dispatchedCount;
+            ++completedUpcallCount;
         }
 
         //
@@ -1354,7 +1354,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
                     }
                 }
             }
-            ++dispatchedCount;
+            ++completedUpcallCount;
         }
 
         //
@@ -1364,7 +1364,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
         if (info.outAsync != null)
         {
             info.outAsync.invokeResponse();
-            ++dispatchedCount;
+            ++completedUpcallCount;
         }
 
         if (info.heartbeatCallback != null)
@@ -1377,7 +1377,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
             {
                 _logger.error("connection callback exception:\n" + ex + '\n' + _desc);
             }
-            ++dispatchedCount;
+            ++completedUpcallCount;
         }
 
         //
@@ -1385,33 +1385,24 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
         // must be done outside the thread synchronization, so that nested
         // calls are possible.
         //
-        if (info.invokeNum > 0)
+        if (info.requestCount > 0)
         {
-            invokeAll(info.stream, info.invokeNum, info.requestId, info.compress, info.servantManager,
+            dispatchAll(info.stream, info.requestCount, info.requestId, info.compress, info.servantManager,
                       info.adapter);
-
-            //
-            // Don't increase dispatchedCount, the dispatch count is
-            // decreased when the incoming reply is sent.
-            //
         }
 
         //
-        // Decrease dispatch count.
+        // Decrease the upcall count.
         //
-        if (dispatchedCount > 0)
+        if (completedUpcallCount > 0)
         {
             lock (this)
             {
-                _upcallCount -= dispatchedCount;
+                _upcallCount -= completedUpcallCount;
                 if (_upcallCount == 0)
                 {
-                    //
-                    // Only initiate shutdown if not already done. It
-                    // might have already been done if the sent callback
-                    // or AMI callback was dispatched when the connection
-                    // was already in the closing state.
-                    //
+                    // Only initiate shutdown if not already initiated. It might have already been initiated if the sent
+                    // callback or AMI callback was called when the connection was in the closing state.
                     if (_state == StateClosing)
                     {
                         try
@@ -2461,14 +2452,14 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
     private struct MessageInfo
     {
         public InputStream stream;
-        public int invokeNum;
+        public int requestCount;
         public int requestId;
         public byte compress;
         public ServantManager servantManager;
         public ObjectAdapter adapter;
         public OutgoingAsyncBase outAsync;
         public HeartbeatCallback heartbeatCallback;
-        public int messageDispatchCount;
+        public int upcallCount;
     }
 
     private int parseMessage(ref MessageInfo info)
@@ -2550,10 +2541,10 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
                     {
                         TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
                         info.requestId = info.stream.readInt();
-                        info.invokeNum = 1;
+                        info.requestCount = 1;
                         info.servantManager = _servantManager;
                         info.adapter = _adapter;
-                        ++info.messageDispatchCount;
+                        ++info.upcallCount;
                     }
                     break;
                 }
@@ -2569,15 +2560,15 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
                     else
                     {
                         TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
-                        info.invokeNum = info.stream.readInt();
-                        if (info.invokeNum < 0)
+                        info.requestCount = info.stream.readInt();
+                        if (info.requestCount < 0)
                         {
-                            info.invokeNum = 0;
+                            info.requestCount = 0;
                             throw new UnmarshalOutOfBoundsException();
                         }
                         info.servantManager = _servantManager;
                         info.adapter = _adapter;
-                        info.messageDispatchCount += info.invokeNum;
+                        info.upcallCount += info.requestCount;
                     }
                     break;
                 }
@@ -2604,7 +2595,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
                         }
                         else if (info.outAsync.response())
                         {
-                            ++info.messageDispatchCount;
+                            ++info.upcallCount;
                         }
                         else
                         {
@@ -2621,7 +2612,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
                     if (_heartbeatCallback != null)
                     {
                         info.heartbeatCallback = _heartbeatCallback;
-                        ++info.messageDispatchCount;
+                        ++info.upcallCount;
                     }
                     break;
                 }
@@ -2652,7 +2643,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
         return _state == StateHolding ? SocketOperation.None : SocketOperation.Read;
     }
 
-    private void invokeAll(InputStream stream, int invokeNum, int requestId, byte compress,
+    private void dispatchAll(InputStream stream, int requestCount, int requestId, byte compress,
                            ServantManager servantManager, ObjectAdapter adapter)
     {
         //
@@ -2663,22 +2654,22 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
         Incoming inc = null;
         try
         {
-            while (invokeNum > 0)
+            while (requestCount > 0)
             {
                 //
                 // Prepare the invocation.
                 //
                 bool response = !_endpoint.datagram() && requestId != 0;
-                Debug.Assert(!response || invokeNum == 1);
+                Debug.Assert(!response || requestCount == 1);
 
                 inc = getIncoming(adapter, response, compress, requestId);
 
                 //
                 // Dispatch the invocation.
                 //
-                inc.invoke(servantManager, stream);
+                inc.dispatch(servantManager, stream);
 
-                --invokeNum;
+                --requestCount;
 
                 reclaimIncoming(inc);
                 inc = null;
@@ -2688,7 +2679,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
         }
         catch (LocalException ex)
         {
-            invokeException(requestId, ex, invokeNum, false);
+            this.dispatchException(requestId, ex, requestCount, false);
         }
         finally
         {

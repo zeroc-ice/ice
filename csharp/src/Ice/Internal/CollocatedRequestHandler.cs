@@ -128,7 +128,7 @@ public class CollocatedRequestHandler : RequestHandler, ResponseHandler
     }
 
     public void
-    invokeException(int requestId, Ice.LocalException ex, int invokeNum, bool amd)
+    dispatchException(int requestId, Ice.LocalException ex, int requestCount, bool amd)
     {
         handleException(requestId, ex, amd);
         _adapter.decDirectCount();
@@ -146,7 +146,7 @@ public class CollocatedRequestHandler : RequestHandler, ResponseHandler
         return null;
     }
 
-    public int invokeAsyncRequest(OutgoingAsyncBase outAsync, int batchRequestNum, bool synchronous)
+    public int invokeAsyncRequest(OutgoingAsyncBase outAsync, int batchRequestCount, bool synchronous)
     {
         //
         // Increase the direct count to prevent the thread pool from being destroyed before
@@ -185,7 +185,7 @@ public class CollocatedRequestHandler : RequestHandler, ResponseHandler
                 {
                     if (sentAsync(outAsync))
                     {
-                        invokeAll(outAsync.getOs(), requestId, batchRequestNum);
+                        dispatchAll(outAsync.getOs(), requestId, batchRequestCount);
                     }
                 }, null);
         }
@@ -196,7 +196,7 @@ public class CollocatedRequestHandler : RequestHandler, ResponseHandler
                 {
                     if (sentAsync(outAsync))
                     {
-                        invokeAll(outAsync.getOs(), requestId, batchRequestNum);
+                        dispatchAll(outAsync.getOs(), requestId, batchRequestCount);
                     }
                 }, null);
         }
@@ -204,7 +204,7 @@ public class CollocatedRequestHandler : RequestHandler, ResponseHandler
         {
             if (sentAsync(outAsync))
             {
-                invokeAll(outAsync.getOs(), requestId, batchRequestNum);
+                dispatchAll(outAsync.getOs(), requestId, batchRequestCount);
             }
         }
         return OutgoingAsyncBase.AsyncStatusQueued;
@@ -228,7 +228,7 @@ public class CollocatedRequestHandler : RequestHandler, ResponseHandler
         return true;
     }
 
-    private void invokeAll(Ice.OutputStream os, int requestId, int batchRequestNum)
+    private void dispatchAll(Ice.OutputStream os, int requestId, int requestCount)
     {
         if (_traceLevels.protocol >= 1)
         {
@@ -237,16 +237,16 @@ public class CollocatedRequestHandler : RequestHandler, ResponseHandler
             {
                 fillInValue(os, Protocol.headerSize, requestId);
             }
-            else if (batchRequestNum > 0)
+            else if (requestCount > 0)
             {
-                fillInValue(os, Protocol.headerSize, batchRequestNum);
+                fillInValue(os, Protocol.headerSize, requestCount);
             }
             TraceUtil.traceSend(os, _logger, _traceLevels);
         }
 
         Ice.InputStream iss = new Ice.InputStream(os.instance(), os.getEncoding(), os.getBuffer(), false);
 
-        if (batchRequestNum > 0)
+        if (requestCount > 0)
         {
             iss.pos(Protocol.requestBatchHdr.Length);
         }
@@ -255,11 +255,11 @@ public class CollocatedRequestHandler : RequestHandler, ResponseHandler
             iss.pos(Protocol.requestHdr.Length);
         }
 
-        int invokeNum = batchRequestNum > 0 ? batchRequestNum : 1;
+        int dispatchCount = requestCount > 0 ? requestCount : 1;
         ServantManager servantManager = _adapter.getServantManager();
         try
         {
-            while (invokeNum > 0)
+            while (dispatchCount > 0)
             {
                 //
                 // Increase the direct count for the dispatch. We increase it again here for
@@ -279,13 +279,13 @@ public class CollocatedRequestHandler : RequestHandler, ResponseHandler
 
                 Incoming inS = new Incoming(_reference.getInstance(), this, null, _adapter, _response, (byte)0,
                                             requestId);
-                inS.invoke(servantManager, iss);
-                --invokeNum;
+                inS.dispatch(servantManager, iss);
+                --dispatchCount;
             }
         }
         catch (Ice.LocalException ex)
         {
-            invokeException(requestId, ex, invokeNum, false); // Fatal invocation exception
+            this.dispatchException(requestId, ex, dispatchCount, false); // Fatal invocation exception
         }
 
         _adapter.decDirectCount();
