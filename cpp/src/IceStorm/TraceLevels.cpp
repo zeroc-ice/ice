@@ -22,6 +22,8 @@ TraceLevels::TraceLevels(const string name, const Ice::PropertiesPtr& properties
       logger(std::move(theLogger))
 {
     const string keyBase = name + ".Trace.";
+    // We can't use getIcePropertyAsInt because the IceStorm service properties are prefixed by the
+    // service name, not an Ice property prefix.
     const_cast<int&>(topicMgr) = properties->getPropertyAsInt(keyBase + topicMgrCat);
     const_cast<int&>(topic) = properties->getPropertyAsInt(keyBase + topicCat);
     const_cast<int&>(subscriber) = properties->getPropertyAsInt(keyBase + subscriberCat);
