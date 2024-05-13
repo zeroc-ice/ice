@@ -1001,6 +1001,9 @@ Slice::Contained::parseFormatMetaData(const list<string>& metaData)
 bool
 Slice::Contained::isDeprecated(bool checkParent) const
 {
+    // We support both 'deprecate' and 'deprecated' for the metadata. But here we only check for 'deprecate'.
+    // This is because `findMetadata` uses a `starts_with` check. Since 'deprecated' starts with 'deprecate',
+    // this check is sufficient.
     const string deprecate = "deprecate";
     string metadata;
     ContainedPtr parent = checkParent ? dynamic_pointer_cast<Contained>(_container) : nullptr;
@@ -1011,14 +1014,20 @@ Slice::Contained::isDeprecated(bool checkParent) const
 optional<string>
 Slice::Contained::getDeprecationReason(bool checkParent) const
 {
-    const string prefix = "deprecate:";
     string metadata;
     ContainedPtr parent = checkParent ? dynamic_pointer_cast<Contained>(_container) : nullptr;
 
-    if (findMetaData(prefix, metadata) || (parent && parent->findMetaData(prefix, metadata)))
+    const string prefix1 = "deprecate:";
+    if (findMetaData(prefix1, metadata) || (parent && parent->findMetaData(prefix1, metadata)))
     {
-        assert(metadata.find(prefix) == 0);
-        return metadata.substr(prefix.size());
+        assert(metadata.find(prefix1) == 0);
+        return metadata.substr(prefix1.size());
+    }
+    const string prefix2 = "deprecated:";
+    if (findMetaData(prefix2, metadata) || (parent && parent->findMetaData(prefix2, metadata)))
+    {
+        assert(metadata.find(prefix2) == 0);
+        return metadata.substr(prefix2.size());
     }
     return nullopt;
 }

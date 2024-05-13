@@ -397,16 +397,16 @@ namespace Slice
 
         static FormatType parseFormatMetaData(const std::list<std::string>&);
 
-        /// Returns true if this item is deprecated (due to the presence of `deprecate` metadata).
-        /// @param checkParent If true, this item's immediate container will also be checked for `deprecate` metadata.
-        /// @return True if this item (or possibly its container) has `deprecate` metadata on it, false otherwise.
+        /// Returns true if this item is deprecated (due to the presence of 'deprecated' metadata).
+        /// @param checkParent If true, this item's immediate container will also be checked for 'deprecated' metadata.
+        /// @return True if this item (or possibly its container) has 'deprecated' metadata on it, false otherwise.
         bool isDeprecated(bool checkParent) const;
 
         /// If this item is deprecated, return its deprecation message (if present).
-        /// This is the string argument that can be optionally provided with `deprecate` metadata.
-        /// @param checkParent If true, this item's immediate container will also be checked for `deprecate` messages.
-        /// @return The message provided to the `deprecate` metadata, if present. If `checkParent` is true, and both
-        /// this item and its parent have 'deprecate' messages, the item's message is returned, not its container's.
+        /// This is the string argument that can be optionally provided with 'deprecated' metadata.
+        /// @param checkParent If true, this item's immediate container will also be checked for 'deprecated' messages.
+        /// @return The message provided to the 'deprecated' metadata, if present. If 'checkParent' is true, and both
+        /// this item and its parent have 'deprecated' messages, the item's message is returned, not its container's.
         std::optional<std::string> getDeprecationReason(bool checkParent) const;
 
         enum ContainedType
