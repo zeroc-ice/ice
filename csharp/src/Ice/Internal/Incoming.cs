@@ -80,7 +80,7 @@ public class Incoming
         return true;
     }
 
-    public void invoke(ServantManager servantManager, Ice.InputStream stream)
+    public void dispatch(ServantManager servantManager, Ice.InputStream stream)
     {
         _is = stream;
 
@@ -349,7 +349,7 @@ public class Incoming
         }
         catch (Ice.LocalException ex)
         {
-            _responseHandler.invokeException(_current.requestId, ex, 1, amd);
+            _responseHandler.dispatchException(_current.requestId, ex, 1, amd);
         }
         finally
         {
