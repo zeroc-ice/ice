@@ -20,17 +20,14 @@ IceInternal::TraceLevels::TraceLevels(const PropertiesPtr& properties)
       locationCat("Locator"),
       slicing(0),
       slicingCat("Slicing"),
-      gc(0),
-      gcCat("GC"),
       threadPool(0),
       threadPoolCat("ThreadPool")
 {
     const string keyBase = "Ice.Trace.";
-    const_cast<int&>(network) = properties->getPropertyAsInt(keyBase + networkCat);
-    const_cast<int&>(protocol) = properties->getPropertyAsInt(keyBase + protocolCat);
-    const_cast<int&>(retry) = properties->getPropertyAsInt(keyBase + retryCat);
-    const_cast<int&>(location) = properties->getPropertyAsInt(keyBase + locationCat);
-    const_cast<int&>(slicing) = properties->getPropertyAsInt(keyBase + slicingCat);
-    const_cast<int&>(gc) = properties->getPropertyAsInt(keyBase + gcCat);
-    const_cast<int&>(threadPool) = properties->getPropertyAsInt(keyBase + threadPoolCat);
+    const_cast<int&>(network) = properties->getIcePropertyAsInt(keyBase + networkCat);
+    const_cast<int&>(protocol) = properties->getIcePropertyAsInt(keyBase + protocolCat);
+    const_cast<int&>(retry) = properties->getIcePropertyAsInt(keyBase + retryCat);
+    const_cast<int&>(location) = properties->getIcePropertyAsInt(keyBase + locationCat);
+    const_cast<int&>(slicing) = properties->getIcePropertyAsInt(keyBase + slicingCat);
+    const_cast<int&>(threadPool) = properties->getIcePropertyAsInt(keyBase + threadPoolCat);
 }
