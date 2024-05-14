@@ -34,17 +34,6 @@ public abstract class Exception extends RuntimeException implements Cloneable {
   }
 
   /**
-   * Returns the name of this exception.
-   *
-   * @return The name of this exception.
-   * @deprecated ice_name() is deprecated, use ice_id() instead.
-   */
-  @Deprecated
-  public String ice_name() {
-    return ice_id().substring(2);
-  }
-
-  /**
    * Returns the type id of this exception.
    *
    * @return The type id of this exception.

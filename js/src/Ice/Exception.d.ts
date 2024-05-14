@@ -12,15 +12,6 @@ declare module "ice"
         abstract class Exception extends Error
         {
             /**
-             * Returns the name of this exception.
-             *
-             * @return The name of this exception.
-             *
-             * @deprecated ice_name() is deprecated, use ice_id() instead.
-             **/
-            ice_name():string;
-
-            /**
              * Returns the type id of this exception.
              *
              * @return The type id of this exception.
