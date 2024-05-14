@@ -43,7 +43,6 @@
 #include "ValueFactoryManagerI.h"
 #include "WSEndpoint.h"
 
-#include <iostream>
 #include <list>
 #include <mutex>
 #include <stdio.h>

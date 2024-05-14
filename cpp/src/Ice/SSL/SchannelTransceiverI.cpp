@@ -265,7 +265,6 @@ Schannel::TransceiverI::sslHandshake()
             {
                 ostringstream os;
                 os << "SSL handshake failure:\n" << IceUtilInternal::errorToString(err);
-                os << "\n - validating " << (_incoming ? "server" : "client") << " certificate";
                 throw SecurityException(__FILE__, __LINE__, os.str());
             }
 
