@@ -49,7 +49,6 @@ classdef AllTests
             assert(mo1.ied == Ice.Unset);
             assert(mo1.ifsd == Ice.Unset);
             assert(mo1.ivsd == Ice.Unset);
-            assert(mo1.iood == Ice.Unset);
             assert(mo1.imipd == Ice.Unset);
 
             assert(mo1.bos == Ice.Unset);
@@ -76,7 +75,7 @@ classdef AllTests
                                      [5], {'test', 'test2'}, iid, sid, fs, vs, [1], ...
                                      [MyEnum.MyEnumMember, MyEnum.MyEnumMember], ...
                                      [ fs ], [ vs ], { MyInterfacePrx.uncheckedCast(communicator.stringToProxy('test')) }, ...
-                                     ied, ifsd, ivsd, iood, imipd, [false, true, false], []);
+                                     ied, ifsd, ivsd, imipd, iood, [false, true, false], []);
 
             assert(mo1.a == 15);
             assert(mo1.b == true);
@@ -104,8 +103,8 @@ classdef AllTests
             assert(mo1.ied(4) == MyEnum.MyEnumMember);
             assert(isequal(mo1.ifsd(4), FixedStruct(78)));
             assert(isequal(mo1.ivsd(5), VarStruct('hello')));
-            assert(mo1.iood(5).a == 15);
             assert(mo1.imipd(5) == communicator.stringToProxy('test'));
+            assert(mo1.iood(5).a == 15);
 
             assert(isequal(mo1.bos, [false, true, false]));
 
@@ -154,8 +153,8 @@ classdef AllTests
             assert(mo4.ied == Ice.Unset);
             assert(mo4.ifsd == Ice.Unset);
             assert(mo4.ivsd == Ice.Unset);
-            assert(mo4.iood == Ice.Unset);
             assert(mo4.imipd == Ice.Unset);
+            assert(mo4.iood == Ice.Unset);
 
             assert(mo4.bos == Ice.Unset);
 
@@ -185,8 +184,8 @@ classdef AllTests
             assert(mo5.ied(4) == MyEnum.MyEnumMember);
             assert(mo5.ifsd(4) == FixedStruct(78));
             assert(mo5.ivsd(5) == VarStruct('hello'));
-            assert(mo5.iood(5).a == 15);
             assert(mo5.imipd(5) == communicator.stringToProxy('test'));
+            assert(mo5.iood(5).a == 15);
 
             assert(isequal(mo5.bos, mo1.bos));
 
@@ -204,7 +203,6 @@ classdef AllTests
             mo6.fss = mo5.fss;
             mo6.oos = mo5.oos;
             mo6.ifsd = mo5.ifsd;
-            mo6.iood = mo5.iood;
             mo6.bos = mo5.bos;
 
             mo7 = initial.pingPong(mo6);
@@ -234,8 +232,8 @@ classdef AllTests
             assert(mo7.ied == Ice.Unset);
             assert(mo7.ifsd(4) == FixedStruct(78));
             assert(mo7.ivsd == Ice.Unset);
-            assert(mo7.iood(5).a == 15);
             assert(mo7.imipd == Ice.Unset);
+            assert(mo7.iood(5).a == 15);
 
             assert(isequal(mo7.bos, [false, true, false]));
 
@@ -285,8 +283,8 @@ classdef AllTests
             assert(mo9.ied(4) == MyEnum.MyEnumMember);
             assert(mo9.ifsd == Ice.Unset);
             assert(mo9.ivsd(5) == VarStruct('hello'));
-            assert(mo9.iood == Ice.Unset);
             assert(mo9.imipd(5) == communicator.stringToProxy('test'));
+            assert(mo9.iood == Ice.Unset);
 
             assert(mo9.bos == Ice.Unset);
 
@@ -701,17 +699,6 @@ classdef AllTests
             f = initial.opStringIntDictAsync(p1);
             [p2, p3] = f.fetchOutputs();
             assert(isequal(p2, p1) && isequal(p3, p1));
-
-            [p2, p3] = initial.opIntOneOptionalDict(Ice.Unset);
-            assert(p2 == Ice.Unset && p3 == Ice.Unset);
-            p1 = containers.Map('KeyType', 'int32', 'ValueType', 'any');
-            p1(1) = OneOptional(58);
-            p1(2) = OneOptional(59);
-            [p2, p3] = initial.opIntOneOptionalDict(p1);
-            assert(p2(1).a == 58 && p3(1).a == 58);
-            f = initial.opIntOneOptionalDictAsync(p1);
-            [p2, p3] = f.fetchOutputs();
-            assert(p2(1).a == 58 && p3(1).a == 58);
 
             fprintf('ok\n');
 

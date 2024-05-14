@@ -319,13 +319,6 @@ InitialI::opStringIntDict(optional<StringIntDict> p1, optional<StringIntDict>& p
     return p3;
 }
 
-optional<IntOneOptionalDict>
-InitialI::opIntOneOptionalDict(optional<IntOneOptionalDict> p1, optional<IntOneOptionalDict>& p3, const Current&)
-{
-    p3 = p1;
-    return p3;
-}
-
 void
 InitialI::opClassAndUnknownOptional(APtr, const Ice::Current&)
 {

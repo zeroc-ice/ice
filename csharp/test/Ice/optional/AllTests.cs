@@ -76,6 +76,8 @@ namespace Ice
                 mo1.ivsd.Add(5, vs);
                 mo1.imipd = new Dictionary<int, Test.MyInterfacePrx>();
                 mo1.imipd.Add(5, Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test")));
+                mo1.iood = new Dictionary<int, Test.OneOptional>();
+                mo1.iood.Add(5, new Test.OneOptional(15));
 
                 mo1.bos = new bool[] { false, true, false };
 
@@ -106,6 +108,7 @@ namespace Ice
                 test(mo1.ifsd[4].Equals(new Test.FixedStruct(78)));
                 test(mo1.ivsd[5].Equals(new Test.VarStruct("hello")));
                 test(mo1.imipd[5].Equals(communicator.stringToProxy("test")));
+                test(mo1.iood.Value[5].a.Value == 15);
 
                 test(ArraysEqual(mo1.bos, new bool[] { false, true, false }));
 
@@ -178,6 +181,7 @@ namespace Ice
                 test(mo5.ifsd[4].Equals(new Test.FixedStruct(78)));
                 test(mo5.ivsd[5].Equals(new Test.VarStruct("hello")));
                 test(mo5.imipd[5].Equals(communicator.stringToProxy("test")));
+                test(mo5.iood[5].a.Value == 15);
 
                 test(ArraysEqual(mo5.bos, new bool[] { false, true, false }));
 
@@ -224,6 +228,7 @@ namespace Ice
                 test(mo7.ifsd[4].Equals(new Test.FixedStruct(78)));
                 test(mo7.ivsd is null);
                 test(mo7.imipd is null);
+                test(mo7.iood[5].a.Value == 15);
 
                 test(ArraysEqual(mo7.bos, new bool[] { false, true, false }));
 
@@ -1671,7 +1676,6 @@ namespace Ice
                     test(MapsEqual(m, p1));
                     @in.endEncapsulation();
                 }
-
                 output.WriteLine("ok");
 
                 output.Write("testing exception optionals... ");

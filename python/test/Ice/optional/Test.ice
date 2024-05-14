@@ -254,8 +254,6 @@ interface Initial
 
     optional(1) StringIntDict opStringIntDict(optional(2) StringIntDict p1, out optional(3) StringIntDict p3);
 
-    IntOneOptionalDict opIntOneOptionalDict(IntOneOptionalDict p1, out IntOneOptionalDict p3);
-
     void opClassAndUnknownOptional(A p);
 
     void opRequiredAfterOptional(int p1, optional(1) int p2, int p3, out int p4, out optional(2) int p5, out int p6);

@@ -270,8 +270,6 @@ interface Initial
 
     optional(1) StringIntDict opStringIntDict(optional(2) StringIntDict p1, out optional(3) StringIntDict p3);
 
-    IntOneOptionalDict opIntOneOptionalDict(IntOneOptionalDict p1, out IntOneOptionalDict p3);
-
     void opClassAndUnknownOptional(A p);
 
     G opG(G g);

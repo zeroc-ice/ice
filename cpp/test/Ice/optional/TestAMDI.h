@@ -243,13 +243,6 @@ public:
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
-    void opIntOneOptionalDictAsync(
-        std::optional<Test::IntOneOptionalDict>,
-        std::function<
-            void(const std::optional<Test::IntOneOptionalDict>&, const std::optional<Test::IntOneOptionalDict>&)>,
-        std::function<void(std::exception_ptr)>,
-        const Ice::Current&) final;
-
     void opClassAndUnknownOptionalAsync(
         std::shared_ptr<Test::A>,
         std::function<void()>,

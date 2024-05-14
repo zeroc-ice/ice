@@ -127,9 +127,6 @@ class InitialI(Test.Initial):
     def opStringIntDict(self, p1, current=None):
         return Ice.Future.completed((p1, p1))
 
-    def opIntOneOptionalDict(self, p1, current=None):
-        return Ice.Future.completed((p1, p1))
-
     def opClassAndUnknownOptional(self, p, current=None):
         return Ice.Future.completed(None)
 

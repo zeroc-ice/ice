@@ -257,12 +257,6 @@ public final class AMDInitialI implements Initial {
   }
 
   @Override
-  public CompletionStage<Initial.OpIntOneOptionalDictResult> opIntOneOptionalDictAsync(
-      Optional<java.util.Map<Integer, OneOptional>> p1, Current current) {
-    return CompletableFuture.completedFuture(new Initial.OpIntOneOptionalDictResult(p1, p1));
-  }
-
-  @Override
   public CompletionStage<Void> opClassAndUnknownOptionalAsync(A p, Current current) {
     return CompletableFuture.completedFuture(null);
   }
