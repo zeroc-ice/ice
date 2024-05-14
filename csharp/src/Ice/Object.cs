@@ -108,7 +108,7 @@ public abstract class ObjectImpl : Object
         string iceP_id = istr.readString();
         istr.endEncapsulation();
         bool ret = obj.ice_isA(iceP_id, request.current);
-        return new(request.current.createOutgoingResponse(ostr => ostr.writeBool(ret)));
+        return new(request.current.createOutgoingResponse(ret, static (ostr, ret) => ostr.writeBool(ret)));
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]

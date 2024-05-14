@@ -12,6 +12,37 @@ namespace Ice;
 /// </summary>
 public static class OutgoingResponseCurrentExtensions
 {
+    public static OutgoingResponse createOutgoingResponse<TResult>(
+        this Current current,
+        TResult result,
+        Action<OutputStream, TResult> marshal,
+        FormatType formatType = FormatType.DefaultFormat)
+    {
+        var ostr = new OutputStream(current.adapter.getCommunicator(), Util.currentProtocolEncoding);
+        if (current.requestId != 0)
+        {
+            try
+            {
+                ostr.writeBlob(Protocol.replyHdr);
+                ostr.writeInt(current.requestId);
+                ostr.writeByte((byte)ReplyStatus.Ok);
+                ostr.startEncapsulation(current.encoding, formatType);
+                marshal(ostr, result);
+                ostr.endEncapsulation();
+                return new OutgoingResponse(ostr, current);
+            }
+            catch (System.Exception exception)
+            {
+                return current.createOutgoingResponse(exception);
+            }
+        }
+        else
+        {
+            Debug.Fail("A one-way request cannot return a response");
+            return new OutgoingResponse(ostr, current);
+        }
+    }
+
     public static OutgoingResponse createOutgoingResponse(
         this Current current,
         Action<OutputStream> marshal,
