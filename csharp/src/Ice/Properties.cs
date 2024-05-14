@@ -492,9 +492,9 @@ public sealed class Properties
         var clonedProperties = new Properties();
         lock (this)
         {
-            foreach (KeyValuePair<string, PropertyValue> entry in _properties)
+            foreach ((string key, PropertyValue value) in _properties)
             {
-                clonedProperties._properties[entry.Key] = entry.Value.Clone();
+                clonedProperties._properties[key] = value.Clone();
             }
         }
         return clonedProperties;
