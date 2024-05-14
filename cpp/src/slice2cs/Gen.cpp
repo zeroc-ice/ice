@@ -1790,8 +1790,7 @@ Slice::CsVisitor::moduleEnd(const ModulePtr& p)
     }
 }
 
-Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir)
-    : _includePaths(includePaths)
+Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir) : _includePaths(includePaths)
 {
     string fileBase = base;
     string::size_type pos = base.find_last_of("/\\");
@@ -3776,9 +3775,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << eb;
 }
 
-Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceUtilInternal::Output& out) : CsVisitor(out)
-{
-}
+Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceUtilInternal::Output& out) : CsVisitor(out) {}
 
 bool
 Slice::Gen::DispatcherVisitor::visitModuleStart(const ModulePtr& p)
