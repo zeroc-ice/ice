@@ -1382,7 +1382,7 @@ Schannel::SSLEngine::createServerAuthenticationOptions() const
                 ssl,                // The SSL context handle.
                 true,               // This is an incoming connection.
                 "",                 // The target host, empty for incoming connections.
-                self->getVerifyPeer() > 1, // Wether or not the peer must provide a certificate.
+                self->getVerifyPeer() > 1, // Whether or not the peer must provide a certificate.
                 self->getRevocationCheck(),
                 self->getRevocationCheckCacheOnly());
             self->verifyPeer(info);
