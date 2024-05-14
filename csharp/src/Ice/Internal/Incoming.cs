@@ -6,7 +6,7 @@ using System.Runtime.ExceptionServices;
 
 namespace Ice.Internal;
 
-public class Incoming : Ice.Request
+public class Incoming
 {
     public Incoming(Instance instance, ResponseHandler handler, Ice.ConnectionI connection,
                     Ice.ObjectAdapter adapter, bool response, byte compress, int requestId)
@@ -80,12 +80,7 @@ public class Incoming : Ice.Request
         return true;
     }
 
-    public Ice.Current getCurrent()
-    {
-        return _current;
-    }
-
-    public void invoke(ServantManager servantManager, Ice.InputStream stream)
+    public void dispatch(ServantManager servantManager, Ice.InputStream stream)
     {
         _is = stream;
 
@@ -354,7 +349,7 @@ public class Incoming : Ice.Request
         }
         catch (Ice.LocalException ex)
         {
-            _responseHandler.invokeException(_current.requestId, ex, 1, amd);
+            _responseHandler.dispatchException(_current.requestId, ex, 1, amd);
         }
         finally
         {
@@ -583,14 +578,6 @@ public class Incoming : Ice.Request
     {
         Debug.Assert(_responseHandler != null);
 
-        if (exc is Ice.SystemException)
-        {
-            if (_responseHandler.systemException(_current.requestId, (Ice.SystemException)exc, amd))
-            {
-                return;
-            }
-        }
-
         if (_response)
         {
             //
@@ -628,7 +615,7 @@ public class Incoming : Ice.Request
                 ex.operation = _current.operation;
             }
 
-            if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+            if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 1)
             {
                 warning(ex);
             }
@@ -688,7 +675,7 @@ public class Incoming : Ice.Request
         }
         catch (Ice.UnknownLocalException ex)
         {
-            if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 0)
             {
                 warning(ex);
             }
@@ -717,7 +704,7 @@ public class Incoming : Ice.Request
         }
         catch (Ice.UnknownUserException ex)
         {
-            if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 0)
             {
                 warning(ex);
             }
@@ -747,7 +734,7 @@ public class Incoming : Ice.Request
         }
         catch (Ice.UnknownException ex)
         {
-            if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 0)
             {
                 warning(ex);
             }
@@ -802,7 +789,7 @@ public class Incoming : Ice.Request
         }
         catch (Ice.Exception ex)
         {
-            if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 0)
             {
                 warning(ex);
             }
@@ -831,7 +818,7 @@ public class Incoming : Ice.Request
         }
         catch (System.Exception ex)
         {
-            if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 0)
             {
                 warning(ex);
             }

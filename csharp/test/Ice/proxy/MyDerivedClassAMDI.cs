@@ -6,7 +6,7 @@ namespace Ice
     {
         namespace AMD
         {
-            public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
+            public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_, Ice.Object
             {
                 public MyDerivedClassI()
                 {
@@ -28,10 +28,11 @@ namespace Ice
                     return Task.FromResult(_ctx);
                 }
 
-                public override bool ice_isA(string s, Ice.Current current)
+                public bool ice_isA(string s, Ice.Current current)
                 {
                     _ctx = current.ctx;
-                    return base.ice_isA(s, current);
+                    // TODO: call the default implementation when the base(Object) syntax is supported.
+                    return Array.BinarySearch((this as Ice.Object).ice_ids(current), s) >= 0;
                 }
 
                 private Dictionary<string, string> _ctx;

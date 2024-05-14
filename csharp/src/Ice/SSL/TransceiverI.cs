@@ -349,7 +349,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
 
         _sslStream = null;
 
-        _verifyPeer = _instance.properties().getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
+        _verifyPeer = _instance.properties().getIcePropertyAsInt("IceSSL.VerifyPeer");
     }
 
     private bool startAuthenticate(Ice.Internal.AsyncCallback callback, object state)

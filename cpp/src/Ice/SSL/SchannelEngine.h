@@ -40,12 +40,10 @@ namespace Ice::SSL::Schannel
         Ice::SSL::ClientAuthenticationOptions createClientAuthenticationOptions(const std::string&) const final;
         Ice::SSL::ServerAuthenticationOptions createServerAuthenticationOptions() const final;
         SCHANNEL_CRED newCredentialsHandle(bool) const;
+        static bool
+        validationCallback(HCERTCHAINENGINE chainEngine, CtxtHandle, bool, const std::string&, bool, int, bool);
 
     private:
-        bool validationCallback(CtxtHandle, const Ice::SSL::ConnectionInfoPtr&, bool, const std::string&) const;
-        std::string errorStatusToString(DWORD errorStatus) const;
-        std::string policyStatusToString(DWORD policyStatus) const;
-
         std::vector<PCCERT_CONTEXT> _allCerts;
         std::vector<PCCERT_CONTEXT> _importedCerts;
 

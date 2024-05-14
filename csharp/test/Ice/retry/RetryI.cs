@@ -44,11 +44,6 @@ namespace Ice
                 throw new Ice.ConnectionLostException();
             }
 
-            public override void opSystemException(Ice.Current c)
-            {
-                throw new SystemFailure();
-            }
-
             public override void sleep(int delay, Ice.Current c)
             {
                 Thread.Sleep(delay);

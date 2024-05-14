@@ -342,7 +342,7 @@ public class AllTests {
     }
 
     //
-    // Send a request using blobjects. Upon receival, we don't read
+    // Send a request using blobjects. Upon receipt, we don't read
     // any of the optional members. This ensures the optional members
     // are skipped even if the receiver knows nothing about them.
     //
@@ -588,7 +588,6 @@ public class AllTests {
 
     out.print("testing optional parameters... ");
     out.flush();
-    final boolean reqParams = initial.supportsRequiredParams();
 
     {
       Optional<Byte> p1 = Optional.empty();
@@ -601,29 +600,22 @@ public class AllTests {
       r = initial.opByteAsync(p1).join();
       test(r.returnValue.get() == (byte) 56 && r.p3.get() == (byte) 56);
 
-      if (reqParams) {
-        Initial.OpByteReqResult rr = initial.opByteReq(p1.get());
-        test(rr.returnValue.get() == (byte) 56 && rr.p3.get() == (byte) 56);
-        rr = initial.opByteReqAsync(p1.get()).join();
-        test(rr.returnValue.get() == (byte) 56 && rr.p3.get() == (byte) 56);
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.F1);
+      os.writeByte(p1.get());
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opByte", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(in.readByte(1).get() == (byte) 56);
+      test(in.readByte(3).get() == (byte) 56);
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.F1);
-        os.writeByte(p1.get());
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opByteReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(in.readByte(1).get() == (byte) 56);
-        test(in.readByte(3).get() == (byte) 56);
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
@@ -637,29 +629,22 @@ public class AllTests {
       r = initial.opBoolAsync(p1).join();
       test(r.returnValue.get() == true && r.p3.get() == true);
 
-      if (reqParams) {
-        Initial.OpBoolReqResult rr = initial.opBoolReq(true);
-        test(rr.returnValue.get() == true && rr.p3.get() == true);
-        rr = initial.opBoolReqAsync(true).join();
-        test(rr.returnValue.get() == true && rr.p3.get() == true);
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.F1);
+      os.writeBool(p1.get());
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opBool", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(in.readBool(1).get() == true);
+      test(in.readBool(3).get() == true);
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.F1);
-        os.writeBool(p1.get());
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opBoolReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(in.readBool(1).get() == true);
-        test(in.readBool(3).get() == true);
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
@@ -673,29 +658,22 @@ public class AllTests {
       r = initial.opShortAsync(p1).join();
       test(r.returnValue.get() == 56 && r.p3.get() == 56);
 
-      if (reqParams) {
-        Initial.OpShortReqResult rr = initial.opShortReq(p1.get());
-        test(rr.returnValue.get() == 56 && rr.p3.get() == 56);
-        rr = initial.opShortReqAsync(p1.get()).join();
-        test(rr.returnValue.get() == 56 && rr.p3.get() == 56);
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.F2);
+      os.writeShort(p1.get());
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opShort", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(in.readShort(1).get() == 56);
+      test(in.readShort(3).get() == 56);
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.F2);
-        os.writeShort(p1.get());
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opShortReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(in.readShort(1).get() == 56);
-        test(in.readShort(3).get() == 56);
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
@@ -709,29 +687,22 @@ public class AllTests {
       r = initial.opIntAsync(p1).join();
       test(r.returnValue.getAsInt() == 56 && r.p3.getAsInt() == 56);
 
-      if (reqParams) {
-        Initial.OpIntReqResult rr = initial.opIntReq(p1.getAsInt());
-        test(rr.returnValue.getAsInt() == 56 && rr.p3.getAsInt() == 56);
-        rr = initial.opIntReqAsync(p1.getAsInt()).join();
-        test(rr.returnValue.getAsInt() == 56 && rr.p3.getAsInt() == 56);
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.F4);
+      os.writeInt(p1.getAsInt());
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opInt", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(in.readInt(1).getAsInt() == 56);
+      test(in.readInt(3).getAsInt() == 56);
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.F4);
-        os.writeInt(p1.getAsInt());
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opIntReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(in.readInt(1).getAsInt() == 56);
-        test(in.readInt(3).getAsInt() == 56);
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
@@ -745,29 +716,22 @@ public class AllTests {
       r = initial.opLongAsync(p1).join();
       test(r.returnValue.getAsLong() == 56 && r.p3.getAsLong() == 56);
 
-      if (reqParams) {
-        Initial.OpLongReqResult rr = initial.opLongReq(p1.getAsLong());
-        test(rr.returnValue.getAsLong() == 56 && rr.p3.getAsLong() == 56);
-        rr = initial.opLongReqAsync(p1.getAsLong()).join();
-        test(rr.returnValue.getAsLong() == 56 && rr.p3.getAsLong() == 56);
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(1, OptionalFormat.F8);
+      os.writeLong(p1.getAsLong());
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opLong", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(in.readLong(2).getAsLong() == 56);
+      test(in.readLong(3).getAsLong() == 56);
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(1, OptionalFormat.F8);
-        os.writeLong(p1.getAsLong());
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opLongReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(in.readLong(2).getAsLong() == 56);
-        test(in.readLong(3).getAsLong() == 56);
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
@@ -781,29 +745,22 @@ public class AllTests {
       r = initial.opFloatAsync(p1).join();
       test(r.returnValue.get() == 1.0 && r.p3.get() == 1.0);
 
-      if (reqParams) {
-        Initial.OpFloatReqResult rr = initial.opFloatReq(p1.get());
-        test(rr.returnValue.get() == 1.0 && rr.p3.get() == 1.0);
-        rr = initial.opFloatReqAsync(p1.get()).join();
-        test(rr.returnValue.get() == 1.0 && rr.p3.get() == 1.0);
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.F4);
+      os.writeFloat(p1.get());
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opFloat", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(in.readFloat(1).get() == 1.0);
+      test(in.readFloat(3).get() == 1.0);
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.F4);
-        os.writeFloat(p1.get());
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opFloatReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(in.readFloat(1).get() == 1.0);
-        test(in.readFloat(3).get() == 1.0);
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
@@ -817,29 +774,22 @@ public class AllTests {
       r = initial.opDoubleAsync(p1).join();
       test(r.returnValue.getAsDouble() == 1.0 && r.p3.getAsDouble() == 1.0);
 
-      if (reqParams) {
-        Initial.OpDoubleReqResult rr = initial.opDoubleReq(p1.getAsDouble());
-        test(rr.returnValue.getAsDouble() == 1.0 && rr.p3.getAsDouble() == 1.0);
-        rr = initial.opDoubleReqAsync(p1.getAsDouble()).join();
-        test(rr.returnValue.getAsDouble() == 1.0 && rr.p3.getAsDouble() == 1.0);
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.F8);
+      os.writeDouble(p1.getAsDouble());
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opDouble", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(in.readDouble(1).getAsDouble() == 1.0);
+      test(in.readDouble(3).getAsDouble() == 1.0);
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.F8);
-        os.writeDouble(p1.getAsDouble());
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opDoubleReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(in.readDouble(1).getAsDouble() == 1.0);
-        test(in.readDouble(3).getAsDouble() == 1.0);
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
@@ -853,29 +803,22 @@ public class AllTests {
       r = initial.opStringAsync(p1).join();
       test(r.returnValue.get().equals("test") && r.p3.get().equals("test"));
 
-      if (reqParams) {
-        Initial.OpStringReqResult rr = initial.opStringReq(p1.get());
-        test(rr.returnValue.get().equals("test") && rr.p3.get().equals("test"));
-        rr = initial.opStringReqAsync(p1.get()).join();
-        test(rr.returnValue.get().equals("test") && rr.p3.get().equals("test"));
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.VSize);
+      os.writeString(p1.get());
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opString", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(in.readString(1).get().equals("test"));
+      test(in.readString(3).get().equals("test"));
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.VSize);
-        os.writeString(p1.get());
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opStringReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(in.readString(1).get().equals("test"));
-        test(in.readString(3).get().equals("test"));
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
@@ -889,31 +832,24 @@ public class AllTests {
       r = initial.opMyEnumAsync(p1).join();
       test(r.returnValue.get() == MyEnum.MyEnumMember && r.p3.get() == MyEnum.MyEnumMember);
 
-      if (reqParams) {
-        Initial.OpMyEnumReqResult rr = initial.opMyEnumReq(p1.get());
-        test(rr.returnValue.get() == MyEnum.MyEnumMember && rr.p3.get() == MyEnum.MyEnumMember);
-        rr = initial.opMyEnumReqAsync(p1.get()).join();
-        test(rr.returnValue.get() == MyEnum.MyEnumMember && rr.p3.get() == MyEnum.MyEnumMember);
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.Size);
+      MyEnum.ice_write(os, p1.get());
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opMyEnum", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(in.readOptional(1, OptionalFormat.Size));
+      test(MyEnum.ice_read(in) == MyEnum.MyEnumMember);
+      test(in.readOptional(3, OptionalFormat.Size));
+      test(MyEnum.ice_read(in) == MyEnum.MyEnumMember);
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.Size);
-        MyEnum.ice_write(os, p1.get());
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opMyEnumReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(in.readOptional(1, OptionalFormat.Size));
-        test(MyEnum.ice_read(in) == MyEnum.MyEnumMember);
-        test(in.readOptional(3, OptionalFormat.Size));
-        test(MyEnum.ice_read(in) == MyEnum.MyEnumMember);
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
@@ -929,36 +865,29 @@ public class AllTests {
       r = initial.opSmallStructAsync(p1).join();
       test(r.returnValue.get().m == (byte) 56 && r.p3.get().m == (byte) 56);
 
-      if (reqParams) {
-        Initial.OpSmallStructReqResult rr = initial.opSmallStructReq(p1.get());
-        test(rr.returnValue.get().m == (byte) 56 && rr.p3.get().m == (byte) 56);
-        rr = initial.opSmallStructReqAsync(p1.get()).join();
-        test(rr.returnValue.get().m == (byte) 56 && rr.p3.get().m == (byte) 56);
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.VSize);
+      os.writeSize(1);
+      SmallStruct.ice_write(os, p1.get());
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opSmallStruct", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(in.readOptional(1, OptionalFormat.VSize));
+      in.skipSize();
+      SmallStruct f = SmallStruct.ice_read(in);
+      test(f.m == (byte) 56);
+      test(in.readOptional(3, OptionalFormat.VSize));
+      in.skipSize();
+      f = SmallStruct.ice_read(in);
+      test(f.m == (byte) 56);
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.VSize);
-        os.writeSize(1);
-        SmallStruct.ice_write(os, p1.get());
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opSmallStructReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(in.readOptional(1, OptionalFormat.VSize));
-        in.skipSize();
-        SmallStruct f = SmallStruct.ice_read(in);
-        test(f.m == (byte) 56);
-        test(in.readOptional(3, OptionalFormat.VSize));
-        in.skipSize();
-        f = SmallStruct.ice_read(in);
-        test(f.m == (byte) 56);
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
@@ -972,36 +901,29 @@ public class AllTests {
       r = initial.opFixedStructAsync(p1).join();
       test(r.returnValue.get().m == 56 && r.p3.get().m == 56);
 
-      if (reqParams) {
-        Initial.OpFixedStructReqResult rr = initial.opFixedStructReq(p1.get());
-        test(rr.returnValue.get().m == 56 && rr.p3.get().m == 56);
-        rr = initial.opFixedStructReqAsync(p1.get()).join();
-        test(rr.returnValue.get().m == 56 && rr.p3.get().m == 56);
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.VSize);
+      os.writeSize(4);
+      FixedStruct.ice_write(os, p1.get());
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opFixedStruct", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(in.readOptional(1, OptionalFormat.VSize));
+      in.skipSize();
+      FixedStruct f = FixedStruct.ice_read(in);
+      test(f.m == 56);
+      test(in.readOptional(3, OptionalFormat.VSize));
+      in.skipSize();
+      f = FixedStruct.ice_read(in);
+      test(f.m == 56);
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.VSize);
-        os.writeSize(4);
-        FixedStruct.ice_write(os, p1.get());
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opFixedStructReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(in.readOptional(1, OptionalFormat.VSize));
-        in.skipSize();
-        FixedStruct f = FixedStruct.ice_read(in);
-        test(f.m == 56);
-        test(in.readOptional(3, OptionalFormat.VSize));
-        in.skipSize();
-        f = FixedStruct.ice_read(in);
-        test(f.m == 56);
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
@@ -1015,68 +937,59 @@ public class AllTests {
       r = initial.opVarStructAsync(p1).join();
       test(r.returnValue.get().m.equals("test") && r.p3.get().m.equals("test"));
 
-      if (reqParams) {
-        Initial.OpVarStructReqResult rr = initial.opVarStructReq(p1.get());
-        test(rr.returnValue.get().m.equals("test") && rr.p3.get().m.equals("test"));
-        rr = initial.opVarStructReqAsync(p1.get()).join();
-        test(rr.returnValue.get().m.equals("test") && rr.p3.get().m.equals("test"));
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.FSize);
+      int pos = os.startSize();
+      VarStruct.ice_write(os, p1.get());
+      os.endSize(pos);
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opVarStruct", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(in.readOptional(1, OptionalFormat.FSize));
+      in.skip(4);
+      VarStruct v = VarStruct.ice_read(in);
+      test(v.m.equals("test"));
+      test(in.readOptional(3, OptionalFormat.FSize));
+      in.skip(4);
+      v = VarStruct.ice_read(in);
+      test(v.m.equals("test"));
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.FSize);
-        int pos = os.startSize();
-        VarStruct.ice_write(os, p1.get());
-        os.endSize(pos);
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opVarStructReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(in.readOptional(1, OptionalFormat.FSize));
-        in.skip(4);
-        VarStruct v = VarStruct.ice_read(in);
-        test(v.m.equals("test"));
-        test(in.readOptional(3, OptionalFormat.FSize));
-        in.skip(4);
-        v = VarStruct.ice_read(in);
-        test(v.m.equals("test"));
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
-      if (reqParams) {
-        OneOptional p1 = new OneOptional();
-        Initial.OpOneOptionalResult r = initial.opOneOptional(p1);
-        test(!r.returnValue.hasA() && !r.p3.hasA());
-        r = initial.opOneOptionalAsync(p1).join();
-        test(!r.returnValue.hasA() && !r.p3.hasA());
+      OneOptional p1 = new OneOptional();
+      Initial.OpOneOptionalResult r = initial.opOneOptional(p1);
+      test(!r.returnValue.hasA() && !r.p3.hasA());
+      r = initial.opOneOptionalAsync(p1).join();
+      test(!r.returnValue.hasA() && !r.p3.hasA());
 
-        p1 = new OneOptional(58);
-        r = initial.opOneOptional(p1);
-        test(r.returnValue.getA() == 58 && r.p3.getA() == 58);
-        r = initial.opOneOptionalAsync(p1).join();
-        test(r.returnValue.getA() == 58 && r.p3.getA() == 58);
+      p1 = new OneOptional(58);
+      r = initial.opOneOptional(p1);
+      test(r.returnValue.getA() == 58 && r.p3.getA() == 58);
+      r = initial.opOneOptionalAsync(p1).join();
+      test(r.returnValue.getA() == 58 && r.p3.getA() == 58);
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeValue(p1);
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opOneOptional", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        Wrapper<OneOptional> p2cb = new Wrapper<>();
-        in.readValue(v -> p2cb.value = v, OneOptional.class);
-        Wrapper<OneOptional> p3cb = new Wrapper<>();
-        in.readValue(v -> p3cb.value = v, OneOptional.class);
-        in.endEncapsulation();
-        test(p2cb.value.getA() == 58 && p3cb.value.getA() == 58);
-      }
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeValue(p1);
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opOneOptional", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      Wrapper<OneOptional> p2cb = new Wrapper<>();
+      in.readValue(v -> p2cb.value = v, OneOptional.class);
+      Wrapper<OneOptional> p3cb = new Wrapper<>();
+      in.readValue(v -> p3cb.value = v, OneOptional.class);
+      in.endEncapsulation();
+      test(p2cb.value.getA() == 58 && p3cb.value.getA() == 58);
     }
 
     {
@@ -1090,31 +1003,24 @@ public class AllTests {
       r = initial.opMyInterfaceProxyAsync(p1).join();
       test(r.returnValue.get().equals(p1.get()) && r.p3.get().equals(p1.get()));
 
-      if (reqParams) {
-        Initial.OpMyInterfaceProxyReqResult rr = initial.opMyInterfaceProxyReq(p1.get());
-        test(rr.returnValue.get().equals(p1.get()) && rr.p3.get().equals(p1.get()));
-        rr = initial.opMyInterfaceProxyReqAsync(p1.get()).join();
-        test(rr.returnValue.get().equals(p1.get()) && rr.p3.get().equals(p1.get()));
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.FSize);
+      int pos = os.startSize();
+      os.writeProxy(p1.get());
+      os.endSize(pos);
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opMyInterfaceProxy", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(in.readProxy(1).get().equals(p1.get()));
+      test(in.readProxy(3).get().equals(p1.get()));
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.FSize);
-        int pos = os.startSize();
-        os.writeProxy(p1.get());
-        os.endSize(pos);
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opMyInterfaceProxyReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(in.readProxy(1).get().equals(p1.get()));
-        test(in.readProxy(3).get().equals(p1.get()));
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
     out.println("ok");
 
@@ -1136,33 +1042,22 @@ public class AllTests {
           java.util.Arrays.equals(r.returnValue.get(), p1.get())
               && java.util.Arrays.equals(r.p3.get(), p1.get()));
 
-      if (reqParams) {
-        Initial.OpByteSeqReqResult rr = initial.opByteSeqReq(p1.get());
-        test(
-            java.util.Arrays.equals(rr.returnValue.get(), p1.get())
-                && java.util.Arrays.equals(rr.p3.get(), p1.get()));
-        rr = initial.opByteSeqReqAsync(p1.get()).join();
-        test(
-            java.util.Arrays.equals(rr.returnValue.get(), p1.get())
-                && java.util.Arrays.equals(rr.p3.get(), p1.get()));
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.VSize);
+      os.writeByteSeq(p1.get());
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opByteSeq", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(java.util.Arrays.equals(in.readByteSeq(1).get(), p1.get()));
+      test(java.util.Arrays.equals(in.readByteSeq(3).get(), p1.get()));
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.VSize);
-        os.writeByteSeq(p1.get());
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opByteSeqReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(java.util.Arrays.equals(in.readByteSeq(1).get(), p1.get()));
-        test(java.util.Arrays.equals(in.readByteSeq(3).get(), p1.get()));
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
@@ -1180,33 +1075,22 @@ public class AllTests {
           java.util.Arrays.equals(r.returnValue.get(), p1.get())
               && java.util.Arrays.equals(r.p3.get(), p1.get()));
 
-      if (reqParams) {
-        Initial.OpBoolSeqReqResult rr = initial.opBoolSeqReq(p1.get());
-        test(
-            java.util.Arrays.equals(rr.returnValue.get(), p1.get())
-                && java.util.Arrays.equals(rr.p3.get(), p1.get()));
-        rr = initial.opBoolSeqReqAsync(p1.get()).join();
-        test(
-            java.util.Arrays.equals(rr.returnValue.get(), p1.get())
-                && java.util.Arrays.equals(rr.p3.get(), p1.get()));
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.VSize);
+      os.writeBoolSeq(p1.get());
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opBoolSeq", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(java.util.Arrays.equals(in.readBoolSeq(1).get(), p1.get()));
+      test(java.util.Arrays.equals(in.readBoolSeq(3).get(), p1.get()));
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.VSize);
-        os.writeBoolSeq(p1.get());
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opBoolSeqReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(java.util.Arrays.equals(in.readBoolSeq(1).get(), p1.get()));
-        test(java.util.Arrays.equals(in.readBoolSeq(3).get(), p1.get()));
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
@@ -1225,34 +1109,23 @@ public class AllTests {
           java.util.Arrays.equals(r.returnValue.get(), p1.get())
               && java.util.Arrays.equals(r.p3.get(), p1.get()));
 
-      if (reqParams) {
-        Initial.OpShortSeqReqResult rr = initial.opShortSeqReq(p1.get());
-        test(
-            java.util.Arrays.equals(rr.returnValue.get(), p1.get())
-                && java.util.Arrays.equals(rr.p3.get(), p1.get()));
-        rr = initial.opShortSeqReqAsync(p1.get()).join();
-        test(
-            java.util.Arrays.equals(rr.returnValue.get(), p1.get())
-                && java.util.Arrays.equals(rr.p3.get(), p1.get()));
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.VSize);
+      os.writeSize(p1.get().length * 2 + (p1.get().length > 254 ? 5 : 1));
+      os.writeShortSeq(p1.get());
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opShortSeq", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(java.util.Arrays.equals(in.readShortSeq(1).get(), p1.get()));
+      test(java.util.Arrays.equals(in.readShortSeq(3).get(), p1.get()));
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.VSize);
-        os.writeSize(p1.get().length * 2 + (p1.get().length > 254 ? 5 : 1));
-        os.writeShortSeq(p1.get());
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opShortSeqReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(java.util.Arrays.equals(in.readShortSeq(1).get(), p1.get()));
-        test(java.util.Arrays.equals(in.readShortSeq(3).get(), p1.get()));
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
@@ -1271,34 +1144,23 @@ public class AllTests {
           java.util.Arrays.equals(r.returnValue.get(), p1.get())
               && java.util.Arrays.equals(r.p3.get(), p1.get()));
 
-      if (reqParams) {
-        Initial.OpIntSeqReqResult rr = initial.opIntSeqReq(p1.get());
-        test(
-            java.util.Arrays.equals(rr.returnValue.get(), p1.get())
-                && java.util.Arrays.equals(rr.p3.get(), p1.get()));
-        rr = initial.opIntSeqReqAsync(p1.get()).join();
-        test(
-            java.util.Arrays.equals(rr.returnValue.get(), p1.get())
-                && java.util.Arrays.equals(rr.p3.get(), p1.get()));
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.VSize);
+      os.writeSize(p1.get().length * 4 + (p1.get().length > 254 ? 5 : 1));
+      os.writeIntSeq(p1.get());
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opIntSeq", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(java.util.Arrays.equals(in.readIntSeq(1).get(), p1.get()));
+      test(java.util.Arrays.equals(in.readIntSeq(3).get(), p1.get()));
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.VSize);
-        os.writeSize(p1.get().length * 4 + (p1.get().length > 254 ? 5 : 1));
-        os.writeIntSeq(p1.get());
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opIntSeqReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(java.util.Arrays.equals(in.readIntSeq(1).get(), p1.get()));
-        test(java.util.Arrays.equals(in.readIntSeq(3).get(), p1.get()));
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
@@ -1317,34 +1179,23 @@ public class AllTests {
           java.util.Arrays.equals(r.returnValue.get(), p1.get())
               && java.util.Arrays.equals(r.p3.get(), p1.get()));
 
-      if (reqParams) {
-        Initial.OpLongSeqReqResult rr = initial.opLongSeqReq(p1.get());
-        test(
-            java.util.Arrays.equals(rr.returnValue.get(), p1.get())
-                && java.util.Arrays.equals(rr.p3.get(), p1.get()));
-        rr = initial.opLongSeqReqAsync(p1.get()).join();
-        test(
-            java.util.Arrays.equals(rr.returnValue.get(), p1.get())
-                && java.util.Arrays.equals(rr.p3.get(), p1.get()));
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.VSize);
+      os.writeSize(p1.get().length * 8 + (p1.get().length > 254 ? 5 : 1));
+      os.writeLongSeq(p1.get());
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opLongSeq", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(java.util.Arrays.equals(in.readLongSeq(1).get(), p1.get()));
+      test(java.util.Arrays.equals(in.readLongSeq(3).get(), p1.get()));
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.VSize);
-        os.writeSize(p1.get().length * 8 + (p1.get().length > 254 ? 5 : 1));
-        os.writeLongSeq(p1.get());
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opLongSeqReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(java.util.Arrays.equals(in.readLongSeq(1).get(), p1.get()));
-        test(java.util.Arrays.equals(in.readLongSeq(3).get(), p1.get()));
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
@@ -1363,34 +1214,23 @@ public class AllTests {
           java.util.Arrays.equals(r.returnValue.get(), p1.get())
               && java.util.Arrays.equals(r.p3.get(), p1.get()));
 
-      if (reqParams) {
-        Initial.OpFloatSeqReqResult rr = initial.opFloatSeqReq(p1.get());
-        test(
-            java.util.Arrays.equals(rr.returnValue.get(), p1.get())
-                && java.util.Arrays.equals(rr.p3.get(), p1.get()));
-        rr = initial.opFloatSeqReqAsync(p1.get()).join();
-        test(
-            java.util.Arrays.equals(rr.returnValue.get(), p1.get())
-                && java.util.Arrays.equals(rr.p3.get(), p1.get()));
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.VSize);
+      os.writeSize(p1.get().length * 4 + (p1.get().length > 254 ? 5 : 1));
+      os.writeFloatSeq(p1.get());
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opFloatSeq", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(java.util.Arrays.equals(in.readFloatSeq(1).get(), p1.get()));
+      test(java.util.Arrays.equals(in.readFloatSeq(3).get(), p1.get()));
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.VSize);
-        os.writeSize(p1.get().length * 4 + (p1.get().length > 254 ? 5 : 1));
-        os.writeFloatSeq(p1.get());
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opFloatSeqReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(java.util.Arrays.equals(in.readFloatSeq(1).get(), p1.get()));
-        test(java.util.Arrays.equals(in.readFloatSeq(3).get(), p1.get()));
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
@@ -1409,34 +1249,23 @@ public class AllTests {
           java.util.Arrays.equals(r.returnValue.get(), p1.get())
               && java.util.Arrays.equals(r.p3.get(), p1.get()));
 
-      if (reqParams) {
-        Initial.OpDoubleSeqReqResult rr = initial.opDoubleSeqReq(p1.get());
-        test(
-            java.util.Arrays.equals(rr.returnValue.get(), p1.get())
-                && java.util.Arrays.equals(rr.p3.get(), p1.get()));
-        rr = initial.opDoubleSeqReqAsync(p1.get()).join();
-        test(
-            java.util.Arrays.equals(rr.returnValue.get(), p1.get())
-                && java.util.Arrays.equals(rr.p3.get(), p1.get()));
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.VSize);
+      os.writeSize(p1.get().length * 8 + (p1.get().length > 254 ? 5 : 1));
+      os.writeDoubleSeq(p1.get());
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opDoubleSeq", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(java.util.Arrays.equals(in.readDoubleSeq(1).get(), p1.get()));
+      test(java.util.Arrays.equals(in.readDoubleSeq(3).get(), p1.get()));
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.VSize);
-        os.writeSize(p1.get().length * 8 + (p1.get().length > 254 ? 5 : 1));
-        os.writeDoubleSeq(p1.get());
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opDoubleSeqReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(java.util.Arrays.equals(in.readDoubleSeq(1).get(), p1.get()));
-        test(java.util.Arrays.equals(in.readDoubleSeq(3).get(), p1.get()));
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
@@ -1455,35 +1284,24 @@ public class AllTests {
           java.util.Arrays.equals(r.returnValue.get(), p1.get())
               && java.util.Arrays.equals(r.p3.get(), p1.get()));
 
-      if (reqParams) {
-        Initial.OpStringSeqReqResult rr = initial.opStringSeqReq(p1.get());
-        test(
-            java.util.Arrays.equals(rr.returnValue.get(), p1.get())
-                && java.util.Arrays.equals(rr.p3.get(), p1.get()));
-        rr = initial.opStringSeqReqAsync(p1.get()).join();
-        test(
-            java.util.Arrays.equals(rr.returnValue.get(), p1.get())
-                && java.util.Arrays.equals(rr.p3.get(), p1.get()));
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.FSize);
+      int pos = os.startSize();
+      os.writeStringSeq(p1.get());
+      os.endSize(pos);
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opStringSeq", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(java.util.Arrays.equals(in.readStringSeq(1).get(), p1.get()));
+      test(java.util.Arrays.equals(in.readStringSeq(3).get(), p1.get()));
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.FSize);
-        int pos = os.startSize();
-        os.writeStringSeq(p1.get());
-        os.endSize(pos);
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opStringSeqReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(java.util.Arrays.equals(in.readStringSeq(1).get(), p1.get()));
-        test(java.util.Arrays.equals(in.readStringSeq(3).get(), p1.get()));
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
@@ -1498,52 +1316,43 @@ public class AllTests {
       r = initial.opSmallStructSeq(p1);
       for (int i = 0; i < p1.get().length; ++i) {
         test(r.p3.get()[i].equals(p1.get()[i]));
+        test(r.returnValue.get()[i].equals(p1.get()[i]));
       }
       r = initial.opSmallStructSeqAsync(p1).join();
       for (int i = 0; i < p1.get().length; ++i) {
+        test(r.p3.get()[i].equals(p1.get()[i]));
         test(r.returnValue.get()[i].equals(p1.get()[i]));
       }
 
-      if (reqParams) {
-        Initial.OpSmallStructSeqReqResult rr = initial.opSmallStructSeqReq(p1.get());
-        for (int i = 0; i < p1.get().length; ++i) {
-          test(rr.returnValue.get()[i].equals(p1.get()[i]));
-        }
-        rr = initial.opSmallStructSeqReqAsync(p1.get()).join();
-        for (int i = 0; i < p1.get().length; ++i) {
-          test(rr.returnValue.get()[i].equals(p1.get()[i]));
-        }
-
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.VSize);
-        SmallStructSeqHelper.write(os, p1.get());
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opSmallStructSeqReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(in.readOptional(1, OptionalFormat.VSize));
-        SmallStruct[] arr = SmallStructSeqHelper.read(in);
-        for (int i = 0; i < p1.get().length; ++i) {
-          test(arr[i].equals(p1.get()[i]));
-        }
-        test(in.readOptional(3, OptionalFormat.VSize));
-        arr = SmallStructSeqHelper.read(in);
-        for (int i = 0; i < p1.get().length; ++i) {
-          test(arr[i].equals(p1.get()[i]));
-        }
-        in.endEncapsulation();
-
-        // Check the outEncaps size matches the expected size, 6 bytes for the encapsulation, plus
-        // 12 bytes
-        // for each sequence (1 byte tag, 1 byte size, 10 byte contents)
-        test(inv.outParams.length == 12 + 12 + 6);
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.VSize);
+      SmallStructSeqHelper.write(os, p1.get());
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opSmallStructSeq", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(in.readOptional(1, OptionalFormat.VSize));
+      SmallStruct[] arr = SmallStructSeqHelper.read(in);
+      for (int i = 0; i < p1.get().length; ++i) {
+        test(arr[i].equals(p1.get()[i]));
       }
+      test(in.readOptional(3, OptionalFormat.VSize));
+      arr = SmallStructSeqHelper.read(in);
+      for (int i = 0; i < p1.get().length; ++i) {
+        test(arr[i].equals(p1.get()[i]));
+      }
+      in.endEncapsulation();
+
+      // Check the outEncaps size matches the expected size, 6 bytes for the encapsulation, plus
+      // 12 bytes
+      // for each sequence (1 byte tag, 1 byte size, 10 byte contents)
+      test(inv.outParams.length == 12 + 12 + 6);
+
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
@@ -1560,36 +1369,29 @@ public class AllTests {
       r = initial.opSmallStructListAsync(p1).join();
       test(r.returnValue.get().equals(p1.get()));
 
-      if (reqParams) {
-        Initial.OpSmallStructListReqResult rr = initial.opSmallStructListReq(p1.get());
-        test(rr.returnValue.get().equals(p1.get()));
-        rr = initial.opSmallStructListReqAsync(p1.get()).join();
-        test(rr.returnValue.get().equals(p1.get()));
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.VSize);
+      os.writeSize(p1.get().size() + (p1.get().size() > 254 ? 5 : 1));
+      SmallStructListHelper.write(os, p1.get());
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opSmallStructList", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(in.readOptional(1, OptionalFormat.VSize));
+      in.skipSize();
+      java.util.List<SmallStruct> arr = SmallStructListHelper.read(in);
+      test(arr.equals(p1.get()));
+      test(in.readOptional(3, OptionalFormat.VSize));
+      in.skipSize();
+      arr = SmallStructListHelper.read(in);
+      test(arr.equals(p1.get()));
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.VSize);
-        os.writeSize(p1.get().size() + (p1.get().size() > 254 ? 5 : 1));
-        SmallStructListHelper.write(os, p1.get());
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opSmallStructListReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(in.readOptional(1, OptionalFormat.VSize));
-        in.skipSize();
-        java.util.List<SmallStruct> arr = SmallStructListHelper.read(in);
-        test(arr.equals(p1.get()));
-        test(in.readOptional(3, OptionalFormat.VSize));
-        in.skipSize();
-        arr = SmallStructListHelper.read(in);
-        test(arr.equals(p1.get()));
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
@@ -1603,51 +1405,42 @@ public class AllTests {
       }
       r = initial.opFixedStructSeq(p1);
       for (int i = 0; i < p1.get().length; ++i) {
+        test(r.p3.get()[i].equals(p1.get()[i]));
         test(r.returnValue.get()[i].equals(p1.get()[i]));
       }
       r = initial.opFixedStructSeqAsync(p1).join();
       for (int i = 0; i < p1.get().length; ++i) {
+        test(r.p3.get()[i].equals(p1.get()[i]));
         test(r.returnValue.get()[i].equals(p1.get()[i]));
       }
 
-      if (reqParams) {
-        Initial.OpFixedStructSeqReqResult rr = initial.opFixedStructSeqReq(p1.get());
-        for (int i = 0; i < p1.get().length; ++i) {
-          test(rr.returnValue.get()[i].equals(p1.get()[i]));
-        }
-        rr = initial.opFixedStructSeqReqAsync(p1.get()).join();
-        for (int i = 0; i < p1.get().length; ++i) {
-          test(rr.returnValue.get()[i].equals(p1.get()[i]));
-        }
-
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.VSize);
-        os.writeSize(p1.get().length * 4 + (p1.get().length > 254 ? 5 : 1));
-        FixedStructSeqHelper.write(os, p1.get());
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opFixedStructSeqReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(in.readOptional(1, OptionalFormat.VSize));
-        in.skipSize();
-        FixedStruct[] arr = FixedStructSeqHelper.read(in);
-        for (int i = 0; i < p1.get().length; ++i) {
-          test(arr[i].equals(p1.get()[i]));
-        }
-        test(in.readOptional(3, OptionalFormat.VSize));
-        in.skipSize();
-        arr = FixedStructSeqHelper.read(in);
-        for (int i = 0; i < p1.get().length; ++i) {
-          test(arr[i].equals(p1.get()[i]));
-        }
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.VSize);
+      os.writeSize(p1.get().length * 4 + (p1.get().length > 254 ? 5 : 1));
+      FixedStructSeqHelper.write(os, p1.get());
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opFixedStructSeq", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(in.readOptional(1, OptionalFormat.VSize));
+      in.skipSize();
+      FixedStruct[] arr = FixedStructSeqHelper.read(in);
+      for (int i = 0; i < p1.get().length; ++i) {
+        test(arr[i].equals(p1.get()[i]));
       }
+      test(in.readOptional(3, OptionalFormat.VSize));
+      in.skipSize();
+      arr = FixedStructSeqHelper.read(in);
+      for (int i = 0; i < p1.get().length; ++i) {
+        test(arr[i].equals(p1.get()[i]));
+      }
+      in.endEncapsulation();
+
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
@@ -1660,40 +1453,33 @@ public class AllTests {
         p1.get().add(new FixedStruct());
       }
       r = initial.opFixedStructList(p1);
-      test(r.returnValue.get().equals(p1.get()));
+      test(r.returnValue.get().equals(p1.get()) && r.p3.get().equals(p1.get()));
       r = initial.opFixedStructListAsync(p1).join();
-      test(r.returnValue.get().equals(p1.get()));
+      test(r.returnValue.get().equals(p1.get()) && r.p3.get().equals(p1.get()));
 
-      if (reqParams) {
-        Initial.OpFixedStructListReqResult rr = initial.opFixedStructListReq(p1.get());
-        test(rr.returnValue.get().equals(p1.get()));
-        rr = initial.opFixedStructListReqAsync(p1.get()).join();
-        test(rr.returnValue.get().equals(p1.get()));
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.VSize);
+      os.writeSize(p1.get().size() * 4 + (p1.get().size() > 254 ? 5 : 1));
+      FixedStructListHelper.write(os, p1.get());
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opFixedStructList", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(in.readOptional(1, OptionalFormat.VSize));
+      in.skipSize();
+      java.util.List<FixedStruct> arr = FixedStructListHelper.read(in);
+      test(arr.equals(p1.get()));
+      test(in.readOptional(3, OptionalFormat.VSize));
+      in.skipSize();
+      arr = FixedStructListHelper.read(in);
+      test(arr.equals(p1.get()));
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.VSize);
-        os.writeSize(p1.get().size() * 4 + (p1.get().size() > 254 ? 5 : 1));
-        FixedStructListHelper.write(os, p1.get());
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opFixedStructListReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(in.readOptional(1, OptionalFormat.VSize));
-        in.skipSize();
-        java.util.List<FixedStruct> arr = FixedStructListHelper.read(in);
-        test(arr.equals(p1.get()));
-        test(in.readOptional(3, OptionalFormat.VSize));
-        in.skipSize();
-        arr = FixedStructListHelper.read(in);
-        test(arr.equals(p1.get()));
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
@@ -1707,52 +1493,43 @@ public class AllTests {
       }
       r = initial.opVarStructSeq(p1);
       for (int i = 0; i < p1.get().length; ++i) {
+        test(r.p3.get()[i].equals(p1.get()[i]));
         test(r.returnValue.get()[i].equals(p1.get()[i]));
       }
       r = initial.opVarStructSeqAsync(p1).join();
       for (int i = 0; i < p1.get().length; ++i) {
+        test(r.p3.get()[i].equals(p1.get()[i]));
         test(r.returnValue.get()[i].equals(p1.get()[i]));
       }
 
-      if (reqParams) {
-        Initial.OpVarStructSeqReqResult rr = initial.opVarStructSeqReq(p1.get());
-        for (int i = 0; i < p1.get().length; ++i) {
-          test(rr.returnValue.get()[i].equals(p1.get()[i]));
-        }
-        rr = initial.opVarStructSeqReqAsync(p1.get()).join();
-        for (int i = 0; i < p1.get().length; ++i) {
-          test(rr.returnValue.get()[i].equals(p1.get()[i]));
-        }
-
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.FSize);
-        int pos = os.startSize();
-        VarStructSeqHelper.write(os, p1.get());
-        os.endSize(pos);
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opVarStructSeqReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(in.readOptional(1, OptionalFormat.FSize));
-        in.skip(4);
-        VarStruct[] arr = VarStructSeqHelper.read(in);
-        for (int i = 0; i < p1.get().length; ++i) {
-          test(arr[i].equals(p1.get()[i]));
-        }
-        test(in.readOptional(3, OptionalFormat.FSize));
-        in.skip(4);
-        arr = VarStructSeqHelper.read(in);
-        for (int i = 0; i < p1.get().length; ++i) {
-          test(arr[i].equals(p1.get()[i]));
-        }
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.FSize);
+      int pos = os.startSize();
+      VarStructSeqHelper.write(os, p1.get());
+      os.endSize(pos);
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opVarStructSeq", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(in.readOptional(1, OptionalFormat.FSize));
+      in.skip(4);
+      VarStruct[] arr = VarStructSeqHelper.read(in);
+      for (int i = 0; i < p1.get().length; ++i) {
+        test(arr[i].equals(p1.get()[i]));
       }
+      test(in.readOptional(3, OptionalFormat.FSize));
+      in.skip(4);
+      arr = VarStructSeqHelper.read(in);
+      for (int i = 0; i < p1.get().length; ++i) {
+        test(arr[i].equals(p1.get()[i]));
+      }
+      in.endEncapsulation();
+
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     if (supportsJavaSerializable) {
@@ -1766,33 +1543,26 @@ public class AllTests {
       r = initial.opSerializableAsync(p1).join();
       test(r.returnValue.get().equals(p1.get()) && r.p3.get().equals(p1.get()));
 
-      if (reqParams) {
-        Initial.OpSerializableReqResult rr = initial.opSerializableReq(p1.get());
-        test(rr.returnValue.get().equals(p1.get()) && rr.p3.get().equals(p1.get()));
-        rr = initial.opSerializableReqAsync(p1.get()).join();
-        test(rr.returnValue.get().equals(p1.get()) && rr.p3.get().equals(p1.get()));
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.VSize);
+      os.writeSerializable(p1.get());
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opSerializable", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(in.readOptional(1, OptionalFormat.VSize));
+      SerializableClass sc = in.readSerializable(SerializableClass.class);
+      test(sc.equals(p1.get()));
+      test(in.readOptional(3, OptionalFormat.VSize));
+      sc = in.readSerializable(SerializableClass.class);
+      test(sc.equals(p1.get()));
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.VSize);
-        os.writeSerializable(p1.get());
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opSerializableReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(in.readOptional(1, OptionalFormat.VSize));
-        SerializableClass sc = in.readSerializable(SerializableClass.class);
-        test(sc.equals(p1.get()));
-        test(in.readOptional(3, OptionalFormat.VSize));
-        sc = in.readSerializable(SerializableClass.class);
-        test(sc.equals(p1.get()));
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
     out.println("ok");
 
@@ -1811,36 +1581,29 @@ public class AllTests {
       r = initial.opIntIntDictAsync(p1).join();
       test(r.returnValue.get().equals(p1.get()) && r.p3.get().equals(p1.get()));
 
-      if (reqParams) {
-        Initial.OpIntIntDictReqResult rr = initial.opIntIntDictReq(p1.get());
-        test(rr.returnValue.get().equals(p1.get()) && rr.p3.get().equals(p1.get()));
-        rr = initial.opIntIntDictReqAsync(p1.get()).join();
-        test(rr.returnValue.get().equals(p1.get()) && rr.p3.get().equals(p1.get()));
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.VSize);
+      os.writeSize(p1.get().size() * 8 + (p1.get().size() > 254 ? 5 : 1));
+      IntIntDictHelper.write(os, p1.get());
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opIntIntDict", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(in.readOptional(1, OptionalFormat.VSize));
+      in.skipSize();
+      java.util.Map<Integer, Integer> m = IntIntDictHelper.read(in);
+      test(m.equals(p1.get()));
+      test(in.readOptional(3, OptionalFormat.VSize));
+      in.skipSize();
+      m = IntIntDictHelper.read(in);
+      test(m.equals(p1.get()));
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.VSize);
-        os.writeSize(p1.get().size() * 8 + (p1.get().size() > 254 ? 5 : 1));
-        IntIntDictHelper.write(os, p1.get());
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opIntIntDictReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(in.readOptional(1, OptionalFormat.VSize));
-        in.skipSize();
-        java.util.Map<Integer, Integer> m = IntIntDictHelper.read(in);
-        test(m.equals(p1.get()));
-        test(in.readOptional(3, OptionalFormat.VSize));
-        in.skipSize();
-        m = IntIntDictHelper.read(in);
-        test(m.equals(p1.get()));
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
@@ -1856,37 +1619,30 @@ public class AllTests {
       r = initial.opStringIntDictAsync(p1).join();
       test(r.returnValue.get().equals(p1.get()) && r.p3.get().equals(p1.get()));
 
-      if (reqParams) {
-        Initial.OpStringIntDictReqResult rr = initial.opStringIntDictReq(p1.get());
-        test(rr.returnValue.get().equals(p1.get()) && rr.p3.get().equals(p1.get()));
-        rr = initial.opStringIntDictReqAsync(p1.get()).join();
-        test(rr.returnValue.get().equals(p1.get()) && rr.p3.get().equals(p1.get()));
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.FSize);
+      int pos = os.startSize();
+      StringIntDictHelper.write(os, p1.get());
+      os.endSize(pos);
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opStringIntDict", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(in.readOptional(1, OptionalFormat.FSize));
+      in.skip(4);
+      java.util.Map<String, Integer> m = StringIntDictHelper.read(in);
+      test(m.equals(p1.get()));
+      test(in.readOptional(3, OptionalFormat.FSize));
+      in.skip(4);
+      m = StringIntDictHelper.read(in);
+      test(m.equals(p1.get()));
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.FSize);
-        int pos = os.startSize();
-        StringIntDictHelper.write(os, p1.get());
-        os.endSize(pos);
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opStringIntDictReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(in.readOptional(1, OptionalFormat.FSize));
-        in.skip(4);
-        java.util.Map<String, Integer> m = StringIntDictHelper.read(in);
-        test(m.equals(p1.get()));
-        test(in.readOptional(3, OptionalFormat.FSize));
-        in.skip(4);
-        m = StringIntDictHelper.read(in);
-        test(m.equals(p1.get()));
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {
@@ -1905,39 +1661,30 @@ public class AllTests {
       test(r.returnValue.get().get(1).getA() == 15 && r.p3.get().get(1).getA() == 15);
       test(r.returnValue.get().get(2).getA() == 12 && r.p3.get().get(2).getA() == 12);
 
-      if (reqParams) {
-        Initial.OpIntOneOptionalDictReqResult rr = initial.opIntOneOptionalDictReq(p1.get());
-        test(rr.returnValue.get().get(1).getA() == 15 && rr.p3.get().get(1).getA() == 15);
-        test(rr.returnValue.get().get(2).getA() == 12 && rr.p3.get().get(2).getA() == 12);
-        rr = initial.opIntOneOptionalDictReqAsync(p1.get()).join();
-        test(rr.returnValue.get().get(1).getA() == 15 && rr.p3.get().get(1).getA() == 15);
-        test(rr.returnValue.get().get(2).getA() == 12 && rr.p3.get().get(2).getA() == 12);
+      os = new OutputStream(communicator);
+      os.startEncapsulation();
+      os.writeOptional(2, OptionalFormat.FSize);
+      int pos = os.startSize();
+      IntOneOptionalDictHelper.write(os, p1.get());
+      os.endSize(pos);
+      os.endEncapsulation();
+      inEncaps = os.finished();
+      inv = initial.ice_invoke("opIntOneOptionalDict", OperationMode.Normal, inEncaps);
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      test(in.readOptional(1, OptionalFormat.FSize));
+      in.skip(4);
+      java.util.Map<Integer, OneOptional> m = IntOneOptionalDictHelper.read(in);
+      test(m.get(1).getA() == 15 && m.get(2).getA() == 12);
+      test(in.readOptional(3, OptionalFormat.FSize));
+      in.skip(4);
+      m = IntOneOptionalDictHelper.read(in);
+      test(m.get(1).getA() == 15 && m.get(2).getA() == 12);
+      in.endEncapsulation();
 
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(2, OptionalFormat.FSize);
-        int pos = os.startSize();
-        IntOneOptionalDictHelper.write(os, p1.get());
-        os.endSize(pos);
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("opIntOneOptionalDictReq", OperationMode.Normal, inEncaps);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        test(in.readOptional(1, OptionalFormat.FSize));
-        in.skip(4);
-        java.util.Map<Integer, OneOptional> m = IntOneOptionalDictHelper.read(in);
-        test(m.get(1).getA() == 15 && m.get(2).getA() == 12);
-        test(in.readOptional(3, OptionalFormat.FSize));
-        in.skip(4);
-        m = IntOneOptionalDictHelper.read(in);
-        test(m.get(1).getA() == 15 && m.get(2).getA() == 12);
-        in.endEncapsulation();
-
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        in.endEncapsulation();
-      }
+      in = new InputStream(communicator, inv.outParams);
+      in.startEncapsulation();
+      in.endEncapsulation();
     }
 
     {

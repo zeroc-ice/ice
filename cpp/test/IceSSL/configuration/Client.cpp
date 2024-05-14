@@ -21,15 +21,6 @@ public:
 void
 Client::run(int argc, char** argv)
 {
-    //
-    // Explicitly register the IceSSL plugin to test registerIceSSL. The tests
-    // don't set Ice.Plugin.IceSSL to ensure the plugin is registered without
-    // the property setting.
-    //
-#if !defined(ICE_USE_OPENSSL)
-    Ice::registerIceSSL();
-#endif
-
 #ifdef ICE_STATIC_LIBS
     Ice::registerIceWS(true);
 #endif
@@ -46,7 +37,11 @@ Client::run(int argc, char** argv)
     testdir = argv[1];
 #endif
 
-#if defined(ICE_USE_SECURE_TRANSPORT)
+#if defined(ICE_USE_SCHANNEL)
+    void allSchannelTests(Test::TestHelper*, const string&);
+    cerr << "testing with Schannel native APIs..." << endl;
+    allSchannelTests(this, testdir);
+#elif defined(ICE_USE_SECURE_TRANSPORT)
     void allSecureTransportTests(Test::TestHelper*, const string&);
 
     cerr << "testing with SecureTransport native APIs..." << endl;
@@ -56,7 +51,6 @@ Client::run(int argc, char** argv)
 
     cerr << "testing with OpenSSL native APIs..." << endl;
     allOpenSSLTests(this, testdir);
-
 #endif
 
     Test::ServerFactoryPrx allTests(Test::TestHelper*, const string&, bool);

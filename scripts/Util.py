@@ -1165,18 +1165,6 @@ class Mapping(object):
             and self.getServerMapping(testId) == self
         ):
             testcases.append(ClientAMDServerTestCase())
-        if (
-            checkClient("client")
-            and checkServer("servertie")
-            and self.getServerMapping(testId) == self
-        ):
-            testcases.append(ClientTieServerTestCase())
-        if (
-            checkClient("client")
-            and checkServer("serveramdtie")
-            and self.getServerMapping(testId) == self
-        ):
-            testcases.append(ClientAMDTieServerTestCase())
         if checkClient("client") and len(testcases) == 0:
             testcases.append(ClientTestCase())
         if checkClient("collocated"):
@@ -2098,23 +2086,6 @@ class ClientAMDServerTestCase(ClientServerTestCase):
 
     def getServerType(self):
         return "serveramd"
-
-
-class ClientTieServerTestCase(ClientServerTestCase):
-    def __init__(self, name="client/tie server", *args, **kargs):
-        ClientServerTestCase.__init__(self, name, *args, **kargs)
-
-    def getServerType(self):
-        return "servertie"
-
-
-class ClientAMDTieServerTestCase(ClientServerTestCase):
-    def __init__(self, name="client/amd tie server", *args, **kargs):
-        ClientServerTestCase.__init__(self, name, *args, **kargs)
-
-    def getServerType(self):
-        return "serveramdtie"
-
 
 class Result:
     def getKey(self, current):

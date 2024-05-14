@@ -96,7 +96,7 @@ namespace Slice
     class Gen
     {
     public:
-        Gen(const std::string&, const std::vector<std::string>&, const std::string&, bool);
+        Gen(const std::string&, const std::vector<std::string>&, const std::string&);
         Gen(const Gen&) = delete;
         ~Gen();
 
@@ -105,7 +105,6 @@ namespace Slice
     private:
         IceUtilInternal::Output _out;
         std::vector<std::string> _includePaths;
-        bool _tie;
 
         void printHeader();
 
@@ -127,6 +126,8 @@ namespace Slice
             virtual bool visitClassDefStart(const ClassDefPtr&);
             virtual void visitClassDefEnd(const ClassDefPtr&);
             virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+            virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
+            virtual void visitOperation(const OperationPtr&);
             virtual bool visitExceptionStart(const ExceptionPtr&);
             virtual void visitExceptionEnd(const ExceptionPtr&);
             virtual bool visitStructStart(const StructPtr&);
@@ -164,15 +165,6 @@ namespace Slice
             virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
             virtual void visitOperation(const OperationPtr&);
         };
-        class OpsVisitor : public CsVisitor
-        {
-        public:
-            OpsVisitor(::IceUtilInternal::Output&);
-
-            virtual bool visitModuleStart(const ModulePtr&);
-            virtual void visitModuleEnd(const ModulePtr&);
-            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-        };
 
         class HelperVisitor : public CsVisitor
         {
@@ -190,7 +182,7 @@ namespace Slice
         class DispatcherVisitor : public CsVisitor
         {
         public:
-            DispatcherVisitor(::IceUtilInternal::Output&, bool);
+            DispatcherVisitor(::IceUtilInternal::Output&);
 
             virtual bool visitModuleStart(const ModulePtr&);
             virtual void visitModuleEnd(const ModulePtr&);
@@ -200,8 +192,6 @@ namespace Slice
         private:
             typedef std::set<std::string> NameSet;
             void writeTieOperations(const InterfaceDefPtr&, NameSet* = 0);
-
-            bool _tie;
         };
     };
 }

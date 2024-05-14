@@ -101,7 +101,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\InstrumentationI.h"/>
-    <ClInclude Include="..\..\SystemFailure.h"/>
     <ClInclude Include="..\..\TestI.h"/>
     <ClInclude Include="Win32\Debug\Test.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

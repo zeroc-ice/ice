@@ -120,7 +120,7 @@ namespace Test
 
         public Ice.Properties createTestProperties(ref string[] args)
         {
-            Ice.Properties properties = Ice.Util.createProperties(ref args);
+            Ice.Properties properties = new Ice.Properties(ref args);
             args = properties.parseCommandLineOptions("Test", args);
             return properties;
         }

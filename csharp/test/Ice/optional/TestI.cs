@@ -333,11 +333,6 @@ namespace Ice
                 return new Test.Initial_OpMDict2MarshaledResult(p1, p1, current);
             }
 
-            public override bool supportsRequiredParams(Ice.Current current)
-            {
-                return false;
-            }
-
             public override bool supportsJavaSerializable(Ice.Current current)
             {
                 return false;

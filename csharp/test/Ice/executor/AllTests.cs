@@ -39,7 +39,7 @@ public class AllTests : Test.AllTests
 
         Test.TestIntfControllerPrx testController = Test.TestIntfControllerPrxHelper.uncheckedCast(obj);
 
-        output.Write("testing dispatcher with async/await... ");
+        output.Write("testing executor with async/await... ");
         output.Flush();
         {
             TaskCompletionSource<object> t = new TaskCompletionSource<object>();
@@ -48,7 +48,7 @@ public class AllTests : Test.AllTests
                 try
                 {
                     await p.opAsync();
-                    test(Dispatcher.isDispatcherThread());
+                    test(Executor.isExecutorThread());
 
                     try
                     {
@@ -58,7 +58,7 @@ public class AllTests : Test.AllTests
                     }
                     catch (Exception)
                     {
-                        test(Dispatcher.isDispatcherThread());
+                        test(Executor.isExecutorThread());
                     }
 
                     Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(10));
@@ -69,7 +69,7 @@ public class AllTests : Test.AllTests
                     }
                     catch (Ice.InvocationTimeoutException)
                     {
-                        test(Dispatcher.isDispatcherThread());
+                        test(Executor.isExecutorThread());
                     }
                     t.SetResult(null);
                 }

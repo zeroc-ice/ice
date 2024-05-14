@@ -2,7 +2,7 @@
 
 using System.Diagnostics;
 
-public class Dispatcher
+public class Executor
 {
     private static void test(bool b)
     {
@@ -12,7 +12,7 @@ public class Dispatcher
         }
     }
 
-    public Dispatcher()
+    public Executor()
     {
         Debug.Assert(_instance == null);
         _instance = this;
@@ -58,7 +58,7 @@ public class Dispatcher
         }
     }
 
-    public void dispatch(System.Action call, Ice.Connection con)
+    public void execute(System.Action call, Ice.Connection con)
     {
         lock (_m)
         {
@@ -81,12 +81,12 @@ public class Dispatcher
         _instance._thread.Join();
     }
 
-    static public bool isDispatcherThread()
+    static public bool isExecutorThread()
     {
         return Thread.CurrentThread == _instance._thread;
     }
 
-    private static Dispatcher _instance;
+    private static Executor _instance;
 
     private Queue<System.Action> _calls = new Queue<System.Action>();
     private Thread _thread;

@@ -695,13 +695,6 @@ public final class Incoming implements com.zeroc.Ice.Request {
         _responseHandler.sendNoResponse();
       }
     } catch (com.zeroc.Ice.Exception ex) {
-      if (ex instanceof com.zeroc.Ice.SystemException) {
-        if (_responseHandler.systemException(
-            _current.requestId, (com.zeroc.Ice.SystemException) ex, amd)) {
-          return;
-        }
-      }
-
       if (_instance
               .initializationData()
               .properties

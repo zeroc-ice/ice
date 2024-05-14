@@ -22,7 +22,7 @@ public class Client : Test.TestHelper
             // send() blocking after sending a given amount of data.
             //
             initData.properties.setProperty("Ice.TCP.SndSize", "50000");
-            initData.dispatcher = new Dispatcher().dispatch;
+            initData.executor = new Executor().execute;
             using (var communicator = initialize(initData))
             {
                 AllTests.allTests(this);
@@ -30,7 +30,7 @@ public class Client : Test.TestHelper
         }
         finally
         {
-            Dispatcher.terminate();
+            Executor.terminate();
         }
     }
 

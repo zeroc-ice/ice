@@ -36,10 +36,10 @@ public sealed class PluginI : Ice.Plugin
         {
             address = properties.getPropertyWithDefault("IceDiscovery.Address", "ff15::1");
         }
-        int port = properties.getPropertyAsIntWithDefault("IceDiscovery.Port", 4061);
-        string intf = properties.getProperty("IceDiscovery.Interface");
+        int port = properties.getIcePropertyAsInt("IceDiscovery.Port");
+        string intf = properties.getIceProperty("IceDiscovery.Interface");
 
-        if (properties.getProperty("IceDiscovery.Multicast.Endpoints").Length == 0)
+        if (properties.getIceProperty("IceDiscovery.Multicast.Endpoints").Length == 0)
         {
             StringBuilder s = new StringBuilder();
             s.Append("udp -h \"").Append(address).Append("\" -p ").Append(port);
@@ -50,7 +50,7 @@ public sealed class PluginI : Ice.Plugin
             properties.setProperty("IceDiscovery.Multicast.Endpoints", s.ToString());
         }
 
-        string lookupEndpoints = properties.getProperty("IceDiscovery.Lookup");
+        string lookupEndpoints = properties.getIceProperty("IceDiscovery.Lookup");
         if (lookupEndpoints.Length == 0)
         {
             int protocol = ipv4 && !preferIPv6 ? Ice.Internal.Network.EnableIPv4 : Ice.Internal.Network.EnableIPv6;
@@ -65,13 +65,13 @@ public sealed class PluginI : Ice.Plugin
             }
         }
 
-        if (properties.getProperty("IceDiscovery.Reply.Endpoints").Length == 0)
+        if (properties.getIceProperty("IceDiscovery.Reply.Endpoints").Length == 0)
         {
             properties.setProperty("IceDiscovery.Reply.Endpoints",
                                    "udp -h " + (intf.Length == 0 ? "*" : "\"" + intf + "\""));
         }
 
-        if (properties.getProperty("IceDiscovery.Locator.Endpoints").Length == 0)
+        if (properties.getIceProperty("IceDiscovery.Locator.Endpoints").Length == 0)
         {
             properties.setProperty("IceDiscovery.Locator.AdapterId", Guid.NewGuid().ToString());
         }

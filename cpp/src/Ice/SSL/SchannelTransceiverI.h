@@ -122,6 +122,12 @@ namespace Ice::SSL::Schannel
         HCERTSTORE _rootStore;
         CredHandle _credentials;
         CtxtHandle _ssl;
+
+        // The chain engine used to verify the peer certificate. If the user has not provided a remote certificate
+        // validation callback, we use this chain engine to validate the peer certificate.
+        // When the user provides a trusted root certificates stores, this chain engine is configured to exclusively
+        // trust the users provided root store.
+        HCERTCHAINENGINE _chainEngine;
     };
     using TransceiverIPtr = std::shared_ptr<TransceiverI>;
 }

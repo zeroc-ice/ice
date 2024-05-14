@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../../../../../msbuild/ice.common.props" />
   <PropertyGroup>
-    <AssemblyName>serveramdtie</AssemblyName>
+    <AssemblyName>collocated</AssemblyName>
     <OutputType>Exe</OutputType>
     <TargetFramework>$(AppTargetFramework)</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -11,13 +11,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../../../TestCommon/TestHelper.cs" />
-    <Compile Include="../../MyDerivedClassAMDTieI.cs" />
-    <Compile Include="../../ServerAMDTie.cs" />
-    <Compile Include="generated\TestAMD.cs">
-      <SliceCompileSource>../../TestAMD.ice</SliceCompileSource>
+    <Compile Include="../../AllTests.cs" />
+    <Compile Include="../../TestI.cs" />
+    <Compile Include="../../Executor.cs" />
+    <Compile Include="../../Collocated.cs" />
+    <Compile Include="generated\Test.cs">
+      <SliceCompileSource>../../Test.ice</SliceCompileSource>
     </Compile>
     <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.9" />
-    <SliceCompile Include="../../TestAMD.ice" />
+    <SliceCompile Include="../../Test.ice" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="generated\" />

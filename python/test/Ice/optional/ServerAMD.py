@@ -171,9 +171,6 @@ class InitialI(Test.Initial):
     def opOptionalAfterRequired(self, p1, p2, p3, current):
         return Ice.Future.completed((p1, p2, p3))
 
-    def supportsRequiredParams(self, current=None):
-        return Ice.Future.completed(False)
-
     def supportsJavaSerializable(self, current=None):
         return Ice.Future.completed(True)
 

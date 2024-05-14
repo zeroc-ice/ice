@@ -46,11 +46,10 @@ case "$arg" in
         ;;
 esac
 
-LLVM_PREFIX=$(brew --prefix llvm)
-export PATH="${LLVM_PREFIX}/bin:$PATH"
-# Check for llvm package
-if [ -z "$LLVM_PREFIX" ]; then
-    echo "llvm package not found. Install with 'brew install llvm'"
+CLI_TOOLS=/Library/Developer/CommandLineTools/usr/bin
+
+if [ -z "$CLI_TOOLS" ]; then
+    echo "Xcode Command Line Tools not found. Run 'xcode-select --install' to install the tools."
     exit 1
 fi
 
@@ -59,20 +58,19 @@ if [ -e default.profdata ]; then
     echo "Remove default.profdata to rebuild code coverage"
 else
     echo "Building with code coverage..."
-    make clean
-
     if [ -z "$MAKEFLAGS" ]; then
         ncpu=$(sysctl -n hw.ncpu)
         export MAKEFLAGS="-j$ncpu"
     fi
 
+    make clean
     make
 
     echo "Running tests..."
     python3 allTests.py --all --workers=8
 
     echo "Merge coverage data..."
-    llvm-profdata merge -o default.profdata coverage/*.profraw
+    ${CLI_TOOLS}/llvm-profdata merge -o default.profdata coverage/*.profraw
 
     echo "Cleaning up..."
     rm -f coverage/*.profraw
@@ -80,7 +78,7 @@ fi
 
 if [ -n "$arg" ]; then
     echo "Generating coverage for $arg"
-    llvm-cov show "$arg" -instr-profile=default.profdata -format=html -o "./coverage/html/$(basename "$arg")"
+    ${CLI_TOOLS}/llvm-cov show "$arg" -instr-profile=default.profdata -format=html -o "./coverage/html/$(basename "$arg")"
     echo "Coverage report generated in coverage/html/$(basename "$arg")/index.html"
     exit 0
 else

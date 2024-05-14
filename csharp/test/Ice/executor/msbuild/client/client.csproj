@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../../../../../msbuild/ice.common.props" />
   <PropertyGroup>
-    <AssemblyName>collocated</AssemblyName>
+    <AssemblyName>client</AssemblyName>
     <OutputType>Exe</OutputType>
     <TargetFramework>$(AppTargetFramework)</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -12,9 +12,8 @@
   <ItemGroup>
     <Compile Include="../../../../TestCommon/TestHelper.cs" />
     <Compile Include="../../AllTests.cs" />
-    <Compile Include="../../TestI.cs" />
-    <Compile Include="../../Dispatcher.cs" />
-    <Compile Include="../../Collocated.cs" />
+    <Compile Include="../../Executor.cs" />
+    <Compile Include="../../Client.cs" />
     <Compile Include="generated\Test.cs">
       <SliceCompileSource>../../Test.ice</SliceCompileSource>
     </Compile>

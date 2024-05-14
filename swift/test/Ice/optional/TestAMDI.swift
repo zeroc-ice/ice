@@ -290,10 +290,6 @@ class InitialI: Initial {
     return Promise.value((p1, p1))
   }
 
-  func supportsRequiredParamsAsync(current _: Current) -> Promise<Bool> {
-    return Promise.value(false)
-  }
-
   func supportsJavaSerializableAsync(current _: Current) -> Promise<Bool> {
     return Promise.value(false)
   }

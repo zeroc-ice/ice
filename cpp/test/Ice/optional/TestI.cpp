@@ -379,12 +379,6 @@ InitialI::opMDict2(optional<Test::StringIntDict> p1, const Ice::Current& current
 }
 
 bool
-InitialI::supportsRequiredParams(const Ice::Current&)
-{
-    return false;
-}
-
-bool
 InitialI::supportsJavaSerializable(const Ice::Current&)
 {
     return true;

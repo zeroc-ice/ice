@@ -19,13 +19,13 @@ public class TestI : TestIntfDisp_
     override public void
     op(Ice.Current current)
     {
-        test(Dispatcher.isDispatcherThread());
+        test(Executor.isExecutorThread());
     }
 
     override public void
     opWithPayload(byte[] seq, Ice.Current current)
     {
-        test(Dispatcher.isDispatcherThread());
+        test(Executor.isExecutorThread());
     }
 
     public override void sleep(int to, Ice.Current current)
@@ -36,7 +36,7 @@ public class TestI : TestIntfDisp_
     override public void
     shutdown(Ice.Current current)
     {
-        test(Dispatcher.isDispatcherThread());
+        test(Executor.isExecutorThread());
         current.adapter.getCommunicator().shutdown();
     }
 }
@@ -54,14 +54,14 @@ public class TestControllerI : TestIntfControllerDisp_
     override public void
     holdAdapter(Ice.Current current)
     {
-        test(Dispatcher.isDispatcherThread());
+        test(Executor.isExecutorThread());
         _adapter.hold();
     }
 
     override public void
     resumeAdapter(Ice.Current current)
     {
-        test(Dispatcher.isDispatcherThread());
+        test(Executor.isExecutorThread());
         _adapter.activate();
     }
 

@@ -13,7 +13,7 @@ public class AsyncIOThread
         _thread = new HelperThread(this);
         updateObserver();
         _thread.Start(Util.stringToThreadPriority(
-                                    instance.initializationData().properties.getProperty("Ice.ThreadPriority")));
+                                    instance.initializationData().properties.getIceProperty("Ice.ThreadPriority")));
     }
 
     public void

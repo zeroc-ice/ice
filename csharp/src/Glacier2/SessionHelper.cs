@@ -423,9 +423,9 @@ public class SessionHelper
     private void
     dispatchCallback(Action callback, Ice.Connection conn)
     {
-        if (_initData.dispatcher != null)
+        if (_initData.executor != null)
         {
-            _initData.dispatcher(callback, conn);
+            _initData.executor(callback, conn);
         }
         else
         {
@@ -436,10 +436,10 @@ public class SessionHelper
     private void
     dispatchCallbackAndWait(Action callback)
     {
-        if (_initData.dispatcher != null)
+        if (_initData.executor != null)
         {
             EventWaitHandle h = new ManualResetEvent(false);
-            _initData.dispatcher(() =>
+            _initData.executor(() =>
                 {
                     callback();
                     h.Set();
