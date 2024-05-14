@@ -85,7 +85,7 @@ public final class Server {
     java.util.List<String> argSeq = new java.util.ArrayList<String>();
 
     com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
-    initData.properties = com.zeroc.Ice.Util.createProperties();
+    initData.properties = new com.zeroc.Ice.Properties();
     initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
     ShutdownHook shutdownHook = null;
 

@@ -9,7 +9,8 @@
         "nullopt",
         "Syscall",
         "unmarshal",
-        "unmarshaling"
+        "unmarshaling",
+        "zeroc"
     ],
     "dictionaries": [
         "csharp",

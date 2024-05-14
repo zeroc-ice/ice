@@ -347,7 +347,7 @@ final class LoggerAdminI implements com.zeroc.Ice.LoggerAdmin {
       com.zeroc.Ice.Communicator communicator, com.zeroc.Ice.Logger logger) {
     com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
     initData.logger = logger;
-    initData.properties = com.zeroc.Ice.Util.createProperties();
+    initData.properties = new com.zeroc.Ice.Properties();
 
     com.zeroc.Ice.Properties mainProps = communicator.getProperties();
 

@@ -26,7 +26,7 @@ public class SessionFactoryHelper {
    *     communicator.
    */
   public SessionFactoryHelper(SessionCallback callback) throws InitializationException {
-    initialize(callback, new InitializationData(), Util.createProperties());
+    initialize(callback, new InitializationData(), new Properties());
   }
 
   /**

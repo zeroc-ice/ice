@@ -22,7 +22,7 @@ class ServerFactoryI implements ServerFactory {
   public ServerPrx createServer(
       java.util.Map<String, String> props, com.zeroc.Ice.Current current) {
     com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
-    initData.properties = com.zeroc.Ice.Util.createProperties();
+    initData.properties = new com.zeroc.Ice.Properties();
     for (java.util.Map.Entry<String, String> i : props.entrySet()) {
       initData.properties.setProperty(i.getKey(), i.getValue());
     }
