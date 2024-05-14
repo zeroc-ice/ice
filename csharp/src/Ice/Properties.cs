@@ -505,11 +505,11 @@ public sealed class Properties
         lock (this)
         {
             var unused = new List<string>();
-            foreach (KeyValuePair<string, PropertyValue> entry in _properties)
+            foreach ((string key, PropertyValue value) in _properties)
             {
-                if (!entry.Value.used)
+                if (!value.used)
                 {
-                    unused.Add(entry.Key);
+                    unused.Add(key);
                 }
             }
             return unused;
