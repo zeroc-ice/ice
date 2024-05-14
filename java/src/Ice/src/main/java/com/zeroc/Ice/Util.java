@@ -12,6 +12,7 @@ public final class Util {
    * Creates a new empty property set.
    *
    * @return A new empty property set.
+   * @deprecated Use {@link Properties#Properties()} instead.
    */
   public static Properties createProperties() {
     return new Properties();
@@ -24,7 +25,9 @@ public final class Util {
    *     the command-line options include a <code>--Ice.Config</code> option, the corresponding
    *     configuration files are parsed. If the same property is set in a configuration file and in
    *     the argument vector, the argument vector takes precedence.
-   * @deprecated Use {@link Properties#Properties()} instead.
+   * @return A new property set initialized with the property settings that were removed from the
+   *     argument vector.
+   * @deprecated Use {@link Properties#Properties(String[])} instead.
    */
   @Deprecated
   public static Properties createProperties(String[] args) {
