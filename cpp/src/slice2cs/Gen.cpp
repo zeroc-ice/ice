@@ -385,7 +385,7 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
     _out << sp << nl << "#region Slice type-related members";
     _out << sp;
     _out << nl << "public override string ice_id(" << getUnqualified("Ice.Current", ns)
-        << " current) => ice_staticId();";
+         << " current) => ice_staticId();";
 
     _out << sp;
     _out << nl << "public static new string ice_staticId() => \"" << scoped << "\";";
