@@ -155,7 +155,6 @@ slice_error(const char* s)
 %token ICE_FALSE
 %token ICE_TRUE
 %token ICE_IDEMPOTENT
-%token ICE_TAG
 %token ICE_OPTIONAL
 %token ICE_VALUE
 
@@ -174,7 +173,6 @@ slice_error(const char* s)
 // Here 'OPEN' means these tokens end with an open parenthesis.
 %token ICE_IDENT_OPEN
 %token ICE_KEYWORD_OPEN
-%token ICE_TAG_OPEN
 %token ICE_OPTIONAL_OPEN
 
 %token BAD_CHAR
@@ -546,120 +544,6 @@ type_id
 ;
 
 // ----------------------------------------------------------------------
-tag
-// ----------------------------------------------------------------------
-: ICE_TAG_OPEN ICE_INTEGER_LITERAL ')'
-{
-    auto i = dynamic_pointer_cast<IntegerTok>($2);
-
-    int tag;
-    if (i->v < 0 || i->v > std::numeric_limits<int32_t>::max())
-    {
-        currentUnit->error("tag is out of range");
-        tag = -1;
-    }
-    else
-    {
-        tag = static_cast<int>(i->v);
-    }
-
-    auto m = make_shared<TaggedDefTok>(tag);
-    $$ = m;
-}
-| ICE_TAG_OPEN scoped_name ')'
-{
-    auto scoped = dynamic_pointer_cast<StringTok>($2);
-
-    ContainerPtr cont = currentUnit->currentContainer();
-    assert(cont);
-    ContainedList cl = cont->lookupContained(scoped->v, false);
-    if (cl.empty())
-    {
-        EnumeratorList enumerators = cont->enumerators(scoped->v);
-        if (enumerators.size() == 1)
-        {
-            // Found
-            cl.push_back(enumerators.front());
-            scoped->v = enumerators.front()->scoped();
-            currentUnit->warning(Deprecated, string("referencing enumerator `") + scoped->v
-                          + "' without its enumeration's scope is deprecated");
-        }
-        else if (enumerators.size() > 1)
-        {
-            ostringstream os;
-            os << "enumerator `" << scoped->v << "' could designate";
-            bool first = true;
-            for (const auto& p : enumerators)
-            {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    os << " or";
-                }
-
-                os << " `" << p->scoped() << "'";
-            }
-            currentUnit->error(os.str());
-        }
-        else
-        {
-            currentUnit->error(string("`") + scoped->v + "' is not defined");
-        }
-    }
-
-    if (cl.empty())
-    {
-        YYERROR; // Can't continue, jump to next yyerrok
-    }
-    cont->checkIntroduced(scoped->v);
-
-    int tag = -1;
-    auto enumerator = dynamic_pointer_cast<Enumerator>(cl.front());
-    auto constant = dynamic_pointer_cast<Const>(cl.front());
-    if (constant)
-    {
-        auto b = dynamic_pointer_cast<Builtin>(constant->type());
-        if (b && b->isIntegralType())
-        {
-            int64_t l = std::stoll(constant->value(), nullptr, 0);
-            if (l < 0 || l > std::numeric_limits<int32_t>::max())
-            {
-                currentUnit->error("tag is out of range");
-            }
-            tag = static_cast<int>(l);
-        }
-    }
-    else if (enumerator)
-    {
-        tag = enumerator->value();
-    }
-
-    if (tag < 0)
-    {
-        currentUnit->error("invalid tag `" + scoped->v + "'");
-    }
-
-    auto m = make_shared<TaggedDefTok>(tag);
-    $$ = m;
-}
-| ICE_TAG_OPEN ')'
-{
-    currentUnit->error("missing tag");
-    auto m = make_shared<TaggedDefTok>(-1); // Dummy
-    $$ = m;
-}
-| ICE_TAG
-{
-    currentUnit->error("missing tag");
-    auto m = make_shared<TaggedDefTok>(-1); // Dummy
-    $$ = m;
-}
-;
-
-// ----------------------------------------------------------------------
 optional
 // ----------------------------------------------------------------------
 : ICE_OPTIONAL_OPEN ICE_INTEGER_LITERAL ')'
@@ -775,16 +659,7 @@ optional
 // ----------------------------------------------------------------------
 tagged_type_id
 // ----------------------------------------------------------------------
-: tag type_id
-{
-    auto m = dynamic_pointer_cast<TaggedDefTok>($1);
-    auto ts = dynamic_pointer_cast<TypeStringTok>($2);
-
-    m->type = ts->v.first;
-    m->name = ts->v.second;
-    $$ = m;
-}
-| optional type_id
+: optional type_id
 {
     auto m = dynamic_pointer_cast<TaggedDefTok>($1);
     auto ts = dynamic_pointer_cast<TypeStringTok>($2);
@@ -1248,13 +1123,7 @@ data_member
 // ----------------------------------------------------------------------
 return_type
 // ----------------------------------------------------------------------
-: tag type
-{
-    auto m = dynamic_pointer_cast<TaggedDefTok>($1);
-    m->type = dynamic_pointer_cast<Type>($2);
-    $$ = m;
-}
-| optional type
+: optional type
 {
     auto m = dynamic_pointer_cast<TaggedDefTok>($1);
     m->type = dynamic_pointer_cast<Type>($2);
@@ -2256,7 +2125,6 @@ keyword
 | ICE_FALSE {}
 | ICE_TRUE {}
 | ICE_IDEMPOTENT {}
-| ICE_TAG {}
 | ICE_OPTIONAL {}
 | ICE_VALUE {}
 ;

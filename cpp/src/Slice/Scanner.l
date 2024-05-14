@@ -483,10 +483,6 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
         currentUnit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
         return ICE_IDENT_OPEN;
     }
-    else if (st == ICE_TAG)
-    {
-        return ICE_TAG_OPEN;
-    }
     else if (st == ICE_OPTIONAL)
     {
         return ICE_OPTIONAL_OPEN;
@@ -671,8 +667,6 @@ namespace
         keywordMap["false"] = ICE_FALSE;
         keywordMap["true"] = ICE_TRUE;
         keywordMap["idempotent"] = ICE_IDEMPOTENT;
-        keywordMap["tag"] = ICE_TAG;
-        // 'optional' is kept as an alias for 'tag' for backwards compatibility.
         keywordMap["optional"] = ICE_OPTIONAL;
         keywordMap["Value"] = ICE_VALUE;
     }
