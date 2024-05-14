@@ -1339,7 +1339,7 @@ Schannel::SSLEngine::createClientAuthenticationOptions(const string& host) const
                 ssl,                // The SSL context handle.
                 false,              // This is an outgoing connection.
                 host,               // The target host.
-                true,               // Wether or not the peer must provide a certificate.
+                true,               // Whether or not the peer must provide a certificate.
                 self->getRevocationCheck(),
                 self->getRevocationCheckCacheOnly());
             if (self->getCheckCertName() && info->peerCertificate && !host.empty())
