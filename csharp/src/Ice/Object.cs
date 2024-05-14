@@ -67,7 +67,8 @@ public interface Object
     /// <returns>The Slice type ID of the most-derived interface.</returns>
     public string ice_id(Current current) => throw new NotImplementedException();
 
-    Task<OutputStream>? iceDispatch(Ice.Internal.Incoming inc, Current current);
+    public Task<OutputStream>? iceDispatch(Ice.Internal.Incoming inc, Current current) =>
+        throw new NotImplementedException();
 
     public ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request) =>
         throw new NotImplementedException();

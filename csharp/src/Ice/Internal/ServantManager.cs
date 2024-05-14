@@ -1,10 +1,12 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 using System.Diagnostics;
 
 namespace Ice.Internal;
 
-public sealed class ServantManager
+public sealed class ServantManager : Object
 {
     public void addServant(Ice.Object servant, Ice.Identity ident, string facet)
     {
@@ -12,13 +14,9 @@ public sealed class ServantManager
         {
             Debug.Assert(_instance != null); // Must not be called after destruction.
 
-            if (facet == null)
-            {
-                facet = "";
-            }
+            facet ??= "";
 
-            Dictionary<string, Ice.Object> m;
-            _servantMapMap.TryGetValue(ident, out m);
+            _servantMapMap.TryGetValue(ident, out Dictionary<string, Ice.Object>? m);
             if (m == null)
             {
                 _servantMapMap[ident] = (m = new Dictionary<string, Ice.Object>());
@@ -47,8 +45,7 @@ public sealed class ServantManager
         lock (this)
         {
             Debug.Assert(_instance != null); // Must not be called after destruction.
-            Ice.Object obj = null;
-            _defaultServantMap.TryGetValue(category, out obj);
+            _defaultServantMap.TryGetValue(category, out Ice.Object? obj);
             if (obj != null)
             {
                 Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
@@ -67,15 +64,12 @@ public sealed class ServantManager
         {
             Debug.Assert(_instance != null); // Must not be called after destruction.
 
-            if (facet == null)
-            {
-                facet = "";
-            }
+           facet ??= "";
 
-            Dictionary<string, Ice.Object> m;
+            Dictionary<string, Ice.Object>? m;
             _servantMapMap.TryGetValue(ident, out m);
-            Ice.Object obj = null;
-            if (m == null || !m.TryGetValue(facet, out Ice.Object value))
+            Ice.Object? obj = null;
+            if (m == null || !m.TryGetValue(facet, out Ice.Object? value))
             {
                 Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
                 ex.id = Ice.Util.identityToString(ident, _instance.toStringMode());
@@ -103,7 +97,7 @@ public sealed class ServantManager
         {
             Debug.Assert(_instance != null); // Must not be called after destruction.
 
-            Ice.Object obj = null;
+            Ice.Object? obj = null;
             _defaultServantMap.TryGetValue(category, out obj);
             if (obj == null)
             {
@@ -124,7 +118,7 @@ public sealed class ServantManager
         {
             Debug.Assert(_instance != null);
 
-            Dictionary<string, Ice.Object> m;
+            Dictionary<string, Ice.Object>? m;
             _servantMapMap.TryGetValue(ident, out m);
             if (m == null)
             {
@@ -139,7 +133,7 @@ public sealed class ServantManager
         }
     }
 
-    public Ice.Object findServant(Ice.Identity ident, string facet)
+    public Ice.Object? findServant(Ice.Identity ident, string facet)
     {
         lock (this)
         {
@@ -156,9 +150,9 @@ public sealed class ServantManager
                 facet = "";
             }
 
-            Dictionary<string, Ice.Object> m;
+            Dictionary<string, Ice.Object>? m;
             _servantMapMap.TryGetValue(ident, out m);
-            Ice.Object obj = null;
+            Ice.Object? obj = null;
             if (m == null)
             {
                 _defaultServantMap.TryGetValue(ident.category, out obj);
@@ -176,13 +170,13 @@ public sealed class ServantManager
         }
     }
 
-    public Ice.Object findDefaultServant(string category)
+    public Ice.Object? findDefaultServant(string category)
     {
         lock (this)
         {
             Debug.Assert(_instance != null); // Must not be called after destruction.
 
-            Ice.Object obj = null;
+            Ice.Object? obj = null;
             _defaultServantMap.TryGetValue(category, out obj);
             return obj;
         }
@@ -217,7 +211,7 @@ public sealed class ServantManager
             //
             //Debug.Assert(_instance != null); // Must not be called after destruction.
 
-            Dictionary<string, Ice.Object> m;
+            Dictionary<string, Ice.Object>? m;
             _servantMapMap.TryGetValue(ident, out m);
             if (m == null)
             {
@@ -237,7 +231,7 @@ public sealed class ServantManager
         {
             Debug.Assert(_instance != null); // Must not be called after destruction.
 
-            Ice.ServantLocator l;
+            Ice.ServantLocator? l;
             _locatorMap.TryGetValue(category, out l);
             if (l != null)
             {
@@ -257,9 +251,9 @@ public sealed class ServantManager
         {
             Debug.Assert(_instance != null); // Must not be called after destruction.
 
-            Ice.ServantLocator l;
+            Ice.ServantLocator? l;
             _locatorMap.TryGetValue(category, out l);
-            if (l == null)
+            if (l is null)
             {
                 Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
                 ex.id = Ice.UtilInternal.StringUtil.escapeString(category, "", _instance.toStringMode());
@@ -271,7 +265,7 @@ public sealed class ServantManager
         }
     }
 
-    public Ice.ServantLocator findServantLocator(string category)
+    public Ice.ServantLocator? findServantLocator(string category)
     {
         lock (this)
         {
@@ -284,7 +278,7 @@ public sealed class ServantManager
             //
             //Debug.Assert(_instance != null); // Must not be called after destruction.
 
-            Ice.ServantLocator result;
+            Ice.ServantLocator? result;
             _locatorMap.TryGetValue(category, out result);
             return result;
         }
@@ -299,28 +293,13 @@ public sealed class ServantManager
         _adapterName = adapterName;
     }
 
-    /*
-    ~ServantManager()
-    {
-        //
-        // Don't check whether destroy() has been called. It might have
-        // not been called if the associated object adapter was not
-        // properly deactivated.
-        //
-        //lock(this)
-        //{
-            //IceUtil.Assert.FinalizerAssert(_instance == null);
-        //}
-    }
-    */
-
     //
     // Only for use by Ice.ObjectAdapterI.
     //
     public void destroy()
     {
-        Dictionary<string, Ice.ServantLocator> locatorMap = null;
-        Ice.Logger logger = null;
+        Dictionary<string, Ice.ServantLocator> ?locatorMap = null;
+        Ice.Logger? logger = null;
         lock (this)
         {
             //
@@ -359,7 +338,67 @@ public sealed class ServantManager
         }
     }
 
-    private Instance _instance;
+    public async ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request)
+    {
+        Current current = request.current;
+        Object? servant = findServant(current.id, current.facet);
+
+        if (servant is not null)
+        {
+            // the simple, common path
+            return await servant.dispatchAsync(request).ConfigureAwait(false);
+        }
+
+        // Else, check servant locators
+        ServantLocator? locator = findServantLocator(current.id.category);
+        if (locator is null && current.id.category.Length > 0)
+        {
+            locator = findServantLocator("");
+        }
+
+        if (locator is not null)
+        {
+            object? cookie;
+
+            try
+            {
+                servant = locator.locate(current, out cookie);
+            }
+            catch
+            {
+                // Skip the encapsulation. This allows the next batch requests in the same InputStream to proceed.
+                request.inputStream.skipEncapsulation();
+                throw;
+            }
+
+            if (servant is not null)
+            {
+                try
+                {
+                    return await servant.dispatchAsync(request).ConfigureAwait(false);
+                }
+                finally
+                {
+                    locator.finished(current, servant, cookie);
+                }
+            }
+        }
+
+        Debug.Assert(servant is null);
+
+        // Skip the encapsulation. This allows the next batch requests in the same InputStream to proceed.
+        request.inputStream.skipEncapsulation();
+        if (hasServant(current.id))
+        {
+            throw new FacetNotExistException();
+        }
+        else
+        {
+            throw new ObjectNotExistException();
+        }
+    }
+
+    private Instance? _instance;
     private readonly string _adapterName;
     private Dictionary<Ice.Identity, Dictionary<string, Ice.Object>> _servantMapMap = new();
     private Dictionary<string, Ice.Object> _defaultServantMap = new();
