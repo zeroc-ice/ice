@@ -16,7 +16,7 @@ public class CollocatedRequestHandler : RequestHandler, ResponseHandler
     CollocatedRequestHandler(Reference @ref, Ice.ObjectAdapter adapter)
     {
         _reference = @ref;
-        _dispatcher = _reference.getInstance().initializationData().dispatcher != null;
+        _executor = _reference.getInstance().initializationData().executor != null;
         _response = _reference.getMode() == Reference.Mode.ModeTwoway;
         _adapter = (Ice.ObjectAdapterI)adapter;
 
@@ -180,7 +180,7 @@ public class CollocatedRequestHandler : RequestHandler, ResponseHandler
         if (!synchronous || !_response || _reference.getInvocationTimeout() > 0)
         {
             // Don't invoke from the user thread if async or invocation timeout is set
-            _adapter.getThreadPool().dispatch(
+            _adapter.getThreadPool().execute(
                 () =>
                 {
                     if (sentAsync(outAsync))
@@ -189,9 +189,9 @@ public class CollocatedRequestHandler : RequestHandler, ResponseHandler
                     }
                 }, null);
         }
-        else if (_dispatcher)
+        else if (_executor)
         {
-            _adapter.getThreadPool().dispatchFromThisThread(
+            _adapter.getThreadPool().executeFromThisThread(
                 () =>
                 {
                     if (sentAsync(outAsync))
@@ -200,7 +200,7 @@ public class CollocatedRequestHandler : RequestHandler, ResponseHandler
                     }
                 }, null);
         }
-        else // Optimization: directly call invokeAll if there's no dispatcher.
+        else // Optimization: directly call invokeAll if there's no executor.
         {
             if (sentAsync(outAsync))
             {
@@ -331,7 +331,7 @@ public class CollocatedRequestHandler : RequestHandler, ResponseHandler
     }
 
     private readonly Reference _reference;
-    private readonly bool _dispatcher;
+    private readonly bool _executor;
     private readonly bool _response;
     private readonly Ice.ObjectAdapterI _adapter;
     private readonly Ice.Logger _logger;

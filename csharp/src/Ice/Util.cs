@@ -46,9 +46,9 @@ public class InitializationData
     public System.Action threadStop;
 
     /// <summary>
-    /// The dispatcher for the communicator.
+    /// The executor for the communicator.
     /// </summary>
-    public System.Action<System.Action, Connection> dispatcher;
+    public System.Action<System.Action, Connection> executor;
 
     /// <summary>
     /// The batch request interceptor.
