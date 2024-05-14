@@ -59,7 +59,6 @@ def allTests(helper, communicator):
     test(mo1.es is Ice.Unset)
     test(mo1.fss is Ice.Unset)
     test(mo1.vss is Ice.Unset)
-    test(mo1.oos is Ice.Unset)
     test(mo1.mips is Ice.Unset)
 
     test(mo1.ied is Ice.Unset)
@@ -94,7 +93,6 @@ def allTests(helper, communicator):
         [Test.MyEnum.MyEnumMember, Test.MyEnum.MyEnumMember],
         [fs],
         [vs],
-        [oo1],
         [Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test"))],
         {4: Test.MyEnum.MyEnumMember},
         {4: fs},
@@ -127,7 +125,6 @@ def allTests(helper, communicator):
     )
     test(mo1.fss[0] == Test.FixedStruct(78))
     test(mo1.vss[0] == Test.VarStruct("hello"))
-    test(mo1.oos[0] == oo1)
     test(mo1.mips[0] == communicator.stringToProxy("test"))
 
     test(mo1.ied[4] == Test.MyEnum.MyEnumMember)
@@ -179,7 +176,6 @@ def allTests(helper, communicator):
     test(mo4.es is Ice.Unset)
     test(mo4.fss is Ice.Unset)
     test(mo4.vss is Ice.Unset)
-    test(mo4.oos is Ice.Unset)
     test(mo4.mips is Ice.Unset)
 
     test(mo4.ied is Ice.Unset)
@@ -213,7 +209,6 @@ def allTests(helper, communicator):
     )
     test(mo5.fss[0] == Test.FixedStruct(78))
     test(mo5.vss[0] == Test.VarStruct("hello"))
-    test(mo5.oos[0].a == 15)
     test(mo5.mips[0] == communicator.stringToProxy("test"))
 
     test(mo5.ied[4] == Test.MyEnum.MyEnumMember)
@@ -236,7 +231,6 @@ def allTests(helper, communicator):
     mo6.fs = mo5.fs
     mo6.shs = mo5.shs
     mo6.fss = mo5.fss
-    mo6.oos = mo5.oos
     mo6.ifsd = mo5.ifsd
     mo6.iood = mo5.iood
     mo6.bos = mo5.bos
@@ -263,7 +257,6 @@ def allTests(helper, communicator):
     test(mo7.es is Ice.Unset)
     test(mo7.fss[0] == Test.FixedStruct(78))
     test(mo7.vss is Ice.Unset)
-    test(mo7.oos[0].a == 15)
     test(mo7.mips is Ice.Unset)
 
     test(mo7.ied is Ice.Unset)
@@ -317,7 +310,6 @@ def allTests(helper, communicator):
     )
     test(mo9.fss is Ice.Unset)
     test(mo9.vss[0] == Test.VarStruct("hello"))
-    test(mo9.oos is Ice.Unset)
     test(mo9.mips[0] == communicator.stringToProxy("test"))
 
     test(mo9.ied[4] == Test.MyEnum.MyEnumMember)

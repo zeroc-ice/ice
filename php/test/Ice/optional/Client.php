@@ -53,7 +53,6 @@ function allTests($helper)
     test($mo1->es == Ice\None);
     test($mo1->fss == Ice\None);
     test($mo1->vss == Ice\None);
-    test($mo1->oos == Ice\None);
     test($mo1->mips == Ice\None);
 
     test($mo1->ied == Ice\None);
@@ -71,7 +70,7 @@ function allTests($helper)
     $oo15 = new Test\OneOptional(15);
     $mo1 = new Test\MultiOptional(15, true, 19, 78, 99, 5.5, 1.0, 'test', Test\MyEnum::MyEnumMember,
                       $prx, array(5), array('test', 'test2'), array(4=>3), array('test'=>10),
-                      $fs, $vs, array(1), array(Test\MyEnum::MyEnumMember, Test\MyEnum::MyEnumMember), array($fs), array($vs), array($oo1),
+                      $fs, $vs, array(1), array(Test\MyEnum::MyEnumMember, Test\MyEnum::MyEnumMember), array($fs), array($vs),
                       array($prx), array(4=>Test\MyEnum::MyEnumMember), array(4=>$fs), array(5=>$vs),
                       array(5=>$oo15), array(5=>$prx), array(false, true, false));
 
@@ -96,7 +95,6 @@ function allTests($helper)
     test($mo1->es[0] == Test\MyEnum::MyEnumMember && $mo1->es[1] == Test\MyEnum::MyEnumMember);
     test($mo1->fss[0] == $fs);
     test($mo1->vss[0] == $vs);
-    test($mo1->oos[0] == $oo1);
     test($mo1->mips[0] == $prx);
 
     test($mo1->ied[4] == Test\MyEnum::MyEnumMember);
@@ -148,7 +146,6 @@ function allTests($helper)
     test($mo4->es == Ice\None);
     test($mo4->fss == Ice\None);
     test($mo4->vss == Ice\None);
-    test($mo4->oos == Ice\None);
     test($mo4->mips == Ice\None);
 
     test($mo4->ied == Ice\None);
@@ -180,7 +177,6 @@ function allTests($helper)
     test($mo5->es[0] == Test\MyEnum::MyEnumMember && $mo1->es[1] == Test\MyEnum::MyEnumMember);
     test($mo5->fss[0] == $fs);
     test($mo5->vss[0] == $vs);
-    test($mo5->oos[0]->a == 15);
     test($mo5->mips[0] == $prx);
 
     test($mo5->ied[4] == Test\MyEnum::MyEnumMember);
@@ -203,7 +199,6 @@ function allTests($helper)
     $mo6->fs = $mo5->fs;
     $mo6->shs = $mo5->shs;
     $mo6->fss = $mo5->fss;
-    $mo6->oos = $mo5->oos;
     $mo6->ifsd = $mo5->ifsd;
     $mo6->iood = $mo5->iood;
     $mo6->bos = $mo5->bos;
@@ -230,7 +225,6 @@ function allTests($helper)
     test($mo7->es == Ice\None);
     test($mo7->fss[0] == $fs);
     test($mo7->vss == Ice\None);
-    test($mo7->oos[0]->a == 15);
     test($mo7->mips == Ice\None);
 
     test($mo7->ied == Ice\None);
@@ -282,7 +276,6 @@ function allTests($helper)
     test($mo9->es[0] == Test\MyEnum::MyEnumMember && $mo1->es[1] == Test\MyEnum::MyEnumMember);
     test($mo9->fss == Ice\None);
     test($mo9->vss[0] == $vs);
-    test($mo9->oos == Ice\None);
     test($mo9->mips[0] == $prx);
 
     test($mo9->ied[4] == Test\MyEnum::MyEnumMember);

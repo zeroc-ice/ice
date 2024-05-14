@@ -336,8 +336,6 @@ allTests(Test::TestHelper* helper, bool)
     mo1->fss->push_back(fs);
     mo1->vss = VarStructSeq();
     mo1->vss->push_back(vs);
-    mo1->oos = OneOptionalSeq();
-    mo1->oos->push_back(oo1);
     mo1->mips = MyInterfacePrxSeq();
     mo1->mips->push_back(MyInterfacePrx(communicator, "test"));
 
@@ -384,7 +382,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo3->es == mo1->es);
     test(mo3->fss == mo1->fss);
     test(mo3->vss == mo1->vss);
-    test(mo3->oos == mo1->oos);
     test(mo3->mips == mo1->mips);
 
     test(mo3->ied == mo1->ied);
@@ -446,7 +443,6 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo4->es);
     test(!mo4->fss);
     test(!mo4->vss);
-    test(!mo4->oos);
     test(!mo4->mips);
 
     test(!mo4->ied);
@@ -480,7 +476,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo5->es == mo1->es);
     test(mo5->fss == mo1->fss);
     test(mo5->vss == mo1->vss);
-    test(!mo5->oos->empty() && (*mo5->oos)[0]->a == oo1->a);
 
     test(mo5->mips.value().size() == mo1->mips.value().size());
     for (size_t i = 0; i < mo5->mips.value().size(); ++i)
@@ -542,7 +537,6 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo7->es);
     test(mo7->fss == mo1->fss);
     test(!mo7->vss);
-    test(!mo7->oos->empty() && (*mo7->oos)[0]->a == oo1->a);
     test(!mo7->mips);
 
     test(!mo7->ied);
@@ -564,7 +558,6 @@ allTests(Test::TestHelper* helper, bool)
 
     mo8->shs = nullopt;
     mo8->fss = nullopt;
-    mo8->oos = nullopt;
 
     mo8->ifsd = nullopt;
     mo8->iood = nullopt;
@@ -591,7 +584,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo8->es == mo1->es);
     test(!mo8->fss);
     test(mo8->vss == mo1->vss);
-    test(!mo8->oos);
 
     test(mo8->mips.value().size() == mo1->mips.value().size());
     for (size_t i = 0; i < mo8->mips.value().size(); ++i)

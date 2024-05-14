@@ -241,7 +241,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
   mo1.es = [.MyEnumMember, .MyEnumMember]
   mo1.fss = [fs]
   mo1.vss = [vs]
-  mo1.oos = [oo1]
   mo1.mips = try [
     uncheckedCast(prx: communicator.stringToProxy("test")!, type: MyInterfacePrx.self)
   ]
@@ -278,7 +277,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
 
   try test(mo1.fss![0] == FixedStruct(m: 78))
   try test(mo1.vss![0] == VarStruct(m: "hello"))
-  try test(mo1.oos![0] === oo1)
   try test(mo1.mips![0] == communicator.stringToProxy("test"))
 
   try test(mo1.ied![4] == .MyEnumMember)
@@ -327,7 +325,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     try test(mo4.es == nil)
     try test(mo4.fss == nil)
     try test(mo4.vss == nil)
-    try test(mo4.oos == nil)
     try test(mo4.mips == nil)
 
     try test(mo4.ied == nil)
@@ -367,7 +364,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     try test(mo5.es![0] == .MyEnumMember && mo1.es![1] == .MyEnumMember)
     try test(mo5.fss![0] == FixedStruct(m: 78))
     try test(mo5.vss![0] == VarStruct(m: "hello"))
-    try test(mo5.oos![0]!.a! == 15)
     try test(mo5.mips![0] == communicator.stringToProxy("test"))
 
     try test(mo5.ied![4] == .MyEnumMember)
@@ -389,7 +385,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     mo6.fs = mo5.fs
     mo6.shs = mo5.shs
     mo6.fss = mo5.fss
-    mo6.oos = mo5.oos
     mo6.ifsd = mo5.ifsd
     mo6.iood = mo5.iood
     mo6.bos = mo5.bos
@@ -437,7 +432,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     try test(mo7.es == nil)
     try test(mo7.fss![0] == FixedStruct(m: 78))
     try test(mo7.vss == nil)
-    try test(mo7.oos![0]!.a == 15)
     try test(mo7.mips == nil)
 
     try test(mo7.ied == nil)
@@ -474,7 +468,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     try test(mo9.es![0] == .MyEnumMember && mo9.es![1] == .MyEnumMember)
     try test(mo9.fss == nil)
     try test(mo9.vss![0] == VarStruct(m: "hello"))
-    try test(mo9.oos == nil)
     try test(mo9.mips![0] == communicator.stringToProxy("test"))
 
     try test(mo9.ied![4] == .MyEnumMember)

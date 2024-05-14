@@ -49,7 +49,6 @@ def allTests(helper, communicator)
     test(mo1.es == Ice::Unset)
     test(mo1.fss == Ice::Unset)
     test(mo1.vss == Ice::Unset)
-    test(mo1.oos == Ice::Unset)
     test(mo1.mips == Ice::Unset)
 
     test(mo1.ied == Ice::Unset)
@@ -66,8 +65,7 @@ def allTests(helper, communicator)
     mo1 = Test::MultiOptional.new(15, true, 19, 78, 99, 5.5, 1.0, "test", Test::MyEnum::MyEnumMember, \
                                   Test::MyInterfacePrx::uncheckedCast(communicator.stringToProxy("test")), \
                                   [5], ["test", "test2"], {4=>3}, {"test"=>10}, fs, vs, [1], \
-                                  [Test::MyEnum::MyEnumMember, Test::MyEnum::MyEnumMember], \
-                                  [ fs ], [ vs ], [ oo1 ], \
+                                  [Test::MyEnum::MyEnumMember, Test::MyEnum::MyEnumMember], [ fs ], [ vs ], \
                                   [ Test::MyInterfacePrx::uncheckedCast(communicator.stringToProxy("test")) ], \
                                   {4=> Test::MyEnum::MyEnumMember}, {4=>fs}, {5=>vs}, {5=>Test::OneOptional.new(15)}, \
                                   {5=> Test::MyInterfacePrx::uncheckedCast(communicator.stringToProxy("test"))}, \
@@ -94,7 +92,6 @@ def allTests(helper, communicator)
     test(mo1.es[0] == Test::MyEnum::MyEnumMember && mo1.es[1] == Test::MyEnum::MyEnumMember)
     test(mo1.fss[0] == Test::FixedStruct.new(78))
     test(mo1.vss[0] == Test::VarStruct.new("hello"))
-    test(mo1.oos[0] == oo1)
     test(mo1.mips[0] == communicator.stringToProxy("test"))
 
     test(mo1.ied[4] == Test::MyEnum::MyEnumMember)
@@ -146,7 +143,6 @@ def allTests(helper, communicator)
     test(mo4.es == Ice::Unset)
     test(mo4.fss == Ice::Unset)
     test(mo4.vss == Ice::Unset)
-    test(mo4.oos == Ice::Unset)
     test(mo4.mips == Ice::Unset)
 
     test(mo4.ied == Ice::Unset)
@@ -178,7 +174,6 @@ def allTests(helper, communicator)
     test(mo5.es[0] == Test::MyEnum::MyEnumMember && mo1.es[1] == Test::MyEnum::MyEnumMember)
     test(mo5.fss[0] == Test::FixedStruct.new(78))
     test(mo5.vss[0] == Test::VarStruct.new("hello"))
-    test(mo5.oos[0].a == 15)
     test(mo5.mips[0] == communicator.stringToProxy("test"))
 
     test(mo5.ied[4] == Test::MyEnum::MyEnumMember)
@@ -201,7 +196,6 @@ def allTests(helper, communicator)
     mo6.fs = mo5.fs
     mo6.shs = mo5.shs
     mo6.fss = mo5.fss
-    mo6.oos = mo5.oos
     mo6.ifsd = mo5.ifsd
     mo6.iood = mo5.iood
     mo6.bos = mo5.bos
@@ -228,7 +222,6 @@ def allTests(helper, communicator)
     test(mo7.es == Ice::Unset)
     test(mo7.fss[0] == Test::FixedStruct.new(78))
     test(mo7.vss == Ice::Unset)
-    test(mo7.oos[0].a == 15)
     test(mo7.mips == Ice::Unset)
 
     test(mo7.ied == Ice::Unset)
@@ -280,7 +273,6 @@ def allTests(helper, communicator)
     test(mo9.es[0] == Test::MyEnum::MyEnumMember && mo1.es[1] == Test::MyEnum::MyEnumMember)
     test(mo9.fss == Ice::Unset)
     test(mo9.vss[0] == Test::VarStruct.new("hello"))
-    test(mo9.oos == Ice::Unset)
     test(mo9.mips[0] == communicator.stringToProxy("test"))
 
     test(mo9.ied[4] == Test::MyEnum::MyEnumMember)

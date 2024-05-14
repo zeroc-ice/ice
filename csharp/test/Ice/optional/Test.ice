@@ -51,7 +51,6 @@ sequence<SmallStruct> SmallStructSeq;
 sequence<FixedStruct> FixedStructSeq;
 ["cs:generic:LinkedList"] sequence<FixedStruct> FixedStructList;
 sequence<VarStruct> VarStructSeq;
-sequence<OneOptional> OneOptionalSeq;
 sequence<MyInterface*> MyInterfacePrxSeq;
 
 dictionary<int, int> IntIntDict;

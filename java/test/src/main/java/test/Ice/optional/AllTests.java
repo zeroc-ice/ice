@@ -86,7 +86,6 @@ public class AllTests {
     mo1.setEs(new MyEnum[] {MyEnum.MyEnumMember, MyEnum.MyEnumMember});
     mo1.setFss(new FixedStruct[] {fs});
     mo1.setVss(new VarStruct[] {vs});
-    mo1.setOos(new OneOptional[] {oo1});
     mo1.setMips(
         new MyInterfacePrx[] {MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test"))});
 
@@ -127,7 +126,6 @@ public class AllTests {
     test(mo1.getEs()[0] == MyEnum.MyEnumMember && mo1.getEs()[1] == MyEnum.MyEnumMember);
     test(mo1.getFss()[0].equals(new FixedStruct(78)));
     test(mo1.getVss()[0].equals(new VarStruct("hello")));
-    test(mo1.getOos()[0] == oo1);
     test(mo1.getMips()[0].equals(communicator.stringToProxy("test")));
 
     test(mo1.getIed().get(4) == MyEnum.MyEnumMember);
@@ -173,7 +171,6 @@ public class AllTests {
     test(!mo4.hasEs());
     test(!mo4.hasFss());
     test(!mo4.hasVss());
-    test(!mo4.hasOos());
     test(!mo4.hasMips());
 
     test(!mo4.hasIed());
@@ -212,7 +209,6 @@ public class AllTests {
     test(mo5.getEs()[0] == MyEnum.MyEnumMember && mo1.getEs()[1] == MyEnum.MyEnumMember);
     test(mo5.getFss()[0].equals(new FixedStruct(78)));
     test(mo5.getVss()[0].equals(new VarStruct("hello")));
-    test(mo5.getOos()[0].getA() == 15);
     test(mo5.getMips()[0].equals(communicator.stringToProxy("test")));
 
     test(mo5.getIed().get(4) == MyEnum.MyEnumMember);
@@ -239,7 +235,6 @@ public class AllTests {
     mo6.setFs(mo5.getFs());
     mo6.setShs(mo5.getShs());
     mo6.setFss(mo5.getFss());
-    mo6.setOos(mo5.getOos());
     mo6.setIfsd(mo5.getIfsd());
     mo6.setIood(mo5.getIood());
     mo6.setBos(mo5.getBos());
@@ -266,7 +261,6 @@ public class AllTests {
     test(!mo7.hasEs());
     test(mo7.getFss()[0].equals(new FixedStruct(78)));
     test(!mo7.hasVss());
-    test(mo7.getOos()[0].getA() == 15);
     test(!mo7.hasMips());
 
     test(!mo7.hasIed());
@@ -318,7 +312,6 @@ public class AllTests {
     test(mo9.getEs()[0] == MyEnum.MyEnumMember && mo1.getEs()[1] == MyEnum.MyEnumMember);
     test(!mo9.hasFss());
     test(mo9.getVss()[0].equals(new VarStruct("hello")));
-    test(!mo9.hasOos());
     test(mo9.getMips()[0].equals(communicator.stringToProxy("test")));
 
     test(mo9.getIed().get(4) == MyEnum.MyEnumMember);

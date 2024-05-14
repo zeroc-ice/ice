@@ -60,7 +60,6 @@ export class Client extends TestHelper
         test(mo4.es === undefined);
         test(mo4.fss === undefined);
         test(mo4.vss === undefined);
-        test(mo4.oos === undefined);
         test(mo4.mips === undefined);
 
         test(mo4.ied === undefined);
@@ -99,7 +98,6 @@ export class Client extends TestHelper
         mo1.es = [Test.MyEnum.MyEnumMember, Test.MyEnum.MyEnumMember];
         mo1.fss = [mo1.fs];
         mo1.vss = [mo1.vs];
-        mo1.oos = [oo1];
         mo1.mips = [Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test"))];
 
         mo1.ied = new Map();
@@ -137,7 +135,6 @@ export class Client extends TestHelper
         test(mo5.es[0] == Test.MyEnum.MyEnumMember && mo5.es[1] == Test.MyEnum.MyEnumMember);
         test(mo5.fss[0].equals(new Test.FixedStruct(78)));
         test(mo5.vss[0].equals(new Test.VarStruct("hello")));
-        test(mo5.oos[0].a == 15);
         test(mo5.mips[0].equals(communicator.stringToProxy("test")));
 
         test(mo5.ied.get(4) == Test.MyEnum.MyEnumMember);
@@ -160,7 +157,6 @@ export class Client extends TestHelper
         mo6.fs = mo5.fs;
         mo6.shs = mo5.shs;
         mo6.fss = mo5.fss;
-        mo6.oos = mo5.oos;
         mo6.ifsd = mo5.ifsd;
         mo6.iood = mo5.iood;
         mo6.bos = mo5.bos;
@@ -186,7 +182,6 @@ export class Client extends TestHelper
         test(mo7.es === undefined);
         test(mo7.fss[0].equals(new Test.FixedStruct(78)));
         test(mo7.vss === undefined);
-        test(mo7.oos[0].a == 15);
         test(mo7.mips === undefined);
 
         test(mo7.ied === undefined);
@@ -239,7 +234,6 @@ export class Client extends TestHelper
         test(mo9.es[0] == Test.MyEnum.MyEnumMember && mo9.es[1] == Test.MyEnum.MyEnumMember);
         test(mo9.fss === undefined);
         test(mo9.vss[0].equals(new Test.VarStruct("hello")));
-        test(mo9.oos === undefined);
         test(mo9.mips[0].equals(communicator.stringToProxy("test")));
 
         test(mo9.ied.get(4) == Test.MyEnum.MyEnumMember);

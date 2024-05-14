@@ -53,7 +53,6 @@ sequence<SmallStruct> SmallStructList;
 sequence<FixedStruct> FixedStructSeq;
 sequence<FixedStruct> FixedStructList;
 sequence<VarStruct> VarStructSeq;
-sequence<OneOptional> OneOptionalSeq;
 sequence<MyInterface*> MyInterfacePrxSeq;
 
 sequence<byte> Serializable;
@@ -89,7 +88,6 @@ class MultiOptional
     optional(19) MyEnumSeq es;
     optional(20) FixedStructSeq fss;
     optional(21) VarStructSeq vss;
-    optional(22) OneOptionalSeq oos;
     optional(23) MyInterfacePrxSeq mips;
 
     optional(24) IntEnumDict ied;
