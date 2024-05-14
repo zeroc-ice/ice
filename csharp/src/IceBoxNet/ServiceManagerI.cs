@@ -17,18 +17,18 @@ internal class ServiceManagerI : ServiceManagerDisp_
 
         Ice.Properties props = _communicator.getProperties();
 
-        if (props.getProperty("Ice.Admin.Enabled").Length == 0)
+        if (props.getIceProperty("Ice.Admin.Enabled").Length == 0)
         {
-            _adminEnabled = props.getProperty("Ice.Admin.Endpoints").Length > 0;
+            _adminEnabled = props.getIceProperty("Ice.Admin.Endpoints").Length > 0;
         }
         else
         {
-            _adminEnabled = props.getPropertyAsInt("Ice.Admin.Enabled") > 0;
+            _adminEnabled = props.getIcePropertyAsInt("Ice.Admin.Enabled") > 0;
         }
 
         if (_adminEnabled)
         {
-            string[] facetFilter = props.getPropertyAsList("Ice.Admin.Facets");
+            string[] facetFilter = props.getIcePropertyAsList("Ice.Admin.Facets");
             if (facetFilter.Length > 0)
             {
                 _adminFacetFilter = new HashSet<string>(facetFilter);
@@ -40,7 +40,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
         }
 
         _argv = args;
-        _traceServiceObserver = _communicator.getProperties().getPropertyAsInt("IceBox.Trace.ServiceObserver");
+        _traceServiceObserver = _communicator.getProperties().getIcePropertyAsInt("IceBox.Trace.ServiceObserver");
     }
 
     public override void startService(string name, Ice.Current current)
@@ -245,13 +245,13 @@ internal class ServiceManagerI : ServiceManagerDisp_
             // will most likely need to be firewalled for security reasons.
             //
             Ice.ObjectAdapter adapter = null;
-            if (properties.getProperty("IceBox.ServiceManager.Endpoints").Length != 0)
+            if (properties.getIceProperty("IceBox.ServiceManager.Endpoints").Length != 0)
             {
                 adapter = _communicator.createObjectAdapter("IceBox.ServiceManager");
 
                 var identity = new Ice.Identity(
                     "ServiceManager",
-                    properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox"));
+                    properties.getIceProperty("IceBox.InstanceName"));
                 adapter.add(this, identity);
             }
 
@@ -272,7 +272,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
                 throw new FailureException("ServiceManager: configuration must include at least one IceBox service");
             }
 
-            string[] loadOrder = properties.getPropertyAsList("IceBox.LoadOrder");
+            string[] loadOrder = properties.getIcePropertyAsList("IceBox.LoadOrder");
             List<StartServiceInfo> servicesInfo = new List<StartServiceInfo>();
             for (int i = 0; i < loadOrder.Length; ++i)
             {
@@ -309,7 +309,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
                 initData.properties = createServiceProperties("SharedCommunicator");
                 foreach (StartServiceInfo service in servicesInfo)
                 {
-                    if (properties.getPropertyAsInt("IceBox.UseSharedCommunicator." + service.name) <= 0)
+                    if (properties.getIcePropertyAsInt("IceBox.UseSharedCommunicator." + service.name) <= 0)
                     {
                         continue;
                     }
@@ -393,7 +393,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
             // This must be done after start() has been invoked on the
             // services.
             //
-            string bundleName = properties.getProperty("IceBox.PrintServicesReady");
+            string bundleName = properties.getIceProperty("IceBox.PrintServicesReady");
             if (bundleName.Length > 0)
             {
                 Console.Out.WriteLine(bundleName + " ready");
@@ -520,7 +520,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
             // communicator property set.
             //
             Ice.Communicator communicator;
-            if (_communicator.getProperties().getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
+            if (_communicator.getProperties().getIcePropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
             {
                 Debug.Assert(_sharedCommunicator != null);
                 communicator = _sharedCommunicator;
@@ -552,9 +552,9 @@ internal class ServiceManagerI : ServiceManagerDisp_
                 // Clone the logger to assign a new prefix. If one of the built-in loggers is configured
                 // don't set any logger.
                 //
-                if (initData.properties.getProperty("Ice.LogFile").Length == 0)
+                if (initData.properties.getIceProperty("Ice.LogFile").Length == 0)
                 {
-                    initData.logger = _logger.cloneWithPrefix(initData.properties.getProperty("Ice.ProgramName"));
+                    initData.logger = _logger.cloneWithPrefix(initData.properties.getIceProperty("Ice.ProgramName"));
                 }
 
                 //
@@ -906,7 +906,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
     {
         Ice.Properties properties;
         Ice.Properties communicatorProperties = _communicator.getProperties();
-        if (communicatorProperties.getPropertyAsInt("IceBox.InheritProperties") > 0)
+        if (communicatorProperties.getIcePropertyAsInt("IceBox.InheritProperties") > 0)
         {
             properties = communicatorProperties.ice_clone_();
             // Inherit all except Ice.Admin.xxx properties
@@ -920,7 +920,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
             properties = new Ice.Properties();
         }
 
-        string programName = communicatorProperties.getProperty("Ice.ProgramName");
+        string programName = communicatorProperties.getIceProperty("Ice.ProgramName");
         if (programName.Length == 0)
         {
             properties.setProperty("Ice.ProgramName", service);
@@ -961,7 +961,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
 
     private bool configureAdmin(Ice.Properties properties, string prefix)
     {
-        if (_adminEnabled && properties.getProperty("Ice.Admin.Enabled").Length == 0)
+        if (_adminEnabled && properties.getIceProperty("Ice.Admin.Enabled").Length == 0)
         {
             List<string> facetNames = new List<string>();
             foreach (string p in _adminFacetFilter)

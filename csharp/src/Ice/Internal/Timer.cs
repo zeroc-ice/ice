@@ -126,7 +126,7 @@ public sealed class Timer
     {
         _instance = instance;
 
-        string threadName = _instance.initializationData().properties.getProperty("Ice.ProgramName");
+        string threadName = _instance.initializationData().properties.getIceProperty("Ice.ProgramName");
         if (threadName.Length > 0)
         {
             threadName += "-";

@@ -369,7 +369,7 @@ generated from the section label.
         <property name="Plugin.[any]" />
         <property name="PluginLoadOrder" />
         <property name="PreferIPv6Address" default="0" />
-        <property name="PreloadAssemblies" />
+        <property name="PreloadAssemblies" default="0" />
         <property name="PrintAdapterReady" />
         <property name="PrintProcessId" />
         <property name="PrintStackTraces" default="0" />
@@ -409,7 +409,7 @@ generated from the section label.
         <property name="Warn.Endpoints" default="1" />
         <property name="Warn.UnknownProperties" default="1" />
         <property name="Warn.UnusedProperties" default="0" />
-        <property name="CacheMessageBuffers" />
+        <property name="CacheMessageBuffers" default="2" />
         <property name="ThreadInterruptSafe" />
     </section>
 

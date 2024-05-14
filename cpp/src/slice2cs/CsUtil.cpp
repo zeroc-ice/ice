@@ -2244,13 +2244,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
             }
 
             static const string csAttributePrefix = csPrefix + "attribute:";
-            static const string csTie = csPrefix + "tie";
             if (s.find(csAttributePrefix) == 0 && s.size() > csAttributePrefix.size())
-            {
-                newLocalMetaData.push_back(s);
-                continue;
-            }
-            else if (s.find(csTie) == 0 && s.size() == csTie.size())
             {
                 newLocalMetaData.push_back(s);
                 continue;

@@ -770,7 +770,7 @@ public class ReferenceFactory
             //
             // Warn about unknown properties.
             //
-            if (properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
+            if (properties.getIcePropertyAsInt("Ice.Warn.UnknownProperties") > 0)
             {
                 checkForUnknownProperties(propertyPrefix);
             }

@@ -214,7 +214,7 @@ public sealed class Instance
                 {
                     throw new Ice.CommunicatorDestroyedException();
                 }
-                int timeout = _initData.properties.getPropertyAsInt("Ice.ServerIdleTime");
+                int timeout = _initData.properties.getIcePropertyAsInt("Ice.ServerIdleTime");
                 _serverThreadPool = new ThreadPool(this, "Ice.ThreadPool.Server", timeout);
             }
 
@@ -389,7 +389,7 @@ public sealed class Instance
 
             if (createAdapter)
             {
-                if (_initData.properties.getProperty("Ice.Admin.Endpoints").Length > 0)
+                if (_initData.properties.getIceProperty("Ice.Admin.Endpoints").Length > 0)
                 {
                     adminAdapter = _objectAdapterFactory.createObjectAdapter(
                         "Ice.Admin",
@@ -451,7 +451,7 @@ public sealed class Instance
             }
             else if (_adminEnabled)
             {
-                if (_initData.properties.getProperty("Ice.Admin.Endpoints").Length > 0)
+                if (_initData.properties.getIceProperty("Ice.Admin.Endpoints").Length > 0)
                 {
                     adminAdapter = _objectAdapterFactory.createObjectAdapter(
                         "Ice.Admin",
@@ -462,7 +462,7 @@ public sealed class Instance
                 {
                     return null;
                 }
-                adminIdentity = new Ice.Identity("admin", _initData.properties.getProperty("Ice.Admin.InstanceName"));
+                adminIdentity = new Ice.Identity("admin", _initData.properties.getIceProperty("Ice.Admin.InstanceName"));
                 if (adminIdentity.category.Length == 0)
                 {
                     adminIdentity.category = System.Guid.NewGuid().ToString();
@@ -683,8 +683,8 @@ public sealed class Instance
             {
                 if (!_oneOffDone)
                 {
-                    string stdOut = _initData.properties.getProperty("Ice.StdOut");
-                    string stdErr = _initData.properties.getProperty("Ice.StdErr");
+                    string stdOut = _initData.properties.getIceProperty("Ice.StdOut");
+                    string stdErr = _initData.properties.getIceProperty("Ice.StdErr");
 
                     System.IO.StreamWriter outStream = null;
 
@@ -735,20 +735,20 @@ public sealed class Instance
 
             if (_initData.logger == null)
             {
-                string logfile = _initData.properties.getProperty("Ice.LogFile");
+                string logfile = _initData.properties.getIceProperty("Ice.LogFile");
                 if (logfile.Length != 0)
                 {
                     _initData.logger =
-                        new Ice.FileLoggerI(_initData.properties.getProperty("Ice.ProgramName"), logfile);
+                        new Ice.FileLoggerI(_initData.properties.getIceProperty("Ice.ProgramName"), logfile);
                 }
                 else if (Ice.Util.getProcessLogger() is Ice.LoggerI)
                 {
                     //
                     // Ice.ConsoleListener is enabled by default.
                     //
-                    bool console = _initData.properties.getPropertyAsIntWithDefault("Ice.ConsoleListener", 1) > 0;
+                    bool console = _initData.properties.getIcePropertyAsInt("Ice.ConsoleListener") > 0;
                     _initData.logger =
-                        new Ice.TraceLoggerI(_initData.properties.getProperty("Ice.ProgramName"), console);
+                        new Ice.TraceLoggerI(_initData.properties.getIceProperty("Ice.ProgramName"), console);
                 }
                 else
                 {
@@ -773,9 +773,8 @@ public sealed class Instance
                                                      new ACMConfig(true)));
 
             {
-                const int defaultMessageSizeMax = 1024;
                 int num =
-                    _initData.properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
+                    _initData.properties.getIcePropertyAsInt("Ice.MessageSizeMax");
                 if (num < 1 || num > 0x7fffffff / 1024)
                 {
                     _messageSizeMax = 0x7fffffff;
@@ -789,14 +788,14 @@ public sealed class Instance
             if (_initData.properties.getProperty("Ice.BatchAutoFlushSize").Length == 0 &&
                _initData.properties.getProperty("Ice.BatchAutoFlush").Length > 0)
             {
-                if (_initData.properties.getPropertyAsInt("Ice.BatchAutoFlush") > 0)
+                if (_initData.properties.getIcePropertyAsInt("Ice.BatchAutoFlush") > 0)
                 {
                     _batchAutoFlushSize = _messageSizeMax;
                 }
             }
             else
             {
-                int num = _initData.properties.getPropertyAsIntWithDefault("Ice.BatchAutoFlushSize", 1024); // 1MB
+                int num = _initData.properties.getIcePropertyAsInt("Ice.BatchAutoFlushSize");
                 if (num < 1)
                 {
                     _batchAutoFlushSize = num;
@@ -812,8 +811,7 @@ public sealed class Instance
             }
 
             {
-                const int defaultValue = 100;
-                var num = _initData.properties.getPropertyAsIntWithDefault("Ice.ClassGraphDepthMax", defaultValue);
+                var num = _initData.properties.getIcePropertyAsInt("Ice.ClassGraphDepthMax");
                 if (num < 1 || num > 0x7fffffff)
                 {
                     _classGraphDepthMax = 0x7fffffff;
@@ -824,7 +822,7 @@ public sealed class Instance
                 }
             }
 
-            string toStringModeStr = _initData.properties.getPropertyWithDefault("Ice.ToStringMode", "Unicode");
+            string toStringModeStr = _initData.properties.getIceProperty("Ice.ToStringMode");
             if (toStringModeStr == "Unicode")
             {
                 _toStringMode = Ice.ToStringMode.Unicode;
@@ -842,9 +840,9 @@ public sealed class Instance
                 throw new Ice.InitializationException("The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
             }
 
-            _cacheMessageBuffers = _initData.properties.getPropertyAsIntWithDefault("Ice.CacheMessageBuffers", 2);
+            _cacheMessageBuffers = _initData.properties.getIcePropertyAsInt("Ice.CacheMessageBuffers");
 
-            _implicitContext = Ice.ImplicitContextI.create(_initData.properties.getProperty("Ice.ImplicitContext"));
+            _implicitContext = Ice.ImplicitContextI.create(_initData.properties.getIceProperty("Ice.ImplicitContext"));
             _routerManager = new RouterManager();
 
             _locatorManager = new LocatorManager(_initData.properties);
@@ -874,7 +872,7 @@ public sealed class Instance
             {
                 _protocolSupport = Network.EnableIPv6;
             }
-            _preferIPv6 = _initData.properties.getPropertyAsInt("Ice.PreferIPv6Address") > 0;
+            _preferIPv6 = _initData.properties.getIcePropertyAsInt("Ice.PreferIPv6Address") > 0;
 
             _networkProxy = createNetworkProxy(_initData.properties, _protocolSupport);
 
@@ -910,7 +908,7 @@ public sealed class Instance
 
             _retryQueue = new RetryQueue(this);
 
-            if (_initData.properties.getPropertyAsIntWithDefault("Ice.PreloadAssemblies", 0) > 0)
+            if (_initData.properties.getIcePropertyAsInt("Ice.PreloadAssemblies") > 0)
             {
                 AssemblyUtil.preloadAssemblies();
             }
@@ -944,16 +942,16 @@ public sealed class Instance
         // since one of these plugins can be a Logger plugin that sets a new logger during loading
         //
 
-        if (_initData.properties.getProperty("Ice.Admin.Enabled").Length == 0)
+        if (_initData.properties.getIceProperty("Ice.Admin.Enabled").Length == 0)
         {
-            _adminEnabled = _initData.properties.getProperty("Ice.Admin.Endpoints").Length > 0;
+            _adminEnabled = _initData.properties.getIceProperty("Ice.Admin.Endpoints").Length > 0;
         }
         else
         {
-            _adminEnabled = _initData.properties.getPropertyAsInt("Ice.Admin.Enabled") > 0;
+            _adminEnabled = _initData.properties.getIcePropertyAsInt("Ice.Admin.Enabled") > 0;
         }
 
-        string[] facetFilter = _initData.properties.getPropertyAsList("Ice.Admin.Facets");
+        string[] facetFilter = _initData.properties.getIcePropertyAsList("Ice.Admin.Facets");
         if (facetFilter.Length > 0)
         {
             foreach (string s in facetFilter)
@@ -1029,7 +1027,7 @@ public sealed class Instance
         try
         {
             _timer = new Timer(this, Util.stringToThreadPriority(
-                                            initializationData().properties.getProperty("Ice.ThreadPriority")));
+                                            initializationData().properties.getIceProperty("Ice.ThreadPriority")));
         }
         catch (System.Exception ex)
         {
@@ -1079,7 +1077,7 @@ public sealed class Instance
         //
         lock (this)
         {
-            if (!_printProcessIdDone && _initData.properties.getPropertyAsInt("Ice.PrintProcessId") > 0)
+            if (!_printProcessIdDone && _initData.properties.getIcePropertyAsInt("Ice.PrintProcessId") > 0)
             {
                 using var p = System.Diagnostics.Process.GetCurrentProcess();
                 Console.WriteLine(p.Id);
@@ -1099,7 +1097,7 @@ public sealed class Instance
         // initialization until after it has interacted directly with the
         // plug-ins.
         //
-        if (_initData.properties.getPropertyAsIntWithDefault("Ice.InitPlugins", 1) > 0)
+        if (_initData.properties.getIcePropertyAsInt("Ice.InitPlugins") > 0)
         {
             pluginManagerImpl.initializePlugins();
         }
@@ -1109,7 +1107,7 @@ public sealed class Instance
         // and eventually registers a process proxy with the Ice locator (allowing
         // remote clients to invoke on Ice.Admin facets as soon as it's registered).
         //
-        if (_initData.properties.getPropertyAsIntWithDefault("Ice.Admin.DelayCreation", 0) <= 0)
+        if (_initData.properties.getIcePropertyAsInt("Ice.Admin.DelayCreation") <= 0)
         {
             getAdmin();
         }
@@ -1242,7 +1240,7 @@ public sealed class Instance
             _endpointFactoryManager.destroy();
         }
 
-        if (_initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
+        if (_initData.properties.getIcePropertyAsInt("Ice.Warn.UnusedProperties") > 0)
         {
             List<string> unusedProperties = _initData.properties.getUnusedProperties();
             if (unusedProperties.Count != 0)
@@ -1416,7 +1414,7 @@ public sealed class Instance
     {
         Ice.ObjectPrx admin = adminAdapter.createProxy(adminIdentity);
         Ice.LocatorPrx locator = adminAdapter.getLocator();
-        string serverId = _initData.properties.getProperty("Ice.Admin.ServerId");
+        string serverId = _initData.properties.getIceProperty("Ice.Admin.ServerId");
 
         if (locator != null && serverId.Length > 0)
         {
@@ -1467,21 +1465,21 @@ public sealed class Instance
     {
         string proxyHost;
 
-        proxyHost = props.getProperty("Ice.SOCKSProxyHost");
+        proxyHost = props.getIceProperty("Ice.SOCKSProxyHost");
         if (proxyHost.Length > 0)
         {
             if (protocolSupport == Network.EnableIPv6)
             {
                 throw new Ice.InitializationException("IPv6 only is not supported with SOCKS4 proxies");
             }
-            int proxyPort = props.getPropertyAsIntWithDefault("Ice.SOCKSProxyPort", 1080);
+            int proxyPort = props.getIcePropertyAsInt("Ice.SOCKSProxyPort");
             return new SOCKSNetworkProxy(proxyHost, proxyPort);
         }
 
-        proxyHost = props.getProperty("Ice.HTTPProxyHost");
+        proxyHost = props.getIceProperty("Ice.HTTPProxyHost");
         if (proxyHost.Length > 0)
         {
-            return new HTTPNetworkProxy(proxyHost, props.getPropertyAsIntWithDefault("Ice.HTTPProxyPort", 1080));
+            return new HTTPNetworkProxy(proxyHost, props.getIcePropertyAsInt("Ice.HTTPProxyPort"));
         }
 
         return null;

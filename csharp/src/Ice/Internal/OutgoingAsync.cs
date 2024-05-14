@@ -352,7 +352,7 @@ public abstract class OutgoingAsyncBase
 
     private void warning(System.Exception ex)
     {
-        if (instance_.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+        if (instance_.initializationData().properties.getIcePropertyAsInt("Ice.Warn.AMICallback") > 0)
         {
             instance_.initializationData().logger.warning("exception raised by AMI callback:\n" + ex);
         }

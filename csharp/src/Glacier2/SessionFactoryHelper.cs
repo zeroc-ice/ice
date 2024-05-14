@@ -342,7 +342,7 @@ public class SessionFactoryHelper
         Ice.InitializationData initData = _initData.Clone();
         initData.properties = initData.properties.ice_clone_();
 
-        if (initData.properties.getProperty("Ice.Default.Router").Length == 0 && _identity != null)
+        if (initData.properties.getIceProperty("Ice.Default.Router").Length == 0 && _identity != null)
         {
             initData.properties.setProperty("Ice.Default.Router", createProxyStr(_identity));
         }

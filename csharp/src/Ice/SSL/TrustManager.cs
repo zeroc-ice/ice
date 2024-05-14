@@ -13,16 +13,16 @@ internal sealed class TrustManager
         Debug.Assert(communicator != null);
         _communicator = communicator;
         Ice.Properties properties = _communicator.getProperties();
-        _traceLevel = properties.getPropertyAsInt("IceSSL.Trace.Security");
+        _traceLevel = properties.getIcePropertyAsInt("IceSSL.Trace.Security");
         string key = null;
         try
         {
             key = "IceSSL.TrustOnly";
-            parse(properties.getProperty(key), _rejectAll, _acceptAll);
+            parse(properties.getIceProperty(key), _rejectAll, _acceptAll);
             key = "IceSSL.TrustOnly.Client";
-            parse(properties.getProperty(key), _rejectClient, _acceptClient);
+            parse(properties.getIceProperty(key), _rejectClient, _acceptClient);
             key = "IceSSL.TrustOnly.Server";
-            parse(properties.getProperty(key), _rejectAllServer, _acceptAllServer);
+            parse(properties.getIceProperty(key), _rejectAllServer, _acceptAllServer);
             Dictionary<string, string> dict = properties.getPropertiesForPrefix("IceSSL.TrustOnly.Server.");
             foreach (KeyValuePair<string, string> entry in dict)
             {

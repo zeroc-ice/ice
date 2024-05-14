@@ -16,25 +16,24 @@ internal class SSLEngine
     {
         _communicator = communicator;
         _logger = communicator.getLogger();
-        _securityTraceLevel = _communicator.getProperties().getPropertyAsIntWithDefault("IceSSL.Trace.Security", 0);
+        _securityTraceLevel = _communicator.getProperties().getIcePropertyAsInt("IceSSL.Trace.Security");
         _securityTraceCategory = "Security";
         _trustManager = new TrustManager(_communicator);
     }
 
     internal void initialize()
     {
-        const string prefix = "IceSSL.";
         Ice.Properties properties = communicator().getProperties();
 
         // Check for a default directory. We look in this directory for files mentioned in the configuration.
-        _defaultDir = properties.getProperty(prefix + "DefaultDir");
+        _defaultDir = properties.getIceProperty("IceSSL.DefaultDir");
 
-        _verifyPeer = properties.getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
+        _verifyPeer = properties.getIcePropertyAsInt("IceSSL.VerifyPeer");
 
         // CheckCRL determines whether the certificate revocation list is checked, and how strictly.
-        _checkCRL = properties.getPropertyAsIntWithDefault(prefix + "CheckCRL", 0);
+        _checkCRL = properties.getIcePropertyAsInt("IceSSL.CheckCRL");
 
-        string certStoreLocation = properties.getPropertyWithDefault(prefix + "CertStoreLocation", "CurrentUser");
+        string certStoreLocation = properties.getIceProperty("IceSSL.CertStoreLocation");
         StoreLocation storeLocation;
         if (certStoreLocation == "CurrentUser")
         {
@@ -53,14 +52,14 @@ internal class SSLEngine
         _useMachineContext = certStoreLocation == "LocalMachine";
 
         // CheckCertName determines whether we compare the name in a peer's certificate against its hostname.
-        _checkCertName = properties.getPropertyAsIntWithDefault(prefix + "CheckCertName", 0) > 0;
+        _checkCertName = properties.getIcePropertyAsInt("IceSSL.CheckCertName") > 0;
 
         Debug.Assert(_certs == null);
         // If IceSSL.CertFile is defined, load a certificate from a file and add it to the collection.
         _certs = [];
-        string certFile = properties.getProperty(prefix + "CertFile");
-        string passwordStr = properties.getProperty(prefix + "Password");
-        string findCert = properties.getProperty(prefix + "FindCert");
+        string certFile = properties.getIceProperty("IceSSL.CertFile");
+        string passwordStr = properties.getIceProperty("IceSSL.Password");
+        string findCert = properties.getIceProperty("IceSSL.FindCert");
 
         if (certFile.Length > 0)
         {
@@ -102,7 +101,7 @@ internal class SSLEngine
         }
         else if (findCert.Length > 0)
         {
-            string certStore = properties.getPropertyWithDefault("IceSSL.CertStore", "My");
+            string certStore = properties.getIceProperty("IceSSL.CertStore");
             _certs.AddRange(findCertificates("IceSSL.FindCert", storeLocation, certStore, findCert));
             if (_certs.Count == 0)
             {
@@ -111,8 +110,8 @@ internal class SSLEngine
         }
 
         Debug.Assert(_caCerts == null);
-        string certAuthFile = properties.getProperty(prefix + "CAs");
-        if (certAuthFile.Length > 0 || properties.getPropertyAsInt(prefix + "UsePlatformCAs") <= 0)
+        string certAuthFile = properties.getIceProperty("IceSSL.CAs");
+        if (certAuthFile.Length > 0 || properties.getIcePropertyAsInt("IceSSL.UsePlatformCAs") <= 0)
         {
             _caCerts = [];
         }
