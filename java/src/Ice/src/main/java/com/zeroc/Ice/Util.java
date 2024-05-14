@@ -14,7 +14,7 @@ public final class Util {
    * @return A new empty property set.
    */
   public static Properties createProperties() {
-    return new PropertiesI();
+    return new Properties();
   }
 
   /**
@@ -24,11 +24,11 @@ public final class Util {
    *     the command-line options include a <code>--Ice.Config</code> option, the corresponding
    *     configuration files are parsed. If the same property is set in a configuration file and in
    *     the argument vector, the argument vector takes precedence.
-   * @return A new property set initialized with the property settings that were removed from the
-   *     argument vector.
+   * @deprecated Use {@link Properties#Properties()} instead.
    */
+  @Deprecated
   public static Properties createProperties(String[] args) {
-    return createProperties(args, null, null);
+    return new Properties(args, null, null);
   }
 
   /**
@@ -42,9 +42,11 @@ public final class Util {
    *     arguments that were not used to set properties.
    * @return A new property set initialized with the property settings that were removed from the
    *     argument vector.
+   * @deprecated Use {@link Properties#Properties(String[], java.util.List)} instead.
    */
+  @Deprecated
   public static Properties createProperties(String[] args, java.util.List<String> remainingArgs) {
-    return createProperties(args, null, remainingArgs);
+    return new Properties(args, null, remainingArgs);
   }
 
   /**
@@ -58,9 +60,11 @@ public final class Util {
    *     args</code> override these defaults.
    * @return A new property set initialized with the property settings that were removed from the
    *     argument vector.
+   * @deprecated Use {@link Properties#Properties(String[], Properties)} instead.
    */
+  @Deprecated
   public static Properties createProperties(String[] args, Properties defaults) {
-    return createProperties(args, defaults, null);
+    return new Properties(args, defaults, null);
   }
 
   /**
@@ -76,12 +80,12 @@ public final class Util {
    *     arguments that were not used to set properties.
    * @return A new property set initialized with the property settings that were removed from the
    *     argument vector.
+   * @deprecated Use {@link Properties#Properties(String[], Properties, java.util.List)} instead.
    */
+  @Deprecated
   public static Properties createProperties(
       String[] args, Properties defaults, java.util.List<String> remainingArgs) {
-    PropertiesI properties = new PropertiesI();
-    properties.init(args, defaults, remainingArgs);
-    return properties;
+    return new Properties(args, defaults, remainingArgs);
   }
 
   /**
@@ -197,7 +201,7 @@ public final class Util {
     InitializationData initData = null;
     if (configFile != null) {
       initData = new InitializationData();
-      initData.properties = Util.createProperties();
+      initData.properties = new Properties();
       initData.properties.load(configFile);
     }
 

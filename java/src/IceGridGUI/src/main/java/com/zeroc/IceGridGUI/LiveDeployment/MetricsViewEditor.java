@@ -163,7 +163,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
       tree.addTreeSelectionListener(new SelectionListener());
 
       Set<String> sectionSort = new LinkedHashSet<>();
-      _properties = com.zeroc.Ice.Util.createProperties();
+      _properties = new com.zeroc.Ice.Properties();
 
       _properties.load("metrics.cfg");
       sectionSort.addAll(

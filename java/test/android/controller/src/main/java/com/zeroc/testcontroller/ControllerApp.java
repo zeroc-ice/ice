@@ -158,7 +158,7 @@ public class ControllerApp extends Application {
   class ControllerI {
     public ControllerI(boolean bluetooth) {
       com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
-      initData.properties = com.zeroc.Ice.Util.createProperties();
+      initData.properties = new com.zeroc.Ice.Properties();
       initData.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "10");
       initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp");
       initData.properties.setProperty(

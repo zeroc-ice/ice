@@ -706,7 +706,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
     try {
       if (_initData.properties == null) {
-        _initData.properties = com.zeroc.Ice.Util.createProperties();
+        _initData.properties = new com.zeroc.Ice.Properties();
       }
 
       synchronized (Instance.class) {
@@ -1256,8 +1256,7 @@ public final class Instance implements java.util.function.Function<String, Class
       }
 
       if (_initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0) {
-        java.util.List<String> unusedProperties =
-            ((com.zeroc.Ice.PropertiesI) _initData.properties).getUnusedProperties();
+        java.util.List<String> unusedProperties = _initData.properties.getUnusedProperties();
         if (unusedProperties.size() != 0) {
           StringBuilder message =
               new StringBuilder("The following properties were set but never read:");

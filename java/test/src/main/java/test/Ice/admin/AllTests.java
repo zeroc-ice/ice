@@ -89,7 +89,7 @@ public class AllTests {
       // configuration.
       //
       com.zeroc.Ice.InitializationData init = new com.zeroc.Ice.InitializationData();
-      init.properties = com.zeroc.Ice.Util.createProperties();
+      init.properties = new com.zeroc.Ice.Properties();
       init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
       init.properties.setProperty("Ice.Admin.InstanceName", "Test");
       try (com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(init)) {
@@ -101,7 +101,7 @@ public class AllTests {
       // Test: Verify that the operations work correctly in the presence of facet filters.
       //
       com.zeroc.Ice.InitializationData init = new com.zeroc.Ice.InitializationData();
-      init.properties = com.zeroc.Ice.Util.createProperties();
+      init.properties = new com.zeroc.Ice.Properties();
       init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
       init.properties.setProperty("Ice.Admin.InstanceName", "Test");
       init.properties.setProperty("Ice.Admin.Facets", "Properties");
@@ -122,7 +122,7 @@ public class AllTests {
       // Test: Verify that the operations work correctly when Ice.Admin.Enabled is set
       //
       com.zeroc.Ice.InitializationData init = new com.zeroc.Ice.InitializationData();
-      init.properties = com.zeroc.Ice.Util.createProperties();
+      init.properties = new com.zeroc.Ice.Properties();
       init.properties.setProperty("Ice.Admin.Enabled", "1");
       try (com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(init)) {
         test(comm.getAdmin() == null);
@@ -145,7 +145,7 @@ public class AllTests {
       // delayed.
       //
       com.zeroc.Ice.InitializationData init = new com.zeroc.Ice.InitializationData();
-      init.properties = com.zeroc.Ice.Util.createProperties();
+      init.properties = new com.zeroc.Ice.Properties();
       init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
       init.properties.setProperty("Ice.Admin.InstanceName", "Test");
       init.properties.setProperty("Ice.Admin.DelayCreation", "1");

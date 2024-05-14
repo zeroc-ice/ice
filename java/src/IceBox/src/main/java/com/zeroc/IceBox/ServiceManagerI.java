@@ -273,7 +273,7 @@ public class ServiceManagerI implements ServiceManager {
           //
           java.util.List<String> remainingArgs = new java.util.ArrayList<>();
           Properties serviceProps =
-              Util.createProperties(service.args, initData.properties, remainingArgs);
+              new Properties(service.args, initData.properties, remainingArgs);
           service.args = remainingArgs.toArray(new String[remainingArgs.size()]);
 
           //
@@ -472,8 +472,7 @@ public class ServiceManagerI implements ServiceManager {
           // read the service config file if it's specified with --Ice.Config.
           //
           java.util.List<String> remainingArgs = new java.util.ArrayList<>();
-          initData.properties =
-              Util.createProperties(serviceArgs, initData.properties, remainingArgs);
+          initData.properties = new Properties(serviceArgs, initData.properties, remainingArgs);
           serviceArgs = remainingArgs.toArray(new String[remainingArgs.size()]);
 
           //
@@ -870,7 +869,7 @@ public class ServiceManagerI implements ServiceManager {
         properties.setProperty(p, "");
       }
     } else {
-      properties = Util.createProperties();
+      properties = new Properties();
     }
 
     String programName = communicatorProperties.getProperty("Ice.ProgramName");

@@ -106,7 +106,7 @@ public abstract class TestHelper {
 
   public Properties createTestProperties(String[] args, java.util.List<String> rArgs) {
     rArgs = rArgs == null ? new java.util.ArrayList<String>() : rArgs;
-    Properties properties = Util.createProperties(args, rArgs);
+    Properties properties = new Properties(args, rArgs);
     args = properties.parseCommandLineOptions("Test", rArgs.toArray(new String[rArgs.size()]));
     rArgs.clear();
     rArgs.addAll(java.util.Arrays.asList(args));
