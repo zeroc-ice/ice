@@ -11,8 +11,8 @@
 
 #    include "../Network.h"
 #    include "../Selector.h"
+#    include "../UniqueRef.h"
 #    include "../WSTransceiver.h"
-#    include "Ice/UniqueRef.h"
 
 struct __CFError;
 typedef struct __CFError* CFErrorRef;

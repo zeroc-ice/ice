@@ -12,10 +12,10 @@
 #    include "../EndpointFactory.h"
 #    include "../IPEndpointI.h"
 #    include "../ProtocolInstance.h"
+#    include "../UniqueRef.h"
 #    include "../WSEndpoint.h"
 #    include "Ice/InstanceF.h"
 #    include "Ice/SSL/ServerAuthenticationOptions.h"
-#    include "Ice/UniqueRef.h"
 
 #    include <CFNetwork/CFNetwork.h>
 #    include <CoreFoundation/CFDictionary.h>
