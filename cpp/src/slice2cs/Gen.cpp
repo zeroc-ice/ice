@@ -571,71 +571,25 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
         _out << nl << "iceDispatch(global::Ice.Internal.Incoming inS, " << getUnqualified("Ice.Current", ns)
              << " current)";
         _out << sb;
-        _out << nl << "int pos = global::System.Array.BinarySearch(_all, current.operation, "
-             << "global::Ice.UtilInternal.StringUtil.OrdinalStringComparer);";
-        _out << nl << "if(pos < 0)";
+        _out << sp << nl << "return current.operation switch";
         _out << sb;
-        _out << nl << "throw new " << getUnqualified("Ice.OperationNotExistException", ns)
-             << "(current.id, current.facet, current.operation);";
-        _out << eb;
-        _out << sp << nl << "switch(pos)";
-        _out << sb;
-        int i = 0;
-        for (StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end(); ++q)
+        for (const auto& opName : allOpNames)
         {
-            string opName = *q;
-
-            _out << nl << "case " << i++ << ':';
-            _out << sb;
-            if (opName == "ice_id")
+            if (opName == "ice_id" || opName == "ice_ids" || opName == "ice_isA" || opName == "ice_ping")
             {
-                _out << nl << "return " << getUnqualified("Ice.ObjectImpl", ns) << ".iceD_ice_id(this, inS, current);";
-            }
-            else if (opName == "ice_ids")
-            {
-                _out << nl << "return " << getUnqualified("Ice.ObjectImpl", ns) << ".iceD_ice_ids(this, inS, current);";
-            }
-            else if (opName == "ice_isA")
-            {
-                _out << nl << "return " << getUnqualified("Ice.ObjectImpl", ns) << ".iceD_ice_isA(this, inS, current);";
-            }
-            else if (opName == "ice_ping")
-            {
-                _out << nl << "return " << getUnqualified("Ice.ObjectImpl", ns)
-                     << ".iceD_ice_ping(this, inS, current);";
+                _out << nl << '"' << opName << "\" => " << getUnqualified("Ice.ObjectImpl", ns)
+                    << ".iceD_" << opName << "(this, inS, current),";
             }
             else
             {
-                //
-                // There's probably a better way to do this
-                //
-                for (OperationList::const_iterator t = allOps.begin(); t != allOps.end(); ++t)
-                {
-                    if ((*t)->name() == (*q))
-                    {
-                        InterfaceDefPtr interface = (*t)->interface();
-                        assert(interface);
-                        if (interface->scoped() == p->scoped())
-                        {
-                            _out << nl << "return iceD_" << opName << "(this, inS, current);";
-                        }
-                        else
-                        {
-                            _out << nl << "return " << getUnqualified(interface, ns, "", "Disp_") << ".iceD_" << opName
-                                 << "(this, inS, current);";
-                        }
-                        break;
-                    }
-                }
+                _out << nl << '"' << opName << "\" => iceD_" << opName << "(this, inS, current),";
             }
-            _out << eb;
         }
+        _out << nl << "_ => throw new " << getUnqualified("Ice.OperationNotExistException()", ns);
         _out << eb;
-        _out << sp << nl << "global::System.Diagnostics.Debug.Assert(false);";
-        _out << nl << "throw new " << getUnqualified("Ice.OperationNotExistException", ns)
-             << "(current.id, current.facet, current.operation);";
-        _out << eb;
+        _out << ";";
     }
+    _out << eb;
 
     if (ops.size() != 0)
     {

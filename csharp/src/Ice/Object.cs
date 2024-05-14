@@ -101,6 +101,17 @@ public abstract class ObjectImpl : Object
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
+    protected static ValueTask<OutgoingResponse> iceD_ice_isAAsync(Object obj, IncomingRequest request)
+    {
+        InputStream istr = request.inputStream;
+        istr.startEncapsulation();
+        string iceP_id = istr.readString();
+        istr.endEncapsulation();
+        bool ret = obj.ice_isA(iceP_id, request.current);
+        return new(request.current.createOutgoingResponse(ostr => ostr.writeBool(ret)));
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static Task<OutputStream>? iceD_ice_ping(Object obj, Ice.Internal.Incoming inS, Current current)
     {
         inS.readEmptyParams();
