@@ -72,6 +72,44 @@ public interface Object
 
     public ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request) =>
         throw new NotImplementedException();
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    protected static ValueTask<OutgoingResponse> iceD_ice_isAAsync(Object obj, IncomingRequest request)
+    {
+        InputStream istr = request.inputStream;
+        istr.startEncapsulation();
+        string iceP_id = istr.readString();
+        istr.endEncapsulation();
+        bool ret = obj.ice_isA(iceP_id, request.current);
+        return new(request.current.createOutgoingResponse(ret, static (ostr, ret) => ostr.writeBool(ret)));
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    protected static ValueTask<OutgoingResponse> iceD_ice_pingAsync(Object obj, IncomingRequest request)
+    {
+        InputStream istr = request.inputStream;
+        istr.skipEmptyEncapsulation();
+        obj.ice_ping(request.current);
+        return new(request.current.createEmptyOutgoingResponse());
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    protected static ValueTask<OutgoingResponse> iceD_ice_idsAsync(Object obj, IncomingRequest request)
+    {
+        InputStream istr = request.inputStream;
+        istr.skipEmptyEncapsulation();
+        string[] ret = obj.ice_ids(request.current);
+        return new(request.current.createOutgoingResponse(ret, static (ostr, ret) => ostr.writeStringSeq(ret)));
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    protected static ValueTask<OutgoingResponse> iceD_ice_idAsync(Object obj, IncomingRequest request)
+    {
+        InputStream istr = request.inputStream;
+        istr.skipEmptyEncapsulation();
+        string ret = obj.ice_id(request.current);
+        return new(request.current.createOutgoingResponse(ret, static (ostr, ret) => ostr.writeString(ret)));
+    }
 }
 
 /// <summary>
@@ -98,17 +136,6 @@ public abstract class ObjectImpl : Object
         inS.endWriteParams(ostr);
         inS.setResult(ostr);
         return null;
-    }
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    protected static ValueTask<OutgoingResponse> iceD_ice_isAAsync(Object obj, IncomingRequest request)
-    {
-        InputStream istr = request.inputStream;
-        istr.startEncapsulation();
-        string iceP_id = istr.readString();
-        istr.endEncapsulation();
-        bool ret = obj.ice_isA(iceP_id, request.current);
-        return new(request.current.createOutgoingResponse(ret, static (ostr, ret) => ostr.writeBool(ret)));
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -161,6 +188,16 @@ public abstract class ObjectImpl : Object
     {
         "ice_id", "ice_ids", "ice_isA", "ice_ping"
     };
+
+    public virtual ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request) =>
+        request.current.operation switch
+        {
+            "ice_id" => Object.iceD_ice_idAsync(this, request),
+            "ice_ids" => Object.iceD_ice_idsAsync(this, request),
+            "ice_isA" => Object.iceD_ice_isAAsync(this, request),
+            "ice_ping" => Object.iceD_ice_pingAsync(this, request),
+            _ => throw new OperationNotExistException()
+        };
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual Task<OutputStream>? iceDispatch(Ice.Internal.Incoming inc, Current current)

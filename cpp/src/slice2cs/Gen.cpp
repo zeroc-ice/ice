@@ -376,63 +376,6 @@ Slice::CsVisitor::writeInheritedOperations(const InterfaceDefPtr& p)
 }
 
 void
-Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
-{
-    string name = fixId(p->name());
-    string scoped = p->scoped();
-    string ns = getNamespace(p);
-
-    _out << sp << nl << "#region Slice type-related members";
-    _out << sp;
-    _out << nl << "public override string ice_id(" << getUnqualified("Ice.Current", ns)
-         << " current) => ice_staticId();";
-
-    _out << sp;
-    _out << nl << "public static new string ice_staticId() => \"" << scoped << "\";";
-
-    _out << sp << nl << "#endregion"; // Slice type-related members
-
-    OperationList ops = p->operations();
-    if (ops.size() != 0)
-    {
-        _out << sp << nl << "#region Operation dispatch";
-    }
-
-    OperationList allOps = p->allOperations();
-    if (!allOps.empty())
-    {
-        _out << sp;
-        _out << nl << "public override global::System.Threading.Tasks.Task<" << getUnqualified("Ice.OutputStream", ns)
-             << ">?";
-        _out << nl << "iceDispatch(global::Ice.Internal.Incoming inS, " << getUnqualified("Ice.Current", ns)
-             << " current)";
-        _out << sb;
-        _out << sp << nl << "return current.operation switch";
-        _out << sb;
-        for (const auto& op : allOps)
-        {
-            string opName = op->name();
-            _out << nl << '"' << opName << "\" => " << getUnqualified(op->interface(), ns) << ".iceD_" << opName
-                << "(this, inS, current),";
-        }
-        for (const auto& opName : {"ice_id", "ice_ids", "ice_isA", "ice_ping"})
-        {
-            _out << nl << '"' << opName << "\" => " << getUnqualified("Ice.ObjectImpl", ns)
-                    << ".iceD_" << opName << "(this, inS, current),";
-        }
-        _out << nl << "_ => throw new " << getUnqualified("Ice.OperationNotExistException()", ns);
-        _out << eb;
-        _out << ";";
-        _out << eb;
-    }
-
-    if (ops.size() != 0)
-    {
-        _out << sp << nl << "#endregion"; // Operation dispatch
-    }
-}
-
-void
 Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
 {
     string name = fixId(p->name());
@@ -3941,6 +3884,17 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
 
     writeInheritedOperations(p);
+
+    _out << sp << nl << "#region Slice type-related members";
+    _out << sp;
+    _out << nl << "public override string ice_id(" << getUnqualified("Ice.Current", ns)
+         << " current) => ice_staticId();";
+
+    _out << sp;
+    _out << nl << "public static new string ice_staticId() => \"" << p->scoped() << "\";";
+
+    _out << sp << nl << "#endregion"; // Slice type-related members
+
     writeDispatch(p);
 
     return true;
@@ -3949,4 +3903,100 @@ void
 Slice::Gen::DispatcherVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 {
     _out << eb;
+}
+
+void
+Slice::Gen::DispatcherVisitor::writeDispatch(const InterfaceDefPtr& p)
+{
+    writeDispatchOld(p);
+
+    string name = fixId(p->name());
+    string scoped = p->scoped();
+    string ns = getNamespace(p);
+
+    OperationList ops = p->operations();
+    if (ops.size() != 0)
+    {
+        _out << sp << nl << "#region Operation dispatch";
+    }
+
+    OperationList allOps = p->allOperations();
+    if (!allOps.empty())
+    {
+        _out << sp;
+        _out << nl << "public override global::System.Threading.Tasks.ValueTask<"
+            << getUnqualified("Ice.OutgoingResponse", ns) << "> dispatchAsync("
+            << getUnqualified("Ice.IncomingRequest", ns) << " request) =>";
+        _out.inc();
+        _out << nl << "request.current.operation switch";
+        _out << sb;
+        for (const auto& op : allOps)
+        {
+            string opName = op->name();
+            _out << nl << '"' << opName << "\" => " << getUnqualified(op->interface(), ns) << ".iceD_" << opName
+                << "Async(this, request),";
+        }
+        for (const auto& opName : {"ice_id", "ice_ids", "ice_isA", "ice_ping"})
+        {
+            _out << nl << '"' << opName << "\" => " << getUnqualified("Ice.Object", ns)
+                    << ".iceD_" << opName << "Async(this, request),";
+        }
+        _out << nl << "_ => throw new " << getUnqualified("Ice.OperationNotExistException()", ns);
+        _out << eb;
+        _out << ";";
+        _out.dec();
+    }
+
+    if (ops.size() != 0)
+    {
+        _out << sp << nl << "#endregion"; // Operation dispatch
+    }
+
+}
+
+void
+Slice::Gen::DispatcherVisitor::writeDispatchOld(const InterfaceDefPtr& p)
+{
+    string name = fixId(p->name());
+    string scoped = p->scoped();
+    string ns = getNamespace(p);
+
+    OperationList ops = p->operations();
+    if (ops.size() != 0)
+    {
+        _out << sp << nl << "#region Operation dispatch";
+    }
+
+    OperationList allOps = p->allOperations();
+    if (!allOps.empty())
+    {
+        _out << sp;
+        _out << nl << "public override global::System.Threading.Tasks.Task<" << getUnqualified("Ice.OutputStream", ns)
+             << ">?";
+        _out << nl << "iceDispatch(global::Ice.Internal.Incoming inS, " << getUnqualified("Ice.Current", ns)
+             << " current)";
+        _out << sb;
+        _out << sp << nl << "return current.operation switch";
+        _out << sb;
+        for (const auto& op : allOps)
+        {
+            string opName = op->name();
+            _out << nl << '"' << opName << "\" => " << getUnqualified(op->interface(), ns) << ".iceD_" << opName
+                << "(this, inS, current),";
+        }
+        for (const auto& opName : {"ice_id", "ice_ids", "ice_isA", "ice_ping"})
+        {
+            _out << nl << '"' << opName << "\" => " << getUnqualified("Ice.ObjectImpl", ns)
+                    << ".iceD_" << opName << "(this, inS, current),";
+        }
+        _out << nl << "_ => throw new " << getUnqualified("Ice.OperationNotExistException()", ns);
+        _out << eb;
+        _out << ";";
+        _out << eb;
+    }
+
+    if (ops.size() != 0)
+    {
+        _out << sp << nl << "#endregion"; // Operation dispatch
+    }
 }

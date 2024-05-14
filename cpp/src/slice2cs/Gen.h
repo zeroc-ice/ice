@@ -28,7 +28,6 @@ namespace Slice
         void writeUnmarshalDataMember(const DataMemberPtr&, const std::string&, const std::string&, bool = false);
 
         virtual void writeInheritedOperations(const InterfaceDefPtr&);
-        virtual void writeDispatch(const InterfaceDefPtr&);
         virtual void writeMarshaling(const ClassDefPtr&);
 
         static std::vector<std::string> getParams(const OperationPtr&, const std::string&);
@@ -203,6 +202,10 @@ namespace Slice
             virtual void visitModuleEnd(const ModulePtr&);
             virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
             virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
+
+        private:
+            void writeDispatch(const InterfaceDefPtr&);
+            void writeDispatchOld(const InterfaceDefPtr&);
         };
     };
 }
