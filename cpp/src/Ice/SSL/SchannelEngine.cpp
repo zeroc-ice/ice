@@ -1260,11 +1260,6 @@ Schannel::SSLEngine::newCredentialsHandle(bool incoming) const
         // Don't set SCH_SEND_ROOT_CERT as it seems to cause problems with Java certificate validation and Schannel
         // doesn't seems to send the root certificate either way.
         cred.dwFlags = SCH_CRED_NO_SYSTEM_MAPPER | SCH_CRED_DISABLE_RECONNECTS;
-
-        // There's no way to prevent Schannel from sending "CA names" to the client. Recent Windows versions don't CA
-        // names but older ones do send all the trusted root CA names. We provide the root store to ensure that for
-        // these older Windows versions, we also include the CA names of our trusted roots.
-        cred.hRootStore = _rootStore;
     }
     else
     {
