@@ -382,53 +382,13 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
     string scoped = p->scoped();
     string ns = getNamespace(p);
 
-    StringList ids = p->ids();
-
     _out << sp << nl << "#region Slice type-related members";
+    _out << sp;
+    _out << nl << "public override string ice_id(" << getUnqualified("Ice.Current", ns)
+        << " current) => ice_staticId();";
 
     _out << sp;
-
-    _out << nl << "private static readonly string[] _ids =";
-    _out << sb;
-    {
-        StringList::const_iterator q = ids.begin();
-        while (q != ids.end())
-        {
-            _out << nl << '"' << *q << '"';
-            if (++q != ids.end())
-            {
-                _out << ',';
-            }
-        }
-    }
-    _out << eb << ";";
-
-    _out << sp;
-    _out << nl << "public override bool ice_isA(string s, " << getUnqualified("Ice.Current", ns) << " current)";
-    _out << sb;
-    _out
-        << nl
-        << "return global::System.Array.BinarySearch(_ids, s, Ice.UtilInternal.StringUtil.OrdinalStringComparer) >= 0;";
-    _out << eb;
-
-    _out << sp;
-    _out << nl << "public override string[] ice_ids(" << getUnqualified("Ice.Current", ns) << " current)";
-    _out << sb;
-    _out << nl << "return _ids;";
-    _out << eb;
-
-    _out << sp;
-    _out << nl << "public override string ice_id(" << getUnqualified("Ice.Current", ns) << " current)";
-    _out << sb;
-    _out << nl << "return ice_staticId();";
-    _out << eb;
-
-    _out << sp;
-
-    _out << nl << "public static new string ice_staticId()";
-    _out << sb;
-    _out << nl << "return \"" << scoped << "\";";
-    _out << eb;
+    _out << nl << "public static new string ice_staticId() => \"" << scoped << "\";";
 
     _out << sp << nl << "#endregion"; // Slice type-related members
 
@@ -2147,6 +2107,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     emitComVisibleAttribute();
     emitPartialTypeAttributes();
+    _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
     _out << nl << "public partial interface " << fixId(name);
     baseNames.push_back(getUnqualified("Ice.Object", ns));
     baseNames.push_back(name + "Operations_");
