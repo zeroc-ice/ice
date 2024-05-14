@@ -898,7 +898,7 @@ Schannel::TransceiverI::TransceiverI(
                 ssl,          // The SSL context handle.
                 true,         // This is an incoming connection.
                 "",           // The target host, empty for incoming connections.
-                _clientCertificateRequired, // Wether or not the peer must provide a certificate.
+                _clientCertificateRequired, // Whether or not the peer must provide a certificate.
                 0,                          // Disable revocation checking.
                 false);                     // Whether or not revocation checks only uses cached information.
         };
