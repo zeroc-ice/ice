@@ -82,7 +82,8 @@
         "functional": "cpp",
         "__memory": "cpp",
         "chrono": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "xstring": "cpp"
     },
     "C_Cpp.default.cppStandard": "c++20",
 }

@@ -50,6 +50,262 @@ namespace
 {
     mutex globalMutex;
 
+    string errorStatusToString(DWORD errorStatus)
+    {
+        assert(errorStatus != CERT_TRUST_NO_ERROR);
+        ostringstream os;
+        os << "SSL transport: certificate verification failure:";
+
+        if (errorStatus & CERT_TRUST_IS_NOT_TIME_VALID)
+        {
+            os << "\n  - This certificate or one of the certificates in the certificate chain is not time valid.";
+        }
+
+        if (errorStatus & CERT_TRUST_IS_REVOKED)
+        {
+            os << "\n  - Trust for this certificate or one of the certificates in the certificate chain has been "
+                  "revoked.";
+        }
+
+        if (errorStatus & CERT_TRUST_IS_NOT_SIGNATURE_VALID)
+        {
+            os << "\n  - The certificate or one of the certificates in the certificate chain does not have a valid "
+                  "signature.";
+        }
+
+        if (errorStatus & CERT_TRUST_IS_NOT_VALID_FOR_USAGE)
+        {
+            os << "\n  - The certificate or certificate chain is not valid for its proposed usage.";
+        }
+
+        if (errorStatus & CERT_TRUST_IS_UNTRUSTED_ROOT)
+        {
+            os << "\n  - The certificate or certificate chain is based on an untrusted root.";
+        }
+
+        if (errorStatus & CERT_TRUST_REVOCATION_STATUS_UNKNOWN)
+        {
+            os << "\n  - The revocation status of the certificate or one of the certificates in the certificate "
+                  "chain is unknown.";
+        }
+
+        if (errorStatus & CERT_TRUST_IS_CYCLIC)
+        {
+            os << "\n  - One of the certificates in the chain was issued by a certificate in the chain.";
+        }
+
+        if (errorStatus & CERT_TRUST_INVALID_EXTENSION)
+        {
+            os << "\n  - One of the certificates has an extension that is not valid.";
+        }
+
+        if (errorStatus & CERT_TRUST_INVALID_POLICY_CONSTRAINTS)
+        {
+            os << "\n  - The certificate or one of the certificates in the certificate chain has a policy "
+                  "constraints extension, and one of the issued certificates has a disallowed policy mapping "
+                  "extension or does not have a required issuance policies extension.";
+        }
+
+        if (errorStatus & CERT_TRUST_INVALID_BASIC_CONSTRAINTS)
+        {
+            os << "\n  - The certificate or one of the certificates in the certificate chain has a basic "
+                  "constraints "
+                  "extension, and either the certificate cannot be used to issue other certificates, or the chain "
+                  "path length has been exceeded.";
+        }
+
+        if (errorStatus & CERT_TRUST_HAS_NOT_SUPPORTED_NAME_CONSTRAINT)
+        {
+            os << "\n  - The certificate or one of the certificates in the certificate chain has a name "
+                  "constraints extension that contains unsupported fields.";
+        }
+
+        if (errorStatus & CERT_TRUST_HAS_NOT_DEFINED_NAME_CONSTRAINT)
+        {
+            os << "\n  - The certificate or one of the certificates in the certificate chain has a name "
+                  "constraints extension and a name constraint is missing for one of the name choices in the end "
+                  "certificate.";
+        }
+
+        if (errorStatus & CERT_TRUST_HAS_NOT_PERMITTED_NAME_CONSTRAINT)
+        {
+            os << "\n  - The certificate or one of the certificates in the certificate chain has a name "
+                  "constraints extension, and there is not a permitted name constraint for one of the name choices "
+                  "in the end certificate.";
+        }
+
+        if (errorStatus & CERT_TRUST_HAS_EXCLUDED_NAME_CONSTRAINT)
+        {
+            os << "\n  - The certificate or one of the certificates in the certificate chain has a name "
+                  "constraints extension, and one of the name choices in the end certificate is explicitly "
+                  "excluded.";
+        }
+
+        if (errorStatus & CERT_TRUST_IS_OFFLINE_REVOCATION)
+        {
+            os << "\n  - The revocation status of the certificate or one of the certificates in the certificate "
+                  "chain is either offline or stale.";
+        }
+
+        if (errorStatus & CERT_TRUST_NO_ISSUANCE_CHAIN_POLICY)
+        {
+            os << "\n  - The end certificate does not have any resultant issuance policies, and one of the issuing "
+                  "certification authority certificates has a policy constraints extension requiring it.";
+        }
+
+        if (errorStatus & CERT_TRUST_IS_EXPLICIT_DISTRUST)
+        {
+            os << "\n  - The certificate is explicitly distrusted.";
+        }
+
+        if (errorStatus & CERT_TRUST_HAS_NOT_SUPPORTED_CRITICAL_EXT)
+        {
+            os << "\n  - The certificate does not support a critical extension.";
+        }
+
+        if (errorStatus & CERT_TRUST_HAS_WEAK_SIGNATURE)
+        {
+            os << "\n  - The certificate has not been strong signed.";
+        }
+
+        if (errorStatus & CERT_TRUST_IS_PARTIAL_CHAIN)
+        {
+            os << "\n  - The certificate chain is not complete.";
+        }
+
+        if (errorStatus & CERT_TRUST_CTL_IS_NOT_TIME_VALID)
+        {
+            os << "\n  - A certificate trust list (CTL) used to create this chain was not time valid.";
+        }
+
+        if (errorStatus & CERT_TRUST_CTL_IS_NOT_SIGNATURE_VALID)
+        {
+            os << "\n  - A CTL used to create this chain did not have a valid signature.";
+        }
+
+        if (errorStatus & CERT_TRUST_CTL_IS_NOT_VALID_FOR_USAGE)
+        {
+            os << "\n  - A CTL used to create this chain is not valid for this usage.";
+        }
+
+        return os.str();
+    }
+
+    string policyStatusToString(DWORD policyStatus)
+    {
+        assert(policyStatus);
+        ostringstream os;
+        switch (policyStatus)
+        {
+            case TRUST_E_CERT_SIGNATURE:
+            {
+                os << "The signature of the certificate cannot be verified.";
+                break;
+            }
+            case CRYPT_E_REVOKED:
+            {
+                os << "The certificate or signature has been revoked.";
+                break;
+            }
+            case CERT_E_UNTRUSTEDROOT:
+            {
+                os << "A certification chain processed correctly but terminated in a root certificate that is not "
+                      "trusted by "
+                      "the trust provider.";
+                break;
+            }
+            case CERT_E_UNTRUSTEDTESTROOT:
+            {
+                os << "The root certificate is a testing certificate, and policy settings disallow test certificates.";
+                break;
+            }
+            case CERT_E_CHAINING:
+            {
+                os << "A chain of certificates was not correctly created.";
+                break;
+            }
+            case CERT_E_WRONG_USAGE:
+            {
+                os << "The certificate is not valid for the requested usage.";
+                break;
+            }
+            case CERT_E_EXPIRED:
+            {
+                os << "A required certificate is not within its validity period.";
+                break;
+            }
+            case CERT_E_INVALID_NAME:
+            {
+                os << "The certificate has an invalid name. Either the name is not included in the permitted list, or "
+                      "it is "
+                      "explicitly excluded.";
+                break;
+            }
+            case CERT_E_INVALID_POLICY:
+            {
+                os << "The certificate has invalid policy.";
+                break;
+            }
+            case TRUST_E_BASIC_CONSTRAINTS:
+            {
+                os << "The basic constraints of the certificate are not valid, or they are missing.";
+                break;
+            }
+            case CERT_E_CRITICAL:
+            {
+                os << "The certificate is being used for a purpose other than the purpose specified by its CA.";
+                break;
+            }
+            case CERT_E_VALIDITYPERIODNESTING:
+            {
+                os << "The validity periods of the certification chain do not nest correctly.";
+                break;
+            }
+            case CRYPT_E_NO_REVOCATION_CHECK:
+            {
+                os << "The revocation function was unable to check revocation for the certificate.";
+                break;
+            }
+            case CRYPT_E_REVOCATION_OFFLINE:
+            {
+                os << "The revocation function was unable to check revocation because the revocation server was "
+                      "offline.";
+                break;
+            }
+            case CERT_E_CN_NO_MATCH:
+            {
+                os << "The certificate's CN name does not match the passed value.";
+                break;
+            }
+            case CERT_E_PURPOSE:
+            {
+                os << "The certificate is being used for a purpose other than the purpose specified by its CA.";
+                break;
+            }
+            case CERT_E_REVOKED:
+            {
+                os << "The certificate has been explicitly revoked by the issuer.";
+                break;
+            }
+            case CERT_E_REVOCATION_FAILURE:
+            {
+                os << "The revocation process could not continue, and the certificate could not be checked.";
+                break;
+            }
+            case CERT_E_ROLE:
+            {
+                os << "The certificate does not have a valid role.";
+                break;
+            }
+            default:
+            {
+                os << "Unknown policy status: " << policyStatus;
+                break;
+            }
+        }
+        return os.str();
+    }
+
     void addMatchingCertificates(HCERTSTORE source, HCERTSTORE target, DWORD findType, const void* findParam)
     {
         PCCERT_CONTEXT next = 0;
@@ -1008,17 +1264,13 @@ Schannel::SSLEngine::newCredentialsHandle(bool incoming) const
         // There's no way to prevent Schannel from sending "CA names" to the client. Recent Windows versions don't CA
         // names but older ones do send all the trusted root CA names. We provide the root store to ensure that for
         // these older Windows versions, we also include the CA names of our trusted roots.
-        cred.hRootStore = _rootStore;
+        // cred.hRootStore = _rootStore;
     }
     else
     {
-        cred.dwFlags = SCH_CRED_MANUAL_CRED_VALIDATION | SCH_CRED_NO_SERVERNAME_CHECK | SCH_CRED_NO_DEFAULT_CREDS;
+        cred.dwFlags = SCH_CRED_NO_SERVERNAME_CHECK | SCH_CRED_NO_DEFAULT_CREDS;
     }
-
-    if (_strongCrypto)
-    {
-        cred.dwFlags |= SCH_USE_STRONG_CRYPTO;
-    }
+    cred.dwFlags |= SCH_USE_STRONG_CRYPTO;
     return cred;
 }
 
@@ -1082,7 +1334,27 @@ Schannel::SSLEngine::createClientAuthenticationOptions(const string& host) const
         .trustedRootCertificates = _rootStore,
         .serverCertificateValidationCallback = [self = shared_from_this(),
                                                 host](CtxtHandle ssl, const ConnectionInfoPtr& info) -> bool
-        { return self->validationCallback(ssl, info, false, host); }};
+        {
+            bool ok = Schannel::SSLEngine::validationCallback(
+                self->_chainEngine, // The chain engine configured to trust the provided trusted root certificates.
+                ssl,                // The SSL context handle.
+                false,              // This is an outgoing connection.
+                host,               // The target host.
+                true,               // Wether or not the peer must provide a certificate.
+                self->getRevocationCheck(),
+                self->getRevocationCheckCacheOnly());
+            if (self->getCheckCertName() && info->peerCertificate && !host.empty())
+            {
+                verifyPeerCertName(
+                    info->peerCertificate,
+                    host,
+                    self->getLogger(),
+                    self->securityTraceLevel(),
+                    self->securityTraceCategory());
+            }
+            self->verifyPeer(info);
+            return ok;
+        }};
 }
 
 Ice::SSL::ServerAuthenticationOptions
@@ -1105,7 +1377,18 @@ Schannel::SSLEngine::createServerAuthenticationOptions() const
         .trustedRootCertificates = _rootStore,
         .clientCertificateValidationCallback =
             [self = shared_from_this()](CtxtHandle ssl, const ConnectionInfoPtr& info) -> bool
-        { return self->validationCallback(ssl, info, true, ""); }};
+        {
+            bool ok = Schannel::SSLEngine::validationCallback(
+                self->_chainEngine, // The chain engine configured to trust the provided trusted root certificates.
+                ssl,                // The SSL context handle.
+                true,               // This is an incoming connection.
+                "",                 // The target host, empty for incoming connections.
+                self->getVerifyPeer() > 1, // Wether or not the peer must provide a certificate.
+                self->getRevocationCheck(),
+                self->getRevocationCheckCacheOnly());
+            self->verifyPeer(info);
+            return ok;
+        }};
 }
 
 namespace
@@ -1120,15 +1403,18 @@ namespace
 
 bool
 Schannel::SSLEngine::validationCallback(
+    HCERTCHAINENGINE chainEngine,
     CtxtHandle ssl,
-    const ConnectionInfoPtr& info,
     bool incoming,
-    const string& host) const
+    const string& host,
+    bool certificateRequired,
+    int revocationCheck,
+    bool revocationCheckCacheOnly)
 {
     // Build the peer certificate chain and verify it.
     PCCERT_CONTEXT cert = nullptr;
     SECURITY_STATUS err = QueryContextAttributes(&ssl, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &cert);
-    bool certificateRequired = !incoming || getVerifyPeer() > 1;
+
     if (err && (err != SEC_E_NO_CREDENTIALS || certificateRequired))
     {
         ostringstream os;
@@ -1146,10 +1432,9 @@ Schannel::SSLEngine::validationCallback(
         string trustError;
         PCCERT_CHAIN_CONTEXT certChain;
         DWORD dwFlags = 0;
-        int revocationCheck = getRevocationCheck();
         if (revocationCheck > 0)
         {
-            if (getRevocationCheckCacheOnly())
+            if (revocationCheckCacheOnly)
             {
                 // Disable network I/O for revocation checks.
                 dwFlags = CERT_CHAIN_REVOCATION_CHECK_CACHE_ONLY | CERT_CHAIN_DISABLE_AIA;
@@ -1160,7 +1445,15 @@ Schannel::SSLEngine::validationCallback(
                                       : CERT_CHAIN_REVOCATION_CHECK_CHAIN_EXCLUDE_ROOT);
         }
 
-        if (!CertGetCertificateChain(_chainEngine, cert, 0, cert->hCertStore, &chainP, dwFlags, 0, &certChain))
+        if (!CertGetCertificateChain(
+                chainEngine,
+                cert,
+                nullptr,
+                cert->hCertStore,
+                &chainP,
+                dwFlags,
+                nullptr,
+                &certChain))
         {
             ostringstream os;
             os << "SSL transport: certificate verification failure:\n" << lastErrorToString();
@@ -1204,270 +1497,6 @@ Schannel::SSLEngine::validationCallback(
             os << "SSL transport: certificate verification failure:\n" << policyStatusToString(policyStatus.dwError);
             throw SecurityException(__FILE__, __LINE__, os.str());
         }
-
-        if (!incoming && getCheckCertName() && info->peerCertificate && !host.empty())
-        {
-            verifyPeerCertName(info->peerCertificate, host, getLogger(), securityTraceLevel(), securityTraceCategory());
-        }
-        verifyPeer(info);
     }
     return true;
-}
-
-string
-Schannel::SSLEngine::policyStatusToString(DWORD policyStatus) const
-{
-    assert(policyStatus);
-    ostringstream os;
-    switch (policyStatus)
-    {
-        case TRUST_E_CERT_SIGNATURE:
-        {
-            os << "The signature of the certificate cannot be verified.";
-            break;
-        }
-        case CRYPT_E_REVOKED:
-        {
-            os << "The certificate or signature has been revoked.";
-            break;
-        }
-        case CERT_E_UNTRUSTEDROOT:
-        {
-            os << "A certification chain processed correctly but terminated in a root certificate that is not "
-                  "trusted by "
-                  "the trust provider.";
-            break;
-        }
-        case CERT_E_UNTRUSTEDTESTROOT:
-        {
-            os << "The root certificate is a testing certificate, and policy settings disallow test certificates.";
-            break;
-        }
-        case CERT_E_CHAINING:
-        {
-            os << "A chain of certificates was not correctly created.";
-            break;
-        }
-        case CERT_E_WRONG_USAGE:
-        {
-            os << "The certificate is not valid for the requested usage.";
-            break;
-        }
-        case CERT_E_EXPIRED:
-        {
-            os << "A required certificate is not within its validity period.";
-            break;
-        }
-        case CERT_E_INVALID_NAME:
-        {
-            os << "The certificate has an invalid name. Either the name is not included in the permitted list, or "
-                  "it is "
-                  "explicitly excluded.";
-            break;
-        }
-        case CERT_E_INVALID_POLICY:
-        {
-            os << "The certificate has invalid policy.";
-            break;
-        }
-        case TRUST_E_BASIC_CONSTRAINTS:
-        {
-            os << "The basic constraints of the certificate are not valid, or they are missing.";
-            break;
-        }
-        case CERT_E_CRITICAL:
-        {
-            os << "The certificate is being used for a purpose other than the purpose specified by its CA.";
-            break;
-        }
-        case CERT_E_VALIDITYPERIODNESTING:
-        {
-            os << "The validity periods of the certification chain do not nest correctly.";
-            break;
-        }
-        case CRYPT_E_NO_REVOCATION_CHECK:
-        {
-            os << "The revocation function was unable to check revocation for the certificate.";
-            break;
-        }
-        case CRYPT_E_REVOCATION_OFFLINE:
-        {
-            os << "The revocation function was unable to check revocation because the revocation server was "
-                  "offline.";
-            break;
-        }
-        case CERT_E_CN_NO_MATCH:
-        {
-            os << "The certificate's CN name does not match the passed value.";
-            break;
-        }
-        case CERT_E_PURPOSE:
-        {
-            os << "The certificate is being used for a purpose other than the purpose specified by its CA.";
-            break;
-        }
-        case CERT_E_REVOKED:
-        {
-            os << "The certificate has been explicitly revoked by the issuer.";
-            break;
-        }
-        case CERT_E_REVOCATION_FAILURE:
-        {
-            os << "The revocation process could not continue, and the certificate could not be checked.";
-            break;
-        }
-        case CERT_E_ROLE:
-        {
-            os << "The certificate does not have a valid role.";
-            break;
-        }
-        default:
-        {
-            os << "Unknown policy status: " << policyStatus;
-            break;
-        }
-    }
-    return os.str();
-}
-
-string
-Schannel::SSLEngine::errorStatusToString(DWORD errorStatus) const
-{
-    assert(errorStatus != CERT_TRUST_NO_ERROR);
-    ostringstream os;
-    os << "SSL transport: certificate verification failure:";
-
-    if (errorStatus & CERT_TRUST_IS_NOT_TIME_VALID)
-    {
-        os << "\n  - This certificate or one of the certificates in the certificate chain is not time valid.";
-    }
-
-    if (errorStatus & CERT_TRUST_IS_REVOKED)
-    {
-        os << "\n  - Trust for this certificate or one of the certificates in the certificate chain has been "
-              "revoked.";
-    }
-
-    if (errorStatus & CERT_TRUST_IS_NOT_SIGNATURE_VALID)
-    {
-        os << "\n  - The certificate or one of the certificates in the certificate chain does not have a valid "
-              "signature.";
-    }
-
-    if (errorStatus & CERT_TRUST_IS_NOT_VALID_FOR_USAGE)
-    {
-        os << "\n  - The certificate or certificate chain is not valid for its proposed usage.";
-    }
-
-    if (errorStatus & CERT_TRUST_IS_UNTRUSTED_ROOT)
-    {
-        os << "\n  - The certificate or certificate chain is based on an untrusted root.";
-    }
-
-    if (errorStatus & CERT_TRUST_REVOCATION_STATUS_UNKNOWN)
-    {
-        os << "\n  - The revocation status of the certificate or one of the certificates in the certificate "
-              "chain is unknown.";
-    }
-
-    if (errorStatus & CERT_TRUST_IS_CYCLIC)
-    {
-        os << "\n  - One of the certificates in the chain was issued by a certificate in the chain.";
-    }
-
-    if (errorStatus & CERT_TRUST_INVALID_EXTENSION)
-    {
-        os << "\n  - One of the certificates has an extension that is not valid.";
-    }
-
-    if (errorStatus & CERT_TRUST_INVALID_POLICY_CONSTRAINTS)
-    {
-        os << "\n  - The certificate or one of the certificates in the certificate chain has a policy "
-              "constraints extension, and one of the issued certificates has a disallowed policy mapping "
-              "extension or does not have a required issuance policies extension.";
-    }
-
-    if (errorStatus & CERT_TRUST_INVALID_BASIC_CONSTRAINTS)
-    {
-        os << "\n  - The certificate or one of the certificates in the certificate chain has a basic "
-              "constraints "
-              "extension, and either the certificate cannot be used to issue other certificates, or the chain "
-              "path length has been exceeded.";
-    }
-
-    if (errorStatus & CERT_TRUST_HAS_NOT_SUPPORTED_NAME_CONSTRAINT)
-    {
-        os << "\n  - The certificate or one of the certificates in the certificate chain has a name "
-              "constraints extension that contains unsupported fields.";
-    }
-
-    if (errorStatus & CERT_TRUST_HAS_NOT_DEFINED_NAME_CONSTRAINT)
-    {
-        os << "\n  - The certificate or one of the certificates in the certificate chain has a name "
-              "constraints extension and a name constraint is missing for one of the name choices in the end "
-              "certificate.";
-    }
-
-    if (errorStatus & CERT_TRUST_HAS_NOT_PERMITTED_NAME_CONSTRAINT)
-    {
-        os << "\n  - The certificate or one of the certificates in the certificate chain has a name "
-              "constraints extension, and there is not a permitted name constraint for one of the name choices "
-              "in the end certificate.";
-    }
-
-    if (errorStatus & CERT_TRUST_HAS_EXCLUDED_NAME_CONSTRAINT)
-    {
-        os << "\n  - The certificate or one of the certificates in the certificate chain has a name "
-              "constraints extension, and one of the name choices in the end certificate is explicitly "
-              "excluded.";
-    }
-
-    if (errorStatus & CERT_TRUST_IS_OFFLINE_REVOCATION)
-    {
-        os << "\n  - The revocation status of the certificate or one of the certificates in the certificate "
-              "chain is either offline or stale.";
-    }
-
-    if (errorStatus & CERT_TRUST_NO_ISSUANCE_CHAIN_POLICY)
-    {
-        os << "\n  - The end certificate does not have any resultant issuance policies, and one of the issuing "
-              "certification authority certificates has a policy constraints extension requiring it.";
-    }
-
-    if (errorStatus & CERT_TRUST_IS_EXPLICIT_DISTRUST)
-    {
-        os << "\n  - The certificate is explicitly distrusted.";
-    }
-
-    if (errorStatus & CERT_TRUST_HAS_NOT_SUPPORTED_CRITICAL_EXT)
-    {
-        os << "\n  - The certificate does not support a critical extension.";
-    }
-
-    if (errorStatus & CERT_TRUST_HAS_WEAK_SIGNATURE)
-    {
-        os << "\n  - The certificate has not been strong signed.";
-    }
-
-    if (errorStatus & CERT_TRUST_IS_PARTIAL_CHAIN)
-    {
-        os << "\n  - The certificate chain is not complete.";
-    }
-
-    if (errorStatus & CERT_TRUST_CTL_IS_NOT_TIME_VALID)
-    {
-        os << "\n  - A certificate trust list (CTL) used to create this chain was not time valid.";
-    }
-
-    if (errorStatus & CERT_TRUST_CTL_IS_NOT_SIGNATURE_VALID)
-    {
-        os << "\n  - A CTL used to create this chain did not have a valid signature.";
-    }
-
-    if (errorStatus & CERT_TRUST_CTL_IS_NOT_VALID_FOR_USAGE)
-    {
-        os << "\n  - A CTL used to create this chain is not valid for this usage.";
-    }
-
-    return os.str();
 }

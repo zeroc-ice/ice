@@ -63,6 +63,32 @@ namespace
         }
         return 0;
     }
+
+    HCERTCHAINENGINE defaultChainEngine(HCERTSTORE trustedRootCertificates)
+    {
+        if (trustedRootCertificates)
+        {
+            // Create a chain engine that uses our Trusted Root Store
+            CERT_CHAIN_ENGINE_CONFIG config;
+            memset(&config, 0, sizeof(CERT_CHAIN_ENGINE_CONFIG));
+            config.cbSize = sizeof(CERT_CHAIN_ENGINE_CONFIG);
+            config.hExclusiveRoot = trustedRootCertificates;
+
+            HCERTCHAINENGINE chainEngine;
+            if (!CertCreateCertificateChainEngine(&config, &chainEngine))
+            {
+                throw InitializationException(
+                    __FILE__,
+                    __LINE__,
+                    "SSL transport: error creating certificate chain engine:\n" + IceUtilInternal::lastErrorToString());
+            }
+            return chainEngine;
+        }
+        else
+        {
+            return HCCE_CURRENT_USER;
+        }
+    }
 }
 
 IceInternal::NativeInfoPtr
@@ -90,17 +116,16 @@ Schannel::TransceiverI::sslHandshake()
     if (_state == StateHandshakeNotStarted)
     {
         SCHANNEL_CRED cred = _engine->newCredentialsHandle(_incoming);
-        _certificate = _localCertificateSelectionCallback(_incoming ? _adapterName : _host);
-        if (_certificate)
+        if (_localCertificateSelectionCallback)
         {
-            cred.cCreds = 1;
-            cred.paCred = &_certificate;
+            _certificate = _localCertificateSelectionCallback(_incoming ? _adapterName : _host);
+            if (_certificate)
+            {
+                cred.cCreds = 1;
+                cred.paCred = &_certificate;
+            }
         }
-
-        if (_rootStore)
-        {
-            cred.hRootStore = _rootStore;
-        }
+        cred.hRootStore = _rootStore;
 
         memset(&_credentials, 0, sizeof(_credentials));
 
@@ -240,6 +265,7 @@ Schannel::TransceiverI::sslHandshake()
             {
                 ostringstream os;
                 os << "SSL handshake failure:\n" << IceUtilInternal::errorToString(err);
+                os << "\n - validating " << (_incoming ? "server" : "client") << " certificate";
                 throw SecurityException(__FILE__, __LINE__, os.str());
             }
 
@@ -621,6 +647,12 @@ Schannel::TransceiverI::close()
         _peerCertificate = nullptr;
     }
 
+    if (_chainEngine && _chainEngine != HCCE_CURRENT_USER)
+    {
+        CertFreeCertificateChainEngine(_chainEngine);
+        _chainEngine = nullptr;
+    }
+
     _delegate->close();
 
     // Clear the buffers now instead of waiting for destruction.
@@ -849,10 +881,29 @@ Schannel::TransceiverI::TransceiverI(
       _peerCertificate(nullptr),
       _remoteCertificateValidationCallback(serverAuthenticationOptions.clientCertificateValidationCallback),
       _certificate(nullptr),
-      _rootStore(nullptr),
+      _rootStore(serverAuthenticationOptions.trustedRootCertificates),
       _credentials({0, 0}),
-      _ssl({0, 0})
+      _ssl({0, 0}),
+      _chainEngine(nullptr)
 {
+    if (!_remoteCertificateValidationCallback)
+    {
+        // If the user didn't provide a validation callback. We setup a  default validation callback that exclusively
+        // trust the provided trusted root certificates if any, or uses the current user store if no trusted root
+        // certificates were provided. Schannel doesn't provide a default validation mechanism for client credentials.
+        _chainEngine = defaultChainEngine(_rootStore);
+        _remoteCertificateValidationCallback = [this](CtxtHandle ssl, const ConnectionInfoPtr&)
+        {
+            return SSLEngine::validationCallback(
+                _chainEngine, // The chain engine configured to trust the provided trusted root certificates.
+                ssl,          // The SSL context handle.
+                true,         // This is an incoming connection.
+                "",           // The target host, empty for incoming connections.
+                _clientCertificateRequired, // Wether or not the peer must provide a certificate.
+                0,                          // Disable revocation checking.
+                false);                     // Whether or not revocation checks only uses cached information.
+        };
+    }
 }
 
 Schannel::TransceiverI::TransceiverI(
@@ -874,10 +925,31 @@ Schannel::TransceiverI::TransceiverI(
       _peerCertificate(nullptr),
       _remoteCertificateValidationCallback(clientAuthenticationOptions.serverCertificateValidationCallback),
       _certificate(nullptr),
-      _rootStore(nullptr),
+      _rootStore(clientAuthenticationOptions.trustedRootCertificates),
       _credentials({0, 0}),
-      _ssl({0, 0})
+      _ssl({0, 0}),
+      _chainEngine(nullptr)
 {
+    if (_rootStore && !_remoteCertificateValidationCallback)
+    {
+        // If the user configured the trusted root certificates, but didn't provide a validation callback. We setup
+        // a default validation callback that exclusively trust the provided trusted root certificates.
+        _chainEngine = defaultChainEngine(_rootStore);
+        _remoteCertificateValidationCallback = [this](CtxtHandle ssl, const ConnectionInfoPtr&)
+        {
+            return SSLEngine::validationCallback(
+                _chainEngine, // The chain engine configured to trust the provided trusted root certificates.
+                ssl,          // The SSL context handle.
+                false,        // This is an outgoing connection.
+                _host,        // The target host.
+                true,         // Wether or not the peer must provide a certificate.
+                0,            // Disable revocation checking.
+                false);       // Whether or not revocation checks only uses cached information.
+        };
+    }
+    // If the user provides a validation callback is up to the callback to validate the certificate chain.
+    // If the user doesn't set the trusted root certificates, we use Schannel default behavior, with uses the system
+    // trusted root certificates.
 }
 
 Schannel::TransceiverI::~TransceiverI() {}
