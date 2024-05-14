@@ -798,11 +798,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
         }
     }
 
-    public bool systemException(int requestId, SystemException ex, bool amd)
-    {
-        return false; // System exceptions aren't marshaled.
-    }
-
     public void dispatchException(int requestId, LocalException ex, int requestCount, bool amd)
     {
         //

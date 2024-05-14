@@ -9,7 +9,5 @@ public interface ResponseHandler {
 
   void sendNoResponse();
 
-  boolean systemException(int requestId, com.zeroc.Ice.SystemException ex, boolean amd);
-
   void invokeException(int requestId, com.zeroc.Ice.LocalException ex, int invokeNum, boolean amd);
 }

@@ -128,13 +128,6 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
   }
 
   @Override
-  public boolean systemException(int requestId, com.zeroc.Ice.SystemException ex, boolean amd) {
-    handleException(requestId, ex, amd);
-    _adapter.decDirectCount();
-    return true;
-  }
-
-  @Override
   public void invokeException(
       int requestId, com.zeroc.Ice.LocalException ex, int batchRequestNum, boolean amd) {
     handleException(requestId, ex, amd);

@@ -40,10 +40,6 @@ class RetryI: Retry {
     throw Ice.ConnectionLostException(error: 1)
   }
 
-  func opSystemException(current _: Ice.Current) throws {
-    throw Ice.RuntimeError("")
-  }
-
   func sleep(delay: Int32, current _: Ice.Current) throws {
     Thread.sleep(forTimeInterval: Double(delay) / 1000.0)
   }

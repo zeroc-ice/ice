@@ -127,14 +127,6 @@ public class CollocatedRequestHandler : RequestHandler, ResponseHandler
         _adapter.decDirectCount();
     }
 
-    public bool
-    systemException(int requestId, Ice.SystemException ex, bool amd)
-    {
-        handleException(requestId, ex, amd);
-        _adapter.decDirectCount();
-        return true;
-    }
-
     public void
     dispatchException(int requestId, Ice.LocalException ex, int requestCount, bool amd)
     {
