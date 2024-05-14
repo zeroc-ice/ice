@@ -396,7 +396,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
     {
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.logger = logger;
-        initData.properties = Ice.Util.createProperties();
+        initData.properties = new Ice.Properties();
 
         Ice.Properties mainProps = communicator.getProperties();
 

@@ -778,23 +778,23 @@ namespace Ice
                     output.Write("testing ipv4 & ipv6 connections... ");
                     output.Flush();
 
-                    Ice.Properties ipv4 = Ice.Util.createProperties();
+                    Ice.Properties ipv4 = new Ice.Properties();
                     ipv4.setProperty("Ice.IPv4", "1");
                     ipv4.setProperty("Ice.IPv6", "0");
                     ipv4.setProperty("Adapter.Endpoints", "tcp -h localhost");
 
-                    Ice.Properties ipv6 = Ice.Util.createProperties();
+                    Ice.Properties ipv6 = new Ice.Properties();
                     ipv6.setProperty("Ice.IPv4", "0");
                     ipv6.setProperty("Ice.IPv6", "1");
                     ipv6.setProperty("Adapter.Endpoints", "tcp -h localhost");
 
-                    Ice.Properties bothPreferIPv4 = Ice.Util.createProperties();
+                    Ice.Properties bothPreferIPv4 = new Ice.Properties();
                     bothPreferIPv4.setProperty("Ice.IPv4", "1");
                     bothPreferIPv4.setProperty("Ice.IPv6", "1");
                     bothPreferIPv4.setProperty("Ice.PreferIPv6Address", "0");
                     bothPreferIPv4.setProperty("Adapter.Endpoints", "tcp -h localhost");
 
-                    Ice.Properties bothPreferIPv6 = Ice.Util.createProperties();
+                    Ice.Properties bothPreferIPv6 = new Ice.Properties();
                     bothPreferIPv6.setProperty("Ice.IPv4", "1");
                     bothPreferIPv6.setProperty("Ice.IPv6", "1");
                     bothPreferIPv6.setProperty("Ice.PreferIPv6Address", "1");
@@ -816,7 +816,7 @@ namespace Ice
                     anyipv6.setProperty("Adapter.Endpoints", endpoint);
                     anyipv6.setProperty("Adapter.PublishedEndpoints", endpoint + " -h \".1\"");
 
-                    Ice.Properties anyboth = Ice.Util.createProperties();
+                    Ice.Properties anyboth = new Ice.Properties();
                     anyboth.setProperty("Ice.IPv4", "1");
                     anyboth.setProperty("Ice.IPv6", "1");
                     anyboth.setProperty("Adapter.Endpoints", endpoint);

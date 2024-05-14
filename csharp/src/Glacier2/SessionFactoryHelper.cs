@@ -23,7 +23,7 @@ public class SessionFactoryHelper
     {
         _callback = callback;
         _initData = new Ice.InitializationData();
-        _initData.properties = Ice.Util.createProperties();
+        _initData.properties = new Ice.Properties();
         setDefaultProperties();
     }
 
@@ -39,7 +39,7 @@ public class SessionFactoryHelper
         _initData = initData;
         if (_initData.properties == null)
         {
-            _initData.properties = Ice.Util.createProperties();
+            _initData.properties = new Ice.Properties();
         }
         setDefaultProperties();
     }
