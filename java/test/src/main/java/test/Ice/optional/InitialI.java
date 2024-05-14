@@ -79,18 +79,8 @@ public final class InitialI implements Initial {
   }
 
   @Override
-  public Initial.OpByteReqResult opByteReq(Optional<Byte> p1, Current current) {
-    return new Initial.OpByteReqResult(p1, p1);
-  }
-
-  @Override
   public Initial.OpBoolResult opBool(Optional<Boolean> p1, Current current) {
     return new Initial.OpBoolResult(p1, p1);
-  }
-
-  @Override
-  public Initial.OpBoolReqResult opBoolReq(Optional<Boolean> p1, Current current) {
-    return new Initial.OpBoolReqResult(p1, p1);
   }
 
   @Override
@@ -99,22 +89,8 @@ public final class InitialI implements Initial {
   }
 
   @Override
-  public Initial.OpShortReqResult opShortReq(Optional<Short> p1, Current current) {
-    return new Initial.OpShortReqResult(p1, p1);
-  }
-
-  @Override
   public Initial.OpIntResult opInt(OptionalInt p1, Current current) {
-    if (p1.isPresent()) {
-      return new Initial.OpIntResult(p1.getAsInt(), p1.getAsInt());
-    } else {
-      return new Initial.OpIntResult(p1, p1);
-    }
-  }
-
-  @Override
-  public Initial.OpIntReqResult opIntReq(OptionalInt p1, Current current) {
-    return new Initial.OpIntReqResult(p1, p1);
+    return new Initial.OpIntResult(p1, p1);
   }
 
   @Override
@@ -123,22 +99,8 @@ public final class InitialI implements Initial {
   }
 
   @Override
-  public Initial.OpLongReqResult opLongReq(OptionalLong p1, Current current) {
-    return new Initial.OpLongReqResult(p1, p1);
-  }
-
-  @Override
   public Initial.OpFloatResult opFloat(Optional<Float> p1, Current current) {
-    if (p1.isPresent()) {
-      return new Initial.OpFloatResult(p1.get(), p1.get());
-    } else {
-      return new Initial.OpFloatResult(p1, p1);
-    }
-  }
-
-  @Override
-  public Initial.OpFloatReqResult opFloatReq(Optional<Float> p1, Current current) {
-    return new Initial.OpFloatReqResult(p1, p1);
+    return new Initial.OpFloatResult(p1, p1);
   }
 
   @Override
@@ -147,33 +109,13 @@ public final class InitialI implements Initial {
   }
 
   @Override
-  public Initial.OpDoubleReqResult opDoubleReq(OptionalDouble p1, Current current) {
-    return new Initial.OpDoubleReqResult(p1, p1);
-  }
-
-  @Override
   public Initial.OpStringResult opString(Optional<String> p1, Current current) {
     return new Initial.OpStringResult(p1, p1);
   }
 
   @Override
-  public Initial.OpStringReqResult opStringReq(Optional<String> p1, Current current) {
-    return new Initial.OpStringReqResult(p1, p1);
-  }
-
-  @Override
   public Initial.OpMyEnumResult opMyEnum(Optional<MyEnum> p1, Current current) {
-    if (p1.isPresent()) {
-      return new Initial.OpMyEnumResult(p1.get(), p1.get());
-    } else {
-      MyEnum e = null;
-      return new Initial.OpMyEnumResult(e, e);
-    }
-  }
-
-  @Override
-  public Initial.OpMyEnumReqResult opMyEnumReq(Optional<MyEnum> p1, Current current) {
-    return new Initial.OpMyEnumReqResult(p1, p1);
+    return new Initial.OpMyEnumResult(p1, p1);
   }
 
   @Override
@@ -182,20 +124,8 @@ public final class InitialI implements Initial {
   }
 
   @Override
-  public Initial.OpSmallStructReqResult opSmallStructReq(
-      Optional<SmallStruct> p1, Current current) {
-    return new Initial.OpSmallStructReqResult(p1, p1);
-  }
-
-  @Override
   public Initial.OpFixedStructResult opFixedStruct(Optional<FixedStruct> p1, Current current) {
     return new Initial.OpFixedStructResult(p1, p1);
-  }
-
-  @Override
-  public Initial.OpFixedStructReqResult opFixedStructReq(
-      Optional<FixedStruct> p1, Current current) {
-    return new Initial.OpFixedStructReqResult(p1, p1);
   }
 
   @Override
@@ -204,20 +134,9 @@ public final class InitialI implements Initial {
   }
 
   @Override
-  public Initial.OpVarStructReqResult opVarStructReq(Optional<VarStruct> p1, Current current) {
-    return new Initial.OpVarStructReqResult(p1, p1);
-  }
-
-  @Override
   public Initial.OpMyInterfaceProxyResult opMyInterfaceProxy(
       Optional<MyInterfacePrx> p1, Current current) {
     return new Initial.OpMyInterfaceProxyResult(p1, p1);
-  }
-
-  @Override
-  public Initial.OpMyInterfaceProxyReqResult opMyInterfaceProxyReq(
-      Optional<MyInterfacePrx> p1, Current current) {
-    return new Initial.OpMyInterfaceProxyReqResult(p1, p1);
   }
 
   @Override
@@ -231,18 +150,8 @@ public final class InitialI implements Initial {
   }
 
   @Override
-  public Initial.OpByteSeqReqResult opByteSeqReq(Optional<byte[]> p1, Current current) {
-    return new Initial.OpByteSeqReqResult(p1, p1);
-  }
-
-  @Override
   public Initial.OpBoolSeqResult opBoolSeq(Optional<boolean[]> p1, Current current) {
     return new Initial.OpBoolSeqResult(p1, p1);
-  }
-
-  @Override
-  public Initial.OpBoolSeqReqResult opBoolSeqReq(Optional<boolean[]> p1, Current current) {
-    return new Initial.OpBoolSeqReqResult(p1, p1);
   }
 
   @Override
@@ -251,18 +160,8 @@ public final class InitialI implements Initial {
   }
 
   @Override
-  public Initial.OpShortSeqReqResult opShortSeqReq(Optional<short[]> p1, Current current) {
-    return new Initial.OpShortSeqReqResult(p1, p1);
-  }
-
-  @Override
   public Initial.OpIntSeqResult opIntSeq(Optional<int[]> p1, Current current) {
     return new Initial.OpIntSeqResult(p1, p1);
-  }
-
-  @Override
-  public Initial.OpIntSeqReqResult opIntSeqReq(Optional<int[]> p1, Current current) {
-    return new Initial.OpIntSeqReqResult(p1, p1);
   }
 
   @Override
@@ -271,18 +170,8 @@ public final class InitialI implements Initial {
   }
 
   @Override
-  public Initial.OpLongSeqReqResult opLongSeqReq(Optional<long[]> p1, Current current) {
-    return new Initial.OpLongSeqReqResult(p1, p1);
-  }
-
-  @Override
   public Initial.OpFloatSeqResult opFloatSeq(Optional<float[]> p1, Current current) {
     return new Initial.OpFloatSeqResult(p1, p1);
-  }
-
-  @Override
-  public Initial.OpFloatSeqReqResult opFloatSeqReq(Optional<float[]> p1, Current current) {
-    return new Initial.OpFloatSeqReqResult(p1, p1);
   }
 
   @Override
@@ -291,18 +180,8 @@ public final class InitialI implements Initial {
   }
 
   @Override
-  public Initial.OpDoubleSeqReqResult opDoubleSeqReq(Optional<double[]> p1, Current current) {
-    return new Initial.OpDoubleSeqReqResult(p1, p1);
-  }
-
-  @Override
   public Initial.OpStringSeqResult opStringSeq(Optional<String[]> p1, Current current) {
     return new Initial.OpStringSeqResult(p1, p1);
-  }
-
-  @Override
-  public Initial.OpStringSeqReqResult opStringSeqReq(Optional<String[]> p1, Current current) {
-    return new Initial.OpStringSeqReqResult(p1, p1);
   }
 
   @Override
@@ -312,21 +191,9 @@ public final class InitialI implements Initial {
   }
 
   @Override
-  public Initial.OpSmallStructSeqReqResult opSmallStructSeqReq(
-      Optional<SmallStruct[]> p1, Current current) {
-    return new Initial.OpSmallStructSeqReqResult(p1, p1);
-  }
-
-  @Override
   public Initial.OpSmallStructListResult opSmallStructList(
       Optional<java.util.List<SmallStruct>> p1, Current current) {
     return new Initial.OpSmallStructListResult(p1, p1);
-  }
-
-  @Override
-  public Initial.OpSmallStructListReqResult opSmallStructListReq(
-      Optional<java.util.List<SmallStruct>> p1, Current current) {
-    return new Initial.OpSmallStructListReqResult(p1, p1);
   }
 
   @Override
@@ -336,32 +203,14 @@ public final class InitialI implements Initial {
   }
 
   @Override
-  public Initial.OpFixedStructSeqReqResult opFixedStructSeqReq(
-      Optional<FixedStruct[]> p1, Current current) {
-    return new Initial.OpFixedStructSeqReqResult(p1, p1);
-  }
-
-  @Override
   public Initial.OpFixedStructListResult opFixedStructList(
       Optional<java.util.List<FixedStruct>> p1, Current current) {
     return new Initial.OpFixedStructListResult(p1, p1);
   }
 
   @Override
-  public Initial.OpFixedStructListReqResult opFixedStructListReq(
-      Optional<java.util.List<FixedStruct>> p1, Current current) {
-    return new Initial.OpFixedStructListReqResult(p1, p1);
-  }
-
-  @Override
   public Initial.OpVarStructSeqResult opVarStructSeq(Optional<VarStruct[]> p1, Current current) {
     return new Initial.OpVarStructSeqResult(p1, p1);
-  }
-
-  @Override
-  public Initial.OpVarStructSeqReqResult opVarStructSeqReq(
-      Optional<VarStruct[]> p1, Current current) {
-    return new Initial.OpVarStructSeqReqResult(p1, p1);
   }
 
   @Override
@@ -371,21 +220,9 @@ public final class InitialI implements Initial {
   }
 
   @Override
-  public Initial.OpSerializableReqResult opSerializableReq(
-      Optional<SerializableClass> p1, Current current) {
-    return new Initial.OpSerializableReqResult(p1, p1);
-  }
-
-  @Override
   public Initial.OpIntIntDictResult opIntIntDict(
       Optional<java.util.Map<Integer, Integer>> p1, Current current) {
     return new Initial.OpIntIntDictResult(p1, p1);
-  }
-
-  @Override
-  public Initial.OpIntIntDictReqResult opIntIntDictReq(
-      Optional<java.util.Map<Integer, Integer>> p1, Current current) {
-    return new Initial.OpIntIntDictReqResult(p1, p1);
   }
 
   @Override
@@ -395,21 +232,9 @@ public final class InitialI implements Initial {
   }
 
   @Override
-  public Initial.OpStringIntDictReqResult opStringIntDictReq(
-      Optional<java.util.Map<String, Integer>> p1, Current current) {
-    return new Initial.OpStringIntDictReqResult(p1, p1);
-  }
-
-  @Override
   public Initial.OpIntOneOptionalDictResult opIntOneOptionalDict(
       Optional<java.util.Map<Integer, OneOptional>> p1, Current current) {
     return new Initial.OpIntOneOptionalDictResult(p1, p1);
-  }
-
-  @Override
-  public Initial.OpIntOneOptionalDictReqResult opIntOneOptionalDictReq(
-      Optional<java.util.Map<Integer, OneOptional>> p1, Current current) {
-    return new Initial.OpIntOneOptionalDictReqResult(p1, p1);
   }
 
   @Override
@@ -452,11 +277,6 @@ public final class InitialI implements Initial {
   public OpMDict2MarshaledResult opMDict2(
       Optional<java.util.Map<String, Integer>> p1, Current current) {
     return new OpMDict2MarshaledResult(p1, p1, current);
-  }
-
-  @Override
-  public boolean supportsRequiredParams(Current current) {
-    return true;
   }
 
   @Override

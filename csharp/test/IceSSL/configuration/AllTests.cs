@@ -28,7 +28,7 @@ public class AllTests
     createClientProps(Ice.Properties defaultProperties)
     {
         Ice.InitializationData result = new Ice.InitializationData();
-        result.properties = Ice.Util.createProperties();
+        result.properties = new Ice.Properties();
 
         result.properties.setProperty("IceSSL.DefaultDir", defaultProperties.getProperty("IceSSL.DefaultDir"));
         result.properties.setProperty("Ice.Default.Host", defaultProperties.getProperty("Ice.Default.Host"));

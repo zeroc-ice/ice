@@ -78,9 +78,6 @@
     <ClInclude Include="..\..\InstrumentationI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\SystemFailure.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="x64\Debug\Test.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>

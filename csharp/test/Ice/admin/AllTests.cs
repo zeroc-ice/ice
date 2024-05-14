@@ -93,7 +93,7 @@ namespace Ice
                     // Test: Exercise addAdminFacet, findAdminFacet, removeAdminFacet with a typical configuration.
                     //
                     Ice.InitializationData init = new Ice.InitializationData();
-                    init.properties = Ice.Util.createProperties();
+                    init.properties = new Ice.Properties();
                     init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
                     init.properties.setProperty("Ice.Admin.InstanceName", "Test");
                     Ice.Communicator com = Ice.Util.initialize(init);
@@ -105,7 +105,7 @@ namespace Ice
                     // Test: Verify that the operations work correctly in the presence of facet filters.
                     //
                     Ice.InitializationData init = new Ice.InitializationData();
-                    init.properties = Ice.Util.createProperties();
+                    init.properties = new Ice.Properties();
                     init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
                     init.properties.setProperty("Ice.Admin.InstanceName", "Test");
                     init.properties.setProperty("Ice.Admin.Facets", "Properties");
@@ -126,7 +126,7 @@ namespace Ice
                     // Test: Verify that the operations work correctly with Ice.Admin.Enabled=1
                     //
                     Ice.InitializationData init = new Ice.InitializationData();
-                    init.properties = Ice.Util.createProperties();
+                    init.properties = new Ice.Properties();
                     init.properties.setProperty("Ice.Admin.Enabled", "1");
                     Ice.Communicator com = Ice.Util.initialize(init);
                     test(com.getAdmin() == null);
@@ -152,7 +152,7 @@ namespace Ice
                     // Test: Verify that the operations work correctly when creation of the Admin object is delayed.
                     //
                     Ice.InitializationData init = new Ice.InitializationData();
-                    init.properties = Ice.Util.createProperties();
+                    init.properties = new Ice.Properties();
                     init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
                     init.properties.setProperty("Ice.Admin.InstanceName", "Test");
                     init.properties.setProperty("Ice.Admin.DelayCreation", "1");

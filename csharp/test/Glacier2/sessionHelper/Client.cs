@@ -198,7 +198,7 @@ public class Client : Test.TestHelper
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.Default.Router",
                                         "Glacier2/router:" + getTestEndpoint(initData.properties, 50));
-        initData.dispatcher = delegate (Action action, Ice.Connection connection)
+        initData.executor = delegate (Action action, Ice.Connection connection)
             {
                 action();
             };

@@ -416,7 +416,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
     _updateRequestHandler(handler, null); // Clear the request handler
 
     //
-    // We only retry local exception, system exceptions aren't retried.
+    // We only retry local exception.
     //
     // A CloseConnectionException indicates graceful server shutdown, and is therefore
     // always repeatable without violating "at-most-once". That's because by sending a

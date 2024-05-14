@@ -8,20 +8,16 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Server : Test.TestHelper
+public class Collocated : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = createTestProperties(ref args);
-        //
-        // Limit the recv buffer size, this test relies on the socket
-        // send() blocking after sending a given amount of data.
-        //
-        initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
         try
         {
-            initData.dispatcher = new Dispatcher().dispatch;
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = createTestProperties(ref args);
+            initData.properties.setProperty("Ice.Warn.AMICallback", "0");
+            initData.executor = new Executor().execute;
 
             using (var communicator = initialize(initData))
             {
@@ -33,19 +29,19 @@ public class Server : Test.TestHelper
                 Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
 
                 adapter.add(new TestI(), Ice.Util.stringToIdentity("test"));
-                adapter.activate();
+                //adapter.activate(); // Don't activate OA to ensure collocation is used.
                 adapter2.add(new TestControllerI(adapter), Ice.Util.stringToIdentity("testController"));
-                adapter2.activate();
+                //adapter2.activate(); // Don't activate OA to ensure collocation is used.
 
-                communicator.waitForShutdown();
+                AllTests.allTests(this);
             }
         }
         finally
         {
-            Dispatcher.terminate();
+            Executor.terminate();
         }
     }
 
     public static Task<int> Main(string[] args) =>
-        Test.TestDriver.runTestAsync<Server>(args);
+        Test.TestDriver.runTestAsync<Collocated>(args);
 }

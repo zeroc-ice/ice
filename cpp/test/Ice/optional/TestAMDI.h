@@ -297,11 +297,6 @@ public:
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 
-    void supportsRequiredParamsAsync(
-        std::function<void(bool)>,
-        std::function<void(std::exception_ptr)>,
-        const Ice::Current&) final;
-
     void supportsJavaSerializableAsync(
         std::function<void(bool)>,
         std::function<void(std::exception_ptr)>,

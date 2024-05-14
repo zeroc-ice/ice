@@ -22,18 +22,18 @@ internal sealed class ThreadPoolSynchronizationContext : SynchronizationContext
     public override void Post(SendOrPostCallback d, object state)
     {
         //
-        // Dispatch the continuation on the thread pool if this isn't called
-        // already from a thread pool thread. We don't use the dispatcher
-        // for the continuations, the dispatcher is only used when the
+        // Execute the continuation on the thread pool if this isn't called
+        // already from a thread pool thread. We don't use the executor
+        // for the continuations, the executor is only used when the
         // call is initially invoked (e.g.: a servant dispatch after being
-        // received is dispatched using the dispatcher which might dispatch
+        // received is dispatched using the executor which might execute
         // the call on the UI thread which will then use its own synchronization
         // context to execute continuations).
         //
         var ctx = Current as ThreadPoolSynchronizationContext;
         if (ctx != this)
         {
-            _threadPool.dispatch(() => { d(state); }, null, false);
+            _threadPool.execute(() => { d(state); }, null, false);
         }
         else
         {
@@ -152,7 +152,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
         Ice.Properties properties = instance.initializationData().properties;
 
         _instance = instance;
-        _dispatcher = instance.initializationData().dispatcher;
+        _executor = instance.initializationData().executor;
         _destroyed = false;
         _prefix = prefix;
         _threadIndex = 0;
@@ -371,13 +371,13 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
         }
     }
 
-    public void dispatchFromThisThread(System.Action call, Ice.Connection con)
+    public void executeFromThisThread(System.Action call, Ice.Connection con)
     {
-        if (_dispatcher != null)
+        if (_executor != null)
         {
             try
             {
-                _dispatcher(call, con);
+                _executor(call, con);
             }
             catch (System.Exception ex)
             {
@@ -394,7 +394,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
         }
     }
 
-    public void dispatch(System.Action call, Ice.Connection con, bool useDispatcher = true)
+    public void execute(System.Action call, Ice.Connection con, bool useExecutor = true)
     {
         lock (this)
         {
@@ -403,9 +403,9 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
                 throw new Ice.CommunicatorDestroyedException();
             }
 
-            if (useDispatcher)
+            if (useExecutor)
             {
-                _workItems.Enqueue(() => { dispatchFromThisThread(call, con); });
+                _workItems.Enqueue(() => { executeFromThisThread(call, con); });
             }
             else
             {
@@ -479,14 +479,14 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
 
     protected sealed override void QueueTask(System.Threading.Tasks.Task task)
     {
-        dispatch(() => { TryExecuteTask(task); }, null, _dispatcher != null);
+        execute(() => { TryExecuteTask(task); }, null, _executor != null);
     }
 
     protected sealed override bool TryExecuteTaskInline(System.Threading.Tasks.Task task, bool taskWasPreviouslyQueued)
     {
         if (!taskWasPreviouslyQueued)
         {
-            dispatchFromThisThread(() => { TryExecuteTask(task); }, null);
+            executeFromThisThread(() => { TryExecuteTask(task); }, null);
             return true;
         }
         return false;
@@ -757,7 +757,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
     }
 
     private Instance _instance;
-    private Action<Action, Ice.Connection> _dispatcher;
+    private Action<Action, Ice.Connection> _executor;
     private bool _destroyed;
     private readonly string _prefix;
     private readonly string _threadPrefix;

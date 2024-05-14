@@ -92,7 +92,7 @@ namespace Ice
                 // Prepare the property set using the given properties.
                 //
                 Ice.InitializationData init = new Ice.InitializationData();
-                init.properties = Ice.Util.createProperties();
+                init.properties = new Ice.Properties();
                 foreach (KeyValuePair<string, string> e in props)
                 {
                     init.properties.setProperty(e.Key, e.Value);

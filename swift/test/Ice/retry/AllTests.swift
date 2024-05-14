@@ -76,20 +76,6 @@ public func allTests(helper: TestHelper, communicator2: Ice.Communicator, ref: S
   } catch is Ice.LocalException {}
   output.writeLine("ok")
 
-  if try retry1.ice_getConnection() != nil {
-    output.write("testing system exception... ")
-    do {
-      try retry1.opSystemException()
-      try test(false)
-    } catch {}
-
-    do {
-      try retry1.opSystemExceptionAsync().wait()
-      try test(false)
-    } catch {}
-    output.writeLine("ok")
-  }
-
   output.write("testing invocation timeout and retries... ")
 
   retry2 = try checkedCast(

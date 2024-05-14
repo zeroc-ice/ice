@@ -15,7 +15,7 @@ public class Client : Test.TestHelper
         {
             Console.Out.Write("testing load properties from UTF-8 path... ");
             Console.Out.Flush();
-            Ice.Properties properties = Ice.Util.createProperties();
+            Ice.Properties properties = new Ice.Properties();
             properties.load("./config/中国_client.config");
             test(properties.getProperty("Ice.Trace.Network") == "1");
             test(properties.getProperty("Ice.Trace.Protocol") == "1");
@@ -34,7 +34,7 @@ public class Client : Test.TestHelper
             Console.Out.Write("testing using Ice.Config with multiple config files... ");
             Console.Out.Flush();
             string[] args1 = new string[] { "--Ice.Config=config/config.1, config/config.2, config/config.3" };
-            Ice.Properties properties = Ice.Util.createProperties(ref args1);
+            Ice.Properties properties = new Ice.Properties(ref args1);
             test(properties.getProperty("Config1") == "Config1");
             test(properties.getProperty("Config2") == "Config2");
             test(properties.getProperty("Config3") == "Config3");
@@ -45,7 +45,7 @@ public class Client : Test.TestHelper
             Console.Out.Write("testing configuration file escapes... ");
             Console.Out.Flush();
             string[] args1 = new string[] { "--Ice.Config=config/escapes.cfg" };
-            Ice.Properties properties = Ice.Util.createProperties(ref args1);
+            Ice.Properties properties = new Ice.Properties(ref args1);
 
             string[] props = new string[]{"Foo\tBar", "3",
                                           "Foo\\tBar", "4",
@@ -80,7 +80,7 @@ public class Client : Test.TestHelper
         {
             Console.Out.Write("testing ice properties with set default values...");
             Console.Out.Flush();
-            Ice.Properties properties = Ice.Util.createProperties();
+            Ice.Properties properties = new Ice.Properties();
             string toStringMode = properties.getIceProperty("Ice.ToStringMode");
             test(toStringMode == "Unicode");
             int closeTimeout = properties.getIcePropertyAsInt("Ice.Connection.CloseTimeout");
@@ -94,7 +94,7 @@ public class Client : Test.TestHelper
         {
             Console.Out.Write("testing ice properties with unset default values...");
             Console.Out.Flush();
-            Ice.Properties properties = Ice.Util.createProperties();
+            Ice.Properties properties = new Ice.Properties();
             string stringValue = properties.getIceProperty("Ice.Admin.Router");
             test(stringValue == "");
             int intValue = properties.getIcePropertyAsInt("Ice.Admin.Router");
@@ -107,7 +107,7 @@ public class Client : Test.TestHelper
         {
             Console.Out.Write("testing that getting an unknown ice property throws an exception...");
             Console.Out.Flush();
-            Ice.Properties properties = Ice.Util.createProperties();
+            Ice.Properties properties = new Ice.Properties();
             try
             {
                 properties.getIceProperty("Ice.UnknownProperty");

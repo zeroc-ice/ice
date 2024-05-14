@@ -35,11 +35,6 @@ class MyObjectI implements MyObject {
     throw new com.zeroc.Ice.ObjectNotExistException();
   }
 
-  @Override
-  public int badSystemAdd(int x, int y, com.zeroc.Ice.Current current) {
-    throw new MySystemException();
-  }
-
   //
   // AMD
   //
@@ -107,24 +102,6 @@ class MyObjectI implements MyObject {
               } catch (InterruptedException e) {
               }
               r.completeExceptionally(new com.zeroc.Ice.ObjectNotExistException());
-            });
-    thread.setDaemon(true);
-    thread.start();
-    return r;
-  }
-
-  @Override
-  public CompletionStage<Integer> amdBadSystemAddAsync(
-      int x, int y, com.zeroc.Ice.Current current) {
-    CompletableFuture<Integer> r = new CompletableFuture<>();
-    Thread thread =
-        new Thread(
-            () -> {
-              try {
-                Thread.sleep(10);
-              } catch (InterruptedException e) {
-              }
-              r.completeExceptionally(new MySystemException());
             });
     thread.setDaemon(true);
     thread.start();

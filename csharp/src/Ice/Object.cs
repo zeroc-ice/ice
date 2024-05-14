@@ -10,6 +10,7 @@ namespace Ice;
 /// <summary>
 /// The base interface for servants.
 /// </summary>
+[SliceTypeId("::Ice::Object")]
 public interface Object
 {
     /// <summary>
@@ -20,27 +21,51 @@ public interface Object
     /// <param name="current">The Current object for the dispatch.</param>
     /// <returns>True if this object has the interface
     /// specified by s or derives from the interface specified by s.</returns>
-    bool ice_isA(string s, Current current);
+    public bool ice_isA(string s, Current current)
+    {
+        foreach (Type type in GetType().GetInterfaces())
+        {
+            if (type.GetSliceTypeId() is string typeId && typeId == s)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /// <summary>
     /// Tests whether this object can be reached.
     /// </summary>
     /// <param name="current">The Current object for the dispatch.</param>
-    void ice_ping(Current current);
+    public void ice_ping(Current current)
+    {
+        // does nothing
+    }
 
     /// <summary>
     /// Returns the Slice type IDs of the interfaces supported by this object.
     /// </summary>
     /// <param name="current">The Current object for the dispatch.</param>
     /// <returns>The Slice type IDs of the interfaces supported by this object, in alphabetical order.</returns>
-    string[] ice_ids(Current current);
+    public string[] ice_ids(Current current)
+    {
+        var sortedSet = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (Type type in GetType().GetInterfaces())
+        {
+            if (type.GetSliceTypeId() is string typeId)
+            {
+                sortedSet.Add(typeId);
+            }
+        }
+        return sortedSet.ToArray();
+    }
 
     /// <summary>
     /// Returns the Slice type ID of the most-derived interface supported by this object.
     /// </summary>
     /// <param name="current">The Current object for the dispatch.</param>
     /// <returns>The Slice type ID of the most-derived interface.</returns>
-    string ice_id(Current current);
+    public string ice_id(Current current) => throw new NotImplementedException();
 
     Task<OutputStream>? iceDispatch(Ice.Internal.Incoming inc, Current current);
 
@@ -60,22 +85,6 @@ public abstract class ObjectImpl : Object
     {
     }
 
-    private static readonly string[] _ids =
-    {
-        "::Ice::Object"
-    };
-
-    /// <summary>
-    /// Tests whether this object supports a specific Slice interface.
-    /// </summary>
-    /// <param name="s">The type ID of the Slice interface to test against.</param>
-    /// <param name="current">The Current object for the dispatch.</param>
-    /// <returns>The return value is true if s is ::Ice::Object.</returns>
-    public virtual bool ice_isA(string s, Current current)
-    {
-        return s.Equals(_ids[0]);
-    }
-
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static Task<OutputStream>? iceD_ice_isA(Object obj, Ice.Internal.Incoming inS, Current current)
     {
@@ -90,15 +99,6 @@ public abstract class ObjectImpl : Object
         return null;
     }
 
-    /// <summary>
-    /// Tests whether this object can be reached.
-    /// <param name="current">The Current object for the dispatch.</param>
-    /// </summary>
-    public virtual void ice_ping(Current current)
-    {
-        // Nothing to do.
-    }
-
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static Task<OutputStream>? iceD_ice_ping(Object obj, Ice.Internal.Incoming inS, Current current)
     {
@@ -106,16 +106,6 @@ public abstract class ObjectImpl : Object
         obj.ice_ping(current);
         inS.setResult(inS.writeEmptyParams());
         return null;
-    }
-
-    /// <summary>
-    /// Returns the Slice type IDs of the interfaces supported by this object.
-    /// </summary>
-    /// <param name="current">The Current object for the dispatch.</param>
-    /// <returns>An array whose only element is ::Ice::Object.</returns>
-    public virtual string[] ice_ids(Current current)
-    {
-        return _ids;
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -135,10 +125,7 @@ public abstract class ObjectImpl : Object
     /// </summary>
     /// <param name="current">The Current object for the dispatch.</param>
     /// <returns>The return value is always ::Ice::Object.</returns>
-    public virtual string ice_id(Current current)
-    {
-        return _ids[0];
-    }
+    public virtual string ice_id(Current current) => ice_staticId();
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static Task<OutputStream>? iceD_ice_id(Object obj, Ice.Internal.Incoming inS, Current current)
@@ -156,10 +143,7 @@ public abstract class ObjectImpl : Object
     /// Returns the Slice type ID of the interface supported by this object.
     /// </summary>
     /// <returns>The return value is always ::Ice::Object.</returns>
-    public static string ice_staticId()
-    {
-        return _ids[0];
-    }
+    public static string ice_staticId() => "::Ice::Object";
 
     private static readonly string[] _all = new string[]
     {

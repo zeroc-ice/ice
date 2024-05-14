@@ -493,7 +493,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
             {
                 if (callback != null)
                 {
-                    _threadPool.dispatch(() =>
+                    _threadPool.execute(() =>
                     {
                         try
                         {
@@ -796,11 +796,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
                 setState(StateClosed, ex);
             }
         }
-    }
-
-    public bool systemException(int requestId, SystemException ex, bool amd)
-    {
-        return false; // System exceptions aren't marshaled.
     }
 
     public void dispatchException(int requestId, LocalException ex, int requestCount, bool amd)
@@ -1311,7 +1306,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
                 }
 
                 ThreadPoolCurrent c = current;
-                _threadPool.dispatch(() =>
+                _threadPool.execute(() =>
                 {
                     upcall(startCB, sentCBs, info);
                     msg.destroy(ref c);
@@ -1440,7 +1435,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
         //
         // If there are no callbacks to call, we don't call ioCompleted() since we're not going
         // to call code that will potentially block (this avoids promoting a new leader and
-        // unecessary thread creation, especially if this is called on shutdown).
+        // unnecessary thread creation, especially if this is called on shutdown).
         //
         if (_startCallback == null && _sendStreams.Count == 0 && _asyncRequests.Count == 0 &&
            _closeCallback == null && _heartbeatCallback == null)
@@ -1455,7 +1450,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
         // non-blocking activity of the connection from these threads, the dispatching
         // of the message must be taken care of by the Ice thread pool.
         //
-        _threadPool.dispatch(finish, this);
+        _threadPool.execute(finish, this);
     }
 
     private void finish()
