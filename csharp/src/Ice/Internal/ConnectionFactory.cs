@@ -1560,7 +1560,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
         _endpoint = endpoint;
         _publishedEndpoint = publish;
         _adapter = adapter;
-        _warn = _instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Connections") > 0;
+        _warn = _instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Connections") > 0;
         _connections = new HashSet<Ice.ConnectionI>();
         _state = StateHolding;
         _acceptorStarted = false;

@@ -246,7 +246,7 @@ public sealed class PluginManagerI : PluginManager
         // remaining plug-ins.
         //
 
-        string[] loadOrder = properties.getPropertyAsList("Ice.PluginLoadOrder");
+        string[] loadOrder = properties.getIcePropertyAsList("Ice.PluginLoadOrder");
         for (int i = 0; i < loadOrder.Length; ++i)
         {
             if (loadOrder[i].Length == 0)
