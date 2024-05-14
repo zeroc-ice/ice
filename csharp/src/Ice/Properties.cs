@@ -528,8 +528,7 @@ public sealed class Properties
         }
         catch (IOException ex)
         {
-            SyscallException se = new SyscallException(ex);
-            throw se;
+            throw new SyscallException(ex);
         }
     }
 
