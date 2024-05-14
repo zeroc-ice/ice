@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../../../../../msbuild/ice.common.props" />
   <PropertyGroup>
-    <AssemblyName>servertie</AssemblyName>
+    <AssemblyName>server</AssemblyName>
     <OutputType>Exe</OutputType>
     <TargetFramework>$(AppTargetFramework)</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -11,8 +11,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../../../TestCommon/TestHelper.cs" />
-    <Compile Include="../../MyDerivedClassTieI.cs" />
-    <Compile Include="../../ServerTie.cs" />
+    <Compile Include="../../TestI.cs" />
+    <Compile Include="../../Executor.cs" />
+    <Compile Include="../../Server.cs" />
     <Compile Include="generated\Test.cs">
       <SliceCompileSource>../../Test.ice</SliceCompileSource>
     </Compile>

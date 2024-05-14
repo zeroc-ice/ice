@@ -247,36 +247,36 @@ run(const Ice::StringSeq& args)
     }
     debug = opts.isSet("debug");
 
-    bool ssl = communicator->getProperties()->getPropertyAsInt("IceGridAdmin.AuthenticateUsingSSL") > 0;
+    bool ssl = communicator->getProperties()->getIcePropertyAsInt("IceGridAdmin.AuthenticateUsingSSL") > 0;
     if (opts.isSet("ssl"))
     {
         ssl = true;
     }
 
-    string id = communicator->getProperties()->getProperty("IceGridAdmin.Username");
+    string id = communicator->getProperties()->getIceProperty("IceGridAdmin.Username");
     if (!opts.optArg("username").empty())
     {
         id = opts.optArg("username");
     }
-    string password = communicator->getProperties()->getProperty("IceGridAdmin.Password");
+    string password = communicator->getProperties()->getIceProperty("IceGridAdmin.Password");
     if (!opts.optArg("password").empty())
     {
         password = opts.optArg("password");
     }
 
-    string host = communicator->getProperties()->getProperty("IceGridAdmin.Host");
+    string host = communicator->getProperties()->getIceProperty("IceGridAdmin.Host");
     if (!opts.optArg("host").empty())
     {
         host = opts.optArg("host");
     }
 
-    string instanceName = communicator->getProperties()->getProperty("IceGridAdmin.InstanceName");
+    string instanceName = communicator->getProperties()->getIceProperty("IceGridAdmin.InstanceName");
     if (!opts.optArg("instanceName").empty())
     {
         instanceName = opts.optArg("instanceName");
     }
 
-    int port = communicator->getProperties()->getPropertyAsInt("IceGridAdmin.Port");
+    int port = communicator->getProperties()->getIcePropertyAsInt("IceGridAdmin.Port");
     if (!opts.optArg("port").empty())
     {
         istringstream is(opts.optArg("port"));
@@ -288,7 +288,7 @@ run(const Ice::StringSeq& args)
     }
 
     auto properties = communicator->getProperties();
-    string replica = properties->getProperty("IceGridAdmin.Replica");
+    string replica = properties->getIceProperty("IceGridAdmin.Replica");
     if (!opts.optArg("replica").empty())
     {
         replica = opts.optArg("replica");

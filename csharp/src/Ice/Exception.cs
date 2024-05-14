@@ -23,17 +23,6 @@ public abstract class Exception : System.Exception
     public Exception(System.Exception ex) : base("", ex) { }
 
     /// <summary>
-    /// ice_name() is deprecated, use ice_id() instead.
-    /// Returns the name of this exception.
-    /// </summary>
-    /// <returns>The name of this exception.</returns>
-    [Obsolete("ice_name() is deprecated, use ice_id() instead.")]
-    public string ice_name()
-    {
-        return ice_id().Substring(2);
-    }
-
-    /// <summary>
     /// Returns the type id of this exception.
     /// </summary>
     /// <returns>The type id of this exception.</returns>
@@ -97,25 +86,6 @@ public abstract class LocalException : Exception
     /// </summary>
     /// <param name="ex">The inner exception.</param>
     public LocalException(System.Exception ex) : base(ex) { }
-}
-
-/// <summary>
-/// Base class for Ice system exceptions.
-/// Ice system exceptions are currently Ice internal, non-documented exceptions.
-/// </summary>
-public abstract class SystemException : Exception
-{
-    /// <summary>
-    /// Creates a default-initialized system exception.
-    /// </summary>
-    public SystemException() { }
-
-    /// <summary>
-    /// Creates a default-initialized system exception and sets the InnerException
-    /// property to the passed exception.
-    /// </summary>
-    /// <param name="ex">The inner exception.</param>
-    public SystemException(System.Exception ex) : base(ex) { }
 }
 
 /// <summary>

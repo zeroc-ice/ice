@@ -14,7 +14,6 @@
     <Compile Include="../../AllTests.cs" />
     <Compile Include="../../Client.cs" />
     <Compile Include="../../Instrumentation.cs" />
-    <Compile Include="../../SystemFailure.cs" />
     <Compile Include="generated\Test.cs">
       <SliceCompileSource>../../Test.ice</SliceCompileSource>
     </Compile>

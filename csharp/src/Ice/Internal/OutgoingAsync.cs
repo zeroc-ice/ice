@@ -44,7 +44,7 @@ public abstract class OutgoingAsyncBase
         //
         try
         {
-            instance_.clientThreadPool().dispatch(invokeSent, cachedConnection_);
+            instance_.clientThreadPool().execute(invokeSent, cachedConnection_);
         }
         catch (Ice.CommunicatorDestroyedException)
         {
@@ -57,7 +57,7 @@ public abstract class OutgoingAsyncBase
         // CommunicatorDestroyedCompleted is the only exception that can propagate directly
         // from this method.
         //
-        instance_.clientThreadPool().dispatch(invokeException, cachedConnection_);
+        instance_.clientThreadPool().execute(invokeException, cachedConnection_);
     }
 
     public void invokeResponseAsync()
@@ -66,7 +66,7 @@ public abstract class OutgoingAsyncBase
         // CommunicatorDestroyedCompleted is the only exception that can propagate directly
         // from this method.
         //
-        instance_.clientThreadPool().dispatch(invokeResponse, cachedConnection_);
+        instance_.clientThreadPool().execute(invokeResponse, cachedConnection_);
     }
 
     public void invokeSent()
@@ -352,7 +352,7 @@ public abstract class OutgoingAsyncBase
 
     private void warning(System.Exception ex)
     {
-        if (instance_.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+        if (instance_.initializationData().properties.getIcePropertyAsInt("Ice.Warn.AMICallback") > 0)
         {
             instance_.initializationData().logger.warning("exception raised by AMI callback:\n" + ex);
         }

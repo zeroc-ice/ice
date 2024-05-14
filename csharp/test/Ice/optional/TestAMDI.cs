@@ -286,12 +286,6 @@ namespace Ice
                 }
 
                 public override Task<bool>
-                supportsRequiredParamsAsync(Ice.Current current)
-                {
-                    return Task.FromResult<bool>(false);
-                }
-
-                public override Task<bool>
                 supportsJavaSerializableAsync(Ice.Current current)
                 {
                     return Task.FromResult<bool>(false);

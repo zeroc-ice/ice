@@ -4,9 +4,9 @@ namespace Ice
 {
     namespace defaultServant
     {
-        public sealed class MyObjectI : Test.MyObjectDisp_
+        public sealed class MyObjectI : Test.MyObjectDisp_, Ice.Object
         {
-            public override void
+            public void
             ice_ping(Ice.Current current)
             {
                 string name = current.id.name;

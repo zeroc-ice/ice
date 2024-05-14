@@ -270,7 +270,7 @@ class MyClass1
     string myClass1; // Same name as the enclosing class
 }
 
-["amd", "cs:tie"] interface MyDerivedClass extends MyClass
+["amd"] interface MyDerivedClass extends MyClass
 {
     void opDerived();
     MyClass1 opMyClass1(MyClass1 opMyClass1);

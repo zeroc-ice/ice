@@ -8,16 +8,20 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Collocated : Test.TestHelper
+public class Server : Test.TestHelper
 {
     public override void run(string[] args)
     {
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = createTestProperties(ref args);
+        //
+        // Limit the recv buffer size, this test relies on the socket
+        // send() blocking after sending a given amount of data.
+        //
+        initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
         try
         {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = createTestProperties(ref args);
-            initData.properties.setProperty("Ice.Warn.AMICallback", "0");
-            initData.dispatcher = new Dispatcher().dispatch;
+            initData.executor = new Executor().execute;
 
             using (var communicator = initialize(initData))
             {
@@ -29,19 +33,19 @@ public class Collocated : Test.TestHelper
                 Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
 
                 adapter.add(new TestI(), Ice.Util.stringToIdentity("test"));
-                //adapter.activate(); // Don't activate OA to ensure collocation is used.
+                adapter.activate();
                 adapter2.add(new TestControllerI(adapter), Ice.Util.stringToIdentity("testController"));
-                //adapter2.activate(); // Don't activate OA to ensure collocation is used.
+                adapter2.activate();
 
-                AllTests.allTests(this);
+                communicator.waitForShutdown();
             }
         }
         finally
         {
-            Dispatcher.terminate();
+            Executor.terminate();
         }
     }
 
     public static Task<int> Main(string[] args) =>
-        Test.TestDriver.runTestAsync<Collocated>(args);
+        Test.TestDriver.runTestAsync<Server>(args);
 }

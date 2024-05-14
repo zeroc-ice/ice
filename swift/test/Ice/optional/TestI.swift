@@ -251,10 +251,6 @@ class InitialI: Initial {
 
   func opVoid(current _: Ice.Current) throws {}
 
-  func supportsRequiredParams(current _: Ice.Current) throws -> Bool {
-    return false
-  }
-
   func supportsJavaSerializable(current _: Ice.Current) throws -> Bool {
     return false
   }

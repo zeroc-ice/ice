@@ -209,10 +209,10 @@ PluginI::initialize()
     {
         address = properties->getPropertyWithDefault(_name + ".Address", "ff15::1");
     }
-    int port = properties->getPropertyAsIntWithDefault(_name + ".Port", 4061);
+    int port = properties->getIcePropertyAsInt(_name + ".Port");
     string intf = properties->getProperty(_name + ".Interface");
 
-    string lookupEndpoints = properties->getProperty(_name + ".Lookup");
+    string lookupEndpoints = properties->getIceProperty(_name + ".Lookup");
     if (lookupEndpoints.empty())
     {
         //
@@ -233,12 +233,12 @@ PluginI::initialize()
         lookupEndpoints = lookup.str();
     }
 
-    if (properties->getProperty(_name + ".Reply.Endpoints").empty())
+    if (properties->getIceProperty(_name + ".Reply.Endpoints").empty())
     {
         properties->setProperty(_name + ".Reply.Endpoints", "udp -h " + (intf.empty() ? "*" : "\"" + intf + "\""));
     }
 
-    if (properties->getProperty(_name + ".Locator.Endpoints").empty())
+    if (properties->getIceProperty(_name + ".Locator.Endpoints").empty())
     {
         properties->setProperty(_name + ".Locator.AdapterId", Ice::generateUUID()); // Collocated adapter
     }
@@ -386,11 +386,11 @@ LocatorI::LocatorI(
     const string& instanceName,
     const Ice::LocatorPrx& voidLocator)
     : _lookup(lookup),
-      _timeout(chrono::milliseconds(p->getPropertyAsIntWithDefault(name + ".Timeout", 300))),
-      _retryCount(p->getPropertyAsIntWithDefault(name + ".RetryCount", 3)),
-      _retryDelay(chrono::milliseconds(p->getPropertyAsIntWithDefault(name + ".RetryDelay", 2000))),
+      _timeout(chrono::milliseconds(p->getIcePropertyAsInt(name + ".Timeout"))),
+      _retryCount(p->getIcePropertyAsInt(name + ".RetryCount")),
+      _retryDelay(chrono::milliseconds(p->getIcePropertyAsInt(name + ".RetryDelay"))),
       _timer(IceInternal::getInstanceTimer(lookup->ice_getCommunicator())),
-      _traceLevel(p->getPropertyAsInt(name + ".Trace.Lookup")),
+      _traceLevel(p->getIcePropertyAsInt(name + ".Trace.Lookup")),
       _instanceName(instanceName),
       _warned(false),
       _locator(lookup->ice_getCommunicator()->getDefaultLocator()),

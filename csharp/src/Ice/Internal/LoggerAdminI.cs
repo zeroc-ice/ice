@@ -154,9 +154,9 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
 
     internal LoggerAdminI(Ice.Properties props, LoggerAdminLoggerI logger)
     {
-        _maxLogCount = props.getPropertyAsIntWithDefault("Ice.Admin.Logger.KeepLogs", 100);
-        _maxTraceCount = props.getPropertyAsIntWithDefault("Ice.Admin.Logger.KeepTraces", 100);
-        _traceLevel = props.getPropertyAsInt("Ice.Trace.Admin.Logger");
+        _maxLogCount = props.getIcePropertyAsInt("Ice.Admin.Logger.KeepLogs");
+        _maxTraceCount = props.getIcePropertyAsInt("Ice.Admin.Logger.KeepTraces");
+        _traceLevel = props.getIcePropertyAsInt("Ice.Trace.Admin.Logger");
         _logger = logger;
     }
 
@@ -396,7 +396,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
     {
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.logger = logger;
-        initData.properties = Ice.Util.createProperties();
+        initData.properties = new Ice.Properties();
 
         Ice.Properties mainProps = communicator.getProperties();
 
@@ -404,7 +404,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
         copyProperties("Ice.Plugin.IceSSL", mainProps, initData.properties);
         copyProperties("IceSSL.", mainProps, initData.properties);
 
-        string[] extraProps = mainProps.getPropertyAsList("Ice.Admin.Logger.Properties");
+        string[] extraProps = mainProps.getIcePropertyAsList("Ice.Admin.Logger.Properties");
 
         if (extraProps.Length > 0)
         {

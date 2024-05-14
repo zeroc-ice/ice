@@ -23,7 +23,7 @@ public class SessionFactoryHelper
     {
         _callback = callback;
         _initData = new Ice.InitializationData();
-        _initData.properties = Ice.Util.createProperties();
+        _initData.properties = new Ice.Properties();
         setDefaultProperties();
     }
 
@@ -39,7 +39,7 @@ public class SessionFactoryHelper
         _initData = initData;
         if (_initData.properties == null)
         {
-            _initData.properties = Ice.Util.createProperties();
+            _initData.properties = new Ice.Properties();
         }
         setDefaultProperties();
     }
@@ -342,7 +342,7 @@ public class SessionFactoryHelper
         Ice.InitializationData initData = _initData.Clone();
         initData.properties = initData.properties.ice_clone_();
 
-        if (initData.properties.getProperty("Ice.Default.Router").Length == 0 && _identity != null)
+        if (initData.properties.getIceProperty("Ice.Default.Router").Length == 0 && _identity != null)
         {
             initData.properties.setProperty("Ice.Default.Router", createProxyStr(_identity));
         }

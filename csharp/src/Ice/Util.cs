@@ -46,9 +46,9 @@ public class InitializationData
     public System.Action threadStop;
 
     /// <summary>
-    /// The dispatcher for the communicator.
+    /// The executor for the communicator.
     /// </summary>
-    public System.Action<System.Action, Connection> dispatcher;
+    public System.Action<System.Action, Connection> executor;
 
     /// <summary>
     /// The batch request interceptor.
@@ -75,9 +75,10 @@ public sealed class Util
     /// Creates a new empty property set.
     /// </summary>
     /// <returns>A new empty property set.</returns>
+    [Obsolete("Use Ice.Properties() constructor instead.")]
     public static Properties createProperties()
     {
-        return new PropertiesI();
+        return new Properties();
     }
 
     /// <summary>
@@ -91,10 +92,8 @@ public sealed class Util
     /// This method modifies the argument vector by removing any Ice-related options.</param>
     /// <returns>A property set initialized with the property settings
     /// that were removed from args.</returns>
-    public static Properties createProperties(ref string[] args)
-    {
-        return new PropertiesI(ref args, null);
-    }
+    [Obsolete("Use Ice.Properties(ref string[], Ice.Properties) constructor instead.")]
+    public static Properties createProperties(ref string[] args) => new(ref args, null);
 
     /// <summary>
     /// Creates a property set initialized from an argument vector.
@@ -109,16 +108,14 @@ public sealed class Util
     /// files and args override these defaults.</param>
     /// <returns>A property set initialized with the property settings
     /// that were removed from args.</returns>
-    public static Properties createProperties(ref string[] args, Properties defaults)
-    {
-        return new PropertiesI(ref args, defaults);
-    }
+    [Obsolete("Use Ice.Properties(ref string[], Ice.Properties) constructor instead.")]
+    public static Properties createProperties(ref string[] args, Properties defaults) => new(ref args, defaults);
 
     /// <summary>
     /// Creates a communicator.
     /// </summary>
     /// <param name="args">A command-line argument vector. Any Ice-related options
-    /// in this vector are used to intialize the communicator.
+    /// in this vector are used to initialize the communicator.
     /// This method modifies the argument vector by removing any Ice-related options.</param>
     /// <returns>The initialized communicator.</returns>
     public static Communicator initialize(ref string[] args)
@@ -132,7 +129,7 @@ public sealed class Util
     /// <param name="args">A command-line argument vector. Any Ice-related options
     /// in this vector are used to initialize the communicator.
     /// This method modifies the argument vector by removing any Ice-related options.</param>
-    /// <param name="initData">Additional intialization data. Property settings in args
+    /// <param name="initData">Additional initialization data. Property settings in args
     /// override property settings in initData.</param>
     /// <returns>The initialized communicator.</returns>
     public static Communicator initialize(ref string[] args, InitializationData initData)
@@ -146,7 +143,7 @@ public sealed class Util
             initData = initData.Clone();
         }
 
-        initData.properties = createProperties(ref args, initData.properties);
+        initData.properties = new Properties(ref args, initData.properties);
 
         CommunicatorI result = new CommunicatorI(initData);
         result.finishSetup(ref args);
@@ -168,7 +165,7 @@ public sealed class Util
         if (configFile != null)
         {
             initData = new InitializationData();
-            initData.properties = Util.createProperties();
+            initData.properties = new Properties();
             initData.properties.load(configFile);
         }
         return initialize(ref args, initData);
@@ -208,7 +205,7 @@ public sealed class Util
         if (configFile != null)
         {
             initData = new InitializationData();
-            initData.properties = createProperties();
+            initData.properties = new Properties();
             initData.properties.load(configFile);
         }
         return initialize(initData);

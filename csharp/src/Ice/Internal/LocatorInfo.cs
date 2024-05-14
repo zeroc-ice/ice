@@ -709,7 +709,7 @@ public sealed class LocatorManager
     {
         _table = new Dictionary<Ice.LocatorPrx, LocatorInfo>();
         _locatorTables = new Dictionary<LocatorKey, LocatorTable>();
-        _background = properties.getPropertyAsInt("Ice.BackgroundLocatorCacheUpdates") > 0;
+        _background = properties.getIcePropertyAsInt("Ice.BackgroundLocatorCacheUpdates") > 0;
     }
 
     internal void destroy()

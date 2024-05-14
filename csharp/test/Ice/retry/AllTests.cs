@@ -155,36 +155,6 @@ namespace Ice
                 Instrumentation.testRetryCount(0);
                 output.WriteLine("ok");
 
-                if (retry1.ice_getConnection() == null)
-                {
-                    Instrumentation.testInvocationCount(1);
-
-                    output.Write("testing system exception... ");
-                    try
-                    {
-                        retry1.opSystemException();
-                        test(false);
-                    }
-                    catch (SystemFailure)
-                    {
-                    }
-                    Instrumentation.testInvocationCount(1);
-                    Instrumentation.testFailureCount(1);
-                    Instrumentation.testRetryCount(0);
-                    try
-                    {
-                        await retry1.opSystemExceptionAsync();
-                        test(false);
-                    }
-                    catch (SystemFailure)
-                    {
-                    }
-                    Instrumentation.testInvocationCount(1);
-                    Instrumentation.testFailureCount(1);
-                    Instrumentation.testRetryCount(0);
-                    output.WriteLine("ok");
-                }
-
                 {
                     output.Write("testing invocation timeout and retries... ");
                     output.Flush();

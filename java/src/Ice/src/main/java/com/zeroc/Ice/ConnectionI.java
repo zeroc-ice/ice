@@ -681,11 +681,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   }
 
   @Override
-  public boolean systemException(int requestId, SystemException ex, boolean amd) {
-    return false; // System exceptions aren't marshaled.
-  }
-
-  @Override
   public synchronized void invokeException(
       int requestId, LocalException ex, int invokeNum, boolean amd) {
     //

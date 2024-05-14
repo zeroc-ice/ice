@@ -8,6 +8,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <OutputPath>.</OutputPath>
+    <Configurations>Release;Debug</Configurations>
   </PropertyGroup>
   <PropertyGroup Condition="'$(AppTargetFramework)' == 'netcoreapp3.1'">
     <UseAppHost>true</UseAppHost>

@@ -15,12 +15,12 @@ public sealed class TraceLevels
 
         string keyBase = "Ice.Trace.";
 
-        network = properties.getPropertyAsInt(keyBase + networkCat);
-        protocol = properties.getPropertyAsInt(keyBase + protocolCat);
-        retry = properties.getPropertyAsInt(keyBase + retryCat);
-        location = properties.getPropertyAsInt(keyBase + locationCat);
-        slicing = properties.getPropertyAsInt(keyBase + slicingCat);
-        threadPool = properties.getPropertyAsInt(keyBase + threadPoolCat);
+        network = properties.getIcePropertyAsInt(keyBase + networkCat);
+        protocol = properties.getIcePropertyAsInt(keyBase + protocolCat);
+        retry = properties.getIcePropertyAsInt(keyBase + retryCat);
+        location = properties.getIcePropertyAsInt(keyBase + locationCat);
+        slicing = properties.getIcePropertyAsInt(keyBase + slicingCat);
+        threadPool = properties.getIcePropertyAsInt(keyBase + threadPoolCat);
     }
 
     public readonly int network;

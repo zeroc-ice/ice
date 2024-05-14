@@ -687,7 +687,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_, Ice.PropertiesAdminUpdateC
             }
         }
 
-        if (unknownProps.Count != 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
+        if (unknownProps.Count != 0 && properties.getIcePropertyAsInt("Ice.Warn.UnknownProperties") > 0)
         {
             StringBuilder message = new StringBuilder("found unknown IceMX properties for `");
             message.Append(prefix.AsSpan(0, prefix.Length - 1));
