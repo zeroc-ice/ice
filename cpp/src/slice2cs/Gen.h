@@ -166,6 +166,19 @@ namespace Slice
             virtual void visitOperation(const OperationPtr&);
         };
 
+        // Generates the iceD helper methods in the server-side interface.
+        class DispatchAdapterVisitor : public CsVisitor
+        {
+        public:
+            DispatchAdapterVisitor(::IceUtilInternal::Output&);
+
+            virtual bool visitModuleStart(const ModulePtr&);
+            virtual void visitModuleEnd(const ModulePtr&);
+            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+            virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
+            virtual void visitOperation(const OperationPtr&);
+        };
+
         class HelperVisitor : public CsVisitor
         {
         public:
