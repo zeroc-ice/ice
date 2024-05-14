@@ -47,8 +47,7 @@ usage(const string& n)
                   "--depend                 Generate Makefile dependencies.\n"
                   "--depend-xml             Generate dependencies in XML format.\n"
                   "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
-                  "--validate               Validate command line options.\n"
-                  "--tie                    Generate tie classes.\n";
+                  "--validate               Validate command line options.\n";
 }
 
 int
@@ -63,7 +62,6 @@ compile(const vector<string>& argv)
     opts.addOpt("I", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("E");
     opts.addOpt("", "output-dir", IceUtilInternal::Options::NeedArg);
-    opts.addOpt("", "tie");
     opts.addOpt("", "depend");
     opts.addOpt("", "depend-xml");
     opts.addOpt("", "depend-file", IceUtilInternal::Options::NeedArg, "");
@@ -119,8 +117,6 @@ compile(const vector<string>& argv)
     bool preprocess = opts.isSet("E");
 
     string output = opts.optArg("output-dir");
-
-    bool tie = opts.isSet("tie");
 
     bool depend = opts.isSet("depend");
 
@@ -253,7 +249,7 @@ compile(const vector<string>& argv)
                 {
                     try
                     {
-                        Gen gen(icecpp->getBaseName(), includePaths, output, tie);
+                        Gen gen(icecpp->getBaseName(), includePaths, output);
                         gen.generate(p);
                     }
                     catch (const Slice::FileException& ex)
