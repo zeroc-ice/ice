@@ -1696,8 +1696,8 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
         _writeTimeoutScheduled = false;
         _readTimeout = new TimeoutCallback(this);
         _readTimeoutScheduled = false;
-        _warn = initData.properties.getPropertyAsInt("Ice.Warn.Connections") > 0;
-        _warnUdp = initData.properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
+        _warn = initData.properties.getIcePropertyAsInt("Ice.Warn.Connections") > 0;
+        _warnUdp = initData.properties.getIcePropertyAsInt("Ice.Warn.Datagrams") > 0;
         _cacheBuffers = instance.cacheMessageBuffers() > 0;
         if (_monitor != null && _monitor.getACM().timeout > 0)
         {
@@ -1718,7 +1718,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
         _upcallCount = 0;
         _state = StateNotInitialized;
 
-        _compressionLevel = initData.properties.getPropertyAsIntWithDefault("Ice.Compression.Level", 1);
+        _compressionLevel = initData.properties.getIcePropertyAsInt("Ice.Compression.Level");
         if (_compressionLevel < 1)
         {
             _compressionLevel = 1;

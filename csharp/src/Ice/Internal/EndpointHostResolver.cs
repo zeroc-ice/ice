@@ -14,7 +14,7 @@ public class EndpointHostResolver
         _thread = new HelperThread(this);
         updateObserver();
         _thread.Start(Util.stringToThreadPriority(
-                instance.initializationData().properties.getProperty("Ice.ThreadPriority")));
+                instance.initializationData().properties.getIceProperty("Ice.ThreadPriority")));
     }
 
     public void resolve(string host, int port, Ice.EndpointSelectionType selType, IPEndpointI endpoint,

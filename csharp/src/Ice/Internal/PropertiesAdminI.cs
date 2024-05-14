@@ -172,7 +172,7 @@ internal sealed class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePro
                     }
                     catch (System.Exception ex)
                     {
-                        if (_properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+                        if (_properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 1)
                         {
                             _logger.warning("properties admin update callback raised unexpected exception:\n" + ex);
                         }
@@ -187,7 +187,7 @@ internal sealed class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePro
                     }
                     catch (System.Exception ex)
                     {
-                        if (_properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+                        if (_properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 1)
                         {
                             _logger.warning("properties admin update callback raised unexpected exception:\n" + ex);
                         }

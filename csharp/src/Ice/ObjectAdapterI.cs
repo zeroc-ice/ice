@@ -838,7 +838,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
         //
         // Warn about unknown object adapter properties.
         //
-        if (unknownProps.Count != 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
+        if (unknownProps.Count != 0 && properties.getIcePropertyAsInt("Ice.Warn.UnknownProperties") > 0)
         {
             StringBuilder message = new StringBuilder("found unknown properties for object adapter `");
             message.Append(_name);

@@ -236,7 +236,7 @@ public sealed class ProxyFactory
     {
         _instance = instance;
 
-        string[] arr = _instance.initializationData().properties.getPropertyAsList("Ice.RetryIntervals");
+        string[] arr = _instance.initializationData().properties.getIcePropertyAsList("Ice.RetryIntervals");
 
         if (arr.Length > 0)
         {

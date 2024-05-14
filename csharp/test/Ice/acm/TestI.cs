@@ -11,7 +11,7 @@ namespace Ice
             {
                 Ice.Communicator com = current.adapter.getCommunicator();
                 Ice.Properties properties = com.getProperties();
-                string protocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+                string protocol = properties.getIceProperty("Ice.Default.Protocol");
                 string host = properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
 
                 string name = System.Guid.NewGuid().ToString();

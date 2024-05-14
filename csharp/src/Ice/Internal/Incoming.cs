@@ -615,7 +615,7 @@ public class Incoming
                 ex.operation = _current.operation;
             }
 
-            if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+            if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 1)
             {
                 warning(ex);
             }
@@ -675,7 +675,7 @@ public class Incoming
         }
         catch (Ice.UnknownLocalException ex)
         {
-            if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 0)
             {
                 warning(ex);
             }
@@ -704,7 +704,7 @@ public class Incoming
         }
         catch (Ice.UnknownUserException ex)
         {
-            if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 0)
             {
                 warning(ex);
             }
@@ -734,7 +734,7 @@ public class Incoming
         }
         catch (Ice.UnknownException ex)
         {
-            if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 0)
             {
                 warning(ex);
             }
@@ -789,7 +789,7 @@ public class Incoming
         }
         catch (Ice.Exception ex)
         {
-            if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 0)
             {
                 warning(ex);
             }
@@ -818,7 +818,7 @@ public class Incoming
         }
         catch (System.Exception ex)
         {
-            if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 0)
             {
                 warning(ex);
             }

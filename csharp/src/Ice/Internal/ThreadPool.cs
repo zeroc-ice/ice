@@ -160,7 +160,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
         _serialize = properties.getPropertyAsInt(_prefix + ".Serialize") > 0;
         _serverIdleTime = timeout;
 
-        string programName = properties.getProperty("Ice.ProgramName");
+        string programName = properties.getIceProperty("Ice.ProgramName");
         if (programName.Length > 0)
         {
             _threadPrefix = programName + "-" + _prefix;
