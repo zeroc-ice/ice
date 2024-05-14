@@ -819,5 +819,5 @@ public sealed class Properties
         return prop.defaultValue;
     }
 
-    private Dictionary<string, PropertyValue> _properties;
+    private readonly Dictionary<string, PropertyValue> _properties = [];
 }
