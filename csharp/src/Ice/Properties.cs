@@ -32,7 +32,7 @@ public sealed class Properties
     /// <summary>
     /// Creates a new empty property set.
     /// </summary>
-    public Properties() => _properties = [];
+    public Properties() { }
 
     /// <summary>
     /// Creates a property set initialized from an argument vector.
@@ -49,7 +49,6 @@ public sealed class Properties
     /// that were removed from args.</returns>
     public Properties(ref string[] args, Properties? defaults = null)
     {
-        _properties = [];
         if (defaults is not null)
         {
             foreach (KeyValuePair<string, PropertyValue> entry in defaults._properties)
