@@ -1,6 +1,7 @@
 #include "../../src/Ice/SSL/SecureTransportUtil.h"
 #include "Ice/SSL/ClientAuthenticationOptions.h"
 #include "Ice/SSL/ServerAuthenticationOptions.h"
+#include "Ice/UniqueRef.h"
 #include "Test.h"
 #include "TestHelper.h"
 #include "TestI.h"
@@ -24,6 +25,26 @@ getKeyChainPath(const string& basePath)
     os << basePath << "/keychain/" << nextKeyChain++ << ".keychain";
     return os.str();
 }
+
+#    ifdef ICE_USE_SECURE_TRANSPORT_IOS
+string
+getResourcePath(const string& path)
+{
+    CFBundleRef bundle = CFBundleGetMainBundle();
+    if (bundle)
+    {
+        IceInternal::UniqueRef<CFStringRef> resourceName(toCFString(path));
+        IceInternal::UniqueRef<CFURLRef> url(CFBundleCopyResourceURL(bundle, resourceName.get(), nullptr, nullptr));
+
+        UInt8 filePath[PATH_MAX];
+        if (CFURLGetFileSystemRepresentation(url.get(), true, filePath, sizeof(filePath)))
+        {
+            return string(reinterpret_cast<char*>(filePath));
+        }
+    }
+    return "";
+}
+#    endif
 
 const string password = "password";
 const string keychainPassword = "password";
@@ -456,7 +477,7 @@ serverRejectsClientUsingValidationCallback(Test::TestHelper* helper, const strin
 void
 allSecureTransportTests(Test::TestHelper* helper, const string&)
 {
-    const string certificatesPath = "certs";
+    const string certificatesPath = getResourcePath("certs");
 #    else
 void
 allSecureTransportTests(Test::TestHelper* helper, const string& testDir)
