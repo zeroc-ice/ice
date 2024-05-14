@@ -188,10 +188,6 @@ namespace Slice
             virtual void visitModuleEnd(const ModulePtr&);
             virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
             virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
-
-        private:
-            typedef std::set<std::string> NameSet;
-            void writeTieOperations(const InterfaceDefPtr&, NameSet* = 0);
         };
     };
 }

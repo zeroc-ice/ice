@@ -423,8 +423,8 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
         _out << nl << "_ => throw new " << getUnqualified("Ice.OperationNotExistException()", ns);
         _out << eb;
         _out << ";";
+        _out << eb;
     }
-    _out << eb;
 
     if (ops.size() != 0)
     {
@@ -1970,7 +1970,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& op)
     _out << sp;
     _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1011\")]";
     _out << nl << "public static global::System.Threading.Tasks.Task<" << getUnqualified("Ice.OutputStream", ns) << ">";
-    _out << nl << "iceD_" << opName << "(" << interfaceName << " obj, "
+    _out << nl << "iceD_" << op->name() << "(" << interfaceName << " obj, "
          << "global::Ice.Internal.Incoming inS, " << getUnqualified("Ice.Current", ns) << " current)";
     _out << sb;
 
