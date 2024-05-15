@@ -63,10 +63,7 @@ createClient(optional<ClientAuthenticationOptions> clientAuthenticationOptions)
     initData.properties = Ice::createProperties();
     // Disable IPv6 for compatibility with Docker containers running on macOS.
     initData.properties->setProperty("Ice.IPv6", "0");
-    if (clientAuthenticationOptions)
-    {
-        initData.clientAuthenticationOptions = *clientAuthenticationOptions;
-    }
+    initData.clientAuthenticationOptions = clientAuthenticationOptions;
     return initialize(initData);
 }
 
@@ -541,8 +538,10 @@ serverRejectsClientUsingValidationCallback(Test::TestHelper* helper, const strin
 }
 
 void
-allOpenSSLTests(Test::TestHelper* helper, const string& testDir)
+allAuthenticationOptionsTests(Test::TestHelper* helper, const string& testDir)
 {
+    cerr << "testing with OpenSSL native APIs..." << endl;
+
     clientValidatesServerUsingCAFile(helper, testDir);
     clientRejectsServerUsingCAFile(helper, testDir);
     clientRejectsServerUsingDefaultSettings(helper, testDir);

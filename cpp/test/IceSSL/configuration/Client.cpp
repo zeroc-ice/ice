@@ -37,21 +37,8 @@ Client::run(int argc, char** argv)
     testdir = argv[1];
 #endif
 
-#if defined(ICE_USE_SCHANNEL)
-    void allSchannelTests(Test::TestHelper*, const string&);
-    cerr << "testing with Schannel native APIs..." << endl;
-    allSchannelTests(this, testdir);
-#elif defined(ICE_USE_SECURE_TRANSPORT)
-    void allSecureTransportTests(Test::TestHelper*, const string&);
-
-    cerr << "testing with SecureTransport native APIs..." << endl;
-    allSecureTransportTests(this, testdir);
-#elif defined(ICE_USE_OPENSSL)
-    void allOpenSSLTests(Test::TestHelper*, const string&);
-
-    cerr << "testing with OpenSSL native APIs..." << endl;
-    allOpenSSLTests(this, testdir);
-#endif
+    void allAuthenticationOptionsTests(Test::TestHelper*, const string&);
+    allAuthenticationOptionsTests(this, testdir);
 
     Test::ServerFactoryPrx allTests(Test::TestHelper*, const string&, bool);
 

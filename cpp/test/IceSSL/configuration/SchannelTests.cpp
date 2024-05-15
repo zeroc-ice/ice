@@ -506,8 +506,10 @@ serverRejectsClientUsingValidationCallback(Test::TestHelper* helper, const strin
 }
 
 void
-allSchannelTests(Test::TestHelper* helper, const string& testDir)
+allAuthenticationOptionsTests(Test::TestHelper* helper, const string& testDir)
 {
+    cerr << "testing with Schannel native APIs..." << endl;
+
     const string certificatesPath = testDir + "/../certs";
 
     clientValidatesServerSettingTrustedRootCertificates(helper, certificatesPath);
