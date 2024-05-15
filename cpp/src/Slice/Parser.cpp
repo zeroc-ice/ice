@@ -1001,7 +1001,7 @@ Slice::Contained::parseFormatMetaData(const list<string>& metaData)
 bool
 Slice::Contained::isDeprecated(bool checkParent) const
 {
-    const string prefix1 = "deprecate:";
+    const string prefix1 = "deprecate";
     const string prefix2 = "deprecated";
     string metadata;
     ContainedPtr parent = checkParent ? dynamic_pointer_cast<Contained>(_container) : nullptr;
