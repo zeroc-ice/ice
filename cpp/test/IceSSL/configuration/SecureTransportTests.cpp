@@ -237,7 +237,6 @@ clientRejectsServerUsingDefaultTrustedRootCertificates(Test::TestHelper* helper,
         getKeyChainPath(certificatesPath),
         keychainPassword,
         password);
-    CFArrayRef trustedRootCertificates = SecureTransport::loadCACertificates(certificatesPath + "/cacert2.pem");
     try
     {
         Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
@@ -264,11 +263,9 @@ clientRejectsServerUsingDefaultTrustedRootCertificates(Test::TestHelper* helper,
     catch (...)
     {
         CFRelease(serverCertificateChain);
-        CFRelease(trustedRootCertificates);
         throw;
     }
     CFRelease(serverCertificateChain);
-    CFRelease(trustedRootCertificates);
     cout << "ok" << endl;
 }
 
@@ -282,7 +279,9 @@ clientRejectsServerUsingValidationCallback(Test::TestHelper* helper, const strin
         getKeyChainPath(certificatesPath),
         keychainPassword,
         password);
-    CFArrayRef trustedRootCertificates = SecureTransport::loadCACertificates(certificatesPath + "/cacert2.pem");
+    // The client trusted root certificates include the server certificate CA, but the validation callback
+    // rejects the server certificate.
+    CFArrayRef trustedRootCertificates = SecureTransport::loadCACertificates(certificatesPath + "/cacert1.pem");
     try
     {
         Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
@@ -672,7 +671,7 @@ serverHotCertificateReload(Test::TestHelper* helper, const string& certificatesP
         }
 
     private:
-        CFArrayRef _serverCertificateChain;
+        CFArrayRef _serverCertificateChain = nullptr;
     };
 
     ServerState serverState(certificatesPath + "/s_rsa_ca1.p12", getKeyChainPath(certificatesPath));

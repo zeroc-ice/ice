@@ -261,7 +261,7 @@ clientRejectsServerUsingDefaultSettings(Test::TestHelper* helper, const string& 
 
     try
     {
-        auto serverAuthenticationOptions = Ice::SSL::ServerAuthenticationOptions{
+        Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
             .serverSSLContextSelectionCallback = [serverSSLContext](const string&)
             {
                 SSL_CTX_up_ref(serverSSLContext);
@@ -272,8 +272,8 @@ clientRejectsServerUsingDefaultSettings(Test::TestHelper* helper, const string& 
         // The client doesn't provide SSL authentication options. The system OpenSSL configuration would be used. The
         // system configuration doesn't trust the server certificate CA, and the certificate should be rejected.
         Ice::CommunicatorHolder clientCommunicator(createClient(nullopt));
-        ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(20, "ssl"));
 
+        ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(20, "ssl"));
         try
         {
             obj->ice_ping();
@@ -304,8 +304,8 @@ clientRejectsServerUsingValidationCallback(Test::TestHelper* helper, const strin
     SSL_CTX_use_PrivateKey_file(serverSSLContext, serverKeyFile.c_str(), SSL_FILETYPE_PEM);
     SSL_CTX_set_default_passwd_cb(serverSSLContext, passwordCallback);
 
-    // The client trusted the CA used by the server, but the client sets a validation callback that explicitly rejects
-    // the server certificate.
+    // The client trusted root certificates include the server certificate CA, but the validation callback
+    // rejects the server certificate.
     const string clientCAFile = testDir + "/../certs/cacert1.pem";
     SSL_CTX* clientSSLContext = SSL_CTX_new(TLS_method());
     SSL_CTX_load_verify_file(clientSSLContext, clientCAFile.c_str());
@@ -332,7 +332,6 @@ clientRejectsServerUsingValidationCallback(Test::TestHelper* helper, const strin
         Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
 
         ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(20, "ssl"));
-
         try
         {
             obj->ice_ping();
@@ -380,7 +379,7 @@ serverValidatesClientUsingCAFile(Test::TestHelper* helper, const string& testDir
 
     try
     {
-        auto serverAuthenticationOptions = Ice::SSL::ServerAuthenticationOptions{
+        Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
             .serverSSLContextSelectionCallback =
                 [serverSSLContext](const string&)
             {
@@ -392,12 +391,13 @@ serverValidatesClientUsingCAFile(Test::TestHelper* helper, const string& testDir
             { SSL_set_verify(ssl, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, nullptr); }};
         Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
 
-        Ice::CommunicatorHolder clientCommunicator(createClient(Ice::SSL::ClientAuthenticationOptions{
+        Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
             .clientSSLContextSelectionCallback = [clientSSLContext](const string&)
             {
                 SSL_CTX_up_ref(clientSSLContext);
                 return clientSSLContext;
-            }}));
+            }};
+        Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
 
         ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(20, "ssl"));
         obj->ice_ping();
@@ -440,7 +440,7 @@ serverValidatesClientUsingValidationCallback(Test::TestHelper* helper, const str
 
     try
     {
-        auto serverAuthenticationOptions = Ice::SSL::ServerAuthenticationOptions{
+        Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
             .serverSSLContextSelectionCallback =
                 [serverSSLContext](const string&)
             {
@@ -454,12 +454,13 @@ serverValidatesClientUsingValidationCallback(Test::TestHelper* helper, const str
             { return true; }};
         Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
 
-        Ice::CommunicatorHolder clientCommunicator(createClient(Ice::SSL::ClientAuthenticationOptions{
+        Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
             .clientSSLContextSelectionCallback = [clientSSLContext](const string&)
             {
                 SSL_CTX_up_ref(clientSSLContext);
                 return clientSSLContext;
-            }}));
+            }};
+        Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
 
         ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(20, "ssl"));
         obj->ice_ping();
@@ -501,7 +502,7 @@ serverRejectsClientUsingCAFile(Test::TestHelper* helper, const string& testDir)
 
     try
     {
-        auto serverAuthenticationOptions = Ice::SSL::ServerAuthenticationOptions{
+        Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
             .serverSSLContextSelectionCallback =
                 [serverSSLContext](const string&)
             {
@@ -513,15 +514,15 @@ serverRejectsClientUsingCAFile(Test::TestHelper* helper, const string& testDir)
             { SSL_set_verify(ssl, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, nullptr); }};
         Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
 
-        Ice::CommunicatorHolder clientCommunicator(createClient(Ice::SSL::ClientAuthenticationOptions{
+        Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
             .clientSSLContextSelectionCallback = [clientSSLContext](const string&)
             {
                 SSL_CTX_up_ref(clientSSLContext);
                 return clientSSLContext;
-            }}));
+            }};
+        Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
 
         ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(20, "ssl"));
-
         try
         {
             obj->ice_ping();
@@ -568,7 +569,7 @@ serverRejectsClientUsingDefaultSettings(Test::TestHelper* helper, const string& 
 
     try
     {
-        auto serverAuthenticationOptions = Ice::SSL::ServerAuthenticationOptions{
+        Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
             .serverSSLContextSelectionCallback =
                 [serverSSLContext](const string&)
             {
@@ -579,12 +580,13 @@ serverRejectsClientUsingDefaultSettings(Test::TestHelper* helper, const string& 
             { SSL_set_verify(ssl, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, nullptr); }};
         Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
 
-        Ice::CommunicatorHolder clientCommunicator(createClient(Ice::SSL::ClientAuthenticationOptions{
+        Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
             .clientSSLContextSelectionCallback = [clientSSLContext](const string&)
             {
                 SSL_CTX_up_ref(clientSSLContext);
                 return clientSSLContext;
-            }}));
+            }};
+        Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
 
         ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(20, "ssl"));
         try
@@ -635,7 +637,7 @@ serverRejectsClientUsingValidationCallback(Test::TestHelper* helper, const strin
 
     try
     {
-        auto serverAuthenticationOptions = Ice::SSL::ServerAuthenticationOptions{
+        Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
             .serverSSLContextSelectionCallback =
                 [serverSSLContext](const string&)
             {
@@ -648,12 +650,13 @@ serverRejectsClientUsingValidationCallback(Test::TestHelper* helper, const strin
             { return false; }};
         Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
 
-        Ice::CommunicatorHolder clientCommunicator(createClient(Ice::SSL::ClientAuthenticationOptions{
+        Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
             .clientSSLContextSelectionCallback = [clientSSLContext](const string&)
             {
                 SSL_CTX_up_ref(clientSSLContext);
                 return clientSSLContext;
-            }}));
+            }};
+        Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
 
         ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(20, "ssl"));
         try
@@ -702,7 +705,7 @@ serverHotCertificateReload(Test::TestHelper* helper, const string& testDir)
 
         SSL_CTX* serverSSLContext() const { return _serverSSLContext; }
 
-        void reloadCertificate(const string& serverCertFile, const string& serverKeyFile)
+        void reloadSSLContext(const string& serverCertFile, const string& serverKeyFile)
         {
             if (_serverSSLContext)
             {
@@ -730,7 +733,7 @@ serverHotCertificateReload(Test::TestHelper* helper, const string& testDir)
 
     try
     {
-        auto serverAuthenticationOptions = Ice::SSL::ServerAuthenticationOptions{
+        Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
             .serverSSLContextSelectionCallback = [&serverState](const string&)
             {
                 SSL_CTX* serverSSLContext = serverState.serverSSLContext();
@@ -774,9 +777,7 @@ serverHotCertificateReload(Test::TestHelper* helper, const string& testDir)
             }
         }
 
-        serverState.reloadCertificate(
-            testDir + "/../certs/s_rsa_ca2_pub.pem",
-            testDir + "/../certs/s_rsa_ca2_priv.pem");
+        serverState.reloadSSLContext(testDir + "/../certs/s_rsa_ca2_pub.pem", testDir + "/../certs/s_rsa_ca2_priv.pem");
 
         {
             // CA2 is accepted with the new configuration
