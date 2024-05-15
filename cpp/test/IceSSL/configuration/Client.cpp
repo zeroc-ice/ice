@@ -41,7 +41,7 @@ Client::run(int argc, char** argv)
     void allSchannelTests(Test::TestHelper*, const string&);
     cerr << "testing with Schannel native APIs..." << endl;
     allSchannelTests(this, testdir);
-#elif defined(ICE_USE_SECURE_TRANSPORT_MACOS) // TODO add iOS support
+#elif defined(ICE_USE_SECURE_TRANSPORT)
     void allSecureTransportTests(Test::TestHelper*, const string&);
 
     cerr << "testing with SecureTransport native APIs..." << endl;
@@ -51,7 +51,6 @@ Client::run(int argc, char** argv)
 
     cerr << "testing with OpenSSL native APIs..." << endl;
     allOpenSSLTests(this, testdir);
-
 #endif
 
     Test::ServerFactoryPrx allTests(Test::TestHelper*, const string&, bool);
