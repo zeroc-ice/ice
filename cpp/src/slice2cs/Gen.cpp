@@ -2723,7 +2723,7 @@ Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
         _out << nl << "public " << name << spar << getOutParams(p, ns, true, false)
              << getUnqualified("Ice.Current", ns) + " current" << epar;
         _out << sb;
-        _out << nl << "_ostr = Ice.OutgoingResponseCurrentExtensions.startReplyStream(current);";
+        _out << nl << "_ostr = global::Ice.OutgoingResponseCurrentExtensions.startReplyStream(current);";
         _out << nl << "_ostr.startEncapsulation(current.encoding, " << opFormatTypeToString(p, ns) << ");";
         writeMarshalUnmarshalParams(outParams, p, true, ns, false, true, "_ostr");
         if (p->returnsClasses(false))
@@ -2958,13 +2958,13 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
         {
             _out << nl << "var result = await obj." << op->name() << "Async" << spar
                 << inArgs << "request.current" << epar << ".ConfigureAwait(false);";
-            _out << nl << "return new Ice.OutgoingResponse(result.outputStream, request.current);";
+            _out << nl << "return new global::Ice.OutgoingResponse(result.outputStream, request.current);";
         }
         else
         {
             _out << nl << "var result = obj." << fixId(op->name(), DotNet::ICloneable, true) << spar
                 << inArgs << "request.current" << epar << ";";
-            _out << nl << "return new (new Ice.OutgoingResponse(result.outputStream, request.current));";
+            _out << nl << "return new (new global::Ice.OutgoingResponse(result.outputStream, request.current));";
         }
     }
     else if (amd)
@@ -2983,14 +2983,15 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
 
         if (retS.empty())
         {
-            _out << nl << "return Ice.OutgoingResponseCurrentExtensions.createEmptyOutgoingResponse(request.current);";
+            _out << nl
+                << "return global::Ice.OutgoingResponseCurrentExtensions.createEmptyOutgoingResponse(request.current);";
         }
         else
         {
             // Adapt to marshaling helper below.
             string resultParam = !ret && outParams.size() == 1 ? "iceP_" + outParams.front()->name() : "ret";
 
-            _out << nl << "return Ice.OutgoingResponseCurrentExtensions.createOutgoingResponse(";
+            _out << nl << "return global::Ice.OutgoingResponseCurrentExtensions.createOutgoingResponse(";
             _out.inc();
             _out << nl << "request.current,";
             _out << nl << "result,";
@@ -3032,12 +3033,11 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
 
         if (outParams.empty() && !ret)
         {
-            _out << nl
-                << "return new(Ice.OutgoingResponseCurrentExtensions.createEmptyOutgoingResponse(request.current));";
+            _out << nl << "return new(global::Ice.OutgoingResponseCurrentExtensions.createEmptyOutgoingResponse(request.current));";
         }
         else
         {
-            _out << nl << "var ostr = Ice.OutgoingResponseCurrentExtensions.startReplyStream(request.current);";
+            _out << nl << "var ostr = global::Ice.OutgoingResponseCurrentExtensions.startReplyStream(request.current);";
             _out << nl << "ostr.startEncapsulation(request.current.encoding, " << opFormatTypeToString(op, ns) << ");";
             writeMarshalUnmarshalParams(outParams, op, true, ns);
             if (op->returnsClasses(false))
@@ -3045,7 +3045,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
                 _out << nl << "ostr.writePendingValues();";
             }
             _out << nl << "ostr.endEncapsulation();";
-            _out << nl << "return new(new Ice.OutgoingResponse(ostr, request.current));";
+            _out << nl << "return new(new global::Ice.OutgoingResponse(ostr, request.current));";
         }
     }
     _out << eb;
