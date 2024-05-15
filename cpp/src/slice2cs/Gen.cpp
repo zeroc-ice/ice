@@ -3004,6 +3004,10 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
                 _out << nl << "ostr.writePendingValues();";
             }
             _out << eb;
+            if (op->format() != DefaultFormat)
+            {
+                _out << "," << nl << opFormatTypeToString(op, ns);
+            }
             _out << ");";
             _out.dec();
         }
@@ -3060,6 +3064,10 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
                 _out << nl << "ostr.writePendingValues();";
             }
             _out << eb;
+            if (op->format() != DefaultFormat)
+            {
+                _out << "," << nl << opFormatTypeToString(op, ns);
+            }
             _out << "));";
             _out.dec();
         }

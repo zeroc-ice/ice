@@ -96,6 +96,9 @@ public static class OutgoingResponseCurrentExtensions
 
     public static OutgoingResponse createOutgoingResponse(this Current current, bool ok, byte[] encapsulation)
     {
+        // For compatibility with the Ice 3.7 and earlier.
+        encapsulation ??= [];
+
         var ostr = new OutputStream(current.adapter.getCommunicator(), Util.currentProtocolEncoding);
         if (current.requestId != 0)
         {
@@ -195,7 +198,9 @@ public static class OutgoingResponseCurrentExtensions
 
             case UserException ex:
                 exceptionId = ex.ice_id();
-                exceptionMessage = ex.ToString();
+
+                // TODO, ToString() fails with slicing/objects tests (StackOverflowException)
+                exceptionMessage = ex.ice_id();
 
                 replyStatus = ReplyStatus.UserException;
 

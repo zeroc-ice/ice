@@ -301,11 +301,18 @@ public abstract class Blobject : ObjectImpl
         inS.setResult(inS.writeParamEncaps(inS.getAndClearCachedOutputStream(), outEncaps, ok));
         return null;
     }
+
+    public override ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request)
+    {
+        byte[] inEncaps = request.inputStream.readEncapsulation(out _);
+        bool ok = ice_invoke(inEncaps, out byte[] outEncaps, request.current);
+        return new(request.current.createOutgoingResponse(ok, outEncaps));
+    }
 }
 
 public abstract class BlobjectAsync : ObjectImpl
 {
-    public abstract Task<Ice.Object_Ice_invokeResult> ice_invokeAsync(byte[] inEncaps, Current current);
+    public abstract Task<Object_Ice_invokeResult> ice_invokeAsync(byte[] inEncaps, Current current);
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public override Task<Ice.OutputStream> iceDispatch(Ice.Internal.Incoming inS, Current current)
@@ -318,5 +325,12 @@ public abstract class BlobjectAsync : ObjectImpl
             var ret = t.GetAwaiter().GetResult();
             return Task.FromResult(inS.writeParamEncaps(cached, ret.outEncaps, ret.returnValue));
         }).Unwrap();
+    }
+
+    public override async ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request)
+    {
+        byte[] inEncaps = request.inputStream.readEncapsulation(out _);
+        Object_Ice_invokeResult result = await ice_invokeAsync(inEncaps, request.current).ConfigureAwait(false);
+        return request.current.createOutgoingResponse(result.returnValue, result.outEncaps);
     }
 }
