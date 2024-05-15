@@ -64,7 +64,7 @@ public sealed class ServantManager : Object
         {
             Debug.Assert(_instance != null); // Must not be called after destruction.
 
-           facet ??= "";
+            facet ??= "";
 
             Dictionary<string, Ice.Object>? m;
             _servantMapMap.TryGetValue(ident, out m);
@@ -298,7 +298,7 @@ public sealed class ServantManager : Object
     //
     public void destroy()
     {
-        Dictionary<string, Ice.ServantLocator> ?locatorMap = null;
+        Dictionary<string, Ice.ServantLocator>? locatorMap = null;
         Ice.Logger? logger = null;
         lock (this)
         {
