@@ -4,10 +4,10 @@
 
 #include "SecureTransportUtil.h"
 #include "../Base64.h"
+#include "../UniqueRef.h"
 #include "DistinguishedName.h"
 #include "Ice/LocalException.h"
 #include "Ice/SSL/SSLException.h"
-#include "Ice/UniqueRef.h"
 #include "IceUtil/FileUtil.h"
 #include "IceUtil/StringUtil.h"
 

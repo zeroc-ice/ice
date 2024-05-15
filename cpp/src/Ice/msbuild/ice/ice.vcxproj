@@ -976,7 +976,6 @@
     <ClInclude Include="..\..\..\..\include\Ice\StreamHelpers.h" />
     <ClInclude Include="..\..\..\..\include\Ice\StringConverter.h" />
     <ClInclude Include="..\..\..\..\include\Ice\ThreadPoolF.h" />
-    <ClInclude Include="..\..\..\..\include\Ice\UniqueRef.h" />
     <ClInclude Include="..\..\..\..\include\Ice\UserException.h" />
     <ClInclude Include="..\..\..\..\include\Ice\UserExceptionFactory.h" />
     <ClInclude Include="..\..\..\..\include\Ice\UUID.h" />

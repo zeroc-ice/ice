@@ -7,10 +7,10 @@
 
 #ifdef __APPLE__
 
+#    include "../UniqueRef.h"
 #    include "Ice/InstanceF.h"
 #    include "Ice/SSL/ClientAuthenticationOptions.h"
 #    include "Ice/SSL/ServerAuthenticationOptions.h"
-#    include "Ice/UniqueRef.h"
 #    include "SSLEngine.h"
 
 #    include <Security/SecureTransport.h>
