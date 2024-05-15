@@ -36,10 +36,13 @@ extern "C"
 
 namespace
 {
-    std::function<bool(bool, X509_STORE_CTX* ctx, const Ice::SSL::ConnectionInfoPtr&)>
-    createDefaultVerificationCallback()
+    bool defaultVerificationCallback(bool ok, X509_STORE_CTX*, const Ice::SSL::ConnectionInfoPtr&) { return ok; }
+
+    SSL_CTX* defaultSSLContextSelectionCallback(const string&)
     {
-        return [](bool ok, X509_STORE_CTX*, const Ice::SSL::ConnectionInfoPtr&) { return ok; };
+        SSL_CTX* defaultSSLContext = SSL_CTX_new(TLS_method());
+        SSL_CTX_set_default_verify_paths(defaultSSLContext);
+        return defaultSSLContext;
     }
 }
 
@@ -696,11 +699,14 @@ OpenSSL::TransceiverI::TransceiverI(
       _sentBytes(0),
       _maxSendPacketSize(0),
       _maxRecvPacketSize(0),
-      _localSSLContextSelectionCallback(serverAuthenticationOptions.serverSSLContextSelectionCallback),
+      _localSSLContextSelectionCallback(
+          serverAuthenticationOptions.serverSSLContextSelectionCallback
+              ? serverAuthenticationOptions.serverSSLContextSelectionCallback
+              : defaultSSLContextSelectionCallback),
       _remoteCertificateVerificationCallback(
           serverAuthenticationOptions.clientCertificateValidationCallback
               ? serverAuthenticationOptions.clientCertificateValidationCallback
-              : createDefaultVerificationCallback()),
+              : defaultVerificationCallback),
       _sslNewSessionCallback(serverAuthenticationOptions.sslNewSessionCallback)
 {
 }
@@ -724,11 +730,14 @@ OpenSSL::TransceiverI::TransceiverI(
       _sentBytes(0),
       _maxSendPacketSize(0),
       _maxRecvPacketSize(0),
-      _localSSLContextSelectionCallback(clientAuthenticationOptions.clientSSLContextSelectionCallback),
+      _localSSLContextSelectionCallback(
+          clientAuthenticationOptions.clientSSLContextSelectionCallback
+              ? clientAuthenticationOptions.clientSSLContextSelectionCallback
+              : defaultSSLContextSelectionCallback),
       _remoteCertificateVerificationCallback(
           clientAuthenticationOptions.serverCertificateValidationCallback
               ? clientAuthenticationOptions.serverCertificateValidationCallback
-              : createDefaultVerificationCallback()),
+              : defaultVerificationCallback),
       _sslNewSessionCallback(clientAuthenticationOptions.sslNewSessionCallback)
 {
 }
