@@ -2643,57 +2643,35 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
         return _state == StateHolding ? SocketOperation.None : SocketOperation.Read;
     }
 
-    private void dispatchAll(InputStream stream, int requestCount, int requestId, byte compress,
-                           ServantManager servantManager, ObjectAdapter adapter)
+    private void dispatchAll(
+        InputStream stream,
+        int requestCount,
+        int requestId,
+        byte compress,
+        ServantManager servantManager,
+        ObjectAdapter adapter)
     {
-        // Note: In contrast to other private or protected methods, this
-        // operation must be called *without* the mutex locked.
+        // Note: In contrast to other private or protected methods, this method must be called *without* the mutex
+        // locked.
 
-        if (requestId > 0)
+        try
         {
-            Debug.Assert(requestCount == 1);
-            var request = new IncomingRequest(requestId, this, adapter, stream);
-            _ = dispatchAsync(request, servantManager); // TODO: temporary
+            while (requestCount > 0)
+            {
+                var request = new IncomingRequest(requestId, this, adapter, stream);
+
+                // We don't and can't await the dispatchAsync: with batch requests, we want all the dispatches to
+                // execute in the current Ice thread pool thread. If we awaited the dispatchAsync, we could
+                // switch to a .NET thread pool thread.
+                _ = dispatchAsync(request, servantManager); // TODO: temporary
+                --requestCount;
+            }
+
+            stream.clear();
         }
-        else
+        catch (LocalException ex) // TODO: catch all exceptions
         {
-            Incoming inc = null;
-            try
-            {
-                while (requestCount > 0)
-                {
-                    //
-                    // Prepare the invocation.
-                    //
-                    bool response = !_endpoint.datagram() && requestId != 0;
-                    Debug.Assert(!response || requestCount == 1);
-
-                    inc = getIncoming(adapter, response, compress, requestId);
-
-                    //
-                    // Dispatch the invocation.
-                    //
-                    inc.dispatch(servantManager, stream);
-
-                    --requestCount;
-
-                    reclaimIncoming(inc);
-                    inc = null;
-                }
-
-                stream.clear();
-            }
-            catch (LocalException ex)
-            {
-                this.dispatchException(requestId, ex, requestCount, false);
-            }
-            finally
-            {
-                if (inc != null)
-                {
-                    reclaimIncoming(inc);
-                }
-            }
+            this.dispatchException(requestId, ex, requestCount, amd: false);
         }
 
         async Task dispatchAsync(IncomingRequest request, Object dispatcher)
@@ -2703,6 +2681,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
 
             try
             {
+                Debug.Assert(!isTwoWay || requestCount == 1);
                 OutgoingResponse response;
 
                 try
@@ -2725,7 +2704,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
                     sendNoResponse();
                 }
             }
-            catch (Ice.LocalException ex) // TODO: should be any exception
+            catch (Ice.LocalException ex) // TODO: catch all exceptions to avoid UnobservedTaskException
             {
                 dispatchException(requestId, ex, requestCount: 1, amd);
             }

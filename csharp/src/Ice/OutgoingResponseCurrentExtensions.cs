@@ -4,6 +4,7 @@
 
 using Ice.Internal;
 using System.Diagnostics;
+using System.Runtime.ExceptionServices;
 
 namespace Ice;
 
@@ -134,8 +135,6 @@ public static class OutgoingResponseCurrentExtensions
 
     private static OutgoingResponse createOutgoingResponseCore(this Current current, System.Exception exc)
     {
-        Debug.Assert(exc is not null);
-
         var ostr = new OutputStream(current.adapter.getCommunicator(), Util.currentProtocolEncoding);
 
         if (current.requestId != 0)
@@ -143,13 +142,13 @@ public static class OutgoingResponseCurrentExtensions
             ostr.writeBlob(Protocol.replyHdr);
             ostr.writeInt(current.requestId);
         }
-        ReplyStatus replyStatus;
-        string exceptionId;
-        string exceptionMessage;
+        ReplyStatus replyStatus = default;
+        string exceptionId = "";
+        string exceptionMessage = "";
 
         try
         {
-            throw exc;
+            ExceptionDispatchInfo.Throw(exc);
         }
         catch (RequestFailedException rfe)
         {
