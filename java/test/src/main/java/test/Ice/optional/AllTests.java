@@ -97,8 +97,6 @@ public class AllTests {
     mo1.getIvsd().put(5, vs);
     mo1.setImipd(new java.util.HashMap<>());
     mo1.getImipd().put(5, MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")));
-    mo1.iood = new java.util.HashMap<>();
-    mo1.iood.put(5, new OneOptional(15));
 
     mo1.setBos(new boolean[] {false, true, false});
 
@@ -132,7 +130,6 @@ public class AllTests {
     test(mo1.getIfsd().get(4).equals(new FixedStruct(78)));
     test(mo1.getIvsd().get(5).equals(new VarStruct("hello")));
     test(mo1.getImipd().get(5).equals(communicator.stringToProxy("test")));
-    test(mo1.iood.get(5).getA() == 15);
 
     test(java.util.Arrays.equals(mo1.getBos(), new boolean[] {false, true, false}));
 
@@ -214,7 +211,6 @@ public class AllTests {
     test(mo5.getIfsd().get(4).equals(new FixedStruct(78)));
     test(mo5.getIvsd().get(5).equals(new VarStruct("hello")));
     test(mo5.getImipd().get(5).equals(communicator.stringToProxy("test")));
-    test(mo5.iood.get(5).getA() == 15);
 
     test(java.util.Arrays.equals(mo5.getBos(), new boolean[] {false, true, false}));
 
@@ -265,7 +261,6 @@ public class AllTests {
     test(mo7.getIfsd().get(4).equals(new FixedStruct(78)));
     test(!mo7.hasIvsd());
     test(!mo7.hasImipd());
-    test(mo7.iood.get(5).getA() == 15);
 
     test(java.util.Arrays.equals(mo7.getBos(), new boolean[] {false, true, false}));
 

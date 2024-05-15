@@ -59,7 +59,6 @@ dictionary<int, MyEnum> IntEnumDict;
 dictionary<int, FixedStruct> IntFixedStructDict;
 dictionary<int, VarStruct> IntVarStructDict;
 dictionary<int, MyInterface*> IntMyInterfacePrxDict;
-dictionary<int, OneOptional> IntOneOptionalDict;
 
 class MultiOptional
 {
@@ -90,8 +89,6 @@ class MultiOptional
     optional(25) IntFixedStructDict ifsd;
     optional(26) IntVarStructDict ivsd;
     optional(28) IntMyInterfacePrxDict imipd;
-
-    IntOneOptionalDict iood;
 
     optional(29) BoolSeq bos;
 }

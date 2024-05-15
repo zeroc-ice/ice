@@ -251,7 +251,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
   mo1.imipd = try [
     5: uncheckedCast(prx: communicator.stringToProxy("test")!, type: MyInterfacePrx.self)
   ]
-  mo1.iood = [5: OneOptional(a: 15)]
 
   mo1.bos = [false, true, false]
 
@@ -283,7 +282,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
   try test(mo1.ifsd![4] == FixedStruct(m: 78))
   try test(mo1.ivsd![5] == VarStruct(m: "hello"))
   try test(mo1.imipd![5]! == communicator.stringToProxy("test"))
-  try test(mo1.iood[5]!!.a! == 15)
 
   try test(mo1.bos == [false, true, false])
 
@@ -369,7 +367,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     try test(mo5.ifsd![4] == FixedStruct(m: 78))
     try test(mo5.ivsd![5] == VarStruct(m: "hello"))
     try test(mo5.imipd![5]! == communicator.stringToProxy("test"))
-    try test(mo5.iood[5]!!.a == 15)
 
     try test(mo5.bos == [false, true, false])
 
@@ -436,7 +433,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     try test(mo7.ifsd![4] == FixedStruct(m: 78))
     try test(mo7.ivsd == nil)
     try test(mo7.imipd == nil)
-    try test(mo7.iood[5]!!.a == 15)
 
     try test(mo7.bos == [false, true, false])
     try test(mo7.ser == nil)

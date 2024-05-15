@@ -347,9 +347,6 @@ allTests(Test::TestHelper* helper, bool)
     mo1->ivsd.value()[5] = vs;
     mo1->imipd = IntMyInterfacePrxDict();
     mo1->imipd.value()[5] = MyInterfacePrx(communicator, "test");
-    mo1->iood = IntOneOptionalDict();
-    mo1->iood[5] = make_shared<OneOptional>();
-    mo1->iood[5]->a = 15;
 
     mo1->bos = BoolSeq();
     mo1->bos->push_back(false);
@@ -388,7 +385,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo3->ifsd == mo1->ifsd);
     test(mo3->ivsd == mo1->ivsd);
     test(mo3->imipd == mo1->imipd);
-    test(mo3->iood == mo1->iood);
 
     test(mo3->bos == mo1->bos);
 
@@ -491,7 +487,6 @@ allTests(Test::TestHelper* helper, bool)
     {
         test(mo1->imipd.value()[v.first] == v.second);
     }
-    test(!mo5->iood->empty() && mo5->iood[5]->a == 15);
 
     test(mo5->bos == mo1->bos);
 
@@ -542,7 +537,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo7->ifsd == mo1->ifsd);
     test(!mo7->ivsd);
     test(!mo7->imipd);
-    test(!mo7->iood->empty() && mo7->iood[5]->a == 15);
 
     // Clear the second half of the optional parameters
     MultiOptionalPtr mo8 = mo5->ice_clone();

@@ -66,8 +66,6 @@ classdef AllTests
             ifsd(4) = fs;
             ivsd = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             ivsd(5) = vs;
-            iood = containers.Map('KeyType', 'int32', 'ValueType', 'any');
-            iood(5) = OneOptional(15);
             imipd = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             imipd(5) = MyInterfacePrx.uncheckedCast(communicator.stringToProxy('test'));
             mo1 = MultiOptional(15, true, 19, 78, 99, 5.5, 1.0, 'test', MyEnum.MyEnumMember, ...
@@ -75,7 +73,7 @@ classdef AllTests
                                      [5], {'test', 'test2'}, iid, sid, fs, vs, [1], ...
                                      [MyEnum.MyEnumMember, MyEnum.MyEnumMember], ...
                                      [ fs ], [ vs ], { MyInterfacePrx.uncheckedCast(communicator.stringToProxy('test')) }, ...
-                                     ied, ifsd, ivsd, imipd, iood, [false, true, false], []);
+                                     ied, ifsd, ivsd, imipd, [false, true, false], []);
 
             assert(mo1.a == 15);
             assert(mo1.b == true);
@@ -104,7 +102,6 @@ classdef AllTests
             assert(isequal(mo1.ifsd(4), FixedStruct(78)));
             assert(isequal(mo1.ivsd(5), VarStruct('hello')));
             assert(mo1.imipd(5) == communicator.stringToProxy('test'));
-            assert(mo1.iood(5).a == 15);
 
             assert(isequal(mo1.bos, [false, true, false]));
 
@@ -154,7 +151,6 @@ classdef AllTests
             assert(mo4.ifsd == Ice.Unset);
             assert(mo4.ivsd == Ice.Unset);
             assert(mo4.imipd == Ice.Unset);
-            assert(mo4.iood == Ice.Unset);
 
             assert(mo4.bos == Ice.Unset);
 
@@ -185,7 +181,6 @@ classdef AllTests
             assert(mo5.ifsd(4) == FixedStruct(78));
             assert(mo5.ivsd(5) == VarStruct('hello'));
             assert(mo5.imipd(5) == communicator.stringToProxy('test'));
-            assert(mo5.iood(5).a == 15);
 
             assert(isequal(mo5.bos, mo1.bos));
 
@@ -233,7 +228,6 @@ classdef AllTests
             assert(mo7.ifsd(4) == FixedStruct(78));
             assert(mo7.ivsd == Ice.Unset);
             assert(mo7.imipd == Ice.Unset);
-            assert(mo7.iood(5).a == 15);
 
             assert(isequal(mo7.bos, [false, true, false]));
 
@@ -284,7 +278,6 @@ classdef AllTests
             assert(mo9.ifsd == Ice.Unset);
             assert(mo9.ivsd(5) == VarStruct('hello'));
             assert(mo9.imipd(5) == communicator.stringToProxy('test'));
-            assert(mo9.iood == Ice.Unset);
 
             assert(mo9.bos == Ice.Unset);
 

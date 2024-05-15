@@ -97,7 +97,6 @@ def allTests(helper, communicator)
     test(mo1.ifsd[4] == Test::FixedStruct.new(78))
     test(mo1.ivsd[5] == Test::VarStruct.new("hello"))
     test(mo1.imipd[5] == communicator.stringToProxy("test"))
-    test(mo1.iood[5].a == 15)
 
     test(mo1.bos == [false, true, false])
 
@@ -178,7 +177,6 @@ def allTests(helper, communicator)
     test(mo5.ifsd[4] == Test::FixedStruct.new(78))
     test(mo5.ivsd[5] == Test::VarStruct.new("hello"))
     test(mo5.imipd[5] == communicator.stringToProxy("test"))
-    test(mo5.iood[5].a == 15)
 
     test(mo5.bos == mo1.bos)
 
@@ -225,7 +223,6 @@ def allTests(helper, communicator)
     test(mo7.ifsd[4] == Test::FixedStruct.new(78))
     test(mo7.ivsd == Ice::Unset)
     test(mo7.imipd == Ice::Unset)
-    test(mo7.iood[5].a == 15)
 
     test(mo7.bos == [false, true, false])
 
@@ -276,7 +273,6 @@ def allTests(helper, communicator)
     test(mo9.ifsd == Ice::Unset)
     test(mo9.ivsd[5] == Test::VarStruct.new("hello"))
     test(mo9.imipd[5] == communicator.stringToProxy("test"))
-    test(mo9.iood == Ice::Unset)
 
     test(mo9.bos == Ice::Unset)
 

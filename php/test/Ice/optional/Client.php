@@ -100,7 +100,6 @@ function allTests($helper)
     test($mo1->ifsd[4] == $fs);
     test($mo1->ivsd[5] == $vs);
     test($mo1->imipd[5] == $prx);
-    test($mo1->iood[5]->a == 15);
 
     test($mo1->bos == array(false, true, false));
 
@@ -181,7 +180,6 @@ function allTests($helper)
     test($mo5->ifsd[4] == $fs);
     test($mo5->ivsd[5] == $vs);
     test($mo5->imipd[5] == $prx);
-    test($mo5->iood[5]->a == 15);
 
     test($mo5->bos == $mo1->bos);
 
@@ -228,7 +226,6 @@ function allTests($helper)
     test($mo7->ifsd[4] == $fs);
     test($mo7->ivsd == Ice\None);
     test($mo7->imipd == Ice\None);
-    test($mo7->iood[5]->a == 15);
 
     test($mo7->bos == array(false, true, false));
 

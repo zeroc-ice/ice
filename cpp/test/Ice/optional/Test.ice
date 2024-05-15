@@ -63,7 +63,6 @@ dictionary<int, MyEnum> IntEnumDict;
 dictionary<int, FixedStruct> IntFixedStructDict;
 dictionary<int, VarStruct> IntVarStructDict;
 dictionary<int, MyInterface*> IntMyInterfacePrxDict;
-dictionary<int, OneOptional> IntOneOptionalDict;
 
 ["cpp:type:Test::CustomMap<std::int32_t, std::string>"] dictionary<int, string> IntStringDict;
 
@@ -96,8 +95,6 @@ class MultiOptional
     optional(25) IntFixedStructDict ifsd;
     optional(26) IntVarStructDict ivsd;
     optional(28) IntMyInterfacePrxDict imipd;
-
-    IntOneOptionalDict iood;
 
     optional(29) BoolSeq bos;
 

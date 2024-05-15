@@ -107,8 +107,6 @@ export class Client extends TestHelper
         mo1.ivsd.set(5, mo1.vs);
         mo1.imipd = new Map();
         mo1.imipd.set(5, Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")));
-        mo1.iood = new Map();
-        mo1.iood.set(5, new Test.OneOptional(15));
 
         mo1.bos = [false, true, false];
 
@@ -140,7 +138,6 @@ export class Client extends TestHelper
         test(mo5.ifsd.get(4).equals(new Test.FixedStruct(78)));
         test(mo5.ivsd.get(5).equals(new Test.VarStruct("hello")));
         test(mo5.imipd.get(5).equals(communicator.stringToProxy("test")));
-        test(mo5.iood.get(5).a == 15);
 
         test(ArrayUtil.equals(mo5.bos, [false, true, false]));
 
@@ -186,7 +183,6 @@ export class Client extends TestHelper
         test(mo7.ifsd.get(4).equals(new Test.FixedStruct(78)));
         test(mo7.ivsd === undefined);
         test(mo7.imipd === undefined);
-        test(mo7.iood.get(5).a == 15);
 
         test(ArrayUtil.equals(mo7.bos, [false, true, false]));
 
