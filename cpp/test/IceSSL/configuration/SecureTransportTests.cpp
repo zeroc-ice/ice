@@ -3,9 +3,9 @@
 //
 
 #include "../../src/Ice/SSL/SecureTransportUtil.h"
+#include "../../src/Ice/UniqueRef.h"
 #include "Ice/SSL/ClientAuthenticationOptions.h"
 #include "Ice/SSL/ServerAuthenticationOptions.h"
-#include "Ice/UniqueRef.h"
 #include "Test.h"
 #include "TestHelper.h"
 #include "TestI.h"
@@ -161,7 +161,7 @@ clientValidatesServerUsingSystemTrustedRootCertificates(Test::TestHelper*, const
     Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
         .sslNewSessionCallback = [](SSLContextRef ssl, const string& host)
         {
-            // Enable SNI for connecting to the Glacier2 router behind NGINX proxy.
+            // Enable SNI, it is required for connecting to CloudFront servers.
             OSStatus err = SSLSetPeerDomainName(ssl, host.data(), host.length());
             if (err != noErr)
             {

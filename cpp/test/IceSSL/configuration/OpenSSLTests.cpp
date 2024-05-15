@@ -175,7 +175,7 @@ clientValidatesServerUsingSystemTrustedRootCertificates(Test::TestHelper*, const
     Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
         .sslNewSessionCallback = [](::SSL* ssl, const string& host)
         {
-            // Enable SNI for connecting to the Glacier2 router behind NGINX proxy.
+            // Enable SNI, it is required for connecting to CloudFront servers.
             if (!SSL_set_tlsext_host_name(ssl, host.c_str()))
             {
                 ostringstream os;
