@@ -19,14 +19,11 @@ public static class OutgoingResponseCurrentExtensions
         Action<OutputStream, TResult> marshal,
         FormatType formatType = FormatType.DefaultFormat)
     {
-        var ostr = new OutputStream(current.adapter.getCommunicator(), Util.currentProtocolEncoding);
+        OutputStream ostr = current.startReplyStream();
         if (current.requestId != 0)
         {
             try
             {
-                ostr.writeBlob(Protocol.replyHdr);
-                ostr.writeInt(current.requestId);
-                ostr.writeByte((byte)ReplyStatus.Ok);
                 ostr.startEncapsulation(current.encoding, formatType);
                 marshal(ostr, result);
                 ostr.endEncapsulation();
@@ -49,14 +46,11 @@ public static class OutgoingResponseCurrentExtensions
         Action<OutputStream> marshal,
         FormatType formatType = FormatType.DefaultFormat)
     {
-        var ostr = new OutputStream(current.adapter.getCommunicator(), Util.currentProtocolEncoding);
+        OutputStream ostr = current.startReplyStream();
         if (current.requestId != 0)
         {
             try
             {
-                ostr.writeBlob(Protocol.replyHdr);
-                ostr.writeInt(current.requestId);
-                ostr.writeByte((byte)ReplyStatus.Ok);
                 ostr.startEncapsulation(current.encoding, formatType);
                 marshal(ostr);
                 ostr.endEncapsulation();
@@ -76,14 +70,11 @@ public static class OutgoingResponseCurrentExtensions
 
     public static OutgoingResponse createEmptyOutgoingResponse(this Current current)
     {
-        var ostr = new OutputStream(current.adapter.getCommunicator(), Util.currentProtocolEncoding);
+        OutputStream ostr = current.startReplyStream();
         if (current.requestId != 0)
         {
             try
             {
-                ostr.writeBlob(Protocol.replyHdr);
-                ostr.writeInt(current.requestId);
-                ostr.writeByte((byte)ReplyStatus.Ok);
                 ostr.writeEmptyEncapsulation(current.encoding);
             }
             catch (System.Exception ex)
@@ -98,15 +89,12 @@ public static class OutgoingResponseCurrentExtensions
     {
         // For compatibility with the Ice 3.7 and earlier.
         encapsulation ??= [];
+        OutputStream ostr = current.startReplyStream(ok ? ReplyStatus.Ok : ReplyStatus.UserException);
 
-        var ostr = new OutputStream(current.adapter.getCommunicator(), Util.currentProtocolEncoding);
         if (current.requestId != 0)
         {
             try
             {
-                ostr.writeBlob(Protocol.replyHdr);
-                ostr.writeInt(current.requestId);
-                ostr.writeByte((byte)(ok ? ReplyStatus.Ok : ReplyStatus.UserException));
                 if (encapsulation.Length > 0)
                 {
                     ostr.writeEncapsulation(encapsulation);
@@ -136,15 +124,45 @@ public static class OutgoingResponseCurrentExtensions
         }
     }
 
+    /// <summary>
+    /// Starts the output stream for a reply, with everything up to and including the reply status. When the request ID
+    /// is 0 (one-way request), the returned output stream is empty.
+    /// </summary>
+    /// <param name="communicator">The communicator.</param>
+    /// <param name="requestId">The request ID.</param>
+    /// <param name="replyStatus">The reply status</param>
+    /// <returns>The new output stream.</returns>
+    public static OutputStream startReplyStream(this Current current, ReplyStatus replyStatus = ReplyStatus.Ok)
+    {
+        if (current.requestId == 0)
+        {
+            return new OutputStream();
+        }
+        else
+        {
+            var ostr = new OutputStream(current.adapter.getCommunicator(), Util.currentProtocolEncoding);
+            ostr.writeBlob(Protocol.replyHdr);
+            ostr.writeInt(current.requestId);
+            ostr.writeByte((byte)replyStatus);
+            return ostr;
+        }
+    }
+
     private static OutgoingResponse createOutgoingResponseCore(this Current current, System.Exception exc)
     {
-        var ostr = new OutputStream(current.adapter.getCommunicator(), Util.currentProtocolEncoding);
+        OutputStream ostr;
 
         if (current.requestId != 0)
         {
+            ostr = new OutputStream(current.adapter.getCommunicator(), Util.currentProtocolEncoding);
             ostr.writeBlob(Protocol.replyHdr);
             ostr.writeInt(current.requestId);
         }
+        else
+        {
+            ostr = new OutputStream();
+        }
+
         ReplyStatus replyStatus;
         string exceptionId;
         string exceptionMessage;

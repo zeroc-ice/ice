@@ -67,9 +67,6 @@ public interface Object
     /// <returns>The Slice type ID of the most-derived interface.</returns>
     public string ice_id(Current current) => throw new NotImplementedException();
 
-    public Task<OutputStream>? iceDispatch(Ice.Internal.Incoming inc, Current current) =>
-        throw new NotImplementedException();
-
     public ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request) =>
         throw new NotImplementedException();
 
@@ -124,41 +121,6 @@ public abstract class ObjectImpl : Object
     {
     }
 
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Task<OutputStream>? iceD_ice_isA(Object obj, Ice.Internal.Incoming inS, Current current)
-    {
-        InputStream istr = inS.startReadParams();
-        var id = istr.readString();
-        inS.endReadParams();
-        var ret = obj.ice_isA(id, current);
-        var ostr = inS.startWriteParams();
-        ostr.writeBool(ret);
-        inS.endWriteParams(ostr);
-        inS.setResult(ostr);
-        return null;
-    }
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Task<OutputStream>? iceD_ice_ping(Object obj, Ice.Internal.Incoming inS, Current current)
-    {
-        inS.readEmptyParams();
-        obj.ice_ping(current);
-        inS.setResult(inS.writeEmptyParams());
-        return null;
-    }
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Task<OutputStream>? iceD_ice_ids(Object obj, Ice.Internal.Incoming inS, Current current)
-    {
-        inS.readEmptyParams();
-        var ret = obj.ice_ids(current);
-        var ostr = inS.startWriteParams();
-        ostr.writeStringSeq(ret);
-        inS.endWriteParams(ostr);
-        inS.setResult(ostr);
-        return null;
-    }
-
     /// <summary>
     /// Returns the Slice type ID of the most-derived interface supported by this object.
     /// </summary>
@@ -166,28 +128,11 @@ public abstract class ObjectImpl : Object
     /// <returns>The return value is always ::Ice::Object.</returns>
     public virtual string ice_id(Current current) => ice_staticId();
 
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Task<OutputStream>? iceD_ice_id(Object obj, Ice.Internal.Incoming inS, Current current)
-    {
-        inS.readEmptyParams();
-        var ret = obj.ice_id(current);
-        var ostr = inS.startWriteParams();
-        ostr.writeString(ret);
-        inS.endWriteParams(ostr);
-        inS.setResult(ostr);
-        return null;
-    }
-
     /// <summary>
     /// Returns the Slice type ID of the interface supported by this object.
     /// </summary>
     /// <returns>The return value is always ::Ice::Object.</returns>
     public static string ice_staticId() => "::Ice::Object";
-
-    private static readonly string[] _all = new string[]
-    {
-        "ice_id", "ice_ids", "ice_isA", "ice_ping"
-    };
 
     public virtual ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request) =>
         request.current.operation switch
@@ -198,39 +143,6 @@ public abstract class ObjectImpl : Object
             "ice_ping" => Object.iceD_ice_pingAsync(this, request),
             _ => throw new OperationNotExistException()
         };
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual Task<OutputStream>? iceDispatch(Ice.Internal.Incoming inc, Current current)
-    {
-        int pos = Array.BinarySearch(_all, current.operation);
-        if (pos < 0)
-        {
-            throw new OperationNotExistException(current.id, current.facet, current.operation);
-        }
-
-        switch (pos)
-        {
-            case 0:
-            {
-                return iceD_ice_id(this, inc, current);
-            }
-            case 1:
-            {
-                return iceD_ice_ids(this, inc, current);
-            }
-            case 2:
-            {
-                return iceD_ice_isA(this, inc, current);
-            }
-            case 3:
-            {
-                return iceD_ice_ping(this, inc, current);
-            }
-        }
-
-        Debug.Assert(false);
-        throw new OperationNotExistException(current.id, current.facet, current.operation);
-    }
 
     private static string operationModeToString(OperationMode mode)
     {
@@ -292,16 +204,6 @@ public abstract class Blobject : ObjectImpl
     /// Ice run-time exception, it must throw it directly.</returns>
     public abstract bool ice_invoke(byte[] inParams, out byte[] outParams, Current current);
 
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public override Task<OutputStream>? iceDispatch(Ice.Internal.Incoming inS, Current current)
-    {
-        byte[] inEncaps = inS.readParamEncaps();
-        byte[] outEncaps;
-        bool ok = ice_invoke(inEncaps, out outEncaps, current);
-        inS.setResult(inS.writeParamEncaps(inS.getAndClearCachedOutputStream(), outEncaps, ok));
-        return null;
-    }
-
     public override ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request)
     {
         byte[] inEncaps = request.inputStream.readEncapsulation(out _);
@@ -313,19 +215,6 @@ public abstract class Blobject : ObjectImpl
 public abstract class BlobjectAsync : ObjectImpl
 {
     public abstract Task<Object_Ice_invokeResult> ice_invokeAsync(byte[] inEncaps, Current current);
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public override Task<Ice.OutputStream> iceDispatch(Ice.Internal.Incoming inS, Current current)
-    {
-        byte[] inEncaps = inS.readParamEncaps();
-        var task = ice_invokeAsync(inEncaps, current);
-        var cached = inS.getAndClearCachedOutputStream();
-        return task.ContinueWith((Task<Object_Ice_invokeResult> t) =>
-        {
-            var ret = t.GetAwaiter().GetResult();
-            return Task.FromResult(inS.writeParamEncaps(cached, ret.outEncaps, ret.returnValue));
-        }).Unwrap();
-    }
 
     public override async ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request)
     {

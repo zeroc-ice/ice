@@ -1561,7 +1561,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
         _writeStream.getBuffer().clear();
         _readStream.clear();
         _readStream.getBuffer().clear();
-        _incomingCache = null;
 
         if (_closeCallback != null)
         {
@@ -2890,47 +2889,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
         _writeStreamPos = -1;
     }
 
-    private Incoming getIncoming(ObjectAdapter adapter, bool response, byte compress, int requestId)
-    {
-        Incoming inc = null;
-
-        if (_cacheBuffers)
-        {
-            lock (_incomingCacheMutex)
-            {
-                if (_incomingCache == null)
-                {
-                    inc = new Incoming(_instance, this, this, adapter, response, compress, requestId);
-                }
-                else
-                {
-                    inc = _incomingCache;
-                    _incomingCache = _incomingCache.next;
-                    inc.reset(_instance, this, this, adapter, response, compress, requestId);
-                    inc.next = null;
-                }
-            }
-        }
-        else
-        {
-            inc = new Incoming(_instance, this, this, adapter, response, compress, requestId);
-        }
-
-        return inc;
-    }
-
-    internal void reclaimIncoming(Incoming inc)
-    {
-        if (_cacheBuffers && inc.reclaim())
-        {
-            lock (_incomingCacheMutex)
-            {
-                inc.next = _incomingCache;
-                _incomingCache = inc;
-            }
-        }
-    }
-
     private int read(Ice.Internal.Buffer buf)
     {
         int start = buf.b.position();
@@ -3101,9 +3059,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
     private bool _shutdownInitiated;
     private bool _initialized;
     private bool _validated;
-
-    private Incoming _incomingCache;
-    private readonly object _incomingCacheMutex = new object();
 
     private static bool _compressionSupported;
 

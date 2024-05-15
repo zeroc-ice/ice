@@ -176,8 +176,6 @@ namespace Slice
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
             void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
             void visitOperation(const OperationPtr&) final;
-
-            void visitOperationOld(const OperationPtr&);
         };
 
         class HelperVisitor : public CsVisitor
@@ -205,7 +203,6 @@ namespace Slice
 
         private:
             void writeDispatch(const InterfaceDefPtr&);
-            void writeDispatchOld(const InterfaceDefPtr&);
         };
     };
 }
