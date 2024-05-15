@@ -640,7 +640,7 @@ serverRejectsClientUsingValidationCallback(Test::TestHelper* helper, const strin
 void
 serverHotCertificateReload(Test::TestHelper* helper, const string& certificatesPath)
 {
-    cout << "server hot certificate reaload... " << flush;
+    cout << "server hot certificate reload... " << flush;
     class ServerState final
     {
     public:

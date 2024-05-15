@@ -115,6 +115,90 @@ clientValidatesServerUsingCAFile(Test::TestHelper* helper, const string& testDir
 }
 
 void
+clientValidatesServerUsingValidationCallback(Test::TestHelper* helper, const string& testDir)
+{
+    cout << "client validates server certificate using validation callback... " << flush;
+
+    const string serverCertFile = testDir + "/../certs/s_rsa_ca1_pub.pem";
+    const string serverKeyFile = testDir + "/../certs/s_rsa_ca1_priv.pem";
+    SSL_CTX* serverSSLContext = SSL_CTX_new(TLS_server_method());
+    SSL_CTX_use_certificate_chain_file(serverSSLContext, serverCertFile.c_str());
+    SSL_CTX_use_PrivateKey_file(serverSSLContext, serverKeyFile.c_str(), SSL_FILETYPE_PEM);
+    SSL_CTX_set_default_passwd_cb(serverSSLContext, passwordCallback);
+
+    // The server certificate is not trusted by the client CA, but the validation callback accepts the server
+    // certificate.
+    const string clientCAFile = testDir + "/../certs/cacert2.pem";
+    SSL_CTX* clientSSLContext = SSL_CTX_new(TLS_client_method());
+    SSL_CTX_load_verify_file(clientSSLContext, clientCAFile.c_str());
+
+    try
+    {
+        Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
+            .serverSSLContextSelectionCallback = [serverSSLContext](const string&)
+            {
+                SSL_CTX_up_ref(serverSSLContext);
+                return serverSSLContext;
+            }};
+        Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
+
+        Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
+            .clientSSLContextSelectionCallback =
+                [clientSSLContext](const string&)
+            {
+                SSL_CTX_up_ref(clientSSLContext);
+                return clientSSLContext;
+            },
+            .serverCertificateValidationCallback = [](bool, X509_STORE_CTX*, const Ice::SSL::ConnectionInfoPtr&)
+            { return true; }};
+        Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
+        ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(20, "ssl"));
+        obj->ice_ping();
+    }
+    catch (...)
+    {
+        SSL_CTX_free(serverSSLContext);
+        SSL_CTX_free(clientSSLContext);
+        throw;
+    }
+    SSL_CTX_free(serverSSLContext);
+    SSL_CTX_free(clientSSLContext);
+    cout << "ok" << endl;
+}
+
+void
+clientValidatesServerUsingSystemTrustedRootCertificates(Test::TestHelper*, const string&)
+{
+    cout << "client validates server using system trusted root certificates... " << flush;
+    SSL_CTX* clientSSLContext = SSL_CTX_new(TLS_client_method());
+    SSL_CTX_set_default_verify_paths(clientSSLContext);
+    Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
+        .clientSSLContextSelectionCallback =
+            [clientSSLContext](const string&)
+        {
+            SSL_CTX_up_ref(clientSSLContext);
+            return clientSSLContext;
+        },
+        .sslNewSessionCallback =
+            [](::SSL* ssl, const string& host)
+        {
+            if (!SSL_set_tlsext_host_name(ssl, host.c_str()))
+            {
+                ostringstream os;
+                os << "IceSSL: setting SNI host failed `" << host << "'";
+                throw SecurityException(__FILE__, __LINE__, os.str());
+            }
+        }};
+    Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
+
+    Ice::ObjectPrx obj(
+        clientCommunicator.communicator(),
+        "Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
+    obj->ice_ping();
+    cout << "ok" << endl;
+}
+
+void
 clientRejectsServerUsingCAFile(Test::TestHelper* helper, const string& testDir)
 {
     cout << "client rejects server certificate using a CAFile... " << flush;
@@ -336,6 +420,66 @@ serverValidatesClientUsingCAFile(Test::TestHelper* helper, const string& testDir
 }
 
 void
+serverValidatesClientUsingValidationCallback(Test::TestHelper* helper, const string& testDir)
+{
+    cout << "server validates client certificate using validation callback... " << flush;
+    // The CAs used by the server doesn't trust the certificate used by the client.
+    const string serverCertFile = testDir + "/../certs/s_rsa_ca1_pub.pem";
+    const string serverKeyFile = testDir + "/../certs/s_rsa_ca1_priv.pem";
+    const string serverCAFile = testDir + "/../certs/cacert2.pem";
+    SSL_CTX* serverSSLContext = SSL_CTX_new(TLS_method());
+    SSL_CTX_use_certificate_chain_file(serverSSLContext, serverCertFile.c_str());
+    SSL_CTX_use_PrivateKey_file(serverSSLContext, serverKeyFile.c_str(), SSL_FILETYPE_PEM);
+    SSL_CTX_set_default_passwd_cb(serverSSLContext, passwordCallback);
+    SSL_CTX_load_verify_file(serverSSLContext, serverCAFile.c_str());
+
+    const string clientCertFile = testDir + "/../certs/c_rsa_ca1_pub.pem";
+    const string clientKeyFile = testDir + "/../certs/c_rsa_ca1_priv.pem";
+    const string clientCAFile = testDir + "/../certs/cacert1.pem";
+    SSL_CTX* clientSSLContext = SSL_CTX_new(TLS_method());
+    SSL_CTX_use_certificate_chain_file(clientSSLContext, clientCertFile.c_str());
+    SSL_CTX_use_PrivateKey_file(clientSSLContext, clientKeyFile.c_str(), SSL_FILETYPE_PEM);
+    SSL_CTX_set_default_passwd_cb(clientSSLContext, passwordCallback);
+    SSL_CTX_load_verify_file(clientSSLContext, clientCAFile.c_str());
+
+    try
+    {
+        auto serverAuthenticationOptions = Ice::SSL::ServerAuthenticationOptions{
+            .serverSSLContextSelectionCallback =
+                [serverSSLContext](const string&)
+            {
+                SSL_CTX_up_ref(serverSSLContext);
+                return serverSSLContext;
+            },
+            // Ensure that the client provides a certificate
+            .sslNewSessionCallback = [](::SSL* ssl, const string&)
+            { SSL_set_verify(ssl, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, nullptr); },
+            .clientCertificateValidationCallback = [](bool, X509_STORE_CTX*, const Ice::SSL::ConnectionInfoPtr&)
+            { return true; }};
+        Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
+
+        Ice::CommunicatorHolder clientCommunicator(createClient(Ice::SSL::ClientAuthenticationOptions{
+            .clientSSLContextSelectionCallback = [clientSSLContext](const string&)
+            {
+                SSL_CTX_up_ref(clientSSLContext);
+                return clientSSLContext;
+            }}));
+
+        ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(20, "ssl"));
+        obj->ice_ping();
+    }
+    catch (...)
+    {
+        SSL_CTX_free(serverSSLContext);
+        SSL_CTX_free(clientSSLContext);
+        throw;
+    }
+    SSL_CTX_free(serverSSLContext);
+    SSL_CTX_free(clientSSLContext);
+    cout << "ok" << endl;
+}
+
+void
 serverRejectsClientUsingCAFile(Test::TestHelper* helper, const string& testDir)
 {
     cout << "server rejects client certificate using a CAFile... " << flush;
@@ -474,8 +618,8 @@ serverRejectsClientUsingValidationCallback(Test::TestHelper* helper, const strin
     cout << "server reject client certificate using a validation callback... " << flush;
     SSL_CTX* serverSSLContext = SSL_CTX_new(TLS_method());
 
-    // The server configured CAs trust the client certificate, but the installed validation callback explicitly rejects
-    // the client certificate.
+    // The server configured CAs trust the client certificate, but the installed validation callback explicitly
+    // rejects the client certificate.
     const string serverCertFile = testDir + "/../certs/s_rsa_ca1_pub.pem";
     const string serverKeyFile = testDir + "/../certs/s_rsa_ca1_priv.pem";
     const string serverCAFile = testDir + "/../certs/cacert1.pem";
@@ -538,19 +682,172 @@ serverRejectsClientUsingValidationCallback(Test::TestHelper* helper, const strin
 }
 
 void
+serverHotCertificateReload(Test::TestHelper* helper, const string& testDir)
+{
+    cout << "server hot certificate reload... " << flush;
+    class ServerState final
+    {
+    public:
+        ServerState(const string& serverCertFile, const string& serverKeyFile)
+            : _serverSSLContext(SSL_CTX_new(TLS_method()))
+        {
+            SSL_CTX_use_certificate_chain_file(_serverSSLContext, serverCertFile.c_str());
+            SSL_CTX_use_PrivateKey_file(_serverSSLContext, serverKeyFile.c_str(), SSL_FILETYPE_PEM);
+            SSL_CTX_set_default_passwd_cb(_serverSSLContext, passwordCallback);
+        }
+
+        ~ServerState()
+        {
+            if (_serverSSLContext)
+            {
+                SSL_CTX_free(_serverSSLContext);
+            }
+        }
+
+        SSL_CTX* serverSSLContext() const { return _serverSSLContext; }
+
+        void reloadCertificate(const string& serverCertFile, const string& serverKeyFile)
+        {
+            if (_serverSSLContext)
+            {
+                SSL_CTX_free(_serverSSLContext);
+            }
+            _serverSSLContext = SSL_CTX_new(TLS_method());
+            SSL_CTX_use_certificate_chain_file(_serverSSLContext, serverCertFile.c_str());
+            SSL_CTX_use_PrivateKey_file(_serverSSLContext, serverKeyFile.c_str(), SSL_FILETYPE_PEM);
+            SSL_CTX_set_default_passwd_cb(_serverSSLContext, passwordCallback);
+        }
+
+    private:
+        SSL_CTX* _serverSSLContext = nullptr;
+    };
+
+    ServerState serverState(testDir + "/../certs/s_rsa_ca1_pub.pem", testDir + "/../certs/s_rsa_ca1_priv.pem");
+
+    const string clientCA1File = testDir + "/../certs/cacert1.pem";
+    SSL_CTX* clientSSLContextCA1 = SSL_CTX_new(TLS_method());
+    SSL_CTX_load_verify_file(clientSSLContextCA1, clientCA1File.c_str());
+
+    const string clientCA2File = testDir + "/../certs/cacert2.pem";
+    SSL_CTX* clientSSLContextCA2 = SSL_CTX_new(TLS_method());
+    SSL_CTX_load_verify_file(clientSSLContextCA2, clientCA2File.c_str());
+
+    try
+    {
+        auto serverAuthenticationOptions = Ice::SSL::ServerAuthenticationOptions{
+            .serverSSLContextSelectionCallback = [&serverState](const string&)
+            {
+                SSL_CTX* serverSSLContext = serverState.serverSSLContext();
+                SSL_CTX_up_ref(serverSSLContext);
+                return serverSSLContext;
+            }};
+        Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
+
+        {
+            Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
+                .clientSSLContextSelectionCallback = [clientSSLContextCA1](const string&)
+                {
+                    SSL_CTX_up_ref(clientSSLContextCA1);
+                    return clientSSLContextCA1;
+                }};
+            Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
+
+            ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(20, "ssl"));
+            obj->ice_ping();
+        }
+
+        {
+            // CA2 is not accepted with the initial configuration
+            Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
+                .clientSSLContextSelectionCallback = [clientSSLContextCA2](const string&)
+                {
+                    SSL_CTX_up_ref(clientSSLContextCA2);
+                    return clientSSLContextCA2;
+                }};
+            Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
+
+            ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(20, "ssl"));
+            try
+            {
+                obj->ice_ping();
+                test(false);
+            }
+            catch (const Ice::SecurityException&)
+            {
+                // Expected
+            }
+        }
+
+        serverState.reloadCertificate(
+            testDir + "/../certs/s_rsa_ca2_pub.pem",
+            testDir + "/../certs/s_rsa_ca2_priv.pem");
+
+        {
+            // CA2 is accepted with the new configuration
+            Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
+                .clientSSLContextSelectionCallback = [clientSSLContextCA2](const string&)
+                {
+                    SSL_CTX_up_ref(clientSSLContextCA2);
+                    return clientSSLContextCA2;
+                }};
+            Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
+
+            ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(20, "ssl"));
+            obj->ice_ping();
+        }
+
+        {
+            // CA1 is not accepted after reloading configuration
+            Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
+                .clientSSLContextSelectionCallback = [clientSSLContextCA1](const string&)
+                {
+                    SSL_CTX_up_ref(clientSSLContextCA1);
+                    return clientSSLContextCA1;
+                }};
+            Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
+
+            ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(20, "ssl"));
+            try
+            {
+                obj->ice_ping();
+                test(false);
+            }
+            catch (const Ice::SecurityException&)
+            {
+                // Expected
+            }
+        }
+    }
+    catch (...)
+    {
+        SSL_CTX_free(clientSSLContextCA1);
+        SSL_CTX_free(clientSSLContextCA2);
+        throw;
+    }
+    SSL_CTX_free(clientSSLContextCA1);
+    SSL_CTX_free(clientSSLContextCA2);
+    cout << "ok" << endl;
+}
+
+void
 allAuthenticationOptionsTests(Test::TestHelper* helper, const string& testDir)
 {
     cerr << "testing with OpenSSL native APIs..." << endl;
 
     clientValidatesServerUsingCAFile(helper, testDir);
+    clientValidatesServerUsingValidationCallback(helper, testDir);
+    clientValidatesServerUsingSystemTrustedRootCertificates(helper, testDir);
     clientRejectsServerUsingCAFile(helper, testDir);
     clientRejectsServerUsingDefaultSettings(helper, testDir);
     clientRejectsServerUsingValidationCallback(helper, testDir);
 
     serverValidatesClientUsingCAFile(helper, testDir);
+    serverValidatesClientUsingValidationCallback(helper, testDir);
     serverRejectsClientUsingCAFile(helper, testDir);
     serverRejectsClientUsingDefaultSettings(helper, testDir);
     serverRejectsClientUsingValidationCallback(helper, testDir);
+
+    serverHotCertificateReload(helper, testDir);
 }
 
 #    if defined(__GNUC__)
