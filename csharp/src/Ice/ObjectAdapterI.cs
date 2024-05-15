@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
+using Ice.Instrumentation;
 using Ice.Internal;
 using System.Diagnostics;
 using System.Net.Security;
@@ -815,8 +816,20 @@ public sealed class ObjectAdapterI : ObjectAdapter
         _objectAdapterFactory = objectAdapterFactory;
         _servantManager = new ServantManager(instance, name);
 
-        // TODO: add observer middleware and logger middleware if configured.
         dispatchPipeline = _servantManager;
+        if (instance.initializationData().observer is CommunicatorObserver observer)
+        {
+            dispatchPipeline = new ObserverMiddleware(dispatchPipeline, observer);
+        }
+        if (instance.initializationData().logger is Logger logger)
+        {
+            int warningLevel = instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch");
+            if (warningLevel > 0)
+            {
+                dispatchPipeline =
+                    new LoggerMiddleware(dispatchPipeline, logger, warningLevel, instance.toStringMode());
+            }
+        }
 
         _name = name;
         _incomingConnectionFactories = [];

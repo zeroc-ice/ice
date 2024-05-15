@@ -24,7 +24,7 @@ public sealed class IncomingRequest
     /// </summary>
     /// <value>The number of bytes in the request. These are all the bytes starting with the identity of the target.
     /// </value>
-    public int requestSize { get; }
+    public int size { get; }
 
     /// <summary>
     /// Constructs an incoming request.
@@ -73,6 +73,6 @@ public sealed class IncomingRequest
         // Rewind to the start of the encapsulation
         inputStream.pos(inputStream.pos() - 6);
 
-        requestSize = inputStream.pos() - start + encapsulationSize;
+        size = inputStream.pos() - start + encapsulationSize;
     }
 }
