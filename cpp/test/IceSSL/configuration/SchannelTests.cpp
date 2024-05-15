@@ -350,6 +350,7 @@ serverValidatesClientSettingTrustedRootCertificates(Test::TestHelper* helper, co
                 CertDuplicateCertificateContext(serverCertificate);
                 return serverCertificate;
             },
+            .clientCertificateRequired = true,
             .trustedRootCertificates = trustedRootCertificates};
         Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
 
