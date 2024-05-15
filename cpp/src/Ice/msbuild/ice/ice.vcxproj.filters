@@ -982,9 +982,6 @@
     <ClInclude Include="..\..\..\..\include\Ice\ThreadPoolF.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\Ice\UniqueRef.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\Ice\UserException.h">
       <Filter>Header Files</Filter>
     </ClInclude>

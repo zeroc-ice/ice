@@ -9,8 +9,8 @@
 
 #include "EventHandlerF.h"
 #include "Ice/InstanceF.h"
-#include "Ice/UniqueRef.h"
 #include "Network.h"
+#include "UniqueRef.h"
 
 #include <map>
 

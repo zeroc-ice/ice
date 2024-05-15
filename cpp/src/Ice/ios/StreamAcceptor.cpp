@@ -8,9 +8,9 @@
 
 #    include "../Instance.h"
 #    include "../Network.h"
+#    include "../UniqueRef.h"
 #    include "Ice/Exception.h"
 #    include "Ice/Properties.h"
-#    include "Ice/UniqueRef.h"
 #    include "IceUtil/StringUtil.h"
 #    include "StreamAcceptor.h"
 #    include "StreamEndpointI.h"
