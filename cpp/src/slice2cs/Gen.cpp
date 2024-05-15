@@ -2958,13 +2958,13 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
         {
             _out << nl << "var result = await obj." << op->name() << "Async" << spar
                 << inArgs << "request.current" << epar << ".ConfigureAwait(false);";
-            _out << nl << "return new global::Ice.OutgoingResponse(result.outputStream, request.current);";
+            _out << nl << "return new global::Ice.OutgoingResponse(result.outputStream);";
         }
         else
         {
             _out << nl << "var result = obj." << fixId(op->name(), DotNet::ICloneable, true) << spar
                 << inArgs << "request.current" << epar << ";";
-            _out << nl << "return new (new global::Ice.OutgoingResponse(result.outputStream, request.current));";
+            _out << nl << "return new (new global::Ice.OutgoingResponse(result.outputStream));";
         }
     }
     else if (amd)
@@ -3045,7 +3045,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
                 _out << nl << "ostr.writePendingValues();";
             }
             _out << nl << "ostr.endEncapsulation();";
-            _out << nl << "return new(new global::Ice.OutgoingResponse(ostr, request.current));";
+            _out << nl << "return new(new global::Ice.OutgoingResponse(ostr));";
         }
     }
     _out << eb;

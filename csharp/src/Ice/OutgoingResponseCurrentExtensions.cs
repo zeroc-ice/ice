@@ -27,7 +27,7 @@ public static class OutgoingResponseCurrentExtensions
                 ostr.startEncapsulation(current.encoding, formatType);
                 marshal(ostr, result);
                 ostr.endEncapsulation();
-                return new OutgoingResponse(ostr, current);
+                return new OutgoingResponse(ostr);
             }
             catch (System.Exception exception)
             {
@@ -37,7 +37,7 @@ public static class OutgoingResponseCurrentExtensions
         else
         {
             Debug.Fail("A one-way request cannot return a response");
-            return new OutgoingResponse(ostr, current);
+            return new OutgoingResponse(ostr);
         }
     }
 
@@ -55,13 +55,14 @@ public static class OutgoingResponseCurrentExtensions
                 return current.createOutgoingResponse(ex);
             }
         }
-        return new OutgoingResponse(ostr, current);
+        return new OutgoingResponse(ostr);
     }
 
     public static OutgoingResponse createOutgoingResponse(this Current current, bool ok, byte[] encapsulation)
     {
         // For compatibility with the Ice 3.7 and earlier.
         encapsulation ??= [];
+
         OutputStream ostr = current.startReplyStream(ok ? ReplyStatus.Ok : ReplyStatus.UserException);
 
         if (current.requestId != 0)
@@ -82,7 +83,7 @@ public static class OutgoingResponseCurrentExtensions
                 return current.createOutgoingResponse(ex);
             }
         }
-        return new OutgoingResponse(ostr, current);
+        return new OutgoingResponse(ostr);
     }
 
     public static OutgoingResponse createOutgoingResponse(this Current current, System.Exception exception)
@@ -253,7 +254,6 @@ public static class OutgoingResponseCurrentExtensions
             replyStatus,
             exceptionId,
             exceptionMessage,
-            ostr,
-            current);
+            ostr);
     }
 }
