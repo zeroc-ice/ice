@@ -16,29 +16,29 @@ internal sealed class LoggerMiddleware : Object
             OutgoingResponse response = await _next.dispatchAsync(request).ConfigureAwait(false);
             switch (response.replyStatus)
             {
-                case Ice.ReplyStatus.Ok:
-                case Ice.ReplyStatus.UserException:
+                case ReplyStatus.Ok:
+                case ReplyStatus.UserException:
                     // no warning
                     break;
 
-                case Ice.ReplyStatus.ObjectNotExist:
-                case Ice.ReplyStatus.FacetNotExist:
-                case Ice.ReplyStatus.OperationNotExist:
+                case ReplyStatus.ObjectNotExist:
+                case ReplyStatus.FacetNotExist:
+                case ReplyStatus.OperationNotExist:
                     if (_warningLevel > 1)
                     {
-                        warning(response.exceptionMessage, response.current);
+                        warning(response.exceptionMessage, request.current);
                     }
                     break;
 
                 default:
-                    warning(response.exceptionMessage, response.current);
+                    warning(response.exceptionMessage, request.current);
                     break;
             }
             return response;
         }
         catch (UserException)
         {
-            // No warming
+            // No warning
             throw;
         }
         catch (RequestFailedException ex)

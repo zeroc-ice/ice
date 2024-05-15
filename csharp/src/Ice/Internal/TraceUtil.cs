@@ -220,42 +220,42 @@ internal sealed class TraceUtil
         int requestId = str.readInt();
         s.Write("\nrequest id = " + requestId);
 
-        byte replyStatus = str.readByte();
+        ReplyStatus replyStatus = (ReplyStatus)str.readByte();
         s.Write("\nreply status = " + (int)replyStatus + ' ');
 
         switch (replyStatus)
         {
-            case ReplyStatus.replyOK:
+            case ReplyStatus.Ok:
             {
                 s.Write("(ok)");
                 break;
             }
 
-            case ReplyStatus.replyUserException:
+            case ReplyStatus.UserException:
             {
                 s.Write("(user exception)");
                 break;
             }
 
-            case ReplyStatus.replyObjectNotExist:
-            case ReplyStatus.replyFacetNotExist:
-            case ReplyStatus.replyOperationNotExist:
+            case ReplyStatus.ObjectNotExist:
+            case ReplyStatus.FacetNotExist:
+            case ReplyStatus.OperationNotExist:
             {
                 switch (replyStatus)
                 {
-                    case ReplyStatus.replyObjectNotExist:
+                    case ReplyStatus.ObjectNotExist:
                     {
                         s.Write("(object not exist)");
                         break;
                     }
 
-                    case ReplyStatus.replyFacetNotExist:
+                    case ReplyStatus.FacetNotExist:
                     {
                         s.Write("(facet not exist)");
                         break;
                     }
 
-                    case ReplyStatus.replyOperationNotExist:
+                    case ReplyStatus.OperationNotExist:
                     {
                         s.Write("(operation not exist)");
                         break;
@@ -272,25 +272,25 @@ internal sealed class TraceUtil
                 break;
             }
 
-            case ReplyStatus.replyUnknownException:
-            case ReplyStatus.replyUnknownLocalException:
-            case ReplyStatus.replyUnknownUserException:
+            case ReplyStatus.UnknownException:
+            case ReplyStatus.UnknownLocalException:
+            case ReplyStatus.UnknownUserException:
             {
                 switch (replyStatus)
                 {
-                    case ReplyStatus.replyUnknownException:
+                    case ReplyStatus.UnknownException:
                     {
                         s.Write("(unknown exception)");
                         break;
                     }
 
-                    case ReplyStatus.replyUnknownLocalException:
+                    case ReplyStatus.UnknownLocalException:
                     {
                         s.Write("(unknown local exception)");
                         break;
                     }
 
-                    case ReplyStatus.replyUnknownUserException:
+                    case ReplyStatus.UnknownUserException:
                     {
                         s.Write("(unknown user exception)");
                         break;
@@ -315,7 +315,7 @@ internal sealed class TraceUtil
             }
         }
 
-        if (replyStatus == ReplyStatus.replyOK || replyStatus == ReplyStatus.replyUserException)
+        if (replyStatus == ReplyStatus.Ok || replyStatus == ReplyStatus.UserException)
         {
             Ice.EncodingVersion v = str.skipEncapsulation();
             if (!v.Equals(Ice.Util.Encoding_1_0))

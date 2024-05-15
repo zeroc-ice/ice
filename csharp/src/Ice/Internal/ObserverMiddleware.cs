@@ -33,11 +33,11 @@ internal sealed class ObserverMiddleware : Object
 
                 switch (response.replyStatus)
                 {
-                    case Ice.ReplyStatus.Ok:
+                    case ReplyStatus.Ok:
                         // don't do anything
                         break;
 
-                    case Ice.ReplyStatus.UserException:
+                    case ReplyStatus.UserException:
                         observer.userException();
                         break;
 
@@ -46,7 +46,7 @@ internal sealed class ObserverMiddleware : Object
                         break;
                 };
 
-                if (response.current.requestId != 0)
+                if (request.current.requestId != 0)
                 {
                     observer.reply(response.size);
                 }

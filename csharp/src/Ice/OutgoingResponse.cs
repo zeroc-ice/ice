@@ -7,15 +7,10 @@ using Ice.Internal;
 namespace Ice;
 
 /// <summary>
-/// Represents the response to an incoming request. It's returned by the dispatchAsync method on Object.
+/// Represents the response to an incoming request. It's returned by <see cref="Object.dispatchAsync" />.
 /// </summary>
 public sealed class OutgoingResponse
 {
-    /// <summary>
-    /// Gets the current object for the request.
-    /// </summary>
-    public Current current { get; }
-
     /// <summary>
     /// Gets the exception ID of the response.
     /// </summary>
@@ -44,7 +39,7 @@ public sealed class OutgoingResponse
     /// <summary>
     /// Gets the number of bytes in the response.
     /// </summary>
-    public int size => current.requestId == 0 ? 0 : outputStream.size() - Protocol.headerSize - 4;
+    public int size { get; }
 
     /// <summary>
     /// Constructs an OutgoingResponse object.
@@ -65,7 +60,7 @@ public sealed class OutgoingResponse
         this.exceptionId = exceptionId;
         this.exceptionMessage = exceptionMessage;
         this.outputStream = outputStream;
-        this.current = current;
+        size = current.requestId == 0 ? 0 : outputStream.size() - Protocol.headerSize - 4;
     }
 
     /// <summary>
