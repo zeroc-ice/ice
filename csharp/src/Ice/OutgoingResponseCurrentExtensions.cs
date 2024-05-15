@@ -41,33 +41,6 @@ public static class OutgoingResponseCurrentExtensions
         }
     }
 
-    public static OutgoingResponse createOutgoingResponse(
-        this Current current,
-        Action<OutputStream> marshal,
-        FormatType formatType = FormatType.DefaultFormat)
-    {
-        OutputStream ostr = current.startReplyStream();
-        if (current.requestId != 0)
-        {
-            try
-            {
-                ostr.startEncapsulation(current.encoding, formatType);
-                marshal(ostr);
-                ostr.endEncapsulation();
-                return new OutgoingResponse(ostr, current);
-            }
-            catch (System.Exception exception)
-            {
-                return current.createOutgoingResponse(exception);
-            }
-        }
-        else
-        {
-            Debug.Fail("A one-way request cannot return a response");
-            return new OutgoingResponse(ostr, current);
-        }
-    }
-
     public static OutgoingResponse createEmptyOutgoingResponse(this Current current)
     {
         OutputStream ostr = current.startReplyStream();

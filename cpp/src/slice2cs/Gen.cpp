@@ -3037,37 +3037,15 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
         }
         else
         {
-            _out << nl << "return new(Ice.OutgoingResponseCurrentExtensions.createOutgoingResponse(";
-            _out.inc();
-            _out << nl << "request.current,";
-            if (!ret && outParams.size() == 1)
-            {
-                _out << nl << "iceP_" << outParams.front()->name() << ",";
-                _out << nl << "static (ostr, iceP_" << outParams.front()->name() << ") =>";
-            }
-            else if (ret && outParams.empty())
-            {
-                _out << nl << "ret,";
-                _out << nl << "static (ostr, ret) =>";
-            }
-            else
-            {
-                // We capture the parameters
-                _out << nl << "ostr =>";
-            }
-            _out << sb;
+            _out << nl << "var ostr = Ice.OutgoingResponseCurrentExtensions.startReplyStream(request.current);";
+            _out << nl << "ostr.startEncapsulation(request.current.encoding, " << opFormatTypeToString(op, ns) << ");";
             writeMarshalUnmarshalParams(outParams, op, true, ns);
             if (op->returnsClasses(false))
             {
                 _out << nl << "ostr.writePendingValues();";
             }
-            _out << eb;
-            if (op->format() != DefaultFormat)
-            {
-                _out << "," << nl << opFormatTypeToString(op, ns);
-            }
-            _out << "));";
-            _out.dec();
+            _out << nl << "ostr.endEncapsulation();";
+            _out << nl << "return new(new Ice.OutgoingResponse(ostr, request.current));";
         }
     }
     _out << eb;
