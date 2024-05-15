@@ -331,13 +331,17 @@ serverValidatesClientSettingTrustedRootCertificates(Test::TestHelper* helper, co
         getKeyChainPath(certificatesPath),
         keychainPassword,
         password);
+    // The client certificate is not trusted by the server CA, but the validation callback accepts the client
+    // certificate.
+    CFArrayRef serverRootCertificates = SecureTransport::loadCACertificates(certificatesPath + "/cacert2.pem");
+
     CFArrayRef clientCertificateChain = SecureTransport::loadCertificateChain(
         certificatesPath + "/c_rsa_ca1.p12",
         "",
         getKeyChainPath(certificatesPath),
         keychainPassword,
         password);
-    CFArrayRef trustedRootCertificates = SecureTransport::loadCACertificates(certificatesPath + "/cacert1.pem");
+    CFArrayRef clientRootCertificates = SecureTransport::loadCACertificates(certificatesPath + "/cacert1.pem");
     try
     {
         Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
@@ -348,7 +352,7 @@ serverValidatesClientSettingTrustedRootCertificates(Test::TestHelper* helper, co
                 return serverCertificateChain;
             },
             .clientCertificateRequired = kAlwaysAuthenticate,
-            .trustedRootCertificates = trustedRootCertificates};
+            .trustedRootCertificates = serverRootCertificates};
         Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
 
         Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
@@ -358,7 +362,7 @@ serverValidatesClientSettingTrustedRootCertificates(Test::TestHelper* helper, co
                 CFRetain(clientCertificateChain);
                 return clientCertificateChain;
             },
-            .trustedRootCertificates = trustedRootCertificates};
+            .trustedRootCertificates = clientRootCertificates};
         Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
 
         ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(10, "ssl"));
@@ -368,12 +372,14 @@ serverValidatesClientSettingTrustedRootCertificates(Test::TestHelper* helper, co
     {
         CFRelease(serverCertificateChain);
         CFRelease(clientCertificateChain);
-        CFRelease(trustedRootCertificates);
+        CFRelease(serverRootCertificates);
+        CFRelease(clientRootCertificates);
         throw;
     }
     CFRelease(serverCertificateChain);
     CFRelease(clientCertificateChain);
-    CFRelease(trustedRootCertificates);
+    CFRelease(serverRootCertificates);
+    CFRelease(clientRootCertificates);
     cout << "ok" << endl;
 }
 

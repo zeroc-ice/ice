@@ -417,7 +417,9 @@ void
 serverValidatesClientUsingValidationCallback(Test::TestHelper* helper, const string& testDir)
 {
     cout << "server validates client certificate using validation callback... " << flush;
-    // The CAs used by the server doesn't trust the certificate used by the client.
+
+    // The client certificate is not trusted by the server CA, but the validation callback accepts the client
+    // certificate.
     const string serverCertFile = testDir + "/../certs/s_rsa_ca1_pub.pem";
     const string serverKeyFile = testDir + "/../certs/s_rsa_ca1_priv.pem";
     const string serverCAFile = testDir + "/../certs/cacert2.pem";
