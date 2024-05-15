@@ -258,7 +258,7 @@ public class CollocatedRequestHandler : RequestHandler, ResponseHandler
         int dispatchCount = requestCount > 0 ? requestCount : 1;
         Debug.Assert(!_response || dispatchCount == 1);
 
-        ServantManager servantManager = _adapter.getServantManager();
+        Object dispatcher = _adapter.dispatchPipeline;
         try
         {
             while (dispatchCount > 0)
@@ -279,7 +279,7 @@ public class CollocatedRequestHandler : RequestHandler, ResponseHandler
 
                 var request = new IncomingRequest(requestId, connection: null, _adapter, iss);
                 // See comment in ConnectionI
-                _ = dispatchAsync(request, servantManager); // TODO: temporary
+                _ = dispatchAsync(request);
                 --dispatchCount;
             }
         }
@@ -290,7 +290,7 @@ public class CollocatedRequestHandler : RequestHandler, ResponseHandler
 
         _adapter.decDirectCount();
 
-        async Task dispatchAsync(IncomingRequest request, Object dispatcher)
+        async Task dispatchAsync(IncomingRequest request)
         {
             bool isTwoWay = _response;
             bool amd = false;

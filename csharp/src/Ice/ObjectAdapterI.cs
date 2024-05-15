@@ -788,7 +788,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
         lock (this)
         {
             checkForDeactivation();
-            connection.setAdapterAndServantManager(this, _servantManager);
+            connection.setAdapterFromAdapter(this);
         }
     }
 
