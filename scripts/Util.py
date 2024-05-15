@@ -2921,7 +2921,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
             pass
         if not self.runtimeID:
             self.runtimeID = (
-                "com.apple.CoreSimulator.SimRuntime.iOS-15-2"  # Default value
+                "com.apple.CoreSimulator.SimRuntime.iOS-17-4"  # Default value
             )
 
     def __str__(self):
