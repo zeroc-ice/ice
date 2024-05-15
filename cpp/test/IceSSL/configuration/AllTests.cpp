@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../../src/Ice/SSL/SecureTransportUtil.h" // For loadCertificateChain
+#include "../../src/Ice/UniqueRef.h"
 #include "Ice/Ice.h"
 #include "Test.h"
 #include "TestHelper.h"
@@ -11,23 +13,6 @@
 #include <fstream>
 #include <thread>
 #include <vector>
-
-#include "Ice/UniqueRef.h"
-
-#if defined(__APPLE__)
-#    include <sys/sysctl.h>
-#    if TARGET_OS_IPHONE != 0
-#        include "Ice/SSL/SecureTransportUtil.h" // For loadCertificateChain
-#    endif
-#endif
-
-#if defined(__APPLE__)
-#    if defined(__APPLE__) && TARGET_OS_IPHONE != 0
-#        define ICE_USE_SECURE_TRANSPORT_IOS 1
-#    else
-#        define ICE_USE_SECURE_TRANSPORT_MACOS 1
-#    endif
-#endif
 
 using namespace std;
 using namespace Ice;
