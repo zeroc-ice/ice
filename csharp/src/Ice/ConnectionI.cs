@@ -2646,46 +2646,88 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
     private void dispatchAll(InputStream stream, int requestCount, int requestId, byte compress,
                            ServantManager servantManager, ObjectAdapter adapter)
     {
-        //
         // Note: In contrast to other private or protected methods, this
         // operation must be called *without* the mutex locked.
-        //
 
-        Incoming inc = null;
-        try
+        if (requestId > 0)
         {
-            while (requestCount > 0)
+            Debug.Assert(requestCount == 1);
+            var request = new IncomingRequest(requestId, this, adapter, stream);
+            _ = dispatchAsync(request, servantManager); // TODO: temporary
+        }
+        else
+        {
+            Incoming inc = null;
+            try
             {
-                //
-                // Prepare the invocation.
-                //
-                bool response = !_endpoint.datagram() && requestId != 0;
-                Debug.Assert(!response || requestCount == 1);
+                while (requestCount > 0)
+                {
+                    //
+                    // Prepare the invocation.
+                    //
+                    bool response = !_endpoint.datagram() && requestId != 0;
+                    Debug.Assert(!response || requestCount == 1);
 
-                inc = getIncoming(adapter, response, compress, requestId);
+                    inc = getIncoming(adapter, response, compress, requestId);
 
-                //
-                // Dispatch the invocation.
-                //
-                inc.dispatch(servantManager, stream);
+                    //
+                    // Dispatch the invocation.
+                    //
+                    inc.dispatch(servantManager, stream);
 
-                --requestCount;
+                    --requestCount;
 
-                reclaimIncoming(inc);
-                inc = null;
+                    reclaimIncoming(inc);
+                    inc = null;
+                }
+
+                stream.clear();
             }
-
-            stream.clear();
-        }
-        catch (LocalException ex)
-        {
-            this.dispatchException(requestId, ex, requestCount, false);
-        }
-        finally
-        {
-            if (inc != null)
+            catch (LocalException ex)
             {
-                reclaimIncoming(inc);
+                this.dispatchException(requestId, ex, requestCount, false);
+            }
+            finally
+            {
+                if (inc != null)
+                {
+                    reclaimIncoming(inc);
+                }
+            }
+        }
+
+        async Task dispatchAsync(IncomingRequest request, Object dispatcher)
+        {
+            bool isTwoWay = !_endpoint.datagram() && requestId != 0;
+            bool amd = false;
+
+            try
+            {
+                OutgoingResponse response;
+
+                try
+                {
+                    ValueTask<OutgoingResponse> valueTask = dispatcher.dispatchAsync(request);
+                    amd = !valueTask.IsCompleted;
+                    response = await valueTask.ConfigureAwait(false);
+                }
+                catch (System.Exception ex)
+                {
+                    response = request.current.createOutgoingResponse(ex);
+                }
+
+                if (isTwoWay)
+                {
+                    sendResponse(requestId, response.outputStream, compress, amd);
+                }
+                else
+                {
+                    sendNoResponse();
+                }
+            }
+            catch (Ice.LocalException ex) // TODO: should be any exception
+            {
+                dispatchException(requestId, ex, requestCount: 1, amd);
             }
         }
     }

@@ -73,8 +73,25 @@ public static class OutgoingResponseCurrentExtensions
         }
     }
 
-    public static OutgoingResponse createEmptyOutgoingResponse(this Current current) =>
-        new(new OutputStream(current.adapter.getCommunicator(), Util.currentProtocolEncoding), current);
+    public static OutgoingResponse createEmptyOutgoingResponse(this Current current)
+    {
+        var ostr = new OutputStream(current.adapter.getCommunicator(), Util.currentProtocolEncoding);
+        if (current.requestId != 0)
+        {
+            try
+            {
+                ostr.writeBlob(Protocol.replyHdr);
+                ostr.writeInt(current.requestId);
+                ostr.writeByte((byte)ReplyStatus.Ok);
+                ostr.writeEmptyEncapsulation(current.encoding);
+            }
+            catch (System.Exception ex)
+            {
+                return current.createOutgoingResponse(ex);
+            }
+        }
+        return new OutgoingResponse(ostr, current);
+    }
 
     public static OutgoingResponse createOutgoingResponse(this Current current, bool ok, byte[] encapsulation)
     {
@@ -117,9 +134,11 @@ public static class OutgoingResponseCurrentExtensions
 
     private static OutgoingResponse createOutgoingResponseCore(this Current current, System.Exception exc)
     {
+        Debug.Assert(exc is not null);
+
         var ostr = new OutputStream(current.adapter.getCommunicator(), Util.currentProtocolEncoding);
 
-         if (current.requestId != 0)
+        if (current.requestId != 0)
         {
             ostr.writeBlob(Protocol.replyHdr);
             ostr.writeInt(current.requestId);
