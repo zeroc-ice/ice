@@ -10,7 +10,7 @@ namespace Ice;
 /// <summary>
 /// Provides extension methods for <see cref="Current"/>.
 /// </summary>
-public static class OutgoingResponseCurrentExtensions
+public static class CurrentExtensions
 {
     /// <summary>
     /// Creates an outgoing response with reply status <see cref="ReplyStatus.Ok"/>.

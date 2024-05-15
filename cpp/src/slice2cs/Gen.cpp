@@ -2723,7 +2723,7 @@ Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
         _out << nl << "public " << name << spar << getOutParams(p, ns, true, false)
              << getUnqualified("Ice.Current", ns) + " current" << epar;
         _out << sb;
-        _out << nl << "_ostr = global::Ice.OutgoingResponseCurrentExtensions.startReplyStream(current);";
+        _out << nl << "_ostr = global::Ice.CurrentExtensions.startReplyStream(current);";
         _out << nl << "_ostr.startEncapsulation(current.encoding, " << opFormatTypeToString(p, ns) << ");";
         writeMarshalUnmarshalParams(outParams, p, true, ns, false, true, "_ostr");
         if (p->returnsClasses(false))
@@ -2984,14 +2984,14 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
         if (retS.empty())
         {
             _out << nl
-                << "return global::Ice.OutgoingResponseCurrentExtensions.createEmptyOutgoingResponse(request.current);";
+                << "return global::Ice.CurrentExtensions.createEmptyOutgoingResponse(request.current);";
         }
         else
         {
             // Adapt to marshaling helper below.
             string resultParam = !ret && outParams.size() == 1 ? "iceP_" + outParams.front()->name() : "ret";
 
-            _out << nl << "return global::Ice.OutgoingResponseCurrentExtensions.createOutgoingResponse(";
+            _out << nl << "return global::Ice.CurrentExtensions.createOutgoingResponse(";
             _out.inc();
             _out << nl << "request.current,";
             _out << nl << "result,";
@@ -3033,11 +3033,11 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
 
         if (outParams.empty() && !ret)
         {
-            _out << nl << "return new(global::Ice.OutgoingResponseCurrentExtensions.createEmptyOutgoingResponse(request.current));";
+            _out << nl << "return new(global::Ice.CurrentExtensions.createEmptyOutgoingResponse(request.current));";
         }
         else
         {
-            _out << nl << "var ostr = global::Ice.OutgoingResponseCurrentExtensions.startReplyStream(request.current);";
+            _out << nl << "var ostr = global::Ice.CurrentExtensions.startReplyStream(request.current);";
             _out << nl << "ostr.startEncapsulation(request.current.encoding, " << opFormatTypeToString(op, ns) << ");";
             writeMarshalUnmarshalParams(outParams, op, true, ns);
             if (op->returnsClasses(false))

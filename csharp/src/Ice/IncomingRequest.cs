@@ -5,7 +5,7 @@
 namespace Ice;
 
 /// <summary>
-/// Represents a request received by a connection. It's the argument to the dispatchAsync method on Object.
+/// Represents a request received by a connection. It's the argument to <see cref="Object.dispatchAsync" />.
 /// </summary>
 public sealed class IncomingRequest
 {

@@ -14,6 +14,14 @@ namespace Ice;
 public interface Object
 {
     /// <summary>
+    /// Dispatches an incoming request and returns the corresponding outgoing response.
+    /// </summary>
+    /// <param name="request">The incoming request</param>
+    /// <returns>A value task that holds the outgoing response.</returns>
+    /// <remarks>Ice marshals any exception thrown by this method into the response.</remarks>
+    ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request);
+
+    /// <summary>
     /// Tests whether this object supports a specific Slice interface.
     /// </summary>
     ///
@@ -67,9 +75,6 @@ public interface Object
     /// <returns>The Slice type ID of the most-derived interface.</returns>
     public string ice_id(Current current) => throw new NotImplementedException();
 
-    public ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request) =>
-        throw new NotImplementedException();
-
     [EditorBrowsable(EditorBrowsableState.Never)]
     protected static ValueTask<OutgoingResponse> iceD_ice_isAAsync(Object obj, IncomingRequest request)
     {
@@ -114,13 +119,6 @@ public interface Object
 /// </summary>
 public abstract class ObjectImpl : Object
 {
-    /// <summary>
-    /// Instantiates an Ice object.
-    /// </summary>
-    public ObjectImpl()
-    {
-    }
-
     /// <summary>
     /// Returns the Slice type ID of the most-derived interface supported by this object.
     /// </summary>
