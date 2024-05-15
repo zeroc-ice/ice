@@ -142,109 +142,107 @@ public static class OutgoingResponseCurrentExtensions
             ostr.writeBlob(Protocol.replyHdr);
             ostr.writeInt(current.requestId);
         }
-        ReplyStatus replyStatus = default;
-        string exceptionId = "";
-        string exceptionMessage = "";
+        ReplyStatus replyStatus;
+        string exceptionId;
+        string exceptionMessage;
 
-        try
+        switch (exc)
         {
-            ExceptionDispatchInfo.Throw(exc);
-        }
-        catch (RequestFailedException rfe)
-        {
-            exceptionId = rfe.ice_id();
-            exceptionMessage = rfe.ToString();
+            case RequestFailedException rfe:
+                exceptionId = rfe.ice_id();
+                exceptionMessage = rfe.ToString();
 
-            replyStatus = rfe switch
-            {
-                ObjectNotExistException _ => ReplyStatus.ObjectNotExist,
-                FacetNotExistException _ => ReplyStatus.FacetNotExist,
-                OperationNotExistException _ => ReplyStatus.OperationNotExist,
-                _ => throw new Ice.MarshalException("Unexpected exception type")
-            };
-
-            if (rfe.id.name.Length == 0)
-            {
-                rfe.id = current.id;
-            }
-
-            if (rfe.facet.Length == 0 && current.facet.Length > 0)
-            {
-                rfe.facet = current.facet;
-            }
-
-            if (rfe.operation.Length == 0 && current.operation.Length > 0)
-            {
-                rfe.operation = current.operation;
-            }
-
-            if (current.requestId != 0)
-            {
-                ostr.writeByte((byte)replyStatus);
-                Identity.ice_write(ostr, rfe.id);
-
-                if (rfe.facet.Length == 0)
+                replyStatus = rfe switch
                 {
-                    ostr.writeStringSeq([]);
-                }
-                else
+                    ObjectNotExistException _ => ReplyStatus.ObjectNotExist,
+                    FacetNotExistException _ => ReplyStatus.FacetNotExist,
+                    OperationNotExistException _ => ReplyStatus.OperationNotExist,
+                    _ => throw new Ice.MarshalException("Unexpected exception type")
+                };
+
+                if (rfe.id.name.Length == 0)
                 {
-                    ostr.writeStringSeq([rfe.facet]);
+                    rfe.id = current.id;
                 }
 
-                ostr.writeString(rfe.operation);
-            }
-        }
-        catch (UserException ex)
-        {
-            exceptionId = ex.ice_id();
-            exceptionMessage = ex.ToString();
+                if (rfe.facet.Length == 0 && current.facet.Length > 0)
+                {
+                    rfe.facet = current.facet;
+                }
 
-            replyStatus = ReplyStatus.UserException;
+                if (rfe.operation.Length == 0 && current.operation.Length > 0)
+                {
+                    rfe.operation = current.operation;
+                }
 
-            if (current.requestId != 0)
-            {
-                ostr.writeByte((byte)replyStatus);
-                ostr.startEncapsulation(current.encoding, FormatType.SlicedFormat);
-                ostr.writeException(ex);
-                ostr.endEncapsulation();
-            }
-        }
-        catch (UnknownLocalException ex)
-        {
-            exceptionId = ex.ice_id();
-            replyStatus = ReplyStatus.UnknownLocalException;
-            exceptionMessage = ex.unknown;
-        }
-        catch (UnknownUserException ex)
-        {
-            exceptionId = ex.ice_id();
-            replyStatus = ReplyStatus.UnknownUserException;
-            exceptionMessage = ex.unknown;
-        }
-        catch (UnknownException ex)
-        {
-            exceptionId = ex.ice_id();
-            replyStatus = ReplyStatus.UnknownException;
-            exceptionMessage = ex.unknown;
-        }
-        catch (LocalException ex)
-        {
-            exceptionId = ex.ice_id();
-            replyStatus = ReplyStatus.UnknownLocalException;
-            exceptionMessage = ex.ToString();
-        }
-        catch (Ice.Exception ex)
-        {
-            exceptionId = ex.ice_id();
-            replyStatus = ReplyStatus.UnknownException;
-            exceptionMessage = ex.ToString();
-        }
-        catch (System.Exception ex)
-        {
-            replyStatus = ReplyStatus.UnknownException;
-            exceptionId = ex.GetType().FullName ?? "System.Exception";
-            exceptionMessage = ex.ToString();
+                if (current.requestId != 0)
+                {
+                    ostr.writeByte((byte)replyStatus);
+                    Identity.ice_write(ostr, rfe.id);
+
+                    if (rfe.facet.Length == 0)
+                    {
+                        ostr.writeStringSeq([]);
+                    }
+                    else
+                    {
+                        ostr.writeStringSeq([rfe.facet]);
+                    }
+
+                    ostr.writeString(rfe.operation);
+                }
+                break;
+
+            case UserException ex:
+                exceptionId = ex.ice_id();
+                exceptionMessage = ex.ToString();
+
+                replyStatus = ReplyStatus.UserException;
+
+                if (current.requestId != 0)
+                {
+                    ostr.writeByte((byte)replyStatus);
+                    ostr.startEncapsulation(current.encoding, FormatType.SlicedFormat);
+                    ostr.writeException(ex);
+                    ostr.endEncapsulation();
+                }
+                break;
+
+            case UnknownLocalException ex:
+                exceptionId = ex.ice_id();
+                replyStatus = ReplyStatus.UnknownLocalException;
+                exceptionMessage = ex.unknown;
+                break;
+
+            case UnknownUserException ex:
+                exceptionId = ex.ice_id();
+                replyStatus = ReplyStatus.UnknownUserException;
+                exceptionMessage = ex.unknown;
+                break;
+
+            case UnknownException ex:
+                exceptionId = ex.ice_id();
+                replyStatus = ReplyStatus.UnknownException;
+                exceptionMessage = ex.unknown;
+                break;
+
+            case LocalException ex:
+                exceptionId = ex.ice_id();
+                replyStatus = ReplyStatus.UnknownLocalException;
+                exceptionMessage = ex.ToString();
+                break;
+
+            case Ice.Exception ex:
+                exceptionId = ex.ice_id();
+                replyStatus = ReplyStatus.UnknownException;
+                exceptionMessage = ex.ToString();
+                break;
+
+            default:
+                replyStatus = ReplyStatus.UnknownException;
+                exceptionId = exc.GetType().FullName ?? "System.Exception";
+                exceptionMessage = exc.ToString();
+                break;
         }
 
         if ((current.requestId != 0) &&
