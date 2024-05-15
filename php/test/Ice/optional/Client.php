@@ -66,12 +66,11 @@ function allTests($helper)
     $fs = new Test\FixedStruct(78);
     $vs = new Test\VarStruct("hello");
     $prx = $communicator->stringToProxy("test")->ice_uncheckedCast("::Test::MyInterface");
-    $oo15 = new Test\OneOptional(15);
     $mo1 = new Test\MultiOptional(15, true, 19, 78, 99, 5.5, 1.0, 'test', Test\MyEnum::MyEnumMember,
                       $prx, array(5), array('test', 'test2'), array(4=>3), array('test'=>10),
                       $fs, $vs, array(1), array(Test\MyEnum::MyEnumMember, Test\MyEnum::MyEnumMember), array($fs), array($vs),
                       array($prx), array(4=>Test\MyEnum::MyEnumMember), array(4=>$fs), array(5=>$vs),
-                      array(5=>$prx), array(5=>$oo15), array(false, true, false));
+                      array(5=>$prx), array(false, true, false));
 
     test($mo1->a == 15);
     test($mo1->b == true);

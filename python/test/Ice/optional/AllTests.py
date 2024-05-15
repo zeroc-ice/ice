@@ -97,7 +97,6 @@ def allTests(helper, communicator):
         {4: fs},
         {5: vs},
         {5: Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test"))},
-        {5: Test.OneOptional(15)},
         [False, True, False],
     )
 

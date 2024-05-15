@@ -68,7 +68,7 @@ def allTests(helper, communicator)
                                   [ Test::MyInterfacePrx::uncheckedCast(communicator.stringToProxy("test")) ], \
                                   {4=> Test::MyEnum::MyEnumMember}, {4=>fs}, {5=>vs}, \
                                   {5=> Test::MyInterfacePrx::uncheckedCast(communicator.stringToProxy("test"))}, \
-                                  {5=>Test::OneOptional.new(15)}, [false, true, false])
+                                  [false, true, false])
 
     test(mo1.a == 15)
     test(mo1.b == true)
