@@ -2908,8 +2908,8 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
     const bool amd = interface->hasMetaData("amd") || op->hasMetaData("amd");
 
     _out << sp;
-    _out << nl << "protected static " << (amd ? "async ": "") << "global::System.Threading.Tasks.ValueTask<"
-        << getUnqualified("Ice.OutgoingResponse", ns) << "> iceD_" << op->name() << "Async(";
+    _out << nl << "protected static " << (amd ? "async " : "") << "global::System.Threading.Tasks.ValueTask<"
+         << getUnqualified("Ice.OutgoingResponse", ns) << "> iceD_" << op->name() << "Async(";
     _out.inc();
     _out << nl << interfaceName << " obj,";
     _out << nl << getUnqualified("Ice.IncomingRequest", ns) << " request)";
@@ -2956,14 +2956,14 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
     {
         if (amd)
         {
-            _out << nl << "var result = await obj." << op->name() << "Async" << spar
-                << inArgs << "request.current" << epar << ".ConfigureAwait(false);";
+            _out << nl << "var result = await obj." << op->name() << "Async" << spar << inArgs << "request.current"
+                 << epar << ".ConfigureAwait(false);";
             _out << nl << "return new global::Ice.OutgoingResponse(result.outputStream);";
         }
         else
         {
-            _out << nl << "var result = obj." << fixId(op->name(), DotNet::ICloneable, true) << spar
-                << inArgs << "request.current" << epar << ";";
+            _out << nl << "var result = obj." << fixId(op->name(), DotNet::ICloneable, true) << spar << inArgs
+                 << "request.current" << epar << ";";
             _out << nl << "return new (new global::Ice.OutgoingResponse(result.outputStream));";
         }
     }
@@ -2978,13 +2978,11 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
             _out << "var result = ";
         }
 
-        _out << "await obj." << opName << spar << inArgs << "request.current" << epar
-            << ".ConfigureAwait(false);";
+        _out << "await obj." << opName << spar << inArgs << "request.current" << epar << ".ConfigureAwait(false);";
 
         if (retS.empty())
         {
-            _out << nl
-                << "return global::Ice.CurrentExtensions.createEmptyOutgoingResponse(request.current);";
+            _out << nl << "return global::Ice.CurrentExtensions.createEmptyOutgoingResponse(request.current);";
         }
         else
         {
@@ -3766,8 +3764,8 @@ Slice::Gen::DispatcherVisitor::writeDispatch(const InterfaceDefPtr& p)
     {
         _out << sp;
         _out << nl << "public override global::System.Threading.Tasks.ValueTask<"
-            << getUnqualified("Ice.OutgoingResponse", ns) << "> dispatchAsync("
-            << getUnqualified("Ice.IncomingRequest", ns) << " request) =>";
+             << getUnqualified("Ice.OutgoingResponse", ns) << "> dispatchAsync("
+             << getUnqualified("Ice.IncomingRequest", ns) << " request) =>";
         _out.inc();
         _out << nl << "request.current.operation switch";
         _out << sb;
@@ -3775,12 +3773,12 @@ Slice::Gen::DispatcherVisitor::writeDispatch(const InterfaceDefPtr& p)
         {
             string opName = op->name();
             _out << nl << '"' << opName << "\" => " << getUnqualified(op->interface(), ns) << ".iceD_" << opName
-                << "Async(this, request),";
+                 << "Async(this, request),";
         }
         for (const auto& opName : {"ice_id", "ice_ids", "ice_isA", "ice_ping"})
         {
-            _out << nl << '"' << opName << "\" => " << getUnqualified("Ice.Object", ns)
-                    << ".iceD_" << opName << "Async(this, request),";
+            _out << nl << '"' << opName << "\" => " << getUnqualified("Ice.Object", ns) << ".iceD_" << opName
+                 << "Async(this, request),";
         }
         _out << nl << "_ => throw new " << getUnqualified("Ice.OperationNotExistException()", ns);
         _out << eb;
@@ -3792,5 +3790,4 @@ Slice::Gen::DispatcherVisitor::writeDispatch(const InterfaceDefPtr& p)
     {
         _out << sp << nl << "#endregion"; // Operation dispatch
     }
-
 }
