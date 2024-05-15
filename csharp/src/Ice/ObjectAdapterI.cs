@@ -438,6 +438,8 @@ public sealed class ObjectAdapterI : ObjectAdapter
         }
     }
 
+    public Object dispatcher => _servantManager;
+
     public void addServantLocator(ServantLocator locator, string prefix)
     {
         lock (this)
