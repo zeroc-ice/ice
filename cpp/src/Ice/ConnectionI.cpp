@@ -3283,7 +3283,7 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                     }
 
                     // The message stream is adopted by the outgoing.
-                    stream.swap(*outAsync->getIs());
+                    *outAsync->getIs() = std::move(stream);
 
 #if defined(ICE_USE_IOCP)
                     //
