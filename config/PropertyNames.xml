@@ -331,7 +331,7 @@ generated from the section label.
         <property name="Compression.Level" default="1" />
         <property name="Config" />
         <property name="Connection" class="connection"/>
-        <property name="ConsoleListener" />
+        <property name="ConsoleListener" default="1" />
         <property name="Default.CollocationOptimized" default="1" />
         <property name="Default.EncodingVersion" default="1.1"/>
         <property name="Default.EndpointSelection" default="Random" />
