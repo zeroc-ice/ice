@@ -4,15 +4,23 @@
 
 using Ice.Internal;
 using System.Diagnostics;
-using System.Runtime.ExceptionServices;
 
 namespace Ice;
 
 /// <summary>
-/// Provides extension methods for <see cref="Current"/> to create <see cref="OutgoingResponse"/> objects.
+/// Provides extension methods for <see cref="Current"/>.
 /// </summary>
 public static class OutgoingResponseCurrentExtensions
 {
+    /// <summary>
+    /// Creates an outgoing response with reply status <see cref="ReplyStatus.Ok"/>.
+    /// </summary>
+    /// <typeparam name="TResult">The type of result.</typeparam>
+    /// <param name="current">The current object of the corresponding incoming request.</param>
+    /// <param name="result">The result to marshal into the response payload.</param>
+    /// <param name="marshal">The action that marshals result into an output stream.</param>
+    /// <param name="formatType">The class format.</param>
+    /// <returns>A new outgoing response.</returns>
     public static OutgoingResponse createOutgoingResponse<TResult>(
         this Current current,
         TResult result,
@@ -41,6 +49,11 @@ public static class OutgoingResponseCurrentExtensions
         }
     }
 
+    /// <summary>
+    /// Creates an empty outgoing response with reply status <see cref="ReplyStatus.Ok"/>.
+    /// </summary>
+    /// <param name="current">The current object of the corresponding incoming request.</param>
+    /// <returns>An outgoing response with an empty payload.</returns>
     public static OutgoingResponse createEmptyOutgoingResponse(this Current current)
     {
         OutputStream ostr = current.startReplyStream();
@@ -58,6 +71,14 @@ public static class OutgoingResponseCurrentExtensions
         return new OutgoingResponse(ostr);
     }
 
+    /// <summary>
+    /// Creates an outgoing response with the specified payload.
+    /// </summary>
+    /// <param name="current">The current object of the corresponding incoming request.</param>
+    /// <param name="ok">When true, the reply status of the response is <see cref="ReplyStatus.Ok" />; otherwise, it's
+    /// <see cref="ReplyStatus.UserException" />.</param>
+    /// <param name="encapsulation">The payload of the response.</param>
+    /// <returns>A new outgoing response.</returns>
     public static OutgoingResponse createOutgoingResponse(this Current current, bool ok, byte[] encapsulation)
     {
         // For compatibility with the Ice 3.7 and earlier.
@@ -86,15 +107,159 @@ public static class OutgoingResponseCurrentExtensions
         return new OutgoingResponse(ostr);
     }
 
+    /// <summary>
+    /// Creates an outgoing response that marshals an exception.
+    /// </summary>
+    /// <param name="current">The current object of the corresponding incoming request.</param>
+    /// <param name="exception">The exception to marshal into the response payload.</param>
+    /// <returns>A new outgoing response.</returns>
     public static OutgoingResponse createOutgoingResponse(this Current current, System.Exception exception)
     {
         try
         {
-            return current.createOutgoingResponseCore(exception);
+            return createOutgoingResponseCore(exception);
         }
         catch (System.Exception ex)
         {
-            return current.createOutgoingResponseCore(ex);
+            // Try a second time with the marshal exception. This should not fail.
+            return createOutgoingResponseCore(ex);
+        }
+
+        OutgoingResponse createOutgoingResponseCore(System.Exception exc)
+        {
+            OutputStream ostr;
+
+            if (current.requestId != 0)
+            {
+                ostr = new OutputStream(current.adapter.getCommunicator(), Util.currentProtocolEncoding);
+                ostr.writeBlob(Protocol.replyHdr);
+                ostr.writeInt(current.requestId);
+            }
+            else
+            {
+                ostr = new OutputStream();
+            }
+
+            ReplyStatus replyStatus;
+            string exceptionId;
+            string exceptionMessage;
+
+            switch (exc)
+            {
+                case RequestFailedException rfe:
+                    exceptionId = rfe.ice_id();
+                    exceptionMessage = rfe.ToString();
+
+                    replyStatus = rfe switch
+                    {
+                        ObjectNotExistException _ => ReplyStatus.ObjectNotExist,
+                        FacetNotExistException _ => ReplyStatus.FacetNotExist,
+                        OperationNotExistException _ => ReplyStatus.OperationNotExist,
+                        _ => throw new Ice.MarshalException("Unexpected exception type")
+                    };
+
+                    if (rfe.id.name.Length == 0)
+                    {
+                        rfe.id = current.id;
+                    }
+
+                    if (rfe.facet.Length == 0 && current.facet.Length > 0)
+                    {
+                        rfe.facet = current.facet;
+                    }
+
+                    if (rfe.operation.Length == 0 && current.operation.Length > 0)
+                    {
+                        rfe.operation = current.operation;
+                    }
+
+                    if (current.requestId != 0)
+                    {
+                        ostr.writeByte((byte)replyStatus);
+                        Identity.ice_write(ostr, rfe.id);
+
+                        if (rfe.facet.Length == 0)
+                        {
+                            ostr.writeStringSeq([]);
+                        }
+                        else
+                        {
+                            ostr.writeStringSeq([rfe.facet]);
+                        }
+
+                        ostr.writeString(rfe.operation);
+                    }
+                    break;
+
+                case UserException ex:
+                    exceptionId = ex.ice_id();
+
+                    // TODO, ToString() fails with slicing/objects tests (StackOverflowException)
+                    exceptionMessage = ex.ice_id();
+
+                    replyStatus = ReplyStatus.UserException;
+
+                    if (current.requestId != 0)
+                    {
+                        ostr.writeByte((byte)replyStatus);
+                        ostr.startEncapsulation(current.encoding, FormatType.SlicedFormat);
+                        ostr.writeException(ex);
+                        ostr.endEncapsulation();
+                    }
+                    break;
+
+                case UnknownLocalException ex:
+                    exceptionId = ex.ice_id();
+                    replyStatus = ReplyStatus.UnknownLocalException;
+                    exceptionMessage = ex.unknown;
+                    break;
+
+                case UnknownUserException ex:
+                    exceptionId = ex.ice_id();
+                    replyStatus = ReplyStatus.UnknownUserException;
+                    exceptionMessage = ex.unknown;
+                    break;
+
+                case UnknownException ex:
+                    exceptionId = ex.ice_id();
+                    replyStatus = ReplyStatus.UnknownException;
+                    exceptionMessage = ex.unknown;
+                    break;
+
+                case LocalException ex:
+                    exceptionId = ex.ice_id();
+                    replyStatus = ReplyStatus.UnknownLocalException;
+                    exceptionMessage = ex.ToString();
+                    break;
+
+                case Ice.Exception ex:
+                    exceptionId = ex.ice_id();
+                    replyStatus = ReplyStatus.UnknownException;
+                    exceptionMessage = ex.ToString();
+                    break;
+
+                default:
+                    replyStatus = ReplyStatus.UnknownException;
+                    exceptionId = exc.GetType().FullName ?? "System.Exception";
+                    exceptionMessage = exc.ToString();
+                    break;
+            }
+
+            if (current.requestId != 0 &&
+                (replyStatus is
+                    ReplyStatus.UnknownUserException or
+                    ReplyStatus.UnknownLocalException or
+                    ReplyStatus.UnknownException))
+            {
+                ostr.writeByte((byte)replyStatus);
+                ostr.writeString(exceptionMessage);
+            }
+
+            return new OutgoingResponse(
+                replyStatus,
+                exceptionId,
+                exceptionMessage,
+                ostr);
         }
     }
 
@@ -120,140 +285,5 @@ public static class OutgoingResponseCurrentExtensions
             ostr.writeByte((byte)replyStatus);
             return ostr;
         }
-    }
-
-    private static OutgoingResponse createOutgoingResponseCore(this Current current, System.Exception exc)
-    {
-        OutputStream ostr;
-
-        if (current.requestId != 0)
-        {
-            ostr = new OutputStream(current.adapter.getCommunicator(), Util.currentProtocolEncoding);
-            ostr.writeBlob(Protocol.replyHdr);
-            ostr.writeInt(current.requestId);
-        }
-        else
-        {
-            ostr = new OutputStream();
-        }
-
-        ReplyStatus replyStatus;
-        string exceptionId;
-        string exceptionMessage;
-
-        switch (exc)
-        {
-            case RequestFailedException rfe:
-                exceptionId = rfe.ice_id();
-                exceptionMessage = rfe.ToString();
-
-                replyStatus = rfe switch
-                {
-                    ObjectNotExistException _ => ReplyStatus.ObjectNotExist,
-                    FacetNotExistException _ => ReplyStatus.FacetNotExist,
-                    OperationNotExistException _ => ReplyStatus.OperationNotExist,
-                    _ => throw new Ice.MarshalException("Unexpected exception type")
-                };
-
-                if (rfe.id.name.Length == 0)
-                {
-                    rfe.id = current.id;
-                }
-
-                if (rfe.facet.Length == 0 && current.facet.Length > 0)
-                {
-                    rfe.facet = current.facet;
-                }
-
-                if (rfe.operation.Length == 0 && current.operation.Length > 0)
-                {
-                    rfe.operation = current.operation;
-                }
-
-                if (current.requestId != 0)
-                {
-                    ostr.writeByte((byte)replyStatus);
-                    Identity.ice_write(ostr, rfe.id);
-
-                    if (rfe.facet.Length == 0)
-                    {
-                        ostr.writeStringSeq([]);
-                    }
-                    else
-                    {
-                        ostr.writeStringSeq([rfe.facet]);
-                    }
-
-                    ostr.writeString(rfe.operation);
-                }
-                break;
-
-            case UserException ex:
-                exceptionId = ex.ice_id();
-
-                // TODO, ToString() fails with slicing/objects tests (StackOverflowException)
-                exceptionMessage = ex.ice_id();
-
-                replyStatus = ReplyStatus.UserException;
-
-                if (current.requestId != 0)
-                {
-                    ostr.writeByte((byte)replyStatus);
-                    ostr.startEncapsulation(current.encoding, FormatType.SlicedFormat);
-                    ostr.writeException(ex);
-                    ostr.endEncapsulation();
-                }
-                break;
-
-            case UnknownLocalException ex:
-                exceptionId = ex.ice_id();
-                replyStatus = ReplyStatus.UnknownLocalException;
-                exceptionMessage = ex.unknown;
-                break;
-
-            case UnknownUserException ex:
-                exceptionId = ex.ice_id();
-                replyStatus = ReplyStatus.UnknownUserException;
-                exceptionMessage = ex.unknown;
-                break;
-
-            case UnknownException ex:
-                exceptionId = ex.ice_id();
-                replyStatus = ReplyStatus.UnknownException;
-                exceptionMessage = ex.unknown;
-                break;
-
-            case LocalException ex:
-                exceptionId = ex.ice_id();
-                replyStatus = ReplyStatus.UnknownLocalException;
-                exceptionMessage = ex.ToString();
-                break;
-
-            case Ice.Exception ex:
-                exceptionId = ex.ice_id();
-                replyStatus = ReplyStatus.UnknownException;
-                exceptionMessage = ex.ToString();
-                break;
-
-            default:
-                replyStatus = ReplyStatus.UnknownException;
-                exceptionId = exc.GetType().FullName ?? "System.Exception";
-                exceptionMessage = exc.ToString();
-                break;
-        }
-
-        if ((current.requestId != 0) &&
-            (replyStatus == ReplyStatus.UnknownUserException || replyStatus == ReplyStatus.UnknownLocalException ||
-             replyStatus == ReplyStatus.UnknownException))
-        {
-            ostr.writeByte((byte)replyStatus);
-            ostr.writeString(exceptionMessage);
-        }
-
-        return new OutgoingResponse(
-            replyStatus,
-            exceptionId,
-            exceptionMessage,
-            ostr);
     }
 }
