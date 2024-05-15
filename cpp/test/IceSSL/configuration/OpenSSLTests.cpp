@@ -173,15 +173,9 @@ clientValidatesServerUsingSystemTrustedRootCertificates(Test::TestHelper*, const
     SSL_CTX* clientSSLContext = SSL_CTX_new(TLS_client_method());
     SSL_CTX_set_default_verify_paths(clientSSLContext);
     Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
-        .clientSSLContextSelectionCallback =
-            [clientSSLContext](const string&)
+        .sslNewSessionCallback = [](::SSL* ssl, const string& host)
         {
-            SSL_CTX_up_ref(clientSSLContext);
-            return clientSSLContext;
-        },
-        .sslNewSessionCallback =
-            [](::SSL* ssl, const string& host)
-        {
+            // Enable SNI for connecting to the Glacier2 router behind NGINX proxy.
             if (!SSL_set_tlsext_host_name(ssl, host.c_str()))
             {
                 ostringstream os;
