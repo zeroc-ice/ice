@@ -178,12 +178,6 @@ class Properties
         // Find the property, log warnings if necessary
         const prop = Properties.findProperty(key, true);
 
-        // If the property is deprecated by another property, use the new property key
-        if (prop !== null && prop.deprecatedBy != null)
-        {
-            key = prop.deprecatedBy;
-        }
-
         //
         // Set or clear the property.
         //

@@ -106,19 +106,12 @@ namespace
     /// @throws std::invalid_argument if the property is unknown.
     string_view getDefaultValue(string_view key)
     {
-        for (int i = 0; IceInternal::PropertyNames::validProps[i].properties != 0; ++i)
+        optional<Property> prop = findProperty(key, false);
+        if (!prop)
         {
-            for (int j = 0; j < IceInternal::PropertyNames::validProps[i].length; ++j)
-            {
-                const IceInternal::Property& prop = IceInternal::PropertyNames::validProps[i].properties[j];
-                if (IceUtilInternal::match(string{key}, prop.pattern))
-                {
-                    // There's always a non-null default value.
-                    return prop.defaultValue;
-                }
-            }
+            throw invalid_argument{"unknown ice property: `" + string{key} + "'"};
         }
-        throw invalid_argument("unknown ice property: " + string{key});
+        return prop->defaultValue;
     }
 }
 
@@ -358,13 +351,7 @@ Ice::Properties::setProperty(string_view key, string_view value)
     }
 
     // Find the property, log warnings if necessary
-    auto prop = findProperty(key, true);
-
-    // If the property is deprecated by another property, use the new property key
-    if (prop && prop->deprecatedBy)
-    {
-        currentKey = prop->deprecatedBy;
-    }
+    findProperty(key, true);
 
     lock_guard lock(_mutex);
 

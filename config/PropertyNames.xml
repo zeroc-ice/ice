@@ -50,7 +50,7 @@ classes:
         <suffix name="LocatorCacheTimeout" />
         <suffix name="Locator" />
         <suffix name="Router" />
-        <suffix name="CollocationOptimization" deprecated="true" deprecatedBy="CollocationOptimized" />
+        <suffix name="CollocationOptimization" deprecated="true" />
         <suffix name="CollocationOptimized" />
     </class>
     .
@@ -70,7 +70,7 @@ This definition is equivalent to the following:
         <property name="Default.Locator.LocatorCacheTimeout" />
         <property name="Default.Locator.Locator" />
         <property name="Default.Locator.Router" />
-        <property name="Default.Locator.CollocationOptimization" deprecatedBy="Ice.Default.Locator.CollocationOptimized" />
+        <property name="Default.Locator.CollocationOptimization" />
         <property name="Default.Locator.CollocationOptimized" />
     </section>
 
@@ -91,44 +91,9 @@ the property itself. When set to false, properties are expanded as
 described above `in addition to' the property containing the property
 class.
 
-Property elements may also include the deprecated and deprecatedBy
-attributes. A property that has a deprecated attribute with the value
+Property elements may also include the deprecated. A property that has a deprecated attribute with the value
 "true" will be marked internally as deprecated and Ice may issue warnings
-if a deprecated property is used. The deprecatedBy attribute allows the
-Ice run time to transparently replace the deprecated property name with a
-new property name that supersedes the deprecated property.
-
-The "deprecatedBy" attribute is currently treated differently when used
-in a property class. In the regular property list, deprecatedBy is treated
-as an absolute property name and does not prepend the section name or
-substring of the property being deprecated. This is not useful for property
-classes. When using deprecatedBy in property classes, the deprecatedBy value
-is appended to a string constructed from the current section name and the
-name attribute in the property list containing the class attributed. For
-example:
-
-<class name="proxy">
-    ...
-    <suffix name="CollocationOptimization" deprecatedBy="CollocationOptimized" />
-    <suffix name="CollocationOptimized" />
-</class>
-
-<properties>
-    <section name="Ice">
-        <property name="Default.Locator" class="proxy" />
-        ...
-    </section>
-</properties>
-
-This definition is equivalent to the following:
-
-<properties>
-    <section name="Ice">
-        <property name="DefaultLocator.CollocationOptimization" deprecatedBy="Ice.DefaultLocator.CollocationOptimized" />
-        <property name="DefaultLocator.CollocationOptimized" />
-        ...
-    </section>
-</properties>
+if a deprecated property is used.
 
 Property element name attributes have some additional syntax: The token
 "<any>" (denoted in valid XML as [any]) is a wildcard and matches any
@@ -147,7 +112,6 @@ For example, consider the following definitions:
             <property name="ChangeUser" />
             <property name="Package.[any]" />
             <property name="QuenchRequests" deprecated="true" />
-            <property name="Foo" deprecated="true" deprecatedBy="Bar" />
             <property name="Bar" />
             <property name="Default.Locator" proxy="true" />
             <property name="ThreadPool.Client" threadpool="true" />
