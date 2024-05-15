@@ -2681,7 +2681,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
 
             try
             {
-                Debug.Assert(!isTwoWay || requestCount == 1);
                 OutgoingResponse response;
 
                 try

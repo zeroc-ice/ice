@@ -256,17 +256,17 @@ public class CollocatedRequestHandler : RequestHandler, ResponseHandler
         }
 
         int dispatchCount = requestCount > 0 ? requestCount : 1;
+        Debug.Assert(!_response || dispatchCount == 1);
+
         ServantManager servantManager = _adapter.getServantManager();
         try
         {
             while (dispatchCount > 0)
             {
-                //
                 // Increase the direct count for the dispatch. We increase it again here for
                 // each dispatch. It's important for the direct count to be > 0 until the last
                 // collocated request response is sent to make sure the thread pool isn't
-                // destroyed before.
-                //
+                // destroyed before. It's decremented when processing the response.
                 try
                 {
                     _adapter.incDirectCount();
@@ -277,9 +277,9 @@ public class CollocatedRequestHandler : RequestHandler, ResponseHandler
                     break;
                 }
 
-                Incoming inS = new Incoming(_reference.getInstance(), this, null, _adapter, _response, (byte)0,
-                                            requestId);
-                inS.dispatch(servantManager, iss);
+                var request = new IncomingRequest(requestId, connection: null, _adapter, iss);
+                // See comment in ConnectionI
+                _ = dispatchAsync(request, servantManager); // TODO: temporary
                 --dispatchCount;
             }
         }
@@ -289,6 +289,41 @@ public class CollocatedRequestHandler : RequestHandler, ResponseHandler
         }
 
         _adapter.decDirectCount();
+
+        async Task dispatchAsync(IncomingRequest request, Object dispatcher)
+        {
+            bool isTwoWay = _response;
+            bool amd = false;
+
+            try
+            {
+                OutgoingResponse response;
+
+                try
+                {
+                    ValueTask<OutgoingResponse> valueTask = dispatcher.dispatchAsync(request);
+                    amd = !valueTask.IsCompleted;
+                    response = await valueTask.ConfigureAwait(false);
+                }
+                catch (System.Exception ex)
+                {
+                    response = request.current.createOutgoingResponse(ex);
+                }
+
+                if (isTwoWay)
+                {
+                    sendResponse(requestId, response.outputStream, status: 0, amd);
+                }
+                else
+                {
+                    sendNoResponse();
+                }
+            }
+            catch (Ice.LocalException ex) // TODO: catch all exceptions to avoid UnobservedTaskException
+            {
+                dispatchException(requestId, ex, requestCount: 1, amd);
+            }
+        }
     }
 
     private void
