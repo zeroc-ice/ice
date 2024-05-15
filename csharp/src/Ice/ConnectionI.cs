@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Ice;
 
-public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, CancellationHandler, Connection
+public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler, Connection
 {
     public interface StartCallback
     {

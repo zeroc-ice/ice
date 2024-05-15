@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace Ice.Internal;
 
-public class CollocatedRequestHandler : RequestHandler, ResponseHandler
+public class CollocatedRequestHandler : RequestHandler
 {
     private static void
     fillInValue(Ice.OutputStream os, int pos, int value)
