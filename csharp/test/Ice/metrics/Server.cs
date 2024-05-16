@@ -20,20 +20,23 @@ public class Server : Test.TestHelper
         properties.setProperty("Ice.MessageSizeMax", "50000");
         properties.setProperty("Ice.Default.Host", "127.0.0.1");
 
-        using (var communicator = initialize(properties))
-        {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new MetricsI(), Ice.Util.stringToIdentity("metrics"));
-            adapter.activate();
+        using var communicator = initialize(properties);
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        adapter.add(new MetricsI(), Ice.Util.stringToIdentity("metrics"));
+        adapter.activate();
 
-            communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
-            Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
-            controllerAdapter.add(new ControllerI(adapter), Ice.Util.stringToIdentity("controller"));
-            controllerAdapter.activate();
+        communicator.getProperties().setProperty("ForwardingAdapter.Endpoints", getTestEndpoint(1));
+        Ice.ObjectAdapter forwardingAdapter = communicator.createObjectAdapter("ForwardingAdapter");
+        forwardingAdapter.addDefaultServant(adapter.dispatcher, "");
+        forwardingAdapter.activate();
 
-            communicator.waitForShutdown();
-        }
+        communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(2));
+        Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
+        controllerAdapter.add(new ControllerI(adapter), Ice.Util.stringToIdentity("controller"));
+        controllerAdapter.activate();
+
+        communicator.waitForShutdown();
     }
 
     public static Task<int> Main(string[] args) =>
