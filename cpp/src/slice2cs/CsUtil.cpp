@@ -943,7 +943,8 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(
     {
         if (marshal)
         {
-            out << nl << "if (" << param << " is not null && " << stream << ".writeOptional(" << tag << ", Ice.OptionalFormat.FSize))";
+            out << nl << "if (" << param << " is not null && " << stream << ".writeOptional(" << tag
+                << ", Ice.OptionalFormat.FSize))";
             out << sb;
             out << nl << "int pos = " << stream << ".startSize();";
             writeMarshalUnmarshalCode(out, type, scope, param, marshal, customStream);
@@ -1226,8 +1227,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
                             // If the collection is a stack, write in top-to-bottom order. Stacks
                             // cannot contain Ice.Value.
                             //
-                            out << nl << "Ice.ObjectPrx?[] " << param << "_tmp = " << param
-                                << ".ToArray();";
+                            out << nl << "Ice.ObjectPrx?[] " << param << "_tmp = " << param << ".ToArray();";
                             out << nl << "for (int ix = 0; ix < " << param << "_tmp.Length; ++ix)";
                             out << sb;
                             out << nl << stream << ".writeProxy(" << param << "_tmp[ix]);";
@@ -1280,8 +1280,8 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
                         else
                         {
                             patcherName = "Ice.Internal.Patcher.listReadValue";
-                            out << "global::System.Collections.Generic." << genericType
-                                << "<Ice.Value?>(" << param << "_lenx);";
+                            out << "global::System.Collections.Generic." << genericType << "<Ice.Value?>(" << param
+                                << "_lenx);";
                         }
                         out << nl << "for (int ix = 0; ix < " << param << "_lenx; ++ix)";
                         out << sb;
@@ -1291,7 +1291,8 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
                     {
                         if (isStack)
                         {
-                            out << nl << "Ice.ObjectPrx?[] " << param << "_tmp = new Ice.ObjectPrx?[" << param << "_lenx];";
+                            out << nl << "Ice.ObjectPrx?[] " << param << "_tmp = new Ice.ObjectPrx?[" << param
+                                << "_lenx];";
                         }
                         else if (isArray)
                         {
@@ -1825,8 +1826,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(
                 }
                 else
                 {
-                    out << nl << "if (" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(seq)
-                        << "))";
+                    out << nl << "if (" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(seq) << "))";
                     out << sb;
                     if (builtin->isVariableLength())
                     {
@@ -1865,8 +1865,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(
                 }
                 else
                 {
-                    out << nl << "if (" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(seq)
-                        << "))";
+                    out << nl << "if (" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(seq) << "))";
                     out << sb;
                     out << nl << stream << ".skip(4);";
                     string tmp = "tmpVal";

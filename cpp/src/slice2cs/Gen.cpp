@@ -1631,7 +1631,8 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if (base)
     {
-        _out << getUnqualified(base, ns);;
+        _out << getUnqualified(base, ns);
+        ;
     }
     else
     {
@@ -2638,8 +2639,7 @@ Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
         //
         // Marshaling constructor
         //
-        _out << nl << "public " << name << spar << getOutParams(p, ns, true, false)
-             << "Ice.Current current" << epar;
+        _out << nl << "public " << name << spar << getOutParams(p, ns, true, false) << "Ice.Current current" << epar;
         _out << sb;
         _out << nl << "_ostr = Ice.CurrentExtensions.startReplyStream(current);";
         _out << nl << "_ostr.startEncapsulation(current.encoding, " << opFormatTypeToString(p) << ");";
@@ -2827,8 +2827,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
 
     _out << sp;
     _out << nl << "protected static " << (amd ? "async " : "")
-        << "global::System.Threading.Tasks.ValueTask<Ice.OutgoingResponse> iceD_"
-        << op->name() << "Async(";
+         << "global::System.Threading.Tasks.ValueTask<Ice.OutgoingResponse> iceD_" << op->name() << "Async(";
     _out.inc();
     _out << nl << interfaceName << " obj,";
     _out << nl << "Ice.IncomingRequest request)";
@@ -2839,8 +2838,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
     ParamDeclList inParams = op->inParameters();
     ParamDeclList outParams = op->outParameters();
 
-    _out << nl << "Ice.ObjectImpl.iceCheckMode(" << sliceModeToIceMode(op->mode())
-         << ", request.current.mode);";
+    _out << nl << "Ice.ObjectImpl.iceCheckMode(" << sliceModeToIceMode(op->mode()) << ", request.current.mode);";
     if (!inParams.empty())
     {
         // Unmarshal 'in' parameters.
@@ -3001,7 +2999,8 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sp;
     emitComVisibleAttribute();
     emitGeneratedCodeAttribute();
-    _out << nl << "public sealed class " << name << "PrxHelper : " << "Ice.ObjectPrxHelperBase, " << name << "Prx";
+    _out << nl << "public sealed class " << name << "PrxHelper : "
+         << "Ice.ObjectPrxHelperBase, " << name << "Prx";
     _out << sb;
 
     _out << sp;
@@ -3184,8 +3183,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         else
         {
             _out << nl << "var completed = "
-                 << "new Ice.Internal.OperationTaskCompletionCallback<" << returnTypeS
-                 << ">(progress, cancel);";
+                 << "new Ice.Internal.OperationTaskCompletionCallback<" << returnTypeS << ">(progress, cancel);";
         }
 
         _out << nl << "_iceI_" << opName << spar << getInArgs(op, true) << "context"
@@ -3307,12 +3305,14 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
 
     _out << sp << nl << "public static " << name
-        << "Prx createProxy(Ice.Communicator communicator, string proxyString) =>";
+         << "Prx createProxy(Ice.Communicator communicator, string proxyString) =>";
     _out.inc();
     _out << nl << "uncheckedCast(Ice.ObjectPrxHelper.createProxy(communicator, proxyString));";
     _out.dec();
 
-    _out << sp << nl << "public static " << name << "Prx? checkedCast(Ice.ObjectPrx b, global::System.Collections.Generic.Dictionary<string, string>? ctx = null)";
+    _out << sp << nl << "public static " << name
+         << "Prx? checkedCast(Ice.ObjectPrx b, global::System.Collections.Generic.Dictionary<string, string>? ctx = "
+            "null)";
     _out << sb;
     _out << nl << "if (b is not null && b.ice_isA(ice_staticId(), ctx))";
     _out << sb;
@@ -3323,7 +3323,9 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "return null;";
     _out << eb;
 
-    _out << sp << nl << "public static " << name << "Prx? checkedCast(Ice.ObjectPrx b, string f, global::System.Collections.Generic.Dictionary<string, string>? ctx = null)";
+    _out << sp << nl << "public static " << name
+         << "Prx? checkedCast(Ice.ObjectPrx b, string f, global::System.Collections.Generic.Dictionary<string, "
+            "string>? ctx = null)";
     _out << sb;
     _out << nl << "Ice.ObjectPrx? bb = b?.ice_facet(f);";
     _out << nl << "try";
@@ -3390,8 +3392,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << sp << nl << "public static string ice_staticId() => \"" << scoped << "\";";
 
-    _out << sp << nl << "public static void write(Ice.OutputStream ostr, " << name
-         << "Prx? v)";
+    _out << sp << nl << "public static void write(Ice.OutputStream ostr, " << name << "Prx? v)";
     _out << sb;
     _out << nl << "ostr.writeProxy(v);";
     _out << eb;
@@ -3427,8 +3428,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     _out << nl << "public sealed class " << p->name() << "Helper";
     _out << sb;
 
-    _out << sp << nl << "public static void write(Ice.OutputStream ostr, " << typeS
-         << " v)";
+    _out << sp << nl << "public static void write(Ice.OutputStream ostr, " << typeS << " v)";
     _out << sb;
     writeSequenceMarshalUnmarshalCode(_out, p, ns, "v", true, false);
     _out << eb;
@@ -3633,7 +3633,9 @@ Slice::Gen::DispatcherVisitor::writeDispatch(const InterfaceDefPtr& p)
     if (!allOps.empty())
     {
         _out << sp;
-        _out << nl << "public override global::System.Threading.Tasks.ValueTask<Ice.OutgoingResponse> dispatchAsync(Ice.IncomingRequest request) =>";
+        _out << nl
+             << "public override global::System.Threading.Tasks.ValueTask<Ice.OutgoingResponse> "
+                "dispatchAsync(Ice.IncomingRequest request) =>";
         _out.inc();
         _out << nl << "request.current.operation switch";
         _out << sb;
