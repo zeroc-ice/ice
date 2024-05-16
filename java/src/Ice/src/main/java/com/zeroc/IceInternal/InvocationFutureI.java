@@ -374,11 +374,7 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
   }
 
   private void warning(RuntimeException ex) {
-    if (_instance
-            .initializationData()
-            .properties
-            .getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1)
-        > 0) {
+    if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.AMICallback") > 0) {
       String s = "exception raised by AMI callback:\n" + Ex.toString(ex);
       _instance.initializationData().logger.warning(s);
     }

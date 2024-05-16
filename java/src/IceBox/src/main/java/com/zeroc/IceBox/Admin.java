@@ -66,12 +66,12 @@ public final class Admin {
       com.zeroc.Ice.Properties properties = communicator.getProperties();
 
       com.zeroc.Ice.Identity managerIdentity = new com.zeroc.Ice.Identity();
-      managerIdentity.category = properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox");
+      managerIdentity.category = properties.getIceProperty("IceBox.InstanceName");
       managerIdentity.name = "ServiceManager";
 
       String managerProxy;
-      if (properties.getProperty("Ice.Default.Locator").length() == 0) {
-        String managerEndpoints = properties.getProperty("IceBox.ServiceManager.Endpoints");
+      if (properties.getIceProperty("Ice.Default.Locator").length() == 0) {
+        String managerEndpoints = properties.getIceProperty("IceBox.ServiceManager.Endpoints");
         if (managerEndpoints.length() == 0) {
           System.err.println(
               "IceBox.Admin: property `IceBoxAdmin.ServiceManager.Proxy' is not set");
@@ -81,7 +81,7 @@ public final class Admin {
         managerProxy =
             "\"" + communicator.identityToString(managerIdentity) + "\" :" + managerEndpoints;
       } else {
-        String managerAdapterId = properties.getProperty("IceBox.ServiceManager.AdapterId");
+        String managerAdapterId = properties.getIceProperty("IceBox.ServiceManager.AdapterId");
         if (managerAdapterId.length() == 0) {
           System.err.println(
               "IceBox.Admin: property `IceBoxAdmin.ServiceManager.Proxy' is not set");

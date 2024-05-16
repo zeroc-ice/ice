@@ -271,10 +271,7 @@ public final class ThreadPool implements java.util.concurrent.Executor {
       try {
         _dispatcher.accept(workItem, workItem.getConnection());
       } catch (java.lang.Exception ex) {
-        if (_instance
-                .initializationData()
-                .properties
-                .getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1)
+        if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch")
             > 1) {
           java.io.StringWriter sw = new java.io.StringWriter();
           java.io.PrintWriter pw = new java.io.PrintWriter(sw);

@@ -18,20 +18,19 @@ public class SSLEngine {
     _communicator = communicator;
     _logger = _communicator.getLogger();
     _securityTraceLevel =
-        _communicator.getProperties().getPropertyAsIntWithDefault("IceSSL.Trace.Security", 0);
+        _communicator.getProperties().getIcePropertyAsInt("IceSSL.Trace.Security");
     _securityTraceCategory = "Security";
     _trustManager = new TrustManager(_communicator);
   }
 
   public void initialize() {
-    final String prefix = "IceSSL.";
     com.zeroc.Ice.Properties properties = communicator().getProperties();
 
     //
     // CheckCertName determines whether we compare the name in a peer's
     // certificate against its hostname.
     //
-    _checkCertName = properties.getPropertyAsIntWithDefault(prefix + "CheckCertName", 0) > 0;
+    _checkCertName = properties.getIcePropertyAsInt("IceSSL.CheckCertName") > 0;
 
     //
     // CheckCertName > 1 enables SNI, the SNI extension applies to client
@@ -39,13 +38,13 @@ public class SSLEngine {
     // indicating the hostname to the server (must be DNS hostname, not an IP
     // address).
     //
-    _serverNameIndication = properties.getPropertyAsIntWithDefault(prefix + "CheckCertName", 0) > 1;
+    _serverNameIndication = properties.getIcePropertyAsInt("IceSSL.CheckCertName") > 1;
 
     //
     // VerifyPeer determines whether certificate validation failures abort a
     // connection.
     //
-    _verifyPeer = properties.getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
+    _verifyPeer = properties.getIcePropertyAsInt("IceSSL.VerifyPeer");
 
     //
     // If the user doesn't supply an SSLContext, we need to create one based
@@ -57,22 +56,22 @@ public class SSLEngine {
         // Check for a default directory. We look in this directory for
         // files mentioned in the configuration.
         //
-        _defaultDir = properties.getProperty(prefix + "DefaultDir");
+        _defaultDir = properties.getIceProperty("IceSSL.DefaultDir");
 
         //
         // The keystore holds private keys and associated certificates.
         //
-        String keystorePath = properties.getProperty(prefix + "Keystore");
+        String keystorePath = properties.getIceProperty("IceSSL.Keystore");
 
         //
         // The password for the keys.
         //
-        String password = properties.getProperty(prefix + "Password");
+        String password = properties.getIceProperty("IceSSL.Password");
 
         //
         // The password for the keystore.
         //
-        String keystorePassword = properties.getProperty(prefix + "KeystorePassword");
+        String keystorePassword = properties.getIceProperty("IceSSL.KeystorePassword");
 
         //
         // The default keystore type is usually "JKS", but the legal values are
@@ -81,23 +80,23 @@ public class SSLEngine {
         //
         final String defaultType = java.security.KeyStore.getDefaultType();
         final String keystoreType =
-            properties.getPropertyWithDefault(prefix + "KeystoreType", defaultType);
+            properties.getPropertyWithDefault("IceSSL.KeystoreType", defaultType);
 
         //
         // The alias of the key to use in authentication.
         //
-        String alias = properties.getProperty(prefix + "Alias");
+        String alias = properties.getIceProperty("IceSSL.Alias");
         boolean overrideAlias = !alias.isEmpty(); // Always use the configured alias
 
         //
         // The truststore holds the certificates of trusted CAs.
         //
-        String truststorePath = properties.getProperty(prefix + "Truststore");
+        String truststorePath = properties.getIceProperty("IceSSL.Truststore");
 
         //
         // The password for the truststore.
         //
-        String truststorePassword = properties.getProperty(prefix + "TruststorePassword");
+        String truststorePassword = properties.getIceProperty("IceSSL.TruststorePassword");
 
         //
         // The default truststore type is usually "JKS", but the legal values are
@@ -105,8 +104,7 @@ public class SSLEngine {
         // by the JVM implementation. Other possibilities include "PKCS12" and "BKS".
         //
         final String truststoreType =
-            properties.getPropertyWithDefault(
-                prefix + "TruststoreType", java.security.KeyStore.getDefaultType());
+            properties.getPropertyWithDefault("IceSSL.TruststoreType", defaultType);
 
         //
         // Collect the key managers.

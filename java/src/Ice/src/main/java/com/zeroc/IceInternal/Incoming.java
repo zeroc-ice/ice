@@ -550,11 +550,7 @@ public final class Incoming implements com.zeroc.Ice.Request {
         ex.operation = _current.operation;
       }
 
-      if (_instance
-              .initializationData()
-              .properties
-              .getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1)
-          > 1) {
+      if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 1) {
         warning(ex);
       }
 
@@ -597,11 +593,7 @@ public final class Incoming implements com.zeroc.Ice.Request {
         _responseHandler.sendNoResponse();
       }
     } catch (com.zeroc.Ice.UnknownLocalException ex) {
-      if (_instance
-              .initializationData()
-              .properties
-              .getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1)
-          > 0) {
+      if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 0) {
         warning(ex);
       }
 
@@ -623,11 +615,7 @@ public final class Incoming implements com.zeroc.Ice.Request {
         _responseHandler.sendNoResponse();
       }
     } catch (com.zeroc.Ice.UnknownUserException ex) {
-      if (_instance
-              .initializationData()
-              .properties
-              .getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1)
-          > 0) {
+      if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 0) {
         warning(ex);
       }
 
@@ -649,11 +637,7 @@ public final class Incoming implements com.zeroc.Ice.Request {
         _responseHandler.sendNoResponse();
       }
     } catch (com.zeroc.Ice.UnknownException ex) {
-      if (_instance
-              .initializationData()
-              .properties
-              .getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1)
-          > 0) {
+      if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 0) {
         warning(ex);
       }
 
@@ -695,11 +679,7 @@ public final class Incoming implements com.zeroc.Ice.Request {
         _responseHandler.sendNoResponse();
       }
     } catch (com.zeroc.Ice.Exception ex) {
-      if (_instance
-              .initializationData()
-              .properties
-              .getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1)
-          > 0) {
+      if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 0) {
         warning(ex);
       }
 
@@ -735,11 +715,7 @@ public final class Incoming implements com.zeroc.Ice.Request {
       handleException(ex.getCause(), amd);
       return;
     } catch (Throwable ex) {
-      if (_instance
-              .initializationData()
-              .properties
-              .getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1)
-          > 0) {
+      if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 0) {
         warning(ex);
       }
 

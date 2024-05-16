@@ -146,8 +146,8 @@ final class LoggerAdminI implements com.zeroc.Ice.LoggerAdmin {
   }
 
   LoggerAdminI(com.zeroc.Ice.Properties props, LoggerAdminLoggerI logger) {
-    _maxLogCount = props.getPropertyAsIntWithDefault("Ice.Admin.Logger.KeepLogs", 100);
-    _maxTraceCount = props.getPropertyAsIntWithDefault("Ice.Admin.Logger.KeepTraces", 100);
+    _maxLogCount = props.getIcePropertyAsInt("Ice.Admin.Logger.KeepLogs");
+    _maxTraceCount = props.getIcePropertyAsInt("Ice.Admin.Logger.KeepTraces");
     _traceLevel = props.getPropertyAsInt("Ice.Trace.Admin.Logger");
     _logger = logger;
   }

@@ -556,8 +556,8 @@ class PluginI implements Plugin {
   public void initialize() {
     com.zeroc.Ice.Properties properties = _communicator.getProperties();
 
-    boolean ipv4 = properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
-    boolean preferIPv6 = properties.getPropertyAsInt("Ice.PreferIPv6Address") > 0;
+    boolean ipv4 = properties.getIcePropertyAsInt("Ice.IPv4") > 0;
+    boolean preferIPv6 = properties.getIcePropertyAsInt("Ice.PreferIPv6Address") > 0;
     String address;
     if (ipv4 && !preferIPv6) {
       address = properties.getPropertyWithDefault(_name + ".Address", "239.255.0.1");

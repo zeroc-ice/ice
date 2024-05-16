@@ -9,16 +9,16 @@ public final class DefaultsAndOverrides {
     String value;
     int intValue;
 
-    defaultProtocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+    defaultProtocol = properties.getIceProperty("Ice.Default.Protocol");
 
-    value = properties.getProperty("Ice.Default.Host");
+    value = properties.getIceProperty("Ice.Default.Host");
     if (!value.isEmpty()) {
       defaultHost = value;
     } else {
       defaultHost = null;
     }
 
-    value = properties.getProperty("Ice.Default.SourceAddress");
+    value = properties.getIceProperty("Ice.Default.SourceAddress");
     if (!value.isEmpty()) {
       defaultSourceAddress = Network.getNumericAddress(value);
       if (defaultSourceAddress == null) {
@@ -29,14 +29,14 @@ public final class DefaultsAndOverrides {
       defaultSourceAddress = null;
     }
 
-    value = properties.getProperty("Ice.Override.Timeout");
+    value = properties.getIceProperty("Ice.Override.Timeout");
     if (!value.isEmpty()) {
       overrideTimeout = true;
-      intValue = properties.getPropertyAsInt("Ice.Override.Timeout");
+      intValue = properties.getIcePropertyAsInt("Ice.Override.Timeout");
       if (intValue < 0 && intValue != -1) {
         overrideTimeoutValue = -1;
         StringBuffer msg = new StringBuffer("invalid value for Ice.Override.Timeout `");
-        msg.append(properties.getProperty("Ice.Override.Timeout"));
+        msg.append(properties.getIceProperty("Ice.Override.Timeout"));
         msg.append("': defaulting to -1");
         logger.warning(msg.toString());
       } else {
@@ -47,14 +47,14 @@ public final class DefaultsAndOverrides {
       overrideTimeoutValue = -1;
     }
 
-    value = properties.getProperty("Ice.Override.ConnectTimeout");
+    value = properties.getIceProperty("Ice.Override.ConnectTimeout");
     if (!value.isEmpty()) {
       overrideConnectTimeout = true;
-      intValue = properties.getPropertyAsInt("Ice.Override.ConnectTimeout");
+      intValue = properties.getIcePropertyAsInt("Ice.Override.ConnectTimeout");
       if (intValue < 0 && intValue != -1) {
         overrideConnectTimeoutValue = -1;
         StringBuffer msg = new StringBuffer("invalid value for Ice.Override.ConnectTimeout `");
-        msg.append(properties.getProperty("Ice.Override.ConnectTimeout"));
+        msg.append(properties.getIceProperty("Ice.Override.ConnectTimeout"));
         msg.append("': defaulting to -1");
         logger.warning(msg.toString());
       } else {
@@ -65,14 +65,14 @@ public final class DefaultsAndOverrides {
       overrideConnectTimeoutValue = -1;
     }
 
-    value = properties.getProperty("Ice.Override.CloseTimeout");
+    value = properties.getIceProperty("Ice.Override.CloseTimeout");
     if (!value.isEmpty()) {
       overrideCloseTimeout = true;
-      intValue = properties.getPropertyAsInt("Ice.Override.CloseTimeout");
+      intValue = properties.getIcePropertyAsInt("Ice.Override.CloseTimeout");
       if (intValue < 0 && intValue != -1) {
         overrideCloseTimeoutValue = -1;
         StringBuffer msg = new StringBuffer("invalid value for Ice.Override.CloseTimeout `");
-        msg.append(properties.getProperty("Ice.Override.CloseTimeout"));
+        msg.append(properties.getIceProperty("Ice.Override.CloseTimeout"));
         msg.append("': defaulting to -1");
         logger.warning(msg.toString());
       } else {
@@ -83,10 +83,10 @@ public final class DefaultsAndOverrides {
       overrideCloseTimeoutValue = -1;
     }
 
-    value = properties.getProperty("Ice.Override.Compress");
+    value = properties.getIceProperty("Ice.Override.Compress");
     if (!value.isEmpty()) {
       overrideCompress = true;
-      boolean b = properties.getPropertyAsInt("Ice.Override.Compress") > 0;
+      boolean b = properties.getIcePropertyAsInt("Ice.Override.Compress") > 0;
       if (b && !BZip2.supported()) {
         System.err.println("warning: bzip2 support not available, Ice.Override.Compress ignored");
         b = false;
@@ -97,19 +97,19 @@ public final class DefaultsAndOverrides {
       overrideCompressValue = false;
     }
 
-    value = properties.getProperty("Ice.Override.Secure");
+    value = properties.getIceProperty("Ice.Override.Secure");
     if (!value.isEmpty()) {
       overrideSecure = true;
-      overrideSecureValue = properties.getPropertyAsInt("Ice.Override.Secure") > 0;
+      overrideSecureValue = properties.getIcePropertyAsInt("Ice.Override.Secure") > 0;
     } else {
       overrideSecure = false;
       overrideSecureValue = false;
     }
 
     defaultCollocationOptimization =
-        properties.getPropertyAsIntWithDefault("Ice.Default.CollocationOptimized", 1) > 0;
+        properties.getIcePropertyAsInt("Ice.Default.CollocationOptimized") > 0;
 
-    value = properties.getPropertyWithDefault("Ice.Default.EndpointSelection", "Random");
+    value = properties.getIceProperty("Ice.Default.EndpointSelection");
     if (value.equals("Random")) {
       defaultEndpointSelection = com.zeroc.Ice.EndpointSelectionType.Random;
     } else if (value.equals("Ordered")) {
@@ -121,7 +121,7 @@ public final class DefaultsAndOverrides {
       throw ex;
     }
 
-    intValue = properties.getPropertyAsIntWithDefault("Ice.Default.Timeout", 60000);
+    intValue = properties.getIcePropertyAsInt("Ice.Default.Timeout");
     if (intValue < 1 && intValue != -1) {
       defaultTimeout = 60000;
       StringBuffer msg = new StringBuffer("invalid value for Ice.Default.Timeout `");
@@ -132,29 +132,29 @@ public final class DefaultsAndOverrides {
       defaultTimeout = intValue;
     }
 
-    intValue = properties.getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
+    intValue = properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout");
     if (intValue < -1) {
       defaultLocatorCacheTimeout = -1;
       StringBuffer msg = new StringBuffer("invalid value for Ice.Default.LocatorCacheTimeout `");
-      msg.append(properties.getProperty("Ice.Default.LocatorCacheTimeout"));
+      msg.append(properties.getIceProperty("Ice.Default.LocatorCacheTimeout"));
       msg.append("': defaulting to -1");
       logger.warning(msg.toString());
     } else {
       defaultLocatorCacheTimeout = intValue;
     }
 
-    intValue = properties.getPropertyAsIntWithDefault("Ice.Default.InvocationTimeout", -1);
+    intValue = properties.getIcePropertyAsInt("Ice.Default.InvocationTimeout");
     if (intValue < 1 && intValue != -1 && intValue != -2) {
       defaultInvocationTimeout = -1;
       StringBuffer msg = new StringBuffer("invalid value for Ice.Default.InvocationTimeout `");
-      msg.append(properties.getProperty("Ice.Default.InvocationTimeout"));
+      msg.append(properties.getIceProperty("Ice.Default.InvocationTimeout"));
       msg.append("': defaulting to -1");
       logger.warning(msg.toString());
     } else {
       defaultInvocationTimeout = intValue;
     }
 
-    defaultPreferSecure = properties.getPropertyAsIntWithDefault("Ice.Default.PreferSecure", 0) > 0;
+    defaultPreferSecure = properties.getIcePropertyAsInt("Ice.Default.PreferSecure") > 0;
 
     value =
         properties.getPropertyWithDefault(
@@ -163,8 +163,7 @@ public final class DefaultsAndOverrides {
     defaultEncoding = com.zeroc.Ice.Util.stringToEncodingVersion(value);
     Protocol.checkSupportedEncoding(defaultEncoding);
 
-    boolean slicedFormat =
-        properties.getPropertyAsIntWithDefault("Ice.Default.SlicedFormat", 0) > 0;
+    boolean slicedFormat = properties.getIcePropertyAsInt("Ice.Default.SlicedFormat") > 0;
     defaultFormat =
         slicedFormat
             ? com.zeroc.Ice.FormatType.SlicedFormat
