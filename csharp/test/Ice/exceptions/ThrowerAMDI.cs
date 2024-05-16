@@ -18,7 +18,7 @@ namespace Ice
                 shutdownAsync(Ice.Current current)
                 {
                     current.adapter.getCommunicator().shutdown();
-                    return null;
+                    return Task.CompletedTask;
                 }
 
                 public override Task<bool>
@@ -119,7 +119,7 @@ namespace Ice
                 throwAssertExceptionAsync(Ice.Current current)
                 {
                     Debug.Assert(false);
-                    return null;
+                    return Task.CompletedTask;
                 }
 
                 public override Task<byte[]>
@@ -138,7 +138,7 @@ namespace Ice
                 throwAfterResponseAsync(Ice.Current current)
                 {
                     // Only supported with callback based AMD API
-                    return null;
+                    return Task.CompletedTask;
                     //throw new Exception();
                 }
 

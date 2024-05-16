@@ -347,7 +347,8 @@ public final class Properties {
       throw new InitializationException("Attempt to set property with empty key");
     }
 
-    // Finds the corresponding Ice property if it exists. Also logs warnings for unknown Ice properties and
+    // Finds the corresponding Ice property if it exists. Also logs warnings for unknown Ice
+    // properties and
     // case-insensitive Ice property prefix matches.
     Property prop = findProperty(key, true);
 

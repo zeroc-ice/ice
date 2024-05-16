@@ -534,7 +534,6 @@ generated from the section label.
         <property name="Password" />
         <property name="RevocationCheck" default="0"/>
         <property name="RevocationCheckCacheOnly" default="0" />
-        <property name="SchannelStrongCrypto" default="0" />
         <property name="Trace.Security" default="0" />
         <property name="TrustOnly" />
         <property name="TrustOnly.Client" />

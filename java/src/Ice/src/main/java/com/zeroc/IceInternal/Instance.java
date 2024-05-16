@@ -752,8 +752,8 @@ public final class Instance implements java.util.function.Function<String, Class
       }
 
       if (_initData.logger == null) {
-        String logfile = _initData.properties.getProperty("Ice.LogFile");
-        if (_initData.properties.getPropertyAsInt("Ice.UseSyslog") > 0
+        String logfile = _initData.properties.getIceProperty("Ice.LogFile");
+        if (_initData.properties.getIcePropertyAsInt("Ice.UseSyslog") > 0
             && !System.getProperty("os.name").startsWith("Windows")) {
           if (logfile.length() != 0) {
             throw new com.zeroc.Ice.InitializationException(
@@ -761,17 +761,18 @@ public final class Instance implements java.util.function.Function<String, Class
           }
           _initData.logger =
               new com.zeroc.Ice.SysLoggerI(
-                  _initData.properties.getProperty("Ice.ProgramName"),
-                  _initData.properties.getPropertyWithDefault("Ice.SyslogFacility", "LOG_USER"));
+                  _initData.properties.getIceProperty("Ice.ProgramName"),
+                  _initData.properties.getIceProperty("Ice.SyslogFacility"));
         } else if (logfile.length() != 0) {
           _initData.logger =
               new com.zeroc.Ice.LoggerI(
-                  _initData.properties.getProperty("Ice.ProgramName"), logfile);
+                  _initData.properties.getIceProperty("Ice.ProgramName"), logfile);
         } else {
           _initData.logger = com.zeroc.Ice.Util.getProcessLogger();
           if (_initData.logger instanceof com.zeroc.Ice.LoggerI) {
             _initData.logger =
-                new com.zeroc.Ice.LoggerI(_initData.properties.getProperty("Ice.ProgramName"), "");
+                new com.zeroc.Ice.LoggerI(
+                    _initData.properties.getIceProperty("Ice.ProgramName"), "");
           }
         }
       }
@@ -779,7 +780,7 @@ public final class Instance implements java.util.function.Function<String, Class
       _packages = validatePackages();
 
       _useApplicationClassLoader =
-          _initData.properties.getPropertyAsInt("Ice.UseApplicationClassLoader") > 0;
+          _initData.properties.getIcePropertyAsInt("Ice.UseApplicationClassLoader") > 0;
 
       _traceLevels = new TraceLevels(_initData.properties);
 
@@ -802,10 +803,7 @@ public final class Instance implements java.util.function.Function<String, Class
                   _initData.properties, _initData.logger, "Ice.ACM", new ACMConfig(true)));
 
       {
-        final int defaultMessageSizeMax = 1024;
-        int num =
-            _initData.properties.getPropertyAsIntWithDefault(
-                "Ice.MessageSizeMax", defaultMessageSizeMax);
+        int num = _initData.properties.getIcePropertyAsInt("Ice.MessageSizeMax");
         if (num < 1 || num > 0x7fffffff / 1024) {
           _messageSizeMax = 0x7fffffff;
         } else {
@@ -821,8 +819,7 @@ public final class Instance implements java.util.function.Function<String, Class
           _batchAutoFlushSize = 0;
         }
       } else {
-        int num =
-            _initData.properties.getPropertyAsIntWithDefault("Ice.BatchAutoFlushSize", 1024); // 1MB
+        int num = _initData.properties.getIcePropertyAsInt("Ice.BatchAutoFlushSize"); // 1MB
         if (num < 1) {
           _batchAutoFlushSize = num;
         } else if (num > 0x7fffffff / 1024) {
@@ -833,8 +830,7 @@ public final class Instance implements java.util.function.Function<String, Class
         }
       }
 
-      String toStringModeStr =
-          _initData.properties.getPropertyWithDefault("Ice.ToStringMode", "Unicode");
+      String toStringModeStr = _initData.properties.getIceProperty("Ice.ToStringMode");
       if (toStringModeStr.equals("Unicode")) {
         _toStringMode = com.zeroc.Ice.ToStringMode.Unicode;
       } else if (toStringModeStr.equals("ASCII")) {
@@ -861,9 +857,10 @@ public final class Instance implements java.util.function.Function<String, Class
       _proxyFactory = new ProxyFactory(this);
 
       boolean isIPv6Supported = Network.isIPv6Supported();
-      boolean ipv4 = _initData.properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
+      boolean ipv4 = _initData.properties.getIcePropertyAsInt("Ice.IPv4") > 0;
       boolean ipv6 =
-          _initData.properties.getPropertyAsIntWithDefault("Ice.IPv6", isIPv6Supported ? 1 : 0) > 0;
+          isIPv6Supported ? _initData.properties.getIcePropertyAsInt("Ice.IPv6") > 0 : false;
+
       if (!ipv4 && !ipv6) {
         throw new com.zeroc.Ice.InitializationException(
             "Both IPV4 and IPv6 support cannot be disabled.");
@@ -874,7 +871,7 @@ public final class Instance implements java.util.function.Function<String, Class
       } else {
         _protocolSupport = Network.EnableIPv6;
       }
-      _preferIPv6 = _initData.properties.getPropertyAsInt("Ice.PreferIPv6Address") > 0;
+      _preferIPv6 = _initData.properties.getIcePropertyAsInt("Ice.PreferIPv6Address") > 0;
 
       _networkProxy = createNetworkProxy(_initData.properties, _protocolSupport);
 
@@ -933,8 +930,7 @@ public final class Instance implements java.util.function.Function<String, Class
         // Caching message buffers is not supported with background IO.
         _cacheMessageBuffers = 0;
       } else {
-        _cacheMessageBuffers =
-            _initData.properties.getPropertyAsIntWithDefault("Ice.CacheMessageBuffers", 2);
+        _cacheMessageBuffers = _initData.properties.getIcePropertyAsInt("Ice.CacheMessageBuffers");
       }
     } catch (com.zeroc.Ice.LocalException ex) {
       destroy(false);
@@ -1109,7 +1105,7 @@ public final class Instance implements java.util.function.Function<String, Class
     // initialization until after it has interacted directly with the
     // plug-ins.
     //
-    if (_initData.properties.getPropertyAsIntWithDefault("Ice.InitPlugins", 1) > 0) {
+    if (_initData.properties.getIcePropertyAsInt("Ice.InitPlugins") > 0) {
       pluginManagerImpl.initializePlugins();
     }
 
@@ -1118,7 +1114,7 @@ public final class Instance implements java.util.function.Function<String, Class
     // and eventually registers a process proxy with the Ice locator (allowing
     // remote clients to invoke on Ice.Admin facets as soon as it's registered).
     //
-    if (_initData.properties.getPropertyAsIntWithDefault("Ice.Admin.DelayCreation", 0) <= 0) {
+    if (_initData.properties.getIcePropertyAsInt("Ice.Admin.DelayCreation") <= 0) {
       getAdmin();
     }
 
@@ -1491,14 +1487,13 @@ public final class Instance implements java.util.function.Function<String, Class
         throw new com.zeroc.Ice.InitializationException(
             "IPv6 only is not supported with SOCKS4 proxies");
       }
-      int proxyPort = properties.getPropertyAsIntWithDefault("Ice.SOCKSProxyPort", 1080);
+      int proxyPort = properties.getIcePropertyAsInt("Ice.SOCKSProxyPort");
       return new SOCKSNetworkProxy(proxyHost, proxyPort);
     }
 
     proxyHost = properties.getProperty("Ice.HTTPProxyHost");
     if (!proxyHost.isEmpty()) {
-      return new HTTPNetworkProxy(
-          proxyHost, properties.getPropertyAsIntWithDefault("Ice.HTTPProxyPort", 1080));
+      return new HTTPNetworkProxy(proxyHost, properties.getIcePropertyAsInt("Ice.HTTPProxyPort"));
     }
 
     return null;

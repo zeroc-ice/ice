@@ -406,10 +406,7 @@ public final class ReferenceFactory {
         e.str = "invalid endpoint `" + unknownEndpoints.get(0) + "' in `" + s + "'";
         throw e;
       } else if (unknownEndpoints.size() != 0
-          && _instance
-                  .initializationData()
-                  .properties
-                  .getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1)
+          && _instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Endpoints")
               > 0) {
         StringBuffer msg = new StringBuffer("Proxy contains unknown endpoints:");
         for (String e : unknownEndpoints) {
@@ -670,7 +667,7 @@ public final class ReferenceFactory {
       //
       // Warn about unknown properties.
       //
-      if (properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0) {
+      if (properties.getIcePropertyAsInt("Ice.Warn.UnknownProperties") > 0) {
         checkForUnknownProperties(propertyPrefix);
       }
 

@@ -306,6 +306,15 @@ public interface ObjectAdapter
     Object findDefaultServant(string category);
 
     /// <summary>
+    /// Get the dispatcher associated with this object adapter. This object dispatches incoming requests to the
+    /// servants managed by this object adapter, and takes into account the servant locators.
+    /// </summary>
+    /// <value>The dispatcher.</value>
+    /// <remarks>You can add this dispatcher as a servant (including default servant) in another object adapter.
+    /// </remarks>
+    Object dispatcher { get; }
+
+    /// <summary>
     /// Create a proxy for the object with the given identity.
     /// If this object adapter is configured with an adapter id,
     ///  the return value is an indirect proxy that refers to the adapter id. If a replica group id is also defined, the

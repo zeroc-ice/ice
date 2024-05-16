@@ -108,13 +108,13 @@ internal class VoidLocatorI : Ice.LocatorDisp_
     public override Task<Ice.ObjectPrx>
     findObjectByIdAsync(Ice.Identity id, Ice.Current current)
     {
-        return null;
+        return Task.FromResult<Ice.ObjectPrx>(null);
     }
 
     public override Task<Ice.ObjectPrx>
     findAdapterByIdAsync(string id, Ice.Current current)
     {
-        return null;
+        return Task.FromResult<Ice.ObjectPrx>(null);
     }
 
     public override Ice.LocatorRegistryPrx
