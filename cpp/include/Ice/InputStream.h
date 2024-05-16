@@ -176,6 +176,18 @@ namespace Ice
         InputStream(const CommunicatorPtr&, const EncodingVersion&, IceInternal::Buffer&, bool = false);
         /// \endcond
 
+        /**
+         * Move constructor.
+         * @param other The input stream to move into this input stream.
+         */
+        InputStream(InputStream&& other) noexcept;
+
+        /**
+         * Move assignment operator.
+         * @param other The input stream to move into this input stream.
+         */
+        InputStream& operator=(InputStream&& other) noexcept;
+
         ~InputStream()
         {
             // Inlined for performance reasons.

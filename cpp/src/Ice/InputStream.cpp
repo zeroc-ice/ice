@@ -126,6 +126,54 @@ Ice::InputStream::InputStream(Instance* instance, const EncodingVersion& encodin
     initialize(instance, encoding);
 }
 
+Ice::InputStream::InputStream(InputStream&& other) noexcept
+    : Buffer(std::move(other)),
+      _instance(other._instance),
+      _encoding(std::move(other._encoding)),
+      _traceSlicing(other._traceSlicing),
+      _classGraphDepthMax(other._classGraphDepthMax),
+      _closure(other._closure),
+      _sliceValues(other._sliceValues),
+      _startSeq(other._startSeq),
+      _minSeqSize(other._minSeqSize),
+      _valueFactoryManager(std::move(other._valueFactoryManager)),
+      _logger(std::move(other._logger)),
+      _compactIdResolver(std::move(other._compactIdResolver))
+{
+    resetEncapsulation();
+
+    // Reset other to its default state
+    other.resetEncapsulation();
+    other.initialize(currentEncoding);
+}
+
+InputStream&
+Ice::InputStream::operator=(InputStream&& other) noexcept
+{
+    if (this != &other)
+    {
+        Buffer::operator=(std::move(other));
+        _instance = other._instance;
+        _encoding = std::move(other._encoding);
+        _traceSlicing = other._traceSlicing;
+        _classGraphDepthMax = other._classGraphDepthMax;
+        _closure = other._closure;
+        _sliceValues = other._sliceValues;
+        _startSeq = other._startSeq;
+        _minSeqSize = other._minSeqSize;
+        _valueFactoryManager = std::move(other._valueFactoryManager);
+        _logger = std::move(other._logger);
+        _compactIdResolver = std::move(other._compactIdResolver);
+
+        resetEncapsulation();
+
+        // Reset other to its default state.
+        other.resetEncapsulation();
+        other.initialize(currentEncoding);
+    }
+    return *this;
+}
+
 void
 Ice::InputStream::initialize(const CommunicatorPtr& communicator)
 {
@@ -152,12 +200,12 @@ Ice::InputStream::initialize(Instance* instance, const EncodingVersion& encoding
 void
 Ice::InputStream::initialize(const EncodingVersion& encoding)
 {
-    _instance = 0;
+    _instance = nullptr;
     _encoding = encoding;
-    _currentEncaps = 0;
+    _currentEncaps = nullptr;
     _traceSlicing = false;
     _classGraphDepthMax = 0x7fffffff;
-    _closure = 0;
+    _closure = nullptr;
     _sliceValues = true;
     _startSeq = -1;
     _minSeqSize = 0;
