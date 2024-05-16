@@ -348,9 +348,11 @@ public sealed class Properties
             throw new InitializationException("Attempt to set property with empty key");
         }
 
-        // Checks if the property is a known Ice property and logs warnings if necessary
+        // Finds the corresponding Ice property if it exists. Also logs warnings for unknown Ice properties and
+        // case-insensitive Ice property prefix matches.
         Property? prop = findProperty(key, true);
 
+        // If the property is deprecated, log a warning.
         if (prop is not null && prop.deprecated)
         {
             Util.getProcessLogger().warning("deprecated property: " + key);

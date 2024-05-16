@@ -344,9 +344,11 @@ Ice::Properties::setProperty(string_view key, string_view value)
         throw InitializationException(__FILE__, __LINE__, "Attempt to set property with empty key");
     }
 
-    // Checks if the property is a known Ice property and logs warnings if necessary
+    // Finds the corresponding Ice property if it exists. Also logs warnings for unknown Ice properties and
+    // case-insensitive Ice property prefix matches.
     auto prop = findProperty(key, true);
 
+    // If the property is deprecated, log a warning.
     if (prop && prop->deprecated)
     {
         getProcessLogger()->warning("deprecated property: " + string{key});
