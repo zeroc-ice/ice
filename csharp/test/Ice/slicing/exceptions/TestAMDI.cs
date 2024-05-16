@@ -7,7 +7,7 @@ public sealed class TestI : TestIntfDisp_
     public override Task shutdownAsync(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
-        return null;
+        return Task.CompletedTask;
     }
 
     public override Task baseAsBaseAsync(Ice.Current current)

@@ -24,7 +24,7 @@ internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
                 _adapters.Remove(adapterId);
             }
         }
-        return null;
+        return Task.CompletedTask;
     }
 
     public override Task
@@ -58,13 +58,13 @@ internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
                 }
             }
         }
-        return null;
+        return Task.CompletedTask;
     }
 
     public override Task
     setServerProcessProxyAsync(string id, Ice.ProcessPrx process, Ice.Current current)
     {
-        return null;
+        return Task.CompletedTask;
     }
 
     internal Ice.ObjectPrx findObject(Ice.Identity id)

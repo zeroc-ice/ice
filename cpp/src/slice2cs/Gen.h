@@ -28,7 +28,6 @@ namespace Slice
         void writeUnmarshalDataMember(const DataMemberPtr&, const std::string&, const std::string&, bool = false);
 
         virtual void writeInheritedOperations(const InterfaceDefPtr&);
-        virtual void writeDispatch(const InterfaceDefPtr&);
         virtual void writeMarshaling(const ClassDefPtr&);
 
         static std::vector<std::string> getParams(const OperationPtr&, const std::string&);
@@ -166,6 +165,19 @@ namespace Slice
             virtual void visitOperation(const OperationPtr&);
         };
 
+        // Generates the iceD helper methods in the server-side interface.
+        class DispatchAdapterVisitor final : public CsVisitor
+        {
+        public:
+            DispatchAdapterVisitor(::IceUtilInternal::Output&);
+
+            bool visitModuleStart(const ModulePtr&) final;
+            void visitModuleEnd(const ModulePtr&) final;
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
+            void visitOperation(const OperationPtr&) final;
+        };
+
         class HelperVisitor : public CsVisitor
         {
         public:
@@ -190,8 +202,7 @@ namespace Slice
             virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
 
         private:
-            typedef std::set<std::string> NameSet;
-            void writeTieOperations(const InterfaceDefPtr&, NameSet* = 0);
+            void writeDispatch(const InterfaceDefPtr&);
         };
     };
 }

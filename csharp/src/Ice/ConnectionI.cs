@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Ice;
 
-public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, CancellationHandler, Connection
+public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler, Connection
 {
     public interface StartCallback
     {
@@ -837,7 +837,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
 
     public void setAdapter(ObjectAdapter adapter)
     {
-        if (adapter != null)
+        if (adapter is not null)
         {
             // Go through the adapter to set the adapter and servant manager on this connection
             // to ensure the object adapter is still active.
@@ -852,7 +852,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
                     return;
                 }
                 _adapter = null;
-                _servantManager = null;
             }
         }
 
@@ -884,7 +883,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
         return _instance.proxyFactory().referenceToProxy(_instance.referenceFactory().create(ident, this));
     }
 
-    public void setAdapterAndServantManager(ObjectAdapter adapter, Ice.Internal.ServantManager servantManager)
+    public void setAdapterFromAdapter(ObjectAdapterI adapter)
     {
         lock (this)
         {
@@ -894,7 +893,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
             }
             Debug.Assert(adapter != null); // Called by ObjectAdapterI::setAdapterOnConnection
             _adapter = adapter;
-            _servantManager = servantManager;
         }
     }
 
@@ -1387,8 +1385,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
         //
         if (info.requestCount > 0)
         {
-            dispatchAll(info.stream, info.requestCount, info.requestId, info.compress, info.servantManager,
-                      info.adapter);
+            dispatchAll(info.stream, info.requestCount, info.requestId, info.compress, info.adapter);
         }
 
         //
@@ -1563,7 +1560,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
         _writeStream.getBuffer().clear();
         _readStream.clear();
         _readStream.getBuffer().clear();
-        _incomingCache = null;
 
         if (_closeCallback != null)
         {
@@ -1726,11 +1722,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
         else if (_compressionLevel > 9)
         {
             _compressionLevel = 9;
-        }
-
-        if (adapter != null)
-        {
-            _servantManager = adapter.getServantManager();
         }
 
         try
@@ -2455,8 +2446,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
         public int requestCount;
         public int requestId;
         public byte compress;
-        public ServantManager servantManager;
-        public ObjectAdapter adapter;
+        public ObjectAdapterI adapter;
         public OutgoingAsyncBase outAsync;
         public HeartbeatCallback heartbeatCallback;
         public int upcallCount;
@@ -2542,7 +2532,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
                         TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
                         info.requestId = info.stream.readInt();
                         info.requestCount = 1;
-                        info.servantManager = _servantManager;
                         info.adapter = _adapter;
                         ++info.upcallCount;
                     }
@@ -2566,7 +2555,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
                             info.requestCount = 0;
                             throw new UnmarshalOutOfBoundsException();
                         }
-                        info.servantManager = _servantManager;
                         info.adapter = _adapter;
                         info.upcallCount += info.requestCount;
                     }
@@ -2643,49 +2631,93 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
         return _state == StateHolding ? SocketOperation.None : SocketOperation.Read;
     }
 
-    private void dispatchAll(InputStream stream, int requestCount, int requestId, byte compress,
-                           ServantManager servantManager, ObjectAdapter adapter)
+    private void dispatchAll(
+        InputStream stream,
+        int requestCount,
+        int requestId,
+        byte compress,
+        ObjectAdapterI adapter)
     {
-        //
-        // Note: In contrast to other private or protected methods, this
-        // operation must be called *without* the mutex locked.
-        //
+        // Note: In contrast to other private or protected methods, this method must be called *without* the mutex
+        // locked.
 
-        Incoming inc = null;
+        Object dispatcher = adapter?.dispatchPipeline;
+
         try
         {
             while (requestCount > 0)
             {
-                //
-                // Prepare the invocation.
-                //
-                bool response = !_endpoint.datagram() && requestId != 0;
-                Debug.Assert(!response || requestCount == 1);
+                // adapter can be null here, however the adapter set in current can't be null, and we never pass
+                // a null current.adapter to the application code. Once this file enables nullable, adapter should be
+                // adapter! below.
+                var request = new IncomingRequest(requestId, this, adapter, stream);
 
-                inc = getIncoming(adapter, response, compress, requestId);
-
-                //
-                // Dispatch the invocation.
-                //
-                inc.dispatch(servantManager, stream);
-
+                if (dispatcher is not null)
+                {
+                    // We don't and can't await the dispatchAsync: with batch requests, we want all the dispatches to
+                    // execute in the current Ice thread pool thread. If we awaited the dispatchAsync, we could
+                    // switch to a .NET thread pool thread.
+                    _ = dispatchAsync(request);
+                }
+                else
+                {
+                    // Received request on a connection without an object adapter.
+                    bool isTwoWay = !_endpoint.datagram() && requestId != 0;
+                    if (isTwoWay)
+                    {
+                        sendResponse(
+                            requestId,
+                            request.current.createOutgoingResponse(new ObjectNotExistException()).outputStream,
+                            0,
+                            amd: false);
+                    }
+                    else
+                    {
+                        sendNoResponse();
+                    }
+                }
                 --requestCount;
-
-                reclaimIncoming(inc);
-                inc = null;
             }
 
             stream.clear();
         }
-        catch (LocalException ex)
+        catch (LocalException ex) // TODO: catch all exceptions
         {
-            this.dispatchException(requestId, ex, requestCount, false);
+            this.dispatchException(requestId, ex, requestCount, amd: false);
         }
-        finally
+
+        async Task dispatchAsync(IncomingRequest request)
         {
-            if (inc != null)
+            bool isTwoWay = !_endpoint.datagram() && requestId != 0;
+            bool amd = false;
+
+            try
             {
-                reclaimIncoming(inc);
+                OutgoingResponse response;
+
+                try
+                {
+                    ValueTask<OutgoingResponse> valueTask = dispatcher.dispatchAsync(request);
+                    amd = !valueTask.IsCompleted;
+                    response = await valueTask.ConfigureAwait(false);
+                }
+                catch (System.Exception ex)
+                {
+                    response = request.current.createOutgoingResponse(ex);
+                }
+
+                if (isTwoWay)
+                {
+                    sendResponse(requestId, response.outputStream, compress, amd);
+                }
+                else
+                {
+                    sendNoResponse();
+                }
+            }
+            catch (Ice.LocalException ex) // TODO: catch all exceptions to avoid UnobservedTaskException
+            {
+                dispatchException(requestId, ex, requestCount: 1, amd);
             }
         }
     }
@@ -2856,47 +2888,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
         _writeStreamPos = -1;
     }
 
-    private Incoming getIncoming(ObjectAdapter adapter, bool response, byte compress, int requestId)
-    {
-        Incoming inc = null;
-
-        if (_cacheBuffers)
-        {
-            lock (_incomingCacheMutex)
-            {
-                if (_incomingCache == null)
-                {
-                    inc = new Incoming(_instance, this, this, adapter, response, compress, requestId);
-                }
-                else
-                {
-                    inc = _incomingCache;
-                    _incomingCache = _incomingCache.next;
-                    inc.reset(_instance, this, this, adapter, response, compress, requestId);
-                    inc.next = null;
-                }
-            }
-        }
-        else
-        {
-            inc = new Incoming(_instance, this, this, adapter, response, compress, requestId);
-        }
-
-        return inc;
-    }
-
-    internal void reclaimIncoming(Incoming inc)
-    {
-        if (_cacheBuffers && inc.reclaim())
-        {
-            lock (_incomingCacheMutex)
-            {
-                inc.next = _incomingCache;
-                _incomingCache = inc;
-            }
-        }
-    }
-
     private int read(Ice.Internal.Buffer buf)
     {
         int start = buf.b.position();
@@ -3021,8 +3012,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
     private Connector _connector;
     private EndpointI _endpoint;
 
-    private ObjectAdapter _adapter;
-    private ServantManager _servantManager;
+    private ObjectAdapterI _adapter;
 
     private Logger _logger;
     private TraceLevels _traceLevels;
@@ -3068,9 +3058,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, ResponseHandler, Ca
     private bool _shutdownInitiated;
     private bool _initialized;
     private bool _validated;
-
-    private Incoming _incomingCache;
-    private readonly object _incomingCacheMutex = new object();
 
     private static bool _compressionSupported;
 

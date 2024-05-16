@@ -759,18 +759,18 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
             childObserver_ = null;
         }
 
-        byte replyStatus;
+        ReplyStatus replyStatus;
         try
         {
-            replyStatus = is_.readByte();
+            replyStatus = (ReplyStatus)is_.readByte();
 
             switch (replyStatus)
             {
-                case ReplyStatus.replyOK:
+                case ReplyStatus.Ok:
                 {
                     break;
                 }
-                case ReplyStatus.replyUserException:
+                case ReplyStatus.UserException:
                 {
                     if (observer_ != null)
                     {
@@ -779,9 +779,9 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
                     break;
                 }
 
-                case ReplyStatus.replyObjectNotExist:
-                case ReplyStatus.replyFacetNotExist:
-                case ReplyStatus.replyOperationNotExist:
+                case ReplyStatus.ObjectNotExist:
+                case ReplyStatus.FacetNotExist:
+                case ReplyStatus.OperationNotExist:
                 {
                     var ident = new Ice.Identity(is_);
 
@@ -809,19 +809,19 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
                     Ice.RequestFailedException ex = null;
                     switch (replyStatus)
                     {
-                        case ReplyStatus.replyObjectNotExist:
+                        case ReplyStatus.ObjectNotExist:
                         {
                             ex = new Ice.ObjectNotExistException();
                             break;
                         }
 
-                        case ReplyStatus.replyFacetNotExist:
+                        case ReplyStatus.FacetNotExist:
                         {
                             ex = new Ice.FacetNotExistException();
                             break;
                         }
 
-                        case ReplyStatus.replyOperationNotExist:
+                        case ReplyStatus.OperationNotExist:
                         {
                             ex = new Ice.OperationNotExistException();
                             break;
@@ -840,28 +840,28 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
                     throw ex;
                 }
 
-                case ReplyStatus.replyUnknownException:
-                case ReplyStatus.replyUnknownLocalException:
-                case ReplyStatus.replyUnknownUserException:
+                case ReplyStatus.UnknownException:
+                case ReplyStatus.UnknownLocalException:
+                case ReplyStatus.UnknownUserException:
                 {
                     string unknown = is_.readString();
 
                     Ice.UnknownException ex = null;
                     switch (replyStatus)
                     {
-                        case ReplyStatus.replyUnknownException:
+                        case ReplyStatus.UnknownException:
                         {
                             ex = new Ice.UnknownException();
                             break;
                         }
 
-                        case ReplyStatus.replyUnknownLocalException:
+                        case ReplyStatus.UnknownLocalException:
                         {
                             ex = new Ice.UnknownLocalException();
                             break;
                         }
 
-                        case ReplyStatus.replyUnknownUserException:
+                        case ReplyStatus.UnknownUserException:
                         {
                             ex = new Ice.UnknownUserException();
                             break;
@@ -884,7 +884,7 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
                 }
             }
 
-            return responseImpl(false, replyStatus == ReplyStatus.replyOK, true);
+            return responseImpl(false, replyStatus == ReplyStatus.Ok, true);
         }
         catch (Ice.Exception ex)
         {

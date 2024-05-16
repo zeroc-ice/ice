@@ -56,7 +56,7 @@ namespace Ice
                     }
 
                     current.adapter.getCommunicator().shutdown();
-                    return null;
+                    return Task.CompletedTask;
                 }
 
                 public override Task<bool> supportsCompressAsync(Ice.Current current)
@@ -640,7 +640,7 @@ namespace Ice
                     {
                         ++_opByteSOnewayCallCount;
                     }
-                    return null;
+                    return Task.CompletedTask;
                 }
 
                 public override Task<int>
@@ -663,7 +663,7 @@ namespace Ice
                     {
                         test(p2[i] == d);
                     }
-                    return null;
+                    return Task.CompletedTask;
                 }
 
                 public override Task<Test.MyClass_OpStringSResult>
@@ -738,13 +738,13 @@ namespace Ice
                 opIdempotentAsync(Ice.Current current)
                 {
                     test(current.mode == Ice.OperationMode.Idempotent);
-                    return null;
+                    return Task.CompletedTask;
                 }
 
                 public override Task
                 opDerivedAsync(Ice.Current current)
                 {
-                    return null;
+                    return Task.CompletedTask;
                 }
 
                 public override Task<byte>

@@ -32,7 +32,7 @@ namespace Ice
         Object& operator=(Object&&) = delete;
 
         /**
-         * Dispatches an incoming request and return the corresponding outgoing response.
+         * Dispatches an incoming request and returns the corresponding outgoing response.
          * @param request The incoming request.
          * @param sendResponse A callback that the implementation calls to return the response. sendResponse does not
          * throw any exception and any sendResponse wrapper must not throw any exception. sendResponse can be called by

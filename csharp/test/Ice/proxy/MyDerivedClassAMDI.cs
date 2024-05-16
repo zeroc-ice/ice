@@ -20,7 +20,7 @@ namespace Ice
                 public override Task shutdownAsync(Ice.Current current)
                 {
                     current.adapter.getCommunicator().shutdown();
-                    return null;
+                    return Task.CompletedTask;
                 }
 
                 public override Task<Dictionary<string, string>> getContextAsync(Ice.Current current)

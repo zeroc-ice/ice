@@ -15,7 +15,7 @@ public sealed class TestI : TestIntfDisp_
     public override Task shutdownAsync(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
-        return null;
+        return Task.CompletedTask;
     }
 
     public override Task<Ice.Value>
@@ -71,7 +71,7 @@ public sealed class TestI : TestIntfDisp_
             SUnknown su = obj as SUnknown;
             test(su.su == "SUnknown.su");
         }
-        return null;
+        return Task.CompletedTask;
     }
 
     public override Task<B> oneElementCycleAsync(Ice.Current current)
@@ -329,7 +329,7 @@ public sealed class TestI : TestIntfDisp_
             test(pu.graph == null);
             test(pu.cl != null && pu.cl.i == 15);
         }
-        return null;
+        return Task.CompletedTask;
     }
 
     public override Task<Preserved>
@@ -365,7 +365,7 @@ public sealed class TestI : TestIntfDisp_
             test(pu.graph.next != pu.graph.next.next);
             test(pu.graph.next.next.next == pu.graph);
         }
-        return null;
+        return Task.CompletedTask;
     }
 
     public override Task<Preserved>
@@ -394,7 +394,7 @@ public sealed class TestI : TestIntfDisp_
             test(pu.ps == "preserved");
             test(pu.pb == pu);
         }
-        return null;
+        return Task.CompletedTask;
     }
 
     public override Task<PNode>
