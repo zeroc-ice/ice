@@ -31,8 +31,7 @@ public class Client extends test.TestHelper {
     //
     properties.setProperty("Ice.Plugin.Test", "test.Ice.background.PluginFactory");
     properties.setProperty(
-        "Ice.Default.Protocol",
-        "test-" + properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp"));
+        "Ice.Default.Protocol", "test-" + properties.getIceProperty("Ice.Default.Protocol"));
 
     properties.setProperty("Ice.Package.Test", "test.Ice.background");
     try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {

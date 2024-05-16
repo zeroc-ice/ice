@@ -141,7 +141,7 @@ class PropertiesAdminI
         try {
           callback.accept(changes);
         } catch (RuntimeException ex) {
-          if (_properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1) {
+          if (_properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 1) {
             java.io.StringWriter sw = new java.io.StringWriter();
             java.io.PrintWriter pw = new java.io.PrintWriter(sw);
             ex.printStackTrace(pw);

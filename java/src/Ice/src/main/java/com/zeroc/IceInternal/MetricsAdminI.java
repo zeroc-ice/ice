@@ -29,7 +29,7 @@ public class MetricsAdminI
     }
 
     if (unknownProps.size() != 0
-        && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0) {
+        && properties.getIcePropertyAsInt("Ice.Warn.UnknownProperties") > 0) {
       StringBuffer message = new StringBuffer("found unknown IceMX properties for `");
       message.append(prefix.substring(0, prefix.length() - 1));
       message.append("':");

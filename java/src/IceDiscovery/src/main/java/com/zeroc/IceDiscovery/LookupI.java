@@ -205,11 +205,10 @@ class LookupI implements Lookup {
   public LookupI(LocatorRegistryI registry, LookupPrx lookup, com.zeroc.Ice.Properties properties) {
     _registry = registry;
     _lookup = lookup;
-    _timeout = properties.getPropertyAsIntWithDefault("IceDiscovery.Timeout", 300);
-    _retryCount = properties.getPropertyAsIntWithDefault("IceDiscovery.RetryCount", 3);
-    _latencyMultiplier =
-        properties.getPropertyAsIntWithDefault("IceDiscovery.LatencyMultiplier", 1);
-    _domainId = properties.getProperty("IceDiscovery.DomainId");
+    _timeout = properties.getIcePropertyAsInt("IceDiscovery.Timeout");
+    _retryCount = properties.getIcePropertyAsInt("IceDiscovery.RetryCount");
+    _latencyMultiplier = properties.getIcePropertyAsInt("IceDiscovery.LatencyMultiplier");
+    _domainId = properties.getIceProperty("IceDiscovery.DomainId");
     _timer = com.zeroc.IceInternal.Util.getInstance(lookup.ice_getCommunicator()).timer();
 
     com.zeroc.Ice.Endpoint[] single = new com.zeroc.Ice.Endpoint[1];

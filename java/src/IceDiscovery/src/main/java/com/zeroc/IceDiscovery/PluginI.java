@@ -15,18 +15,18 @@ class PluginI implements com.zeroc.Ice.Plugin {
   public void initialize() {
     com.zeroc.Ice.Properties properties = _communicator.getProperties();
 
-    boolean ipv4 = properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
-    boolean preferIPv6 = properties.getPropertyAsInt("Ice.PreferIPv6Address") > 0;
+    boolean ipv4 = properties.getIcePropertyAsInt("Ice.IPv4") > 0;
+    boolean preferIPv6 = properties.getIcePropertyAsInt("Ice.PreferIPv6Address") > 0;
     String address;
     if (ipv4 && !preferIPv6) {
       address = properties.getPropertyWithDefault("IceDiscovery.Address", "239.255.0.1");
     } else {
       address = properties.getPropertyWithDefault("IceDiscovery.Address", "ff15::1");
     }
-    int port = properties.getPropertyAsIntWithDefault("IceDiscovery.Port", 4061);
-    String intf = properties.getProperty("IceDiscovery.Interface");
+    int port = properties.getIcePropertyAsInt("IceDiscovery.Port");
+    String intf = properties.getIceProperty("IceDiscovery.Interface");
 
-    if (properties.getProperty("IceDiscovery.Multicast.Endpoints").isEmpty()) {
+    if (properties.getIceProperty("IceDiscovery.Multicast.Endpoints").isEmpty()) {
       StringBuilder s = new StringBuilder();
       s.append("udp -h \"").append(address).append("\" -p ").append(port);
       if (!intf.isEmpty()) {
@@ -35,7 +35,7 @@ class PluginI implements com.zeroc.Ice.Plugin {
       properties.setProperty("IceDiscovery.Multicast.Endpoints", s.toString());
     }
 
-    String lookupEndpoints = properties.getProperty("IceDiscovery.Lookup");
+    String lookupEndpoints = properties.getIceProperty("IceDiscovery.Lookup");
     if (lookupEndpoints.isEmpty()) {
       int protocol = ipv4 && !preferIPv6 ? Network.EnableIPv4 : Network.EnableIPv6;
       java.util.List<String> interfaces = Network.getInterfacesForMulticast(intf, protocol);
@@ -47,12 +47,12 @@ class PluginI implements com.zeroc.Ice.Plugin {
       }
     }
 
-    if (properties.getProperty("IceDiscovery.Reply.Endpoints").isEmpty()) {
+    if (properties.getIceProperty("IceDiscovery.Reply.Endpoints").isEmpty()) {
       properties.setProperty(
           "IceDiscovery.Reply.Endpoints", "udp -h " + (intf.isEmpty() ? "*" : "\"" + intf + "\""));
     }
 
-    if (properties.getProperty("IceDiscovery.Locator.Endpoints").isEmpty()) {
+    if (properties.getIceProperty("IceDiscovery.Locator.Endpoints").isEmpty()) {
       properties.setProperty(
           "IceDiscovery.Locator.AdapterId", java.util.UUID.randomUUID().toString());
     }

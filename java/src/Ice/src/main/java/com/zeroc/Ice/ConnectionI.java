@@ -1448,8 +1448,9 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     _writeTimeoutFuture = null;
     _readTimeout = new TimeoutCallback();
     _readTimeoutFuture = null;
-    _warn = initData.properties.getPropertyAsInt("Ice.Warn.Connections") > 0;
-    _warnUdp = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
+    _warn = initData.properties.getIcePropertyAsInt("Ice.Warn.Connections") > 0;
+    _warnUdp =
+        instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Datagrams") > 0;
     _cacheBuffers = instance.cacheMessageBuffers();
     if (_monitor != null && _monitor.getACM().timeout > 0) {
       _acmLastActivity = Time.currentMonotonicTimeMillis();
@@ -1468,8 +1469,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     _upcallCount = 0;
     _state = StateNotInitialized;
 
-    int compressionLevel =
-        initData.properties.getPropertyAsIntWithDefault("Ice.Compression.Level", 1);
+    int compressionLevel = initData.properties.getIcePropertyAsInt("Ice.Compression.Level");
     if (compressionLevel < 1) {
       compressionLevel = 1;
     } else if (compressionLevel > 9) {

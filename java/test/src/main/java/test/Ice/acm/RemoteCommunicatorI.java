@@ -12,7 +12,7 @@ public class RemoteCommunicatorI implements RemoteCommunicator {
       int timeout, int close, int heartbeat, com.zeroc.Ice.Current current) {
     com.zeroc.Ice.Communicator com = current.adapter.getCommunicator();
     com.zeroc.Ice.Properties properties = com.getProperties();
-    String protocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+    String protocol = properties.getIceProperty("Ice.Default.Protocol");
     String host = properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
 
     String name = java.util.UUID.randomUUID().toString();
