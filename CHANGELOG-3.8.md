@@ -27,6 +27,10 @@ This feature has been deprecated since Ice 3.7.
 - An interface can no longer be used as a type. This feature, known as "interface by value", has been deprecated since
 Ice 3.7. You can still define proxies with the usual syntax, `Greeter*`, where `Greeter` represents an interface.
 
+## Property Changes
+
+- Removed `IceSSL.SchannelStrongCrypto`. Strong crypto is now enabled by default.
+
 ## C++ Changes
 
 - There is now a single C++ mapping, based on the C++11 mapping provided by Ice 3.7. This new C++ mapping requires a
