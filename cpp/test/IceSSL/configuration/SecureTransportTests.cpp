@@ -69,7 +69,8 @@ createServer(ServerAuthenticationOptions serverAuthenticationOptions, TestHelper
 Ice::CommunicatorPtr
 createClient(optional<ClientAuthenticationOptions> clientAuthenticationOptions = nullopt)
 {
-    return initialize(Ice::InitializationData{.clientAuthenticationOptions = clientAuthenticationOptions});
+    return initialize(Ice::InitializationData{
+        .clientAuthenticationOptions = clientAuthenticationOptions.value_or(ClientAuthenticationOptions{})});
 }
 
 void
@@ -769,7 +770,7 @@ allAuthenticationOptionsTests(Test::TestHelper* helper, const string& testDir)
     const string certificatesPath = testDir + "/../certs";
 #    endif
 
-    cerr << "testing with SecureTransport native APIs..." << endl;
+    cout << "testing with SecureTransport native APIs..." << endl;
 
     clientValidatesServerSettingTrustedRootCertificates(helper, certificatesPath);
     clientValidatesServerUsingValidationCallback(helper, certificatesPath);

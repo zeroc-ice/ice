@@ -42,10 +42,10 @@ extern "C"
 Ice::CommunicatorPtr
 createServer(ServerAuthenticationOptions serverAuthenticationOptions, TestHelper* helper)
 {
-    Ice::InitializationData initData;
-    initData.properties = Ice::createProperties();
+    auto properties = Ice::createProperties();
     // Disable IPv6 for compatibility with Docker containers running on macOS.
-    initData.properties->setProperty("Ice.IPv6", "0");
+    properties->setProperty("Ice.IPv6", "0");
+    Ice::InitializationData initData{.properties = properties};
     Ice::CommunicatorPtr communicator = initialize(initData);
     ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints(
         "ServerAdapter",
@@ -59,11 +59,12 @@ createServer(ServerAuthenticationOptions serverAuthenticationOptions, TestHelper
 Ice::CommunicatorPtr
 createClient(optional<ClientAuthenticationOptions> clientAuthenticationOptions)
 {
-    Ice::InitializationData initData;
-    initData.properties = Ice::createProperties();
+    auto properties = Ice::createProperties();
     // Disable IPv6 for compatibility with Docker containers running on macOS.
-    initData.properties->setProperty("Ice.IPv6", "0");
-    initData.clientAuthenticationOptions = clientAuthenticationOptions;
+    properties->setProperty("Ice.IPv6", "0");
+    Ice::InitializationData initData{
+        .properties = properties,
+        .clientAuthenticationOptions = clientAuthenticationOptions.value_or(ClientAuthenticationOptions{})};
     return initialize(initData);
 }
 
@@ -829,7 +830,7 @@ serverHotCertificateReload(Test::TestHelper* helper, const string& testDir)
 void
 allAuthenticationOptionsTests(Test::TestHelper* helper, const string& testDir)
 {
-    cerr << "testing with OpenSSL native APIs..." << endl;
+    cout << "testing with OpenSSL native APIs..." << endl;
 
     clientValidatesServerUsingCAFile(helper, testDir);
     clientValidatesServerUsingValidationCallback(helper, testDir);

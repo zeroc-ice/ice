@@ -89,6 +89,22 @@ namespace
             return HCCE_CURRENT_USER;
         }
     }
+
+    SCH_CREDENTIALS defaultOutgoingCredentials(const string&)
+    {
+        return SCH_CREDENTIALS{
+            .dwVersion = SCH_CREDENTIALS_VERSION,
+            .dwFlags = SCH_CRED_NO_DEFAULT_CREDS | SCH_CRED_NO_SERVERNAME_CHECK | SCH_USE_STRONG_CRYPTO};
+    }
+
+    SCH_CREDENTIALS defaultIncomingCredentials(const string&)
+    {
+        return SCH_CREDENTIALS{
+            .dwVersion = SCH_CREDENTIALS_VERSION,
+            // Don't set SCH_SEND_ROOT_CERT as it seems to cause problems with Java certificate validation and
+            // Schannel doesn't seems to send the root certificate either way.
+            .dwFlags = SCH_CRED_NO_SYSTEM_MAPPER | SCH_CRED_DISABLE_RECONNECTS | SCH_USE_STRONG_CRYPTO};
+    }
 }
 
 IceInternal::NativeInfoPtr
@@ -115,29 +131,37 @@ Schannel::TransceiverI::sslHandshake()
     SECURITY_STATUS err = SEC_E_OK;
     if (_state == StateHandshakeNotStarted)
     {
-        SCHANNEL_CRED cred = _engine->newCredentialsHandle(_incoming);
-        if (_localCertificateSelectionCallback)
+        _credentials = _localCredentialsSelectionCallback(_incoming ? _adapterName : _host);
+        if (_rootStore && !_credentials.hRootStore)
         {
-            _certificate = _localCertificateSelectionCallback(_incoming ? _adapterName : _host);
-            if (_certificate)
-            {
-                cred.cCreds = 1;
-                cred.paCred = &_certificate;
-            }
+            _credentials.hRootStore = CertDuplicateStore(_rootStore);
         }
-        cred.hRootStore = _rootStore;
 
-        memset(&_credentials, 0, sizeof(_credentials));
+        if (_credentials.cCreds > 0)
+        {
+            for (DWORD i = 0; i < _credentials.cCreds; ++i)
+            {
+                if (_credentials.paCred[i])
+                {
+                    _allCerts.push_back(CertDuplicateCertificateContext(_credentials.paCred[i]));
+                }
+            }
+            _credentials.paCred = &_allCerts[0];
+        }
+
+        _credentials.hRootStore = _rootStore;
+
+        memset(&_credentialsHandle, 0, sizeof(_credentialsHandle));
 
         err = AcquireCredentialsHandle(
             0,
             const_cast<char*>(UNISP_NAME),
             (_incoming ? SECPKG_CRED_INBOUND : SECPKG_CRED_OUTBOUND),
             0,
-            &cred,
-            0,
-            0,
             &_credentials,
+            0,
+            0,
+            &_credentialsHandle,
             0);
 
         if (err != SEC_E_OK)
@@ -158,7 +182,7 @@ Schannel::TransceiverI::sslHandshake()
             SecBufferDesc outBufferDesc = {SECBUFFER_VERSION, 1, &outBuffer};
 
             err = InitializeSecurityContext(
-                &_credentials,
+                &_credentialsHandle,
                 0,
                 const_cast<char*>(_host.c_str()),
                 _remoteCertificateValidationCallback ? flags | ISC_REQ_MANUAL_CRED_VALIDATION : flags,
@@ -220,7 +244,7 @@ Schannel::TransceiverI::sslHandshake()
             {
                 bool newSession = _ssl.dwLower == 0 && _ssl.dwUpper == 0;
                 err = AcceptSecurityContext(
-                    &_credentials,
+                    &_credentialsHandle,
                     newSession ? 0 : &_ssl,
                     &inBufferDesc,
                     _clientCertificateRequired ? flags | ASC_REQ_MUTUAL_AUTH : flags,
@@ -238,7 +262,7 @@ Schannel::TransceiverI::sslHandshake()
             else
             {
                 err = InitializeSecurityContext(
-                    &_credentials,
+                    &_credentialsHandle,
                     &_ssl,
                     const_cast<char*>(_host.c_str()),
                     flags,
@@ -628,17 +652,24 @@ Schannel::TransceiverI::close()
         _ssl = {0, 0};
     }
 
-    if (_credentials.dwLower || _credentials.dwUpper)
+    if (_credentialsHandle.dwLower || _credentialsHandle.dwUpper)
     {
-        FreeCredentialsHandle(&_credentials);
+        FreeCredentialsHandle(&_credentialsHandle);
         _credentials = {0, 0};
     }
 
-    if (_certificate)
+    if (_credentials.hRootStore)
     {
-        CertFreeCertificateContext(_certificate);
-        _certificate = nullptr;
+        CertCloseStore(_credentials.hRootStore, 0);
+        _credentials.hRootStore = nullptr;
     }
+    for (const auto& certificate : _allCerts)
+    {
+        CertFreeCertificateContext(certificate);
+    }
+    _credentials.cCreds = 0;
+    _credentials.paCred = nullptr;
+    _allCerts.clear();
 
     if (_peerCertificate)
     {
@@ -875,13 +906,16 @@ Schannel::TransceiverI::TransceiverI(
       _state(StateNotInitialized),
       _bufferedW(0),
       _clientCertificateRequired(serverAuthenticationOptions.clientCertificateRequired),
-      _localCertificateSelectionCallback(serverAuthenticationOptions.serverCertificateSelectionCallback),
+      _credentials({}),
+      _credentialsHandle({0, 0}),
+      _localCredentialsSelectionCallback(
+          serverAuthenticationOptions.serverCredentialsSelectionCallback
+              ? serverAuthenticationOptions.serverCredentialsSelectionCallback
+              : defaultIncomingCredentials),
       _sslNewSessionCallback(serverAuthenticationOptions.sslNewSessionCallback),
       _peerCertificate(nullptr),
       _remoteCertificateValidationCallback(serverAuthenticationOptions.clientCertificateValidationCallback),
-      _certificate(nullptr),
       _rootStore(serverAuthenticationOptions.trustedRootCertificates),
-      _credentials({0, 0}),
       _ssl({0, 0}),
       _chainEngine(nullptr)
 {
@@ -919,13 +953,16 @@ Schannel::TransceiverI::TransceiverI(
       _state(StateNotInitialized),
       _bufferedW(0),
       _clientCertificateRequired(false),
-      _localCertificateSelectionCallback(clientAuthenticationOptions.clientCertificateSelectionCallback),
+      _credentials({}),
+      _credentialsHandle({0, 0}),
+      _localCredentialsSelectionCallback(
+          clientAuthenticationOptions.clientCredentialsSelectionCallback
+              ? clientAuthenticationOptions.clientCredentialsSelectionCallback
+              : defaultOutgoingCredentials),
       _sslNewSessionCallback(clientAuthenticationOptions.sslNewSessionCallback),
       _peerCertificate(nullptr),
       _remoteCertificateValidationCallback(clientAuthenticationOptions.serverCertificateValidationCallback),
-      _certificate(nullptr),
       _rootStore(clientAuthenticationOptions.trustedRootCertificates),
-      _credentials({0, 0}),
       _ssl({0, 0}),
       _chainEngine(nullptr)
 {
