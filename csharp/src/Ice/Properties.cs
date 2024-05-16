@@ -348,8 +348,8 @@ public sealed class Properties
             throw new InitializationException("Attempt to set property with empty key");
         }
 
-        // Find the property, log warnings if necessary
-        Property? prop = findProperty(key, true);
+        // Checks if the property is a known Ice property and logs warnings if necessary
+        findProperty(key, true);
 
         lock (this)
         {

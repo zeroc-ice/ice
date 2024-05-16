@@ -350,7 +350,7 @@ Ice::Properties::setProperty(string_view key, string_view value)
         throw InitializationException(__FILE__, __LINE__, "Attempt to set property with empty key");
     }
 
-    // Find the property, log warnings if necessary
+    // Checks if the property is a known Ice property and logs warnings if necessary
     findProperty(key, true);
 
     lock_guard lock(_mutex);

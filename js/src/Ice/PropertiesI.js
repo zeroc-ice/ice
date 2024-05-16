@@ -175,8 +175,8 @@ class Properties
             throw new InitializationException("Attempt to set property with empty key");
         }
 
-        // Find the property, log warnings if necessary
-        const prop = Properties.findProperty(key, true);
+        // Checks if the property is a known Ice property and logs warnings if necessary
+        Properties.findProperty(key, true);
 
         //
         // Set or clear the property.
