@@ -1825,17 +1825,14 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
     }
 
-    if (!baseNames.empty())
+    _out << " : ";
+    for (StringList::const_iterator q = baseNames.begin(); q != baseNames.end(); ++q)
     {
-        _out << " : ";
-        for (StringList::const_iterator q = baseNames.begin(); q != baseNames.end(); ++q)
+        if (q != baseNames.begin())
         {
-            if (q != baseNames.begin())
-            {
-                _out << ", ";
-            }
-            _out << *q;
+            _out << ", ";
         }
+        _out << *q;
     }
 
     _out << sb;
