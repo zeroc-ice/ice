@@ -109,7 +109,7 @@ namespace
         optional<Property> prop = findProperty(key, false);
         if (!prop)
         {
-            throw invalid_argument{"unknown ice property: `" + string{key} + "'"};
+            throw invalid_argument{"unknown ice property: " + string{key}};
         }
         return prop->defaultValue;
     }
