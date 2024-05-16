@@ -51,7 +51,6 @@ namespace Ice::SSL::Schannel
         HCERTSTORE _rootStore;
 
         HCERTCHAINENGINE _chainEngine;
-        const bool _strongCrypto;
         mutable std::mutex _mutex;
     };
 }

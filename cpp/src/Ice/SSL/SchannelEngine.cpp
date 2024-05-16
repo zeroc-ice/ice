@@ -734,8 +734,7 @@ namespace
 Schannel::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)
     : Ice::SSL::SSLEngine(instance),
       _rootStore(nullptr),
-      _chainEngine(nullptr),
-      _strongCrypto(false)
+      _chainEngine(nullptr)
 {
 }
 
@@ -752,8 +751,6 @@ Schannel::SSLEngine::initialize()
     Ice::SSL::SSLEngine::initialize();
 
     const PropertiesPtr properties = getProperties();
-
-    const_cast<bool&>(_strongCrypto) = properties->getIcePropertyAsInt("IceSSL.SchannelStrongCrypto") > 0;
 
     // Check for a default directory. We look in this directory for files mentioned in the configuration.
     const string defaultDir = properties->getIceProperty("IceSSL.DefaultDir");
@@ -1266,10 +1263,9 @@ Schannel::SSLEngine::newCredentialsHandle(bool incoming) const
         cred.dwFlags = SCH_CRED_NO_SERVERNAME_CHECK | SCH_CRED_NO_DEFAULT_CREDS;
     }
 
-    if (_strongCrypto)
-    {
-        cred.dwFlags |= SCH_USE_STRONG_CRYPTO;
-    }
+    // Enable strong crypto
+    cred.dwFlags |= SCH_USE_STRONG_CRYPTO;
+
     return cred;
 }
 
