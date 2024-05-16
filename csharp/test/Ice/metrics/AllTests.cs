@@ -166,9 +166,9 @@ public class AllTests : Test.AllTests
     }
 
     private static string
-    getPort(Ice.PropertiesAdminPrx p)
+    getPort(Ice.PropertiesAdminPrx p, int testPort = 0)
     {
-        return Test.TestHelper.getTestPort(p.ice_getCommunicator().getProperties(), 0).ToString();
+        return Test.TestHelper.getTestPort(p.ice_getCommunicator().getProperties(), testPort).ToString();
     }
 
     static private Dictionary<string, string>
@@ -212,7 +212,8 @@ public class AllTests : Test.AllTests
             map += "Map." + m + '.';
         }
         props["IceMX.Metrics.View." + map + "Reject.parent"] = "Ice\\.Admin|Controller";
-        props["IceMX.Metrics.View." + map + "Accept.endpointPort"] = getPort(p);
+        // Regular expression to match server test endpoint 0 and test endpoint 1
+        props["IceMX.Metrics.View." + map + "Accept.endpointPort"] = $"{getPort(p, 0)}|{getPort(p, 1)}";
         return props;
     }
 
@@ -486,7 +487,10 @@ public class AllTests : Test.AllTests
         string port = helper.getTestPort(0).ToString();
         string hostAndPort = host + ":" + port;
         string protocol = helper.getTestProtocol();
-        string endpoint = protocol + " -h " + host + " -p " + port;
+
+        string endpoint = $"{protocol} -h {host} -p {port}";
+        string forwardingEndpoint = $"{protocol} -h {host} -p {helper.getTestPort(1)}";
+
         string timeout = communicator.getProperties().getPropertyWithDefault("Ice.Default.Timeout", "60000");
 
         MetricsPrx metrics = MetricsPrxHelper.checkedCast(communicator.stringToProxy("metrics:" + endpoint));
@@ -673,7 +677,7 @@ public class AllTests : Test.AllTests
             test(map["active"].current == 1);
 
             ControllerPrx controller = ControllerPrxHelper.checkedCast(
-                communicator.stringToProxy("controller:" + helper.getTestEndpoint(1)));
+                communicator.stringToProxy("controller:" + helper.getTestEndpoint(2)));
             controller.hold();
 
             map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Connection"]);
@@ -996,6 +1000,13 @@ public class AllTests : Test.AllTests
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "context.entry2", "", op, output);
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "context.entry3", "", op, output);
 
+        output.WriteLine("ok");
+
+        output.WriteLine("testing dispatch metrics with forwarding object adapter... ");
+        MetricsPrx indirectMetrics = MetricsPrxHelper.createProxy(communicator, "metrics:" + forwardingEndpoint);
+        System.Action secondOp = () => invokeOp(indirectMetrics);
+        testAttribute(serverMetrics, serverProps, update, "Dispatch", "parent", "ForwardingAdapter", secondOp, output);
+        testAttribute(serverMetrics, serverProps, update, "Dispatch", "id", "metrics [op]", secondOp, output);
         output.WriteLine("ok");
 
         output.Write("testing invocation metrics... ");
