@@ -2927,12 +2927,12 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
         // Unmarshal 'in' parameters.
         _out << nl << "var istr = request.inputStream;";
         _out << nl << "istr.startEncapsulation();";
-        for (ParamDeclList::const_iterator pli = inParams.begin(); pli != inParams.end(); ++pli)
+        for (const auto& pli : inParams)
         {
-            string param = "iceP_" + (*pli)->name();
-            string typeS = typeToString((*pli)->type(), ns, (*pli)->optional());
+            string param = "iceP_" + pli->name();
+            string typeS = typeToString(pli->type(), ns, pli->optional());
 
-            _out << nl << typeS << ' ' << param << (isClassType((*pli)->type()) ? " = null;" : ";");
+            _out << nl << typeS << ' ' << param << (isClassType(pli->type()) ? " = null;" : ";");
         }
         writeMarshalUnmarshalParams(inParams, 0, false, ns);
         if (op->sendsClasses(false))

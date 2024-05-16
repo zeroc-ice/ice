@@ -3,7 +3,6 @@
 using Ice.Instrumentation;
 using Ice.Internal;
 using System.Diagnostics;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace Ice;

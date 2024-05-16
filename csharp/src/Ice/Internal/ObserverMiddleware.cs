@@ -9,6 +9,9 @@ namespace Ice.Internal;
 /// <summary>A middleware that observes dispatches.</summary>
 internal sealed class ObserverMiddleware : Object
 {
+    private readonly Object _next;
+    private readonly CommunicatorObserver _communicatorObserver;
+
     public ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request)
     {
         return _communicatorObserver.getDispatchObserver(request.current, request.size) is DispatchObserver observer ?
@@ -65,7 +68,4 @@ internal sealed class ObserverMiddleware : Object
         _next = next;
         _communicatorObserver = communicatorObserver;
     }
-
-    private readonly Object _next;
-    private readonly CommunicatorObserver _communicatorObserver;
 }

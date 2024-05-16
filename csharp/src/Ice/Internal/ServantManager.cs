@@ -12,16 +12,11 @@ public sealed class ServantManager : Object
     {
         lock (this)
         {
-            Debug.Assert(_instance != null); // Must not be called after destruction.
+            Debug.Assert(_instance is not null); // Must not be called after destruction.
 
             facet ??= "";
 
-            _servantMapMap.TryGetValue(ident, out Dictionary<string, Ice.Object>? m);
-            if (m == null)
-            {
-                _servantMapMap[ident] = (m = new Dictionary<string, Ice.Object>());
-            }
-            else
+            if (_servantMapMap.TryGetValue(ident, out Dictionary<string, Ice.Object>? m))
             {
                 if (m.ContainsKey(facet))
                 {
@@ -35,6 +30,11 @@ public sealed class ServantManager : Object
                     throw ex;
                 }
             }
+            else
+            {
+                m = new();
+                _servantMapMap[ident] = m;
+            }
 
             m[facet] = servant;
         }
@@ -44,9 +44,8 @@ public sealed class ServantManager : Object
     {
         lock (this)
         {
-            Debug.Assert(_instance != null); // Must not be called after destruction.
-            _defaultServantMap.TryGetValue(category, out Ice.Object? obj);
-            if (obj != null)
+            Debug.Assert(_instance is not null); // Must not be called after destruction.
+            if (_defaultServantMap.TryGetValue(category, out Ice.Object? obj))
             {
                 Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
                 ex.kindOfObject = "default servant";
@@ -62,14 +61,14 @@ public sealed class ServantManager : Object
     {
         lock (this)
         {
-            Debug.Assert(_instance != null); // Must not be called after destruction.
+            Debug.Assert(_instance is not null); // Must not be called after destruction.
 
             facet ??= "";
 
-            Dictionary<string, Ice.Object>? m;
+            Dictionary<string, Ice.Object>? m = null;
             _servantMapMap.TryGetValue(ident, out m);
             Ice.Object? obj = null;
-            if (m == null || !m.TryGetValue(facet, out Ice.Object? value))
+            if (m is null || !m.TryGetValue(facet, out Ice.Object? value))
             {
                 Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
                 ex.id = Ice.Util.identityToString(ident, _instance.toStringMode());
@@ -95,11 +94,9 @@ public sealed class ServantManager : Object
     {
         lock (this)
         {
-            Debug.Assert(_instance != null); // Must not be called after destruction.
+            Debug.Assert(_instance is not null); // Must not be called after destruction.
 
-            Ice.Object? obj = null;
-            _defaultServantMap.TryGetValue(category, out obj);
-            if (obj == null)
+            if (!_defaultServantMap.TryGetValue(category, out Ice.Object? obj))
             {
                 Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
                 ex.kindOfObject = "default servant";
@@ -116,11 +113,9 @@ public sealed class ServantManager : Object
     {
         lock (this)
         {
-            Debug.Assert(_instance != null);
+            Debug.Assert(_instance is not null);
 
-            Dictionary<string, Ice.Object>? m;
-            _servantMapMap.TryGetValue(ident, out m);
-            if (m == null)
+            if (!_servantMapMap.TryGetValue(ident, out Dictionary<string, Ice.Object>? m))
             {
                 Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
                 ex.id = Ice.Util.identityToString(ident, _instance.toStringMode());
@@ -143,27 +138,22 @@ public sealed class ServantManager : Object
             // requests are received over the bidir connection after the
             // adapter was deactivated.
             //
-            //Debug.Assert(_instance != null); // Must not be called after destruction.
+            //Debug.Assert(_instance is not null); // Must not be called after destruction.
 
-            if (facet == null)
-            {
-                facet = "";
-            }
+            facet ??= "";
 
-            Dictionary<string, Ice.Object>? m;
-            _servantMapMap.TryGetValue(ident, out m);
             Ice.Object? obj = null;
-            if (m == null)
+            if (_servantMapMap.TryGetValue(ident, out Dictionary<string, Ice.Object>? m))
             {
-                _defaultServantMap.TryGetValue(ident.category, out obj);
-                if (obj == null)
-                {
-                    _defaultServantMap.TryGetValue("", out obj);
-                }
+                m.TryGetValue(facet, out obj);
             }
             else
             {
-                m.TryGetValue(facet, out obj);
+                _defaultServantMap.TryGetValue(ident.category, out obj);
+                if (obj is null)
+                {
+                    _defaultServantMap.TryGetValue("", out obj);
+                }
             }
 
             return obj;
@@ -174,11 +164,8 @@ public sealed class ServantManager : Object
     {
         lock (this)
         {
-            Debug.Assert(_instance != null); // Must not be called after destruction.
-
-            Ice.Object? obj = null;
-            _defaultServantMap.TryGetValue(category, out obj);
-            return obj;
+            Debug.Assert(_instance is not null); // Must not be called after destruction.
+            return _defaultServantMap.TryGetValue(category, out Ice.Object? obj) ? obj : null;
         }
     }
 
@@ -186,10 +173,10 @@ public sealed class ServantManager : Object
     {
         lock (this)
         {
-            Debug.Assert(_instance != null); // Must not be called after destruction.
+            Debug.Assert(_instance is not null); // Must not be called after destruction.
 
-            Dictionary<string, Ice.Object> m = _servantMapMap[ident];
-            if (m != null)
+            Dictionary<string, Ice.Object>? m = _servantMapMap[ident];
+            if (m is not null)
             {
                 return new Dictionary<string, Ice.Object>(m);
             }
@@ -209,19 +196,9 @@ public sealed class ServantManager : Object
             // adapter was deactivated.
             //
             //
-            //Debug.Assert(_instance != null); // Must not be called after destruction.
+            //Debug.Assert(_instance is not null); // Must not be called after destruction.
 
-            Dictionary<string, Ice.Object>? m;
-            _servantMapMap.TryGetValue(ident, out m);
-            if (m == null)
-            {
-                return false;
-            }
-            else
-            {
-                Debug.Assert(m.Count != 0);
-                return true;
-            }
+            return _servantMapMap.TryGetValue(ident, out Dictionary<string, Ice.Object>? m) ? m.Count != 0 : false;
         }
     }
 
@@ -229,11 +206,9 @@ public sealed class ServantManager : Object
     {
         lock (this)
         {
-            Debug.Assert(_instance != null); // Must not be called after destruction.
+            Debug.Assert(_instance is not null); // Must not be called after destruction.
 
-            Ice.ServantLocator? l;
-            _locatorMap.TryGetValue(category, out l);
-            if (l != null)
+            if (_locatorMap.TryGetValue(category, out Ice.ServantLocator? l))
             {
                 Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
                 ex.id = Ice.UtilInternal.StringUtil.escapeString(category, "", _instance.toStringMode());
@@ -249,11 +224,9 @@ public sealed class ServantManager : Object
     {
         lock (this)
         {
-            Debug.Assert(_instance != null); // Must not be called after destruction.
+            Debug.Assert(_instance is not null); // Must not be called after destruction.
 
-            Ice.ServantLocator? l;
-            _locatorMap.TryGetValue(category, out l);
-            if (l is null)
+            if (!_locatorMap.TryGetValue(category, out Ice.ServantLocator? l))
             {
                 Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
                 ex.id = Ice.UtilInternal.StringUtil.escapeString(category, "", _instance.toStringMode());
@@ -276,11 +249,9 @@ public sealed class ServantManager : Object
             // adapter was deactivated.
             //
             //
-            //Debug.Assert(_instance != null); // Must not be called after destruction.
+            //Debug.Assert(_instance is not null); // Must not be called after destruction.
 
-            Ice.ServantLocator? result;
-            _locatorMap.TryGetValue(category, out result);
-            return result;
+            return _locatorMap.TryGetValue(category, out Ice.ServantLocator? result) ? result : null;
         }
     }
 
@@ -305,7 +276,7 @@ public sealed class ServantManager : Object
             //
             // If the ServantManager has already been destroyed, we're done.
             //
-            if (_instance == null)
+            if (_instance is null)
             {
                 return;
             }

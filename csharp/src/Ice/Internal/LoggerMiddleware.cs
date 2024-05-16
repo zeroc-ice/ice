@@ -9,6 +9,11 @@ namespace Ice.Internal;
 /// <summary>A middleware that logs warnings for failed dispatches.</summary>
 internal sealed class LoggerMiddleware : Object
 {
+    private readonly Object _next;
+    private readonly Logger _logger;
+    private readonly int _warningLevel;
+    private readonly ToStringMode _toStringMode;
+
     public async ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request)
     {
         try
@@ -97,9 +102,4 @@ internal sealed class LoggerMiddleware : Object
             _logger.warning(sw.ToString());
         }
     }
-
-    private readonly Object _next;
-    private readonly Logger _logger;
-    private readonly int _warningLevel;
-    private readonly ToStringMode _toStringMode;
 }
