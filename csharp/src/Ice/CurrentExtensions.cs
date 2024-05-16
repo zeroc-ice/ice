@@ -193,9 +193,7 @@ public static class CurrentExtensions
 
                 case UserException ex:
                     exceptionId = ex.ice_id();
-
-                    // TODO, ToString() fails with slicing/objects tests (StackOverflowException)
-                    exceptionMessage = ex.ice_id();
+                    exceptionMessage = ex.ToString();
 
                     replyStatus = ReplyStatus.UserException;
 
