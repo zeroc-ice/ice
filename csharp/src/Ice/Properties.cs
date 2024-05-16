@@ -349,7 +349,12 @@ public sealed class Properties
         }
 
         // Checks if the property is a known Ice property and logs warnings if necessary
-        findProperty(key, true);
+        Property? prop = findProperty(key, true);
+
+        if (prop is not null && prop.deprecated)
+        {
+            Util.getProcessLogger().warning("deprecated property: " + key);
+        }
 
         lock (this)
         {
@@ -780,13 +785,8 @@ public sealed class Properties
 
         foreach (var prop in propertyArray)
         {
-            bool matches = prop.usesRegex ? Regex.IsMatch(key, prop.pattern) : key == prop.pattern;
-            if (matches)
+            if (prop.usesRegex ? Regex.IsMatch(key, prop.pattern) : key == prop.pattern)
             {
-                if (prop.deprecated && logWarnings)
-                {
-                    logger.warning("deprecated property: " + key);
-                }
                 return prop;
             }
         }

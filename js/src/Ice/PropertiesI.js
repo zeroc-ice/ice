@@ -176,7 +176,11 @@ class Properties
         }
 
         // Checks if the property is a known Ice property and logs warnings if necessary
-        Properties.findProperty(key, true);
+        var prop = Properties.findProperty(key, true);
+        if (prop !== null && prop.deprecated)
+        {
+            getProcessLogger().warning("deprecated property: " + key);
+        }
 
         //
         // Set or clear the property.
@@ -496,14 +500,8 @@ class Properties
         {
             const prop = propertyPrefix[j];
 
-            const matches = prop.usesRegex ? key.match(prop.pattern) : key === prop.pattern;
-
-            if (matches)
+            if (prop.usesRegex ? key.match(prop.pattern) : key === prop.pattern)
             {
-                if (prop.deprecated && logWarnings)
-                {
-                    logger.warning("deprecated property: " + key);
-                }
                 return prop;
             }
         }

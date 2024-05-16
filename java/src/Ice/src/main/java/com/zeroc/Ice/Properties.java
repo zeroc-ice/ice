@@ -348,7 +348,11 @@ public final class Properties {
     }
 
     // Checks if the property is a known Ice property and logs warnings if necessary
-    findProperty(key, true);
+    Property prop = findProperty(key, true);
+
+    if (prop != null && prop.deprecated()) {
+      Util.getProcessLogger().warning("deprecated property: " + key);
+    }
 
     synchronized (this) {
       //

@@ -79,14 +79,8 @@ namespace
         {
             auto prop = propertyArray->properties[i];
 
-            bool matches = prop.usesRegex ? IceUtilInternal::match(string{key}, prop.pattern) : key == prop.pattern;
-
-            if (matches)
+            if (prop.usesRegex ? IceUtilInternal::match(string{key}, prop.pattern) : key == prop.pattern)
             {
-                if (prop.deprecated && logWarnings)
-                {
-                    logger->warning("deprecated property: " + string{key});
-                }
                 return prop;
             }
         }
@@ -351,7 +345,12 @@ Ice::Properties::setProperty(string_view key, string_view value)
     }
 
     // Checks if the property is a known Ice property and logs warnings if necessary
-    findProperty(key, true);
+    auto prop = findProperty(key, true);
+
+    if (prop && prop->deprecated)
+    {
+        getProcessLogger()->warning("deprecated property: " + string{key});
+    }
 
     lock_guard lock(_mutex);
 
