@@ -35,7 +35,7 @@ public class AllTests {
 
   private static InitializationData createClientProps(com.zeroc.Ice.Properties defaultProperties) {
     InitializationData initData = new com.zeroc.Ice.InitializationData();
-    initData.properties = Util.createProperties();
+    initData.properties = new com.zeroc.Ice.Properties();
     initData.properties.setProperty(
         "IceSSL.DefaultDir", defaultProperties.getProperty("IceSSL.DefaultDir"));
     initData.properties.setProperty(

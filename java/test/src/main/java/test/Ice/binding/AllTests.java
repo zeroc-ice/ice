@@ -772,23 +772,23 @@ public class AllTests {
       out.print("testing ipv4 & ipv6 connections... ");
       out.flush();
 
-      com.zeroc.Ice.Properties ipv4 = com.zeroc.Ice.Util.createProperties();
+      com.zeroc.Ice.Properties ipv4 = new com.zeroc.Ice.Properties();
       ipv4.setProperty("Ice.IPv4", "1");
       ipv4.setProperty("Ice.IPv6", "0");
       ipv4.setProperty("Adapter.Endpoints", "tcp -h localhost");
 
-      com.zeroc.Ice.Properties ipv6 = com.zeroc.Ice.Util.createProperties();
+      com.zeroc.Ice.Properties ipv6 = new com.zeroc.Ice.Properties();
       ipv6.setProperty("Ice.IPv4", "0");
       ipv6.setProperty("Ice.IPv6", "1");
       ipv6.setProperty("Adapter.Endpoints", "tcp -h localhost");
 
-      com.zeroc.Ice.Properties bothPreferIPv4 = com.zeroc.Ice.Util.createProperties();
+      com.zeroc.Ice.Properties bothPreferIPv4 = new com.zeroc.Ice.Properties();
       bothPreferIPv4.setProperty("Ice.IPv4", "1");
       bothPreferIPv4.setProperty("Ice.IPv6", "1");
       bothPreferIPv4.setProperty("Ice.PreferIPv6Address", "0");
       bothPreferIPv4.setProperty("Adapter.Endpoints", "tcp -h localhost");
 
-      com.zeroc.Ice.Properties bothPreferIPv6 = com.zeroc.Ice.Util.createProperties();
+      com.zeroc.Ice.Properties bothPreferIPv6 = new com.zeroc.Ice.Properties();
       bothPreferIPv6.setProperty("Ice.IPv4", "1");
       bothPreferIPv6.setProperty("Ice.IPv6", "1");
       bothPreferIPv6.setProperty("Ice.PreferIPv6Address", "1");
@@ -810,7 +810,7 @@ public class AllTests {
       anyipv6.setProperty("Adapter.Endpoints", endpoint);
       anyipv6.setProperty("Adapter.PublishedEndpoints", endpoint + " -h \".1\"");
 
-      com.zeroc.Ice.Properties anyboth = com.zeroc.Ice.Util.createProperties();
+      com.zeroc.Ice.Properties anyboth = new com.zeroc.Ice.Properties();
       anyboth.setProperty("Ice.IPv4", "1");
       anyboth.setProperty("Ice.IPv6", "1");
       anyboth.setProperty("Adapter.Endpoints", endpoint);

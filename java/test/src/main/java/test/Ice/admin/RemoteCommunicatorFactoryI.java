@@ -16,7 +16,7 @@ public class RemoteCommunicatorFactoryI implements RemoteCommunicatorFactory {
     com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
     initData.classLoader =
         com.zeroc.IceInternal.Util.getInstance(current.adapter.getCommunicator()).getClassLoader();
-    initData.properties = com.zeroc.Ice.Util.createProperties();
+    initData.properties = new com.zeroc.Ice.Properties();
     for (java.util.Map.Entry<String, String> e : props.entrySet()) {
       initData.properties.setProperty(e.getKey(), e.getValue());
     }

@@ -75,7 +75,7 @@ public abstract class Application {
     InitializationData initData = new InitializationData();
     if (configFile != null) {
       try {
-        initData.properties = Util.createProperties();
+        initData.properties = new Properties();
         initData.properties.load(configFile);
       } catch (LocalException ex) {
         Util.getProcessLogger().error(com.zeroc.IceInternal.Ex.toString(ex));
@@ -130,7 +130,7 @@ public abstract class Application {
 
     java.util.List<String> remainingArgs = new java.util.ArrayList<>();
     try {
-      initData.properties = Util.createProperties(args, initData.properties, remainingArgs);
+      initData.properties = new Properties(args, initData.properties, remainingArgs);
     } catch (LocalException ex) {
       Util.getProcessLogger().error(com.zeroc.IceInternal.Ex.toString(ex));
       return 1;

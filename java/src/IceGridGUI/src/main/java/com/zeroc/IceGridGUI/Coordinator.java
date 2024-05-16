@@ -2087,7 +2087,7 @@ public class Coordinator {
 
   private static com.zeroc.Ice.Properties createProperties(
       String[] args, java.util.List<String> rArgs) {
-    com.zeroc.Ice.Properties properties = com.zeroc.Ice.Util.createProperties();
+    com.zeroc.Ice.Properties properties = new com.zeroc.Ice.Properties();
 
     //
     // Set various default values
@@ -2099,7 +2099,7 @@ public class Coordinator {
     //
     properties.setProperty("Ice.RetryIntervals", "-1");
 
-    return com.zeroc.Ice.Util.createProperties(args, properties, rArgs);
+    return new com.zeroc.Ice.Properties(args, properties, rArgs);
   }
 
   Coordinator(JFrame mainFrame, String[] args, Preferences prefs) {
