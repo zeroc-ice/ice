@@ -25,7 +25,7 @@ namespace Ice
                 {
                     _adapters.Remove(adapter);
                 }
-                return null;
+                return Task.CompletedTask;
             }
 
             public override Task
@@ -42,13 +42,13 @@ namespace Ice
                     _adapters.Remove(adapter);
                     _adapters.Remove(replica);
                 }
-                return null;
+                return Task.CompletedTask;
             }
 
             public override Task
             setServerProcessProxyAsync(string id, Ice.ProcessPrx proxy, Ice.Current current)
             {
-                return null;
+                return Task.CompletedTask;
             }
 
             public override void addObject(Ice.ObjectPrx obj, Ice.Current current) => addObject(obj);

@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
+using Ice.Instrumentation;
 using Ice.Internal;
 using System.Diagnostics;
 using System.Net.Security;
@@ -437,6 +438,8 @@ public sealed class ObjectAdapterI : ObjectAdapter
         }
     }
 
+    public Object dispatcher => _servantManager;
+
     public void addServantLocator(ServantLocator locator, string prefix)
     {
         lock (this)
@@ -788,7 +791,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
         lock (this)
         {
             checkForDeactivation();
-            connection.setAdapterAndServantManager(this, _servantManager);
+            connection.setAdapterFromAdapter(this);
         }
     }
 
@@ -814,6 +817,22 @@ public sealed class ObjectAdapterI : ObjectAdapter
         _communicator = communicator;
         _objectAdapterFactory = objectAdapterFactory;
         _servantManager = new ServantManager(instance, name);
+
+        dispatchPipeline = _servantManager;
+        if (instance.initializationData().observer is CommunicatorObserver observer)
+        {
+            dispatchPipeline = new ObserverMiddleware(dispatchPipeline, observer);
+        }
+        if (instance.initializationData().logger is Logger logger)
+        {
+            int warningLevel = instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch");
+            if (warningLevel > 0)
+            {
+                dispatchPipeline =
+                    new LoggerMiddleware(dispatchPipeline, logger, warningLevel, instance.toStringMode());
+            }
+        }
+
         _name = name;
         _incomingConnectionFactories = [];
         _publishedEndpoints = [];
@@ -996,6 +1015,8 @@ public sealed class ObjectAdapterI : ObjectAdapter
             throw;
         }
     }
+
+    internal Object dispatchPipeline { get; }
 
     internal SslServerAuthenticationOptions getServerAuthenticationOptions()
     {
@@ -1430,7 +1451,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
     private ObjectAdapterFactory _objectAdapterFactory;
     private Ice.Internal.ThreadPool _threadPool;
     private ACMConfig _acm;
-    private ServantManager _servantManager;
+    private readonly ServantManager _servantManager;
     private readonly string _name;
     private readonly string _id;
     private readonly string _replicaGroupId;

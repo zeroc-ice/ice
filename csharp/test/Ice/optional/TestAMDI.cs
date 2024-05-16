@@ -11,7 +11,7 @@ namespace Ice
                 public override Task shutdownAsync(Ice.Current current)
                 {
                     current.adapter.getCommunicator().shutdown();
-                    return null;
+                    return Task.CompletedTask;
                 }
 
                 public override Task<Ice.Value>
@@ -228,7 +228,7 @@ namespace Ice
                 public override Task
                 opClassAndUnknownOptionalAsync(Test.A p, Ice.Current current)
                 {
-                    return null;
+                    return Task.CompletedTask;
                 }
 
                 public override Task<Test.G>
@@ -240,7 +240,7 @@ namespace Ice
                 public override Task
                 opVoidAsync(Ice.Current current)
                 {
-                    return null;
+                    return Task.CompletedTask;
                 }
 
                 public async override Task<Test.Initial_OpMStruct1MarshaledResult>

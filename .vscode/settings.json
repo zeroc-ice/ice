@@ -11,6 +11,9 @@
     },
     "C_Cpp.default.cppStandard": "c++20",
     "cSpell.words": [
+        "Browsable",
+        "istr",
+        "ostr",
         "Upcall"
     ],
     "gradle.nestedProjects": true

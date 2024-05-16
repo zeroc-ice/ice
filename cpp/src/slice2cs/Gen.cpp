@@ -376,274 +376,6 @@ Slice::CsVisitor::writeInheritedOperations(const InterfaceDefPtr& p)
 }
 
 void
-Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
-{
-    string name = fixId(p->name());
-    string scoped = p->scoped();
-    string ns = getNamespace(p);
-
-    _out << sp << nl << "#region Slice type-related members";
-    _out << sp;
-    _out << nl << "public override string ice_id(" << getUnqualified("Ice.Current", ns)
-         << " current) => ice_staticId();";
-
-    _out << sp;
-    _out << nl << "public static new string ice_staticId() => \"" << scoped << "\";";
-
-    _out << sp << nl << "#endregion"; // Slice type-related members
-
-    OperationList ops = p->operations();
-    if (ops.size() != 0)
-    {
-        _out << sp << nl << "#region Operation dispatch";
-    }
-
-    for (OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
-    {
-        OperationPtr op = *r;
-        InterfaceDefPtr interface = op->interface();
-        assert(interface);
-
-        string opName = op->name();
-        _out << sp;
-        _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1011\")]";
-        _out << nl << "public static global::System.Threading.Tasks.Task<" << getUnqualified("Ice.OutputStream", ns)
-             << ">";
-        _out << nl << "iceD_" << opName << "(" << name << " obj, "
-             << "global::Ice.Internal.Incoming inS, " << getUnqualified("Ice.Current", ns) << " current)";
-        _out << sb;
-
-        TypePtr ret = op->returnType();
-        ParamDeclList inParams = op->inParameters();
-        ParamDeclList outParams = op->outParameters();
-
-        _out << nl << getUnqualified("Ice.ObjectImpl", ns) << ".iceCheckMode(" << sliceModeToIceMode(op->mode(), ns)
-             << ", current.mode);";
-        if (!inParams.empty())
-        {
-            //
-            // Unmarshal 'in' parameters.
-            //
-            _out << nl << "var istr = inS.startReadParams();";
-            for (ParamDeclList::const_iterator pli = inParams.begin(); pli != inParams.end(); ++pli)
-            {
-                string param = "iceP_" + (*pli)->name();
-                string typeS = typeToString((*pli)->type(), ns, (*pli)->optional());
-
-                _out << nl << typeS << ' ' << param << (isClassType((*pli)->type()) ? " = null;" : ";");
-            }
-            writeMarshalUnmarshalParams(inParams, 0, false, ns);
-            if (op->sendsClasses(false))
-            {
-                _out << nl << "istr.readPendingValues();";
-            }
-            _out << nl << "inS.endReadParams();";
-        }
-        else
-        {
-            _out << nl << "inS.readEmptyParams();";
-        }
-
-        if (op->format() != DefaultFormat)
-        {
-            _out << nl << "inS.setFormat(" << opFormatTypeToString(op, ns) << ");";
-        }
-
-        vector<string> inArgs;
-        for (ParamDeclList::const_iterator pli = inParams.begin(); pli != inParams.end(); ++pli)
-        {
-            inArgs.push_back("iceP_" + (*pli)->name());
-        }
-
-        const bool amd = p->hasMetaData("amd") || op->hasMetaData("amd");
-        if (op->hasMarshaledResult())
-        {
-            _out << nl << "return inS." << (amd ? "setMarshaledResultTask" : "setMarshaledResult");
-            _out << "(obj." << opName << (amd ? "Async" : "") << spar << inArgs << "current" << epar << ");";
-            _out << eb;
-        }
-        else if (amd)
-        {
-            string retS = resultType(op, ns);
-            _out << nl << "return inS.setResultTask" << (retS.empty() ? "" : ('<' + retS + '>'));
-            _out << "(obj." << opName << "Async" << spar << inArgs << "current" << epar;
-            if (!retS.empty())
-            {
-                _out << ",";
-                _out.inc();
-                if (!ret && outParams.size() == 1)
-                {
-                    _out << nl << "(ostr, "
-                         << "iceP_" << outParams.front()->name() << ") =>";
-                }
-                else
-                {
-                    _out << nl << "(ostr, ret) =>";
-                }
-                _out << sb;
-                writeMarshalUnmarshalParams(outParams, op, true, ns, true);
-                if (op->returnsClasses(false))
-                {
-                    _out << nl << "ostr.writePendingValues();";
-                }
-                _out << eb;
-                _out.dec();
-            }
-            _out << ");";
-            _out << eb;
-        }
-        else
-        {
-            for (ParamDeclList::const_iterator pli = outParams.begin(); pli != outParams.end(); ++pli)
-            {
-                string typeS = typeToString((*pli)->type(), ns, (*pli)->optional());
-                _out << nl << typeS << ' ' << "iceP_" + (*pli)->name() << ";";
-            }
-
-            //
-            // Call on the servant.
-            //
-            _out << nl;
-            if (ret)
-            {
-                _out << "var ret = ";
-            }
-            _out << "obj." << fixId(opName, DotNet::ICloneable, true) << spar << inArgs;
-            for (ParamDeclList::const_iterator pli = outParams.begin(); pli != outParams.end(); ++pli)
-            {
-                _out << "out iceP_" + (*pli)->name();
-            }
-            _out << "current" << epar << ';';
-
-            //
-            // Marshal 'out' parameters and return value.
-            //
-            if (!outParams.empty() || ret)
-            {
-                _out << nl << "var ostr = inS.startWriteParams();";
-                writeMarshalUnmarshalParams(outParams, op, true, ns);
-                if (op->returnsClasses(false))
-                {
-                    _out << nl << "ostr.writePendingValues();";
-                }
-                _out << nl << "inS.endWriteParams(ostr);";
-                _out << nl << "return inS.setResult(ostr);";
-            }
-            else
-            {
-                _out << nl << "return inS.setResult(inS.writeEmptyParams());";
-            }
-            _out << eb;
-        }
-    }
-
-    OperationList allOps = p->allOperations();
-    if (!allOps.empty())
-    {
-        StringList allOpNames;
-        transform(
-            allOps.begin(),
-            allOps.end(),
-            back_inserter(allOpNames),
-            [](const ContainedPtr& it) { return it->name(); });
-        allOpNames.push_back("ice_id");
-        allOpNames.push_back("ice_ids");
-        allOpNames.push_back("ice_isA");
-        allOpNames.push_back("ice_ping");
-        allOpNames.sort();
-        allOpNames.unique();
-
-        _out << sp << nl << "private static readonly string[] _all =";
-        _out << sb;
-        for (StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end();)
-        {
-            _out << nl << '"' << *q << '"';
-            if (++q != allOpNames.end())
-            {
-                _out << ',';
-            }
-        }
-        _out << eb << ';';
-
-        _out << sp;
-        _out << nl << "public override global::System.Threading.Tasks.Task<" << getUnqualified("Ice.OutputStream", ns)
-             << ">?";
-        _out << nl << "iceDispatch(global::Ice.Internal.Incoming inS, " << getUnqualified("Ice.Current", ns)
-             << " current)";
-        _out << sb;
-        _out << nl << "int pos = global::System.Array.BinarySearch(_all, current.operation, "
-             << "global::Ice.UtilInternal.StringUtil.OrdinalStringComparer);";
-        _out << nl << "if(pos < 0)";
-        _out << sb;
-        _out << nl << "throw new " << getUnqualified("Ice.OperationNotExistException", ns)
-             << "(current.id, current.facet, current.operation);";
-        _out << eb;
-        _out << sp << nl << "switch(pos)";
-        _out << sb;
-        int i = 0;
-        for (StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end(); ++q)
-        {
-            string opName = *q;
-
-            _out << nl << "case " << i++ << ':';
-            _out << sb;
-            if (opName == "ice_id")
-            {
-                _out << nl << "return " << getUnqualified("Ice.ObjectImpl", ns) << ".iceD_ice_id(this, inS, current);";
-            }
-            else if (opName == "ice_ids")
-            {
-                _out << nl << "return " << getUnqualified("Ice.ObjectImpl", ns) << ".iceD_ice_ids(this, inS, current);";
-            }
-            else if (opName == "ice_isA")
-            {
-                _out << nl << "return " << getUnqualified("Ice.ObjectImpl", ns) << ".iceD_ice_isA(this, inS, current);";
-            }
-            else if (opName == "ice_ping")
-            {
-                _out << nl << "return " << getUnqualified("Ice.ObjectImpl", ns)
-                     << ".iceD_ice_ping(this, inS, current);";
-            }
-            else
-            {
-                //
-                // There's probably a better way to do this
-                //
-                for (OperationList::const_iterator t = allOps.begin(); t != allOps.end(); ++t)
-                {
-                    if ((*t)->name() == (*q))
-                    {
-                        InterfaceDefPtr interface = (*t)->interface();
-                        assert(interface);
-                        if (interface->scoped() == p->scoped())
-                        {
-                            _out << nl << "return iceD_" << opName << "(this, inS, current);";
-                        }
-                        else
-                        {
-                            _out << nl << "return " << getUnqualified(interface, ns, "", "Disp_") << ".iceD_" << opName
-                                 << "(this, inS, current);";
-                        }
-                        break;
-                    }
-                }
-            }
-            _out << eb;
-        }
-        _out << eb;
-        _out << sp << nl << "global::System.Diagnostics.Debug.Assert(false);";
-        _out << nl << "throw new " << getUnqualified("Ice.OperationNotExistException", ns)
-             << "(current.id, current.facet, current.operation);";
-        _out << eb;
-    }
-
-    if (ops.size() != 0)
-    {
-        _out << sp << nl << "#endregion"; // Operation dispatch
-    }
-}
-
-void
 Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
 {
     string name = fixId(p->name());
@@ -1815,6 +1547,9 @@ Slice::Gen::generate(const UnitPtr& p)
 
     DispatcherVisitor dispatcherVisitor(_out);
     p->visit(&dispatcherVisitor, false);
+
+    DispatchAdapterVisitor dispatchAdapterVisitor(_out);
+    p->visit(&dispatchAdapterVisitor, false);
 }
 
 void
@@ -2151,9 +1886,10 @@ void
 Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& op)
 {
     InterfaceDefPtr interface = op->interface();
+    string interfaceName = fixId(interface->name());
     string ns = getNamespace(interface);
 
-    bool amd = interface->hasMetaData("amd") || op->hasMetaData("amd");
+    const bool amd = interface->hasMetaData("amd") || op->hasMetaData("amd");
     string retS;
     vector<string> params, args;
     string opName = getDispatchParams(op, retS, params, args, ns);
@@ -2987,7 +2723,7 @@ Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
         _out << nl << "public " << name << spar << getOutParams(p, ns, true, false)
              << getUnqualified("Ice.Current", ns) + " current" << epar;
         _out << sb;
-        _out << nl << "_ostr = global::Ice.Internal.Incoming.createResponseOutputStream(current);";
+        _out << nl << "_ostr = global::Ice.CurrentExtensions.startReplyStream(current);";
         _out << nl << "_ostr.startEncapsulation(current.encoding, " << opFormatTypeToString(p, ns) << ");";
         writeMarshalUnmarshalParams(outParams, p, true, ns, false, true, "_ostr");
         if (p->returnsClasses(false))
@@ -3118,6 +2854,199 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
              << ("global::System.IProgress<bool>? " + progress + " = null")
              << ("global::System.Threading.CancellationToken " + cancel + " = default") << epar << ";";
     }
+}
+
+Slice::Gen::DispatchAdapterVisitor::DispatchAdapterVisitor(IceUtilInternal::Output& out) : CsVisitor(out) {}
+
+bool
+Slice::Gen::DispatchAdapterVisitor::visitModuleStart(const ModulePtr& p)
+{
+    if (!p->hasInterfaceDefs())
+    {
+        return false;
+    }
+
+    moduleStart(p);
+    _out << sp << nl << "namespace " << fixId(p->name());
+    _out << sb;
+    return true;
+}
+
+void
+Slice::Gen::DispatchAdapterVisitor::visitModuleEnd(const ModulePtr& p)
+{
+    _out << eb;
+    moduleEnd(p);
+}
+
+bool
+Slice::Gen::DispatchAdapterVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+{
+    if (p->allOperations().empty())
+    {
+        return false;
+    }
+
+    _out << sp;
+    _out << nl << "public partial interface " << fixId(p->name());
+    _out << sb;
+    return true;
+}
+
+void
+Slice::Gen::DispatchAdapterVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
+{
+    _out << eb;
+}
+
+void
+Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
+{
+    InterfaceDefPtr interface = op->interface();
+    string ns = getNamespace(interface);
+    string interfaceName = fixId(interface->name());
+    const bool amd = interface->hasMetaData("amd") || op->hasMetaData("amd");
+
+    _out << sp;
+    _out << nl << "protected static " << (amd ? "async " : "") << "global::System.Threading.Tasks.ValueTask<"
+         << getUnqualified("Ice.OutgoingResponse", ns) << "> iceD_" << op->name() << "Async(";
+    _out.inc();
+    _out << nl << interfaceName << " obj,";
+    _out << nl << getUnqualified("Ice.IncomingRequest", ns) << " request)";
+    _out.dec();
+    _out << sb;
+
+    TypePtr ret = op->returnType();
+    ParamDeclList inParams = op->inParameters();
+    ParamDeclList outParams = op->outParameters();
+
+    _out << nl << getUnqualified("Ice.ObjectImpl", ns) << ".iceCheckMode(" << sliceModeToIceMode(op->mode(), ns)
+         << ", request.current.mode);";
+    if (!inParams.empty())
+    {
+        // Unmarshal 'in' parameters.
+        _out << nl << "var istr = request.inputStream;";
+        _out << nl << "istr.startEncapsulation();";
+        for (const auto& pli : inParams)
+        {
+            string param = "iceP_" + pli->name();
+            string typeS = typeToString(pli->type(), ns, pli->optional());
+
+            _out << nl << typeS << ' ' << param << (isClassType(pli->type()) ? " = null;" : ";");
+        }
+        writeMarshalUnmarshalParams(inParams, 0, false, ns);
+        if (op->sendsClasses(false))
+        {
+            _out << nl << "istr.readPendingValues();";
+        }
+        _out << nl << "istr.endEncapsulation();";
+    }
+    else
+    {
+        _out << nl << "request.inputStream.skipEmptyEncapsulation();";
+    }
+
+    vector<string> inArgs;
+    for (const auto& pli : inParams)
+    {
+        inArgs.push_back("iceP_" + pli->name());
+    }
+
+    if (op->hasMarshaledResult())
+    {
+        if (amd)
+        {
+            _out << nl << "var result = await obj." << op->name() << "Async" << spar << inArgs << "request.current"
+                 << epar << ".ConfigureAwait(false);";
+            _out << nl << "return new global::Ice.OutgoingResponse(result.outputStream);";
+        }
+        else
+        {
+            _out << nl << "var result = obj." << fixId(op->name(), DotNet::ICloneable, true) << spar << inArgs
+                 << "request.current" << epar << ";";
+            _out << nl << "return new (new global::Ice.OutgoingResponse(result.outputStream));";
+        }
+    }
+    else if (amd)
+    {
+        string opName = op->name() + "Async";
+        string retS = resultType(op, ns);
+        _out << nl;
+
+        if (!retS.empty())
+        {
+            _out << "var result = ";
+        }
+
+        _out << "await obj." << opName << spar << inArgs << "request.current" << epar << ".ConfigureAwait(false);";
+
+        if (retS.empty())
+        {
+            _out << nl << "return global::Ice.CurrentExtensions.createEmptyOutgoingResponse(request.current);";
+        }
+        else
+        {
+            // Adapt to marshaling helper below.
+            string resultParam = !ret && outParams.size() == 1 ? "iceP_" + outParams.front()->name() : "ret";
+
+            _out << nl << "return global::Ice.CurrentExtensions.createOutgoingResponse(";
+            _out.inc();
+            _out << nl << "request.current,";
+            _out << nl << "result,";
+            _out << nl << "static (ostr, " << resultParam << ") =>";
+            _out << sb;
+            writeMarshalUnmarshalParams(outParams, op, true, ns, true);
+            if (op->returnsClasses(false))
+            {
+                _out << nl << "ostr.writePendingValues();";
+            }
+            _out << eb;
+            if (op->format() != DefaultFormat)
+            {
+                _out << "," << nl << opFormatTypeToString(op, ns);
+            }
+            _out << ");";
+            _out.dec();
+        }
+    }
+    else
+    {
+        string opName = op->name();
+        for (const auto& pli : outParams)
+        {
+            string typeS = typeToString(pli->type(), ns, pli->optional());
+            _out << nl << typeS << ' ' << "iceP_" + pli->name() << ";";
+        }
+        _out << nl;
+        if (ret)
+        {
+            _out << "var ret = ";
+        }
+        _out << "obj." << fixId(opName, DotNet::ICloneable, true) << spar << inArgs;
+        for (const auto& pli : outParams)
+        {
+            _out << "out iceP_" + pli->name();
+        }
+        _out << "request.current" << epar << ";";
+
+        if (outParams.empty() && !ret)
+        {
+            _out << nl << "return new(global::Ice.CurrentExtensions.createEmptyOutgoingResponse(request.current));";
+        }
+        else
+        {
+            _out << nl << "var ostr = global::Ice.CurrentExtensions.startReplyStream(request.current);";
+            _out << nl << "ostr.startEncapsulation(request.current.encoding, " << opFormatTypeToString(op, ns) << ");";
+            writeMarshalUnmarshalParams(outParams, op, true, ns);
+            if (op->returnsClasses(false))
+            {
+                _out << nl << "ostr.writePendingValues();";
+            }
+            _out << nl << "ostr.endEncapsulation();";
+            _out << nl << "return new(new global::Ice.OutgoingResponse(ostr));";
+        }
+    }
+    _out << eb;
 }
 
 Slice::Gen::HelperVisitor::HelperVisitor(IceUtilInternal::Output& out) : CsVisitor(out) {}
@@ -3796,6 +3725,17 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
 
     writeInheritedOperations(p);
+
+    _out << sp << nl << "#region Slice type-related members";
+    _out << sp;
+    _out << nl << "public override string ice_id(" << getUnqualified("Ice.Current", ns)
+         << " current) => ice_staticId();";
+
+    _out << sp;
+    _out << nl << "public static new string ice_staticId() => \"" << p->scoped() << "\";";
+
+    _out << sp << nl << "#endregion"; // Slice type-related members
+
     writeDispatch(p);
 
     return true;
@@ -3807,51 +3747,47 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 }
 
 void
-Slice::Gen::DispatcherVisitor::writeTieOperations(const InterfaceDefPtr& p, NameSet* opNames)
+Slice::Gen::DispatcherVisitor::writeDispatch(const InterfaceDefPtr& p)
 {
+    string name = fixId(p->name());
+    string scoped = p->scoped();
     string ns = getNamespace(p);
+
     OperationList ops = p->operations();
-    for (OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
+    if (ops.size() != 0)
     {
-        string retS;
-        vector<string> params;
-        vector<string> args;
-        string opName = getDispatchParams(*r, retS, params, args, ns);
-        if (opNames)
-        {
-            if (opNames->find(opName) != opNames->end())
-            {
-                continue;
-            }
-            opNames->insert(opName);
-        }
+        _out << sp << nl << "#region Operation dispatch";
+    }
 
-        _out << sp << nl << "public override " << retS << ' ' << opName << spar << params << epar;
+    OperationList allOps = p->allOperations();
+    if (!allOps.empty())
+    {
+        _out << sp;
+        _out << nl << "public override global::System.Threading.Tasks.ValueTask<"
+             << getUnqualified("Ice.OutgoingResponse", ns) << "> dispatchAsync("
+             << getUnqualified("Ice.IncomingRequest", ns) << " request) =>";
+        _out.inc();
+        _out << nl << "request.current.operation switch";
         _out << sb;
-        _out << nl;
-        if (retS != "void")
+        for (const auto& op : allOps)
         {
-            _out << "return ";
+            string opName = op->name();
+            _out << nl << '"' << opName << "\" => " << getUnqualified(op->interface(), ns) << ".iceD_" << opName
+                 << "Async(this, request),";
         }
-        _out << "_ice_delegate!." << opName << spar << args << epar << ';';
+        for (const auto& opName : {"ice_id", "ice_ids", "ice_isA", "ice_ping"})
+        {
+            _out << nl << '"' << opName << "\" => " << getUnqualified("Ice.Object", ns) << ".iceD_" << opName
+                 << "Async(this, request),";
+        }
+        _out << nl << "_ => throw new " << getUnqualified("Ice.OperationNotExistException()", ns);
         _out << eb;
+        _out << ";";
+        _out.dec();
     }
 
-    if (!opNames)
+    if (ops.size() != 0)
     {
-        NameSet opNamesTmp;
-        InterfaceList bases = p->bases();
-        for (InterfaceList::const_iterator i = bases.begin(); i != bases.end(); ++i)
-        {
-            writeTieOperations(*i, &opNamesTmp);
-        }
-    }
-    else
-    {
-        InterfaceList bases = p->bases();
-        for (InterfaceList::const_iterator i = bases.begin(); i != bases.end(); ++i)
-        {
-            writeTieOperations(*i, opNames);
-        }
+        _out << sp << nl << "#endregion"; // Operation dispatch
     }
 }

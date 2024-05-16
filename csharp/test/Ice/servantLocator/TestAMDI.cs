@@ -10,37 +10,37 @@ namespace Ice
             {
                 public override Task requestFailedExceptionAsync(Ice.Current current)
                 {
-                    return null;
+                    return Task.CompletedTask;
                 }
 
                 public override Task unknownUserExceptionAsync(Ice.Current current)
                 {
-                    return null;
+                    return Task.CompletedTask;
                 }
 
                 public override Task unknownLocalExceptionAsync(Ice.Current current)
                 {
-                    return null;
+                    return Task.CompletedTask;
                 }
 
                 public override Task unknownExceptionAsync(Ice.Current current)
                 {
-                    return null;
+                    return Task.CompletedTask;
                 }
 
                 public override Task localExceptionAsync(Ice.Current current)
                 {
-                    return null;
+                    return Task.CompletedTask;
                 }
 
                 public override Task userExceptionAsync(Ice.Current current)
                 {
-                    return null;
+                    return Task.CompletedTask;
                 }
 
                 public override Task csExceptionAsync(Ice.Current current)
                 {
-                    return null;
+                    return Task.CompletedTask;
                 }
 
                 public override Task
@@ -85,7 +85,7 @@ namespace Ice
 
                 public override Task asyncResponseAsync(Ice.Current current)
                 {
-                    return null;
+                    return Task.CompletedTask;
                     throw new Ice.ObjectNotExistException();
                 }
 
@@ -98,7 +98,7 @@ namespace Ice
                 public override Task shutdownAsync(Ice.Current current)
                 {
                     current.adapter.deactivate();
-                    return null;
+                    return Task.CompletedTask;
                 }
             }
         }
