@@ -13,11 +13,6 @@ import com.zeroc.IceInternal.Property;
  */
 public final class Properties {
   static class PropertyValue {
-    public PropertyValue(PropertyValue v) {
-      value = v.value;
-      used = v.used;
-    }
-
     public PropertyValue(String v, boolean u) {
       value = v;
       used = u;
@@ -93,7 +88,7 @@ public final class Properties {
       // would otherwise be shared between the two Properties object.
       //
       for (java.util.Map.Entry<String, PropertyValue> p : defaults._properties.entrySet()) {
-        _properties.put(p.getKey(), new PropertyValue(p.getValue()));
+        _properties.put(p.getKey(), p.getValue().clone());
       }
     }
 

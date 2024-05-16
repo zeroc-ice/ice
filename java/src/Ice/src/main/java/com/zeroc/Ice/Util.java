@@ -14,6 +14,7 @@ public final class Util {
    * @return A new empty property set.
    * @deprecated Use {@link Properties#Properties()} instead.
    */
+  @Deprecated
   public static Properties createProperties() {
     return new Properties();
   }
