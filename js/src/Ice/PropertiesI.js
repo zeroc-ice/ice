@@ -182,7 +182,7 @@ class Properties
         // If the property is deprecated, log a warning
         if (prop !== null && prop.deprecated)
         {
-            getProcessLogger().warning("deprecated property: " + key);
+            getProcessLogger().warning("setting deprecated property: " + key);
         }
 
         //
@@ -524,7 +524,7 @@ class Properties
         const prop = Properties.findProperty(key, false);
         if (prop === null)
         {
-            throw new Error("unknown ice property: " + key);
+            throw new Error("unknown Ice property: " + key);
         }
         return prop.defaultValue;
     }

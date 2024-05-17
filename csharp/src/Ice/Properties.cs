@@ -355,7 +355,7 @@ public sealed class Properties
         // If the property is deprecated, log a warning.
         if (prop is not null && prop.deprecated)
         {
-            Util.getProcessLogger().warning("deprecated property: " + key);
+            Util.getProcessLogger().warning("setting deprecated property: " + key);
         }
 
         lock (this)
@@ -810,7 +810,7 @@ public sealed class Properties
     private static string getDefaultProperty(string key)
     {
         // Find the property, don't log any warnings.
-        Property? prop = findProperty(key, false) ?? throw new ArgumentException("unknown ice property: " + key);
+        Property? prop = findProperty(key, false) ?? throw new ArgumentException("unknown Ice property: " + key);
         return prop.defaultValue;
     }
 

@@ -103,7 +103,7 @@ namespace
         optional<Property> prop = findProperty(key, false);
         if (!prop)
         {
-            throw invalid_argument{"unknown ice property: " + string{key}};
+            throw invalid_argument{"unknown Ice property: " + string{key}};
         }
         return prop->defaultValue;
     }
@@ -351,7 +351,7 @@ Ice::Properties::setProperty(string_view key, string_view value)
     // If the property is deprecated, log a warning.
     if (prop && prop->deprecated)
     {
-        getProcessLogger()->warning("deprecated property: " + string{key});
+        getProcessLogger()->warning("setting deprecated property: " + string{key});
     }
 
     lock_guard lock(_mutex);
