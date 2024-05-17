@@ -3003,14 +3003,6 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
          << "Ice.ObjectPrxHelperBase, " << name << "Prx";
     _out << sb;
 
-    _out << sp;
-    _out << nl << "private " << name << "PrxHelper(Ice.ObjectPrx proxy)";
-    _out.inc();
-    _out << nl << ": base(proxy)";
-    _out.dec();
-    _out << sb;
-    _out << eb;
-
     OperationList ops = p->allOperations();
 
     for (OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
@@ -3310,19 +3302,15 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sp << nl << "public static " << name
          << "Prx createProxy(Ice.Communicator communicator, string proxyString) =>";
     _out.inc();
-    _out << nl << "uncheckedCast(Ice.ObjectPrxHelper.createProxy(communicator, proxyString));";
+    _out << nl << "new " << name << "PrxHelper(Ice.ObjectPrxHelper.createProxy(communicator, proxyString));";
     _out.dec();
 
     _out << sp << nl << "public static " << name
          << "Prx? checkedCast(Ice.ObjectPrx b, global::System.Collections.Generic.Dictionary<string, string>? ctx = "
-            "null)";
-    _out << sb;
-    _out << nl << "if (b is not null && b.ice_isA(ice_staticId(), ctx))";
-    _out << sb;
-    _out << nl << "return new " << name << "PrxHelper(b);";
-    _out << eb;
-    _out << nl << "return null;";
-    _out << eb;
+            "null) =>";
+    _out.inc();
+    _out << nl << "b is not null && b.ice_isA(ice_staticId(), ctx) ? new " << name << "PrxHelper(b) : null;";
+    _out.dec();
 
     _out << sp << nl << "public static " << name
          << "Prx? checkedCast(Ice.ObjectPrx b, string f, global::System.Collections.Generic.Dictionary<string, "
@@ -3343,24 +3331,16 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << eb;
 
     _out << sp << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(b))]";
-    _out << sp << nl << "public static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? b)";
-    _out << sb;
-    _out << nl << "if (b is not null)";
-    _out << sb;
-    _out << nl << "return new " << name << "PrxHelper(b);";
-    _out << eb;
-    _out << nl << "return null;";
-    _out << eb;
+    _out << sp << nl << "public static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? b) =>";
+    _out.inc();
+    _out << nl << "b is not null ? new " << name << "PrxHelper(b) : null;";
+    _out.dec();
 
     _out << sp << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(b))]";
-    _out << sp << nl << "public static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? b, string f)";
-    _out << sb;
-    _out << nl << "if (b is not null)";
-    _out << sb;
-    _out << nl << "return new " << name << "PrxHelper(b.ice_facet(f));";
-    _out << eb;
-    _out << nl << "return null;";
-    _out << eb;
+    _out << sp << nl << "public static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? b, string f) =>";
+    _out.inc();
+    _out << nl << "b is not null ? new " << name << "PrxHelper(b.ice_facet(f)) : null;";
+    _out.dec();
 
     string scoped = p->scoped();
     StringList ids = p->ids();
@@ -3400,8 +3380,30 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 }
 
 void
-Slice::Gen::HelperVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
+Slice::Gen::HelperVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
+    string name = p->name();
+
+    _out << sp;
+    _out << nl << "protected override Ice.ObjectPrxHelperBase iceNewInstance(Ice.Internal.Reference reference) => new "
+        << name << "PrxHelper(reference);";
+
+    _out << sp;
+    _out << nl << "private " << name << "PrxHelper(Ice.ObjectPrx proxy)";
+    _out.inc();
+    _out << nl << ": base(proxy)";
+    _out.dec();
+    _out << sb;
+    _out << eb;
+
+    _out << sp;
+    _out << nl << "private " << name << "PrxHelper(Ice.Internal.Reference reference)";
+    _out.inc();
+    _out << nl << ": base(reference)";
+    _out.dec();
+    _out << sb;
+    _out << eb;
+
     _out << eb;
 }
 

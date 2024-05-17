@@ -7,12 +7,6 @@ namespace Ice.Internal;
 
 public sealed class ProxyFactory
 {
-    public Ice.ObjectPrx stringToProxy(string str)
-    {
-        Reference r = _instance.referenceFactory().create(str, null);
-        return referenceToProxy(r);
-    }
-
     public string proxyToString(Ice.ObjectPrx proxy)
     {
         if (proxy != null)

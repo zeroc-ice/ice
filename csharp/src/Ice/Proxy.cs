@@ -5,7 +5,6 @@
 using Ice.Internal;
 using Ice.UtilInternal;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Ice;
@@ -510,7 +509,7 @@ public record struct Object_Ice_invokeResult(bool returnValue, byte[] outEncaps)
 /// <summary>
 /// Base class of all object proxies.
 /// </summary>
-public class ObjectPrxHelperBase : ObjectPrx
+public abstract class ObjectPrxHelperBase : ObjectPrx
 {
     public static bool operator ==(ObjectPrxHelperBase? lhs, ObjectPrxHelperBase? rhs) =>
         lhs is not null ? lhs.Equals(rhs) : rhs is null;
@@ -877,7 +876,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return new ObjectPrxHelperBase(_reference.changeIdentity(newIdentity));
+            return new ObjectPrxHelper(_reference.changeIdentity(newIdentity));
         }
     }
 
@@ -898,7 +897,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// <returns>The proxy with the new per-proxy context.</returns>
     public ObjectPrx ice_context(Dictionary<string, string> newContext)
     {
-        return newInstance(_reference.changeContext(newContext));
+        return iceNewInstance(_reference.changeContext(newContext));
     }
 
     /// <summary>
@@ -926,7 +925,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return new ObjectPrxHelperBase(_reference.changeFacet(newFacet));
+            return new ObjectPrxHelper(_reference.changeFacet(newFacet));
         }
     }
 
@@ -955,7 +954,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changeAdapterId(newAdapterId));
+            return iceNewInstance(_reference.changeAdapterId(newAdapterId));
         }
     }
 
@@ -986,7 +985,7 @@ public class ObjectPrxHelperBase : ObjectPrx
             {
                 endpts[i] = (EndpointI)newEndpoints[i];
             }
-            return newInstance(_reference.changeEndpoints(endpts));
+            return iceNewInstance(_reference.changeEndpoints(endpts));
         }
     }
 
@@ -1015,7 +1014,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changeLocatorCacheTimeout(newTimeout));
+            return iceNewInstance(_reference.changeLocatorCacheTimeout(newTimeout));
         }
     }
 
@@ -1044,7 +1043,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changeInvocationTimeout(newTimeout));
+            return iceNewInstance(_reference.changeInvocationTimeout(newTimeout));
         }
     }
 
@@ -1070,7 +1069,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changeCacheConnection(newCache));
+            return iceNewInstance(_reference.changeCacheConnection(newCache));
         }
     }
 
@@ -1096,7 +1095,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changeEndpointSelection(newType));
+            return iceNewInstance(_reference.changeEndpointSelection(newType));
         }
     }
 
@@ -1124,7 +1123,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changeSecure(b));
+            return iceNewInstance(_reference.changeSecure(b));
         }
     }
 
@@ -1142,7 +1141,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changeEncoding(e));
+            return iceNewInstance(_reference.changeEncoding(e));
         }
     }
 
@@ -1178,7 +1177,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changePreferSecure(b));
+            return iceNewInstance(_reference.changePreferSecure(b));
         }
     }
 
@@ -1207,7 +1206,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(@ref);
+            return iceNewInstance(@ref);
         }
     }
 
@@ -1235,7 +1234,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(@ref);
+            return iceNewInstance(@ref);
         }
     }
 
@@ -1261,7 +1260,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changeCollocationOptimized(b));
+            return iceNewInstance(_reference.changeCollocationOptimized(b));
         }
     }
 
@@ -1277,7 +1276,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changeMode(Reference.Mode.ModeTwoway));
+            return iceNewInstance(_reference.changeMode(Reference.Mode.ModeTwoway));
         }
     }
 
@@ -1302,7 +1301,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changeMode(Reference.Mode.ModeOneway));
+            return iceNewInstance(_reference.changeMode(Reference.Mode.ModeOneway));
         }
     }
 
@@ -1327,7 +1326,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changeMode(Reference.Mode.ModeBatchOneway));
+            return iceNewInstance(_reference.changeMode(Reference.Mode.ModeBatchOneway));
         }
     }
 
@@ -1352,7 +1351,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changeMode(Reference.Mode.ModeDatagram));
+            return iceNewInstance(_reference.changeMode(Reference.Mode.ModeDatagram));
         }
     }
 
@@ -1377,7 +1376,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changeMode(Reference.Mode.ModeBatchDatagram));
+            return iceNewInstance(_reference.changeMode(Reference.Mode.ModeBatchDatagram));
         }
     }
 
@@ -1404,7 +1403,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(@ref);
+            return iceNewInstance(@ref);
         }
     }
 
@@ -1436,7 +1435,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(@ref);
+            return iceNewInstance(@ref);
         }
     }
 
@@ -1465,7 +1464,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(@ref);
+            return iceNewInstance(@ref);
         }
     }
 
@@ -1501,7 +1500,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(@ref);
+            return iceNewInstance(@ref);
         }
     }
 
@@ -1947,46 +1946,24 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
     }
 
-    /// <summary>
-    /// Only for internal use by OutgoingAsync
-    /// </summary>
-    /// <param name="iss"></param>
-    /// <param name="os"></param>
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public void
-    cacheMessageBuffers(InputStream iss, OutputStream os)
+    internal void cacheMessageBuffers(InputStream iss, OutputStream os)
     {
         lock (this)
         {
-            _streamCache ??= new LinkedList<StreamCacheEntry>();
-            StreamCacheEntry cacheEntry;
-            cacheEntry.iss = iss;
-            cacheEntry.os = os;
-            _streamCache.AddLast(cacheEntry);
+            _streamCache ??= new LinkedList<(InputStream, OutputStream)>();
+            _streamCache.AddLast((iss, os));
         }
     }
 
-    internal ObjectPrxHelperBase(Reference reference) => _reference = reference;
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    protected ObjectPrxHelperBase(Reference reference) => _reference = reference;
 
-    private ObjectPrxHelperBase newInstance(Reference @ref)
-    {
-        // var proxy = (ObjectPrxHelperBase)System.Activator.CreateInstance(GetType())!;
-        var proxy = (ObjectPrxHelperBase)MemberwiseClone();
-        proxy._reference = @ref;
-        proxy._requestHandler = null;
-        proxy._streamCache = null;
-        return proxy;
-    }
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    protected abstract ObjectPrxHelperBase iceNewInstance(Reference reference);
 
-    private Reference _reference;
+    private readonly Reference _reference;
     private RequestHandler? _requestHandler;
-    private struct StreamCacheEntry
-    {
-        public InputStream iss;
-        public OutputStream os;
-    }
-
-    private LinkedList<StreamCacheEntry>? _streamCache;
+    private LinkedList<(InputStream iss, OutputStream os)>? _streamCache;
 }
 
 /// <summary>
@@ -2004,12 +1981,11 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// </exception>
     public static ObjectPrx createProxy(Communicator communicator, string proxyString)
     {
-        // TODO: rework this implementation
-        if (proxyString.Length == 0)
-        {
+        Reference? reference = Internal.Util.getInstance(communicator).referenceFactory().create(proxyString, "");
+
+        return reference is not null ?
+            new ObjectPrxHelper(reference) :
             throw new ProxyParseException("Invalid empty proxy string.");
-        }
-        return communicator.stringToProxy(proxyString);
     }
 
     /// Casts a proxy to {@link ObjectPrx}. This call contacts
@@ -2019,14 +1995,8 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// <param name="b">The proxy to cast to ObjectPrx.</param>
     /// <param name="ctx">The Context map for the invocation.</param>
     /// <returns>b.</returns>
-    public static ObjectPrx? checkedCast(ObjectPrx? b, Dictionary<string, string>? context = null)
-    {
-        if (b is not null && b.ice_isA("::Ice::Object", context))
-        {
-            return b;
-        }
-        return null;
-    }
+    public static ObjectPrx? checkedCast(ObjectPrx? b, Dictionary<string, string>? context = null) =>
+        b is not null && b.ice_isA("::Ice::Object", context) ? b : null;
 
     /// <summary>
     /// Creates a new proxy that is identical to the passed proxy, except
@@ -2082,6 +2052,8 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     {
         return ObjectImpl.ice_staticId();
     }
+
+    protected override ObjectPrxHelperBase iceNewInstance(Reference reference) => new ObjectPrxHelper(reference);
 
     internal ObjectPrxHelper(Reference reference)
         : base(reference)
