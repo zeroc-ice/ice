@@ -394,7 +394,9 @@ public abstract class Reference : IEquatable<Reference>
 
     public abstract Dictionary<string, string> toProperty(string prefix);
 
-    public abstract RequestHandler getRequestHandler(Ice.ObjectPrxHelperBase proxy);
+    public abstract RequestHandler getRequestHandler(Ice.ObjectPrxHelperBase proxy); // TODO: remove
+
+    internal abstract RequestHandler getRequestHandler();
 
     public static bool operator ==(Reference lhs, Reference rhs) => lhs is null ? rhs is null : lhs.Equals(rhs);
     public static bool operator !=(Reference lhs, Reference rhs) => !(lhs == rhs);
@@ -440,7 +442,7 @@ public abstract class Reference : IEquatable<Reference>
 
     private static Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
 
-    private Instance _instance;
+    private protected Instance _instance;
     private Ice.Communicator _communicator;
 
     private Mode _mode;
@@ -720,6 +722,70 @@ public class FixedReference : Reference
         }
 
         return proxy.iceSetRequestHandler(new ConnectionRequestHandler(this, _fixedConnection, compress));
+    }
+
+    internal override RequestHandler getRequestHandler()
+    {
+        // We need to perform all these checks here and not in the constructor because changeConnection() clones then
+        // sets the connection.
+
+        switch (getMode())
+        {
+            case Mode.ModeTwoway:
+            case Mode.ModeOneway:
+            case Mode.ModeBatchOneway:
+            {
+                if (_fixedConnection.endpoint().datagram())
+                {
+                    throw new Ice.NoEndpointException(ToString());
+                }
+                break;
+            }
+
+            case Mode.ModeDatagram:
+            case Mode.ModeBatchDatagram:
+            {
+                if (!_fixedConnection.endpoint().datagram())
+                {
+                    throw new Ice.NoEndpointException(ToString());
+                }
+                break;
+            }
+        }
+
+        //
+        // If a secure connection is requested or secure overrides is set,
+        // check if the connection is secure.
+        //
+        bool secure;
+        DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
+        if (defaultsAndOverrides.overrideSecure)
+        {
+            secure = defaultsAndOverrides.overrideSecureValue;
+        }
+        else
+        {
+            secure = getSecure();
+        }
+        if (secure && !_fixedConnection.endpoint().secure())
+        {
+            throw new Ice.NoEndpointException(ToString());
+        }
+
+        _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
+
+        bool compress = false;
+        if (defaultsAndOverrides.overrideCompress)
+        {
+            compress = defaultsAndOverrides.overrideCompressValue;
+        }
+        else if (overrideCompress_)
+        {
+            compress = compress_;
+        }
+
+        // TODO: rename ConnectionRequestHandler to FixedRequestHandler
+        return new ConnectionRequestHandler(this, _fixedConnection, compress);
     }
 
     public override bool Equals(Reference other)
@@ -1187,6 +1253,21 @@ public class RoutableReference : Reference
     public override RequestHandler getRequestHandler(Ice.ObjectPrxHelperBase proxy)
     {
         return getInstance().requestHandlerFactory().getRequestHandler(this, proxy);
+    }
+
+    internal override RequestHandler getRequestHandler()
+    {
+        if (_collocationOptimized)
+        {
+            if (_instance.objectAdapterFactory().findObjectAdapter(this) is ObjectAdapter adapter)
+            {
+                return new CollocatedRequestHandler(this, adapter);
+            }
+        }
+
+        var handler = new ConnectRequestHandler(this);
+        getConnection(handler);
+        return handler;
     }
 
     public void getConnection(GetConnectionCallback callback)

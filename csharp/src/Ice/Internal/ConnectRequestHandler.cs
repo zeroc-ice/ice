@@ -116,7 +116,7 @@ public class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCall
         // add this proxy to the router info object.
         //
         RouterInfo ri = _reference.getRouterInfo();
-        if (ri != null && !ri.addProxy(_proxy, this))
+        if (ri != null && !ri.addProxy(_reference, this))
         {
             return; // The request handler will be initialized once addProxy returns.
         }
@@ -163,7 +163,6 @@ public class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCall
         {
             _flushing = false;
             _proxies.Clear();
-            _proxy = null; // Break cyclic reference count.
             Monitor.PulseAll(this);
         }
     }
@@ -180,11 +179,10 @@ public class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCall
         flushRequests();
     }
 
-    public ConnectRequestHandler(Reference @ref, Ice.ObjectPrx proxy)
+    public ConnectRequestHandler(Reference @ref)
     {
         _reference = @ref;
         _response = _reference.getMode() == Reference.Mode.ModeTwoway;
-        _proxy = (Ice.ObjectPrxHelperBase)proxy;
         _initialized = false;
         _flushing = false;
         _requestHandler = this;
@@ -298,7 +296,6 @@ public class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCall
             _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
 
             _proxies.Clear();
-            _proxy = null; // Break cyclic reference count.
             Monitor.PulseAll(this);
         }
     }
@@ -306,7 +303,6 @@ public class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCall
     private Reference _reference;
     private bool _response;
 
-    private Ice.ObjectPrxHelperBase _proxy;
     private HashSet<Ice.ObjectPrxHelperBase> _proxies = new();
 
     private Ice.ConnectionI _connection;

@@ -14,7 +14,7 @@ public class RequestHandlerFactory
     {
         if (rf.getCollocationOptimized())
         {
-            Ice.ObjectAdapter adapter = _instance.objectAdapterFactory().findObjectAdapter(proxy);
+            Ice.ObjectAdapter adapter = _instance.objectAdapterFactory().findObjectAdapter(rf);
             if (adapter != null)
             {
                 return proxy.iceSetRequestHandler(new CollocatedRequestHandler(rf, adapter));
@@ -29,7 +29,7 @@ public class RequestHandlerFactory
             {
                 if (!_handlers.TryGetValue(rf, out handler))
                 {
-                    handler = new ConnectRequestHandler(rf, proxy);
+                    handler = new ConnectRequestHandler(rf);
                     _handlers.Add(rf, handler);
                     connect = true;
                 }
@@ -37,7 +37,7 @@ public class RequestHandlerFactory
         }
         else
         {
-            handler = new ConnectRequestHandler(rf, proxy);
+            handler = new ConnectRequestHandler(rf);
             connect = true;
         }
 
