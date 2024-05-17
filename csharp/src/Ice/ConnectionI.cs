@@ -2628,7 +2628,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
 
                 if (isTwoWay)
                 {
-                    sendMessage(new OutgoingMessage(response.outputStream, compress > 0, true));
+                    sendMessage(new OutgoingMessage(response.outputStream, compress > 0, adopt: true));
                 }
 
                 if (_state == StateClosing && _upcallCount == 0)
