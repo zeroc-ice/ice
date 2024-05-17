@@ -517,9 +517,6 @@ public class ObjectPrxHelperBase : ObjectPrx
 
     public static bool operator !=(ObjectPrxHelperBase? lhs, ObjectPrxHelperBase? rhs) => !(lhs == rhs);
 
-    // TODO: _reference is initialized by setup and iceCopyFrom. We should refactor this code.
-    public ObjectPrxHelperBase() => _reference = null!;
-
     /// <summary>
     /// Returns whether this proxy equals the passed object. Two proxies are equal if they are equal in all
     /// respects, that is, if their object identity, endpoints timeout settings, and so on are all equal.
@@ -880,9 +877,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            var proxy = new ObjectPrxHelperBase();
-            proxy.setup(_reference.changeIdentity(newIdentity));
-            return proxy;
+            return new ObjectPrxHelperBase(_reference.changeIdentity(newIdentity));
         }
     }
 
@@ -931,9 +926,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            var proxy = new ObjectPrxHelperBase();
-            proxy.setup(_reference.changeFacet(newFacet));
-            return proxy;
+            return new ObjectPrxHelperBase(_reference.changeFacet(newFacet));
         }
     }
 
@@ -1668,17 +1661,6 @@ public class ObjectPrxHelperBase : ObjectPrx
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public void iceCopyFrom(ObjectPrx from)
-    {
-        lock (from)
-        {
-            var h = (ObjectPrxHelperBase)from;
-            _reference = h._reference;
-            _requestHandler = h._requestHandler;
-        }
-    }
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
     public int iceHandleException(Exception ex, RequestHandler handler, OperationMode mode, bool sent,
                                  ref int cnt)
     {
@@ -1805,6 +1787,19 @@ public class ObjectPrxHelperBase : ObjectPrx
                     _requestHandler = _requestHandler.update(previous, handler);
                 }
             }
+        }
+    }
+
+    protected ObjectPrxHelperBase(ObjectPrx proxy)
+    {
+        // We don't supported decorated proxies here.
+        var helper = (ObjectPrxHelperBase)proxy;
+
+        // TODO: make ObjectPrxHelperBase immutable after construction
+        lock (helper)
+        {
+            _reference = helper._reference;
+            _requestHandler = helper._requestHandler;
         }
     }
 
@@ -1971,27 +1966,15 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
     }
 
-    /// <summary>
-    /// Only for internal use by ProxyFactory
-    /// </summary>
-    /// <param name="ref"></param>
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public void setup(Reference @ref)
-    {
-        //
-        // No need to synchronize, as this operation is only called
-        // upon initial initialization.
-        //
-        Debug.Assert(_reference is null);
-        Debug.Assert(_requestHandler is null);
-
-        _reference = @ref;
-    }
+    internal ObjectPrxHelperBase(Reference reference) => _reference = reference;
 
     private ObjectPrxHelperBase newInstance(Reference @ref)
     {
-        var proxy = (ObjectPrxHelperBase)System.Activator.CreateInstance(GetType())!;
-        proxy.setup(@ref);
+        // var proxy = (ObjectPrxHelperBase)System.Activator.CreateInstance(GetType())!;
+        var proxy = (ObjectPrxHelperBase)MemberwiseClone();
+        proxy._reference = @ref;
+        proxy._requestHandler = null;
+        proxy._streamCache = null;
         return proxy;
     }
 
@@ -2098,5 +2081,10 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     public static string ice_staticId()
     {
         return ObjectImpl.ice_staticId();
+    }
+
+    internal ObjectPrxHelper(Reference reference)
+        : base(reference)
+    {
     }
 }

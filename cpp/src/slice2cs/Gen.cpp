@@ -3004,7 +3004,10 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sb;
 
     _out << sp;
-    _out << nl << "public " << name << "PrxHelper()";
+    _out << nl << "private " << name << "PrxHelper(Ice.ObjectPrx proxy)";
+    _out.inc();
+    _out << nl << ": base(proxy)";
+    _out.dec();
     _out << sb;
     _out << eb;
 
@@ -3316,9 +3319,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sb;
     _out << nl << "if (b is not null && b.ice_isA(ice_staticId(), ctx))";
     _out << sb;
-    _out << nl << name << "PrxHelper prx = new " << name << "PrxHelper();";
-    _out << nl << "prx.iceCopyFrom(b);";
-    _out << nl << "return prx;";
+    _out << nl << "return new " << name << "PrxHelper(b);";
     _out << eb;
     _out << nl << "return null;";
     _out << eb;
@@ -3332,9 +3333,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sb;
     _out << nl << "if (bb is not null && bb.ice_isA(ice_staticId(), ctx))";
     _out << sb;
-    _out << nl << name << "PrxHelper prx = new " << name << "PrxHelper();";
-    _out << nl << "prx.iceCopyFrom(bb);";
-    _out << nl << "return prx;";
+    _out << nl << "return new " << name << "PrxHelper(bb);";
     _out << eb;
     _out << eb;
     _out << nl << "catch (Ice.FacetNotExistException)";
@@ -3348,9 +3347,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sb;
     _out << nl << "if (b is not null)";
     _out << sb;
-    _out << nl << "var prx = new " << name << "PrxHelper();";
-    _out << nl << "prx.iceCopyFrom(b);";
-    _out << nl << "return prx;";
+    _out << nl << "return new " << name << "PrxHelper(b);";
     _out << eb;
     _out << nl << "return null;";
     _out << eb;
@@ -3360,10 +3357,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sb;
     _out << nl << "if (b is not null)";
     _out << sb;
-    _out << nl << "Ice.ObjectPrx? bb = b.ice_facet(f);";
-    _out << nl << "var prx = new " << name << "PrxHelper();";
-    _out << nl << "prx.iceCopyFrom(bb);";
-    _out << nl << "return prx;";
+    _out << nl << "return new " << name << "PrxHelper(b.ice_facet(f));";
     _out << eb;
     _out << nl << "return null;";
     _out << eb;
@@ -3397,17 +3391,10 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "ostr.writeProxy(v);";
     _out << eb;
 
-    _out << sp << nl << "public static " << name << "Prx? read(Ice.InputStream istr)";
-    _out << sb;
-    _out << nl << "Ice.ObjectPrx? proxy = istr.readProxy();";
-    _out << nl << "if (proxy is not null)";
-    _out << sb;
-    _out << nl << " var result = new " << name << "PrxHelper();";
-    _out << nl << "result.iceCopyFrom(proxy);";
-    _out << nl << "return result;";
-    _out << eb;
-    _out << nl << "return null;";
-    _out << eb;
+    _out << sp << nl << "public static " << name << "Prx? read(Ice.InputStream istr) =>";
+    _out.inc();
+    _out << nl << "istr.readProxy() is Ice.ObjectPrx proxy ? new " << name << "PrxHelper(proxy) : null;";
+    _out.dec();
 
     return true;
 }

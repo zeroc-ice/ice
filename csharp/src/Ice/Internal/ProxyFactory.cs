@@ -54,19 +54,7 @@ public sealed class ProxyFactory
         return referenceToProxy(r);
     }
 
-    public Ice.ObjectPrx referenceToProxy(Reference r)
-    {
-        if (r != null)
-        {
-            Ice.ObjectPrxHelperBase proxy = new Ice.ObjectPrxHelperBase();
-            proxy.setup(r);
-            return proxy;
-        }
-        else
-        {
-            return null;
-        }
-    }
+    public Ice.ObjectPrx referenceToProxy(Reference r) => r is null ? null : new ObjectPrxHelper(r);
 
     public int checkRetryAfterException(Ice.LocalException ex, Reference @ref, ref int cnt)
     {
