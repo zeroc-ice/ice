@@ -621,7 +621,7 @@ def main():
 
     # Find the top-level directory of the Ice repository
     topLevel = os.popen("git rev-parse --show-toplevel").read().strip()
-    propsFile = os.path.join(topLevel, "config", "makeprops.py")
+    propsFile = os.path.join(topLevel, "config", "PropertyNames.xml")
 
     if not os.path.exists(propsFile):
         print(
