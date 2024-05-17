@@ -176,7 +176,7 @@ OpenSSL::SSLEngine::initialize()
             readFile(resolved, buffer);
             int success = 0;
 
-            const unsigned char* b = const_cast<const unsigned char*>(reinterpret_cast<unsigned char*>(&buffer[0]));
+            const unsigned char* b = reinterpret_cast<unsigned char*>(&buffer[0]);
             PKCS12* p12 = d2i_PKCS12(0, &b, static_cast<long>(buffer.size()));
             if (p12)
             {
