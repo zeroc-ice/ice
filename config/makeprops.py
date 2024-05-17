@@ -132,15 +132,6 @@ module.exports.Ice = Ice;
 """
 
 
-def usage():
-    print(sys.stderr, "Usage: " + progname + " [--{cpp|java|csharp|js} file]")
-
-
-def progError(msg):
-    global progname
-    print(sys.stderr, progname + ": " + msg)
-
-
 #
 # Currently the processing of PropertyNames.xml is going to take place
 # in two parts. One is using DOM to extract the property 'classes' such
@@ -625,21 +616,19 @@ class MultiHandler(PropertyHandler):
 
 def main():
     if len(sys.argv) != 1 and len(sys.argv) != 3:
-        usage()
+        print(sys.stderr, "makeprops.py does not take any arguments")
         sys.exit(1)
 
-    #
-    # Find the root of the tree.
-    #
-    for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-        toplevel = os.path.normpath(toplevel)
-        if os.path.exists(os.path.join(toplevel, "config", "makeprops.py")):
-            break
-    else:
-        print(sys.stderr, "Cannot find top-level directory")
-        sys.exit(1)
+    # Find the top-level directory of the Ice repository
+    topLevel = os.popen("git rev-parse --show-toplevel").read().strip()
+    propsFile = os.path.join(topLevel, "config", "makeprops.py")
 
-    propsFile = os.path.join(toplevel, "config", "PropertyNames.xml")
+    if not os.path.exists(propsFile):
+        print(
+            sys.stderr,
+            "Cannot find top-level directory. Please run this script from the Ice repository.",
+        )
+        sys.exit(1)
 
     global contentHandler
 
@@ -666,7 +655,7 @@ def main():
     pf = open(propsFile)
     try:
         parser.parse(pf)
-        contentHandler.moveFiles(toplevel)
+        contentHandler.moveFiles(topLevel)
     except Exception as ex:
         print(sys.stderr, str(ex))
         contentHandler.cleanup()
