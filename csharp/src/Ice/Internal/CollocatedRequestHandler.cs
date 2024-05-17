@@ -296,7 +296,7 @@ public class CollocatedRequestHandler : RequestHandler
                 }
             }
 
-            if (outAsync != null)
+            if (outAsync is not null)
             {
                 if (amd)
                 {
