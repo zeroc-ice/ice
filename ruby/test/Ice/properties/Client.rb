@@ -104,7 +104,7 @@ class Client < ::TestHelper
             properties.getIceProperty("Ice.UnknownProperty")
             test(false)
         rescue RuntimeError => ex
-            test ex.to_s == "unknown ice property: Ice.UnknownProperty"
+            test ex.to_s == "unknown Ice property: Ice.UnknownProperty"
         end
         puts "ok"
 

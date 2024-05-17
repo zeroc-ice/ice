@@ -348,13 +348,14 @@ public sealed class Properties
             throw new InitializationException("Attempt to set property with empty key");
         }
 
-        // Find the property, log warnings if necessary
+        // Finds the corresponding Ice property if it exists. Also logs warnings for unknown Ice properties and
+        // case-insensitive Ice property prefix matches.
         Property? prop = findProperty(key, true);
 
-        // If the property is deprecated by another property, use the new property key
-        if (prop != null && prop.deprecatedBy != null)
+        // If the property is deprecated, log a warning.
+        if (prop is not null && prop.deprecated)
         {
-            key = prop.deprecatedBy;
+            Util.getProcessLogger().warning("setting deprecated property: " + key);
         }
 
         lock (this)
@@ -786,13 +787,8 @@ public sealed class Properties
 
         foreach (var prop in propertyArray)
         {
-            bool matches = prop.usesRegex ? Regex.IsMatch(key, prop.pattern) : key == prop.pattern;
-            if (matches)
+            if (prop.usesRegex ? Regex.IsMatch(key, prop.pattern) : key == prop.pattern)
             {
-                if (prop.deprecated && logWarnings)
-                {
-                    logger.warning("deprecated property: " + key);
-                }
                 return prop;
             }
         }
@@ -814,7 +810,7 @@ public sealed class Properties
     private static string getDefaultProperty(string key)
     {
         // Find the property, don't log any warnings.
-        Property? prop = findProperty(key, false) ?? throw new ArgumentException("unknown ice property: " + key);
+        Property? prop = findProperty(key, false) ?? throw new ArgumentException("unknown Ice property: " + key);
         return prop.defaultValue;
     }
 

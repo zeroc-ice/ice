@@ -6,13 +6,12 @@ const Ice = require("../Ice/ModuleRegistry").Ice;
 
 Ice.Property = class
 {
-    constructor(pattern, usesRegex, defaultValue, deprecated, deprecatedBy)
+    constructor(pattern, usesRegex, defaultValue, deprecated)
     {
         this._pattern = pattern;
         this._usesRegex = usesRegex;
         this._default = defaultValue;
         this._deprecated = deprecated;
-        this._deprecatedBy = deprecatedBy;
     }
 
     get pattern()
@@ -33,11 +32,6 @@ Ice.Property = class
     get deprecated()
     {
         return this._deprecated;
-    }
-
-    get deprecatedBy()
-    {
-        return this._deprecatedBy;
     }
 };
 

@@ -175,13 +175,14 @@ class Properties
             throw new InitializationException("Attempt to set property with empty key");
         }
 
-        // Find the property, log warnings if necessary
-        const prop = Properties.findProperty(key, true);
+        // Finds the corresponding Ice property if it exists. Also logs warnings for unknown Ice properties and
+        // case-insensitive Ice property prefix matches.
+        var prop = Properties.findProperty(key, true);
 
-        // If the property is deprecated by another property, use the new property key
-        if (prop !== null && prop.deprecatedBy != null)
+        // If the property is deprecated, log a warning
+        if (prop !== null && prop.deprecated)
         {
-            key = prop.deprecatedBy;
+            getProcessLogger().warning("setting deprecated property: " + key);
         }
 
         //
@@ -502,14 +503,8 @@ class Properties
         {
             const prop = propertyPrefix[j];
 
-            const matches = prop.usesRegex ? key.match(prop.pattern) : key === prop.pattern;
-
-            if (matches)
+            if (prop.usesRegex ? key.match(prop.pattern) : key === prop.pattern)
             {
-                if (prop.deprecated && logWarnings)
-                {
-                    logger.warning("deprecated property: " + key);
-                }
                 return prop;
             }
         }
@@ -529,7 +524,7 @@ class Properties
         const prop = Properties.findProperty(key, false);
         if (prop === null)
         {
-            throw new Error("unknown ice property: " + key);
+            throw new Error("unknown Ice property: " + key);
         }
         return prop.defaultValue;
     }
