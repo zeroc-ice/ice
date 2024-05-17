@@ -1769,15 +1769,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public BatchRequestQueue
-    iceGetBatchRequestQueue()
-    {
-        lock (this)
-        {
-            _batchRequestQueue ??= _reference.getBatchRequestQueue();
-            return _batchRequestQueue;
-        }
-    }
+    public BatchRequestQueue iceGetBatchRequestQueue() => _reference.batchRequestQueue;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public RequestHandler
@@ -2005,7 +1997,6 @@ public class ObjectPrxHelperBase : ObjectPrx
 
     private Reference _reference;
     private RequestHandler? _requestHandler;
-    private BatchRequestQueue? _batchRequestQueue;
     private struct StreamCacheEntry
     {
         public InputStream iss;
