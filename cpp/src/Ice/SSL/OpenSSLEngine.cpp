@@ -430,17 +430,6 @@ OpenSSL::SSLEngine::createClientAuthenticationOptions(const std::string&) const
                     }
                 }
             }
-
-            // Enable SNI
-            if (getServerNameIndication() && !IceInternal::isIpAddress(host))
-            {
-                if (!SSL_set_tlsext_host_name(ssl, host.c_str()))
-                {
-                    ostringstream os;
-                    os << "IceSSL: setting SNI host failed `" << host << "'";
-                    throw SecurityException(__FILE__, __LINE__, os.str());
-                }
-            }
             SSL_set_verify(ssl, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, 0);
         },
         .serverCertificateValidationCallback =

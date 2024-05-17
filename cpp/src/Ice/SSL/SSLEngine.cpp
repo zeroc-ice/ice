@@ -56,10 +56,6 @@ Ice::SSL::SSLEngine::initialize()
     // CheckCertName determines whether we compare the name in a peer's certificate against its hostname.
     _checkCertName = properties->getIcePropertyAsInt("IceSSL.CheckCertName") > 0;
 
-    // CheckCertName > 1 enables SNI, the SNI extension applies to client connections, indicating the hostname to the
-    // server (must be DNS hostname, not an IP address).
-    _serverNameIndication = properties->getIcePropertyAsInt("IceSSL.CheckCertName") > 1;
-
     // VerifyPeer determines whether certificate validation failures abort a connection.
     _verifyPeer = properties->getIcePropertyAsInt("IceSSL.VerifyPeer");
 
@@ -94,12 +90,6 @@ bool
 Ice::SSL::SSLEngine::getCheckCertName() const
 {
     return _checkCertName;
-}
-
-bool
-Ice::SSL::SSLEngine::getServerNameIndication() const
-{
-    return _serverNameIndication;
 }
 
 int
