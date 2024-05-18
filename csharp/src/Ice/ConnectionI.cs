@@ -726,105 +726,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         }
     }
 
-    public void sendResponse(int requestId, OutputStream os, byte compressFlag, bool amd)
-    {
-        lock (this)
-        {
-            Debug.Assert(_state > StateNotValidated);
-
-            try
-            {
-                if (--_upcallCount == 0)
-                {
-                    if (_state == StateFinished)
-                    {
-                        reap();
-                    }
-                    Monitor.PulseAll(this);
-                }
-
-                if (_state >= StateClosed)
-                {
-                    Debug.Assert(_exception != null);
-                    throw _exception;
-                }
-
-                sendMessage(new OutgoingMessage(os, compressFlag > 0, true));
-
-                if (_state == StateClosing && _upcallCount == 0)
-                {
-                    initiateShutdown();
-                }
-            }
-            catch (LocalException ex)
-            {
-                setState(StateClosed, ex);
-            }
-        }
-    }
-
-    public void sendNoResponse()
-    {
-        lock (this)
-        {
-            Debug.Assert(_state > StateNotValidated);
-
-            try
-            {
-                if (--_upcallCount == 0)
-                {
-                    if (_state == StateFinished)
-                    {
-                        reap();
-                    }
-                    Monitor.PulseAll(this);
-                }
-
-                if (_state >= StateClosed)
-                {
-                    Debug.Assert(_exception != null);
-                    throw _exception;
-                }
-
-                if (_state == StateClosing && _upcallCount == 0)
-                {
-                    initiateShutdown();
-                }
-            }
-            catch (LocalException ex)
-            {
-                setState(StateClosed, ex);
-            }
-        }
-    }
-
-    public void dispatchException(int requestId, LocalException ex, int requestCount, bool amd)
-    {
-        //
-        // Fatal exception while dispatching a request. Since sendResponse/sendNoResponse isn't
-        // called in case of a fatal exception we decrement _upcallCount here.
-        //
-
-        lock (this)
-        {
-            setState(StateClosed, ex);
-
-            if (requestCount > 0)
-            {
-                Debug.Assert(_upcallCount >= requestCount);
-                _upcallCount -= requestCount;
-                if (_upcallCount == 0)
-                {
-                    if (_state == StateFinished)
-                    {
-                        reap();
-                    }
-                    Monitor.PulseAll(this);
-                }
-            }
-        }
-    }
-
     public EndpointI endpoint()
     {
         return _endpoint; // No mutex protection necessary, _endpoint is immutable.
@@ -2662,19 +2563,10 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                 else
                 {
                     // Received request on a connection without an object adapter.
-                    bool isTwoWay = !_endpoint.datagram() && requestId != 0;
-                    if (isTwoWay)
-                    {
-                        sendResponse(
-                            requestId,
-                            request.current.createOutgoingResponse(new ObjectNotExistException()).outputStream,
-                            0,
-                            amd: false);
-                    }
-                    else
-                    {
-                        sendNoResponse();
-                    }
+                    sendResponse(
+                        request.current.createOutgoingResponse(new ObjectNotExistException()),
+                        isTwoWay: !_endpoint.datagram() && requestId != 0,
+                        compress: 0);
                 }
                 --requestCount;
             }
@@ -2683,41 +2575,94 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         }
         catch (LocalException ex) // TODO: catch all exceptions
         {
-            this.dispatchException(requestId, ex, requestCount, amd: false);
+            // Typically, the IncomingRequest constructor throws an exception, and we can't continue.
+            dispatchException(ex, requestCount);
         }
 
         async Task dispatchAsync(IncomingRequest request)
         {
-            bool isTwoWay = !_endpoint.datagram() && requestId != 0;
-            bool amd = false;
-
             try
             {
                 OutgoingResponse response;
 
                 try
                 {
-                    ValueTask<OutgoingResponse> valueTask = dispatcher.dispatchAsync(request);
-                    amd = !valueTask.IsCompleted;
-                    response = await valueTask.ConfigureAwait(false);
+                    response = await dispatcher.dispatchAsync(request).ConfigureAwait(false);
                 }
                 catch (System.Exception ex)
                 {
                     response = request.current.createOutgoingResponse(ex);
                 }
 
+                sendResponse(response, isTwoWay: !_endpoint.datagram() && requestId != 0, compress);
+            }
+            catch (LocalException ex) // TODO: catch all exceptions to avoid UnobservedTaskException
+            {
+                dispatchException(ex, requestCount: 1);
+            }
+        }
+    }
+
+    private void sendResponse(OutgoingResponse response, bool isTwoWay, byte compress)
+    {
+        lock (this)
+        {
+            Debug.Assert(_state > StateNotValidated);
+
+            try
+            {
+                if (--_upcallCount == 0)
+                {
+                    if (_state == StateFinished)
+                    {
+                        reap();
+                    }
+                    Monitor.PulseAll(this);
+                }
+
+                if (_state >= StateClosed)
+                {
+                    Debug.Assert(_exception is not null);
+                    throw _exception;
+                }
+
                 if (isTwoWay)
                 {
-                    sendResponse(requestId, response.outputStream, compress, amd);
+                    sendMessage(new OutgoingMessage(response.outputStream, compress > 0, adopt: true));
                 }
-                else
+
+                if (_state == StateClosing && _upcallCount == 0)
                 {
-                    sendNoResponse();
+                    initiateShutdown();
                 }
             }
-            catch (Ice.LocalException ex) // TODO: catch all exceptions to avoid UnobservedTaskException
+            catch (LocalException ex)
             {
-                dispatchException(requestId, ex, requestCount: 1, amd);
+                setState(StateClosed, ex);
+            }
+        }
+    }
+
+    private void dispatchException(LocalException ex, int requestCount)
+    {
+        // Fatal exception while dispatching a request. Since sendResponse isn't called in case of a fatal exception
+        // we decrement _upcallCount here.
+        lock (this)
+        {
+            setState(StateClosed, ex);
+
+            if (requestCount > 0)
+            {
+                Debug.Assert(_upcallCount >= requestCount);
+                _upcallCount -= requestCount;
+                if (_upcallCount == 0)
+                {
+                    if (_state == StateFinished)
+                    {
+                        reap();
+                    }
+                    Monitor.PulseAll(this);
+                }
             }
         }
     }
