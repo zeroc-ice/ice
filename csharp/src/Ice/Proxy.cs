@@ -1580,26 +1580,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// </summary>
     /// <returns>The cached Connection for this proxy (null if the proxy does not have
     /// an established connection).</returns>
-    public Connection? ice_getCachedConnection()
-    {
-        RequestHandler? handler;
-        lock (this)
-        {
-            handler = _requestHandler;
-        }
-
-        if (handler != null)
-        {
-            try
-            {
-                return handler.getConnection();
-            }
-            catch (LocalException)
-            {
-            }
-        }
-        return null;
-    }
+    public Connection? ice_getCachedConnection() => _requestHandlerCache.cachedConnection;
 
     /// <summary>
     /// Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
@@ -1653,57 +1634,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         _reference.streamWrite(os);
     }
 
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public Reference iceReference()
-    {
-        return _reference;
-    }
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public int iceHandleException(Exception ex, RequestHandler handler, OperationMode mode, bool sent,
-                                 ref int cnt)
-    {
-        iceUpdateRequestHandler(handler, null); // Clear the request handler
-
-        //
-        // We only retry local exception.
-        //
-        // A CloseConnectionException indicates graceful server shutdown, and is therefore
-        // always repeatable without violating "at-most-once". That's because by sending a
-        // close connection message, the server guarantees that all outstanding requests
-        // can safely be repeated.
-        //
-        // An ObjectNotExistException can always be retried as well without violating
-        // "at-most-once" (see the implementation of the checkRetryAfterException method
-        //  of the ProxyFactory class for the reasons why it can be useful).
-        //
-        // If the request didn't get sent or if it's non-mutating or idempotent it can
-        // also always be retried if the retry count isn't reached.
-        //
-        if (ex is LocalException && (!sent ||
-                                    mode == OperationMode.Nonmutating || mode == OperationMode.Idempotent ||
-                                    ex is CloseConnectionException ||
-                                    ex is ObjectNotExistException))
-        {
-            try
-            {
-                return _reference.getInstance().proxyFactory().checkRetryAfterException((LocalException)ex,
-                                                                                        _reference,
-                                                                                        ref cnt);
-            }
-            catch (CommunicatorDestroyedException)
-            {
-                //
-                // The communicator is already destroyed, so we cannot retry.
-                //
-                throw ex;
-            }
-        }
-        else
-        {
-            throw ex; // Retry could break at-most-once semantics, don't retry.
-        }
-    }
+    internal Reference iceReference() => _reference;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public void iceCheckTwowayOnly(string name)
@@ -1733,73 +1664,15 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         }
     }
 
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public RequestHandler iceGetRequestHandler()
-    {
-        if (_reference.getCacheConnection())
-        {
-            lock (this)
-            {
-                if (_requestHandler != null)
-                {
-                    return _requestHandler;
-                }
-            }
-        }
-        return _reference.getRequestHandler(this);
-    }
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public BatchRequestQueue iceGetBatchRequestQueue() => _reference.batchRequestQueue;
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public RequestHandler
-    iceSetRequestHandler(RequestHandler handler)
-    {
-        if (_reference.getCacheConnection())
-        {
-            lock (this)
-            {
-                _requestHandler ??= handler;
-                return _requestHandler;
-            }
-        }
-        return handler;
-    }
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public void iceUpdateRequestHandler(RequestHandler? previous, RequestHandler? handler)
-    {
-        if (_reference.getCacheConnection() && previous != null)
-        {
-            lock (this)
-            {
-                if (_requestHandler != null && _requestHandler != handler)
-                {
-                    //
-                    // Update the request handler only if "previous" is the same
-                    // as the current request handler. This is called after
-                    // connection binding by the connect request handler. We only
-                    // replace the request handler if the current handler is the
-                    // connect request handler.
-                    //
-                    _requestHandler = _requestHandler.update(previous, handler);
-                }
-            }
-        }
-    }
+    internal RequestHandlerCache iceGetRequestHandlerCache() => _requestHandlerCache;
 
     protected ObjectPrxHelperBase(ObjectPrx proxy)
     {
         // We don't supported decorated proxies here.
         var helper = (ObjectPrxHelperBase)proxy;
 
-        // TODO: make ObjectPrxHelperBase immutable after construction
-        lock (helper)
-        {
-            _reference = helper._reference;
-            _requestHandler = helper._requestHandler;
-        }
+        _reference = helper._reference;
+        _requestHandlerCache = helper._requestHandlerCache;
     }
 
     protected OutgoingAsyncT<T>
@@ -1956,13 +1829,17 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    protected ObjectPrxHelperBase(Reference reference) => _reference = reference;
+    protected ObjectPrxHelperBase(Reference reference)
+    {
+        _reference = reference;
+        _requestHandlerCache = new RequestHandlerCache(reference);
+    }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     protected abstract ObjectPrxHelperBase iceNewInstance(Reference reference);
 
     private readonly Reference _reference;
-    private RequestHandler? _requestHandler;
+    private readonly RequestHandlerCache _requestHandlerCache;
     private LinkedList<(InputStream iss, OutputStream os)>? _streamCache;
 }
 

@@ -394,8 +394,6 @@ public abstract class Reference : IEquatable<Reference>
 
     public abstract Dictionary<string, string> toProperty(string prefix);
 
-    public abstract RequestHandler getRequestHandler(Ice.ObjectPrxHelperBase proxy); // TODO: remove
-
     internal abstract RequestHandler getRequestHandler();
 
     public static bool operator ==(Reference lhs, Reference rhs) => lhs is null ? rhs is null : lhs.Equals(rhs);
@@ -662,66 +660,6 @@ public class FixedReference : Reference
     public override Dictionary<string, string> toProperty(string prefix)
     {
         throw new Ice.FixedProxyException();
-    }
-
-    public override RequestHandler getRequestHandler(Ice.ObjectPrxHelperBase proxy)
-    {
-        switch (getMode())
-        {
-            case Mode.ModeTwoway:
-            case Mode.ModeOneway:
-            case Mode.ModeBatchOneway:
-            {
-                if (_fixedConnection.endpoint().datagram())
-                {
-                    throw new Ice.NoEndpointException(ToString());
-                }
-                break;
-            }
-
-            case Mode.ModeDatagram:
-            case Mode.ModeBatchDatagram:
-            {
-                if (!_fixedConnection.endpoint().datagram())
-                {
-                    throw new Ice.NoEndpointException(ToString());
-                }
-                break;
-            }
-        }
-
-        //
-        // If a secure connection is requested or secure overrides is set,
-        // check if the connection is secure.
-        //
-        bool secure;
-        DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
-        if (defaultsAndOverrides.overrideSecure)
-        {
-            secure = defaultsAndOverrides.overrideSecureValue;
-        }
-        else
-        {
-            secure = getSecure();
-        }
-        if (secure && !_fixedConnection.endpoint().secure())
-        {
-            throw new Ice.NoEndpointException(ToString());
-        }
-
-        _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
-
-        bool compress = false;
-        if (defaultsAndOverrides.overrideCompress)
-        {
-            compress = defaultsAndOverrides.overrideCompressValue;
-        }
-        else if (overrideCompress_)
-        {
-            compress = compress_;
-        }
-
-        return proxy.iceSetRequestHandler(new ConnectionRequestHandler(this, _fixedConnection, compress));
     }
 
     internal override RequestHandler getRequestHandler()
@@ -1248,11 +1186,6 @@ public class RoutableReference : Reference
 
         private RoutableReference _ir;
         private GetConnectionCallback _cb;
-    }
-
-    public override RequestHandler getRequestHandler(Ice.ObjectPrxHelperBase proxy)
-    {
-        return getInstance().requestHandlerFactory().getRequestHandler(this, proxy);
     }
 
     internal override RequestHandler getRequestHandler()

@@ -3386,7 +3386,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     _out << sp;
     _out << nl << "protected override Ice.ObjectPrxHelperBase iceNewInstance(Ice.Internal.Reference reference) => new "
-        << name << "PrxHelper(reference);";
+         << name << "PrxHelper(reference);";
 
     _out << sp;
     _out << nl << "private " << name << "PrxHelper(Ice.ObjectPrx proxy)";

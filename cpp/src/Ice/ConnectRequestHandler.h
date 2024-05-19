@@ -23,14 +23,11 @@ namespace IceInternal
     public:
         ConnectRequestHandler(const ReferencePtr&);
 
-        RequestHandlerPtr connect();
+        AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&) final;
 
-        virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&);
+        void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr) final;
 
-        virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr);
-
-        virtual Ice::ConnectionIPtr getConnection();
-        virtual Ice::ConnectionIPtr waitForConnection();
+        Ice::ConnectionIPtr getConnection() final;
 
         // setConnection and setException are the response and exception for RoutableReference::getConnectionAsync.
         void setConnection(Ice::ConnectionIPtr, bool);

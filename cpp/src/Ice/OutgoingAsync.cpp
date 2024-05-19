@@ -370,18 +370,15 @@ ProxyOutgoingAsyncBase::cancelable(const CancellationHandlerPtr& handler)
 void
 ProxyOutgoingAsyncBase::retryException()
 {
-    // retryException is only called by ConnectRequestHandler!
-
     try
     {
-        //
         // It's important to let the retry queue do the retry. This is
         // called from the connect request handler and the retry might
         // require could end up waiting for the flush of the
         // connection to be done.
-        //
-        _proxy._getRequestHandlerCache()->clearCachedRequestHandler(
-            _handler); // Clear cached request handler and always retry.
+
+        // Clear cached request handler and always retry.
+        _proxy._getRequestHandlerCache()->clearCachedRequestHandler(_handler);
         _instance->retryQueue()->add(shared_from_this(), 0);
     }
     catch (const Exception&)
@@ -488,8 +485,8 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
             }
             catch (const RetryException&)
             {
-                _proxy._getRequestHandlerCache()->clearCachedRequestHandler(
-                    _handler); // Clear request handler and always retry.
+                // Clear request handler and always retry.
+                _proxy._getRequestHandlerCache()->clearCachedRequestHandler(_handler);
             }
             catch (const Exception& ex)
             {

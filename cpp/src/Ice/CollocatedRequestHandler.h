@@ -25,19 +25,18 @@ namespace IceInternal
     class OutgoingAsyncBase;
     class OutgoingAsync;
 
-    class CollocatedRequestHandler : public RequestHandler,
-                                     public std::enable_shared_from_this<CollocatedRequestHandler>
+    class CollocatedRequestHandler final : public RequestHandler,
+                                           public std::enable_shared_from_this<CollocatedRequestHandler>
     {
     public:
         CollocatedRequestHandler(const ReferencePtr&, const Ice::ObjectAdapterPtr&);
-        virtual ~CollocatedRequestHandler();
+        ~CollocatedRequestHandler();
 
-        virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&);
+        AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&) final;
 
-        virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr);
+        void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr) final;
 
-        virtual Ice::ConnectionIPtr getConnection();
-        virtual Ice::ConnectionIPtr waitForConnection();
+        Ice::ConnectionIPtr getConnection() final;
 
         AsyncStatus invokeAsyncRequest(OutgoingAsyncBase*, int, bool);
 

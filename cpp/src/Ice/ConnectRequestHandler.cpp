@@ -89,29 +89,6 @@ ConnectRequestHandler::getConnection()
     return nullptr;
 }
 
-Ice::ConnectionIPtr
-ConnectRequestHandler::waitForConnection()
-{
-    unique_lock lock(_mutex);
-    if (_exception)
-    {
-        throw RetryException(_exception);
-    }
-    //
-    // Wait for the connection establishment to complete or fail.
-    //
-    _conditionVariable.wait(lock, [this] { return _initialized || _exception; });
-
-    if (_exception)
-    {
-        rethrow_exception(_exception);
-    }
-    else
-    {
-        return _connection;
-    }
-}
-
 void
 ConnectRequestHandler::setConnection(Ice::ConnectionIPtr connection, bool compress)
 {

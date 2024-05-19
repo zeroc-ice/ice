@@ -135,11 +135,14 @@ namespace Ice
                     var outOfOrderTcs = new TaskCompletionSource();
                     TaskCompletionSource sentTcs = null;
                     Task result = null;
+
+                    // We use the same proxy for all oneway calls.
+                    holdSerializedOneway = (Test.HoldPrx)holdSerialized.ice_oneway();
+
                     for (int i = 0; i < 10000; ++i)
                     {
                         sentTcs = new TaskCompletionSource();
-                        // Create a new proxy for each request
-                        result = ((Test.HoldPrx)holdSerialized.ice_oneway()).setOnewayAsync(
+                        result = holdSerializedOneway.setOnewayAsync(
                             value + 1,
                             value,
                             progress: new Progress<bool>(value => sentTcs.TrySetResult()));

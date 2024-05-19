@@ -208,13 +208,7 @@ CollocatedRequestHandler::dispatchException(int32_t requestId, exception_ptr ex)
 ConnectionIPtr
 CollocatedRequestHandler::getConnection()
 {
-    return 0;
-}
-
-ConnectionIPtr
-CollocatedRequestHandler::waitForConnection()
-{
-    return 0;
+    return nullptr;
 }
 
 bool
@@ -285,7 +279,7 @@ CollocatedRequestHandler::dispatchAll(InputStream& is, int32_t requestId, int32_
 }
 
 void
-CollocatedRequestHandler::handleException(int requestId, std::exception_ptr ex)
+CollocatedRequestHandler::handleException(int32_t requestId, std::exception_ptr ex)
 {
     if (requestId == 0)
     {
