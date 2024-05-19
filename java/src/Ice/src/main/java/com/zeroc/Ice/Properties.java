@@ -347,12 +347,13 @@ public final class Properties {
       throw new InitializationException("Attempt to set property with empty key");
     }
 
-    // Find the property, log warnings if necessary
+    // Finds the corresponding Ice property if it exists. Also logs warnings for unknown Ice
+    // properties and case-insensitive Ice property prefix matches.
     Property prop = findProperty(key, true);
 
-    // If the property is deprecated by another property, use the new property key
-    if (prop != null && prop.deprecatedBy() != null) {
-      key = prop.deprecatedBy();
+    // If the property is deprecated, log a warning
+    if (prop != null && prop.deprecated()) {
+      Util.getProcessLogger().warning("setting deprecated property: " + key);
     }
 
     synchronized (this) {
@@ -813,7 +814,7 @@ public final class Properties {
 
       if (matches) {
         if (prop.deprecated() && logWarnings) {
-          logger.warning("deprecated property: " + key);
+          logger.warning("setting deprecated property: " + key);
         }
         return prop;
       }
@@ -835,7 +836,7 @@ public final class Properties {
   private static String getDefaultProperty(String key) {
     Property prop = findProperty(key, false);
     if (prop == null) {
-      throw new IllegalArgumentException("unknown ice property: " + key);
+      throw new IllegalArgumentException("unknown Ice property: " + key);
     }
     return prop.defaultValue();
   }

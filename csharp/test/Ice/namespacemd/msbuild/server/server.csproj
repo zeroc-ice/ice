@@ -10,9 +10,6 @@
     <OutputPath>.</OutputPath>
     <Configurations>Release;Debug</Configurations>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(AppTargetFramework)' == 'netcoreapp3.1'">
-    <UseAppHost>true</UseAppHost>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <NoWarn>1701;1702;3005</NoWarn>
   </PropertyGroup>

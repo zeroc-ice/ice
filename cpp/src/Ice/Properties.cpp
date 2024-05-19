@@ -79,14 +79,8 @@ namespace
         {
             auto prop = propertyArray->properties[i];
 
-            bool matches = prop.usesRegex ? IceUtilInternal::match(string{key}, prop.pattern) : key == prop.pattern;
-
-            if (matches)
+            if (prop.usesRegex ? IceUtilInternal::match(string{key}, prop.pattern) : key == prop.pattern)
             {
-                if (prop.deprecated && logWarnings)
-                {
-                    logger->warning("deprecated property: " + string{key});
-                }
                 return prop;
             }
         }
@@ -106,19 +100,12 @@ namespace
     /// @throws std::invalid_argument if the property is unknown.
     string_view getDefaultValue(string_view key)
     {
-        for (int i = 0; IceInternal::PropertyNames::validProps[i].properties != 0; ++i)
+        optional<Property> prop = findProperty(key, false);
+        if (!prop)
         {
-            for (int j = 0; j < IceInternal::PropertyNames::validProps[i].length; ++j)
-            {
-                const IceInternal::Property& prop = IceInternal::PropertyNames::validProps[i].properties[j];
-                if (IceUtilInternal::match(string{key}, prop.pattern))
-                {
-                    // There's always a non-null default value.
-                    return prop.defaultValue;
-                }
-            }
+            throw invalid_argument{"unknown Ice property: " + string{key}};
         }
-        throw invalid_argument("unknown ice property: " + string{key});
+        return prop->defaultValue;
     }
 }
 
@@ -357,13 +344,14 @@ Ice::Properties::setProperty(string_view key, string_view value)
         throw InitializationException(__FILE__, __LINE__, "Attempt to set property with empty key");
     }
 
-    // Find the property, log warnings if necessary
+    // Finds the corresponding Ice property if it exists. Also logs warnings for unknown Ice properties and
+    // case-insensitive Ice property prefix matches.
     auto prop = findProperty(key, true);
 
-    // If the property is deprecated by another property, use the new property key
-    if (prop && prop->deprecatedBy)
+    // If the property is deprecated, log a warning.
+    if (prop && prop->deprecated)
     {
-        currentKey = prop->deprecatedBy;
+        getProcessLogger()->warning("setting deprecated property: " + string{key});
     }
 
     lock_guard lock(_mutex);

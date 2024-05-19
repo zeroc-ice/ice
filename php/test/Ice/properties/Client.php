@@ -59,7 +59,7 @@ class Client extends TestHelper
             test(False);
         } catch (Ice\UnknownException $ex) {
             // We don't have a specific exception for unknown properties
-            test($ex->unknown == "unknown ice property: Ice.UnknownProperty");
+            test($ex->unknown == "unknown Ice property: Ice.UnknownProperty");
         }
         echo "ok\n";
     }

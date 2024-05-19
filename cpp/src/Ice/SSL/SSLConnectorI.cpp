@@ -15,15 +15,18 @@
 #include "SSLEngine.h"
 #include "SSLUtil.h"
 
-#if defined(_WIN32)
+#if defined(ICE_USE_SCHANNEL)
 #    include "SchannelEngine.h"
 #    include "SchannelTransceiverI.h"
-#elif defined(__APPLE__)
+using namespace Ice::SSL::Schannel;
+#elif defined(ICE_USE_SECURE_TRANSPORT)
 #    include "SecureTransportEngine.h"
 #    include "SecureTransportTransceiverI.h"
-#else
+using namespace Ice::SSL::SecureTransport;
+#elif defined(ICE_USE_OPENSSL)
 #    include "OpenSSLEngine.h"
 #    include "OpenSSLTransceiverI.h"
+using namespace Ice::SSL::OpenSSL;
 #endif
 
 using namespace std;
@@ -40,17 +43,7 @@ Ice::SSL::ConnectorI::connect()
         clientAuthenticationOptions = _instance->engine()->createClientAuthenticationOptions(_host);
     }
     assert(clientAuthenticationOptions);
-#if defined(_WIN32)
-    return make_shared<Schannel::TransceiverI>(_instance, _delegate->connect(), _host, *clientAuthenticationOptions);
-#elif defined(__APPLE__)
-    return make_shared<SecureTransport::TransceiverI>(
-        _instance,
-        _delegate->connect(),
-        _host,
-        *clientAuthenticationOptions);
-#else
-    return make_shared<OpenSSL::TransceiverI>(_instance, _delegate->connect(), _host, *clientAuthenticationOptions);
-#endif
+    return make_shared<TransceiverI>(_instance, _delegate->connect(), _host, *clientAuthenticationOptions);
 }
 
 int16_t

@@ -46,7 +46,6 @@ namespace Ice::SSL
         virtual ServerAuthenticationOptions createServerAuthenticationOptions() const = 0;
 
         bool getCheckCertName() const;
-        bool getServerNameIndication() const;
         int getVerifyPeer() const;
         int securityTraceLevel() const;
         bool getRevocationCheckCacheOnly() const;
@@ -63,7 +62,6 @@ namespace Ice::SSL
         std::string _password;
 
         bool _checkCertName;
-        bool _serverNameIndication;
         int _verifyPeer;
         int _securityTraceLevel;
         std::string _securityTraceCategory;

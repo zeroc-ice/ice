@@ -176,7 +176,7 @@ OpenSSL::SSLEngine::initialize()
             readFile(resolved, buffer);
             int success = 0;
 
-            const unsigned char* b = const_cast<const unsigned char*>(reinterpret_cast<unsigned char*>(&buffer[0]));
+            const unsigned char* b = reinterpret_cast<unsigned char*>(&buffer[0]);
             PKCS12* p12 = d2i_PKCS12(0, &b, static_cast<long>(buffer.size()));
             if (p12)
             {
@@ -428,17 +428,6 @@ OpenSSL::SSLEngine::createClientAuthenticationOptions(const std::string&) const
                         os << "IceSSL: error setting the expected host name `" << host << "'";
                         throw SecurityException(__FILE__, __LINE__, os.str());
                     }
-                }
-            }
-
-            // Enable SNI
-            if (getServerNameIndication() && !IceInternal::isIpAddress(host))
-            {
-                if (!SSL_set_tlsext_host_name(ssl, host.c_str()))
-                {
-                    ostringstream os;
-                    os << "IceSSL: setting SNI host failed `" << host << "'";
-                    throw SecurityException(__FILE__, __LINE__, os.str());
                 }
             }
             SSL_set_verify(ssl, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, 0);
