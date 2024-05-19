@@ -23,6 +23,18 @@
 #        undef SECURITY_KERNEL
 #    endif
 #    define SECURITY_WIN32 1
+
+// See https://learn.microsoft.com/en-us/windows/win32/api/schannel/ns-schannel-sch_credentials#remarks
+#    define SCHANNEL_USE_BLACKLISTS
+#    ifndef UNICODE_STRING
+typedef struct _UNICODE_STRING
+{
+    USHORT Length;
+    USHORT MaximumLength;
+    PWSTR Buffer;
+} UNICODE_STRING, *PUNICODE_STRING;
+#    endif
+
 #    include <schannel.h>
 #    include <security.h>
 #    include <sspi.h>

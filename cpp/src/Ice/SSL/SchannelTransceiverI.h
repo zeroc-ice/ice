@@ -111,16 +111,17 @@ namespace Ice::SSL::Schannel
         //
         IceInternal::Buffer _readUnprocessed;
 
-        std::function<PCCERT_CONTEXT(const std::string&)> _localCertificateSelectionCallback;
+        std::function<SCHANNEL_CRED(const std::string&)> _localCredentialsSelectionCallback;
         std::function<void(CtxtHandle context, const std::string& host)> _sslNewSessionCallback;
         SecPkgContext_StreamSizes _sizes;
         std::string _cipher;
         PCCERT_CONTEXT _peerCertificate;
         std::function<bool(CtxtHandle, const Ice::SSL::ConnectionInfoPtr&)> _remoteCertificateValidationCallback;
         bool _clientCertificateRequired;
-        PCCERT_CONTEXT _certificate;
+        SCHANNEL_CRED _credentials;
+        std::vector<PCCERT_CONTEXT> _allCerts;
+        CredHandle _credentialsHandle;
         HCERTSTORE _rootStore;
-        CredHandle _credentials;
         CtxtHandle _ssl;
 
         // The chain engine used to verify the peer certificate. If the user has not provided a remote certificate

@@ -1244,31 +1244,6 @@ Schannel::SSLEngine::getCipherName(ALG_ID cipher) const
     }
 }
 
-SCHANNEL_CRED
-Schannel::SSLEngine::newCredentialsHandle(bool incoming) const
-{
-    SCHANNEL_CRED cred;
-    memset(&cred, 0, sizeof(cred));
-    cred.dwVersion = SCHANNEL_CRED_VERSION;
-
-    // TODO move this flags to the newSessionCallback for the properties configuration.
-    if (incoming)
-    {
-        // Don't set SCH_SEND_ROOT_CERT as it seems to cause problems with Java certificate validation and Schannel
-        // doesn't seems to send the root certificate either way.
-        cred.dwFlags = SCH_CRED_NO_SYSTEM_MAPPER | SCH_CRED_DISABLE_RECONNECTS;
-    }
-    else
-    {
-        cred.dwFlags = SCH_CRED_NO_SERVERNAME_CHECK | SCH_CRED_NO_DEFAULT_CREDS;
-    }
-
-    // Enable strong crypto
-    cred.dwFlags |= SCH_USE_STRONG_CRYPTO;
-
-    return cred;
-}
-
 void
 Schannel::SSLEngine::destroy()
 {
@@ -1316,15 +1291,19 @@ Ice::SSL::ClientAuthenticationOptions
 Schannel::SSLEngine::createClientAuthenticationOptions(const string& host) const
 {
     return Ice::SSL::ClientAuthenticationOptions{
-        .clientCertificateSelectionCallback =
+        .clientCredentialsSelectionCallback =
             [this](const string&)
         {
-            PCCERT_CONTEXT cert = nullptr;
-            if (_allCerts.size() > 0)
+            for (auto& cert : _allCerts)
             {
-                cert = CertDuplicateCertificateContext(_allCerts[0]);
+                CertDuplicateCertificateContext(cert);
             }
-            return cert;
+
+            return SCHANNEL_CRED{
+                .dwVersion = SCHANNEL_CRED_VERSION,
+                .cCreds = static_cast<DWORD>(_allCerts.size()),
+                .paCred = const_cast<PCCERT_CONTEXT*>(_allCerts.size() > 0 ? &_allCerts[0] : nullptr),
+                .dwFlags = SCH_CRED_NO_DEFAULT_CREDS | SCH_CRED_NO_SERVERNAME_CHECK | SCH_USE_STRONG_CRYPTO};
         },
         .trustedRootCertificates = _rootStore,
         .serverCertificateValidationCallback = [self = shared_from_this(),
@@ -1356,16 +1335,22 @@ Ice::SSL::ServerAuthenticationOptions
 Schannel::SSLEngine::createServerAuthenticationOptions() const
 {
     return Ice::SSL::ServerAuthenticationOptions{
-        .serverCertificateSelectionCallback =
+        .serverCredentialsSelectionCallback =
             [this](const string&)
         {
             {
-                PCCERT_CONTEXT cert = nullptr;
-                if (_allCerts.size() > 0)
+                for (auto& cert : _allCerts)
                 {
-                    cert = CertDuplicateCertificateContext(_allCerts[0]);
+                    CertDuplicateCertificateContext(cert);
                 }
-                return cert;
+
+                return SCHANNEL_CRED{
+                    .dwVersion = SCHANNEL_CRED_VERSION,
+                    .cCreds = static_cast<DWORD>(_allCerts.size()),
+                    .paCred = const_cast<PCCERT_CONTEXT*>(_allCerts.size() > 0 ? &_allCerts[0] : nullptr),
+                    // Don't set SCH_SEND_ROOT_CERT as it seems to cause problems with Java certificate validation and
+                    // Schannel doesn't seems to send the root certificate either way.
+                    .dwFlags = SCH_CRED_NO_SYSTEM_MAPPER | SCH_CRED_DISABLE_RECONNECTS | SCH_USE_STRONG_CRYPTO};
             }
         },
         .clientCertificateRequired = getVerifyPeer() > 0,

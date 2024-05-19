@@ -69,12 +69,11 @@ namespace
         if (trustedRootCertificates)
         {
             // Create a chain engine that uses our Trusted Root Store
-            CERT_CHAIN_ENGINE_CONFIG config;
-            memset(&config, 0, sizeof(CERT_CHAIN_ENGINE_CONFIG));
-            config.cbSize = sizeof(CERT_CHAIN_ENGINE_CONFIG);
-            config.hExclusiveRoot = trustedRootCertificates;
+            CERT_CHAIN_ENGINE_CONFIG config{
+                .cbSize = sizeof(CERT_CHAIN_ENGINE_CONFIG),
+                .hExclusiveRoot = trustedRootCertificates};
 
-            HCERTCHAINENGINE chainEngine;
+            HCERTCHAINENGINE chainEngine = nullptr;
             if (!CertCreateCertificateChainEngine(&config, &chainEngine))
             {
                 throw InitializationException(
@@ -88,6 +87,22 @@ namespace
         {
             return HCCE_CURRENT_USER;
         }
+    }
+
+    SCHANNEL_CRED defaultOutgoingCredentials(const string&)
+    {
+        return SCHANNEL_CRED{
+            .dwVersion = SCHANNEL_CRED_VERSION,
+            .dwFlags = SCH_CRED_NO_DEFAULT_CREDS | SCH_CRED_NO_SERVERNAME_CHECK | SCH_USE_STRONG_CRYPTO};
+    }
+
+    SCHANNEL_CRED defaultIncomingCredentials(const string&)
+    {
+        return SCHANNEL_CRED{
+            .dwVersion = SCHANNEL_CRED_VERSION,
+            // Don't set SCH_SEND_ROOT_CERT as it seems to cause problems with Java certificate validation and
+            // Schannel doesn't seems to send the root certificate either way.
+            .dwFlags = SCH_CRED_NO_SYSTEM_MAPPER | SCH_CRED_DISABLE_RECONNECTS | SCH_USE_STRONG_CRYPTO};
     }
 }
 
@@ -115,29 +130,39 @@ Schannel::TransceiverI::sslHandshake()
     SECURITY_STATUS err = SEC_E_OK;
     if (_state == StateHandshakeNotStarted)
     {
-        SCHANNEL_CRED cred = _engine->newCredentialsHandle(_incoming);
-        if (_localCertificateSelectionCallback)
+        _credentials = _localCredentialsSelectionCallback(_incoming ? _adapterName : _host);
+        if (_rootStore && !_credentials.hRootStore)
         {
-            _certificate = _localCertificateSelectionCallback(_incoming ? _adapterName : _host);
-            if (_certificate)
-            {
-                cred.cCreds = 1;
-                cred.paCred = &_certificate;
-            }
+            _credentials.hRootStore = CertDuplicateStore(_rootStore);
         }
-        cred.hRootStore = _rootStore;
 
-        memset(&_credentials, 0, sizeof(_credentials));
+        if (_credentials.cCreds > 0)
+        {
+            for (DWORD i = 0; i < _credentials.cCreds; ++i)
+            {
+                if (!_credentials.paCred[i])
+                {
+                    throw SecurityException(
+                        __FILE__,
+                        __LINE__,
+                        "SSL transport: invalid null certificate in the provided SCHANNEL_CRED.");
+                }
+                _allCerts.push_back(CertDuplicateCertificateContext(_credentials.paCred[i]));
+            }
+            _credentials.paCred = &_allCerts[0];
+        }
+
+        _credentials.hRootStore = _rootStore;
 
         err = AcquireCredentialsHandle(
             0,
             const_cast<char*>(UNISP_NAME),
             (_incoming ? SECPKG_CRED_INBOUND : SECPKG_CRED_OUTBOUND),
             0,
-            &cred,
-            0,
-            0,
             &_credentials,
+            0,
+            0,
+            &_credentialsHandle,
             0);
 
         if (err != SEC_E_OK)
@@ -158,7 +183,7 @@ Schannel::TransceiverI::sslHandshake()
             SecBufferDesc outBufferDesc = {SECBUFFER_VERSION, 1, &outBuffer};
 
             err = InitializeSecurityContext(
-                &_credentials,
+                &_credentialsHandle,
                 0,
                 const_cast<char*>(_host.c_str()),
                 _remoteCertificateValidationCallback ? flags | ISC_REQ_MANUAL_CRED_VALIDATION : flags,
@@ -208,19 +233,19 @@ Schannel::TransceiverI::sslHandshake()
                 return IceInternal::SocketOperationRead;
             }
 
-            SecBuffer inBuffers[2] = {
+            SecBuffer inBuffers[2]{
                 {static_cast<DWORD>(_readBuffer.i - _readBuffer.b.begin()), SECBUFFER_TOKEN, _readBuffer.b.begin()},
                 {0, SECBUFFER_EMPTY, 0}};
-            SecBufferDesc inBufferDesc = {SECBUFFER_VERSION, 2, inBuffers};
+            SecBufferDesc inBufferDesc{SECBUFFER_VERSION, 2, inBuffers};
 
-            SecBuffer outBuffers[2] = {{0, SECBUFFER_TOKEN, 0}, {0, SECBUFFER_ALERT, 0}};
-            SecBufferDesc outBufferDesc = {SECBUFFER_VERSION, 2, outBuffers};
+            SecBuffer outBuffers[2]{{0, SECBUFFER_TOKEN, 0}, {0, SECBUFFER_ALERT, 0}};
+            SecBufferDesc outBufferDesc{SECBUFFER_VERSION, 2, outBuffers};
 
             if (_incoming)
             {
                 bool newSession = _ssl.dwLower == 0 && _ssl.dwUpper == 0;
                 err = AcceptSecurityContext(
-                    &_credentials,
+                    &_credentialsHandle,
                     newSession ? 0 : &_ssl,
                     &inBufferDesc,
                     _clientCertificateRequired ? flags | ASC_REQ_MUTUAL_AUTH : flags,
@@ -238,7 +263,7 @@ Schannel::TransceiverI::sslHandshake()
             else
             {
                 err = InitializeSecurityContext(
-                    &_credentials,
+                    &_credentialsHandle,
                     &_ssl,
                     const_cast<char*>(_host.c_str()),
                     flags,
@@ -466,12 +491,12 @@ Schannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
         }
 
         // Try to decrypt the buffered data.
-        SecBuffer inBuffers[4] = {
+        SecBuffer inBuffers[4]{
             {static_cast<DWORD>(_readBuffer.i - _readBuffer.b.begin()), SECBUFFER_DATA, _readBuffer.b.begin()},
             {0, SECBUFFER_EMPTY, 0},
             {0, SECBUFFER_EMPTY, 0},
             {0, SECBUFFER_EMPTY, 0}};
-        SecBufferDesc inBufferDesc = {SECBUFFER_VERSION, 4, inBuffers};
+        SecBufferDesc inBufferDesc{SECBUFFER_VERSION, 4, inBuffers};
 
         SECURITY_STATUS err = DecryptMessage(&_ssl, &inBufferDesc, 0, 0);
         if (err == SEC_E_INCOMPLETE_MESSAGE)
@@ -547,7 +572,7 @@ Schannel::TransceiverI::encryptMessage(IceInternal::Buffer& buffer)
     _writeBuffer.b.resize(_sizes.cbHeader + length + _sizes.cbTrailer);
     _writeBuffer.i = _writeBuffer.b.begin();
 
-    SecBuffer buffers[4] = {
+    SecBuffer buffers[4]{
         {_sizes.cbHeader, SECBUFFER_STREAM_HEADER, _writeBuffer.i},
         {length, SECBUFFER_DATA, _writeBuffer.i + _sizes.cbHeader},
         {_sizes.cbTrailer, SECBUFFER_STREAM_TRAILER, _writeBuffer.i + _sizes.cbHeader + length},
@@ -625,20 +650,28 @@ Schannel::TransceiverI::close()
     if (_ssl.dwLower || _ssl.dwUpper)
     {
         DeleteSecurityContext(&_ssl);
-        _ssl = {0, 0};
+        _ssl = {};
     }
 
-    if (_credentials.dwLower || _credentials.dwUpper)
+    if (_credentialsHandle.dwLower || _credentialsHandle.dwUpper)
     {
-        FreeCredentialsHandle(&_credentials);
-        _credentials = {0, 0};
+        FreeCredentialsHandle(&_credentialsHandle);
+        _credentialsHandle = {};
     }
 
-    if (_certificate)
+    if (_credentials.hRootStore)
     {
-        CertFreeCertificateContext(_certificate);
-        _certificate = nullptr;
+        CertCloseStore(_credentials.hRootStore, 0);
+        _credentials.hRootStore = nullptr;
     }
+
+    for (const auto& certificate : _allCerts)
+    {
+        CertFreeCertificateContext(certificate);
+    }
+    _credentials.cCreds = 0;
+    _credentials.paCred = nullptr;
+    _allCerts.clear();
 
     if (_peerCertificate)
     {
@@ -875,14 +908,17 @@ Schannel::TransceiverI::TransceiverI(
       _state(StateNotInitialized),
       _bufferedW(0),
       _clientCertificateRequired(serverAuthenticationOptions.clientCertificateRequired),
-      _localCertificateSelectionCallback(serverAuthenticationOptions.serverCertificateSelectionCallback),
+      _credentials({}),
+      _credentialsHandle({}),
+      _localCredentialsSelectionCallback(
+          serverAuthenticationOptions.serverCredentialsSelectionCallback
+              ? serverAuthenticationOptions.serverCredentialsSelectionCallback
+              : defaultIncomingCredentials),
       _sslNewSessionCallback(serverAuthenticationOptions.sslNewSessionCallback),
       _peerCertificate(nullptr),
       _remoteCertificateValidationCallback(serverAuthenticationOptions.clientCertificateValidationCallback),
-      _certificate(nullptr),
       _rootStore(serverAuthenticationOptions.trustedRootCertificates),
-      _credentials({0, 0}),
-      _ssl({0, 0}),
+      _ssl({}),
       _chainEngine(nullptr)
 {
     if (!_remoteCertificateValidationCallback)
@@ -919,14 +955,17 @@ Schannel::TransceiverI::TransceiverI(
       _state(StateNotInitialized),
       _bufferedW(0),
       _clientCertificateRequired(false),
-      _localCertificateSelectionCallback(clientAuthenticationOptions.clientCertificateSelectionCallback),
+      _credentials({}),
+      _credentialsHandle({}),
+      _localCredentialsSelectionCallback(
+          clientAuthenticationOptions.clientCredentialsSelectionCallback
+              ? clientAuthenticationOptions.clientCredentialsSelectionCallback
+              : defaultOutgoingCredentials),
       _sslNewSessionCallback(clientAuthenticationOptions.sslNewSessionCallback),
       _peerCertificate(nullptr),
       _remoteCertificateValidationCallback(clientAuthenticationOptions.serverCertificateValidationCallback),
-      _certificate(nullptr),
       _rootStore(clientAuthenticationOptions.trustedRootCertificates),
-      _credentials({0, 0}),
-      _ssl({0, 0}),
+      _ssl({}),
       _chainEngine(nullptr)
 {
     if (_rootStore && !_remoteCertificateValidationCallback)

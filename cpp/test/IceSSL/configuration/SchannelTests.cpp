@@ -116,7 +116,8 @@ createServer(ServerAuthenticationOptions serverAuthenticationOptions, TestHelper
 Ice::CommunicatorPtr
 createClient(optional<ClientAuthenticationOptions> clientAuthenticationOptions = nullopt)
 {
-    return initialize(Ice::InitializationData{.clientAuthenticationOptions = clientAuthenticationOptions});
+    return initialize(Ice::InitializationData{
+        .clientAuthenticationOptions = clientAuthenticationOptions.value_or(ClientAuthenticationOptions{})});
 }
 
 void
@@ -129,10 +130,13 @@ clientValidatesServerSettingTrustedRootCertificates(Test::TestHelper* helper, co
     try
     {
         Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
-            .serverCertificateSelectionCallback = [serverCertificate](const string&)
+            .serverCredentialsSelectionCallback = [serverCertificate](const string&)
             {
                 CertDuplicateCertificateContext(serverCertificate);
-                return serverCertificate;
+                return SCHANNEL_CRED{
+                    .dwVersion = SCHANNEL_CRED_VERSION,
+                    .cCreds = 1,
+                    .paCred = const_cast<PCCERT_CONTEXT*>(&serverCertificate)};
             }};
         Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
 
@@ -166,10 +170,13 @@ clientValidatesServerUsingValidationCallback(Test::TestHelper* helper, const str
     try
     {
         Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
-            .serverCertificateSelectionCallback = [serverCertificate](const string&)
+            .serverCredentialsSelectionCallback = [serverCertificate](const string&)
             {
                 CertDuplicateCertificateContext(serverCertificate);
-                return serverCertificate;
+                return SCHANNEL_CRED{
+                    .dwVersion = SCHANNEL_CRED_VERSION,
+                    .cCreds = 1,
+                    .paCred = const_cast<PCCERT_CONTEXT*>(&serverCertificate)};
             }};
         Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
 
@@ -216,10 +223,13 @@ clientRejectsServerSettingTrustedRootCertificates(Test::TestHelper* helper, cons
     try
     {
         Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
-            .serverCertificateSelectionCallback = [serverCertificate](const string&)
+            .serverCredentialsSelectionCallback = [serverCertificate](const string&)
             {
                 CertDuplicateCertificateContext(serverCertificate);
-                return serverCertificate;
+                return SCHANNEL_CRED{
+                    .dwVersion = SCHANNEL_CRED_VERSION,
+                    .cCreds = 1,
+                    .paCred = const_cast<PCCERT_CONTEXT*>(&serverCertificate)};
             }};
         Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
 
@@ -257,10 +267,13 @@ clientRejectsServerUsingDefaultTrustedRootCertificates(Test::TestHelper* helper,
     try
     {
         Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
-            .serverCertificateSelectionCallback = [serverCertificate](const string&)
+            .serverCredentialsSelectionCallback = [serverCertificate](const string&)
             {
                 CertDuplicateCertificateContext(serverCertificate);
-                return serverCertificate;
+                return SCHANNEL_CRED{
+                    .dwVersion = SCHANNEL_CRED_VERSION,
+                    .cCreds = 1,
+                    .paCred = const_cast<PCCERT_CONTEXT*>(&serverCertificate)};
             }};
         Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
 
@@ -299,10 +312,13 @@ clientRejectsServerUsingValidationCallback(Test::TestHelper* helper, const strin
     try
     {
         Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
-            .serverCertificateSelectionCallback = [serverCertificate](const string&)
+            .serverCredentialsSelectionCallback = [serverCertificate](const string&)
             {
                 CertDuplicateCertificateContext(serverCertificate);
-                return serverCertificate;
+                return SCHANNEL_CRED{
+                    .dwVersion = SCHANNEL_CRED_VERSION,
+                    .cCreds = 1,
+                    .paCred = const_cast<PCCERT_CONTEXT*>(&serverCertificate)};
             }};
         Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
 
@@ -344,22 +360,28 @@ serverValidatesClientSettingTrustedRootCertificates(Test::TestHelper* helper, co
     try
     {
         Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
-            .serverCertificateSelectionCallback =
+            .serverCredentialsSelectionCallback =
                 [serverCertificate](const string&)
             {
                 CertDuplicateCertificateContext(serverCertificate);
-                return serverCertificate;
+                return SCHANNEL_CRED{
+                    .dwVersion = SCHANNEL_CRED_VERSION,
+                    .cCreds = 1,
+                    .paCred = const_cast<PCCERT_CONTEXT*>(&serverCertificate)};
             },
             .clientCertificateRequired = true,
             .trustedRootCertificates = trustedRootCertificates};
         Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
 
         Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
-            .clientCertificateSelectionCallback =
+            .clientCredentialsSelectionCallback =
                 [clientCertificate](const string&)
             {
                 CertDuplicateCertificateContext(clientCertificate);
-                return clientCertificate;
+                return SCHANNEL_CRED{
+                    .dwVersion = SCHANNEL_CRED_VERSION,
+                    .cCreds = 1,
+                    .paCred = const_cast<PCCERT_CONTEXT*>(&clientCertificate)};
             },
             .trustedRootCertificates = trustedRootCertificates};
         Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
@@ -394,11 +416,14 @@ serverValidatesClientUsingValidationCallback(Test::TestHelper* helper, const str
     try
     {
         Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
-            .serverCertificateSelectionCallback =
+            .serverCredentialsSelectionCallback =
                 [serverCertificate](const string&)
             {
                 CertDuplicateCertificateContext(serverCertificate);
-                return serverCertificate;
+                return SCHANNEL_CRED{
+                    .dwVersion = SCHANNEL_CRED_VERSION,
+                    .cCreds = 1,
+                    .paCred = const_cast<PCCERT_CONTEXT*>(&serverCertificate)};
             },
             .clientCertificateRequired = true,
             // The server CA doesn't trust the client certificate.
@@ -408,11 +433,14 @@ serverValidatesClientUsingValidationCallback(Test::TestHelper* helper, const str
 
         Ice::CommunicatorHolder clientCommunicator(initialize(Ice::InitializationData{
             .clientAuthenticationOptions = Ice::SSL::ClientAuthenticationOptions{
-                .clientCertificateSelectionCallback =
+                .clientCredentialsSelectionCallback =
                     [clientCertificate](const string&)
                 {
                     CertDuplicateCertificateContext(clientCertificate);
-                    return clientCertificate;
+                    return SCHANNEL_CRED{
+                        .dwVersion = SCHANNEL_CRED_VERSION,
+                        .cCreds = 1,
+                        .paCred = const_cast<PCCERT_CONTEXT*>(&clientCertificate)};
                 },
                 .trustedRootCertificates = clientRootCertificates}}));
 
@@ -450,11 +478,14 @@ serverRejectsClientSettingTrustedRootCertificates(Test::TestHelper* helper, cons
     try
     {
         Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
-            .serverCertificateSelectionCallback =
+            .serverCredentialsSelectionCallback =
                 [serverCertificate](const string&)
             {
                 CertDuplicateCertificateContext(serverCertificate);
-                return serverCertificate;
+                return SCHANNEL_CRED{
+                    .dwVersion = SCHANNEL_CRED_VERSION,
+                    .cCreds = 1,
+                    .paCred = const_cast<PCCERT_CONTEXT*>(&serverCertificate)};
             },
             .clientCertificateRequired = true,
             // The server CA doesn't trust the client certificate.
@@ -463,11 +494,14 @@ serverRejectsClientSettingTrustedRootCertificates(Test::TestHelper* helper, cons
 
         Ice::CommunicatorHolder clientCommunicator(initialize(Ice::InitializationData{
             .clientAuthenticationOptions = Ice::SSL::ClientAuthenticationOptions{
-                .clientCertificateSelectionCallback =
+                .clientCredentialsSelectionCallback =
                     [clientCertificate](const string&)
                 {
                     CertDuplicateCertificateContext(clientCertificate);
-                    return clientCertificate;
+                    return SCHANNEL_CRED{
+                        .dwVersion = SCHANNEL_CRED_VERSION,
+                        .cCreds = 1,
+                        .paCred = const_cast<PCCERT_CONTEXT*>(&clientCertificate)};
                 },
                 .trustedRootCertificates = clientRootCertificates}}));
 
@@ -511,11 +545,14 @@ serverRejectsClientUsingDefaultTrustedRootCertificates(Test::TestHelper* helper,
         // No trusted root certificates are set on the server, it would use the system trusted root
         // certificates.
         Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
-            .serverCertificateSelectionCallback =
+            .serverCredentialsSelectionCallback =
                 [serverCertificate](const string&)
             {
                 CertDuplicateCertificateContext(serverCertificate);
-                return serverCertificate;
+                return SCHANNEL_CRED{
+                    .dwVersion = SCHANNEL_CRED_VERSION,
+                    .cCreds = 1,
+                    .paCred = const_cast<PCCERT_CONTEXT*>(&serverCertificate)};
             },
             .clientCertificateRequired = true,
         };
@@ -523,11 +560,14 @@ serverRejectsClientUsingDefaultTrustedRootCertificates(Test::TestHelper* helper,
 
         Ice::CommunicatorHolder clientCommunicator(initialize(Ice::InitializationData{
             .clientAuthenticationOptions = Ice::SSL::ClientAuthenticationOptions{
-                .clientCertificateSelectionCallback =
+                .clientCredentialsSelectionCallback =
                     [clientCertificate](const string&)
                 {
                     CertDuplicateCertificateContext(clientCertificate);
-                    return clientCertificate;
+                    return SCHANNEL_CRED{
+                        .dwVersion = SCHANNEL_CRED_VERSION,
+                        .cCreds = 1,
+                        .paCred = const_cast<PCCERT_CONTEXT*>(&clientCertificate)};
                 },
                 .trustedRootCertificates = trustedRootCertificates}}));
 
@@ -567,11 +607,14 @@ serverRejectsClientUsingValidationCallback(Test::TestHelper* helper, const strin
         // The server configured trusted root certificates, trust the client certificate, but the validation
         // callback rejects the client certificate.
         Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
-            .serverCertificateSelectionCallback =
+            .serverCredentialsSelectionCallback =
                 [serverCertificate](const string&)
             {
                 CertDuplicateCertificateContext(serverCertificate);
-                return serverCertificate;
+                return SCHANNEL_CRED{
+                    .dwVersion = SCHANNEL_CRED_VERSION,
+                    .cCreds = 1,
+                    .paCred = const_cast<PCCERT_CONTEXT*>(&serverCertificate)};
             },
             .clientCertificateRequired = true,
             .trustedRootCertificates = trustedRootCertificates,
@@ -581,11 +624,14 @@ serverRejectsClientUsingValidationCallback(Test::TestHelper* helper, const strin
 
         Ice::CommunicatorHolder clientCommunicator(initialize(Ice::InitializationData{
             .clientAuthenticationOptions = Ice::SSL::ClientAuthenticationOptions{
-                .clientCertificateSelectionCallback =
+                .clientCredentialsSelectionCallback =
                     [clientCertificate](const string&)
                 {
                     CertDuplicateCertificateContext(clientCertificate);
-                    return clientCertificate;
+                    return SCHANNEL_CRED{
+                        .dwVersion = SCHANNEL_CRED_VERSION,
+                        .cCreds = 1,
+                        .paCred = const_cast<PCCERT_CONTEXT*>(&clientCertificate)};
                 },
                 .trustedRootCertificates = trustedRootCertificates}}));
 
@@ -655,11 +701,14 @@ serverHotCertificateReload(Test::TestHelper* helper, const string& certificatesP
     try
     {
         Ice::SSL::ServerAuthenticationOptions serverAuthenticationOptions{
-            .serverCertificateSelectionCallback = [&serverState](const string&)
+            .serverCredentialsSelectionCallback = [&serverState](const string&)
             {
                 PCCERT_CONTEXT certificateContext = serverState.serverCertificateContext();
                 CertDuplicateCertificateContext(certificateContext);
-                return certificateContext;
+                return SCHANNEL_CRED{
+                    .dwVersion = SCHANNEL_CRED_VERSION,
+                    .cCreds = 1,
+                    .paCred = const_cast<PCCERT_CONTEXT*>(&certificateContext)};
             }};
         Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
 
@@ -734,7 +783,7 @@ serverHotCertificateReload(Test::TestHelper* helper, const string& certificatesP
 void
 allAuthenticationOptionsTests(Test::TestHelper* helper, const string& testDir)
 {
-    cerr << "testing with Schannel native APIs..." << endl;
+    cout << "testing with Schannel native APIs..." << endl;
 
     const string certificatesPath = testDir + "/../certs";
 
