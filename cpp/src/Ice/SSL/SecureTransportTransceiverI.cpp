@@ -108,7 +108,8 @@ Ice::SSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuf
         _ssl.reset(_engine->newContext(_incoming));
 
         // Enable SNI by default for outgoing connections. The SNI host name is always empty for incoming connections.
-        if (!_host.empty() && (err = SSLSetPeerDomainName(_ssl.get(), _host.data(), _host.length())))
+        if (!_host.empty() && !IceInternal::isIpAddress(_host) &&
+            (err = SSLSetPeerDomainName(_ssl.get(), _host.data(), _host.length())))
         {
             throw SecurityException(
                 __FILE__,
