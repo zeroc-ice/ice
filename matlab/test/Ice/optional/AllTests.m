@@ -196,7 +196,6 @@ classdef AllTests
             mo6.fs = mo5.fs;
             mo6.shs = mo5.shs;
             mo6.fss = mo5.fss;
-            mo6.oos = mo5.oos;
             mo6.ifsd = mo5.ifsd;
             mo6.bos = mo5.bos;
 

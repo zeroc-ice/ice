@@ -248,9 +248,11 @@ interface Initial
     optional(1) FixedStructList opFixedStructList(optional(2) FixedStructList p1,
                                                                     out optional(3) FixedStructList p3);
 
-    optional(1) VarStructSeq opVarStructSeq(optional(2) VarStructSeq p1, out optional(3) VarStructSeq p3);
+    optional(1) VarStructSeq opVarStructSeq(optional(2) VarStructSeq p1,
+                                                              out optional(3) VarStructSeq p3);
 
-    optional(1) Serializable opSerializable(optional(2) Serializable p1, out optional(3) Serializable p3);
+    optional(1) Serializable opSerializable(optional(2) Serializable p1,
+                                                              out optional(3) Serializable p3);
 
     optional(1) IntIntDict opIntIntDict(optional(2) IntIntDict p1, out optional(3) IntIntDict p3);
 
