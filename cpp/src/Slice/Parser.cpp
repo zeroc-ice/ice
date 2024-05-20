@@ -437,7 +437,7 @@ Slice::Builtin::minWireSize() const
 }
 
 string
-Slice::Builtin::getTagFormat() const
+Slice::Builtin::getOptionalFormat() const
 {
     switch (_kind)
     {
@@ -460,7 +460,7 @@ Slice::Builtin::getTagFormat() const
         case KindObjectProxy:
             return "FSize";
         default:
-            throw logic_error("no tag format");
+            throw logic_error("no optional format");
     }
 }
 
@@ -2830,7 +2830,7 @@ Slice::ClassDecl::minWireSize() const
 }
 
 string
-Slice::ClassDecl::getTagFormat() const
+Slice::ClassDecl::getOptionalFormat() const
 {
     return "Class";
 }
@@ -3200,7 +3200,7 @@ Slice::InterfaceDecl::minWireSize() const
 }
 
 string
-Slice::InterfaceDecl::getTagFormat() const
+Slice::InterfaceDecl::getOptionalFormat() const
 {
     return "FSize"; // with the 1.1 encoding, the size of a proxy is encoded using a fixed-length size
 }
@@ -3409,7 +3409,7 @@ OperationPtr
 Slice::InterfaceDef::createOperation(
     const string& name,
     const TypePtr& returnType,
-    bool tagged,
+    bool optional,
     int tag,
     Operation::Mode mode)
 {
@@ -3481,7 +3481,7 @@ Slice::InterfaceDef::createOperation(
         dynamic_pointer_cast<Container>(shared_from_this()),
         name,
         returnType,
-        tagged,
+        optional,
         tag,
         mode);
     op->init();
@@ -4048,7 +4048,7 @@ Slice::Struct::classDataMembers() const
 }
 
 string
-Slice::Struct::getTagFormat() const
+Slice::Struct::getOptionalFormat() const
 {
     return isVariableLength() ? "FSize" : "VSize";
 }
@@ -4182,7 +4182,7 @@ Slice::Sequence::isVariableLength() const
 }
 
 string
-Slice::Sequence::getTagFormat() const
+Slice::Sequence::getOptionalFormat() const
 {
     return _type->isVariableLength() ? "FSize" : "VSize";
 }
@@ -4260,7 +4260,7 @@ Slice::Dictionary::minWireSize() const
 }
 
 string
-Slice::Dictionary::getTagFormat() const
+Slice::Dictionary::getOptionalFormat() const
 {
     return _keyType->isVariableLength() || _valueType->isVariableLength() ? "FSize" : "VSize";
 }
@@ -4415,7 +4415,7 @@ Slice::Enum::minWireSize() const
 }
 
 string
-Slice::Enum::getTagFormat() const
+Slice::Enum::getOptionalFormat() const
 {
     return "Size";
 }

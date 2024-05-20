@@ -24,7 +24,7 @@ namespace Slice
     class InterfaceListTok;
     class EnumeratorListTok;
     class ConstDefTok;
-    class TaggedDefTok;
+    class OptionalDefTok;
     class ClassIdTok;
 
     using StringTokPtr = std::shared_ptr<StringTok>;
@@ -39,7 +39,7 @@ namespace Slice
     using InterfaceListTokPtr = std::shared_ptr<InterfaceListTok>;
     using EnumeratorListTokPtr = std::shared_ptr<EnumeratorListTok>;
     using ConstDefTokPtr = std::shared_ptr<ConstDefTok>;
-    using TaggedDefTokPtr = std::shared_ptr<TaggedDefTok>;
+    using OptionalDefTokPtr = std::shared_ptr<OptionalDefTok>;
     using ClassIdTokPtr = std::shared_ptr<ClassIdTok>;
 
     // ----------------------------------------------------------------------
@@ -187,19 +187,19 @@ namespace Slice
     };
 
     // ----------------------------------------------------------------------
-    // TaggedDefTok
+    // OptionalDefTok
     // ----------------------------------------------------------------------
 
-    class TaggedDefTok : public GrammarBase
+    class OptionalDefTok : public GrammarBase
     {
     public:
-        TaggedDefTok() : isTagged(false), tag(0) {}
+        OptionalDefTok() : isOptional(false), tag(0) {}
 
-        TaggedDefTok(int t) : isTagged(t >= 0), tag(t) {}
+        OptionalDefTok(int t) : isOptional(t >= 0), tag(t) {}
 
         TypePtr type;
         std::string name;
-        bool isTagged;
+        bool isOptional;
         int tag;
     };
 
