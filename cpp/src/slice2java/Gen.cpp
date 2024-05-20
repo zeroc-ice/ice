@@ -2755,7 +2755,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     Output& out = output();
     CommentPtr dc = p->parseComment(false);
 
-    bool hasOptionals = false; // currently with the meaning "tagged"
+    bool hasOptionals = false;
     for (const auto& op : p->allOperations())
     {
         if (op->returnIsOptional())

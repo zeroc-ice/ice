@@ -561,7 +561,7 @@ optional
         tag = static_cast<int>(i->v);
     }
 
-    auto m = make_shared<TaggedDefTok>(tag);
+    auto m = make_shared<OptionalDefTok>(tag);
     $$ = m;
 }
 | ICE_OPTIONAL_OPEN scoped_name ')'
@@ -639,29 +639,29 @@ optional
         currentUnit->error("invalid tag `" + scoped->v + "'");
     }
 
-    auto m = make_shared<TaggedDefTok>(tag);
+    auto m = make_shared<OptionalDefTok>(tag);
     $$ = m;
 }
 | ICE_OPTIONAL_OPEN ')'
 {
     currentUnit->error("missing tag");
-    auto m = make_shared<TaggedDefTok>(-1); // Dummy
+    auto m = make_shared<OptionalDefTok>(-1); // Dummy
     $$ = m;
 }
 | ICE_OPTIONAL
 {
     currentUnit->error("missing tag");
-    auto m = make_shared<TaggedDefTok>(-1); // Dummy
+    auto m = make_shared<OptionalDefTok>(-1); // Dummy
     $$ = m;
 }
 ;
 
 // ----------------------------------------------------------------------
-tagged_type_id
+optional_type_id
 // ----------------------------------------------------------------------
 : optional type_id
 {
-    auto m = dynamic_pointer_cast<TaggedDefTok>($1);
+    auto m = dynamic_pointer_cast<OptionalDefTok>($1);
     auto ts = dynamic_pointer_cast<TypeStringTok>($2);
 
     m->type = ts->v.first;
@@ -671,7 +671,7 @@ tagged_type_id
 | type_id
 {
     auto ts = dynamic_pointer_cast<TypeStringTok>($1);
-    auto m = make_shared<TaggedDefTok>(-1);
+    auto m = make_shared<OptionalDefTok>(-1);
     m->type = ts->v.first;
     m->name = ts->v.second;
     $$ = m;
@@ -1011,21 +1011,21 @@ data_members
 // ----------------------------------------------------------------------
 data_member
 // ----------------------------------------------------------------------
-: tagged_type_id
+: optional_type_id
 {
-    auto def = dynamic_pointer_cast<TaggedDefTok>($1);
+    auto def = dynamic_pointer_cast<OptionalDefTok>($1);
     auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer());
     DataMemberPtr dm;
     if (cl)
     {
-        dm = cl->createDataMember(def->name, def->type, def->isTagged, def->tag, 0, "", "");
+        dm = cl->createDataMember(def->name, def->type, def->isOptional, def->tag, 0, "", "");
     }
     auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
     if (st)
     {
-        if (def->isTagged)
+        if (def->isOptional)
         {
-            currentUnit->error("tagged data members are not supported in structs");
+            currentUnit->error("optional data members are not supported in structs");
             dm = st->createDataMember(def->name, def->type, false, 0, 0, "", ""); // Dummy
         }
         else
@@ -1036,28 +1036,28 @@ data_member
     auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
     if (ex)
     {
-        dm = ex->createDataMember(def->name, def->type, def->isTagged, def->tag, 0, "", "");
+        dm = ex->createDataMember(def->name, def->type, def->isOptional, def->tag, 0, "", "");
     }
     currentUnit->currentContainer()->checkIntroduced(def->name, dm);
     $$ = dm;
 }
-| tagged_type_id '=' const_initializer
+| optional_type_id '=' const_initializer
 {
-    auto def = dynamic_pointer_cast<TaggedDefTok>($1);
+    auto def = dynamic_pointer_cast<OptionalDefTok>($1);
     auto value = dynamic_pointer_cast<ConstDefTok>($3);
     auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer());
     DataMemberPtr dm;
     if (cl)
     {
-        dm = cl->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
+        dm = cl->createDataMember(def->name, def->type, def->isOptional, def->tag, value->v,
                                   value->valueAsString, value->valueAsLiteral);
     }
     auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
     if (st)
     {
-        if (def->isTagged)
+        if (def->isOptional)
         {
-            currentUnit->error("tagged data members are not supported in structs");
+            currentUnit->error("optional data members are not supported in structs");
             dm = st->createDataMember(def->name, def->type, false, 0, 0, "", ""); // Dummy
         }
         else
@@ -1069,7 +1069,7 @@ data_member
     auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
     if (ex)
     {
-        dm = ex->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
+        dm = ex->createDataMember(def->name, def->type, def->isOptional, def->tag, value->v,
                                   value->valueAsString, value->valueAsLiteral);
     }
     currentUnit->currentContainer()->checkIntroduced(def->name, dm);
@@ -1125,19 +1125,19 @@ return_type
 // ----------------------------------------------------------------------
 : optional type
 {
-    auto m = dynamic_pointer_cast<TaggedDefTok>($1);
+    auto m = dynamic_pointer_cast<OptionalDefTok>($1);
     m->type = dynamic_pointer_cast<Type>($2);
     $$ = m;
 }
 | type
 {
-    auto m = make_shared<TaggedDefTok>(-1);
+    auto m = make_shared<OptionalDefTok>(-1);
     m->type = dynamic_pointer_cast<Type>($1);
     $$ = m;
 }
 | ICE_VOID
 {
-    auto m = make_shared<TaggedDefTok>(-1);
+    auto m = make_shared<OptionalDefTok>(-1);
     $$ = m;
 }
 ;
@@ -1147,12 +1147,12 @@ operation_preamble
 // ----------------------------------------------------------------------
 : return_type ICE_IDENT_OPEN
 {
-    auto returnType = dynamic_pointer_cast<TaggedDefTok>($1);
+    auto returnType = dynamic_pointer_cast<OptionalDefTok>($1);
     string name = dynamic_pointer_cast<StringTok>($2)->v;
     auto interface = dynamic_pointer_cast<InterfaceDef>(currentUnit->currentContainer());
     if (interface)
     {
-        OperationPtr op = interface->createOperation(name, returnType->type, returnType->isTagged, returnType->tag);
+        OperationPtr op = interface->createOperation(name, returnType->type, returnType->isOptional, returnType->tag);
         if (op)
         {
             interface->checkIntroduced(name, op);
@@ -1171,7 +1171,7 @@ operation_preamble
 }
 | ICE_IDEMPOTENT return_type ICE_IDENT_OPEN
 {
-    auto returnType = dynamic_pointer_cast<TaggedDefTok>($2);
+    auto returnType = dynamic_pointer_cast<OptionalDefTok>($2);
     string name = dynamic_pointer_cast<StringTok>($3)->v;
     auto interface = dynamic_pointer_cast<InterfaceDef>(currentUnit->currentContainer());
     if (interface)
@@ -1179,7 +1179,7 @@ operation_preamble
         OperationPtr op = interface->createOperation(
             name,
             returnType->type,
-            returnType->isTagged,
+            returnType->isOptional,
             returnType->tag,
             Operation::Idempotent);
 
@@ -1201,12 +1201,12 @@ operation_preamble
 }
 | return_type ICE_KEYWORD_OPEN
 {
-    auto returnType = dynamic_pointer_cast<TaggedDefTok>($1);
+    auto returnType = dynamic_pointer_cast<OptionalDefTok>($1);
     string name = dynamic_pointer_cast<StringTok>($2)->v;
     auto interface = dynamic_pointer_cast<InterfaceDef>(currentUnit->currentContainer());
     if (interface)
     {
-        OperationPtr op = interface->createOperation(name, returnType->type, returnType->isTagged, returnType->tag);
+        OperationPtr op = interface->createOperation(name, returnType->type, returnType->isOptional, returnType->tag);
         if (op)
         {
             currentUnit->pushContainer(op);
@@ -1225,7 +1225,7 @@ operation_preamble
 }
 | ICE_IDEMPOTENT return_type ICE_KEYWORD_OPEN
 {
-    auto returnType = dynamic_pointer_cast<TaggedDefTok>($2);
+    auto returnType = dynamic_pointer_cast<OptionalDefTok>($2);
     string name = dynamic_pointer_cast<StringTok>($3)->v;
     auto interface = dynamic_pointer_cast<InterfaceDef>(currentUnit->currentContainer());
     if (interface)
@@ -1233,7 +1233,7 @@ operation_preamble
         OperationPtr op = interface->createOperation(
             name,
             returnType->type,
-            returnType->isTagged,
+            returnType->isOptional,
             returnType->tag,
             Operation::Idempotent);
         if (op)
@@ -1768,14 +1768,14 @@ parameters
 : %empty
 {
 }
-| out_qualifier meta_data tagged_type_id
+| out_qualifier meta_data optional_type_id
 {
     auto isOutParam = dynamic_pointer_cast<BoolTok>($1);
-    auto tsp = dynamic_pointer_cast<TaggedDefTok>($3);
+    auto tsp = dynamic_pointer_cast<OptionalDefTok>($3);
     auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
     if (op)
     {
-        ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->isTagged, tsp->tag);
+        ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->isOptional, tsp->tag);
         currentUnit->currentContainer()->checkIntroduced(tsp->name, pd);
         auto metaData = dynamic_pointer_cast<StringListTok>($2);
         if (!metaData->v.empty())
@@ -1784,14 +1784,14 @@ parameters
         }
     }
 }
-| parameters ',' out_qualifier meta_data tagged_type_id
+| parameters ',' out_qualifier meta_data optional_type_id
 {
     auto isOutParam = dynamic_pointer_cast<BoolTok>($3);
-    auto tsp = dynamic_pointer_cast<TaggedDefTok>($5);
+    auto tsp = dynamic_pointer_cast<OptionalDefTok>($5);
     auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
     if (op)
     {
-        ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->isTagged, tsp->tag);
+        ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->isOptional, tsp->tag);
         currentUnit->currentContainer()->checkIntroduced(tsp->name, pd);
         auto metaData = dynamic_pointer_cast<StringListTok>($4);
         if (!metaData->v.empty())

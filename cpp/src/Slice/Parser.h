@@ -318,7 +318,7 @@ namespace Slice
         virtual std::string typeId() const = 0;
         virtual bool usesClasses() const = 0;
         virtual size_t minWireSize() const = 0;
-        virtual std::string getTagFormat() const = 0;
+        virtual std::string getOptionalFormat() const = 0;
         virtual bool isVariableLength() const = 0;
     };
 
@@ -349,7 +349,7 @@ namespace Slice
         virtual std::string typeId() const;
         virtual bool usesClasses() const;
         virtual size_t minWireSize() const;
-        virtual std::string getTagFormat() const;
+        virtual std::string getOptionalFormat() const;
         virtual bool isVariableLength() const;
 
         bool isNumericType() const;
@@ -558,7 +558,7 @@ namespace Slice
         virtual ContainedType containedType() const;
         virtual bool usesClasses() const;
         virtual size_t minWireSize() const;
-        virtual std::string getTagFormat() const;
+        virtual std::string getOptionalFormat() const;
         virtual bool isVariableLength() const;
         virtual void visit(ParserVisitor*, bool);
         virtual std::string kindOf() const;
@@ -635,7 +635,7 @@ namespace Slice
         virtual ContainedType containedType() const;
         virtual bool usesClasses() const;
         virtual size_t minWireSize() const;
-        virtual std::string getTagFormat() const;
+        virtual std::string getOptionalFormat() const;
         virtual bool isVariableLength() const;
         virtual void visit(ParserVisitor*, bool);
         virtual std::string kindOf() const;
@@ -813,7 +813,7 @@ namespace Slice
         virtual ContainedType containedType() const;
         virtual bool usesClasses() const;
         virtual size_t minWireSize() const;
-        virtual std::string getTagFormat() const;
+        virtual std::string getOptionalFormat() const;
         virtual bool isVariableLength() const;
         bool hasDefaultValues() const;
         virtual std::string kindOf() const;
@@ -835,7 +835,7 @@ namespace Slice
         virtual ContainedType containedType() const;
         virtual bool usesClasses() const;
         virtual size_t minWireSize() const;
-        virtual std::string getTagFormat() const;
+        virtual std::string getOptionalFormat() const;
         virtual bool isVariableLength() const;
         virtual std::string kindOf() const;
         virtual void visit(ParserVisitor*, bool);
@@ -868,7 +868,7 @@ namespace Slice
         virtual ContainedType containedType() const;
         virtual bool usesClasses() const;
         virtual size_t minWireSize() const;
-        virtual std::string getTagFormat() const;
+        virtual std::string getOptionalFormat() const;
         virtual bool isVariableLength() const;
         virtual std::string kindOf() const;
         virtual void visit(ParserVisitor*, bool);
@@ -899,7 +899,7 @@ namespace Slice
         virtual ContainedType containedType() const;
         virtual bool usesClasses() const;
         virtual size_t minWireSize() const;
-        virtual std::string getTagFormat() const;
+        virtual std::string getOptionalFormat() const;
         virtual bool isVariableLength() const;
         virtual std::string kindOf() const;
         virtual void visit(ParserVisitor*, bool);
