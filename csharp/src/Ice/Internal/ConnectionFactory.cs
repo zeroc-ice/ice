@@ -1213,10 +1213,6 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
 
         lock (this)
         {
-            if (_transceiver != null)
-            {
-                Debug.Assert(_connections.Count <= 1); // The connection isn't monitored or reaped.
-            }
             _connections.Clear();
         }
     }
