@@ -93,7 +93,7 @@ public sealed class Communicator : IDisposable
     /// <returns>The proxy, or null if str is an empty string.</returns>
     public ObjectPrx? stringToProxy(string str)
     {
-        Reference reference = instance.referenceFactory().create(str, "");
+        Reference? reference = instance.referenceFactory().create(str, "");
         return reference is not null ? new ObjectPrxHelper(reference) : null;
     }
 
