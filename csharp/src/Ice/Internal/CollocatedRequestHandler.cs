@@ -6,18 +6,17 @@ namespace Ice.Internal;
 
 public class CollocatedRequestHandler : RequestHandler
 {
-    private static void
-    fillInValue(Ice.OutputStream os, int pos, int value)
+    private static void fillInValue(Ice.OutputStream os, int pos, int value)
     {
         os.rewriteInt(value, pos);
     }
 
     public
-    CollocatedRequestHandler(Reference @ref, Ice.ObjectAdapter adapter)
+    CollocatedRequestHandler(Reference reference, Ice.ObjectAdapter adapter)
     {
-        _reference = @ref;
+        _reference = reference;
         _executor = _reference.getInstance().initializationData().executor != null;
-        _response = _reference.getMode() == Reference.Mode.ModeTwoway;
+        _response = _reference.isTwoway;
         _adapter = (Ice.ObjectAdapterI)adapter;
 
         _logger = _reference.getInstance().initializationData().logger; // Cached for better performance.
@@ -25,15 +24,7 @@ public class CollocatedRequestHandler : RequestHandler
         _requestId = 0;
     }
 
-    public RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler)
-    {
-        return previousHandler == this ? newHandler : this;
-    }
-
-    public int sendAsyncRequest(ProxyOutgoingAsyncBase outAsync)
-    {
-        return outAsync.invokeCollocated(this);
-    }
+    public int sendAsyncRequest(ProxyOutgoingAsyncBase outAsync) => outAsync.invokeCollocated(this);
 
     public void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
     {
@@ -74,17 +65,7 @@ public class CollocatedRequestHandler : RequestHandler
         }
     }
 
-    public Reference
-    getReference()
-    {
-        return _reference;
-    }
-
-    public Ice.ConnectionI
-    getConnection()
-    {
-        return null;
-    }
+    public ConnectionI getConnection() => null;
 
     public int invokeAsyncRequest(OutgoingAsyncBase outAsync, int batchRequestCount, bool synchronous)
     {

@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 using System.Diagnostics;
+using System.Globalization;
 using System.Text;
 
 namespace Ice.Internal;
@@ -111,20 +112,6 @@ public sealed class Instance
 
             Debug.Assert(_referenceFactory != null);
             return _referenceFactory;
-        }
-    }
-
-    public RequestHandlerFactory requestHandlerFactory()
-    {
-        lock (this)
-        {
-            if (_state == StateDestroyed)
-            {
-                throw new Ice.CommunicatorDestroyedException();
-            }
-
-            Debug.Assert(_requestHandlerFactory != null);
-            return _requestHandlerFactory;
         }
     }
 
@@ -851,8 +838,6 @@ public sealed class Instance
 
             _proxyFactory = new ProxyFactory(this);
 
-            _requestHandlerFactory = new RequestHandlerFactory(this);
-
             bool isIPv6Supported = Network.isIPv6Supported();
             bool ipv4 = _initData.properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
             bool ipv6 = _initData.properties.getPropertyAsIntWithDefault("Ice.IPv6", isIPv6Supported ? 1 : 0) > 0;
@@ -907,6 +892,41 @@ public sealed class Instance
             _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 
             _retryQueue = new RetryQueue(this);
+
+            string[] retryValues = _initData.properties.getIcePropertyAsList("Ice.RetryIntervals");
+            if (retryValues.Length == 0)
+            {
+                retryIntervals = [0];
+            }
+            else
+            {
+                retryIntervals = new int[retryValues.Length];
+
+                for (int i = 0; i < retryValues.Length; i++)
+                {
+                    int v;
+
+                    try
+                    {
+                        v = int.Parse(retryValues[i], CultureInfo.InvariantCulture);
+                    }
+                    catch (System.FormatException)
+                    {
+                        v = 0;
+                    }
+
+                    //
+                    // If -1 is the first value, no retry and wait intervals.
+                    //
+                    if (i == 0 && v == -1)
+                    {
+                        retryIntervals = [];
+                        break;
+                    }
+
+                    retryIntervals[i] = v > 0 ? v : 0;
+                }
+            }
 
             if (_initData.properties.getIcePropertyAsInt("Ice.PreloadAssemblies") > 0)
             {
@@ -1276,7 +1296,6 @@ public sealed class Instance
             _timer = null;
 
             _referenceFactory = null;
-            _requestHandlerFactory = null;
             _proxyFactory = null;
             _routerManager = null;
             _locatorManager = null;
@@ -1461,6 +1480,8 @@ public sealed class Instance
 
     internal IActivator getActivator() => _activator.Value;
 
+    internal int[] retryIntervals { get; private set; }
+
     private NetworkProxy createNetworkProxy(Ice.Properties props, int protocolSupport)
     {
         string proxyHost;
@@ -1509,7 +1530,6 @@ public sealed class Instance
     private RouterManager _routerManager;
     private LocatorManager _locatorManager;
     private ReferenceFactory _referenceFactory;
-    private RequestHandlerFactory _requestHandlerFactory;
     private ProxyFactory _proxyFactory;
     private OutgoingConnectionFactory _outgoingConnectionFactory;
     private ObjectAdapterFactory _objectAdapterFactory;

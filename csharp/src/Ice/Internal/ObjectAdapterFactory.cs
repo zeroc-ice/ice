@@ -211,7 +211,7 @@ public sealed class ObjectAdapterFactory
         return adapter;
     }
 
-    public Ice.ObjectAdapter findObjectAdapter(Ice.ObjectPrx proxy)
+    public Ice.ObjectAdapter findObjectAdapter(Reference reference)
     {
         List<Ice.ObjectAdapterI> adapters;
         lock (this)
@@ -228,7 +228,7 @@ public sealed class ObjectAdapterFactory
         {
             try
             {
-                if (adapter.isLocal(proxy))
+                if (adapter.isLocal(reference))
                 {
                     return adapter;
                 }

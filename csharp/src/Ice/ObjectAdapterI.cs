@@ -621,14 +621,13 @@ public sealed class ObjectAdapterI : ObjectAdapter
         }
     }
 
-    public bool isLocal(ObjectPrx proxy)
+    public bool isLocal(Reference r)
     {
         //
         // NOTE: it's important that isLocal() doesn't perform any blocking operations as
         // it can be called for AMI invocations if the proxy has no delegate set yet.
         //
 
-        Reference r = ((ObjectPrxHelperBase)proxy).iceReference();
         if (r.isWellKnown())
         {
             //

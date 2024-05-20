@@ -50,7 +50,8 @@ internal sealed class CommunicatorI : Communicator
 
     public ObjectPrx stringToProxy(string s)
     {
-        return _instance.proxyFactory().stringToProxy(s);
+        Reference reference = _instance.referenceFactory().create(s, "");
+        return reference is not null ? new ObjectPrxHelper(reference) : null;
     }
 
     public string proxyToString(ObjectPrx proxy)

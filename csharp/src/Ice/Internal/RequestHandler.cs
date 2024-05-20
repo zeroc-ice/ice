@@ -9,11 +9,7 @@ public interface CancellationHandler
 
 public interface RequestHandler : CancellationHandler
 {
-    RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler);
-
     int sendAsyncRequest(ProxyOutgoingAsyncBase @out);
 
-    Reference getReference();
-
-    Ice.ConnectionI getConnection();
+    ConnectionI getConnection();
 }

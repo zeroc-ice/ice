@@ -1,64 +1,29 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 namespace Ice.Internal;
 
 public class ConnectionRequestHandler : RequestHandler
 {
-    public RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler)
-    {
-        try
-        {
-            if (previousHandler == this)
-            {
-                return newHandler;
-            }
-            else if (previousHandler.getConnection() == _connection)
-            {
-                //
-                // If both request handlers point to the same connection, we also
-                // update the request handler. See bug ICE-5489 for reasons why
-                // this can be useful.
-                //
-                return newHandler;
-            }
-        }
-        catch (Ice.Exception)
-        {
-            // Ignore
-        }
-        return this;
-    }
+    private readonly Reference _reference;
+    private readonly bool _response;
+    private readonly Ice.ConnectionI _connection;
+    private readonly bool _compress;
 
-    public int sendAsyncRequest(ProxyOutgoingAsyncBase outAsync)
-    {
-        return outAsync.invokeRemote(_connection, _compress, _response);
-    }
+    public int sendAsyncRequest(ProxyOutgoingAsyncBase outAsync) =>
+        outAsync.invokeRemote(_connection, _compress, _response);
 
-    public void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
-    {
+    public void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex) =>
         _connection.asyncRequestCanceled(outAsync, ex);
-    }
 
-    public Reference getReference()
-    {
-        return _reference;
-    }
+    public ConnectionI? getConnection() => _connection;
 
-    public Ice.ConnectionI getConnection()
+    public ConnectionRequestHandler(Reference reference, Ice.ConnectionI connection, bool compress)
     {
-        return _connection;
-    }
-
-    public ConnectionRequestHandler(Reference @ref, Ice.ConnectionI connection, bool compress)
-    {
-        _reference = @ref;
-        _response = _reference.getMode() == Reference.Mode.ModeTwoway;
+        _reference = reference;
+        _response = _reference.isTwoway;
         _connection = connection;
         _compress = compress;
     }
-
-    private Reference _reference;
-    private bool _response;
-    private Ice.ConnectionI _connection;
-    private bool _compress;
 }

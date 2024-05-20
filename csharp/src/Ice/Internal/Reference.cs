@@ -24,6 +24,12 @@ public abstract class Reference : IEquatable<Reference>
         void setException(Ice.LocalException ex);
     }
 
+    internal abstract BatchRequestQueue batchRequestQueue { get; }
+
+    internal bool isBatch => _mode is Mode.ModeBatchOneway or Mode.ModeBatchDatagram;
+
+    internal bool isTwoway => _mode is Mode.ModeTwoway;
+
     public Mode getMode()
     {
         return _mode;
@@ -117,7 +123,7 @@ public abstract class Reference : IEquatable<Reference>
         return r;
     }
 
-    public Reference changeMode(Mode newMode)
+    public virtual Reference changeMode(Mode newMode)
     {
         if (newMode == _mode)
         {
@@ -388,9 +394,7 @@ public abstract class Reference : IEquatable<Reference>
 
     public abstract Dictionary<string, string> toProperty(string prefix);
 
-    public abstract RequestHandler getRequestHandler(Ice.ObjectPrxHelperBase proxy);
-
-    public abstract BatchRequestQueue getBatchRequestQueue();
+    internal abstract RequestHandler getRequestHandler();
 
     public static bool operator ==(Reference lhs, Reference rhs) => lhs is null ? rhs is null : lhs.Equals(rhs);
     public static bool operator !=(Reference lhs, Reference rhs) => !(lhs == rhs);
@@ -432,11 +436,11 @@ public abstract class Reference : IEquatable<Reference>
 
     public override bool Equals(object other) => Equals(other as Reference);
 
-    public Reference Clone() => (Reference)MemberwiseClone();
+    public virtual Reference Clone() => (Reference)MemberwiseClone();
 
     private static Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
 
-    private Instance _instance;
+    private protected Instance _instance;
     private Ice.Communicator _communicator;
 
     private Mode _mode;
@@ -488,6 +492,8 @@ public abstract class Reference : IEquatable<Reference>
 
 public class FixedReference : Reference
 {
+    internal override BatchRequestQueue batchRequestQueue => _fixedConnection.getBatchRequestQueue();
+
     public FixedReference(Instance instance,
                           Ice.Communicator communicator,
                           Ice.Identity identity,
@@ -656,8 +662,11 @@ public class FixedReference : Reference
         throw new Ice.FixedProxyException();
     }
 
-    public override RequestHandler getRequestHandler(Ice.ObjectPrxHelperBase proxy)
+    internal override RequestHandler getRequestHandler()
     {
+        // We need to perform all these checks here and not in the constructor because changeConnection() clones then
+        // sets the connection.
+
         switch (getMode())
         {
             case Mode.ModeTwoway:
@@ -713,12 +722,8 @@ public class FixedReference : Reference
             compress = compress_;
         }
 
-        return proxy.iceSetRequestHandler(new ConnectionRequestHandler(this, _fixedConnection, compress));
-    }
-
-    public override BatchRequestQueue getBatchRequestQueue()
-    {
-        return _fixedConnection.getBatchRequestQueue();
+        // TODO: rename ConnectionRequestHandler to FixedRequestHandler
+        return new ConnectionRequestHandler(this, _fixedConnection, compress);
     }
 
     public override bool Equals(Reference other)
@@ -737,6 +742,8 @@ public class FixedReference : Reference
 
 public class RoutableReference : Reference
 {
+    internal override BatchRequestQueue batchRequestQueue => _batchRequestQueue;
+
     public override EndpointI[] getEndpoints()
     {
         return _endpoints;
@@ -790,6 +797,13 @@ public class RoutableReference : Reference
     public override int? getTimeout()
     {
         return _overrideTimeout ? _timeout : null;
+    }
+
+    public override Reference changeMode(Mode newMode)
+    {
+        Reference r = base.changeMode(newMode);
+        ((RoutableReference)r).setBatchRequestQueue();
+        return r;
     }
 
     public override ThreadPool getThreadPool()
@@ -1136,6 +1150,14 @@ public class RoutableReference : Reference
             UtilInternal.Arrays.Equals(_endpoints, rhs._endpoints);
     }
 
+    public override Reference Clone()
+    {
+        var clone = (RoutableReference)MemberwiseClone();
+        // Each reference gets its own batch request queue.
+        clone.setBatchRequestQueue();
+        return clone;
+    }
+
     private sealed class RouterEndpointsCallback : RouterInfo.GetClientEndpointsCallback
     {
         internal RouterEndpointsCallback(RoutableReference ir, GetConnectionCallback cb)
@@ -1166,14 +1188,19 @@ public class RoutableReference : Reference
         private GetConnectionCallback _cb;
     }
 
-    public override RequestHandler getRequestHandler(Ice.ObjectPrxHelperBase proxy)
+    internal override RequestHandler getRequestHandler()
     {
-        return getInstance().requestHandlerFactory().getRequestHandler(this, proxy);
-    }
+        if (_collocationOptimized)
+        {
+            if (_instance.objectAdapterFactory().findObjectAdapter(this) is ObjectAdapter adapter)
+            {
+                return new CollocatedRequestHandler(this, adapter);
+            }
+        }
 
-    public override BatchRequestQueue getBatchRequestQueue()
-    {
-        return new BatchRequestQueue(getInstance(), getMode() == Reference.Mode.ModeBatchDatagram);
+        var handler = new ConnectRequestHandler(this);
+        getConnection(handler);
+        return handler;
     }
 
     public void getConnection(GetConnectionCallback callback)
@@ -1330,6 +1357,7 @@ public class RoutableReference : Reference
         {
             _adapterId = "";
         }
+        setBatchRequestQueue();
 
         Debug.Assert(_adapterId.Length == 0 || _endpoints.Length == 0);
     }
@@ -1562,6 +1590,13 @@ public class RoutableReference : Reference
         }
     }
 
+    // Sets or resets _batchRequestQueue based on _mode.
+    private void setBatchRequestQueue()
+    {
+        _batchRequestQueue =
+            isBatch ? new BatchRequestQueue(getInstance(), getMode() == Mode.ModeBatchDatagram) : null;
+    }
+
     private class EndpointComparator : IComparer<EndpointI>
     {
         public EndpointComparator(bool preferSecure)
@@ -1607,6 +1642,8 @@ public class RoutableReference : Reference
     private static EndpointComparator _preferNonSecureEndpointComparator = new EndpointComparator(false);
     private static EndpointComparator _preferSecureEndpointComparator = new EndpointComparator(true);
     private static EndpointI[] _emptyEndpoints = [];
+
+    private BatchRequestQueue _batchRequestQueue;
 
     private EndpointI[] _endpoints;
     private string _adapterId;

@@ -439,7 +439,9 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
             // the retry interval is 0. This method can be called with the
             // connection locked so we can't just retry here.
             //
-            instance_.retryQueue().add(this, proxy_.iceHandleException(exc, handler_, mode_, _sent, ref _cnt));
+            instance_.retryQueue().add(
+                this,
+                proxy_.iceGetRequestHandlerCache().handleException(exc, handler_, mode_, _sent, ref _cnt));
             return false;
         }
         catch (Ice.Exception ex)
@@ -465,13 +467,12 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
     {
         try
         {
-            //
             // It's important to let the retry queue do the retry. This is
             // called from the connect request handler and the retry might
             // require could end up waiting for the flush of the
             // connection to be done.
-            //
-            proxy_.iceUpdateRequestHandler(handler_, null); // Clear request handler and always retry.
+
+            proxy_.iceGetRequestHandlerCache().clearCachedRequestHandler(handler_);
             instance_.retryQueue().add(this, 0);
         }
         catch (Ice.Exception exc)
@@ -539,7 +540,7 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
                 try
                 {
                     _sent = false;
-                    handler_ = proxy_.iceGetRequestHandler();
+                    handler_ = proxy_.iceGetRequestHandlerCache().requestHandler;
                     int status = handler_.sendAsyncRequest(this);
                     if ((status & AsyncStatusSent) != 0)
                     {
@@ -563,7 +564,8 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
                 }
                 catch (RetryException)
                 {
-                    proxy_.iceUpdateRequestHandler(handler_, null); // Clear request handler and always retry.
+                    // Clear request handler and always retry.
+                    proxy_.iceGetRequestHandlerCache().clearCachedRequestHandler(handler_);
                 }
                 catch (Ice.Exception ex)
                 {
@@ -573,7 +575,8 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
                         childObserver_.detach();
                         childObserver_ = null;
                     }
-                    int interval = proxy_.iceHandleException(ex, handler_, mode_, _sent, ref _cnt);
+                    int interval =
+                        proxy_.iceGetRequestHandlerCache().handleException(ex, handler_, mode_, _sent, ref _cnt);
                     if (interval > 0)
                     {
                         instance_.retryQueue().add(this, interval);
@@ -673,22 +676,13 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
 
         observer_ = ObserverHelper.get(proxy_, operation, context);
 
-        switch (proxy_.iceReference().getMode())
+        if (proxy_.iceReference().isBatch)
         {
-            case Reference.Mode.ModeTwoway:
-            case Reference.Mode.ModeOneway:
-            case Reference.Mode.ModeDatagram:
-            {
-                os_.writeBlob(Protocol.requestHdr);
-                break;
-            }
-
-            case Reference.Mode.ModeBatchOneway:
-            case Reference.Mode.ModeBatchDatagram:
-            {
-                proxy_.iceGetBatchRequestQueue().prepareBatchRequest(os_);
-                break;
-            }
+            proxy_.iceReference().batchRequestQueue.prepareBatchRequest(os_);
+        }
+        else
+        {
+            os_.writeBlob(Protocol.requestHdr);
         }
 
         Reference rf = proxy_.iceReference();
@@ -911,15 +905,9 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
 
     public new void abort(Ice.Exception ex)
     {
-        Reference.Mode mode = proxy_.iceReference().getMode();
-        if (mode == Reference.Mode.ModeBatchOneway || mode == Reference.Mode.ModeBatchDatagram)
+        if (proxy_.iceReference().isBatch)
         {
-            //
-            // If we didn't finish a batch oneway or datagram request, we
-            // must notify the connection about that we give up ownership
-            // of the batch stream.
-            //
-            proxy_.iceGetBatchRequestQueue().abortBatchRequest(os_);
+            proxy_.iceReference().batchRequestQueue.abortBatchRequest(os_);
         }
 
         base.abort(ex);
@@ -928,11 +916,10 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
     protected void invoke(string operation, bool synchronous)
     {
         synchronous_ = synchronous;
-        Reference.Mode mode = proxy_.iceReference().getMode();
-        if (mode == Reference.Mode.ModeBatchOneway || mode == Reference.Mode.ModeBatchDatagram)
+        if (proxy_.iceReference().isBatch)
         {
             sentSynchronously_ = true;
-            proxy_.iceGetBatchRequestQueue().finishBatchRequest(os_, proxy_, operation);
+            proxy_.iceReference().batchRequestQueue.finishBatchRequest(os_, proxy_, operation);
             responseImpl(true, true, false); // Don't call sent/completed callback for batch AMI requests
             return;
         }
@@ -1139,7 +1126,7 @@ internal class ProxyFlushBatchAsync : ProxyOutgoingAsyncBase
         synchronous_ = synchronous;
         observer_ = ObserverHelper.get(proxy_, operation, null);
         // Not used for proxy flush batch requests.
-        _batchRequestNum = proxy_.iceGetBatchRequestQueue().swap(os_, out _);
+        _batchRequestNum = proxy_.iceReference().batchRequestQueue.swap(os_, out _);
         invokeImpl(true); // userThread = true
     }
 

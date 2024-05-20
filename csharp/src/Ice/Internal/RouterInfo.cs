@@ -111,33 +111,17 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
         return ((Ice.ObjectPrxHelperBase)serverProxy).iceReference().getEndpoints();
     }
 
-    public void addProxy(Ice.ObjectPrx proxy)
+    public bool addProxy(Reference reference, AddProxyCallback callback)
     {
-        Debug.Assert(proxy != null);
-        lock (this)
-        {
-            if (_identities.Contains(proxy.ice_getIdentity()))
-            {
-                //
-                // Only add the proxy to the router if it's not already in our local map.
-                //
-                return;
-            }
-        }
+        Identity identity = reference.getIdentity();
 
-        addAndEvictProxies(proxy, _router.addProxies(new Ice.ObjectPrx[] { proxy }));
-    }
-
-    public bool addProxy(Ice.ObjectPrx proxy, AddProxyCallback callback)
-    {
-        Debug.Assert(proxy != null);
         lock (this)
         {
             if (!_hasRoutingTable)
             {
                 return true; // The router implementation doesn't maintain a routing table.
             }
-            if (_identities.Contains(proxy.ice_getIdentity()))
+            if (_identities.Contains(identity))
             {
                 //
                 // Only add the proxy to the router if it's not already in our local map.
@@ -146,12 +130,12 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
             }
         }
 
-        _router.addProxiesAsync([proxy]).ContinueWith(
+        _router.addProxiesAsync([new ObjectPrxHelper(reference)]).ContinueWith(
             (t) =>
             {
                 try
                 {
-                    addAndEvictProxies(proxy, t.Result);
+                    addAndEvictProxies(identity, t.Result);
                     callback.addedProxy();
                 }
                 catch (AggregateException ae)
@@ -222,7 +206,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
         }
     }
 
-    private void addAndEvictProxies(Ice.ObjectPrx proxy, Ice.ObjectPrx[] evictedProxies)
+    private void addAndEvictProxies(Identity identity, Ice.ObjectPrx[] evictedProxies)
     {
         lock (this)
         {
@@ -231,7 +215,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
             // concurrent addProxies call. If it's the case, don't
             // add it to our local map.
             //
-            int index = _evictedIdentities.IndexOf(proxy.ice_getIdentity());
+            int index = _evictedIdentities.IndexOf(identity);
             if (index >= 0)
             {
                 _evictedIdentities.RemoveAt(index);
@@ -242,7 +226,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
                 // If we successfully added the proxy to the router,
                 // we add it to our local map.
                 //
-                _identities.Add(proxy.ice_getIdentity());
+                _identities.Add(identity);
             }
 
             //

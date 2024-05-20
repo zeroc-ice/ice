@@ -5,7 +5,6 @@
 using Ice.Internal;
 using Ice.UtilInternal;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Ice;
@@ -510,15 +509,12 @@ public record struct Object_Ice_invokeResult(bool returnValue, byte[] outEncaps)
 /// <summary>
 /// Base class of all object proxies.
 /// </summary>
-public class ObjectPrxHelperBase : ObjectPrx
+public abstract class ObjectPrxHelperBase : ObjectPrx
 {
     public static bool operator ==(ObjectPrxHelperBase? lhs, ObjectPrxHelperBase? rhs) =>
         lhs is not null ? lhs.Equals(rhs) : rhs is null;
 
     public static bool operator !=(ObjectPrxHelperBase? lhs, ObjectPrxHelperBase? rhs) => !(lhs == rhs);
-
-    // TODO: _reference is initialized by setup and iceCopyFrom. We should refactor this code.
-    public ObjectPrxHelperBase() => _reference = null!;
 
     /// <summary>
     /// Returns whether this proxy equals the passed object. Two proxies are equal if they are equal in all
@@ -880,9 +876,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            var proxy = new ObjectPrxHelperBase();
-            proxy.setup(_reference.changeIdentity(newIdentity));
-            return proxy;
+            return new ObjectPrxHelper(_reference.changeIdentity(newIdentity));
         }
     }
 
@@ -903,7 +897,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// <returns>The proxy with the new per-proxy context.</returns>
     public ObjectPrx ice_context(Dictionary<string, string> newContext)
     {
-        return newInstance(_reference.changeContext(newContext));
+        return iceNewInstance(_reference.changeContext(newContext));
     }
 
     /// <summary>
@@ -931,9 +925,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            var proxy = new ObjectPrxHelperBase();
-            proxy.setup(_reference.changeFacet(newFacet));
-            return proxy;
+            return new ObjectPrxHelper(_reference.changeFacet(newFacet));
         }
     }
 
@@ -962,7 +954,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changeAdapterId(newAdapterId));
+            return iceNewInstance(_reference.changeAdapterId(newAdapterId));
         }
     }
 
@@ -993,7 +985,7 @@ public class ObjectPrxHelperBase : ObjectPrx
             {
                 endpts[i] = (EndpointI)newEndpoints[i];
             }
-            return newInstance(_reference.changeEndpoints(endpts));
+            return iceNewInstance(_reference.changeEndpoints(endpts));
         }
     }
 
@@ -1022,7 +1014,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changeLocatorCacheTimeout(newTimeout));
+            return iceNewInstance(_reference.changeLocatorCacheTimeout(newTimeout));
         }
     }
 
@@ -1051,7 +1043,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changeInvocationTimeout(newTimeout));
+            return iceNewInstance(_reference.changeInvocationTimeout(newTimeout));
         }
     }
 
@@ -1077,7 +1069,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changeCacheConnection(newCache));
+            return iceNewInstance(_reference.changeCacheConnection(newCache));
         }
     }
 
@@ -1103,7 +1095,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changeEndpointSelection(newType));
+            return iceNewInstance(_reference.changeEndpointSelection(newType));
         }
     }
 
@@ -1131,7 +1123,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changeSecure(b));
+            return iceNewInstance(_reference.changeSecure(b));
         }
     }
 
@@ -1149,7 +1141,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changeEncoding(e));
+            return iceNewInstance(_reference.changeEncoding(e));
         }
     }
 
@@ -1185,7 +1177,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changePreferSecure(b));
+            return iceNewInstance(_reference.changePreferSecure(b));
         }
     }
 
@@ -1214,7 +1206,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(@ref);
+            return iceNewInstance(@ref);
         }
     }
 
@@ -1242,7 +1234,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(@ref);
+            return iceNewInstance(@ref);
         }
     }
 
@@ -1268,7 +1260,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changeCollocationOptimized(b));
+            return iceNewInstance(_reference.changeCollocationOptimized(b));
         }
     }
 
@@ -1278,13 +1270,13 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// <returns>A new proxy that uses twoway invocations.</returns>
     public ObjectPrx ice_twoway()
     {
-        if (_reference.getMode() == Reference.Mode.ModeTwoway)
+        if (_reference.isTwoway)
         {
             return this;
         }
         else
         {
-            return newInstance(_reference.changeMode(Reference.Mode.ModeTwoway));
+            return iceNewInstance(_reference.changeMode(Reference.Mode.ModeTwoway));
         }
     }
 
@@ -1292,10 +1284,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// Returns whether this proxy uses twoway invocations.
     /// </summary>
     /// <returns>True if this proxy uses twoway invocations; false, otherwise.</returns>
-    public bool ice_isTwoway()
-    {
-        return _reference.getMode() == Reference.Mode.ModeTwoway;
-    }
+    public bool ice_isTwoway() => _reference.isTwoway;
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, but uses oneway invocations.
@@ -1309,7 +1298,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changeMode(Reference.Mode.ModeOneway));
+            return iceNewInstance(_reference.changeMode(Reference.Mode.ModeOneway));
         }
     }
 
@@ -1334,7 +1323,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changeMode(Reference.Mode.ModeBatchOneway));
+            return iceNewInstance(_reference.changeMode(Reference.Mode.ModeBatchOneway));
         }
     }
 
@@ -1359,7 +1348,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changeMode(Reference.Mode.ModeDatagram));
+            return iceNewInstance(_reference.changeMode(Reference.Mode.ModeDatagram));
         }
     }
 
@@ -1384,7 +1373,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(_reference.changeMode(Reference.Mode.ModeBatchDatagram));
+            return iceNewInstance(_reference.changeMode(Reference.Mode.ModeBatchDatagram));
         }
     }
 
@@ -1411,7 +1400,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(@ref);
+            return iceNewInstance(@ref);
         }
     }
 
@@ -1443,7 +1432,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(@ref);
+            return iceNewInstance(@ref);
         }
     }
 
@@ -1472,7 +1461,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(@ref);
+            return iceNewInstance(@ref);
         }
     }
 
@@ -1508,7 +1497,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            return newInstance(@ref);
+            return iceNewInstance(@ref);
         }
     }
 
@@ -1588,26 +1577,7 @@ public class ObjectPrxHelperBase : ObjectPrx
     /// </summary>
     /// <returns>The cached Connection for this proxy (null if the proxy does not have
     /// an established connection).</returns>
-    public Connection? ice_getCachedConnection()
-    {
-        RequestHandler? handler;
-        lock (this)
-        {
-            handler = _requestHandler;
-        }
-
-        if (handler != null)
-        {
-            try
-            {
-                return handler.getConnection();
-            }
-            catch (LocalException)
-            {
-            }
-        }
-        return null;
-    }
+    public Connection? ice_getCachedConnection() => _requestHandlerCache.cachedConnection;
 
     /// <summary>
     /// Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
@@ -1661,68 +1631,7 @@ public class ObjectPrxHelperBase : ObjectPrx
         _reference.streamWrite(os);
     }
 
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public Reference iceReference()
-    {
-        return _reference;
-    }
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public void iceCopyFrom(ObjectPrx from)
-    {
-        lock (from)
-        {
-            var h = (ObjectPrxHelperBase)from;
-            _reference = h._reference;
-            _requestHandler = h._requestHandler;
-        }
-    }
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public int iceHandleException(Exception ex, RequestHandler handler, OperationMode mode, bool sent,
-                                 ref int cnt)
-    {
-        iceUpdateRequestHandler(handler, null); // Clear the request handler
-
-        //
-        // We only retry local exception.
-        //
-        // A CloseConnectionException indicates graceful server shutdown, and is therefore
-        // always repeatable without violating "at-most-once". That's because by sending a
-        // close connection message, the server guarantees that all outstanding requests
-        // can safely be repeated.
-        //
-        // An ObjectNotExistException can always be retried as well without violating
-        // "at-most-once" (see the implementation of the checkRetryAfterException method
-        //  of the ProxyFactory class for the reasons why it can be useful).
-        //
-        // If the request didn't get sent or if it's non-mutating or idempotent it can
-        // also always be retried if the retry count isn't reached.
-        //
-        if (ex is LocalException && (!sent ||
-                                    mode == OperationMode.Nonmutating || mode == OperationMode.Idempotent ||
-                                    ex is CloseConnectionException ||
-                                    ex is ObjectNotExistException))
-        {
-            try
-            {
-                return _reference.getInstance().proxyFactory().checkRetryAfterException((LocalException)ex,
-                                                                                        _reference,
-                                                                                        ref cnt);
-            }
-            catch (CommunicatorDestroyedException)
-            {
-                //
-                // The communicator is already destroyed, so we cannot retry.
-                //
-                throw ex;
-            }
-        }
-        else
-        {
-            throw ex; // Retry could break at-most-once semantics, don't retry.
-        }
-    }
+    internal Reference iceReference() => _reference;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public void iceCheckTwowayOnly(string name)
@@ -1752,68 +1661,15 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
     }
 
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public RequestHandler iceGetRequestHandler()
-    {
-        if (_reference.getCacheConnection())
-        {
-            lock (this)
-            {
-                if (_requestHandler != null)
-                {
-                    return _requestHandler;
-                }
-            }
-        }
-        return _reference.getRequestHandler(this);
-    }
+    internal RequestHandlerCache iceGetRequestHandlerCache() => _requestHandlerCache;
 
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public BatchRequestQueue
-    iceGetBatchRequestQueue()
+    protected ObjectPrxHelperBase(ObjectPrx proxy)
     {
-        lock (this)
-        {
-            _batchRequestQueue ??= _reference.getBatchRequestQueue();
-            return _batchRequestQueue;
-        }
-    }
+        // We don't supported decorated proxies here.
+        var helper = (ObjectPrxHelperBase)proxy;
 
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public RequestHandler
-    iceSetRequestHandler(RequestHandler handler)
-    {
-        if (_reference.getCacheConnection())
-        {
-            lock (this)
-            {
-                _requestHandler ??= handler;
-                return _requestHandler;
-            }
-        }
-        return handler;
-    }
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public void iceUpdateRequestHandler(RequestHandler? previous, RequestHandler? handler)
-    {
-        if (_reference.getCacheConnection() && previous != null)
-        {
-            lock (this)
-            {
-                if (_requestHandler != null && _requestHandler != handler)
-                {
-                    //
-                    // Update the request handler only if "previous" is the same
-                    // as the current request handler. This is called after
-                    // connection binding by the connect request handler. We only
-                    // replace the request handler if the current handler is the
-                    // connect request handler.
-                    //
-                    _requestHandler = _requestHandler.update(previous, handler);
-                }
-            }
-        }
+        _reference = helper._reference;
+        _requestHandlerCache = helper._requestHandlerCache;
     }
 
     protected OutgoingAsyncT<T>
@@ -1885,7 +1741,7 @@ public class ObjectPrxHelperBase : ObjectPrx
             {
                 var ret = new Object_Ice_invokeResult();
                 EncodingVersion encoding;
-                if (proxy_.iceReference().getMode() == Reference.Mode.ModeTwoway)
+                if (proxy_.iceReference().isTwoway)
                 {
                     ret.outEncaps = is_.readEncapsulation(out encoding);
                 }
@@ -1960,59 +1816,28 @@ public class ObjectPrxHelperBase : ObjectPrx
         }
     }
 
-    /// <summary>
-    /// Only for internal use by OutgoingAsync
-    /// </summary>
-    /// <param name="iss"></param>
-    /// <param name="os"></param>
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public void
-    cacheMessageBuffers(InputStream iss, OutputStream os)
+    internal void cacheMessageBuffers(InputStream iss, OutputStream os)
     {
         lock (this)
         {
-            _streamCache ??= new LinkedList<StreamCacheEntry>();
-            StreamCacheEntry cacheEntry;
-            cacheEntry.iss = iss;
-            cacheEntry.os = os;
-            _streamCache.AddLast(cacheEntry);
+            _streamCache ??= new LinkedList<(InputStream, OutputStream)>();
+            _streamCache.AddLast((iss, os));
         }
     }
 
-    /// <summary>
-    /// Only for internal use by ProxyFactory
-    /// </summary>
-    /// <param name="ref"></param>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public void setup(Reference @ref)
+    protected ObjectPrxHelperBase(Reference reference)
     {
-        //
-        // No need to synchronize, as this operation is only called
-        // upon initial initialization.
-        //
-        Debug.Assert(_reference is null);
-        Debug.Assert(_requestHandler is null);
-
-        _reference = @ref;
+        _reference = reference;
+        _requestHandlerCache = new RequestHandlerCache(reference);
     }
 
-    private ObjectPrxHelperBase newInstance(Reference @ref)
-    {
-        var proxy = (ObjectPrxHelperBase)System.Activator.CreateInstance(GetType())!;
-        proxy.setup(@ref);
-        return proxy;
-    }
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    protected abstract ObjectPrxHelperBase iceNewInstance(Reference reference);
 
-    private Reference _reference;
-    private RequestHandler? _requestHandler;
-    private BatchRequestQueue? _batchRequestQueue;
-    private struct StreamCacheEntry
-    {
-        public InputStream iss;
-        public OutputStream os;
-    }
-
-    private LinkedList<StreamCacheEntry>? _streamCache;
+    private readonly Reference _reference;
+    private readonly RequestHandlerCache _requestHandlerCache;
+    private LinkedList<(InputStream iss, OutputStream os)>? _streamCache;
 }
 
 /// <summary>
@@ -2030,12 +1855,11 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// </exception>
     public static ObjectPrx createProxy(Communicator communicator, string proxyString)
     {
-        // TODO: rework this implementation
-        if (proxyString.Length == 0)
-        {
+        Reference? reference = Internal.Util.getInstance(communicator).referenceFactory().create(proxyString, "");
+
+        return reference is not null ?
+            new ObjectPrxHelper(reference) :
             throw new ProxyParseException("Invalid empty proxy string.");
-        }
-        return communicator.stringToProxy(proxyString);
     }
 
     /// Casts a proxy to {@link ObjectPrx}. This call contacts
@@ -2045,14 +1869,8 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// <param name="b">The proxy to cast to ObjectPrx.</param>
     /// <param name="ctx">The Context map for the invocation.</param>
     /// <returns>b.</returns>
-    public static ObjectPrx? checkedCast(ObjectPrx? b, Dictionary<string, string>? context = null)
-    {
-        if (b is not null && b.ice_isA("::Ice::Object", context))
-        {
-            return b;
-        }
-        return null;
-    }
+    public static ObjectPrx? checkedCast(ObjectPrx? b, Dictionary<string, string>? context = null) =>
+        b is not null && b.ice_isA("::Ice::Object", context) ? b : null;
 
     /// <summary>
     /// Creates a new proxy that is identical to the passed proxy, except
@@ -2107,5 +1925,12 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     public static string ice_staticId()
     {
         return ObjectImpl.ice_staticId();
+    }
+
+    protected override ObjectPrxHelperBase iceNewInstance(Reference reference) => new ObjectPrxHelper(reference);
+
+    internal ObjectPrxHelper(Reference reference)
+        : base(reference)
+    {
     }
 }

@@ -6,21 +6,10 @@ namespace Ice.Internal;
 
 public class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCallback, RouterInfo.AddProxyCallback
 {
-    public RequestHandler connect(Ice.ObjectPrxHelperBase proxy)
+    public ConnectRequestHandler(Reference reference)
     {
-        lock (this)
-        {
-            if (!initialized())
-            {
-                _proxies.Add(proxy);
-            }
-            return _requestHandler;
-        }
-    }
-
-    public RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler)
-    {
-        return previousHandler == this ? newHandler : this;
+        _reference = reference;
+        _response = reference.isTwoway;
     }
 
     public int sendAsyncRequest(ProxyOutgoingAsyncBase outAsync)
@@ -72,18 +61,13 @@ public class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCall
         _connection.asyncRequestCanceled(outAsync, ex);
     }
 
-    public Reference getReference()
-    {
-        return _reference;
-    }
-
     public Ice.ConnectionI getConnection()
     {
         lock (this)
         {
             //
             // First check for the connection, it's important otherwise the user could first get a connection
-            // and then the exception if he tries to obtain the proxy cached connection mutiple times (the
+            // and then the exception if he tries to obtain the proxy cached connection multiple times (the
             // exception can be set after the connection is set if the flush of pending requests fails).
             //
             if (_connection != null)
@@ -116,7 +100,7 @@ public class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCall
         // add this proxy to the router info object.
         //
         RouterInfo ri = _reference.getRouterInfo();
-        if (ri != null && !ri.addProxy(_proxy, this))
+        if (ri != null && !ri.addProxy(_reference, this))
         {
             return; // The request handler will be initialized once addProxy returns.
         }
@@ -136,20 +120,6 @@ public class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCall
             _flushing = true; // Ensures request handler is removed before processing new requests.
         }
 
-        //
-        // NOTE: remove the request handler *before* notifying the requests that the connection
-        // failed. It's important to ensure that future invocations will obtain a new connect
-        // request handler once invocations are notified.
-        //
-        try
-        {
-            _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
-        }
-        catch (Ice.CommunicatorDestroyedException)
-        {
-            // Ignore
-        }
-
         foreach (ProxyOutgoingAsyncBase outAsync in _requests)
         {
             if (outAsync.exception(_exception))
@@ -162,8 +132,6 @@ public class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCall
         lock (this)
         {
             _flushing = false;
-            _proxies.Clear();
-            _proxy = null; // Break cyclic reference count.
             Monitor.PulseAll(this);
         }
     }
@@ -178,16 +146,6 @@ public class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCall
         // queued requests.
         //
         flushRequests();
-    }
-
-    public ConnectRequestHandler(Reference @ref, Ice.ObjectPrx proxy)
-    {
-        _reference = @ref;
-        _response = _reference.getMode() == Reference.Mode.ModeTwoway;
-        _proxy = (Ice.ObjectPrxHelperBase)proxy;
-        _initialized = false;
-        _flushing = false;
-        _requestHandler = this;
     }
 
     private bool initialized()
@@ -252,10 +210,6 @@ public class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCall
             catch (RetryException ex)
             {
                 exception = ex.get();
-
-                // Remove the request handler before retrying.
-                _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
-
                 outAsync.retryException(ex.get());
             }
             catch (Ice.LocalException ex)
@@ -269,45 +223,18 @@ public class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCall
         }
         _requests.Clear();
 
-        //
-        // If we aren't caching the connection, don't bother creating a
-        // connection request handler. Otherwise, update the proxies
-        // request handler to use the more efficient connection request
-        // handler.
-        //
-        if (_reference.getCacheConnection() && exception == null)
-        {
-            _requestHandler = new ConnectionRequestHandler(_reference, _connection, _compress);
-            foreach (Ice.ObjectPrxHelperBase prx in _proxies)
-            {
-                prx.iceUpdateRequestHandler(this, _requestHandler);
-            }
-        }
-
         lock (this)
         {
             Debug.Assert(!_initialized);
             _exception = exception;
             _initialized = _exception == null;
             _flushing = false;
-
-            //
-            // Only remove once all the requests are flushed to
-            // guarantee serialization.
-            //
-            _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
-
-            _proxies.Clear();
-            _proxy = null; // Break cyclic reference count.
             Monitor.PulseAll(this);
         }
     }
 
-    private Reference _reference;
-    private bool _response;
-
-    private Ice.ObjectPrxHelperBase _proxy;
-    private HashSet<Ice.ObjectPrxHelperBase> _proxies = new();
+    private readonly Reference _reference;
+    private readonly bool _response;
 
     private Ice.ConnectionI _connection;
     private bool _compress;
@@ -316,5 +243,4 @@ public class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCall
     private bool _flushing;
 
     private readonly LinkedList<ProxyOutgoingAsyncBase> _requests = new();
-    private RequestHandler _requestHandler;
 }

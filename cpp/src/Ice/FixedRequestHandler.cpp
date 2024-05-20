@@ -40,9 +40,3 @@ FixedRequestHandler::getConnection()
 {
     return _connection;
 }
-
-Ice::ConnectionIPtr
-FixedRequestHandler::waitForConnection()
-{
-    return _connection;
-}

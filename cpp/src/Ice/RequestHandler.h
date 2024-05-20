@@ -42,7 +42,6 @@ namespace IceInternal
         virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&) = 0;
 
         virtual Ice::ConnectionIPtr getConnection() = 0;
-        virtual Ice::ConnectionIPtr waitForConnection() = 0;
 
     protected:
         const ReferencePtr _reference;
