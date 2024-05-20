@@ -777,14 +777,6 @@ public sealed class ObjectAdapterI : ObjectAdapter
         return _servantManager;
     }
 
-    public ACMConfig getACM()
-    {
-        // Not check for deactivation here!
-
-        Debug.Assert(_instance != null); // Must not be called after destroy().
-        return _acm;
-    }
-
     public void setAdapterOnConnection(Ice.ConnectionI connection)
     {
         lock (this)
@@ -845,7 +837,6 @@ public sealed class ObjectAdapterI : ObjectAdapter
             _id = "";
             _replicaGroupId = "";
             _reference = _instance.referenceFactory().create("dummy -t", "");
-            _acm = _instance.serverACM();
             return;
         }
 
@@ -904,8 +895,6 @@ public sealed class ObjectAdapterI : ObjectAdapter
             ex.reason = "invalid proxy options `" + proxyOptions + "' for object adapter `" + _name + "'";
             throw ex;
         }
-
-        _acm = new ACMConfig(properties, communicator.getLogger(), _name + ".ACM", _instance.serverACM());
 
         {
             int defaultMessageSizeMax = instance.messageSizeMax() / 1024;
@@ -1355,10 +1344,6 @@ public sealed class ObjectAdapterI : ObjectAdapter
 
     static private readonly string[] _suffixes =
     {
-        "ACM",
-        "ACM.Timeout",
-        "ACM.Heartbeat",
-        "ACM.Close",
         "AdapterId",
         "Endpoints",
         "Locator",
@@ -1449,7 +1434,6 @@ public sealed class ObjectAdapterI : ObjectAdapter
     private Communicator _communicator;
     private ObjectAdapterFactory _objectAdapterFactory;
     private Ice.Internal.ThreadPool _threadPool;
-    private ACMConfig _acm;
     private readonly ServantManager _servantManager;
     private readonly string _name;
     private readonly string _id;

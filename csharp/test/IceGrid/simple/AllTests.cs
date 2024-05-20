@@ -305,10 +305,6 @@ public class AllTests : Test.AllTests
             test(false);
         }
 
-        session.ice_getConnection().setACM(registry.getACMTimeout(),
-                                           null,
-                                           Ice.ACMHeartbeat.HeartbeatAlways);
-
         IceGrid.AdminPrx admin = session.getAdmin();
         test(admin != null);
 

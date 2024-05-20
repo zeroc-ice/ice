@@ -50,113 +50,6 @@ namespace Ice
 
     public delegate void HeartbeatCallback(Connection con);
 
-    /// <summary>Specifies the close semantics for Active Connection Management.</summary>
-    public enum ACMClose
-    {
-        /// <summary>
-        /// Disables automatic connection closure.
-        /// </summary>
-
-        CloseOff,
-        /// <summary>
-        /// Gracefully closes a connection that has been idle for the configured timeout period.
-        /// </summary>
-
-        CloseOnIdle,
-        /// <summary>
-        /// Forcefully closes a connection that has been idle for the configured timeout period, but only if the connection
-        ///  has pending invocations.
-        /// </summary>
-
-        CloseOnInvocation,
-        /// <summary>
-        /// Combines the behaviors of CloseOnIdle and CloseOnInvocation.
-        /// </summary>
-
-        CloseOnInvocationAndIdle,
-        /// <summary>
-        /// Forcefully closes a connection that has been idle for the configured timeout period, regardless of whether the
-        ///  connection has pending invocations or dispatch.
-        /// </summary>
-
-        CloseOnIdleForceful
-    }
-
-    /// <summary>
-    /// Specifies the heartbeat semantics for Active Connection Management.
-    /// </summary>
-    public enum ACMHeartbeat
-    {
-        /// <summary>
-        /// Disables heartbeats.
-        /// </summary>
-
-        HeartbeatOff,
-        /// <summary>
-        /// Send a heartbeat at regular intervals if the connection is idle and only if there are pending dispatch.
-        /// </summary>
-
-        HeartbeatOnDispatch,
-        /// <summary>
-        /// Send a heartbeat at regular intervals when the connection is idle.
-        /// </summary>
-
-        HeartbeatOnIdle,
-        /// <summary>
-        /// Send a heartbeat at regular intervals until the connection is closed.
-        /// </summary>
-
-        HeartbeatAlways
-    }
-
-    public partial struct ACM
-    {
-        public int timeout;
-        public ACMClose close;
-        public ACMHeartbeat heartbeat;
-
-        public ACM(int timeout, ACMClose close, ACMHeartbeat heartbeat)
-        {
-            this.timeout = timeout;
-            this.close = close;
-            this.heartbeat = heartbeat;
-        }
-
-        public override int GetHashCode() => HashCode.Combine(timeout, close, heartbeat);
-
-        public override bool Equals(object other)
-        {
-            if (!(other is ACM))
-            {
-                return false;
-            }
-            ACM o = (ACM)other;
-            if (!this.timeout.Equals(o.timeout))
-            {
-                return false;
-            }
-            if (!this.close.Equals(o.close))
-            {
-                return false;
-            }
-            if (!this.heartbeat.Equals(o.heartbeat))
-            {
-                return false;
-            }
-            return true;
-        }
-
-        public static bool operator ==(ACM lhs, ACM rhs)
-        {
-            return Equals(lhs, rhs);
-        }
-
-        public static bool operator !=(ACM lhs, ACM rhs)
-        {
-            return !Equals(lhs, rhs);
-        }
-    }
-
     /// <summary>
     /// Determines the behavior when manually closing a connection.
     /// </summary>
@@ -268,22 +161,6 @@ namespace Ice
         System.Threading.Tasks.Task heartbeatAsync(
             System.IProgress<bool> progress = null,
             System.Threading.CancellationToken cancel = default);
-
-        /// <summary>
-        /// Set the active connection management parameters.
-        /// </summary>
-        /// <param name="timeout">The timeout value in seconds, must be &gt;= 0.
-        ///  </param>
-        /// <param name="close">The close condition
-        ///  </param>
-        /// <param name="heartbeat">The hertbeat condition</param>
-        void setACM(int? timeout, ACMClose? close, ACMHeartbeat? heartbeat);
-
-        /// <summary>
-        /// Get the ACM parameters.
-        /// </summary>
-        /// <returns>The ACM parameters.</returns>
-        ACM getACM();
 
         /// <summary>
         /// Return the connection type.

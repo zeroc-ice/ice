@@ -220,19 +220,21 @@ public class SessionHelper
         Debug.Assert(router != null);
         Ice.Connection conn = router.ice_getCachedConnection();
         string category = router.getCategoryForClient();
-        int acmTimeout = 0;
+        int remoteIdleTimeout = 0;
         try
         {
-            acmTimeout = router.getACMTimeout();
+            remoteIdleTimeout = router.getACMTimeout();
         }
         catch (Ice.OperationNotExistException)
         {
         }
 
-        if (acmTimeout <= 0)
+        if (remoteIdleTimeout <= 0)
         {
-            acmTimeout = (int)router.getSessionTimeout();
+            remoteIdleTimeout = (int)router.getSessionTimeout();
         }
+
+        // TODO: verify remote idle timeout is compatible with local idle timeout
 
         //
         // We create the callback object adapter here because createObjectAdapter internally
@@ -272,13 +274,9 @@ public class SessionHelper
             _session = session;
             _connected = true;
 
-            if (acmTimeout > 0)
-            {
-                Ice.Connection connection = _router.ice_getCachedConnection();
-                Debug.Assert(connection != null);
-                connection.setACM(acmTimeout, null, Ice.ACMHeartbeat.HeartbeatAlways);
-                connection.setCloseCallback(_ => destroy());
-            }
+            Ice.Connection connection = _router.ice_getCachedConnection();
+            Debug.Assert(connection != null);
+            connection.setCloseCallback(_ => destroy());
         }
 
         dispatchCallback(() =>
