@@ -1173,6 +1173,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         //
         // Decrease the upcall count.
         //
+        bool finished = false;
         if (completedUpcallCount > 0)
         {
             lock (this)
@@ -1195,11 +1196,17 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                     }
                     else if (_state == StateFinished)
                     {
-                        reap();
+                        finished = true;
+                        _observer?.detach();
                     }
                     Monitor.PulseAll(this);
                 }
             }
+        }
+
+        if (finished && _removeFromFactory is not null)
+        {
+            _removeFromFactory(this);
         }
     }
 
@@ -1362,14 +1369,21 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         // This must be done last as this will cause waitUntilFinished() to return (and communicator
         // objects such as the timer might be destroyed too).
         //
+        bool finished = false;
         lock (this)
         {
             setState(StateFinished);
 
             if (_upcallCount == 0)
             {
-                reap();
+                finished = true;
+                _observer?.detach();
             }
+        }
+
+        if (finished && _removeFromFactory is not null)
+        {
+            _removeFromFactory(this);
         }
     }
 
@@ -1460,7 +1474,8 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         Transceiver transceiver,
         Connector connector,
         EndpointI endpoint,
-        ObjectAdapterI adapter)
+        ObjectAdapterI adapter,
+        Action<ConnectionI> removeFromFactory) // can be null
     {
         _instance = instance;
         _transceiver = transceiver;
@@ -1473,6 +1488,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         _logger = initData.logger; // Cached for better performance.
         _traceLevels = instance.traceLevels(); // Cached for better performance.
         _timer = instance.timer();
+        _removeFromFactory = removeFromFactory;
         _writeTimeout = new TimeoutCallback(this);
         _writeTimeoutScheduled = false;
         _readTimeout = new TimeoutCallback(this);
@@ -2455,46 +2471,60 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
 
     private void sendResponse(OutgoingResponse response, bool isTwoWay, byte compress)
     {
-        lock (this)
+        bool finished = false;
+        try
         {
-            Debug.Assert(_state > StateNotValidated);
-
-            try
+            lock (this)
             {
-                if (--_upcallCount == 0)
+                Debug.Assert(_state > StateNotValidated);
+
+                try
                 {
-                    if (_state == StateFinished)
+                    if (--_upcallCount == 0)
                     {
-                        reap();
+                        if (_state == StateFinished)
+                        {
+                            finished = true;
+                            _observer?.detach();
+                        }
+                        Monitor.PulseAll(this);
                     }
-                    Monitor.PulseAll(this);
-                }
 
-                if (_state >= StateClosed)
-                {
-                    Debug.Assert(_exception is not null);
-                    throw _exception;
-                }
+                    if (_state >= StateClosed)
+                    {
+                        Debug.Assert(_exception is not null);
+                        throw _exception;
+                    }
 
-                if (isTwoWay)
-                {
-                    sendMessage(new OutgoingMessage(response.outputStream, compress > 0, adopt: true));
-                }
+                    if (isTwoWay)
+                    {
+                        sendMessage(new OutgoingMessage(response.outputStream, compress > 0, adopt: true));
+                    }
 
-                if (_state == StateClosing && _upcallCount == 0)
+                    if (_state == StateClosing && _upcallCount == 0)
+                    {
+                        initiateShutdown();
+                    }
+                }
+                catch (LocalException ex)
                 {
-                    initiateShutdown();
+                    setState(StateClosed, ex);
                 }
             }
-            catch (LocalException ex)
+        }
+        finally
+        {
+            if (finished && _removeFromFactory is not null)
             {
-                setState(StateClosed, ex);
+                _removeFromFactory(this);
             }
         }
     }
 
     private void dispatchException(LocalException ex, int requestCount)
     {
+        bool finished = false;
+
         // Fatal exception while dispatching a request. Since sendResponse isn't called in case of a fatal exception
         // we decrement _upcallCount here.
         lock (this)
@@ -2509,11 +2539,17 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                 {
                     if (_state == StateFinished)
                     {
-                        reap();
+                        finished = true;
+                        _observer?.detach();
                     }
                     Monitor.PulseAll(this);
                 }
             }
+        }
+
+        if (finished && _removeFromFactory is not null)
+        {
+            _removeFromFactory(this);
         }
     }
 
@@ -2615,14 +2651,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
             info.incoming = _connector == null;
         }
         return _info;
-    }
-
-    private void reap()
-    {
-        if (_observer != null)
-        {
-            _observer.detach();
-        }
     }
 
     private static ConnectionState toConnectionState(int state)
@@ -2815,6 +2843,9 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
     private bool _readTimeoutScheduled;
 
     private StartCallback _startCallback;
+
+    // This action must be called outside the ConnectionI lock to avoid lock acquisition deadlocks.
+    private readonly Action<ConnectionI> _removeFromFactory;
 
     private bool _warn;
     private bool _warnUdp;
