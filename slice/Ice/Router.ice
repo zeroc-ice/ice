@@ -30,7 +30,7 @@ module Ice
         /// starting with Ice 3.7.
         /// The Ice runtime assumes the router has a routing table if the <code>hasRoutingTable</code> is not set.
         /// @return The router's client proxy.
-        ["cpp:const"] idempotent Object* getClientProxy(out tag(1) bool hasRoutingTable);
+        ["cpp:const"] idempotent Object* getClientProxy(out optional(1) bool hasRoutingTable);
 
         /// Get the router's server proxy, i.e., the proxy to use for forwarding requests from the server to the router.
         /// @return The router's server proxy.

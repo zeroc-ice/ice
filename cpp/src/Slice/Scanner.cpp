@@ -934,7 +934,7 @@ int yy_flex_debug = 1;
 static const flex_int32_t yy_rule_linenum[49] = {0,   123, 137, 138, 145, 146, 147, 154, 173, 186, 196, 203, 204,
                                                  216, 217, 225, 236, 246, 254, 272, 295, 323, 328, 331, 337, 338,
                                                  343, 349, 368, 373, 379, 380, 395, 400, 408, 413, 428, 438, 443,
-                                                 447, 452, 458, 464, 501, 511, 514, 521, 525, 539};
+                                                 447, 452, 458, 464, 497, 507, 510, 517, 521, 535};
 
 /* The intent behind this definition is that it'll catch
  * any uses of REJECT which flex missed.
@@ -1901,10 +1901,6 @@ YY_DECL
                             currentUnit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
                             return ICE_IDENT_OPEN;
                         }
-                        else if (st == ICE_TAG)
-                        {
-                            return ICE_TAG_OPEN;
-                        }
                         else if (st == ICE_OPTIONAL)
                         {
                             return ICE_OPTIONAL_OPEN;
@@ -1917,7 +1913,7 @@ YY_DECL
                     YY_BREAK
                 case 43:
                     YY_RULE_SETUP
-#line 501 "src/Slice/Scanner.l"
+#line 497 "src/Slice/Scanner.l"
                     {
                         StringTokPtr ident = make_shared<StringTok>();
                         ident->v = *yytext == '\\' ? yytext + 1 : yytext;
@@ -1929,7 +1925,7 @@ YY_DECL
                 /* Matches and consumes any whitespace, except for newlines. */
                 case 44:
                     YY_RULE_SETUP
-#line 511 "src/Slice/Scanner.l"
+#line 507 "src/Slice/Scanner.l"
                     {
                     }
                     YY_BREAK
@@ -1937,7 +1933,7 @@ YY_DECL
                 case 45:
                     /* rule 45 can match eol */
                     YY_RULE_SETUP
-#line 514 "src/Slice/Scanner.l"
+#line 510 "src/Slice/Scanner.l"
                     {
                         nextLine(yyleng);
                     }
@@ -1946,7 +1942,7 @@ YY_DECL
                 /* Matches and consumes a BOM, but only when the scanner has just started scanning a new file. */
                 case 46:
                     YY_RULE_SETUP
-#line 521 "src/Slice/Scanner.l"
+#line 517 "src/Slice/Scanner.l"
                     {
                     }
                     YY_BREAK
@@ -1956,7 +1952,7 @@ YY_DECL
                 case 47:
                     /* rule 47 can match eol */
                     YY_RULE_SETUP
-#line 525 "src/Slice/Scanner.l"
+#line 521 "src/Slice/Scanner.l"
                     {
                         stringstream s;
                         s << "illegal input character: '\\";
@@ -1974,7 +1970,7 @@ YY_DECL
                  * sub-scanner. */
                 case 48:
                     YY_RULE_SETUP
-#line 539 "src/Slice/Scanner.l"
+#line 535 "src/Slice/Scanner.l"
                     {
                         setLocation(yylloc);
                         return yytext[0];
@@ -1982,10 +1978,10 @@ YY_DECL
                     YY_BREAK
                 case 49:
                     YY_RULE_SETUP
-#line 544 "src/Slice/Scanner.l"
+#line 540 "src/Slice/Scanner.l"
                     YY_FATAL_ERROR("flex scanner jammed");
                     YY_BREAK
-#line 2144 "src/Slice/Scanner.cpp"
+#line 2140 "src/Slice/Scanner.cpp"
                 case YY_STATE_EOF(INITIAL):
                 case YY_STATE_EOF(PRE_SLICE):
                 case YY_STATE_EOF(SLICE):
@@ -2996,7 +2992,7 @@ yyfree(void* ptr)
 
 /* %ok-for-header */
 
-#line 544 "src/Slice/Scanner.l"
+#line 540 "src/Slice/Scanner.l"
 
 namespace Slice
 {
@@ -3127,8 +3123,6 @@ namespace
         keywordMap["false"] = ICE_FALSE;
         keywordMap["true"] = ICE_TRUE;
         keywordMap["idempotent"] = ICE_IDEMPOTENT;
-        keywordMap["tag"] = ICE_TAG;
-        // 'optional' is kept as an alias for 'tag' for backwards compatibility.
         keywordMap["optional"] = ICE_OPTIONAL;
         keywordMap["Value"] = ICE_VALUE;
     }

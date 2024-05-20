@@ -393,7 +393,7 @@ namespace Ice
         }
     };
 
-    // InputStream and OutputStream have special logic for optional (tagged) proxies that does not rely on the
+    // InputStream and OutputStream have special logic for optional proxies that does not rely on the
     // StreamOptional helpers.
 
     /**
