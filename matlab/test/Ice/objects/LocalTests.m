@@ -943,7 +943,7 @@ classdef LocalTests
                 out.startEncapsulation(format);
                 cb = Opt();
                 cb.o = O(3);
-                cb.oSeq = [];
+                cb.oSeq(1, 10) = O();
                 cb.oDict = containers.Map('KeyType', 'int32', 'ValueType', 'any');
                 for i = 1:10
                     cb.oSeq(i) = O(i);
