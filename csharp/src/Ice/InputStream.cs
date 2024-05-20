@@ -215,7 +215,7 @@ public class InputStream
     public void initialize(Communicator communicator)
     {
         Debug.Assert(communicator != null);
-        Ice.Internal.Instance instance = Ice.Internal.Util.getInstance(communicator);
+        Ice.Internal.Instance instance = communicator.instance;
         initialize(instance, instance.defaultsAndOverrides().defaultEncoding);
     }
 
@@ -227,7 +227,7 @@ public class InputStream
     public void initialize(Communicator communicator, EncodingVersion encoding)
     {
         Debug.Assert(communicator != null);
-        Ice.Internal.Instance instance = Ice.Internal.Util.getInstance(communicator);
+        Ice.Internal.Instance instance = communicator.instance;
         initialize(instance, encoding);
     }
 
@@ -2310,9 +2310,22 @@ public class InputStream
     /// Extracts a proxy from the stream. The stream must have been initialized with a communicator.
     /// </summary>
     /// <returns>The extracted proxy.</returns>
-    public ObjectPrx readProxy()
+    public ObjectPrx? readProxy()
     {
-        return _instance!.proxyFactory().streamToProxy(this);
+        if (_instance is null)
+        {
+            throw new MarshalException("cannot unmarshal a proxy without a communicator");
+        }
+
+        var ident = new Identity(this);
+        if (ident.name.Length == 0)
+        {
+            return null;
+        }
+        else
+        {
+            return new ObjectPrxHelper(_instance.referenceFactory().create(ident, this));
+        }
     }
 
     /// <summary>

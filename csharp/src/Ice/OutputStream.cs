@@ -34,7 +34,7 @@ public class OutputStream
     public OutputStream(Communicator communicator)
     {
         Debug.Assert(communicator != null);
-        Ice.Internal.Instance instance = Ice.Internal.Util.getInstance(communicator);
+        Ice.Internal.Instance instance = communicator.instance;
         _buf = null!; // set by initialize
         initialize(instance, instance.defaultsAndOverrides().defaultEncoding);
     }
@@ -47,7 +47,7 @@ public class OutputStream
     public OutputStream(Communicator communicator, EncodingVersion encoding)
     {
         Debug.Assert(communicator != null);
-        Ice.Internal.Instance instance = Ice.Internal.Util.getInstance(communicator);
+        Ice.Internal.Instance instance = communicator.instance;
         _buf = null!; // set by initialize
         initialize(instance, encoding);
     }
@@ -78,7 +78,7 @@ public class OutputStream
     public void initialize(Communicator communicator)
     {
         Debug.Assert(communicator != null);
-        Ice.Internal.Instance instance = Ice.Internal.Util.getInstance(communicator);
+        Ice.Internal.Instance instance = communicator.instance;
         initialize(instance, instance.defaultsAndOverrides().defaultEncoding);
     }
 
@@ -91,7 +91,7 @@ public class OutputStream
     public void initialize(Communicator communicator, EncodingVersion encoding)
     {
         Debug.Assert(communicator != null);
-        Ice.Internal.Instance instance = Ice.Internal.Util.getInstance(communicator);
+        Ice.Internal.Instance instance = communicator.instance;
         initialize(instance, encoding);
     }
 

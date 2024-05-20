@@ -4,9 +4,9 @@ using System.Diagnostics;
 
 namespace Ice.Internal;
 
-public class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCallback, RouterInfo.AddProxyCallback
+internal class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCallback, RouterInfo.AddProxyCallback
 {
-    public ConnectRequestHandler(Reference reference)
+    internal ConnectRequestHandler(Reference reference)
     {
         _reference = reference;
         _response = reference.isTwoway;

@@ -4,11 +4,7 @@ namespace Ice.Internal;
 
 public sealed class Util
 {
-    public static Instance getInstance(Ice.Communicator communicator)
-    {
-        Ice.CommunicatorI p = (Ice.CommunicatorI)communicator;
-        return p.getInstance();
-    }
+    public static Instance getInstance(Ice.Communicator communicator) => communicator.instance;
 
     public static ProtocolPluginFacade getProtocolPluginFacade(Ice.Communicator communicator)
     {

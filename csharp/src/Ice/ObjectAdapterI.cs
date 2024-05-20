@@ -931,7 +931,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
 
             if (router == null)
             {
-                router = RouterPrxHelper.uncheckedCast(_instance.proxyFactory().propertyToProxy(_name + ".Router"));
+                router = RouterPrxHelper.uncheckedCast(communicator.propertyToProxy(_name + ".Router"));
             }
             if (router != null)
             {
@@ -1000,8 +1000,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
 
             if (properties.getProperty(_name + ".Locator").Length > 0)
             {
-                setLocator(LocatorPrxHelper.uncheckedCast(
-                    _instance.proxyFactory().propertyToProxy(_name + ".Locator")));
+                setLocator(LocatorPrxHelper.uncheckedCast(communicator.propertyToProxy(_name + ".Locator")));
             }
             else
             {
@@ -1016,6 +1015,18 @@ public sealed class ObjectAdapterI : ObjectAdapter
     }
 
     internal Object dispatchPipeline { get; }
+
+    internal static void checkIdentity(Identity ident)
+    {
+        if (ident.name == null || ident.name.Length == 0)
+        {
+            throw new IllegalIdentityException(ident);
+        }
+        if (ident.category == null)
+        {
+            ident.category = "";
+        }
+    }
 
     internal SslServerAuthenticationOptions getServerAuthenticationOptions()
     {
@@ -1038,24 +1049,11 @@ public sealed class ObjectAdapterI : ObjectAdapter
         }
     }
 
-    private ObjectPrx newDirectProxy(Identity ident, string facet)
-    {
-        //
-        // Create a reference and return a proxy for this reference.
-        //
-        Reference reference = _instance.referenceFactory().create(ident, facet, _reference, _publishedEndpoints);
-        return _instance.proxyFactory().referenceToProxy(reference);
-    }
+    private ObjectPrx newDirectProxy(Identity ident, string facet) =>
+        new ObjectPrxHelper(_instance.referenceFactory().create(ident, facet, _reference, _publishedEndpoints));
 
-    private ObjectPrx newIndirectProxy(Identity ident, string facet, string id)
-    {
-        //
-        // Create a reference with the adapter id and return a
-        // proxy for the reference.
-        //
-        Reference reference = _instance.referenceFactory().create(ident, facet, _reference, id);
-        return _instance.proxyFactory().referenceToProxy(reference);
-    }
+    private ObjectPrx newIndirectProxy(Identity ident, string facet, string id) =>
+        new ObjectPrxHelper(_instance.referenceFactory().create(ident, facet, _reference, id));
 
     private void checkForDeactivation()
     {
@@ -1064,18 +1062,6 @@ public sealed class ObjectAdapterI : ObjectAdapter
             ObjectAdapterDeactivatedException ex = new ObjectAdapterDeactivatedException();
             ex.name = getName();
             throw ex;
-        }
-    }
-
-    private static void checkIdentity(Identity ident)
-    {
-        if (ident.name == null || ident.name.Length == 0)
-        {
-            throw new IllegalIdentityException(ident);
-        }
-        if (ident.category == null)
-        {
-            ident.category = "";
         }
     }
 

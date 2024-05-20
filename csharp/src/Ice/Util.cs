@@ -145,7 +145,7 @@ public sealed class Util
 
         initData.properties = new Properties(ref args, initData.properties);
 
-        CommunicatorI result = new CommunicatorI(initData);
+        var result = new Communicator(initData);
         result.finishSetup(ref args);
         return result;
     }
@@ -187,7 +187,7 @@ public sealed class Util
             initData = initData.Clone();
         }
 
-        CommunicatorI result = new CommunicatorI(initData);
+        var result = new Communicator(initData);
         string[] args = [];
         result.finishSetup(ref args);
         return result;

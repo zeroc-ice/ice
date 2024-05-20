@@ -102,7 +102,7 @@ internal sealed class RequestHandlerCache
         //
         // An ObjectNotExistException can always be retried as well without violating
         // "at-most-once" (see the implementation of the checkRetryAfterException method
-        //  of the ProxyFactory class for the reasons why it can be useful).
+        // below for the reasons why it can be useful).
         //
         // If the request didn't get sent or if it's non-mutating or idempotent it can
         // also always be retried if the retry count isn't reached.

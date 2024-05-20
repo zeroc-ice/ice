@@ -777,11 +777,8 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
 
     public ObjectPrx createProxy(Identity ident)
     {
-        //
-        // Create a reference and return a reverse proxy for this
-        // reference.
-        //
-        return _instance.proxyFactory().referenceToProxy(_instance.referenceFactory().create(ident, this));
+        ObjectAdapterI.checkIdentity(ident);
+        return new ObjectPrxHelper(_instance.referenceFactory().create(ident, this));
     }
 
     public void setAdapterFromAdapter(ObjectAdapterI adapter)

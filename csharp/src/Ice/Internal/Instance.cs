@@ -115,20 +115,6 @@ public sealed class Instance
         }
     }
 
-    public ProxyFactory proxyFactory()
-    {
-        lock (this)
-        {
-            if (_state == StateDestroyed)
-            {
-                throw new Ice.CommunicatorDestroyedException();
-            }
-
-            Debug.Assert(_proxyFactory != null);
-            return _proxyFactory;
-        }
-    }
-
     public OutgoingConnectionFactory outgoingConnectionFactory()
     {
         lock (this)
@@ -652,7 +638,7 @@ public sealed class Instance
     }
 
     //
-    // Only for use by Ice.CommunicatorI
+    // Only for use by Ice.Communicator
     //
     internal void initialize(Ice.Communicator communicator, Ice.InitializationData initData)
     {
@@ -835,8 +821,6 @@ public sealed class Instance
             _locatorManager = new LocatorManager(_initData.properties);
 
             _referenceFactory = new ReferenceFactory(this, communicator);
-
-            _proxyFactory = new ProxyFactory(this);
 
             bool isIPv6Supported = Network.isIPv6Supported();
             bool ipv4 = _initData.properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
@@ -1075,7 +1059,7 @@ public sealed class Instance
         if (_referenceFactory.getDefaultRouter() == null)
         {
             Ice.RouterPrx r = Ice.RouterPrxHelper.uncheckedCast(
-                _proxyFactory.propertyToProxy("Ice.Default.Router"));
+                communicator.propertyToProxy("Ice.Default.Router"));
             if (r != null)
             {
                 _referenceFactory = _referenceFactory.setDefaultRouter(r);
@@ -1085,7 +1069,7 @@ public sealed class Instance
         if (_referenceFactory.getDefaultLocator() == null)
         {
             Ice.LocatorPrx l = Ice.LocatorPrxHelper.uncheckedCast(
-                _proxyFactory.propertyToProxy("Ice.Default.Locator"));
+                communicator.propertyToProxy("Ice.Default.Locator"));
             if (l != null)
             {
                 _referenceFactory = _referenceFactory.setDefaultLocator(l);
@@ -1134,7 +1118,7 @@ public sealed class Instance
     }
 
     //
-    // Only for use by Ice.CommunicatorI
+    // Only for use by Ice.Communicator
     //
     public void destroy()
     {
@@ -1296,7 +1280,6 @@ public sealed class Instance
             _timer = null;
 
             _referenceFactory = null;
-            _proxyFactory = null;
             _routerManager = null;
             _locatorManager = null;
             _endpointFactoryManager = null;
@@ -1530,7 +1513,6 @@ public sealed class Instance
     private RouterManager _routerManager;
     private LocatorManager _locatorManager;
     private ReferenceFactory _referenceFactory;
-    private ProxyFactory _proxyFactory;
     private OutgoingConnectionFactory _outgoingConnectionFactory;
     private ObjectAdapterFactory _objectAdapterFactory;
     private int _protocolSupport;

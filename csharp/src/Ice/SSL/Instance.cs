@@ -24,7 +24,7 @@ internal class Instance : Ice.Internal.ProtocolInstance
         _engine.verifyPeer(info, description);
 
     internal Ice.InitializationData initializationData() =>
-        Ice.Internal.Util.getInstance(_engine.communicator()).initializationData();
+        _engine.communicator().instance.initializationData();
 
     private readonly SSLEngine _engine;
 }

@@ -1855,7 +1855,7 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// </exception>
     public static ObjectPrx createProxy(Communicator communicator, string proxyString)
     {
-        Reference? reference = Internal.Util.getInstance(communicator).referenceFactory().create(proxyString, "");
+        Reference? reference = communicator.instance.referenceFactory().create(proxyString, "");
 
         return reference is not null ?
             new ObjectPrxHelper(reference) :
