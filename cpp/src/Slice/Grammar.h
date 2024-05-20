@@ -97,24 +97,22 @@ enum yytokentype
     ICE_FALSE = 280,                  /* ICE_FALSE  */
     ICE_TRUE = 281,                   /* ICE_TRUE  */
     ICE_IDEMPOTENT = 282,             /* ICE_IDEMPOTENT  */
-    ICE_TAG = 283,                    /* ICE_TAG  */
-    ICE_OPTIONAL = 284,               /* ICE_OPTIONAL  */
-    ICE_VALUE = 285,                  /* ICE_VALUE  */
-    ICE_STRING_LITERAL = 286,         /* ICE_STRING_LITERAL  */
-    ICE_INTEGER_LITERAL = 287,        /* ICE_INTEGER_LITERAL  */
-    ICE_FLOATING_POINT_LITERAL = 288, /* ICE_FLOATING_POINT_LITERAL  */
-    ICE_IDENTIFIER = 289,             /* ICE_IDENTIFIER  */
-    ICE_SCOPED_IDENTIFIER = 290,      /* ICE_SCOPED_IDENTIFIER  */
-    ICE_METADATA_OPEN = 291,          /* ICE_METADATA_OPEN  */
-    ICE_METADATA_CLOSE = 292,         /* ICE_METADATA_CLOSE  */
-    ICE_GLOBAL_METADATA_OPEN = 293,   /* ICE_GLOBAL_METADATA_OPEN  */
-    ICE_GLOBAL_METADATA_IGNORE = 294, /* ICE_GLOBAL_METADATA_IGNORE  */
-    ICE_GLOBAL_METADATA_CLOSE = 295,  /* ICE_GLOBAL_METADATA_CLOSE  */
-    ICE_IDENT_OPEN = 296,             /* ICE_IDENT_OPEN  */
-    ICE_KEYWORD_OPEN = 297,           /* ICE_KEYWORD_OPEN  */
-    ICE_TAG_OPEN = 298,               /* ICE_TAG_OPEN  */
-    ICE_OPTIONAL_OPEN = 299,          /* ICE_OPTIONAL_OPEN  */
-    BAD_CHAR = 300                    /* BAD_CHAR  */
+    ICE_OPTIONAL = 283,               /* ICE_OPTIONAL  */
+    ICE_VALUE = 284,                  /* ICE_VALUE  */
+    ICE_STRING_LITERAL = 285,         /* ICE_STRING_LITERAL  */
+    ICE_INTEGER_LITERAL = 286,        /* ICE_INTEGER_LITERAL  */
+    ICE_FLOATING_POINT_LITERAL = 287, /* ICE_FLOATING_POINT_LITERAL  */
+    ICE_IDENTIFIER = 288,             /* ICE_IDENTIFIER  */
+    ICE_SCOPED_IDENTIFIER = 289,      /* ICE_SCOPED_IDENTIFIER  */
+    ICE_METADATA_OPEN = 290,          /* ICE_METADATA_OPEN  */
+    ICE_METADATA_CLOSE = 291,         /* ICE_METADATA_CLOSE  */
+    ICE_GLOBAL_METADATA_OPEN = 292,   /* ICE_GLOBAL_METADATA_OPEN  */
+    ICE_GLOBAL_METADATA_IGNORE = 293, /* ICE_GLOBAL_METADATA_IGNORE  */
+    ICE_GLOBAL_METADATA_CLOSE = 294,  /* ICE_GLOBAL_METADATA_CLOSE  */
+    ICE_IDENT_OPEN = 295,             /* ICE_IDENT_OPEN  */
+    ICE_KEYWORD_OPEN = 296,           /* ICE_KEYWORD_OPEN  */
+    ICE_OPTIONAL_OPEN = 297,          /* ICE_OPTIONAL_OPEN  */
+    BAD_CHAR = 298                    /* BAD_CHAR  */
 };
 typedef enum yytokentype yytoken_kind_t;
 #endif
