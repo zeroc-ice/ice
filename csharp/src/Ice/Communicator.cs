@@ -102,10 +102,8 @@ public sealed class Communicator : IDisposable
     /// </summary>
     /// <param name="proxy">The proxy to convert into a stringified proxy.</param>
     /// <returns>The stringified proxy, or an empty string if <paramref name="proxy" /> is null.</returns>
-    public string proxyToString(ObjectPrx? proxy)
-    {
-        return instance.proxyFactory().proxyToString(proxy);
-    }
+    public string proxyToString(ObjectPrx? proxy) =>
+        proxy is null ? "" : ((ObjectPrxHelperBase)proxy).iceReference().ToString();
 
     /// <summary>
     /// Converts a set of proxy properties into a proxy. The "base" name supplied in the property argument refers to a
@@ -117,7 +115,9 @@ public sealed class Communicator : IDisposable
     /// <returns>The proxy.</returns>
     public ObjectPrx? propertyToProxy(string property)
     {
-        return instance.proxyFactory().propertyToProxy(property);
+        string proxy = instance.initializationData().properties.getProperty(property);
+        Reference? reference = instance.referenceFactory().create(proxy, property);
+        return reference is not null ? new ObjectPrxHelper(reference) : null;
     }
 
     /// <summary>
@@ -126,10 +126,8 @@ public sealed class Communicator : IDisposable
     /// <param name="proxy">The proxy.</param>
     /// <param name="prefix">The base property name.</param>
     /// <returns>The property set.</returns>
-    public Dictionary<string, string> proxyToProperty(ObjectPrx proxy, string prefix)
-    {
-        return instance.proxyFactory().proxyToProperty(proxy, prefix);
-    }
+    public Dictionary<string, string> proxyToProperty(ObjectPrx proxy, string prefix) =>
+        proxy is null ? [] : ((ObjectPrxHelperBase)proxy).iceReference().toProperty(prefix);
 
     /// <summary>
     /// Converts an identity into a string.
