@@ -723,7 +723,7 @@ public class FixedReference : Reference
         }
 
         // TODO: rename ConnectionRequestHandler to FixedRequestHandler
-        return new ConnectionRequestHandler(this, _fixedConnection, compress);
+        return new FixedRequestHandler(this, _fixedConnection, compress);
     }
 
     public override bool Equals(Reference other)
