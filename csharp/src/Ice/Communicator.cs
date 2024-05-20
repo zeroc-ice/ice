@@ -1,18 +1,27 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
+using Ice.Internal;
 using System.Net.Security;
 
 namespace Ice;
 
-public interface Communicator : IDisposable
+public sealed class Communicator : IDisposable
 {
+    internal Instance instance { get; }
+
+    private const string _flushBatchRequests_name = "flushBatchRequests";
+
+    public void Dispose() => destroy();
+
     /// <summary>
     /// Destroy the communicator.
     /// This operation calls shutdown implicitly. Calling destroy cleans up
     ///  memory, and shuts down this communicator's client functionality and destroys all object adapters. Subsequent
     ///  calls to destroy are ignored.
     /// </summary>
-    void destroy();
+    public void destroy() => instance.destroy();
 
     /// <summary>
     /// Shuts down this communicator's server functionality, which includes the deactivation of all object adapters.
@@ -22,7 +31,17 @@ public interface Communicator : IDisposable
     ///  was called might still be active. You can use waitForShutdown to wait for the completion of all
     ///  requests.
     /// </summary>
-    void shutdown();
+    public void shutdown()
+    {
+        try
+        {
+            instance.objectAdapterFactory().shutdown();
+        }
+        catch (CommunicatorDestroyedException)
+        {
+            // Ignore
+        }
+    }
 
     /// <summary>
     /// Wait until the application has called shutdown (or destroy).
@@ -33,14 +52,34 @@ public interface Communicator : IDisposable
     ///  calls shutdown. After shut-down is complete, the main thread returns and can do some cleanup work
     ///  before it finally calls destroy to shut down the client functionality, and then exits the application.
     /// </summary>
-    void waitForShutdown();
+    public void waitForShutdown()
+    {
+        try
+        {
+            instance.objectAdapterFactory().waitForShutdown();
+        }
+        catch (CommunicatorDestroyedException)
+        {
+            // Ignore
+        }
+    }
 
     /// <summary>
     /// Check whether communicator has been shut down.
     /// </summary>
     /// <returns>True if the communicator has been shut down; false otherwise.
     ///  </returns>
-    bool isShutdown();
+    public bool isShutdown()
+    {
+        try
+        {
+            return instance.objectAdapterFactory().isShutdown();
+        }
+        catch (CommunicatorDestroyedException)
+        {
+            return true;
+        }
+    }
 
     /// <summary>
     /// Convert a stringified proxy into a proxy.
@@ -54,17 +93,24 @@ public interface Communicator : IDisposable
     ///  </param>
     /// <returns>The proxy, or nil if str is an empty string.
     ///  </returns>
-    ObjectPrx stringToProxy(string str);
+    public ObjectPrx? stringToProxy(string str)
+    {
+        Reference reference = instance.referenceFactory().create(str, "");
+        return reference is not null ? new ObjectPrxHelper(reference) : null;
+    }
 
     /// <summary>
     /// Convert a proxy into a string.
     /// </summary>
-    /// <param name="obj">The proxy to convert into a stringified proxy.
+    /// <param name="proxy">The proxy to convert into a stringified proxy.
     ///  </param>
     /// <returns>The stringified proxy, or an empty string if
-    ///  obj is nil.
+    ///  obj is null.
     ///  </returns>
-    string proxyToString(ObjectPrx obj);
+    public string proxyToString(ObjectPrx? proxy)
+    {
+        return instance.proxyFactory().proxyToString(proxy);
+    }
 
     /// <summary>
     /// Convert a set of proxy properties into a proxy.
@@ -76,17 +122,23 @@ public interface Communicator : IDisposable
     ///  <param name="property">The base property name.
     ///  </param>
     /// <returns>The proxy.</returns>
-    ObjectPrx propertyToProxy(string property);
+    public ObjectPrx? propertyToProxy(string property)
+    {
+        return instance.proxyFactory().propertyToProxy(property);
+    }
 
     /// <summary>
     /// Convert a proxy to a set of proxy properties.
     /// </summary>
     /// <param name="proxy">The proxy.
     ///  </param>
-    /// <param name="property">The base property name.
+    /// <param name="prefix">The base property name.
     ///  </param>
     /// <returns>The property set.</returns>
-    Dictionary<string, string> proxyToProperty(ObjectPrx proxy, string property);
+    public Dictionary<string, string> proxyToProperty(ObjectPrx proxy, string prefix)
+    {
+        return instance.proxyFactory().proxyToProperty(proxy, prefix);
+    }
 
     /// <summary>
     /// Convert an identity into a string.
@@ -95,7 +147,7 @@ public interface Communicator : IDisposable
     ///  </param>
     /// <returns>The "stringified" identity.
     ///  </returns>
-    string identityToString(Identity ident);
+    public string identityToString(Identity ident) => Util.identityToString(ident, instance.toStringMode());
 
     /// <summary>Create a new object adapter. The endpoints for the object adapter are taken from the property
     /// name.Endpoints. It is legal to create an object adapter with the empty string as its name. Such an object
@@ -109,7 +161,10 @@ public interface Communicator : IDisposable
     /// and all the required configuration must be set using the <see cref="SslServerAuthenticationOptions"/> object.
     /// </param>
     /// <returns>The new object adapter.</returns>
-    ObjectAdapter createObjectAdapter(string name, SslServerAuthenticationOptions serverAuthenticationOptions = null);
+    public ObjectAdapter createObjectAdapter(
+        string name,
+        SslServerAuthenticationOptions? serverAuthenticationOptions = null) =>
+        instance.objectAdapterFactory().createObjectAdapter(name, null, serverAuthenticationOptions);
 
     /// <summary>Create a new object adapter with endpoints. This operation sets the property name.Endpoints, and
     /// then calls createObjectAdapter. It is provided as a convenience function. Calling this operation with an
@@ -122,7 +177,19 @@ public interface Communicator : IDisposable
     /// and all the required configuration must be set using the <see cref="SslServerAuthenticationOptions"/> object.
     /// </param>
     /// <returns>The new object adapter.</returns>
-    ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints, SslServerAuthenticationOptions serverAuthenticationOptions = null);
+    public ObjectAdapter createObjectAdapterWithEndpoints(
+        string name,
+        string endpoints,
+        SslServerAuthenticationOptions? serverAuthenticationOptions = null)
+    {
+        if (name.Length == 0)
+        {
+            name = Guid.NewGuid().ToString();
+        }
+
+        getProperties().setProperty(name + ".Endpoints", endpoints);
+        return instance.objectAdapterFactory().createObjectAdapter(name, null, serverAuthenticationOptions);
+    }
 
     /// <summary>
     /// Create a new object adapter with a router.
@@ -131,45 +198,62 @@ public interface Communicator : IDisposable
     /// </summary>
     ///  <param name="name">The object adapter name.
     ///  </param>
-    /// <param name="rtr">The router.
+    /// <param name="router">The router.
     ///  </param>
     /// <returns>The new object adapter.
     ///  </returns>
-    ObjectAdapter createObjectAdapterWithRouter(string name, RouterPrx rtr);
+    public ObjectAdapter createObjectAdapterWithRouter(string name, RouterPrx router)
+    {
+        if (name.Length == 0)
+        {
+            name = Guid.NewGuid().ToString();
+        }
+
+        //
+        // We set the proxy properties here, although we still use the proxy supplied.
+        //
+        Dictionary<string, string> properties = proxyToProperty(router, name + ".Router");
+        foreach (KeyValuePair<string, string> entry in properties)
+        {
+            getProperties().setProperty(entry.Key, entry.Value);
+        }
+
+        return instance.objectAdapterFactory().createObjectAdapter(name, router, serverAuthenticationOptions: null);
+    }
 
     /// <summary>
     /// Get the implicit context associated with this communicator.
     /// </summary>
     /// <returns>The implicit context associated with this communicator; returns null when the property Ice.ImplicitContext
     ///  is not set or is set to None.</returns>
-    ImplicitContext getImplicitContext();
+    public ImplicitContext getImplicitContext() => instance.getImplicitContext();
 
     /// <summary>
     /// Get the properties for this communicator.
     /// </summary>
     /// <returns>This communicator's properties.
     ///  </returns>
-    Properties getProperties();
+    public Properties getProperties() => instance.initializationData().properties;
 
     /// <summary>
     /// Get the logger for this communicator.
     /// </summary>
     /// <returns>This communicator's logger.
     ///  </returns>
-    Logger getLogger();
+    public Logger? getLogger() => instance.initializationData().logger;
 
     /// <summary>
     /// Get the observer resolver object for this communicator.
     /// </summary>
     /// <returns>This communicator's observer resolver object.</returns>
-    Instrumentation.CommunicatorObserver getObserver();
+    public Instrumentation.CommunicatorObserver? getObserver() => instance.initializationData().observer;
 
     /// <summary>
     /// Get the default router for this communicator.
     /// </summary>
     /// <returns>The default router for this communicator.
     ///  </returns>
-    RouterPrx getDefaultRouter();
+    public RouterPrx? getDefaultRouter() => instance.referenceFactory().getDefaultRouter();
 
     /// <summary>
     /// Set a default router for this communicator.
@@ -178,16 +262,16 @@ public interface Communicator : IDisposable
     ///  You can also set a router for an individual proxy by calling the operation ice_router on the
     ///  proxy.
     /// </summary>
-    ///  <param name="rtr">The default router to use for this communicator.
+    ///  <param name="router">The default router to use for this communicator.
     ///  </param>
-    void setDefaultRouter(RouterPrx rtr);
+    public void setDefaultRouter(RouterPrx? router) => instance.setDefaultRouter(router);
 
     /// <summary>
     /// Get the default locator for this communicator.
     /// </summary>
     /// <returns>The default locator for this communicator.
     ///  </returns>
-    LocatorPrx getDefaultLocator();
+    public LocatorPrx? getDefaultLocator() => instance.referenceFactory().getDefaultLocator();
 
     /// <summary>
     /// Set a default Ice locator for this communicator.
@@ -197,23 +281,23 @@ public interface Communicator : IDisposable
     ///  You can also set a locator for an individual proxy by calling the operation ice_locator on the
     ///  proxy, or for an object adapter by calling ObjectAdapter.setLocator on the object adapter.
     /// </summary>
-    ///  <param name="loc">The default locator to use for this communicator.
+    ///  <param name="locator">The default locator to use for this communicator.
     ///  </param>
-    void setDefaultLocator(LocatorPrx loc);
+    public void setDefaultLocator(LocatorPrx? locator) => instance.setDefaultLocator(locator);
 
     /// <summary>
     /// Get the plug-in manager for this communicator.
     /// </summary>
     /// <returns>This communicator's plug-in manager.
     ///  </returns>
-    PluginManager getPluginManager();
+    public PluginManager getPluginManager() => instance.pluginManager();
 
     /// <summary>
     /// Get the value factory manager for this communicator.
     /// </summary>
     /// <returns>This communicator's value factory manager.
     ///  </returns>
-    ValueFactoryManager getValueFactoryManager();
+    public ValueFactoryManager getValueFactoryManager() => instance.initializationData().valueFactoryManager;
 
     /// <summary>
     /// Flush any pending batch requests for this communicator.
@@ -223,12 +307,31 @@ public interface Communicator : IDisposable
     /// </summary>
     ///  <param name="compress">Specifies whether or not the queued batch requests should be compressed before being sent over
     ///  the wire.</param>
-    void flushBatchRequests(CompressBatch compress);
+    public void flushBatchRequests(CompressBatch compress)
+    {
+        try
+        {
+            var completed = new FlushBatchTaskCompletionCallback();
+            var outgoing = new CommunicatorFlushBatchAsync(instance, completed);
+            outgoing.invoke(_flushBatchRequests_name, compress, true);
+            completed.Task.Wait();
+        }
+        catch (AggregateException ex)
+        {
+            throw ex.InnerException!;
+        }
+    }
 
-    Task flushBatchRequestsAsync(
+    public Task flushBatchRequestsAsync(
         CompressBatch compress,
-        IProgress<bool> progress = null,
-        CancellationToken cancel = default);
+        IProgress<bool>? progress = null,
+        CancellationToken cancel = default)
+    {
+        var completed = new FlushBatchTaskCompletionCallback(progress, cancel);
+        var outgoing = new CommunicatorFlushBatchAsync(instance, completed);
+        outgoing.invoke(_flushBatchRequests_name, compress, false);
+        return completed.Task;
+    }
 
     /// <summary>
     /// Add the Admin object with all its facets to the provided object adapter.
@@ -244,7 +347,8 @@ public interface Communicator : IDisposable
     ///  </param>
     /// <returns>A proxy to the main ("") facet of the Admin object. Never returns a null proxy.
     ///  </returns>
-    ObjectPrx createAdmin(ObjectAdapter adminAdapter, Identity adminId);
+    public ObjectPrx createAdmin(ObjectAdapter adminAdapter, Identity adminId) =>
+        instance.createAdmin(adminAdapter, adminId);
 
     /// <summary>
     /// Get a proxy to the main facet of the Admin object.
@@ -256,7 +360,7 @@ public interface Communicator : IDisposable
     /// </summary>
     ///  <returns>A proxy to the main ("") facet of the Admin object, or a null proxy if no Admin object is configured.
     ///  </returns>
-    ObjectPrx getAdmin();
+    public ObjectPrx? getAdmin() => instance.getAdmin();
 
     /// <summary>
     /// Add a new facet to the Admin object.
@@ -266,7 +370,7 @@ public interface Communicator : IDisposable
     ///  <param name="servant">The servant that implements the new Admin facet.
     ///  </param>
     /// <param name="facet">The name of the new Admin facet.</param>
-    void addAdminFacet(Object servant, string facet);
+    public void addAdminFacet(Object servant, string facet) => instance.addAdminFacet(servant, facet);
 
     /// <summary>
     /// Remove the following facet to the Admin object.
@@ -276,7 +380,7 @@ public interface Communicator : IDisposable
     ///  <param name="facet">The name of the Admin facet.
     ///  </param>
     /// <returns>The servant associated with this Admin facet.</returns>
-    Object removeAdminFacet(string facet);
+    public Object removeAdminFacet(string facet) => instance.removeAdminFacet(facet);
 
     /// <summary>
     /// Returns a facet of the Admin object.
@@ -284,14 +388,33 @@ public interface Communicator : IDisposable
     /// <param name="facet">The name of the Admin facet.
     ///  </param>
     /// <returns>The servant associated with this Admin facet, or null if no facet is registered with the given name.</returns>
-    Object findAdminFacet(string facet);
+    public Object? findAdminFacet(string facet) => instance.findAdminFacet(facet);
 
     /// <summary>
     /// Returns a map of all facets of the Admin object.
     /// </summary>
     /// <returns>A collection containing all the facet names and servants of the Admin object.
     ///  </returns>
-    System.Collections.Generic.Dictionary<string, Object> findAllAdminFacets();
+    public Dictionary<string, Object> findAllAdminFacets() => instance.findAllAdminFacets();
+
+    internal Communicator(InitializationData initData)
+    {
+        instance = new Instance();
+        instance.initialize(this, initData);
+    }
+
+    internal void finishSetup(ref string[] args)
+    {
+        try
+        {
+            instance.finishSetup(ref args, this);
+        }
+        catch
+        {
+            instance.destroy();
+            throw;
+        }
+    }
 }
 
 /// <summary>

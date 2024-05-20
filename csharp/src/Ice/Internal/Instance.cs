@@ -652,7 +652,7 @@ public sealed class Instance
     }
 
     //
-    // Only for use by Ice.CommunicatorI
+    // Only for use by Ice.Communicator
     //
     internal void initialize(Ice.Communicator communicator, Ice.InitializationData initData)
     {
@@ -1134,7 +1134,7 @@ public sealed class Instance
     }
 
     //
-    // Only for use by Ice.CommunicatorI
+    // Only for use by Ice.Communicator
     //
     public void destroy()
     {
