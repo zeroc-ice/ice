@@ -930,9 +930,9 @@ classdef LocalTests
             is.readValue(@(v) h.set(v), symbol('Opt'));
             is.readPendingValues();
             is.endEncapsulation();
-            assert(h.value.os == Ice.Unset);
-            assert(h.value.osSeq == Ice.Unset);
-            assert(h.value.osDict == Ice.Unset);
+            assert(h.value.o == Ice.Unset);
+            assert(h.value.oSeq == Ice.Unset);
+            assert(h.value.oDict == Ice.Unset);
 
             %
             % Test: class containing multiple optional members requiring conversion.
@@ -942,12 +942,12 @@ classdef LocalTests
                 out = communicator.createOutputStream(encoding);
                 out.startEncapsulation(format);
                 cb = Opt();
-                cb.os = OS(3);
-                cb.osSeq = {};
-                cb.osDict = containers.Map('KeyType', 'int32', 'ValueType', 'any');
+                cb.o = O(3);
+                cb.oSeq = {};
+                cb.oDict = containers.Map('KeyType', 'int32', 'ValueType', 'any');
                 for i = 1:10
-                    cb.osSeq{i} = OS(i);
-                    cb.osDict(i) = OS(i);
+                    cb.oSeq{i} = O(i);
+                    cb.oDict(i) = O(i);
                 end
                 out.writeValue(cb);
                 out.writePendingValues();
@@ -959,14 +959,14 @@ classdef LocalTests
                 is.readValue(@(v) h.set(v), symbol('Opt'));
                 is.readPendingValues();
                 is.endEncapsulation();
-                assert(isa(h.value.os, symbol('OS')));
-                assert(isa(h.value.osSeq, 'cell'));
-                assert(isa(h.value.osDict(1), symbol('OS')));
-                assert(length(h.value.osSeq) == length(cb.osSeq));
-                assert(length(h.value.osDict) == length(cb.osDict));
+                assert(isa(h.value.o, symbol('O')));
+                assert(isa(h.value.oSeq, 'cell'));
+                assert(isa(h.value.oDict(1), symbol('O')));
+                assert(length(h.value.oSeq) == length(cb.oSeq));
+                assert(length(h.value.oDict) == length(cb.oDict));
                 for i = 1:10
-                    assert(h.value.osSeq{i}.i == i);
-                    assert(h.value.osDict(i).i == i);
+                    assert(h.value.oSeq{i}.i == i);
+                    assert(h.value.oDict(i).i == i);
                 end
             end
 
