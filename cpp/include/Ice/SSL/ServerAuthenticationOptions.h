@@ -25,7 +25,7 @@ namespace Ice::SSL
          * @remarks This callback is invoked by the SSL transport for each new incoming connection before starting the
          * SSL handshake to determine the appropriate server credentials. The callback should return a SCHANNEL_CRED
          * that represents the server's credentials. The SSL transport takes ownership of the credentials' paCred and
-         * and hRootStore and releases them when the connection is closed.
+         * and hRootStore, and releases them when the connection is closed.
          *
          * @param adapterName The name of the object adapter that accepted the connection.
          * @return The server's credentials.
