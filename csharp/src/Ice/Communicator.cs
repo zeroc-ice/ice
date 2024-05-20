@@ -127,7 +127,7 @@ public sealed class Communicator : IDisposable
     /// <param name="prefix">The base property name.</param>
     /// <returns>The property set.</returns>
     public Dictionary<string, string> proxyToProperty(ObjectPrx proxy, string prefix) =>
-        proxy is null ? [] : ((ObjectPrxHelperBase)proxy).iceReference().toProperty(prefix);
+        ((ObjectPrxHelperBase)proxy).iceReference().toProperty(prefix);
 
     /// <summary>
     /// Converts an identity into a string.
