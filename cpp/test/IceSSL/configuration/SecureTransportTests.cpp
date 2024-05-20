@@ -159,19 +159,7 @@ void
 clientValidatesServerUsingSystemTrustedRootCertificates(Test::TestHelper*, const string&)
 {
     cout << "client validates server using system trusted root certificates... " << flush;
-    Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
-        .sslNewSessionCallback = [](SSLContextRef ssl, const string& host)
-        {
-            // Enable SNI, it is required for connecting to CloudFront servers.
-            OSStatus err = SSLSetPeerDomainName(ssl, host.data(), host.length());
-            if (err != noErr)
-            {
-                throw SecurityException(
-                    __FILE__,
-                    __LINE__,
-                    "SSL transport: setting peer domain name failed `" + host + "'\n" + to_string(err));
-            }
-        }};
+    Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{};
     Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
 
     Ice::ObjectPrx obj(

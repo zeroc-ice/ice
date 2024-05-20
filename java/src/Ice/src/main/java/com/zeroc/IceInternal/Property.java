@@ -5,17 +5,11 @@
 package com.zeroc.IceInternal;
 
 public class Property {
-  public Property(
-      String pattern,
-      boolean usesRegex,
-      String defaultValue,
-      boolean deprecated,
-      String deprecatedBy) {
+  public Property(String pattern, boolean usesRegex, String defaultValue, boolean deprecated) {
     _pattern = pattern;
     _usesRegex = usesRegex;
     _defaultValue = defaultValue;
     _deprecated = deprecated;
-    _deprecatedBy = deprecatedBy;
   }
 
   public String pattern() {
@@ -34,13 +28,8 @@ public class Property {
     return _deprecated;
   }
 
-  public String deprecatedBy() {
-    return _deprecatedBy;
-  }
-
   private String _pattern;
   private boolean _usesRegex;
   private String _defaultValue;
   private boolean _deprecated;
-  private String _deprecatedBy;
 }

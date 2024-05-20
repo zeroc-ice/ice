@@ -173,17 +173,7 @@ clientValidatesServerUsingSystemTrustedRootCertificates(Test::TestHelper*, const
     cout << "client validates server using system trusted root certificates... " << flush;
     SSL_CTX* clientSSLContext = SSL_CTX_new(TLS_client_method());
     SSL_CTX_set_default_verify_paths(clientSSLContext);
-    Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{
-        .sslNewSessionCallback = [](::SSL* ssl, const string& host)
-        {
-            // Enable SNI, it is required for connecting to CloudFront servers.
-            if (!SSL_set_tlsext_host_name(ssl, host.c_str()))
-            {
-                ostringstream os;
-                os << "IceSSL: setting SNI host failed `" << host << "'";
-                throw SecurityException(__FILE__, __LINE__, os.str());
-            }
-        }};
+    Ice::SSL::ClientAuthenticationOptions clientAuthenticationOptions{};
     Ice::CommunicatorHolder clientCommunicator(createClient(clientAuthenticationOptions));
 
     Ice::ObjectPrx obj(

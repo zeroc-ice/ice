@@ -127,7 +127,7 @@
                 }
                 catch(ex)
                 {
-                    test(ex.message == "unknown ice property: Ice.UnknownProperty");
+                    test(ex.message == "unknown Ice property: Ice.UnknownProperty");
                 }
                 out.writeLine("ok");
             }

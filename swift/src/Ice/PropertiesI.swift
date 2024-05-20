@@ -11,7 +11,7 @@ class PropertiesI: LocalObject<ICEProperties>, Properties {
 
   public func getIceProperty(_ key: String) throws -> String {
     guard let value = handle.getIceProperty(key) else {
-      throw RuntimeError("unknown ice property: \(key)")
+      throw RuntimeError("unknown Ice property: \(key)")
     }
     return value
   }
@@ -26,7 +26,7 @@ class PropertiesI: LocalObject<ICEProperties>, Properties {
 
   public func getIcePropertyAsInt(_ key: String) throws -> Int32 {
     guard let value = handle.getIcePropertyAsInt(key) as? Int32 else {
-      throw RuntimeError("unknown ice property: \(key)")
+      throw RuntimeError("unknown Ice property: \(key)")
     }
     return value
   }
@@ -41,7 +41,7 @@ class PropertiesI: LocalObject<ICEProperties>, Properties {
 
   public func getIcePropertyAsList(_ key: String) throws -> StringSeq {
     guard let value = handle.getIcePropertyAsList(key) else {
-      throw RuntimeError("unknown ice property: \(key)")
+      throw RuntimeError("unknown Ice property: \(key)")
     }
     return value
   }

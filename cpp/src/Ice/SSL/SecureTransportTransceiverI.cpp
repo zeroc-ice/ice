@@ -104,10 +104,19 @@ Ice::SSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuf
     OSStatus err = 0;
     if (!_ssl)
     {
-        //
         // Initialize SSL context
-        //
         _ssl.reset(_engine->newContext(_incoming));
+
+        // Enable SNI by default for outgoing connections. The SNI host name is always empty for incoming connections.
+        if (!_host.empty() && !IceInternal::isIpAddress(_host) &&
+            (err = SSLSetPeerDomainName(_ssl.get(), _host.data(), _host.length())))
+        {
+            throw SecurityException(
+                __FILE__,
+                __LINE__,
+                "SSL transport: setting SNI host failed `" + _host + "'\n" + sslErrorToString(err));
+        }
+
         if (_sslNewSessionCallback)
         {
             _sslNewSessionCallback(_ssl.get(), _incoming ? _adapterName : _host);
@@ -148,20 +157,6 @@ Ice::SSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuf
                 __FILE__,
                 __LINE__,
                 "SSL transport: setting SSL connection failed\n" + sslErrorToString(err));
-        }
-
-        //
-        // Enable SNI
-        //
-        if (!_incoming && _engine->getServerNameIndication() && !_host.empty() && !IceInternal::isIpAddress(_host))
-        {
-            if ((err = SSLSetPeerDomainName(_ssl.get(), _host.data(), _host.length())))
-            {
-                throw SecurityException(
-                    __FILE__,
-                    __LINE__,
-                    "SSL transport: setting SNI host failed `" + _host + "'\n" + sslErrorToString(err));
-            }
         }
     }
 

@@ -138,7 +138,7 @@ public class Client: TestHelperI {
         _ = try properties.getIceProperty("Ice.UnknownProperty")
         try test(false)
       } catch let error as RuntimeError {
-        try test(error.description == "unknown ice property: Ice.UnknownProperty")
+        try test(error.description == "unknown Ice property: Ice.UnknownProperty")
       }
 
       output.write("ok")

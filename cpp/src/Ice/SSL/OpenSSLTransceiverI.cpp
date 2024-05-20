@@ -110,6 +110,13 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
 
         SSL_set_ex_data(_ssl, 0, this);
         SSL_set_verify(_ssl, SSL_get_verify_mode(_ssl), Ice_SSL_opensslVerifyCallback);
+        // Enable SNI by default for outgoing connections. The SNI host name is always empty for incoming connections.
+        if (!_host.empty() && !IceInternal::isIpAddress(_host) && !SSL_set_tlsext_host_name(_ssl, _host.c_str()))
+        {
+            ostringstream os;
+            os << "IceSSL: setting SNI host failed `" << _host << "'";
+            throw SecurityException(__FILE__, __LINE__, os.str());
+        }
 
         if (_sslNewSessionCallback)
         {

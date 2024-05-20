@@ -74,66 +74,6 @@ public class CollocatedRequestHandler : RequestHandler
         }
     }
 
-    public void sendResponse(int requestId, Ice.OutputStream os, byte status, bool amd)
-    {
-        OutgoingAsyncBase outAsync;
-        lock (this)
-        {
-            Debug.Assert(_response);
-
-            if (_traceLevels.protocol >= 1)
-            {
-                fillInValue(os, 10, os.size());
-            }
-
-            // Adopt the OutputStream's buffer.
-            Ice.InputStream iss = new Ice.InputStream(os.instance(), os.getEncoding(), os.getBuffer(), true);
-
-            iss.pos(Protocol.replyHdr.Length + 4);
-
-            if (_traceLevels.protocol >= 1)
-            {
-                TraceUtil.traceRecv(iss, _logger, _traceLevels);
-            }
-
-            if (_asyncRequests.TryGetValue(requestId, out outAsync))
-            {
-                outAsync.getIs().swap(iss);
-                if (!outAsync.response())
-                {
-                    outAsync = null;
-                }
-                _asyncRequests.Remove(requestId);
-            }
-        }
-
-        if (outAsync != null)
-        {
-            if (amd)
-            {
-                outAsync.invokeResponseAsync();
-            }
-            else
-            {
-                outAsync.invokeResponse();
-            }
-        }
-        _adapter.decDirectCount();
-    }
-
-    public void
-    sendNoResponse()
-    {
-        _adapter.decDirectCount();
-    }
-
-    public void
-    dispatchException(int requestId, Ice.LocalException ex, int requestCount, bool amd)
-    {
-        handleException(requestId, ex, amd);
-        _adapter.decDirectCount();
-    }
-
     public Reference
     getReference()
     {
@@ -273,7 +213,7 @@ public class CollocatedRequestHandler : RequestHandler
                 }
                 catch (Ice.ObjectAdapterDeactivatedException ex)
                 {
-                    handleException(requestId, ex, false);
+                    handleException(ex, requestId, amd: false);
                     break;
                 }
 
@@ -285,14 +225,13 @@ public class CollocatedRequestHandler : RequestHandler
         }
         catch (Ice.LocalException ex)
         {
-            this.dispatchException(requestId, ex, dispatchCount, false); // Fatal invocation exception
+            dispatchException(ex, requestId, amd: false); // Fatal invocation exception
         }
 
         _adapter.decDirectCount();
 
         async Task dispatchAsync(IncomingRequest request)
         {
-            bool isTwoWay = _response;
             bool amd = false;
 
             try
@@ -310,28 +249,79 @@ public class CollocatedRequestHandler : RequestHandler
                     response = request.current.createOutgoingResponse(ex);
                 }
 
-                if (isTwoWay)
-                {
-                    sendResponse(requestId, response.outputStream, status: 0, amd);
-                }
-                else
-                {
-                    sendNoResponse();
-                }
+                sendResponse(response, requestId, amd);
             }
             catch (Ice.LocalException ex) // TODO: catch all exceptions to avoid UnobservedTaskException
             {
-                dispatchException(requestId, ex, requestCount: 1, amd);
+                dispatchException(ex, requestId, amd);
             }
         }
     }
 
-    private void
-    handleException(int requestId, Ice.Exception ex, bool amd)
+    private void sendResponse(OutgoingResponse response, int requestId, bool amd)
     {
-        if (requestId == 0)
+        if (_response)
         {
-            return; // Ignore exception for oneway messages.
+            OutgoingAsyncBase outAsync;
+            OutputStream outputStream = response.outputStream;
+            lock (this)
+            {
+                if (_traceLevels.protocol >= 1)
+                {
+                    fillInValue(outputStream, 10, outputStream.size());
+                }
+
+                // Adopt the OutputStream's buffer.
+                var inputStream = new InputStream(
+                    outputStream.instance(),
+                    outputStream.getEncoding(),
+                    outputStream.getBuffer(),
+                    adopt: true);
+
+                inputStream.pos(Protocol.replyHdr.Length + 4);
+
+                if (_traceLevels.protocol >= 1)
+                {
+                    TraceUtil.traceRecv(inputStream, _logger, _traceLevels);
+                }
+
+                if (_asyncRequests.TryGetValue(requestId, out outAsync))
+                {
+                    outAsync.getIs().swap(inputStream);
+                    if (!outAsync.response())
+                    {
+                        outAsync = null;
+                    }
+                    _asyncRequests.Remove(requestId);
+                }
+            }
+
+            if (outAsync is not null)
+            {
+                if (amd)
+                {
+                    outAsync.invokeResponseAsync();
+                }
+                else
+                {
+                    outAsync.invokeResponse();
+                }
+            }
+        }
+        _adapter.decDirectCount();
+    }
+
+    private void dispatchException(Ice.LocalException ex, int requestId, bool amd)
+    {
+        handleException(ex, requestId, amd);
+        _adapter.decDirectCount();
+    }
+
+    private void handleException(Ice.Exception ex, int requestId, bool amd)
+    {
+        if (!_response)
+        {
+            return; // Ignore exception for oneway proxies.
         }
 
         OutgoingAsyncBase outAsync;
