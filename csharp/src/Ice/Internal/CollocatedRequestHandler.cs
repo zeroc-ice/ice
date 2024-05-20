@@ -11,8 +11,7 @@ public class CollocatedRequestHandler : RequestHandler
         os.rewriteInt(value, pos);
     }
 
-    public
-    CollocatedRequestHandler(Reference reference, Ice.ObjectAdapter adapter)
+    internal CollocatedRequestHandler(Reference reference, Ice.ObjectAdapter adapter)
     {
         _reference = reference;
         _executor = _reference.getInstance().initializationData().executor != null;
@@ -67,7 +66,7 @@ public class CollocatedRequestHandler : RequestHandler
 
     public ConnectionI getConnection() => null;
 
-    public int invokeAsyncRequest(OutgoingAsyncBase outAsync, int batchRequestCount, bool synchronous)
+    internal int invokeAsyncRequest(OutgoingAsyncBase outAsync, int batchRequestCount, bool synchronous)
     {
         //
         // Increase the direct count to prevent the thread pool from being destroyed before

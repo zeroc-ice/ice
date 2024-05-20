@@ -722,7 +722,6 @@ public class FixedReference : Reference
             compress = compress_;
         }
 
-        // TODO: rename ConnectionRequestHandler to FixedRequestHandler
         return new FixedRequestHandler(this, _fixedConnection, compress);
     }
 
