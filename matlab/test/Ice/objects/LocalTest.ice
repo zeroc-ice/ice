@@ -114,19 +114,4 @@ dictionary<StructKey, S1> StructDict2;
 dictionary<int, C1Dict> C1DictDict;
 dictionary<int, S1Dict> S1DictDict;
 
-struct O
-{
-    int i;
-}
-
-sequence<O> OSeq;
-dictionary<int, O> ODict;
-
-class Opt
-{
-    optional(1) O o;
-    optional(2) OSeq oSeq;
-    optional(3) ODict oDict;
-}
-
 }
