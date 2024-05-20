@@ -31,7 +31,7 @@ public class LoggerPlugin : Plugin
             throw ex;
         }
 
-        Ice.Internal.Instance instance = Ice.Internal.Util.getInstance(communicator);
+        Ice.Internal.Instance instance = communicator.instance;
         instance.setLogger(logger);
     }
 

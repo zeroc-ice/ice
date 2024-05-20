@@ -8,7 +8,7 @@ public class ProtocolInstance
 {
     public ProtocolInstance(Ice.Communicator communicator, short type, string protocol, bool secure)
     {
-        instance_ = Util.getInstance(communicator);
+        instance_ = communicator.instance;
         traceLevel_ = instance_.traceLevels().network;
         traceCategory_ = instance_.traceLevels().networkCat;
         logger_ = instance_.initializationData().logger;

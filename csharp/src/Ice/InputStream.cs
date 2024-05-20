@@ -215,7 +215,7 @@ public class InputStream
     public void initialize(Communicator communicator)
     {
         Debug.Assert(communicator != null);
-        Ice.Internal.Instance instance = Ice.Internal.Util.getInstance(communicator);
+        Ice.Internal.Instance instance = communicator.instance;
         initialize(instance, instance.defaultsAndOverrides().defaultEncoding);
     }
 
@@ -227,7 +227,7 @@ public class InputStream
     public void initialize(Communicator communicator, EncodingVersion encoding)
     {
         Debug.Assert(communicator != null);
-        Ice.Internal.Instance instance = Ice.Internal.Util.getInstance(communicator);
+        Ice.Internal.Instance instance = communicator.instance;
         initialize(instance, encoding);
     }
 

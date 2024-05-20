@@ -26,7 +26,7 @@ public sealed class ProtocolPluginFacadeI : ProtocolPluginFacade
     public ProtocolPluginFacadeI(Ice.Communicator communicator)
     {
         _communicator = communicator;
-        _instance = Util.getInstance(communicator);
+        _instance = communicator.instance;
     }
 
     //

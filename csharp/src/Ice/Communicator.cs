@@ -13,23 +13,25 @@ public sealed class Communicator : IDisposable
 
     private const string _flushBatchRequests_name = "flushBatchRequests";
 
+    /// <summary>
+    /// Disposes this communicator. It's an alias for <see cref="destroy"/>.
+    /// </summary>
     public void Dispose() => destroy();
 
     /// <summary>
-    /// Destroy the communicator.
-    /// This operation calls shutdown implicitly. Calling destroy cleans up
-    ///  memory, and shuts down this communicator's client functionality and destroys all object adapters. Subsequent
-    ///  calls to destroy are ignored.
+    /// Destroys the communicator. This operation calls shutdown implicitly. Calling destroy cleans up memory, and shuts
+    /// down this communicator's client functionality and destroys all object adapters. Subsequent calls to destroy are
+    /// ignored.
     /// </summary>
     public void destroy() => instance.destroy();
 
     /// <summary>
     /// Shuts down this communicator's server functionality, which includes the deactivation of all object adapters.
-    /// Attempts to use a deactivated object adapter raise ObjectAdapterDeactivatedException. Subsequent calls to
-    ///  shutdown are ignored.
-    ///  After shutdown returns, no new requests are processed. However, requests that have been started before shutdown
-    ///  was called might still be active. You can use waitForShutdown to wait for the completion of all
-    ///  requests.
+    /// Attempts to use a deactivated object adapter throws <see cref="ObjectAdapterDeactivatedException" />. Subsequent
+    /// calls to shutdown are ignored.
+    /// After shutdown returns, no new requests are processed. However, requests that started to be dispatched before
+    /// shutdown was called might still be active. You can use <see cref="waitForShutdown" /> to wait for the completion
+    /// of all dispatches.
     /// </summary>
     public void shutdown()
     {
@@ -44,13 +46,12 @@ public sealed class Communicator : IDisposable
     }
 
     /// <summary>
-    /// Wait until the application has called shutdown (or destroy).
-    /// On the server side, this
-    ///  operation blocks the calling thread until all currently-executing operations have completed. On the client
-    ///  side, the operation simply blocks until another thread has called shutdown or destroy.
-    ///  A typical use of this operation is to call it from the main thread, which then waits until some other thread
-    ///  calls shutdown. After shut-down is complete, the main thread returns and can do some cleanup work
-    ///  before it finally calls destroy to shut down the client functionality, and then exits the application.
+    /// Waits until the application has called <see cref="shutdown" /> (or <see cref="destroy" />).
+    /// On the server side, this method blocks the calling thread until all currently-executing dispatches have
+    /// completed. On the client side, the method simply blocks until another thread has called shutdown or destroy.
+    /// A typical use of this method is to call it from the main thread, which then waits until some other thread
+    /// calls shutdown. After shut-down is complete, the main thread returns and can do some cleanup work
+    /// before it finally calls destroy to shut down the client functionality, and then exits the application.
     /// </summary>
     public void waitForShutdown()
     {
@@ -65,10 +66,9 @@ public sealed class Communicator : IDisposable
     }
 
     /// <summary>
-    /// Check whether communicator has been shut down.
+    /// Checks whether communicator has been shut down.
     /// </summary>
-    /// <returns>True if the communicator has been shut down; false otherwise.
-    ///  </returns>
+    /// <returns>True if the communicator has been shut down; false otherwise.</returns>
     public bool isShutdown()
     {
         try
@@ -82,17 +82,15 @@ public sealed class Communicator : IDisposable
     }
 
     /// <summary>
-    /// Convert a stringified proxy into a proxy.
-    /// For example, MyCategory/MyObject:tcp -h some_host -p 10000 creates a proxy that refers to the Ice
-    ///  object having an identity with a name "MyObject" and a category "MyCategory", with the server running on host
-    ///  "some_host", port 10000. If the stringified proxy does not parse correctly, the operation throws one of
-    ///  ProxyParseException, EndpointParseException, or IdentityParseException. Refer to the Ice manual for a detailed
-    ///   description of the syntax supported by stringified proxies.
+    /// Converts a stringified proxy into a proxy.
+    /// For example, "MyCategory/MyObject:tcp -h some_host -p 10000" creates a proxy that refers to the Ice object
+    /// having an identity with a name "MyObject" and a category "MyCategory", with the server running on host
+    /// "some_host", port 10000. If the stringified proxy does not parse correctly, this method throws one of
+    /// ProxyParseException, EndpointParseException, or IdentityParseException. Refer to the Ice manual for a detailed
+    /// description of the syntax supported by stringified proxies.
     /// </summary>
-    ///  <param name="str">The stringified proxy to convert into a proxy.
-    ///  </param>
-    /// <returns>The proxy, or nil if str is an empty string.
-    ///  </returns>
+    /// <param name="str">The stringified proxy to convert into a proxy.</param>
+    /// <returns>The proxy, or null if str is an empty string.</returns>
     public ObjectPrx? stringToProxy(string str)
     {
         Reference reference = instance.referenceFactory().create(str, "");
@@ -100,27 +98,22 @@ public sealed class Communicator : IDisposable
     }
 
     /// <summary>
-    /// Convert a proxy into a string.
+    /// Converts a proxy into a string.
     /// </summary>
-    /// <param name="proxy">The proxy to convert into a stringified proxy.
-    ///  </param>
-    /// <returns>The stringified proxy, or an empty string if
-    ///  obj is null.
-    ///  </returns>
+    /// <param name="proxy">The proxy to convert into a stringified proxy.</param>
+    /// <returns>The stringified proxy, or an empty string if <paramref name="proxy" /> is null.</returns>
     public string proxyToString(ObjectPrx? proxy)
     {
         return instance.proxyFactory().proxyToString(proxy);
     }
 
     /// <summary>
-    /// Convert a set of proxy properties into a proxy.
-    /// The "base" name supplied in the property argument
-    ///  refers to a property containing a stringified proxy, such as MyProxy=id:tcp -h localhost -p 10000.
-    ///  Additional properties configure local settings for the proxy, such as MyProxy.PreferSecure=1. The
-    ///  "Properties" appendix in the Ice manual describes each of the supported proxy properties.
+    /// Converts a set of proxy properties into a proxy. The "base" name supplied in the property argument refers to a
+    /// property containing a stringified proxy, such as "MyProxy=id:tcp -h localhost -p 10000". Additional properties
+    /// configure local settings for the proxy, such as MyProxy.PreferSecure=1. The "Properties" appendix in the Ice
+    /// manual describes each of the supported proxy properties.
     /// </summary>
-    ///  <param name="property">The base property name.
-    ///  </param>
+    ///  <param name="property">The base property name.</param>
     /// <returns>The proxy.</returns>
     public ObjectPrx? propertyToProxy(string property)
     {
@@ -128,12 +121,10 @@ public sealed class Communicator : IDisposable
     }
 
     /// <summary>
-    /// Convert a proxy to a set of proxy properties.
+    /// Converts a proxy to a set of proxy properties.
     /// </summary>
-    /// <param name="proxy">The proxy.
-    ///  </param>
-    /// <param name="prefix">The base property name.
-    ///  </param>
+    /// <param name="proxy">The proxy.</param>
+    /// <param name="prefix">The base property name.</param>
     /// <returns>The property set.</returns>
     public Dictionary<string, string> proxyToProperty(ObjectPrx proxy, string prefix)
     {
@@ -141,15 +132,13 @@ public sealed class Communicator : IDisposable
     }
 
     /// <summary>
-    /// Convert an identity into a string.
+    /// Converts an identity into a string.
     /// </summary>
-    /// <param name="ident">The identity to convert into a string.
-    ///  </param>
-    /// <returns>The "stringified" identity.
-    ///  </returns>
+    /// <param name="ident">The identity to convert into a string.</param>
+    /// <returns>The "stringified" identity.</returns>
     public string identityToString(Identity ident) => Util.identityToString(ident, instance.toStringMode());
 
-    /// <summary>Create a new object adapter. The endpoints for the object adapter are taken from the property
+    /// <summary>Creates a new object adapter. The endpoints for the object adapter are taken from the property
     /// name.Endpoints. It is legal to create an object adapter with the empty string as its name. Such an object
     /// adapter is accessible via bidirectional connections or by collocated invocations that originate from the
     /// same communicator as is used by the adapter. Attempts to create a named object adapter for which no
@@ -157,8 +146,9 @@ public sealed class Communicator : IDisposable
     /// <param name="name">The object adapter name.</param>
     /// <param name="serverAuthenticationOptions">The authentication options used by the SSL transport. Pass null
     /// if the adapter doesn't have any secure endpoints or if the SSL transport is configured using IceSSL properties.
-    /// When <paramref name="serverAuthenticationOptions"/> is set to a non-null value, all IceSSL properties are ignored,
-    /// and all the required configuration must be set using the <see cref="SslServerAuthenticationOptions"/> object.
+    /// When <paramref name="serverAuthenticationOptions"/> is set to a non-null value, all IceSSL properties are
+    /// ignored, and all the required configuration must be set using the <see cref="SslServerAuthenticationOptions"/>
+    /// object.
     /// </param>
     /// <returns>The new object adapter.</returns>
     public ObjectAdapter createObjectAdapter(
@@ -166,16 +156,16 @@ public sealed class Communicator : IDisposable
         SslServerAuthenticationOptions? serverAuthenticationOptions = null) =>
         instance.objectAdapterFactory().createObjectAdapter(name, null, serverAuthenticationOptions);
 
-    /// <summary>Create a new object adapter with endpoints. This operation sets the property name.Endpoints, and
+    /// <summary>Creates a new object adapter with endpoints. This method sets the property name.Endpoints, and
     /// then calls createObjectAdapter. It is provided as a convenience function. Calling this operation with an
     /// empty name will result in a UUID being generated for the name.</summary>
     /// <param name="name">The object adapter name.</param>
     /// <param name="endpoints">The endpoints for the object adapter.</param>
     /// <param name="serverAuthenticationOptions">The authentication options used by the SSL transport. Pass null
     /// if the adapter doesn't have any secure endpoints or if the SSL transport is configured using IceSSL properties.
-    /// When <paramref name="serverAuthenticationOptions"/> is set to a non-null value, all IceSSL properties are ignored,
-    /// and all the required configuration must be set using the <see cref="SslServerAuthenticationOptions"/> object.
-    /// </param>
+    /// When <paramref name="serverAuthenticationOptions"/> is set to a non-null value, all IceSSL properties are
+    /// ignored, and all the required configuration must be set using the <see cref="SslServerAuthenticationOptions"/>
+    /// object.</param>
     /// <returns>The new object adapter.</returns>
     public ObjectAdapter createObjectAdapterWithEndpoints(
         string name,
@@ -192,16 +182,13 @@ public sealed class Communicator : IDisposable
     }
 
     /// <summary>
-    /// Create a new object adapter with a router.
-    /// This operation creates a routed object adapter.
-    ///  Calling this operation with an empty name will result in a UUID being generated for the name.
+    /// Creates a new object adapter with a router.
+    /// This method creates a routed object adapter. Calling this operation with an empty name will result in a UUID
+    /// being generated for the name.
     /// </summary>
-    ///  <param name="name">The object adapter name.
-    ///  </param>
-    /// <param name="router">The router.
-    ///  </param>
-    /// <returns>The new object adapter.
-    ///  </returns>
+    /// <param name="name">The object adapter name.</param>
+    /// <param name="router">The router.</param>
+    /// <returns>The new object adapter.</returns>
     public ObjectAdapter createObjectAdapterWithRouter(string name, RouterPrx router)
     {
         if (name.Length == 0)
@@ -222,91 +209,81 @@ public sealed class Communicator : IDisposable
     }
 
     /// <summary>
-    /// Get the implicit context associated with this communicator.
+    /// Gets the implicit context associated with this communicator.
     /// </summary>
-    /// <returns>The implicit context associated with this communicator; returns null when the property Ice.ImplicitContext
-    ///  is not set or is set to None.</returns>
+    /// <returns>The implicit context associated with this communicator; returns null when the property
+    /// Ice.ImplicitContext is not set or is set to None.</returns>
     public ImplicitContext getImplicitContext() => instance.getImplicitContext();
 
     /// <summary>
-    /// Get the properties for this communicator.
+    /// Gets the properties for this communicator.
     /// </summary>
-    /// <returns>This communicator's properties.
-    ///  </returns>
+    /// <returns>This communicator's properties.</returns>
     public Properties getProperties() => instance.initializationData().properties;
 
     /// <summary>
-    /// Get the logger for this communicator.
+    /// Gets the logger for this communicator.
     /// </summary>
-    /// <returns>This communicator's logger.
-    ///  </returns>
+    /// <returns>This communicator's logger.</returns>
     public Logger? getLogger() => instance.initializationData().logger;
 
     /// <summary>
-    /// Get the observer resolver object for this communicator.
+    /// Gets the observer resolver object for this communicator.
     /// </summary>
     /// <returns>This communicator's observer resolver object.</returns>
     public Instrumentation.CommunicatorObserver? getObserver() => instance.initializationData().observer;
 
     /// <summary>
-    /// Get the default router for this communicator.
+    /// Gets the default router for this communicator.
     /// </summary>
-    /// <returns>The default router for this communicator.
-    ///  </returns>
+    /// <returns>The default router for this communicator.</returns>
     public RouterPrx? getDefaultRouter() => instance.referenceFactory().getDefaultRouter();
 
     /// <summary>
-    /// Set a default router for this communicator.
-    /// All newly created proxies will use this default router. To disable
-    ///  the default router, null can be used. Note that this operation has no effect on existing proxies.
-    ///  You can also set a router for an individual proxy by calling the operation ice_router on the
-    ///  proxy.
+    /// Sets a default router for this communicator.
+    /// All newly created proxies will use this default router. To disable the default router, null can be used. Note
+    /// that this method has no effect on existing proxies. You can also set a router for an individual proxy by calling
+    /// <see cref="ObjectPrx.ice_router(RouterPrx?)" /> on the proxy.
     /// </summary>
-    ///  <param name="router">The default router to use for this communicator.
-    ///  </param>
+    ///  <param name="router">The default router to use for this communicator.</param>
     public void setDefaultRouter(RouterPrx? router) => instance.setDefaultRouter(router);
 
     /// <summary>
-    /// Get the default locator for this communicator.
+    /// Gets the default locator for this communicator.
     /// </summary>
-    /// <returns>The default locator for this communicator.
-    ///  </returns>
+    /// <returns>The default locator for this communicator.</returns>
     public LocatorPrx? getDefaultLocator() => instance.referenceFactory().getDefaultLocator();
 
     /// <summary>
-    /// Set a default Ice locator for this communicator.
-    /// All newly created proxy and object adapters will use this
-    ///  default locator. To disable the default locator, null can be used. Note that this operation has no effect on
-    ///  existing proxies or object adapters.
-    ///  You can also set a locator for an individual proxy by calling the operation ice_locator on the
-    ///  proxy, or for an object adapter by calling ObjectAdapter.setLocator on the object adapter.
+    /// Sets a default Ice locator for this communicator.
+    /// All newly created proxy and object adapters will use this default locator. To disable the default locator, null
+    /// can be used. Note that this method has no effect on existing proxies or object adapters.
+    /// You can also set a locator for an individual proxy by calling <see cref="ObjectPrx.ice_locator(LocatorPrx?) "/>
+    /// on the proxy, or for an object adapter by calling <see cref="ObjectAdapter.setLocator(LocatorPrx)" /> on the
+    ///  object adapter.
     /// </summary>
-    ///  <param name="locator">The default locator to use for this communicator.
-    ///  </param>
+    /// <param name="locator">The default locator to use for this communicator.</param>
     public void setDefaultLocator(LocatorPrx? locator) => instance.setDefaultLocator(locator);
 
     /// <summary>
-    /// Get the plug-in manager for this communicator.
+    /// Gets the plug-in manager for this communicator.
     /// </summary>
-    /// <returns>This communicator's plug-in manager.
-    ///  </returns>
+    /// <returns>This communicator's plug-in manager.</returns>
     public PluginManager getPluginManager() => instance.pluginManager();
 
     /// <summary>
-    /// Get the value factory manager for this communicator.
+    /// Gets the value factory manager for this communicator.
     /// </summary>
-    /// <returns>This communicator's value factory manager.
-    ///  </returns>
+    /// <returns>This communicator's value factory manager.</returns>
     public ValueFactoryManager getValueFactoryManager() => instance.initializationData().valueFactoryManager;
 
     /// <summary>
-    /// Flush any pending batch requests for this communicator.
-    /// This means all batch requests invoked on fixed proxies
-    ///  for all connections associated with the communicator. Any errors that occur while flushing a connection are
-    ///  ignored.
+    /// Flushes any pending batch requests for this communicator.
+    /// This means all batch requests invoked on fixed proxies for all connections associated with the communicator.
+    /// Any errors that occur while flushing a connection are ignored.
     /// </summary>
-    ///  <param name="compress">Specifies whether or not the queued batch requests should be compressed before being sent over
-    ///  the wire.</param>
+    /// <param name="compress">Specifies whether or not the queued batch requests should be compressed before being sent
+    /// over the wire.</param>
     public void flushBatchRequests(CompressBatch compress)
     {
         try
@@ -334,67 +311,58 @@ public sealed class Communicator : IDisposable
     }
 
     /// <summary>
-    /// Add the Admin object with all its facets to the provided object adapter.
-    /// If Ice.Admin.ServerId is
-    ///  set and the provided object adapter has a Locator, createAdmin registers the Admin's Process facet with
-    ///  the Locator's LocatorRegistry. createAdmin must only be called once; subsequent calls raise
-    ///  InitializationException.
+    /// Adds the Admin object with all its facets to the provided object adapter.
+    /// If Ice.Admin.ServerId is set and the provided object adapter has a Locator, createAdmin registers the Admin's
+    /// Process facet with the Locator's LocatorRegistry. createAdmin must only be called once; subsequent calls raise
+    /// InitializationException.
     /// </summary>
-    ///  <param name="adminAdapter">The object adapter used to host the Admin object; if null and Ice.Admin.Endpoints is set,
-    ///  create, activate and use the Ice.Admin object adapter.
-    ///  </param>
-    /// <param name="adminId">The identity of the Admin object.
-    ///  </param>
-    /// <returns>A proxy to the main ("") facet of the Admin object. Never returns a null proxy.
-    ///  </returns>
+    /// <param name="adminAdapter">The object adapter used to host the Admin object; if null and Ice.Admin.Endpoints is
+    /// set, create, activate and use the Ice.Admin object adapter.</param>
+    /// <param name="adminId">The identity of the Admin object.</param>
+    /// <returns>A proxy to the main ("") facet of the Admin object.</returns>
     public ObjectPrx createAdmin(ObjectAdapter adminAdapter, Identity adminId) =>
         instance.createAdmin(adminAdapter, adminId);
 
     /// <summary>
-    /// Get a proxy to the main facet of the Admin object.
-    /// getAdmin also creates the Admin object and creates and
-    ///  activates the Ice.Admin object adapter to host this Admin object if Ice.Admin.Enpoints is set. The identity of
-    ///  the Admin object created by getAdmin is {value of Ice.Admin.InstanceName}/admin, or {UUID}/admin when
-    ///  Ice.Admin.InstanceName is not set. If Ice.Admin.DelayCreation is 0 or not set, getAdmin is called
-    ///  by the communicator initialization, after initialization of all plugins.
+    /// Gets a proxy to the main facet of the Admin object.
+    /// getAdmin also creates the Admin object and creates and activates the Ice.Admin object adapter to host this
+    /// Admin object if Ice.Admin.Endpoints is set. The identity of the Admin object created by getAdmin is
+    /// {value of Ice.Admin.InstanceName}/admin, or {UUID}/admin when  Ice.Admin.InstanceName is not set. If
+    /// Ice.Admin.DelayCreation is 0 or not set, getAdmin is called  by the communicator initialization, after
+    /// initialization of all plugins.
     /// </summary>
-    ///  <returns>A proxy to the main ("") facet of the Admin object, or a null proxy if no Admin object is configured.
-    ///  </returns>
+    /// <returns>A proxy to the main ("") facet of the Admin object, or a null proxy if no Admin object is configured.
+    /// </returns>
     public ObjectPrx? getAdmin() => instance.getAdmin();
 
     /// <summary>
-    /// Add a new facet to the Admin object.
-    /// Adding a servant with a facet that is already registered throws
-    ///  AlreadyRegisteredException.
+    /// Adds a new facet to the Admin object.
+    /// Adding a servant with a facet that is already registered throws AlreadyRegisteredException.
     /// </summary>
-    ///  <param name="servant">The servant that implements the new Admin facet.
-    ///  </param>
+    /// <param name="servant">The servant that implements the new Admin facet.</param>
     /// <param name="facet">The name of the new Admin facet.</param>
     public void addAdminFacet(Object servant, string facet) => instance.addAdminFacet(servant, facet);
 
     /// <summary>
-    /// Remove the following facet to the Admin object.
-    /// Removing a facet that was not previously registered throws
-    ///  NotRegisteredException.
+    /// Removes the following facet to the Admin object.
+    /// Removing a facet that was not previously registered throws <see cref="NotRegisteredException" />
     /// </summary>
-    ///  <param name="facet">The name of the Admin facet.
-    ///  </param>
+    ///  <param name="facet">The name of the Admin facet.</param>
     /// <returns>The servant associated with this Admin facet.</returns>
     public Object removeAdminFacet(string facet) => instance.removeAdminFacet(facet);
 
     /// <summary>
     /// Returns a facet of the Admin object.
     /// </summary>
-    /// <param name="facet">The name of the Admin facet.
-    ///  </param>
-    /// <returns>The servant associated with this Admin facet, or null if no facet is registered with the given name.</returns>
+    /// <param name="facet">The name of the Admin facet./param>
+    /// <returns>The servant associated with this Admin facet, or null if no facet is registered with the given name.
+    /// </returns>
     public Object? findAdminFacet(string facet) => instance.findAdminFacet(facet);
 
     /// <summary>
     /// Returns a map of all facets of the Admin object.
     /// </summary>
-    /// <returns>A collection containing all the facet names and servants of the Admin object.
-    ///  </returns>
+    /// <returns>A collection containing all the facet names and servants of the Admin object.</returns>
     public Dictionary<string, Object> findAllAdminFacets() => instance.findAllAdminFacets();
 
     internal Communicator(InitializationData initData)

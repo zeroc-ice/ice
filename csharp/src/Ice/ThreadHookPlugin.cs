@@ -26,7 +26,7 @@ public class ThreadHookPlugin : Plugin
             throw ex;
         }
 
-        Ice.Internal.Instance instance = Ice.Internal.Util.getInstance(communicator);
+        Ice.Internal.Instance instance = communicator.instance;
         instance.setThreadHook(threadStart, threadStop);
     }
 
