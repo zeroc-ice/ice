@@ -59,14 +59,11 @@ class OptionalClass
     optional(3) SmallStruct sm;
 
     optional(4) MyEnumS enumS4;
-    optional(5) MyClassS myClassS5;
 
     optional(6) ByteBoolD byteBoolD6;
     optional(7) ShortIntD shortIntD7;
 
     optional(8) MyEnum enum8;
-    optional(9) MyClass class9;
-    optional(10) StringMyClassD stringMyClassD10;
     optional(12) Ice::IntSeq intSeq12;
     optional(13) Ice::ByteSeq byteSeq13;
     optional(14) Ice::StringSeq stringSeq14;
