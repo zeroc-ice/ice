@@ -16,7 +16,7 @@ public class CollocatedRequestHandler : RequestHandler
     {
         _reference = reference;
         _executor = _reference.getInstance().initializationData().executor != null;
-        _response = _reference.getMode() == Reference.Mode.ModeTwoway;
+        _response = _reference.isTwoway;
         _adapter = (Ice.ObjectAdapterI)adapter;
 
         _logger = _reference.getInstance().initializationData().logger; // Cached for better performance.

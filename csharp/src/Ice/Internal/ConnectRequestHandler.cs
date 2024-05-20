@@ -9,7 +9,7 @@ public class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCall
     public ConnectRequestHandler(Reference reference)
     {
         _reference = reference;
-        _response = reference.getMode() == Reference.Mode.ModeTwoway;
+        _response = reference.isTwoway;
     }
 
     public int sendAsyncRequest(ProxyOutgoingAsyncBase outAsync)

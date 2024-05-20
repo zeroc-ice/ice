@@ -1270,7 +1270,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <returns>A new proxy that uses twoway invocations.</returns>
     public ObjectPrx ice_twoway()
     {
-        if (_reference.getMode() == Reference.Mode.ModeTwoway)
+        if (_reference.isTwoway)
         {
             return this;
         }
@@ -1284,10 +1284,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// Returns whether this proxy uses twoway invocations.
     /// </summary>
     /// <returns>True if this proxy uses twoway invocations; false, otherwise.</returns>
-    public bool ice_isTwoway()
-    {
-        return _reference.getMode() == Reference.Mode.ModeTwoway;
-    }
+    public bool ice_isTwoway() => _reference.isTwoway;
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, but uses oneway invocations.
@@ -1744,7 +1741,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
             {
                 var ret = new Object_Ice_invokeResult();
                 EncodingVersion encoding;
-                if (proxy_.iceReference().getMode() == Reference.Mode.ModeTwoway)
+                if (proxy_.iceReference().isTwoway)
                 {
                     ret.outEncaps = is_.readEncapsulation(out encoding);
                 }

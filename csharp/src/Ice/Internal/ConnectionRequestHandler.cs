@@ -22,7 +22,7 @@ public class ConnectionRequestHandler : RequestHandler
     public ConnectionRequestHandler(Reference reference, Ice.ConnectionI connection, bool compress)
     {
         _reference = reference;
-        _response = _reference.getMode() == Reference.Mode.ModeTwoway;
+        _response = _reference.isTwoway;
         _connection = connection;
         _compress = compress;
     }
