@@ -943,10 +943,10 @@ classdef LocalTests
                 out.startEncapsulation(format);
                 cb = Opt();
                 cb.o = O(3);
-                cb.oSeq = {};
+                cb.oSeq = [];
                 cb.oDict = containers.Map('KeyType', 'int32', 'ValueType', 'any');
                 for i = 1:10
-                    cb.oSeq{i} = O(i);
+                    cb.oSeq(i) = O(i);
                     cb.oDict(i) = O(i);
                 end
                 out.writeValue(cb);
@@ -960,12 +960,12 @@ classdef LocalTests
                 is.readPendingValues();
                 is.endEncapsulation();
                 assert(isa(h.value.o, symbol('O')));
-                assert(isa(h.value.oSeq, 'cell'));
+                assert(isa(h.value.oSeq, symbol('O')));
                 assert(isa(h.value.oDict(1), symbol('O')));
                 assert(length(h.value.oSeq) == length(cb.oSeq));
                 assert(length(h.value.oDict) == length(cb.oDict));
                 for i = 1:10
-                    assert(h.value.oSeq{i}.i == i);
+                    assert(h.value.oSeq(i).i == i);
                     assert(h.value.oDict(i).i == i);
                 end
             end
