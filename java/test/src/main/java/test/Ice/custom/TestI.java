@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import test.Ice.custom.Test.C;
+import test.Ice.custom.Test.A;
 import test.Ice.custom.Test.E;
 import test.Ice.custom.Test.S;
 import test.Ice.custom.Test.TestIntf;
@@ -25,20 +25,20 @@ public final class TestI implements TestIntf {
   }
 
   @Override
-  public TestIntf.OpCArrayResult opCArray(List<C> inSeq, com.zeroc.Ice.Current current) {
-    return new TestIntf.OpCArrayResult(inSeq, inSeq);
+  public TestIntf.OpAArrayResult opAArray(List<A> inSeq, com.zeroc.Ice.Current current) {
+    return new TestIntf.OpAArrayResult(inSeq, inSeq);
   }
 
   @Override
-  public TestIntf.OpCListResult opCList(List<C> inSeq, com.zeroc.Ice.Current current) {
-    return new TestIntf.OpCListResult(inSeq, inSeq);
+  public TestIntf.OpAListResult opAList(List<A> inSeq, com.zeroc.Ice.Current current) {
+    return new TestIntf.OpAListResult(inSeq, inSeq);
   }
 
   @Override
-  public TestIntf.OpCSeqResult opCSeq(C[] inSeq, com.zeroc.Ice.Current current) {
-    TestIntf.OpCSeqResult r = new TestIntf.OpCSeqResult();
+  public TestIntf.OpASeqResult opASeq(A[] inSeq, com.zeroc.Ice.Current current) {
+    TestIntf.OpASeqResult r = new TestIntf.OpASeqResult();
     seq = new ArrayList<>(Arrays.asList(inSeq));
-    r.outSeq = new C[seq.size()];
+    r.outSeq = new A[seq.size()];
     seq.toArray(r.outSeq);
     r.returnValue = r.outSeq;
     return r;
@@ -173,21 +173,21 @@ public final class TestI implements TestIntf {
   }
 
   @Override
-  public TestIntf.OpOptCArrayResult opOptCArray(
-      java.util.Optional<List<C>> inSeq, com.zeroc.Ice.Current current) {
-    return new TestIntf.OpOptCArrayResult(inSeq, inSeq);
+  public TestIntf.OpOptAArrayResult opOptAArray(
+      java.util.Optional<List<A>> inSeq, com.zeroc.Ice.Current current) {
+    return new TestIntf.OpOptAArrayResult(inSeq, inSeq);
   }
 
   @Override
-  public TestIntf.OpOptCListResult opOptCList(
-      java.util.Optional<List<C>> inSeq, com.zeroc.Ice.Current current) {
-    return new TestIntf.OpOptCListResult(inSeq, inSeq);
+  public TestIntf.OpOptAListResult opOptAList(
+      java.util.Optional<List<A>> inSeq, com.zeroc.Ice.Current current) {
+    return new TestIntf.OpOptAListResult(inSeq, inSeq);
   }
 
   @Override
-  public TestIntf.OpOptCSeqResult opOptCSeq(
-      java.util.Optional<C[]> inSeq, com.zeroc.Ice.Current current) {
-    return new TestIntf.OpOptCSeqResult(inSeq, inSeq);
+  public TestIntf.OpOptASeqResult opOptASeq(
+      java.util.Optional<A[]> inSeq, com.zeroc.Ice.Current current) {
+    return new TestIntf.OpOptASeqResult(inSeq, inSeq);
   }
 
   @Override
@@ -304,5 +304,5 @@ public final class TestI implements TestIntf {
   }
 
   private com.zeroc.Ice.Communicator _communicator;
-  private java.util.ArrayList<C> seq;
+  private java.util.ArrayList<A> seq;
 }

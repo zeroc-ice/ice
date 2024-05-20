@@ -10,11 +10,11 @@
 module Test
 {
 
-class C {}
+class A {}
 
-sequence<C> CSeq;
-["java:type:java.util.ArrayList<C>"] sequence<C> CArray;
-["java:type:java.util.LinkedList<C>"] sequence<C> CList;
+sequence<A> ASeq;
+["java:type:java.util.ArrayList<A>"] sequence<A> AArray;
+["java:type:java.util.LinkedList<A>"] sequence<A> AList;
 
 ["java:type:java.util.ArrayList<Boolean>"] sequence<bool> BoolSeq;
 ["java:type:java.util.ArrayList<Byte>"] sequence<byte> ByteSeq;
@@ -48,9 +48,9 @@ dictionary<int, string> D;
 
 interface TestIntf
 {
-    CSeq opCSeq(CSeq inSeq, out CSeq outSeq);
-    CArray opCArray(CArray inSeq, out CArray outSeq);
-    CList opCList(CList inSeq, out CList outSeq);
+    ASeq opASeq(ASeq inSeq, out ASeq outSeq);
+    AArray opAArray(AArray inSeq, out AArray outSeq);
+    AList opAList(AList inSeq, out AList outSeq);
     BoolSeq opBoolSeq(BoolSeq inSeq, out BoolSeq outSeq);
     ByteSeq opByteSeq(ByteSeq inSeq, out ByteSeq outSeq);
     ShortSeq opShortSeq(ShortSeq inSeq, out ShortSeq outSeq);
@@ -71,9 +71,9 @@ interface TestIntf
     FloatBuffer opFloatBufferSeq(FloatBuffer inSeq, out FloatBuffer outSeq);
     DoubleBuffer opDoubleBufferSeq(DoubleBuffer inSeq, out DoubleBuffer outSeq);
 
-    optional(1) CSeq opOptCSeq(optional(2) CSeq inSeq, out optional(3) CSeq outSeq);
-    optional(1) CArray opOptCArray(optional(2) CArray inSeq, out optional(3) CArray outSeq);
-    optional(1) CList opOptCList(optional(2) CList inSeq, out optional(3) CList outSeq);
+    optional(1) ASeq opOptASeq(optional(2) ASeq inSeq, out optional(3) ASeq outSeq);
+    optional(1) AArray opOptAArray(optional(2) AArray inSeq, out optional(3) AArray outSeq);
+    optional(1) AList opOptAList(optional(2) AList inSeq, out optional(3) AList outSeq);
     optional(1) BoolSeq opOptBoolSeq(optional(2) BoolSeq inSeq, out optional(3) BoolSeq outSeq);
     optional(1) ByteSeq opOptByteSeq(optional(2) ByteSeq inSeq, out optional(3) ByteSeq outSeq);
     optional(1) ShortSeq opOptShortSeq(optional(2) ShortSeq inSeq, out optional(3) ShortSeq outSeq);
