@@ -15,6 +15,7 @@
 #    include <windows.h>
 #    include <wincrypt.h>
 // clang-format on
+
 // SECURITY_WIN32 or SECURITY_KERNEL are defined before including security.h indicating who is compiling the code.
 #    ifdef SECURITY_WIN32
 #        undef SECURITY_WIN32
@@ -23,6 +24,11 @@
 #        undef SECURITY_KERNEL
 #    endif
 #    define SECURITY_WIN32 1
+
+// See SCH_CREDENTIALS requirements:
+// https://learn.microsoft.com/en-us/windows/win32/api/schannel/ns-schannel-sch_credentials#remarks
+#    include <SubAuth.h>
+
 #    include <schannel.h>
 #    include <security.h>
 #    include <sspi.h>

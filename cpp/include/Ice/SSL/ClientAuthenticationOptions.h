@@ -19,30 +19,33 @@ namespace Ice::SSL
     struct SchannelClientAuthenticationOptions
     {
         /**
-         * A callback that allows selecting the client's SSL certificate based on the target server host name.
+         * A callback that allows selecting the client's SSL credentials based on the target server host name.
          *
          * @remarks This callback is invoked by the SSL transport for each new outgoing connection before starting the
-         * SSL handshake to determine the appropriate client certificate. The callback should return a PCCERT_CONTEXT
-         * that represents the client's certificate. The SSL transport takes ownership of the returned certificate and
-         * releases it when the connection is closed.
+         * SSL handshake to determine the appropriate client credentials. The callback should return a SCHANNEL_CRED
+         * that represents the client's credentials. The SSL transport takes ownership of the credentials' paCred and
+         * and hRootStore, and releases them when the connection is closed.
          *
          * @param host The target server host name.
-         * @return The client's certificate, or nullptr to indicate that no certificate is used by the connection.
+         * @return The client's credentials.
          *
          * Example of setting clientCertificateSelectionCallback:
          * ```cpp
-         * PCCERT_CONTEXT _clientCertificate = ...; // Load the client certificate using WinCrypt API
+         * PCCERT_CONTEXT _clientCertificate  = ...; //
          *
          * auto initData = Ice::InitializationData {
          *   ...
          *   .clientAuthenticationOptions = ClientAuthenticationOptions {
-         *      .clientCertificateSelectionCallback = [this](const std::string&)
+         *      .clientCredentialsSelectionCallback = [this](const std::string&)
          *      {
          *        // Increment the certificate context reference count to ensure it remains
          *        // valid for the duration of the connection. The SSL transport will release
          *        // it after closing the connection.
          *        CertDuplicateCertificateContext(_clientCertificate);
-         *        return _clientCertificate;
+         *        SCHANNEL_CRED credentials = _clientCredentials;
+         *        credentials.cCreds = 1;
+         *        credentials.paCred = &_clientCertificate;
+         *        return credentials;
          *      }
          * };
          *
@@ -51,11 +54,10 @@ namespace Ice::SSL
          * CertFreeCertificateContext(_clientCertificate); // Release the certificate when no longer needed
          * ```
          *
-         * See Detailed Wincrypt documentation for [CERT_CONTEXT](
-         * https://learn.microsoft.com/en-us/windows/win32/api/wincrypt/ns-wincrypt-cert_context) and
-         * [CertCreateCertificateContext](https://learn.microsoft.com/en-us/windows/win32/api/wincrypt/nf-wincrypt-certcreatecertificatecontext)
+         * See Detailed Wincrypt documentation for [SCHANNEL_CRED](
+         * https://learn.microsoft.com/en-us/windows/win32/api/schannel/ns-schannel-sch_credentials)
          */
-        std::function<PCCERT_CONTEXT(const std::string& host)> clientCertificateSelectionCallback;
+        std::function<SCHANNEL_CRED(const std::string& host)> clientCredentialsSelectionCallback;
 
         /**
          * A callback that is invoked before initiating a new SSL handshake. This callback provides an opportunity to
