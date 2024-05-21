@@ -663,9 +663,17 @@ optional_type_id
 {
     auto m = dynamic_pointer_cast<OptionalDefTok>($1);
     auto ts = dynamic_pointer_cast<TypeStringTok>($2);
-
     m->type = ts->v.first;
     m->name = ts->v.second;
+
+    // It's safe to perform this check in the parser, since even at this early stage of compilation, we have enough
+    // information to know whether it's okay to mark a type as optional. This is because the only types that can be
+    // forward declared (classes/interfaces) have constant values for `usesClasses` (true/false respectively).
+    if (m->type->usesClasses())
+    {
+        currentUnit->error("types that use classes cannot be marked with 'optional'");
+    }
+
     $$ = m;
 }
 | type_id
@@ -1127,6 +1135,15 @@ return_type
 {
     auto m = dynamic_pointer_cast<OptionalDefTok>($1);
     m->type = dynamic_pointer_cast<Type>($2);
+
+    // It's safe to perform this check in the parser, since even at this early stage of compilation, we have enough
+    // information to know whether it's okay to mark a type as optional. This is because the only types that can be
+    // forward declared (classes/interfaces) have constant values for `usesClasses` (true/false respectively).
+    if (m->type->usesClasses())
+    {
+        currentUnit->error("types that use classes cannot be marked with 'optional'");
+    }
+
     $$ = m;
 }
 | type

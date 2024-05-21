@@ -4067,8 +4067,7 @@ Slice::Struct::usesClasses() const
         DataMemberPtr q = dynamic_pointer_cast<DataMember>(p);
         if (q)
         {
-            TypePtr t = q->type();
-            if (t->usesClasses())
+            if (q->type()->usesClasses())
             {
                 return true;
             }
