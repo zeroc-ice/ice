@@ -821,7 +821,7 @@ allTests(Test::TestHelper* helper, bool)
         }
         cout << "ok" << endl;
 
-        cout << "testing optionals with unknown classes..." << flush;
+        cout << "testing operations with unknown optionals... " << flush;
         {
             APtr a = make_shared<A>();
             optional<Test::VarStruct> ovs = Test::VarStruct();

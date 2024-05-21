@@ -549,7 +549,7 @@ public class AllTests {
       }
       out.println("ok");
 
-      out.print("testing optionals with unknown classes...");
+      out.print("testing operations with unknown optionals... ");
       out.flush();
       {
         A a = new A();
