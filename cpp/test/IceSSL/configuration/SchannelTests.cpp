@@ -114,10 +114,9 @@ createServer(ServerAuthenticationOptions serverAuthenticationOptions, TestHelper
 }
 
 Ice::CommunicatorPtr
-createClient(optional<ClientAuthenticationOptions> clientAuthenticationOptions = nullopt)
+createClient(ClientAuthenticationOptions clientAuthenticationOptions)
 {
-    return initialize(Ice::InitializationData{
-        .clientAuthenticationOptions = clientAuthenticationOptions.value_or(ClientAuthenticationOptions{})});
+    return initialize(Ice::InitializationData{.clientAuthenticationOptions = clientAuthenticationOptions});
 }
 
 void
@@ -278,7 +277,7 @@ clientRejectsServerUsingDefaultTrustedRootCertificates(Test::TestHelper* helper,
         Ice::CommunicatorHolder serverCommunicator(createServer(serverAuthenticationOptions, helper));
 
         // The client doesn't set trusted root certificates, it would use the system trusted root certificates.
-        Ice::CommunicatorHolder clientCommunicator(createClient());
+        Ice::CommunicatorHolder clientCommunicator(createClient(ClientAuthenticationOptions{}));
 
         ServerPrx obj(clientCommunicator.communicator(), "server:" + helper->getTestEndpoint(10, "ssl"));
         try

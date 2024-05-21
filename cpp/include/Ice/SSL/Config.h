@@ -15,6 +15,7 @@
 #    include <windows.h>
 #    include <wincrypt.h>
 // clang-format on
+
 // SECURITY_WIN32 or SECURITY_KERNEL are defined before including security.h indicating who is compiling the code.
 #    ifdef SECURITY_WIN32
 #        undef SECURITY_WIN32
@@ -24,16 +25,12 @@
 #    endif
 #    define SECURITY_WIN32 1
 
-// See https://learn.microsoft.com/en-us/windows/win32/api/schannel/ns-schannel-sch_credentials#remarks
-#    define SCHANNEL_USE_BLACKLISTS
-#    ifndef UNICODE_STRING
-typedef struct _UNICODE_STRING
-{
-    USHORT Length;
-    USHORT MaximumLength;
-    PWSTR Buffer;
-} UNICODE_STRING, *PUNICODE_STRING;
+// See SCH_CREDENTIALS requirements:
+// https://learn.microsoft.com/en-us/windows/win32/api/schannel/ns-schannel-sch_credentials#remarks
+#    ifndef SCHANNEL_USE_BLACKLISTS
+#        define SCHANNEL_USE_BLACKLISTS 1
 #    endif
+#    include <SubAuth.h>
 
 #    include <schannel.h>
 #    include <security.h>
