@@ -824,11 +824,13 @@ allTests(Test::TestHelper* helper, bool)
         cout << "testing optionals with unknown classes..." << flush;
         {
             APtr a = make_shared<A>();
+            optional<Test::VarStruct> ovs = Test::VarStruct();
+            ovs->m = "test";
 
             Ice::OutputStream out(communicator);
             out.startEncapsulation();
             out.write(a);
-            out.write(1, make_optional(make_shared<DObjectWriter>()));
+            out.write(1, ovs);
             out.endEncapsulation();
             out.finished(inEncaps);
             test(initial->ice_invoke("opClassAndUnknownOptional", Ice::OperationMode::Normal, inEncaps, outEncaps));

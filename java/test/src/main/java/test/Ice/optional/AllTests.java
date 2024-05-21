@@ -553,12 +553,15 @@ public class AllTests {
       out.flush();
       {
         A a = new A();
+        Optional<VarStruct> ovs = Optional.of(new VarStruct("test"));
 
         os = new OutputStream(communicator);
         os.startEncapsulation();
         os.writeValue(a);
-        os.writeOptional(1, OptionalFormat.Class);
-        os.writeValue(new DObjectWriter());
+        os.writeOptional(1, OptionalFormat.FSize);
+        int pos = os.startSize();
+        VarStruct.ice_write(os, ovs.get());
+        os.endSize(pos);
         os.endEncapsulation();
         inEncaps = os.finished();
         inv = initial.ice_invoke("opClassAndUnknownOptional", OperationMode.Normal, inEncaps);

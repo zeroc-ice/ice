@@ -715,15 +715,15 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     }
     output.writeLine("ok")
 
-    output.write("testing optionals with unknown classes...")
+    output.write("testing operations with unknown optionals... ")
     do {
       let a = A()
+      let ovs = VarStruct(m: "test")
 
       let ostr = Ice.OutputStream(communicator: communicator)
       ostr.startEncapsulation()
       ostr.write(a)
-      _ = ostr.writeOptional(tag: 1, format: .Class)
-      ostr.write(DValueWriter())
+      ostr.write(tag: 1, value: ovs)
       ostr.endEncapsulation()
       let inEncaps = ostr.finished()
       let result = try initial.ice_invoke(
