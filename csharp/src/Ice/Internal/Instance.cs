@@ -333,7 +333,7 @@ public sealed class Instance
                 throw new Ice.CommunicatorDestroyedException();
             }
 
-            if (adminIdentity == null || string.IsNullOrEmpty(adminIdentity.name))
+            if (adminIdentity == null || adminIdentity.name.Length == 0)
             {
                 throw new Ice.IllegalIdentityException(adminIdentity);
             }
