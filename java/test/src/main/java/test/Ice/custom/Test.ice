@@ -10,7 +10,10 @@
 module Test
 {
 
-class A {}
+struct A
+{
+    int i; // We need a field here since structs can't be empty.
+}
 
 sequence<A> ASeq;
 ["java:type:java.util.ArrayList<A>"] sequence<A> AArray;

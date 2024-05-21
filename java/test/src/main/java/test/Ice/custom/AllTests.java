@@ -55,7 +55,7 @@ public class AllTests {
       // Create a sequence of A instances, where elements 1..n simply point to element 0.
       //
       A[] seq = new A[5];
-      seq[0] = new A();
+      seq[0] = new A(0);
       for (int i = 1; i < seq.length; i++) {
         seq[i] = seq[0];
       }
@@ -67,10 +67,11 @@ public class AllTests {
       TestIntf.OpASeqResult seqR = t.opASeq(seq);
       test(seqR.returnValue.length == seq.length);
       test(seqR.outSeq.length == seq.length);
+
       for (int i = 1; i < seq.length; i++) {
         test(seqR.returnValue[i] != null);
-        test(seqR.returnValue[i] == seqR.returnValue[0]);
-        test(seqR.returnValue[i] == seqR.outSeq[i]);
+        test(seqR.returnValue[i].equals(seqR.returnValue[0]));
+        test(seqR.returnValue[i].equals(seqR.outSeq[i]));
       }
 
       ArrayList<A> arr = new ArrayList<>(Arrays.asList(seq));
@@ -79,8 +80,8 @@ public class AllTests {
       test(arrR.outSeq.size() == arr.size());
       for (int i = 1; i < arr.size(); i++) {
         test(arrR.returnValue.get(i) != null);
-        test(arrR.returnValue.get(i) == arrR.returnValue.get(0));
-        test(arrR.returnValue.get(i) == arrR.outSeq.get(i));
+        test(arrR.returnValue.get(i).equals(arrR.returnValue.get(0)));
+        test(arrR.returnValue.get(i).equals(arrR.outSeq.get(i)));
       }
 
       LinkedList<A> list = new LinkedList<>(Arrays.asList(seq));
@@ -89,8 +90,8 @@ public class AllTests {
       test(listR.outSeq.size() == list.size());
       for (int i = 1; i < list.size(); i++) {
         test(listR.returnValue.get(i) != null);
-        test(listR.returnValue.get(i) == listR.returnValue.get(0));
-        test(listR.returnValue.get(i) == listR.outSeq.get(i));
+        test(listR.returnValue.get(i).equals(listR.returnValue.get(0)));
+        test(listR.returnValue.get(i).equals(listR.outSeq.get(i)));
       }
     }
 
