@@ -477,8 +477,7 @@ Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
         throw SecurityException(
             __FILE__,
             __LINE__,
-            "IceSSL: certificate verification failed. The certificate was rejected by the remote certificate "
-            "validation callback.");
+            "IceSSL: certificate verification failed. The certificate was rejected by the remote validation callback.");
     }
 
     _state = StateHandshakeComplete;
