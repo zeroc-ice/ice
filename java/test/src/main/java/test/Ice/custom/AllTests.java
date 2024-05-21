@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import test.Ice.custom.Test.C;
+import test.Ice.custom.Test.A;
 import test.Ice.custom.Test.E;
 import test.Ice.custom.Test.S;
 import test.Ice.custom.Test.TestIntf;
@@ -52,10 +52,10 @@ public class AllTests {
 
     {
       //
-      // Create a sequence of C instances, where elements 1..n simply point to element 0.
+      // Create a sequence of A instances, where elements 1..n simply point to element 0.
       //
-      C[] seq = new C[5];
-      seq[0] = new C();
+      A[] seq = new A[5];
+      seq[0] = new A(0);
       for (int i = 1; i < seq.length; i++) {
         seq[i] = seq[0];
       }
@@ -64,33 +64,34 @@ public class AllTests {
       // Invoke each operation and verify that the returned sequences have the same
       // structure as the original.
       //
-      TestIntf.OpCSeqResult seqR = t.opCSeq(seq);
+      TestIntf.OpASeqResult seqR = t.opASeq(seq);
       test(seqR.returnValue.length == seq.length);
       test(seqR.outSeq.length == seq.length);
+
       for (int i = 1; i < seq.length; i++) {
         test(seqR.returnValue[i] != null);
-        test(seqR.returnValue[i] == seqR.returnValue[0]);
-        test(seqR.returnValue[i] == seqR.outSeq[i]);
+        test(seqR.returnValue[i].equals(seqR.returnValue[0]));
+        test(seqR.returnValue[i].equals(seqR.outSeq[i]));
       }
 
-      ArrayList<C> arr = new ArrayList<>(Arrays.asList(seq));
-      TestIntf.OpCArrayResult arrR = t.opCArray(arr);
+      ArrayList<A> arr = new ArrayList<>(Arrays.asList(seq));
+      TestIntf.OpAArrayResult arrR = t.opAArray(arr);
       test(arrR.returnValue.size() == arr.size());
       test(arrR.outSeq.size() == arr.size());
       for (int i = 1; i < arr.size(); i++) {
         test(arrR.returnValue.get(i) != null);
-        test(arrR.returnValue.get(i) == arrR.returnValue.get(0));
-        test(arrR.returnValue.get(i) == arrR.outSeq.get(i));
+        test(arrR.returnValue.get(i).equals(arrR.returnValue.get(0)));
+        test(arrR.returnValue.get(i).equals(arrR.outSeq.get(i)));
       }
 
-      LinkedList<C> list = new LinkedList<>(Arrays.asList(seq));
-      TestIntf.OpCListResult listR = t.opCList(list);
+      LinkedList<A> list = new LinkedList<>(Arrays.asList(seq));
+      TestIntf.OpAListResult listR = t.opAList(list);
       test(listR.returnValue.size() == list.size());
       test(listR.outSeq.size() == list.size());
       for (int i = 1; i < list.size(); i++) {
         test(listR.returnValue.get(i) != null);
-        test(listR.returnValue.get(i) == listR.returnValue.get(0));
-        test(listR.returnValue.get(i) == listR.outSeq.get(i));
+        test(listR.returnValue.get(i).equals(listR.returnValue.get(0)));
+        test(listR.returnValue.get(i).equals(listR.outSeq.get(i)));
       }
     }
 

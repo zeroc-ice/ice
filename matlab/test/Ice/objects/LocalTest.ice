@@ -114,11 +114,4 @@ dictionary<StructKey, S1> StructDict2;
 dictionary<int, C1Dict> C1DictDict;
 dictionary<int, S1Dict> S1DictDict;
 
-class Opt
-{
-    optional(1) S1 s1;
-    optional(2) C1Seq c1seq;
-    optional(3) S1Dict s1dict;
-}
-
 }

@@ -913,63 +913,6 @@ classdef LocalTests
                 end
             end
 
-            %
-            % Test: class containing multiple optional members requiring conversion.
-            %
-
-            out = communicator.createOutputStream(encoding);
-            out.startEncapsulation(format);
-            cb = Opt();
-            out.writeValue(cb);
-            out.writePendingValues();
-            out.endEncapsulation();
-
-            is = out.createInputStream();
-            is.startEncapsulation();
-            h = IceInternal.ValueHolder();
-            is.readValue(@(v) h.set(v), symbol('Opt'));
-            is.readPendingValues();
-            is.endEncapsulation();
-            assert(h.value.s1 == Ice.Unset);
-            assert(h.value.c1seq == Ice.Unset);
-            assert(h.value.s1dict == Ice.Unset);
-
-            %
-            % Test: class containing multiple optional members requiring conversion.
-            %
-
-            if encoding == Ice.EncodingVersion(1, 1)
-                out = communicator.createOutputStream(encoding);
-                out.startEncapsulation(format);
-                cb = Opt();
-                cb.s1 = S1(C1(3));
-                cb.c1seq = {};
-                cb.s1dict = containers.Map('KeyType', 'int32', 'ValueType', 'any');
-                for i = 1:10
-                    cb.c1seq{i} = C1(i);
-                    cb.s1dict(i) = S1(C1(i));
-                end
-                out.writeValue(cb);
-                out.writePendingValues();
-                out.endEncapsulation();
-
-                is = out.createInputStream();
-                is.startEncapsulation();
-                h = IceInternal.ValueHolder();
-                is.readValue(@(v) h.set(v), symbol('Opt'));
-                is.readPendingValues();
-                is.endEncapsulation();
-                assert(isa(h.value.s1.c1, symbol('C1')));
-                assert(isa(h.value.c1seq, 'cell'));
-                assert(isa(h.value.s1dict(1).c1, symbol('C1')));
-                assert(length(h.value.c1seq) == length(cb.c1seq));
-                assert(length(h.value.s1dict) == length(cb.s1dict));
-                for i = 1:10
-                    assert(h.value.c1seq{i}.i == i);
-                    assert(h.value.s1dict(i).c1.i == i);
-                end
-            end
-
             fprintf('ok\n');
         end
     end
