@@ -23,7 +23,7 @@ namespace Ice::SSL
          * accepts the connection.
          *
          * @remarks This callback is invoked by the SSL transport for each new incoming connection before starting the
-         * SSL handshake to determine the appropriate server credentials. The callback should return a SCHANNEL_CRED
+         * SSL handshake to determine the appropriate server credentials. The callback should return a SCH_CREDENTIALS
          * that represents the server's credentials. The SSL transport takes ownership of the credentials' paCred and
          * and hRootStore, and releases them when the connection is closed.
          *
@@ -43,7 +43,7 @@ namespace Ice::SSL
          *        // valid for the duration of the connection. The SSL transport will release
          *        // it after closing the connection.
          *        CertDuplicateCertificateContext(_serverCertificate);
-         *        SCHANNEL_CRED credentials = _serverCredentials;
+         *        SCH_CREDENTIALS credentials = _serverCredentials;
          *        credentials.cCreds = 1;
          *        credentials.paCred = &_serverCertificate;
          *        return credentials;
@@ -53,10 +53,10 @@ namespace Ice::SSL
          * CertFreeCertificateContext(_serverCertificate); // Release the certificate when no longer needed
          * ```
          *
-         * See Detailed Wincrypt documentation for [SCHANNEL_CRED](
+         * See Detailed Wincrypt documentation for [SCH_CREDENTIALS](
          * https://learn.microsoft.com/en-us/windows/win32/api/schannel/ns-schannel-sch_credentials)
          */
-        std::function<SCHANNEL_CRED(const std::string& host)> serverCredentialsSelectionCallback;
+        std::function<SCH_CREDENTIALS(const std::string& host)> serverCredentialsSelectionCallback;
 
         /**
          * A callback that is invoked before initiating a new SSL handshake. This callback provides an opportunity to

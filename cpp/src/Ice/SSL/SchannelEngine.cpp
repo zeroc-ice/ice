@@ -19,15 +19,6 @@
 #include <iostream>
 #include <mutex>
 
-//
-// SP_PROT_TLS1_3 is new in v10.0.15021 SDK
-//
-#ifndef SP_PROT_TLS1_3
-#    define SP_PROT_TLS1_3_SERVER 0x00001000
-#    define SP_PROT_TLS1_3_CLIENT 0x00002000
-#    define SP_PROT_TLS1_3 (SP_PROT_TLS1_3_SERVER | SP_PROT_TLS1_3_CLIENT)
-#endif
-
 #ifndef SECURITY_FLAG_IGNORE_CERT_CN_INVALID
 #    define SECURITY_FLAG_IGNORE_CERT_CN_INVALID 0x00001000
 #endif
@@ -1299,8 +1290,8 @@ Schannel::SSLEngine::createClientAuthenticationOptions(const string& host) const
                 CertDuplicateCertificateContext(cert);
             }
 
-            return SCHANNEL_CRED{
-                .dwVersion = SCHANNEL_CRED_VERSION,
+            return SCH_CREDENTIALS{
+                .dwVersion = SCH_CREDENTIALS_VERSION,
                 .cCreds = static_cast<DWORD>(_allCerts.size()),
                 .paCred = const_cast<PCCERT_CONTEXT*>(_allCerts.size() > 0 ? &_allCerts[0] : nullptr),
                 .dwFlags = SCH_CRED_NO_DEFAULT_CREDS | SCH_CRED_NO_SERVERNAME_CHECK | SCH_USE_STRONG_CRYPTO};
@@ -1344,13 +1335,13 @@ Schannel::SSLEngine::createServerAuthenticationOptions() const
                     CertDuplicateCertificateContext(cert);
                 }
 
-                return SCHANNEL_CRED{
-                    .dwVersion = SCHANNEL_CRED_VERSION,
+                return SCH_CREDENTIALS{
+                    .dwVersion = SCH_CREDENTIALS_VERSION,
                     .cCreds = static_cast<DWORD>(_allCerts.size()),
                     .paCred = const_cast<PCCERT_CONTEXT*>(_allCerts.size() > 0 ? &_allCerts[0] : nullptr),
                     // Don't set SCH_SEND_ROOT_CERT as it seems to cause problems with Java certificate validation and
                     // Schannel doesn't seems to send the root certificate either way.
-                    .dwFlags = SCH_CRED_NO_SYSTEM_MAPPER | SCH_CRED_DISABLE_RECONNECTS | SCH_USE_STRONG_CRYPTO};
+                    .dwFlags = SCH_CRED_NO_SYSTEM_MAPPER | SCH_USE_STRONG_CRYPTO};
             }
         },
         .clientCertificateRequired = getVerifyPeer() > 0,
