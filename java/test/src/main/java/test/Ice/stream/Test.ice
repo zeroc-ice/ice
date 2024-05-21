@@ -33,7 +33,6 @@ struct SmallStruct
     double d;
     string str;
     MyEnum e;
-    MyClass c;
     MyInterface* p;
     SerialSmall ss;
 }
