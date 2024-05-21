@@ -232,18 +232,6 @@ class InitialI: Initial {
     return Promise.value((p1, p1))
   }
 
-  func opIntOneOptionalDictAsync(
-    p1: IntOneOptionalDict?,
-    current _: Current
-  ) -> Promise<
-    (
-      returnValue: IntOneOptionalDict?,
-      p3: IntOneOptionalDict?
-    )
-  > {
-    return Promise.value((p1, p1))
-  }
-
   func opClassAndUnknownOptionalAsync(p _: A?, current _: Current) -> Promise<Void> {
     return Promise.value(())
   }

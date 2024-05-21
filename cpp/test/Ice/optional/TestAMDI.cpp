@@ -380,16 +380,6 @@ InitialI::opStringIntDictAsync(
 }
 
 void
-InitialI::opIntOneOptionalDictAsync(
-    optional<Test::IntOneOptionalDict> p1,
-    function<void(const optional<Test::IntOneOptionalDict>&, const optional<Test::IntOneOptionalDict>&)> response,
-    function<void(exception_ptr)>,
-    const Ice::Current&)
-{
-    response(p1, p1);
-}
-
-void
 InitialI::opClassAndUnknownOptionalAsync(
     shared_ptr<Test::A>,
     function<void()> response,

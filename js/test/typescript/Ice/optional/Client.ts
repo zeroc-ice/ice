@@ -60,13 +60,11 @@ export class Client extends TestHelper
         test(mo4.es === undefined);
         test(mo4.fss === undefined);
         test(mo4.vss === undefined);
-        test(mo4.oos === undefined);
         test(mo4.mips === undefined);
 
         test(mo4.ied === undefined);
         test(mo4.ifsd === undefined);
         test(mo4.ivsd === undefined);
-        test(mo4.iood === undefined);
         test(mo4.imipd === undefined);
 
         test(mo4.bos === undefined);
@@ -99,7 +97,6 @@ export class Client extends TestHelper
         mo1.es = [Test.MyEnum.MyEnumMember, Test.MyEnum.MyEnumMember];
         mo1.fss = [mo1.fs];
         mo1.vss = [mo1.vs];
-        mo1.oos = [oo1];
         mo1.mips = [Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test"))];
 
         mo1.ied = new Map();
@@ -108,8 +105,6 @@ export class Client extends TestHelper
         mo1.ifsd.set(4, mo1.fs);
         mo1.ivsd = new Map();
         mo1.ivsd.set(5, mo1.vs);
-        mo1.iood = new Map();
-        mo1.iood.set(5, new Test.OneOptional(15));
         mo1.imipd = new Map();
         mo1.imipd.set(5, Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")));
 
@@ -137,13 +132,11 @@ export class Client extends TestHelper
         test(mo5.es[0] == Test.MyEnum.MyEnumMember && mo5.es[1] == Test.MyEnum.MyEnumMember);
         test(mo5.fss[0].equals(new Test.FixedStruct(78)));
         test(mo5.vss[0].equals(new Test.VarStruct("hello")));
-        test(mo5.oos[0].a == 15);
         test(mo5.mips[0].equals(communicator.stringToProxy("test")));
 
         test(mo5.ied.get(4) == Test.MyEnum.MyEnumMember);
         test(mo5.ifsd.get(4).equals(new Test.FixedStruct(78)));
         test(mo5.ivsd.get(5).equals(new Test.VarStruct("hello")));
-        test(mo5.iood.get(5).a == 15);
         test(mo5.imipd.get(5).equals(communicator.stringToProxy("test")));
 
         test(ArrayUtil.equals(mo5.bos, [false, true, false]));
@@ -160,9 +153,7 @@ export class Client extends TestHelper
         mo6.fs = mo5.fs;
         mo6.shs = mo5.shs;
         mo6.fss = mo5.fss;
-        mo6.oos = mo5.oos;
         mo6.ifsd = mo5.ifsd;
-        mo6.iood = mo5.iood;
         mo6.bos = mo5.bos;
 
         const mo7 = await initial.pingPong(mo6) as Test.MultiOptional;
@@ -186,13 +177,11 @@ export class Client extends TestHelper
         test(mo7.es === undefined);
         test(mo7.fss[0].equals(new Test.FixedStruct(78)));
         test(mo7.vss === undefined);
-        test(mo7.oos[0].a == 15);
         test(mo7.mips === undefined);
 
         test(mo7.ied === undefined);
         test(mo7.ifsd.get(4).equals(new Test.FixedStruct(78)));
         test(mo7.ivsd === undefined);
-        test(mo7.iood.get(5).a == 15);
         test(mo7.imipd === undefined);
 
         test(ArrayUtil.equals(mo7.bos, [false, true, false]));
@@ -239,13 +228,11 @@ export class Client extends TestHelper
         test(mo9.es[0] == Test.MyEnum.MyEnumMember && mo9.es[1] == Test.MyEnum.MyEnumMember);
         test(mo9.fss === undefined);
         test(mo9.vss[0].equals(new Test.VarStruct("hello")));
-        test(mo9.oos === undefined);
         test(mo9.mips[0].equals(communicator.stringToProxy("test")));
 
         test(mo9.ied.get(4) == Test.MyEnum.MyEnumMember);
         test(mo9.ifsd === undefined);
         test(mo9.ivsd.get(5).equals(new Test.VarStruct("hello")));
-        test(mo9.iood === undefined);
         test(mo9.imipd.get(5).equals(communicator.stringToProxy("test")));
 
         test(mo9.bos === undefined);
@@ -705,17 +692,6 @@ export class Client extends TestHelper
             data.set("2", 2);
             [p1, p2] = await initial.opStringIntDict(data);
             test(Ice.MapUtil.equals(p1, p2));
-        }
-
-        {
-            let [p1, p2] = await initial.opIntOneOptionalDict();
-            test(p1 === undefined);
-            test(p2 === undefined);
-            let data = new Test.IntOneOptionalDict();
-            data.set(1, new Test.OneOptional(58));
-            data.set(2, new Test.OneOptional(59));
-            [p1, p2] = await initial.opIntOneOptionalDict(data);
-            test(p1.get(1).a === 58 && p2.get(2).a === 59);
         }
         out.writeLine("ok");
 

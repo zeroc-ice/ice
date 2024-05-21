@@ -127,11 +127,6 @@ public:
     virtual std::optional<::Test::StringIntDict>
     opStringIntDict(std::optional<::Test::StringIntDict>, std::optional<::Test::StringIntDict>&, const Ice::Current&);
 
-    virtual std::optional<::Test::IntOneOptionalDict> opIntOneOptionalDict(
-        std::optional<::Test::IntOneOptionalDict>,
-        std::optional<::Test::IntOneOptionalDict>&,
-        const Ice::Current&);
-
     virtual void opClassAndUnknownOptional(Test::APtr, const Ice::Current&);
 
     virtual ::Test::GPtr opG(::Test::GPtr g, const Ice::Current&);

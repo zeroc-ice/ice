@@ -229,11 +229,6 @@ export class AMDInitialI extends Test.Initial
         return [p1, p1];
     }
 
-    opIntOneOptionalDict(p1:Test.IntOneOptionalDict, current:Ice.Current):[Test.IntOneOptionalDict, Test.IntOneOptionalDict]
-    {
-        return [p1, p1];
-    }
-
     opClassAndUnknownOptional(p:Test.A, current:Ice.Current):void
     {
     }

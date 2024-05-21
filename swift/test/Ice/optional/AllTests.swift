@@ -241,7 +241,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
   mo1.es = [.MyEnumMember, .MyEnumMember]
   mo1.fss = [fs]
   mo1.vss = [vs]
-  mo1.oos = [oo1]
   mo1.mips = try [
     uncheckedCast(prx: communicator.stringToProxy("test")!, type: MyInterfacePrx.self)
   ]
@@ -249,7 +248,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
   mo1.ied = [4: .MyEnumMember]
   mo1.ifsd = [4: fs]
   mo1.ivsd = [5: vs]
-  mo1.iood = [5: OneOptional(a: 15)]
   mo1.imipd = try [
     5: uncheckedCast(prx: communicator.stringToProxy("test")!, type: MyInterfacePrx.self)
   ]
@@ -278,13 +276,11 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
 
   try test(mo1.fss![0] == FixedStruct(m: 78))
   try test(mo1.vss![0] == VarStruct(m: "hello"))
-  try test(mo1.oos![0] === oo1)
   try test(mo1.mips![0] == communicator.stringToProxy("test"))
 
   try test(mo1.ied![4] == .MyEnumMember)
   try test(mo1.ifsd![4] == FixedStruct(m: 78))
   try test(mo1.ivsd![5] == VarStruct(m: "hello"))
-  try test(mo1.iood![5]!!.a! == 15)
   try test(mo1.imipd![5]! == communicator.stringToProxy("test"))
 
   try test(mo1.bos == [false, true, false])
@@ -327,13 +323,11 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     try test(mo4.es == nil)
     try test(mo4.fss == nil)
     try test(mo4.vss == nil)
-    try test(mo4.oos == nil)
     try test(mo4.mips == nil)
 
     try test(mo4.ied == nil)
     try test(mo4.ifsd == nil)
     try test(mo4.ivsd == nil)
-    try test(mo4.iood == nil)
     try test(mo4.imipd == nil)
 
     try test(mo4.bos == nil)
@@ -367,13 +361,11 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     try test(mo5.es![0] == .MyEnumMember && mo1.es![1] == .MyEnumMember)
     try test(mo5.fss![0] == FixedStruct(m: 78))
     try test(mo5.vss![0] == VarStruct(m: "hello"))
-    try test(mo5.oos![0]!.a! == 15)
     try test(mo5.mips![0] == communicator.stringToProxy("test"))
 
     try test(mo5.ied![4] == .MyEnumMember)
     try test(mo5.ifsd![4] == FixedStruct(m: 78))
     try test(mo5.ivsd![5] == VarStruct(m: "hello"))
-    try test(mo5.iood![5]!!.a == 15)
     try test(mo5.imipd![5]! == communicator.stringToProxy("test"))
 
     try test(mo5.bos == [false, true, false])
@@ -389,9 +381,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     mo6.fs = mo5.fs
     mo6.shs = mo5.shs
     mo6.fss = mo5.fss
-    mo6.oos = mo5.oos
     mo6.ifsd = mo5.ifsd
-    mo6.iood = mo5.iood
     mo6.bos = mo5.bos
 
     // Clear the second half of the optional members
@@ -437,13 +427,11 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     try test(mo7.es == nil)
     try test(mo7.fss![0] == FixedStruct(m: 78))
     try test(mo7.vss == nil)
-    try test(mo7.oos![0]!.a == 15)
     try test(mo7.mips == nil)
 
     try test(mo7.ied == nil)
     try test(mo7.ifsd![4] == FixedStruct(m: 78))
     try test(mo7.ivsd == nil)
-    try test(mo7.iood![5]!!.a == 15)
     try test(mo7.imipd == nil)
 
     try test(mo7.bos == [false, true, false])
@@ -474,13 +462,11 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     try test(mo9.es![0] == .MyEnumMember && mo9.es![1] == .MyEnumMember)
     try test(mo9.fss == nil)
     try test(mo9.vss![0] == VarStruct(m: "hello"))
-    try test(mo9.oos == nil)
     try test(mo9.mips![0] == communicator.stringToProxy("test"))
 
     try test(mo9.ied![4] == .MyEnumMember)
     try test(mo9.ifsd == nil)
     try test(mo9.ivsd![5] == VarStruct(m: "hello"))
-    try test(mo9.iood == nil)
     try test(mo9.imipd![5]! == communicator.stringToProxy("test"))
 
     try test(mo9.bos == nil)
@@ -3047,94 +3033,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     let fs1: FixedStruct? = try istr.read(tag: 2)
     try istr.endEncapsulation()
     try test(fs1 != nil && fs1!.m == 56)
-  }
-
-  do {
-    var p1: [Int32: OneOptional?]?
-    var p2: [Int32: OneOptional?]?
-    var p3: [Int32: OneOptional?]?
-
-    (p2, p3) = try initial.opIntOneOptionalDict(p1)
-    try test(p2 == nil && p3 == nil)
-
-    (p2, p3) = try initial.opIntOneOptionalDict(nil)
-    try test(p2 == nil && p3 == nil)
-
-    (p2, p3) = try initial.opIntOneOptionalDict()
-    try test(p2 == nil && p3 == nil)
-
-    try Promise<Void> { seal in
-      firstly {
-        initial.opIntOneOptionalDictAsync(nil)
-      }.done { p2, p3 in
-        try test(p2 == nil && p3 == nil)
-        seal.fulfill(())
-      }.catch { e in
-        seal.reject(e)
-      }
-    }.wait()
-
-    try Promise<Void> { seal in
-      firstly {
-        initial.opIntOneOptionalDictAsync(nil)
-      }.done { p2, p3 in
-        try test(p2 == nil && p3 == nil)
-        seal.fulfill(())
-      }.catch { e in
-        seal.reject(e)
-      }
-    }.wait()
-
-    p1 = [1: OneOptional(a: 58), 2: OneOptional(a: 59)]
-    (p2, p3) = try initial.opIntOneOptionalDict(p1)
-    try test(p2![1]!!.a == 58 && p3![1]!!.a == 58)
-
-    try Promise<Void> { seal in
-      firstly {
-        initial.opIntOneOptionalDictAsync(p1)
-      }.done { p2, p3 in
-        try test(p2![1]!!.a == 58 && p3![1]!!.a == 58)
-        seal.fulfill(())
-      }.catch { e in
-        seal.reject(e)
-      }
-    }.wait()
-
-    (p2, p3) = try initial.opIntOneOptionalDict([1: OneOptional(a: 58), 2: OneOptional(a: 59)])
-    try test(p2![1]!!.a == 58 && p3![1]!!.a == 58)
-
-    try Promise<Void> { seal in
-      firstly {
-        initial.opIntOneOptionalDictAsync([1: OneOptional(a: 58), 2: OneOptional(a: 59)])
-      }.done { p2, p3 in
-        try test(p2![1]!!.a == 58 && p3![1]!!.a == 58)
-        seal.fulfill(())
-      }.catch { e in
-        seal.reject(e)
-      }
-    }.wait()
-
-    (p2, p3) = try initial.opIntOneOptionalDict(nil)
-    try test(p2 == nil && p3 == nil)  // Ensure out parameter is cleared.
-
-    let ostr = Ice.OutputStream(communicator: communicator)
-    ostr.startEncapsulation()
-    IntOneOptionalDictHelper.write(to: ostr, tag: 2, value: p1)
-    ostr.endEncapsulation()
-    let inEncaps = ostr.finished()
-    let result = try initial.ice_invoke(
-      operation: "opIntOneOptionalDict", mode: .Normal, inEncaps: inEncaps)
-    var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-    _ = try istr.startEncapsulation()
-    p2 = try IntOneOptionalDictHelper.read(from: istr, tag: 1)
-    try test(p2![1]!!.a == 58)
-    p3 = try IntOneOptionalDictHelper.read(from: istr, tag: 3)
-    try test(p3![1]!!.a == 58)
-    try istr.endEncapsulation()
-
-    istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-    _ = try istr.startEncapsulation()
-    try istr.endEncapsulation()
   }
   output.writeLine("ok")
 

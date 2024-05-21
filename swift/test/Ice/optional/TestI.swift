@@ -233,16 +233,6 @@ class InitialI: Initial {
     return (p1, p1)
   }
 
-  func opIntOneOptionalDict(
-    p1: [Int32: OneOptional?]?,
-    current _: Ice.Current
-  ) throws -> (
-    returnValue: [Int32: OneOptional?]?,
-    p3: [Int32: OneOptional?]?
-  ) {
-    return (p1, p1)
-  }
-
   func opClassAndUnknownOptional(p _: A?, current _: Ice.Current) throws {}
 
   func opG(g: G?, current _: Ice.Current) throws -> G? {

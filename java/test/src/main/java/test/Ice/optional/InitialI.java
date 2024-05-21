@@ -232,12 +232,6 @@ public final class InitialI implements Initial {
   }
 
   @Override
-  public Initial.OpIntOneOptionalDictResult opIntOneOptionalDict(
-      Optional<java.util.Map<Integer, OneOptional>> p1, Current current) {
-    return new Initial.OpIntOneOptionalDictResult(p1, p1);
-  }
-
-  @Override
   public void opClassAndUnknownOptional(A p, Current current) {}
 
   @Override

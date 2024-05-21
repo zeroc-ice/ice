@@ -336,8 +336,6 @@ allTests(Test::TestHelper* helper, bool)
     mo1->fss->push_back(fs);
     mo1->vss = VarStructSeq();
     mo1->vss->push_back(vs);
-    mo1->oos = OneOptionalSeq();
-    mo1->oos->push_back(oo1);
     mo1->mips = MyInterfacePrxSeq();
     mo1->mips->push_back(MyInterfacePrx(communicator, "test"));
 
@@ -347,9 +345,6 @@ allTests(Test::TestHelper* helper, bool)
     mo1->ifsd.value()[4] = fs;
     mo1->ivsd = IntVarStructDict();
     mo1->ivsd.value()[5] = vs;
-    mo1->iood = IntOneOptionalDict();
-    mo1->iood.value()[5] = make_shared<OneOptional>();
-    mo1->iood.value()[5]->a = 15;
     mo1->imipd = IntMyInterfacePrxDict();
     mo1->imipd.value()[5] = MyInterfacePrx(communicator, "test");
 
@@ -384,13 +379,11 @@ allTests(Test::TestHelper* helper, bool)
     test(mo3->es == mo1->es);
     test(mo3->fss == mo1->fss);
     test(mo3->vss == mo1->vss);
-    test(mo3->oos == mo1->oos);
     test(mo3->mips == mo1->mips);
 
     test(mo3->ied == mo1->ied);
     test(mo3->ifsd == mo1->ifsd);
     test(mo3->ivsd == mo1->ivsd);
-    test(mo3->iood == mo1->iood);
     test(mo3->imipd == mo1->imipd);
 
     test(mo3->bos == mo1->bos);
@@ -446,13 +439,11 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo4->es);
     test(!mo4->fss);
     test(!mo4->vss);
-    test(!mo4->oos);
     test(!mo4->mips);
 
     test(!mo4->ied);
     test(!mo4->ifsd);
     test(!mo4->ivsd);
-    test(!mo4->iood);
     test(!mo4->imipd);
 
     test(!mo4->bos);
@@ -480,7 +471,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo5->es == mo1->es);
     test(mo5->fss == mo1->fss);
     test(mo5->vss == mo1->vss);
-    test(!mo5->oos->empty() && (*mo5->oos)[0]->a == oo1->a);
 
     test(mo5->mips.value().size() == mo1->mips.value().size());
     for (size_t i = 0; i < mo5->mips.value().size(); ++i)
@@ -491,7 +481,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo5->ied == mo1->ied);
     test(mo5->ifsd == mo1->ifsd);
     test(mo5->ivsd == mo1->ivsd);
-    test(!mo5->iood->empty() && (*mo5->iood)[5]->a == 15);
 
     test(mo5->imipd.value().size() == mo1->imipd.value().size());
     for (auto& v : mo5->imipd.value())
@@ -542,13 +531,11 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo7->es);
     test(mo7->fss == mo1->fss);
     test(!mo7->vss);
-    test(!mo7->oos->empty() && (*mo7->oos)[0]->a == oo1->a);
     test(!mo7->mips);
 
     test(!mo7->ied);
     test(mo7->ifsd == mo1->ifsd);
     test(!mo7->ivsd);
-    test(!mo7->iood->empty() && (*mo7->iood)[5]->a == 15);
     test(!mo7->imipd);
 
     // Clear the second half of the optional parameters
@@ -564,10 +551,8 @@ allTests(Test::TestHelper* helper, bool)
 
     mo8->shs = nullopt;
     mo8->fss = nullopt;
-    mo8->oos = nullopt;
 
     mo8->ifsd = nullopt;
-    mo8->iood = nullopt;
 
     MultiOptionalPtr mo9 = dynamic_pointer_cast<MultiOptional>(initial->pingPong(mo8));
     test(mo9->a == mo1->a);
@@ -591,7 +576,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo8->es == mo1->es);
     test(!mo8->fss);
     test(mo8->vss == mo1->vss);
-    test(!mo8->oos);
 
     test(mo8->mips.value().size() == mo1->mips.value().size());
     for (size_t i = 0; i < mo8->mips.value().size(); ++i)
@@ -602,7 +586,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo8->ied == mo1->ied);
     test(!mo8->ifsd);
     test(mo8->ivsd == mo1->ivsd);
-    test(!mo8->iood);
 
     Ice::ByteSeq inEncaps;
     Ice::ByteSeq outEncaps;
@@ -1614,37 +1597,6 @@ allTests(Test::TestHelper* helper, bool)
         in.read(3, p3);
         in.endEncapsulation();
         test(p2 == ss && p3 == ss);
-
-        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
-        in2.startEncapsulation();
-        in2.endEncapsulation();
-    }
-
-    {
-        optional<IntOneOptionalDict> p1;
-        optional<IntOneOptionalDict> p3;
-        optional<IntOneOptionalDict> p2 = initial->opIntOneOptionalDict(p1, p3);
-        test(!p2 && !p3);
-
-        IntOneOptionalDict ss;
-        ss.insert(make_pair<int, OneOptionalPtr>(1, make_shared<OneOptional>(58)));
-        p1 = ss;
-        p2 = initial->opIntOneOptionalDict(p1, p3);
-        test(p2 && p3);
-        test((*p2)[1]->a == 58 && (*p3)[1]->a == 58);
-
-        Ice::OutputStream out(communicator);
-        out.startEncapsulation();
-        out.write(2, p1);
-        out.endEncapsulation();
-        out.finished(inEncaps);
-        initial->ice_invoke("opIntOneOptionalDict", Ice::OperationMode::Normal, inEncaps, outEncaps);
-        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
-        in.startEncapsulation();
-        in.read(1, p2);
-        in.read(3, p3);
-        in.endEncapsulation();
-        test((*p2)[1]->a == 58 && (*p3)[1]->a == 58);
 
         Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
         in2.startEncapsulation();

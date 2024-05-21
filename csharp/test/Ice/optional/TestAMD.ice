@@ -51,7 +51,6 @@ sequence<SmallStruct> SmallStructSeq;
 sequence<FixedStruct> FixedStructSeq;
 ["cs:generic:LinkedList"] sequence<FixedStruct> FixedStructList;
 sequence<VarStruct> VarStructSeq;
-sequence<OneOptional> OneOptionalSeq;
 sequence<MyInterface*> MyInterfacePrxSeq;
 
 dictionary<int, int> IntIntDict;
@@ -59,7 +58,6 @@ dictionary<string, int> StringIntDict;
 dictionary<int, MyEnum> IntEnumDict;
 dictionary<int, FixedStruct> IntFixedStructDict;
 dictionary<int, VarStruct> IntVarStructDict;
-dictionary<int, OneOptional> IntOneOptionalDict;
 dictionary<int, MyInterface*> IntMyInterfacePrxDict;
 
 class MultiOptional
@@ -85,13 +83,11 @@ class MultiOptional
     optional(19) MyEnumSeq es;
     optional(20) FixedStructSeq fss;
     optional(21) VarStructSeq vss;
-    optional(22) OneOptionalSeq oos;
     optional(23) MyInterfacePrxSeq mips;
 
     optional(24) IntEnumDict ied;
     optional(25) IntFixedStructDict ifsd;
     optional(26) IntVarStructDict ivsd;
-    optional(27) IntOneOptionalDict iood;
     optional(28) IntMyInterfacePrxDict imipd;
 
     optional(29) BoolSeq bos;

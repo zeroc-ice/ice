@@ -230,11 +230,6 @@
             return [p1, p1];
         }
 
-        opIntOneOptionalDict(p1, current)
-        {
-            return [p1, p1];
-        }
-
         opClassAndUnknownOptional(p, current)
         {
         }

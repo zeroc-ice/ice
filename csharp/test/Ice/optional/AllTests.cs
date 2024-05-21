@@ -1671,7 +1671,6 @@ namespace Ice
                     test(MapsEqual(m, p1));
                     @in.endEncapsulation();
                 }
-
                 output.WriteLine("ok");
 
                 output.Write("testing exception optionals... ");

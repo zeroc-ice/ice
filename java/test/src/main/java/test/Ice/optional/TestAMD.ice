@@ -52,7 +52,6 @@ sequence<SmallStruct> SmallStructSeq;
 sequence<FixedStruct> FixedStructSeq;
 ["java:type:java.util.ArrayList<FixedStruct>"] sequence<FixedStruct> FixedStructList;
 sequence<VarStruct> VarStructSeq;
-sequence<OneOptional> OneOptionalSeq;
 sequence<MyInterface*> MyInterfacePrxSeq;
 
 ["java:serializable:test.Ice.optional.SerializableClass"] sequence<byte> Serializable;
@@ -62,7 +61,6 @@ dictionary<string, int> StringIntDict;
 dictionary<int, MyEnum> IntEnumDict;
 dictionary<int, FixedStruct> IntFixedStructDict;
 dictionary<int, VarStruct> IntVarStructDict;
-dictionary<int, OneOptional> IntOneOptionalDict;
 dictionary<int, MyInterface*> IntMyInterfacePrxDict;
 
 class MultiOptional
@@ -88,13 +86,11 @@ class MultiOptional
     optional(19) MyEnumSeq es;
     optional(20) FixedStructSeq fss;
     optional(21) VarStructSeq vss;
-    optional(22) OneOptionalSeq oos;
     optional(23) MyInterfacePrxSeq mips;
 
     optional(24) IntEnumDict ied;
     optional(25) IntFixedStructDict ifsd;
     optional(26) IntVarStructDict ivsd;
-    optional(27) IntOneOptionalDict iood;
     optional(28) IntMyInterfacePrxDict imipd;
 
     optional(29) BoolSeq bos;
@@ -256,8 +252,6 @@ interface Initial
     optional(1) IntIntDict opIntIntDict(optional(2) IntIntDict p1, out optional(3) IntIntDict p3);
 
     optional(1) StringIntDict opStringIntDict(optional(2) StringIntDict p1, out optional(3) StringIntDict p3);
-
-    optional(1) IntOneOptionalDict opIntOneOptionalDict(optional(2) IntOneOptionalDict p1, out optional(3) IntOneOptionalDict p3);
 
     void opClassAndUnknownOptional(A p);
 
