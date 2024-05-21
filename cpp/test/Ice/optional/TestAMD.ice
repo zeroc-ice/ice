@@ -275,7 +275,7 @@ interface Initial
 
     ["marshaled-result"] optional(1) SmallStruct opMStruct1();
     ["marshaled-result"] optional(1) SmallStruct opMStruct2(optional(2) SmallStruct p1,
-                                                            out optional(3)SmallStruct p2);
+                                                            out optional(3) SmallStruct p2);
 
     ["marshaled-result"] optional(1) StringSeq opMSeq1();
     ["marshaled-result"] optional(1) StringSeq opMSeq2(optional(2) StringSeq p1,
