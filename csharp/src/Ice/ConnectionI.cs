@@ -120,10 +120,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                 return;
             }
 
-            if (_acmLastActivity > -1)
-            {
-                _acmLastActivity = Time.currentMonotonicTimeMillis();
-            }
             setState(StateActive);
         }
     }
@@ -300,73 +296,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
             {
                 _writeStreamPos = -1;
                 _readStreamPos = -1;
-            }
-        }
-    }
-
-    public void monitor(long now, ACMConfig acm)
-    {
-        lock (this)
-        {
-            if (_state != StateActive)
-            {
-                return;
-            }
-
-            //
-            // We send a heartbeat if there was no activity in the last
-            // (timeout / 4) period. Sending a heartbeat sooner than
-            // really needed is safer to ensure that the receiver will
-            // receive the heartbeat in time. Sending the heartbeat if
-            // there was no activity in the last (timeout / 2) period
-            // isn't enough since monitor() is called only every (timeout
-            // / 2) period.
-            //
-            // Note that this doesn't imply that we are sending 4 heartbeats
-            // per timeout period because the monitor() method is still only
-            // called every (timeout / 2) period.
-            //
-            if (acm.heartbeat == ACMHeartbeat.HeartbeatAlways ||
-               (acm.heartbeat != ACMHeartbeat.HeartbeatOff && _writeStream.isEmpty() &&
-                now >= (_acmLastActivity + acm.timeout / 4)))
-            {
-                if (acm.heartbeat != ACMHeartbeat.HeartbeatOnDispatch || _upcallCount > 0)
-                {
-                    sendHeartbeatNow();
-                }
-            }
-
-            if (_readStream.size() > Protocol.headerSize || !_writeStream.isEmpty())
-            {
-                //
-                // If writing or reading, nothing to do, the connection
-                // timeout will kick-in if writes or reads don't progress.
-                // This check is necessary because the actitivy timer is
-                // only set when a message is fully read/written.
-                //
-                return;
-            }
-
-            if (acm.close != ACMClose.CloseOff && now >= (_acmLastActivity + acm.timeout))
-            {
-                if (acm.close == ACMClose.CloseOnIdleForceful ||
-                   (acm.close != ACMClose.CloseOnIdle && (_asyncRequests.Count > 0)))
-                {
-                    //
-                    // Close the connection if we didn't receive a heartbeat in
-                    // the last period.
-                    //
-                    setState(StateClosed, new ConnectionTimeoutException());
-                }
-                else if (acm.close != ACMClose.CloseOnInvocation &&
-                        _upcallCount == 0 && _batchRequestQueue.isEmpty() &&
-                        _asyncRequests.Count == 0)
-                {
-                    //
-                    // The connection is idle, close it.
-                    //
-                    setState(StateClosing, new ConnectionTimeoutException());
-                }
             }
         }
     }
@@ -608,49 +537,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         var outgoing = new HeartbeatAsync(this, _instance, completed);
         outgoing.invoke();
         return completed.Task;
-    }
-
-    public void setACM(int? timeout, ACMClose? close, ACMHeartbeat? heartbeat)
-    {
-        lock (this)
-        {
-            if (timeout.HasValue && timeout.Value < 0)
-            {
-                throw new ArgumentException("invalid negative ACM timeout value");
-            }
-            if (_monitor == null || _state >= StateClosed)
-            {
-                return;
-            }
-
-            if (_state == StateActive)
-            {
-                _monitor.remove(this);
-            }
-            _monitor = _monitor.acm(timeout, close, heartbeat);
-
-            if (_monitor.getACM().timeout <= 0)
-            {
-                _acmLastActivity = -1; // Disable the recording of last activity.
-            }
-            else if (_state == StateActive && _acmLastActivity == -1)
-            {
-                _acmLastActivity = Time.currentMonotonicTimeMillis();
-            }
-
-            if (_state == StateActive)
-            {
-                _monitor.add(this);
-            }
-        }
-    }
-
-    public ACM getACM()
-    {
-        lock (this)
-        {
-            return _monitor != null ? _monitor.getACM() : new ACM(0, ACMClose.CloseOff, ACMHeartbeat.HeartbeatOff);
-        }
     }
 
     public void asyncRequestCanceled(OutgoingAsyncBase outAsync, LocalException ex)
@@ -1150,11 +1036,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                         }
                     }
 
-                    if (_acmLastActivity > -1)
-                    {
-                        _acmLastActivity = Time.currentMonotonicTimeMillis();
-                    }
-
                     if (upcallCount == 0)
                     {
                         return; // Nothing to dispatch we're done!
@@ -1289,6 +1170,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         //
         // Decrease the upcall count.
         //
+        bool finished = false;
         if (completedUpcallCount > 0)
         {
             lock (this)
@@ -1311,11 +1193,17 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                     }
                     else if (_state == StateFinished)
                     {
-                        reap();
+                        finished = true;
+                        _observer?.detach();
                     }
                     Monitor.PulseAll(this);
                 }
             }
+        }
+
+        if (finished && _removeFromFactory is not null)
+        {
+            _removeFromFactory(this);
         }
     }
 
@@ -1478,14 +1366,21 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         // This must be done last as this will cause waitUntilFinished() to return (and communicator
         // objects such as the timer might be destroyed too).
         //
+        bool finished = false;
         lock (this)
         {
             setState(StateFinished);
 
             if (_upcallCount == 0)
             {
-                reap();
+                finished = true;
+                _observer?.detach();
             }
+        }
+
+        if (finished && _removeFromFactory is not null)
+        {
+            _removeFromFactory(this);
         }
     }
 
@@ -1571,11 +1466,15 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         _compressionSupported = BZip2.supported();
     }
 
-    internal ConnectionI(Instance instance, ACMMonitor monitor, Transceiver transceiver,
-                         Connector connector, EndpointI endpoint, ObjectAdapterI adapter)
+    internal ConnectionI(
+        Instance instance,
+        Transceiver transceiver,
+        Connector connector,
+        EndpointI endpoint,
+        ObjectAdapterI adapter,
+        Action<ConnectionI> removeFromFactory) // can be null
     {
         _instance = instance;
-        _monitor = monitor;
         _transceiver = transceiver;
         _desc = transceiver.ToString();
         _type = transceiver.protocol();
@@ -1586,6 +1485,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         _logger = initData.logger; // Cached for better performance.
         _traceLevels = instance.traceLevels(); // Cached for better performance.
         _timer = instance.timer();
+        _removeFromFactory = removeFromFactory;
         _writeTimeout = new TimeoutCallback(this);
         _writeTimeoutScheduled = false;
         _readTimeout = new TimeoutCallback(this);
@@ -1593,14 +1493,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         _warn = initData.properties.getIcePropertyAsInt("Ice.Warn.Connections") > 0;
         _warnUdp = initData.properties.getIcePropertyAsInt("Ice.Warn.Datagrams") > 0;
         _cacheBuffers = instance.cacheMessageBuffers() > 0;
-        if (_monitor != null && _monitor.getACM().timeout > 0)
-        {
-            _acmLastActivity = Time.currentMonotonicTimeMillis();
-        }
-        else
-        {
-            _acmLastActivity = -1;
-        }
         _nextRequestId = 1;
         _messageSizeMax = adapter != null ? adapter.messageSizeMax() : instance.messageSizeMax();
         _batchRequestQueue = new BatchRequestQueue(instance, _endpoint.datagram());
@@ -1815,28 +1707,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         catch (LocalException ex)
         {
             _logger.error("unexpected connection exception:\n" + ex + "\n" + _transceiver.ToString());
-        }
-
-        //
-        // We only register with the connection monitor if our new state
-        // is StateActive. Otherwise we unregister with the connection
-        // monitor, but only if we were registered before, i.e., if our
-        // old state was StateActive.
-        //
-        if (_monitor != null)
-        {
-            if (state == StateActive)
-            {
-                if (_acmLastActivity > -1)
-                {
-                    _acmLastActivity = Time.currentMonotonicTimeMillis();
-                }
-                _monitor.add(this);
-            }
-            else if (_state == StateActive)
-            {
-                _monitor.remove(this);
-            }
         }
 
         if (_instance.initializationData().observer != null)
@@ -2269,10 +2139,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                 status = status | OutgoingAsyncBase.AsyncStatusInvokeSentCallback;
             }
 
-            if (_acmLastActivity > -1)
-            {
-                _acmLastActivity = Time.currentMonotonicTimeMillis();
-            }
             return status;
         }
 
@@ -2602,46 +2468,60 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
 
     private void sendResponse(OutgoingResponse response, bool isTwoWay, byte compress)
     {
-        lock (this)
+        bool finished = false;
+        try
         {
-            Debug.Assert(_state > StateNotValidated);
-
-            try
+            lock (this)
             {
-                if (--_upcallCount == 0)
+                Debug.Assert(_state > StateNotValidated);
+
+                try
                 {
-                    if (_state == StateFinished)
+                    if (--_upcallCount == 0)
                     {
-                        reap();
+                        if (_state == StateFinished)
+                        {
+                            finished = true;
+                            _observer?.detach();
+                        }
+                        Monitor.PulseAll(this);
                     }
-                    Monitor.PulseAll(this);
-                }
 
-                if (_state >= StateClosed)
-                {
-                    Debug.Assert(_exception is not null);
-                    throw _exception;
-                }
+                    if (_state >= StateClosed)
+                    {
+                        Debug.Assert(_exception is not null);
+                        throw _exception;
+                    }
 
-                if (isTwoWay)
-                {
-                    sendMessage(new OutgoingMessage(response.outputStream, compress > 0, adopt: true));
-                }
+                    if (isTwoWay)
+                    {
+                        sendMessage(new OutgoingMessage(response.outputStream, compress > 0, adopt: true));
+                    }
 
-                if (_state == StateClosing && _upcallCount == 0)
+                    if (_state == StateClosing && _upcallCount == 0)
+                    {
+                        initiateShutdown();
+                    }
+                }
+                catch (LocalException ex)
                 {
-                    initiateShutdown();
+                    setState(StateClosed, ex);
                 }
             }
-            catch (LocalException ex)
+        }
+        finally
+        {
+            if (finished && _removeFromFactory is not null)
             {
-                setState(StateClosed, ex);
+                _removeFromFactory(this);
             }
         }
     }
 
     private void dispatchException(LocalException ex, int requestCount)
     {
+        bool finished = false;
+
         // Fatal exception while dispatching a request. Since sendResponse isn't called in case of a fatal exception
         // we decrement _upcallCount here.
         lock (this)
@@ -2656,11 +2536,17 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                 {
                     if (_state == StateFinished)
                     {
-                        reap();
+                        finished = true;
+                        _observer?.detach();
                     }
                     Monitor.PulseAll(this);
                 }
             }
+        }
+
+        if (finished && _removeFromFactory is not null)
+        {
+            _removeFromFactory(this);
         }
     }
 
@@ -2762,18 +2648,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
             info.incoming = _connector == null;
         }
         return _info;
-    }
-
-    private void reap()
-    {
-        if (_monitor != null)
-        {
-            _monitor.reap(this);
-        }
-        if (_observer != null)
-        {
-            _observer.detach();
-        }
     }
 
     private static ConnectionState toConnectionState(int state)
@@ -2947,7 +2821,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
     }
 
     private Instance _instance;
-    private ACMMonitor _monitor;
     private Transceiver _transceiver;
     private string _desc;
     private string _type;
@@ -2968,10 +2841,11 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
 
     private StartCallback _startCallback;
 
+    // This action must be called outside the ConnectionI lock to avoid lock acquisition deadlocks.
+    private readonly Action<ConnectionI> _removeFromFactory;
+
     private bool _warn;
     private bool _warnUdp;
-
-    private long _acmLastActivity;
 
     private int _compressionLevel;
 

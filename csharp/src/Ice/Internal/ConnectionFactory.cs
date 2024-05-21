@@ -108,34 +108,6 @@ public sealed class OutgoingConnectionFactory
                 c.waitUntilFinished();
             }
         }
-
-        lock (this)
-        {
-            // Ensure all the connections are finished and reapable at this point.
-            ICollection<Ice.ConnectionI> cons = _monitor.swapReapedConnections();
-            if (cons != null)
-            {
-                int size = 0;
-                foreach (ICollection<Ice.ConnectionI> cl in _connections.Values)
-                {
-                    size += cl.Count;
-                }
-                Debug.Assert(cons.Count == size);
-                _connections.Clear();
-                _connectionsByEndpoint.Clear();
-            }
-            else
-            {
-                Debug.Assert(_connections.Count == 0);
-                Debug.Assert(_connectionsByEndpoint.Count == 0);
-            }
-        }
-
-        //
-        // Must be destroyed outside the synchronization since this might block waiting for
-        // a timer task to execute.
-        //
-        _monitor.destroy();
     }
 
     public void create(EndpointI[] endpts, bool hasMore, Ice.EndpointSelectionType selType,
@@ -292,7 +264,6 @@ public sealed class OutgoingConnectionFactory
         _communicator = communicator;
         _instance = instance;
         _destroyed = false;
-        _monitor = new FactoryACMMonitor(instance, instance.clientACM());
         _pendingConnectCount = 0;
     }
 
@@ -443,20 +414,6 @@ public sealed class OutgoingConnectionFactory
             }
 
             //
-            // Reap closed connections
-            //
-            ICollection<Ice.ConnectionI> cons = _monitor.swapReapedConnections();
-            if (cons != null)
-            {
-                foreach (Ice.ConnectionI c in cons)
-                {
-                    _connections.Remove(c.connector(), c);
-                    _connectionsByEndpoint.Remove(c.endpoint(), c);
-                    _connectionsByEndpoint.Remove(c.endpoint().compress(true), c);
-                }
-            }
-
-            //
             // Try to get the connection. We may need to wait for other threads to
             // finish if one of them is currently establishing a connection to one
             // of our connectors.
@@ -540,8 +497,13 @@ public sealed class OutgoingConnectionFactory
                     throw new Ice.CommunicatorDestroyedException();
                 }
 
-                connection = new Ice.ConnectionI(_instance, _monitor, transceiver, ci.connector,
-                                                 ci.endpoint.compress(false), null);
+                connection = new Ice.ConnectionI(
+                    _instance,
+                    transceiver,
+                    ci.connector,
+                    ci.endpoint.compress(false),
+                    adapter: null,
+                    removeConnection);
             }
             catch (Ice.LocalException)
             {
@@ -755,6 +717,21 @@ public sealed class OutgoingConnectionFactory
             {
                 cbs.Remove(cb);
             }
+        }
+    }
+
+    private void removeConnection(ConnectionI connection)
+    {
+        lock (this)
+        {
+            if (_destroyed)
+            {
+                return;
+            }
+
+            _connections.Remove(connection.connector(), connection);
+            _connectionsByEndpoint.Remove(connection.endpoint(), connection);
+            _connectionsByEndpoint.Remove(connection.endpoint().compress(true), connection);
         }
     }
 
@@ -1089,7 +1066,6 @@ public sealed class OutgoingConnectionFactory
 
     private Ice.Communicator _communicator;
     private readonly Instance _instance;
-    private FactoryACMMonitor _monitor;
     private bool _destroyed;
 
     private MultiDictionary<Connector, Ice.ConnectionI> _connections = new();
@@ -1237,28 +1213,8 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
 
         lock (this)
         {
-            if (_transceiver != null)
-            {
-                Debug.Assert(_connections.Count <= 1); // The connection isn't monitored or reaped.
-            }
-            else
-            {
-                // Ensure all the connections are finished and reapable at this point.
-                ICollection<Ice.ConnectionI> cons = _monitor.swapReapedConnections();
-                Debug.Assert((cons == null ? 0 : cons.Count) == _connections.Count);
-                if (cons != null)
-                {
-                    cons.Clear();
-                }
-            }
             _connections.Clear();
         }
-
-        //
-        // Must be destroyed outside the synchronization since this might block waiting for
-        // a timer task to execute.
-        //
-        _monitor.destroy();
     }
 
     public bool isLocal(EndpointI endpoint)
@@ -1397,18 +1353,6 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
                     return;
                 }
 
-                //
-                // Reap closed connections
-                //
-                ICollection<Ice.ConnectionI> cons = _monitor.swapReapedConnections();
-                if (cons != null)
-                {
-                    foreach (Ice.ConnectionI c in cons)
-                    {
-                        _connections.Remove(c);
-                    }
-                }
-
                 if (!_acceptorStarted)
                 {
                     return;
@@ -1460,7 +1404,13 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
 
                 try
                 {
-                    connection = new Ice.ConnectionI(_instance, _monitor, transceiver, null, _endpoint, _adapter);
+                    connection = new Ice.ConnectionI(
+                        _instance,
+                        transceiver,
+                        null,
+                        _endpoint,
+                        _adapter,
+                        removeConnection);
                 }
                 catch (Ice.LocalException ex)
                 {
@@ -1564,7 +1514,6 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
         _connections = new HashSet<Ice.ConnectionI>();
         _state = StateHolding;
         _acceptorStarted = false;
-        _monitor = new FactoryACMMonitor(instance, ((Ice.ObjectAdapterI)adapter).getACM());
 
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
         if (defaultsAndOverrides.overrideTimeout)
@@ -1582,6 +1531,8 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
             _transceiver = _endpoint.transceiver();
             if (_transceiver != null)
             {
+                // All this is for UDP "connections".
+
                 if (_instance.traceLevels().network >= 2)
                 {
                     StringBuilder s = new StringBuilder("attempting to bind to ");
@@ -1592,7 +1543,13 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
                 }
                 _endpoint = _transceiver.bind();
 
-                Ice.ConnectionI connection = new Ice.ConnectionI(_instance, null, _transceiver, null, _endpoint, _adapter);
+                Ice.ConnectionI connection = new Ice.ConnectionI(
+                    _instance,
+                    _transceiver,
+                    connector: null,
+                    _endpoint,
+                    adapter,
+                    removeFromFactory: null);
                 connection.startAndWait();
                 _connections.Add(connection);
             }
@@ -1619,7 +1576,6 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
             }
 
             _state = StateFinished;
-            _monitor.destroy();
             _connections.Clear();
 
             if (ex is Ice.LocalException)
@@ -1795,13 +1751,24 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
         _acceptor.close();
     }
 
+    private void removeConnection(ConnectionI connection)
+    {
+        lock (this)
+        {
+            if (_state is StateActive or StateHolding)
+            {
+                _connections.Remove(connection);
+            }
+            // else it's already being cleaned up.
+        }
+    }
+
     private void warning(Ice.LocalException ex)
     {
         _instance.initializationData().logger.warning("connection exception:\n" + ex + '\n' + _acceptor.ToString());
     }
 
     private Instance _instance;
-    private FactoryACMMonitor _monitor;
 
     private Acceptor _acceptor;
     private readonly Transceiver _transceiver;

@@ -317,18 +317,6 @@ public sealed class Instance
         return _cacheMessageBuffers;
     }
 
-    public ACMConfig clientACM()
-    {
-        // No mutex lock, immutable.
-        return _clientACM;
-    }
-
-    public ACMConfig serverACM()
-    {
-        // No mutex lock, immutable.
-        return _serverACM;
-    }
-
     public Ice.ImplicitContextI getImplicitContext()
     {
         return _implicitContext;
@@ -732,18 +720,6 @@ public sealed class Instance
             _traceLevels = new TraceLevels(_initData.properties);
 
             _defaultsAndOverrides = new DefaultsAndOverrides(_initData.properties, _initData.logger);
-
-            _clientACM = new ACMConfig(_initData.properties,
-                                       _initData.logger,
-                                       "Ice.ACM.Client",
-                                       new ACMConfig(_initData.properties, _initData.logger, "Ice.ACM",
-                                                     new ACMConfig(false)));
-
-            _serverACM = new ACMConfig(_initData.properties,
-                                       _initData.logger,
-                                       "Ice.ACM.Server",
-                                       new ACMConfig(_initData.properties, _initData.logger, "Ice.ACM",
-                                                     new ACMConfig(true)));
 
             {
                 int num =
@@ -1507,8 +1483,6 @@ public sealed class Instance
     private int _classGraphDepthMax; // Immutable, not reset by destroy().
     private Ice.ToStringMode _toStringMode; // Immutable, not reset by destroy().
     private int _cacheMessageBuffers; // Immutable, not reset by destroy().
-    private ACMConfig _clientACM; // Immutable, not reset by destroy().
-    private ACMConfig _serverACM; // Immutable, not reset by destroy().
     private Ice.ImplicitContextI _implicitContext; // Immutable
     private RouterManager _routerManager;
     private LocatorManager _locatorManager;
