@@ -1007,13 +1007,9 @@ public sealed class ObjectAdapterI : ObjectAdapter
 
     internal static void checkIdentity(Identity ident)
     {
-        if (ident.name == null || ident.name.Length == 0)
+        if (ident.name.Length == 0)
         {
             throw new IllegalIdentityException(ident);
-        }
-        if (ident.category == null)
-        {
-            ident.category = "";
         }
     }
 

@@ -333,7 +333,7 @@ internal class DispatchHelper : MetricsHelper<DispatchMetrics>
         if (_id == null)
         {
             StringBuilder os = new StringBuilder();
-            if (_current.id.category != null && _current.id.category.Length > 0)
+            if (_current.id.category.Length > 0)
             {
                 os.Append(_current.id.category).Append('/');
             }

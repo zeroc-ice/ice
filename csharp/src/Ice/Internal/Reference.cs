@@ -466,11 +466,7 @@ public abstract class Reference : IEquatable<Reference>
                         int invocationTimeout,
                         Dictionary<string, string> context)
     {
-        //
         // Validate string arguments.
-        //
-        Debug.Assert(identity.name != null);
-        Debug.Assert(identity.category != null);
         Debug.Assert(facet != null);
 
         _instance = instance;

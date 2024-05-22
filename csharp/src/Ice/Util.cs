@@ -319,7 +319,7 @@ public sealed class Util
     /// <returns>The string representation of the object identity.</returns>
     public static string identityToString(Identity ident, ToStringMode toStringMode = ToStringMode.Unicode)
     {
-        if (ident.category == null || ident.category.Length == 0)
+        if (ident.category.Length == 0)
         {
             return Ice.UtilInternal.StringUtil.escapeString(ident.name, "/", toStringMode);
         }
