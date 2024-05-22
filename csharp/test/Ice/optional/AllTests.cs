@@ -505,6 +505,28 @@ namespace Ice
                     }
                     output.WriteLine("ok");
 
+                    output.Write("testing operations with unknown optionals... ");
+                    output.Flush();
+                    {
+                        Test.A a = new Test.A();
+                        Test.VarStruct ovs = new Test.VarStruct("test");
+
+                        os = new Ice.OutputStream(communicator);
+                        os.startEncapsulation();
+                        os.writeValue(a);
+                        os.writeOptional(1, Ice.OptionalFormat.FSize);
+                        int pos = os.startSize();
+                        ovs.ice_writeMembers(os);
+                        os.endSize(pos);
+                        os.endEncapsulation();
+                        inEncaps = os.finished();
+                        test(initial.ice_invoke("opClassAndUnknownOptional", Ice.OperationMode.Normal, inEncaps,
+                                                out outEncaps));
+
+                        @in = new Ice.InputStream(communicator, outEncaps);
+                        @in.startEncapsulation();
+                        @in.endEncapsulation();
+                    }
                     output.WriteLine("ok");
                 }
 

@@ -390,17 +390,12 @@ def allTests(helper, communicator)
 
         puts "ok"
 
-        print "testing optionals with unknown classes... "
+        print "testing operations with unknown optionals... "
         STDOUT.flush
 
         initial2 = Test::Initial2Prx::uncheckedCast(base)
-        d = Test::D.new
-        d.ds = "test"
-        d.seq = ["test1", "test2", "test3", "test4"]
-        d.ao = Test::A.new(18)
-        d.requiredB = 14;
-        d.requiredA = 14;
-        initial2.opClassAndUnknownOptional(Test::A.new, d)
+        ovs = Test::VarStruct.new("test")
+        initial2.opClassAndUnknownOptional(Test::A.new, ovs)
 
         puts "ok"
     end

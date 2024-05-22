@@ -424,17 +424,12 @@ def allTests(helper, communicator):
 
         print("ok")
 
-        sys.stdout.write("testing optionals with unknown classes... ")
+        sys.stdout.write("testing operations with unknown optionals... ")
         sys.stdout.flush()
 
         initial2 = Test.Initial2Prx.uncheckedCast(base)
-        d = Test.D()
-        d.ds = "test"
-        d.seq = ["test1", "test2", "test3", "test4"]
-        d.ao = Test.A(18)
-        d.requiredB = 14
-        d.requiredA = 14
-        initial2.opClassAndUnknownOptional(Test.A(), d)
+        ovs = Test.VarStruct("test")
+        initial2.opClassAndUnknownOptional(Test.A(), ovs)
 
         print("ok")
 

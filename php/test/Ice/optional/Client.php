@@ -394,17 +394,12 @@ function allTests($helper)
 
         echo "ok\n";
 
-        echo "testing optionals with unknown classes... ";
+        echo "testing operations with unknown optionals... ";
         flush();
 
         $initial2 = Test\Initial2PrxHelper::uncheckedCast($base);
-        $d = new Test\D;
-        $d->ds = "test";
-        $d->seq = array("test1", "test2", "test3", "test4");
-        $d->ao = new Test\A(18);
-        $d->requiredB = 14;
-        $d->requiredA = 14;
-        $initial2->opClassAndUnknownOptional(new Test\A, $d);
+        $ovs = new Test\VarStruct("test");
+        $initial2->opClassAndUnknownOptional(new Test\A, $ovs);
 
         echo "ok\n";
     }
