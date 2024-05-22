@@ -64,6 +64,9 @@ namespace Slice
         // Is this Slice struct mapped to a C# class?
         static bool isMappedToClass(const StructPtr& p) { return !isValueType(p); }
 
+        // Is this Slice field type mapped to a non-nullable C# reference type?
+        static bool isNonNullableReferenceType(const TypePtr& p, bool includeString = true);
+
         //
         // Generate code to marshal or unmarshal a type
         //

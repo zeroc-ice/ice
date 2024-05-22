@@ -743,15 +743,9 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& dataMembers,
     // Generates "= null!" for each non-optional collection and struct-mapped-to-a-class field.
     for (const auto& q : dataMembers)
     {
-        if (!q->optional())
+        if (!q->optional() && isNonNullableReferenceType(q->type(), false))
         {
-            StructPtr st = dynamic_pointer_cast<Struct>(q->type());
-
-            if (dynamic_pointer_cast<Sequence>(q->type()) || dynamic_pointer_cast<Dictionary>(q->type()) ||
-                (st && isMappedToClass(st)))
-            {
-                _out << nl << "this." << fixId(q->name(), baseTypes) << " = null!;";
-            }
+            _out << nl << "this." << fixId(q->name(), baseTypes) << " = null!;";
         }
     }
 }
@@ -1682,18 +1676,14 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             paramDecl.push_back(memberType + " " + memberName);
 
             // Look for non-nullable fields to be initialized by the secondary constructor.
-            if (!q->optional())
+            // false: we don't want to include strings since they are initialized to ""
+            if (!q->optional() && isNonNullableReferenceType(q->type(), false))
             {
-                StructPtr st = dynamic_pointer_cast<Struct>(q->type());
-                if (dynamic_pointer_cast<Sequence>(q->type()) || dynamic_pointer_cast<Dictionary>(q->type()) ||
-                    (st && isMappedToClass(st)))
-                {
-                    secondaryCtorParams.push_back(memberType + " " + memberName);
+                secondaryCtorParams.push_back(memberType + " " + memberName);
 
-                    if (find(dataMembers.begin(), dataMembers.end(), q) != dataMembers.end())
-                    {
-                        secondaryCtorMemberNames.push_back(memberName);
-                    }
+                if (find(dataMembers.begin(), dataMembers.end(), q) != dataMembers.end())
+                {
+                    secondaryCtorMemberNames.push_back(memberName);
                 }
             }
         }
@@ -1710,14 +1700,9 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 baseParamNames.push_back(memberName);
 
                 // Look for non-nullable fields
-                if (!q->optional())
+                if (!q->optional() && isNonNullableReferenceType(q->type(), false))
                 {
-                    StructPtr st = dynamic_pointer_cast<Struct>(q->type());
-                    if (dynamic_pointer_cast<Sequence>(q->type()) || dynamic_pointer_cast<Dictionary>(q->type()) ||
-                        (st && isMappedToClass(st)))
-                    {
-                        secondaryCtorBaseParamNames.push_back(memberName);
-                    }
+                    secondaryCtorBaseParamNames.push_back(memberName);
                 }
             }
             _out << baseParamNames << epar;
@@ -1726,6 +1711,10 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         for (const auto& q : dataMembers)
         {
             const string memberName = fixId(q->name(), DotNet::ICloneable);
+            if (!q->optional() && isNonNullableReferenceType(q->type()))
+            {
+                _out << nl << "global::System.ArgumentNullException.ThrowIfNull(" << memberName << ");";
+            }
             _out << nl << "this." << memberName << " = " << memberName << ';';
         }
         _out << nl << "ice_initialize();";
@@ -1744,6 +1733,8 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             _out << sb;
             for (const auto& q : secondaryCtorMemberNames)
             {
+                // All these parameters/fields are non-nullable and we don't tolerate null values.
+                _out << nl << "global::System.ArgumentNullException.ThrowIfNull(" << q << ");";
                 _out << nl << "this." << q << " = " << q << ';';
             }
             _out << nl << "ice_initialize();";
@@ -1946,19 +1937,14 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         paramDecl.push_back(memberType + " " + memberName);
 
         // Look for non-nullable fields to be initialized by the secondary constructor.
-        if (!q->optional())
+        if (!q->optional() && isNonNullableReferenceType(q->type(), false))
         {
-            StructPtr st = dynamic_pointer_cast<Struct>(q->type());
-            if (dynamic_pointer_cast<Sequence>(q->type()) || dynamic_pointer_cast<Dictionary>(q->type()) ||
-                (st && isMappedToClass(st)))
+            secondaryCtorParams.push_back(memberType + " " + memberName);
+            if (find(dataMembers.begin(), dataMembers.end(), q) != dataMembers.end())
             {
-                secondaryCtorParams.push_back(memberType + " " + memberName);
-                if (find(dataMembers.begin(), dataMembers.end(), q) != dataMembers.end())
-                {
-                    secondaryCtorMemberNames.push_back(memberName);
-                }
-                hideParameterlessCtor = true;
+                secondaryCtorMemberNames.push_back(memberName);
             }
+            hideParameterlessCtor = true;
         }
     }
     // Add exception for inner exception. It's defaulted to null only if it's not the only parameter.
@@ -1991,14 +1977,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             baseParamNames.push_back(memberName);
 
             // Look for non-nullable fields
-            if (!q->optional())
+            if (!q->optional() && isNonNullableReferenceType(q->type(), false))
             {
-                StructPtr st = dynamic_pointer_cast<Struct>(q->type());
-                if (dynamic_pointer_cast<Sequence>(q->type()) || dynamic_pointer_cast<Dictionary>(q->type()) ||
-                    (st && isMappedToClass(st)))
-                {
-                    secondaryCtorBaseParamNames.push_back(memberName);
-                }
+                secondaryCtorBaseParamNames.push_back(memberName);
             }
         }
     }
@@ -2010,6 +1991,10 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     for (const auto& q : dataMembers)
     {
         const string memberName = fixId(q->name(), DotNet::Exception);
+        if (!q->optional() && isNonNullableReferenceType(q->type()))
+        {
+            _out << nl << "global::System.ArgumentNullException.ThrowIfNull(" << memberName << ");";
+        }
         _out << nl << "this." << memberName << " = " << memberName << ';';
     }
     _out << eb;
@@ -2024,6 +2009,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << sb;
         for (const auto& q : secondaryCtorMemberNames)
         {
+            _out << nl << "global::System.ArgumentNullException.ThrowIfNull(" << q << ");";
             _out << nl << "this." << q << " = " << q << ';';
         }
         _out << eb;
@@ -2185,10 +2171,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         vector<string> ctorParamNames;
         for (const auto& q : dataMembers)
         {
-            StructPtr st = dynamic_pointer_cast<Struct>(q->type());
-
-            if (dynamic_pointer_cast<Sequence>(q->type()) || dynamic_pointer_cast<Dictionary>(q->type()) ||
-                (st && isMappedToClass(st)))
+            // false: we don't want to include strings since they are initialized to ""
+            if (isNonNullableReferenceType(q->type(), false))
             {
                 string memberName = fixId(q->name(), DotNet::ICloneable);
                 string memberType = typeToString(q->type(), ns, false);
@@ -2206,6 +2190,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             _out << sb;
             for (const auto& q : ctorParamNames)
             {
+                _out << nl << "global::System.ArgumentNullException.ThrowIfNull(" << q << ");";
                 _out << nl << "this." << q << " = " << q << ';';
             }
             // All the other fields keep their default values (explicit or implicit).
@@ -2229,6 +2214,10 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     for (const auto& q : dataMembers)
     {
         string paramName = fixId(q->name(), classMapping ? DotNet::ICloneable : 0);
+        if (isNonNullableReferenceType(q->type()))
+        {
+            _out << nl << "global::System.ArgumentNullException.ThrowIfNull(" << paramName << ");";
+        }
         _out << nl << "this." << paramName << " = " << paramName << ';';
     }
     _out << nl << "ice_initialize();";

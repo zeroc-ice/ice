@@ -273,7 +273,7 @@ namespace Ice
                 output.Write("testing non-primary constructor... ");
                 output.Flush();
                 {
-                    Test.StructNoDefaults v = new Test.StructNoDefaults(bs: null, iseq: null, st2: null, dict: null);
+                    Test.StructNoDefaults v = new Test.StructNoDefaults(bs: [], iseq: [], st2: new(), dict: []);
                     test(v.bo == false);
                     test(v.b == 0);
                     test(v.s == 0);
@@ -283,27 +283,27 @@ namespace Ice
                     test(v.d == 0.0);
                     test(v.str.Length == 0);
                     test(v.c1 == Test.Color.red);
-                    test(v.bs == null);
-                    test(v.iseq == null);
+                    test(v.bs.Length == 0);
+                    test(v.iseq.Length == 0);
                     test(v.st.a == 0);
-                    test(v.st2 == null);
-                    test(v.dict == null);
+                    test(v.st2.a.Length == 0);
+                    test(v.dict.Count == 0);
 
-                    Test.ExceptionNoDefaults e = new Test.ExceptionNoDefaults();
+                    Test.ExceptionNoDefaults e = new Test.ExceptionNoDefaults(bs: [], st2: new(), dict: []);
                     test(e.str.Length == 0);
                     test(e.c1 == Test.Color.red);
-                    test(e.bs == null);
+                    test(e.bs.Length == 0);
                     test(e.st.a == 0);
-                    test(e.st2 == null);
-                    test(e.dict == null);
+                    test(e.st2.a.Length == 0);
+                    test(e.dict.Count == 0);
 
-                    Test.ClassNoDefaults cl = new Test.ClassNoDefaults();
+                    Test.ClassNoDefaults cl = new Test.ClassNoDefaults(bs: [], st2: new(), dict: []);
                     test(cl.str.Length == 0);
                     test(cl.c1 == Test.Color.red);
-                    test(cl.bs == null);
+                    test(e.bs.Length == 0);
                     test(cl.st.a == 0);
-                    test(cl.st2 == null);
-                    test(cl.dict == null);
+                    test(e.st2.a.Length == 0);
+                    test(e.dict.Count == 0);
                 }
                 output.WriteLine("ok");
             }
