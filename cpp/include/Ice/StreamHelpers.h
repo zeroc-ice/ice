@@ -313,15 +313,6 @@ namespace Ice
     };
 
     /**
-     * Specialization for class types.
-     * \headerfile Ice/Ice.h
-     */
-    template<> struct GetOptionalFormat<StreamHelperCategoryClass, 1, false>
-    {
-        static const OptionalFormat value = OptionalFormat::Class;
-    };
-
-    /**
      * Specialization for enum types.
      * \headerfile Ice/Ice.h
      */
