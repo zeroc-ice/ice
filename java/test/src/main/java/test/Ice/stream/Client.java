@@ -646,11 +646,11 @@ public class Client extends test.TestHelper {
         java.util.Map<String, MyClass> dict = new java.util.HashMap<>();
         MyClass c;
         c = new MyClass();
-        c.s = new LargeStruct();
+        c.s = new SmallStruct();
         c.s.e = MyEnum.enum2;
         dict.put("key1", c);
         c = new MyClass();
-        c.s = new LargeStruct();
+        c.s = new SmallStruct();
         c.s.e = MyEnum.enum3;
         dict.put("key2", c);
         out = new OutputStream(communicator);
