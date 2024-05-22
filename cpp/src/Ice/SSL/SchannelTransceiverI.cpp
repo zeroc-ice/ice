@@ -19,10 +19,6 @@ using namespace std;
 using namespace Ice;
 using namespace Ice::SSL;
 
-#ifndef CERT_CHAIN_DISABLE_AIA
-#    define CERT_CHAIN_DISABLE_AIA 0x00002000
-#endif
-
 namespace
 {
     string protocolName(DWORD protocol)
@@ -61,7 +57,7 @@ namespace
                 return &desc.pBuffers[i];
             }
         }
-        return 0;
+        return nullptr;
     }
 
     HCERTCHAINENGINE defaultChainEngine(HCERTSTORE trustedRootCertificates)
@@ -89,20 +85,20 @@ namespace
         }
     }
 
-    SCHANNEL_CRED defaultOutgoingCredentials(const string&)
+    SCH_CREDENTIALS defaultOutgoingCredentials(const string&)
     {
-        return SCHANNEL_CRED{
-            .dwVersion = SCHANNEL_CRED_VERSION,
+        return SCH_CREDENTIALS{
+            .dwVersion = SCH_CREDENTIALS_VERSION,
             .dwFlags = SCH_CRED_NO_DEFAULT_CREDS | SCH_CRED_NO_SERVERNAME_CHECK | SCH_USE_STRONG_CRYPTO};
     }
 
-    SCHANNEL_CRED defaultIncomingCredentials(const string&)
+    SCH_CREDENTIALS defaultIncomingCredentials(const string&)
     {
-        return SCHANNEL_CRED{
-            .dwVersion = SCHANNEL_CRED_VERSION,
+        return SCH_CREDENTIALS{
+            .dwVersion = SCH_CREDENTIALS_VERSION,
             // Don't set SCH_SEND_ROOT_CERT as it seems to cause problems with Java certificate validation and
             // Schannel doesn't seems to send the root certificate either way.
-            .dwFlags = SCH_CRED_NO_SYSTEM_MAPPER | SCH_CRED_DISABLE_RECONNECTS | SCH_USE_STRONG_CRYPTO};
+            .dwFlags = SCH_CRED_NO_SYSTEM_MAPPER | SCH_USE_STRONG_CRYPTO};
     }
 }
 
@@ -113,7 +109,7 @@ Schannel::TransceiverI::getNativeInfo()
 }
 
 IceInternal::SocketOperation
-Schannel::TransceiverI::sslHandshake()
+Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
 {
     DWORD flags = 0;
     if (_incoming)
@@ -130,6 +126,7 @@ Schannel::TransceiverI::sslHandshake()
     SECURITY_STATUS err = SEC_E_OK;
     if (_state == StateHandshakeNotStarted)
     {
+        assert(!initialBuffer); // Always null for the initial handshake.
         _credentials = _localCredentialsSelectionCallback(_incoming ? _adapterName : _host);
         if (_rootStore && !_credentials.hRootStore)
         {
@@ -145,7 +142,7 @@ Schannel::TransceiverI::sslHandshake()
                     throw SecurityException(
                         __FILE__,
                         __LINE__,
-                        "SSL transport: invalid null certificate in the provided SCHANNEL_CRED.");
+                        "SSL transport: invalid null certificate in the provided SCH_CREDENTIALS.");
                 }
                 _allCerts.push_back(CertDuplicateCertificateContext(_credentials.paCred[i]));
             }
@@ -177,7 +174,11 @@ Schannel::TransceiverI::sslHandshake()
         _readBuffer.b.resize(2048);
         _readBuffer.i = _readBuffer.b.begin();
 
-        if (!_incoming)
+        if (_incoming)
+        {
+            _state = StateHandshakeReadContinue;
+        }
+        else
         {
             SecBuffer outBuffer = {0, SECBUFFER_TOKEN, 0};
             SecBufferDesc outBufferDesc = {SECBUFFER_VERSION, 1, &outBuffer};
@@ -217,26 +218,33 @@ Schannel::TransceiverI::sslHandshake()
 
             _state = StateHandshakeWriteContinue;
         }
-        else
-        {
-            _state = StateHandshakeReadContinue;
-        }
     }
 
     while (true)
     {
         if (_state == StateHandshakeReadContinue)
         {
-            // If read buffer is empty, try to read some data.
-            if (_readBuffer.i == _readBuffer.b.begin() && !readRaw(_readBuffer))
-            {
-                return IceInternal::SocketOperationRead;
-            }
-
-            SecBuffer inBuffers[2]{
-                {static_cast<DWORD>(_readBuffer.i - _readBuffer.b.begin()), SECBUFFER_TOKEN, _readBuffer.b.begin()},
-                {0, SECBUFFER_EMPTY, 0}};
+            SecBuffer inBuffers[2]{{0, SECBUFFER_EMPTY, 0}, {0, SECBUFFER_EMPTY, 0}};
             SecBufferDesc inBufferDesc{SECBUFFER_VERSION, 2, inBuffers};
+
+            if (initialBuffer)
+            {
+                inBuffers[0] = {initialBuffer->cbBuffer, SECBUFFER_TOKEN, initialBuffer->pvBuffer};
+                initialBuffer = nullptr;
+            }
+            else
+            {
+                // If read buffer is empty, try to read some data.
+                if (_readBuffer.i == _readBuffer.b.begin() && !readRaw(_readBuffer))
+                {
+                    return IceInternal::SocketOperationRead;
+                }
+
+                inBuffers[0] = {
+                    static_cast<DWORD>(_readBuffer.i - _readBuffer.b.begin()),
+                    SECBUFFER_TOKEN,
+                    _readBuffer.b.begin()};
+            }
 
             SecBuffer outBuffers[2]{{0, SECBUFFER_TOKEN, 0}, {0, SECBUFFER_ALERT, 0}};
             SecBufferDesc outBufferDesc{SECBUFFER_VERSION, 2, outBuffers};
@@ -438,7 +446,13 @@ Schannel::TransceiverI::sslHandshake()
         throw SecurityException(__FILE__, __LINE__, os.str());
     }
 
-    assert(!_peerCertificate);
+    assert(!_peerCertificate || _sslConnectionRenegotiating);
+    if (_peerCertificate)
+    {
+        CertFreeCertificateContext(_peerCertificate);
+        _peerCertificate = nullptr;
+    }
+
     err = QueryContextAttributes(&_ssl, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &_peerCertificate);
     if (err != SEC_E_OK && err != SEC_E_NO_CREDENTIALS)
     {
@@ -457,39 +471,47 @@ Schannel::TransceiverI::sslHandshake()
     _writeBuffer.b.reset();
     _writeBuffer.i = _writeBuffer.b.begin();
 
+    if (_remoteCertificateValidationCallback &&
+        !_remoteCertificateValidationCallback(_ssl, dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(getInfo())))
+    {
+        throw SecurityException(
+            __FILE__,
+            __LINE__,
+            "IceSSL: certificate verification failed. The certificate was rejected by the remote validation callback.");
+    }
+
+    _state = StateHandshakeComplete;
+
+    _delegate->getNativeInfo()->ready(
+        IceInternal::SocketOperationRead,
+        !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin());
+
     return IceInternal::SocketOperationNone;
 }
 
-//
-// Try to decrypt a message and return the number of bytes decrypted, if the number of bytes
-// decrypted is less than the size requested it means that the application needs to read more
-// data before it can decrypt the complete message.
-//
+// Try to decrypt a message and return the number of bytes decrypted, if the number of bytes decrypted is less than the
+// size requested it means that the application needs to read more data before it can decrypt the complete message.
 size_t
 Schannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
 {
     assert(_readBuffer.i != _readBuffer.b.begin() || !_readUnprocessed.b.empty());
 
-    //
-    // First check if there is data in the unprocessed buffer.
-    //
+    std::byte* i = buffer.i;
+
+    // The number of bytes of the current message that are already decrypted.
     size_t length = std::min(static_cast<size_t>(buffer.b.end() - buffer.i), _readUnprocessed.b.size());
     if (length > 0)
     {
         memcpy(buffer.i, _readUnprocessed.b.begin(), length);
-        memmove(_readUnprocessed.b.begin(), _readUnprocessed.b.begin() + length, _readUnprocessed.b.size() - length);
-        _readUnprocessed.b.resize(_readUnprocessed.b.size() - length);
+        i += length;
+        // Move any remaining data to the beginning of the unprocessed buffer.
+        size_t remaining = _readUnprocessed.b.size() - length;
+        memmove(_readUnprocessed.b.begin(), _readUnprocessed.b.begin() + length, remaining);
+        _readUnprocessed.b.resize(remaining);
     }
 
-    while (true)
+    while (i != buffer.b.end() && _readBuffer.i != _readBuffer.b.begin())
     {
-        // If we have filled the buffer or if nothing left to read from the read buffer, we're done.
-        std::byte* i = buffer.i + length;
-        if (i == buffer.b.end() || _readBuffer.i == _readBuffer.b.begin())
-        {
-            break;
-        }
-
         // Try to decrypt the buffered data.
         SecBuffer inBuffers[4]{
             {static_cast<DWORD>(_readBuffer.i - _readBuffer.b.begin()), SECBUFFER_DATA, _readBuffer.b.begin()},
@@ -498,15 +520,37 @@ Schannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
             {0, SECBUFFER_EMPTY, 0}};
         SecBufferDesc inBufferDesc{SECBUFFER_VERSION, 4, inBuffers};
 
-        SECURITY_STATUS err = DecryptMessage(&_ssl, &inBufferDesc, 0, 0);
+        SECURITY_STATUS err = DecryptMessage(&_ssl, &inBufferDesc, 0, nullptr);
         if (err == SEC_E_INCOMPLETE_MESSAGE)
         {
             // There isn't enough data to decrypt the message. The input buffer is resized to the SSL max message size
             // after the SSL handshake completes so an incomplete message can only occur if the read buffer is not full.
             assert(_readBuffer.i != _readBuffer.b.end());
-            return length;
+            return i - buffer.i;
         }
-        else if (err == SEC_I_CONTEXT_EXPIRED || err == SEC_I_RENEGOTIATE)
+        else if (err == SEC_I_RENEGOTIATE)
+        {
+            if (_sslConnectionRenegotiating)
+            {
+                throw ProtocolException(
+                    __FILE__,
+                    __LINE__,
+                    "SSL transport: peer requested renegotiation while we are already renegotiating.");
+            }
+            // The peer has requested a renegotiation.
+            SecBuffer* extraBuffer = getSecBufferWithType(inBufferDesc, SECBUFFER_EXTRA);
+            _sslConnectionRenegotiating = true;
+            _state = StateHandshakeReadContinue;
+            if (extraBuffer)
+            {
+                _extraBuffer.b.resize(extraBuffer->cbBuffer);
+                _extraBuffer.i = _extraBuffer.b.begin();
+                memcpy(_extraBuffer.i, extraBuffer->pvBuffer, extraBuffer->cbBuffer);
+                _extraBuffer.i += extraBuffer->cbBuffer;
+            }
+            return 0;
+        }
+        else if (err == SEC_I_CONTEXT_EXPIRED)
         {
             // The message sender has finished using the connection and has initiated a shutdown.
             throw ConnectionLostException(__FILE__, __LINE__, 0);
@@ -522,10 +566,10 @@ Schannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
         SecBuffer* dataBuffer = getSecBufferWithType(inBufferDesc, SECBUFFER_DATA);
         assert(dataBuffer);
         DWORD remaining = min(static_cast<DWORD>(buffer.b.end() - i), dataBuffer->cbBuffer);
-        length += remaining;
-        if (remaining)
+        if (remaining > 0)
         {
             memcpy(i, dataBuffer->pvBuffer, remaining);
+            i += remaining;
 
             // Copy remaining decrypted data to unprocessed buffer.
             if (dataBuffer->cbBuffer > remaining)
@@ -550,7 +594,7 @@ Schannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
             _readBuffer.i = _readBuffer.b.begin();
         }
     }
-    return length;
+    return i - buffer.i;
 }
 
 //
@@ -610,30 +654,7 @@ Schannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
         }
         _state = StateHandshakeNotStarted;
     }
-
-    IceInternal::SocketOperation op = sslHandshake();
-    if (op != IceInternal::SocketOperationNone)
-    {
-        return op;
-    }
-
-    if (_remoteCertificateValidationCallback &&
-        !_remoteCertificateValidationCallback(_ssl, dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(getInfo())))
-    {
-        throw SecurityException(
-            __FILE__,
-            __LINE__,
-            "IceSSL: certificate verification failed. The certificate was rejected by the remote certificate "
-            "validation callback.");
-    }
-
-    _state = StateHandshakeComplete;
-
-    _delegate->getNativeInfo()->ready(
-        IceInternal::SocketOperationRead,
-        !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin());
-
-    return IceInternal::SocketOperationNone;
+    return sslHandshake();
 }
 
 IceInternal::SocketOperation
@@ -751,6 +772,23 @@ Schannel::TransceiverI::read(IceInternal::Buffer& buf)
         }
 
         size_t decrypted = decryptMessage(buf);
+        if (_sslConnectionRenegotiating)
+        {
+            // The peer has requested a renegotiation.
+            SecBuffer extraBuffer{
+                static_cast<DWORD>(_extraBuffer.i - _extraBuffer.b.begin()),
+                SECBUFFER_EXTRA,
+                _extraBuffer.b.begin()};
+            IceInternal::SocketOperation op = sslHandshake(&extraBuffer);
+            _extraBuffer.b.clear();
+            if (op == IceInternal::SocketOperationNone)
+            {
+                _sslConnectionRenegotiating = false;
+                continue;
+            }
+            throw ConnectionLostException(__FILE__, __LINE__, 0);
+        }
+
         if (decrypted == 0)
         {
             if (!readRaw(_readBuffer))
@@ -767,8 +805,6 @@ Schannel::TransceiverI::read(IceInternal::Buffer& buf)
         !_readUnprocessed.b.empty() || _readBuffer.i != _readBuffer.b.begin());
     return IceInternal::SocketOperationNone;
 }
-
-#ifdef ICE_USE_IOCP
 
 bool
 Schannel::TransceiverI::startWrite(IceInternal::Buffer& buffer)
@@ -832,7 +868,33 @@ Schannel::TransceiverI::finishRead(IceInternal::Buffer& buf)
     _delegate->finishRead(_readBuffer);
     if (_state == StateHandshakeComplete)
     {
-        size_t decrypted = decryptMessage(buf);
+        size_t decrypted;
+        while (true)
+        {
+            decrypted = decryptMessage(buf);
+            if (_sslConnectionRenegotiating)
+            {
+                // The peer has requested a renegotiation.
+                SecBuffer extraBuffer{
+                    static_cast<DWORD>(_extraBuffer.i - _extraBuffer.b.begin()),
+                    SECBUFFER_EXTRA,
+                    _extraBuffer.b.begin()};
+                IceInternal::SocketOperation op = sslHandshake(&extraBuffer);
+                _extraBuffer.b.clear();
+                if (op == IceInternal::SocketOperationNone)
+                {
+                    _sslConnectionRenegotiating = false;
+                    if (buf.i != buf.b.begin())
+                    {
+                        continue;
+                    }
+                    break;
+                }
+                throw ConnectionLostException(__FILE__, __LINE__, 0);
+            }
+            break;
+        }
+
         if (decrypted > 0)
         {
             buf.i += decrypted;
@@ -846,7 +908,6 @@ Schannel::TransceiverI::finishRead(IceInternal::Buffer& buf)
         }
     }
 }
-#endif
 
 bool
 Schannel::TransceiverI::isWaitingToBeRead() const noexcept
@@ -919,7 +980,8 @@ Schannel::TransceiverI::TransceiverI(
       _remoteCertificateValidationCallback(serverAuthenticationOptions.clientCertificateValidationCallback),
       _rootStore(serverAuthenticationOptions.trustedRootCertificates),
       _ssl({}),
-      _chainEngine(nullptr)
+      _chainEngine(nullptr),
+      _sslConnectionRenegotiating(false)
 {
     if (!_remoteCertificateValidationCallback)
     {
@@ -966,7 +1028,8 @@ Schannel::TransceiverI::TransceiverI(
       _remoteCertificateValidationCallback(clientAuthenticationOptions.serverCertificateValidationCallback),
       _rootStore(clientAuthenticationOptions.trustedRootCertificates),
       _ssl({}),
-      _chainEngine(nullptr)
+      _chainEngine(nullptr),
+      _sslConnectionRenegotiating(false)
 {
     if (_rootStore && !_remoteCertificateValidationCallback)
     {

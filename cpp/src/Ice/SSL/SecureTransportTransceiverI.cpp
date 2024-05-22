@@ -239,8 +239,8 @@ Ice::SSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuf
                         throw SecurityException(
                             __FILE__,
                             __LINE__,
-                            "IceSSL: certificate verification failed. The certificate was rejected by the remote "
-                            "certificate validation callback.");
+                            "IceSSL: certificate verification failed. The certificate was rejected by the certificate "
+                            "validation callback.");
                     }
                 }
                 else

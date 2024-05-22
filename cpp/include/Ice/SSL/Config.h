@@ -27,6 +27,9 @@
 
 // See SCH_CREDENTIALS requirements:
 // https://learn.microsoft.com/en-us/windows/win32/api/schannel/ns-schannel-sch_credentials#remarks
+#    ifndef SCHANNEL_USE_BLACKLISTS
+#        define SCHANNEL_USE_BLACKLISTS 1
+#    endif
 #    include <SubAuth.h>
 
 #    include <schannel.h>

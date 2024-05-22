@@ -132,8 +132,8 @@ clientValidatesServerSettingTrustedRootCertificates(Test::TestHelper* helper, co
             .serverCredentialsSelectionCallback = [serverCertificate](const string&)
             {
                 CertDuplicateCertificateContext(serverCertificate);
-                return SCHANNEL_CRED{
-                    .dwVersion = SCHANNEL_CRED_VERSION,
+                return SCH_CREDENTIALS{
+                    .dwVersion = SCH_CREDENTIALS_VERSION,
                     .cCreds = 1,
                     .paCred = const_cast<PCCERT_CONTEXT*>(&serverCertificate)};
             }};
@@ -172,8 +172,8 @@ clientValidatesServerUsingValidationCallback(Test::TestHelper* helper, const str
             .serverCredentialsSelectionCallback = [serverCertificate](const string&)
             {
                 CertDuplicateCertificateContext(serverCertificate);
-                return SCHANNEL_CRED{
-                    .dwVersion = SCHANNEL_CRED_VERSION,
+                return SCH_CREDENTIALS{
+                    .dwVersion = SCH_CREDENTIALS_VERSION,
                     .cCreds = 1,
                     .paCred = const_cast<PCCERT_CONTEXT*>(&serverCertificate)};
             }};
@@ -225,8 +225,8 @@ clientRejectsServerSettingTrustedRootCertificates(Test::TestHelper* helper, cons
             .serverCredentialsSelectionCallback = [serverCertificate](const string&)
             {
                 CertDuplicateCertificateContext(serverCertificate);
-                return SCHANNEL_CRED{
-                    .dwVersion = SCHANNEL_CRED_VERSION,
+                return SCH_CREDENTIALS{
+                    .dwVersion = SCH_CREDENTIALS_VERSION,
                     .cCreds = 1,
                     .paCred = const_cast<PCCERT_CONTEXT*>(&serverCertificate)};
             }};
@@ -269,8 +269,8 @@ clientRejectsServerUsingDefaultTrustedRootCertificates(Test::TestHelper* helper,
             .serverCredentialsSelectionCallback = [serverCertificate](const string&)
             {
                 CertDuplicateCertificateContext(serverCertificate);
-                return SCHANNEL_CRED{
-                    .dwVersion = SCHANNEL_CRED_VERSION,
+                return SCH_CREDENTIALS{
+                    .dwVersion = SCH_CREDENTIALS_VERSION,
                     .cCreds = 1,
                     .paCred = const_cast<PCCERT_CONTEXT*>(&serverCertificate)};
             }};
@@ -314,8 +314,8 @@ clientRejectsServerUsingValidationCallback(Test::TestHelper* helper, const strin
             .serverCredentialsSelectionCallback = [serverCertificate](const string&)
             {
                 CertDuplicateCertificateContext(serverCertificate);
-                return SCHANNEL_CRED{
-                    .dwVersion = SCHANNEL_CRED_VERSION,
+                return SCH_CREDENTIALS{
+                    .dwVersion = SCH_CREDENTIALS_VERSION,
                     .cCreds = 1,
                     .paCred = const_cast<PCCERT_CONTEXT*>(&serverCertificate)};
             }};
@@ -363,8 +363,8 @@ serverValidatesClientSettingTrustedRootCertificates(Test::TestHelper* helper, co
                 [serverCertificate](const string&)
             {
                 CertDuplicateCertificateContext(serverCertificate);
-                return SCHANNEL_CRED{
-                    .dwVersion = SCHANNEL_CRED_VERSION,
+                return SCH_CREDENTIALS{
+                    .dwVersion = SCH_CREDENTIALS_VERSION,
                     .cCreds = 1,
                     .paCred = const_cast<PCCERT_CONTEXT*>(&serverCertificate)};
             },
@@ -377,8 +377,8 @@ serverValidatesClientSettingTrustedRootCertificates(Test::TestHelper* helper, co
                 [clientCertificate](const string&)
             {
                 CertDuplicateCertificateContext(clientCertificate);
-                return SCHANNEL_CRED{
-                    .dwVersion = SCHANNEL_CRED_VERSION,
+                return SCH_CREDENTIALS{
+                    .dwVersion = SCH_CREDENTIALS_VERSION,
                     .cCreds = 1,
                     .paCred = const_cast<PCCERT_CONTEXT*>(&clientCertificate)};
             },
@@ -419,8 +419,8 @@ serverValidatesClientUsingValidationCallback(Test::TestHelper* helper, const str
                 [serverCertificate](const string&)
             {
                 CertDuplicateCertificateContext(serverCertificate);
-                return SCHANNEL_CRED{
-                    .dwVersion = SCHANNEL_CRED_VERSION,
+                return SCH_CREDENTIALS{
+                    .dwVersion = SCH_CREDENTIALS_VERSION,
                     .cCreds = 1,
                     .paCred = const_cast<PCCERT_CONTEXT*>(&serverCertificate)};
             },
@@ -436,8 +436,8 @@ serverValidatesClientUsingValidationCallback(Test::TestHelper* helper, const str
                     [clientCertificate](const string&)
                 {
                     CertDuplicateCertificateContext(clientCertificate);
-                    return SCHANNEL_CRED{
-                        .dwVersion = SCHANNEL_CRED_VERSION,
+                    return SCH_CREDENTIALS{
+                        .dwVersion = SCH_CREDENTIALS_VERSION,
                         .cCreds = 1,
                         .paCred = const_cast<PCCERT_CONTEXT*>(&clientCertificate)};
                 },
@@ -481,8 +481,8 @@ serverRejectsClientSettingTrustedRootCertificates(Test::TestHelper* helper, cons
                 [serverCertificate](const string&)
             {
                 CertDuplicateCertificateContext(serverCertificate);
-                return SCHANNEL_CRED{
-                    .dwVersion = SCHANNEL_CRED_VERSION,
+                return SCH_CREDENTIALS{
+                    .dwVersion = SCH_CREDENTIALS_VERSION,
                     .cCreds = 1,
                     .paCred = const_cast<PCCERT_CONTEXT*>(&serverCertificate)};
             },
@@ -497,8 +497,8 @@ serverRejectsClientSettingTrustedRootCertificates(Test::TestHelper* helper, cons
                     [clientCertificate](const string&)
                 {
                     CertDuplicateCertificateContext(clientCertificate);
-                    return SCHANNEL_CRED{
-                        .dwVersion = SCHANNEL_CRED_VERSION,
+                    return SCH_CREDENTIALS{
+                        .dwVersion = SCH_CREDENTIALS_VERSION,
                         .cCreds = 1,
                         .paCred = const_cast<PCCERT_CONTEXT*>(&clientCertificate)};
                 },
@@ -548,8 +548,8 @@ serverRejectsClientUsingDefaultTrustedRootCertificates(Test::TestHelper* helper,
                 [serverCertificate](const string&)
             {
                 CertDuplicateCertificateContext(serverCertificate);
-                return SCHANNEL_CRED{
-                    .dwVersion = SCHANNEL_CRED_VERSION,
+                return SCH_CREDENTIALS{
+                    .dwVersion = SCH_CREDENTIALS_VERSION,
                     .cCreds = 1,
                     .paCred = const_cast<PCCERT_CONTEXT*>(&serverCertificate)};
             },
@@ -563,8 +563,8 @@ serverRejectsClientUsingDefaultTrustedRootCertificates(Test::TestHelper* helper,
                     [clientCertificate](const string&)
                 {
                     CertDuplicateCertificateContext(clientCertificate);
-                    return SCHANNEL_CRED{
-                        .dwVersion = SCHANNEL_CRED_VERSION,
+                    return SCH_CREDENTIALS{
+                        .dwVersion = SCH_CREDENTIALS_VERSION,
                         .cCreds = 1,
                         .paCred = const_cast<PCCERT_CONTEXT*>(&clientCertificate)};
                 },
@@ -610,8 +610,8 @@ serverRejectsClientUsingValidationCallback(Test::TestHelper* helper, const strin
                 [serverCertificate](const string&)
             {
                 CertDuplicateCertificateContext(serverCertificate);
-                return SCHANNEL_CRED{
-                    .dwVersion = SCHANNEL_CRED_VERSION,
+                return SCH_CREDENTIALS{
+                    .dwVersion = SCH_CREDENTIALS_VERSION,
                     .cCreds = 1,
                     .paCred = const_cast<PCCERT_CONTEXT*>(&serverCertificate)};
             },
@@ -627,8 +627,8 @@ serverRejectsClientUsingValidationCallback(Test::TestHelper* helper, const strin
                     [clientCertificate](const string&)
                 {
                     CertDuplicateCertificateContext(clientCertificate);
-                    return SCHANNEL_CRED{
-                        .dwVersion = SCHANNEL_CRED_VERSION,
+                    return SCH_CREDENTIALS{
+                        .dwVersion = SCH_CREDENTIALS_VERSION,
                         .cCreds = 1,
                         .paCred = const_cast<PCCERT_CONTEXT*>(&clientCertificate)};
                 },
@@ -704,8 +704,8 @@ serverHotCertificateReload(Test::TestHelper* helper, const string& certificatesP
             {
                 PCCERT_CONTEXT certificateContext = serverState.serverCertificateContext();
                 CertDuplicateCertificateContext(certificateContext);
-                return SCHANNEL_CRED{
-                    .dwVersion = SCHANNEL_CRED_VERSION,
+                return SCH_CREDENTIALS{
+                    .dwVersion = SCH_CREDENTIALS_VERSION,
                     .cCreds = 1,
                     .paCred = const_cast<PCCERT_CONTEXT*>(&certificateContext)};
             }};
