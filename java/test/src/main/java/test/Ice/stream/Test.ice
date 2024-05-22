@@ -55,7 +55,7 @@ class OptionalClass
     byte by;
     optional(1) short sh;
     optional(2) int i;
-    optional(3) SmallStruct ls;
+    optional(3) SmallStruct sm;
 
     optional(4) MyEnumS enumS4;
 
