@@ -523,6 +523,27 @@ Slice::CsGenerator::isValueType(const TypePtr& type)
     return false;
 }
 
+bool
+Slice::CsGenerator::isNonNullableReferenceType(const TypePtr& p, bool includeString)
+{
+    if (includeString)
+    {
+        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p);
+        if (builtin)
+        {
+            return builtin->kind() == Builtin::KindString;
+        }
+    }
+
+    StructPtr st = dynamic_pointer_cast<Struct>(p);
+    if (st)
+    {
+        return isMappedToClass(st);
+    }
+
+    return dynamic_pointer_cast<Sequence>(p) || dynamic_pointer_cast<Dictionary>(p);
+}
+
 void
 Slice::CsGenerator::writeMarshalUnmarshalCode(
     Output& out,
