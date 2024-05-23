@@ -1558,7 +1558,7 @@ Ice::InputStream::skipOptional(OptionalFormat type)
         }
         case OptionalFormat::Class:
         {
-            read(0, 0);
+            throw MarshalException{__FILE__, __LINE__, "optional class parameters and fields are no longer supported"};
             break;
         }
     }
@@ -2251,6 +2251,8 @@ Ice::InputStream::EncapsDecoder10::readInstance()
 void
 Ice::InputStream::EncapsDecoder11::read(PatchFunc patchFunc, void* patchAddr)
 {
+    assert(patchFunc && patchAddr); // we used to support null for optional classes
+
     int32_t index = _stream->readSize();
     if (index < 0)
     {
@@ -2262,10 +2264,7 @@ Ice::InputStream::EncapsDecoder11::read(PatchFunc patchFunc, void* patchAddr)
         // Calling the patch function for null instances is necessary for correct functioning of Ice for
         // Python and Ruby.
         //
-        if (patchFunc)
-        {
-            patchFunc(patchAddr, nullptr);
-        }
+        patchFunc(patchAddr, nullptr);
     }
     else if (_current && _current->sliceFlags & FLAG_HAS_INDIRECTION_TABLE)
     {
@@ -2280,14 +2279,11 @@ Ice::InputStream::EncapsDecoder11::read(PatchFunc patchFunc, void* patchAddr)
         // derive an index into the indirection table that we'll read
         // at the end of the slice.
         //
-        if (patchFunc)
-        {
-            IndirectPatchEntry e;
-            e.index = index - 1;
-            e.patchFunc = patchFunc;
-            e.patchAddr = patchAddr;
-            _current->indirectPatchList.push_back(e);
-        }
+        IndirectPatchEntry e;
+        e.index = index - 1;
+        e.patchFunc = patchFunc;
+        e.patchAddr = patchAddr;
+        _current->indirectPatchList.push_back(e);
     }
     else
     {

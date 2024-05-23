@@ -123,9 +123,6 @@ public:
         o->push_back("test3");
         o->push_back("test4");
         out->write(1, o);
-        APtr a = make_shared<A>();
-        a->mc = 18;
-        out->write(1000, optional<APtr>(a));
         out->endSlice();
         // ::Test::B
         out->startSlice(B::ice_staticId(), -1, false);
@@ -167,7 +164,6 @@ public:
         test(
             o && o->size() == 4 && (*o)[0] == "test1" && (*o)[1] == "test2" && (*o)[2] == "test3" &&
             (*o)[3] == "test4");
-        in->read(1000, a);
         in->endSlice();
         // ::Test::B
         in->startSlice();
@@ -181,17 +177,12 @@ public:
         in->endValue();
     }
 
-    void check() { test((*a)->mc == 18); }
-
 protected:
     virtual Ice::ValuePtr _iceCloneImpl() const
     {
         assert(0); // not used
         return nullptr;
     }
-
-private:
-    optional<APtr> a;
 };
 
 class FObjectReader : public Ice::Value
@@ -815,7 +806,6 @@ allTests(Test::TestHelper* helper, bool)
                 in.read(obj);
                 in.endEncapsulation();
                 test(obj && dynamic_cast<DObjectReader*>(obj.get()));
-                dynamic_cast<DObjectReader*>(obj.get())->check();
                 factory->setEnabled(false);
             }
         }
@@ -1262,7 +1252,6 @@ allTests(Test::TestHelper* helper, bool)
 
         Ice::OutputStream out(communicator);
         out.startEncapsulation();
-        out.write(1, make_optional(f));
         out.write(2, make_optional(f->fse));
         out.endEncapsulation();
         out.finished(inEncaps);
