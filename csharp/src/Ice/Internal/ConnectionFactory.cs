@@ -263,6 +263,7 @@ public sealed class OutgoingConnectionFactory
     {
         _communicator = communicator;
         _instance = instance;
+        _connectionOptions = instance.clientConnectionOptions;
         _destroyed = false;
         _pendingConnectCount = 0;
     }
@@ -503,7 +504,8 @@ public sealed class OutgoingConnectionFactory
                     ci.connector,
                     ci.endpoint.compress(false),
                     adapter: null,
-                    removeConnection);
+                    removeConnection,
+                    _connectionOptions);
             }
             catch (Ice.LocalException)
             {
@@ -1066,6 +1068,7 @@ public sealed class OutgoingConnectionFactory
 
     private Ice.Communicator _communicator;
     private readonly Instance _instance;
+    private readonly ConnectionOptions _connectionOptions;
     private bool _destroyed;
 
     private MultiDictionary<Connector, Ice.ConnectionI> _connections = new();
@@ -1410,7 +1413,8 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
                         null,
                         _endpoint,
                         _adapter,
-                        removeConnection);
+                        removeConnection,
+                        _connectionOptions);
                 }
                 catch (Ice.LocalException ex)
                 {
@@ -1507,6 +1511,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
                                      Ice.ObjectAdapterI adapter)
     {
         _instance = instance;
+        _connectionOptions = instance.serverConnectionOptions(adapter.getName());
         _endpoint = endpoint;
         _publishedEndpoint = publish;
         _adapter = adapter;
@@ -1549,7 +1554,8 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
                     connector: null,
                     _endpoint,
                     adapter,
-                    removeFromFactory: null);
+                    removeFromFactory: null,
+                    _connectionOptions);
                 connection.startAndWait();
                 _connections.Add(connection);
             }
@@ -1768,7 +1774,8 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
         _instance.initializationData().logger.warning("connection exception:\n" + ex + '\n' + _acceptor.ToString());
     }
 
-    private Instance _instance;
+    private readonly Instance _instance;
+    private readonly ConnectionOptions _connectionOptions;
 
     private Acceptor _acceptor;
     private readonly Transceiver _transceiver;

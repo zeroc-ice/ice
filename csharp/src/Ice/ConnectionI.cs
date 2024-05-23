@@ -1472,7 +1472,8 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         Connector connector,
         EndpointI endpoint,
         ObjectAdapterI adapter,
-        Action<ConnectionI> removeFromFactory) // can be null
+        Action<ConnectionI> removeFromFactory, // can be null
+        ConnectionOptions options)
     {
         _instance = instance;
         _transceiver = transceiver;
@@ -1485,6 +1486,10 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         _logger = initData.logger; // Cached for better performance.
         _traceLevels = instance.traceLevels(); // Cached for better performance.
         _timer = instance.timer();
+        _connectTimeout = options.connectTimeout;
+        _closeTimeout = options.closeTimeout; // not used for datagram connections
+        // suppress inactivity timeout for datagram connections
+        _inactivityTimeout = endpoint.datagram() ? TimeSpan.Zero : options.inactivityTimeout;
         _removeFromFactory = removeFromFactory;
         _writeTimeout = new TimeoutCallback(this);
         _writeTimeoutScheduled = false;
@@ -1512,6 +1517,14 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         else if (_compressionLevel > 9)
         {
             _compressionLevel = 9;
+        }
+
+        if (options.idleTimeout > TimeSpan.Zero && !endpoint.datagram())
+        {
+            _transceiver = new IdleTimeoutTransceiverDecorator(
+                _transceiver,
+                options.idleTimeout,
+                options.enableIdleCheck);
         }
 
         try
@@ -2834,6 +2847,11 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
     private Ice.Internal.ThreadPool _threadPool;
 
     private Ice.Internal.Timer _timer;
+
+    private readonly TimeSpan _connectTimeout;
+    private readonly TimeSpan _closeTimeout;
+    private readonly TimeSpan _inactivityTimeout;
+
     private TimerTask _writeTimeout;
     private bool _writeTimeoutScheduled;
     private TimerTask _readTimeout;
