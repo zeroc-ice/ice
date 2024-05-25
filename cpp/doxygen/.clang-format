@@ -1,0 +1,28 @@
+---
+# See https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+BasedOnStyle: LLVM
+IndentWidth: 4
+---
+Language: Cpp
+AccessModifierOffset: -4
+AlignAfterOpenBracket: AlwaysBreak
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowAllConstructorInitializersOnNextLine: false
+AllowShortIfStatementsOnASingleLine: false
+AlwaysBreakAfterDefinitionReturnType: TopLevel
+BinPackArguments: false
+BinPackParameters: false
+BreakBeforeBraces: Allman
+ColumnLimit: 90
+DerivePointerAlignment: false
+FixNamespaceComments: false
+IndentCaseLabels: true
+IndentPPDirectives: AfterHash
+KeepEmptyLinesAtTheStartOfBlocks: false
+NamespaceIndentation: All
+PackConstructorInitializers: CurrentLine
+PointerAlignment: Left
+SpaceAfterTemplateKeyword: false
+TabWidth: 4
+UseTab: Never

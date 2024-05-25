@@ -142,11 +142,17 @@ namespace Ice
          * communicator as is used by the adapter. Attempts to create a named object adapter for which no configuration
          * can be found raise InitializationException.
          * @param name The object adapter name.
-         * @param serverAuthenticationOptions The SSL configuration properties for server connections.
+         * @param serverAuthenticationOptions The %SSL configuration properties for server connections.
+         * The `SSL::ServerAuthenticationOptions` type is an alias to the platform specific %SSL server authentication
+         * options.
          * @return The new object adapter.
          * @see #createObjectAdapterWithEndpoints
          * @see ObjectAdapter
          * @see Properties
+         * @see SSL::OpenSSLServerAuthenticationOptions
+         * @see SSL::SecureTransportServerAuthenticationOptions
+         * @see SSL::SchannelServerAuthenticationOptions
+
          */
         ObjectAdapterPtr createObjectAdapter(
             const std::string& name,
@@ -159,11 +165,16 @@ namespace Ice
          * name.
          * @param name The object adapter name.
          * @param endpoints The endpoints for the object adapter.
-         * @param serverAuthenticationOptions The SSL configuration properties for server connections.
+         * @param serverAuthenticationOptions The %SSL configuration properties for server connections.
+         * The `SSL::ServerAuthenticationOptions` type is an alias to the platform specific %SSL server authentication
+         * options.
          * @return The new object adapter.
          * @see #createObjectAdapter
          * @see ObjectAdapter
          * @see Properties
+         * @see SSL::OpenSSLServerAuthenticationOptions
+         * @see SSL::SecureTransportServerAuthenticationOptions
+         * @see SSL::SchannelServerAuthenticationOptions
          */
         ObjectAdapterPtr createObjectAdapterWithEndpoints(
             const std::string& name,

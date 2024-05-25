@@ -333,8 +333,15 @@ namespace Ice
         ValueFactoryManagerPtr valueFactoryManager;
 
         /**
-         * The authentication options for SSL client connections. When set, the SSL transport ignores all IceSSL
+         * The authentication options for %SSL client connections. When set, the %SSL transport ignores all IceSSL
          * configuration properties and uses the provided options.
+         *
+         * The `SSL::ClientAuthenticationOptions` type is an alias to the platform specific %SSL client authentication
+         * options.
+         *
+         * @see SSL::OpenSSLClientAuthenticationOptions
+         * @see SSL::SecureTransportClientAuthenticationOptions
+         * @see SSL::SchannelClientAuthenticationOptions
          */
         std::optional<SSL::ClientAuthenticationOptions> clientAuthenticationOptions;
     };
