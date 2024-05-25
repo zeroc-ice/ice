@@ -1327,6 +1327,11 @@ public sealed class ObjectAdapterI : ObjectAdapter
     static private readonly string[] _suffixes =
     {
         "AdapterId",
+        "Connection.CloseTimeout",
+        "Connection.ConnectTimeout",
+        "Connection.EnableIdleCheck",
+        "Connection.IdleTimeout",
+        "Connection.InactivityTimeout",
         "Endpoints",
         "Locator",
         "Locator.EncodingVersion",

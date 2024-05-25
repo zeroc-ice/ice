@@ -1523,6 +1523,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         {
             _transceiver = new IdleTimeoutTransceiverDecorator(
                 _transceiver,
+                this,
                 options.idleTimeout,
                 options.enableIdleCheck);
         }
@@ -1546,6 +1547,58 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         catch (System.Exception ex)
         {
             throw new SyscallException(ex);
+        }
+    }
+
+    /// <summary>Aborts the connection with a <see cref="ConnectionTimeoutException" /> if the connection is active or
+    /// holding.</summary>
+    // TODO: should be ConnectionIdleException
+    internal void idleCheck(TimeSpan idleTimeout)
+    {
+        lock (this)
+        {
+            if (_state == StateActive || _state == StateHolding)
+            {
+                if (_instance.traceLevels().network >= 1)
+                {
+                    int idleTimeoutInSeconds = (int)idleTimeout.TotalSeconds;
+
+                    _instance.initializationData().logger.trace(
+                        _instance.traceLevels().networkCat,
+                        $"connection aborted by the idle check because it did not receive any byte for {idleTimeoutInSeconds}s\n{_transceiver.toDetailedString()}");
+                }
+
+                setState(StateClosed, new ConnectionTimeoutException()); // TODO: should be ConnectionIdleException
+            }
+            // else nothing to do
+        }
+    }
+
+    internal void sendHeartbeat()
+    {
+        Debug.Assert(!_endpoint.datagram());
+
+        lock (this)
+        {
+            if (_state == StateActive || _state == StateHolding)
+            {
+                OutputStream os = new OutputStream(_instance, Util.currentProtocolEncoding);
+                os.writeBlob(Protocol.magic);
+                Util.currentProtocol.ice_writeMembers(os);
+                Util.currentProtocolEncoding.ice_writeMembers(os);
+                os.writeByte(Protocol.validateConnectionMsg);
+                os.writeByte(0);
+                os.writeInt(Protocol.headerSize); // Message size.
+                try
+                {
+                    sendMessage(new OutgoingMessage(os, false, false));
+                }
+                catch (LocalException ex)
+                {
+                    setState(StateClosed, ex);
+                }
+            }
+            // else nothing to do
         }
     }
 
@@ -1808,31 +1861,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                     scheduleTimeout(op);
                     _threadPool.register(this, op);
                 }
-            }
-        }
-    }
-
-    private void sendHeartbeatNow()
-    {
-        Debug.Assert(_state == StateActive);
-
-        if (!_endpoint.datagram())
-        {
-            OutputStream os = new OutputStream(_instance, Util.currentProtocolEncoding);
-            os.writeBlob(Protocol.magic);
-            Util.currentProtocol.ice_writeMembers(os);
-            Util.currentProtocolEncoding.ice_writeMembers(os);
-            os.writeByte(Protocol.validateConnectionMsg);
-            os.writeByte(0);
-            os.writeInt(Protocol.headerSize); // Message size.
-            try
-            {
-                sendMessage(new OutgoingMessage(os, false, false));
-            }
-            catch (LocalException ex)
-            {
-                setState(StateClosed, ex);
-                Debug.Assert(_exception != null);
             }
         }
     }
