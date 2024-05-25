@@ -11,9 +11,7 @@ internal sealed class IdleTimeoutTransceiverDecorator : Transceiver
 {
     private readonly Transceiver _decoratee;
     private readonly TimeSpan _idleTimeout;
-
     private readonly System.Threading.Timer? _readTimer;
-
     private readonly System.Threading.Timer _writeTimer;
 
     public override string ToString() => _decoratee.ToString()!;
