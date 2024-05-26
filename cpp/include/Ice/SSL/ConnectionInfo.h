@@ -22,6 +22,12 @@ namespace Ice::SSL
 #if defined(ICE_USE_SCHANNEL)
     /**
      * Provides access to the connection details of an SSL connection.
+     *
+     * The SchannelConnectionInfo structure is only available when the %Ice library is built on Windows. For Linux,
+     * refer to OpenSSLConnectionInfo, and for macOS and iOS, refer to SecureTransportConnectionInfo.
+     *
+     * Additionally, the `ConnectionInfo` alias is defined for use in portable code, representing the
+     * platform-specific connection info class.
      */
     class ICE_API SchannelConnectionInfo final : public Ice::ConnectionInfo
     {
@@ -57,11 +63,15 @@ namespace Ice::SSL
          */
         PCCERT_CONTEXT peerCertificate = nullptr;
     };
-    // Alias for portable code
-    using ConnectionInfo = SchannelConnectionInfo;
 #elif defined(ICE_USE_SECURE_TRANSPORT)
     /**
      * Provides access to the connection details of an SSL connection.
+     *
+     * The SecureTransportConnectionInfo structure is only available when the %Ice library is built on macOS or iOS. For
+     * Linux, refer to OpenSSLConnectionInfo, and for Windows, refer to SchannelConnectionInfo.
+     *
+     * Additionally, the `ConnectionInfo` alias is defined for use in portable code, representing the
+     * platform-specific connection info class.
      */
     class ICE_API SecureTransportConnectionInfo final : public Ice::ConnectionInfo
     {
@@ -97,11 +107,15 @@ namespace Ice::SSL
          */
         SecCertificateRef peerCertificate = nullptr;
     };
-    // Alias for portable code
-    using ConnectionInfo = SecureTransportConnectionInfo;
-#else // ICE_USE_OPENSSL
+#elif defined(ICE_USE_OPENSSL)
     /**
      * Provides access to the connection details of an SSL connection.
+     *
+     * The OpenSSLConnectionInfo structure is only available when the %Ice library is built on Linux. For Windows,
+     * refer to SchannelConnectionInfo, and for macOS and iOS, refer to SecureTransportConnectionInfo.
+     *
+     * Additionally, the `ConnectionInfo` alias is defined for use in portable code, representing the
+     * platform-specific connection info class.
      */
     class ICE_API OpenSSLConnectionInfo final : public Ice::ConnectionInfo
     {
@@ -137,8 +151,8 @@ namespace Ice::SSL
          */
         X509* peerCertificate = nullptr;
     };
-    // Alias for portable code
-    using ConnectionInfo = OpenSSLConnectionInfo;
+#else
+#    error "unsupported platform"
 #endif
 }
 

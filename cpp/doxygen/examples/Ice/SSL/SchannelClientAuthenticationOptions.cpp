@@ -53,7 +53,6 @@ serverCertificateValidationCallbackExample()
     auto initData = Ice::InitializationData{
         .clientAuthenticationOptions = Ice::SSL::ClientAuthenticationOptions{
             .serverCertificateValidationCallback =
-                [](SecTrustRef trust, const Ice::SSL::ConnectionInfoPtr& info)
-            { return SecTrustEvaluateWithError(trust, nullptr); }}};
+                [](CtxtHandle, const Ice::SSL::ConnectionInfoPtr&) { return true; }}};
     //! [serverCertificateValidationCallback]
 }

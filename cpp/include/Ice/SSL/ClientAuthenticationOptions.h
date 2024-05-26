@@ -31,7 +31,7 @@ namespace Ice::SSL
          * This callback is invoked by the %SSL transport for each new outgoing connection before starting the %SSL
          * handshake to determine the appropriate client credentials. The callback must return a `SCH_CREDENTIALS` that
          * represents the client's credentials. The %SSL transport takes ownership of the credentials' `paCred` and
-         * `hRootStore` and releases them when the connection is closed.
+         * `hRootStore` members and releases them when the connection is closed.
          *
          * @param host The target host name.
          * @return The client %SSL credentials.
@@ -78,11 +78,14 @@ namespace Ice::SSL
          * @param context An opaque object representing the security context associated with the current connection.
          * This context contains security data relevant for validation, such as the server's certificate chain and
          * cipher suite.
-         * @param info The ConnectionInfoPtr object that provides additional connection-related data which might
-         * be relevant for contextual certificate validation.
+         * @param info The connection info object that provides additional connection-related data. The `ConnectionInfo`
+         * type is an alias for the platform-specific connection info class.
          * @return true if the certificate chain is valid and the connection should proceed; false if the certificate
          * chain is invalid and the connection should be aborted.
          * @throws Ice::SecurityException if the certificate chain is invalid and the connection should be aborted.
+         * @see SSL::OpenSSLConnectionInfo
+         * @see SSL::SecureTransportConnectionInfo
+         * @see SSL::SchannelConnectionInfo
          */
         std::function<bool(CtxtHandle context, const ConnectionInfoPtr& info)> serverCertificateValidationCallback;
     };
@@ -173,8 +176,8 @@ namespace Ice::SSL
          * @snippet Ice/SSL/SecureTransportClientAuthenticationOptions.cpp serverCertificateValidationCallback
          *
          * @param trust The trust object that contains the server's certificate chain.
-         * @param info The ConnectionInfoPtr object that provides additional connection-related data which might
-         * be relevant for contextual certificate validation.
+         * @param info The connection info object that provides additional connection-related data. The `ConnectionInfo`
+         * type is an alias for the platform-specific connection info class.
          * @return true if the certificate chain is valid and the connection should proceed; false if the certificate
          * chain is invalid and the connection should be aborted.
          * @throws Ice::SecurityException if the certificate chain is invalid and the connection should be aborted.
@@ -185,6 +188,9 @@ namespace Ice::SSL
          * https://developer.apple.com/documentation/security/1396098-sectrustsetanchorcertificates?language=objc
          * [SecTrustEvaluateWithError]:
          * https://developer.apple.com/documentation/security/2980705-sectrustevaluatewitherror?language=objc
+         * @see SSL::OpenSSLConnectionInfo
+         * @see SSL::SecureTransportConnectionInfo
+         * @see SSL::SchannelConnectionInfo
          */
         std::function<bool(SecTrustRef trust, const ConnectionInfoPtr& info)> serverCertificateValidationCallback;
     };
@@ -221,7 +227,7 @@ namespace Ice::SSL
          * starting the %SSL handshake.
          *
          * @param host The target host name.
-         * @return A pointer to an `SSL_CTX` object representing the %SSL configuration for the new incoming connection.
+         * @return A pointer to an `SSL_CTX` object representing the %SSL configuration for the new outgoing connection.
          *
          * Example of setting `clientSSLContextSelectionCallback`:
          * @snippet Ice/SSL/OpenSSLClientAuthenticationOptions.cpp clientSSLContextSelectionCallback
@@ -253,8 +259,8 @@ namespace Ice::SSL
          * @param verified A boolean indicating whether the preliminary certificate verification performed by OpenSSL's
          * built-in mechanisms succeeded or failed. True if the preliminary checks passed, false otherwise.
          * @param ctx A pointer to an `X509_STORE_CTX` object, which contains the certificate chain to be verified.
-         * @param info The ConnectionInfoPtr object that provides additional connection-related data
-         * relevant for contextual certificate validation.
+         * @param info The connection info object that provides additional connection-related data. The `ConnectionInfo`
+         * type is an alias for the platform-specific connection info class.
          * @return True if the certificate chain is valid and the connection should proceed; false if the certificate
          * chain is invalid and the connection should be aborted.
          * @throws Ice::SecurityException if the certificate chain is invalid and the connection should be aborted.
@@ -265,6 +271,9 @@ namespace Ice::SSL
          * @see [Certificate verification in OpenSSL][SSL_set_verify].
          *
          * [SSL_set_verify]: https://www.openssl.org/docs/manmaster/man3/SSL_set_verify.html
+         * @see SSL::OpenSSLConnectionInfo
+         * @see SSL::SecureTransportConnectionInfo
+         * @see SSL::SchannelConnectionInfo
          */
         std::function<bool(bool verified, X509_STORE_CTX* ctx, const ConnectionInfoPtr& info)>
             serverCertificateValidationCallback;

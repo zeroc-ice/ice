@@ -34,8 +34,7 @@ clientSetNewSessionCallbackExample()
         .clientAuthenticationOptions = Ice::SSL::ClientAuthenticationOptions{
             .sslNewSessionCallback = [](SSL* ssl, const std::string& host)
             {
-                X509_VERIFY_PARAM* param = SSL_get0_param(ssl);
-                if (!X509_VERIFY_PARAM_set1_host(param, host.c_str(), 0))
+                if (!SSL_set_cipher_list(ssl, "HIGH:!aNULL:!MD5"))
                 {
                     // Handle error
                 }

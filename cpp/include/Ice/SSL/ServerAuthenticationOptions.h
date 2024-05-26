@@ -26,14 +26,15 @@ namespace Ice::SSL
     struct SchannelServerAuthenticationOptions
     {
         /**
-         * A callback for selecting the server's %SSL credentials based on the target host name.
+         * A callback for selecting the server's %SSL credentials based on the name of the object adapter that accepts
+         * the connection.
          *
-         * This callback is invoked by the %SSL transport for each new outgoing connection before starting the %SSL
+         * This callback is invoked by the %SSL transport for each new incoming connection before starting the %SSL
          * handshake to determine the appropriate server credentials. The callback must return a `SCH_CREDENTIALS` that
          * represents the server's credentials. The %SSL transport takes ownership of the credentials' `paCred` and
-         * `hRootStore` and releases them when the connection is closed.
+         * `hRootStore` members and releases them when the connection is closed.
          *
-         * @param host The target host name.
+         * @param adapterName The name of the object adapter that accepted the connection.
          * @return The server %SSL credentials.
          *
          * Example of setting `serverCertificateSelectionCallback`:
@@ -44,14 +45,14 @@ namespace Ice::SSL
          * [SCH_CREDENTIALS]:
          * https://learn.microsoft.com/en-us/windows/win32/api/schannel/ns-schannel-sch_credentials
          */
-        std::function<SCH_CREDENTIALS(const std::string& host)> serverCredentialsSelectionCallback;
+        std::function<SCH_CREDENTIALS(const std::string& adapterName)> serverCredentialsSelectionCallback;
 
         /**
          * A callback invoked before initiating a new %SSL handshake, providing an opportunity to customize the %SSL
-         * parameters for the session based on specific client settings or requirements.
+         * parameters for the session based on specific server settings or requirements.
          *
          * @param context An opaque type that represents the security context associated with the current connection.
-         * @param host The target host name.
+         * @param adapterName The name of the object adapter that accepted the connection.
          */
         std::function<void(CtxtHandle context, const std::string& adapterName)> sslNewSessionCallback;
 
@@ -83,11 +84,14 @@ namespace Ice::SSL
          * @param context An opaque object representing the security context associated with the current connection.
          * This context contains security data relevant for validation, such as the server's certificate chain and
          * cipher suite.
-         * @param info The ConnectionInfoPtr object that provides additional connection-related data which might
-         * be relevant for contextual certificate validation.
+         * @param info The connection info object that provides additional connection-related data. The `ConnectionInfo`
+         * type is an alias for the platform-specific connection info class.
          * @return true if the certificate chain is valid and the connection should proceed; false if the certificate
          * chain is invalid and the connection should be aborted.
          * @throws Ice::SecurityException if the certificate chain is invalid and the connection should be aborted.
+         * @see SSL::OpenSSLConnectionInfo
+         * @see SSL::SecureTransportConnectionInfo
+         * @see SSL::SchannelConnectionInfo
          */
         std::function<bool(CtxtHandle context, const ConnectionInfoPtr& info)> clientCertificateValidationCallback;
     };
@@ -100,8 +104,8 @@ namespace Ice::SSL
     /**
      * %SSL transport configuration properties for server connections on macOS and iOS.
      *
-     * The SecureTransportServerAuthenticationOptions structure is only available when the Ice library is built on macOS
-     * and iOS. For Linux, refer to OpenSSLServerAuthenticationOptions, and for Windows, refer to
+     * The SecureTransportServerAuthenticationOptions structure is only available when the %Ice library is built on
+     * macOS and iOS. For Linux, refer to OpenSSLServerAuthenticationOptions, and for Windows, refer to
      * SchannelServerAuthenticationOptions.
      *
      * Additionally, the `ServerAuthenticationOptions` alias is defined for use in portable code, representing the
@@ -186,13 +190,16 @@ namespace Ice::SSL
          * @snippet Ice/SSL/SecureTransportServerAuthenticationOptions.cpp clientCertificateValidationCallback
          *
          * @param trust The trust object that contains the client's certificate chain.
-         * @param info The ConnectionInfoPtr object that provides additional connection-related data which might
-         * be relevant for contextual certificate validation.
+         * @param info The connection info object that provides additional connection-related data. The `ConnectionInfo`
+         * type is an alias for the platform-specific connection info class.
          * @return true if the certificate chain is valid and the connection should proceed; false if the certificate
          * chain is invalid and the connection should be aborted.
          * @throws Ice::SecurityException if the certificate chain is invalid and the connection should be aborted.
          *
          * @see [SecTrustEvaluateWithError]
+         * @see SSL::OpenSSLConnectionInfo
+         * @see SSL::SecureTransportConnectionInfo
+         * @see SSL::SchannelConnectionInfo
          *
          * [SecTrustSetAnchorCertificates]:
          * https://developer.apple.com/documentation/security/1396098-sectrustsetanchorcertificates?language=objc
@@ -210,7 +217,7 @@ namespace Ice::SSL
     /**
      * %SSL transport configuration properties for server connections on Linux.
      *
-     * The OpenSSLServerAuthenticationOptions structure is only available when the Ice library is built on
+     * The OpenSSLServerAuthenticationOptions structure is only available when the %Ice library is built on
      * Linux. For macOS and iOS, refer to SecureTransportServerAuthenticationOptions, and for Windows, refer to
      * SchannelServerAuthenticationOptions.
      *
@@ -267,8 +274,8 @@ namespace Ice::SSL
          * @param verified A boolean indicating whether the preliminary certificate verification performed by OpenSSL's
          * built-in mechanisms succeeded or failed. True if the preliminary checks passed, false otherwise.
          * @param ctx A pointer to an `X509_STORE_CTX` object, which contains the certificate chain to be verified.
-         * @param info The ConnectionInfoPtr object that provides additional connection-related data
-         * relevant for contextual certificate validation.
+         * @param info The connection info object that provides additional connection-related data. The `ConnectionInfo`
+         * type is an alias for the platform-specific connection info class.
          * @return True if the certificate chain is valid and the connection should proceed; false if the certificate
          * chain is invalid and the connection should be aborted.
          * @throws Ice::SecurityException if the certificate chain is invalid and the connection should be aborted.
@@ -279,6 +286,9 @@ namespace Ice::SSL
          * @see [Certificate verification in OpenSSL][SSL_set_verify].
          *
          * [SSL_set_verify]: https://www.openssl.org/docs/manmaster/man3/SSL_set_verify.html
+         * @see SSL::OpenSSLConnectionInfo
+         * @see SSL::SecureTransportConnectionInfo
+         * @see SSL::SchannelConnectionInfo
          */
         std::function<bool(bool verified, X509_STORE_CTX* ctx, const ConnectionInfoPtr& info)>
             clientCertificateValidationCallback;
