@@ -23,7 +23,7 @@ namespace Ice::SSL
     /**
      * Provides access to the connection details of an SSL connection.
      *
-     * The SchannelConnectionInfo structure is only available when the %Ice library is built on Windows. For Linux,
+     * The SchannelConnectionInfo class is only available when the %Ice library is built on Windows. For Linux,
      * refer to OpenSSLConnectionInfo, and for macOS and iOS, refer to SecureTransportConnectionInfo.
      *
      * Additionally, the `ConnectionInfo` alias is defined for use in portable code, representing the
@@ -67,7 +67,7 @@ namespace Ice::SSL
     /**
      * Provides access to the connection details of an SSL connection.
      *
-     * The SecureTransportConnectionInfo structure is only available when the %Ice library is built on macOS or iOS. For
+     * The SecureTransportConnectionInfo class is only available when the %Ice library is built on macOS or iOS. For
      * Linux, refer to OpenSSLConnectionInfo, and for Windows, refer to SchannelConnectionInfo.
      *
      * Additionally, the `ConnectionInfo` alias is defined for use in portable code, representing the
@@ -111,7 +111,7 @@ namespace Ice::SSL
     /**
      * Provides access to the connection details of an SSL connection.
      *
-     * The OpenSSLConnectionInfo structure is only available when the %Ice library is built on Linux. For Windows,
+     * The OpenSSLConnectionInfo class is only available when the %Ice library is built on Linux. For Windows,
      * refer to SchannelConnectionInfo, and for macOS and iOS, refer to SecureTransportConnectionInfo.
      *
      * Additionally, the `ConnectionInfo` alias is defined for use in portable code, representing the
