@@ -412,7 +412,7 @@ public class Client : Test.TestHelper
                 structCollisions = 0;
                 for (i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
                 {
-                    var polyline = new Test.Polyline(vertices: null);
+                    var polyline = new Test.Polyline(vertices: []);
                     List<Test.Point> vertices = new List<Test.Point>();
                     for (int j = 0; j < 100; ++j)
                     {
@@ -443,8 +443,7 @@ public class Client : Test.TestHelper
                 structCollisions = 0;
                 for (i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
                 {
-                    Test.ColorPalette colorPalette = new Test.ColorPalette(colors: null);
-                    colorPalette.colors = new Dictionary<int, Test.Color>();
+                    Test.ColorPalette colorPalette = new Test.ColorPalette(colors: new());
                     for (int j = 0; j < 100; ++j)
                     {
                         colorPalette.colors[j] = new Test.Color(rand.Next(255),
