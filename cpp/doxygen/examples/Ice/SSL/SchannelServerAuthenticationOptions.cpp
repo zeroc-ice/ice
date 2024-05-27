@@ -62,7 +62,7 @@ clientCertificateValidationCallbackExample()
         "Hello",
         "ssl -h 127.0.0.1 -p 10000",
         Ice::SSL::ServerAuthenticationOptions{
-            .clientCertificateRequired = kAlwaysAuthenticate,
+            .clientCertificateRequired = true,
             .clientCertificateValidationCallback =
                 [](CtxtHandle, const Ice::SSL::ConnectionInfoPtr&) { return true; }});
     //! [clientCertificateValidationCallback]

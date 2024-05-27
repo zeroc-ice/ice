@@ -12,6 +12,7 @@
     <PropertyGroup>
         <VCTargetsPath Condition="'$(VCTargetsPath)' == ''">C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0</VCTargetsPath>
         <IceTestSolution>ice.test.sln</IceTestSolution>
+        <IceDoxygenExamplesSolution>ice.doxygen.examples.sln</IceDoxygenExamplesSolution>
         <SymbolServer Condition="'$(SymbolServer)' == ''">SRV*%TEMP%\SymbolCache*https://symbols.zeroc.com</SymbolServer>
     </PropertyGroup>
 
@@ -31,6 +32,10 @@
 
     <Target Name="TestNuGetRestore" DependsOnTargets="GetNuGet" Condition="'$(ICE_BIN_DIST)' == 'all'">
         <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)$(IceTestSolution)"/>
+    </Target>
+
+    <Target Name="DoxygenExamplesNuGetRestore" DependsOnTargets="GetNuGet" Condition="'$(ICE_BIN_DIST)' == 'all'">
+        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)$(IceDoxygenExamplesSolution)"/>
     </Target>
 
     <Target Name="DownloadSymbols" DependsOnTargets="TestNuGetRestore" Condition="'$(ICE_BIN_DIST)' == 'all'">
@@ -83,6 +88,22 @@
                     <Properties>Configuration=Release;Platform=x64;VisualStudioVersion=$(VisualStudioVersion)</Properties>
                 </TestSolution>
             </ItemGroup>
+
+            <!-- Ice for C++ Doxygen Examples configurations -->
+            <ItemGroup>
+                <DoxygenExamplesSolution Include="$(IceDoxygenExamplesSolution)">
+                    <Properties>Configuration=Debug;Platform=Win32;VisualStudioVersion=$(VisualStudioVersion)</Properties>
+                </DoxygenExamplesSolution>
+                <DoxygenExamplesSolution Include="$(IceDoxygenExamplesSolution)">
+                    <Properties>Configuration=Debug;Platform=x64;VisualStudioVersion=$(VisualStudioVersion)</Properties>
+                </DoxygenExamplesSolution>
+                <DoxygenExamplesSolution Include="$(IceDoxygenExamplesSolution)">
+                    <Properties>Configuration=Release;Platform=Win32;VisualStudioVersion=$(VisualStudioVersion)</Properties>
+                </DoxygenExamplesSolution>
+                <DoxygenExamplesSolution Include="$(IceDoxygenExamplesSolution)">
+                    <Properties>Configuration=Release;Platform=x64;VisualStudioVersion=$(VisualStudioVersion)</Properties>
+                </DoxygenExamplesSolution>
+            </ItemGroup>
         </When>
         <Otherwise>
             <PropertyGroup>
@@ -97,6 +118,10 @@
                 <TestSolution Include="$(IceTestSolution)">
                     <Properties>Configuration=$(Configuration);Platform=$(Platform);VisualStudioVersion=$(VisualStudioVersion)</Properties>
                 </TestSolution>
+
+                 <DoxygenExamplesSolution Include="$(IceDoxygenExamplesSolution)">
+                    <Properties>Configuration=$(Configuration);Platform=$(Platform);VisualStudioVersion=$(VisualStudioVersion)</Properties>
+                </DoxygenExamplesSolution>
             </ItemGroup>
         </Otherwise>
     </Choose>
@@ -123,11 +148,16 @@
         <MSBuild Projects="@(TestSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)" />
+
+        <MSBuild Projects="@(DoxygenExamplesSolution)"
+                 BuildInParallel="true"
+                 Properties="%(Properties)" />
     </Target>
 
-    <!-- Clean test solution -->
+    <!-- Clean test and doxygen examples solutions -->
     <Target Name="Clean" DependsOnTargets="CleanDist">
         <MSBuild Projects="@(TestSolution)" BuildInParallel="true" Targets="Clean" Properties="%(Properties)" />
+        <MSBuild Projects="@(DoxygenExamplesSolution)" BuildInParallel="true" Targets="Clean" Properties="%(Properties)" />
     </Target>
 
     <!-- Create nuget packages -->

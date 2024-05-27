@@ -15,7 +15,7 @@ clientCertificateSelectionCallbackExample()
 
     auto initData = Ice::InitializationData{
         .clientAuthenticationOptions = Ice::SSL::ClientAuthenticationOptions{
-            .clientCertificateSelectionCallback =
+            .clientCredentialsSelectionCallback =
                 [clientCertificateChain](const std::string&)
             {
                 CertDuplicateCertificateContext(clientCertificateChain);
@@ -27,7 +27,7 @@ clientCertificateSelectionCallbackExample()
     auto communicator = Ice::initialize(initData);
 
     // Release the client certificate chain when no longer needed
-    CFRelease(clientCertificateChain);
+    CertFreeCertificateContext(clientCertificateChain);
     //! [clientCertificateSelectionCallback]
 }
 
@@ -35,7 +35,7 @@ void
 clientSetTrustedRootCertificatesExample()
 {
     //! [trustedRootCertificates]
-    CFArrayRef rootCerts = {};
+    HCERTSTORE rootCerts = {};
     // Populate root certs with X.509 trusted root certificates
     // ...
 
@@ -43,7 +43,7 @@ clientSetTrustedRootCertificatesExample()
         .clientAuthenticationOptions =
             Ice::SSL::ClientAuthenticationOptions{.trustedRootCertificates = rootCerts}};
     auto communicator = Ice::initialize(initData);
-    CFRelease(rootCerts); // It is safe to release the rootCerts now.
+    CertCloseStore(rootCerts, 0); // It is safe to close the rootCerts store now.
     //! [trustedRootCertificates]
 }
 
