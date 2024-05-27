@@ -35,11 +35,10 @@ internal class AllTests : global::Test.AllTests
         output.Write("testing that the idle check does not abort a connection that receives heartbeats.. ");
         output.Flush();
 
+        // Establish connection.
         await p.ice_pingAsync();
-        Connection? connection = p.ice_getCachedConnection();
-        test(connection is not null);
 
-        await p.sleepAsync(2000); // the implementation in the server sleeps for 20,000ms
+        await p.sleepAsync(2000); // the implementation in the server sleeps for 2,000ms
         output.WriteLine("ok");
     }
 
@@ -61,6 +60,8 @@ internal class AllTests : global::Test.AllTests
         properties.setProperty("Ice.Warn.Connections", "0");
         Communicator communicator = Util.initialize(new InitializationData { properties = properties });
         Test.TestIntfPrx p = Test.TestIntfPrxHelper.createProxy(communicator, proxyString);
+
+        // Establish connection.
         Connection connection = p.ice_getConnection();
         test(connection is not null);
 
@@ -68,7 +69,7 @@ internal class AllTests : global::Test.AllTests
         try
         {
             await p.sleepAsync(2000); // the implementation in the server sleeps for 2,000ms
-            test(false);    // we expect the server to abort the connection after about 1 second.
+            test(false);              // we expect the server to abort the connection after about 1 second.
         }
         catch (ConnectionLostException)
         {

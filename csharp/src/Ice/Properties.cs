@@ -504,6 +504,7 @@ public sealed class Properties
     /// Alias for <see cref="Clone" />. Provided for source compatibility with Ice 3.7 and earlier versions.
     /// </summary>
     /// <returns>A copy of this property set.</returns>
+    [Obsolete("Use Clone instead.")]
     public Properties ice_clone_() => Clone();
 
     public List<string> getUnusedProperties()

@@ -340,7 +340,7 @@ public class SessionFactoryHelper
         // Clone the initialization data and properties.
         //
         Ice.InitializationData initData = _initData.Clone();
-        initData.properties = initData.properties.ice_clone_();
+        initData.properties = initData.properties.Clone();
 
         if (initData.properties.getIceProperty("Ice.Default.Router").Length == 0 && _identity != null)
         {

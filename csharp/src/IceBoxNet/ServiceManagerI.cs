@@ -908,7 +908,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
         Ice.Properties communicatorProperties = _communicator.getProperties();
         if (communicatorProperties.getIcePropertyAsInt("IceBox.InheritProperties") > 0)
         {
-            properties = communicatorProperties.ice_clone_();
+            properties = communicatorProperties.Clone();
             // Inherit all except Ice.Admin.xxx properties
             foreach (string p in properties.getPropertiesForPrefix("Ice.Admin.").Keys)
             {

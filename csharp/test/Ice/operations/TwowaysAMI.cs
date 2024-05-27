@@ -1249,7 +1249,7 @@ namespace Ice
                     for (int i = 0; i < 2; i++)
                     {
                         var initData = new InitializationData();
-                        initData.properties = communicator.getProperties().ice_clone_();
+                        initData.properties = communicator.getProperties().Clone();
                         initData.properties.setProperty("Ice.ImplicitContext", impls[i]);
 
                         Communicator ic = helper.initialize(initData);

@@ -59,7 +59,7 @@ namespace Ice
                     for (int i = 0; i < 10; ++i)
                     {
                         Ice.InitializationData initData = new Ice.InitializationData();
-                        initData.properties = communicator.getProperties().ice_clone_();
+                        initData.properties = communicator.getProperties().Clone();
                         Ice.Communicator comm = Ice.Util.initialize(initData);
                         _ = comm.stringToProxy("test:" + helper.getTestEndpoint(0)).ice_pingAsync();
                         comm.destroy();
@@ -200,7 +200,7 @@ namespace Ice
                 {
                     Ice.InitializationData initData = new Ice.InitializationData()
                     {
-                        properties = communicator.getProperties().ice_clone_(),
+                        properties = communicator.getProperties().Clone(),
                     };
                     initData.properties.setProperty("Ice.ServerIdleTime", "1");
                     // The thread pool threads have to be idle first before server idle time is checked.
