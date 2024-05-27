@@ -34,7 +34,7 @@ clientSetNewSessionCallbackExample()
     //! [sslNewSessionCallback]
     auto initData = Ice::InitializationData{
         .clientAuthenticationOptions = Ice::SSL::ClientAuthenticationOptions{
-            .sslNewSessionCallback = [](SSL* ssl, const std::string& host)
+            .sslNewSessionCallback = [](SSL* ssl, const std::string&)
             {
                 if (!SSL_set_cipher_list(ssl, "HIGH:!aNULL:!MD5"))
                 {
@@ -51,9 +51,8 @@ serverCertificateValidationCallbackExample()
     auto initData = Ice::InitializationData{
         .clientAuthenticationOptions = Ice::SSL::ClientAuthenticationOptions{
             .serverCertificateValidationCallback =
-                [](bool verified,
-                   X509_STORE_CTX* ctx,
-                   const Ice::SSL::ConnectionInfoPtr& info) { return verified; }}};
+                [](bool verified, X509_STORE_CTX*, const Ice::SSL::ConnectionInfoPtr&)
+            { return verified; }}};
     //! [serverCertificateValidationCallback]
 }
 #endif

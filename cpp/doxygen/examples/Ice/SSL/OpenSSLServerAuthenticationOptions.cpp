@@ -37,7 +37,7 @@ serverSetNewSessionCallbackExample()
         "Hello",
         "ssl -h 127.0.0.1 -p 10000",
         Ice::SSL::ServerAuthenticationOptions{
-            .sslNewSessionCallback = [](SSL* ssl, const std::string& host) {
+            .sslNewSessionCallback = [](SSL* ssl, const std::string&) {
                 SSL_set_verify(ssl, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, 0);
             }});
     //! [sslNewSessionCallback]
@@ -53,9 +53,8 @@ clientCertificateValidationCallbackExample()
         "ssl -h 127.0.0.1 -p 10000",
         Ice::SSL::ServerAuthenticationOptions{
             .clientCertificateValidationCallback =
-                [](bool verified,
-                   X509_STORE_CTX* ctx,
-                   const Ice::SSL::ConnectionInfoPtr& info) { return verified; }});
+                [](bool verified, X509_STORE_CTX*, const Ice::SSL::ConnectionInfoPtr&)
+            { return verified; }});
     //! [clientCertificateValidationCallback]
 }
 #endif
