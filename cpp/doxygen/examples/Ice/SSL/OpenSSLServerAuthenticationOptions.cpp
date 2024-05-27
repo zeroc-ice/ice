@@ -4,6 +4,7 @@
 
 #include <Ice/Ice.h>
 
+#if defined(ICE_USE_OPENSSL)
 void
 serverCertificateSelectionCallbackExample()
 {
@@ -57,3 +58,4 @@ clientCertificateValidationCallbackExample()
                    const Ice::SSL::ConnectionInfoPtr& info) { return verified; }});
     //! [clientCertificateValidationCallback]
 }
+#endif

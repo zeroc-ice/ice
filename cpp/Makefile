@@ -34,5 +34,8 @@ include $(shell find $(lang_srcdir)/test -name Makefile.mk)
 $(foreach t,$(tests),$(eval $(call create-cpp-test-project,$(t))))
 $(call make-projects,$(projects),make-cpp-test-project)
 
+# Load the doxygen project
+include $(lang_srcdir)/doxygen/Makefile.mk
+
 install:: | $(DESTDIR)$(install_configdir)
 	$(Q)$(call install-data,templates.xml,$(lang_srcdir)/config,$(install_configdir))

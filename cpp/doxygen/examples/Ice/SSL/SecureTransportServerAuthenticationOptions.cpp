@@ -3,7 +3,10 @@
 //
 
 #include <Ice/Ice.h>
+// Disable deprecation warnings from SecureTransport APIs
+#include "IceUtil/DisableWarnings.h"
 
+#if defined(ICE_USE_SECURE_TRANSPORT)
 void
 serverCertificateSelectionCallbackExample()
 {
@@ -55,7 +58,7 @@ serverSetNewSessionCallbackExample()
         "Hello",
         "ssl -h 127.0.0.1 -p 10000",
         Ice::SSL::ServerAuthenticationOptions{
-            .sslNewSessionCallback = [](SSLContextRef context, const std::string& host)
+            .sslNewSessionCallback = [](SSLContextRef context, const std::string&)
             {
                 OSStatus status = SSLSetProtocolVersionMin(context, kTLSProtocol13);
                 if (status != noErr)
@@ -77,7 +80,8 @@ clientCertificateValidationCallbackExample()
         Ice::SSL::ServerAuthenticationOptions{
             .clientCertificateRequired = kAlwaysAuthenticate,
             .clientCertificateValidationCallback =
-                [](SecTrustRef trust, const Ice::SSL::ConnectionInfoPtr& info)
+                [](SecTrustRef trust, const Ice::SSL::ConnectionInfoPtr&)
             { return SecTrustEvaluateWithError(trust, nullptr); }});
     //! [clientCertificateValidationCallback]
 }
+#endif

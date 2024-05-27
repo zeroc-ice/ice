@@ -4,6 +4,7 @@
 
 #include <Ice/Ice.h>
 
+#if defined(ICE_USE_SCHANNEL)
 void
 clientCertificateSelectionCallbackExample()
 {
@@ -56,3 +57,4 @@ serverCertificateValidationCallbackExample()
                 [](CtxtHandle, const Ice::SSL::ConnectionInfoPtr&) { return true; }}};
     //! [serverCertificateValidationCallback]
 }
+#endif

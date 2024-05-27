@@ -6,6 +6,8 @@
 
 using namespace std;
 
+#if defined(ICE_USE_SCHANNEL)
+
 void
 serverCertificateSelectionCallbackExample()
 {
@@ -65,3 +67,4 @@ clientCertificateValidationCallbackExample()
                 [](CtxtHandle, const Ice::SSL::ConnectionInfoPtr&) { return true; }});
     //! [clientCertificateValidationCallback]
 }
+#endif
