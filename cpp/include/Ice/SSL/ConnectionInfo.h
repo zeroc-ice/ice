@@ -9,6 +9,10 @@
 #include "ConnectionInfoF.h"
 #include "Ice/Connection.h"
 
+// This file defines the `XxxConnectionInfo` class for each platform-specific SSL implementation. The
+// `#if defined(ICE_USE_XXX)/#endif` directives are used to include the appropriate structure based on the platform. We
+// avoid using `#elif` directives because, we want to define all the classes when building the doxygen documentation.
+
 #if defined(__clang__)
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
@@ -63,7 +67,9 @@ namespace Ice::SSL
          */
         PCCERT_CONTEXT peerCertificate = nullptr;
     };
-#elif defined(ICE_USE_SECURE_TRANSPORT)
+#endif
+
+#if defined(ICE_USE_SECURE_TRANSPORT)
     /**
      * Provides access to the connection details of an SSL connection.
      *
@@ -107,7 +113,9 @@ namespace Ice::SSL
          */
         SecCertificateRef peerCertificate = nullptr;
     };
-#elif defined(ICE_USE_OPENSSL)
+#endif
+
+#if defined(ICE_USE_OPENSSL)
     /**
      * Provides access to the connection details of an SSL connection.
      *
@@ -151,8 +159,6 @@ namespace Ice::SSL
          */
         X509* peerCertificate = nullptr;
     };
-#else
-#    error "unsupported platform"
 #endif
 }
 

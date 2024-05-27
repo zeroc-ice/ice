@@ -10,6 +10,10 @@
 
 #include <functional>
 
+// This file defines the `XxxClientAuthenticationOptions` structure for each platform-specific SSL implementation. The
+// `#if defined(ICE_USE_XXX)/#endif` directives are used to include the appropriate structure based on the platform. We
+// avoid using `#elif` directives because, we want to define all the structures when building the doxygen documentation.
+
 namespace Ice::SSL
 {
 #if defined(ICE_USE_SCHANNEL)
@@ -94,7 +98,9 @@ namespace Ice::SSL
     // Alias for the platform-specific implementation of ClientAuthenticationOptions on Windows.
     using ClientAuthenticationOptions = SchannelClientAuthenticationOptions;
     /// \endcond
-#elif defined(ICE_USE_SECURE_TRANSPORT)
+#endif
+
+#if defined(ICE_USE_SECURE_TRANSPORT)
     /**
      * %SSL transport configuration properties for client connections on macOS and iOS.
      *
@@ -199,7 +205,9 @@ namespace Ice::SSL
     // Alias for the platform-specific implementation of ClientAuthenticationOptions on macOS and iOS.
     using ClientAuthenticationOptions = SecureTransportClientAuthenticationOptions;
     /// \endcond
-#elif defined(ICE_USE_OPENSSL)
+#endif
+
+#if defined(ICE_USE_OPENSSL)
     /**
      * %SSL transport configuration properties for client connections on Linux.
      *
@@ -283,8 +291,6 @@ namespace Ice::SSL
     // Alias for the platform-specific implementation of ClientAuthenticationOptions on Linux.
     using ClientAuthenticationOptions = OpenSSLClientAuthenticationOptions;
     /// \endcond
-#else
-#    error "unsupported platform"
 #endif
 
 }
