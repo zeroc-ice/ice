@@ -46,7 +46,7 @@ jobs:
       - name: Generate Documentation for Swift
         working-directory: ./swift
         run: |
-          make V=1
+          make V=1 srcs
 
           xcodebuild docbuild \
             -project ice.xcodeproj \
