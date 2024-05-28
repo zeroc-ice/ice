@@ -817,9 +817,7 @@ IceInternal::RoutableReference::RoutableReference(
       _cacheConnection(cacheConnection),
       _preferSecure(preferSecure),
       _endpointSelection(endpointSelection),
-      _locatorCacheTimeout(locatorCacheTimeout),
-      _overrideTimeout(false),
-      _timeout(-1)
+      _locatorCacheTimeout(locatorCacheTimeout)
 {
     assert(_adapterId.empty() || _endpoints.empty());
     setBatchRequestQueue();
@@ -1590,7 +1588,7 @@ IceInternal::RoutableReference::createConnectionAsync(
     {
         // Get an existing connection or create one if there's no existing connection to one of the given endpoints.
         factory->createAsync(
-            endpoints,
+            std::move(endpoints),
             false,
             getEndpointSelection(),
             std::move(createConnectionSucceded),

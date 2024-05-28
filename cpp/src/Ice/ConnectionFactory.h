@@ -50,7 +50,7 @@ namespace IceInternal
         void waitUntilFinished();
 
         void createAsync(
-            const std::vector<EndpointIPtr>&,
+            std::vector<EndpointIPtr>,
             bool,
             Ice::EndpointSelectionType,
             std::function<void(Ice::ConnectionIPtr, bool)>,
@@ -126,7 +126,6 @@ namespace IceInternal
         using ConnectCallbackPtr = std::shared_ptr<ConnectCallback>;
         friend class ConnectCallback;
 
-        std::vector<EndpointIPtr> applyOverrides(const std::vector<EndpointIPtr>&);
         Ice::ConnectionIPtr findConnection(const std::vector<EndpointIPtr>&, bool&);
         void incPendingConnectCount();
         void decPendingConnectCount();

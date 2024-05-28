@@ -32,8 +32,6 @@ namespace IceInternal
         Ice::EncodingVersion defaultEncoding;
         Ice::FormatType defaultFormat;
 
-        bool overrideTimeout;
-        std::int32_t overrideTimeoutValue;
         bool overrideCompress;
         bool overrideCompressValue;
         bool overrideSecure;
