@@ -121,7 +121,7 @@ namespace Ice
                 if (batch.ice_getConnection() != null)
                 {
                     Ice.InitializationData initData = new Ice.InitializationData();
-                    initData.properties = p.ice_getCommunicator().getProperties().ice_clone_();
+                    initData.properties = p.ice_getCommunicator().getProperties().Clone();
                     BatchRequestInterceptorI interceptor = new BatchRequestInterceptorI();
                     initData.batchRequestInterceptor = interceptor.enqueue;
                     Ice.Communicator ic = helper.initialize(initData);

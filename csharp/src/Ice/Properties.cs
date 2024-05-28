@@ -487,7 +487,7 @@ public sealed class Properties
     /// Create a copy of this property set.
     /// </summary>
     /// <returns>A copy of this property set.</returns>
-    public Properties ice_clone_()
+    public Properties Clone()
     {
         var clonedProperties = new Properties();
         lock (this)
@@ -499,6 +499,13 @@ public sealed class Properties
         }
         return clonedProperties;
     }
+
+    /// <summary>
+    /// Alias for <see cref="Clone" />. Provided for source compatibility with Ice 3.7 and earlier versions.
+    /// </summary>
+    /// <returns>A copy of this property set.</returns>
+    [Obsolete("Use Clone instead.")]
+    public Properties ice_clone_() => Clone();
 
     public List<string> getUnusedProperties()
     {

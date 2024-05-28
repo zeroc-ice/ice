@@ -216,7 +216,7 @@ namespace Ice
                     if (p.ice_getConnection() != null)
                     {
                         var initData = new InitializationData();
-                        initData.properties = communicator.getProperties().ice_clone_();
+                        initData.properties = communicator.getProperties().Clone();
                         Communicator ic = helper.initialize(initData);
                         Test.TestIntfPrx p2 = Test.TestIntfPrxHelper.createProxy(ic, p.ToString());
                         ic.destroy();

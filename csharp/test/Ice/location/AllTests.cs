@@ -455,7 +455,7 @@ namespace Ice
                 output.Flush();
                 {
                     Ice.InitializationData initData = new Ice.InitializationData();
-                    initData.properties = communicator.getProperties().ice_clone_();
+                    initData.properties = communicator.getProperties().Clone();
                     initData.properties.setProperty("Ice.BackgroundLocatorCacheUpdates", "1");
                     Ice.Communicator ic = helper.initialize(initData);
 

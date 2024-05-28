@@ -721,6 +721,18 @@ public sealed class Instance
 
             _defaultsAndOverrides = new DefaultsAndOverrides(_initData.properties, _initData.logger);
 
+            Properties properties = _initData.properties;
+
+            // The TimeSpan value can be <= 0. In this case, the timeout is considered infinite.
+            clientConnectionOptions = new()
+            {
+                connectTimeout = TimeSpan.FromSeconds(properties.getIcePropertyAsInt("Ice.Connection.ConnectTimeout")),
+                closeTimeout = TimeSpan.FromSeconds(properties.getIcePropertyAsInt("Ice.Connection.CloseTimeout")),
+                idleTimeout = TimeSpan.FromSeconds(properties.getIcePropertyAsInt("Ice.Connection.IdleTimeout")),
+                enableIdleCheck = properties.getIcePropertyAsInt("Ice.Connection.EnableIdleCheck") > 0,
+                inactivityTimeout = TimeSpan.FromSeconds(properties.getIcePropertyAsInt("Ice.Connection.InactivityTimeout")),
+            };
+
             {
                 int num =
                     _initData.properties.getIcePropertyAsInt("Ice.MessageSizeMax");
@@ -1436,6 +1448,43 @@ public sealed class Instance
             }
         }
     }
+
+    internal ConnectionOptions serverConnectionOptions(string adapterName)
+    {
+        if (adapterName.Length > 0)
+        {
+            Properties properties = _initData.properties;
+
+            return clientConnectionOptions with
+            {
+                connectTimeout = TimeSpan.FromSeconds(properties.getPropertyAsIntWithDefault(
+                    $"{adapterName}.Connection.ConnectTimeout",
+                    (int)clientConnectionOptions.connectTimeout.TotalSeconds)),
+
+                closeTimeout = TimeSpan.FromSeconds(properties.getPropertyAsIntWithDefault(
+                    $"{adapterName}.Connection.CloseTimeout",
+                    (int)clientConnectionOptions.closeTimeout.TotalSeconds)),
+
+                idleTimeout = TimeSpan.FromSeconds(properties.getPropertyAsIntWithDefault(
+                    $"{adapterName}.Connection.IdleTimeout",
+                    (int)clientConnectionOptions.idleTimeout.TotalSeconds)),
+
+                enableIdleCheck = properties.getPropertyAsIntWithDefault(
+                    $"{adapterName}.Connection.EnableIdleCheck",
+                    clientConnectionOptions.enableIdleCheck ? 1 : 0) > 0,
+
+                inactivityTimeout = TimeSpan.FromSeconds(properties.getPropertyAsIntWithDefault(
+                    $"{adapterName}.Connection.InactivityTimeout",
+                    (int)clientConnectionOptions.inactivityTimeout.TotalSeconds))
+            };
+        }
+        else
+        {
+            return clientConnectionOptions;
+        }
+    }
+
+    internal ConnectionOptions clientConnectionOptions { get; private set; } = null!; // set in initialize
 
     internal IActivator getActivator() => _activator.Value;
 
