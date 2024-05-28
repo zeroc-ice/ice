@@ -13,19 +13,25 @@ namespace Ice::SSL
 {
 #if defined(ICE_USE_SCHANNEL)
     class SchannelConnectionInfo;
-    // Alias for portable code
+    /// \cond INTERNAL
+    // Alias for the platform-specific implementation of ConnectionInfo on Windows.
     using ConnectionInfo = SchannelConnectionInfo;
     using ConnectionInfoPtr = std::shared_ptr<SchannelConnectionInfo>;
+    /// \endcond
 #elif defined(ICE_USE_SECURE_TRANSPORT)
     class SecureTransportConnectionInfo;
-    // Alias for portable code
+    /// \cond INTERNAL
+    // Alias for the platform-specific implementation of ConnectionInfo on macOS and iOS.
     using ConnectionInfo = SecureTransportConnectionInfo;
     using ConnectionInfoPtr = std::shared_ptr<SecureTransportConnectionInfo>;
+    /// \endcond
 #else
     class OpenSSLConnectionInfo;
-    // Alias for portable code
+    /// \cond INTERNAL
+    // Alias for the platform-specific implementation of ConnectionInfo on Linux.
     using ConnectionInfo = OpenSSLConnectionInfo;
     using ConnectionInfoPtr = std::shared_ptr<OpenSSLConnectionInfo>;
+    /// \endcond
 #endif
 }
 
