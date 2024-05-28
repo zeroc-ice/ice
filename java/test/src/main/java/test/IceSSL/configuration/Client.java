@@ -13,9 +13,13 @@ public class Client extends test.TestHelper {
     if (rargs.size() < 1) {
       throw new RuntimeException("Usage: client testdir");
     }
+
+    String testDir = rargs.get(0);
+
     properties.setProperty("Ice.Package.Test", "test.IceSSL.configuration");
     try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
-      ServerFactoryPrx factory = AllTests.allTests(this, rargs.get(0));
+      PlatformTests.allTests(this, testDir);
+      ServerFactoryPrx factory = AllTests.allTests(this, testDir);
       factory.shutdown();
     }
   }
