@@ -19,6 +19,7 @@ public class Client : Test.TestHelper
                 throw new ArgumentException("Usage: client testdir");
             }
 
+            PlatformTests.allTests(this, args[0]);
             Test.ServerFactoryPrx factory;
             factory = AllTests.allTests(this, args[0]);
             factory.shutdown();

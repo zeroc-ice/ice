@@ -12,6 +12,8 @@
   <ItemGroup>
     <Compile Include="../../../../TestCommon/TestHelper.cs" />
     <Compile Include="../../AllTests.cs" />
+    <Compile Include="../../PlatformTests.cs" />
+    <Compile Include="../../TestI.cs" />
     <Compile Include="../../Client.cs" />
     <Compile Include="generated\Test.cs">
       <SliceCompileSource>../../Test.ice</SliceCompileSource>
