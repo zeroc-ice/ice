@@ -15,21 +15,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         void connectionStartFailed(ConnectionI connection, LocalException ex);
     }
 
-    private class TimeoutCallback : TimerTask
-    {
-        public TimeoutCallback(ConnectionI connection)
-        {
-            _connection = connection;
-        }
-
-        public void runTimerTask()
-        {
-            _connection.timedOut();
-        }
-
-        private ConnectionI _connection;
-    }
-
     public void start(StartCallback callback)
     {
         try
@@ -47,6 +32,14 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
 
                 if (!initialize(SocketOperation.None) || !validate(SocketOperation.None))
                 {
+                    if (_connectTimeout > TimeSpan.Zero)
+                    {
+                        var connectTimer = new System.Threading.Timer(
+                            timerObj => connectTimedOut((System.Threading.Timer)timerObj));
+                        // schedule timer to run once; connectTimedOut disposes the timer too.
+                        connectTimer.Change(_connectTimeout, Timeout.InfiniteTimeSpan);
+                    }
+
                     _startCallback = callback;
                     return;
                 }
@@ -560,7 +553,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                     _asyncRequests.Remove(o.requestId);
                 }
 
-                if (ex is ConnectionTimeoutException)
+                if (ex is ConnectionIdleException)
                 {
                     setState(StateClosed, ex);
                 }
@@ -593,7 +586,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                 {
                     if (kvp.Value == outAsync)
                     {
-                        if (ex is ConnectionTimeoutException)
+                        if (ex is ConnectionIdleException)
                         {
                             setState(StateClosed, ex);
                         }
@@ -817,8 +810,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
 
                 try
                 {
-                    unscheduleTimeout(current.operation);
-
                     int writeOp = SocketOperation.None;
                     int readOp = SocketOperation.None;
 
@@ -964,7 +955,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                         // waiting for data to read or write.
                         if (newOp != 0)
                         {
-                            scheduleTimeout(newOp);
                             _threadPool.update(this, current.operation, newOp);
                             return;
                         }
@@ -1027,11 +1017,10 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                             }
                         }
 
-                        // If the connection is not closed yet, we can schedule the read or write timeout and update the
-                        // thread pool selector to wait for readiness of read, write or both operations.
+                        // If the connection is not closed yet, we can update the thread pool selector to wait for
+                        // readiness of read, write or both operations.
                         if (_state < StateClosed)
                         {
-                            scheduleTimeout(newOp);
                             _threadPool.update(this, current.operation, newOp);
                         }
                     }
@@ -1209,12 +1198,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
 
     public override void finished(ref ThreadPoolCurrent current)
     {
-        lock (this)
-        {
-            Debug.Assert(_state == StateClosed);
-            unscheduleTimeout(SocketOperation.Read | SocketOperation.Write);
-        }
-
         //
         // If there are no callbacks to call, we don't call ioCompleted() since we're not going
         // to call code that will potentially block (this avoids promoting a new leader and
@@ -1267,7 +1250,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                 //
                 if (!(_exception is CloseConnectionException ||
                      _exception is ConnectionManuallyClosedException ||
-                     _exception is ConnectionTimeoutException ||
+                     _exception is ConnectionIdleException ||
                      _exception is CommunicatorDestroyedException ||
                      _exception is ObjectAdapterDeactivatedException))
                 {
@@ -1389,25 +1372,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         return _desc; // No mutex lock, _desc is immutable.
     }
 
-    public void timedOut()
-    {
-        lock (this)
-        {
-            if (_state <= StateNotValidated)
-            {
-                setState(StateClosed, new ConnectTimeoutException());
-            }
-            else if (_state < StateClosing)
-            {
-                setState(StateClosed, new TimeoutException());
-            }
-            else if (_state < StateClosed)
-            {
-                setState(StateClosed, new CloseTimeoutException());
-            }
-        }
-    }
-
     public string type()
     {
         return _type; // No mutex lock, _type is immutable.
@@ -1485,19 +1449,13 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         InitializationData initData = instance.initializationData();
         _logger = initData.logger; // Cached for better performance.
         _traceLevels = instance.traceLevels(); // Cached for better performance.
-        _timer = instance.timer();
         _connectTimeout = options.connectTimeout;
         _closeTimeout = options.closeTimeout; // not used for datagram connections
         // suppress inactivity timeout for datagram connections
         _inactivityTimeout = endpoint.datagram() ? TimeSpan.Zero : options.inactivityTimeout;
         _removeFromFactory = removeFromFactory;
-        _writeTimeout = new TimeoutCallback(this);
-        _writeTimeoutScheduled = false;
-        _readTimeout = new TimeoutCallback(this);
-        _readTimeoutScheduled = false;
         _warn = initData.properties.getIcePropertyAsInt("Ice.Warn.Connections") > 0;
         _warnUdp = initData.properties.getIcePropertyAsInt("Ice.Warn.Datagrams") > 0;
-        _cacheBuffers = instance.cacheMessageBuffers() > 0;
         _nextRequestId = 1;
         _messageSizeMax = adapter != null ? adapter.messageSizeMax() : instance.messageSizeMax();
         _batchRequestQueue = new BatchRequestQueue(instance, _endpoint.datagram());
@@ -1550,9 +1508,8 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         }
     }
 
-    /// <summary>Aborts the connection with a <see cref="ConnectionTimeoutException" /> if the connection is active or
+    /// <summary>Aborts the connection with a <see cref="ConnectionIdleException" /> if the connection is active or
     /// holding.</summary>
-    // TODO: should be ConnectionIdleException
     internal void idleCheck(TimeSpan idleTimeout)
     {
         lock (this)
@@ -1568,7 +1525,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                         $"connection aborted by the idle check because it did not receive any byte for {idleTimeoutInSeconds}s\n{_transceiver.toDetailedString()}");
                 }
 
-                setState(StateClosed, new ConnectionTimeoutException()); // TODO: should be ConnectionIdleException
+                setState(StateClosed, new ConnectionIdleException());
             }
             // else nothing to do
         }
@@ -1643,7 +1600,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                 //
                 if (!(_exception is CloseConnectionException ||
                      _exception is ConnectionManuallyClosedException ||
-                     _exception is ConnectionTimeoutException ||
+                     _exception is ConnectionIdleException ||
                      _exception is CommunicatorDestroyedException ||
                      _exception is ObjectAdapterDeactivatedException ||
                      (_exception is ConnectionLostException && _state >= StateClosing)))
@@ -1799,7 +1756,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
             {
                 if (!(_exception is CloseConnectionException ||
                      _exception is ConnectionManuallyClosedException ||
-                     _exception is ConnectionTimeoutException ||
+                     _exception is ConnectionIdleException ||
                      _exception is CommunicatorDestroyedException ||
                      _exception is ObjectAdapterDeactivatedException ||
                      (_exception is ConnectionLostException && _state >= StateClosing)))
@@ -1848,6 +1805,14 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
             os.writeByte(_compressionSupported ? (byte)1 : (byte)0);
             os.writeInt(Protocol.headerSize); // Message size.
 
+            if (_closeTimeout > TimeSpan.Zero)
+            {
+                var closeTimer = new System.Threading.Timer(
+                    timerObj => closeTimedOut((System.Threading.Timer)timerObj));
+                // schedule timer to run once; closeTimedOut disposes the timer too.
+                closeTimer.Change(_closeTimeout, Timeout.InfiniteTimeSpan);
+            }
+
             if ((sendMessage(new OutgoingMessage(os, false, false)) & OutgoingAsyncBase.AsyncStatusSent) != 0)
             {
                 setState(StateClosingPending);
@@ -1858,7 +1823,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                 int op = _transceiver.closing(true, _exception);
                 if (op != 0)
                 {
-                    scheduleTimeout(op);
                     _threadPool.register(this, op);
                 }
             }
@@ -1870,7 +1834,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         int s = _transceiver.initialize(_readStream.getBuffer(), _writeStream.getBuffer(), ref _hasMoreData);
         if (s != SocketOperation.None)
         {
-            scheduleTimeout(s);
             _threadPool.update(this, operation, s);
             return false;
         }
@@ -1913,7 +1876,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                     int op = write(_writeStream.getBuffer());
                     if (op != 0)
                     {
-                        scheduleTimeout(op);
                         _threadPool.update(this, operation, op);
                         return false;
                     }
@@ -1942,7 +1904,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                     int op = read(_readStream.getBuffer());
                     if (op != 0)
                     {
-                        scheduleTimeout(op);
                         _threadPool.update(this, operation, op);
                         return false;
                     }
@@ -2187,7 +2148,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
 
         _writeStream.swap(message.stream);
         _sendStreams.AddLast(message);
-        scheduleTimeout(op);
         _threadPool.register(this, op);
         return OutgoingAsyncBase.AsyncStatusQueued;
     }
@@ -2317,6 +2277,13 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                         int op = _transceiver.closing(false, _exception);
                         if (op != 0)
                         {
+                            if (_closeTimeout > TimeSpan.Zero)
+                            {
+                                var closeTimer = new System.Threading.Timer(
+                                    timerObj => closeTimedOut((System.Threading.Timer)timerObj));
+                                // schedule timer to run once; closeTimedOut disposes the timer too.
+                                closeTimer.Change(_closeTimeout, Timeout.InfiniteTimeSpan);
+                            }
                             return op;
                         }
                         setState(StateClosed);
@@ -2591,80 +2558,30 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         }
     }
 
-    private void scheduleTimeout(int status)
+    private void connectTimedOut(System.Threading.Timer connectTimer)
     {
-        int timeout;
-        if (_state < StateActive)
+        lock (this)
         {
-            DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-            if (defaultsAndOverrides.overrideConnectTimeout)
+            if (_state < StateActive)
             {
-                timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
-            }
-            else
-            {
-                timeout = _endpoint.timeout();
+                setState(StateClosed, new ConnectTimeoutException());
             }
         }
-        else if (_state < StateClosingPending)
-        {
-            if (_readHeader) // No timeout for reading the header.
-            {
-                status &= ~SocketOperation.Read;
-            }
-            timeout = _endpoint.timeout();
-        }
-        else
-        {
-            DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-            if (defaultsAndOverrides.overrideCloseTimeout)
-            {
-                timeout = defaultsAndOverrides.overrideCloseTimeoutValue;
-            }
-            else
-            {
-                timeout = _endpoint.timeout();
-            }
-        }
-
-        if (timeout < 0)
-        {
-            return;
-        }
-
-        if ((status & SocketOperation.Read) != 0)
-        {
-            if (_readTimeoutScheduled)
-            {
-                _timer.cancel(_readTimeout);
-            }
-            _timer.schedule(_readTimeout, timeout);
-            _readTimeoutScheduled = true;
-        }
-        if ((status & (SocketOperation.Write | SocketOperation.Connect)) != 0)
-        {
-            if (_writeTimeoutScheduled)
-            {
-                _timer.cancel(_writeTimeout);
-            }
-            _timer.schedule(_writeTimeout, timeout);
-            _writeTimeoutScheduled = true;
-        }
+        // else ignore since we're already connected.
+        connectTimer.Dispose();
     }
 
-    private void unscheduleTimeout(int status)
+    private void closeTimedOut(System.Threading.Timer closeTimer)
     {
-        if ((status & SocketOperation.Read) != 0 && _readTimeoutScheduled)
+        lock (this)
         {
-            _timer.cancel(_readTimeout);
-            _readTimeoutScheduled = false;
+            if (_state < StateClosed)
+            {
+                setState(StateClosed, new CloseTimeoutException());
+            }
         }
-        if ((status & (SocketOperation.Write | SocketOperation.Connect)) != 0 &&
-           _writeTimeoutScheduled)
-        {
-            _timer.cancel(_writeTimeout);
-            _writeTimeoutScheduled = false;
-        }
+        // else ignore since we're already closed.
+        closeTimer.Dispose();
     }
 
     private ConnectionInfo initConnectionInfo()
@@ -2874,16 +2791,9 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
     private TraceLevels _traceLevels;
     private Ice.Internal.ThreadPool _threadPool;
 
-    private Ice.Internal.Timer _timer;
-
     private readonly TimeSpan _connectTimeout;
     private readonly TimeSpan _closeTimeout;
     private readonly TimeSpan _inactivityTimeout;
-
-    private TimerTask _writeTimeout;
-    private bool _writeTimeoutScheduled;
-    private TimerTask _readTimeout;
-    private bool _readTimeoutScheduled;
 
     private StartCallback _startCallback;
 
@@ -2922,8 +2832,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
     private bool _validated;
 
     private static bool _compressionSupported;
-
-    private bool _cacheBuffers;
 
     private ConnectionInfo _info;
 

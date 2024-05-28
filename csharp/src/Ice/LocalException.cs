@@ -1235,6 +1235,18 @@ public class OperationInterruptedException : LocalException
     }
 }
 
+/// <summary>
+/// This exception indicates that a connection was aborted by the idle check.
+/// </summary>
+public class ConnectionIdleException : LocalException
+{
+    public ConnectionIdleException()
+    {
+    }
+
+    public override string ice_id() => "::Ice::ConnectionIdleException";
+}
+
 /// <summary>This exception indicates a timeout condition.</summary>
 public class TimeoutException : LocalException
 {
@@ -1285,25 +1297,6 @@ public class CloseTimeoutException : TimeoutException
     public override string ice_id()
     {
         return "::Ice::CloseTimeoutException";
-    }
-}
-
-/// <summary>
-/// This exception indicates that a connection has been shut down because it has been idle for some time.
-/// </summary>
-public class ConnectionTimeoutException : TimeoutException
-{
-    public ConnectionTimeoutException()
-    {
-    }
-
-    public ConnectionTimeoutException(System.Exception ex) : base(ex)
-    {
-    }
-
-    public override string ice_id()
-    {
-        return "::Ice::ConnectionTimeoutException";
     }
 }
 

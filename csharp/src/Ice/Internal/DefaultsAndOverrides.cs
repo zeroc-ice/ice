@@ -58,46 +58,6 @@ public sealed class DefaultsAndOverrides
             overrideTimeoutValue = -1;
         }
 
-        val = properties.getIceProperty("Ice.Override.ConnectTimeout");
-        if (val.Length > 0)
-        {
-            overrideConnectTimeout = true;
-            overrideConnectTimeoutValue = properties.getIcePropertyAsInt("Ice.Override.ConnectTimeout");
-            if (overrideConnectTimeoutValue < 1 && overrideConnectTimeoutValue != -1)
-            {
-                overrideConnectTimeoutValue = -1;
-                StringBuilder msg = new StringBuilder("invalid value for Ice.Override.ConnectTimeout `");
-                msg.Append(properties.getIceProperty("Ice.Override.ConnectTimeout"));
-                msg.Append("': defaulting to -1");
-                logger.warning(msg.ToString());
-            }
-        }
-        else
-        {
-            overrideConnectTimeout = false;
-            overrideConnectTimeoutValue = -1;
-        }
-
-        val = properties.getIceProperty("Ice.Override.CloseTimeout");
-        if (val.Length > 0)
-        {
-            overrideCloseTimeout = true;
-            overrideCloseTimeoutValue = properties.getIcePropertyAsInt("Ice.Override.CloseTimeout");
-            if (overrideCloseTimeoutValue < 1 && overrideCloseTimeoutValue != -1)
-            {
-                overrideCloseTimeoutValue = -1;
-                StringBuilder msg = new StringBuilder("invalid value for Ice.Override.CloseTimeout `");
-                msg.Append(properties.getIceProperty("Ice.Override.CloseTimeout"));
-                msg.Append("': defaulting to -1");
-                logger.warning(msg.ToString());
-            }
-        }
-        else
-        {
-            overrideCloseTimeout = false;
-            overrideCloseTimeoutValue = -1;
-        }
-
         val = properties.getIceProperty("Ice.Override.Compress");
         if (val.Length > 0)
         {
@@ -168,7 +128,7 @@ public sealed class DefaultsAndOverrides
         }
 
         defaultInvocationTimeout = properties.getIcePropertyAsInt("Ice.Default.InvocationTimeout");
-        if (defaultInvocationTimeout < 1 && defaultInvocationTimeout != -1 && defaultInvocationTimeout != -2)
+        if (defaultInvocationTimeout < 1 && defaultInvocationTimeout != -1)
         {
             defaultInvocationTimeout = -1;
             StringBuilder msg = new StringBuilder("invalid value for Ice.Default.InvocationTimeout `");
@@ -202,10 +162,6 @@ public sealed class DefaultsAndOverrides
 
     public bool overrideTimeout;
     public int overrideTimeoutValue;
-    public bool overrideConnectTimeout;
-    public int overrideConnectTimeoutValue;
-    public bool overrideCloseTimeout;
-    public int overrideCloseTimeoutValue;
     public bool overrideCompress;
     public bool overrideCompressValue;
     public bool overrideSecure;

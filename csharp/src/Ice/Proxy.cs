@@ -1033,7 +1033,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <param name="newTimeout">The new invocation timeout (in seconds).</param>
     public ObjectPrx ice_invocationTimeout(int newTimeout)
     {
-        if (newTimeout < 1 && newTimeout != -1 && newTimeout != -2)
+        if (newTimeout < 1 && newTimeout != -1)
         {
             throw new ArgumentException("invalid value passed to ice_invocationTimeout: " + newTimeout);
         }

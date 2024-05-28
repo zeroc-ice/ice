@@ -106,7 +106,7 @@ internal class AllTests : global::Test.AllTests
             await p.sleepAsync(2000); // the implementation in the server sleeps for 2,000ms
             test(!enabled);
         }
-        catch (ConnectionTimeoutException) // TODO: should be ConnectionIdleException
+        catch (ConnectionIdleException)
         {
             test(enabled);
         }

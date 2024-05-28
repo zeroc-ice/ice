@@ -423,10 +423,6 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
         }
 
         cachedConnection_ = null;
-        if (proxy_.iceReference().getInvocationTimeout() == -2)
-        {
-            instance_.timer().cancel(this);
-        }
 
         //
         // NOTE: at this point, synchronization isn't needed, no other threads should be
@@ -448,19 +444,6 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
         {
             return exceptionImpl(ex); // No retries, we're done
         }
-    }
-
-    public override void cancelable(CancellationHandler handler)
-    {
-        if (proxy_.iceReference().getInvocationTimeout() == -2 && cachedConnection_ != null)
-        {
-            int timeout = cachedConnection_.timeout();
-            if (timeout > 0)
-            {
-                instance_.timer().schedule(this, timeout);
-            }
-        }
-        base.cancelable(handler);
     }
 
     public void retryException(Ice.Exception ex)
@@ -635,17 +618,7 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
         return base.responseImpl(userThread, ok, invoke);
     }
 
-    public void runTimerTask()
-    {
-        if (proxy_.iceReference().getInvocationTimeout() == -2)
-        {
-            cancel(new Ice.ConnectionTimeoutException());
-        }
-        else
-        {
-            cancel(new Ice.InvocationTimeoutException());
-        }
-    }
+    public void runTimerTask() => cancel(new Ice.InvocationTimeoutException());
 
     protected readonly Ice.ObjectPrxHelperBase proxy_;
     protected RequestHandler handler_;
