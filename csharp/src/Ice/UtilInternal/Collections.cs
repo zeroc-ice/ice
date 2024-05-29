@@ -5,26 +5,10 @@ using System.Diagnostics;
 
 namespace Ice.UtilInternal;
 
-public sealed class Collections
+public static class Collections
 {
-    // Just like Enumerable.SequenceEqual except it also handles null sequences.
-    // TODO: Note that this code would be removed by proposal #2115.
-    public static bool NullableSequenceEqual<TSource>(IEnumerable<TSource> lhs, IEnumerable<TSource> rhs)
-    {
-        if (lhs is null)
-        {
-            return rhs is null || !rhs.Any();
-        }
-        if (rhs is null)
-        {
-            return !lhs.Any();
-        }
-
-        return lhs.SequenceEqual(rhs);
-    }
-
     // Seq is a nullable seq.
-    public static void HashCodeAdd<TSource>(ref HashCode hash, IEnumerable<TSource> seq)
+    internal static void HashCodeAdd<TSource>(ref HashCode hash, IEnumerable<TSource> seq)
     {
         if (seq is not null)
         {
@@ -35,7 +19,7 @@ public sealed class Collections
         }
     }
 
-    public static bool DictionaryEquals(IDictionary d1, IDictionary d2)
+    internal static bool DictionaryEquals(IDictionary d1, IDictionary d2)
     {
         if (ReferenceEquals(d1, d2))
         {
@@ -77,7 +61,7 @@ public sealed class Collections
         return false;
     }
 
-    public static void HashCodeAdd<TKey, TValue>(ref HashCode hash, IDictionary<TKey, TValue> d) where TKey : notnull
+    internal static void HashCodeAdd<TKey, TValue>(ref HashCode hash, IDictionary<TKey, TValue> d) where TKey : notnull
     {
         if (d is not null)
         {
@@ -107,7 +91,7 @@ public sealed class Collections
         }
     }
 
-    public static void Sort<T>(ref List<T> array, IComparer<T> comparator)
+    internal static void Sort<T>(ref List<T> array, IComparer<T> comparator)
     {
         //
         // This Sort method implements the merge sort algorithm
