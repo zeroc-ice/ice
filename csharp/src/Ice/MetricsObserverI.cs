@@ -66,6 +66,9 @@ public class MetricsHelper<T> where T : Metrics
                 return null;
             }
 
+            protected object getProperty(System.Reflection.PropertyInfo property, object obj) =>
+                property?.GetValue(obj);
+
             readonly protected string _name;
         }
 
@@ -124,6 +127,31 @@ public class MetricsHelper<T> where T : Metrics
 
             readonly private System.Reflection.MethodInfo _method;
             readonly private System.Reflection.FieldInfo _field;
+        }
+
+        private class MemberPropertyResolverI : Resolver
+        {
+            internal MemberPropertyResolverI(string name, System.Reflection.MethodInfo method,
+                                          System.Reflection.PropertyInfo property)
+                : base(name)
+            {
+                Debug.Assert(method != null && property != null);
+                _method = method;
+                _property = property;
+            }
+
+            override protected object resolve(object obj)
+            {
+                object o = _method.Invoke(obj, null);
+                if (o != null)
+                {
+                    return getProperty(_property, o);
+                }
+                throw new ArgumentOutOfRangeException(_name);
+            }
+
+            readonly private System.Reflection.MethodInfo _method;
+            readonly private System.Reflection.PropertyInfo _property;
         }
 
         private class MemberMethodResolverI : Resolver
@@ -190,6 +218,11 @@ public class MetricsHelper<T> where T : Metrics
         add(string name, System.Reflection.MethodInfo method, System.Reflection.FieldInfo field)
         {
             _attributes.Add(name, new MemberFieldResolverI(name, method, field));
+        }
+
+        public void add(string name, System.Reflection.MethodInfo method, System.Reflection.PropertyInfo property)
+        {
+            _attributes.Add(name, new MemberPropertyResolverI(name, method, property));
         }
 
         public void
