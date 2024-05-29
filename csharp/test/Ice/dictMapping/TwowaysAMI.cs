@@ -32,8 +32,8 @@ namespace Ice
                     };
 
                     var result = await p.opNVAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(i, result.o));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(i, result.returnValue));
                 }
 
                 {
@@ -44,8 +44,8 @@ namespace Ice
                     };
 
                     var result = await p.opNRAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(i, result.o));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(i, result.returnValue));
                 }
 
                 {
@@ -61,8 +61,8 @@ namespace Ice
                     var result = await p.opNDVAsync(i);
                     foreach (string key in i.Keys)
                     {
-                        test(CollectionComparer.Equals(i[key], result.o[key]));
-                        test(CollectionComparer.Equals(i[key], result.returnValue[key]));
+                        test(Internal.DictionaryExtensions.DictionaryEqual(i[key], result.o[key]));
+                        test(Internal.DictionaryExtensions.DictionaryEqual(i[key], result.returnValue[key]));
                     }
                 }
 
@@ -79,8 +79,8 @@ namespace Ice
                     var result = await p.opNDRAsync(i);
                     foreach (string key in i.Keys)
                     {
-                        test(CollectionComparer.Equals(i[key], result.o[key]));
-                        test(CollectionComparer.Equals(i[key], result.returnValue[key]));
+                        test(Internal.DictionaryExtensions.DictionaryEqual(i[key], result.o[key]));
+                        test(Internal.DictionaryExtensions.DictionaryEqual(i[key], result.returnValue[key]));
                     }
                 }
 
@@ -95,8 +95,8 @@ namespace Ice
                     var result = await p.opNDAISAsync(i);
                     foreach (string key in i.Keys)
                     {
-                        test(CollectionComparer.Equals(i[key], result.o[key]));
-                        test(CollectionComparer.Equals(i[key], result.returnValue[key]));
+                        test(Enumerable.SequenceEqual(i[key], result.o[key]));
+                        test(Enumerable.SequenceEqual(i[key], result.returnValue[key]));
                     }
                 }
 
@@ -115,8 +115,8 @@ namespace Ice
                     var result = await p.opNDGISAsync(i);
                     foreach (string key in i.Keys)
                     {
-                        test(CollectionComparer.Equals(i[key], result.o[key]));
-                        test(CollectionComparer.Equals(i[key], result.returnValue[key]));
+                        test(Enumerable.SequenceEqual(i[key], result.o[key]));
+                        test(Enumerable.SequenceEqual(i[key], result.returnValue[key]));
                     }
                 }
 
@@ -131,8 +131,8 @@ namespace Ice
                     var result = await p.opNDASSAsync(i);
                     foreach (string key in i.Keys)
                     {
-                        test(CollectionComparer.Equals(i[key], result.o[key]));
-                        test(CollectionComparer.Equals(i[key], result.returnValue[key]));
+                        test(Enumerable.SequenceEqual(i[key], result.o[key]));
+                        test(Enumerable.SequenceEqual(i[key], result.returnValue[key]));
                     }
                 }
 
@@ -151,8 +151,8 @@ namespace Ice
                     var result = await p.opNDGSSAsync(i);
                     foreach (string key in i.Keys)
                     {
-                        test(CollectionComparer.Equals(i[key], result.o[key]));
-                        test(CollectionComparer.Equals(i[key], result.returnValue[key]));
+                        test(Enumerable.SequenceEqual(i[key], result.o[key]));
+                        test(Enumerable.SequenceEqual(i[key], result.returnValue[key]));
                     }
                 }
             }

@@ -231,7 +231,7 @@ namespace
             "double",                          // KindDouble
             "string",                          // KindString
             "???",                             // KindObject
-            "IceRpc.Slice.Ice.IceObjectProxy", // KindObjectProxy
+            "IceRpc.SlIce.IceObjectProxy", // KindObjectProxy
             "???",                             // KindLocalObject
             "???"                              // KindValue
         };

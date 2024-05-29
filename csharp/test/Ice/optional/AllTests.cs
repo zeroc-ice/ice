@@ -1819,8 +1819,8 @@ namespace Ice
 
                         p1 = new string[1] { "hello" };
                         p3 = initial.opMSeq2(p1, out p2);
-                        test(Ice.CollectionComparer.Equals(p2, p1) &&
-                             Ice.CollectionComparer.Equals(p3, p1));
+                        test(Enumerable.SequenceEqual(p2, p1) &&
+                             Enumerable.SequenceEqual(p3, p1));
                     }
                     {
                         Dictionary<string, int> p1, p2, p3;
@@ -1830,8 +1830,8 @@ namespace Ice
                         p1 = new Dictionary<string, int>();
                         p1["test"] = 54;
                         p3 = initial.opMDict2(p1, out p2);
-                        test(Ice.CollectionComparer.Equals(p2, p1) &&
-                             Ice.CollectionComparer.Equals(p3, p1));
+                        test(Internal.DictionaryExtensions.DictionaryEqual(p2, p1) &&
+                             Internal.DictionaryExtensions.DictionaryEqual(p3, p1));
                     }
                 }
                 output.WriteLine("ok");
