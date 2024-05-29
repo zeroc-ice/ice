@@ -1537,8 +1537,8 @@ public class RoutableReference : Reference
             }
 
             bool more = _i != _endpoints.Length - 1;
-            EndpointI[] endpoint = new EndpointI[] { _endpoints[_i] };
-            _rr.getInstance().outgoingConnectionFactory().create(endpoint, more, _rr.getEndpointSelection(), this);
+            var endpointList = new List<EndpointI> { _endpoints[_i] };
+            _rr.getInstance().outgoingConnectionFactory().create(endpointList, more, _rr.getEndpointSelection(), this);
         }
 
         private RoutableReference _rr;
@@ -1567,7 +1567,7 @@ public class RoutableReference : Reference
             // Get an existing connection or create one if there's no
             // existing connection to one of the given endpoints.
             //
-            factory.create(endpoints, false, getEndpointSelection(),
+            factory.create(endpoints.ToList(), false, getEndpointSelection(),
                            new CreateConnectionCallback(this, null, callback));
         }
         else
@@ -1580,7 +1580,7 @@ public class RoutableReference : Reference
             // connection for one of the endpoints.
             //
 
-            factory.create(new EndpointI[] { endpoints[0] }, true, getEndpointSelection(),
+            factory.create(new List<EndpointI> { endpoints[0] }, true, getEndpointSelection(),
                            new CreateConnectionCallback(this, endpoints, callback));
         }
     }
