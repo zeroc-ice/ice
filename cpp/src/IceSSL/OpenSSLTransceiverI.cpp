@@ -400,7 +400,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
             case SSL_ERROR_SSL:
             {
 #if defined(SSL_R_UNEXPECTED_EOF_WHILE_READING)
-                if (SSL_R_UNEXPECTED_EOF_WHILE_READING == ERR_GET_REASON(ERR_get_error()))
+                if (SSL_R_UNEXPECTED_EOF_WHILE_READING == ERR_GET_REASON(ERR_peek_error()))
                 {
                     throw ConnectionLostException(__FILE__, __LINE__, 0);
                 }
