@@ -46,7 +46,7 @@ namespace Ice
                 }
             }
 
-            public partial class SC1
+            public partial record class SC1
             {
                 partial void ice_initialize()
                 {

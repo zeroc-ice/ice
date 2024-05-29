@@ -153,7 +153,7 @@ public abstract class Reference : IEquatable<Reference>
         }
         Reference r = _instance.referenceFactory().copy(this);
         // Identity is a reference type, therefore we make a copy of newIdentity.
-        r._identity = newIdentity.Clone();
+        r._identity = newIdentity with { };
         return r;
     }
 
