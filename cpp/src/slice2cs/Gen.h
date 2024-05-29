@@ -136,11 +136,6 @@ namespace Slice
             virtual void visitEnum(const EnumPtr&);
             virtual void visitConst(const ConstPtr&);
             virtual void visitDataMember(const DataMemberPtr&);
-
-        private:
-            // For Slice structs mapped to C# classes
-            void writeMemberHashCode(const DataMemberList&);
-            void writeMemberEquals(const DataMemberList&);
         };
 
         class ResultVisitor : public CsVisitor
