@@ -2000,7 +2000,6 @@ namespace Ice
                     @out.endSize(pos);
                     Test.A a = new Test.A();
                     a.mc = 18;
-                    @out.writeOptional(1000, Ice.OptionalFormat.Class);
                     @out.writeValue(a);
                     @out.endSlice();
                     // ::Test::B
@@ -2030,7 +2029,6 @@ namespace Ice
                     string[] o = @in.readStringSeq();
                     test(o.Length == 4 &&
                          o[0] == "test1" && o[1] == "test2" && o[2] == "test3" && o[3] == "test4");
-                    test(@in.readOptional(1000, Ice.OptionalFormat.Class));
                     @in.readValue(a.invoke);
                     @in.endSlice();
                     // ::Test::B
