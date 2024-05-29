@@ -221,7 +221,7 @@ public class PlatformTests {
       TestHelper helper, String certificatesPath) {
     try {
       PrintWriter out = helper.getWriter();
-      out.print("server validates client certificate using trust store... ");
+      out.print("server rejects client certificate using trust store... ");
       out.flush();
 
       var serverCertificatePath = certificatesPath + "/s_rsa_ca1.jks";
@@ -238,6 +238,8 @@ public class PlatformTests {
           try {
             obj.ice_ping();
             test(false);
+          } catch (com.zeroc.Ice.SecurityException ex) {
+            // Expected
           } catch (com.zeroc.Ice.ConnectionLostException ex) {
             // Expected
           }
