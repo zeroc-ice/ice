@@ -71,12 +71,12 @@ public class Client : TestHelper
             v1 = def_s2 with { str = (string)def_s2.str.Clone() };
             test(v1 == def_s2);
 
-            v1 = def_s2 with { str = ""};
+            v1 = def_s2 with { str = "" };
             v2 = def_s2 with { };
             test(v1 != v2);
 
             v1 = def_s2 with { };
-            v2 = def_s2 with { str = ""};
+            v2 = def_s2 with { str = "" };
             test(v1 != v2);
 
             v1 = def_s2 with { str = "" };
@@ -98,7 +98,7 @@ public class Client : TestHelper
             test(v1 != v2);
 
             v1 = def_s2 with { };
-            v2 = def_s2 with { ss = Array.Empty<string>()};
+            v2 = def_s2 with { ss = Array.Empty<string>() };
             test(v1 != v2);
         }
 
@@ -114,12 +114,12 @@ public class Client : TestHelper
             v1 = def_s2 with { il = new List<int> { 0, 0, 0 } };
             test(v1 != def_s2);
 
-            v1 = def_s2 with { il = new List<int>()};
-            v2 = def_s2 with {  };
+            v1 = def_s2 with { il = new List<int>() };
+            v2 = def_s2 with { };
             test(v1 != v2);
 
             v1 = def_s2 with { };
-            v2 = def_s2 with {il = new List<int>() };
+            v2 = def_s2 with { il = new List<int>() };
             test(v1 != v2);
         }
 
@@ -182,7 +182,7 @@ public class Client : TestHelper
             v1 = def_s2 with { prx = communicator.stringToProxy("test2") };
             test(v1 != def_s2);
 
-            v1 = def_s2 with { prx = null};
+            v1 = def_s2 with { prx = null };
             v2 = def_s2 with { };
             test(v1 != v2);
 
