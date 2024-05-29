@@ -817,7 +817,9 @@ IceInternal::RoutableReference::RoutableReference(
       _cacheConnection(cacheConnection),
       _preferSecure(preferSecure),
       _endpointSelection(endpointSelection),
-      _locatorCacheTimeout(locatorCacheTimeout)
+      _locatorCacheTimeout(locatorCacheTimeout),
+      _overrideTimeout(false),
+      _timeout(-1)
 {
     assert(_adapterId.empty() || _endpoints.empty());
     setBatchRequestQueue();
