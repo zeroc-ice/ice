@@ -1145,7 +1145,7 @@ public class RoutableReference : Reference
             (!_overrideTimeout || _timeout == rhs._timeout) &&
             _connectionId == rhs._connectionId &&
             _adapterId == rhs._adapterId &&
-            UtilInternal.Arrays.Equals(_endpoints, rhs._endpoints);
+            _endpoints.SequenceEqual(rhs._endpoints);
     }
 
     public override Reference Clone()
