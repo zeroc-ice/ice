@@ -24,7 +24,7 @@
 #    include <Wincrypt.h>
 #endif
 
-// Disable deprecation warnings from SecureTransport APIs
+// Disable deprecation warnings from CommonCrypto APIs
 #include "IceUtil/DisableWarnings.h"
 
 using namespace std;
