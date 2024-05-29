@@ -3,7 +3,6 @@
 //
 
 #include "Ice/Ice.h"
-#include "Ice/Service.h"
 #include "IceUtil/Options.h"
 #include "ServiceManagerI.h"
 

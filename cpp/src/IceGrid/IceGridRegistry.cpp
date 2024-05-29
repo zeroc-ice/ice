@@ -4,7 +4,6 @@
 
 #include "../Ice/ConsoleUtil.h"
 #include "Ice/Ice.h"
-#include "Ice/Service.h"
 #include "IceUtil/Options.h"
 #include "RegistryI.h"
 #include "TraceLevels.h"

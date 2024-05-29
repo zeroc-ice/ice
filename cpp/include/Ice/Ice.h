@@ -40,6 +40,7 @@
 #    include "SSL/SSLException.h"
 #    include "SSL/ServerAuthenticationOptions.h"
 #    include "ServantLocator.h"
+#    include "Service.h"
 #    include "SlicedData.h"
 #    include "StringConverter.h"
 #    include "UUID.h"
