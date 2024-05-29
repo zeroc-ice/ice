@@ -702,33 +702,8 @@ public class AllTests : Test.AllTests
 
             metrics.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
 
-            metrics.ice_timeout(500).ice_ping();
-            controller.hold();
-            try
-            {
-                ((MetricsPrx)metrics.ice_timeout(500)).opByteS(new byte[10000000]);
-                test(false);
-            }
-            catch (Ice.TimeoutException)
-            {
-            }
-            controller.resume();
-
-            cm1 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", out timestamp)["Connection"][0];
-            while (true)
-            {
-                sm1 = (IceMX.ConnectionMetrics)serverMetrics.getMetricsView("View", out timestamp)["Connection"][0];
-                if (sm1.failures >= 2)
-                {
-                    break;
-                }
-                Thread.Sleep(10);
-            }
-            test(cm1.failures == 2 && sm1.failures >= 2);
-
-            checkFailure(clientMetrics, "Connection", cm1.id, "::Ice::TimeoutException", 1, output);
-            checkFailure(clientMetrics, "Connection", cm1.id, "::Ice::ConnectTimeoutException", 1, output);
-            checkFailure(serverMetrics, "Connection", sm1.id, "::Ice::ConnectionLostException", 0, output);
+            // TODO: this appears necessary on slow macos VMs to give time to the server to clean-up the connection.
+            Thread.Sleep(100);
 
             MetricsPrx m = (MetricsPrx)metrics.ice_timeout(500).ice_connectionId("Con1");
             m.ice_ping();
@@ -1002,7 +977,8 @@ public class AllTests : Test.AllTests
 
         output.WriteLine("ok");
 
-        output.WriteLine("testing dispatch metrics with forwarding object adapter... ");
+        output.Write("testing dispatch metrics with forwarding object adapter... ");
+        output.Flush();
         MetricsPrx indirectMetrics = MetricsPrxHelper.createProxy(communicator, "metrics:" + forwardingEndpoint);
         System.Action secondOp = () => invokeOp(indirectMetrics);
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "parent", "ForwardingAdapter", secondOp, output);

@@ -621,7 +621,6 @@ namespace Ice
                 try
                 {
                     baseProxy.ice_invocationTimeout(-1);
-                    baseProxy.ice_invocationTimeout(-2);
                 }
                 catch (ArgumentException)
                 {
@@ -630,7 +629,7 @@ namespace Ice
 
                 try
                 {
-                    baseProxy.ice_invocationTimeout(-3);
+                    baseProxy.ice_invocationTimeout(-2);
                     test(false);
                 }
                 catch (ArgumentException)
