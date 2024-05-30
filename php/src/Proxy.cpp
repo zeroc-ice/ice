@@ -1212,64 +1212,6 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getCompress)
     }
 }
 
-ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_timeout_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
-ZEND_ARG_INFO(0, timeout)
-ZEND_END_ARG_INFO()
-
-ZEND_METHOD(Ice_ObjectPrx, ice_timeout)
-{
-    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
-    assert(_this);
-
-    try
-    {
-        zend_long l;
-        if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("l"), &l) != SUCCESS)
-        {
-            RETURN_NULL();
-        }
-        // TODO: range check?
-        if (!_this->clone(return_value, _this->proxy->ice_timeout(static_cast<int32_t>(l))))
-        {
-            RETURN_NULL();
-        }
-    }
-    catch (...)
-    {
-        throwException(current_exception());
-        RETURN_NULL();
-    }
-}
-
-ZEND_METHOD(Ice_ObjectPrx, ice_getTimeout)
-{
-    if (ZEND_NUM_ARGS() != 0)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
-    assert(_this);
-
-    try
-    {
-        optional<int> timeout = _this->proxy->ice_getTimeout();
-        if (timeout)
-        {
-            ZVAL_LONG(return_value, static_cast<long>(*timeout));
-        }
-        else
-        {
-            assignUnset(return_value);
-        }
-    }
-    catch (...)
-    {
-        throwException(current_exception());
-        RETURN_NULL();
-    }
-}
-
 ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_invocationTimeout_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
 ZEND_ARG_INFO(0, invocationTiemout)
 ZEND_END_ARG_INFO()
@@ -1809,69 +1751,64 @@ static zend_function_entry _proxyMethods[] = {
                                                                     ice_compress,
                                                                     Ice_ObjectPrx_ice_compress_arginfo,
                                                                     ZEND_ACC_PUBLIC)
-                                                                    ZEND_ME(Ice_ObjectPrx, ice_getCompress, ice_void_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(
+                                                                    ZEND_ME(
                                                                         Ice_ObjectPrx,
-                                                                        ice_timeout,
-                                                                        Ice_ObjectPrx_ice_timeout_arginfo,
+                                                                        ice_getCompress,
+                                                                        ice_void_arginfo,
                                                                         ZEND_ACC_PUBLIC)
                                                                         ZEND_ME(
                                                                             Ice_ObjectPrx,
-                                                                            ice_getTimeout,
-                                                                            ice_void_arginfo,
+                                                                            ice_invocationTimeout,
+                                                                            Ice_ObjectPrx_ice_invocationTimeout_arginfo,
                                                                             ZEND_ACC_PUBLIC)
                                                                             ZEND_ME(
                                                                                 Ice_ObjectPrx,
-                                                                                ice_invocationTimeout,
-                                                                                Ice_ObjectPrx_ice_invocationTimeout_arginfo,
+                                                                                ice_getInvocationTimeout,
+                                                                                ice_void_arginfo,
                                                                                 ZEND_ACC_PUBLIC)
                                                                                 ZEND_ME(
                                                                                     Ice_ObjectPrx,
-                                                                                    ice_getInvocationTimeout,
-                                                                                    ice_void_arginfo,
+                                                                                    ice_connectionId,
+                                                                                    Ice_ObjectPrx_ice_connectionId_arginfo,
                                                                                     ZEND_ACC_PUBLIC)
                                                                                     ZEND_ME(
                                                                                         Ice_ObjectPrx,
-                                                                                        ice_connectionId,
-                                                                                        Ice_ObjectPrx_ice_connectionId_arginfo,
+                                                                                        ice_fixed,
+                                                                                        Ice_ObjectPrx_ice_fixed_arginfo,
                                                                                         ZEND_ACC_PUBLIC)
                                                                                         ZEND_ME(
                                                                                             Ice_ObjectPrx,
-                                                                                            ice_fixed,
-                                                                                            Ice_ObjectPrx_ice_fixed_arginfo,
+                                                                                            ice_isFixed,
+                                                                                            ice_void_arginfo,
                                                                                             ZEND_ACC_PUBLIC)
                                                                                             ZEND_ME(
                                                                                                 Ice_ObjectPrx,
-                                                                                                ice_isFixed,
+                                                                                                ice_getConnection,
                                                                                                 ice_void_arginfo,
                                                                                                 ZEND_ACC_PUBLIC)
                                                                                                 ZEND_ME(
                                                                                                     Ice_ObjectPrx,
-                                                                                                    ice_getConnection,
+                                                                                                    ice_getCachedConnection,
                                                                                                     ice_void_arginfo,
                                                                                                     ZEND_ACC_PUBLIC)
                                                                                                     ZEND_ME(
                                                                                                         Ice_ObjectPrx,
-                                                                                                        ice_getCachedConnection,
+                                                                                                        ice_flushBatchRequests,
                                                                                                         ice_void_arginfo,
                                                                                                         ZEND_ACC_PUBLIC)
                                                                                                         ZEND_ME(
                                                                                                             Ice_ObjectPrx,
-                                                                                                            ice_flushBatchRequests,
-                                                                                                            ice_void_arginfo,
+                                                                                                            ice_uncheckedCast,
+                                                                                                            Ice_Proxy_do_cast_arginfo,
                                                                                                             ZEND_ACC_PUBLIC)
                                                                                                             ZEND_ME(
                                                                                                                 Ice_ObjectPrx,
-                                                                                                                ice_uncheckedCast,
+                                                                                                                ice_checkedCast,
                                                                                                                 Ice_Proxy_do_cast_arginfo,
-                                                                                                                ZEND_ACC_PUBLIC)
-                                                                                                                ZEND_ME(
-                                                                                                                    Ice_ObjectPrx,
-                                                                                                                    ice_checkedCast,
-                                                                                                                    Ice_Proxy_do_cast_arginfo,
-                                                                                                                    ZEND_ACC_PUBLIC){
-                                                                                                                    0,
-                                                                                                                    0,
-                                                                                                                    0}};
+                                                                                                                ZEND_ACC_PUBLIC){
+                                                                                                                0,
+                                                                                                                0,
+                                                                                                                0}};
 
 bool
 IcePHP::proxyInit(void)

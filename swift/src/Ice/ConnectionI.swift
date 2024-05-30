@@ -126,10 +126,6 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
     return handle.type()
   }
 
-  func timeout() -> Int32 {
-    return handle.timeout()
-  }
-
   func toString() -> String {
     return handle.toString()
   }

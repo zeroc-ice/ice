@@ -62,7 +62,7 @@ def allTests(helper, communicator):
     sys.stdout.flush()
     cl.shutdown()
     try:
-        cl.ice_timeout(100).ice_ping()  # Use timeout to speed up testing on Windows
+        cl.ice_invocationTimeout(100).ice_ping()  # Use timeout to speed up testing on Windows
         test(False)
     except Ice.LocalException:
         print("ok")

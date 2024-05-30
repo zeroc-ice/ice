@@ -1841,12 +1841,6 @@ Ice::ConnectionI::type() const noexcept
     return _type; // No mutex lock, _type is immutable.
 }
 
-int32_t
-Ice::ConnectionI::timeout() const noexcept
-{
-    return _endpoint->timeout(); // No mutex lock, _endpoint is immutable.
-}
-
 ConnectionInfoPtr
 Ice::ConnectionI::getInfo() const
 {

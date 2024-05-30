@@ -351,8 +351,11 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<EndpointIPtr
 
     for (const auto& p : endpoints)
     {
-        auto connection =
-            find(_connectionsByEndpoint, p, [](const ConnectionIPtr& conn) { return conn->isActiveOrHolding(); });
+        auto connection = find(
+            _connectionsByEndpoint,
+            p->timeout(-1), // clear the timeout
+            [](const ConnectionIPtr& conn) { return conn->isActiveOrHolding(); });
+
         if (connection)
         {
             if (defaultsAndOverrides->overrideCompress)
@@ -539,7 +542,7 @@ IceInternal::OutgoingConnectionFactory::createConnection(const TransceiverPtr& t
             _instance,
             transceiver,
             ci.connector,
-            ci.endpoint->compress(false),
+            ci.endpoint->compress(false)->timeout(-1),
             nullptr,
             [weakSelf = weak_from_this()](const ConnectionIPtr& closedConnection)
             {

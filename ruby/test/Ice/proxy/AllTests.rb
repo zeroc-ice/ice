@@ -398,24 +398,6 @@ def allTests(helper, communicator)
     test(base.ice_encodingVersion(Ice::Encoding_1_0).ice_getEncodingVersion() != Ice::Encoding_1_1)
 
     begin
-        base.ice_timeout(0)
-        test(false)
-    rescue
-    end
-
-    begin
-        base.ice_timeout(-1)
-    rescue
-        test(false)
-    end
-
-    begin
-        base.ice_timeout(-2)
-        test(false)
-    rescue
-    end
-
-    begin
         base.ice_invocationTimeout(0)
         test(false)
     rescue
@@ -512,15 +494,6 @@ def allTests(helper, communicator)
     test(compObj.ice_getCompress() == Ice::Unset);
     test(compObj.ice_compress(true).ice_getCompress() == true);
     test(compObj.ice_compress(false).ice_getCompress() == false);
-
-    test(compObj.ice_timeout(20) == compObj.ice_timeout(20))
-    test(compObj.ice_timeout(10) != compObj.ice_timeout(20))
-    #test(compObj.ice_timeout(10) < compObj.ice_timeout(20))
-    #test(!(compObj.ice_timeout(20) < compObj.ice_timeout(10)))
-
-    test(compObj.ice_getTimeout() == Ice::Unset);
-    test(compObj.ice_timeout(10).ice_getTimeout() == 10);
-    test(compObj.ice_timeout(20).ice_getTimeout() == 20);
 
     loc1 = Ice::LocatorPrx::uncheckedCast(communicator.stringToProxy("loc1:default -p 10000"))
     loc2 = Ice::LocatorPrx::uncheckedCast(communicator.stringToProxy("loc2:default -p 10000"))
@@ -673,7 +646,6 @@ def allTests(helper, communicator)
         test(cl.ice_invocationTimeout(10).ice_fixed(connection).ice_getInvocationTimeout() == 10);
         test(cl.ice_fixed(connection).ice_getConnection() == connection)
         test(cl.ice_fixed(connection).ice_fixed(connection).ice_getConnection() == connection)
-        test(cl.ice_fixed(connection).ice_getTimeout() == Ice::Unset)
         fixedConnection = cl.ice_connectionId("ice_fixed").ice_getConnection()
         test(cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection() == fixedConnection)
         begin

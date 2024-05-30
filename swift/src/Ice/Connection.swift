@@ -275,11 +275,6 @@ public protocol Connection: Swift.AnyObject, Swift.CustomStringConvertible {
   /// - returns: `Swift.String` - The type of the connection.
   func type() -> Swift.String
 
-  /// Get the timeout for the connection.
-  ///
-  /// - returns: `Swift.Int32` - The connection's timeout.
-  func timeout() -> Swift.Int32
-
   /// Return a description of the connection as human readable text, suitable for logging or error messages.
   ///
   /// - returns: `Swift.String` - The description of the connection as human readable text.

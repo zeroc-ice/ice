@@ -402,30 +402,6 @@
     return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
 }
 
-- (id)ice_getTimeout
-{
-    auto timeout = _prx->ice_getTimeout();
-    if (!timeout.has_value())
-    {
-        return nil;
-    }
-    return [NSNumber numberWithInt:timeout.value()];
-}
-
-- (instancetype)ice_timeout:(int32_t)timeout error:(NSError**)error
-{
-    try
-    {
-        auto prx = _prx->ice_timeout(timeout);
-        return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
-    }
-    catch (...)
-    {
-        *error = convertException(std::current_exception());
-        return nil;
-    }
-}
-
 - (instancetype)ice_fixed:(ICEConnection*)connection error:(NSError**)error
 {
     try

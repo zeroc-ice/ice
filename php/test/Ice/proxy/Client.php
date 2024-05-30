@@ -418,10 +418,6 @@ function allTests($helper)
     test($base->ice_compress(true)->ice_getCompress() == true);
     test($base->ice_compress(false)->ice_getCompress() == false);
 
-    test($base->ice_getTimeout() == Ice\None);
-    test($base->ice_timeout(10)->ice_getTimeout() == 10);
-    test($base->ice_timeout(20)->ice_getTimeout() == 20);
-
     echo "ok\n";
 
     echo "testing checked cast... ";
@@ -469,7 +465,6 @@ function allTests($helper)
         test($cl->ice_invocationTimeout(10)->ice_fixed($connection)->ice_getInvocationTimeout() == 10);
         test($cl->ice_fixed($connection)->ice_getConnection() == $connection);
         test($cl->ice_fixed($connection)->ice_fixed($connection)->ice_getConnection() == $connection);
-        test($cl->ice_fixed($connection)->ice_getTimeout() == Ice\None);
         $fixedConnection = $cl->ice_connectionId("ice_fixed")->ice_getConnection();
         test($cl->ice_fixed($connection)->ice_fixed($fixedConnection)->ice_getConnection() == $fixedConnection);
         try

@@ -884,34 +884,6 @@ extern "C"
         }
     }
 
-    mxArray* Ice_ObjectPrx_ice_timeout(void* self, void** r, int t)
-    {
-        try
-        {
-            auto proxy = restoreProxy(self);
-            auto newProxy = proxy->ice_timeout(t);
-            *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
-        }
-        catch (...)
-        {
-            return convertException(std::current_exception());
-        }
-        return 0;
-    }
-
-    mxArray* Ice_ObjectPrx_ice_getTimeout(void* self)
-    {
-        auto v = restoreProxy(self)->ice_getTimeout();
-        if (v.has_value())
-        {
-            return createResultValue(createOptionalValue(true, createInt(v.value())));
-        }
-        else
-        {
-            return createResultValue(createOptionalValue(false, 0));
-        }
-    }
-
     mxArray* Ice_ObjectPrx_ice_fixed(void* self, void** r, void* connection)
     {
         assert(connection); // Wrapper only calls this function for non-nil arguments.
