@@ -223,7 +223,7 @@ public sealed class Communicator : IDisposable
     /// Gets the logger for this communicator.
     /// </summary>
     /// <returns>This communicator's logger.</returns>
-    public Logger? getLogger() => instance.initializationData().logger;
+    public Logger getLogger() => instance.initializationData().logger;
 
     /// <summary>
     /// Gets the observer resolver object for this communicator.

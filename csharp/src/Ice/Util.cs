@@ -1,6 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-using System.Collections;
 using System.Globalization;
 using System.Net.Security;
 
@@ -363,8 +362,8 @@ public sealed class Util
         }
         else
         {
-            Identity lhsIdentity = lhs.ice_getIdentity();
-            Identity rhsIdentity = rhs.ice_getIdentity();
+            Identity lhsIdentity = lhs!.ice_getIdentity();
+            Identity rhsIdentity = rhs!.ice_getIdentity();
             int n;
             n = string.CompareOrdinal(lhsIdentity.name, rhsIdentity.name);
             if (n != 0)
@@ -399,8 +398,8 @@ public sealed class Util
         }
         else
         {
-            Identity lhsIdentity = lhs.ice_getIdentity();
-            Identity rhsIdentity = rhs.ice_getIdentity();
+            Identity lhsIdentity = lhs!.ice_getIdentity();
+            Identity rhsIdentity = rhs!.ice_getIdentity();
             int n;
             n = string.CompareOrdinal(lhsIdentity.name, rhsIdentity.name);
             if (n != 0)
