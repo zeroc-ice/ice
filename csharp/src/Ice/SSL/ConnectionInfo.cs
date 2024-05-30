@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 using System.Security.Cryptography.X509Certificates;
 
 namespace Ice.SSL;
@@ -11,7 +13,11 @@ public class ConnectionInfo : Ice.ConnectionInfo
     public X509Certificate2[] certs;
     public bool verified;
 
-    public ConnectionInfo() => cipher = "";
+    public ConnectionInfo()
+    {
+        cipher = "";
+        certs = [];
+    }
 
     public ConnectionInfo(
         Ice.ConnectionInfo underlying,

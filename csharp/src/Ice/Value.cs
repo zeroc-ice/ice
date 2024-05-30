@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 using System.ComponentModel;
 
 namespace Ice;
@@ -47,10 +49,7 @@ public abstract class Value
     /// un-marshaling of the value, null is returned otherwise.
     /// </summary>
     /// <returns>The sliced data or null.</returns>
-    public SlicedData ice_getSlicedData()
-    {
-        return _slicedData;
-    }
+    public SlicedData? ice_getSlicedData() => _slicedData;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual void iceWrite(OutputStream ostr)
@@ -85,7 +84,7 @@ public abstract class Value
     /// <returns>The cloned object.</returns>
     public Value Clone() => (Value)MemberwiseClone();
 
-    private SlicedData _slicedData;
+    private SlicedData? _slicedData;
 }
 
 public class InterfaceByValue : Value

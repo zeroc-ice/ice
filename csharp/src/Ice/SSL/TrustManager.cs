@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 using System.Diagnostics;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -14,7 +16,7 @@ internal sealed class TrustManager
         _communicator = communicator;
         Ice.Properties properties = _communicator.getProperties();
         _traceLevel = properties.getIcePropertyAsInt("IceSSL.Trace.Security");
-        string key = null;
+        string? key = null;
         try
         {
             key = "IceSSL.TrustOnly";
@@ -64,7 +66,7 @@ internal sealed class TrustManager
             }
             if (info.adapterName.Length > 0)
             {
-                if (_rejectServer.TryGetValue(info.adapterName, out List<List<RFC2253.RDNPair>> p))
+                if (_rejectServer.TryGetValue(info.adapterName, out List<List<RFC2253.RDNPair>>? p))
                 {
                     reject.Add(p);
                 }
@@ -90,7 +92,7 @@ internal sealed class TrustManager
             }
             if (info.adapterName.Length > 0)
             {
-                if (_acceptServer.TryGetValue(info.adapterName, out List<List<RFC2253.RDNPair>> p))
+                if (_acceptServer.TryGetValue(info.adapterName, out List<List<RFC2253.RDNPair>>? p))
                 {
                     accept.Add(p);
                 }

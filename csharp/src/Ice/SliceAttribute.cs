@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 namespace Ice;
 
 /// <summary>Represents an assembly attribute for assemblies that contain Slice generated code.</summary>

@@ -1,10 +1,12 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 namespace Ice;
 
 public abstract class EndpointInfo
 {
-    public EndpointInfo underlying;
+    public EndpointInfo? underlying;
     public int timeout;
     public bool compress;
 
@@ -22,7 +24,7 @@ public abstract class EndpointInfo
     {
     }
 
-    protected EndpointInfo(EndpointInfo underlying, int timeout, bool compress)
+    protected EndpointInfo(EndpointInfo? underlying, int timeout, bool compress)
     {
         this.underlying = underlying;
         this.timeout = timeout;
@@ -123,6 +125,7 @@ public abstract class OpaqueEndpointInfo : EndpointInfo
     protected OpaqueEndpointInfo() : base()
     {
         rawEncoding = new EncodingVersion();
+        rawBytes = [];
     }
 
     protected OpaqueEndpointInfo(EndpointInfo underlying, int timeout, bool compress, EncodingVersion rawEncoding, byte[] rawBytes)

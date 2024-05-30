@@ -3,7 +3,6 @@
 #nullable enable
 
 using Ice.Internal;
-using Ice.UtilInternal;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 
