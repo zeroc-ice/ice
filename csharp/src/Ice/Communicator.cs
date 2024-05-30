@@ -115,7 +115,7 @@ public sealed class Communicator : IDisposable
     /// <returns>The proxy.</returns>
     public ObjectPrx? propertyToProxy(string property)
     {
-        string proxy = instance.initializationData().properties.getProperty(property);
+        string proxy = instance.initializationData().properties!.getProperty(property);
         Reference? reference = instance.referenceFactory().create(proxy, property);
         return reference is not null ? new ObjectPrxHelper(reference) : null;
     }
@@ -217,13 +217,13 @@ public sealed class Communicator : IDisposable
     /// Gets the properties for this communicator.
     /// </summary>
     /// <returns>This communicator's properties.</returns>
-    public Properties getProperties() => instance.initializationData().properties;
+    public Properties getProperties() => instance.initializationData().properties!;
 
     /// <summary>
     /// Gets the logger for this communicator.
     /// </summary>
     /// <returns>This communicator's logger.</returns>
-    public Logger getLogger() => instance.initializationData().logger;
+    public Logger getLogger() => instance.initializationData().logger!;
 
     /// <summary>
     /// Gets the observer resolver object for this communicator.
@@ -273,7 +273,7 @@ public sealed class Communicator : IDisposable
     /// Gets the value factory manager for this communicator.
     /// </summary>
     /// <returns>This communicator's value factory manager.</returns>
-    public ValueFactoryManager getValueFactoryManager() => instance.initializationData().valueFactoryManager;
+    public ValueFactoryManager getValueFactoryManager() => instance.initializationData().valueFactoryManager!;
 
     /// <summary>
     /// Flushes any pending batch requests for this communicator.

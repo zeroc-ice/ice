@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 using System.Globalization;
 using System.Net.Security;
 
@@ -8,61 +10,56 @@ namespace Ice;
 /// <summary>
 /// A class that encapsulates data to initialize a communicator.
 /// </summary>
-public class InitializationData
+public sealed record class InitializationData
 {
-    /// <summary>
-    /// Creates and returns a copy of this object.
-    /// </summary>
-    public InitializationData Clone() => (InitializationData)MemberwiseClone();
-
     /// <summary>
     /// The properties for the communicator.
     /// </summary>
-    public Properties properties;
+    public Properties? properties { get; set; }
 
     /// <summary>
     /// The logger for the communicator.
     /// </summary>
-    public Logger logger;
+    public Logger? logger { get; set; }
 
     /// <summary>
     /// The communicator observer used by the Ice run-time.
     /// </summary>
-    public Instrumentation.CommunicatorObserver observer;
+    public Instrumentation.CommunicatorObserver? observer { get; set; }
 
     /// <summary>
     /// The thread start hook for the communicator. The Ice run time
     /// calls this hook for each new thread it creates. The call is
     /// made by the newly-started thread.
     /// </summary>
-    public System.Action threadStart;
+    public Action? threadStart { get; set; }
 
     /// <summary>
     /// The thread stop hook for the communicator. The Ice run time
     /// calls stop before it destroys a thread. The call is made by
     /// thread that is about to be destroyed.
     /// </summary>
-    public System.Action threadStop;
+    public Action? threadStop { get; set; }
 
     /// <summary>
     /// The executor for the communicator.
     /// </summary>
-    public System.Action<System.Action, Connection> executor;
+    public Action<Action, Connection>? executor { get; set; }
 
     /// <summary>
     /// The batch request interceptor.
     /// </summary>
-    public System.Action<BatchRequest, int, int> batchRequestInterceptor;
+    public Action<BatchRequest, int, int>? batchRequestInterceptor { get; set; }
 
     /// <summary>
     /// The value factory manager.
     /// </summary>
-    public ValueFactoryManager valueFactoryManager;
+    public ValueFactoryManager? valueFactoryManager { get; set; }
 
     /// <summary>
     /// The <see cref="SslClientAuthenticationOptions"/> used by the client-side ssl transport.
     /// </summary>
-    public SslClientAuthenticationOptions clientAuthenticationOptions;
+    public SslClientAuthenticationOptions? clientAuthenticationOptions { get; set; }
 }
 
 /// <summary>
@@ -75,10 +72,7 @@ public sealed class Util
     /// </summary>
     /// <returns>A new empty property set.</returns>
     [Obsolete("Use Ice.Properties() constructor instead.")]
-    public static Properties createProperties()
-    {
-        return new Properties();
-    }
+    public static Properties createProperties() => new();
 
     /// <summary>
     /// Creates a property set initialized from an argument vector.
@@ -116,34 +110,13 @@ public sealed class Util
     /// <param name="args">A command-line argument vector. Any Ice-related options
     /// in this vector are used to initialize the communicator.
     /// This method modifies the argument vector by removing any Ice-related options.</param>
-    /// <returns>The initialized communicator.</returns>
-    public static Communicator initialize(ref string[] args)
-    {
-        return initialize(ref args, (InitializationData)null);
-    }
-
-    /// <summary>
-    /// Creates a communicator.
-    /// </summary>
-    /// <param name="args">A command-line argument vector. Any Ice-related options
-    /// in this vector are used to initialize the communicator.
-    /// This method modifies the argument vector by removing any Ice-related options.</param>
     /// <param name="initData">Additional initialization data. Property settings in args
     /// override property settings in initData.</param>
     /// <returns>The initialized communicator.</returns>
-    public static Communicator initialize(ref string[] args, InitializationData initData)
+    public static Communicator initialize(ref string[] args, InitializationData? initData = null)
     {
-        if (initData == null)
-        {
-            initData = new InitializationData();
-        }
-        else
-        {
-            initData = initData.Clone();
-        }
-
+        initData = initData is null ? new InitializationData() : initData with { };
         initData.properties = new Properties(ref args, initData.properties);
-
         var result = new Communicator(initData);
         result.finishSetup(ref args);
         return result;
@@ -160,32 +133,23 @@ public sealed class Util
     /// <returns>The initialized communicator.</returns>
     public static Communicator initialize(ref string[] args, string configFile)
     {
-        InitializationData initData = null;
-        if (configFile != null)
-        {
-            initData = new InitializationData();
-            initData.properties = new Properties();
-            initData.properties.load(configFile);
-        }
+        var initData = new InitializationData();
+        initData.properties = new Properties();
+        initData.properties.load(configFile);
         return initialize(ref args, initData);
     }
 
     /// <summary>
     /// Creates a communicator.
     /// </summary>
-    /// <param name="initData">Additional intialization data.</param>
+    /// <param name="initData">Additional initialization data.</param>
     /// <returns>The initialized communicator.</returns>
-    public static Communicator initialize(InitializationData initData)
+    public static Communicator initialize(InitializationData? initData = null)
     {
-        if (initData == null)
-        {
-            initData = new InitializationData();
-        }
-        else
-        {
-            initData = initData.Clone();
-        }
 
+        initData = initData is null ? new InitializationData() : initData with { };
+        // TODO: some tests rely on updating the properties after initialize.
+        // initData.properties = initData.properties?.Clone();
         var result = new Communicator(initData);
         string[] args = [];
         result.finishSetup(ref args);
@@ -200,22 +164,10 @@ public sealed class Util
     /// <returns>The initialized communicator.</returns>
     public static Communicator initialize(string configFile)
     {
-        InitializationData initData = null;
-        if (configFile != null)
-        {
-            initData = new InitializationData();
-            initData.properties = new Properties();
-            initData.properties.load(configFile);
-        }
+        var initData = new InitializationData();
+        initData.properties = new Properties();
+        initData.properties.load(configFile);
         return initialize(initData);
-    }
-
-    /// <summary>
-    /// Creates a communicator using a default configuration.
-    /// </summary>
-    public static Communicator initialize()
-    {
-        return initialize((InitializationData)null);
     }
 
     /// <summary>
@@ -346,7 +298,7 @@ public sealed class Util
     /// <returns>-1 if the identity in lhs compares
     /// less than the identity in rhs; 0 if the identities
     /// compare equal; 1, otherwise.</returns>
-    public static int proxyIdentityCompare(ObjectPrx lhs, ObjectPrx rhs)
+    public static int proxyIdentityCompare(ObjectPrx? lhs, ObjectPrx? rhs)
     {
         if (lhs == null && rhs == null)
         {
@@ -382,7 +334,7 @@ public sealed class Util
     /// <returns>-1 if the identity and facet in lhs compare
     /// less than the identity and facet in rhs; 0 if the identities
     /// and facets compare equal; 1, otherwise.</returns>
-    public static int proxyIdentityAndFacetCompare(ObjectPrx lhs, ObjectPrx rhs)
+    public static int proxyIdentityAndFacetCompare(ObjectPrx? lhs, ObjectPrx? rhs)
     {
         if (lhs == null && rhs == null)
         {
@@ -441,10 +393,7 @@ public sealed class Util
     {
         lock (_processLoggerMutex)
         {
-            if (_processLogger == null)
-            {
-                _processLogger = new ConsoleLoggerI(AppDomain.CurrentDomain.FriendlyName);
-            }
+            _processLogger ??= new ConsoleLoggerI(AppDomain.CurrentDomain.FriendlyName);
             return _processLogger;
         }
     }
@@ -584,5 +533,5 @@ public sealed class Util
     public static readonly EncodingVersion Encoding_1_1 = new EncodingVersion(1, 1);
 
     private static object _processLoggerMutex = new object();
-    private static Logger _processLogger;
+    private static Logger? _processLogger;
 }
