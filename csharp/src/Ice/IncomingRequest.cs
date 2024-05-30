@@ -38,15 +38,11 @@ public sealed class IncomingRequest
     {
         this.inputStream = inputStream;
 
-        current = new Current();
-        current.adapter = adapter;
-        current.con = connection;
-        current.requestId = requestId;
-
         // Read everything else from the input stream
         int start = inputStream.pos();
-        current.id = new Identity(inputStream);
+        var identity = new Identity(inputStream);
 
+        string facet = "";
         string[] facetPath = inputStream.readStringSeq();
         if (facetPath.Length > 0)
         {
@@ -54,21 +50,23 @@ public sealed class IncomingRequest
             {
                 throw new Ice.MarshalException();
             }
-            current.facet = facetPath[0];
+            facet = facetPath[0];
         }
-        current.operation = inputStream.readString();
-        current.mode = (OperationMode)inputStream.readByte();
-        current.ctx = new Dictionary<string, string>();
+        string operation = inputStream.readString();
+        var mode = (OperationMode)inputStream.readByte();
+        var ctx = new Dictionary<string, string>();
         int sz = inputStream.readSize();
         while (sz-- > 0)
         {
             string first = inputStream.readString();
             string second = inputStream.readString();
-            current.ctx[first] = second;
+            ctx[first] = second;
         }
 
         int encapsulationSize = inputStream.readInt();
-        current.encoding = new EncodingVersion(inputStream);
+        var encoding = new EncodingVersion(inputStream);
+
+        current = new Current(adapter, connection, identity, facet, operation, mode, ctx, requestId, encoding);
 
         // Rewind to the start of the encapsulation
         inputStream.pos(inputStream.pos() - 6);

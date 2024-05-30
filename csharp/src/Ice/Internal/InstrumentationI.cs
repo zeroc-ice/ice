@@ -284,10 +284,10 @@ internal class DispatchHelper : MetricsHelper<DispatchMetrics>
                 AttrsUtil.addConnectionAttributes(this, cl);
 
                 Type clc = typeof(Ice.Current);
-                add("operation", cl.GetMethod("getCurrent"), clc.GetField("operation"));
+                add("operation", cl.GetMethod("getCurrent"), clc.GetProperty("operation"));
                 add("identity", cl.GetMethod("getIdentity"));
-                add("facet", cl.GetMethod("getCurrent"), clc.GetField("facet"));
-                add("requestId", cl.GetMethod("getCurrent"), clc.GetField("requestId"));
+                add("facet", cl.GetMethod("getCurrent"), clc.GetProperty("facet"));
+                add("requestId", cl.GetMethod("getCurrent"), clc.GetProperty("requestId"));
                 add("mode", cl.GetMethod("getMode"));
             }
             catch (System.Exception)
