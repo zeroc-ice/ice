@@ -44,7 +44,7 @@ public sealed record class InitializationData
     /// <summary>
     /// The executor for the communicator.
     /// </summary>
-    public Action<Action, Connection>? executor { get; set; }
+    public Action<Action, Connection?>? executor { get; set; }
 
     /// <summary>
     /// The batch request interceptor.
