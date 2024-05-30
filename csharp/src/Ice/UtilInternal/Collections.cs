@@ -1,66 +1,11 @@
 // Copyright (c) ZeroC, Inc.
 
-using System.Collections;
 using System.Diagnostics;
 
 namespace Ice.UtilInternal;
 
 public static class Collections
 {
-    internal static bool DictionaryEquals(IDictionary d1, IDictionary d2)
-    {
-        if (ReferenceEquals(d1, d2))
-        {
-            return true;
-        }
-
-        if ((d1 == null && d2 != null) || (d1 != null && d2 == null))
-        {
-            return false;
-        }
-
-        if (d1.Count == d2.Count)
-        {
-            IDictionaryEnumerator e1 = d1.GetEnumerator();
-            IDictionaryEnumerator e2 = d2.GetEnumerator();
-            while (e1.MoveNext())
-            {
-                e2.MoveNext();
-                if (!e1.Key.Equals(e2.Key))
-                {
-                    return false;
-                }
-                if (e1.Value == null)
-                {
-                    if (e2.Value != null)
-                    {
-                        return false;
-                    }
-                }
-                else if (!e1.Value.Equals(e2.Value))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    internal static void HashCodeAdd<TKey, TValue>(ref HashCode hash, IDictionary<TKey, TValue> d) where TKey : notnull
-    {
-        if (d is not null)
-        {
-            foreach (KeyValuePair<TKey, TValue> pair in d)
-            {
-                hash.Add(pair.Key);
-                hash.Add(pair.Value);
-            }
-        }
-    }
-
     public static void Shuffle<T>(ref List<T> l)
     {
         lock (_rand)
@@ -136,5 +81,5 @@ public static class Collections
         }
     }
 
-    private static readonly System.Random _rand = new(unchecked((int)System.DateTime.Now.Ticks));
+    private static readonly Random _rand = new(unchecked((int)DateTime.Now.Ticks));
 }
