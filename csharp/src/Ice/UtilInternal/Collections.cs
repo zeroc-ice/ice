@@ -7,18 +7,6 @@ namespace Ice.UtilInternal;
 
 public static class Collections
 {
-    // Seq is a nullable seq.
-    internal static void HashCodeAdd<TSource>(ref HashCode hash, IEnumerable<TSource> seq)
-    {
-        if (seq is not null)
-        {
-            foreach (TSource item in seq)
-            {
-                hash.Add(item);
-            }
-        }
-    }
-
     internal static bool DictionaryEquals(IDictionary d1, IDictionary d2)
     {
         if (ReferenceEquals(d1, d2))

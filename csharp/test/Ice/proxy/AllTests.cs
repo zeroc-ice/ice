@@ -797,7 +797,7 @@ namespace Ice
                 c["two"] = "world";
                 cl = Test.MyClassPrxHelper.checkedCast(baseProxy, c);
                 Dictionary<string, string> c2 = cl.getContext();
-                test(Ice.CollectionComparer.Equals(c, c2));
+                test(Internal.DictionaryExtensions.DictionaryEqual(c, c2));
                 output.WriteLine("ok");
 
                 output.Write("testing ice_fixed... ");

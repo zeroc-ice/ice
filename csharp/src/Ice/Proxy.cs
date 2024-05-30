@@ -870,7 +870,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         {
             throw new IllegalIdentityException();
         }
-        if (newIdentity.Equals(_reference.getIdentity()))
+        if (newIdentity == _reference.getIdentity())
         {
             return this;
         }
@@ -974,7 +974,9 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <returns>The proxy with the new endpoints.</returns>
     public ObjectPrx ice_endpoints(Endpoint[] newEndpoints)
     {
-        if (Arrays.Equals(newEndpoints, _reference.getEndpoints()))
+        newEndpoints ??= [];
+
+        if (_reference.getEndpoints().SequenceEqual(newEndpoints))
         {
             return this;
         }
@@ -1135,7 +1137,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <returns>The new proxy with the specified encoding version.</returns>
     public ObjectPrx ice_encodingVersion(EncodingVersion e)
     {
-        if (e.Equals(_reference.getEncoding()))
+        if (e == _reference.getEncoding())
         {
             return this;
         }
@@ -1200,7 +1202,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     public ObjectPrx ice_router(RouterPrx? router)
     {
         Reference @ref = _reference.changeRouter(router);
-        if (@ref.Equals(_reference))
+        if (@ref == _reference)
         {
             return this;
         }
@@ -1228,7 +1230,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     public ObjectPrx ice_locator(LocatorPrx? locator)
     {
         var @ref = _reference.changeLocator(locator);
-        if (@ref.Equals(_reference))
+        if (@ref == _reference)
         {
             return this;
         }
@@ -1394,7 +1396,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     public ObjectPrx ice_compress(bool co)
     {
         var @ref = _reference.changeCompress(co);
-        if (@ref.Equals(_reference))
+        if (@ref == _reference)
         {
             return this;
         }
@@ -1426,7 +1428,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
             throw new ArgumentException("invalid value passed to ice_timeout: " + t);
         }
         var @ref = _reference.changeTimeout(t);
-        if (@ref.Equals(_reference))
+        if (@ref == _reference)
         {
             return this;
         }
@@ -1455,7 +1457,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     public ObjectPrx ice_connectionId(string connectionId)
     {
         var @ref = _reference.changeConnectionId(connectionId);
-        if (@ref.Equals(_reference))
+        if (@ref == _reference)
         {
             return this;
         }
@@ -1491,7 +1493,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
             throw new ArgumentException("invalid connection passed to ice_fixed");
         }
         var @ref = _reference.changeConnection((Ice.ConnectionI)connection);
-        if (@ref.Equals(_reference))
+        if (@ref == _reference)
         {
             return this;
         }

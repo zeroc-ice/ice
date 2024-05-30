@@ -38,7 +38,7 @@ namespace Ice
                     test(ctx.Count == 0);
                     ctx["one"] = "ONE";
                     _proxy.ice_getCommunicator().getImplicitContext().setContext(ctx);
-                    test(Ice.CollectionComparer.Equals(_proxy.opContext(), ctx));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(_proxy.opContext(), ctx));
                 }
 
                 private Test.MyClassPrx _proxy;
@@ -660,7 +660,7 @@ namespace Ice
                     Dictionary<byte, bool> _do;
                     Dictionary<byte, bool> ro = p.opByteBoolD(di1, di2, out _do);
 
-                    test(Ice.CollectionComparer.Equals(_do, di1));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(_do, di1));
                     test(ro.Count == 4);
                     test(ro[10] == true);
                     test(ro[11] == false);
@@ -680,7 +680,7 @@ namespace Ice
                     Dictionary<short, int> _do;
                     Dictionary<short, int> ro = p.opShortIntD(di1, di2, out _do);
 
-                    test(Ice.CollectionComparer.Equals(_do, di1));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(_do, di1));
                     test(ro.Count == 4);
                     test(ro[110] == -1);
                     test(ro[111] == -100);
@@ -700,7 +700,7 @@ namespace Ice
                     Dictionary<long, float> _do;
                     Dictionary<long, float> ro = p.opLongFloatD(di1, di2, out _do);
 
-                    test(Ice.CollectionComparer.Equals(_do, di1));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(_do, di1));
                     test(ro.Count == 4);
                     test(ro[999999110L] == -1.1f);
                     test(ro[999999120L] == -100.4f);
@@ -720,7 +720,7 @@ namespace Ice
                     Dictionary<string, string> _do;
                     Dictionary<string, string> ro = p.opStringStringD(di1, di2, out _do);
 
-                    test(Ice.CollectionComparer.Equals(_do, di1));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(_do, di1));
                     test(ro.Count == 4);
                     test(ro["foo"] == "abc -1.1");
                     test(ro["FOO"] == "abc -100.4");
@@ -740,7 +740,7 @@ namespace Ice
                     Dictionary<string, Test.MyEnum> _do;
                     Dictionary<string, Test.MyEnum> ro = p.opStringMyEnumD(di1, di2, out _do);
 
-                    test(Ice.CollectionComparer.Equals(_do, di1));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(_do, di1));
                     test(ro.Count == 4);
                     test(ro["abc"] == Test.MyEnum.enum1);
                     test(ro["qwerty"] == Test.MyEnum.enum3);
@@ -758,7 +758,7 @@ namespace Ice
                     Dictionary<Test.MyEnum, string> _do;
                     var ro = p.opMyEnumStringD(di1, di2, out _do);
 
-                    test(Ice.CollectionComparer.Equals(_do, di1));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(_do, di1));
                     test(ro.Count == 3);
                     test(ro[Test.MyEnum.enum1] == "abc");
                     test(ro[Test.MyEnum.enum2] == "Hello!!");
@@ -782,7 +782,7 @@ namespace Ice
                     Dictionary<Test.MyStruct, Test.MyEnum> _do;
                     Dictionary<Test.MyStruct, Test.MyEnum> ro = p.opMyStructMyEnumD(di1, di2, out _do);
 
-                    test(Ice.CollectionComparer.Equals(_do, di1));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(_do, di1));
                     test(ro.Count == 4);
                     test(ro[s11] == Test.MyEnum.enum1);
                     test(ro[s12] == Test.MyEnum.enum2);
@@ -1407,15 +1407,15 @@ namespace Ice
                     {
                         Dictionary<string, string> r = p.opContext(ctx);
                         test(p.ice_getContext().Count == 0);
-                        test(Ice.CollectionComparer.Equals(r, ctx));
+                        test(Internal.DictionaryExtensions.DictionaryEqual(r, ctx));
                     }
                     {
                         var p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
-                        test(Ice.CollectionComparer.Equals(p2.ice_getContext(), ctx));
+                        test(Internal.DictionaryExtensions.DictionaryEqual(p2.ice_getContext(), ctx));
                         Dictionary<string, string> r = p2.opContext();
-                        test(Ice.CollectionComparer.Equals(r, ctx));
+                        test(Internal.DictionaryExtensions.DictionaryEqual(r, ctx));
                         r = p2.opContext(ctx);
-                        test(Ice.CollectionComparer.Equals(r, ctx));
+                        test(Internal.DictionaryExtensions.DictionaryEqual(r, ctx));
                     }
                 }
 
@@ -1442,8 +1442,8 @@ namespace Ice
                         var p3 = Test.MyClassPrxHelper.createProxy(ic, "test:" + helper.getTestEndpoint(0));
 
                         ic.getImplicitContext().setContext(ctx);
-                        test(Ice.CollectionComparer.Equals(ic.getImplicitContext().getContext(), ctx));
-                        test(Ice.CollectionComparer.Equals(p3.opContext(), ctx));
+                        test(Internal.DictionaryExtensions.DictionaryEqual(ic.getImplicitContext().getContext(), ctx));
+                        test(Internal.DictionaryExtensions.DictionaryEqual(p3.opContext(), ctx));
 
                         test(ic.getImplicitContext().containsKey("zero") == false);
                         String r = ic.getImplicitContext().put("zero", "ZERO");
@@ -1451,7 +1451,7 @@ namespace Ice
                         test(ic.getImplicitContext().get("zero") == "ZERO");
 
                         ctx = ic.getImplicitContext().getContext();
-                        test(Ice.CollectionComparer.Equals(p3.opContext(), ctx));
+                        test(Internal.DictionaryExtensions.DictionaryEqual(p3.opContext(), ctx));
 
                         Dictionary<string, string> prxContext = new Dictionary<string, string>();
                         prxContext["one"] = "UN";
@@ -1474,10 +1474,10 @@ namespace Ice
                         p3 = Test.MyClassPrxHelper.uncheckedCast(p3.ice_context(prxContext));
 
                         ic.getImplicitContext().setContext(null);
-                        test(Ice.CollectionComparer.Equals(p3.opContext(), prxContext));
+                        test(Internal.DictionaryExtensions.DictionaryEqual(p3.opContext(), prxContext));
 
                         ic.getImplicitContext().setContext(ctx);
-                        test(Ice.CollectionComparer.Equals(p3.opContext(), combined));
+                        test(Internal.DictionaryExtensions.DictionaryEqual(p3.opContext(), combined));
 
                         test(ic.getImplicitContext().remove("one") == "ONE");
 
@@ -1543,8 +1543,7 @@ namespace Ice
                     p1[0] = "test";
                     string[] p2, p3;
                     p3 = p.opMSeq2(p1, out p2);
-                    test(Ice.CollectionComparer.Equals(p2, p1) &&
-                         Ice.CollectionComparer.Equals(p3, p1));
+                    test(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 }
 
                 {
@@ -1554,8 +1553,8 @@ namespace Ice
                     p1["test"] = "test";
                     Dictionary<string, string> p2, p3;
                     p3 = p.opMDict2(p1, out p2);
-                    test(Ice.CollectionComparer.Equals(p2, p1) &&
-                         Ice.CollectionComparer.Equals(p3, p1));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(p2, p1) &&
+                         Internal.DictionaryExtensions.DictionaryEqual(p3, p1));
                 }
             }
         }

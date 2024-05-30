@@ -405,7 +405,7 @@ public abstract class Reference : IEquatable<Reference>
         hash.Add(_mode);
         hash.Add(secure_);
         hash.Add(_identity);
-        UtilInternal.Collections.HashCodeAdd(ref hash, _context);
+        hash.Add(_context.Count); // we only hash the count, not the contents
         hash.Add(_facet);
         hash.Add(overrideCompress_);
         if (overrideCompress_)
@@ -425,7 +425,7 @@ public abstract class Reference : IEquatable<Reference>
         return _mode == other._mode &&
             secure_ == other.secure_ &&
             _identity == other._identity &&
-            Ice.CollectionComparer.Equals(_context, other._context) &&
+            _context.DictionaryEqual(other._context) &&
             _facet == other._facet &&
             overrideCompress_ == other.overrideCompress_ &&
             (!overrideCompress_ || compress_ == other.compress_) &&
@@ -1117,7 +1117,10 @@ public class RoutableReference : Reference
         var hash = new HashCode();
         hash.Add(base.GetHashCode());
         hash.Add(_adapterId);
-        UtilInternal.Collections.HashCodeAdd(ref hash, _endpoints);
+        foreach (var endpoint in _endpoints)
+        {
+            hash.Add(endpoint);
+        }
         return hash.ToHashCode();
     }
 
@@ -1142,7 +1145,7 @@ public class RoutableReference : Reference
             (!_overrideTimeout || _timeout == rhs._timeout) &&
             _connectionId == rhs._connectionId &&
             _adapterId == rhs._adapterId &&
-            UtilInternal.Arrays.Equals(_endpoints, rhs._endpoints);
+            _endpoints.SequenceEqual(rhs._endpoints);
     }
 
     public override Reference Clone()
@@ -1488,11 +1491,11 @@ public class RoutableReference : Reference
         }
         else if (getPreferSecure())
         {
-            Ice.UtilInternal.Collections.Sort(ref endpoints, _preferSecureEndpointComparator);
+            UtilInternal.Collections.Sort(ref endpoints, _preferSecureEndpointComparator);
         }
         else
         {
-            Ice.UtilInternal.Collections.Sort(ref endpoints, _preferNonSecureEndpointComparator);
+            UtilInternal.Collections.Sort(ref endpoints, _preferNonSecureEndpointComparator);
         }
 
         EndpointI[] arr = new EndpointI[endpoints.Count];

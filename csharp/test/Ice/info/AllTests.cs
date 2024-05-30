@@ -92,7 +92,7 @@ namespace Ice
                     Ice.Endpoint[] endpoints = adapter.getEndpoints();
                     test(endpoints.Length == 2);
                     Ice.Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
-                    test(Ice.UtilInternal.Arrays.Equals(endpoints, publishedEndpoints));
+                    test(Enumerable.SequenceEqual(endpoints, publishedEndpoints));
 
                     Ice.TCPEndpointInfo tcpEndpoint = getTCPEndpointInfo(endpoints[0].getInfo());
                     test(tcpEndpoint.type() == Ice.TCPEndpointType.value ||
@@ -113,7 +113,7 @@ namespace Ice
                     test(endpoints.Length == 1);
                     adapter.setPublishedEndpoints(endpoints);
                     publishedEndpoints = adapter.getPublishedEndpoints();
-                    test(Ice.UtilInternal.Arrays.Equals(endpoints, publishedEndpoints));
+                    test(Enumerable.SequenceEqual(endpoints, publishedEndpoints));
 
                     adapter.destroy();
 

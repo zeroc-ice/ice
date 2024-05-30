@@ -25,8 +25,8 @@ namespace Ice
                         i[c] = (byte)c;
                     }
                     var result = await p.opAByteSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -37,8 +37,8 @@ namespace Ice
                     }
 
                     var result = await p.opLByteSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -49,8 +49,8 @@ namespace Ice
                     }
 
                     var result = await p.opKByteSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -61,8 +61,8 @@ namespace Ice
                     }
 
                     var result = await p.opQByteSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -73,8 +73,8 @@ namespace Ice
                     }
 
                     var result = await p.opSByteSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -85,8 +85,8 @@ namespace Ice
                     }
 
                     var result = await p.opABoolSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -97,8 +97,8 @@ namespace Ice
                     }
 
                     var result = await p.opLBoolSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -109,8 +109,8 @@ namespace Ice
                     }
 
                     var result = await p.opKBoolSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -121,8 +121,8 @@ namespace Ice
                     }
 
                     var result = await p.opQBoolSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -133,8 +133,8 @@ namespace Ice
                     }
 
                     var result = await p.opSBoolSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -145,8 +145,8 @@ namespace Ice
                     }
 
                     var result = await p.opAShortSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -157,8 +157,8 @@ namespace Ice
                     }
 
                     var result = await p.opLShortSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -169,8 +169,8 @@ namespace Ice
                     }
 
                     var result = await p.opKShortSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -181,8 +181,8 @@ namespace Ice
                     }
 
                     var result = await p.opQShortSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -193,8 +193,8 @@ namespace Ice
                     }
 
                     var result = await p.opSShortSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -205,8 +205,8 @@ namespace Ice
                     }
 
                     var result = await p.opAIntSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -217,8 +217,8 @@ namespace Ice
                     }
 
                     var result = await p.opLIntSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -229,8 +229,8 @@ namespace Ice
                     }
 
                     var result = await p.opKIntSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -241,8 +241,8 @@ namespace Ice
                     }
 
                     var result = await p.opQIntSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -253,8 +253,8 @@ namespace Ice
                     }
 
                     var result = await p.opSIntSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -265,8 +265,8 @@ namespace Ice
                     }
 
                     var result = await p.opALongSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -277,8 +277,8 @@ namespace Ice
                     }
 
                     var result = await p.opLLongSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -289,8 +289,8 @@ namespace Ice
                     }
 
                     var result = await p.opKLongSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -301,8 +301,8 @@ namespace Ice
                     }
 
                     var result = await p.opQLongSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -313,8 +313,8 @@ namespace Ice
                     }
 
                     var result = await p.opSLongSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -325,8 +325,8 @@ namespace Ice
                     }
 
                     var result = await p.opAFloatSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -337,8 +337,8 @@ namespace Ice
                     }
 
                     var result = await p.opLFloatSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -349,8 +349,8 @@ namespace Ice
                     }
 
                     var result = await p.opKFloatSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -361,8 +361,8 @@ namespace Ice
                     }
 
                     var result = await p.opQFloatSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -373,8 +373,8 @@ namespace Ice
                     }
 
                     var result = await p.opSFloatSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -385,8 +385,8 @@ namespace Ice
                     }
 
                     var result = await p.opADoubleSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -397,8 +397,8 @@ namespace Ice
                     }
 
                     var result = await p.opLDoubleSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -409,8 +409,8 @@ namespace Ice
                     }
 
                     var result = await p.opKDoubleSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -421,8 +421,8 @@ namespace Ice
                     }
 
                     var result = await p.opQDoubleSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -433,8 +433,8 @@ namespace Ice
                     }
 
                     var result = await p.opSDoubleSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -445,8 +445,8 @@ namespace Ice
                     }
 
                     var result = await p.opAStringSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -457,8 +457,8 @@ namespace Ice
                     }
 
                     var result = await p.opLStringSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -469,8 +469,8 @@ namespace Ice
                     }
 
                     var result = await p.opKStringSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -481,8 +481,8 @@ namespace Ice
                     }
 
                     var result = await p.opQStringSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -493,8 +493,8 @@ namespace Ice
                     }
 
                     var result = await p.opSStringSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -543,8 +543,8 @@ namespace Ice
                     }
 
                     var result = await p.opAObjectPrxSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -555,8 +555,8 @@ namespace Ice
                     }
 
                     var result = await p.opLObjectPrxSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -567,8 +567,8 @@ namespace Ice
                     }
 
                     var result = await p.opKObjectPrxSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -579,8 +579,8 @@ namespace Ice
                     }
 
                     var result = await p.opQObjectPrxSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -591,8 +591,8 @@ namespace Ice
                     }
 
                     var result = await p.opSObjectPrxSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -603,8 +603,8 @@ namespace Ice
                     }
 
                     var result = await p.opAStructSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -615,8 +615,8 @@ namespace Ice
                     }
 
                     var result = await p.opLStructSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -627,8 +627,8 @@ namespace Ice
                     }
 
                     var result = await p.opKStructSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -639,8 +639,8 @@ namespace Ice
                     }
 
                     var result = await p.opQStructSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -651,8 +651,8 @@ namespace Ice
                     }
 
                     var result = await p.opSStructSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -701,8 +701,8 @@ namespace Ice
                     }
 
                     var result = await p.opAIPrxSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -713,8 +713,8 @@ namespace Ice
                     }
 
                     var result = await p.opLIPrxSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -725,8 +725,8 @@ namespace Ice
                     }
 
                     var result = await p.opKIPrxSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -737,8 +737,8 @@ namespace Ice
                     }
 
                     var result = await p.opQIPrxSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -749,8 +749,8 @@ namespace Ice
                     }
 
                     var result = await p.opSIPrxSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -799,8 +799,8 @@ namespace Ice
                     }
 
                     var result = await p.opAEnSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -811,8 +811,8 @@ namespace Ice
                     }
 
                     var result = await p.opLEnSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -823,8 +823,8 @@ namespace Ice
                     }
 
                     var result = await p.opKEnSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -835,8 +835,8 @@ namespace Ice
                     }
 
                     var result = await p.opQEnSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -847,8 +847,8 @@ namespace Ice
                     }
 
                     var result = await p.opSEnSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -859,8 +859,8 @@ namespace Ice
                     }
 
                     var result = await p.opCustomIntSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {
@@ -895,8 +895,8 @@ namespace Ice
                     }
 
                     var result = await p.opCustomIntSSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    test(Enumerable.SequenceEqual(i, result.o));
+                    test(Enumerable.SequenceEqual(i, result.returnValue));
                 }
 
                 {

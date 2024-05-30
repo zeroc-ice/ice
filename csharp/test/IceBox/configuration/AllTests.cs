@@ -28,7 +28,7 @@ public class AllTests : Test.AllTests
             test(service1.getProperty("Arg") == "1");
 
             string[] args1 = { "-a", "--Arg=2" };
-            test(Ice.UtilInternal.Arrays.Equals(service1.getArgs(), args1));
+            test(Enumerable.SequenceEqual(service1.getArgs(), args1));
 
             test(service2.getProperty("Ice.ProgramName") == "Test");
             test(service2.getProperty("Service") == "2");
@@ -36,7 +36,7 @@ public class AllTests : Test.AllTests
             test(service2.getProperty("IceBox.InheritProperties") == "1");
 
             string[] args2 = { "--Service1.ArgProp=1" };
-            test(Ice.UtilInternal.Arrays.Equals(service2.getArgs(), args2));
+            test(Enumerable.SequenceEqual(service2.getArgs(), args2));
 
             Console.Out.WriteLine("ok");
 
@@ -56,7 +56,7 @@ public class AllTests : Test.AllTests
             test(service4.getProperty("Ice.Trace.Slicing") == "3");
 
             string[] args4 = { "--Service3.Prop=2" };
-            test(Ice.UtilInternal.Arrays.Equals(service4.getArgs(), args4));
+            test(Enumerable.SequenceEqual(service4.getArgs(), args4));
 
             Console.Out.WriteLine("ok");
         }

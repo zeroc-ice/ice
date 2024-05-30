@@ -462,8 +462,8 @@ namespace Ice
 
                     var result = p.opByteBoolDAsync(di1, di2).Result;
 
-                    test(CollectionComparer.Equals(result.p3, di1));
-                    test(CollectionComparer.Equals(result.returnValue, di2));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(result.p3, di1));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(result.returnValue, di2));
                 }
 
                 {
@@ -482,8 +482,8 @@ namespace Ice
 
                     var result = await p.opShortIntDAsync(di1, di2);
 
-                    test(CollectionComparer.Equals(result.p3, di1));
-                    test(CollectionComparer.Equals(result.returnValue, di2));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(result.p3, di1));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(result.returnValue, di2));
                 }
 
                 {
@@ -502,8 +502,8 @@ namespace Ice
 
                     var result = p.opLongFloatDAsync(di1, di2).Result;
 
-                    test(CollectionComparer.Equals(result.p3, di1));
-                    test(CollectionComparer.Equals(result.returnValue, di2));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(result.p3, di1));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(result.returnValue, di2));
                 }
 
                 {
@@ -522,8 +522,8 @@ namespace Ice
 
                     var result = p.opStringStringDAsync(di1, di2).Result;
 
-                    test(CollectionComparer.Equals(result.p3, di1));
-                    test(CollectionComparer.Equals(result.returnValue, di2));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(result.p3, di1));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(result.returnValue, di2));
                 }
 
                 {
@@ -538,8 +538,8 @@ namespace Ice
 
                     var result = p.opStringMyEnumDAsync(di1, di2).Result;
 
-                    test(CollectionComparer.Equals(result.p3, di1));
-                    test(CollectionComparer.Equals(result.returnValue, di2));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(result.p3, di1));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(result.returnValue, di2));
                 }
 
                 {
@@ -552,8 +552,8 @@ namespace Ice
 
                     var result = await p.opMyEnumStringDAsync(di1, di2);
 
-                    test(CollectionComparer.Equals(result.p3, di1));
-                    test(CollectionComparer.Equals(result.returnValue, di2));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(result.p3, di1));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(result.returnValue, di2));
                 }
 
                 {
@@ -577,8 +577,8 @@ namespace Ice
                     var result = await p.opMyStructMyEnumDAsync(di1, di2);
                     di2[s12] = Test.MyEnum.enum2;
 
-                    test(CollectionComparer.Equals(result.p3, di1));
-                    test(CollectionComparer.Equals(result.returnValue, di2));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(result.p3, di1));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(result.returnValue, di2));
                 }
 
                 {
@@ -1220,23 +1220,23 @@ namespace Ice
                     {
                         test(p.ice_getContext().Count == 0);
                         var result = await p.opContextAsync();
-                        test(!CollectionComparer.Equals(result, ctx));
+                        test(!Internal.DictionaryExtensions.DictionaryEqual(result, ctx));
                     }
                     {
                         test(p.ice_getContext().Count == 0);
                         var result = await p.opContextAsync(ctx);
-                        test(CollectionComparer.Equals(result, ctx));
+                        test(Internal.DictionaryExtensions.DictionaryEqual(result, ctx));
                     }
                     {
                         var p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
-                        test(CollectionComparer.Equals(p2.ice_getContext(), ctx));
+                        test(Internal.DictionaryExtensions.DictionaryEqual(p2.ice_getContext(), ctx));
                         var result = await p2.opContextAsync();
-                        test(CollectionComparer.Equals(result, ctx));
+                        test(Internal.DictionaryExtensions.DictionaryEqual(result, ctx));
                     }
                     {
                         var p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
                         var result = await p2.opContextAsync(ctx);
-                        test(CollectionComparer.Equals(result, ctx));
+                        test(Internal.DictionaryExtensions.DictionaryEqual(result, ctx));
                     }
                 }
 
@@ -1264,16 +1264,16 @@ namespace Ice
                         var p3 = Test.MyClassPrxHelper.createProxy(ic, "test:" + helper.getTestEndpoint(0));
 
                         ic.getImplicitContext().setContext(ctx);
-                        test(CollectionComparer.Equals(ic.getImplicitContext().getContext(), ctx));
+                        test(Internal.DictionaryExtensions.DictionaryEqual(ic.getImplicitContext().getContext(), ctx));
                         {
-                            test(CollectionComparer.Equals(p3.opContextAsync().Result, ctx));
+                            test(Internal.DictionaryExtensions.DictionaryEqual(p3.opContextAsync().Result, ctx));
                         }
 
                         ic.getImplicitContext().put("zero", "ZERO");
 
                         ctx = ic.getImplicitContext().getContext();
                         {
-                            test(CollectionComparer.Equals(p3.opContextAsync().Result, ctx));
+                            test(Internal.DictionaryExtensions.DictionaryEqual(p3.opContextAsync().Result, ctx));
                         }
 
                         var prxContext = new Dictionary<string, string>
@@ -1300,12 +1300,12 @@ namespace Ice
 
                         ic.getImplicitContext().setContext(null);
                         {
-                            test(CollectionComparer.Equals(p3.opContextAsync().Result, prxContext));
+                            test(Internal.DictionaryExtensions.DictionaryEqual(p3.opContextAsync().Result, prxContext));
                         }
 
                         ic.getImplicitContext().setContext(ctx);
                         {
-                            test(CollectionComparer.Equals(p3.opContextAsync().Result, combined));
+                            test(Internal.DictionaryExtensions.DictionaryEqual(p3.opContextAsync().Result, combined));
                         }
 
                         //ic.getImplicitContext().setContext(null);
@@ -1383,8 +1383,7 @@ namespace Ice
                         var p1 = new string[1];
                         p1[0] = "test";
                         var r = await p.opMSeq2Async(p1);
-                        test(CollectionComparer.Equals(r.p2, p1) &&
-                             CollectionComparer.Equals(r.returnValue, p1));
+                        test(Enumerable.SequenceEqual(r.p2, p1) && Enumerable.SequenceEqual(r.returnValue, p1));
                     }
 
                     {
@@ -1393,8 +1392,8 @@ namespace Ice
                         var p1 = new Dictionary<string, string>();
                         p1["test"] = "test";
                         var r = await p.opMDict2Async(p1);
-                        test(CollectionComparer.Equals(r.p2, p1) &&
-                             CollectionComparer.Equals(r.returnValue, p1));
+                        test(Internal.DictionaryExtensions.DictionaryEqual(r.p2, p1) &&
+                             Internal.DictionaryExtensions.DictionaryEqual(r.returnValue, p1));
                     }
                 };
             }
