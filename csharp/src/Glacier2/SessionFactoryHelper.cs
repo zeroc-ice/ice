@@ -340,11 +340,6 @@ public class SessionFactoryHelper
         sb.Append(" -h \"");
         sb.Append(_routerHost);
         sb.Append('"');
-        if (_timeout > 0)
-        {
-            sb.Append(" -t ");
-            sb.Append(_timeout);
-        }
         return sb.ToString();
     }
 
@@ -360,7 +355,6 @@ public class SessionFactoryHelper
     private Ice.Identity _identity;
     private string _protocol = "ssl";
     private int _port;
-    private int _timeout = 10000;
     private Dictionary<string, string> _context;
     private bool _useCallbacks = true;
     private static int GLACIER2_SSL_PORT = 4064;
