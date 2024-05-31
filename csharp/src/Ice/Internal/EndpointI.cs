@@ -14,11 +14,6 @@ public abstract class EndpointI : Ice.Endpoint, IComparable<EndpointI>
 {
     public override string ToString()
     {
-        return ice_toString_();
-    }
-
-    public virtual string ice_toString_()
-    {
         //
         // WARNING: Certain features, such as proxy validation in Glacier2,
         // depend on the format of proxy strings. Changes to toString() and

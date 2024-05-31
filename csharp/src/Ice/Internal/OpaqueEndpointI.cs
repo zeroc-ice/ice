@@ -53,7 +53,7 @@ internal sealed class OpaqueEndpointI : EndpointI
     //
     // Convert the endpoint to its string form
     //
-    public override string ice_toString_()
+    public override string ToString()
     {
         string val = System.Convert.ToBase64String(_rawBytes);
         return "opaque -t " + _type + " -e " + Ice.Util.encodingVersionToString(_rawEncoding) + " -v " + val;
