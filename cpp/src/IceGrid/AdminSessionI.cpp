@@ -78,10 +78,7 @@ FileIteratorI::destroy(const Ice::Current& current)
     _session->removeFileIterator(current.id, current);
 }
 
-AdminSessionI::AdminSessionI(
-    const string& id,
-    const shared_ptr<Database>& db,
-    const shared_ptr<RegistryI>& registry)
+AdminSessionI::AdminSessionI(const string& id, const shared_ptr<Database>& db, const shared_ptr<RegistryI>& registry)
     : BaseSessionI(id, "admin", db),
       _replicaName(registry->getName()),
       _registry(registry)
@@ -153,9 +150,7 @@ AdminSessionI::setObservers(
     const auto locator = _registry->getLocator();
     if (registryObserver)
     {
-        setupObserverSubscription(
-            TopicName::RegistryObserver,
-            addForwarder(registryObserver->ice_locator(locator)));
+        setupObserverSubscription(TopicName::RegistryObserver, addForwarder(registryObserver->ice_locator(locator)));
     }
     else
     {
@@ -164,9 +159,7 @@ AdminSessionI::setObservers(
 
     if (nodeObserver)
     {
-        setupObserverSubscription(
-            TopicName::NodeObserver,
-            addForwarder(nodeObserver->ice_locator(locator)));
+        setupObserverSubscription(TopicName::NodeObserver, addForwarder(nodeObserver->ice_locator(locator)));
     }
     else
     {
@@ -175,9 +168,7 @@ AdminSessionI::setObservers(
 
     if (appObserver)
     {
-        setupObserverSubscription(
-            TopicName::ApplicationObserver,
-            addForwarder(appObserver->ice_locator(locator)));
+        setupObserverSubscription(TopicName::ApplicationObserver, addForwarder(appObserver->ice_locator(locator)));
     }
     else
     {
@@ -186,9 +177,7 @@ AdminSessionI::setObservers(
 
     if (adapterObserver)
     {
-        setupObserverSubscription(
-            TopicName::AdapterObserver,
-            addForwarder(adapterObserver->ice_locator(locator)));
+        setupObserverSubscription(TopicName::AdapterObserver, addForwarder(adapterObserver->ice_locator(locator)));
     }
     else
     {
@@ -197,9 +186,7 @@ AdminSessionI::setObservers(
 
     if (objectObserver)
     {
-        setupObserverSubscription(
-            TopicName::ObjectObserver,
-            addForwarder(objectObserver->ice_locator(locator)));
+        setupObserverSubscription(TopicName::ObjectObserver, addForwarder(objectObserver->ice_locator(locator)));
     }
     else
     {
