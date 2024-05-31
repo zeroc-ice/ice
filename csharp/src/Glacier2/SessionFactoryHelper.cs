@@ -177,34 +177,6 @@ public class SessionFactoryHelper
     }
 
     /// <summary>
-    /// Sets the connect and connection timeout for the Glacier2 router.
-    /// </summary>
-    /// <param name="timeoutMillisecs">The timeout in milliseconds. A zero
-    /// or negative timeout value indicates that the router proxy has no
-    /// associated timeout.</param>
-    public void
-    setTimeout(int timeoutMillisecs)
-    {
-        lock (this)
-        {
-            _timeout = timeoutMillisecs;
-        }
-    }
-
-    /// <summary>
-    /// Returns the connect and connection timeout associated with the Glacier2 router.
-    /// </summary>
-    /// <returns>The timeout.</returns>
-    public int
-    getTimeout()
-    {
-        lock (this)
-        {
-            return _timeout;
-        }
-    }
-
-    /// <summary>
     /// Sets the Glacier2 router port to connect to.
     /// </summary>
     /// <param name="port">The port. If 0, then the default port (4063 for TCP or

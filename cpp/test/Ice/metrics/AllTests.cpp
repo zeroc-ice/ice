@@ -783,9 +783,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         string expected = protocol + " -h localhost -p " + port + " -t 500";
 
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "id", expected, c);
-
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpoint", expected, c);
-
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointType", type, c);
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointIsDatagram", "false", c);
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointIsSecure", isSecure, c);

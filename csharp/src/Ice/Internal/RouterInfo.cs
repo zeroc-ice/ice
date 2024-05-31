@@ -175,32 +175,12 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
     {
         lock (this)
         {
-            if (_clientEndpoints == null)
+            if (_clientEndpoints is null)
             {
                 _hasRoutingTable = hasRoutingTable;
-                if (clientProxy == null)
-                {
-                    //
-                    // If getClientProxy() return nil, use router endpoints.
-                    //
-                    _clientEndpoints = ((Ice.ObjectPrxHelperBase)_router).iceReference().getEndpoints();
-                }
-                else
-                {
-                    clientProxy = clientProxy.ice_router(null); // The client proxy cannot be routed.
-
-                    //
-                    // In order to avoid creating a new connection to the
-                    // router, we must use the same timeout as the already
-                    // existing connection.
-                    //
-                    if (_router.ice_getConnection() != null)
-                    {
-                        clientProxy = clientProxy.ice_timeout(_router.ice_getConnection().timeout());
-                    }
-
-                    _clientEndpoints = ((Ice.ObjectPrxHelperBase)clientProxy).iceReference().getEndpoints();
-                }
+                _clientEndpoints = clientProxy is null ?
+                    ((ObjectPrxHelperBase)_router).iceReference().getEndpoints() :
+                    ((ObjectPrxHelperBase)clientProxy).iceReference().getEndpoints();
             }
             return _clientEndpoints;
         }

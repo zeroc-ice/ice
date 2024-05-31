@@ -406,20 +406,6 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     bool? ice_getCompress();
 
     /// <summary>
-    /// Creates a new proxy that is identical to this proxy, except for its timeout setting.
-    /// </summary>
-    /// <param name="t">The timeout for the new proxy in milliseconds.</param>
-    /// <returns>A new proxy with the specified timeout.</returns>
-    ObjectPrx ice_timeout(int t);
-
-    /// <summary>
-    /// Obtains the timeout override of this proxy.
-    /// </summary>
-    /// <returns>The timeout override. If no optional value is present, no override is set. Otherwise,
-    /// returns the timeout override value.</returns>
-    int? ice_getTimeout();
-
-    /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for its connection ID.
     /// </summary>
     /// <param name="connectionId">The connection ID for the new proxy. An empty string removes the
@@ -1413,38 +1399,6 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     public bool? ice_getCompress()
     {
         return _reference.getCompress();
-    }
-
-    /// <summary>
-    /// Creates a new proxy that is identical to this proxy, except for its timeout setting.
-    /// </summary>
-    /// <param name="t">The timeout for the new proxy in milliseconds.</param>
-    /// <returns>A new proxy with the specified timeout.</returns>
-    public ObjectPrx ice_timeout(int t)
-    {
-        if (t < 1 && t != -1)
-        {
-            throw new ArgumentException("invalid value passed to ice_timeout: " + t);
-        }
-        var @ref = _reference.changeTimeout(t);
-        if (@ref == _reference)
-        {
-            return this;
-        }
-        else
-        {
-            return iceNewInstance(@ref);
-        }
-    }
-
-    /// <summary>
-    /// Obtains the timeout override of this proxy.
-    /// </summary>
-    /// <returns>The timeout override. If no optional value is present, no override is set. Otherwise,
-    /// returns the timeout override value.</returns>
-    public int? ice_getTimeout()
-    {
-        return _reference.getTimeout();
     }
 
     /// <summary>
