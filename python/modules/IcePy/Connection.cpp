@@ -615,27 +615,6 @@ extern "C"
 extern "C"
 #endif
     static PyObject*
-    connectionTimeout(ConnectionObject* self, PyObject* /*args*/)
-{
-    assert(self->connection);
-    int timeout;
-    try
-    {
-        timeout = (*self->connection)->timeout();
-    }
-    catch (...)
-    {
-        setPythonException(current_exception());
-        return 0;
-    }
-
-    return PyLong_FromLong(timeout);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
     connectionToString(ConnectionObject* self, PyObject* /*args*/)
 {
     assert(self->connection);
@@ -781,10 +760,6 @@ static PyMethodDef ConnectionMethods[] = {
      reinterpret_cast<PyCFunction>(connectionType),
      METH_NOARGS,
      PyDoc_STR(STRCAST("type() -> string"))},
-    {STRCAST("timeout"),
-     reinterpret_cast<PyCFunction>(connectionTimeout),
-     METH_NOARGS,
-     PyDoc_STR(STRCAST("timeout() -> int"))},
     {STRCAST("toString"),
      reinterpret_cast<PyCFunction>(connectionToString),
      METH_NOARGS,

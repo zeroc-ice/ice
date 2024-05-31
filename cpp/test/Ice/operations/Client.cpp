@@ -36,7 +36,7 @@ Client::run(int argc, char** argv)
     try
     {
 #ifdef _WIN32
-        myClass = myClass->ice_timeout(100); // Workaround to speed up testing
+        myClass = myClass->ice_invocationTimeout(100); // Workaround to speed up testing
 #endif
         myClass->opVoid();
         test(false);

@@ -229,29 +229,7 @@ IceInternal::RouterInfo::setClientEndpoints(const optional<ObjectPrx>& proxy, bo
     if (_clientEndpoints.empty())
     {
         _hasRoutingTable = hasRoutingTable;
-        if (!proxy)
-        {
-            //
-            // If getClientProxy() return nil, use router endpoints.
-            //
-            _clientEndpoints = _router->_getReference()->getEndpoints();
-        }
-        else
-        {
-            ObjectPrx clientProxy = proxy->ice_router(nullopt); // The client proxy cannot be routed.
-
-            //
-            // In order to avoid creating a new connection to the router,
-            // we must use the same timeout as the already existing
-            // connection.
-            //
-            if (_router->ice_getConnection())
-            {
-                clientProxy = clientProxy->ice_timeout(_router->ice_getConnection()->timeout());
-            }
-
-            _clientEndpoints = clientProxy->_getReference()->getEndpoints();
-        }
+        _clientEndpoints = proxy ? proxy->_getReference()->getEndpoints() : _router->_getReference()->getEndpoints();
     }
     return _clientEndpoints;
 }

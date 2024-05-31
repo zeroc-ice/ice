@@ -145,7 +145,6 @@ namespace IceInternal
         virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*) = 0;
 
         virtual bool exception(std::exception_ptr);
-        virtual void cancelable(const CancellationHandlerPtr&);
 
         void retryException();
         void retry();

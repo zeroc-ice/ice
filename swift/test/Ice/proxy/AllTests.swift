@@ -546,9 +546,7 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
   try test(baseProxy.ice_preferSecure(true).ice_isPreferSecure())
   try test(!baseProxy.ice_preferSecure(false).ice_isPreferSecure())
 
-  try test(baseProxy.ice_timeout(-1).ice_getTimeout() == -1)
   try test(baseProxy.ice_invocationTimeout(-1).ice_getInvocationTimeout() == -1)
-  try test(baseProxy.ice_invocationTimeout(-2).ice_getInvocationTimeout() == -2)
   try test(baseProxy.ice_locatorCacheTimeout(0).ice_getLocatorCacheTimeout() == 0)
   try test(baseProxy.ice_locatorCacheTimeout(-1).ice_getLocatorCacheTimeout() == -1)
 
@@ -594,13 +592,6 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
   try test(compObj!.ice_getCompress() == nil)
   try test(compObj!.ice_compress(true).ice_getCompress() == true)
   try test(compObj!.ice_compress(false).ice_getCompress() == false)
-
-  try test(compObj!.ice_timeout(20) == compObj!.ice_timeout(20))
-  try test(compObj!.ice_timeout(10) != compObj!.ice_timeout(20))
-
-  try test(compObj!.ice_getTimeout() == nil)
-  try test(compObj!.ice_timeout(10).ice_getTimeout() == 10)
-  try test(compObj!.ice_timeout(20).ice_getTimeout() == 20)
 
   let loc1 = try uncheckedCast(
     prx: communicator.stringToProxy("loc1:default -p 10000")!,
@@ -708,7 +699,6 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
       try test(cl.ice_invocationTimeout(10).ice_fixed(connection!).ice_getInvocationTimeout() == 10)
       try test(cl.ice_fixed(connection!).ice_getConnection() === connection)
       try test(cl.ice_fixed(connection!).ice_fixed(connection!).ice_getConnection() === connection)
-      try test(cl.ice_fixed(connection!).ice_getTimeout() == nil)
       try test(cl.ice_compress(true).ice_fixed(connection!).ice_getCompress()!)
       let fixedConnection = try cl.ice_connectionId("ice_fixed").ice_getConnection()
       try test(

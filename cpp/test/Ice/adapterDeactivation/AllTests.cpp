@@ -175,7 +175,7 @@ allTests(Test::TestHelper* helper)
     try
     {
 #ifdef _WIN32
-        obj = obj->ice_timeout(100); // Workaround to speed up testing
+        obj = obj->ice_invocationTimeout(100); // Workaround to speed up testing
 #endif
         obj->ice_ping();
         test(false);

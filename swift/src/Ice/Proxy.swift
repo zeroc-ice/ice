@@ -266,19 +266,6 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
   /// - returns: A new proxy with the specified compression setting.
   func ice_compress(_ compress: Bool) -> Self
 
-  /// Obtains the timeout override of this proxy.
-  ///
-  /// - returns: `Int32?` - The timeout override. If no optional value is present, no override is set.
-  ///   Otherwise, returns the timeout override value.
-  func ice_getTimeout() -> Int32?
-
-  /// Creates a new proxy that is identical to this proxy, except for its timeout setting.
-  ///
-  /// - parameter _: `Int32` - The timeout for the new proxy in milliseconds.
-  ///
-  /// - returns: A new proxy with the specified timeout.
-  func ice_timeout(_ timeout: Int32) -> Self
-
   /// Returns a proxy that is identical to this proxy, except it's a fixed proxy bound
   /// to the given connection.
   ///
@@ -1079,25 +1066,6 @@ open class ObjectPrxI: ObjectPrx {
 
   public func ice_compress(_ compress: Bool) -> Self {
     return fromICEObjectPrx(handle.ice_compress(compress))
-  }
-
-  public func ice_getTimeout() -> Int32? {
-    guard let timeout = handle.ice_getTimeout() as? Int32? else {
-      preconditionFailure("Int32? type was expected")
-    }
-    return timeout
-  }
-
-  public func ice_timeout(_ timeout: Int32) -> Self {
-    precondition(!ice_isFixed(), "Cannot create a fixed proxy with a connection timeout")
-    precondition(timeout > 0 || timeout == -1, "Invalid connection timeout value")
-    do {
-      return try autoreleasepool {
-        try fromICEObjectPrx(handle.ice_timeout(timeout)) as Self
-      }
-    } catch {
-      fatalError("\(error)")
-    }
   }
 
   public func ice_fixed(_ connection: Connection) -> Self {

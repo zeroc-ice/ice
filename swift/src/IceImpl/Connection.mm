@@ -208,11 +208,6 @@
     return toNSString(self.connection->type());
 }
 
-- (int32_t)timeout
-{
-    return self.connection->timeout();
-}
-
 - (NSString*)toString
 {
     return toNSString(self.connection->toString());

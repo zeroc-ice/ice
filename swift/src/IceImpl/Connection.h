@@ -28,7 +28,6 @@ ICEIMPL_API @interface ICEConnection : ICELocalObject
 - (void)heartbeatAsync:(void (^)(NSError*))exception
                   sent:(void (^_Nullable)(bool))sent NS_SWIFT_NAME(heartbeatAsync(exception:sent:));
 - (NSString*)type;
-- (int32_t)timeout;
 - (NSString*)toString;
 - (nullable id)getInfo:(NSError* _Nullable* _Nullable)error;
 - (BOOL)setBufferSize:(int32_t)rcvSize sndSize:(int32_t)sndSize error:(NSError* _Nullable* _Nullable)error;

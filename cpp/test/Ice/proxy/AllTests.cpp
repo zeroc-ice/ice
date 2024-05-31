@@ -637,33 +637,6 @@ allTests(TestHelper* helper)
 
     try
     {
-        base->ice_timeout(0);
-        test(false);
-    }
-    catch (const invalid_argument&)
-    {
-    }
-
-    try
-    {
-        base->ice_timeout(-1);
-    }
-    catch (const invalid_argument&)
-    {
-        test(false);
-    }
-
-    try
-    {
-        base->ice_timeout(-2);
-        test(false);
-    }
-    catch (const invalid_argument&)
-    {
-    }
-
-    try
-    {
         base->ice_invocationTimeout(0);
         test(false);
     }
@@ -674,7 +647,6 @@ allTests(TestHelper* helper)
     try
     {
         base->ice_invocationTimeout(-1);
-        base->ice_invocationTimeout(-2);
     }
     catch (const invalid_argument&)
     {
@@ -683,7 +655,7 @@ allTests(TestHelper* helper)
 
     try
     {
-        base->ice_invocationTimeout(-3);
+        base->ice_invocationTimeout(-2);
         test(false);
     }
     catch (const invalid_argument&)
@@ -776,15 +748,6 @@ allTests(TestHelper* helper)
     test(compObj->ice_getCompress() == nullopt);
     test(compObj->ice_compress(true)->ice_getCompress() == optional<bool>(true));
     test(compObj->ice_compress(false)->ice_getCompress() == optional<bool>(false));
-
-    test(compObj->ice_timeout(20) == compObj->ice_timeout(20));
-    test(compObj->ice_timeout(10) != compObj->ice_timeout(20));
-    test(compObj->ice_timeout(10) < compObj->ice_timeout(20));
-    test(compObj->ice_timeout(20) >= compObj->ice_timeout(10));
-
-    test(compObj->ice_getTimeout() == nullopt);
-    test(compObj->ice_timeout(10)->ice_getTimeout() == optional<int>(10));
-    test(compObj->ice_timeout(20)->ice_getTimeout() == optional<int>(20));
 
     Ice::LocatorPrx loc1(communicator, "loc1:default -p 10000");
     Ice::LocatorPrx loc2(communicator, "loc2:default -p 10000");

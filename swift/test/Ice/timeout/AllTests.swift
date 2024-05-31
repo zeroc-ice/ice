@@ -50,7 +50,7 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
     //
     // Expect ConnectTimeoutException.
     //
-    let to = timeout.ice_timeout(100)
+    let to = timeout.ice_connectionId("con1")
     try controller.holdAdapter(-1)
     do {
       try to.op()
@@ -66,7 +66,7 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
     //
     // Expect success.
     //
-    let to = timeout.ice_timeout(-1)
+    let to = timeout.ice_connectionId("con2")
     try controller.holdAdapter(100)
     do {
       try to.op()
@@ -123,7 +123,7 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
 
   output.write("testing close timeout... ")
   do {
-    let to = timeout.ice_timeout(250)
+    let to = timeout
     let connection = try connect(to)
     try controller.holdAdapter(-1)
     try connection.close(.GracefullyWithWait)
@@ -169,13 +169,6 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
       try proxy.sleepAsync(500).wait()
       try test(false)
     } catch is Ice.InvocationTimeoutException {}
-
-    do {
-      try proxy.ice_invocationTimeout(-2).ice_ping()
-      try proxy.ice_invocationTimeout(-2).ice_pingAsync().wait()
-    } catch is Ice.Exception {
-      try test(false)
-    }
 
     let batchTimeout = proxy.ice_batchOneway()
     try batchTimeout.ice_ping()
