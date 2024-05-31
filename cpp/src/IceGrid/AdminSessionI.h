@@ -21,7 +21,6 @@ namespace IceGrid
         AdminSessionI(
             const std::string&,
             const std::shared_ptr<Database>&,
-            std::chrono::seconds,
             const std::shared_ptr<RegistryI>&);
 
         Ice::ObjectPrx _register(const std::shared_ptr<SessionServantManager>&, const Ice::ConnectionPtr&);
@@ -75,7 +74,6 @@ namespace IceGrid
 
         void destroyImpl(bool) override;
 
-        const std::chrono::seconds _timeout;
         const std::string _replicaName;
         std::optional<AdminPrx> _admin;
         std::map<TopicName, std::pair<Ice::ObjectPrx, bool>> _observers;
