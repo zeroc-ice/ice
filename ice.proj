@@ -35,6 +35,10 @@
     <MSBuild Projects="@(Projects)" BuildInParallel="false" Properties="%(Properties)" />
   </Target>
 
+  <Target Name="BuildDist">
+    <MSBuild Projects="@(Projects)" BuildInParallel="false" Properties="%(Properties)" Targets="BuildDist" />
+  </Target>
+
   <Target Name="Clean">
     <MSBuild Projects="@(Projects)" BuildInParallel="false" Targets="Clean" Properties="Platform=$(Platform);Configuration=%(Configuration)" />
   </Target>

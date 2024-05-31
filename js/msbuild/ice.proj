@@ -7,11 +7,21 @@
     <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
   </PropertyGroup>
 
-  <Target Name="Build">
+  <Target Name="NpmInstall">
     <Exec Command="$(NPM) --omit=optional install"
           WorkingDirectory="$(MSBuildThisFileDirectory).."
           StdOutEncoding="utf-8"
           StdErrEncoding="utf-8" />
+  </Target>
+
+  <Target Name="BuildDist" DependsOnTargets="NpmInstall">
+    <Exec Command="$(NPM) run dist -- --cppPlatform=$(Platform) --cppConfiguration=$(Configuration)"
+          WorkingDirectory="$(MSBuildThisFileDirectory).."
+          StdOutEncoding="utf-8"
+          StdErrEncoding="utf-8" />
+  </Target>
+
+  <Target Name="Build" DependsOnTargets="NpmInstall">
     <Exec Command="$(NPM) run build -- --cppPlatform=$(Platform) --cppConfiguration=$(Configuration)"
           WorkingDirectory="$(MSBuildThisFileDirectory).."
           StdOutEncoding="utf-8"

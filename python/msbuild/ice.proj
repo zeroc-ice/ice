@@ -54,9 +54,12 @@
                  Properties="Platform=$(Platform);Configuration=$(Configuration)" />
     </Target>
 
-    <Target Name="Build" DependsOnTargets="BuildCppDist;NuGetRestore">
+    <Target Name="BuildDist" DependsOnTargets="BuildCppDist;NuGetRestore">
         <MSBuild Projects="ice.sln"
                  Properties="Configuration=$(Configuration);Platform=$(Platform)" />
+    </Target>
+
+    <Target Name="Build" DependsOnTargets="BuildDist">
     </Target>
 
     <Target Name="Clean">
@@ -65,7 +68,7 @@
                  Targets="Clean" />
     </Target>
 
-    <Target Name="SliceCompile" BeforeTargets="Build"
+    <Target Name="SliceCompile" BeforeTargets="BuildDist"
             Condition="@(SliceCompile) != ''">
         <MakeDir Directories="$(SliceCompileOutputDir)"/>
         <Exec Command="$(IceToolsPath)\slice2py.exe --output-dir %(SliceCompile.OutputDir) -I$(IceHome)\slice %(SliceCompile.AdditionalOptions) @(SliceCompile->'%(Identity)', ' ')" />
