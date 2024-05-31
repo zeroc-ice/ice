@@ -158,7 +158,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
 
         try
         {
-            if (_routerInfo != null)
+            if (_routerInfo is not null)
             {
                 //
                 // Remove entry from the router manager.
@@ -271,13 +271,13 @@ public sealed class ObjectAdapterI : ObjectAdapter
         //
         // Destroy the thread pool.
         //
-        if (_threadPool != null)
+        if (_threadPool is not null)
         {
             _threadPool.destroy();
             _threadPool.joinWithAllThreads();
         }
 
-        if (_objectAdapterFactory != null)
+        if (_objectAdapterFactory is not null)
         {
             _objectAdapterFactory.removeObjectAdapter(this);
         }
@@ -519,7 +519,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
         {
             checkForDeactivation();
 
-            if (_locatorInfo == null)
+            if (_locatorInfo is null)
             {
                 return null;
             }
@@ -592,7 +592,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
         lock (this)
         {
             checkForDeactivation();
-            if (_routerInfo != null)
+            if (_routerInfo is not null)
             {
                 throw new ArgumentException(
                                 "can't set published endpoints on object adapter associated with a router");
@@ -715,7 +715,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
             threadPool = _threadPool;
         }
 
-        if (threadPool != null)
+        if (threadPool is not null)
         {
             threadPool.updateObservers();
         }
@@ -738,7 +738,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
         {
             // Not check for deactivation here!
 
-            Debug.Assert(_instance != null); // Must not be called after destroy().
+            Debug.Assert(_instance is not null); // Must not be called after destroy().
 
             Debug.Assert(_directCount > 0);
             if (--_directCount == 0)
@@ -756,9 +756,9 @@ public sealed class ObjectAdapterI : ObjectAdapter
 
         // Not check for deactivation here!
 
-        Debug.Assert(_instance != null); // Must not be called after destroy().
+        Debug.Assert(_instance is not null); // Must not be called after destroy().
 
-        if (_threadPool != null)
+        if (_threadPool is not null)
         {
             return _threadPool;
         }
@@ -769,15 +769,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
 
     }
 
-    public ServantManager getServantManager()
-    {
-        //
-        // No mutex lock necessary, _servantManager is immutable.
-        //
-        return _servantManager;
-    }
-
-    public void setAdapterOnConnection(Ice.ConnectionI connection)
+    internal void setAdapterOnConnection(Ice.ConnectionI connection)
     {
         lock (this)
         {
@@ -863,7 +855,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
         //
         // Make sure named adapter has configuration.
         //
-        if (router == null && noProps)
+        if (router is null && noProps)
         {
             //
             // These need to be set to prevent warnings/asserts in the destructor.
@@ -918,19 +910,19 @@ public sealed class ObjectAdapterI : ObjectAdapter
                 _threadPool = new Ice.Internal.ThreadPool(_instance, _name + ".ThreadPool", 0);
             }
 
-            if (router == null)
+            if (router is null)
             {
                 router = RouterPrxHelper.uncheckedCast(communicator.propertyToProxy(_name + ".Router"));
             }
-            if (router != null)
+            if (router is not null)
             {
                 _routerInfo = _instance.routerManager().get(router);
-                Debug.Assert(_routerInfo != null);
+                Debug.Assert(_routerInfo is not null);
 
                 //
                 // Make sure this router is not already registered with another adapter.
                 //
-                if (_routerInfo.getAdapter() != null)
+                if (_routerInfo.getAdapter() is not null)
                 {
                     AlreadyRegisteredException ex = new AlreadyRegisteredException();
                     ex.kindOfObject = "object adapter with router";
@@ -1052,7 +1044,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
 
     private static void checkServant(Object servant)
     {
-        if (servant == null)
+        if (servant is null)
         {
             throw new IllegalServantException("cannot add null servant to Object Adapter");
         }
@@ -1128,7 +1120,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
 
             string s = endpts.Substring(beg, (end) - (beg));
             EndpointI endp = _instance.endpointFactoryManager().create(s, oaEndpoints);
-            if (endp == null)
+            if (endp is null)
             {
                 throw new EndpointParseException("invalid object adapter endpoint `" + s + "'");
             }
@@ -1143,7 +1135,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
     private EndpointI[] computePublishedEndpoints()
     {
         List<EndpointI> endpoints;
-        if (_routerInfo != null)
+        if (_routerInfo is not null)
         {
             //
             // Get the router's server proxy endpoints and use them as the published endpoints.
@@ -1213,7 +1205,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
 
     private void updateLocatorRegistry(LocatorInfo locatorInfo, ObjectPrx proxy)
     {
-        if (_id.Length == 0 || locatorInfo == null)
+        if (_id.Length == 0 || locatorInfo is null)
         {
             return; // Nothing to update.
         }
@@ -1223,7 +1215,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
         // blocking other threads that need to lock this OA.
         //
         LocatorRegistryPrx locatorRegistry = locatorInfo.getLocatorRegistry();
-        if (locatorRegistry == null)
+        if (locatorRegistry is null)
         {
             return;
         }
@@ -1308,7 +1300,7 @@ public sealed class ObjectAdapterI : ObjectAdapter
             StringBuilder s = new StringBuilder();
             s.Append("updated object adapter `" + _id + "' endpoints with the locator registry\n");
             s.Append("endpoints = ");
-            if (proxy != null)
+            if (proxy is not null)
             {
                 Endpoint[] endpoints = proxy.ice_getEndpoints();
                 for (int i = 0; i < endpoints.Length; i++)
