@@ -394,10 +394,7 @@ public sealed class ObjectAdapter
     ///  </param>
     /// <returns>A proxy that matches the given identity and this object adapter.
     ///  </returns>
-    public ObjectPrx add(Object obj, Identity ident)
-    {
-        return addFacet(obj, ident, "");
-    }
+    public ObjectPrx add(Object obj, Identity id) => addFacet(obj, id, "");
 
     /// <summary>
     /// Like add, but with a facet.
@@ -441,10 +438,7 @@ public sealed class ObjectAdapter
     ///  </param>
     /// <returns>A proxy that matches the generated UUID identity and this object adapter.
     ///  </returns>
-    public ObjectPrx addWithUUID(Object servant)
-    {
-        return addFacetWithUUID(servant, "");
-    }
+    public ObjectPrx addWithUUID(Object servant) => addFacetWithUUID(servant, "");
 
     /// <summary>
     /// Like addWithUUID, but with a facet.
@@ -499,16 +493,13 @@ public sealed class ObjectAdapter
     /// <summary>
     /// Remove a servant (that is, the default facet) from the object adapter's Active Servant Map.
     /// </summary>
-    /// <param name="ident">The identity of the Ice object that is implemented by the servant. If the servant implements multiple
+    /// <param name="id">The identity of the Ice object that is implemented by the servant. If the servant implements multiple
     ///  Ice objects, remove has to be called for all those Ice objects. Removing an identity that is not in
     ///  the map throws NotRegisteredException.
     ///  </param>
     /// <returns>The removed servant.
     ///  </returns>
-    public Object remove(Identity ident)
-    {
-        return removeFacet(ident, "");
-    }
+    public Object remove(Identity id) => removeFacet(id, "");
 
     /// <summary>
     /// Like remove, but with a facet.
@@ -582,10 +573,7 @@ public sealed class ObjectAdapter
     /// <returns>The servant that implements the Ice object with the given identity, or null if no such servant has been
     ///  found.
     ///  </returns>
-    public Object? find(Identity id)
-    {
-        return findFacet(id, "");
-    }
+    public Object? find(Identity id) => findFacet(id, "");
 
     /// <summary>
     /// Like find, but with a facet.
@@ -837,15 +825,7 @@ public sealed class ObjectAdapter
         lock (this)
         {
             checkForDeactivation();
-
-            if (_locatorInfo is null)
-            {
-                return null;
-            }
-            else
-            {
-                return _locatorInfo.getLocator();
-            }
+            return _locatorInfo?.getLocator();
         }
     }
 
@@ -1119,11 +1099,7 @@ public sealed class ObjectAdapter
         }
     }
 
-    internal int messageSizeMax()
-    {
-        // No mutex lock, immutable.
-        return _messageSizeMax;
-    }
+    internal int messageSizeMax() => _messageSizeMax;
 
     //
     // Only for use by ObjectAdapterFactory
