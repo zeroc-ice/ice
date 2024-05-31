@@ -114,21 +114,6 @@ IceRuby_Connection_type(VALUE self)
 }
 
 extern "C" VALUE
-IceRuby_Connection_timeout(VALUE self)
-{
-    ICE_RUBY_TRY
-    {
-        Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
-        assert(p);
-
-        int32_t timeout = (*p)->timeout();
-        return INT2FIX(timeout);
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C" VALUE
 IceRuby_Connection_getInfo(VALUE self)
 {
     ICE_RUBY_TRY
@@ -327,7 +312,6 @@ IceRuby::initConnection(VALUE iceModule)
     rb_define_method(_connectionClass, "flushBatchRequests", CAST_METHOD(IceRuby_Connection_flushBatchRequests), 1);
     rb_define_method(_connectionClass, "heartbeat", CAST_METHOD(IceRuby_Connection_heartbeat), 0);
     rb_define_method(_connectionClass, "type", CAST_METHOD(IceRuby_Connection_type), 0);
-    rb_define_method(_connectionClass, "timeout", CAST_METHOD(IceRuby_Connection_timeout), 0);
     rb_define_method(_connectionClass, "getInfo", CAST_METHOD(IceRuby_Connection_getInfo), 0);
     rb_define_method(_connectionClass, "getEndpoint", CAST_METHOD(IceRuby_Connection_getEndpoint), 0);
     rb_define_method(_connectionClass, "setBufferSize", CAST_METHOD(IceRuby_Connection_setBufferSize), 2);

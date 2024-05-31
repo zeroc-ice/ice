@@ -281,7 +281,7 @@ public sealed class ServantManager : Object
                 return;
             }
 
-            logger = _instance.initializationData().logger;
+            logger = _instance.initializationData().logger!;
 
             _servantMapMap.Clear();
 

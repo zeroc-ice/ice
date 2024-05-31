@@ -1212,64 +1212,6 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getCompress)
     }
 }
 
-ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_timeout_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
-ZEND_ARG_INFO(0, timeout)
-ZEND_END_ARG_INFO()
-
-ZEND_METHOD(Ice_ObjectPrx, ice_timeout)
-{
-    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
-    assert(_this);
-
-    try
-    {
-        zend_long l;
-        if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("l"), &l) != SUCCESS)
-        {
-            RETURN_NULL();
-        }
-        // TODO: range check?
-        if (!_this->clone(return_value, _this->proxy->ice_timeout(static_cast<int32_t>(l))))
-        {
-            RETURN_NULL();
-        }
-    }
-    catch (...)
-    {
-        throwException(current_exception());
-        RETURN_NULL();
-    }
-}
-
-ZEND_METHOD(Ice_ObjectPrx, ice_getTimeout)
-{
-    if (ZEND_NUM_ARGS() != 0)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
-    assert(_this);
-
-    try
-    {
-        optional<int> timeout = _this->proxy->ice_getTimeout();
-        if (timeout)
-        {
-            ZVAL_LONG(return_value, static_cast<long>(*timeout));
-        }
-        else
-        {
-            assignUnset(return_value);
-        }
-    }
-    catch (...)
-    {
-        throwException(current_exception());
-        RETURN_NULL();
-    }
-}
-
 ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_invocationTimeout_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
 ZEND_ARG_INFO(0, invocationTiemout)
 ZEND_END_ARG_INFO()
@@ -1815,10 +1757,6 @@ static zend_function_entry _proxyMethods[] = {
     ZEND_ME(Ice_ObjectPrx, ice_compress, Ice_ObjectPrx_ice_compress_arginfo, ZEND_ACC_PUBLIC)
     // ice_getCompress
     ZEND_ME(Ice_ObjectPrx, ice_getCompress, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    // ice_timeout
-    ZEND_ME(Ice_ObjectPrx, ice_timeout, Ice_ObjectPrx_ice_timeout_arginfo, ZEND_ACC_PUBLIC)
-    // ice_getTimeout
-    ZEND_ME(Ice_ObjectPrx, ice_getTimeout, ice_void_arginfo, ZEND_ACC_PUBLIC)
     // ice_invocationTimeout
     ZEND_ME(Ice_ObjectPrx, ice_invocationTimeout, Ice_ObjectPrx_ice_invocationTimeout_arginfo, ZEND_ACC_PUBLIC)
     // ice_getInvocationTimeout

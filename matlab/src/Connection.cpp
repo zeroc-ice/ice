@@ -294,18 +294,6 @@ extern "C"
         }
     }
 
-    mxArray* Ice_Connection_timeout(void* self)
-    {
-        try
-        {
-            return createResultValue(createInt(deref<Ice::Connection>(self)->timeout()));
-        }
-        catch (...)
-        {
-            return createResultException(convertException(std::current_exception()));
-        }
-    }
-
     mxArray* Ice_Connection_toString(void* self)
     {
         try

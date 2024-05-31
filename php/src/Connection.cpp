@@ -197,27 +197,6 @@ ZEND_METHOD(Ice_Connection, type)
     }
 }
 
-ZEND_METHOD(Ice_Connection, timeout)
-{
-    if (ZEND_NUM_ARGS() != 0)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
-    assert(_this);
-    try
-    {
-        int32_t timeout = _this->timeout();
-        ZVAL_LONG(return_value, static_cast<long>(timeout));
-    }
-    catch (...)
-    {
-        throwException(current_exception());
-        RETURN_NULL();
-    }
-}
-
 ZEND_METHOD(Ice_Connection, toString) { ZEND_MN(Ice_Connection___toString)(INTERNAL_FUNCTION_PARAM_PASSTHRU); }
 
 ZEND_METHOD(Ice_Connection, getInfo)
@@ -349,14 +328,11 @@ static zend_function_entry _connectionClassMethods[] = {
             flushBatchRequests,
             Ice_Connection_flushBatchRequests_arginfo,
             ZEND_ACC_PUBLIC) ZEND_ME(Ice_Connection, heartbeat, ice_void_arginfo, ZEND_ACC_PUBLIC)
-            ZEND_ME(Ice_Connection, type, ice_void_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(
-                Ice_Connection,
-                timeout,
-                ice_void_arginfo,
-                ZEND_ACC_PUBLIC) ZEND_ME(Ice_Connection, toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
-                ZEND_ME(Ice_Connection, getInfo, ice_void_arginfo, ZEND_ACC_PUBLIC)
-                    ZEND_ME(Ice_Connection, setBufferSize, Ice_Connection_setBufferSize_arginfo, ZEND_ACC_PUBLIC)
-                        ZEND_ME(Ice_Connection, throwException, ice_void_arginfo, ZEND_ACC_PUBLIC){0, 0, 0}};
+            ZEND_ME(Ice_Connection, type, ice_void_arginfo, ZEND_ACC_PUBLIC)
+                ZEND_ME(Ice_Connection, toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
+                    ZEND_ME(Ice_Connection, getInfo, ice_void_arginfo, ZEND_ACC_PUBLIC)
+                        ZEND_ME(Ice_Connection, setBufferSize, Ice_Connection_setBufferSize_arginfo, ZEND_ACC_PUBLIC)
+                            ZEND_ME(Ice_Connection, throwException, ice_void_arginfo, ZEND_ACC_PUBLIC){0, 0, 0}};
 
 ZEND_METHOD(Ice_ConnectionInfo, __construct) { runtimeError("ConnectionInfo cannot be instantiated"); }
 

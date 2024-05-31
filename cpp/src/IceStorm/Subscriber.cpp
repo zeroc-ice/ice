@@ -303,8 +303,8 @@ namespace
 {
     SubscriberLink::SubscriberLink(const shared_ptr<Instance>& instance, const SubscriberRecord& rec)
         : Subscriber(instance, rec, nullopt, -1, 1),
-          _obj(TopicLinkPrx(
-              rec.obj->ice_collocationOptimized(false)->ice_timeout(static_cast<int>(instance->sendTimeout().count()))))
+          _obj(TopicLinkPrx(rec.obj->ice_collocationOptimized(false)->ice_invocationTimeout(
+              static_cast<int>(instance->sendTimeout().count()))))
     {
     }
 
@@ -410,11 +410,11 @@ Subscriber::create(const shared_ptr<Instance>& instance, const SubscriberRecord&
                 throw BadQoS("invalid reliability: " + reliability);
             }
 
-            // Override the timeout.
+            // Override the invocation timeout.
             optional<Ice::ObjectPrx> newObj;
             try
             {
-                newObj = rec.obj->ice_timeout(static_cast<int>(instance->sendTimeout().count()));
+                newObj = rec.obj->ice_invocationTimeout(static_cast<int>(instance->sendTimeout().count()));
             }
             catch (const Ice::FixedProxyException&)
             {

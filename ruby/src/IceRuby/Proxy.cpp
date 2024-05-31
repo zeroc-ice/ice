@@ -791,46 +791,6 @@ IceRuby_ObjectPrx_ice_getCompress(VALUE self)
 }
 
 extern "C" VALUE
-IceRuby_ObjectPrx_ice_timeout(VALUE self, VALUE t)
-{
-    ICE_RUBY_TRY
-    {
-        try
-        {
-            Ice::ObjectPrx p = getProxy(self);
-            int32_t timeout = static_cast<int32_t>(getInteger(t));
-            return createProxy(p->ice_timeout(timeout), rb_class_of(self));
-        }
-        catch (const invalid_argument& ex)
-        {
-            throw RubyException(rb_eArgError, ex.what());
-        }
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C" VALUE
-IceRuby_ObjectPrx_ice_getTimeout(VALUE self)
-{
-    ICE_RUBY_TRY
-    {
-        Ice::ObjectPrx p = getProxy(self);
-        optional<int> t = p->ice_getTimeout();
-        if (t)
-        {
-            return INT2FIX(*t);
-        }
-        else
-        {
-            return Unset;
-        }
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C" VALUE
 IceRuby_ObjectPrx_ice_connectionId(VALUE self, VALUE id)
 {
     ICE_RUBY_TRY
@@ -1268,8 +1228,6 @@ IceRuby::initProxy(VALUE iceModule)
     rb_define_method(_proxyClass, "ice_isBatchDatagram", CAST_METHOD(IceRuby_ObjectPrx_ice_isBatchDatagram), 0);
     rb_define_method(_proxyClass, "ice_compress", CAST_METHOD(IceRuby_ObjectPrx_ice_compress), 1);
     rb_define_method(_proxyClass, "ice_getCompress", CAST_METHOD(IceRuby_ObjectPrx_ice_getCompress), 0);
-    rb_define_method(_proxyClass, "ice_timeout", CAST_METHOD(IceRuby_ObjectPrx_ice_timeout), 1);
-    rb_define_method(_proxyClass, "ice_getTimeout", CAST_METHOD(IceRuby_ObjectPrx_ice_getTimeout), 0);
     rb_define_method(_proxyClass, "ice_connectionId", CAST_METHOD(IceRuby_ObjectPrx_ice_connectionId), 1);
     rb_define_method(_proxyClass, "ice_fixed", CAST_METHOD(IceRuby_ObjectPrx_ice_fixed), 1);
     rb_define_method(_proxyClass, "ice_isFixed", CAST_METHOD(IceRuby_ObjectPrx_ice_isFixed), 0);

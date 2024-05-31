@@ -1507,67 +1507,6 @@ extern "C"
 extern "C"
 #endif
     static PyObject*
-    proxyIceTimeout(ProxyObject* self, PyObject* args)
-{
-    int timeout;
-    if (!PyArg_ParseTuple(args, STRCAST("i"), &timeout))
-    {
-        return 0;
-    }
-
-    assert(self->proxy);
-
-    optional<Ice::ObjectPrx> newProxy;
-    try
-    {
-        newProxy = (*self->proxy)->ice_timeout(timeout);
-    }
-    catch (const invalid_argument& ex)
-    {
-        PyErr_Format(PyExc_RuntimeError, "%s", ex.what());
-        return 0;
-    }
-    catch (...)
-    {
-        setPythonException(current_exception());
-        return 0;
-    }
-
-    return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceGetTimeout(ProxyObject* self, PyObject* /*args*/)
-{
-    assert(self->proxy);
-
-    try
-    {
-        optional<int> timeout = (*self->proxy)->ice_getTimeout();
-        if (timeout)
-        {
-            return PyLong_FromLong(*timeout);
-        }
-        else
-        {
-            Py_INCREF(Unset);
-            return Unset;
-        }
-    }
-    catch (...)
-    {
-        setPythonException(current_exception());
-        return 0;
-    }
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
     proxyIceIsCollocationOptimized(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
@@ -2393,14 +2332,6 @@ static PyMethodDef ProxyMethods[] = {
      reinterpret_cast<PyCFunction>(proxyIceGetCompress),
      METH_VARARGS,
      PyDoc_STR(STRCAST("ice_getCompress() -> bool"))},
-    {STRCAST("ice_timeout"),
-     reinterpret_cast<PyCFunction>(proxyIceTimeout),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("ice_timeout(int) -> Ice.ObjectPrx"))},
-    {STRCAST("ice_getTimeout"),
-     reinterpret_cast<PyCFunction>(proxyIceGetTimeout),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("ice_getTimeout() -> int"))},
     {STRCAST("ice_connectionId"),
      reinterpret_cast<PyCFunction>(proxyIceConnectionId),
      METH_VARARGS,

@@ -2845,7 +2845,7 @@ public class InputStream
                 catch (System.Exception ex)
                 {
                     string s = "exception raised by ice_postUnmarshal:\n" + ex;
-                    _stream.instance()!.initializationData().logger.warning(s);
+                    _stream.instance()!.initializationData().logger!.warning(s);
                 }
             }
             else
@@ -2873,7 +2873,7 @@ public class InputStream
                         catch (System.Exception ex)
                         {
                             string s = "exception raised by ice_postUnmarshal:\n" + ex;
-                            _stream.instance()!.initializationData().logger.warning(s);
+                            _stream.instance()!.initializationData().logger!.warning(s);
                         }
                     }
                     _valueList.Clear();
@@ -3090,7 +3090,7 @@ public class InputStream
         {
             if (_stream.instance()!.traceLevels().slicing > 0)
             {
-                Logger logger = _stream.instance()!.initializationData().logger;
+                Logger logger = _stream.instance()!.initializationData().logger!;
                 string slicingCat = _stream.instance()!.traceLevels().slicingCat;
                 if (_sliceType == SliceType.ValueSlice)
                 {
@@ -3490,7 +3490,7 @@ public class InputStream
         {
             if (_stream.instance()!.traceLevels().slicing > 0)
             {
-                Logger logger = _stream.instance()!.initializationData().logger;
+                Logger logger = _stream.instance()!.initializationData().logger!;
                 string slicingCat = _stream.instance()!.traceLevels().slicingCat;
                 if (_current!.sliceType == SliceType.ExceptionSlice)
                 {

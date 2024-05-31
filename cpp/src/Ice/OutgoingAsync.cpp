@@ -324,11 +324,7 @@ ProxyOutgoingAsyncBase::exception(std::exception_ptr exc)
         _childObserver.detach();
     }
 
-    _cachedConnection = 0;
-    if (_proxy._getReference()->getInvocationTimeout() == -2)
-    {
-        _instance->timer()->cancel(shared_from_this());
-    }
+    _cachedConnection = nullptr;
 
     //
     // NOTE: at this point, synchronization isn't needed, no other threads should be
@@ -351,20 +347,6 @@ ProxyOutgoingAsyncBase::exception(std::exception_ptr exc)
     {
         return exceptionImpl(current_exception()); // No retries, we're done
     }
-}
-
-void
-ProxyOutgoingAsyncBase::cancelable(const CancellationHandlerPtr& handler)
-{
-    if (_proxy._getReference()->getInvocationTimeout() == -2 && _cachedConnection)
-    {
-        const int timeout = _cachedConnection->timeout();
-        if (timeout > 0)
-        {
-            _instance->timer()->schedule(shared_from_this(), chrono::milliseconds(timeout));
-        }
-    }
-    OutgoingAsyncBase::cancelable(handler);
 }
 
 void

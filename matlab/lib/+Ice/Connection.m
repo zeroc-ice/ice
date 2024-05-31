@@ -16,7 +16,6 @@ classdef Connection < IceInternal.WrapperObject
     %   heartbeat - Send a heartbeat message.
     %   heartbeatAsync - Send a heartbeat message.
     %   type - Return the connection type.
-    %   timeout - Get the timeout for the connection.
     %   toString - Return a description of the connection as human readable
     %     text, suitable for logging or error messages.
     %   getInfo - Returns the connection information.
@@ -156,13 +155,6 @@ classdef Connection < IceInternal.WrapperObject
             % Returns (char) - The type of the connection.
 
             r = obj.iceCallWithResult('type');
-        end
-        function r = timeout(obj)
-            % timeout   Get the timeout for the connection.
-            %
-            % Returns (int32) - The connection's timeout.
-
-            r = obj.iceCallWithResult('timeout');
         end
         function r = toString(obj)
             % toString   Return a description of the connection as human

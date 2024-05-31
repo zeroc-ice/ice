@@ -108,8 +108,6 @@ extern "C"
     ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_batchDatagram(void*, void**);
     ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_compress(void*, void**, unsigned char);
     ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_getCompress(void*);
-    ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_timeout(void*, void**, int);
-    ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_getTimeout(void*);
     ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_fixed(void*, void**, void*);
     ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_isFixed(void* self);
     ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_getConnection(void*, void**);
@@ -171,7 +169,6 @@ extern "C"
     ICE_MATLAB_API mxArray* Ice_Connection_heartbeat(void*);
     ICE_MATLAB_API mxArray* Ice_Connection_heartbeatAsync(void*, void**);
     ICE_MATLAB_API mxArray* Ice_Connection_type(void*);
-    ICE_MATLAB_API mxArray* Ice_Connection_timeout(void*);
     ICE_MATLAB_API mxArray* Ice_Connection_toString(void*);
     ICE_MATLAB_API mxArray* Ice_Connection_getInfo(void*);
     ICE_MATLAB_API mxArray* Ice_Connection_setBufferSize(void*, int, int);
