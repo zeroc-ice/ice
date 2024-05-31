@@ -267,8 +267,10 @@ public sealed class OutgoingConnectionFactory
             DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
             Debug.Assert(endpoints.Count > 0);
 
-            foreach (EndpointI endpoint in endpoints)
+            foreach (EndpointI proxyEndpoint in endpoints)
             {
+                EndpointI endpoint = proxyEndpoint.timeout(-1); // Clear the timeout
+
                 ICollection<Ice.ConnectionI> connectionList = null;
                 if (!_connectionsByEndpoint.TryGetValue(endpoint, out connectionList))
                 {
@@ -277,7 +279,7 @@ public sealed class OutgoingConnectionFactory
 
                 foreach (Ice.ConnectionI connection in connectionList)
                 {
-                    if (connection.isActiveOrHolding()) // Don't return destroyed or unvalidated connections
+                    if (connection.isActiveOrHolding()) // Don't return destroyed or un-validated connections
                     {
                         if (defaultsAndOverrides.overrideCompress)
                         {
@@ -467,7 +469,7 @@ public sealed class OutgoingConnectionFactory
                     _instance,
                     transceiver,
                     ci.connector,
-                    ci.endpoint.compress(false),
+                    ci.endpoint.compress(false).timeout(-1),
                     adapter: null,
                     removeConnection,
                     _connectionOptions);

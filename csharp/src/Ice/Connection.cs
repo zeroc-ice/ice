@@ -172,12 +172,6 @@ namespace Ice
         string type();
 
         /// <summary>
-        /// Get the timeout for the connection.
-        /// </summary>
-        /// <returns>The connection's timeout.</returns>
-        int timeout();
-
-        /// <summary>
         /// Return a description of the connection as human readable text, suitable for logging or error messages.
         /// </summary>
         /// <returns>The description of the connection as human readable text.</returns>

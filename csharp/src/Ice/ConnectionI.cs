@@ -1377,11 +1377,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         return _type; // No mutex lock, _type is immutable.
     }
 
-    public int timeout()
-    {
-        return _endpoint.timeout(); // No mutex protection necessary, _endpoint is immutable.
-    }
-
     public ConnectionInfo getInfo()
     {
         lock (this)
