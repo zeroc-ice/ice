@@ -2048,7 +2048,7 @@ public class OutputStream
                     catch (System.Exception ex)
                     {
                         string s = "exception raised by ice_preMarshal:\n" + ex;
-                        _stream.instance()!.initializationData().logger.warning(s);
+                        _stream.instance()!.initializationData().logger!.warning(s);
                     }
 
                     p.Key.iceWrite(_stream);
@@ -2384,7 +2384,7 @@ public class OutputStream
             catch (System.Exception ex)
             {
                 string s = "exception raised by ice_preMarshal:\n" + ex;
-                _stream.instance()!.initializationData().logger.warning(s);
+                _stream.instance()!.initializationData().logger!.warning(s);
             }
 
             _stream.writeSize(1); // Object instance marker.
