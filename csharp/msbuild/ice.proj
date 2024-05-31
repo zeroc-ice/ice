@@ -141,9 +141,10 @@
 
     <Target Name="UnixNuGetPack" DependsOnTargets="BuildDist" Condition="'$(OS)' != 'Windows_NT'">
         <RemoveDir Directories="zeroc.ice.net" />
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\net8.0\icebox.csproj"
-                 Properties="Configuration=$(Configuration);Platform=Any CPU"
-                 Targets="Publish"/>
+        <!-- Build iceboxnet with net8.0 target framework (default) -->
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBoxNet\IceBoxNet.csproj"
+                 Properties="Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=net8.0"
+                 Targets="Restore;Publish" />
         <MSBuild Projects="zeroc.ice.net.csproj" Targets="Restore;Pack"/>
         <RemoveDir Directories="obj"/>
         <Delete Files="zeroc.ice.net\zeroc.ice.net.deps.json;zeroc.ice.net\zeroc.ice.net.dll;zeroc.ice.net\zeroc.ice.net.pdb"/>
