@@ -621,7 +621,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         {
             // Go through the adapter to set the adapter and servant manager on this connection
             // to ensure the object adapter is still active.
-            ((ObjectAdapterI)adapter).setAdapterOnConnection(this);
+            adapter.setAdapterOnConnection(this);
         }
         else
         {
@@ -656,11 +656,11 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     public ObjectPrx createProxy(Identity ident)
     {
-        ObjectAdapterI.checkIdentity(ident);
+        ObjectAdapter.checkIdentity(ident);
         return new ObjectPrxHelper(_instance.referenceFactory().create(ident, this));
     }
 
-    public void setAdapterFromAdapter(ObjectAdapterI adapter)
+    public void setAdapterFromAdapter(ObjectAdapter adapter)
     {
         lock (this)
         {
@@ -668,7 +668,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             {
                 return;
             }
-            Debug.Assert(adapter is not null); // Called by ObjectAdapterI::setAdapterOnConnection
+            Debug.Assert(adapter is not null); // Called by ObjectAdapter::setAdapterOnConnection
             _adapter = adapter;
         }
     }
@@ -1425,7 +1425,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         Transceiver transceiver,
         Connector connector,
         EndpointI endpoint,
-        ObjectAdapterI adapter,
+        ObjectAdapter adapter,
         Action<ConnectionI> removeFromFactory, // can be null
         ConnectionOptions options)
     {
@@ -2201,7 +2201,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         public int requestCount;
         public int requestId;
         public byte compress;
-        public ObjectAdapterI adapter;
+        public ObjectAdapter adapter;
         public OutgoingAsyncBase outAsync;
         public HeartbeatCallback heartbeatCallback;
         public int upcallCount;
@@ -2398,7 +2398,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         int requestCount,
         int requestId,
         byte compress,
-        ObjectAdapterI adapter)
+        ObjectAdapter adapter)
     {
         // Note: In contrast to other private or protected methods, this method must be called *without* the mutex
         // locked.
@@ -2775,7 +2775,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     private Connector _connector;
     private EndpointI _endpoint;
 
-    private ObjectAdapterI _adapter;
+    private ObjectAdapter _adapter;
 
     private Logger _logger;
     private TraceLevels _traceLevels;
