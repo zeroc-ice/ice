@@ -26,22 +26,6 @@ if (typeof process !== 'undefined')
     const StateProxyConnectRequestPending = 3;
     const StateConnected = 4;
 
-    //
-    // TODO: WORKAROUND: We can directly use Buffer.from once we drop
-    // support for Node 4.x
-    //
-    let createBuffer = null;
-    if(Buffer.from)
-    {
-        createBuffer = Buffer.from;
-    }
-    else
-    {
-        /* eslint-disable no-buffer-constructor */
-        createBuffer = data => new Buffer(data);
-        /* eslint-enable no-buffer-constructor */
-    }
-
     TcpTransceiver = class
     {
         constructor(instance)
@@ -201,7 +185,7 @@ if (typeof process !== 'undefined')
                 const slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + packetSize);
 
                 let sync = true;
-                sync = this._fd.write(createBuffer(slice), null, () =>
+                sync = this._fd.write(Buffer.from(slice), null, () =>
                     {
                         if(!sync)
                         {
@@ -251,7 +235,7 @@ if (typeof process !== 'undefined')
                     avail = byteBuffer.remaining;
                 }
 
-                this._readBuffers[0].copy(createBuffer(byteBuffer.b), byteBuffer.position, this._readPosition,
+                this._readBuffers[0].copy(Buffer.from(byteBuffer.b), byteBuffer.position, this._readPosition,
                                         this._readPosition + avail);
 
                 byteBuffer.position += avail;

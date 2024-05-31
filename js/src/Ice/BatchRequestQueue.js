@@ -12,11 +12,9 @@ const OutputStream = Ice.OutputStream;
 const Debug = Ice.Debug;
 const Protocol = Ice.Protocol;
 
-const udpOverhead = 20 + 8;
-
 class BatchRequestQueue
 {
-    constructor(instance, datagram)
+    constructor(instance)
     {
         this._batchStreamInUse = false;
         this._batchRequestNum = 0;
@@ -26,15 +24,6 @@ class BatchRequestQueue
         this._exception = null;
 
         this._maxSize = instance.batchAutoFlushSize();
-        if(this._maxSize > 0 && datagram)
-        {
-            const udpSndSize = instance.initializationData().properties.getPropertyAsIntWithDefault(
-                "Ice.UDP.SndSize", 65535 - udpOverhead);
-            if(udpSndSize < this._maxSize)
-            {
-                this._maxSize = udpSndSize;
-            }
-        }
     }
 
     prepareBatchRequest(os)

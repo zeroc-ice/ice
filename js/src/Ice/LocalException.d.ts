@@ -702,20 +702,6 @@ export namespace Ice
     }
 
     /**
-     * A datagram exceeds the configured size. This exception is raised if a datagram exceeds the configured send or
-     * receive buffer size, or exceeds the maximum payload size of a UDP packet (65507 bytes).
-     */
-    class DatagramLimitException extends ProtocolException
-    {
-        /**
-         * One-shot constructor to initialize all data members.
-         * @param reason The reason for the failure.
-         * @param ice_cause The error that cause this exception.
-         */
-        constructor(reason?:string, ice_cause?:string|Error);
-    }
-
-    /**
      * This exception is raised for errors during marshaling or unmarshaling data.
      */
     class MarshalException extends ProtocolException
