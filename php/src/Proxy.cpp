@@ -1671,7 +1671,7 @@ handleCompare(zval* zobj1, zval* zobj2)
 
 // Predefined methods for ObjectPrx.
 static zend_function_entry _proxyMethods[] = {
-    // constructor
+    // _construct
     ZEND_ME(Ice_ObjectPrx, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
     // __toString
     ZEND_ME(Ice_ObjectPrx, __toString, ice_to_string_arginfo, ZEND_ACC_PUBLIC)

@@ -221,15 +221,20 @@ handleClone(zend_object*)
 // Predefined methods for Logger.
 static zend_function_entry _interfaceMethods[] = {{0, 0, 0}};
 static zend_function_entry _classMethods[] = {
-    ZEND_ME(Ice_Logger, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR) ZEND_ME(
-        Ice_Logger,
-        __toString,
-        ice_to_string_arginfo,
-        ZEND_ACC_PUBLIC) ZEND_ME(Ice_Logger, print, Ice_Logger_print_arginfo, ZEND_ACC_PUBLIC)
-        ZEND_ME(Ice_Logger, trace, Ice_Logger_trace_arginfo, ZEND_ACC_PUBLIC)
-            ZEND_ME(Ice_Logger, warning, Ice_Logger_warning_arginfo, ZEND_ACC_PUBLIC)
-                ZEND_ME(Ice_Logger, error, Ice_Logger_error_arginfo, ZEND_ACC_PUBLIC)
-                    ZEND_ME(Ice_Logger, cloneWithPrefix, Ice_Logger_cloneWithPrefix_arginfo, ZEND_ACC_PUBLIC){0, 0, 0}};
+    // _construct
+    ZEND_ME(Ice_Logger, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
+    // __toString
+    ZEND_ME(Ice_Logger, __toString, ice_to_string_arginfo, ZEND_ACC_PUBLIC)
+    // print
+    ZEND_ME(Ice_Logger, print, Ice_Logger_print_arginfo, ZEND_ACC_PUBLIC)
+    // trace
+    ZEND_ME(Ice_Logger, trace, Ice_Logger_trace_arginfo, ZEND_ACC_PUBLIC)
+    // warning
+    ZEND_ME(Ice_Logger, warning, Ice_Logger_warning_arginfo, ZEND_ACC_PUBLIC)
+    // error
+    ZEND_ME(Ice_Logger, error, Ice_Logger_error_arginfo, ZEND_ACC_PUBLIC)
+    // cloneWithPrefix
+    ZEND_ME(Ice_Logger, cloneWithPrefix, Ice_Logger_cloneWithPrefix_arginfo, ZEND_ACC_PUBLIC){0, 0, 0}};
 
 bool
 IcePHP::loggerInit(void)
