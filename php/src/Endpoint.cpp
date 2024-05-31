@@ -183,17 +183,25 @@ static zend_function_entry _interfaceMethods[] = {{0, 0, 0}};
 
 // Predefined methods for Endpoint.
 static zend_function_entry _endpointMethods[] = {
+    // _construct
     ZEND_ME(Ice_Endpoint, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
-        ZEND_ME(Ice_Endpoint, __toString, ice_to_string_arginfo, ZEND_ACC_PUBLIC)
-            ZEND_ME(Ice_Endpoint, toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
-                ZEND_ME(Ice_Endpoint, getInfo, ice_void_arginfo, ZEND_ACC_PUBLIC){0, 0, 0}};
+    // __toString
+    ZEND_ME(Ice_Endpoint, __toString, ice_to_string_arginfo, ZEND_ACC_PUBLIC)
+    // toString
+    ZEND_ME(Ice_Endpoint, toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    // getInfo
+    ZEND_ME(Ice_Endpoint, getInfo, ice_void_arginfo, ZEND_ACC_PUBLIC){0, 0, 0}};
 
 // Predefined methods for EndpointInfo.
 static zend_function_entry _endpointInfoMethods[] = {
+    // _construct
     ZEND_ME(Ice_EndpointInfo, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
-        ZEND_ME(Ice_EndpointInfo, type, ice_void_arginfo, ZEND_ACC_PUBLIC)
-            ZEND_ME(Ice_EndpointInfo, datagram, ice_void_arginfo, ZEND_ACC_PUBLIC)
-                ZEND_ME(Ice_EndpointInfo, secure, ice_void_arginfo, ZEND_ACC_PUBLIC){0, 0, 0}};
+    // type
+    ZEND_ME(Ice_EndpointInfo, type, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    // datagram
+    ZEND_ME(Ice_EndpointInfo, datagram, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    // secure
+    ZEND_ME(Ice_EndpointInfo, secure, ice_void_arginfo, ZEND_ACC_PUBLIC){0, 0, 0}};
 
 bool
 IcePHP::endpointInit(void)
