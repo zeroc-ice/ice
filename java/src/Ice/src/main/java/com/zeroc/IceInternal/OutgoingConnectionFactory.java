@@ -112,27 +112,9 @@ public final class OutgoingConnectionFactory {
     }
 
     synchronized (this) {
-      // Ensure all the connections are finished and reapable at this point.
-      java.util.List<ConnectionI> cons = _monitor.swapReapedConnections();
-      if (cons != null) {
-        int size = 0;
-        for (java.util.List<ConnectionI> connectionList : _connections.values()) {
-          size += connectionList.size();
-        }
-        assert (cons.size() == size);
-        _connections.clear();
-        _connectionsByEndpoint.clear();
-      } else {
-        assert (_connections.isEmpty());
-        assert (_connectionsByEndpoint.isEmpty());
-      }
+      _connections.clear();
+      _connectionsByEndpoint.clear();
     }
-
-    //
-    // Must be destroyed outside the synchronization since this might block waiting for
-    // a timer task to complete.
-    //
-    _monitor.destroy();
   }
 
   public void create(
@@ -278,7 +260,6 @@ public final class OutgoingConnectionFactory {
   OutgoingConnectionFactory(com.zeroc.Ice.Communicator communicator, Instance instance) {
     _communicator = communicator;
     _instance = instance;
-    _monitor = new FactoryACMMonitor(instance, instance.clientACM());
     _destroyed = false;
   }
 
@@ -409,18 +390,6 @@ public final class OutgoingConnectionFactory {
       }
 
       //
-      // Reap closed connections
-      //
-      java.util.List<ConnectionI> cons = _monitor.swapReapedConnections();
-      if (cons != null) {
-        for (ConnectionI c : cons) {
-          _connections.removeElementWithValue(c.connector(), c);
-          _connectionsByEndpoint.removeElementWithValue(c.endpoint(), c);
-          _connectionsByEndpoint.removeElementWithValue(c.endpoint().compress(true), c);
-        }
-      }
-
-      //
       // Try to get the connection. We may need to wait for other threads to
       // finish if one of them is currently establishing a connection to one
       // of our connectors.
@@ -482,10 +451,10 @@ public final class OutgoingConnectionFactory {
           new ConnectionI(
               _communicator,
               _instance,
-              _monitor,
               transceiver,
               ci.connector,
               ci.endpoint.compress(false),
+              this::removeConnection,
               null);
     } catch (LocalException ex) {
       try {
@@ -668,6 +637,16 @@ public final class OutgoingConnectionFactory {
       s.append(ex.toString());
       _instance.initializationData().logger.trace(traceLevels.networkCat, s.toString());
     }
+  }
+
+  private synchronized void removeConnection(ConnectionI connection) {
+    if (_destroyed) {
+      return;
+    }
+
+    _connections.remove(connection.connector(), connection);
+    _connectionsByEndpoint.remove(connection.endpoint(), connection);
+    _connectionsByEndpoint.remove(connection.endpoint().compress(true), connection);
   }
 
   private static class ConnectorInfo {
@@ -939,7 +918,6 @@ public final class OutgoingConnectionFactory {
 
   private com.zeroc.Ice.Communicator _communicator;
   private final Instance _instance;
-  private final FactoryACMMonitor _monitor;
   private boolean _destroyed;
 
   private MultiHashMap<Connector, ConnectionI> _connections = new MultiHashMap<>();

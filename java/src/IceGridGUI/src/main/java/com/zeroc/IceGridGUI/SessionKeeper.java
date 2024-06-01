@@ -158,12 +158,7 @@ public class SessionKeeper {
       }
 
       if (acmTimeout > 0) {
-        _session
-            .ice_getConnection()
-            .setACM(
-                java.util.OptionalInt.of(acmTimeout),
-                null,
-                java.util.Optional.of(com.zeroc.Ice.ACMHeartbeat.HeartbeatAlways));
+        // TODO: verify compatibility
 
         _session
             .ice_getConnection()

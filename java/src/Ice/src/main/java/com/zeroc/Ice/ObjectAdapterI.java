@@ -676,12 +676,6 @@ public final class ObjectAdapterI implements ObjectAdapter {
     return _servantManager;
   }
 
-  public com.zeroc.IceInternal.ACMConfig getACM() {
-    // No check for deactivation here!
-    assert (_instance != null); // Must not be called after destroy().
-    return _acm;
-  }
-
   public synchronized void setAdapterOnConnection(com.zeroc.Ice.ConnectionI connection) {
     checkForDeactivation();
     connection.setAdapterAndServantManager(this, _servantManager);
@@ -716,7 +710,6 @@ public final class ObjectAdapterI implements ObjectAdapter {
       _id = "";
       _replicaGroupId = "";
       _reference = _instance.referenceFactory().create("dummy -t", "");
-      _acm = _instance.serverACM();
       _messageSizeMax = _instance.messageSizeMax();
       return;
     }
@@ -771,10 +764,6 @@ public final class ObjectAdapterI implements ObjectAdapter {
       ex.reason = "invalid proxy options `" + proxyOptions + "' for object adapter `" + _name + "'";
       throw ex;
     }
-
-    _acm =
-        new com.zeroc.IceInternal.ACMConfig(
-            properties, communicator.getLogger(), _name + ".ACM", instance.serverACM());
 
     {
       final int defaultMessageSizeMax = instance.messageSizeMax() / 1024;
@@ -1194,10 +1183,6 @@ public final class ObjectAdapterI implements ObjectAdapter {
   }
 
   private static String[] _suffixes = {
-    "ACM",
-    "ACM.Timeout",
-    "ACM.Heartbeat",
-    "ACM.Close",
     "AdapterId",
     "Endpoints",
     "Locator",
@@ -1281,7 +1266,6 @@ public final class ObjectAdapterI implements ObjectAdapter {
   private Communicator _communicator;
   private com.zeroc.IceInternal.ObjectAdapterFactory _objectAdapterFactory;
   private com.zeroc.IceInternal.ThreadPool _threadPool;
-  private com.zeroc.IceInternal.ACMConfig _acm;
   private com.zeroc.IceInternal.ServantManager _servantManager;
   private final String _name;
   private final String _id;

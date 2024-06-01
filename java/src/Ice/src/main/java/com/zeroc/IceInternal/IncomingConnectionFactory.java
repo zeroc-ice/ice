@@ -92,41 +92,23 @@ public final class IncomingConnectionFactory extends EventHandler
       connections = new java.util.LinkedList<>(_connections);
     }
 
-    if (connections != null) {
-      for (ConnectionI connection : connections) {
-        try {
-          connection.waitUntilFinished();
-        } catch (InterruptedException e) {
-          //
-          // Force close all of the connections.
-          //
-          for (ConnectionI c : connections) {
-            c.close(com.zeroc.Ice.ConnectionClose.Forcefully);
-          }
-          throw e;
+    for (ConnectionI connection : connections) {
+      try {
+        connection.waitUntilFinished();
+      } catch (InterruptedException e) {
+        //
+        // Force close all of the connections.
+        //
+        for (ConnectionI c : connections) {
+          c.close(com.zeroc.Ice.ConnectionClose.Forcefully);
         }
+        throw e;
       }
     }
 
     synchronized (this) {
-      if (_transceiver != null) {
-        assert (_connections.size() <= 1); // The connection isn't monitored or reaped.
-      } else {
-        // Ensure all the connections are finished and reapable at this point.
-        java.util.List<ConnectionI> cons = _monitor.swapReapedConnections();
-        assert ((cons == null ? 0 : cons.size()) == _connections.size());
-        if (cons != null) {
-          cons.clear();
-        }
-      }
       _connections.clear();
     }
-
-    //
-    // Must be destroyed outside the synchronization since this might block waiting for
-    // a timer task to complete.
-    //
-    _monitor.destroy();
   }
 
   public boolean isLocal(EndpointI endpoint) {
@@ -190,16 +172,6 @@ public final class IncomingConnectionFactory extends EventHandler
         return;
       }
 
-      //
-      // Reap closed connections.
-      //
-      java.util.List<ConnectionI> cons = _monitor.swapReapedConnections();
-      if (cons != null) {
-        for (ConnectionI c : cons) {
-          _connections.remove(c);
-        }
-      }
-
       if (!_acceptorStarted) {
         return;
       }
@@ -259,10 +231,10 @@ public final class IncomingConnectionFactory extends EventHandler
             new ConnectionI(
                 _adapter.getCommunicator(),
                 _instance,
-                _monitor,
                 transceiver,
                 null,
                 _endpoint,
+                this::removeConnection,
                 _adapter);
       } catch (com.zeroc.Ice.LocalException ex) {
         try {
@@ -369,7 +341,6 @@ public final class IncomingConnectionFactory extends EventHandler
             : false;
     _state = StateHolding;
     _acceptorStarted = false;
-    _monitor = new FactoryACMMonitor(instance, adapter.getACM());
 
     DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
     if (defaultsAndOverrides.overrideTimeout) {
@@ -383,6 +354,7 @@ public final class IncomingConnectionFactory extends EventHandler
     try {
       _transceiver = _endpoint.transceiver();
       if (_transceiver != null) {
+        // All this is for UDP "connections".
         if (_instance.traceLevels().network >= 2) {
           StringBuffer s = new StringBuffer("attempting to bind to ");
           s.append(_endpoint.protocol());
@@ -399,10 +371,10 @@ public final class IncomingConnectionFactory extends EventHandler
             new ConnectionI(
                 _adapter.getCommunicator(),
                 _instance,
-                null,
                 _transceiver,
                 null,
                 _endpoint,
+                null,
                 _adapter);
         connection.startAndWait();
 
@@ -423,7 +395,6 @@ public final class IncomingConnectionFactory extends EventHandler
       }
 
       _state = StateFinished;
-      _monitor.destroy();
       _connections.clear();
 
       if (ex instanceof com.zeroc.Ice.LocalException) {
@@ -606,13 +577,19 @@ public final class IncomingConnectionFactory extends EventHandler
     _acceptor.close();
   }
 
+  private synchronized void removeConnection(ConnectionI connection) {
+    if (_state == StateActive || _state == StateHolding) {
+      _connections.remove(connection);
+    }
+    // else it's already being cleaned up.
+  }
+
   private void warning(com.zeroc.Ice.LocalException ex) {
     String s = "connection exception:\n" + Ex.toString(ex) + '\n' + _acceptor.toString();
     _instance.initializationData().logger.warning(s);
   }
 
   private final Instance _instance;
-  private final FactoryACMMonitor _monitor;
 
   private Acceptor _acceptor;
   private Transceiver _transceiver;

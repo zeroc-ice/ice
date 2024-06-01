@@ -209,10 +209,6 @@ public class ControllerApp extends Application {
                 } else {
                   com.zeroc.Ice.Connection connection = registry.ice_getConnection();
                   connection.setAdapter(adapter);
-                  connection.setACM(
-                      OptionalInt.of(5),
-                      Optional.of(com.zeroc.Ice.ACMClose.CloseOff),
-                      Optional.of(com.zeroc.Ice.ACMHeartbeat.HeartbeatAlways));
                   connection.setCloseCallback(
                       con -> {
                         println("connection with process controller registry closed");
