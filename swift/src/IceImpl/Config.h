@@ -17,5 +17,3 @@
 #    endif
 
 #endif
-
-#define ICE_SWIFT_UNAVAILABLE(msg) __attribute__((unavailable(msg)))

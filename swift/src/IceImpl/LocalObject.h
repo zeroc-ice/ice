@@ -12,13 +12,11 @@ ICEIMPL_API @interface ICELocalObject : NSObject
 // this ICELocalObject. That way we can recover the Swift object later.
 //
 @property(weak, atomic, nullable) id swiftRef;
-- (instancetype)init ICE_SWIFT_UNAVAILABLE("");
 @end
 
 #ifdef __cplusplus
 
-@interface
-ICELocalObject ()
+@interface ICELocalObject ()
 @property(nonatomic, readonly) std::shared_ptr<void> cppObject;
 + (nullable instancetype)getHandle:(std::shared_ptr<void>)cppObject NS_RETURNS_RETAINED;
 @end
