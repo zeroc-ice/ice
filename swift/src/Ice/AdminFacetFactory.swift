@@ -66,10 +66,6 @@ class AdminFacetFacade: ICEBlobjectFacade {
       exception: exception,
       current: current)
 
-    dispatch(incoming: incoming, current: current)
-  }
-
-  func dispatch(incoming: Incoming, current: Current) {
     // Dispatch directly to the servant. Do not call invoke on Incoming
     do {
       // Request was dispatched asynchronously if promise is non-nil

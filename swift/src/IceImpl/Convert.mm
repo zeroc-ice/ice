@@ -3,7 +3,6 @@
 //
 
 #import "Convert.h"
-#import "BlobjectFacade.h"
 #import "Exception.h"
 #import "IceUtil.h"
 

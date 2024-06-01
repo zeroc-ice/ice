@@ -181,7 +181,7 @@ public final class Incoming {
             id: current.id, facet: current.facet, operation: current.operation)
         }
       } catch {
-        exceptionCallback(convertException(error))
+        exceptionCallback(convertIntoRuntimeException(error))
         return
       }
     }
@@ -209,7 +209,7 @@ public final class Incoming {
 
   func handleException(_ exception: Error) {
     guard let e = exception as? UserException else {
-      exceptionCallback(convertException(exception))
+      exceptionCallback(convertIntoRuntimeException(exception))
       return
     }
     ok = false  // response will contain a UserException
@@ -222,7 +222,7 @@ public final class Incoming {
     }
   }
 
-  func convertException(_ exception: Error) -> ICERuntimeException {
+  func convertIntoRuntimeException(_ exception: Error) -> ICERuntimeException {
     //
     // 1. run-time exceptions that travel over the wire
     // 2. other LocalExceptions and UserExceptions

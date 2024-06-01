@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#import "Ice/AsyncResponseHandler.h"
 #import "BlobjectFacade.h"
 #import "Convert.h"
 #import "ObjectAdapter.h"
@@ -9,29 +10,34 @@
 #import "Connection.h"
 
 void
-BlobjectFacade::ice_invokeAsync(
-    std::pair<const std::byte*, const std::byte*> inEncaps,
-    std::function<void(bool, std::pair<const std::byte*, const std::byte*>)> response,
-    std::function<void(std::exception_ptr)> error,
-    const Ice::Current& current)
+SwiftDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::OutgoingResponse)> sendResponse)
 {
+    Ice::Current& current = request.current();
+
+    // Here, we assume we can't guarantee that the callbacks are only called once. Hopefully we can fix that.
+    auto responseHandler = make_shared<IceInternal::AsyncResponseHandler>(std::move(sendResponse), current);
+
     ICEBlobjectResponse responseCallback = ^(bool ok, const void* outParams, long count) {
       const std::byte* start = static_cast<const std::byte*>(outParams);
-      response(ok, std::make_pair(start, start + static_cast<size_t>(count)));
+      responseHandler->sendResponse(ok, std::make_pair(start, start + static_cast<size_t>(count)));
     };
 
     ICEBlobjectException exceptionCallback = ^(ICERuntimeException* e) {
-      error(convertException(e));
+      responseHandler->sendException(convertException(e));
     };
 
     ICEObjectAdapter* adapter = [ICEObjectAdapter getHandle:current.adapter];
     ICEConnection* con = [ICEConnection getHandle:current.con];
 
+    int32_t sz;
+    const std::byte* inEncaps;
+    request.inputStream().readEncapsulation(inEncaps, sz);
+
     @autoreleasepool
     {
         [_facade facadeInvoke:adapter
-                inEncapsBytes:const_cast<std::byte*>(inEncaps.first)
-                inEncapsCount:static_cast<long>(inEncaps.second - inEncaps.first)
+                inEncapsBytes:const_cast<std::byte*>(inEncaps)
+                inEncapsCount:static_cast<long>(sz)
                           con:con
                          name:toNSString(current.id.name)
                      category:toNSString(current.id.category)

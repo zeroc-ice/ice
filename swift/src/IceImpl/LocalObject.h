@@ -8,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 ICEIMPL_API @interface ICELocalObject : NSObject
 //
-// We hold a weak referece to the (possile) Swift object which has a handle to
+// We hold a weak reference to the (possible) Swift object which has a handle to
 // this ICELocalObject. That way we can recover the Swift object later.
 //
 @property(weak, atomic, nullable) id swiftRef;

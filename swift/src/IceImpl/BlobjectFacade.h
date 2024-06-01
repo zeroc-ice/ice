@@ -34,18 +34,15 @@ ICEIMPL_API @protocol ICEBlobjectFacade
 
 #ifdef __cplusplus
 
-class BlobjectFacade : public Ice::BlobjectArrayAsync
+/// A C++ dispatcher that dispatches requests to a Swift object via an ObjC/Swift "facade".
+class SwiftDispatcher final : public Ice::Object
 {
 public:
-    BlobjectFacade(id<ICEBlobjectFacade> facade) : _facade(facade) {}
+    SwiftDispatcher(id<ICEBlobjectFacade> facade) : _facade(facade) {}
 
-    ~BlobjectFacade() { [_facade facadeRemoved]; }
+    ~SwiftDispatcher() final { [_facade facadeRemoved]; }
 
-    virtual void ice_invokeAsync(
-        std::pair<const std::byte*, const std::byte*> inEncaps,
-        std::function<void(bool, std::pair<const std::byte*, const std::byte*>)> response,
-        std::function<void(std::exception_ptr)> error,
-        const Ice::Current& current);
+    void dispatch(Ice::IncomingRequest&, std::function<void(Ice::OutgoingResponse)> sendResponse) final;
 
     id<ICEBlobjectFacade> getFacade() const { return _facade; }
 

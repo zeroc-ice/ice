@@ -236,8 +236,8 @@
 
 - (void)registerDefaultServant:(id<ICEBlobjectFacade>)facade
 {
-    auto servant = std::make_shared<BlobjectFacade>(facade);
-    self.objectAdapter->addDefaultServant(servant, "");
+    auto swiftDispatcher = std::make_shared<SwiftDispatcher>(facade);
+    self.objectAdapter->addDefaultServant(swiftDispatcher, "");
 }
 
 @end
