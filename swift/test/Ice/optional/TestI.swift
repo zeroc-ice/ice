@@ -8,7 +8,7 @@ import TestCommon
 
 class InitialI: Initial {
   func shutdown(current: Ice.Current) throws {
-    current.adapter!.getCommunicator().shutdown()
+    current.adapter.getCommunicator().shutdown()
   }
 
   func pingPong(o: Ice.Value?, current _: Ice.Current) throws -> Ice.Value? {

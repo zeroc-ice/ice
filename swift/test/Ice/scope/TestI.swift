@@ -52,7 +52,7 @@ class I1: I {
   }
 
   func shutdown(current: Current) throws {
-    current.adapter!.getCommunicator().shutdown()
+    current.adapter.getCommunicator().shutdown()
   }
 }
 
@@ -94,7 +94,7 @@ class I2: InnerI {
   }
 
   func shutdown(current: Current) throws {
-    current.adapter!.getCommunicator().shutdown()
+    current.adapter.getCommunicator().shutdown()
   }
 }
 
@@ -136,7 +136,7 @@ class I3: InnerInner2I {
   }
 
   func shutdown(current: Current) throws {
-    current.adapter!.getCommunicator().shutdown()
+    current.adapter.getCommunicator().shutdown()
   }
 }
 
@@ -166,6 +166,6 @@ class I4: InnerTestInner2I {
   }
 
   func shutdown(current: Current) throws {
-    current.adapter!.getCommunicator().shutdown()
+    current.adapter.getCommunicator().shutdown()
   }
 }

@@ -17,9 +17,7 @@ final class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
   }
 
   func shutdownAsync(current: Ice.Current) -> PromiseKit.Promise<Void> {
-    guard let adapter = current.adapter else {
-      fatalError()
-    }
+    let adapter = current.adapter
     adapter.getCommunicator().shutdown()
     return Promise.value(())
   }

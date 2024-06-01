@@ -9,7 +9,7 @@ class RuntimeError: Error {}
 
 class ThrowerI: Thrower {
   func shutdown(current: Ice.Current) throws {
-    current.adapter!.getCommunicator().shutdown()
+    current.adapter.getCommunicator().shutdown()
   }
 
   func supportsUndeclaredExceptions(current _: Current) throws -> Bool {

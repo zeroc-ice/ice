@@ -128,11 +128,11 @@ class RemoteCommunicatorFactoryI: RemoteCommunicatorFactory {
       }
     }
     return try uncheckedCast(
-      prx: current.adapter!.addWithUUID(RemoteCommunicatorDisp(servant)),
+      prx: current.adapter.addWithUUID(RemoteCommunicatorDisp(servant)),
       type: RemoteCommunicatorPrx.self)
   }
 
   func shutdown(current: Ice.Current) throws {
-    current.adapter!.getCommunicator().shutdown()
+    current.adapter.getCommunicator().shutdown()
   }
 }

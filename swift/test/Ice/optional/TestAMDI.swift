@@ -10,7 +10,7 @@ import TestCommon
 class InitialI: Initial {
   func shutdownAsync(current: Current) -> Promise<Void> {
     return Promise<Void> { seal in
-      current.adapter!.getCommunicator().shutdown()
+      current.adapter.getCommunicator().shutdown()
       seal.fulfill(())
     }
   }

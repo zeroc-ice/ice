@@ -176,7 +176,7 @@ class InitialI: Initial {
   }
 
   func acceptsClassCycles(current: Ice.Current) throws -> Bool {
-    let properties = current.adapter!.getCommunicator().getProperties()
+    let properties = current.adapter.getCommunicator().getProperties()
     return properties.getPropertyAsIntWithDefault(key: "Ice.AcceptClassCycles", value: 0) > 0
   }
 
@@ -252,12 +252,12 @@ class InitialI: Initial {
   }
 
   func opF2(f21: F2Prx?, current: Current) throws -> (returnValue: F2Prx?, f22: F2Prx?) {
-    let prx = try current.adapter!.getCommunicator().stringToProxy("F22")!
+    let prx = try current.adapter.getCommunicator().stringToProxy("F22")!
     return (f21, uncheckedCast(prx: prx, type: F2Prx.self))
   }
 
   func opF3(f31: F3?, current: Current) throws -> (returnValue: F3?, f32: F3?) {
-    let prx = try current.adapter!.getCommunicator().stringToProxy("F22")!
+    let prx = try current.adapter.getCommunicator().stringToProxy("F22")!
     return (f31, F3(f1: F1(name: "F12"), f2: uncheckedCast(prx: prx, type: F2Prx.self)))
   }
 
@@ -272,7 +272,7 @@ class F2I: F2 {
 
 class UnexpectedObjectExceptionTestI: Ice.Blobject {
   func ice_invoke(inEncaps _: Data, current: Ice.Current) throws -> (ok: Bool, outParams: Data) {
-    let communicator = current.adapter!.getCommunicator()
+    let communicator = current.adapter.getCommunicator()
     let ostr = Ice.OutputStream(communicator: communicator)
     ostr.startEncapsulation(encoding: current.encoding, format: .DefaultFormat)
     let ae = AlsoEmpty()

@@ -10,7 +10,7 @@ class TestI: TestIntf {
   init() {}
 
   func transient(current: Ice.Current) throws {
-    let communicator = current.adapter!.getCommunicator()
+    let communicator = current.adapter.getCommunicator()
 
     let adapter = try communicator.createObjectAdapterWithEndpoints(
       name: "TransientTestAdapter",
@@ -20,7 +20,7 @@ class TestI: TestIntf {
   }
 
   func deactivate(current: Ice.Current) throws {
-    current.adapter!.deactivate()
+    current.adapter.deactivate()
     Thread.sleep(forTimeInterval: 0.1)
   }
 }
@@ -44,7 +44,7 @@ class RouterI: Ice.Router {
 
   func getServerProxy(current: Ice.Current) throws -> Ice.ObjectPrx? {
     let prx =
-      try current.adapter!.getCommunicator().stringToProxy(
+      try current.adapter.getCommunicator().stringToProxy(
         "dummy:tcp -h localhost -p \(_nextPort) -t 30000")
     _nextPort += 1
     return prx

@@ -8,7 +8,7 @@ import TestCommon
 
 class BlobjectI: Ice.Blobject {
   func ice_invoke(inEncaps: Data, current: Ice.Current) throws -> (ok: Bool, outParams: Data) {
-    let communicator = current.adapter!.getCommunicator()
+    let communicator = current.adapter.getCommunicator()
     let inS = Ice.InputStream(communicator: communicator, bytes: inEncaps)
     _ = try inS.startEncapsulation()
     let outS = Ice.OutputStream(communicator: communicator)
@@ -51,7 +51,7 @@ class BlobjectI: Ice.Blobject {
 class BlobjectAsyncI: Ice.BlobjectAsync {
   func ice_invokeAsync(inEncaps: Data, current: Current) -> Promise<(ok: Bool, outParams: Data)> {
     do {
-      let communicator = current.adapter!.getCommunicator()
+      let communicator = current.adapter.getCommunicator()
       let inS = Ice.InputStream(communicator: communicator, bytes: inEncaps)
       _ = try inS.startEncapsulation()
       let outS = Ice.OutputStream(communicator: communicator)

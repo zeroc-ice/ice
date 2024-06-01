@@ -339,7 +339,7 @@ class TestI: TestIntf {
 
   func PBSUnknownAsPreservedWithGraphAsync(current: Current) -> Promise<Preserved?> {
     // This code requires a regular, non-colloc dispatch
-    if let dq = try? current.adapter!.getDispatchQueue() {
+    if let dq = try? current.adapter.getDispatchQueue() {
       dispatchPrecondition(condition: .onQueue(dq))
     }
 
@@ -347,7 +347,7 @@ class TestI: TestIntf {
       // .barrier to ensure we execute this code after Ice has called "done" on the promise
       // Otherwise the cycle breaking can occur before the result is marshaled by the
       // closure given to done.
-      try current.adapter!.getDispatchQueue().async(flags: .barrier) {
+      try current.adapter.getDispatchQueue().async(flags: .barrier) {
         let r = PSUnknown()
         r.pi = 5
         r.ps = "preserved"
@@ -389,7 +389,7 @@ class TestI: TestIntf {
 
   func PBSUnknown2AsPreservedWithGraphAsync(current: Current) -> Promise<Preserved?> {
     return Promise<Preserved?> { seal in
-      try current.adapter!.getDispatchQueue().async(flags: .barrier) {
+      try current.adapter.getDispatchQueue().async(flags: .barrier) {
         let r = PSUnknown2()
         r.pi = 5
         r.ps = "preserved"
@@ -487,6 +487,6 @@ class TestI: TestIntf {
   }
 
   func shutdown(current: Current) throws {
-    current.adapter!.getCommunicator().shutdown()
+    current.adapter.getCommunicator().shutdown()
   }
 }

@@ -131,7 +131,7 @@ class TestI: TestIntf {
         _pending = nil
       }
     }
-    current.adapter!.getCommunicator().shutdown()
+    current.adapter.getCommunicator().shutdown()
   }
 
   func supportsAMD(current _: Current) throws -> Bool {
