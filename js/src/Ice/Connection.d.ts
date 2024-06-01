@@ -38,14 +38,14 @@ export namespace Ice
     {
         /**
          * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underyling transport or null if there's no underlying transport.
+         * @param underlying The information of the underlying transport or null if there's no underlying transport.
          * @param incoming Whether or not the connection is an incoming or outgoing connection.
          * @param adapterName The name of the adapter associated with the connection.
          * @param connectionId The connection id.
          */
         constructor(underlying?:Ice.ConnectionInfo, incoming?:boolean, adapterName?:string, connectionId?:string);
         /**
-         * The information of the underyling transport or null if there's no underlying transport.
+         * The information of the underlying transport or null if there's no underlying transport.
          */
         underlying:Ice.ConnectionInfo;
         /**
@@ -260,7 +260,7 @@ export namespace Ice
          * Set the active connection management parameters.
          * @param timeout The timeout value in seconds, must be &gt;= 0.
          * @param close The close condition
-         * @param heartbeat The hertbeat condition
+         * @param heartbeat The heartbeat condition
          */
         setACM(timeout:number, close:ACMClose, heartbeat:ACMHeartbeat):void;
         /**
@@ -310,7 +310,7 @@ export namespace Ice
     {
         /**
          * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underyling transport or null if there's no underlying transport.
+         * @param underlying The information of the underlying transport or null if there's no underlying transport.
          * @param incoming Whether or not the connection is an incoming or outgoing connection.
          * @param adapterName The name of the adapter associated with the connection.
          * @param connectionId The connection id.
@@ -345,7 +345,7 @@ export namespace Ice
     {
         /**
          * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underyling transport or null if there's no underlying transport.
+         * @param underlying The information of the underlying transport or null if there's no underlying transport.
          * @param incoming Whether or not the connection is an incoming or outgoing connection.
          * @param adapterName The name of the adapter associated with the connection.
          * @param connectionId The connection id.
@@ -357,45 +357,6 @@ export namespace Ice
          * @param sndSize The connection buffer send size.
          */
         constructor(underlying?:Ice.ConnectionInfo, incoming?:boolean, adapterName?:string, connectionId?:string, localAddress?:string, localPort?:number, remoteAddress?:string, remotePort?:number, rcvSize?:number, sndSize?:number);
-        /**
-         * The connection buffer receive size.
-         */
-        rcvSize:number;
-        /**
-         * The connection buffer send size.
-         */
-        sndSize:number;
-    }
-
-    /**
-     * Provides access to the connection details of a UDP connection
-     */
-    class UDPConnectionInfo extends IPConnectionInfo
-    {
-        /**
-         * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underyling transport or null if there's no underlying transport.
-         * @param incoming Whether or not the connection is an incoming or outgoing connection.
-         * @param adapterName The name of the adapter associated with the connection.
-         * @param connectionId The connection id.
-         * @param localAddress The local address.
-         * @param localPort The local port.
-         * @param remoteAddress The remote address.
-         * @param remotePort The remote port.
-         * @param mcastAddress The multicast address.
-         * @param mcastPort The multicast port.
-         * @param rcvSize The connection buffer receive size.
-         * @param sndSize The connection buffer send size.
-         */
-        constructor(underlying?:Ice.ConnectionInfo, incoming?:boolean, adapterName?:string, connectionId?:string, localAddress?:string, localPort?:number, remoteAddress?:string, remotePort?:number, mcastAddress?:string, mcastPort?:number, rcvSize?:number, sndSize?:number);
-        /**
-         * The multicast address.
-         */
-        mcastAddress:string;
-        /**
-         * The multicast port.
-         */
-        mcastPort:number;
         /**
          * The connection buffer receive size.
          */
@@ -426,7 +387,7 @@ export namespace Ice
     {
         /**
          * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underyling transport or null if there's no underlying transport.
+         * @param underlying The information of the underlying transport or null if there's no underlying transport.
          * @param incoming Whether or not the connection is an incoming or outgoing connection.
          * @param adapterName The name of the adapter associated with the connection.
          * @param connectionId The connection id.

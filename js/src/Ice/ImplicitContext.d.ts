@@ -5,7 +5,7 @@
 export namespace Ice
 {
     /**
-     * An interface to associate implict contexts with communicators. When you make a remote invocation without an
+     * An interface to associate implicit contexts with communicators. When you make a remote invocation without an
      * explicit context parameter, Ice uses the per-proxy context (if any) combined with the <code>ImplicitContext</code>
      * associated with the communicator.
      * Ice provides several implementations of <code>ImplicitContext</code>. The implementation used depends on the value

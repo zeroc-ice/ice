@@ -105,21 +105,6 @@ Ice.TCPConnectionInfo = class extends Ice.IPConnectionInfo
     }
 };
 
-/**
- *  Provides access to the connection details of a UDP connection
- **/
-Ice.UDPConnectionInfo = class extends Ice.IPConnectionInfo
-{
-    constructor(underlying, incoming, adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort, mcastAddress = "", mcastPort = -1, rcvSize = 0, sndSize = 0)
-    {
-        super(underlying, incoming, adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort);
-        this.mcastAddress = mcastAddress;
-        this.mcastPort = mcastPort;
-        this.rcvSize = rcvSize;
-        this.sndSize = sndSize;
-    }
-};
-
 Slice.defineDictionary(Ice, "HeaderDict", "HeaderDictHelper", "Ice.StringHelper", "Ice.StringHelper", false, undefined, undefined);
 
 /**

@@ -70,7 +70,7 @@ export namespace Ice
     {
         /**
          * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underyling endpoint or null if there's no underlying endpoint.
+         * @param underlying The information of the underlying endpoint or null if there's no underlying endpoint.
          * @param timeout The timeout for the endpoint in milliseconds.
          * @param compress Specifies whether or not compression should be used if available when using this endpoint.
          * @param host The host or address configured with the endpoint.
@@ -114,7 +114,7 @@ export namespace Ice
     {
         /**
          * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underyling endpoint or null if there's no underlying endpoint.
+         * @param underlying The information of the underlying endpoint or null if there's no underlying endpoint.
          * @param timeout The timeout for the endpoint in milliseconds.
          * @param compress Specifies whether or not compression should be used if available when using this endpoint.
          * @param host The host or address configured with the endpoint.
@@ -139,55 +139,13 @@ export namespace Ice
     }
 
     /**
-     * Provides access to an UDP endpoint information.
-     * @see Endpoint
-     */
-    class UDPEndpointInfo extends IPEndpointInfo
-    {
-        /**
-         * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underyling endpoint or null if there's no underlying endpoint.
-         * @param timeout The timeout for the endpoint in milliseconds.
-         * @param compress Specifies whether or not compression should be used if available when using this endpoint.
-         * @param host The host or address configured with the endpoint.
-         * @param port The port number.
-         * @param sourceAddress The source IP address.
-         * @param mcastInterface The multicast interface.
-         * @param mcastTtl The multicast time-to-live (or hops).
-         */
-        constructor(underlying?:Ice.EndpointInfo, timeout?:number, compress?:boolean, host?:string, port?:number, sourceAddress?:string, mcastInterface?:string, mcastTtl?:number);
-        /**
-         * The multicast interface.
-         */
-        mcastInterface:string;
-        /**
-         * The multicast time-to-live (or hops).
-         */
-        mcastTtl:number;
-        /**
-         * Returns the type of the endpoint.
-         * @return The endpoint type.
-         */
-        type():number;
-        /**
-         * Returns true if this endpoint is a datagram endpoint.
-         * @return True for a datagram endpoint.
-         */
-        datagram():boolean;
-        /**
-         * @return True for a secure endpoint.
-         */
-        secure():boolean;
-    }
-
-    /**
      * Provides access to a WebSocket endpoint information.
      */
     class WSEndpointInfo extends EndpointInfo
     {
         /**
          * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underyling endpoint or null if there's no underlying endpoint.
+         * @param underlying The information of the underlying endpoint or null if there's no underlying endpoint.
          * @param timeout The timeout for the endpoint in milliseconds.
          * @param compress Specifies whether or not compression should be used if available when using this endpoint.
          * @param resource The URI configured with the endpoint.
@@ -221,7 +179,7 @@ export namespace Ice
     {
         /**
          * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underyling endpoint or null if there's no underlying endpoint.
+         * @param underlying The information of the underlying endpoint or null if there's no underlying endpoint.
          * @param timeout The timeout for the endpoint in milliseconds.
          * @param compress Specifies whether or not compression should be used if available when using this endpoint.
          * @param rawEncoding The encoding version of the opaque endpoint (to decode or encode the rawBytes).

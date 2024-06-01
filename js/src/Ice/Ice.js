@@ -17,7 +17,6 @@ require("../Ice/Initialize");
 require("../Ice/LocalException");
 require("../Ice/Locator");
 require("../Ice/Logger");
-require("../Ice/LoggerI");
 require("../Ice/Long");
 require("../Ice/MapUtil");
 require("../Ice/ModuleRegistry");

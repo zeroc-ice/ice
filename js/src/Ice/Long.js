@@ -15,7 +15,7 @@ class Long
     // and we convert it to two 32 bit words to fit in the Ice.Long internal
     // representation.
     //
-    // If two arguments are provided we asume these are the high and low words
+    // If two arguments are provided we assume these are the high and low words
     // respectively.
     //
     constructor(high = 0, low = undefined)
@@ -118,7 +118,7 @@ Long.SIGN_MASK = 0x80000000;
 Long.HIGH_MASK = 0x100000000;
 
 //
-// The maximum value for the high word when coverting to
+// The maximum value for the high word when converting to
 // a JavaScript Number is 2^21 - 1, in which case all
 // 53 bits are used.
 //

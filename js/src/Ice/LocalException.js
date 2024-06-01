@@ -1183,28 +1183,6 @@ Ice.CompressionException = class extends Ice.ProtocolException
 };
 
 /**
- *  A datagram exceeds the configured size. This exception is raised if a datagram exceeds the configured send or
- *  receive buffer size, or exceeds the maximum payload size of a UDP packet (65507 bytes).
- **/
-Ice.DatagramLimitException = class extends Ice.ProtocolException
-{
-    constructor(reason, _cause = "")
-    {
-        super(reason, _cause);
-    }
-
-    static get _parent()
-    {
-        return Ice.ProtocolException;
-    }
-
-    static get _id()
-    {
-        return "::Ice::DatagramLimitException";
-    }
-};
-
-/**
  *  This exception is raised for errors during marshaling or unmarshaling data.
  **/
 Ice.MarshalException = class extends Ice.ProtocolException

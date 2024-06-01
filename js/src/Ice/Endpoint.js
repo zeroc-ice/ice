@@ -64,20 +64,6 @@ Ice.TCPEndpointInfo = class extends Ice.IPEndpointInfo
 };
 
 /**
- *  Provides access to an UDP endpoint information.
- *  @see Endpoint
- **/
-Ice.UDPEndpointInfo = class extends Ice.IPEndpointInfo
-{
-    constructor(underlying, timeout, compress, host, port, sourceAddress, mcastInterface = "", mcastTtl = 0)
-    {
-        super(underlying, timeout, compress, host, port, sourceAddress);
-        this.mcastInterface = mcastInterface;
-        this.mcastTtl = mcastTtl;
-    }
-};
-
-/**
  *  Provides access to a WebSocket endpoint information.
  **/
 Ice.WSEndpointInfo = class extends Ice.EndpointInfo
