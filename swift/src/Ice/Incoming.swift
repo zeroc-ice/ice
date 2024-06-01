@@ -34,25 +34,19 @@ public final class Incoming {
   }
 
   public func readEmptyParams() throws {
-    //
-    // Remember the encoding used by the input parameters, we'll
-    // encode the response parameters with the same encoding.
-    //
-    current.encoding = try istr.skipEmptyEncapsulation()
+    let encoding = try istr.startEncapsulation()
+    assert(encoding == current.encoding)
   }
 
   public func readParamEncaps() throws -> Data {
     let params = try istr.readEncapsulation()
-    current.encoding = params.encoding
+    assert(params.encoding == current.encoding)
     return params.bytes
   }
 
   public func read<T>(_ cb: (InputStream) throws -> T) throws -> T {
-    //
-    // Remember the encoding used by the input parameters, we'll
-    // encode the response parameters with the same encoding.
-    //
-    current.encoding = try istr.startEncapsulation()
+    let encoding = try istr.startEncapsulation()
+    assert(encoding == current.encoding)
     let l = try cb(istr)
     try istr.endEncapsulation()
     return l

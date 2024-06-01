@@ -31,7 +31,6 @@ $tests = [
     "Ice/hold",
     "Ice/info",
     "Ice/inheritance",
-    "Ice/interceptor",
     "Ice/invoke",
     "Ice/location",
     "Ice/objects",

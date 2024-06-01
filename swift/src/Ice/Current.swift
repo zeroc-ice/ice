@@ -17,13 +17,11 @@ public class Current {
   /// The operation mode (idempotent or not).
   public let mode: OperationMode
   /// The request context carried by the request.
-  // TODO: make it read-only
   public var ctx: Context
   /// The request ID. 0 means the request is a one-way request.
   public let requestId: Int32
   /// The encoding of the request payload.
-  // TODO: make it read-only
-  public var encoding: EncodingVersion
+  public let encoding: EncodingVersion
 
   public init(
     adapter: ObjectAdapter,
