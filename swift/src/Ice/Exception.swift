@@ -20,13 +20,13 @@ extension Exception {
 /// Base class for Ice run-time exceptions.
 open class LocalException: Exception, CustomStringConvertible {
   public let file: String
-  public let line: Int
+  public let line: Int32
 
   public var description: String {
     return "\(file): \(line): \(ice_id())\(ice_print())"
   }
 
-  public init(file: String = #file, line: Int = #line) {
+  public init(file: String = #file, line: Int32 = #line) {
     self.file = file
     self.line = line
   }
