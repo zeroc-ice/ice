@@ -16,7 +16,8 @@ ICEIMPL_API @interface ICELocalObject : NSObject
 
 #ifdef __cplusplus
 
-@interface ICELocalObject ()
+@interface
+ICELocalObject ()
 @property(nonatomic, readonly) std::shared_ptr<void> cppObject;
 + (nullable instancetype)getHandle:(std::shared_ptr<void>)cppObject NS_RETURNS_RETAINED;
 @end

@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "Convert.h"
 #import "Exception.h"
+#import "Convert.h"
 
 @implementation ICEDispatchException
 
@@ -28,14 +28,12 @@
                                    file:(NSString*)file
                                    line:(int32_t)line
 {
-    auto epr =
-         std::make_exception_ptr(
-            Ice::ObjectNotExistException{
-                fromNSString(file).c_str(),
-                line,
-                Ice::Identity{fromNSString(name), fromNSString(category)},
-                fromNSString(facet),
-                fromNSString(operation)});
+    auto epr = std::make_exception_ptr(Ice::ObjectNotExistException{
+        fromNSString(file).c_str(),
+        line,
+        Ice::Identity{fromNSString(name), fromNSString(category)},
+        fromNSString(facet),
+        fromNSString(operation)});
 
     return [[ICEDispatchException alloc] initWithCppExceptionPtr:epr];
 }
@@ -47,17 +45,14 @@
                                   file:(NSString*)file
                                   line:(int32_t)line
 {
-    auto epr =
-         std::make_exception_ptr(
-            Ice::FacetNotExistException{
-                fromNSString(file).c_str(),
-                line,
-                Ice::Identity{fromNSString(name), fromNSString(category)},
-                fromNSString(facet),
-                fromNSString(operation)});
+    auto epr = std::make_exception_ptr(Ice::FacetNotExistException{
+        fromNSString(file).c_str(),
+        line,
+        Ice::Identity{fromNSString(name), fromNSString(category)},
+        fromNSString(facet),
+        fromNSString(operation)});
 
     return [[ICEDispatchException alloc] initWithCppExceptionPtr:epr];
-
 }
 
 + (instancetype)operationNotExistException:(NSString*)name
@@ -67,14 +62,12 @@
                                       file:(NSString*)file
                                       line:(int32_t)line
 {
-    auto epr =
-         std::make_exception_ptr(
-            Ice::OperationNotExistException{
-                fromNSString(file).c_str(),
-                line,
-                Ice::Identity{fromNSString(name), fromNSString(category)},
-                fromNSString(facet),
-                fromNSString(operation)});
+    auto epr = std::make_exception_ptr(Ice::OperationNotExistException{
+        fromNSString(file).c_str(),
+        line,
+        Ice::Identity{fromNSString(name), fromNSString(category)},
+        fromNSString(facet),
+        fromNSString(operation)});
 
     return [[ICEDispatchException alloc] initWithCppExceptionPtr:epr];
 }
@@ -82,11 +75,7 @@
 + (instancetype)unknownLocalException:(NSString*)unknown file:(NSString*)file line:(int32_t)line
 {
     auto epr =
-         std::make_exception_ptr(
-            Ice::UnknownLocalException{
-                fromNSString(file).c_str(),
-                line,
-                fromNSString(unknown)});
+        std::make_exception_ptr(Ice::UnknownLocalException{fromNSString(file).c_str(), line, fromNSString(unknown)});
 
     return [[ICEDispatchException alloc] initWithCppExceptionPtr:epr];
 }
@@ -94,23 +83,14 @@
 + (instancetype)unknownUserException:(NSString*)unknown file:(NSString*)file line:(int32_t)line
 {
     auto epr =
-         std::make_exception_ptr(
-            Ice::UnknownUserException{
-                fromNSString(file).c_str(),
-                line,
-                fromNSString(unknown)});
+        std::make_exception_ptr(Ice::UnknownUserException{fromNSString(file).c_str(), line, fromNSString(unknown)});
 
     return [[ICEDispatchException alloc] initWithCppExceptionPtr:epr];
 }
 
 + (instancetype)unknownException:(NSString*)unknown file:(NSString*)file line:(int32_t)line
 {
-    auto epr =
-         std::make_exception_ptr(
-            Ice::UnknownException{
-                fromNSString(file).c_str(),
-                line,
-                fromNSString(unknown)});
+    auto epr = std::make_exception_ptr(Ice::UnknownException{fromNSString(file).c_str(), line, fromNSString(unknown)});
 
     return [[ICEDispatchException alloc] initWithCppExceptionPtr:epr];
 }

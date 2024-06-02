@@ -139,21 +139,24 @@ ICEIMPL_API @interface ICEDispatchException : NSObject
                                   facet:(NSString*)facet
                               operation:(NSString*)operation
                                    file:(NSString*)file
-                                   line:(int32_t)line NS_SWIFT_NAME(objectNotExistException(_:category:facet:operation:file:line:));
+                                   line:(int32_t)line
+    NS_SWIFT_NAME(objectNotExistException(_:category:facet:operation:file:line:));
 
 + (instancetype)facetNotExistException:(NSString*)name
                               category:(NSString*)category
                                  facet:(NSString*)facet
                              operation:(NSString*)operation
                                   file:(NSString*)file
-                                  line:(int32_t)line NS_SWIFT_NAME(facetNotExistException(_:category:facet:operation:file:line:));
+                                  line:(int32_t)line
+    NS_SWIFT_NAME(facetNotExistException(_:category:facet:operation:file:line:));
 
 + (instancetype)operationNotExistException:(NSString*)name
                                   category:(NSString*)category
                                      facet:(NSString*)facet
                                  operation:(NSString*)operation
                                       file:(NSString*)file
-                                      line:(int32_t)line NS_SWIFT_NAME(operationNotExistException(_:category:facet:operation:file:line:));
+                                      line:(int32_t)line
+    NS_SWIFT_NAME(operationNotExistException(_:category:facet:operation:file:line:));
 
 + (instancetype)unknownLocalException:(NSString*)unknown file:(NSString*)file line:(int32_t)line;
 + (instancetype)unknownUserException:(NSString*)unknown file:(NSString*)file line:(int32_t)line;
@@ -161,7 +164,8 @@ ICEIMPL_API @interface ICEDispatchException : NSObject
 @end
 
 #ifdef __cplusplus
-@interface ICEDispatchException ()
+@interface
+ICEDispatchException ()
 @property(nonatomic, readonly) std::exception_ptr cppExceptionPtr;
 - (instancetype)initWithCppExceptionPtr:(std::exception_ptr)cppExceptionPtr;
 @end
