@@ -259,7 +259,7 @@ Ice::ConnectionI::OutgoingMessage::adopt(OutputStream* str)
         if (str)
         {
             delete stream;
-            stream = 0;
+            stream = nullptr;
             adopted = false;
         }
         else
@@ -276,13 +276,13 @@ Ice::ConnectionI::OutgoingMessage::adopt(OutputStream* str)
         else
         {
             str = stream; // Adopt this stream
-            stream = 0;
+            stream = nullptr;
         }
     }
 
     assert(str);
-    stream = new OutputStream(str->instance(), currentProtocolEncoding);
-    stream->swap(*str);
+    assert(str->b.ownsMemory());
+    stream = new OutputStream(std::move(*str));
     adopted = true;
 }
 
@@ -290,10 +290,10 @@ void
 Ice::ConnectionI::OutgoingMessage::canceled(bool adoptStream)
 {
     assert(outAsync); // Only requests can timeout.
-    outAsync = 0;
+    outAsync = nullptr;
     if (adoptStream)
     {
-        adopt(0); // Adopt the request stream
+        adopt(nullptr); // Adopt the request stream
     }
     else
     {
