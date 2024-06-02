@@ -20,7 +20,7 @@ public protocol BlobjectAsync {
   ///     contains the encoded user exception). If the operation raises an
   ///     Ice run-time exception, it must throw it directly.
   ///
-  ///   - outParams: `Data` - The encoded out-paramaters and return value
+  ///   - outParams: `Data` - The encoded out-parameters and return value
   ///     for the operation. The return value follows any out-parameters.
   func ice_invokeAsync(inEncaps: Data, current: Current) -> Promise<(ok: Bool, outParams: Data)>
 }

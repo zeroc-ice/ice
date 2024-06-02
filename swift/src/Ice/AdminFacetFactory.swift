@@ -27,8 +27,7 @@ class AdminFacetFacade: ICEBlobjectFacade {
     requestId: Int32,
     encodingMajor: UInt8,
     encodingMinor: UInt8,
-    response: @escaping ICEBlobjectResponse,
-    exception: @escaping ICEBlobjectException
+    sendResponse: @escaping ICESendResponse
   ) {
     let objectAdapter = adapter.getSwiftObject(ObjectAdapterI.self) {
       let oa = ObjectAdapterI(handle: adapter, communicator: communicator)
@@ -62,8 +61,7 @@ class AdminFacetFacade: ICEBlobjectFacade {
         bytes: Data(
           bytesNoCopy: inEncapsBytes, count: inEncapsCount,
           deallocator: .none)),
-      response: response,
-      exception: exception,
+      sendResponse: sendResponse,
       current: current)
 
     // Dispatch directly to the servant. Do not call invoke on Incoming

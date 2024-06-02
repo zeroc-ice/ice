@@ -13,26 +13,29 @@
 void
 SwiftDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::OutgoingResponse)> sendResponse)
 {
-    Ice::Current& current = request.current();
+    // Captured as a const copy by the block according to https://clang.llvm.org/docs/BlockLanguageSpec.html
+    Ice::Current current = request.current();
 
-    // Here, we assume we can't guarantee that the callbacks are only called once. Hopefully we can fix that.
-    auto responseHandler = make_shared<IceInternal::AsyncResponseHandler>(std::move(sendResponse), current);
-
-    ICEBlobjectResponse responseCallback = ^(bool ok, const void* outParams, long count) {
-      const std::byte* start = static_cast<const std::byte*>(outParams);
-      responseHandler->sendResponse(ok, std::make_pair(start, start + static_cast<size_t>(count)));
-    };
-
-    ICEBlobjectException exceptionCallback = ^(ICEDispatchException* e) {
-      responseHandler->sendException(e.cppExceptionPtr);
-    };
-
-    ICEObjectAdapter* adapter = [ICEObjectAdapter getHandle:current.adapter];
-    ICEConnection* con = [ICEConnection getHandle:current.con];
+    ICESendResponse sendResponseBlock =
+        ^(bool ok, const void* outEncaps, size_t count, ICEDispatchException* dispatchException) {
+          if (dispatchException)
+          {
+              sendResponse(Ice::makeOutgoingResponse(dispatchException.cppExceptionPtr, current));
+          }
+          else
+          {
+              assert(outEncaps);
+              const std::byte* bytes = static_cast<const std::byte*>(outEncaps);
+              sendResponse(Ice::makeOutgoingResponse(ok, std::make_pair(bytes, bytes + count), current));
+          }
+        };
 
     int32_t sz;
     const std::byte* inEncaps;
     request.inputStream().readEncapsulation(inEncaps, sz);
+
+    ICEObjectAdapter* adapter = [ICEObjectAdapter getHandle:current.adapter];
+    ICEConnection* con = [ICEConnection getHandle:current.con];
 
     @autoreleasepool
     {
@@ -49,7 +52,6 @@ SwiftDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice:
                     requestId:current.requestId
                 encodingMajor:current.encoding.major
                 encodingMinor:current.encoding.minor
-                     response:responseCallback
-                    exception:exceptionCallback];
+                 sendResponse:sendResponseBlock];
     }
 }

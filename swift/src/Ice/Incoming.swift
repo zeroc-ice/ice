@@ -10,26 +10,25 @@ public final class Incoming {
   private let current: Current
   private var format: FormatType
   private let istr: InputStream
-  private let responseCallback: ICEBlobjectResponse
-  private let exceptionCallback: ICEBlobjectException
+
+  // sendResponse must be called exactly once. It's likely the current implementation does not guarantee it.
+  private let sendResponse: ICESendResponse
 
   private var servant: Disp?
   private var locator: ServantLocator?
   private var cookie: AnyObject?
 
-  private var ostr: OutputStream!  // must be set before calling responseCallback
+  private var ostr: OutputStream!  // must be set before calling sendResponse
   private var ok: Bool  // false if response contains a UserException
 
   init(
-    istr: InputStream, response: @escaping ICEBlobjectResponse,
-    exception: @escaping ICEBlobjectException,
+    istr: InputStream, sendResponse: @escaping ICESendResponse,
     current: Current
   ) {
     self.istr = istr
     format = .DefaultFormat
     ok = true
-    responseCallback = response
-    exceptionCallback = exception
+    self.sendResponse = sendResponse
     self.current = current
   }
 
@@ -75,7 +74,7 @@ public final class Incoming {
     }
     precondition(ostr != nil, "OutputStream was not set before calling response()")
     ostr.finished().withUnsafeBytes {
-      responseCallback(ok, $0.baseAddress!, $0.count)
+      sendResponse(ok, $0.baseAddress!, $0.count, nil)
     }
   }
 
@@ -181,7 +180,7 @@ public final class Incoming {
             id: current.id, facet: current.facet, operation: current.operation)
         }
       } catch {
-        exceptionCallback(convertIntoDispatchException(error))
+        sendResponse(false, nil, 0, convertIntoDispatchException(error))
         return
       }
     }
@@ -209,7 +208,7 @@ public final class Incoming {
 
   func handleException(_ exception: Error) {
     guard let e = exception as? UserException else {
-      exceptionCallback(convertIntoDispatchException(exception))
+      sendResponse(false, nil, 0, convertIntoDispatchException(exception))
       return
     }
     ok = false  // response will contain a UserException
@@ -218,10 +217,11 @@ public final class Incoming {
     ostr.write(e)
     ostr.endEncapsulation()
     ostr.finished().withUnsafeBytes {
-      responseCallback(ok, $0.baseAddress!, $0.count)
+      sendResponse(ok, $0.baseAddress!, $0.count, nil)
     }
   }
 
+  // This code is temporary: we should give a fully marshaled response back to the Objective-C++ code.
   func convertIntoDispatchException(_ exception: Error) -> ICEDispatchException {
     switch exception {
     // OperationNotExistException and friends
