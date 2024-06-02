@@ -5,6 +5,7 @@
 #import "Ice/AsyncResponseHandler.h"
 #import "BlobjectFacade.h"
 #import "Convert.h"
+#import "Exception.h"
 #import "ObjectAdapter.h"
 
 #import "Connection.h"
@@ -22,8 +23,8 @@ SwiftDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice:
       responseHandler->sendResponse(ok, std::make_pair(start, start + static_cast<size_t>(count)));
     };
 
-    ICEBlobjectException exceptionCallback = ^(ICERuntimeException* e) {
-      responseHandler->sendException(convertException(e));
+    ICEBlobjectException exceptionCallback = ^(ICEDispatchException* e) {
+      responseHandler->sendException(e.cppExceptionPtr);
     };
 
     ICEObjectAdapter* adapter = [ICEObjectAdapter getHandle:current.adapter];

@@ -181,7 +181,7 @@ public final class Incoming {
             id: current.id, facet: current.facet, operation: current.operation)
         }
       } catch {
-        exceptionCallback(convertIntoRuntimeException(error))
+        exceptionCallback(convertIntoDispatchException(error))
         return
       }
     }
@@ -209,7 +209,7 @@ public final class Incoming {
 
   func handleException(_ exception: Error) {
     guard let e = exception as? UserException else {
-      exceptionCallback(convertIntoRuntimeException(exception))
+      exceptionCallback(convertIntoDispatchException(exception))
       return
     }
     ok = false  // response will contain a UserException
@@ -222,77 +222,30 @@ public final class Incoming {
     }
   }
 
-  func convertIntoRuntimeException(_ exception: Error) -> ICERuntimeException {
-    //
-    // 1. run-time exceptions that travel over the wire
-    // 2. other LocalExceptions and UserExceptions
-    // 3. all other exceptions are LocalException
-    //
+  // TODO: the line number in LocalException should be an Int32, not an Int
+  func convertIntoDispatchException(_ exception: Error) -> ICEDispatchException {
     switch exception {
-    // 1. Known run-time exceptions
-    case let exception as ObjectNotExistException:
-      let e = ICEObjectNotExistException()
-      e.file = exception.file
-      e.line = Int32(exception.line)
-      e.name = exception.id.name
-      e.category = exception.id.category
-      e.facet = exception.facet
-      e.operation = exception.operation
-      return e
-    case let exception as FacetNotExistException:
-      let e = ICEFacetNotExistException()
-      e.file = exception.file
-      e.line = Int32(exception.line)
-      e.name = exception.id.name
-      e.category = exception.id.category
-      e.facet = exception.facet
-      e.operation = exception.operation
-      return e
-    case let exception as OperationNotExistException:
-      let e = ICEOperationNotExistException()
-      e.file = exception.file
-      e.line = Int32(exception.line)
-      e.name = exception.id.name
-      e.category = exception.id.category
-      e.facet = exception.facet
-      e.operation = exception.operation
-      return e
-    case let exception as UnknownUserException:
-      let e = ICEUnknownUserException()
-      e.file = exception.file
-      e.line = Int32(exception.line)
-      e.unknown = exception.unknown
-      return e
-    case let exception as UnknownLocalException:
-      let e = ICEUnknownLocalException()
-      e.file = exception.file
-      e.line = Int32(exception.line)
-      e.unknown = exception.unknown
-      return e
-    case let exception as UnknownException:
-      let e = ICEUnknownException()
-      e.file = exception.file
-      e.line = Int32(exception.line)
-      e.unknown = exception.unknown
-      return e
-    // 2. Other LocalExceptions and UserExceptions
-    case let exception as LocalException:
-      let e = ICEUnknownLocalException()
-      e.file = exception.file
-      e.line = Int32(exception.line)
-      e.unknown = "\(exception)"
-      return e
-    case let exception as UserException:
-      let e = ICEUnknownUserException()
-      e.unknown = "\(exception.ice_id())"
-      return e
-    // 3. Unknown exceptions
-    default:
-      let e = ICEUnknownException()
-      e.file = #file
-      e.line = Int32(#line)
-      e.unknown = "\(exception)"
-      return e
+      // OperationNotExistException and friends
+      case let e as ObjectNotExistException:
+        ICEDispatchException.objectNotExistException(e.id.name, category: e.id.category, facet: e.facet, operation: e.operation, file: e.file, line: Int32(e.line))
+      case let e as FacetNotExistException:
+        ICEDispatchException.facetNotExistException(e.id.name, category: e.id.category, facet: e.facet, operation: e.operation, file: e.file, line: Int32(e.line))
+      case let e as OperationNotExistException:
+        ICEDispatchException.operationNotExistException(e.id.name, category: e.id.category, facet: e.facet, operation: e.operation, file: e.file, line: Int32(e.line))
+      // Unknown exceptions
+      case let e as UnknownUserException:
+        ICEDispatchException.unknownUserException(e.unknown, file: e.file, line: Int32(e.line))
+      case let e as UnknownLocalException:
+        ICEDispatchException.unknownLocalException(e.unknown, file: e.file, line: Int32(e.line))
+      case let e as UnknownException:
+        ICEDispatchException.unknownException(e.unknown, file: e.file, line: Int32(e.line))
+      // Other exceptions mapped to Unknown exceptions
+      case let e as LocalException:
+        ICEDispatchException.unknownLocalException("\(e)", file: e.file, line: Int32(e.line))
+      case let e as UserException:
+        ICEDispatchException.unknownUserException("\(e.ice_id())", file: #file, line: #line)
+      default:
+        ICEDispatchException.unknownException("\(exception)", file: #file, line: #line)
     }
   }
 }

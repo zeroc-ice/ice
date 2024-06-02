@@ -6,12 +6,12 @@
 
 @class ICEConnection;
 @class ICEObjectAdapter;
-@class ICERuntimeException;
+@class ICEDispatchException;
 
 NS_ASSUME_NONNULL_BEGIN
 
 typedef void (^ICEBlobjectResponse)(bool, const void*, long);
-typedef void (^ICEBlobjectException)(ICERuntimeException*);
+typedef void (^ICEBlobjectException)(ICEDispatchException*);
 
 ICEIMPL_API @protocol ICEBlobjectFacade
 - (void)facadeInvoke:(ICEObjectAdapter*)adapter

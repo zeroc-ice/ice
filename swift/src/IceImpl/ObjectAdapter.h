@@ -8,7 +8,6 @@
 @class ICEObjectPrx;
 @class ICEEndpoint;
 @class ICEConnection;
-@class ICERuntimeException;
 @protocol ICEBlobjectFacade;
 
 NS_ASSUME_NONNULL_BEGIN
