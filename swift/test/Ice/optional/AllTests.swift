@@ -675,46 +675,42 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     if communicator.getProperties().getPropertyAsInt("Ice.Default.SlicedFormat") > 0 {
         output.write("testing marshaling with unknown class slices... ")
         do {
-            {
-                let c = C()
-                c.ss = "test"
-                c.ms = "testms"
-                var ostr = Ice.OutputStream(communicator: communicator)
-                ostr.startEncapsulation()
-                ostr.write(c)
-                ostr.endEncapsulation()
-                var inEncaps = ostr.finished()
-                factory.setEnabled(enabled: true)
-                var result = try initial.ice_invoke(operation: "pingPong", mode: .Normal, inEncaps: inEncaps)
-                try test(result.ok)
-                var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-                _ = try istr.startEncapsulation()
-                var v: Ice.Value?
-                try istr.read { v = $0 }
-                try istr.endEncapsulation()
-                try test(v != nil && v is CValueReader)
-                factory.setEnabled(enabled: false)
-            }
+            let c = C()
+            c.ss = "test"
+            c.ms = "testms"
+            var ostr = Ice.OutputStream(communicator: communicator)
+            ostr.startEncapsulation()
+            ostr.write(c)
+            ostr.endEncapsulation()
+            var inEncaps = ostr.finished()
+            factory.setEnabled(enabled: true)
+            var result = try initial.ice_invoke(operation: "pingPong", mode: .Normal, inEncaps: inEncaps)
+            try test(result.ok)
+            var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+            _ = try istr.startEncapsulation()
+            var v: Ice.Value?
+            try istr.read { v = $0 }
+            try istr.endEncapsulation()
+            try test(v != nil && v is CValueReader)
+            factory.setEnabled(enabled: false)
 
-            {
-                factory.setEnabled(enabled: true)
-                ostr = Ice.OutputStream(communicator: communicator)
-                ostr.startEncapsulation()
-                let d = DValueWriter()
-                ostr.write(d)
-                ostr.endEncapsulation()
-                inEncaps = ostr.finished()
-                result = try initial.ice_invoke(operation: "pingPong", mode: .Normal, inEncaps: inEncaps)
-                try test(result.ok)
-                istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-                _ = try istr.startEncapsulation()
-                v = nil
-                try istr.read { v = $0 }
-                try istr.endEncapsulation()
-                try test(v != nil && v is DValueReader)
-                try (v as! DValueReader).check()
-                factory.setEnabled(enabled: false)
-            }
+            factory.setEnabled(enabled: true)
+            ostr = Ice.OutputStream(communicator: communicator)
+            ostr.startEncapsulation()
+            let d = DValueWriter()
+            ostr.write(d)
+            ostr.endEncapsulation()
+            inEncaps = ostr.finished()
+            result = try initial.ice_invoke(operation: "pingPong", mode: .Normal, inEncaps: inEncaps)
+            try test(result.ok)
+            istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+            _ = try istr.startEncapsulation()
+            v = nil
+            try istr.read { v = $0 }
+            try istr.endEncapsulation()
+            try test(v != nil && v is DValueReader)
+            try (v as! DValueReader).check()
+            factory.setEnabled(enabled: false)
         }
         output.writeLine("ok")
 
