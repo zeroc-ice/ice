@@ -809,11 +809,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
 }
 
 void
-Slice::JavaVisitor::allocatePatcher(
-    Output& out,
-    const TypePtr& type,
-    const string& package,
-    const string& name)
+Slice::JavaVisitor::allocatePatcher(Output& out, const TypePtr& type, const string& package, const string& name)
 {
     BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
