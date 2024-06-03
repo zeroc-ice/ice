@@ -14,11 +14,11 @@ public typealias PropertiesAdminRemoveCallback = () -> Void
 
 /// Base protocol for the Properties admin facet.
 public protocol NativePropertiesAdmin {
-  /// Register an update callback that will be invoked when property updates occur.
-  ///
-  /// - parameter cb: `PropertiesAdminUpdateCallback` - The callback.
-  ///
-  /// - returns: A closure that can be invoked to remove the callback.
-  func addUpdateCallback(_ cb: @escaping PropertiesAdminUpdateCallback)
-    -> PropertiesAdminRemoveCallback
+    /// Register an update callback that will be invoked when property updates occur.
+    ///
+    /// - parameter cb: `PropertiesAdminUpdateCallback` - The callback.
+    ///
+    /// - returns: A closure that can be invoked to remove the callback.
+    func addUpdateCallback(_ cb: @escaping PropertiesAdminUpdateCallback)
+        -> PropertiesAdminRemoveCallback
 }

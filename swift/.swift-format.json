@@ -3,7 +3,7 @@
         "accessLevel": "private"
     },
     "indentation": {
-        "spaces": 2
+        "spaces": 4
     },
     "indentConditionalCompilationBlocks": true,
     "indentSwitchCaseLabels": false,
@@ -11,7 +11,7 @@
     "lineBreakBeforeControlFlowKeywords": false,
     "lineBreakBeforeEachArgument": false,
     "lineBreakBeforeEachGenericRequirement": false,
-    "lineLength": 100,
+    "lineLength": 120,
     "maximumBlankLines": 1,
     "multiElementCollectionTrailingCommas": true,
     "noAssignmentInExpressions": {
