@@ -560,7 +560,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
                 {
                     out << nl << param << " = " << stream << ".readByte()" << ';';
                 }
-                break;
+                return;
             }
             case Builtin::KindBool:
             {
@@ -572,7 +572,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
                 {
                     out << nl << param << " = " << stream << ".readBool()" << ';';
                 }
-                break;
+                return;
             }
             case Builtin::KindShort:
             {
@@ -584,7 +584,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
                 {
                     out << nl << param << " = " << stream << ".readShort()" << ';';
                 }
-                break;
+                return;
             }
             case Builtin::KindInt:
             {
@@ -596,7 +596,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
                 {
                     out << nl << param << " = " << stream << ".readInt()" << ';';
                 }
-                break;
+                return;
             }
             case Builtin::KindLong:
             {
@@ -608,7 +608,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
                 {
                     out << nl << param << " = " << stream << ".readLong()" << ';';
                 }
-                break;
+                return;
             }
             case Builtin::KindFloat:
             {
@@ -620,7 +620,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
                 {
                     out << nl << param << " = " << stream << ".readFloat()" << ';';
                 }
-                break;
+                return;
             }
             case Builtin::KindDouble:
             {
@@ -632,7 +632,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
                 {
                     out << nl << param << " = " << stream << ".readDouble()" << ';';
                 }
-                break;
+                return;
             }
             case Builtin::KindString:
             {
@@ -644,7 +644,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
                 {
                     out << nl << param << " = " << stream << ".readString()" << ';';
                 }
-                break;
+                return;
             }
             case Builtin::KindObject:
             case Builtin::KindValue:
@@ -662,10 +662,9 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
                 {
                     out << nl << param << " = " << stream << ".readProxy()" << ';';
                 }
-                break;
+                return;
             }
         }
-        return;
     }
 
     InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);

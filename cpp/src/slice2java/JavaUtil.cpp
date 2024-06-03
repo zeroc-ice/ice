@@ -1314,7 +1314,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
                         out << nl << param << " = " << stream << ".read" << s << "();";
                     }
                 }
-                break;
+                return;
             }
             case Builtin::KindObject:
             case Builtin::KindValue:
@@ -1351,10 +1351,9 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
                         out << nl << param << " = " << stream << ".readProxy();";
                     }
                 }
-                break;
+                return;
             }
         }
-        return;
     }
 
     InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
