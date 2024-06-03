@@ -7,7 +7,7 @@ public sealed class ObjectAdapterFactory
 {
     public void shutdown()
     {
-        List<Ice.ObjectAdapterI> adapters;
+        List<Ice.ObjectAdapter> adapters;
         lock (this)
         {
             //
@@ -19,7 +19,7 @@ public sealed class ObjectAdapterFactory
                 return;
             }
 
-            adapters = new List<Ice.ObjectAdapterI>(_adapters);
+            adapters = new List<Ice.ObjectAdapter>(_adapters);
 
             _instance = null;
             _communicator = null;
@@ -39,7 +39,7 @@ public sealed class ObjectAdapterFactory
 
     public void waitForShutdown()
     {
-        List<Ice.ObjectAdapterI> adapters;
+        List<Ice.ObjectAdapter> adapters;
         lock (this)
         {
             //
@@ -50,7 +50,7 @@ public sealed class ObjectAdapterFactory
                 System.Threading.Monitor.Wait(this);
             }
 
-            adapters = new List<Ice.ObjectAdapterI>(_adapters);
+            adapters = new List<Ice.ObjectAdapter>(_adapters);
         }
 
         //
@@ -77,10 +77,10 @@ public sealed class ObjectAdapterFactory
         //
         waitForShutdown();
 
-        List<Ice.ObjectAdapterI> adapters;
+        List<Ice.ObjectAdapter> adapters;
         lock (this)
         {
-            adapters = new List<Ice.ObjectAdapterI>(_adapters);
+            adapters = new List<Ice.ObjectAdapter>(_adapters);
         }
 
         foreach (Ice.ObjectAdapter adapter in adapters)
@@ -97,13 +97,13 @@ public sealed class ObjectAdapterFactory
     public void
     updateConnectionObservers()
     {
-        List<Ice.ObjectAdapterI> adapters;
+        List<Ice.ObjectAdapter> adapters;
         lock (this)
         {
-            adapters = new List<Ice.ObjectAdapterI>(_adapters);
+            adapters = new List<Ice.ObjectAdapter>(_adapters);
         }
 
-        foreach (Ice.ObjectAdapterI adapter in adapters)
+        foreach (Ice.ObjectAdapter adapter in adapters)
         {
             adapter.updateConnectionObservers();
         }
@@ -112,13 +112,13 @@ public sealed class ObjectAdapterFactory
     public void
     updateThreadObservers()
     {
-        List<Ice.ObjectAdapterI> adapters;
+        List<Ice.ObjectAdapter> adapters;
         lock (this)
         {
-            adapters = new List<Ice.ObjectAdapterI>(_adapters);
+            adapters = new List<Ice.ObjectAdapter>(_adapters);
         }
 
-        foreach (Ice.ObjectAdapterI adapter in adapters)
+        foreach (Ice.ObjectAdapter adapter in adapters)
         {
             adapter.updateThreadObservers();
         }
@@ -153,12 +153,12 @@ public sealed class ObjectAdapterFactory
         // Must be called outside the synchronization since initialize can make client invocations
         // on the router if it's set.
         //
-        Ice.ObjectAdapterI adapter = null;
+        Ice.ObjectAdapter adapter = null;
         try
         {
             if (name.Length == 0)
             {
-                adapter = new Ice.ObjectAdapterI(
+                adapter = new Ice.ObjectAdapter(
                     _instance,
                     _communicator,
                     this,
@@ -169,7 +169,7 @@ public sealed class ObjectAdapterFactory
             }
             else
             {
-                adapter = new Ice.ObjectAdapterI(
+                adapter = new Ice.ObjectAdapter(
                     _instance,
                     _communicator,
                     this,
@@ -213,7 +213,7 @@ public sealed class ObjectAdapterFactory
 
     public Ice.ObjectAdapter findObjectAdapter(Reference reference)
     {
-        List<Ice.ObjectAdapterI> adapters;
+        List<Ice.ObjectAdapter> adapters;
         lock (this)
         {
             if (_instance == null)
@@ -221,10 +221,10 @@ public sealed class ObjectAdapterFactory
                 return null;
             }
 
-            adapters = new List<Ice.ObjectAdapterI>(_adapters);
+            adapters = new List<Ice.ObjectAdapter>(_adapters);
         }
 
-        foreach (Ice.ObjectAdapterI adapter in adapters)
+        foreach (Ice.ObjectAdapter adapter in adapters)
         {
             try
             {
@@ -242,7 +242,7 @@ public sealed class ObjectAdapterFactory
         return null;
     }
 
-    public void removeObjectAdapter(Ice.ObjectAdapterI adapter)
+    public void removeObjectAdapter(Ice.ObjectAdapter adapter)
     {
         lock (this)
         {
@@ -258,13 +258,13 @@ public sealed class ObjectAdapterFactory
 
     public void flushAsyncBatchRequests(Ice.CompressBatch compressBatch, CommunicatorFlushBatchAsync outAsync)
     {
-        List<Ice.ObjectAdapterI> adapters;
+        List<Ice.ObjectAdapter> adapters;
         lock (this)
         {
-            adapters = new List<Ice.ObjectAdapterI>(_adapters);
+            adapters = new List<Ice.ObjectAdapter>(_adapters);
         }
 
-        foreach (Ice.ObjectAdapterI adapter in adapters)
+        foreach (Ice.ObjectAdapter adapter in adapters)
         {
             adapter.flushAsyncBatchRequests(compressBatch, outAsync);
         }
@@ -278,11 +278,11 @@ public sealed class ObjectAdapterFactory
         _instance = instance;
         _communicator = communicator;
         _adapterNamesInUse = new HashSet<string>();
-        _adapters = new List<Ice.ObjectAdapterI>();
+        _adapters = new List<Ice.ObjectAdapter>();
     }
 
     private Instance _instance;
     private Ice.Communicator _communicator;
     private HashSet<string> _adapterNamesInUse;
-    private List<Ice.ObjectAdapterI> _adapters;
+    private List<Ice.ObjectAdapter> _adapters;
 }

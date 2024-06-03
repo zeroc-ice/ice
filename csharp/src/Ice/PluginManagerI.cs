@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 using System.Collections;
 using System.Diagnostics;
 
@@ -22,7 +24,7 @@ public interface PluginFactory
     Plugin create(Communicator communicator, string name, string[] args);
 }
 
-public sealed class PluginManagerI : PluginManager
+internal sealed class PluginManagerI : PluginManager
 {
     private static string _kindOfObject = "plugin";
 
@@ -111,13 +113,13 @@ public sealed class PluginManagerI : PluginManager
     {
         lock (this)
         {
-            if (_communicator == null)
+            if (_communicator is null)
             {
                 throw new CommunicatorDestroyedException();
             }
 
-            Plugin p = findPlugin(name);
-            if (p != null)
+            Plugin? p = findPlugin(name);
+            if (p is not null)
             {
                 return p;
             }
@@ -133,12 +135,12 @@ public sealed class PluginManagerI : PluginManager
     {
         lock (this)
         {
-            if (_communicator == null)
+            if (_communicator is null)
             {
                 throw new CommunicatorDestroyedException();
             }
 
-            if (findPlugin(name) != null)
+            if (findPlugin(name) is not null)
             {
                 AlreadyRegisteredException ex = new AlreadyRegisteredException();
                 ex.id = name;
@@ -146,10 +148,7 @@ public sealed class PluginManagerI : PluginManager
                 throw ex;
             }
 
-            PluginInfo info = new PluginInfo();
-            info.name = name;
-            info.plugin = plugin;
-            _plugins.Add(info);
+            _plugins.Add(new PluginInfo(name, plugin));
         }
     }
 
@@ -157,7 +156,7 @@ public sealed class PluginManagerI : PluginManager
     {
         lock (this)
         {
-            if (_communicator != null)
+            if (_communicator is not null)
             {
                 if (_initialized)
                 {
@@ -182,7 +181,7 @@ public sealed class PluginManagerI : PluginManager
         }
     }
 
-    public PluginManagerI(Communicator communicator)
+    internal PluginManagerI(Communicator communicator)
     {
         _communicator = communicator;
         _plugins = new ArrayList();
@@ -191,7 +190,7 @@ public sealed class PluginManagerI : PluginManager
 
     public void loadPlugins(ref string[] cmdArgs)
     {
-        Debug.Assert(_communicator != null);
+        Debug.Assert(_communicator is not null);
         string prefix = "Ice.Plugin.";
         Properties properties = _communicator.getProperties();
         Dictionary<string, string> plugins = properties.getPropertiesForPrefix(prefix);
@@ -206,9 +205,8 @@ public sealed class PluginManagerI : PluginManager
         foreach (var name in _loadOnInitialization)
         {
             string key = "Ice.Plugin." + name + ".clr";
-            string r = null;
-            plugins.TryGetValue(key, out r);
-            if (r != null)
+            plugins.TryGetValue(key, out string? r);
+            if (r is not null)
             {
                 plugins.Remove("Ice.Plugin." + name);
             }
@@ -218,7 +216,7 @@ public sealed class PluginManagerI : PluginManager
                 plugins.TryGetValue(key, out r);
             }
 
-            if (r != null)
+            if (r is not null)
             {
                 loadPlugin(name, r, ref cmdArgs);
                 plugins.Remove(key);
@@ -254,7 +252,7 @@ public sealed class PluginManagerI : PluginManager
                 continue;
             }
 
-            if (findPlugin(loadOrder[i]) != null)
+            if (findPlugin(loadOrder[i]) is not null)
             {
                 PluginInitializationException e = new PluginInitializationException();
                 e.reason = "plug-in `" + loadOrder[i] + "' already loaded";
@@ -262,9 +260,8 @@ public sealed class PluginManagerI : PluginManager
             }
 
             string key = "Ice.Plugin." + loadOrder[i] + ".clr";
-            string value = null;
-            plugins.TryGetValue(key, out value);
-            if (value != null)
+            plugins.TryGetValue(key, out string? value);
+            if (value is not null)
             {
                 plugins.Remove("Ice.Plugin." + loadOrder[i]);
             }
@@ -274,7 +271,7 @@ public sealed class PluginManagerI : PluginManager
                 plugins.TryGetValue(key, out value);
             }
 
-            if (value != null)
+            if (value is not null)
             {
                 loadPlugin(loadOrder[i], value, ref cmdArgs);
                 plugins.Remove(key);
@@ -334,7 +331,7 @@ public sealed class PluginManagerI : PluginManager
                 // Is there a .clr entry?
                 //
                 string clrKey = "Ice.Plugin." + name + ".clr";
-                if (plugins.TryGetValue(clrKey, out string value))
+                if (plugins.TryGetValue(clrKey, out string? value))
                 {
                     val = value;
                     plugins.Remove(clrKey);
@@ -346,10 +343,10 @@ public sealed class PluginManagerI : PluginManager
 
     private void loadPlugin(string name, string pluginSpec, ref string[] cmdArgs)
     {
-        Debug.Assert(_communicator != null);
+        Debug.Assert(_communicator is not null);
 
-        string[] args = null;
-        string entryPoint = null;
+        string[] args = [];
+        string entryPoint = "";
         if (pluginSpec.Length > 0)
         {
             //
@@ -395,13 +392,12 @@ public sealed class PluginManagerI : PluginManager
         // precedence over the entryPoint specified in the plugin
         // property value.
         //
-        PluginFactory pluginFactory = null;
-        if (!_factories.TryGetValue(name, out pluginFactory))
+        if (!_factories.TryGetValue(name, out PluginFactory? pluginFactory))
         {
             //
             // Extract the assembly name and the class name.
             //
-            int sepPos = entryPoint.IndexOf(':');
+            int sepPos = entryPoint!.IndexOf(':');
             if (sepPos != -1)
             {
                 const string driveLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -420,7 +416,7 @@ public sealed class PluginManagerI : PluginManager
                 throw e;
             }
 
-            System.Reflection.Assembly pluginAssembly = null;
+            System.Reflection.Assembly? pluginAssembly = null;
             string assemblyName = entryPoint.Substring(0, sepPos);
             string className = entryPoint.Substring(sepPos + 1);
 
@@ -463,7 +459,7 @@ public sealed class PluginManagerI : PluginManager
             //
             // Instantiate the class.
             //
-            System.Type c = null;
+            System.Type? c = null;
             try
             {
                 c = pluginAssembly.GetType(className, true);
@@ -478,7 +474,7 @@ public sealed class PluginManagerI : PluginManager
             try
             {
                 pluginFactory = (PluginFactory)Ice.Internal.AssemblyUtil.createInstance(c);
-                if (pluginFactory == null)
+                if (pluginFactory is null)
                 {
                     PluginInitializationException e = new PluginInitializationException();
                     e.reason = err + "can't find constructor for `" + className + "'";
@@ -505,7 +501,7 @@ public sealed class PluginManagerI : PluginManager
             }
         }
 
-        Plugin plugin = null;
+        Plugin? plugin = null;
         try
         {
             plugin = pluginFactory.create(_communicator, name, args);
@@ -522,20 +518,17 @@ public sealed class PluginManagerI : PluginManager
             throw e;
         }
 
-        if (plugin == null)
+        if (plugin is null)
         {
             PluginInitializationException ex = new PluginInitializationException();
             ex.reason = err + "factory.create returned null plug-in";
             throw ex;
         }
 
-        PluginInfo info = new PluginInfo();
-        info.name = name;
-        info.plugin = plugin;
-        _plugins.Add(info);
+        _plugins.Add(new PluginInfo(name, plugin));
     }
 
-    private Plugin findPlugin(string name)
+    private Plugin? findPlugin(string name)
     {
         foreach (PluginInfo p in _plugins)
         {
@@ -547,13 +540,9 @@ public sealed class PluginManagerI : PluginManager
         return null;
     }
 
-    internal class PluginInfo
-    {
-        internal string name;
-        internal Plugin plugin;
-    }
+    internal record class PluginInfo(string name, Plugin plugin);
 
-    private Communicator _communicator;
+    private Communicator? _communicator;
     private ArrayList _plugins;
     private bool _initialized;
 

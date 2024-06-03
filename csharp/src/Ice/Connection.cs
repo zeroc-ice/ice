@@ -172,12 +172,6 @@ namespace Ice
         string type();
 
         /// <summary>
-        /// Return a description of the connection as human readable text, suitable for logging or error messages.
-        /// </summary>
-        /// <returns>The description of the connection as human readable text.</returns>
-        string ice_toString_();
-
-        /// <summary>
         /// Returns the connection information.
         /// </summary>
         /// <returns>The connection information.</returns>

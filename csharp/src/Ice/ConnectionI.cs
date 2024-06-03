@@ -7,15 +7,15 @@ using System.Text;
 
 namespace Ice;
 
-public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler, Connection
+public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Connection
 {
-    public interface StartCallback
+    internal interface StartCallback
     {
         void connectionStartCompleted(ConnectionI connection);
         void connectionStartFailed(ConnectionI connection, LocalException ex);
     }
 
-    public void start(StartCallback callback)
+    internal void start(StartCallback callback)
     {
         try
         {
@@ -26,7 +26,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                 //
                 if (_state >= StateClosed)
                 {
-                    Debug.Assert(_exception != null);
+                    Debug.Assert(_exception is not null);
                     throw _exception;
                 }
 
@@ -58,7 +58,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         callback.connectionStartCompleted(this);
     }
 
-    public void startAndWait()
+    internal void startAndWait()
     {
         try
         {
@@ -69,7 +69,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                 //
                 if (_state >= StateClosed)
                 {
-                    Debug.Assert(_exception != null);
+                    Debug.Assert(_exception is not null);
                     throw _exception;
                 }
 
@@ -85,7 +85,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
 
                     if (_state >= StateClosing)
                     {
-                        Debug.Assert(_exception != null);
+                        Debug.Assert(_exception is not null);
                         throw _exception;
                     }
                 }
@@ -104,7 +104,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         }
     }
 
-    public void activate()
+    internal void activate()
     {
         lock (this)
         {
@@ -117,7 +117,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         }
     }
 
-    public void hold()
+    internal void hold()
     {
         lock (this)
         {
@@ -134,7 +134,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
     public const int ObjectAdapterDeactivated = 0;
     public const int CommunicatorDestroyed = 1;
 
-    public void destroy(int reason)
+    internal void destroy(int reason)
     {
         lock (this)
         {
@@ -184,7 +184,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         }
     }
 
-    public bool isActiveOrHolding()
+    internal bool isActiveOrHolding()
     {
         lock (this)
         {
@@ -192,7 +192,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         }
     }
 
-    public bool isFinished()
+    internal bool isFinished()
     {
         //
         // We can use TryLock here, because as long as there are still
@@ -224,7 +224,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
     {
         lock (this)
         {
-            if (_exception != null)
+            if (_exception is not null)
             {
                 Debug.Assert(_state >= StateClosing);
                 throw _exception;
@@ -232,7 +232,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         }
     }
 
-    public void waitUntilHolding()
+    internal void waitUntilHolding()
     {
         lock (this)
         {
@@ -243,7 +243,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         }
     }
 
-    public void waitUntilFinished()
+    internal void waitUntilFinished()
     {
         lock (this)
         {
@@ -267,7 +267,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         }
     }
 
-    public void updateObserver()
+    internal void updateObserver()
     {
         lock (this)
         {
@@ -276,12 +276,12 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                 return;
             }
 
-            Debug.Assert(_instance.initializationData().observer != null);
+            Debug.Assert(_instance.initializationData().observer is not null);
             _observer = _instance.initializationData().observer.getConnectionObserver(initConnectionInfo(),
                                                                                       _endpoint,
                                                                                       toConnectionState(_state),
                                                                                       _observer);
-            if (_observer != null)
+            if (_observer is not null)
             {
                 _observer.attach();
             }
@@ -293,7 +293,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         }
     }
 
-    public int sendAsyncRequest(OutgoingAsyncBase og, bool compress, bool response,
+    internal int sendAsyncRequest(OutgoingAsyncBase og, bool compress, bool response,
                                 int batchRequestCount)
     {
         OutputStream os = og.getOs();
@@ -305,7 +305,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
             // to send our request, we always try to send the request
             // again.
             //
-            if (_exception != null)
+            if (_exception is not null)
             {
                 throw new RetryException(_exception);
             }
@@ -360,7 +360,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
             catch (LocalException ex)
             {
                 setState(StateClosed, ex);
-                Debug.Assert(_exception != null);
+                Debug.Assert(_exception is not null);
                 throw _exception;
             }
 
@@ -413,7 +413,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         {
             if (_state >= StateClosed)
             {
-                if (callback != null)
+                if (callback is not null)
                 {
                     _threadPool.execute(() =>
                     {
@@ -546,7 +546,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
             }
 
             OutgoingMessage o = _sendStreams.FirstOrDefault(m => m.outAsync == outAsync);
-            if (o != null)
+            if (o is not null)
             {
                 if (o.requestId > 0)
                 {
@@ -605,12 +605,12 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         }
     }
 
-    public EndpointI endpoint()
+    internal EndpointI endpoint()
     {
         return _endpoint; // No mutex protection necessary, _endpoint is immutable.
     }
 
-    public Connector connector()
+    internal Connector connector()
     {
         return _connector; // No mutex protection necessary, _endpoint is immutable.
     }
@@ -621,7 +621,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         {
             // Go through the adapter to set the adapter and servant manager on this connection
             // to ensure the object adapter is still active.
-            ((ObjectAdapterI)adapter).setAdapterOnConnection(this);
+            adapter.setAdapterOnConnection(this);
         }
         else
         {
@@ -656,11 +656,11 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
 
     public ObjectPrx createProxy(Identity ident)
     {
-        ObjectAdapterI.checkIdentity(ident);
+        ObjectAdapter.checkIdentity(ident);
         return new ObjectPrxHelper(_instance.referenceFactory().create(ident, this));
     }
 
-    public void setAdapterFromAdapter(ObjectAdapterI adapter)
+    public void setAdapterFromAdapter(ObjectAdapter adapter)
     {
         lock (this)
         {
@@ -668,7 +668,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
             {
                 return;
             }
-            Debug.Assert(adapter != null); // Called by ObjectAdapterI::setAdapterOnConnection
+            Debug.Assert(adapter is not null); // Called by ObjectAdapter::setAdapterOnConnection
             _adapter = adapter;
         }
     }
@@ -687,7 +687,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         {
             if ((operation & SocketOperation.Write) != 0)
             {
-                if (_observer != null)
+                if (_observer is not null)
                 {
                     observerStartWrite(_writeStream.getBuffer());
                 }
@@ -702,7 +702,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
             }
             else if ((operation & SocketOperation.Read) != 0)
             {
-                if (_observer != null && !_readHeader)
+                if (_observer is not null && !_readHeader)
                 {
                     observerStartRead(_readStream.getBuffer());
                 }
@@ -743,7 +743,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                     _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
                 }
 
-                if (_observer != null)
+                if (_observer is not null)
                 {
                     observerFinishWrite(_writeStream.getBuffer());
                 }
@@ -773,7 +773,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                     _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
                 }
 
-                if (_observer != null && !_readHeader)
+                if (_observer is not null && !_readHeader)
                 {
                     observerFinishRead(_readStream.getBuffer());
                 }
@@ -816,12 +816,12 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                     // If writes are ready, write the data from the connection's write buffer (_writeStream)
                     if ((current.operation & SocketOperation.Write) != 0)
                     {
-                        if (_observer != null)
+                        if (_observer is not null)
                         {
                             observerStartWrite(_writeStream.getBuffer());
                         }
                         writeOp = write(_writeStream.getBuffer());
-                        if (_observer != null && (writeOp & SocketOperation.Write) == 0)
+                        if (_observer is not null && (writeOp & SocketOperation.Write) == 0)
                         {
                             observerFinishWrite(_writeStream.getBuffer());
                         }
@@ -838,7 +838,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                         {
                             Ice.Internal.Buffer buf = _readStream.getBuffer();
 
-                            if (_observer != null && !_readHeader)
+                            if (_observer is not null && !_readHeader)
                             {
                                 observerStartRead(buf);
                             }
@@ -849,7 +849,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                                 // Can't continue without blocking, exit out of the loop.
                                 break;
                             }
-                            if (_observer != null && !_readHeader)
+                            if (_observer is not null && !_readHeader)
                             {
                                 Debug.Assert(!buf.b.hasRemaining());
                                 observerFinishRead(buf);
@@ -862,7 +862,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                                 // The next read will read the remainder of the message.
                                 _readHeader = false;
 
-                                if (_observer != null)
+                                if (_observer is not null)
                                 {
                                     _observer.receivedBytes(Protocol.headerSize);
                                 }
@@ -979,11 +979,11 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                         // We start out in holding state.
                         //
                         setState(StateHolding);
-                        if (_startCallback != null)
+                        if (_startCallback is not null)
                         {
                             startCB = _startCallback;
                             _startCallback = null;
-                            if (startCB != null)
+                            if (startCB is not null)
                             {
                                 ++upcallCount;
                             }
@@ -1011,7 +1011,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                             // written.
 
                             newOp |= sendNextMessage(out sentCBs);
-                            if (sentCBs != null)
+                            if (sentCBs is not null)
                             {
                                 ++upcallCount;
                             }
@@ -1094,7 +1094,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         // Notify the factory that the connection establishment and
         // validation has completed.
         //
-        if (startCB != null)
+        if (startCB is not null)
         {
             startCB.connectionStartCompleted(this);
             ++completedUpcallCount;
@@ -1103,7 +1103,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         //
         // Notify AMI calls that the message was sent.
         //
-        if (sentCBs != null)
+        if (sentCBs is not null)
         {
             foreach (OutgoingMessage m in sentCBs)
             {
@@ -1127,13 +1127,13 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         // Asynchronous replies must be handled outside the thread
         // synchronization, so that nested calls are possible.
         //
-        if (info.outAsync != null)
+        if (info.outAsync is not null)
         {
             info.outAsync.invokeResponse();
             ++completedUpcallCount;
         }
 
-        if (info.heartbeatCallback != null)
+        if (info.heartbeatCallback is not null)
         {
             try
             {
@@ -1203,8 +1203,8 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         // to call code that will potentially block (this avoids promoting a new leader and
         // unnecessary thread creation, especially if this is called on shutdown).
         //
-        if (_startCallback == null && _sendStreams.Count == 0 && _asyncRequests.Count == 0 &&
-           _closeCallback == null && _heartbeatCallback == null)
+        if (_startCallback is null && _sendStreams.Count == 0 && _asyncRequests.Count == 0 &&
+           _closeCallback is null && _heartbeatCallback is null)
         {
             finish();
             return;
@@ -1226,7 +1226,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
             if (_instance.traceLevels().network >= 2)
             {
                 StringBuilder s = new StringBuilder("failed to ");
-                s.Append(_connector != null ? "establish" : "accept");
+                s.Append(_connector is not null ? "establish" : "accept");
                 s.Append(' ');
                 s.Append(_endpoint.protocol());
                 s.Append(" connection\n");
@@ -1262,7 +1262,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
             }
         }
 
-        if (_startCallback != null)
+        if (_startCallback is not null)
         {
             _startCallback.connectionStartFailed(this, _exception);
             _startCallback = null;
@@ -1330,7 +1330,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         _readStream.clear();
         _readStream.getBuffer().clear();
 
-        if (_closeCallback != null)
+        if (_closeCallback is not null)
         {
             try
             {
@@ -1402,11 +1402,6 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         }
     }
 
-    public string ice_toString_()
-    {
-        return ToString();
-    }
-
     public void exception(LocalException ex)
     {
         lock (this)
@@ -1430,7 +1425,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         Transceiver transceiver,
         Connector connector,
         EndpointI endpoint,
-        ObjectAdapterI adapter,
+        ObjectAdapter adapter,
         Action<ConnectionI> removeFromFactory, // can be null
         ConnectionOptions options)
     {
@@ -1452,7 +1447,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         _warn = initData.properties.getIcePropertyAsInt("Ice.Warn.Connections") > 0;
         _warnUdp = initData.properties.getIcePropertyAsInt("Ice.Warn.Datagrams") > 0;
         _nextRequestId = 1;
-        _messageSizeMax = adapter != null ? adapter.messageSizeMax() : instance.messageSizeMax();
+        _messageSizeMax = adapter is not null ? adapter.messageSizeMax() : instance.messageSizeMax();
         _batchRequestQueue = new BatchRequestQueue(instance, _endpoint.datagram());
         _readStream = new InputStream(instance, Util.currentProtocolEncoding);
         _readHeader = false;
@@ -1483,7 +1478,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
 
         try
         {
-            if (adapter != null)
+            if (adapter is not null)
             {
                 _threadPool = adapter.getThreadPool();
             }
@@ -1576,7 +1571,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
             return;
         }
 
-        if (_exception == null)
+        if (_exception is null)
         {
             //
             // If we are in closed state, an exception must be set.
@@ -1727,7 +1722,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
             _logger.error("unexpected connection exception:\n" + ex + "\n" + _transceiver.ToString());
         }
 
-        if (_instance.initializationData().observer != null)
+        if (_instance.initializationData().observer is not null)
         {
             ConnectionState oldState = toConnectionState(_state);
             ConnectionState newState = toConnectionState(state);
@@ -1737,7 +1732,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                                                                                           _endpoint,
                                                                                           newState,
                                                                                           _observer);
-                if (_observer != null)
+                if (_observer is not null)
                 {
                     _observer.attach();
                 }
@@ -1747,7 +1742,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                     _readStreamPos = -1;
                 }
             }
-            if (_observer != null && state == StateClosed && _exception != null)
+            if (_observer is not null && state == StateClosed && _exception is not null)
             {
                 if (!(_exception is CloseConnectionException ||
                      _exception is ConnectionManuallyClosedException ||
@@ -1847,7 +1842,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
     {
         if (!_endpoint.datagram()) // Datagram connections are always implicitly validated.
         {
-            if (_adapter != null) // The server side has the active role for connection validation.
+            if (_adapter is not null) // The server side has the active role for connection validation.
             {
                 if (_writeStream.size() == 0)
                 {
@@ -1861,7 +1856,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                     _writeStream.prepareWrite();
                 }
 
-                if (_observer != null)
+                if (_observer is not null)
                 {
                     observerStartWrite(_writeStream.getBuffer());
                 }
@@ -1876,7 +1871,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                     }
                 }
 
-                if (_observer != null)
+                if (_observer is not null)
                 {
                     observerFinishWrite(_writeStream.getBuffer());
                 }
@@ -1889,7 +1884,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                     _readStream.pos(0);
                 }
 
-                if (_observer != null)
+                if (_observer is not null)
                 {
                     observerStartRead(_readStream.getBuffer());
                 }
@@ -1904,7 +1899,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                     }
                 }
 
-                if (_observer != null)
+                if (_observer is not null)
                 {
                     observerFinishRead(_readStream.getBuffer());
                 }
@@ -1956,7 +1951,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
             if (_endpoint.datagram())
             {
                 s.Append("starting to ");
-                s.Append(_connector != null ? "send" : "receive");
+                s.Append(_connector is not null ? "send" : "receive");
                 s.Append(' ');
                 s.Append(_endpoint.protocol());
                 s.Append(" messages\n");
@@ -1964,7 +1959,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
             }
             else
             {
-                s.Append(_connector != null ? "established" : "accepted");
+                s.Append(_connector is not null ? "established" : "accepted");
                 s.Append(' ');
                 s.Append(_endpoint.protocol());
                 s.Append(" connection\n");
@@ -2004,7 +1999,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                 _writeStream.swap(message.stream);
                 if (message.sent())
                 {
-                    if (callbacks == null)
+                    if (callbacks is null)
                     {
                         callbacks = new Queue<OutgoingMessage>();
                     }
@@ -2049,7 +2044,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                 //
                 // Send the message.
                 //
-                if (_observer != null)
+                if (_observer is not null)
                 {
                     observerStartWrite(_writeStream.getBuffer());
                 }
@@ -2061,7 +2056,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                         return op;
                     }
                 }
-                if (_observer != null)
+                if (_observer is not null)
                 {
                     observerFinishWrite(_writeStream.getBuffer());
                 }
@@ -2118,14 +2113,14 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         //
         // Send the message without blocking.
         //
-        if (_observer != null)
+        if (_observer is not null)
         {
             observerStartWrite(message.stream.getBuffer());
         }
         int op = write(message.stream.getBuffer());
         if (op == 0)
         {
-            if (_observer != null)
+            if (_observer is not null)
             {
                 observerFinishWrite(message.stream.getBuffer());
             }
@@ -2158,7 +2153,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                 //
                 Ice.Internal.Buffer cbuf = BZip2.compress(uncompressed.getBuffer(), Protocol.headerSize,
                                                          _compressionLevel);
-                if (cbuf != null)
+                if (cbuf is not null)
                 {
                     OutputStream cstream =
                         new OutputStream(uncompressed.instance(), uncompressed.getEncoding(), cbuf, true);
@@ -2206,7 +2201,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         public int requestCount;
         public int requestId;
         public byte compress;
-        public ObjectAdapterI adapter;
+        public ObjectAdapter adapter;
         public OutgoingAsyncBase outAsync;
         public HeartbeatCallback heartbeatCallback;
         public int upcallCount;
@@ -2344,7 +2339,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                         // will be processed once the write callback is invoked for the message.
                         //
                         OutgoingMessage message = _sendStreams.Count > 0 ? _sendStreams.First.Value : null;
-                        if (message != null && message.outAsync == info.outAsync)
+                        if (message is not null && message.outAsync == info.outAsync)
                         {
                             message.receivedReply = true;
                         }
@@ -2364,7 +2359,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
                 case Protocol.validateConnectionMsg:
                 {
                     TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
-                    if (_heartbeatCallback != null)
+                    if (_heartbeatCallback is not null)
                     {
                         info.heartbeatCallback = _heartbeatCallback;
                         ++info.upcallCount;
@@ -2403,7 +2398,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         int requestCount,
         int requestId,
         byte compress,
-        ObjectAdapterI adapter)
+        ObjectAdapter adapter)
     {
         // Note: In contrast to other private or protected methods, this method must be called *without* the mutex
         // locked.
@@ -2581,7 +2576,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
 
     private ConnectionInfo initConnectionInfo()
     {
-        if (_state > StateNotInitialized && _info != null) // Update the connection info until it's initialized
+        if (_state > StateNotInitialized && _info is not null) // Update the connection info until it's initialized
         {
             return _info;
         }
@@ -2594,11 +2589,11 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         {
             _info = new ConnectionInfo();
         }
-        for (ConnectionInfo info = _info; info != null; info = info.underlying)
+        for (ConnectionInfo info = _info; info is not null; info = info.underlying)
         {
             info.connectionId = _endpoint.connectionId();
-            info.adapterName = _adapter != null ? _adapter.getName() : "";
-            info.incoming = _connector == null;
+            info.adapterName = _adapter is not null ? _adapter.getName() : "";
+            info.incoming = _connector is null;
         }
         return _info;
     }
@@ -2724,7 +2719,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
 
         internal void canceled()
         {
-            Debug.Assert(outAsync != null); // Only requests can timeout.
+            Debug.Assert(outAsync is not null); // Only requests can timeout.
             outAsync = null;
         }
 
@@ -2742,7 +2737,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
         internal bool sent()
         {
             stream = null;
-            if (outAsync != null)
+            if (outAsync is not null)
             {
                 invokeSent = outAsync.sent();
                 return invokeSent || receivedReply;
@@ -2752,7 +2747,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
 
         internal void completed(LocalException ex)
         {
-            if (outAsync != null)
+            if (outAsync is not null)
             {
                 if (outAsync.exception(ex))
                 {
@@ -2780,7 +2775,7 @@ public sealed class ConnectionI : Ice.Internal.EventHandler, CancellationHandler
     private Connector _connector;
     private EndpointI _endpoint;
 
-    private ObjectAdapterI _adapter;
+    private ObjectAdapter _adapter;
 
     private Logger _logger;
     private TraceLevels _traceLevels;

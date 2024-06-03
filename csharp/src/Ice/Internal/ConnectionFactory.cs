@@ -1475,7 +1475,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
     }
 
     public IncomingConnectionFactory(Instance instance, EndpointI endpoint, EndpointI publish,
-                                     Ice.ObjectAdapterI adapter)
+                                     Ice.ObjectAdapter adapter)
     {
         _instance = instance;
         _connectionOptions = instance.serverConnectionOptions(adapter.getName());
@@ -1745,7 +1745,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
     private EndpointI _endpoint;
     private readonly EndpointI _publishedEndpoint;
 
-    private Ice.ObjectAdapterI _adapter;
+    private Ice.ObjectAdapter _adapter;
 
     private readonly bool _warn;
 

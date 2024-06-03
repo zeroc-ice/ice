@@ -1,25 +1,14 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 using System.Diagnostics;
 using System.Globalization;
 
 namespace Ice;
 
-public abstract class LoggerI : Logger
+internal abstract class LoggerI : Logger
 {
-    public LoggerI(string prefix)
-    {
-        _prefix = prefix;
-
-        if (prefix.Length > 0)
-        {
-            _formattedPrefix = prefix + ": ";
-        }
-
-        _date = "d";
-        _time = "HH:mm:ss:fff";
-    }
-
     public void print(string message)
     {
         lock (_globalMutex)
@@ -60,6 +49,23 @@ public abstract class LoggerI : Logger
         return _prefix;
     }
 
+    public abstract Logger cloneWithPrefix(string prefix);
+
+    protected abstract void write(string message);
+
+    internal LoggerI(string prefix)
+    {
+        _prefix = prefix;
+
+        if (prefix.Length > 0)
+        {
+            _formattedPrefix = prefix + ": ";
+        }
+
+        _date = "d";
+        _time = "HH:mm:ss:fff";
+    }
+
     private string format(string prefix, string category, string message)
     {
         System.Text.StringBuilder s = new System.Text.StringBuilder(prefix);
@@ -76,27 +82,16 @@ public abstract class LoggerI : Logger
         return s.ToString();
     }
 
-    public abstract Logger cloneWithPrefix(string prefix);
-
-    protected abstract void write(string message);
-
     internal readonly string _prefix;
-    internal readonly string _formattedPrefix;
+    internal readonly string? _formattedPrefix;
     internal string _date;
     internal string _time;
 
     internal static object _globalMutex = new object();
 }
 
-public sealed class ConsoleLoggerI : LoggerI
+internal sealed class ConsoleLoggerI : LoggerI
 {
-    public ConsoleLoggerI(string prefix)
-        : base(prefix)
-    {
-        _date = "d";
-        _time = "HH:mm:ss:fff";
-    }
-
     public override Logger cloneWithPrefix(string prefix)
     {
         return new ConsoleLoggerI(prefix);
@@ -106,20 +101,25 @@ public sealed class ConsoleLoggerI : LoggerI
     {
         System.Console.Error.WriteLine(message);
     }
+
+    internal ConsoleLoggerI(string prefix)
+        : base(prefix)
+    {
+        _date = "d";
+        _time = "HH:mm:ss:fff";
+    }
 }
 
-public sealed class FileLoggerI : LoggerI
+internal sealed class FileLoggerI : LoggerI
 {
-    public FileLoggerI(string prefix, string file) :
-        base(prefix)
-    {
-        _file = file;
-        _writer = new StreamWriter(new FileStream(file, FileMode.Append, FileAccess.Write, FileShare.ReadWrite));
-    }
-
     public override Logger cloneWithPrefix(string prefix)
     {
         return new FileLoggerI(prefix, _file);
+    }
+
+    public void destroy()
+    {
+        _writer.Close();
     }
 
     protected override void write(string message)
@@ -128,27 +128,27 @@ public sealed class FileLoggerI : LoggerI
         _writer.Flush();
     }
 
-    public void destroy()
+    internal FileLoggerI(string prefix, string file) :
+        base(prefix)
     {
-        _writer.Close();
+        _file = file;
+        _writer = new StreamWriter(new FileStream(file, FileMode.Append, FileAccess.Write, FileShare.ReadWrite));
     }
 
     private string _file;
     private TextWriter _writer;
 }
 
-public class ConsoleListener : TraceListener
+internal class ConsoleListener : TraceListener
 {
-    public override bool IsThreadSafe
-    {
-        get
-        {
-            return true;
-        }
-    }
+    public override bool IsThreadSafe => true;
 
-    public override void TraceEvent(TraceEventCache cache, string source, TraceEventType type,
-                                    int id, string message)
+    public override void TraceEvent(
+        TraceEventCache? cache,
+        string source,
+        TraceEventType type,
+        int id,
+        string? message)
     {
         System.Text.StringBuilder s;
         if (type == TraceEventType.Error)
@@ -172,12 +172,12 @@ public class ConsoleListener : TraceListener
         WriteLine(s.ToString());
     }
 
-    public override void Write(string message)
+    public override void Write(string? message)
     {
         System.Console.Error.Write(message);
     }
 
-    public override void WriteLine(string message)
+    public override void WriteLine(string? message)
     {
         System.Console.Error.WriteLine(message);
     }
@@ -186,18 +186,8 @@ public class ConsoleListener : TraceListener
     internal const string _time = "HH:mm:ss:fff";
 }
 
-public sealed class TraceLoggerI : LoggerI
+internal sealed class TraceLoggerI : LoggerI
 {
-    public TraceLoggerI(string prefix, bool console)
-        : base(prefix)
-    {
-        _console = console;
-        if (console && !Trace.Listeners.Contains(_consoleListener))
-        {
-            Trace.Listeners.Add(_consoleListener);
-        }
-    }
-
     public override void trace(string category, string message)
     {
         Trace.TraceInformation(format(category, message));
@@ -228,6 +218,16 @@ public sealed class TraceLoggerI : LoggerI
     {
         Trace.WriteLine(message);
         Trace.Flush();
+    }
+
+    internal TraceLoggerI(string prefix, bool console)
+        : base(prefix)
+    {
+        _console = console;
+        if (console && !Trace.Listeners.Contains(_consoleListener))
+        {
+            Trace.Listeners.Add(_consoleListener);
+        }
     }
 
     private string format(string category, string message)

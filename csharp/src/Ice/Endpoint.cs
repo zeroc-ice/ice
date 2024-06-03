@@ -35,12 +35,6 @@ public abstract class EndpointInfo
 public interface Endpoint
 {
     /// <summary>
-    /// Return a string representation of the endpoint.
-    /// </summary>
-    /// <returns>The string representation of the endpoint.</returns>
-    string ice_toString_();
-
-    /// <summary>
     /// Returns the endpoint information.
     /// </summary>
     /// <returns>The endpoint information class.</returns>

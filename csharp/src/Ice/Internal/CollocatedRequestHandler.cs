@@ -16,7 +16,7 @@ public class CollocatedRequestHandler : RequestHandler
         _reference = reference;
         _executor = _reference.getInstance().initializationData().executor != null;
         _response = _reference.isTwoway;
-        _adapter = (Ice.ObjectAdapterI)adapter;
+        _adapter = adapter;
 
         _logger = _reference.getInstance().initializationData().logger; // Cached for better performance.
         _traceLevels = _reference.getInstance().traceLevels(); // Cached for better performance.
@@ -338,7 +338,7 @@ public class CollocatedRequestHandler : RequestHandler
     private readonly Reference _reference;
     private readonly bool _executor;
     private readonly bool _response;
-    private readonly Ice.ObjectAdapterI _adapter;
+    private readonly Ice.ObjectAdapter _adapter;
     private readonly Ice.Logger _logger;
     private readonly TraceLevels _traceLevels;
 
