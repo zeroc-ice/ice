@@ -922,6 +922,12 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(
                 }
                 break;
             }
+            case Builtin::KindObject:
+            case Builtin::KindValue:
+            {
+                // Unreachable because we reject all class types at the start of the function.
+                assert(false);
+            }
         }
         return;
     }
