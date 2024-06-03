@@ -16,6 +16,21 @@ enum E { e1, e2, e3 = 4 }
 enum Ebis { e2 }
 enum Eter { e2 }
 
+class C;
+
+struct ClassWrapper
+{
+    C c;
+}
+
+interface I {}
+
+sequence<bool> BoolSeq;
+sequence<C> ClassSeq;
+sequence<ClassWrapper> ClassWrapperSeq;
+dictionary<int, bool> BoolDict;
+dictionary<int, C> ClassDict;
+
 class C
 {
     optional string m1;             // missing tag
@@ -80,6 +95,27 @@ struct S
 {
     optional(1) int m1;             // not allowed in struct
     optional(2) int m2 = 2;         // not allowed in struct
+}
+
+class D
+{
+    optional(1) bool m1;            // ok
+    optional(2) float m2;           // ok
+    optional(3) string m3;          // ok
+    optional(4) Object m4;          // cannot tag class types
+    optional(5) Object* m5;         // ok
+    optional(6) Value m6;           // cannot tag class types
+
+    optional(7) C m7;               // cannot tag class types
+    optional(8) I* m8;              // ok
+    optional(9) S m9;               // ok
+    optional(10) E m10;             // ok
+
+    optional(11) BoolSeq m11;       // ok
+    optional(12) ClassSeq m12;      // cannot tag class types
+    optional(13) ClassWrapper m13;  // cannot tag class types
+    optional(14) BoolDict m14;      // ok
+    optional(15) ClassDict m15;     // cannot tag class types
 }
 
 }
