@@ -3988,7 +3988,7 @@ CodeVisitor::marshal(
                 {
                     out << nl << stream << ".writeByte(" << v << ");";
                 }
-                break;
+                return;
             }
             case Builtin::KindBool:
             {
@@ -4000,7 +4000,7 @@ CodeVisitor::marshal(
                 {
                     out << nl << stream << ".writeBool(" << v << ");";
                 }
-                break;
+                return;
             }
             case Builtin::KindShort:
             {
@@ -4012,7 +4012,7 @@ CodeVisitor::marshal(
                 {
                     out << nl << stream << ".writeShort(" << v << ");";
                 }
-                break;
+                return;
             }
             case Builtin::KindInt:
             {
@@ -4024,7 +4024,7 @@ CodeVisitor::marshal(
                 {
                     out << nl << stream << ".writeInt(" << v << ");";
                 }
-                break;
+                return;
             }
             case Builtin::KindLong:
             {
@@ -4036,7 +4036,7 @@ CodeVisitor::marshal(
                 {
                     out << nl << stream << ".writeLong(" << v << ");";
                 }
-                break;
+                return;
             }
             case Builtin::KindFloat:
             {
@@ -4048,7 +4048,7 @@ CodeVisitor::marshal(
                 {
                     out << nl << stream << ".writeFloat(" << v << ");";
                 }
-                break;
+                return;
             }
             case Builtin::KindDouble:
             {
@@ -4060,7 +4060,7 @@ CodeVisitor::marshal(
                 {
                     out << nl << stream << ".writeDouble(" << v << ");";
                 }
-                break;
+                return;
             }
             case Builtin::KindString:
             {
@@ -4072,7 +4072,7 @@ CodeVisitor::marshal(
                 {
                     out << nl << stream << ".writeString(" << v << ");";
                 }
-                break;
+                return;
             }
             case Builtin::KindObject:
             case Builtin::KindValue:
@@ -4090,10 +4090,9 @@ CodeVisitor::marshal(
                 {
                     out << nl << stream << ".writeProxy(" << v << ");";
                 }
-                break;
+                return;
             }
         }
-        return;
     }
 
     InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
