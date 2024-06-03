@@ -2253,11 +2253,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr&)
-{
-}
-
-void
 Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
     string name = fixId(p->name());
