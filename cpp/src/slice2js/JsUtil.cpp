@@ -184,14 +184,6 @@ Slice::JsGenerator::getModuleMetadata(const ContainedPtr& p)
     return value.empty() ? value : value.substr(prefix.size());
 }
 
-bool
-Slice::JsGenerator::isClassType(const TypePtr& type)
-{
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    return (builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)) ||
-           dynamic_pointer_cast<ClassDecl>(type);
-}
-
 //
 // If the passed name is a scoped name, return the identical scoped name,
 // but with all components that are JS keywords replaced by
@@ -722,7 +714,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, 
             case Builtin::KindObject:
             case Builtin::KindValue:
             {
-                // Handle by isClassType below.
+                // Handled by isClassType below.
                 break;
             }
             case Builtin::KindObjectProxy:
@@ -766,7 +758,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, 
         return;
     }
 
-    if (isClassType(type))
+    if (type->isClassType())
     {
         if (marshal)
         {
@@ -804,21 +796,9 @@ Slice::JsGenerator::writeOptionalMarshalUnmarshalCode(
     int tag,
     bool marshal)
 {
-    string stream = marshal ? "ostr" : "istr";
+    assert(!type->isClassType()); // Optional classes are disallowed by the parser.
 
-    if (isClassType(type))
-    {
-        if (marshal)
-        {
-            out << nl << stream << ".writeOptionalValue(" << tag << ", " << param << ");";
-        }
-        else
-        {
-            out << nl << stream << ".readOptionalValue(" << tag << ", obj => " << param << " = obj, "
-                << typeToString(type) << ");";
-        }
-        return;
-    }
+    string stream = marshal ? "ostr" : "istr";
 
     if (dynamic_pointer_cast<Enum>(type))
     {

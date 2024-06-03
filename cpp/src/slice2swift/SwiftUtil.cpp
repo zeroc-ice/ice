@@ -1406,54 +1406,6 @@ SwiftGenerator::isProxyType(const TypePtr& p)
     return (builtin && builtin->kind() == Builtin::KindObjectProxy) || dynamic_pointer_cast<InterfaceDecl>(p);
 }
 
-bool
-SwiftGenerator::isClassType(const TypePtr& p)
-{
-    const BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p);
-    return (builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)) ||
-           dynamic_pointer_cast<ClassDecl>(p);
-}
-
-bool
-SwiftGenerator::containsClassMembers(const StructPtr& s)
-{
-    DataMemberList dm = s->dataMembers();
-    for (DataMemberList::const_iterator i = dm.begin(); i != dm.end(); ++i)
-    {
-        if (isClassType((*i)->type()))
-        {
-            return true;
-        }
-
-        StructPtr st = dynamic_pointer_cast<Struct>((*i)->type());
-        if (st && containsClassMembers(st))
-        {
-            return true;
-        }
-
-        SequencePtr seq = dynamic_pointer_cast<Sequence>((*i)->type());
-        if (seq)
-        {
-            st = dynamic_pointer_cast<Struct>(seq->type());
-            if (isClassType(seq->type()) || (st && containsClassMembers(st)))
-            {
-                return true;
-            }
-        }
-
-        DictionaryPtr dict = dynamic_pointer_cast<Dictionary>((*i)->type());
-        if (dict)
-        {
-            st = dynamic_pointer_cast<Struct>(dict->valueType());
-            if (isClassType(dict->valueType()) || (st && containsClassMembers(st)))
-            {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
 void
 SwiftGenerator::writeDefaultInitializer(IceUtilInternal::Output& out, bool required, bool rootClass)
 {
@@ -1625,6 +1577,8 @@ SwiftGenerator::writeMarshalUnmarshalCode(
     bool marshal,
     int tag)
 {
+    assert(!(type->isClassType() && tag >= 0)); // Optional classes are disallowed by the parser.
+
     string swiftModule = getSwiftModule(getTopLevelModule(p));
     string stream = dynamic_pointer_cast<Struct>(p) ? "self" : marshal ? "ostr" : "istr";
 
@@ -2312,7 +2266,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceUtilInternal::Output& out, const Op
     for (ParamInfoList::const_iterator q = requiredOutParams.begin(); q != requiredOutParams.end(); ++q)
     {
         string param;
-        if (isClassType(q->type))
+        if (q->type->isClassType())
         {
             out << nl << "var iceP_" << q->name << ": " << q->typeStr;
             param = "iceP_" + q->name;
@@ -2327,7 +2281,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceUtilInternal::Output& out, const Op
     for (ParamInfoList::const_iterator q = optionalOutParams.begin(); q != optionalOutParams.end(); ++q)
     {
         string param;
-        if (isClassType(q->type))
+        if (q->type->isClassType())
         {
             out << nl << "var iceP_" << q->name << ": " << q->typeStr;
             param = "iceP_" + q->name;
@@ -2390,7 +2344,7 @@ SwiftGenerator::writeUnmarshalInParams(::IceUtilInternal::Output& out, const Ope
         if (q->param)
         {
             string param;
-            if (isClassType(q->type))
+            if (q->type->isClassType())
             {
                 out << nl << "var iceP_" << q->name << ": " << q->typeStr;
                 param = "iceP_" + q->name;
@@ -2406,7 +2360,7 @@ SwiftGenerator::writeUnmarshalInParams(::IceUtilInternal::Output& out, const Ope
     for (ParamInfoList::const_iterator q = optionalInParams.begin(); q != optionalInParams.end(); ++q)
     {
         string param;
-        if (isClassType(q->type))
+        if (q->type->isClassType())
         {
             out << nl << "var iceP_" << q->name << ": " << q->typeStr;
             param = "iceP_" + q->name;

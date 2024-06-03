@@ -548,7 +548,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     const DataMemberList members = p->dataMembers();
     const string optionalFormat = getOptionalFormat(p);
 
-    bool isClass = containsClassMembers(p);
+    bool isClass = p->usesClasses();
     out << sp;
     writeDocSummary(out, p);
     writeSwiftAttributes(out, p->getMetaData());
@@ -702,7 +702,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << sb;
     out << nl << "let sz = try istr.readAndCheckSeqSize(minSize: " << p->type()->minWireSize() << ")";
 
-    if (isClassType(type))
+    if (type->isClassType())
     {
         out << nl << "var v = " << fixIdent(name) << "(repeating: nil, count: sz)";
         out << nl << "for i in 0 ..< sz";
@@ -847,7 +847,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << sb;
     out << nl << "let sz = try Swift.Int(istr.readSize())";
     out << nl << "var v = " << fixIdent(name) << "()";
-    if (isClassType(p->valueType()))
+    if (p->valueType()->isClassType())
     {
         out << nl << "let e = " << getUnqualified("Ice.DictEntryArray", swiftModule) << "<" << keyType << ", "
             << valueType << ">(size: sz)";

@@ -466,17 +466,6 @@ Slice::CsGenerator::taskResultType(const OperationPtr& op, const string& scope, 
 }
 
 bool
-Slice::CsGenerator::isClassType(const TypePtr& type)
-{
-    if (dynamic_pointer_cast<ClassDecl>(type))
-    {
-        return true;
-    }
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    return builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue);
-}
-
-bool
 Slice::CsGenerator::isValueType(const TypePtr& type)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
@@ -663,14 +652,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
             case Builtin::KindObject:
             case Builtin::KindValue:
             {
-                if (marshal)
-                {
-                    out << nl << stream << ".writeValue(" << param << ");";
-                }
-                else
-                {
-                    out << nl << stream << ".readValue(" << param << ");";
-                }
+                // Handled by isClassType below.
                 break;
             }
             case Builtin::KindObjectProxy:
@@ -794,6 +776,8 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(
     bool marshal,
     const string& customStream)
 {
+    assert(!type->isClassType()); // Optional classes are disallowed by the parser.
+
     string stream = customStream;
     if (stream.empty())
     {
@@ -929,19 +913,6 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(
                 }
                 break;
             }
-            case Builtin::KindObject:
-            case Builtin::KindValue:
-            {
-                if (marshal)
-                {
-                    out << nl << stream << ".writeValue(" << tag << ", " << param << ");";
-                }
-                else
-                {
-                    out << nl << stream << ".readValue(" << tag << ", " << param << ");";
-                }
-                break;
-            }
             case Builtin::KindObjectProxy:
             {
                 string typeS = typeToString(type, scope);
@@ -987,20 +958,6 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(
             out << sb;
             out << nl << param << " = null;";
             out << eb;
-        }
-        return;
-    }
-
-    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    if (cl)
-    {
-        if (marshal)
-        {
-            out << nl << stream << ".writeValue(" << tag << ", " << param << ");";
-        }
-        else
-        {
-            out << nl << stream << ".readValue(" << tag << ", " << param << ");";
         }
         return;
     }
@@ -2175,7 +2132,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                     string type = s.substr(csGenericPrefix.size());
                     if (type == "LinkedList" || type == "Queue" || type == "Stack")
                     {
-                        if (!isClassType(seq->type()))
+                        if (!seq->type()->isClassType())
                         {
                             newLocalMetaData.push_back(s);
                             continue;

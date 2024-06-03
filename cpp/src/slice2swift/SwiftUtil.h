@@ -112,9 +112,6 @@ namespace Slice
 
         static bool isNullableType(const TypePtr&);
         bool isProxyType(const TypePtr&);
-        bool isClassType(const TypePtr&);
-
-        bool containsClassMembers(const StructPtr&);
 
         std::string getValue(const std::string&, const TypePtr&);
         void writeConstantValue(

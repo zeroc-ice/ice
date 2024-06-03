@@ -381,6 +381,18 @@ Slice::SyntaxTreeBase::SyntaxTreeBase(const UnitPtr& unit) : _unit(unit)
 
 Slice::Type::Type(const UnitPtr& unit) : SyntaxTreeBase(unit) {}
 
+bool
+Slice::Type::isClassType() const
+{
+    return false;
+}
+
+bool
+Slice::Type::usesClasses() const
+{
+    return isClassType();
+}
+
 // ----------------------------------------------------------------------
 // Builtin
 // ----------------------------------------------------------------------
@@ -399,7 +411,7 @@ Slice::Builtin::typeId() const
 }
 
 bool
-Slice::Builtin::usesClasses() const
+Slice::Builtin::isClassType() const
 {
     return _kind == KindObject || _kind == KindValue;
 }
@@ -2818,7 +2830,7 @@ Slice::ClassDecl::containedType() const
 }
 
 bool
-Slice::ClassDecl::usesClasses() const
+Slice::ClassDecl::isClassType() const
 {
     return true;
 }
@@ -3185,12 +3197,6 @@ Contained::ContainedType
 Slice::InterfaceDecl::containedType() const
 {
     return ContainedTypeInterface;
-}
-
-bool
-Slice::InterfaceDecl::usesClasses() const
-{
-    return false;
 }
 
 size_t
@@ -4399,12 +4405,6 @@ Contained::ContainedType
 Slice::Enum::containedType() const
 {
     return ContainedTypeEnum;
-}
-
-bool
-Slice::Enum::usesClasses() const
-{
-    return false;
 }
 
 size_t

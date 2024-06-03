@@ -1555,7 +1555,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             if (ret)
             {
                 _out << '[' << encodeTypeForOperation(ret);
-                const bool isObj = isClassType(ret);
+                const bool isObj = ret->isClassType();
                 if (isObj)
                 {
                     _out << ", true";
@@ -1586,7 +1586,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     }
                     TypePtr t = (*pli)->type();
                     _out << '[' << encodeTypeForOperation(t);
-                    const bool isObj = isClassType(t);
+                    const bool isObj = t->isClassType();
                     if (isObj)
                     {
                         _out << ", true";
@@ -1619,7 +1619,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     }
                     TypePtr t = (*pli)->type();
                     _out << '[' << encodeTypeForOperation(t);
-                    const bool isObj = isClassType(t);
+                    const bool isObj = t->isClassType();
                     if (isObj)
                     {
                         _out << ", true";
@@ -1704,7 +1704,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     _out << nl << "Slice.defineSequence(" << scope << ", \"" << propertyName << "\", "
          << "\"" << getHelper(type) << "\""
          << ", " << (fixed ? "true" : "false");
-    if (isClassType(type))
+    if (type->isClassType())
     {
         _out << ", \"" << typeToString(type) << "\"";
     }
@@ -1963,7 +1963,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
          << "\"" << getHelper(valueType) << "\", " << (fixed ? "true" : "false") << ", "
          << (keyUseEquals ? "Ice.HashMap.compareEquals" : "undefined");
 
-    if (isClassType(valueType))
+    if (valueType->isClassType())
     {
         _out << ", \"" << typeToString(valueType) << "\"";
     }

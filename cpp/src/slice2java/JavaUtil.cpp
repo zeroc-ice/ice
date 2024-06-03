@@ -1323,29 +1323,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
             case Builtin::KindObject:
             case Builtin::KindValue:
             {
-                if (marshal)
-                {
-                    if (optionalParam)
-                    {
-                        out << nl << stream << ".writeValue(" << tag << ", " << param << ");";
-                    }
-                    else
-                    {
-                        out << nl << stream << ".writeValue(" << param << ");";
-                    }
-                }
-                else
-                {
-                    assert(!patchParams.empty());
-                    if (optionalParam)
-                    {
-                        out << nl << stream << ".readValue(" << tag << ", " << patchParams << ");";
-                    }
-                    else
-                    {
-                        out << nl << stream << ".readValue(" << patchParams << ");";
-                    }
-                }
+                // Handled by isClassType below.
                 break;
             }
             case Builtin::KindObjectProxy:
@@ -1416,31 +1394,17 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
         return;
     }
 
-    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    if (cl)
+    if (type->isClassType())
     {
+        assert(!optionalParam); // Optional classes are disallowed by the parser.
         if (marshal)
         {
-            if (optionalParam)
-            {
-                out << nl << stream << ".writeValue(" << tag << ", " << param << ");";
-            }
-            else
-            {
-                out << nl << stream << ".writeValue(" << param << ");";
-            }
+            out << nl << stream << ".writeValue(" << param << ");";
         }
         else
         {
             assert(!patchParams.empty());
-            if (optionalParam)
-            {
-                out << nl << stream << ".readValue(" << tag << ", " << patchParams << ");";
-            }
-            else
-            {
-                out << nl << stream << ".readValue(" << patchParams << ");";
-            }
+            out << nl << stream << ".readValue(" << patchParams << ");";
         }
         return;
     }

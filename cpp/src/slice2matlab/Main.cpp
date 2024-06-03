@@ -4088,14 +4088,7 @@ CodeVisitor::marshal(
             case Builtin::KindObject:
             case Builtin::KindValue:
             {
-                if (optional)
-                {
-                    out << nl << stream << ".writeValueOpt(" << tag << ", " << v << ");";
-                }
-                else
-                {
-                    out << nl << stream << ".writeValue(" << v << ");";
-                }
+                // Handled by isClassType below.
                 break;
             }
             case Builtin::KindObjectProxy:
@@ -4131,14 +4124,8 @@ CodeVisitor::marshal(
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if (cl)
     {
-        if (optional)
-        {
-            out << nl << stream << ".writeValueOpt(" << tag << ", " << v << ");";
-        }
-        else
-        {
-            out << nl << stream << ".writeValue(" << v << ");";
-        }
+        assert(!optional); // Optional classes are disallowed by the parser.
+        out << nl << stream << ".writeValue(" << v << ");";
         return;
     }
 
@@ -4338,14 +4325,8 @@ CodeVisitor::unmarshal(
             case Builtin::KindObject:
             case Builtin::KindValue:
             {
-                if (optional)
-                {
-                    out << nl << stream << ".readValueOpt(" << tag << ", " << v << ", 'Ice.Value');";
-                }
-                else
-                {
-                    out << nl << stream << ".readValue(" << v << ", 'Ice.Value');";
-                }
+                assert(!optional); // Optional classes are disallowed by the parser.
+                out << nl << stream << ".readValue(" << v << ", 'Ice.Value');";
                 break;
             }
             case Builtin::KindObjectProxy:
@@ -4388,15 +4369,9 @@ CodeVisitor::unmarshal(
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if (cl)
     {
+        assert(!optional); // Optional classes are disallowed by the parser.
         const string cls = getAbsolute(cl);
-        if (optional)
-        {
-            out << nl << stream << ".readValueOpt(" << tag << ", " << v << ", '" << cls << "');";
-        }
-        else
-        {
-            out << nl << stream << ".readValue(" << v << ", '" << cls << "');";
-        }
+        out << nl << stream << ".readValue(" << v << ", '" << cls << "');";
         return;
     }
 

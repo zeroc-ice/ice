@@ -76,16 +76,6 @@ namespace
         return l;
     }
 
-    bool isClassType(const TypePtr& type)
-    {
-        if (dynamic_pointer_cast<ClassDecl>(type))
-        {
-            return true;
-        }
-        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-        return builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue);
-    }
-
     static string getCSharpNamespace(const ContainedPtr& cont, bool& hasCSharpNamespaceAttribute)
     {
         // Traverse to the top-level module.
@@ -592,7 +582,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
         if (s.find(csGenericPrefix) == 0)
         {
             string type = s.substr(csGenericPrefix.size());
-            if ((type == "LinkedList" || type == "Queue" || type == "Stack") && isClassType(p->type()))
+            if ((type == "LinkedList" || type == "Queue" || type == "Stack") && p->type()->isClassType())
             {
                 continue; // Ignored for objects
             }
