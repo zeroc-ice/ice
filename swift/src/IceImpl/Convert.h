@@ -9,10 +9,7 @@
 #include <string>
 #include <vector>
 
-@class ICERuntimeException;
-
 NSError* convertException(std::exception_ptr);
-std::exception_ptr convertException(ICERuntimeException*);
 
 inline NSString*
 toNSString(const std::string& s)

@@ -24,7 +24,7 @@ open class InitializationException: LocalException {
     super.init()
   }
 
-  public init(reason: Swift.String, file: Swift.String = #file, line: Swift.Int = #line) {
+  public init(reason: Swift.String, file: Swift.String = #file, line: Int32 = #line) {
     self.reason = reason
     super.init(file: file, line: line)
   }
@@ -53,7 +53,7 @@ open class PluginInitializationException: LocalException {
     super.init()
   }
 
-  public init(reason: Swift.String, file: Swift.String = #file, line: Swift.Int = #line) {
+  public init(reason: Swift.String, file: Swift.String = #file, line: Int32 = #line) {
     self.reason = reason
     super.init(file: file, line: line)
   }
@@ -89,7 +89,7 @@ open class AlreadyRegisteredException: LocalException {
 
   public init(
     kindOfObject: Swift.String, id: Swift.String, file: Swift.String = #file,
-    line: Swift.Int = #line
+    line: Int32 = #line
   ) {
     self.kindOfObject = kindOfObject
     self.id = id
@@ -129,7 +129,7 @@ open class NotRegisteredException: LocalException {
 
   public init(
     kindOfObject: Swift.String, id: Swift.String, file: Swift.String = #file,
-    line: Swift.Int = #line
+    line: Int32 = #line
   ) {
     self.kindOfObject = kindOfObject
     self.id = id
@@ -162,7 +162,7 @@ open class TwowayOnlyException: LocalException {
     super.init()
   }
 
-  public init(operation: Swift.String, file: Swift.String = #file, line: Swift.Int = #line) {
+  public init(operation: Swift.String, file: Swift.String = #file, line: Int32 = #line) {
     self.operation = operation
     super.init(file: file, line: line)
   }
@@ -213,7 +213,7 @@ open class UnknownException: LocalException {
     super.init()
   }
 
-  public init(unknown: Swift.String, file: Swift.String = #file, line: Swift.Int = #line) {
+  public init(unknown: Swift.String, file: Swift.String = #file, line: Int32 = #line) {
     self.unknown = unknown
     super.init(file: file, line: line)
   }
@@ -318,7 +318,7 @@ open class ObjectAdapterDeactivatedException: LocalException {
     super.init()
   }
 
-  public init(name: Swift.String, file: Swift.String = #file, line: Swift.Int = #line) {
+  public init(name: Swift.String, file: Swift.String = #file, line: Int32 = #line) {
     self.name = name
     super.init(file: file, line: line)
   }
@@ -348,7 +348,7 @@ open class ObjectAdapterIdInUseException: LocalException {
     super.init()
   }
 
-  public init(id: Swift.String, file: Swift.String = #file, line: Swift.Int = #line) {
+  public init(id: Swift.String, file: Swift.String = #file, line: Int32 = #line) {
     self.id = id
     super.init(file: file, line: line)
   }
@@ -377,7 +377,7 @@ open class NoEndpointException: LocalException {
     super.init()
   }
 
-  public init(proxy: Swift.String, file: Swift.String = #file, line: Swift.Int = #line) {
+  public init(proxy: Swift.String, file: Swift.String = #file, line: Int32 = #line) {
     self.proxy = proxy
     super.init(file: file, line: line)
   }
@@ -406,7 +406,7 @@ open class EndpointParseException: LocalException {
     super.init()
   }
 
-  public init(str: Swift.String, file: Swift.String = #file, line: Swift.Int = #line) {
+  public init(str: Swift.String, file: Swift.String = #file, line: Int32 = #line) {
     self.str = str
     super.init(file: file, line: line)
   }
@@ -435,7 +435,7 @@ open class EndpointSelectionTypeParseException: LocalException {
     super.init()
   }
 
-  public init(str: Swift.String, file: Swift.String = #file, line: Swift.Int = #line) {
+  public init(str: Swift.String, file: Swift.String = #file, line: Int32 = #line) {
     self.str = str
     super.init(file: file, line: line)
   }
@@ -464,7 +464,7 @@ open class VersionParseException: LocalException {
     super.init()
   }
 
-  public init(str: Swift.String, file: Swift.String = #file, line: Swift.Int = #line) {
+  public init(str: Swift.String, file: Swift.String = #file, line: Int32 = #line) {
     self.str = str
     super.init(file: file, line: line)
   }
@@ -493,7 +493,7 @@ open class IdentityParseException: LocalException {
     super.init()
   }
 
-  public init(str: Swift.String, file: Swift.String = #file, line: Swift.Int = #line) {
+  public init(str: Swift.String, file: Swift.String = #file, line: Int32 = #line) {
     self.str = str
     super.init(file: file, line: line)
   }
@@ -522,7 +522,7 @@ open class ProxyParseException: LocalException {
     super.init()
   }
 
-  public init(str: Swift.String, file: Swift.String = #file, line: Swift.Int = #line) {
+  public init(str: Swift.String, file: Swift.String = #file, line: Int32 = #line) {
     self.str = str
     super.init(file: file, line: line)
   }
@@ -568,7 +568,7 @@ open class IllegalServantException: LocalException {
     super.init()
   }
 
-  public init(reason: Swift.String, file: Swift.String = #file, line: Swift.Int = #line) {
+  public init(reason: Swift.String, file: Swift.String = #file, line: Int32 = #line) {
     self.reason = reason
     super.init(file: file, line: line)
   }
@@ -608,7 +608,7 @@ open class RequestFailedException: LocalException {
     facet: Swift.String,
     operation: Swift.String,
     file: Swift.String = #file,
-    line: Swift.Int = #line
+    line: Int32 = #line
   ) {
     self.id = id
     self.facet = facet
@@ -697,7 +697,7 @@ open class SyscallException: LocalException {
     super.init()
   }
 
-  public init(error: Swift.Int32, file: Swift.String = #file, line: Swift.Int = #line) {
+  public init(error: Swift.Int32, file: Swift.String = #file, line: Int32 = #line) {
     self.error = error
     super.init(file: file, line: line)
   }
@@ -744,7 +744,7 @@ open class CFNetworkException: SocketException {
   }
 
   public init(
-    error: Swift.Int32, domain: Swift.String, file: Swift.String = #file, line: Swift.Int = #line
+    error: Swift.Int32, domain: Swift.String, file: Swift.String = #file, line: Int32 = #line
   ) {
     self.domain = domain
     super.init(error: error, file: file, line: line)
@@ -775,7 +775,7 @@ open class FileException: SyscallException {
   }
 
   public init(
-    error: Swift.Int32, path: Swift.String, file: Swift.String = #file, line: Swift.Int = #line
+    error: Swift.Int32, path: Swift.String, file: Swift.String = #file, line: Int32 = #line
   ) {
     self.path = path
     super.init(error: error, file: file, line: line)
@@ -860,7 +860,7 @@ open class DNSException: LocalException {
   }
 
   public init(
-    error: Swift.Int32, host: Swift.String, file: Swift.String = #file, line: Swift.Int = #line
+    error: Swift.Int32, host: Swift.String, file: Swift.String = #file, line: Int32 = #line
   ) {
     self.error = error
     self.host = host
@@ -1010,7 +1010,7 @@ open class ProtocolException: LocalException {
     super.init()
   }
 
-  public init(reason: Swift.String, file: Swift.String = #file, line: Swift.Int = #line) {
+  public init(reason: Swift.String, file: Swift.String = #file, line: Int32 = #line) {
     self.reason = reason
     super.init(file: file, line: line)
   }
@@ -1040,7 +1040,7 @@ open class BadMagicException: ProtocolException {
   }
 
   public init(
-    reason: Swift.String, badMagic: ByteSeq, file: Swift.String = #file, line: Swift.Int = #line
+    reason: Swift.String, badMagic: ByteSeq, file: Swift.String = #file, line: Int32 = #line
   ) {
     self.badMagic = badMagic
     super.init(reason: reason, file: file, line: line)
@@ -1077,7 +1077,7 @@ open class UnsupportedProtocolException: ProtocolException {
     bad: ProtocolVersion,
     supported: ProtocolVersion,
     file: Swift.String = #file,
-    line: Swift.Int = #line
+    line: Int32 = #line
   ) {
     self.bad = bad
     self.supported = supported
@@ -1115,7 +1115,7 @@ open class UnsupportedEncodingException: ProtocolException {
     bad: EncodingVersion,
     supported: EncodingVersion,
     file: Swift.String = #file,
-    line: Swift.Int = #line
+    line: Int32 = #line
   ) {
     self.bad = bad
     self.supported = supported
@@ -1236,7 +1236,7 @@ open class ConnectionManuallyClosedException: LocalException {
     super.init()
   }
 
-  public init(graceful: Swift.Bool, file: Swift.String = #file, line: Swift.Int = #line) {
+  public init(graceful: Swift.Bool, file: Swift.String = #file, line: Int32 = #line) {
     self.graceful = graceful
     super.init(file: file, line: line)
   }
@@ -1369,7 +1369,7 @@ open class NoValueFactoryException: MarshalException {
   }
 
   public init(
-    reason: Swift.String, type: Swift.String, file: Swift.String = #file, line: Swift.Int = #line
+    reason: Swift.String, type: Swift.String, file: Swift.String = #file, line: Int32 = #line
   ) {
     self.type = type
     super.init(reason: reason, file: file, line: line)
@@ -1409,7 +1409,7 @@ open class UnexpectedObjectException: MarshalException {
     type: Swift.String,
     expectedType: Swift.String,
     file: Swift.String = #file,
-    line: Swift.Int = #line
+    line: Int32 = #line
   ) {
     self.type = type
     self.expectedType = expectedType
@@ -1493,8 +1493,7 @@ open class FeatureNotSupportedException: LocalException {
     super.init()
   }
 
-  public init(unsupportedFeature: Swift.String, file: Swift.String = #file, line: Swift.Int = #line)
-  {
+  public init(unsupportedFeature: Swift.String, file: Swift.String = #file, line: Int32 = #line) {
     self.unsupportedFeature = unsupportedFeature
     super.init(file: file, line: line)
   }
@@ -1523,7 +1522,7 @@ open class SecurityException: LocalException {
     super.init()
   }
 
-  public init(reason: Swift.String, file: Swift.String = #file, line: Swift.Int = #line) {
+  public init(reason: Swift.String, file: Swift.String = #file, line: Int32 = #line) {
     self.reason = reason
     super.init(file: file, line: line)
   }

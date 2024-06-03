@@ -7,7 +7,7 @@ import TestCommon
 
 class TestI: TestIntf {
   func getAdapterName(current: Ice.Current) throws -> String {
-    return current.adapter!.getName()
+    return current.adapter.getName()
   }
 }
 
@@ -27,7 +27,7 @@ class RemoteCommunicatorI: RemoteCommunicator {
     var retry = 5
     while true {
       do {
-        let communicator = current.adapter!.getCommunicator()
+        let communicator = current.adapter.getCommunicator()
         var endpoints = endpts
         if !endpoints.contains("-p") {
           _nextPort += 1
@@ -39,7 +39,7 @@ class RemoteCommunicatorI: RemoteCommunicator {
         let adapter = try communicator.createObjectAdapterWithEndpoints(
           name: name, endpoints: endpoints)
         return try uncheckedCast(
-          prx: current.adapter!.addWithUUID(RemoteObjectAdapterDisp(RemoteObjectAdapterI(adapter))),
+          prx: current.adapter.addWithUUID(RemoteObjectAdapterDisp(RemoteObjectAdapterI(adapter))),
           type: RemoteObjectAdapterPrx.self
         )
       } catch let ex as Ice.SocketException {
@@ -56,7 +56,7 @@ class RemoteCommunicatorI: RemoteCommunicator {
   }
 
   func shutdown(current: Ice.Current) throws {
-    current.adapter!.getCommunicator().shutdown()
+    current.adapter.getCommunicator().shutdown()
   }
 }
 

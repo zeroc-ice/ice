@@ -44,6 +44,6 @@ class TestIntfI: TestIntf {
   }
 
   func shutdown(current: Current) throws {
-    current.adapter!.getCommunicator().shutdown()
+    current.adapter.getCommunicator().shutdown()
   }
 }

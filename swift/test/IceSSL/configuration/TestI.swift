@@ -76,6 +76,6 @@ class ServerFactoryI: SSLServerFactory {
 
   func shutdown(current: Ice.Current) throws {
     try _helper.test(_servers.count == 0)
-    current.adapter!.getCommunicator().shutdown()
+    current.adapter.getCommunicator().shutdown()
   }
 }

@@ -30,7 +30,7 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
 
   func shutdownAsync(current: Current) -> Promise<Void> {
     return Promise<Void> { seal in
-      current.adapter!.getCommunicator().shutdown()
+      current.adapter.getCommunicator().shutdown()
       seal.fulfill(())
     }
   }
@@ -85,9 +85,7 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
     p1: MyClassPrx?,
     current: Current
   ) -> Promise<(returnValue: MyClassPrx?, p2: MyClassPrx?, p3: MyClassPrx?)> {
-    guard let adapter = current.adapter else {
-      fatalError()
-    }
+    let adapter = current.adapter
     return Promise { seal in
       do {
         try seal.fulfill(

@@ -79,6 +79,6 @@ class InitialI: Initial {
   }
 
   func shutdown(current: Ice.Current) throws {
-    current.adapter!.getCommunicator().shutdown()
+    current.adapter.getCommunicator().shutdown()
   }
 }

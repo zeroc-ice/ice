@@ -10,49 +10,42 @@ public final class Incoming {
   private let current: Current
   private var format: FormatType
   private let istr: InputStream
-  private let responseCallback: ICEBlobjectResponse
-  private let exceptionCallback: ICEBlobjectException
+
+  // sendResponse must be called exactly once. It's likely the current implementation does not guarantee it.
+  private let sendResponse: ICESendResponse
 
   private var servant: Disp?
   private var locator: ServantLocator?
   private var cookie: AnyObject?
 
-  private var ostr: OutputStream!  // must be set before calling responseCallback
+  private var ostr: OutputStream!  // must be set before calling sendResponse
   private var ok: Bool  // false if response contains a UserException
 
   init(
-    istr: InputStream, response: @escaping ICEBlobjectResponse,
-    exception: @escaping ICEBlobjectException,
+    istr: InputStream, sendResponse: @escaping ICESendResponse,
     current: Current
   ) {
     self.istr = istr
     format = .DefaultFormat
     ok = true
-    responseCallback = response
-    exceptionCallback = exception
+    self.sendResponse = sendResponse
     self.current = current
   }
 
   public func readEmptyParams() throws {
-    //
-    // Remember the encoding used by the input parameters, we'll
-    // encode the response parameters with the same encoding.
-    //
-    current.encoding = try istr.skipEmptyEncapsulation()
+    let encoding = try istr.startEncapsulation()
+    assert(encoding == current.encoding)
   }
 
   public func readParamEncaps() throws -> Data {
     let params = try istr.readEncapsulation()
-    current.encoding = params.encoding
+    assert(params.encoding == current.encoding)
     return params.bytes
   }
 
   public func read<T>(_ cb: (InputStream) throws -> T) throws -> T {
-    //
-    // Remember the encoding used by the input parameters, we'll
-    // encode the response parameters with the same encoding.
-    //
-    current.encoding = try istr.startEncapsulation()
+    let encoding = try istr.startEncapsulation()
+    assert(encoding == current.encoding)
     let l = try cb(istr)
     try istr.endEncapsulation()
     return l
@@ -81,7 +74,7 @@ public final class Incoming {
     }
     precondition(ostr != nil, "OutputStream was not set before calling response()")
     ostr.finished().withUnsafeBytes {
-      responseCallback(ok, $0.baseAddress!, $0.count)
+      sendResponse(ok, $0.baseAddress!, $0.count, nil)
     }
   }
 
@@ -187,7 +180,7 @@ public final class Incoming {
             id: current.id, facet: current.facet, operation: current.operation)
         }
       } catch {
-        exceptionCallback(convertException(error))
+        sendResponse(false, nil, 0, convertIntoDispatchException(error))
         return
       }
     }
@@ -215,7 +208,7 @@ public final class Incoming {
 
   func handleException(_ exception: Error) {
     guard let e = exception as? UserException else {
-      exceptionCallback(convertException(exception))
+      sendResponse(false, nil, 0, convertIntoDispatchException(exception))
       return
     }
     ok = false  // response will contain a UserException
@@ -224,81 +217,40 @@ public final class Incoming {
     ostr.write(e)
     ostr.endEncapsulation()
     ostr.finished().withUnsafeBytes {
-      responseCallback(ok, $0.baseAddress!, $0.count)
+      sendResponse(ok, $0.baseAddress!, $0.count, nil)
     }
   }
 
-  func convertException(_ exception: Error) -> ICERuntimeException {
-    //
-    // 1. run-time exceptions that travel over the wire
-    // 2. other LocalExceptions and UserExceptions
-    // 3. all other exceptions are LocalException
-    //
+  // This code is temporary: we should give a fully marshaled response back to the Objective-C++ code.
+  func convertIntoDispatchException(_ exception: Error) -> ICEDispatchException {
     switch exception {
-    // 1. Known run-time exceptions
-    case let exception as ObjectNotExistException:
-      let e = ICEObjectNotExistException()
-      e.file = exception.file
-      e.line = Int32(exception.line)
-      e.name = exception.id.name
-      e.category = exception.id.category
-      e.facet = exception.facet
-      e.operation = exception.operation
-      return e
-    case let exception as FacetNotExistException:
-      let e = ICEFacetNotExistException()
-      e.file = exception.file
-      e.line = Int32(exception.line)
-      e.name = exception.id.name
-      e.category = exception.id.category
-      e.facet = exception.facet
-      e.operation = exception.operation
-      return e
-    case let exception as OperationNotExistException:
-      let e = ICEOperationNotExistException()
-      e.file = exception.file
-      e.line = Int32(exception.line)
-      e.name = exception.id.name
-      e.category = exception.id.category
-      e.facet = exception.facet
-      e.operation = exception.operation
-      return e
-    case let exception as UnknownUserException:
-      let e = ICEUnknownUserException()
-      e.file = exception.file
-      e.line = Int32(exception.line)
-      e.unknown = exception.unknown
-      return e
-    case let exception as UnknownLocalException:
-      let e = ICEUnknownLocalException()
-      e.file = exception.file
-      e.line = Int32(exception.line)
-      e.unknown = exception.unknown
-      return e
-    case let exception as UnknownException:
-      let e = ICEUnknownException()
-      e.file = exception.file
-      e.line = Int32(exception.line)
-      e.unknown = exception.unknown
-      return e
-    // 2. Other LocalExceptions and UserExceptions
-    case let exception as LocalException:
-      let e = ICEUnknownLocalException()
-      e.file = exception.file
-      e.line = Int32(exception.line)
-      e.unknown = "\(exception)"
-      return e
-    case let exception as UserException:
-      let e = ICEUnknownUserException()
-      e.unknown = "\(exception.ice_id())"
-      return e
-    // 3. Unknown exceptions
+    // OperationNotExistException and friends
+    case let e as ObjectNotExistException:
+      ICEDispatchException.objectNotExistException(
+        e.id.name, category: e.id.category, facet: e.facet, operation: e.operation, file: e.file,
+        line: e.line)
+    case let e as FacetNotExistException:
+      ICEDispatchException.facetNotExistException(
+        e.id.name, category: e.id.category, facet: e.facet, operation: e.operation, file: e.file,
+        line: e.line)
+    case let e as OperationNotExistException:
+      ICEDispatchException.operationNotExistException(
+        e.id.name, category: e.id.category, facet: e.facet, operation: e.operation, file: e.file,
+        line: e.line)
+    // Unknown exceptions
+    case let e as UnknownUserException:
+      ICEDispatchException.unknownUserException(e.unknown, file: e.file, line: e.line)
+    case let e as UnknownLocalException:
+      ICEDispatchException.unknownLocalException(e.unknown, file: e.file, line: e.line)
+    case let e as UnknownException:
+      ICEDispatchException.unknownException(e.unknown, file: e.file, line: e.line)
+    // Other exceptions mapped to Unknown exceptions
+    case let e as LocalException:
+      ICEDispatchException.unknownLocalException("\(e)", file: e.file, line: e.line)
+    case let e as UserException:
+      ICEDispatchException.unknownUserException("\(e.ice_id())", file: #file, line: #line)
     default:
-      let e = ICEUnknownException()
-      e.file = #file
-      e.line = Int32(#line)
-      e.unknown = "\(exception)"
-      return e
+      ICEDispatchException.unknownException("\(exception)", file: #file, line: #line)
     }
   }
 }

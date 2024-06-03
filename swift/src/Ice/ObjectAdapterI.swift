@@ -214,8 +214,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
     requestId: Int32,
     encodingMajor: UInt8,
     encodingMinor: UInt8,
-    response: @escaping ICEBlobjectResponse,
-    exception: @escaping ICEBlobjectException
+    sendResponse: @escaping ICESendResponse
   ) {
     precondition(handle == adapter)
 
@@ -241,8 +240,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
         bytes: Data(
           bytesNoCopy: inEncapsBytes, count: inEncapsCount,
           deallocator: .none)),
-      response: response,
-      exception: exception,
+      sendResponse: sendResponse,
       current: current)
 
     incoming.invoke(servantManager)

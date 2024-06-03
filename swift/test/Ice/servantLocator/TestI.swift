@@ -61,7 +61,7 @@ class TestI: TestIntf {
   }
 
   func shutdown(current: Current) throws {
-    current.adapter!.deactivate()
+    current.adapter.deactivate()
   }
 }
 
@@ -74,13 +74,13 @@ class TestActivationI: TestActivation {
 
   func activateServantLocator(activate: Bool, current: Current) throws {
     if activate {
-      try current.adapter!.addServantLocator(locator: ServantLocatorI("", _helper), category: "")
-      try current.adapter!.addServantLocator(
+      try current.adapter.addServantLocator(locator: ServantLocatorI("", _helper), category: "")
+      try current.adapter.addServantLocator(
         locator: ServantLocatorI("category", _helper), category: "category")
     } else {
-      var locator = try current.adapter!.removeServantLocator("")
+      var locator = try current.adapter.removeServantLocator("")
       locator.deactivate("")
-      locator = try current.adapter!.removeServantLocator("category")
+      locator = try current.adapter.removeServantLocator("category")
       locator.deactivate("category")
     }
   }

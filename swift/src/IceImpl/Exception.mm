@@ -3,34 +3,96 @@
 //
 
 #import "Exception.h"
+#import "Convert.h"
 
-@implementation ICERuntimeException
-@synthesize file;
-@synthesize line;
-@end
+@implementation ICEDispatchException
 
-@implementation ICERequestFailedException
-@synthesize name;
-@synthesize category;
-@synthesize facet;
-@synthesize operation;
-@end
+- (instancetype)initWithCppExceptionPtr:(std::exception_ptr)cppExceptionPtr
+{
+    assert(cppExceptionPtr);
+    self = [super init];
+    if (!self)
+    {
+        return nil;
+    }
 
-@implementation ICEObjectNotExistException
-@end
+    _cppExceptionPtr = cppExceptionPtr;
 
-@implementation ICEFacetNotExistException
-@end
+    return self;
+}
 
-@implementation ICEOperationNotExistException
-@end
++ (instancetype)objectNotExistException:(NSString*)name
+                               category:(NSString*)category
+                                  facet:(NSString*)facet
+                              operation:(NSString*)operation
+                                   file:(NSString*)file
+                                   line:(int32_t)line
+{
+    auto epr = std::make_exception_ptr(Ice::ObjectNotExistException{
+        fromNSString(file).c_str(),
+        line,
+        Ice::Identity{fromNSString(name), fromNSString(category)},
+        fromNSString(facet),
+        fromNSString(operation)});
 
-@implementation ICEUnknownException
-@synthesize unknown;
-@end
+    return [[ICEDispatchException alloc] initWithCppExceptionPtr:epr];
+}
 
-@implementation ICEUnknownLocalException
-@end
++ (instancetype)facetNotExistException:(NSString*)name
+                              category:(NSString*)category
+                                 facet:(NSString*)facet
+                             operation:(NSString*)operation
+                                  file:(NSString*)file
+                                  line:(int32_t)line
+{
+    auto epr = std::make_exception_ptr(Ice::FacetNotExistException{
+        fromNSString(file).c_str(),
+        line,
+        Ice::Identity{fromNSString(name), fromNSString(category)},
+        fromNSString(facet),
+        fromNSString(operation)});
 
-@implementation ICEUnknownUserException
+    return [[ICEDispatchException alloc] initWithCppExceptionPtr:epr];
+}
+
++ (instancetype)operationNotExistException:(NSString*)name
+                                  category:(NSString*)category
+                                     facet:(NSString*)facet
+                                 operation:(NSString*)operation
+                                      file:(NSString*)file
+                                      line:(int32_t)line
+{
+    auto epr = std::make_exception_ptr(Ice::OperationNotExistException{
+        fromNSString(file).c_str(),
+        line,
+        Ice::Identity{fromNSString(name), fromNSString(category)},
+        fromNSString(facet),
+        fromNSString(operation)});
+
+    return [[ICEDispatchException alloc] initWithCppExceptionPtr:epr];
+}
+
++ (instancetype)unknownLocalException:(NSString*)unknown file:(NSString*)file line:(int32_t)line
+{
+    auto epr =
+        std::make_exception_ptr(Ice::UnknownLocalException{fromNSString(file).c_str(), line, fromNSString(unknown)});
+
+    return [[ICEDispatchException alloc] initWithCppExceptionPtr:epr];
+}
+
++ (instancetype)unknownUserException:(NSString*)unknown file:(NSString*)file line:(int32_t)line
+{
+    auto epr =
+        std::make_exception_ptr(Ice::UnknownUserException{fromNSString(file).c_str(), line, fromNSString(unknown)});
+
+    return [[ICEDispatchException alloc] initWithCppExceptionPtr:epr];
+}
+
++ (instancetype)unknownException:(NSString*)unknown file:(NSString*)file line:(int32_t)line
+{
+    auto epr = std::make_exception_ptr(Ice::UnknownException{fromNSString(file).c_str(), line, fromNSString(unknown)});
+
+    return [[ICEDispatchException alloc] initWithCppExceptionPtr:epr];
+}
+
 @end

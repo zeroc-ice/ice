@@ -3,7 +3,6 @@
 //
 
 #import "Convert.h"
-#import "BlobjectFacade.h"
 #import "Exception.h"
 #import "IceUtil.h"
 
@@ -345,62 +344,6 @@ convertException(std::exception_ptr exc)
     catch (...)
     {
         return [factory runtimeError:toNSString("unknown c++ exception")];
-    }
-}
-
-std::exception_ptr
-convertException(ICERuntimeException* exc)
-{
-    const auto file = fromNSString([exc file]);
-    const auto line = [exc line];
-
-    @try
-    {
-        @throw exc;
-    }
-    @catch (ICEObjectNotExistException* e)
-    {
-        return std::make_exception_ptr(Ice::ObjectNotExistException(
-            file.c_str(),
-            line,
-            Ice::Identity{fromNSString([e name]), fromNSString([e category])},
-            fromNSString([e facet]),
-            fromNSString([e operation])));
-    }
-    @catch (ICEFacetNotExistException* e)
-    {
-        return std::make_exception_ptr(Ice::FacetNotExistException(
-            file.c_str(),
-            line,
-            Ice::Identity{fromNSString([e name]), fromNSString([e category])},
-            fromNSString([e facet]),
-            fromNSString([e operation])));
-    }
-    @catch (ICEOperationNotExistException* e)
-    {
-        return std::make_exception_ptr(Ice::OperationNotExistException(
-            file.c_str(),
-            line,
-            Ice::Identity{fromNSString([e name]), fromNSString([e category])},
-            fromNSString([e facet]),
-            fromNSString([e operation])));
-    }
-    @catch (ICEUnknownUserException* e)
-    {
-        return std::make_exception_ptr(Ice::UnknownUserException(file.c_str(), line, fromNSString([e unknown])));
-    }
-    @catch (ICEUnknownLocalException* e)
-    {
-        return std::make_exception_ptr(Ice::UnknownLocalException(file.c_str(), line, fromNSString([e unknown])));
-    }
-    @catch (ICEUnknownException* e)
-    {
-        return std::make_exception_ptr(Ice::UnknownException(file.c_str(), line, fromNSString([e unknown])));
-    }
-    @catch (...)
-    {
-        return std::make_exception_ptr(
-            Ice::UnknownException(file.c_str(), line, fromNSString(NSStringFromClass([exc class]))));
     }
 }
 

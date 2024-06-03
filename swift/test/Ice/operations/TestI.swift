@@ -16,7 +16,7 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
   }
 
   func shutdown(current: Ice.Current) throws {
-    current.adapter!.getCommunicator().shutdown()
+    current.adapter.getCommunicator().shutdown()
   }
 
   func supportsCompress(current _: Ice.Current) throws -> Bool {
@@ -107,9 +107,7 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
     p1: MyClassPrx?,
     current: Ice.Current
   ) throws -> (returnValue: MyClassPrx?, p2: MyClassPrx?, p3: MyClassPrx?) {
-    guard let adapter = current.adapter else {
-      fatalError()
-    }
+    let adapter = current.adapter
     return try (
       uncheckedCast(prx: adapter.createProxy(current.id), type: MyClassPrx.self),
       p1,

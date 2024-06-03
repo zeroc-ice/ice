@@ -149,7 +149,7 @@ class ServerManagerI: ServerManager {
       c.destroy()
     }
     _communicators.removeAll()
-    current.adapter!.getCommunicator().shutdown()
+    current.adapter.getCommunicator().shutdown()
   }
 }
 

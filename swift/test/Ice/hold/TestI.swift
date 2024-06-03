@@ -39,8 +39,8 @@ class HoldI: Hold {
   func waitForHold(current: Ice.Current) throws {
     _queue.async {
       do {
-        current.adapter!.waitForHold()
-        try current.adapter!.activate()
+        current.adapter.waitForHold()
+        try current.adapter.activate()
       } catch {
         //
         // This shouldn't occur. The test ensures all the waitForHold timers are

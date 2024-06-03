@@ -15,9 +15,7 @@ final class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
   }
 
   func shutdown(current: Ice.Current) throws {
-    guard let adapter = current.adapter else {
-      fatalError()
-    }
+    let adapter = current.adapter
     adapter.getCommunicator().shutdown()
   }
 

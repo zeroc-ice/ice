@@ -6,13 +6,16 @@
 
 @class ICEConnection;
 @class ICEObjectAdapter;
-@class ICERuntimeException;
+@class ICEDispatchException;
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void (^ICEBlobjectResponse)(bool, const void*, long);
-typedef void (^ICEBlobjectException)(ICERuntimeException*);
+// Sends the outgoing response. The first 3 parameters are ignored when the last parameter is not null.
+// TODO: this code is temporary. The completion handler should look more like the main constructor of
+// Ice::OutgoingResponse.
+typedef void (^ICESendResponse)(bool, const void* _Nullable, size_t, ICEDispatchException* _Nullable);
 
+// The implementation must call sendResponse exactly once.
 ICEIMPL_API @protocol ICEBlobjectFacade
 - (void)facadeInvoke:(ICEObjectAdapter*)adapter
        inEncapsBytes:(void*)inEncapsBytes
@@ -27,25 +30,21 @@ ICEIMPL_API @protocol ICEBlobjectFacade
            requestId:(int32_t)requestId
        encodingMajor:(uint8_t)encodingMajor
        encodingMinor:(uint8_t)encodingMinor
-            response:(ICEBlobjectResponse)response
-           exception:(ICEBlobjectException)exception;
+        sendResponse:(ICESendResponse)sendResponse;
 - (void)facadeRemoved;
 @end
 
 #ifdef __cplusplus
 
-class BlobjectFacade : public Ice::BlobjectArrayAsync
+/// A C++ dispatcher that dispatches requests to a Swift object via an ObjC/Swift "facade".
+class SwiftDispatcher final : public Ice::Object
 {
 public:
-    BlobjectFacade(id<ICEBlobjectFacade> facade) : _facade(facade) {}
+    SwiftDispatcher(id<ICEBlobjectFacade> facade) : _facade(facade) {}
 
-    ~BlobjectFacade() { [_facade facadeRemoved]; }
+    ~SwiftDispatcher() final { [_facade facadeRemoved]; }
 
-    virtual void ice_invokeAsync(
-        std::pair<const std::byte*, const std::byte*> inEncaps,
-        std::function<void(bool, std::pair<const std::byte*, const std::byte*>)> response,
-        std::function<void(std::exception_ptr)> error,
-        const Ice::Current& current);
+    void dispatch(Ice::IncomingRequest&, std::function<void(Ice::OutgoingResponse)> sendResponse) final;
 
     id<ICEBlobjectFacade> getFacade() const { return _facade; }
 
