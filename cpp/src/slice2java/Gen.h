@@ -32,7 +32,7 @@ namespace Slice
             const std::string&,
             const CommentPtr&);
 
-        void allocatePatcher(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&, bool);
+        void allocatePatcher(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&);
         std::string getPatcher(const TypePtr&, const std::string&, const std::string&);
 
         std::string getFutureType(const OperationPtr&, const std::string&);

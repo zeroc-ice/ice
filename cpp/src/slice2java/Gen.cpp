@@ -813,8 +813,7 @@ Slice::JavaVisitor::allocatePatcher(
     Output& out,
     const TypePtr& type,
     const string& package,
-    const string& name,
-    bool optionalMapping)
+    const string& name)
 {
     BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
@@ -828,10 +827,6 @@ Slice::JavaVisitor::allocatePatcher(
     else
     {
         clsName = getUnqualified(cl, package);
-    }
-    if (optionalMapping)
-    {
-        clsName = "java.util.Optional<" + clsName + ">";
     }
     out << nl << "final com.zeroc.IceInternal.Holder<" << clsName << "> " << name
         << " = new com.zeroc.IceInternal.Holder<>();";
@@ -1051,7 +1046,8 @@ Slice::JavaVisitor::writeUnmarshalProxyResults(Output& out, const string& packag
 
         if (val)
         {
-            allocatePatcher(out, type, package, name, optional);
+            assert(!optional); // Optional classes are disallowed by the parser.
+            allocatePatcher(out, type, package, name);
         }
         else
         {
@@ -1439,7 +1435,8 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
                 const TypePtr paramType = param->type();
                 if (paramType->isClassType())
                 {
-                    allocatePatcher(out, paramType, package, "icePP_" + param->name(), param->optional());
+                    assert(!param->optional()); // Optional classes are disallowed by the parser.
+                    allocatePatcher(out, paramType, package, "icePP_" + param->name());
                     values.push_back(param);
                 }
                 else
