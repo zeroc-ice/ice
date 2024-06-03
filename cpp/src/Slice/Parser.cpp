@@ -94,13 +94,7 @@ namespace
         // Returns true if the type contains data types which can be referenced by user code and mutated after a
         // dispatch returns.
 
-        if (dynamic_pointer_cast<ClassDecl>(type))
-        {
-            return true;
-        }
-
-        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-        if (builtin && builtin->usesClasses())
+        if (type->isClassType())
         {
             return true;
         }
@@ -3055,13 +3049,9 @@ Slice::ClassDef::classDataMembers() const
     for (const auto& p : _contents)
     {
         DataMemberPtr q = dynamic_pointer_cast<DataMember>(p);
-        if (q)
+        if (q && q->type()->isClassType())
         {
-            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(q->type());
-            if ((builtin && builtin->usesClasses()) || dynamic_pointer_cast<ClassDecl>(q->type()))
-            {
-                result.push_back(q);
-            }
+            result.push_back(q);
         }
     }
     return result;
@@ -3805,13 +3795,9 @@ Slice::Exception::classDataMembers() const
     for (const auto& p : _contents)
     {
         DataMemberPtr q = dynamic_pointer_cast<DataMember>(p);
-        if (q)
+        if (q && q->type()->isClassType())
         {
-            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(q->type());
-            if ((builtin && builtin->usesClasses()) || dynamic_pointer_cast<ClassDecl>(q->type()))
-            {
-                result.push_back(q);
-            }
+            result.push_back(q);
         }
     }
     return result;
@@ -4041,13 +4027,9 @@ Slice::Struct::classDataMembers() const
     for (const auto& p : _contents)
     {
         DataMemberPtr q = dynamic_pointer_cast<DataMember>(p);
-        if (q)
+        if (q && q->type()->isClassType())
         {
-            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(q->type());
-            if ((builtin && builtin->usesClasses()) || dynamic_pointer_cast<ClassDecl>(q->type()))
-            {
-                result.push_back(q);
-            }
+            result.push_back(q);
         }
     }
     return result;

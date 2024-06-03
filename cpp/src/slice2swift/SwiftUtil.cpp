@@ -1327,14 +1327,11 @@ SwiftGenerator::getOptionalFormat(const TypePtr& type)
             {
                 return ".VSize";
             }
-            case Builtin::KindObject:
-            {
-                return ".Class";
-            }
             case Builtin::KindObjectProxy:
             {
                 return ".FSize";
             }
+            case Builtin::KindObject:
             case Builtin::KindValue:
             {
                 return ".Class";
@@ -1663,19 +1660,15 @@ SwiftGenerator::writeMarshalUnmarshalCode(
         }
     }
 
-    if (dynamic_pointer_cast<ClassDecl>(type))
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
+    if (cl)
     {
-        ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
         if (marshal)
         {
             out << nl << stream << ".write(" << args << ")";
         }
         else
         {
-            if (tag >= 0)
-            {
-                args += ", value: ";
-            }
             string memberType = getUnqualified(getAbsolute(type), swiftModule);
             string memberName;
             const string memberPrefix = "self.";

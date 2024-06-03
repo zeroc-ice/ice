@@ -642,13 +642,6 @@ namespace
         }
     }
 
-    bool isClass(const TypePtr& type)
-    {
-        BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
-        ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-        return (b && (b->kind() == Builtin::KindObject || b->kind() == Builtin::KindValue)) || cl;
-    }
-
     bool isProxy(const TypePtr& type)
     {
         BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
@@ -661,16 +654,15 @@ namespace
         SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
         if (seq)
         {
-            return isClass(seq->type()) || needsConversion(seq->type());
+            return seq->type()->isClassType() || needsConversion(seq->type());
         }
 
         StructPtr st = dynamic_pointer_cast<Struct>(type);
         if (st)
         {
-            const DataMemberList members = st->dataMembers();
-            for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+            for (const auto& dm : st->dataMembers())
             {
-                if (needsConversion((*q)->type()) || isClass((*q)->type()))
+                if (needsConversion(dm->type()) || dm->type()->isClassType())
                 {
                     return true;
                 }
@@ -681,7 +673,7 @@ namespace
         DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
         if (d)
         {
-            return needsConversion(d->valueType()) || isClass(d->valueType());
+            return needsConversion(d->valueType()) || d->valueType()->isClassType();
         }
 
         return false;
@@ -1946,29 +1938,29 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "function iceReadImpl(obj, is)";
     out.inc();
     out << nl << "is.startSlice();";
-    for (DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
+    for (const auto& dm : members)
     {
-        if (!(*d)->optional())
+        if (!dm->optional())
         {
-            if (isClass((*d)->type()))
+            if (dm->type()->isClassType())
             {
-                unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent((*d)->name()), (*d)->type(), false, 0);
+                unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent(dm->name()), dm->type(), false, 0);
             }
             else
             {
-                unmarshal(out, "is", "obj." + fixIdent((*d)->name()), (*d)->type(), false, 0);
+                unmarshal(out, "is", "obj." + fixIdent(dm->name()), dm->type(), false, 0);
             }
         }
     }
-    for (DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
+    for (const auto& dm : optionalMembers)
     {
-        if (isClass((*d)->type()))
+        if (dm->type()->isClassType())
         {
-            unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent((*d)->name()), (*d)->type(), true, (*d)->tag());
+            unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent(dm->name()), dm->type(), true, dm->tag());
         }
         else
         {
-            unmarshal(out, "is", "obj." + fixIdent((*d)->name()), (*d)->type(), true, (*d)->tag());
+            unmarshal(out, "is", "obj." + fixIdent(dm->name()), dm->type(), true, dm->tag());
         }
     }
     out << nl << "is.endSlice();";
@@ -2230,7 +2222,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 if (r->param)
                 {
                     string param;
-                    if (isClass(r->type))
+                    if (r->type->isClassType())
                     {
                         out << nl << r->fixedName << "_h_ = IceInternal.ValueHolder();";
                         param = "@(v) " + r->fixedName + "_h_.set(v)";
@@ -2255,7 +2247,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 ParamInfoList::const_iterator r = requiredOutParams.begin();
                 string param;
-                if (isClass(r->type))
+                if (r->type->isClassType())
                 {
                     out << nl << r->fixedName << "_h_ = IceInternal.ValueHolder();";
                     param = "@(v) " + r->fixedName + "_h_.set(v)";
@@ -2278,7 +2270,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             for (ParamInfoList::const_iterator r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
             {
                 string param;
-                if (isClass(r->type))
+                if (r->type->isClassType())
                 {
                     out << nl << r->fixedName << "_h_ = IceInternal.ValueHolder();";
                     param = "@(v) " + r->fixedName + "_h_.set(v)";
@@ -2375,7 +2367,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 if (r->param)
                 {
                     string param;
-                    if (isClass(r->type))
+                    if (r->type->isClassType())
                     {
                         out << nl << r->fixedName << " = IceInternal.ValueHolder();";
                         param = "@(v) " + r->fixedName + ".set(v)";
@@ -2394,7 +2386,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 ParamInfoList::const_iterator r = requiredOutParams.begin();
                 string param;
-                if (isClass(r->type))
+                if (r->type->isClassType())
                 {
                     out << nl << r->fixedName << " = IceInternal.ValueHolder();";
                     param = "@(v) " + r->fixedName + ".set(v)";
@@ -2411,7 +2403,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             for (ParamInfoList::const_iterator r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
             {
                 string param;
-                if (isClass(r->type))
+                if (r->type->isClassType())
                 {
                     out << nl << r->fixedName << " = IceInternal.ValueHolder();";
                     param = "@(v) " + r->fixedName + ".set(v)";
@@ -2429,7 +2421,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             out << nl << "is_.endEncapsulation();";
             for (ParamInfoList::const_iterator r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
             {
-                if (isClass(r->type))
+                if (r->type->isClassType())
                 {
                     out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ".value;";
                 }
@@ -2446,7 +2438,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
             for (ParamInfoList::const_iterator r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
             {
-                if (isClass(r->type))
+                if (r->type->isClassType())
                 {
                     out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ".value;";
                 }
@@ -2811,34 +2803,34 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << nl << "function obj = iceReadImpl(obj, is)";
     out.inc();
     out << nl << "is.startSlice();";
-    for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for (const auto& dm : members)
     {
-        string m = fixExceptionMember((*q)->name());
-        if (!(*q)->optional())
+        string m = fixExceptionMember(dm->name());
+        if (!dm->optional())
         {
-            if (isClass((*q)->type()))
+            if (dm->type()->isClassType())
             {
                 out << nl << "obj." << m << " = IceInternal.ValueHolder();";
-                unmarshal(out, "is", "@(v) obj." + m + ".set(v)", (*q)->type(), false, 0);
+                unmarshal(out, "is", "@(v) obj." + m + ".set(v)", dm->type(), false, 0);
             }
             else
             {
-                unmarshal(out, "is", "obj." + m, (*q)->type(), false, 0);
+                unmarshal(out, "is", "obj." + m, dm->type(), false, 0);
             }
         }
     }
     const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
-    for (DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
+    for (const auto& dm : optionalMembers)
     {
-        string m = fixExceptionMember((*q)->name());
-        if (isClass((*q)->type()))
+        string m = fixExceptionMember(dm->name());
+        if (dm->type()->isClassType())
         {
             out << nl << "obj." << m << " = IceInternal.ValueHolder();";
-            unmarshal(out, "is", "@(v) obj." + m + ".set(v)", (*q)->type(), true, (*q)->tag());
+            unmarshal(out, "is", "@(v) obj." + m + ".set(v)", dm->type(), true, dm->tag());
         }
         else
         {
-            unmarshal(out, "is", "obj." + m, (*q)->type(), true, (*q)->tag());
+            unmarshal(out, "is", "obj." + m, dm->type(), true, dm->tag());
         }
     }
     out << nl << "is.endSlice();";
@@ -3071,7 +3063,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     const string name = fixIdent(p->name());
     const string scoped = p->scoped();
     const string abs = getAbsolute(p);
-    const bool cls = isClass(content);
+    const bool cls = content->isClassType();
     const bool proxy = isProxy(content);
     const bool convert = needsConversion(content);
 
@@ -3324,7 +3316,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
 {
     const TypePtr key = p->keyType();
     const TypePtr value = p->valueType();
-    const bool cls = isClass(value);
+    const bool cls = value->isClassType();
     const bool convert = needsConversion(value);
 
     const StructPtr st = dynamic_pointer_cast<Struct>(key);
@@ -3908,14 +3900,11 @@ CodeVisitor::getOptionalFormat(const TypePtr& type)
             {
                 return "Ice.OptionalFormat.VSize";
             }
-            case Builtin::KindObject:
-            {
-                return "Ice.OptionalFormat.Class";
-            }
             case Builtin::KindObjectProxy:
             {
                 return "Ice.OptionalFormat.FSize";
             }
+            case Builtin::KindObject:
             case Builtin::KindValue:
             {
                 return "Ice.OptionalFormat.Class";
@@ -4460,20 +4449,18 @@ CodeVisitor::unmarshal(
 void
 CodeVisitor::unmarshalStruct(IceUtilInternal::Output& out, const StructPtr& p, const string& v)
 {
-    const DataMemberList members = p->dataMembers();
-
-    for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for (const auto& dm : p->dataMembers())
     {
-        string m = fixStructMember((*q)->name());
-        if (isClass((*q)->type()))
+        string m = fixStructMember(dm->name());
+        if (dm->type()->isClassType())
         {
             out << nl << m << "_ = IceInternal.ValueHolder();";
             out << nl << v << "." << m << " = " << m << "_;";
-            unmarshal(out, "is", "@(v_) " + m + "_.set(v_)", (*q)->type(), false, 0);
+            unmarshal(out, "is", "@(v_) " + m + "_.set(v_)", dm->type(), false, 0);
         }
         else
         {
-            unmarshal(out, "is", v + "." + m, (*q)->type(), false, 0);
+            unmarshal(out, "is", v + "." + m, dm->type(), false, 0);
         }
     }
 }
@@ -4481,16 +4468,14 @@ CodeVisitor::unmarshalStruct(IceUtilInternal::Output& out, const StructPtr& p, c
 void
 CodeVisitor::convertStruct(IceUtilInternal::Output& out, const StructPtr& p, const string& v)
 {
-    const DataMemberList members = p->dataMembers();
-
-    for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for (const auto& dm : p->dataMembers())
     {
-        string m = fixStructMember((*q)->name());
-        if (needsConversion((*q)->type()))
+        string m = fixStructMember(dm->name());
+        if (needsConversion(dm->type()))
         {
-            convertValueType(out, v + "." + m, v + "." + m, (*q)->type(), false);
+            convertValueType(out, v + "." + m, v + "." + m, dm->type(), false);
         }
-        else if (isClass((*q)->type()))
+        else if (dm->type()->isClassType())
         {
             out << nl << v << "." << m << " = " << v << "." << m << ".value;";
         }

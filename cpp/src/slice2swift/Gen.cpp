@@ -548,11 +548,11 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     const DataMemberList members = p->dataMembers();
     const string optionalFormat = getOptionalFormat(p);
 
-    bool isClass = p->usesClasses();
+    bool usesClasses = p->usesClasses();
     out << sp;
     writeDocSummary(out, p);
     writeSwiftAttributes(out, p->getMetaData());
-    out << nl << "public " << (isClass ? "class " : "struct ") << name;
+    out << nl << "public " << (usesClasses ? "class " : "struct ") << name;
     if (legalKeyType)
     {
         out << ": Swift.Hashable";
@@ -576,7 +576,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out << nl << "/// - returns: `" << name << "` - The structured value read from the stream.";
     out << nl << "func read() throws -> " << name;
     out << sb;
-    out << nl << (isClass ? "let" : "var") << " v = " << name << "()";
+    out << nl << (usesClasses ? "let" : "var") << " v = " << name << "()";
     for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
         writeMarshalUnmarshalCode(out, (*q)->type(), p, "v." + fixIdent((*q)->name()), false);

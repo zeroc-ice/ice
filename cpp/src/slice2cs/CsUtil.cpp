@@ -223,14 +223,11 @@ Slice::CsGenerator::getOptionalFormat(const TypePtr& type)
             {
                 return prefix + ".VSize";
             }
-            case Builtin::KindObject:
-            {
-                return prefix + ".Class";
-            }
             case Builtin::KindObjectProxy:
             {
                 return prefix + ".FSize";
             }
+            case Builtin::KindObject:
             case Builtin::KindValue:
             {
                 return prefix + ".Class";
@@ -295,10 +292,10 @@ Slice::CsGenerator::getOptionalFormat(const TypePtr& type)
 string
 Slice::CsGenerator::getStaticId(const TypePtr& type)
 {
+    assert(type->isClassType());
+
     BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-
-    assert((b && b->usesClasses()) || cl);
 
     if (b)
     {
