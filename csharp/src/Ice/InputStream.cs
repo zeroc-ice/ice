@@ -2595,7 +2595,7 @@ public class InputStream
             }
             case OptionalFormat.Class:
             {
-                throw new MarshalException("cannot unmarshal or skip an \"optional class\" parameter or field");
+                throw new MarshalException("cannot skip an optional class");
             }
         }
     }

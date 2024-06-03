@@ -9,7 +9,6 @@ const Ice = require("../Ice/ModuleRegistry").Ice;
 require("../Ice/Exception");
 require("../Ice/FormatType");
 require("../Ice/StreamHelpers");
-require("../Ice/OptionalFormat");
 
 Ice.Value = class
 {
@@ -53,11 +52,6 @@ Ice.Value = class
         os.writeValue(v);
     }
 
-    static writeOptional(os, tag, v)
-    {
-        os.writeOptionalValue(tag, v);
-    }
-
     static read(is)
     {
         const v = {value: null};
@@ -65,16 +59,6 @@ Ice.Value = class
                      {
                          v.value = o;
                      }, this);
-        return v;
-    }
-
-    static readOptional(is, tag)
-    {
-        const v = {value: undefined};
-        is.readOptionalValue(tag, o =>
-                             {
-                                 v.value = o;
-                             }, this);
         return v;
     }
 };

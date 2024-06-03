@@ -1623,43 +1623,6 @@ public class InputStream {
   }
 
   /**
-   * Extracts an optional Slice value from the stream.
-   *
-   * @param <T> The value type.
-   * @param tag The numeric tag associated with the value.
-   * @param cb The consumer to notify when the extracted instance is available. The stream extracts
-   *     Slice values in stages. The Ice run time calls accept on the consumer when the
-   *     corresponding instance has been fully unmarshaled.
-   * @param cls The type of the Ice.Value to unmarshal.
-   */
-  public <T extends Value> void readValue(
-      int tag, java.util.function.Consumer<java.util.Optional<T>> cb, Class<T> cls) {
-    if (readOptional(tag, OptionalFormat.Class)) {
-      if (cb != null) {
-        readValue(v -> cb.accept(java.util.Optional.ofNullable(v)), cls);
-      } else {
-        readValue(null);
-      }
-    } else {
-      if (cb != null) {
-        cb.accept(java.util.Optional.empty());
-      }
-    }
-  }
-
-  /**
-   * Extracts an optional Slice value from the stream.
-   *
-   * @param tag The numeric tag associated with the value.
-   * @param cb The consumer to notify when the extracted instance is available. The stream extracts
-   *     Slice values in stages. The Ice run time calls accept on the consumer when the
-   *     corresponding instance has been fully unmarshaled.
-   */
-  public void readValue(int tag, java.util.function.Consumer<java.util.Optional<Value>> cb) {
-    readValue(tag, cb, Value.class);
-  }
-
-  /**
    * Extracts a user exception from the stream and throws it.
    *
    * @throws UserException The user exception that was unmarshaled.
@@ -1758,8 +1721,7 @@ public class InputStream {
         }
       case Class:
         {
-          readValue(null, null);
-          break;
+          throw new MarshalException("cannot skip an optional class");
         }
     }
   }

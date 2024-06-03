@@ -1830,18 +1830,6 @@ class InputStream
             });
     }
 
-    readOptionalValue(tag, cb, T)
-    {
-        if(this.readOptional(tag, OptionalFormat.Class))
-        {
-            this.readValue(cb, T);
-        }
-        else
-        {
-            cb(undefined);
-        }
-    }
-
     throwException()
     {
         this.initEncaps();
@@ -1939,8 +1927,7 @@ class InputStream
             }
             case OptionalFormat.Class:
             {
-                this.readValue(null, Ice.Value);
-                break;
+                throw new Ice.MarshalException("cannot skip an optional class");
             }
             default:
             {
@@ -3240,17 +3227,6 @@ class OutputStream
         this._encapsStack.encoder.writeValue(v);
     }
 
-    writeOptionalValue(tag, v)
-    {
-        if(v !== undefined)
-        {
-            if(this.writeOptional(tag, OptionalFormat.Class))
-            {
-                this.writeValue(v);
-            }
-        }
-    }
-
     writeException(e)
     {
         this.initEncaps();
@@ -3501,21 +3477,6 @@ Ice.ObjectHelper = class
                      {
                          o = v;
                      }, Ice.Value);
-        return o;
-    }
-
-    static writeOptional(os, tag, v)
-    {
-        os.writeOptionalValue(tag, Ice.OptionalFormat.Class, ostr.writeValue, v);
-    }
-
-    static readOptional(is, tag)
-    {
-        let o;
-        is.readOptionalValue(tag, v =>
-                             {
-                                 o = v;
-                             }, Ice.Value);
         return o;
     }
 

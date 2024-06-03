@@ -3026,7 +3026,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
 
     ostr = Ice.OutputStream(communicator: communicator)
     ostr.startEncapsulation()
-    ostr.write(tag: 1, value: f)
     ostr.write(tag: 2, value: f.fse)
     ostr.endEncapsulation()
     inEncaps = ostr.finished()

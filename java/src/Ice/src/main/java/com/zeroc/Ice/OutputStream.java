@@ -1453,31 +1453,6 @@ public class OutputStream {
   }
 
   /**
-   * Writes an optional value to the stream.
-   *
-   * @param tag The optional tag.
-   * @param v The optional value to write to the stream.
-   * @param <T> The type of the optional value.
-   */
-  public <T extends Value> void writeValue(int tag, java.util.Optional<T> v) {
-    if (v != null && v.isPresent()) {
-      writeValue(tag, v.get());
-    }
-  }
-
-  /**
-   * Writes an optional value to the stream.
-   *
-   * @param tag The optional tag.
-   * @param v The value to write to the stream.
-   */
-  public void writeValue(int tag, Value v) {
-    if (writeOptional(tag, OptionalFormat.Class)) {
-      writeValue(v);
-    }
-  }
-
-  /**
    * Writes a user exception to the stream.
    *
    * @param v The user exception to write.

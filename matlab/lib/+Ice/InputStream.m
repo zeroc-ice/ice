@@ -635,7 +635,7 @@ classdef InputStream < handle
                     end
                     obj.skip(sz);
                 case Ice.OptionalFormat.Class
-                    obj.readValue([], '');
+                    throw(Ice.MarshalException('', '', sprintf('cannot skip an optional class')));
             end
         end
         function r = readProxy(obj, cls)
@@ -729,13 +729,6 @@ classdef InputStream < handle
                 obj.encapsStackDecoder.readValue([]);
             else
                 obj.encapsStackDecoder.readValue(@(v) check(v));
-            end
-        end
-        function readValueOpt(obj, tag, cb, formalType)
-            if obj.readOptional(tag, Ice.OptionalFormat.Class)
-                obj.readValue(cb, formalType);
-            elseif ~isempty(cb)
-                cb(Ice.Unset);
             end
         end
         function readPendingValues(obj)

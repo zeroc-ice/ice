@@ -1645,8 +1645,6 @@ public class AllTests {
 
       os = new OutputStream(communicator);
       os.startEncapsulation();
-      os.writeOptional(1, OptionalFormat.Class);
-      os.writeValue(f);
       os.writeOptional(2, OptionalFormat.VSize);
       os.writeSize(4);
       FixedStruct.ice_write(os, f.fse);

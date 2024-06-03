@@ -89,7 +89,6 @@ declare module "ice"
             readEnum<T>(type:new()=>T):T;
             readOptionalEnum<T>(tag:number, type:new()=>T):T|undefined;
             readValue<T extends Value>(cb:(value:T) => void, type:new()=>T):void;
-            readOptionalValue<T extends Value>(tag:number, cb:(value:T) => void, type:new()=>T):void;
             throwException():void;
             skip(size:number):void;
             skipSize():void;
@@ -188,7 +187,6 @@ declare module "ice"
             writeEnum(v:any):void;
 
             writeValue(v:Ice.Value):void;
-            writeOptionalValue(tag:number, v?:Ice.Value|undefined):void;
             writeException(e:UserException):void;
             writeUserException(e:UserException):void;
 

@@ -173,12 +173,7 @@ function unmarshalParams(is, retvalInfo, allParamInfo, optParamInfo, usesClasses
         {
             if(p.isObject)
             {
-                is.readOptionalValue(p.tag,
-                                     obj =>
-                                     {
-                                         params[p.pos + offset] = obj;
-                                     },
-                                     p.type);
+                throw new Ice.MarshalException("cannot unmarshal an optional class");
             }
             else
             {
