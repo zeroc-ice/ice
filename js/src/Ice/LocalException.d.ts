@@ -19,20 +19,6 @@ export namespace Ice
     }
 
     /**
-     * This exception indicates that a failure occurred while initializing a plug-in.
-     */
-    class PluginInitializationException extends LocalException
-    {
-        /**
-         * One-shot constructor to initialize all data members.
-         * @param reason The reason for the failure.
-         * @param ice_cause The error that cause this exception.
-         */
-        constructor(reason?:string, ice_cause?:string|Error);
-        reason:string;
-    }
-
-    /**
      * An attempt was made to register something more than once with the Ice run time. This exception is raised if an
      * attempt is made to register a servant, servant locator, facet, value factory, plug-in, object adapter, object, or
      * user exception factory more than once for the same ID.
@@ -87,16 +73,6 @@ export namespace Ice
     }
 
     /**
-     * An attempt was made to clone a class that does not support cloning. This exception is raised if
-     * <code>ice_clone</code> is called on a class that is derived from an abstract Slice class (that is, a class
-     * containing operations), and the derived class does not provide an implementation of the <code>ice_clone</code>
-     * operation (C++ only).
-     */
-    class CloneNotImplementedException extends LocalException
-    {
-    }
-
-    /**
      * This exception is raised if an operation call on a server raises an unknown exception. For example, for C++, this
      * exception is raised if the server throws a C++ exception that is not directly or indirectly derived from
      * <code>Ice::LocalException</code> or <code>Ice::UserException</code>.
@@ -144,13 +120,6 @@ export namespace Ice
          * @param ice_cause The error that cause this exception.
          */
         constructor(unknown?:string, ice_cause?:string|Error);
-    }
-
-    /**
-     * This exception is raised if the Ice library version does not match the version in the Ice header files.
-     */
-    class VersionMismatchException extends LocalException
-    {
     }
 
     /**
@@ -394,21 +363,6 @@ export namespace Ice
     }
 
     /**
-     * This exception indicates CFNetwork errors.
-     */
-    class CFNetworkException extends SocketException
-    {
-        /**
-         * One-shot constructor to initialize all data members.
-         * @param error The error number describing the system exception.
-         * @param domain The domain of the error.
-         * @param ice_cause The error that cause this exception.
-         */
-        constructor(error?:number, domain?:string, ice_cause?:string|Error);
-        domain:string;
-    }
-
-    /**
      * This exception indicates file errors.
      */
     class FileException extends SyscallException
@@ -460,29 +414,6 @@ export namespace Ice
          * @param ice_cause The error that cause this exception.
          */
         constructor(error?:number, ice_cause?:string|Error);
-    }
-
-    /**
-     * This exception indicates a DNS problem. For details on the cause, {@link DNSException#error} should be inspected.
-     */
-    class DNSException extends LocalException
-    {
-        /**
-         * One-shot constructor to initialize all data members.
-         * @param error The error number describing the DNS problem.
-         * @param host The host name that could not be resolved.
-         * @param ice_cause The error that cause this exception.
-         */
-        constructor(error?:number, host?:string, ice_cause?:string|Error);
-        error:number;
-        host:string;
-    }
-
-    /**
-     * This exception indicates a request was interrupted.
-     */
-    class OperationInterruptedException extends LocalException
-    {
     }
 
     /**
@@ -794,19 +725,6 @@ export namespace Ice
     }
 
     /**
-     * This exception is raised when a string conversion to or from UTF-8 fails during marshaling or unmarshaling.
-     */
-    class StringConversionException extends MarshalException
-    {
-        /**
-         * One-shot constructor to initialize all data members.
-         * @param reason The reason for the failure.
-         * @param ice_cause The error that cause this exception.
-         */
-        constructor(reason?:string, ice_cause?:string|Error);
-    }
-
-    /**
      * This exception indicates a malformed data encapsulation.
      */
     class EncapsulationException extends MarshalException
@@ -832,20 +750,6 @@ export namespace Ice
          */
         constructor(unsupportedFeature?:string, ice_cause?:string|Error);
         unsupportedFeature:string;
-    }
-
-    /**
-     * This exception indicates a failure in a security subsystem, such as the IceSSL plug-in.
-     */
-    class SecurityException extends LocalException
-    {
-        /**
-         * One-shot constructor to initialize all data members.
-         * @param reason The reason for the failure.
-         * @param ice_cause The error that cause this exception.
-         */
-        constructor(reason?:string, ice_cause?:string|Error);
-        reason:string;
     }
 
     /**

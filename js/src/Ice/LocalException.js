@@ -5,7 +5,6 @@
 /* eslint-disable */
 /* jshint ignore: start */
 
-/* slice2js browser-bundle-skip */
 const _ModuleRegistry = require("../Ice/ModuleRegistry").Ice._ModuleRegistry;
 require("../Ice/Exception");
 require("../Ice/Long");
@@ -17,9 +16,6 @@ require("../Ice/Identity");
 require("../Ice/Version");
 require("../Ice/BuiltinSequences");
 const Ice = _ModuleRegistry.module("Ice");
-
-const Slice = Ice.Slice;
-/* slice2js browser-bundle-skip-end */
 
 /**
  *  This exception is raised when a failure occurs during initialization.
@@ -40,28 +36,6 @@ Ice.InitializationException = class extends Ice.LocalException
     static get _id()
     {
         return "::Ice::InitializationException";
-    }
-};
-
-/**
- *  This exception indicates that a failure occurred while initializing a plug-in.
- **/
-Ice.PluginInitializationException = class extends Ice.LocalException
-{
-    constructor(reason = "", _cause = "")
-    {
-        super(_cause);
-        this.reason = reason;
-    }
-
-    static get _parent()
-    {
-        return Ice.LocalException;
-    }
-
-    static get _id()
-    {
-        return "::Ice::PluginInitializationException";
     }
 };
 
@@ -142,30 +116,6 @@ Ice.TwowayOnlyException = class extends Ice.LocalException
 };
 
 /**
- *  An attempt was made to clone a class that does not support cloning. This exception is raised if
- *  <code>ice_clone</code> is called on a class that is derived from an abstract Slice class (that is, a class
- *  containing operations), and the derived class does not provide an implementation of the <code>ice_clone</code>
- *  operation (C++ only).
- **/
-Ice.CloneNotImplementedException = class extends Ice.LocalException
-{
-    constructor(_cause = "")
-    {
-        super(_cause);
-    }
-
-    static get _parent()
-    {
-        return Ice.LocalException;
-    }
-
-    static get _id()
-    {
-        return "::Ice::CloneNotImplementedException";
-    }
-};
-
-/**
  *  This exception is raised if an operation call on a server raises an unknown exception. For example, for C++, this
  *  exception is raised if the server throws a C++ exception that is not directly or indirectly derived from
  *  <code>Ice::LocalException</code> or <code>Ice::UserException</code>.
@@ -236,27 +186,6 @@ Ice.UnknownUserException = class extends Ice.UnknownException
     static get _id()
     {
         return "::Ice::UnknownUserException";
-    }
-};
-
-/**
- *  This exception is raised if the Ice library version does not match the version in the Ice header files.
- **/
-Ice.VersionMismatchException = class extends Ice.LocalException
-{
-    constructor(_cause = "")
-    {
-        super(_cause);
-    }
-
-    static get _parent()
-    {
-        return Ice.LocalException;
-    }
-
-    static get _id()
-    {
-        return "::Ice::VersionMismatchException";
     }
 };
 
@@ -641,28 +570,6 @@ Ice.SocketException = class extends Ice.SyscallException
 };
 
 /**
- *  This exception indicates CFNetwork errors.
- **/
-Ice.CFNetworkException = class extends Ice.SocketException
-{
-    constructor(error, domain = "", _cause = "")
-    {
-        super(error, _cause);
-        this.domain = domain;
-    }
-
-    static get _parent()
-    {
-        return Ice.SocketException;
-    }
-
-    static get _id()
-    {
-        return "::Ice::CFNetworkException";
-    }
-};
-
-/**
  *  This exception indicates file errors.
  **/
 Ice.FileException = class extends Ice.SyscallException
@@ -744,50 +651,6 @@ Ice.ConnectionLostException = class extends Ice.SocketException
     static get _id()
     {
         return "::Ice::ConnectionLostException";
-    }
-};
-
-/**
- *  This exception indicates a DNS problem. For details on the cause, {@link DNSException#error} should be inspected.
- **/
-Ice.DNSException = class extends Ice.LocalException
-{
-    constructor(error = 0, host = "", _cause = "")
-    {
-        super(_cause);
-        this.error = error;
-        this.host = host;
-    }
-
-    static get _parent()
-    {
-        return Ice.LocalException;
-    }
-
-    static get _id()
-    {
-        return "::Ice::DNSException";
-    }
-};
-
-/**
- *  This exception indicates a request was interrupted.
- **/
-Ice.OperationInterruptedException = class extends Ice.LocalException
-{
-    constructor(_cause = "")
-    {
-        super(_cause);
-    }
-
-    static get _parent()
-    {
-        return Ice.LocalException;
-    }
-
-    static get _id()
-    {
-        return "::Ice::OperationInterruptedException";
     }
 };
 
@@ -1320,27 +1183,6 @@ Ice.MemoryLimitException = class extends Ice.MarshalException
 };
 
 /**
- *  This exception is raised when a string conversion to or from UTF-8 fails during marshaling or unmarshaling.
- **/
-Ice.StringConversionException = class extends Ice.MarshalException
-{
-    constructor(reason, _cause = "")
-    {
-        super(reason, _cause);
-    }
-
-    static get _parent()
-    {
-        return Ice.MarshalException;
-    }
-
-    static get _id()
-    {
-        return "::Ice::StringConversionException";
-    }
-};
-
-/**
  *  This exception indicates a malformed data encapsulation.
  **/
 Ice.EncapsulationException = class extends Ice.MarshalException
@@ -1385,28 +1227,6 @@ Ice.FeatureNotSupportedException = class extends Ice.LocalException
 };
 
 /**
- *  This exception indicates a failure in a security subsystem, such as the IceSSL plug-in.
- **/
-Ice.SecurityException = class extends Ice.LocalException
-{
-    constructor(reason = "", _cause = "")
-    {
-        super(_cause);
-        this.reason = reason;
-    }
-
-    static get _parent()
-    {
-        return Ice.LocalException;
-    }
-
-    static get _id()
-    {
-        return "::Ice::SecurityException";
-    }
-};
-
-/**
  *  This exception indicates that an attempt has been made to change the connection properties of a fixed proxy.
  **/
 Ice.FixedProxyException = class extends Ice.LocalException
@@ -1427,6 +1247,4 @@ Ice.FixedProxyException = class extends Ice.LocalException
     }
 };
 
-/* slice2js browser-bundle-skip */
 exports.Ice = Ice;
-/* slice2js browser-bundle-skip-end */

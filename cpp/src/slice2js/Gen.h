@@ -94,7 +94,7 @@ namespace Slice
         class TypesVisitor : public JsVisitor
         {
         public:
-            TypesVisitor(::IceUtilInternal::Output&, std::vector<std::string>, bool);
+            TypesVisitor(::IceUtilInternal::Output&, std::vector<std::string>);
 
             virtual bool visitModuleStart(const ModulePtr&);
             virtual void visitModuleEnd(const ModulePtr&);
@@ -111,18 +111,16 @@ namespace Slice
             std::string encodeTypeForOperation(const TypePtr&);
 
             std::vector<std::string> _seenModules;
-            bool _icejs;
         };
 
         class ExportVisitor : public JsVisitor
         {
         public:
-            ExportVisitor(::IceUtilInternal::Output&, bool, bool);
+            ExportVisitor(::IceUtilInternal::Output&, bool);
 
             virtual bool visitModuleStart(const ModulePtr&);
 
         private:
-            bool _icejs;
             bool _es6modules;
             std::vector<std::string> _exported;
         };
