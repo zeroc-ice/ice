@@ -118,25 +118,6 @@ public interface Connection {
   java.util.concurrent.CompletableFuture<Void> heartbeatAsync();
 
   /**
-   * Set the active connection management parameters.
-   *
-   * @param timeout The timeout value in seconds, must be &gt;= 0.
-   * @param close The close condition
-   * @param heartbeat The hertbeat condition
-   */
-  void setACM(
-      java.util.OptionalInt timeout,
-      java.util.Optional<ACMClose> close,
-      java.util.Optional<ACMHeartbeat> heartbeat);
-
-  /**
-   * Get the ACM parameters.
-   *
-   * @return The ACM parameters.
-   */
-  ACM getACM();
-
-  /**
    * Return the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
    *
    * @return The type of the connection.

@@ -316,16 +316,6 @@ public final class Instance implements java.util.function.Function<String, Class
     return _cacheMessageBuffers;
   }
 
-  public ACMConfig clientACM() {
-    // No mutex lock, immutable.
-    return _clientACM;
-  }
-
-  public ACMConfig serverACM() {
-    // No mutex lock, immutable.
-    return _serverACM;
-  }
-
   public com.zeroc.Ice.ImplicitContextI getImplicitContext() {
     return _implicitContext;
   }
@@ -785,22 +775,6 @@ public final class Instance implements java.util.function.Function<String, Class
       _traceLevels = new TraceLevels(_initData.properties);
 
       _defaultsAndOverrides = new DefaultsAndOverrides(_initData.properties, _initData.logger);
-
-      _clientACM =
-          new ACMConfig(
-              _initData.properties,
-              _initData.logger,
-              "Ice.ACM.Client",
-              new ACMConfig(
-                  _initData.properties, _initData.logger, "Ice.ACM", new ACMConfig(false)));
-
-      _serverACM =
-          new ACMConfig(
-              _initData.properties,
-              _initData.logger,
-              "Ice.ACM.Server",
-              new ACMConfig(
-                  _initData.properties, _initData.logger, "Ice.ACM", new ACMConfig(true)));
 
       {
         int num = _initData.properties.getIcePropertyAsInt("Ice.MessageSizeMax");
@@ -1511,8 +1485,6 @@ public final class Instance implements java.util.function.Function<String, Class
   private int _batchAutoFlushSize; // Immutable, not reset by destroy().
   private com.zeroc.Ice.ToStringMode _toStringMode; // Immutable, not reset by destroy().
   private int _cacheMessageBuffers; // Immutable, not reset by destroy().
-  private ACMConfig _clientACM; // Immutable, not reset by destroy().
-  private ACMConfig _serverACM; // Immutable, not reset by destroy().
   private com.zeroc.Ice.ImplicitContextI _implicitContext;
   private RouterManager _routerManager;
   private LocatorManager _locatorManager;
