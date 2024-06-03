@@ -2,19 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
 
-require("../Ice/Communicator");
-require("../Ice/LocalException");
-require("../Ice/Properties");
-require("../Ice/Protocol");
-
-const Protocol = Ice.Protocol;
+import { Communicator } from './Communicator';
+import { Protocol } from './Protocol';
+import { InitializationException } from './LocalException';
 
 //
 // Ice.InitializationData
 //
-Ice.InitializationData = class
+class InitializationData
 {
     constructor()
     {
@@ -25,7 +21,7 @@ Ice.InitializationData = class
 
     clone()
     {
-        const r = new Ice.InitializationData();
+        const r = new InitializationData();
         r.properties = this.properties;
         r.logger = this.logger;
         r.valueFactoryManager = this.valueFactoryManager;
@@ -36,7 +32,7 @@ Ice.InitializationData = class
 //
 // Ice.initialize()
 //
-Ice.initialize = function(arg1, arg2)
+function initialize(arg1, arg2)
 {
     let args = null;
     let initData = null;
@@ -45,38 +41,38 @@ Ice.initialize = function(arg1, arg2)
     {
         args = arg1;
     }
-    else if(arg1 instanceof Ice.InitializationData)
+    else if(arg1 instanceof InitializationData)
     {
         initData = arg1;
     }
     else if(arg1 !== undefined && arg1 !== null)
     {
-        throw new Ice.InitializationException("invalid argument to initialize");
+        throw new InitializationException("invalid argument to initialize");
     }
 
     if(arg2 !== undefined && arg2 !== null)
     {
-        if(arg2 instanceof Ice.InitializationData && initData === null)
+        if(arg2 instanceof InitializationData && initData === null)
         {
             initData = arg2;
         }
         else
         {
-            throw new Ice.InitializationException("invalid argument to initialize");
+            throw new InitializationException("invalid argument to initialize");
         }
     }
 
     if(initData === null)
     {
-        initData = new Ice.InitializationData();
+        initData = new InitializationData();
     }
     else
     {
         initData = initData.clone();
     }
-    initData.properties = Ice.createProperties(args, initData.properties);
+    initData.properties = createProperties(args, initData.properties);
 
-    const result = new Ice.Communicator(initData);
+    const result = new Communicator(initData);
     result.finishSetup(null);
     return result;
 };
@@ -84,29 +80,27 @@ Ice.initialize = function(arg1, arg2)
 //
 // Ice.createProperties()
 //
-Ice.createProperties = function(args, defaults)
+function createProperties(args, defaults)
 {
     return new Ice.Properties(args, defaults);
-};
+}
 
-Ice.currentProtocol = function()
+function currentProtocol()
 {
     return Protocol.currentProtocol.clone();
-};
+}
 
-Ice.currentEncoding = function()
+function currentEncoding()
 {
     return Protocol.currentEncoding.clone();
 };
 
-Ice.stringVersion = function()
+function stringVersion()
 {
     return "3.8.0-alpha.0"; // "A.B.C", with A=major, B=minor, C=patch
-};
+}
 
-Ice.intVersion = function()
+function intVersion()
 {
     return 30850; // AABBCC, with AA=major, BB=minor, CC=patch
 };
-
-module.exports.Ice = Ice;

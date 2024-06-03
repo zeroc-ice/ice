@@ -2,10 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/OptionalFormat").Ice;
+import { OptionalFormat } from "./OptionalFormat";
 
 const defineProperty = Object.defineProperty;
-const OptionalFormat = Ice.OptionalFormat;
 
 const StreamHelpers = {};
 
@@ -147,7 +146,7 @@ class SequenceHelper
     }
 }
 
-// Speacialization optimized for ByteSeq
+// Specialization optimized for ByteSeq
 const byteSeqHelper = new SequenceHelper();
 byteSeqHelper.write = (os, v) => os.writeByteSeq(v);
 byteSeqHelper.read = is => is.readByteSeq();
@@ -262,7 +261,7 @@ class DictionaryHelper
 }
 
 // Read method for dictionaries of values
-const valueDictionaryHelperRead = function(is)
+function valueDictionaryHelperRead(is)
 {
     const sz = is.readSize();
     const mapType = this.mapType;
@@ -323,5 +322,4 @@ StreamHelpers.generateDictHelper = function(keyHelper, valueHelper, fixed, value
     return helper;
 };
 
-Ice.StreamHelpers = StreamHelpers;
-module.exports.Ice = Ice;
+export default StreamHelpers;

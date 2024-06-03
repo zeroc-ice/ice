@@ -2,47 +2,24 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-require("../Ice/AsyncStatus");
-require("../Ice/Stream");
-require("../Ice/OutgoingAsync");
-require("../Ice/Debug");
-require("../Ice/ExUtil");
-require("../Ice/HashMap");
-require("../Ice/IncomingAsync");
-require("../Ice/RetryException");
-require("../Ice/Promise");
-require("../Ice/Protocol");
-require("../Ice/SocketOperation");
-require("../Ice/Timer");
-require("../Ice/TraceUtil");
-require("../Ice/Version");
-require("../Ice/Exception");
-require("../Ice/LocalException");
-require("../Ice/BatchRequestQueue");
 
-const AsyncStatus = Ice.AsyncStatus;
-const AsyncResultBase = Ice.AsyncResultBase;
-const InputStream = Ice.InputStream;
-const OutputStream = Ice.OutputStream;
-const BatchRequestQueue = Ice.BatchRequestQueue;
-const ConnectionFlushBatch = Ice.ConnectionFlushBatch;
-const HeartbeatAsync = Ice.HeartbeatAsync;
-const Debug = Ice.Debug;
-const ExUtil = Ice.ExUtil;
-const HashMap = Ice.HashMap;
-const IncomingAsync = Ice.IncomingAsync;
-const RetryException = Ice.RetryException;
-const Protocol = Ice.Protocol;
-const SocketOperation = Ice.SocketOperation;
-const Timer = Ice.Timer;
-const TraceUtil = Ice.TraceUtil;
-const ProtocolVersion = Ice.ProtocolVersion;
-const EncodingVersion = Ice.EncodingVersion;
-const ACM = Ice.ACM;
-const ACMClose = Ice.ACMClose;
-const ACMHeartbeat = Ice.ACMHeartbeat;
-const ConnectionClose = Ice.ConnectionClose;
+import {
+    IllegalMessageSizeException,
+    ObjectAdapterDeactivatedException,
+    CommunicatorDestroyedException,
+    CloseConnectionException,
+    ConnectionManuallyClosedException,
+    ConnectionTimeoutException,
+    SocketException,
+    LocalException
+ } from './LocalException';
+import { BatchRequestQueue } from './BatchRequestQueue';
+import { InputStream, OutputStream } from './Stream';
+import { Protocol } from './Protocol';
+import { ProtocolVersion, EncodingVersion } from './Version';
+import { throwMemoryLimitException } from './ExUtil';
+import { Timer } from './Timer';
+import { IcePromise } from './Promise';
 
 const StateNotInitialized = 0;
 const StateNotValidated = 1;
@@ -137,18 +114,18 @@ class ConnectionI
 
     start()
     {
-        Debug.assert(this._startPromise === null);
+        console.assert(this._startPromise === null);
 
         try
         {
             // The connection might already be closed if the communicator was destroyed.
             if(this._state >= StateClosed)
             {
-                Debug.assert(this._exception !== null);
-                return Ice.Promise.reject(this._exception);
+                console.assert(this._exception !== null);
+                return IcePromise.reject(this._exception);
             }
 
-            this._startPromise = new Ice.Promise();
+            this._startPromise = new IcePromise();
             this._transceiver.setCallbacks(
                 () => this.message(SocketOperation.Write), // connected callback
                 () => this.message(SocketOperation.Read), // read callback
@@ -195,19 +172,19 @@ class ConnectionI
         {
             case ConnectionI.ObjectAdapterDeactivated:
             {
-                this.setState(StateClosing, new Ice.ObjectAdapterDeactivatedException());
+                this.setState(StateClosing, new ObjectAdapterDeactivatedException());
                 break;
             }
 
             case ConnectionI.CommunicatorDestroyed:
             {
-                this.setState(StateClosing, new Ice.CommunicatorDestroyedException());
+                this.setState(StateClosing, new CommunicatorDestroyedException());
                 break;
             }
 
             default:
             {
-                Debug.assert(false);
+                console.assert(false);
                 break;
             }
         }
@@ -219,17 +196,17 @@ class ConnectionI
 
         if(mode == ConnectionClose.Forcefully)
         {
-            this.setState(StateClosed, new Ice.ConnectionManuallyClosedException(false));
+            this.setState(StateClosed, new ConnectionManuallyClosedException(false));
             r.resolve();
         }
         else if(mode == ConnectionClose.Gracefully)
         {
-            this.setState(StateClosing, new Ice.ConnectionManuallyClosedException(true));
+            this.setState(StateClosing, new ConnectionManuallyClosedException(true));
             r.resolve();
         }
         else
         {
-            Debug.assert(mode == ConnectionClose.GracefullyWithWait);
+            console.assert(mode == ConnectionClose.GracefullyWithWait);
 
             //
             // Wait until all outstanding requests have been completed.
@@ -257,7 +234,7 @@ class ConnectionI
             //
             Timer.setImmediate(() =>
             {
-                this.setState(StateClosing, new Ice.ConnectionManuallyClosedException(true));
+                this.setState(StateClosing, new ConnectionManuallyClosedException(true));
                 this._closePromises.forEach(p => p.resolve());
                 this._closePromises = [];
             });
@@ -276,7 +253,7 @@ class ConnectionI
             return false;
         }
 
-        Debug.assert(this._state === StateFinished);
+        console.assert(this._state === StateFinished);
         return true;
     }
 
@@ -284,14 +261,14 @@ class ConnectionI
     {
         if(this._exception !== null)
         {
-            Debug.assert(this._state >= StateClosing);
+            console.assert(this._state >= StateClosing);
             throw this._exception;
         }
     }
 
     waitUntilFinished()
     {
-        const promise = new Ice.Promise();
+        const promise = new IcePromise();
         this._finishedPromises.push(promise);
         this.checkState();
         return promise;
@@ -347,7 +324,7 @@ class ConnectionI
                 // Close the connection if we didn't receive a heartbeat in
                 // the last period.
                 //
-                this.setState(StateClosed, new Ice.ConnectionTimeoutException());
+                this.setState(StateClosed, new ConnectionTimeoutException());
             }
             else if(acm.close != Ice.ACMClose.CloseOnInvocation &&
                     this._dispatchCount === 0 && this._batchRequestQueue.isEmpty() && this._asyncRequests.size === 0)
@@ -355,7 +332,7 @@ class ConnectionI
                 //
                 // The connection is idle, close it.
                 //
-                this.setState(StateClosing, new Ice.ConnectionTimeoutException());
+                this.setState(StateClosing, new ConnectionTimeoutException());
             }
         }
     }
@@ -375,8 +352,8 @@ class ConnectionI
             throw new RetryException(this._exception);
         }
 
-        Debug.assert(this._state > StateNotValidated);
-        Debug.assert(this._state < StateClosing);
+        console.assert(this._state > StateNotValidated);
+        console.assert(this._state < StateClosing);
 
         //
         // Ensure the message isn't bigger than what we can send with the
@@ -421,10 +398,10 @@ class ConnectionI
         }
         catch(ex)
         {
-            if(ex instanceof Ice.LocalException)
+            if(ex instanceof LocalException)
             {
                 this.setState(StateClosed, ex);
-                Debug.assert(this._exception !== null);
+                console.assert(this._exception !== null);
                 throw this._exception;
             }
             else
@@ -577,7 +554,7 @@ class ConnectionI
 
     sendResponse(os)
     {
-        Debug.assert(this._state > StateNotValidated);
+        console.assert(this._state > StateNotValidated);
 
         try
         {
@@ -592,7 +569,7 @@ class ConnectionI
 
             if(this._state >= StateClosed)
             {
-                Debug.assert(this._exception !== null);
+                console.assert(this._exception !== null);
                 throw this._exception;
             }
 
@@ -605,7 +582,7 @@ class ConnectionI
         }
         catch(ex)
         {
-            if(ex instanceof Ice.LocalException)
+            if(ex instanceof LocalException)
             {
                 this.setState(StateClosed, ex);
             }
@@ -618,7 +595,7 @@ class ConnectionI
 
     sendNoResponse()
     {
-        Debug.assert(this._state > StateNotValidated);
+        console.assert(this._state > StateNotValidated);
         try
         {
             if(--this._dispatchCount === 0)
@@ -632,7 +609,7 @@ class ConnectionI
 
             if(this._state >= StateClosed)
             {
-                Debug.assert(this._exception !== null);
+                console.assert(this._exception !== null);
                 throw this._exception;
             }
 
@@ -643,7 +620,7 @@ class ConnectionI
         }
         catch(ex)
         {
-            if(ex instanceof Ice.LocalException)
+            if(ex instanceof LocalException)
             {
                 this.setState(StateClosed, ex);
             }
@@ -723,11 +700,11 @@ class ConnectionI
             {
                 if(!this.write(this._writeStream.buffer))
                 {
-                    Debug.assert(!this._writeStream.isEmpty());
+                    console.assert(!this._writeStream.isEmpty());
                     this.scheduleTimeout(SocketOperation.Write);
                     return;
                 }
-                Debug.assert(this._writeStream.buffer.remaining === 0);
+                console.assert(this._writeStream.buffer.remaining === 0);
             }
             if((operation & SocketOperation.Read) !== 0 && !this._readStream.isEmpty())
             {
@@ -741,7 +718,7 @@ class ConnectionI
                         return;
                     }
 
-                    Debug.assert(this._readStream.buffer.remaining === 0);
+                    console.assert(this._readStream.buffer.remaining === 0);
                     this._readHeader = false;
 
                     //
@@ -754,7 +731,7 @@ class ConnectionI
                     this._validated = true;
 
                     const pos = this._readStream.pos;
-                    Debug.assert(pos >= Protocol.headerSize);
+                    console.assert(pos >= Protocol.headerSize);
 
                     this._readStream.pos = 0;
                     const magic0 = this._readStream.readByte();
@@ -778,12 +755,12 @@ class ConnectionI
                     const size = this._readStream.readInt();
                     if(size < Protocol.headerSize)
                     {
-                        throw new Ice.IllegalMessageSizeException();
+                        throw new IllegalMessageSizeException();
                     }
 
                     if(size > this._messageSizeMax)
                     {
-                        ExUtil.throwMemoryLimitException(size, this._messageSizeMax);
+                        throwMemoryLimitException(size, this._messageSizeMax);
                     }
                     if(size > this._readStream.size)
                     {
@@ -796,11 +773,11 @@ class ConnectionI
                 {
                     if(!this.read(this._readStream.buffer))
                     {
-                        Debug.assert(!this._readStream.isEmpty());
+                        console.assert(!this._readStream.isEmpty());
                         this.scheduleTimeout(SocketOperation.Read);
                         return;
                     }
-                    Debug.assert(this._readStream.buffer.remaining === 0);
+                    console.assert(this._readStream.buffer.remaining === 0);
                 }
             }
 
@@ -829,7 +806,7 @@ class ConnectionI
             }
             else
             {
-                Debug.assert(this._state <= StateClosing);
+                console.assert(this._state <= StateClosing);
 
                 //
                 // We parse messages first, if we receive a close
@@ -848,12 +825,12 @@ class ConnectionI
         }
         catch(ex)
         {
-            if(ex instanceof Ice.SocketException)
+            if(ex instanceof SocketException)
             {
                 this.setState(StateClosed, ex);
                 return;
             }
-            else if(ex instanceof Ice.LocalException)
+            else if(ex instanceof LocalException)
             {
                 this.setState(StateClosed, ex);
                 return;
@@ -941,7 +918,7 @@ class ConnectionI
                     }
                     catch(ex)
                     {
-                        if(ex instanceof Ice.LocalException)
+                        if(ex instanceof LocalException)
                         {
                             this.setState(StateClosed, ex);
                         }
@@ -962,7 +939,7 @@ class ConnectionI
 
     finish()
     {
-        Debug.assert(this._state === StateClosed);
+        console.assert(this._state === StateClosed);
         this.unscheduleTimeout(SocketOperation.Read | SocketOperation.Write | SocketOperation.Connect);
 
         const traceLevels = this._instance.traceLevels();
@@ -991,11 +968,11 @@ class ConnectionI
             //
             // Trace the cause of unexpected connection closures
             //
-            if(!(this._exception instanceof Ice.CloseConnectionException ||
-                 this._exception instanceof Ice.ConnectionManuallyClosedException ||
-                 this._exception instanceof Ice.ConnectionTimeoutException ||
-                 this._exception instanceof Ice.CommunicatorDestroyedException ||
-                 this._exception instanceof Ice.ObjectAdapterDeactivatedException))
+            if(!(this._exception instanceof CloseConnectionException ||
+                 this._exception instanceof ConnectionManuallyClosedException ||
+                 this._exception instanceof ConnectionTimeoutException ||
+                 this._exception instanceof CommunicatorDestroyedException ||
+                 this._exception instanceof ObjectAdapterDeactivatedException))
             {
                 s.push("\n");
                 s.push(this._exception.toString());
@@ -1151,9 +1128,9 @@ class ConnectionI
 
         if(invokeNum > 0)
         {
-            Debug.assert(this._dispatchCount > 0);
+            console.assert(this._dispatchCount > 0);
             this._dispatchCount -= invokeNum;
-            Debug.assert(this._dispatchCount >= 0);
+            console.assert(this._dispatchCount >= 0);
             if(this._dispatchCount === 0)
             {
                 if(this._state === StateFinished)
@@ -1169,13 +1146,13 @@ class ConnectionI
     {
         if(ex !== undefined)
         {
-            Debug.assert(ex instanceof Ice.LocalException);
+            console.assert(ex instanceof LocalException);
 
             //
             // If setState() is called with an exception, then only closed
             // and closing states are permissible.
             //
-            Debug.assert(state >= StateClosing);
+            console.assert(state >= StateClosing);
 
             if(this._state === state) // Don't switch twice.
             {
@@ -1194,12 +1171,12 @@ class ConnectionI
                     //
                     // Don't warn about certain expected exceptions.
                     //
-                    if(!(this._exception instanceof Ice.CloseConnectionException ||
-                         this._exception instanceof Ice.ConnectionManuallyClosedException ||
-                         this._exception instanceof Ice.ConnectionTimeoutException ||
-                         this._exception instanceof Ice.CommunicatorDestroyedException ||
-                         this._exception instanceof Ice.ObjectAdapterDeactivatedException ||
-                         (this._exception instanceof Ice.ConnectionLostException && this._state === StateClosing)))
+                    if(!(this._exception instanceof CloseConnectionException ||
+                         this._exception instanceof ConnectionManuallyClosedException ||
+                         this._exception instanceof ConnectionTimeoutException ||
+                         this._exception instanceof CommunicatorDestroyedException ||
+                         this._exception instanceof ObjectAdapterDeactivatedException ||
+                         (this._exception instanceof ConnectionLostException && this._state === StateClosing)))
                     {
                         this.warning("connection exception", this._exception);
                     }
@@ -1232,7 +1209,7 @@ class ConnectionI
             {
                 case StateNotInitialized:
                 {
-                    Debug.assert(false);
+                    console.assert(false);
                     break;
                 }
 
@@ -1240,7 +1217,7 @@ class ConnectionI
                 {
                     if(this._state !== StateNotInitialized)
                     {
-                        Debug.assert(this._state === StateClosed);
+                        console.assert(this._state === StateClosed);
                         return;
                     }
                     //
@@ -1319,7 +1296,7 @@ class ConnectionI
 
                 case StateFinished:
                 {
-                    Debug.assert(this._state === StateClosed);
+                    console.assert(this._state === StateClosed);
                     this._transceiver.close();
                     this._communicator = null;
                     break;
@@ -1327,14 +1304,14 @@ class ConnectionI
 
                 default:
                 {
-                    Debug.assert(false);
+                    console.assert(false);
                     break;
                 }
             }
         }
         catch(ex)
         {
-            if(ex instanceof Ice.LocalException)
+            if(ex instanceof LocalException)
             {
                 this._instance.initializationData().logger.error(
                     `unexpected connection exception:\n${this._desc}\n${ex.toString()}`);
@@ -1377,7 +1354,7 @@ class ConnectionI
             }
             catch(ex)
             {
-                if(ex instanceof Ice.LocalException)
+                if(ex instanceof LocalException)
                 {
                     this.setState(StateClosed, ex);
                 }
@@ -1397,7 +1374,7 @@ class ConnectionI
 
     initiateShutdown()
     {
-        Debug.assert(this._state === StateClosing && this._dispatchCount === 0);
+        console.assert(this._state === StateClosing && this._dispatchCount === 0);
 
         if(this._shutdownInitiated)
         {
@@ -1427,7 +1404,7 @@ class ConnectionI
 
     sendHeartbeatNow()
     {
-        Debug.assert(this._state === StateActive);
+        console.assert(this._state === StateActive);
 
         const os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
         os.writeBlob(Protocol.magic);
@@ -1443,7 +1420,7 @@ class ConnectionI
         catch(ex)
         {
             this.setState(StateClosed, ex);
-            Debug.assert(this._exception !== null);
+            console.assert(this._exception !== null);
         }
     }
 
@@ -1504,7 +1481,7 @@ class ConnectionI
 
             this._validated = true;
 
-            Debug.assert(this._readStream.pos === Protocol.headerSize);
+            console.assert(this._readStream.pos === Protocol.headerSize);
             this._readStream.pos = 0;
             const m = this._readStream.readBlob(4);
             if(m[0] !== Protocol.magic[0] || m[1] !== Protocol.magic[1] ||
@@ -1560,7 +1537,7 @@ class ConnectionI
             return;
         }
 
-        Debug.assert(!this._writeStream.isEmpty() && this._writeStream.pos === this._writeStream.size);
+        console.assert(!this._writeStream.isEmpty() && this._writeStream.pos === this._writeStream.size);
         try
         {
             while(true)
@@ -1596,7 +1573,7 @@ class ConnectionI
                 // Otherwise, prepare the next message stream for writing.
                 //
                 message = this._sendStreams[0];
-                Debug.assert(!message.prepared);
+                console.assert(!message.prepared);
 
                 const stream = message.stream;
                 stream.pos = 10;
@@ -1613,7 +1590,7 @@ class ConnectionI
                 //
                 if(this._writeStream.pos != this._writeStream.size && !this.write(this._writeStream.buffer))
                 {
-                    Debug.assert(!this._writeStream.isEmpty());
+                    console.assert(!this._writeStream.isEmpty());
                     this.scheduleTimeout(SocketOperation.Write);
                     return;
                 }
@@ -1621,7 +1598,7 @@ class ConnectionI
         }
         catch(ex)
         {
-            if(ex instanceof Ice.LocalException)
+            if(ex instanceof LocalException)
             {
                 this.setState(StateClosed, ex);
                 return;
@@ -1632,7 +1609,7 @@ class ConnectionI
             }
         }
 
-        Debug.assert(this._writeStream.isEmpty());
+        console.assert(this._writeStream.isEmpty());
 
         //
         // If all the messages were sent and we are in the closing state, we schedule
@@ -1652,9 +1629,9 @@ class ConnectionI
             this._sendStreams.push(message);
             return AsyncStatus.Queued;
         }
-        Debug.assert(this._state < StateClosed);
+        console.assert(this._state < StateClosed);
 
-        Debug.assert(!message.prepared);
+        console.assert(!message.prepared);
 
         const stream = message.stream;
         stream.pos = 10;
@@ -1689,7 +1666,7 @@ class ConnectionI
 
     parseMessage()
     {
-        Debug.assert(this._state > StateNotValidated && this._state < StateClosed);
+        console.assert(this._state > StateNotValidated && this._state < StateClosed);
 
         let info = new MessageInfo(this._instance);
 
@@ -1698,7 +1675,7 @@ class ConnectionI
         this._readStream.pos = 0;
         this._readHeader = true;
 
-        Debug.assert(info.stream.pos === info.stream.size);
+        console.assert(info.stream.pos === info.stream.size);
 
         try
         {
@@ -1807,7 +1784,7 @@ class ConnectionI
         }
         catch(ex)
         {
-            if(ex instanceof Ice.LocalException)
+            if(ex instanceof LocalException)
             {
                 this.setState(StateClosed, ex);
             }
@@ -1846,7 +1823,7 @@ class ConnectionI
         }
         catch(ex)
         {
-            if(ex instanceof Ice.LocalException)
+            if(ex instanceof LocalException)
             {
                 this.invokeException(ex, invokeNum);
             }
@@ -2033,7 +2010,7 @@ class OutgoingMessage
 
     canceled()
     {
-        Debug.assert(this.outAsync !== null);
+        console.assert(this.outAsync !== null);
         this.outAsync = null;
     }
 

@@ -2,8 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-
 let Timer = {};
 
 if (typeof process != 'undefined')
@@ -246,4 +244,4 @@ else
     }
 }
 
-module.exports.Ice = Ice;
+export default Timer;

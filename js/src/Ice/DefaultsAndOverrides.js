@@ -2,16 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-
-require("../Ice/EndpointSelectionType");
-require("../Ice/FormatType");
-require("../Ice/LocalException");
-require("../Ice/Protocol");
-
-const FormatType = Ice.FormatType;
-const EndpointSelectionType = Ice.EndpointSelectionType;
-const Protocol = Ice.Protocol;
+import { FormatType } from "./FormatType";
+import { EndpointSelectionType } from "./EndpointSelectionType";
+import { Protocol } from "./Protocol";
+import { EndpointSelectionTypeParseException } from "./LocalException";
 
 class DefaultsAndOverrides
 {
@@ -93,7 +87,7 @@ class DefaultsAndOverrides
         }
         else
         {
-            const ex = new Ice.EndpointSelectionTypeParseException();
+            const ex = new EndpointSelectionTypeParseException();
             ex.str = "illegal value `" + value + "'; expected `Random' or `Ordered'";
             throw ex;
         }
@@ -134,5 +128,4 @@ class DefaultsAndOverrides
     }
 }
 
-Ice.DefaultsAndOverrides = DefaultsAndOverrides;
-module.exports.Ice = Ice;
+export { DefaultsAndOverrides };

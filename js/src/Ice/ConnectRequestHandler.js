@@ -2,23 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
+import { ReferenceMode } from "./ReferenceMode";
+import { AsyncStatus } from "./AsyncStatus";
+import { RetryException } from "./RetryException";
+import { LocalException } from "./LocalException";
+import { ConnectionRequestHandler } from "./ConnectionRequestHandler";
 
-require("../Ice/AsyncStatus");
-require("../Ice/ConnectionRequestHandler");
-require("../Ice/Debug");
-require("../Ice/Exception");
-require("../Ice/ReferenceMode");
-require("../Ice/RetryException");
-
-const AsyncStatus = Ice.AsyncStatus;
-const ConnectionRequestHandler = Ice.ConnectionRequestHandler;
-const Debug = Ice.Debug;
-const RetryException = Ice.RetryException;
-const ReferenceMode = Ice.ReferenceMode;
-const LocalException = Ice.LocalException;
-
-class ConnectRequestHandler
+export class ConnectRequestHandler
 {
     constructor(ref, proxy)
     {
@@ -80,7 +70,7 @@ class ConnectRequestHandler
                     return;
                 }
             }
-            Debug.assert(false); // The request has to be queued if it timed out and we're not initialized yet.
+            console.assert(false); // The request has to be queued if it timed out and we're not initialized yet.
         }
         this._connection.asyncRequestCanceled(out, ex);
     }
@@ -107,7 +97,7 @@ class ConnectRequestHandler
     //
     setConnection(connection)
     {
-        Debug.assert(this._exception === null && this._connection === null);
+        console.assert(this._exception === null && this._connection === null);
 
         this._connection = connection;
 
@@ -137,7 +127,7 @@ class ConnectRequestHandler
 
     setException(ex)
     {
-        Debug.assert(!this._initialized && this._exception === null);
+        console.assert(!this._initialized && this._exception === null);
 
         this._exception = ex;
         this._proxies.length = 0;
@@ -172,7 +162,7 @@ class ConnectRequestHandler
     {
         if(this._initialized)
         {
-            Debug.assert(this._connection !== null);
+            console.assert(this._connection !== null);
             return true;
         }
         else if(this._exception !== null)
@@ -197,7 +187,7 @@ class ConnectRequestHandler
 
     flushRequests()
     {
-        Debug.assert(this._connection !== null && !this._initialized);
+        console.assert(this._connection !== null && !this._initialized);
 
         let exception = null;
         this._requests.forEach(request =>
@@ -218,7 +208,7 @@ class ConnectRequestHandler
                     }
                     else
                     {
-                        Debug.assert(ex instanceof LocalException);
+                        console.assert(ex instanceof LocalException);
                         exception = ex;
                         request.out.completedEx(ex);
                     }
@@ -232,7 +222,7 @@ class ConnectRequestHandler
             this._proxies.forEach(proxy => proxy._updateRequestHandler(this, this._requestHandler));
         }
 
-        Debug.assert(!this._initialized);
+        console.assert(!this._initialized);
         this._exception = exception;
         this._initialized = this._exception === null;
 
@@ -246,6 +236,3 @@ class ConnectRequestHandler
         this._proxy = null; // Break cyclic reference count.
     }
 }
-
-Ice.ConnectRequestHandler = ConnectRequestHandler;
-module.exports.Ice = Ice;

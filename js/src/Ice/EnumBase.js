@@ -2,8 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-
 //
 // Ice.EnumBase
 //
@@ -50,7 +48,6 @@ class EnumBase
         return this._value;
     }
 }
-Ice.EnumBase = EnumBase;
 
 class EnumHelper
 {
@@ -80,10 +77,7 @@ class EnumHelper
     }
 }
 
-Ice.EnumHelper = EnumHelper;
-
-const Slice = Ice.Slice;
-Slice.defineEnum = function(enumerators)
+function defineEnum(enumerators)
 {
     const type = class extends EnumBase
     {
@@ -170,4 +164,5 @@ Slice.defineEnum = function(enumerators)
 
     return type;
 };
-module.exports.Ice = Ice;
+
+export default defineEnum;

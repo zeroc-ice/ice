@@ -59,7 +59,7 @@ class AsyncResult extends AsyncResultBase
 
     markSent(done)
     {
-        Debug.assert((this._state & AsyncResult.Done) === 0);
+        console.assert((this._state & AsyncResult.Done) === 0);
         this._state |= AsyncResult.Sent;
         if(done)
         {
@@ -71,7 +71,7 @@ class AsyncResult extends AsyncResultBase
 
     markFinished(ok, completed)
     {
-        Debug.assert((this._state & AsyncResult.Done) === 0);
+        console.assert((this._state & AsyncResult.Done) === 0);
         this._state |= AsyncResult.Done;
         if(ok)
         {
@@ -90,7 +90,7 @@ class AsyncResult extends AsyncResultBase
 
     markFinishedEx(ex)
     {
-        Debug.assert((this._state & AsyncResult.Done) === 0);
+        console.assert((this._state & AsyncResult.Done) === 0);
         this._exception = ex;
         this._state |= AsyncResult.Done;
         this._cancellationHandler = null;
@@ -148,7 +148,7 @@ class AsyncResult extends AsyncResultBase
 
     throwUserException()
     {
-        Debug.assert((this._state & AsyncResult.Done) !== 0);
+        console.assert((this._state & AsyncResult.Done) !== 0);
         if((this._state & AsyncResult.OK) === 0)
         {
             try
@@ -172,6 +172,3 @@ class AsyncResult extends AsyncResultBase
 AsyncResult.OK = 0x1;
 AsyncResult.Done = 0x2;
 AsyncResult.Sent = 0x4;
-
-Ice.AsyncResult = AsyncResult;
-module.exports.Ice = Ice;

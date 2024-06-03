@@ -5,10 +5,11 @@
 const Ice = require("../Ice/ModuleRegistry").Ice;
 
 require("../Ice/Connection");
-require("../Ice/Debug");
 require("../Ice/Exception");
 require("../Ice/SocketOperation");
 require("../Ice/Timer");
+
+import { TCPConnectionInfo } from './TCPConnectionInfo';
 
 let TcpTransceiver = {};
 
@@ -16,7 +17,6 @@ if (typeof process !== 'undefined')
 {
     const net = require("net");
 
-    const Debug = Ice.Debug;
     const SocketOperation = Ice.SocketOperation;
     const Timer = Ice.Timer;
 
@@ -70,7 +70,7 @@ if (typeof process !== 'undefined')
 
                     //
                     // The error callback can be triggered from the socket
-                    // write(). We don't want it to dispached right away
+                    // write(). We don't want it to dispatched right away
                     // from within the write() so we delay the call with
                     // setImmediate. We do the same for close as a
                     // precaution. See also issue #6226.
@@ -115,7 +115,7 @@ if (typeof process !== 'undefined')
                 throw this._exception;
             }
 
-            Debug.assert(this._state === StateConnected);
+            console.assert(this._state === StateConnected);
             return SocketOperation.None;
         }
 
@@ -133,7 +133,7 @@ if (typeof process !== 'undefined')
         {
             if(this._fd === null)
             {
-                Debug.assert(this._exception); // Socket creation failed.
+                console.assert(this._exception); // Socket creation failed.
                 return;
             }
             this._registered = false;
@@ -144,7 +144,7 @@ if (typeof process !== 'undefined')
         {
             if(this._fd === null)
             {
-                Debug.assert(this._exception); // Socket creation failed.
+                console.assert(this._exception); // Socket creation failed.
                 return;
             }
 
@@ -173,7 +173,7 @@ if (typeof process !== 'undefined')
             }
 
             let packetSize = byteBuffer.remaining;
-            Debug.assert(packetSize > 0);
+            console.assert(packetSize > 0);
 
             if(this._maxSendPacketSize > 0 && packetSize > this._maxSendPacketSize)
             {
@@ -226,7 +226,7 @@ if (typeof process !== 'undefined')
             }
 
             let avail = this._readBuffers[0].length - this._readPosition;
-            Debug.assert(avail > 0);
+            console.assert(avail > 0);
 
             while(byteBuffer.remaining > 0)
             {
@@ -269,7 +269,7 @@ if (typeof process !== 'undefined')
 
         getInfo()
         {
-            Debug.assert(this._fd !== null);
+            console.assert(this._fd !== null);
             const info = new Ice.TCPConnectionInfo();
             info.localAddress = this._fd.localAddress;
             info.localPort = this._fd.localPort;
@@ -296,13 +296,13 @@ if (typeof process !== 'undefined')
 
         socketConnected()
         {
-            Debug.assert(this._connectedCallback !== null);
+            console.assert(this._connectedCallback !== null);
             this._connectedCallback();
         }
 
         socketBytesAvailable(buf)
         {
-            Debug.assert(this._bytesAvailableCallback !== null);
+            console.assert(this._bytesAvailableCallback !== null);
 
             //
             // TODO: Should we set a limit on how much data we can read?
@@ -468,5 +468,4 @@ else
     TcpTransceiver = class {};
 }
 
-Ice.TcpTransceiver = TcpTransceiver;
-module.exports.Ice = Ice;
+export { TcpTransceiver };

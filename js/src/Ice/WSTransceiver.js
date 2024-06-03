@@ -3,16 +3,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-
-require("../Ice/ConnectionInfo");
-require("../Ice/Debug");
-require("../Ice/Exception");
-require("../Ice/LocalException");
-require("../Ice/SocketOperation");
-require("../Ice/Timer");
-
-const IceSSL = Ice._ModuleRegistry.module("IceSSL");
+import { ConnectFailedException, ConnectionLostException, SocketException } from "./LocalException";
+import { WSConnectionInfo, TCPConnectionInfo } from "./Connection";
+import { ConnectionInfo as SSLConnectionInfo } from "./SSL/ConnectionInfo";
+import { SocketOperation } from "./SocketOperation";
+import { Timer } from "./Timer";
 
 let WSTransceiver = {};
 
@@ -27,10 +22,6 @@ if (typeof WebSocket !== 'undefined')
     const IsChrome = navigator.userAgent.indexOf("Edge/") === -1 &&
                     navigator.userAgent.indexOf("Chrome/") !== -1;
     const IsSafari = (/^((?!chrome).)*safari/i).test(navigator.userAgent);
-
-    const Debug = Ice.Debug;
-    const SocketOperation = Ice.SocketOperation;
-    const Timer = Ice.Timer;
 
     const StateNeedConnect = 0;
     const StateConnectPending = 1;
@@ -102,7 +93,7 @@ if (typeof WebSocket !== 'undefined')
                 throw this._exception;
             }
 
-            Debug.assert(this._state === StateConnected);
+            console.assert(this._state === StateConnected);
             return SocketOperation.None;
         }
 
@@ -131,7 +122,7 @@ if (typeof WebSocket !== 'undefined')
         {
             if(this._fd === null)
             {
-                Debug.assert(this._exception); // Websocket creation failed.
+                console.assert(this._exception); // Websocket creation failed.
                 return;
             }
 
@@ -152,7 +143,7 @@ if (typeof WebSocket !== 'undefined')
                 return;
             }
 
-            Debug.assert(this._fd !== null);
+            console.assert(this._fd !== null);
             try
             {
                 this._state = StateClosed;
@@ -181,7 +172,7 @@ if (typeof WebSocket !== 'undefined')
             {
                 return true;
             }
-            Debug.assert(this._fd);
+            console.assert(this._fd);
 
             const cb = () =>
                 {
@@ -208,7 +199,7 @@ if (typeof WebSocket !== 'undefined')
                 {
                     break;
                 }
-                Debug.assert(packetSize > 0);
+                console.assert(packetSize > 0);
                 if(this._fd.bufferedAmount + packetSize > this._maxSendPacketSize)
                 {
                     Timer.setTimeout(cb, this.writeReadyTimeout());
@@ -248,7 +239,7 @@ if (typeof WebSocket !== 'undefined')
             }
 
             let avail = this._readBuffers[0].byteLength - this._readPosition;
-            Debug.assert(avail > 0);
+            console.assert(avail > 0);
 
             while(byteBuffer.remaining > 0)
             {
@@ -292,14 +283,14 @@ if (typeof WebSocket !== 'undefined')
 
         getInfo()
         {
-            Debug.assert(this._fd !== null);
-            const info = new Ice.WSConnectionInfo();
-            const tcpinfo = new Ice.TCPConnectionInfo();
+            console.assert(this._fd !== null);
+            const info = new WSConnectionInfo();
+            const tcpinfo = new TCPConnectionInfo();
             tcpinfo.localAddress = "";
             tcpinfo.localPort = -1;
             tcpinfo.remoteAddress = this._addr.host;
             tcpinfo.remotePort = this._addr.port;
-            info.underlying = this._secure ? new IceSSL.ConnectionInfo(tcpinfo, tcpinfo.timeout, tcpinfo.compress) : tcpinfo;
+            info.underlying = this._secure ? new SSLConnectionInfo(tcpinfo, tcpinfo.timeout, tcpinfo.compress) : tcpinfo;
             info.rcvSize = -1;
             info.sndSize = this._maxSendPacketSize;
             info.headers = {};
@@ -328,13 +319,13 @@ if (typeof WebSocket !== 'undefined')
                 return;
             }
 
-            Debug.assert(this._connectedCallback !== null);
+            console.assert(this._connectedCallback !== null);
             this._connectedCallback();
         }
 
         socketBytesAvailable(buf)
         {
-            Debug.assert(this._bytesAvailableCallback !== null);
+            console.assert(this._bytesAvailableCallback !== null);
             if(buf.byteLength > 0)
             {
                 this._readBuffers.push(buf);
@@ -398,15 +389,15 @@ if (typeof WebSocket !== 'undefined')
     {
         if(state < StateConnected)
         {
-            return new Ice.ConnectFailedException(err.code, err);
+            return new ConnectFailedException(err.code, err);
         }
         else
         {
             if(err.code === 1000 || err.code === 1006) // CLOSE_NORMAL | CLOSE_ABNORMAL
             {
-                return new Ice.ConnectionLostException();
+                return new ConnectionLostException();
             }
-            return new Ice.SocketException(err.code, err);
+            return new SocketException(err.code, err);
         }
     }
 }
@@ -414,6 +405,4 @@ else
 {
     WSTransceiver = class {}
 }
-Ice.WSTransceiver = WSTransceiver;
-
-exports.Ice = Ice;
+export { WSTransceiver };

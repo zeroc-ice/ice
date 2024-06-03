@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/LocalException").Ice;
+import { CommunicatorDestroyedException } from "./LocalException";
 
 class RetryTask
 {
-    constructor(instance, queue, outAsync, interval)
+    constructor(instance, queue, outAsync)
     {
         this._instance = instance;
         this._queue = queue;
@@ -23,7 +23,7 @@ class RetryTask
     {
         try
         {
-            this._outAsync.abort(new Ice.CommunicatorDestroyedException());
+            this._outAsync.abort(new CommunicatorDestroyedException());
         }
         catch(ex)
         {
@@ -57,7 +57,7 @@ class RetryQueue
     {
         if(this._instance === null)
         {
-            throw new Ice.CommunicatorDestroyedException();
+            throw new CommunicatorDestroyedException();
         }
         const task = new RetryTask(this._instance, this, outAsync);
         outAsync.cancelable(task); // This will throw if the request is canceled
@@ -97,6 +97,5 @@ class RetryQueue
         return false;
     }
 }
-Ice.RetryQueue = RetryQueue;
 
-module.exports.Ice = Ice;
+export default RetryQueue;

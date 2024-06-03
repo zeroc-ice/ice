@@ -2,24 +2,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
 
-require("../Ice/Debug");
-require("../Ice/Exception");
-require("../Ice/HashMap");
-require("../Ice/LocalException");
-require("../Ice/Promise");
-
-const Debug = Ice.Debug;
-const HashMap = Ice.HashMap;
-
-class RouterInfo
+import { HashMap } from './HashMap';
+import { IcePromise } from './Promise';
+import { NoEndpointException } from './LocalException';
+export class RouterInfo
 {
     constructor(router)
     {
         this._router = router;
 
-        Debug.assert(this._router !== null);
+        console.assert(this._router !== null);
 
         this._clientEndpoints = null;
         this._adapter = null;
@@ -57,15 +50,12 @@ class RouterInfo
 
     getRouter()
     {
-        //
-        // No mutex lock necessary, _router is immutable.
-        //
         return this._router;
     }
 
     getClientEndpoints()
     {
-        const promise = new Ice.Promise();
+        const promise = new IcePromise();
         if(this._clientEndpoints !== null)
         {
             promise.resolve(this._clientEndpoints);
@@ -85,7 +75,7 @@ class RouterInfo
         return this._router.getServerProxy().then(serverProxy => {
             if(serverProxy === null)
             {
-                throw new Ice.NoEndpointException();
+                throw new NoEndpointException();
             }
             serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
             return serverProxy._getReference().getEndpoints();
@@ -94,17 +84,17 @@ class RouterInfo
 
     addProxy(proxy)
     {
-        Debug.assert(proxy !== null);
+        console.assert(proxy !== null);
         if(!this._hasRoutingTable)
         {
-            return Ice.Promise.resolve(); // The router implementation doesn't maintain a routing table.
+            return IcePromise.resolve(); // The router implementation doesn't maintain a routing table.
         }
         else if(this._identities.has(proxy.ice_getIdentity()))
         {
             //
             // Only add the proxy to the router if it's not already in our local map.
             //
-            return Ice.Promise.resolve();
+            return IcePromise.resolve();
         }
         else
         {
@@ -197,6 +187,3 @@ class RouterInfo
             });
     }
 }
-
-Ice.RouterInfo = RouterInfo;
-module.exports.Ice = Ice;

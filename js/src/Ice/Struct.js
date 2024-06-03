@@ -2,13 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-
-require("../Ice/ArrayUtil");
-require("../Ice/HashUtil");
-require("../Ice/StreamHelpers");
-
-const ArrayUtil = Ice.ArrayUtil;
+import ArrayUtil from "./ArrayUtil";
+import HashUtil from "./HashUtil";
+import StreamHelpers from "./StreamHelpers";
 
 //
 // Use generic equality test from ArrayUtil.

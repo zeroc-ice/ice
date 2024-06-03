@@ -2,22 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-
-require("../Ice/Current");
-require("../Ice/Debug");
-require("../Ice/Identity");
-require("../Ice/Protocol");
-require("../Ice/StringUtil");
-
-//
-// Local aliases.
-//
-const Debug = Ice.Debug;
-const Identity = Ice.Identity;
-const OperationMode = Ice.OperationMode;
-const Protocol = Ice.Protocol;
-const StringUtil = Ice.StringUtil;
+import { Identity } from "./Identity";
+import { StringUtil } from "./StringUtil";
+import { Protocol } from "./Protocol";
+import { OperationMode } from "./OperationMode";
 
 const slicingIds = new Map();
 
@@ -111,12 +99,12 @@ function printReply(s, stream)
         case Protocol.replyOperationNotExist:
         {
             s.push("(operation not exist)");
-            break;
+            break; 
         }
 
         default:
         {
-            Debug.assert(false);
+            console.assert(false);
             break;
         }
         }
@@ -151,7 +139,7 @@ function printReply(s, stream)
 
         default:
         {
-            Debug.assert(false);
+            console.assert(false);
             break;
         }
         }
@@ -348,7 +336,7 @@ function getMessageTypeAsString(type)
     }
 }
 
-class TraceUtil
+export class TraceUtil
 {
     static traceSlicing(kind, typeId, slicingCat, logger)
     {
@@ -364,7 +352,7 @@ class TraceUtil
         if(traceLevels.protocol >= 1)
         {
             const p = stream.pos;
-            const is = new Ice.InputStream(stream.instance, stream.getEncoding(), stream.buffer);
+            const is = new InputStream(stream.instance, stream.getEncoding(), stream.buffer);
             is.pos = 0;
 
             const s = [];
@@ -397,7 +385,7 @@ class TraceUtil
         if(traceLevels.protocol >= 1)
         {
             const p = stream.pos;
-            const is = new Ice.InputStream(stream.instance, stream.getEncoding(), stream.buffer);
+            const is = new InputStream(stream.instance, stream.getEncoding(), stream.buffer);
             is.pos = 0;
 
             const s = [];
@@ -493,6 +481,3 @@ class TraceUtil
         console.log(buf.join(""));
     }
 }
-
-Ice.TraceUtil = TraceUtil;
-module.exports.Ice = Ice;

@@ -2,18 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
+import { EndpointParseException } from "./LocalException";
+import { HashUtil } from "./HashUtil";
+import { EndpointI } from "./EndpointI";
 
-require("../Ice/EndpointI");
-require("../Ice/EndpointInfo");
-require("../Ice/HashUtil");
-require("../Ice/LocalException");
-require("../Ice/WSTransceiver");
-
-const EndpointI = Ice.EndpointI;
-const HashUtil = Ice.HashUtil;
-
-class WSEndpoint extends EndpointI
+export class WSEndpoint extends EndpointI
 {
     constructor(instance, del, re)
     {
@@ -195,7 +188,7 @@ class WSEndpoint extends EndpointI
         {
             if(argument === null)
             {
-                throw new Ice.EndpointParseException("no argument provided for -r option in endpoint " + endpoint);
+                throw new EndpointParseException("no argument provided for -r option in endpoint " + endpoint);
             }
             this._resource = argument;
         }
@@ -211,6 +204,3 @@ class WSEndpoint extends EndpointI
         return typeof WebSocket !== "undefined";
     }
 }
-
-Ice.WSEndpoint = WSEndpoint;
-exports.Ice = Ice;

@@ -2,16 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
 
-require("../Ice/AsyncResultBase");
-require("../Ice/Debug");
-require("../Ice/Instance");
-require("../Ice/LocalException");
-require("../Ice/UUID");
-
-const Instance = Ice.Instance;
-const Debug = Ice.Debug;
+import { CommunicatorDestroyedException } from "./LocalException";
+import { Instance } from "./Instance";
 
 //
 // Ice.Communicator
@@ -45,7 +38,7 @@ class Communicator
         }
         catch(ex)
         {
-            Debug.assert(ex instanceof Ice.CommunicatorDestroyedException);
+            console.assert(ex instanceof CommunicatorDestroyedException);
             return Ice.Promise.resolve();
         }
     }
@@ -58,7 +51,7 @@ class Communicator
         }
         catch(ex)
         {
-            Debug.assert(ex instanceof Ice.CommunicatorDestroyedException);
+            console.assert(ex instanceof Ice.CommunicatorDestroyedException);
             return Ice.Promise.resolve();
         }
     }

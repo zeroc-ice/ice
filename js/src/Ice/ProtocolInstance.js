@@ -2,8 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-
 class ProtocolInstance
 {
     constructor(instance, type, protocol, secure)
@@ -79,5 +77,4 @@ class ProtocolInstance
     }
 }
 
-Ice.ProtocolInstance = ProtocolInstance;
-module.exports.Ice = Ice;
+export default ProtocolInstance;

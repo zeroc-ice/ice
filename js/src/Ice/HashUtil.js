@@ -2,9 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/StringUtil").Ice;
-
-const StringUtil = Ice.StringUtil;
+import { StringUtil } from "./StringUtil";
 
 class HashUtil
 {
@@ -49,5 +47,4 @@ class HashUtil
     }
 }
 
-Ice.HashUtil = HashUtil;
-module.exports.Ice = Ice;
+export { HashUtil };

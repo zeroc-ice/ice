@@ -2,38 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-/* eslint-disable */
-/* jshint ignore: start */
-
-/* slice2js browser-bundle-skip */
-const _ModuleRegistry = require("../Ice/ModuleRegistry").Ice._ModuleRegistry;
-require("../Ice/Object");
-require("../Ice/Value");
-require("../Ice/ObjectPrx");
-require("../Ice/Struct");
-require("../Ice/EnumBase");
-require("../Ice/Long");
-require("../Ice/HashMap");
-require("../Ice/HashUtil");
-require("../Ice/ArrayUtil");
-require("../Ice/StreamHelpers");
-require("../Ice/Identity");
-require("../Ice/Endpoint");
-const Ice = _ModuleRegistry.module("Ice");
-
-const Slice = Ice.Slice;
-/* slice2js browser-bundle-skip-end */
+import { defineStruct } from "./Struct";
+import { defineEnum } from "./EnumBase";
 
 /**
  *  The batch compression option when flushing queued batch requests.
  **/
-Ice.CompressBatch = Slice.defineEnum([
-    ['Yes', 0], ['No', 1], ['BasedOnProxy', 2]]);
+export const CompressBatch = defineEnum([['Yes', 0], ['No', 1], ['BasedOnProxy', 2]]);
 
 /**
  *  Base class providing access to the connection details.
  **/
-Ice.ConnectionInfo = class
+export class ConnectionInfo
 {
     constructor(underlying = null, incoming = false, adapterName = "", connectionId = "")
     {
@@ -42,26 +22,33 @@ Ice.ConnectionInfo = class
         this.adapterName = adapterName;
         this.connectionId = connectionId;
     }
-};
+}
 
 /**
  *  Specifies the close semantics for Active Connection Management.
  **/
-Ice.ACMClose = Slice.defineEnum([
-    ['CloseOff', 0], ['CloseOnIdle', 1], ['CloseOnInvocation', 2], ['CloseOnInvocationAndIdle', 3], ['CloseOnIdleForceful', 4]]);
+export const ACMClose = defineEnum([
+    ['CloseOff', 0],
+    ['CloseOnIdle', 1],
+    ['CloseOnInvocation', 2],
+    ['CloseOnInvocationAndIdle', 3],
+    ['CloseOnIdleForceful', 4]]);
 
 /**
  *  Specifies the heartbeat semantics for Active Connection Management.
  **/
-Ice.ACMHeartbeat = Slice.defineEnum([
-    ['HeartbeatOff', 0], ['HeartbeatOnDispatch', 1], ['HeartbeatOnIdle', 2], ['HeartbeatAlways', 3]]);
+export const ACMHeartbeat = defineEnum([
+    ['HeartbeatOff', 0],
+    ['HeartbeatOnDispatch', 1],
+    ['HeartbeatOnIdle', 2],
+    ['HeartbeatAlways', 3]]);
 
 /**
  *  A collection of Active Connection Management configuration settings.
  **/
-Ice.ACM = class
+export class ACM
 {
-    constructor(timeout = 0, close = Ice.ACMClose.CloseOff, heartbeat = Ice.ACMHeartbeat.HeartbeatOff)
+    constructor(timeout = 0, close = ACMClose.CloseOff, heartbeat = ACMHeartbeat.HeartbeatOff)
     {
         this.timeout = timeout;
         this.close = close;
@@ -69,18 +56,17 @@ Ice.ACM = class
     }
 };
 
-Slice.defineStruct(Ice.ACM, true, true);
+defineStruct(ACM, true, true);
 
 /**
  *  Determines the behavior when manually closing a connection.
  **/
-Ice.ConnectionClose = Slice.defineEnum([
-    ['Forcefully', 0], ['Gracefully', 1], ['GracefullyWithWait', 2]]);
+export const ConnectionClose = defineEnum([['Forcefully', 0], ['Gracefully', 1], ['GracefullyWithWait', 2]]);
 
 /**
  *  Provides access to the connection details of an IP connection
  **/
-Ice.IPConnectionInfo = class extends Ice.ConnectionInfo
+export class IPConnectionInfo extends ConnectionInfo
 {
     constructor(underlying, incoming, adapterName, connectionId, localAddress = "", localPort = -1, remoteAddress = "", remotePort = -1)
     {
@@ -90,12 +76,12 @@ Ice.IPConnectionInfo = class extends Ice.ConnectionInfo
         this.remoteAddress = remoteAddress;
         this.remotePort = remotePort;
     }
-};
+}
 
 /**
  *  Provides access to the connection details of a TCP connection
  **/
-Ice.TCPConnectionInfo = class extends Ice.IPConnectionInfo
+export class TCPConnectionInfo extends IPConnectionInfo
 {
     constructor(underlying, incoming, adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort, rcvSize = 0, sndSize = 0)
     {
@@ -103,22 +89,18 @@ Ice.TCPConnectionInfo = class extends Ice.IPConnectionInfo
         this.rcvSize = rcvSize;
         this.sndSize = sndSize;
     }
-};
+}
 
 Slice.defineDictionary(Ice, "HeaderDict", "HeaderDictHelper", "Ice.StringHelper", "Ice.StringHelper", false, undefined, undefined);
 
 /**
  *  Provides access to the connection details of a WebSocket connection
  **/
-Ice.WSConnectionInfo = class extends Ice.ConnectionInfo
+export class WSConnectionInfo extends ConnectionInfo
 {
     constructor(underlying, incoming, adapterName, connectionId, headers = null)
     {
         super(underlying, incoming, adapterName, connectionId);
         this.headers = headers;
     }
-};
-
-/* slice2js browser-bundle-skip */
-exports.Ice = Ice;
-/* slice2js browser-bundle-skip-end */
+}

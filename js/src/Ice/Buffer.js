@@ -2,8 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/Long").Ice;
-const Long = Ice.Long;
+import Long from './Long.js';
 
 const bufferOverflowExceptionMsg = "BufferOverflowException";
 const bufferUnderflowExceptionMsg = "BufferUnderflowException";
@@ -399,5 +398,4 @@ class Buffer
     }
 }
 
-Ice.Buffer = Buffer;
-module.exports.Ice = Ice;
+export default Buffer;

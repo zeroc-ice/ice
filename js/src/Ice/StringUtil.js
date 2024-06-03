@@ -2,10 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/Debug").Ice;
-const Debug = Ice.Debug;
-
-Ice.StringUtil = class
+class StringUtil
 {
     //
     // Return the index of the first character in str to
@@ -85,7 +82,7 @@ Ice.StringUtil = class
                 }
                 else
                 {
-                    Debug.assert(toStringMode === Ice.ToStringMode.ASCII && c >= 0xD800 && c <= 0xDFFF);
+                    console.assert(toStringMode === Ice.ToStringMode.ASCII && c >= 0xD800 && c <= 0xDFFF);
                     if(i + 1 === s.length)
                     {
                         throw new RangeError("High surrogate without low surrogate");
@@ -93,7 +90,7 @@ Ice.StringUtil = class
                     else
                     {
                         const codePoint = s.codePointAt(i);
-                        Debug.assert(codePoint > 0xFFFF);
+                        console.assert(codePoint > 0xFFFF);
                         i++;
 
                         // append \Unnnnnnnn
@@ -121,7 +118,7 @@ Ice.StringUtil = class
         end = end === undefined ? s.length : end;
         special = special === undefined ? null : special;
 
-        Debug.assert(start >= 0 && start <= end && end <= s.length);
+        console.assert(start >= 0 && start <= end && end <= s.length);
 
         if(special !== null)
         {
@@ -356,7 +353,7 @@ function encodeChar(c, sb, special, toStringMode)
                     //
                     // When ToStringMode=Compat, c is a UTF-8 byte
                     //
-                    Debug.assert(c < 256);
+                    console.assert(c < 256);
                     sb.push('\\');
                     const octal = c.toString(8);
                     //
@@ -426,9 +423,9 @@ function checkChar(s, pos)
 //
 function decodeChar(s, start, end, special, result)
 {
-    Debug.assert(start >= 0);
-    Debug.assert(start < end);
-    Debug.assert(end <= s.length);
+    console.assert(start >= 0);
+    console.assert(start < end);
+    console.assert(end <= s.length);
 
     if(s.charAt(start) != '\\')
     {
@@ -599,7 +596,7 @@ function decodeChar(s, start, end, special, result)
                             if(charVal < 0 || charVal > 7)
                             {
                                 --start; // move back
-                                Debug.assert(j !== 0); // must be at least one digit
+                                console.assert(j !== 0); // must be at least one digit
                                 break; // for
                             }
                             val = val * 8 + charVal;
@@ -643,3 +640,5 @@ function decodeChar(s, start, end, special, result)
 
     return start;
 }
+
+export default StringUtil;

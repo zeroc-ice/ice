@@ -2,9 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-
-Ice.Property = class
+export class Property
 {
     constructor(pattern, usesRegex, defaultValue, deprecated)
     {
@@ -33,6 +31,4 @@ Ice.Property = class
     {
         return this._deprecated;
     }
-};
-
-module.exports.Ice = Ice;
+}

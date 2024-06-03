@@ -6,14 +6,17 @@
 /* eslint no-process-env: "off" */
 /* eslint no-process-exit: "off" */
 
-const del = require("del");
-const extreplace = require("gulp-ext-replace");
-const fs = require("fs");
-const gulp = require("gulp");
-const iceBuilder = require('gulp-ice-builder');
-const path = require('path');
-const paths = require('vinyl-paths');
-const pump = require('pump');
+import del from "del";
+import extReplace from "gulp-ext-replace";
+import fs from "fs";
+import gulp from "gulp";
+import iceBuilder from "gulp-ice-builder";
+import path from "path";
+import paths from "vinyl-paths";
+import pump from "pump";
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const sliceDir = path.resolve(__dirname, '..', 'slice');
 
@@ -202,7 +205,7 @@ for (const name of tests) {
     gulp.task(testCleanTask(name),
         cb => {
             pump([gulp.src(path.join(name, "*.ice")),
-            extreplace(".js"),
+            extReplace(".js"),
             gulp.src(path.join(name, ".depend"), { allowEmpty: true }),
             paths(del)], cb);
         });

@@ -13,6 +13,4 @@ function generateUUID()
     return uuid;
 }
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.generateUUID = generateUUID;
-module.exports.Ice = Ice;
+export default generateUUID;

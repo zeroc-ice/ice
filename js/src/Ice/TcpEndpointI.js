@@ -120,15 +120,14 @@ class TcpEndpointI extends Ice.IPEndpointI
     connectable()
     {
         //
-        // TCP endpoints are not connectable when running in a browser, SSL
-        // isn't currently supported.
+        // TCP endpoints are not connectable when running in a browser, SSL isn't currently supported.
         //
         return typeof process !== 'undefined' && !this.secure();
     }
 
     connect()
     {
-        Debug.assert(!this.secure());
+        console.assert(!this.secure());
         return TcpTransceiver.createOutgoing(this._instance, this.getAddress(), this._sourceAddr);
     }
 
@@ -286,6 +285,3 @@ class TcpEndpointI extends Ice.IPEndpointI
         return new TcpEndpointI(this._instance, host, port, this._sourceAddr, this._timeout, conId, this._compress);
     }
 }
-
-Ice.TcpEndpointI = TcpEndpointI;
-module.exports.Ice = Ice;

@@ -2,19 +2,24 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
+import { StringUtil } from "./StringUtil";
 
-require("../Ice/Debug");
-require("../Ice/Identity");
-require("../Ice/LocalException");
-require("../Ice/ObjectPrx");
-require("../Ice/Reference");
-require("../Ice/StringUtil");
+import {
+    FixedReference,
+    ObjectNotExistException,
+    RequestFailedException,
+    MarshalException,
+    CommunicatorDestroyedException,
+    ObjectAdapterDeactivatedException,
+    ConnectionManuallyClosedException,
+    InvocationTimeoutException,
+    InvocationCanceledException,
+    CloseConnectionException
+ } from "./LocalException";
 
-const Debug = Ice.Debug;
-const Identity = Ice.Identity;
-const ObjectPrx = Ice.ObjectPrx;
-const StringUtil = Ice.StringUtil;
+import { Identity } from "./Identity";
+import { ObjectPrx } from "./ObjectPrx";
+import ReferenceMode from "./ReferenceMode";
 
 //
 // Only for use by Instance.
@@ -114,7 +119,7 @@ class ProxyFactory
         // the all the requests batched with the connection to be aborted and we
         // want the application to be notified.
         //
-        if(ref.getMode() === Ice.Reference.ModeBatchOneway || ref.getMode() === Ice.Reference.ModeBatchDatagram)
+        if(ref.getMode() === ReferenceMode.ModeBatchOneway || ref.getMode() === ReferenceMode.ModeBatchDatagram)
         {
             throw ex;
         }
@@ -123,12 +128,12 @@ class ProxyFactory
         // If it's a fixed proxy, retrying isn't useful as the proxy is tied to
         // the connection and the request will fail with the exception.
         //
-        if(ref instanceof Ice.FixedReference)
+        if(ref instanceof FixedReference)
         {
             throw ex;
         }
 
-        if(ex instanceof Ice.ObjectNotExistException)
+        if(ex instanceof ObjectNotExistException)
         {
             if(ref.getRouterInfo() !== null && ex.operation === "ice_add_proxy")
             {
@@ -179,7 +184,7 @@ class ProxyFactory
                 throw ex;
             }
         }
-        else if(ex instanceof Ice.RequestFailedException)
+        else if(ex instanceof RequestFailedException)
         {
             //
             // For all other cases, we don't retry ObjectNotExistException
@@ -209,7 +214,7 @@ class ProxyFactory
         // the client that all of the batched requests were accepted, when
         // in reality only the last few are actually sent.
         //
-        if(ex instanceof Ice.MarshalException)
+        if(ex instanceof MarshalException)
         {
             throw ex;
         }
@@ -218,9 +223,9 @@ class ProxyFactory
         // Don't retry if the communicator is destroyed, object adapter is deactivated,
         // or connection is manually closed.
         //
-        if(ex instanceof Ice.CommunicatorDestroyedException ||
-           ex instanceof Ice.ObjectAdapterDeactivatedException ||
-           ex instanceof Ice.ConnectionManuallyClosedException)
+        if(ex instanceof CommunicatorDestroyedException ||
+           ex instanceof ObjectAdapterDeactivatedException ||
+           ex instanceof ConnectionManuallyClosedException)
         {
             throw ex;
         }
@@ -228,16 +233,16 @@ class ProxyFactory
         //
         // Don't retry invocation timeouts.
         //
-        if(ex instanceof Ice.InvocationTimeoutException || ex instanceof Ice.InvocationCanceledException)
+        if(ex instanceof InvocationTimeoutException || ex instanceof InvocationCanceledException)
         {
             throw ex;
         }
 
         ++cnt;
-        Debug.assert(cnt > 0);
+        console.assert(cnt > 0);
 
         let interval;
-        if(cnt === (this._retryIntervals.length + 1) && ex instanceof Ice.CloseConnectionException)
+        if(cnt === (this._retryIntervals.length + 1) && ex instanceof CloseConnectionException)
         {
             //
             // A close connection exception is always retried at least once, even if the retry
@@ -270,12 +275,11 @@ class ProxyFactory
             logger.trace(traceLevels.retryCat, msg);
         }
 
-        Debug.assert(sleepInterval !== null);
+        console.assert(sleepInterval !== null);
         sleepInterval.value = interval;
 
         return cnt;
     }
 }
 
-Ice.ProxyFactory = ProxyFactory;
-module.exports.Ice = Ice;
+export default ProxyFactory;
