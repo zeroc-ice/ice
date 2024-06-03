@@ -239,7 +239,7 @@ public class InputStream {
         case .FSize:
             try skip(read())
         case .Class:
-            try read(UnknownSlicedValue.self, cb: nil)
+            throw MarshalException(reason: "cannot skip an optional class")
         }
     }
 
@@ -820,13 +820,6 @@ extension InputStream {
         try encaps.decoder.readValue(cb: cb)
     }
 
-    /// Reads an optional value from the stream.
-    public func read(tag: Int32, cb: ((Value?) throws -> Void)?) throws {
-        if try readOptional(tag: tag, expectedFormat: .Class) {
-            try read(cb: cb)
-        }
-    }
-
     /// Reads a value from the stream.
     public func read<ValueType>(_ value: ValueType.Type, cb: ((ValueType?) -> Void)?) throws
     where ValueType: Value {
@@ -841,14 +834,6 @@ extension InputStream {
             }
         } else {
             try encaps.decoder.readValue(cb: nil)
-        }
-    }
-
-    /// Reads an optional value from the stream.
-    public func read<ValueType>(tag: Int32, value: ValueType.Type, cb: ((ValueType?) -> Void)?) throws
-    where ValueType: Value {
-        if try readOptional(tag: tag, expectedFormat: .Class) {
-            try read(value, cb: cb)
         }
     }
 }
