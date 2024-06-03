@@ -15,8 +15,8 @@ module Xcodeproj
 end
 
 $projectVersion = "3.8.0"
-$macOSDeploymentTarget = "11"
-$iOSDeploymentTarget = "12.0"
+$macOSDeploymentTarget = "12"
+$iOSDeploymentTarget = "15.0"
 
 $tests = [
     "Ice/adapterDeactivation",
@@ -31,7 +31,6 @@ $tests = [
     "Ice/hold",
     "Ice/info",
     "Ice/inheritance",
-    "Ice/interceptor",
     "Ice/invoke",
     "Ice/location",
     "Ice/objects",

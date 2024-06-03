@@ -198,9 +198,8 @@ namespace Ice
         std::string toString() const noexcept final; // From Connection and EventHandler.
         IceInternal::NativeInfoPtr getNativeInfo() final;
 
-        std::string type() const noexcept final;     // From Connection.
-        std::int32_t timeout() const noexcept final; // From Connection.
-        ConnectionInfoPtr getInfo() const final;     // From Connection
+        std::string type() const noexcept final; // From Connection.
+        ConnectionInfoPtr getInfo() const final; // From Connection
 
         void setBufferSize(std::int32_t rcvSize, std::int32_t sndSize) final; // From Connection
 

@@ -3705,7 +3705,7 @@ Slice::Exception::createDataMember(
 
             string baseName = IceUtilInternal::toLower(r->name());
             string newName = IceUtilInternal::toLower(name);
-            if (baseName == newName) // TOOD use ciCompare
+            if (baseName == newName) // TODO use ciCompare
             {
                 ostringstream os;
                 os << "exception member `" << name << "' differs only in capitalization from exception member `"

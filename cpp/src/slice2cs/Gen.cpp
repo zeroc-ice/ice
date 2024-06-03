@@ -2111,18 +2111,12 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     emitAttributes(p);
     emitPartialTypeAttributes();
-    _out << nl << "public " << (classMapping ? "sealed partial class" : "partial record struct") << ' ' << name;
-
-    StringList baseNames;
-
-    if (classMapping)
-    {
-        baseNames.push_back("System.IEquatable<" + name + ">");
-    }
+    _out << nl << "public " << (classMapping ? "sealed partial record class" : "partial record struct") << ' ' << name;
 
     //
     // Check for cs:implements metadata.
     //
+    StringList baseNames;
     const StringList metaData = p->getMetaData();
     static const string prefix = "cs:implements:";
     for (StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
@@ -2234,40 +2228,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     }
     _out << nl << "ice_initialize();";
     _out << eb;
-
-    if (classMapping)
-    {
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public " << name << " Clone() => (" << name << ")MemberwiseClone();";
-
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public override int GetHashCode()";
-        _out << sb;
-        writeMemberHashCode(dataMembers);
-        _out << eb;
-
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public override bool Equals(object? other) => Equals(other as " << name << ");";
-
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public bool Equals(" << name << "? other)";
-        _out << sb;
-        writeMemberEquals(dataMembers);
-        _out << eb;
-
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public static bool operator ==(" << name << "? lhs, " << name << "? rhs) => ";
-        _out << "lhs is not null ? lhs.Equals(rhs) : rhs is null;";
-
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public static bool operator !=(" << name << "? lhs, " << name << "? rhs) => !(lhs == rhs);";
-    }
 
     _out << sp;
     emitGeneratedCodeAttribute();
@@ -2451,77 +2411,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     {
         _out << ';';
     }
-}
-
-void
-Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers)
-{
-    _out << nl << "var hash = new global::System.HashCode();";
-    assert(dataMembers.size() > 0); // a Slice struct must have at least one field.
-
-    for (const auto& q : dataMembers)
-    {
-        TypePtr memberType = q->type();
-        string memberName = fixId(q->name(), DotNet::ICloneable);
-
-        if (dynamic_pointer_cast<Sequence>(memberType) || dynamic_pointer_cast<Dictionary>(memberType))
-        {
-            _out << nl << "Ice.UtilInternal.Collections.HashCodeAdd(ref hash, this." << memberName << ");";
-        }
-        else
-        {
-            _out << nl << "hash.Add(this." << memberName << ");";
-        }
-    }
-    _out << nl << "return hash.ToHashCode();";
-}
-
-void
-Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers)
-{
-    _out << nl << "if (ReferenceEquals(this, other))";
-    _out << sb;
-    _out << nl << "return true;";
-    _out << eb;
-    _out << nl << "return other is not null";
-
-    assert(!dataMembers.empty()); // a Slice struct must have at least one field.
-
-    _out.inc();
-
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        assert(!(*q)->optional()); // a Slice struct does not have optional fields.
-
-        _out << " && " << nl;
-
-        string memberName = fixId((*q)->name(), DotNet::ICloneable);
-        TypePtr memberType = (*q)->type();
-
-        if (SequencePtr seq = dynamic_pointer_cast<Sequence>(memberType))
-        {
-            _out << "Ice.UtilInternal.Collections.NullableSequenceEqual(this." << memberName << ", other." << memberName
-                 << ")";
-        }
-        else if (DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(memberType))
-        {
-            // Equals() for generic types does not have value semantics.
-            _out << "Ice.UtilInternal.Collections.DictionaryEquals(this." << memberName << ", other." << memberName
-                 << ")";
-        }
-        else if (isProxyType(memberType))
-        {
-            // We need to cast it to the base concrete type to get ==
-            _out << "(Ice.ObjectPrxHelperBase?)this." << memberName << " == (Ice.ObjectPrxHelperBase?)other."
-                 << memberName;
-        }
-        else
-        {
-            _out << "this." << memberName << " == other." << memberName;
-        }
-    }
-    _out.dec();
-    _out << ";";
 }
 
 Slice::Gen::ResultVisitor::ResultVisitor(::IceUtilInternal::Output& out) : CsVisitor(out) {}

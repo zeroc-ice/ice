@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 namespace Ice;
 
 /// <summary>
@@ -21,7 +23,7 @@ public class ProxyIdentityKey : System.Collections.IEqualityComparer, System.Col
     /// <param name="obj2">A proxy to compare.</param>
     /// <returns>True if the passed proxies have the same object
     /// identity; false, otherwise.</returns>
-    public new bool Equals(object obj1, object obj2)
+    public new bool Equals(object? obj1, object? obj2)
     {
         try
         {
@@ -38,16 +40,16 @@ public class ProxyIdentityKey : System.Collections.IEqualityComparer, System.Col
     /// <param name="obj2">A proxy to compare.</param>
     /// <returns>&lt; 0 if obj1 is less than obj2; &gt; 0 if obj1 is greater than obj2;
     /// 0, otherwise.</returns>
-    public int Compare(object obj1, object obj2)
+    public int Compare(object? obj1, object? obj2)
     {
-        ObjectPrx proxy1 = obj1 as ObjectPrx;
-        if (obj1 != null && proxy1 == null)
+        ObjectPrx? proxy1 = obj1 as ObjectPrx;
+        if (obj1 is not null && proxy1 is null)
         {
             throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(obj1));
         }
 
-        ObjectPrx proxy2 = obj2 as ObjectPrx;
-        if (obj2 != null && proxy2 == null)
+        ObjectPrx? proxy2 = obj2 as ObjectPrx;
+        if (obj2 is not null && proxy2 is null)
         {
             throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(obj2));
         }
@@ -78,7 +80,7 @@ public class ProxyIdentityFacetKey : System.Collections.IEqualityComparer, Syste
     /// <param name="obj2">A proxy to compare.</param>
     /// <returns>True if the passed proxies have the same object
     /// identity and facet; false, otherwise.</returns>
-    public new bool Equals(object obj1, object obj2)
+    public new bool Equals(object? obj1, object? obj2)
     {
         try
         {
@@ -95,16 +97,16 @@ public class ProxyIdentityFacetKey : System.Collections.IEqualityComparer, Syste
     /// <param name="obj2">A proxy to compare.</param>
     /// <returns>&lt; 0 if obj1 is less than obj2; &gt; 0 if obj1 is greater than obj2;
     /// 0, otherwise.</returns>
-    public int Compare(object obj1, object obj2)
+    public int Compare(object? obj1, object? obj2)
     {
-        ObjectPrx proxy1 = obj1 as ObjectPrx;
-        if (obj1 != null && proxy1 == null)
+        ObjectPrx? proxy1 = obj1 as ObjectPrx;
+        if (obj1 is not null && proxy1 is null)
         {
             throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(obj1));
         }
 
-        ObjectPrx proxy2 = obj2 as ObjectPrx;
-        if (obj2 != null && proxy2 == null)
+        ObjectPrx? proxy2 = obj2 as ObjectPrx;
+        if (obj2 is not null && proxy2 is null)
         {
             throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(obj2));
         }

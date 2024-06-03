@@ -29,8 +29,8 @@ namespace Ice
 
                     r = p.opAByteS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -44,8 +44,8 @@ namespace Ice
 
                     r = p.opLByteS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -59,8 +59,8 @@ namespace Ice
 
                     r = p.opKByteS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -74,8 +74,8 @@ namespace Ice
 
                     r = p.opQByteS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -89,8 +89,8 @@ namespace Ice
 
                     r = p.opSByteS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -104,8 +104,8 @@ namespace Ice
 
                     r = p.opABoolS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -119,8 +119,8 @@ namespace Ice
 
                     r = p.opLBoolS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -134,8 +134,8 @@ namespace Ice
 
                     r = p.opKBoolS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -149,8 +149,8 @@ namespace Ice
 
                     r = p.opQBoolS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -164,8 +164,8 @@ namespace Ice
 
                     r = p.opSBoolS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -180,8 +180,8 @@ namespace Ice
                     {
                         r = p.opAShortS(i, out o);
                     }
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -195,8 +195,8 @@ namespace Ice
 
                     r = p.opLShortS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -210,8 +210,8 @@ namespace Ice
 
                     r = p.opKShortS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -225,8 +225,8 @@ namespace Ice
 
                     r = p.opQShortS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -240,8 +240,8 @@ namespace Ice
 
                     r = p.opSShortS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -255,8 +255,8 @@ namespace Ice
 
                     r = p.opAIntS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -270,8 +270,8 @@ namespace Ice
 
                     r = p.opLIntS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -285,8 +285,8 @@ namespace Ice
 
                     r = p.opKIntS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -300,8 +300,8 @@ namespace Ice
 
                     r = p.opQIntS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -315,8 +315,8 @@ namespace Ice
 
                     r = p.opSIntS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -330,8 +330,8 @@ namespace Ice
 
                     r = p.opALongS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -345,8 +345,8 @@ namespace Ice
 
                     r = p.opLLongS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -360,8 +360,8 @@ namespace Ice
 
                     r = p.opKLongS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -375,8 +375,8 @@ namespace Ice
 
                     r = p.opQLongS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -390,8 +390,8 @@ namespace Ice
 
                     r = p.opSLongS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -405,8 +405,8 @@ namespace Ice
 
                     r = p.opAFloatS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -420,8 +420,8 @@ namespace Ice
 
                     r = p.opLFloatS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -435,8 +435,8 @@ namespace Ice
 
                     r = p.opKFloatS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -450,8 +450,8 @@ namespace Ice
 
                     r = p.opQFloatS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -465,8 +465,8 @@ namespace Ice
 
                     r = p.opSFloatS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -480,8 +480,8 @@ namespace Ice
 
                     r = p.opADoubleS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -495,8 +495,8 @@ namespace Ice
 
                     r = p.opLDoubleS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -510,8 +510,8 @@ namespace Ice
 
                     r = p.opKDoubleS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -525,8 +525,8 @@ namespace Ice
 
                     r = p.opQDoubleS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -540,8 +540,8 @@ namespace Ice
 
                     r = p.opSDoubleS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -555,8 +555,8 @@ namespace Ice
 
                     r = p.opAStringS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -570,8 +570,8 @@ namespace Ice
 
                     r = p.opLStringS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -585,8 +585,8 @@ namespace Ice
 
                     r = p.opKStringS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -600,8 +600,8 @@ namespace Ice
 
                     r = p.opQStringS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -615,8 +615,8 @@ namespace Ice
 
                     r = p.opSStringS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -674,8 +674,8 @@ namespace Ice
 
                     r = p.opAObjectPrxS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -689,8 +689,8 @@ namespace Ice
 
                     r = p.opLObjectPrxS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -704,8 +704,8 @@ namespace Ice
 
                     r = p.opKObjectPrxS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -719,8 +719,8 @@ namespace Ice
 
                     r = p.opQObjectPrxS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -734,8 +734,8 @@ namespace Ice
 
                     r = p.opSObjectPrxS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -749,8 +749,8 @@ namespace Ice
 
                     r = p.opAStructS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -764,8 +764,8 @@ namespace Ice
 
                     r = p.opLStructS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -779,8 +779,8 @@ namespace Ice
 
                     r = p.opKStructS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -794,8 +794,8 @@ namespace Ice
 
                     r = p.opQStructS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -809,8 +809,8 @@ namespace Ice
 
                     r = p.opSStructS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -824,8 +824,8 @@ namespace Ice
 
                     r = p.opAStructSD(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -839,8 +839,8 @@ namespace Ice
 
                     r = p.opLStructSD(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -854,8 +854,8 @@ namespace Ice
 
                     r = p.opKStructSD(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -869,8 +869,8 @@ namespace Ice
 
                     r = p.opQStructSD(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -884,8 +884,8 @@ namespace Ice
 
                     r = p.opSStructSD(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -987,8 +987,8 @@ namespace Ice
 
                     r = p.opAEnS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -1002,8 +1002,8 @@ namespace Ice
 
                     r = p.opLEnS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -1017,8 +1017,8 @@ namespace Ice
 
                     r = p.opKEnS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -1032,8 +1032,8 @@ namespace Ice
 
                     r = p.opQEnS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -1047,8 +1047,8 @@ namespace Ice
 
                     r = p.opSEnS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -1062,8 +1062,8 @@ namespace Ice
 
                     r = p.opAIPrxS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -1077,8 +1077,8 @@ namespace Ice
 
                     r = p.opLIPrxS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -1092,8 +1092,8 @@ namespace Ice
 
                     r = p.opKIPrxS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -1107,8 +1107,8 @@ namespace Ice
 
                     r = p.opQIPrxS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -1122,8 +1122,8 @@ namespace Ice
 
                     r = p.opSIPrxS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -1137,8 +1137,8 @@ namespace Ice
 
                     r = p.opCustomIntS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {
@@ -1188,8 +1188,8 @@ namespace Ice
 
                     r = p.opCustomIntSS(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Enumerable.SequenceEqual(i, o));
+                    test(Enumerable.SequenceEqual(i, r));
                 }
 
                 {

@@ -46,9 +46,9 @@
                           $(IceSrcRootDir)include\IceIAP\*.h;
                           $(IceSrcRootDir)include\generated\**\*.h"/>
 
-        <Headers Include="$(IceSrcRootDir)include\generated\cpp98\$(Platform)\$(Configuration)\**\*.h"
-                 Exclude="$(IceSrcRootDir)include\generated\cpp98\$(Platform)\$(Configuration)\IceDiscovery\*.h;
-                          $(IceSrcRootDir)include\generated\cpp98\$(Platform)\$(Configuration)\IceLocatorDiscovery\*.h"/>
+        <Headers Include="$(IceSrcRootDir)include\generated\$(Platform)\$(Configuration)\**\*.h"
+                 Exclude="$(IceSrcRootDir)include\generated\$(Platform)\$(Configuration)\IceDiscovery\*.h;
+                          $(IceSrcRootDir)include\generated\$(Platform)\$(Configuration)\IceLocatorDiscovery\*.h"/>
 
         <Slices Include="$(IceSrcRootDir)..\slice\**\*.ice"
                 Exclude="$(IceSrcRootDir)..\slice\IceDiscovery\*.ice;

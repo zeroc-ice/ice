@@ -66,9 +66,6 @@ ICEIMPL_API @interface ICEObjectPrx : NSObject
 // id represents Any in Swift which we use as an Optional int32_t
 - (nullable id)ice_getCompress;
 - (nonnull instancetype)ice_compress:(bool)compress;
-// id represents Any in Swift which we use as an Optional int32_t
-- (nullable id)ice_getTimeout;
-- (nullable instancetype)ice_timeout:(int32_t)timeout error:(NSError* _Nullable* _Nullable)error;
 - (nullable instancetype)ice_fixed:(ICEConnection*)connection error:(NSError* _Nullable* _Nullable)error;
 - (bool)ice_isFixed;
 - (nullable id)ice_getConnection:(NSError* _Nullable* _Nullable)error; // Either NSNull or ICEConnection

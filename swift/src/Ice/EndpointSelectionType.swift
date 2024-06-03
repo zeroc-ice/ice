@@ -17,59 +17,59 @@ import Foundation
 
 /// Determines the order in which the Ice run time uses the endpoints in a proxy when establishing a connection.
 public enum EndpointSelectionType: Swift.UInt8 {
-  /// Random Random causes the endpoints to be arranged in a random order.
-  case Random = 0
-  /// Ordered Ordered forces the Ice run time to use the endpoints in the order they appeared in the proxy.
-  case Ordered = 1
-  public init() {
-    self = .Random
-  }
+    /// Random Random causes the endpoints to be arranged in a random order.
+    case Random = 0
+    /// Ordered Ordered forces the Ice run time to use the endpoints in the order they appeared in the proxy.
+    case Ordered = 1
+    public init() {
+        self = .Random
+    }
 }
 
 /// An `Ice.InputStream` extension to read `EndpointSelectionType` enumerated values from the stream.
 extension InputStream {
-  /// Read an enumerated value.
-  ///
-  /// - returns: `EndpointSelectionType` - The enumarated value.
-  public func read() throws -> EndpointSelectionType {
-    let rawValue: Swift.UInt8 = try read(enumMaxValue: 1)
-    guard let val = EndpointSelectionType(rawValue: rawValue) else {
-      throw MarshalException(reason: "invalid enum value")
+    /// Read an enumerated value.
+    ///
+    /// - returns: `EndpointSelectionType` - The enumarated value.
+    public func read() throws -> EndpointSelectionType {
+        let rawValue: Swift.UInt8 = try read(enumMaxValue: 1)
+        guard let val = EndpointSelectionType(rawValue: rawValue) else {
+            throw MarshalException(reason: "invalid enum value")
+        }
+        return val
     }
-    return val
-  }
 
-  /// Read an optional enumerated value from the stream.
-  ///
-  /// - parameter tag: `Int32` - The numeric tag associated with the value.
-  ///
-  /// - returns: `EndpointSelectionType` - The enumerated value.
-  public func read(tag: Swift.Int32) throws -> EndpointSelectionType? {
-    guard try readOptional(tag: tag, expectedFormat: .Size) else {
-      return nil
+    /// Read an optional enumerated value from the stream.
+    ///
+    /// - parameter tag: `Int32` - The numeric tag associated with the value.
+    ///
+    /// - returns: `EndpointSelectionType` - The enumerated value.
+    public func read(tag: Swift.Int32) throws -> EndpointSelectionType? {
+        guard try readOptional(tag: tag, expectedFormat: .Size) else {
+            return nil
+        }
+        return try read() as EndpointSelectionType
     }
-    return try read() as EndpointSelectionType
-  }
 }
 
 /// An `Ice.OutputStream` extension to write `EndpointSelectionType` enumerated values to the stream.
 extension OutputStream {
-  /// Writes an enumerated value to the stream.
-  ///
-  /// parameter _: `EndpointSelectionType` - The enumerator to write.
-  public func write(_ v: EndpointSelectionType) {
-    write(enum: v.rawValue, maxValue: 1)
-  }
-
-  /// Writes an optional enumerated value to the stream.
-  ///
-  /// parameter tag: `Int32` - The numeric tag associated with the value.
-  ///
-  /// parameter _: `EndpointSelectionType` - The enumerator to write.
-  public func write(tag: Swift.Int32, value: EndpointSelectionType?) {
-    guard let v = value else {
-      return
+    /// Writes an enumerated value to the stream.
+    ///
+    /// parameter _: `EndpointSelectionType` - The enumerator to write.
+    public func write(_ v: EndpointSelectionType) {
+        write(enum: v.rawValue, maxValue: 1)
     }
-    write(tag: tag, val: v.rawValue, maxValue: 1)
-  }
+
+    /// Writes an optional enumerated value to the stream.
+    ///
+    /// parameter tag: `Int32` - The numeric tag associated with the value.
+    ///
+    /// parameter _: `EndpointSelectionType` - The enumerator to write.
+    public func write(tag: Swift.Int32, value: EndpointSelectionType?) {
+        guard let v = value else {
+            return
+        }
+        write(tag: tag, val: v.rawValue, maxValue: 1)
+    }
 }

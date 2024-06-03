@@ -417,24 +417,6 @@ classdef AllTests
             assert(base.ice_encodingVersion(Ice.EncodingVersion(1, 0)).ice_getEncodingVersion() ~= Ice.EncodingVersion(1, 1));
 
             try
-                base.ice_timeout(0);
-                assert(false);
-            catch ex
-            end
-
-            try
-                base.ice_timeout(-1);
-            catch ex
-                assert(false);
-            end
-
-            try
-                base.ice_timeout(-2);
-                assert(false);
-            catch ex
-            end
-
-            try
                 base.ice_invocationTimeout(0);
                 assert(false);
             catch ex
@@ -530,15 +512,6 @@ classdef AllTests
             assert(compObj.ice_getCompress() == Ice.Unset);
             assert(compObj.ice_compress(true).ice_getCompress() == true);
             assert(compObj.ice_compress(false).ice_getCompress() == false);
-
-            assert(compObj.ice_timeout(20) == compObj.ice_timeout(20));
-            assert(compObj.ice_timeout(10) ~= compObj.ice_timeout(20));
-            %assert(compObj.ice_timeout(10) < compObj.ice_timeout(20));
-            %assert(~(compObj.ice_timeout(20) < compObj.ice_timeout(10)));
-
-            assert(compObj.ice_getTimeout() == Ice.Unset);
-            assert(compObj.ice_timeout(10).ice_getTimeout() == 10);
-            assert(compObj.ice_timeout(20).ice_getTimeout() == 20);
 
             loc1 = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy('loc1:default -p 10000'));
             loc2 = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy('loc2:default -p 10000'));
@@ -697,7 +670,6 @@ classdef AllTests
                 assert(cl.ice_fixed(connection).ice_getConnection() == connection);
                 assert(cl.ice_fixed(connection).ice_fixed(connection).ice_getConnection() == connection);
                 assert(cl.ice_compress(true).ice_fixed(connection).ice_getCompress() == true);
-                assert(cl.ice_fixed(connection).ice_getTimeout() == Ice.Unset);
                 fixedConnection = cl.ice_connectionId('ice_fixed').ice_getConnection();
                 assert(cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection() == fixedConnection);
                 try

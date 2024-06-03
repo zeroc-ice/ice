@@ -577,8 +577,7 @@ internal class MetricsViewI
         }
 
         IMetricsMap m;
-        if (_maps.TryGetValue(mapName, out m) &&
-           Ice.UtilInternal.Collections.DictionaryEquals(m.getProperties(), mapProps))
+        if (_maps.TryGetValue(mapName, out m) && m.getProperties().DictionaryEqual(mapProps))
         {
             return false; // The map configuration didn't change, no need to re-create.
         }

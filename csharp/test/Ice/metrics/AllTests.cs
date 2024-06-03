@@ -705,18 +705,18 @@ public class AllTests : Test.AllTests
             // TODO: this appears necessary on slow macos VMs to give time to the server to clean-up the connection.
             Thread.Sleep(100);
 
-            MetricsPrx m = (MetricsPrx)metrics.ice_timeout(500).ice_connectionId("Con1");
+            MetricsPrx m = (MetricsPrx)metrics.ice_connectionId("Con1");
             m.ice_ping();
 
             testAttribute(clientMetrics, clientProps, update, "Connection", "parent", "Communicator", output);
             //testAttribute(clientMetrics, clientProps, update, "Connection", "id", "");
             testAttribute(clientMetrics, clientProps, update, "Connection", "endpoint",
-                          endpoint + " -t 500", output);
+                          endpoint + " -t infinite", output);
 
             testAttribute(clientMetrics, clientProps, update, "Connection", "endpointType", type, output);
             testAttribute(clientMetrics, clientProps, update, "Connection", "endpointIsDatagram", "False", output);
             testAttribute(clientMetrics, clientProps, update, "Connection", "endpointIsSecure", isSecure, output);
-            testAttribute(clientMetrics, clientProps, update, "Connection", "endpointTimeout", "500", output);
+            testAttribute(clientMetrics, clientProps, update, "Connection", "endpointTimeout", "-1", output);
             testAttribute(clientMetrics, clientProps, update, "Connection", "endpointCompress", "False", output);
             testAttribute(clientMetrics, clientProps, update, "Connection", "endpointHost", host, output);
             testAttribute(clientMetrics, clientProps, update, "Connection", "endpointPort", port, output);
@@ -755,7 +755,7 @@ public class AllTests : Test.AllTests
             controller.hold();
             try
             {
-                communicator.stringToProxy("test:tcp -h 127.0.0.1 -p " + port).ice_timeout(10).ice_ping();
+                communicator.stringToProxy("test:tcp -h 127.0.0.1 -p " + port).ice_connectionId("con2").ice_ping();
                 test(false);
             }
             catch (Ice.ConnectTimeoutException)
@@ -842,12 +842,11 @@ public class AllTests : Test.AllTests
 
             c = () => { connect(prx); };
 
-            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "parent", "Communicator", c, output);
-            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "id",
-                          prx.ice_getConnection().getEndpoint().ToString(), c, output);
-            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpoint",
-                          prx.ice_getConnection().getEndpoint().ToString(), c, output);
+            string expected = $"{protocol} -h localhost -p {port} -t 500";
 
+            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "parent", "Communicator", c, output);
+            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "id", expected, c, output);
+            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpoint", expected, c, output);
             testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointType", type, c, output);
             testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsDatagram", "False", c, output);
             testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsSecure", isSecure, c, output);

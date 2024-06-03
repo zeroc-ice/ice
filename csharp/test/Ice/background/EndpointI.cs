@@ -13,7 +13,7 @@ internal class EndpointI : Ice.Internal.EndpointI
         _configuration = Configuration.getInstance();
     }
 
-    public override string ice_toString_()
+    public override string ToString()
     {
         return "test-" + _endpoint.ToString();
     }

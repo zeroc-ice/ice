@@ -256,7 +256,7 @@ public sealed class ServantManager : Object
     }
 
     //
-    // Only for use by Ice.ObjectAdapterI.
+    // Only for use by Ice.ObjectAdapter.
     //
     public ServantManager(Instance instance, string adapterName)
     {
@@ -265,7 +265,7 @@ public sealed class ServantManager : Object
     }
 
     //
-    // Only for use by Ice.ObjectAdapterI.
+    // Only for use by Ice.ObjectAdapter.
     //
     public void destroy()
     {
@@ -281,7 +281,7 @@ public sealed class ServantManager : Object
                 return;
             }
 
-            logger = _instance.initializationData().logger;
+            logger = _instance.initializationData().logger!;
 
             _servantMapMap.Clear();
 

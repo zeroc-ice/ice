@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 using System.Diagnostics;
 using System.Text;
 

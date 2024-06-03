@@ -705,7 +705,7 @@ ZEND_FUNCTION(Ice_createProperties)
 static zend_function_entry _interfaceMethods[] = {{0, 0, 0}};
 
 static zend_function_entry _classMethods[] = {
-    // constructor
+    // _construct
     ZEND_ME(Ice_Properties, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
     // toString
     ZEND_ME(Ice_Properties, __toString, ice_to_string_arginfo, ZEND_ACC_PUBLIC)

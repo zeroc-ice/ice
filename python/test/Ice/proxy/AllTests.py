@@ -526,23 +526,6 @@ def allTests(helper, communicator, collocated):
     )
 
     try:
-        base.ice_timeout(0)
-        test(False)
-    except RuntimeError:
-        pass
-
-    try:
-        base.ice_timeout(-1)
-    except RuntimeError:
-        test(False)
-
-    try:
-        base.ice_timeout(-2)
-        test(False)
-    except RuntimeError:
-        pass
-
-    try:
         base.ice_invocationTimeout(0)
         test(False)
     except RuntimeError:
@@ -658,15 +641,6 @@ def allTests(helper, communicator, collocated):
     test(compObj.ice_getCompress() == Ice.Unset)
     test(compObj.ice_compress(True).ice_getCompress() is True)
     test(compObj.ice_compress(False).ice_getCompress() is False)
-
-    test(compObj.ice_timeout(20) == compObj.ice_timeout(20))
-    test(compObj.ice_timeout(10) != compObj.ice_timeout(20))
-    test(compObj.ice_timeout(10) < compObj.ice_timeout(20))
-    test(not (compObj.ice_timeout(20) < compObj.ice_timeout(10)))
-
-    test(compObj.ice_getTimeout() == Ice.Unset)
-    test(compObj.ice_timeout(10).ice_getTimeout() == 10)
-    test(compObj.ice_timeout(20).ice_getTimeout() == 20)
 
     loc1 = Ice.LocatorPrx.uncheckedCast(
         communicator.stringToProxy("loc1:default -p 10000")
@@ -861,7 +835,7 @@ def allTests(helper, communicator, collocated):
             cl.ice_fixed(connection).ice_fixed(connection).ice_getConnection()
             == connection
         )
-        test(cl.ice_fixed(connection).ice_getTimeout() == Ice.Unset)
+
         fixedConnection = cl.ice_connectionId("ice_fixed").ice_getConnection()
         test(
             cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection()

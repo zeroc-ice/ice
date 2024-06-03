@@ -24,7 +24,7 @@ namespace Ice
                     myClass.shutdown();
                     try
                     {
-                        myClass.ice_timeout(100).ice_ping(); // Use timeout to speed up testing on Windows
+                        myClass.ice_invocationTimeout(100).ice_ping(); // Use timeout to speed up testing on Windows
                         test(false);
                     }
                     catch (Ice.LocalException)

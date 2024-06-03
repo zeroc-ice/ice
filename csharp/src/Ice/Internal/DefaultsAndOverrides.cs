@@ -38,26 +38,6 @@ public sealed class DefaultsAndOverrides
             defaultSourceAddress = null;
         }
 
-        val = properties.getIceProperty("Ice.Override.Timeout");
-        if (val.Length > 0)
-        {
-            overrideTimeout = true;
-            overrideTimeoutValue = properties.getIcePropertyAsInt("Ice.Override.Timeout");
-            if (overrideTimeoutValue < 1 && overrideTimeoutValue != -1)
-            {
-                overrideTimeoutValue = -1;
-                StringBuilder msg = new StringBuilder("invalid value for Ice.Override.Timeout `");
-                msg.Append(properties.getIceProperty("Ice.Override.Timeout"));
-                msg.Append("': defaulting to -1");
-                logger.warning(msg.ToString());
-            }
-        }
-        else
-        {
-            overrideTimeout = false;
-            overrideTimeoutValue = -1;
-        }
-
         val = properties.getIceProperty("Ice.Override.Compress");
         if (val.Length > 0)
         {
@@ -160,8 +140,6 @@ public sealed class DefaultsAndOverrides
     public Ice.EncodingVersion defaultEncoding;
     public Ice.FormatType defaultFormat;
 
-    public bool overrideTimeout;
-    public int overrideTimeoutValue;
     public bool overrideCompress;
     public bool overrideCompressValue;
     public bool overrideSecure;

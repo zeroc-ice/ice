@@ -197,27 +197,6 @@ ZEND_METHOD(Ice_Connection, type)
     }
 }
 
-ZEND_METHOD(Ice_Connection, timeout)
-{
-    if (ZEND_NUM_ARGS() != 0)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
-    assert(_this);
-    try
-    {
-        int32_t timeout = _this->timeout();
-        ZVAL_LONG(return_value, static_cast<long>(timeout));
-    }
-    catch (...)
-    {
-        throwException(current_exception());
-        RETURN_NULL();
-    }
-}
-
 ZEND_METHOD(Ice_Connection, toString) { ZEND_MN(Ice_Connection___toString)(INTERNAL_FUNCTION_PARAM_PASSTHRU); }
 
 ZEND_METHOD(Ice_Connection, getInfo)
@@ -339,24 +318,28 @@ handleConnectionCompare(zval* zobj1, zval* zobj2)
 static zend_function_entry _interfaceMethods[] = {{0, 0, 0}};
 
 static zend_function_entry _connectionClassMethods[] = {
-    ZEND_ME(Ice_Connection, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR) ZEND_ME(
-        Ice_Connection,
-        __toString,
-        ice_to_string_arginfo,
-        ZEND_ACC_PUBLIC) ZEND_ME(Ice_Connection, close, Ice_Connection_close_arginfo, ZEND_ACC_PUBLIC)
-        ZEND_ME(Ice_Connection, getEndpoint, ice_void_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(
-            Ice_Connection,
-            flushBatchRequests,
-            Ice_Connection_flushBatchRequests_arginfo,
-            ZEND_ACC_PUBLIC) ZEND_ME(Ice_Connection, heartbeat, ice_void_arginfo, ZEND_ACC_PUBLIC)
-            ZEND_ME(Ice_Connection, type, ice_void_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(
-                Ice_Connection,
-                timeout,
-                ice_void_arginfo,
-                ZEND_ACC_PUBLIC) ZEND_ME(Ice_Connection, toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
-                ZEND_ME(Ice_Connection, getInfo, ice_void_arginfo, ZEND_ACC_PUBLIC)
-                    ZEND_ME(Ice_Connection, setBufferSize, Ice_Connection_setBufferSize_arginfo, ZEND_ACC_PUBLIC)
-                        ZEND_ME(Ice_Connection, throwException, ice_void_arginfo, ZEND_ACC_PUBLIC){0, 0, 0}};
+    // __construct
+    ZEND_ME(Ice_Connection, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
+    // __toString
+    ZEND_ME(Ice_Connection, __toString, ice_to_string_arginfo, ZEND_ACC_PUBLIC)
+    // close
+    ZEND_ME(Ice_Connection, close, Ice_Connection_close_arginfo, ZEND_ACC_PUBLIC)
+    // getEndpoint
+    ZEND_ME(Ice_Connection, getEndpoint, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    // flushBatchRequests
+    ZEND_ME(Ice_Connection, flushBatchRequests, Ice_Connection_flushBatchRequests_arginfo, ZEND_ACC_PUBLIC)
+    // heartbeat
+    ZEND_ME(Ice_Connection, heartbeat, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    // type
+    ZEND_ME(Ice_Connection, type, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    // toString
+    ZEND_ME(Ice_Connection, toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    // getInfo
+    ZEND_ME(Ice_Connection, getInfo, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    // setBufferSize
+    ZEND_ME(Ice_Connection, setBufferSize, Ice_Connection_setBufferSize_arginfo, ZEND_ACC_PUBLIC)
+    // throwException
+    ZEND_ME(Ice_Connection, throwException, ice_void_arginfo, ZEND_ACC_PUBLIC){0, 0, 0}};
 
 ZEND_METHOD(Ice_ConnectionInfo, __construct) { runtimeError("ConnectionInfo cannot be instantiated"); }
 

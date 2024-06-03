@@ -13,12 +13,12 @@ import IceImpl
 // the factories are used.
 //
 let factoriesRegistered: Bool = {
-  ICEUtil.registerFactories(
-    exception: ExceptionFactory.self,
-    connectionInfo: ConnectionInfoFactory.self,
-    endpointInfo: EndpointInfoFactory.self,
-    adminFacet: AdminFacetFactory.self)
-  return true
+    ICEUtil.registerFactories(
+        exception: ExceptionFactory.self,
+        connectionInfo: ConnectionInfoFactory.self,
+        endpointInfo: EndpointInfoFactory.self,
+        adminFacet: AdminFacetFactory.self)
+    return true
 }()
 
 /// Creates a communicator.
@@ -30,11 +30,10 @@ let factoriesRegistered: Bool = {
 ///   settings in args override property settings in initData.
 ///
 /// - returns: The initialized communicator.
-public func initialize(_ args: [String], initData: InitializationData? = nil) throws -> Communicator
-{
-  return try initializeImpl(
-    args: args, initData: initData ?? InitializationData(), withConfigFile: true
-  ).0
+public func initialize(_ args: [String], initData: InitializationData? = nil) throws -> Communicator {
+    return try initializeImpl(
+        args: args, initData: initData ?? InitializationData(), withConfigFile: true
+    ).0
 }
 
 /// Creates a communicator.
@@ -48,12 +47,12 @@ public func initialize(_ args: [String], initData: InitializationData? = nil) th
 ///
 /// - returns: `Ice.Communicator` - The initialized communicator.
 public func initialize(_ args: inout [String], initData: InitializationData? = nil) throws
-  -> Communicator
+    -> Communicator
 {
-  let result = try initializeImpl(
-    args: args, initData: initData ?? InitializationData(), withConfigFile: true)
-  args = result.1
-  return result.0
+    let result = try initializeImpl(
+        args: args, initData: initData ?? InitializationData(), withConfigFile: true)
+    args = result.1
+    return result.0
 }
 
 /// Creates a communicator.
@@ -66,11 +65,11 @@ public func initialize(_ args: inout [String], initData: InitializationData? = n
 ///
 /// - returns: `Ice.Communicator` - The initialized communicator.
 public func initialize(args: [String], configFile: String) throws -> Communicator {
-  var initData = InitializationData()
-  let properties = createProperties()
-  try properties.load(configFile)
-  initData.properties = properties
-  return try initialize(args, initData: initData)
+    var initData = InitializationData()
+    let properties = createProperties()
+    try properties.load(configFile)
+    initData.properties = properties
+    return try initialize(args, initData: initData)
 }
 
 /// Creates a communicator.
@@ -84,11 +83,11 @@ public func initialize(args: [String], configFile: String) throws -> Communicato
 ///
 /// - returns: `Ice.Communicator` - The initialized communicator.
 public func initialize(args: inout [String], configFile: String) throws -> Communicator {
-  var initData = InitializationData()
-  let properties = createProperties()
-  try properties.load(configFile)
-  initData.properties = properties
-  return try initialize(&args, initData: initData)
+    var initData = InitializationData()
+    let properties = createProperties()
+    try properties.load(configFile)
+    initData.properties = properties
+    return try initialize(&args, initData: initData)
 }
 
 /// Creates a communicator.
@@ -97,10 +96,10 @@ public func initialize(args: inout [String], configFile: String) throws -> Commu
 ///
 /// - returns: `Ice.Communicator` - The initialized communicator.
 public func initialize(_ initData: InitializationData? = nil) throws -> Communicator {
-  // This is the no-configFile flavor: we never load config from ICE_CONFIG
-  return try initializeImpl(
-    args: [], initData: initData ?? InitializationData(), withConfigFile: false
-  ).0
+    // This is the no-configFile flavor: we never load config from ICE_CONFIG
+    return try initializeImpl(
+        args: [], initData: initData ?? InitializationData(), withConfigFile: false
+    ).0
 }
 
 /// Creates a communicator.
@@ -110,80 +109,80 @@ public func initialize(_ initData: InitializationData? = nil) throws -> Communic
 ///
 /// - returns: `Ice.Communicator` - The initialized communicator.
 public func initialize(_ configFile: String) throws -> Communicator {
-  return try initialize(args: [], configFile: configFile)
+    return try initialize(args: [], configFile: configFile)
 }
 
 private func initializeImpl(
-  args: [String],
-  initData userInitData: InitializationData,
-  withConfigFile: Bool
+    args: [String],
+    initData userInitData: InitializationData,
+    withConfigFile: Bool
 ) throws -> (Communicator, [String]) {
-  // Ensure factories are initialized
-  guard factoriesRegistered else {
-    fatalError("Unable to initialie Ice")
-  }
-
-  var initData = userInitData
-  if initData.properties == nil {
-    initData.properties = createProperties()
-  }
-
-  var loggerP: ICELoggerProtocol?
-  if let l = initData.logger {
-    loggerP = LoggerWrapper(handle: l)
-  }
-
-  let propsHandle = (initData.properties as! PropertiesI).handle
-
-  return try autoreleasepool {
-    var remArgs: NSArray?
-    let handle = try ICEUtil.initialize(
-      args,
-      properties: propsHandle,
-      withConfigFile: withConfigFile,
-      logger: loggerP,
-      remArgs: &remArgs)
-
-    //
-    // Update initData.properties reference to point to the properties object
-    // created by Ice::initialize, in case it changed
-    //
-    let newPropsHandle = handle.getProperties()
-    initData.properties = newPropsHandle.getSwiftObject(PropertiesI.self) {
-      PropertiesI(handle: newPropsHandle)
+    // Ensure factories are initialized
+    guard factoriesRegistered else {
+        fatalError("Unable to initialie Ice")
     }
 
-    //
-    // Update initData.logger referecnce in case we are using a C++ logger (defined though a property) or
-    //  a C++ logger plug-in installed a new logger
-    //
-    if let objcLogger = handle.getLogger() as? ICELogger {
-      initData.logger = objcLogger.getSwiftObject(ObjcLoggerWrapper.self) {
-        ObjcLoggerWrapper(handle: objcLogger)
-      }
+    var initData = userInitData
+    if initData.properties == nil {
+        initData.properties = createProperties()
     }
 
-    precondition(initData.logger != nil && initData.properties != nil)
-
-    let communicator = CommunicatorI(handle: handle, initData: initData)
-    if remArgs == nil {
-      return (communicator, [])
-    } else {
-      // swiftlint:disable force_cast
-      return (communicator, remArgs as! [String])
-      // swiftlint:enable force_cast
+    var loggerP: ICELoggerProtocol?
+    if let l = initData.logger {
+        loggerP = LoggerWrapper(handle: l)
     }
-  }
+
+    let propsHandle = (initData.properties as! PropertiesI).handle
+
+    return try autoreleasepool {
+        var remArgs: NSArray?
+        let handle = try ICEUtil.initialize(
+            args,
+            properties: propsHandle,
+            withConfigFile: withConfigFile,
+            logger: loggerP,
+            remArgs: &remArgs)
+
+        //
+        // Update initData.properties reference to point to the properties object
+        // created by Ice::initialize, in case it changed
+        //
+        let newPropsHandle = handle.getProperties()
+        initData.properties = newPropsHandle.getSwiftObject(PropertiesI.self) {
+            PropertiesI(handle: newPropsHandle)
+        }
+
+        //
+        // Update initData.logger referecnce in case we are using a C++ logger (defined though a property) or
+        //  a C++ logger plug-in installed a new logger
+        //
+        if let objcLogger = handle.getLogger() as? ICELogger {
+            initData.logger = objcLogger.getSwiftObject(ObjcLoggerWrapper.self) {
+                ObjcLoggerWrapper(handle: objcLogger)
+            }
+        }
+
+        precondition(initData.logger != nil && initData.properties != nil)
+
+        let communicator = CommunicatorI(handle: handle, initData: initData)
+        if remArgs == nil {
+            return (communicator, [])
+        } else {
+            // swiftlint:disable force_cast
+            return (communicator, remArgs as! [String])
+            // swiftlint:enable force_cast
+        }
+    }
 }
 
 /// Creates a new empty property set.
 ///
 /// - returns: `Properties` - A new empty property set.
 public func createProperties() -> Properties {
-  guard factoriesRegistered else {
-    fatalError("Unable to initialie Ice")
-  }
-  return PropertiesI(handle: ICEUtil.createProperties())
+    guard factoriesRegistered else {
+        fatalError("Unable to initialie Ice")
+    }
+    return PropertiesI(handle: ICEUtil.createProperties())
 }
 
 /// Creates a property set initialized from an argument array.
@@ -199,16 +198,16 @@ public func createProperties() -> Properties {
 /// - returns: `Ice.Properties` - A new property set initialized with the property settings from the arguments
 ///   array and defaults.
 public func createProperties(_ args: [String], defaults: Properties? = nil) throws -> Properties {
-  guard factoriesRegistered else {
-    fatalError("Unable to initialie Ice")
-  }
-  return try autoreleasepool {
-    let propertiesHandle = try ICEUtil.createProperties(
-      args,
-      defaults: (defaults as? PropertiesI)?.handle,
-      remArgs: nil)
-    return PropertiesI(handle: propertiesHandle)
-  }
+    guard factoriesRegistered else {
+        fatalError("Unable to initialie Ice")
+    }
+    return try autoreleasepool {
+        let propertiesHandle = try ICEUtil.createProperties(
+            args,
+            defaults: (defaults as? PropertiesI)?.handle,
+            remArgs: nil)
+        return PropertiesI(handle: propertiesHandle)
+    }
 }
 
 /// Creates a property set initialized from an argument array.
@@ -225,23 +224,23 @@ public func createProperties(_ args: [String], defaults: Properties? = nil) thro
 /// - returns: `Ice.Properties` - A new property set initialized with the property settings from args
 ///   and defaults.
 public func createProperties(_ args: inout [String], defaults: Properties? = nil) throws
-  -> Properties
+    -> Properties
 {
-  guard factoriesRegistered else {
-    fatalError("Unable to initialie Ice")
-  }
-  return try autoreleasepool {
-    var remArgs: NSArray?
-    let propertiesHandle = try ICEUtil.createProperties(
-      args,
-      defaults: (defaults as? PropertiesI)?.handle,
-      remArgs: &remArgs)
+    guard factoriesRegistered else {
+        fatalError("Unable to initialie Ice")
+    }
+    return try autoreleasepool {
+        var remArgs: NSArray?
+        let propertiesHandle = try ICEUtil.createProperties(
+            args,
+            defaults: (defaults as? PropertiesI)?.handle,
+            remArgs: &remArgs)
 
-    // swiftlint:disable force_cast
-    args = remArgs as! [String]
-    // swiftlint:enable force_cast
-    return PropertiesI(handle: propertiesHandle)
-  }
+        // swiftlint:disable force_cast
+        args = remArgs as! [String]
+        // swiftlint:enable force_cast
+        return PropertiesI(handle: propertiesHandle)
+    }
 }
 
 /// Returns the Ice version as an integer in the form A.BB.CC, where A
@@ -265,15 +264,15 @@ public let currentEncoding = Encoding_1_1
 ///
 /// - returns: `Ice.Identity` - The converted object identity.
 public func stringToIdentity(_ string: String) throws -> Identity {
-  guard factoriesRegistered else {
-    fatalError("Unable to initialie Ice")
-  }
-  return try autoreleasepool {
-    var name = NSString()
-    var category = NSString()
-    try ICEUtil.stringToIdentity(str: string, name: &name, category: &category)
-    return Identity(name: name as String, category: category as String)
-  }
+    guard factoriesRegistered else {
+        fatalError("Unable to initialie Ice")
+    }
+    return try autoreleasepool {
+        var name = NSString()
+        var category = NSString()
+        try ICEUtil.stringToIdentity(str: string, name: &name, category: &category)
+        return Identity(name: name as String, category: category as String)
+    }
 }
 
 /// Converts an object identity to a string.
@@ -285,7 +284,7 @@ public func stringToIdentity(_ string: String) throws -> Identity {
 ///
 /// - returns: `String` - The string representation of the object identity.
 public func identityToString(id: Identity, mode: ToStringMode = ToStringMode.Unicode) -> String {
-  return ICEUtil.identityToString(name: id.name, category: id.category, mode: mode.rawValue)
+    return ICEUtil.identityToString(name: id.name, category: id.category, mode: mode.rawValue)
 }
 
 /// Converts an encoding version to a string.
@@ -294,5 +293,5 @@ public func identityToString(id: Identity, mode: ToStringMode = ToStringMode.Uni
 ///
 /// - returns: `String` - The converted string.
 public func encodingVersionToString(_ encoding: EncodingVersion) -> String {
-  return ICEUtil.encodingVersionToString(major: encoding.major, minor: encoding.minor)
+    return ICEUtil.encodingVersionToString(major: encoding.major, minor: encoding.minor)
 }

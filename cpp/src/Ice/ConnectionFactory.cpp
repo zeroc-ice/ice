@@ -170,18 +170,13 @@ IceInternal::OutgoingConnectionFactory::waitUntilFinished()
 
 void
 IceInternal::OutgoingConnectionFactory::createAsync(
-    const vector<EndpointIPtr>& endpts,
+    vector<EndpointIPtr> endpoints,
     bool hasMore,
     Ice::EndpointSelectionType selType,
     function<void(Ice::ConnectionIPtr, bool)> response,
     function<void(std::exception_ptr)> exception)
 {
-    assert(!endpts.empty());
-
-    //
-    // Apply the overrides.
-    //
-    vector<EndpointIPtr> endpoints = applyOverrides(endpts);
+    assert(!endpoints.empty());
 
     //
     // Try to find a connection to one of the given endpoints.
@@ -236,14 +231,6 @@ IceInternal::OutgoingConnectionFactory::setRouterInfo(const RouterInfoPtr& route
     for (vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
     {
         EndpointIPtr endpoint = *p;
-
-        //
-        // Modify endpoints with overrides.
-        //
-        if (_instance->defaultsAndOverrides()->overrideTimeout)
-        {
-            endpoint = endpoint->timeout(_instance->defaultsAndOverrides()->overrideTimeoutValue);
-        }
 
         //
         // The Connection object does not take the compression flag of
@@ -350,24 +337,6 @@ IceInternal::OutgoingConnectionFactory::~OutgoingConnectionFactory()
     assert(_pendingConnectCount == 0);
 }
 
-vector<EndpointIPtr>
-IceInternal::OutgoingConnectionFactory::applyOverrides(const vector<EndpointIPtr>& endpts)
-{
-    DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
-    vector<EndpointIPtr> endpoints = endpts;
-    for (vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
-    {
-        //
-        // Modify endpoints with overrides.
-        //
-        if (defaultsAndOverrides->overrideTimeout)
-        {
-            *p = (*p)->timeout(defaultsAndOverrides->overrideTimeoutValue);
-        }
-    }
-    return endpoints;
-}
-
 ConnectionIPtr
 IceInternal::OutgoingConnectionFactory::findConnection(const vector<EndpointIPtr>& endpoints, bool& compress)
 {
@@ -382,8 +351,11 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<EndpointIPtr
 
     for (const auto& p : endpoints)
     {
-        auto connection =
-            find(_connectionsByEndpoint, p, [](const ConnectionIPtr& conn) { return conn->isActiveOrHolding(); });
+        auto connection = find(
+            _connectionsByEndpoint,
+            p->timeout(-1), // clear the timeout
+            [](const ConnectionIPtr& conn) { return conn->isActiveOrHolding(); });
+
         if (connection)
         {
             if (defaultsAndOverrides->overrideCompress)
@@ -570,7 +542,7 @@ IceInternal::OutgoingConnectionFactory::createConnection(const TransceiverPtr& t
             _instance,
             transceiver,
             ci.connector,
-            ci.endpoint->compress(false),
+            ci.endpoint->compress(false)->timeout(-1),
             nullptr,
             [weakSelf = weak_from_this()](const ConnectionIPtr& closedConnection)
             {
@@ -1662,11 +1634,6 @@ IceInternal::IncomingConnectionFactory::stopAcceptor()
 void
 IceInternal::IncomingConnectionFactory::initialize()
 {
-    if (_instance->defaultsAndOverrides()->overrideTimeout)
-    {
-        _endpoint = _endpoint->timeout(_instance->defaultsAndOverrides()->overrideTimeoutValue);
-    }
-
     if (_instance->defaultsAndOverrides()->overrideCompress)
     {
         _endpoint = _endpoint->compress(_instance->defaultsAndOverrides()->overrideCompressValue);

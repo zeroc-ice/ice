@@ -1590,7 +1590,7 @@ IceInternal::RoutableReference::createConnectionAsync(
     {
         // Get an existing connection or create one if there's no existing connection to one of the given endpoints.
         factory->createAsync(
-            endpoints,
+            std::move(endpoints),
             false,
             getEndpointSelection(),
             std::move(createConnectionSucceded),

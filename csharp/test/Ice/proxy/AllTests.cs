@@ -584,33 +584,6 @@ namespace Ice
 
                 try
                 {
-                    baseProxy.ice_timeout(0);
-                    test(false);
-                }
-                catch (ArgumentException)
-                {
-                }
-
-                try
-                {
-                    baseProxy.ice_timeout(-1);
-                }
-                catch (ArgumentException)
-                {
-                    test(false);
-                }
-
-                try
-                {
-                    baseProxy.ice_timeout(-2);
-                    test(false);
-                }
-                catch (ArgumentException)
-                {
-                }
-
-                try
-                {
                     baseProxy.ice_invocationTimeout(0);
                     test(false);
                 }
@@ -705,13 +678,6 @@ namespace Ice
                 test(compObj.ice_compress(true).ice_getCompress().Value == true);
                 test(compObj.ice_compress(false).ice_getCompress().Value == false);
 
-                test(compObj.ice_timeout(20).Equals(compObj.ice_timeout(20)));
-                test(!compObj.ice_timeout(10).Equals(compObj.ice_timeout(20)));
-
-                test(!compObj.ice_getTimeout().HasValue);
-                test(compObj.ice_timeout(10).ice_getTimeout().Value == 10);
-                test(compObj.ice_timeout(20).ice_getTimeout().Value == 20);
-
                 Ice.LocatorPrx loc1 = Ice.LocatorPrxHelper.uncheckedCast(communicator.stringToProxy("loc1:default -p 10000"));
                 Ice.LocatorPrx loc2 = Ice.LocatorPrxHelper.uncheckedCast(communicator.stringToProxy("loc2:default -p 10000"));
                 test(compObj.ice_locator(null).Equals(compObj.ice_locator(null)));
@@ -797,7 +763,7 @@ namespace Ice
                 c["two"] = "world";
                 cl = Test.MyClassPrxHelper.checkedCast(baseProxy, c);
                 Dictionary<string, string> c2 = cl.getContext();
-                test(Ice.CollectionComparer.Equals(c, c2));
+                test(Internal.DictionaryExtensions.DictionaryEqual(c, c2));
                 output.WriteLine("ok");
 
                 output.Write("testing ice_fixed... ");
@@ -822,7 +788,6 @@ namespace Ice
                         test(cl.ice_invocationTimeout(10).ice_fixed(connection).ice_getInvocationTimeout() == 10);
                         test(cl.ice_fixed(connection).ice_getConnection() == connection);
                         test(cl.ice_fixed(connection).ice_fixed(connection).ice_getConnection() == connection);
-                        test(!cl.ice_fixed(connection).ice_getTimeout().HasValue);
                         test(cl.ice_compress(true).ice_fixed(connection).ice_getCompress().Value);
                         Ice.Connection fixedConnection = cl.ice_connectionId("ice_fixed").ice_getConnection();
                         test(cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection() == fixedConnection);

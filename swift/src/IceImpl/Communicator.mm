@@ -306,8 +306,8 @@
 {
     try
     {
-        auto servant = std::make_shared<BlobjectFacade>(facade);
-        self.communicator->addAdminFacet(servant, fromNSString(facet));
+        auto swiftDispatcher = std::make_shared<SwiftDispatcher>(facade);
+        self.communicator->addAdminFacet(swiftDispatcher, fromNSString(facet));
         return YES;
     }
     catch (...)
@@ -424,10 +424,10 @@
         return nil;
     }
 
-    auto blobjectFacade = std::dynamic_pointer_cast<BlobjectFacade>(servant);
-    if (blobjectFacade)
+    auto swiftDispatcher = std::dynamic_pointer_cast<SwiftDispatcher>(servant);
+    if (swiftDispatcher)
     {
-        return blobjectFacade->getFacade();
+        return swiftDispatcher->getFacade();
     }
 
     Class<ICEAdminFacetFactory> factory = [ICEUtil adminFacetFactory];

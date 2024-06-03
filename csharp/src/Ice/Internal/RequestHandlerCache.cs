@@ -135,7 +135,7 @@ internal sealed class RequestHandlerCache
         Instance instance = @ref.getInstance();
 
         TraceLevels traceLevels = instance.traceLevels();
-        Ice.Logger logger = instance.initializationData().logger;
+        Ice.Logger logger = instance.initializationData().logger!;
 
         //
         // We don't retry batch requests because the exception might have caused

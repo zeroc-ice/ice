@@ -15,7 +15,7 @@ const HashMap = Ice.HashMap;
 const StringUtil = Ice.StringUtil;
 
 //
-// Only for use by Ice.ObjectAdatperI.
+// Only for use by Ice.ObjectAdapter.
 //
 class ServantManager
 {

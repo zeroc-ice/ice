@@ -4,25 +4,35 @@
 
 #import "BlobjectFacade.h"
 #import "Convert.h"
+#import "Exception.h"
+#import "Ice/AsyncResponseHandler.h"
 #import "ObjectAdapter.h"
 
 #import "Connection.h"
 
 void
-BlobjectFacade::ice_invokeAsync(
-    std::pair<const std::byte*, const std::byte*> inEncaps,
-    std::function<void(bool, std::pair<const std::byte*, const std::byte*>)> response,
-    std::function<void(std::exception_ptr)> error,
-    const Ice::Current& current)
+SwiftDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::OutgoingResponse)> sendResponse)
 {
-    ICEBlobjectResponse responseCallback = ^(bool ok, const void* outParams, long count) {
-      const std::byte* start = static_cast<const std::byte*>(outParams);
-      response(ok, std::make_pair(start, start + static_cast<size_t>(count)));
-    };
+    // Captured as a const copy by the block according to https://clang.llvm.org/docs/BlockLanguageSpec.html
+    Ice::Current current = request.current();
 
-    ICEBlobjectException exceptionCallback = ^(ICERuntimeException* e) {
-      error(convertException(e));
-    };
+    ICESendResponse sendResponseBlock =
+        ^(bool ok, const void* outEncaps, size_t count, ICEDispatchException* dispatchException) {
+          if (dispatchException)
+          {
+              sendResponse(Ice::makeOutgoingResponse(dispatchException.cppExceptionPtr, current));
+          }
+          else
+          {
+              assert(outEncaps);
+              const std::byte* bytes = static_cast<const std::byte*>(outEncaps);
+              sendResponse(Ice::makeOutgoingResponse(ok, std::make_pair(bytes, bytes + count), current));
+          }
+        };
+
+    int32_t sz;
+    const std::byte* inEncaps;
+    request.inputStream().readEncapsulation(inEncaps, sz);
 
     ICEObjectAdapter* adapter = [ICEObjectAdapter getHandle:current.adapter];
     ICEConnection* con = [ICEConnection getHandle:current.con];
@@ -30,8 +40,8 @@ BlobjectFacade::ice_invokeAsync(
     @autoreleasepool
     {
         [_facade facadeInvoke:adapter
-                inEncapsBytes:const_cast<std::byte*>(inEncaps.first)
-                inEncapsCount:static_cast<long>(inEncaps.second - inEncaps.first)
+                inEncapsBytes:const_cast<std::byte*>(inEncaps)
+                inEncapsCount:static_cast<long>(sz)
                           con:con
                          name:toNSString(current.id.name)
                      category:toNSString(current.id.category)
@@ -42,7 +52,6 @@ BlobjectFacade::ice_invokeAsync(
                     requestId:current.requestId
                 encodingMajor:current.encoding.major
                 encodingMinor:current.encoding.minor
-                     response:responseCallback
-                    exception:exceptionCallback];
+                 sendResponse:sendResponseBlock];
     }
 }

@@ -690,7 +690,7 @@ namespace Ice
                     var data = outS.finished();
                     inS = new Ice.InputStream(communicator, data);
                     var dict2 = Test.ByteBoolDHelper.read(inS);
-                    test(Ice.CollectionComparer.Equals(dict2, dict));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(dict2, dict));
                 }
 
                 {
@@ -702,7 +702,7 @@ namespace Ice
                     var data = outS.finished();
                     inS = new Ice.InputStream(communicator, data);
                     var dict2 = Test.ShortIntDHelper.read(inS);
-                    test(Ice.CollectionComparer.Equals(dict2, dict));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(dict2, dict));
                 }
 
                 {
@@ -714,7 +714,7 @@ namespace Ice
                     var data = outS.finished();
                     inS = new Ice.InputStream(communicator, data);
                     var dict2 = Test.LongFloatDHelper.read(inS);
-                    test(Ice.CollectionComparer.Equals(dict2, dict));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(dict2, dict));
                 }
 
                 {
@@ -726,7 +726,7 @@ namespace Ice
                     var data = outS.finished();
                     inS = new Ice.InputStream(communicator, data);
                     var dict2 = Test.StringStringDHelper.read(inS);
-                    test(Ice.CollectionComparer.Equals(dict2, dict));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(dict2, dict));
                 }
 
                 {
@@ -1011,7 +1011,7 @@ namespace Ice
                     var data = outS.finished();
                     inS = new Ice.InputStream(communicator, data);
                     var dict2 = Test.SortedStringStringDHelper.read(inS);
-                    test(Ice.CollectionComparer.Equals(dict2, dict));
+                    test(Internal.DictionaryExtensions.DictionaryEqual(dict2, dict));
                 }
 
                 output.WriteLine("ok");

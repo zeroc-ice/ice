@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 namespace Ice
 {
     /// <summary>
@@ -26,7 +28,7 @@ namespace Ice
 
     public class ConnectionInfo
     {
-        public ConnectionInfo underlying;
+        public ConnectionInfo? underlying;
         public bool incoming;
         public string adapterName;
         public string connectionId;
@@ -133,7 +135,7 @@ namespace Ice
 
         System.Threading.Tasks.Task flushBatchRequestsAsync(
             CompressBatch compress,
-            System.IProgress<bool> progress = null,
+            System.IProgress<bool>? progress = null,
             System.Threading.CancellationToken cancel = default);
 
         /// <summary>
@@ -159,7 +161,7 @@ namespace Ice
         void heartbeat();
 
         System.Threading.Tasks.Task heartbeatAsync(
-            System.IProgress<bool> progress = null,
+            System.IProgress<bool>? progress = null,
             System.Threading.CancellationToken cancel = default);
 
         /// <summary>
@@ -168,18 +170,6 @@ namespace Ice
         /// </summary>
         ///  <returns>The type of the connection.</returns>
         string type();
-
-        /// <summary>
-        /// Get the timeout for the connection.
-        /// </summary>
-        /// <returns>The connection's timeout.</returns>
-        int timeout();
-
-        /// <summary>
-        /// Return a description of the connection as human readable text, suitable for logging or error messages.
-        /// </summary>
-        /// <returns>The description of the connection as human readable text.</returns>
-        string ice_toString_();
 
         /// <summary>
         /// Returns the connection information.
@@ -297,10 +287,11 @@ namespace Ice
 
     public class WSConnectionInfo : ConnectionInfo
     {
-        public System.Collections.Generic.Dictionary<string, string> headers;
+        public Dictionary<string, string> headers;
 
         public WSConnectionInfo() : base()
         {
+            headers = [];
         }
 
         public WSConnectionInfo(
@@ -308,7 +299,7 @@ namespace Ice
             bool incoming,
             string adapterName,
             string connectionId,
-            System.Collections.Generic.Dictionary<string, string> headers)
+            Dictionary<string, string> headers)
             : base(underlying, incoming, adapterName, connectionId)
         {
             this.headers = headers;

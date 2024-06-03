@@ -80,8 +80,8 @@ namespace Ice
                     adapter.setPublishedEndpoints(prx.ice_getEndpoints());
                     test(adapter.getPublishedEndpoints().Length == 2);
                     Ice.Identity id = new Ice.Identity("dummy", "");
-                    test(Ice.UtilInternal.Arrays.Equals(adapter.createProxy(id).ice_getEndpoints(), prx.ice_getEndpoints()));
-                    test(Ice.UtilInternal.Arrays.Equals(adapter.getPublishedEndpoints(), prx.ice_getEndpoints()));
+                    test(Enumerable.SequenceEqual(adapter.createProxy(id).ice_getEndpoints(), prx.ice_getEndpoints()));
+                    test(Enumerable.SequenceEqual(adapter.getPublishedEndpoints(), prx.ice_getEndpoints()));
                     adapter.refreshPublishedEndpoints();
                     test(adapter.getPublishedEndpoints().Length == 1);
                     test(adapter.getPublishedEndpoints()[0].Equals(endpt));
@@ -187,7 +187,7 @@ namespace Ice
                 output.Flush();
                 try
                 {
-                    obj.ice_timeout(100).ice_ping(); // Use timeout to speed up testing on Windows
+                    obj.ice_invocationTimeout(100).ice_ping(); // Use timeout to speed up testing on Windows
                     test(false);
                 }
                 catch (Ice.LocalException)

@@ -5,7 +5,7 @@
 const Ice = require("../Ice/ModuleRegistry").Ice;
 
 require("../Ice/LocalException");
-require("../Ice/ObjectAdapterI");
+require("../Ice/ObjectAdapter");
 require("../Ice/Promise");
 require("../Ice/UUID");
 

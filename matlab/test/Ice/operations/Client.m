@@ -20,7 +20,7 @@ function client(args)
     fprintf('testing server shutdown... ');
     myClass.shutdown();
     try
-        myClass.ice_timeout(100).ice_ping(); % Use timeout to speed up testing on Windows
+        myClass.ice_invocationTimeout(100).ice_ping(); % Use timeout to speed up testing on Windows
         throw(MException());
     catch ex
         if isa(ex, 'Ice.LocalException')

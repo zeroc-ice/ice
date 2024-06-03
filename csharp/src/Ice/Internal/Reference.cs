@@ -97,7 +97,6 @@ public abstract class Reference : IEquatable<Reference>
     public abstract Ice.EndpointSelectionType getEndpointSelection();
     public abstract int getLocatorCacheTimeout();
     public abstract string getConnectionId();
-    public abstract int? getTimeout();
     public abstract ThreadPool getThreadPool();
 
     //
@@ -153,7 +152,7 @@ public abstract class Reference : IEquatable<Reference>
         }
         Reference r = _instance.referenceFactory().copy(this);
         // Identity is a reference type, therefore we make a copy of newIdentity.
-        r._identity = newIdentity.Clone();
+        r._identity = newIdentity with { };
         return r;
     }
 
@@ -213,7 +212,6 @@ public abstract class Reference : IEquatable<Reference>
     public abstract Reference changeEndpointSelection(Ice.EndpointSelectionType newType);
     public abstract Reference changeLocatorCacheTimeout(int newTimeout);
 
-    public abstract Reference changeTimeout(int newTimeout);
     public abstract Reference changeConnectionId(string connectionId);
     public abstract Reference changeConnection(Ice.ConnectionI connection);
 
@@ -405,7 +403,7 @@ public abstract class Reference : IEquatable<Reference>
         hash.Add(_mode);
         hash.Add(secure_);
         hash.Add(_identity);
-        UtilInternal.Collections.HashCodeAdd(ref hash, _context);
+        hash.Add(_context.Count); // we only hash the count, not the contents
         hash.Add(_facet);
         hash.Add(overrideCompress_);
         if (overrideCompress_)
@@ -425,7 +423,7 @@ public abstract class Reference : IEquatable<Reference>
         return _mode == other._mode &&
             secure_ == other.secure_ &&
             _identity == other._identity &&
-            Ice.CollectionComparer.Equals(_context, other._context) &&
+            _context.DictionaryEqual(other._context) &&
             _facet == other._facet &&
             overrideCompress_ == other.overrideCompress_ &&
             (!overrideCompress_ || compress_ == other.compress_) &&
@@ -562,11 +560,6 @@ public class FixedReference : Reference
         return "";
     }
 
-    public override int? getTimeout()
-    {
-        return null;
-    }
-
     public override ThreadPool getThreadPool()
     {
         return _fixedConnection.getThreadPool();
@@ -613,11 +606,6 @@ public class FixedReference : Reference
     }
 
     public override Reference changeLocatorCacheTimeout(int newTimeout)
-    {
-        throw new Ice.FixedProxyException();
-    }
-
-    public override Reference changeTimeout(int newTimeout)
     {
         throw new Ice.FixedProxyException();
     }
@@ -789,11 +777,6 @@ public class RoutableReference : Reference
         return _connectionId;
     }
 
-    public override int? getTimeout()
-    {
-        return _overrideTimeout ? _timeout : null;
-    }
-
     public override Reference changeMode(Mode newMode)
     {
         Reference r = base.changeMode(newMode);
@@ -937,28 +920,6 @@ public class RoutableReference : Reference
         }
         RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
         r._locatorCacheTimeout = newTimeout;
-        return r;
-    }
-
-    public override Reference changeTimeout(int newTimeout)
-    {
-        if (_overrideTimeout && _timeout == newTimeout)
-        {
-            return this;
-        }
-
-        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-        r._timeout = newTimeout;
-        r._overrideTimeout = true;
-        if (_endpoints.Length > 0)
-        {
-            EndpointI[] newEndpoints = new EndpointI[_endpoints.Length];
-            for (int i = 0; i < _endpoints.Length; i++)
-            {
-                newEndpoints[i] = _endpoints[i].timeout(newTimeout);
-            }
-            r._endpoints = newEndpoints;
-        }
         return r;
     }
 
@@ -1117,7 +1078,10 @@ public class RoutableReference : Reference
         var hash = new HashCode();
         hash.Add(base.GetHashCode());
         hash.Add(_adapterId);
-        UtilInternal.Collections.HashCodeAdd(ref hash, _endpoints);
+        foreach (var endpoint in _endpoints)
+        {
+            hash.Add(endpoint);
+        }
         return hash.ToHashCode();
     }
 
@@ -1138,11 +1102,9 @@ public class RoutableReference : Reference
             _preferSecure == rhs._preferSecure &&
             _endpointSelection == rhs._endpointSelection &&
             _locatorCacheTimeout == rhs._locatorCacheTimeout &&
-            _overrideTimeout == rhs._overrideTimeout &&
-            (!_overrideTimeout || _timeout == rhs._timeout) &&
             _connectionId == rhs._connectionId &&
             _adapterId == rhs._adapterId &&
-            UtilInternal.Arrays.Equals(_endpoints, rhs._endpoints);
+            _endpoints.SequenceEqual(rhs._endpoints);
     }
 
     public override Reference Clone()
@@ -1340,8 +1302,6 @@ public class RoutableReference : Reference
         _preferSecure = preferSecure;
         _endpointSelection = endpointSelection;
         _locatorCacheTimeout = locatorCacheTimeout;
-        _overrideTimeout = false;
-        _timeout = -1;
 
         if (_endpoints == null)
         {
@@ -1365,10 +1325,6 @@ public class RoutableReference : Reference
             if (overrideCompress_)
             {
                 endpts[i] = endpts[i].compress(compress_);
-            }
-            if (_overrideTimeout)
-            {
-                endpts[i] = endpts[i].timeout(_timeout);
             }
         }
     }
@@ -1488,11 +1444,11 @@ public class RoutableReference : Reference
         }
         else if (getPreferSecure())
         {
-            Ice.UtilInternal.Collections.Sort(ref endpoints, _preferSecureEndpointComparator);
+            UtilInternal.Collections.Sort(ref endpoints, _preferSecureEndpointComparator);
         }
         else
         {
-            Ice.UtilInternal.Collections.Sort(ref endpoints, _preferNonSecureEndpointComparator);
+            UtilInternal.Collections.Sort(ref endpoints, _preferNonSecureEndpointComparator);
         }
 
         EndpointI[] arr = new EndpointI[endpoints.Count];
@@ -1537,8 +1493,8 @@ public class RoutableReference : Reference
             }
 
             bool more = _i != _endpoints.Length - 1;
-            EndpointI[] endpoint = new EndpointI[] { _endpoints[_i] };
-            _rr.getInstance().outgoingConnectionFactory().create(endpoint, more, _rr.getEndpointSelection(), this);
+            var endpointList = new List<EndpointI> { _endpoints[_i] };
+            _rr.getInstance().outgoingConnectionFactory().create(endpointList, more, _rr.getEndpointSelection(), this);
         }
 
         private RoutableReference _rr;
@@ -1567,7 +1523,7 @@ public class RoutableReference : Reference
             // Get an existing connection or create one if there's no
             // existing connection to one of the given endpoints.
             //
-            factory.create(endpoints, false, getEndpointSelection(),
+            factory.create(endpoints.ToList(), false, getEndpointSelection(),
                            new CreateConnectionCallback(this, null, callback));
         }
         else
@@ -1580,7 +1536,7 @@ public class RoutableReference : Reference
             // connection for one of the endpoints.
             //
 
-            factory.create(new EndpointI[] { endpoints[0] }, true, getEndpointSelection(),
+            factory.create(new List<EndpointI> { endpoints[0] }, true, getEndpointSelection(),
                            new CreateConnectionCallback(this, endpoints, callback));
         }
     }
@@ -1650,7 +1606,5 @@ public class RoutableReference : Reference
     private Ice.EndpointSelectionType _endpointSelection;
     private int _locatorCacheTimeout;
 
-    private bool _overrideTimeout;
-    private int _timeout; // Only used if _overrideTimeout == true
     private string _connectionId = "";
 }

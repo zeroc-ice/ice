@@ -12,9 +12,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& properties, const LoggerPtr& logger)
-    : overrideTimeout(false),
-      overrideTimeoutValue(-1),
-      overrideCompress(false),
+    : overrideCompress(false),
       overrideCompressValue(false),
       overrideSecure(false),
       overrideSecureValue(false)
@@ -35,20 +33,6 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
                 __FILE__,
                 __LINE__,
                 "invalid IP address set for Ice.Default.SourceAddress: `" + value + "'");
-        }
-    }
-
-    value = properties->getIceProperty("Ice.Override.Timeout");
-    if (!value.empty())
-    {
-        const_cast<bool&>(overrideTimeout) = true;
-        const_cast<int32_t&>(overrideTimeoutValue) = properties->getIcePropertyAsInt("Ice.Override.Timeout");
-        if (overrideTimeoutValue < 1 && overrideTimeoutValue != -1)
-        {
-            const_cast<int32_t&>(overrideTimeoutValue) = -1;
-            Warning out(logger);
-            out << "invalid value for Ice.Override.Timeout `" << properties->getIceProperty("Ice.Override.Timeout")
-                << "': defaulting to -1";
         }
     }
 
@@ -96,7 +80,7 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     }
 
     const_cast<int&>(defaultInvocationTimeout) = properties->getIcePropertyAsInt("Ice.Default.InvocationTimeout");
-    if (defaultInvocationTimeout < 1 && defaultInvocationTimeout != -1 && defaultInvocationTimeout != -2)
+    if (defaultInvocationTimeout < 1 && defaultInvocationTimeout != -1)
     {
         const_cast<int32_t&>(defaultInvocationTimeout) = -1;
         Warning out(logger);

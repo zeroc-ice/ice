@@ -110,15 +110,10 @@ public sealed class OutgoingConnectionFactory
         }
     }
 
-    public void create(EndpointI[] endpts, bool hasMore, Ice.EndpointSelectionType selType,
+    public void create(List<EndpointI> endpoints, bool hasMore, Ice.EndpointSelectionType selType,
                        CreateConnectionCallback callback)
     {
-        Debug.Assert(endpts.Length > 0);
-
-        //
-        // Apply the overrides.
-        //
-        List<EndpointI> endpoints = applyOverrides(endpts);
+        Debug.Assert(endpoints.Count > 0);
 
         //
         // Try to find a connection to one of the given endpoints.
@@ -166,14 +161,6 @@ public sealed class OutgoingConnectionFactory
             for (int i = 0; i < endpoints.Length; i++)
             {
                 EndpointI endpoint = endpoints[i];
-
-                //
-                // Modify endpoints with overrides.
-                //
-                if (defaultsAndOverrides.overrideTimeout)
-                {
-                    endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
-                }
 
                 //
                 // The Ice.ConnectionI object does not take the compression flag of
@@ -268,28 +255,6 @@ public sealed class OutgoingConnectionFactory
         _pendingConnectCount = 0;
     }
 
-    private List<EndpointI> applyOverrides(EndpointI[] endpts)
-    {
-        DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-        List<EndpointI> endpoints = new List<EndpointI>();
-        for (int i = 0; i < endpts.Length; i++)
-        {
-            //
-            // Modify endpoints with overrides.
-            //
-            if (defaultsAndOverrides.overrideTimeout)
-            {
-                endpoints.Add(endpts[i].timeout(defaultsAndOverrides.overrideTimeoutValue));
-            }
-            else
-            {
-                endpoints.Add(endpts[i]);
-            }
-        }
-
-        return endpoints;
-    }
-
     private Ice.ConnectionI findConnection(List<EndpointI> endpoints, out bool compress)
     {
         lock (this)
@@ -302,8 +267,10 @@ public sealed class OutgoingConnectionFactory
             DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
             Debug.Assert(endpoints.Count > 0);
 
-            foreach (EndpointI endpoint in endpoints)
+            foreach (EndpointI proxyEndpoint in endpoints)
             {
+                EndpointI endpoint = proxyEndpoint.timeout(-1); // Clear the timeout
+
                 ICollection<Ice.ConnectionI> connectionList = null;
                 if (!_connectionsByEndpoint.TryGetValue(endpoint, out connectionList))
                 {
@@ -312,7 +279,7 @@ public sealed class OutgoingConnectionFactory
 
                 foreach (Ice.ConnectionI connection in connectionList)
                 {
-                    if (connection.isActiveOrHolding()) // Don't return destroyed or unvalidated connections
+                    if (connection.isActiveOrHolding()) // Don't return destroyed or un-validated connections
                     {
                         if (defaultsAndOverrides.overrideCompress)
                         {
@@ -502,7 +469,7 @@ public sealed class OutgoingConnectionFactory
                     _instance,
                     transceiver,
                     ci.connector,
-                    ci.endpoint.compress(false),
+                    ci.endpoint.compress(false).timeout(-1),
                     adapter: null,
                     removeConnection,
                     _connectionOptions);
@@ -1508,7 +1475,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
     }
 
     public IncomingConnectionFactory(Instance instance, EndpointI endpoint, EndpointI publish,
-                                     Ice.ObjectAdapterI adapter)
+                                     Ice.ObjectAdapter adapter)
     {
         _instance = instance;
         _connectionOptions = instance.serverConnectionOptions(adapter.getName());
@@ -1521,10 +1488,6 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
         _acceptorStarted = false;
 
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-        if (defaultsAndOverrides.overrideTimeout)
-        {
-            _endpoint = _endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
-        }
 
         if (defaultsAndOverrides.overrideCompress)
         {
@@ -1782,7 +1745,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
     private EndpointI _endpoint;
     private readonly EndpointI _publishedEndpoint;
 
-    private Ice.ObjectAdapterI _adapter;
+    private Ice.ObjectAdapter _adapter;
 
     private readonly bool _warn;
 

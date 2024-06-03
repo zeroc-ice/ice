@@ -2845,7 +2845,7 @@ public class InputStream
                 catch (System.Exception ex)
                 {
                     string s = "exception raised by ice_postUnmarshal:\n" + ex;
-                    _stream.instance()!.initializationData().logger.warning(s);
+                    _stream.instance()!.initializationData().logger!.warning(s);
                 }
             }
             else
@@ -2873,7 +2873,7 @@ public class InputStream
                         catch (System.Exception ex)
                         {
                             string s = "exception raised by ice_postUnmarshal:\n" + ex;
-                            _stream.instance()!.initializationData().logger.warning(s);
+                            _stream.instance()!.initializationData().logger!.warning(s);
                         }
                     }
                     _valueList.Clear();
@@ -3090,7 +3090,7 @@ public class InputStream
         {
             if (_stream.instance()!.traceLevels().slicing > 0)
             {
-                Logger logger = _stream.instance()!.initializationData().logger;
+                Logger logger = _stream.instance()!.initializationData().logger!;
                 string slicingCat = _stream.instance()!.traceLevels().slicingCat;
                 if (_sliceType == SliceType.ValueSlice)
                 {
@@ -3490,7 +3490,7 @@ public class InputStream
         {
             if (_stream.instance()!.traceLevels().slicing > 0)
             {
-                Logger logger = _stream.instance()!.initializationData().logger;
+                Logger logger = _stream.instance()!.initializationData().logger!;
                 string slicingCat = _stream.instance()!.traceLevels().slicingCat;
                 if (_current!.sliceType == SliceType.ExceptionSlice)
                 {
@@ -3535,15 +3535,12 @@ public class InputStream
             //
             if (_current.sliceType == SliceType.ValueSlice)
             {
-                SliceInfo info = new SliceInfo();
-                info.typeId = _current.typeId;
-                info.compactId = _current.compactId;
-                info.hasOptionalMembers = (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
-                info.isLastSlice = (_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0;
+                bool hasOptionalMembers = (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
+
                 Ice.Internal.ByteBuffer b = _stream.getBuffer().b;
                 int end = b.position();
                 int dataEnd = end;
-                if (info.hasOptionalMembers)
+                if (hasOptionalMembers)
                 {
                     //
                     // Don't include the optional member end marker. It will be re-written by
@@ -3551,12 +3548,19 @@ public class InputStream
                     //
                     --dataEnd;
                 }
-                info.bytes = new byte[dataEnd - start];
+
+                var info = new SliceInfo(
+                    typeId: _current.typeId!,
+                    compactId: _current.compactId,
+                    bytes: new byte[dataEnd - start],
+                    hasOptionalMembers: hasOptionalMembers,
+                    isLastSlice: (_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0);
+
                 b.position(start);
                 b.get(info.bytes);
                 b.position(end);
 
-                if (_current.slices == null)
+                if (_current.slices is null)
                 {
                     _current.slices = new List<SliceInfo>();
                 }

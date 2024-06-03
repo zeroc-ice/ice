@@ -39,7 +39,6 @@ task testSliceTask {
                                                      'Ice/slicing/exceptions/*.ice',
                                                      'Ice/slicing/objects/*.ice',
                                                      'Ice/timeout/*.ice',
-                                                     'Ice/acm/*.ice',
                                                      'Ice/throughput/*.ice',
                                                      'Ice/threadPoolPriority/*.ice',
                                                      'Ice/udp/*.ice',

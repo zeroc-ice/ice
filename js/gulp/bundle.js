@@ -132,7 +132,7 @@ Depends.comparator = function(a, b)
         {
             if(result == -1)
             {
-                process.stderr.write("warning: circulary dependency between: " + a.file.path + " and " + b.file.path + "\n");
+                process.stderr.write("warning: circular dependency between: " + a.file.path + " and " + b.file.path + "\n");
                 return result;
             }
             result = 1;
@@ -171,9 +171,7 @@ Parser.add = function(depend, file, srcDir)
        file.indexOf("../IceStorm/") === 0 ||
        file.indexOf("../Glacier2/") === 0)
     {
-        file = isfile(path.join(srcDir, path.dirname(file), "browser", path.basename(file))) ?
-            path.resolve(path.join(srcDir, path.dirname(file), "browser", path.basename(file))) :
-            path.resolve(path.join(srcDir, file));
+        file = path.resolve(path.join(srcDir, file));
 
         if(depend.depends.indexOf(file) === -1)
         {

@@ -9,7 +9,7 @@ endif
 all: npminstall
 	$(NPM) run build
 
-dist: npminstall
+srcs: npminstall
 	$(NPM) run dist
 
 install:

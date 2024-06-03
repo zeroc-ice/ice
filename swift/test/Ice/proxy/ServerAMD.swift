@@ -7,25 +7,25 @@ import PromiseKit
 import TestCommon
 
 class ServerAMD: TestHelperI {
-  override public func run(args: [String]) throws {
-    let properties = try createTestProperties(args)
-    //
-    // We don't want connection warnings because of the timeout test.
-    //
-    properties.setProperty(key: "Ice.Warn.Connections", value: "0")
-    properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
+    override public func run(args: [String]) throws {
+        let properties = try createTestProperties(args)
+        //
+        // We don't want connection warnings because of the timeout test.
+        //
+        properties.setProperty(key: "Ice.Warn.Connections", value: "0")
+        properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
 
-    let communicator = try initialize(properties)
-    defer {
-      communicator.destroy()
+        let communicator = try initialize(properties)
+        defer {
+            communicator.destroy()
+        }
+        communicator.getProperties().setProperty(
+            key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
+        let adapter = try communicator.createObjectAdapter("TestAdapter")
+        try adapter.add(
+            servant: MyDerivedClassDisp(MyDerivedClassI()), id: Ice.stringToIdentity("test"))
+        try adapter.activate()
+        serverReady()
+        communicator.waitForShutdown()
     }
-    communicator.getProperties().setProperty(
-      key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
-    let adapter = try communicator.createObjectAdapter("TestAdapter")
-    try adapter.add(
-      servant: MyDerivedClassDisp(MyDerivedClassI()), id: Ice.stringToIdentity("test"))
-    try adapter.activate()
-    serverReady()
-    communicator.waitForShutdown()
-  }
 }

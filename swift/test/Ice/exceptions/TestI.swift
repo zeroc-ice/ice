@@ -8,98 +8,98 @@ import TestCommon
 class RuntimeError: Error {}
 
 class ThrowerI: Thrower {
-  func shutdown(current: Ice.Current) throws {
-    current.adapter!.getCommunicator().shutdown()
-  }
-
-  func supportsUndeclaredExceptions(current _: Current) throws -> Bool {
-    return true
-  }
-
-  func supportsAssertException(current _: Current) throws -> Bool {
-    return false
-  }
-
-  func throwAasA(a: Int32, current _: Ice.Current) throws {
-    throw A(aMem: a)
-  }
-
-  func throwAorDasAorD(a: Int32, current _: Ice.Current) throws {
-    if a > 0 {
-      throw A(aMem: a)
-    } else {
-      throw D(dMem: a)
+    func shutdown(current: Ice.Current) throws {
+        current.adapter.getCommunicator().shutdown()
     }
-  }
 
-  func throwBasA(a: Int32, b: Int32, current: Ice.Current) throws {
-    try throwBasB(a: a, b: b, current: current)
-  }
+    func supportsUndeclaredExceptions(current _: Current) throws -> Bool {
+        return true
+    }
 
-  func throwBasB(a: Int32, b: Int32, current _: Ice.Current) throws {
-    let ex = B()
-    ex.aMem = a
-    ex.bMem = b
-    throw ex
-  }
+    func supportsAssertException(current _: Current) throws -> Bool {
+        return false
+    }
 
-  func throwCasA(a: Int32, b: Int32, c: Int32, current: Ice.Current) throws {
-    try throwCasC(a: a, b: b, c: c, current: current)
-  }
+    func throwAasA(a: Int32, current _: Ice.Current) throws {
+        throw A(aMem: a)
+    }
 
-  func throwCasB(a: Int32, b: Int32, c: Int32, current: Ice.Current) throws {
-    try throwCasC(a: a, b: b, c: c, current: current)
-  }
+    func throwAorDasAorD(a: Int32, current _: Ice.Current) throws {
+        if a > 0 {
+            throw A(aMem: a)
+        } else {
+            throw D(dMem: a)
+        }
+    }
 
-  func throwCasC(a: Int32, b: Int32, c: Int32, current _: Ice.Current) throws {
-    throw C(aMem: a, bMem: b, cMem: c)
-  }
+    func throwBasA(a: Int32, b: Int32, current: Ice.Current) throws {
+        try throwBasB(a: a, b: b, current: current)
+    }
 
-  func throwModA(a: Int32, a2: Int32, current _: Current) throws {
-    throw ModA(aMem: a, a2Mem: a2)
-  }
+    func throwBasB(a: Int32, b: Int32, current _: Ice.Current) throws {
+        let ex = B()
+        ex.aMem = a
+        ex.bMem = b
+        throw ex
+    }
 
-  func throwLocalException(current _: Ice.Current) throws {
-    throw Ice.TimeoutException()
-  }
+    func throwCasA(a: Int32, b: Int32, c: Int32, current: Ice.Current) throws {
+        try throwCasC(a: a, b: b, c: c, current: current)
+    }
 
-  func throwNonIceException(current _: Ice.Current) throws {
-    throw RuntimeError()
-  }
+    func throwCasB(a: Int32, b: Int32, c: Int32, current: Ice.Current) throws {
+        try throwCasC(a: a, b: b, c: c, current: current)
+    }
 
-  func throwAssertException(current _: Ice.Current) throws {}
+    func throwCasC(a: Int32, b: Int32, c: Int32, current _: Ice.Current) throws {
+        throw C(aMem: a, bMem: b, cMem: c)
+    }
 
-  func throwMemoryLimitException(seq _: ByteSeq, current _: Ice.Current) throws -> ByteSeq {
-    // 20KB is over the configured 10KB message size max.
-    return ByteSeq(repeating: 0, count: 1024 * 20)
-  }
+    func throwModA(a: Int32, a2: Int32, current _: Current) throws {
+        throw ModA(aMem: a, a2Mem: a2)
+    }
 
-  func throwLocalExceptionIdempotent(current _: Ice.Current) throws {
-    throw Ice.TimeoutException()
-  }
+    func throwLocalException(current _: Ice.Current) throws {
+        throw Ice.TimeoutException()
+    }
 
-  func throwUndeclaredA(a: Int32, current _: Ice.Current) throws {
-    throw A(aMem: a)
-  }
+    func throwNonIceException(current _: Ice.Current) throws {
+        throw RuntimeError()
+    }
 
-  func throwUndeclaredB(a: Int32, b: Int32, current _: Ice.Current) throws {
-    throw B(aMem: a, bMem: b)
-  }
+    func throwAssertException(current _: Ice.Current) throws {}
 
-  func throwUndeclaredC(a: Int32, b: Int32, c: Int32, current _: Ice.Current) throws {
-    throw C(aMem: a, bMem: b, cMem: c)
-  }
+    func throwMemoryLimitException(seq _: ByteSeq, current _: Ice.Current) throws -> ByteSeq {
+        // 20KB is over the configured 10KB message size max.
+        return ByteSeq(repeating: 0, count: 1024 * 20)
+    }
 
-  func throwAfterResponse(current _: Ice.Current) throws {
-    //
-    // Only relevant for AMD.
-    //
-  }
+    func throwLocalExceptionIdempotent(current _: Ice.Current) throws {
+        throw Ice.TimeoutException()
+    }
 
-  func throwAfterException(current _: Ice.Current) throws {
-    //
-    // Only relevant for AMD.
-    //
-    throw A()
-  }
+    func throwUndeclaredA(a: Int32, current _: Ice.Current) throws {
+        throw A(aMem: a)
+    }
+
+    func throwUndeclaredB(a: Int32, b: Int32, current _: Ice.Current) throws {
+        throw B(aMem: a, bMem: b)
+    }
+
+    func throwUndeclaredC(a: Int32, b: Int32, c: Int32, current _: Ice.Current) throws {
+        throw C(aMem: a, bMem: b, cMem: c)
+    }
+
+    func throwAfterResponse(current _: Ice.Current) throws {
+        //
+        // Only relevant for AMD.
+        //
+    }
+
+    func throwAfterException(current _: Ice.Current) throws {
+        //
+        // Only relevant for AMD.
+        //
+        throw A()
+    }
 }

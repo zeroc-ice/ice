@@ -17,7 +17,8 @@ RAKE_TASK ?= icebdistproj
 # $(call make-xcodebuild-rule,$1=rule,$2=platform,$3=scheme,$4=target)
 define make-xcodebuild-rule
 $1:: $(PROJECT)
-	xcodebuild -project $(PROJECT) \
+	xcodebuild $(if $(V),,-quiet) \
+                   -project $(PROJECT) \
                    -target "$3 $(if $(filter $2,macosx),macOS,iOS)" \
                    -configuration $(CONFIG) \
                    -sdk $2 $4

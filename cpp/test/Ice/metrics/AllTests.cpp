@@ -614,16 +614,16 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         // TODO: this appears necessary on slow macos VMs to give time to the server to clean-up the connection.
         this_thread::sleep_for(chrono::milliseconds(100));
 
-        MetricsPrx m = metrics->ice_timeout(500)->ice_connectionId("Con1");
+        MetricsPrx m = metrics->ice_connectionId("Con1");
         m->ice_ping();
 
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "parent", "Communicator");
         // testAttribute(clientMetrics, clientProps, update.get(), "Connection", "id", "");
-        testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpoint", endpoint + " -t 500");
+        testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpoint", endpoint + " -t infinite");
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointType", type);
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointIsDatagram", "false");
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointIsSecure", isSecure);
-        testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointTimeout", "500");
+        testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointTimeout", "-1");
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointCompress", "false");
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointHost", host);
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointPort", port);
@@ -661,7 +661,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         controller->hold();
         try
         {
-            communicator->stringToProxy("test:" + endpoint)->ice_timeout(10)->ice_ping();
+            communicator->stringToProxy("test:" + endpoint)->ice_connectionId("Con2")->ice_ping();
             test(false);
         }
         catch (const Ice::ConnectTimeoutException&)
@@ -779,23 +779,11 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         c = Connect(prx);
 
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "parent", "Communicator", c);
-        testAttribute(
-            clientMetrics,
-            clientProps,
-            update.get(),
-            "EndpointLookup",
-            "id",
-            prx->ice_getConnection()->getEndpoint()->toString(),
-            c);
-        testAttribute(
-            clientMetrics,
-            clientProps,
-            update.get(),
-            "EndpointLookup",
-            "endpoint",
-            prx->ice_getConnection()->getEndpoint()->toString(),
-            c);
 
+        string expected = protocol + " -h localhost -p " + port + " -t 500";
+
+        testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "id", expected, c);
+        testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpoint", expected, c);
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointType", type, c);
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointIsDatagram", "false", c);
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointIsSecure", isSecure, c);

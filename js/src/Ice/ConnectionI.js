@@ -91,11 +91,10 @@ class ConnectionI
         this._hasMoreData = {value: false};
 
         this._warn = initData.properties.getPropertyAsInt("Ice.Warn.Connections") > 0;
-        this._warnUdp = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
         this._acmLastActivity = this._monitor !== null && this._monitor.getACM().timeout > 0 ? Date.now() : -1;
         this._nextRequestId = 1;
         this._messageSizeMax = adapter ? adapter.messageSizeMax() : instance.messageSizeMax();
-        this._batchRequestQueue = new BatchRequestQueue(instance, endpoint.datagram());
+        this._batchRequestQueue = new BatchRequestQueue(instance);
 
         this._sendStreams = [];
 
@@ -333,7 +332,7 @@ class ConnectionI
             //
             // If writing or reading, nothing to do, the connection
             // timeout will kick-in if writes or reads don't progress.
-            // This check is necessary because the actitivy timer is
+            // This check is necessary because the activity timer is
             // only set when a message is fully read/written.
             //
             return;
@@ -755,13 +754,7 @@ class ConnectionI
                     this._validated = true;
 
                     const pos = this._readStream.pos;
-                    if(pos < Protocol.headerSize)
-                    {
-                        //
-                        // This situation is possible for small UDP packets.
-                        //
-                        throw new Ice.IllegalMessageSizeException();
-                    }
+                    Debug.assert(pos >= Protocol.headerSize);
 
                     this._readStream.pos = 0;
                     const magic0 = this._readStream.readByte();
@@ -801,20 +794,13 @@ class ConnectionI
 
                 if(this._readStream.pos != this._readStream.size)
                 {
-                    if(this._endpoint.datagram())
+                    if(!this.read(this._readStream.buffer))
                     {
-                        throw new Ice.DatagramLimitException(); // The message was truncated.
+                        Debug.assert(!this._readStream.isEmpty());
+                        this.scheduleTimeout(SocketOperation.Read);
+                        return;
                     }
-                    else
-                    {
-                        if(!this.read(this._readStream.buffer))
-                        {
-                            Debug.assert(!this._readStream.isEmpty());
-                            this.scheduleTimeout(SocketOperation.Read);
-                            return;
-                        }
-                        Debug.assert(this._readStream.buffer.remaining === 0);
-                    }
+                    Debug.assert(this._readStream.buffer.remaining === 0);
                 }
             }
 
@@ -862,38 +848,14 @@ class ConnectionI
         }
         catch(ex)
         {
-            if(ex instanceof Ice.DatagramLimitException) // Expected.
-            {
-                if(this._warnUdp)
-                {
-                    this._logger.warning("maximum datagram size of " + this._readStream.pos + " exceeded");
-                }
-                this._readStream.resize(Protocol.headerSize);
-                this._readStream.pos = 0;
-                this._readHeader = true;
-                return;
-            }
-            else if(ex instanceof Ice.SocketException)
+            if(ex instanceof Ice.SocketException)
             {
                 this.setState(StateClosed, ex);
                 return;
             }
             else if(ex instanceof Ice.LocalException)
             {
-                if(this._endpoint.datagram())
-                {
-                    if(this._warn)
-                    {
-                        this._logger.warning("datagram connection exception:\n" + ex + '\n' + this._desc);
-                    }
-                    this._readStream.resize(Protocol.headerSize);
-                    this._readStream.pos = 0;
-                    this._readHeader = true;
-                }
-                else
-                {
-                    this.setState(StateClosed, ex);
-                }
+                this.setState(StateClosed, ex);
                 return;
             }
             else
@@ -1252,15 +1214,6 @@ class ConnectionI
         }
 
         //
-        // We don't want to send close connection messages if the endpoint
-        // only supports oneway transmission from client to server.
-        //
-        if(this._endpoint.datagram() && state === StateClosing)
-        {
-            state = StateClosed;
-        }
-
-        //
         // Skip graceful shutdown if we are destroyed before validation.
         //
         if(this._state <= StateNotValidated && state === StateClosing)
@@ -1293,7 +1246,7 @@ class ConnectionI
                     //
                     // Register to receive validation message.
                     //
-                    if(!this._endpoint.datagram() && !this._incoming)
+                    if(!this._incoming)
                     {
                         //
                         // Once validation is complete, a new connection starts out in the
@@ -1452,26 +1405,23 @@ class ConnectionI
         }
         this._shutdownInitiated = true;
 
-        if(!this._endpoint.datagram())
+        //
+        // Before we shut down, we send a close connection message.
+        //
+        const os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
+        os.writeBlob(Protocol.magic);
+        Protocol.currentProtocol._write(os);
+        Protocol.currentProtocolEncoding._write(os);
+        os.writeByte(Protocol.closeConnectionMsg);
+        os.writeByte(0); // compression status: always report 0 for CloseConnection.
+        os.writeInt(Protocol.headerSize); // Message size.
+
+        if((this.sendMessage(OutgoingMessage.createForStream(os, false)) & AsyncStatus.Sent) > 0)
         {
             //
-            // Before we shut down, we send a close connection message.
+            // Schedule the close timeout to wait for the peer to close the connection.
             //
-            const os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
-            os.writeBlob(Protocol.magic);
-            Protocol.currentProtocol._write(os);
-            Protocol.currentProtocolEncoding._write(os);
-            os.writeByte(Protocol.closeConnectionMsg);
-            os.writeByte(0); // compression status: always report 0 for CloseConnection.
-            os.writeInt(Protocol.headerSize); // Message size.
-
-            if((this.sendMessage(OutgoingMessage.createForStream(os, false)) & AsyncStatus.Sent) > 0)
-            {
-                //
-                // Schedule the close timeout to wait for the peer to close the connection.
-                //
-                this.scheduleTimeout(SocketOperation.Read);
-            }
+            this.scheduleTimeout(SocketOperation.Read);
         }
     }
 
@@ -1479,24 +1429,21 @@ class ConnectionI
     {
         Debug.assert(this._state === StateActive);
 
-        if(!this._endpoint.datagram())
+        const os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
+        os.writeBlob(Protocol.magic);
+        Protocol.currentProtocol._write(os);
+        Protocol.currentProtocolEncoding._write(os);
+        os.writeByte(Protocol.validateConnectionMsg);
+        os.writeByte(0);
+        os.writeInt(Protocol.headerSize); // Message size.
+        try
         {
-            const os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
-            os.writeBlob(Protocol.magic);
-            Protocol.currentProtocol._write(os);
-            Protocol.currentProtocolEncoding._write(os);
-            os.writeByte(Protocol.validateConnectionMsg);
-            os.writeByte(0);
-            os.writeInt(Protocol.headerSize); // Message size.
-            try
-            {
-                this.sendMessage(OutgoingMessage.createForStream(os, false));
-            }
-            catch(ex)
-            {
-                this.setState(StateClosed, ex);
-                Debug.assert(this._exception !== null);
-            }
+            this.sendMessage(OutgoingMessage.createForStream(os, false));
+        }
+        catch(ex)
+        {
+            this.setState(StateClosed, ex);
+            Debug.assert(this._exception !== null);
         }
     }
 
@@ -1520,72 +1467,69 @@ class ConnectionI
 
     validate()
     {
-        if(!this._endpoint.datagram()) // Datagram connections are always implicitly validated.
+        if(this._adapter !== null) // The server side has the active role for connection validation.
         {
-            if(this._adapter !== null) // The server side has the active role for connection validation.
+            if(this._writeStream.size === 0)
             {
-                if(this._writeStream.size === 0)
-                {
-                    this._writeStream.writeBlob(Protocol.magic);
-                    Protocol.currentProtocol._write(this._writeStream);
-                    Protocol.currentProtocolEncoding._write(this._writeStream);
-                    this._writeStream.writeByte(Protocol.validateConnectionMsg);
-                    this._writeStream.writeByte(0); // Compression status (always zero for validate connection).
-                    this._writeStream.writeInt(Protocol.headerSize); // Message size.
-                    TraceUtil.traceSend(this._writeStream, this._logger, this._traceLevels);
-                    this._writeStream.prepareWrite();
-                }
-
-                if(this._writeStream.pos != this._writeStream.size && !this.write(this._writeStream.buffer))
-                {
-                    this.scheduleTimeout(SocketOperation.Write);
-                    return false;
-                }
+                this._writeStream.writeBlob(Protocol.magic);
+                Protocol.currentProtocol._write(this._writeStream);
+                Protocol.currentProtocolEncoding._write(this._writeStream);
+                this._writeStream.writeByte(Protocol.validateConnectionMsg);
+                this._writeStream.writeByte(0); // Compression status (always zero for validate connection).
+                this._writeStream.writeInt(Protocol.headerSize); // Message size.
+                TraceUtil.traceSend(this._writeStream, this._logger, this._traceLevels);
+                this._writeStream.prepareWrite();
             }
-            else // The client side has the passive role for connection validation.
+
+            if(this._writeStream.pos != this._writeStream.size && !this.write(this._writeStream.buffer))
             {
-                if(this._readStream.size === 0)
-                {
-                    this._readStream.resize(Protocol.headerSize);
-                    this._readStream.pos = 0;
-                }
-
-                if(this._readStream.pos !== this._readStream.size &&
-                    !this.read(this._readStream.buffer))
-                {
-                    this.scheduleTimeout(SocketOperation.Read);
-                    return false;
-                }
-
-                this._validated = true;
-
-                Debug.assert(this._readStream.pos === Protocol.headerSize);
+                this.scheduleTimeout(SocketOperation.Write);
+                return false;
+            }
+        }
+        else // The client side has the passive role for connection validation.
+        {
+            if(this._readStream.size === 0)
+            {
+                this._readStream.resize(Protocol.headerSize);
                 this._readStream.pos = 0;
-                const m = this._readStream.readBlob(4);
-                if(m[0] !== Protocol.magic[0] || m[1] !== Protocol.magic[1] ||
-                    m[2] !== Protocol.magic[2] || m[3] !== Protocol.magic[3])
-                {
-                    throw new Ice.BadMagicException("", m);
-                }
-
-                this._readProtocol._read(this._readStream);
-                Protocol.checkSupportedProtocol(this._readProtocol);
-
-                this._readProtocolEncoding._read(this._readStream);
-                Protocol.checkSupportedProtocolEncoding(this._readProtocolEncoding);
-
-                const messageType = this._readStream.readByte();
-                if(messageType !== Protocol.validateConnectionMsg)
-                {
-                    throw new Ice.ConnectionNotValidatedException();
-                }
-                this._readStream.readByte(); // Ignore compression status for validate connection.
-                if(this._readStream.readInt() !== Protocol.headerSize)
-                {
-                    throw new Ice.IllegalMessageSizeException();
-                }
-                TraceUtil.traceRecv(this._readStream, this._logger, this._traceLevels);
             }
+
+            if(this._readStream.pos !== this._readStream.size &&
+                !this.read(this._readStream.buffer))
+            {
+                this.scheduleTimeout(SocketOperation.Read);
+                return false;
+            }
+
+            this._validated = true;
+
+            Debug.assert(this._readStream.pos === Protocol.headerSize);
+            this._readStream.pos = 0;
+            const m = this._readStream.readBlob(4);
+            if(m[0] !== Protocol.magic[0] || m[1] !== Protocol.magic[1] ||
+                m[2] !== Protocol.magic[2] || m[3] !== Protocol.magic[3])
+            {
+                throw new Ice.BadMagicException("", m);
+            }
+
+            this._readProtocol._read(this._readStream);
+            Protocol.checkSupportedProtocol(this._readProtocol);
+
+            this._readProtocolEncoding._read(this._readStream);
+            Protocol.checkSupportedProtocolEncoding(this._readProtocolEncoding);
+
+            const messageType = this._readStream.readByte();
+            if(messageType !== Protocol.validateConnectionMsg)
+            {
+                throw new Ice.ConnectionNotValidatedException();
+            }
+            this._readStream.readByte(); // Ignore compression status for validate connection.
+            if(this._readStream.readInt() !== Protocol.headerSize)
+            {
+                throw new Ice.IllegalMessageSizeException();
+            }
+            TraceUtil.traceRecv(this._readStream, this._logger, this._traceLevels);
         }
 
         this._writeStream.resize(0);
@@ -1599,20 +1543,10 @@ class ConnectionI
         if(traceLevels.network >= 1)
         {
             const s = [];
-            if(this._endpoint.datagram())
-            {
-                s.push("starting to send ");
-                s.push(this._endpoint.protocol());
-                s.push(" messages\n");
-                s.push(this._transceiver.toDetailedString());
-            }
-            else
-            {
-                s.push("established ");
-                s.push(this._endpoint.protocol());
-                s.push(" connection\n");
-                s.push(this.toString());
-            }
+            s.push("established ");
+            s.push(this._endpoint.protocol());
+            s.push(" connection\n");
+            s.push(this.toString());
             this._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
         }
 
@@ -1786,18 +1720,7 @@ class ConnectionI
                 case Protocol.closeConnectionMsg:
                 {
                     TraceUtil.traceRecv(info.stream, this._logger, this._traceLevels);
-                    if(this._endpoint.datagram())
-                    {
-                        if(this._warn)
-                        {
-                            this._logger.warning("ignoring close connection message for datagram connection:\n" +
-                                                this._desc);
-                        }
-                    }
-                    else
-                    {
-                        this.setState(StateClosed, new Ice.CloseConnectionException());
-                    }
+                    this.setState(StateClosed, new Ice.CloseConnectionException());
                     break;
                 }
 
@@ -1886,17 +1809,7 @@ class ConnectionI
         {
             if(ex instanceof Ice.LocalException)
             {
-                if(this._endpoint.datagram())
-                {
-                    if(this._warn)
-                    {
-                        this._logger.warning("datagram connection exception:\n" + ex + '\n' + this._desc);
-                    }
-                }
-                else
-                {
-                    this.setState(StateClosed, ex);
-                }
+                this.setState(StateClosed, ex);
             }
             else
             {
@@ -1918,7 +1831,7 @@ class ConnectionI
                 //
                 const inc = new IncomingAsync(this._instance, this,
                                               adapter,
-                                              !this._endpoint.datagram() && requestId !== 0, // response
+                                              requestId !== 0, // response
                                               requestId);
 
                 //
@@ -2069,16 +1982,9 @@ class ConnectionI
         {
             const s = [];
             s.push("received ");
-            if(this._endpoint.datagram())
-            {
-                s.push(buf.limit);
-            }
-            else
-            {
-                s.push(buf.position - start);
-                s.push(" of ");
-                s.push(buf.limit - start);
-            }
+            s.push(buf.position - start);
+            s.push(" of ");
+            s.push(buf.limit - start);
             s.push(" bytes via ");
             s.push(this._endpoint.protocol());
             s.push("\n");
@@ -2097,11 +2003,8 @@ class ConnectionI
             const s = [];
             s.push("sent ");
             s.push(buf.position - start);
-            if(!this._endpoint.datagram())
-            {
-                s.push(" of ");
-                s.push(buf.limit - start);
-            }
+            s.push(" of ");
+            s.push(buf.limit - start);
             s.push(" bytes via ");
             s.push(this._endpoint.protocol());
             s.push("\n");

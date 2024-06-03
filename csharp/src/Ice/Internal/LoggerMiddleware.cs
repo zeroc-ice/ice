@@ -82,7 +82,7 @@ internal sealed class LoggerMiddleware : Object
         {
             try
             {
-                for (ConnectionInfo p = current.con.getInfo(); p != null; p = p.underlying)
+                for (ConnectionInfo? p = current.con.getInfo(); p is not null; p = p.underlying)
                 {
                     if (p is IPConnectionInfo ipInfo)
                     {

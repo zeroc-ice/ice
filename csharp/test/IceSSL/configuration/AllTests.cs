@@ -1665,7 +1665,6 @@ public class AllTests
 
                 initData = createClientProps(defaultProperties);
                 initData.properties.setProperty("IceSSL.DefaultDir", "");
-                initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
                 Ice.Communicator comm = Ice.Util.initialize(initData);
                 Ice.ObjectPrx p = comm.stringToProxy("dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
                 while (true)
@@ -1705,7 +1704,6 @@ public class AllTests
                 retryCount = 0;
                 initData = createClientProps(defaultProperties);
                 initData.properties.setProperty("IceSSL.DefaultDir", "");
-                initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
                 initData.properties.setProperty("IceSSL.UsePlatformCAs", "1");
                 comm = Ice.Util.initialize(initData);
                 p = comm.stringToProxy("dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");

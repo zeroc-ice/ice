@@ -254,7 +254,7 @@ public class OutputStream
     /// Marks the start of a class instance.
     /// </summary>
     /// <param name="data">Preserved slices for this instance, or null.</param>
-    public void startValue(SlicedData data)
+    public void startValue(SlicedData? data)
     {
         Debug.Assert(_encapsStack != null && _encapsStack.encoder != null);
         _encapsStack.encoder.startInstance(SliceType.ValueSlice, data);
@@ -2048,7 +2048,7 @@ public class OutputStream
                     catch (System.Exception ex)
                     {
                         string s = "exception raised by ice_preMarshal:\n" + ex;
-                        _stream.instance()!.initializationData().logger.warning(s);
+                        _stream.instance()!.initializationData().logger!.warning(s);
                     }
 
                     p.Key.iceWrite(_stream);
@@ -2384,7 +2384,7 @@ public class OutputStream
             catch (System.Exception ex)
             {
                 string s = "exception raised by ice_preMarshal:\n" + ex;
-                _stream.instance()!.initializationData().logger.warning(s);
+                _stream.instance()!.initializationData().logger!.warning(s);
             }
 
             _stream.writeSize(1); // Object instance marker.

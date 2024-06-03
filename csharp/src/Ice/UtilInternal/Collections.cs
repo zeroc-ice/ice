@@ -1,94 +1,11 @@
 // Copyright (c) ZeroC, Inc.
 
-using System.Collections;
 using System.Diagnostics;
 
 namespace Ice.UtilInternal;
 
-public sealed class Collections
+public static class Collections
 {
-    // Just like Enumerable.SequenceEqual except it also handles null sequences.
-    // TODO: Note that this code would be removed by proposal #2115.
-    public static bool NullableSequenceEqual<TSource>(IEnumerable<TSource> lhs, IEnumerable<TSource> rhs)
-    {
-        if (lhs is null)
-        {
-            return rhs is null || !rhs.Any();
-        }
-        if (rhs is null)
-        {
-            return !lhs.Any();
-        }
-
-        return lhs.SequenceEqual(rhs);
-    }
-
-    // Seq is a nullable seq.
-    public static void HashCodeAdd<TSource>(ref HashCode hash, IEnumerable<TSource> seq)
-    {
-        if (seq is not null)
-        {
-            foreach (TSource item in seq)
-            {
-                hash.Add(item);
-            }
-        }
-    }
-
-    public static bool DictionaryEquals(IDictionary d1, IDictionary d2)
-    {
-        if (ReferenceEquals(d1, d2))
-        {
-            return true;
-        }
-
-        if ((d1 == null && d2 != null) || (d1 != null && d2 == null))
-        {
-            return false;
-        }
-
-        if (d1.Count == d2.Count)
-        {
-            IDictionaryEnumerator e1 = d1.GetEnumerator();
-            IDictionaryEnumerator e2 = d2.GetEnumerator();
-            while (e1.MoveNext())
-            {
-                e2.MoveNext();
-                if (!e1.Key.Equals(e2.Key))
-                {
-                    return false;
-                }
-                if (e1.Value == null)
-                {
-                    if (e2.Value != null)
-                    {
-                        return false;
-                    }
-                }
-                else if (!e1.Value.Equals(e2.Value))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    public static void HashCodeAdd<TKey, TValue>(ref HashCode hash, IDictionary<TKey, TValue> d) where TKey : notnull
-    {
-        if (d is not null)
-        {
-            foreach (KeyValuePair<TKey, TValue> pair in d)
-            {
-                hash.Add(pair.Key);
-                hash.Add(pair.Value);
-            }
-        }
-    }
-
     public static void Shuffle<T>(ref List<T> l)
     {
         lock (_rand)
@@ -107,7 +24,7 @@ public sealed class Collections
         }
     }
 
-    public static void Sort<T>(ref List<T> array, IComparer<T> comparator)
+    internal static void Sort<T>(ref List<T> array, IComparer<T> comparator)
     {
         //
         // This Sort method implements the merge sort algorithm
@@ -164,5 +81,5 @@ public sealed class Collections
         }
     }
 
-    private static readonly System.Random _rand = new(unchecked((int)System.DateTime.Now.Ticks));
+    private static readonly Random _rand = new(unchecked((int)DateTime.Now.Ticks));
 }

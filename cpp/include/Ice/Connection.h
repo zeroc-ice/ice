@@ -265,12 +265,6 @@ namespace Ice
         virtual std::string type() const noexcept = 0;
 
         /**
-         * Get the timeout for the connection.
-         * @return The connection's timeout.
-         */
-        virtual int timeout() const noexcept = 0;
-
-        /**
          * Return a description of the connection as human readable text, suitable for logging or error messages.
          * @return The description of the connection as human readable text.
          */

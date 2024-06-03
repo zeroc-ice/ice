@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 namespace Ice;
 
 public delegate Value ValueFactory(string type);

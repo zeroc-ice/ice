@@ -481,7 +481,7 @@ Ice::ObjectPrx::_fixed(ConnectionPtr connection) const
 ReferencePtr
 Ice::ObjectPrx::_invocationTimeout(int newTimeout) const
 {
-    if (newTimeout < 1 && newTimeout != -1 && newTimeout != -2)
+    if (newTimeout < 1 && newTimeout != -1)
     {
         ostringstream s;
         s << "invalid value passed to ice_invocationTimeout: " << newTimeout;

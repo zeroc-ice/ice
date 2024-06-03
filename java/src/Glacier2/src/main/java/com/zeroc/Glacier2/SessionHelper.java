@@ -4,7 +4,6 @@
 
 package com.zeroc.Glacier2;
 
-import com.zeroc.Ice.ACMHeartbeat;
 import com.zeroc.Ice.InitializationData;
 
 /** A helper class for using Glacier2 with GUI applications. */
@@ -187,14 +186,14 @@ public class SessionHelper {
     assert (router != null);
     com.zeroc.Ice.Connection conn = router.ice_getCachedConnection();
     String category = router.getCategoryForClient();
-    int acmTimeout = 0;
+    int remoteIdleTimeout = 0;
     try {
-      acmTimeout = router.getACMTimeout();
+      remoteIdleTimeout = router.getACMTimeout();
     } catch (com.zeroc.Ice.OperationNotExistException ex) {
     }
 
-    if (acmTimeout <= 0) {
-      acmTimeout = (int) router.getSessionTimeout();
+    if (remoteIdleTimeout <= 0) {
+      remoteIdleTimeout = (int) router.getSessionTimeout();
     }
 
     //
@@ -235,15 +234,11 @@ public class SessionHelper {
       _session = session;
       _connected = true;
 
-      if (acmTimeout > 0) {
-        com.zeroc.Ice.Connection connection = _router.ice_getCachedConnection();
-        assert (connection != null);
-        connection.setACM(
-            java.util.OptionalInt.of(acmTimeout),
-            null,
-            java.util.Optional.of(ACMHeartbeat.HeartbeatAlways));
-        connection.setCloseCallback(con -> destroy());
-      }
+      // TODO: check remoteIdleTimout
+
+      com.zeroc.Ice.Connection connection = _router.ice_getCachedConnection();
+      assert (connection != null);
+      connection.setCloseCallback(con -> destroy());
 
       _shutdownHook =
           new Thread("Shutdown hook") {

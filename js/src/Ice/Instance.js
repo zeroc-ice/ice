@@ -12,7 +12,7 @@ require("../Ice/EndpointFactoryManager");
 require("../Ice/EndpointInfo");
 require("../Ice/Exception");
 require("../Ice/IdentityUtil");
-require("../Ice/ImplicitContextI");
+require("../Ice/ImplicitContext");
 require("../Ice/LocalException");
 require("../Ice/LocatorManager");
 require("../Ice/ObjectAdapterFactory");
@@ -38,7 +38,7 @@ const AsyncResultBase = Ice.AsyncResultBase;
 const Debug = Ice.Debug;
 const DefaultsAndOverrides = Ice.DefaultsAndOverrides;
 const EndpointFactoryManager = Ice.EndpointFactoryManager;
-const ImplicitContextI = Ice.ImplicitContextI;
+const ImplicitContext = Ice.ImplicitContext;
 const LocatorManager = Ice.LocatorManager;
 const ObjectAdapterFactory = Ice.ObjectAdapterFactory;
 const OutgoingConnectionFactory = Ice.OutgoingConnectionFactory;
@@ -360,7 +360,7 @@ class Instance
             }
 
             this._implicitContext =
-                ImplicitContextI.create(this._initData.properties.getProperty("Ice.ImplicitContext"));
+                ImplicitContext.create(this._initData.properties.getProperty("Ice.ImplicitContext"));
 
             this._routerManager = new RouterManager();
 
