@@ -292,10 +292,10 @@ Slice::CsGenerator::getOptionalFormat(const TypePtr& type)
 string
 Slice::CsGenerator::getStaticId(const TypePtr& type)
 {
-    assert(type->isClassType());
-
     BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
+
+    assert((b && b->usesClasses()) || cl);
 
     if (b)
     {
@@ -684,8 +684,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
         return;
     }
 
-    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    if (cl)
+    if (type->isClassType())
     {
         if (marshal)
         {

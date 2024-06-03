@@ -4110,8 +4110,7 @@ CodeVisitor::marshal(
         return;
     }
 
-    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    if (cl)
+    if (type->isClassType())
     {
         assert(!optional); // Optional classes are disallowed by the parser.
         out << nl << stream << ".writeValue(" << v << ");";
