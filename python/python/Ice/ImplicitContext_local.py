@@ -44,9 +44,7 @@ if "ImplicitContext" not in _M_Ice.__dict__:
         The implementation maintains a single context shared by all threads.
 
         ImplicitContext also provides a number of operations to create, update or retrieve an entry in the
-        underlying context without first retrieving a copy of the entire context. These operations correspond to a subset
-        of the java.util.Map methods, with java.lang.Object replaced by string and
-        null replaced by the empty-string.
+        underlying context without first retrieving a copy of the entire context.
         """
 
         def __init__(self):

@@ -121,7 +121,7 @@ runs:
 
     - name: Set MATLAB_HOME and MATLAB_VERSION
       run: |
-        # Beeded for MATLAB R2024a
+        # Needed for MATLAB R2024a
         sudo apt install -y libgtk2.0-0
         echo "MATLAB_VERSION=R2024a" >> $GITHUB_ENV
         echo "MATLAB_HOME=${{ steps.setup-matlab.outputs.matlabroot }}" >> $GITHUB_ENV
