@@ -281,8 +281,4 @@ class InitialI: Initial {
     func supportsJavaSerializableAsync(current _: Current) -> Promise<Bool> {
         return Promise.value(false)
     }
-
-    func supportsCsharpSerializableAsync(current _: Current) -> Promise<Bool> {
-        return Promise.value(false)
-    }
 }

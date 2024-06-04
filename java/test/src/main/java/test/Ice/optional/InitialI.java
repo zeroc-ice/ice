@@ -277,9 +277,4 @@ public final class InitialI implements Initial {
   public boolean supportsJavaSerializable(Current current) {
     return true;
   }
-
-  @Override
-  public boolean supportsCsharpSerializable(Current current) {
-    return false;
-  }
 }

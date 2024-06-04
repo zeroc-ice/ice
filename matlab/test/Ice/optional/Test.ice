@@ -278,8 +278,6 @@ interface Initial
                                                             out optional(3) StringIntDict p2);
 
     bool supportsJavaSerializable();
-
-    bool supportsCsharpSerializable();
 }
 
 }
