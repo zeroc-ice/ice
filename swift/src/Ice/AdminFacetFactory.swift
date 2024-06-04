@@ -4,7 +4,7 @@
 
 import IceImpl
 
-class AdminFacetFacade: ICEBlobjectFacade {
+class AdminFacetFacade: ICEBlobjectFacade, ICEDispatchAdapter {
     private let communicator: Communicator
     var disp: Disp
 
@@ -84,6 +84,78 @@ class AdminFacetFacade: ICEBlobjectFacade {
     }
 
     func facadeRemoved() {}
+
+    func dispatch(
+        _ adapter: ICEObjectAdapter,
+        inEncapsBytes: UnsafeMutableRawPointer,
+        inEncapsCount: Int,
+        con: ICEConnection?,
+        name: String,
+        category: String,
+        facet: String,
+        operation: String,
+        mode: UInt8,
+        context: [String: String],
+        requestId: Int32,
+        encodingMajor: UInt8,
+        encodingMinor: UInt8,
+        completionHandler: @escaping ICEOutgoingResponse
+    ) {
+        let objectAdapter = adapter.getSwiftObject(ObjectAdapterI.self) {
+            let oa = ObjectAdapterI(handle: adapter, communicator: communicator)
+
+            // Register the admin OA's id with the servant manager. This is used to distinguish between
+            // ObjectNotExistException and FacetNotExistException when a servant is not found on
+            // a Swift Admin OA.
+            oa.servantManager.setAdminId(Identity(name: name, category: category))
+            return oa
+        }
+
+        let connection = con?.getSwiftObject(ConnectionI.self) { ConnectionI(handle: con!) }
+        let encoding = EncodingVersion(major: encodingMajor, minor: encodingMinor)
+
+        let current = Current(
+            adapter: objectAdapter,
+            con: connection,
+            id: Identity(name: name, category: category),
+            facet: facet,
+            operation: operation,
+            mode: OperationMode(rawValue: mode)!,
+            ctx: context,
+            requestId: requestId,
+            encoding: encoding)
+
+        let istr = InputStream(
+            communicator: communicator,
+            encoding: encoding,
+            bytes: Data(bytesNoCopy: inEncapsBytes, count: inEncapsCount, deallocator: .none))
+
+        let request = IncomingRequest(current: current, inputStream: istr);
+
+        // Dispatch directly to the servant.
+        disp.dispatch(request).map { response in
+            response.outputStream.finished().withUnsafeBytes {
+                completionHandler(
+                    response.replyStatus.rawValue,
+                    response.exceptionId,
+                    response.exceptionMessage,
+                    $0.baseAddress!,
+                    $0.count)
+            }
+        }.catch { error in
+            let response = current.makeOutgoingResponse(error: error)
+            response.outputStream.finished().withUnsafeBytes {
+                completionHandler(
+                    response.replyStatus.rawValue,
+                    response.exceptionId,
+                    response.exceptionMessage,
+                    $0.baseAddress!,
+                    $0.count)
+            }
+        }
+    }
+
+    func complete() {}
 }
 
 final class UnsupportedAdminFacet: LocalObject<ICEUnsupportedAdminFacet>, Object {
@@ -103,8 +175,7 @@ final class UnsupportedAdminFacet: LocalObject<ICEUnsupportedAdminFacet>, Object
 }
 
 class AdminFacetFactory: ICEAdminFacetFactory {
-    static func createProcess(_ communicator: ICECommunicator, handle: ICEProcess)
-        -> ICEBlobjectFacade
+    static func createProcess(_ communicator: ICECommunicator, handle: ICEProcess) -> ICEDispatchAdapter
     {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
         return AdminFacetFacade(
@@ -115,8 +186,7 @@ class AdminFacetFactory: ICEAdminFacetFactory {
                 }))
     }
 
-    static func createProperties(_ communicator: ICECommunicator, handle: ICEPropertiesAdmin)
-        -> ICEBlobjectFacade
+    static func createProperties(_ communicator: ICECommunicator, handle: ICEPropertiesAdmin) -> ICEDispatchAdapter
     {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
 
@@ -128,10 +198,7 @@ class AdminFacetFactory: ICEAdminFacetFactory {
                 }))
     }
 
-    static func createUnsupported(
-        _ communicator: ICECommunicator,
-        handle: ICEUnsupportedAdminFacet
-    ) -> ICEBlobjectFacade {
+    static func createUnsupported(_ communicator: ICECommunicator, handle: ICEUnsupportedAdminFacet) -> ICEDispatchAdapter {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
         return AdminFacetFacade(
             communicator: c,

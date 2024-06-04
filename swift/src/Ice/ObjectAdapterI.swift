@@ -270,7 +270,6 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
         precondition(handle == adapter)
 
         let connection = con?.getSwiftObject(ConnectionI.self) { ConnectionI(handle: con!) }
-
         let encoding = EncodingVersion(major: encodingMajor, minor: encodingMinor)
 
         let current = Current(

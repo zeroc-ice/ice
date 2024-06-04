@@ -9,7 +9,7 @@
 @class ICEProperties;
 @class ICEObjectAdapter;
 @protocol ICELoggerProtocol;
-@protocol ICEBlobjectFacade;
+@protocol ICEDispatchAdapter;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -51,10 +51,10 @@ ICEIMPL_API @interface ICECommunicator : ICELocalObject
                              category:(NSString*)category
                                 error:(NSError**)error;
 - (nullable id)getAdmin:(NSError**)error;
-- (BOOL)addAdminFacet:(id<ICEBlobjectFacade>)servant facet:(NSString*)facet error:(NSError**)error;
-- (nullable id<ICEBlobjectFacade>)removeAdminFacet:(NSString*)facet error:(NSError* _Nullable* _Nullable)error;
+- (BOOL)addAdminFacet:(id<ICEDispatchAdapter>)servant facet:(NSString*)facet error:(NSError**)error;
+- (nullable id<ICEDispatchAdapter>)removeAdminFacet:(NSString*)facet error:(NSError* _Nullable* _Nullable)error;
 - (nullable id)findAdminFacet:(NSString*)facet error:(NSError* _Nullable* _Nullable)error;
-- (nullable NSDictionary<NSString*, id<ICEBlobjectFacade>>*)findAllAdminFacets:(NSError* _Nullable* _Nullable)error;
+- (nullable NSDictionary<NSString*, id<ICEDispatchAdapter>>*)findAllAdminFacets:(NSError* _Nullable* _Nullable)error;
 - (ICEProperties*)getProperties;
 - (nullable dispatch_queue_t)getClientDispatchQueue:(NSError* _Nullable* _Nullable)error;
 - (nullable dispatch_queue_t)getServerDispatchQueue:(NSError* _Nullable* _Nullable)error;

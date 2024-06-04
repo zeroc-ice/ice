@@ -3,7 +3,7 @@
 //
 
 #import "Communicator.h"
-#import "BlobjectFacade.h"
+#import "DispatchAdapter.h"
 #import "IceUtil.h"
 #import "ImplicitContext.h"
 #import "Logger.h"
@@ -302,12 +302,12 @@
     }
 }
 
-- (BOOL)addAdminFacet:(id<ICEBlobjectFacade>)facade facet:(NSString*)facet error:(NSError**)error
+- (BOOL)addAdminFacet:(id<ICEDispatchAdapter>)dispatchAdapter facet:(NSString*)facet error:(NSError**)error
 {
     try
     {
-        auto swiftDispatcher = std::make_shared<SwiftDispatcher>(facade);
-        self.communicator->addAdminFacet(swiftDispatcher, fromNSString(facet));
+        auto cppDispatcher = std::make_shared<CppDispatcher>(dispatchAdapter);
+        self.communicator->addAdminFacet(cppDispatcher, fromNSString(facet));
         return YES;
     }
     catch (...)
@@ -317,12 +317,12 @@
     }
 }
 
-- (id<ICEBlobjectFacade>)removeAdminFacet:(NSString*)facet error:(NSError**)error
+- (id<ICEDispatchAdapter>)removeAdminFacet:(NSString*)facet error:(NSError**)error
 {
     try
     {
         // servant can either be a Swift wrapped facet or a builtin admin facet
-        return [self facetToFacade:self.communicator->removeAdminFacet(fromNSString(facet))];
+        return [self facetToDispatchAdapter:self.communicator->removeAdminFacet(fromNSString(facet))];
     }
     catch (...)
     {
@@ -343,7 +343,7 @@
             return [NSNull null];
         }
 
-        return [self facetToFacade:servant];
+        return [self facetToDispatchAdapter:servant];
     }
     catch (...)
     {
@@ -352,15 +352,15 @@
     }
 }
 
-- (nullable NSDictionary<NSString*, id<ICEBlobjectFacade>>*)findAllAdminFacets:(NSError**)error
+- (nullable NSDictionary<NSString*, id<ICEDispatchAdapter>>*)findAllAdminFacets:(NSError**)error
 {
     try
     {
-        NSMutableDictionary<NSString*, id<ICEBlobjectFacade>>* facets = [NSMutableDictionary dictionary];
+        NSMutableDictionary<NSString*, id<ICEDispatchAdapter>>* facets = [NSMutableDictionary dictionary];
 
         for (const auto& d : self.communicator->findAllAdminFacets())
         {
-            [facets setObject:[self facetToFacade:d.second] forKey:toNSString(d.first)];
+            [facets setObject:[self facetToDispatchAdapter:d.second] forKey:toNSString(d.first)];
         }
 
         return facets;
@@ -417,17 +417,17 @@
         IceInternal::getInstance(self.communicator)->defaultsAndOverrides()->defaultFormat);
 }
 
-- (id<ICEBlobjectFacade>)facetToFacade:(const Ice::ObjectPtr&)servant
+- (id<ICEDispatchAdapter>)facetToDispatchAdapter:(const Ice::ObjectPtr&)servant
 {
     if (!servant)
     {
         return nil;
     }
 
-    auto swiftDispatcher = std::dynamic_pointer_cast<SwiftDispatcher>(servant);
-    if (swiftDispatcher)
+    auto cppDispatcher = std::dynamic_pointer_cast<CppDispatcher>(servant);
+    if (cppDispatcher)
     {
-        return swiftDispatcher->getFacade();
+        return cppDispatcher->dispatchAdapter();
     }
 
     Class<ICEAdminFacetFactory> factory = [ICEUtil adminFacetFactory];
