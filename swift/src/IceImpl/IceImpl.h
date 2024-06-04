@@ -3,6 +3,7 @@
 #import "Communicator.h"
 #import "Config.h"
 #import "Connection.h"
+#import "DispatchAdapter.h"
 #import "Endpoint.h"
 #import "Exception.h"
 #import "IceUtil.h"

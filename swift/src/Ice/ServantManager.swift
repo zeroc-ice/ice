@@ -190,6 +190,7 @@ class ServantManager: Dispatcher {
         }
 
         // Else, check servant locators
+
         var locator = findServantLocator(category: current.id.category)
         if locator == nil, !current.id.category.isEmpty {
             locator = findServantLocator(category: "")
@@ -200,14 +201,21 @@ class ServantManager: Dispatcher {
                 var cookie: AnyObject?
                 (servant, cookie) = try locator.locate(current)
 
-                if let servant = findServant(id: current.id, facet: current.facet) {
-                    return servant.dispatch(request).then(on: nil) { response in
+                if let servant = servant {
+                    // If locator returned a servant, we must execute finished once no matter what.
+                    return servant.dispatch(request).map(on: nil) { response in
                         do {
                             try locator.finished(curr: current, servant: servant, cookie: cookie)
                         } catch {
-                            return Promise<OutgoingResponse>(error: error)
+                            // Can't return a rejected promise here; otherwise recover will execute finished a second
+                            // time.
+                            return current.makeOutgoingResponse(error: error)
                         }
-                        return Promise.value(response)
+                        return response
+                    }.recover(on: nil) { error in
+                        // This can throw and return a rejected promise.
+                        try locator.finished(curr: current, servant: servant, cookie: cookie)
+                        return Promise<OutgoingResponse>(error: error)
                     }
                 }
             } catch {

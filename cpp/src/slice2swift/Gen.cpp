@@ -1664,7 +1664,7 @@ Gen::ObjectExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     out << sp;
     writeServantDocSummary(out, p, swiftModule);
-    out << nl << "public extension " << fixIdent(name);
+    out << nl << "extension " << fixIdent(name);
 
     out << sb;
     return true;

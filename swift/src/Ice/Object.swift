@@ -61,9 +61,7 @@ public protocol Object {
 }
 
 extension Object {
-    public func _iceD_ice_id(incoming inS: Incoming, current: Current) throws -> Promise<
-        OutputStream
-    >? {
+    public func _iceD_ice_id(incoming inS: Incoming, current: Current) throws -> Promise<OutputStream>? {
         try inS.readEmptyParams()
 
         let returnValue = try ice_id(current: current)
@@ -139,8 +137,8 @@ extension Object {
         do {
             let istr = request.inputStream
             _ = try istr.startEncapsulation()
-            let id: Identity = try istr.read()
-            let returnValue = try ice_isA(id: id.name, current: request.current)
+            let identity: String = try istr.read()
+            let returnValue = try ice_isA(id: identity, current: request.current)
             return Promise.value(
                 request.current.makeOutgoingResponse(returnValue, formatType: .DefaultFormat) { ostr, value in
                     ostr.write(value)

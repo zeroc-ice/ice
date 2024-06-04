@@ -8,6 +8,7 @@
 #import "Config.h"
 #import "Connection.h"
 #import "Convert.h"
+#import "DispatchAdapter.h"
 #import "ObjectPrx.h"
 
 @implementation ICEObjectAdapter
@@ -238,6 +239,12 @@
 {
     auto swiftDispatcher = std::make_shared<SwiftDispatcher>(facade);
     self.objectAdapter->addDefaultServant(swiftDispatcher, "");
+}
+
+- (void)registerDispatchAdapter:(id<ICEDispatchAdapter>)dispatchAdapter
+{
+    auto cppDispatcher = std::make_shared<CppDispatcher>(dispatchAdapter);
+    self.objectAdapter->addDefaultServant(cppDispatcher, "");
 }
 
 @end

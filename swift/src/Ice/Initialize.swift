@@ -265,7 +265,7 @@ public let currentEncoding = Encoding_1_1
 /// - returns: `Ice.Identity` - The converted object identity.
 public func stringToIdentity(_ string: String) throws -> Identity {
     guard factoriesRegistered else {
-        fatalError("Unable to initialie Ice")
+        fatalError("Unable to initialize Ice")
     }
     return try autoreleasepool {
         var name = NSString()
@@ -284,6 +284,7 @@ public func stringToIdentity(_ string: String) throws -> Identity {
 ///
 /// - returns: `String` - The string representation of the object identity.
 public func identityToString(id: Identity, mode: ToStringMode = ToStringMode.Unicode) -> String {
+    precondition(!id.name.isEmpty, "Invalid identity with an empty name")
     return ICEUtil.identityToString(name: id.name, category: id.category, mode: mode.rawValue)
 }
 

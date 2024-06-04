@@ -39,7 +39,7 @@ extension Current {
         let ostr = OutputStream(communicator: adapter.getCommunicator(), encoding: currentProtocolEncoding)
 
         if requestId != 0 {
-            ostr.write(replyHdr)
+            ostr.writeBlob(replyHdr)
             ostr.write(requestId)
         }
 
@@ -50,7 +50,6 @@ extension Current {
         switch error {
         case let rfe as RequestFailedException:
             exceptionId = rfe.ice_id()
-            exceptionMessage = rfe.ice_print()
 
             replyStatus =
                 switch rfe {
@@ -75,6 +74,9 @@ extension Current {
             if rfe.operation.isEmpty {
                 rfe.operation = operation
             }
+
+            // We must call ice_print _after_ setting the properties above.
+            exceptionMessage = rfe.ice_print()
 
             if requestId != 0 {
                 ostr.write(replyStatus.rawValue)
@@ -145,7 +147,7 @@ extension Current {
     public func startReplyStream(replyStatus: ReplyStatus = .ok) -> OutputStream {
         let ostr = OutputStream(communicator: adapter.getCommunicator(), encoding: currentProtocolEncoding)
         if requestId != 0 {
-            ostr.write(replyHdr)
+            ostr.writeBlob(replyHdr)
             ostr.write(requestId)
             ostr.write(replyStatus.rawValue)
         }

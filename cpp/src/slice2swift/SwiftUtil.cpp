@@ -2776,7 +2776,7 @@ SwiftGenerator::writeDispatchOperation(::IceUtilInternal::Output& out, const Ope
     const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(op)));
 
     out << sp;
-    out << nl << "func _iceD_" << opName
+    out << nl << "public func _iceD_" << opName
         << "(_ request: Ice.IncomingRequest) -> PromiseKit.Promise<Ice.OutgoingResponse>";
 
     out << sb;
@@ -2885,7 +2885,7 @@ SwiftGenerator::writeDispatchOperationOld(::IceUtilInternal::Output& out, const 
     const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(op)));
 
     out << sp;
-    out << nl << "func _iceD_" << opName;
+    out << nl << "public func _iceD_" << opName;
     out << spar;
     out << ("incoming inS: " + getUnqualified("Ice.Incoming", swiftModule));
     out << ("current: " + getUnqualified("Ice.Current", swiftModule));
@@ -2953,7 +2953,7 @@ SwiftGenerator::writeDispatchAsyncOperationOld(::IceUtilInternal::Output& out, c
     const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(op)));
 
     out << sp;
-    out << nl << "func _iceD_" << op->name();
+    out << nl << "public func _iceD_" << op->name();
     out << spar;
     out << ("incoming inS: " + getUnqualified("Ice.Incoming", swiftModule));
     out << ("current: " + getUnqualified("Ice.Current", swiftModule));

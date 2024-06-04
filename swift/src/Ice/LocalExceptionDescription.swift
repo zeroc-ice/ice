@@ -20,7 +20,7 @@ extension String {
     }
 
     fileprivate mutating func failedRequest(_ ex: RequestFailedException) {
-        let id: String = identityToString(id: ex.id, mode: .Unicode)
+        let id = ex.id.name.isEmpty ? "" : identityToString(id: ex.id, mode: .Unicode)
         sep("identity: `\(id)'")
         nl("facet: \(ex.facet)")
         nl("operation: \(ex.operation)")
