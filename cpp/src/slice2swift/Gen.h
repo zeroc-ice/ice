@@ -78,7 +78,6 @@ namespace Slice
             ProxyVisitor(::IceUtilInternal::Output&);
 
             virtual bool visitModuleStart(const ModulePtr&);
-            virtual void visitModuleEnd(const ModulePtr&);
             virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
             virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
             virtual void visitOperation(const OperationPtr&);
@@ -94,7 +93,6 @@ namespace Slice
 
             virtual bool visitClassDefStart(const ClassDefPtr&);
             virtual void visitClassDefEnd(const ClassDefPtr&);
-            virtual void visitOperation(const OperationPtr&);
 
         private:
             IceUtilInternal::Output& out;
@@ -105,8 +103,6 @@ namespace Slice
         public:
             ObjectVisitor(::IceUtilInternal::Output&);
 
-            virtual bool visitModuleStart(const ModulePtr&);
-            virtual void visitModuleEnd(const ModulePtr&);
             virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
             virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
             virtual void visitOperation(const OperationPtr&);
@@ -120,8 +116,6 @@ namespace Slice
         public:
             ObjectExtVisitor(::IceUtilInternal::Output&);
 
-            virtual bool visitModuleStart(const ModulePtr&);
-            virtual void visitModuleEnd(const ModulePtr&);
             virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
             virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
             virtual void visitOperation(const OperationPtr&);

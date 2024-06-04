@@ -117,14 +117,10 @@ namespace Slice
         public:
             virtual bool visitUnitStart(const UnitPtr&);
             virtual bool visitModuleStart(const ModulePtr&);
-            virtual void visitModuleEnd(const ModulePtr&);
             virtual void visitClassDecl(const ClassDeclPtr&);
             virtual bool visitClassDefStart(const ClassDefPtr&);
-            virtual void visitClassDefEnd(const ClassDefPtr&);
             virtual bool visitExceptionStart(const ExceptionPtr&);
-            virtual void visitExceptionEnd(const ExceptionPtr&);
             virtual bool visitStructStart(const StructPtr&);
-            virtual void visitStructEnd(const StructPtr&);
             virtual void visitOperation(const OperationPtr&);
             virtual void visitParamDecl(const ParamDeclPtr&);
             virtual void visitDataMember(const DataMemberPtr&);

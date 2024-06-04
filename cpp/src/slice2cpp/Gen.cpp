@@ -994,11 +994,6 @@ Slice::Gen::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::MetaDataVisitor::visitModuleEnd(const ModulePtr&)
-{
-}
-
-void
 Slice::Gen::MetaDataVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
     StringList metaData = validate(p, p->getMetaData(), p->file(), p->line());
@@ -1013,11 +1008,6 @@ Slice::Gen::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
     return true;
 }
 
-void
-Slice::Gen::MetaDataVisitor::visitClassDefEnd(const ClassDefPtr&)
-{
-}
-
 bool
 Slice::Gen::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
@@ -1026,22 +1016,12 @@ Slice::Gen::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
     return true;
 }
 
-void
-Slice::Gen::MetaDataVisitor::visitExceptionEnd(const ExceptionPtr&)
-{
-}
-
 bool
 Slice::Gen::MetaDataVisitor::visitStructStart(const StructPtr& p)
 {
     StringList metaData = validate(p, p->getMetaData(), p->file(), p->line());
     p->setMetaData(metaData);
     return true;
-}
-
-void
-Slice::Gen::MetaDataVisitor::visitStructEnd(const StructPtr&)
-{
 }
 
 void
