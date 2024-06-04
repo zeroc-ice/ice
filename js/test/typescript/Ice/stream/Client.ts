@@ -145,7 +145,7 @@ export class Client extends TestHelper
 
         {
             outS = new Ice.OutputStream(communicator);
-            const s = new Test.SmallStruct();
+            const s = new Test.LargeStruct();
             s.bo = true;
             s.by = 1;
             s.sh = 2;
@@ -156,9 +156,9 @@ export class Client extends TestHelper
             s.str = "7";
             s.e = Test.MyEnum.enum2;
             s.p = Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test:default"));
-            Test.SmallStruct.write(outS, s);
+            Test.LargeStruct.write(outS, s);
             const data = outS.finished();
-            const s2 = Test.SmallStruct.read(new Ice.InputStream(communicator, data));
+            const s2 = Test.LargeStruct.read(new Ice.InputStream(communicator, data));
             test(s2.equals(s));
         }
 
@@ -381,10 +381,10 @@ export class Client extends TestHelper
             test(Ice.ArrayUtil.equals(arr2S, arrS));
         }
 
-        const smallStructArray = [];
+        const largeStructArray = [];
         for(let i = 0; i < 3; ++i)
         {
-            const s = new Test.SmallStruct();
+            const s = new Test.LargeStruct();
             s.bo = true;
             s.by = 1;
             s.sh = 2;
@@ -395,7 +395,7 @@ export class Client extends TestHelper
             s.str = "7";
             s.e = Test.MyEnum.enum2;
             s.p = Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test:default"));
-            smallStructArray[i] = s;
+            largeStructArray[i] = s;
         }
 
         const myClassArray = [];
@@ -405,7 +405,7 @@ export class Client extends TestHelper
             myClassArray[i] = c;
             c.c = myClassArray[i];
             c.o = myClassArray[i];
-            c.s = new Test.SmallStruct();
+            c.s = new Test.LargeStruct();
             c.s.e = Test.MyEnum.enum2;
             c.seq1 = [true, false, true, false];
             c.seq2 = new Uint8Array([1, 2, 3, 4]);
@@ -472,7 +472,7 @@ export class Client extends TestHelper
             const c = new Test.MyClass();
             c.c = c;
             c.o = c;
-            c.s = new Test.SmallStruct();
+            c.s = new Test.LargeStruct();
             c.s.e = Test.MyEnum.enum2;
             c.seq1 = [true, false, true, false];
             c.seq2 = new Uint8Array([1, 2, 3, 4]);
@@ -567,11 +567,11 @@ export class Client extends TestHelper
         {
             const dict = new Test.StringMyClassD();
             let c = new Test.MyClass();
-            c.s = new Test.SmallStruct();
+            c.s = new Test.LargeStruct();
             c.s.e = Test.MyEnum.enum2;
             dict.set("key1", c);
             c = new Test.MyClass();
-            c.s = new Test.SmallStruct();
+            c.s = new Test.LargeStruct();
             c.s.e = Test.MyEnum.enum3;
             dict.set("key2", c);
             outS = new Ice.OutputStream(communicator);

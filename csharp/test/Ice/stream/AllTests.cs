@@ -260,7 +260,7 @@ namespace Ice
 
                 {
                     outS = new Ice.OutputStream(communicator);
-                    var s = new Test.SmallStruct();
+                    var s = new Test.LargeStruct();
                     s.bo = true;
                     s.by = 1;
                     s.sh = 2;
@@ -271,9 +271,9 @@ namespace Ice
                     s.str = "7";
                     s.e = Test.MyEnum.enum2;
                     s.p = Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test:default"));
-                    Test.SmallStruct.ice_write(outS, s);
+                    Test.LargeStruct.ice_write(outS, s);
                     var data = outS.finished();
-                    var s2 = Test.SmallStruct.ice_read(new Ice.InputStream(communicator, data));
+                    var s2 = Test.LargeStruct.ice_read(new Ice.InputStream(communicator, data));
                     test(s2.Equals(s));
                 }
 
@@ -500,20 +500,20 @@ namespace Ice
                     test(Compare(arr2S, arrS));
                 }
 
-                var smallStructArray = new Test.SmallStruct[3];
-                for (int i = 0; i < smallStructArray.Length; ++i)
+                var largeStructArray = new Test.LargeStruct[3];
+                for (int i = 0; i < largeStructArray.Length; ++i)
                 {
-                    smallStructArray[i] = new Test.SmallStruct();
-                    smallStructArray[i].bo = true;
-                    smallStructArray[i].by = 1;
-                    smallStructArray[i].sh = 2;
-                    smallStructArray[i].i = 3;
-                    smallStructArray[i].l = 4;
-                    smallStructArray[i].f = 5.0f;
-                    smallStructArray[i].d = 6.0;
-                    smallStructArray[i].str = "7";
-                    smallStructArray[i].e = Test.MyEnum.enum2;
-                    smallStructArray[i].p = Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test:default"));
+                    largeStructArray[i] = new Test.LargeStruct();
+                    largeStructArray[i].bo = true;
+                    largeStructArray[i].by = 1;
+                    largeStructArray[i].sh = 2;
+                    largeStructArray[i].i = 3;
+                    largeStructArray[i].l = 4;
+                    largeStructArray[i].f = 5.0f;
+                    largeStructArray[i].d = 6.0;
+                    largeStructArray[i].str = "7";
+                    largeStructArray[i].e = Test.MyEnum.enum2;
+                    largeStructArray[i].p = Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test:default"));
                 }
 
                 var myClassArray = new Test.MyClass[4];
@@ -522,7 +522,7 @@ namespace Ice
                     myClassArray[i] = new Test.MyClass();
                     myClassArray[i].c = myClassArray[i];
                     myClassArray[i].o = myClassArray[i];
-                    myClassArray[i].s = new Test.SmallStruct();
+                    myClassArray[i].s = new Test.LargeStruct();
                     myClassArray[i].s.e = Test.MyEnum.enum2;
                     myClassArray[i].seq1 = new bool[] { true, false, true, false };
                     myClassArray[i].seq2 = new byte[] { 1, 2, 3, 4 };
@@ -608,7 +608,7 @@ namespace Ice
                 {
                     outS = new Ice.OutputStream(communicator);
                     var obj = new Test.MyClass();
-                    obj.s = new Test.SmallStruct();
+                    obj.s = new Test.LargeStruct();
                     obj.s.e = Test.MyEnum.enum2;
                     var writer = new TestValueWriter(obj);
                     outS.writeValue(writer);
@@ -636,7 +636,7 @@ namespace Ice
                     var c = new Test.MyClass();
                     c.c = c;
                     c.o = c;
-                    c.s = new Test.SmallStruct();
+                    c.s = new Test.LargeStruct();
                     c.s.e = Test.MyEnum.enum2;
                     c.seq1 = new bool[] { true, false, true, false };
                     c.seq2 = new byte[] { 1, 2, 3, 4 };
@@ -732,11 +732,11 @@ namespace Ice
                 {
                     var dict = new Dictionary<string, Test.MyClass>();
                     var c = new Test.MyClass();
-                    c.s = new Test.SmallStruct();
+                    c.s = new Test.LargeStruct();
                     c.s.e = Test.MyEnum.enum2;
                     dict.Add("key1", c);
                     c = new Test.MyClass();
-                    c.s = new Test.SmallStruct();
+                    c.s = new Test.LargeStruct();
                     c.s.e = Test.MyEnum.enum3;
                     dict.Add("key2", c);
                     outS = new Ice.OutputStream(communicator);
@@ -786,15 +786,15 @@ namespace Ice
 
                 {
                     outS = new Ice.OutputStream(communicator);
-                    var l = new List<Test.SmallStruct>(smallStructArray);
-                    Test.SmallStructListHelper.write(outS, l);
+                    var l = new List<Test.LargeStruct>(largeStructArray);
+                    Test.LargeStructListHelper.write(outS, l);
                     var data = outS.finished();
                     inS = new Ice.InputStream(communicator, data);
-                    var l2 = Test.SmallStructListHelper.read(inS);
+                    var l2 = Test.LargeStructListHelper.read(inS);
                     test(l2.Count == l.Count);
                     for (int i = 0; i < l2.Count; ++i)
                     {
-                        test(l2[i].Equals(smallStructArray[i]));
+                        test(l2[i].Equals(largeStructArray[i]));
                     }
                 }
 
@@ -875,11 +875,11 @@ namespace Ice
 
                 {
                     outS = new Ice.OutputStream(communicator);
-                    var l = new LinkedList<Test.SmallStruct>(smallStructArray);
-                    Test.SmallStructLinkedListHelper.write(outS, l);
+                    var l = new LinkedList<Test.LargeStruct>(largeStructArray);
+                    Test.LargeStructLinkedListHelper.write(outS, l);
                     var data = outS.finished();
                     inS = new Ice.InputStream(communicator, data);
-                    var l2 = Test.SmallStructLinkedListHelper.read(inS);
+                    var l2 = Test.LargeStructLinkedListHelper.read(inS);
                     test(l2.Count == l.Count);
                     var e = l.GetEnumerator();
                     var e2 = l2.GetEnumerator();
@@ -913,11 +913,11 @@ namespace Ice
 
                 {
                     outS = new Ice.OutputStream(communicator);
-                    var l = new Stack<Test.SmallStruct>(smallStructArray);
-                    Test.SmallStructStackHelper.write(outS, l);
+                    var l = new Stack<Test.LargeStruct>(largeStructArray);
+                    Test.LargeStructStackHelper.write(outS, l);
                     byte[] data = outS.finished();
                     inS = new Ice.InputStream(communicator, data);
-                    var l2 = Test.SmallStructStackHelper.read(inS);
+                    var l2 = Test.LargeStructStackHelper.read(inS);
                     test(l2.Count == l.Count);
                     var e = l.GetEnumerator();
                     var e2 = l2.GetEnumerator();
@@ -964,11 +964,11 @@ namespace Ice
 
                 {
                     outS = new Ice.OutputStream(communicator);
-                    var l = new Queue<Test.SmallStruct>(smallStructArray);
-                    Test.SmallStructQueueHelper.write(outS, l);
+                    var l = new Queue<Test.LargeStruct>(largeStructArray);
+                    Test.LargeStructQueueHelper.write(outS, l);
                     var data = outS.finished();
                     inS = new Ice.InputStream(communicator, data);
-                    var l2 = Test.SmallStructQueueHelper.read(inS);
+                    var l2 = Test.LargeStructQueueHelper.read(inS);
                     test(l2.Count == l.Count);
                     var e = l.GetEnumerator();
                     var e2 = l2.GetEnumerator();

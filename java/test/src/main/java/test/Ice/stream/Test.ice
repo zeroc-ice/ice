@@ -22,7 +22,7 @@ interface MyInterface;
 
 ["java:serializable:test.Ice.stream.Serialize.Small"] sequence<byte> SerialSmall;
 
-struct SmallStruct
+struct LargeStruct
 {
     bool bo;
     byte by;
@@ -55,7 +55,7 @@ class OptionalClass
     byte by;
     optional(1) short sh;
     optional(2) int i;
-    optional(3) SmallStruct sm;
+    optional(3) LargeStruct s;
 
     optional(4) MyEnumS enumS4;
 
@@ -90,7 +90,7 @@ class MyClass
     MyClass c;
     MyInterface* prx;
     Object o;
-    SmallStruct s;
+    LargeStruct s;
     Ice::BoolSeq seq1;
     Ice::ByteSeq seq2;
     Ice::ShortSeq seq3;

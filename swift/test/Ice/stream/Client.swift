@@ -144,7 +144,7 @@ public class Client: TestHelperI {
 
         do {
             outS = Ice.OutputStream(communicator: communicator)
-            var s = SmallStruct()
+            var s = LargeStruct()
             s.bo = true
             s.by = 1
             s.sh = 2
@@ -160,7 +160,7 @@ public class Client: TestHelperI {
             outS.write(s)
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            let s2: SmallStruct = try inS.read()
+            let s2: LargeStruct = try inS.read()
             try test(s2.bo == true)
             try test(s2.by == 1)
             try test(s2.sh == 2)
@@ -382,19 +382,19 @@ public class Client: TestHelperI {
             try test(arr2S == arrS)
         }
 
-        var smallStructArray = [SmallStruct]()
+        var largeStructArray = [LargeStruct]()
         for i in 0..<3 {
-            smallStructArray.append(SmallStruct())
-            smallStructArray[i].bo = true
-            smallStructArray[i].by = 1
-            smallStructArray[i].sh = 2
-            smallStructArray[i].i = 3
-            smallStructArray[i].l = 4
-            smallStructArray[i].f = 5.0
-            smallStructArray[i].d = 6.0
-            smallStructArray[i].str = "7"
-            smallStructArray[i].e = MyEnum.enum2
-            smallStructArray[i].p = try uncheckedCast(
+            largeStructArray.append(LargeStruct())
+            largeStructArray[i].bo = true
+            largeStructArray[i].by = 1
+            largeStructArray[i].sh = 2
+            largeStructArray[i].i = 3
+            largeStructArray[i].l = 4
+            largeStructArray[i].f = 5.0
+            largeStructArray[i].d = 6.0
+            largeStructArray[i].str = "7"
+            largeStructArray[i].e = MyEnum.enum2
+            largeStructArray[i].p = try uncheckedCast(
                 prx: communicator.stringToProxy("test:default")!,
                 type: MyInterfacePrx.self)
         }
@@ -404,7 +404,7 @@ public class Client: TestHelperI {
             myClassArray.append(MyClass())
             myClassArray[i].c = myClassArray[i]
             myClassArray[i].o = myClassArray[i]
-            myClassArray[i].s = SmallStruct()
+            myClassArray[i].s = LargeStruct()
             myClassArray[i].s.e = MyEnum.enum2
             myClassArray[i].seq1 = [true, false, true, false]
             myClassArray[i].seq2 = ByteSeq([1, 2, 3, 4])
@@ -548,11 +548,11 @@ public class Client: TestHelperI {
         do {
             var dict = StringMyClassD()
             var c = MyClass()
-            c.s = SmallStruct()
+            c.s = LargeStruct()
             c.s.e = MyEnum.enum2
             dict["key1"] = c
             c = MyClass()
-            c.s = SmallStruct()
+            c.s = LargeStruct()
             c.s.e = MyEnum.enum3
             dict["key2"] = c
             outS = Ice.OutputStream(communicator: communicator)

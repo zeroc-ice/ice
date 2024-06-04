@@ -25,7 +25,7 @@ enum MyEnum
 class MyClass;
 interface MyInterface;
 
-struct SmallStruct
+struct LargeStruct
 {
     bool bo;
     byte by;
@@ -74,7 +74,7 @@ sequence<byte> ByteList;
 ["cs:generic:List"]
 sequence<MyEnum> MyEnumList;
 ["cs:generic:List"]
-sequence<SmallStruct> SmallStructList;
+sequence<LargeStruct> LargeStructList;
 ["cs:generic:List"]
 sequence<MyClass> MyClassList;
 ["cs:generic:List"]
@@ -87,14 +87,14 @@ sequence<int> IntLinkedList;
 ["cs:generic:LinkedList"]
 sequence<MyEnum> MyEnumLinkedList;
 ["cs:generic:LinkedList"]
-sequence<SmallStruct> SmallStructLinkedList;
+sequence<LargeStruct> LargeStructLinkedList;
 
 ["cs:generic:Stack"]
 sequence<long> LongStack;
 ["cs:generic:Stack"]
 sequence<float> FloatStack;
 ["cs:generic:Stack"]
-sequence<SmallStruct> SmallStructStack;
+sequence<LargeStruct> LargeStructStack;
 ["cs:generic:Stack"]
 sequence<MyInterface*> MyInterfaceProxyStack;
 
@@ -119,7 +119,7 @@ sequence<double> DoubleQueue;
 ["cs:generic:Queue"]
 sequence<string> StringQueue;
 ["cs:generic:Queue"]
-sequence<SmallStruct> SmallStructQueue;
+sequence<LargeStruct> LargeStructQueue;
 
 ["cs:generic:List"]
 sequence<Ice::StringSeq> StringSList;
@@ -133,7 +133,7 @@ class MyClass
 {
     MyClass c;
     Object o;
-    SmallStruct s;
+    LargeStruct s;
     Ice::BoolSeq seq1;
     Ice::ByteSeq seq2;
     Ice::ShortSeq seq3;

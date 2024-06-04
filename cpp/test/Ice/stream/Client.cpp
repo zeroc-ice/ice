@@ -228,7 +228,7 @@ allTests(Test::TestHelper* helper)
 
     {
         Ice::OutputStream out(communicator);
-        SmallStruct s;
+        LargeStruct s;
         s.bo = true;
         s.by = 1;
         s.sh = 2;
@@ -242,7 +242,7 @@ allTests(Test::TestHelper* helper)
         out.write(s);
         out.finished(data);
         Ice::InputStream in(communicator, data);
-        SmallStruct s2;
+        LargeStruct s2;
         in.read(s2);
         test(s2.p == s.p);
         s2.p = s.p; // otherwise the s2 == s below will fail
@@ -564,10 +564,10 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        SmallStructS arr;
+        LargeStructS arr;
         for (int i = 0; i < 4; ++i)
         {
-            SmallStruct s;
+            LargeStruct s;
             s.bo = true;
             s.by = 1;
             s.sh = 2;
@@ -585,21 +585,21 @@ allTests(Test::TestHelper* helper)
         out.writePendingValues();
         out.finished(data);
         Ice::InputStream in(communicator, data);
-        SmallStructS arr2;
+        LargeStructS arr2;
         in.read(arr2);
         in.readPendingValues();
         test(arr2.size() == arr.size());
 
-        for (SmallStructS::size_type j = 0; j < arr2.size(); ++j)
+        for (LargeStructS::size_type j = 0; j < arr2.size(); ++j)
         {
             test(arr[j].p == arr2[j].p);
             arr2[j].p = arr[j].p;
             test(arr[j] == arr2[j]);
         }
 
-        SmallStructSS arrS;
+        LargeStructSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(SmallStructS());
+        arrS.push_back(LargeStructS());
         arrS.push_back(arr);
 
         Ice::OutputStream out2(communicator);
@@ -607,7 +607,7 @@ allTests(Test::TestHelper* helper)
         out2.finished(data);
 
         Ice::InputStream in2(communicator, data);
-        SmallStructSS arr2S;
+        LargeStructSS arr2S;
         in2.read(arr2S);
     }
 
