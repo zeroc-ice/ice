@@ -635,7 +635,7 @@ classdef InputStream < handle
                     end
                     obj.skip(sz);
                 case Ice.OptionalFormat.Class
-                    throw(Ice.MarshalException('', '', sprintf('cannot skip an optional class')));
+                    throw(Ice.MarshalException('', '', 'cannot skip an optional class'));
             end
         end
         function r = readProxy(obj, cls)
