@@ -543,8 +543,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
     const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
     const string name = fixIdent(getUnqualified(getAbsolute(p), swiftModule));
-    bool containsSequence;
-    bool legalKeyType = Dictionary::legalKeyType(p, containsSequence);
+    bool legalKeyType = Dictionary::legalKeyType(p);
     const DataMemberList members = p->dataMembers();
     const string optionalFormat = getOptionalFormat(p);
 
@@ -553,6 +552,8 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     writeDocSummary(out, p);
     writeSwiftAttributes(out, p->getMetaData());
     out << nl << "public " << (usesClasses ? "class " : "struct ") << name;
+
+    // Only generate Hashable if this struct is a legal dictionary key type.
     if (legalKeyType)
     {
         out << ": Swift.Hashable";
@@ -1087,11 +1088,6 @@ Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
     return p->hasInterfaceDefs();
 }
 
-void
-Gen::ProxyVisitor::visitModuleEnd(const ModulePtr&)
-{
-}
-
 bool
 Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
@@ -1425,23 +1421,7 @@ Gen::ValueVisitor::visitClassDefEnd(const ClassDefPtr&)
     out << eb;
 }
 
-void
-Gen::ValueVisitor::visitOperation(const OperationPtr&)
-{
-}
-
 Gen::ObjectVisitor::ObjectVisitor(::IceUtilInternal::Output& o) : out(o) {}
-
-bool
-Gen::ObjectVisitor::visitModuleStart(const ModulePtr&)
-{
-    return true;
-}
-
-void
-Gen::ObjectVisitor::visitModuleEnd(const ModulePtr&)
-{
-}
 
 bool
 Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
@@ -1615,17 +1595,6 @@ Gen::ObjectVisitor::visitOperation(const OperationPtr& op)
 }
 
 Gen::ObjectExtVisitor::ObjectExtVisitor(::IceUtilInternal::Output& o) : out(o) {}
-
-bool
-Gen::ObjectExtVisitor::visitModuleStart(const ModulePtr&)
-{
-    return true;
-}
-
-void
-Gen::ObjectExtVisitor::visitModuleEnd(const ModulePtr&)
-{
-}
 
 bool
 Gen::ObjectExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)

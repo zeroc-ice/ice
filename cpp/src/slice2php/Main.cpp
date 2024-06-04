@@ -847,22 +847,18 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     {
         switch (b->kind())
         {
+            // These types are acceptable as dictionary keys.
             case Slice::Builtin::KindBool:
             case Slice::Builtin::KindByte:
             case Slice::Builtin::KindShort:
             case Slice::Builtin::KindInt:
             case Slice::Builtin::KindLong:
             case Slice::Builtin::KindString:
-                // These types are acceptable as dictionary keys.
                 break;
 
+            // These types have already been rejected as illegal key types by the parser.
             case Slice::Builtin::KindFloat:
             case Slice::Builtin::KindDouble:
-            {
-                dc->warning(InvalidMetaData, p->file(), p->line(), "dictionary key type not supported in PHP");
-                break;
-            }
-
             case Slice::Builtin::KindObject:
             case Slice::Builtin::KindObjectProxy:
             case Slice::Builtin::KindValue:
@@ -871,6 +867,8 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     }
     else if (!dynamic_pointer_cast<Enum>(keyType))
     {
+        // TODO: using 'InvalidMetadata' as our warning category for an unsupported key type feels weird.
+        // See https://github.com/zeroc-ice/ice/issues/254
         dc->warning(InvalidMetaData, p->file(), p->line(), "dictionary key type not supported in PHP");
     }
 

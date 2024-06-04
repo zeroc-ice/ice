@@ -2010,11 +2010,6 @@ Slice::CsGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::CsGenerator::MetaDataVisitor::visitModuleEnd(const ModulePtr&)
-{
-}
-
-void
 Slice::CsGenerator::MetaDataVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
     validate(p);
@@ -2027,11 +2022,6 @@ Slice::CsGenerator::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
     return true;
 }
 
-void
-Slice::CsGenerator::MetaDataVisitor::visitClassDefEnd(const ClassDefPtr&)
-{
-}
-
 bool
 Slice::CsGenerator::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
@@ -2039,21 +2029,11 @@ Slice::CsGenerator::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
     return true;
 }
 
-void
-Slice::CsGenerator::MetaDataVisitor::visitExceptionEnd(const ExceptionPtr&)
-{
-}
-
 bool
 Slice::CsGenerator::MetaDataVisitor::visitStructStart(const StructPtr& p)
 {
     validate(p);
     return true;
-}
-
-void
-Slice::CsGenerator::MetaDataVisitor::visitStructEnd(const StructPtr&)
-{
 }
 
 void

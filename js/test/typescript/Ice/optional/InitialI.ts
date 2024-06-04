@@ -276,9 +276,4 @@ export class InitialI extends Test.Initial
     {
         return false;
     }
-
-    supportsCsharpSerializable(current:Ice.Current):boolean
-    {
-        return false;
-    }
 }

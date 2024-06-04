@@ -277,11 +277,6 @@
         {
             return false;
         }
-
-        supportsCsharpSerializable(current)
-        {
-            return false;
-        }
     }
     exports.InitialI = InitialI;
 }(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,

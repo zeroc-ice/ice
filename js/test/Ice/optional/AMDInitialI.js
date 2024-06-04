@@ -277,11 +277,6 @@
         {
             return false;
         }
-
-        supportsCsharpSerializable(current)
-        {
-            return false;
-        }
     }
 
     exports.AMDInitialI = AMDInitialI;

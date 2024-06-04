@@ -195,7 +195,7 @@ public class Client extends test.TestHelper {
 
       {
         out = new OutputStream(communicator);
-        SmallStruct s = new SmallStruct();
+        LargeStruct s = new LargeStruct();
         s.bo = true;
         s.by = (byte) 1;
         s.sh = (short) 2;
@@ -206,10 +206,10 @@ public class Client extends test.TestHelper {
         s.str = "7";
         s.e = MyEnum.enum2;
         s.p = MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test:default"));
-        SmallStruct.ice_write(out, s);
+        LargeStruct.ice_write(out, s);
         byte[] data = out.finished();
         in = new InputStream(communicator, data);
-        SmallStruct s2 = SmallStruct.ice_read(in);
+        LargeStruct s2 = LargeStruct.ice_read(in);
         test(s2.equals(s));
       }
 
@@ -440,7 +440,7 @@ public class Client extends test.TestHelper {
           arr[i] = new MyClass();
           arr[i].c = arr[i];
           arr[i].o = arr[i];
-          arr[i].s = new SmallStruct();
+          arr[i].s = new LargeStruct();
           arr[i].s.e = MyEnum.enum2;
           arr[i].seq1 = new boolean[] {true, false, true, false};
           arr[i].seq2 = new byte[] {(byte) 1, (byte) 2, (byte) 3, (byte) 4};
@@ -515,7 +515,7 @@ public class Client extends test.TestHelper {
       {
         out = new OutputStream(communicator);
         MyClass obj = new MyClass();
-        obj.s = new SmallStruct();
+        obj.s = new LargeStruct();
         obj.s.e = MyEnum.enum2;
         TestObjectWriter writer = new TestObjectWriter(obj);
         out.writeValue(writer);
@@ -527,7 +527,7 @@ public class Client extends test.TestHelper {
       {
         out = new OutputStream(communicator);
         MyClass obj = new MyClass();
-        obj.s = new SmallStruct();
+        obj.s = new LargeStruct();
         obj.s.e = MyEnum.enum2;
         TestObjectWriter writer = new TestObjectWriter(obj);
         out.writeValue(writer);
@@ -554,7 +554,7 @@ public class Client extends test.TestHelper {
         MyClass c = new MyClass();
         c.c = c;
         c.o = c;
-        c.s = new SmallStruct();
+        c.s = new LargeStruct();
         c.s.e = MyEnum.enum2;
         c.seq1 = new boolean[] {true, false, true, false};
         c.seq2 = new byte[] {(byte) 1, (byte) 2, (byte) 3, (byte) 4};
@@ -646,11 +646,11 @@ public class Client extends test.TestHelper {
         java.util.Map<String, MyClass> dict = new java.util.HashMap<>();
         MyClass c;
         c = new MyClass();
-        c.s = new SmallStruct();
+        c.s = new LargeStruct();
         c.s.e = MyEnum.enum2;
         dict.put("key1", c);
         c = new MyClass();
-        c.s = new SmallStruct();
+        c.s = new LargeStruct();
         c.s.e = MyEnum.enum3;
         dict.put("key2", c);
         out = new OutputStream(communicator);

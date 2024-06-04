@@ -873,7 +873,7 @@ namespace Slice
         virtual std::string kindOf() const;
         virtual void visit(ParserVisitor*, bool);
 
-        static bool legalKeyType(const TypePtr&, bool&);
+        static bool legalKeyType(const TypePtr&);
 
     protected:
         friend class Container;

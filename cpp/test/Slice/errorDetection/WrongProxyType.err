@@ -1,4 +1,3 @@
-WrongProxyType.ice:9: warning: use of sequences in dictionary keys has been deprecated
 WrongProxyType.ice:13: `Seq' must be an interface
 WrongProxyType.ice:14: `Seq' must be an interface
 WrongProxyType.ice:15: `Seq' must be an interface

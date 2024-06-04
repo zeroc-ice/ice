@@ -24,7 +24,7 @@ enum MyEnum
 class MyClass;
 interface MyInterface;
 
-struct SmallStruct
+struct LargeStruct
 {
     bool bo;
     byte by;
@@ -70,7 +70,7 @@ class MyClass
 {
     MyClass c;
     Object o;
-    SmallStruct s;
+    LargeStruct s;
     Ice::BoolSeq seq1;
     Ice::ByteSeq seq2;
     Ice::ShortSeq seq3;
