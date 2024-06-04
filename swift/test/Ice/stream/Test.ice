@@ -25,7 +25,7 @@ enum MyEnum
 interface MyInterface;
 class MyClass;
 
-struct SmallStruct
+struct LargeStruct
 {
     bool bo;
     byte by;
@@ -48,7 +48,7 @@ class OptionalClass
 }
 
 sequence<MyEnum> MyEnumS;
-sequence<SmallStruct> SmallStructS;
+sequence<LargeStruct> LargeStructS;
 sequence<MyClass> MyClassS;
 
 sequence<Ice::BoolSeq> BoolSS;
@@ -60,7 +60,7 @@ sequence<Ice::FloatSeq> FloatSS;
 sequence<Ice::DoubleSeq> DoubleSS;
 sequence<Ice::StringSeq> StringSS;
 sequence<MyEnumS> MyEnumSS;
-sequence<SmallStructS> SmallStructSS;
+sequence<LargeStructS> LargeStructSS;
 sequence<MyClassS> MyClassSS;
 
 dictionary<byte, bool> ByteBoolD;
@@ -73,7 +73,7 @@ class MyClass
 {
     MyClass c;
     Object o;
-    SmallStruct s;
+    LargeStruct s;
     Ice::BoolSeq seq1;
     Ice::ByteSeq seq2;
     Ice::ShortSeq seq3;
