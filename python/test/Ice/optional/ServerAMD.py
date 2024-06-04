@@ -171,9 +171,6 @@ class InitialI(Test.Initial):
     def supportsJavaSerializable(self, current=None):
         return Ice.Future.completed(True)
 
-    def supportsCsharpSerializable(self, current=None):
-        return Ice.Future.completed(False)
-
 
 class ServerAMD(TestHelper):
     def run(self, args):

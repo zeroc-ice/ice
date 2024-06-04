@@ -470,12 +470,3 @@ InitialI::supportsJavaSerializableAsync(
 {
     response(true);
 }
-
-void
-InitialI::supportsCsharpSerializableAsync(
-    function<void(bool)> response,
-    function<void(exception_ptr)>,
-    const Ice::Current&)
-{
-    response(true);
-}

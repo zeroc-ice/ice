@@ -157,9 +157,6 @@ class InitialI(Test.Initial):
     def supportsJavaSerializable(self, current=None):
         return True
 
-    def supportsCsharpSerializable(self, current=None):
-        return True
-
 
 class Server(TestHelper):
     def run(self, args):
