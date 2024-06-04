@@ -40,4 +40,15 @@ public struct BlobjectAsyncDisp: Disp {
             request.writeParamEncaps(ok: invokeResult.ok, outParams: invokeResult.outParams)
         }
     }
+
+    public func dispatch(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
+        do {
+            let (inEncaps, _) = try request.inputStream.readEncapsulation()
+            return servant.ice_invokeAsync(inEncaps: inEncaps, current: request.current).map(on: nil) { result in
+                request.current.makeOutgoingResponse(ok: result.ok, encapsulation: result.outParams)
+            }
+        } catch {
+            return Promise(error: error)
+        }
+    }
 }

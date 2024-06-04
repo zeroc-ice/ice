@@ -164,6 +164,7 @@ namespace Slice
 
         void writeDispatchOperationOld(::IceUtilInternal::Output&, const OperationPtr&);
         void writeDispatchAsyncOperationOld(::IceUtilInternal::Output&, const OperationPtr&);
+
     private:
         class MetaDataVisitor : public ParserVisitor
         {

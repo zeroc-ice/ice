@@ -1679,5 +1679,5 @@ Gen::ObjectExtVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 void
 Gen::ObjectExtVisitor::visitOperation(const OperationPtr& op)
 {
-   writeDispatchOperation(out, op);
+    writeDispatchOperation(out, op);
 }

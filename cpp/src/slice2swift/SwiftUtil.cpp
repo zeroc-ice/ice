@@ -2327,7 +2327,7 @@ SwiftGenerator::writeMarshalAsyncOutParamsNew(::IceUtilInternal::Output& out, co
     ParamInfoList requiredOutParams, optionalOutParams;
     getOutParams(op, requiredOutParams, optionalOutParams);
 
-    out << nl << "let " << operationReturnDeclaration(op) << " = result";
+    out << nl << "let " << operationReturnDeclaration(op) << " = value";
     //
     // Marshal parameters
     // 1. required
@@ -2807,23 +2807,20 @@ SwiftGenerator::writeDispatchOperation(::IceUtilInternal::Output& out, const Ope
         }
         out << "current: request.current";
         out << nl;
-        out << ").then(on: nil)";
+        out << ").map(on: nil)";
         out << sb;
         if (outParams.empty())
         {
-            out << nl << "PromiseKit.Promise.value(request.current.makeEmptyOutgoingResponse())";
+            out << nl << "request.current.makeEmptyOutgoingResponse()";
         }
         else
         {
             out << " result in ";
-            out << nl << "PromiseKit.Promise.value(";
-            out.inc();
             out << nl << "request.current.makeOutgoingResponse(result, formatType:" << opFormatTypeToString(op) << ")";
             out << sb;
-            out << " (ostr, result) in ";
+            out << " ostr, value in ";
             writeMarshalAsyncOutParamsNew(out, op);
             out << eb;
-            out << ")";
         }
         out << eb;
     }
@@ -2851,7 +2848,9 @@ SwiftGenerator::writeDispatchOperation(::IceUtilInternal::Output& out, const Ope
         else
         {
             out << nl << "let ostr = request.current.startReplyStream()";
-            out << nl << "ostr.startEncapsulation(encoding: request.current.encoding, format: " << opFormatTypeToString(op) << ")";
+            out << nl
+                << "ostr.startEncapsulation(encoding: request.current.encoding, format: " << opFormatTypeToString(op)
+                << ")";
             writeMarshalOutParamsNew(out, op);
             out << nl << "ostr.endEncapsulation()";
             out << nl << "return PromiseKit.Promise.value(Ice.OutgoingResponse(ostr))";

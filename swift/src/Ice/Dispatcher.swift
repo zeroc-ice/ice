@@ -9,9 +9,3 @@ public protocol Dispatcher {
     /// - Returns: The outgoing response, wrapped in a Promise.
     func dispatch(_ request: IncomingRequest) -> Promise<OutgoingResponse>
 }
-
-extension Dispatcher {
-    public func dispatch(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
-        fatalError("dispatch not implemented")
-    }
-}

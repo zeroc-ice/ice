@@ -109,13 +109,14 @@ extension Object {
 
     // --- new ones
 
-     public func _iceD_ice_id(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
+    public func _iceD_ice_id(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
         do {
             _ = try request.inputStream.skipEmptyEncapsulation()
             let returnValue = try ice_id(current: request.current)
-            return Promise.value(request.current.makeOutgoingResponse(returnValue, formatType: .DefaultFormat) { ostr, value in
-                ostr.write(value)
-            })
+            return Promise.value(
+                request.current.makeOutgoingResponse(returnValue, formatType: .DefaultFormat) { ostr, value in
+                    ostr.write(value)
+                })
         } catch {
             return Promise(error: error)
         }
@@ -125,9 +126,10 @@ extension Object {
         do {
             _ = try request.inputStream.skipEmptyEncapsulation()
             let returnValue = try ice_ids(current: request.current)
-            return Promise.value(request.current.makeOutgoingResponse(returnValue, formatType: .DefaultFormat) { ostr, value in
-                ostr.write(value)
-            })
+            return Promise.value(
+                request.current.makeOutgoingResponse(returnValue, formatType: .DefaultFormat) { ostr, value in
+                    ostr.write(value)
+                })
         } catch {
             return Promise(error: error)
         }
@@ -139,9 +141,10 @@ extension Object {
             _ = try istr.startEncapsulation()
             let id: Identity = try istr.read()
             let returnValue = try ice_isA(id: id.name, current: request.current)
-            return Promise.value(request.current.makeOutgoingResponse(returnValue, formatType: .DefaultFormat) { ostr, value in
-                ostr.write(value)
-            })
+            return Promise.value(
+                request.current.makeOutgoingResponse(returnValue, formatType: .DefaultFormat) { ostr, value in
+                    ostr.write(value)
+                })
         } catch {
             return Promise(error: error)
         }
@@ -207,6 +210,21 @@ public struct ObjectDisp: Disp {
         default:
             throw OperationNotExistException(
                 id: current.id, facet: current.facet, operation: current.operation)
+        }
+    }
+
+    public func dispatch(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
+        switch request.current.operation {
+        case "ice_id":
+            servant._iceD_ice_id(request)
+        case "ice_ids":
+            servant._iceD_ice_ids(request)
+        case "ice_isA":
+            servant._iceD_ice_isA(request)
+        case "ice_ping":
+            servant._iceD_ice_ping(request)
+        default:
+            Promise(error: OperationNotExistException())
         }
     }
 }
