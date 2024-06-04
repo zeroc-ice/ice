@@ -6,7 +6,7 @@ module Test
 {
 
 sequence<int> Seq;
-dictionary<Seq, int> Dict;
+dictionary<bool, int> Dict;
 
 interface I
 {

@@ -1922,8 +1922,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     //
     // Only generate hashCode if this structure type is a legal dictionary key type.
     //
-    bool containsSequence = false;
-    bool legalKeyType = Dictionary::legalKeyType(p, containsSequence);
+    bool legalKeyType = Dictionary::legalKeyType(p);
 
     _out << sp;
     _out << nl << "Slice.defineStruct(" << localScope << '.' << name << ", " << (legalKeyType ? "true" : "false")
@@ -2935,9 +2934,7 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
     //
     // Only generate hashCode if this structure type is a legal dictionary key type.
     //
-    bool containsSequence = false;
-    bool legalKeyType = Dictionary::legalKeyType(p, containsSequence);
-    if (legalKeyType)
+    if (Dictionary::legalKeyType(p))
     {
         _out << nl << "hashCode():number;";
     }

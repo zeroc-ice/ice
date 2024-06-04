@@ -1216,11 +1216,9 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     _out.dec();
 
     //
-    // Only generate __hash__ and the comparison operators if this structure type
-    // is a legal dictionary key type.
+    // Only generate __hash__ and the comparison operators if this structure type is a legal dictionary key type.
     //
-    bool containsSequence = false;
-    if (Dictionary::legalKeyType(p, containsSequence))
+    if (Dictionary::legalKeyType(p))
     {
         _out << sp << nl << "def __hash__(self):";
         _out.inc();

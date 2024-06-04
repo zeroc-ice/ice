@@ -1571,17 +1571,12 @@ Slice::Container::createDictionary(
 
     if (nt == Real)
     {
-        bool containsSequence = false;
-        if (!Dictionary::legalKeyType(keyType, containsSequence))
+        if (!Dictionary::legalKeyType(keyType))
         {
             ostringstream os;
             os << "dictionary `" << name << "' uses an illegal key type";
             _unit->error(os.str());
             return nullptr;
-        }
-        if (containsSequence)
-        {
-            _unit->warning(Deprecated, "use of sequences in dictionary keys has been deprecated");
         }
     }
 
@@ -4282,12 +4277,10 @@ Slice::Dictionary::visit(ParserVisitor* visitor, bool)
     visitor->visitDictionary(dynamic_pointer_cast<Dictionary>(shared_from_this()));
 }
 
-// Check that the key type of a dictionary is legal. Legal types are integral types, string, and sequences and structs
-// containing only other legal key types.
-//
-// Note: Allowing sequences in dictionary keys has been deprecated as of Ice 3.3.0.
+// Checks whether the provided type is a legal dictionary key type.
+// Legal key types are integral types, string, and structs that only contain other legal key types.
 bool
-Slice::Dictionary::legalKeyType(const TypePtr& type, bool& containsSequence)
+Slice::Dictionary::legalKeyType(const TypePtr& type)
 {
     BuiltinPtr bp = dynamic_pointer_cast<Builtin>(type);
     if (bp)
@@ -4302,7 +4295,6 @@ Slice::Dictionary::legalKeyType(const TypePtr& type, bool& containsSequence)
             case Builtin::KindString:
             {
                 return true;
-                break;
             }
 
             case Builtin::KindFloat:
@@ -4312,7 +4304,6 @@ Slice::Dictionary::legalKeyType(const TypePtr& type, bool& containsSequence)
             case Builtin::KindValue:
             {
                 return false;
-                break;
             }
         }
     }
@@ -4322,23 +4313,12 @@ Slice::Dictionary::legalKeyType(const TypePtr& type, bool& containsSequence)
         return true;
     }
 
-    SequencePtr seqp = dynamic_pointer_cast<Sequence>(type);
-    if (seqp)
+    StructPtr structPtr = dynamic_pointer_cast<Struct>(type);
+    if (structPtr)
     {
-        containsSequence = true;
-        if (legalKeyType(seqp->type(), containsSequence))
+        for (const auto& dm : structPtr->dataMembers())
         {
-            return true;
-        }
-    }
-
-    StructPtr strp = dynamic_pointer_cast<Struct>(type);
-    if (strp)
-    {
-        DataMemberList dml = strp->dataMembers();
-        for (DataMemberList::const_iterator mem = dml.begin(); mem != dml.end(); ++mem)
-        {
-            if (!legalKeyType((*mem)->type(), containsSequence))
+            if (!legalKeyType(dm->type()))
             {
                 return false;
             }
