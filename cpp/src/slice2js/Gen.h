@@ -97,7 +97,6 @@ namespace Slice
             TypesVisitor(::IceUtilInternal::Output&, std::vector<std::string>, bool);
 
             virtual bool visitModuleStart(const ModulePtr&);
-            virtual void visitModuleEnd(const ModulePtr&);
             virtual bool visitClassDefStart(const ClassDefPtr&);
             virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
             virtual bool visitExceptionStart(const ExceptionPtr&);

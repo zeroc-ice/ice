@@ -1264,11 +1264,6 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
     return true;
 }
 
-void
-Slice::Gen::TypesVisitor::visitModuleEnd(const ModulePtr&)
-{
-}
-
 bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {

@@ -1087,11 +1087,6 @@ Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
     return p->hasInterfaceDefs();
 }
 
-void
-Gen::ProxyVisitor::visitModuleEnd(const ModulePtr&)
-{
-}
-
 bool
 Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
@@ -1425,23 +1420,7 @@ Gen::ValueVisitor::visitClassDefEnd(const ClassDefPtr&)
     out << eb;
 }
 
-void
-Gen::ValueVisitor::visitOperation(const OperationPtr&)
-{
-}
-
 Gen::ObjectVisitor::ObjectVisitor(::IceUtilInternal::Output& o) : out(o) {}
-
-bool
-Gen::ObjectVisitor::visitModuleStart(const ModulePtr&)
-{
-    return true;
-}
-
-void
-Gen::ObjectVisitor::visitModuleEnd(const ModulePtr&)
-{
-}
 
 bool
 Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
@@ -1615,17 +1594,6 @@ Gen::ObjectVisitor::visitOperation(const OperationPtr& op)
 }
 
 Gen::ObjectExtVisitor::ObjectExtVisitor(::IceUtilInternal::Output& o) : out(o) {}
-
-bool
-Gen::ObjectExtVisitor::visitModuleStart(const ModulePtr&)
-{
-    return true;
-}
-
-void
-Gen::ObjectExtVisitor::visitModuleEnd(const ModulePtr&)
-{
-}
 
 bool
 Gen::ObjectExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
