@@ -1597,18 +1597,14 @@ public class InputStream {
    */
   public <T extends Value> void readValue(java.util.function.Consumer<T> cb, Class<T> cls) {
     initEncaps();
-    if (cb == null) {
-      _encapsStack.decoder.readValue(null);
-    } else {
-      _encapsStack.decoder.readValue(
-          v -> {
-            if (v == null || cls.isInstance(v)) {
-              cb.accept(cls.cast(v));
-            } else {
-              com.zeroc.IceInternal.Ex.throwUOE(cls, v);
-            }
-          });
-    }
+    _encapsStack.decoder.readValue(
+        v -> {
+          if (v == null || cls.isInstance(v)) {
+            cb.accept(cls.cast(v));
+          } else {
+            com.zeroc.IceInternal.Ex.throwUOE(cls, v);
+          }
+        });
   }
 
   /**
@@ -2092,8 +2088,6 @@ public class InputStream {
 
     @Override
     void readValue(java.util.function.Consumer<Value> cb) {
-      assert (cb != null);
-
       //
       // Object references are encoded as a negative integer in 1.0.
       //
@@ -2354,9 +2348,7 @@ public class InputStream {
       if (index < 0) {
         throw new MarshalException("invalid object id");
       } else if (index == 0) {
-        if (cb != null) {
-          cb.accept(null);
-        }
+        cb.accept(null);
       } else if (_current != null
           && (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0) {
         //
@@ -2370,16 +2362,14 @@ public class InputStream {
         // derive an index into the indirection table that we'll read
         // at the end of the slice.
         //
-        if (cb != null) {
-          if (_current.indirectPatchList == null) // Lazy initialization
-          {
-            _current.indirectPatchList = new java.util.ArrayDeque<>();
-          }
-          IndirectPatchEntry e = new IndirectPatchEntry();
-          e.index = index - 1;
-          e.cb = cb;
-          _current.indirectPatchList.push(e);
+        if (_current.indirectPatchList == null) // Lazy initialization
+        {
+          _current.indirectPatchList = new java.util.ArrayDeque<>();
         }
+        IndirectPatchEntry e = new IndirectPatchEntry();
+        e.index = index - 1;
+        e.cb = cb;
+        _current.indirectPatchList.push(e);
       } else {
         readInstance(index, cb);
       }

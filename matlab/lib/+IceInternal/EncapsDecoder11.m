@@ -21,9 +21,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             if index < 0
                 throw(Ice.MarshalException('', '', 'invalid object id'));
             elseif index == 0
-                if ~isempty(cb)
-                    cb([]);
-                end
+                cb([]);
             elseif isobject(current) && bitand(current.sliceFlags, Protocol.FLAG_HAS_INDIRECTION_TABLE)
                 %
                 % When reading a class instance within a slice and there's an
@@ -36,16 +34,14 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 % derive an index into the indirection table that we'll read
                 % at the end of the slice.
                 %
-                if ~isempty(cb)
-                    if isempty(current.indirectPatchList) % Lazy initialization
-                        current.indirectPatchList = containers.Map('KeyType', 'int32', 'ValueType', 'any');
-                    end
-                    e = IceInternal.IndirectPatchEntry();
-                    e.index = index; % MATLAB indexing starts at 1
-                    e.cb = cb;
-                    sz = length(current.indirectPatchList);
-                    current.indirectPatchList(sz) = e;
+                if isempty(current.indirectPatchList) % Lazy initialization
+                    current.indirectPatchList = containers.Map('KeyType', 'int32', 'ValueType', 'any');
                 end
+                e = IceInternal.IndirectPatchEntry();
+                e.index = index; % MATLAB indexing starts at 1
+                e.cb = cb;
+                sz = length(current.indirectPatchList);
+                current.indirectPatchList(sz) = e;
             else
                 obj.readInstance(index, cb);
             end

@@ -815,25 +815,21 @@ extension InputStream {
     }
 
     /// Reads a value from the stream.
-    public func read(cb: ((Value?) throws -> Void)?) throws {
+    public func read(cb: ((Value?) throws -> Void)) throws {
         initEncaps()
         try encaps.decoder.readValue(cb: cb)
     }
 
     /// Reads a value from the stream.
-    public func read<ValueType>(_ value: ValueType.Type, cb: ((ValueType?) -> Void)?) throws
+    public func read<ValueType>(_ value: ValueType.Type, cb: ((ValueType?) -> Void)) throws
     where ValueType: Value {
         initEncaps()
-        if let cb = cb {
-            try encaps.decoder.readValue { v in
-                if v == nil || v is ValueType {
-                    cb(v as? ValueType)
-                } else {
-                    try InputStream.throwUOE(expectedType: value, v: v!)
-                }
+        try encaps.decoder.readValue { v in
+            if v == nil || v is ValueType {
+                cb(v as? ValueType)
+            } else {
+                try InputStream.throwUOE(expectedType: value, v: v!)
             }
-        } else {
-            try encaps.decoder.readValue(cb: nil)
         }
     }
 }
@@ -889,7 +885,7 @@ private protocol EncapsDecoder: AnyObject {
     var classGraphDepthMax: Int32 { get }
     var classGraphDepth: Int32 { get set }
 
-    func readValue(cb: Callback?) throws
+    func readValue(cb: Callback) throws
     func throwException() throws
 
     func startInstance(type: SliceType)
@@ -1092,11 +1088,7 @@ private class EncapsDecoder10: EncapsDecoder {
         classGraphDepth = 0
     }
 
-    func readValue(cb: Callback?) throws {
-        guard let cb = cb else {
-            preconditionFailure("patch fuction can not be nil")
-        }
-
+    func readValue(cb: Callback) throws {
         //
         // Object references are encoded as a negative integer in 1.0.
         //
@@ -1386,12 +1378,12 @@ private class EncapsDecoder11: EncapsDecoder {
         classGraphDepth = 0
     }
 
-    func readValue(cb: Callback?) throws {
+    func readValue(cb: Callback) throws {
         let index = try stream.readSize()
         if index < 0 {
             throw MarshalException(reason: "invalid object id")
         } else if index == 0 {
-            try cb?(nil)
+            try cb(nil)
         } else if current != nil, current.sliceFlags.contains(.FLAG_HAS_INDIRECTION_TABLE) {
             //
             // When reading a class instance within a slice and there's an
@@ -1404,9 +1396,7 @@ private class EncapsDecoder11: EncapsDecoder {
             // derive an index into the indirection table that we'll read
             // at the end of the slice.
             //
-            if let cb = cb {
-                current.indirectPatchList.append(IndirectPatchEntry(index: index - 1, cb: cb))
-            }
+            current.indirectPatchList.append(IndirectPatchEntry(index: index - 1, cb: cb))
         } else {
             _ = try readInstance(index: index, cb: cb)
         }

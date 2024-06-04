@@ -587,11 +587,6 @@ classdef InputStream < handle
                 end
             end
         end
-        function r = skipValue(obj, pos)
-            obj.pos = pos(0)
-            obj.readValue([], '');
-            r = obj.pos;
-        end
         function skipOptionals(obj)
             %
             % Skip remaining unread optional members.
@@ -725,11 +720,7 @@ classdef InputStream < handle
                     Ice.InputStream.throwUOE(formalType, v);
                 end
             end
-            if isempty(cb)
-                obj.encapsStackDecoder.readValue([]);
-            else
-                obj.encapsStackDecoder.readValue(@(v) check(v));
-            end
+            obj.encapsStackDecoder.readValue(@(v) check(v));
         end
         function readPendingValues(obj)
             if isobject(obj.encapsStackDecoder)
