@@ -10,7 +10,7 @@ public typealias Request = Incoming
 
 /// A request dispatcher (Disp) is a helper struct used by object adapters to dispatch
 /// requests to servants.
-public protocol Disp {
+public protocol Disp: Dispatcher {
     /// Dispatch request to servant.
     ///
     /// - parameter request: `Ice.Request` - The incoming request.
@@ -105,6 +105,56 @@ extension Object {
         try inS.readEmptyParams()
         try ice_ping(current: current)
         return inS.setResult()
+    }
+
+    // --- new ones
+
+     public func _iceD_ice_id(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
+        do {
+            _ = try request.inputStream.skipEmptyEncapsulation()
+            let returnValue = try ice_id(current: request.current)
+            return Promise.value(request.current.makeOutgoingResponse(returnValue, formatType: .DefaultFormat) { ostr, value in
+                ostr.write(value)
+            })
+        } catch {
+            return Promise(error: error)
+        }
+    }
+
+    public func _iceD_ice_ids(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
+        do {
+            _ = try request.inputStream.skipEmptyEncapsulation()
+            let returnValue = try ice_ids(current: request.current)
+            return Promise.value(request.current.makeOutgoingResponse(returnValue, formatType: .DefaultFormat) { ostr, value in
+                ostr.write(value)
+            })
+        } catch {
+            return Promise(error: error)
+        }
+    }
+
+    public func _iceD_ice_isA(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
+        do {
+            let istr = request.inputStream
+            _ = try istr.startEncapsulation()
+            let id: Identity = try istr.read()
+            let returnValue = try ice_isA(id: id.name, current: request.current)
+            return Promise.value(request.current.makeOutgoingResponse(returnValue, formatType: .DefaultFormat) { ostr, value in
+                ostr.write(value)
+            })
+        } catch {
+            return Promise(error: error)
+        }
+    }
+
+    public func _iceD_ice_ping(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
+        do {
+            _ = try request.inputStream.skipEmptyEncapsulation()
+            try ice_ping(current: request.current)
+            return Promise.value(request.current.makeEmptyOutgoingResponse())
+        } catch {
+            return Promise(error: error)
+        }
     }
 }
 

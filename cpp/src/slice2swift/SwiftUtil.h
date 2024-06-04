@@ -148,16 +148,22 @@ namespace Slice
         bool usesMarshalHelper(const TypePtr&);
         void writeMarshalInParams(::IceUtilInternal::Output&, const OperationPtr&);
         void writeMarshalOutParams(::IceUtilInternal::Output&, const OperationPtr&);
+        void writeMarshalOutParamsNew(::IceUtilInternal::Output&, const OperationPtr&);
         void writeMarshalAsyncOutParams(::IceUtilInternal::Output&, const OperationPtr&);
+        void writeMarshalAsyncOutParamsNew(::IceUtilInternal::Output&, const OperationPtr&);
         void writeUnmarshalInParams(::IceUtilInternal::Output&, const OperationPtr&);
+        void writeUnmarshalInParamsNew(::IceUtilInternal::Output&, const OperationPtr&);
         void writeUnmarshalOutParams(::IceUtilInternal::Output&, const OperationPtr&);
         void writeUnmarshalUserException(::IceUtilInternal::Output& out, const OperationPtr&);
         void writeSwiftAttributes(::IceUtilInternal::Output&, const StringList&);
         void writeProxyOperation(::IceUtilInternal::Output&, const OperationPtr&);
         void writeProxyAsyncOperation(::IceUtilInternal::Output&, const OperationPtr&);
+
         void writeDispatchOperation(::IceUtilInternal::Output&, const OperationPtr&);
         void writeDispatchAsyncOperation(::IceUtilInternal::Output&, const OperationPtr&);
 
+        void writeDispatchOperationOld(::IceUtilInternal::Output&, const OperationPtr&);
+        void writeDispatchAsyncOperationOld(::IceUtilInternal::Output&, const OperationPtr&);
     private:
         class MetaDataVisitor : public ParserVisitor
         {

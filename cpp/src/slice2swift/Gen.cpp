@@ -1524,6 +1524,35 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // missing dec to compensate for the extra dec after switch sb
     out << eb;
     out << eb;
+
+    out << nl;
+    out << "public func dispatch(_ request: Ice.IncomingRequest) -> PromiseKit.Promise<Ice.OutgoingResponse>";
+    out << sb;
+    out << nl;
+    out << "switch request.current.operation";
+    out << sb;
+    out.dec(); // to align case with switch
+    for (const auto& opName : allOpNames)
+    {
+        out << nl << "case \"" << opName << "\":";
+        out.inc();
+        if (opName == "ice_id" || opName == "ice_ids" || opName == "ice_isA" || opName == "ice_ping")
+        {
+            out << nl << "(servant as? Ice.Object ?? " << disp << ".defaultObject)._iceD_" << opName << "(request)";
+        }
+        else
+        {
+            out << nl << "servant._iceD_" << opName << "(request)";
+        }
+        out.dec();
+    }
+    out << nl << "default:";
+    out.inc();
+    out << nl << "PromiseKit.Promise(error: Ice.OperationNotExistException())";
+    // missing dec to compensate for the extra dec after switch sb
+    out << eb;
+    out << eb;
+
     out << eb;
 
     //
@@ -1650,12 +1679,5 @@ Gen::ObjectExtVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 void
 Gen::ObjectExtVisitor::visitOperation(const OperationPtr& op)
 {
-    if (operationIsAmd(op))
-    {
-        writeDispatchAsyncOperation(out, op);
-    }
-    else
-    {
-        writeDispatchOperation(out, op);
-    }
+   writeDispatchOperation(out, op);
 }

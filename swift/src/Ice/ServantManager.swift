@@ -2,7 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-class ServantManager {
+import PromiseKit
+
+class ServantManager: Dispatcher {
     private let adapterName: String
     private let communicator: Communicator
 
@@ -10,7 +12,7 @@ class ServantManager {
     private var defaultServantMap = [String: Disp]()
     private var locatorMap = [String: ServantLocator]()
 
-    // This is used to distingish between ObjectNotExistException and FacetNotExistException
+    // This is used to distinguish between ObjectNotExistException and FacetNotExistException
     // when a servant is not found on a Swift Admin OA.
     private var adminId: Identity?
 
@@ -175,6 +177,48 @@ class ServantManager {
 
         for (category, locator) in m {
             locator.deactivate(category)
+        }
+    }
+
+    func dispatch(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
+        let current = request.current
+        var servant = findServant(id: current.id, facet: current.facet)
+
+        if let servant = servant {
+            // the simple, common path
+            return servant.dispatch(request)
+        }
+
+        // Else, check servant locators
+        var locator = findServantLocator(category: current.id.category)
+        if locator == nil, !current.id.category.isEmpty {
+            locator = findServantLocator(category: "")
+        }
+
+        if let locator = locator {
+            do {
+                var cookie: AnyObject?
+                (servant, cookie) = try locator.locate(current)
+
+                if let servant = findServant(id: current.id, facet: current.facet) {
+                    return servant.dispatch(request).then(on: nil) { response in
+                        do {
+                            try locator.finished(curr: current, servant: servant, cookie: cookie)
+                        } catch {
+                            return Promise<OutgoingResponse>(error: error)
+                        }
+                        return Promise.value(response)
+                    }
+                }
+            } catch {
+                return Promise(error: error)
+            }
+        }
+
+        if hasServant(id: current.id) || isAdminId(current.id) {
+            return Promise(error: FacetNotExistException())
+        } else {
+            return Promise(error: ObjectNotExistException())
         }
     }
 }
