@@ -250,17 +250,16 @@ namespace IceInternal
             else
             {
                 instance_.clientThreadPool().dispatch(() =>
+                {
+                    try
                     {
-                        try
-                        {
-                            sentCallback_(this);
-                        }
-                        catch(System.Exception ex)
-                        {
-                            warning(ex);
-                        }
-                    },
-                    cachedConnection_);
+                        sentCallback_(this);
+                    }
+                    catch(System.Exception ex)
+                    {
+                        warning(ex);
+                    }
+                }, cachedConnection_);
             }
             return this;
         }
@@ -301,17 +300,16 @@ namespace IceInternal
             else
             {
                 instance_.clientThreadPool().dispatch(() =>
+                {
+                    try
                     {
-                        try
-                        {
-                            cb(false);
-                        }
-                        catch(System.Exception ex)
-                        {
-                            warning(ex);
-                        }
-                    },
-                    cachedConnection_);
+                        cb(false);
+                    }
+                    catch(System.Exception ex)
+                    {
+                        warning(ex);
+                    }
+                }, cachedConnection_);
             }
             return this;
         }
@@ -400,24 +398,23 @@ namespace IceInternal
             }
 
             instance_.clientThreadPool().dispatch(() =>
+            {
+                try
                 {
                     try
                     {
-                        try
-                        {
-                            cb(this);
-                        }
-                        catch(System.AggregateException ex)
-                        {
-                            throw ex.InnerException;
-                        }
+                        cb(this);
                     }
-                    catch(System.Exception ex)
+                    catch(System.AggregateException ex)
                     {
-                        warning(ex);
+                        throw ex.InnerException;
                     }
-                },
-                cachedConnection_);
+                }
+                catch(System.Exception ex)
+                {
+                    warning(ex);
+                }
+            }, cachedConnection_);
         }
 
         abstract protected Ice.AsyncCallback getCompletedCallback();
