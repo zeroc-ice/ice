@@ -237,7 +237,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
             encoding: encoding,
             bytes: Data(bytesNoCopy: inEncapsBytes, count: inEncapsCount, deallocator: .none))
 
-        let request = IncomingRequest(current: current, inputStream: istr);
+        let request = IncomingRequest(current: current, inputStream: istr)
 
         servantManager.dispatch(request).map { response in
             response.outputStream.finished().withUnsafeBytes {

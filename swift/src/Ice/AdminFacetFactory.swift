@@ -56,7 +56,7 @@ class AdminFacetFacade: ICEDispatchAdapter {
             encoding: encoding,
             bytes: Data(bytesNoCopy: inEncapsBytes, count: inEncapsCount, deallocator: .none))
 
-        let request = IncomingRequest(current: current, inputStream: istr);
+        let request = IncomingRequest(current: current, inputStream: istr)
 
         // Dispatch directly to the servant.
         dispatcher.dispatch(request).map { response in
@@ -101,8 +101,7 @@ final class UnsupportedAdminFacet: LocalObject<ICEUnsupportedAdminFacet>, Object
 }
 
 class AdminFacetFactory: ICEAdminFacetFactory {
-    static func createProcess(_ communicator: ICECommunicator, handle: ICEProcess) -> ICEDispatchAdapter
-    {
+    static func createProcess(_ communicator: ICECommunicator, handle: ICEProcess) -> ICEDispatchAdapter {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
         return AdminFacetFacade(
             communicator: c,
@@ -112,8 +111,7 @@ class AdminFacetFactory: ICEAdminFacetFactory {
                 }))
     }
 
-    static func createProperties(_ communicator: ICECommunicator, handle: ICEPropertiesAdmin) -> ICEDispatchAdapter
-    {
+    static func createProperties(_ communicator: ICECommunicator, handle: ICEPropertiesAdmin) -> ICEDispatchAdapter {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
 
         return AdminFacetFacade(
@@ -124,7 +122,9 @@ class AdminFacetFactory: ICEAdminFacetFactory {
                 }))
     }
 
-    static func createUnsupported(_ communicator: ICECommunicator, handle: ICEUnsupportedAdminFacet) -> ICEDispatchAdapter {
+    static func createUnsupported(_ communicator: ICECommunicator, handle: ICEUnsupportedAdminFacet)
+        -> ICEDispatchAdapter
+    {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
         return AdminFacetFacade(
             communicator: c,

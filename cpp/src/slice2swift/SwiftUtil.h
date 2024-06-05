@@ -156,6 +156,7 @@ namespace Slice
         void writeProxyOperation(::IceUtilInternal::Output&, const OperationPtr&);
         void writeProxyAsyncOperation(::IceUtilInternal::Output&, const OperationPtr&);
         void writeDispatchOperation(::IceUtilInternal::Output&, const OperationPtr&);
+
     private:
         class MetaDataVisitor : public ParserVisitor
         {
