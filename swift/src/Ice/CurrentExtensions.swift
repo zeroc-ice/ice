@@ -3,6 +3,12 @@
 import Foundation
 
 extension Current {
+    /// Creates an outgoing response with reply status `ok`.
+    /// - Parameters:
+    ///   - result: The result to marshal into the response payload.
+    ///   - formatType: The class format.
+    ///   - marshal: The action that marshals result into an output stream.
+    /// - Returns: The outgoing response.
     public func makeOutgoingResponse<T>(_ result: T, formatType: FormatType, marshal: (OutputStream, T) -> Void)
         -> OutgoingResponse
     {
@@ -14,6 +20,8 @@ extension Current {
         return OutgoingResponse(ostr)
     }
 
+    /// Creates an empty outgoing response with reply status `ok`.
+    /// - Returns: The outgoing response.
     public func makeEmptyOutgoingResponse() -> OutgoingResponse {
         let ostr = startReplyStream()
         if requestId != 0 {
@@ -22,6 +30,11 @@ extension Current {
         return OutgoingResponse(ostr)
     }
 
+    /// Creates an outgoing response with the specified payload.
+    /// - Parameters:
+    ///   - ok: When true, the reply status of the response is `ok`; otherwise, it's `userException`.
+    ///   - encapsulation: The payload of the response.
+    /// - Returns: The outgoing response.
     public func makeOutgoingResponse(ok: Bool, encapsulation: Data) -> OutgoingResponse {
         let ostr = startReplyStream(replyStatus: ok ? .ok : .userException)
 
@@ -35,6 +48,9 @@ extension Current {
         return OutgoingResponse(ostr)
     }
 
+    /// Creates an outgoing response that marshals an exception.
+    /// - Parameter error: The exception to marshal into the response payload.
+    /// - Returns: The outgoing response.
     public func makeOutgoingResponse(error: Error) -> OutgoingResponse {
         let ostr = OutputStream(communicator: adapter.getCommunicator(), encoding: currentProtocolEncoding)
 
@@ -144,6 +160,10 @@ extension Current {
             replyStatus: replyStatus, exceptionId: exceptionId, exceptionMessage: exceptionMessage, outputStream: ostr)
     }
 
+    /// Starts the output stream for a reply, with everything up to and including the reply status. When the request ID
+    /// is 0 (one-way request), the returned output stream is empty.
+    /// - Parameter replyStatus: The reply status.
+    /// - Returns: The output stream.
     public func startReplyStream(replyStatus: ReplyStatus = .ok) -> OutputStream {
         let ostr = OutputStream(communicator: adapter.getCommunicator(), encoding: currentProtocolEncoding)
         if requestId != 0 {
