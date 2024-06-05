@@ -83,13 +83,6 @@ namespace
         return name;
     }
 
-    bool isValue(const TypePtr& type)
-    {
-        BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
-        ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-        return (b && b->usesClasses()) || cl;
-    }
-
     // Returns java.util.OptionalXXX.ofYYY depending on the type
     string ofFactory(const TypePtr& type)
     {
@@ -816,12 +809,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
 }
 
 void
-Slice::JavaVisitor::allocatePatcher(
-    Output& out,
-    const TypePtr& type,
-    const string& package,
-    const string& name,
-    bool optionalMapping)
+Slice::JavaVisitor::allocatePatcher(Output& out, const TypePtr& type, const string& package, const string& name)
 {
     BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
@@ -835,10 +823,6 @@ Slice::JavaVisitor::allocatePatcher(
     else
     {
         clsName = getUnqualified(cl, package);
-    }
-    if (optionalMapping)
-    {
-        clsName = "java.util.Optional<" + clsName + ">";
     }
     out << nl << "final com.zeroc.IceInternal.Holder<" << clsName << "> " << name
         << " = new com.zeroc.IceInternal.Holder<>();";
@@ -1052,13 +1036,14 @@ Slice::JavaVisitor::writeUnmarshalProxyResults(Output& out, const string& packag
             metaData = outParams.front()->getMetaData();
         }
 
-        const bool val = isValue(type);
+        const bool val = type->isClassType();
 
         int iter = 0;
 
         if (val)
         {
-            allocatePatcher(out, type, package, name, optional);
+            assert(!optional); // Optional classes are disallowed by the parser.
+            allocatePatcher(out, type, package, name);
         }
         else
         {
@@ -1441,19 +1426,20 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
             // Declare 'in' parameters.
             //
             out << nl << getUnqualified("com.zeroc.Ice.InputStream", package) << " istr = inS.startReadParams();";
-            for (ParamDeclList::const_iterator pli = inParams.begin(); pli != inParams.end(); ++pli)
+            for (const auto& param : inParams)
             {
-                const TypePtr paramType = (*pli)->type();
-                if (isValue(paramType))
+                const TypePtr paramType = param->type();
+                if (paramType->isClassType())
                 {
-                    allocatePatcher(out, paramType, package, "icePP_" + (*pli)->name(), (*pli)->optional());
-                    values.push_back(*pli);
+                    assert(!param->optional()); // Optional classes are disallowed by the parser.
+                    allocatePatcher(out, paramType, package, "icePP_" + param->name());
+                    values.push_back(param);
                 }
                 else
                 {
-                    const string paramName = "iceP_" + (*pli)->name();
+                    const string paramName = "iceP_" + param->name();
                     const string typeS =
-                        typeToString(paramType, TypeModeIn, package, (*pli)->getMetaData(), true, (*pli)->optional());
+                        typeToString(paramType, TypeModeIn, package, param->getMetaData(), true, param->optional());
                     out << nl << typeS << ' ' << paramName << ';';
                 }
             }
@@ -1464,15 +1450,15 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
             ParamDeclList required, optional;
             op->inParameters(required, optional);
             int iter = 0;
-            for (ParamDeclList::const_iterator pli = required.begin(); pli != required.end(); ++pli)
+            for (const auto& param : required)
             {
                 const string paramName =
-                    isValue((*pli)->type()) ? ("icePP_" + (*pli)->name()) : "iceP_" + (*pli)->name();
-                const string patchParams = getPatcher((*pli)->type(), package, paramName + ".value");
+                    param->type()->isClassType() ? ("icePP_" + param->name()) : "iceP_" + param->name();
+                const string patchParams = getPatcher(param->type(), package, paramName + ".value");
                 writeMarshalUnmarshalCode(
                     out,
                     package,
-                    (*pli)->type(),
+                    param->type(),
                     OptionalNone,
                     false,
                     0,
@@ -1480,26 +1466,26 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
                     false,
                     iter,
                     "",
-                    (*pli)->getMetaData(),
+                    param->getMetaData(),
                     patchParams);
             }
-            for (ParamDeclList::const_iterator pli = optional.begin(); pli != optional.end(); ++pli)
+            for (const auto& param : optional)
             {
                 const string paramName =
-                    isValue((*pli)->type()) ? ("icePP_" + (*pli)->name()) : "iceP_" + (*pli)->name();
-                const string patchParams = getPatcher((*pli)->type(), package, paramName + ".value");
+                    param->type()->isClassType() ? ("icePP_" + param->name()) : "iceP_" + param->name();
+                const string patchParams = getPatcher(param->type(), package, paramName + ".value");
                 writeMarshalUnmarshalCode(
                     out,
                     package,
-                    (*pli)->type(),
+                    param->type(),
                     OptionalInParam,
                     true,
-                    (*pli)->tag(),
+                    param->tag(),
                     paramName,
                     false,
                     iter,
                     "",
-                    (*pli)->getMetaData(),
+                    param->getMetaData(),
                     patchParams);
             }
             if (op->sendsClasses(false))
@@ -3645,7 +3631,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     const bool optional = p->optional();
     const TypePtr type = p->type();
     const BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
-    const bool classType = isValue(type);
+    const bool classType = type->isClassType();
 
     const string s = typeToString(type, TypeModeMember, getPackage(contained), metaData, true, false);
 

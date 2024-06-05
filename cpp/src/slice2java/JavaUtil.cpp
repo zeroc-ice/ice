@@ -1043,14 +1043,11 @@ Slice::JavaGenerator::getOptionalFormat(const TypePtr& type)
             {
                 return prefix + "VSize";
             }
-            case Builtin::KindObject:
-            {
-                return prefix + "Class";
-            }
             case Builtin::KindObjectProxy:
             {
                 return prefix + "FSize";
             }
+            case Builtin::KindObject:
             case Builtin::KindValue:
             {
                 return prefix + "Class";
@@ -1172,13 +1169,12 @@ Slice::JavaGenerator::typeToString(
         }
     }
 
-    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-
     if (optional)
     {
         return "java.util.Optional<" + typeToObjectString(type, mode, package, metaData, formal) + ">";
     }
 
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if (cl)
     {
         return getUnqualified(cl, package);
@@ -1318,34 +1314,12 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
                         out << nl << param << " = " << stream << ".read" << s << "();";
                     }
                 }
-                break;
+                return;
             }
             case Builtin::KindObject:
             case Builtin::KindValue:
             {
-                if (marshal)
-                {
-                    if (optionalParam)
-                    {
-                        out << nl << stream << ".writeValue(" << tag << ", " << param << ");";
-                    }
-                    else
-                    {
-                        out << nl << stream << ".writeValue(" << param << ");";
-                    }
-                }
-                else
-                {
-                    assert(!patchParams.empty());
-                    if (optionalParam)
-                    {
-                        out << nl << stream << ".readValue(" << tag << ", " << patchParams << ");";
-                    }
-                    else
-                    {
-                        out << nl << stream << ".readValue(" << patchParams << ");";
-                    }
-                }
+                // Handled by isClassType below.
                 break;
             }
             case Builtin::KindObjectProxy:
@@ -1377,10 +1351,9 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
                         out << nl << param << " = " << stream << ".readProxy();";
                     }
                 }
-                break;
+                return;
             }
         }
-        return;
     }
 
     InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
@@ -1416,31 +1389,17 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
         return;
     }
 
-    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    if (cl)
+    if (type->isClassType())
     {
+        assert(!optionalParam); // Optional classes are disallowed by the parser.
         if (marshal)
         {
-            if (optionalParam)
-            {
-                out << nl << stream << ".writeValue(" << tag << ", " << param << ");";
-            }
-            else
-            {
-                out << nl << stream << ".writeValue(" << param << ");";
-            }
+            out << nl << stream << ".writeValue(" << param << ");";
         }
         else
         {
             assert(!patchParams.empty());
-            if (optionalParam)
-            {
-                out << nl << stream << ".readValue(" << tag << ", " << patchParams << ");";
-            }
-            else
-            {
-                out << nl << stream << ".readValue(" << patchParams << ");";
-            }
+            out << nl << stream << ".readValue(" << patchParams << ");";
         }
         return;
     }
@@ -1855,8 +1814,7 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(
         out << nl << "for(int i" << iterS << " = 0; i" << iterS << " < sz" << iterS << "; i" << iterS << "++)";
         out << sb;
 
-        BuiltinPtr b = dynamic_pointer_cast<Builtin>(value);
-        if (dynamic_pointer_cast<ClassDecl>(value) || (b && b->usesClasses()))
+        if (value->isClassType())
         {
             out << nl << "final " << keyS << " key;";
             writeMarshalUnmarshalCode(out, package, key, OptionalNone, false, 0, "key", false, iter, customStream);
@@ -1886,11 +1844,7 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(
             out << nl << valueS << " value;";
             writeMarshalUnmarshalCode(out, package, value, OptionalNone, false, 0, "value", false, iter, customStream);
 
-            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(value);
-            if (!(builtin && builtin->usesClasses()) && !dynamic_pointer_cast<ClassDecl>(value))
-            {
-                out << nl << "" << v << ".put(key, value);";
-            }
+            out << nl << "" << v << ".put(key, value);";
         }
         out << eb;
     }
@@ -2090,18 +2044,12 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
         }
         else
         {
-            bool isObject = false;
-            ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-            if ((b && b->usesClasses()) || cl)
-            {
-                isObject = true;
-            }
             out << nl << v << " = new " << instanceType << "();";
             out << nl << "final int len" << iter << " = " << stream << ".readAndCheckSeqSize(" << type->minWireSize()
                 << ");";
             out << nl << "for(int i" << iter << " = 0; i" << iter << " < len" << iter << "; i" << iter << "++)";
             out << sb;
-            if (isObject)
+            if (type->isClassType())
             {
                 //
                 // Add a null value to the list as a placeholder for the element.

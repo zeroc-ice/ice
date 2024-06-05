@@ -55,9 +55,6 @@ namespace Slice
         static std::string getStaticId(const TypePtr&);
         static std::string typeToString(const TypePtr&, const std::string&, bool = false);
 
-        // Is this Slice type a Slice class - also true for the built-in Value/Object type.
-        static bool isClassType(const TypePtr&);
-
         // Is this Slice type mapped to a C# value type?
         static bool isValueType(const TypePtr&);
 

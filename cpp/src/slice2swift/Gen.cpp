@@ -547,11 +547,11 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     const DataMemberList members = p->dataMembers();
     const string optionalFormat = getOptionalFormat(p);
 
-    bool isClass = containsClassMembers(p);
+    bool usesClasses = p->usesClasses();
     out << sp;
     writeDocSummary(out, p);
     writeSwiftAttributes(out, p->getMetaData());
-    out << nl << "public " << (isClass ? "class " : "struct ") << name;
+    out << nl << "public " << (usesClasses ? "class " : "struct ") << name;
 
     // Only generate Hashable if this struct is a legal dictionary key type.
     if (legalKeyType)
@@ -577,7 +577,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out << nl << "/// - returns: `" << name << "` - The structured value read from the stream.";
     out << nl << "func read() throws -> " << name;
     out << sb;
-    out << nl << (isClass ? "let" : "var") << " v = " << name << "()";
+    out << nl << (usesClasses ? "let" : "var") << " v = " << name << "()";
     for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
         writeMarshalUnmarshalCode(out, (*q)->type(), p, "v." + fixIdent((*q)->name()), false);
@@ -703,7 +703,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << sb;
     out << nl << "let sz = try istr.readAndCheckSeqSize(minSize: " << p->type()->minWireSize() << ")";
 
-    if (isClassType(type))
+    if (type->isClassType())
     {
         out << nl << "var v = " << fixIdent(name) << "(repeating: nil, count: sz)";
         out << nl << "for i in 0 ..< sz";
@@ -848,7 +848,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << sb;
     out << nl << "let sz = try Swift.Int(istr.readSize())";
     out << nl << "var v = " << fixIdent(name) << "()";
-    if (isClassType(p->valueType()))
+    if (p->valueType()->isClassType())
     {
         out << nl << "let e = " << getUnqualified("Ice.DictEntryArray", swiftModule) << "<" << keyType << ", "
             << valueType << ">(size: sz)";

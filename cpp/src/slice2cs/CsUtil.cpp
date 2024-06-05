@@ -223,14 +223,11 @@ Slice::CsGenerator::getOptionalFormat(const TypePtr& type)
             {
                 return prefix + ".VSize";
             }
-            case Builtin::KindObject:
-            {
-                return prefix + ".Class";
-            }
             case Builtin::KindObjectProxy:
             {
                 return prefix + ".FSize";
             }
+            case Builtin::KindObject:
             case Builtin::KindValue:
             {
                 return prefix + ".Class";
@@ -466,17 +463,6 @@ Slice::CsGenerator::taskResultType(const OperationPtr& op, const string& scope, 
 }
 
 bool
-Slice::CsGenerator::isClassType(const TypePtr& type)
-{
-    if (dynamic_pointer_cast<ClassDecl>(type))
-    {
-        return true;
-    }
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    return builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue);
-}
-
-bool
 Slice::CsGenerator::isValueType(const TypePtr& type)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
@@ -574,7 +560,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
                 {
                     out << nl << param << " = " << stream << ".readByte()" << ';';
                 }
-                break;
+                return;
             }
             case Builtin::KindBool:
             {
@@ -586,7 +572,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
                 {
                     out << nl << param << " = " << stream << ".readBool()" << ';';
                 }
-                break;
+                return;
             }
             case Builtin::KindShort:
             {
@@ -598,7 +584,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
                 {
                     out << nl << param << " = " << stream << ".readShort()" << ';';
                 }
-                break;
+                return;
             }
             case Builtin::KindInt:
             {
@@ -610,7 +596,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
                 {
                     out << nl << param << " = " << stream << ".readInt()" << ';';
                 }
-                break;
+                return;
             }
             case Builtin::KindLong:
             {
@@ -622,7 +608,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
                 {
                     out << nl << param << " = " << stream << ".readLong()" << ';';
                 }
-                break;
+                return;
             }
             case Builtin::KindFloat:
             {
@@ -634,7 +620,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
                 {
                     out << nl << param << " = " << stream << ".readFloat()" << ';';
                 }
-                break;
+                return;
             }
             case Builtin::KindDouble:
             {
@@ -646,7 +632,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
                 {
                     out << nl << param << " = " << stream << ".readDouble()" << ';';
                 }
-                break;
+                return;
             }
             case Builtin::KindString:
             {
@@ -658,19 +644,12 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
                 {
                     out << nl << param << " = " << stream << ".readString()" << ';';
                 }
-                break;
+                return;
             }
             case Builtin::KindObject:
             case Builtin::KindValue:
             {
-                if (marshal)
-                {
-                    out << nl << stream << ".writeValue(" << param << ");";
-                }
-                else
-                {
-                    out << nl << stream << ".readValue(" << param << ");";
-                }
+                // Handled by isClassType below.
                 break;
             }
             case Builtin::KindObjectProxy:
@@ -683,10 +662,9 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
                 {
                     out << nl << param << " = " << stream << ".readProxy()" << ';';
                 }
-                break;
+                return;
             }
         }
-        return;
     }
 
     InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
@@ -705,8 +683,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
         return;
     }
 
-    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    if (cl)
+    if (type->isClassType())
     {
         if (marshal)
         {
@@ -794,6 +771,8 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(
     bool marshal,
     const string& customStream)
 {
+    assert(!type->isClassType()); // Optional classes are disallowed by the parser.
+
     string stream = customStream;
     if (stream.empty())
     {
@@ -929,19 +908,6 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(
                 }
                 break;
             }
-            case Builtin::KindObject:
-            case Builtin::KindValue:
-            {
-                if (marshal)
-                {
-                    out << nl << stream << ".writeValue(" << tag << ", " << param << ");";
-                }
-                else
-                {
-                    out << nl << stream << ".readValue(" << tag << ", " << param << ");";
-                }
-                break;
-            }
             case Builtin::KindObjectProxy:
             {
                 string typeS = typeToString(type, scope);
@@ -954,6 +920,12 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(
                     out << nl << param << " = " << stream << ".readProxy(" << tag << ");";
                 }
                 break;
+            }
+            case Builtin::KindObject:
+            case Builtin::KindValue:
+            {
+                // Unreachable because we reject all class types at the start of the function.
+                assert(false);
             }
         }
         return;
@@ -987,20 +959,6 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(
             out << sb;
             out << nl << param << " = null;";
             out << eb;
-        }
-        return;
-    }
-
-    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    if (cl)
-    {
-        if (marshal)
-        {
-            out << nl << stream << ".writeValue(" << tag << ", " << param << ");";
-        }
-        else
-        {
-            out << nl << stream << ".readValue(" << tag << ", " << param << ");";
         }
         return;
     }
@@ -2155,7 +2113,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                     string type = s.substr(csGenericPrefix.size());
                     if (type == "LinkedList" || type == "Queue" || type == "Stack")
                     {
-                        if (!isClassType(seq->type()))
+                        if (!seq->type()->isClassType())
                         {
                             newLocalMetaData.push_back(s);
                             continue;

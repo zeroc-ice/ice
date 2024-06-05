@@ -15,6 +15,19 @@ const long C6 = 2;
 enum E { e1, e2, e3 }
 enum Ebis { e1 }
 
+class C;
+
+struct ClassWrapper
+{
+    C c;
+}
+
+sequence<bool> BoolSeq;
+sequence<C> ClassSeq;
+sequence<ClassWrapper> ClassWrapperSeq;
+dictionary<int, bool> BoolDict;
+dictionary<int, C> ClassDict;
+
 interface I
 {
     optional string r1();             // missing tag
@@ -63,6 +76,21 @@ interface I
     optional(1) int io4(out optional(2) int p, out optional(2) int o);  // duplicate tag
     optional(2) int io5(out optional(1) int p, out optional(2) int o);  // duplicate tag
     optional(C1) int io6(optional(E::e2) int p, out optional(E::e1) int o);   // duplicate tag
+
+    void t1(optional(7) bool m1);            // ok
+    void t2(optional(7) float m2);           // ok
+    void t3(optional(7) string m3);          // ok
+    void t4(optional(7) Object m4);          // cannot tag class types
+    void t5(optional(7) Object* m5);         // ok
+    void t6(optional(7) Value m6);           // cannot tag class types
+    void t7(optional(7) C m7);               // cannot tag class types
+    void t8(optional(7) I* m8);              // ok
+    void t10(optional(7) E m10);             // ok
+    void t11(optional(7) BoolSeq m11);       // ok
+    void t12(optional(7) ClassSeq m12);      // cannot tag class types
+    void t13(optional(7) ClassWrapper m13);  // cannot tag class types
+    void t14(optional(7) BoolDict m14);      // ok
+    void t15(optional(7) ClassDict m15);     // cannot tag class types
 }
 
 }

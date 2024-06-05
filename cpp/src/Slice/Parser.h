@@ -316,7 +316,8 @@ namespace Slice
     public:
         Type(const UnitPtr&);
         virtual std::string typeId() const = 0;
-        virtual bool usesClasses() const = 0;
+        virtual bool isClassType() const;
+        virtual bool usesClasses() const;
         virtual size_t minWireSize() const = 0;
         virtual std::string getOptionalFormat() const = 0;
         virtual bool isVariableLength() const = 0;
@@ -347,7 +348,7 @@ namespace Slice
         Builtin(const UnitPtr&, Kind);
 
         virtual std::string typeId() const;
-        virtual bool usesClasses() const;
+        virtual bool isClassType() const;
         virtual size_t minWireSize() const;
         virtual std::string getOptionalFormat() const;
         virtual bool isVariableLength() const;
@@ -556,7 +557,7 @@ namespace Slice
         virtual void destroy();
         ClassDefPtr definition() const;
         virtual ContainedType containedType() const;
-        virtual bool usesClasses() const;
+        virtual bool isClassType() const;
         virtual size_t minWireSize() const;
         virtual std::string getOptionalFormat() const;
         virtual bool isVariableLength() const;
@@ -633,7 +634,6 @@ namespace Slice
         virtual void destroy();
         InterfaceDefPtr definition() const;
         virtual ContainedType containedType() const;
-        virtual bool usesClasses() const;
         virtual size_t minWireSize() const;
         virtual std::string getOptionalFormat() const;
         virtual bool isVariableLength() const;
@@ -897,7 +897,6 @@ namespace Slice
         int minValue() const;
         int maxValue() const;
         virtual ContainedType containedType() const;
-        virtual bool usesClasses() const;
         virtual size_t minWireSize() const;
         virtual std::string getOptionalFormat() const;
         virtual bool isVariableLength() const;
