@@ -89,6 +89,10 @@ namespace Ice
                   receivedReply(false)
 #endif
             {
+                assert(stream);
+                // The outgoing message can be sent asynchronously. If the stream doesn't own its memory, the memory
+                // owner could release it before the message is sent.
+                assert(stream->b.ownsMemory());
             }
 
             OutgoingMessage(const IceInternal::OutgoingAsyncBasePtr& o, Ice::OutputStream* str, bool comp, int rid)
@@ -104,6 +108,8 @@ namespace Ice
                   receivedReply(false)
 #endif
             {
+                assert(stream);
+                assert(stream->b.ownsMemory());
             }
 
             void adopt(Ice::OutputStream*);
