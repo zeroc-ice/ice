@@ -282,8 +282,6 @@ class EncapsDecoder10 extends EncapsDecoder
 
     readValue(cb)
     {
-        Debug.assert(cb !== null);
-
         //
         // Instance references are encoded as a negative integer in 1.0.
         //
@@ -549,10 +547,7 @@ class EncapsDecoder11 extends EncapsDecoder
         }
         else if(index === 0)
         {
-            if(cb !== null)
-            {
-                cb(null);
-            }
+            cb(null);
         }
         else if(this._current !== null && (this._current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) !== 0)
         {
@@ -567,14 +562,11 @@ class EncapsDecoder11 extends EncapsDecoder
             // derive an index into the indirection table that we'll read
             // at the end of the slice.
             //
-            if(cb !== null)
+            if(this._current.indirectPatchList === null) // Lazy initialization
             {
-                if(this._current.indirectPatchList === null) // Lazy initialization
-                {
-                    this._current.indirectPatchList = []; // IndirectPatchEntry[]
-                }
-                this._current.indirectPatchList.push(new IndirectPatchEntry(index - 1, cb));
+                this._current.indirectPatchList = []; // IndirectPatchEntry[]
             }
+            this._current.indirectPatchList.push(new IndirectPatchEntry(index - 1, cb));
         }
         else
         {
@@ -1820,7 +1812,7 @@ class InputStream
     {
         this.initEncaps();
         this._encapsStack.decoder.readValue(
-            cb === null ? null : obj =>
+            obj =>
             {
                 if(obj !== null && !(obj instanceof T))
                 {
@@ -1828,18 +1820,6 @@ class InputStream
                 }
                 cb(obj);
             });
-    }
-
-    readOptionalValue(tag, cb, T)
-    {
-        if(this.readOptional(tag, OptionalFormat.Class))
-        {
-            this.readValue(cb, T);
-        }
-        else
-        {
-            cb(undefined);
-        }
     }
 
     throwException()
@@ -1939,8 +1919,7 @@ class InputStream
             }
             case OptionalFormat.Class:
             {
-                this.readValue(null, Ice.Value);
-                break;
+                throw new Ice.MarshalException("cannot skip an optional class");
             }
             default:
             {
@@ -3240,17 +3219,6 @@ class OutputStream
         this._encapsStack.encoder.writeValue(v);
     }
 
-    writeOptionalValue(tag, v)
-    {
-        if(v !== undefined)
-        {
-            if(this.writeOptional(tag, OptionalFormat.Class))
-            {
-                this.writeValue(v);
-            }
-        }
-    }
-
     writeException(e)
     {
         this.initEncaps();
@@ -3501,21 +3469,6 @@ Ice.ObjectHelper = class
                      {
                          o = v;
                      }, Ice.Value);
-        return o;
-    }
-
-    static writeOptional(os, tag, v)
-    {
-        os.writeOptionalValue(tag, Ice.OptionalFormat.Class, ostr.writeValue, v);
-    }
-
-    static readOptional(is, tag)
-    {
-        let o;
-        is.readOptionalValue(tag, v =>
-                             {
-                                 o = v;
-                             }, Ice.Value);
         return o;
     }
 

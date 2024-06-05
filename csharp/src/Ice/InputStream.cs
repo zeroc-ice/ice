@@ -2595,7 +2595,7 @@ public class InputStream
             }
             case OptionalFormat.Class:
             {
-                throw new MarshalException("cannot unmarshal or skip an \"optional class\" parameter or field");
+                throw new MarshalException("cannot skip an optional class");
             }
         }
     }
@@ -2911,8 +2911,6 @@ public class InputStream
 
         internal override void readValue(System.Action<Value?> cb)
         {
-            Debug.Assert(cb != null);
-
             //
             // Object references are encoded as a negative integer in 1.0.
             //
@@ -3241,10 +3239,7 @@ public class InputStream
             }
             else if (index == 0)
             {
-                if (cb != null)
-                {
-                    cb(null);
-                }
+                cb(null);
             }
             else if (_current != null && (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
             {
@@ -3259,15 +3254,12 @@ public class InputStream
                 // derive an index into the indirection table that we'll read
                 // at the end of the slice.
                 //
-                if (cb != null)
+                if (_current.indirectPatchList == null)
                 {
-                    if (_current.indirectPatchList == null)
-                    {
-                        _current.indirectPatchList = new Stack<IndirectPatchEntry>();
-                    }
-                    IndirectPatchEntry e = new IndirectPatchEntry(index - 1, cb);
-                    _current.indirectPatchList.Push(e);
+                    _current.indirectPatchList = new Stack<IndirectPatchEntry>();
                 }
+                IndirectPatchEntry e = new IndirectPatchEntry(index - 1, cb);
+                _current.indirectPatchList.Push(e);
             }
             else
             {

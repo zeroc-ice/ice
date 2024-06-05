@@ -1692,6 +1692,30 @@ namespace Ice
                     m = Test.StringIntDictHelper.read(@in);
                     test(MapsEqual(m, p1));
                     @in.endEncapsulation();
+
+                    @in = new InputStream(communicator, outEncaps);
+                    @in.startEncapsulation();
+                    @in.endEncapsulation();
+
+                    Test.F f = new Test.F();
+                    f.fsf = new Test.FixedStruct(56);
+                    f.fse = f.fsf.Value;
+
+                    os = new OutputStream(communicator);
+                    os.startEncapsulation();
+                    os.writeOptional(2, OptionalFormat.VSize);
+                    os.writeSize(4);
+                    Test.FixedStruct.ice_write(os, f.fse);
+                    os.endEncapsulation();
+                    inEncaps = os.finished();
+
+                    @in = new InputStream(communicator, inEncaps);
+                    @in.startEncapsulation();
+                    test(@in.readOptional(2, OptionalFormat.VSize));
+                    @in.skipSize();
+                    Test.FixedStruct fs1 = Test.FixedStruct.ice_read(@in);
+                    @in.endEncapsulation();
+                    test(fs1.m == 56);
                 }
                 output.WriteLine("ok");
 
@@ -2000,7 +2024,6 @@ namespace Ice
                     @out.endSize(pos);
                     Test.A a = new Test.A();
                     a.mc = 18;
-                    @out.writeOptional(1000, Ice.OptionalFormat.Class);
                     @out.writeValue(a);
                     @out.endSlice();
                     // ::Test::B
@@ -2030,7 +2053,6 @@ namespace Ice
                     string[] o = @in.readStringSeq();
                     test(o.Length == 4 &&
                          o[0] == "test1" && o[1] == "test2" && o[2] == "test3" && o[3] == "test4");
-                    test(@in.readOptional(1000, Ice.OptionalFormat.Class));
                     @in.readValue(a.invoke);
                     @in.endSlice();
                     // ::Test::B

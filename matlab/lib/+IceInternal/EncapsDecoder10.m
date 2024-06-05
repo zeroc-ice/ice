@@ -29,8 +29,6 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
         end
 
         function readValue(obj, cb)
-            %assert(~isempty(cb));
-
             %
             % Object references are encoded as a negative integer in 1.0.
             %

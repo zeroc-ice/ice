@@ -1558,8 +1558,7 @@ Ice::InputStream::skipOptional(OptionalFormat type)
         }
         case OptionalFormat::Class:
         {
-            throw MarshalException{__FILE__, __LINE__, "optional class parameters and fields are no longer supported"};
-            break;
+            throw MarshalException{__FILE__, __LINE__, "cannot skip optional class"};
         }
     }
 }

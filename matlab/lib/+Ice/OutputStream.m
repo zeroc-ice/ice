@@ -332,11 +332,6 @@ classdef OutputStream < handle
             obj.initEncaps();
             obj.encapsStack.encoder.writeValue(v);
         end
-        function writeValueOpt(obj, tag, v)
-            if v ~= Ice.Unset && obj.writeOptional(tag, Ice.OptionalFormat.Class)
-                obj.writeValue(v);
-            end
-        end
         function startValue(obj, slicedData)
             %assert(~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.encoder));
             obj.encapsStack.encoder.startInstance(IceInternal.SliceType.ValueSlice, slicedData);

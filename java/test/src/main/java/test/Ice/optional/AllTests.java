@@ -510,42 +510,46 @@ public class AllTests {
       out.print("testing marshaling with unknown class slices... ");
       out.flush();
       {
-        C c = new C();
-        c.ss = "test";
-        c.setMs("testms");
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeValue(c);
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        factory.setEnabled(true);
-        inv = initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps);
-        test(inv.returnValue);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        Wrapper<CObjectReader> ccb = new Wrapper<>();
-        in.readValue(v -> ccb.value = v, CObjectReader.class);
-        in.endEncapsulation();
-        test(ccb.value != null);
-        factory.setEnabled(false);
+        {
+          C c = new C();
+          c.ss = "test";
+          c.setMs("testms");
+          os = new OutputStream(communicator);
+          os.startEncapsulation();
+          os.writeValue(c);
+          os.endEncapsulation();
+          inEncaps = os.finished();
+          factory.setEnabled(true);
+          inv = initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps);
+          test(inv.returnValue);
+          in = new InputStream(communicator, inv.outParams);
+          in.startEncapsulation();
+          Wrapper<CObjectReader> ccb = new Wrapper<>();
+          in.readValue(v -> ccb.value = v, CObjectReader.class);
+          in.endEncapsulation();
+          test(ccb.value != null);
+          factory.setEnabled(false);
+        }
 
-        factory.setEnabled(true);
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        com.zeroc.Ice.Value d = new DObjectWriter();
-        os.writeValue(d);
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps);
-        test(inv.returnValue);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        Wrapper<DObjectReader> dcb = new Wrapper<>();
-        in.readValue(v -> dcb.value = v, DObjectReader.class);
-        in.endEncapsulation();
-        test(dcb.value != null);
-        dcb.value.check();
-        factory.setEnabled(false);
+        {
+          factory.setEnabled(true);
+          os = new OutputStream(communicator);
+          os.startEncapsulation();
+          com.zeroc.Ice.Value d = new DObjectWriter();
+          os.writeValue(d);
+          os.endEncapsulation();
+          inEncaps = os.finished();
+          inv = initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps);
+          test(inv.returnValue);
+          in = new InputStream(communicator, inv.outParams);
+          in.startEncapsulation();
+          Wrapper<DObjectReader> dcb = new Wrapper<>();
+          in.readValue(v -> dcb.value = v, DObjectReader.class);
+          in.endEncapsulation();
+          test(dcb.value != null);
+          dcb.value.check();
+          factory.setEnabled(false);
+        }
       }
       out.println("ok");
 
@@ -1641,8 +1645,6 @@ public class AllTests {
 
       os = new OutputStream(communicator);
       os.startEncapsulation();
-      os.writeOptional(1, OptionalFormat.Class);
-      os.writeValue(f);
       os.writeOptional(2, OptionalFormat.VSize);
       os.writeSize(4);
       FixedStruct.ice_write(os, f.fse);
@@ -1846,7 +1848,6 @@ public class AllTests {
       out.endSize(pos);
       A a = new A();
       a.setMc(18);
-      out.writeOptional(1000, OptionalFormat.Class);
       out.writeValue(a);
       out.endSlice();
       // ::Test::B
@@ -1877,7 +1878,7 @@ public class AllTests {
               && o[1].equals("test2")
               && o[2].equals("test3")
               && o[3].equals("test4"));
-      in.readValue(1000, v -> a.value = v, A.class);
+      in.readValue(v -> a.value = v, A.class);
       in.endSlice();
       // ::Test::B
       in.startSlice();
@@ -1891,10 +1892,10 @@ public class AllTests {
     }
 
     void check() {
-      test(a.value.get().getMc() == 18);
+      test(a.value.getMc() == 18);
     }
 
-    private Wrapper<java.util.Optional<A>> a = new Wrapper<>();
+    private Wrapper<A> a = new Wrapper<>();
   }
 
   private static class FObjectReader extends com.zeroc.Ice.ValueReader {

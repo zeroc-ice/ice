@@ -11,7 +11,6 @@ const Ice = require("../Ice/ModuleRegistry").Ice;
 
 require("../Ice/Exception");
 require("../Ice/FormatType");
-require("../Ice/OptionalFormat");
 require("../Ice/StreamHelpers");
 
 Ice.Object = class
