@@ -3591,7 +3591,7 @@ ZEND_FUNCTION(IcePHP_defineException)
     ex->usesClasses = false;
 
     // Only examine the required members to see if any use classes.
-    for (const auto& dm : members)
+    for (const auto& dm : ex->members)
     {
         if (!ex->usesClasses)
         {
