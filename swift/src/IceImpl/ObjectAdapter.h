@@ -45,7 +45,8 @@ ICEIMPL_API @interface ICEObjectAdapter : ICELocalObject
 
 #ifdef __cplusplus
 
-@interface ICEObjectAdapter ()
+@interface
+ICEObjectAdapter ()
 @property(nonatomic, readonly) std::shared_ptr<Ice::ObjectAdapter> objectAdapter;
 @end
 
