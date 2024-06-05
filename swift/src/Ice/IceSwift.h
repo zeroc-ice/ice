@@ -1,7 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
+// Copyright (c) ZeroC, Inc.
 #import <Cocoa/Cocoa.h>
 
 FOUNDATION_EXPORT double IceVersionNumber;

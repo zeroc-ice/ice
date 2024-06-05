@@ -1,7 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
+// Copyright (c) ZeroC, Inc.
 /// Closure called when the communicator's properties have been updated.
 ///
 /// - parameter: `PropertyDict` A dictionary containing the properties that were added,

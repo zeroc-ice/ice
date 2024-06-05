@@ -1,7 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
+// Copyright (c) ZeroC, Inc.
 /// This enumeration describes the possible formats for classes and exceptions.
 public enum FormatType: UInt8 {
     case DefaultFormat = 0

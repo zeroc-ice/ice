@@ -1,7 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
+// Copyright (c) ZeroC, Inc.
 #import "Connection.h"
 #import "../../cpp/src/Ice/SSL/SSLUtil.h"
 #import "Convert.h"
