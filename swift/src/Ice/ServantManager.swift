@@ -8,8 +8,8 @@ class ServantManager: Dispatcher {
     private let adapterName: String
     private let communicator: Communicator
 
-    private var servantMapMap = [Identity: [String: Disp]]()
-    private var defaultServantMap = [String: Disp]()
+    private var servantMapMap = [Identity: [String: Dispatcher]]()
+    private var defaultServantMap = [String: Dispatcher]()
     private var locatorMap = [String: ServantLocator]()
 
     // This is used to distinguish between ObjectNotExistException and FacetNotExistException
@@ -23,7 +23,7 @@ class ServantManager: Dispatcher {
         self.communicator = communicator
     }
 
-    func addServant(servant: Disp, id ident: Identity, facet: String) throws {
+    func addServant(servant: Dispatcher, id ident: Identity, facet: String) throws {
         try mutex.sync {
             if var m = servantMapMap[ident] {
                 if m[facet] != nil {
@@ -41,7 +41,7 @@ class ServantManager: Dispatcher {
         }
     }
 
-    func addDefaultServant(servant: Disp, category: String) throws {
+    func addDefaultServant(servant: Dispatcher, category: String) throws {
         try mutex.sync {
             guard defaultServantMap[category] == nil else {
                 throw AlreadyRegisteredException(kindOfObject: "default servant", id: category)
@@ -51,7 +51,7 @@ class ServantManager: Dispatcher {
         }
     }
 
-    func removeServant(id ident: Identity, facet: String) throws -> Disp {
+    func removeServant(id ident: Identity, facet: String) throws -> Dispatcher {
         return try mutex.sync {
             guard var m = servantMapMap[ident], let obj = m.removeValue(forKey: facet) else {
                 var id = communicator.identityToString(ident)
@@ -70,7 +70,7 @@ class ServantManager: Dispatcher {
         }
     }
 
-    func removeDefaultServant(category: String) throws -> Disp {
+    func removeDefaultServant(category: String) throws -> Dispatcher {
         return try mutex.sync {
             guard let obj = defaultServantMap.removeValue(forKey: category) else {
                 throw NotRegisteredException(kindOfObject: "default servant", id: category)
@@ -90,7 +90,7 @@ class ServantManager: Dispatcher {
         }
     }
 
-    func findServant(id: Identity, facet: String) -> Disp? {
+    func findServant(id: Identity, facet: String) -> Dispatcher? {
         return mutex.sync {
             guard let m = servantMapMap[id] else {
                 guard let obj = defaultServantMap[id.category] else {
@@ -104,7 +104,7 @@ class ServantManager: Dispatcher {
         }
     }
 
-    func findDefaultServant(category: String) -> Disp? {
+    func findDefaultServant(category: String) -> Dispatcher? {
         return mutex.sync {
             defaultServantMap[category]
         }

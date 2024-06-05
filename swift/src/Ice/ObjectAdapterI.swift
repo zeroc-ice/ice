@@ -62,34 +62,34 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
         return handle.destroy()
     }
 
-    func add(servant: Disp, id: Identity) throws -> ObjectPrx {
+    func add(servant: Dispatcher, id: Identity) throws -> ObjectPrx {
         return try addFacet(servant: servant, id: id, facet: "")
     }
 
-    func addFacet(servant: Disp, id: Identity, facet: String) throws -> ObjectPrx {
+    func addFacet(servant: Dispatcher, id: Identity, facet: String) throws -> ObjectPrx {
         precondition(!id.name.isEmpty, "Identity cannot have an empty name")
         try servantManager.addServant(servant: servant, id: id, facet: facet)
         return try createProxy(id).ice_facet(facet)
     }
 
-    func addWithUUID(_ servant: Disp) throws -> ObjectPrx {
+    func addWithUUID(_ servant: Dispatcher) throws -> ObjectPrx {
         return try addFacetWithUUID(servant: servant, facet: "")
     }
 
-    func addFacetWithUUID(servant: Disp, facet: String) throws -> ObjectPrx {
+    func addFacetWithUUID(servant: Dispatcher, facet: String) throws -> ObjectPrx {
         return try addFacet(
             servant: servant, id: Identity(name: UUID().uuidString, category: ""), facet: facet)
     }
 
-    func addDefaultServant(servant: Disp, category: String) throws {
+    func addDefaultServant(servant: Dispatcher, category: String) throws {
         try servantManager.addDefaultServant(servant: servant, category: category)
     }
 
-    func remove(_ id: Identity) throws -> Disp {
+    func remove(_ id: Identity) throws -> Dispatcher {
         return try removeFacet(id: id, facet: "")
     }
 
-    func removeFacet(id: Identity, facet: String) throws -> Disp {
+    func removeFacet(id: Identity, facet: String) throws -> Dispatcher {
         precondition(!id.name.isEmpty, "Identity cannot have an empty name")
         return try servantManager.removeServant(id: id, facet: facet)
     }
@@ -99,15 +99,15 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
         return try servantManager.removeAllFacets(id: id)
     }
 
-    func removeDefaultServant(_ category: String) throws -> Disp {
+    func removeDefaultServant(_ category: String) throws -> Dispatcher {
         return try servantManager.removeDefaultServant(category: category)
     }
 
-    func find(_ id: Identity) -> Disp? {
+    func find(_ id: Identity) -> Dispatcher? {
         return findFacet(id: id, facet: "")
     }
 
-    func findFacet(id: Identity, facet: String) -> Disp? {
+    func findFacet(id: Identity, facet: String) -> Dispatcher? {
         return servantManager.findServant(id: id, facet: facet)
     }
 
@@ -115,7 +115,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
         return servantManager.findAllFacets(id: id)
     }
 
-    func findByProxy(_ proxy: ObjectPrx) -> Disp? {
+    func findByProxy(_ proxy: ObjectPrx) -> Dispatcher? {
         return findFacet(id: proxy.ice_getIdentity(), facet: proxy.ice_getFacet())
     }
 
@@ -131,7 +131,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
         return servantManager.findServantLocator(category: category)
     }
 
-    func findDefaultServant(_ category: String) -> Disp? {
+    func findDefaultServant(_ category: String) -> Dispatcher? {
         return servantManager.findDefaultServant(category: category)
     }
 

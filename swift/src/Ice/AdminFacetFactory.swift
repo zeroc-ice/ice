@@ -4,11 +4,11 @@ import IceImpl
 
 class AdminFacetFacade: ICEDispatchAdapter {
     private let communicator: Communicator
-    var disp: Disp
+    var dispatcher: Dispatcher
 
-    init(communicator: Communicator, disp: Disp) {
+    init(communicator: Communicator, dispatcher: Dispatcher) {
         self.communicator = communicator
-        self.disp = disp
+        self.dispatcher = dispatcher
     }
 
     func dispatch(
@@ -59,7 +59,7 @@ class AdminFacetFacade: ICEDispatchAdapter {
         let request = IncomingRequest(current: current, inputStream: istr);
 
         // Dispatch directly to the servant.
-        disp.dispatch(request).map { response in
+        dispatcher.dispatch(request).map { response in
             response.outputStream.finished().withUnsafeBytes {
                 completionHandler(
                     response.replyStatus.rawValue,
@@ -106,7 +106,7 @@ class AdminFacetFactory: ICEAdminFacetFactory {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
         return AdminFacetFacade(
             communicator: c,
-            disp: ProcessDisp(
+            dispatcher: ProcessDisp(
                 handle.getSwiftObject(ProcessI.self) {
                     ProcessI(handle: handle)
                 }))
@@ -118,7 +118,7 @@ class AdminFacetFactory: ICEAdminFacetFactory {
 
         return AdminFacetFacade(
             communicator: c,
-            disp: PropertiesAdminDisp(
+            dispatcher: PropertiesAdminDisp(
                 handle.getSwiftObject(PropertiesAdminI.self) {
                     PropertiesAdminI(communicator: c, handle: handle)
                 }))
@@ -128,7 +128,7 @@ class AdminFacetFactory: ICEAdminFacetFactory {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
         return AdminFacetFacade(
             communicator: c,
-            disp: ObjectDisp(
+            dispatcher: ObjectDisp(
                 handle.getSwiftObject(UnsupportedAdminFacet.self) {
                     UnsupportedAdminFacet(handle: handle)
                 }))

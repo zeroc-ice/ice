@@ -1457,7 +1457,7 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << sp;
     out << sp;
     out << nl << "/// Dispatcher for `" << servant << "` servants.";
-    out << nl << "public struct " << disp << ": " << getUnqualified("Ice.Disp", swiftModule);
+    out << nl << "public struct " << disp << ": Ice.Dispatcher";
     out << sb;
     out << nl << "public let servant: " << servant;
 

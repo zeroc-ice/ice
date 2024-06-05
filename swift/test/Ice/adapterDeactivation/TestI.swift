@@ -68,7 +68,7 @@ class ServantLocatorI: Ice.ServantLocator {
         precondition(_deactivated)
     }
 
-    func locate(_ current: Ice.Current) throws -> (returnValue: Disp?, cookie: AnyObject?) {
+    func locate(_ current: Ice.Current) throws -> (returnValue: Dispatcher?, cookie: AnyObject?) {
         try withLock(&_lock) {
             try _helper.test(!_deactivated)
         }
@@ -83,7 +83,7 @@ class ServantLocatorI: Ice.ServantLocator {
         return (TestIntfDisp(TestI()), Cookie())
     }
 
-    func finished(curr current: Ice.Current, servant _: Ice.Disp, cookie: Swift.AnyObject?) throws {
+    func finished(curr current: Ice.Current, servant _: Ice.Dispatcher, cookie: Swift.AnyObject?) throws {
         try withLock(&_lock) {
             try _helper.test(!_deactivated)
         }
