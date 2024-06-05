@@ -815,13 +815,13 @@ extension InputStream {
     }
 
     /// Reads a value from the stream.
-    public func read(cb: ((Value?) throws -> Void)) throws {
+    public func read(cb: (Value?) throws -> Void) throws {
         initEncaps()
         try encaps.decoder.readValue(cb: cb)
     }
 
     /// Reads a value from the stream.
-    public func read<ValueType>(_ value: ValueType.Type, cb: ((ValueType?) -> Void)) throws
+    public func read<ValueType>(_ value: ValueType.Type, cb: (ValueType?) -> Void) throws
     where ValueType: Value {
         initEncaps()
         try encaps.decoder.readValue { v in
