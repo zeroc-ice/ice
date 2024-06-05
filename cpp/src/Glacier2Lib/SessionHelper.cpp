@@ -566,7 +566,6 @@ Glacier2::SessionFactoryHelper::SessionFactoryHelper(const SessionCallbackPtr& c
     : _routerHost("localhost"),
       _protocol("ssl"),
       _port(0),
-      _timeout(10000),
       _callback(callback),
       _useCallbacks(true)
 {
@@ -580,7 +579,6 @@ Glacier2::SessionFactoryHelper::SessionFactoryHelper(
     : _routerHost("localhost"),
       _protocol("ssl"),
       _port(0),
-      _timeout(10000),
       _initData(initData),
       _callback(callback),
       _useCallbacks(true)
@@ -598,7 +596,6 @@ Glacier2::SessionFactoryHelper::SessionFactoryHelper(
     : _routerHost("localhost"),
       _protocol("ssl"),
       _port(0),
-      _timeout(10000),
       _callback(callback),
       _useCallbacks(true)
 {
@@ -723,20 +720,6 @@ Glacier2::SessionFactoryHelper::getProtocol() const
 }
 
 void
-Glacier2::SessionFactoryHelper::setTimeout(int timeout)
-{
-    lock_guard lock(_mutex);
-    _timeout = timeout;
-}
-
-int
-Glacier2::SessionFactoryHelper::getTimeout() const
-{
-    lock_guard lock(_mutex);
-    return _timeout;
-}
-
-void
 Glacier2::SessionFactoryHelper::setPort(int port)
 {
     lock_guard lock(_mutex);
@@ -856,11 +839,6 @@ Glacier2::SessionFactoryHelper::createProxyStr(const Ice::Identity& ident)
     ostringstream os;
     os << "\"" << identityToString(ident, Ice::ToStringMode::Unicode) << "\":" << _protocol << " -p "
        << getPortInternal() << " -h \"" << _routerHost << "\"";
-
-    if (_timeout > 0)
-    {
-        os << " -t " << _timeout;
-    }
     return os.str();
 }
 

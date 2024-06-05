@@ -561,12 +561,6 @@ IceInternal::FixedReference::getConnectionId() const
     return string();
 }
 
-optional<int>
-IceInternal::FixedReference::getTimeout() const
-{
-    return optional<int>();
-}
-
 ReferencePtr
 IceInternal::FixedReference::changeEndpoints(vector<EndpointIPtr> /*newEndpoints*/) const
 {
@@ -617,12 +611,6 @@ IceInternal::FixedReference::changeEndpointSelection(EndpointSelectionType) cons
 
 ReferencePtr
 IceInternal::FixedReference::changeLocatorCacheTimeout(int) const
-{
-    throw FixedProxyException(__FILE__, __LINE__);
-}
-
-ReferencePtr
-IceInternal::FixedReference::changeTimeout(int) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
 }
@@ -817,9 +805,7 @@ IceInternal::RoutableReference::RoutableReference(
       _cacheConnection(cacheConnection),
       _preferSecure(preferSecure),
       _endpointSelection(endpointSelection),
-      _locatorCacheTimeout(locatorCacheTimeout),
-      _overrideTimeout(false),
-      _timeout(-1)
+      _locatorCacheTimeout(locatorCacheTimeout)
 {
     assert(_adapterId.empty() || _endpoints.empty());
     setBatchRequestQueue();
@@ -883,12 +869,6 @@ string
 IceInternal::RoutableReference::getConnectionId() const
 {
     return _connectionId;
-}
-
-optional<int>
-IceInternal::RoutableReference::getTimeout() const
-{
-    return _overrideTimeout ? optional<int>(_timeout) : nullopt;
 }
 
 ReferencePtr
@@ -1005,24 +985,6 @@ IceInternal::RoutableReference::changeLocatorCacheTimeout(int timeout) const
 {
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
     r->_locatorCacheTimeout = timeout;
-    return r;
-}
-
-ReferencePtr
-IceInternal::RoutableReference::changeTimeout(int newTimeout) const
-{
-    RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
-    r->_timeout = newTimeout;
-    r->_overrideTimeout = true;
-    if (!_endpoints.empty()) // Also override the timeout on the endpoints.
-    {
-        vector<EndpointIPtr> newEndpoints;
-        for (vector<EndpointIPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)
-        {
-            newEndpoints.push_back((*p)->timeout(newTimeout));
-        }
-        r->_endpoints = newEndpoints;
-    }
     return r;
 }
 
@@ -1234,10 +1196,6 @@ IceInternal::RoutableReference::operator==(const Reference& r) const
     {
         return false;
     }
-    if ((_overrideTimeout != rhs->_overrideTimeout) || (_overrideTimeout && _timeout != rhs->_timeout))
-    {
-        return false;
-    }
     if (!Ice::targetEqualTo(_routerInfo, rhs->_routerInfo))
     {
         return false;
@@ -1333,25 +1291,6 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
     else if (rhs->_connectionId < _connectionId)
     {
         return false;
-    }
-    if (!_overrideTimeout && rhs->_overrideTimeout)
-    {
-        return true;
-    }
-    else if (rhs->_overrideTimeout < _overrideTimeout)
-    {
-        return false;
-    }
-    else if (_overrideTimeout)
-    {
-        if (_timeout < rhs->_timeout)
-        {
-            return true;
-        }
-        else if (rhs->_timeout < _timeout)
-        {
-            return false;
-        }
     }
     if (Ice::targetLess(_routerInfo, rhs->_routerInfo))
     {
@@ -1681,10 +1620,6 @@ IceInternal::RoutableReference::applyOverrides(vector<EndpointIPtr>& endpoints) 
         {
             *p = (*p)->compress(_compress);
         }
-        if (_overrideTimeout)
-        {
-            *p = (*p)->timeout(_timeout);
-        }
     }
 }
 
@@ -1699,8 +1634,6 @@ IceInternal::RoutableReference::RoutableReference(const RoutableReference& r)
       _preferSecure(r._preferSecure),
       _endpointSelection(r._endpointSelection),
       _locatorCacheTimeout(r._locatorCacheTimeout),
-      _overrideTimeout(r._overrideTimeout),
-      _timeout(r._timeout),
       _connectionId(r._connectionId)
 {
     setBatchRequestQueue();

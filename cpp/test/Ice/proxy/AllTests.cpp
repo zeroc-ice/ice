@@ -927,7 +927,6 @@ allTests(TestHelper* helper)
                 test(cl->ice_fixed(connection)->ice_getConnection() == connection);
                 test(cl->ice_fixed(connection)->ice_fixed(connection)->ice_getConnection() == connection);
                 test(*cl->ice_compress(true)->ice_fixed(connection)->ice_getCompress());
-                test(!cl->ice_fixed(connection)->ice_getTimeout());
                 Ice::ConnectionPtr fixedConnection = cl->ice_connectionId("ice_fixed")->ice_getConnection();
                 test(cl->ice_fixed(connection)->ice_fixed(fixedConnection)->ice_getConnection() == fixedConnection);
                 try

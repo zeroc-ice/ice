@@ -78,13 +78,8 @@ FileIteratorI::destroy(const Ice::Current& current)
     _session->removeFileIterator(current.id, current);
 }
 
-AdminSessionI::AdminSessionI(
-    const string& id,
-    const shared_ptr<Database>& db,
-    chrono::seconds timeout,
-    const shared_ptr<RegistryI>& registry)
+AdminSessionI::AdminSessionI(const string& id, const shared_ptr<Database>& db, const shared_ptr<RegistryI>& registry)
     : BaseSessionI(id, "admin", db),
-      _timeout(timeout),
       _replicaName(registry->getName()),
       _registry(registry)
 {
@@ -152,14 +147,10 @@ AdminSessionI::setObservers(
         throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, "", "");
     }
 
-    const auto timeout = secondsToInt(_timeout);
-    assert(timeout != 0);
     const auto locator = _registry->getLocator();
     if (registryObserver)
     {
-        setupObserverSubscription(
-            TopicName::RegistryObserver,
-            addForwarder(registryObserver->ice_timeout(timeout)->ice_locator(locator)));
+        setupObserverSubscription(TopicName::RegistryObserver, addForwarder(registryObserver->ice_locator(locator)));
     }
     else
     {
@@ -168,9 +159,7 @@ AdminSessionI::setObservers(
 
     if (nodeObserver)
     {
-        setupObserverSubscription(
-            TopicName::NodeObserver,
-            addForwarder(nodeObserver->ice_timeout(timeout)->ice_locator(locator)));
+        setupObserverSubscription(TopicName::NodeObserver, addForwarder(nodeObserver->ice_locator(locator)));
     }
     else
     {
@@ -179,9 +168,7 @@ AdminSessionI::setObservers(
 
     if (appObserver)
     {
-        setupObserverSubscription(
-            TopicName::ApplicationObserver,
-            addForwarder(appObserver->ice_timeout(timeout)->ice_locator(locator)));
+        setupObserverSubscription(TopicName::ApplicationObserver, addForwarder(appObserver->ice_locator(locator)));
     }
     else
     {
@@ -190,9 +177,7 @@ AdminSessionI::setObservers(
 
     if (adapterObserver)
     {
-        setupObserverSubscription(
-            TopicName::AdapterObserver,
-            addForwarder(adapterObserver->ice_timeout(timeout)->ice_locator(locator)));
+        setupObserverSubscription(TopicName::AdapterObserver, addForwarder(adapterObserver->ice_locator(locator)));
     }
     else
     {
@@ -201,9 +186,7 @@ AdminSessionI::setObservers(
 
     if (objectObserver)
     {
-        setupObserverSubscription(
-            TopicName::ObjectObserver,
-            addForwarder(objectObserver->ice_timeout(timeout)->ice_locator(locator)));
+        setupObserverSubscription(TopicName::ObjectObserver, addForwarder(objectObserver->ice_locator(locator)));
     }
     else
     {
@@ -514,7 +497,7 @@ AdminSessionFactory::createGlacier2Session(const string& sessionId, const option
 shared_ptr<AdminSessionI>
 AdminSessionFactory::createSessionServant(const string& id)
 {
-    return make_shared<AdminSessionI>(id, _database, _timeout, _registry);
+    return make_shared<AdminSessionI>(id, _database, _registry);
 }
 
 const shared_ptr<TraceLevels>&
