@@ -2434,12 +2434,6 @@ Slice::Gen::TypeScriptAliasVisitor::addAlias(const string& type, const string& p
 }
 
 bool
-Slice::Gen::TypeScriptAliasVisitor::visitModuleStart(const ModulePtr&)
-{
-    return true;
-}
-
-bool
 Slice::Gen::TypeScriptAliasVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     ModulePtr module = dynamic_pointer_cast<Module>(p->container());

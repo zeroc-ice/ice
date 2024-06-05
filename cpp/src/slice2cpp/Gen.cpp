@@ -3296,12 +3296,6 @@ Slice::Gen::StreamVisitor::visitClassDefStart(const ClassDefPtr& c)
     return false;
 }
 
-bool
-Slice::Gen::StreamVisitor::visitExceptionStart(const ExceptionPtr&)
-{
-    return true;
-}
-
 void
 Slice::Gen::StreamVisitor::visitExceptionEnd(const ExceptionPtr& p)
 {

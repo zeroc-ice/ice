@@ -25,8 +25,8 @@ namespace Slice
     {
     public:
         CompilerException(const char*, int, const std::string&);
-        virtual std::string ice_id() const;
-        virtual void ice_print(std::ostream&) const;
+        std::string ice_id() const override;
+        void ice_print(std::ostream&) const override;
 
         std::string reason() const;
 
@@ -205,7 +205,7 @@ namespace Slice
     // DefinitionContext
     // ----------------------------------------------------------------------
 
-    class DefinitionContext
+    class DefinitionContext final
     {
     public:
         DefinitionContext(int, const StringList&);
@@ -248,7 +248,7 @@ namespace Slice
     // Comment
     // ----------------------------------------------------------------------
 
-    class Comment
+    class Comment final
     {
     public:
         bool isDeprecated() const;
@@ -327,7 +327,7 @@ namespace Slice
     // Builtin
     // ----------------------------------------------------------------------
 
-    class Builtin : public virtual Type
+    class Builtin final : public virtual Type
     {
     public:
         enum Kind
@@ -347,11 +347,11 @@ namespace Slice
 
         Builtin(const UnitPtr&, Kind);
 
-        virtual std::string typeId() const;
-        virtual bool isClassType() const;
-        virtual size_t minWireSize() const;
-        virtual std::string getOptionalFormat() const;
-        virtual bool isVariableLength() const;
+        std::string typeId() const final;
+        bool isClassType() const final;
+        size_t minWireSize() const final;
+        std::string getOptionalFormat() const final;
+        bool isVariableLength() const final;
 
         bool isNumericType() const;
         bool isIntegralType() const;
@@ -451,7 +451,7 @@ namespace Slice
     {
     public:
         Container(const UnitPtr&);
-        virtual void destroy();
+        void destroy() override;
         ModulePtr createModule(const std::string&);
         ClassDefPtr createClassDef(const std::string&, int, const ClassDefPtr&);
         ClassDeclPtr createClassDecl(const std::string&);
@@ -507,7 +507,7 @@ namespace Slice
         std::string thisScope() const;
         void sort();
         void sortContents(bool);
-        virtual void visit(ParserVisitor*, bool);
+        void visit(ParserVisitor*, bool) override;
 
         bool checkIntroduced(const std::string&, ContainedPtr = 0);
         bool checkForGlobalDef(const std::string&, const char*);
@@ -524,13 +524,13 @@ namespace Slice
     // Module
     // ----------------------------------------------------------------------
 
-    class Module : public virtual Container, public virtual Contained
+    class Module final : public virtual Container, public virtual Contained
     {
     public:
         Module(const ContainerPtr&, const std::string&);
-        virtual ContainedType containedType() const;
-        virtual std::string kindOf() const;
-        virtual void visit(ParserVisitor*, bool);
+        ContainedType containedType() const final;
+        std::string kindOf() const final;
+        void visit(ParserVisitor*, bool) final;
 
         friend class Container;
     };
@@ -543,26 +543,26 @@ namespace Slice
     {
     public:
         Constructed(const ContainerPtr&, const std::string&);
-        virtual std::string typeId() const;
+        std::string typeId() const override;
     };
 
     // ----------------------------------------------------------------------
     // ClassDecl
     // ----------------------------------------------------------------------
 
-    class ClassDecl : public virtual Constructed
+    class ClassDecl final : public virtual Constructed
     {
     public:
         ClassDecl(const ContainerPtr&, const std::string&);
-        virtual void destroy();
+        void destroy() override;
         ClassDefPtr definition() const;
-        virtual ContainedType containedType() const;
-        virtual bool isClassType() const;
-        virtual size_t minWireSize() const;
-        virtual std::string getOptionalFormat() const;
-        virtual bool isVariableLength() const;
-        virtual void visit(ParserVisitor*, bool);
-        virtual std::string kindOf() const;
+        ContainedType containedType() const override;
+        bool isClassType() const override;
+        size_t minWireSize() const override;
+        std::string getOptionalFormat() const override;
+        bool isVariableLength() const override;
+        void visit(ParserVisitor*, bool) override;
+        std::string kindOf() const override;
 
     protected:
         friend class Container;
@@ -582,11 +582,11 @@ namespace Slice
     // so if you need the class as a "constructed type", use the
     // declaration() operation to navigate to the class declaration.
     //
-    class ClassDef : public virtual Container, public virtual Contained
+    class ClassDef final : public virtual Container, public virtual Contained
     {
     public:
         ClassDef(const ContainerPtr&, const std::string&, int, const ClassDefPtr&);
-        virtual void destroy();
+        void destroy() final;
         DataMemberPtr createDataMember(
             const std::string&,
             const TypePtr&,
@@ -609,10 +609,10 @@ namespace Slice
         bool hasDefaultValues() const;
         bool inheritsMetaData(const std::string&) const;
         bool hasBaseDataMembers() const;
-        virtual ContainedType containedType() const;
-        virtual void visit(ParserVisitor*, bool);
+        ContainedType containedType() const final;
+        void visit(ParserVisitor*, bool) final;
         int compactId() const;
-        virtual std::string kindOf() const;
+        std::string kindOf() const final;
 
     protected:
         friend class Container;
@@ -627,18 +627,18 @@ namespace Slice
     // InterfaceDecl
     // ----------------------------------------------------------------------
 
-    class InterfaceDecl : public virtual Constructed
+    class InterfaceDecl final : public virtual Constructed
     {
     public:
         InterfaceDecl(const ContainerPtr&, const std::string&);
-        virtual void destroy();
+        void destroy() final;
         InterfaceDefPtr definition() const;
-        virtual ContainedType containedType() const;
-        virtual size_t minWireSize() const;
-        virtual std::string getOptionalFormat() const;
-        virtual bool isVariableLength() const;
-        virtual void visit(ParserVisitor*, bool);
-        virtual std::string kindOf() const;
+        ContainedType containedType() const final;
+        size_t minWireSize() const final;
+        std::string getOptionalFormat() const final;
+        bool isVariableLength() const final;
+        void visit(ParserVisitor*, bool) final;
+        std::string kindOf() const final;
 
         static void checkBasesAreLegal(const std::string&, const InterfaceList&, const UnitPtr&);
 
@@ -662,7 +662,7 @@ namespace Slice
     // Operation
     // ----------------------------------------------------------------------
 
-    class Operation : public virtual Contained, public virtual Container
+    class Operation final : public virtual Contained, public virtual Container
     {
     public:
         //
@@ -690,15 +690,15 @@ namespace Slice
         void outParameters(ParamDeclList&, ParamDeclList&) const;
         ExceptionList throws() const;
         void setExceptionList(const ExceptionList&);
-        virtual ContainedType containedType() const;
+        ContainedType containedType() const final;
         bool sendsClasses(bool) const;
         bool returnsClasses(bool) const;
         bool returnsData() const;
         bool returnsMultipleValues() const;
         bool sendsOptionals() const;
         FormatType format() const;
-        virtual std::string kindOf() const;
-        virtual void visit(ParserVisitor*, bool);
+        std::string kindOf() const final;
+        void visit(ParserVisitor*, bool) final;
 
     protected:
         friend class InterfaceDef;
@@ -721,11 +721,11 @@ namespace Slice
     // so if you need the interface as a "constructed type", use the
     // declaration() function to navigate to the interface declaration.
     //
-    class InterfaceDef : public virtual Container, public virtual Contained
+    class InterfaceDef final : public virtual Container, public virtual Contained
     {
     public:
         InterfaceDef(const ContainerPtr&, const std::string&, const InterfaceList&);
-        virtual void destroy();
+        void destroy() final;
         OperationPtr
         createOperation(const std::string&, const TypePtr&, bool, int, Operation::Mode = Operation::Normal);
 
@@ -737,9 +737,9 @@ namespace Slice
         bool isA(const std::string&) const;
         bool hasOperations() const;
         bool inheritsMetaData(const std::string&) const;
-        virtual ContainedType containedType() const;
-        virtual std::string kindOf() const;
-        virtual void visit(ParserVisitor*, bool);
+        ContainedType containedType() const final;
+        std::string kindOf() const final;
+        void visit(ParserVisitor*, bool) final;
 
         // Returns the type IDs of all the interfaces in the inheritance tree, in alphabetical order.
         StringList ids() const;
@@ -757,11 +757,11 @@ namespace Slice
     // ----------------------------------------------------------------------
 
     // No inheritance from Constructed, as this is not a Type
-    class Exception : public virtual Container, public virtual Contained
+    class Exception final : public virtual Container, public virtual Contained
     {
     public:
         Exception(const ContainerPtr&, const std::string&, const ExceptionPtr&);
-        virtual void destroy();
+        void destroy() final;
         DataMemberPtr createDataMember(
             const std::string&,
             const TypePtr&,
@@ -777,14 +777,14 @@ namespace Slice
         DataMemberList allClassDataMembers() const;
         ExceptionPtr base() const;
         ExceptionList allBases() const;
-        virtual bool isBaseOf(const ExceptionPtr&) const;
-        virtual ContainedType containedType() const;
+        bool isBaseOf(const ExceptionPtr&) const;
+        ContainedType containedType() const final;
         bool usesClasses(bool) const;
         bool hasDefaultValues() const;
         bool inheritsMetaData(const std::string&) const;
         bool hasBaseDataMembers() const;
-        virtual std::string kindOf() const;
-        virtual void visit(ParserVisitor*, bool);
+        std::string kindOf() const final;
+        void visit(ParserVisitor*, bool) final;
 
     protected:
         friend class Container;
@@ -796,7 +796,7 @@ namespace Slice
     // Struct
     // ----------------------------------------------------------------------
 
-    class Struct : public virtual Container, public virtual Constructed
+    class Struct final : public virtual Container, public virtual Constructed
     {
     public:
         Struct(const ContainerPtr&, const std::string&);
@@ -810,14 +810,14 @@ namespace Slice
             const std::string&);
         DataMemberList dataMembers() const;
         DataMemberList classDataMembers() const;
-        virtual ContainedType containedType() const;
-        virtual bool usesClasses() const;
-        virtual size_t minWireSize() const;
-        virtual std::string getOptionalFormat() const;
-        virtual bool isVariableLength() const;
+        ContainedType containedType() const final;
+        bool usesClasses() const final;
+        size_t minWireSize() const final;
+        std::string getOptionalFormat() const final;
+        bool isVariableLength() const final;
         bool hasDefaultValues() const;
-        virtual std::string kindOf() const;
-        virtual void visit(ParserVisitor*, bool);
+        std::string kindOf() const final;
+        void visit(ParserVisitor*, bool) final;
 
         friend class Container;
     };
@@ -826,19 +826,19 @@ namespace Slice
     // Sequence
     // ----------------------------------------------------------------------
 
-    class Sequence : public virtual Constructed
+    class Sequence final : public virtual Constructed
     {
     public:
         Sequence(const ContainerPtr&, const std::string&, const TypePtr&, const StringList&);
         TypePtr type() const;
         StringList typeMetaData() const;
-        virtual ContainedType containedType() const;
-        virtual bool usesClasses() const;
-        virtual size_t minWireSize() const;
-        virtual std::string getOptionalFormat() const;
-        virtual bool isVariableLength() const;
-        virtual std::string kindOf() const;
-        virtual void visit(ParserVisitor*, bool);
+        ContainedType containedType() const final;
+        bool usesClasses() const final;
+        size_t minWireSize() const final;
+        std::string getOptionalFormat() const final;
+        bool isVariableLength() const final;
+        std::string kindOf() const final;
+        void visit(ParserVisitor*, bool) final;
 
     protected:
         friend class Container;
@@ -851,7 +851,7 @@ namespace Slice
     // Dictionary
     // ----------------------------------------------------------------------
 
-    class Dictionary : public virtual Constructed
+    class Dictionary final : public virtual Constructed
     {
     public:
         Dictionary(
@@ -865,13 +865,13 @@ namespace Slice
         TypePtr valueType() const;
         StringList keyMetaData() const;
         StringList valueMetaData() const;
-        virtual ContainedType containedType() const;
-        virtual bool usesClasses() const;
-        virtual size_t minWireSize() const;
-        virtual std::string getOptionalFormat() const;
-        virtual bool isVariableLength() const;
-        virtual std::string kindOf() const;
-        virtual void visit(ParserVisitor*, bool);
+        ContainedType containedType() const final;
+        bool usesClasses() const final;
+        size_t minWireSize() const final;
+        std::string getOptionalFormat() const final;
+        bool isVariableLength() const final;
+        std::string kindOf() const final;
+        void visit(ParserVisitor*, bool) final;
 
         static bool legalKeyType(const TypePtr&);
 
@@ -888,20 +888,20 @@ namespace Slice
     // Enum
     // ----------------------------------------------------------------------
 
-    class Enum : public virtual Container, public virtual Constructed
+    class Enum final : public virtual Container, public virtual Constructed
     {
     public:
         Enum(const ContainerPtr&, const std::string&);
-        virtual void destroy();
+        void destroy() final;
         bool explicitValue() const;
         int minValue() const;
         int maxValue() const;
-        virtual ContainedType containedType() const;
-        virtual size_t minWireSize() const;
-        virtual std::string getOptionalFormat() const;
-        virtual bool isVariableLength() const;
-        virtual std::string kindOf() const;
-        virtual void visit(ParserVisitor*, bool);
+        ContainedType containedType() const final;
+        size_t minWireSize() const final;
+        std::string getOptionalFormat() const final;
+        bool isVariableLength() const final;
+        std::string kindOf() const final;
+        void visit(ParserVisitor*, bool) final;
 
     protected:
         int newEnumerator(const EnumeratorPtr&);
@@ -919,15 +919,15 @@ namespace Slice
     // Enumerator
     // ----------------------------------------------------------------------
 
-    class Enumerator : public virtual Contained
+    class Enumerator final : public virtual Contained
     {
     public:
         Enumerator(const ContainerPtr&, const std::string&);
         Enumerator(const ContainerPtr&, const std::string&, int);
-        virtual void init();
+        void init() final;
         EnumPtr type() const;
-        virtual ContainedType containedType() const;
-        virtual std::string kindOf() const;
+        ContainedType containedType() const final;
+        std::string kindOf() const final;
 
         bool explicitValue() const;
         int value() const;
@@ -943,7 +943,7 @@ namespace Slice
     // Const
     // ----------------------------------------------------------------------
 
-    class Const : public virtual Contained
+    class Const final : public virtual Contained
     {
     public:
         Const(
@@ -959,9 +959,9 @@ namespace Slice
         SyntaxTreeBasePtr valueType() const;
         std::string value() const;
         std::string literal() const;
-        virtual ContainedType containedType() const;
-        virtual std::string kindOf() const;
-        virtual void visit(ParserVisitor*, bool);
+        ContainedType containedType() const final;
+        std::string kindOf() const final;
+        void visit(ParserVisitor*, bool) final;
 
     protected:
         friend class Container;
@@ -977,7 +977,7 @@ namespace Slice
     // ParamDecl
     // ----------------------------------------------------------------------
 
-    class ParamDecl : public virtual Contained
+    class ParamDecl final : public virtual Contained
     {
     public:
         ParamDecl(const ContainerPtr&, const std::string&, const TypePtr&, bool, bool, int);
@@ -985,9 +985,9 @@ namespace Slice
         bool isOutParam() const;
         bool optional() const;
         int tag() const;
-        virtual ContainedType containedType() const;
-        virtual std::string kindOf() const;
-        virtual void visit(ParserVisitor*, bool);
+        ContainedType containedType() const final;
+        std::string kindOf() const final;
+        void visit(ParserVisitor*, bool) final;
 
     protected:
         friend class Operation;
@@ -1002,7 +1002,7 @@ namespace Slice
     // DataMember
     // ----------------------------------------------------------------------
 
-    class DataMember : public virtual Contained
+    class DataMember final : public virtual Contained
     {
     public:
         DataMember(
@@ -1020,9 +1020,9 @@ namespace Slice
         std::string defaultValue() const;
         std::string defaultLiteral() const;
         SyntaxTreeBasePtr defaultValueType() const;
-        virtual ContainedType containedType() const;
-        virtual std::string kindOf() const;
-        virtual void visit(ParserVisitor*, bool);
+        ContainedType containedType() const final;
+        std::string kindOf() const final;
+        void visit(ParserVisitor*, bool) final;
 
     protected:
         friend class ClassDef;
@@ -1041,7 +1041,7 @@ namespace Slice
     // Unit
     // ----------------------------------------------------------------------
 
-    class Unit : public virtual Container
+    class Unit final : public virtual Container
     {
     public:
         static UnitPtr createUnit(bool, const StringList& = StringList());
@@ -1093,8 +1093,8 @@ namespace Slice
 
         int parse(const std::string&, FILE*, bool);
 
-        virtual void destroy();
-        virtual void visit(ParserVisitor*, bool);
+        void destroy() final;
+        void visit(ParserVisitor*, bool) final;
 
         BuiltinPtr builtin(Builtin::Kind); // Not const, as builtins are created on the fly. (Lazy initialization.)
 

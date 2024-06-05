@@ -17,7 +17,7 @@ using namespace IceUtilInternal;
 
 namespace
 {
-    class StringLiteralGenerator
+    class StringLiteralGenerator final
     {
     public:
         StringLiteralGenerator(const string&, const string&, EscapeMode, unsigned char);

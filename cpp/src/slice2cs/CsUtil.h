@@ -109,22 +109,22 @@ namespace Slice
             bool);
 
     private:
-        class MetaDataVisitor : public ParserVisitor
+        class MetaDataVisitor final : public ParserVisitor
         {
         public:
-            virtual bool visitUnitStart(const UnitPtr&);
-            virtual bool visitModuleStart(const ModulePtr&);
-            virtual void visitClassDecl(const ClassDeclPtr&);
-            virtual bool visitClassDefStart(const ClassDefPtr&);
-            virtual bool visitExceptionStart(const ExceptionPtr&);
-            virtual bool visitStructStart(const StructPtr&);
-            virtual void visitOperation(const OperationPtr&);
-            virtual void visitParamDecl(const ParamDeclPtr&);
-            virtual void visitDataMember(const DataMemberPtr&);
-            virtual void visitSequence(const SequencePtr&);
-            virtual void visitDictionary(const DictionaryPtr&);
-            virtual void visitEnum(const EnumPtr&);
-            virtual void visitConst(const ConstPtr&);
+            bool visitUnitStart(const UnitPtr&) final;
+            bool visitModuleStart(const ModulePtr&) final;
+            void visitClassDecl(const ClassDeclPtr&) final;
+            bool visitClassDefStart(const ClassDefPtr&) final;
+            bool visitExceptionStart(const ExceptionPtr&) final;
+            bool visitStructStart(const StructPtr&) final;
+            void visitOperation(const OperationPtr&) final;
+            void visitParamDecl(const ParamDeclPtr&) final;
+            void visitDataMember(const DataMemberPtr&) final;
+            void visitSequence(const SequencePtr&) final;
+            void visitDictionary(const DictionaryPtr&) final;
+            void visitEnum(const EnumPtr&) final;
+            void visitConst(const ConstPtr&) final;
 
         private:
             void validate(const ContainedPtr&);
