@@ -4,7 +4,6 @@
 
 @class ICEConnection;
 @class ICEObjectAdapter;
-@class ICEDispatchException;
 
 NS_ASSUME_NONNULL_BEGIN
 
