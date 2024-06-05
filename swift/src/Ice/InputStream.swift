@@ -815,13 +815,13 @@ extension InputStream {
     }
 
     /// Reads a value from the stream.
-    public func read(cb: (Value?) throws -> Void) throws {
+    public func read(cb: @escaping (Value?) throws -> Void) throws {
         initEncaps()
         try encaps.decoder.readValue(cb: cb)
     }
 
     /// Reads a value from the stream.
-    public func read<ValueType>(_ value: ValueType.Type, cb: (ValueType?) -> Void) throws
+    public func read<ValueType>(_ value: ValueType.Type, cb: @escaping (ValueType?) -> Void) throws
     where ValueType: Value {
         initEncaps()
         try encaps.decoder.readValue { v in
@@ -885,7 +885,7 @@ private protocol EncapsDecoder: AnyObject {
     var classGraphDepthMax: Int32 { get }
     var classGraphDepth: Int32 { get set }
 
-    func readValue(cb: Callback) throws
+    func readValue(cb: @escaping Callback) throws
     func throwException() throws
 
     func startInstance(type: SliceType)
@@ -1088,7 +1088,7 @@ private class EncapsDecoder10: EncapsDecoder {
         classGraphDepth = 0
     }
 
-    func readValue(cb: Callback) throws {
+    func readValue(cb: @escaping Callback) throws {
         //
         // Object references are encoded as a negative integer in 1.0.
         //
@@ -1378,7 +1378,7 @@ private class EncapsDecoder11: EncapsDecoder {
         classGraphDepth = 0
     }
 
-    func readValue(cb: Callback) throws {
+    func readValue(cb: @escaping Callback) throws {
         let index = try stream.readSize()
         if index < 0 {
             throw MarshalException(reason: "invalid object id")
