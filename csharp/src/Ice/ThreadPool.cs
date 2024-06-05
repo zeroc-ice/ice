@@ -363,7 +363,7 @@ namespace IceInternal
                             current._handler = handler;
                             handler.finished(ref current);
                         });
-                    Monitor.PulseAll(this);
+                    Monitor.Pulse(this);
                 }
                 else
                 {
@@ -408,7 +408,7 @@ namespace IceInternal
                         current.ioCompleted();
                         dispatchFromThisThread(workItem, connection);
                     });
-                Monitor.PulseAll(this);
+                Monitor.Pulse(this);
             }
         }
 
@@ -472,7 +472,7 @@ namespace IceInternal
                         current.operation = operation;
                         messageCallback(current);
                     });
-                Monitor.PulseAll(this);
+                Monitor.Pulse(this);
             }
         }
 
@@ -510,7 +510,7 @@ namespace IceInternal
 
                                     _threads.Remove(thread);
                                     _workItems.Enqueue(c => thread.join());
-                                    Monitor.PulseAll(this);
+                                    Monitor.Pulse(this);
                                     return;
                                 }
                                 else if (_inUse > 0)
