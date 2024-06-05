@@ -1,7 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
+// Copyright (c) ZeroC, Inc.
 #import "ImplicitContext.h"
 #import "Convert.h"
 

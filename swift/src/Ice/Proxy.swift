@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import Foundation
 import IceImpl
@@ -350,7 +348,7 @@ public func uncheckedCast(
 /// Returns the Slice type id of the interface or class associated with this proxy class.
 ///
 /// - returns: `String` - The type id, "::Ice::Object".
-public func ice_staticId(_: ObjectPrx.Protocol) -> Swift.String {
+public func ice_staticId(_: ObjectPrx.Protocol) -> String {
     return ObjectTraits.staticId
 }
 
@@ -401,7 +399,7 @@ extension ObjectPrx {
     /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` - Optional dispatch flags used to
     ///   dispatch sent callback
     ///
-    /// - parameter sent: `((Swift.Bool) -> Swift.Void)` - Optional sent callback.
+    /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
     ///
     /// - returns: `PromiseKit.Promise<Void>` - A promise object that will be resolved with
     ///   the result of the invocation.

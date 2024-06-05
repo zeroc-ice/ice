@@ -1,7 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
+// Copyright (c) ZeroC, Inc.
 #import "Endpoint.h"
 #import "Convert.h"
 #import "IceUtil.h"

@@ -23,7 +23,7 @@ on the [supported platforms] page.
 ### Slice to Swift Compiler
 
 You need the Slice to Swift compiler to build Ice for Swift and also to use Ice
-for Swift. The Slice to Swift compiler (`slice2swift`) is a command-line tool
+for  The Slice to Swift compiler (`slice2swift`) is a command-line tool
 written in C++. You can build the Slice to Swift compiler from source, or
 alternatively you can install an Ice [binary distribution] that includes this
 compiler.
@@ -34,7 +34,7 @@ Ice for Swift requires Swift 5 or later.
 
 ### Carthage
 
-Carthage must be installed to build Ice for Swift. You can install Carthage
+Carthage must be installed to build Ice for  You can install Carthage
 using Homebrew:
 
 ```shell

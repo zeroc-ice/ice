@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 struct SliceFlags: OptionSet {
     let rawValue: UInt8

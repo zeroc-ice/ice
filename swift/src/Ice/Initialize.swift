@@ -1,15 +1,13 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import IceImpl
 
 //
-// Factories are registered once when `factoriesRegistered' is lazzy initialized,
-// all Swift global variables are lazzy initialized.
+// Factories are registered once when `factoriesRegistered' is lazy initialized,
+// all Swift global variables are lazy initialized.
 //
 // All code paths that require the use of the factories before `initialize' is call
-// should check `factoriesRegistered' to ensure lazzy initinialization occurrs before
+// should check `factoriesRegistered' to ensure lazy initialization occurs before
 // the factories are used.
 //
 let factoriesRegistered: Bool = {
@@ -26,7 +24,7 @@ let factoriesRegistered: Bool = {
 /// - parameter _: `[String]` - A command-line argument vector. Any Ice-related options
 ///   in this vector are used to initialize the communicator.
 ///
-/// - parameter initData: `Ice.InitializationData` - Additional intialization data. Property
+/// - parameter initData: `Ice.InitializationData` - Additional initialization data. Property
 ///   settings in args override property settings in initData.
 ///
 /// - returns: The initialized communicator.
@@ -42,7 +40,7 @@ public func initialize(_ args: [String], initData: InitializationData? = nil) th
 ///   in this vector are used to initialize the communicator. This method modifies the
 ///   argument vector by removing any Ice-related options.
 ///
-/// - parameter initData: `Ice.InitializationData` - Additional intialization data. Property
+/// - parameter initData: `Ice.InitializationData` - Additional initialization data. Property
 ///   settings in args override property settings in initData.
 ///
 /// - returns: `Ice.Communicator` - The initialized communicator.
@@ -119,7 +117,7 @@ private func initializeImpl(
 ) throws -> (Communicator, [String]) {
     // Ensure factories are initialized
     guard factoriesRegistered else {
-        fatalError("Unable to initialie Ice")
+        fatalError("Unable to initialize Ice")
     }
 
     var initData = userInitData
@@ -153,7 +151,7 @@ private func initializeImpl(
         }
 
         //
-        // Update initData.logger referecnce in case we are using a C++ logger (defined though a property) or
+        // Update initData.logger reference in case we are using a C++ logger (defined though a property) or
         //  a C++ logger plug-in installed a new logger
         //
         if let objcLogger = handle.getLogger() as? ICELogger {
@@ -180,7 +178,7 @@ private func initializeImpl(
 /// - returns: `Properties` - A new empty property set.
 public func createProperties() -> Properties {
     guard factoriesRegistered else {
-        fatalError("Unable to initialie Ice")
+        fatalError("Unable to initialize Ice")
     }
     return PropertiesI(handle: ICEUtil.createProperties())
 }
@@ -199,7 +197,7 @@ public func createProperties() -> Properties {
 ///   array and defaults.
 public func createProperties(_ args: [String], defaults: Properties? = nil) throws -> Properties {
     guard factoriesRegistered else {
-        fatalError("Unable to initialie Ice")
+        fatalError("Unable to initialize Ice")
     }
     return try autoreleasepool {
         let propertiesHandle = try ICEUtil.createProperties(
@@ -227,7 +225,7 @@ public func createProperties(_ args: inout [String], defaults: Properties? = nil
     -> Properties
 {
     guard factoriesRegistered else {
-        fatalError("Unable to initialie Ice")
+        fatalError("Unable to initialize Ice")
     }
     return try autoreleasepool {
         var remArgs: NSArray?

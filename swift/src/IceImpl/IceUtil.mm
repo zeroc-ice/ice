@@ -1,7 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
+// Copyright (c) ZeroC, Inc.
 #import "IceUtil.h"
 #import "Convert.h"
 #import "Logger.h"

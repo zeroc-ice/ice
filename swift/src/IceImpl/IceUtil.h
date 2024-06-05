@@ -1,7 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
+// Copyright (c) ZeroC, Inc.
 #import "AdminFacetFactory.h"
 #import "Communicator.h"
 #import "Connection.h"

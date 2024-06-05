@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 class ValueFactoryManagerI: ValueFactoryManager {
     private var factories = [String: ValueFactory]()
