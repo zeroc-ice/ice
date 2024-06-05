@@ -715,7 +715,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
             op->getMetaData());
     }
 
-    if (op->returnsClasses(false))
+    if (op->returnsClasses())
     {
         out << nl << "_ostr.writePendingValues();";
     }
@@ -988,7 +988,7 @@ Slice::JavaVisitor::writeMarshalProxyParams(
             (*pli)->getMetaData());
     }
 
-    if (op->sendsClasses(false))
+    if (op->sendsClasses())
     {
         out << nl << "ostr.writePendingValues();";
     }
@@ -1006,7 +1006,7 @@ Slice::JavaVisitor::writeUnmarshalProxyResults(Output& out, const string& packag
         string resultType = getResultType(op, package, false, false);
         out << nl << resultType << ' ' << name << " = new " << resultType << "();";
         out << nl << name << ".read(istr);";
-        if (op->returnsClasses(false))
+        if (op->returnsClasses())
         {
             out << nl << "istr.readPendingValues();";
         }
@@ -1083,7 +1083,7 @@ Slice::JavaVisitor::writeUnmarshalProxyResults(Output& out, const string& packag
                 patchParams);
         }
 
-        if (op->returnsClasses(false))
+        if (op->returnsClasses())
         {
             out << nl << "istr.readPendingValues();";
         }
@@ -1140,7 +1140,7 @@ Slice::JavaVisitor::writeMarshalServantResults(
         writeMarshalUnmarshalCode(out, package, type, mode, true, tag, param, true, iter, "", metaData);
     }
 
-    if (op->returnsClasses(false))
+    if (op->returnsClasses())
     {
         out << nl << "ostr.writePendingValues();";
     }
@@ -1488,7 +1488,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
                     param->getMetaData(),
                     patchParams);
             }
-            if (op->sendsClasses(false))
+            if (op->sendsClasses())
             {
                 out << nl << "istr.readPendingValues();";
             }
@@ -3183,9 +3183,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
     out << eb;
 
-    if (p->usesClasses(false))
+    if (p->usesClasses())
     {
-        if (!base || (base && !base->usesClasses(false)))
+        if (!base || (base && !base->usesClasses()))
         {
             out << sp;
             writeHiddenDocComment(out);

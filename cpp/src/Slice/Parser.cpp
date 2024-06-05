@@ -3860,11 +3860,11 @@ Slice::Exception::containedType() const
 }
 
 bool
-Slice::Exception::usesClasses(bool includeOptional) const
+Slice::Exception::usesClasses() const
 {
     for (const auto& i : dataMembers())
     {
-        if (i->type()->usesClasses() && (includeOptional || !i->optional()))
+        if (i->type()->usesClasses())
         {
             return true;
         }
@@ -3872,7 +3872,7 @@ Slice::Exception::usesClasses(bool includeOptional) const
 
     if (_base)
     {
-        return _base->usesClasses(includeOptional);
+        return _base->usesClasses();
     }
     return false;
 }
@@ -4872,11 +4872,11 @@ Slice::Operation::containedType() const
 }
 
 bool
-Slice::Operation::sendsClasses(bool includeOptional) const
+Slice::Operation::sendsClasses() const
 {
     for (const auto& i : parameters())
     {
-        if (!i->isOutParam() && i->type()->usesClasses() && (includeOptional || !i->optional()))
+        if (!i->isOutParam() && i->type()->usesClasses())
         {
             return true;
         }
@@ -4885,17 +4885,17 @@ Slice::Operation::sendsClasses(bool includeOptional) const
 }
 
 bool
-Slice::Operation::returnsClasses(bool includeOptional) const
+Slice::Operation::returnsClasses() const
 {
     TypePtr t = returnType();
-    if (t && t->usesClasses() && (includeOptional || !_returnIsOptional))
+    if (t && t->usesClasses())
     {
         return true;
     }
 
     for (const auto& i : parameters())
     {
-        if (i->isOutParam() && i->type()->usesClasses() && (includeOptional || !i->optional()))
+        if (i->isOutParam() && i->type()->usesClasses())
         {
             return true;
         }

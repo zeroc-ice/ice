@@ -2086,7 +2086,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
     _out << eb;
 
-    if ((!base || (base && !base->usesClasses(false))) && p->usesClasses(false))
+    if ((!base || (base && !base->usesClasses())) && p->usesClasses())
     {
         _out << sp;
         emitGeneratedCodeAttribute();
@@ -2517,7 +2517,7 @@ Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
         _out << nl << "_ostr = Ice.CurrentExtensions.startReplyStream(current);";
         _out << nl << "_ostr.startEncapsulation(current.encoding, " << opFormatTypeToString(p) << ");";
         writeMarshalUnmarshalParams(outParams, p, true, ns, false, true, "_ostr");
-        if (p->returnsClasses(false))
+        if (p->returnsClasses())
         {
             _out << nl << "_ostr.writePendingValues();";
         }
@@ -2725,7 +2725,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
             _out << nl << typeS << ' ' << param << (pli->type()->isClassType() ? " = null;" : ";");
         }
         writeMarshalUnmarshalParams(inParams, 0, false, ns);
-        if (op->sendsClasses(false))
+        if (op->sendsClasses())
         {
             _out << nl << "istr.readPendingValues();";
         }
@@ -2786,7 +2786,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
             _out << nl << "static (ostr, " << resultParam << ") =>";
             _out << sb;
             writeMarshalUnmarshalParams(outParams, op, true, ns, true);
-            if (op->returnsClasses(false))
+            if (op->returnsClasses())
             {
                 _out << nl << "ostr.writePendingValues();";
             }
@@ -2828,7 +2828,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
             _out << nl << "var ostr = Ice.CurrentExtensions.startReplyStream(request.current);";
             _out << nl << "ostr.startEncapsulation(request.current.encoding, " << opFormatTypeToString(op) << ");";
             writeMarshalUnmarshalParams(outParams, op, true, ns);
-            if (op->returnsClasses(false))
+            if (op->returnsClasses())
             {
                 _out << nl << "ostr.writePendingValues();";
             }
@@ -3095,7 +3095,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             _out << nl << "write: (Ice.OutputStream ostr) =>";
             _out << sb;
             writeMarshalUnmarshalParams(inParams, 0, true, ns);
-            if (op->sendsClasses(false))
+            if (op->sendsClasses())
             {
                 _out << nl << "ostr.writePendingValues();";
             }
@@ -3152,7 +3152,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
 
             writeMarshalUnmarshalParams(outParams, op, false, ns, true);
-            if (op->returnsClasses(false))
+            if (op->returnsClasses())
             {
                 _out << nl << "istr.readPendingValues();";
             }

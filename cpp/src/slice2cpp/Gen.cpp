@@ -200,7 +200,7 @@ namespace
             C << "[&](" << getUnqualified("::Ice::OutputStream*", scope) << " ostr)";
             C << sb;
             writeMarshalCode(C, inParams, nullptr);
-            if (p->sendsClasses(false))
+            if (p->sendsClasses())
             {
                 C << nl << "ostr->writePendingValues();";
             }
@@ -1938,14 +1938,14 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
 
         writeUnmarshalCode(C, outParams, p);
 
-        if (p->returnsClasses(false))
+        if (p->returnsClasses())
         {
             C << nl << "istr->readPendingValues();";
         }
         C << nl << "return v;";
         C << eb;
     }
-    else if (outParamsHasOpt || p->returnsClasses(false))
+    else if (outParamsHasOpt || p->returnsClasses())
     {
         //
         // If there's only one optional ret/out parameter, we still need to generate
@@ -1958,7 +1958,7 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
         writeAllocateCode(C, outParams, p, interfaceScope, _useWstring);
         writeUnmarshalCode(C, outParams, p);
 
-        if (p->returnsClasses(false))
+        if (p->returnsClasses())
         {
             C << nl << "istr->readPendingValues();";
         }
@@ -2224,9 +2224,9 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     C << nl << "throw *this;";
     C << eb;
 
-    if (p->usesClasses(false))
+    if (p->usesClasses())
     {
-        if (!base || !base->usesClasses(false))
+        if (!base || !base->usesClasses())
         {
             H << sp;
             H << nl << "/// \\cond STREAM";
@@ -3073,7 +3073,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         C << nl << "::Ice::OutputStream* ostr = &_ostr;";
         C << nl << "ostr->startEncapsulation(current.encoding, " << opFormatTypeToString(p) << ");";
         writeMarshalCode(C, outParams, p);
-        if (p->returnsClasses(false))
+        if (p->returnsClasses())
         {
             C << nl << "ostr->writePendingValues();";
         }
@@ -3130,7 +3130,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         C << nl << "istr->startEncapsulation();";
         writeAllocateCode(C, inParams, nullptr, interfaceScope, _useWstring | TypeContext::UnmarshalParamZeroCopy);
         writeUnmarshalCode(C, inParams, nullptr);
-        if (p->sendsClasses(false))
+        if (p->sendsClasses())
         {
             C << nl << "istr->readPendingValues();";
         }
@@ -3174,7 +3174,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
                 C.inc();
                 C << sb;
                 writeMarshalCode(C, outParams, p);
-                if (p->returnsClasses(false))
+                if (p->returnsClasses())
                 {
                     C << nl << "ostr->writePendingValues();";
                 }
@@ -3208,7 +3208,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
             C << nl << "[&](::Ice::OutputStream* ostr)";
             C << sb;
             writeMarshalCode(C, outParams, p);
-            if (p->returnsClasses(false))
+            if (p->returnsClasses())
             {
                 C << nl << "ostr->writePendingValues();";
             }

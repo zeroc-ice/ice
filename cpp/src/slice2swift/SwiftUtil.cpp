@@ -2167,7 +2167,7 @@ SwiftGenerator::writeMarshalInParams(::IceUtilInternal::Output& out, const Opera
         writeMarshalUnmarshalCode(out, q->type, op, "iceP_" + q->name, true, q->tag);
     }
 
-    if (op->sendsClasses(false))
+    if (op->sendsClasses())
     {
         out << nl << "ostr.writePendingValues()";
     }
@@ -2199,7 +2199,7 @@ SwiftGenerator::writeMarshalOutParams(::IceUtilInternal::Output& out, const Oper
         writeMarshalUnmarshalCode(out, q->type, op, "iceP_" + q->name, true, q->tag);
     }
 
-    if (op->returnsClasses(false))
+    if (op->returnsClasses())
     {
         out << nl << "ostr.writePendingValues()";
     }
@@ -2232,7 +2232,7 @@ SwiftGenerator::writeMarshalAsyncOutParams(::IceUtilInternal::Output& out, const
         writeMarshalUnmarshalCode(out, q->type, op, "iceP_" + q->name, true, q->tag);
     }
 
-    if (op->returnsClasses(false))
+    if (op->returnsClasses())
     {
         out << nl << "ostr.writePendingValues()";
     }
@@ -2286,7 +2286,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceUtilInternal::Output& out, const Op
         writeMarshalUnmarshalCode(out, q->type, op, param, false, q->tag);
     }
 
-    if (op->returnsClasses(false))
+    if (op->returnsClasses())
     {
         out << nl << "try istr.readPendingValues()";
     }
@@ -2365,7 +2365,7 @@ SwiftGenerator::writeUnmarshalInParams(::IceUtilInternal::Output& out, const Ope
         writeMarshalUnmarshalCode(out, q->type, op, param, false, q->tag);
     }
 
-    if (op->sendsClasses(false))
+    if (op->sendsClasses())
     {
         out << nl << "try istr.readPendingValues()";
     }

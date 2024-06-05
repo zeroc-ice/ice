@@ -1661,13 +1661,13 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
             _out << ", ";
 
-            if (op->sendsClasses(false))
+            if (op->sendsClasses())
             {
                 _out << "true";
             }
             _out << ", ";
 
-            if (op->returnsClasses(false))
+            if (op->returnsClasses())
             {
                 _out << "true";
             }
@@ -1825,7 +1825,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         _out << eb;
     }
 
-    if (p->usesClasses(false) && (!base || (base && !base->usesClasses(false))))
+    if (p->usesClasses() && (!base || (base && !base->usesClasses())))
     {
         _out << sp;
         _out << nl << "_usesClasses()";
