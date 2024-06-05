@@ -5,9 +5,6 @@
 import IceImpl
 import PromiseKit
 
-/// Alias for backwards compatibility.
-public typealias Disp = Dispatcher
-
 /// A SliceTraits struct describes a Slice interface, class or exception.
 public protocol SliceTraits {
     /// List of all type-ids.

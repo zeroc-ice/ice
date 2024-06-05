@@ -9,3 +9,6 @@ public protocol Dispatcher {
     /// - Returns: The outgoing response, wrapped in a Promise.
     func dispatch(_ request: IncomingRequest) -> Promise<OutgoingResponse>
 }
+
+@available(*, deprecated, renamed: "Dispatcher")
+public typealias Disp = Dispatcher
