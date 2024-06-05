@@ -197,10 +197,7 @@ IceRuby::OperationI::OperationI(
     if (!NIL_P(returnType))
     {
         _returnType = convertParam(returnType, 0);
-        if (!_returnType->optional)
-        {
-            _returnsClasses = _returnType->type->usesClasses();
-        }
+        _returnsClasses = _returnType->type->usesClasses();
     }
 
     //
