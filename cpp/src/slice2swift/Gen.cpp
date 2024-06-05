@@ -1488,44 +1488,6 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     out << sp;
     out << nl;
-    out << "public func dispatch";
-    out << spar;
-    out << ("request: " + getUnqualified("Ice.Request", swiftModule));
-    out << ("current: " + getUnqualified("Ice.Current", swiftModule));
-    out << epar;
-    out << " throws -> PromiseKit.Promise<" << getUnqualified("Ice.OutputStream", swiftModule) << ">?";
-
-    out << sb;
-    // Call startOver() so that dispatch interceptors can retry requests
-    out << nl << "request.startOver()";
-    out << nl << "switch current.operation";
-    out << sb;
-    out.dec(); // to align case with switch
-    for (StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end(); ++q)
-    {
-        const string opName = *q;
-        out << nl << "case \"" << opName << "\":";
-        out.inc();
-        if (opName == "ice_id" || opName == "ice_ids" || opName == "ice_isA" || opName == "ice_ping")
-        {
-            out << nl << "return try (servant as? Object ?? " << disp << ".defaultObject)._iceD_" << opName
-                << "(incoming: request, current: current)";
-        }
-        else
-        {
-            out << nl << "return try servant._iceD_" << opName << "(incoming: request, current: current)";
-        }
-        out.dec();
-    }
-    out << nl << "default:";
-    out.inc();
-    out << nl << "throw " << getUnqualified("Ice.OperationNotExistException", swiftModule)
-        << "(id: current.id, facet: current.facet, operation: current.operation)";
-    // missing dec to compensate for the extra dec after switch sb
-    out << eb;
-    out << eb;
-
-    out << nl;
     out << "public func dispatch(_ request: Ice.IncomingRequest) -> PromiseKit.Promise<Ice.OutgoingResponse>";
     out << sb;
     out << nl;

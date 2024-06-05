@@ -23,7 +23,7 @@ public protocol ServantLocator: Swift.AnyObject {
     /// user exception. If it does, that exception is marshaled back to the client. If the Slice definition for the
     /// corresponding operation includes that user exception, the client receives that user exception; otherwise, the
     /// client receives UnknownUserException.
-    /// If locate throws any exception, the Ice run time does notcall finished.
+    /// If locate throws any exception, the Ice run time does not call finished.
     /// If you call locate from your own code, you must also call finished
     /// when you have finished using the servant, provided that locate returned a non-null servant;
     /// otherwise, you will get undefined behavior if you use servant locators such as the Freeze Evictor.

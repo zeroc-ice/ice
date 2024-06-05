@@ -1,5 +1,4 @@
 #import "AdminFacetFactory.h"
-#import "BlobjectFacade.h"
 #import "Communicator.h"
 #import "Config.h"
 #import "Connection.h"

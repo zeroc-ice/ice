@@ -4,7 +4,7 @@
 
 import IceImpl
 
-class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectFacade, ICEDispatchAdapter, Hashable {
+class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchAdapter, Hashable {
     private let communicator: Communicator
     let servantManager: ServantManager
 
@@ -13,7 +13,6 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
         servantManager = ServantManager(adapterName: handle.getName(), communicator: communicator)
         super.init(handle: handle)
 
-        // handle.registerDefaultServant(self)
         handle.registerDispatchAdapter(self)
     }
 
@@ -199,56 +198,6 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
         return try autoreleasepool {
             try handle.getDispatchQueue()
         }
-    }
-
-    func facadeInvoke(
-        _ adapter: ICEObjectAdapter,
-        inEncapsBytes: UnsafeMutableRawPointer,
-        inEncapsCount: Int,
-        con: ICEConnection?,
-        name: String,
-        category: String,
-        facet: String,
-        operation: String,
-        mode: UInt8,
-        context: [String: String],
-        requestId: Int32,
-        encodingMajor: UInt8,
-        encodingMinor: UInt8,
-        sendResponse: @escaping ICESendResponse
-    ) {
-        precondition(handle == adapter)
-
-        let connection = con?.getSwiftObject(ConnectionI.self) { ConnectionI(handle: con!) } ?? nil
-
-        let current = Current(
-            adapter: self,
-            con: connection,
-            id: Identity(name: name, category: category),
-            facet: facet,
-            operation: operation,
-            mode: OperationMode(rawValue: mode)!,
-            ctx: context,
-            requestId: requestId,
-            encoding: EncodingVersion(major: encodingMajor, minor: encodingMinor))
-
-        let incoming = Incoming(
-            istr: InputStream(
-                communicator: communicator,
-                encoding: EncodingVersion(
-                    major: encodingMajor,
-                    minor: encodingMinor),
-                bytes: Data(
-                    bytesNoCopy: inEncapsBytes, count: inEncapsCount,
-                    deallocator: .none)),
-            sendResponse: sendResponse,
-            current: current)
-
-        incoming.invoke(servantManager)
-    }
-
-    func facadeRemoved() {
-        servantManager.destroy()
     }
 
     func dispatch(

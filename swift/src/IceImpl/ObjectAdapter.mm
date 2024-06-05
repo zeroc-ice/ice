@@ -3,7 +3,6 @@
 //
 
 #import "ObjectAdapter.h"
-#import "BlobjectFacade.h"
 #import "Communicator.h"
 #import "Config.h"
 #import "Connection.h"
@@ -233,12 +232,6 @@
         *error = convertException(std::current_exception());
         return nil;
     }
-}
-
-- (void)registerDefaultServant:(id<ICEBlobjectFacade>)facade
-{
-    auto swiftDispatcher = std::make_shared<SwiftDispatcher>(facade);
-    self.objectAdapter->addDefaultServant(swiftDispatcher, "");
 }
 
 - (void)registerDispatchAdapter:(id<ICEDispatchAdapter>)dispatchAdapter
