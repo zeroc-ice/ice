@@ -915,7 +915,7 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    current._ioCompleted = true; // Set the IO completed flag to specifiy that ioCompleted() has been called.
+    current._ioCompleted = true; // Set the IO completed flag to specify that ioCompleted() has been called.
 
     current._thread->setState(ICE_ENUM(ThreadState, ThreadStateInUseForUser));
 
