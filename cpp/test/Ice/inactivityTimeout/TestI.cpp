@@ -3,7 +3,7 @@
 //
 
 #include "TestI.h"
-#include <Ice/ObjectAdapter.h>
+#include "Ice/Ice.h"
 
 #include <chrono>
 

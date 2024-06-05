@@ -309,15 +309,16 @@ namespace Ice
 
         // A connection is at rest if:
         // - it is active and has no outstanding invocations or dispatches.
-        // - it is not reading a message which is not a connection validation message
-        // - it is not writing a message which is not a connection validation message
+        // - it is not reading or writing a message other than a connection validation message
         // We schedule the inactivity timer task when it enters the "at rest" state, and we cancel this timer task when
-        // the connection is about to leave this state.
+        // the connection is about to leave this state. The writing or reading of a connection validation message isn't
+        // considered as application "activity" since it's used internally to check the connection liveliness.
         // Must be called with _mutex locked.
         bool isAtRest() const noexcept
         {
             return _state == StateActive && _dispatchCount == 0 && _asyncRequests.empty() &&
-                   (_readHeader || static_cast<uint8_t>(_readStream.b[8]) == IceInternal::validateConnectionMsg) &&
+                   (_isExpectingMessageHeaderOnNextRead ||
+                    static_cast<uint8_t>(_readStream.b[8]) == IceInternal::validateConnectionMsg) &&
                    (_writeStream.b.empty() || _writeStream.i == _writeStream.b.end() ||
                     static_cast<uint8_t>(_writeStream.b[8]) == IceInternal::validateConnectionMsg);
         }
@@ -374,7 +375,7 @@ namespace Ice
         std::deque<OutgoingMessage> _sendStreams;
 
         Ice::InputStream _readStream;
-        bool _readHeader;
+        bool _isExpectingMessageHeaderOnNextRead;
         Ice::OutputStream _writeStream;
 
         Observer _observer;

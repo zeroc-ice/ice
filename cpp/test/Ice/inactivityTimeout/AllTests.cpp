@@ -87,15 +87,14 @@ testWithOutstandingRequest(TestIntfPrx p, bool oneway)
 void
 testWithOutstandingOnewaySend(TestIntfPrx p, TestIntfControllerPrx controller)
 {
-    cout << "testing the inactivity timeout with outstanding one-way request to send... "
-         << flush;
+    cout << "testing the inactivity timeout with outstanding one-way request to send... " << flush;
 
     p = p->ice_oneway();
     p->ice_ping();
     ConnectionPtr connection1 = p->ice_getCachedConnection();
 
     // Hold the server adapter and send 10 MB with a oneway request. The sending should block. The connection inactivity
-    // timeout shouldn't be triggered while the connection is waiting for sending the payload.
+    // timeout shouldn't be triggered while the connection is sending the payload.
     controller->holdAdapter();
 
     // Send the payload. The payload shouldn't be fully sent until the adapter is resumed.

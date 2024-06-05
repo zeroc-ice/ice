@@ -1114,7 +1114,7 @@ Ice::ConnectionI::startAsync(SocketOperation operation)
         }
         else if (operation & SocketOperationRead)
         {
-            if (_observer && !_readHeader)
+            if (_observer && !_isExpectingMessageHeaderOnNextRead)
             {
                 _observer.startRead(_readStream);
             }
@@ -1174,7 +1174,7 @@ Ice::ConnectionI::finishAsync(SocketOperation operation)
                 out << " bytes via " << _endpoint->protocol() << "\n" << toString();
             }
 
-            if (_observer && !_readHeader)
+            if (_observer && !_isExpectingMessageHeaderOnNextRead)
             {
                 _observer.finishRead(_readStream);
             }
@@ -1240,11 +1240,13 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
             // - the read operation on the transport can't continue without blocking
             if (current.operation & SocketOperationRead)
             {
-                assert(_readHeader || !isAtRest());
+                // If not expecting to read a header, we're expecting to read the remainder of a message and in this
+                // case the connection shouldn't be at rest.
+                assert(_isExpectingMessageHeaderOnNextRead || !wasAtRest);
 
                 while (true)
                 {
-                    if (_observer && !_readHeader)
+                    if (_observer && !_isExpectingMessageHeaderOnNextRead)
                     {
                         _observer.startRead(_readStream);
                     }
@@ -1256,18 +1258,16 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                         break;
                     }
 
-                    if (_observer && !_readHeader)
+                    if (_observer && !_isExpectingMessageHeaderOnNextRead)
                     {
                         assert(_readStream.i == _readStream.b.end());
                         _observer.finishRead(_readStream);
                     }
 
-                    // If read header is true, we're reading a new Ice protocol message and we need to read
-                    // the message header.
-                    if (_readHeader)
+                    if (_isExpectingMessageHeaderOnNextRead)
                     {
                         // The next read will read the remainder of the message.
-                        _readHeader = false;
+                        _isExpectingMessageHeaderOnNextRead = false;
 
                         if (_observer)
                         {
@@ -1284,7 +1284,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                         _validated = true;
 
                         // Full header should be read because the size of _readStream is always headerSize (14) when
-                        // reading a new message (see the code that sets _readHeader = true).
+                        // reading a new message (see the code that sets _isExpectingMessageHeaderOnNextRead = true).
                         ptrdiff_t pos = _readStream.i - _readStream.b.begin();
                         if (pos < headerSize)
                         {
@@ -1397,6 +1397,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
             {
                 assert(_state <= StateClosingPending);
 
+                // If the connection was at rest but is no longer at rest cancel the inactivity timer.
                 if (wasAtRest && !isAtRest())
                 {
                     cancelInactivityTimerTask();
@@ -1422,6 +1423,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     }
                 }
 
+                // If the connection wasn't at rest but is now at rest schedule the inactivity timer.
                 if (!wasAtRest && isAtRest())
                 {
                     scheduleInactivityTimerTask();
@@ -1455,7 +1457,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
             }
             _readStream.resize(headerSize);
             _readStream.i = _readStream.b.begin();
-            _readHeader = true;
+            _isExpectingMessageHeaderOnNextRead = true;
             return;
         }
         catch (const SocketException&)
@@ -1474,7 +1476,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                 }
                 _readStream.resize(headerSize);
                 _readStream.i = _readStream.b.begin();
-                _readHeader = true;
+                _isExpectingMessageHeaderOnNextRead = true;
             }
             else
             {
@@ -1915,7 +1917,7 @@ Ice::ConnectionI::ConnectionI(
       _messageSizeMax(adapter ? adapter->messageSizeMax() : _instance->messageSizeMax()),
       _batchRequestQueue(new BatchRequestQueue(instance, endpoint->datagram())),
       _readStream(_instance.get(), Ice::currentProtocolEncoding),
-      _readHeader(false),
+      _isExpectingMessageHeaderOnNextRead(false),
       _writeStream(_instance.get(), Ice::currentProtocolEncoding),
       _upcallCount(0),
       _state(StateNotInitialized),
@@ -2638,7 +2640,7 @@ Ice::ConnectionI::validate(SocketOperation operation)
 
     _readStream.resize(headerSize);
     _readStream.i = _readStream.b.begin();
-    _readHeader = true;
+    _isExpectingMessageHeaderOnNextRead = true;
 
     if (_instance->traceLevels()->network >= 1)
     {
@@ -2821,11 +2823,13 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
 
     if (!_sendStreams.empty())
     {
-        assert(!isAtRest());
         _sendStreams.push_back(message);
         _sendStreams.back().adopt(0);
         return AsyncStatusQueued;
     }
+
+    // A message is always at least 14 bytes: the header size.
+    assert(message.stream->b.size() >= 14);
 
     bool isValidateConnectionMsg = static_cast<uint8_t>(message.stream->b[8]) == validateConnectionMsg;
     if (isAtRest() && !isValidateConnectionMsg)
@@ -3125,7 +3129,7 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
     _readStream.swap(stream);
     _readStream.resize(headerSize);
     _readStream.i = _readStream.b.begin();
-    _readHeader = true;
+    _isExpectingMessageHeaderOnNextRead = true;
 
     assert(stream.i == stream.b.end());
 
