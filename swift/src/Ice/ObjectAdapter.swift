@@ -73,18 +73,18 @@ public protocol ObjectAdapter: Swift.AnyObject {
     /// objects by registering the servant with multiple identities. Adding a servant with an identity that is in the
     /// map already throws AlreadyRegisteredException.
     ///
-    /// - parameter servant: `Disp` The servant to add.
+    /// - parameter servant: `Dispatcher` The servant to add.
     ///
     /// - parameter id: `Identity` The identity of the Ice object that is implemented by the servant.
     ///
     /// - returns: `ObjectPrx` - A proxy that matches the given identity and this object adapter.
     @discardableResult
-    func add(servant: Disp, id: Identity) throws -> ObjectPrx
+    func add(servant: Dispatcher, id: Identity) throws -> ObjectPrx
 
     /// Like add, but with a facet. Calling add(servant, id) is equivalent to calling
     /// addFacet with an empty facet.
     ///
-    /// - parameter servant: `Disp` The servant to add.
+    /// - parameter servant: `Dispatcher` The servant to add.
     ///
     /// - parameter id: `Identity` The identity of the Ice object that is implemented by the servant.
     ///
@@ -92,28 +92,28 @@ public protocol ObjectAdapter: Swift.AnyObject {
     ///
     /// - returns: `ObjectPrx` - A proxy that matches the given identity, facet, and this object adapter.
     @discardableResult
-    func addFacet(servant: Disp, id: Identity, facet: Swift.String) throws -> ObjectPrx
+    func addFacet(servant: Dispatcher, id: Identity, facet: Swift.String) throws -> ObjectPrx
 
     /// Add a servant to this object adapter's Active Servant Map, using an automatically generated UUID as its
     /// identity. Note that the generated UUID identity can be accessed using the proxy's ice_getIdentity
     /// operation.
     ///
-    /// - parameter _: `Disp` The servant to add.
+    /// - parameter _: `Dispatcher` The servant to add.
     ///
     /// - returns: `ObjectPrx` - A proxy that matches the generated UUID identity and this object adapter.
     @discardableResult
-    func addWithUUID(_ servant: Disp) throws -> ObjectPrx
+    func addWithUUID(_ servant: Dispatcher) throws -> ObjectPrx
 
     /// Like addWithUUID, but with a facet. Calling addWithUUID(servant) is equivalent to calling
     /// addFacetWithUUID with an empty facet.
     ///
-    /// - parameter servant: `Disp` The servant to add.
+    /// - parameter servant: `Dispatcher` The servant to add.
     ///
     /// - parameter facet: `Swift.String` The facet. An empty facet means the default facet.
     ///
     /// - returns: `ObjectPrx` - A proxy that matches the generated UUID identity, facet, and this object adapter.
     @discardableResult
-    func addFacetWithUUID(servant: Disp, facet: Swift.String) throws -> ObjectPrx
+    func addFacetWithUUID(servant: Dispatcher, facet: Swift.String) throws -> ObjectPrx
 
     /// Add a default servant to handle requests for a specific category. Adding a default servant for a category for
     /// which a default servant is already registered throws AlreadyRegisteredException. To dispatch operation
@@ -128,11 +128,11 @@ public protocol ObjectAdapter: Swift.AnyObject {
     /// If no servant has been found by any of the preceding steps, the object adapter gives up and the caller
     /// receives ObjectNotExistException or FacetNotExistException.
     ///
-    /// - parameter servant: `Disp` The default servant.
+    /// - parameter servant: `Dispatcher` The default servant.
     ///
     /// - parameter category: `Swift.String` The category for which the default servant is registered. An empty
     /// category means it will handle all categories.
-    func addDefaultServant(servant: Disp, category: Swift.String) throws
+    func addDefaultServant(servant: Dispatcher, category: Swift.String) throws
 
     /// Remove a servant (that is, the default facet) from the object adapter's Active Servant Map.
     ///
@@ -140,9 +140,9 @@ public protocol ObjectAdapter: Swift.AnyObject {
     /// implements multiple Ice objects, remove has to be called for all those Ice objects. Removing an identity
     /// that is not in the map throws NotRegisteredException.
     ///
-    /// - returns: `Disp` - The removed servant.
+    /// - returns: `Dispatcher` - The removed servant.
     @discardableResult
-    func remove(_ id: Identity) throws -> Disp
+    func remove(_ id: Identity) throws -> Dispatcher
 
     /// Like remove, but with a facet. Calling remove(id) is equivalent to calling
     /// removeFacet with an empty facet.
@@ -151,9 +151,9 @@ public protocol ObjectAdapter: Swift.AnyObject {
     ///
     /// - parameter facet: `Swift.String` The facet. An empty facet means the default facet.
     ///
-    /// - returns: `Disp` - The removed servant.
+    /// - returns: `Dispatcher` - The removed servant.
     @discardableResult
-    func removeFacet(id: Identity, facet: Swift.String) throws -> Disp
+    func removeFacet(id: Identity, facet: Swift.String) throws -> Dispatcher
 
     /// Remove all facets with the given identity from the Active Servant Map. The operation completely removes the Ice
     /// object, including its default facet. Removing an identity that is not in the map throws
@@ -170,9 +170,9 @@ public protocol ObjectAdapter: Swift.AnyObject {
     ///
     /// - parameter _: `Swift.String` The category of the default servant to remove.
     ///
-    /// - returns: `Disp` - The default servant.
+    /// - returns: `Dispatcher` - The default servant.
     @discardableResult
-    func removeDefaultServant(_ category: Swift.String) throws -> Disp
+    func removeDefaultServant(_ category: Swift.String) throws -> Dispatcher
 
     /// Look up a servant in this object adapter's Active Servant Map by the identity of the Ice object it implements.
     /// This operation only tries to look up a servant in the Active Servant Map. It does not attempt
@@ -180,9 +180,9 @@ public protocol ObjectAdapter: Swift.AnyObject {
     ///
     /// - parameter _: `Identity` The identity of the Ice object for which the servant should be returned.
     ///
-    /// - returns: `Disp?` - The servant that implements the Ice object with the given identity, or null if no such
+    /// - returns: `Dispatcher?` - The servant that implements the Ice object with the given identity, or null if no such
     /// servant has been found.
-    func find(_ id: Identity) -> Disp?
+    func find(_ id: Identity) -> Dispatcher?
 
     /// Like find, but with a facet. Calling find(id) is equivalent to calling findFacet
     /// with an empty facet.
@@ -191,9 +191,9 @@ public protocol ObjectAdapter: Swift.AnyObject {
     ///
     /// - parameter facet: `Swift.String` The facet. An empty facet means the default facet.
     ///
-    /// - returns: `Disp?` - The servant that implements the Ice object with the given identity and facet, or null if
+    /// - returns: `Dispatcher?` - The servant that implements the Ice object with the given identity and facet, or null if
     /// no such servant has been found.
-    func findFacet(id: Identity, facet: Swift.String) -> Disp?
+    func findFacet(id: Identity, facet: Swift.String) -> Dispatcher?
 
     /// Find all facets with the given identity in the Active Servant Map.
     ///
@@ -209,8 +209,8 @@ public protocol ObjectAdapter: Swift.AnyObject {
     ///
     /// - parameter _: `ObjectPrx` The proxy for which the servant should be returned.
     ///
-    /// - returns: `Disp?` - The servant that matches the proxy, or null if no such servant has been found.
-    func findByProxy(_ proxy: ObjectPrx) -> Disp?
+    /// - returns: `Dispatcher?` - The servant that matches the proxy, or null if no such servant has been found.
+    func findByProxy(_ proxy: ObjectPrx) -> Dispatcher?
 
     /// Add a Servant Locator to this object adapter. Adding a servant locator for a category for which a servant
     /// locator is already registered throws AlreadyRegisteredException. To dispatch operation calls on
@@ -258,8 +258,8 @@ public protocol ObjectAdapter: Swift.AnyObject {
     ///
     /// - parameter _: `Swift.String` The category of the default servant to find.
     ///
-    /// - returns: `Disp?` - The default servant or null if no default servant was registered for the category.
-    func findDefaultServant(_ category: Swift.String) -> Disp?
+    /// - returns: `Dispatcher?` - The default servant or null if no default servant was registered for the category.
+    func findDefaultServant(_ category: Swift.String) -> Dispatcher?
 
     /// Create a proxy for the object with the given identity. If this object adapter is configured with an adapter id,
     /// the return value is an indirect proxy that refers to the adapter id. If a replica group id is also defined, the

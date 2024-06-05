@@ -5,20 +5,6 @@
 import IceImpl
 import PromiseKit
 
-/// Request is an opaque type that represents an incoming request.
-public typealias Request = Incoming
-
-/// A request dispatcher (Disp) is a helper struct used by object adapters to dispatch
-/// requests to servants.
-public protocol Disp {
-    /// Dispatch request to servant.
-    ///
-    /// - parameter request: `Ice.Request` - The incoming request.
-    ///
-    /// - parameter current: `Ice.Current` - The Current object for the dispatch.
-    func dispatch(request: Request, current: Current) throws -> Promise<OutputStream>?
-}
-
 /// A SliceTraits struct describes a Slice interface, class or exception.
 public protocol SliceTraits {
     /// List of all type-ids.
@@ -61,50 +47,55 @@ public protocol Object {
 }
 
 extension Object {
-    public func _iceD_ice_id(incoming inS: Incoming, current: Current) throws -> Promise<
-        OutputStream
-    >? {
-        try inS.readEmptyParams()
-
-        let returnValue = try ice_id(current: current)
-
-        return inS.setResult { ostr in
-            ostr.write(returnValue)
+    public func _iceD_ice_id(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
+        do {
+            _ = try request.inputStream.skipEmptyEncapsulation()
+            let returnValue = try ice_id(current: request.current)
+            return Promise.value(
+                request.current.makeOutgoingResponse(returnValue, formatType: .DefaultFormat) { ostr, value in
+                    ostr.write(value)
+                })
+        } catch {
+            return Promise(error: error)
         }
     }
 
-    public func _iceD_ice_ids(incoming inS: Incoming, current: Current) throws -> Promise<
-        OutputStream
-    >? {
-        try inS.readEmptyParams()
-
-        let returnValue = try ice_ids(current: current)
-
-        return inS.setResult { ostr in
-            ostr.write(returnValue)
+    public func _iceD_ice_ids(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
+        do {
+            _ = try request.inputStream.skipEmptyEncapsulation()
+            let returnValue = try ice_ids(current: request.current)
+            return Promise.value(
+                request.current.makeOutgoingResponse(returnValue, formatType: .DefaultFormat) { ostr, value in
+                    ostr.write(value)
+                })
+        } catch {
+            return Promise(error: error)
         }
     }
 
-    public func _iceD_ice_isA(incoming inS: Incoming, current: Current) throws -> Promise<
-        OutputStream
-    >? {
-        let ident: String = try inS.read { istr in
-            try istr.read()
-        }
-
-        let returnValue = try ice_isA(id: ident, current: current)
-
-        return inS.setResult { ostr in
-            ostr.write(returnValue)
+    public func _iceD_ice_isA(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
+        do {
+            let istr = request.inputStream
+            _ = try istr.startEncapsulation()
+            let identity: String = try istr.read()
+            let returnValue = try ice_isA(id: identity, current: request.current)
+            return Promise.value(
+                request.current.makeOutgoingResponse(returnValue, formatType: .DefaultFormat) { ostr, value in
+                    ostr.write(value)
+                })
+        } catch {
+            return Promise(error: error)
         }
     }
 
-    public func _iceD_ice_ping(incoming inS: Incoming, current: Current) throws -> Promise<
-        OutputStream
-    >? {
-        try inS.readEmptyParams()
-        try ice_ping(current: current)
-        return inS.setResult()
+    public func _iceD_ice_ping(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
+        do {
+            _ = try request.inputStream.skipEmptyEncapsulation()
+            try ice_ping(current: request.current)
+            return Promise.value(request.current.makeEmptyOutgoingResponse())
+        } catch {
+            return Promise(error: error)
+        }
     }
 }
 
@@ -137,26 +128,25 @@ open class ObjectI<T: SliceTraits>: Object {
 }
 
 /// Request dispatcher for plain Object servants.
-public struct ObjectDisp: Disp {
+public struct ObjectDisp: Dispatcher {
     public let servant: Object
 
     public init(_ servant: Object) {
         self.servant = servant
     }
 
-    public func dispatch(request: Request, current: Current) throws -> Promise<OutputStream>? {
-        switch current.operation {
+    public func dispatch(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
+        switch request.current.operation {
         case "ice_id":
-            return try servant._iceD_ice_id(incoming: request, current: current)
+            servant._iceD_ice_id(request)
         case "ice_ids":
-            return try servant._iceD_ice_ids(incoming: request, current: current)
+            servant._iceD_ice_ids(request)
         case "ice_isA":
-            return try servant._iceD_ice_isA(incoming: request, current: current)
+            servant._iceD_ice_isA(request)
         case "ice_ping":
-            return try servant._iceD_ice_ping(incoming: request, current: current)
+            servant._iceD_ice_ping(request)
         default:
-            throw OperationNotExistException(
-                id: current.id, facet: current.facet, operation: current.operation)
+            Promise(error: OperationNotExistException())
         }
     }
 }

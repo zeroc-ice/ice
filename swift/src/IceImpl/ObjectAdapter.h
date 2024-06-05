@@ -8,7 +8,7 @@
 @class ICEObjectPrx;
 @class ICEEndpoint;
 @class ICEConnection;
-@protocol ICEBlobjectFacade;
+@protocol ICEDispatchAdapter;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -40,8 +40,7 @@ ICEIMPL_API @interface ICEObjectAdapter : ICELocalObject
 - (NSArray<ICEEndpoint*>*)getPublishedEndpoints;
 - (BOOL)setPublishedEndpoints:(NSArray<ICEEndpoint*>*)newEndpoints error:(NSError* _Nullable* _Nullable)error;
 - (nullable dispatch_queue_t)getDispatchQueue:(NSError* _Nullable* _Nullable)error;
-
-- (void)registerDefaultServant:(id<ICEBlobjectFacade>)facade NS_SWIFT_NAME(registerDefaultServant(_:));
+- (void)registerDispatchAdapter:(id<ICEDispatchAdapter>)dispatchAdapter NS_SWIFT_NAME(registerDispatchAdapter(_:));
 @end
 
 #ifdef __cplusplus

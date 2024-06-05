@@ -130,7 +130,7 @@ public class InputStream {
     ///
     /// - returns: `Ice.EncodingVersion` - The encapsulation's encoding version.
     @discardableResult
-    func skipEmptyEncapsulation() throws -> EncodingVersion {
+    public func skipEmptyEncapsulation() throws -> EncodingVersion {
         let sz: Int32 = try read()
 
         if sz < 6 {

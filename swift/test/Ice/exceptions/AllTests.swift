@@ -7,11 +7,11 @@ import PromiseKit
 import TestCommon
 
 class ServantLocatorI: Ice.ServantLocator {
-    func locate(_: Current) throws -> (returnValue: Disp?, cookie: AnyObject?) {
+    func locate(_: Current) throws -> (returnValue: Dispatcher?, cookie: AnyObject?) {
         return (nil, nil)
     }
 
-    func finished(curr _: Current, servant _: Disp, cookie _: AnyObject?) throws {}
+    func finished(curr _: Current, servant _: Dispatcher, cookie _: AnyObject?) throws {}
 
     func deactivate(_: String) {}
 }

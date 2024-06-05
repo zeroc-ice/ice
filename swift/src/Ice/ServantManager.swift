@@ -2,15 +2,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-class ServantManager {
+import PromiseKit
+
+class ServantManager: Dispatcher {
     private let adapterName: String
     private let communicator: Communicator
 
-    private var servantMapMap = [Identity: [String: Disp]]()
-    private var defaultServantMap = [String: Disp]()
+    private var servantMapMap = [Identity: [String: Dispatcher]]()
+    private var defaultServantMap = [String: Dispatcher]()
     private var locatorMap = [String: ServantLocator]()
 
-    // This is used to distingish between ObjectNotExistException and FacetNotExistException
+    // This is used to distinguish between ObjectNotExistException and FacetNotExistException
     // when a servant is not found on a Swift Admin OA.
     private var adminId: Identity?
 
@@ -21,7 +23,7 @@ class ServantManager {
         self.communicator = communicator
     }
 
-    func addServant(servant: Disp, id ident: Identity, facet: String) throws {
+    func addServant(servant: Dispatcher, id ident: Identity, facet: String) throws {
         try mutex.sync {
             if var m = servantMapMap[ident] {
                 if m[facet] != nil {
@@ -39,7 +41,7 @@ class ServantManager {
         }
     }
 
-    func addDefaultServant(servant: Disp, category: String) throws {
+    func addDefaultServant(servant: Dispatcher, category: String) throws {
         try mutex.sync {
             guard defaultServantMap[category] == nil else {
                 throw AlreadyRegisteredException(kindOfObject: "default servant", id: category)
@@ -49,7 +51,7 @@ class ServantManager {
         }
     }
 
-    func removeServant(id ident: Identity, facet: String) throws -> Disp {
+    func removeServant(id ident: Identity, facet: String) throws -> Dispatcher {
         return try mutex.sync {
             guard var m = servantMapMap[ident], let obj = m.removeValue(forKey: facet) else {
                 var id = communicator.identityToString(ident)
@@ -68,7 +70,7 @@ class ServantManager {
         }
     }
 
-    func removeDefaultServant(category: String) throws -> Disp {
+    func removeDefaultServant(category: String) throws -> Dispatcher {
         return try mutex.sync {
             guard let obj = defaultServantMap.removeValue(forKey: category) else {
                 throw NotRegisteredException(kindOfObject: "default servant", id: category)
@@ -88,7 +90,7 @@ class ServantManager {
         }
     }
 
-    func findServant(id: Identity, facet: String) -> Disp? {
+    func findServant(id: Identity, facet: String) -> Dispatcher? {
         return mutex.sync {
             guard let m = servantMapMap[id] else {
                 guard let obj = defaultServantMap[id.category] else {
@@ -102,7 +104,7 @@ class ServantManager {
         }
     }
 
-    func findDefaultServant(category: String) -> Disp? {
+    func findDefaultServant(category: String) -> Dispatcher? {
         return mutex.sync {
             defaultServantMap[category]
         }
@@ -175,6 +177,56 @@ class ServantManager {
 
         for (category, locator) in m {
             locator.deactivate(category)
+        }
+    }
+
+    func dispatch(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
+        let current = request.current
+        var servant = findServant(id: current.id, facet: current.facet)
+
+        if let servant = servant {
+            // the simple, common path
+            return servant.dispatch(request)
+        }
+
+        // Else, check servant locators
+
+        var locator = findServantLocator(category: current.id.category)
+        if locator == nil, !current.id.category.isEmpty {
+            locator = findServantLocator(category: "")
+        }
+
+        if let locator = locator {
+            do {
+                var cookie: AnyObject?
+                (servant, cookie) = try locator.locate(current)
+
+                if let servant = servant {
+                    // If locator returned a servant, we must execute finished once no matter what.
+                    return servant.dispatch(request).map(on: nil) { response in
+                        do {
+                            try locator.finished(curr: current, servant: servant, cookie: cookie)
+                        } catch {
+                            // Can't return a rejected promise here; otherwise recover will execute finished a second
+                            // time.
+                            return current.makeOutgoingResponse(error: error)
+                        }
+                        return response
+                    }.recover(on: nil) { error in
+                        // This can throw and return a rejected promise.
+                        try locator.finished(curr: current, servant: servant, cookie: cookie)
+                        return Promise<OutgoingResponse>(error: error)
+                    }
+                }
+            } catch {
+                return Promise(error: error)
+            }
+        }
+
+        if hasServant(id: current.id) || isAdminId(current.id) {
+            return Promise(error: FacetNotExistException())
+        } else {
+            return Promise(error: ObjectNotExistException())
         }
     }
 }

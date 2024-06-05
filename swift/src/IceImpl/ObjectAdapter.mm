@@ -3,11 +3,11 @@
 //
 
 #import "ObjectAdapter.h"
-#import "BlobjectFacade.h"
 #import "Communicator.h"
 #import "Config.h"
 #import "Connection.h"
 #import "Convert.h"
+#import "DispatchAdapter.h"
 #import "ObjectPrx.h"
 
 @implementation ICEObjectAdapter
@@ -234,10 +234,10 @@
     }
 }
 
-- (void)registerDefaultServant:(id<ICEBlobjectFacade>)facade
+- (void)registerDispatchAdapter:(id<ICEDispatchAdapter>)dispatchAdapter
 {
-    auto swiftDispatcher = std::make_shared<SwiftDispatcher>(facade);
-    self.objectAdapter->addDefaultServant(swiftDispatcher, "");
+    auto cppDispatcher = std::make_shared<CppDispatcher>(dispatchAdapter);
+    self.objectAdapter->addDefaultServant(cppDispatcher, "");
 }
 
 @end

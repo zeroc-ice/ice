@@ -1,19 +1,17 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import IceImpl
 
-class AdminFacetFacade: ICEBlobjectFacade {
+class AdminFacetFacade: ICEDispatchAdapter {
     private let communicator: Communicator
-    var disp: Disp
+    var dispatcher: Dispatcher
 
-    init(communicator: Communicator, disp: Disp) {
+    init(communicator: Communicator, dispatcher: Dispatcher) {
         self.communicator = communicator
-        self.disp = disp
+        self.dispatcher = dispatcher
     }
 
-    func facadeInvoke(
+    func dispatch(
         _ adapter: ICEObjectAdapter,
         inEncapsBytes: UnsafeMutableRawPointer,
         inEncapsCount: Int,
@@ -27,7 +25,7 @@ class AdminFacetFacade: ICEBlobjectFacade {
         requestId: Int32,
         encodingMajor: UInt8,
         encodingMinor: UInt8,
-        sendResponse: @escaping ICESendResponse
+        completionHandler: @escaping ICEOutgoingResponse
     ) {
         let objectAdapter = adapter.getSwiftObject(ObjectAdapterI.self) {
             let oa = ObjectAdapterI(handle: adapter, communicator: communicator)
@@ -39,7 +37,8 @@ class AdminFacetFacade: ICEBlobjectFacade {
             return oa
         }
 
-        let connection = con?.getSwiftObject(ConnectionI.self) { ConnectionI(handle: con!) } ?? nil
+        let connection = con?.getSwiftObject(ConnectionI.self) { ConnectionI(handle: con!) }
+        let encoding = EncodingVersion(major: encodingMajor, minor: encodingMinor)
 
         let current = Current(
             adapter: objectAdapter,
@@ -50,40 +49,39 @@ class AdminFacetFacade: ICEBlobjectFacade {
             mode: OperationMode(rawValue: mode)!,
             ctx: context,
             requestId: requestId,
-            encoding: EncodingVersion(major: encodingMajor, minor: encodingMinor))
+            encoding: encoding)
 
-        let incoming = Incoming(
-            istr: InputStream(
-                communicator: communicator,
-                encoding: EncodingVersion(
-                    major: encodingMajor,
-                    minor: encodingMinor),
-                bytes: Data(
-                    bytesNoCopy: inEncapsBytes, count: inEncapsCount,
-                    deallocator: .none)),
-            sendResponse: sendResponse,
-            current: current)
+        let istr = InputStream(
+            communicator: communicator,
+            encoding: encoding,
+            bytes: Data(bytesNoCopy: inEncapsBytes, count: inEncapsCount, deallocator: .none))
 
-        // Dispatch directly to the servant. Do not call invoke on Incoming
-        do {
-            // Request was dispatched asynchronously if promise is non-nil
-            if let promise = try disp.dispatch(request: incoming, current: current) {
-                // Use the thread which fulfilled the promise (on: nil)
-                promise.done(on: nil) { ostr in
-                    incoming.setResult(ostr)
-                    incoming.response()
-                }.catch(on: nil) { error in
-                    incoming.exception(error)
-                }
-            } else {
-                incoming.response()
+        let request = IncomingRequest(current: current, inputStream: istr)
+
+        // Dispatch directly to the servant.
+        dispatcher.dispatch(request).map { response in
+            response.outputStream.finished().withUnsafeBytes {
+                completionHandler(
+                    response.replyStatus.rawValue,
+                    response.exceptionId,
+                    response.exceptionMessage,
+                    $0.baseAddress!,
+                    $0.count)
             }
-        } catch {
-            incoming.exception(error)
+        }.catch { error in
+            let response = current.makeOutgoingResponse(error: error)
+            response.outputStream.finished().withUnsafeBytes {
+                completionHandler(
+                    response.replyStatus.rawValue,
+                    response.exceptionId,
+                    response.exceptionMessage,
+                    $0.baseAddress!,
+                    $0.count)
+            }
         }
     }
 
-    func facadeRemoved() {}
+    func complete() {}
 }
 
 final class UnsupportedAdminFacet: LocalObject<ICEUnsupportedAdminFacet>, Object {
@@ -103,39 +101,34 @@ final class UnsupportedAdminFacet: LocalObject<ICEUnsupportedAdminFacet>, Object
 }
 
 class AdminFacetFactory: ICEAdminFacetFactory {
-    static func createProcess(_ communicator: ICECommunicator, handle: ICEProcess)
-        -> ICEBlobjectFacade
-    {
+    static func createProcess(_ communicator: ICECommunicator, handle: ICEProcess) -> ICEDispatchAdapter {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
         return AdminFacetFacade(
             communicator: c,
-            disp: ProcessDisp(
+            dispatcher: ProcessDisp(
                 handle.getSwiftObject(ProcessI.self) {
                     ProcessI(handle: handle)
                 }))
     }
 
-    static func createProperties(_ communicator: ICECommunicator, handle: ICEPropertiesAdmin)
-        -> ICEBlobjectFacade
-    {
+    static func createProperties(_ communicator: ICECommunicator, handle: ICEPropertiesAdmin) -> ICEDispatchAdapter {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
 
         return AdminFacetFacade(
             communicator: c,
-            disp: PropertiesAdminDisp(
+            dispatcher: PropertiesAdminDisp(
                 handle.getSwiftObject(PropertiesAdminI.self) {
                     PropertiesAdminI(communicator: c, handle: handle)
                 }))
     }
 
-    static func createUnsupported(
-        _ communicator: ICECommunicator,
-        handle: ICEUnsupportedAdminFacet
-    ) -> ICEBlobjectFacade {
+    static func createUnsupported(_ communicator: ICECommunicator, handle: ICEUnsupportedAdminFacet)
+        -> ICEDispatchAdapter
+    {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
         return AdminFacetFacade(
             communicator: c,
-            disp: ObjectDisp(
+            dispatcher: ObjectDisp(
                 handle.getSwiftObject(UnsupportedAdminFacet.self) {
                     UnsupportedAdminFacet(handle: handle)
                 }))

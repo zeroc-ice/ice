@@ -10,7 +10,6 @@ public class OutputStream {
     private var data: Data = .init(capacity: 240)
     private let communicator: Communicator
     private let encoding: EncodingVersion
-    private let encoding_1_0: Bool
     private let format: FormatType
 
     private var encaps: Encaps!
@@ -28,7 +27,6 @@ public class OutputStream {
     public init(communicator: Communicator, encoding: EncodingVersion) {
         self.communicator = communicator
         self.encoding = encoding
-        encoding_1_0 = encoding == Encoding_1_0
         format = (communicator as! CommunicatorI).defaultsAndOverrides.defaultFormat
     }
 
@@ -134,7 +132,7 @@ public class OutputStream {
     public func writePendingValues() {
         if encaps != nil, encaps.encoder != nil {
             encaps.encoder.writePendingValues()
-        } else if encoding_1_0 {
+        } else if currentEncoding == Encoding_1_0 {
             // If using the 1.0 encoding and no instances were written, we
             // still write an empty sequence for pending instances if
             // requested (i.e.: if this is called).
@@ -237,7 +235,16 @@ extension OutputStream {
         data.append(v)
     }
 
-    /// Writes a sequence of bytes to the stream.
+    /// Writes bytes to the stream.
+    ///
+    /// - parameter _: `[UInt8]` - The bytes to write.
+    public func writeBlob(_ v: [UInt8]) {
+        if v.count > 0 {
+            data.append(contentsOf: v)
+        }
+    }
+
+    /// Writes a sequence of bytes to the stream (including the size).
     ///
     /// - parameter _: `[UInt8]` - The sequence of bytes to write.
     public func write(_ v: [UInt8]) {
@@ -247,7 +254,7 @@ extension OutputStream {
         }
     }
 
-    /// Writes a sequence of bytes to the stream.
+    /// Writes a sequence of bytes to the stream (including the size).
     ///
     /// - parameter _: `Data` - The sequence of bytes to write.
     public func write(_ v: Data) {

@@ -4,7 +4,7 @@
 
 import IceImpl
 
-class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectFacade, Hashable {
+class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchAdapter, Hashable {
     private let communicator: Communicator
     let servantManager: ServantManager
 
@@ -13,7 +13,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
         servantManager = ServantManager(adapterName: handle.getName(), communicator: communicator)
         super.init(handle: handle)
 
-        handle.registerDefaultServant(self)
+        handle.registerDispatchAdapter(self)
     }
 
     func hash(into hasher: inout Hasher) {
@@ -62,34 +62,34 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
         return handle.destroy()
     }
 
-    func add(servant: Disp, id: Identity) throws -> ObjectPrx {
+    func add(servant: Dispatcher, id: Identity) throws -> ObjectPrx {
         return try addFacet(servant: servant, id: id, facet: "")
     }
 
-    func addFacet(servant: Disp, id: Identity, facet: String) throws -> ObjectPrx {
+    func addFacet(servant: Dispatcher, id: Identity, facet: String) throws -> ObjectPrx {
         precondition(!id.name.isEmpty, "Identity cannot have an empty name")
         try servantManager.addServant(servant: servant, id: id, facet: facet)
         return try createProxy(id).ice_facet(facet)
     }
 
-    func addWithUUID(_ servant: Disp) throws -> ObjectPrx {
+    func addWithUUID(_ servant: Dispatcher) throws -> ObjectPrx {
         return try addFacetWithUUID(servant: servant, facet: "")
     }
 
-    func addFacetWithUUID(servant: Disp, facet: String) throws -> ObjectPrx {
+    func addFacetWithUUID(servant: Dispatcher, facet: String) throws -> ObjectPrx {
         return try addFacet(
             servant: servant, id: Identity(name: UUID().uuidString, category: ""), facet: facet)
     }
 
-    func addDefaultServant(servant: Disp, category: String) throws {
+    func addDefaultServant(servant: Dispatcher, category: String) throws {
         try servantManager.addDefaultServant(servant: servant, category: category)
     }
 
-    func remove(_ id: Identity) throws -> Disp {
+    func remove(_ id: Identity) throws -> Dispatcher {
         return try removeFacet(id: id, facet: "")
     }
 
-    func removeFacet(id: Identity, facet: String) throws -> Disp {
+    func removeFacet(id: Identity, facet: String) throws -> Dispatcher {
         precondition(!id.name.isEmpty, "Identity cannot have an empty name")
         return try servantManager.removeServant(id: id, facet: facet)
     }
@@ -99,15 +99,15 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
         return try servantManager.removeAllFacets(id: id)
     }
 
-    func removeDefaultServant(_ category: String) throws -> Disp {
+    func removeDefaultServant(_ category: String) throws -> Dispatcher {
         return try servantManager.removeDefaultServant(category: category)
     }
 
-    func find(_ id: Identity) -> Disp? {
+    func find(_ id: Identity) -> Dispatcher? {
         return findFacet(id: id, facet: "")
     }
 
-    func findFacet(id: Identity, facet: String) -> Disp? {
+    func findFacet(id: Identity, facet: String) -> Dispatcher? {
         return servantManager.findServant(id: id, facet: facet)
     }
 
@@ -115,7 +115,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
         return servantManager.findAllFacets(id: id)
     }
 
-    func findByProxy(_ proxy: ObjectPrx) -> Disp? {
+    func findByProxy(_ proxy: ObjectPrx) -> Dispatcher? {
         return findFacet(id: proxy.ice_getIdentity(), facet: proxy.ice_getFacet())
     }
 
@@ -131,7 +131,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
         return servantManager.findServantLocator(category: category)
     }
 
-    func findDefaultServant(_ category: String) -> Disp? {
+    func findDefaultServant(_ category: String) -> Dispatcher? {
         return servantManager.findDefaultServant(category: category)
     }
 
@@ -200,7 +200,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
         }
     }
 
-    func facadeInvoke(
+    func dispatch(
         _ adapter: ICEObjectAdapter,
         inEncapsBytes: UnsafeMutableRawPointer,
         inEncapsCount: Int,
@@ -214,11 +214,12 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
         requestId: Int32,
         encodingMajor: UInt8,
         encodingMinor: UInt8,
-        sendResponse: @escaping ICESendResponse
+        completionHandler: @escaping ICEOutgoingResponse
     ) {
         precondition(handle == adapter)
 
-        let connection = con?.getSwiftObject(ConnectionI.self) { ConnectionI(handle: con!) } ?? nil
+        let connection = con?.getSwiftObject(ConnectionI.self) { ConnectionI(handle: con!) }
+        let encoding = EncodingVersion(major: encodingMajor, minor: encodingMinor)
 
         let current = Current(
             adapter: self,
@@ -229,24 +230,38 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
             mode: OperationMode(rawValue: mode)!,
             ctx: context,
             requestId: requestId,
-            encoding: EncodingVersion(major: encodingMajor, minor: encodingMinor))
+            encoding: encoding)
 
-        let incoming = Incoming(
-            istr: InputStream(
-                communicator: communicator,
-                encoding: EncodingVersion(
-                    major: encodingMajor,
-                    minor: encodingMinor),
-                bytes: Data(
-                    bytesNoCopy: inEncapsBytes, count: inEncapsCount,
-                    deallocator: .none)),
-            sendResponse: sendResponse,
-            current: current)
+        let istr = InputStream(
+            communicator: communicator,
+            encoding: encoding,
+            bytes: Data(bytesNoCopy: inEncapsBytes, count: inEncapsCount, deallocator: .none))
 
-        incoming.invoke(servantManager)
+        let request = IncomingRequest(current: current, inputStream: istr)
+
+        servantManager.dispatch(request).map { response in
+            response.outputStream.finished().withUnsafeBytes {
+                completionHandler(
+                    response.replyStatus.rawValue,
+                    response.exceptionId,
+                    response.exceptionMessage,
+                    $0.baseAddress!,
+                    $0.count)
+            }
+        }.catch { error in
+            let response = current.makeOutgoingResponse(error: error)
+            response.outputStream.finished().withUnsafeBytes {
+                completionHandler(
+                    response.replyStatus.rawValue,
+                    response.exceptionId,
+                    response.exceptionMessage,
+                    $0.baseAddress!,
+                    $0.count)
+            }
+        }
     }
 
-    func facadeRemoved() {
+    func complete() {
         servantManager.destroy()
     }
 }

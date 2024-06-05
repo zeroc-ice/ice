@@ -8,14 +8,14 @@
 @class ICEProcess;
 @class ICEPropertiesAdmin;
 @class ICEUnsupportedAdminFacet;
-@protocol ICEBlobjectFacade;
+@protocol ICEDispatchAdapter;
 
 NS_ASSUME_NONNULL_BEGIN
 
 ICEIMPL_API @protocol ICEAdminFacetFactory
-+ (id<ICEBlobjectFacade>)createProcess:(ICECommunicator*)communicator handle:(ICEProcess*)handle;
-+ (id<ICEBlobjectFacade>)createProperties:(ICECommunicator*)communicator handle:(ICEPropertiesAdmin*)handle;
-+ (id<ICEBlobjectFacade>)createUnsupported:(ICECommunicator*)communicator handle:(ICEUnsupportedAdminFacet*)handle;
++ (id<ICEDispatchAdapter>)createProcess:(ICECommunicator*)communicator handle:(ICEProcess*)handle;
++ (id<ICEDispatchAdapter>)createProperties:(ICECommunicator*)communicator handle:(ICEPropertiesAdmin*)handle;
++ (id<ICEDispatchAdapter>)createUnsupported:(ICECommunicator*)communicator handle:(ICEUnsupportedAdminFacet*)handle;
 @end
 
 NS_ASSUME_NONNULL_END

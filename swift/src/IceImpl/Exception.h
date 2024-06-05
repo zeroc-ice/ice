@@ -132,43 +132,4 @@ ICEIMPL_API @protocol ICEExceptionFactory
 + (NSError*)runtimeError:(NSString*)message;
 @end
 
-ICEIMPL_API @interface ICEDispatchException : NSObject
-
-+ (instancetype)objectNotExistException:(NSString*)name
-                               category:(NSString*)category
-                                  facet:(NSString*)facet
-                              operation:(NSString*)operation
-                                   file:(NSString*)file
-                                   line:(int32_t)line
-    NS_SWIFT_NAME(objectNotExistException(_:category:facet:operation:file:line:));
-
-+ (instancetype)facetNotExistException:(NSString*)name
-                              category:(NSString*)category
-                                 facet:(NSString*)facet
-                             operation:(NSString*)operation
-                                  file:(NSString*)file
-                                  line:(int32_t)line
-    NS_SWIFT_NAME(facetNotExistException(_:category:facet:operation:file:line:));
-
-+ (instancetype)operationNotExistException:(NSString*)name
-                                  category:(NSString*)category
-                                     facet:(NSString*)facet
-                                 operation:(NSString*)operation
-                                      file:(NSString*)file
-                                      line:(int32_t)line
-    NS_SWIFT_NAME(operationNotExistException(_:category:facet:operation:file:line:));
-
-+ (instancetype)unknownLocalException:(NSString*)unknown file:(NSString*)file line:(int32_t)line;
-+ (instancetype)unknownUserException:(NSString*)unknown file:(NSString*)file line:(int32_t)line;
-+ (instancetype)unknownException:(NSString*)unknown file:(NSString*)file line:(int32_t)line;
-@end
-
-#ifdef __cplusplus
-@interface
-ICEDispatchException ()
-@property(nonatomic, readonly) std::exception_ptr cppExceptionPtr;
-- (instancetype)initWithCppExceptionPtr:(std::exception_ptr)cppExceptionPtr;
-@end
-#endif
-
 NS_ASSUME_NONNULL_END

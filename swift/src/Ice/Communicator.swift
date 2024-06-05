@@ -301,27 +301,27 @@ public protocol Communicator: Swift.AnyObject {
     /// Add a new facet to the Admin object. Adding a servant with a facet that is already registered throws
     /// AlreadyRegisteredException.
     ///
-    /// - parameter servant: `Disp` The servant that implements the new Admin facet.
+    /// - parameter servant: `Dispatcher` The servant that implements the new Admin facet.
     ///
     /// - parameter facet: `Swift.String` The name of the new Admin facet.
-    func addAdminFacet(servant: Disp, facet: Swift.String) throws
+    func addAdminFacet(servant: Dispatcher, facet: Swift.String) throws
 
     /// Remove the following facet to the Admin object. Removing a facet that was not previously registered throws
     /// NotRegisteredException.
     ///
     /// - parameter _: `Swift.String` The name of the Admin facet.
     ///
-    /// - returns: `Disp` - The servant associated with this Admin facet.
+    /// - returns: `Dispatcher` - The servant associated with this Admin facet.
     @discardableResult
-    func removeAdminFacet(_ facet: Swift.String) throws -> Disp
+    func removeAdminFacet(_ facet: Swift.String) throws -> Dispatcher
 
     /// Returns a facet of the Admin object.
     ///
     /// - parameter _: `Swift.String` The name of the Admin facet.
     ///
-    /// - returns: `Disp?` - The servant associated with this Admin facet, or null if no facet is registered with the
+    /// - returns: `Dispatcher?` - The servant associated with this Admin facet, or null if no facet is registered with the
     /// given name.
-    func findAdminFacet(_ facet: Swift.String) -> Disp?
+    func findAdminFacet(_ facet: Swift.String) -> Dispatcher?
 
     /// Returns a map of all facets of the Admin object.
     ///

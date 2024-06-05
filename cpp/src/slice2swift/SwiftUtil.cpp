@@ -2181,8 +2181,6 @@ SwiftGenerator::writeMarshalOutParams(::IceUtilInternal::Output& out, const Oper
     ParamInfoList requiredOutParams, optionalOutParams;
     getOutParams(op, requiredOutParams, optionalOutParams);
 
-    out << "{ ostr in";
-    out.inc();
     //
     // Marshal parameters
     // 1. required
@@ -2203,9 +2201,6 @@ SwiftGenerator::writeMarshalOutParams(::IceUtilInternal::Output& out, const Oper
     {
         out << nl << "ostr.writePendingValues()";
     }
-
-    out.dec();
-    out << nl << "}";
 }
 
 void
@@ -2214,8 +2209,7 @@ SwiftGenerator::writeMarshalAsyncOutParams(::IceUtilInternal::Output& out, const
     ParamInfoList requiredOutParams, optionalOutParams;
     getOutParams(op, requiredOutParams, optionalOutParams);
 
-    out << sb << " (ostr, retVals) in";
-    out << nl << "let " << operationReturnDeclaration(op) << " = retVals";
+    out << nl << "let " << operationReturnDeclaration(op) << " = value";
     //
     // Marshal parameters
     // 1. required
@@ -2236,8 +2230,6 @@ SwiftGenerator::writeMarshalAsyncOutParams(::IceUtilInternal::Output& out, const
     {
         out << nl << "ostr.writePendingValues()";
     }
-
-    out << eb;
 }
 
 void
@@ -2330,8 +2322,6 @@ SwiftGenerator::writeUnmarshalInParams(::IceUtilInternal::Output& out, const Ope
     // 1. required
     // 3. optional
     //
-    out << "{ istr in";
-    out.inc();
     for (ParamInfoList::const_iterator q = requiredInParams.begin(); q != requiredInParams.end(); ++q)
     {
         if (q->param)
@@ -2369,25 +2359,6 @@ SwiftGenerator::writeUnmarshalInParams(::IceUtilInternal::Output& out, const Ope
     {
         out << nl << "try istr.readPendingValues()";
     }
-
-    out << nl << "return ";
-    if (allInParams.size() > 1)
-    {
-        out << spar;
-    }
-
-    for (ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
-    {
-        out << ("iceP_" + q->name);
-    }
-
-    if (allInParams.size() > 1)
-    {
-        out << epar;
-    }
-
-    out.dec();
-    out << nl << "}";
 }
 
 void
@@ -2610,110 +2581,97 @@ SwiftGenerator::writeDispatchOperation(::IceUtilInternal::Output& out, const Ope
 {
     const string opName = op->name();
 
-    const ParamInfoList allInParams = getAllInParams(op);
-    const ParamInfoList allOutParams = getAllOutParams(op);
-    const ExceptionList allExceptions = op->throws();
+    const ParamInfoList inParams = getAllInParams(op);
+    const ParamInfoList outParams = getAllOutParams(op);
 
     const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(op)));
 
     out << sp;
-    out << nl << "func _iceD_" << opName;
-    out << spar;
-    out << ("incoming inS: " + getUnqualified("Ice.Incoming", swiftModule));
-    out << ("current: " + getUnqualified("Ice.Current", swiftModule));
-    out << epar;
-
-    out << " throws -> PromiseKit.Promise<" << getUnqualified("Ice.OutputStream", swiftModule) << ">?";
+    out << nl << "public func _iceD_" << opName
+        << "(_ request: Ice.IncomingRequest) -> PromiseKit.Promise<Ice.OutgoingResponse>";
 
     out << sb;
-    if (allInParams.empty())
+
+    out << nl << "do";
+    out << sb;
+
+    // TODO: check operation mode
+
+    if (inParams.empty())
     {
-        out << nl << "try inS.readEmptyParams()";
+        out << nl << "_ = try request.inputStream.skipEmptyEncapsulation()";
     }
     else
     {
-        out << nl << "let " << operationInParamsDeclaration(op) << " = try inS.read ";
+        out << nl << "let istr = request.inputStream";
+        out << nl << "_ = try istr.startEncapsulation()";
         writeUnmarshalInParams(out, op);
     }
 
-    if (op->format() != DefaultFormat)
+    if (operationIsAmd(op))
     {
-        out << nl << "inS.setFormat(" << opFormatTypeToString(op) << ")";
-    }
-
-    out << sp;
-    out << nl;
-    if (!allOutParams.empty())
-    {
-        out << "let " << operationReturnDeclaration(op) << " = ";
-    }
-    out << "try self." << fixIdent(opName);
-
-    out << spar;
-    for (ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
-    {
-        out << (q->name + ": iceP_" + q->name);
-    }
-    out << "current: current";
-    out << epar;
-
-    out << sp << nl;
-    out << "return inS.setResult";
-    if (allOutParams.empty())
-    {
-        out << "()";
+        out << nl << "return self." << opName << "Async(";
+        out << nl << "    "; // inc/dec doesn't work for an unknown reason
+        for (const auto& q : inParams)
+        {
+            out << q.name << ": iceP_" << q.name << ", ";
+        }
+        out << "current: request.current";
+        out << nl;
+        out << ").map(on: nil)";
+        out << sb;
+        if (outParams.empty())
+        {
+            out << nl << "request.current.makeEmptyOutgoingResponse()";
+        }
+        else
+        {
+            out << " result in ";
+            out << nl << "request.current.makeOutgoingResponse(result, formatType:" << opFormatTypeToString(op) << ")";
+            out << sb;
+            out << " ostr, value in ";
+            writeMarshalAsyncOutParams(out, op);
+            out << eb;
+        }
+        out << eb;
     }
     else
     {
-        writeMarshalOutParams(out, op);
+        out << sp;
+        out << nl;
+        if (!outParams.empty())
+        {
+            out << "let " << operationReturnDeclaration(op) << " = ";
+        }
+        out << "try self." << fixIdent(opName);
+        out << spar;
+        for (const auto& q : inParams)
+        {
+            out << (q.name + ": iceP_" + q.name);
+        }
+        out << "current: request.current";
+        out << epar;
+
+        if (outParams.empty())
+        {
+            out << nl << "return PromiseKit.Promise.value(request.current.makeEmptyOutgoingResponse())";
+        }
+        else
+        {
+            out << nl << "let ostr = request.current.startReplyStream()";
+            out << nl
+                << "ostr.startEncapsulation(encoding: request.current.encoding, format: " << opFormatTypeToString(op)
+                << ")";
+            writeMarshalOutParams(out, op);
+            out << nl << "ostr.endEncapsulation()";
+            out << nl << "return PromiseKit.Promise.value(Ice.OutgoingResponse(ostr))";
+        }
     }
     out << eb;
-}
-
-void
-SwiftGenerator::writeDispatchAsyncOperation(::IceUtilInternal::Output& out, const OperationPtr& op)
-{
-    const ParamInfoList allInParams = getAllInParams(op);
-    const ParamInfoList allOutParams = getAllOutParams(op);
-
-    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(op)));
-
-    out << sp;
-    out << nl << "func _iceD_" << op->name();
-    out << spar;
-    out << ("incoming inS: " + getUnqualified("Ice.Incoming", swiftModule));
-    out << ("current: " + getUnqualified("Ice.Current", swiftModule));
-    out << epar;
-
-    out << " throws -> PromiseKit.Promise<" << getUnqualified("Ice.OutputStream", swiftModule) << ">?";
+    out << " catch";
     out << sb;
-    if (allInParams.empty())
-    {
-        out << nl << "try inS.readEmptyParams()";
-    }
-    else
-    {
-        out << nl << "let " << operationInParamsDeclaration(op) << " = try inS.read ";
-        writeUnmarshalInParams(out, op);
-    }
-
-    if (op->format() != DefaultFormat)
-    {
-        out << nl << "inS.setFormat(" << opFormatTypeToString(op) << ")";
-    }
-
-    out << sp << nl;
-    out << "return inS.setResultPromise(" << fixIdent(op->name() + (operationIsAmd(op) ? "Async" : "")) << spar;
-    for (ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
-    {
-        out << (q->name + ": iceP_" + q->name);
-    }
-    out << "current: current" << epar;
-    out << ")";
-    if (!allOutParams.empty())
-    {
-        writeMarshalAsyncOutParams(out, op);
-    }
+    out << nl << "return PromiseKit.Promise(error: error)";
+    out << eb;
     out << eb;
 }
 

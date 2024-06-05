@@ -26,18 +26,21 @@ public protocol BlobjectAsync {
 }
 
 /// Request dispatcher for BlobjectAsync servants.
-public struct BlobjectAsyncDisp: Disp {
+public struct BlobjectAsyncDisp: Dispatcher {
     public let servant: BlobjectAsync
 
     public init(_ servant: BlobjectAsync) {
         self.servant = servant
     }
 
-    public func dispatch(request: Request, current: Current) throws -> Promise<OutputStream>? {
-        let inEncaps = try request.readParamEncaps()
-        return servant.ice_invokeAsync(inEncaps: inEncaps, current: current).map(on: nil) {
-            invokeResult in
-            request.writeParamEncaps(ok: invokeResult.ok, outParams: invokeResult.outParams)
+    public func dispatch(_ request: IncomingRequest) -> Promise<OutgoingResponse> {
+        do {
+            let (inEncaps, _) = try request.inputStream.readEncapsulation()
+            return servant.ice_invokeAsync(inEncaps: inEncaps, current: request.current).map(on: nil) { result in
+                request.current.makeOutgoingResponse(ok: result.ok, encapsulation: result.outParams)
+            }
+        } catch {
+            return Promise(error: error)
         }
     }
 }

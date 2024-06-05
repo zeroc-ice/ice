@@ -23,16 +23,16 @@ public protocol ServantLocator: Swift.AnyObject {
     /// user exception. If it does, that exception is marshaled back to the client. If the Slice definition for the
     /// corresponding operation includes that user exception, the client receives that user exception; otherwise, the
     /// client receives UnknownUserException.
-    /// If locate throws any exception, the Ice run time does notcall finished.
+    /// If locate throws any exception, the Ice run time does not call finished.
     /// If you call locate from your own code, you must also call finished
     /// when you have finished using the servant, provided that locate returned a non-null servant;
     /// otherwise, you will get undefined behavior if you use servant locators such as the Freeze Evictor.
     ///
     /// - parameter _: `Current` Information about the current operation for which a servant is required.
     ///
-    /// - returns: `(returnValue: Disp?, cookie: Swift.AnyObject?)`:
+    /// - returns: `(returnValue: Dispatcher?, cookie: Swift.AnyObject?)`:
     ///
-    ///   - returnValue: `Disp?` - The located servant, or null if no suitable servant has been found.
+    ///   - returnValue: `Dispatcher?` - The located servant, or null if no suitable servant has been found.
     ///
     ///   - cookie: `Swift.AnyObject?` - A "cookie" that will be passed to finished.
     ///
@@ -40,7 +40,7 @@ public protocol ServantLocator: Swift.AnyObject {
     ///
     ///   - UserException - The implementation can raise a UserException and the run time will marshal it as the
     ///     result of the invocation.
-    func locate(_ curr: Current) throws -> (returnValue: Disp?, cookie: Swift.AnyObject?)
+    func locate(_ curr: Current) throws -> (returnValue: Dispatcher?, cookie: Swift.AnyObject?)
 
     /// Called by the object adapter after a request has been made. This operation is only called if
     /// locate was called prior to the request and returned a non-null servant. This operation can be used
@@ -54,7 +54,7 @@ public protocol ServantLocator: Swift.AnyObject {
     /// - parameter curr: `Current` Information about the current operation call for which a servant was located by
     /// locate.
     ///
-    /// - parameter servant: `Disp` The servant that was returned by locate.
+    /// - parameter servant: `Dispatcher` The servant that was returned by locate.
     ///
     /// - parameter cookie: `Swift.AnyObject?` The cookie that was returned by locate.
     ///
@@ -62,7 +62,7 @@ public protocol ServantLocator: Swift.AnyObject {
     ///
     ///   - UserException - The implementation can raise a UserException and the run time will marshal it as the
     ///     result of the invocation.
-    func finished(curr: Current, servant: Disp, cookie: Swift.AnyObject?) throws
+    func finished(curr: Current, servant: Dispatcher, cookie: Swift.AnyObject?) throws
 
     /// Called when the object adapter in which this servant locator is installed is destroyed.
     ///
