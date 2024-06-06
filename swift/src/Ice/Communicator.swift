@@ -255,4 +255,10 @@ public protocol Communicator: AnyObject {
     ///
     /// - returns: `Dispatch.DispatchQueue` - The dispatch queue associated wih the Communicator's server thread pool.
     func getServerDispatchQueue() throws -> Dispatch.DispatchQueue
+
+    /// Makes a new proxy. This is an internal operation used by the generated code.
+    ///
+    /// - Parameter proxyString: The stringified proxy.
+    /// - Returns: The new proxy.
+    func makeProxyImpl<ProxyImpl>(_ proxyString: String) throws -> ProxyImpl where ProxyImpl: ObjectPrxI
 }
