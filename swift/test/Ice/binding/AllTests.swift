@@ -49,6 +49,8 @@ func allTests(_ helper: TestHelper) throws {
 
         try com.deactivateObjectAdapter(adapter)
 
+        try test(test1.ice_getConnection() === test2.ice_getConnection())
+
         do {
             try test1.ice_ping()
             try test(false)
