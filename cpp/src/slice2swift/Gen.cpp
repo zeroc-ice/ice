@@ -526,7 +526,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     out << eb;
 
-    if (p->usesClasses() && (!base || !base->usesClasses()))
+    if (p->usesClasses() && !(base && base->usesClasses()))
     {
         out << sp;
         out << nl << "open override func _usesClasses() -> Swift.Bool" << sb;
