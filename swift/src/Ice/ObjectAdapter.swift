@@ -6,6 +6,10 @@ import Foundation
 /// object adapter is responsible for receiving requests from endpoints, and for mapping between servants, identities,
 /// and proxies.
 public protocol ObjectAdapter: AnyObject {
+
+    /// Get the dispatch pipeline of this object adapter.
+    var dispatchPipeline: Dispatcher { get }
+
     /// Get the name of this object adapter.
     ///
     /// - returns: `String` - This object adapter's name.
@@ -55,6 +59,15 @@ public protocol ObjectAdapter: AnyObject {
     /// calls to destroy are ignored. Once destroy has returned, it is possible to create another object adapter with
     /// the same name.
     func destroy()
+
+    /// Install a middleware in this object adapter.
+    /// - Parameter middleware: The middleware to install.
+    /// - Returns: This object adapter.
+    /// - Throws: `Ice.InitializationException` if the object adapter's dispatch pipeline has already been created. This
+    /// creation typically occurs the first time the object adapter dispatches an incoming request.
+    // TODO: should the middleware function throw?
+    @discardableResult
+    func use(_: @escaping (Dispatcher) -> Dispatcher) throws -> Self
 
     /// Add a servant to this object adapter's Active Servant Map. Note that one servant can implement several Ice
     /// objects by registering the servant with multiple identities. Adding a servant with an identity that is in the

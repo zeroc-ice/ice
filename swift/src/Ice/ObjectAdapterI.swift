@@ -3,14 +3,30 @@
 import IceImpl
 
 class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchAdapter, Hashable {
-    private let communicator: Communicator
     let servantManager: ServantManager
+
+    lazy var dispatchPipeline: Dispatcher = {
+        dispatchPipelineInitialized = true
+
+        // Since this computation is idempotent, we don't need to make it thread-safe. And we don't worry about the
+        // thread-safety of the erroneous situation where the application installs a middleware during the very first
+        // use of dispatchPipeline.
+        var dispatcher: Dispatcher = servantManager
+        for middleware in middlewareList.reversed() {
+            dispatcher = middleware(dispatcher)
+        }
+        return dispatcher
+    }()
+
+    private let communicator: Communicator
+    private var middlewareList: [(Dispatcher) -> Dispatcher] = []
+    private var dispatchPipelineInitialized: Bool = false
 
     init(handle: ICEObjectAdapter, communicator: Communicator) {
         self.communicator = communicator
         servantManager = ServantManager(adapterName: handle.getName(), communicator: communicator)
-        super.init(handle: handle)
 
+        super.init(handle: handle)
         handle.registerDispatchAdapter(self)
     }
 
@@ -58,6 +74,15 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
 
     func destroy() {
         return handle.destroy()
+    }
+
+    @discardableResult
+    func use(_ middleware: @escaping (Dispatcher) -> Dispatcher) throws -> Self {
+        if dispatchPipelineInitialized {
+            throw InitializationException(reason: "All middleware must be installed before the first dispatch.")
+        }
+        middlewareList.append(middleware)
+        return self
     }
 
     func add(servant: Dispatcher, id: Identity) throws -> ObjectPrx {
@@ -237,7 +262,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
 
         let request = IncomingRequest(current: current, inputStream: istr)
 
-        servantManager.dispatch(request).map { response in
+        dispatchPipeline.dispatch(request).map { response in
             response.outputStream.finished().withUnsafeBytes {
                 completionHandler(
                     response.replyStatus.rawValue,
