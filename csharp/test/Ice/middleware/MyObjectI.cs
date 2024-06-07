@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 namespace Ice.middleware;
 
 public sealed class MyObjectI : Test.MyObjectDisp_

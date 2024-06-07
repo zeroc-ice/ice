@@ -26,9 +26,9 @@ public class AllTests : global::Test.AllTests
         var oa = communicator.createObjectAdapter("");
 
         oa.add(new MyObjectI(), Ice.Util.stringToIdentity("test"));
-        oa.use(next => new Middleware(next, "A", inLog, outLog));
-        oa.use(next => new Middleware(next, "B", inLog, outLog));
-        oa.use(next => new Middleware(next, "C", inLog, outLog));
+        oa.use(next => new Middleware(next, "A", inLog, outLog))
+            .use(next => new Middleware(next, "B", inLog, outLog))
+            .use(next => new Middleware(next, "C", inLog, outLog));
 
         Test.MyObjectPrx p = Test.MyObjectPrxHelper.createProxy(communicator, "test");
 
