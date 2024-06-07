@@ -471,19 +471,6 @@ Ice::DNSException::ice_staticId() noexcept
 }
 
 string
-Ice::OperationInterruptedException::ice_id() const
-{
-    return string{ice_staticId()};
-}
-
-string_view
-Ice::OperationInterruptedException::ice_staticId() noexcept
-{
-    static constexpr string_view typeId = "::Ice::OperationInterruptedException";
-    return typeId;
-}
-
-string
 Ice::ConnectionClosedException::ice_id() const
 {
     return string{ice_staticId()};
@@ -649,19 +636,6 @@ string_view
 Ice::ConnectionNotValidatedException::ice_staticId() noexcept
 {
     static constexpr string_view typeId = "::Ice::ConnectionNotValidatedException";
-    return typeId;
-}
-
-string
-Ice::UnknownRequestIdException::ice_id() const
-{
-    return string{ice_staticId()};
-}
-
-string_view
-Ice::UnknownRequestIdException::ice_staticId() noexcept
-{
-    static constexpr string_view typeId = "::Ice::UnknownRequestIdException";
     return typeId;
 }
 
@@ -1131,13 +1105,6 @@ Ice::DNSException::ice_print(ostream& out) const
 }
 
 void
-Ice::OperationInterruptedException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\noperation interrupted";
-}
-
-void
 Ice::ConnectionClosedException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
@@ -1259,17 +1226,6 @@ Ice::ConnectionNotValidatedException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nprotocol error: received message over unvalidated connection";
-    if (!reason.empty())
-    {
-        out << ":\n" << reason;
-    }
-}
-
-void
-Ice::UnknownRequestIdException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: unknown request id";
     if (!reason.empty())
     {
         out << ":\n" << reason;

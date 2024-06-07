@@ -109,19 +109,6 @@ module ::Ice
         T_TwowayOnlyException = ::Ice::__defineException('::Ice::TwowayOnlyException', TwowayOnlyException, nil, [["operation", ::Ice::T_string, false, 0]])
     end
 
-    if not defined?(::Ice::CloneNotImplementedException)
-        class CloneNotImplementedException < Ice::LocalException
-            def initialize
-            end
-
-            def to_s
-                '::Ice::CloneNotImplementedException'
-            end
-        end
-
-        T_CloneNotImplementedException = ::Ice::__defineException('::Ice::CloneNotImplementedException', CloneNotImplementedException, nil, [])
-    end
-
     if not defined?(::Ice::UnknownException)
         class UnknownException < Ice::LocalException
             def initialize(unknown='')
@@ -164,19 +151,6 @@ module ::Ice
         end
 
         T_UnknownUserException = ::Ice::__defineException('::Ice::UnknownUserException', UnknownUserException, ::Ice::T_UnknownException, [])
-    end
-
-    if not defined?(::Ice::VersionMismatchException)
-        class VersionMismatchException < Ice::LocalException
-            def initialize
-            end
-
-            def to_s
-                '::Ice::VersionMismatchException'
-            end
-        end
-
-        T_VersionMismatchException = ::Ice::__defineException('::Ice::VersionMismatchException', VersionMismatchException, nil, [])
     end
 
     if not defined?(::Ice::CommunicatorDestroyedException)
@@ -537,19 +511,6 @@ module ::Ice
             ["error", ::Ice::T_int, false, 0],
             ["host", ::Ice::T_string, false, 0]
         ])
-    end
-
-    if not defined?(::Ice::OperationInterruptedException)
-        class OperationInterruptedException < Ice::LocalException
-            def initialize
-            end
-
-            def to_s
-                '::Ice::OperationInterruptedException'
-            end
-        end
-
-        T_OperationInterruptedException = ::Ice::__defineException('::Ice::OperationInterruptedException', OperationInterruptedException, nil, [])
     end
 
     if not defined?(::Ice::ConnectionIdleException)
