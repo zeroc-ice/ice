@@ -3183,18 +3183,15 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
     out << eb;
 
-    if (p->usesClasses())
+    if (p->usesClasses() && !(base && base->usesClasses()))
     {
-        if (!base || (base && !base->usesClasses()))
-        {
-            out << sp;
-            writeHiddenDocComment(out);
-            out << nl << "@Override";
-            out << nl << "public boolean _usesClasses()";
-            out << sb;
-            out << nl << "return true;";
-            out << eb;
-        }
+        out << sp;
+        writeHiddenDocComment(out);
+        out << nl << "@Override";
+        out << nl << "public boolean _usesClasses()";
+        out << sb;
+        out << nl << "return true;";
+        out << eb;
     }
 
     out << sp;
