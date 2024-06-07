@@ -40,6 +40,9 @@ public sealed class ObjectAdapter
     private int _messageSizeMax;
     private readonly SslServerAuthenticationOptions? _serverAuthenticationOptions;
 
+    private readonly Lazy<Object> _dispatchPipeline;
+    private readonly Stack<Func<Object, Object>> _middlewareStack = new();
+
     /// <summary>
     /// Get the name of this object adapter.
     /// </summary>
@@ -380,6 +383,24 @@ public sealed class ObjectAdapter
             _state = StateDestroyed;
             System.Threading.Monitor.PulseAll(this);
         }
+    }
+
+    /// <summary>
+    /// Install a middleware in this object adapter.
+    /// </summary>
+    /// <param name="middleware">The middleware to install.</param>
+    /// <returns>This object adapter.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the object adapter's dispatch pipeline has already been
+    /// created. This creation typically occurs the first time the object adapter dispatches an incoming request.
+    /// </exception>
+    public ObjectAdapter use(Func<Object, Object> middleware)
+    {
+        if (_dispatchPipeline.IsValueCreated)
+        {
+            throw new InvalidOperationException("All middleware must be installed before the first dispatch.");
+        }
+        _middlewareStack.Push(middleware);
+        return this;
     }
 
     /// <summary>
@@ -725,13 +746,10 @@ public sealed class ObjectAdapter
         }
     }
     /// <summary>
-    /// Get the dispatcher associated with this object adapter. This object dispatches incoming requests to the
-    /// servants managed by this object adapter, and takes into account the servant locators.
+    /// Gets the dispatch pipeline of this object adapter.
     /// </summary>
-    /// <value>The dispatcher.</value>
-    /// <remarks>You can add this dispatcher as a servant (including default servant) in another object adapter.
-    /// </remarks>
-    public Object dispatcher => _servantManager;
+    /// <value>The dispatch pipeline.</value>
+    public Object dispatchPipeline => _dispatchPipeline.Value;
 
     /// <summary>
     /// Create a proxy for the object with the given identity.
@@ -1118,21 +1136,7 @@ public sealed class ObjectAdapter
         _objectAdapterFactory = objectAdapterFactory;
         _servantManager = new ServantManager(instance, name);
 
-        dispatchPipeline = _servantManager;
-        if (instance.initializationData().observer is CommunicatorObserver observer)
-        {
-            dispatchPipeline = new ObserverMiddleware(dispatchPipeline, observer);
-        }
-        if (instance.initializationData().logger is Logger logger)
-        {
-            int warningLevel = instance.initializationData().properties!.getIcePropertyAsInt("Ice.Warn.Dispatch");
-            if (warningLevel > 0)
-            {
-                dispatchPipeline =
-                    new LoggerMiddleware(dispatchPipeline, logger, warningLevel, instance.toStringMode());
-            }
-        }
-
+        _dispatchPipeline = new Lazy<Object>(createDispatchPipeline);
         _name = name;
         _incomingConnectionFactories = [];
         _publishedEndpoints = [];
@@ -1140,6 +1144,20 @@ public sealed class ObjectAdapter
         _directCount = 0;
         _noConfig = noConfig;
         _serverAuthenticationOptions = serverAuthenticationOptions;
+
+        // Install default middleware depending on the communicator's configuration.
+        if (_instance.initializationData().logger is Logger logger)
+        {
+            int warningLevel = _instance.initializationData().properties!.getIcePropertyAsInt("Ice.Warn.Dispatch");
+            if (warningLevel > 0)
+            {
+                use(next => new LoggerMiddleware(next, logger, warningLevel, _instance.toStringMode()));
+            }
+        }
+        if (_instance.initializationData().observer is CommunicatorObserver observer)
+        {
+            use(next => new ObserverMiddleware(next, observer));
+        }
 
         if (_noConfig)
         {
@@ -1310,8 +1328,6 @@ public sealed class ObjectAdapter
             throw;
         }
     }
-
-    internal Object dispatchPipeline { get; }
 
     internal static void checkIdentity(Identity ident)
     {
@@ -1630,6 +1646,16 @@ public sealed class ObjectAdapter
             }
             _instance.initializationData().logger!.trace(_instance.traceLevels().locationCat, s.ToString());
         }
+    }
+
+    private Object createDispatchPipeline()
+    {
+        Object dispatchPipeline = _servantManager; // the "final" dispatcher
+        foreach (Func<Object, Object> middleware in _middlewareStack)
+        {
+            dispatchPipeline = middleware(dispatchPipeline);
+        }
+        return dispatchPipeline;
     }
 
     static private readonly string[] _suffixes =

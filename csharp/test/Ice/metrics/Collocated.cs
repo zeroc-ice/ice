@@ -31,7 +31,7 @@ public class Collocated : Test.TestHelper
 
         communicator.getProperties().setProperty("ForwardingAdapter.Endpoints", getTestEndpoint(1));
         Ice.ObjectAdapter forwardingAdapter = communicator.createObjectAdapter("ForwardingAdapter");
-        forwardingAdapter.addDefaultServant(adapter.dispatcher, "");
+        forwardingAdapter.addDefaultServant(adapter.dispatchPipeline, "");
 
         communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(2));
         Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
