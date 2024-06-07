@@ -65,9 +65,8 @@ public protocol ObjectAdapter: AnyObject {
     /// - Returns: This object adapter.
     /// - Throws: `Ice.InitializationException` if the object adapter's dispatch pipeline has already been created. This
     /// creation typically occurs the first time the object adapter dispatches an incoming request.
-    // TODO: should the middleware function throw?
     @discardableResult
-    func use(_: @escaping (Dispatcher) -> Dispatcher) throws -> Self
+    func use(_ middleware: @escaping (Dispatcher) -> Dispatcher) throws -> Self
 
     /// Add a servant to this object adapter's Active Servant Map. Note that one servant can implement several Ice
     /// objects by registering the servant with multiple identities. Adding a servant with an identity that is in the
