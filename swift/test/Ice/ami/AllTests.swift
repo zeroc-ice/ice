@@ -12,11 +12,13 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
     let communicator = helper.communicator()
     let output = helper.getWriter()
 
-    var sref = "test:\(helper.getTestEndpoint(num: 0))"
-    var p = try makeProxy(communicator: communicator, proxyString: sref, type: TestIntfPrx.self)
+    var p = try makeProxy(
+        communicator: communicator, proxyString: "test:\(helper.getTestEndpoint(num: 0))", type: TestIntfPrx.self)
 
-    sref = "testController:\(helper.getTestEndpoint(num: 1))"
-    let testController = try makeProxy(communicator: communicator, proxyString: sref, type: TestIntfControllerPrx.self)
+    let testController = try makeProxy(
+        communicator: communicator,
+        proxyString: "testController:\(helper.getTestEndpoint(num: 1))",
+        type: TestIntfControllerPrx.self)
 
     output.write("testing async invocation...")
     do {

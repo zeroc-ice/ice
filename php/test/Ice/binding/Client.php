@@ -221,7 +221,7 @@ function allTests($helper)
         $nRetry = 5;
 
         //
-        // Ensure that endpoints are tried in order by deactiving the adapters
+        // Ensure that endpoints are tried in order by deactivating the adapters
         // one after the other.
         //
         for($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter31"; $i++);
@@ -358,7 +358,7 @@ function allTests($helper)
         $nRetry = 5;
 
         //
-        // Ensure that endpoints are tried in order by deactiving the adapters
+        // Ensure that endpoints are tried in order by deactivating the adapters
         // one after the other.
         //
         for($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter61"; $i++);

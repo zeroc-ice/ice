@@ -390,7 +390,7 @@ public class AllTests {
       int i;
 
       //
-      // Ensure that endpoints are tried in order by deactiving the adapters
+      // Ensure that endpoints are tried in order by deactivating the adapters
       // one after the other.
       //
       for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter31"); i++)
@@ -566,7 +566,7 @@ public class AllTests {
       int i;
 
       //
-      // Ensure that endpoints are tried in order by deactiving the adapters
+      // Ensure that endpoints are tried in order by deactivating the adapters
       // one after the other.
       //
       for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter61"); i++)
@@ -637,7 +637,7 @@ public class AllTests {
       int i;
 
       //
-      // Ensure that endpoints are tried in order by deactiving the adapters
+      // Ensure that endpoints are tried in order by deactivating the adapters
       // one after the other.
       //
       for (i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI61"); i++)

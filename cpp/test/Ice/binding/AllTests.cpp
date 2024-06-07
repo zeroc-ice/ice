@@ -397,7 +397,7 @@ allTests(Test::TestHelper* helper)
         int i;
 
         //
-        // Ensure that endpoints are tried in order by deactiving the adapters
+        // Ensure that endpoints are tried in order by deactivating the adapters
         // one after the other.
         //
         for (i = 0; i < nRetry && test->getAdapterName() == "Adapter31"; i++)
@@ -616,7 +616,7 @@ allTests(Test::TestHelper* helper)
         int i;
 
         //
-        // Ensure that endpoints are tried in order by deactiving the adapters
+        // Ensure that endpoints are tried in order by deactivating the adapters
         // one after the other.
         //
         for (i = 0; i < nRetry && test->getAdapterName() == "Adapter61"; i++)
@@ -707,7 +707,7 @@ allTests(Test::TestHelper* helper)
         int i;
 
         //
-        // Ensure that endpoints are tried in order by deactiving the adapters
+        // Ensure that endpoints are tried in order by deactivating the adapters
         // one after the other.
         //
         for (i = 0; i < nRetry && getAdapterNameWithAMI(test) == "AdapterAMI61"; i++)

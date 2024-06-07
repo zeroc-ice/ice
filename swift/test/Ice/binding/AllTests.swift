@@ -348,7 +348,7 @@ func allTests(_ helper: TestHelper) throws {
         let nRetry = 3
 
         //
-        // Ensure that endpoints are tried in order by deactiving the adapters
+        // Ensure that endpoints are tried in order by deactivating the adapters
         // one after the other.
         //
         var i = 0
