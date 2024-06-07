@@ -1825,7 +1825,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         _out << eb;
     }
 
-    if (p->usesClasses() && (!base || (base && !base->usesClasses())))
+    if (p->usesClasses() && !(base && base->usesClasses()))
     {
         _out << sp;
         _out << nl << "_usesClasses()";
