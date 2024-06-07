@@ -51,7 +51,7 @@ class ExceptionFactory: ICEExceptionFactory {
         return EndpointSelectionTypeParseException(str: str, file: file, line: line)
     }
 
-     static func versionParseException(_ str: String, file: String, line: Int32) -> Error {
+    static func versionParseException(_ str: String, file: String, line: Int32) -> Error {
         return VersionParseException(str: str, file: file, line: line)
     }
 
