@@ -1219,10 +1219,12 @@ bool
 IcePHP::StructInfo::usesClasses() const
 {
     for (const auto& dm : members)
+    {
         if (dm->type->usesClasses())
         {
             return true;
         }
+    }
     return false;
 }
 
