@@ -2086,7 +2086,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
     _out << eb;
 
-    if ((!base || (base && !base->usesClasses())) && p->usesClasses())
+    if (p->usesClasses() && !(base && base->usesClasses()))
     {
         _out << sp;
         emitGeneratedCodeAttribute();
