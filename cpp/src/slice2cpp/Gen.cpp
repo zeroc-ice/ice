@@ -200,7 +200,7 @@ namespace
             C << "[&](" << getUnqualified("::Ice::OutputStream*", scope) << " ostr)";
             C << sb;
             writeMarshalCode(C, inParams, nullptr);
-            if (p->sendsClasses(false))
+            if (p->sendsClasses())
             {
                 C << nl << "ostr->writePendingValues();";
             }
@@ -1938,14 +1938,14 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
 
         writeUnmarshalCode(C, outParams, p);
 
-        if (p->returnsClasses(false))
+        if (p->returnsClasses())
         {
             C << nl << "istr->readPendingValues();";
         }
         C << nl << "return v;";
         C << eb;
     }
-    else if (outParamsHasOpt || p->returnsClasses(false))
+    else if (outParamsHasOpt || p->returnsClasses())
     {
         //
         // If there's only one optional ret/out parameter, we still need to generate
@@ -1958,7 +1958,7 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
         writeAllocateCode(C, outParams, p, interfaceScope, _useWstring);
         writeUnmarshalCode(C, outParams, p);
 
-        if (p->returnsClasses(false))
+        if (p->returnsClasses())
         {
             C << nl << "istr->readPendingValues();";
         }
@@ -2224,24 +2224,21 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     C << nl << "throw *this;";
     C << eb;
 
-    if (p->usesClasses(false))
+    if (p->usesClasses() && !(base && base->usesClasses()))
     {
-        if (!base || !base->usesClasses(false))
-        {
-            H << sp;
-            H << nl << "/// \\cond STREAM";
-            H << nl << _dllMemberExport << "bool _usesClasses() const override;";
-            H << nl << "/// \\endcond";
+        H << sp;
+        H << nl << "/// \\cond STREAM";
+        H << nl << _dllMemberExport << "bool _usesClasses() const override;";
+        H << nl << "/// \\endcond";
 
-            C << sp;
-            C << nl << "/// \\cond STREAM";
-            C << nl << "bool";
-            C << nl << scoped.substr(2) << "::_usesClasses() const";
-            C << sb;
-            C << nl << "return true;";
-            C << eb;
-            C << nl << "/// \\endcond";
-        }
+        C << sp;
+        C << nl << "/// \\cond STREAM";
+        C << nl << "bool";
+        C << nl << scoped.substr(2) << "::_usesClasses() const";
+        C << sb;
+        C << nl << "return true;";
+        C << eb;
+        C << nl << "/// \\endcond";
     }
 
     if (!dataMembers.empty())
@@ -3073,7 +3070,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         C << nl << "::Ice::OutputStream* ostr = &_ostr;";
         C << nl << "ostr->startEncapsulation(current.encoding, " << opFormatTypeToString(p) << ");";
         writeMarshalCode(C, outParams, p);
-        if (p->returnsClasses(false))
+        if (p->returnsClasses())
         {
             C << nl << "ostr->writePendingValues();";
         }
@@ -3130,7 +3127,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         C << nl << "istr->startEncapsulation();";
         writeAllocateCode(C, inParams, nullptr, interfaceScope, _useWstring | TypeContext::UnmarshalParamZeroCopy);
         writeUnmarshalCode(C, inParams, nullptr);
-        if (p->sendsClasses(false))
+        if (p->sendsClasses())
         {
             C << nl << "istr->readPendingValues();";
         }
@@ -3174,7 +3171,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
                 C.inc();
                 C << sb;
                 writeMarshalCode(C, outParams, p);
-                if (p->returnsClasses(false))
+                if (p->returnsClasses())
                 {
                     C << nl << "ostr->writePendingValues();";
                 }
@@ -3208,7 +3205,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
             C << nl << "[&](::Ice::OutputStream* ostr)";
             C << sb;
             writeMarshalCode(C, outParams, p);
-            if (p->returnsClasses(false))
+            if (p->returnsClasses())
             {
                 C << nl << "ostr->writePendingValues();";
             }

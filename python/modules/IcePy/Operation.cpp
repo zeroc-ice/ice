@@ -794,10 +794,7 @@ IcePy::Operation::Operation(
     if (ret != Py_None)
     {
         returnType = convertParam(ret, 0);
-        if (!returnType->optional)
-        {
-            returnsClasses = returnType->type->usesClasses();
-        }
+        returnsClasses = returnType->type->usesClasses();
     }
 
     //

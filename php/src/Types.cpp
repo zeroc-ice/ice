@@ -1218,9 +1218,9 @@ IcePHP::StructInfo::optionalFormat() const
 bool
 IcePHP::StructInfo::usesClasses() const
 {
-    for (DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
+    for (const auto& dm : members)
     {
-        if ((*p)->type->usesClasses())
+        if (dm->type->usesClasses())
         {
             return true;
         }
@@ -3593,11 +3593,11 @@ ZEND_FUNCTION(IcePHP_defineException)
     ex->usesClasses = false;
 
     // Only examine the required members to see if any use classes.
-    for (DataMemberList::iterator p = ex->members.begin(); p != ex->members.end(); ++p)
+    for (const auto& dm : ex->members)
     {
         if (!ex->usesClasses)
         {
-            ex->usesClasses = (*p)->type->usesClasses();
+            ex->usesClasses = dm->type->usesClasses();
         }
     }
 
