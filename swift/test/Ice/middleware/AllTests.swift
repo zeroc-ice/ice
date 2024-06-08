@@ -68,13 +68,8 @@ func allTests(_ helper: TestHelper) throws {
     }
 
     final class MiddlewareLog {
-        var inLog: [String]
-        var outLog: [String]
-
-        init() {
-            inLog = []
-            outLog = []
-        }
+        var inLog: [String] = []
+        var outLog: [String] = []
     }
 
     final class MyObjectI: MyObject {
