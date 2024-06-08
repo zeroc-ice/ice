@@ -60,13 +60,17 @@ public protocol ObjectAdapter: AnyObject {
     /// the same name.
     func destroy()
 
-    /// Install a middleware in this object adapter.
-    /// - Parameter middleware: The middleware to install.
+    /// Add a middleware to the dispatch pipeline of this object adapter.
+    ///
+    /// - Parameter middlewareFactory: The middleware factory that creates the new middleware when this object adapter
+    /// creates its dispatch pipeline. A middleware factory is a function that takes a dispatcher (the next element in
+    /// the dispatch pipeline) and returns a new dispatcher (the middleware you want to install in the pipeline).
     /// - Returns: This object adapter.
-    /// - Throws: `Ice.InitializationException` if the object adapter's dispatch pipeline has already been created. This
-    /// creation typically occurs the first time the object adapter dispatches an incoming request.
+    ///
+    /// - Note: All middleware must be installed before the first dispatch.
+    /// - Note: The middleware are executed in the order they are installed.
     @discardableResult
-    func use(_ middleware: @escaping (Dispatcher) -> Dispatcher) throws -> Self
+    func use(_ middlewareFactory: @escaping (_ next: Dispatcher) -> Dispatcher) -> Self
 
     /// Add a servant to this object adapter's Active Servant Map. Note that one servant can implement several Ice
     /// objects by registering the servant with multiple identities. Adding a servant with an identity that is in the

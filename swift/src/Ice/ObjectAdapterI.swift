@@ -5,22 +5,24 @@ import IceImpl
 class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchAdapter, Hashable {
     let servantManager: ServantManager
 
-    lazy var dispatchPipeline: Dispatcher = {
-        dispatchPipelineInitialized = true
-
-        // Since this computation is idempotent, we don't need to make it thread-safe. And we don't worry about the
-        // thread-safety of the erroneous situation where the application installs a middleware during the very first
-        // use of dispatchPipeline.
-        var dispatcher: Dispatcher = servantManager
-        for middleware in middlewareList.reversed() {
-            dispatcher = middleware(dispatcher)
+    var dispatchPipeline: Dispatcher {
+        mutex.sync {
+            guard let value = dispatchPipelineValue else {
+                var value: Dispatcher = servantManager
+                for factory in middlewareFactoryList.reversed() {
+                    value = factory(value)
+                }
+                dispatchPipelineValue = value
+                return value
+            }
+            return value
         }
-        return dispatcher
-    }()
+    }
 
     private let communicator: Communicator
-    private var middlewareList: [(Dispatcher) -> Dispatcher] = []
-    private var dispatchPipelineInitialized: Bool = false
+    private var dispatchPipelineValue: Dispatcher?
+    private var middlewareFactoryList: [(Dispatcher) -> Dispatcher] = []
+    private var mutex = Mutex()
 
     init(handle: ICEObjectAdapter, communicator: Communicator) {
         self.communicator = communicator
@@ -77,11 +79,10 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
     }
 
     @discardableResult
-    func use(_ middleware: @escaping (Dispatcher) -> Dispatcher) throws -> Self {
-        if dispatchPipelineInitialized {
-            throw InitializationException(reason: "All middleware must be installed before the first dispatch.")
-        }
-        middlewareList.append(middleware)
+    func use(_ middlewareFactory: @escaping (_ next: Dispatcher) -> Dispatcher) -> Self {
+        // We don't lock as none of this code is thread-safe
+        precondition(dispatchPipelineValue == nil, "All middleware must be installed before the first dispatch.")
+        middlewareFactoryList.append(middlewareFactory)
         return self
     }
 

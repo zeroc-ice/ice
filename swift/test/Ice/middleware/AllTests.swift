@@ -23,7 +23,7 @@ func allTests(_ helper: TestHelper) throws {
         let log = MiddlewareLog()
 
         let objPrx = try oa.add(servant: MyObjectDisp(MyObjectI()), id: Ice.stringToIdentity("test"))
-        try oa.use { next in
+        oa.use { next in
             Middleware(next, "A", log)
         }.use { next in
             Middleware(next, "B", log)
