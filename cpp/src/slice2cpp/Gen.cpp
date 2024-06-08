@@ -2224,24 +2224,21 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     C << nl << "throw *this;";
     C << eb;
 
-    if (p->usesClasses())
+    if (p->usesClasses() && !(base && base->usesClasses()))
     {
-        if (!base || !base->usesClasses())
-        {
-            H << sp;
-            H << nl << "/// \\cond STREAM";
-            H << nl << _dllMemberExport << "bool _usesClasses() const override;";
-            H << nl << "/// \\endcond";
+        H << sp;
+        H << nl << "/// \\cond STREAM";
+        H << nl << _dllMemberExport << "bool _usesClasses() const override;";
+        H << nl << "/// \\endcond";
 
-            C << sp;
-            C << nl << "/// \\cond STREAM";
-            C << nl << "bool";
-            C << nl << scoped.substr(2) << "::_usesClasses() const";
-            C << sb;
-            C << nl << "return true;";
-            C << eb;
-            C << nl << "/// \\endcond";
-        }
+        C << sp;
+        C << nl << "/// \\cond STREAM";
+        C << nl << "bool";
+        C << nl << scoped.substr(2) << "::_usesClasses() const";
+        C << sb;
+        C << nl << "return true;";
+        C << eb;
+        C << nl << "/// \\endcond";
     }
 
     if (!dataMembers.empty())
