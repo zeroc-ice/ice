@@ -90,13 +90,13 @@ sequence<Base> BaseSeq;
 
 class CompactExt;
 
-enum CompactIdEnum { First = 1 }
+enum CompactIdEnum { First = 1, Second = 2 }
 
 class Compact(First)
 {
 }
 
-class CompactScoped(CompactIdEnum::First)
+class CompactScoped(CompactIdEnum::Second)
 {
 }
 
