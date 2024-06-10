@@ -12,7 +12,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
                 for factory in middlewareFactoryList.reversed() {
                     value = factory(value)
                 }
-                middlewareFactoryList.removeAll() // we're done with the factories, release their memory
+                middlewareFactoryList.removeAll()  // we're done with the factories, release their memory
                 dispatchPipelineValue = value
                 return value
             }
