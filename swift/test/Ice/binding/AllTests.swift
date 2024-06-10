@@ -1,6 +1,5 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
+
 import Ice
 import TestCommon
 
@@ -30,8 +29,9 @@ func allTests(_ helper: TestHelper) throws {
     let communicator = helper.communicator()
     let output = helper.getWriter()
 
-    let com = try uncheckedCast(
-        prx: communicator.stringToProxy("communicator:\(helper.getTestEndpoint(num: 0))")!,
+    let com = try makeProxy(
+        communicator: communicator,
+        proxyString: "communicator:\(helper.getTestEndpoint(num: 0))",
         type: RemoteCommunicatorPrx.self)
 
     output.write("testing binding with single endpoint... ")
@@ -49,12 +49,10 @@ func allTests(_ helper: TestHelper) throws {
 
         try com.deactivateObjectAdapter(adapter)
 
-        let test3 = uncheckedCast(prx: test1, type: TestIntfPrx.self)
-        try test(test3.ice_getConnection() === test1.ice_getConnection())
-        try test(test3.ice_getConnection() === test2.ice_getConnection())
+        try test(test1.ice_getConnection() === test2.ice_getConnection())
 
         do {
-            try test3.ice_ping()
+            try test1.ice_ping()
             try test(false)
         } catch is Ice.ConnectFailedException {
             // expected
@@ -319,7 +317,7 @@ func allTests(_ helper: TestHelper) throws {
             try obj.ice_getConnection()!.close(.GracefullyWithWait)
         }
 
-        obj = uncheckedCast(prx: obj.ice_endpointSelection(.Random), type: TestIntfPrx.self)
+        obj = obj.ice_endpointSelection(.Random)
         try test(obj.ice_getEndpointSelection() == .Random)
 
         names.append("Adapter21")
@@ -345,12 +343,12 @@ func allTests(_ helper: TestHelper) throws {
         ]
 
         var obj = try createTestIntfPrx(adapters)
-        obj = uncheckedCast(prx: obj.ice_endpointSelection(.Ordered), type: TestIntfPrx.self)
+        obj = obj.ice_endpointSelection(.Ordered)
         try test(obj.ice_getEndpointSelection() == .Ordered)
         let nRetry = 3
 
         //
-        // Ensure that endpoints are tried in order by deactiving the adapters
+        // Ensure that endpoints are tried in order by deactivating the adapters
         // one after the other.
         //
         var i = 0
@@ -424,12 +422,8 @@ func allTests(_ helper: TestHelper) throws {
     do {
         let adapter = try com.createObjectAdapter(name: "Adapter41", endpoints: "default")!
 
-        let test1 = try uncheckedCast(
-            prx: adapter.getTestIntf()!.ice_connectionCached(false),
-            type: TestIntfPrx.self)
-        let test2 = try uncheckedCast(
-            prx: adapter.getTestIntf()!.ice_connectionCached(false),
-            type: TestIntfPrx.self)
+        let test1 = try adapter.getTestIntf()!.ice_connectionCached(false)
+        let test2 = try adapter.getTestIntf()!.ice_connectionCached(false)
         try test(!test1.ice_isConnectionCached())
         try test(!test2.ice_isConnectionCached())
         try test(test1.ice_getConnection() != nil && test2.ice_getConnection() != nil)
@@ -439,9 +433,8 @@ func allTests(_ helper: TestHelper) throws {
 
         try com.deactivateObjectAdapter(adapter)
 
-        let test3 = uncheckedCast(prx: test1, type: TestIntfPrx.self)
         do {
-            try test(test3.ice_getConnection() === test1.ice_getConnection())
+            _ = try test1.ice_getConnection()
             try test(false)
         } catch is Ice.ConnectFailedException {
             // expected
@@ -459,9 +452,7 @@ func allTests(_ helper: TestHelper) throws {
             com.createObjectAdapter(name: "Adapter53", endpoints: "default")!,
         ]
 
-        let obj = try uncheckedCast(
-            prx: createTestIntfPrx(adapters).ice_connectionCached(false),
-            type: TestIntfPrx.self)
+        let obj = try createTestIntfPrx(adapters).ice_connectionCached(false)
         try test(!obj.ice_isConnectionCached())
 
         var names = ["Adapter51", "Adapter52", "Adapter53"]
@@ -495,9 +486,7 @@ func allTests(_ helper: TestHelper) throws {
             com.createObjectAdapter(name: "AdapterAMI53", endpoints: "default")!,
         ]
 
-        let obj = try uncheckedCast(
-            prx: createTestIntfPrx(adapters).ice_connectionCached(false),
-            type: TestIntfPrx.self)
+        let obj = try createTestIntfPrx(adapters).ice_connectionCached(false)
         try test(!obj.ice_isConnectionCached())
 
         var names = ["AdapterAMI51", "AdapterAMI52", "AdapterAMI53"]
@@ -532,16 +521,14 @@ func allTests(_ helper: TestHelper) throws {
         ]
 
         var obj = try createTestIntfPrx(adapters)
-        obj = uncheckedCast(
-            prx: obj.ice_endpointSelection(.Ordered),
-            type: TestIntfPrx.self)
+        obj = obj.ice_endpointSelection(.Ordered)
         try test(obj.ice_getEndpointSelection() == .Ordered)
-        obj = uncheckedCast(prx: obj.ice_connectionCached(false), type: TestIntfPrx.self)
+        obj = obj.ice_connectionCached(false)
         try test(!obj.ice_isConnectionCached())
         let nRetry = 3
         var i = 0
         //
-        // Ensure that endpoints are tried in order by deactiving the adapters
+        // Ensure that endpoints are tried in order by deactivating the adapters
         // one after the other.
         //
         while try i < nRetry && obj.getAdapterName() == "Adapter61" {
@@ -617,16 +604,16 @@ func allTests(_ helper: TestHelper) throws {
         ]
 
         var obj = try createTestIntfPrx(adapters)
-        obj = uncheckedCast(prx: obj.ice_endpointSelection(.Ordered), type: TestIntfPrx.self)
+        obj = obj.ice_endpointSelection(.Ordered)
         try test(obj.ice_getEndpointSelection() == .Ordered)
-        obj = uncheckedCast(prx: obj.ice_connectionCached(false), type: TestIntfPrx.self)
+        obj = obj.ice_connectionCached(false)
         try test(!obj.ice_isConnectionCached())
 
         let nRetry = 3
         var i = 0
 
         //
-        // Ensure that endpoints are tried in order by deactiving the adapters
+        // Ensure that endpoints are tried in order by deactivating the adapters
         // one after the other.
         //
         while try i < nRetry && obj.getAdapterNameAsync().wait() == "AdapterAMI61" {
@@ -702,7 +689,7 @@ func allTests(_ helper: TestHelper) throws {
         let obj = try createTestIntfPrx(adapters)
         try test(obj.getAdapterName() == "Adapter71")
 
-        let testUDP = uncheckedCast(prx: obj.ice_datagram(), type: TestIntfPrx.self)
+        let testUDP = obj.ice_datagram()
         try test(obj.ice_getConnection() !== testUDP.ice_getConnection())
         do {
             _ = try testUDP.getAdapterName()
@@ -724,11 +711,11 @@ func allTests(_ helper: TestHelper) throws {
                 try obj.ice_getConnection()!.close(.GracefullyWithWait)
             }
 
-            var testSecure = uncheckedCast(prx: obj.ice_secure(true), type: TestIntfPrx.self)
+            var testSecure = obj.ice_secure(true)
             try test(testSecure.ice_isSecure())
-            testSecure = uncheckedCast(prx: obj.ice_secure(false), type: TestIntfPrx.self)
+            testSecure = obj.ice_secure(false)
             try test(!testSecure.ice_isSecure())
-            testSecure = uncheckedCast(prx: obj.ice_secure(true), type: TestIntfPrx.self)
+            testSecure = obj.ice_secure(true)
             try test(testSecure.ice_isSecure())
             try test(obj.ice_getConnection() !== testSecure.ice_getConnection())
 

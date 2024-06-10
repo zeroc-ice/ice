@@ -1,7 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
+// Copyright (c) ZeroC, Inc.
 #import "Convert.h"
 #import "Exception.h"
 #import "IceUtil.h"
@@ -43,14 +40,6 @@ convertException(std::exception_ptr exc)
     catch (const Ice::TwowayOnlyException& e)
     {
         return [factory twowayOnlyException:toNSString(e.operation) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::CloneNotImplementedException& e)
-    {
-        return [factory cloneNotImplementedException:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::VersionMismatchException& e)
-    {
-        return [factory versionMismatchException:toNSString(e.ice_file()) line:e.ice_line()];
     }
     catch (const Ice::CommunicatorDestroyedException& e)
     {
@@ -103,10 +92,6 @@ convertException(std::exception_ptr exc)
     catch (const Ice::DNSException& e)
     {
         return [factory dNSException:e.error host:toNSString(e.host) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::OperationInterruptedException& e)
-    {
-        return [factory operationInterruptedException:toNSString(e.ice_file()) line:e.ice_line()];
     }
     catch (const Ice::InvocationCanceledException& e)
     {
@@ -256,10 +241,6 @@ convertException(std::exception_ptr exc)
                                                    file:toNSString(e.ice_file())
                                                    line:e.ice_line()];
     }
-    catch (const Ice::UnknownRequestIdException& e)
-    {
-        return [factory unknownRequestIdException:toNSString(e.reason) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
     catch (const Ice::UnknownReplyStatusException& e)
     {
         return [factory unknownReplyStatusException:toNSString(e.reason)
@@ -316,10 +297,6 @@ convertException(std::exception_ptr exc)
     catch (const Ice::MemoryLimitException& e)
     {
         return [factory memoryLimitException:toNSString(e.reason) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::StringConversionException& e)
-    {
-        return [factory stringConversionException:toNSString(e.reason) file:toNSString(e.ice_file()) line:e.ice_line()];
     }
     catch (const Ice::EncapsulationException& e)
     {

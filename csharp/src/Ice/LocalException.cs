@@ -234,29 +234,6 @@ public class TwowayOnlyException : LocalException
 }
 
 /// <summary>
-/// An attempt was made to clone a class that does not support cloning.
-/// This exception is raised if
-///  ice_clone is called on a class that is derived from an abstract Slice class (that is, a class
-///  containing operations), and the derived class does not provide an implementation of the ice_clone
-///  operation (C++ only).
-/// </summary>
-public class CloneNotImplementedException : LocalException
-{
-    public CloneNotImplementedException()
-    {
-    }
-
-    public CloneNotImplementedException(System.Exception ex) : base(ex)
-    {
-    }
-
-    public override string ice_id()
-    {
-        return "::Ice::CloneNotImplementedException";
-    }
-}
-
-/// <summary>
 /// This exception is raised if an operation call on a server raises an unknown exception.
 /// For example, for C++, this
 ///  exception is raised if the server throws a C++ exception that is not directly or indirectly derived from
@@ -362,25 +339,6 @@ public class UnknownUserException : UnknownException
     public override string ice_id()
     {
         return "::Ice::UnknownUserException";
-    }
-}
-
-/// <summary>
-/// This exception is raised if the Ice library version does not match the version in the Ice header files.
-/// </summary>
-public class VersionMismatchException : LocalException
-{
-    public VersionMismatchException()
-    {
-    }
-
-    public VersionMismatchException(System.Exception ex) : base(ex)
-    {
-    }
-
-    public override string ice_id()
-    {
-        return "::Ice::VersionMismatchException";
     }
 }
 
@@ -1217,25 +1175,6 @@ public class DNSException : LocalException
 }
 
 /// <summary>
-/// This exception indicates a request was interrupted.
-/// </summary>
-public class OperationInterruptedException : LocalException
-{
-    public OperationInterruptedException()
-    {
-    }
-
-    public OperationInterruptedException(System.Exception ex) : base(ex)
-    {
-    }
-
-    public override string ice_id()
-    {
-        return "::Ice::OperationInterruptedException";
-    }
-}
-
-/// <summary>
 /// This exception indicates that a connection was aborted by the idle check.
 /// </summary>
 public class ConnectionIdleException : LocalException
@@ -1559,32 +1498,6 @@ public class ConnectionNotValidatedException : ProtocolException
     public override string ice_id()
     {
         return "::Ice::ConnectionNotValidatedException";
-    }
-}
-
-/// <summary>
-/// This exception indicates that a response for an unknown request ID has been received.
-/// </summary>
-public class UnknownRequestIdException : ProtocolException
-{
-    public UnknownRequestIdException()
-    {
-    }
-
-    public UnknownRequestIdException(System.Exception ex) : base(ex)
-    {
-    }
-
-    public UnknownRequestIdException(string reason) : base(reason)
-    {
-    }
-
-    public UnknownRequestIdException(string reason, System.Exception ex) : base(reason, ex)
-    {
-    }
-    public override string ice_id()
-    {
-        return "::Ice::UnknownRequestIdException";
     }
 }
 
@@ -1971,33 +1884,6 @@ public class MemoryLimitException : MarshalException
     public override string ice_id()
     {
         return "::Ice::MemoryLimitException";
-    }
-}
-
-/// <summary>
-/// This exception is raised when a string conversion to or from UTF-8 fails during marshaling or unmarshaling.
-/// </summary>
-public class StringConversionException : MarshalException
-{
-    public StringConversionException()
-    {
-    }
-
-    public StringConversionException(System.Exception ex) : base(ex)
-    {
-    }
-
-    public StringConversionException(string reason) : base(reason)
-    {
-    }
-
-    public StringConversionException(string reason, System.Exception ex) : base(reason, ex)
-    {
-    }
-
-    public override string ice_id()
-    {
-        return "::Ice::StringConversionException";
     }
 }
 

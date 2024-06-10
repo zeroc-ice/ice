@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import Foundation
 import Ice
@@ -15,14 +13,14 @@ func allTests(_ helper: TestHelper) throws {
 
     let communicator = helper.communicator()
 
-    let manager = try checkedCast(
-        prx: communicator.stringToProxy("ServerManager:\(helper.getTestEndpoint(num: 0))")!,
+    let manager = try makeProxy(
+        communicator: communicator,
+        proxyString: "ServerManager:\(helper.getTestEndpoint(num: 0))",
         type: ServerManagerPrx.self
-    )!
+    )
 
     let locator = uncheckedCast(prx: communicator.getDefaultLocator()!, type: TestLocatorPrx.self)
-
-    let registry = try checkedCast(prx: locator.getRegistry()!, type: TestLocatorRegistryPrx.self)!
+    let registry = try uncheckedCast(prx: locator.getRegistry()!, type: TestLocatorRegistryPrx.self)
 
     output.write("testing stringToProxy... ")
     var base = try communicator.stringToProxy("test @ TestAdapter")!
@@ -36,9 +34,8 @@ func allTests(_ helper: TestHelper) throws {
     output.write("testing ice_locator and ice_getLocator... ")
     try test(
         base.ice_getLocator()!.ice_getIdentity() == communicator.getDefaultLocator()!.ice_getIdentity())
-    let anotherLocator = try uncheckedCast(
-        prx: communicator.stringToProxy("anotherLocator")!,
-        type: Ice.LocatorPrx.self)
+    let anotherLocator = try makeProxy(
+        communicator: communicator, proxyString: "anotherLocator", type: Ice.LocatorPrx.self)
     base = base.ice_locator(anotherLocator)
     try test(base.ice_getLocator()!.ice_getIdentity() == anotherLocator.ice_getIdentity())
     communicator.setDefaultLocator(nil)
@@ -57,12 +54,11 @@ func allTests(_ helper: TestHelper) throws {
     // test/Ice/router test?)
     //
     try test(base.ice_getRouter() == nil)
-    let anotherRouter = try uncheckedCast(
-        prx: communicator.stringToProxy("anotherRouter")!, type: Ice.RouterPrx.self)
+    let anotherRouter = try makeProxy(
+        communicator: communicator, proxyString: "anotherrouter", type: Ice.RouterPrx.self)
     base = base.ice_router(anotherRouter)
     try test(base.ice_getRouter()!.ice_getIdentity() == anotherRouter.ice_getIdentity())
-    let router = try uncheckedCast(
-        prx: communicator.stringToProxy("dummyrouter")!, type: Ice.RouterPrx.self)
+    let router = try makeProxy(communicator: communicator, proxyString: "dummyrouter", type: Ice.RouterPrx.self)
     communicator.setDefaultRouter(router)
     base = try communicator.stringToProxy("test @ TestAdapter")!
     try test(
@@ -229,8 +225,7 @@ func allTests(_ helper: TestHelper) throws {
     output.writeLine("ok")
 
     output.write("testing proxy from server... ")
-    obj = try checkedCast(
-        prx: communicator.stringToProxy("test@TestAdapter")!, type: TestIntfPrx.self)!
+    obj = try makeProxy(communicator: communicator, proxyString: "test@TestAdapter", type: TestIntfPrx.self)
     var hello = try obj.getHello()!
     try test(hello.ice_getAdapterId() == "TestAdapter")
     try hello.sayHello()
@@ -451,7 +446,7 @@ func allTests(_ helper: TestHelper) throws {
     output.writeLine("ok")
 
     output.write("testing object migration... ")
-    hello = try checkedCast(prx: communicator.stringToProxy("hello")!, type: HelloPrx.self)!
+    hello = try makeProxy(communicator: communicator, proxyString: "hello", type: HelloPrx.self)
     try obj.migrateHello()
     try hello.ice_getConnection()!.close(.GracefullyWithWait)
     try hello.sayHello()
@@ -462,7 +457,7 @@ func allTests(_ helper: TestHelper) throws {
     output.writeLine("ok")
 
     output.write("testing locator encoding resolution... ")
-    hello = try checkedCast(prx: communicator.stringToProxy("hello")!, type: HelloPrx.self)!
+    hello = try makeProxy(communicator: communicator, proxyString: "hello", type: HelloPrx.self)
     count = try locator.getRequestCount()
     try communicator.stringToProxy("test@TestAdapter")!.ice_encodingVersion(Ice.Encoding_1_1)
         .ice_ping()
@@ -501,7 +496,7 @@ func allTests(_ helper: TestHelper) throws {
 
     //
     // Set up test for calling a collocated object through an
-    // indirect, adapterless reference.
+    // indirect, adapter-less reference.
     //
     communicator.getProperties().setProperty(key: "Hello.AdapterId", value: UUID().uuidString)
     let adapter = try communicator.createObjectAdapterWithEndpoints(
@@ -512,13 +507,10 @@ func allTests(_ helper: TestHelper) throws {
     try adapter.add(servant: HelloDisp(HelloI()), id: ident)
 
     do {
-        // let helloPrx
-        _ = try checkedCast(
-            prx: communicator.stringToProxy("\"\(communicator.identityToString(ident))\"")!,
-            type: HelloPrx.self
-        )!
+        let helloPrx = try makeProxy(
+            communicator: communicator, proxyString: "\(communicator.identityToString(ident))", type: HelloPrx.self)
+        try helloPrx.ice_ping()
         try test(false)
-        // try test(helloPrx.ice_getConnection() == nil)
     } catch is Ice.NotRegisteredException {
         // Calls on the well-known proxy are not collocated because of issue #507
     }

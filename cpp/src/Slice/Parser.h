@@ -691,8 +691,8 @@ namespace Slice
         ExceptionList throws() const;
         void setExceptionList(const ExceptionList&);
         ContainedType containedType() const final;
-        bool sendsClasses(bool) const;
-        bool returnsClasses(bool) const;
+        bool sendsClasses() const;
+        bool returnsClasses() const;
         bool returnsData() const;
         bool returnsMultipleValues() const;
         bool sendsOptionals() const;
@@ -779,7 +779,7 @@ namespace Slice
         ExceptionList allBases() const;
         bool isBaseOf(const ExceptionPtr&) const;
         ContainedType containedType() const final;
-        bool usesClasses(bool) const;
+        bool usesClasses() const;
         bool hasDefaultValues() const;
         bool inheritsMetaData(const std::string&) const;
         bool hasBaseDataMembers() const;

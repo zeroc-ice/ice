@@ -356,7 +356,7 @@
                 const nRetry = 3;
 
                 //
-                // Ensure that endpoints are tried in order by deactiving the adapters
+                // Ensure that endpoints are tried in order by deactivating the adapters
                 // one after the other.
                 //
                 /* eslint-disable curly */
@@ -523,7 +523,7 @@
                 let i;
 
                 //
-                // Ensure that endpoints are tried in order by deactiving the adapters
+                // Ensure that endpoints are tried in order by deactivating the adapters
                 // one after the other.
                 //
 

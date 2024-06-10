@@ -126,7 +126,7 @@ namespace IceGrid
                         assert(timeout != 0s);
                         using namespace std::chrono;
 
-                        registry = _registry->ice_timeout(secondsToInt(timeout));
+                        registry = _registry;
                         _nextAction = None;
                         _state = InProgress;
                         _condVar.notify_all();

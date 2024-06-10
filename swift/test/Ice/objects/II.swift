@@ -1,6 +1,5 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
+
 import Ice
 
 public class II: Ice.InterfaceByValue {

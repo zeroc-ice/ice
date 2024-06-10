@@ -1,7 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
+// Copyright (c) ZeroC, Inc.
 /// Helper for encoding of optional member or parameter.
 public enum OptionalFormat: UInt8 {
     case F1 = 0

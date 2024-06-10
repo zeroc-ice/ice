@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import Ice
 import PromiseKit
@@ -14,14 +12,13 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
     let communicator = helper.communicator()
     let output = helper.getWriter()
 
-    var sref = "test:\(helper.getTestEndpoint(num: 0))"
-    var obj = try communicator.stringToProxy(sref)!
+    var p = try makeProxy(
+        communicator: communicator, proxyString: "test:\(helper.getTestEndpoint(num: 0))", type: TestIntfPrx.self)
 
-    var p = uncheckedCast(prx: obj, type: TestIntfPrx.self)
-    sref = "testController:\(helper.getTestEndpoint(num: 1))"
-    obj = try communicator.stringToProxy(sref)!
-
-    let testController = uncheckedCast(prx: obj, type: TestIntfControllerPrx.self)
+    let testController = try makeProxy(
+        communicator: communicator,
+        proxyString: "testController:\(helper.getTestEndpoint(num: 1))",
+        type: TestIntfControllerPrx.self)
 
     output.write("testing async invocation...")
     do {
@@ -63,7 +60,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
 
     output.write("testing local exceptions... ")
     do {
-        let indirect = uncheckedCast(prx: p.ice_adapterId("dummy"), type: TestIntfPrx.self)
+        let indirect = p.ice_adapterId("dummy")
         try indirect.opAsync().wait()
     } catch is Ice.NoEndpointException {}
 
@@ -79,8 +76,8 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
         var initData = Ice.InitializationData()
         initData.properties = communicator.getProperties().clone()
         let ic = try helper.initialize(initData)
-        let o = try ic.stringToProxy(p.ice_toString())!
-        let p2 = try checkedCast(prx: o, type: TestIntfPrx.self)!
+        let p2 = try makeProxy(communicator: ic, proxyString: p.ice_toString(), type: TestIntfPrx.self)
+        try p2.ice_pingAsync().wait()
         ic.destroy()
         do {
             try p2.opAsync().wait()
@@ -91,7 +88,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
 
     output.write("testing exception callback... ")
     do {
-        let i = uncheckedCast(prx: p.ice_adapterId("dummy"), type: TestIntfPrx.self)
+        let i = p.ice_adapterId("dummy")
 
         do {
             _ = try i.ice_isAAsync(id: "::Test::TestIntf").wait()

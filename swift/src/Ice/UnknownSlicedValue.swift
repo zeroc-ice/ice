@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 /// Unknown sliced value holds an instance of an unknown Slice class type.
 public final class UnknownSlicedValue: Value {

@@ -526,7 +526,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     out << eb;
 
-    if (p->usesClasses(false) && (!base || (base && !base->usesClasses(false))))
+    if (p->usesClasses() && !(base && base->usesClasses()))
     {
         out << sp;
         out << nl << "open override func _usesClasses() -> Swift.Bool" << sb;
@@ -1138,6 +1138,24 @@ Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "return " << traits << ".staticId";
     out << eb;
 
+    out << eb;
+
+    //
+    // makeProxy
+    //
+    out << sp;
+    out << nl << "/// Makes a new proxy from a communicator and a proxy string.";
+    out << nl << "///";
+    out << nl << "/// - Parameters:";
+    out << nl << "///    - communicator: The communicator of the new proxy.";
+    out << nl << "///    - proxyString: The proxy string to parse.";
+    out << nl << "///    - type: The type of the new proxy.";
+    out << nl << "/// - Throws: `Ice.ProxyParseException` if the proxy string is invalid.";
+    out << nl << "/// - Returns: A new proxy with the requested type.";
+    out << nl << "public func makeProxy(communicator: Ice.Communicator, proxyString: String, type: " << prx
+        << ".Protocol) throws -> " << prx;
+    out << sb;
+    out << nl << "try communicator.makeProxyImpl(proxyString) as " << prxI;
     out << eb;
 
     //

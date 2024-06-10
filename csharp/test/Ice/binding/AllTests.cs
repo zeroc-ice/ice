@@ -415,7 +415,7 @@ namespace Ice
                     int i;
 
                     //
-                    // Ensure that endpoints are tried in order by deactiving the adapters
+                    // Ensure that endpoints are tried in order by deactivating the adapters
                     // one after the other.
                     //
                     for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter31"; i++) ;
@@ -585,7 +585,7 @@ namespace Ice
                     int i;
 
                     //
-                    // Ensure that endpoints are tried in order by deactiving the adapters
+                    // Ensure that endpoints are tried in order by deactivating the adapters
                     // one after the other.
                     //
                     for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter61"; i++) ;
@@ -648,7 +648,7 @@ namespace Ice
                     int i;
 
                     //
-                    // Ensure that endpoints are tried in order by deactiving the adapters
+                    // Ensure that endpoints are tried in order by deactivating the adapters
                     // one after the other.
                     //
                     for (i = 0; i < nRetry && (await obj.getAdapterNameAsync()) == "AdapterAMI61"; i++) ;

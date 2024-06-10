@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import Foundation
 import Ice
@@ -83,7 +81,7 @@ class ServantLocatorI: Ice.ServantLocator {
         return (TestIntfDisp(TestI()), Cookie())
     }
 
-    func finished(curr current: Ice.Current, servant _: Ice.Dispatcher, cookie: Swift.AnyObject?) throws {
+    func finished(curr current: Ice.Current, servant _: Ice.Dispatcher, cookie: AnyObject?) throws {
         try withLock(&_lock) {
             try _helper.test(!_deactivated)
         }

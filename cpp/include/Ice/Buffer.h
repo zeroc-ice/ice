@@ -82,6 +82,8 @@ namespace IceInternal
 
             bool empty() const { return !_size; }
 
+            bool ownsMemory() const noexcept { return _owned; }
+
             void swap(Container&);
 
             void clear();

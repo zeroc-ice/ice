@@ -384,7 +384,7 @@ classdef AllTests
             assert(test.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered);
 
             %
-            % Ensure that endpoints are tried in order by deactiving the adapters
+            % Ensure that endpoints are tried in order by deactivating the adapters
             % one after the other.
             %
             nRetry = 5;
@@ -581,7 +581,7 @@ classdef AllTests
             assert(~test.ice_isConnectionCached());
 
             %
-            % Ensure that endpoints are tried in order by deactiving the adapters
+            % Ensure that endpoints are tried in order by deactivating the adapters
             % one after the other.
             %
             nRetry = 5;
@@ -666,7 +666,7 @@ classdef AllTests
             assert(~test.ice_isConnectionCached());
 
             %
-            % Ensure that endpoints are tried in order by deactiving the adapters
+            % Ensure that endpoints are tried in order by deactivating the adapters
             % one after the other.
             %
             nRetry = 5;

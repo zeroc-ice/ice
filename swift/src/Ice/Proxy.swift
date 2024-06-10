@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import Foundation
 import IceImpl
@@ -304,6 +302,19 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
     func ice_collocationOptimized(_ collocated: Bool) -> Self
 }
 
+/// Makes a new proxy from a communicator and a proxy string.
+///
+/// - Parameters:
+///    - communicator: The communicator of the new proxy.
+///    - proxyString: The proxy string to parse.
+///    - type: The type of the new proxy.
+/// - Throws: `Ice.ProxyParseException` if the proxy string is invalid.
+/// - Returns: A new proxy with the requested type.
+public func makeProxy(communicator: Ice.Communicator, proxyString: String, type: ObjectPrx.Protocol) throws -> ObjectPrx
+{
+    try communicator.makeProxyImpl(proxyString) as ObjectPrxI
+}
+
 /// Casts a proxy to `Ice.ObjectPrx`. This call contacts the server and will throw an Ice run-time exception
 /// if the target object does not exist or the server cannot be reached.
 ///
@@ -350,7 +361,7 @@ public func uncheckedCast(
 /// Returns the Slice type id of the interface or class associated with this proxy class.
 ///
 /// - returns: `String` - The type id, "::Ice::Object".
-public func ice_staticId(_: ObjectPrx.Protocol) -> Swift.String {
+public func ice_staticId(_: ObjectPrx.Protocol) -> String {
     return ObjectTraits.staticId
 }
 
@@ -401,7 +412,7 @@ extension ObjectPrx {
     /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` - Optional dispatch flags used to
     ///   dispatch sent callback
     ///
-    /// - parameter sent: `((Swift.Bool) -> Swift.Void)` - Optional sent callback.
+    /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
     ///
     /// - returns: `PromiseKit.Promise<Void>` - A promise object that will be resolved with
     ///   the result of the invocation.
@@ -786,9 +797,8 @@ open class ObjectPrxI: ObjectPrx {
         isTwoway = impl.isTwoway
     }
 
-    func fromICEObjectPrx<ObjectPrxType>(_ h: ICEObjectPrx) -> ObjectPrxType
-    where ObjectPrxType: ObjectPrxI {
-        return ObjectPrxType(handle: h, communicator: communicator)
+    private func fromICEObjectPrx<ProxyImpl>(_ h: ICEObjectPrx) -> ProxyImpl where ProxyImpl: ObjectPrxI {
+        return ProxyImpl(handle: h, communicator: communicator)
     }
 
     static func fromICEObjectPrx(

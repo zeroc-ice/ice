@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import IceImpl
 
@@ -27,14 +25,6 @@ class ExceptionFactory: ICEExceptionFactory {
 
     static func twowayOnlyException(_ operation: String, file: String, line: Int32) -> Error {
         return TwowayOnlyException(operation: operation, file: file, line: line)
-    }
-
-    static func cloneNotImplementedException(_ file: String, line: Int32) -> Error {
-        return CloneNotImplementedException(file: file, line: line)
-    }
-
-    static func versionMismatchException(_ file: String, line: Int32) -> Error {
-        return VersionMismatchException(file: file, line: line)
     }
 
     static func communicatorDestroyedException(_ file: String, line: Int32) -> Error {
@@ -83,10 +73,6 @@ class ExceptionFactory: ICEExceptionFactory {
 
     static func dNSException(_ error: Int32, host: String, file: String, line: Int32) -> Error {
         return DNSException(error: error, host: host, file: file, line: line)
-    }
-
-    static func operationInterruptedException(_ file: String, line: Int32) -> Error {
-        return OperationInterruptedException(file: file, line: line)
     }
 
     static func invocationCanceledException(_ file: String, line: Int32) -> Error {
@@ -251,10 +237,6 @@ class ExceptionFactory: ICEExceptionFactory {
         return ConnectionNotValidatedException(reason: reason, file: file, line: line)
     }
 
-    static func unknownRequestIdException(_ reason: String, file: String, line: Int32) -> Error {
-        return UnknownRequestIdException(reason: reason, file: file, line: line)
-    }
-
     static func unknownReplyStatusException(_ reason: String, file: String, line: Int32) -> Error {
         return UnknownReplyStatusException(reason: reason, file: file, line: line)
     }
@@ -285,7 +267,7 @@ class ExceptionFactory: ICEExceptionFactory {
         return ProxyUnmarshalException(reason: reason, file: file, line: line)
     }
 
-    static func unmarshalOutofBoundsException(_ reason: String, file: String, line: Int32) -> Error {
+    static func unmarshalOutOfBoundsException(_ reason: String, file: String, line: Int32) -> Error {
         return UnmarshalOutOfBoundsException(reason: reason, file: file, line: line)
     }
 
@@ -306,10 +288,6 @@ class ExceptionFactory: ICEExceptionFactory {
 
     static func memoryLimitException(_ reason: String, file: String, line: Int32) -> Error {
         return MemoryLimitException(reason: reason, file: file, line: line)
-    }
-
-    static func stringConversionException(_ reason: String, file: String, line: Int32) -> Error {
-        return StringConversionException(reason: reason, file: file, line: line)
     }
 
     static func encapsulationException(_ reason: String, file: String, line: Int32) -> Error {

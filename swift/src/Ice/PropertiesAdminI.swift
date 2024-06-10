@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import IceImpl
 
@@ -12,13 +10,13 @@ class PropertiesAdminI: LocalObject<ICEPropertiesAdmin>, PropertiesAdmin, Native
         super.init(handle: handle)
     }
 
-    func getProperty(key: Swift.String, current _: Current) throws -> Swift.String {
+    func getProperty(key: String, current _: Current) throws -> String {
         return try autoreleasepool {
             try handle.getProperty(key)
         }
     }
 
-    func getPropertiesForPrefix(prefix: Swift.String, current _: Current) throws -> PropertyDict {
+    func getPropertiesForPrefix(prefix: String, current _: Current) throws -> PropertyDict {
         return try autoreleasepool {
             try handle.getPropertiesForPrefix(prefix)
         }

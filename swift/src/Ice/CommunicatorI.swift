@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import IceImpl
 import PromiseKit
@@ -48,12 +46,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     }
 
     func stringToProxy(_ str: String) throws -> ObjectPrx? {
-        return try autoreleasepool {
-            guard let prxHandle = try handle.stringToProxy(str: str) as? ICEObjectPrx else {
-                return nil
-            }
-            return ObjectPrxI(handle: prxHandle, communicator: self)
-        }
+        try stringToProxyImpl(str)
     }
 
     func proxyToString(_ obj: ObjectPrx?) -> String {
@@ -256,6 +249,22 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     func getServerDispatchQueue() throws -> DispatchQueue {
         return try autoreleasepool {
             try handle.getServerDispatchQueue()
+        }
+    }
+
+    func makeProxyImpl<ProxyImpl>(_ proxyString: String) throws -> ProxyImpl where ProxyImpl: ObjectPrxI {
+        guard let proxy: ProxyImpl = try stringToProxyImpl(proxyString) else {
+            throw ProxyParseException(str: "Invalid empty proxy string")
+        }
+        return proxy
+    }
+
+    private func stringToProxyImpl<ProxyImpl>(_ str: String) throws -> ProxyImpl? where ProxyImpl: ObjectPrxI {
+        return try autoreleasepool {
+            guard let prxHandle = try handle.stringToProxy(str: str) as? ICEObjectPrx else {
+                return nil
+            }
+            return ProxyImpl(handle: prxHandle, communicator: self)
         }
     }
 }

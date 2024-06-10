@@ -2180,7 +2180,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 marshal(out, "os_", r->fixedName, r->type, r->optional, r->tag);
             }
-            if (op->sendsClasses(false))
+            if (op->sendsClasses())
             {
                 out << nl << "os_.writePendingValues();";
             }
@@ -2287,7 +2287,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     convertParams.push_back(*r);
                 }
             }
-            if (op->returnsClasses(false))
+            if (op->returnsClasses())
             {
                 out << nl << "is_.readPendingValues();";
             }
@@ -2343,7 +2343,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 marshal(out, "os_", r->fixedName, r->type, r->optional, r->tag);
             }
-            if (op->sendsClasses(false))
+            if (op->sendsClasses())
             {
                 out << nl << "os_.writePendingValues();";
             }
@@ -2414,7 +2414,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 }
                 unmarshal(out, "is_", param, r->type, r->optional, r->tag);
             }
-            if (op->returnsClasses(false))
+            if (op->returnsClasses())
             {
                 out << nl << "is_.readPendingValues();";
             }
@@ -2785,7 +2785,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
                 string m = "obj." + q->fixedName;
                 convertValueType(out, m, m, q->dataMember->type(), q->dataMember->optional());
             }
-            if (base && base->usesClasses(true))
+            if (base && base->usesClasses())
             {
                 out << nl << "obj = icePostUnmarshal@" << getAbsolute(base) << "(obj);";
             }

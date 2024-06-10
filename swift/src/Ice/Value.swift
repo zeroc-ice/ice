@@ -1,8 +1,6 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-// The base class for all Ice values.
+/// The base class for all Ice values.
 open class Value {
     private var slicedData: SlicedData?
 
