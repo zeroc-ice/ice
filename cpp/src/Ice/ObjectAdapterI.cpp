@@ -54,30 +54,6 @@ namespace
     }
 
     inline EndpointIPtr toEndpointI(const EndpointPtr& endp) { return dynamic_pointer_cast<EndpointI>(endp); }
-
-    ObjectPtr createDispatchPipeline(Ice::ObjectPtr dispatcher, const InstancePtr& instance)
-    {
-        const auto& observer = instance->initializationData().observer;
-        if (observer)
-        {
-            dispatcher = make_shared<ObserverMiddleware>(std::move(dispatcher), observer);
-        }
-
-        const auto& logger = instance->initializationData().logger;
-        if (logger)
-        {
-            int warningLevel = instance->initializationData().properties->getIcePropertyAsInt("Ice.Warn.Dispatch");
-            if (warningLevel > 0)
-            {
-                dispatcher = make_shared<LoggerMiddleware>(
-                    std::move(dispatcher),
-                    logger,
-                    warningLevel,
-                    instance->toStringMode());
-            }
-        }
-        return dispatcher;
-    }
 }
 
 string
@@ -376,6 +352,19 @@ Ice::ObjectAdapterI::destroy() noexcept
     }
 }
 
+ObjectAdapterPtr
+Ice::ObjectAdapterI::use(function<ObjectPtr(ObjectPtr)> middlewareFactory)
+{
+    // This code is not thread-safe and is not supposed to be.
+    if (_dispatchPipeline)
+    {
+        throw InitializationException{__FILE__, __LINE__, "all middleware must be installed before the first dispatch"};
+    }
+
+    _middlewareFactoryStack.push(std::move(middlewareFactory));
+    return shared_from_this();
+}
+
 ObjectPrx
 Ice::ObjectAdapterI::add(const ObjectPtr& object, const Identity& ident)
 {
@@ -538,10 +527,20 @@ Ice::ObjectAdapterI::findServantLocator(const string& prefix) const
     return _servantManager->findServantLocator(prefix);
 }
 
-ObjectPtr
-Ice::ObjectAdapterI::dispatcher() const noexcept
+const ObjectPtr&
+Ice::ObjectAdapterI::dispatchPipeline() const noexcept
 {
-    return _servantManager;
+    lock_guard lock(_mutex);
+    if (!_dispatchPipeline)
+    {
+        _dispatchPipeline = _servantManager;
+        while (!_middlewareFactoryStack.empty())
+        {
+            _dispatchPipeline = _middlewareFactoryStack.top()(_dispatchPipeline);
+            _middlewareFactoryStack.pop();
+        }
+    }
+    return _dispatchPipeline;
 }
 
 ObjectPrx
@@ -878,7 +877,6 @@ Ice::ObjectAdapterI::ObjectAdapterI(
       _communicator(communicator),
       _objectAdapterFactory(objectAdapterFactory),
       _servantManager(make_shared<ServantManager>(instance, name)),
-      _dispatchPipeline(createDispatchPipeline(_servantManager, instance)),
       _name(name),
       _directCount(0),
       _noConfig(noConfig),
@@ -901,6 +899,27 @@ Ice::ObjectAdapterI::ObjectAdapterI(
 void
 Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
 {
+    // shared_from_this() is available now and is called by `use`.
+
+    const LoggerPtr logger = _instance->initializationData().logger;
+    if (logger)
+    {
+        int warningLevel = _instance->initializationData().properties->getIcePropertyAsInt("Ice.Warn.Dispatch");
+        if (warningLevel > 0)
+        {
+            use([logger, warningLevel, toStringMode = _instance->toStringMode()](ObjectPtr next)
+            {
+                return make_shared<LoggerMiddleware>(std::move(next), logger, warningLevel, toStringMode);
+            });
+         }
+    }
+
+    const Instrumentation::CommunicatorObserverPtr observer = _instance->initializationData().observer;
+    if (observer)
+    {
+        use([observer](ObjectPtr next) { return make_shared<ObserverMiddleware>(std::move(next), observer); });
+    }
+
     if (_noConfig)
     {
         _reference = _instance->referenceFactory()->create("dummy -t", "");
