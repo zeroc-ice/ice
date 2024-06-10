@@ -33,6 +33,7 @@ $tests = [
     "Ice/inheritance",
     "Ice/invoke",
     "Ice/location",
+    "Ice/middleware",
     "Ice/objects",
     "Ice/operations",
     "Ice/optional",
