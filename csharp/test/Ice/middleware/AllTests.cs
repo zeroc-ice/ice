@@ -25,7 +25,7 @@ public class AllTests : global::Test.AllTests
 
         var oa = communicator.createObjectAdapter("");
 
-        oa.add(new MyObjectI(), Ice.Util.stringToIdentity("test"));
+        oa.add(new MyObjectI(), new Identity { name = "test" });
         oa.use(next => new Middleware(next, "A", inLog, outLog))
             .use(next => new Middleware(next, "B", inLog, outLog))
             .use(next => new Middleware(next, "C", inLog, outLog));
