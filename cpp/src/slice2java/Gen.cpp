@@ -1584,15 +1584,15 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
         out << sb;
         out << nl << "return switch (current.operation)";
         out << sb;
-        for (const auto& op: allOps)
+        for (const auto& op : allOps)
         {
-            out << nl << "case \"" << op->name() << "\" -> " << getUnqualified(op->interface(), package)
-                << "._iceD_" << op->name() << "(this, in, current);";
+            out << nl << "case \"" << op->name() << "\" -> " << getUnqualified(op->interface(), package) << "._iceD_"
+                << op->name() << "(this, in, current);";
         }
         for (const auto& opName : {"ice_id", "ice_ids", "ice_isA", "ice_ping"})
         {
-            out << nl << "case \"" << opName << "\" -> " <<  getUnqualified("com.zeroc.Ice.Object", package)
-                << "._iceD_" << opName << "(this, in, current);";
+            out << nl << "case \"" << opName << "\" -> " << getUnqualified("com.zeroc.Ice.Object", package) << "._iceD_"
+                << opName << "(this, in, current);";
         }
         out << nl << "default -> throw new " << getUnqualified("com.zeroc.Ice.OperationNotExistException", package)
             << "();";
