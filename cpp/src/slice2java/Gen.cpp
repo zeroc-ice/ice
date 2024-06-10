@@ -1572,45 +1572,8 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
     OperationList allOps = p->allOperations();
     if (!allOps.empty())
     {
-        StringList allOpNames;
-        transform(
-            allOps.begin(),
-            allOps.end(),
-            back_inserter(allOpNames),
-            [](const ContainedPtr& it) { return it->name(); });
-        allOpNames.push_back("ice_id");
-        allOpNames.push_back("ice_ids");
-        allOpNames.push_back("ice_isA");
-        allOpNames.push_back("ice_ping");
-        allOpNames.sort();
-        allOpNames.unique();
-
         out << sp;
         writeHiddenDocComment(out);
-        out << nl << "final static String[] _iceOps =";
-        out << sb;
-        for (StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end();)
-        {
-            out << nl << '"' << *q << '"';
-            if (++q != allOpNames.end())
-            {
-                out << ',';
-            }
-        }
-        out << eb << ';';
-
-        out << sp;
-        writeHiddenDocComment(out);
-        for (const OperationPtr& op : allOps)
-        {
-            // TODO: remove this when we fix where deprecation messages are applied.
-            // Suppress deprecation warnings if this method dispatches to a deprecated operation.
-            if (op->isDeprecated(true))
-            {
-                out << nl << "@SuppressWarnings(\"deprecation\")";
-                break;
-            }
-        }
         out << nl << "@Override" << nl << "default java.util.concurrent.CompletionStage<"
             << getUnqualified("com.zeroc.Ice.OutputStream", package) << "> _iceDispatch("
             << getUnqualified("com.zeroc.IceInternal.Incoming", package) << " in, "
@@ -1619,71 +1582,22 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
         out << nl << "throws " << getUnqualified("com.zeroc.Ice.UserException", package);
         out.dec();
         out << sb;
-        out << nl << "int pos = java.util.Arrays.binarySearch(_iceOps, current.operation);";
-        out << nl << "if(pos < 0)";
+        out << nl << "return switch (current.operation)";
         out << sb;
-        out << nl << "throw new " << getUnqualified("com.zeroc.Ice.OperationNotExistException", package)
-            << "(current.id, current.facet, current.operation);";
-        out << eb;
-        out << sp << nl << "switch(pos)";
-        out << sb;
-        int i = 0;
-        for (StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end(); ++q)
+        for (const auto& op: allOps)
         {
-            string opName = *q;
-
-            out << nl << "case " << i++ << ':';
-            out << sb;
-            if (opName == "ice_id")
-            {
-                out << nl << "return " << getUnqualified("com.zeroc.Ice.Object", package)
-                    << "._iceD_ice_id(this, in, current);";
-            }
-            else if (opName == "ice_ids")
-            {
-                out << nl << "return " << getUnqualified("com.zeroc.Ice.Object", package)
-                    << "._iceD_ice_ids(this, in, current);";
-            }
-            else if (opName == "ice_isA")
-            {
-                out << nl << "return " << getUnqualified("com.zeroc.Ice.Object", package)
-                    << "._iceD_ice_isA(this, in, current);";
-            }
-            else if (opName == "ice_ping")
-            {
-                out << nl << "return " << getUnqualified("com.zeroc.Ice.Object", package)
-                    << "._iceD_ice_ping(this, in, current);";
-            }
-            else
-            {
-                //
-                // There's probably a better way to do this.
-                //
-                for (OperationList::const_iterator t = allOps.begin(); t != allOps.end(); ++t)
-                {
-                    if ((*t)->name() == (*q))
-                    {
-                        InterfaceDefPtr interface = (*t)->interface();
-                        assert(interface);
-                        if (interface->scoped() == p->scoped())
-                        {
-                            out << nl << "return _iceD_" << opName << "(this, in, current);";
-                        }
-                        else
-                        {
-                            string baseName = getUnqualified(interface, package);
-                            out << nl << "return " << baseName << "._iceD_" << opName << "(this, in, current);";
-                        }
-                        break;
-                    }
-                }
-            }
-            out << eb;
+            out << nl << "case \"" << op->name() << "\" -> " << getUnqualified(op->interface(), package)
+                << "._iceD_" << op->name() << "(this, in, current);";
         }
+        for (const auto& opName : {"ice_id", "ice_ids", "ice_isA", "ice_ping"})
+        {
+            out << nl << "case \"" << opName << "\" -> " <<  getUnqualified("com.zeroc.Ice.Object", package)
+                << "._iceD_" << opName << "(this, in, current);";
+        }
+        out << nl << "default -> throw new " << getUnqualified("com.zeroc.Ice.OperationNotExistException", package)
+            << "();";
         out << eb;
-        out << sp << nl << "assert(false);";
-        out << nl << "throw new " << getUnqualified("com.zeroc.Ice.OperationNotExistException", package)
-            << "(current.id, current.facet, current.operation);";
+        out << ";";
         out << eb;
     }
 }
