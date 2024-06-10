@@ -174,30 +174,6 @@ namespace Ice
 
 namespace Ice
 {
-    global $Ice__t_CloneNotImplementedException;
-    class CloneNotImplementedException extends \Ice\LocalException
-    {
-        public function __construct()
-        {
-        }
-
-        public function ice_id()
-        {
-            return '::Ice::CloneNotImplementedException';
-        }
-
-        public function __toString(): string
-        {
-            global $Ice__t_CloneNotImplementedException;
-            return IcePHP_stringifyException($this, $Ice__t_CloneNotImplementedException);
-        }
-    }
-
-    $Ice__t_CloneNotImplementedException = IcePHP_defineException('::Ice::CloneNotImplementedException', '\\Ice\\CloneNotImplementedException', null, null);
-}
-
-namespace Ice
-{
     global $Ice__t_UnknownException;
     class UnknownException extends \Ice\LocalException
     {
@@ -273,30 +249,6 @@ namespace Ice
     }
 
     $Ice__t_UnknownUserException = IcePHP_defineException('::Ice::UnknownUserException', '\\Ice\\UnknownUserException', $Ice__t_UnknownException, null);
-}
-
-namespace Ice
-{
-    global $Ice__t_VersionMismatchException;
-    class VersionMismatchException extends \Ice\LocalException
-    {
-        public function __construct()
-        {
-        }
-
-        public function ice_id()
-        {
-            return '::Ice::VersionMismatchException';
-        }
-
-        public function __toString(): string
-        {
-            global $Ice__t_VersionMismatchException;
-            return IcePHP_stringifyException($this, $Ice__t_VersionMismatchException);
-        }
-    }
-
-    $Ice__t_VersionMismatchException = IcePHP_defineException('::Ice::VersionMismatchException', '\\Ice\\VersionMismatchException', null, null);
 }
 
 namespace Ice
@@ -943,30 +895,6 @@ namespace Ice
 
 namespace Ice
 {
-    global $Ice__t_OperationInterruptedException;
-    class OperationInterruptedException extends \Ice\LocalException
-    {
-        public function __construct()
-        {
-        }
-
-        public function ice_id()
-        {
-            return '::Ice::OperationInterruptedException';
-        }
-
-        public function __toString(): string
-        {
-            global $Ice__t_OperationInterruptedException;
-            return IcePHP_stringifyException($this, $Ice__t_OperationInterruptedException);
-        }
-    }
-
-    $Ice__t_OperationInterruptedException = IcePHP_defineException('::Ice::OperationInterruptedException', '\\Ice\\OperationInterruptedException', null, null);
-}
-
-namespace Ice
-{
     global $Ice__t_ConnectionIdleException;
     class ConnectionIdleException extends \Ice\LocalException
     {
@@ -1286,31 +1214,6 @@ namespace Ice
     }
 
     $Ice__t_ConnectionNotValidatedException = IcePHP_defineException('::Ice::ConnectionNotValidatedException', '\\Ice\\ConnectionNotValidatedException', $Ice__t_ProtocolException, null);
-}
-
-namespace Ice
-{
-    global $Ice__t_UnknownRequestIdException;
-    class UnknownRequestIdException extends \Ice\ProtocolException
-    {
-        public function __construct($reason='')
-        {
-            parent::__construct($reason);
-        }
-
-        public function ice_id()
-        {
-            return '::Ice::UnknownRequestIdException';
-        }
-
-        public function __toString(): string
-        {
-            global $Ice__t_UnknownRequestIdException;
-            return IcePHP_stringifyException($this, $Ice__t_UnknownRequestIdException);
-        }
-    }
-
-    $Ice__t_UnknownRequestIdException = IcePHP_defineException('::Ice::UnknownRequestIdException', '\\Ice\\UnknownRequestIdException', $Ice__t_ProtocolException, null);
 }
 
 namespace Ice

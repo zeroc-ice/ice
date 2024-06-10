@@ -1,4 +1,5 @@
 // Copyright (c) ZeroC, Inc.
+
 /// Base protocol for Ice exceptions.
 public protocol Exception: Error {
     /// Returns the type id of this exception.

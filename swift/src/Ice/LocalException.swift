@@ -262,23 +262,6 @@ open class UnknownUserException: UnknownException {
     }
 }
 
-/// This exception is raised if the Ice library version does not match the version in the Ice header files.
-open class VersionMismatchException: LocalException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
-    override open class func ice_staticId() -> String {
-        return "::Ice::VersionMismatchException"
-    }
-
-    /// Returns a string representation of this exception
-    ///
-    /// - returns: `String` - The string representaton of this exception.
-    override open func ice_print() -> String {
-        return _VersionMismatchExceptionDescription
-    }
-}
-
 /// This exception is raised if the Communicator has been destroyed.
 open class CommunicatorDestroyedException: LocalException {
     /// Returns the Slice type ID of this exception.
@@ -869,23 +852,6 @@ open class DNSException: LocalException {
     }
 }
 
-/// This exception indicates a request was interrupted.
-open class OperationInterruptedException: LocalException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
-    override open class func ice_staticId() -> String {
-        return "::Ice::OperationInterruptedException"
-    }
-
-    /// Returns a string representation of this exception
-    ///
-    /// - returns: `String` - The string representaton of this exception.
-    override open func ice_print() -> String {
-        return _OperationInterruptedExceptionDescription
-    }
-}
-
 /// This exception indicates that a connection was aborted by the idle check.
 open class ConnectionIdleException: TimeoutException {
     /// Returns the Slice type ID of this exception.
@@ -1158,23 +1124,6 @@ open class ConnectionNotValidatedException: ProtocolException {
     }
 }
 
-/// This exception indicates that a response for an unknown request ID has been received.
-open class UnknownRequestIdException: ProtocolException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
-    override open class func ice_staticId() -> String {
-        return "::Ice::UnknownRequestIdException"
-    }
-
-    /// Returns a string representation of this exception
-    ///
-    /// - returns: `String` - The string representaton of this exception.
-    override open func ice_print() -> String {
-        return _UnknownRequestIdExceptionDescription
-    }
-}
-
 /// This exception indicates that an unknown reply status has been received.
 open class UnknownReplyStatusException: ProtocolException {
     /// Returns the Slice type ID of this exception.
@@ -1433,23 +1382,6 @@ open class MemoryLimitException: MarshalException {
     /// - returns: `String` - The string representaton of this exception.
     override open func ice_print() -> String {
         return _MemoryLimitExceptionDescription
-    }
-}
-
-/// This exception is raised when a string conversion to or from UTF-8 fails during marshaling or unmarshaling.
-open class StringConversionException: MarshalException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
-    override open class func ice_staticId() -> String {
-        return "::Ice::StringConversionException"
-    }
-
-    /// Returns a string representation of this exception
-    ///
-    /// - returns: `String` - The string representaton of this exception.
-    override open func ice_print() -> String {
-        return _StringConversionExceptionDescription
     }
 }
 

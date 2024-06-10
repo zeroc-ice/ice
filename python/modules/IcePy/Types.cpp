@@ -1276,9 +1276,9 @@ IcePy::StructInfo::optionalFormat() const
 bool
 IcePy::StructInfo::usesClasses() const
 {
-    for (DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
+    for (const auto& dm : members)
     {
-        if ((*p)->type->usesClasses())
+        if (dm->type->usesClasses())
         {
             return true;
         }
@@ -4800,11 +4800,11 @@ IcePy_defineException(PyObject*, PyObject* args)
     //
     // Only examine the required members to see if any use classes.
     //
-    for (DataMemberList::iterator p = info->members.begin(); p != info->members.end(); ++p)
+    for (const auto& dm : info->members)
     {
         if (!info->usesClasses)
         {
-            info->usesClasses = (*p)->type->usesClasses();
+            info->usesClasses = dm->type->usesClasses();
         }
     }
 

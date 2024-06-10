@@ -3,14 +3,31 @@
 import IceImpl
 
 class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchAdapter, Hashable {
-    private let communicator: Communicator
     let servantManager: ServantManager
+
+    var dispatchPipeline: Dispatcher {
+        mutex.sync {
+            guard let value = dispatchPipelineValue else {
+                var value: Dispatcher = servantManager
+                for factory in middlewareFactoryList.reversed() {
+                    value = factory(value)
+                }
+                dispatchPipelineValue = value
+                return value
+            }
+            return value
+        }
+    }
+
+    private let communicator: Communicator
+    private var dispatchPipelineValue: Dispatcher?
+    private var middlewareFactoryList: [(Dispatcher) -> Dispatcher] = []
+    private var mutex = Mutex()
 
     init(handle: ICEObjectAdapter, communicator: Communicator) {
         self.communicator = communicator
         servantManager = ServantManager(adapterName: handle.getName(), communicator: communicator)
         super.init(handle: handle)
-
         handle.registerDispatchAdapter(self)
     }
 
@@ -58,6 +75,14 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
 
     func destroy() {
         return handle.destroy()
+    }
+
+    @discardableResult
+    func use(_ middlewareFactory: @escaping (_ next: Dispatcher) -> Dispatcher) -> Self {
+        // We don't lock as none of this code is thread-safe
+        precondition(dispatchPipelineValue == nil, "All middleware must be installed before the first dispatch.")
+        middlewareFactoryList.append(middlewareFactory)
+        return self
     }
 
     func add(servant: Dispatcher, id: Identity) throws -> ObjectPrx {
@@ -237,7 +262,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
 
         let request = IncomingRequest(current: current, inputStream: istr)
 
-        servantManager.dispatch(request).map { response in
+        dispatchPipeline.dispatch(request).map { response in
             response.outputStream.finished().withUnsafeBytes {
                 completionHandler(
                     response.replyStatus.rawValue,

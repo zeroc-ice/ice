@@ -41,14 +41,6 @@ convertException(std::exception_ptr exc)
     {
         return [factory twowayOnlyException:toNSString(e.operation) file:toNSString(e.ice_file()) line:e.ice_line()];
     }
-    catch (const Ice::CloneNotImplementedException& e)
-    {
-        return [factory cloneNotImplementedException:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::VersionMismatchException& e)
-    {
-        return [factory versionMismatchException:toNSString(e.ice_file()) line:e.ice_line()];
-    }
     catch (const Ice::CommunicatorDestroyedException& e)
     {
         return [factory communicatorDestroyedException:toNSString(e.ice_file()) line:e.ice_line()];
@@ -100,10 +92,6 @@ convertException(std::exception_ptr exc)
     catch (const Ice::DNSException& e)
     {
         return [factory dNSException:e.error host:toNSString(e.host) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::OperationInterruptedException& e)
-    {
-        return [factory operationInterruptedException:toNSString(e.ice_file()) line:e.ice_line()];
     }
     catch (const Ice::InvocationCanceledException& e)
     {
@@ -253,10 +241,6 @@ convertException(std::exception_ptr exc)
                                                    file:toNSString(e.ice_file())
                                                    line:e.ice_line()];
     }
-    catch (const Ice::UnknownRequestIdException& e)
-    {
-        return [factory unknownRequestIdException:toNSString(e.reason) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
     catch (const Ice::UnknownReplyStatusException& e)
     {
         return [factory unknownReplyStatusException:toNSString(e.reason)
@@ -313,10 +297,6 @@ convertException(std::exception_ptr exc)
     catch (const Ice::MemoryLimitException& e)
     {
         return [factory memoryLimitException:toNSString(e.reason) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::StringConversionException& e)
-    {
-        return [factory stringConversionException:toNSString(e.reason) file:toNSString(e.ice_file()) line:e.ice_line()];
     }
     catch (const Ice::EncapsulationException& e)
     {

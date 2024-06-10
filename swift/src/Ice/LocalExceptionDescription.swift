@@ -132,16 +132,6 @@ extension UnknownUserException {
     }
 }
 
-extension VersionMismatchException {
-    var _VersionMismatchExceptionDescription: String {
-        var s = String()
-
-        s.sep("Ice library version mismatch")
-
-        return s
-    }
-}
-
 extension CommunicatorDestroyedException {
     var _CommunicatorDestroyedExceptionDescription: String {
         var s = String()
@@ -392,16 +382,6 @@ extension DNSException {
     }
 }
 
-extension OperationInterruptedException {
-    var _OperationInterruptedExceptionDescription: String {
-        var s = String()
-
-        s.sep("operation interrupted")
-
-        return s
-    }
-}
-
 extension TimeoutException {
     var _TimeoutExceptionDescription: String {
         var s = String()
@@ -543,17 +523,6 @@ extension ConnectionNotValidatedException {
     }
 }
 
-extension UnknownRequestIdException {
-    var _UnknownRequestIdExceptionDescription: String {
-        var s = String()
-
-        s.sep("protocol error: unknown request id")
-        s.sep(reason)
-
-        return s
-    }
-}
-
 extension UnknownReplyStatusException {
     var _UnknownReplyStatusExceptionDescription: String {
         var s = String()
@@ -681,17 +650,6 @@ extension MemoryLimitException {
         var s = String()
 
         s.sep("protocol error: memory limit exceeded")
-        s.sep(reason)
-
-        return s
-    }
-}
-
-extension StringConversionException {
-    var _StringConversionExceptionDescription: String {
-        var s = String()
-
-        s.sep("protocol error: string conversion failed")
         s.sep(reason)
 
         return s
