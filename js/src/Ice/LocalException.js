@@ -142,30 +142,6 @@ Ice.TwowayOnlyException = class extends Ice.LocalException
 };
 
 /**
- *  An attempt was made to clone a class that does not support cloning. This exception is raised if
- *  <code>ice_clone</code> is called on a class that is derived from an abstract Slice class (that is, a class
- *  containing operations), and the derived class does not provide an implementation of the <code>ice_clone</code>
- *  operation (C++ only).
- **/
-Ice.CloneNotImplementedException = class extends Ice.LocalException
-{
-    constructor(_cause = "")
-    {
-        super(_cause);
-    }
-
-    static get _parent()
-    {
-        return Ice.LocalException;
-    }
-
-    static get _id()
-    {
-        return "::Ice::CloneNotImplementedException";
-    }
-};
-
-/**
  *  This exception is raised if an operation call on a server raises an unknown exception. For example, for C++, this
  *  exception is raised if the server throws a C++ exception that is not directly or indirectly derived from
  *  <code>Ice::LocalException</code> or <code>Ice::UserException</code>.
@@ -236,27 +212,6 @@ Ice.UnknownUserException = class extends Ice.UnknownException
     static get _id()
     {
         return "::Ice::UnknownUserException";
-    }
-};
-
-/**
- *  This exception is raised if the Ice library version does not match the version in the Ice header files.
- **/
-Ice.VersionMismatchException = class extends Ice.LocalException
-{
-    constructor(_cause = "")
-    {
-        super(_cause);
-    }
-
-    static get _parent()
-    {
-        return Ice.LocalException;
-    }
-
-    static get _id()
-    {
-        return "::Ice::VersionMismatchException";
     }
 };
 
@@ -641,28 +596,6 @@ Ice.SocketException = class extends Ice.SyscallException
 };
 
 /**
- *  This exception indicates CFNetwork errors.
- **/
-Ice.CFNetworkException = class extends Ice.SocketException
-{
-    constructor(error, domain = "", _cause = "")
-    {
-        super(error, _cause);
-        this.domain = domain;
-    }
-
-    static get _parent()
-    {
-        return Ice.SocketException;
-    }
-
-    static get _id()
-    {
-        return "::Ice::CFNetworkException";
-    }
-};
-
-/**
  *  This exception indicates file errors.
  **/
 Ice.FileException = class extends Ice.SyscallException
@@ -767,27 +700,6 @@ Ice.DNSException = class extends Ice.LocalException
     static get _id()
     {
         return "::Ice::DNSException";
-    }
-};
-
-/**
- *  This exception indicates a request was interrupted.
- **/
-Ice.OperationInterruptedException = class extends Ice.LocalException
-{
-    constructor(_cause = "")
-    {
-        super(_cause);
-    }
-
-    static get _parent()
-    {
-        return Ice.LocalException;
-    }
-
-    static get _id()
-    {
-        return "::Ice::OperationInterruptedException";
     }
 };
 
@@ -1050,27 +962,6 @@ Ice.ConnectionNotValidatedException = class extends Ice.ProtocolException
 };
 
 /**
- *  This exception indicates that a response for an unknown request ID has been received.
- **/
-Ice.UnknownRequestIdException = class extends Ice.ProtocolException
-{
-    constructor(reason, _cause = "")
-    {
-        super(reason, _cause);
-    }
-
-    static get _parent()
-    {
-        return Ice.ProtocolException;
-    }
-
-    static get _id()
-    {
-        return "::Ice::UnknownRequestIdException";
-    }
-};
-
-/**
  *  This exception indicates that an unknown reply status has been received.
  **/
 Ice.UnknownReplyStatusException = class extends Ice.ProtocolException
@@ -1316,27 +1207,6 @@ Ice.MemoryLimitException = class extends Ice.MarshalException
     static get _id()
     {
         return "::Ice::MemoryLimitException";
-    }
-};
-
-/**
- *  This exception is raised when a string conversion to or from UTF-8 fails during marshaling or unmarshaling.
- **/
-Ice.StringConversionException = class extends Ice.MarshalException
-{
-    constructor(reason, _cause = "")
-    {
-        super(reason, _cause);
-    }
-
-    static get _parent()
-    {
-        return Ice.MarshalException;
-    }
-
-    static get _id()
-    {
-        return "::Ice::StringConversionException";
     }
 };
 

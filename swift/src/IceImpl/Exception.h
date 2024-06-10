@@ -10,8 +10,6 @@ ICEIMPL_API @protocol ICEExceptionFactory
 + (NSError*)alreadyRegisteredException:(NSString*)kindOfObject id:(NSString*)id file:(NSString*)file line:(int32_t)line;
 + (NSError*)notRegisteredException:(NSString*)kindOfObject id:(NSString*)id file:(NSString*)file line:(int32_t)line;
 + (NSError*)twowayOnlyException:(NSString*)operation file:(NSString*)file line:(int32_t)line;
-+ (NSError*)cloneNotImplementedException:(NSString*)file line:(int32_t)line;
-+ (NSError*)versionMismatchException:(NSString*)file line:(int32_t)line;
 + (NSError*)communicatorDestroyedException:(NSString*)file line:(int32_t)line;
 + (NSError*)objectAdapterDeactivatedException:(NSString*)name file:(NSString*)file line:(int32_t)line;
 + (NSError*)objectAdapterIdInUseException:(NSString*)id
@@ -26,7 +24,6 @@ ICEIMPL_API @protocol ICEExceptionFactory
 + (NSError*)illegalIdentityException:(NSString*)file line:(int32_t)line;
 + (NSError*)illegalServantException:(NSString*)reason file:(NSString*)file line:(int32_t)line;
 + (NSError*)dNSException:(int32_t)error host:(NSString*)host file:(NSString*)file line:(int32_t)line;
-+ (NSError*)operationInterruptedException:(NSString*)file line:(int32_t)line;
 + (NSError*)invocationCanceledException:(NSString*)file line:(int32_t)line;
 + (NSError*)featureNotSupportedException:(NSString*)unsupportedFeature file:(NSString*)file line:(int32_t)line;
 + (NSError*)fixedProxyException:(NSString*)file line:(int32_t)line;
@@ -101,7 +98,6 @@ ICEIMPL_API @protocol ICEExceptionFactory
                                     line:(int32_t)line;
 + (NSError*)unknownMessageException:(NSString*)reason file:(NSString*)file line:(int32_t)line;
 + (NSError*)connectionNotValidatedException:(NSString*)reason file:(NSString*)file line:(int32_t)line;
-+ (NSError*)unknownRequestIdException:(NSString*)reason file:(NSString*)file line:(int32_t)line;
 + (NSError*)unknownReplyStatusException:(NSString*)reason file:(NSString*)file line:(int32_t)line;
 + (NSError*)closeConnectionException:(NSString*)reason file:(NSString*)file line:(int32_t)line;
 + (NSError*)connectionManuallyClosedException:(BOOL)graceful file:(NSString*)file line:(int32_t)line;
@@ -112,7 +108,7 @@ ICEIMPL_API @protocol ICEExceptionFactory
 + (NSError*)proxyUnmarshalException:(NSString*)reason file:(NSString*)file line:(int32_t)line;
 + (NSError*)unmarshalOutOfBoundsException:(NSString*)reason
                                      file:(NSString*)file
-                                     line:(int32_t)line NS_SWIFT_NAME(unmarshalOutofBoundsException(_:file:line:));
+                                     line:(int32_t)line NS_SWIFT_NAME(unmarshalOutOfBoundsException(_:file:line:));
 + (NSError*)noValueFactoryException:(NSString*)reason type:(NSString*)type file:(NSString*)file line:(int32_t)line;
 + (NSError*)unexpectedObjectException:(NSString*)reason
                                  type:(NSString*)type
@@ -120,7 +116,6 @@ ICEIMPL_API @protocol ICEExceptionFactory
                                  file:(NSString*)file
                                  line:(int32_t)line;
 + (NSError*)memoryLimitException:(NSString*)reason file:(NSString*)file line:(int32_t)line;
-+ (NSError*)stringConversionException:(NSString*)reason file:(NSString*)file line:(int32_t)line;
 + (NSError*)encapsulationException:(NSString*)reason file:(NSString*)file line:(int32_t)line;
 + (NSError*)marshalException:(NSString*)reason file:(NSString*)file line:(int32_t)line;
 + (NSError*)protocolException:(NSString*)reason file:(NSString*)file line:(int32_t)line;

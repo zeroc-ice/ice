@@ -1271,26 +1271,6 @@ namespace Ice
     };
 
     /**
-     * This exception indicates a request was interrupted.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API OperationInterruptedException : public LocalException
-    {
-    public:
-        using LocalException::LocalException;
-
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
      * This exception indicates that a connection was closed gracefully.
      * \headerfile Ice/Ice.h
      */
@@ -1671,26 +1651,6 @@ namespace Ice
      * \headerfile Ice/Ice.h
      */
     class ICE_API ConnectionNotValidatedException : public ProtocolException
-    {
-    public:
-        using ProtocolException::ProtocolException;
-
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception indicates that a response for an unknown request ID has been received.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API UnknownRequestIdException : public ProtocolException
     {
     public:
         using ProtocolException::ProtocolException;

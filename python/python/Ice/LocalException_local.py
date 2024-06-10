@@ -206,39 +206,6 @@ if "TwowayOnlyException" not in _M_Ice.__dict__:
     _M_Ice.TwowayOnlyException = TwowayOnlyException
     del TwowayOnlyException
 
-if "CloneNotImplementedException" not in _M_Ice.__dict__:
-    _M_Ice.CloneNotImplementedException = Ice.createTempClass()
-
-    class CloneNotImplementedException(Ice.LocalException):
-        """
-        An attempt was made to clone a class that does not support cloning. This exception is raised if
-        ice_clone is called on a class that is derived from an abstract Slice class (that is, a class
-        containing operations), and the derived class does not provide an implementation of the ice_clone
-        operation (C++ only).
-        """
-
-        def __init__(self):
-            pass
-
-        def __str__(self):
-            return IcePy.stringifyException(self)
-
-        __repr__ = __str__
-
-        _ice_id = "::Ice::CloneNotImplementedException"
-
-    _M_Ice._t_CloneNotImplementedException = IcePy.defineException(
-        "::Ice::CloneNotImplementedException",
-        CloneNotImplementedException,
-        (),
-        None,
-        (),
-    )
-    CloneNotImplementedException._ice_type = _M_Ice._t_CloneNotImplementedException
-
-    _M_Ice.CloneNotImplementedException = CloneNotImplementedException
-    del CloneNotImplementedException
-
 if "UnknownException" not in _M_Ice.__dict__:
     _M_Ice.UnknownException = Ice.createTempClass()
 
@@ -340,32 +307,6 @@ if "UnknownUserException" not in _M_Ice.__dict__:
 
     _M_Ice.UnknownUserException = UnknownUserException
     del UnknownUserException
-
-if "VersionMismatchException" not in _M_Ice.__dict__:
-    _M_Ice.VersionMismatchException = Ice.createTempClass()
-
-    class VersionMismatchException(Ice.LocalException):
-        """
-        This exception is raised if the Ice library version does not match the version in the Ice header files.
-        """
-
-        def __init__(self):
-            pass
-
-        def __str__(self):
-            return IcePy.stringifyException(self)
-
-        __repr__ = __str__
-
-        _ice_id = "::Ice::VersionMismatchException"
-
-    _M_Ice._t_VersionMismatchException = IcePy.defineException(
-        "::Ice::VersionMismatchException", VersionMismatchException, (), None, ()
-    )
-    VersionMismatchException._ice_type = _M_Ice._t_VersionMismatchException
-
-    _M_Ice.VersionMismatchException = VersionMismatchException
-    del VersionMismatchException
 
 if "CommunicatorDestroyedException" not in _M_Ice.__dict__:
     _M_Ice.CommunicatorDestroyedException = Ice.createTempClass()
@@ -1117,37 +1058,6 @@ if "DNSException" not in _M_Ice.__dict__:
     _M_Ice.DNSException = DNSException
     del DNSException
 
-if "OperationInterruptedException" not in _M_Ice.__dict__:
-    _M_Ice.OperationInterruptedException = Ice.createTempClass()
-
-    class OperationInterruptedException(Ice.LocalException):
-        """
-        This exception indicates a request was interrupted.
-        """
-
-        def __init__(self):
-            pass
-
-        def __str__(self):
-            return IcePy.stringifyException(self)
-
-        __repr__ = __str__
-
-        _ice_id = "::Ice::OperationInterruptedException"
-
-    _M_Ice._t_OperationInterruptedException = IcePy.defineException(
-        "::Ice::OperationInterruptedException",
-        OperationInterruptedException,
-        (),
-        None,
-        (),
-    )
-    OperationInterruptedException._ice_type = _M_Ice._t_OperationInterruptedException
-
-    _M_Ice.OperationInterruptedException = OperationInterruptedException
-    del OperationInterruptedException
-
-
 if "ConnectionIdleException" not in _M_Ice.__dict__:
     _M_Ice.ConnectionIdleException = Ice.createTempClass()
 
@@ -1542,36 +1452,6 @@ if "ConnectionNotValidatedException" not in _M_Ice.__dict__:
 
     _M_Ice.ConnectionNotValidatedException = ConnectionNotValidatedException
     del ConnectionNotValidatedException
-
-if "UnknownRequestIdException" not in _M_Ice.__dict__:
-    _M_Ice.UnknownRequestIdException = Ice.createTempClass()
-
-    class UnknownRequestIdException(_M_Ice.ProtocolException):
-        """
-        This exception indicates that a response for an unknown request ID has been received.
-        """
-
-        def __init__(self, reason=""):
-            _M_Ice.ProtocolException.__init__(self, reason)
-
-        def __str__(self):
-            return IcePy.stringifyException(self)
-
-        __repr__ = __str__
-
-        _ice_id = "::Ice::UnknownRequestIdException"
-
-    _M_Ice._t_UnknownRequestIdException = IcePy.defineException(
-        "::Ice::UnknownRequestIdException",
-        UnknownRequestIdException,
-        (),
-        _M_Ice._t_ProtocolException,
-        (),
-    )
-    UnknownRequestIdException._ice_type = _M_Ice._t_UnknownRequestIdException
-
-    _M_Ice.UnknownRequestIdException = UnknownRequestIdException
-    del UnknownRequestIdException
 
 if "UnknownReplyStatusException" not in _M_Ice.__dict__:
     _M_Ice.UnknownReplyStatusException = Ice.createTempClass()
