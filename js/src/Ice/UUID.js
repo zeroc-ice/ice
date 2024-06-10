@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-function generateUUID()
+export function generateUUID()
 {
     let d = new Date().getTime();
     const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
@@ -12,7 +12,3 @@ function generateUUID()
     });
     return uuid;
 }
-
-const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.generateUUID = generateUUID;
-module.exports.Ice = Ice;

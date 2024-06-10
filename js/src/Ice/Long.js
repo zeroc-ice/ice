@@ -2,13 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-
 //
 // The Long type represents a signed 64-bit integer as two 32-bit values
 // corresponding to the high and low words.
 //
-class Long
+export class Long
 {
     //
     // If only one argument is provide we assume it is a JavaScript Number,
@@ -123,6 +121,3 @@ Long.HIGH_MASK = 0x100000000;
 // 53 bits are used.
 //
 Long.HIGH_MAX = 0x1FFFFF;
-
-Ice.Long = Long;
-module.exports.Ice = Ice;

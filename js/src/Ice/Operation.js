@@ -2,30 +2,39 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-const _ModuleRegistry = Ice._ModuleRegistry;
+import { Ice as Ice_OperationMode } from './OperationMode.js';
+const { OperationMode } = Ice_OperationMode;
+import { FormatType } from './FormatType.js';
+import { UnknownException, MarshalException, OperationNotExistException } from './LocalException.js';
+import { ObjectPrx } from './ObjectPrx.js';
+import { Object as Ice_Object } from './Object.js';
+import { TypeRegistry } from './TypeRegistry.js';
 
-require("../Ice/Current");
-require("../Ice/Exception");
-require("../Ice/FormatType");
-require("../Ice/Object");
-require("../Ice/ObjectPrx");
-require("../Ice/OptionalFormat");
-require("../Ice/StreamHelpers");
+import {
+    ByteHelper,
+    BoolHelper,
+    ShortHelper,
+    IntHelper,
+    LongHelper,
+    FloatHelper,
+    DoubleHelper,
+    StringHelper
+} from "./Stream.js";
+import { Value } from "./Value.js";
 
 const builtinHelpers =
 [
-    Ice.ByteHelper,
-    Ice.BoolHelper,
-    Ice.ShortHelper,
-    Ice.IntHelper,
-    Ice.LongHelper,
-    Ice.FloatHelper,
-    Ice.DoubleHelper,
-    Ice.StringHelper,
-    Ice.Value,
-    Ice.ObjectPrx,
-    Ice.Value
+    ByteHelper,
+    BoolHelper,
+    ShortHelper,
+    IntHelper,
+    LongHelper,
+    FloatHelper,
+    DoubleHelper,
+    StringHelper,
+    Value,
+    ObjectPrx,
+    Value
 ];
 
 function parseParam(p)
@@ -38,7 +47,12 @@ function parseParam(p)
     }
     else if(t === 'string')
     {
-        type = _ModuleRegistry.type(type);
+        const typeName = p[0];
+        type = TypeRegistry.getProxyType(typeName);
+        if (type === undefined)
+        {
+            type = TypeRegistry.getValueType(typeName);
+        }
     }
 
     return {
@@ -69,8 +83,8 @@ function parseOperation(name, arr)
 
     r.name = name;
     r.servantMethod = arr[0] ? arr[0] : name;
-    r.mode = arr[1] ? Ice.OperationMode.valueOf(arr[1]) : Ice.OperationMode.Normal;
-    r.format = arr[2] ? Ice.FormatType.valueOf(arr[2]) : Ice.FormatType.DefaultFormat;
+    r.mode = arr[1] ? OperationMode.valueOf(arr[1]) : OperationMode.Normal;
+    r.format = arr[2] ? FormatType.valueOf(arr[2]) : FormatType.DefaultFormat;
 
     let ret;
     if(arr[3])
@@ -272,8 +286,9 @@ function dispatchImpl(servant, op, incomingAsync, current)
     const method = servant[op.servantMethod];
     if(method === undefined || typeof method !== "function")
     {
-        throw new Ice.UnknownException("servant for identity " + current.adapter.getCommunicator().identityToString(current.id) +
-                                       " does not define operation `" + op.servantMethod + "'");
+        throw new UnknownException(
+            "servant for identity " + current.adapter.getCommunicator().identityToString(current.id) +
+            " does not define operation `" + op.servantMethod + "'");
     }
 
     //
@@ -300,7 +315,7 @@ function dispatchImpl(servant, op, incomingAsync, current)
         const numExpectedResults = op.outParams.length + (op.returns ? 1 : 0);
         if(numExpectedResults > 1 && !(params instanceof Array))
         {
-            throw new Ice.MarshalException("operation `" + op.servantMethod + "' should return an array");
+            throw new MarshalException("operation `" + op.servantMethod + "' should return an array");
         }
         else if(numExpectedResults === 1)
         {
@@ -311,7 +326,7 @@ function dispatchImpl(servant, op, incomingAsync, current)
         {
             if(params && params.length > 0)
             {
-                throw new Ice.MarshalException("operation `" + op.servantMethod + "' shouldn't return any value");
+                throw new MarshalException("operation `" + op.servantMethod + "' shouldn't return any value");
             }
             else
             {
@@ -515,8 +530,9 @@ function addProxyOperation(proxyType, name, data)
                         {
                             if(!p.type.validate(v))
                             {
-                                throw new Ice.MarshalException("invalid value for argument " + (i + 1) +
-                                                               " in operation `" + op.servantMethod + "'");
+                                throw new MarshalException(
+                                    "invalid value for argument " + (i + 1) +
+                                    " in operation `" + op.servantMethod + "'");
                             }
                         }
                     }
@@ -549,13 +565,12 @@ function addProxyOperation(proxyType, name, data)
                 return results.length == 1 ? results[0] : results;
             };
         }
-        return Ice.ObjectPrx._invoke(this, op.name, op.mode, op.format, ctx, marshalFn, unmarshalFn,
-                                     op.exceptions, Array.prototype.slice.call(args));
+        return ObjectPrx._invoke(this, op.name, op.mode, op.format, ctx, marshalFn, unmarshalFn,
+                                  op.exceptions, Array.prototype.slice.call(args));
     };
 }
 
-const Slice = Ice.Slice;
-Slice.defineOperations = function(classType, proxyType, ids, id, ops)
+export function defineOperations(classType, proxyType, ids, id, ops)
 {
     if(ops)
     {
@@ -571,7 +586,7 @@ Slice.defineOperations = function(classType, proxyType, ids, id, ops)
 
         if(method === undefined || typeof method !== 'function')
         {
-            throw new Ice.OperationNotExistException(current.id, current.facet, current.operation);
+            throw new OperationNotExistException(current.id, current.facet, current.operation);
         }
 
         return method.call(method, this, incomingAsync, current);
@@ -628,16 +643,3 @@ Slice.defineOperations = function(classType, proxyType, ids, id, ops)
         });
     }
 };
-
-//
-// Define the "built-in" operations for all Ice objects.
-//
-Slice.defineOperations(Ice.Object, Ice.ObjectPrx, ["::Ice::Object"], "::Ice::Object",
-{
-    ice_ping: [undefined, 2, undefined, undefined, undefined, undefined, undefined],
-    ice_isA: [undefined, 2, undefined, [1], [[7]], undefined, undefined],
-    ice_id: [undefined, 2, undefined, [7], undefined, undefined, undefined],
-    ice_ids: [undefined, 2, undefined, ["Ice.StringSeqHelper"], undefined, undefined, undefined]
-});
-
-module.exports.Ice = Ice;

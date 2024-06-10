@@ -2,9 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-
-class ProtocolInstance
+export class ProtocolInstance
 {
     constructor(instance, type, protocol, secure)
     {
@@ -78,6 +76,3 @@ class ProtocolInstance
         return this._instance.messageSizeMax();
     }
 }
-
-Ice.ProtocolInstance = ProtocolInstance;
-module.exports.Ice = Ice;

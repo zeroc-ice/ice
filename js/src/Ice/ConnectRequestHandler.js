@@ -2,23 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
+import { ReferenceMode } from "./ReferenceMode.js";
+import { AsyncStatus } from "./AsyncStatus.js";
+import { LocalException } from "./Exception.js";
+import { RetryException } from "./RetryException.js";
+import { ConnectionRequestHandler } from "./ConnectionRequestHandler.js";
+import { Debug } from "./Debug.js";
 
-require("../Ice/AsyncStatus");
-require("../Ice/ConnectionRequestHandler");
-require("../Ice/Debug");
-require("../Ice/Exception");
-require("../Ice/ReferenceMode");
-require("../Ice/RetryException");
-
-const AsyncStatus = Ice.AsyncStatus;
-const ConnectionRequestHandler = Ice.ConnectionRequestHandler;
-const Debug = Ice.Debug;
-const RetryException = Ice.RetryException;
-const ReferenceMode = Ice.ReferenceMode;
-const LocalException = Ice.LocalException;
-
-class ConnectRequestHandler
+export class ConnectRequestHandler
 {
     constructor(ref, proxy)
     {
@@ -246,6 +237,3 @@ class ConnectRequestHandler
         this._proxy = null; // Break cyclic reference count.
     }
 }
-
-Ice.ConnectRequestHandler = ConnectRequestHandler;
-module.exports.Ice = Ice;

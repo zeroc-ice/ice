@@ -13,7 +13,6 @@
 [["cpp:include:Ice/StreamHelpers.h"]]
 
 [["js:module:ice"]]
-[["js:cjs-module"]]
 
 [["python:pkgdir:Ice"]]
 

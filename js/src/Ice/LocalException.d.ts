@@ -19,20 +19,6 @@ export namespace Ice
     }
 
     /**
-     * This exception indicates that a failure occurred while initializing a plug-in.
-     */
-    class PluginInitializationException extends LocalException
-    {
-        /**
-         * One-shot constructor to initialize all data members.
-         * @param reason The reason for the failure.
-         * @param ice_cause The error that cause this exception.
-         */
-        constructor(reason?:string, ice_cause?:string|Error);
-        reason:string;
-    }
-
-    /**
      * An attempt was made to register something more than once with the Ice run time. This exception is raised if an
      * attempt is made to register a servant, servant locator, facet, value factory, plug-in, object adapter, object, or
      * user exception factory more than once for the same ID.
@@ -377,21 +363,6 @@ export namespace Ice
     }
 
     /**
-     * This exception indicates file errors.
-     */
-    class FileException extends SyscallException
-    {
-        /**
-         * One-shot constructor to initialize all data members.
-         * @param error The error number describing the system exception.
-         * @param path The path of the file responsible for the error.
-         * @param ice_cause The error that cause this exception.
-         */
-        constructor(error?:number, path?:string, ice_cause?:string|Error);
-        path:string;
-    }
-
-    /**
      * This exception indicates connection failures.
      */
     class ConnectFailedException extends SocketException
@@ -428,22 +399,6 @@ export namespace Ice
          * @param ice_cause The error that cause this exception.
          */
         constructor(error?:number, ice_cause?:string|Error);
-    }
-
-    /**
-     * This exception indicates a DNS problem. For details on the cause, {@link DNSException#error} should be inspected.
-     */
-    class DNSException extends LocalException
-    {
-        /**
-         * One-shot constructor to initialize all data members.
-         * @param error The error number describing the DNS problem.
-         * @param host The host name that could not be resolved.
-         * @param ice_cause The error that cause this exception.
-         */
-        constructor(error?:number, host?:string, ice_cause?:string|Error);
-        error:number;
-        host:string;
     }
 
     /**
@@ -767,20 +722,6 @@ export namespace Ice
          */
         constructor(unsupportedFeature?:string, ice_cause?:string|Error);
         unsupportedFeature:string;
-    }
-
-    /**
-     * This exception indicates a failure in a security subsystem, such as the IceSSL plug-in.
-     */
-    class SecurityException extends LocalException
-    {
-        /**
-         * One-shot constructor to initialize all data members.
-         * @param reason The reason for the failure.
-         * @param ice_cause The error that cause this exception.
-         */
-        constructor(reason?:string, ice_cause?:string|Error);
-        reason:string;
     }
 
     /**

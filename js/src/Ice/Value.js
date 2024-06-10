@@ -2,15 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import { CompactIdRegistry } from "./CompactIdRegistry.js";
+import { TypeRegistry } from "./TypeRegistry.js";
+
 //
 // Ice.Value
 //
-const Ice = require("../Ice/ModuleRegistry").Ice;
-require("../Ice/Exception");
-require("../Ice/FormatType");
-require("../Ice/StreamHelpers");
-
-Ice.Value = class
+export class Value
 {
     constructor()
     {
@@ -61,90 +59,9 @@ Ice.Value = class
                      }, this);
         return v;
     }
-};
+}
 
-Ice.InterfaceByValue = class extends Ice.Value
-{
-    constructor(id)
-    {
-        super();
-        this._id = id;
-    }
-
-    ice_id()
-    {
-        return this._id;
-    }
-
-    _iceWrite(os)
-    {
-        os.startValue(null);
-        os.startSlice(this.ice_id(), -1, true);
-        os.endSlice();
-        os.endValue();
-    }
-
-    _iceRead(is)
-    {
-        is.startValue();
-        is.startSlice();
-        is.endSlice();
-        is.endValue();
-    }
-};
-
-//
-// Private methods
-//
-const writeImpl = function(obj, os, type)
-{
-    //
-    // The writeImpl method is a recursive method that goes down the
-    // class hierarchy to marshal each slice of the class using the
-    // generated _iceWriteMemberImpl method.
-    //
-
-    if(type === undefined || type === Ice.Value)
-    {
-        return; // Don't marshal anything for Ice.Value
-    }
-
-    os.startSlice(type.ice_staticId(),
-                  Object.prototype.hasOwnProperty.call(type, '_iceCompactId') ? type._iceCompactId : -1,
-                  Object.getPrototypeOf(type) === Ice.Value);
-    if(type.prototype.hasOwnProperty('_iceWriteMemberImpl'))
-    {
-        type.prototype._iceWriteMemberImpl.call(obj, os);
-    }
-    os.endSlice();
-    writeImpl(obj, os, Object.getPrototypeOf(type));
-};
-
-const readImpl = function(obj, is, type)
-{
-    //
-    // The readImpl method is a recursive method that goes down the
-    // class hierarchy to unmarshal each slice of the class using the
-    // generated _iceReadMemberImpl method.
-    //
-
-    if(type === undefined || type === Ice.Value)
-    {
-        return; // Don't unmarshal anything for Ice.Value
-    }
-
-    is.startSlice();
-    if(type.prototype.hasOwnProperty('_iceReadMemberImpl'))
-    {
-        type.prototype._iceReadMemberImpl.call(obj, is);
-    }
-    is.endSlice();
-    readImpl(obj, is, Object.getPrototypeOf(type));
-};
-
-const Slice = Ice.Slice;
-
-Slice.defineValue = function(valueType, id, compactId = 0)
+export function defineValue(valueType, id, compactId = 0)
 {
     valueType.prototype.ice_id = function()
     {
@@ -163,9 +80,57 @@ Slice.defineValue = function(valueType, id, compactId = 0)
 
     if(compactId > 0)
     {
-        Ice.CompactIdRegistry.set(compactId, id);
+        CompactIdRegistry.set(compactId, id);
     }
 };
-Slice.defineValue(Ice.Value, "::Ice::Object");
+defineValue(Value, "::Ice::Object");
+TypeRegistry.declareValueType("Ice.Value", Value);
 
-module.exports.Ice = Ice;
+//
+// Private methods
+//
+function writeImpl(obj, os, type)
+{
+    //
+    // The writeImpl method is a recursive method that goes down the
+    // class hierarchy to marshal each slice of the class using the
+    // generated _iceWriteMemberImpl method.
+    //
+
+    if(type === undefined || type === Value)
+    {
+        return; // Don't marshal anything for Ice.Value
+    }
+
+    os.startSlice(type.ice_staticId(),
+                  Object.prototype.hasOwnProperty.call(type, '_iceCompactId') ? type._iceCompactId : -1,
+                  Object.getPrototypeOf(type) === Value);
+    if(type.prototype.hasOwnProperty('_iceWriteMemberImpl'))
+    {
+        type.prototype._iceWriteMemberImpl.call(obj, os);
+    }
+    os.endSlice();
+    writeImpl(obj, os, Object.getPrototypeOf(type));
+}
+
+function readImpl(obj, is, type)
+{
+    //
+    // The readImpl method is a recursive method that goes down the
+    // class hierarchy to unmarshal each slice of the class using the
+    // generated _iceReadMemberImpl method.
+    //
+
+    if(type === undefined || type === Value)
+    {
+        return; // Don't unmarshal anything for Ice.Value
+    }
+
+    is.startSlice();
+    if(type.prototype.hasOwnProperty('_iceReadMemberImpl'))
+    {
+        type.prototype._iceReadMemberImpl.call(obj, is);
+    }
+    is.endSlice();
+    readImpl(obj, is, Object.getPrototypeOf(type));
+}

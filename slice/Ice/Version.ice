@@ -15,7 +15,6 @@
 [["cpp:include:cstdint"]]
 
 [["js:module:ice"]]
-[["js:cjs-module"]]
 
 [["python:pkgdir:Ice"]]
 

@@ -2,19 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
+import { HashMap } from "./HashMap.js";
+import { LocatorInfo } from "./LocatorInfo.js";
+import { Ice as Ice_Locator } from "./Locator.js";
+const { LocatorPrx } = Ice_Locator;
+import { LocatorTable } from "./LocatorTable.js";
 
-require("../Ice/HashMap");
-require("../Ice/Locator");
-require("../Ice/LocatorInfo");
-require("../Ice/LocatorTable");
-
-const HashMap = Ice.HashMap;
-const LocatorInfo = Ice.LocatorInfo;
-const LocatorPrx = Ice.LocatorPrx;
-const LocatorTable = Ice.LocatorTable;
-
-class LocatorManager
+export class LocatorManager
 {
     constructor(properties)
     {
@@ -74,6 +68,3 @@ class LocatorManager
         return info;
     }
 }
-
-Ice.LocatorManager = LocatorManager;
-module.exports.Ice = Ice;

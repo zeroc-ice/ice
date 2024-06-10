@@ -10,7 +10,6 @@
 [["cpp:include:IceBox/Config.h"]]
 
 [["js:module:ice"]]
-[["js:cjs-module"]]
 
 [["python:pkgdir:IceBox"]]
 

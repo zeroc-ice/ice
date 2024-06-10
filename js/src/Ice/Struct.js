@@ -2,13 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-
-require("../Ice/ArrayUtil");
-require("../Ice/HashUtil");
-require("../Ice/StreamHelpers");
-
-const ArrayUtil = Ice.ArrayUtil;
+import { ArrayUtil } from "./ArrayUtil.js";
+import { HashUtil } from "./HashUtil.js";
+import { StreamHelpers } from "./StreamHelpers.js";
 
 //
 // Use generic equality test from ArrayUtil.
@@ -82,26 +78,26 @@ function memberHashCode(h, e)
 {
     if(typeof e.hashCode == "function")
     {
-        return Ice.HashUtil.addHashable(h, e);
+        return HashUtil.addHashable(h, e);
     }
     else if(e instanceof Array)
     {
-        return Ice.HashUtil.addArray(h, e, memberHashCode);
+        return HashUtil.addArray(h, e, memberHashCode);
     }
     else
     {
         const t = typeof e;
         if(e instanceof String || t == "string")
         {
-            return Ice.HashUtil.addString(h, e);
+            return HashUtil.addString(h, e);
         }
         else if(e instanceof Number || t == "number")
         {
-            return Ice.HashUtil.addNumber(h, e);
+            return HashUtil.addNumber(h, e);
         }
         else if(e instanceof Boolean || t == "boolean")
         {
-            return Ice.HashUtil.addBoolean(h, e);
+            return HashUtil.addBoolean(h, e);
         }
     }
 }
@@ -121,7 +117,7 @@ function hashCode()
     return h;
 }
 
-Ice.Slice.defineStruct = function(obj, legalKeyType, variableLength)
+export function defineStruct(obj, legalKeyType, variableLength)
 {
     obj.prototype.clone = clone;
 
@@ -162,13 +158,12 @@ Ice.Slice.defineStruct = function(obj, legalKeyType, variableLength)
 
         if(variableLength)
         {
-            Ice.StreamHelpers.FSizeOptHelper.call(obj);
+            StreamHelpers.FSizeOptHelper.call(obj);
         }
         else
         {
-            Ice.StreamHelpers.VSizeOptHelper.call(obj);
+            StreamHelpers.VSizeOptHelper.call(obj);
         }
     }
     return obj;
-};
-module.exports.Ice = Ice;
+}

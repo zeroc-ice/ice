@@ -2,9 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-module.exports.Ice = require("./Ice/Ice").Ice;
-module.exports.IceMX = require("./Ice/Ice").IceMX;
-module.exports.IceSSL = require("./Ice/Ice").IceSSL;
-module.exports.Glacier2 = require("./Glacier2/Glacier2").Glacier2;
-module.exports.IceGrid = require("./IceGrid/IceGrid").IceGrid;
-module.exports.IceStorm = require("./IceStorm/IceStorm").IceStorm;
+export { Ice } from "./Ice/index.js";
+export { Glacier2 } from "./Glacier2/index.js";
+export { IceGrid } from "./IceGrid/index.js";
+export { IceStorm } from "./IceStorm/IceStorm.js";

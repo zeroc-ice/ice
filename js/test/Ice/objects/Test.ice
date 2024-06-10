@@ -70,16 +70,6 @@ class G extends Base
 {
 }
 
-interface I
-{
-    void doI();
-}
-
-interface J extends I
-{
-    void doJ();
-}
-
 sequence<Base> BaseSeq;
 
 class CompactExt;

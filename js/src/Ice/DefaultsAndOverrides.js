@@ -2,23 +2,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
+import { FormatType } from "./FormatType.js";
+import { EndpointSelectionType } from "./EndpointSelectionType.js";
+import { Protocol, stringToEncodingVersion, encodingVersionToString } from "./Protocol.js";
+import { EndpointSelectionTypeParseException } from "./LocalException.js";
+import { TcpTransceiver } from "./TcpTransceiver.js";
 
-require("../Ice/EndpointSelectionType");
-require("../Ice/FormatType");
-require("../Ice/LocalException");
-require("../Ice/Protocol");
-
-const FormatType = Ice.FormatType;
-const EndpointSelectionType = Ice.EndpointSelectionType;
-const Protocol = Ice.Protocol;
-
-class DefaultsAndOverrides
+export class DefaultsAndOverrides
 {
     constructor(properties, logger)
     {
-        this.defaultProtocol = properties.getPropertyWithDefault("Ice.Default.Protocol",
-                                                                 Ice.TcpTransceiver !== null ? "tcp" : "ws");
+        this.defaultProtocol = properties.getPropertyWithDefault("Ice.Default.Protocol", TcpTransceiver !== null ? "tcp" : "ws");
 
         let value = properties.getProperty("Ice.Default.Host");
         this.defaultHost = value.length > 0 ? value : null;
@@ -93,7 +87,7 @@ class DefaultsAndOverrides
         }
         else
         {
-            const ex = new Ice.EndpointSelectionTypeParseException();
+            const ex = new EndpointSelectionTypeParseException();
             ex.str = "illegal value `" + value + "'; expected `Random' or `Ordered'";
             throw ex;
         }
@@ -124,15 +118,13 @@ class DefaultsAndOverrides
 
         this.defaultPreferSecure = properties.getPropertyAsIntWithDefault("Ice.Default.PreferSecure", 0) > 0;
 
-        value = properties.getPropertyWithDefault("Ice.Default.EncodingVersion",
-                                                Ice.encodingVersionToString(Protocol.currentEncoding));
-        this.defaultEncoding = Ice.stringToEncodingVersion(value);
+        value = properties.getPropertyWithDefault(
+            "Ice.Default.EncodingVersion",
+            encodingVersionToString(Protocol.currentEncoding));
+        this.defaultEncoding = stringToEncodingVersion(value);
         Protocol.checkSupportedEncoding(this.defaultEncoding);
 
         const slicedFormat = properties.getPropertyAsIntWithDefault("Ice.Default.SlicedFormat", 0) > 0;
         this.defaultFormat = slicedFormat ? FormatType.SlicedFormat : FormatType.CompactFormat;
     }
 }
-
-Ice.DefaultsAndOverrides = DefaultsAndOverrides;
-module.exports.Ice = Ice;

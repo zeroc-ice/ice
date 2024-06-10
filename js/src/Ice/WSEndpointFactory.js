@@ -2,10 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/WSEndpoint").Ice;
-const WSEndpoint = Ice.WSEndpoint;
+import { WSEndpoint } from "./WSEndpoint.js";
 
-class WSEndpointFactory
+export class WSEndpointFactory
 {
     constructor(instance, delegate)
     {
@@ -43,6 +42,3 @@ class WSEndpointFactory
         this._instance = null;
     }
 }
-
-Ice.WSEndpointFactory = WSEndpointFactory;
-exports.Ice = Ice;

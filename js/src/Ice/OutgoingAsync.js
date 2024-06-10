@@ -2,30 +2,34 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
+import { OutputStream } from "./Stream.js";
+import { AsyncResult } from "./AsyncResult.js";
+import { AsyncStatus } from "./AsyncStatus.js";
+import { UserException } from "./Exception.js";
+import { RetryException } from "./RetryException.js";
+import {
+    InvocationTimeoutException,
+    MarshalException,
+    ObjectNotExistException,
+    FacetNotExistException,
+    OperationNotExistException,
+    UnknownException,
+    UnknownLocalException,
+    UnknownUserException,
+    UnknownReplyStatusException
+} from "./LocalException.js";
+import { Ice as Ice_Context } from "./Context.js";
+const { ContextHelper } = Ice_Context;
+import { Protocol } from "./Protocol.js";
+import { Ice as Ice_BuiltinSequences } from "./BuiltinSequences.js";
+const { StringSeqHelper } = Ice_BuiltinSequences;
+import { InputStream } from "./Stream.js";
 
-require("../Ice/AsyncResult");
-require("../Ice/AsyncStatus");
-require("../Ice/BuiltinSequences");
-require("../Ice/Current");
-require("../Ice/Debug");
-require("../Ice/Exception");
-require("../Ice/Identity");
-require("../Ice/LocalException");
-require("../Ice/Protocol");
-require("../Ice/RetryException");
-require("../Ice/Stream");
+import { Ice as Ice_Identity } from "./Identity.js";
+const { Identity } = Ice_Identity;
+import { Debug } from "./Debug.js";
 
-const AsyncResult = Ice.AsyncResult;
-const AsyncStatus = Ice.AsyncStatus;
-const Debug = Ice.Debug;
-const Identity = Ice.Identity;
-const InputStream = Ice.InputStream;
-const OutputStream = Ice.OutputStream;
-const Protocol = Ice.Protocol;
-const RetryException = Ice.RetryException;
-
-class OutgoingAsyncBase extends AsyncResult
+export class OutgoingAsyncBase extends AsyncResult
 {
     constructor(communicator, operation, connection, proxy, adapter)
     {
@@ -49,7 +53,7 @@ class OutgoingAsyncBase extends AsyncResult
     }
 }
 
-class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
+export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
 {
     constructor(prx, operation)
     {
@@ -114,7 +118,7 @@ class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
                     this._timeoutToken = this._instance.timer().schedule(
                         () =>
                         {
-                            this.cancelWithException(new Ice.InvocationTimeoutException());
+                            this.cancelWithException(new InvocationTimeoutException());
                         },
                         invocationTimeout);
                 }
@@ -190,7 +194,7 @@ class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
     }
 }
 
-class OutgoingAsync extends ProxyOutgoingAsyncBase
+export class OutgoingAsync extends ProxyOutgoingAsyncBase
 {
     constructor(prx, operation, completed)
     {
@@ -231,11 +235,11 @@ class OutgoingAsync extends ProxyOutgoingAsyncBase
         const facet = ref.getFacet();
         if(facet === null || facet.length === 0)
         {
-            Ice.StringSeqHelper.write(this._os, null);
+            StringSeqHelper.write(this._os, null);
         }
         else
         {
-            Ice.StringSeqHelper.write(this._os, [facet]);
+            StringSeqHelper.write(this._os, [facet]);
         }
 
         this._os.writeString(this._operation);
@@ -252,7 +256,7 @@ class OutgoingAsync extends ProxyOutgoingAsyncBase
             //
             // Explicit context
             //
-            Ice.ContextHelper.write(this._os, ctx);
+            ContextHelper.write(this._os, ctx);
         }
         else
         {
@@ -264,7 +268,7 @@ class OutgoingAsync extends ProxyOutgoingAsyncBase
 
             if(implicitContext === null)
             {
-                Ice.ContextHelper.write(this._os, prxContext);
+                ContextHelper.write(this._os, prxContext);
             }
             else
             {
@@ -342,13 +346,13 @@ class OutgoingAsync extends ProxyOutgoingAsyncBase
                     //
                     // For compatibility with the old FacetPath.
                     //
-                    const facetPath = Ice.StringSeqHelper.read(this._is);
+                    const facetPath = StringSeqHelper.read(this._is);
                     let facet;
                     if(facetPath.length > 0)
                     {
                         if(facetPath.length > 1)
                         {
-                            throw new Ice.MarshalException();
+                            throw new MarshalException();
                         }
                         facet = facetPath[0];
                     }
@@ -364,19 +368,19 @@ class OutgoingAsync extends ProxyOutgoingAsyncBase
                     {
                     case Protocol.replyObjectNotExist:
                     {
-                        rfe = new Ice.ObjectNotExistException();
+                        rfe = new ObjectNotExistException();
                         break;
                     }
 
                     case Protocol.replyFacetNotExist:
                     {
-                        rfe = new Ice.FacetNotExistException();
+                        rfe = new FacetNotExistException();
                         break;
                     }
 
                     case Protocol.replyOperationNotExist:
                     {
-                        rfe = new Ice.OperationNotExistException();
+                        rfe = new OperationNotExistException();
                         break;
                     }
 
@@ -404,19 +408,19 @@ class OutgoingAsync extends ProxyOutgoingAsyncBase
                     {
                     case Protocol.replyUnknownException:
                     {
-                        ue = new Ice.UnknownException();
+                        ue = new UnknownException();
                         break;
                     }
 
                     case Protocol.replyUnknownLocalException:
                     {
-                        ue = new Ice.UnknownLocalException();
+                        ue = new UnknownLocalException();
                         break;
                     }
 
                     case Protocol.replyUnknownUserException:
                     {
-                        ue = new Ice.UnknownUserException();
+                        ue = new UnknownUserException();
                         break;
                     }
 
@@ -433,7 +437,7 @@ class OutgoingAsync extends ProxyOutgoingAsyncBase
 
                 default:
                 {
-                    throw new Ice.UnknownReplyStatusException();
+                    throw new UnknownReplyStatusException();
                 }
             }
 
@@ -489,7 +493,7 @@ class OutgoingAsync extends ProxyOutgoingAsyncBase
             }
             catch(ex)
             {
-                if(ex instanceof Ice.UserException)
+                if(ex instanceof UserException)
                 {
                     this._is.endEncapsulation();
                 }
@@ -499,9 +503,10 @@ class OutgoingAsync extends ProxyOutgoingAsyncBase
     }
 }
 
+// TODO: We should use an immutable map.
 OutgoingAsync._emptyContext = new Map(); // Map<string, string>
 
-class ProxyFlushBatch extends ProxyOutgoingAsyncBase
+export class ProxyFlushBatch extends ProxyOutgoingAsyncBase
 {
     constructor(prx, operation)
     {
@@ -526,7 +531,7 @@ class ProxyFlushBatch extends ProxyOutgoingAsyncBase
     }
 }
 
-class ProxyGetConnection extends ProxyOutgoingAsyncBase
+export class ProxyGetConnection extends ProxyOutgoingAsyncBase
 {
     invokeRemote(connection, response)
     {
@@ -540,7 +545,7 @@ class ProxyGetConnection extends ProxyOutgoingAsyncBase
     }
 }
 
-class ConnectionFlushBatch extends OutgoingAsyncBase
+export class ConnectionFlushBatch extends OutgoingAsyncBase
 {
     constructor(con, communicator, operation)
     {
@@ -575,7 +580,7 @@ class ConnectionFlushBatch extends OutgoingAsyncBase
     }
 }
 
-class HeartbeatAsync extends OutgoingAsyncBase
+export class HeartbeatAsync extends OutgoingAsyncBase
 {
     constructor(con, communicator)
     {
@@ -605,11 +610,3 @@ class HeartbeatAsync extends OutgoingAsyncBase
         }
     }
 }
-
-Ice.OutgoingAsync = OutgoingAsync;
-Ice.ProxyFlushBatch = ProxyFlushBatch;
-Ice.ProxyGetConnection = ProxyGetConnection;
-Ice.ConnectionFlushBatch = ConnectionFlushBatch;
-Ice.HeartbeatAsync = HeartbeatAsync;
-
-module.exports.Ice = Ice;

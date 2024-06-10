@@ -3,12 +3,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/Logger").Ice;
-const Logger = Ice.Logger;
+import { Logger } from "./Logger.js";
 
 let processLogger = null;
 
-Ice.getProcessLogger = function()
+export function getProcessLogger()
 {
     if(processLogger === null)
     {
@@ -21,9 +20,7 @@ Ice.getProcessLogger = function()
     return processLogger;
 };
 
-Ice.setProcessLogger = function(logger)
+export function setProcessLogger(logger)
 {
     processLogger = logger;
-};
-
-module.exports.Ice = Ice;
+}

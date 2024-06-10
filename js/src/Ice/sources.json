@@ -6,7 +6,6 @@
         "Ice/BuiltinSequences.ice",
         "Ice/Context.ice",
         "Ice/EndpointTypes.ice",
-        "Ice/Identity.ice",
         "Ice/Locator.ice",
         "Ice/Metrics.ice",
         "Ice/OperationMode.ice",
@@ -14,8 +13,7 @@
         "Ice/PropertiesAdmin.ice",
         "Ice/PropertyDict.ice",
         "Ice/RemoteLogger.ice",
-        "Ice/Router.ice",
-        "Ice/Version.ice"
+        "Ice/Router.ice"
     ],
 
     "common": [
@@ -109,7 +107,6 @@
         "WSTransceiver.js",
         "Debug.js",
         "Ice.js",
-        "ModuleRegistry.js",
         "TcpTransceiver.js",
         "TimerUtil.js"
     ]

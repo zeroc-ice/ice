@@ -2,9 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-
-class Address
+export class Address
 {
     constructor(host, port)
     {
@@ -12,6 +10,3 @@ class Address
         this.port = port;
     }
 }
-
-Ice.Address = Address;
-module.exports.Ice = Ice;

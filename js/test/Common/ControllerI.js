@@ -2,15 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-/* globals Ice, Test, URI, WorkerGlobalScope */
-/* eslint no-unused-vars: ["error", { "varsIgnorePattern": "isSafari|isChrome|isWorker|isWindows|runController" }] */
+import { Ice } from "ice";
+import { Test } from "Controller.js";
 
-function isSafari()
+export function isSafari()
 {
     return (/^((?!chrome).)*safari/i).test(navigator.userAgent);
 }
 
-function isChrome()
+export function isChrome()
 {
     //
     // We need to check for Edge browser as it might include Chrome in its user agent.
@@ -19,17 +19,17 @@ function isChrome()
            navigator.userAgent.indexOf("Chrome/") !== -1;
 }
 
-function isWorker()
+export function isWorker()
 {
     return typeof WorkerGlobalScope !== 'undefined' && this instanceof WorkerGlobalScope;
 }
 
-function isWindows()
+export function isWindows()
 {
     return navigator.userAgent.indexOf("Windows") != -1;
 }
 
-class Logger extends Ice.Logger
+export class Logger extends Ice.Logger
 {
     constructor(out)
     {

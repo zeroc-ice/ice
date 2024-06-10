@@ -2,9 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-
-Ice.TraceLevels = function(properties)
+export function TraceLevels(properties)
 {
     const networkCat = "Network";
     const protocolCat = "Protocol";
@@ -74,5 +72,4 @@ Ice.TraceLevels = function(properties)
             return slicingCat;
         }
     };
-};
-module.exports.Ice = Ice;
+}

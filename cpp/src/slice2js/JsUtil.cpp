@@ -745,7 +745,19 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, 
         return;
     }
 
-    if (dynamic_pointer_cast<InterfaceDecl>(type) || dynamic_pointer_cast<Struct>(type))
+    if (dynamic_pointer_cast<InterfaceDecl>(type))
+    {
+        if (marshal)
+        {
+            out << nl << stream << ".writeProxy(" << param << ");";
+        }
+        else
+        {
+            out << nl << param << " = " << stream << ".readProxy();";
+        }
+    }
+
+    if (dynamic_pointer_cast<Struct>(type))
     {
         if (marshal)
         {
@@ -766,8 +778,8 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, 
         }
         else
         {
-            out << nl << stream << ".readValue(obj => " << param << " = obj, ";
-            out << typeToString(type) << ");";
+            out << nl << stream << ".readValue(obj => " << param << " = obj, Ice.TypeRegistry.getValueType(\""
+                << typeToString(type) << "\"));";
         }
         return;
     }

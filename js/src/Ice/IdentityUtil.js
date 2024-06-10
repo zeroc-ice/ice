@@ -2,15 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-
-require("../Ice/Identity");
-require("../Ice/LocalException");
-require("../Ice/StringUtil");
-
-const Identity = Ice.Identity;
-const IdentityParseException = Ice.IdentityParseException;
-const StringUtil = Ice.StringUtil;
+import { IdentityParseException } from "./LocalException.js";
+import { StringUtil } from "./StringUtil.js";
+import { Ice as Ice_Identity } from "./Identity.js";
+import { ToStringMode } from "./ToStringMode.js";
+const { Identity } = Ice_Identity;
 
 /**
 * Converts a string to an object identity.
@@ -19,7 +15,7 @@ const StringUtil = Ice.StringUtil;
 *
 * @return The converted object identity.
 **/
-Ice.stringToIdentity = function(s)
+export function stringToIdentity(s)
 {
     const ident = new Identity();
 
@@ -108,7 +104,7 @@ Ice.stringToIdentity = function(s)
 *
 * @return The string representation of the object identity.
 **/
-Ice.identityToString = function(ident, toStringMode = Ice.ToStringMode.Unicode)
+export function identityToString(ident, toStringMode = ToStringMode.Unicode)
 {
     if(ident.category === null || ident.category.length === 0)
     {
@@ -118,7 +114,7 @@ Ice.identityToString = function(ident, toStringMode = Ice.ToStringMode.Unicode)
     {
         return StringUtil.escapeString(ident.category, "/", toStringMode) + '/' + StringUtil.escapeString(ident.name, "/", toStringMode);
     }
-};
+}
 
 /**
 * Compares the object identities of two proxies.
@@ -133,7 +129,7 @@ Ice.identityToString = function(ident, toStringMode = Ice.ToStringMode.Unicode)
 * @see ProxyIdentityAndFacetKey
 * @see ProxyIdentityAndFacetCompare
 **/
-Ice.proxyIdentityCompare = function(lhs, rhs)
+export function proxyIdentityCompare(lhs, rhs)
 {
     if(lhs === rhs)
     {
@@ -154,7 +150,7 @@ Ice.proxyIdentityCompare = function(lhs, rhs)
         const n = lhsIdentity.name.localeCompare(rhsIdentity.name);
         return (n !== 0) ? n : lhsIdentity.category.localeCompare(rhsIdentity.category);
     }
-};
+}
 
 /**
 * Compares the object identities and facets of two proxies.
@@ -169,7 +165,7 @@ Ice.proxyIdentityCompare = function(lhs, rhs)
 * @see ProxyIdentityKey
 * @see ProxyIdentityCompare
 **/
-Ice.proxyIdentityAndFacetCompare = function(lhs, rhs)
+export function proxyIdentityAndFacetCompare(lhs, rhs)
 {
     if(lhs === rhs)
     {
@@ -214,6 +210,4 @@ Ice.proxyIdentityAndFacetCompare = function(lhs, rhs)
         }
         return lhsFacet.localeCompare(rhsFacet);
     }
-};
-
-module.exports.Ice = Ice;
+}

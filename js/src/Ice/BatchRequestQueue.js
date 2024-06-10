@@ -2,17 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
+import { Protocol } from './Protocol.js';
+import { OutputStream } from './Stream.js';
+import { Debug } from "./Debug.js";
 
-require("../Ice/Debug");
-require("../Ice/Protocol");
-require("../Ice/Stream");
-
-const OutputStream = Ice.OutputStream;
-const Debug = Ice.Debug;
-const Protocol = Ice.Protocol;
-
-class BatchRequestQueue
+export class BatchRequestQueue
 {
     constructor(instance)
     {
@@ -108,6 +102,3 @@ class BatchRequestQueue
         return this._batchStream.size === Protocol.requestBatchHdr.length;
     }
 }
-
-Ice.BatchRequestQueue = BatchRequestQueue;
-module.exports.Ice = Ice;
