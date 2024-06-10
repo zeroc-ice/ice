@@ -2697,13 +2697,6 @@ Slice::Container::validateConstant(
                 if (lte)
                 {
                     valueType = lte;
-                    if (lastColon != string::npos)
-                    {
-                        ostringstream os;
-                        os << "referencing enumerator `" << lte->name()
-                           << "' in its enumeration's enclosing scope is deprecated";
-                        _unit->warning(Deprecated, os.str());
-                    }
                 }
                 else
                 {
