@@ -9,11 +9,11 @@ using namespace Test;
 class Middleware final : public Ice::Object
 {
 public:
-    Middleware(Ice::ObjectPtr next, const string& name, list<string>& inLog, list<string>& outLog) :
-        _next(std::move(next)),
-        _name(name),
-        _inLog(inLog),
-        _outLog(outLog)
+    Middleware(Ice::ObjectPtr next, const string& name, list<string>& inLog, list<string>& outLog)
+        : _next(std::move(next)),
+          _name(name),
+          _inLog(inLog),
+          _outLog(outLog)
     {
     }
 
@@ -21,11 +21,13 @@ public:
     {
         _inLog.push_back(_name);
 
-        _next->dispatch(request, [this, sendResponse = std::move(sendResponse)](Ice::OutgoingResponse response)
-        {
-            _outLog.push_back(_name);
-            sendResponse(std::move(response));
-        });
+        _next->dispatch(
+            request,
+            [this, sendResponse = std::move(sendResponse)](Ice::OutgoingResponse response)
+            {
+                _outLog.push_back(_name);
+                sendResponse(std::move(response));
+            });
     }
 
 private:

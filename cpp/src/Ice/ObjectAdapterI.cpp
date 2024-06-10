@@ -908,10 +908,8 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
         if (warningLevel > 0)
         {
             use([logger, warningLevel, toStringMode = _instance->toStringMode()](ObjectPtr next)
-            {
-                return make_shared<LoggerMiddleware>(std::move(next), logger, warningLevel, toStringMode);
-            });
-         }
+                { return make_shared<LoggerMiddleware>(std::move(next), logger, warningLevel, toStringMode); });
+        }
     }
 
     const Instrumentation::CommunicatorObserverPtr observer = _instance->initializationData().observer;
