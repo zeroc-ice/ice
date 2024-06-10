@@ -1655,6 +1655,7 @@ public sealed class ObjectAdapter
         {
             dispatchPipeline = middleware(dispatchPipeline);
         }
+        _middlewareStack.Clear(); // we no longer need these functions
         return dispatchPipeline;
     }
 
