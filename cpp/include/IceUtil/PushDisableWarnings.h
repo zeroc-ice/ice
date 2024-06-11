@@ -15,6 +15,7 @@
 #    pragma warning(disable : 4251) // class ... needs to have dll-interface to be used by clients of class ...
 #    pragma warning(disable : 4512) //  ... assignment operator could not be generated
 #    pragma warning(disable : 4275) // non dll-interface class ... used as base for dll-interface class ...
+#    pragma warning(disable : 4996) // Allows Slice definitions to reference other deprecated Slice definitions.
 
 #elif defined(__clang__)
 #    pragma clang diagnostic push
