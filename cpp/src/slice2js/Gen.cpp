@@ -1791,8 +1791,8 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << eb << ";";
     _out << nl << "Ice.TypeRegistry.declareUserExceptionType(";
     _out.inc();
-    _out << nl << "\"" << localScope << '.' << name << "\","
-         << nl << localScope << '.' << name << ");";
+    _out << nl << "\"" << localScope << '.' << name << "\",";
+    _out << nl << localScope << '.' << name << ");";
     _out.dec();
 
     return false;
