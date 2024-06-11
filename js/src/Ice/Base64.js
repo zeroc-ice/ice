@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/Buffer").Ice;
+import { Buffer } from "./Buffer.js";
 
 const _codeA = "A".charCodeAt(0);
 const _codea = "a".charCodeAt(0);
@@ -58,7 +58,7 @@ function decodeChar(c)
     return 63;
 }
 
-class Base64
+export class Base64
 {
     // Expects native Buffer
     static encode(buf)
@@ -121,18 +121,18 @@ class Base64
             }
         }
 
-        const retval = v.join("");
+        const returnValue = v.join("");
         const outString = [];
         let iter = 0;
 
-        while((retval.length - iter) > 76)
+        while((returnValue.length - iter) > 76)
         {
-            outString.push(retval.substring(iter, iter + 76));
+            outString.push(returnValue.substring(iter, iter + 76));
             outString.push("\r\n");
             iter += 76;
         }
 
-        outString.push(retval.substring(iter));
+        outString.push(returnValue.substring(iter));
 
         return outString.join("");
     }
@@ -163,8 +163,8 @@ class Base64
         // Figure out how long the final sequence is going to be.
         const totalBytes = (newStr.length * 3 / 4) + 1;
 
-        const retval = new Ice.Buffer();
-        retval.resize(totalBytes);
+        const returnValue = new Buffer();
+        returnValue.resize(totalBytes);
 
         let by1;
         let by2;
@@ -205,20 +205,20 @@ class Base64
             by3 = decodeChar(c3) & 0xff;
             by4 = decodeChar(c4) & 0xff;
 
-            retval.put((by1 << 2) | (by2 >> 4));
+            returnValue.put((by1 << 2) | (by2 >> 4));
 
             if(c3 != "=")
             {
-                retval.put(((by2 & 0xf) << 4) | (by3 >> 2));
+                returnValue.put(((by2 & 0xf) << 4) | (by3 >> 2));
             }
 
             if(c4 != "=")
             {
-                retval.put(((by3 & 0x3) << 6) | by4);
+                returnValue.put(((by3 & 0x3) << 6) | by4);
             }
         }
 
-        return retval.remaining > 0 ? retval.getArrayAt(0, retval.position) : retval.getArrayAt(0);
+        return returnValue.remaining > 0 ? returnValue.getArrayAt(0, returnValue.position) : returnValue.getArrayAt(0);
     }
 
     static isBase64(c)
@@ -256,6 +256,3 @@ class Base64
         return false;
     }
 }
-
-Ice.Base64 = Base64;
-module.exports.Ice = Ice;

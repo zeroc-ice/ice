@@ -2,9 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-
-class MapUtil
+export class MapUtil
 {
     static equals(m1, m2)
     {
@@ -40,7 +38,3 @@ class MapUtil
         return true;
     }
 }
-
-Ice.MapUtil = MapUtil;
-
-module.exports.Ice = Ice;

@@ -2,14 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-
-require("../Ice/Debug");
-require("../Ice/HashMap");
-require("../Ice/IdentityUtil");
-
-const Debug = Ice.Debug;
-const HashMap = Ice.HashMap;
+import { HashMap } from "./HashMap.js";
+import { Debug } from "./Debug.js";
 
 class EndpointTableEntry
 {
@@ -29,7 +23,7 @@ class ReferenceTableEntry
     }
 }
 
-class LocatorTable
+export class LocatorTable
 {
     constructor()
     {
@@ -116,6 +110,3 @@ class LocatorTable
         }
     }
 }
-
-Ice.LocatorTable = LocatorTable;
-module.exports.Ice = Ice;

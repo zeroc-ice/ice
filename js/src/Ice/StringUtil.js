@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/Debug").Ice;
-const Debug = Ice.Debug;
+import { ToStringMode } from "./ToStringMode.js";
+import { Debug } from "./Debug.js";
 
-Ice.StringUtil = class
+export class StringUtil
 {
     //
     // Return the index of the first character in str to
@@ -64,7 +64,7 @@ Ice.StringUtil = class
 
         const result = [];
 
-        if(toStringMode === Ice.ToStringMode.Compat)
+        if(toStringMode === ToStringMode.Compat)
         {
             // Encode UTF-8 bytes
             const bytes = unescape(encodeURIComponent(s));
@@ -79,13 +79,13 @@ Ice.StringUtil = class
             for(let i = 0; i < s.length; ++i)
             {
                 const c = s.charCodeAt(i);
-                if(toStringMode === Ice.ToStringMode.Unicode || c < 0xD800 || c > 0xDFFF)
+                if(toStringMode === ToStringMode.Unicode || c < 0xD800 || c > 0xDFFF)
                 {
                     encodeChar(c, result, special, toStringMode);
                 }
                 else
                 {
-                    Debug.assert(toStringMode === Ice.ToStringMode.ASCII && c >= 0xD800 && c <= 0xDFFF);
+                    Debug.assert(toStringMode === ToStringMode.ASCII && c >= 0xD800 && c <= 0xDFFF);
                     if(i + 1 === s.length)
                     {
                         throw new RangeError("High surrogate without low surrogate");
@@ -267,8 +267,7 @@ Ice.StringUtil = class
         }
         return n;
     }
-};
-module.exports.Ice = Ice;
+}
 
 function encodeChar(c, sb, special, toStringMode)
 {
@@ -291,7 +290,7 @@ function encodeChar(c, sb, special, toStringMode)
         }
         case 7: // '\a'
         {
-            if(toStringMode == Ice.ToStringMode.Compat)
+            if(toStringMode == ToStringMode.Compat)
             {
                 // Octal escape for compatibility with 3.6 and earlier
                 sb.push("\\007");
@@ -329,7 +328,7 @@ function encodeChar(c, sb, special, toStringMode)
         }
         case 11: // '\v'
         {
-            if(toStringMode == Ice.ToStringMode.Compat)
+            if(toStringMode == ToStringMode.Compat)
             {
                 // Octal escape for compatibility with 3.6 and earlier
                 sb.push("\\013");
@@ -351,7 +350,7 @@ function encodeChar(c, sb, special, toStringMode)
             }
             else if(c < 32 || c > 126)
             {
-                if(toStringMode === Ice.ToStringMode.Compat)
+                if(toStringMode === ToStringMode.Compat)
                 {
                     //
                     // When ToStringMode=Compat, c is a UTF-8 byte
@@ -373,7 +372,7 @@ function encodeChar(c, sb, special, toStringMode)
                     }
                     sb.push(octal);
                 }
-                else if(c < 32 || c == 127 || toStringMode === Ice.ToStringMode.ASCII)
+                else if(c < 32 || c == 127 || toStringMode === ToStringMode.ASCII)
                 {
                     // append \\unnnn
                     sb.push("\\u");

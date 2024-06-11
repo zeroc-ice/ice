@@ -2,9 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-
-class Logger
+export class Logger
 {
     constructor(prefix)
     {
@@ -92,6 +90,3 @@ class Logger
         return d.toLocaleString("en-US", this._dateformat) + "." + d.getMilliseconds();
     }
 }
-
-Ice.Logger = Logger;
-module.exports.Ice = Ice;

@@ -2,13 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-
-require("../Ice/StringUtil");
-require("../Ice/UUID");
-
-const _ModuleRegistry = Ice._ModuleRegistry;
-const StringUtil = Ice.StringUtil;
+import { StringUtil } from "./StringUtil.js";
+import { generateUUID } from "./UUID.js";
+import { StreamHelpers } from "./StreamHelpers.js";
 
 function setInternal(map, key, value, hash, index)
 {
@@ -52,7 +48,7 @@ function compareIdentity(v1, v2)
     return v1 === v2;
 }
 
-class HashMap
+export class HashMap
 {
     constructor(arg1, arg2)
     {
@@ -387,7 +383,7 @@ class HashMap
         {
             if(HashMap._null === null)
             {
-                const uuid = Ice.generateUUID();
+                const uuid = generateUUID();
                 HashMap._null = {key: uuid, hash: StringUtil.hashCode(uuid)};
             }
             return HashMap._null;
@@ -414,7 +410,7 @@ class HashMap
             {
                 if(HashMap._nan === null)
                 {
-                    const uuid = Ice.generateUUID();
+                    const uuid = generateUUID();
                     HashMap._nan = {key: uuid, hash: StringUtil.hashCode(uuid)};
                 }
                 return HashMap._nan;
@@ -441,50 +437,20 @@ class HashMap
 }
 
 HashMap.prototype[Symbol.iterator] = HashMap.prototype.entries;
-
-Ice.HashMap = HashMap;
-
 HashMap.compareEquals = compareEquals;
 HashMap.compareIdentity = compareIdentity;
 HashMap._null = null;
 HashMap._nan = null;
 
-const Slice = Ice.Slice;
-
-Slice.defineDictionary = function(module, name, helperName, keyHelper, valueHelper, fixed, keysEqual, valueType)
+export function defineDictionary(keyHelper, valueHelper, fixed, keysEqual, valueType)
 {
-    if(keysEqual === undefined)
-    {
-        module[name] = Map;
-    }
-    else
-    {
-        //
-        // Define a constructor function for a dictionary whose key type requires
-        // comparison using an equals() method instead of the native comparison
-        // operators.
-        //
-        module[name] = function(h)
+    const dictionaryConstructor = keysEqual === undefined ?
+        Map :
+        // Define a constructor function for a dictionary whose key type requires comparison using an equals() method
+        // instead of the native comparison operators.
+        function(h)
         {
             return new HashMap(h || keysEqual);
         };
-    }
-
-    let helper = null;
-    Object.defineProperty(module, helperName,
-    {
-        get: function()
-        {
-            if(helper === null)
-            {
-                helper = Ice.StreamHelpers.generateDictHelper(_ModuleRegistry.type(keyHelper),
-                                                              _ModuleRegistry.type(valueHelper),
-                                                              fixed,
-                                                              _ModuleRegistry.type(valueType),
-                                                              module[name]);
-            }
-            return helper;
-        }
-    });
-};
-module.exports.Ice = Ice;
+    return [dictionaryConstructor, StreamHelpers.generateDictHelper(keyHelper, valueHelper, fixed, valueType, dictionaryConstructor)];
+}

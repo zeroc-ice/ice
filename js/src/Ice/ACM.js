@@ -2,22 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
+import { ACMClose, ACMHeartbeat, ACM } from "./Connection.js";
+import { Debug } from "./Debug.js";
 
-require("../Ice/Connection");
-require("../Ice/Debug");
-
-const Debug = Ice.Debug;
-
-class ACMConfig
+export class ACMConfig
 {
-    constructor(p, l, prefix, dflt)
+    constructor(p, l, prefix, defaults)
     {
         if(p === undefined)
         {
             this.timeout = 60 * 1000;
-            this.heartbeat = Ice.ACMHeartbeat.HeartbeatOnDispatch;
-            this.close = Ice.ACMClose.CloseOnInvocationAndIdle;
+            this.heartbeat = ACMHeartbeat.HeartbeatOnDispatch;
+            this.close = ACMClose.CloseOnInvocationAndIdle;
             return;
         }
 
@@ -32,40 +28,40 @@ class ACMConfig
             timeoutProperty = prefix + ".Timeout";
         }
 
-        this.timeout = p.getPropertyAsIntWithDefault(timeoutProperty, dflt.timeout / 1000) * 1000; // To ms
+        this.timeout = p.getPropertyAsIntWithDefault(timeoutProperty, defaults.timeout / 1000) * 1000; // To ms
         if(this.timeout < 0)
         {
             l.warning("invalid value for property `" + timeoutProperty + "', default value will be used instead");
-            this.timeout = dflt.timeout;
+            this.timeout = defaults.timeout;
         }
 
-        const hb = p.getPropertyAsIntWithDefault(prefix + ".Heartbeat", dflt.heartbeat.value);
-        if(hb >= 0 && hb <= Ice.ACMHeartbeat.maxValue)
+        const hb = p.getPropertyAsIntWithDefault(prefix + ".Heartbeat", defaults.heartbeat.value);
+        if(hb >= 0 && hb <= ACMHeartbeat.maxValue)
         {
-            this.heartbeat = Ice.ACMHeartbeat.valueOf(hb);
+            this.heartbeat = ACMHeartbeat.valueOf(hb);
         }
         else
         {
             l.warning("invalid value for property `" + prefix + ".Heartbeat" +
                         "', default value will be used instead");
-            this.heartbeat = dflt.heartbeat;
+            this.heartbeat = defaults.heartbeat;
         }
 
-        const cl = p.getPropertyAsIntWithDefault(prefix + ".Close", dflt.close.value);
-        if(cl >= 0 && cl <= Ice.ACMClose.maxValue)
+        const cl = p.getPropertyAsIntWithDefault(prefix + ".Close", defaults.close.value);
+        if(cl >= 0 && cl <= ACMClose.maxValue)
         {
-            this.close = Ice.ACMClose.valueOf(cl);
+            this.close = ACMClose.valueOf(cl);
         }
         else
         {
             l.warning("invalid value for property `" + prefix + ".Close" +
                         "', default value will be used instead");
-            this.close = dflt.close;
+            this.close = defaults.close;
         }
     }
 }
 
-class FactoryACMMonitor
+export class FactoryACMMonitor
 {
     constructor(instance, config)
     {
@@ -145,7 +141,7 @@ class FactoryACMMonitor
 
     getACM()
     {
-        return new Ice.ACM(this._config.timeout / 1000, this._config.close, this._config.heartbeat);
+        return new ACM(this._config.timeout / 1000, this._config.close, this._config.heartbeat);
     }
 
     swapReapedConnections()
@@ -237,7 +233,7 @@ class ConnectionACMMonitor
 
     getACM()
     {
-        return new Ice.ACM(this._config.timeout / 1000, this._config.close, this._config.heartbeat);
+        return new ACM(this._config.timeout / 1000, this._config.close, this._config.heartbeat);
     }
 
     runTimerTask()
@@ -252,7 +248,3 @@ class ConnectionACMMonitor
         }
     }
 }
-
-Ice.FactoryACMMonitor = FactoryACMMonitor;
-Ice.ACMConfig = ACMConfig;
-module.exports.Ice = Ice;

@@ -2,21 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
+import { AsyncResultBase } from "./AsyncResultBase.js";
+import { OutputStream } from "./Stream.js";
+import { Protocol } from "./Protocol.js";
+import { UserException } from "./Exception.js";
+import { InvocationCanceledException } from "./LocalException.js";
+import { Debug } from "./Debug.js";
 
-require("../Ice/AsyncResultBase");
-require("../Ice/Debug");
-require("../Ice/Exception");
-require("../Ice/Protocol");
-require("../Ice/Stream");
-
-const AsyncResultBase = Ice.AsyncResultBase;
-const Debug = Ice.Debug;
-const Protocol = Ice.Protocol;
-const UserException = Ice.UserException;
-const OutputStream = Ice.OutputStream;
-
-class AsyncResult extends AsyncResultBase
+export class AsyncResult extends AsyncResultBase
 {
     constructor(com, op, connection, proxy, adapter, completedFn)
     {
@@ -31,7 +24,7 @@ class AsyncResult extends AsyncResultBase
 
     cancel()
     {
-        this.cancelWithException(new Ice.InvocationCanceledException());
+        this.cancelWithException(new InvocationCanceledException());
     }
 
     isCompleted()
@@ -172,6 +165,3 @@ class AsyncResult extends AsyncResultBase
 AsyncResult.OK = 0x1;
 AsyncResult.Done = 0x2;
 AsyncResult.Sent = 0x4;
-
-Ice.AsyncResult = AsyncResult;
-module.exports.Ice = Ice;

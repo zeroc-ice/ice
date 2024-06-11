@@ -2,18 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
+import { HashMap } from './HashMap.js';
+import { Promise } from './Promise.js';
+import { NoEndpointException } from './LocalException.js';
+import { Debug } from "./Debug.js";
 
-require("../Ice/Debug");
-require("../Ice/Exception");
-require("../Ice/HashMap");
-require("../Ice/LocalException");
-require("../Ice/Promise");
-
-const Debug = Ice.Debug;
-const HashMap = Ice.HashMap;
-
-class RouterInfo
+export class RouterInfo
 {
     constructor(router)
     {
@@ -57,15 +51,12 @@ class RouterInfo
 
     getRouter()
     {
-        //
-        // No mutex lock necessary, _router is immutable.
-        //
         return this._router;
     }
 
     getClientEndpoints()
     {
-        const promise = new Ice.Promise();
+        const promise = new Promise();
         if(this._clientEndpoints !== null)
         {
             promise.resolve(this._clientEndpoints);
@@ -85,7 +76,7 @@ class RouterInfo
         return this._router.getServerProxy().then(serverProxy => {
             if(serverProxy === null)
             {
-                throw new Ice.NoEndpointException();
+                throw new NoEndpointException();
             }
             serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
             return serverProxy._getReference().getEndpoints();
@@ -97,14 +88,14 @@ class RouterInfo
         Debug.assert(proxy !== null);
         if(!this._hasRoutingTable)
         {
-            return Ice.Promise.resolve(); // The router implementation doesn't maintain a routing table.
+            return Promise.resolve(); // The router implementation doesn't maintain a routing table.
         }
         else if(this._identities.has(proxy.ice_getIdentity()))
         {
             //
             // Only add the proxy to the router if it's not already in our local map.
             //
-            return Ice.Promise.resolve();
+            return Promise.resolve();
         }
         else
         {
@@ -197,6 +188,3 @@ class RouterInfo
             });
     }
 }
-
-Ice.RouterInfo = RouterInfo;
-module.exports.Ice = Ice;

@@ -42,10 +42,5 @@ declare module "ice"
              */
             ice_getSlicedData():SlicedData;
         }
-
-        class InterfaceByValue extends Value
-        {
-            constructor(id:string);
-        }
     }
 }

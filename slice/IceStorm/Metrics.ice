@@ -10,7 +10,6 @@
 [["cpp:include:IceStorm/Config.h"]]
 
 [["js:module:ice"]]
-[["js:cjs-module"]]
 
 [["python:pkgdir:IceStorm"]]
 

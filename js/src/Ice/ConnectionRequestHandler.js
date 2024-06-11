@@ -2,10 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ReferenceMode").Ice;
-const ReferenceMode = Ice.ReferenceMode;
+import { ReferenceMode } from "./ReferenceMode.js";
 
-class ConnectionRequestHandler
+export class ConnectionRequestHandler
 {
     constructor(ref, connection)
     {
@@ -59,6 +58,3 @@ class ConnectionRequestHandler
         return this._connection;
     }
 }
-
-Ice.ConnectionRequestHandler = ConnectionRequestHandler;
-module.exports.Ice = Ice;

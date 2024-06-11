@@ -2,27 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-
-require("../Ice/Debug");
-require("../Ice/LocalException");
-require("../Ice/ProcessLogger");
-require("../Ice/ProcessLogger");
-require("../Ice/PropertyNames");
-require("../Ice/StringUtil");
-
-const StringUtil = Ice.StringUtil;
-const PropertyNames = Ice.PropertyNames;
-const Debug = Ice.Debug;
-const getProcessLogger = Ice.getProcessLogger;
-const InitializationException = Ice.InitializationException;
+import { StringUtil } from "./StringUtil.js";
+import { PropertyNames } from "./PropertyNames.js";
+import { getProcessLogger } from "./ProcessLogger.js";
+import { InitializationException } from "./LocalException.js";
+import { Debug } from "./Debug.js";
 
 const ParseStateKey = 0;
 const ParseStateValue = 1;
 //
 // Ice.Properties
 //
-class Properties
+export class Properties
 {
     constructor(args, defaults)
     {
@@ -268,7 +259,7 @@ class Properties
         let state = ParseStateKey;
 
         let whitespace = "";
-        let escapedspace = "";
+        let escapedSpace = "";
         let finished = false;
 
         for(let i = 0; i < line.length; ++i)
@@ -357,21 +348,21 @@ class Properties
                                     case '\\':
                                     case '#':
                                     case '=':
-                                        value += value.length === 0 ? escapedspace : whitespace;
+                                        value += value.length === 0 ? escapedSpace : whitespace;
                                         whitespace = "";
-                                        escapedspace = "";
+                                        escapedSpace = "";
                                         value += c;
                                         break;
 
                                     case ' ':
                                         whitespace += c;
-                                        escapedspace += c;
+                                        escapedSpace += c;
                                         break;
 
                                     default:
-                                        value += value.length === 0 ? escapedspace : whitespace;
+                                        value += value.length === 0 ? escapedSpace : whitespace;
                                         whitespace = "";
-                                        escapedspace = "";
+                                        escapedSpace = "";
                                         value += '\\';
                                         value += c;
                                         break;
@@ -379,7 +370,7 @@ class Properties
                             }
                             else
                             {
-                                value += value.length === 0 ? escapedspace : whitespace;
+                                value += value.length === 0 ? escapedSpace : whitespace;
                                 value += c;
                             }
                             break;
@@ -399,9 +390,9 @@ class Properties
                             break;
 
                         default:
-                            value += value.length === 0 ? escapedspace : whitespace;
+                            value += value.length === 0 ? escapedSpace : whitespace;
                             whitespace = "";
-                            escapedspace = "";
+                            escapedSpace = "";
                             value += c;
                             break;
                     }
@@ -419,7 +410,7 @@ class Properties
                 break;
             }
         }
-        value += escapedspace;
+        value += escapedSpace;
 
         if((state === ParseStateKey && key.length !== 0) ||
            (state == ParseStateValue && key.length === 0))
@@ -458,7 +449,8 @@ class Properties
         return new Properties(args, defaults);
     }
 
-    static findProperty(key, logWarnings) {
+    static findProperty(key, logWarnings)
+    {
         // Check if the property is a known Ice property and log warnings if necessary
         const logger = getProcessLogger();
 
@@ -529,6 +521,3 @@ class Properties
         return prop.defaultValue;
     }
 }
-
-Ice.Properties = Properties;
-module.exports.Ice = Ice;
