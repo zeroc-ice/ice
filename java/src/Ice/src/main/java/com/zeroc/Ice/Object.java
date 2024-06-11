@@ -22,7 +22,7 @@ public interface Object {
     /**
      * One-shot constructor to initialize the members.
      *
-     * @param returnValue True for a succesful invocation with any results encoded in <code>
+     * @param returnValue True for a successful invocation with any results encoded in <code>
      *     outParams</code>. False if a user exception occurred with the exception encoded in <code>
      *     outParams</code>.
      * @param outParams The encoded results.
@@ -99,27 +99,6 @@ public interface Object {
 
   /**
    * @hidden
-   */
-  static final String[] _iceOps = {"ice_id", "ice_ids", "ice_isA", "ice_ping"};
-
-  /**
-   * Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward
-   * an invocation to a servant (or to another interceptor).
-   *
-   * @param request The details of the invocation.
-   * @return A completion stage if the dispatched asynchronously, null otherwise.
-   * @throws UserException A user exception that propagates out of this method will be marshaled as
-   *     the result.
-   * @see DispatchInterceptor
-   */
-  default CompletionStage<OutputStream> ice_dispatch(Request request) throws UserException {
-    Incoming in = (Incoming) request;
-    in.startOver();
-    return _iceDispatch(in, in.getCurrent());
-  }
-
-  /**
-   * @hidden
    * @param in -
    * @param current -
    * @return -
@@ -127,32 +106,13 @@ public interface Object {
    */
   default CompletionStage<OutputStream> _iceDispatch(Incoming in, Current current)
       throws UserException {
-    int pos = java.util.Arrays.binarySearch(_iceOps, current.operation);
-    if (pos < 0) {
-      throw new OperationNotExistException(current.id, current.facet, current.operation);
-    }
-
-    switch (pos) {
-      case 0:
-        {
-          return _iceD_ice_id(this, in, current);
-        }
-      case 1:
-        {
-          return _iceD_ice_ids(this, in, current);
-        }
-      case 2:
-        {
-          return _iceD_ice_isA(this, in, current);
-        }
-      case 3:
-        {
-          return _iceD_ice_ping(this, in, current);
-        }
-    }
-
-    assert (false);
-    throw new OperationNotExistException(current.id, current.facet, current.operation);
+    return switch (current.operation) {
+      case "ice_id" -> _iceD_ice_id(this, in, current);
+      case "ice_ids" -> _iceD_ice_ids(this, in, current);
+      case "ice_isA" -> _iceD_ice_isA(this, in, current);
+      case "ice_ping" -> _iceD_ice_ping(this, in, current);
+      default -> throw new OperationNotExistException();
+    };
   }
 
   /**
