@@ -332,7 +332,7 @@ StreamHelpers.generateDictHelper = function(keyHelper, valueHelper, fixed, value
     return helper;
 };
 
-// TODO move back to generated code once we break circular dependencies
+// Moved here from Identity.js and Version.js to break circular dependencies
 
 defineStruct(Identity, true, true);
 export const IdentitySeqHelper = StreamHelpers.generateSeqHelper(Identity, false);

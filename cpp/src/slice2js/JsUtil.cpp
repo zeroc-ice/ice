@@ -755,6 +755,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, 
         {
             out << nl << param << " = " << stream << ".readProxy();";
         }
+        return;
     }
 
     if (dynamic_pointer_cast<Struct>(type))

@@ -33,6 +33,9 @@ Ice.ProtocolVersion = class
     }
 };
 
+// Moved to StreamHelpers.js to avoid circular dependencies.
+// defineStruct(ProtocolVersion, true, false);
+
 /**
  *  A version structure for the encoding version.
  **/
@@ -61,3 +64,6 @@ Ice.EncodingVersion = class
         return  2;
     }
 };
+
+// Moved to StreamHelpers.js to avoid circular dependencies.
+// defineStruct(EncodingVersion, true, false);

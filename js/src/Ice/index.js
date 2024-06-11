@@ -28,7 +28,6 @@ import * as Ice_EndpointTypes from "./EndpointTypes.js";
 import * as Ice_EnumBase from "./EnumBase.js";
 import * as Ice_ExUtil from "./ExUtil.js";
 import * as Ice_Exception from "./Exception.js";
-import * as Ice_FacetMap from "./FacetMap.js";
 import * as Ice_FormatType from "./FormatType.js";
 import * as Ice_HashMap from "./HashMap.js";
 import * as Ice_HashUtil from "./HashUtil.js";
@@ -132,7 +131,6 @@ export const Ice = {
     ...Ice_EnumBase,
     ...Ice_ExUtil,
     ...Ice_Exception,
-    ...Ice_FacetMap,
     ...Ice_FormatType,
     ...Ice_HashMap,
     ...Ice_HashUtil,

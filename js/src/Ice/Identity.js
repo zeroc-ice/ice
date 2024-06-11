@@ -36,8 +36,6 @@ Ice.Identity = class
     }
 };
 
-// #TODO delay
-
+// Moved to StreamHelpers.js to avoid circular dependencies.
 // Ice.defineStruct(Ice.Identity, true, true);
-
 // Ice.IdentitySeqHelper = Ice.StreamHelpers.generateSeqHelper(Ice.Identity, false);

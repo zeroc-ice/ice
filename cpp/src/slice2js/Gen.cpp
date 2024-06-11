@@ -886,9 +886,10 @@ namespace
         {
             module = module.substr(pos + 1);
 
-            // Replace remaining path separators ('/', and '\') with '_'
+            // Replace remaining path separators ('/', '\') and ('.') with '_'
             replace(module.begin(), module.end(), '/', '_');
             replace(module.begin(), module.end(), '\\', '_');
+            replace(module.begin(), module.end(), '.', '_');
         }
         return module;
     }
@@ -908,11 +909,13 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
 {
     set<string> importedModules = {"Ice"};
 
-    // The imports map maps JsModules to the set of Slice top-level modules that are imported from that JsModule.
+    // The imports map maps JavaScript Modules to the set of Slice top-level modules that are imported from the
+    // generated JavaScript code. The key is either the JavaScript module specified by "js:module:" metadata or the
+    // relative path of the generated JavaScript file.
     map<string, set<string>> imports;
 
     // The JavaScript files that we import in generated code when building Ice. The user generated code imports
-    // the "ice" package which contains the whole Ice module.
+    // the "ice" package.
     set<string> jsIceImports;
     if (_icejs)
     {
@@ -984,7 +987,6 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
     }
     else
     {
-        // We always import the Ice module in the generated code.
         imports["ice"] = set<string>{"Ice"};
     }
 
@@ -998,25 +1000,10 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
     {
         set<string> sliceTopLevelModules = p->getTopLevelModules(included);
 
-        // The JavaScript module for the included file.
+        // The JavaScript module corresponding to the "js:module:" metadata in the included file.
         string jsImportedModule = getJavaScriptModule(p->findDefinitionContext(included));
 
-        if (jsModule != jsImportedModule && !jsImportedModule.empty())
-        {
-            // When importing a generated Slice file from a different JavaScript module, we need to import all
-            // top-level modules from the included file.
-
-            if (imports.find(jsImportedModule) == imports.end())
-            {
-                imports[jsImportedModule] = set<string>{};
-            }
-
-            for (const auto& topLevelModule : sliceTopLevelModules)
-            {
-                imports[jsImportedModule].insert(topLevelModule);
-            }
-        }
-        else
+        if (jsModule == jsImportedModule || jsImportedModule.empty())
         {
             // For Slice modules mapped to the same JavaScript module, or Slice files that doesn't use "js:module".
             // We import them using their Slice include relative path.
@@ -1036,6 +1023,21 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
             for (const auto& topLevelModule : sliceTopLevelModules)
             {
                 importedModules.insert(topLevelModule);
+            }
+        }
+        else
+        {
+            // When importing a generated Slice file from a different JavaScript module, we need to import all
+            // top-level modules from the included file.
+
+            if (imports.find(jsImportedModule) == imports.end())
+            {
+                imports[jsImportedModule] = set<string>{};
+            }
+
+            for (const auto& topLevelModule : sliceTopLevelModules)
+            {
+                imports[jsImportedModule].insert(topLevelModule);
             }
         }
     }
