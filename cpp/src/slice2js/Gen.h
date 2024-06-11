@@ -92,7 +92,7 @@ namespace Slice
             bool _seenObjectProxyDict;
             std::vector<std::string> _includePaths;
         };
-        
+
         class ExportsVisitor final : public JsVisitor
         {
         public:
