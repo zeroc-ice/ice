@@ -8,10 +8,8 @@ import { TestHelper } from "../../Common/TestHelper.js";
 
 const test = TestHelper.test;
 
-export class Client extends TestHelper
-{
-    async allTests()
-    {
+export class Client extends TestHelper {
+    async allTests() {
         const communicator = this.communicator();
         const out = this.getWriter();
 
@@ -63,55 +61,50 @@ export class Client extends TestHelper
         d = await Test.DPrx.checkedCast(db);
         test(d !== null);
         test(d.equals(db));
-        test(await d.callA() == "A");
-        test(await d.callB() == "B");
-        test(await d.callC() == "C");
-        test(await d.callD() == "D");
+        test((await d.callA()) == "A");
+        test((await d.callB()) == "B");
+        test((await d.callC()) == "C");
+        test((await d.callD()) == "D");
         out.writeLine("ok");
 
         out.write("testing facets A, B, C, and D... ");
         df = await Test.DPrx.checkedCast(d, "facetABCD");
         test(df !== null);
-        test(await df.callA() == "A");
-        test(await df.callB() == "B");
-        test(await df.callC() == "C");
-        test(await df.callD() == "D");
+        test((await df.callA()) == "A");
+        test((await df.callB()) == "B");
+        test((await df.callC()) == "C");
+        test((await df.callD()) == "D");
         out.writeLine("ok");
 
         out.write("testing facets E and F... ");
         const ff = await Test.FPrx.checkedCast(d, "facetEF");
-        test(await ff.callE() == "E");
-        test(await ff.callF() == "F");
+        test((await ff.callE()) == "E");
+        test((await ff.callF()) == "F");
         out.writeLine("ok");
 
         out.write("testing facet G... ");
         const gf = await Test.GPrx.checkedCast(ff, "facetGH");
         test(gf !== null);
-        test(await gf.callG() == "G");
+        test((await gf.callG()) == "G");
         out.writeLine("ok");
 
         out.write("testing whether casting preserves the facet... ");
         const hf = await Test.HPrx.checkedCast(gf);
         test(hf !== null);
-        test(await hf.callG() == "G");
-        test(await hf.callH() == "H");
+        test((await hf.callG()) == "G");
+        test((await hf.callH()) == "H");
         out.writeLine("ok");
 
         await gf.shutdown();
     }
 
-    async run(args)
-    {
+    async run(args) {
         let communicator;
-        try
-        {
+        try {
             [communicator] = this.initialize(args);
             await this.allTests();
-        }
-        finally
-        {
-            if(communicator)
-            {
+        } finally {
+            if (communicator) {
                 await communicator.destroy();
             }
         }

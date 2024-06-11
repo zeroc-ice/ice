@@ -2,8 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-export function TraceLevels(properties)
-{
+export function TraceLevels(properties) {
     const networkCat = "Network";
     const protocolCat = "Protocol";
     const retryCat = "Retry";
@@ -20,55 +19,44 @@ export function TraceLevels(properties)
 
     properties.getPropertyAsInt(keyBase + "ThreadPool"); // Avoid an "unused property" warning.
 
-    return class
-    {
-        static get network()
-        {
+    return class {
+        static get network() {
             return network;
         }
 
-        static get networkCat()
-        {
+        static get networkCat() {
             return networkCat;
         }
 
-        static get protocol()
-        {
+        static get protocol() {
             return protocol;
         }
 
-        static get protocolCat()
-        {
+        static get protocolCat() {
             return protocolCat;
         }
 
-        static get retry()
-        {
+        static get retry() {
             return retry;
         }
 
-        static get retryCat()
-        {
+        static get retryCat() {
             return retryCat;
         }
 
-        static get location()
-        {
+        static get location() {
             return location;
         }
 
-        static get locationCat()
-        {
+        static get locationCat() {
             return locationCat;
         }
 
-        static get slicing()
-        {
+        static get slicing() {
             return slicing;
         }
 
-        static get slicingCat()
-        {
+        static get slicingCat() {
             return slicingCat;
         }
     };

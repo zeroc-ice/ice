@@ -2,13 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-export namespace IceSSL
-{
+export namespace IceSSL {
     /**
      * Provides access to the connection details of an SSL connection
      */
-    class ConnectionInfo extends Ice.ConnectionInfo
-    {
+    class ConnectionInfo extends Ice.ConnectionInfo {
         /**
          * One-shot constructor to initialize all data members.
          * @param underlying The information of the underlying transport or null if there's no underlying transport.
@@ -19,18 +17,26 @@ export namespace IceSSL
          * @param certs The certificate chain.
          * @param verified The certificate chain verification status.
          */
-        constructor(underlying?:Ice.ConnectionInfo, incoming?:boolean, adapterName?:string, connectionId?:string, cipher?:string, certs?:Ice.StringSeq, verified?:boolean);
+        constructor(
+            underlying?: Ice.ConnectionInfo,
+            incoming?: boolean,
+            adapterName?: string,
+            connectionId?: string,
+            cipher?: string,
+            certs?: Ice.StringSeq,
+            verified?: boolean,
+        );
         /**
          * The negotiated cipher suite.
          */
-        cipher:string;
+        cipher: string;
         /**
          * The certificate chain.
          */
-        certs:Ice.StringSeq;
+        certs: Ice.StringSeq;
         /**
          * The certificate chain verification status.
          */
-        verified:boolean;
+        verified: boolean;
     }
 }

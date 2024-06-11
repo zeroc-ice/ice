@@ -2,16 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import {Ice} from "ice";
-import {Test} from "./generated";
-import {TestHelper} from "../../../Common/TestHelper";
+import { Ice } from "ice";
+import { Test } from "./generated";
+import { TestHelper } from "../../../Common/TestHelper";
 
 const test = TestHelper.test;
 
-export class Client extends TestHelper
-{
-    async allTests(communicator:Ice.Communicator, communicator2:Ice.Communicator)
-    {
+export class Client extends TestHelper {
+    async allTests(communicator: Ice.Communicator, communicator2: Ice.Communicator) {
         const out = this.getWriter();
         out.write("testing stringToProxy... ");
         const ref = "retry:" + this.getTestEndpoint();
@@ -35,13 +33,10 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("calling operation to kill connection with second proxy... ");
-        try
-        {
+        try {
             await retry2.op(true);
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Ice.ConnectionLostException, ex);
             out.writeLine("ok");
         }
@@ -56,26 +51,20 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("testing non-idempotent operation... ");
-        try
-        {
+        try {
             await retry1.opNotIdempotent();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Ice.LocalException, ex);
         }
         out.writeLine("ok");
 
         out.write("testing invocation timeout and retries... ");
         retry2 = Test.RetryPrx.uncheckedCast(communicator2.stringToProxy(retry1.toString()));
-        try
-        {
+        try {
             await retry2.ice_invocationTimeout(500).opIdempotent(4);
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Ice.InvocationTimeoutException, ex);
         }
 
@@ -85,12 +74,10 @@ export class Client extends TestHelper
         await retry1.shutdown();
     }
 
-    async run(args:string[])
-    {
-        let communicator:Ice.Communicator;
-        let communicator2:Ice.Communicator;
-        try
-        {
+    async run(args: string[]) {
+        let communicator: Ice.Communicator;
+        let communicator2: Ice.Communicator;
+        try {
             let [properties] = this.createTestProperties(args);
 
             //
@@ -115,16 +102,12 @@ export class Client extends TestHelper
             [communicator2] = this.initialize(properties);
 
             await this.allTests(communicator, communicator2);
-        }
-        finally
-        {
-            if(communicator2)
-            {
+        } finally {
+            if (communicator2) {
                 await communicator2.destroy();
             }
 
-            if(communicator)
-            {
+            if (communicator) {
                 await communicator.destroy();
             }
         }

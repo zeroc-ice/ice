@@ -18,504 +18,371 @@ import {
     IllegalIdentityException,
     ObjectNotExistException,
     TwowayOnlyException,
-    UnknownUserException } from "./LocalException.js";
+    UnknownUserException,
+} from "./LocalException.js";
 import { ConnectionI } from "./ConnectionI.js";
 import { TypeRegistry } from "./TypeRegistry.js";
 import { Debug } from "./Debug.js";
 
-ObjectPrx.prototype.hashCode = function(r)
-{
+ObjectPrx.prototype.hashCode = function (r) {
     return this._reference.hashCode();
 };
 
-ObjectPrx.prototype.ice_getCommunicator = function()
-{
+ObjectPrx.prototype.ice_getCommunicator = function () {
     return this._reference.getCommunicator();
 };
 
-ObjectPrx.prototype.toString = function()
-{
+ObjectPrx.prototype.toString = function () {
     return this._reference.toString();
 };
 
-ObjectPrx.prototype.ice_getIdentity = function()
-{
+ObjectPrx.prototype.ice_getIdentity = function () {
     return this._reference.getIdentity().clone();
 };
 
-ObjectPrx.prototype.ice_identity = function(newIdentity)
-{
-    if(newIdentity === undefined || newIdentity === null || newIdentity.name.length === 0)
-    {
+ObjectPrx.prototype.ice_identity = function (newIdentity) {
+    if (newIdentity === undefined || newIdentity === null || newIdentity.name.length === 0) {
         throw new IllegalIdentityException();
     }
-    if(newIdentity.equals(this._reference.getIdentity()))
-    {
+    if (newIdentity.equals(this._reference.getIdentity())) {
         return this;
-    }
-    else
-    {
+    } else {
         const proxy = new ObjectPrx();
         proxy._setup(this._reference.changeIdentity(newIdentity));
         return proxy;
     }
 };
 
-ObjectPrx.prototype.ice_getContext = function()
-{
+ObjectPrx.prototype.ice_getContext = function () {
     return new Map(this._reference.getContext());
 };
 
-ObjectPrx.prototype.ice_context = function(newContext)
-{
+ObjectPrx.prototype.ice_context = function (newContext) {
     return this._newInstance(this._reference.changeContext(newContext));
 };
 
-ObjectPrx.prototype.ice_getFacet = function()
-{
+ObjectPrx.prototype.ice_getFacet = function () {
     return this._reference.getFacet();
 };
 
-ObjectPrx.prototype.ice_facet = function(newFacet)
-{
-    if(newFacet === undefined || newFacet === null)
-    {
+ObjectPrx.prototype.ice_facet = function (newFacet) {
+    if (newFacet === undefined || newFacet === null) {
         newFacet = "";
     }
 
-    if(newFacet === this._reference.getFacet())
-    {
+    if (newFacet === this._reference.getFacet()) {
         return this;
-    }
-    else
-    {
+    } else {
         const proxy = new ObjectPrx();
         proxy._setup(this._reference.changeFacet(newFacet));
         return proxy;
     }
 };
 
-ObjectPrx.prototype.ice_getAdapterId = function()
-{
+ObjectPrx.prototype.ice_getAdapterId = function () {
     return this._reference.getAdapterId();
 };
 
-ObjectPrx.prototype.ice_adapterId = function(newAdapterId)
-{
-    if(newAdapterId === undefined || newAdapterId === null)
-    {
+ObjectPrx.prototype.ice_adapterId = function (newAdapterId) {
+    if (newAdapterId === undefined || newAdapterId === null) {
         newAdapterId = "";
     }
 
-    if(newAdapterId === this._reference.getAdapterId())
-    {
+    if (newAdapterId === this._reference.getAdapterId()) {
         return this;
-    }
-    else
-    {
+    } else {
         return this._newInstance(this._reference.changeAdapterId(newAdapterId));
     }
 };
 
-ObjectPrx.prototype.ice_getEndpoints = function()
-{
+ObjectPrx.prototype.ice_getEndpoints = function () {
     return ArrayUtil.clone(this._reference.getEndpoints());
 };
 
-ObjectPrx.prototype.ice_endpoints = function(newEndpoints)
-{
-    if(newEndpoints === undefined || newEndpoints === null)
-    {
+ObjectPrx.prototype.ice_endpoints = function (newEndpoints) {
+    if (newEndpoints === undefined || newEndpoints === null) {
         newEndpoints = [];
     }
 
-    if(ArrayUtil.equals(newEndpoints, this._reference.getEndpoints()))
-    {
+    if (ArrayUtil.equals(newEndpoints, this._reference.getEndpoints())) {
         return this;
-    }
-    else
-    {
+    } else {
         return this._newInstance(this._reference.changeEndpoints(newEndpoints));
     }
 };
 
-ObjectPrx.prototype.ice_getLocatorCacheTimeout = function()
-{
+ObjectPrx.prototype.ice_getLocatorCacheTimeout = function () {
     return this._reference.getLocatorCacheTimeout();
 };
 
-ObjectPrx.prototype.ice_locatorCacheTimeout = function(newTimeout)
-{
-    if(newTimeout < -1)
-    {
+ObjectPrx.prototype.ice_locatorCacheTimeout = function (newTimeout) {
+    if (newTimeout < -1) {
         throw new RangeError("invalid value passed to ice_locatorCacheTimeout: " + newTimeout);
     }
-    if(newTimeout === this._reference.getLocatorCacheTimeout())
-    {
+    if (newTimeout === this._reference.getLocatorCacheTimeout()) {
         return this;
-    }
-    else
-    {
+    } else {
         return this._newInstance(this._reference.changeLocatorCacheTimeout(newTimeout));
     }
 };
 
-ObjectPrx.prototype.ice_getInvocationTimeout = function()
-{
+ObjectPrx.prototype.ice_getInvocationTimeout = function () {
     return this._reference.getInvocationTimeout();
 };
 
-ObjectPrx.prototype.ice_invocationTimeout = function(newTimeout)
-{
-    if(newTimeout < 1 && newTimeout !== -1)
-    {
+ObjectPrx.prototype.ice_invocationTimeout = function (newTimeout) {
+    if (newTimeout < 1 && newTimeout !== -1) {
         throw new RangeError("invalid value passed to ice_invocationTimeout: " + newTimeout);
     }
-    if(newTimeout === this._reference.getInvocationTimeout())
-    {
+    if (newTimeout === this._reference.getInvocationTimeout()) {
         return this;
-    }
-    else
-    {
+    } else {
         return this._newInstance(this._reference.changeInvocationTimeout(newTimeout));
     }
 };
 
-ObjectPrx.prototype.ice_isConnectionCached = function()
-{
+ObjectPrx.prototype.ice_isConnectionCached = function () {
     return this._reference.getCacheConnection();
 };
 
-ObjectPrx.prototype.ice_connectionCached = function(newCache)
-{
-    if(newCache === this._reference.getCacheConnection())
-    {
+ObjectPrx.prototype.ice_connectionCached = function (newCache) {
+    if (newCache === this._reference.getCacheConnection()) {
         return this;
-    }
-    else
-    {
+    } else {
         return this._newInstance(this._reference.changeCacheConnection(newCache));
     }
-}
+};
 
-ObjectPrx.prototype.ice_getEndpointSelection = function()
-{
+ObjectPrx.prototype.ice_getEndpointSelection = function () {
     return this._reference.getEndpointSelection();
 };
 
-ObjectPrx.prototype.ice_endpointSelection = function(newType)
-{
-    if(newType === this._reference.getEndpointSelection())
-    {
+ObjectPrx.prototype.ice_endpointSelection = function (newType) {
+    if (newType === this._reference.getEndpointSelection()) {
         return this;
-    }
-    else
-    {
+    } else {
         return this._newInstance(this._reference.changeEndpointSelection(newType));
     }
 };
 
-ObjectPrx.prototype.ice_isSecure = function()
-{
+ObjectPrx.prototype.ice_isSecure = function () {
     return this._reference.getSecure();
 };
 
-ObjectPrx.prototype.ice_secure = function(b)
-{
-    if(b === this._reference.getSecure())
-    {
+ObjectPrx.prototype.ice_secure = function (b) {
+    if (b === this._reference.getSecure()) {
         return this;
-    }
-    else
-    {
+    } else {
         return this._newInstance(this._reference.changeSecure(b));
     }
 };
 
-ObjectPrx.prototype.ice_getEncodingVersion = function()
-{
+ObjectPrx.prototype.ice_getEncodingVersion = function () {
     return this._reference.getEncoding().clone();
 };
 
-ObjectPrx.prototype.ice_encodingVersion = function(e)
-{
-    if(e.equals(this._reference.getEncoding()))
-    {
+ObjectPrx.prototype.ice_encodingVersion = function (e) {
+    if (e.equals(this._reference.getEncoding())) {
         return this;
-    }
-    else
-    {
+    } else {
         return this._newInstance(this._reference.changeEncoding(e));
     }
 };
 
-ObjectPrx.prototype.ice_isPreferSecure = function()
-{
+ObjectPrx.prototype.ice_isPreferSecure = function () {
     return this._reference.getPreferSecure();
 };
 
-ObjectPrx.prototype.ice_preferSecure = function(b)
-{
-    if(b === this._reference.getPreferSecure())
-    {
+ObjectPrx.prototype.ice_preferSecure = function (b) {
+    if (b === this._reference.getPreferSecure()) {
         return this;
-    }
-    else
-    {
+    } else {
         return this._newInstance(this._reference.changePreferSecure(b));
     }
 };
 
-ObjectPrx.prototype.ice_getRouter = function()
-{
+ObjectPrx.prototype.ice_getRouter = function () {
     const ri = this._reference.getRouterInfo();
     return ri !== null ? ri.getRouter() : null;
-}
+};
 
-ObjectPrx.prototype.ice_router = function(router)
-{
+ObjectPrx.prototype.ice_router = function (router) {
     const ref = this._reference.changeRouter(router);
-    if(ref.equals(this._reference))
-    {
+    if (ref.equals(this._reference)) {
         return this;
-    }
-    else
-    {
-        return this._newInstance(ref);
-    }
-}
-
-ObjectPrx.prototype.ice_getLocator = function()
-{
-    const ri = this._reference.getLocatorInfo();
-    return ri !== null ? ri.getLocator() : null;
-}
-
-ObjectPrx.prototype.ice_locator = function(locator)
-{
-    const ref = this._reference.changeLocator(locator);
-    if(ref.equals(this._reference))
-    {
-        return this;
-    }
-    else
-    {
+    } else {
         return this._newInstance(ref);
     }
 };
 
-ObjectPrx.prototype.ice_isTwoway = function()
-{
+ObjectPrx.prototype.ice_getLocator = function () {
+    const ri = this._reference.getLocatorInfo();
+    return ri !== null ? ri.getLocator() : null;
+};
+
+ObjectPrx.prototype.ice_locator = function (locator) {
+    const ref = this._reference.changeLocator(locator);
+    if (ref.equals(this._reference)) {
+        return this;
+    } else {
+        return this._newInstance(ref);
+    }
+};
+
+ObjectPrx.prototype.ice_isTwoway = function () {
     return this._reference.getMode() === ReferenceMode.ModeTwoway;
 };
 
-ObjectPrx.prototype.ice_twoway = function()
-{
-    if(this._reference.getMode() === ReferenceMode.ModeTwoway)
-    {
+ObjectPrx.prototype.ice_twoway = function () {
+    if (this._reference.getMode() === ReferenceMode.ModeTwoway) {
         return this;
-    }
-    else
-    {
+    } else {
         return this._newInstance(this._reference.changeMode(ReferenceMode.ModeTwoway));
     }
 };
 
-ObjectPrx.prototype.ice_isOneway = function()
-{
+ObjectPrx.prototype.ice_isOneway = function () {
     return this._reference.getMode() === ReferenceMode.ModeOneway;
 };
 
-ObjectPrx.prototype.ice_oneway = function()
-{
-    if(this._reference.getMode() === ReferenceMode.ModeOneway)
-    {
+ObjectPrx.prototype.ice_oneway = function () {
+    if (this._reference.getMode() === ReferenceMode.ModeOneway) {
         return this;
-    }
-    else
-    {
+    } else {
         return this._newInstance(this._reference.changeMode(ReferenceMode.ModeOneway));
     }
 };
 
-ObjectPrx.prototype.ice_isBatchOneway = function()
-{
+ObjectPrx.prototype.ice_isBatchOneway = function () {
     return this._reference.getMode() === ReferenceMode.ModeBatchOneway;
 };
 
-ObjectPrx.prototype.ice_batchOneway = function()
-{
-    if(this._reference.getMode() === ReferenceMode.ModeBatchOneway)
-    {
+ObjectPrx.prototype.ice_batchOneway = function () {
+    if (this._reference.getMode() === ReferenceMode.ModeBatchOneway) {
         return this;
-    }
-    else
-    {
+    } else {
         return this._newInstance(this._reference.changeMode(ReferenceMode.ModeBatchOneway));
     }
 };
 
-ObjectPrx.prototype.ice_isDatagram = function()
-{
+ObjectPrx.prototype.ice_isDatagram = function () {
     return this._reference.getMode() === ReferenceMode.ModeDatagram;
 };
 
-ObjectPrx.prototype.ice_datagram = function()
-{
-    if(this._reference.getMode() === ReferenceMode.ModeDatagram)
-    {
+ObjectPrx.prototype.ice_datagram = function () {
+    if (this._reference.getMode() === ReferenceMode.ModeDatagram) {
         return this;
-    }
-    else
-    {
+    } else {
         return this._newInstance(this._reference.changeMode(ReferenceMode.ModeDatagram));
     }
 };
 
-ObjectPrx.prototype.ice_isBatchDatagram = function()
-{
+ObjectPrx.prototype.ice_isBatchDatagram = function () {
     return this._reference.getMode() === ReferenceMode.ModeBatchDatagram;
 };
 
-ObjectPrx.prototype.ice_batchDatagram = function()
-{
-    if(this._reference.getMode() === ReferenceMode.ModeBatchDatagram)
-    {
+ObjectPrx.prototype.ice_batchDatagram = function () {
+    if (this._reference.getMode() === ReferenceMode.ModeBatchDatagram) {
         return this;
-    }
-    else
-    {
+    } else {
         return this._newInstance(this._reference.changeMode(ReferenceMode.ModeBatchDatagram));
     }
 };
 
-ObjectPrx.prototype.ice_timeout = function(t)
-{
-    if(t < 1 && t !== -1)
-    {
+ObjectPrx.prototype.ice_timeout = function (t) {
+    if (t < 1 && t !== -1) {
         throw new RangeError("invalid value passed to ice_timeout: " + t);
     }
     const ref = this._reference.changeTimeout(t);
-    if(ref.equals(this._reference))
-    {
+    if (ref.equals(this._reference)) {
         return this;
-    }
-    else
-    {
+    } else {
         return this._newInstance(ref);
     }
 };
 
-ObjectPrx.prototype.ice_getTimeout = function()
-{
+ObjectPrx.prototype.ice_getTimeout = function () {
     return this._reference.getTimeout();
 };
 
-ObjectPrx.prototype.ice_fixed = function(connection)
-{
-    if(connection === null)
-    {
+ObjectPrx.prototype.ice_fixed = function (connection) {
+    if (connection === null) {
         throw new RangeError("invalid null connection passed to ice_fixed");
     }
-    if(!(connection instanceof ConnectionI))
-    {
+    if (!(connection instanceof ConnectionI)) {
         throw new RangeError("invalid connection passed to ice_fixed");
     }
     const ref = this._reference.changeConnection(connection);
-    if(ref.equals(this._reference))
-    {
+    if (ref.equals(this._reference)) {
         return this;
-    }
-    else
-    {
+    } else {
         return this._newInstance(ref);
     }
 };
 
-ObjectPrx.prototype.ice_isFixed = function()
-{
-    return this._reference.isFixed()
+ObjectPrx.prototype.ice_isFixed = function () {
+    return this._reference.isFixed();
 };
 
-ObjectPrx.prototype.ice_getConnectionId = function()
-{
+ObjectPrx.prototype.ice_getConnectionId = function () {
     return this._reference.getConnectionId();
 };
 
-ObjectPrx.prototype.ice_connectionId = function(id)
-{
+ObjectPrx.prototype.ice_connectionId = function (id) {
     const ref = this._reference.changeConnectionId(id);
-    if(ref.equals(this._reference))
-    {
+    if (ref.equals(this._reference)) {
         return this;
-    }
-    else
-    {
+    } else {
         return this._newInstance(ref);
     }
 };
 
-ObjectPrx.prototype.ice_getConnection = function()
-{
+ObjectPrx.prototype.ice_getConnection = function () {
     const r = new ProxyGetConnection(this, "ice_getConnection");
-    try
-    {
+    try {
         r.invoke();
-    }
-    catch(ex)
-    {
+    } catch (ex) {
         r.abort(ex);
     }
     return r;
 };
 
-ObjectPrx.prototype.ice_getCachedConnection = function()
-{
+ObjectPrx.prototype.ice_getCachedConnection = function () {
     return this._requestHandler ? this._requestHandler.getConnection() : null;
-}
+};
 
-ObjectPrx.prototype.ice_flushBatchRequests = function()
-{
+ObjectPrx.prototype.ice_flushBatchRequests = function () {
     const r = new ProxyFlushBatch(this, "ice_flushBatchRequests");
-    try
-    {
+    try {
         r.invoke();
-    }
-    catch(ex)
-    {
+    } catch (ex) {
         r.abort(ex);
     }
     return r;
 };
 
-ObjectPrx.prototype.equals = function(r)
-{
-    if(this === r)
-    {
+ObjectPrx.prototype.equals = function (r) {
+    if (this === r) {
         return true;
     }
 
-    if(r instanceof ObjectPrx)
-    {
+    if (r instanceof ObjectPrx) {
         return this._reference.equals(r._reference);
     }
 
     return false;
 };
 
-ObjectPrx.prototype._write = function(os)
-{
+ObjectPrx.prototype._write = function (os) {
     this._reference.getIdentity()._write(os);
     this._reference.streamWrite(os);
 };
 
-ObjectPrx.prototype._getReference = function()
-{
+ObjectPrx.prototype._getReference = function () {
     return this._reference;
 };
 
-ObjectPrx.prototype._copyFrom = function(from)
-{
+ObjectPrx.prototype._copyFrom = function (from) {
     Debug.assert(this._reference === null);
     Debug.assert(this._requestHandler === null);
 
@@ -523,8 +390,7 @@ ObjectPrx.prototype._copyFrom = function(from)
     this._requestHandler = from._requestHandler;
 };
 
-ObjectPrx.prototype._handleException = function(ex, handler, mode, sent, sleep, cnt)
-{
+ObjectPrx.prototype._handleException = function (ex, handler, mode, sent, sleep, cnt) {
     this._updateRequestHandler(handler, null); // Clear the request handler
 
     //
@@ -542,74 +408,59 @@ ObjectPrx.prototype._handleException = function(ex, handler, mode, sent, sleep, 
     // If the request didn't get sent or if it's non-mutating or idempotent it can
     // also always be retried if the retry count isn't reached.
     //
-    if(ex instanceof LocalException &&
+    if (
+        ex instanceof LocalException &&
         (!sent ||
-        mode == OperationMode.Nonmutating || mode == OperationMode.Idempotent ||
-        ex instanceof CloseConnectionException || ex instanceof ObjectNotExistException))
-    {
-        try
-        {
-            return this._reference.getInstance().proxyFactory().checkRetryAfterException(ex,
-                                                                                            this._reference,
-                                                                                            sleep,
-                                                                                            cnt);
-        }
-        catch(exc)
-        {
-            if(exc instanceof CommunicatorDestroyedException)
-            {
+            mode == OperationMode.Nonmutating ||
+            mode == OperationMode.Idempotent ||
+            ex instanceof CloseConnectionException ||
+            ex instanceof ObjectNotExistException)
+    ) {
+        try {
+            return this._reference
+                .getInstance()
+                .proxyFactory()
+                .checkRetryAfterException(ex, this._reference, sleep, cnt);
+        } catch (exc) {
+            if (exc instanceof CommunicatorDestroyedException) {
                 //
                 // The communicator is already destroyed, so we cannot retry.
                 //
                 throw ex;
-            }
-            else
-            {
+            } else {
                 throw exc;
             }
         }
-    }
-    else
-    {
+    } else {
         throw ex;
     }
 };
 
-ObjectPrx.prototype._checkAsyncTwowayOnly = function(name)
-{
-    if(!this.ice_isTwoway())
-    {
+ObjectPrx.prototype._checkAsyncTwowayOnly = function (name) {
+    if (!this.ice_isTwoway()) {
         throw new TwowayOnlyException(name);
     }
 };
 
-ObjectPrx.prototype._getRequestHandler = function()
-{
-    if(this._reference.getCacheConnection())
-    {
-        if(this._requestHandler)
-        {
+ObjectPrx.prototype._getRequestHandler = function () {
+    if (this._reference.getCacheConnection()) {
+        if (this._requestHandler) {
             return this._requestHandler;
         }
     }
     return this._reference.getRequestHandler(this);
 };
 
-ObjectPrx.prototype._getBatchRequestQueue = function()
-{
-    if(!this._batchRequestQueue)
-    {
+ObjectPrx.prototype._getBatchRequestQueue = function () {
+    if (!this._batchRequestQueue) {
         this._batchRequestQueue = this._reference.getBatchRequestQueue();
     }
     return this._batchRequestQueue;
 };
 
-ObjectPrx.prototype._setRequestHandler = function(handler)
-{
-    if(this._reference.getCacheConnection())
-    {
-        if(!this._requestHandler)
-        {
+ObjectPrx.prototype._setRequestHandler = function (handler) {
+    if (this._reference.getCacheConnection()) {
+        if (!this._requestHandler) {
             this._requestHandler = handler;
         }
         return this._requestHandler;
@@ -617,12 +468,9 @@ ObjectPrx.prototype._setRequestHandler = function(handler)
     return handler;
 };
 
-ObjectPrx.prototype._updateRequestHandler = function(previous, handler)
-{
-    if(this._reference.getCacheConnection() && previous !== null)
-    {
-        if(this._requestHandler && this._requestHandler !== handler)
-        {
+ObjectPrx.prototype._updateRequestHandler = function (previous, handler) {
+    if (this._reference.getCacheConnection() && previous !== null) {
+        if (this._requestHandler && this._requestHandler !== handler) {
             this._requestHandler = this._requestHandler.update(previous, handler);
         }
     }
@@ -631,26 +479,21 @@ ObjectPrx.prototype._updateRequestHandler = function(previous, handler)
 //
 // Only for use by IceInternal.ProxyFactory
 //
-ObjectPrx.prototype._setup = function(ref)
-{
+ObjectPrx.prototype._setup = function (ref) {
     Debug.assert(this._reference === null);
 
     this._reference = ref;
 };
 
-ObjectPrx.prototype._newInstance = function(ref)
-{
+ObjectPrx.prototype._newInstance = function (ref) {
     const proxy = new this.constructor();
     proxy._setup(ref);
     return proxy;
 };
 
-ObjectPrx.prototype.ice_instanceof = function(T)
-{
-    if(T)
-    {
-        if(this instanceof T)
-        {
+ObjectPrx.prototype.ice_instanceof = function (T) {
+    if (T) {
+        if (this instanceof T) {
             return true;
         }
         return this.constructor._instanceof(T);
@@ -661,36 +504,26 @@ ObjectPrx.prototype.ice_instanceof = function(T)
 //
 // Generic invocation for operations that have input parameters.
 //
-ObjectPrx._invoke = function(p, name, mode, fmt, ctx, marshalFn, unmarshalFn, userEx, args)
-{
-    if(unmarshalFn !== null || userEx.length > 0)
-    {
+ObjectPrx._invoke = function (p, name, mode, fmt, ctx, marshalFn, unmarshalFn, userEx, args) {
+    if (unmarshalFn !== null || userEx.length > 0) {
         p._checkAsyncTwowayOnly(name);
     }
 
-    const r = new OutgoingAsync(p, name,
-        res =>
-        {
-            this._completed(res, unmarshalFn, userEx);
-        });
+    const r = new OutgoingAsync(p, name, (res) => {
+        this._completed(res, unmarshalFn, userEx);
+    });
 
-    try
-    {
+    try {
         r.prepare(name, mode, ctx);
-        if(marshalFn === null)
-        {
+        if (marshalFn === null) {
             r.writeEmptyParams();
-        }
-        else
-        {
+        } else {
             const ostr = r.startWriteParams(fmt);
             marshalFn(ostr, args);
             r.endWriteParams();
         }
         r.invoke();
-    }
-    catch(ex)
-    {
+    } catch (ex) {
         r.abort(ex);
     }
     return r;
@@ -699,27 +532,19 @@ ObjectPrx._invoke = function(p, name, mode, fmt, ctx, marshalFn, unmarshalFn, us
 //
 // Handles the completion of an invocation.
 //
-ObjectPrx._completed = function(r, unmarshalFn, userEx)
-{
-    if(!this._check(r, userEx))
-    {
+ObjectPrx._completed = function (r, unmarshalFn, userEx) {
+    if (!this._check(r, userEx)) {
         return;
     }
 
-    try
-    {
-        if(unmarshalFn === null)
-        {
+    try {
+        if (unmarshalFn === null) {
             r.readEmptyParams();
             r.resolve();
-        }
-        else
-        {
+        } else {
             r.resolve(unmarshalFn(r));
         }
-    }
-    catch(ex)
-    {
+    } catch (ex) {
         this.dispatchLocalException(r, ex);
     }
 };
@@ -727,25 +552,17 @@ ObjectPrx._completed = function(r, unmarshalFn, userEx)
 //
 // Handles user exceptions.
 //
-ObjectPrx._check = function(r, uex)
-{
+ObjectPrx._check = function (r, uex) {
     //
     // If uex is non-null, it must be an array of exception types.
     //
-    try
-    {
+    try {
         r.throwUserException();
-    }
-    catch(ex)
-    {
-        if(ex instanceof UserException)
-        {
-            if(uex !== null)
-            {
-                for(let i = 0; i < uex.length; ++i)
-                {
-                    if(ex instanceof uex[i])
-                    {
+    } catch (ex) {
+        if (ex instanceof UserException) {
+            if (uex !== null) {
+                for (let i = 0; i < uex.length; ++i) {
+                    if (ex instanceof uex[i]) {
                         r.reject(ex);
                         return false;
                     }
@@ -753,9 +570,7 @@ ObjectPrx._check = function(r, uex)
             }
             r.reject(new UnknownUserException(ex.ice_id()));
             return false;
-        }
-        else
-        {
+        } else {
             r.reject(ex);
             return false;
         }
@@ -764,66 +579,49 @@ ObjectPrx._check = function(r, uex)
     return true;
 };
 
-ObjectPrx.dispatchLocalException = function(r, ex)
-{
+ObjectPrx.dispatchLocalException = function (r, ex) {
     r.reject(ex);
 };
 
-ObjectPrx.checkedCast = function(prx, facet, ctx)
-{
+ObjectPrx.checkedCast = function (prx, facet, ctx) {
     let r = null;
 
-    if(prx === undefined || prx === null)
-    {
+    if (prx === undefined || prx === null) {
         r = new AsyncResultBase(null, "checkedCast", null, null, null);
         r.resolve(null);
-    }
-    else
-    {
-        if(facet !== undefined)
-        {
+    } else {
+        if (facet !== undefined) {
             prx = prx.ice_facet(facet);
         }
 
         r = new AsyncResultBase(prx.ice_getCommunicator(), "checkedCast", null, prx, null);
-        prx.ice_isA(this.ice_staticId(), ctx).then(
-            ret =>
-            {
-                if(ret)
-                {
+        prx.ice_isA(this.ice_staticId(), ctx)
+            .then((ret) => {
+                if (ret) {
                     const h = new this();
                     h._copyFrom(prx);
                     r.resolve(h);
-                }
-                else
-                {
+                } else {
                     r.resolve(null);
                 }
-            }).catch(
-                ex =>
-                {
-                    if(ex instanceof FacetNotExistException)
-                    {
-                        r.resolve(null);
-                    }
-                    else
-                    {
-                        r.reject(ex);
-                    }
-                });
+            })
+            .catch((ex) => {
+                if (ex instanceof FacetNotExistException) {
+                    r.resolve(null);
+                } else {
+                    r.reject(ex);
+                }
+            });
     }
 
     return r;
 };
 
-ObjectPrx.uncheckedCast = function(prx, facet)
-{
+ObjectPrx.uncheckedCast = function (prx, facet) {
     let r = null;
-    if(prx !== undefined && prx !== null)
-    {
+    if (prx !== undefined && prx !== null) {
         r = new this();
-        if(facet !== undefined)
-        {
+        if (facet !== undefined) {
             prx = prx.ice_facet(facet);
         }
         r._copyFrom(prx);
@@ -831,39 +629,31 @@ ObjectPrx.uncheckedCast = function(prx, facet)
     return r;
 };
 
-Object.defineProperty(ObjectPrx, "minWireSize", {get: () => 2});
+Object.defineProperty(ObjectPrx, "minWireSize", { get: () => 2 });
 
-ObjectPrx.write = function(os, v)
-{
+ObjectPrx.write = function (os, v) {
     os.writeProxy(v);
 };
 
-ObjectPrx.read = function(is)
-{
+ObjectPrx.read = function (is) {
     return is.readProxy(this);
 };
 
-ObjectPrx.writeOptional = function(os, tag, v)
-{
+ObjectPrx.writeOptional = function (os, tag, v) {
     os.writeOptionalProxy(tag, v);
 };
 
-ObjectPrx.readOptional = function(is, tag)
-{
+ObjectPrx.readOptional = function (is, tag) {
     return is.readOptionalProxy(tag, this);
 };
 
-ObjectPrx._instanceof = function(T)
-{
-    if(T === this)
-    {
+ObjectPrx._instanceof = function (T) {
+    if (T === this) {
         return true;
     }
 
-    for(const i in this._implements)
-    {
-        if(this._implements[i]._instanceof(T))
-        {
+    for (const i in this._implements) {
+        if (this._implements[i]._instanceof(T)) {
             return true;
         }
     }
@@ -871,10 +661,9 @@ ObjectPrx._instanceof = function(T)
     return false;
 };
 
-ObjectPrx.ice_staticId = function()
-{
+ObjectPrx.ice_staticId = function () {
     return this._id;
 };
 
-Object.defineProperty(ObjectPrx, "_implements", {get: () => []});
+Object.defineProperty(ObjectPrx, "_implements", { get: () => [] });
 TypeRegistry.declareValueType("Ice.ObjectPrx", ObjectPrx);

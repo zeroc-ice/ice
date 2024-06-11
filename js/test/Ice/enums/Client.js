@@ -3,14 +3,12 @@
 //
 
 import { TestHelper } from "../../Common/TestHelper.js";
-import { Test } from "./Test.js"
+import { Test } from "./Test.js";
 
 const test = TestHelper.test;
 
-export class Client extends TestHelper
-{
-    async allTests()
-    {
+export class Client extends TestHelper {
+    async allTests() {
         const out = this.getWriter();
         const communicator = this.communicator();
 
@@ -163,18 +161,13 @@ export class Client extends TestHelper
         await proxy.shutdown();
     }
 
-    async run(args)
-    {
+    async run(args) {
         let communicator;
-        try
-        {
+        try {
             [communicator] = this.initialize(args);
             await this.allTests();
-        }
-        finally
-        {
-            if(communicator)
-            {
+        } finally {
+            if (communicator) {
                 await communicator.destroy();
             }
         }

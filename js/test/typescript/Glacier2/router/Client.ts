@@ -2,52 +2,44 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import {Ice, Glacier2} from "ice";
-import {Test} from "./generated";
-import {TestHelper} from "../../../Common/TestHelper";
+import { Ice, Glacier2 } from "ice";
+import { Test } from "./generated";
+import { TestHelper } from "../../../Common/TestHelper";
 
 const test = TestHelper.test;
 const CallbackPrx = Test.CallbackPrx;
 const CallbackReceiverPrx = Test.CallbackReceiverPrx;
 
-export class CallbackReceiverI extends Test.CallbackReceiver
-{
-    constructor()
-    {
+export class CallbackReceiverI extends Test.CallbackReceiver {
+    constructor() {
         super();
         this._callback = false;
         this._p = new Ice.Promise();
     }
 
-    callback(current:Ice.Current):void
-    {
+    callback(current: Ice.Current): void {
         test(!this._callback);
         this._p.resolve();
     }
 
-    callbackEx(current:Ice.Current):void
-    {
+    callbackEx(current: Ice.Current): void {
         this.callback(current);
         throw new Test.CallbackException(3.14, "3.14");
     }
 
-    callbackOK():PromiseLike<void>
-    {
-        return this._p.then(() =>
-                            {
-                                this._callback = false;
-                                this._p = new Ice.Promise();
-                            });
+    callbackOK(): PromiseLike<void> {
+        return this._p.then(() => {
+            this._callback = false;
+            this._p = new Ice.Promise();
+        });
     }
 
-    _p:Ice.Promise<void>;
-    _callback:boolean;
+    _p: Ice.Promise<void>;
+    _callback: boolean;
 }
 
-export class Client extends TestHelper
-{
-    async allTests(shutdown:boolean)
-    {
+export class Client extends TestHelper {
+    async allTests(shutdown: boolean) {
         const out = this.getWriter();
         const communicator = this.communicator();
 
@@ -75,37 +67,28 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("trying to ping server before session creation... ");
-        try
-        {
+        try {
             await base.ice_ping();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Ice.ConnectionLostException, ex);
         }
         out.writeLine("ok");
 
         out.write("trying to create session with wrong password... ");
-        try
-        {
+        try {
             await router.createSession("userid", "xxx");
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Glacier2.PermissionDeniedException, ex);
         }
         out.writeLine("ok");
 
         out.write("trying to destroy non-existing session... ");
-        try
-        {
+        try {
             await router.destroySession();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Glacier2.SessionNotExistException, ex);
         }
         out.writeLine("ok");
@@ -115,13 +98,10 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("trying to create a second session... ");
-        try
-        {
+        try {
             await router.createSession("userid", "abc123");
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Glacier2.CannotCreateSessionException, ex);
         }
         out.writeLine("ok");
@@ -133,13 +113,9 @@ export class Client extends TestHelper
         {
             out.write("pinging object with client endpoint... ");
             const baseC = communicator.stringToProxy("collocated:" + this.getTestEndpoint(50));
-            try
-            {
+            try {
                 await baseC.ice_ping();
-            }
-            catch(ex)
-            {
-            }
+            } catch (ex) {}
             out.writeLine("ok");
         }
 
@@ -192,13 +168,10 @@ export class Client extends TestHelper
         out.write("ditto, but with user exception... ");
         context = new Ice.Context();
         context.set("_fwd", "t");
-        try
-        {
+        try {
             await twoway.initiateCallbackEx(twowayR, context);
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.CallbackException, ex);
             test(ex.someValue == 3.14);
             test(ex.someString == "3.14");
@@ -210,13 +183,10 @@ export class Client extends TestHelper
         out.write("trying twoway callback with fake category... ");
         context = new Ice.Context();
         context.set("_fwd", "t");
-        try
-        {
+        try {
             await twoway.initiateCallback(fakeTwowayR, context);
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Ice.ObjectNotExistException, ex);
         }
         out.writeLine("ok");
@@ -233,13 +203,10 @@ export class Client extends TestHelper
         context = new Ice.Context();
         context.set("_fwd", "t");
         otherCategoryTwoway = CallbackPrx.uncheckedCast(twoway.ice_identity(Ice.stringToIdentity("c3/callback")));
-        try
-        {
+        try {
             await otherCategoryTwoway.initiateCallback(twowayR, context);
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Ice.ObjectNotExistException, ex);
         }
         out.writeLine("ok");
@@ -252,8 +219,7 @@ export class Client extends TestHelper
         await callbackReceiverImpl.callbackOK();
         out.writeLine("ok");
 
-        if(shutdown)
-        {
+        if (shutdown) {
             out.write("testing server shutdown... ");
             await twoway.shutdown();
             out.writeLine("ok");
@@ -266,19 +232,15 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("trying to ping server after session destruction... ");
-        try
-        {
+        try {
             await base.ice_ping();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Ice.ConnectionLostException, ex);
         }
         out.writeLine("ok");
 
-        if(shutdown)
-        {
+        if (shutdown) {
             out.write("uninstalling router with communicator... ");
             communicator.setDefaultRouter(null);
             out.writeLine("ok");
@@ -294,34 +256,26 @@ export class Client extends TestHelper
 
             out.write("testing Glacier2 shutdown... ");
             await processPrx.shutdown();
-            try
-            {
+            try {
                 await processPrx.ice_timeout(500).ice_ping();
                 test(false);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(ex instanceof Ice.LocalException, ex);
             }
             out.writeLine("ok");
         }
     }
 
-    async run(args:string[])
-    {
-        let communicator:Ice.Communicator;
-        try
-        {
+    async run(args: string[]) {
+        let communicator: Ice.Communicator;
+        try {
             const [properties] = this.createTestProperties(args);
             properties.setProperty("Ice.Warn.Dispatch", "1");
             properties.setProperty("Ice.Warn.Connections", "0");
             [communicator] = this.initialize(properties);
             await this.allTests(args.indexOf("--shutdown") > -1);
-        }
-        finally
-        {
-            if(communicator)
-            {
+        } finally {
+            if (communicator) {
                 await communicator.destroy();
             }
         }

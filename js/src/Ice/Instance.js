@@ -11,10 +11,8 @@ export const StateDestroyed = 2;
 //
 // Instance - only for use by Communicator
 //
-export class Instance
-{
-    constructor(initData)
-    {
+export class Instance {
+    constructor(initData) {
         this._state = StateActive;
         this._initData = initData;
 

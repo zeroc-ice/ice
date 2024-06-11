@@ -2,10 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-export class ProtocolInstance
-{
-    constructor(instance, type, protocol, secure)
-    {
+export class ProtocolInstance {
+    constructor(instance, type, protocol, secure) {
         this._instance = instance;
         this._traceLevel = instance.traceLevels().network;
         this._traceCategory = instance.traceLevels().networkCat;
@@ -16,63 +14,51 @@ export class ProtocolInstance
         this._secure = secure;
     }
 
-    traceLevel()
-    {
+    traceLevel() {
         return this._traceLevel;
     }
 
-    traceCategory()
-    {
+    traceCategory() {
         return this._traceCategory;
     }
 
-    logger()
-    {
+    logger() {
         return this._logger;
     }
 
-    protocol()
-    {
+    protocol() {
         return this._protocol;
     }
 
-    type()
-    {
+    type() {
         return this._type;
     }
 
-    secure()
-    {
+    secure() {
         return this._secure;
     }
 
-    properties()
-    {
+    properties() {
         return this._properties;
     }
 
-    defaultHost()
-    {
+    defaultHost() {
         return this._instance.defaultsAndOverrides().defaultHost;
     }
 
-    defaultSourceAddress()
-    {
+    defaultSourceAddress() {
         return this._instance.defaultsAndOverrides().defaultSourceAddress;
     }
 
-    defaultEncoding()
-    {
+    defaultEncoding() {
         return this._instance.defaultsAndOverrides().defaultEncoding;
     }
 
-    defaultTimeout()
-    {
+    defaultTimeout() {
         return this._instance.defaultsAndOverrides().defaultTimeout;
     }
 
-    messageSizeMax()
-    {
+    messageSizeMax() {
         return this._instance.messageSizeMax();
     }
 }

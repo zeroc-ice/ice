@@ -12,10 +12,8 @@ import { Encoding_1_0, encodingVersionToString, stringToEncodingVersion } from "
 import { OpaqueEndpointInfo } from "./Endpoint.js";
 import { Debug } from "./Debug.js";
 
-export class OpaqueEndpointI extends EndpointI
-{
-    constructor(type)
-    {
+export class OpaqueEndpointI extends EndpointI {
+    constructor(type) {
         super();
         this._rawEncoding = Encoding_1_0;
         this._type = type === undefined ? -1 : type;
@@ -25,8 +23,7 @@ export class OpaqueEndpointI extends EndpointI
     //
     // Marshal the endpoint
     //
-    streamWrite(s)
-    {
+    streamWrite(s) {
         s.startEncapsulation(this._rawEncoding, FormatType.DefaultFormat);
         s.writeBlob(this._rawBytes);
         s.endEncapsulation();
@@ -35,21 +32,18 @@ export class OpaqueEndpointI extends EndpointI
     //
     // Return the endpoint information.
     //
-    getInfo()
-    {
+    getInfo() {
         return new OpaqueEndpointInfoI(null, -1, false, this._rawEncoding, this._rawBytes, this._type);
     }
 
     //
     // Return the endpoint type
     //
-    type()
-    {
+    type() {
         return this._type;
     }
 
-    protocol()
-    {
+    protocol() {
         return "opaque";
     }
 
@@ -57,8 +51,7 @@ export class OpaqueEndpointI extends EndpointI
     // Return the timeout for the endpoint in milliseconds. 0 means
     // non-blocking, -1 means no timeout.
     //
-    timeout()
-    {
+    timeout() {
         return -1;
     }
 
@@ -67,16 +60,14 @@ export class OpaqueEndpointI extends EndpointI
     // that timeouts are supported by the endpoint. Otherwise the same
     // endpoint is returned.
     //
-    changeTimeout(t)
-    {
+    changeTimeout(t) {
         return this;
     }
 
     //
     // Return a new endpoint with a different connection id.
     //
-    changeConnectionId(connectionId)
-    {
+    changeConnectionId(connectionId) {
         return this;
     }
 
@@ -84,8 +75,7 @@ export class OpaqueEndpointI extends EndpointI
     // Return true if the endpoints support bzip2 compress, or false
     // otherwise.
     //
-    compress()
-    {
+    compress() {
         return false;
     }
 
@@ -94,32 +84,28 @@ export class OpaqueEndpointI extends EndpointI
     // provided that compression is supported by the
     // endpoint. Otherwise the same endpoint is returned.
     //
-    changeCompress(compress)
-    {
+    changeCompress(compress) {
         return this;
     }
 
     //
     // Return true if the endpoint is datagram-based.
     //
-    datagram()
-    {
+    datagram() {
         return false;
     }
 
     //
     // Return true if the endpoint is secure.
     //
-    secure()
-    {
+    secure() {
         return false;
     }
 
     //
     // Get the encoded endpoint.
     //
-    rawBytes()
-    {
+    rawBytes() {
         return this._rawBytes; // Returns a Uint8Array
     }
 
@@ -130,8 +116,7 @@ export class OpaqueEndpointI extends EndpointI
     // "effective" endpoint, which might differ from this endpoint,
     // for example, if a dynamic port number is assigned.
     //
-    transceiver(endpoint)
-    {
+    transceiver(endpoint) {
         endpoint.value = null;
         return null;
     }
@@ -143,21 +128,17 @@ export class OpaqueEndpointI extends EndpointI
     // from this endpoint, for example, if a dynamic port number is
     // assigned.
     //
-    acceptor(endpoint, adapterName)
-    {
+    acceptor(endpoint, adapterName) {
         endpoint.value = this;
         return null;
     }
 
-    connect()
-    {
+    connect() {
         return null;
     }
 
-    hashCode()
-    {
-        if(this._hashCode === undefined)
-        {
+    hashCode() {
+        if (this._hashCode === undefined) {
             let h = 5381;
             h = HashUtil.addNumber(h, this._type);
             h = HashUtil.addHashable(h, this._rawEncoding);
@@ -167,8 +148,7 @@ export class OpaqueEndpointI extends EndpointI
         return this._hashCode;
     }
 
-    options()
-    {
+    options() {
         let s = "";
         s += " -t " + this._type;
         s += " -e " + encodingVersionToString(this._rawEncoding);
@@ -179,36 +159,28 @@ export class OpaqueEndpointI extends EndpointI
     //
     // Compare endpoints for sorting purposes
     //
-    equals(p)
-    {
-        if(!(p instanceof OpaqueEndpointI))
-        {
+    equals(p) {
+        if (!(p instanceof OpaqueEndpointI)) {
             return false;
         }
 
-        if(this === p)
-        {
+        if (this === p) {
             return true;
         }
 
-        if(this._type !== p._type)
-        {
+        if (this._type !== p._type) {
             return false;
         }
 
-        if(!this._rawEncoding.equals(p._rawEncoding))
-        {
+        if (!this._rawEncoding.equals(p._rawEncoding)) {
             return false;
         }
 
-        if(this._rawBytes.length !== p._rawBytes.length)
-        {
+        if (this._rawBytes.length !== p._rawBytes.length) {
             return false;
         }
-        for(let i = 0; i < this._rawBytes.length; i++)
-        {
-            if(this._rawBytes[i] !== p._rawBytes[i])
-            {
+        for (let i = 0; i < this._rawBytes.length; i++) {
+            if (this._rawBytes[i] !== p._rawBytes[i]) {
                 return false;
             }
         }
@@ -216,66 +188,46 @@ export class OpaqueEndpointI extends EndpointI
         return true;
     }
 
-    compareTo(p)
-    {
-        if(this === p)
-        {
+    compareTo(p) {
+        if (this === p) {
             return 0;
         }
 
-        if(p === null)
-        {
+        if (p === null) {
             return 1;
         }
 
-        if(!(p instanceof OpaqueEndpointI))
-        {
+        if (!(p instanceof OpaqueEndpointI)) {
             return this.type() < p.type() ? -1 : 1;
         }
 
-        if(this._type < p._type)
-        {
+        if (this._type < p._type) {
             return -1;
-        }
-        else if(p._type < this._type)
-        {
+        } else if (p._type < this._type) {
             return 1;
         }
 
-        if(this._rawEncoding.major < p._rawEncoding.major)
-        {
+        if (this._rawEncoding.major < p._rawEncoding.major) {
             return -1;
-        }
-        else if(p._rawEncoding.major < this._rawEncoding.major)
-        {
+        } else if (p._rawEncoding.major < this._rawEncoding.major) {
             return 1;
         }
 
-        if(this._rawEncoding.minor < p._rawEncoding.minor)
-        {
+        if (this._rawEncoding.minor < p._rawEncoding.minor) {
             return -1;
-        }
-        else if(p._rawEncoding.minor < this._rawEncoding.minor)
-        {
+        } else if (p._rawEncoding.minor < this._rawEncoding.minor) {
             return 1;
         }
 
-        if(this._rawBytes.length < p._rawBytes.length)
-        {
+        if (this._rawBytes.length < p._rawBytes.length) {
             return -1;
-        }
-        else if(p._rawBytes.length < this._rawBytes.length)
-        {
+        } else if (p._rawBytes.length < this._rawBytes.length) {
             return 1;
         }
-        for(let i = 0; i < this._rawBytes.length; i++)
-        {
-            if(this._rawBytes[i] < p._rawBytes[i])
-            {
+        for (let i = 0; i < this._rawBytes.length; i++) {
+            if (this._rawBytes[i] < p._rawBytes[i]) {
                 return -1;
-            }
-            else if(p._rawBytes[i] < this._rawBytes[i])
-            {
+            } else if (p._rawBytes[i] < this._rawBytes[i]) {
                 return 1;
             }
         }
@@ -283,132 +235,110 @@ export class OpaqueEndpointI extends EndpointI
         return 0;
     }
 
-    checkOption(option, argument, endpoint)
-    {
-        switch(option.charAt(1))
-        {
-            case 't':
-            {
-                if(this._type > -1)
-                {
+    checkOption(option, argument, endpoint) {
+        switch (option.charAt(1)) {
+            case "t": {
+                if (this._type > -1) {
                     throw new EndpointParseException("multiple -t options in endpoint " + endpoint);
                 }
-                if(argument === null)
-                {
+                if (argument === null) {
                     throw new EndpointParseException("no argument provided for -t option in endpoint " + endpoint);
                 }
 
                 let type;
 
-                try
-                {
+                try {
                     type = StringUtil.toInt(argument);
-                }
-                catch(ex)
-                {
+                } catch (ex) {
                     throw new EndpointParseException("invalid type value `" + argument + "' in endpoint " + endpoint);
                 }
 
-                if(type < 0 || type > 65535)
-                {
-                    throw new EndpointParseException("type value `" + argument + "' out of range in endpoint " +
-                                                     endpoint);
+                if (type < 0 || type > 65535) {
+                    throw new EndpointParseException(
+                        "type value `" + argument + "' out of range in endpoint " + endpoint,
+                    );
                 }
 
                 this._type = type;
                 return true;
             }
 
-            case 'v':
-            {
-                if(this._rawBytes)
-                {
+            case "v": {
+                if (this._rawBytes) {
                     throw new EndpointParseException("multiple -v options in endpoint " + endpoint);
                 }
-                if(argument === null || argument.length === 0)
-                {
+                if (argument === null || argument.length === 0) {
                     throw new EndpointParseException("no argument provided for -v option in endpoint " + endpoint);
                 }
-                for(let i = 0; i < argument.length; ++i)
-                {
-                    if(!Base64.isBase64(argument.charAt(i)))
-                    {
-                        throw new EndpointParseException("invalid base64 character `" + argument.charAt(i) +
-                                                         "' (ordinal " + argument.charCodeAt(i) +
-                                                         ") in endpoint " + endpoint);
+                for (let i = 0; i < argument.length; ++i) {
+                    if (!Base64.isBase64(argument.charAt(i))) {
+                        throw new EndpointParseException(
+                            "invalid base64 character `" +
+                                argument.charAt(i) +
+                                "' (ordinal " +
+                                argument.charCodeAt(i) +
+                                ") in endpoint " +
+                                endpoint,
+                        );
                     }
                 }
                 this._rawBytes = Base64.decode(argument);
                 return true;
             }
 
-            case 'e':
-            {
-                if(argument === null)
-                {
+            case "e": {
+                if (argument === null) {
                     throw new EndpointParseException("no argument provided for -e option in endpoint " + endpoint);
                 }
-                try
-                {
+                try {
                     this._rawEncoding = stringToEncodingVersion(argument);
-                }
-                catch(e)
-                {
-                    throw new EndpointParseException("invalid encoding version `" + argument +
-                                                     "' in endpoint " + endpoint + ":\n" + e.str);
+                } catch (e) {
+                    throw new EndpointParseException(
+                        "invalid encoding version `" + argument + "' in endpoint " + endpoint + ":\n" + e.str,
+                    );
                 }
                 return true;
             }
 
-            default:
-            {
+            default: {
                 return false;
             }
         }
     }
 
-    initWithOptions(args)
-    {
+    initWithOptions(args) {
         super.initWithOptions(args);
         Debug.assert(this._rawEncoding);
 
-        if(this._type < 0)
-        {
+        if (this._type < 0) {
             throw new EndpointParseException("no -t option in endpoint `" + this + "'");
         }
-        if(this._rawBytes === null || this._rawBytes.length === 0)
-        {
+        if (this._rawBytes === null || this._rawBytes.length === 0) {
             throw new EndpointParseException("no -v option in endpoint `" + this + "'");
         }
     }
 
-    initWithStream(s)
-    {
+    initWithStream(s) {
         this._rawEncoding = s.getEncoding();
         this._rawBytes = s.readBlob(s.getEncapsulationSize());
     }
 }
 
-class OpaqueEndpointInfoI extends OpaqueEndpointInfo
-{
-    constructor(timeout, compress, rawEncoding, rawBytes, type)
-    {
+class OpaqueEndpointInfoI extends OpaqueEndpointInfo {
+    constructor(timeout, compress, rawEncoding, rawBytes, type) {
         super(-1, false, rawEncoding, rawBytes);
         this._type = type;
     }
 
-    type()
-    {
+    type() {
         return this._type;
     }
 
-    datagram()
-    {
+    datagram() {
         return false;
     }
 
-    secure()
-    {
+    secure() {
         return false;
     }
 }

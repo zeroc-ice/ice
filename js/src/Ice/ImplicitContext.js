@@ -10,70 +10,54 @@ import { InitializationException } from "./LocalException.js";
 //
 // The base class for all ImplicitContext implementations
 //
-export class ImplicitContext
-{
-    constructor()
-    {
+export class ImplicitContext {
+    constructor() {
         this._context = new Context();
     }
 
-    getContext()
-    {
+    getContext() {
         return new Context(this._context);
     }
 
-    setContext(context)
-    {
-        if(context !== null && context.size > 0)
-        {
+    setContext(context) {
+        if (context !== null && context.size > 0) {
             this._context = new Context(context);
-        }
-        else
-        {
+        } else {
             this._context.clear();
         }
     }
 
-    containsKey(key)
-    {
-        if(key === null)
-        {
+    containsKey(key) {
+        if (key === null) {
             key = "";
         }
 
         return this._context.has(key);
     }
 
-    get(key)
-    {
-        if(key === null)
-        {
+    get(key) {
+        if (key === null) {
             key = "";
         }
 
         let val = this._context.get(key);
-        if(val === null)
-        {
+        if (val === null) {
             val = "";
         }
 
         return val;
     }
 
-    put(key, value)
-    {
-        if(key === null)
-        {
+    put(key, value) {
+        if (key === null) {
             key = "";
         }
-        if(value === null)
-        {
+        if (value === null) {
             value = "";
         }
 
         let oldVal = this._context.get(key);
-        if(oldVal === null)
-        {
+        if (oldVal === null) {
             oldVal = "";
         }
 
@@ -82,41 +66,30 @@ export class ImplicitContext
         return oldVal;
     }
 
-    remove(key)
-    {
-        if(key === null)
-        {
+    remove(key) {
+        if (key === null) {
             key = "";
         }
 
         let val = this._context.get(key);
         this._context.delete(key);
 
-        if(val === null)
-        {
+        if (val === null) {
             val = "";
         }
         return val;
     }
 
-    write(prxContext, os)
-    {
-        if(prxContext.size === 0)
-        {
+    write(prxContext, os) {
+        if (prxContext.size === 0) {
             ContextHelper.write(os, this._context);
-        }
-        else
-        {
+        } else {
             let ctx = null;
-            if(this._context.size === 0)
-            {
+            if (this._context.size === 0) {
                 ctx = prxContext;
-            }
-            else
-            {
+            } else {
                 ctx = new Context(this._context);
-                for(const [key, value] of prxContext)
-                {
+                for (const [key, value] of prxContext) {
                     ctx.set(key, value);
                 }
             }
@@ -124,18 +97,12 @@ export class ImplicitContext
         }
     }
 
-    static create(kind)
-    {
-        if(kind.length === 0 || kind === "None")
-        {
+    static create(kind) {
+        if (kind.length === 0 || kind === "None") {
             return null;
-        }
-        else if(kind === "Shared")
-        {
+        } else if (kind === "Shared") {
             return new ImplicitContext();
-        }
-        else
-        {
+        } else {
             throw new InitializationException("'" + kind + "' is not a valid value for Ice.ImplicitContext");
         }
     }

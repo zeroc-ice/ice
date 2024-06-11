@@ -5,45 +5,27 @@
 import { Ice } from "ice";
 import { Test } from "./Test.js";
 
-export class TestI extends Test.TestIntf
-{
-    requestFailedException(current)
-    {
-    }
+export class TestI extends Test.TestIntf {
+    requestFailedException(current) {}
 
-    unknownUserException(current)
-    {
-    }
+    unknownUserException(current) {}
 
-    unknownLocalException(current)
-    {
-    }
+    unknownLocalException(current) {}
 
-    unknownException(current)
-    {
-    }
+    unknownException(current) {}
 
-    localException(current)
-    {
-    }
+    localException(current) {}
 
-    userException(current)
-    {
-    }
+    userException(current) {}
 
-    jsException(current)
-    {
-    }
+    jsException(current) {}
 
-    unknownExceptionWithServantException(current)
-    {
+    unknownExceptionWithServantException(current) {
         throw new Ice.ObjectNotExistException();
     }
 
-    impossibleException(throwEx, current)
-    {
-        if(throwEx)
-        {
+    impossibleException(throwEx, current) {
+        if (throwEx) {
             throw new Test.TestImpossibleException();
         }
 
@@ -54,10 +36,8 @@ export class TestI extends Test.TestIntf
         return "Hello";
     }
 
-    intfUserException(throwEx, current)
-    {
-        if(throwEx)
-        {
+    intfUserException(throwEx, current) {
+        if (throwEx) {
             throw new Test.TestIntfUserException();
         }
 
@@ -68,18 +48,15 @@ export class TestI extends Test.TestIntf
         return "Hello";
     }
 
-    asyncResponse(current)
-    {
+    asyncResponse(current) {
         throw new Ice.ObjectNotExistException();
     }
 
-    asyncException(current)
-    {
+    asyncException(current) {
         throw new Ice.ObjectNotExistException();
     }
 
-    shutdown(current)
-    {
+    shutdown(current) {
         current.adapter.getCommunicator().shutdown();
     }
 }

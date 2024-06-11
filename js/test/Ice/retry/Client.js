@@ -8,10 +8,8 @@ import { TestHelper } from "../../Common/TestHelper.js";
 
 const test = TestHelper.test;
 
-export class Client extends TestHelper
-{
-    async allTests(communicator, communicator2)
-    {
+export class Client extends TestHelper {
+    async allTests(communicator, communicator2) {
         const out = this.getWriter();
         out.write("testing stringToProxy... ");
         const ref = "retry:" + this.getTestEndpoint();
@@ -35,19 +33,15 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("calling operation to kill connection with second proxy... ");
-        try
-        {
+        try {
             await retry2.op(true);
             test(false);
-        }
-        catch(ex)
-        {
-            if(typeof window === 'undefined' && typeof WorkerGlobalScope === 'undefined') // Nodejs
-            {
+        } catch (ex) {
+            if (typeof window === "undefined" && typeof WorkerGlobalScope === "undefined") {
+                // Nodejs
                 test(ex instanceof Ice.ConnectionLostException, ex);
-            }
-            else // Browser
-            {
+            } // Browser
+            else {
                 test(ex instanceof Ice.SocketException, ex);
             }
             out.writeLine("ok");
@@ -63,26 +57,20 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("testing non-idempotent operation... ");
-        try
-        {
+        try {
             await retry1.opNotIdempotent();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Ice.LocalException, ex);
         }
         out.writeLine("ok");
 
         out.write("testing invocation timeout and retries... ");
         retry2 = Test.RetryPrx.uncheckedCast(communicator2.stringToProxy(retry1.toString()));
-        try
-        {
+        try {
             await retry2.ice_invocationTimeout(500).opIdempotent(4);
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Ice.InvocationTimeoutException, ex);
         }
 
@@ -92,12 +80,10 @@ export class Client extends TestHelper
         await retry1.shutdown();
     }
 
-    async run(args)
-    {
+    async run(args) {
         let communicator;
         let communicator2;
-        try
-        {
+        try {
             let [properties] = this.createTestProperties(args);
 
             //
@@ -122,16 +108,12 @@ export class Client extends TestHelper
             [communicator2] = this.initialize(properties);
 
             await this.allTests(communicator, communicator2);
-        }
-        finally
-        {
-            if(communicator2)
-            {
+        } finally {
+            if (communicator2) {
                 await communicator2.destroy();
             }
 
-            if(communicator)
-            {
+            if (communicator) {
                 await communicator.destroy();
             }
         }

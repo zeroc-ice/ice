@@ -2,15 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import {Ice} from "ice";
-import {Test} from "./generated"
-import {TestHelper} from "../../../Common/TestHelper"
+import { Ice } from "ice";
+import { Test } from "./generated";
+import { TestHelper } from "../../../Common/TestHelper";
 const test = TestHelper.test;
 
-export class Client extends TestHelper
-{
-    run()
-    {
+export class Client extends TestHelper {
+    run() {
         const out = this.getWriter();
         out.write("testing default values... ");
         {
@@ -23,7 +21,7 @@ export class Client extends TestHelper
             test(v.l.equals(new Ice.Long(0, 4)));
             test(v.f === 5.1);
             test(v.d === 6.2);
-            test(v.str === "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b?");
+            test(v.str === 'foo \\ "bar\n \r\n\t\u000b\f\u0007\b?');
             test(v.c1 === Test.Color.red);
             test(v.c2 === Test.Color.green);
             test(v.c3 === Test.Color.blue);
@@ -67,7 +65,7 @@ export class Client extends TestHelper
             test(v.l.equals(new Ice.Long(0, 4)));
             test(v.f === 5.1);
             test(v.d === 6.2);
-            test(v.str == "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b?");
+            test(v.str == 'foo \\ "bar\n \r\n\t\u000b\f\u0007\b?');
             test(v.noDefault === "");
             test(v.zeroI === 0);
             test(v.zeroL.equals(new Ice.Long(0, 0)));
@@ -87,7 +85,7 @@ export class Client extends TestHelper
             test(v.l.equals(new Ice.Long(0, 4)));
             test(v.f === 5.1);
             test(v.d === 6.2);
-            test(v.str == "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b?");
+            test(v.str == 'foo \\ "bar\n \r\n\t\u000b\f\u0007\b?');
             test(v.c1 === Test.Color.red);
             test(v.c2 === Test.Color.green);
             test(v.c3 === Test.Color.blue);
@@ -113,7 +111,7 @@ export class Client extends TestHelper
             test(v.l.equals(new Ice.Long(0, 4)));
             test(v.f === 5.1);
             test(v.d === 6.2);
-            test(v.str == "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b?");
+            test(v.str == 'foo \\ "bar\n \r\n\t\u000b\f\u0007\b?');
             test(v.noDefault === "");
             test(v.zeroI === 0);
             test(v.zeroL.equals(new Ice.Long(0, 0)));
@@ -133,7 +131,7 @@ export class Client extends TestHelper
             test(v.l.equals(new Ice.Long(0, 4)));
             test(v.f === 5.1);
             test(v.d === 6.2);
-            test(v.str == "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b?");
+            test(v.str == 'foo \\ "bar\n \r\n\t\u000b\f\u0007\b?');
             test(v.noDefault === "");
             test(v.c1 === Test.Color.red);
             test(v.c2 === Test.Color.green);

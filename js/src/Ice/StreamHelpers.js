@@ -18,23 +18,18 @@ const defineProperty = Object.defineProperty;
 
 export const StreamHelpers = {};
 
-StreamHelpers.FSizeOptHelper = function()
-{
-    this.writeOptional = function(os, tag, v)
-    {
-        if(v !== undefined && os.writeOptional(tag, OptionalFormat.FSize))
-        {
+StreamHelpers.FSizeOptHelper = function () {
+    this.writeOptional = function (os, tag, v) {
+        if (v !== undefined && os.writeOptional(tag, OptionalFormat.FSize)) {
             const pos = os.startSize();
             this.write(os, v);
             os.endSize(pos);
         }
     };
 
-    this.readOptional = function(is, tag)
-    {
+    this.readOptional = function (is, tag) {
         let v;
-        if(is.readOptional(tag, OptionalFormat.FSize))
-        {
+        if (is.readOptional(tag, OptionalFormat.FSize)) {
             is.skip(4);
             v = this.read(is);
         }
@@ -42,22 +37,17 @@ StreamHelpers.FSizeOptHelper = function()
     };
 };
 
-StreamHelpers.VSizeOptHelper = function()
-{
-    this.writeOptional = function(os, tag, v)
-    {
-        if(v !== undefined && os.writeOptional(tag, OptionalFormat.VSize))
-        {
+StreamHelpers.VSizeOptHelper = function () {
+    this.writeOptional = function (os, tag, v) {
+        if (v !== undefined && os.writeOptional(tag, OptionalFormat.VSize)) {
             os.writeSize(this.minWireSize);
             this.write(os, v);
         }
     };
 
-    this.readOptional = function(is, tag)
-    {
+    this.readOptional = function (is, tag) {
         let v;
-        if(is.readOptional(tag, OptionalFormat.VSize))
-        {
+        if (is.readOptional(tag, OptionalFormat.VSize)) {
             is.skipSize();
             v = this.read(is);
         }
@@ -65,23 +55,18 @@ StreamHelpers.VSizeOptHelper = function()
     };
 };
 
-StreamHelpers.VSizeContainerOptHelper = function(elementSize)
-{
-    this.writeOptional = function(os, tag, v)
-    {
-        if(v !== undefined && os.writeOptional(tag, OptionalFormat.VSize))
-        {
+StreamHelpers.VSizeContainerOptHelper = function (elementSize) {
+    this.writeOptional = function (os, tag, v) {
+        if (v !== undefined && os.writeOptional(tag, OptionalFormat.VSize)) {
             const sz = this.size(v);
             os.writeSize(sz > 254 ? sz * elementSize + 5 : sz * elementSize + 1);
             this.write(os, v);
         }
     };
 
-    this.readOptional = function(is, tag)
-    {
+    this.readOptional = function (is, tag) {
         let v;
-        if(is.readOptional(tag, OptionalFormat.VSize))
-        {
+        if (is.readOptional(tag, OptionalFormat.VSize)) {
             is.skipSize();
             v = this.read(is);
         }
@@ -89,21 +74,16 @@ StreamHelpers.VSizeContainerOptHelper = function(elementSize)
     };
 };
 
-StreamHelpers.VSizeContainer1OptHelper = function()
-{
-    this.writeOptional = function(os, tag, v)
-    {
-        if(v !== undefined && os.writeOptional(tag, OptionalFormat.VSize))
-        {
+StreamHelpers.VSizeContainer1OptHelper = function () {
+    this.writeOptional = function (os, tag, v) {
+        if (v !== undefined && os.writeOptional(tag, OptionalFormat.VSize)) {
             this.write(os, v);
         }
     };
 
-    this.readOptional = function(is, tag)
-    {
+    this.readOptional = function (is, tag) {
         let v;
-        if(is.readOptional(tag, OptionalFormat.VSize))
-        {
+        if (is.readOptional(tag, OptionalFormat.VSize)) {
             v = this.read(is);
         }
         return v;
@@ -113,45 +93,35 @@ StreamHelpers.VSizeContainer1OptHelper = function()
 //
 // Sequence helper to write sequences
 //
-class SequenceHelper
-{
-    write(os, v)
-    {
-        if(v === null || v === undefined || v.length === 0)
-        {
+class SequenceHelper {
+    write(os, v) {
+        if (v === null || v === undefined || v.length === 0) {
             os.writeSize(0);
-        }
-        else
-        {
+        } else {
             const helper = this.elementHelper;
             os.writeSize(v.length);
-            for(let i = 0; i < v.length; ++i)
-            {
+            for (let i = 0; i < v.length; ++i) {
                 helper.write(os, v[i]);
             }
         }
     }
 
-    read(is)
-    {
+    read(is) {
         const helper = this.elementHelper; // Cache the element helper.
         const sz = is.readAndCheckSeqSize(helper.minWireSize);
         const v = [];
         v.length = sz;
-        for(let i = 0; i < sz; ++i)
-        {
+        for (let i = 0; i < sz; ++i) {
             v[i] = helper.read(is);
         }
         return v;
     }
 
-    size(v)
-    {
-        return (v === null || v === undefined) ? 0 : v.length;
+    size(v) {
+        return v === null || v === undefined ? 0 : v.length;
     }
 
-    get minWireSize()
-    {
+    get minWireSize() {
         return 1;
     }
 }
@@ -159,62 +129,51 @@ class SequenceHelper
 // Specialization optimized for ByteSeq
 const byteSeqHelper = new SequenceHelper();
 byteSeqHelper.write = (os, v) => os.writeByteSeq(v);
-byteSeqHelper.read = is => is.readByteSeq();
+byteSeqHelper.read = (is) => is.readByteSeq();
 
-defineProperty(byteSeqHelper, "elementHelper", {get: () => ByteHelper});
+defineProperty(byteSeqHelper, "elementHelper", { get: () => ByteHelper });
 StreamHelpers.VSizeContainer1OptHelper.call(byteSeqHelper);
 
 // Read method for value sequences
-const valueSequenceHelperRead = function(is)
-{
+const valueSequenceHelperRead = function (is) {
     const sz = is.readAndCheckSeqSize(1);
     const v = [];
     v.length = sz;
     const elementType = this.elementType;
-    const readValueAtIndex = function(idx)
-    {
-        is.readValue(obj =>
-                     {
-                         v[idx] = obj;
-                     }, elementType);
+    const readValueAtIndex = function (idx) {
+        is.readValue((obj) => {
+            v[idx] = obj;
+        }, elementType);
     };
 
-    for(let i = 0; i < sz; ++i)
-    {
+    for (let i = 0; i < sz; ++i) {
         readValueAtIndex(i);
     }
     return v;
 };
 
-StreamHelpers.generateSeqHelper = function(elementHelper, fixed, elementType)
-{
-    if(elementHelper === ByteHelper)
-    {
+StreamHelpers.generateSeqHelper = function (elementHelper, fixed, elementType) {
+    if (elementHelper === ByteHelper) {
         return byteSeqHelper;
     }
 
     const helper = new SequenceHelper();
-    if(fixed)
-    {
-        if(elementHelper.minWireSize === 1)
-        {
+    if (fixed) {
+        if (elementHelper.minWireSize === 1) {
             StreamHelpers.VSizeContainer1OptHelper.call(helper);
-        }
-        else
-        {
+        } else {
             StreamHelpers.VSizeContainerOptHelper.call(helper, elementHelper.minWireSize);
         }
-    }
-    else
-    {
+    } else {
         StreamHelpers.FSizeOptHelper.call(helper);
     }
 
-    defineProperty(helper, "elementHelper", {get: () => elementHelper});
+    defineProperty(helper, "elementHelper", { get: () => elementHelper });
 
-    if(elementHelper == ObjectHelper)
-    {
-        defineProperty(helper, "elementType", {get: () => TypeRegistry.getValueType(elementType) });
+    if (elementHelper == ObjectHelper) {
+        defineProperty(helper, "elementType", {
+            get: () => TypeRegistry.getValueType(elementType),
+        });
         helper.read = valueSequenceHelperRead;
     }
 
@@ -224,107 +183,84 @@ StreamHelpers.generateSeqHelper = function(elementHelper, fixed, elementType)
 //
 // Dictionary helper to write dictionaries
 //
-class DictionaryHelper
-{
-    write(os, v)
-    {
-        if(v === null || v == undefined || v.size === 0)
-        {
+class DictionaryHelper {
+    write(os, v) {
+        if (v === null || v == undefined || v.size === 0) {
             os.writeSize(0);
-        }
-        else
-        {
+        } else {
             const keyHelper = this.keyHelper;
             const valueHelper = this.valueHelper;
             os.writeSize(v.size);
-            for(const [key, value] of v)
-            {
+            for (const [key, value] of v) {
                 keyHelper.write(os, key);
                 valueHelper.write(os, value);
             }
         }
     }
 
-    read(is)
-    {
+    read(is) {
         const mapType = this.mapType;
         const v = new mapType();
         const sz = is.readSize();
         const keyHelper = this.keyHelper;
         const valueHelper = this.valueHelper;
-        for(let i = 0; i < sz; ++i)
-        {
+        for (let i = 0; i < sz; ++i) {
             v.set(keyHelper.read(is), valueHelper.read(is));
         }
         return v;
     }
 
-    size(v)
-    {
-        return (v === null || v === undefined) ? 0 : v.size;
+    size(v) {
+        return v === null || v === undefined ? 0 : v.size;
     }
 
-    get minWireSize()
-    {
+    get minWireSize() {
         return 1;
     }
 }
 
 // Read method for dictionaries of values
-function valueDictionaryHelperRead(is)
-{
+function valueDictionaryHelperRead(is) {
     const sz = is.readSize();
     const mapType = this.mapType;
     const v = new mapType();
     const valueType = this.valueType;
 
-    const readValueForKey = function(key)
-    {
-        is.readValue(obj => v.set(key, obj), valueType);
+    const readValueForKey = function (key) {
+        is.readValue((obj) => v.set(key, obj), valueType);
     };
 
     const keyHelper = this.keyHelper;
-    for(let i = 0; i < sz; ++i)
-    {
+    for (let i = 0; i < sz; ++i) {
         readValueForKey(keyHelper.read(is));
     }
     return v;
-};
+}
 
-StreamHelpers.generateDictHelper = function(keyHelper, valueHelper, fixed, valueType, mapType)
-{
+StreamHelpers.generateDictHelper = function (keyHelper, valueHelper, fixed, valueType, mapType) {
     const helper = new DictionaryHelper();
-    if(fixed)
-    {
+    if (fixed) {
         StreamHelpers.VSizeContainerOptHelper.call(helper, keyHelper.minWireSize + valueHelper.minWireSize);
-    }
-    else
-    {
+    } else {
         StreamHelpers.FSizeOptHelper.call(helper);
     }
 
-    defineProperty(helper,
-                   "mapType",
-                   {
-                       get: () => mapType
-                   });
+    defineProperty(helper, "mapType", {
+        get: () => mapType,
+    });
 
-    defineProperty(helper, "keyHelper",
-                   {
-                       get: () => keyHelper
-                   });
+    defineProperty(helper, "keyHelper", {
+        get: () => keyHelper,
+    });
 
-    defineProperty(helper, "valueHelper",
-                   {
-                       get: () => valueHelper
-                   });
+    defineProperty(helper, "valueHelper", {
+        get: () => valueHelper,
+    });
 
-    if(valueHelper == ObjectHelper)
-    {
-        defineProperty(helper, "valueType",
-                       {
-                           get: () => TypeRegistry.getValueType(valueType)
-                       });
+    if (valueHelper == ObjectHelper) {
+        defineProperty(helper, "valueType", {
+            get: () => TypeRegistry.getValueType(valueType),
+        });
 
         helper.read = valueDictionaryHelperRead;
     }

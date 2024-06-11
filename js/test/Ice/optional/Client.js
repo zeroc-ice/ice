@@ -12,10 +12,8 @@ import { Test as ClientPrivate } from "./ClientPrivate.js";
 
 const ArrayUtil = Ice.ArrayUtil;
 
-export class Client extends TestHelper
-{
-    async allTests(Test)
-    {
+export class Client extends TestHelper {
+    async allTests(Test) {
         const communicator = this.communicator();
         const out = this.getWriter();
         out.write("testing stringToProxy... ");
@@ -264,14 +262,12 @@ export class Client extends TestHelper
         mc.shs = new Array(300);
 
         mc.fss = [];
-        for(let i = 0; i < 300; ++i)
-        {
+        for (let i = 0; i < 300; ++i) {
             mc.fss[i] = new Test.FixedStruct();
         }
 
         mc.ifsd = new Map();
-        for(let i = 0; i < 300; ++i)
-        {
+        for (let i = 0; i < 300; ++i) {
             mc.ifsd.set(i, new Test.FixedStruct());
         }
         mc = await initial.pingPong(mc);
@@ -422,16 +418,14 @@ export class Client extends TestHelper
         test(p2 === undefined);
 
         let data = [];
-        for(let i = 0; i < 100; ++i)
-        {
+        for (let i = 0; i < 100; ++i) {
             data[i] = 56;
         }
         [p1, p2] = await initial.opByteSeq(new Uint8Array(data));
 
         test(p1.length === 100);
         test(p2.length === 100);
-        for(let i = 0; i < 100; ++i)
-        {
+        for (let i = 0; i < 100; ++i) {
             test(p1[i] === 56);
             test(p2[i] === 56);
         }
@@ -440,15 +434,13 @@ export class Client extends TestHelper
         test(p2 === undefined);
 
         data = [];
-        for(let i = 0; i < 100; ++i)
-        {
+        for (let i = 0; i < 100; ++i) {
             data[i] = true;
         }
         [p1, p2] = await initial.opBoolSeq(data);
         test(p1.length === 100);
         test(p2.length === 100);
-        for(let i = 0; i < 100; ++i)
-        {
+        for (let i = 0; i < 100; ++i) {
             test(p1[i] === true);
             test(p2[i] === true);
         }
@@ -457,15 +449,13 @@ export class Client extends TestHelper
         test(p2 === undefined);
 
         data = [];
-        for(let i = 0; i < 100; ++i)
-        {
+        for (let i = 0; i < 100; ++i) {
             data[i] = 56;
         }
         [p1, p2] = await initial.opShortSeq(data);
         test(p1.length === 100);
         test(p2.length === 100);
-        for(let i = 0; i < 100; ++i)
-        {
+        for (let i = 0; i < 100; ++i) {
             test(p1[i] === 56);
             test(p2[i] === 56);
         }
@@ -474,15 +464,13 @@ export class Client extends TestHelper
         test(p2 === undefined);
 
         data = [];
-        for(let i = 0; i < 100; ++i)
-        {
+        for (let i = 0; i < 100; ++i) {
             data[i] = 56;
         }
         [p1, p2] = await initial.opIntSeq(data);
         test(p1.length === 100);
         test(p2.length === 100);
-        for(let i = 0; i < 100; ++i)
-        {
+        for (let i = 0; i < 100; ++i) {
             test(p1[i] === 56);
             test(p2[i] === 56);
         }
@@ -490,15 +478,13 @@ export class Client extends TestHelper
         test(p1 === undefined);
         test(p2 === undefined);
         data = [];
-        for(let i = 0; i < 100; ++i)
-        {
+        for (let i = 0; i < 100; ++i) {
             data[i] = new Ice.Long(0, 56);
         }
         [p1, p2] = await initial.opLongSeq(data);
         test(p1.length === 100);
         test(p2.length === 100);
-        for(let i = 0; i < 100; ++i)
-        {
+        for (let i = 0; i < 100; ++i) {
             test(p1[i].equals(new Ice.Long(0, 56)));
             test(p2[i].equals(new Ice.Long(0, 56)));
         }
@@ -506,15 +492,13 @@ export class Client extends TestHelper
         test(p1 === undefined);
         test(p2 === undefined);
         data = [];
-        for(let i = 0; i < 100; ++i)
-        {
+        for (let i = 0; i < 100; ++i) {
             data[i] = 1.0;
         }
         [p1, p2] = await initial.opFloatSeq(data);
         test(p1.length === 100);
         test(p2.length === 100);
-        for(let i = 0; i < 100; ++i)
-        {
+        for (let i = 0; i < 100; ++i) {
             test(p1[i] === 1.0);
             test(p2[i] === 1.0);
         }
@@ -522,15 +506,13 @@ export class Client extends TestHelper
         test(p1 === undefined);
         test(p2 === undefined);
         data = [];
-        for(let i = 0; i < 100; ++i)
-        {
+        for (let i = 0; i < 100; ++i) {
             data[i] = 1.0;
         }
         [p1, p2] = await initial.opDoubleSeq(data);
         test(p1.length === 100);
         test(p2.length === 100);
-        for(let i = 0; i < 100; ++i)
-        {
+        for (let i = 0; i < 100; ++i) {
             test(p1[i] === 1.0);
             test(p2[i] === 1.0);
         }
@@ -538,16 +520,14 @@ export class Client extends TestHelper
         test(p1 === undefined);
         test(p2 === undefined);
         data = [];
-        for(let i = 0; i < 100; ++i)
-        {
+        for (let i = 0; i < 100; ++i) {
             data[i] = "test1";
         }
         [p1, p2] = await initial.opStringSeq(data);
 
         test(p1.length === 100);
         test(p2.length === 100);
-        for(let i = 0; i < 100; ++i)
-        {
+        for (let i = 0; i < 100; ++i) {
             test(p1[i] == "test1");
             test(p2[i] == "test1");
         }
@@ -555,16 +535,14 @@ export class Client extends TestHelper
         test(p1 === undefined);
         test(p2 === undefined);
         data = [];
-        for(let i = 0; i < 100; ++i)
-        {
+        for (let i = 0; i < 100; ++i) {
             data[i] = new Test.SmallStruct();
         }
         [p1, p2] = await initial.opSmallStructSeq(data);
 
         test(p1.length === 100);
         test(p2.length === 100);
-        for(let i = 0; i < 100; ++i)
-        {
+        for (let i = 0; i < 100; ++i) {
             test(p1[i].equals(new Test.SmallStruct()));
             test(p2[i].equals(new Test.SmallStruct()));
         }
@@ -573,16 +551,14 @@ export class Client extends TestHelper
         test(p1 === undefined);
         test(p2 === undefined);
         data = [];
-        for(let i = 0; i < 100; ++i)
-        {
+        for (let i = 0; i < 100; ++i) {
             data[i] = new Test.FixedStruct();
         }
         [p1, p2] = await initial.opFixedStructSeq(data);
 
         test(p1.length === 100);
         test(p2.length === 100);
-        for(let i = 0; i < 100; ++i)
-        {
+        for (let i = 0; i < 100; ++i) {
             test(p1[i].equals(new Test.FixedStruct()));
             test(p2[i].equals(new Test.FixedStruct()));
         }
@@ -590,15 +566,13 @@ export class Client extends TestHelper
         test(p1 === undefined);
         test(p2 === undefined);
         data = [];
-        for(let i = 0; i < 100; ++i)
-        {
+        for (let i = 0; i < 100; ++i) {
             data[i] = new Test.VarStruct("");
         }
         [p1, p2] = await initial.opVarStructSeq(data);
         test(p1.length === 100);
         test(p2.length === 100);
-        for(let i = 0; i < 100; ++i)
-        {
+        for (let i = 0; i < 100; ++i) {
             test(p1[i].equals(new Test.VarStruct("")));
             test(p2[i].equals(new Test.VarStruct("")));
         }
@@ -623,37 +597,28 @@ export class Client extends TestHelper
 
         out.write("testing exception optionals... ");
 
-        try
-        {
+        try {
             await initial.opOptionalException();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.OptionalException, ex);
             test(ex.a === undefined);
             test(ex.b === undefined);
         }
 
-        try
-        {
+        try {
             await initial.opOptionalException(30, "test");
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.OptionalException, ex);
             test(ex.a === 30);
             test(ex.b == "test");
         }
 
-        try
-        {
+        try {
             await initial.opDerivedException();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.DerivedException, ex);
             test(ex.a === undefined);
             test(ex.b === undefined);
@@ -662,13 +627,10 @@ export class Client extends TestHelper
             test(ex.d2 == "d2");
         }
 
-        try
-        {
+        try {
             await initial.opDerivedException(30, "test2");
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.DerivedException, ex);
             test(ex.a === 30);
             test(ex.b == "test2");
@@ -679,9 +641,9 @@ export class Client extends TestHelper
 
         out.write("testing optionals with marshaled results... ");
 
-        test(await initial.opMStruct1() !== undefined);
-        test(await initial.opMDict1() !== undefined);
-        test(await initial.opMSeq1() !== undefined);
+        test((await initial.opMStruct1()) !== undefined);
+        test((await initial.opMDict1()) !== undefined);
+        test((await initial.opMSeq1()) !== undefined);
 
         {
             let [p3, p2] = await initial.opMStruct2();
@@ -716,18 +678,13 @@ export class Client extends TestHelper
         await initial.shutdown();
     }
 
-    async run(args)
-    {
+    async run(args) {
         let communicator;
-        try
-        {
+        try {
             [communicator] = this.initialize(args);
             await this.allTests(Test);
-        }
-        finally
-        {
-            if(communicator)
-            {
+        } finally {
+            if (communicator) {
                 await communicator.destroy();
             }
         }

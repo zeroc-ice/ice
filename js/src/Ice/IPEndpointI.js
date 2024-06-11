@@ -8,10 +8,8 @@ import { HashUtil } from "./HashUtil.js";
 import { StringUtil } from "./StringUtil.js";
 import { EndpointI } from "./EndpointI.js";
 
-export class IPEndpointI extends EndpointI
-{
-    constructor(instance, ho, po, sa, conId)
-    {
+export class IPEndpointI extends EndpointI {
+    constructor(instance, ho, po, sa, conId) {
         super();
         this._instance = instance;
         this._host = ho === undefined ? null : ho;
@@ -23,15 +21,13 @@ export class IPEndpointI extends EndpointI
     //
     // Marshal the endpoint
     //
-    streamWrite(s)
-    {
+    streamWrite(s) {
         s.startEncapsulation();
         this.streamWriteImpl(s);
         s.endEncapsulation();
     }
 
-    getInfo()
-    {
+    getInfo() {
         const info = new IPEndpointInfo();
         this.fillEndpointInfo(info);
         return info;
@@ -40,43 +36,35 @@ export class IPEndpointI extends EndpointI
     //
     // Return the endpoint type
     //
-    type()
-    {
+    type() {
         return this._instance.type();
     }
 
     //
     // Return the protocol string
     //
-    protocol()
-    {
+    protocol() {
         return this._instance.protocol();
     }
 
     //
     // Return true if the endpoint is secure.
     //
-    secure()
-    {
+    secure() {
         return this._instance.secure();
     }
 
-    connectionId()
-    {
+    connectionId() {
         return this._connectionId;
     }
 
     //
     // Return a new endpoint with a different connection id.
     //
-    changeConnectionId(connectionId)
-    {
-        if(connectionId === this._connectionId)
-        {
+    changeConnectionId(connectionId) {
+        if (connectionId === this._connectionId) {
             return this;
-        }
-        else
-        {
+        } else {
             return this.createEndpoint(this._host, this._port, connectionId);
         }
     }
@@ -84,17 +72,14 @@ export class IPEndpointI extends EndpointI
     //
     // Return the endpoint information.
     //
-    hashCode()
-    {
-        if(this._hashCode === undefined)
-        {
+    hashCode() {
+        if (this._hashCode === undefined) {
             this._hashCode = this.hashInit(5381);
         }
         return this._hashCode;
     }
 
-    options()
-    {
+    options() {
         //
         // WARNING: Certain features, such as proxy validation in Glacier2,
         // depend on the format of proxy strings. Changes to toString() and
@@ -104,105 +89,85 @@ export class IPEndpointI extends EndpointI
         //
         let s = "";
 
-        if(this._host !== null && this._host.length > 0)
-        {
+        if (this._host !== null && this._host.length > 0) {
             s += " -h ";
-            const addQuote = this._host.indexOf(':') != -1;
-            if(addQuote)
-            {
-                s += "\"";
+            const addQuote = this._host.indexOf(":") != -1;
+            if (addQuote) {
+                s += '"';
             }
             s += this._host;
-            if(addQuote)
-            {
-                s += "\"";
+            if (addQuote) {
+                s += '"';
             }
         }
 
         s += " -p " + this._port;
 
-        if(this._sourceAddr !== null && this._sourceAddr.length > 0)
-        {
+        if (this._sourceAddr !== null && this._sourceAddr.length > 0) {
             s += " --sourceAddress ";
-            const addQuote = this._sourceAddr.indexOf(':') != -1;
-            if(addQuote)
-            {
-                s += "\"";
+            const addQuote = this._sourceAddr.indexOf(":") != -1;
+            if (addQuote) {
+                s += '"';
             }
             s += this._sourceAddr;
-            if(addQuote)
-            {
-                s += "\"";
+            if (addQuote) {
+                s += '"';
             }
         }
         return s;
     }
 
-    compareTo(p)
-    {
-        if(this === p)
-        {
+    compareTo(p) {
+        if (this === p) {
             return 0;
         }
 
-        if(p === null)
-        {
+        if (p === null) {
             return 1;
         }
 
-        if(!(p instanceof IPEndpointI))
-        {
+        if (!(p instanceof IPEndpointI)) {
             return this.type() < p.type() ? -1 : 1;
         }
 
-        if(this._port < p._port)
-        {
+        if (this._port < p._port) {
             return -1;
-        }
-        else if(p._port < this._port)
-        {
+        } else if (p._port < this._port) {
             return 1;
         }
 
-        if(this._host != p._host)
-        {
+        if (this._host != p._host) {
             return this._host < p._host ? -1 : 1;
         }
 
-        if(this._sourceAddr != p._sourceAddr)
-        {
+        if (this._sourceAddr != p._sourceAddr) {
             return this._sourceAddr < p._sourceAddr ? -1 : 1;
         }
 
-        if(this._connectionId != p._connectionId)
-        {
+        if (this._connectionId != p._connectionId) {
             return this._connectionId < p._connectionId ? -1 : 1;
         }
 
         return 0;
     }
 
-    getAddress()
-    {
+    getAddress() {
         return new Address(this._host, this._port);
     }
 
     //
     // Convert the endpoint to its Connector string form
     //
-    toConnectorString()
-    {
+    toConnectorString() {
         return this._host + ":" + this._port;
     }
 
-    streamWriteImpl(s)
-    {
+    streamWriteImpl(s) {
         s.writeString(this._host);
         s.writeInt(this._port);
     }
 
-    hashInit(h)
-    {
+    hashInit(h) {
         h = HashUtil.addNumber(h, this.type());
         h = HashUtil.addString(h, this._host);
         h = HashUtil.addNumber(h, this._port);
@@ -211,8 +176,7 @@ export class IPEndpointI extends EndpointI
         return h;
     }
 
-    fillEndpointInfo(info)
-    {
+    fillEndpointInfo(info) {
         info.type = () => this.type();
         info.datagram = () => this.datagram();
         info.secure = () => this.secure();
@@ -221,93 +185,65 @@ export class IPEndpointI extends EndpointI
         info.sourceAddress = this._sourceAddr;
     }
 
-    initWithOptions(args, oaEndpoint)
-    {
+    initWithOptions(args, oaEndpoint) {
         super.initWithOptions(args);
 
-        if(this._host === null || this._host.length === 0)
-        {
+        if (this._host === null || this._host.length === 0) {
             this._host = this._instance.defaultHost();
-        }
-        else if(this._host == "*")
-        {
-            if(oaEndpoint)
-            {
+        } else if (this._host == "*") {
+            if (oaEndpoint) {
                 this._host = "";
-            }
-            else
-            {
+            } else {
                 throw new EndpointParseException("`-h *' not valid for proxy endpoint `" + this + "'");
             }
         }
 
-        if(this._host === null)
-        {
+        if (this._host === null) {
             this._host = "";
         }
 
-        if(this._sourceAddr === null)
-        {
-            if(!oaEndpoint)
-            {
+        if (this._sourceAddr === null) {
+            if (!oaEndpoint) {
                 this._sourceAddr = this._instance.defaultSourceAddress();
             }
-        }
-        else if(oaEndpoint)
-        {
+        } else if (oaEndpoint) {
             throw new EndpointParseException("`--sourceAddress not valid for object adapter endpoint `" + this + "'");
         }
     }
 
-    initWithStream(s)
-    {
+    initWithStream(s) {
         this._host = s.readString();
         this._port = s.readInt();
     }
 
-    checkOption(option, argument, str)
-    {
-        if(option === "-h")
-        {
-            if(argument === null)
-            {
+    checkOption(option, argument, str) {
+        if (option === "-h") {
+            if (argument === null) {
                 throw new EndpointParseException("no argument provided for -h option in endpoint " + str);
             }
 
             this._host = argument;
-        }
-        else if(option === "-p")
-        {
-            if(argument === null)
-            {
+        } else if (option === "-p") {
+            if (argument === null) {
                 throw new EndpointParseException("no argument provided for -p option in endpoint " + str);
             }
 
-            try
-            {
+            try {
                 this._port = StringUtil.toInt(argument);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 throw new EndpointParseException("invalid port value `" + argument + "' in endpoint " + str);
             }
 
-            if(this._port < 0 || this._port > 65535)
-            {
+            if (this._port < 0 || this._port > 65535) {
                 throw new EndpointParseException("port value `" + argument + "' out of range in endpoint " + str);
             }
-        }
-        else if(option === "--sourceAddress")
-        {
-            if(argument === null)
-            {
+        } else if (option === "--sourceAddress") {
+            if (argument === null) {
                 throw new EndpointParseException("no argument provided for --sourceAddress option in endpoint " + str);
             }
 
             this._sourceAddr = argument;
-        }
-        else
-        {
+        } else {
             return false;
         }
         return true;

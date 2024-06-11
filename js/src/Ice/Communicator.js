@@ -11,10 +11,8 @@ import { Debug } from "./Debug.js";
 //
 // Ice.Communicator
 //
-export class Communicator
-{
-    constructor(initData)
-    {
+export class Communicator {
+    constructor(initData) {
         this._instance = this.createInstance(initData);
     }
 
@@ -22,94 +20,71 @@ export class Communicator
     // Certain initialization tasks need to be completed after the
     // constructor.
     //
-    finishSetup(promise)
-    {
+    finishSetup(promise) {
         this._instance.finishSetup(this, promise);
     }
 
-    destroy()
-    {
+    destroy() {
         return this._instance.destroy();
     }
 
-    shutdown()
-    {
-        try
-        {
+    shutdown() {
+        try {
             return this._instance.objectAdapterFactory().shutdown();
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             Debug.assert(ex instanceof CommunicatorDestroyedException);
             return Promise.resolve();
         }
     }
 
-    waitForShutdown()
-    {
-        try
-        {
+    waitForShutdown() {
+        try {
             return this._instance.objectAdapterFactory().waitForShutdown();
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             Debug.assert(ex instanceof CommunicatorDestroyedException);
             return Promise.resolve();
         }
     }
 
-    isShutdown()
-    {
-        try
-        {
+    isShutdown() {
+        try {
             return this._instance.objectAdapterFactory().isShutdown();
-        }
-        catch(ex)
-        {
-            if(!(ex instanceof CommunicatorDestroyedException))
-            {
+        } catch (ex) {
+            if (!(ex instanceof CommunicatorDestroyedException)) {
                 throw ex;
             }
             return true;
         }
     }
 
-    stringToProxy(s)
-    {
+    stringToProxy(s) {
         return this._instance.proxyFactory().stringToProxy(s);
     }
 
-    proxyToString(proxy)
-    {
+    proxyToString(proxy) {
         return this._instance.proxyFactory().proxyToString(proxy);
     }
 
-    propertyToProxy(s)
-    {
+    propertyToProxy(s) {
         return this._instance.proxyFactory().propertyToProxy(s);
     }
 
-    proxyToProperty(proxy, prefix)
-    {
+    proxyToProperty(proxy, prefix) {
         return this._instance.proxyFactory().proxyToProperty(proxy, prefix);
     }
 
-    identityToString(ident)
-    {
+    identityToString(ident) {
         return identityToString(ident, this._instance.toStringMode());
     }
 
-    createObjectAdapter(name)
-    {
+    createObjectAdapter(name) {
         const promise = this.createAsyncResultBase(this, "createObjectAdapter", this, null, null);
         this._instance.objectAdapterFactory().createObjectAdapter(name, null, promise);
         return promise;
     }
 
-    createObjectAdapterWithEndpoints(name, endpoints)
-    {
-        if(name.length === 0)
-        {
+    createObjectAdapterWithEndpoints(name, endpoints) {
+        if (name.length === 0) {
             name = generateUUID();
         }
 
@@ -119,10 +94,8 @@ export class Communicator
         return promise;
     }
 
-    createObjectAdapterWithRouter(name, router)
-    {
-        if(name.length === 0)
-        {
+    createObjectAdapterWithRouter(name, router) {
+        if (name.length === 0) {
             name = generateUUID();
         }
 
@@ -131,62 +104,51 @@ export class Communicator
         //
         // We set the proxy properties here, although we still use the proxy supplied.
         //
-        this.proxyToProperty(router, name + ".Router").forEach((value, key) =>
-            {
-                this.getProperties().setProperty(key, value);
-            });
+        this.proxyToProperty(router, name + ".Router").forEach((value, key) => {
+            this.getProperties().setProperty(key, value);
+        });
 
         this._instance.objectAdapterFactory().createObjectAdapter(name, router, promise);
         return promise;
     }
 
-    getValueFactoryManager()
-    {
+    getValueFactoryManager() {
         return this._instance.initializationData().valueFactoryManager;
     }
 
-    getImplicitContext()
-    {
+    getImplicitContext() {
         return this._instance.getImplicitContext();
     }
 
-    getProperties()
-    {
+    getProperties() {
         return this._instance.initializationData().properties;
     }
 
-    getLogger()
-    {
+    getLogger() {
         return this._instance.initializationData().logger;
     }
 
-    getDefaultRouter()
-    {
+    getDefaultRouter() {
         return this._instance.referenceFactory().getDefaultRouter();
     }
 
-    setDefaultRouter(router)
-    {
+    setDefaultRouter(router) {
         this._instance.setDefaultRouter(router);
     }
 
-    getDefaultLocator()
-    {
+    getDefaultLocator() {
         return this._instance.referenceFactory().getDefaultLocator();
     }
 
-    setDefaultLocator(locator)
-    {
+    setDefaultLocator(locator) {
         this._instance.setDefaultLocator(locator);
     }
 
-    flushBatchRequests()
-    {
+    flushBatchRequests() {
         return this._instance.outgoingConnectionFactory().flushAsyncBatchRequests();
     }
 
-    get instance()
-    {
+    get instance() {
         return this._instance;
     }
 }

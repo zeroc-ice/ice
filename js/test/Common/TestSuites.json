@@ -1,25 +1,19 @@
 {
-    "Ice/adapterDeactivation":
-    {
+    "Ice/adapterDeactivation": {
         "files": ["Test.js", "Client.js"]
     },
-    "Ice/ami":
-    {
+    "Ice/ami": {
         "files": ["Test.js", "Client.js"]
     },
-    "Ice/binding":
-    {
+    "Ice/binding": {
         "files": ["Test.js", "Client.js"]
     },
-    "Ice/defaultValue":
-    {
+    "Ice/defaultValue": {
         "files": ["Test.js", "Client.js"]
     },
-    "Ice/enums":
-    {
+    "Ice/enums": {
         "files": ["Test.js", "Client.js"],
-        "testcases":
-        [
+        "testcases": [
             {
                 "name": "client/server with 1.0 encoding",
                 "args": ["--Ice.Default.EncodingVersion=1.0"]
@@ -29,11 +23,9 @@
             }
         ]
     },
-    "Ice/exceptions":
-    {
+    "Ice/exceptions": {
         "files": ["Test.js", "Client.js", "ThrowerI.js", "AMDThrowerI.js", "Server.js", "ServerAMD.js"],
-        "testcases":
-        [
+        "testcases": [
             {
                 "name": "client/server with compact format"
             },
@@ -47,32 +39,36 @@
             }
         ]
     },
-    "Ice/facets":
-    {
+    "Ice/facets": {
         "files": ["Test.js", "Client.js", "TestI.js", "Server.js"]
     },
-    "Ice/hold":
-    {
+    "Ice/hold": {
         "files": ["Test.js", "Client.js"]
     },
-    "Ice/info":
-    {
+    "Ice/info": {
         "files": ["Test.js", "Client.js"]
     },
-    "Ice/inheritance":
-    {
+    "Ice/inheritance": {
         "files": ["Test.js", "Client.js", "InitialI.js", "Server.js"]
     },
-    "Ice/operations":
-    {
-        "files": ["Test.js", "Twoways.js", "Oneways.js", "BatchOneways.js", "Client.js",
-                  "AMDBI.js", "BI.js", "MyDerivedClassI.js", "AMDMyDerivedClassI.js", "Server.js", "ServerAMD.js"]
+    "Ice/operations": {
+        "files": [
+            "Test.js",
+            "Twoways.js",
+            "Oneways.js",
+            "BatchOneways.js",
+            "Client.js",
+            "AMDBI.js",
+            "BI.js",
+            "MyDerivedClassI.js",
+            "AMDMyDerivedClassI.js",
+            "Server.js",
+            "ServerAMD.js"
+        ]
     },
-    "Ice/objects":
-    {
+    "Ice/objects": {
         "files": ["Test.js", "Forward.js", "Client.js", "InitialI.js", "Server.js"],
-        "testcases":
-        [
+        "testcases": [
             {
                 "name": "client/server with compact format"
             },
@@ -86,11 +82,17 @@
             }
         ]
     },
-    "Ice/optional":
-    {
-        "files": ["Test.js", "Client.js", "ClientPrivate.js", "InitialI.js", "AMDInitialI.js", "Server.js", "ServerAMD.js"],
-        "testcases":
-        [
+    "Ice/optional": {
+        "files": [
+            "Test.js",
+            "Client.js",
+            "ClientPrivate.js",
+            "InitialI.js",
+            "AMDInitialI.js",
+            "Server.js",
+            "ServerAMD.js"
+        ],
+        "testcases": [
             {
                 "name": "client/server with compact format"
             },
@@ -100,41 +102,32 @@
             }
         ]
     },
-    "Ice/location":
-    {
+    "Ice/location": {
         "files": ["Test.js", "Client.js"]
     },
-    "Ice/properties":
-    {
+    "Ice/properties": {
         "files": ["Client.js"]
     },
-    "Ice/proxy":
-    {
+    "Ice/proxy": {
         "files": ["Test.js", "Client.js"]
     },
-    "Ice/retry":
-    {
+    "Ice/retry": {
         "files": ["Test.js", "Client.js"]
     },
-    "Ice/scope":
-    {
+    "Ice/scope": {
         "files": ["Test.js", "Client.js"]
     },
-    "Ice/servantLocator":
-    {
+    "Ice/servantLocator": {
         "files": ["Test.js", "Client.js", "TestI.js", "ServantLocatorI.js", "TestActivationI.js", "Server.js"],
-        "testcases":
-        [
+        "testcases": [
             {
                 "name": "client/server"
             }
         ]
     },
-    "Ice/slicing/exceptions":
-    {
+    "Ice/slicing/exceptions": {
         "files": ["Test.js", "Client.js"],
-        "testcases":
-        [
+        "testcases": [
             {
                 "name": "client/server"
             },
@@ -144,11 +137,9 @@
             }
         ]
     },
-    "Ice/slicing/objects":
-    {
+    "Ice/slicing/objects": {
         "files": ["Test.js", "Client.js"],
-        "testcases":
-        [
+        "testcases": [
             {
                 "name": "client/server"
             },
@@ -158,23 +149,18 @@
             }
         ]
     },
-    "Ice/timeout":
-    {
+    "Ice/timeout": {
         "files": ["Test.js", "Client.js"]
     },
-    "Ice/number":
-    {
+    "Ice/number": {
         "files": ["Client.js"]
     },
-    "Ice/stream":
-    {
+    "Ice/stream": {
         "files": ["Test.js", "Client.js"]
     },
-    "Glacier2/router":
-    {
+    "Glacier2/router": {
         "files": ["/lib/Glacier2.js", "Callback.js", "Client.js"],
-        "testcases":
-        [
+        "testcases": [
             {
                 "name": "client/server with router in unbuffered mode",
                 "args": ["--shutdown"]
@@ -185,12 +171,10 @@
             }
         ]
     },
-    "Slice/escape":
-    {
+    "Slice/escape": {
         "files": ["Clash.js", "Key.js", "Client.js"]
     },
-    "Slice/macros":
-    {
+    "Slice/macros": {
         "files": ["Test.js", "Client.js"]
     }
 }

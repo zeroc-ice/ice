@@ -9,79 +9,62 @@ import { Test as Test_Forward } from "./Forward.js";
 
 const Test = {
     ...Test_Test,
-    ...Test_Forward
+    ...Test_Forward,
 };
 Test.Inner = Test_Test.Inner;
 
-class BI extends Test.B
-{
-    ice_preMarshal()
-    {
+class BI extends Test.B {
+    ice_preMarshal() {
         this.preMarshalInvoked = true;
     }
 
-    ice_postUnmarshal()
-    {
+    ice_postUnmarshal() {
         this.postUnmarshalInvoked = true;
     }
 }
 
-class CI extends Test.C
-{
-    ice_preMarshal()
-    {
+class CI extends Test.C {
+    ice_preMarshal() {
         this.preMarshalInvoked = true;
     }
 
-    ice_postUnmarshal()
-    {
+    ice_postUnmarshal() {
         this.postUnmarshalInvoked = true;
     }
 }
 
-class DI extends Test.D
-{
-    ice_preMarshal()
-    {
+class DI extends Test.D {
+    ice_preMarshal() {
         this.preMarshalInvoked = true;
     }
 
-    ice_postUnmarshal()
-    {
+    ice_postUnmarshal() {
         this.postUnmarshalInvoked = true;
     }
 }
 
-class EI extends Test.E
-{
-    constructor()
-    {
+class EI extends Test.E {
+    constructor() {
         super(1, "hello");
     }
 
-    checkValues()
-    {
+    checkValues() {
         return this.i == 1 && this.s == "hello";
     }
 }
 
-class FI extends Test.F
-{
-    constructor(e)
-    {
+class FI extends Test.F {
+    constructor(e) {
         super(e, e);
     }
 
-    checkValues()
-    {
+    checkValues() {
         return this.e1 !== null && this.e1 === this.e2;
     }
 }
 
-function MyValueFactory(type)
-{
-    switch(type)
-    {
+function MyValueFactory(type) {
+    switch (type) {
         case "::Test::B":
             return new BI();
         case "::Test::C":
@@ -102,13 +85,10 @@ function MyValueFactory(type)
     return null;
 }
 
-export class InitialI extends Test.Initial
-{
-    constructor(communicator)
-    {
+export class InitialI extends Test.Initial {
+    constructor(communicator) {
         super();
-        if(communicator !== undefined)
-        {
+        if (communicator !== undefined) {
             communicator.getValueFactoryManager().add(MyValueFactory, "::Test::B");
             communicator.getValueFactoryManager().add(MyValueFactory, "::Test::C");
             communicator.getValueFactoryManager().add(MyValueFactory, "::Test::D");
@@ -140,8 +120,7 @@ export class InitialI extends Test.Initial
         this._d.theC = null; // Reference to a C.
     }
 
-    getAll(current)
-    {
+    getAll(current) {
         this._b1.preMarshalInvoked = false;
         this._b2.preMarshalInvoked = false;
         this._c.preMarshalInvoked = false;
@@ -149,32 +128,28 @@ export class InitialI extends Test.Initial
         return [this._b1, this._b2, this._c, this._d];
     }
 
-    getB1(current)
-    {
+    getB1(current) {
         this._b1.preMarshalInvoked = false;
         this._b2.preMarshalInvoked = false;
         this._c.preMarshalInvoked = false;
         return this._b1;
     }
 
-    getB2(current)
-    {
+    getB2(current) {
         this._b1.preMarshalInvoked = false;
         this._b2.preMarshalInvoked = false;
         this._c.preMarshalInvoked = false;
         return this._b2;
     }
 
-    getC(current)
-    {
+    getC(current) {
         this._b1.preMarshalInvoked = false;
         this._b2.preMarshalInvoked = false;
         this._c.preMarshalInvoked = false;
         return this._c;
     }
 
-    getD(current)
-    {
+    getD(current) {
         this._b1.preMarshalInvoked = false;
         this._b2.preMarshalInvoked = false;
         this._c.preMarshalInvoked = false;
@@ -182,142 +157,109 @@ export class InitialI extends Test.Initial
         return this._d;
     }
 
-    getE(current)
-    {
+    getE(current) {
         return this._e;
     }
 
-    getF(current)
-    {
+    getF(current) {
         return this._f;
     }
 
-    setRecursive(r, current)
-    {
-    }
+    setRecursive(r, current) {}
 
-    supportsClassGraphDepthMax(current)
-    {
+    supportsClassGraphDepthMax(current) {
         return false;
     }
 
-    setCycle(r, current)
-    {
-    }
+    setCycle(r, current) {}
 
-    acceptsClassCycles(current)
-    {
+    acceptsClassCycles(current) {
         return true;
     }
 
-    getMB(current)
-    {
+    getMB(current) {
         return this._b1;
     }
 
-    getAMDMB(current)
-    {
+    getAMDMB(current) {
         return Ice.Promise.resolve(this._b1);
     }
 
-    getK(current)
-    {
+    getK(current) {
         return new Test.K(new Test.L("l"));
     }
 
-    opValue(v1, current)
-    {
+    opValue(v1, current) {
         return [v1, v1];
     }
 
-    opValueSeq(v1, current)
-    {
+    opValueSeq(v1, current) {
         return [v1, v1];
     }
 
-    opValueMap(v1, current)
-    {
+    opValueMap(v1, current) {
         return [v1, v1];
     }
 
-    getD1(d1, current)
-    {
+    getD1(d1, current) {
         return d1;
     }
 
-    throwEDerived(current)
-    {
+    throwEDerived(current) {
         throw new Test.EDerived(new Test.A1("a1"), new Test.A1("a2"), new Test.A1("a3"), new Test.A1("a4"));
     }
 
-    setG(theG, current)
-    {
-    }
+    setG(theG, current) {}
 
-    opBaseSeq(inS, current)
-    {
+    opBaseSeq(inS, current) {
         return [inS, inS];
     }
 
-    getCompact(current)
-    {
+    getCompact(current) {
         return new Test.CompactExt();
     }
 
-    getInnerA(current)
-    {
+    getInnerA(current) {
         return new Test.Inner.A(this._b1);
     }
 
-    getInnerSubA(current)
-    {
+    getInnerSubA(current) {
         return new Test.Inner.Sub.A(new Test.Inner.A(this._b1));
     }
 
-    throwInnerEx(current)
-    {
+    throwInnerEx(current) {
         throw new Test.Inner.Ex("Inner::Ex");
     }
 
-    throwInnerSubEx(current)
-    {
+    throwInnerSubEx(current) {
         throw new Test.Inner.Sub.Ex("Inner::Sub::Ex");
     }
 
-    opM(v1, current)
-    {
+    opM(v1, current) {
         return [v1, v1];
     }
 
-    opF1(f11, current)
-    {
+    opF1(f11, current) {
         return [f11, new Test.F1("F12")];
     }
 
-    opF2(f21, current)
-    {
+    opF2(f21, current) {
         return [f21, current.adapter.getCommunicator().stringToProxy("F22")];
     }
 
-    opF3(f31, current)
-    {
-        return [f31,
-                new Test.F3(new Test.F1("F12"),
-                            current.adapter.getCommunicator().stringToProxy("F22"))];
+    opF3(f31, current) {
+        return [f31, new Test.F3(new Test.F1("F12"), current.adapter.getCommunicator().stringToProxy("F22"))];
     }
 
-    hasF3(current)
-    {
+    hasF3(current) {
         return true;
     }
 
-    opN(p1, current)
-    {
+    opN(p1, current) {
         return p1;
     }
 
-    shutdown(current)
-    {
+    shutdown(current) {
         current.adapter.getCommunicator().shutdown();
     }
 }

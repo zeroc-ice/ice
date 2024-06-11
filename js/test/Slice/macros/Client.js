@@ -3,15 +3,13 @@
 //
 
 import { Ice } from "ice";
-import { Test } from "./Test.js"
+import { Test } from "./Test.js";
 import { TestHelper } from "../../Common/TestHelper.js";
 
 const test = TestHelper.test;
 
-export class Client extends TestHelper
-{
-    allTests()
-    {
+export class Client extends TestHelper {
+    allTests() {
         const out = this.getWriter();
         out.write("testing Slice predefined macros... ");
 
@@ -30,8 +28,7 @@ export class Client extends TestHelper
         out.writeLine("ok");
     }
 
-    run(args)
-    {
+    run(args) {
         this.allTests();
     }
 }

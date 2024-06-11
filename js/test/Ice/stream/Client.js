@@ -10,10 +10,8 @@ import { TestHelper } from "../../Common/TestHelper.js";
 
 const test = TestHelper.test;
 
-export class Client extends TestHelper
-{
-    allTests()
-    {
+export class Client extends TestHelper {
+    allTests() {
         const communicator = this.communicator();
         const out = this.getWriter();
 
@@ -48,13 +46,10 @@ export class Client extends TestHelper
         {
             const data = new Uint8Array();
             inS = new Ice.InputStream(communicator, data);
-            try
-            {
+            try {
                 inS.readBool();
                 test(false);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(ex instanceof Ice.UnmarshalOutOfBoundsException);
             }
         }
@@ -167,22 +162,17 @@ export class Client extends TestHelper
             const data = outS.finished();
             inS = new Ice.InputStream(communicator, data);
             let o2;
-            inS.readValue(obj =>
-                            {
-                                o2 = obj;
-                            },
-                            Test.OptionalClass);
+            inS.readValue((obj) => {
+                o2 = obj;
+            }, Test.OptionalClass);
             inS.readPendingValues();
 
             test(o2.bo == o.bo);
             test(o2.by == o.by);
-            if(communicator.getProperties().getProperty("Ice.Default.EncodingVersion") == "1.0")
-            {
+            if (communicator.getProperties().getProperty("Ice.Default.EncodingVersion") == "1.0") {
                 test(o2.sh === undefined);
                 test(o2.i === undefined);
-            }
-            else
-            {
+            } else {
                 test(o2.sh == o.sh);
                 test(o2.i == o.i);
             }
@@ -200,11 +190,9 @@ export class Client extends TestHelper
             const data = outS.finished();
             inS = new Ice.InputStream(communicator, Ice.Encoding_1_0, data);
             let o2;
-            inS.readValue(obj =>
-                            {
-                                o2 = obj;
-                            },
-                            Test.OptionalClass);
+            inS.readValue((obj) => {
+                o2 = obj;
+            }, Test.OptionalClass);
             inS.readPendingValues();
             test(o2.bo == o.bo);
             test(o2.by == o.by);
@@ -375,8 +363,7 @@ export class Client extends TestHelper
         }
 
         const largeStructArray = [];
-        for(let i = 0; i < 3; ++i)
-        {
+        for (let i = 0; i < 3; ++i) {
             const s = new Test.LargeStruct();
             s.bo = true;
             s.by = 1;
@@ -392,8 +379,7 @@ export class Client extends TestHelper
         }
 
         const myClassArray = [];
-        for(let i = 0; i < 4; ++i)
-        {
+        for (let i = 0; i < 4; ++i) {
             const c = new Test.MyClass();
             myClassArray[i] = c;
             c.c = myClassArray[i];
@@ -423,8 +409,7 @@ export class Client extends TestHelper
             const arr2 = Test.MyClassSHelper.read(inS);
             inS.readPendingValues();
             test(arr2.length == myClassArray.length);
-            for(let i = 0; i < arr2.length; ++i)
-            {
+            for (let i = 0; i < arr2.length; ++i) {
                 test(arr2[i] !== null);
                 test(arr2[i].c == arr2[i]);
                 test(arr2[i].o == arr2[i]);
@@ -480,13 +465,10 @@ export class Client extends TestHelper
             const data = outS.finished();
 
             inS = new Ice.InputStream(communicator, data);
-            try
-            {
+            try {
                 inS.throwException();
                 test(false);
-            }
-            catch(ex1)
-            {
+            } catch (ex1) {
                 test(ex1 instanceof Test.MyException);
                 test(ex1.c.s.e == c.s.e);
                 test(Ice.ArrayUtil.equals(ex1.c.seq1, c.seq1));
@@ -575,18 +557,13 @@ export class Client extends TestHelper
         out.writeLine("ok");
     }
 
-    async run(args)
-    {
+    async run(args) {
         let communicator;
-        try
-        {
+        try {
             [communicator] = this.initialize(args);
             this.allTests();
-        }
-        finally
-        {
-            if(communicator)
-            {
+        } finally {
+            if (communicator) {
                 await communicator.destroy();
             }
         }

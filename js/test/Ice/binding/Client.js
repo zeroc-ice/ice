@@ -14,32 +14,26 @@ import { TestHelper } from "../../Common/TestHelper.js";
 const ArrayUtil = Ice.ArrayUtil;
 const test = TestHelper.test;
 
-const isBrowser = (typeof window !== 'undefined' || typeof WorkerGlobalScope !== 'undefined');
-const isConnectionFailed = ex =>
-        (!isBrowser && ex instanceof Ice.ConnectionRefusedException) ||
-        (isBrowser && ex instanceof Ice.ConnectFailedException) ||
-        (ex instanceof Ice.ConnectTimeoutException);
+const isBrowser = typeof window !== "undefined" || typeof WorkerGlobalScope !== "undefined";
+const isConnectionFailed = (ex) =>
+    (!isBrowser && ex instanceof Ice.ConnectionRefusedException) ||
+    (isBrowser && ex instanceof Ice.ConnectFailedException) ||
+    ex instanceof Ice.ConnectTimeoutException;
 
-export class Client extends TestHelper
-{
-    async allTests()
-    {
-        async function createTestIntfPrx(adapters)
-        {
+export class Client extends TestHelper {
+    async allTests() {
+        async function createTestIntfPrx(adapters) {
             let endpoints = [];
             let obj = null;
-            for(const adapter of adapters)
-            {
+            for (const adapter of adapters) {
                 obj = await adapter.getTestIntf();
                 endpoints = endpoints.concat(obj.ice_getEndpoints());
             }
             return Test.TestIntfPrx.uncheckedCast(obj.ice_endpoints(endpoints));
         }
 
-        async function deactivate(communicator, adapters)
-        {
-            for(const adapter of adapters)
-            {
+        async function deactivate(communicator, adapters) {
+            for (const adapter of adapters) {
                 await communicator.deactivateObjectAdapter(adapter);
             }
         }
@@ -59,7 +53,7 @@ export class Client extends TestHelper
 
             const test1 = await adapter.getTestIntf();
             const test2 = await adapter.getTestIntf();
-            test(await test1.ice_getConnection() === await test2.ice_getConnection());
+            test((await test1.ice_getConnection()) === (await test2.ice_getConnection()));
 
             await test1.ice_ping();
             await test2.ice_ping();
@@ -67,19 +61,15 @@ export class Client extends TestHelper
             await com.deactivateObjectAdapter(adapter);
 
             const test3 = Test.TestIntfPrx.uncheckedCast(test1);
-            test(await test3.ice_getConnection() === await test1.ice_getConnection());
-            test(await test3.ice_getConnection() === await test2.ice_getConnection());
+            test((await test3.ice_getConnection()) === (await test1.ice_getConnection()));
+            test((await test3.ice_getConnection()) === (await test2.ice_getConnection()));
 
-            try
-            {
+            try {
                 await test3.ice_ping();
                 test(false);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(isConnectionFailed(ex), ex);
             }
-
         }
         out.writeLine("ok");
 
@@ -89,20 +79,18 @@ export class Client extends TestHelper
 
         out.write("testing binding with multiple endpoints... ");
         {
-            const adapters = await Promise.all(
-                [
-                    com.createObjectAdapter("Adapter11", "default"),
-                    com.createObjectAdapter("Adapter12", "default"),
-                    com.createObjectAdapter("Adapter13", "default")
-                ]);
+            const adapters = await Promise.all([
+                com.createObjectAdapter("Adapter11", "default"),
+                com.createObjectAdapter("Adapter12", "default"),
+                com.createObjectAdapter("Adapter13", "default"),
+            ]);
 
             //
             // Ensure that when a connection is opened it's reused for new
             // proxies and that all endpoints are eventually tried.
             //
             let names = ["Adapter11", "Adapter12", "Adapter13"];
-            while(names.length > 0)
-            {
+            while (names.length > 0) {
                 const adpts = ArrayUtil.clone(adapters);
                 const test1 = await createTestIntfPrx(adpts);
                 ArrayUtil.shuffle(adpts);
@@ -110,13 +98,12 @@ export class Client extends TestHelper
                 ArrayUtil.shuffle(adpts);
                 const test3 = await createTestIntfPrx(adpts);
                 await test1.ice_ping();
-                test(await test1.ice_getConnection() == await test2.ice_getConnection());
-                test(await test2.ice_getConnection() == await test3.ice_getConnection());
+                test((await test1.ice_getConnection()) == (await test2.ice_getConnection()));
+                test((await test2.ice_getConnection()) == (await test3.ice_getConnection()));
 
                 const name = await test1.getAdapterName();
                 const index = names.indexOf(name);
-                if(index !== -1)
-                {
+                if (index !== -1) {
                     names.splice(index, 1);
                 }
 
@@ -128,8 +115,7 @@ export class Client extends TestHelper
             // always send the request over the same connection.)
             //
             {
-                for(const adpt of adapters)
-                {
+                for (const adpt of adapters) {
                     const prx = await adpt.getTestIntf();
                     await prx.ice_ping();
                 }
@@ -140,12 +126,11 @@ export class Client extends TestHelper
 
                 let i;
                 /* eslint-disable curly */
-                for(i = 0; i < nRetry && await t.getAdapterName() == name; i++);
+                for (i = 0; i < nRetry && (await t.getAdapterName()) == name; i++);
                 /* eslint-enable curly */
                 test(i == nRetry);
 
-                for(const adpt of adapters)
-                {
+                for (const adpt of adapters) {
                     const prx = await adpt.getTestIntf();
                     const conn = await prx.ice_getConnection();
                     await conn.close(Ice.ConnectionClose.GracefullyWithWait);
@@ -157,8 +142,7 @@ export class Client extends TestHelper
             //
             await com.deactivateObjectAdapter(adapters[0]);
             names = ["Adapter12", "Adapter13"];
-            while(names.length > 0)
-            {
+            while (names.length > 0) {
                 const adpts = ArrayUtil.clone(adapters);
 
                 const test1 = await createTestIntfPrx(adpts);
@@ -167,13 +151,12 @@ export class Client extends TestHelper
                 ArrayUtil.shuffle(adpts);
                 const test3 = await createTestIntfPrx(adpts);
 
-                test(await test1.ice_getConnection() == await test2.ice_getConnection());
-                test(await test2.ice_getConnection() == await test3.ice_getConnection());
+                test((await test1.ice_getConnection()) == (await test2.ice_getConnection()));
+                test((await test2.ice_getConnection()) == (await test3.ice_getConnection()));
 
                 const name = await test1.getAdapterName();
                 const index = names.indexOf(name);
-                if(index !== -1)
-                {
+                if (index !== -1) {
                     names.splice(index, 1);
                 }
                 const conn = await test1.ice_getConnection();
@@ -185,7 +168,7 @@ export class Client extends TestHelper
             //
             await com.deactivateObjectAdapter(adapters[2]);
             const obj = await createTestIntfPrx(adapters);
-            test(await obj.getAdapterName() == "Adapter12");
+            test((await obj.getAdapterName()) == "Adapter12");
 
             await deactivate(com, adapters);
         }
@@ -201,86 +184,67 @@ export class Client extends TestHelper
         // to be delayed on retry (network.websocket.delay-failed-reconnects=true by
         // default), so we prefer to also disable this test with Firefox.
         //
-        if(typeof navigator === "undefined" ||
-            ["MSIE", "Trident/7.0", "Firefox"].every(value => navigator.userAgent.indexOf(value) === -1))
-        {
+        if (
+            typeof navigator === "undefined" ||
+            ["MSIE", "Trident/7.0", "Firefox"].every((value) => navigator.userAgent.indexOf(value) === -1)
+        ) {
             out.write("testing binding with multiple random endpoints... ");
 
-            const adapters = await Promise.all(
-                [
-                    com.createObjectAdapter("AdapterRandom11", "default"),
-                    com.createObjectAdapter("AdapterRandom12", "default"),
-                    com.createObjectAdapter("AdapterRandom13", "default"),
-                    com.createObjectAdapter("AdapterRandom14", "default"),
-                    com.createObjectAdapter("AdapterRandom15", "default")
-                ]);
+            const adapters = await Promise.all([
+                com.createObjectAdapter("AdapterRandom11", "default"),
+                com.createObjectAdapter("AdapterRandom12", "default"),
+                com.createObjectAdapter("AdapterRandom13", "default"),
+                com.createObjectAdapter("AdapterRandom14", "default"),
+                com.createObjectAdapter("AdapterRandom15", "default"),
+            ]);
 
             let count = 20;
             let adapterCount = adapters.length;
-            while(--count > 0)
-            {
+            while (--count > 0) {
                 const proxies = [];
-                if(count == 1)
-                {
+                if (count == 1) {
                     await com.deactivateObjectAdapter(adapters[4]);
                     --adapterCount;
                 }
 
-                for(let i = 0; i < proxies.length; ++i)
-                {
+                for (let i = 0; i < proxies.length; ++i) {
                     let adpts = new Array(Math.floor(Math.random() * adapters.length));
-                    if(adpts.length == 0)
-                    {
+                    if (adpts.length == 0) {
                         adpts = new Array(1);
                     }
-                    for(let j = 0; j < adpts.length; ++j)
-                    {
+                    for (let j = 0; j < adpts.length; ++j) {
                         adpts[j] = adapters[Math.floor(Math.random() * adapters.length)];
                     }
                     proxies[i] = await createTestIntfPrx(ArrayUtil.clone(adpts));
                 }
-                for(let i = 0; i < proxies.length; i++)
-                {
-                    proxies[i].getAdapterName().catch(
-                        ex =>
-                            {
-                                // ignore exception
-                            });
+                for (let i = 0; i < proxies.length; i++) {
+                    proxies[i].getAdapterName().catch((ex) => {
+                        // ignore exception
+                    });
                 }
-                for(let i = 0; i < proxies.length; i++)
-                {
-                    try
-                    {
+                for (let i = 0; i < proxies.length; i++) {
+                    try {
                         await proxies[i].ice_ping();
-                    }
-                    catch(ex)
-                    {
+                    } catch (ex) {
                         test(ex instanceof Ice.LocalException, ex);
                     }
                 }
                 const connections = [];
-                for(let i = 0; i < proxies.length; i++)
-                {
-                    if(proxies[i].ice_getCachedConnection() !== null)
-                    {
-                        if(connections.indexOf(proxies[i].ice_getCachedConnection()) === -1)
-                        {
+                for (let i = 0; i < proxies.length; i++) {
+                    if (proxies[i].ice_getCachedConnection() !== null) {
+                        if (connections.indexOf(proxies[i].ice_getCachedConnection()) === -1) {
                             connections.push(proxies[i].ice_getCachedConnection());
                         }
                     }
                 }
                 test(connections.length <= adapterCount);
 
-                for(const a of adapters)
-                {
-                    try
-                    {
+                for (const a of adapters) {
+                    try {
                         const prx = await a.getTestIntf();
                         const conn = await prx.ice_getConnection();
                         await conn.close(Ice.ConnectionClose.GracefullyWithWait);
-                    }
-                    catch(ex)
-                    {
+                    } catch (ex) {
                         // Expected if adapter is down.
                         test(ex instanceof Ice.LocalException, ex);
                     }
@@ -295,22 +259,19 @@ export class Client extends TestHelper
 
         out.write("testing random endpoint selection... ");
         {
-            const adapters = await Promise.all(
-                [
-                    com.createObjectAdapter("Adapter21", "default"),
-                    com.createObjectAdapter("Adapter22", "default"),
-                    com.createObjectAdapter("Adapter23", "default")
-                ]);
+            const adapters = await Promise.all([
+                com.createObjectAdapter("Adapter21", "default"),
+                com.createObjectAdapter("Adapter22", "default"),
+                com.createObjectAdapter("Adapter23", "default"),
+            ]);
 
             let obj = await createTestIntfPrx(adapters);
             test(obj.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random);
 
             let names = ["Adapter21", "Adapter22", "Adapter23"];
-            while(names.length > 0)
-            {
+            while (names.length > 0) {
                 const index = names.indexOf(await obj.getAdapterName());
-                if(index !== -1)
-                {
+                if (index !== -1) {
                     names.splice(index, 1);
                 }
                 const conn = await obj.ice_getConnection();
@@ -321,11 +282,9 @@ export class Client extends TestHelper
             test(obj.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random);
 
             names = ["Adapter21", "Adapter22", "Adapter23"];
-            while(names.length > 0)
-            {
+            while (names.length > 0) {
                 const index = names.indexOf(await obj.getAdapterName());
-                if(index !== -1)
-                {
+                if (index !== -1) {
                     names.splice(index, 1);
                 }
                 const conn = await obj.ice_getConnection();
@@ -342,12 +301,11 @@ export class Client extends TestHelper
 
         out.write("testing ordered endpoint selection... ");
         {
-            let adapters = await Promise.all(
-                [
-                    com.createObjectAdapter("Adapter31", "default"),
-                    com.createObjectAdapter("Adapter32", "default"),
-                    com.createObjectAdapter("Adapter33", "default")
-                ]);
+            let adapters = await Promise.all([
+                com.createObjectAdapter("Adapter31", "default"),
+                com.createObjectAdapter("Adapter32", "default"),
+                com.createObjectAdapter("Adapter33", "default"),
+            ]);
 
             let obj = await createTestIntfPrx(adapters);
             obj = Test.TestIntfPrx.uncheckedCast(obj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered));
@@ -360,23 +318,20 @@ export class Client extends TestHelper
             //
             /* eslint-disable curly */
             let i;
-            for(i = 0; i < nRetry && await obj.getAdapterName() == "Adapter31"; i++);
+            for (i = 0; i < nRetry && (await obj.getAdapterName()) == "Adapter31"; i++);
             test(i == nRetry);
             await com.deactivateObjectAdapter(adapters[0]);
-            for(i = 0; i < nRetry && await obj.getAdapterName() == "Adapter32"; i++);
+            for (i = 0; i < nRetry && (await obj.getAdapterName()) == "Adapter32"; i++);
             test(i == nRetry);
             await com.deactivateObjectAdapter(adapters[1]);
-            for(i = 0; i < nRetry && await obj.getAdapterName() == "Adapter33"; i++);
+            for (i = 0; i < nRetry && (await obj.getAdapterName()) == "Adapter33"; i++);
             test(i == nRetry);
             await com.deactivateObjectAdapter(adapters[2]);
             /* eslint-enable curly */
 
-            try
-            {
+            try {
                 await obj.getAdapterName();
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(isConnectionFailed(ex), ex);
             }
 
@@ -391,17 +346,17 @@ export class Client extends TestHelper
 
             /* eslint-disable curly */
             adapters.push(await com.createObjectAdapter("Adapter36", endpoints[2].toString()));
-            for(i = 0; i < nRetry && await obj.getAdapterName() == "Adapter36"; i++);
+            for (i = 0; i < nRetry && (await obj.getAdapterName()) == "Adapter36"; i++);
             test(i == nRetry);
             let conn = await obj.ice_getConnection();
             await conn.close(Ice.ConnectionClose.GracefullyWithWait);
             adapters.push(await com.createObjectAdapter("Adapter35", endpoints[1].toString()));
-            for(i = 0; i < nRetry && await obj.getAdapterName() == "Adapter35"; i++);
+            for (i = 0; i < nRetry && (await obj.getAdapterName()) == "Adapter35"; i++);
             test(i == nRetry);
             conn = await obj.ice_getConnection();
             await conn.close(Ice.ConnectionClose.GracefullyWithWait);
             adapters.push(await com.createObjectAdapter("Adapter34", endpoints[0].toString()));
-            for(i = 0; i < nRetry && await obj.getAdapterName() == "Adapter34"; i++);
+            for (i = 0; i < nRetry && (await obj.getAdapterName()) == "Adapter34"; i++);
             test(i == nRetry);
             /* eslint-enable curly */
 
@@ -421,21 +376,18 @@ export class Client extends TestHelper
             const test2 = Test.TestIntfPrx.uncheckedCast((await adapter.getTestIntf()).ice_connectionCached(false));
             test(!test1.ice_isConnectionCached());
             test(!test2.ice_isConnectionCached());
-            test(await test1.ice_getConnection() !== null && await test2.ice_getConnection() !== null);
-            test(await test1.ice_getConnection() == await test2.ice_getConnection());
+            test((await test1.ice_getConnection()) !== null && (await test2.ice_getConnection()) !== null);
+            test((await test1.ice_getConnection()) == (await test2.ice_getConnection()));
 
             await test1.ice_ping();
 
             await com.deactivateObjectAdapter(adapter);
 
             const test3 = Test.TestIntfPrx.uncheckedCast(test1);
-            try
-            {
-                test(await test3.ice_getConnection() == await test1.ice_getConnection());
+            try {
+                test((await test3.ice_getConnection()) == (await test1.ice_getConnection()));
                 test(false);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(isConnectionFailed(ex), ex);
             }
         }
@@ -447,24 +399,20 @@ export class Client extends TestHelper
 
         out.write("testing per request binding with multiple endpoints... ");
         {
-            const adapters = await Promise.all(
-                [
-                    com.createObjectAdapter("Adapter51", "default"),
-                    com.createObjectAdapter("Adapter52", "default"),
-                    com.createObjectAdapter("Adapter53", "default")
-                ]);
+            const adapters = await Promise.all([
+                com.createObjectAdapter("Adapter51", "default"),
+                com.createObjectAdapter("Adapter52", "default"),
+                com.createObjectAdapter("Adapter53", "default"),
+            ]);
 
-            const obj = Test.TestIntfPrx.uncheckedCast(
-                (await createTestIntfPrx(adapters)).ice_connectionCached(false));
+            const obj = Test.TestIntfPrx.uncheckedCast((await createTestIntfPrx(adapters)).ice_connectionCached(false));
             test(!obj.ice_isConnectionCached());
 
             let names = ["Adapter51", "Adapter52", "Adapter53"];
-            while(names.length > 0)
-            {
+            while (names.length > 0) {
                 const name = await obj.getAdapterName();
                 const index = names.indexOf(name);
-                if(index !== -1)
-                {
+                if (index !== -1) {
                     names.splice(index, 1);
                 }
             }
@@ -472,27 +420,26 @@ export class Client extends TestHelper
             await com.deactivateObjectAdapter(adapters[0]);
 
             names = ["Adapter52", "Adapter53"];
-            while(names.length > 0)
-            {
+            while (names.length > 0) {
                 const name = await obj.getAdapterName();
                 const index = names.indexOf(name);
-                if(index !== -1)
-                {
+                if (index !== -1) {
                     names.splice(index, 1);
                 }
             }
 
             await com.deactivateObjectAdapter(adapters[2]);
 
-            test(await obj.getAdapterName() == "Adapter52");
+            test((await obj.getAdapterName()) == "Adapter52");
 
             await deactivate(com, adapters);
         }
         out.writeLine("ok");
 
-        if(typeof navigator === "undefined" ||
-            ["Firefox", "MSIE", "Trident/7.0"].every(value => navigator.userAgent.indexOf(value) === -1))
-        {
+        if (
+            typeof navigator === "undefined" ||
+            ["Firefox", "MSIE", "Trident/7.0"].every((value) => navigator.userAgent.indexOf(value) === -1)
+        ) {
             //
             // Firefox adds a delay on websocket failed reconnects that causes this test to take too
             // much time to complete.
@@ -506,12 +453,11 @@ export class Client extends TestHelper
             com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
 
             out.write("testing per request binding and ordered endpoint selection... ");
-            let adapters = await Promise.all(
-                [
-                    com.createObjectAdapter("Adapter61", "default"),
-                    com.createObjectAdapter("Adapter62", "default"),
-                    com.createObjectAdapter("Adapter63", "default")
-                ]);
+            let adapters = await Promise.all([
+                com.createObjectAdapter("Adapter61", "default"),
+                com.createObjectAdapter("Adapter62", "default"),
+                com.createObjectAdapter("Adapter63", "default"),
+            ]);
 
             let obj = await createTestIntfPrx(adapters);
             obj = Test.TestIntfPrx.uncheckedCast(obj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered));
@@ -527,23 +473,20 @@ export class Client extends TestHelper
             //
 
             /* eslint-disable curly */
-            for(i = 0; i < nRetry && await obj.getAdapterName() == "Adapter61"; i++);
+            for (i = 0; i < nRetry && (await obj.getAdapterName()) == "Adapter61"; i++);
             test(i == nRetry);
             await com.deactivateObjectAdapter(adapters[0]);
-            for(i = 0; i < nRetry && await obj.getAdapterName() == "Adapter62"; i++);
+            for (i = 0; i < nRetry && (await obj.getAdapterName()) == "Adapter62"; i++);
             test(i == nRetry);
             await com.deactivateObjectAdapter(adapters[1]);
-            for(i = 0; i < nRetry && await obj.getAdapterName() == "Adapter63"; i++);
+            for (i = 0; i < nRetry && (await obj.getAdapterName()) == "Adapter63"; i++);
             test(i == nRetry);
             com.deactivateObjectAdapter(adapters[2]);
             /* eslint-enable curly */
 
-            try
-            {
+            try {
                 await obj.getAdapterName();
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(isConnectionFailed(ex), ex);
             }
 
@@ -557,13 +500,13 @@ export class Client extends TestHelper
             //
             /* eslint-disable curly */
             adapters.push(await com.createObjectAdapter("Adapter66", endpoints[2].toString()));
-            for(i = 0; i < nRetry && await obj.getAdapterName() == "Adapter66"; i++);
+            for (i = 0; i < nRetry && (await obj.getAdapterName()) == "Adapter66"; i++);
             test(i == nRetry);
             adapters.push(await com.createObjectAdapter("Adapter65", endpoints[1].toString()));
-            for(i = 0; i < nRetry && await obj.getAdapterName() == "Adapter65"; i++);
+            for (i = 0; i < nRetry && (await obj.getAdapterName()) == "Adapter65"; i++);
             test(i == nRetry);
             adapters.push(await com.createObjectAdapter("Adapter64", endpoints[0].toString()));
-            for(i = 0; i < nRetry && await obj.getAdapterName() == "Adapter64"; i++);
+            for (i = 0; i < nRetry && (await obj.getAdapterName()) == "Adapter64"; i++);
             test(i == nRetry);
             /* eslint-enable curly */
             await deactivate(com, adapters);
@@ -573,15 +516,12 @@ export class Client extends TestHelper
         await com.shutdown();
     }
 
-    async run(args)
-    {
+    async run(args) {
         let communicator;
-        try
-        {
+        try {
             const out = this.getWriter();
             [communicator, args] = this.initialize(args);
-            if(isBrowser && isSafari() && isWorker())
-            {
+            if (isBrowser && isSafari() && isWorker()) {
                 //
                 // BUGFIX:
                 //
@@ -592,16 +532,11 @@ export class Client extends TestHelper
                 const obj = communicator.stringToProxy("communicator:" + this.getTestEndpoint());
                 const prx = await Test.RemoteCommunicatorPrx.uncheckedCast(obj);
                 await prx.shutdown();
-            }
-            else
-            {
+            } else {
                 await this.allTests();
             }
-        }
-        finally
-        {
-            if(communicator)
-            {
+        } finally {
+            if (communicator) {
                 await communicator.destroy();
             }
         }

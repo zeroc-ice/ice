@@ -7,11 +7,9 @@ import { TestHelper } from "../../Common/TestHelper.js";
 
 const test = TestHelper.test;
 
-export async function batchOneways(communicator, prx, Test, bidir)
-{
+export async function batchOneways(communicator, prx, Test, bidir) {
     const bs1 = new Uint8Array(10 * 1024);
-    for(let i = 0; i < bs1.length; ++i)
-    {
+    for (let i = 0; i < bs1.length; ++i) {
         bs1[i] = 0;
     }
 
@@ -22,27 +20,25 @@ export async function batchOneways(communicator, prx, Test, bidir)
     test(batch.ice_flushBatchRequests().isSent()); // Empty flush
     test(batch.ice_flushBatchRequests().sentSynchronously()); // Empty flush
 
-    for(let i = 0; i < 30; ++i)
-    {
+    for (let i = 0; i < 30; ++i) {
         await batch.opByteSOneway(bs1);
     }
 
     let count = 0;
-    while(count < 27) // 3 * 9 requests auto-flushed.
-    {
+    while (count < 27) {
+        // 3 * 9 requests auto-flushed.
         count += await prx.opByteSOnewayCallCount();
         await Ice.Promise.delay(10);
     }
 
-    if(batch.ice_getConnection() !== null)
-    {
+    if (batch.ice_getConnection() !== null) {
         const batch1 = Test.MyClassPrx.uncheckedCast(prx.ice_batchOneway());
         const batch2 = Test.MyClassPrx.uncheckedCast(prx.ice_batchOneway());
 
         batch1.ice_ping();
         batch2.ice_ping();
         await batch1.ice_flushBatchRequests();
-        await batch1.ice_getConnection().then(c => c.close(Ice.ConnectionClose.GracefullyWithWait));
+        await batch1.ice_getConnection().then((c) => c.close(Ice.ConnectionClose.GracefullyWithWait));
         batch1.ice_ping();
         batch2.ice_ping();
 
@@ -50,7 +46,7 @@ export async function batchOneways(communicator, prx, Test, bidir)
         await batch2.ice_getConnection();
 
         batch1.ice_ping();
-        await batch1.ice_getConnection().then(c => c.close(Ice.ConnectionClose.GracefullyWithWait));
+        await batch1.ice_getConnection().then((c) => c.close(Ice.ConnectionClose.GracefullyWithWait));
 
         batch1.ice_ping();
         batch2.ice_ping();

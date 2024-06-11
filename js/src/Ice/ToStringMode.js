@@ -9,9 +9,8 @@ import { defineEnum } from "./EnumBase.js";
  *  the string is the same for all modes: you don't need to specify an encoding format or mode when reading such a
  *  string.
  **/
-export const ToStringMode = defineEnum(
-    [
-        ['Unicode', 0],
-        ['ASCII', 1],
-        ['Compat', 2]
-    ]);
+export const ToStringMode = defineEnum([
+    ["Unicode", 0],
+    ["ASCII", 1],
+    ["Compat", 2],
+]);

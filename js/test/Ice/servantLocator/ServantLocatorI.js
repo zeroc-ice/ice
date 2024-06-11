@@ -9,46 +9,36 @@ import { TestI } from "./TestI.js";
 
 const test = TestHelper.test;
 
-class MyError
-{
-}
+class MyError {}
 
-class Cookie
-{
-    message()
-    {
+class Cookie {
+    message() {
         return "blahblah";
     }
 }
 
-export class ServantLocatorI
-{
-    constructor(category)
-    {
+export class ServantLocatorI {
+    constructor(category) {
         this._category = category;
         this._deactivated = false;
         this._requestId = -1;
     }
 
-    locate(current, cookie)
-    {
+    locate(current, cookie) {
         test(!this._deactivated);
 
         test(current.id.category == this._category || this._category.length == 0);
 
-        if(current.id.name == "unknown")
-        {
+        if (current.id.name == "unknown") {
             return null;
         }
 
-        if(current.id.name == "invalidReturnValue" || current.id.name == "invalidReturnType")
-        {
+        if (current.id.name == "invalidReturnValue" || current.id.name == "invalidReturnType") {
             return null;
         }
 
         test(current.id.name == "locate" || current.id.name == "finished");
-        if(current.id.name == "locate")
-        {
+        if (current.id.name == "locate") {
             this.exception(current);
         }
 
@@ -61,8 +51,7 @@ export class ServantLocatorI
         return new TestI();
     }
 
-    finished(current, servant, cookie)
-    {
+    finished(current, servant, cookie) {
         test(!this._deactivated);
 
         //
@@ -74,72 +63,44 @@ export class ServantLocatorI
         test(current.id.category == this._category || this._category.length == 0);
         test(current.id.name == "locate" || current.id.name == "finished");
 
-        if(current.id.name == "finished")
-        {
+        if (current.id.name == "finished") {
             this.exception(current);
         }
 
         test(cookie.message() == "blahblah");
     }
 
-    deactivate(category)
-    {
+    deactivate(category) {
         test(!this._deactivated);
         this._deactivated = true;
     }
 
-    exception(current)
-    {
-        if(current.operation == "ice_ids")
-        {
+    exception(current) {
+        if (current.operation == "ice_ids") {
             throw new Test.TestIntfUserException();
-        }
-        else if(current.operation == "requestFailedException")
-        {
+        } else if (current.operation == "requestFailedException") {
             throw new Ice.ObjectNotExistException();
-        }
-        else if(current.operation == "unknownUserException")
-        {
+        } else if (current.operation == "unknownUserException") {
             throw new Ice.UnknownUserException("reason");
-        }
-        else if(current.operation == "unknownLocalException")
-        {
+        } else if (current.operation == "unknownLocalException") {
             throw new Ice.UnknownLocalException("reason");
-        }
-        else if(current.operation == "unknownException")
-        {
+        } else if (current.operation == "unknownException") {
             throw new Ice.UnknownException("reason");
-        }
-        else if(current.operation == "userException")
-        {
+        } else if (current.operation == "userException") {
             throw new Test.TestIntfUserException();
-        }
-        else if(current.operation == "localException")
-        {
+        } else if (current.operation == "localException") {
             throw new Ice.SocketException(0);
-        }
-        else if(current.operation == "jsException")
-        {
+        } else if (current.operation == "jsException") {
             throw new MyError();
-        }
-        else if(current.operation == "unknownExceptionWithServantException")
-        {
+        } else if (current.operation == "unknownExceptionWithServantException") {
             throw new Ice.UnknownException("reason");
-        }
-        else if(current.operation == "impossibleException")
-        {
+        } else if (current.operation == "impossibleException") {
             throw new Test.TestIntfUserException(); // Yes, it really is meant to be TestIntfUserException.
-        }
-        else if(current.operation == "intfUserException")
-        {
+        } else if (current.operation == "intfUserException") {
             throw new Test.TestImpossibleException(); // Yes, it really is meant to be TestImpossibleException.
-        }
-        else if(current.operation == "asyncResponse")
-        {
+        } else if (current.operation == "asyncResponse") {
             throw new Test.TestImpossibleException();
-        }
-        else if(current.operation == "asyncException")
-        {
+        } else if (current.operation == "asyncException") {
             throw new Test.TestImpossibleException();
         }
     }

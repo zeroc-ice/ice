@@ -2,29 +2,22 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-export class Object
-{
-    ice_isA(s, current)
-    {
+export class Object {
+    ice_isA(s, current) {
         return this._iceMostDerivedType()._iceIds.indexOf(s) >= 0;
     }
 
-    ice_ping(current)
-    {
-    }
+    ice_ping(current) {}
 
-    ice_ids(current)
-    {
+    ice_ids(current) {
         return this._iceMostDerivedType()._iceIds;
     }
 
-    ice_id(current)
-    {
+    ice_id(current) {
         return this._iceMostDerivedType()._iceId;
     }
 
-    toString()
-    {
+    toString() {
         return "[object " + this.ice_id() + "]";
     }
 
@@ -36,21 +29,18 @@ export class Object
     // defined class. Instead, ice_id, ice_ids and ice_instanceof call _iceMostDerivedType
     // to get the most derived Ice class.
     //
-    _iceMostDerivedType()
-    {
+    _iceMostDerivedType() {
         return Object;
     }
 
     //
     // The default implementation of equals compare references.
     //
-    equals(other)
-    {
+    equals(other) {
         return this === other;
     }
 
-    static get _iceImplements()
-    {
+    static get _iceImplements() {
         return [];
     }
 }

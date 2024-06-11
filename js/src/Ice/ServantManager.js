@@ -11,10 +11,8 @@ import { Debug } from "./Debug.js";
 //
 // Only for use by Ice.ObjectAdapter.
 //
-export class ServantManager
-{
-    constructor(instance, adapterName)
-    {
+export class ServantManager {
+    constructor(instance, adapterName) {
         this._instance = instance;
         this._adapterName = adapterName;
         // Map<Ice.Identity, Map<String, Ice.Object> >
@@ -25,28 +23,22 @@ export class ServantManager
         this._locatorMap = new Map();
     }
 
-    addServant(servant, ident, facet)
-    {
+    addServant(servant, ident, facet) {
         Debug.assert(this._instance !== null); // Must not be called after destruction.
 
-        if(facet === null)
-        {
+        if (facet === null) {
             facet = "";
         }
 
         let m = this._servantMapMap.get(ident);
-        if(m === undefined)
-        {
+        if (m === undefined) {
             m = new Map();
             this._servantMapMap.set(ident, m);
-        }
-        else if(m.has(facet))
-        {
+        } else if (m.has(facet)) {
             const ex = new AlreadyRegisteredException();
             ex.id = identityToString(ident, this._instance.toStringMode());
             ex.kindOfObject = "servant";
-            if(facet.length > 0)
-            {
+            if (facet.length > 0) {
                 ex.id += " -f " + StringUtil.escapeString(facet, "", this._instance.toStringMode());
             }
             throw ex;
@@ -55,12 +47,10 @@ export class ServantManager
         m.set(facet, servant);
     }
 
-    addDefaultServant(servant, category)
-    {
+    addDefaultServant(servant, category) {
         Debug.assert(this._instance !== null); // Must not be called after destruction
 
-        if(this._defaultServantMap.has(category))
-        {
+        if (this._defaultServantMap.has(category)) {
             const ex = new AlreadyRegisteredException();
             ex.kindOfObject = "default servant";
             ex.id = category;
@@ -70,23 +60,19 @@ export class ServantManager
         this._defaultServantMap.set(category, servant);
     }
 
-    removeServant(ident, facet)
-    {
+    removeServant(ident, facet) {
         Debug.assert(this._instance !== null); // Must not be called after destruction.
 
-        if(facet === null)
-        {
+        if (facet === null) {
             facet = "";
         }
 
         const m = this._servantMapMap.get(ident);
-        if(m === undefined || !m.has(facet))
-        {
+        if (m === undefined || !m.has(facet)) {
             const ex = new NotRegisteredException();
             ex.id = identityToString(ident, this._instance.toStringMode());
             ex.kindOfObject = "servant";
-            if(facet.length > 0)
-            {
+            if (facet.length > 0) {
                 ex.id += " -f " + StringUtil.escapeString(facet, "", this._instance.toStringMode());
             }
             throw ex;
@@ -95,21 +81,18 @@ export class ServantManager
         const obj = m.get(facet);
         m.delete(facet);
 
-        if(m.size === 0)
-        {
+        if (m.size === 0) {
             this._servantMapMap.delete(ident);
         }
 
         return obj;
     }
 
-    removeDefaultServant(category)
-    {
+    removeDefaultServant(category) {
         Debug.assert(this._instance !== null); // Must not be called after destruction.
 
         const obj = this._defaultServantMap.get(category);
-        if(obj === undefined)
-        {
+        if (obj === undefined) {
             const ex = new NotRegisteredException();
             ex.kindOfObject = "default servant";
             ex.id = category;
@@ -120,13 +103,11 @@ export class ServantManager
         return obj;
     }
 
-    removeAllFacets(ident)
-    {
+    removeAllFacets(ident) {
         Debug.assert(this._instance !== null); // Must not be called after destruction.
 
         const m = this._servantMapMap.get(ident);
-        if(m === undefined)
-        {
+        if (m === undefined) {
             const ex = new NotRegisteredException();
             ex.id = identityToString(ident, this._instance.toStringMode());
             ex.kindOfObject = "servant";
@@ -138,72 +119,57 @@ export class ServantManager
         return m;
     }
 
-    findServant(ident, facet)
-    {
-        if(facet === null)
-        {
+    findServant(ident, facet) {
+        if (facet === null) {
             facet = "";
         }
 
         const m = this._servantMapMap.get(ident);
         let obj = null;
-        if(m === undefined)
-        {
+        if (m === undefined) {
             obj = this._defaultServantMap.get(ident.category);
-            if(obj === undefined)
-            {
+            if (obj === undefined) {
                 obj = this._defaultServantMap.get("");
             }
-        }
-        else
-        {
+        } else {
             obj = m.get(facet);
         }
 
         return obj === undefined ? null : obj;
     }
 
-    findDefaultServant(category)
-    {
+    findDefaultServant(category) {
         Debug.assert(this._instance !== null); // Must not be called after destruction.
 
         const ds = this._defaultServantMap.get(category);
         return ds === undefined ? null : ds;
     }
 
-    findAllFacets(ident)
-    {
+    findAllFacets(ident) {
         Debug.assert(this._instance !== null); // Must not be called after destruction.
 
         const m = this._servantMapMap.get(ident);
-        if(m !== undefined)
-        {
+        if (m !== undefined) {
             return new Map(m);
         }
 
         return new Map();
     }
 
-    hasServant(ident)
-    {
+    hasServant(ident) {
         const m = this._servantMapMap.get(ident);
-        if(m === undefined)
-        {
+        if (m === undefined) {
             return false;
-        }
-        else
-        {
+        } else {
             Debug.assert(m.size > 0);
             return true;
         }
     }
 
-    addServantLocator(locator, category)
-    {
+    addServantLocator(locator, category) {
         Debug.assert(this._instance !== null); // Must not be called after destruction.
 
-        if(this._locatorMap.has(category))
-        {
+        if (this._locatorMap.has(category)) {
             const ex = new AlreadyRegisteredException();
             ex.id = StringUtil.escapeString(category, "", this._instance.toStringMode());
             ex.kindOfObject = "servant locator";
@@ -213,13 +179,11 @@ export class ServantManager
         this._locatorMap.set(category, locator);
     }
 
-    removeServantLocator(category)
-    {
+    removeServantLocator(category) {
         Debug.assert(this._instance !== null); // Must not be called after destruction.
 
         const l = this._locatorMap.get(category);
-        if(l === undefined)
-        {
+        if (l === undefined) {
             const ex = new NotRegisteredException();
             ex.id = StringUtil.escapeString(category, "", this._instance.toStringMode());
             ex.kindOfObject = "servant locator";
@@ -229,8 +193,7 @@ export class ServantManager
         return l;
     }
 
-    findServantLocator(category)
-    {
+    findServantLocator(category) {
         const l = this._locatorMap.get(category);
         return l === undefined ? null : l;
     }
@@ -238,8 +201,7 @@ export class ServantManager
     //
     // Only for use by Ice.ObjectAdapterI.
     //
-    destroy()
-    {
+    destroy() {
         Debug.assert(this._instance !== null); // Must not be called after destruction.
         const logger = this._instance.initializationData().logger;
         this._servantMapMap.clear();
@@ -250,17 +212,18 @@ export class ServantManager
         this._locatorMap.clear();
         this._instance = null;
 
-        for(const [key, locator] of locatorMap)
-        {
-            try
-            {
+        for (const [key, locator] of locatorMap) {
+            try {
                 locator.deactivate(key);
-            }
-            catch(ex)
-            {
-                logger.error("exception during locator deactivation:\nobject adapter: `" +
-                             this._adapterName + "'\nlocator category: `" + key + "'\n" +
-                             ex.toString());
+            } catch (ex) {
+                logger.error(
+                    "exception during locator deactivation:\nobject adapter: `" +
+                        this._adapterName +
+                        "'\nlocator category: `" +
+                        key +
+                        "'\n" +
+                        ex.toString(),
+                );
             }
         }
     }
