@@ -13,14 +13,24 @@ class Client: TestHelperI {
             defer {
                 communicator.destroy()
             }
-            var path = Bundle.main.bundlePath
-            #if os(iOS) || os(watchOS) || os(tvOS)
-                path += "/Frameworks/IceSSLConfiguration.bundle/certs"
-            #else
-                path += "/Contents/Frameworks/IceSSLConfiguration.bundle/Contents/Resources/certs"
-            #endif
+            
+            guard let resourcePath = Bundle.main.resourcePath else {
+                fatalError("Bundle resources missing")
+            }
+            
+//            print(Bundle(for: Self.self).resourcePath)
+//            Bundle(for: )
+//            print(Bundle.main.url(forResource: "cacert", withExtension: "pem"))
+            
+            let certsDir = resourcePath.appending("certs")
+        
+            
+            
+            try FileManager.default.contentsOfDirectory(atPath: certsDir).forEach { file in
+                print(file)
+            }
 
-            let factory = try allTests(self, path)
+            let factory = try allTests(self, certsDir)
             try factory.shutdown()
         }
     }

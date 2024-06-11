@@ -563,7 +563,6 @@ def create_platform_targets(project, platform, bindist)
         scheme.add_build_target(glacier2_target)
         scheme.add_build_target(icestorm_target)
         scheme.add_build_target(icegrid_target)
-        scheme.build_action.parallelize_buildables = false
         scheme.save_as("ice.xcodeproj", "Ice #{platform_name}", true)
     end
 end

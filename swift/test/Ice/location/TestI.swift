@@ -4,6 +4,7 @@
 import Ice
 import PromiseKit
 import TestCommon
+import Foundation
 
 class HelloI: Hello {
     func sayHello(current _: Ice.Current) {}

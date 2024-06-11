@@ -2087,6 +2087,7 @@ class ClientAMDServerTestCase(ClientServerTestCase):
     def getServerType(self):
         return "serveramd"
 
+
 class Result:
     def getKey(self, current):
         return (
@@ -4429,26 +4430,10 @@ class SwiftMapping(Mapping):
         testdir = self.component.getTestDir(self)
         assert current.testcase.getPath(current).startswith(testdir)
         package = current.testcase.getPath(current)[len(testdir) + 1 :].replace(
-            os.sep, "."
+            os.sep, "_"
         )
 
-        cmd = "xcodebuild -project {0} -target 'TestDriver {1}' -configuration {2} -showBuildSettings".format(
-            self.getXcodeProject(current), "macOS", current.config.buildConfig
-        )
-
-        targetBuildDir = re.search(r"\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
-
-        testDriver = os.path.join(
-            targetBuildDir, "TestDriver.app/Contents/MacOS/TestDriver"
-        )
-        if not os.path.exists(testDriver):
-            # Fallback location, required with Xcode 14.2
-            testDriver = os.path.join(
-                current.testcase.getMapping().getPath(),
-                "build",
-                current.config.buildConfig,
-                "TestDriver.app/Contents/MacOS/TestDriver",
-            )
+        testDriver = "swift run --skip-build TestDriver"
 
         return "{0} {1} {2} {3}".format(testDriver, package, exe, args)
 

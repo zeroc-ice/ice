@@ -5,6 +5,7 @@
 import Ice
 import PromiseKit
 import TestCommon
+import Foundation
 
 func onewaysAMI(_ helper: TestHelper, _ proxy: MyClassPrx) throws {
     let p = uncheckedCast(prx: proxy.ice_oneway(), type: MyClassPrx.self)

@@ -4,6 +4,7 @@
 
 import Ice
 import PromiseKit
+import Foundation
 
 public class BI: B {
     override public func ice_preMarshal() {
