@@ -84,10 +84,10 @@ namespace
         return found ? "_" + name : name;
     }
 
-    class MetaDataVisitor : public ParserVisitor
+    class MetaDataVisitor final : public ParserVisitor
     {
     public:
-        virtual bool visitUnitStart(const UnitPtr& p)
+        bool visitUnitStart(const UnitPtr& p) final
         {
             static const string prefix = "java:";
 
@@ -125,7 +125,7 @@ namespace
             return true;
         }
 
-        virtual bool visitModuleStart(const ModulePtr& p)
+        bool visitModuleStart(const ModulePtr& p) final
         {
             StringList metaData = getMetaData(p);
             metaData = validateType(p, metaData, p->file(), p->line());
@@ -134,7 +134,7 @@ namespace
             return true;
         }
 
-        virtual void visitClassDecl(const ClassDeclPtr& p)
+        void visitClassDecl(const ClassDeclPtr& p) final
         {
             StringList metaData = getMetaData(p);
             metaData = validateType(p, metaData, p->file(), p->line());
@@ -142,16 +142,7 @@ namespace
             p->setMetaData(metaData);
         }
 
-        virtual bool visitClassDefStart(const ClassDefPtr& p)
-        {
-            StringList metaData = getMetaData(p);
-            metaData = validateType(p, metaData, p->file(), p->line());
-            metaData = validateGetSet(p, metaData, p->file(), p->line());
-            p->setMetaData(metaData);
-            return true;
-        }
-
-        virtual bool visitExceptionStart(const ExceptionPtr& p)
+        bool visitClassDefStart(const ClassDefPtr& p) final
         {
             StringList metaData = getMetaData(p);
             metaData = validateType(p, metaData, p->file(), p->line());
@@ -160,7 +151,7 @@ namespace
             return true;
         }
 
-        virtual bool visitStructStart(const StructPtr& p)
+        bool visitExceptionStart(const ExceptionPtr& p) final
         {
             StringList metaData = getMetaData(p);
             metaData = validateType(p, metaData, p->file(), p->line());
@@ -169,7 +160,16 @@ namespace
             return true;
         }
 
-        virtual void visitOperation(const OperationPtr& p)
+        bool visitStructStart(const StructPtr& p) final
+        {
+            StringList metaData = getMetaData(p);
+            metaData = validateType(p, metaData, p->file(), p->line());
+            metaData = validateGetSet(p, metaData, p->file(), p->line());
+            p->setMetaData(metaData);
+            return true;
+        }
+
+        void visitOperation(const OperationPtr& p) final
         {
             TypePtr returnType = p->returnType();
             StringList metaData = getMetaData(p);
@@ -212,7 +212,7 @@ namespace
             }
         }
 
-        virtual void visitDataMember(const DataMemberPtr& p)
+        void visitDataMember(const DataMemberPtr& p) final
         {
             StringList metaData = getMetaData(p);
             metaData = validateType(p->type(), metaData, p->file(), p->line());
@@ -220,7 +220,7 @@ namespace
             p->setMetaData(metaData);
         }
 
-        virtual void visitSequence(const SequencePtr& p)
+        void visitSequence(const SequencePtr& p) final
         {
             static const string protobuf = "java:protobuf:";
             static const string serializable = "java:serializable:";
@@ -282,7 +282,7 @@ namespace
             p->setMetaData(newMetaData);
         }
 
-        virtual void visitDictionary(const DictionaryPtr& p)
+        void visitDictionary(const DictionaryPtr& p) final
         {
             StringList metaData = getMetaData(p);
             metaData = validateType(p, metaData, p->file(), p->line());
@@ -290,7 +290,7 @@ namespace
             p->setMetaData(metaData);
         }
 
-        virtual void visitEnum(const EnumPtr& p)
+        void visitEnum(const EnumPtr& p) final
         {
             StringList metaData = getMetaData(p);
             metaData = validateType(p, metaData, p->file(), p->line());
@@ -298,7 +298,7 @@ namespace
             p->setMetaData(metaData);
         }
 
-        virtual void visitConst(const ConstPtr& p)
+        void visitConst(const ConstPtr& p) final
         {
             StringList metaData = getMetaData(p);
             metaData = validateType(p, metaData, p->file(), p->line());

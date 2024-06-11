@@ -55,21 +55,21 @@ namespace
 }
 
 // CodeVisitor generates the PHP mapping for a translation unit.
-class CodeVisitor : public ParserVisitor
+class CodeVisitor final : public ParserVisitor
 {
 public:
     CodeVisitor(IceUtilInternal::Output&);
 
-    virtual void visitClassDecl(const ClassDeclPtr&);
-    virtual bool visitClassDefStart(const ClassDefPtr&);
-    virtual void visitInterfaceDecl(const InterfaceDeclPtr&);
-    virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-    virtual bool visitExceptionStart(const ExceptionPtr&);
-    virtual bool visitStructStart(const StructPtr&);
-    virtual void visitSequence(const SequencePtr&);
-    virtual void visitDictionary(const DictionaryPtr&);
-    virtual void visitEnum(const EnumPtr&);
-    virtual void visitConst(const ConstPtr&);
+    void visitClassDecl(const ClassDeclPtr&) final;
+    bool visitClassDefStart(const ClassDefPtr&) final;
+    void visitInterfaceDecl(const InterfaceDeclPtr&) final;
+    bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+    bool visitExceptionStart(const ExceptionPtr&) final;
+    bool visitStructStart(const StructPtr&) final;
+    void visitSequence(const SequencePtr&) final;
+    void visitDictionary(const DictionaryPtr&) final;
+    void visitEnum(const EnumPtr&) final;
+    void visitConst(const ConstPtr&) final;
 
 private:
     void startNamespace(const ContainedPtr&);

@@ -11,7 +11,7 @@
 
 namespace Slice
 {
-    class Gen
+    class Gen final
     {
     public:
         Gen(const std::string&,
@@ -197,7 +197,6 @@ namespace Slice
             void visitModuleEnd(const ModulePtr&) final;
             bool visitStructStart(const StructPtr&) final;
             bool visitClassDefStart(const ClassDefPtr&) final;
-            bool visitExceptionStart(const ExceptionPtr&) final;
             void visitExceptionEnd(const ExceptionPtr&) final;
             void visitEnum(const EnumPtr&) final;
 

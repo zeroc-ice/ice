@@ -130,7 +130,7 @@ namespace Slice
         void writeSeeAlso(::IceUtilInternal::Output&, const UnitPtr&, const std::string&);
     };
 
-    class Gen
+    class Gen final
     {
     public:
         Gen(const std::string&, const std::string&, const std::vector<std::string>&, const std::string&);
@@ -146,58 +146,58 @@ namespace Slice
         std::vector<std::string> _includePaths;
         std::string _dir;
 
-        class PackageVisitor : public JavaVisitor
+        class PackageVisitor final : public JavaVisitor
         {
         public:
             PackageVisitor(const std::string&);
 
-            virtual bool visitModuleStart(const ModulePtr&);
+            bool visitModuleStart(const ModulePtr&) final;
         };
 
-        class TypesVisitor : public JavaVisitor
+        class TypesVisitor final : public JavaVisitor
         {
         public:
             TypesVisitor(const std::string&);
 
-            virtual bool visitClassDefStart(const ClassDefPtr&);
-            virtual void visitClassDefEnd(const ClassDefPtr&);
-            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-            virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
-            virtual void visitOperation(const OperationPtr&);
-            virtual bool visitExceptionStart(const ExceptionPtr&);
-            virtual void visitExceptionEnd(const ExceptionPtr&);
-            virtual bool visitStructStart(const StructPtr&);
-            virtual void visitStructEnd(const StructPtr&);
-            virtual void visitDataMember(const DataMemberPtr&);
-            virtual void visitEnum(const EnumPtr&);
-            virtual void visitConst(const ConstPtr&);
+            bool visitClassDefStart(const ClassDefPtr&) final;
+            void visitClassDefEnd(const ClassDefPtr&) final;
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
+            void visitOperation(const OperationPtr&) final;
+            bool visitExceptionStart(const ExceptionPtr&) final;
+            void visitExceptionEnd(const ExceptionPtr&) final;
+            bool visitStructStart(const StructPtr&) final;
+            void visitStructEnd(const StructPtr&) final;
+            void visitDataMember(const DataMemberPtr&) final;
+            void visitEnum(const EnumPtr&) final;
+            void visitConst(const ConstPtr&) final;
         };
 
-        class CompactIdVisitor : public JavaVisitor
+        class CompactIdVisitor final : public JavaVisitor
         {
         public:
             CompactIdVisitor(const std::string&);
 
-            virtual bool visitClassDefStart(const ClassDefPtr&);
+            bool visitClassDefStart(const ClassDefPtr&) final;
         };
 
-        class HelperVisitor : public JavaVisitor
+        class HelperVisitor final : public JavaVisitor
         {
         public:
             HelperVisitor(const std::string&);
 
-            virtual void visitSequence(const SequencePtr&);
-            virtual void visitDictionary(const DictionaryPtr&);
+            void visitSequence(const SequencePtr&) final;
+            void visitDictionary(const DictionaryPtr&) final;
         };
 
-        class ProxyVisitor : public JavaVisitor
+        class ProxyVisitor final : public JavaVisitor
         {
         public:
             ProxyVisitor(const std::string&);
 
-            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-            virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
-            virtual void visitOperation(const OperationPtr&);
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
+            void visitOperation(const OperationPtr&) final;
         };
     };
 }

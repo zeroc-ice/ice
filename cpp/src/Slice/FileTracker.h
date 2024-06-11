@@ -13,8 +13,8 @@ namespace Slice
     {
     public:
         FileException(const char*, int, const std::string&);
-        virtual std::string ice_id() const;
-        virtual void ice_print(std::ostream&) const;
+        std::string ice_id() const override;
+        void ice_print(std::ostream&) const override;
 
         std::string reason() const;
 
@@ -25,7 +25,7 @@ namespace Slice
 
     class FileTracker;
     using FileTrackerPtr = std::shared_ptr<FileTracker>;
-    class FileTracker
+    class FileTracker final
     {
     public:
         FileTracker();

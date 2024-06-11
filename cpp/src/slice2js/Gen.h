@@ -38,7 +38,7 @@ namespace Slice
         std::vector<std::pair<std::string, std::string>> _imports;
     };
 
-    class Gen : public JsGenerator
+    class Gen final : public JsGenerator
     {
     public:
         Gen(const std::string&, const std::vector<std::string>&, const std::string&, bool);
@@ -58,19 +58,19 @@ namespace Slice
         bool _useStdout;
         bool _typeScript;
 
-        class ImportVisitor : public JsVisitor
+        class ImportVisitor final : public JsVisitor
         {
         public:
             ImportVisitor(::IceUtilInternal::Output&, std::vector<std::string>, bool);
 
-            virtual bool visitClassDefStart(const ClassDefPtr&);
-            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-            virtual bool visitStructStart(const StructPtr&);
-            virtual void visitOperation(const OperationPtr&);
-            virtual bool visitExceptionStart(const ExceptionPtr&);
-            virtual void visitSequence(const SequencePtr&);
-            virtual void visitDictionary(const DictionaryPtr&);
-            virtual void visitEnum(const EnumPtr&);
+            bool visitClassDefStart(const ClassDefPtr&) final;
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            bool visitStructStart(const StructPtr&) final;
+            void visitOperation(const OperationPtr&) final;
+            bool visitExceptionStart(const ExceptionPtr&) final;
+            void visitSequence(const SequencePtr&) final;
+            void visitDictionary(const DictionaryPtr&) final;
+            void visitEnum(const EnumPtr&) final;
 
             // Emit the import statements for the given unit and return a list of the imported modules.
             std::set<std::string> writeImports(const UnitPtr&);
@@ -93,7 +93,7 @@ namespace Slice
             std::vector<std::string> _includePaths;
         };
 
-        class ExportsVisitor : public JsVisitor
+        class ExportsVisitor final : public JsVisitor
         {
         public:
             ExportsVisitor(::IceUtilInternal::Output&, std::set<std::string>);
@@ -109,36 +109,36 @@ namespace Slice
             std::set<std::string> _exportedModules;
         };
 
-        class TypesVisitor : public JsVisitor
+        class TypesVisitor final : public JsVisitor
         {
         public:
             TypesVisitor(::IceUtilInternal::Output&);
 
-            virtual bool visitClassDefStart(const ClassDefPtr&);
-            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-            virtual bool visitExceptionStart(const ExceptionPtr&);
-            virtual bool visitStructStart(const StructPtr&);
-            virtual void visitSequence(const SequencePtr&);
-            virtual void visitDictionary(const DictionaryPtr&);
-            virtual void visitEnum(const EnumPtr&);
-            virtual void visitConst(const ConstPtr&);
+            bool visitClassDefStart(const ClassDefPtr&) final;
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            bool visitExceptionStart(const ExceptionPtr&) final;
+            bool visitStructStart(const StructPtr&) final;
+            void visitSequence(const SequencePtr&) final;
+            void visitDictionary(const DictionaryPtr&) final;
+            void visitEnum(const EnumPtr&) final;
+            void visitConst(const ConstPtr&) final;
 
         private:
             std::string encodeTypeForOperation(const TypePtr&);
         };
 
-        class TypeScriptImportVisitor : public JsVisitor
+        class TypeScriptImportVisitor final : public JsVisitor
         {
         public:
             TypeScriptImportVisitor(::IceUtilInternal::Output&, bool);
 
-            virtual bool visitModuleStart(const ModulePtr&);
-            virtual bool visitClassDefStart(const ClassDefPtr&);
-            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-            virtual bool visitStructStart(const StructPtr&);
-            virtual bool visitExceptionStart(const ExceptionPtr&);
-            virtual void visitSequence(const SequencePtr&);
-            virtual void visitDictionary(const DictionaryPtr&);
+            bool visitModuleStart(const ModulePtr&) final;
+            bool visitClassDefStart(const ClassDefPtr&) final;
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            bool visitStructStart(const StructPtr&) final;
+            bool visitExceptionStart(const ExceptionPtr&) final;
+            void visitSequence(const SequencePtr&) final;
+            void visitDictionary(const DictionaryPtr&) final;
 
         private:
             void addImport(const TypePtr&, const ContainedPtr&);
@@ -151,18 +151,17 @@ namespace Slice
             int _nextImport;
         };
 
-        class TypeScriptAliasVisitor : public JsVisitor
+        class TypeScriptAliasVisitor final : public JsVisitor
         {
         public:
             TypeScriptAliasVisitor(::IceUtilInternal::Output&);
 
-            virtual bool visitModuleStart(const ModulePtr&);
-            virtual bool visitClassDefStart(const ClassDefPtr&);
-            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-            virtual bool visitStructStart(const StructPtr&);
-            virtual bool visitExceptionStart(const ExceptionPtr&);
-            virtual void visitSequence(const SequencePtr&);
-            virtual void visitDictionary(const DictionaryPtr&);
+            bool visitClassDefStart(const ClassDefPtr&) final;
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            bool visitStructStart(const StructPtr&) final;
+            bool visitExceptionStart(const ExceptionPtr&) final;
+            void visitSequence(const SequencePtr&) final;
+            void visitDictionary(const DictionaryPtr&) final;
 
             void writeAlias(const UnitPtr&);
 
@@ -173,21 +172,21 @@ namespace Slice
             std::vector<std::pair<std::string, std::string>> _aliases;
         };
 
-        class TypeScriptVisitor : public JsVisitor
+        class TypeScriptVisitor final : public JsVisitor
         {
         public:
             TypeScriptVisitor(::IceUtilInternal::Output&, const std::vector<std::pair<std::string, std::string>>&);
 
-            virtual bool visitModuleStart(const ModulePtr&);
-            virtual void visitModuleEnd(const ModulePtr&);
-            virtual bool visitClassDefStart(const ClassDefPtr&);
-            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-            virtual bool visitExceptionStart(const ExceptionPtr&);
-            virtual bool visitStructStart(const StructPtr&);
-            virtual void visitSequence(const SequencePtr&);
-            virtual void visitDictionary(const DictionaryPtr&);
-            virtual void visitEnum(const EnumPtr&);
-            virtual void visitConst(const ConstPtr&);
+            bool visitModuleStart(const ModulePtr&) final;
+            void visitModuleEnd(const ModulePtr&) final;
+            bool visitClassDefStart(const ClassDefPtr&) final;
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            bool visitExceptionStart(const ExceptionPtr&) final;
+            bool visitStructStart(const StructPtr&) final;
+            void visitSequence(const SequencePtr&) final;
+            void visitDictionary(const DictionaryPtr&) final;
+            void visitEnum(const EnumPtr&) final;
+            void visitConst(const ConstPtr&) final;
 
         private:
             void writeImports();
