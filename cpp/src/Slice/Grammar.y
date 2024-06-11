@@ -578,8 +578,6 @@ optional
             // Found
             cl.push_back(enumerators.front());
             scoped->v = enumerators.front()->scoped();
-            currentUnit->warning(Deprecated, string("referencing enumerator `") + scoped->v
-                          + "' without its enumeration's scope is deprecated");
         }
         else if (enumerators.size() > 1)
         {
@@ -808,8 +806,6 @@ class_id
             // Found
             cl.push_back(enumerators.front());
             scoped->v = enumerators.front()->scoped();
-            currentUnit->warning(Deprecated, string("referencing enumerator `") + scoped->v
-                          + "' without its enumeration's scope is deprecated");
         }
         else if (enumerators.size() > 1)
         {

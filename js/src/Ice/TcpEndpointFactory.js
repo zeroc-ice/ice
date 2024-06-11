@@ -2,10 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/TcpEndpointI").Ice;
-const TcpEndpointI = Ice.TcpEndpointI;
+import { TcpEndpointI } from "./TcpEndpointI.js";
 
-class TcpEndpointFactory
+export class TcpEndpointFactory
 {
     constructor(instance)
     {
@@ -46,6 +45,3 @@ class TcpEndpointFactory
         return new TcpEndpointFactory(instance);
     }
 }
-
-Ice.TcpEndpointFactory = TcpEndpointFactory;
-module.exports.Ice = Ice;

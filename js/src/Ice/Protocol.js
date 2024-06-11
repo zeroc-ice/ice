@@ -2,21 +2,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
+import { StringUtil } from "./StringUtil.js";
+import { UnsupportedEncodingException, UnsupportedProtocolException, VersionParseException } from "./LocalException.js";
+import { Ice as Ice_Version } from "./Version.js";
+const { EncodingVersion, ProtocolVersion } = Ice_Version;
 
-require("../Ice/Buffer");
-require("../Ice/LocalException");
-require("../Ice/StringUtil");
-require("../Ice/Version");
+export const Protocol = {};
 
-const StringUtil = Ice.StringUtil;
+export const Encoding_1_0 = new EncodingVersion(1, 0);
+export const Encoding_1_1 = new EncodingVersion(1, 1);
 
-const Protocol = {};
-
-Ice.Encoding_1_0 = new Ice.EncodingVersion(1, 0);
-Ice.Encoding_1_1 = new Ice.EncodingVersion(1, 1);
-
-Ice.Protocol_1_0 = new Ice.ProtocolVersion(1, 0);
+export const Protocol_1_0 = new ProtocolVersion(1, 0);
 
 //
 // Size of the Ice protocol header
@@ -113,17 +109,16 @@ Protocol.replyHdr = new Uint8Array([
     0, 0, 0, 0 // Message size (placeholder).
 ]);
 
-Protocol.currentProtocol = new Ice.ProtocolVersion(Protocol.protocolMajor, Protocol.protocolMinor);
-Protocol.currentProtocolEncoding = new Ice.EncodingVersion(Protocol.protocolEncodingMajor,
-                                                            Protocol.protocolEncodingMinor);
+Protocol.currentProtocol = new ProtocolVersion(Protocol.protocolMajor, Protocol.protocolMinor);
+Protocol.currentProtocolEncoding = new EncodingVersion(Protocol.protocolEncodingMajor, Protocol.protocolEncodingMinor);
 
-Protocol.currentEncoding = new Ice.EncodingVersion(Protocol.encodingMajor, Protocol.encodingMinor);
+Protocol.currentEncoding = new EncodingVersion(Protocol.encodingMajor, Protocol.encodingMinor);
 
 Protocol.checkSupportedProtocol = function(v)
 {
     if(v.major !== Protocol.currentProtocol.major || v.minor > Protocol.currentProtocol.minor)
     {
-        throw new Ice.UnsupportedProtocolException("", v, Protocol.currentProtocol);
+        throw new UnsupportedProtocolException("", v, Protocol.currentProtocol);
     }
 };
 
@@ -132,7 +127,7 @@ Protocol.checkSupportedProtocolEncoding = function(v)
     if(v.major !== Protocol.currentProtocolEncoding.major ||
     v.minor > Protocol.currentProtocolEncoding.minor)
     {
-        throw new Ice.UnsupportedEncodingException("", v, Protocol.currentProtocolEncoding);
+        throw new UnsupportedEncodingException("", v, Protocol.currentProtocolEncoding);
     }
 };
 
@@ -140,7 +135,7 @@ Protocol.checkSupportedEncoding = function(v)
 {
     if(v.major !== Protocol.currentEncoding.major || v.minor > Protocol.currentEncoding.minor)
     {
-        throw new Ice.UnsupportedEncodingException("", v, Protocol.currentEncoding);
+        throw new UnsupportedEncodingException("", v, Protocol.currentEncoding);
     }
 };
 
@@ -204,10 +199,10 @@ Protocol.isSupported = function(version, supported)
 *
 * @return The converted protocol version.
 **/
-Ice.stringToProtocolVersion = function(version)
+export function stringToProtocolVersion(version)
 {
-    return new Ice.ProtocolVersion(stringToMajor(version), stringToMinor(version));
-};
+    return new ProtocolVersion(stringToMajor(version), stringToMinor(version));
+}
 
 /**
 * Converts a string to an encoding version.
@@ -216,10 +211,10 @@ Ice.stringToProtocolVersion = function(version)
 *
 * @return The converted object identity.
 **/
-Ice.stringToEncodingVersion = function(version)
+export function stringToEncodingVersion(version)
 {
-    return new Ice.EncodingVersion(stringToMajor(version), stringToMinor(version));
-};
+    return new EncodingVersion(stringToMajor(version), stringToMinor(version));
+}
 
 /**
 * Converts a protocol version to a string.
@@ -228,10 +223,10 @@ Ice.stringToEncodingVersion = function(version)
 *
 * @return The converted string.
 **/
-Ice.protocolVersionToString = function(v)
+export function protocolVersionToString(v)
 {
     return majorMinorToString(v.major, v.minor);
-};
+}
 
 /**
  * Converts an encoding version to a string.
@@ -240,10 +235,10 @@ Ice.protocolVersionToString = function(v)
  *
  * @return The converted string.
  **/
-Ice.encodingVersionToString = function(v)
+export function encodingVersionToString(v)
 {
     return majorMinorToString(v.major, v.minor);
-};
+}
 
 Protocol.OPTIONAL_END_MARKER = 0xFF;
 Protocol.FLAG_HAS_TYPE_ID_STRING = (1 << 0);
@@ -254,15 +249,12 @@ Protocol.FLAG_HAS_INDIRECTION_TABLE = (1 << 3);
 Protocol.FLAG_HAS_SLICE_SIZE = (1 << 4);
 Protocol.FLAG_IS_LAST_SLICE = (1 << 5);
 
-Ice.Protocol = Protocol;
-module.exports.Ice = Ice;
-
 function stringToMajor(str)
 {
     const pos = str.indexOf('.');
     if(pos === -1)
     {
-        throw new Ice.VersionParseException("malformed version value `" + str + "'");
+        throw new VersionParseException("malformed version value `" + str + "'");
     }
 
     try
@@ -270,13 +262,13 @@ function stringToMajor(str)
         const majVersion = StringUtil.toInt(str.substring(0, pos));
         if(majVersion < 1 || majVersion > 255)
         {
-            throw new Ice.VersionParseException("range error in version `" + str + "'");
+            throw new VersionParseException("range error in version `" + str + "'");
         }
         return majVersion;
     }
     catch(ex)
     {
-        throw new Ice.VersionParseException("invalid version value `" + str + "'");
+        throw new VersionParseException("invalid version value `" + str + "'");
     }
 }
 
@@ -285,7 +277,7 @@ function stringToMinor(str)
     const pos = str.indexOf('.');
     if(pos === -1)
     {
-        throw new Ice.VersionParseException("malformed version value `" + str + "'");
+        throw new VersionParseException("malformed version value `" + str + "'");
     }
 
     try
@@ -293,13 +285,13 @@ function stringToMinor(str)
         const minVersion = StringUtil.toInt(str.substring(pos + 1));
         if(minVersion < 0 || minVersion > 255)
         {
-            throw new Ice.VersionParseException("range error in version `" + str + "'");
+            throw new VersionParseException("range error in version `" + str + "'");
         }
         return minVersion;
     }
     catch(ex)
     {
-        throw new Ice.VersionParseException("invalid version value `" + str + "'");
+        throw new VersionParseException("invalid version value `" + str + "'");
     }
 }
 

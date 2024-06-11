@@ -10,7 +10,6 @@
 [["cpp:include:list"]]
 
 [["js:module:ice"]]
-[["js:cjs-module"]]
 
 [["python:pkgdir:Ice"]]
 

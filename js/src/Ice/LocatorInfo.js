@@ -2,23 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
+import { HashMap } from "./HashMap.js";
+import { Ice as Ice_Locator } from "./Locator.js";
+const { LocatorRegistryPrx, AdapterNotFoundException, ObjectNotFoundException } = Ice_Locator;
+import { Protocol } from "./Protocol.js";
+import { EndpointSelectionType } from "./EndpointSelectionType.js";
+import { Promise } from "./Promise.js";
+import { identityToString } from "./IdentityUtil.js";
+import { LocalException, UserException } from "./Exception.js";
+import { NotRegisteredException } from "./LocalException.js";
+import { Debug } from "./Debug.js";
 
-require("../Ice/Debug");
-require("../Ice/Exception");
-require("../Ice/HashMap");
-require("../Ice/IdentityUtil");
-require("../Ice/LocalException");
-require("../Ice/Locator");
-require("../Ice/Promise");
-require("../Ice/Protocol");
-
-const Debug = Ice.Debug;
-const HashMap = Ice.HashMap;
-const LocatorRegistryPrx = Ice.LocatorRegisterPrx;
-const Protocol = Ice.Protocol;
-
-class LocatorInfo
+export class LocatorInfo
 {
     constructor(locator, table, background)
     {
@@ -66,7 +61,7 @@ class LocatorInfo
     {
         if(this._locatorRegistry !== null)
         {
-            return Ice.Promise.resolve(this._locatorRegistry);
+            return Promise.resolve(this._locatorRegistry);
         }
 
         return this._locator.getRegistry().then(reg =>
@@ -74,17 +69,17 @@ class LocatorInfo
                 //
                 // The locator registry can't be located. We use ordered
                 // endpoint selection in case the locator returned a proxy
-                // with some endpoints which are prefered to be tried first.
+                // with some endpoints which are preferred to be tried first.
                 //
                 this._locatorRegistry = LocatorRegistryPrx.uncheckedCast(reg.ice_locator(null).ice_endpointSelection(
-                    Ice.EndpointSelectionType.Ordered));
+                    EndpointSelectionType.Ordered));
                 return this._locatorRegistry;
             });
     }
 
     getEndpoints(ref, wellKnownRef, ttl, p)
     {
-        const promise = p || new Ice.Promise(); // success callback receives (endpoints, cached)
+        const promise = p || new Promise(); // success callback receives (endpoints, cached)
 
         Debug.assert(ref.isIndirect());
         let endpoints = null;
@@ -235,7 +230,7 @@ class LocatorInfo
         }
         catch(ex)
         {
-            if(ex instanceof Ice.AdapterNotFoundException)
+            if(ex instanceof AdapterNotFoundException)
             {
                 if(instance.traceLevels().location >= 1)
                 {
@@ -246,32 +241,32 @@ class LocatorInfo
                     instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.join(""));
                 }
 
-                const e = new Ice.NotRegisteredException();
+                const e = new NotRegisteredException();
                 e.kindOfObject = "object adapter";
                 e.id = ref.getAdapterId();
                 throw e;
             }
-            else if(ex instanceof Ice.ObjectNotFoundException)
+            else if(ex instanceof ObjectNotFoundException)
             {
                 if(instance.traceLevels().location >= 1)
                 {
                     const s = [];
                     s.push("object not found\n");
                     s.push("object = ");
-                    s.push(Ice.identityToString(ref.getIdentity(), instance.toStringMode()));
+                    s.push(identityToString(ref.getIdentity(), instance.toStringMode()));
                     instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.join(""));
                 }
 
-                const e = new Ice.NotRegisteredException();
+                const e = new NotRegisteredException();
                 e.kindOfObject = "object";
-                e.id = Ice.identityToString(ref.getIdentity(), instance.toStringMode());
+                e.id = identityToString(ref.getIdentity(), instance.toStringMode());
                 throw e;
             }
-            else if(ex instanceof Ice.NotRegisteredException)
+            else if(ex instanceof NotRegisteredException)
             {
                 throw ex;
             }
-            else if(ex instanceof Ice.LocalException)
+            else if(ex instanceof LocalException)
             {
                 if(instance.traceLevels().location >= 1)
                 {
@@ -441,8 +436,6 @@ class LocatorInfo
     }
 }
 
-Ice.LocatorInfo = LocatorInfo;
-
 class RequestCallback
 {
     constructor(ref, ttl, promise)
@@ -582,7 +575,7 @@ class Request
 
     exception(ex)
     {
-        this._locatorInfo.finishRequest(this._ref, this._wellKnownRefs, null, ex instanceof Ice.UserException);
+        this._locatorInfo.finishRequest(this._ref, this._wellKnownRefs, null, ex instanceof UserException);
         this._exception = ex;
         for(let i = 0; i < this._callbacks.length; ++i)
         {
@@ -636,5 +629,3 @@ class AdapterRequest extends Request
         }
     }
 }
-
-module.exports.Ice = Ice;

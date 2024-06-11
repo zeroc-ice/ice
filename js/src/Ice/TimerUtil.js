@@ -2,8 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-
 let Timer = {};
 
 if (typeof process != 'undefined')
@@ -17,7 +15,6 @@ if (typeof process != 'undefined')
     Timer.setInterval = setInterval;
     Timer.clearInterval = clearInterval;
     Timer.setImmediate = setImmediate;
-    Ice.Timer = Timer;
 }
 else
 {
@@ -235,15 +232,16 @@ else
         //
         // If we are running in a worker don't spawn a separate worker for the timer
         //
-        Ice.Timer = createTimerObject();
+        Timer = createTimerObject();
     }
     else if(worker === undefined)
     {
         const url = URL.createObjectURL(new Blob([workerCode()], {type: 'text/javascript'}));
         worker = new Worker(url);
         worker.onmessage = Timer.onmessage;
-        Ice.Timer = Timer;
+        // TODO do we need this?
+        // Ice.Timer = Timer;
     }
 }
 
-module.exports.Ice = Ice;
+export { Timer as TimerUtil };

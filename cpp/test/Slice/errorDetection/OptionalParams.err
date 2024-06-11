@@ -21,7 +21,6 @@ OptionalParams.ice:54: invalid tag `C3'
 OptionalParams.ice:55: tag is out of range
 OptionalParams.ice:55: invalid tag `C4'
 OptionalParams.ice:56: invalid tag `C5'
-OptionalParams.ice:58: warning: referencing enumerator `::Test::E::e2' without its enumeration's scope is deprecated
 OptionalParams.ice:60: missing tag
 OptionalParams.ice:61: missing tag
 OptionalParams.ice:62: `abc' is not defined

@@ -2,12 +2,21 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/OptionalFormat").Ice;
+import { OptionalFormat } from "./OptionalFormat.js";
+import { ByteHelper, ObjectHelper } from "./Stream.js";
+
+import { Ice as Ice_Identity } from "./Identity.js";
+import { Ice as Ice_Version } from "./Version.js";
+
+const { Identity } = Ice_Identity;
+const { EncodingVersion, ProtocolVersion } = Ice_Version;
+
+import { defineStruct } from "./Struct.js";
+import { TypeRegistry } from "./TypeRegistry.js";
 
 const defineProperty = Object.defineProperty;
-const OptionalFormat = Ice.OptionalFormat;
 
-const StreamHelpers = {};
+export const StreamHelpers = {};
 
 StreamHelpers.FSizeOptHelper = function()
 {
@@ -147,12 +156,12 @@ class SequenceHelper
     }
 }
 
-// Speacialization optimized for ByteSeq
+// Specialization optimized for ByteSeq
 const byteSeqHelper = new SequenceHelper();
 byteSeqHelper.write = (os, v) => os.writeByteSeq(v);
 byteSeqHelper.read = is => is.readByteSeq();
 
-defineProperty(byteSeqHelper, "elementHelper", {get: () => Ice.ByteHelper});
+defineProperty(byteSeqHelper, "elementHelper", {get: () => ByteHelper});
 StreamHelpers.VSizeContainer1OptHelper.call(byteSeqHelper);
 
 // Read method for value sequences
@@ -179,7 +188,7 @@ const valueSequenceHelperRead = function(is)
 
 StreamHelpers.generateSeqHelper = function(elementHelper, fixed, elementType)
 {
-    if(elementHelper === Ice.ByteHelper)
+    if(elementHelper === ByteHelper)
     {
         return byteSeqHelper;
     }
@@ -203,9 +212,9 @@ StreamHelpers.generateSeqHelper = function(elementHelper, fixed, elementType)
 
     defineProperty(helper, "elementHelper", {get: () => elementHelper});
 
-    if(elementHelper == Ice.ObjectHelper)
+    if(elementHelper == ObjectHelper)
     {
-        defineProperty(helper, "elementType", {get: () => elementType});
+        defineProperty(helper, "elementType", {get: () => TypeRegistry.getValueType(elementType) });
         helper.read = valueSequenceHelperRead;
     }
 
@@ -262,7 +271,7 @@ class DictionaryHelper
 }
 
 // Read method for dictionaries of values
-const valueDictionaryHelperRead = function(is)
+function valueDictionaryHelperRead(is)
 {
     const sz = is.readSize();
     const mapType = this.mapType;
@@ -310,11 +319,11 @@ StreamHelpers.generateDictHelper = function(keyHelper, valueHelper, fixed, value
                        get: () => valueHelper
                    });
 
-    if(valueHelper == Ice.ObjectHelper)
+    if(valueHelper == ObjectHelper)
     {
         defineProperty(helper, "valueType",
                        {
-                           get: () => valueType
+                           get: () => TypeRegistry.getValueType(valueType)
                        });
 
         helper.read = valueDictionaryHelperRead;
@@ -323,5 +332,10 @@ StreamHelpers.generateDictHelper = function(keyHelper, valueHelper, fixed, value
     return helper;
 };
 
-Ice.StreamHelpers = StreamHelpers;
-module.exports.Ice = Ice;
+// Moved here from Identity.js and Version.js to break circular dependencies
+
+defineStruct(Identity, true, true);
+export const IdentitySeqHelper = StreamHelpers.generateSeqHelper(Identity, false);
+
+defineStruct(EncodingVersion, true, false);
+defineStruct(ProtocolVersion, true, false);

@@ -2,7 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
+// Declared here to avoid circular dependencies when importing OptionalFormat enum.
+const OptionalFormat_Size = {};
+Object.defineProperty(OptionalFormat_Size, 'value', {value: 4});
 
 //
 // Ice.EnumBase
@@ -50,7 +52,6 @@ class EnumBase
         return this._value;
     }
 }
-Ice.EnumBase = EnumBase;
 
 class EnumHelper
 {
@@ -80,10 +81,7 @@ class EnumHelper
     }
 }
 
-Ice.EnumHelper = EnumHelper;
-
-const Slice = Ice.Slice;
-Slice.defineEnum = function(enumerators)
+export function defineEnum(enumerators)
 {
     const type = class extends EnumBase
     {
@@ -136,7 +134,7 @@ Slice.defineEnum = function(enumerators)
     {
         if(v !== undefined)
         {
-            if(os.writeOptional(tag, Ice.OptionalFormat.Size))
+            if(os.writeOptional(tag, OptionalFormat_Size))
             {
                 type._write(os, v);
             }
@@ -169,5 +167,4 @@ Slice.defineEnum = function(enumerators)
     });
 
     return type;
-};
-module.exports.Ice = Ice;
+}

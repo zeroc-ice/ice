@@ -58,10 +58,10 @@ namespace Slice
         bool _useStdout;
         bool _typeScript;
 
-        class RequireVisitor final : public JsVisitor
+        class ImportVisitor final : public JsVisitor
         {
         public:
-            RequireVisitor(::IceUtilInternal::Output&, std::vector<std::string>, bool, bool);
+            ImportVisitor(::IceUtilInternal::Output&, std::vector<std::string>, bool);
 
             bool visitClassDefStart(const ClassDefPtr&) final;
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
@@ -72,11 +72,11 @@ namespace Slice
             void visitDictionary(const DictionaryPtr&) final;
             void visitEnum(const EnumPtr&) final;
 
-            std::vector<std::string> writeRequires(const UnitPtr&);
+            // Emit the import statements for the given unit and return a list of the imported modules.
+            std::set<std::string> writeImports(const UnitPtr&);
 
         private:
             bool _icejs;
-            bool _es6modules;
             bool _seenClass;
             bool _seenInterface;
             bool _seenCompactId;
@@ -84,19 +84,36 @@ namespace Slice
             bool _seenStruct;
             bool _seenUserException;
             bool _seenEnum;
+            bool _seenSeq;
+            bool _seenDict;
             bool _seenObjectSeq;
             bool _seenObjectProxySeq;
             bool _seenObjectDict;
             bool _seenObjectProxyDict;
             std::vector<std::string> _includePaths;
         };
+        
+        class ExportsVisitor final : public JsVisitor
+        {
+        public:
+            ExportsVisitor(::IceUtilInternal::Output&, std::set<std::string>);
+
+            bool visitModuleStart(const ModulePtr&) final;
+
+            std::set<std::string> exportedModules() const;
+
+        private:
+            std::string encodeTypeForOperation(const TypePtr&);
+
+            std::set<std::string> _importedModules;
+            std::set<std::string> _exportedModules;
+        };
 
         class TypesVisitor final : public JsVisitor
         {
         public:
-            TypesVisitor(::IceUtilInternal::Output&, std::vector<std::string>, bool);
+            TypesVisitor(::IceUtilInternal::Output&);
 
-            bool visitModuleStart(const ModulePtr&) final;
             bool visitClassDefStart(const ClassDefPtr&) final;
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
             bool visitExceptionStart(const ExceptionPtr&) final;
@@ -108,28 +125,12 @@ namespace Slice
 
         private:
             std::string encodeTypeForOperation(const TypePtr&);
-
-            std::vector<std::string> _seenModules;
-            bool _icejs;
         };
 
-        class ExportVisitor final : public JsVisitor
+        class TypeScriptImportVisitor final : public JsVisitor
         {
         public:
-            ExportVisitor(::IceUtilInternal::Output&, bool, bool);
-
-            bool visitModuleStart(const ModulePtr&) final;
-
-        private:
-            bool _icejs;
-            bool _es6modules;
-            std::vector<std::string> _exported;
-        };
-
-        class TypeScriptRequireVisitor final : public JsVisitor
-        {
-        public:
-            TypeScriptRequireVisitor(::IceUtilInternal::Output&, bool);
+            TypeScriptImportVisitor(::IceUtilInternal::Output&, bool);
 
             bool visitModuleStart(const ModulePtr&) final;
             bool visitClassDefStart(const ClassDefPtr&) final;

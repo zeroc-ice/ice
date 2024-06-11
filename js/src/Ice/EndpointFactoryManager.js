@@ -2,27 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
+import { EndpointParseException } from "./LocalException.js";
+import { StringUtil } from "./StringUtil.js";
+import { OpaqueEndpointI } from "./OpaqueEndpoint.js";
+import { Protocol } from "./Protocol.js";
+import { OutputStream, InputStream } from "./Stream.js";
+import { Debug } from "./Debug.js";
 
-require("../Ice/Debug");
-require("../Ice/LocalException");
-require("../Ice/OpaqueEndpointI");
-require("../Ice/Protocol");
-require("../Ice/Stream");
-require("../Ice/StringUtil");
-
-//
-// Local aliases.
-//
-const Debug = Ice.Debug;
-const InputStream = Ice.InputStream;
-const OutputStream = Ice.OutputStream;
-const EndpointParseException = Ice.EndpointParseException;
-const OpaqueEndpointI = Ice.OpaqueEndpointI;
-const Protocol = Ice.Protocol;
-const StringUtil = Ice.StringUtil;
-
-class EndpointFactoryManager
+export class EndpointFactoryManager
 {
     constructor(instance)
     {
@@ -148,6 +135,3 @@ class EndpointFactoryManager
         this._factories = [];
     }
 }
-
-Ice.EndpointFactoryManager = EndpointFactoryManager;
-module.exports.Ice = Ice;

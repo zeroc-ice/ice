@@ -2,14 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/Long").Ice;
-const Long = Ice.Long;
+import { Long } from "./Long.js";
 
 const bufferOverflowExceptionMsg = "BufferOverflowException";
 const bufferUnderflowExceptionMsg = "BufferUnderflowException";
 const indexOutOfBoundsExceptionMsg = "IndexOutOfBoundsException";
 
-class Buffer
+export class Buffer
 {
     constructor(buffer)
     {
@@ -398,6 +397,3 @@ class Buffer
         return this._limit - this._position;
     }
 }
-
-Ice.Buffer = Buffer;
-module.exports.Ice = Ice;

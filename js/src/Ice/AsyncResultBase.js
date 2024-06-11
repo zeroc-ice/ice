@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/Promise").Ice;
+import { Promise } from './Promise.js';
 
-class AsyncResultBase extends Ice.Promise
+export class AsyncResultBase extends Promise
 {
     constructor(communicator, op, connection, proxy, adapter)
     {
@@ -42,7 +42,3 @@ class AsyncResultBase extends Ice.Promise
         return this._operation;
     }
 }
-
-Ice.AsyncResultBase = AsyncResultBase;
-
-module.exports.Ice = Ice;

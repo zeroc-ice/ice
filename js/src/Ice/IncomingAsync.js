@@ -2,35 +2,44 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
+import { Current } from "./Current.js";
+import { Ice as Ice_Context } from "./Context.js";
+const { Context } = Ice_Context;
+import { Ice as Ice_OperationMode } from "./OperationMode.js";
+const { OperationMode } = Ice_OperationMode;
+import { Ice as Ice_Identity } from "./Identity.js";
+const { Identity } = Ice_Identity;
+import { identityToString } from "./IdentityUtil.js";
+import { FormatType } from "./FormatType.js";
+import { LocalException, UserException } from "./Exception.js";
+import {
+    FacetNotExistException,
+    MarshalException,
+    ObjectNotExistException,
+    OperationNotExistException,
+    RequestFailedException,
+    UnknownException,
+    UnknownLocalException,
+    UnknownUserException } from "./LocalException.js";
 
-require("../Ice/BuiltinSequences");
-require("../Ice/Connection");
-require("../Ice/Current");
-require("../Ice/Debug");
-require("../Ice/Exception");
-require("../Ice/Identity");
-require("../Ice/LocalException");
-require("../Ice/Protocol");
-require("../Ice/Stream");
-require("../Ice/StringUtil");
+import { Protocol } from "./Protocol.js";
+import { OutputStream } from "./Stream.js";
+import { StringUtil } from "./StringUtil.js";
+import { IPConnectionInfo } from "./Connection.js";
+import { Ice as Ice_Version } from "./Version.js";
+const { EncodingVersion } = Ice_Version;
+import { Ice as Ice_BuiltinSequences } from "./BuiltinSequences.js"
+const { StringSeqHelper } = Ice_BuiltinSequences;
+import { Debug } from "./Debug.js";
 
-const OutputStream = Ice.OutputStream;
-const Current = Ice.Current;
-const Debug = Ice.Debug;
-const Context = Ice.Context;
-const Identity = Ice.Identity;
-const Protocol = Ice.Protocol;
-const StringUtil = Ice.StringUtil;
-
-class IncomingAsync
+export class IncomingAsync
 {
     constructor(instance, connection, adapter, response, requestId)
     {
         this._instance = instance;
         this._response = response;
         this._connection = connection;
-        this._format = Ice.FormatType.DefaultFormat;
+        this._format = FormatType.DefaultFormat;
 
         this._current = new Current();
         this._current.id = new Identity();
@@ -50,7 +59,7 @@ class IncomingAsync
     {
         if(!this._response)
         {
-            throw new Ice.MarshalException("can't marshal out parameters for oneway dispatch");
+            throw new MarshalException("can't marshal out parameters for oneway dispatch");
         }
 
         Debug.assert(this._current.encoding !== null); // Encoding for reply is known.
@@ -114,7 +123,7 @@ class IncomingAsync
 
         const s = [];
         s.push("dispatch exception:");
-        s.push("\nidentity: " + Ice.identityToString(this._current.id, this._instance.toStringMode()));
+        s.push("\nidentity: " + identityToString(this._current.id, this._instance.toStringMode()));
         s.push("\nfacet: " + StringUtil.escapeString(this._current.facet, "", this._instance.toStringMode()));
         s.push("\noperation: " + this._current.operation);
         if(this._connection !== null)
@@ -123,7 +132,7 @@ class IncomingAsync
             {
                 for(let p = this._connection.getInfo(); p; p = p.underlying)
                 {
-                    if(p instanceof Ice.IPConnectionInfo)
+                    if(p instanceof IPConnectionInfo)
                     {
                         s.push("\nremote host: " + p.remoteAddress + " remote port: " + p.remotePort);
                     }
@@ -147,7 +156,7 @@ class IncomingAsync
         Debug.assert(this._connection !== null);
 
         const props = this._instance.initializationData().properties;
-        if(ex instanceof Ice.RequestFailedException)
+        if(ex instanceof RequestFailedException)
         {
             if(ex.id === null)
             {
@@ -174,15 +183,15 @@ class IncomingAsync
                 this._os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
                 this._os.writeBlob(Protocol.replyHdr);
                 this._os.writeInt(this._current.requestId);
-                if(ex instanceof Ice.ObjectNotExistException)
+                if(ex instanceof ObjectNotExistException)
                 {
                     this._os.writeByte(Protocol.replyObjectNotExist);
                 }
-                else if(ex instanceof Ice.FacetNotExistException)
+                else if(ex instanceof FacetNotExistException)
                 {
                     this._os.writeByte(Protocol.replyFacetNotExist);
                 }
-                else if(ex instanceof Ice.OperationNotExistException)
+                else if(ex instanceof OperationNotExistException)
                 {
                     this._os.writeByte(Protocol.replyOperationNotExist);
                 }
@@ -197,11 +206,11 @@ class IncomingAsync
                 //
                 if(ex.facet === null || ex.facet.length === 0)
                 {
-                    Ice.StringSeqHelper.write(this._os, null);
+                    StringSeqHelper.write(this._os, null);
                 }
                 else
                 {
-                    Ice.StringSeqHelper.write(this._os, [ex.facet]);
+                    StringSeqHelper.write(this._os, [ex.facet]);
                 }
 
                 this._os.writeString(ex.operation);
@@ -213,7 +222,7 @@ class IncomingAsync
                 this._connection.sendNoResponse();
             }
         }
-        else if(ex instanceof Ice.UnknownLocalException)
+        else if(ex instanceof UnknownLocalException)
         {
             if(props.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
@@ -234,7 +243,7 @@ class IncomingAsync
                 this._connection.sendNoResponse();
             }
         }
-        else if(ex instanceof Ice.UnknownUserException)
+        else if(ex instanceof UnknownUserException)
         {
             if(props.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
@@ -255,7 +264,7 @@ class IncomingAsync
                 this._connection.sendNoResponse();
             }
         }
-        else if(ex instanceof Ice.UnknownException)
+        else if(ex instanceof UnknownException)
         {
             if(props.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
@@ -276,7 +285,7 @@ class IncomingAsync
                 this._connection.sendNoResponse();
             }
         }
-        else if(ex instanceof Ice.LocalException)
+        else if(ex instanceof LocalException)
         {
             if(props.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
@@ -304,7 +313,7 @@ class IncomingAsync
                 this._connection.sendNoResponse();
             }
         }
-        else if(ex instanceof Ice.UserException)
+        else if(ex instanceof UserException)
         {
             if(this._response)
             {
@@ -359,12 +368,12 @@ class IncomingAsync
         //
         // For compatibility with the old FacetPath.
         //
-        const facetPath = Ice.StringSeqHelper.read(this._is);
+        const facetPath = StringSeqHelper.read(this._is);
         if(facetPath.length > 0)
         {
             if(facetPath.length > 1)
             {
-                throw new Ice.MarshalException();
+                throw new MarshalException();
             }
             this._current.facet = facetPath[0];
         }
@@ -374,7 +383,7 @@ class IncomingAsync
         }
 
         this._current.operation = this._is.readString();
-        this._current.mode = Ice.OperationMode.valueOf(this._is.readByte());
+        this._current.mode = OperationMode.valueOf(this._is.readByte());
         this._current.ctx = new Context();
         let sz = this._is.readSize();
         while(sz-- > 0)
@@ -420,12 +429,12 @@ class IncomingAsync
             {
                 if(servantManager !== null && servantManager.hasServant(this._current.id))
                 {
-                    throw new Ice.FacetNotExistException(this._current.id, this._current.facet,
+                    throw new FacetNotExistException(this._current.id, this._current.facet,
                                                          this._current.operation);
                 }
                 else
                 {
-                    throw new Ice.ObjectNotExistException(this._current.id, this._current.facet,
+                    throw new ObjectNotExistException(this._current.id, this._current.facet,
                                                           this._current.operation);
                 }
 
@@ -480,7 +489,7 @@ class IncomingAsync
 
     readParamEncaps()
     {
-        this._current.encoding = new Ice.EncodingVersion();
+        this._current.encoding = new EncodingVersion();
         return this._is.readEncapsulation(this._current.encoding);
     }
 
@@ -524,7 +533,7 @@ class IncomingAsync
         }
         catch(ex)
         {
-            if(ex instanceof Ice.LocalException)
+            if(ex instanceof LocalException)
             {
                 this._connection.invokeException(ex, 1);
             }
@@ -537,6 +546,3 @@ class IncomingAsync
     }
 
 }
-
-Ice.IncomingAsync = IncomingAsync;
-module.exports.Ice = Ice;

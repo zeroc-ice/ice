@@ -11,7 +11,6 @@
 [["cpp:source-include:Ice/Process.h"]]
 
 [["js:module:ice"]]
-[["js:cjs-module"]]
 
 [["python:pkgdir:Ice"]]
 

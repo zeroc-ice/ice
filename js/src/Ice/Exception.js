@@ -2,8 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-
 const toString = function(key, object, objectTable, ident)
 {
     ident += "  ";
@@ -91,11 +89,6 @@ class Exception extends Error
                 s += toString(key, this[key], [], "");
             }
         }
-
-        if(Ice._printStackTraces === true && this.stack)
-        {
-            s += "\n" + this.stack;
-        }
         this._inToStringAlready = false;
         return s;
     }
@@ -119,8 +112,6 @@ class Exception extends Error
     }
 }
 
-Ice.Exception = Exception;
-
 //
 // Ice.LocalException
 //
@@ -137,8 +128,6 @@ class LocalException extends Exception
         return "::Ice::LocalException";
     }
 }
-
-Ice.LocalException = LocalException;
 
 //
 // Ice.UserException
@@ -177,10 +166,9 @@ class UserException extends Exception
 
     _mostDerivedType()
     {
-        return Ice.UserException;
+        return UserException;
     }
 }
-Ice.UserException = UserException;
 
 //
 // Private methods
@@ -230,4 +218,4 @@ const readImpl = function(obj, is, type)
     readImpl(obj, is, type._parent);
 };
 
-module.exports.Ice = Ice;
+export { Exception, LocalException, UserException };
