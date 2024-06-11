@@ -122,6 +122,17 @@ namespace Ice
         virtual void destroy() noexcept = 0;
 
         /**
+         * Add a middleware to the dispatch pipeline of this object adapter.
+         * @param middlewareFactory The middleware factory that creates the new middleware when this object adapter
+         * creates its dispatch pipeline. A middleware factory is a function that takes an ObjectPtr (the next element
+         * in the dispatch pipeline) and returns a new ObjectPtr (the middleware you want to install in the pipeline).
+         * @return This object adapter.
+         * @remark All middleware must be installed before the first dispatch.
+         * @remark The middleware are executed in the order they are installed.
+         */
+        virtual ObjectAdapterPtr use(std::function<ObjectPtr(ObjectPtr)> middlewareFactory) = 0;
+
+        /**
          * Add a servant to this object adapter's Active Servant Map. Note that one servant can implement several Ice
          * objects by registering the servant with multiple identities. Adding a servant with an identity that is in the
          * map already throws {@link AlreadyRegisteredException}.
@@ -351,12 +362,10 @@ namespace Ice
         virtual ObjectPtr findDefaultServant(const std::string& category) const = 0;
 
         /**
-         * Get the dispatcher associated with this object adapter. This object dispatches incoming requests to the
-         * servants managed by this object adapter, and takes into account the servant locators.
-         * @return The dispatcher. This shared_ptr is never null.
-         * @remarks You can add this dispatcher as a servant (including default servant) in another object adapter.
+         * Get the dispatch pipeline of this object adapter.
+         * @return The dispatch pipeline. This shared_ptr is never null.
          */
-        virtual ObjectPtr dispatcher() const noexcept = 0;
+        virtual const ObjectPtr& dispatchPipeline() const noexcept = 0;
 
         /**
          * Create a proxy for the object with the given identity. If this object adapter is configured with an adapter
