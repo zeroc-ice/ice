@@ -908,75 +908,78 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
 {
     set<string> importedModules = {"Ice"};
 
-    set<string> jsIceRequires;
     // The imports map maps JsModules to the set of Slice top-level modules that are imported from that JsModule.
     map<string, set<string>> imports;
+
+    // The JavaScript files that we import in generated code when building Ice. The user generated code imports
+    // the "ice" package which contains the whole Ice module.
+    set<string> jsIceImports;
     if (_icejs)
     {
         bool needStreamHelpers = false;
         if (_seenClass || _seenInterface || _seenObjectSeq || _seenObjectDict)
         {
-            jsIceRequires.insert("Object");
-            jsIceRequires.insert("Value");
-            jsIceRequires.insert("TypeRegistry");
+            jsIceImports.insert("Object");
+            jsIceImports.insert("Value");
+            jsIceImports.insert("TypeRegistry");
             needStreamHelpers = true;
         }
 
         if (_seenInterface)
         {
-            jsIceRequires.insert("ObjectPrx");
-            jsIceRequires.insert("TypeRegistry");
+            jsIceImports.insert("ObjectPrx");
+            jsIceImports.insert("TypeRegistry");
         }
 
         if (_seenObjectProxySeq || _seenObjectProxyDict)
         {
-            jsIceRequires.insert("ObjectPrx");
+            jsIceImports.insert("ObjectPrx");
         }
 
         if (_seenOperation)
         {
-            jsIceRequires.insert("Operation");
+            jsIceImports.insert("Operation");
         }
 
         if (_seenStruct)
         {
-            jsIceRequires.insert("Struct");
+            jsIceImports.insert("Struct");
         }
 
         if (_seenUserException)
         {
-            jsIceRequires.insert("Exception");
-            jsIceRequires.insert("TypeRegistry");
+            jsIceImports.insert("Exception");
+            jsIceImports.insert("TypeRegistry");
         }
 
         if (_seenEnum)
         {
-            jsIceRequires.insert("EnumBase");
+            jsIceImports.insert("EnumBase");
         }
 
         if (_seenCompactId)
         {
-            jsIceRequires.insert("CompactIdRegistry");
+            jsIceImports.insert("CompactIdRegistry");
         }
 
-        jsIceRequires.insert("Long");
+        jsIceImports.insert("Long");
         if (_seenDict || _seenObjectDict || _seenObjectProxyDict)
         {
-            jsIceRequires.insert("HashMap");
-            jsIceRequires.insert("HashUtil");
+            jsIceImports.insert("HashMap");
+            jsIceImports.insert("HashUtil");
             needStreamHelpers = true;
         }
 
         if (_seenSeq || _seenObjectSeq)
         {
-            jsIceRequires.insert("ArrayUtil");
+            jsIceImports.insert("ArrayUtil");
             needStreamHelpers = true;
         }
 
         if (needStreamHelpers)
         {
-            jsIceRequires.insert("StreamHelpers");
-            jsIceRequires.insert("Stream");
+            jsIceImports.insert("StreamHelpers");
+            jsIceImports.insert("Stream");
         }
     }
     else
@@ -991,12 +994,12 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
     string jsModule = getJavaScriptModule(p->findDefinitionContext(p->topLevelFile()));
 
     // Iterate all the included files and generate an import statement for each top-level module in the included file.
-    for (StringList::const_iterator i = includes.begin(); i != includes.end(); ++i)
+    for (const auto& included : includes)
     {
-        set<string> sliceTopLevelModules = p->getTopLevelModules(*i);
+        set<string> sliceTopLevelModules = p->getTopLevelModules(included);
 
         // The JavaScript module for the included file.
-        string jsImportedModule = getJavaScriptModule(p->findDefinitionContext(*i));
+        string jsImportedModule = getJavaScriptModule(p->findDefinitionContext(included));
 
         if (jsModule != jsImportedModule && !jsImportedModule.empty())
         {
@@ -1017,7 +1020,7 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
         {
             // For Slice modules mapped to the same JavaScript module, or Slice files that doesn't use "js:module".
             // We import them using their Slice include relative path.
-            string f = removeExtension(*i) + ".js";
+            string f = removeExtension(included) + ".js";
             if (IceUtilInternal::isAbsolutePath(f))
             {
                 // If the include file is an absolute path, we need to generate a relative path.
@@ -1037,12 +1040,12 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
         }
     }
 
-    //
+    set<string> aggregatedModules;
+
     // We first import the Ice runtime
-    //
     if (_icejs)
     {
-        for (const string& m : jsIceRequires)
+        for (const string& m : jsIceImports)
         {
             _out << nl << "import * as Ice_" << m << " from \"../Ice/" << m << ".js\";";
         }
@@ -1058,7 +1061,7 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
         _out << sp;
         _out << nl << "const Ice = {";
         _out.inc();
-        for (const string& m : jsIceRequires)
+        for (const string& m : jsIceImports)
         {
             _out << nl << "...Ice_" << m << ",";
         }
@@ -1112,6 +1115,7 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
             {
                 _out << nl << topLevelModule << " as " << topLevelModule << "_" << pathToModule(jsImportedModule)
                      << ", ";
+                aggregatedModules.insert(topLevelModule);
             }
             _out.dec();
             _out << "} from \"" << jsImportedModule << "\"";
@@ -1129,8 +1133,9 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
         }
     }
 
-    // Aggregate all imported top-modules
-    for (const string& m : importedModules)
+    // Aggregate all Slice top-level-modules imported from .js files, for imports corresponding to js:module modules
+    // there is no additional aggregation.
+    for (const string& m : aggregatedModules)
     {
         if (m == "Ice")
         {
@@ -1784,8 +1789,11 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
 
     _out << eb << ";";
-    _out << nl << "Ice.TypeRegistry.declareUserExceptionType(\"" << localScope << '.' << name << "\"," << localScope
-         << '.' << name << ");";
+    _out << nl << "Ice.TypeRegistry.declareUserExceptionType(";
+    _out.inc();
+    _out << nl << "\"" << localScope << '.' << name << "\","
+         << nl << localScope << '.' << name << ");";
+    _out.dec();
 
     return false;
 }
