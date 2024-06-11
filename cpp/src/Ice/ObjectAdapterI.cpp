@@ -536,7 +536,7 @@ Ice::ObjectAdapterI::dispatchPipeline() const noexcept
         _dispatchPipeline = _servantManager;
         while (!_middlewareFactoryStack.empty())
         {
-            _dispatchPipeline = _middlewareFactoryStack.top()(_dispatchPipeline);
+            _dispatchPipeline = _middlewareFactoryStack.top()(std::move(_dispatchPipeline));
             _middlewareFactoryStack.pop();
         }
     }
