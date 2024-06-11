@@ -554,15 +554,15 @@ namespace Slice
     {
     public:
         ClassDecl(const ContainerPtr&, const std::string&);
-        void destroy() override;
+        void destroy() final;
         ClassDefPtr definition() const;
-        ContainedType containedType() const override;
-        bool isClassType() const override;
-        size_t minWireSize() const override;
-        std::string getOptionalFormat() const override;
-        bool isVariableLength() const override;
-        void visit(ParserVisitor*, bool) override;
-        std::string kindOf() const override;
+        ContainedType containedType() const final;
+        bool isClassType() const final;
+        size_t minWireSize() const final;
+        std::string getOptionalFormat() const final;
+        bool isVariableLength() const final;
+        void visit(ParserVisitor*, bool) final;
+        std::string kindOf() const final;
 
     protected:
         friend class Container;
