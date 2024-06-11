@@ -691,9 +691,9 @@ Slice::Gen::generate(const UnitPtr& p)
     _jsout << nl;
 
     {
-        ImportVisitor requireVisitor(_jsout, _includePaths, icejs);
-        p->visit(&requireVisitor, false);
-        set<string> importedModules = requireVisitor.writeImports(p);
+        ImportVisitor importVisitor(_jsout, _includePaths, icejs);
+        p->visit(&importVisitor, false);
+        set<string> importedModules = importVisitor.writeImports(p);
 
         ExportsVisitor exportsVisitor(_jsout, importedModules);
         p->visit(&exportsVisitor, false);
@@ -724,8 +724,8 @@ Slice::Gen::generate(const UnitPtr& p)
         printHeader(_tsout);
         printGeneratedHeader(_tsout, _fileBase + ".ice");
 
-        TypeScriptImportVisitor requireVisitor(_tsout, icejs);
-        p->visit(&requireVisitor, false);
+        TypeScriptImportVisitor importVisitor(_tsout, icejs);
+        p->visit(&importVisitor, false);
 
         //
         // If at some point TypeScript adds an operator to refer to a type in the global scope
@@ -737,7 +737,7 @@ Slice::Gen::generate(const UnitPtr& p)
         p->visit(&aliasVisitor, false);
         aliasVisitor.writeAlias(p);
 
-        TypeScriptVisitor typeScriptVisitor(_tsout, requireVisitor.imports());
+        TypeScriptVisitor typeScriptVisitor(_tsout, importVisitor.imports());
         p->visit(&typeScriptVisitor, false);
 
         if (_useStdout)
