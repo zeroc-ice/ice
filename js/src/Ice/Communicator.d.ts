@@ -2,8 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-export namespace Ice
-{
+export namespace Ice {
     /**
      * The central object in Ice. One or more communicators can be instantiated for an Ice application. Communicator
      * instantiation is language-specific, and not specified in Slice code.
@@ -12,8 +11,7 @@ export namespace Ice
      * @see Properties
      * @see ValueFactory
      */
-    interface Communicator
-    {
+    interface Communicator {
         /**
          * Destroy the communicator. This operation calls {@link #shutdown} implicitly. Calling {@link #destroy} cleans up
          * memory, and shuts down this communicator's client functionality and destroys all object adapters. Subsequent
@@ -22,7 +20,7 @@ export namespace Ice
          * @see #shutdown
          * @see ObjectAdapter#destroy
          */
-        destroy():AsyncResultBase<void>;
+        destroy(): AsyncResultBase<void>;
         /**
          * Shuts down this communicator's server functionality, which includes the deactivation of all object adapters.
          * Attempts to use a deactivated object adapter raise ObjectAdapterDeactivatedException. Subsequent calls to
@@ -35,7 +33,7 @@ export namespace Ice
          * @see #waitForShutdown
          * @see ObjectAdapter#deactivate
          */
-        shutdown():AsyncResultBase<void>;
+        shutdown(): AsyncResultBase<void>;
         /**
          * Wait until the application has called {@link #shutdown} (or {@link #destroy}). On the server side, this
          * operation blocks the calling thread until all currently-executing operations have completed. On the client
@@ -48,13 +46,13 @@ export namespace Ice
          * @see #destroy
          * @see ObjectAdapter#waitForDeactivate
          */
-        waitForShutdown():AsyncResultBase<void>;
+        waitForShutdown(): AsyncResultBase<void>;
         /**
          * Check whether communicator has been shut down.
          * @return True if the communicator has been shut down; false otherwise.
          * @see #shutdown
          */
-        isShutdown():boolean;
+        isShutdown(): boolean;
         /**
          * Convert a stringified proxy into a proxy.
          * For example, <code>MyCategory/MyObject:tcp -h some_host -p 10000</code> creates a proxy that refers to the Ice
@@ -66,7 +64,7 @@ export namespace Ice
          * @return The proxy, or nil if <code>str</code> is an empty string.
          * @see #proxyToString
          */
-        stringToProxy(str:string):Ice.ObjectPrx;
+        stringToProxy(str: string): Ice.ObjectPrx;
         /**
          * Convert a proxy into a string.
          * @param obj The proxy to convert into a stringified proxy.
@@ -74,7 +72,7 @@ export namespace Ice
          * <code>obj</code> is nil.
          * @see #stringToProxy
          */
-        proxyToString(obj:Ice.ObjectPrx):string;
+        proxyToString(obj: Ice.ObjectPrx): string;
         /**
          * Convert a set of proxy properties into a proxy. The "base" name supplied in the <code>property</code> argument
          * refers to a property containing a stringified proxy, such as <code>MyProxy=id:tcp -h localhost -p 10000</code>.
@@ -83,14 +81,14 @@ export namespace Ice
          * @param property The base property name.
          * @return The proxy.
          */
-        propertyToProxy(property:string):Ice.ObjectPrx;
+        propertyToProxy(property: string): Ice.ObjectPrx;
         /**
          * Convert a proxy to a set of proxy properties.
          * @param proxy The proxy.
          * @param property The base property name.
          * @return The property set.
          */
-        proxyToProperty(proxy:Ice.ObjectPrx, property:string):PropertyDict;
+        proxyToProperty(proxy: Ice.ObjectPrx, property: string): PropertyDict;
         /**
          * Convert a string into an identity. If the string does not parse correctly, the operation throws
          * IdentityParseException.
@@ -100,14 +98,14 @@ export namespace Ice
          *
          * @deprecated stringToIdentity() is deprecated, use the static stringToIdentity() method instead.
          */
-        stringToIdentity(str:string):Identity;
+        stringToIdentity(str: string): Identity;
         /**
          * Convert an identity into a string.
          * @param ident The identity to convert into a string.
          * @return The "stringified" identity.
          * @see #stringToIdentity
          */
-        identityToString(ident:Identity):string;
+        identityToString(ident: Identity): string;
         /**
          * Create a new object adapter. The endpoints for the object adapter are taken from the property
          * <code><em>name</em>.Endpoints</code>.
@@ -121,7 +119,7 @@ export namespace Ice
          * @see ObjectAdapter
          * @see Properties
          */
-        createObjectAdapter(name:string):AsyncResultBase<Ice.ObjectAdapter>;
+        createObjectAdapter(name: string): AsyncResultBase<Ice.ObjectAdapter>;
         /**
          * Create a new object adapter with endpoints. This operation sets the property
          * <code><em>name</em>.Endpoints</code>, and then calls {@link #createObjectAdapter}. It is provided as a
@@ -134,7 +132,7 @@ export namespace Ice
          * @see ObjectAdapter
          * @see Properties
          */
-        createObjectAdapterWithEndpoints(name:string, endpoints:string):AsyncResultBase<Ice.ObjectAdapter>;
+        createObjectAdapterWithEndpoints(name: string, endpoints: string): AsyncResultBase<Ice.ObjectAdapter>;
         /**
          * Create a new object adapter with a router. This operation creates a routed object adapter.
          * Calling this operation with an empty name will result in a UUID being generated for the name.
@@ -145,32 +143,32 @@ export namespace Ice
          * @see ObjectAdapter
          * @see Properties
          */
-        createObjectAdapterWithRouter(name:string, rtr:RouterPrx):AsyncResultBase<Ice.ObjectAdapter>;
+        createObjectAdapterWithRouter(name: string, rtr: RouterPrx): AsyncResultBase<Ice.ObjectAdapter>;
         /**
          * Get the implicit context associated with this communicator.
          * @return The implicit context associated with this communicator; returns null when the property Ice.ImplicitContext
          * is not set or is set to None.
          */
-        getImplicitContext():Ice.ImplicitContext;
+        getImplicitContext(): Ice.ImplicitContext;
         /**
          * Get the properties for this communicator.
          * @return This communicator's properties.
          * @see Properties
          */
-        getProperties():Ice.Properties;
+        getProperties(): Ice.Properties;
         /**
          * Get the logger for this communicator.
          * @return This communicator's logger.
          * @see Logger
          */
-        getLogger():Ice.Logger;
+        getLogger(): Ice.Logger;
         /**
          * Get the default router for this communicator.
          * @return The default router for this communicator.
          * @see #setDefaultRouter
          * @see Router
          */
-        getDefaultRouter():RouterPrx;
+        getDefaultRouter(): RouterPrx;
         /**
          * Set a default router for this communicator. All newly created proxies will use this default router. To disable
          * the default router, null can be used. Note that this operation has no effect on existing proxies.
@@ -181,14 +179,14 @@ export namespace Ice
          * @see #createObjectAdapterWithRouter
          * @see Router
          */
-        setDefaultRouter(rtr:RouterPrx):void;
+        setDefaultRouter(rtr: RouterPrx): void;
         /**
          * Get the default locator for this communicator.
          * @return The default locator for this communicator.
          * @see #setDefaultLocator
          * @see Locator
          */
-        getDefaultLocator():LocatorPrx;
+        getDefaultLocator(): LocatorPrx;
         /**
          * Set a default Ice locator for this communicator. All newly created proxy and object adapters will use this
          * default locator. To disable the default locator, null can be used. Note that this operation has no effect on
@@ -200,13 +198,13 @@ export namespace Ice
          * @see Locator
          * @see ObjectAdapter#setLocator
          */
-        setDefaultLocator(loc:LocatorPrx):void;
+        setDefaultLocator(loc: LocatorPrx): void;
         /**
          * Get the value factory manager for this communicator.
          * @return This communicator's value factory manager.
          * @see ValueFactoryManager
          */
-        getValueFactoryManager():Ice.ValueFactoryManager;
+        getValueFactoryManager(): Ice.ValueFactoryManager;
         /**
          * Flush any pending batch requests for this communicator. This means all batch requests invoked on fixed proxies
          * for all connections associated with the communicator. Any errors that occur while flushing a connection are
@@ -215,7 +213,7 @@ export namespace Ice
          * the wire.
          * @return @returns The asynchronous result object for the invocation.
          */
-        flushBatchRequests(compress:CompressBatch):AsyncResultBase<void>;
+        flushBatchRequests(compress: CompressBatch): AsyncResultBase<void>;
     }
 
     /**
@@ -223,32 +221,31 @@ export namespace Ice
      * the string is the same for all modes: you don't need to specify an encoding format or mode when reading such a
      * string.
      */
-    class ToStringMode
-    {
+    class ToStringMode {
         /**
          * Characters with ordinal values greater than 127 are kept as-is in the resulting string. Non-printable ASCII
          * characters with ordinal values 127 and below are encoded as \\t, \\n (etc.) or \\unnnn.
          */
-        static readonly Unicode:ToStringMode;
+        static readonly Unicode: ToStringMode;
         /**
          * Characters with ordinal values greater than 127 are encoded as universal character names in the resulting
          * string: \\unnnn for BMP characters and \\Unnnnnnnn for non-BMP characters. Non-printable ASCII characters
          * with ordinal values 127 and below are encoded as \\t, \\n (etc.) or \\unnnn.
          */
-        static readonly ASCII:ToStringMode;
+        static readonly ASCII: ToStringMode;
         /**
          * Characters with ordinal values greater than 127 are encoded as a sequence of UTF-8 bytes using octal escapes.
          * Characters with ordinal values 127 and below are encoded as \\t, \\n (etc.) or an octal escape. Use this mode
          * to generate strings compatible with Ice 3.6 and earlier.
          */
-        static readonly Compat:ToStringMode;
+        static readonly Compat: ToStringMode;
 
-        static valueOf(value:number):ToStringMode;
-        equals(other:any):boolean;
-        hashCode():number;
-        toString():string;
+        static valueOf(value: number): ToStringMode;
+        equals(other: any): boolean;
+        hashCode(): number;
+        toString(): string;
 
-        readonly name:string;
-        readonly value:number;
+        readonly name: string;
+        readonly value: number;
     }
 }

@@ -10,7 +10,6 @@
 [["cpp:include:IceGrid/Config.h"]]
 
 [["js:module:ice"]]
-[["js:cjs-module"]]
 
 [["python:pkgdir:IceGrid"]]
 

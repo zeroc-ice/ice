@@ -2,10 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-
-Ice.TraceLevels = function(properties)
-{
+export function TraceLevels(properties) {
     const networkCat = "Network";
     const protocolCat = "Protocol";
     const retryCat = "Retry";
@@ -22,57 +19,45 @@ Ice.TraceLevels = function(properties)
 
     properties.getPropertyAsInt(keyBase + "ThreadPool"); // Avoid an "unused property" warning.
 
-    return class
-    {
-        static get network()
-        {
+    return class {
+        static get network() {
             return network;
         }
 
-        static get networkCat()
-        {
+        static get networkCat() {
             return networkCat;
         }
 
-        static get protocol()
-        {
+        static get protocol() {
             return protocol;
         }
 
-        static get protocolCat()
-        {
+        static get protocolCat() {
             return protocolCat;
         }
 
-        static get retry()
-        {
+        static get retry() {
             return retry;
         }
 
-        static get retryCat()
-        {
+        static get retryCat() {
             return retryCat;
         }
 
-        static get location()
-        {
+        static get location() {
             return location;
         }
 
-        static get locationCat()
-        {
+        static get locationCat() {
             return locationCat;
         }
 
-        static get slicing()
-        {
+        static get slicing() {
             return slicing;
         }
 
-        static get slicingCat()
-        {
+        static get slicingCat() {
             return slicingCat;
         }
     };
-};
-module.exports.Ice = Ice;
+}

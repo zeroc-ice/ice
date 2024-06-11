@@ -120,16 +120,12 @@ jsPreamble = (
 /* eslint array-bracket-newline: "off" */
 /* eslint no-useless-escape: "off" */
 
-const Ice = require("../Ice/Property").Ice;
-const PropertyNames = {};
-const Property = Ice.Property;
+import { Property } from "./Property";
+export const PropertyNames = {};
 """
 )
 
-jsEpilogue = """
-Ice.PropertyNames = PropertyNames;
-module.exports.Ice = Ice;
-"""
+jsEpilogue = ""
 
 
 #

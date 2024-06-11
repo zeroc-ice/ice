@@ -1,36 +1,25 @@
-
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
+import { ConnectFailedException, ConnectionLostException, SocketException } from "./LocalException.js";
+import { WSConnectionInfo, TCPConnectionInfo } from "./Connection.js";
+import { ConnectionInfo as SSLConnectionInfo } from "./SSL/ConnectionInfo.js";
+import { SocketOperation } from "./SocketOperation.js";
+import { Timer } from "./Timer.js";
+import { Debug } from "./Debug.js";
 
-require("../Ice/ConnectionInfo");
-require("../Ice/Debug");
-require("../Ice/Exception");
-require("../Ice/LocalException");
-require("../Ice/SocketOperation");
-require("../Ice/Timer");
+export let WSTransceiver = {};
 
-const IceSSL = Ice._ModuleRegistry.module("IceSSL");
-
-let WSTransceiver = {};
-
-if (typeof WebSocket !== 'undefined')
-{
+if (typeof WebSocket !== "undefined") {
     //
     // With Chrome we don't want to close the socket while connection is in progress,
     // see comments on close implementation below.
     //
     // We need to check for Edge browser as it might include Chrome in its user agent.
     //
-    const IsChrome = navigator.userAgent.indexOf("Edge/") === -1 &&
-                    navigator.userAgent.indexOf("Chrome/") !== -1;
-    const IsSafari = (/^((?!chrome).)*safari/i).test(navigator.userAgent);
-
-    const Debug = Ice.Debug;
-    const SocketOperation = Ice.SocketOperation;
-    const Timer = Ice.Timer;
+    const IsChrome = navigator.userAgent.indexOf("Edge/") === -1 && navigator.userAgent.indexOf("Chrome/") !== -1;
+    const IsSafari = /^((?!chrome).)*safari/i.test(navigator.userAgent);
 
     const StateNeedConnect = 0;
     const StateConnectPending = 1;
@@ -38,25 +27,21 @@ if (typeof WebSocket !== 'undefined')
     const StateClosePending = 3;
     const StateClosed = 4;
 
-    WSTransceiver = class
-    {
-        constructor(instance)
-        {
+    WSTransceiver = class {
+        constructor(instance) {
             this._readBuffers = [];
             this._readPosition = 0;
             this._maxSendPacketSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", 512 * 1024);
             this._writeReadyTimeout = 0;
         }
 
-        writeReadyTimeout()
-        {
+        writeReadyTimeout() {
             const t = Math.round(this._writeReadyTimeout);
-            this._writeReadyTimeout += (this._writeReadyTimeout >= 5 ? 5 : 0.2);
+            this._writeReadyTimeout += this._writeReadyTimeout >= 5 ? 5 : 0.2;
             return Math.min(t, 25);
         }
 
-        setCallbacks(connectedCallback, bytesAvailableCallback, bytesWrittenCallback)
-        {
+        setCallbacks(connectedCallback, bytesAvailableCallback, bytesWrittenCallback) {
             this._connectedCallback = connectedCallback;
             this._bytesAvailableCallback = bytesAvailableCallback;
             this._bytesWrittenCallback = bytesWrittenCallback;
@@ -65,38 +50,29 @@ if (typeof WebSocket !== 'undefined')
         //
         // Returns SocketOperation.None when initialization is complete.
         //
-        initialize(readBuffer, writeBuffer)
-        {
-            try
-            {
-                if(this._exception)
-                {
+        initialize(readBuffer, writeBuffer) {
+            try {
+                if (this._exception) {
                     throw this._exception;
                 }
 
-                if(this._state === StateNeedConnect)
-                {
+                if (this._state === StateNeedConnect) {
                     this._state = StateConnectPending;
                     this._fd = new WebSocket(this._url, "ice.zeroc.com");
                     this._fd.binaryType = "arraybuffer";
-                    this._fd.onopen = e => this.socketConnected(e);
-                    this._fd.onmessage = e => this.socketBytesAvailable(e.data);
-                    this._fd.onclose = e => this.socketClosed(e);
+                    this._fd.onopen = (e) => this.socketConnected(e);
+                    this._fd.onmessage = (e) => this.socketBytesAvailable(e.data);
+                    this._fd.onclose = (e) => this.socketClosed(e);
                     return SocketOperation.Connect; // Waiting for connect to complete.
-                }
-                else if(this._state === StateConnectPending)
-                {
+                } else if (this._state === StateConnectPending) {
                     //
                     // Socket is connected.
                     //
                     this._desc = fdToString(this._addr);
                     this._state = StateConnected;
                 }
-            }
-            catch(err)
-            {
-                if(!this._exception)
-                {
+            } catch (err) {
+                if (!this._exception) {
                     this._exception = translateError(this._state, err);
                 }
                 throw this._exception;
@@ -106,31 +82,26 @@ if (typeof WebSocket !== 'undefined')
             return SocketOperation.None;
         }
 
-        register()
-        {
+        register() {
             //
             // Register the socket data listener.
             //
             this._registered = true;
-            if(this._hasBytesAvailable || this._exception)
-            {
+            if (this._hasBytesAvailable || this._exception) {
                 this._hasBytesAvailable = false;
                 Timer.setTimeout(() => this._bytesAvailableCallback(), 0);
             }
         }
 
-        unregister()
-        {
+        unregister() {
             //
             // Unregister the socket data listener.
             //
             this._registered = false;
         }
 
-        close()
-        {
-            if(this._fd === null)
-            {
+        close() {
+            if (this._fd === null) {
                 Debug.assert(this._exception); // Websocket creation failed.
                 return;
             }
@@ -146,24 +117,18 @@ if (typeof WebSocket !== 'undefined')
             // NOTE: when this workaround is no longer necessary, don't forget removing the
             // StateClosePending state.
             //
-            if((IsChrome || IsSafari) && this._fd.readyState === WebSocket.CONNECTING)
-            {
+            if ((IsChrome || IsSafari) && this._fd.readyState === WebSocket.CONNECTING) {
                 this._state = StateClosePending;
                 return;
             }
 
             Debug.assert(this._fd !== null);
-            try
-            {
+            try {
                 this._state = StateClosed;
                 this._fd.close();
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 throw translateError(this._state, ex);
-            }
-            finally
-            {
+            } finally {
                 this._fd = null;
             }
         }
@@ -171,46 +136,38 @@ if (typeof WebSocket !== 'undefined')
         //
         // Returns true if all of the data was flushed to the kernel buffer.
         //
-        write(byteBuffer)
-        {
-            if(this._exception)
-            {
+        write(byteBuffer) {
+            if (this._exception) {
                 throw this._exception;
-            }
-            else if(byteBuffer.remaining === 0)
-            {
+            } else if (byteBuffer.remaining === 0) {
                 return true;
             }
             Debug.assert(this._fd);
 
-            const cb = () =>
-                {
-                    if(this._fd)
-                    {
-                        const packetSize = this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize ?
-                                this._maxSendPacketSize : byteBuffer.remaining;
-                        if(this._fd.bufferedAmount + packetSize <= this._maxSendPacketSize)
-                        {
-                            this._bytesWrittenCallback(0, 0);
-                        }
-                        else
-                        {
-                            Timer.setTimeout(cb, this.writeReadyTimeout());
-                        }
+            const cb = () => {
+                if (this._fd) {
+                    const packetSize =
+                        this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize
+                            ? this._maxSendPacketSize
+                            : byteBuffer.remaining;
+                    if (this._fd.bufferedAmount + packetSize <= this._maxSendPacketSize) {
+                        this._bytesWrittenCallback(0, 0);
+                    } else {
+                        Timer.setTimeout(cb, this.writeReadyTimeout());
                     }
-                };
+                }
+            };
 
-            while(true)
-            {
-                const packetSize = this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize ?
-                    this._maxSendPacketSize : byteBuffer.remaining;
-                if(byteBuffer.remaining === 0)
-                {
+            while (true) {
+                const packetSize =
+                    this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize
+                        ? this._maxSendPacketSize
+                        : byteBuffer.remaining;
+                if (byteBuffer.remaining === 0) {
                     break;
                 }
                 Debug.assert(packetSize > 0);
-                if(this._fd.bufferedAmount + packetSize > this._maxSendPacketSize)
-                {
+                if (this._fd.bufferedAmount + packetSize > this._maxSendPacketSize) {
                     Timer.setTimeout(cb, this.writeReadyTimeout());
                     return false;
                 }
@@ -224,8 +181,7 @@ if (typeof WebSocket !== 'undefined')
                 // data (bufferedAmount is always 0). We relinquish the control here
                 // to ensure timeouts work properly.
                 //
-                if(IsSafari && byteBuffer.remaining > 0)
-                {
+                if (IsSafari && byteBuffer.remaining > 0) {
                     Timer.setTimeout(cb, this.writeReadyTimeout());
                     return false;
                 }
@@ -233,48 +189,41 @@ if (typeof WebSocket !== 'undefined')
             return true;
         }
 
-        read(byteBuffer, moreData)
-        {
-            if(this._exception)
-            {
+        read(byteBuffer, moreData) {
+            if (this._exception) {
                 throw this._exception;
             }
 
             moreData.value = false;
 
-            if(this._readBuffers.length === 0)
-            {
+            if (this._readBuffers.length === 0) {
                 return false; // No data available.
             }
 
             let avail = this._readBuffers[0].byteLength - this._readPosition;
             Debug.assert(avail > 0);
 
-            while(byteBuffer.remaining > 0)
-            {
-                if(avail > byteBuffer.remaining)
-                {
+            while (byteBuffer.remaining > 0) {
+                if (avail > byteBuffer.remaining) {
                     avail = byteBuffer.remaining;
                 }
 
-                new Uint8Array(byteBuffer.b).set(new Uint8Array(this._readBuffers[0], this._readPosition, avail),
-                                                byteBuffer.position);
+                new Uint8Array(byteBuffer.b).set(
+                    new Uint8Array(this._readBuffers[0], this._readPosition, avail),
+                    byteBuffer.position,
+                );
 
                 byteBuffer.position += avail;
                 this._readPosition += avail;
-                if(this._readPosition === this._readBuffers[0].byteLength)
-                {
+                if (this._readPosition === this._readBuffers[0].byteLength) {
                     //
                     // We've exhausted the current read buffer.
                     //
                     this._readPosition = 0;
                     this._readBuffers.shift();
-                    if(this._readBuffers.length === 0)
-                    {
+                    if (this._readBuffers.length === 0) {
                         break; // No more data - we're done.
-                    }
-                    else
-                    {
+                    } else {
                         avail = this._readBuffers[0].byteLength;
                     }
                 }
@@ -285,45 +234,39 @@ if (typeof WebSocket !== 'undefined')
             return byteBuffer.remaining === 0;
         }
 
-        type()
-        {
+        type() {
             return this._secure ? "wss" : "ws";
         }
 
-        getInfo()
-        {
+        getInfo() {
             Debug.assert(this._fd !== null);
-            const info = new Ice.WSConnectionInfo();
-            const tcpinfo = new Ice.TCPConnectionInfo();
-            tcpinfo.localAddress = "";
-            tcpinfo.localPort = -1;
-            tcpinfo.remoteAddress = this._addr.host;
-            tcpinfo.remotePort = this._addr.port;
-            info.underlying = this._secure ? new IceSSL.ConnectionInfo(tcpinfo, tcpinfo.timeout, tcpinfo.compress) : tcpinfo;
+            const info = new WSConnectionInfo();
+            const tcpInfo = new TCPConnectionInfo();
+            tcpInfo.localAddress = "";
+            tcpInfo.localPort = -1;
+            tcpInfo.remoteAddress = this._addr.host;
+            tcpInfo.remotePort = this._addr.port;
+            info.underlying = this._secure
+                ? new SSLConnectionInfo(tcpInfo, tcpInfo.timeout, tcpInfo.compress)
+                : tcpInfo;
             info.rcvSize = -1;
             info.sndSize = this._maxSendPacketSize;
             info.headers = {};
             return info;
         }
 
-        checkSendSize(stream)
-        {
-        }
+        checkSendSize(stream) {}
 
-        setBufferSize(rcvSize, sndSize)
-        {
+        setBufferSize(rcvSize, sndSize) {
             this._maxSendPacketSize = sndSize;
         }
 
-        toString()
-        {
+        toString() {
             return this._desc;
         }
 
-        socketConnected(e)
-        {
-            if(this._state == StateClosePending)
-            {
+        socketConnected(e) {
+            if (this._state == StateClosePending) {
                 this.close();
                 return;
             }
@@ -332,49 +275,37 @@ if (typeof WebSocket !== 'undefined')
             this._connectedCallback();
         }
 
-        socketBytesAvailable(buf)
-        {
+        socketBytesAvailable(buf) {
             Debug.assert(this._bytesAvailableCallback !== null);
-            if(buf.byteLength > 0)
-            {
+            if (buf.byteLength > 0) {
                 this._readBuffers.push(buf);
-                if(this._registered)
-                {
+                if (this._registered) {
                     this._bytesAvailableCallback();
-                }
-                else if(!this._hasBytesAvailable)
-                {
+                } else if (!this._hasBytesAvailable) {
                     this._hasBytesAvailable = true;
                 }
             }
         }
 
-        socketClosed(err)
-        {
-            if(this._state == StateClosePending)
-            {
+        socketClosed(err) {
+            if (this._state == StateClosePending) {
                 this.close();
                 return;
             }
 
             this._exception = translateError(this._state, err);
-            if(this._state < StateConnected)
-            {
+            if (this._state < StateConnected) {
                 this._connectedCallback();
-            }
-            else if(this._registered)
-            {
+            } else if (this._registered) {
                 this._bytesAvailableCallback();
             }
         }
 
-        static createOutgoing(instance, secure, addr, resource)
-        {
+        static createOutgoing(instance, secure, addr, resource) {
             const transceiver = new WSTransceiver(instance);
             let url = secure ? "wss" : "ws";
             url += "://" + addr.host;
-            if(addr.port !== 80)
-            {
+            if (addr.port !== 80) {
                 url += ":" + addr.port;
             }
             url += resource ? resource : "/";
@@ -387,33 +318,23 @@ if (typeof WebSocket !== 'undefined')
             transceiver._exception = null;
             return transceiver;
         }
-    }
+    };
 
-    function fdToString(address)
-    {
+    function fdToString(address) {
         return "local address = <not available>\nremote address = " + address.host + ":" + address.port;
     }
 
-    function translateError(state, err)
-    {
-        if(state < StateConnected)
-        {
-            return new Ice.ConnectFailedException(err.code, err);
-        }
-        else
-        {
-            if(err.code === 1000 || err.code === 1006) // CLOSE_NORMAL | CLOSE_ABNORMAL
-            {
-                return new Ice.ConnectionLostException();
+    function translateError(state, err) {
+        if (state < StateConnected) {
+            return new ConnectFailedException(err.code, err);
+        } else {
+            if (err.code === 1000 || err.code === 1006) {
+                // CLOSE_NORMAL | CLOSE_ABNORMAL
+                return new ConnectionLostException();
             }
-            return new Ice.SocketException(err.code, err);
+            return new SocketException(err.code, err);
         }
     }
+} else {
+    WSTransceiver = class {};
 }
-else
-{
-    WSTransceiver = class {}
-}
-Ice.WSTransceiver = WSTransceiver;
-
-exports.Ice = Ice;

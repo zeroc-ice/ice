@@ -2,199 +2,153 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-
-require("../Ice/AsyncResultBase");
-require("../Ice/Debug");
-require("../Ice/Instance");
-require("../Ice/LocalException");
-require("../Ice/UUID");
-
-const Instance = Ice.Instance;
-const Debug = Ice.Debug;
+import { CommunicatorDestroyedException } from "./LocalException.js";
+import { generateUUID } from "./UUID.js";
+import { identityToString } from "./IdentityUtil.js";
+import { Promise } from "./Promise.js";
+import { Debug } from "./Debug.js";
 
 //
 // Ice.Communicator
 //
-class Communicator
-{
-    constructor(initData)
-    {
-        this._instance = new Instance(initData);
+export class Communicator {
+    constructor(initData) {
+        this._instance = this.createInstance(initData);
     }
 
     //
     // Certain initialization tasks need to be completed after the
     // constructor.
     //
-    finishSetup(promise)
-    {
+    finishSetup(promise) {
         this._instance.finishSetup(this, promise);
     }
 
-    destroy()
-    {
+    destroy() {
         return this._instance.destroy();
     }
 
-    shutdown()
-    {
-        try
-        {
+    shutdown() {
+        try {
             return this._instance.objectAdapterFactory().shutdown();
-        }
-        catch(ex)
-        {
-            Debug.assert(ex instanceof Ice.CommunicatorDestroyedException);
-            return Ice.Promise.resolve();
+        } catch (ex) {
+            Debug.assert(ex instanceof CommunicatorDestroyedException);
+            return Promise.resolve();
         }
     }
 
-    waitForShutdown()
-    {
-        try
-        {
+    waitForShutdown() {
+        try {
             return this._instance.objectAdapterFactory().waitForShutdown();
-        }
-        catch(ex)
-        {
-            Debug.assert(ex instanceof Ice.CommunicatorDestroyedException);
-            return Ice.Promise.resolve();
+        } catch (ex) {
+            Debug.assert(ex instanceof CommunicatorDestroyedException);
+            return Promise.resolve();
         }
     }
 
-    isShutdown()
-    {
-        try
-        {
+    isShutdown() {
+        try {
             return this._instance.objectAdapterFactory().isShutdown();
-        }
-        catch(ex)
-        {
-            if(!(ex instanceof Ice.CommunicatorDestroyedException))
-            {
+        } catch (ex) {
+            if (!(ex instanceof CommunicatorDestroyedException)) {
                 throw ex;
             }
             return true;
         }
     }
 
-    stringToProxy(s)
-    {
+    stringToProxy(s) {
         return this._instance.proxyFactory().stringToProxy(s);
     }
 
-    proxyToString(proxy)
-    {
+    proxyToString(proxy) {
         return this._instance.proxyFactory().proxyToString(proxy);
     }
 
-    propertyToProxy(s)
-    {
+    propertyToProxy(s) {
         return this._instance.proxyFactory().propertyToProxy(s);
     }
 
-    proxyToProperty(proxy, prefix)
-    {
+    proxyToProperty(proxy, prefix) {
         return this._instance.proxyFactory().proxyToProperty(proxy, prefix);
     }
 
-    identityToString(ident)
-    {
-        return Ice.identityToString(ident, this._instance.toStringMode());
+    identityToString(ident) {
+        return identityToString(ident, this._instance.toStringMode());
     }
 
-    createObjectAdapter(name)
-    {
-        const promise = new Ice.AsyncResultBase(this, "createObjectAdapter", this, null, null);
+    createObjectAdapter(name) {
+        const promise = this.createAsyncResultBase(this, "createObjectAdapter", this, null, null);
         this._instance.objectAdapterFactory().createObjectAdapter(name, null, promise);
         return promise;
     }
 
-    createObjectAdapterWithEndpoints(name, endpoints)
-    {
-        if(name.length === 0)
-        {
-            name = Ice.generateUUID();
+    createObjectAdapterWithEndpoints(name, endpoints) {
+        if (name.length === 0) {
+            name = generateUUID();
         }
 
         this.getProperties().setProperty(name + ".Endpoints", endpoints);
-        const promise = new Ice.AsyncResultBase(this, "createObjectAdapterWithEndpoints", this, null, null);
+        const promise = this.createAsyncResultBase(this, "createObjectAdapterWithEndpoints", this, null, null);
         this._instance.objectAdapterFactory().createObjectAdapter(name, null, promise);
         return promise;
     }
 
-    createObjectAdapterWithRouter(name, router)
-    {
-        if(name.length === 0)
-        {
-            name = Ice.generateUUID();
+    createObjectAdapterWithRouter(name, router) {
+        if (name.length === 0) {
+            name = generateUUID();
         }
 
-        const promise = new Ice.AsyncResultBase(this, "createObjectAdapterWithRouter", this, null, null);
+        const promise = this.createAsyncResultBase(this, "createObjectAdapterWithRouter", this, null, null);
 
         //
         // We set the proxy properties here, although we still use the proxy supplied.
         //
-        this.proxyToProperty(router, name + ".Router").forEach((value, key) =>
-            {
-                this.getProperties().setProperty(key, value);
-            });
+        this.proxyToProperty(router, name + ".Router").forEach((value, key) => {
+            this.getProperties().setProperty(key, value);
+        });
 
         this._instance.objectAdapterFactory().createObjectAdapter(name, router, promise);
         return promise;
     }
 
-    getValueFactoryManager()
-    {
+    getValueFactoryManager() {
         return this._instance.initializationData().valueFactoryManager;
     }
 
-    getImplicitContext()
-    {
+    getImplicitContext() {
         return this._instance.getImplicitContext();
     }
 
-    getProperties()
-    {
+    getProperties() {
         return this._instance.initializationData().properties;
     }
 
-    getLogger()
-    {
+    getLogger() {
         return this._instance.initializationData().logger;
     }
 
-    getDefaultRouter()
-    {
+    getDefaultRouter() {
         return this._instance.referenceFactory().getDefaultRouter();
     }
 
-    setDefaultRouter(router)
-    {
+    setDefaultRouter(router) {
         this._instance.setDefaultRouter(router);
     }
 
-    getDefaultLocator()
-    {
+    getDefaultLocator() {
         return this._instance.referenceFactory().getDefaultLocator();
     }
 
-    setDefaultLocator(locator)
-    {
+    setDefaultLocator(locator) {
         this._instance.setDefaultLocator(locator);
     }
 
-    flushBatchRequests()
-    {
+    flushBatchRequests() {
         return this._instance.outgoingConnectionFactory().flushAsyncBatchRequests();
     }
 
-    get instance()
-    {
+    get instance() {
         return this._instance;
     }
 }
-
-Ice.Communicator = Communicator;
-module.exports.Ice = Ice;

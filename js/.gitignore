@@ -9,17 +9,6 @@ LICENSE
 src/index.d.ts
 
 #
-# Babel generated files
-#
-src/es5/Glacier2
-src/es5/Ice
-src/es5/IceGrid
-src/es5/IceMX
-src/es5/IceSSL
-src/es5/IceStorm
-test/es5
-
-#
 # Typescript test generated files
 #
 test/typescript/**/*.js

@@ -2,30 +2,27 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-declare module "ice"
-{
-    namespace Ice
-    {
+declare module "ice" {
+    namespace Ice {
         /**
          * Base class for all Ice exceptions.
          */
-        abstract class Exception extends Error
-        {
+        abstract class Exception extends Error {
             /**
              * Returns the type id of this exception.
              *
              * @return The type id of this exception.
              **/
-            ice_id():string;
+            ice_id(): string;
 
             /**
              * Returns a string representation of this exception.
              *
              * @return A string representation of this exception.
              **/
-            toString():string;
+            toString(): string;
 
-            ice_cause:string|Error;
+            ice_cause: string | Error;
         }
 
         /**
@@ -36,13 +33,12 @@ declare module "ice"
         /**
          * Base class for all Ice user exceptions.
          */
-        abstract class UserException extends Exception
-        {
+        abstract class UserException extends Exception {
             /**
              * Obtains the Slice type ID of this exception.
              * @return The fully-scoped type ID.
              */
-            static ice_staticId():string;
+            static ice_staticId(): string;
         }
     }
 }

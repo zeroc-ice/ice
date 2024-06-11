@@ -2,16 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import {Ice} from "ice";
-import {Test, Inner} from "./generated";
-import {TestHelper} from "../../../Common/TestHelper";
+import { Ice } from "ice";
+import { Test, Inner } from "./generated";
+import { TestHelper } from "../../../Common/TestHelper";
 
 const test = TestHelper.test;
 
-export class Client extends TestHelper
-{
-    async allTests()
-    {
+export class Client extends TestHelper {
+    async allTests() {
         const out = this.getWriter();
         const communicator = this.communicator();
 
@@ -61,7 +59,8 @@ export class Client extends TestHelper
 
         {
             const i2 = await Test.Inner.Inner2.IPrx.checkedCast(
-                communicator.stringToProxy("i2:" + this.getTestEndpoint()));
+                communicator.stringToProxy("i2:" + this.getTestEndpoint()),
+            );
             const s1 = new Test.Inner.Inner2.S(0);
 
             const [s2, s3] = await i2.opS(s1);
@@ -94,8 +93,7 @@ export class Client extends TestHelper
         }
 
         {
-            const i3 = await Test.Inner.IPrx.checkedCast(
-                communicator.stringToProxy("i3:" + this.getTestEndpoint()));
+            const i3 = await Test.Inner.IPrx.checkedCast(communicator.stringToProxy("i3:" + this.getTestEndpoint()));
             const s1 = new Test.Inner.Inner2.S(0);
 
             const [s2, s3] = await i3.opS(s1);
@@ -129,7 +127,8 @@ export class Client extends TestHelper
 
         {
             const i4 = await Inner.Test.Inner2.IPrx.checkedCast(
-                communicator.stringToProxy("i4:" + this.getTestEndpoint()));
+                communicator.stringToProxy("i4:" + this.getTestEndpoint()),
+            );
             const s1 = new Test.S(0);
 
             const [s2, s3] = await i4.opS(s1);
@@ -169,19 +168,14 @@ export class Client extends TestHelper
         out.writeLine("ok");
     }
 
-    async run(args:string[])
-    {
+    async run(args: string[]) {
         let x;
-        let communicator:Ice.Communicator;
-        try
-        {
+        let communicator: Ice.Communicator;
+        try {
             [communicator] = this.initialize(args);
             await this.allTests();
-        }
-        finally
-        {
-            if(communicator)
-            {
+        } finally {
+            if (communicator) {
                 await communicator.destroy();
             }
         }

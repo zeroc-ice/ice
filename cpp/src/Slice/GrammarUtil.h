@@ -46,7 +46,7 @@ namespace Slice
     // StringTok
     // ----------------------------------------------------------------------
 
-    class StringTok : public GrammarBase
+    class StringTok final : public GrammarBase
     {
     public:
         StringTok() {}
@@ -58,7 +58,7 @@ namespace Slice
     // StringListTok
     // ----------------------------------------------------------------------
 
-    class StringListTok : public GrammarBase
+    class StringListTok final : public GrammarBase
     {
     public:
         StringListTok() {}
@@ -69,7 +69,7 @@ namespace Slice
     // TypeStringTok
     // ----------------------------------------------------------------------
 
-    class TypeStringTok : public GrammarBase
+    class TypeStringTok final : public GrammarBase
     {
     public:
         TypeStringTok() {}
@@ -80,7 +80,7 @@ namespace Slice
     // TypeStringListTok
     // ----------------------------------------------------------------------
 
-    class TypeStringListTok : public GrammarBase
+    class TypeStringListTok final : public GrammarBase
     {
     public:
         TypeStringListTok() {}
@@ -91,7 +91,7 @@ namespace Slice
     // IntegerTok
     // ----------------------------------------------------------------------
 
-    class IntegerTok : public GrammarBase
+    class IntegerTok final : public GrammarBase
     {
     public:
         IntegerTok() : v(0) {}
@@ -103,7 +103,7 @@ namespace Slice
     // FloatingTok
     // ----------------------------------------------------------------------
 
-    class FloatingTok : public GrammarBase
+    class FloatingTok final : public GrammarBase
     {
     public:
         FloatingTok() : v(0) {}
@@ -115,7 +115,7 @@ namespace Slice
     // BoolTok
     // ----------------------------------------------------------------------
 
-    class BoolTok : public GrammarBase
+    class BoolTok final : public GrammarBase
     {
     public:
         BoolTok() : v(false) {}
@@ -126,7 +126,7 @@ namespace Slice
     // ExceptionListTok
     // ----------------------------------------------------------------------
 
-    class ExceptionListTok : public GrammarBase
+    class ExceptionListTok final : public GrammarBase
     {
     public:
         ExceptionListTok() {}
@@ -137,7 +137,7 @@ namespace Slice
     // ClassListTok
     // ----------------------------------------------------------------------
 
-    class ClassListTok : public GrammarBase
+    class ClassListTok final : public GrammarBase
     {
     public:
         ClassListTok() {}
@@ -148,7 +148,7 @@ namespace Slice
     // InterfaceListTok
     // ----------------------------------------------------------------------
 
-    class InterfaceListTok : public GrammarBase
+    class InterfaceListTok final : public GrammarBase
     {
     public:
         InterfaceListTok() {}
@@ -159,7 +159,7 @@ namespace Slice
     // EnumeratorListTok
     // ----------------------------------------------------------------------
 
-    class EnumeratorListTok : public GrammarBase
+    class EnumeratorListTok final : public GrammarBase
     {
     public:
         EnumeratorListTok() {}
@@ -170,7 +170,7 @@ namespace Slice
     // ConstDefTok
     // ----------------------------------------------------------------------
 
-    class ConstDefTok : public GrammarBase
+    class ConstDefTok final : public GrammarBase
     {
     public:
         ConstDefTok() {}
@@ -190,7 +190,7 @@ namespace Slice
     // OptionalDefTok
     // ----------------------------------------------------------------------
 
-    class OptionalDefTok : public GrammarBase
+    class OptionalDefTok final : public GrammarBase
     {
     public:
         OptionalDefTok() : isOptional(false), tag(0) {}
@@ -207,7 +207,7 @@ namespace Slice
     // ClassIdTok
     // ----------------------------------------------------------------------
 
-    class ClassIdTok : public GrammarBase
+    class ClassIdTok final : public GrammarBase
     {
     public:
         ClassIdTok() : t(0) {}

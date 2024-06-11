@@ -2,74 +2,48 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-(function(module, require, exports)
-{
-    const Test = require("Test").Test;
+import { Test } from "./Test.js";
 
-    class DI extends Test.D
-    {
-        callA(current)
-        {
-            return "A";
-        }
-
-        callB(current)
-        {
-            return "B";
-        }
-
-        callC(current)
-        {
-            return "C";
-        }
-
-        callD(current)
-        {
-            return "D";
-        }
+export class DI extends Test.D {
+    callA(current) {
+        return "A";
     }
 
-    class EmptyI extends Test.Empty
-    {
+    callB(current) {
+        return "B";
     }
 
-    class FI extends Test.F
-    {
-        callE(current)
-        {
-            return "E";
-        }
-
-        callF(current)
-        {
-            return "F";
-        }
+    callC(current) {
+        return "C";
     }
 
-    class HI extends Test.H
-    {
-        callG(current)
-        {
-            return "G";
-        }
+    callD(current) {
+        return "D";
+    }
+}
 
-        callH(current)
-        {
-            return "H";
-        }
+export class EmptyI extends Test.Empty {}
 
-        shutdown(current)
-        {
-            current.adapter.getCommunicator().shutdown();
-        }
+export class FI extends Test.F {
+    callE(current) {
+        return "E";
     }
 
-    exports.DI = DI;
-    exports.EmptyI = EmptyI;
-    exports.FI = FI;
-    exports.HI = HI;
-}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
-  typeof global !== "undefined" && typeof global.process !== "undefined" ? require :
-  (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) ? self.Ice._require : window.Ice._require,
-  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports :
-  (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) ? self : window));
+    callF(current) {
+        return "F";
+    }
+}
+
+export class HI extends Test.H {
+    callG(current) {
+        return "G";
+    }
+
+    callH(current) {
+        return "H";
+    }
+
+    shutdown(current) {
+        current.adapter.getCommunicator().shutdown();
+    }
+}

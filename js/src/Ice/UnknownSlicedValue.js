@@ -2,12 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/Value").Ice;
+import { Value } from "./Value.js";
 
-class SliceInfo
-{
-    constructor()
-    {
+export class SliceInfo {
+    constructor() {
         //
         // The Slice type ID for this slice.
         //
@@ -39,42 +37,30 @@ class SliceInfo
         this.isLastSlice = false;
     }
 }
-Ice.SliceInfo = SliceInfo;
 
-class SlicedData
-{
-    constructor(slices)
-    {
+export class SlicedData {
+    constructor(slices) {
         this.slices = slices;
     }
 }
-Ice.SlicedData = SlicedData;
 
-class UnknownSlicedValue extends Ice.Value
-{
-    constructor(unknownTypeId)
-    {
+export class UnknownSlicedValue extends Value {
+    constructor(unknownTypeId) {
         super();
         this._unknownTypeId = unknownTypeId;
     }
 
-    ice_id()
-    {
+    ice_id() {
         return this._unknownTypeId;
     }
 
-    _iceWrite(os)
-    {
+    _iceWrite(os) {
         os.startValue(this._iceSlicedData);
         os.endValue();
     }
 
-    _iceRead(is)
-    {
+    _iceRead(is) {
         is.startValue();
         this._iceSlicedData = is.endValue();
     }
 }
-Ice.UnknownSlicedValue = UnknownSlicedValue;
-
-module.exports.Ice = Ice;

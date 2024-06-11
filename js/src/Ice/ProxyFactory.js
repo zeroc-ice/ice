@@ -2,110 +2,96 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
+import { StringUtil } from "./StringUtil.js";
+import { FixedReference } from "./Reference.js";
+import {
+    ObjectNotExistException,
+    RequestFailedException,
+    MarshalException,
+    CommunicatorDestroyedException,
+    ObjectAdapterDeactivatedException,
+    ConnectionManuallyClosedException,
+    InvocationTimeoutException,
+    InvocationCanceledException,
+    CloseConnectionException,
+} from "./LocalException.js";
 
-require("../Ice/Debug");
-require("../Ice/Identity");
-require("../Ice/LocalException");
-require("../Ice/ObjectPrx");
-require("../Ice/Reference");
-require("../Ice/StringUtil");
-
-const Debug = Ice.Debug;
-const Identity = Ice.Identity;
-const ObjectPrx = Ice.ObjectPrx;
-const StringUtil = Ice.StringUtil;
+import { Ice as Ice_Identity } from "./Identity.js";
+const { Identity } = Ice_Identity;
+import { ObjectPrx } from "./ObjectPrx.js";
+import { ReferenceMode } from "./ReferenceMode.js";
+import { Debug } from "./Debug.js";
 
 //
 // Only for use by Instance.
 //
-class ProxyFactory
-{
-    constructor(instance)
-    {
+export class ProxyFactory {
+    constructor(instance) {
         this._instance = instance;
 
         const arr = this._instance.initializationData().properties.getPropertyAsList("Ice.RetryIntervals");
 
-        if(arr.length > 0)
-        {
+        if (arr.length > 0) {
             this._retryIntervals = [];
 
-            for(let i = 0; i < arr.length; i++)
-            {
+            for (let i = 0; i < arr.length; i++) {
                 let v;
 
-                try
-                {
+                try {
                     v = StringUtil.toInt(arr[i]);
-                }
-                catch(ex)
-                {
+                } catch (ex) {
                     v = 0;
                 }
 
                 //
                 // If -1 is the first value, no retry and wait intervals.
                 //
-                if(i === 0 && v === -1)
-                {
+                if (i === 0 && v === -1) {
                     break;
                 }
 
                 this._retryIntervals[i] = v > 0 ? v : 0;
             }
-        }
-        else
-        {
+        } else {
             this._retryIntervals = [0];
         }
     }
 
-    stringToProxy(str)
-    {
+    stringToProxy(str) {
         return this.referenceToProxy(this._instance.referenceFactory().createFromString(str, null));
     }
 
-    proxyToString(proxy)
-    {
+    proxyToString(proxy) {
         return proxy === null ? "" : proxy._getReference().toString();
     }
 
-    propertyToProxy(prefix)
-    {
+    propertyToProxy(prefix) {
         const proxy = this._instance.initializationData().properties.getProperty(prefix);
         const ref = this._instance.referenceFactory().createFromString(proxy, prefix);
         return this.referenceToProxy(ref);
     }
 
-    proxyToProperty(proxy, prefix)
-    {
+    proxyToProperty(proxy, prefix) {
         return proxy === null ? new Map() : proxy._getReference().toProperty(prefix);
     }
 
-    streamToProxy(s, type)
-    {
+    streamToProxy(s, type) {
         const ident = new Identity();
         ident._read(s);
         return this.referenceToProxy(this._instance.referenceFactory().createFromStream(ident, s), type);
     }
 
-    referenceToProxy(ref, type)
-    {
-        if(ref !== null)
-        {
+    referenceToProxy(ref, type) {
+        if (ref !== null) {
             const proxy = type ? new type() : new ObjectPrx();
             proxy._setup(ref);
             return proxy;
-        }
-        else
-        {
+        } else {
             return null;
         }
     }
 
-    checkRetryAfterException(ex, ref, sleepInterval, cnt)
-    {
+    checkRetryAfterException(ex, ref, sleepInterval, cnt) {
         const traceLevels = this._instance.traceLevels();
         const logger = this._instance.initializationData().logger;
 
@@ -114,8 +100,7 @@ class ProxyFactory
         // the all the requests batched with the connection to be aborted and we
         // want the application to be notified.
         //
-        if(ref.getMode() === Ice.Reference.ModeBatchOneway || ref.getMode() === Ice.Reference.ModeBatchDatagram)
-        {
+        if (ref.getMode() === ReferenceMode.ModeBatchOneway || ref.getMode() === ReferenceMode.ModeBatchDatagram) {
             throw ex;
         }
 
@@ -123,15 +108,12 @@ class ProxyFactory
         // If it's a fixed proxy, retrying isn't useful as the proxy is tied to
         // the connection and the request will fail with the exception.
         //
-        if(ref instanceof Ice.FixedReference)
-        {
+        if (ref instanceof FixedReference) {
             throw ex;
         }
 
-        if(ex instanceof Ice.ObjectNotExistException)
-        {
-            if(ref.getRouterInfo() !== null && ex.operation === "ice_add_proxy")
-            {
+        if (ex instanceof ObjectNotExistException) {
+            if (ref.getRouterInfo() !== null && ex.operation === "ice_add_proxy") {
                 //
                 // If we have a router, an ObjectNotExistException with an
                 // operation name "ice_add_proxy" indicates to the client
@@ -143,44 +125,36 @@ class ProxyFactory
 
                 ref.getRouterInfo().clearCache(ref);
 
-                if(traceLevels.retry >= 1)
-                {
-                    logger.trace(traceLevels.retryCat, "retrying operation call to add proxy to router\n" +
-                                 ex.toString());
+                if (traceLevels.retry >= 1) {
+                    logger.trace(
+                        traceLevels.retryCat,
+                        "retrying operation call to add proxy to router\n" + ex.toString(),
+                    );
                 }
 
-                if(sleepInterval !== null)
-                {
+                if (sleepInterval !== null) {
                     sleepInterval.value = 0;
                 }
                 return cnt; // We must always retry, so we don't look at the retry count.
-            }
-            else if(ref.isIndirect())
-            {
+            } else if (ref.isIndirect()) {
                 //
                 // We retry ObjectNotExistException if the reference is
                 // indirect.
                 //
 
-                if(ref.isWellKnown())
-                {
+                if (ref.isWellKnown()) {
                     const li = ref.getLocatorInfo();
-                    if(li !== null)
-                    {
+                    if (li !== null) {
                         li.clearCache(ref);
                     }
                 }
-            }
-            else
-            {
+            } else {
                 //
                 // For all other cases, we don't retry ObjectNotExistException.
                 //
                 throw ex;
             }
-        }
-        else if(ex instanceof Ice.RequestFailedException)
-        {
+        } else if (ex instanceof RequestFailedException) {
             //
             // For all other cases, we don't retry ObjectNotExistException
             //
@@ -209,8 +183,7 @@ class ProxyFactory
         // the client that all of the batched requests were accepted, when
         // in reality only the last few are actually sent.
         //
-        if(ex instanceof Ice.MarshalException)
-        {
+        if (ex instanceof MarshalException) {
             throw ex;
         }
 
@@ -218,18 +191,18 @@ class ProxyFactory
         // Don't retry if the communicator is destroyed, object adapter is deactivated,
         // or connection is manually closed.
         //
-        if(ex instanceof Ice.CommunicatorDestroyedException ||
-           ex instanceof Ice.ObjectAdapterDeactivatedException ||
-           ex instanceof Ice.ConnectionManuallyClosedException)
-        {
+        if (
+            ex instanceof CommunicatorDestroyedException ||
+            ex instanceof ObjectAdapterDeactivatedException ||
+            ex instanceof ConnectionManuallyClosedException
+        ) {
             throw ex;
         }
 
         //
         // Don't retry invocation timeouts.
         //
-        if(ex instanceof Ice.InvocationTimeoutException || ex instanceof Ice.InvocationCanceledException)
-        {
+        if (ex instanceof InvocationTimeoutException || ex instanceof InvocationCanceledException) {
             throw ex;
         }
 
@@ -237,33 +210,27 @@ class ProxyFactory
         Debug.assert(cnt > 0);
 
         let interval;
-        if(cnt === (this._retryIntervals.length + 1) && ex instanceof Ice.CloseConnectionException)
-        {
+        if (cnt === this._retryIntervals.length + 1 && ex instanceof CloseConnectionException) {
             //
             // A close connection exception is always retried at least once, even if the retry
             // limit is reached.
             //
             interval = 0;
-        }
-        else if(cnt > this._retryIntervals.length)
-        {
-            if(traceLevels.retry >= 1)
-            {
-                logger.trace(traceLevels.retryCat,
-                             "cannot retry operation call because retry limit has been exceeded\n" + ex.toString());
+        } else if (cnt > this._retryIntervals.length) {
+            if (traceLevels.retry >= 1) {
+                logger.trace(
+                    traceLevels.retryCat,
+                    "cannot retry operation call because retry limit has been exceeded\n" + ex.toString(),
+                );
             }
             throw ex;
-        }
-        else
-        {
+        } else {
             interval = this._retryIntervals[cnt - 1];
         }
 
-        if(traceLevels.retry >= 1)
-        {
+        if (traceLevels.retry >= 1) {
             let msg = "retrying operation call";
-            if(interval > 0)
-            {
+            if (interval > 0) {
                 msg += " in " + interval + "ms";
             }
             msg += " because of exception\n" + ex.toString();
@@ -276,6 +243,3 @@ class ProxyFactory
         return cnt;
     }
 }
-
-Ice.ProxyFactory = ProxyFactory;
-module.exports.Ice = Ice;

@@ -5,8 +5,6 @@ Context.d.ts
 Context.js
 EndpointTypes.d.ts
 EndpointTypes.js
-Identity.d.ts
-Identity.js
 Locator.d.ts
 Locator.js
 LocatorF.d.ts
@@ -29,5 +27,3 @@ Router.d.ts
 Router.js
 RouterF.d.ts
 RouterF.js
-Version.d.ts
-Version.js

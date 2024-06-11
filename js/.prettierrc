@@ -1,0 +1,4 @@
+overrides:
+    - files: [".eslintrc.js", "*.json"]
+      options:
+          quoteProps: preserve

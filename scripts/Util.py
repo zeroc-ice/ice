@@ -18,6 +18,7 @@ import shutil
 import copy
 import xml.sax.saxutils
 from platform import machine as platform_machine
+from pathlib import Path
 
 from io import StringIO
 
@@ -4316,14 +4317,11 @@ class JavaScriptMixin:
         return os.path.join(self.getPath(), "test", "Common")
 
     def getCommandLine(self, current, process, exe, args):
-        return "node {0}/run.js {1} {2}".format(self.getCommonDir(current), exe, args)
-
-    def getEnv(self, process, current):
-        env = Mapping.getEnv(self, process, current)
-        env["NODE_PATH"] = os.pathsep.join(
-            [self.getCommonDir(current), self.getTestCwd(process, current)]
-        )
-        return env
+        return "node {0}/run.js {1} {2} {3}".format(
+            self.getCommonDir(current),
+            os.path.join(self.getTestCwd(process, current), exe),
+            Path(exe).stem,
+            args)
 
     def getSSLProps(self, process, current):
         return {}
@@ -4367,6 +4365,9 @@ class JavaScriptMapping(JavaScriptMixin, Mapping):
             "serveramd": "ServerAMD.js",
             "server": "Server.js",
         }[processType]
+
+    def _getDefaultExe(self, processType):
+        return self.getDefaultSource(processType)
 
     def getTestCwd(self, process, current):
         return os.path.join(self.path, "test", current.testcase.getTestSuite().getId())

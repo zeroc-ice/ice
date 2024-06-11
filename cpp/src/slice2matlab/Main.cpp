@@ -1578,19 +1578,19 @@ namespace
 //
 // CodeVisitor generates the Matlab mapping for a translation unit.
 //
-class CodeVisitor : public ParserVisitor
+class CodeVisitor final : public ParserVisitor
 {
 public:
     CodeVisitor(const string&);
 
-    virtual bool visitClassDefStart(const ClassDefPtr&);
-    virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-    virtual bool visitExceptionStart(const ExceptionPtr&);
-    virtual bool visitStructStart(const StructPtr&);
-    virtual void visitSequence(const SequencePtr&);
-    virtual void visitDictionary(const DictionaryPtr&);
-    virtual void visitEnum(const EnumPtr&);
-    virtual void visitConst(const ConstPtr&);
+    bool visitClassDefStart(const ClassDefPtr&) final;
+    bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+    bool visitExceptionStart(const ExceptionPtr&) final;
+    bool visitStructStart(const StructPtr&) final;
+    void visitSequence(const SequencePtr&) final;
+    void visitDictionary(const DictionaryPtr&) final;
+    void visitEnum(const EnumPtr&) final;
+    void visitConst(const ConstPtr&) final;
 
 private:
     struct MemberInfo

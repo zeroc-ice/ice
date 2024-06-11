@@ -2,43 +2,33 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-(function(module, require, exports)
-{
-    const Ice = require("ice").Ice;
-    const Test = require("Test").Test;
-    const TestHelper = require("TestHelper").TestHelper;
-    const test = TestHelper.test;
+import { Ice } from "ice";
+import { Test } from "./Test.js";
+import { TestHelper } from "../../Common/TestHelper.js";
 
-    class Client extends TestHelper
-    {
-        allTests()
-        {
-            const out = this.getWriter();
-            out.write("testing Slice predefined macros... ");
+const test = TestHelper.test;
 
-            const d = new Test._Default();
-            test(d.x == 10);
-            test(d.y == 10);
+export class Client extends TestHelper {
+    allTests() {
+        const out = this.getWriter();
+        out.write("testing Slice predefined macros... ");
 
-            const nd = new Test.NoDefault();
-            test(nd.x != 10);
-            test(nd.y != 10);
+        const d = new Test._Default();
+        test(d.x == 10);
+        test(d.y == 10);
 
-            const c = new Test.JsOnly();
-            test(c.lang == "js");
-            test(c.version == Ice.intVersion());
+        const nd = new Test.NoDefault();
+        test(nd.x != 10);
+        test(nd.y != 10);
 
-            out.writeLine("ok");
-        }
+        const c = new Test.JsOnly();
+        test(c.lang == "js");
+        test(c.version == Ice.intVersion());
 
-        run(args)
-        {
-            this.allTests();
-        }
+        out.writeLine("ok");
     }
-    exports.Client = Client;
-}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
-  typeof global !== "undefined" && typeof global.process !== "undefined" ? require :
-  (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) ? self.Ice._require : window.Ice._require,
-  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports :
-  (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) ? self : window));
+
+    run(args) {
+        this.allTests();
+    }
+}

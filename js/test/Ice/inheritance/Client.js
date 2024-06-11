@@ -2,149 +2,135 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-(function(module, require, exports)
-{
-    const Test = require("Test").Test;
-    const TestHelper = require("TestHelper").TestHelper;
-    const test = TestHelper.test;
+import { Test } from "./Test.js";
+import { TestHelper } from "../../Common/TestHelper.js";
 
-    class Client extends TestHelper
-    {
-        async allTests()
-        {
-            const communicator = this.communicator();
-            const out = this.getWriter();
+const test = TestHelper.test;
 
-            out.write("testing stringToProxy... ");
-            const ref = "initial:" + this.getTestEndpoint();
-            const base = communicator.stringToProxy(ref);
-            test(base !== null);
-            out.writeLine("ok");
+export class Client extends TestHelper {
+    async allTests() {
+        const communicator = this.communicator();
+        const out = this.getWriter();
 
-            out.write("testing checked cast... ");
-            const initial = await Test.InitialPrx.checkedCast(base);
-            test(initial !== null);
-            test(initial.equals(base));
-            out.writeLine("ok");
+        out.write("testing stringToProxy... ");
+        const ref = "initial:" + this.getTestEndpoint();
+        const base = communicator.stringToProxy(ref);
+        test(base !== null);
+        out.writeLine("ok");
 
-            out.write("getting proxies for interface hierarchy... ");
-            const ia = await initial.iaop();
-            const ib1 = await initial.ib1op();
-            const ib2 = await initial.ib2op();
-            const ic = await initial.icop();
-            test(ia != ib1);
-            test(ia != ib2);
-            test(ia != ic);
-            test(ib1 != ic);
-            test(ib2 != ic);
-            out.writeLine("ok");
+        out.write("testing checked cast... ");
+        const initial = await Test.InitialPrx.checkedCast(base);
+        test(initial !== null);
+        test(initial.equals(base));
+        out.writeLine("ok");
 
-            out.write("invoking proxy operations on interface hierarchy... ");
+        out.write("getting proxies for interface hierarchy... ");
+        const ia = await initial.iaop();
+        const ib1 = await initial.ib1op();
+        const ib2 = await initial.ib2op();
+        const ic = await initial.icop();
+        test(ia != ib1);
+        test(ia != ib2);
+        test(ia != ic);
+        test(ib1 != ic);
+        test(ib2 != ic);
+        out.writeLine("ok");
 
-            let iao;
-            let ib1o;
-            let ib2o;
+        out.write("invoking proxy operations on interface hierarchy... ");
 
-            iao = await ia.iaop(ia);
-            test(iao.equals(ia));
-            iao = await ia.iaop(ib1);
-            test(iao.equals(ib1));
-            iao = await ia.iaop(ib2);
-            test(iao.equals(ib2));
-            iao = await ia.iaop(ic);
-            test(iao.equals(ic));
-            iao = await ib1.iaop(ia);
-            test(iao.equals(ia));
-            iao = await ib1.iaop(ib1);
-            test(iao.equals(ib1));
-            iao = await ib1.iaop(ib2);
-            test(iao.equals(ib2));
-            iao = await ib1.iaop(ic);
-            test(iao.equals(ic));
-            iao = await ib2.iaop(ia);
-            test(iao.equals(ia));
-            iao = await ib2.iaop(ib1);
-            test(iao.equals(ib1));
-            iao = await ib2.iaop(ib2);
-            test(iao.equals(ib2));
-            iao = await ib2.iaop(ic);
-            test(iao.equals(ic));
-            iao = await ic.iaop(ia);
-            test(iao.equals(ia));
-            iao = await ic.iaop(ib1);
-            test(iao.equals(ib1));
-            iao = await ic.iaop(ib2);
-            test(iao.equals(ib2));
-            iao = await ic.iaop(ic);
-            test(iao.equals(ic));
+        let iao;
+        let ib1o;
+        let ib2o;
 
-            iao = await ib1.ib1op(ib1);
-            test(iao.equals(ib1));
-            ib1o = await ib1.ib1op(ib1);
-            test(ib1o.equals(ib1));
-            iao = await ib1.ib1op(ic);
-            test(iao.equals(ic));
-            ib1o = await ib1.ib1op(ic);
-            test(ib1o.equals(ic));
-            iao = await ic.ib1op(ib1);
-            test(iao.equals(ib1));
-            ib1o = await ic.ib1op(ib1);
-            test(ib1o.equals(ib1));
-            iao = await ic.ib1op(ic);
-            test(iao.equals(ic));
-            ib1o = await ic.ib1op(ic);
-            test(ib1o.equals(ic));
+        iao = await ia.iaop(ia);
+        test(iao.equals(ia));
+        iao = await ia.iaop(ib1);
+        test(iao.equals(ib1));
+        iao = await ia.iaop(ib2);
+        test(iao.equals(ib2));
+        iao = await ia.iaop(ic);
+        test(iao.equals(ic));
+        iao = await ib1.iaop(ia);
+        test(iao.equals(ia));
+        iao = await ib1.iaop(ib1);
+        test(iao.equals(ib1));
+        iao = await ib1.iaop(ib2);
+        test(iao.equals(ib2));
+        iao = await ib1.iaop(ic);
+        test(iao.equals(ic));
+        iao = await ib2.iaop(ia);
+        test(iao.equals(ia));
+        iao = await ib2.iaop(ib1);
+        test(iao.equals(ib1));
+        iao = await ib2.iaop(ib2);
+        test(iao.equals(ib2));
+        iao = await ib2.iaop(ic);
+        test(iao.equals(ic));
+        iao = await ic.iaop(ia);
+        test(iao.equals(ia));
+        iao = await ic.iaop(ib1);
+        test(iao.equals(ib1));
+        iao = await ic.iaop(ib2);
+        test(iao.equals(ib2));
+        iao = await ic.iaop(ic);
+        test(iao.equals(ic));
 
-            iao = await ib2.ib2op(ib2);
-            test(iao.equals(ib2));
-            ib2o = await ib2.ib2op(ib2);
-            test(ib2o.equals(ib2));
-            iao = await ib2.ib2op(ic);
-            test(iao.equals(ic));
-            ib2o = await ib2.ib2op(ic);
-            test(ib2o.equals(ic));
-            iao = await ic.ib2op(ib2);
-            test(iao.equals(ib2));
-            ib2o = await ic.ib2op(ib2);
-            test(ib2o.equals(ib2));
-            iao = await ic.ib2op(ic);
-            test(iao.equals(ic));
-            ib2o = await ic.ib2op(ic);
-            test(ib2o.equals(ic));
+        iao = await ib1.ib1op(ib1);
+        test(iao.equals(ib1));
+        ib1o = await ib1.ib1op(ib1);
+        test(ib1o.equals(ib1));
+        iao = await ib1.ib1op(ic);
+        test(iao.equals(ic));
+        ib1o = await ib1.ib1op(ic);
+        test(ib1o.equals(ic));
+        iao = await ic.ib1op(ib1);
+        test(iao.equals(ib1));
+        ib1o = await ic.ib1op(ib1);
+        test(ib1o.equals(ib1));
+        iao = await ic.ib1op(ic);
+        test(iao.equals(ic));
+        ib1o = await ic.ib1op(ic);
+        test(ib1o.equals(ic));
 
-            iao = await ic.icop(ic);
-            test(iao.equals(ic));
-            ib1o = await ic.icop(ic);
-            test(ib1o.equals(ic));
-            ib2o = await ic.icop(ic);
-            test(ib2o.equals(ic));
-            const ico = await ic.icop(ic);
-            test(ico.equals(ic));
-            out.writeLine("ok");
+        iao = await ib2.ib2op(ib2);
+        test(iao.equals(ib2));
+        ib2o = await ib2.ib2op(ib2);
+        test(ib2o.equals(ib2));
+        iao = await ib2.ib2op(ic);
+        test(iao.equals(ic));
+        ib2o = await ib2.ib2op(ic);
+        test(ib2o.equals(ic));
+        iao = await ic.ib2op(ib2);
+        test(iao.equals(ib2));
+        ib2o = await ic.ib2op(ib2);
+        test(ib2o.equals(ib2));
+        iao = await ic.ib2op(ic);
+        test(iao.equals(ic));
+        ib2o = await ic.ib2op(ic);
+        test(ib2o.equals(ic));
 
-            await initial.shutdown();
-        }
+        iao = await ic.icop(ic);
+        test(iao.equals(ic));
+        ib1o = await ic.icop(ic);
+        test(ib1o.equals(ic));
+        ib2o = await ic.icop(ic);
+        test(ib2o.equals(ic));
+        const ico = await ic.icop(ic);
+        test(ico.equals(ic));
+        out.writeLine("ok");
 
-        async run(args)
-        {
-            let communicator;
-            try
-            {
-                [communicator] = this.initialize(args);
-                await this.allTests();
-            }
-            finally
-            {
-                if(communicator)
-                {
-                    await communicator.destroy();
-                }
+        await initial.shutdown();
+    }
+
+    async run(args) {
+        let communicator;
+        try {
+            [communicator] = this.initialize(args);
+            await this.allTests();
+        } finally {
+            if (communicator) {
+                await communicator.destroy();
             }
         }
     }
-    exports.Client = Client;
-}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
-  typeof global !== "undefined" && typeof global.process !== "undefined" ? require :
-  (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) ? self.Ice._require : window.Ice._require,
-  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports :
-  (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) ? self : window));
+}

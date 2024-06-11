@@ -104,23 +104,21 @@ compile(const vector<string>& argv)
         return EXIT_SUCCESS;
     }
 
-    vector<string> cppArgs;
-    vector<string> optargs = opts.argVec("D");
-    for (vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    vector<string> preprocessorArgs;
+    for (const string& arg : opts.argVec("D"))
     {
-        cppArgs.push_back("-D" + *i);
+        preprocessorArgs.push_back("-D" + arg);
     }
 
-    optargs = opts.argVec("U");
-    for (vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    for (const string& arg : opts.argVec("U"))
     {
-        cppArgs.push_back("-U" + *i);
+        preprocessorArgs.push_back("-U" + arg);
     }
 
     vector<string> includePaths = opts.argVec("I");
-    for (vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
+    for (const string& path : includePaths)
     {
-        cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(*i));
+        preprocessorArgs.push_back("-I" + Preprocessor::normalizeIncludePath(path));
     }
 
     bool preprocess = opts.isSet("E");
@@ -133,7 +131,7 @@ compile(const vector<string>& argv)
 
     bool dependJSON = opts.isSet("depend-json");
 
-    bool dependxml = opts.isSet("depend-xml");
+    bool dependXml = opts.isSet("depend-xml");
 
     string dependFile = opts.optArg("depend-file");
 
@@ -161,7 +159,7 @@ compile(const vector<string>& argv)
         return EXIT_FAILURE;
     }
 
-    if (depend && dependxml)
+    if (depend && dependXml)
     {
         consoleErr << argv[0] << ": error: cannot specify both --depend and --depend-xml" << endl;
         if (!validate)
@@ -171,7 +169,7 @@ compile(const vector<string>& argv)
         return EXIT_FAILURE;
     }
 
-    if (dependxml && dependJSON)
+    if (dependXml && dependJSON)
     {
         consoleErr << argv[0] << ": error: cannot specify both --depend-xml and --depend-json" << endl;
         if (!validate)
@@ -196,7 +194,7 @@ compile(const vector<string>& argv)
     {
         os << "{" << endl;
     }
-    else if (dependxml)
+    else if (dependXml)
     {
         os << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
     }
@@ -204,29 +202,19 @@ compile(const vector<string>& argv)
     //
     // Create a copy of args without the duplicates.
     //
-    vector<string> sources;
-    for (vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
+    set<string> sources(args.begin(), args.end());
+
+    for (auto i = sources.cbegin(); i != sources.cend();)
     {
-        vector<string>::iterator p = find(sources.begin(), sources.end(), *i);
-        if (p == sources.end())
-        {
-            sources.push_back(*i);
-        }
-    }
+        PreprocessorPtr preprocessor = Preprocessor::create(argv[0], *i, preprocessorArgs);
+        FILE* cppHandle = preprocessor->preprocess(true, "-D__SLICE2JS__");
 
-    map<string, vector<string>> moduleInfo;
-
-    for (vector<string>::const_iterator i = sources.begin(); i != sources.end();)
-    {
-        PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-        FILE* cppHandle = icecpp->preprocess(true, "-D__SLICE2JS__");
-
-        if (cppHandle == 0)
+        if (cppHandle == nullptr)
         {
             return EXIT_FAILURE;
         }
 
-        if (depend || dependJSON || dependxml)
+        if (depend || dependJSON || dependXml)
         {
             UnitPtr u = Unit::createUnit(false);
             int parseStatus = u->parse(*i, cppHandle, debug);
@@ -237,9 +225,9 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            bool last = (++i == sources.end());
+            bool last = (++i == sources.cend());
 
-            if (!icecpp->printMakefileDependencies(
+            if (!preprocessor->printMakefileDependencies(
                     os,
                     depend ? Preprocessor::JavaScript
                            : (dependJSON ? Preprocessor::JavaScriptJSON : Preprocessor::SliceXML),
@@ -249,7 +237,7 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            if (!icecpp->close())
+            if (!preprocessor->close())
             {
                 return EXIT_FAILURE;
             }
@@ -275,7 +263,7 @@ compile(const vector<string>& argv)
                         return EXIT_FAILURE;
                     }
                 }
-                if (!icecpp->close())
+                if (!preprocessor->close())
                 {
                     return EXIT_FAILURE;
                 }
@@ -285,7 +273,7 @@ compile(const vector<string>& argv)
                 UnitPtr p = Unit::createUnit(false);
                 int parseStatus = p->parse(*i, cppHandle, debug);
 
-                if (!icecpp->close())
+                if (!preprocessor->close())
                 {
                     p->destroy();
                     return EXIT_FAILURE;
@@ -299,34 +287,16 @@ compile(const vector<string>& argv)
                 {
                     DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
                     assert(dc);
-                    const string prefix = "js:module:";
-                    string m = dc->findMetaData(prefix);
-                    if (!m.empty())
-                    {
-                        m = m.substr(prefix.size());
-                    }
-
-                    if (moduleInfo.find(m) == moduleInfo.end())
-                    {
-                        vector<string> files;
-                        files.push_back(*i);
-                        moduleInfo[m] = files;
-                    }
-                    else
-                    {
-                        moduleInfo[m].push_back(*i);
-                    }
-
                     try
                     {
                         if (useStdout)
                         {
-                            Gen gen(icecpp->getBaseName(), includePaths, output, typeScript, cout);
+                            Gen gen(preprocessor->getBaseName(), includePaths, output, typeScript, cout);
                             gen.generate(p);
                         }
                         else
                         {
-                            Gen gen(icecpp->getBaseName(), includePaths, output, typeScript);
+                            Gen gen(preprocessor->getBaseName(), includePaths, output, typeScript);
                             gen.generate(p);
                         }
                     }
@@ -361,12 +331,12 @@ compile(const vector<string>& argv)
     {
         os << "}\n";
     }
-    else if (dependxml)
+    else if (dependXml)
     {
         os << "</dependencies>\n";
     }
 
-    if (depend || dependJSON || dependxml)
+    if (depend || dependJSON || dependXml)
     {
         writeDependencies(os.str(), dependFile);
     }
@@ -394,8 +364,7 @@ main(int argc, char* argv[])
     }
     catch (...)
     {
-        consoleErr << args[0] << ": error:"
-                   << "unknown exception" << endl;
+        consoleErr << args[0] << ": error:unknown exception" << endl;
         return EXIT_FAILURE;
     }
 }

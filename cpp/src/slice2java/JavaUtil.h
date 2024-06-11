@@ -33,7 +33,7 @@ namespace Slice
     //
     bool isValidMethodParameterList(const DataMemberList&, int additionalUnits = 0);
 
-    class JavaOutput : public ::IceUtilInternal::Output
+    class JavaOutput final : public ::IceUtilInternal::Output
     {
     public:
         JavaOutput();
@@ -54,7 +54,7 @@ namespace Slice
         //
         void openClass(const std::string&, const std::string&, const std::string& = std::string());
 
-        virtual void printHeader();
+        void printHeader();
     };
 
     class JavaGenerator
@@ -251,7 +251,7 @@ namespace Slice
         bool
         getSequenceTypes(const SequencePtr&, const std::string&, const StringList&, std::string&, std::string&) const;
 
-        virtual JavaOutput* createOutput();
+        JavaOutput* createOutput();
 
         static const std::string _getSetMetaData;
 

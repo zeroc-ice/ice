@@ -55,7 +55,7 @@ interface I
     void i9(optional(C4) byte p);           // out of range
     void i10(optional(C5) bool p);          // invalid tag
     void i11(optional(C6) bool p);          // ok
-    void i12(optional(e2) int p);           // ok (warning)
+    void i12(optional(e2) int p);           // ok
 
     void o1(out optional string p);             // missing tag
     void o2(out optional() int p);              // missing tag

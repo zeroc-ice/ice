@@ -10,7 +10,6 @@
 [["cpp:include:Glacier2/Config.h"]]
 
 [["js:module:ice"]]
-[["js:cjs-module"]]
 
 [["python:pkgdir:Glacier2"]]
 
