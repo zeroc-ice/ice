@@ -9,9 +9,9 @@ using namespace Test;
 class Middleware final : public Ice::Object
 {
 public:
-    Middleware(Ice::ObjectPtr next, const string& name, list<string>& inLog, list<string>& outLog)
+    Middleware(Ice::ObjectPtr next, string name, list<string>& inLog, list<string>& outLog)
         : _next(std::move(next)),
-          _name(name),
+          _name(std::move(name)),
           _inLog(inLog),
           _outLog(outLog)
     {
