@@ -22,7 +22,7 @@
         "core-js-bundle": "^3.29.1",
         "del": "^6.1.1",
         "esprima": "^4.0.1",
-        "gulp": "^4.0.2",
+        "gulp": "^5.0.0",
         "gulp-ext-replace": "^0.3.0",
         "gulp-ice-builder": "^3.0.4",
         "gulp-typescript": "^5.0.1",
