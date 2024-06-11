@@ -1052,7 +1052,7 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
 
         for (const auto& [imported, modules] : imports)
         {
-            if (modules.contains("Ice"))
+            if (modules.find("Ice") != modules.end())
             {
                 _out << nl << "import { Ice as Ice_" << pathToModule(imported) << " } from \"" << imported << "\"";
             }
@@ -1068,7 +1068,7 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
 
         for (auto& [imported, modules] : imports)
         {
-            if (modules.contains("Ice"))
+            if (modules.find("Ice") != modules.end())
             {
                 _out << nl << "...Ice_" << pathToModule(imported) << ",";
 
@@ -1147,7 +1147,7 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
         _out.inc();
         for (const auto& [jsImportedModule, topLevelModules] : imports)
         {
-            if (topLevelModules.contains(m))
+            if (topLevelModules.find(m) != topLevelModules.end())
             {
                 _out << nl << "..." << m << "_" << pathToModule(jsImportedModule) << ",";
             }
