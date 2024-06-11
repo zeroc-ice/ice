@@ -1,3 +1,6 @@
+//
+// Copyright (c) ZeroC, Inc. All rights reserved.
+//
 
 import { Instance, StateDestroyInProgress, StateDestroyed } from "./Instance.js";
 import { ACMConfig } from "./ACM.js";
