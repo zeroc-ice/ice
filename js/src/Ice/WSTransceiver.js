@@ -10,7 +10,7 @@ import { SocketOperation } from "./SocketOperation.js";
 import { Timer } from "./Timer.js";
 import { Debug } from "./Debug.js";
 
-let WSTransceiver = {};
+export let WSTransceiver = {};
 
 if (typeof WebSocket !== 'undefined')
 {
@@ -406,4 +406,3 @@ else
 {
     WSTransceiver = class {}
 }
-export { WSTransceiver };

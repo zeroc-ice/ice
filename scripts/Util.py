@@ -4323,15 +4323,6 @@ class JavaScriptMixin:
             Path(exe).stem,
             args)
 
-    def getEnv(self, process, current):
-        env = Mapping.getEnv(self, process, current)
-        # TODO remove NODE_PATH is not used with ESM modules
-        # https://nodejs.org/api/esm.html#esm_no_node_path
-        env["NODE_PATH"] = os.pathsep.join(
-            [self.getCommonDir(current), self.getTestCwd(process, current)]
-        )
-        return env
-
     def getSSLProps(self, process, current):
         return {}
 
