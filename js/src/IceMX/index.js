@@ -9,5 +9,5 @@ import { IceMX as IceMX_IceStorm } from "../IceStorm/Metrics.js";
 export const IceMX = {
     ...IceMX_Ice,
     ...IceMX_Glacier2,
-    ...IceMX_IceStorm
+    ...IceMX_IceStorm,
 };

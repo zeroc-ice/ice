@@ -13,156 +13,127 @@ const ParseStateValue = 1;
 //
 // Ice.Properties
 //
-export class Properties
-{
-    constructor(args, defaults)
-    {
+export class Properties {
+    constructor(args, defaults) {
         this._properties = new Map();
 
-        if(defaults !== undefined && defaults !== null)
-        {
+        if (defaults !== undefined && defaults !== null) {
             //
             // NOTE: we can't just do a shallow copy of the map as the map values
             // would otherwise be shared between the two PropertiesI object.
             //
-            for(const [key, property] of defaults._properties)
-            {
-                this._properties.set(key, {value: property.value, used: false});
+            for (const [key, property] of defaults._properties) {
+                this._properties.set(key, {
+                    value: property.value,
+                    used: false,
+                });
             }
         }
 
-        if(args !== undefined && args !== null)
-        {
+        if (args !== undefined && args !== null) {
             const v = this.parseIceCommandLineOptions(args);
             args.length = 0;
-            for(let i = 0; i < v.length; ++i)
-            {
+            for (let i = 0; i < v.length; ++i) {
                 args.push(v[i]);
             }
         }
     }
 
-    getProperty(key)
-    {
+    getProperty(key) {
         return this.getPropertyWithDefault(key, "");
     }
 
-    getIceProperty(key)
-    {
+    getIceProperty(key) {
         return this.getPropertyWithDefault(key, Properties.getDefaultProperty(key));
     }
 
-    getPropertyWithDefault(key, value)
-    {
+    getPropertyWithDefault(key, value) {
         const pv = this._properties.get(key);
-        if(pv !== undefined)
-        {
+        if (pv !== undefined) {
             pv.used = true;
             return pv.value;
-        }
-        else
-        {
+        } else {
             return value;
         }
     }
 
-    getPropertyAsInt(key)
-    {
+    getPropertyAsInt(key) {
         return this.getPropertyAsIntWithDefault(key, 0);
     }
 
-    getIcePropertyAsInt(key)
-    {
+    getIcePropertyAsInt(key) {
         const defaultValueString = Properties.getDefaultProperty(key);
         var defaultValue = 0;
-        if (defaultValueString != "")
-        {
+        if (defaultValueString != "") {
             defaultValue = parseInt(defaultValueString);
         }
         return this.getPropertyAsIntWithDefault(key, defaultValue);
     }
 
-    getPropertyAsIntWithDefault(key, value)
-    {
+    getPropertyAsIntWithDefault(key, value) {
         const pv = this._properties.get(key);
-        if(pv !== undefined)
-        {
+        if (pv !== undefined) {
             pv.used = true;
             return parseInt(pv.value);
-        }
-        else
-        {
+        } else {
             return value;
         }
     }
 
-    getPropertyAsList(key)
-    {
+    getPropertyAsList(key) {
         return this.getPropertyAsListWithDefault(key, 0);
     }
 
-    getIcePropertyAsList(key)
-    {
+    getIcePropertyAsList(key) {
         var defaultPropertyList = StringUtil.splitString(Properties.getDefaultProperty(key), ", \t\r\n");
         return this.getPropertyAsListWithDefault(key, defaultPropertyList);
     }
 
-    getPropertyAsListWithDefault(key, value)
-    {
-        if(value === undefined || value === null)
-        {
+    getPropertyAsListWithDefault(key, value) {
+        if (value === undefined || value === null) {
             value = [];
         }
 
         const pv = this._properties.get(key);
-        if(pv !== undefined)
-        {
+        if (pv !== undefined) {
             pv.used = true;
 
             let result = StringUtil.splitString(pv.value, ", \t\r\n");
-            if(result === null)
-            {
-                getProcessLogger().warning("mismatched quotes in property " + key + "'s value, returning default value");
+            if (result === null) {
+                getProcessLogger().warning(
+                    "mismatched quotes in property " + key + "'s value, returning default value",
+                );
                 return value;
             }
-            if(result.length === 0)
-            {
+            if (result.length === 0) {
                 result = value;
             }
             return result;
-        }
-        else
-        {
+        } else {
             return value;
         }
     }
 
-    getPropertiesForPrefix(prefix = "")
-    {
+    getPropertiesForPrefix(prefix = "") {
         const result = new Map();
-        this._properties.forEach((property, key) =>
-            {
-                if(key.indexOf(prefix) === 0)
-                {
-                    property.used = true;
-                    result.set(key, property.value);
-                }
-            });
+        this._properties.forEach((property, key) => {
+            if (key.indexOf(prefix) === 0) {
+                property.used = true;
+                result.set(key, property.value);
+            }
+        });
         return result;
     }
 
-    setProperty(key = "", value = "")
-    {
+    setProperty(key = "", value = "") {
         //
         // Trim whitespace
         //
-        if(key !== null)
-        {
+        if (key !== null) {
             key = key.trim();
         }
 
-        if(key === null || key.length === 0)
-        {
+        if (key === null || key.length === 0) {
             throw new InitializationException("Attempt to set property with empty key");
         }
 
@@ -171,88 +142,68 @@ export class Properties
         var prop = Properties.findProperty(key, true);
 
         // If the property is deprecated, log a warning
-        if (prop !== null && prop.deprecated)
-        {
+        if (prop !== null && prop.deprecated) {
             getProcessLogger().warning("setting deprecated property: " + key);
         }
 
         //
         // Set or clear the property.
         //
-        if(value !== null && value.length > 0)
-        {
+        if (value !== null && value.length > 0) {
             const pv = this._properties.get(key);
-            if(pv !== undefined)
-            {
+            if (pv !== undefined) {
                 pv.value = value;
+            } else {
+                this._properties.set(key, { value: value, used: false });
             }
-            else
-            {
-                this._properties.set(key, {value: value, used: false});
-            }
-        }
-        else
-        {
+        } else {
             this._properties.delete(key);
         }
     }
 
-    getCommandLineOptions()
-    {
+    getCommandLineOptions() {
         const result = [];
-        this._properties.forEach((property, key) =>
-            {
-                result.push("--" + key + "=" + property.value);
-            });
+        this._properties.forEach((property, key) => {
+            result.push("--" + key + "=" + property.value);
+        });
         return result;
     }
 
-    parseCommandLineOptions(pfx, options)
-    {
-        if(pfx.length > 0 && pfx.charAt(pfx.length - 1) != ".")
-        {
+    parseCommandLineOptions(pfx, options) {
+        if (pfx.length > 0 && pfx.charAt(pfx.length - 1) != ".") {
             pfx += ".";
         }
         pfx = "--" + pfx;
 
         const result = [];
 
-        options.forEach(opt =>
-            {
-                if(opt.indexOf(pfx) === 0)
-                {
-                    if(opt.indexOf('=') === -1)
-                    {
-                        opt += "=1";
-                    }
+        options.forEach((opt) => {
+            if (opt.indexOf(pfx) === 0) {
+                if (opt.indexOf("=") === -1) {
+                    opt += "=1";
+                }
 
-                    this.parseLine(opt.substring(2));
-                }
-                else
-                {
-                    result.push(opt);
-                }
-            });
+                this.parseLine(opt.substring(2));
+            } else {
+                result.push(opt);
+            }
+        });
         return result;
     }
 
-    parseIceCommandLineOptions(options)
-    {
+    parseIceCommandLineOptions(options) {
         let args = options.slice();
-        for(let i = 0; i < PropertyNames.clPropNames.length; ++i)
-        {
+        for (let i = 0; i < PropertyNames.clPropNames.length; ++i) {
             args = this.parseCommandLineOptions(PropertyNames.clPropNames[i], args);
         }
         return args;
     }
 
-    parse(data)
-    {
-        data.match(/[^\r\n]+/g).forEach(line => this.parseLine(line));
+    parse(data) {
+        data.match(/[^\r\n]+/g).forEach((line) => this.parseLine(line));
     }
 
-    parseLine(line)
-    {
+    parseLine(line) {
         let key = "";
         let value = "";
 
@@ -262,32 +213,25 @@ export class Properties
         let escapedSpace = "";
         let finished = false;
 
-        for(let i = 0; i < line.length; ++i)
-        {
+        for (let i = 0; i < line.length; ++i) {
             let c = line.charAt(i);
-            switch(state)
-            {
-                case ParseStateKey:
-                {
-                    switch(c)
-                    {
-                        case '\\':
-                            if(i < line.length - 1)
-                            {
+            switch (state) {
+                case ParseStateKey: {
+                    switch (c) {
+                        case "\\":
+                            if (i < line.length - 1) {
                                 c = line.charAt(++i);
-                                switch(c)
-                                {
-                                    case '\\':
-                                    case '#':
-                                    case '=':
+                                switch (c) {
+                                    case "\\":
+                                    case "#":
+                                    case "=":
                                         key += whitespace;
                                         whitespace = "";
                                         key += c;
                                         break;
 
-                                    case ' ':
-                                        if(key.length !== 0)
-                                        {
+                                    case " ":
+                                        if (key.length !== 0) {
                                             whitespace += c;
                                         }
                                         break;
@@ -295,34 +239,31 @@ export class Properties
                                     default:
                                         key += whitespace;
                                         whitespace = "";
-                                        key += '\\';
+                                        key += "\\";
                                         key += c;
                                         break;
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 key += whitespace;
                                 key += c;
                             }
                             break;
 
-                        case ' ':
-                        case '\t':
-                        case '\r':
-                        case '\n':
-                            if(key.length !== 0)
-                            {
+                        case " ":
+                        case "\t":
+                        case "\r":
+                        case "\n":
+                            if (key.length !== 0) {
                                 whitespace += c;
                             }
                             break;
 
-                        case '=':
+                        case "=":
                             whitespace = "";
                             state = ParseStateValue;
                             break;
 
-                        case '#':
+                        case "#":
                             finished = true;
                             break;
 
@@ -335,26 +276,22 @@ export class Properties
                     break;
                 }
 
-                case ParseStateValue:
-                {
-                    switch(c)
-                    {
-                        case '\\':
-                            if(i < line.length - 1)
-                            {
+                case ParseStateValue: {
+                    switch (c) {
+                        case "\\":
+                            if (i < line.length - 1) {
                                 c = line.charAt(++i);
-                                switch(c)
-                                {
-                                    case '\\':
-                                    case '#':
-                                    case '=':
+                                switch (c) {
+                                    case "\\":
+                                    case "#":
+                                    case "=":
                                         value += value.length === 0 ? escapedSpace : whitespace;
                                         whitespace = "";
                                         escapedSpace = "";
                                         value += c;
                                         break;
 
-                                    case ' ':
+                                    case " ":
                                         whitespace += c;
                                         escapedSpace += c;
                                         break;
@@ -363,29 +300,26 @@ export class Properties
                                         value += value.length === 0 ? escapedSpace : whitespace;
                                         whitespace = "";
                                         escapedSpace = "";
-                                        value += '\\';
+                                        value += "\\";
                                         value += c;
                                         break;
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 value += value.length === 0 ? escapedSpace : whitespace;
                                 value += c;
                             }
                             break;
 
-                        case ' ':
-                        case '\t':
-                        case '\r':
-                        case '\n':
-                            if(value.length !== 0)
-                            {
+                        case " ":
+                        case "\t":
+                        case "\r":
+                        case "\n":
+                            if (value.length !== 0) {
                                 whitespace += c;
                             }
                             break;
 
-                        case '#':
+                        case "#":
                             finished = true;
                             break;
 
@@ -399,58 +333,46 @@ export class Properties
                     break;
                 }
 
-                default:
-                {
+                default: {
                     Debug.assert(false);
                     break;
                 }
             }
-            if(finished)
-            {
+            if (finished) {
                 break;
             }
         }
         value += escapedSpace;
 
-        if((state === ParseStateKey && key.length !== 0) ||
-           (state == ParseStateValue && key.length === 0))
-        {
-            getProcessLogger().warning("invalid config file entry: \"" + line + "\"");
+        if ((state === ParseStateKey && key.length !== 0) || (state == ParseStateValue && key.length === 0)) {
+            getProcessLogger().warning('invalid config file entry: "' + line + '"');
             return;
-        }
-        else if(key.length === 0)
-        {
+        } else if (key.length === 0) {
             return;
         }
 
         this.setProperty(key, value);
     }
 
-    clone()
-    {
+    clone() {
         return new Properties(null, this);
     }
 
-    getUnusedProperties()
-    {
+    getUnusedProperties() {
         const unused = [];
-        this._properties.forEach((property, key) =>
-            {
-                if(!property.used)
-                {
-                    unused.push(key);
-                }
-            });
+        this._properties.forEach((property, key) => {
+            if (!property.used) {
+                unused.push(key);
+            }
+        });
         return unused;
     }
 
-    static createProperties(args, defaults)
-    {
+    static createProperties(args, defaults) {
         return new Properties(args, defaults);
     }
 
-    static findProperty(key, logWarnings)
-    {
+    static findProperty(key, logWarnings) {
         // Check if the property is a known Ice property and log warnings if necessary
         const logger = getProcessLogger();
 
@@ -476,11 +398,11 @@ export class Properties
             const propPrefix = pattern.substring(0, dotPos).replace(/\\|^/g, "");
 
             if (propPrefix === prefix) {
-                propertyPrefix = PropertyNames.validProps[i]
+                propertyPrefix = PropertyNames.validProps[i];
                 break;
             }
 
-            if  (logWarnings && propPrefix.toUpperCase() === prefix.toUpperCase()) {
+            if (logWarnings && propPrefix.toUpperCase() === prefix.toUpperCase()) {
                 logger.warning("unknown property prefix: `" + prefix + "'; did you mean `" + propPrefix + "'?");
                 return null;
             }
@@ -491,31 +413,25 @@ export class Properties
             return null;
         }
 
-        for(let j = 0; j < propertyPrefix.length; ++j)
-        {
+        for (let j = 0; j < propertyPrefix.length; ++j) {
             const prop = propertyPrefix[j];
 
-            if (prop.usesRegex ? key.match(prop.pattern) : key === prop.pattern)
-            {
+            if (prop.usesRegex ? key.match(prop.pattern) : key === prop.pattern) {
                 return prop;
             }
         }
 
         // If we get here, the prefix is valid but the property is unknown
-        if (logWarnings)
-        {
+        if (logWarnings) {
             logger.warning("unknown property: " + key);
         }
         return null;
-
     }
 
-    static getDefaultProperty(key)
-    {
+    static getDefaultProperty(key) {
         // Find the property, don't log any warnings.
         const prop = Properties.findProperty(key, false);
-        if (prop === null)
-        {
+        if (prop === null) {
             throw new Error("unknown Ice property: " + key);
         }
         return prop.defaultValue;

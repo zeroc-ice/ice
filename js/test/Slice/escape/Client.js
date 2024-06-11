@@ -8,10 +8,8 @@ import { _await } from "./Key.js";
 
 const test = TestHelper.test;
 
-export class Client extends TestHelper
-{
-    async allTests()
-    {
+export class Client extends TestHelper {
+    async allTests() {
         const communicator = this.communicator();
         const out = this.getWriter();
 
@@ -28,30 +26,26 @@ export class Client extends TestHelper
         out.write("testing proxies... ");
 
         let p = _await.casePrx.uncheckedCast(
-            communicator.stringToProxy("hello:" + this.getTestEndpoint()).ice_timeout(100));
+            communicator.stringToProxy("hello:" + this.getTestEndpoint()).ice_timeout(100),
+        );
         test(p);
 
-        try
-        {
+        try {
             await p._catch(10);
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Ice.LocalException);
         }
 
         p = _await.typeofPrx.uncheckedCast(
-            communicator.stringToProxy("hello:" + this.getTestEndpoint()).ice_timeout(100));
+            communicator.stringToProxy("hello:" + this.getTestEndpoint()).ice_timeout(100),
+        );
         test(p);
 
-        try
-        {
+        try {
             await p._default();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Ice.LocalException);
         }
         out.writeLine("ok");
@@ -69,7 +63,8 @@ export class Client extends TestHelper
             new Ice.Value(),
             new Map(),
             "",
-            _await.explicitPrx.uncheckedCast(communicator.stringToProxy("hello")));
+            _await.explicitPrx.uncheckedCast(communicator.stringToProxy("hello")),
+        );
 
         test(p._for._while === 100);
         test(p.goto === _await._var.base);
@@ -80,18 +75,13 @@ export class Client extends TestHelper
         out.writeLine("ok");
     }
 
-    async run(args)
-    {
+    async run(args) {
         let communicator;
-        try
-        {
+        try {
             [communicator] = this.initialize(args);
             await this.allTests();
-        }
-        finally
-        {
-            if(communicator)
-            {
+        } finally {
+            if (communicator) {
                 await communicator.destroy();
             }
         }

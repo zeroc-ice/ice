@@ -2,8 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-export namespace Ice
-{
+export namespace Ice {
     /**
      * Create a new value for a given value type. The type is the absolute Slice type id, i.e., the id relative to the
      * unnamed top-level Slice module. For example, the absolute Slice type id for an interface <code>Bar</code> in
@@ -12,15 +11,14 @@ export namespace Ice
      * @param type The value type.
      * @return The value created for the given type, or nil if the factory is unable to create the value.
      */
-    type ValueFactory = (type:string) => Ice.Value;
+    type ValueFactory = (type: string) => Ice.Value;
 
     /**
      * A value factory manager maintains a collection of value factories. An application can supply a custom
      * implementation during communicator initialization, otherwise Ice provides a default implementation.
      * @see ValueFactory
      */
-    interface ValueFactoryManager
-    {
+    interface ValueFactoryManager {
         /**
          * Add a value factory. Attempting to add a factory with an id for which a factory is already registered throws
          * AlreadyRegisteredException.
@@ -43,12 +41,12 @@ export namespace Ice
          * @param factory The factory to add.
          * @param id The type id for which the factory can create instances, or an empty string for the default factory.
          */
-        add(factory:Ice.ValueFactory, id:string):void;
+        add(factory: Ice.ValueFactory, id: string): void;
         /**
          * Find an value factory registered with this communicator.
          * @param id The type id for which the factory can create instances, or an empty string for the default factory.
          * @return The value factory, or null if no value factory was found for the given id.
          */
-        find(id:string):Ice.ValueFactory;
+        find(id: string): Ice.ValueFactory;
     }
 }

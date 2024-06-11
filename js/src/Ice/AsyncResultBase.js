@@ -2,12 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { Promise } from './Promise.js';
+import { Promise } from "./Promise.js";
 
-export class AsyncResultBase extends Promise
-{
-    constructor(communicator, op, connection, proxy, adapter)
-    {
+export class AsyncResultBase extends Promise {
+    constructor(communicator, op, connection, proxy, adapter) {
         super();
         this._communicator = communicator;
         this._instance = communicator ? communicator.instance : null;
@@ -17,28 +15,23 @@ export class AsyncResultBase extends Promise
         this._adapter = adapter;
     }
 
-    get communicator()
-    {
+    get communicator() {
         return this._communicator;
     }
 
-    get connection()
-    {
+    get connection() {
         return this._connection;
     }
 
-    get proxy()
-    {
+    get proxy() {
         return this._proxy;
     }
 
-    get adapter()
-    {
+    get adapter() {
         return this._adapter;
     }
 
-    get operation()
-    {
+    get operation() {
         return this._operation;
     }
 }

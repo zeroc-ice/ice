@@ -2,53 +2,34 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import {Ice} from "ice";
-import {Test} from "./generated";
+import { Ice } from "ice";
+import { Test } from "./generated";
 
-export class TestI extends Test.TestIntf
-{
-    requestFailedException(current:Ice.Current):void
-    {
-    }
+export class TestI extends Test.TestIntf {
+    requestFailedException(current: Ice.Current): void {}
 
-    unknownUserException(current:Ice.Current):void
-    {
-    }
+    unknownUserException(current: Ice.Current): void {}
 
-    unknownLocalException(current:Ice.Current):void
-    {
-    }
+    unknownLocalException(current: Ice.Current): void {}
 
-    unknownException(current:Ice.Current):void
-    {
-    }
+    unknownException(current: Ice.Current): void {}
 
-    localException(current:Ice.Current):void
-    {
-    }
+    localException(current: Ice.Current): void {}
 
-    userException(current:Ice.Current):void
-    {
-    }
+    userException(current: Ice.Current): void {}
 
-    jsException(current:Ice.Current):void
-    {
+    jsException(current: Ice.Current): void {
         throw new Error();
     }
 
-    javaException(current:Ice.Current):void
-    {
-    }
+    javaException(current: Ice.Current): void {}
 
-    unknownExceptionWithServantException(current:Ice.Current):void
-    {
+    unknownExceptionWithServantException(current: Ice.Current): void {
         throw new Ice.ObjectNotExistException();
     }
 
-    impossibleException(throwEx:boolean, current:Ice.Current):string
-    {
-        if(throwEx)
-        {
+    impossibleException(throwEx: boolean, current: Ice.Current): string {
+        if (throwEx) {
             throw new Test.TestImpossibleException();
         }
 
@@ -59,10 +40,8 @@ export class TestI extends Test.TestIntf
         return "Hello";
     }
 
-    intfUserException(throwEx:boolean, current:Ice.Current):string
-    {
-        if(throwEx)
-        {
+    intfUserException(throwEx: boolean, current: Ice.Current): string {
+        if (throwEx) {
             throw new Test.TestIntfUserException();
         }
 
@@ -73,18 +52,15 @@ export class TestI extends Test.TestIntf
         return "Hello";
     }
 
-    asyncResponse(current:Ice.Current):void
-    {
+    asyncResponse(current: Ice.Current): void {
         throw new Ice.ObjectNotExistException();
     }
 
-    asyncException(current:Ice.Current):void
-    {
+    asyncException(current: Ice.Current): void {
         throw new Ice.ObjectNotExistException();
     }
 
-    shutdown(current:Ice.Current):void
-    {
+    shutdown(current: Ice.Current): void {
         current.adapter.deactivate();
     }
 }

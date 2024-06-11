@@ -7,10 +7,8 @@ import { TestHelper } from "../../Common/TestHelper.js";
 
 const test = TestHelper.test;
 
-export class Client extends TestHelper
-{
-    async allTests()
-    {
+export class Client extends TestHelper {
+    async allTests() {
         const communicator = this.communicator();
         const out = this.getWriter();
 
@@ -124,18 +122,13 @@ export class Client extends TestHelper
         await initial.shutdown();
     }
 
-    async run(args)
-    {
+    async run(args) {
         let communicator;
-        try
-        {
+        try {
             [communicator] = this.initialize(args);
             await this.allTests();
-        }
-        finally
-        {
-            if(communicator)
-            {
+        } finally {
+            if (communicator) {
                 await communicator.destroy();
             }
         }

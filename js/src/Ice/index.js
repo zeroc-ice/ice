@@ -1,4 +1,3 @@
-
 import * as Ice_ACM from "./ACM.js";
 import * as Ice_Address from "./Address.js";
 import * as Ice_ArrayUtil from "./ArrayUtil.js";
@@ -37,7 +36,7 @@ import * as Ice_IdentityUtil from "./IdentityUtil.js";
 import * as Ice_ImplicitContext from "./ImplicitContext.js";
 import * as Ice_IncomingAsync from "./IncomingAsync.js";
 import * as Ice_Initialize from "./Initialize.js";
-import * as Ice_Instance from  "./Instance.js";
+import * as Ice_Instance from "./Instance.js";
 // Must be imported after Instance.js for the prototype extensions.
 import "./InstanceExtensions.js";
 import * as Ice_LocalException from "./LocalException.js";

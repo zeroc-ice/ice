@@ -4,10 +4,8 @@
 
 import { Value } from "./Value.js";
 
-export class SliceInfo
-{
-    constructor()
-    {
+export class SliceInfo {
+    constructor() {
         //
         // The Slice type ID for this slice.
         //
@@ -40,35 +38,28 @@ export class SliceInfo
     }
 }
 
-export class SlicedData
-{
-    constructor(slices)
-    {
+export class SlicedData {
+    constructor(slices) {
         this.slices = slices;
     }
 }
 
-export class UnknownSlicedValue extends Value
-{
-    constructor(unknownTypeId)
-    {
+export class UnknownSlicedValue extends Value {
+    constructor(unknownTypeId) {
         super();
         this._unknownTypeId = unknownTypeId;
     }
 
-    ice_id()
-    {
+    ice_id() {
         return this._unknownTypeId;
     }
 
-    _iceWrite(os)
-    {
+    _iceWrite(os) {
         os.startValue(this._iceSlicedData);
         os.endValue();
     }
 
-    _iceRead(is)
-    {
+    _iceRead(is) {
         is.startValue();
         this._iceSlicedData = is.endValue();
     }

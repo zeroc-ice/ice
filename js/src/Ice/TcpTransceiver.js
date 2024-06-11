@@ -9,35 +9,31 @@ import {
     ConnectionLostException,
     ConnectionRefusedException,
     ConnectFailedException,
-    SocketException
- } from "./LocalException.js";
- import { Debug } from "./Debug.js";
+    SocketException,
+} from "./LocalException.js";
+import { Debug } from "./Debug.js";
 
 // TODO: How do we handle this for the browser?
 import net from "net";
 
 let TcpTransceiver = {};
 
-if (typeof process !== 'undefined')
-{
+if (typeof process !== "undefined") {
     const StateNeedConnect = 0;
     const StateConnectPending = 1;
     const StateProxyConnectRequest = 2;
     const StateProxyConnectRequestPending = 3;
     const StateConnected = 4;
 
-    TcpTransceiver = class
-    {
-        constructor(instance)
-        {
+    TcpTransceiver = class {
+        constructor(instance) {
             this._logger = instance.logger();
             this._readBuffers = [];
             this._readPosition = 0;
             this._maxSendPacketSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", 512 * 1024);
         }
 
-        setCallbacks(connectedCallback, bytesAvailableCallback, bytesWrittenCallback)
-        {
+        setCallbacks(connectedCallback, bytesAvailableCallback, bytesWrittenCallback) {
             this._connectedCallback = connectedCallback;
             this._bytesAvailableCallback = bytesAvailableCallback;
             this._bytesWrittenCallback = bytesWrittenCallback;
@@ -46,27 +42,22 @@ if (typeof process !== 'undefined')
         //
         // Returns SocketOperation.None when initialization is complete.
         //
-        initialize(readBuffer, writeBuffer)
-        {
-            try
-            {
-                if(this._exception)
-                {
+        initialize(readBuffer, writeBuffer) {
+            try {
+                if (this._exception) {
                     throw this._exception;
                 }
 
-                if(this._state === StateNeedConnect)
-                {
+                if (this._state === StateNeedConnect) {
                     this._state = StateConnectPending;
-                    this._fd = net.createConnection(
-                        {
-                            port: this._addr.port,
-                            host: this._addr.host,
-                            localAddress: this._sourceAddr
-                        });
+                    this._fd = net.createConnection({
+                        port: this._addr.port,
+                        host: this._addr.host,
+                        localAddress: this._sourceAddr,
+                    });
 
                     this._fd.on("connect", () => this.socketConnected());
-                    this._fd.on("data", buf => this.socketBytesAvailable(buf));
+                    this._fd.on("data", (buf) => this.socketBytesAvailable(buf));
 
                     //
                     // The error callback can be triggered from the socket
@@ -75,41 +66,32 @@ if (typeof process !== 'undefined')
                     // setImmediate. We do the same for close as a
                     // precaution. See also issue #6226.
                     //
-                    this._fd.on("close", err => Timer.setImmediate(() => this.socketClosed(err)));
-                    this._fd.on("error", err => Timer.setImmediate(() => this.socketError(err)));
+                    this._fd.on("close", (err) => Timer.setImmediate(() => this.socketClosed(err)));
+                    this._fd.on("error", (err) => Timer.setImmediate(() => this.socketError(err)));
 
                     return SocketOperation.Connect; // Waiting for connect to complete.
-                }
-                else if(this._state === StateConnectPending)
-                {
+                } else if (this._state === StateConnectPending) {
                     //
                     // Socket is connected.
                     //
                     this._desc = fdToString(this._fd, this._proxy, this._addr);
                     this._state = StateConnected;
-                }
-                else if(this._state === StateProxyConnectRequest)
-                {
+                } else if (this._state === StateProxyConnectRequest) {
                     //
                     // Write completed.
                     //
                     this._proxy.endWriteConnectRequest(writeBuffer);
                     this._state = StateProxyConnectRequestPending; // Wait for proxy response
                     return SocketOperation.Read;
-                }
-                else if(this._state === StateProxyConnectRequestPending)
-                {
+                } else if (this._state === StateProxyConnectRequestPending) {
                     //
                     // Read completed.
                     //
                     this._proxy.endReadConnectRequestResponse(readBuffer);
                     this._state = StateConnected;
                 }
-            }
-            catch(err)
-            {
-                if(!this._exception)
-                {
+            } catch (err) {
+                if (!this._exception) {
                     this._exception = translateError(this._state, err);
                 }
                 throw this._exception;
@@ -119,20 +101,16 @@ if (typeof process !== 'undefined')
             return SocketOperation.None;
         }
 
-        register()
-        {
+        register() {
             this._registered = true;
             this._fd.resume();
-            if(this._exception)
-            {
+            if (this._exception) {
                 this._bytesAvailableCallback();
             }
         }
 
-        unregister()
-        {
-            if(this._fd === null)
-            {
+        unregister() {
+            if (this._fd === null) {
                 Debug.assert(this._exception); // Socket creation failed.
                 return;
             }
@@ -140,24 +118,17 @@ if (typeof process !== 'undefined')
             this._fd.pause();
         }
 
-        close()
-        {
-            if(this._fd === null)
-            {
+        close() {
+            if (this._fd === null) {
                 Debug.assert(this._exception); // Socket creation failed.
                 return;
             }
 
-            try
-            {
+            try {
                 this._fd.destroy();
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 throw translateError(this._state, ex);
-            }
-            finally
-            {
+            } finally {
                 this._fd = null;
             }
         }
@@ -165,94 +136,79 @@ if (typeof process !== 'undefined')
         //
         // Returns true if all of the data was flushed to the kernel buffer.
         //
-        write(byteBuffer)
-        {
-            if(this._exception)
-            {
+        write(byteBuffer) {
+            if (this._exception) {
                 throw this._exception;
             }
 
             let packetSize = byteBuffer.remaining;
             Debug.assert(packetSize > 0);
 
-            if(this._maxSendPacketSize > 0 && packetSize > this._maxSendPacketSize)
-            {
+            if (this._maxSendPacketSize > 0 && packetSize > this._maxSendPacketSize) {
                 packetSize = this._maxSendPacketSize;
             }
 
-            while(packetSize > 0)
-            {
+            while (packetSize > 0) {
                 const slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + packetSize);
 
                 let sync = true;
-                sync = this._fd.write(Buffer.from(slice), null, () =>
-                    {
-                        if(!sync)
-                        {
-                            this._bytesWrittenCallback();
-                        }
-                    });
+                sync = this._fd.write(Buffer.from(slice), null, () => {
+                    if (!sync) {
+                        this._bytesWrittenCallback();
+                    }
+                });
 
                 byteBuffer.position += packetSize;
-                if(!sync)
-                {
+                if (!sync) {
                     return false; // Wait for callback to be called before sending more data.
                 }
 
-                if(this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize)
-                {
+                if (this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize) {
                     packetSize = this._maxSendPacketSize;
-                }
-                else
-                {
+                } else {
                     packetSize = byteBuffer.remaining;
                 }
             }
             return true;
         }
 
-        read(byteBuffer, moreData)
-        {
-            if(this._exception)
-            {
+        read(byteBuffer, moreData) {
+            if (this._exception) {
                 throw this._exception;
             }
 
             moreData.value = false;
 
-            if(this._readBuffers.length === 0)
-            {
+            if (this._readBuffers.length === 0) {
                 return false; // No data available.
             }
 
             let avail = this._readBuffers[0].length - this._readPosition;
             Debug.assert(avail > 0);
 
-            while(byteBuffer.remaining > 0)
-            {
-                if(avail > byteBuffer.remaining)
-                {
+            while (byteBuffer.remaining > 0) {
+                if (avail > byteBuffer.remaining) {
                     avail = byteBuffer.remaining;
                 }
 
-                this._readBuffers[0].copy(Buffer.from(byteBuffer.b), byteBuffer.position, this._readPosition,
-                                        this._readPosition + avail);
+                this._readBuffers[0].copy(
+                    Buffer.from(byteBuffer.b),
+                    byteBuffer.position,
+                    this._readPosition,
+                    this._readPosition + avail,
+                );
 
                 byteBuffer.position += avail;
                 this._readPosition += avail;
-                if(this._readPosition === this._readBuffers[0].length)
-                {
+                if (this._readPosition === this._readBuffers[0].length) {
                     //
                     // We've exhausted the current read buffer.
                     //
                     this._readPosition = 0;
                     this._readBuffers.shift();
-                    if(this._readBuffers.length === 0)
-                    {
+                    if (this._readBuffers.length === 0) {
                         break; // No more data - we're done.
-                    }
-                    else
-                    {
+                    } else {
                         avail = this._readBuffers[0].length;
                     }
                 }
@@ -262,13 +218,11 @@ if (typeof process !== 'undefined')
             return byteBuffer.remaining === 0;
         }
 
-        type()
-        {
+        type() {
             return "tcp";
         }
 
-        getInfo()
-        {
+        getInfo() {
             Debug.assert(this._fd !== null);
             const info = new TCPConnectionInfo();
             info.localAddress = this._fd.localAddress;
@@ -280,68 +234,54 @@ if (typeof process !== 'undefined')
             return info;
         }
 
-        checkSendSize(stream)
-        {
-        }
+        checkSendSize(stream) {}
 
-        setBufferSize(rcvSize, sndSize)
-        {
+        setBufferSize(rcvSize, sndSize) {
             this._maxSendPacketSize = sndSize;
         }
 
-        toString()
-        {
+        toString() {
             return this._desc;
         }
 
-        socketConnected()
-        {
+        socketConnected() {
             Debug.assert(this._connectedCallback !== null);
             this._connectedCallback();
         }
 
-        socketBytesAvailable(buf)
-        {
+        socketBytesAvailable(buf) {
             Debug.assert(this._bytesAvailableCallback !== null);
 
             //
             // TODO: Should we set a limit on how much data we can read?
             // We can call _fd.pause() to temporarily stop reading.
             //
-            if(buf.length > 0)
-            {
+            if (buf.length > 0) {
                 this._readBuffers.push(buf);
                 this._bytesAvailableCallback();
             }
         }
 
-        socketClosed(err)
-        {
+        socketClosed(err) {
             //
             // Don't call the closed callback if an error occurred; the error callback
             // will be called.
             //
-            if(!err)
-            {
+            if (!err) {
                 this.socketError(null);
             }
         }
 
-        socketError(err)
-        {
+        socketError(err) {
             this._exception = translateError(this._state, err);
-            if(this._state < StateConnected)
-            {
+            if (this._state < StateConnected) {
                 this._connectedCallback();
-            }
-            else if(this._registered)
-            {
+            } else if (this._registered) {
                 this._bytesAvailableCallback();
             }
         }
 
-        static createOutgoing(instance, addr, sourceAddr)
-        {
+        static createOutgoing(instance, addr, sourceAddr) {
             const transceiver = new TcpTransceiver(instance);
 
             transceiver._fd = null;
@@ -355,8 +295,7 @@ if (typeof process !== 'undefined')
             return transceiver;
         }
 
-        static createIncoming(instance, fd)
-        {
+        static createIncoming(instance, fd) {
             const transceiver = new TcpTransceiver(instance);
 
             transceiver._fd = fd;
@@ -369,44 +308,32 @@ if (typeof process !== 'undefined')
 
             return transceiver;
         }
-    }
+    };
 
-    function fdToString(fd, targetAddr)
-    {
-        if(fd === null)
-        {
+    function fdToString(fd, targetAddr) {
+        if (fd === null) {
             return "<closed>";
         }
 
         return addressesToString(fd.localAddress, fd.localPort, fd.remoteAddress, fd.remotePort, targetAddr);
     }
 
-    function translateError(state, err)
-    {
-        if(!err)
-        {
+    function translateError(state, err) {
+        if (!err) {
             return new ConnectionLostException();
-        }
-        else if(state < StateConnected)
-        {
-            if(connectionRefused(err.code))
-            {
+        } else if (state < StateConnected) {
+            if (connectionRefused(err.code)) {
                 return new ConnectionRefusedException(err.code, err);
-            }
-            else if(connectionFailed(err.code))
-            {
+            } else if (connectionFailed(err.code)) {
                 return new ConnectFailedException(err.code, err);
             }
-        }
-        else if(connectionLost(err.code))
-        {
+        } else if (connectionLost(err.code)) {
             return new ConnectionLostException(err.code, err);
         }
         return new SocketException(err.code, err);
     }
 
-    function addressesToString(localHost, localPort, remoteHost, remotePort, targetAddr)
-    {
+    function addressesToString(localHost, localPort, remoteHost, remotePort, targetAddr) {
         remoteHost = remoteHost === undefined ? null : remoteHost;
         targetAddr = targetAddr === undefined ? null : targetAddr;
 
@@ -414,18 +341,14 @@ if (typeof process !== 'undefined')
         s.push("local address = ");
         s.push(localHost + ":" + localPort);
 
-        if(remoteHost === null && targetAddr !== null)
-        {
+        if (remoteHost === null && targetAddr !== null) {
             remoteHost = targetAddr.host;
             remotePort = targetAddr.port;
         }
 
-        if(remoteHost === null)
-        {
+        if (remoteHost === null) {
             s.push("\nremote address = <not connected>");
-        }
-        else
-        {
+        } else {
             s.push("\nremote address = ");
             s.push(remoteHost + ":" + remotePort);
         }
@@ -443,28 +366,26 @@ if (typeof process !== 'undefined')
     const ESHUTDOWN = "ESHUTDOWN";
     const ETIMEDOUT = "ETIMEDOUT";
 
-    function connectionRefused(err)
-    {
+    function connectionRefused(err) {
         return err == ECONNREFUSED;
     }
 
-    function connectionFailed(err)
-    {
-        return err == ECONNREFUSED || err == ETIMEDOUT ||
-            err == ENETUNREACH || err == EHOSTUNREACH ||
-            err == ECONNRESET || err == ESHUTDOWN ||
-            err == ECONNABORTED;
+    function connectionFailed(err) {
+        return (
+            err == ECONNREFUSED ||
+            err == ETIMEDOUT ||
+            err == ENETUNREACH ||
+            err == EHOSTUNREACH ||
+            err == ECONNRESET ||
+            err == ESHUTDOWN ||
+            err == ECONNABORTED
+        );
     }
 
-    function connectionLost(err)
-    {
-        return err == ECONNRESET || err == ENOTCONN ||
-            err == ESHUTDOWN || err == ECONNABORTED ||
-            err == EPIPE;
+    function connectionLost(err) {
+        return err == ECONNRESET || err == ENOTCONN || err == ESHUTDOWN || err == ECONNABORTED || err == EPIPE;
     }
-}
-else
-{
+} else {
     TcpTransceiver = class {};
 }
 

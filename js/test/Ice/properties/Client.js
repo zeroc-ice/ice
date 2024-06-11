@@ -9,10 +9,8 @@ import path from "path";
 
 const test = TestHelper.test;
 
-export class Client extends TestHelper
-{
-    async allTests(args)
-    {
+export class Client extends TestHelper {
+    async allTests(args) {
         const out = this.getWriter();
         out.write("testing configuration file escapes... ");
         const props = new Map();
@@ -40,22 +38,20 @@ export class Client extends TestHelper
 
         const properties = Ice.createProperties();
         /* eslint-disable no-sync */
-        if(typeof readFileSync == "function")
-        {
-
+        if (typeof readFileSync == "function") {
             //
             // We are running with NodeJS we load the properties file from the file system.
             //
-            properties.parse(readFileSync(path.join(args[4], "config", "escapes.cfg"),
-                                        {encoding: "utf8"}));
-            for(const [key, value] of props)
-            {
+            properties.parse(
+                readFileSync(path.join(args[4], "config", "escapes.cfg"), {
+                    encoding: "utf8",
+                }),
+            );
+            for (const [key, value] of props) {
                 test(properties.getProperty(key) == value);
             }
-        }
-        /* eslint-enable no-sync */
-        else if(typeof window !== 'undefined')
-        {
+        } else if (typeof window !== "undefined") {
+            /* eslint-enable no-sync */
             //
             // Skipped when running in a worker, we don't load JQuery in the workers
             //
@@ -63,23 +59,20 @@ export class Client extends TestHelper
             //
             // We are running in a web browser load the properties file from the web server.
             //
-            await new Promise(
-                (resolve, reject) =>
-                    {
-                        //
-                        // Use text data type to avoid problems interpreting the data.
-                        //
-                        $.ajax({url: "config/escapes.cfg", dataType: "text"}).done(
-                            data =>
-                                {
-                                    properties.parse(data);
-                                    for(const [key, value] of props)
-                                    {
-                                        test(properties.getProperty(key) == value);
-                                    }
-                                    resolve();
-                                }).fail(reject);
-                    });
+            await new Promise((resolve, reject) => {
+                //
+                // Use text data type to avoid problems interpreting the data.
+                //
+                $.ajax({ url: "config/escapes.cfg", dataType: "text" })
+                    .done((data) => {
+                        properties.parse(data);
+                        for (const [key, value] of props) {
+                            test(properties.getProperty(key) == value);
+                        }
+                        resolve();
+                    })
+                    .fail(reject);
+            });
         }
         out.writeLine("ok");
 
@@ -119,31 +112,23 @@ export class Client extends TestHelper
         {
             out.write("testing that getting an unknown ice property throws an exception...");
             const properties = Ice.createProperties();
-            try
-            {
+            try {
                 properties.getIceProperty("Ice.UnknownProperty");
                 test(false);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(ex.message == "unknown Ice property: Ice.UnknownProperty");
             }
             out.writeLine("ok");
         }
     }
 
-    async run(args)
-    {
+    async run(args) {
         let communicator;
-        try
-        {
+        try {
             [communicator, args] = this.initialize(args);
             await this.allTests(args);
-        }
-        finally
-        {
-            if(communicator)
-            {
+        } finally {
+            if (communicator) {
                 await communicator.destroy();
             }
         }

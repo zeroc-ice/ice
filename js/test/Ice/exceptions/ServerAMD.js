@@ -7,14 +7,11 @@ import { Test } from "./Test.js";
 import { TestHelper } from "../../Common/TestHelper.js";
 import { AMDThrowerI } from "./AMDThrowerI.js";
 
-export class ServerAMD extends TestHelper
-{
-    async run(args)
-    {
+export class ServerAMD extends TestHelper {
+    async run(args) {
         let communicator;
         let echo;
-        try
-        {
+        try {
             const [properties] = this.createTestProperties(args);
             properties.setProperty("Ice.MessageSizeMax", "10");
             properties.setProperty("Ice.Warn.Dispatch", "0");
@@ -25,7 +22,7 @@ export class ServerAMD extends TestHelper
             adapter.add(new AMDThrowerI(), Ice.stringToIdentity("thrower"));
             await echo.setConnection();
             const connection = echo.ice_getCachedConnection();
-            connection.setCloseCallback(con => {
+            connection.setCloseCallback((con) => {
                 // Re-establish connection if it fails (necessary for MemoryLimitException test)
                 echo.setConnection().then(() => echo.ice_getCachedConnection().setAdapter(adapter));
             });
@@ -33,16 +30,12 @@ export class ServerAMD extends TestHelper
             echo.ice_getCachedConnection().setAdapter(adapter);
             this.serverReady();
             await communicator.waitForShutdown();
-        }
-        finally
-        {
-            if(echo)
-            {
+        } finally {
+            if (echo) {
                 await echo.shutdown();
             }
 
-            if(communicator)
-            {
+            if (communicator) {
                 await communicator.destroy();
             }
         }

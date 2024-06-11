@@ -2,97 +2,76 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import {Ice} from "ice";
-import {Test} from "./generated";
-import {TestHelper} from "../../../Common/TestHelper";
+import { Ice } from "ice";
+import { Test } from "./generated";
+import { TestHelper } from "../../../Common/TestHelper";
 
 const test = TestHelper.test;
 
-export class BI extends Test.B
-{
-    ice_preMarshal():void
-    {
+export class BI extends Test.B {
+    ice_preMarshal(): void {
         this.preMarshalInvoked = true;
     }
 
-    ice_postUnmarshal():void
-    {
+    ice_postUnmarshal(): void {
         this.postUnmarshalInvoked = true;
     }
 }
 
-export class CI extends Test.C
-{
-    ice_preMarshal():void
-    {
+export class CI extends Test.C {
+    ice_preMarshal(): void {
         this.preMarshalInvoked = true;
     }
 
-    ice_postUnmarshal():void
-    {
+    ice_postUnmarshal(): void {
         this.postUnmarshalInvoked = true;
     }
 }
 
-export class DI extends Test.D
-{
-    ice_preMarshal():void
-    {
+export class DI extends Test.D {
+    ice_preMarshal(): void {
         this.preMarshalInvoked = true;
     }
 
-    ice_postUnmarshal():void
-    {
+    ice_postUnmarshal(): void {
         this.postUnmarshalInvoked = true;
     }
 }
 
-export class EI extends Test.E
-{
-    constructor()
-    {
+export class EI extends Test.E {
+    constructor() {
         super(1, "hello");
     }
 
-    checkValues():boolean
-    {
+    checkValues(): boolean {
         return this.i == 1 && this.s == "hello";
     }
 }
 
-class FI extends Test.F
-{
-    constructor(e?:Test.E)
-    {
+class FI extends Test.F {
+    constructor(e?: Test.E) {
         super(e, e);
     }
 
-    checkValues():boolean
-    {
+    checkValues(): boolean {
         return this.e1 !== null && this.e1 === this.e2;
     }
 }
 
-class II extends Ice.InterfaceByValue
-{
-    constructor()
-    {
+class II extends Ice.InterfaceByValue {
+    constructor() {
         super(Test.I.ice_staticId());
     }
 }
 
-class JI extends Ice.InterfaceByValue
-{
-    constructor()
-    {
+class JI extends Ice.InterfaceByValue {
+    constructor() {
         super(Test.J.ice_staticId());
     }
 }
 
-function MyValueFactory(type:string):Ice.Value
-{
-    switch(type)
-    {
+function MyValueFactory(type: string): Ice.Value {
+    switch (type) {
         case "::Test::B":
             return new BI();
         case "::Test::C":
@@ -117,10 +96,8 @@ function MyValueFactory(type:string):Ice.Value
     return null;
 }
 
-export class Client extends TestHelper
-{
-    async allTests()
-    {
+export class Client extends TestHelper {
+    async allTests() {
         const out = this.getWriter();
         const communicator = this.communicator();
 
@@ -223,10 +200,10 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("testing protected members... ");
-        const e = await initial.getE() as EI;
+        const e = (await initial.getE()) as EI;
         test(e.checkValues());
 
-        const f = await initial.getF() as FI;
+        const f = (await initial.getF()) as FI;
         test(f.checkValues());
         test((f.e2 as EI).checkValues());
         out.writeLine("ok");
@@ -260,10 +237,9 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("getting D1... ");
-        const d1 = await initial.getD1(new Test.D1(new Test.A1("a1"),
-                                                    new Test.A1("a2"),
-                                                    new Test.A1("a3"),
-                                                    new Test.A1("a4")));
+        const d1 = await initial.getD1(
+            new Test.D1(new Test.A1("a1"), new Test.A1("a2"), new Test.A1("a3"), new Test.A1("a4")),
+        );
 
         test(d1.a1.name == "a1");
         test(d1.a2.name == "a2");
@@ -272,13 +248,10 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("throw EDerived... ");
-        try
-        {
+        try {
             await initial.throwEDerived();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.EDerived, ex);
             test(ex.a1.name == "a1");
             test(ex.a2.name == "a2");
@@ -288,12 +261,9 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("setting G... ");
-        try
-        {
+        try {
             await initial.setG(new Test.G(new Test.S("hello"), "g"));
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Ice.OperationNotExistException, ex);
         }
         out.writeLine("ok");
@@ -310,38 +280,36 @@ export class Client extends TestHelper
         let p = top;
         let depth = 0;
 
-        try
-        {
-            for(; depth <= 1000; ++depth)
-            {
+        try {
+            for (; depth <= 1000; ++depth) {
                 p.v = new Test.Recursive();
                 p = p.v;
-                if((depth < 10 && (depth % 10) == 0) ||
-                    (depth < 1000 && (depth % 100) == 0) ||
-                    (depth < 10000 && (depth % 1000) == 0) ||
-                    (depth % 10000) == 0)
-                {
+                if (
+                    (depth < 10 && depth % 10 == 0) ||
+                    (depth < 1000 && depth % 100 == 0) ||
+                    (depth < 10000 && depth % 1000 == 0) ||
+                    depth % 10000 == 0
+                ) {
                     await initial.setRecursive(top);
                 }
             }
             test(!(await initial.supportsClassGraphDepthMax()));
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             //
             // Ice.UnknownLocalException: Expected marshal exception from the server (max class graph depth reached)
             // Ice.UnknownException: Expected stack overflow from the server (Java only)
             // Error: Expected, JavaScript stack overflow
             //
-            test((ex instanceof Ice.UnknownLocalException) ||
-                    (ex instanceof Ice.UnknownException) ||
-                    (ex instanceof Error), ex);
+            test(
+                ex instanceof Ice.UnknownLocalException || ex instanceof Ice.UnknownException || ex instanceof Error,
+                ex,
+            );
         }
         await initial.setRecursive(new Test.Recursive());
         out.writeLine("ok");
 
         out.write("testing compact ID... ");
-        test(await initial.getCompact() !== null);
+        test((await initial.getCompact()) !== null);
         out.writeLine("ok");
 
         out.write("testing marshaled results...");
@@ -358,13 +326,10 @@ export class Client extends TestHelper
 
         const uoet = Test.UnexpectedObjectExceptionTestPrx.uncheckedCast(base);
         test(uoet !== null);
-        try
-        {
+        try {
             await uoet.op();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Ice.UnexpectedObjectException, ex);
             test(ex.type == "::Test::AlsoEmpty");
             test(ex.expectedType == "::Test::Empty");
@@ -384,24 +349,18 @@ export class Client extends TestHelper
             test(innerA.theA instanceof Test.Inner.A);
         }
 
-        try
-        {
+        try {
             await initial.throwInnerEx();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.Inner.Ex, ex);
             test(ex.reason == "Inner::Ex");
         }
 
-        try
-        {
+        try {
             await initial.throwInnerSubEx();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.Inner.Sub.Ex, ex);
             test(ex.reason == "Inner::Sub::Ex");
         }
@@ -426,7 +385,6 @@ export class Client extends TestHelper
 
             test(m1.v.get(k2).data == "two");
             test(m2.v.get(k2).data == "two");
-
         }
         out.writeLine("ok");
 
@@ -437,16 +395,17 @@ export class Client extends TestHelper
             test(f12.name == "F12");
 
             const [f21, f22] = await initial.opF2(
-                Test.F2Prx.uncheckedCast(communicator.stringToProxy("F21:" + this.getTestEndpoint())));
+                Test.F2Prx.uncheckedCast(communicator.stringToProxy("F21:" + this.getTestEndpoint())),
+            );
             test(f21.ice_getIdentity().name == "F21");
             await f21.op();
             test(f22.ice_getIdentity().name == "F22");
 
             const hasF3 = await initial.hasF3();
-            if(hasF3)
-            {
+            if (hasF3) {
                 const [f31, f32] = await initial.opF3(
-                    new Test.F3(new Test.F1("F11"), Test.F2Prx.uncheckedCast(communicator.stringToProxy("F21"))));
+                    new Test.F3(new Test.F1("F11"), Test.F2Prx.uncheckedCast(communicator.stringToProxy("F21"))),
+                );
                 test(f31.f1.name == "F11");
                 test(f31.f2.ice_getIdentity().name == "F21");
 
@@ -459,20 +418,15 @@ export class Client extends TestHelper
         await initial.shutdown();
     }
 
-    async run(args:string[])
-    {
-        let communicator:Ice.Communicator;
-        try
-        {
+    async run(args: string[]) {
+        let communicator: Ice.Communicator;
+        try {
             const [properties] = this.createTestProperties(args);
             properties.setProperty("Ice.Warn.Connections", "0");
             [communicator] = this.initialize(properties);
             await this.allTests();
-        }
-        finally
-        {
-            if(communicator)
-            {
+        } finally {
+            if (communicator) {
                 await communicator.destroy();
             }
         }

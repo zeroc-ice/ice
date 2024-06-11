@@ -1,16 +1,15 @@
 {
-    "modules": [
-        "IceGrid"],
+    "modules": ["IceGrid"],
 
-    "slice":[
+    "slice": [
         "IceGrid/Admin.ice",
         "IceGrid/Descriptor.ice",
         "IceGrid/Exception.ice",
         "IceGrid/FileParser.ice",
         "IceGrid/Registry.ice",
         "IceGrid/Session.ice",
-        "IceGrid/UserAccountMapper.ice"],
+        "IceGrid/UserAccountMapper.ice"
+    ],
 
-    "common":
-        ["IceGrid.js"]
+    "common": ["IceGrid.js"]
 }

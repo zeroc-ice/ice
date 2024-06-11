@@ -10,29 +10,24 @@ export const Ice = {};
  *  @see ServantLocator
  *  @see ObjectAdapter#addServantLocator
  **/
-Ice.Identity = class
-{
-    constructor(name = "", category = "")
-    {
+Ice.Identity = class {
+    constructor(name = "", category = "") {
         this.name = name;
         this.category = category;
     }
 
-    _write(ostr)
-    {
+    _write(ostr) {
         ostr.writeString(this.name);
         ostr.writeString(this.category);
     }
 
-    _read(istr)
-    {
+    _read(istr) {
         this.name = istr.readString();
         this.category = istr.readString();
     }
 
-    static get minWireSize()
-    {
-        return  2;
+    static get minWireSize() {
+        return 2;
     }
 };
 

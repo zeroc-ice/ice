@@ -4,9 +4,8 @@
 
 import { defineEnum } from "./EnumBase.js";
 
-export const FormatType = defineEnum(
-    [
-        ["DefaultFormat", 0],
-        ["CompactFormat", 1],
-        ["SlicedFormat", 2]
-    ]);
+export const FormatType = defineEnum([
+    ["DefaultFormat", 0],
+    ["CompactFormat", 1],
+    ["SlicedFormat", 2],
+]);

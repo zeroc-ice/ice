@@ -10,10 +10,8 @@ import { twoways } from "./Twoways.js";
 import { oneways } from "./Oneways.js";
 import { batchOneways } from "./BatchOneways.js";
 
-export class Client extends TestHelper
-{
-    async allTests(Test, bidir)
-    {
+export class Client extends TestHelper {
+    async allTests(Test, bidir) {
         const out = this.getWriter();
         const communicator = this.communicator();
         out.write("testing twoway operations... ");
@@ -36,38 +34,27 @@ export class Client extends TestHelper
 
         out.write("testing server shutdown... ");
         await cl.shutdown();
-        try
-        {
+        try {
             await cl.ice_timeout(100).ice_ping(); // Use timeout to speed up testing on Windows
             throw new Error("test failed");
-        }
-        catch(ex)
-        {
-            if(ex instanceof Ice.LocalException)
-            {
+        } catch (ex) {
+            if (ex instanceof Ice.LocalException) {
                 out.writeLine("ok");
-            }
-            else
-            {
+            } else {
                 throw ex;
             }
         }
     }
 
-    async run(args)
-    {
+    async run(args) {
         let communicator;
-        try
-        {
+        try {
             const [properties] = this.createTestProperties(args);
             properties.setProperty("Ice.BatchAutoFlushSize", "100");
             [communicator] = this.initialize(properties);
             await this.allTests(Test, false);
-        }
-        finally
-        {
-            if(communicator)
-            {
+        } finally {
+            if (communicator) {
                 await communicator.destroy();
             }
         }

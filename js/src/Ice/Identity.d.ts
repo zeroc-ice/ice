@@ -2,8 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-export namespace Ice
-{
+export namespace Ice {
     /**
      * The identity of an Ice object. In a proxy, an empty {@link Identity#name} denotes a nil proxy. An identity with
      * an empty {@link Identity#name} and a non-empty {@link Identity#category} is illegal. You cannot add a servant
@@ -11,16 +10,15 @@ export namespace Ice
      * @see ServantLocator
      * @see ObjectAdapter#addServantLocator
      */
-    class Identity
-    {
-        constructor(name?:string, category?:string);
-        clone():Identity;
-        equals(rhs:any):boolean;
-        hashCode():number;
-        name:string;
-        category:string;
-        static write(outs:OutputStream, value:Identity):void;
-        static read(ins:InputStream):Identity;
+    class Identity {
+        constructor(name?: string, category?: string);
+        clone(): Identity;
+        equals(rhs: any): boolean;
+        hashCode(): number;
+        name: string;
+        category: string;
+        static write(outs: OutputStream, value: Identity): void;
+        static read(ins: InputStream): Identity;
     }
 
     /**
@@ -28,9 +26,8 @@ export namespace Ice
      */
     type IdentitySeq = Identity[];
 
-    class IdentitySeqHelper
-    {
-        static write(outs:OutputStream, value:IdentitySeq):void;
-        static read(ins:InputStream):IdentitySeq;
+    class IdentitySeqHelper {
+        static write(outs: OutputStream, value: IdentitySeq): void;
+        static read(ins: InputStream): IdentitySeq;
     }
 }

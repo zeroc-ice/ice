@@ -13,11 +13,9 @@ const OperationMode = Ice_OperationMode.OperationMode;
 
 const slicingIds = new Map();
 
-function printIdentityFacetOperation(s, stream)
-{
+function printIdentityFacetOperation(s, stream) {
     let toStringMode = Ice.ToStringMode.Unicode;
-    if(stream.instance !== null)
-    {
+    if (stream.instance !== null) {
         toStringMode = stream.instance.toStringMode();
     }
 
@@ -27,8 +25,7 @@ function printIdentityFacetOperation(s, stream)
 
     const facet = Ice.StringSeqHelper.read(stream);
     s.push("\nfacet = ");
-    if(facet.length > 0)
-    {
+    if (facet.length > 0) {
         s.push(StringUtil.escapeString(facet[0], "", toStringMode));
     }
 
@@ -36,169 +33,140 @@ function printIdentityFacetOperation(s, stream)
     s.push("\noperation = " + operation);
 }
 
-function printRequest(s, stream)
-{
+function printRequest(s, stream) {
     const requestId = stream.readInt();
     s.push("\nrequest id = " + requestId);
-    if(requestId === 0)
-    {
+    if (requestId === 0) {
         s.push(" (oneway)");
     }
 
     printRequestHeader(s, stream);
 }
 
-function printBatchRequest(s, stream)
-{
+function printBatchRequest(s, stream) {
     const batchRequestNum = stream.readInt();
     s.push("\nnumber of requests = " + batchRequestNum);
 
-    for(let i = 0; i < batchRequestNum; ++i)
-    {
-        s.push("\nrequest #" + i + ':');
+    for (let i = 0; i < batchRequestNum; ++i) {
+        s.push("\nrequest #" + i + ":");
         printRequestHeader(s, stream);
     }
 }
 
-function printReply(s, stream)
-{
+function printReply(s, stream) {
     const requestId = stream.readInt();
     s.push("\nrequest id = " + requestId);
 
     const replyStatus = stream.readByte();
-    s.push("\nreply status = " + replyStatus + ' ');
+    s.push("\nreply status = " + replyStatus + " ");
 
-    switch(replyStatus)
-    {
-    case Protocol.replyOK:
-    {
-        s.push("(ok)");
-        break;
-    }
+    switch (replyStatus) {
+        case Protocol.replyOK: {
+            s.push("(ok)");
+            break;
+        }
 
-    case Protocol.replyUserException:
-    {
-        s.push("(user exception)");
-        break;
-    }
+        case Protocol.replyUserException: {
+            s.push("(user exception)");
+            break;
+        }
 
-    case Protocol.replyObjectNotExist:
-    case Protocol.replyFacetNotExist:
-    case Protocol.replyOperationNotExist:
-    {
-        switch(replyStatus)
-        {
         case Protocol.replyObjectNotExist:
-        {
-            s.push("(object not exist)");
-            break;
-        }
-
         case Protocol.replyFacetNotExist:
-        {
-            s.push("(facet not exist)");
+        case Protocol.replyOperationNotExist: {
+            switch (replyStatus) {
+                case Protocol.replyObjectNotExist: {
+                    s.push("(object not exist)");
+                    break;
+                }
+
+                case Protocol.replyFacetNotExist: {
+                    s.push("(facet not exist)");
+                    break;
+                }
+
+                case Protocol.replyOperationNotExist: {
+                    s.push("(operation not exist)");
+                    break;
+                }
+
+                default: {
+                    Debug.assert(false);
+                    break;
+                }
+            }
+
+            printIdentityFacetOperation(s, stream);
             break;
         }
 
-        case Protocol.replyOperationNotExist:
-        {
-            s.push("(operation not exist)");
-            break;
-        }
-
-        default:
-        {
-            Debug.assert(false);
-            break;
-        }
-        }
-
-        printIdentityFacetOperation(s, stream);
-        break;
-    }
-
-    case Protocol.replyUnknownException:
-    case Protocol.replyUnknownLocalException:
-    case Protocol.replyUnknownUserException:
-    {
-        switch(replyStatus)
-        {
         case Protocol.replyUnknownException:
-        {
-            s.push("(unknown exception)");
-            break;
-        }
-
         case Protocol.replyUnknownLocalException:
-        {
-            s.push("(unknown local exception)");
+        case Protocol.replyUnknownUserException: {
+            switch (replyStatus) {
+                case Protocol.replyUnknownException: {
+                    s.push("(unknown exception)");
+                    break;
+                }
+
+                case Protocol.replyUnknownLocalException: {
+                    s.push("(unknown local exception)");
+                    break;
+                }
+
+                case Protocol.replyUnknownUserException: {
+                    s.push("(unknown user exception)");
+                    break;
+                }
+
+                default: {
+                    Debug.assert(false);
+                    break;
+                }
+            }
+
+            const unknown = stream.readString();
+            s.push("\nunknown = " + unknown);
             break;
         }
 
-        case Protocol.replyUnknownUserException:
-        {
-            s.push("(unknown user exception)");
+        default: {
+            s.push("(unknown)");
             break;
         }
-
-        default:
-        {
-            Debug.assert(false);
-            break;
-        }
-        }
-
-        const unknown = stream.readString();
-        s.push("\nunknown = " + unknown);
-        break;
     }
 
-    default:
-    {
-        s.push("(unknown)");
-        break;
-    }
-    }
-
-    if(replyStatus === Protocol.replyOK || replyStatus === Protocol.replyUserException)
-    {
+    if (replyStatus === Protocol.replyOK || replyStatus === Protocol.replyUserException) {
         const ver = stream.skipEncapsulation();
-        if(!ver.equals(Ice.Encoding_1_0))
-        {
+        if (!ver.equals(Ice.Encoding_1_0)) {
             s.push("\nencoding = ");
             s.push(Ice.encodingVersionToString(ver));
         }
     }
 }
 
-function printRequestHeader(s, stream)
-{
+function printRequestHeader(s, stream) {
     printIdentityFacetOperation(s, stream);
 
     const mode = stream.readByte();
-    s.push("\nmode = " + mode + ' ');
-    switch(OperationMode.valueOf(mode))
-    {
-        case OperationMode.Normal:
-        {
+    s.push("\nmode = " + mode + " ");
+    switch (OperationMode.valueOf(mode)) {
+        case OperationMode.Normal: {
             s.push("(normal)");
             break;
         }
 
-        case OperationMode.Nonmutating:
-        {
+        case OperationMode.Nonmutating: {
             s.push("(nonmutating)");
             break;
         }
 
-        case OperationMode.Idempotent:
-        {
+        case OperationMode.Idempotent: {
             s.push("(idempotent)");
             break;
         }
 
-        default:
-        {
+        default: {
             s.push("(unknown)");
             break;
         }
@@ -206,71 +174,62 @@ function printRequestHeader(s, stream)
 
     let sz = stream.readSize();
     s.push("\ncontext = ");
-    while(sz-- > 0)
-    {
+    while (sz-- > 0) {
         const key = stream.readString();
         const value = stream.readString();
-        s.push(key + '/' + value);
-        if(sz > 0)
-        {
+        s.push(key + "/" + value);
+        if (sz > 0) {
             s.push(", ");
         }
     }
 
     const ver = stream.skipEncapsulation();
-    if(!ver.equals(Ice.Encoding_1_0))
-    {
+    if (!ver.equals(Ice.Encoding_1_0)) {
         s.push("\nencoding = ");
         s.push(Ice.encodingVersionToString(ver));
     }
 }
 
-function printHeader(s, stream)
-{
+function printHeader(s, stream) {
     stream.readByte(); // Don't bother printing the magic number
     stream.readByte();
     stream.readByte();
     stream.readByte();
 
-//        const pMajor = stream.readByte();
-//        const pMinor = stream.readByte();
-//        s.push("\nprotocol version = " + pMajor + "." + pMinor);
+    //        const pMajor = stream.readByte();
+    //        const pMinor = stream.readByte();
+    //        s.push("\nprotocol version = " + pMajor + "." + pMinor);
     stream.readByte(); // major
     stream.readByte(); // minor
 
-//        const eMajor = stream.readByte();
-//        const eMinor = stream.readByte();
-//        s.push("\nencoding version = " + eMajor + "." + eMinor);
+    //        const eMajor = stream.readByte();
+    //        const eMinor = stream.readByte();
+    //        s.push("\nencoding version = " + eMajor + "." + eMinor);
     stream.readByte(); // major
     stream.readByte(); // minor
 
     const type = stream.readByte();
 
-    s.push("\nmessage type = " + type + " (" + getMessageTypeAsString(type) + ')');
+    s.push("\nmessage type = " + type + " (" + getMessageTypeAsString(type) + ")");
     const compress = stream.readByte();
-    s.push("\ncompression status = " + compress + ' ');
-    switch(compress)
-    {
-        case 0:
-        {
+    s.push("\ncompression status = " + compress + " ");
+    switch (compress) {
+        case 0: {
             s.push("(not compressed; do not compress response, if any)");
             break;
         }
 
-        case 1:
-        {
+        case 1: {
             s.push("(not compressed; compress response, if any)");
             break;
         }
 
-        case 2:
-        {
+        case 2: {
             s.push("(compressed; compress response, if any)");
             break;
         }
 
-        default:
-        {
+        default: {
             s.push("(unknown)");
             break;
         }
@@ -281,80 +240,66 @@ function printHeader(s, stream)
     return type;
 }
 
-function printMessage(s, stream)
-{
+function printMessage(s, stream) {
     const type = printHeader(s, stream);
 
-    switch(type)
-    {
-    case Protocol.closeConnectionMsg:
-    case Protocol.validateConnectionMsg:
-    {
-        // We're done.
-        break;
-    }
+    switch (type) {
+        case Protocol.closeConnectionMsg:
+        case Protocol.validateConnectionMsg: {
+            // We're done.
+            break;
+        }
 
-    case Protocol.requestMsg:
-    {
-        printRequest(s, stream);
-        break;
-    }
+        case Protocol.requestMsg: {
+            printRequest(s, stream);
+            break;
+        }
 
-    case Protocol.requestBatchMsg:
-    {
-        printBatchRequest(s, stream);
-        break;
-    }
+        case Protocol.requestBatchMsg: {
+            printBatchRequest(s, stream);
+            break;
+        }
 
-    case Protocol.replyMsg:
-    {
-        printReply(s, stream);
-        break;
-    }
+        case Protocol.replyMsg: {
+            printReply(s, stream);
+            break;
+        }
 
-    default:
-    {
-        break;
-    }
+        default: {
+            break;
+        }
     }
 
     return type;
 }
 
-function getMessageTypeAsString(type)
-{
-    switch(type)
-    {
-    case Protocol.requestMsg:
-        return "request";
-    case Protocol.requestBatchMsg:
-        return "batch request";
-    case Protocol.replyMsg:
-        return "reply";
-    case Protocol.closeConnectionMsg:
-        return "close connection";
-    case Protocol.validateConnectionMsg:
-        return "validate connection";
-    default:
-        return "unknown";
+function getMessageTypeAsString(type) {
+    switch (type) {
+        case Protocol.requestMsg:
+            return "request";
+        case Protocol.requestBatchMsg:
+            return "batch request";
+        case Protocol.replyMsg:
+            return "reply";
+        case Protocol.closeConnectionMsg:
+            return "close connection";
+        case Protocol.validateConnectionMsg:
+            return "validate connection";
+        default:
+            return "unknown";
     }
 }
 
-export class TraceUtil
-{
-    static traceSlicing(kind, typeId, slicingCat, logger)
-    {
-        if(!slicingIds.has(typeId))
-        {
+export class TraceUtil {
+    static traceSlicing(kind, typeId, slicingCat, logger) {
+        if (!slicingIds.has(typeId)) {
             logger.trace(slicingCat, `unknown ${kind} type \`${typeId}'`);
             slicingIds.set(typeId, 1);
         }
     }
 
-    static traceSend(stream, logger, traceLevels)
-    {
-        if(traceLevels.protocol >= 1)
-        {
+    static traceSend(stream, logger, traceLevels) {
+        if (traceLevels.protocol >= 1) {
             const p = stream.pos;
             const is = new InputStream(stream.instance, stream.getEncoding(), stream.buffer);
             is.pos = 0;
@@ -368,10 +313,8 @@ export class TraceUtil
         }
     }
 
-    static traceRecv(stream, logger, traceLevels)
-    {
-        if(traceLevels.protocol >= 1)
-        {
+    static traceRecv(stream, logger, traceLevels) {
+        if (traceLevels.protocol >= 1) {
             const p = stream.pos;
             stream.pos = 0;
 
@@ -384,10 +327,8 @@ export class TraceUtil
         }
     }
 
-    static traceOut(heading, stream, logger, traceLevels)
-    {
-        if(traceLevels.protocol >= 1)
-        {
+    static traceOut(heading, stream, logger, traceLevels) {
+        if (traceLevels.protocol >= 1) {
             const p = stream.pos;
             const is = new InputStream(stream.instance, stream.getEncoding(), stream.buffer);
             is.pos = 0;
@@ -401,10 +342,8 @@ export class TraceUtil
         }
     }
 
-    static traceIn(heading, stream, logger, traceLevels)
-    {
-        if(traceLevels.protocol >= 1)
-        {
+    static traceIn(heading, stream, logger, traceLevels) {
+        if (traceLevels.protocol >= 1) {
             const p = stream.pos;
             stream.pos = 0;
 
@@ -417,8 +356,7 @@ export class TraceUtil
         }
     }
 
-    static dumpStream(stream)
-    {
+    static dumpStream(stream) {
         const pos = stream.pos;
         stream.pos = 0;
 
@@ -428,58 +366,42 @@ export class TraceUtil
         stream.pos = pos;
     }
 
-    static dumpOctets(data)
-    {
+    static dumpOctets(data) {
         const inc = 8;
         const buf = [];
 
-        for(let i = 0; i < data.length; i += inc)
-        {
-            for(let j = i; j - i < inc; j++)
-            {
-                if(j < data.length)
-                {
+        for (let i = 0; i < data.length; i += inc) {
+            for (let j = i; j - i < inc; j++) {
+                if (j < data.length) {
                     let n = data[j];
-                    if(n < 0)
-                    {
+                    if (n < 0) {
                         n += 256;
                     }
                     let s;
-                    if(n < 10)
-                    {
+                    if (n < 10) {
                         s = "  " + n;
-                    }
-                    else if(n < 100)
-                    {
+                    } else if (n < 100) {
                         s = " " + n;
-                    }
-                    else
-                    {
+                    } else {
                         s = String(n);
                     }
                     buf.push(s + " ");
-                }
-                else
-                {
+                } else {
                     buf.push("    ");
                 }
             }
 
             buf.push('"');
 
-            for(let j = i; j < data.length && j - i < inc; j++)
-            {
-                if(data[j] >= 32 && data[j] < 127)
-                {
+            for (let j = i; j < data.length && j - i < inc; j++) {
+                if (data[j] >= 32 && data[j] < 127) {
                     buf.push(String.fromCharCode(data[j]));
-                }
-                else
-                {
-                    buf.push('.');
+                } else {
+                    buf.push(".");
                 }
             }
 
-            buf.push("\"\n");
+            buf.push('"\n');
         }
 
         console.log(buf.join(""));

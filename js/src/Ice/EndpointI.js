@@ -2,10 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-export class EndpointI
-{
-    toString()
-    {
+export class EndpointI {
+    toString() {
         //
         // WARNING: Certain features, such as proxy validation in Glacier2,
         // depend on the format of proxy strings. Changes to toString() and
@@ -16,52 +14,41 @@ export class EndpointI
         return this.protocol() + this.options();
     }
 
-    initWithOptions(args)
-    {
+    initWithOptions(args) {
         const unknown = [];
 
         let str = "`" + this.protocol();
-        for(let i = 0; i < args.length; ++i)
-        {
-            if(args[i].search(/[ \t\n\r]+/) !== -1)
-            {
-                str += " \"" + args[i] + "\"";
-            }
-            else
-            {
+        for (let i = 0; i < args.length; ++i) {
+            if (args[i].search(/[ \t\n\r]+/) !== -1) {
+                str += ' "' + args[i] + '"';
+            } else {
                 str += " " + args[i];
             }
         }
         str += "'";
 
-        for(let i = 0; i < args.length;)
-        {
+        for (let i = 0; i < args.length; ) {
             const option = args[i++];
-            if(option.length < 2 || option.charAt(0) != '-')
-            {
+            if (option.length < 2 || option.charAt(0) != "-") {
                 unknown.push(option);
                 continue;
             }
 
             let argument = null;
-            if(i < args.length && args[i].charAt(0) != '-')
-            {
+            if (i < args.length && args[i].charAt(0) != "-") {
                 argument = args[i++];
             }
 
-            if(!this.checkOption(option, argument, str))
-            {
+            if (!this.checkOption(option, argument, str)) {
                 unknown.push(option);
-                if(argument !== null)
-                {
+                if (argument !== null) {
                     unknown.push(argument);
                 }
             }
         }
 
         args.length = 0;
-        for(let i = 0; i < unknown.length; i++)
-        {
+        for (let i = 0; i < unknown.length; i++) {
             args.push(unknown[i]);
         }
     }
@@ -69,17 +56,14 @@ export class EndpointI
     //
     // Compare endpoints for sorting purposes
     //
-    equals(p)
-    {
-        if(!(p instanceof EndpointI))
-        {
+    equals(p) {
+        if (!(p instanceof EndpointI)) {
             return false;
         }
         return this.compareTo(p) === 0;
     }
 
-    checkOption()
-    {
+    checkOption() {
         return false;
     }
 }

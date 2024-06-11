@@ -2,19 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import {Ice} from "ice";
-import {Test} from "./generated"
-import {TestHelper} from "../../../Common/TestHelper"
-import {AMDThrowerI} from "./AMDThrowerI";
+import { Ice } from "ice";
+import { Test } from "./generated";
+import { TestHelper } from "../../../Common/TestHelper";
+import { AMDThrowerI } from "./AMDThrowerI";
 
-export class ServerAMD extends TestHelper
-{
-    async run(args:string[])
-    {
-        let communicator:Ice.Communicator;
-        let echo:Test.EchoPrx;
-        try
-        {
+export class ServerAMD extends TestHelper {
+    async run(args: string[]) {
+        let communicator: Ice.Communicator;
+        let echo: Test.EchoPrx;
+        try {
             const [properties] = this.createTestProperties(args);
             properties.setProperty("Ice.MessageSizeMax", "10");
             properties.setProperty("Ice.Warn.Dispatch", "0");
@@ -25,7 +22,7 @@ export class ServerAMD extends TestHelper
             adapter.add(new AMDThrowerI(), Ice.stringToIdentity("thrower"));
             await echo.setConnection();
             const connection = echo.ice_getCachedConnection();
-            connection.setCloseCallback(con => {
+            connection.setCloseCallback((con) => {
                 // Re-establish connection if it fails (necessary for MemoryLimitException test)
                 echo.setConnection().then(() => echo.ice_getCachedConnection().setAdapter(adapter));
             });
@@ -33,16 +30,12 @@ export class ServerAMD extends TestHelper
             echo.ice_getCachedConnection().setAdapter(adapter);
             this.serverReady();
             await communicator.waitForShutdown();
-        }
-        finally
-        {
-            if(echo)
-            {
+        } finally {
+            if (echo) {
                 await echo.shutdown();
             }
 
-            if(communicator)
-            {
+            if (communicator) {
                 await communicator.destroy();
             }
         }

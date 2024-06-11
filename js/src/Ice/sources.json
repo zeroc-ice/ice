@@ -1,8 +1,7 @@
 {
-    "modules": [
-        "Ice", "IceMX", "IceSSL"],
+    "modules": ["Ice", "IceMX", "IceSSL"],
 
-    "slice":[
+    "slice": [
         "Ice/BuiltinSequences.ice",
         "Ice/Context.ice",
         "Ice/EndpointTypes.ice",

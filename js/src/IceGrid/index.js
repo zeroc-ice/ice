@@ -17,5 +17,5 @@ export const IceGrid = {
     ...IceGrid_FileParser,
     ...IceGrid_Registry,
     ...IceGrid_Session,
-    ...IceGrid_UserAccountMapper
+    ...IceGrid_UserAccountMapper,
 };
