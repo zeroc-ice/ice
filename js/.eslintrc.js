@@ -1,15 +1,15 @@
 module.exports = {
-    env: {
-        browser: true,
-        es6: true,
-        node: true,
-        worker: true,
+    "env": {
+        "browser": true,
+        "es6": true,
+        "node": true,
+        "worker": true,
     },
-    extends: "eslint:recommended",
-    parserOptions: {
-        ecmaVersion: 8,
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "ecmaVersion": 8,
     },
-    rules: {
+    "rules": {
         "accessor-pairs": "error",
         "array-bracket-newline": "off",
         "array-bracket-spacing": ["error", "never"],
@@ -20,41 +20,41 @@ module.exports = {
         "arrow-spacing": [
             "error",
             {
-                after: true,
-                before: true,
+                "after": true,
+                "before": true,
             },
         ],
         "block-scoped-var": "error",
         "block-spacing": "error",
         "brace-style": "off",
         "callback-return": "off",
-        camelcase: "off",
+        "camelcase": "off",
         "capitalized-comments": "off",
         "class-methods-use-this": "off",
         "comma-dangle": "error",
         "comma-spacing": [
             "error",
             {
-                after: true,
-                before: false,
+                "after": true,
+                "before": false,
             },
         ],
         "comma-style": ["error", "last"],
-        complexity: "off",
+        "complexity": "off",
         "computed-property-spacing": "error",
         "consistent-return": "off",
         "consistent-this": "error",
-        curly: "error",
+        "curly": "error",
         "default-case": "error",
         "dot-location": ["error", "property"],
         "dot-notation": [
             "error",
             {
-                allowKeywords: true,
+                "allowKeywords": true,
             },
         ],
         "eol-last": "error",
-        eqeqeq: "off",
+        "eqeqeq": "off",
         "for-direction": "error",
         "func-call-spacing": "error",
         "func-name-matching": "error",
@@ -70,7 +70,7 @@ module.exports = {
         "id-length": "off",
         "id-match": "error",
         "implicit-arrow-linebreak": "off",
-        indent: "off",
+        "indent": "off",
         "indent-legacy": "off",
         "init-declarations": "off",
         "jsx-quotes": "error",
@@ -106,7 +106,7 @@ module.exports = {
         "no-constant-condition": [
             "error",
             {
-                checkLoops: false,
+                "checkLoops": false,
             },
         ],
         "no-div-regex": "error",
@@ -116,7 +116,7 @@ module.exports = {
         "no-empty": [
             "error",
             {
-                allowEmptyCatch: true,
+                "allowEmptyCatch": true,
             },
         ],
         "no-eq-null": "error",
@@ -190,7 +190,7 @@ module.exports = {
         "no-unused-vars": [
             "error",
             {
-                args: "none",
+                "args": "none",
             },
         ],
         "no-useless-call": "error",
@@ -226,12 +226,12 @@ module.exports = {
         "prefer-spread": "error",
         "prefer-template": "off",
         "quote-props": ["error", "as-needed"],
-        quotes: ["off", "double"],
-        radix: "off",
+        "quotes": ["off", "double"],
+        "radix": "off",
         "require-await": "error",
         "require-jsdoc": "off",
         "rest-spread-spacing": "error",
-        semi: "error",
+        "semi": "error",
         "semi-spacing": "error",
         "semi-style": ["error", "last"],
         "sort-imports": "error",
@@ -253,6 +253,6 @@ module.exports = {
         "wrap-iife": "error",
         "wrap-regex": "error",
         "yield-star-spacing": "error",
-        yoda: ["error", "never"],
+        "yoda": ["error", "never"],
     },
 };
