@@ -12,7 +12,6 @@ let iceCppSettings: [CXXSetting] = [
     .headerSearchPath("include/generated"),
 ]
 
-
 let package = Package(
     name: "ice",
     defaultLocalization: "en",
