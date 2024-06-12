@@ -4,7 +4,7 @@
 
 import { Ice } from "ice";
 import { TestHelper } from "../../Common/TestHelper.js";
-import { readFileSync } from "fs";
+import fs from "fs";
 import path from "path";
 
 const test = TestHelper.test;
@@ -38,7 +38,7 @@ export class Client extends TestHelper {
 
         const properties = Ice.createProperties();
         /* eslint-disable no-sync */
-        if (typeof readFileSync == "function") {
+        if (typeof fs.readFileSync == "function") {
             //
             // We are running with NodeJS we load the properties file from the file system.
             //
@@ -50,29 +50,6 @@ export class Client extends TestHelper {
             for (const [key, value] of props) {
                 test(properties.getProperty(key) == value);
             }
-        } else if (typeof window !== "undefined") {
-            /* eslint-enable no-sync */
-            //
-            // Skipped when running in a worker, we don't load JQuery in the workers
-            //
-
-            //
-            // We are running in a web browser load the properties file from the web server.
-            //
-            await new Promise((resolve, reject) => {
-                //
-                // Use text data type to avoid problems interpreting the data.
-                //
-                $.ajax({ url: "config/escapes.cfg", dataType: "text" })
-                    .done((data) => {
-                        properties.parse(data);
-                        for (const [key, value] of props) {
-                            test(properties.getProperty(key) == value);
-                        }
-                        resolve();
-                    })
-                    .fail(reject);
-            });
         }
         out.writeLine("ok");
 

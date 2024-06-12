@@ -521,7 +521,7 @@ export class Client extends TestHelper {
         try {
             const out = this.getWriter();
             [communicator, args] = this.initialize(args);
-            if (isBrowser && isSafari() && isWorker()) {
+            if (isBrowser && TestHelper.isSafari() && TestHelper.isWorker()) {
                 //
                 // BUGFIX:
                 //

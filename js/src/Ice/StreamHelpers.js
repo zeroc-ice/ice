@@ -4,14 +4,6 @@
 
 import { OptionalFormat } from "./OptionalFormat.js";
 import { ByteHelper, ObjectHelper } from "./Stream.js";
-
-import { Ice as Ice_Identity } from "./Identity.js";
-import { Ice as Ice_Version } from "./Version.js";
-
-const { Identity } = Ice_Identity;
-const { EncodingVersion, ProtocolVersion } = Ice_Version;
-
-import { defineStruct } from "./Struct.js";
 import { TypeRegistry } from "./TypeRegistry.js";
 
 const defineProperty = Object.defineProperty;
@@ -267,11 +259,3 @@ StreamHelpers.generateDictHelper = function (keyHelper, valueHelper, fixed, valu
 
     return helper;
 };
-
-// Moved here from Identity.js and Version.js to break circular dependencies
-
-defineStruct(Identity, true, true);
-export const IdentitySeqHelper = StreamHelpers.generateSeqHelper(Identity, false);
-
-defineStruct(EncodingVersion, true, false);
-defineStruct(ProtocolVersion, true, false);

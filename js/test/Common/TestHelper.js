@@ -144,4 +144,8 @@ export class TestHelper {
             (navigator.userAgent.indexOf("MSIE") !== -1 || navigator.userAgent.match(/Trident.*rv:11\./))
         );
     }
+
+    static isWorker() {
+        return typeof WorkerGlobalScope !== "undefined" && this instanceof WorkerGlobalScope;
+    }
 }

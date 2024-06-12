@@ -32,6 +32,8 @@ import * as Ice_HashMap from "./HashMap.js";
 import * as Ice_HashUtil from "./HashUtil.js";
 import * as Ice_IPEndpointI from "./IPEndpointI.js";
 import * as Ice_Identity from "./Identity.js";
+// Must be imported after Identity.js for the prototype extensions.
+import "./IdentityExtensions.js";
 import * as Ice_IdentityUtil from "./IdentityUtil.js";
 import * as Ice_ImplicitContext from "./ImplicitContext.js";
 import * as Ice_IncomingAsync from "./IncomingAsync.js";
@@ -101,6 +103,8 @@ import * as Ice_UnknownSlicedValue from "./UnknownSlicedValue.js";
 import * as Ice_Value from "./Value.js";
 import * as Ice_ValueFactoryManager from "./ValueFactoryManager.js";
 import * as Ice_Version from "./Version.js";
+// Must be imported after Version.js for the prototype extensions.
+import "./VersionExtensions.js";
 import * as Ice_WSEndpoint from "./WSEndpoint.js";
 import * as Ice_WSEndpointFactory from "./WSEndpointFactory.js";
 import * as Ice_WSTransceiver from "./WSTransceiver.js";

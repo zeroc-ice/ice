@@ -12,13 +12,11 @@ import {
     SocketException,
 } from "./LocalException.js";
 import { Debug } from "./Debug.js";
-
-// TODO: How do we handle this for the browser?
 import net from "net";
 
-let TcpTransceiver = {};
+let TcpTransceiver = null;
 
-if (typeof process !== "undefined") {
+if (typeof net.createConnection !== "function") {
     const StateNeedConnect = 0;
     const StateConnectPending = 1;
     const StateProxyConnectRequest = 2;
@@ -385,8 +383,5 @@ if (typeof process !== "undefined") {
     function connectionLost(err) {
         return err == ECONNRESET || err == ENOTCONN || err == ESHUTDOWN || err == ECONNABORTED || err == EPIPE;
     }
-} else {
-    TcpTransceiver = class {};
 }
-
 export { TcpTransceiver };
