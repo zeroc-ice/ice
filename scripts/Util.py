@@ -4325,7 +4325,7 @@ class JavaScriptMixin:
         return os.path.join(self.getPath(), "test", "Common")
 
     def getCommandLine(self, current, process, exe, args):
-        return "node {0}/run.js {1} {2} {3}".format(
+        return "node {0}/run.js file://{1} {2} {3}".format(
             self.getCommonDir(current),
             os.path.join(self.getTestCwd(process, current), exe),
             Path(exe).stem,
