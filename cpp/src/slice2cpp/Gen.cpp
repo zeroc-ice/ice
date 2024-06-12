@@ -824,7 +824,7 @@ Slice::Gen::generate(const UnitPtr& p)
     C << nl << "#   pragma clang diagnostic ignored \"-Wdeprecated-declarations\"";
     C << nl << "#elif defined(__GNUC__)";
     C << nl << "#   pragma GCC diagnostic ignored \"-Wshadow\"";
-    C << nl << "#   pragma GCC diagnostic ignored \"-Wdeprecated-declarations\";"
+    C << nl << "#   pragma GCC diagnostic ignored \"-Wdeprecated-declarations\"";
     C << nl << "#endif";
 
     printVersionCheck(H);
