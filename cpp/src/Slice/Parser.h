@@ -477,7 +477,6 @@ namespace Slice
         EnumeratorList enumerators(const std::string&) const;
         ConstList consts() const;
         ContainedList contents() const;
-
         std::string thisScope() const;
         void sort();
         void sortContents(bool);
