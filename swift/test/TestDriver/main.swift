@@ -3,8 +3,8 @@
 //
 
 import Foundation
-import TestBundle
 import PromiseKit
+import TestBundle
 
 PromiseKit.conf.Q.map = .global()
 PromiseKit.conf.Q.return = .global()

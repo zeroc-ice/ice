@@ -178,14 +178,14 @@ let package = Package(
         ),
         .target(
             name: "TestBundle",
-            dependencies: [ .target(name: "TestCommon") ] + testDriverDependencies,
+            dependencies: [.target(name: "TestCommon")] + testDriverDependencies,
             path: "TestBundle"
         ),
         .executableTarget(
             name: "TestDriver",
             dependencies: ["TestBundle"],
             path: "TestDriver"
-        )
+        ),
     ],
     swiftLanguageVersions: [SwiftVersion.v5]
 )
