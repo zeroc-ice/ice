@@ -9,21 +9,25 @@
 module Test
 {
 
+["deprecated"]
 class OneOptional
 {
     optional(1) int a;
 }
 
+["deprecated"]
 interface MyInterface
 {
     void op();
 }
 
+["deprecated"]
 enum MyEnum
 {
     MyEnumMember
 }
 
+["deprecated"]
 struct SmallStruct
 {
     byte m;
@@ -103,7 +107,7 @@ class MultiOptional
 
 class A
 {
-    int requiredA = 0;
+    ["deprecated"] int requiredA = 0;
     optional(1) int ma;
     optional(50) int mb;
     optional(500) int mc;
@@ -127,9 +131,10 @@ class WD
     optional(2) string s = "test";
 }
 
+["deprecated"]
 exception OptionalException
 {
-    bool req = false;
+    ["deprecated"] bool req = false;
     optional(1) int a = 5;
     optional(2) string b;
 }
@@ -195,7 +200,7 @@ interface Initial
     void opRequiredException(optional(1) int a, optional(2) string b)
         throws OptionalException;
 
-    optional(1) byte opByte(optional(2) byte p1, out optional(3) byte p3);
+    ["deprecated"] optional(1) byte opByte(optional(2) byte p1, out optional(3) byte p3);
 
     optional(1) bool opBool(optional(2) bool p1, out optional(3) bool p3);
 
