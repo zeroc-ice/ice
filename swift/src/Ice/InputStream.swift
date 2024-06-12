@@ -806,7 +806,7 @@ extension InputStream {
     /// Reads an optional base proxy from the stream.
     ///
     /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
-    /// 
+    ///
     /// - returns: `ObjectPrx?` - The proxy read from the stream.
     public func read(tag: Int32, type _: ObjectPrx.Protocol) throws -> ObjectPrx? {
         return try read(tag: tag) as ObjectPrxI?

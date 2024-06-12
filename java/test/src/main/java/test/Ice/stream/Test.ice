@@ -83,8 +83,6 @@ sequence<MyClassS> MyClassSS;
 dictionary<long, float> LongFloatD;
 dictionary<string, string> StringStringD;
 
-class Bar;
-
 class MyClass
 {
     MyClass c;
