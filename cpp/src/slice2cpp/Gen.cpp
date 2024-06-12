@@ -1988,7 +1988,6 @@ Slice::Gen::DataDefVisitor::DataDefVisitor(
 bool
 Slice::Gen::DataDefVisitor::visitModuleStart(const ModulePtr& p)
 {
-    // TODO: this most likely includes definitions in included files, which is not what we want here.
     if (!p->contains<Struct>() && !p->contains<ClassDef>() && !p->contains<Exception>())
     {
         return false;
