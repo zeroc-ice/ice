@@ -32,7 +32,7 @@ namespace IceInternal
             // Dispatch the continuation on the thread pool if this isn't called
             // already from a thread pool thread. We don't use the dispatcher
             // for the continuations, the dispatcher is only used when the
-            // call is initialy invoked (e.g.: a servant dispatch after being
+            // call is initially invoked (e.g.: a servant dispatch after being
             // received is dispatched using the dispatcher which might dispatch
             // the call on the UI thread which will then use its own synchronization
             // context to execute continuations).
@@ -88,7 +88,7 @@ namespace IceInternal
             //
             // Call finishMessage once IO is completed only if serialization is not enabled.
             // Otherwise, finishMessage will be called when the event handler is done with
-            // the message (it will be called from destroy below).
+            // the message (it will be called from Dispose below).
             //
             Debug.Assert(_finishWithIO);
             if(_current.ioCompleted())
@@ -329,12 +329,12 @@ namespace IceInternal
                 if((add & SocketOperation.Read) != 0 && (handler._pending & SocketOperation.Read) == 0)
                 {
                     handler._pending |= SocketOperation.Read;
-                    queueReadyHandler(handler, SocketOperation.Read);
+                    queueReadyForIOHandler(handler, SocketOperation.Read);
                 }
                 else if((add & SocketOperation.Write) != 0 && (handler._pending & SocketOperation.Write) == 0)
                 {
                     handler._pending |= SocketOperation.Write;
-                    queueReadyHandler(handler, SocketOperation.Write);
+                    queueReadyForIOHandler(handler, SocketOperation.Write);
                 }
             }
         }
@@ -461,7 +461,7 @@ namespace IceInternal
             return new System.Threading.Tasks.Task[0];
         }
 
-        private void queueReadyHandler(EventHandler handler, int operation)
+        private void queueReadyForIOHandler(EventHandler handler, int operation)
         {
             lock(this)
             {
@@ -470,7 +470,16 @@ namespace IceInternal
                     {
                         current._handler = handler;
                         current.operation = operation;
-                        messageCallback(current);
+                        try
+                        {
+                            current._handler.message(ref current);
+                        }
+                        catch(System.Exception ex)
+                        {
+                            string s = "exception in `" + _prefix + "':\n" + ex + "\nevent handler: " +
+                                current._handler.ToString();
+                            _instance.initializationData().logger.error(s);
+                        }
                     });
                 Monitor.Pulse(this);
             }
@@ -509,7 +518,12 @@ namespace IceInternal
                                     }
 
                                     _threads.Remove(thread);
-                                    _workItems.Enqueue(c => thread.join());
+                                    _workItems.Enqueue(c =>
+                                        {
+                                            // No call to ioCompleted, this shouldn't block (and we don't want to cause
+                                            // a new thread to be started).
+                                            thread.join();
+                                        });
                                     Monitor.Pulse(this);
                                     return;
                                 }
@@ -528,6 +542,7 @@ namespace IceInternal
                                 {
                                     _workItems.Enqueue(c =>
                                         {
+                                            c.ioCompleted();
                                             try
                                             {
                                                 _instance.objectAdapterFactory().shutdown();
@@ -547,9 +562,11 @@ namespace IceInternal
 
                     Debug.Assert(_workItems.Count > 0);
                     workItem = _workItems.Dequeue();
+
+                    current._thread.setState(Ice.Instrumentation.ThreadState.ThreadStateInUseForIO);
+                    current._ioCompleted = false;
                 }
 
-                current._ioCompleted = false;
                 try
                 {
                     workItem(current);
@@ -560,12 +577,15 @@ namespace IceInternal
                     _instance.initializationData().logger.error(s);
                 }
 
-                if (_sizeMax > 1 && current._ioCompleted)
+                lock (this)
                 {
-                    Debug.Assert(_inUse > 0);
-                    --_inUse;
+                    if (_sizeMax > 1 && current._ioCompleted)
+                    {
+                        Debug.Assert(_inUse > 0);
+                        --_inUse;
+                    }
+                    thread.setState(Ice.Instrumentation.ThreadState.ThreadStateIdle);
                 }
-                thread.setState(Ice.Instrumentation.ThreadState.ThreadStateIdle);
             }
         }
 
@@ -697,23 +717,10 @@ namespace IceInternal
             }
         }
 
-        public void messageCallback(ThreadPoolCurrent current)
-        {
-            try
-            {
-                current._handler.message(ref current);
-            }
-            catch(System.Exception ex)
-            {
-                string s = "exception in `" + _prefix + "':\n" + ex + "\nevent handler: " + current._handler.ToString();
-                _instance.initializationData().logger.error(s);
-            }
-        }
-
         private AsyncCallback getCallback(int operation)
         {
             Debug.Assert(operation == SocketOperation.Read || operation == SocketOperation.Write);
-            return state => queueReadyHandler((EventHandler)state, operation);
+            return state => queueReadyForIOHandler((EventHandler)state, operation);
         }
 
         internal sealed class WorkerThread

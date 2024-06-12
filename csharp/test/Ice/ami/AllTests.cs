@@ -3850,17 +3850,20 @@ namespace Ice
                     Task sleep2Task = p.sleepAsync(1000);
                     Task sleep3Task = p.sleepAsync(1000);
                     bool canceled = false;
-                    try
+                    using(var cts = new CancellationTokenSource(200))
                     {
-                        var cts = new CancellationTokenSource(200);
-                        var onewayProxy = (Test.TestIntfPrx)p.ice_oneway();
+                        try
+                        {
+                            var onewayProxy = (Test.TestIntfPrx)p.ice_oneway();
 
-                        // Sending should be canceled because the TCP receive buffer size on the server is set to 50KB
-                        onewayProxy.opWithPayloadAsync(new byte[768 * 1024]).Wait(cts.Token);
-                    }
-                    catch(OperationCanceledException)
-                    {
-                        canceled = true;
+                            // Sending should be canceled because the TCP receive buffer size on the server is set to
+                            // 50KB
+                            onewayProxy.opWithPayloadAsync(new byte[768 * 1024]).Wait(cts.Token);
+                        }
+                        catch(OperationCanceledException)
+                        {
+                            canceled = true;
+                        }
                     }
                     test(canceled && !sleep1Task.IsCompleted);
                     sleep1Task.Wait();

@@ -1405,115 +1405,116 @@ namespace IceInternal
         {
             Ice.ConnectionI connection = null;
 
-            ThreadPoolMessage msg = new ThreadPoolMessage(current, this);
-
-            lock(this)
+            using(ThreadPoolMessage msg = new ThreadPoolMessage(current, this))
             {
-                if(!msg.startIOScope())
+                lock(this)
                 {
-                    return;
-                }
-
-                try
-                {
-                    if(_state >= StateClosed)
+                    if(!msg.startIOScope())
                     {
                         return;
                     }
-                    else if(_state == StateHolding)
-                    {
-                        return;
-                    }
-
-                    //
-                    // Reap closed connections
-                    //
-                    ICollection<Ice.ConnectionI> cons = _monitor.swapReapedConnections();
-                    if(cons != null)
-                    {
-                        foreach(Ice.ConnectionI c in cons)
-                        {
-                            _connections.Remove(c);
-                        }
-                    }
-
-                    if(!_acceptorStarted)
-                    {
-                        return;
-                    }
-
-                    //
-                    // Now accept a new connection.
-                    //
-                    Transceiver transceiver = null;
-                    try
-                    {
-                        transceiver = _acceptor.accept();
-
-                        if(_instance.traceLevels().network >= 2)
-                        {
-                            StringBuilder s = new StringBuilder("trying to accept ");
-                            s.Append(_endpoint.protocol());
-                            s.Append(" connection\n");
-                            s.Append(transceiver.ToString());
-                            _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
-                        }
-                    }
-                    catch(Ice.SocketException ex)
-                    {
-                        if(Network.noMoreFds(ex.InnerException))
-                        {
-                            string s = "can't accept more connections:\n" + ex + '\n' + _acceptor.ToString();
-                            _instance.initializationData().logger.error(s);
-                            Debug.Assert(_acceptorStarted);
-                            _acceptorStarted = false;
-                            _adapter.getThreadPool().finish(this);
-                            closeAcceptor();
-                        }
-
-                        // Ignore socket exceptions.
-                        return;
-                    }
-                    catch(Ice.LocalException ex)
-                    {
-                        // Warn about other Ice local exceptions.
-                        if(_warn)
-                        {
-                            warning(ex);
-                        }
-                        return;
-                    }
-
-                    Debug.Assert(transceiver != null);
 
                     try
                     {
-                        connection = new Ice.ConnectionI(_adapter.getCommunicator(), _instance, _monitor, transceiver,
-                                                         null, _endpoint, _adapter);
-                    }
-                    catch(Ice.LocalException ex)
-                    {
+                        if(_state >= StateClosed)
+                        {
+                            return;
+                        }
+                        else if(_state == StateHolding)
+                        {
+                            return;
+                        }
+
+                        //
+                        // Reap closed connections
+                        //
+                        ICollection<Ice.ConnectionI> cons = _monitor.swapReapedConnections();
+                        if(cons != null)
+                        {
+                            foreach(Ice.ConnectionI c in cons)
+                            {
+                                _connections.Remove(c);
+                            }
+                        }
+
+                        if(!_acceptorStarted)
+                        {
+                            return;
+                        }
+
+                        //
+                        // Now accept a new connection.
+                        //
+                        Transceiver transceiver = null;
                         try
                         {
-                            transceiver.close();
+                            transceiver = _acceptor.accept();
+
+                            if(_instance.traceLevels().network >= 2)
+                            {
+                                StringBuilder s = new StringBuilder("trying to accept ");
+                                s.Append(_endpoint.protocol());
+                                s.Append(" connection\n");
+                                s.Append(transceiver.ToString());
+                                _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
+                            }
                         }
-                        catch(Ice.LocalException)
+                        catch(Ice.SocketException ex)
                         {
-                            // Ignore
+                            if(Network.noMoreFds(ex.InnerException))
+                            {
+                                string s = "can't accept more connections:\n" + ex + '\n' + _acceptor.ToString();
+                                _instance.initializationData().logger.error(s);
+                                Debug.Assert(_acceptorStarted);
+                                _acceptorStarted = false;
+                                _adapter.getThreadPool().finish(this);
+                                closeAcceptor();
+                            }
+
+                            // Ignore socket exceptions.
+                            return;
+                        }
+                        catch(Ice.LocalException ex)
+                        {
+                            // Warn about other Ice local exceptions.
+                            if(_warn)
+                            {
+                                warning(ex);
+                            }
+                            return;
                         }
 
-                        if(_warn)
+                        Debug.Assert(transceiver != null);
+
+                        try
                         {
-                            warning(ex);
+                            connection = new Ice.ConnectionI(_adapter.getCommunicator(), _instance, _monitor, transceiver,
+                                                            null, _endpoint, _adapter);
                         }
-                        return;
+                        catch(Ice.LocalException ex)
+                        {
+                            try
+                            {
+                                transceiver.close();
+                            }
+                            catch(Ice.LocalException)
+                            {
+                                // Ignore
+                            }
+
+                            if(_warn)
+                            {
+                                warning(ex);
+                            }
+                            return;
+                        }
+
+                        _connections.Add(connection);
                     }
-
-                    _connections.Add(connection);
-                }
-                finally
-                {
-                    msg.finishIOScope();
+                    finally
+                    {
+                        msg.finishIOScope();
+                    }
                 }
             }
 

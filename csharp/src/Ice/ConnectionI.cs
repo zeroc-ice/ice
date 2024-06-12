@@ -1044,8 +1044,8 @@ namespace Ice
             }
 
             // Run the IO operation on a .NET thread pool thread to ensure the IO operation won't be interrupted if the
-            // Ice thread pool thread is terminated (.NET Socket write/read fail SocketError.OperationAborted if started
-            // from a thread which is later terminated).
+            // Ice thread pool thread is terminated (.NET Socket read/write fail with a SocketError.OperationAborted
+            // error if started from a thread which is later terminated).
             Task.Run(() => {
                 lock(this)
                 {
@@ -1183,6 +1183,7 @@ namespace Ice
                     {
                         if(!msg.startIOScope())
                         {
+                            // No read/write IO is ready for the transceiver. This can call startAsync
                             return;
                         }
 
@@ -1570,7 +1571,7 @@ namespace Ice
             //
             // If there are no callbacks to call, we don't call ioCompleted() since we're not going
             // to call code that will potentially block (this avoids promoting a new leader and
-            // unecessary thread creation, especially if this is called on shutdown).
+            // unnecessary thread creation, especially if this is called on shutdown).
             //
             if(_startCallback == null && _sendStreams.Count == 0 && _asyncRequests.Count == 0 &&
                _closeCallback == null && _heartbeatCallback == null)
@@ -1579,13 +1580,9 @@ namespace Ice
                 return;
             }
 
-            //
-            // Unlike C++/Java, this method is called from an IO thread of the .NET thread
-            // pool of from the communicator async IO thread. While it's fine to handle the
-            // non-blocking activity of the connection from these threads, the dispatching
-            // of the message must be taken care of by the Ice thread pool.
-            //
-            _threadPool.dispatch(finish, this);
+            current.ioCompleted();
+
+            _threadPool.dispatchFromThisThread(finish, this);
         }
 
         private void finish()
