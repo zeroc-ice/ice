@@ -501,7 +501,6 @@ namespace Slice
         bool hasDictionaries() const;
         bool hasClassDefs() const;
         bool hasInterfaceDefs() const;
-        bool hasValueDefs() const;
         bool hasOperations() const;
         bool hasContained(Contained::ContainedType) const;
         std::string thisScope() const;

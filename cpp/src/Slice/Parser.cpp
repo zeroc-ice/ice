@@ -2261,25 +2261,6 @@ Slice::Container::hasInterfaceDefs() const
 }
 
 bool
-Slice::Container::hasValueDefs() const
-{
-    for (const auto& p : _contents)
-    {
-        if (dynamic_pointer_cast<ClassDef>(p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = dynamic_pointer_cast<Container>(p);
-        if (container && container->hasValueDefs())
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool
 Slice::Container::hasOperations() const
 {
     for (const auto& p : _contents)
