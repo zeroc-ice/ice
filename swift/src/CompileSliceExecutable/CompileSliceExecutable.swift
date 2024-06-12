@@ -4,7 +4,7 @@ import ArgumentParser
 enum CompileError: Error {
     case missingIceSliceFiles(String)
     case sliceCompilerError(Int32)
-    
+
     var description: String {
         switch self {
             case let .missingIceSliceFiles(path):
@@ -29,12 +29,11 @@ enum CompileError: Error {
      func run() throws {
          // TODO: is there a better way to find this bundle path
          let iceSliceFilePath = Bundle.main.bundlePath.appending("/ice_CompileSliceExecutable.bundle")
-         
+
          if !FileManager.default.fileExists(atPath: iceSliceFilePath) {
              throw CompileError.missingIceSliceFiles(iceSliceFilePath)
          }
 
-         
         let process = Process()
         // process.standardOutput = stdout
         // process.standardError = stderr
@@ -42,7 +41,8 @@ enum CompileError: Error {
         process.arguments = [
             sliceFile,
             "--output-dir",
-            outputDir
+            outputDir,
+            "-I\(iceSliceFilePath)"
         ]
 
         try process.run()

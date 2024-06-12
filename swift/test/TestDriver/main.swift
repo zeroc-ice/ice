@@ -3,8 +3,8 @@
 //
 
 import Foundation
+import TestBundle
 import PromiseKit
-import TestCommon
 
 PromiseKit.conf.Q.map = .global()
 PromiseKit.conf.Q.return = .global()
@@ -24,13 +24,8 @@ do {
     }
 
     let testName = "\(testPath).\(exe)"
-    guard let helperClass =  Bundle.main.classNamed(testName) as? TestHelperI.Type else {
-        print("test: `\(testName)' not found")
-        exit(1)
-    }
 
-    let testHelper = helperClass.init()
-    try testHelper.run(args: args)
+    try TestBundle.runTest(name: testName, args: args)
 
 } catch {
     for s in Thread.callStackSymbols {

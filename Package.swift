@@ -23,10 +23,12 @@ let package = Package(
     products: [
         .library(name: "Ice", targets: ["Ice"]),
         .library(name: "Glacier2", targets: ["Glacier2"]),
+        .library(name: "IceGrid", targets: ["IceGrid"]),
+        .library(name: "IceStorm", targets: ["IceStorm"]),
         .plugin(name: "CompileSlice", targets: ["CompileSlice"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.4.0"),
+        .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.4.0"),
         .package(url: "https://github.com/mxcl/PromiseKit.git", from: "8.1.2"),
         .package(name: "mcpp", path: "/Users/joe/Developer/zeroc-ice/mcpp")
     ],

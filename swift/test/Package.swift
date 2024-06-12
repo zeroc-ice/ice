@@ -90,6 +90,8 @@ let testTargets = testDirectories.map { testPath in
         .byName(name: "TestCommon"),
         .product(name: "Ice", package: "ice"),
         .product(name: "Glacier2", package: "ice"),
+        .product(name: "IceGrid", package: "ice"),
+        .product(name: "IceStorm", package: "ice"),
     ]
     var plugins: [Target.PluginUsage] = []
 
@@ -161,16 +163,12 @@ let package = Package(
     ],
     products: [
         .library(name: "TestCommon", targets: ["TestCommon"]),
+        .library(name: "TestBundle", targets: ["TestBundle"]),
     ],
     dependencies: [
-        .package(name: "ice", path: "../../"),
+        .package(name: "ice", path: "../../")
     ],
     targets: [
-        .executableTarget(
-            name: "TestDriver",
-            dependencies: ["TestCommon"] + testDriverDependencies,
-            path: "TestDriver"
-        ),
         .target(
             name: "TestCommon",
             dependencies: [
@@ -178,6 +176,16 @@ let package = Package(
             ],
             path: "TestCommon"
         ),
+        .target(
+            name: "TestBundle",
+            dependencies: [ .target(name: "TestCommon") ] + testDriverDependencies,
+            path: "TestBundle"
+        ),
+        .executableTarget(
+            name: "TestDriver",
+            dependencies: ["TestBundle"],
+            path: "TestDriver"
+        )
     ],
     swiftLanguageVersions: [SwiftVersion.v5]
 )
