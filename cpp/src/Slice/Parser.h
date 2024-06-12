@@ -410,24 +410,6 @@ namespace Slice
         /// this item and its parent have 'deprecated' messages, the item's message is returned, not its container's.
         std::optional<std::string> getDeprecationReason(bool checkParent) const;
 
-        enum ContainedType
-        {
-            ContainedTypeSequence,
-            ContainedTypeDictionary,
-            ContainedTypeEnum,
-            ContainedTypeEnumerator,
-            ContainedTypeModule,
-            ContainedTypeClass,
-            ContainedTypeInterface,
-            ContainedTypeException,
-            ContainedTypeStruct,
-            ContainedTypeOperation,
-            ContainedTypeParamDecl,
-            ContainedTypeDataMember,
-            ContainedTypeConstant
-        };
-        virtual ContainedType containedType() const = 0;
-
         virtual std::string kindOf() const = 0;
 
     protected:
@@ -495,13 +477,7 @@ namespace Slice
         EnumeratorList enumerators(const std::string&) const;
         ConstList consts() const;
         ContainedList contents() const;
-        bool hasSequences() const;
-        bool hasStructs() const;
-        bool hasExceptions() const;
-        bool hasDictionaries() const;
-        bool hasClassDefs() const;
-        bool hasInterfaceDefs() const;
-        bool hasContained(Contained::ContainedType) const;
+
         std::string thisScope() const;
         void sort();
         void sortContents(bool);
@@ -509,6 +485,25 @@ namespace Slice
 
         bool checkIntroduced(const std::string&, ContainedPtr = 0);
         bool checkForGlobalDef(const std::string&, const char*);
+
+        /// Returns true if this contains elements of the specified type.
+        /// This check is recursive, so it will still return true even if the type is only contained indirectly.
+        template<typename T> bool contains() const
+        {
+            for (const auto& p : contents())
+            {
+                if (std::dynamic_pointer_cast<T>(p))
+                {
+                    return true;
+                }
+                ContainerPtr childContainer = std::dynamic_pointer_cast<Container>(p);
+                if (childContainer && childContainer->contains<T>())
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
     protected:
         bool validateConstant(const std::string&, const TypePtr&, SyntaxTreeBasePtr&, const std::string&, bool);
@@ -526,7 +521,6 @@ namespace Slice
     {
     public:
         Module(const ContainerPtr&, const std::string&);
-        ContainedType containedType() const final;
         std::string kindOf() const final;
         void visit(ParserVisitor*, bool) final;
 
@@ -554,7 +548,6 @@ namespace Slice
         ClassDecl(const ContainerPtr&, const std::string&);
         void destroy() final;
         ClassDefPtr definition() const;
-        ContainedType containedType() const final;
         bool isClassType() const final;
         size_t minWireSize() const final;
         std::string getOptionalFormat() const final;
@@ -607,7 +600,6 @@ namespace Slice
         bool hasDefaultValues() const;
         bool inheritsMetaData(const std::string&) const;
         bool hasBaseDataMembers() const;
-        ContainedType containedType() const final;
         void visit(ParserVisitor*, bool) final;
         int compactId() const;
         std::string kindOf() const final;
@@ -631,7 +623,6 @@ namespace Slice
         InterfaceDecl(const ContainerPtr&, const std::string&);
         void destroy() final;
         InterfaceDefPtr definition() const;
-        ContainedType containedType() const final;
         size_t minWireSize() const final;
         std::string getOptionalFormat() const final;
         bool isVariableLength() const final;
@@ -688,7 +679,6 @@ namespace Slice
         void outParameters(ParamDeclList&, ParamDeclList&) const;
         ExceptionList throws() const;
         void setExceptionList(const ExceptionList&);
-        ContainedType containedType() const final;
         bool sendsClasses() const;
         bool returnsClasses() const;
         bool returnsData() const;
@@ -735,7 +725,6 @@ namespace Slice
         bool isA(const std::string&) const;
         bool hasOperations() const;
         bool inheritsMetaData(const std::string&) const;
-        ContainedType containedType() const final;
         std::string kindOf() const final;
         void visit(ParserVisitor*, bool) final;
 
@@ -776,7 +765,6 @@ namespace Slice
         ExceptionPtr base() const;
         ExceptionList allBases() const;
         bool isBaseOf(const ExceptionPtr&) const;
-        ContainedType containedType() const final;
         bool usesClasses() const;
         bool hasDefaultValues() const;
         bool inheritsMetaData(const std::string&) const;
@@ -808,7 +796,6 @@ namespace Slice
             const std::string&);
         DataMemberList dataMembers() const;
         DataMemberList classDataMembers() const;
-        ContainedType containedType() const final;
         bool usesClasses() const final;
         size_t minWireSize() const final;
         std::string getOptionalFormat() const final;
@@ -830,7 +817,6 @@ namespace Slice
         Sequence(const ContainerPtr&, const std::string&, const TypePtr&, const StringList&);
         TypePtr type() const;
         StringList typeMetaData() const;
-        ContainedType containedType() const final;
         bool usesClasses() const final;
         size_t minWireSize() const final;
         std::string getOptionalFormat() const final;
@@ -863,7 +849,6 @@ namespace Slice
         TypePtr valueType() const;
         StringList keyMetaData() const;
         StringList valueMetaData() const;
-        ContainedType containedType() const final;
         bool usesClasses() const final;
         size_t minWireSize() const final;
         std::string getOptionalFormat() const final;
@@ -894,7 +879,6 @@ namespace Slice
         bool explicitValue() const;
         int minValue() const;
         int maxValue() const;
-        ContainedType containedType() const final;
         size_t minWireSize() const final;
         std::string getOptionalFormat() const final;
         bool isVariableLength() const final;
@@ -924,7 +908,6 @@ namespace Slice
         Enumerator(const ContainerPtr&, const std::string&, int);
         void init() final;
         EnumPtr type() const;
-        ContainedType containedType() const final;
         std::string kindOf() const final;
 
         bool explicitValue() const;
@@ -957,7 +940,6 @@ namespace Slice
         SyntaxTreeBasePtr valueType() const;
         std::string value() const;
         std::string literal() const;
-        ContainedType containedType() const final;
         std::string kindOf() const final;
         void visit(ParserVisitor*, bool) final;
 
@@ -983,7 +965,6 @@ namespace Slice
         bool isOutParam() const;
         bool optional() const;
         int tag() const;
-        ContainedType containedType() const final;
         std::string kindOf() const final;
         void visit(ParserVisitor*, bool) final;
 
@@ -1018,7 +999,6 @@ namespace Slice
         std::string defaultValue() const;
         std::string defaultLiteral() const;
         SyntaxTreeBasePtr defaultValueType() const;
-        ContainedType containedType() const final;
         std::string kindOf() const final;
         void visit(ParserVisitor*, bool) final;
 

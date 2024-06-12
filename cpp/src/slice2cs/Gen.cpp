@@ -2536,7 +2536,7 @@ Slice::Gen::ProxyVisitor::ProxyVisitor(IceUtilInternal::Output& out) : CsVisitor
 bool
 Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (!p->hasInterfaceDefs())
+    if (!p->contains<InterfaceDef>())
     {
         return false;
     }
@@ -2652,7 +2652,7 @@ Slice::Gen::DispatchAdapterVisitor::DispatchAdapterVisitor(IceUtilInternal::Outp
 bool
 Slice::Gen::DispatchAdapterVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (!p->hasInterfaceDefs())
+    if (!p->contains<InterfaceDef>())
     {
         return false;
     }
@@ -2844,7 +2844,7 @@ Slice::Gen::HelperVisitor::HelperVisitor(IceUtilInternal::Output& out) : CsVisit
 bool
 Slice::Gen::HelperVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (!p->hasInterfaceDefs() && !p->hasSequences() && !p->hasDictionaries())
+    if (!p->contains<InterfaceDef>() && !p->contains<Sequence>() && !p->contains<Dictionary>())
     {
         return false;
     }
@@ -3421,7 +3421,7 @@ Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceUtilInternal::Output& out)
 bool
 Slice::Gen::DispatcherVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (!p->hasInterfaceDefs())
+    if (!p->contains<InterfaceDef>())
     {
         return false;
     }
