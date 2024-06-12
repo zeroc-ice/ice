@@ -16,7 +16,7 @@ import net from "net";
 
 let TcpTransceiver = null;
 
-if (typeof net.createConnection !== "function") {
+if (typeof net.createConnection === "function") {
     const StateNeedConnect = 0;
     const StateConnectPending = 1;
     const StateProxyConnectRequest = 2;

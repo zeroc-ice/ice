@@ -52,7 +52,7 @@ class ProcessI extends Test.Common.Process {
 
 class ControllerHelper {
     constructor(exe, output) {
-        if (exe === "Server" || exe === "ServerAMD") {
+        if (exe === "Server.js" || exe === "ServerAMD.js") {
             this._serverReady = new Ice.Promise();
         }
         this._output = output;
@@ -95,7 +95,7 @@ class ProcessControllerI extends Test.Common.BrowserProcessController {
     async start(testSuite, exe, args, current) {
         let promise;
         let out;
-        if (exe === "Server" || exe === "ServerAMD") {
+        if (exe === "Server.js" || exe === "ServerAMD.js") {
             out = this._serverOutput;
         } else {
             out = this._clientOutput;
@@ -104,9 +104,8 @@ class ProcessControllerI extends Test.Common.BrowserProcessController {
         const helper = new ControllerHelper(exe, out);
 
         if (this._useWorker) {
-            const scripts = this._scripts;
             promise = new Promise((resolve, reject) => {
-                const worker = new Worker("/test/Common/ControllerWorker.js");
+                const worker = new Worker("/test/Common/ControllerWorker.js", { type: "module" });
                 this._worker = worker;
                 worker.onmessage = function (e) {
                     if (e.data.type == "write") {
@@ -124,7 +123,7 @@ class ProcessControllerI extends Test.Common.BrowserProcessController {
                         worker.terminate();
                     }
                 };
-                worker.postMessage({ scripts: scripts, exe: exe, args: args });
+                worker.postMessage({ exe: exe, testSuite: testSuite, args: args });
             });
         } else {
             const entryPoints = {

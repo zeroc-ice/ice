@@ -1,8 +1,3 @@
-export class DOMElement {
-    val(value: string): string;
-    scrollTop(): void;
-}
-
 export class Output {
     constructor(output: DOMElement);
     write(msg: string): void;
