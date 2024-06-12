@@ -231,7 +231,7 @@ public final class Current implements Cloneable {
       exceptionMessage = rfe.toString();
 
       if (requestId != 0) {
-        ostr.writeByte(replyStatus.getValue());
+        ostr.writeByte(replyStatus.value());
         Identity.ice_write(ostr, rfe.id);
 
         if (rfe.facet.length() == 0) {
@@ -249,7 +249,7 @@ public final class Current implements Cloneable {
       replyStatus = ReplyStatus.UserException;
 
       if (requestId != 0) {
-        ostr.writeByte(replyStatus.getValue());
+        ostr.writeByte(replyStatus.value());
         ostr.startEncapsulation(encoding, FormatType.SlicedFormat);
         ostr.writeException(ex);
         ostr.endEncapsulation();
@@ -285,7 +285,7 @@ public final class Current implements Cloneable {
         && (replyStatus == ReplyStatus.UnknownUserException
             || replyStatus == ReplyStatus.UnknownLocalException
             || replyStatus == ReplyStatus.UnknownException)) {
-      ostr.writeByte(replyStatus.getValue());
+      ostr.writeByte(replyStatus.value());
       ostr.writeString(exceptionMessage);
     }
 
@@ -316,7 +316,7 @@ public final class Current implements Cloneable {
       var ostr = new OutputStream(adapter.getCommunicator(), Protocol.currentProtocolEncoding);
       ostr.writeBlob(Protocol.replyHdr);
       ostr.writeInt(requestId);
-      ostr.writeByte(replyStatus.getValue());
+      ostr.writeByte(replyStatus.value());
       return ostr;
     }
   }
