@@ -17,10 +17,6 @@ if (typeof process != "undefined") {
         return navigator.userAgent.indexOf("MSIE") !== -1 || navigator.userAgent.match(/Trident.*rv:11\./);
     }
 
-    function isEdge() {
-        return /Edge/.test(navigator.userAgent);
-    }
-
     function isWorker() {
         return typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope;
     }
@@ -61,13 +57,13 @@ if (typeof process != "undefined") {
         // For Browsers that support setImmediate prefer that,
         // otherwise implement it using MessageChannel
         //
-        if (isEdge() || isIE()) {
+        if (isIE()) {
             Timer.setImmediate = function (cb) {
                 setImmediate(cb);
             };
         } else {
             //
-            // Should be only call for workers
+            // Should be only called for workers
             //
             const channel = new MessageChannel();
             channel.port1.onmessage = (event) => {
@@ -97,7 +93,7 @@ if (typeof process != "undefined") {
 
     let worker;
 
-    class Timer {
+    Timer = class {
         static setTimeout(cb, ms) {
             const id = nextId();
             _timers.set(id, cb);
@@ -138,7 +134,7 @@ if (typeof process != "undefined") {
                 }
             }
         }
-    }
+    };
 
     const workerCode = function () {
         return (
@@ -179,12 +175,7 @@ if (typeof process != "undefined") {
         );
     };
 
-    if (isIE()) {
-        //
-        // With IE always use the setInterval/setTimeout browser functions directly
-        //
-        Ice.Timer = createTimerObject();
-    } else if (isWorker()) {
+    if (isWorker()) {
         //
         // If we are running in a worker don't spawn a separate worker for the timer
         //
@@ -193,8 +184,6 @@ if (typeof process != "undefined") {
         const url = URL.createObjectURL(new Blob([workerCode()], { type: "text/javascript" }));
         worker = new Worker(url);
         worker.onmessage = Timer.onmessage;
-        // TODO do we need this?
-        // Ice.Timer = Timer;
     }
 }
 

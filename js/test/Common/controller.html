@@ -5,10 +5,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Test Suite | Ice for JavaScript</title>
         <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
-        <link rel="stylesheet" type="text/css" href="/assets/common.css" />
-        {{#cssDeps}}
-        <link rel="stylesheet" type="text/css" href="{{.}}" />
-        {{/cssDeps}}
     </head>
     <body>
         <div id="header">
@@ -36,19 +32,10 @@
                 <h6>Copyright &copy; ZeroC, Inc. All rights reserved.</h6>
             </div>
         </div>
-        {{#jsDeps}}
-        <script src="{{.}}"></script>
-        {{/jsDeps}}
-        <script src="/assets/common.js"></script>
-        {{#scripts}}
-        <script src="{{.}}"></script>
-        {{/scripts}}
-        <script>
-            $(document).foundation();
-            $(document).ready(function () {
-                $("#clientConsole").height(300);
-                $("#serverConsole").height(100);
-                runController($("#clientConsole"), $("#serverConsole"), "{{{workerScripts}}}".split(","));
+        <script type="module">
+            import { runController } from "/test/Common/ControllerI.js";
+            document.addEventListener("DOMContentLoaded", (event) => {
+                runController(document.getElementById("clientConsole"), document.getElementById("serverConsole"));
             });
         </script>
     </body>

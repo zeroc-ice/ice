@@ -28,7 +28,7 @@ Ice.ProtocolVersion = class {
     }
 };
 
-// Moved to StreamHelpers.js to avoid circular dependencies.
+// Moved to VersionExtensions.js to avoid circular dependencies.
 // defineStruct(ProtocolVersion, true, false);
 
 /**

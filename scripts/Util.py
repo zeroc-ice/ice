@@ -3061,10 +3061,10 @@ class BrowserProcessController(RemoteProcessController):
         self.url = None
         self.driver = None
         try:
-            cmd = "node -e \"require('./bin/HttpServer')()\""
+            httpServerCmd = "node node_modules/http-server/bin/http-server -p 8080 dist"
             cwd = current.testcase.getMapping().getPath()
-            self.httpServer = Expect.Expect(cmd, cwd=cwd)
-            self.httpServer.expect("listening on ports")
+            self.httpServer = Expect.Expect(httpServerCmd, cwd=cwd)
+            self.httpServer.expect("Available on:")
 
             if current.config.browser.startswith("Remote:"):
                 from selenium import webdriver
@@ -3173,9 +3173,7 @@ class BrowserProcessController(RemoteProcessController):
                         if ident in self.processControllerProxies:
                             prx = self.processControllerProxies[ident]
                             break
-                        print(
-                            "Please load http://{0}:8080/{1}".format(self.host, "start")
-                        )
+                        print("Please load {}".format(url))
                         self.cond.wait(5)
 
                 try:

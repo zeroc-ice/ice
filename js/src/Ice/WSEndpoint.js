@@ -4,7 +4,9 @@
 
 import { EndpointParseException } from "./LocalException.js";
 import { HashUtil } from "./HashUtil.js";
+import { WSEndpointInfo } from "./Endpoint.js";
 import { EndpointI } from "./EndpointI.js";
+import { WSTransceiver } from "./WSTransceiver.js";
 
 export class WSEndpoint extends EndpointI {
     constructor(instance, del, re) {
@@ -15,7 +17,7 @@ export class WSEndpoint extends EndpointI {
     }
 
     getInfo() {
-        const info = new Ice.WSEndpointInfo();
+        const info = new WSEndpointInfo();
         info.type = () => this.type();
         info.datagram = () => this.datagram();
         info.secure = () => this.secure();
@@ -82,7 +84,7 @@ export class WSEndpoint extends EndpointI {
     }
 
     connect() {
-        return Ice.WSTransceiver.createOutgoing(
+        return WSTransceiver.createOutgoing(
             this._instance,
             this._delegate.secure(),
             this._delegate.getAddress(),
