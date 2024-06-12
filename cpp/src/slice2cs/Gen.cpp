@@ -2885,7 +2885,6 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         string retS = typeToString(ret, ns, op->returnIsOptional());
 
         vector<string> params = getParams(op, ns);
-        vector<string> args = getArgs(op);
         vector<string> argsAMI = getInArgs(op);
 
         ParamDeclList outParams = op->outParameters();
