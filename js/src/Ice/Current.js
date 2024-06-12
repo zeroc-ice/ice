@@ -14,8 +14,7 @@ const { EncodingVersion } = Ice_Version;
  *  <code>Current</code> as its implicit final parameter. <code>Current</code> is mostly used for Ice services. Most
  *  applications ignore this parameter.
  **/
-export class Current
-{
+export class Current {
     constructor(
         adapter = null,
         con = null,
@@ -25,8 +24,8 @@ export class Current
         mode = OperationMode.Normal,
         ctx = null,
         requestId = 0,
-        encoding = new EncodingVersion())
-    {
+        encoding = new EncodingVersion(),
+    ) {
         this.adapter = adapter;
         this.con = con;
         this.id = id;
@@ -37,6 +36,6 @@ export class Current
         this.requestId = requestId;
         this.encoding = encoding;
     }
-};
+}
 
 defineStruct(Current, false, true);

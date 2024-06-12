@@ -8,30 +8,22 @@ import { TestHelper } from "../../Common/TestHelper.js";
 
 const test = TestHelper.test;
 
-export class Client extends TestHelper
-{
-    async allTests()
-    {
-        class Condition
-        {
-            constructor(value)
-            {
+export class Client extends TestHelper {
+    async allTests() {
+        class Condition {
+            constructor(value) {
                 this.value = value;
             }
         }
 
-        class SetCB
-        {
-            constructor(condition, expected)
-            {
+        class SetCB {
+            constructor(condition, expected) {
                 this.condition = condition;
                 this.expected = expected;
             }
 
-            response(value)
-            {
-                if(value != this.expected)
-                {
+            response(value) {
+                if (value != this.expected) {
                     this.condition.value = false;
                 }
             }
@@ -52,20 +44,16 @@ export class Client extends TestHelper
 
         out.write("changing state between active and hold rapidly... ");
 
-        for(let i = 0; i < 100; ++i)
-        {
+        for (let i = 0; i < 100; ++i) {
             await hold.putOnHold(0);
         }
-        for(let i = 0; i < 100; ++i)
-        {
+        for (let i = 0; i < 100; ++i) {
             await holdOneway.putOnHold(0);
         }
-        for(let i = 0; i < 100; ++i)
-        {
+        for (let i = 0; i < 100; ++i) {
             await holdSerialized.putOnHold(0);
         }
-        for(let i = 0; i < 1; ++i)
-        {
+        for (let i = 0; i < 1; ++i) {
             await holdSerializedOneway.putOnHold(0);
         }
         out.writeLine("ok");
@@ -76,31 +64,25 @@ export class Client extends TestHelper
             let value = 0;
             let result;
             const results = [];
-            while(condition.value)
-            {
+            while (condition.value) {
                 const cb = new SetCB(condition, value);
-                result = hold.set(++value, value < 500 ? Math.floor((Math.random() * 5)) : 0);
+                result = hold.set(++value, value < 500 ? Math.floor(Math.random() * 5) : 0);
                 results.push(
                     result.then(
-                        v =>
-                            {
-                                cb.response(v);
-                            },
-                        () =>
-                            {
-                                // Ignore exception
-                            }));
+                        (v) => {
+                            cb.response(v);
+                        },
+                        () => {
+                            // Ignore exception
+                        },
+                    ),
+                );
 
-                if(value % 100 === 0)
-                {
-                    while(true)
-                    {
-                        if(result.isSent())
-                        {
+                if (value % 100 === 0) {
+                    while (true) {
+                        if (result.isSent()) {
                             break;
-                        }
-                        else if(result.isCompleted())
-                        {
+                        } else if (result.isCompleted()) {
                             await result; // This should throw the failure if the call wasn't sent but done.
                             test(result.isSent());
                         }
@@ -108,8 +90,7 @@ export class Client extends TestHelper
                     }
                 }
 
-                if(value > 10000)
-                {
+                if (value > 10000) {
                     // Don't continue, it's possible that out-of-order dispatch doesn't occur
                     // after 100000 iterations and we don't want the test to last for too long
                     // when this occurs.
@@ -117,14 +98,10 @@ export class Client extends TestHelper
                 }
             }
             test(value > 10000 || !condition.value);
-            while(true)
-            {
-                if(result.isSent())
-                {
+            while (true) {
+                if (result.isSent()) {
                     break;
-                }
-                else if(result.isCompleted())
-                {
+                } else if (result.isCompleted()) {
                     await result; // This should throw the failure if the call wasn't sent but done.
                     test(result.isSent());
                 }
@@ -140,31 +117,25 @@ export class Client extends TestHelper
             let value = 0;
             let result;
             const results = [];
-            while(value < 3000 && condition.value)
-            {
+            while (value < 3000 && condition.value) {
                 const cb = new SetCB(condition, value);
                 result = holdSerialized.set(++value, 0);
                 results.push(
                     result.then(
-                        v =>
-                            {
-                                cb.response(v);
-                            },
-                        () =>
-                            {
-                                // Ignore exceptions
-                            }));
+                        (v) => {
+                            cb.response(v);
+                        },
+                        () => {
+                            // Ignore exceptions
+                        },
+                    ),
+                );
 
-                if(value % 100 === 0)
-                {
-                    while(true)
-                    {
-                        if(result.isSent())
-                        {
+                if (value % 100 === 0) {
+                    while (true) {
+                        if (result.isSent()) {
                             break;
-                        }
-                        else if(result.isCompleted())
-                        {
+                        } else if (result.isCompleted()) {
                             await result; // This should throw the failure if the call wasn't sent but done.
                             test(result.isSent());
                         }
@@ -175,12 +146,10 @@ export class Client extends TestHelper
             await result;
             test(condition.value);
 
-            for(let i = 0; i < 10000; ++i)
-            {
+            for (let i = 0; i < 10000; ++i) {
                 await holdSerializedOneway.setOneway(value + 1, value);
                 ++value;
-                if((i % 100) == 0)
-                {
+                if (i % 100 == 0) {
                     await holdSerializedOneway.putOnHold(1);
                 }
             }
@@ -195,22 +164,16 @@ export class Client extends TestHelper
             const results = [];
             await holdSerialized.set(value, 0);
 
-            for(let i = 0; i < 10000; ++i)
-            {
+            for (let i = 0; i < 10000; ++i) {
                 // Create a new proxy for each request
                 result = holdSerialized.ice_oneway().setOneway(value + 1, value);
                 results.push(result);
                 ++value;
-                if((i % 100) === 0)
-                {
-                    while(true)
-                    {
-                        if(result.isSent())
-                        {
+                if (i % 100 === 0) {
+                    while (true) {
+                        if (result.isSent()) {
                             break;
-                        }
-                        else if(result.isCompleted())
-                        {
+                        } else if (result.isCompleted()) {
                             await result; // This should throw the failure if the call wasn't sent but done.
                             test(result.isSent());
                         }
@@ -228,11 +191,9 @@ export class Client extends TestHelper
         out.write("testing waitForHold... ");
         await hold.waitForHold();
         await hold.waitForHold();
-        for(let i = 0; i < 1000; ++i)
-        {
+        for (let i = 0; i < 1000; ++i) {
             await holdOneway.ice_ping();
-            if((i % 20) == 0)
-            {
+            if (i % 20 == 0) {
                 await hold.putOnHold(0);
             }
         }
@@ -247,11 +208,9 @@ export class Client extends TestHelper
         out.writeLine("ok");
     }
 
-    async run(args)
-    {
+    async run(args) {
         let communicator;
-        try
-        {
+        try {
             const [properties] = this.createTestProperties(args);
             //
             // For this test, we want to disable retries.
@@ -265,11 +224,8 @@ export class Client extends TestHelper
 
             [communicator] = this.initialize(properties);
             await this.allTests();
-        }
-        finally
-        {
-            if(communicator)
-            {
+        } finally {
+            if (communicator) {
                 await communicator.destroy();
             }
         }

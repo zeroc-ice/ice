@@ -8,114 +8,90 @@ import { TestHelper } from "../../Common/TestHelper.js";
 
 const test = TestHelper.test;
 
-export class ThrowerI extends Test.Thrower
-{
-    shutdown(current)
-    {
+export class ThrowerI extends Test.Thrower {
+    shutdown(current) {
         current.adapter.getCommunicator().shutdown();
     }
 
-    supportsUndeclaredExceptions(current)
-    {
+    supportsUndeclaredExceptions(current) {
         return true;
     }
 
-    supportsAssertException(current)
-    {
+    supportsAssertException(current) {
         return false;
     }
 
-    throwAasA(a, current)
-    {
+    throwAasA(a, current) {
         throw new Test.A(a);
     }
 
-    throwAorDasAorD(a, current)
-    {
-        if(a > 0)
-        {
+    throwAorDasAorD(a, current) {
+        if (a > 0) {
             throw new Test.A(a);
-        }
-        else
-        {
+        } else {
             throw new Test.D(a);
         }
     }
 
-    throwBasA(a, b, current)
-    {
+    throwBasA(a, b, current) {
         this.throwBasB(a, b, current);
     }
 
-    throwBasB(a, b, current)
-    {
+    throwBasB(a, b, current) {
         throw new Test.B(a, b);
     }
 
-    throwCasA(a, b, c, current)
-    {
+    throwCasA(a, b, c, current) {
         this.throwCasC(a, b, c, current);
     }
 
-    throwCasB(a, b, c, current)
-    {
+    throwCasB(a, b, c, current) {
         this.throwCasC(a, b, c, current);
     }
 
-    throwCasC(a, b, c, current)
-    {
+    throwCasC(a, b, c, current) {
         throw new Test.C(a, b, c);
     }
 
-    throwUndeclaredA(a, current)
-    {
+    throwUndeclaredA(a, current) {
         throw new Test.A(a);
     }
 
-    throwUndeclaredB(a, b, current)
-    {
+    throwUndeclaredB(a, b, current) {
         throw new Test.B(a, b);
     }
 
-    throwUndeclaredC(a, b, c, current)
-    {
+    throwUndeclaredC(a, b, c, current) {
         throw new Test.C(a, b, c);
     }
 
-    throwLocalException(current)
-    {
+    throwLocalException(current) {
         throw new Ice.TimeoutException();
     }
 
-    throwLocalExceptionIdempotent(current)
-    {
+    throwLocalExceptionIdempotent(current) {
         throw new Ice.TimeoutException();
     }
 
-    throwNonIceException(current)
-    {
+    throwNonIceException(current) {
         throw new Error();
     }
 
-    throwAssertException(current)
-    {
+    throwAssertException(current) {
         test(false);
     }
 
-    throwMemoryLimitException(seq, current)
-    {
+    throwMemoryLimitException(seq, current) {
         return new Uint8Array(1024 * 20); // 20KB is over the configured 10KB message size max.
     }
 
-    throwAfterResponse(current)
-    {
+    throwAfterResponse(current) {
         //
         // Only relevant for AMD.
         //
     }
 
-    throwAfterException(current)
-    {
+    throwAfterException(current) {
         //
         // Only relevant for AMD.
         //

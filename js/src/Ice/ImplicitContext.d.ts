@@ -2,8 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-export namespace Ice
-{
+export namespace Ice {
     /**
      * An interface to associate implicit contexts with communicators. When you make a remote invocation without an
      * explicit context parameter, Ice uses the per-proxy context (if any) combined with the <code>ImplicitContext</code>
@@ -23,24 +22,23 @@ export namespace Ice
      * of the <code>java.util.Map</code> methods, with <code>java.lang.Object</code> replaced by <code>string</code> and
      * null replaced by the empty-string.
      */
-    interface ImplicitContext
-    {
+    interface ImplicitContext {
         /**
          * Get a copy of the underlying context.
          * @return A copy of the underlying context.
          */
-        getContext():Context;
+        getContext(): Context;
         /**
          * Set the underlying context.
          * @param newContext The new context.
          */
-        setContext(newContext:Context):void;
+        setContext(newContext: Context): void;
         /**
          * Check if this key has an associated value in the underlying context.
          * @param key The key.
          * @return True if the key has an associated value, False otherwise.
          */
-        containsKey(key:string):boolean;
+        containsKey(key: string): boolean;
         /**
          * Get the value associated with the given key in the underlying context. Returns an empty string if no value is
          * associated with the key. {@link #containsKey} allows you to distinguish between an empty-string value and no
@@ -48,19 +46,19 @@ export namespace Ice
          * @param key The key.
          * @return The value associated with the key.
          */
-        get(key:string):string;
+        get(key: string): string;
         /**
          * Create or update a key/value entry in the underlying context.
          * @param key The key.
          * @param value The value.
          * @return The previous value associated with the key, if any.
          */
-        put(key:string, value:string):string;
+        put(key: string, value: string): string;
         /**
          * Remove the entry for the given key in the underlying context.
          * @param key The key.
          * @return The value associated with the key, if any.
          */
-        remove(key:string):string;
+        remove(key: string): string;
     }
 }

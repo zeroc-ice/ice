@@ -1,4 +1,3 @@
-
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
@@ -8,43 +7,35 @@ import { Test } from "./Test.js";
 import { TestHelper } from "../../Common/TestHelper.js";
 
 const test = TestHelper.test;
-const isBrowser = (typeof window !== 'undefined' || typeof WorkerGlobalScope !== 'undefined');
+const isBrowser = typeof window !== "undefined" || typeof WorkerGlobalScope !== "undefined";
 
-function getTCPEndpointInfo(info)
-{
-    for(let p = info; p; p = p.underlying)
-    {
-        if(p instanceof Ice.TCPEndpointInfo)
-        {
+function getTCPEndpointInfo(info) {
+    for (let p = info; p; p = p.underlying) {
+        if (p instanceof Ice.TCPEndpointInfo) {
             return p;
         }
     }
     return null;
 }
 
-function getTCPConnectionInfo(info)
-{
-    for(let p = info; p; p = p.underlying)
-    {
-        if(p instanceof Ice.TCPConnectionInfo)
-        {
+function getTCPConnectionInfo(info) {
+    for (let p = info; p; p = p.underlying) {
+        if (p instanceof Ice.TCPConnectionInfo) {
             return p;
         }
     }
     return null;
 }
 
-export class Client extends TestHelper
-{
-    async allTests()
-    {
+export class Client extends TestHelper {
+    async allTests() {
         const out = this.getWriter();
         const communicator = this.communicator();
         const defaultHost = communicator.getProperties().getPropertyWithDefault("Ice.Default.Host");
 
         out.write("testing proxy endpoint information... ");
         const ref =
-                "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:opaque -e 1.8 -t 100 -v ABCD";
+            "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:opaque -e 1.8 -t 100 -v ABCD";
         const p1 = communicator.stringToProxy(ref);
 
         let endps = p1.ice_getEndpoints();
@@ -56,13 +47,17 @@ export class Client extends TestHelper
         test(ipEndpoint.sourceAddress == "10.10.10.10");
         test(ipEndpoint.compress);
         test(!ipEndpoint.datagram());
-        test(ipEndpoint.type() == Ice.TCPEndpointType && !ipEndpoint.secure() ||
-             ipEndpoint.type() == Ice.WSEndpointType && !ipEndpoint.secure() ||
-             ipEndpoint.type() == Ice.WSSEndpointType && ipEndpoint.secure());
+        test(
+            (ipEndpoint.type() == Ice.TCPEndpointType && !ipEndpoint.secure()) ||
+                (ipEndpoint.type() == Ice.WSEndpointType && !ipEndpoint.secure()) ||
+                (ipEndpoint.type() == Ice.WSSEndpointType && ipEndpoint.secure()),
+        );
 
-        test(ipEndpoint.type() == Ice.TCPEndpointType && endpoint instanceof Ice.TCPEndpointInfo ||
-             ipEndpoint.type() == Ice.WSEndpointType && endpoint instanceof Ice.WSEndpointInfo ||
-             ipEndpoint.type() == Ice.WSSEndpointType && endpoint instanceof Ice.WSEndpointInfo);
+        test(
+            (ipEndpoint.type() == Ice.TCPEndpointType && endpoint instanceof Ice.TCPEndpointInfo) ||
+                (ipEndpoint.type() == Ice.WSEndpointType && endpoint instanceof Ice.WSEndpointInfo) ||
+                (ipEndpoint.type() == Ice.WSSEndpointType && endpoint instanceof Ice.WSEndpointInfo),
+        );
 
         let ic = Ice.initialize();
         ic.stringToProxy("test:default");
@@ -101,16 +96,13 @@ export class Client extends TestHelper
         ipinfo = getTCPConnectionInfo(info);
         test(!info.incoming);
         test(info.adapterName.length === 0);
-        if(conn.type() != "ws" && conn.type() != "wss")
-        {
+        if (conn.type() != "ws" && conn.type() != "wss") {
             test(ipinfo.localPort > 0);
         }
         test(ipinfo.remotePort == endpointPort);
-        if(defaultHost == "127.0.0.1")
-        {
+        if (defaultHost == "127.0.0.1") {
             test(ipinfo.remoteAddress == defaultHost);
-            if(conn.type() != "ws" && conn.type() != "wss")
-            {
+            if (conn.type() != "ws" && conn.type() != "wss") {
                 test(ipinfo.localAddress == defaultHost);
             }
         }
@@ -119,16 +111,14 @@ export class Client extends TestHelper
 
         test(ctx.get("incoming") == "true");
         test(ctx.get("adapterName") == "TestAdapter");
-        if(conn.type() != "ws" && conn.type() != "wss")
-        {
+        if (conn.type() != "ws" && conn.type() != "wss") {
             test(ctx.get("remoteAddress") == info.localAddress);
             test(ctx.get("localAddress") == info.remoteAddress);
             test(parseInt(ctx.get("remotePort")) === info.localPort);
             test(parseInt(ctx.get("localPort")) === info.remotePort);
         }
 
-        if(conn.type() == "ws" || conn.type() == "wss")
-        {
+        if (conn.type() == "ws" || conn.type() == "wss") {
             test(ctx.get("ws.Upgrade").toLowerCase() == "websocket");
             test(ctx.get("ws.Connection").indexOf("Upgrade") >= 0);
             test(ctx.get("ws.Sec-WebSocket-Protocol") == "ice.zeroc.com");
@@ -140,18 +130,13 @@ export class Client extends TestHelper
         await testIntf.shutdown();
     }
 
-    async run(args)
-    {
+    async run(args) {
         let communicator;
-        try
-        {
+        try {
             [communicator] = this.initialize(args);
             await this.allTests();
-        }
-        finally
-        {
-            if(communicator)
-            {
+        } finally {
+            if (communicator) {
                 await communicator.destroy();
             }
         }

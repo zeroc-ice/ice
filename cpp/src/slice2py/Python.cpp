@@ -159,12 +159,12 @@ namespace
     // The PackageVisitor class creates the directory hierarchy to mirror the
     // Slice module hierarchy, and updates the __init__.py files as necessary.
     //
-    class PackageVisitor : public ParserVisitor
+    class PackageVisitor final : public ParserVisitor
     {
     public:
         static void createModules(const UnitPtr&, const string&, const string&);
 
-        virtual void visitModuleEnd(const ModulePtr&);
+        void visitModuleEnd(const ModulePtr&) final;
 
     private:
         PackageVisitor(StringList&);

@@ -7,40 +7,30 @@ import { TestHelper } from "../../Common/TestHelper.js";
 
 const test = TestHelper.test;
 
-export async function oneways(communicator, prx, Test, bidir)
-{
+export async function oneways(communicator, prx, Test, bidir) {
     prx = prx.ice_oneway();
     await prx.ice_ping();
 
-    try
-    {
+    try {
         await prx.ice_isA(Test.MyClass.ice_staticId());
         test(false);
-    }
-    catch(ex)
-    {
+    } catch (ex) {
         // Expected: twoway proxy required
         test(ex instanceof Ice.TwowayOnlyException, ex);
     }
 
-    try
-    {
+    try {
         await prx.ice_id();
         test(false);
-    }
-    catch(ex)
-    {
+    } catch (ex) {
         // Expected: twoway proxy required
         test(ex instanceof Ice.TwowayOnlyException, ex);
     }
 
-    try
-    {
+    try {
         await prx.ice_ids();
         test(false);
-    }
-    catch(ex)
-    {
+    } catch (ex) {
         // Expected: twoway proxy required
         test(ex instanceof Ice.TwowayOnlyException, ex);
     }
@@ -48,13 +38,10 @@ export async function oneways(communicator, prx, Test, bidir)
     await prx.opVoid();
     await prx.opIdempotent();
 
-    try
-    {
+    try {
         await prx.opByte(0xff, 0x0f);
         test(false);
-    }
-    catch(ex)
-    {
+    } catch (ex) {
         // Expected: twoway proxy required
         test(ex instanceof Ice.TwowayOnlyException, ex);
     }

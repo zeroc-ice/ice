@@ -2,55 +2,39 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import {Ice} from "ice";
-import {Test} from "./generated"
-import {TestHelper} from "../../../Common/TestHelper"
+import { Ice } from "ice";
+import { Test } from "./generated";
+import { TestHelper } from "../../../Common/TestHelper";
 const test = TestHelper.test;
 
-export class Client extends TestHelper
-{
-    async allTests()
-    {
-        class EmptyI extends Test.Empty
-        {
-        }
+export class Client extends TestHelper {
+    async allTests() {
+        class EmptyI extends Test.Empty {}
 
-        class ServantLocatorI
-        {
-            locate(curr:Ice.Current, cookie:Object):Ice.Object
-            {
+        class ServantLocatorI {
+            locate(curr: Ice.Current, cookie: Object): Ice.Object {
                 return null;
             }
 
-            finished(curr:Ice.Current, servant:Ice.Object, cookie:Object):void
-            {
-            }
+            finished(curr: Ice.Current, servant: Ice.Object, cookie: Object): void {}
 
-            deactivate(category:string):void
-            {
-            }
+            deactivate(category: string): void {}
         }
 
         const out = this.getWriter();
         const communicator = this.communicator();
         out.write("testing object adapter registration exceptions... ");
-        try
-        {
+        try {
             await communicator.createObjectAdapter("TestAdapter0");
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Ice.InitializationException, ex); // Expected
         }
 
-        try
-        {
+        try {
             await communicator.createObjectAdapterWithEndpoints("TestAdapter0", "default");
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Ice.FeatureNotSupportedException, ex); // Expected
         }
         out.writeLine("ok");
@@ -59,44 +43,32 @@ export class Client extends TestHelper
         {
             const adapter = await communicator.createObjectAdapter("");
             adapter.add(new EmptyI(), Ice.stringToIdentity("x"));
-            try
-            {
+            try {
                 adapter.add(new EmptyI(), Ice.stringToIdentity("x"));
                 test(false);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(ex instanceof Ice.AlreadyRegisteredException, ex);
             }
 
-            try
-            {
+            try {
                 adapter.add(new EmptyI(), Ice.stringToIdentity(""));
                 test(false);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(ex instanceof Ice.IllegalIdentityException, ex);
             }
 
-            try
-            {
+            try {
                 adapter.add(null, Ice.stringToIdentity("x"));
                 test(false);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(ex instanceof Ice.IllegalServantException, ex);
             }
 
             adapter.remove(Ice.stringToIdentity("x"));
-            try
-            {
+            try {
                 adapter.remove(Ice.stringToIdentity("x"));
                 test(false);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(ex instanceof Ice.NotRegisteredException, ex);
             }
             await adapter.deactivate();
@@ -107,13 +79,10 @@ export class Client extends TestHelper
         {
             const adapter = await communicator.createObjectAdapter("");
             adapter.addServantLocator(new ServantLocatorI(), "x");
-            try
-            {
+            try {
                 adapter.addServantLocator(new ServantLocatorI(), "x");
                 test(false);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(ex instanceof Ice.AlreadyRegisteredException, ex);
             }
             await adapter.deactivate();
@@ -121,13 +90,10 @@ export class Client extends TestHelper
 
             out.write("testing value factory registration exception... ");
             communicator.getValueFactoryManager().add(() => null, "::x");
-            try
-            {
+            try {
                 communicator.getValueFactoryManager().add(() => null, "::x");
                 test(false);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(ex instanceof Ice.AlreadyRegisteredException, ex);
             }
         }
@@ -146,58 +112,43 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("catching exact types... ");
-        try
-        {
+        try {
             await thrower.throwAasA(1);
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.A, ex);
             test(ex.aMem === 1);
         }
 
-        try
-        {
+        try {
             await thrower.throwAorDasAorD(1);
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.A, ex);
             test(ex.aMem === 1);
         }
 
-        try
-        {
+        try {
             await thrower.throwAorDasAorD(-1);
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.D, ex);
             test(ex.dMem === -1);
         }
 
-        try
-        {
+        try {
             await thrower.throwBasB(1, 2);
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.B, ex);
             test(ex.aMem == 1);
             test(ex.bMem == 2);
         }
 
-        try
-        {
+        try {
             await thrower.throwCasC(1, 2, 3);
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.C, ex);
             test(ex.aMem == 1);
             test(ex.bMem == 2);
@@ -206,24 +157,18 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("catching base types... ");
-        try
-        {
+        try {
             await thrower.throwBasB(1, 2);
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.A, ex);
             test(ex.aMem == 1);
         }
 
-        try
-        {
+        try {
             await thrower.throwCasC(1, 2, 3);
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.B, ex);
             test(ex.aMem == 1);
             test(ex.bMem == 2);
@@ -231,38 +176,29 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("catching derived types... ");
-        try
-        {
+        try {
             await thrower.throwBasA(1, 2);
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.B, ex);
             test(ex.aMem == 1);
             test(ex.bMem == 2);
         }
 
-        try
-        {
+        try {
             await thrower.throwCasA(1, 2, 3);
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.C, ex);
             test(ex.aMem == 1);
             test(ex.bMem == 2);
             test(ex.cMem == 3);
         }
 
-        try
-        {
+        try {
             await thrower.throwCasB(1, 2, 3);
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.C, ex);
             test(ex.aMem == 1);
             test(ex.bMem == 2);
@@ -270,191 +206,142 @@ export class Client extends TestHelper
         }
         out.writeLine("ok");
 
-        if(await thrower.supportsUndeclaredExceptions())
-        {
+        if (await thrower.supportsUndeclaredExceptions()) {
             out.write("catching unknown user exception... ");
-            try
-            {
+            try {
                 await thrower.throwUndeclaredA(1);
                 test(false);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(ex instanceof Ice.UnknownUserException, ex);
             }
 
-            try
-            {
+            try {
                 await thrower.throwUndeclaredB(1, 2);
                 test(false);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(ex instanceof Ice.UnknownUserException, ex);
             }
 
-            try
-            {
+            try {
                 await thrower.throwUndeclaredC(1, 2, 3);
                 test(false);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(ex instanceof Ice.UnknownUserException, ex);
             }
             out.writeLine("ok");
         }
 
-        if(await thrower.supportsAssertException())
-        {
+        if (await thrower.supportsAssertException()) {
             out.write("testing assert in the server... ");
-            try
-            {
+            try {
                 await thrower.throwAssertException();
                 test(false);
-            }
-            catch(ex)
-            {
-                test(ex instanceof Ice.ConnectionLostException ||
-                        ex instanceof Ice.UnknownException, ex);
+            } catch (ex) {
+                test(ex instanceof Ice.ConnectionLostException || ex instanceof Ice.UnknownException, ex);
             }
             out.writeLine("ok");
         }
 
         out.write("testing memory limit marshal exception...");
-        try
-        {
+        try {
             await thrower.throwMemoryLimitException(null);
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Ice.MemoryLimitException, ex);
         }
 
-        try
-        {
+        try {
             await thrower.throwMemoryLimitException(new Uint8Array(20 * 1024));
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex.toString().indexOf("ConnectionLostException") > 0, ex);
         }
         out.writeLine("ok");
 
         let retries = 10;
-        while(--retries > 0)
-        {
+        while (--retries > 0) {
             // The above test can cause a close connection between the echo server and
             // bidir server, we need to wait until the bidir server has reopen the
             // connection with the echo server.
 
-            try
-            {
+            try {
                 await thrower.ice_ping();
                 break;
-            }
-            catch(ex)
-            {
-                if(ex instanceof Ice.ObjectNotExistException && retries > 0)
-                {
+            } catch (ex) {
+                if (ex instanceof Ice.ObjectNotExistException && retries > 0) {
                     await Ice.Promise.delay(20);
-                }
-                else
-                {
+                } else {
                     throw ex;
                 }
             }
         }
 
         out.write("catching object not exist exception... ");
-        try
-        {
+        try {
             const thrower2 = Test.ThrowerPrx.uncheckedCast(
-                thrower.ice_identity(Ice.stringToIdentity("does not exist")));
+                thrower.ice_identity(Ice.stringToIdentity("does not exist")),
+            );
             await thrower2.ice_ping();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Ice.ObjectNotExistException, ex);
             test(ex.id.equals(Ice.stringToIdentity("does not exist")));
         }
         out.writeLine("ok");
 
         out.write("catching facet not exist exception... ");
-        try
-        {
+        try {
             const thrower2 = Test.ThrowerPrx.uncheckedCast(thrower, "no such facet");
             await thrower2.ice_ping();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Ice.FacetNotExistException, ex);
             test(ex.facet == "no such facet");
         }
         out.writeLine("ok");
 
         out.write("catching operation not exist exception... ");
-        try
-        {
+        try {
             const thrower2 = Test.WrongOperationPrx.uncheckedCast(thrower);
             await thrower2.noSuchOperation();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Ice.OperationNotExistException, ex);
             test(ex.operation == "noSuchOperation");
         }
         out.writeLine("ok");
 
         out.write("catching unknown local exception... ");
-        try
-        {
+        try {
             await thrower.throwLocalException();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Ice.UnknownLocalException, ex);
         }
 
-        try
-        {
+        try {
             await thrower.throwLocalExceptionIdempotent();
             test(false);
-        }
-        catch(ex)
-        {
-            test(ex instanceof Ice.UnknownLocalException ||
-                    ex instanceof Ice.OperationNotExistException, ex);
+        } catch (ex) {
+            test(ex instanceof Ice.UnknownLocalException || ex instanceof Ice.OperationNotExistException, ex);
         }
         out.writeLine("ok");
 
         out.write("catching unknown non-Ice exception... ");
-        try
-        {
+        try {
             await thrower.throwNonIceException();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Ice.UnknownException, ex);
         }
         out.writeLine("ok");
 
         out.write("testing asynchronous exceptions... ");
         await thrower.throwAfterResponse();
-        try
-        {
+        try {
             await thrower.throwAfterException();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.A, ex);
         }
         out.writeLine("ok");
@@ -462,22 +349,17 @@ export class Client extends TestHelper
         await thrower.shutdown();
     }
 
-    async run(args:string[])
-    {
-        let communicator:Ice.Communicator;
-        try
-        {
+    async run(args: string[]) {
+        let communicator: Ice.Communicator;
+        try {
             const [properties] = this.createTestProperties(args);
             properties.setProperty("Ice.MessageSizeMax", "10");
             properties.setProperty("Ice.Warn.Connections", "0");
             properties.setProperty("Ice.PrintStackTraces", "1");
             [communicator] = this.initialize(properties);
             await this.allTests();
-        }
-        finally
-        {
-            if(communicator)
-            {
+        } finally {
+            if (communicator) {
                 await communicator.destroy();
             }
         }

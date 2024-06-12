@@ -9,14 +9,11 @@ import { DI, FI, HI, EmptyI } from "./TestI.js";
 
 const test = TestHelper.test;
 
-export class Server extends TestHelper
-{
-    async run(args)
-    {
+export class Server extends TestHelper {
+    async run(args) {
         let communicator;
         let echo;
-        try
-        {
+        try {
             [communicator] = this.initialize(args);
             const out = this.getWriter();
             echo = await Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:" + this.getTestEndpoint()));
@@ -27,24 +24,18 @@ export class Server extends TestHelper
             const obj = new EmptyI();
             adapter.add(obj, Ice.stringToIdentity("d"));
             adapter.addFacet(obj, Ice.stringToIdentity("d"), "facetABCD");
-            try
-            {
+            try {
                 adapter.addFacet(obj, Ice.stringToIdentity("d"), "facetABCD");
                 test(false);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(ex instanceof Ice.AlreadyRegisteredException);
             }
 
             adapter.removeFacet(Ice.stringToIdentity("d"), "facetABCD");
-            try
-            {
+            try {
                 adapter.removeFacet(Ice.stringToIdentity("d"), "facetABCD");
                 test(false);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(ex instanceof Ice.NotRegisteredException);
             }
             out.writeLine("ok");
@@ -62,13 +53,10 @@ export class Server extends TestHelper
             test(fm.size === 2);
             test(fm.get("f1") === obj1);
             test(fm.get("f2") === obj2);
-            try
-            {
+            try {
                 adapter.removeAllFacets(Ice.stringToIdentity("id1"));
                 test(false);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(ex instanceof Ice.NotRegisteredException);
             }
             fm = adapter.removeAllFacets(Ice.stringToIdentity("id2"));
@@ -92,16 +80,12 @@ export class Server extends TestHelper
             echo.ice_getCachedConnection().setAdapter(adapter);
             this.serverReady();
             await communicator.waitForShutdown();
-        }
-        finally
-        {
-            if(echo)
-            {
+        } finally {
+            if (echo) {
                 await echo.shutdown();
             }
 
-            if(communicator)
-            {
+            if (communicator) {
                 await communicator.destroy();
             }
         }

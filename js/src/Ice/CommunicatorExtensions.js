@@ -2,16 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { Communicator } from './Communicator.js';
-import { Instance } from './Instance.js';
-import { AsyncResultBase } from './AsyncResultBase.js';
+import { Communicator } from "./Communicator.js";
+import { Instance } from "./Instance.js";
+import { AsyncResultBase } from "./AsyncResultBase.js";
 
-Communicator.prototype.createInstance = function(initData)
-{
+Communicator.prototype.createInstance = function (initData) {
     return new Instance(initData);
 };
 
-Communicator.prototype.createAsyncResultBase = function(communicator, op, connection, proxy, adapter)
-{
-    return new AsyncResultBase(communicator, op, connection, proxy, adapter)
+Communicator.prototype.createAsyncResultBase = function (communicator, op, connection, proxy, adapter) {
+    return new AsyncResultBase(communicator, op, connection, proxy, adapter);
 };

@@ -4,54 +4,39 @@
 
 import { Test } from "./Test.js";
 
-export class InitialI extends Test.Initial
-{
-    shutdown(current)
-    {
+export class InitialI extends Test.Initial {
+    shutdown(current) {
         current.adapter.getCommunicator().shutdown();
     }
 
-    pingPong(obj, current)
-    {
+    pingPong(obj, current) {
         return obj;
     }
 
-    opOptionalException(a, b, current)
-    {
+    opOptionalException(a, b, current) {
         const ex = new Test.OptionalException();
-        if(a !== undefined)
-        {
+        if (a !== undefined) {
             ex.a = a;
-        }
-        else
-        {
+        } else {
             ex.a = undefined; // The member "a" has a default value.
         }
-        if(b !== undefined)
-        {
+        if (b !== undefined) {
             ex.b = b;
         }
         throw ex;
     }
 
-    opDerivedException(a, b, current)
-    {
+    opDerivedException(a, b, current) {
         const ex = new Test.DerivedException();
-        if(a !== undefined)
-        {
+        if (a !== undefined) {
             ex.a = a;
-        }
-        else
-        {
+        } else {
             ex.a = undefined; // The member "a" has a default value.
         }
-        if(b !== undefined)
-        {
+        if (b !== undefined) {
             ex.b = b;
             ex.ss = b;
-        }
-        else
-        {
+        } else {
             ex.ss = undefined; // The member "ss" has a default value.
         }
         ex.d1 = "d1";
@@ -59,220 +44,173 @@ export class InitialI extends Test.Initial
         throw ex;
     }
 
-    opRequiredException(a, b, current)
-    {
+    opRequiredException(a, b, current) {
         const ex = new Test.RequiredException();
-        if(a !== undefined)
-        {
+        if (a !== undefined) {
             ex.a = a;
-        }
-        else
-        {
+        } else {
             ex.a = undefined; // The member "a" has a default value.
         }
-        if(b !== undefined)
-        {
+        if (b !== undefined) {
             ex.b = b;
             ex.ss = b;
         }
         throw ex;
     }
 
-    opByte(p1, current)
-    {
+    opByte(p1, current) {
         return [p1, p1];
     }
 
-    opBool(p1, current)
-    {
+    opBool(p1, current) {
         return [p1, p1];
     }
 
-    opShort(p1, current)
-    {
+    opShort(p1, current) {
         return [p1, p1];
     }
 
-    opInt(p1, current)
-    {
+    opInt(p1, current) {
         return [p1, p1];
     }
 
-    opLong(p1, current)
-    {
+    opLong(p1, current) {
         return [p1, p1];
     }
 
-    opFloat(p1, current)
-    {
+    opFloat(p1, current) {
         return [p1, p1];
     }
 
-    opDouble(p1, current)
-    {
+    opDouble(p1, current) {
         return [p1, p1];
     }
 
-    opString(p1, current)
-    {
+    opString(p1, current) {
         return [p1, p1];
     }
 
-    opMyEnum(p1, current)
-    {
+    opMyEnum(p1, current) {
         return [p1, p1];
     }
 
-    opSmallStruct(p1, current)
-    {
+    opSmallStruct(p1, current) {
         return [p1, p1];
     }
 
-    opFixedStruct(p1, current)
-    {
+    opFixedStruct(p1, current) {
         return [p1, p1];
     }
 
-    opVarStruct(p1, current)
-    {
+    opVarStruct(p1, current) {
         return [p1, p1];
     }
 
-    opOneOptional(p1, current)
-    {
+    opOneOptional(p1, current) {
         return [p1, p1];
     }
 
-    opMyInterfaceProxy(p1, current)
-    {
+    opMyInterfaceProxy(p1, current) {
         return [p1, p1];
     }
 
-    opByteSeq(p1, current)
-    {
+    opByteSeq(p1, current) {
         return [p1, p1];
     }
 
-    opBoolSeq(p1, current)
-    {
+    opBoolSeq(p1, current) {
         return [p1, p1];
     }
 
-    opShortSeq(p1, current)
-    {
+    opShortSeq(p1, current) {
         return [p1, p1];
     }
 
-    opIntSeq(p1, current)
-    {
+    opIntSeq(p1, current) {
         return [p1, p1];
     }
 
-    opLongSeq(p1, current)
-    {
+    opLongSeq(p1, current) {
         return [p1, p1];
     }
 
-    opFloatSeq(p1, current)
-    {
+    opFloatSeq(p1, current) {
         return [p1, p1];
     }
 
-    opDoubleSeq(p1, current)
-    {
+    opDoubleSeq(p1, current) {
         return [p1, p1];
     }
 
-    opStringSeq(p1, current)
-    {
+    opStringSeq(p1, current) {
         return [p1, p1];
     }
 
-    opSmallStructSeq(p1, current)
-    {
+    opSmallStructSeq(p1, current) {
         return [p1, p1];
     }
 
-    opSmallStructList(p1, current)
-    {
+    opSmallStructList(p1, current) {
         return [p1, p1];
     }
 
-    opFixedStructSeq(p1, current)
-    {
+    opFixedStructSeq(p1, current) {
         return [p1, p1];
     }
 
-    opFixedStructList(p1, current)
-    {
+    opFixedStructList(p1, current) {
         return [p1, p1];
     }
 
-    opVarStructSeq(p1, current)
-    {
+    opVarStructSeq(p1, current) {
         return [p1, p1];
     }
 
-    opSerializable(p1, current)
-    {
+    opSerializable(p1, current) {
         return [p1, p1];
     }
 
-    opIntIntDict(p1, current)
-    {
+    opIntIntDict(p1, current) {
         return [p1, p1];
     }
 
-    opStringIntDict(p1, current)
-    {
+    opStringIntDict(p1, current) {
         return [p1, p1];
     }
 
-    opClassAndUnknownOptional(p, current)
-    {
-    }
+    opClassAndUnknownOptional(p, current) {}
 
-    opG(g, current)
-    {
+    opG(g, current) {
         return g;
     }
 
-    opVoid()
-    {
-    }
+    opVoid() {}
 
-    opMStruct1(current)
-    {
+    opMStruct1(current) {
         return new Test.SmallStruct();
     }
 
-    opMStruct2(p1, current)
-    {
+    opMStruct2(p1, current) {
         return [p1, p1];
     }
 
-    opMSeq1(current)
-    {
+    opMSeq1(current) {
         return [];
     }
 
-    opMSeq2(p1, current)
-    {
+    opMSeq2(p1, current) {
         return [p1, p1];
     }
 
-    opMDict1(current)
-    {
+    opMDict1(current) {
         return new Map();
     }
 
-    opMDict2(p1, current)
-    {
+    opMDict2(p1, current) {
         return [p1, p1];
     }
 
-    supportsJavaSerializable(current)
-    {
+    supportsJavaSerializable(current) {
         return false;
     }
 }

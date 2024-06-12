@@ -4,60 +4,46 @@
 
 import { Test } from "./Test.js";
 
-export class DI extends Test.D
-{
-    callA(current)
-    {
+export class DI extends Test.D {
+    callA(current) {
         return "A";
     }
 
-    callB(current)
-    {
+    callB(current) {
         return "B";
     }
 
-    callC(current)
-    {
+    callC(current) {
         return "C";
     }
 
-    callD(current)
-    {
+    callD(current) {
         return "D";
     }
 }
 
-export class EmptyI extends Test.Empty
-{
-}
+export class EmptyI extends Test.Empty {}
 
-export class FI extends Test.F
-{
-    callE(current)
-    {
+export class FI extends Test.F {
+    callE(current) {
         return "E";
     }
 
-    callF(current)
-    {
+    callF(current) {
         return "F";
     }
 }
 
-export class HI extends Test.H
-{
-    callG(current)
-    {
+export class HI extends Test.H {
+    callG(current) {
         return "G";
     }
 
-    callH(current)
-    {
+    callH(current) {
         return "H";
     }
 
-    shutdown(current)
-    {
+    shutdown(current) {
         current.adapter.getCommunicator().shutdown();
     }
 }

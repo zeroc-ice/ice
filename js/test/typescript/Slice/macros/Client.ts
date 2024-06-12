@@ -2,16 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import {Ice} from "ice";
-import {Test} from "./generated";
-import {TestHelper} from "../../../Common/TestHelper";
+import { Ice } from "ice";
+import { Test } from "./generated";
+import { TestHelper } from "../../../Common/TestHelper";
 
 const test = TestHelper.test;
 
-export class Client extends TestHelper
-{
-    allTests()
-    {
+export class Client extends TestHelper {
+    allTests() {
         const out = this.getWriter();
         out.write("testing Slice predefined macros... ");
 
@@ -30,8 +28,7 @@ export class Client extends TestHelper
         out.writeLine("ok");
     }
 
-    run(args:string[])
-    {
+    run(args: string[]) {
         this.allTests();
     }
 }

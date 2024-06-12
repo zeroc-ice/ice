@@ -8,19 +8,15 @@ import { TestHelper } from "../../Common/TestHelper.js";
 
 const test = TestHelper.test;
 
-export class Client extends TestHelper
-{
-    async allTests()
-    {
+export class Client extends TestHelper {
+    async allTests() {
         const controller = Test.ControllerPrx.uncheckedCast(
-            this.communicator().stringToProxy("controller:" + this.getTestEndpoint(1)));
+            this.communicator().stringToProxy("controller:" + this.getTestEndpoint(1)),
+        );
         test(controller !== null);
-        try
-        {
+        try {
             await this.allTestsWithController(controller);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             // Ensure the adapter is not in the holding state when an unexpected exception occurs to prevent the test
             // from hanging on exit in case a connection which disables timeouts is still opened.
             controller.resumeAdapter();
@@ -28,23 +24,16 @@ export class Client extends TestHelper
         }
     }
 
-    async allTestsWithController(controller)
-    {
-        async function connect(prx)
-        {
+    async allTestsWithController(controller) {
+        async function connect(prx) {
             let nRetry = 10;
-            while(--nRetry > 0)
-            {
-                try
-                {
+            while (--nRetry > 0) {
+                try {
                     await prx.ice_getConnection();
                     break;
-                }
-                catch(ex)
-                {
+                } catch (ex) {
                     // Can sporadically occur with slow machines
-                    test(ex instanceof Ice.ConnectTimeoutException ||
-                            ex instanceof Ice.ConnectFailedException, ex);
+                    test(ex instanceof Ice.ConnectTimeoutException || ex instanceof Ice.ConnectFailedException, ex);
                 }
                 await Ice.Promise.delay(100);
             }
@@ -59,9 +48,9 @@ export class Client extends TestHelper
         test(obj !== null);
 
         let mult = 1;
-        if(["ssl", "wss"].includes(
-            communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp")))
-        {
+        if (
+            ["ssl", "wss"].includes(communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp"))
+        ) {
             mult = 4;
         }
 
@@ -72,17 +61,12 @@ export class Client extends TestHelper
         {
             const to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(100 * mult));
             await controller.holdAdapter(-1);
-            try
-            {
+            try {
                 await to.op(); // Expect ConnectTimeoutException.
                 test(false);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(ex instanceof Ice.ConnectTimeoutException, ex);
-            }
-            finally
-            {
+            } finally {
                 await controller.resumeAdapter();
             }
             await timeout.op(); // Ensure adapter is active.
@@ -92,20 +76,16 @@ export class Client extends TestHelper
             const to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(-1));
             await controller.holdAdapter(100 * mult);
             await to.ice_getConnection();
-            try
-            {
+            try {
                 await to.op(); // Expect success.
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(false, ex);
             }
         }
         out.writeLine("ok");
 
         const seq = new Uint8Array(10000000);
-        if(!TestHelper.isSafari())
-        {
+        if (!TestHelper.isSafari()) {
             // Connection timeouts are not realiable with Safari because its WebSocket implementation
             // buffers all the data without applying back presure.
             out.write("testing connection timeout... ");
@@ -113,17 +93,12 @@ export class Client extends TestHelper
                 const to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(250 * mult));
                 await connect(to);
                 await controller.holdAdapter(-1);
-                try
-                {
+                try {
                     await to.sendData(seq); // Expect TimeoutException
                     test(false);
-                }
-                catch(ex)
-                {
+                } catch (ex) {
                     test(ex instanceof Ice.TimeoutException, ex);
-                }
-                finally
-                {
+                } finally {
                     await controller.resumeAdapter();
                 }
                 await timeout.op(); // Ensure adapter is active.
@@ -133,12 +108,9 @@ export class Client extends TestHelper
                 // NOTE: 30s timeout is necessary for Firefox/IE on Windows
                 const to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(30000 * mult));
                 await controller.holdAdapter(200 * mult);
-                try
-                {
+                try {
                     await to.sendData(new Uint8Array(5 * 1024)); // Expect success.
-                }
-                catch(ex)
-                {
+                } catch (ex) {
                     test(false, ex);
                 }
             }
@@ -149,27 +121,21 @@ export class Client extends TestHelper
         {
             const connection = await obj.ice_getConnection();
             let to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(100));
-            test(connection == await to.ice_getConnection());
+            test(connection == (await to.ice_getConnection()));
 
-            try
-            {
+            try {
                 await to.sleep(1000);
                 test(false);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(ex instanceof Ice.InvocationTimeoutException, ex);
             }
             await obj.ice_ping();
             to = await Test.TimeoutPrx.checkedCast(obj.ice_invocationTimeout(1000));
-            test(connection === await obj.ice_getConnection());
+            test(connection === (await obj.ice_getConnection()));
 
-            try
-            {
+            try {
                 await to.sleep(100);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(false);
             }
         }
@@ -185,38 +151,28 @@ export class Client extends TestHelper
             await controller.holdAdapter(-1);
             await connection.close(Ice.ConnectionClose.GracefullyWithWait);
 
-            try
-            {
+            try {
                 connection.getInfo(); // getInfo() doesn't throw in the closing state
-                while(true)
-                {
-                    try
-                    {
+                while (true) {
+                    try {
                         connection.getInfo();
                         await Ice.Promise.delay(10);
-                    }
-                    catch(ex)
-                    {
+                    } catch (ex) {
                         test(ex instanceof Ice.ConnectionManuallyClosedException, ex); // Expected
                         test(ex.graceful);
                         break;
                     }
                 }
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(false, ex);
-            }
-            finally
-            {
+            } finally {
                 await controller.resumeAdapter();
             }
             await timeout.op();
         }
         out.writeLine("ok");
 
-        if(!TestHelper.isSafari())
-        {
+        if (!TestHelper.isSafari()) {
             // Connection timeouts are not realiable with Safari because its WebSocket implementation
             // buffers all the data without applying back presure.
             {
@@ -229,13 +185,10 @@ export class Client extends TestHelper
                 //
                 const initData = new Ice.InitializationData();
                 initData.properties = communicator.getProperties().clone();
-                if(mult === 1)
-                {
+                if (mult === 1) {
                     initData.properties.setProperty("Ice.Override.ConnectTimeout", "250");
                     initData.properties.setProperty("Ice.Override.Timeout", "100");
-                }
-                else
-                {
+                } else {
                     initData.properties.setProperty("Ice.Override.ConnectTimeout", "5000");
                     initData.properties.setProperty("Ice.Override.Timeout", "2000");
                 }
@@ -244,17 +197,12 @@ export class Client extends TestHelper
                 await connect(to);
                 await controller.holdAdapter(-1);
 
-                try
-                {
+                try {
                     await to.sendData(seq); // Expect TimeoutException.
                     test(false);
-                }
-                catch(ex)
-                {
+                } catch (ex) {
                     test(ex instanceof Ice.TimeoutException, ex);
-                }
-                finally
-                {
+                } finally {
                     await controller.resumeAdapter();
                 }
                 await timeout.op();
@@ -264,17 +212,12 @@ export class Client extends TestHelper
                 to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(1000 * mult));
                 await connect(to);
                 await controller.holdAdapter(-1);
-                try
-                {
+                try {
                     await to.sendData(seq); // Expect TimeoutException.
                     test(false);
-                }
-                catch(ex)
-                {
+                } catch (ex) {
                     test(ex instanceof Ice.TimeoutException, ex);
-                }
-                finally
-                {
+                } finally {
                     await controller.resumeAdapter();
                 }
                 await timeout.op();
@@ -290,29 +233,21 @@ export class Client extends TestHelper
                 //
                 const initData = new Ice.InitializationData();
                 initData.properties = communicator.getProperties().clone();
-                if(mult === 1)
-                {
+                if (mult === 1) {
                     initData.properties.setProperty("Ice.Override.ConnectTimeout", "250");
-                }
-                else
-                {
+                } else {
                     initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000");
                 }
                 const comm = Ice.initialize(initData);
                 let to = Test.TimeoutPrx.uncheckedCast(comm.stringToProxy(ref));
                 await controller.holdAdapter(-1);
 
-                try
-                {
+                try {
                     await to.op();
                     test(false);
-                }
-                catch(ex)
-                {
+                } catch (ex) {
                     test(ex instanceof Ice.ConnectTimeoutException, ex);
-                }
-                finally
-                {
+                } finally {
                     await controller.resumeAdapter();
                 }
                 await timeout.op();
@@ -323,17 +258,12 @@ export class Client extends TestHelper
                 //
                 to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(1000 * mult));
 
-                try
-                {
+                try {
                     await to.op();
                     test(false);
-                }
-                catch(ex)
-                {
+                } catch (ex) {
                     test(ex instanceof Ice.ConnectTimeoutException, ex);
-                }
-                finally
-                {
+                } finally {
                     await controller.resumeAdapter();
                 }
                 await timeout.op(); // Ensure adapter is active
@@ -345,17 +275,12 @@ export class Client extends TestHelper
                 await connect(to); // Force connection.
                 await controller.holdAdapter(-1);
 
-                try
-                {
+                try {
                     await to.sendData(seq);
                     test(false);
-                }
-                catch(ex)
-                {
+                } catch (ex) {
                     test(ex instanceof Ice.TimeoutException, ex);
-                }
-                finally
-                {
+                } finally {
                     await controller.resumeAdapter();
                 }
                 await timeout.op();
@@ -382,19 +307,15 @@ export class Client extends TestHelper
             const start = Date.now();
             await comm.destroy();
             const end = Date.now();
-            try
-            {
+            try {
                 //
                 // setTimeout can be unpredictable slow in Safari and IE when the process
                 // enter background, we increase the expected time that destroy can takes
                 // for these browsers.
                 //
-                const t = (TestHelper.isSafari() || TestHelper.isIE()) ? 30000 : mult * 2000;
-                test(end - start < t,
-                        new Error(`destroy take ${end - start} ms, expected less than ${t} ms`));
-            }
-            finally
-            {
+                const t = TestHelper.isSafari() || TestHelper.isIE() ? 30000 : mult * 2000;
+                test(end - start < t, new Error(`destroy take ${end - start} ms, expected less than ${t} ms`));
+            } finally {
                 await controller.resumeAdapter();
             }
             out.writeLine("ok");
@@ -402,11 +323,9 @@ export class Client extends TestHelper
         }
     }
 
-    async run(args)
-    {
+    async run(args) {
         let communicator;
-        try
-        {
+        try {
             const [properties] = this.createTestProperties(args);
             //
             // For this test, we want to disable retries.
@@ -421,11 +340,8 @@ export class Client extends TestHelper
 
             [communicator] = this.initialize(properties);
             await this.allTests();
-        }
-        finally
-        {
-            if(communicator)
-            {
+        } finally {
+            if (communicator) {
                 await communicator.destroy();
             }
         }

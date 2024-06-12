@@ -2,30 +2,26 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import {Ice} from "ice";
-import {Test} from "./generated";
-import {TestHelper} from "../../../Common/TestHelper";
+import { Ice } from "ice";
+import { Test } from "./generated";
+import { TestHelper } from "../../../Common/TestHelper";
 
 const test = TestHelper.test;
 
-export class Client extends TestHelper
-{
-    allTests()
-    {
+export class Client extends TestHelper {
+    allTests() {
         const communicator = this.communicator();
         const out = this.getWriter();
 
-        class MyInterfaceI extends Ice.InterfaceByValue
-        {
-            constructor()
-            {
+        class MyInterfaceI extends Ice.InterfaceByValue {
+            constructor() {
                 super(Test.MyInterface.ice_staticId());
             }
         }
-        communicator.getValueFactoryManager().add(id => new MyInterfaceI(), Test.MyInterface.ice_staticId());
+        communicator.getValueFactoryManager().add((id) => new MyInterfaceI(), Test.MyInterface.ice_staticId());
 
-        let inS:Ice.InputStream = null;
-        let outS:Ice.OutputStream = null;
+        let inS: Ice.InputStream = null;
+        let outS: Ice.OutputStream = null;
 
         out.write("testing primitive types... ");
 
@@ -55,13 +51,10 @@ export class Client extends TestHelper
         {
             const data = new Uint8Array(0);
             inS = new Ice.InputStream(communicator, data);
-            try
-            {
+            try {
                 inS.readBool();
                 test(false);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(ex instanceof Ice.UnmarshalOutOfBoundsException);
             }
         }
@@ -139,7 +132,7 @@ export class Client extends TestHelper
             outS.writeEnum(Test.MyEnum.enum3);
             const data = outS.finished();
             inS = new Ice.InputStream(communicator, data);
-            const e:Test.MyEnum = inS.readEnum(Test.MyEnum);
+            const e: Test.MyEnum = inS.readEnum(Test.MyEnum);
             test(e == Test.MyEnum.enum3);
         }
 
@@ -173,23 +166,18 @@ export class Client extends TestHelper
             outS.writePendingValues();
             const data = outS.finished();
             inS = new Ice.InputStream(communicator, data);
-            let o2:Test.OptionalClass;
-            inS.readValue((obj:Test.OptionalClass) =>
-                            {
-                                o2 = obj;
-                            },
-                            Test.OptionalClass);
+            let o2: Test.OptionalClass;
+            inS.readValue((obj: Test.OptionalClass) => {
+                o2 = obj;
+            }, Test.OptionalClass);
             inS.readPendingValues();
 
             test(o2.bo == o.bo);
             test(o2.by == o.by);
-            if(communicator.getProperties().getProperty("Ice.Default.EncodingVersion") == "1.0")
-            {
+            if (communicator.getProperties().getProperty("Ice.Default.EncodingVersion") == "1.0") {
                 test(o2.sh === undefined);
                 test(o2.i === undefined);
-            }
-            else
-            {
+            } else {
                 test(o2.sh == o.sh);
                 test(o2.i == o.i);
             }
@@ -206,12 +194,10 @@ export class Client extends TestHelper
             outS.writePendingValues();
             const data = outS.finished();
             inS = new Ice.InputStream(communicator, Ice.Encoding_1_0, data);
-            let o2:Test.OptionalClass;
-            inS.readValue((obj:Test.OptionalClass) =>
-                            {
-                                o2 = obj;
-                            },
-                            Test.OptionalClass);
+            let o2: Test.OptionalClass;
+            inS.readValue((obj: Test.OptionalClass) => {
+                o2 = obj;
+            }, Test.OptionalClass);
             inS.readPendingValues();
             test(o2.bo == o.bo);
             test(o2.by == o.by);
@@ -246,7 +232,7 @@ export class Client extends TestHelper
             const arr2 = Ice.ByteSeqHelper.read(inS);
             test(Ice.ArrayUtil.equals(arr2, arr));
 
-            const arrS:Uint8Array[] = [arr, new Uint8Array(0), arr];
+            const arrS: Uint8Array[] = [arr, new Uint8Array(0), arr];
             outS = new Ice.OutputStream(communicator);
             Test.ByteSSHelper.write(outS, arrS);
             data = outS.finished();
@@ -382,8 +368,7 @@ export class Client extends TestHelper
         }
 
         const largeStructArray = [];
-        for(let i = 0; i < 3; ++i)
-        {
+        for (let i = 0; i < 3; ++i) {
             const s = new Test.LargeStruct();
             s.bo = true;
             s.by = 1;
@@ -399,8 +384,7 @@ export class Client extends TestHelper
         }
 
         const myClassArray = [];
-        for(let i = 0; i < 4; ++i)
-        {
+        for (let i = 0; i < 4; ++i) {
             const c = new Test.MyClass();
             myClassArray[i] = c;
             c.c = myClassArray[i];
@@ -422,8 +406,7 @@ export class Client extends TestHelper
         }
 
         const myInterfaceArray = [];
-        for(let i = 0; i < 4; ++i)
-        {
+        for (let i = 0; i < 4; ++i) {
             myInterfaceArray[i] = new Ice.InterfaceByValue("::Test::MyInterface");
         }
 
@@ -436,8 +419,7 @@ export class Client extends TestHelper
             const arr2 = Test.MyClassSHelper.read(inS);
             inS.readPendingValues();
             test(arr2.length == myClassArray.length);
-            for(let i = 0; i < arr2.length; ++i)
-            {
+            for (let i = 0; i < arr2.length; ++i) {
                 test(arr2[i] !== null);
                 test(arr2[i].c == arr2[i]);
                 test(arr2[i].o == arr2[i]);
@@ -493,13 +475,10 @@ export class Client extends TestHelper
             const data = outS.finished();
 
             inS = new Ice.InputStream(communicator, data);
-            try
-            {
+            try {
                 inS.throwException();
                 test(false);
-            }
-            catch(ex1)
-            {
+            } catch (ex1) {
                 test(ex1 instanceof Test.MyException);
                 test(ex1.c.s.e == c.s.e);
                 test(Ice.ArrayUtil.equals(ex1.c.seq1, c.seq1));
@@ -588,18 +567,13 @@ export class Client extends TestHelper
         out.writeLine("ok");
     }
 
-    async run(args:string[])
-    {
-        let communicator:Ice.Communicator;
-        try
-        {
+    async run(args: string[]) {
+        let communicator: Ice.Communicator;
+        try {
             [communicator] = this.initialize(args);
             this.allTests();
-        }
-        finally
-        {
-            if(communicator)
-            {
+        } finally {
+            if (communicator) {
                 await communicator.destroy();
             }
         }

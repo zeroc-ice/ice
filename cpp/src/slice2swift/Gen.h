@@ -12,7 +12,7 @@ using namespace Slice;
 
 namespace Slice
 {
-    class Gen
+    class Gen final
     {
     public:
         Gen(const std::string&, const std::vector<std::string>&, const std::string&);
@@ -30,18 +30,18 @@ namespace Slice
         std::vector<std::string> _includePaths;
         std::string _fileBase;
 
-        class ImportVisitor : public SwiftGenerator, public ParserVisitor
+        class ImportVisitor final : public SwiftGenerator, public ParserVisitor
         {
         public:
             ImportVisitor(IceUtilInternal::Output&);
 
-            virtual bool visitModuleStart(const ModulePtr&);
-            virtual bool visitClassDefStart(const ClassDefPtr&);
-            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-            virtual bool visitStructStart(const StructPtr&);
-            virtual bool visitExceptionStart(const ExceptionPtr&);
-            virtual void visitSequence(const SequencePtr&);
-            virtual void visitDictionary(const DictionaryPtr&);
+            bool visitModuleStart(const ModulePtr&) final;
+            bool visitClassDefStart(const ClassDefPtr&) final;
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            bool visitStructStart(const StructPtr&) final;
+            bool visitExceptionStart(const ExceptionPtr&) final;
+            void visitSequence(const SequencePtr&) final;
+            void visitDictionary(const DictionaryPtr&) final;
 
             void writeImports();
 
@@ -54,71 +54,71 @@ namespace Slice
             std::vector<std::string> _imports;
         };
 
-        class TypesVisitor : public SwiftGenerator, public ParserVisitor
+        class TypesVisitor final : public SwiftGenerator, public ParserVisitor
         {
         public:
             TypesVisitor(IceUtilInternal::Output&);
 
-            virtual bool visitClassDefStart(const ClassDefPtr&);
-            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-            virtual bool visitExceptionStart(const ExceptionPtr&);
-            virtual bool visitStructStart(const StructPtr&);
-            virtual void visitSequence(const SequencePtr&);
-            virtual void visitDictionary(const DictionaryPtr&);
-            virtual void visitEnum(const EnumPtr&);
-            virtual void visitConst(const ConstPtr&);
+            bool visitClassDefStart(const ClassDefPtr&) final;
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            bool visitExceptionStart(const ExceptionPtr&) final;
+            bool visitStructStart(const StructPtr&) final;
+            void visitSequence(const SequencePtr&) final;
+            void visitDictionary(const DictionaryPtr&) final;
+            void visitEnum(const EnumPtr&) final;
+            void visitConst(const ConstPtr&) final;
 
         private:
             IceUtilInternal::Output& out;
         };
 
-        class ProxyVisitor : public SwiftGenerator, public ParserVisitor
+        class ProxyVisitor final : public SwiftGenerator, public ParserVisitor
         {
         public:
             ProxyVisitor(::IceUtilInternal::Output&);
 
-            virtual bool visitModuleStart(const ModulePtr&);
-            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-            virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
-            virtual void visitOperation(const OperationPtr&);
+            bool visitModuleStart(const ModulePtr&) final;
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
+            void visitOperation(const OperationPtr&) final;
 
         private:
             IceUtilInternal::Output& out;
         };
 
-        class ValueVisitor : public SwiftGenerator, public ParserVisitor
+        class ValueVisitor final : public SwiftGenerator, public ParserVisitor
         {
         public:
             ValueVisitor(::IceUtilInternal::Output&);
 
-            virtual bool visitClassDefStart(const ClassDefPtr&);
-            virtual void visitClassDefEnd(const ClassDefPtr&);
+            bool visitClassDefStart(const ClassDefPtr&) final;
+            void visitClassDefEnd(const ClassDefPtr&) final;
 
         private:
             IceUtilInternal::Output& out;
         };
 
-        class ObjectVisitor : public SwiftGenerator, public ParserVisitor
+        class ObjectVisitor final : public SwiftGenerator, public ParserVisitor
         {
         public:
             ObjectVisitor(::IceUtilInternal::Output&);
 
-            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-            virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
-            virtual void visitOperation(const OperationPtr&);
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
+            void visitOperation(const OperationPtr&) final;
 
         private:
             IceUtilInternal::Output& out;
         };
 
-        class ObjectExtVisitor : public SwiftGenerator, public ParserVisitor
+        class ObjectExtVisitor final : public SwiftGenerator, public ParserVisitor
         {
         public:
             ObjectExtVisitor(::IceUtilInternal::Output&);
 
-            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-            virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
-            virtual void visitOperation(const OperationPtr&);
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
+            void visitOperation(const OperationPtr&) final;
 
         private:
             IceUtilInternal::Output& out;

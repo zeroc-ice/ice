@@ -2,16 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-export namespace Ice
-{
+export namespace Ice {
     /**
      * A servant locator is called by an object adapter to locate a servant that is not found in its active servant map.
      * @see ObjectAdapter
      * @see ObjectAdapter#addServantLocator
      * @see ObjectAdapter#findServantLocator
      */
-    interface ServantLocator
-    {
+    interface ServantLocator {
         /**
          * Called before a request is dispatched if a servant cannot be found in the object adapter's active servant map.
          * Note that the object adapter does not automatically insert the returned servant into its active servant map.
@@ -32,7 +30,7 @@ export namespace Ice
          * @see Current
          * @see #finished
          */
-        locate(curr:Current, cookie:Holder<Object>):Ice.Object;
+        locate(curr: Current, cookie: Holder<Object>): Ice.Object;
         /**
          * Called by the object adapter after a request has been made. This operation is only called if
          * <code>locate</code> was called prior to the request and returned a non-null servant. This operation can be used
@@ -52,7 +50,7 @@ export namespace Ice
          * @see Current
          * @see #locate
          */
-        finished(curr:Current, servant:Ice.Object, cookie:Object):void;
+        finished(curr: Current, servant: Ice.Object, cookie: Object): void;
         /**
          * Called when the object adapter in which this servant locator is installed is destroyed.
          * @param category Indicates for which category the servant locator is being deactivated.
@@ -60,6 +58,6 @@ export namespace Ice
          * @see Communicator#shutdown
          * @see Communicator#destroy
          */
-        deactivate(category:string):void;
+        deactivate(category: string): void;
     }
 }

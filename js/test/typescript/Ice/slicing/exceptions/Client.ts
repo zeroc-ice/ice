@@ -2,16 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import {Ice} from "ice";
-import {Test} from "./generated";
-import {TestHelper} from "../../../../Common/TestHelper";
+import { Ice } from "ice";
+import { Test } from "./generated";
+import { TestHelper } from "../../../../Common/TestHelper";
 
 const test = TestHelper.test;
 
-export class Client extends TestHelper
-{
-    async allTests()
-    {
+export class Client extends TestHelper {
+    async allTests() {
         const out = this.getWriter();
         const communicator = this.communicator();
 
@@ -28,13 +26,10 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("base... ");
-        try
-        {
+        try {
             await prx.baseAsBase();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.Base, ex);
             test(ex.b == "Base.b");
             test(ex.ice_id() == "::Test::Base");
@@ -42,13 +37,10 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("slicing of unknown derived... ");
-        try
-        {
+        try {
             await prx.unknownDerivedAsBase();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.Base, ex);
             test(ex.b == "UnknownDerived.b");
             test(ex.ice_id() == "::Test::Base");
@@ -56,13 +48,10 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("non-slicing of known derived as base... ");
-        try
-        {
+        try {
             await prx.knownDerivedAsBase();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.KnownDerived, ex);
             test(ex.b == "KnownDerived.b");
             test(ex.kd == "KnownDerived.kd");
@@ -71,13 +60,10 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("non-slicing of known derived as derived... ");
-        try
-        {
+        try {
             await prx.knownDerivedAsKnownDerived();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.KnownDerived, ex);
             test(ex.b == "KnownDerived.b");
             test(ex.kd == "KnownDerived.kd");
@@ -86,13 +72,10 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("slicing of unknown intermediate as base... ");
-        try
-        {
+        try {
             await prx.unknownIntermediateAsBase();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.Base, ex);
             test(ex.b == "UnknownIntermediate.b");
             test(ex.ice_id() == "::Test::Base");
@@ -100,13 +83,10 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("slicing of known intermediate as base... ");
-        try
-        {
+        try {
             await prx.knownIntermediateAsBase();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.KnownIntermediate, ex);
             test(ex.b == "KnownIntermediate.b");
             test(ex.ki == "KnownIntermediate.ki");
@@ -115,13 +95,10 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("slicing of known most derived as base... ");
-        try
-        {
+        try {
             await prx.knownMostDerivedAsBase();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.KnownMostDerived, ex);
             test(ex.b == "KnownMostDerived.b");
             test(ex.ki == "KnownMostDerived.ki");
@@ -131,13 +108,10 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("non-slicing of known intermediate as intermediate... ");
-        try
-        {
+        try {
             await prx.knownIntermediateAsKnownIntermediate();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.KnownIntermediate, ex);
             test(ex.b == "KnownIntermediate.b");
             test(ex.ki == "KnownIntermediate.ki");
@@ -146,13 +120,10 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("non-slicing of known most derived as intermediate... ");
-        try
-        {
+        try {
             await prx.knownMostDerivedAsKnownIntermediate();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.KnownMostDerived, ex);
             test(ex.b == "KnownMostDerived.b");
             test(ex.ki == "KnownMostDerived.ki");
@@ -162,13 +133,10 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("non-slicing of known most derived as most derived... ");
-        try
-        {
+        try {
             await prx.knownMostDerivedAsKnownMostDerived();
             test(false);
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Test.KnownMostDerived, ex);
             test(ex.b == "KnownMostDerived.b");
             test(ex.ki == "KnownMostDerived.ki");
@@ -180,18 +148,13 @@ export class Client extends TestHelper
         await prx.shutdown();
     }
 
-    async run(args:string[])
-    {
-        let communicator:Ice.Communicator;
-        try
-        {
+    async run(args: string[]) {
+        let communicator: Ice.Communicator;
+        try {
             [communicator] = this.initialize(args);
             await this.allTests();
-        }
-        finally
-        {
-            if(communicator)
-            {
+        } finally {
+            if (communicator) {
                 await communicator.destroy();
             }
         }

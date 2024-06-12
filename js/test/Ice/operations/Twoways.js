@@ -7,86 +7,53 @@ import { TestHelper } from "../../Common/TestHelper.js";
 
 const test = TestHelper.test;
 
-export async function twoways(communicator, prx, Test, bidir, helper)
-{
+export async function twoways(communicator, prx, Test, bidir, helper) {
     const literals = await prx.opStringLiterals();
 
-    test(Test.s0 == "\\" &&
-            Test.s0 == Test.sw0 &&
-            Test.s0 == literals[0] &&
-            Test.s0 == literals[11]);
+    test(Test.s0 == "\\" && Test.s0 == Test.sw0 && Test.s0 == literals[0] && Test.s0 == literals[11]);
 
-    test(Test.s1 == "A" &&
-            Test.s1 == Test.sw1 &&
-            Test.s1 == literals[1] &&
-            Test.s1 == literals[12]);
+    test(Test.s1 == "A" && Test.s1 == Test.sw1 && Test.s1 == literals[1] && Test.s1 == literals[12]);
 
-    test(Test.s2 == "Ice" &&
-            Test.s2 == Test.sw2 &&
-            Test.s2 == literals[2] &&
-            Test.s2 == literals[13]);
+    test(Test.s2 == "Ice" && Test.s2 == Test.sw2 && Test.s2 == literals[2] && Test.s2 == literals[13]);
 
-    test(Test.s3 == "A21" &&
-            Test.s3 == Test.sw3 &&
-            Test.s3 == literals[3] &&
-            Test.s3 == literals[14]);
+    test(Test.s3 == "A21" && Test.s3 == Test.sw3 && Test.s3 == literals[3] && Test.s3 == literals[14]);
 
-    test(Test.s4 == "\\u0041 \\U00000041" &&
-            Test.s4 == Test.sw4 &&
-            Test.s4 == literals[4] &&
-            Test.s4 == literals[15]);
+    test(Test.s4 == "\\u0041 \\U00000041" && Test.s4 == Test.sw4 && Test.s4 == literals[4] && Test.s4 == literals[15]);
 
-    test(Test.s5 == "\u00FF" &&
-            Test.s5 == Test.sw5 &&
-            Test.s5 == literals[5] &&
-            Test.s5 == literals[16]);
+    test(Test.s5 == "\u00FF" && Test.s5 == Test.sw5 && Test.s5 == literals[5] && Test.s5 == literals[16]);
 
-    test(Test.s6 == "\u03FF" &&
-            Test.s6 == Test.sw6 &&
-            Test.s6 == literals[6] &&
-            Test.s6 == literals[17]);
+    test(Test.s6 == "\u03FF" && Test.s6 == Test.sw6 && Test.s6 == literals[6] && Test.s6 == literals[17]);
 
-    test(Test.s7 == "\u05F0" &&
-            Test.s7 == Test.sw7 &&
-            Test.s7 == literals[7] &&
-            Test.s7 == literals[18]);
+    test(Test.s7 == "\u05F0" && Test.s7 == Test.sw7 && Test.s7 == literals[7] && Test.s7 == literals[18]);
 
-    test(Test.s8 == "\uD800\uDC00" &&
-            Test.s8 == Test.sw8 &&
-            Test.s8 == literals[8] &&
-            Test.s8 == literals[19]);
+    test(Test.s8 == "\uD800\uDC00" && Test.s8 == Test.sw8 && Test.s8 == literals[8] && Test.s8 == literals[19]);
 
-    test(Test.s9 == "\uD83C\uDF4C" &&
-            Test.s9 == Test.sw9 &&
-            Test.s9 == literals[9] &&
-            Test.s9 == literals[20]);
+    test(Test.s9 == "\uD83C\uDF4C" && Test.s9 == Test.sw9 && Test.s9 == literals[9] && Test.s9 == literals[20]);
 
-    test(Test.s10 == "\u0DA7" &&
-            Test.s10 == Test.sw10 &&
-            Test.s10 == literals[10] &&
-            Test.s10 == literals[21]);
+    test(Test.s10 == "\u0DA7" && Test.s10 == Test.sw10 && Test.s10 == literals[10] && Test.s10 == literals[21]);
 
-    test(Test.ss0 == "'\"?\\\u0007\b\f\n\r\t\v\u0006" &&
+    test(
+        Test.ss0 == "'\"?\\\u0007\b\f\n\r\t\v\u0006" &&
             Test.ss0 == Test.ss1 &&
             Test.ss0 == Test.ss2 &&
             Test.ss0 == literals[22] &&
             Test.ss0 == literals[23] &&
-            Test.ss0 == literals[24]);
+            Test.ss0 == literals[24],
+    );
 
-    test(Test.ss3 == "\\\\U\\u\\" &&
-            Test.ss3 == literals[25]);
+    test(Test.ss3 == "\\\\U\\u\\" && Test.ss3 == literals[25]);
 
-    test(Test.ss4 == "\\A\\" &&
-            Test.ss4 == literals[26]);
+    test(Test.ss4 == "\\A\\" && Test.ss4 == literals[26]);
 
-    test(Test.ss5 == "\\u0041\\" &&
-            Test.ss5 == literals[27]);
+    test(Test.ss5 == "\\u0041\\" && Test.ss5 == literals[27]);
 
-    test(Test.su0 == Test.su1 &&
+    test(
+        Test.su0 == Test.su1 &&
             Test.su0 == Test.su2 &&
             Test.su0 == literals[28] &&
             Test.su0 == literals[29] &&
-            Test.su0 == literals[30]);
+            Test.su0 == literals[30],
+    );
 
     await prx.ice_ping();
 
@@ -121,119 +88,86 @@ export async function twoways(communicator, prx, Test, bidir, helper)
     }
 
     {
-        const [retval, f, d] = await prx.opFloatDouble(3.14, 1.1E10);
-        test((f - 3.14) <= 0.01);
-        test(d == 1.1E10);
-        test(retval == 1.1E10);
+        const [retval, f, d] = await prx.opFloatDouble(3.14, 1.1e10);
+        test(f - 3.14 <= 0.01);
+        test(d == 1.1e10);
+        test(retval == 1.1e10);
     }
 
-    try
-    {
+    try {
         await prx.opByte(0xffff, 0xff0f);
         test(false);
-    }
-    catch(ex)
-    {
+    } catch (ex) {
         test(ex instanceof Ice.MarshalException, ex);
     }
 
-    try
-    {
+    try {
         await prx.opShortIntLong(-32768 - 1, 0, 0);
         test(false);
-    }
-    catch(ex)
-    {
+    } catch (ex) {
         test(ex instanceof Ice.MarshalException, ex);
     }
 
-    try
-    {
+    try {
         await prx.opShortIntLong(32767 + 1, 0, 0);
         test(false);
-    }
-    catch(ex)
-    {
+    } catch (ex) {
         test(ex instanceof Ice.MarshalException, ex);
     }
 
-    try
-    {
+    try {
         await prx.opShortIntLong(0, -2147483648 - 1, 0);
         test(false);
-    }
-    catch(ex)
-    {
+    } catch (ex) {
         test(ex instanceof Ice.MarshalException, ex);
     }
 
-    try
-    {
+    try {
         await prx.opShortIntLong(0, 2147483647 + 1, 0);
         test(false);
-    }
-    catch(ex)
-    {
+    } catch (ex) {
         test(ex instanceof Ice.MarshalException, ex);
     }
 
-    try
-    {
-        await prx.opShortIntLong(0, 0, new Ice.Long(0, 0xFFFFFFFF + 1));
+    try {
+        await prx.opShortIntLong(0, 0, new Ice.Long(0, 0xffffffff + 1));
         test(false);
-    }
-    catch(ex)
-    {
+    } catch (ex) {
         test(ex instanceof RangeError, ex);
     }
 
-    try
-    {
-        await prx.opShortIntLong(0, 0, new Ice.Long(0xFFFFFFFF + 1, 0));
+    try {
+        await prx.opShortIntLong(0, 0, new Ice.Long(0xffffffff + 1, 0));
         test(false);
-    }
-    catch(ex)
-    {
+    } catch (ex) {
         test(ex instanceof RangeError, ex);
     }
 
-    try
-    {
+    try {
         await prx.opShortIntLong(0, 0, new Ice.Long(0, -1));
         test(false);
-    }
-    catch(ex)
-    {
+    } catch (ex) {
         test(ex instanceof RangeError, ex);
     }
 
-    try
-    {
+    try {
         await prx.opShortIntLong(Number.NaN, 0, new Ice.Long(0, 0));
         test(false);
-    }
-    catch(ex)
-    {
+    } catch (ex) {
         test(ex instanceof Ice.MarshalException, ex);
     }
 
-    try
-    {
+    try {
         await prx.opFloatDouble(Number.MAX_VALUE, 0);
         test(false);
-    }
-    catch(ex)
-    {
+    } catch (ex) {
         test(ex instanceof Ice.MarshalException, ex);
     }
 
-    try
-    {
+    try {
         await prx.opFloatDouble(-Number.MAX_VALUE, 0);
         test(false);
-    }
-    catch(ex)
-    {
+    } catch (ex) {
         test(ex instanceof Ice.MarshalException, ex);
     }
 
@@ -262,7 +196,7 @@ export async function twoways(communicator, prx, Test, bidir, helper)
     }
 
     {
-            const [retval, p2, p3] = await prx.opMyClass(prx);
+        const [retval, p2, p3] = await prx.opMyClass(prx);
 
         test(p2.ice_getIdentity().equals(Ice.stringToIdentity("test")));
         test(p3.ice_getIdentity().equals(Ice.stringToIdentity("noSuchIdentity")));
@@ -374,22 +308,22 @@ export async function twoways(communicator, prx, Test, bidir, helper)
 
     {
         const fsi = [3.14, 1.11];
-        const dsi = [1.1E10, 1.2E10, 1.3E10];
+        const dsi = [1.1e10, 1.2e10, 1.3e10];
         const [retval, fso, dso] = await prx.opFloatDoubleS(fsi, dsi);
 
         test(fso.length === 2);
-        test((fso[0] - 3.14) <= 0.01);
-        test((fso[1] - 1.11) <= 0.01);
+        test(fso[0] - 3.14 <= 0.01);
+        test(fso[1] - 1.11 <= 0.01);
         test(dso.length === 3);
-        test(dso[0] === 1.3E10);
-        test(dso[1] === 1.2E10);
-        test(dso[2] === 1.1E10);
+        test(dso[0] === 1.3e10);
+        test(dso[1] === 1.2e10);
+        test(dso[2] === 1.1e10);
         test(retval.length === 5);
-        test(retval[0] === 1.1E10);
-        test(retval[1] === 1.2E10);
-        test(retval[2] === 1.3E10);
-        test((retval[3] - 3.14) <= 0.01);
-        test((retval[4] - 1.11) <= 0.01);
+        test(retval[0] === 1.1e10);
+        test(retval[1] === 1.2e10);
+        test(retval[2] === 1.3e10);
+        test(retval[3] - 3.14 <= 0.01);
+        test(retval[4] - 1.11 <= 0.01);
     }
 
     {
@@ -409,17 +343,9 @@ export async function twoways(communicator, prx, Test, bidir, helper)
     }
 
     {
-        const bsi1 =
-            [
-                new Uint8Array([0x01, 0x11, 0x12]),
-                new Uint8Array([0xff])
-            ];
+        const bsi1 = [new Uint8Array([0x01, 0x11, 0x12]), new Uint8Array([0xff])];
 
-        const bsi2 =
-            [
-                new Uint8Array([0x0e]),
-                new Uint8Array([0xf2, 0xf1])
-            ];
+        const bsi2 = [new Uint8Array([0x0e]), new Uint8Array([0xf2, 0xf1])];
 
         const [retval, bso] = await prx.opByteSS(bsi1, bsi2);
 
@@ -445,17 +371,9 @@ export async function twoways(communicator, prx, Test, bidir, helper)
     }
 
     {
-        const bsi1 =
-            [
-                [true],
-                [false],
-                [true, true]
-            ];
+        const bsi1 = [[true], [false], [true, true]];
 
-        const bsi2 =
-            [
-                [false, false, true]
-            ];
+        const bsi2 = [[false, false, true]];
 
         const [retval, bso] = await prx.opBoolSS(bsi1, bsi2);
 
@@ -482,26 +400,14 @@ export async function twoways(communicator, prx, Test, bidir, helper)
     }
 
     {
-        const ssi =
-            [
-                [1, 2, 5],
-                [13],
-                []
-            ];
+        const ssi = [[1, 2, 5], [13], []];
 
-        const isi =
-            [
-                [24, 98],
-                [42]
-            ];
+        const isi = [[24, 98], [42]];
 
         const l1 = new Ice.Long(0, 496);
         const l2 = new Ice.Long(0, 1729);
 
-        const lsi =
-            [
-                [l1, l2]
-            ];
+        const lsi = [[l1, l2]];
 
         const [retval, sso, iso, lso] = await prx.opShortIntLongSS(ssi, isi, lsi);
 
@@ -533,55 +439,38 @@ export async function twoways(communicator, prx, Test, bidir, helper)
     }
 
     {
-        const fsi =
-            [
-                [3.14],
-                [1.11],
-                []
-            ];
+        const fsi = [[3.14], [1.11], []];
 
-        const dsi =
-            [
-                [1.1E10, 1.2E10, 1.3E10]
-            ];
+        const dsi = [[1.1e10, 1.2e10, 1.3e10]];
 
         const [retval, fso, dso] = await prx.opFloatDoubleSS(fsi, dsi);
 
         test(fso.length === 3);
         test(fso[0].length === 1);
-        test((fso[0][0] - 3.14) <= 0.01);
+        test(fso[0][0] - 3.14 <= 0.01);
         test(fso[1].length === 1);
-        test((fso[1][0] - 1.11) <= 0.01);
+        test(fso[1][0] - 1.11 <= 0.01);
         test(fso[2].length === 0);
         test(dso.length === 1);
         test(dso[0].length === 3);
-        test(dso[0][0] === 1.1E10);
-        test(dso[0][1] === 1.2E10);
-        test(dso[0][2] === 1.3E10);
+        test(dso[0][0] === 1.1e10);
+        test(dso[0][1] === 1.2e10);
+        test(dso[0][2] === 1.3e10);
         test(retval.length === 2);
         test(retval[0].length === 3);
-        test(retval[0][0] === 1.1E10);
-        test(retval[0][1] === 1.2E10);
-        test(retval[0][2] === 1.3E10);
+        test(retval[0][0] === 1.1e10);
+        test(retval[0][1] === 1.2e10);
+        test(retval[0][2] === 1.3e10);
         test(retval[1].length === 3);
-        test(retval[1][0] === 1.1E10);
-        test(retval[1][1] === 1.2E10);
-        test(retval[1][2] === 1.3E10);
+        test(retval[1][0] === 1.1e10);
+        test(retval[1][1] === 1.2e10);
+        test(retval[1][2] === 1.3e10);
     }
 
     {
-        const ssi1 =
-            [
-                ["abc"],
-                ["de", "fghi"]
-            ];
+        const ssi1 = [["abc"], ["de", "fghi"]];
 
-        const ssi2 =
-            [
-                [],
-                [],
-                ["xyz"]
-            ];
+        const ssi2 = [[], [], ["xyz"]];
 
         const [retval, sso] = await prx.opStringSS(ssi1, ssi2);
         test(sso.length === 5);
@@ -602,28 +491,9 @@ export async function twoways(communicator, prx, Test, bidir, helper)
     }
 
     {
-        const sssi1 =
-            [
-                [
-                    ["abc", "de"],
-                    ["xyz"]
-                ],
-                [
-                    ["hello"]
-                ]
-            ];
+        const sssi1 = [[["abc", "de"], ["xyz"]], [["hello"]]];
 
-        const sssi2 =
-            [
-                [
-                    ["", ""],
-                    ["abcd"]
-                ],
-                [
-                    [""]
-                ],
-                []
-            ];
+        const sssi2 = [[["", ""], ["abcd"]], [[""]], []];
 
         const [retval, ssso] = await prx.opStringSSS(sssi1, sssi2);
 
@@ -711,7 +581,7 @@ export async function twoways(communicator, prx, Test, bidir, helper)
 
         const [retval, p3] = await prx.opLongFloatD(di1, di2);
 
-        test(p3.equals(di1, (v1, v2) => (Math.abs(v1) - Math.abs(v2)) <= 0.01));
+        test(p3.equals(di1, (v1, v2) => Math.abs(v1) - Math.abs(v2) <= 0.01));
         test(retval.size === 4);
         test(Math.abs(retval.get(new Ice.Long(0, 999999110))) - Math.abs(-1.1) <= 0.01);
         test(Math.abs(retval.get(new Ice.Long(0, 999999120))) - Math.abs(-100.4) <= 0.01);
@@ -1203,9 +1073,9 @@ export async function twoways(communicator, prx, Test, bidir, helper)
         const sdi1 = new Test.StringDoubleSD();
         const sdi2 = new Test.StringDoubleSD();
 
-        const si1 = [1.1E10, 1.2E10, 1.3E10];
-        const si2 = [1.4E10, 1.5E10];
-        const si3 = [1.6E10, 1.7E10];
+        const si1 = [1.1e10, 1.2e10, 1.3e10];
+        const si2 = [1.4e10, 1.5e10];
+        const si3 = [1.6e10, 1.7e10];
 
         sdi1.set("Hello!!", si1);
         sdi1.set("Goodbye", si2);
@@ -1215,19 +1085,19 @@ export async function twoways(communicator, prx, Test, bidir, helper)
 
         test(p3.size === 1);
         test(p3.get("").length === 2);
-        test(p3.get("")[0] === 1.6E10);
-        test(p3.get("")[1] === 1.7E10);
+        test(p3.get("")[0] === 1.6e10);
+        test(p3.get("")[1] === 1.7e10);
         test(retval.size === 3);
         test(retval.get("Hello!!").length === 3);
-        test(retval.get("Hello!!")[0] === 1.1E10);
-        test(retval.get("Hello!!")[1] === 1.2E10);
-        test(retval.get("Hello!!")[2] === 1.3E10);
+        test(retval.get("Hello!!")[0] === 1.1e10);
+        test(retval.get("Hello!!")[1] === 1.2e10);
+        test(retval.get("Hello!!")[2] === 1.3e10);
         test(retval.get("Goodbye").length === 2);
-        test(retval.get("Goodbye")[0] === 1.4E10);
-        test(retval.get("Goodbye")[1] === 1.5E10);
+        test(retval.get("Goodbye")[0] === 1.4e10);
+        test(retval.get("Goodbye")[1] === 1.5e10);
         test(retval.get("").length === 2);
-        test(retval.get("")[0] === 1.6E10);
-        test(retval.get("")[1] === 1.7E10);
+        test(retval.get("")[0] === 1.6e10);
+        test(retval.get("")[1] === 1.7e10);
     }
 
     {
@@ -1294,18 +1164,15 @@ export async function twoways(communicator, prx, Test, bidir, helper)
     {
         const lengths = [0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000];
 
-        for(const l of lengths)
-        {
+        for (const l of lengths) {
             const s = new Array(l);
-            for(let i = 0; i < l; ++i)
-            {
+            for (let i = 0; i < l; ++i) {
                 s[i] = i;
             }
 
             const r = await prx.opIntS(s);
             test(r.length == l);
-            for(let j = 0; j < r.length; ++j)
-            {
+            for (let j = 0; j < r.length; ++j) {
                 test(r[j] == -j);
             }
         }
@@ -1338,8 +1205,7 @@ export async function twoways(communicator, prx, Test, bidir, helper)
         }
     }
 
-    if(!bidir)
-    {
+    if (!bidir) {
         //
         // Test implicit context propagation
         //
@@ -1373,10 +1239,8 @@ export async function twoways(communicator, prx, Test, bidir, helper)
         prxContext.set("four", "QUATRE");
 
         const combined = new Ice.Context(prxContext);
-        for(const [key, value] of ctx)
-        {
-            if(!combined.has(key))
-            {
+        for (const [key, value] of ctx) {
+            if (!combined.has(key)) {
                 combined.set(key, value);
             }
         }
@@ -1399,8 +1263,7 @@ export async function twoways(communicator, prx, Test, bidir, helper)
     {
         const d = 1278312346.0 / 13.0;
         const ds = [];
-        for(let i = 0; i < 5; i++)
-        {
+        for (let i = 0; i < 5; i++) {
             ds[i] = d;
         }
 
@@ -1409,14 +1272,13 @@ export async function twoways(communicator, prx, Test, bidir, helper)
     }
 
     {
-
-        test(await prx.opByte1(0xFF) == 0xFF);
-        test(await prx.opShort1(0x7FFF) == 0x7FFF);
-        test(await prx.opInt1(0x7FFFFFFF) == 0x7FFFFFFF);
-        test((await prx.opLong1(new Ice.Long(0x7FFFFFFF, 0xFFFFFFFF))).equals(new Ice.Long(0x7FFFFFFF, 0xFFFFFFFF)));
-        test(await prx.opFloat1(1.0) == 1.0);
-        test(await prx.opDouble1(1.0) == 1.0);
-        test(await prx.opString1("opString1") == "opString1");
+        test((await prx.opByte1(0xff)) == 0xff);
+        test((await prx.opShort1(0x7fff)) == 0x7fff);
+        test((await prx.opInt1(0x7fffffff)) == 0x7fffffff);
+        test((await prx.opLong1(new Ice.Long(0x7fffffff, 0xffffffff))).equals(new Ice.Long(0x7fffffff, 0xffffffff)));
+        test((await prx.opFloat1(1.0)) == 1.0);
+        test((await prx.opDouble1(1.0)) == 1.0);
+        test((await prx.opString1("opString1")) == "opString1");
         test((await prx.opStringS1(null)).length === 0);
         test((await prx.opByteBoolD1(null)).size === 0);
         test((await prx.opStringS2(null)).length === 0);
@@ -1465,8 +1327,7 @@ export async function twoways(communicator, prx, Test, bidir, helper)
 
     {
         const ds = [];
-        for(let i = 0; i < 5; i++)
-        {
+        for (let i = 0; i < 5; i++) {
             ds[i] = 1278312346.0 / 13.0;
         }
         await prx.opDoubleMarshaling(1278312346.0 / 13.0, ds);

@@ -4,25 +4,18 @@
 
 import { ReferenceMode } from "./ReferenceMode.js";
 
-export class ConnectionRequestHandler
-{
-    constructor(ref, connection)
-    {
+export class ConnectionRequestHandler {
+    constructor(ref, connection) {
         this._reference = ref;
         this._response = ref.getMode() == ReferenceMode.ModeTwoway;
         this._connection = connection;
     }
 
-    update(previousHandler, newHandler)
-    {
-        try
-        {
-            if(previousHandler === this)
-            {
+    update(previousHandler, newHandler) {
+        try {
+            if (previousHandler === this) {
                 return newHandler;
-            }
-            else if(previousHandler.getConnection() === this._connection)
-            {
+            } else if (previousHandler.getConnection() === this._connection) {
                 //
                 // If both request handlers point to the same connection, we also
                 // update the request handler. See bug ICE-5489 for reasons why
@@ -30,31 +23,25 @@ export class ConnectionRequestHandler
                 //
                 return newHandler;
             }
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             // Ignore
         }
         return this;
     }
 
-    sendAsyncRequest(out)
-    {
+    sendAsyncRequest(out) {
         return out.invokeRemote(this._connection, this._response);
     }
 
-    asyncRequestCanceled(out)
-    {
+    asyncRequestCanceled(out) {
         return this._connection.asyncRequestCanceled(out);
     }
 
-    getReference()
-    {
+    getReference() {
         return this._reference;
     }
 
-    getConnection()
-    {
+    getConnection() {
         return this._connection;
     }
 }

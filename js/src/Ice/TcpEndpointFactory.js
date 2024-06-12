@@ -4,44 +4,36 @@
 
 import { TcpEndpointI } from "./TcpEndpointI.js";
 
-export class TcpEndpointFactory
-{
-    constructor(instance)
-    {
+export class TcpEndpointFactory {
+    constructor(instance) {
         this._instance = instance;
     }
 
-    type()
-    {
+    type() {
         return this._instance.type();
     }
 
-    protocol()
-    {
+    protocol() {
         return this._instance.protocol();
     }
 
-    create(args, oaEndpoint)
-    {
+    create(args, oaEndpoint) {
         const e = new TcpEndpointI(this._instance);
         e.initWithOptions(args, oaEndpoint);
         return e;
     }
 
-    read(s)
-    {
+    read(s) {
         const e = new TcpEndpointI(this._instance);
         e.initWithStream(s);
         return e;
     }
 
-    destroy()
-    {
+    destroy() {
         this._instance = null;
     }
 
-    clone(instance)
-    {
+    clone(instance) {
         return new TcpEndpointFactory(instance);
     }
 }

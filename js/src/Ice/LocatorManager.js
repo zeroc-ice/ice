@@ -8,19 +8,15 @@ import { Ice as Ice_Locator } from "./Locator.js";
 const { LocatorPrx } = Ice_Locator;
 import { LocatorTable } from "./LocatorTable.js";
 
-export class LocatorManager
-{
-    constructor(properties)
-    {
+export class LocatorManager {
+    constructor(properties) {
         this._background = properties.getPropertyAsInt("Ice.BackgroundLocatorCacheUpdates") > 0;
         this._table = new HashMap(HashMap.compareEquals); // Map<Ice.LocatorPrx, LocatorInfo>
         this._locatorTables = new HashMap(HashMap.compareEquals); // Map<Ice.Identity, LocatorTable>
     }
 
-    destroy()
-    {
-        for(const locator of this._table.values())
-        {
+    destroy() {
+        for (const locator of this._table.values()) {
             locator.destroy();
         }
         this._table.clear();
@@ -31,10 +27,8 @@ export class LocatorManager
     // Returns locator info for a given locator. Automatically creates
     // the locator info if it doesn't exist yet.
     //
-    find(loc)
-    {
-        if(loc === null)
-        {
+    find(loc) {
+        if (loc === null) {
             return null;
         }
 
@@ -47,16 +41,14 @@ export class LocatorManager
         // TODO: reap unused locator info objects?
         //
         let info = this._table.get(locator);
-        if(info === undefined)
-        {
+        if (info === undefined) {
             //
             // Rely on locator identity for the adapter table. We want to
             // have only one table per locator (not one per locator
             // proxy).
             //
             let table = this._locatorTables.get(locator.ice_getIdentity());
-            if(table === undefined)
-            {
+            if (table === undefined) {
                 table = new LocatorTable();
                 this._locatorTables.set(locator.ice_getIdentity(), table);
             }

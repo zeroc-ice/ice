@@ -11,5 +11,5 @@ export const Glacier2 = {
     ...Glacier2_PermissionsVerifier,
     ...Glacier2_Router,
     ...Glacier2_SSLInfo,
-    ...Glacier2_Session
+    ...Glacier2_Session,
 };

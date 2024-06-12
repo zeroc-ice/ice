@@ -2,15 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import {Ice} from "ice";
-import {Test} from "./generated"
-import {TestHelper} from "../../../Common/TestHelper"
+import { Ice } from "ice";
+import { Test } from "./generated";
+import { TestHelper } from "../../../Common/TestHelper";
 const test = TestHelper.test;
 
-export class Client extends TestHelper
-{
-    async allTests()
-    {
+export class Client extends TestHelper {
+    async allTests() {
         const out = this.getWriter();
         const communicator = this.communicator();
 
@@ -30,13 +28,10 @@ export class Client extends TestHelper
             out.write("creating/destroying/recreating object adapter... ");
             communicator.getProperties().setProperty("TransientTestAdapter.AdapterId", "dummy");
             let adapter = await communicator.createObjectAdapter("TransientTestAdapter");
-            try
-            {
+            try {
                 await communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "");
                 test(false);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(ex instanceof Ice.AlreadyRegisteredException);
             }
             await adapter.destroy();
@@ -54,25 +49,29 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("testing connection closure... ");
-        for(let i = 0; i < 10; ++i)
-        {
+        for (let i = 0; i < 10; ++i) {
             const initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().clone();
             const comm = Ice.initialize(initData);
-            comm.stringToProxy("test:" + this.getTestEndpoint()).ice_ping().catch(ex => {});
+            comm.stringToProxy("test:" + this.getTestEndpoint())
+                .ice_ping()
+                .catch((ex) => {});
             await comm.destroy();
         }
         out.writeLine("ok");
 
         out.write("testing object adapter published endpoints... ");
         {
-            communicator.getProperties().setProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 30000");
+            communicator
+                .getProperties()
+                .setProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 30000");
             const adapter = await communicator.createObjectAdapter("PAdapter");
             test(adapter.getPublishedEndpoints().length === 1);
             const endpt = adapter.getPublishedEndpoints()[0];
             test(endpt.toString() == "tcp -h localhost -p 12345 -t 30000");
-            const prx =
-                    communicator.stringToProxy("dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000");
+            const prx = communicator.stringToProxy(
+                "dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000",
+            );
             adapter.setPublishedEndpoints(prx.ice_getEndpoints());
             test(adapter.getPublishedEndpoints().length === 2);
             const id = new Ice.Identity("dummy");
@@ -81,7 +80,9 @@ export class Client extends TestHelper
             await adapter.refreshPublishedEndpoints();
             test(adapter.getPublishedEndpoints().length === 1);
             test(adapter.getPublishedEndpoints()[0].equals(endpt));
-            communicator.getProperties().setProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 20000");
+            communicator
+                .getProperties()
+                .setProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 20000");
             await adapter.refreshPublishedEndpoints();
             test(adapter.getPublishedEndpoints().length === 1);
             test(adapter.getPublishedEndpoints()[0].toString() == "tcp -h localhost -p 12345 -t 20000");
@@ -97,13 +98,10 @@ export class Client extends TestHelper
             (await obj.ice_getConnection()).setAdapter(adapter);
             (await obj.ice_getConnection()).setAdapter(null);
             await adapter.deactivate();
-            try
-            {
+            try {
                 (await obj.ice_getConnection()).setAdapter(adapter);
                 test(false);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 test(ex instanceof Ice.ObjectAdapterDeactivatedException);
             }
             out.writeLine("ok");
@@ -120,41 +118,31 @@ export class Client extends TestHelper
             await adapter.refreshPublishedEndpoints();
             test(adapter.getPublishedEndpoints().length == 1);
             test(adapter.getPublishedEndpoints()[0].toString() == "tcp -h localhost -p 23457 -t 30000");
-            try
-            {
+            try {
                 adapter.setPublishedEndpoints(router.ice_getEndpoints());
                 test(false);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 // Expected.
                 test(ex instanceof Error);
             }
             await adapter.destroy();
 
-            try
-            {
+            try {
                 routerId.name = "test";
                 router = Ice.RouterPrx.uncheckedCast(base.ice_identity(routerId));
                 await communicator.createObjectAdapterWithRouter("", router);
                 test(false);
-            }
-            catch(ex)
-            {
+            } catch (ex) {
                 // Expected: the "test" object doesn't implement Ice::Router!
                 test(ex instanceof Ice.OperationNotExistException);
             }
 
-            try
-            {
+            try {
                 router = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("router:" + this.getTestEndpoint(1)));
                 await communicator.createObjectAdapterWithRouter("", router);
                 test(false);
-            }
-            catch(ex)
-            {
-                test(ex instanceof Ice.ConnectFailedException ||
-                     ex instanceof Ice.ConnectTimeoutException);
+            } catch (ex) {
+                test(ex instanceof Ice.ConnectFailedException || ex instanceof Ice.ConnectTimeoutException);
             }
         }
         out.writeLine("ok");
@@ -171,10 +159,9 @@ export class Client extends TestHelper
             test(!adpt.isDeactivated());
 
             let isHolding = false;
-            adpt.waitForHold().then(() =>
-                                    {
-                                        isHolding = true;
-                                    });
+            adpt.waitForHold().then(() => {
+                isHolding = true;
+            });
             test(!isHolding);
             adpt.hold();
             await adpt.waitForHold();
@@ -182,16 +169,14 @@ export class Client extends TestHelper
             test(isHolding);
 
             isHolding = false;
-            adpt.waitForHold().then(() =>
-                                    {
-                                        isHolding = true;
-                                    });
+            adpt.waitForHold().then(() => {
+                isHolding = true;
+            });
 
             let isDeactivated = false;
-            adpt.waitForDeactivate().then(() =>
-                                            {
-                                                isDeactivated = true;
-                                            });
+            adpt.waitForDeactivate().then(() => {
+                isDeactivated = true;
+            });
             test(!isDeactivated);
             await adpt.deactivate();
             await adpt.waitForDeactivate();
@@ -203,30 +188,22 @@ export class Client extends TestHelper
         out.writeLine("ok");
 
         out.write("testing whether server is gone... ");
-        try
-        {
+        try {
             await obj.ice_timeout(100).ice_ping(); // Use timeout to speed up testing on Windows
             throw new Error();
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             test(ex instanceof Ice.LocalException);
             out.writeLine("ok");
         }
     }
 
-    async run(args:string[])
-    {
-        let communicator:Ice.Communicator;
-        try
-        {
+    async run(args: string[]) {
+        let communicator: Ice.Communicator;
+        try {
             [communicator, args] = this.initialize(args);
             await this.allTests();
-        }
-        finally
-        {
-            if(communicator)
-            {
+        } finally {
+            if (communicator) {
                 await communicator.destroy();
             }
         }

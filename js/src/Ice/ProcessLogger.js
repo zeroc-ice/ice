@@ -1,4 +1,3 @@
-
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
@@ -7,10 +6,8 @@ import { Logger } from "./Logger.js";
 
 let processLogger = null;
 
-export function getProcessLogger()
-{
-    if(processLogger === null)
-    {
+export function getProcessLogger() {
+    if (processLogger === null) {
         //
         // TODO: Would be nice to be able to use process name as prefix by default.
         //
@@ -18,9 +15,8 @@ export function getProcessLogger()
     }
 
     return processLogger;
-};
+}
 
-export function setProcessLogger(logger)
-{
+export function setProcessLogger(logger) {
     processLogger = logger;
 }

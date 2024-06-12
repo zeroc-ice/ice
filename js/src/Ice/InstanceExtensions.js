@@ -21,8 +21,8 @@ import { Timer } from "./Timer.js";
 import { TraceLevels } from "./TraceLevels.js";
 import { ValueFactoryManager } from "./ValueFactoryManager.js";
 import { LocalException } from "./Exception.js";
-import { CommunicatorDestroyedException,  InitializationException } from "./LocalException.js";
-import { getProcessLogger } from "./ProcessLogger.js"
+import { CommunicatorDestroyedException, InitializationException } from "./LocalException.js";
+import { getProcessLogger } from "./ProcessLogger.js";
 import { ToStringMode } from "./ToStringMode.js";
 import { ProtocolInstance } from "./ProtocolInstance.js";
 import { TcpEndpointFactory } from "./TcpEndpointFactory.js";
@@ -30,7 +30,7 @@ import { WSEndpointFactory } from "./WSEndpointFactory.js";
 import { Promise } from "./Promise.js";
 
 import { Ice as Ice_Router } from "./Router.js";
-const { RouterPrx }  = Ice_Router;
+const { RouterPrx } = Ice_Router;
 import { Ice as Ice_Locator } from "./Locator.js";
 const { LocatorPrx } = Ice_Locator;
 
@@ -42,8 +42,7 @@ import { Debug } from "./Debug.js";
 let _oneOfDone = undefined;
 let _printStackTraces = false;
 
-Instance.prototype.initializationData = function()
-{
+Instance.prototype.initializationData = function () {
     //
     // No check for destruction. It must be possible to access the
     // initialization data after destruction.
@@ -53,24 +52,20 @@ Instance.prototype.initializationData = function()
     return this._initData;
 };
 
-Instance.prototype.traceLevels = function()
-{
+Instance.prototype.traceLevels = function () {
     // This value is immutable.
     Debug.assert(this._traceLevels !== null);
     return this._traceLevels;
 };
 
-Instance.prototype.defaultsAndOverrides = function()
-{
+Instance.prototype.defaultsAndOverrides = function () {
     // This value is immutable.
     Debug.assert(this._defaultsAndOverrides !== null);
     return this._defaultsAndOverrides;
 };
 
-Instance.prototype.routerManager = function()
-{
-    if(this._state === StateDestroyed)
-    {
+Instance.prototype.routerManager = function () {
+    if (this._state === StateDestroyed) {
         throw new CommunicatorDestroyedException();
     }
 
@@ -78,10 +73,8 @@ Instance.prototype.routerManager = function()
     return this._routerManager;
 };
 
-Instance.prototype.locatorManager = function()
-{
-    if(this._state === StateDestroyed)
-    {
+Instance.prototype.locatorManager = function () {
+    if (this._state === StateDestroyed) {
         throw new CommunicatorDestroyedException();
     }
 
@@ -89,10 +82,8 @@ Instance.prototype.locatorManager = function()
     return this._locatorManager;
 };
 
-Instance.prototype.referenceFactory = function()
-{
-    if(this._state === StateDestroyed)
-    {
+Instance.prototype.referenceFactory = function () {
+    if (this._state === StateDestroyed) {
         throw new CommunicatorDestroyedException();
     }
 
@@ -100,10 +91,8 @@ Instance.prototype.referenceFactory = function()
     return this._referenceFactory;
 };
 
-Instance.prototype.requestHandlerFactory = function()
-{
-    if(this._state === StateDestroyed)
-    {
+Instance.prototype.requestHandlerFactory = function () {
+    if (this._state === StateDestroyed) {
         throw new CommunicatorDestroyedException();
     }
 
@@ -111,10 +100,8 @@ Instance.prototype.requestHandlerFactory = function()
     return this._requestHandlerFactory;
 };
 
-Instance.prototype.proxyFactory = function()
-{
-    if(this._state === StateDestroyed)
-    {
+Instance.prototype.proxyFactory = function () {
+    if (this._state === StateDestroyed) {
         throw new CommunicatorDestroyedException();
     }
 
@@ -122,21 +109,17 @@ Instance.prototype.proxyFactory = function()
     return this._proxyFactory;
 };
 
-Instance.prototype.outgoingConnectionFactory = function()
-{
-    if(this._state === StateDestroyed)
-    {
+Instance.prototype.outgoingConnectionFactory = function () {
+    if (this._state === StateDestroyed) {
         throw new CommunicatorDestroyedException();
     }
 
     Debug.assert(this._outgoingConnectionFactory !== null);
     return this._outgoingConnectionFactory;
-}
+};
 
-Instance.prototype.objectAdapterFactory = function()
-{
-    if(this._state === StateDestroyed)
-    {
+Instance.prototype.objectAdapterFactory = function () {
+    if (this._state === StateDestroyed) {
         throw new CommunicatorDestroyedException();
     }
 
@@ -144,10 +127,8 @@ Instance.prototype.objectAdapterFactory = function()
     return this._objectAdapterFactory;
 };
 
-Instance.prototype.retryQueue = function()
-{
-    if(this._state === StateDestroyed)
-    {
+Instance.prototype.retryQueue = function () {
+    if (this._state === StateDestroyed) {
         throw new CommunicatorDestroyedException();
     }
 
@@ -155,10 +136,8 @@ Instance.prototype.retryQueue = function()
     return this._retryQueue;
 };
 
-Instance.prototype.timer = function()
-{
-    if(this._state === StateDestroyed)
-    {
+Instance.prototype.timer = function () {
+    if (this._state === StateDestroyed) {
         throw new CommunicatorDestroyedException();
     }
 
@@ -166,10 +145,8 @@ Instance.prototype.timer = function()
     return this._timer;
 };
 
-Instance.prototype.endpointFactoryManager = function()
-{
-    if(this._state === StateDestroyed)
-    {
+Instance.prototype.endpointFactoryManager = function () {
+    if (this._state === StateDestroyed) {
         throw new CommunicatorDestroyedException();
     }
 
@@ -177,83 +154,67 @@ Instance.prototype.endpointFactoryManager = function()
     return this._endpointFactoryManager;
 };
 
-Instance.prototype.messageSizeMax = function()
-{
+Instance.prototype.messageSizeMax = function () {
     // This value is immutable.
     return this._messageSizeMax;
 };
 
-Instance.prototype.batchAutoFlushSize = function()
-{
+Instance.prototype.batchAutoFlushSize = function () {
     // This value is immutable.
     return this._batchAutoFlushSize;
 };
 
-Instance.prototype.clientACM = function()
-{
+Instance.prototype.clientACM = function () {
     // This value is immutable.
     return this._clientACM;
 };
 
-Instance.prototype.toStringMode = function()
-{
+Instance.prototype.toStringMode = function () {
     // this value is immutable
     return this._toStringMode;
-}
+};
 
-Instance.prototype.getImplicitContext = function()
-{
+Instance.prototype.getImplicitContext = function () {
     return this._implicitContext;
 };
 
-Instance.prototype.setDefaultLocator = function(locator)
-{
-    if(this._state == StateDestroyed)
-    {
+Instance.prototype.setDefaultLocator = function (locator) {
+    if (this._state == StateDestroyed) {
         throw new CommunicatorDestroyedException();
     }
 
     this._referenceFactory = this._referenceFactory.setDefaultLocator(locator);
 };
 
-Instance.prototype.setDefaultRouter = function(router)
-{
-    if(this._state == StateDestroyed)
-    {
+Instance.prototype.setDefaultRouter = function (router) {
+    if (this._state == StateDestroyed) {
         throw new CommunicatorDestroyedException();
     }
 
     this._referenceFactory = this._referenceFactory.setDefaultRouter(router);
-}
+};
 
-Instance.prototype.setLogger = function(logger)
-{
+Instance.prototype.setLogger = function (logger) {
     this._initData.logger = logger;
-}
+};
 
-Instance.prototype.finishSetup = function(communicator, promise)
-{
+Instance.prototype.finishSetup = function (communicator, promise) {
     //
     // If promise == null, it means the caller is requesting a synchronous setup.
     // Otherwise, we resolve the promise after all initialization is complete.
     //
-    try
-    {
-        if(this._initData.properties === null)
-        {
+    try {
+        if (this._initData.properties === null) {
             this._initData.properties = Properties.createProperties();
         }
 
-        if(_oneOfDone === undefined)
-        {
-            _printStackTraces =
-                this._initData.properties.getPropertyAsIntWithDefault("Ice.PrintStackTraces", 0) > 0;
+        if (_oneOfDone === undefined) {
+            _printStackTraces = this._initData.properties.getPropertyAsIntWithDefault("Ice.PrintStackTraces", 0) > 0;
 
             _oneOfDone = true;
         }
 
-        if(this._initData.logger === null)
-        {
+        if (this._initData.logger === null) {
             this._initData.logger = getProcessLogger();
         }
 
@@ -263,60 +224,47 @@ Instance.prototype.finishSetup = function(communicator, promise)
 
         const defMessageSizeMax = 1024;
         let num = this._initData.properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defMessageSizeMax);
-        if(num < 1 || num > 0x7fffffff / 1024)
-        {
+        if (num < 1 || num > 0x7fffffff / 1024) {
             this._messageSizeMax = 0x7fffffff;
-        }
-        else
-        {
+        } else {
             this._messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
         }
 
-        if(this._initData.properties.getProperty("Ice.BatchAutoFlushSize").length === 0 &&
-            this._initData.properties.getProperty("Ice.BatchAutoFlush").length > 0)
-        {
-            if(this._initData.properties.getPropertyAsInt("Ice.BatchAutoFlush") > 0)
-            {
+        if (
+            this._initData.properties.getProperty("Ice.BatchAutoFlushSize").length === 0 &&
+            this._initData.properties.getProperty("Ice.BatchAutoFlush").length > 0
+        ) {
+            if (this._initData.properties.getPropertyAsInt("Ice.BatchAutoFlush") > 0) {
                 this._batchAutoFlushSize = this._messageSizeMax;
             }
-        }
-        else
-        {
+        } else {
             num = this._initData.properties.getPropertyAsIntWithDefault("Ice.BatchAutoFlushSize", 1024); // 1MB
-            if(num < 1)
-            {
+            if (num < 1) {
                 this._batchAutoFlushSize = num;
-            }
-            else if(num > 0x7fffffff / 1024)
-            {
+            } else if (num > 0x7fffffff / 1024) {
                 this._batchAutoFlushSize = 0x7fffffff;
-            }
-            else
-            {
+            } else {
                 this._batchAutoFlushSize = num * 1024; // Property is in kilobytes, _batchAutoFlushSize in bytes
             }
         }
 
-        this._clientACM = new ACMConfig(this._initData.properties, this._initData.logger, "Ice.ACM.Client",
-                                        new ACMConfig(this._initData.properties, this._initData.logger,
-                                                        "Ice.ACM", new ACMConfig()));
+        this._clientACM = new ACMConfig(
+            this._initData.properties,
+            this._initData.logger,
+            "Ice.ACM.Client",
+            new ACMConfig(this._initData.properties, this._initData.logger, "Ice.ACM", new ACMConfig()),
+        );
 
         const toStringModeStr = this._initData.properties.getPropertyWithDefault("Ice.ToStringMode", "Unicode");
-        if(toStringModeStr === "ASCII")
-        {
+        if (toStringModeStr === "ASCII") {
             this._toStringMode = ToStringMode.ASCII;
-        }
-        else if(toStringModeStr === "Compat")
-        {
+        } else if (toStringModeStr === "Compat") {
             this._toStringMode = ToStringMode.Compat;
-        }
-        else if(toStringModeStr !== "Unicode")
-        {
+        } else if (toStringModeStr !== "Unicode") {
             throw new InitializationException("The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
         }
 
-        this._implicitContext =
-            ImplicitContext.create(this._initData.properties.getProperty("Ice.ImplicitContext"));
+        this._implicitContext = ImplicitContext.create(this._initData.properties.getProperty("Ice.ImplicitContext"));
 
         this._routerManager = new RouterManager();
 
@@ -348,8 +296,7 @@ Instance.prototype.finishSetup = function(communicator, promise)
 
         this._outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
 
-        if(this._initData.valueFactoryManager === null)
-        {
+        if (this._initData.valueFactoryManager === null) {
             this._initData.valueFactoryManager = new ValueFactoryManager();
         }
 
@@ -359,39 +306,27 @@ Instance.prototype.finishSetup = function(communicator, promise)
         this._timer = new Timer(this._initData.logger);
 
         const router = RouterPrx.uncheckedCast(this._proxyFactory.propertyToProxy("Ice.Default.Router"));
-        if(router !== null)
-        {
+        if (router !== null) {
             this._referenceFactory = this._referenceFactory.setDefaultRouter(router);
         }
 
         const loc = LocatorPrx.uncheckedCast(this._proxyFactory.propertyToProxy("Ice.Default.Locator"));
-        if(loc !== null)
-        {
+        if (loc !== null) {
             this._referenceFactory = this._referenceFactory.setDefaultLocator(loc);
         }
 
-        if(promise !== null)
-        {
+        if (promise !== null) {
             promise.resolve(communicator);
         }
-    }
-    catch(ex)
-    {
-        if(promise !== null)
-        {
-            if(ex instanceof LocalException)
-            {
+    } catch (ex) {
+        if (promise !== null) {
+            if (ex instanceof LocalException) {
                 this.destroy().finally(() => promise.reject(ex));
-            }
-            else
-            {
+            } else {
                 promise.reject(ex);
             }
-        }
-        else
-        {
-            if(ex instanceof LocalException)
-            {
+        } else {
+            if (ex instanceof LocalException) {
                 this.destroy();
             }
             throw ex;
@@ -402,8 +337,7 @@ Instance.prototype.finishSetup = function(communicator, promise)
 //
 // Only for use by CommunicatorI
 //
-Instance.prototype.destroy = function()
-{
+Instance.prototype.destroy = function () {
     const promise = new AsyncResultBase(null, "destroy", null, this, null);
 
     //
@@ -411,10 +345,8 @@ Instance.prototype.destroy = function()
     // necessary in case destroy() is called concurrently by
     // multiple threads.
     //
-    if(this._state == StateDestroyInProgress)
-    {
-        if(!this._destroyPromises)
-        {
+    if (this._state == StateDestroyInProgress) {
+        if (!this._destroyPromises) {
             this._destroyPromises = [];
         }
         this._destroyPromises.push(promise);
@@ -426,70 +358,54 @@ Instance.prototype.destroy = function()
     // Shutdown and destroy all the incoming and outgoing Ice
     // connections and wait for the connections to be finished.
     //
-    Promise.try(() =>
-        {
-            if(this._objectAdapterFactory)
-            {
-                return this._objectAdapterFactory.shutdown();
-            }
+    Promise.try(() => {
+        if (this._objectAdapterFactory) {
+            return this._objectAdapterFactory.shutdown();
         }
-    ).then(() =>
-        {
-            if(this._outgoingConnectionFactory !== null)
-            {
+    })
+        .then(() => {
+            if (this._outgoingConnectionFactory !== null) {
                 this._outgoingConnectionFactory.destroy();
             }
 
-            if(this._objectAdapterFactory !== null)
-            {
+            if (this._objectAdapterFactory !== null) {
                 return this._objectAdapterFactory.destroy();
             }
-        }
-    ).then(() =>
-        {
-            if(this._outgoingConnectionFactory !== null)
-            {
+        })
+        .then(() => {
+            if (this._outgoingConnectionFactory !== null) {
                 return this._outgoingConnectionFactory.waitUntilFinished();
             }
-        }
-    ).then(() =>
-        {
-            if(this._retryQueue)
-            {
+        })
+        .then(() => {
+            if (this._retryQueue) {
                 this._retryQueue.destroy();
             }
-            if(this._timer)
-            {
+            if (this._timer) {
                 this._timer.destroy();
             }
 
-            if(this._objectFactoryMap !== null)
-            {
-                this._objectFactoryMap.forEach(factory => factory.destroy());
+            if (this._objectFactoryMap !== null) {
+                this._objectFactoryMap.forEach((factory) => factory.destroy());
                 this._objectFactoryMap.clear();
             }
 
-            if(this._routerManager)
-            {
+            if (this._routerManager) {
                 this._routerManager.destroy();
             }
-            if(this._locatorManager)
-            {
+            if (this._locatorManager) {
                 this._locatorManager.destroy();
             }
-            if(this._endpointFactoryManager)
-            {
+            if (this._endpointFactoryManager) {
                 this._endpointFactoryManager.destroy();
             }
 
-            if(this._initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
-            {
+            if (this._initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0) {
                 const unusedProperties = this._initData.properties.getUnusedProperties();
-                if(unusedProperties.length > 0)
-                {
+                if (unusedProperties.length > 0) {
                     const message = [];
                     message.push("The following properties were set but never read:");
-                    unusedProperties.forEach(p => message.push("\n    ", p));
+                    unusedProperties.forEach((p) => message.push("\n    ", p));
                     this._initData.logger.warning(message.join(""));
                 }
             }
@@ -508,17 +424,14 @@ Instance.prototype.destroy = function()
 
             this._state = StateDestroyed;
 
-            if(this._destroyPromises)
-            {
-                this._destroyPromises.forEach(p => p.resolve());
+            if (this._destroyPromises) {
+                this._destroyPromises.forEach((p) => p.resolve());
             }
             promise.resolve();
-        }
-    ).catch(ex =>
-        {
-            if(this._destroyPromises)
-            {
-                this._destroyPromises.forEach(p => p.reject(ex));
+        })
+        .catch((ex) => {
+            if (this._destroyPromises) {
+                this._destroyPromises.forEach((p) => p.reject(ex));
             }
             promise.reject(ex);
         });

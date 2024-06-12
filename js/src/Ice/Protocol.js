@@ -76,8 +76,14 @@ Protocol.requestHdr = new Uint8Array([
     Protocol.protocolEncodingMinor,
     Protocol.requestMsg,
     0, // Compression status.
-    0, 0, 0, 0, // Message size (placeholder).
-    0, 0, 0, 0 // Request ID (placeholder).
+    0,
+    0,
+    0,
+    0, // Message size (placeholder).
+    0,
+    0,
+    0,
+    0, // Request ID (placeholder).
 ]);
 
 Protocol.requestBatchHdr = new Uint8Array([
@@ -91,8 +97,14 @@ Protocol.requestBatchHdr = new Uint8Array([
     Protocol.protocolEncodingMinor,
     Protocol.requestBatchMsg,
     0, // Compression status.
-    0, 0, 0, 0, // Message size (placeholder).
-    0, 0, 0, 0 // Number of requests in batch (placeholder).
+    0,
+    0,
+    0,
+    0, // Message size (placeholder).
+    0,
+    0,
+    0,
+    0, // Number of requests in batch (placeholder).
 ]);
 
 Protocol.replyHdr = new Uint8Array([
@@ -106,7 +118,10 @@ Protocol.replyHdr = new Uint8Array([
     Protocol.protocolEncodingMinor,
     Protocol.replyMsg,
     0, // Compression status.
-    0, 0, 0, 0 // Message size (placeholder).
+    0,
+    0,
+    0,
+    0, // Message size (placeholder).
 ]);
 
 Protocol.currentProtocol = new ProtocolVersion(Protocol.protocolMajor, Protocol.protocolMinor);
@@ -114,27 +129,20 @@ Protocol.currentProtocolEncoding = new EncodingVersion(Protocol.protocolEncoding
 
 Protocol.currentEncoding = new EncodingVersion(Protocol.encodingMajor, Protocol.encodingMinor);
 
-Protocol.checkSupportedProtocol = function(v)
-{
-    if(v.major !== Protocol.currentProtocol.major || v.minor > Protocol.currentProtocol.minor)
-    {
+Protocol.checkSupportedProtocol = function (v) {
+    if (v.major !== Protocol.currentProtocol.major || v.minor > Protocol.currentProtocol.minor) {
         throw new UnsupportedProtocolException("", v, Protocol.currentProtocol);
     }
 };
 
-Protocol.checkSupportedProtocolEncoding = function(v)
-{
-    if(v.major !== Protocol.currentProtocolEncoding.major ||
-    v.minor > Protocol.currentProtocolEncoding.minor)
-    {
+Protocol.checkSupportedProtocolEncoding = function (v) {
+    if (v.major !== Protocol.currentProtocolEncoding.major || v.minor > Protocol.currentProtocolEncoding.minor) {
         throw new UnsupportedEncodingException("", v, Protocol.currentProtocolEncoding);
     }
 };
 
-Protocol.checkSupportedEncoding = function(v)
-{
-    if(v.major !== Protocol.currentEncoding.major || v.minor > Protocol.currentEncoding.minor)
-    {
+Protocol.checkSupportedEncoding = function (v) {
+    if (v.major !== Protocol.currentEncoding.major || v.minor > Protocol.currentEncoding.minor) {
         throw new UnsupportedEncodingException("", v, Protocol.currentEncoding);
     }
 };
@@ -143,18 +151,12 @@ Protocol.checkSupportedEncoding = function(v)
 // Either return the given protocol if not compatible, or the greatest
 // supported protocol otherwise.
 //
-Protocol.getCompatibleProtocol = function(v)
-{
-    if(v.major !== Protocol.currentProtocol.major)
-    {
+Protocol.getCompatibleProtocol = function (v) {
+    if (v.major !== Protocol.currentProtocol.major) {
         return v; // Unsupported protocol, return as is.
-    }
-    else if(v.minor < Protocol.currentProtocol.minor)
-    {
+    } else if (v.minor < Protocol.currentProtocol.minor) {
         return v; // Supported protocol.
-    }
-    else
-    {
+    } else {
         //
         // Unsupported but compatible, use the currently supported
         // protocol, that's the best we can do.
@@ -167,18 +169,12 @@ Protocol.getCompatibleProtocol = function(v)
 // Either return the given encoding if not compatible, or the greatest
 // supported encoding otherwise.
 //
-Protocol.getCompatibleEncoding = function(v)
-{
-    if(v.major !== Protocol.currentEncoding.major)
-    {
+Protocol.getCompatibleEncoding = function (v) {
+    if (v.major !== Protocol.currentEncoding.major) {
         return v; // Unsupported encoding, return as is.
-    }
-    else if(v.minor < Protocol.currentEncoding.minor)
-    {
+    } else if (v.minor < Protocol.currentEncoding.minor) {
         return v; // Supported encoding.
-    }
-    else
-    {
+    } else {
         //
         // Unsupported but compatible, use the currently supported
         // encoding, that's the best we can do.
@@ -187,44 +183,40 @@ Protocol.getCompatibleEncoding = function(v)
     }
 };
 
-Protocol.isSupported = function(version, supported)
-{
+Protocol.isSupported = function (version, supported) {
     return version.major === supported.major && version.minor <= supported.minor;
 };
 
 /**
-* Converts a string to a protocol version.
-*
-* @param version The string to convert.
-*
-* @return The converted protocol version.
-**/
-export function stringToProtocolVersion(version)
-{
+ * Converts a string to a protocol version.
+ *
+ * @param version The string to convert.
+ *
+ * @return The converted protocol version.
+ **/
+export function stringToProtocolVersion(version) {
     return new ProtocolVersion(stringToMajor(version), stringToMinor(version));
 }
 
 /**
-* Converts a string to an encoding version.
-*
-* @param version The string to convert.
-*
-* @return The converted object identity.
-**/
-export function stringToEncodingVersion(version)
-{
+ * Converts a string to an encoding version.
+ *
+ * @param version The string to convert.
+ *
+ * @return The converted object identity.
+ **/
+export function stringToEncodingVersion(version) {
     return new EncodingVersion(stringToMajor(version), stringToMinor(version));
 }
 
 /**
-* Converts a protocol version to a string.
-*
-* @param v The protocol version to convert.
-*
-* @return The converted string.
-**/
-export function protocolVersionToString(v)
-{
+ * Converts a protocol version to a string.
+ *
+ * @param v The protocol version to convert.
+ *
+ * @return The converted string.
+ **/
+export function protocolVersionToString(v) {
     return majorMinorToString(v.major, v.minor);
 }
 
@@ -235,67 +227,53 @@ export function protocolVersionToString(v)
  *
  * @return The converted string.
  **/
-export function encodingVersionToString(v)
-{
+export function encodingVersionToString(v) {
     return majorMinorToString(v.major, v.minor);
 }
 
-Protocol.OPTIONAL_END_MARKER = 0xFF;
-Protocol.FLAG_HAS_TYPE_ID_STRING = (1 << 0);
-Protocol.FLAG_HAS_TYPE_ID_INDEX = (1 << 1);
-Protocol.FLAG_HAS_TYPE_ID_COMPACT = (1 << 1 | 1 << 0);
-Protocol.FLAG_HAS_OPTIONAL_MEMBERS = (1 << 2);
-Protocol.FLAG_HAS_INDIRECTION_TABLE = (1 << 3);
-Protocol.FLAG_HAS_SLICE_SIZE = (1 << 4);
-Protocol.FLAG_IS_LAST_SLICE = (1 << 5);
+Protocol.OPTIONAL_END_MARKER = 0xff;
+Protocol.FLAG_HAS_TYPE_ID_STRING = 1 << 0;
+Protocol.FLAG_HAS_TYPE_ID_INDEX = 1 << 1;
+Protocol.FLAG_HAS_TYPE_ID_COMPACT = (1 << 1) | (1 << 0);
+Protocol.FLAG_HAS_OPTIONAL_MEMBERS = 1 << 2;
+Protocol.FLAG_HAS_INDIRECTION_TABLE = 1 << 3;
+Protocol.FLAG_HAS_SLICE_SIZE = 1 << 4;
+Protocol.FLAG_IS_LAST_SLICE = 1 << 5;
 
-function stringToMajor(str)
-{
-    const pos = str.indexOf('.');
-    if(pos === -1)
-    {
+function stringToMajor(str) {
+    const pos = str.indexOf(".");
+    if (pos === -1) {
         throw new VersionParseException("malformed version value `" + str + "'");
     }
 
-    try
-    {
+    try {
         const majVersion = StringUtil.toInt(str.substring(0, pos));
-        if(majVersion < 1 || majVersion > 255)
-        {
+        if (majVersion < 1 || majVersion > 255) {
             throw new VersionParseException("range error in version `" + str + "'");
         }
         return majVersion;
-    }
-    catch(ex)
-    {
+    } catch (ex) {
         throw new VersionParseException("invalid version value `" + str + "'");
     }
 }
 
-function stringToMinor(str)
-{
-    const pos = str.indexOf('.');
-    if(pos === -1)
-    {
+function stringToMinor(str) {
+    const pos = str.indexOf(".");
+    if (pos === -1) {
         throw new VersionParseException("malformed version value `" + str + "'");
     }
 
-    try
-    {
+    try {
         const minVersion = StringUtil.toInt(str.substring(pos + 1));
-        if(minVersion < 0 || minVersion > 255)
-        {
+        if (minVersion < 0 || minVersion > 255) {
             throw new VersionParseException("range error in version `" + str + "'");
         }
         return minVersion;
-    }
-    catch(ex)
-    {
+    } catch (ex) {
         throw new VersionParseException("invalid version value `" + str + "'");
     }
 }
 
-function majorMinorToString(major, minor)
-{
+function majorMinorToString(major, minor) {
     return major + "." + minor;
 }

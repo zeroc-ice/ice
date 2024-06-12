@@ -14,16 +14,13 @@ const Ice = {
 /**
  *  This exception is raised when a failure occurs during initialization.
  **/
-export class InitializationException extends LocalException
-{
-    constructor(reason = "", _cause = "")
-    {
+export class InitializationException extends LocalException {
+    constructor(reason = "", _cause = "") {
         super(_cause);
         this.reason = reason;
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::InitializationException";
     }
 }
@@ -33,17 +30,14 @@ export class InitializationException extends LocalException
  *  attempt is made to register a servant, servant locator, facet, value factory, plug-in, object adapter, object, or
  *  user exception factory more than once for the same ID.
  **/
-export class AlreadyRegisteredException extends LocalException
-{
-    constructor(kindOfObject = "", id = "", _cause = "")
-    {
+export class AlreadyRegisteredException extends LocalException {
+    constructor(kindOfObject = "", id = "", _cause = "") {
         super(_cause);
         this.kindOfObject = kindOfObject;
         this.id = id;
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::AlreadyRegisteredException";
     }
 }
@@ -55,17 +49,14 @@ export class AlreadyRegisteredException extends LocalException
  *  locator can't find an object or object adapter when resolving an indirect proxy or when an object adapter is
  *  activated.
  **/
-export class NotRegisteredException extends LocalException
-{
-    constructor(kindOfObject = "", id = "", _cause = "")
-    {
+export class NotRegisteredException extends LocalException {
+    constructor(kindOfObject = "", id = "", _cause = "") {
         super(_cause);
         this.kindOfObject = kindOfObject;
         this.id = id;
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::NotRegisteredException";
     }
 }
@@ -75,16 +66,13 @@ export class NotRegisteredException extends LocalException
  *  an operation with <code>ice_oneway</code>, <code>ice_batchOneway</code>, <code>ice_datagram</code>, or
  *  <code>ice_batchDatagram</code> and the operation has a return value, out-parameters, or an exception specification.
  **/
-export class TwowayOnlyException extends LocalException
-{
-    constructor(operation = "", _cause = "")
-    {
+export class TwowayOnlyException extends LocalException {
+    constructor(operation = "", _cause = "") {
         super(_cause);
         this.operation = operation;
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::TwowayOnlyException";
     }
 }
@@ -94,16 +82,13 @@ export class TwowayOnlyException extends LocalException
  *  exception is raised if the server throws a C++ exception that is not directly or indirectly derived from
  *  <code>Ice::LocalException</code> or <code>Ice::UserException</code>.
  **/
-export class UnknownException extends LocalException
-{
-    constructor(unknown = "", _cause = "")
-    {
+export class UnknownException extends LocalException {
+    constructor(unknown = "", _cause = "") {
         super(_cause);
         this.unknown = unknown;
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::UnknownException";
     }
 }
@@ -115,15 +100,12 @@ export class UnknownException extends LocalException
  *  {@link RequestFailedException}, which are transmitted by the Ice protocol even though they are declared
  *  <code>local</code>.
  **/
-export class UnknownLocalException extends UnknownException
-{
-    constructor(unknown, _cause = "")
-    {
+export class UnknownLocalException extends UnknownException {
+    constructor(unknown, _cause = "") {
         super(unknown, _cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::UnknownLocalException";
     }
 }
@@ -135,15 +117,12 @@ export class UnknownLocalException extends UnknownException
  *  This is necessary in order to not violate the contract established by an operation's signature: Only local
  *  exceptions and user exceptions declared in the <code>throws</code> clause can be raised.
  **/
-export class UnknownUserException extends UnknownException
-{
-    constructor(unknown, _cause = "")
-    {
+export class UnknownUserException extends UnknownException {
+    constructor(unknown, _cause = "") {
         super(unknown, _cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::UnknownUserException";
     }
 }
@@ -152,15 +131,12 @@ export class UnknownUserException extends UnknownException
  *  This exception is raised if the {@link Communicator} has been destroyed.
  *  @see Communicator#destroy
  **/
-export class CommunicatorDestroyedException extends LocalException
-{
-    constructor(_cause = "")
-    {
+export class CommunicatorDestroyedException extends LocalException {
+    constructor(_cause = "") {
         super(_cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::CommunicatorDestroyedException";
     }
 }
@@ -170,16 +146,13 @@ export class CommunicatorDestroyedException extends LocalException
  *  @see ObjectAdapter#deactivate
  *  @see Communicator#shutdown
  **/
-export class ObjectAdapterDeactivatedException extends LocalException
-{
-    constructor(name = "", _cause = "")
-    {
+export class ObjectAdapterDeactivatedException extends LocalException {
+    constructor(name = "", _cause = "") {
         super(_cause);
         this.name = name;
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::ObjectAdapterDeactivatedException";
     }
 }
@@ -188,16 +161,13 @@ export class ObjectAdapterDeactivatedException extends LocalException
  *  This exception is raised if an {@link ObjectAdapter} cannot be activated. This happens if the {@link Locator}
  *  detects another active {@link ObjectAdapter} with the same adapter id.
  **/
-export class ObjectAdapterIdInUseException extends LocalException
-{
-    constructor(id = "", _cause = "")
-    {
+export class ObjectAdapterIdInUseException extends LocalException {
+    constructor(id = "", _cause = "") {
         super(_cause);
         this.id = id;
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::ObjectAdapterIdInUseException";
     }
 }
@@ -205,16 +175,13 @@ export class ObjectAdapterIdInUseException extends LocalException
 /**
  *  This exception is raised if no suitable endpoint is available.
  **/
-export class NoEndpointException extends LocalException
-{
-    constructor(proxy = "", _cause = "")
-    {
+export class NoEndpointException extends LocalException {
+    constructor(proxy = "", _cause = "") {
         super(_cause);
         this.proxy = proxy;
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::NoEndpointException";
     }
 }
@@ -222,16 +189,13 @@ export class NoEndpointException extends LocalException
 /**
  *  This exception is raised if there was an error while parsing an endpoint.
  **/
-export class EndpointParseException extends LocalException
-{
-    constructor(str = "", _cause = "")
-    {
+export class EndpointParseException extends LocalException {
+    constructor(str = "", _cause = "") {
         super(_cause);
         this.str = str;
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::EndpointParseException";
     }
 }
@@ -239,16 +203,13 @@ export class EndpointParseException extends LocalException
 /**
  *  This exception is raised if there was an error while parsing an endpoint selection type.
  **/
-export class EndpointSelectionTypeParseException extends LocalException
-{
-    constructor(str = "", _cause = "")
-    {
+export class EndpointSelectionTypeParseException extends LocalException {
+    constructor(str = "", _cause = "") {
         super(_cause);
         this.str = str;
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::EndpointSelectionTypeParseException";
     }
 }
@@ -256,33 +217,27 @@ export class EndpointSelectionTypeParseException extends LocalException
 /**
  *  This exception is raised if there was an error while parsing a version.
  **/
-export class VersionParseException extends LocalException
-{
-    constructor(str = "", _cause = "")
-    {
+export class VersionParseException extends LocalException {
+    constructor(str = "", _cause = "") {
         super(_cause);
         this.str = str;
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::VersionParseException";
     }
-};
+}
 
 /**
  *  This exception is raised if there was an error while parsing a stringified identity.
  **/
-export class IdentityParseException extends LocalException
-{
-    constructor(str = "", _cause = "")
-    {
+export class IdentityParseException extends LocalException {
+    constructor(str = "", _cause = "") {
         super(_cause);
         this.str = str;
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::IdentityParseException";
     }
 }
@@ -290,16 +245,13 @@ export class IdentityParseException extends LocalException
 /**
  *  This exception is raised if there was an error while parsing a stringified proxy.
  **/
-export class ProxyParseException extends LocalException
-{
-    constructor(str = "", _cause = "")
-    {
+export class ProxyParseException extends LocalException {
+    constructor(str = "", _cause = "") {
         super(_cause);
         this.str = str;
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::ProxyParseException";
     }
 }
@@ -307,15 +259,12 @@ export class ProxyParseException extends LocalException
 /**
  *   This exception is raised if an illegal identity is encountered.
  **/
-export class IllegalIdentityException extends LocalException
-{
-    constructor(_cause = "")
-    {
+export class IllegalIdentityException extends LocalException {
+    constructor(_cause = "") {
         super(_cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::IllegalIdentityException";
     }
 }
@@ -323,16 +272,13 @@ export class IllegalIdentityException extends LocalException
 /**
  *  This exception is raised to reject an illegal servant (typically a null servant).
  **/
-export class IllegalServantException extends LocalException
-{
-    constructor(reason = "", _cause = "")
-    {
+export class IllegalServantException extends LocalException {
+    constructor(reason = "", _cause = "") {
         super(_cause);
         this.reason = reason;
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::IllegalServantException";
     }
 }
@@ -342,18 +288,15 @@ export class IllegalServantException extends LocalException
  *  {@link RequestFailedException}, are transmitted by the Ice protocol, even though they are declared
  *  <code>local</code>.
  **/
-export class RequestFailedException extends LocalException
-{
-    constructor(id = new Ice.Identity(), facet = "", operation = "", _cause = "")
-    {
+export class RequestFailedException extends LocalException {
+    constructor(id = new Ice.Identity(), facet = "", operation = "", _cause = "") {
         super(_cause);
         this.id = id;
         this.facet = facet;
         this.operation = operation;
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::RequestFailedException";
     }
 }
@@ -362,15 +305,12 @@ export class RequestFailedException extends LocalException
  *  This exception is raised if an object does not exist on the server, that is, if no facets with the given identity
  *  exist.
  **/
-export class ObjectNotExistException extends RequestFailedException
-{
-    constructor(id, facet, operation, _cause = "")
-    {
+export class ObjectNotExistException extends RequestFailedException {
+    constructor(id, facet, operation, _cause = "") {
         super(id, facet, operation, _cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::ObjectNotExistException";
     }
 }
@@ -379,15 +319,12 @@ export class ObjectNotExistException extends RequestFailedException
  *  This exception is raised if no facet with the given name exists, but at least one facet with the given identity
  *  exists.
  **/
-export class FacetNotExistException extends RequestFailedException
-{
-    constructor(id, facet, operation, _cause = "")
-    {
+export class FacetNotExistException extends RequestFailedException {
+    constructor(id, facet, operation, _cause = "") {
         super(id, facet, operation, _cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::FacetNotExistException";
     }
 }
@@ -396,15 +333,12 @@ export class FacetNotExistException extends RequestFailedException
  *  This exception is raised if an operation for a given object does not exist on the server. Typically this is caused
  *  by either the client or the server using an outdated Slice specification.
  **/
-export class OperationNotExistException extends RequestFailedException
-{
-    constructor(id, facet, operation, _cause = "")
-    {
+export class OperationNotExistException extends RequestFailedException {
+    constructor(id, facet, operation, _cause = "") {
         super(id, facet, operation, _cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::OperationNotExistException";
     }
 }
@@ -413,16 +347,13 @@ export class OperationNotExistException extends RequestFailedException
  *  This exception is raised if a system error occurred in the server or client process. There are many possible causes
  *  for such a system exception. For details on the cause, {@link SyscallException#error} should be inspected.
  **/
-export class SyscallException extends LocalException
-{
-    constructor(error = 0, _cause = "")
-    {
+export class SyscallException extends LocalException {
+    constructor(error = 0, _cause = "") {
         super(_cause);
         this.error = error;
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::SyscallException";
     }
 }
@@ -430,15 +361,12 @@ export class SyscallException extends LocalException
 /**
  *  This exception indicates socket errors.
  **/
-export class SocketException extends SyscallException
-{
-    constructor(error, _cause = "")
-    {
+export class SocketException extends SyscallException {
+    constructor(error, _cause = "") {
         super(error, _cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::SocketException";
     }
 }
@@ -446,15 +374,12 @@ export class SocketException extends SyscallException
 /**
  *  This exception indicates connection failures.
  **/
-export class ConnectFailedException extends SocketException
-{
-    constructor(error, _cause = "")
-    {
+export class ConnectFailedException extends SocketException {
+    constructor(error, _cause = "") {
         super(error, _cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::ConnectFailedException";
     }
 }
@@ -462,15 +387,12 @@ export class ConnectFailedException extends SocketException
 /**
  *  This exception indicates a connection failure for which the server host actively refuses a connection.
  **/
-export class ConnectionRefusedException extends ConnectFailedException
-{
-    constructor(error, _cause = "")
-    {
+export class ConnectionRefusedException extends ConnectFailedException {
+    constructor(error, _cause = "") {
         super(error, _cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::ConnectionRefusedException";
     }
 }
@@ -478,15 +400,12 @@ export class ConnectionRefusedException extends ConnectFailedException
 /**
  *  This exception indicates a lost connection.
  **/
-export class ConnectionLostException extends SocketException
-{
-    constructor(error, _cause = "")
-    {
+export class ConnectionLostException extends SocketException {
+    constructor(error, _cause = "") {
         super(error, _cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::ConnectionLostException";
     }
 }
@@ -494,15 +413,12 @@ export class ConnectionLostException extends SocketException
 /**
  *  This exception indicates a timeout condition.
  **/
-export class TimeoutException extends LocalException
-{
-    constructor(_cause = "")
-    {
+export class TimeoutException extends LocalException {
+    constructor(_cause = "") {
         super(_cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::TimeoutException";
     }
 }
@@ -510,15 +426,12 @@ export class TimeoutException extends LocalException
 /**
  *  This exception indicates a connection establishment timeout condition.
  **/
-export class ConnectTimeoutException extends TimeoutException
-{
-    constructor(_cause = "")
-    {
+export class ConnectTimeoutException extends TimeoutException {
+    constructor(_cause = "") {
         super(_cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::ConnectTimeoutException";
     }
 }
@@ -526,31 +439,25 @@ export class ConnectTimeoutException extends TimeoutException
 /**
  *  This exception indicates a connection closure timeout condition.
  **/
-export class CloseTimeoutException extends TimeoutException
-{
-    constructor(_cause = "")
-    {
+export class CloseTimeoutException extends TimeoutException {
+    constructor(_cause = "") {
         super(_cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::CloseTimeoutException";
     }
-};
+}
 
 /**
  *  This exception indicates that a connection has been shut down because it has been idle for some time.
  **/
-export class ConnectionTimeoutException extends TimeoutException
-{
-    constructor(_cause = "")
-    {
+export class ConnectionTimeoutException extends TimeoutException {
+    constructor(_cause = "") {
         super(_cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::ConnectionTimeoutException";
     }
 }
@@ -558,15 +465,12 @@ export class ConnectionTimeoutException extends TimeoutException
 /**
  *  This exception indicates that an invocation failed because it timed out.
  **/
-export class InvocationTimeoutException extends TimeoutException
-{
-    constructor(_cause = "")
-    {
+export class InvocationTimeoutException extends TimeoutException {
+    constructor(_cause = "") {
         super(_cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::InvocationTimeoutException";
     }
 }
@@ -574,32 +478,26 @@ export class InvocationTimeoutException extends TimeoutException
 /**
  *  This exception indicates that an asynchronous invocation failed because it was canceled explicitly by the user.
  **/
-export class InvocationCanceledException extends LocalException
-{
-    constructor(_cause = "")
-    {
+export class InvocationCanceledException extends LocalException {
+    constructor(_cause = "") {
         super(_cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::InvocationCanceledException";
     }
-};
+}
 
 /**
  *  A generic exception base for all kinds of protocol error conditions.
  **/
-export class ProtocolException extends LocalException
-{
-    constructor(reason = "", _cause = "")
-    {
+export class ProtocolException extends LocalException {
+    constructor(reason = "", _cause = "") {
         super(_cause);
         this.reason = reason;
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::ProtocolException";
     }
 }
@@ -607,16 +505,13 @@ export class ProtocolException extends LocalException
 /**
  *  This exception indicates that a message did not start with the expected magic number ('I', 'c', 'e', 'P').
  **/
-export class BadMagicException extends ProtocolException
-{
-    constructor(reason, badMagic = null, _cause = "")
-    {
+export class BadMagicException extends ProtocolException {
+    constructor(reason, badMagic = null, _cause = "") {
         super(reason, _cause);
         this.badMagic = badMagic;
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::BadMagicException";
     }
 }
@@ -624,17 +519,14 @@ export class BadMagicException extends ProtocolException
 /**
  *  This exception indicates an unsupported protocol version.
  **/
-export class UnsupportedProtocolException extends ProtocolException
-{
-    constructor(reason, bad = new Ice.ProtocolVersion(), supported = new Ice.ProtocolVersion(), _cause = "")
-    {
+export class UnsupportedProtocolException extends ProtocolException {
+    constructor(reason, bad = new Ice.ProtocolVersion(), supported = new Ice.ProtocolVersion(), _cause = "") {
         super(reason, _cause);
         this.bad = bad;
         this.supported = supported;
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::UnsupportedProtocolException";
     }
 }
@@ -642,17 +534,14 @@ export class UnsupportedProtocolException extends ProtocolException
 /**
  *  This exception indicates an unsupported data encoding version.
  **/
-export class UnsupportedEncodingException extends ProtocolException
-{
-    constructor(reason, bad = new Ice.EncodingVersion(), supported = new Ice.EncodingVersion(), _cause = "")
-    {
+export class UnsupportedEncodingException extends ProtocolException {
+    constructor(reason, bad = new Ice.EncodingVersion(), supported = new Ice.EncodingVersion(), _cause = "") {
         super(reason, _cause);
         this.bad = bad;
         this.supported = supported;
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::UnsupportedEncodingException";
     }
 }
@@ -660,15 +549,12 @@ export class UnsupportedEncodingException extends ProtocolException
 /**
  *  This exception indicates that an unknown protocol message has been received.
  **/
-export class UnknownMessageException extends ProtocolException
-{
-    constructor(reason, _cause = "")
-    {
+export class UnknownMessageException extends ProtocolException {
+    constructor(reason, _cause = "") {
         super(reason, _cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::UnknownMessageException";
     }
 }
@@ -676,15 +562,12 @@ export class UnknownMessageException extends ProtocolException
 /**
  *  This exception is raised if a message is received over a connection that is not yet validated.
  **/
-export class ConnectionNotValidatedException extends ProtocolException
-{
-    constructor(reason, _cause = "")
-    {
+export class ConnectionNotValidatedException extends ProtocolException {
+    constructor(reason, _cause = "") {
         super(reason, _cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::ConnectionNotValidatedException";
     }
 }
@@ -692,15 +575,12 @@ export class ConnectionNotValidatedException extends ProtocolException
 /**
  *  This exception indicates that an unknown reply status has been received.
  **/
-export class UnknownReplyStatusException extends ProtocolException
-{
-    constructor(reason, _cause = "")
-    {
+export class UnknownReplyStatusException extends ProtocolException {
+    constructor(reason, _cause = "") {
         super(reason, _cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::UnknownReplyStatusException";
     }
 }
@@ -712,15 +592,12 @@ export class UnknownReplyStatusException extends ProtocolException
  *  upon retry the server shuts down the connection again, and the retry limit has been reached, then this exception is
  *  propagated to the application code.
  **/
-export class CloseConnectionException extends ProtocolException
-{
-    constructor(reason, _cause = "")
-    {
+export class CloseConnectionException extends ProtocolException {
+    constructor(reason, _cause = "") {
         super(reason, _cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::CloseConnectionException";
     }
 }
@@ -730,16 +607,13 @@ export class CloseConnectionException extends ProtocolException
  *  {@link Connection#close}.
  *  @see Connection#close
  **/
-export class ConnectionManuallyClosedException extends LocalException
-{
-    constructor(graceful = false, _cause = "")
-    {
+export class ConnectionManuallyClosedException extends LocalException {
+    constructor(graceful = false, _cause = "") {
         super(_cause);
         this.graceful = graceful;
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::ConnectionManuallyClosedException";
     }
 }
@@ -747,15 +621,12 @@ export class ConnectionManuallyClosedException extends LocalException
 /**
  *  This exception indicates that a message size is less than the minimum required size.
  **/
-export class IllegalMessageSizeException extends ProtocolException
-{
-    constructor(reason, _cause = "")
-    {
+export class IllegalMessageSizeException extends ProtocolException {
+    constructor(reason, _cause = "") {
         super(reason, _cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::IllegalMessageSizeException";
     }
 }
@@ -763,15 +634,12 @@ export class IllegalMessageSizeException extends ProtocolException
 /**
  *  This exception indicates a problem with compressing or uncompressing data.
  **/
-export class CompressionException extends ProtocolException
-{
-    constructor(reason, _cause = "")
-    {
+export class CompressionException extends ProtocolException {
+    constructor(reason, _cause = "") {
         super(reason, _cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::CompressionException";
     }
 }
@@ -779,15 +647,12 @@ export class CompressionException extends ProtocolException
 /**
  *  This exception is raised for errors during marshaling or unmarshaling data.
  **/
-export class MarshalException extends ProtocolException
-{
-    constructor(reason, _cause = "")
-    {
+export class MarshalException extends ProtocolException {
+    constructor(reason, _cause = "") {
         super(reason, _cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::MarshalException";
     }
 }
@@ -795,15 +660,12 @@ export class MarshalException extends ProtocolException
 /**
  *  This exception is raised if inconsistent data is received while unmarshaling a proxy.
  **/
-export class ProxyUnmarshalException extends MarshalException
-{
-    constructor(reason, _cause = "")
-    {
+export class ProxyUnmarshalException extends MarshalException {
+    constructor(reason, _cause = "") {
         super(reason, _cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::ProxyUnmarshalException";
     }
 }
@@ -811,15 +673,12 @@ export class ProxyUnmarshalException extends MarshalException
 /**
  *  This exception is raised if an out-of-bounds condition occurs during unmarshaling.
  **/
-export class UnmarshalOutOfBoundsException extends MarshalException
-{
-    constructor(reason, _cause = "")
-    {
+export class UnmarshalOutOfBoundsException extends MarshalException {
+    constructor(reason, _cause = "") {
         super(reason, _cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::UnmarshalOutOfBoundsException";
     }
 }
@@ -831,16 +690,13 @@ export class UnmarshalOutOfBoundsException extends MarshalException
  *  @see ValueFactoryManager#add
  *  @see ValueFactoryManager#find
  **/
-export class NoValueFactoryException extends MarshalException
-{
-    constructor(reason, type = "", _cause = "")
-    {
+export class NoValueFactoryException extends MarshalException {
+    constructor(reason, type = "", _cause = "") {
         super(reason, _cause);
         this.type = type;
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::NoValueFactoryException";
     }
 }
@@ -851,17 +707,14 @@ export class NoValueFactoryException extends MarshalException
  *  passed as a parameter or return value using dynamic invocation. This exception can also be raised if IceStorm is
  *  used to send Slice class instances and an operation is subscribed to the wrong topic.
  **/
-export class UnexpectedObjectException extends MarshalException
-{
-    constructor(reason, type = "", expectedType = "", _cause = "")
-    {
+export class UnexpectedObjectException extends MarshalException {
+    constructor(reason, type = "", expectedType = "", _cause = "") {
         super(reason, _cause);
         this.type = type;
         this.expectedType = expectedType;
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::UnexpectedObjectException";
     }
 }
@@ -870,15 +723,12 @@ export class UnexpectedObjectException extends MarshalException
  *  This exception is raised when Ice receives a request or reply message whose size exceeds the limit specified by the
  *  <code>Ice.MessageSizeMax</code> property.
  **/
-export class MemoryLimitException extends MarshalException
-{
-    constructor(reason, _cause = "")
-    {
+export class MemoryLimitException extends MarshalException {
+    constructor(reason, _cause = "") {
         super(reason, _cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::MemoryLimitException";
     }
 }
@@ -886,15 +736,12 @@ export class MemoryLimitException extends MarshalException
 /**
  *  This exception indicates a malformed data encapsulation.
  **/
-export class EncapsulationException extends MarshalException
-{
-    constructor(reason, _cause = "")
-    {
+export class EncapsulationException extends MarshalException {
+    constructor(reason, _cause = "") {
         super(reason, _cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::EncapsulationException";
     }
 }
@@ -903,16 +750,13 @@ export class EncapsulationException extends MarshalException
  *  This exception is raised if an unsupported feature is used. The unsupported feature string contains the name of the
  *  unsupported feature.
  **/
-export class FeatureNotSupportedException extends LocalException
-{
-    constructor(unsupportedFeature = "", _cause = "")
-    {
+export class FeatureNotSupportedException extends LocalException {
+    constructor(unsupportedFeature = "", _cause = "") {
         super(_cause);
         this.unsupportedFeature = unsupportedFeature;
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::FeatureNotSupportedException";
     }
 }
@@ -920,15 +764,12 @@ export class FeatureNotSupportedException extends LocalException
 /**
  *  This exception indicates that an attempt has been made to change the connection properties of a fixed proxy.
  **/
-export class FixedProxyException extends LocalException
-{
-    constructor(_cause = "")
-    {
+export class FixedProxyException extends LocalException {
+    constructor(_cause = "") {
         super(_cause);
     }
 
-    static get _id()
-    {
+    static get _id() {
         return "::Ice::FixedProxyException";
     }
 }
