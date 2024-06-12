@@ -29,7 +29,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.4.0"),
         .package(url: "https://github.com/mxcl/PromiseKit.git", from: "8.1.2"),
-        .package(name: "mcpp", path: "/Users/joe/Developer/zeroc-ice/mcpp")
+        .package(url: "https://github.com/zeroc-ice/mcpp.git", branch: "master")
     ],
     targets: [
         .target(

@@ -1,6 +1,15 @@
 {
-  "originHash" : "0188d1f4de1de1ac12399d50038686155bae519d22ff1821ac2ad2e55f6b7c43",
+  "originHash" : "a36cf70b051e306c1bd25eab3690516c9b1f7f308707b72fb2eb2325715180a3",
   "pins" : [
+    {
+      "identity" : "mcpp",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/zeroc-ice/mcpp.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "ab3333f331c9e1ba4b5565d28910d21973ee832c"
+      }
+    },
     {
       "identity" : "promisekit",
       "kind" : "remoteSourceControl",
