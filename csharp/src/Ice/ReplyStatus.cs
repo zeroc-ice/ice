@@ -17,4 +17,4 @@ public enum ReplyStatus : byte
     UnknownLocalException = 5,
     UnknownUserException = 6,
     UnknownException = 7
-};
+}

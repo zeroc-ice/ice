@@ -13,6 +13,7 @@ import com.zeroc.IceInternal.Protocol;
 import com.zeroc.IceInternal.SocketOperation;
 import com.zeroc.IceInternal.TraceUtil;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
 
 public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
@@ -492,6 +493,42 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     }
   }
 
+  private void sendResponse(OutgoingResponse response, boolean isTwoWay, byte compress) {
+    if (isTwoWay) {
+      //
+      // We may be executing on the "main thread" (e.g., in Android together with a custom
+      // dispatcher)
+      // and therefore we have to defer network calls to a separate thread.
+      //
+      final boolean queueResponse = _instance.queueRequests();
+
+      final OutputStream os = response.outputStream;
+
+      synchronized (this) {
+        assert (_state > StateNotValidated);
+
+        if (!queueResponse) {
+          sendResponseImpl(os, compress);
+        }
+      }
+
+      if (queueResponse) {
+        _instance
+            .getQueueExecutor()
+            .executeNoThrow(
+                new Callable<Void>() {
+                  @Override
+                  public Void call() throws Exception {
+                    sendResponseImpl(os, compress);
+                    return null;
+                  }
+                });
+      }
+    } else {
+      sendNoResponse();
+    }
+  }
+
   @Override
   public void sendResponse(int requestId, OutputStream os, byte compressFlag, boolean amd) {
     //
@@ -607,20 +644,20 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   }
 
   @Override
-  public void invokeException(int requestId, LocalException ex, int invokeNum, boolean amd) {
+  public void dispatchException(int requestId, LocalException ex, int requestCount, boolean amd) {
     boolean finished = false;
     synchronized (this) {
       //
-      // Fatal exception while invoking a request. Since sendResponse/sendNoResponse
+      // Fatal exception while dispatching a request. Since sendResponse/sendNoResponse
       // isn't
       // called in case of a fatal exception we decrement _dispatchCount here.
       //
 
       setState(StateClosed, ex);
 
-      if (invokeNum > 0) {
+      if (requestCount > 0) {
         assert (_upcallCount > 0);
-        _upcallCount -= invokeNum;
+        _upcallCount -= requestCount;
         assert (_upcallCount >= 0);
         if (_upcallCount == 0) {
           if (_state == StateFinished) {
@@ -1041,7 +1078,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       // calls are possible.
       //
       if (info.invokeNum > 0) {
-        invokeAll(
+        dispatchAll(
             info.stream,
             info.invokeNum,
             info.requestId,
@@ -2250,21 +2287,92 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     return _state == StateHolding ? SocketOperation.None : SocketOperation.Read;
   }
 
-  private void invokeAll(
+  private void dispatchAll(
       InputStream stream,
-      int invokeNum,
+      int requestCount,
       int requestId,
       byte compress,
       com.zeroc.IceInternal.ServantManager servantManager,
       ObjectAdapter adapter) {
-    //
-    // Note: In contrast to other private or protected methods, this
-    // operation must be called *without* the mutex locked.
-    //
+
+    // Note: In contrast to other private or protected methods, this method must be called *without*
+    // the mutex locked.
+
+    Object dispatcher = adapter != null ? adapter.dispatchPipeline() : null;
+
+    try {
+      while (requestCount > 0) {
+        // adapter can be null here, however we never pass a null current.adapter to the application
+        // code.
+        var request = new IncomingRequest(requestId, this, adapter, stream);
+        final boolean isTwoWay = !_endpoint.datagram() && requestId != 0;
+
+        if (dispatcher != null) {
+          CompletionStage<OutgoingResponse> response = null;
+          try {
+            response = dispatcher.dispatch(request);
+          } catch (RuntimeException | UserException ex) {
+            sendResponse(request.current.createOutgoingResponse(ex), isTwoWay, (byte) 0);
+          } catch (java.lang.Error ex) {
+            // TODO: should we catch/handle Errors at all? Only some errors?
+            sendResponse(request.current.createOutgoingResponse(ex), isTwoWay, (byte) 0);
+          }
+          if (response != null) {
+            response.whenComplete(
+                (r, ex) -> {
+                  if (ex != null) {
+                    sendResponse(request.current.createOutgoingResponse(ex), isTwoWay, (byte) 0);
+                  } else {
+                    sendResponse(r, isTwoWay, compress);
+                  }
+                  // Any exception thrown by this closure is effectively ignored.
+                });
+          }
+        } else {
+          // Received request on a connection without an object adapter.
+          sendResponse(
+              request.current.createOutgoingResponse(new com.zeroc.Ice.ObjectNotExistException()),
+              isTwoWay,
+              (byte) 0);
+        }
+        --requestCount;
+      }
+      stream.clear();
+
+    } catch (LocalException ex) {
+      dispatchException(requestId, ex, requestCount, false);
+    } catch (java.lang.Error ex) {
+      //
+      // An Error was raised outside of servant code (i.e., by Ice code).
+      // Attempt to log the error and clean up. This may still fail
+      // depending on the severity of the error.
+      //
+      // Note that this does NOT send a response to the client.
+      //
+      UnknownException uex = new UnknownException(ex);
+      java.io.StringWriter sw = new java.io.StringWriter();
+      java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+      ex.printStackTrace(pw);
+      pw.flush();
+      uex.unknown = sw.toString();
+      _logger.error(uex.unknown);
+      dispatchException(requestId, uex, requestCount, false);
+      //
+      // Suppress AssertionError and OutOfMemoryError, rethrow everything else.
+      //
+      if (!(ex instanceof java.lang.AssertionError
+          || ex instanceof java.lang.OutOfMemoryError
+          || ex instanceof java.lang.StackOverflowError)) {
+        throw ex;
+      }
+    }
+    // Any other exception is not handled and kills the thread.
+
+    /*
 
     Incoming in = null;
     try {
-      while (invokeNum > 0) {
+      while (requestCount > 0) {
 
         //
         // Prepare the invocation.
@@ -2277,7 +2385,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         //
         in.invoke(servantManager, stream);
 
-        --invokeNum;
+        --requestCount;
 
         reclaimIncoming(in);
         in = null;
@@ -2285,7 +2393,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
       stream.clear();
     } catch (LocalException ex) {
-      invokeException(requestId, ex, invokeNum, false);
+      dispatchException(requestId, ex, requestCount, false);
     } catch (com.zeroc.IceInternal.ServantError ex) {
       //
       // ServantError is thrown when an Error has been raised by servant (or servant locator)
@@ -2315,7 +2423,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       pw.flush();
       uex.unknown = sw.toString();
       _logger.error(uex.unknown);
-      invokeException(requestId, uex, invokeNum, false);
+      dispatchException(requestId, uex, requestCount, false);
       //
       // Suppress AssertionError and OutOfMemoryError, rethrow everything else.
       //
@@ -2329,6 +2437,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         reclaimIncoming(in);
       }
     }
+      */
   }
 
   private void scheduleTimeout(int status) {

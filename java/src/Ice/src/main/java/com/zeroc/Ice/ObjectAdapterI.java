@@ -4,12 +4,17 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
 import com.zeroc.Ice.SSL.SSLEngineFactory;
 import com.zeroc.IceInternal.EndpointI;
 import com.zeroc.IceInternal.IncomingConnectionFactory;
+import com.zeroc.IceInternal.LoggerMiddleware;
+import com.zeroc.IceInternal.ObserverMiddleware;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
+import java.util.function.Function;
 
 public final class ObjectAdapterI implements ObjectAdapter {
   @Override
@@ -307,13 +312,23 @@ public final class ObjectAdapterI implements ObjectAdapter {
   }
 
   @Override
-  public ObjectPrx add(com.zeroc.Ice.Object object, Identity ident) {
+  public ObjectAdapter use(Function<Object, Object> middleware) {
+    // This code is not thread-safe, and it's not supposed to be.
+    if (_dispatchPipeline != null) {
+      throw new IllegalStateException(
+          "All middleware must be installed before the first dispatch.");
+    }
+    _middlewareStack.push(middleware);
+    return this;
+  }
+
+  @Override
+  public ObjectPrx add(Object object, Identity ident) {
     return addFacet(object, ident, "");
   }
 
   @Override
-  public synchronized ObjectPrx addFacet(
-      com.zeroc.Ice.Object object, Identity ident, String facet) {
+  public synchronized ObjectPrx addFacet(Object object, Identity ident, String facet) {
     checkForDeactivation();
     checkIdentity(ident);
     checkServant(object);
@@ -332,12 +347,12 @@ public final class ObjectAdapterI implements ObjectAdapter {
   }
 
   @Override
-  public ObjectPrx addWithUUID(com.zeroc.Ice.Object object) {
+  public ObjectPrx addWithUUID(Object object) {
     return addFacetWithUUID(object, "");
   }
 
   @Override
-  public ObjectPrx addFacetWithUUID(com.zeroc.Ice.Object object, String facet) {
+  public ObjectPrx addFacetWithUUID(Object object, String facet) {
     Identity ident = new Identity();
     ident.category = "";
     ident.name = java.util.UUID.randomUUID().toString();
@@ -346,7 +361,7 @@ public final class ObjectAdapterI implements ObjectAdapter {
   }
 
   @Override
-  public synchronized void addDefaultServant(com.zeroc.Ice.Object servant, String category) {
+  public synchronized void addDefaultServant(Object servant, String category) {
     checkServant(servant);
     checkForDeactivation();
 
@@ -354,12 +369,12 @@ public final class ObjectAdapterI implements ObjectAdapter {
   }
 
   @Override
-  public com.zeroc.Ice.Object remove(Identity ident) {
+  public Object remove(Identity ident) {
     return removeFacet(ident, "");
   }
 
   @Override
-  public synchronized com.zeroc.Ice.Object removeFacet(Identity ident, String facet) {
+  public synchronized Object removeFacet(Identity ident, String facet) {
     checkForDeactivation();
     checkIdentity(ident);
 
@@ -375,19 +390,19 @@ public final class ObjectAdapterI implements ObjectAdapter {
   }
 
   @Override
-  public synchronized com.zeroc.Ice.Object removeDefaultServant(String category) {
+  public synchronized Object removeDefaultServant(String category) {
     checkForDeactivation();
 
     return _servantManager.removeDefaultServant(category);
   }
 
   @Override
-  public com.zeroc.Ice.Object find(Identity ident) {
+  public Object find(Identity ident) {
     return findFacet(ident, "");
   }
 
   @Override
-  public synchronized com.zeroc.Ice.Object findFacet(Identity ident, String facet) {
+  public synchronized Object findFacet(Identity ident, String facet) {
     checkForDeactivation();
     checkIdentity(ident);
 
@@ -395,7 +410,7 @@ public final class ObjectAdapterI implements ObjectAdapter {
   }
 
   @Override
-  public synchronized java.util.Map<String, com.zeroc.Ice.Object> findAllFacets(Identity ident) {
+  public synchronized java.util.Map<String, Object> findAllFacets(Identity ident) {
     checkForDeactivation();
     checkIdentity(ident);
 
@@ -403,7 +418,7 @@ public final class ObjectAdapterI implements ObjectAdapter {
   }
 
   @Override
-  public synchronized com.zeroc.Ice.Object findByProxy(ObjectPrx proxy) {
+  public synchronized Object findByProxy(ObjectPrx proxy) {
     checkForDeactivation();
 
     com.zeroc.IceInternal.Reference ref = ((_ObjectPrxI) proxy)._getReference();
@@ -411,10 +426,21 @@ public final class ObjectAdapterI implements ObjectAdapter {
   }
 
   @Override
-  public synchronized com.zeroc.Ice.Object findDefaultServant(String category) {
+  public synchronized Object findDefaultServant(String category) {
     checkForDeactivation();
 
     return _servantManager.findDefaultServant(category);
+  }
+
+  @Override
+  public synchronized Object dispatchPipeline() {
+    if (_dispatchPipeline == null) {
+      _dispatchPipeline = _servantManager;
+      while (!_middlewareStack.isEmpty()) {
+        _dispatchPipeline = _middlewareStack.pop().apply(_dispatchPipeline);
+      }
+    }
+    return _dispatchPipeline;
   }
 
   @Override
@@ -706,6 +732,20 @@ public final class ObjectAdapterI implements ObjectAdapter {
     _noConfig = noConfig;
     _sslEngineFactory = sslEngineFactory;
 
+    // Install default middleware depending on the communicator's configuration.
+    if (_instance.initializationData().logger != null) {
+      Logger logger = _instance.initializationData().logger;
+      int warningLevel =
+          _instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch");
+      if (warningLevel > 0) {
+        use(next -> new LoggerMiddleware(next, logger, warningLevel, _instance.toStringMode()));
+      }
+    }
+    if (_instance.initializationData().observer != null) {
+      CommunicatorObserver observer = _instance.initializationData().observer;
+      use(next -> new ObserverMiddleware(next, observer));
+    }
+
     if (_noConfig) {
       _id = "";
       _replicaGroupId = "";
@@ -939,7 +979,7 @@ public final class ObjectAdapterI implements ObjectAdapter {
     }
   }
 
-  private static void checkServant(com.zeroc.Ice.Object servant) {
+  private static void checkServant(Object servant) {
     if (servant == null) {
       throw new IllegalServantException("cannot add null servant to Object Adapter");
     }
@@ -1279,4 +1319,6 @@ public final class ObjectAdapterI implements ObjectAdapter {
   private boolean _noConfig;
   private final int _messageSizeMax;
   private final com.zeroc.Ice.SSL.SSLEngineFactory _sslEngineFactory;
+  private Object _dispatchPipeline;
+  private final Stack<Function<Object, Object>> _middlewareStack = new Stack<>();
 }

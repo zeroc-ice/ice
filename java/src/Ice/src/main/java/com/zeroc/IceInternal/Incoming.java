@@ -34,11 +34,17 @@ public final class Incoming implements com.zeroc.Ice.Request {
     _response = response;
     _compress = compress;
 
-    _current = new Current();
-    _current.id = new com.zeroc.Ice.Identity();
-    _current.adapter = adapter;
-    _current.con = connection;
-    _current.requestId = requestId;
+    _current =
+        new Current(
+            adapter,
+            connection,
+            new com.zeroc.Ice.Identity(),
+            "",
+            "",
+            com.zeroc.Ice.OperationMode.Normal,
+            new java.util.HashMap<>(),
+            requestId,
+            null);
 
     _cookie = null;
   }
@@ -62,11 +68,17 @@ public final class Incoming implements com.zeroc.Ice.Request {
     //
     // Don't recycle the Current object, because servants may keep a reference to it.
     //
-    _current = new Current();
-    _current.id = new com.zeroc.Ice.Identity();
-    _current.adapter = adapter;
-    _current.con = connection;
-    _current.requestId = requestId;
+    _current =
+        new Current(
+            adapter,
+            connection,
+            new com.zeroc.Ice.Identity(),
+            "",
+            "",
+            com.zeroc.Ice.OperationMode.Normal,
+            new java.util.HashMap<>(),
+            requestId,
+            null);
 
     assert (_cookie == null);
 
@@ -131,7 +143,6 @@ public final class Incoming implements com.zeroc.Ice.Request {
 
     _current.operation = _is.readString();
     _current.mode = com.zeroc.Ice.OperationMode.values()[_is.readByte()];
-    _current.ctx = new java.util.HashMap<>();
     int sz = _is.readSize();
     while (sz-- > 0) {
       String first = _is.readString();
@@ -326,7 +337,7 @@ public final class Incoming implements com.zeroc.Ice.Request {
         _responseHandler.sendNoResponse();
       }
     } catch (com.zeroc.Ice.LocalException ex) {
-      _responseHandler.invokeException(_current.requestId, ex, 1, amd);
+      _responseHandler.dispatchException(_current.requestId, ex, 1, amd);
     } finally {
       if (_observer != null) {
         _observer.detach();

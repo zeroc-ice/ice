@@ -54,4 +54,11 @@ public interface BlobjectAsync extends com.zeroc.Ice.Object {
         });
     return f;
   }
+
+  @Override
+  default CompletionStage<OutgoingResponse> dispatch(IncomingRequest request) throws UserException {
+    byte[] inEncaps = request.inputStream.readEncapsulation(null);
+    return ice_invokeAsync(inEncaps, request.current)
+        .thenApply(r -> request.current.createOutgoingResponse(r.returnValue, r.outParams));
+  }
 }
