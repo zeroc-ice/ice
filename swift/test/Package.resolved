@@ -1,0 +1,15 @@
+{
+  "originHash" : "4ee700ed4b38a36411703059642a8b2428612b924729dbf9f7f68b7b15c7709f",
+  "pins" : [
+    {
+      "identity" : "promisekit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mxcl/PromiseKit.git",
+      "state" : {
+        "revision" : "6fcc08077124e9747f1ec7bd8bb78f5caffe5a79",
+        "version" : "8.1.2"
+      }
+    }
+  ],
+  "version" : 3
+}

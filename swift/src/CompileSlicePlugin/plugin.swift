@@ -18,14 +18,6 @@ enum PluginError: Error {
     }
 }
 
-public func findIceSlicePath(_ context: PluginContext) throws -> String {
-    let slice = context.package.directory.appending("slice")
-    guard FileManager.default.fileExists(atPath: slice.string) else {
-        throw PluginError.missingCompiler("Ice Slice directory not found at: `\(slice)`")
-    }
-    return slice.string
-}
-
 /// Represents the contents of a `slice-plugin.json` file
 struct Config: Codable {
     var sources: [String]
@@ -42,6 +34,7 @@ struct CompileSlicePlugin: BuildToolPlugin {
         }
 
         let sourceFiles = sourceModuleTarget.sourceFiles
+
         guard let configFilePath = sourceFiles.first(
             where: {
                 $0.path.lastComponent == Self.configFileName
@@ -53,8 +46,8 @@ struct CompileSlicePlugin: BuildToolPlugin {
         let data = try Data(contentsOf: URL(fileURLWithPath: configFilePath.string))
         let config = try JSONDecoder().decode(Config.self, from: data)
 
-        let iceSlicePath = try findIceSlicePath(context)
         let slice2swift = try context.tool(named: "slice2swift").path
+        let CompileSliceExecutable = try context.tool(named: "CompileSliceExecutable").path
 
         // Find the Ice Slice files for the corresponding Swift target
         let fm = FileManager.default
@@ -83,13 +76,12 @@ struct CompileSlicePlugin: BuildToolPlugin {
             let outputFile = Path(URL(fileURLWithPath: outputDir.appending(sliceFile.lastComponent).string).deletingPathExtension().appendingPathExtension("swift").relativePath)
 
             return .buildCommand(
-                displayName: "slice2swift \(sliceFile) -> \(outputDir)",
-                executable: slice2swift,
+                displayName: "Compiling `\(sliceFile)` with slice2swift",
+                executable: CompileSliceExecutable,
                 arguments: [
-                    "-I\(iceSlicePath)",
-                    "--output-dir",
-                    outputDir,
-                    inputFile
+                    slice2swift,
+                    inputFile,
+                    outputDir
                 ],
                 outputFiles: [outputFile]
             )
