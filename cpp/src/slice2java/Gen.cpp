@@ -620,8 +620,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
     }
     out << currentParam << epar;
     out << sb;
-    out << nl << "_ostr = " << getUnqualified("com.zeroc.IceInternal.Incoming", package)
-        << ".createResponseOutputStream(" << currentParamName << ");";
+    out << nl << "_ostr = " << currentParamName << ".startReplyStream();";
     out << nl << "_ostr.startEncapsulation(" << currentParamName << ".encoding, " << opFormatTypeToString(op) << ");";
 
     ParamDeclList required, optional;
@@ -1380,207 +1379,6 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
         string opName = op->name();
         out << sp;
 
-        // ================ Old code
-        {
-            out << nl << "/**";
-            out << nl << " * @hidden";
-            out << nl << " * @param obj -";
-            out << nl << " * @param inS -";
-            out << nl << " * @param current -";
-            out << nl << " * @return -";
-            if (!op->throws().empty() || op->hasMetaData("java:UserException") || op->hasMetaData("UserException"))
-            {
-                out << nl << " * @throws " << getUnqualified("com.zeroc.Ice.UserException", package) << " -";
-            }
-            out << nl << "**/";
-            if (dc && dc->isDeprecated())
-            {
-                out << nl << "@Deprecated";
-            }
-            out << nl << "static java.util.concurrent.CompletionStage<"
-                << getUnqualified("com.zeroc.Ice.OutputStream", package) << "> _iceD_" << opName << '(';
-            out << name;
-            out << " obj, final " << getUnqualified("com.zeroc.IceInternal.Incoming", package) << " inS, "
-                << getUnqualified("com.zeroc.Ice.Current", package) << " current)";
-            if (!op->throws().empty() || op->hasMetaData("java:UserException") || op->hasMetaData("UserException"))
-            {
-                out.inc();
-                out << nl << "throws " << getUnqualified("com.zeroc.Ice.UserException", package);
-                out.dec();
-            }
-            out << sb;
-
-            const bool amd = p->hasMetaData("amd") || op->hasMetaData("amd");
-
-            const TypePtr ret = op->returnType();
-
-            const ParamDeclList inParams = op->inParameters();
-            const ParamDeclList outParams = op->outParameters();
-
-            out << nl << getUnqualified("com.zeroc.Ice.Object", package) << "._iceCheckMode("
-                << sliceModeToIceMode(op->mode()) << ", current.mode);";
-
-            if (!inParams.empty())
-            {
-                ParamDeclList values;
-
-                //
-                // Declare 'in' parameters.
-                //
-                out << nl << getUnqualified("com.zeroc.Ice.InputStream", package) << " istr = inS.startReadParams();";
-                for (const auto& param : inParams)
-                {
-                    const TypePtr paramType = param->type();
-                    if (paramType->isClassType())
-                    {
-                        assert(!param->optional()); // Optional classes are disallowed by the parser.
-                        allocatePatcher(out, paramType, package, "icePP_" + param->name());
-                        values.push_back(param);
-                    }
-                    else
-                    {
-                        const string paramName = "iceP_" + param->name();
-                        const string typeS =
-                            typeToString(paramType, TypeModeIn, package, param->getMetaData(), true, param->optional());
-                        out << nl << typeS << ' ' << paramName << ';';
-                    }
-                }
-
-                //
-                // Unmarshal 'in' parameters.
-                //
-                ParamDeclList required, optional;
-                op->inParameters(required, optional);
-                int iter = 0;
-                for (const auto& param : required)
-                {
-                    const string paramName =
-                        param->type()->isClassType() ? ("icePP_" + param->name()) : "iceP_" + param->name();
-                    const string patchParams = getPatcher(param->type(), package, paramName + ".value");
-                    writeMarshalUnmarshalCode(
-                        out,
-                        package,
-                        param->type(),
-                        OptionalNone,
-                        false,
-                        0,
-                        paramName,
-                        false,
-                        iter,
-                        "",
-                        param->getMetaData(),
-                        patchParams);
-                }
-                for (const auto& param : optional)
-                {
-                    const string paramName =
-                        param->type()->isClassType() ? ("icePP_" + param->name()) : "iceP_" + param->name();
-                    const string patchParams = getPatcher(param->type(), package, paramName + ".value");
-                    writeMarshalUnmarshalCode(
-                        out,
-                        package,
-                        param->type(),
-                        OptionalInParam,
-                        true,
-                        param->tag(),
-                        paramName,
-                        false,
-                        iter,
-                        "",
-                        param->getMetaData(),
-                        patchParams);
-                }
-                if (op->sendsClasses())
-                {
-                    out << nl << "istr.readPendingValues();";
-                }
-                out << nl << "inS.endReadParams();";
-
-                for (ParamDeclList::const_iterator pli = values.begin(); pli != values.end(); ++pli)
-                {
-                    const string typeS = typeToString(
-                        (*pli)->type(),
-                        TypeModeIn,
-                        package,
-                        (*pli)->getMetaData(),
-                        true,
-                        (*pli)->optional());
-                    out << nl << typeS << ' ' << "iceP_" << (*pli)->name() << " = icePP_" << (*pli)->name()
-                        << ".value;";
-                }
-            }
-            else
-            {
-                out << nl << "inS.readEmptyParams();";
-            }
-
-            if (op->format() != DefaultFormat)
-            {
-                out << nl << "inS.setFormat(" << opFormatTypeToString(op) << ");";
-            }
-
-            if (amd)
-            {
-                if (op->hasMarshaledResult())
-                {
-                    out << nl << "return inS.setMarshaledResultFuture(obj." << opName << "Async" << spar
-                        << getInArgs(op, true) << "current" << epar << ");";
-                }
-                else
-                {
-                    out << nl << "return inS.setResultFuture(obj." << opName << "Async" << spar << getInArgs(op, true)
-                        << "current" << epar;
-                    if (ret || !outParams.empty())
-                    {
-                        out << ", (ostr, ret) ->";
-                        out.inc();
-                        out << sb;
-                        writeMarshalServantResults(out, package, op, "ret");
-                        out << eb;
-                        out.dec();
-                    }
-                    out << ");";
-                }
-            }
-            else
-            {
-                //
-                // Call on the servant.
-                //
-                out << nl;
-                if (ret || !outParams.empty())
-                {
-                    out << getResultType(op, package, false, true) << " ret = ";
-                }
-                out << "obj." << fixKwd(opName) << spar << getInArgs(op, true) << "current" << epar << ';';
-
-                //
-                // Marshal 'out' parameters and return value.
-                //
-                if (op->hasMarshaledResult())
-                {
-                    out << nl << "return inS.setMarshaledResult(ret);";
-                }
-                else if (ret || !outParams.empty())
-                {
-                    out << nl << getUnqualified("com.zeroc.Ice.OutputStream", package)
-                        << " ostr = inS.startWriteParams();";
-                    writeMarshalServantResults(out, package, op, "ret");
-                    out << nl << "inS.endWriteParams(ostr);";
-                    out << nl << "return inS.setResult(ostr);";
-                }
-                else
-                {
-                    out << nl << "return inS.setResult(inS.writeEmptyParams());";
-                }
-            }
-            out << eb;
-        }
-
-        // ================ End old code
-
-        // New code
-        {
             writeHiddenDocComment(out);
             out << nl << "static java.util.concurrent.CompletionStage<"
                 << getUnqualified("com.zeroc.Ice.OutgoingResponse", package) << "> _iceD_" << opName << '(';
@@ -1763,43 +1561,11 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
                 }
             }
             out << eb;
-        }
-        // End new code
     }
 
     OperationList allOps = p->allOperations();
     if (!allOps.empty())
     {
-        // Old code
-        out << sp;
-        writeHiddenDocComment(out);
-        out << nl << "@Override" << nl << "default java.util.concurrent.CompletionStage<"
-            << getUnqualified("com.zeroc.Ice.OutputStream", package) << "> _iceDispatch("
-            << getUnqualified("com.zeroc.IceInternal.Incoming", package) << " in, "
-            << getUnqualified("com.zeroc.Ice.Current", package) << " current)";
-        out.inc();
-        out << nl << "throws " << getUnqualified("com.zeroc.Ice.UserException", package);
-        out.dec();
-        out << sb;
-        out << nl << "return switch (current.operation)";
-        out << sb;
-        for (const auto& op : allOps)
-        {
-            out << nl << "case \"" << op->name() << "\" -> " << getUnqualified(op->interface(), package) << "._iceD_"
-                << op->name() << "(this, in, current);";
-        }
-        for (const auto& opName : {"ice_id", "ice_ids", "ice_isA", "ice_ping"})
-        {
-            out << nl << "case \"" << opName << "\" -> " << getUnqualified("com.zeroc.Ice.Object", package) << "._iceD_"
-                << opName << "(this, in, current);";
-        }
-        out << nl << "default -> throw new " << getUnqualified("com.zeroc.Ice.OperationNotExistException", package)
-            << "();";
-        out << eb;
-        out << ";";
-        out << eb;
-
-        // New code
         out << sp;
         out << nl << "@Override" << nl
             << "default java.util.concurrent.CompletionStage<com.zeroc.Ice.OutgoingResponse> dispatch("

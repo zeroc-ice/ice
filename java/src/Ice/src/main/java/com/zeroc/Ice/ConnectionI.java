@@ -7,7 +7,6 @@ package com.zeroc.Ice;
 import com.zeroc.Ice.Instrumentation.ConnectionState;
 import com.zeroc.IceInternal.AsyncStatus;
 import com.zeroc.IceInternal.Buffer;
-import com.zeroc.IceInternal.Incoming;
 import com.zeroc.IceInternal.OutgoingAsyncBase;
 import com.zeroc.IceInternal.Protocol;
 import com.zeroc.IceInternal.SocketOperation;
@@ -2367,77 +2366,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       }
     }
     // Any other exception is not handled and kills the thread.
-
-    /*
-
-    Incoming in = null;
-    try {
-      while (requestCount > 0) {
-
-        //
-        // Prepare the invocation.
-        //
-        boolean response = !_endpoint.datagram() && requestId != 0;
-        in = getIncoming(adapter, response, compress, requestId);
-
-        //
-        // Dispatch the invocation.
-        //
-        in.invoke(servantManager, stream);
-
-        --requestCount;
-
-        reclaimIncoming(in);
-        in = null;
-      }
-
-      stream.clear();
-    } catch (LocalException ex) {
-      dispatchException(requestId, ex, requestCount, false);
-    } catch (com.zeroc.IceInternal.ServantError ex) {
-      //
-      // ServantError is thrown when an Error has been raised by servant (or servant locator)
-      // code. We've already attempted to complete the invocation and send a response.
-      //
-      Throwable t = ex.getCause();
-      //
-      // Suppress AssertionError and OutOfMemoryError, rethrow everything else.
-      //
-      if (!(t instanceof java.lang.AssertionError
-          || t instanceof java.lang.OutOfMemoryError
-          || t instanceof java.lang.StackOverflowError)) {
-        throw (java.lang.Error) t;
-      }
-    } catch (java.lang.Error ex) {
-      //
-      // An Error was raised outside of servant code (i.e., by Ice code).
-      // Attempt to log the error and clean up. This may still fail
-      // depending on the severity of the error.
-      //
-      // Note that this does NOT send a response to the client.
-      //
-      UnknownException uex = new UnknownException(ex);
-      java.io.StringWriter sw = new java.io.StringWriter();
-      java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-      ex.printStackTrace(pw);
-      pw.flush();
-      uex.unknown = sw.toString();
-      _logger.error(uex.unknown);
-      dispatchException(requestId, uex, requestCount, false);
-      //
-      // Suppress AssertionError and OutOfMemoryError, rethrow everything else.
-      //
-      if (!(ex instanceof java.lang.AssertionError
-          || ex instanceof java.lang.OutOfMemoryError
-          || ex instanceof java.lang.StackOverflowError)) {
-        throw ex;
-      }
-    } finally {
-      if (in != null) {
-        reclaimIncoming(in);
-      }
-    }
-      */
   }
 
   private void scheduleTimeout(int status) {
@@ -2568,37 +2496,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       _observer.sentBytes(buf.b.position() - _writeStreamPos);
     }
     _writeStreamPos = -1;
-  }
-
-  private Incoming getIncoming(
-      ObjectAdapter adapter, boolean response, byte compress, int requestId) {
-    Incoming in = null;
-
-    if (_cacheBuffers > 0) {
-      synchronized (_incomingCacheMutex) {
-        if (_incomingCache == null) {
-          in = new Incoming(_instance, this, this, adapter, response, compress, requestId);
-        } else {
-          in = _incomingCache;
-          _incomingCache = _incomingCache.next;
-          in.reset(_instance, this, this, adapter, response, compress, requestId);
-          in.next = null;
-        }
-      }
-    } else {
-      in = new Incoming(_instance, this, this, adapter, response, compress, requestId);
-    }
-
-    return in;
-  }
-
-  private void reclaimIncoming(Incoming in) {
-    if (_cacheBuffers > 0 && in.reclaim()) {
-      synchronized (_incomingCacheMutex) {
-        in.next = _incomingCache;
-        _incomingCache = in;
-      }
-    }
   }
 
   private int read(Buffer buf) {
@@ -2749,9 +2646,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   private boolean _shutdownInitiated = false;
   private boolean _initialized = false;
   private boolean _validated = false;
-
-  private Incoming _incomingCache;
-  private final java.lang.Object _incomingCacheMutex = new java.lang.Object();
 
   private ProtocolVersion _readProtocol = new ProtocolVersion();
   private EncodingVersion _readProtocolEncoding = new EncodingVersion();
