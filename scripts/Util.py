@@ -3058,6 +3058,7 @@ class BrowserProcessController(RemoteProcessController):
             self, current, "ws -h {0} -p 15002:wss -h {0} -p 15003".format(self.host)
         )
         self.httpServer = None
+        self.httpsServer = None
         self.url = None
         self.driver = None
         try:
@@ -3065,6 +3066,11 @@ class BrowserProcessController(RemoteProcessController):
             cwd = current.testcase.getMapping().getPath()
             self.httpServer = Expect.Expect(httpServerCmd, cwd=cwd)
             self.httpServer.expect("Available on:")
+
+            httpsServerCmd = "node node_modules/http-server/bin/http-server -p 9090 --tls --cert ../certs/server.pem --key ../certs/server_key.pem dist"
+            cwd = current.testcase.getMapping().getPath()
+            self.httpsServer = Expect.Expect(httpsServerCmd, cwd=cwd)
+            self.httpsServer.expect("Available on:")
 
             if current.config.browser.startswith("Remote:"):
                 from selenium import webdriver
@@ -3221,6 +3227,10 @@ class BrowserProcessController(RemoteProcessController):
         if self.httpServer:
             self.httpServer.terminate()
             self.httpServer = None
+
+        if self.httpsServer:
+            self.httpsServer.terminate()
+            self.httpsServer = None
 
         try:
             self.driver.quit()
@@ -4315,7 +4325,7 @@ class JavaScriptMixin:
         return os.path.join(self.getPath(), "test", "Common")
 
     def getCommandLine(self, current, process, exe, args):
-        return "node {0}/run.js {1} {2} {3}".format(
+        return "node {0}/run.js file://{1} {2} {3}".format(
             self.getCommonDir(current),
             os.path.join(self.getTestCwd(process, current), exe),
             Path(exe).stem,

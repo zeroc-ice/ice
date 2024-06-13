@@ -226,12 +226,14 @@ function IceResolver() {
 
 gulp.task("test:common:bundle", async (cb) => {
     let bundle = await rollup({
-        input: "test/Common/ControllerI.js",
+        input: ["test/Common/ControllerI.js", "test/Common/ControllerWorker.js"],
         plugins: [IceResolver()],
     });
     return bundle.write({
-        file: "dist/test/Common/ControllerI.js",
         format: "esm",
+        output: {
+            dir: "dist/test/Common/",
+        },
     });
 });
 
