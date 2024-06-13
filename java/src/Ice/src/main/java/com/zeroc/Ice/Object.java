@@ -4,7 +4,7 @@
 
 package com.zeroc.Ice;
 
-import com.zeroc.IceInternal.Incoming;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 /** The base interface for servants. */
@@ -98,116 +98,64 @@ public interface Object {
   }
 
   /**
-   * @hidden
-   * @param in -
-   * @param current -
-   * @return -
-   * @throws UserException -
+   * Dispatches an incoming request and returns the corresponding outgoing response.
+   *
+   * @param request The incoming request.
+   * @return The outgoing response.
    */
-  default CompletionStage<OutputStream> _iceDispatch(Incoming in, Current current)
-      throws UserException {
-    return switch (current.operation) {
-      case "ice_id" -> _iceD_ice_id(this, in, current);
-      case "ice_ids" -> _iceD_ice_ids(this, in, current);
-      case "ice_isA" -> _iceD_ice_isA(this, in, current);
-      case "ice_ping" -> _iceD_ice_ping(this, in, current);
+  default CompletionStage<OutgoingResponse> dispatch(IncomingRequest request) throws UserException {
+    return switch (request.current.operation) {
+      case "ice_id" -> _iceD_ice_id(this, request);
+      case "ice_ids" -> _iceD_ice_ids(this, request);
+      case "ice_isA" -> _iceD_ice_isA(this, request);
+      case "ice_ping" -> _iceD_ice_ping(this, request);
       default -> throw new OperationNotExistException();
     };
   }
 
   /**
    * @hidden
-   * @param ostr -
    */
-  default void _iceWrite(OutputStream ostr) {
-    ostr.startValue(null);
-    _iceWriteImpl(ostr);
-    ostr.endValue();
+  static CompletionStage<OutgoingResponse> _iceD_ice_isA(Object obj, IncomingRequest request) {
+    InputStream istr = request.inputStream;
+    istr.startEncapsulation();
+    String iceP_id = istr.readString();
+    istr.endEncapsulation();
+    boolean ret = obj.ice_isA(iceP_id, request.current);
+    return CompletableFuture.completedFuture(
+        request.current.createOutgoingResponse(
+            ret, (ostr, value) -> ostr.writeBool(value), FormatType.DefaultFormat));
   }
 
   /**
    * @hidden
-   * @param ostr -
    */
-  default void _iceWriteImpl(OutputStream ostr) {}
-
-  /**
-   * @hidden
-   * @param istr -
-   */
-  default void _iceRead(InputStream istr) {
-    istr.startValue();
-    _iceReadImpl(istr);
-    istr.endValue();
+  static CompletionStage<OutgoingResponse> _iceD_ice_ping(Object obj, IncomingRequest request) {
+    request.inputStream.skipEmptyEncapsulation();
+    obj.ice_ping(request.current);
+    return CompletableFuture.completedFuture(request.current.createEmptyOutgoingResponse());
   }
 
   /**
    * @hidden
-   * @param istr -
    */
-  default void _iceReadImpl(InputStream istr) {}
-
-  /**
-   * @hidden
-   * @param obj -
-   * @param inS -
-   * @param current -
-   * @return -
-   */
-  static CompletionStage<OutputStream> _iceD_ice_isA(Object obj, Incoming inS, Current current) {
-    InputStream istr = inS.startReadParams();
-    String id = istr.readString();
-    inS.endReadParams();
-    boolean ret = obj.ice_isA(id, current);
-    OutputStream ostr = inS.startWriteParams();
-    ostr.writeBool(ret);
-    inS.endWriteParams(ostr);
-    return inS.setResult(ostr);
+  static CompletionStage<OutgoingResponse> _iceD_ice_ids(Object obj, IncomingRequest request) {
+    request.inputStream.skipEmptyEncapsulation();
+    String[] ret = obj.ice_ids(request.current);
+    return CompletableFuture.completedFuture(
+        request.current.createOutgoingResponse(
+            ret, (ostr, value) -> ostr.writeStringSeq(value), FormatType.DefaultFormat));
   }
 
   /**
    * @hidden
-   * @param obj -
-   * @param inS -
-   * @param current -
-   * @return -
    */
-  static CompletionStage<OutputStream> _iceD_ice_ping(Object obj, Incoming inS, Current current) {
-    inS.readEmptyParams();
-    obj.ice_ping(current);
-    return inS.setResult(inS.writeEmptyParams());
-  }
-
-  /**
-   * @hidden
-   * @param obj -
-   * @param inS -
-   * @param current -
-   * @return -
-   */
-  static CompletionStage<OutputStream> _iceD_ice_ids(Object obj, Incoming inS, Current current) {
-    inS.readEmptyParams();
-    String[] ret = obj.ice_ids(current);
-    OutputStream ostr = inS.startWriteParams();
-    ostr.writeStringSeq(ret);
-    inS.endWriteParams(ostr);
-    return inS.setResult(ostr);
-  }
-
-  /**
-   * @hidden
-   * @param obj -
-   * @param inS -
-   * @param current -
-   * @return -
-   */
-  static CompletionStage<OutputStream> _iceD_ice_id(Object obj, Incoming inS, Current current) {
-    inS.readEmptyParams();
-    String ret = obj.ice_id(current);
-    OutputStream ostr = inS.startWriteParams();
-    ostr.writeString(ret);
-    inS.endWriteParams(ostr);
-    return inS.setResult(ostr);
+  static CompletionStage<OutgoingResponse> _iceD_ice_id(Object obj, IncomingRequest request) {
+    request.inputStream.skipEmptyEncapsulation();
+    String ret = obj.ice_id(request.current);
+    return CompletableFuture.completedFuture(
+        request.current.createOutgoingResponse(
+            ret, (ostr, value) -> ostr.writeString(value), FormatType.DefaultFormat));
   }
 
   /**

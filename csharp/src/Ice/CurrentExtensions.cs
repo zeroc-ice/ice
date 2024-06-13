@@ -148,7 +148,6 @@ public static class CurrentExtensions
             {
                 case RequestFailedException rfe:
                     exceptionId = rfe.ice_id();
-                    exceptionMessage = rfe.ToString();
 
                     replyStatus = rfe switch
                     {
@@ -172,6 +171,9 @@ public static class CurrentExtensions
                     {
                         rfe.operation = current.operation;
                     }
+
+                    // Called after fixing id, facet and operation.
+                    exceptionMessage = rfe.ToString();
 
                     if (current.requestId != 0)
                     {
