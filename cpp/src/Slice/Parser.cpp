@@ -2141,185 +2141,6 @@ Slice::Container::contents() const
     return _contents;
 }
 
-bool
-Slice::Container::hasSequences() const
-{
-    for (const auto& p : _contents)
-    {
-        if (dynamic_pointer_cast<Sequence>(p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = dynamic_pointer_cast<Container>(p);
-        if (container && container->hasSequences())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasStructs() const
-{
-    for (const auto& p : _contents)
-    {
-        if (dynamic_pointer_cast<Struct>(p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = dynamic_pointer_cast<Container>(p);
-        if (container && container->hasStructs())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasExceptions() const
-{
-    for (const auto& p : _contents)
-    {
-        if (dynamic_pointer_cast<Exception>(p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = dynamic_pointer_cast<Container>(p);
-        if (container && container->hasExceptions())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasDictionaries() const
-{
-    for (const auto& p : _contents)
-    {
-        if (dynamic_pointer_cast<Dictionary>(p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = dynamic_pointer_cast<Container>(p);
-        if (container && container->hasDictionaries())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasClassDefs() const
-{
-    for (const auto& p : _contents)
-    {
-        if (dynamic_pointer_cast<ClassDef>(p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = dynamic_pointer_cast<Container>(p);
-        if (container && container->hasClassDefs())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasInterfaceDefs() const
-{
-    for (const auto& p : _contents)
-    {
-        if (dynamic_pointer_cast<InterfaceDef>(p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = dynamic_pointer_cast<Container>(p);
-        if (container && container->hasInterfaceDefs())
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool
-Slice::Container::hasValueDefs() const
-{
-    for (const auto& p : _contents)
-    {
-        if (dynamic_pointer_cast<ClassDef>(p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = dynamic_pointer_cast<Container>(p);
-        if (container && container->hasValueDefs())
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool
-Slice::Container::hasOperations() const
-{
-    for (const auto& p : _contents)
-    {
-        InterfaceDefPtr def = dynamic_pointer_cast<InterfaceDef>(p);
-        if (def && def->hasOperations())
-        {
-            return true;
-        }
-
-        ContainerPtr container = dynamic_pointer_cast<Container>(p);
-        if (container && container->hasOperations())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasContained(Contained::ContainedType type) const
-{
-    for (const auto& p : _contents)
-    {
-        if (p->containedType() == type)
-        {
-            return true;
-        }
-
-        ContainerPtr container = dynamic_pointer_cast<Container>(p);
-        if (container && container->hasContained(type))
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 string
 Slice::Container::thisScope() const
 {
@@ -2741,12 +2562,6 @@ Slice::Container::validateEnumerator(const string& name)
 // Module
 // ----------------------------------------------------------------------
 
-Contained::ContainedType
-Slice::Module::containedType() const
-{
-    return ContainedTypeModule;
-}
-
 string
 Slice::Module::kindOf() const
 {
@@ -2803,12 +2618,6 @@ ClassDefPtr
 Slice::ClassDecl::definition() const
 {
     return _definition;
-}
-
-Contained::ContainedType
-Slice::ClassDecl::containedType() const
-{
-    return ContainedTypeClass;
 }
 
 bool
@@ -3111,12 +2920,6 @@ Slice::ClassDef::hasBaseDataMembers() const
     return _base && !_base->allDataMembers().empty();
 }
 
-Contained::ContainedType
-Slice::ClassDef::containedType() const
-{
-    return ContainedTypeClass;
-}
-
 string
 Slice::ClassDef::kindOf() const
 {
@@ -3169,12 +2972,6 @@ InterfaceDefPtr
 Slice::InterfaceDecl::definition() const
 {
     return _definition;
-}
-
-Contained::ContainedType
-Slice::InterfaceDecl::containedType() const
-{
-    return ContainedTypeInterface;
 }
 
 size_t
@@ -3582,12 +3379,6 @@ Slice::InterfaceDef::inheritsMetaData(const string& meta) const
     return false;
 }
 
-Contained::ContainedType
-Slice::InterfaceDef::containedType() const
-{
-    return ContainedTypeInterface;
-}
-
 string
 Slice::InterfaceDef::kindOf() const
 {
@@ -3846,12 +3637,6 @@ Slice::Exception::isBaseOf(const ExceptionPtr& other) const
     return false;
 }
 
-Contained::ContainedType
-Slice::Exception::containedType() const
-{
-    return ContainedTypeException;
-}
-
 bool
 Slice::Exception::usesClasses() const
 {
@@ -4029,12 +3814,6 @@ Slice::Struct::getOptionalFormat() const
     return isVariableLength() ? "FSize" : "VSize";
 }
 
-Contained::ContainedType
-Slice::Struct::containedType() const
-{
-    return ContainedTypeStruct;
-}
-
 bool
 Slice::Struct::usesClasses() const
 {
@@ -4132,12 +3911,6 @@ Slice::Sequence::typeMetaData() const
     return _typeMetaData;
 }
 
-Contained::ContainedType
-Slice::Sequence::containedType() const
-{
-    return ContainedTypeSequence;
-}
-
 bool
 Slice::Sequence::usesClasses() const
 {
@@ -4214,12 +3987,6 @@ StringList
 Slice::Dictionary::valueMetaData() const
 {
     return _valueMetaData;
-}
-
-Contained::ContainedType
-Slice::Dictionary::containedType() const
-{
-    return ContainedTypeDictionary;
 }
 
 bool
@@ -4356,12 +4123,6 @@ Slice::Enum::maxValue() const
     return static_cast<int>(_maxValue);
 }
 
-Contained::ContainedType
-Slice::Enum::containedType() const
-{
-    return ContainedTypeEnum;
-}
-
 size_t
 Slice::Enum::minWireSize() const
 {
@@ -4476,12 +4237,6 @@ Slice::Enumerator::type() const
     return dynamic_pointer_cast<Enum>(container());
 }
 
-Contained::ContainedType
-Slice::Enumerator::containedType() const
-{
-    return ContainedTypeEnumerator;
-}
-
 string
 Slice::Enumerator::kindOf() const
 {
@@ -4560,12 +4315,6 @@ string
 Slice::Const::literal() const
 {
     return _literal;
-}
-
-Contained::ContainedType
-Slice::Const::containedType() const
-{
-    return ContainedTypeConstant;
 }
 
 string
@@ -4858,12 +4607,6 @@ Slice::Operation::setExceptionList(const ExceptionList& el)
     }
 }
 
-Contained::ContainedType
-Slice::Operation::containedType() const
-{
-    return ContainedTypeOperation;
-}
-
 bool
 Slice::Operation::sendsClasses() const
 {
@@ -5016,12 +4759,6 @@ Slice::ParamDecl::tag() const
     return _tag;
 }
 
-Contained::ContainedType
-Slice::ParamDecl::containedType() const
-{
-    return ContainedTypeDataMember;
-}
-
 string
 Slice::ParamDecl::kindOf() const
 {
@@ -5088,12 +4825,6 @@ SyntaxTreeBasePtr
 Slice::DataMember::defaultValueType() const
 {
     return _defaultValueType;
-}
-
-Contained::ContainedType
-Slice::DataMember::containedType() const
-{
-    return ContainedTypeDataMember;
 }
 
 string
