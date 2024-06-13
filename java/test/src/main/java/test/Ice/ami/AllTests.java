@@ -9,6 +9,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.TimeUnit;
 
 import com.zeroc.Ice.InvocationFuture;
 import com.zeroc.Ice.Util;
@@ -1051,6 +1053,40 @@ public class AllTests
                 {
                     // Expected.
                 }
+            }
+            out.println("ok");
+
+            out.print("testing back pressure... ");
+            out.flush();
+            try
+            {
+                // Keep the 3 server thread pool threads busy.
+                CompletableFuture<Void> sleep1Future = p.sleepAsync(1000);
+                CompletableFuture<Void> sleep2Future = p.sleepAsync(1000);
+                CompletableFuture<Void> sleep3Future = p.sleepAsync(1000);
+                TestIntfPrx onewayProxy = p.ice_oneway();
+
+                // Sending should be canceled because the TCP receive buffer size on the server is set to
+                // 50KB
+                CompletableFuture<Void> future = onewayProxy.opWithPayloadAsync(new byte[768 * 1024]);
+                boolean timeout = false;
+                try
+                {
+                    future.get(200, TimeUnit.MILLISECONDS);
+                }
+                catch(TimeoutException ex)
+                {
+                    timeout = true;
+                }
+                test(timeout && !sleep1Future.isDone());
+
+                sleep1Future.get();
+                sleep2Future.get();
+                sleep3Future.get();
+            }
+            catch(Exception ex)
+            {
+                test(false);
             }
             out.println("ok");
         }
