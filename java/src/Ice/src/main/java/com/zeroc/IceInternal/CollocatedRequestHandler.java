@@ -10,7 +10,7 @@ import com.zeroc.Ice.OutgoingResponse;
 import com.zeroc.Ice.UserException;
 import java.util.concurrent.CompletionStage;
 
-public class CollocatedRequestHandler implements RequestHandler, ResponseHandler {
+public class CollocatedRequestHandler implements RequestHandler {
   private class InvokeAllAsync extends DispatchWorkItem {
     private InvokeAllAsync(
         OutgoingAsyncBase outAsync,
@@ -94,8 +94,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
     }
   }
 
-  @Override
-  public void sendResponse(
+  private void sendResponse(
       int requestId, final com.zeroc.Ice.OutputStream os, byte status, boolean amd) {
     OutgoingAsyncBase outAsync = null;
     synchronized (this) {
@@ -136,13 +135,11 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
     _adapter.decDirectCount();
   }
 
-  @Override
-  public void sendNoResponse() {
+  private void sendNoResponse() {
     _adapter.decDirectCount();
   }
 
-  @Override
-  public void dispatchException(
+  private void dispatchException(
       int requestId, com.zeroc.Ice.LocalException ex, int batchRequestNum, boolean amd) {
     handleException(requestId, ex, amd);
     _adapter.decDirectCount();

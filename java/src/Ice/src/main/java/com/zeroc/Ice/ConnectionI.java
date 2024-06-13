@@ -16,9 +16,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
 
 public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
-    implements Connection,
-        com.zeroc.IceInternal.ResponseHandler,
-        com.zeroc.IceInternal.CancellationHandler {
+    implements Connection, com.zeroc.IceInternal.CancellationHandler {
   public interface StartCallback {
     void connectionStartCompleted(ConnectionI connection);
 
@@ -528,36 +526,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     }
   }
 
-  @Override
-  public void sendResponse(int requestId, OutputStream os, byte compressFlag, boolean amd) {
-    //
-    // We may be executing on the "main thread" (e.g., in Android together with a custom dispatcher)
-    // and therefore we have to defer network calls to a separate thread.
-    //
-    final boolean queueResponse = _instance.queueRequests();
-
-    synchronized (this) {
-      assert (_state > StateNotValidated);
-
-      if (!queueResponse) {
-        sendResponseImpl(os, compressFlag);
-      }
-    }
-
-    if (queueResponse) {
-      _instance
-          .getQueueExecutor()
-          .executeNoThrow(
-              new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                  sendResponseImpl(os, compressFlag);
-                  return null;
-                }
-              });
-    }
-  }
-
   private void sendResponseImpl(OutputStream os, byte compressFlag) {
     boolean finished = false;
     try {
@@ -591,8 +559,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     }
   }
 
-  @Override
-  public void sendNoResponse() {
+  private void sendNoResponse() {
     boolean shutdown = false;
     boolean finished = false;
 
@@ -642,8 +609,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     }
   }
 
-  @Override
-  public void dispatchException(int requestId, LocalException ex, int requestCount, boolean amd) {
+  private void dispatchException(int requestId, LocalException ex, int requestCount, boolean amd) {
     boolean finished = false;
     synchronized (this) {
       //
