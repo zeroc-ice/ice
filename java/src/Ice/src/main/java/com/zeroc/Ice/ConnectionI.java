@@ -609,14 +609,11 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     }
   }
 
-  private void dispatchException(int requestId, LocalException ex, int requestCount, boolean amd) {
+  private void dispatchException(LocalException ex, int requestCount) {
     boolean finished = false;
     synchronized (this) {
-      //
-      // Fatal exception while dispatching a request. Since sendResponse/sendNoResponse
-      // isn't
-      // called in case of a fatal exception we decrement _dispatchCount here.
-      //
+      // Fatal exception while dispatching a request. Since sendResponse isn't
+      // called in case of a fatal exception we decrement _upcallCount here.
 
       setState(StateClosed, ex);
 
@@ -2305,7 +2302,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       stream.clear();
 
     } catch (LocalException ex) {
-      dispatchException(requestId, ex, requestCount, false);
+      dispatchException(ex, requestCount);
     } catch (java.lang.Error ex) {
       //
       // An Error was raised outside of servant code (i.e., by Ice code).
@@ -2321,7 +2318,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       pw.flush();
       uex.unknown = sw.toString();
       _logger.error(uex.unknown);
-      dispatchException(requestId, uex, requestCount, false);
+      dispatchException(uex, requestCount);
       //
       // Suppress AssertionError and OutOfMemoryError, rethrow everything else.
       //
