@@ -33,7 +33,7 @@ public final class ErrorObserverMiddleware implements Object {
           .dispatch(request)
           .exceptionally(
               exception -> {
-                // _errorHandler can throw an exception that effectively replaces exception for
+                // _errorObserver can throw an exception that effectively replaces exception for
                 // dependent completion stages.
                 if (exception instanceof java.lang.Error error) {
                   _errorObserver.accept(error);

@@ -45,7 +45,7 @@ public class AllTests {
     private final boolean _throwError;
 
     @Override
-    public CompletionStage<String> getNameAsync(com.zeroc.Ice.Current current) {
+    public CompletionStage<String> getNameAsync(Current current) {
       if (_throwError) {
         return CompletableFuture.failedFuture(new java.lang.StackOverflowError());
       } else {
@@ -54,7 +54,7 @@ public class AllTests {
     }
 
     @Override
-    public void ice_ping(com.zeroc.Ice.Current current) {
+    public void ice_ping(Current current) {
       if (_throwError) {
         throw new java.lang.StackOverflowError();
       }
