@@ -4,6 +4,7 @@
 
 package com.zeroc.Ice;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -116,7 +117,7 @@ public interface ObjectAdapter {
   void destroy();
 
   /**
-   * Install a middleware in this object adapter.
+   * Install a middleware in this object adapter's dispatch pipeline.
    *
    * @param middleware The middleware to install.
    * @return This object adapter.
@@ -125,6 +126,19 @@ public interface ObjectAdapter {
    *     incoming request.
    */
   public ObjectAdapter use(Function<Object, Object> middleware);
+
+  /**
+   * Install the error observer middleware in this object adapter.
+   *
+   * @param errorObserver The error observer. It receives any java.lang.Error thrown by the
+   *     dispatch.
+   * @return This object adapter.
+   * @throws IllegalStateException Thrown if the object adapter's dispatch pipeline has already been
+   *     created. This creation typically occurs the first time the object adapter dispatches an
+   *     incoming request.
+   * @see ErrorObserverMiddleware
+   */
+  public ObjectAdapter useErrorObserver(Consumer<java.lang.Error> errorObserver);
 
   /**
    * Add a servant to this object adapter's Active Servant Map. Note that one servant can implement

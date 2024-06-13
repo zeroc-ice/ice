@@ -7,6 +7,6 @@ module Test
 {
     interface MyObject
     {
-        string getName();
+        ["amd"] string getName();
     }
 }

@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public final class ObjectAdapterI implements ObjectAdapter {
@@ -320,6 +321,11 @@ public final class ObjectAdapterI implements ObjectAdapter {
     }
     _middlewareStack.push(middleware);
     return this;
+  }
+
+  @Override
+  public ObjectAdapter useErrorObserver(Consumer<java.lang.Error> errorObserver) {
+    return use(next -> new ErrorObserverMiddleware(next, errorObserver));
   }
 
   @Override

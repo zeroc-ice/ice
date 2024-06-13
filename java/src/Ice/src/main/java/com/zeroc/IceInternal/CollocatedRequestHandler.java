@@ -10,7 +10,7 @@ import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.Object;
 import com.zeroc.Ice.OutgoingResponse;
 import com.zeroc.Ice.OutputStream;
-import com.zeroc.Ice.UserException;
+import com.zeroc.Ice.UnknownException;
 import java.util.concurrent.CompletionStage;
 
 public class CollocatedRequestHandler implements RequestHandler {
@@ -211,20 +211,17 @@ public class CollocatedRequestHandler implements RequestHandler {
         CompletionStage<OutgoingResponse> response = null;
         try {
           response = dispatcher.dispatch(request);
-        } catch (RuntimeException | UserException ex) {
-          sendResponse(request.current.createOutgoingResponse(ex), requestId, false);
-        } catch (java.lang.Error ex) {
-          // TODO: should we catch/handle Errors at all? Only some errors?
+        } catch (Throwable ex) { // UserException or an unchecked exception
           sendResponse(request.current.createOutgoingResponse(ex), requestId, false);
         }
 
         if (response != null) {
           response.whenComplete(
-              (r, ex) -> {
-                if (ex != null) {
-                  sendResponse(request.current.createOutgoingResponse(ex), requestId, true);
+              (result, exception) -> {
+                if (exception != null) {
+                  sendResponse(request.current.createOutgoingResponse(exception), requestId, true);
                 } else {
-                  sendResponse(r, requestId, true);
+                  sendResponse(result, requestId, true);
                 }
                 // Any exception thrown by this closure is effectively ignored.
               });
@@ -235,30 +232,19 @@ public class CollocatedRequestHandler implements RequestHandler {
       is.clear();
     } catch (com.zeroc.Ice.LocalException ex) {
       dispatchException(ex, requestId, false); // Fatal dispatch exception
-    } catch (java.lang.Error ex) {
-      //
-      // An Error was raised outside of servant code (i.e., by Ice code).
-      // Attempt to log the error and clean up. This may still fail
-      // depending on the severity of the error.
-      //
-      // Note that this does NOT send a response to the client.
-      //
-      com.zeroc.Ice.UnknownException uex = new com.zeroc.Ice.UnknownException(ex);
-      java.io.StringWriter sw = new java.io.StringWriter();
-      java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+    } catch (RuntimeException | java.lang.Error ex) {
+      // A runtime exception or an error was thrown outside of servant code (i.e., by Ice code).
+      // Note
+      // that this does NOT
+      // send a response to the client. = new com.zeroc.Ice.UnknownException(ex);
+      var uex = new UnknownException(ex);
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
       ex.printStackTrace(pw);
       pw.flush();
       uex.unknown = sw.toString();
       _logger.error(uex.unknown);
       dispatchException(uex, requestId, false);
-      //
-      // Suppress AssertionError and OutOfMemoryError, rethrow everything else.
-      //
-      if (!(ex instanceof java.lang.AssertionError
-          || ex instanceof java.lang.OutOfMemoryError
-          || ex instanceof java.lang.StackOverflowError)) {
-        throw ex;
-      }
     } finally {
       _adapter.decDirectCount();
     }
