@@ -4,6 +4,7 @@
 
 import { Ice } from "ice";
 import { Test } from "./Controller.js";
+import { ControllerHelper } from "./ControllerHelper.js";
 
 export class Logger extends Ice.Logger {
     constructor(out) {
@@ -50,39 +51,6 @@ class ProcessI extends Test.Common.Process {
     }
 }
 
-class ControllerHelper {
-    constructor(exe, output) {
-        if (exe === "Server" || exe === "ServerAMD") {
-            this._serverReady = new Ice.Promise();
-        }
-        this._output = output;
-    }
-
-    serverReady(ex) {
-        if (this._serverReady) {
-            if (ex) {
-                this._serverReady.reject(ex);
-            } else {
-                this._serverReady.resolve();
-            }
-        }
-    }
-
-    async waitReady() {
-        if (this._serverReady) {
-            await this._serverReady;
-        }
-    }
-
-    write(msg) {
-        this._output.write(msg);
-    }
-
-    writeLine(msg) {
-        this._output.writeLine(msg);
-    }
-}
-
 class ProcessControllerI extends Test.Common.BrowserProcessController {
     constructor(clientOutput, serverOutput, useWorker, scripts) {
         super();
@@ -95,7 +63,7 @@ class ProcessControllerI extends Test.Common.BrowserProcessController {
     async start(testSuite, exe, args, current) {
         let promise;
         let out;
-        if (exe === "Server" || exe === "ServerAMD") {
+        if (exe === "Server.js" || exe === "ServerAMD.js") {
             out = this._serverOutput;
         } else {
             out = this._clientOutput;
@@ -104,9 +72,8 @@ class ProcessControllerI extends Test.Common.BrowserProcessController {
         const helper = new ControllerHelper(exe, out);
 
         if (this._useWorker) {
-            const scripts = this._scripts;
             promise = new Promise((resolve, reject) => {
-                const worker = new Worker("/test/Common/ControllerWorker.js");
+                const worker = new Worker("/test/Common/ControllerWorker.js", { type: "module" });
                 this._worker = worker;
                 worker.onmessage = function (e) {
                     if (e.data.type == "write") {
@@ -124,7 +91,7 @@ class ProcessControllerI extends Test.Common.BrowserProcessController {
                         worker.terminate();
                     }
                 };
-                worker.postMessage({ scripts: scripts, exe: exe, args: args });
+                worker.postMessage({ exe: exe, testSuite: testSuite, args: args });
             });
         } else {
             const entryPoints = {

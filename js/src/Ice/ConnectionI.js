@@ -11,6 +11,7 @@ import {
     ConnectionManuallyClosedException,
     ConnectTimeoutException,
     ConnectionTimeoutException,
+    ConnectionLostException,
     CloseTimeoutException,
     TimeoutException,
     SocketException,
