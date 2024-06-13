@@ -998,11 +998,11 @@ Slice::JavaGenerator::getStaticId(const TypePtr& type, const string& package) co
 
     if (b && b->kind() == Builtin::KindObject)
     {
-        return getUnqualified("com.zeroc.Ice.Object", package) + ".ice_staticId()";
+        return "com.zeroc.Ice.Object.ice_staticId()";
     }
     else if (b && b->kind() == Builtin::KindValue)
     {
-        return getUnqualified("com.zeroc.Ice.Value", package) + ".ice_staticId()";
+        return "com.zeroc.Ice.Value.ice_staticId()";
     }
     else
     {
