@@ -4,6 +4,12 @@
 
 package com.zeroc.IceInternal;
 
+import com.zeroc.Ice.IncomingRequest;
+import com.zeroc.Ice.Object;
+import com.zeroc.Ice.OutgoingResponse;
+import com.zeroc.Ice.UserException;
+import java.util.concurrent.CompletionStage;
+
 public class CollocatedRequestHandler implements RequestHandler, ResponseHandler {
   private class InvokeAllAsync extends DispatchWorkItem {
     private InvokeAllAsync(
@@ -20,7 +26,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
     @Override
     public void run() {
       if (sentAsync(_outAsync)) {
-        invokeAll(_os, _requestId, _batchRequestNum);
+        dispatchAll(_os, _requestId, _batchRequestNum);
       }
     }
 
@@ -63,7 +69,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
       if (outAsync.completed(ex)) {
         outAsync.invokeCompletedAsync();
       }
-      _adapter.decDirectCount(); // invokeAll won't be called, decrease the direct count.
+      _adapter.decDirectCount(); // dispatchAll won't be called, decrease the direct count.
       return;
     }
 
@@ -77,6 +83,14 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
           return;
         }
       }
+    }
+  }
+
+  private void sendResponse(OutgoingResponse response, int requestId, boolean amd) {
+    if (_response) {
+      sendResponse(requestId, response.outputStream, (byte) 0, amd);
+    } else {
+      sendNoResponse();
     }
   }
 
@@ -128,7 +142,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
   }
 
   @Override
-  public void invokeException(
+  public void dispatchException(
       int requestId, com.zeroc.Ice.LocalException ex, int batchRequestNum, boolean amd) {
     handleException(requestId, ex, amd);
     _adapter.decDirectCount();
@@ -147,7 +161,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
   int invokeAsyncRequest(OutgoingAsyncBase outAsync, int batchRequestNum, boolean sync) {
     //
     // Increase the direct count to prevent the thread pool from being destroyed before
-    // invokeAll is called. This will also throw if the object adapter has been deactivated.
+    // dispatchAll is called. This will also throw if the object adapter has been deactivated.
     //
     _adapter.incDirectCount();
 
@@ -182,10 +196,10 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
           .getThreadPool()
           .dispatchFromThisThread(
               new InvokeAllAsync(outAsync, outAsync.getOs(), requestId, batchRequestNum));
-    } else // Optimization: directly call invokeAll if there's no dispatcher.
+    } else // Optimization: directly call dispatchAll if there's no dispatcher.
     {
       if (sentAsync(outAsync)) {
-        invokeAll(outAsync.getOs(), requestId, batchRequestNum);
+        dispatchAll(outAsync.getOs(), requestId, batchRequestNum);
       }
     }
     return AsyncStatus.Queued;
@@ -211,13 +225,13 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
     return true;
   }
 
-  private void invokeAll(com.zeroc.Ice.OutputStream os, int requestId, int batchRequestNum) {
+  private void dispatchAll(com.zeroc.Ice.OutputStream os, int requestId, int requestCount) {
     if (_traceLevels.protocol >= 1) {
       fillInValue(os, 10, os.size());
       if (requestId > 0) {
         fillInValue(os, Protocol.headerSize, requestId);
-      } else if (batchRequestNum > 0) {
-        fillInValue(os, Protocol.headerSize, batchRequestNum);
+      } else if (requestCount > 0) {
+        fillInValue(os, Protocol.headerSize, requestCount);
       }
       TraceUtil.traceSend(os, _logger, _traceLevels);
     }
@@ -225,16 +239,20 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
     com.zeroc.Ice.InputStream is =
         new com.zeroc.Ice.InputStream(os.instance(), os.getEncoding(), os.getBuffer(), false);
 
-    if (batchRequestNum > 0) {
+    if (requestCount > 0) {
       is.pos(Protocol.requestBatchHdr.length);
     } else {
       is.pos(Protocol.requestHdr.length);
     }
 
-    int invokeNum = batchRequestNum > 0 ? batchRequestNum : 1;
-    ServantManager servantManager = _adapter.getServantManager();
+    int dispatchCount = requestCount > 0 ? requestCount : 1;
+    assert !_response || dispatchCount == 1;
+
+    Object dispatcher = _adapter.dispatchPipeline();
+    assert dispatcher != null;
+
     try {
-      while (invokeNum > 0) {
+      while (dispatchCount > 0) {
         //
         // Increase the direct count for the dispatch. We increase it again here for
         // each dispatch. It's important for the direct count to be > 0 until the last
@@ -248,28 +266,34 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
           break;
         }
 
-        Incoming in =
-            new Incoming(
-                _reference.getInstance(), this, null, _adapter, _response, (byte) 0, requestId);
-        in.invoke(servantManager, is);
-        --invokeNum;
+        var request = new IncomingRequest(requestId, null, _adapter, is);
+        CompletionStage<OutgoingResponse> response = null;
+        try {
+          response = dispatcher.dispatch(request);
+        } catch (RuntimeException | UserException ex) {
+          sendResponse(request.current.createOutgoingResponse(ex), requestId, false);
+        } catch (java.lang.Error ex) {
+          // TODO: should we catch/handle Errors at all? Only some errors?
+          sendResponse(request.current.createOutgoingResponse(ex), requestId, false);
+        }
+
+        if (response != null) {
+          response.whenComplete(
+              (r, ex) -> {
+                if (ex != null) {
+                  sendResponse(request.current.createOutgoingResponse(ex), requestId, true);
+                } else {
+                  sendResponse(r, requestId, true);
+                }
+                // Any exception thrown by this closure is effectively ignored.
+              });
+        }
+
+        --dispatchCount;
       }
+      is.clear();
     } catch (com.zeroc.Ice.LocalException ex) {
-      invokeException(requestId, ex, invokeNum, false); // Fatal invocation exception
-    } catch (ServantError ex) {
-      //
-      // ServantError is thrown when an Error has been raised by servant (or servant locator)
-      // code. We've already attempted to complete the invocation and send a response.
-      //
-      Throwable t = ex.getCause();
-      //
-      // Suppress AssertionError and OutOfMemoryError, rethrow everything else.
-      //
-      if (!(t instanceof java.lang.AssertionError
-          || t instanceof java.lang.OutOfMemoryError
-          || t instanceof java.lang.StackOverflowError)) {
-        throw (java.lang.Error) t;
-      }
+      dispatchException(requestId, ex, dispatchCount, false); // Fatal dispatch exception
     } catch (java.lang.Error ex) {
       //
       // An Error was raised outside of servant code (i.e., by Ice code).
@@ -285,7 +309,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
       pw.flush();
       uex.unknown = sw.toString();
       _logger.error(uex.unknown);
-      invokeException(requestId, uex, invokeNum, false);
+      dispatchException(requestId, uex, dispatchCount, false);
       //
       // Suppress AssertionError and OutOfMemoryError, rethrow everything else.
       //

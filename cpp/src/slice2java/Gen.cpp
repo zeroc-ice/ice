@@ -42,7 +42,7 @@ namespace
         switch (op->format())
         {
             case DefaultFormat:
-                format = "null"; // shorthand for most common case
+                format += "DefaultFormat";
                 break;
             case CompactFormat:
                 format += "CompactFormat";
@@ -620,8 +620,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
     }
     out << currentParam << epar;
     out << sb;
-    out << nl << "_ostr = " << getUnqualified("com.zeroc.IceInternal.Incoming", package)
-        << ".createResponseOutputStream(" << currentParamName << ");";
+    out << nl << "_ostr = " << currentParamName << ".startReplyStream();";
     out << nl << "_ostr.startEncapsulation(" << currentParamName << ".encoding, " << opFormatTypeToString(op) << ");";
 
     ParamDeclList required, optional;
@@ -1380,26 +1379,11 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
         string opName = op->name();
         out << sp;
 
-        out << nl << "/**";
-        out << nl << " * @hidden";
-        out << nl << " * @param obj -";
-        out << nl << " * @param inS -";
-        out << nl << " * @param current -";
-        out << nl << " * @return -";
-        if (!op->throws().empty() || op->hasMetaData("java:UserException") || op->hasMetaData("UserException"))
-        {
-            out << nl << " * @throws " << getUnqualified("com.zeroc.Ice.UserException", package) << " -";
-        }
-        out << nl << "**/";
-        if (dc && dc->isDeprecated())
-        {
-            out << nl << "@Deprecated";
-        }
+        writeHiddenDocComment(out);
         out << nl << "static java.util.concurrent.CompletionStage<"
-            << getUnqualified("com.zeroc.Ice.OutputStream", package) << "> _iceD_" << opName << '(';
+            << getUnqualified("com.zeroc.Ice.OutgoingResponse", package) << "> _iceD_" << opName << '(';
         out << name;
-        out << " obj, final " << getUnqualified("com.zeroc.IceInternal.Incoming", package) << " inS, "
-            << getUnqualified("com.zeroc.Ice.Current", package) << " current)";
+        out << " obj, " << getUnqualified("com.zeroc.Ice.IncomingRequest", package) << " request)";
         if (!op->throws().empty() || op->hasMetaData("java:UserException") || op->hasMetaData("UserException"))
         {
             out.inc();
@@ -1411,12 +1395,11 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
         const bool amd = p->hasMetaData("amd") || op->hasMetaData("amd");
 
         const TypePtr ret = op->returnType();
-
         const ParamDeclList inParams = op->inParameters();
         const ParamDeclList outParams = op->outParameters();
 
         out << nl << getUnqualified("com.zeroc.Ice.Object", package) << "._iceCheckMode("
-            << sliceModeToIceMode(op->mode()) << ", current.mode);";
+            << sliceModeToIceMode(op->mode()) << ", request.current.mode);";
 
         if (!inParams.empty())
         {
@@ -1425,7 +1408,8 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
             //
             // Declare 'in' parameters.
             //
-            out << nl << getUnqualified("com.zeroc.Ice.InputStream", package) << " istr = inS.startReadParams();";
+            out << nl << getUnqualified("com.zeroc.Ice.InputStream", package) << " istr = request.inputStream;";
+            out << nl << "istr.startEncapsulation();";
             for (const auto& param : inParams)
             {
                 const TypePtr paramType = param->type();
@@ -1492,7 +1476,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
             {
                 out << nl << "istr.readPendingValues();";
             }
-            out << nl << "inS.endReadParams();";
+            out << nl << "istr.endEncapsulation();";
 
             for (ParamDeclList::const_iterator pli = values.begin(); pli != values.end(); ++pli)
             {
@@ -1503,69 +1487,82 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
         }
         else
         {
-            out << nl << "inS.readEmptyParams();";
+            out << nl << "request.inputStream.skipEmptyEncapsulation();";
         }
 
-        if (op->format() != DefaultFormat)
+        vector<string> inArgs;
+        for (const auto& pli : inParams)
         {
-            out << nl << "inS.setFormat(" << opFormatTypeToString(op) << ");";
+            inArgs.push_back("iceP_" + pli->name());
         }
 
-        if (amd)
+        string retS = getResultType(op, package, false, true);
+
+        if (op->hasMarshaledResult())
         {
-            if (op->hasMarshaledResult())
+            if (amd)
             {
-                out << nl << "return inS.setMarshaledResultFuture(obj." << opName << "Async" << spar
-                    << getInArgs(op, true) << "current" << epar << ");";
+                out << nl << "var result = obj." << opName << "Async" << spar << inArgs << "request.current" << epar
+                    << ";";
+                out << nl << "return result.thenApply(r -> new com.zeroc.Ice.OutgoingResponse(r.getOutputStream()));";
             }
             else
             {
-                out << nl << "return inS.setResultFuture(obj." << opName << "Async" << spar << getInArgs(op, true)
-                    << "current" << epar;
-                if (ret || !outParams.empty())
-                {
-                    out << ", (ostr, ret) ->";
-                    out.inc();
-                    out << sb;
-                    writeMarshalServantResults(out, package, op, "ret");
-                    out << eb;
-                    out.dec();
-                }
-                out << ");";
+                out << nl << "var result = obj." << fixKwd(opName) << spar << inArgs << "request.current" << epar
+                    << ";";
+                out << nl
+                    << "return java.util.concurrent.CompletableFuture.completedFuture(new "
+                       "com.zeroc.Ice.OutgoingResponse(result.getOutputStream()));";
+            }
+        }
+        else if (amd)
+        {
+            out << nl << "var result = obj." << opName << "Async" << spar << inArgs << "request.current" << epar << ";";
+            if (retS == "void")
+            {
+                out << nl << "return result.thenApply(r -> request.current.createEmptyOutgoingResponse());";
+            }
+            else
+            {
+                out << nl << "return result.thenApply(r -> request.current.createOutgoingResponse(";
+                out.inc();
+                out << nl << "r,";
+                out << nl << "(ostr, value) -> ";
+                out << sb;
+                writeMarshalServantResults(out, package, op, "value");
+                out << eb;
+                out << ",";
+                out << nl << opFormatTypeToString(op) << "));";
+                out.dec();
             }
         }
         else
         {
-            //
-            // Call on the servant.
-            //
             out << nl;
             if (ret || !outParams.empty())
             {
-                out << getResultType(op, package, false, true) << " ret = ";
+                out << retS << " ret = ";
             }
-            out << "obj." << fixKwd(opName) << spar << getInArgs(op, true) << "current" << epar << ';';
+            out << "obj." << fixKwd(opName) << spar << inArgs << "request.current" << epar << ';';
 
-            //
-            // Marshal 'out' parameters and return value.
-            //
-            if (op->hasMarshaledResult())
+            if (ret || !outParams.empty())
             {
-                out << nl << "return inS.setMarshaledResult(ret);";
-            }
-            else if (ret || !outParams.empty())
-            {
-                out << nl << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr = inS.startWriteParams();";
+                out << nl << "var ostr = request.current.startReplyStream();";
+                out << nl << "ostr.startEncapsulation(request.current.encoding, " << opFormatTypeToString(op) << ");";
                 writeMarshalServantResults(out, package, op, "ret");
-                out << nl << "inS.endWriteParams(ostr);";
-                out << nl << "return inS.setResult(ostr);";
+                out << nl << "ostr.endEncapsulation();";
+                out << nl
+                    << "return java.util.concurrent.CompletableFuture.completedFuture(new "
+                       "com.zeroc.Ice.OutgoingResponse(ostr));";
             }
             else
             {
-                out << nl << "return inS.setResult(inS.writeEmptyParams());";
+                out << nl
+                    << "return "
+                       "java.util.concurrent.CompletableFuture.completedFuture(request.current."
+                       "createEmptyOutgoingResponse());";
             }
         }
-
         out << eb;
     }
 
@@ -1573,29 +1570,25 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
     if (!allOps.empty())
     {
         out << sp;
-        writeHiddenDocComment(out);
-        out << nl << "@Override" << nl << "default java.util.concurrent.CompletionStage<"
-            << getUnqualified("com.zeroc.Ice.OutputStream", package) << "> _iceDispatch("
-            << getUnqualified("com.zeroc.IceInternal.Incoming", package) << " in, "
-            << getUnqualified("com.zeroc.Ice.Current", package) << " current)";
+        out << nl << "@Override" << nl
+            << "default java.util.concurrent.CompletionStage<com.zeroc.Ice.OutgoingResponse> dispatch("
+            << "com.zeroc.Ice.IncomingRequest request)";
         out.inc();
-        out << nl << "throws " << getUnqualified("com.zeroc.Ice.UserException", package);
+        out << nl << "throws com.zeroc.Ice.UserException";
         out.dec();
         out << sb;
-        out << nl << "return switch (current.operation)";
+        out << nl << "return switch (request.current.operation)";
         out << sb;
         for (const auto& op : allOps)
         {
             out << nl << "case \"" << op->name() << "\" -> " << getUnqualified(op->interface(), package) << "._iceD_"
-                << op->name() << "(this, in, current);";
+                << op->name() << "(this, request);";
         }
         for (const auto& opName : {"ice_id", "ice_ids", "ice_isA", "ice_ping"})
         {
-            out << nl << "case \"" << opName << "\" -> " << getUnqualified("com.zeroc.Ice.Object", package) << "._iceD_"
-                << opName << "(this, in, current);";
+            out << nl << "case \"" << opName << "\" -> com.zeroc.Ice.Object._iceD_" << opName << "(this, request);";
         }
-        out << nl << "default -> throw new " << getUnqualified("com.zeroc.Ice.OperationNotExistException", package)
-            << "();";
+        out << nl << "default -> throw new com.zeroc.Ice.OperationNotExistException();";
         out << eb;
         out << ";";
         out << eb;

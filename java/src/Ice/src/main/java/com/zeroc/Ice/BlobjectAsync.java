@@ -4,7 +4,6 @@
 
 package com.zeroc.Ice;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 /**
@@ -33,25 +32,10 @@ public interface BlobjectAsync extends com.zeroc.Ice.Object {
   CompletionStage<Object.Ice_invokeResult> ice_invokeAsync(byte[] inEncaps, Current current)
       throws UserException;
 
-  /**
-   * @hidden
-   */
   @Override
-  default CompletionStage<OutputStream> _iceDispatch(
-      com.zeroc.IceInternal.Incoming in, Current current) throws UserException {
-    byte[] inEncaps = in.readParamEncaps();
-    CompletableFuture<OutputStream> f = new CompletableFuture<>();
-    CompletionStage<Object.Ice_invokeResult> s = ice_invokeAsync(inEncaps, current);
-    final OutputStream cached =
-        in.getAndClearCachedOutputStream(); // If an output stream is cached, re-use it
-    s.whenComplete(
-        (result, ex) -> {
-          if (ex != null) {
-            f.completeExceptionally(ex);
-          } else {
-            f.complete(in.writeParamEncaps(cached, result.outParams, result.returnValue));
-          }
-        });
-    return f;
+  default CompletionStage<OutgoingResponse> dispatch(IncomingRequest request) throws UserException {
+    byte[] inEncaps = request.inputStream.readEncapsulation(null);
+    return ice_invokeAsync(inEncaps, request.current)
+        .thenApply(r -> request.current.createOutgoingResponse(r.returnValue, r.outParams));
   }
 }

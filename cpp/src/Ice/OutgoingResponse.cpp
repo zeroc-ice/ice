@@ -41,7 +41,6 @@ namespace
         catch (RequestFailedException& rfe)
         {
             exceptionId = rfe.ice_id();
-            exceptionMessage = rfe.what();
 
             if (dynamic_cast<ObjectNotExistException*>(&rfe))
             {
@@ -76,6 +75,8 @@ namespace
             {
                 rfe.operation = current.operation;
             }
+
+            exceptionMessage = rfe.what();
 
             if (current.requestId != 0)
             {

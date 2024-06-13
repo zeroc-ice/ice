@@ -4,18 +4,117 @@
 
 package com.zeroc.IceInternal;
 
-public final class ServantManager {
-  public synchronized void addServant(
-      com.zeroc.Ice.Object servant, com.zeroc.Ice.Identity ident, String facet) {
-    assert (_instance != null); // Must not be called after destruction.
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.FacetNotExistException;
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.IncomingRequest;
+import com.zeroc.Ice.Object;
+import com.zeroc.Ice.ObjectNotExistException;
+import com.zeroc.Ice.OutgoingResponse;
+import com.zeroc.Ice.ServantLocator;
+import com.zeroc.Ice.UserException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CompletionStage;
+
+public final class ServantManager implements Object {
+  private Instance _instance;
+  private final String _adapterName;
+  private Map<Identity, Map<String, Object>> _servantMapMap =
+      new HashMap<Identity, Map<String, Object>>();
+  private Map<String, Object> _defaultServantMap = new HashMap<String, Object>();
+  private Map<String, ServantLocator> _locatorMap = new HashMap<String, ServantLocator>();
+
+  @Override
+  public CompletionStage<OutgoingResponse> dispatch(IncomingRequest request) throws UserException {
+    final Current current = request.current;
+    Object servant = findServant(current.id, current.facet);
+
+    if (servant != null) {
+      // the simple, common path
+      return servant.dispatch(request);
+    }
+
+    // Else, check servant locators
+    ServantLocator locator = findServantLocator(current.id.category);
+    if (locator == null && current.id.category.length() > 0) {
+      locator = findServantLocator("");
+    }
+
+    java.lang.Object cookie = null;
+
+    if (locator != null) {
+      boolean skipEncapsulation = true;
+      try {
+        ServantLocator.LocateResult locateResult = locator.locate(current);
+        servant = locateResult.returnValue;
+        cookie = locateResult.cookie;
+        skipEncapsulation = false;
+      } finally {
+        if (skipEncapsulation) {
+          // Skip the encapsulation on exception. This allows the next batch requests in the same
+          // InputStream to proceed.
+          request.inputStream.skipEncapsulation();
+        }
+      }
+    }
+
+    if (servant != null) {
+      CompletionStage<OutgoingResponse> response;
+      try {
+        response = servant.dispatch(request);
+      } catch (UserException | RuntimeException | Error exception) {
+        // We catch Error because ServantLocator guarantees finished gets called no matter what.
+        locator.finished(current, servant, cookie);
+        throw exception; // unless finished above throws another exception
+      }
+
+      final Object servantFinal = servant;
+      final ServantLocator locatorFinal = locator;
+      final java.lang.Object cookieFinal = cookie;
+      return response.handle(
+          (r, ex) -> {
+            try {
+              locatorFinal.finished(current, servantFinal, cookieFinal);
+            } catch (UserException finishedEx) {
+              ex = finishedEx;
+            }
+            if (ex != null) {
+              // We only marshal errors and runtime exceptions (including CompletionException) at
+              // a higher level.
+              if (ex instanceof Error errorEx) {
+                throw errorEx;
+              }
+              if (ex instanceof RuntimeException runtimeEx) {
+                throw runtimeEx;
+              }
+              return current.createOutgoingResponse(ex);
+            } else {
+              return r;
+            }
+          });
+    } else {
+      // Skip the encapsulation. This allows the next batch requests in the same InputStream to
+      // proceed.
+      request.inputStream.skipEncapsulation();
+      if (hasServant(current.id)) {
+        throw new FacetNotExistException();
+      } else {
+        throw new ObjectNotExistException();
+      }
+    }
+  }
+
+  public synchronized void addServant(Object servant, Identity ident, String facet) {
+    assert _instance != null; // Must not be called after destruction.
 
     if (facet == null) {
       facet = "";
     }
 
-    java.util.Map<String, com.zeroc.Ice.Object> m = _servantMapMap.get(ident);
+    Map<String, Object> m = _servantMapMap.get(ident);
     if (m == null) {
-      m = new java.util.HashMap<String, com.zeroc.Ice.Object>();
+      m = new HashMap<String, Object>();
       _servantMapMap.put(ident, m);
     } else {
       if (m.containsKey(facet)) {
@@ -36,10 +135,10 @@ public final class ServantManager {
     m.put(facet, servant);
   }
 
-  public synchronized void addDefaultServant(com.zeroc.Ice.Object servant, String category) {
+  public synchronized void addDefaultServant(Object servant, String category) {
     assert (_instance != null); // Must not be called after destruction
 
-    com.zeroc.Ice.Object obj = _defaultServantMap.get(category);
+    Object obj = _defaultServantMap.get(category);
     if (obj != null) {
       com.zeroc.Ice.AlreadyRegisteredException ex = new com.zeroc.Ice.AlreadyRegisteredException();
       ex.kindOfObject = "default servant";
@@ -50,16 +149,15 @@ public final class ServantManager {
     _defaultServantMap.put(category, servant);
   }
 
-  public synchronized com.zeroc.Ice.Object removeServant(
-      com.zeroc.Ice.Identity ident, String facet) {
+  public synchronized Object removeServant(Identity ident, String facet) {
     assert (_instance != null); // Must not be called after destruction.
 
     if (facet == null) {
       facet = "";
     }
 
-    java.util.Map<String, com.zeroc.Ice.Object> m = _servantMapMap.get(ident);
-    com.zeroc.Ice.Object obj = null;
+    Map<String, Object> m = _servantMapMap.get(ident);
+    Object obj = null;
     if (m == null || (obj = m.remove(facet)) == null) {
       com.zeroc.Ice.NotRegisteredException ex = new com.zeroc.Ice.NotRegisteredException();
       ex.id = com.zeroc.Ice.Util.identityToString(ident, _instance.toStringMode());
@@ -79,10 +177,10 @@ public final class ServantManager {
     return obj;
   }
 
-  public synchronized com.zeroc.Ice.Object removeDefaultServant(String category) {
+  public synchronized Object removeDefaultServant(String category) {
     assert (_instance != null); // Must not be called after destruction.
 
-    com.zeroc.Ice.Object obj = _defaultServantMap.get(category);
+    Object obj = _defaultServantMap.get(category);
     if (obj == null) {
       com.zeroc.Ice.NotRegisteredException ex = new com.zeroc.Ice.NotRegisteredException();
       ex.kindOfObject = "default servant";
@@ -94,11 +192,10 @@ public final class ServantManager {
     return obj;
   }
 
-  public synchronized java.util.Map<String, com.zeroc.Ice.Object> removeAllFacets(
-      com.zeroc.Ice.Identity ident) {
+  public synchronized Map<String, Object> removeAllFacets(Identity ident) {
     assert (_instance != null); // Must not be called after destruction.
 
-    java.util.Map<String, com.zeroc.Ice.Object> m = _servantMapMap.get(ident);
+    Map<String, Object> m = _servantMapMap.get(ident);
     if (m == null) {
       com.zeroc.Ice.NotRegisteredException ex = new com.zeroc.Ice.NotRegisteredException();
       ex.id = com.zeroc.Ice.Util.identityToString(ident, _instance.toStringMode());
@@ -111,7 +208,7 @@ public final class ServantManager {
     return m;
   }
 
-  public synchronized com.zeroc.Ice.Object findServant(com.zeroc.Ice.Identity ident, String facet) {
+  public synchronized Object findServant(Identity ident, String facet) {
     //
     // This assert is not valid if the adapter dispatch incoming
     // requests from bidir connections. This method might be called if
@@ -124,8 +221,8 @@ public final class ServantManager {
       facet = "";
     }
 
-    java.util.Map<String, com.zeroc.Ice.Object> m = _servantMapMap.get(ident);
-    com.zeroc.Ice.Object obj = null;
+    Map<String, Object> m = _servantMapMap.get(ident);
+    Object obj = null;
     if (m == null) {
       obj = _defaultServantMap.get(ident.category);
       if (obj == null) {
@@ -138,25 +235,24 @@ public final class ServantManager {
     return obj;
   }
 
-  public synchronized com.zeroc.Ice.Object findDefaultServant(String category) {
+  public synchronized Object findDefaultServant(String category) {
     assert (_instance != null); // Must not be called after destruction.
 
     return _defaultServantMap.get(category);
   }
 
-  public synchronized java.util.Map<String, com.zeroc.Ice.Object> findAllFacets(
-      com.zeroc.Ice.Identity ident) {
+  public synchronized Map<String, Object> findAllFacets(Identity ident) {
     assert (_instance != null); // Must not be called after destruction.
 
-    java.util.Map<String, com.zeroc.Ice.Object> m = _servantMapMap.get(ident);
+    Map<String, Object> m = _servantMapMap.get(ident);
     if (m != null) {
-      return new java.util.HashMap<String, com.zeroc.Ice.Object>(m);
+      return new HashMap<String, Object>(m);
     }
 
-    return new java.util.HashMap<String, com.zeroc.Ice.Object>();
+    return new HashMap<String, Object>();
   }
 
-  public synchronized boolean hasServant(com.zeroc.Ice.Identity ident) {
+  public synchronized boolean hasServant(Identity ident) {
     //
     // This assert is not valid if the adapter dispatch incoming
     // requests from bidir connections. This method might be called if
@@ -165,7 +261,7 @@ public final class ServantManager {
     //
     // assert(_instance != null); // Must not be called after destruction.
 
-    java.util.Map<String, com.zeroc.Ice.Object> m = _servantMapMap.get(ident);
+    Map<String, Object> m = _servantMapMap.get(ident);
     if (m == null) {
       return false;
     } else {
@@ -174,11 +270,10 @@ public final class ServantManager {
     }
   }
 
-  public synchronized void addServantLocator(
-      com.zeroc.Ice.ServantLocator locator, String category) {
+  public synchronized void addServantLocator(ServantLocator locator, String category) {
     assert (_instance != null); // Must not be called after destruction.
 
-    com.zeroc.Ice.ServantLocator l = _locatorMap.get(category);
+    ServantLocator l = _locatorMap.get(category);
     if (l != null) {
       com.zeroc.Ice.AlreadyRegisteredException ex = new com.zeroc.Ice.AlreadyRegisteredException();
       ex.id =
@@ -190,8 +285,8 @@ public final class ServantManager {
     _locatorMap.put(category, locator);
   }
 
-  public synchronized com.zeroc.Ice.ServantLocator removeServantLocator(String category) {
-    com.zeroc.Ice.ServantLocator l = null;
+  public synchronized ServantLocator removeServantLocator(String category) {
+    ServantLocator l = null;
     assert (_instance != null); // Must not be called after destruction.
 
     l = _locatorMap.remove(category);
@@ -205,7 +300,7 @@ public final class ServantManager {
     return l;
   }
 
-  public synchronized com.zeroc.Ice.ServantLocator findServantLocator(String category) {
+  public synchronized ServantLocator findServantLocator(String category) {
     //
     // This assert is not valid if the adapter dispatch incoming
     // requests from bidir connections. This method might be called if
@@ -218,7 +313,7 @@ public final class ServantManager {
   }
 
   //
-  // Only for use by com.zeroc.Ice.ObjectAdatperI.
+  // Only for use by ObjectAdapterI.
   //
   public ServantManager(Instance instance, String adapterName) {
     _instance = instance;
@@ -226,11 +321,10 @@ public final class ServantManager {
   }
 
   //
-  // Only for use by com.zeroc.Ice.ObjectAdapterI.
+  // Only for use by ObjectAdapterI.
   //
   public void destroy() {
-    java.util.Map<String, com.zeroc.Ice.ServantLocator> locatorMap =
-        new java.util.HashMap<String, com.zeroc.Ice.ServantLocator>();
+    Map<String, ServantLocator> locatorMap = new HashMap<String, ServantLocator>();
     com.zeroc.Ice.Logger logger = null;
     synchronized (this) {
       //
@@ -252,8 +346,8 @@ public final class ServantManager {
       _instance = null;
     }
 
-    for (java.util.Map.Entry<String, com.zeroc.Ice.ServantLocator> p : locatorMap.entrySet()) {
-      com.zeroc.Ice.ServantLocator locator = p.getValue();
+    for (java.util.Map.Entry<String, ServantLocator> p : locatorMap.entrySet()) {
+      ServantLocator locator = p.getValue();
       try {
         locator.deactivate(p.getKey());
       } catch (java.lang.Exception ex) {
@@ -270,15 +364,4 @@ public final class ServantManager {
       }
     }
   }
-
-  private Instance _instance;
-  private final String _adapterName;
-  private java.util.Map<com.zeroc.Ice.Identity, java.util.Map<String, com.zeroc.Ice.Object>>
-      _servantMapMap =
-          new java.util.HashMap<
-              com.zeroc.Ice.Identity, java.util.Map<String, com.zeroc.Ice.Object>>();
-  private java.util.Map<String, com.zeroc.Ice.Object> _defaultServantMap =
-      new java.util.HashMap<String, com.zeroc.Ice.Object>();
-  private java.util.Map<String, com.zeroc.Ice.ServantLocator> _locatorMap =
-      new java.util.HashMap<String, com.zeroc.Ice.ServantLocator>();
 }

@@ -43,7 +43,7 @@ export class Client extends TestHelper {
             // We are running with NodeJS we load the properties file from the file system.
             //
             properties.parse(
-                readFileSync(path.join(args[4], "config", "escapes.cfg"), {
+                fs.readFileSync(path.join(args[4], "config", "escapes.cfg"), {
                     encoding: "utf8",
                 }),
             );
