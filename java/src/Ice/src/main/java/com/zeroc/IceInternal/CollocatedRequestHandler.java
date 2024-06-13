@@ -5,8 +5,11 @@
 package com.zeroc.IceInternal;
 
 import com.zeroc.Ice.IncomingRequest;
+import com.zeroc.Ice.InputStream;
+import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.Object;
 import com.zeroc.Ice.OutgoingResponse;
+import com.zeroc.Ice.OutputStream;
 import com.zeroc.Ice.UserException;
 import java.util.concurrent.CompletionStage;
 
@@ -84,65 +87,6 @@ public class CollocatedRequestHandler implements RequestHandler {
         }
       }
     }
-  }
-
-  private void sendResponse(OutgoingResponse response, int requestId, boolean amd) {
-    if (_response) {
-      sendResponse(requestId, response.outputStream, (byte) 0, amd);
-    } else {
-      sendNoResponse();
-    }
-  }
-
-  private void sendResponse(
-      int requestId, final com.zeroc.Ice.OutputStream os, byte status, boolean amd) {
-    OutgoingAsyncBase outAsync = null;
-    synchronized (this) {
-      assert (_response);
-
-      if (_traceLevels.protocol >= 1) {
-        fillInValue(os, 10, os.size());
-      }
-
-      // Adopt the OutputStream's buffer.
-      com.zeroc.Ice.InputStream is =
-          new com.zeroc.Ice.InputStream(os.instance(), os.getEncoding(), os.getBuffer(), true);
-
-      is.pos(Protocol.replyHdr.length + 4);
-
-      if (_traceLevels.protocol >= 1) {
-        TraceUtil.traceRecv(is, _logger, _traceLevels);
-      }
-
-      outAsync = _asyncRequests.remove(requestId);
-      if (outAsync != null && !outAsync.completed(is)) {
-        outAsync = null;
-      }
-    }
-
-    if (outAsync != null) {
-      //
-      // If called from an AMD dispatch, invoke asynchronously
-      // the completion callback since this might be called from
-      // the user code.
-      //
-      if (amd) {
-        outAsync.invokeCompletedAsync();
-      } else {
-        outAsync.invokeCompleted();
-      }
-    }
-    _adapter.decDirectCount();
-  }
-
-  private void sendNoResponse() {
-    _adapter.decDirectCount();
-  }
-
-  private void dispatchException(
-      int requestId, com.zeroc.Ice.LocalException ex, int batchRequestNum, boolean amd) {
-    handleException(requestId, ex, amd);
-    _adapter.decDirectCount();
   }
 
   @Override
@@ -259,7 +203,7 @@ public class CollocatedRequestHandler implements RequestHandler {
         try {
           _adapter.incDirectCount();
         } catch (com.zeroc.Ice.ObjectAdapterDeactivatedException ex) {
-          handleException(requestId, ex, false);
+          handleException(ex, requestId, false);
           break;
         }
 
@@ -290,7 +234,7 @@ public class CollocatedRequestHandler implements RequestHandler {
       }
       is.clear();
     } catch (com.zeroc.Ice.LocalException ex) {
-      dispatchException(requestId, ex, dispatchCount, false); // Fatal dispatch exception
+      dispatchException(ex, requestId, false); // Fatal dispatch exception
     } catch (java.lang.Error ex) {
       //
       // An Error was raised outside of servant code (i.e., by Ice code).
@@ -306,7 +250,7 @@ public class CollocatedRequestHandler implements RequestHandler {
       pw.flush();
       uex.unknown = sw.toString();
       _logger.error(uex.unknown);
-      dispatchException(requestId, uex, dispatchCount, false);
+      dispatchException(uex, requestId, false);
       //
       // Suppress AssertionError and OutOfMemoryError, rethrow everything else.
       //
@@ -320,7 +264,58 @@ public class CollocatedRequestHandler implements RequestHandler {
     }
   }
 
-  private void handleException(int requestId, com.zeroc.Ice.Exception ex, boolean amd) {
+  private void sendResponse(OutgoingResponse response, int requestId, boolean amd) {
+    if (_response) {
+      OutgoingAsyncBase outAsync = null;
+      OutputStream outputStream = response.outputStream;
+
+      synchronized (this) {
+        if (_traceLevels.protocol >= 1) {
+          fillInValue(outputStream, 10, outputStream.size());
+        }
+
+        // Adopt the OutputStream's buffer.
+        var inputStream =
+            new InputStream(
+                outputStream.instance(),
+                outputStream.getEncoding(),
+                outputStream.getBuffer(),
+                true); // adopt: true
+
+        inputStream.pos(Protocol.replyHdr.length + 4);
+
+        if (_traceLevels.protocol >= 1) {
+          TraceUtil.traceRecv(inputStream, _logger, _traceLevels);
+        }
+
+        outAsync = _asyncRequests.remove(requestId);
+        if (outAsync != null && !outAsync.completed(inputStream)) {
+          outAsync = null;
+        }
+      }
+
+      if (outAsync != null) {
+        //
+        // If called from an AMD dispatch, invoke asynchronously
+        // the completion callback since this might be called from
+        // the user code.
+        //
+        if (amd) {
+          outAsync.invokeCompletedAsync();
+        } else {
+          outAsync.invokeCompleted();
+        }
+      }
+    }
+    _adapter.decDirectCount();
+  }
+
+  private void dispatchException(LocalException ex, int requestId, boolean amd) {
+    handleException(ex, requestId, amd);
+    _adapter.decDirectCount();
+  }
+
+  private void handleException(com.zeroc.Ice.Exception ex, int requestId, boolean amd) {
     if (requestId == 0) {
       return; // Ignore exception for oneway messages.
     }
