@@ -16,9 +16,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
 
 public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
-    implements Connection,
-        com.zeroc.IceInternal.ResponseHandler,
-        com.zeroc.IceInternal.CancellationHandler {
+    implements Connection, com.zeroc.IceInternal.CancellationHandler {
   public interface StartCallback {
     void connectionStartCompleted(ConnectionI connection);
 
@@ -489,189 +487,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
           return;
         }
       }
-    }
-  }
-
-  private void sendResponse(OutgoingResponse response, boolean isTwoWay, byte compress) {
-    if (isTwoWay) {
-      //
-      // We may be executing on the "main thread" (e.g., in Android together with a custom
-      // dispatcher)
-      // and therefore we have to defer network calls to a separate thread.
-      //
-      final boolean queueResponse = _instance.queueRequests();
-
-      final OutputStream os = response.outputStream;
-
-      synchronized (this) {
-        assert (_state > StateNotValidated);
-
-        if (!queueResponse) {
-          sendResponseImpl(os, compress);
-        }
-      }
-
-      if (queueResponse) {
-        _instance
-            .getQueueExecutor()
-            .executeNoThrow(
-                new Callable<Void>() {
-                  @Override
-                  public Void call() throws Exception {
-                    sendResponseImpl(os, compress);
-                    return null;
-                  }
-                });
-      }
-    } else {
-      sendNoResponse();
-    }
-  }
-
-  @Override
-  public void sendResponse(int requestId, OutputStream os, byte compressFlag, boolean amd) {
-    //
-    // We may be executing on the "main thread" (e.g., in Android together with a custom dispatcher)
-    // and therefore we have to defer network calls to a separate thread.
-    //
-    final boolean queueResponse = _instance.queueRequests();
-
-    synchronized (this) {
-      assert (_state > StateNotValidated);
-
-      if (!queueResponse) {
-        sendResponseImpl(os, compressFlag);
-      }
-    }
-
-    if (queueResponse) {
-      _instance
-          .getQueueExecutor()
-          .executeNoThrow(
-              new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                  sendResponseImpl(os, compressFlag);
-                  return null;
-                }
-              });
-    }
-  }
-
-  private void sendResponseImpl(OutputStream os, byte compressFlag) {
-    boolean finished = false;
-    try {
-      synchronized (this) {
-        try {
-          if (--_upcallCount == 0) {
-            if (_state == StateFinished) {
-              finished = true;
-              if (_observer != null) {
-                _observer.detach();
-              }
-            }
-            notifyAll();
-          }
-
-          if (_state < StateClosed) {
-            sendMessage(new OutgoingMessage(os, compressFlag != 0, true));
-
-            if (_state == StateClosing && _upcallCount == 0) {
-              initiateShutdown();
-            }
-          }
-        } catch (LocalException ex) {
-          setState(StateClosed, ex);
-        }
-      }
-    } finally {
-      if (finished && _removeFromFactory != null) {
-        _removeFromFactory.accept(this);
-      }
-    }
-  }
-
-  @Override
-  public void sendNoResponse() {
-    boolean shutdown = false;
-    boolean finished = false;
-
-    try {
-      synchronized (this) {
-        assert (_state > StateNotValidated);
-        try {
-          if (--_upcallCount == 0) {
-            if (_state == StateFinished) {
-              finished = true;
-              if (_observer != null) {
-                _observer.detach();
-              }
-            }
-            notifyAll();
-          }
-
-          if (_state >= StateClosed) {
-            assert (_exception != null);
-            throw (LocalException) _exception.fillInStackTrace();
-          }
-
-          if (_state == StateClosing && _upcallCount == 0) {
-            //
-            // We may be executing on the "main thread" (e.g., in Android together with a custom
-            // dispatcher)
-            // and therefore we have to defer network calls to a separate thread.
-            //
-            if (_instance.queueRequests()) {
-              shutdown = true;
-            } else {
-              initiateShutdown();
-            }
-          }
-        } catch (LocalException ex) {
-          setState(StateClosed, ex);
-        }
-      }
-    } finally {
-      if (finished && _removeFromFactory != null) {
-        _removeFromFactory.accept(this);
-      }
-    }
-
-    if (shutdown) {
-      queueShutdown(false);
-    }
-  }
-
-  @Override
-  public void dispatchException(int requestId, LocalException ex, int requestCount, boolean amd) {
-    boolean finished = false;
-    synchronized (this) {
-      //
-      // Fatal exception while dispatching a request. Since sendResponse/sendNoResponse
-      // isn't
-      // called in case of a fatal exception we decrement _dispatchCount here.
-      //
-
-      setState(StateClosed, ex);
-
-      if (requestCount > 0) {
-        assert (_upcallCount > 0);
-        _upcallCount -= requestCount;
-        assert (_upcallCount >= 0);
-        if (_upcallCount == 0) {
-          if (_state == StateFinished) {
-            finished = true;
-            if (_observer != null) {
-              _observer.detach();
-            }
-          }
-          notifyAll();
-        }
-      }
-    }
-
-    if (finished && _removeFromFactory != null) {
-      _removeFromFactory.accept(this);
     }
   }
 
@@ -2339,7 +2154,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       stream.clear();
 
     } catch (LocalException ex) {
-      dispatchException(requestId, ex, requestCount, false);
+      dispatchException(ex, requestCount);
     } catch (java.lang.Error ex) {
       //
       // An Error was raised outside of servant code (i.e., by Ice code).
@@ -2355,7 +2170,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       pw.flush();
       uex.unknown = sw.toString();
       _logger.error(uex.unknown);
-      dispatchException(requestId, uex, requestCount, false);
+      dispatchException(uex, requestCount);
       //
       // Suppress AssertionError and OutOfMemoryError, rethrow everything else.
       //
@@ -2366,6 +2181,118 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       }
     }
     // Any other exception is not handled and kills the thread.
+  }
+
+  private void sendResponse(OutgoingResponse response, boolean isTwoWay, byte compress) {
+    final OutputStream outputStream = response.outputStream;
+    boolean shutdown = false;
+
+    // We may be executing on the "main thread" (e.g., in Android together with a
+    // custom dispatcher) and therefore we have to defer network calls to a separate thread.
+    final boolean queueResponse = isTwoWay && _instance.queueRequests();
+
+    synchronized (this) {
+      assert (_state > StateNotValidated);
+
+      if (!queueResponse) {
+        // shutdown can be true only when isTwoWay is false.
+        shutdown = sendResponseImpl(outputStream, isTwoWay, compress);
+      }
+    }
+
+    if (queueResponse) {
+      _instance
+          .getQueueExecutor()
+          .executeNoThrow(
+              new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                  sendResponseImpl(outputStream, isTwoWay, compress);
+                  return null;
+                }
+              });
+    }
+
+    if (shutdown) {
+      queueShutdown(false);
+    }
+  }
+
+  private boolean sendResponseImpl(OutputStream outputStream, boolean isTwoWay, byte compress) {
+    boolean shutdown = false;
+    boolean finished = false;
+    try {
+      synchronized (this) {
+        try {
+          if (--_upcallCount == 0) {
+            if (_state == StateFinished) {
+              finished = true;
+              if (_observer != null) {
+                _observer.detach();
+              }
+            }
+            notifyAll();
+          }
+
+          if (_state >= StateClosed) {
+            assert (_exception != null);
+            throw (LocalException) _exception.fillInStackTrace();
+          }
+
+          if (isTwoWay) {
+            sendMessage(new OutgoingMessage(outputStream, compress != 0, true));
+          }
+
+          if (_state == StateClosing && _upcallCount == 0) {
+            //
+            // We may be executing on the "main thread" (e.g., in Android together with a custom
+            // dispatcher) and therefore we have to defer network calls to a separate thread.
+            //
+            if (!isTwoWay && _instance.queueRequests()) {
+              shutdown = true;
+            } else {
+              initiateShutdown();
+            }
+          }
+        } catch (LocalException ex) {
+          setState(StateClosed, ex);
+        }
+      }
+    } finally {
+      if (finished && _removeFromFactory != null) {
+        _removeFromFactory.accept(this);
+      }
+    }
+    return shutdown;
+  }
+
+  private void dispatchException(LocalException ex, int requestCount) {
+    boolean finished = false;
+    synchronized (this) {
+      // Fatal exception while dispatching a request. Since sendResponse isn't
+      // called in case of a fatal exception we decrement _upcallCount here.
+
+      setState(StateClosed, ex);
+
+      if (requestCount > 0) {
+        assert (_upcallCount > 0);
+        _upcallCount -= requestCount;
+        assert (_upcallCount >= 0);
+        if (_upcallCount == 0) {
+          if (_state == StateFinished) {
+            finished = true;
+            if (_observer != null) {
+              _observer.detach();
+            }
+          }
+          notifyAll();
+        }
+      }
+    }
+
+    if (finished && _removeFromFactory != null) {
+      _removeFromFactory.accept(this);
+    }
   }
 
   private void scheduleTimeout(int status) {
