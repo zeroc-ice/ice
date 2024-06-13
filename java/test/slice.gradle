@@ -29,6 +29,7 @@ task testSliceTask {
                                                      'Ice/invoke/*.ice',
                                                      'Ice/location/*.ice',
                                                      'Ice/metrics/*.ice',
+                                                     'Ice/middleware/*.ice',
                                                      'Ice/networkProxy/*.ice',
                                                      'Ice/operations/*.ice',
                                                      'Ice/proxy/*.ice',
