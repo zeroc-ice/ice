@@ -48,7 +48,7 @@ let testDirectories = [
     "Ice/proxy",
     "Ice/retry",
     "Ice/scope",
-    //    "Ice/servantLocator",
+    "Ice/servantLocator",
     "Ice/services",
     "Ice/slicing/exceptions",
     "Ice/slicing/objects",
@@ -66,10 +66,8 @@ let extraTestResources = [
         Resource.copy("config/config.3"),
         Resource.copy("config/escapes.cfg"),
         Resource.copy("config/configPath"),
-    ]
-    // "IceSSL/configuration": findAllFiles("swift/test/IceSSL/certs").filter{ $0.hasSuffix(".pem") || $0.hasSuffix(".p12")  }.map {
-    //     Resource.copy($0)
-    // },
+    ],
+    "IceSSL/configuration": []
 ]
 
 func testPathToTargetName(_ path: String) -> String {
@@ -96,6 +94,8 @@ let testTargets = testDirectories.map { testPath in
     var plugins: [Target.PluginUsage] = []
 
     if let extraResources = extraTestResources[testPath] {
+        print("Adding extra resources for \(testPath)")
+        print(extraResources)
         resources += extraResources
     }
 
@@ -107,18 +107,16 @@ let testTargets = testDirectories.map { testPath in
         resources += [.copy("slice-plugin.json")]
     }
 
-    let amdServerFiles = ["TestAMDI.swift", "ServerAMD.swift"]
+    let isAmdFile: (String) -> Bool = { path in
+        return path.hasSuffix("AMDI.swift") || path.hasSuffix("AMD.swift")
+    }
 
-    let existingAmdFiles = findAllFiles(testPath).filter { amdServerFiles.contains($0) }
+    let existingAmdFiles = findAllFiles(testPath).filter(isAmdFile)
 
     let hasAmd = existingAmdFiles.count > 0
 
     if hasAmd {
         exclude += existingAmdFiles + ["amd"]
-    }
-
-    if testPath == "IceSSL/configuration" {
-        print(resources)
     }
 
     let name = testPathToTargetName("\(testPath)")
@@ -136,7 +134,7 @@ let testTargets = testDirectories.map { testPath in
     if hasAmd {
         let amdName = name + "AMD"
         let amdExclude = findAllFiles(testPath).filter {
-            !amdServerFiles.contains($0) && $0 != "amd/slice-plugin.json"
+            !isAmdFile($0) && $0 != "amd/slice-plugin.json"
         }
 
         targets.append(

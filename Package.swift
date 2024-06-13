@@ -186,7 +186,7 @@ let package = Package(
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ],
-            path: "swift/src/CompileSliceExecutable", // must be from top level to access resources
+            path: "swift/src/CompileSliceExecutable",
             resources: [
                 .copy("slice/Ice"),
                 .copy("slice/Glacier2"),
