@@ -2125,19 +2125,17 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
           CompletionStage<OutgoingResponse> response = null;
           try {
             response = dispatcher.dispatch(request);
-          } catch (RuntimeException | UserException ex) {
-            sendResponse(request.current.createOutgoingResponse(ex), isTwoWay, (byte) 0);
-          } catch (java.lang.Error ex) {
-            // TODO: should we catch/handle Errors at all? Only some errors?
+          } catch (Throwable ex) { // UserException or an unchecked exception
             sendResponse(request.current.createOutgoingResponse(ex), isTwoWay, (byte) 0);
           }
           if (response != null) {
             response.whenComplete(
-                (r, ex) -> {
-                  if (ex != null) {
-                    sendResponse(request.current.createOutgoingResponse(ex), isTwoWay, (byte) 0);
+                (result, exception) -> {
+                  if (exception != null) {
+                    sendResponse(
+                        request.current.createOutgoingResponse(exception), isTwoWay, (byte) 0);
                   } else {
-                    sendResponse(r, isTwoWay, compress);
+                    sendResponse(result, isTwoWay, compress);
                   }
                   // Any exception thrown by this closure is effectively ignored.
                 });
@@ -2155,32 +2153,18 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
     } catch (LocalException ex) {
       dispatchException(ex, requestCount);
-    } catch (java.lang.Error ex) {
-      //
-      // An Error was raised outside of servant code (i.e., by Ice code).
-      // Attempt to log the error and clean up. This may still fail
-      // depending on the severity of the error.
-      //
-      // Note that this does NOT send a response to the client.
-      //
-      UnknownException uex = new UnknownException(ex);
-      java.io.StringWriter sw = new java.io.StringWriter();
-      java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+    } catch (RuntimeException | java.lang.Error ex) {
+      // A runtime exception or an error was thrown outside of servant code (i.e., by Ice code).
+      // Note that this code does NOT send a response to the client.
+      var uex = new UnknownException(ex);
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
       ex.printStackTrace(pw);
       pw.flush();
       uex.unknown = sw.toString();
       _logger.error(uex.unknown);
       dispatchException(uex, requestCount);
-      //
-      // Suppress AssertionError and OutOfMemoryError, rethrow everything else.
-      //
-      if (!(ex instanceof java.lang.AssertionError
-          || ex instanceof java.lang.OutOfMemoryError
-          || ex instanceof java.lang.StackOverflowError)) {
-        throw ex;
-      }
     }
-    // Any other exception is not handled and kills the thread.
   }
 
   private void sendResponse(OutgoingResponse response, boolean isTwoWay, byte compress) {

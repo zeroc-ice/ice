@@ -116,7 +116,7 @@ public interface ObjectAdapter {
   void destroy();
 
   /**
-   * Install a middleware in this object adapter.
+   * Install a middleware in this object adapter's dispatch pipeline.
    *
    * @param middleware The middleware to install.
    * @return This object adapter.
