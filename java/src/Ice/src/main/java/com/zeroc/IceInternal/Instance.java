@@ -687,7 +687,7 @@ public final class Instance implements java.util.function.Function<String, Class
   }
 
   //
-  // Only for use by com.zeroc.Ice.CommunicatorI
+  // Only for use by com.zeroc.Ice.Communicator
   //
   public void initialize(
       com.zeroc.Ice.Communicator communicator, com.zeroc.Ice.InitializationData initData) {
@@ -1096,7 +1096,7 @@ public final class Instance implements java.util.function.Function<String, Class
   }
 
   //
-  // Only for use by com.zeroc.Ice.CommunicatorI
+  // Only for use by com.zeroc.Ice.Communicator
   //
   @SuppressWarnings("deprecation")
   public void destroy(boolean interruptible) {

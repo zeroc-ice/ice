@@ -122,7 +122,7 @@ class PluginI implements Plugin {
       if (_retryDelay < 0) {
         _retryDelay = 0;
       }
-      _timer = com.zeroc.IceInternal.Util.getInstance(lookup.ice_getCommunicator()).timer();
+      _timer = lookup.ice_getCommunicator().getInstance().timer();
       _traceLevel = properties.getPropertyAsInt(name + ".Trace.Lookup");
       _instanceName = instanceName;
       _warned = false;
