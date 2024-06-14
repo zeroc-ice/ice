@@ -2155,9 +2155,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       dispatchException(ex, requestCount);
     } catch (RuntimeException | java.lang.Error ex) {
       // A runtime exception or an error was thrown outside of servant code (i.e., by Ice code).
-      // Note
-      // that this does NOT
-      // send a response to the client.
+      // Note that this code does NOT send a response to the client.
       var uex = new UnknownException(ex);
       var sw = new java.io.StringWriter();
       var pw = new java.io.PrintWriter(sw);

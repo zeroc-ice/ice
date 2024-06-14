@@ -127,7 +127,7 @@ public class AllTests {
 
     ObjectAdapter oa = communicator.createObjectAdapter("");
     ObjectPrx obj = oa.add(new MyFragileObject(withError), new Identity("test", ""));
-    oa.useErrorObserver(error -> errorHolder.error = error);
+    oa.use(next -> new ErrorObserverMiddleware(next, error -> errorHolder.error = error));
     var p = MyObjectPrx.uncheckedCast(obj);
 
     // Act

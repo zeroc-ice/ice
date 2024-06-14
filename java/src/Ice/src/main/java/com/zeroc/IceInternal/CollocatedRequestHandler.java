@@ -234,9 +234,7 @@ public class CollocatedRequestHandler implements RequestHandler {
       dispatchException(ex, requestId, false); // Fatal dispatch exception
     } catch (RuntimeException | java.lang.Error ex) {
       // A runtime exception or an error was thrown outside of servant code (i.e., by Ice code).
-      // Note
-      // that this does NOT
-      // send a response to the client. = new com.zeroc.Ice.UnknownException(ex);
+      // Note that this code does NOT send a response to the client.
       var uex = new UnknownException(ex);
       var sw = new java.io.StringWriter();
       var pw = new java.io.PrintWriter(sw);
