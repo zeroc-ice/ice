@@ -64,6 +64,7 @@ testMiddlewareExecutionOrder(const Ice::CommunicatorPtr& communicator)
     bool outOk = outLog == list<string>{"C", "B", "A"};
     test(outOk);
 
+    oa->destroy();
     cout << "ok" << endl;
 }
 

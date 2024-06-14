@@ -40,7 +40,7 @@ public class AllTests : global::Test.AllTests
         test(outLog.SequenceEqual(["C", "B", "A"]));
 
         output.WriteLine("ok");
-        oa.deactivate();
+        oa.destroy();
     }
 
     private class Middleware : Object

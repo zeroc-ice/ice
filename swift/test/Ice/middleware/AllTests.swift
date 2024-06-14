@@ -43,7 +43,7 @@ func allTests(_ helper: TestHelper) throws {
         try test(log.outLog == ["C", "B", "A"])
 
         output.writeLine("ok")
-        oa.deactivate()
+        oa.destroy()
     }
 
     final class Middleware: Dispatcher {
