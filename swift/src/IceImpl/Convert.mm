@@ -3,8 +3,8 @@
 //
 
 #import "Convert.h"
-#import "Exception.h"
-#import "IceUtil.h"
+#import "include/Exception.h"
+#import "include/IceUtil.h"
 
 NSError*
 convertException(std::exception_ptr exc)

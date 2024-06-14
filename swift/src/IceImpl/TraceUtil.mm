@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "TraceUtil.h"
+#import "include/TraceUtil.h"
 
 #import "Ice/TraceUtil.h"
 #import "LoggerWrapperI.h"

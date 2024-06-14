@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "Process.h"
+#import "include/Process.h"
 #import "Convert.h"
 
 @implementation ICEProcess

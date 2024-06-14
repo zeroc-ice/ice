@@ -2,8 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "Properties.h"
-
+#import "include/Properties.h"
 #import "Convert.h"
 
 @implementation ICEProperties

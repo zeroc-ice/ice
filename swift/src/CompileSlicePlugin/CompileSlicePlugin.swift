@@ -1,3 +1,5 @@
+// Copyright (c) ZeroC, Inc. All rights reserved.
+
 import PackagePlugin
 import Foundation
 
@@ -5,6 +7,7 @@ enum PluginError: Error {
     case invalidTarget(Target)
     case missingCompiler(String)
     case missingConfigFile(String, String)
+    case missingIceSliceFiles(String)
 
     var description: String {
         switch self {
@@ -14,13 +17,17 @@ enum PluginError: Error {
                 return "Missing slice compiler: '\(path)'."
             case let .missingConfigFile(path, target):
                 return "Missing config file '\(path)` for target `\(target)`. '. This file must be included in your sources."
+            case let .missingIceSliceFiles(path):
+                return "The Ice slice files are missing. Expected location: `\(path)`"
         }
     }
 }
 
 /// Represents the contents of a `slice-plugin.json` file
 struct Config: Codable {
+    // List of
     var sources: [String]
+    var search_paths: [String]?
 }
 
 @main
@@ -47,7 +54,6 @@ struct CompileSlicePlugin: BuildToolPlugin {
         let config = try JSONDecoder().decode(Config.self, from: data)
 
         let slice2swift = try context.tool(named: "slice2swift").path
-        let CompileSliceExecutable = try context.tool(named: "CompileSliceExecutable").path
 
         // Find the Ice Slice files for the corresponding Swift target
         let fm = FileManager.default
@@ -67,6 +73,7 @@ struct CompileSlicePlugin: BuildToolPlugin {
         }.joined()
 
         let outputDir = context.pluginWorkDirectory
+        let search_paths = (config.search_paths ?? []).map { "-I\(target.directory.appending($0).string)" }
 
         // Create a build command for each Slice file
         return sources.map { (sliceFile) -> Command in
@@ -75,14 +82,18 @@ struct CompileSlicePlugin: BuildToolPlugin {
             // Absolute path to the output Slice file
             let outputFile = Path(URL(fileURLWithPath: outputDir.appending(sliceFile.lastComponent).string).deletingPathExtension().appendingPathExtension("swift").relativePath)
 
+            let arguments: [String] = search_paths + [
+                "--output-dir",
+                outputDir.string,
+                inputFile.string
+            ]
+
+            let displayName = slice2swift.string + " " + arguments.joined(separator: " ")
+
             return .buildCommand(
-                displayName: "Compiling `\(sliceFile)` with slice2swift",
-                executable: CompileSliceExecutable,
-                arguments: [
-                    slice2swift,
-                    inputFile,
-                    outputDir
-                ],
+                displayName: displayName,
+                executable: slice2swift,
+                arguments:  arguments,
                 outputFiles: [outputFile]
             )
         }

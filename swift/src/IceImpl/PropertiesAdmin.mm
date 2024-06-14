@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "PropertiesAdmin.h"
+#import "include/PropertiesAdmin.h"
 #import "Convert.h"
 
 @implementation ICEPropertiesAdmin

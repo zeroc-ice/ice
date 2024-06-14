@@ -2,17 +2,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "Communicator.h"
-#import "DispatchAdapter.h"
-#import "IceUtil.h"
-#import "ImplicitContext.h"
-#import "Logger.h"
-#import "ObjectAdapter.h"
-#import "ObjectPrx.h"
-#import "Process.h"
-#import "Properties.h"
-#import "PropertiesAdmin.h"
-#import "UnsupportedAdminFacet.h"
+#import "include/Communicator.h"
+#import "include/DispatchAdapter.h"
+#import "include/IceUtil.h"
+#import "include/ImplicitContext.h"
+#import "include/Logger.h"
+#import "include/ObjectAdapter.h"
+#import "include/ObjectPrx.h"
+#import "include/Process.h"
+#import "include/Properties.h"
+#import "include/PropertiesAdmin.h"
+#import "include/UnsupportedAdminFacet.h"
 
 #import "Convert.h"
 #import "LoggerWrapperI.h"

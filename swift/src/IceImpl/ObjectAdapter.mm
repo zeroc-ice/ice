@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "ObjectAdapter.h"
-#import "Communicator.h"
-#import "Config.h"
-#import "Connection.h"
+#import "include/ObjectAdapter.h"
+#import "include/Communicator.h"
+#import "include/Config.h"
+#import "include/Connection.h"
 #import "Convert.h"
-#import "DispatchAdapter.h"
-#import "ObjectPrx.h"
+#import "include/DispatchAdapter.h"
+#import "include/ObjectPrx.h"
 
 @implementation ICEObjectAdapter
 

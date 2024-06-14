@@ -27,7 +27,6 @@ let package = Package(
         .plugin(name: "CompileSlice", targets: ["CompileSlice"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.4.0"),
         .package(url: "https://github.com/mxcl/PromiseKit.git", from: "8.1.2"),
         .package(url: "https://github.com/zeroc-ice/mcpp.git", branch: "master")
     ],
@@ -81,6 +80,7 @@ let package = Package(
             dependencies: ["IceUtilCpp"],
             path: "cpp",
             exclude: [
+                "test",
                 "src/Ice/build",
                 "src/Ice/msbuild",
                 "src/Ice/Ice.rc",
@@ -116,6 +116,7 @@ let package = Package(
             dependencies: ["IceCpp"],
             path: "cpp",
             exclude: [
+                "test",
                 "src/IceDiscovery/build",
                 "src/IceDiscovery/msbuild",
                 "src/IceDiscovery/IceDiscovery.rc",
@@ -131,6 +132,7 @@ let package = Package(
             dependencies: ["IceCpp"],
             path: "cpp/",
             exclude: [
+                "test",
                 "src/IceLocatorDiscovery/build",
                 "src/IceLocatorDiscovery/msbuild",
                 "src/IceLocatorDiscovery/IceLocatorDiscovery.rc",
@@ -145,6 +147,7 @@ let package = Package(
             name: "IceUtilCpp",
             path: "cpp",
             exclude: [
+                "test",
                 "src/IceUtil/build",
                 "src/IceUtil/msbuild",
                 "src/IceUtil/Makefile.mk"
@@ -158,6 +161,7 @@ let package = Package(
             dependencies: ["IceUtilCpp", "mcpp"],
             path: "cpp",
             exclude: [
+                "test",
                 "src/Slice/build",
                 "src/Slice/msbuild",
                 "src/Slice/Scanner.l",
@@ -173,6 +177,7 @@ let package = Package(
             dependencies: ["SliceCpp", "IceUtilCpp"],
             path: "cpp",
             exclude: [
+                "test",
                 "src/slice2swift/build",
                 "src/slice2swift/msbuild",
                 "src/slice2swift/Slice2Swift.rc",
@@ -181,26 +186,10 @@ let package = Package(
             publicHeadersPath: "src/slice2swift",
             cxxSettings: iceCppSettings
         ),
-        .executableTarget(
-            name: "CompileSliceExecutable",
-            dependencies: [
-                .product(name: "ArgumentParser", package: "swift-argument-parser"),
-            ],
-            path: "swift/src/CompileSliceExecutable",
-            resources: [
-                .copy("slice/Ice"),
-                .copy("slice/Glacier2"),
-                .copy("slice/IceDiscovery"),
-                .copy("slice/IceLocatorDiscovery"),
-                .copy("slice/IceBox"),
-                .copy("slice/IceGrid"),
-                .copy("slice/IceStorm"),
-            ]
-        ),
         .plugin(
             name: "CompileSlice",
             capability: .buildTool(),
-            dependencies: ["slice2swift", "CompileSliceExecutable"],
+            dependencies: ["slice2swift"],
             path: "swift/src/CompileSlicePlugin"
         )
     ],

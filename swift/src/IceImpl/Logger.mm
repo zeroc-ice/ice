@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "Logger.h"
+#import "include/Logger.h"
 #import "Convert.h"
 
 @implementation ICELogger

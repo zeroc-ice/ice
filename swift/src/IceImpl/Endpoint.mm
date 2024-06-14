@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "Endpoint.h"
+#import "include/Endpoint.h"
 #import "Convert.h"
-#import "IceUtil.h"
+#import "include/IceUtil.h"
 
 @implementation ICEEndpointInfo
 

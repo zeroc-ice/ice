@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "IceUtil.h"
+#import "include/IceUtil.h"
 #import "Convert.h"
-#import "Logger.h"
+#import "include/Logger.h"
 #import "LoggerWrapperI.h"
-#import "Properties.h"
+#import "include/Properties.h"
 
 #import "Ice/Instance.h"
 #import "Ice/Network.h"

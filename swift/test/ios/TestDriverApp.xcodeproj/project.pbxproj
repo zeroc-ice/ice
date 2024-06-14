@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D80F67BD2C1B40A8005BB1A5 /* Ice in Frameworks */ = {isa = PBXBuildFile; productRef = D80F67BC2C1B40A8005BB1A5 /* Ice */; };
-		D80F67BF2C1B40A8005BB1A5 /* TestBundle in Frameworks */ = {isa = PBXBuildFile; productRef = D80F67BE2C1B40A8005BB1A5 /* TestBundle */; };
-		D80F67C12C1B40A8005BB1A5 /* TestCommon in Frameworks */ = {isa = PBXBuildFile; productRef = D80F67C02C1B40A8005BB1A5 /* TestCommon */; };
+		D87A136A2C1B4FAE001E3331 /* TestBundle in Frameworks */ = {isa = PBXBuildFile; productRef = D87A13692C1B4FAE001E3331 /* TestBundle */; };
+		D87A136C2C1B4FAE001E3331 /* TestCommon in Frameworks */ = {isa = PBXBuildFile; productRef = D87A136B2C1B4FAE001E3331 /* TestCommon */; };
+		D8D2FCBE2C1BAB020080ED3A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8D2FCBD2C1BAB020080ED3A /* Foundation.framework */; };
 		D8E4B5DA2C18CE08001D65D3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E4B5D92C18CE08001D65D3 /* AppDelegate.swift */; };
 		D8E4B5DC2C18CE08001D65D3 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E4B5DB2C18CE08001D65D3 /* SceneDelegate.swift */; };
 		D8E4B5DE2C18CE08001D65D3 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E4B5DD2C18CE08001D65D3 /* ViewController.swift */; };
@@ -19,8 +19,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		D80F67BB2C1B4086005BB1A5 /* test */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = test; sourceTree = "<group>"; };
-		D821E7DD2C1B402100B72950 /* ice */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = ice; path = ../..; sourceTree = "<group>"; };
+		D87A13682C1B4F58001E3331 /* test */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = test; path = ..; sourceTree = "<group>"; };
+		D8D2FCBD2C1BAB020080ED3A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D8E4B5D62C18CE08001D65D3 /* TestDriverApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestDriverApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8E4B5D92C18CE08001D65D3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D8E4B5DB2C18CE08001D65D3 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -37,9 +37,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D80F67BF2C1B40A8005BB1A5 /* TestBundle in Frameworks */,
-				D80F67C12C1B40A8005BB1A5 /* TestCommon in Frameworks */,
-				D80F67BD2C1B40A8005BB1A5 /* Ice in Frameworks */,
+				D87A136A2C1B4FAE001E3331 /* TestBundle in Frameworks */,
+				D8D2FCBE2C1BAB020080ED3A /* Foundation.framework in Frameworks */,
+				D87A136C2C1B4FAE001E3331 /* TestCommon in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -49,6 +49,7 @@
 		D8366F9C2C18CED2006889DB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D8D2FCBD2C1BAB020080ED3A /* Foundation.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -56,11 +57,10 @@
 		D8E4B5CD2C18CE08001D65D3 = {
 			isa = PBXGroup;
 			children = (
+				D87A13682C1B4F58001E3331 /* test */,
 				D8E4B5D82C18CE08001D65D3 /* TestDriverApp */,
 				D8E4B5D72C18CE08001D65D3 /* Products */,
 				D8366F9C2C18CED2006889DB /* Frameworks */,
-				D821E7DD2C1B402100B72950 /* ice */,
-				D80F67BB2C1B4086005BB1A5 /* test */,
 			);
 			sourceTree = "<group>";
 		};
@@ -104,9 +104,8 @@
 			);
 			name = TestDriverApp;
 			packageProductDependencies = (
-				D80F67BC2C1B40A8005BB1A5 /* Ice */,
-				D80F67BE2C1B40A8005BB1A5 /* TestBundle */,
-				D80F67C02C1B40A8005BB1A5 /* TestCommon */,
+				D87A13692C1B4FAE001E3331 /* TestBundle */,
+				D87A136B2C1B4FAE001E3331 /* TestCommon */,
 			);
 			productName = TestDriverApp;
 			productReference = D8E4B5D62C18CE08001D65D3 /* TestDriverApp.app */;
@@ -396,15 +395,11 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		D80F67BC2C1B40A8005BB1A5 /* Ice */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Ice;
-		};
-		D80F67BE2C1B40A8005BB1A5 /* TestBundle */ = {
+		D87A13692C1B4FAE001E3331 /* TestBundle */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = TestBundle;
 		};
-		D80F67C02C1B40A8005BB1A5 /* TestCommon */ = {
+		D87A136B2C1B4FAE001E3331 /* TestCommon */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = TestCommon;
 		};

@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "ImplicitContext.h"
+#import "include/ImplicitContext.h"
 #import "Convert.h"
 
 @implementation ICEImplicitContext

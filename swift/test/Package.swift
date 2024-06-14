@@ -3,87 +3,119 @@
 import Foundation
 import PackageDescription
 
-// Finds all files in the given path recursively
-func findAllFiles(_ path: String) -> [String] {
-    var files = [String]()
-    let url = URL(fileURLWithPath: path)
-    if let enumerator = FileManager.default.enumerator(
-        at: url, includingPropertiesForKeys: [.isRegularFileKey],
-        options: [.skipsHiddenFiles, .skipsPackageDescendants])
-    {
-        for case let fileURL as URL in enumerator {
-            do {
-                let fileAttributes = try fileURL.resourceValues(forKeys: [.isRegularFileKey])
-                if fileAttributes.isRegularFile! {
-                    if var relativePath = fileURL.absoluteString.removingPercentEncoding {
-                        relativePath.trimPrefix(url.absoluteString.removingPercentEncoding!)
-                        files.append(relativePath)
-                    }
-                }
-            } catch { print(error, fileURL) }
-        }
+let defaultSliceFiles = ["Test.ice"]
+let defaultSources = ["Client.swift", "AllTests.swift", "Server.swift", "TestI.swift"]
+
+let defaultAMDSliceFiles = ["TestAMD.ice"]
+let defaultAMDSourceFiles = ["ServerAMD.swift", "TestAMDI.swift"]
+
+struct TestConfig {
+    var dependencies: [Target.Dependency] = []
+
+    var collocated = true
+
+    var sources = defaultSources
+
+    var sliceFiles = defaultSliceFiles
+
+    var resources: [Resource] = []
+
+    var amd: Bool = false
+    var amdSliceFiles = defaultAMDSliceFiles
+    var amdSourcesFiles = defaultAMDSourceFiles
+
+    var sourceFiles: [String] {
+        sources + (collocated ? ["Collocated.swift"] : [])
     }
-    return files
+
+    var exclude: [String] {
+        if !amd {
+            return []
+        }
+        return amdSourcesFiles + ["amd"]
+    }
 }
 
-let testDirectories = [
-    "Ice/adapterDeactivation",
-    "Ice/admin",
-    "Ice/ami",
-    "Ice/binding",
-    "Ice/defaultServant",
-    "Ice/defaultValue",
-    "Ice/enums",
-    "Ice/exceptions",
-    "Ice/facets",
-    "Ice/hold",
-    "Ice/info",
-    "Ice/inheritance",
-    "Ice/invoke",
-    "Ice/location",
-    "Ice/objects",
-    "Ice/operations",
-    "Ice/optional",
-    "Ice/properties",
-    "Ice/proxy",
-    "Ice/retry",
-    "Ice/scope",
-    "Ice/servantLocator",
-    "Ice/services",
-    "Ice/slicing/exceptions",
-    "Ice/slicing/objects",
-    "Ice/stream",
-    "Ice/timeout",
-    "Ice/udp",
+let testDirectories: [String: TestConfig] = [
+    "Ice/adapterDeactivation": TestConfig(),
+    "Ice/admin": TestConfig(collocated: false),
+    "Ice/ami": TestConfig(),
+    "Ice/binding": TestConfig(collocated: false),
+    "Ice/defaultServant": TestConfig(
+        collocated: false,
+        sources: ["Client.swift", "AllTests.swift"]
+    ),
+    "Ice/defaultValue": TestConfig(
+        collocated: false,
+        sources: ["Client.swift", "AllTests.swift"]
+    ),
+    "Ice/enums": TestConfig(collocated: false),
+    "Ice/exceptions": TestConfig(amd: true),
+    "Ice/facets": TestConfig(collocated: true),
+    "Ice/hold": TestConfig(collocated: false),
+    "Ice/info": TestConfig(collocated: false),
+    "Ice/inheritance": TestConfig(),
+     "Ice/invoke": TestConfig(collocated: false),
+     "Ice/location": TestConfig(collocated: false),
+    "Ice/objects": TestConfig(),
+    "Ice/operations": TestConfig(
+        sources: defaultSources + ["BatchOneways.swift", "BatchOnewaysAMI.swift", "Oneways.swift", "OnewaysAMI.swift", "Twoways.swift", "TwowaysAMI.swift"]
+    ),
+    "Ice/optional": TestConfig(
+        collocated: false,
+        amd: true
+    ),
+    "Ice/properties": TestConfig(
+        collocated: false,
+        sources: ["Client.swift"],
+        sliceFiles: [],
+        resources: [
+            Resource.copy("config/config.1"),
+            Resource.copy("config/config.2"),
+            Resource.copy("config/config.3"),
+            Resource.copy("config/escapes.cfg"),
+            Resource.copy("config/configPath"),
+        ]
+    ),
+    "Ice/proxy": TestConfig(amd: true),
+    "Ice/retry": TestConfig(),
+    "Ice/scope": TestConfig(collocated: false),
+    "Ice/servantLocator": TestConfig(
+        sources: defaultSources + ["ServantLocatorI.swift"],
+        amd: true,
+        amdSourcesFiles: defaultAMDSourceFiles + ["ServantLocatorAMDI.swift"]
+    ),
+    "Ice/services": TestConfig(collocated: false, sources: ["Client.swift"], sliceFiles: []),
+    "Ice/slicing/exceptions": TestConfig(
+        collocated: false,
+        sliceFiles: defaultSliceFiles + ["ServerPrivate.ice"],
+        amd:true,
+        amdSliceFiles: defaultAMDSliceFiles + ["ServerPrivateAMD.ice"]
+    ),
+    "Ice/slicing/objects": TestConfig(
+        collocated: false,
+        sliceFiles: defaultSliceFiles + ["ClientPrivate.ice"],
+        amd:true,
+        amdSliceFiles: defaultAMDSliceFiles + ["ClientPrivateAMD.ice"]
+    ),
+    "Ice/stream": TestConfig(collocated: false, sources: ["Client.swift"]),
+    "Ice/timeout": TestConfig(collocated: false),
+    "Ice/udp": TestConfig(collocated: false),
     // "IceSSL/configuration",
-    "Slice/escape",
-]
-
-let extraTestResources = [
-    "Ice/properties": [
-        Resource.copy("config/config.1"),
-        Resource.copy("config/config.2"),
-        Resource.copy("config/config.3"),
-        Resource.copy("config/escapes.cfg"),
-        Resource.copy("config/configPath"),
-    ],
-    "IceSSL/configuration": []
+    "Slice/escape": TestConfig(collocated:false, sources:["Client.swift"], sliceFiles: ["Clash.ice", "Key.ice"])
 ]
 
 func testPathToTargetName(_ path: String) -> String {
     return path.replacingOccurrences(of: "/", with: "_")
 }
 
-func filterSliceFiles(_ path: String) -> [String] {
-    return findAllFiles(path).filter { p in p.hasSuffix(".ice") }
-}
-
 var testDriverDependencies = [Target.Dependency]()
-let testTargets = testDirectories.map { testPath in
+let testTargets = testDirectories.map { (testPath, testConfig) in
+
     var targets = [Target]()
 
-    var resources = [Resource]()
-    var exclude = [String]()
+    var resources = testConfig.resources
+
     let dependencies: [Target.Dependency] = [
         .byName(name: "TestCommon"),
         .product(name: "Ice", package: "ice"),
@@ -93,30 +125,9 @@ let testTargets = testDirectories.map { testPath in
     ]
     var plugins: [Target.PluginUsage] = []
 
-    if let extraResources = extraTestResources[testPath] {
-        print("Adding extra resources for \(testPath)")
-        print(extraResources)
-        resources += extraResources
-    }
-
-    let sliceFiles = filterSliceFiles(testPath)
-
-    if sliceFiles.count > 0 {
+    if testConfig.sliceFiles.count > 0 {
         plugins += [.plugin(name: "CompileSlice", package: "ice")]
-        exclude += sliceFiles
-        resources += [.copy("slice-plugin.json")]
-    }
-
-    let isAmdFile: (String) -> Bool = { path in
-        return path.hasSuffix("AMDI.swift") || path.hasSuffix("AMD.swift")
-    }
-
-    let existingAmdFiles = findAllFiles(testPath).filter(isAmdFile)
-
-    let hasAmd = existingAmdFiles.count > 0
-
-    if hasAmd {
-        exclude += existingAmdFiles + ["amd"]
+        resources += testConfig.resources + [.copy("slice-plugin.json")]
     }
 
     let name = testPathToTargetName("\(testPath)")
@@ -125,29 +136,26 @@ let testTargets = testDirectories.map { testPath in
             name: name,
             dependencies: dependencies,
             path: testPath,
-            exclude: exclude,
+            exclude: testConfig.exclude,
+            sources: testConfig.sourceFiles,
             resources: resources,
             plugins: plugins
         ))
     testDriverDependencies.append(Target.Dependency(stringLiteral: name))
 
-    if hasAmd {
-        let amdName = name + "AMD"
-        let amdExclude = findAllFiles(testPath).filter {
-            !isAmdFile($0) && $0 != "amd/slice-plugin.json"
-        }
-
-        targets.append(
-            Target.target(
-                name: amdName,
-                dependencies: dependencies,
-                path: testPath,
-                exclude: amdExclude,
-                resources: [.copy("amd/slice-plugin.json")],
-                plugins: plugins
-            ))
-        testDriverDependencies.append(Target.Dependency(stringLiteral: amdName))
-    }
+     if testConfig.amd {
+         let amdName = name + "AMD"
+         targets.append(
+             Target.target(
+                 name: amdName,
+                 dependencies: dependencies,
+                 path: testPath,
+                 exclude: testConfig.sourceFiles,
+                 resources: [.copy("amd/slice-plugin.json")],
+                 plugins: plugins
+             ))
+         testDriverDependencies.append(Target.Dependency(stringLiteral: amdName))
+     }
 
     return targets
 }

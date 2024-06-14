@@ -5,6 +5,7 @@
 #include "Ice/Service.h"
 #include "ArgVector.h"
 #include "ConsoleUtil.h"
+#include "Ice/CtrlCHandler.h"
 #include "IceUtil/StringUtil.h"
 #include "LoggerI.h"
 
