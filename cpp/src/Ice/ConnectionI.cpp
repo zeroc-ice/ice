@@ -2772,15 +2772,6 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
         cancelInactivityTimerTask();
     }
 
-    message.stream->i = 0; // Reset the message stream iterator before starting sending the message.
-
-    if (!_sendStreams.empty())
-    {
-        _sendStreams.push_back(message);
-        _sendStreams.back().adopt(0);
-        return AsyncStatusQueued;
-    }
-
     // If we're sending a heartbeat, there is a chance the connection is inactive and that we need to schedule the
     // inactivity timer task.
     // It's ok to do this before actually sending the heartbeat since the heartbeat does not count as an "activity".
@@ -2789,10 +2780,35 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
         !_inactivityTimerTaskScheduled &&      // we never reschedule this task
         _state == StateActive &&               // only schedule the task if the connection is active
         _dispatchCount == 0 &&                 // no pending dispatch
-        _asyncRequests.empty() &&              // no pending invocation
-        _sendStreams.empty())                  // no message in the send queue
+        _asyncRequests.empty())                // no pending invocation
+
     {
-        scheduleInactivityTimerTask();
+        bool isInactive = true;
+
+        // We may become inactive while the peer is back-pressuring us. In this case, we only schedule the inactivity
+        // timer task if all outgoing messages in _sendStreams are heartbeats.
+        for (const auto& queuedMessage : _sendStreams)
+        {
+            if (static_cast<uint8_t>(queuedMessage.stream->b[8]) != IceInternal::validateConnectionMsg)
+            {
+                isInactive = false;
+                break; // for
+            }
+        }
+
+        if (isInactive)
+        {
+            scheduleInactivityTimerTask();
+        }
+    }
+
+    message.stream->i = 0; // Reset the message stream iterator before starting sending the message.
+
+    if (!_sendStreams.empty())
+    {
+        _sendStreams.push_back(message);
+        _sendStreams.back().adopt(0);
+        return AsyncStatusQueued;
     }
 
     //
