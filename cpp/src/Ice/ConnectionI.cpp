@@ -2321,11 +2321,10 @@ Ice::ConnectionI::inactivityCheck() noexcept
 {
     // Called by the InactivityTimerTask.
     std::lock_guard lock(_mutex);
-    if (_state == StateActive &&
-        _inactivityTimerTaskScheduled &&              // it's false if some other thread canceled the timer while we
-                                                      // were waiting for _mutex
-        !_timer->isScheduled(_inactivityTimerTask))   // make sure this timer task was not rescheduled for later while
-                                                      // we were waiting for _mutex (unlikely but may as well check)
+    if (_state == StateActive && _inactivityTimerTaskScheduled && // it's false if some other thread canceled the timer
+                                                                  // while we were waiting for _mutex
+        !_timer->isScheduled(_inactivityTimerTask)) // make sure this timer task was not rescheduled for later while
+                                                    // we were waiting for _mutex (unlikely but may as well check)
     {
         setState(
             StateClosing,
@@ -2775,8 +2774,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
     // If we're sending a heartbeat, there is a chance the connection is inactive and that we need to schedule the
     // inactivity timer task.
     // It's ok to do this before actually sending the heartbeat since the heartbeat does not count as an "activity".
-    if (isHeartbeat &&
-        _inactivityTimerTask &&                // null when the inactivity timeout is infinite
+    if (isHeartbeat && _inactivityTimerTask && // null when the inactivity timeout is infinite
         !_inactivityTimerTaskScheduled &&      // we never reschedule this task
         _state == StateActive &&               // only schedule the task if the connection is active
         _dispatchCount == 0 &&                 // no pending dispatch
