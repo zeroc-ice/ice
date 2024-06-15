@@ -2770,16 +2770,16 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
     {
         cancelInactivityTimerTask();
     }
-
     // If we're sending a heartbeat, there is a chance the connection is inactive and that we need to schedule the
     // inactivity timer task.
     // It's ok to do this before actually sending the heartbeat since the heartbeat does not count as an "activity".
-    if (isHeartbeat && _inactivityTimerTask && // null when the inactivity timeout is infinite
-        !_inactivityTimerTaskScheduled &&      // we never reschedule this task
-        _state == StateActive &&               // only schedule the task if the connection is active
-        _dispatchCount == 0 &&                 // no pending dispatch
-        _asyncRequests.empty())                // no pending invocation
-
+    else if (
+        _inactivityTimerTask &&           // null when the inactivity timeout is infinite
+        !_inactivityTimerTaskScheduled && // we never reschedule this task
+        _state == StateActive &&          // only schedule the task if the connection is active
+        _dispatchCount == 0 &&            // no pending dispatch
+        _asyncRequests.empty() &&         // no pending invocation
+        _readHeader)                      // we're not waiting for the remainder of an incoming message
     {
         bool isInactive = true;
 
