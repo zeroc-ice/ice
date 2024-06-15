@@ -156,6 +156,9 @@ namespace IceUtil
         //
         bool cancel(const TimerTaskPtr&);
 
+        // Checks if this timer task is scheduled.
+        bool isScheduled(const TimerTaskPtr&);
+
     protected:
         virtual void runTimerTask(const IceUtil::TimerTaskPtr&);
 

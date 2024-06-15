@@ -312,15 +312,6 @@ namespace Ice
         IceInternal::SocketOperation read(IceInternal::Buffer&);
         IceInternal::SocketOperation write(IceInternal::Buffer&);
 
-        // A connection is at rest if it is active and has no outstanding invocations or dispatches.
-        // We schedule the inactivity timer task when it enters the "at rest" state, and we cancel this timer task when
-        // the connection is about to leave this state.
-        // Must be called with _mutex locked.
-        bool isAtRest() const noexcept
-        {
-            return _state == StateActive && _dispatchCount == 0 && _asyncRequests.empty();
-        }
-
         void scheduleInactivityTimerTask();
         void cancelInactivityTimerTask();
 
@@ -348,6 +339,7 @@ namespace Ice
         const std::chrono::seconds _inactivityTimeout;
 
         IceUtil::TimerTaskPtr _inactivityTimerTask;
+        bool _inactivityTimerTaskScheduled;
 
         std::function<void(ConnectionIPtr)> _connectionStartCompleted;
         std::function<void(ConnectionIPtr, std::exception_ptr)> _connectionStartFailed;
@@ -373,6 +365,9 @@ namespace Ice
         std::deque<OutgoingMessage> _sendStreams;
 
         Ice::InputStream _readStream;
+
+        // When _readHeader is true, the next bytes we'll read are the header of a new message. When false, we're
+        // reading next the remainder of a message that was already partially received.
         bool _readHeader;
         Ice::OutputStream _writeStream;
 
