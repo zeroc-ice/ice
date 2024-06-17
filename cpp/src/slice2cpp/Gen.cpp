@@ -75,7 +75,7 @@ namespace
     string getDeprecatedSymbol(const ContainedPtr& p1)
     {
         string deprecatedSymbol;
-        if (p1->isDeprecated(false))
+        if (p1->isDeprecated(false)) // 'false' means: don't check the parent type.
         {
             if (auto reason = p1->getDeprecationReason(false))
             {
@@ -818,7 +818,7 @@ Slice::Gen::generate(const UnitPtr& p)
     C.zeroIndent();
     C << nl << "#if defined(_MSC_VER)";
     C << nl << "#   pragma warning(disable : 4458) // declaration of ... hides class member";
-    C << nl << "#   pragma warning(disable : 4996) // allow referencing deprecated Slice definitions";
+    C << nl << "#   pragma warning(disable : 4996) // ... was declared deprecated";
     C << nl << "#elif defined(__clang__)";
     C << nl << "#   pragma clang diagnostic ignored \"-Wshadow\"";
     C << nl << "#   pragma clang diagnostic ignored \"-Wdeprecated-declarations\"";
