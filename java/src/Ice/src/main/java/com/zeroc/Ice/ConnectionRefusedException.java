@@ -40,8 +40,5 @@ public class ConnectionRefusedException extends ConnectFailedException {
     return "::Ice::ConnectionRefusedException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 2368977428979563391L;
+  private static final long serialVersionUID = 2368977428979563391L;
 }

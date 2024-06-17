@@ -39,8 +39,5 @@ public class ConnectionNotValidatedException extends ProtocolException {
     return "::Ice::ConnectionNotValidatedException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 1338347369471941150L;
+  private static final long serialVersionUID = 1338347369471941150L;
 }

@@ -56,9 +56,4 @@ public class IPConnectionInfo extends ConnectionInfo {
   public IPConnectionInfo clone() {
     return (IPConnectionInfo) super.clone();
   }
-
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 8533006463792298184L;
 }

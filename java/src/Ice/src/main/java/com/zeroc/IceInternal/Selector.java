@@ -6,7 +6,7 @@ package com.zeroc.IceInternal;
 
 public final class Selector {
   static final class TimeoutException extends Exception {
-    public static final long serialVersionUID = 0L;
+    private static final long serialVersionUID = 7885765825975312023L;
   }
 
   Selector(Instance instance) {

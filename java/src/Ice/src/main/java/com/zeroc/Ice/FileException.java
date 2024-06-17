@@ -44,8 +44,5 @@ public class FileException extends SyscallException {
   /** The path of the file responsible for the error. */
   public String path;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 8755315548941623583L;
+  private static final long serialVersionUID = 8755315548941623583L;
 }

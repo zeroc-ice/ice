@@ -57,8 +57,5 @@ public class AlreadyRegisteredException extends LocalException {
   /** The ID (or name) of the object that is registered already. */
   public String id;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 392587231034664196L;
+  private static final long serialVersionUID = 392587231034664196L;
 }

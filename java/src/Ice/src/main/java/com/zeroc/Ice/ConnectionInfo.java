@@ -51,9 +51,4 @@ public class ConnectionInfo implements java.lang.Cloneable {
     }
     return c;
   }
-
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -8138441397879390442L;
 }

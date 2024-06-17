@@ -42,8 +42,5 @@ public class ProxyParseException extends LocalException {
   /** Describes the failure and includes the string that could not be parsed. */
   public String str;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 1426520612608626840L;
+  private static final long serialVersionUID = 1426520612608626840L;
 }

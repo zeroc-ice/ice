@@ -19,5 +19,5 @@ public class SerializableClass implements java.io.Serializable {
   }
 
   private int _v;
-  public static final long serialVersionUID = 1;
+  private static final long serialVersionUID = 1;
 }

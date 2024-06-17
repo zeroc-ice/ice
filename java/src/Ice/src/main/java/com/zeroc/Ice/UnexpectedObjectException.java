@@ -58,8 +58,5 @@ public class UnexpectedObjectException extends MarshalException {
   /** The Slice type ID that was expected by the receiving operation. */
   public String expectedType;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -5786936875383180611L;
+  private static final long serialVersionUID = -5786936875383180611L;
 }

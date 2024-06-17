@@ -557,5 +557,5 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
   private transient com.zeroc.IceInternal.RequestHandler _requestHandler;
   private transient com.zeroc.IceInternal.BatchRequestQueue _batchRequestQueue;
   private transient List<StreamPair> _streamCache;
-  public static final long serialVersionUID = 0L;
+  private static final long serialVersionUID = 0L;
 }

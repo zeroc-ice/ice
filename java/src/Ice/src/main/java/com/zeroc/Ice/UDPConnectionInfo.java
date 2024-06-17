@@ -68,9 +68,4 @@ public class UDPConnectionInfo extends IPConnectionInfo {
   public UDPConnectionInfo clone() {
     return (UDPConnectionInfo) super.clone();
   }
-
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -8596817245040015144L;
 }

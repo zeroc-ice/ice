@@ -38,9 +38,4 @@ public abstract class TCPEndpointInfo extends IPEndpointInfo {
   public TCPEndpointInfo clone() {
     return (TCPEndpointInfo) super.clone();
   }
-
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -7607491251938374557L;
 }

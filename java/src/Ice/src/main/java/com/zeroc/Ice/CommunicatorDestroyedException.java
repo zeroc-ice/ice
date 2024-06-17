@@ -31,8 +31,5 @@ public class CommunicatorDestroyedException extends LocalException {
     return "::Ice::CommunicatorDestroyedException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 752535633703849L;
+  private static final long serialVersionUID = 752535633703849L;
 }

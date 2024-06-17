@@ -40,8 +40,5 @@ public class ObjectNotExistException extends RequestFailedException {
     return "::Ice::ObjectNotExistException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 5680607485723114764L;
+  private static final long serialVersionUID = 5680607485723114764L;
 }

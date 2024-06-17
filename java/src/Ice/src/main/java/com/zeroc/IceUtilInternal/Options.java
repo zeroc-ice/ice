@@ -10,7 +10,7 @@ public final class Options {
       super(message);
     }
 
-    public static final long serialVersionUID = 0L;
+    private static final long serialVersionUID = 6480189184773557516L;
   }
 
   public static String[] split(String line) throws BadQuote {

@@ -4728,7 +4728,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     outi << sb;
     outi << sp;
     writeHiddenDocComment(outi);
-    outi << nl << "public static final long serialVersionUID = 0L;";
+    outi << nl << "private static final long serialVersionUID = 0L;";
     outi << eb;
     close();
 }
