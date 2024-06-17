@@ -570,7 +570,7 @@ Slice::getSerialVersionUID(const ContainedPtr& p)
     }
 
     ostringstream os;
-    os <<  "private static final long serialVersionUID = " << *serialVersionUID << "L;";
+    os << "private static final long serialVersionUID = " << *serialVersionUID << "L;";
     return os.str();
 }
 
@@ -584,7 +584,7 @@ Slice::computeDefaultSerialVersionUID(const ContainedPtr& p)
     {
         name = cl->scoped();
         members = cl->dataMembers();
-        baseName = (cl->base())? cl->base()->scoped() : "";
+        baseName = (cl->base()) ? cl->base()->scoped() : "";
     }
     if (ExceptionPtr ex = dynamic_pointer_cast<Exception>(p))
     {
