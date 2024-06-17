@@ -9,7 +9,3 @@
 /// <reference path="./Registry.d.ts"/>
 /// <reference path="./Session.d.ts"/>
 /// <reference path="./UserAccountMapper.d.ts"/>
-
-export namespace IceGrid {}
-
-declare module "ice" {}

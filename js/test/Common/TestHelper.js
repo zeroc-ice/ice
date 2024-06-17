@@ -145,7 +145,11 @@ export class TestHelper {
         );
     }
 
+    static isBrowser() {
+        return typeof window !== "undefined" || TestHelper.isWorker();
+    }
+
     static isWorker() {
-        return typeof WorkerGlobalScope !== "undefined" && this instanceof WorkerGlobalScope;
+        return typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope;
     }
 }

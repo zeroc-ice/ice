@@ -17,8 +17,7 @@ export class Communicator {
     }
 
     //
-    // Certain initialization tasks need to be completed after the
-    // constructor.
+    // Certain initialization tasks need to be completed after the constructor.
     //
     finishSetup(promise) {
         this._instance.finishSetup(this, promise);

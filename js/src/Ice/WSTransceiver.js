@@ -249,8 +249,8 @@ if (typeof WebSocket !== "undefined") {
             info.underlying = this._secure
                 ? new SSLConnectionInfo(tcpInfo, tcpInfo.timeout, tcpInfo.compress)
                 : tcpInfo;
-            info.rcvSize = -1;
-            info.sndSize = this._maxSendPacketSize;
+            tcpInfo.rcvSize = -1;
+            tcpInfo.sndSize = this._maxSendPacketSize;
             info.headers = {};
             return info;
         }

@@ -18,21 +18,16 @@
     "types": "src/index.d.ts",
     "browserslist": "> 0.25%, not dead",
     "devDependencies": {
+        "@types/node": "^20.14.2",
         "del": "^7.1.0",
-        "esprima": "^4.0.1",
         "gulp": "^5.0.0",
         "gulp-ext-replace": "^0.3.0",
         "gulp-ice-builder": "^3.0.4",
         "gulp-typescript": "^5.0.1",
-        "gulp-uglifyes": "^0.2.1",
-        "hogan.js": "^3.0.2",
-        "http-proxy": "^1.18.1",
         "http-server": "^14.1.1",
         "jshint": "^2.13.6",
-        "plugin-error": "^2.0.1",
         "prettier": "^3.3.2",
         "pump": "^3.0.0",
-        "through2": "^4.0.2",
         "typescript": "^5.4.5",
         "typescript-formatter": "^7.2.2",
         "vinyl": "^3.0.0",
@@ -42,8 +37,5 @@
         "build": "gulp",
         "dist": "gulp dist",
         "clean": "gulp clean"
-    },
-    "dependencies": {
-        "trace-deps": "^0.5.2"
     }
 }

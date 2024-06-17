@@ -1,0 +1,93 @@
+//
+// Copyright (c) ZeroC, Inc. All rights reserved.
+//
+
+import { Ice } from "ice";
+import { Test } from "./Test.js";
+import { TestHelper } from "../../Common/TestHelper.js";
+
+const test = TestHelper.test;
+
+export class AMDThrowerI extends Test.Thrower {
+    shutdown(current: Ice.Current) {
+        current.adapter.getCommunicator().shutdown();
+    }
+
+    supportsUndeclaredExceptions(current: Ice.Current) {
+        return true;
+    }
+
+    supportsAssertException(current: Ice.Current) {
+        return false;
+    }
+
+    throwAasA(a: number, current: Ice.Current) {
+        throw new Test.A(a);
+    }
+
+    throwAorDasAorD(a: number, current: Ice.Current) {
+        if (a > 0) {
+            throw new Test.A(a);
+        } else {
+            throw new Test.D(a);
+        }
+    }
+
+    throwBasA(a: number, b: number, current: Ice.Current) {
+        return this.throwBasB(a, b, current);
+    }
+
+    throwBasB(a: number, b: number, current: Ice.Current) {
+        throw new Test.B(a, b);
+    }
+
+    throwCasA(a: number, b: number, c: number, current: Ice.Current) {
+        return this.throwCasC(a, b, c, current);
+    }
+
+    throwCasB(a: number, b: number, c: number, current: Ice.Current) {
+        return this.throwCasC(a, b, c, current);
+    }
+
+    throwCasC(a: number, b: number, c: number, current: Ice.Current) {
+        throw new Test.C(a, b, c);
+    }
+
+    throwUndeclaredA(a: number, current: Ice.Current) {
+        throw new Test.A(a);
+    }
+
+    throwUndeclaredB(a: number, b: number, current: Ice.Current) {
+        throw new Test.B(a, b);
+    }
+
+    throwUndeclaredC(a: number, b: number, c: number, current: Ice.Current) {
+        throw new Test.C(a, b, c);
+    }
+
+    throwLocalException(current: Ice.Current) {
+        throw new Ice.TimeoutException();
+    }
+
+    throwLocalExceptionIdempotent(current: Ice.Current) {
+        throw new Ice.TimeoutException();
+    }
+
+    throwNonIceException(current: Ice.Current) {
+        throw new Error();
+    }
+
+    throwAssertException(current: Ice.Current) {
+        test(false);
+    }
+
+    throwMemoryLimitException(seq: Uint8Array, current: Ice.Current) {
+        return new Uint8Array(1024 * 20); // 20KB is over the configured 10KB message size max.
+    }
+
+    throwAfterResponse(current: Ice.Current) {}
+
+    throwAfterException(current: Ice.Current) {
+        throw new Test.A();
+    }
+}
