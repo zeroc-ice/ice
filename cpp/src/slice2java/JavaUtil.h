@@ -10,20 +10,8 @@
 
 namespace Slice
 {
-    //
-    // Compute Java serialVersionUID for a Slice class
-    //
-    long computeSerialVersionUUID(const ClassDefPtr&);
-
-    //
-    // Compute Java serialVersionUID for a Slice class
-    //
-    long computeSerialVersionUUID(const ExceptionPtr&);
-
-    //
-    // Compute Java serialVersionUID for a Slice struct
-    //
-    long computeSerialVersionUUID(const StructPtr&);
+    std::string getSerialVersionUID(const ContainedPtr&);
+    long computeDefaultSerialVersionUID(const ContainedPtr&);
 
     //
     // Returns true if we can generate a method from the given data member list. A Java method
