@@ -556,7 +556,7 @@ Slice::getSerialVersionUID(const ContainedPtr& p)
             {
                 ostringstream os;
                 os << "ignoring invalid serialVersionUID for " << p->kindOf() << " `" << p->scoped()
-                << "'; generating default value";
+                   << "'; generating default value";
                 const DefinitionContextPtr dc = p->unit()->findDefinitionContext(p->file());
                 dc->warning(InvalidMetaData, "", "", os.str());
             }
@@ -577,30 +577,24 @@ Slice::getSerialVersionUID(const ContainedPtr& p)
 long
 Slice::computeDefaultSerialVersionUID(const ContainedPtr& p)
 {
-    string name;
+    string name = p->scoped();
     DataMemberList members;
     optional<string> baseName;
     if (ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(p))
     {
-        name = cl->scoped();
         members = cl->dataMembers();
         baseName = (cl->base()) ? cl->base()->scoped() : "";
     }
     if (ExceptionPtr ex = dynamic_pointer_cast<Exception>(p))
     {
-        name = ex->scoped();
         members = ex->dataMembers();
         baseName = nullopt;
     }
     if (StructPtr st = dynamic_pointer_cast<Struct>(p))
     {
-        name = st->scoped();
         members = st->dataMembers();
         baseName = nullopt;
     }
-
-    // Assert that this was called on either a class, exception, or struct.
-    assert(!name.empty());
 
     // Actually compute the `SerialVersionUID` value.
     ostringstream os;

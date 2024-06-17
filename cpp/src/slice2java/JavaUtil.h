@@ -10,6 +10,11 @@
 
 namespace Slice
 {
+    //
+    // These functions should only be called for classes, exceptions, and structs.
+    // Enums automatically implement Serializable (Java just serializes the enumerator's identifier),
+    // and proxies get their implementation from `_ObjectPrxI`.
+    //
     std::string getSerialVersionUID(const ContainedPtr&);
     long computeDefaultSerialVersionUID(const ContainedPtr&);
 
