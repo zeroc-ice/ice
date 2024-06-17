@@ -27,7 +27,7 @@ public class ThreadHookPlugin implements Plugin {
       throw ex;
     }
 
-    com.zeroc.IceInternal.Instance instance = com.zeroc.IceInternal.Util.getInstance(communicator);
+    com.zeroc.IceInternal.Instance instance = communicator.getInstance();
     instance.setThreadHooks(threadStart, threadStop);
   }
 

@@ -42,7 +42,7 @@ public class CollocatedRequestHandler implements RequestHandler {
   public CollocatedRequestHandler(Reference ref, com.zeroc.Ice.ObjectAdapter adapter) {
     _reference = ref;
     _dispatcher = ref.getInstance().initializationData().dispatcher != null;
-    _adapter = (com.zeroc.Ice.ObjectAdapterI) adapter;
+    _adapter = adapter;
     _response = _reference.getMode() == Reference.ModeTwoway;
 
     _logger =
@@ -333,7 +333,7 @@ public class CollocatedRequestHandler implements RequestHandler {
   private final Reference _reference;
   private final boolean _dispatcher;
   private final boolean _response;
-  private final com.zeroc.Ice.ObjectAdapterI _adapter;
+  private final com.zeroc.Ice.ObjectAdapter _adapter;
   private final com.zeroc.Ice.Logger _logger;
   private final TraceLevels _traceLevels;
 

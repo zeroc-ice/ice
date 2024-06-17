@@ -65,7 +65,7 @@ public class InputStream {
    * @param communicator The communicator to use when initializing the stream.
    */
   public InputStream(Communicator communicator) {
-    Instance instance = com.zeroc.IceInternal.Util.getInstance(communicator);
+    Instance instance = communicator.getInstance();
     initialize(instance, instance.defaultsAndOverrides().defaultEncoding);
     _buf = new Buffer(instance.cacheMessageBuffers() > 1);
   }
@@ -149,7 +149,7 @@ public class InputStream {
    * @param encoding The desired encoding version.
    */
   public InputStream(Communicator communicator, EncodingVersion encoding) {
-    Instance instance = com.zeroc.IceInternal.Util.getInstance(communicator);
+    Instance instance = communicator.getInstance();
     initialize(instance, encoding);
     _buf = new Buffer(instance.cacheMessageBuffers() > 1);
   }
@@ -218,7 +218,7 @@ public class InputStream {
    * @param communicator The communicator to use when initializing the stream.
    */
   public void initialize(Communicator communicator) {
-    Instance instance = com.zeroc.IceInternal.Util.getInstance(communicator);
+    Instance instance = communicator.getInstance();
     initialize(instance, instance.defaultsAndOverrides().defaultEncoding);
   }
 
@@ -229,7 +229,7 @@ public class InputStream {
    * @param encoding The desired encoding version.
    */
   public void initialize(Communicator communicator, EncodingVersion encoding) {
-    Instance instance = com.zeroc.IceInternal.Util.getInstance(communicator);
+    Instance instance = communicator.getInstance();
     initialize(instance, encoding);
   }
 

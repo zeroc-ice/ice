@@ -42,7 +42,7 @@ public class Instance extends com.zeroc.IceInternal.ProtocolInstance {
   }
 
   InitializationData initializationData() {
-    return com.zeroc.IceInternal.Util.getInstance(_engine.communicator()).initializationData();
+    return _engine.communicator().getInstance().initializationData();
   }
 
   private SSLEngine _engine;
