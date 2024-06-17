@@ -185,7 +185,7 @@ public final class Util {
       args = rArgs.toArray(new String[rArgs.size()]);
     }
 
-    CommunicatorI communicator = new CommunicatorI(initData);
+    var communicator = new Communicator(initData);
     communicator.finishSetup(args != null ? args : new String[0], remainingArgs);
     return communicator;
   }

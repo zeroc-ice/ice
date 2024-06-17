@@ -383,7 +383,7 @@ public final class PluginManagerI implements PluginManager {
           // Ignored
         }
       } else {
-        c = com.zeroc.IceInternal.Util.getInstance(_communicator).findClass(className);
+        c = _communicator.getInstance().findClass(className);
       }
 
       if (c == null) {

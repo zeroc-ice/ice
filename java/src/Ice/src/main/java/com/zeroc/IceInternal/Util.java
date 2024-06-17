@@ -33,11 +33,6 @@ public final class Util {
     };
   }
 
-  public static Instance getInstance(com.zeroc.Ice.Communicator communicator) {
-    com.zeroc.Ice.CommunicatorI p = (com.zeroc.Ice.CommunicatorI) communicator;
-    return p.getInstance();
-  }
-
   public static ProtocolPluginFacade getProtocolPluginFacade(
       com.zeroc.Ice.Communicator communicator) {
     return new ProtocolPluginFacadeI(communicator);

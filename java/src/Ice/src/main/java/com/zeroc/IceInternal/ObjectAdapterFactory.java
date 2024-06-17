@@ -5,12 +5,11 @@
 package com.zeroc.IceInternal;
 
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.ObjectAdapterI;
 import com.zeroc.Ice.SSL.SSLEngineFactory;
 
 public final class ObjectAdapterFactory {
   public void shutdown() {
-    java.util.List<ObjectAdapterI> adapters;
+    java.util.List<ObjectAdapter> adapters;
     synchronized (this) {
       //
       // Ignore shutdown requests if the object adapter factory has
@@ -27,7 +26,7 @@ public final class ObjectAdapterFactory {
     // Deactivate outside the thread synchronization, to avoid
     // deadlocks.
     //
-    for (ObjectAdapterI adapter : adapters) {
+    for (ObjectAdapter adapter : adapters) {
       adapter.deactivate();
     }
 
@@ -39,7 +38,7 @@ public final class ObjectAdapterFactory {
   }
 
   public void waitForShutdown() {
-    java.util.List<ObjectAdapterI> adapters;
+    java.util.List<ObjectAdapter> adapters;
     synchronized (this) {
       //
       // First we wait for the shutdown of the factory itself.
@@ -58,7 +57,7 @@ public final class ObjectAdapterFactory {
     //
     // Now we wait for deactivation of each object adapter.
     //
-    for (ObjectAdapterI adapter : adapters) {
+    for (ObjectAdapter adapter : adapters) {
       adapter.waitForDeactivate();
     }
   }
@@ -73,12 +72,12 @@ public final class ObjectAdapterFactory {
     //
     waitForShutdown();
 
-    java.util.List<ObjectAdapterI> adapters;
+    java.util.List<ObjectAdapter> adapters;
     synchronized (this) {
       adapters = new java.util.LinkedList<>(_adapters);
     }
 
-    for (ObjectAdapterI adapter : adapters) {
+    for (ObjectAdapter adapter : adapters) {
       adapter.destroy();
     }
 
@@ -88,23 +87,23 @@ public final class ObjectAdapterFactory {
   }
 
   public void updateConnectionObservers() {
-    java.util.List<ObjectAdapterI> adapters;
+    java.util.List<ObjectAdapter> adapters;
     synchronized (this) {
       adapters = new java.util.LinkedList<>(_adapters);
     }
 
-    for (ObjectAdapterI adapter : adapters) {
+    for (ObjectAdapter adapter : adapters) {
       adapter.updateConnectionObservers();
     }
   }
 
   public void updateThreadObservers() {
-    java.util.List<ObjectAdapterI> adapters;
+    java.util.List<ObjectAdapter> adapters;
     synchronized (this) {
       adapters = new java.util.LinkedList<>(_adapters);
     }
 
-    for (ObjectAdapterI adapter : adapters) {
+    for (ObjectAdapter adapter : adapters) {
       adapter.updateThreadObservers();
     }
   }
@@ -132,16 +131,16 @@ public final class ObjectAdapterFactory {
     // Must be called outside the synchronization since initialize can make client invocations
     // on the router if it's set.
     //
-    com.zeroc.Ice.ObjectAdapterI adapter = null;
+    com.zeroc.Ice.ObjectAdapter adapter = null;
     try {
       if (name.isEmpty()) {
         String uuid = java.util.UUID.randomUUID().toString();
         adapter =
-            new com.zeroc.Ice.ObjectAdapterI(
+            new com.zeroc.Ice.ObjectAdapter(
                 _instance, _communicator, this, uuid, null, true, sslEngineFactory);
       } else {
         adapter =
-            new com.zeroc.Ice.ObjectAdapterI(
+            new com.zeroc.Ice.ObjectAdapter(
                 _instance, _communicator, this, name, router, false, sslEngineFactory);
       }
 
@@ -169,7 +168,7 @@ public final class ObjectAdapterFactory {
   }
 
   public ObjectAdapter findObjectAdapter(com.zeroc.Ice.ObjectPrx proxy) {
-    java.util.List<ObjectAdapterI> adapters;
+    java.util.List<ObjectAdapter> adapters;
     synchronized (this) {
       if (_instance == null) {
         return null;
@@ -178,7 +177,7 @@ public final class ObjectAdapterFactory {
       adapters = new java.util.LinkedList<>(_adapters);
     }
 
-    for (ObjectAdapterI adapter : adapters) {
+    for (ObjectAdapter adapter : adapters) {
       try {
         if (adapter.isLocal(proxy)) {
           return adapter;
@@ -202,12 +201,12 @@ public final class ObjectAdapterFactory {
 
   public void flushAsyncBatchRequests(
       com.zeroc.Ice.CompressBatch compressBatch, CommunicatorFlushBatch outAsync) {
-    java.util.List<ObjectAdapterI> adapters;
+    java.util.List<ObjectAdapter> adapters;
     synchronized (this) {
       adapters = new java.util.LinkedList<>(_adapters);
     }
 
-    for (ObjectAdapterI adapter : adapters) {
+    for (ObjectAdapter adapter : adapters) {
       adapter.flushAsyncBatchRequests(compressBatch, outAsync);
     }
   }
@@ -236,5 +235,5 @@ public final class ObjectAdapterFactory {
   private Instance _instance;
   private com.zeroc.Ice.Communicator _communicator;
   private java.util.Set<String> _adapterNamesInUse = new java.util.HashSet<>();
-  private java.util.List<ObjectAdapterI> _adapters = new java.util.LinkedList<>();
+  private java.util.List<ObjectAdapter> _adapters = new java.util.LinkedList<>();
 }

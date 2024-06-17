@@ -313,7 +313,7 @@ public final class ServantManager implements Object {
   }
 
   //
-  // Only for use by ObjectAdapterI.
+  // Only for use by ObjectAdapter.
   //
   public ServantManager(Instance instance, String adapterName) {
     _instance = instance;
@@ -321,7 +321,7 @@ public final class ServantManager implements Object {
   }
 
   //
-  // Only for use by ObjectAdapterI.
+  // Only for use by ObjectAdapter.
   //
   public void destroy() {
     Map<String, ServantLocator> locatorMap = new HashMap<String, ServantLocator>();
