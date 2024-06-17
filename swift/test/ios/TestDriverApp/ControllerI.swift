@@ -57,9 +57,6 @@ class ProcessControllerI: CommonProcessController {
         args: CommonStringSeq,
         current: Ice.Current
     ) throws -> CommonProcessPrx? {
-        guard let adapter = current.adapter else {
-            throw Ice.RuntimeError("Error")
-        }
         _view.println("starting \(testsuite) \(exe)... ")
 
         //
@@ -86,7 +83,7 @@ class ProcessControllerI: CommonProcessController {
             queue: (exe == "Server" || exe == "ServerAMD") ? _serverDispatchQueue : _clientDispatchQueue)
         helper.run()
         return try uncheckedCast(
-            prx: adapter.addWithUUID(
+            prx: current.adapter.addWithUUID(
                 CommonProcessDisp(ProcessI(helper: helper))), type: CommonProcessPrx.self)
     }
 
@@ -119,6 +116,7 @@ class ControllerI {
 
         let adapter = try _communicator.createObjectAdapter("ControllerAdapter")
         var ident = Ice.Identity()
+
         #if targetEnvironment(simulator)
             ident.category = "iPhoneSimulator"
         #else

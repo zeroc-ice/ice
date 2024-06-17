@@ -91,7 +91,6 @@ let package = Package(
                 "src/Ice/SSL/OpenSSLTransceiverI.cpp",
                 "src/Ice/SSL/OpenSSLEngine.cpp",
                 "src/Ice/EventLoggerMsg.mc",
-                "src/Ice/ios",
                 "src/Ice/generated/BuiltinSequences.ice.d",
                 "src/Ice/generated/Context.ice.d",
                 "src/Ice/generated/EndpointTypes.ice.d",
@@ -104,9 +103,10 @@ let package = Package(
                 "src/Ice/generated/PropertyDict.ice.d",
                 "src/Ice/generated/RemoteLogger.ice.d",
                 "src/Ice/generated/Router.ice.d",
-                "src/Ice/generated/Version.ice.d"
+                "src/Ice/generated/Version.ice.d",
+                "src/IceIAP/Makefile.mk",
             ],
-            sources: ["src/Ice"],
+            sources: ["src/Ice", "src/IceIAP"],
             publicHeadersPath: "include/Ice",
             cxxSettings: iceCppSettings,
             linkerSettings: [.linkedLibrary("iconv"), .linkedLibrary("bz2")]
@@ -143,6 +143,7 @@ let package = Package(
             publicHeadersPath: "src/IceLocatorDiscovery/generated",
             cxxSettings: iceCppSettings
         ),
+
         .target(
             name: "IceUtilCpp",
             path: "cpp",

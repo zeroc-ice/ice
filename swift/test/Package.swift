@@ -180,7 +180,8 @@ let package = Package(
             dependencies: [
                 .product(name: "Ice", package: "ice")
             ],
-            path: "TestCommon"
+            path: "TestCommon",
+            plugins: [.plugin(name: "CompileSlice", package: "ice")]
         ),
         .target(
             name: "TestBundle",
