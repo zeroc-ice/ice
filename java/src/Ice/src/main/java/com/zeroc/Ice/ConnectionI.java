@@ -505,7 +505,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     if (adapter != null) {
       // Go through the adapter to set the adapter and servant manager on this connection
       // to ensure the object adapter is still active.
-      ((ObjectAdapterI) adapter).setAdapterOnConnection(this);
+      adapter.setAdapterOnConnection(this);
     } else {
       synchronized (this) {
         if (_state <= StateNotValidated || _state >= StateClosing) {
@@ -550,7 +550,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     if (_state <= StateNotValidated || _state >= StateClosing) {
       return;
     }
-    assert (adapter != null); // Called by ObjectAdapterI::setAdapterOnConnection
+    assert (adapter != null); // Called by ObjectAdapter::setAdapterOnConnection
     _adapter = adapter;
     _servantManager = servantManager;
   }
@@ -1227,7 +1227,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       com.zeroc.IceInternal.Connector connector,
       com.zeroc.IceInternal.EndpointI endpoint,
       Consumer<ConnectionI> removeFromFactory, // can be null
-      ObjectAdapterI adapter) {
+      ObjectAdapter adapter) {
     _communicator = communicator;
     _instance = instance;
     _transceiver = transceiver;

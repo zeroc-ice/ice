@@ -1,4 +1,9 @@
 // A mockup for NodeJS path module
 
-const path = {};
+const join = {};
+const path = {
+    join: join,
+};
+
+export { join };
 export default path;

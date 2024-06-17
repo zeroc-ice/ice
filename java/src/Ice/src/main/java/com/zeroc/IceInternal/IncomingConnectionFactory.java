@@ -330,7 +330,7 @@ public final class IncomingConnectionFactory extends EventHandler
       Instance instance,
       EndpointI endpoint,
       EndpointI publish,
-      com.zeroc.Ice.ObjectAdapterI adapter) {
+      com.zeroc.Ice.ObjectAdapter adapter) {
     _instance = instance;
     _endpoint = endpoint;
     _publishedEndpoint = publish;
@@ -596,7 +596,7 @@ public final class IncomingConnectionFactory extends EventHandler
   private EndpointI _endpoint;
   private final EndpointI _publishedEndpoint;
 
-  private com.zeroc.Ice.ObjectAdapterI _adapter;
+  private com.zeroc.Ice.ObjectAdapter _adapter;
 
   private final boolean _warn;
 

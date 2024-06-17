@@ -8,15 +8,6 @@ import { defineDictionary } from "./HashMap.js";
 import { StreamHelpers } from "./StreamHelpers.js";
 
 /**
- *  The batch compression option when flushing queued batch requests.
- **/
-export const CompressBatch = defineEnum([
-    ["Yes", 0],
-    ["No", 1],
-    ["BasedOnProxy", 2],
-]);
-
-/**
  *  Base class providing access to the connection details.
  **/
 export class ConnectionInfo {

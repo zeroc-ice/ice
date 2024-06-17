@@ -1417,8 +1417,7 @@ Slice::Gen::DefaultFactoryVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     C << nl << "const ::IceInternal::DefaultValueFactoryInit<" << fixKwd(p->scoped()) << "> ";
-    C << "iceC" + p->flattenedScope() + p->name() + "_init"
-      << "(\"" << p->scoped() << "\");";
+    C << "iceC" + p->flattenedScope() + p->name() + "_init" << "(\"" << p->scoped() << "\");";
 
     if (p->compactId() >= 0)
     {
@@ -1439,8 +1438,7 @@ Slice::Gen::DefaultFactoryVisitor::visitExceptionStart(const ExceptionPtr& p)
         _factoryTableInitDone = true;
     }
     C << nl << "const ::IceInternal::DefaultUserExceptionFactoryInit<" << fixKwd(p->scoped()) << "> ";
-    C << "iceC" + p->flattenedScope() + p->name() + "_init"
-      << "(\"" << p->scoped() << "\");";
+    C << "iceC" + p->flattenedScope() + p->name() + "_init" << "(\"" << p->scoped() << "\");";
     return false;
 }
 
@@ -1822,8 +1820,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     C << nl << "return ::IceInternal::makeLambdaOutgoing<" << lambdaT << ">" << spar;
 
-    C << "::std::move(" + (lambdaOutParams.size() > 1 ? string("responseCb") : "response") + ")"
-      << "::std::move(ex)"
+    C << "::std::move(" + (lambdaOutParams.size() > 1 ? string("responseCb") : "response") + ")" << "::std::move(ex)"
       << "::std::move(sent)"
       << "this";
     C << string("&" + getUnqualified(scoped, interfaceScope.substr(2)) + lambdaImplPrefix + name);

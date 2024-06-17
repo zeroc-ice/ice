@@ -6,7 +6,7 @@
 /* eslint no-process-env: "off" */
 /* eslint no-process-exit: "off" */
 
-import { deleteAsync, deleteSync } from "del";
+import { deleteAsync } from "del";
 import vinylPaths from "vinyl-paths";
 import extReplace from "gulp-ext-replace";
 import fs from "fs";
@@ -16,6 +16,8 @@ import path from "path";
 import pump from "pump";
 import { rollup } from "rollup";
 import { fileURLToPath } from "url";
+import ts from "typescript";
+import tsc from "gulp-typescript";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -245,6 +247,7 @@ gulp.task("test:common:clean", (cb) => {
 const testTask = (name) => name.replace(/\//g, "_");
 const testCleanTask = (name) => testTask(name) + ":clean";
 const testBuildTask = (name) => testTask(name) + ":build";
+const testTypeScriptCompileTask = (name) => testTask(name) + ":ts-compile";
 const testBundleTask = (name) => testTask(name) + ":bundle";
 const testAssetsTask = (name) => testTask(name) + ":assets";
 
@@ -256,8 +259,29 @@ for (const name of tests) {
                 gulp.src(path.join(outputDirectory, "*.ice")),
                 slice2js({
                     include: [outputDirectory],
+                    args: ["--typescript"],
+                    jsbundle: false,
+                    tsbundle: false,
                 }),
                 gulp.dest(outputDirectory),
+            ],
+            cb,
+        );
+    });
+
+    gulp.task(testTypeScriptCompileTask(name), (cb) => {
+        const baseName = path.join(root, name);
+        pump(
+            [
+                gulp.src([`${baseName}/*.ts`, `!${baseName}/*.d.ts`]),
+                tsc({
+                    lib: ["dom", "es2020"],
+                    target: "es2020",
+                    module: "es2020",
+                    noImplicitAny: true,
+                    moduleResolution: "node",
+                }),
+                gulp.dest(path.join(root, name)),
             ],
             cb,
         );
@@ -301,9 +325,10 @@ gulp.task(
         "ice:bundle",
         "test:common:generate",
         "test:common:bundle",
-        gulp.parallel(tests.map(testBuildTask)),
-        gulp.parallel(tests.map(testBundleTask)),
-        gulp.parallel(tests.map(testAssetsTask)),
+        gulp.series(tests.map(testBuildTask)),
+        gulp.series(tests.map(testTypeScriptCompileTask)),
+        gulp.series(tests.map(testBundleTask)),
+        gulp.series(tests.map(testAssetsTask)),
     ),
 );
 
