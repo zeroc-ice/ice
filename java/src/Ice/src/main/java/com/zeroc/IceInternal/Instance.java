@@ -4,7 +4,9 @@
 
 package com.zeroc.IceInternal;
 
+import com.zeroc.Ice.ConnectionOptions;
 import com.zeroc.Ice.Instrumentation.ThreadState;
+import com.zeroc.Ice.Properties;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -54,7 +56,7 @@ public final class Instance implements java.util.function.Function<String, Class
   }
 
   private static class Timer extends java.util.concurrent.ScheduledThreadPoolExecutor {
-    Timer(com.zeroc.Ice.Properties props, String threadName) {
+    Timer(Properties props, String threadName) {
       super(1, Util.createThreadFactory(props, threadName)); // Single thread executor
       setRemoveOnCancelPolicy(true);
       setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
@@ -79,7 +81,7 @@ public final class Instance implements java.util.function.Function<String, Class
   }
 
   private static class QueueExecutor extends java.util.concurrent.ThreadPoolExecutor {
-    QueueExecutor(com.zeroc.Ice.Properties props, String threadName) {
+    QueueExecutor(Properties props, String threadName) {
       super(
           1,
           1,
@@ -696,7 +698,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
     try {
       if (_initData.properties == null) {
-        _initData.properties = new com.zeroc.Ice.Properties();
+        _initData.properties = new Properties();
       }
 
       synchronized (Instance.class) {
@@ -775,6 +777,15 @@ public final class Instance implements java.util.function.Function<String, Class
       _traceLevels = new TraceLevels(_initData.properties);
 
       _defaultsAndOverrides = new DefaultsAndOverrides(_initData.properties, _initData.logger);
+
+      Properties properties = _initData.properties;
+      _clientConnectionOptions =
+          new ConnectionOptions(
+              properties.getIcePropertyAsInt("Ice.Connection.ConnectTimeout"),
+              properties.getIcePropertyAsInt("Ice.Connection.CloseTimeout"),
+              properties.getIcePropertyAsInt("Ice.Connection.IdleTimeout"),
+              properties.getIcePropertyAsInt("Ice.Connection.EnableIdleCheck") > 0,
+              properties.getIcePropertyAsInt("Ice.Connection.InactivityTimeout"));
 
       {
         int num = _initData.properties.getIcePropertyAsInt("Ice.MessageSizeMax");
@@ -1326,6 +1337,34 @@ public final class Instance implements java.util.function.Function<String, Class
     }
   }
 
+  ConnectionOptions clientConnectionOptions() {
+    return _clientConnectionOptions;
+  }
+
+  ConnectionOptions serverConnectionOptions(String adapterName) {
+    if (adapterName.isEmpty()) {
+      return _clientConnectionOptions;
+    } else {
+      Properties properties = _initData.properties;
+
+      return new ConnectionOptions(
+          properties.getPropertyAsIntWithDefault(
+              adapterName + ".Connection.ConnectTimeout",
+              _clientConnectionOptions.connectTimeout()),
+          properties.getPropertyAsIntWithDefault(
+              adapterName + ".Connection.CloseTimeout", _clientConnectionOptions.closeTimeout()),
+          properties.getPropertyAsIntWithDefault(
+              adapterName + ".Connection.IdleTimeout", _clientConnectionOptions.idleTimeout()),
+          properties.getPropertyAsIntWithDefault(
+                  adapterName + ".Connection.EnableIdleCheck",
+                  _clientConnectionOptions.enableIdleCheck() ? 1 : 0)
+              > 0,
+          properties.getPropertyAsIntWithDefault(
+              adapterName + ".Connection.InactivityTimeout",
+              _clientConnectionOptions.inactivityTimeout()));
+    }
+  }
+
   private void updateConnectionObservers() {
     try {
       assert (_outgoingConnectionFactory != null);
@@ -1451,8 +1490,7 @@ public final class Instance implements java.util.function.Function<String, Class
     }
   }
 
-  private NetworkProxy createNetworkProxy(
-      com.zeroc.Ice.Properties properties, int protocolSupport) {
+  private NetworkProxy createNetworkProxy(Properties properties, int protocolSupport) {
     String proxyHost;
 
     proxyHost = properties.getProperty("Ice.SOCKSProxyHost");
@@ -1536,4 +1574,6 @@ public final class Instance implements java.util.function.Function<String, Class
               put("IceStorm", new String[] {"com.zeroc"});
             }
           });
+
+  private ConnectionOptions _clientConnectionOptions;
 }
