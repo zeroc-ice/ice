@@ -16,10 +16,9 @@ class Server: TestHelperI {
         guard let resourcePath = Bundle.main.resourcePath else {
             fatalError("Bundle resources missing")
         }
-        
-        print(Bundle.main.bundlePath)
 
-        let certsDir = resourcePath.appending("certs")
+        
+        let certsDir = resourcePath.appending("/ice-test_IceSSL_configuration.bundle/certs")
         
         communicator.getProperties().setProperty(
             key: "TestAdapter.Endpoints",

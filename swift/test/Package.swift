@@ -29,11 +29,13 @@ struct TestConfig {
     }
 
     var exclude: [String] {
-        if !amd {
-            return []
-        }
-        return amdSourcesFiles + ["amd"]
+        return sliceFiles + (amd ? (amdSourcesFiles + amdSliceFiles + ["amd"]) : [])
     }
+    
+    var amdExclude: [String] {
+        return amdSliceFiles + sourceFiles + sliceFiles + ["slice-plugin.json"]
+    }
+    
 }
 
 let testDirectories: [String: TestConfig] = [
@@ -57,7 +59,9 @@ let testDirectories: [String: TestConfig] = [
     "Ice/inheritance": TestConfig(),
      "Ice/invoke": TestConfig(collocated: false),
      "Ice/location": TestConfig(collocated: false),
-    "Ice/objects": TestConfig(),
+    "Ice/objects": TestConfig(
+        sliceFiles: defaultSliceFiles + ["Derived.ice", "DerivedEx.ice", "Forward.ice"]
+    ),
     "Ice/operations": TestConfig(
         sources: defaultSources + ["BatchOneways.swift", "BatchOnewaysAMI.swift", "Oneways.swift", "OnewaysAMI.swift", "Twoways.swift", "TwowaysAMI.swift"],
         amd: true
@@ -71,11 +75,11 @@ let testDirectories: [String: TestConfig] = [
         sources: ["Client.swift"],
         sliceFiles: [],
         resources: [
-            Resource.copy("config/config.1"),
-            Resource.copy("config/config.2"),
-            Resource.copy("config/config.3"),
-            Resource.copy("config/escapes.cfg"),
-            Resource.copy("config/configPath"),
+            .copy("config/config.1"),
+            .copy("config/config.2"),
+            .copy("config/config.3"),
+            .copy("config/escapes.cfg"),
+            .copy("config/configPath"),
         ]
     ),
     "Ice/proxy": TestConfig(amd: true),
@@ -95,14 +99,19 @@ let testDirectories: [String: TestConfig] = [
     ),
     "Ice/slicing/objects": TestConfig(
         collocated: false,
-        sliceFiles: defaultSliceFiles + ["ClientPrivate.ice"],
+        sliceFiles: defaultSliceFiles + ["ClientPrivate.ice", "ServerPrivate.ice"],
         amd:true,
-        amdSliceFiles: defaultAMDSliceFiles + ["ClientPrivateAMD.ice"]
+        amdSliceFiles: defaultAMDSliceFiles + ["ServerPrivateAMD.ice"]
     ),
     "Ice/stream": TestConfig(collocated: false, sources: ["Client.swift"]),
     "Ice/timeout": TestConfig(collocated: false),
     "Ice/udp": TestConfig(collocated: false),
-    // "IceSSL/configuration",
+    "IceSSL/configuration": TestConfig(
+        collocated: false,
+        resources: [
+            .copy("certs")
+        ]
+    ),
     "Slice/escape": TestConfig(collocated:false, sources:["Client.swift"], sliceFiles: ["Clash.ice", "Key.ice"])
 ]
 
@@ -128,7 +137,7 @@ let testTargets = testDirectories.map { (testPath, testConfig) in
 
     if testConfig.sliceFiles.count > 0 {
         plugins += [.plugin(name: "CompileSlice", package: "ice")]
-        resources += testConfig.resources + [.copy("slice-plugin.json")]
+        resources += [.copy("slice-plugin.json")]
     }
 
     let name = testPathToTargetName("\(testPath)")
@@ -151,7 +160,7 @@ let testTargets = testDirectories.map { (testPath, testConfig) in
                  name: amdName,
                  dependencies: dependencies,
                  path: testPath,
-                 exclude: testConfig.sourceFiles,
+                 exclude: testConfig.amdExclude,
                  resources: [.copy("amd/slice-plugin.json")],
                  plugins: plugins
              ))
@@ -182,6 +191,9 @@ let package = Package(
                 .product(name: "Ice", package: "ice")
             ],
             path: "TestCommon",
+            resources: [
+                .process("slice-plugin.json")
+            ],
             plugins: [.plugin(name: "CompileSlice", package: "ice")]
         ),
         .target(

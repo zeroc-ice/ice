@@ -1,0 +1,15 @@
+basicConstraints        = CA:true
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid:always,issuer:always
+subjectAltName          = DNS:zeroc.com
+issuerAltName           = DNS:zeroc.com
+
+1.2.3.412               = ASN1:UTF8String:Custom data
+
+1.2.3.413               = ASN1:SEQUENCE:seq_sect
+
+[seq_sect]
+
+field1                  = BOOLEAN:TRUE
+field2                  = UTF8:My UTF8 String
+field3                  = INTEGER:1023

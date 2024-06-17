@@ -1,0 +1,1 @@
+{"validity": 825, "keysize": 2048, "keyalg": 6, "sigalg": "sha256", "ocspResponder": "http://127.0.0.1:20002", "caIssuers": "http://127.0.0.1:20001/cai4.der"}

@@ -1,0 +1,18 @@
+###################################################################
+[ ca ]
+default_ca      = CA_default            # The default ca section
+
+####################################################################
+[ CA_default ]
+
+dir             = ./db/ca3/intermediate1  # Where everything is kept
+certs           = $dir                    # Where the issued certs are kept
+crl_dir         = $dir                    # Where the issued crl are kept
+database        = $dir/index.txt          # database index file.
+
+certificate     = $dir/ca.pem             # The CA certificate
+crlnumber       = $dir/crlnumber          # the current crl number
+                                          # must be commented out to leave a V1 CRL
+crl             = $dir/crl.pem            # The current CRL
+private_key     = $dir/ca_key.pem         # The private key
+default_md      = default                 # use public key default MD

@@ -18,17 +18,7 @@ class Client: TestHelperI {
                 fatalError("Bundle resources missing")
             }
             
-//            print(Bundle(for: Self.self).resourcePath)
-//            Bundle(for: )
-//            print(Bundle.main.url(forResource: "cacert", withExtension: "pem"))
-            
-            let certsDir = resourcePath.appending("certs")
-        
-            
-            
-            try FileManager.default.contentsOfDirectory(atPath: certsDir).forEach { file in
-                print(file)
-            }
+            let certsDir = resourcePath.appending("/ice-test_IceSSL_configuration.bundle/certs")
 
             let factory = try allTests(self, certsDir)
             try factory.shutdown()
