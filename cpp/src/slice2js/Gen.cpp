@@ -22,6 +22,38 @@ using namespace IceUtilInternal;
 
 namespace
 {
+    // Convert a path to a module name, e.g., "../foo/bar/baz.ice" -> "__foo_bar_baz"
+    string pathToModule(const string& path)
+    {
+        string module = removeExtension(path);
+
+        size_t pos = module.find('/');
+        if (pos == string::npos)
+        {
+            pos = module.find('\\');
+        }
+
+        if (pos != string::npos)
+        {
+            module = module.substr(pos + 1);
+
+            // Replace remaining path separators ('/', '\') and ('.') with '_'
+            replace(module.begin(), module.end(), '/', '_');
+            replace(module.begin(), module.end(), '\\', '_');
+            replace(module.begin(), module.end(), '.', '_');
+        }
+        return module;
+    }
+
+    bool ends_with(string_view s, string_view suffix)
+    {
+#if defined __cpp_lib_starts_ends_with
+        return s.ends_with(suffix);
+#else
+        return s.size() >= suffix.size() && s.compare(s.size() - s.size(), std::string_view::npos, s) == 0;
+#endif
+    }
+
     string sliceModeToIceMode(Operation::Mode opMode)
     {
         switch (opMode)
@@ -441,7 +473,7 @@ Slice::JsVisitor::getValue(const string& /*scope*/, const TypePtr& type)
     StructPtr st = dynamic_pointer_cast<Struct>(type);
     if (st)
     {
-        return "new " + typeToString(type) + "()";
+        return "new " + typeToJsString(type) + "()";
     }
 
     return "null";
@@ -592,8 +624,8 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
         file = dir + '/' + file;
     }
 
-    _jsout.open(file.c_str());
-    if (!_jsout)
+    _javaScriptOutput.open(file.c_str());
+    if (!_javaScriptOutput)
     {
         ostringstream os;
         os << "cannot open `" << file << "': " << IceUtilInternal::errorToString(errno);
@@ -610,8 +642,8 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
             file = dir + '/' + file;
         }
 
-        _tsout.open(file.c_str());
-        if (!_tsout)
+        _typeScriptOutput.open(file.c_str());
+        if (!_typeScriptOutput)
         {
             ostringstream os;
             os << "cannot open `" << file << "': " << IceUtilInternal::errorToString(errno);
@@ -627,8 +659,8 @@ Slice::Gen::Gen(
     const string& /*dir*/,
     bool typeScript,
     ostream& out)
-    : _jsout(out),
-      _tsout(out),
+    : _javaScriptOutput(out),
+      _typeScriptOutput(out),
       _includePaths(includePaths),
       _useStdout(true),
       _typeScript(typeScript)
@@ -643,115 +675,90 @@ Slice::Gen::Gen(
 
 Slice::Gen::~Gen()
 {
-    if (_jsout.isOpen() || _useStdout)
+    if (_javaScriptOutput.isOpen() || _useStdout)
     {
-        _jsout << '\n';
-        _jsout.close();
+        _javaScriptOutput << '\n';
+        _javaScriptOutput.close();
     }
 
-    if (_tsout.isOpen() || _useStdout)
+    if (_typeScriptOutput.isOpen() || _useStdout)
     {
-        _tsout << '\n';
-        _tsout.close();
+        _typeScriptOutput << '\n';
+        _typeScriptOutput.close();
     }
 }
 
 void
 Slice::Gen::generate(const UnitPtr& p)
 {
-    string module;
-    DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
-    assert(dc);
-
-    {
-        const string prefix = "js:module:";
-        const string m = dc->findMetaData(prefix);
-        if (!m.empty())
-        {
-            module = m.substr(prefix.size());
-        }
-    }
+    string module = getJavaScriptModule(p->findDefinitionContext(p->topLevelFile()));
 
     if (_useStdout)
     {
-        _jsout << "\n";
-        _jsout << "/** slice2js: " << _fileBase << ".js generated begin module:\"" << module << "\" **/";
-        _jsout << "\n";
+        _javaScriptOutput << "\n";
+        _javaScriptOutput << "/** slice2js: " << _fileBase << ".js generated begin module:\"" << module << "\" **/";
+        _javaScriptOutput << "\n";
     }
-    printHeader(_jsout);
-    printGeneratedHeader(_jsout, _fileBase + ".ice");
+    printHeader(_javaScriptOutput);
+    printGeneratedHeader(_javaScriptOutput, _fileBase + ".ice");
 
-    //
-    // Check for file "js:module:ice" metadata. If this is set then we are building Ice.
-    //
-    bool icejs = module == "ice";
-
-    _jsout << nl << "/* eslint-disable */";
-    _jsout << nl << "/* jshint ignore: start */";
-    _jsout << nl;
+    _javaScriptOutput << nl << "/* eslint-disable */";
+    _javaScriptOutput << nl << "/* jshint ignore: start */";
+    _javaScriptOutput << nl;
 
     {
-        ImportVisitor importVisitor(_jsout, _includePaths, icejs);
+        ImportVisitor importVisitor(_javaScriptOutput, _includePaths);
         p->visit(&importVisitor, false);
         set<string> importedModules = importVisitor.writeImports(p);
 
-        ExportsVisitor exportsVisitor(_jsout, importedModules);
+        ExportsVisitor exportsVisitor(_javaScriptOutput, importedModules);
         p->visit(&exportsVisitor, false);
         set<string> exportedModules = exportsVisitor.exportedModules();
 
         set<string> seenModules = importedModules;
         seenModules.merge(exportedModules);
 
-        TypesVisitor typesVisitor(_jsout);
+        TypesVisitor typesVisitor(_javaScriptOutput);
         p->visit(&typesVisitor, false);
     }
 
     if (_useStdout)
     {
-        _jsout << "\n";
-        _jsout << "/** slice2js: generated end **/";
-        _jsout << "\n";
+        _javaScriptOutput << "\n";
+        _javaScriptOutput << "/** slice2js: generated end **/";
+        _javaScriptOutput << "\n";
     }
 
     if (_typeScript)
     {
         if (_useStdout)
         {
-            _tsout << "\n";
-            _tsout << "/** slice2js: " << _fileBase << ".d.ts generated begin module:\"" << module << "\" **/";
-            _tsout << "\n";
+            _typeScriptOutput << "\n";
+            _typeScriptOutput << "/** slice2js: " << _fileBase << ".d.ts generated begin module:\"" << module
+                              << "\" **/";
+            _typeScriptOutput << "\n";
         }
-        printHeader(_tsout);
-        printGeneratedHeader(_tsout, _fileBase + ".ice");
+        printHeader(_typeScriptOutput);
+        printGeneratedHeader(_typeScriptOutput, _fileBase + ".ice");
 
-        TypeScriptImportVisitor importVisitor(_tsout, icejs);
+        TypeScriptImportVisitor importVisitor(_typeScriptOutput);
         p->visit(&importVisitor, false);
+        map<string, string> importedTypes = importVisitor.writeImports();
 
-        //
-        // If at some point TypeScript adds an operator to refer to a type in the global scope
-        // we can get rid of the TypeScriptAliasVisitor and use this. For now we need to generate
-        // a type alias when there is an ambiguity.
-        // see: https://github.com/Microsoft/TypeScript/issues/983
-        //
-        TypeScriptAliasVisitor aliasVisitor(_tsout);
-        p->visit(&aliasVisitor, false);
-        aliasVisitor.writeAlias(p);
-
-        TypeScriptVisitor typeScriptVisitor(_tsout, importVisitor.imports());
+        TypeScriptVisitor typeScriptVisitor(_typeScriptOutput, importedTypes);
         p->visit(&typeScriptVisitor, false);
 
         if (_useStdout)
         {
-            _tsout << "\n";
-            _tsout << "/** slice2js: generated end **/";
-            _tsout << "\n";
+            _typeScriptOutput << "\n";
+            _typeScriptOutput << "/** slice2js: generated end **/";
+            _typeScriptOutput << "\n";
         }
     }
 }
 
-Slice::Gen::ImportVisitor::ImportVisitor(IceUtilInternal::Output& out, vector<string> includePaths, bool icejs)
+Slice::Gen::ImportVisitor::ImportVisitor(IceUtilInternal::Output& out, vector<string> includePaths)
     : JsVisitor(out),
-      _icejs(icejs),
       _seenClass(false),
       _seenInterface(false),
       _seenCompactId(false),
@@ -858,55 +865,11 @@ Slice::Gen::ImportVisitor::visitEnum(const EnumPtr&)
     _seenEnum = true;
 }
 
-namespace
-{
-    string getJavaScriptModule(const DefinitionContextPtr& dc)
-    {
-        const string prefix = "js:module:";
-        const string m = dc->findMetaData(prefix);
-        if (!m.empty())
-        {
-            return m.substr(prefix.size());
-        }
-        return "";
-    }
-
-    // Convert a path to a module name, e.g., "../foo/bar/baz.ice" -> "__foo_bar_baz"
-    string pathToModule(const string& path)
-    {
-        string module = removeExtension(path);
-
-        size_t pos = module.find('/');
-        if (pos == string::npos)
-        {
-            pos = module.find('\\');
-        }
-
-        if (pos != string::npos)
-        {
-            module = module.substr(pos + 1);
-
-            // Replace remaining path separators ('/', '\') and ('.') with '_'
-            replace(module.begin(), module.end(), '/', '_');
-            replace(module.begin(), module.end(), '\\', '_');
-            replace(module.begin(), module.end(), '.', '_');
-        }
-        return module;
-    }
-
-    bool ends_with(string_view s, string_view suffix)
-    {
-#if defined __cpp_lib_starts_ends_with
-        return s.ends_with(suffix);
-#else
-        return s.size() >= suffix.size() && s.compare(s.size() - s.size(), std::string_view::npos, s) == 0;
-#endif
-    }
-}
-
 set<string>
 Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
 {
+    // The JavaScript module we are building as specified by "js:module:" metadata.
+    string jsModule = getJavaScriptModule(p->findDefinitionContext(p->topLevelFile()));
     set<string> importedModules = {"Ice"};
 
     // The imports map maps JavaScript Modules to the set of Slice top-level modules that are imported from the
@@ -917,7 +880,7 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
     // The JavaScript files that we import in generated code when building Ice. The user generated code imports
     // the "ice" package.
     set<string> jsIceImports;
-    if (_icejs)
+    if (jsModule == "ice")
     {
         bool needStreamHelpers = false;
         if (_seenClass || _seenInterface || _seenObjectSeq || _seenObjectDict)
@@ -975,7 +938,6 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
 
         if (_seenSeq || _seenObjectSeq)
         {
-            jsIceImports.insert("ArrayUtil");
             needStreamHelpers = true;
         }
 
@@ -991,9 +953,6 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
     }
 
     StringList includes = p->includeFiles();
-
-    // The JavaScript module we are building as specified by "js:module:" metadata.
-    string jsModule = getJavaScriptModule(p->findDefinitionContext(p->topLevelFile()));
 
     // Iterate all the included files and generate an import statement for each top-level module in the included file.
     for (const auto& included : includes)
@@ -1045,7 +1004,7 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
     set<string> aggregatedModules;
 
     // We first import the Ice runtime
-    if (_icejs)
+    if (jsModule == "ice")
     {
         for (const string& m : jsIceImports)
         {
@@ -1657,7 +1616,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
          << (fixed ? "true" : "false");
     if (type->isClassType())
     {
-        _out << ", \"" << typeToString(type) << "\"";
+        _out << ", \"" << typeToJsString(type) << "\"";
     }
 
     _out << ");";
@@ -1919,7 +1878,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     if (valueType->isClassType())
     {
-        _out << ", \"" << typeToString(valueType) << "\"";
+        _out << ", \"" << typeToJsString(valueType) << "\"";
     }
     _out << ");";
 }
@@ -2043,118 +2002,108 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
     return "???";
 }
 
-Slice::Gen::TypeScriptImportVisitor::TypeScriptImportVisitor(IceUtilInternal::Output& out, bool icejs)
-    : JsVisitor(out),
-      _icejs(icejs),
-      _nextImport(0)
-{
-}
+Slice::Gen::TypeScriptImportVisitor::TypeScriptImportVisitor(IceUtilInternal::Output& out) : JsVisitor(out) {}
 
-string
-Slice::Gen::TypeScriptImportVisitor::nextImportPrefix()
+namespace
 {
-    ostringstream ns;
-    ns << "iceNS" << _nextImport++;
-    return ns.str();
+    string getDefinedIn(const ContainedPtr& p)
+    {
+        const string prefix = "js:defined-in:";
+        string meta;
+        if (p->findMetaData(prefix, meta))
+        {
+            return meta.substr(prefix.size());
+        }
+        return meta;
+    }
 }
 
 void
-Slice::Gen::TypeScriptImportVisitor::addImport(const TypePtr& definition, const ContainedPtr& toplevel)
+Slice::Gen::TypeScriptImportVisitor::addImport(const ContainedPtr& definition)
 {
-    if (!dynamic_pointer_cast<Builtin>(definition))
+    string jsImportedModule = getJavaScriptModule(definition->definitionContext());
+    if (jsImportedModule.empty())
     {
-        string m1 = getModuleMetadata(definition);
-        const string m2 = getModuleMetadata(toplevel);
-
-        string p1 = definition->definitionContext()->filename();
-        const string p2 = toplevel->definitionContext()->filename();
-
-        InterfaceDeclPtr p = dynamic_pointer_cast<InterfaceDecl>(definition);
-
-        if (p)
+        string definedIn = getDefinedIn(definition);
+        if (!definedIn.empty())
         {
-            if (p->definition() == 0)
+            _importedTypes[definition->scoped()] = "__module_" + pathToModule(definedIn) + ".";
+            _importedModules.insert(removeExtension(definedIn) + ".js");
+        }
+        else
+        {
+            const string filename = definition->definitionContext()->filename();
+            if (filename == _filename)
             {
-                string definedIn = getDefinedIn(p);
-                if (!definedIn.empty())
-                {
-                    p1 = definedIn;
-                }
+                // For types defined in the same unit we use a __global_ prefix to refer to the global scope.
+                _importedTypes[definition->scoped()] = "__global_";
             }
             else
             {
-                m1 = getModuleMetadata(dynamic_pointer_cast<Contained>(p->definition()));
-                p1 = p->definition()->definitionContext()->filename();
-            }
-        }
-        addImport(m1, m2, p1, p2);
-    }
-}
-
-void
-Slice::Gen::TypeScriptImportVisitor::addImport(const ContainedPtr& definition, const ContainedPtr& toplevel)
-{
-    const string m1 = getModuleMetadata(definition);
-    const string m2 = getModuleMetadata(toplevel);
-
-    const string p1 = definition->definitionContext()->filename();
-    const string p2 = toplevel->definitionContext()->filename();
-
-    addImport(m1, m2, p1, p2);
-}
-
-void
-Slice::Gen::TypeScriptImportVisitor::addImport(const string& m1, const string& m2, const string& p1, const string& p2)
-{
-    //
-    // Generate an import for a definition that is outside a JS module and comes from
-    // a different definition context or for a definition defined in a module different
-    // than the current module.
-    //
-    if (m1.empty())
-    {
-        if (p1 != p2)
-        {
-            string relpath = relativePath(p1, p2);
-
-            string::size_type pos = relpath.rfind('.');
-            if (pos != string::npos)
-            {
-                relpath.erase(pos);
-            }
-
-            for (vector<pair<string, string>>::const_iterator i = _imports.begin(); i != _imports.end(); ++i)
-            {
-                if (i->first == relpath)
+                string f = removeExtension(filename);
+                if (IceUtilInternal::isAbsolutePath(f))
                 {
-                    return;
+                    // If the include file is an absolute path, we need to generate a relative path.
+                    f = relativePath(f, _filename);
                 }
+                else if (f[0] != '.')
+                {
+                    // Make the import relative to the current file.
+                    f = "./" + f;
+                }
+                _importedTypes[definition->scoped()] = pathToModule(f);
             }
-            _imports.push_back(make_pair(relpath, nextImportPrefix()));
         }
     }
-    else if (m1 != m2)
+    else if (_module != jsImportedModule)
     {
-        for (vector<pair<string, string>>::const_iterator i = _imports.begin(); i != _imports.end(); ++i)
-        {
-            if (i->first == m1)
-            {
-                return;
-            }
-        }
-        _imports.push_back(make_pair(m1, nextImportPrefix()));
+        _importedTypes[definition->scoped()] = "__module_" + jsImportedModule + ".";
+    }
+    else
+    {
+        // For types defined in the same module, we use a __global_ prefix, to refer to the global scope.
+        _importedTypes[definition->scoped()] = "__global_";
     }
 }
 
 bool
-Slice::Gen::TypeScriptImportVisitor::visitModuleStart(const ModulePtr& p)
+Slice::Gen::TypeScriptImportVisitor::visitUnitStart(const UnitPtr& p)
 {
-    //
-    // Import ice module if not building Ice
-    //
-    if (dynamic_pointer_cast<Unit>(p->container()) && !_icejs && _imports.empty())
+    _module = getJavaScriptModule(p->findDefinitionContext(p->topLevelFile()));
+    _filename = p->topLevelFile();
+    if (_module != "ice")
     {
-        _imports.push_back(make_pair("ice", nextImportPrefix()));
+        _importedModules.insert("ice");
+    }
+    StringList includes = p->includeFiles();
+    // Iterate all the included files and generate an import statement for each top-level module in the included file.
+    for (const auto& included : includes)
+    {
+        // The JavaScript module corresponding to the "js:module:" metadata in the included file.
+        string jsImportedModule = getJavaScriptModule(p->findDefinitionContext(included));
+
+        if (_module != jsImportedModule)
+        {
+            if (jsImportedModule.empty())
+            {
+                string f = removeExtension(included) + ".js";
+                if (IceUtilInternal::isAbsolutePath(f))
+                {
+                    // If the include file is an absolute path, we need to generate a relative path.
+                    f = relativePath(f, _filename);
+                }
+                else if (f[0] != '.')
+                {
+                    // Make the import relative to the current file.
+                    f = "./" + f;
+                }
+                _importedModules.insert(f);
+            }
+            else
+            {
+                _importedModules.insert(jsImportedModule);
+            }
+        }
     }
     return true;
 }
@@ -2162,55 +2111,51 @@ Slice::Gen::TypeScriptImportVisitor::visitModuleStart(const ModulePtr& p)
 bool
 Slice::Gen::TypeScriptImportVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    //
-    // Add imports required for base class
-    //
+    // Add imports required for the base class type.
     ClassDefPtr base = p->base();
     if (base)
     {
-        addImport(dynamic_pointer_cast<Contained>(base), p);
+        addImport(dynamic_pointer_cast<Contained>(base));
     }
 
-    //
-    // Add imports required for data members
-    //
-    const DataMemberList allDataMembers = p->allDataMembers();
-    for (DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
+    // Add imports required for data members types.
+    for (const auto& dataMember : p->allDataMembers())
     {
-        addImport((*i)->type(), p);
+        ContainedPtr type = dynamic_pointer_cast<Contained>(dataMember->type());
+        if (type)
+        {
+            addImport(type);
+        }
     }
-
     return false;
 }
 
 bool
 Slice::Gen::TypeScriptImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    //
-    // Add imports required for base interfaces
-    //
-    InterfaceList bases = p->bases();
-    for (InterfaceList::const_iterator i = bases.begin(); i != bases.end(); ++i)
+    // Add imports required for base interfaces types.
+    for (const auto& base : p->bases())
     {
-        addImport(dynamic_pointer_cast<Contained>(*i), p);
+        addImport(base);
     }
 
-    //
-    // Add imports required for operation parameters and return type
-    //
+    // Add imports required for operation parameters and return types.
     const OperationList operationList = p->allOperations();
-    for (OperationList::const_iterator i = operationList.begin(); i != operationList.end(); ++i)
+    for (const auto& op : p->allOperations())
     {
-        const TypePtr ret = (*i)->returnType();
-        if (ret && ret->definitionContext())
+        auto ret = dynamic_pointer_cast<Contained>(op->returnType());
+        if (ret)
         {
-            addImport(ret, p);
+            addImport(ret);
         }
 
-        const ParamDeclList paramList = (*i)->parameters();
-        for (ParamDeclList::const_iterator j = paramList.begin(); j != paramList.end(); ++j)
+        for (const auto& param : op->parameters())
         {
-            addImport((*j)->type(), p);
+            auto type = dynamic_pointer_cast<Contained>(param->type());
+            if (type)
+            {
+                addImport(type);
+            }
         }
     }
     return false;
@@ -2219,13 +2164,14 @@ Slice::Gen::TypeScriptImportVisitor::visitInterfaceDefStart(const InterfaceDefPt
 bool
 Slice::Gen::TypeScriptImportVisitor::visitStructStart(const StructPtr& p)
 {
-    //
-    // Add imports required for data members
-    //
-    const DataMemberList dataMembers = p->dataMembers();
-    for (DataMemberList::const_iterator i = dataMembers.begin(); i != dataMembers.end(); ++i)
+    // Add imports required for data member types.
+    for (const auto& dataMember : p->dataMembers())
     {
-        addImport((*i)->type(), p);
+        auto type = dynamic_pointer_cast<Contained>(dataMember->type());
+        if (type)
+        {
+            addImport(type);
+        }
     }
     return false;
 }
@@ -2233,22 +2179,21 @@ Slice::Gen::TypeScriptImportVisitor::visitStructStart(const StructPtr& p)
 bool
 Slice::Gen::TypeScriptImportVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    //
-    // Add imports required for base exceptions
-    //
+    // Add imports required for base exception types.
     ExceptionPtr base = p->base();
     if (base)
     {
-        addImport(dynamic_pointer_cast<Contained>(base), p);
+        addImport(dynamic_pointer_cast<Contained>(base));
     }
 
-    //
-    // Add imports required for data members
-    //
     const DataMemberList allDataMembers = p->allDataMembers();
-    for (DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
+    for (const auto& dataMember : p->allDataMembers())
     {
-        addImport((*i)->type(), p);
+        auto type = dynamic_pointer_cast<Contained>(dataMember->type());
+        if (type)
+        {
+            addImport(type);
+        }
     }
     return false;
 }
@@ -2256,10 +2201,12 @@ Slice::Gen::TypeScriptImportVisitor::visitExceptionStart(const ExceptionPtr& p)
 void
 Slice::Gen::TypeScriptImportVisitor::visitSequence(const SequencePtr& seq)
 {
-    //
-    // Add import required for the sequence element type
-    //
-    addImport(seq->type(), seq);
+    // Add import required for the sequence element type.
+    auto type = dynamic_pointer_cast<Contained>(seq->type());
+    if (type)
+    {
+        addImport(type);
+    }
 }
 
 void
@@ -2268,223 +2215,221 @@ Slice::Gen::TypeScriptImportVisitor::visitDictionary(const DictionaryPtr& dict)
     //
     // Add imports required for the dictionary key and value types
     //
-    addImport(dict->keyType(), dict);
-    addImport(dict->valueType(), dict);
-}
-
-Slice::Gen::TypeScriptAliasVisitor::TypeScriptAliasVisitor(IceUtilInternal::Output& out) : JsVisitor(out) {}
-
-void
-Slice::Gen::TypeScriptAliasVisitor::addAlias(const ExceptionPtr& type, const ContainedPtr& toplevel)
-{
-    string m1 = getModuleMetadata(dynamic_pointer_cast<Contained>(type));
-    string m2 = getModuleMetadata(toplevel);
-
-    //
-    // Do not add alias for a type defined in the current module
-    //
-    if (!m1.empty() && m1 == m2)
+    auto keyType = dynamic_pointer_cast<Contained>(dict->keyType());
+    if (keyType)
     {
-        return;
+        addImport(keyType);
     }
 
-    const string prefix = importPrefix(dynamic_pointer_cast<Contained>(type), toplevel, imports());
-    const string typeS = prefix + getUnqualified(fixId(type->scoped()), toplevel->scope(), prefix);
-
-    addAlias(typeS, prefix, toplevel);
-}
-
-void
-Slice::Gen::TypeScriptAliasVisitor::addAlias(const TypePtr& type, const ContainedPtr& toplevel)
-{
-    string m1 = getModuleMetadata(type);
-    string m2 = getModuleMetadata(toplevel);
-
-    //
-    // Do not add alias for a type defined in the current module
-    //
-    if (!m1.empty() && m1 == m2)
+    auto valueType = dynamic_pointer_cast<Contained>(dict->valueType());
+    if (valueType)
     {
-        return;
+        addImport(valueType);
     }
-
-    addAlias(typeToString(type, toplevel, imports(), true), importPrefix(type, toplevel, imports()), toplevel);
 }
 
-void
-Slice::Gen::TypeScriptAliasVisitor::addAlias(const string& type, const string& prefix, const ContainedPtr& toplevel)
+std::map<std::string, std::string>
+Slice::Gen::TypeScriptImportVisitor::writeImports()
 {
-    const string scope = fixId(toplevel->scoped()) + ".";
-    //
-    // When using an import prefix we don't need an alias, prefixes use iceNSXX that is reserved
-    // name prefix
-    //
-    string::size_type i = type.find(".");
-    if (prefix.empty() && i != string::npos)
+    for (const auto& module : _importedModules)
     {
-        if (scope.find("." + type.substr(0, i + 1)) != string::npos)
+        if (ends_with(module, ".js"))
         {
-            for (vector<pair<string, string>>::const_iterator j = _aliases.begin(); j != _aliases.end(); ++j)
+            _out << nl << "import * as __module_" << pathToModule(module) << " from \"" << module << "\";";
+        }
+        else
+        {
+            _out << nl << "import * as __module_" << module << " from \"" << module << "\";";
+        }
+    }
+    return _importedTypes;
+}
+
+string
+Slice::Gen::TypeScriptVisitor::importPrefix(const string& s) const
+{
+    const auto it = _importedTypes.find(s);
+    if (it != _importedTypes.end())
+    {
+        return it->second;
+    }
+    return "";
+}
+
+string
+Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable, bool forParameter, bool optional)
+    const
+{
+    if (!type)
+    {
+        assert(!optional);
+        return "void";
+    }
+
+    string t;
+
+    static const char* typeScriptBuiltinTable[] = {
+        "number",   // byte
+        "boolean",  // bool
+        "number",   // short
+        "number",   // int
+        "Ice.Long", // long
+        "number",   // float
+        "number",   // double
+        "string",
+        "Ice.Value", // Ice.Object
+        "Ice.ObjectPrx",
+        "Ice.Value"};
+
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
+    if (builtin)
+    {
+        switch (builtin->kind())
+        {
+            case Builtin::KindLong:
             {
-                if (j->first == type)
+                t = _iceImportPrefix + typeScriptBuiltinTable[builtin->kind()];
+                // For Slice long parameters we accept both number and Ice.Long, this is more convenient
+                // for the user as he can use the native number type when the value is within the range of
+                // number (2^53 - 1) and Ice.Long when the value is outside of this range.
+                if (forParameter)
                 {
-                    return;
+                    t += " | number";
                 }
+                break;
             }
-            string alias = type;
-            replace(alias.begin(), alias.end(), '.', '_');
-            //
-            // We prefix alias with iceA this avoid conflict with iceNSX used for
-            // import prefixes
-            //
-            _aliases.push_back(make_pair(type, "iceA_" + alias));
+            case Builtin::KindObject:
+            case Builtin::KindObjectProxy:
+            case Builtin::KindValue:
+            {
+                t = _iceImportPrefix + typeScriptBuiltinTable[builtin->kind()];
+                if (nullable)
+                {
+                    t = _iceImportPrefix + "Ice.Nullable<" + t + ">";
+                }
+                break;
+            }
+            default:
+            {
+                t = typeScriptBuiltinTable[builtin->kind()];
+                break;
+            }
         }
     }
-}
 
-bool
-Slice::Gen::TypeScriptAliasVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    ModulePtr module = dynamic_pointer_cast<Module>(p->container());
-    //
-    // Add alias required for base class
-    //
-    ClassDefPtr base = p->base();
-    if (base)
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
+    if (cl)
     {
-        addAlias(dynamic_pointer_cast<Type>(base->declaration()), module);
-    }
-
-    //
-    // Add alias required for data members
-    //
-    const DataMemberList allDataMembers = p->allDataMembers();
-    for (DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
-    {
-        addAlias((*i)->type(), module);
-    }
-
-    return false;
-}
-
-bool
-Slice::Gen::TypeScriptAliasVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
-{
-    ModulePtr module = dynamic_pointer_cast<Module>(p->container());
-    //
-    // Add alias required for base interfaces
-    //
-    InterfaceList bases = p->bases();
-    for (InterfaceList::const_iterator i = bases.begin(); i != bases.end(); ++i)
-    {
-        addAlias(dynamic_pointer_cast<Type>((*i)->declaration()), module);
-    }
-
-    //
-    // Add alias required for operation parameters
-    //
-    const OperationList operationList = p->allOperations();
-    for (OperationList::const_iterator i = operationList.begin(); i != operationList.end(); ++i)
-    {
-        const TypePtr ret = (*i)->returnType();
-        if (ret && ret->definitionContext())
+        t = importPrefix(cl->scoped()) + fixId(cl->scoped());
+        if (nullable)
         {
-            addAlias(ret, module);
+            t = _iceImportPrefix + "Ice.Nullable<" + t + ">";
         }
+    }
 
-        const ParamDeclList paramList = (*i)->parameters();
-        for (ParamDeclList::const_iterator j = paramList.begin(); j != paramList.end(); ++j)
+    InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
+    if (proxy)
+    {
+        t = importPrefix(proxy->scoped()) + fixId(proxy->scoped() + "Prx");
+        if (nullable)
         {
-            addAlias((*j)->type(), module);
+            t = _iceImportPrefix + "Ice.Nullable<" + t + ">";
         }
     }
-    return false;
-}
 
-bool
-Slice::Gen::TypeScriptAliasVisitor::visitStructStart(const StructPtr& p)
-{
-    ModulePtr module = dynamic_pointer_cast<Module>(p->container());
-    //
-    // Add alias required for data members
-    //
-    const DataMemberList dataMembers = p->dataMembers();
-    for (DataMemberList::const_iterator i = dataMembers.begin(); i != dataMembers.end(); ++i)
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
+    if (seq)
     {
-        addAlias((*i)->type(), module);
-    }
-    return false;
-}
-
-bool
-Slice::Gen::TypeScriptAliasVisitor::visitExceptionStart(const ExceptionPtr& p)
-{
-    ModulePtr module = dynamic_pointer_cast<Module>(p->container());
-    //
-    // Add alias required for base exception
-    //
-    ExceptionPtr base = p->base();
-    if (base)
-    {
-        addAlias(base, module);
-    }
-
-    //
-    // Add alias required for data members
-    //
-    const DataMemberList allDataMembers = p->allDataMembers();
-    for (DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
-    {
-        addAlias((*i)->type(), module);
-    }
-    return false;
-}
-
-void
-Slice::Gen::TypeScriptAliasVisitor::visitSequence(const SequencePtr& seq)
-{
-    addAlias(seq->type(), dynamic_pointer_cast<Module>(seq->container()));
-}
-
-void
-Slice::Gen::TypeScriptAliasVisitor::visitDictionary(const DictionaryPtr& dict)
-{
-    ModulePtr module = dynamic_pointer_cast<Module>(dict->container());
-    addAlias(dict->keyType(), module);
-    addAlias(dict->valueType(), module);
-}
-
-void
-Slice::Gen::TypeScriptAliasVisitor::writeAlias(const UnitPtr&)
-{
-    if (!_aliases.empty())
-    {
-        _out << sp;
-        for (vector<pair<string, string>>::const_iterator i = _aliases.begin(); i != _aliases.end(); ++i)
+        builtin = dynamic_pointer_cast<Builtin>(seq->type());
+        if (builtin && builtin->kind() == Builtin::KindByte)
         {
-            _out << nl << "type " << i->second << " = " << i->first << ";";
+            t = "Uint8Array";
+        }
+        else
+        {
+            const string seqType = typeToTsString(seq->type(), nullable);
+            t = seqType + "[]";
         }
     }
+
+    DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
+    if (d)
+    {
+        const TypePtr keyType = d->keyType();
+        builtin = dynamic_pointer_cast<Builtin>(keyType);
+        ostringstream os;
+        if ((builtin && builtin->kind() == Builtin::KindLong) || dynamic_pointer_cast<Struct>(keyType))
+        {
+            os << _iceImportPrefix << "Ice.HashMap<";
+        }
+        else
+        {
+            os << "Map<";
+        }
+        os << typeToTsString(d->keyType(), nullable) << ", " << typeToTsString(d->valueType(), nullable) << ">";
+        t = os.str();
+    }
+
+    ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
+    if (t.empty() && contained)
+    {
+        t = importPrefix(contained->scoped()) + fixId(contained->scoped());
+    }
+
+    // For optional parameters we use "?:" instead of Ice.Optional<T>
+    if (optional)
+    {
+        t = _iceImportPrefix + "Ice.Optional<" + t + ">";
+    }
+
+    return t;
 }
 
 Slice::Gen::TypeScriptVisitor::TypeScriptVisitor(
-    ::IceUtilInternal::Output& out,
-    const vector<pair<string, string>>& imports)
-    : JsVisitor(out, imports),
-      _wroteImports(false)
+    IceUtilInternal::Output& out,
+    std::map<std::string, std::string> importedTypes)
+    : JsVisitor(out),
+      _importedTypes(std::move(importedTypes))
 {
 }
 
-void
-Slice::Gen::TypeScriptVisitor::writeImports()
+bool
+Slice::Gen::TypeScriptVisitor::visitUnitStart(const UnitPtr& p)
 {
-    if (!_wroteImports)
+    _module = getJavaScriptModule(p->findDefinitionContext(p->topLevelFile()));
+    _iceImportPrefix = _module == "ice" ? "" : "__module_ice.";
+    if (!_module.empty())
     {
-        for (vector<pair<string, string>>::const_iterator i = _imports.begin(); i != _imports.end(); ++i)
+        _out << sp;
+        _out << nl << "declare module \"" << _module << "\"" << sb;
+    }
+    return true;
+}
+
+void
+Slice::Gen::TypeScriptVisitor::visitUnitEnd(const UnitPtr&)
+{
+    set<string> globalModules;
+    for (const auto& [key, value] : _importedTypes)
+    {
+        if (value == "__global_")
         {
-            _out << nl << "import * as " << i->second << " from \"" << i->first << "\"";
+            // find the top level module for the type.
+            auto pos = key.find("::", 2);
+            assert(pos != string::npos);
+
+            globalModules.insert(key.substr(2, pos - 2));
         }
-        _wroteImports = true;
+    }
+
+    for (const auto& module : globalModules)
+    {
+        _out << nl << "import __global_" << fixId(module) << " = " << fixId(module) << ";";
+    }
+
+    if (!_module.empty())
+    {
+        _out << eb; // module end
     }
 }
 
@@ -2492,10 +2437,9 @@ bool
 Slice::Gen::TypeScriptVisitor::visitModuleStart(const ModulePtr& p)
 {
     UnitPtr unit = dynamic_pointer_cast<Unit>(p->container());
-    if (unit)
+    if (unit && _module.empty())
     {
         _out << sp;
-        writeImports();
         _out << nl << "export namespace " << fixId(p->name()) << sb;
     }
     else
@@ -2514,48 +2458,42 @@ Slice::Gen::TypeScriptVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    const string toplevelModule = getModuleMetadata(dynamic_pointer_cast<Contained>(p));
-    const string icePrefix = importPrefix("Ice.", p);
-
     const DataMemberList dataMembers = p->dataMembers();
     const DataMemberList allDataMembers = p->allDataMembers();
     _out << sp;
     writeDocSummary(_out, p);
-    _out << nl << "class " << fixId(p->name()) << " extends ";
-    const string scope = p->scope();
-    const string scoped = p->scoped();
+    _out << nl << "export class " << fixId(p->name()) << " extends ";
     ClassDefPtr base = p->base();
     if (base)
     {
-        const string prefix = importPrefix(dynamic_pointer_cast<Contained>(base), p, imports());
-        _out << prefix << getUnqualified(fixId(base->scoped()), p->scope(), prefix);
+        _out << importPrefix(base->scoped()) << fixId(base->scoped());
     }
     else
     {
-        _out << icePrefix << getUnqualified("Ice.Value", p->scope(), icePrefix);
+        _out << _iceImportPrefix << "Ice.Value";
     }
     _out << sb;
     _out << nl << "/**";
     _out << nl << " * One-shot constructor to initialize all data members.";
-    for (DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+    for (const auto& dataMember : allDataMembers)
     {
-        CommentPtr comment = (*q)->parseComment(false);
+        CommentPtr comment = dataMember->parseComment(false);
         if (comment)
         {
-            _out << nl << " * @param " << fixId((*q)->name()) << " " << getDocSentence(comment->overview());
+            _out << nl << " * @param " << fixId(dataMember->name()) << " " << getDocSentence(comment->overview());
         }
     }
     _out << nl << " */";
     _out << nl << "constructor" << spar;
-    for (DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+    for (const auto& dataMember : allDataMembers)
     {
-        _out << (fixId((*q)->name()) + "?:" + typeToString((*q)->type(), p, imports(), true, false, true));
+        _out << (fixId(dataMember->name()) + "?:" + typeToTsString(dataMember->type()));
     }
     _out << epar << ";";
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (const auto& dataMember : allDataMembers)
     {
-        writeDocSummary(_out, *q);
-        _out << nl << fixId((*q)->name()) << ":" << typeToString((*q)->type(), p, imports(), true, false, true) << ";";
+        writeDocSummary(_out, dataMember);
+        _out << nl << fixId(dataMember->name()) << ":" << typeToTsString(dataMember->type(), true) << ";";
     }
     _out << eb;
 
@@ -2565,33 +2503,28 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    const string toplevelModule = getModuleMetadata(dynamic_pointer_cast<Contained>(p));
-    const string icePrefix = importPrefix("Ice.", p);
-    const OperationList ops = p->allOperations();
-
     //
     // Define servant an proxy types
     //
     _out << sp;
-    _out << nl << "abstract class " << fixId(p->name() + "Prx") << " extends " << icePrefix
-         << getUnqualified("Ice.ObjectPrx", p->scope(), icePrefix);
+    _out << nl << "export abstract class " << fixId(p->name() + "Prx") << " extends " << _iceImportPrefix
+         << "Ice.ObjectPrx";
     _out << sb;
 
-    for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+    for (const auto& op : p->allOperations())
     {
-        const OperationPtr op = *q;
         const ParamDeclList paramList = op->parameters();
         const TypePtr ret = op->returnType();
         ParamDeclList inParams, outParams;
-        for (ParamDeclList::const_iterator r = paramList.begin(); r != paramList.end(); ++r)
+        for (const auto& param : paramList)
         {
-            if ((*r)->isOutParam())
+            if (param->isOutParam())
             {
-                outParams.push_back(*r);
+                outParams.push_back(param);
             }
             else
             {
-                inParams.push_back(*r);
+                inParams.push_back(param);
             }
         }
 
@@ -2606,17 +2539,15 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             returns.push_back(asyncDoc);
             writeOpDocSummary(_out, op, comment, OpDocInParams, false, StringList(), postParams, returns);
         }
-        _out << nl << fixId((*q)->name()) << spar;
-        for (ParamDeclList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
+        _out << nl << fixId(op->name()) << spar;
+        for (const auto& param : inParams)
         {
-            _out
-                << (fixId((*r)->name()) + ((*r)->optional() ? "?" : "") + ":" +
-                    typeToString((*r)->type(), p, imports(), true, false, true));
+            _out << (fixId(param->name()) + ":" + typeToTsString(param->type(), true, true, param->optional()));
         }
         _out << "context?:Map<string, string>";
         _out << epar;
 
-        _out << ":" << icePrefix << getUnqualified("Ice.AsyncResult", p->scope(), icePrefix);
+        _out << ":" << _iceImportPrefix << "Ice.AsyncResult";
         if (!ret && outParams.empty())
         {
             _out << "<void>";
@@ -2624,19 +2555,19 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         else if ((ret && outParams.empty()) || (!ret && outParams.size() == 1))
         {
             TypePtr t = ret ? ret : outParams.front()->type();
-            _out << "<" << typeToString(t, p, imports(), true, false, true) << ">";
+            _out << "<" << typeToTsString(t, true, false, op->returnIsOptional()) << ">";
         }
         else
         {
             _out << "<[";
             if (ret)
             {
-                _out << typeToString(ret, p, imports(), true, false, true) << ", ";
+                _out << typeToTsString(ret, true, false, op->returnIsOptional()) << ", ";
             }
 
             for (ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end();)
             {
-                _out << typeToString((*i)->type(), p, imports(), true, false, true);
+                _out << typeToTsString((*i)->type(), true, false, (*i)->optional());
                 if (++i != outParams.end())
                 {
                     _out << ", ";
@@ -2655,7 +2586,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << " * @param prx The target proxy.";
     _out << nl << " * @return A proxy with the requested type.";
     _out << nl << " */";
-    _out << nl << "static uncheckedCast(prx:" << icePrefix << getUnqualified("Ice.ObjectPrx", p->scope(), icePrefix)
+    _out << nl << "static uncheckedCast(prx:" << _iceImportPrefix << "Ice.ObjectPrx"
          << ", "
          << "facet?:string):" << fixId(p->name() + "Prx") << ";";
     _out << nl << "/**";
@@ -2667,31 +2598,29 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
          << " * @return A proxy with the requested type and facet, or nil if the target proxy is nil or the target";
     _out << nl << " * object does not support the requested type.";
     _out << nl << " */";
-    _out << nl << "static checkedCast(prx:" << icePrefix << getUnqualified("Ice.ObjectPrx", p->scope(), icePrefix)
+    _out << nl << "static checkedCast(prx:" << _iceImportPrefix << "Ice.ObjectPrx"
          << ", "
-         << "facet?:string, contex?:Map<string, string>):" << icePrefix
-         << getUnqualified("Ice.AsyncResult", p->scope(), icePrefix) << "<" << fixId(p->name() + "Prx") << ">;";
+         << "facet?:string, context?:Map<string, string>):" << _iceImportPrefix << "Ice.AsyncResult"
+         << "<" << fixId(p->name() + "Prx") << " | null>;";
     _out << eb;
 
     _out << sp;
-    _out << nl << "abstract class " << fixId(p->name()) << " extends " << icePrefix
-         << getUnqualified("Ice.Object", p->scope(), icePrefix);
+    _out << nl << "export abstract class " << fixId(p->name()) << " extends " << _iceImportPrefix << "Ice.Object";
     _out << sb;
-    for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+    for (const auto& op : p->allOperations())
     {
-        const OperationPtr op = *q;
         const ParamDeclList paramList = op->parameters();
         const TypePtr ret = op->returnType();
         ParamDeclList inParams, outParams;
-        for (ParamDeclList::const_iterator r = paramList.begin(); r != paramList.end(); ++r)
+        for (const auto& param : paramList)
         {
-            if ((*r)->isOutParam())
+            if (param->isOutParam())
             {
-                outParams.push_back(*r);
+                outParams.push_back(param);
             }
             else
             {
-                inParams.push_back(*r);
+                inParams.push_back(param);
             }
         }
 
@@ -2707,12 +2636,12 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             returns.push_back(resultDoc);
             writeOpDocSummary(_out, op, comment, OpDocInParams, false, StringList(), postParams, returns);
         }
-        _out << nl << "abstract " << fixId((*q)->name()) << spar;
-        for (ParamDeclList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
+        _out << nl << "abstract " << fixId(op->name()) << spar;
+        for (const auto& param : inParams)
         {
-            _out << (fixId((*r)->name()) + ":" + typeToString((*r)->type(), p, imports(), true, false, true));
+            _out << (fixId(param->name()) + ":" + typeToTsString(param->type(), true, true, param->optional()));
         }
-        _out << ("current:" + icePrefix + getUnqualified("Ice.Current", p->scope(), icePrefix));
+        _out << ("current:" + _iceImportPrefix + "Ice.Current");
         _out << epar << ":";
 
         if (!ret && outParams.empty())
@@ -2722,7 +2651,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         else if ((ret && outParams.empty()) || (!ret && outParams.size() == 1))
         {
             TypePtr t = ret ? ret : outParams.front()->type();
-            string returnType = typeToString(t, p, imports(), true, false, true);
+            string returnType = typeToTsString(t, true, false, op->returnIsOptional());
             _out << "PromiseLike<" << returnType << ">|" << returnType;
         }
         else
@@ -2730,12 +2659,12 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             ostringstream os;
             if (ret)
             {
-                os << typeToString(ret, p, imports(), true, false, true) << ", ";
+                os << typeToTsString(ret, true, false, op->returnIsOptional()) << ", ";
             }
 
             for (ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end();)
             {
-                os << typeToString((*i)->type(), p, imports(), true, false, true);
+                os << typeToTsString((*i)->type(), true, false, (*i)->optional());
                 if (++i != outParams.end())
                 {
                     os << ", ";
@@ -2761,49 +2690,49 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
     const string name = fixId(p->name());
     const DataMemberList dataMembers = p->dataMembers();
     const DataMemberList allDataMembers = p->allDataMembers();
-    const string toplevelModule = getModuleMetadata(dynamic_pointer_cast<Contained>(p));
-    const string icePrefix = importPrefix("Ice.", p);
 
     ExceptionPtr base = p->base();
     string baseRef;
     if (base)
     {
-        const string prefix = importPrefix(dynamic_pointer_cast<Contained>(base), p, imports());
-        baseRef = prefix + getUnqualified(fixId(base->scoped()), p->scope(), prefix);
+        baseRef = importPrefix(base->scoped()) + fixId(base->scoped());
     }
     else
     {
-        baseRef = icePrefix + getUnqualified("Ice.UserException", p->scope(), icePrefix);
+        baseRef = _iceImportPrefix + "Ice.UserException";
     }
 
     _out << sp;
     writeDocSummary(_out, p);
-    _out << nl << "class " << name << " extends " << baseRef << sb;
+    _out << nl << "export class " << name << " extends " << baseRef << sb;
     if (!allDataMembers.empty())
     {
         _out << nl << "/**";
         _out << nl << " * One-shot constructor to initialize all data members.";
-        for (DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+        for (const auto& dataMember : allDataMembers)
         {
-            CommentPtr comment = (*q)->parseComment(false);
+            CommentPtr comment = dataMember->parseComment(false);
             if (comment)
             {
-                _out << nl << " * @param " << fixId((*q)->name()) << " " << getDocSentence(comment->overview());
+                _out << nl << " * @param " << fixId(dataMember->name()) << " " << getDocSentence(comment->overview());
             }
         }
         _out << nl << " * @param ice_cause The error that cause this exception.";
         _out << nl << " */";
         _out << nl << "constructor" << spar;
-        for (DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+        for (const auto& dataMember : allDataMembers)
         {
-            _out << (fixId((*q)->name()) + "?:" + typeToString((*q)->type(), p, imports(), true, false, true));
+            _out << (fixId(dataMember->name()) + "?:" + typeToTsString(dataMember->type()));
         }
         _out << "ice_cause?:string|Error";
         _out << epar << ";";
     }
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+
+    for (const auto& dataMember : allDataMembers)
     {
-        _out << nl << fixId((*q)->name()) << ":" << typeToString((*q)->type(), p, imports(), true, false, true) << ";";
+        const string optionalModifier = dataMember->optional() ? "?" : "";
+        _out << nl << fixId(dataMember->name()) << optionalModifier << ":" << typeToTsString(dataMember->type(), true)
+             << ";";
     }
     _out << eb;
     return false;
@@ -2812,17 +2741,15 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
 {
-    const string icePrefix = importPrefix("Ice.", p);
     const string name = fixId(p->name());
     const DataMemberList dataMembers = p->dataMembers();
-    const string toplevelModule = getModuleMetadata(dynamic_pointer_cast<Contained>(p));
     _out << sp;
     writeDocSummary(_out, p);
-    _out << nl << "class " << name << sb;
+    _out << nl << "export class " << name << sb;
     _out << nl << "constructor" << spar;
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (const auto& dataMember : dataMembers)
     {
-        _out << (fixId((*q)->name()) + "?:" + typeToString((*q)->type(), p, imports(), true, false, true));
+        _out << (fixId(dataMember->name()) + "?:" + typeToTsString(dataMember->type()));
     }
     _out << epar << ";";
 
@@ -2837,18 +2764,16 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
         _out << nl << "hashCode():number;";
     }
 
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (const auto& dataMember : dataMembers)
     {
-        _out << nl << fixId((*q)->name()) << ":" << typeToString((*q)->type(), p, imports(), true, false, true) << ";";
+        _out << nl << fixId(dataMember->name()) << ":" << typeToTsString(dataMember->type(), true) << ";";
     }
 
     //
     // Streaming API
     //
-    _out << nl << "static write(outs:" << icePrefix << getUnqualified("Ice.OutputStream", p->scope(), icePrefix)
-         << ", value:" << name << "):void;";
-    _out << nl << "static read(ins:" << icePrefix << getUnqualified("Ice.InputStream", p->scope(), icePrefix)
-         << "):" << name << ";";
+    _out << nl << "static write(outs:" << _iceImportPrefix << "Ice.OutputStream, value:" << name << "):void;";
+    _out << nl << "static read(ins:" << _iceImportPrefix << "Ice.InputStream):" << name << ";";
     _out << eb;
     return false;
 }
@@ -2856,48 +2781,45 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Gen::TypeScriptVisitor::visitSequence(const SequencePtr& p)
 {
-    const string icePrefix = importPrefix("Ice.", p);
-    const string toplevelModule = getModuleMetadata(dynamic_pointer_cast<Contained>(p));
     const string name = fixId(p->name());
     _out << sp;
     writeDocSummary(_out, p);
-    _out << nl << "type " << name << " = " << typeToString(p, p, imports(), true, true) << ";";
+    _out << nl << "export type " << name << " = " << typeToTsString(p) << ";";
 
     _out << sp;
-    _out << nl << "class " << fixId(p->name() + "Helper");
+    _out << nl << "export class " << fixId(p->name() + "Helper");
     _out << sb;
     //
     // Streaming API
     //
-    _out << nl << "static write(outs:" << icePrefix << getUnqualified("Ice.OutputStream", p->scope(), icePrefix)
-         << ", value:" << name << "):void;";
-    _out << nl << "static read(ins:" << icePrefix << getUnqualified("Ice.InputStream", p->scope(), icePrefix)
-         << "):" << name << ";";
+    _out << nl << "static write(outs:" << _iceImportPrefix << "Ice.OutputStream, value:" << name << "):void;";
+    _out << nl << "static read(ins:" << _iceImportPrefix << "Ice.InputStream):" << name << ";";
     _out << eb;
 }
 
 void
 Slice::Gen::TypeScriptVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    const string icePrefix = importPrefix("Ice.", p);
-    const string toplevelModule = getModuleMetadata(dynamic_pointer_cast<Contained>(p));
     const string name = fixId(p->name());
     _out << sp;
     writeDocSummary(_out, p);
-    _out << nl << "class " << name << " extends " << typeToString(p, p, imports(), true, true);
+    string dictionaryType = typeToTsString(p);
+    if (dictionaryType.find("Ice.") == 0)
+    {
+        dictionaryType = _iceImportPrefix + dictionaryType;
+    }
+    _out << nl << "export class " << name << " extends " << dictionaryType;
     _out << sb;
     _out << eb;
 
     _out << sp;
-    _out << nl << "class " << fixId(p->name() + "Helper");
+    _out << nl << "export class " << fixId(p->name() + "Helper");
     _out << sb;
     //
     // Streaming API
     //
-    _out << nl << "static write(outs:" << icePrefix << getUnqualified("Ice.OutputStream", p->scope(), icePrefix)
-         << ", value:" << name << "):void;";
-    _out << nl << "static read(ins:" << icePrefix << getUnqualified("Ice.InputStream", p->scope(), icePrefix)
-         << "):" << name << ";";
+    _out << nl << "static write(outs:" << _iceImportPrefix << "Ice.OutputStream, value:" << name << "):void;";
+    _out << nl << "static read(ins:" << _iceImportPrefix << "Ice.InputStream):" << name << ";";
     _out << eb;
 }
 
@@ -2906,13 +2828,12 @@ Slice::Gen::TypeScriptVisitor::visitEnum(const EnumPtr& p)
 {
     _out << sp;
     writeDocSummary(_out, p);
-    _out << nl << "class " << fixId(p->name());
+    _out << nl << "export class " << fixId(p->name());
     _out << sb;
-    const EnumeratorList enumerators = p->enumerators();
-    for (EnumeratorList::const_iterator en = enumerators.begin(); en != enumerators.end(); ++en)
+    for (const auto& enumerator : p->enumerators())
     {
-        writeDocSummary(_out, *en);
-        _out << nl << "static readonly " << fixId((*en)->name()) << ":" << fixId(p->name()) << ";";
+        writeDocSummary(_out, enumerator);
+        _out << nl << "static readonly " << fixId(enumerator->name()) << ":" << fixId(p->name()) << ";";
     }
     _out << nl;
     _out << nl << "static valueOf(value:number):" << fixId(p->name()) << ";";
@@ -2928,8 +2849,7 @@ Slice::Gen::TypeScriptVisitor::visitEnum(const EnumPtr& p)
 void
 Slice::Gen::TypeScriptVisitor::visitConst(const ConstPtr& p)
 {
-    const string toplevelModule = getModuleMetadata(p->type());
     _out << sp;
     writeDocSummary(_out, p);
-    _out << nl << "const " << fixId(p->name()) << ":" << typeToString(p->type(), p, imports(), true) << ";";
+    _out << nl << "export const " << fixId(p->name()) << ":" << typeToTsString(p->type()) << ";";
 }
