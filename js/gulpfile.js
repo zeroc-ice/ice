@@ -325,10 +325,10 @@ gulp.task(
         "ice:bundle",
         "test:common:generate",
         "test:common:bundle",
-        gulp.parallel(tests.map(testBuildTask)),
-        gulp.parallel(tests.map(testTypeScriptCompileTask)),
-        gulp.parallel(tests.map(testBundleTask)),
-        gulp.parallel(tests.map(testAssetsTask)),
+        gulp.series(tests.map(testBuildTask)),
+        gulp.series(tests.map(testTypeScriptCompileTask)),
+        gulp.series(tests.map(testBundleTask)),
+        gulp.series(tests.map(testAssetsTask)),
     ),
 );
 
