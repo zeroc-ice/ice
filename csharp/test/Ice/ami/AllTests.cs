@@ -3856,8 +3856,9 @@ namespace Ice
                         {
                             var onewayProxy = (Test.TestIntfPrx)p.ice_oneway();
 
-                            // Sending should be canceled because the TCP receive buffer size on the server is set to
-                            // 50KB
+                            // Sending should be canceled because the TCP send/receive buffer size on the server is set
+                            // to 50KB. Note: we don't use the cancel parameter of the operation here because the
+                            // cancellation doesn't cancel the operation whose payload is being sent.
                             onewayProxy.opWithPayloadAsync(new byte[768 * 1024]).Wait(cts.Token);
                         }
                         catch(OperationCanceledException)

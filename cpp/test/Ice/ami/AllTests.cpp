@@ -2494,8 +2494,7 @@ allTests(Test::TestHelper* helper, bool collocated)
 
             auto onewayProxy = Ice::uncheckedCast<Test::TestIntfPrx>(p->ice_oneway());
 
-            // Sending should be canceled because the TCP receive buffer size on the server is set to
-            // 50KB
+            // Sending should block because the TCP send/receive buffer size on the server is set to 50KB.
             Ice::ByteSeq seq;
             seq.resize(768 * 1024);
             auto future = onewayProxy->opWithPayloadAsync(seq);

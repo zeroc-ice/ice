@@ -1118,9 +1118,7 @@ public class AllTests
                 CompletableFuture<Void> sleep3Future = p.sleepAsync(1000);
                 TestIntfPrx onewayProxy = p.ice_oneway();
 
-                // Sending should be canceled because the TCP receive buffer size on the server is set to
-                // 50KB
-
+                // Sending should block because the TCP send/receive buffer size on the server is set to 50KB.
                 CompletableFuture<Void> future = onewayProxy.opWithPayloadAsync(new byte[768 * 1024]);
                 boolean timeout = false;
                 try
