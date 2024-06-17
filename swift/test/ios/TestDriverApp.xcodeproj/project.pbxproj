@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		D87A136A2C1B4FAE001E3331 /* TestBundle in Frameworks */ = {isa = PBXBuildFile; productRef = D87A13692C1B4FAE001E3331 /* TestBundle */; };
 		D87A136C2C1B4FAE001E3331 /* TestCommon in Frameworks */ = {isa = PBXBuildFile; productRef = D87A136B2C1B4FAE001E3331 /* TestCommon */; };
-		D8A264462C1CD213000C28E5 /* Ice in Frameworks */ = {isa = PBXBuildFile; productRef = D8A264452C1CD213000C28E5 /* Ice */; };
 		D8D2FCBE2C1BAB020080ED3A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8D2FCBD2C1BAB020080ED3A /* Foundation.framework */; };
 		D8E4B5DA2C18CE08001D65D3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E4B5D92C18CE08001D65D3 /* AppDelegate.swift */; };
 		D8E4B5DC2C18CE08001D65D3 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E4B5DB2C18CE08001D65D3 /* SceneDelegate.swift */; };
@@ -21,7 +20,6 @@
 
 /* Begin PBXFileReference section */
 		D87A13682C1B4F58001E3331 /* test */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = test; path = ..; sourceTree = "<group>"; };
-		D87E88FC2C1CD1E00023CBBA /* ice */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = ice; path = ../../..; sourceTree = "<group>"; };
 		D8D2FCBD2C1BAB020080ED3A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D8E4B5D62C18CE08001D65D3 /* TestDriverApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestDriverApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8E4B5D92C18CE08001D65D3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -39,7 +37,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8A264462C1CD213000C28E5 /* Ice in Frameworks */,
 				D87A136A2C1B4FAE001E3331 /* TestBundle in Frameworks */,
 				D8D2FCBE2C1BAB020080ED3A /* Foundation.framework in Frameworks */,
 				D87A136C2C1B4FAE001E3331 /* TestCommon in Frameworks */,
@@ -60,7 +57,6 @@
 		D8E4B5CD2C18CE08001D65D3 = {
 			isa = PBXGroup;
 			children = (
-				D87E88FC2C1CD1E00023CBBA /* ice */,
 				D87A13682C1B4F58001E3331 /* test */,
 				D8E4B5D82C18CE08001D65D3 /* TestDriverApp */,
 				D8E4B5D72C18CE08001D65D3 /* Products */,
@@ -110,7 +106,6 @@
 			packageProductDependencies = (
 				D87A13692C1B4FAE001E3331 /* TestBundle */,
 				D87A136B2C1B4FAE001E3331 /* TestCommon */,
-				D8A264452C1CD213000C28E5 /* Ice */,
 			);
 			productName = TestDriverApp;
 			productReference = D8E4B5D62C18CE08001D65D3 /* TestDriverApp.app */;
@@ -321,6 +316,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TestDriverApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -352,6 +348,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TestDriverApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -407,10 +404,6 @@
 		D87A136B2C1B4FAE001E3331 /* TestCommon */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = TestCommon;
-		};
-		D8A264452C1CD213000C28E5 /* Ice */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Ice;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
