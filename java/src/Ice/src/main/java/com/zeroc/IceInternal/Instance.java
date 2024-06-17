@@ -701,10 +701,12 @@ public final class Instance implements java.util.function.Function<String, Class
         _initData.properties = new Properties();
       }
 
+      Properties properties = _initData.properties;
+
       synchronized (Instance.class) {
         if (!_oneOffDone) {
-          String stdOut = _initData.properties.getProperty("Ice.StdOut");
-          String stdErr = _initData.properties.getProperty("Ice.StdErr");
+          String stdOut = properties.getProperty("Ice.StdOut");
+          String stdErr = properties.getProperty("Ice.StdErr");
 
           java.io.PrintStream outStream = null;
 
@@ -744,8 +746,8 @@ public final class Instance implements java.util.function.Function<String, Class
       }
 
       if (_initData.logger == null) {
-        String logfile = _initData.properties.getIceProperty("Ice.LogFile");
-        if (_initData.properties.getIcePropertyAsInt("Ice.UseSyslog") > 0
+        String logfile = properties.getIceProperty("Ice.LogFile");
+        if (properties.getIcePropertyAsInt("Ice.UseSyslog") > 0
             && !System.getProperty("os.name").startsWith("Windows")) {
           if (logfile.length() != 0) {
             throw new com.zeroc.Ice.InitializationException(
@@ -753,18 +755,16 @@ public final class Instance implements java.util.function.Function<String, Class
           }
           _initData.logger =
               new com.zeroc.Ice.SysLoggerI(
-                  _initData.properties.getIceProperty("Ice.ProgramName"),
-                  _initData.properties.getIceProperty("Ice.SyslogFacility"));
+                  properties.getIceProperty("Ice.ProgramName"),
+                  properties.getIceProperty("Ice.SyslogFacility"));
         } else if (logfile.length() != 0) {
           _initData.logger =
-              new com.zeroc.Ice.LoggerI(
-                  _initData.properties.getIceProperty("Ice.ProgramName"), logfile);
+              new com.zeroc.Ice.LoggerI(properties.getIceProperty("Ice.ProgramName"), logfile);
         } else {
           _initData.logger = com.zeroc.Ice.Util.getProcessLogger();
           if (_initData.logger instanceof com.zeroc.Ice.LoggerI) {
             _initData.logger =
-                new com.zeroc.Ice.LoggerI(
-                    _initData.properties.getIceProperty("Ice.ProgramName"), "");
+                new com.zeroc.Ice.LoggerI(properties.getIceProperty("Ice.ProgramName"), "");
           }
         }
       }
@@ -772,13 +772,12 @@ public final class Instance implements java.util.function.Function<String, Class
       _packages = validatePackages();
 
       _useApplicationClassLoader =
-          _initData.properties.getIcePropertyAsInt("Ice.UseApplicationClassLoader") > 0;
+          properties.getIcePropertyAsInt("Ice.UseApplicationClassLoader") > 0;
 
-      _traceLevels = new TraceLevels(_initData.properties);
+      _traceLevels = new TraceLevels(properties);
 
-      _defaultsAndOverrides = new DefaultsAndOverrides(_initData.properties, _initData.logger);
+      _defaultsAndOverrides = new DefaultsAndOverrides(properties, _initData.logger);
 
-      Properties properties = _initData.properties;
       _clientConnectionOptions =
           new ConnectionOptions(
               properties.getIcePropertyAsInt("Ice.Connection.ConnectTimeout"),
@@ -788,7 +787,7 @@ public final class Instance implements java.util.function.Function<String, Class
               properties.getIcePropertyAsInt("Ice.Connection.InactivityTimeout"));
 
       {
-        int num = _initData.properties.getIcePropertyAsInt("Ice.MessageSizeMax");
+        int num = properties.getIcePropertyAsInt("Ice.MessageSizeMax");
         if (num < 1 || num > 0x7fffffff / 1024) {
           _messageSizeMax = 0x7fffffff;
         } else {
@@ -796,15 +795,15 @@ public final class Instance implements java.util.function.Function<String, Class
         }
       }
 
-      if (_initData.properties.getProperty("Ice.BatchAutoFlushSize").isEmpty()
-          && !_initData.properties.getProperty("Ice.BatchAutoFlush").isEmpty()) {
-        if (_initData.properties.getPropertyAsInt("Ice.BatchAutoFlush") > 0) {
+      if (properties.getProperty("Ice.BatchAutoFlushSize").isEmpty()
+          && !properties.getProperty("Ice.BatchAutoFlush").isEmpty()) {
+        if (properties.getPropertyAsInt("Ice.BatchAutoFlush") > 0) {
           _batchAutoFlushSize = _messageSizeMax;
         } else {
           _batchAutoFlushSize = 0;
         }
       } else {
-        int num = _initData.properties.getIcePropertyAsInt("Ice.BatchAutoFlushSize"); // 1MB
+        int num = properties.getIcePropertyAsInt("Ice.BatchAutoFlushSize"); // 1MB
         if (num < 1) {
           _batchAutoFlushSize = num;
         } else if (num > 0x7fffffff / 1024) {
@@ -815,7 +814,7 @@ public final class Instance implements java.util.function.Function<String, Class
         }
       }
 
-      String toStringModeStr = _initData.properties.getIceProperty("Ice.ToStringMode");
+      String toStringModeStr = properties.getIceProperty("Ice.ToStringMode");
       if (toStringModeStr.equals("Unicode")) {
         _toStringMode = com.zeroc.Ice.ToStringMode.Unicode;
       } else if (toStringModeStr.equals("ASCII")) {
@@ -828,12 +827,11 @@ public final class Instance implements java.util.function.Function<String, Class
       }
 
       _implicitContext =
-          com.zeroc.Ice.ImplicitContextI.create(
-              _initData.properties.getProperty("Ice.ImplicitContext"));
+          com.zeroc.Ice.ImplicitContextI.create(properties.getProperty("Ice.ImplicitContext"));
 
       _routerManager = new RouterManager();
 
-      _locatorManager = new LocatorManager(_initData.properties);
+      _locatorManager = new LocatorManager(properties);
 
       _referenceFactory = new ReferenceFactory(this, communicator);
 
@@ -842,9 +840,8 @@ public final class Instance implements java.util.function.Function<String, Class
       _proxyFactory = new ProxyFactory(this);
 
       boolean isIPv6Supported = Network.isIPv6Supported();
-      boolean ipv4 = _initData.properties.getIcePropertyAsInt("Ice.IPv4") > 0;
-      boolean ipv6 =
-          isIPv6Supported ? _initData.properties.getIcePropertyAsInt("Ice.IPv6") > 0 : false;
+      boolean ipv4 = properties.getIcePropertyAsInt("Ice.IPv4") > 0;
+      boolean ipv6 = isIPv6Supported ? properties.getIcePropertyAsInt("Ice.IPv6") > 0 : false;
 
       if (!ipv4 && !ipv6) {
         throw new com.zeroc.Ice.InitializationException(
@@ -856,9 +853,9 @@ public final class Instance implements java.util.function.Function<String, Class
       } else {
         _protocolSupport = Network.EnableIPv6;
       }
-      _preferIPv6 = _initData.properties.getIcePropertyAsInt("Ice.PreferIPv6Address") > 0;
+      _preferIPv6 = properties.getIcePropertyAsInt("Ice.PreferIPv6Address") > 0;
 
-      _networkProxy = createNetworkProxy(_initData.properties, _protocolSupport);
+      _networkProxy = createNetworkProxy(properties, _protocolSupport);
 
       _sslEngine = new com.zeroc.Ice.SSL.SSLEngine(communicator);
       _endpointFactoryManager = new EndpointFactoryManager(this);
@@ -904,18 +901,15 @@ public final class Instance implements java.util.function.Function<String, Class
       // executor as Android doesn't allow any network invocations on the main
       // thread even if the call is non-blocking.
       //
-      if (_initData.properties.getPropertyAsInt("Ice.ThreadInterruptSafe") > 0
-          || Util.isAndroid()) {
+      if (properties.getPropertyAsInt("Ice.ThreadInterruptSafe") > 0 || Util.isAndroid()) {
         _queueExecutor =
-            new QueueExecutor(
-                _initData.properties,
-                Util.createThreadName(_initData.properties, "Ice.BackgroundIO"));
+            new QueueExecutor(properties, Util.createThreadName(properties, "Ice.BackgroundIO"));
         _queueExecutorService = new QueueExecutorService(_queueExecutor);
 
         // Caching message buffers is not supported with background IO.
         _cacheMessageBuffers = 0;
       } else {
-        _cacheMessageBuffers = _initData.properties.getIcePropertyAsInt("Ice.CacheMessageBuffers");
+        _cacheMessageBuffers = properties.getIcePropertyAsInt("Ice.CacheMessageBuffers");
       }
     } catch (com.zeroc.Ice.LocalException ex) {
       destroy(false);
@@ -949,6 +943,8 @@ public final class Instance implements java.util.function.Function<String, Class
   }
 
   public String[] finishSetup(String[] args, com.zeroc.Ice.Communicator communicator) {
+
+    Properties properties = _initData.properties;
     //
     // Load plug-ins.
     //
@@ -958,7 +954,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
     //
     // Initialize the endpoint factories once all the plugins are loaded. This gives
-    // the opportunity for the endpoint factories to find underyling factories.
+    // the opportunity for the endpoint factories to find underlying factories.
     //
     _endpointFactoryManager.initialize();
 
@@ -969,13 +965,13 @@ public final class Instance implements java.util.function.Function<String, Class
     // since one of these plugins can be a Logger plugin that sets a new logger during loading
     //
 
-    if (_initData.properties.getProperty("Ice.Admin.Enabled").isEmpty()) {
-      _adminEnabled = !_initData.properties.getProperty("Ice.Admin.Endpoints").isEmpty();
+    if (properties.getProperty("Ice.Admin.Enabled").isEmpty()) {
+      _adminEnabled = !properties.getProperty("Ice.Admin.Endpoints").isEmpty();
     } else {
-      _adminEnabled = _initData.properties.getPropertyAsInt("Ice.Admin.Enabled") > 0;
+      _adminEnabled = properties.getPropertyAsInt("Ice.Admin.Enabled") > 0;
     }
 
-    String[] facetFilter = _initData.properties.getPropertyAsList("Ice.Admin.Facets");
+    String[] facetFilter = properties.getPropertyAsList("Ice.Admin.Facets");
     if (facetFilter.length > 0) {
       _adminFacetFilter.addAll(java.util.Arrays.asList(facetFilter));
     }
@@ -994,7 +990,7 @@ public final class Instance implements java.util.function.Function<String, Class
       //
       String loggerFacetName = "Logger";
       if (_adminFacetFilter.isEmpty() || _adminFacetFilter.contains(loggerFacetName)) {
-        LoggerAdminLogger logger = new LoggerAdminLoggerI(_initData.properties, _initData.logger);
+        LoggerAdminLogger logger = new LoggerAdminLoggerI(properties, _initData.logger);
         setLogger(logger);
         _adminFacets.put(loggerFacetName, logger.getFacet());
       }
@@ -1038,8 +1034,7 @@ public final class Instance implements java.util.function.Function<String, Class
     // Create threads.
     //
     try {
-      _timer =
-          new Timer(_initData.properties, Util.createThreadName(_initData.properties, "Ice.Timer"));
+      _timer = new Timer(properties, Util.createThreadName(properties, "Ice.Timer"));
     } catch (RuntimeException ex) {
       String s = "cannot create thread for timer:\n" + Ex.toString(ex);
       _initData.logger.error(s);
@@ -1090,7 +1085,7 @@ public final class Instance implements java.util.function.Function<String, Class
     // initialization until after it has interacted directly with the
     // plug-ins.
     //
-    if (_initData.properties.getIcePropertyAsInt("Ice.InitPlugins") > 0) {
+    if (properties.getIcePropertyAsInt("Ice.InitPlugins") > 0) {
       pluginManagerImpl.initializePlugins();
     }
 
@@ -1099,7 +1094,7 @@ public final class Instance implements java.util.function.Function<String, Class
     // and eventually registers a process proxy with the Ice locator (allowing
     // remote clients to invoke on Ice.Admin facets as soon as it's registered).
     //
-    if (_initData.properties.getIcePropertyAsInt("Ice.Admin.DelayCreation") <= 0) {
+    if (properties.getIcePropertyAsInt("Ice.Admin.DelayCreation") <= 0) {
       getAdmin();
     }
 
