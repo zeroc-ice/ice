@@ -51,87 +51,6 @@ declare module "ice" {
         type HeartbeatCallback = (con: Ice.Connection) => void;
 
         /**
-         * Specifies the close semantics for Active Connection Management.
-         */
-        class ACMClose {
-            /**
-             * Disables automatic connection closure.
-             */
-            static readonly CloseOff: ACMClose;
-            /**
-             * Gracefully closes a connection that has been idle for the configured timeout period.
-             */
-            static readonly CloseOnIdle: ACMClose;
-            /**
-             * Forcefully closes a connection that has been idle for the configured timeout period, but only if the connection
-             * has pending invocations.
-             */
-            static readonly CloseOnInvocation: ACMClose;
-            /**
-             * Combines the behaviors of CloseOnIdle and CloseOnInvocation.
-             */
-            static readonly CloseOnInvocationAndIdle: ACMClose;
-            /**
-             * Forcefully closes a connection that has been idle for the configured timeout period, regardless of whether the
-             * connection has pending invocations or dispatch.
-             */
-            static readonly CloseOnIdleForceful: ACMClose;
-
-            static valueOf(value: number): ACMClose;
-            equals(other: any): boolean;
-            hashCode(): number;
-            toString(): string;
-
-            readonly name: string;
-            readonly value: number;
-        }
-
-        /**
-         * Specifies the heartbeat semantics for Active Connection Management.
-         */
-        class ACMHeartbeat {
-            /**
-             * Disables heartbeats.
-             */
-            static readonly HeartbeatOff: ACMHeartbeat;
-            /**
-             * Send a heartbeat at regular intervals if the connection is idle and only if there are pending dispatch.
-             */
-            static readonly HeartbeatOnDispatch: ACMHeartbeat;
-            /**
-             * Send a heartbeat at regular intervals when the connection is idle.
-             */
-            static readonly HeartbeatOnIdle: ACMHeartbeat;
-            /**
-             * Send a heartbeat at regular intervals until the connection is closed.
-             */
-            static readonly HeartbeatAlways: ACMHeartbeat;
-
-            static valueOf(value: number): ACMHeartbeat;
-            equals(other: any): boolean;
-            hashCode(): number;
-            toString(): string;
-
-            readonly name: string;
-            readonly value: number;
-        }
-
-        /**
-         * A collection of Active Connection Management configuration settings.
-         */
-        class ACM {
-            constructor(timeout?: number, close?: ACMClose, heartbeat?: ACMHeartbeat);
-            clone(): ACM;
-            equals(rhs: any): boolean;
-            hashCode(): number;
-            timeout: number;
-            close: ACMClose;
-            heartbeat: ACMHeartbeat;
-            static write(outs: OutputStream, value: ACM): void;
-            static read(ins: InputStream): ACM;
-        }
-
-        /**
          * Determines the behavior when manually closing a connection.
          */
         class ConnectionClose {
@@ -226,18 +145,6 @@ declare module "ice" {
              * @return The asynchronous result object for the invocation.
              */
             heartbeat(): AsyncResultBase<void>;
-            /**
-             * Set the active connection management parameters.
-             * @param timeout The timeout value in seconds, must be &gt;= 0.
-             * @param close The close condition
-             * @param heartbeat The heartbeat condition
-             */
-            setACM(timeout: number, close: ACMClose, heartbeat: ACMHeartbeat): void;
-            /**
-             * Get the ACM parameters.
-             * @return The ACM parameters.
-             */
-            getACM(): ACM;
             /**
              * Return the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
              * @return The type of the connection.
