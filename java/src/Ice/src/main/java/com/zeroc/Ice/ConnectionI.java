@@ -14,6 +14,7 @@ import com.zeroc.IceInternal.SocketOperation;
 import com.zeroc.IceInternal.TraceUtil;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionStage;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
@@ -1221,22 +1222,45 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     return _threadPool;
   }
 
-  public synchronized void idleCheck(int idleTimeout) {
-    if (_state == StateActive || _state == StateHolding) {
-      if (_instance.traceLevels().network >= 1) {
-        _instance
-            .initializationData()
-            .logger
-            .trace(
-                _instance.traceLevels().networkCat,
-                "connection aborted by the idle check because it did not receive any byte for "
-                    + idleTimeout
-                    + "s\n"
-                    + _transceiver.toDetailedString());
-      }
+  public synchronized void idleCheck(
+      int idleTimeout, BooleanSupplier isTimerTaskStarted, Runnable rescheduleTimer) {
+    // If isTimerStartStarted returns false, it means that while we were waiting to acquire the
+    // lock, a read went through and rescheduled the read timer task. This means "this" task was
+    // canceled so we don't do anything.
+    if ((_state == StateActive || _state == StateHolding) && isTimerTaskStarted.getAsBoolean()) {
+      if (_transceiver.isWaitingToBeRead()) {
+        // Bytes are available for reading but the thread pool is exhausted. We don't want to abort
+        // the connection in this situation.
+        rescheduleTimer.run();
 
-      setState(
-          StateClosed, new ConnectionTimeoutException()); // TODO: should be ConnectionIdleException
+        if (_instance.traceLevels().network >= 3) {
+          _instance
+              .initializationData()
+              .logger
+              .trace(
+                  _instance.traceLevels().networkCat,
+                  "the idle check scheduled a new idle check in "
+                      + idleTimeout
+                      + "s because the connection is waiting to be read\n"
+                      + _transceiver.toDetailedString());
+        }
+      } else {
+        if (_instance.traceLevels().network >= 1) {
+          _instance
+              .initializationData()
+              .logger
+              .trace(
+                  _instance.traceLevels().networkCat,
+                  "connection aborted by the idle check because it did not receive any byte for "
+                      + idleTimeout
+                      + "s\n"
+                      + _transceiver.toDetailedString());
+        }
+
+        setState(
+            StateClosed,
+            new ConnectionTimeoutException()); // TODO: should be ConnectionIdleException
+      }
     }
     // else nothing to do
   }

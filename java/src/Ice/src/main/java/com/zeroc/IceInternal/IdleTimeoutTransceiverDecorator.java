@@ -19,9 +19,9 @@ public class IdleTimeoutTransceiverDecorator implements Transceiver {
   private final Runnable _idleCheck;
   private final Runnable _sendHeartbeat;
 
-  // All calls to a transceiver are serialized by the parent ConnectionI's mutex.
-  private ScheduledFuture<?> _readTimer;
-  private ScheduledFuture<?> _writeTimer;
+  // All calls to a transceiver are serialized by the parent ConnectionI's lock.
+  private ScheduledFuture<?> _readTimerFuture;
+  private ScheduledFuture<?> _writeTimerFuture;
 
   @Override
   public java.nio.channels.SelectableChannel fd() {
@@ -80,6 +80,11 @@ public class IdleTimeoutTransceiverDecorator implements Transceiver {
   }
 
   @Override
+  public boolean isWaitingToBeRead() {
+    return _decoratee.isWaitingToBeRead();
+  }
+
+  @Override
   public String protocol() {
     return _decoratee.protocol();
   }
@@ -119,34 +124,44 @@ public class IdleTimeoutTransceiverDecorator implements Transceiver {
     _idleTimeout = idleTimeout;
     _scheduledExecutorService = scheduledExecutorService;
 
-    _idleCheck = enableIdleCheck ? () -> connection.idleCheck(idleTimeout) : null;
+    _idleCheck =
+        enableIdleCheck
+            ? () ->
+                connection.idleCheck(
+                    idleTimeout, this::isReadTimerTaskStarted, this::rescheduleReadTimer)
+            : null;
     _sendHeartbeat = () -> connection.sendHeartbeat();
   }
 
   private void cancelReadTimer() {
-    if (_readTimer != null) {
-      _readTimer.cancel(false);
-      _readTimer = null;
+    if (_readTimerFuture != null) {
+      _readTimerFuture.cancel(false);
+      _readTimerFuture = null;
     }
   }
 
+  private boolean isReadTimerTaskStarted() {
+    return _readTimerFuture != null && _readTimerFuture.getDelay(TimeUnit.NANOSECONDS) <= 0;
+  }
+
   private void cancelWriteTimer() {
-    if (_writeTimer != null) {
-      _writeTimer.cancel(false);
-      _writeTimer = null;
+    if (_writeTimerFuture != null) {
+      _writeTimerFuture.cancel(false);
+      _writeTimerFuture = null;
     }
   }
 
   private void rescheduleReadTimer() {
     if (_idleCheck != null) {
       cancelReadTimer();
-      _readTimer = _scheduledExecutorService.schedule(_idleCheck, _idleTimeout, TimeUnit.SECONDS);
+      _readTimerFuture =
+          _scheduledExecutorService.schedule(_idleCheck, _idleTimeout, TimeUnit.SECONDS);
     }
   }
 
   private void rescheduleWriteTimer() {
     cancelWriteTimer();
-    _writeTimer =
+    _writeTimerFuture =
         _scheduledExecutorService.schedule(
             _sendHeartbeat, _idleTimeout * 1000 / 2, TimeUnit.MILLISECONDS);
   }

@@ -3,6 +3,7 @@
 package test.Ice.idleTimeout;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ConnectionClose;
 import com.zeroc.Ice.ConnectionLostException;
 import com.zeroc.Ice.ConnectionTimeoutException;
 import com.zeroc.Ice.InitializationData;
@@ -19,7 +20,7 @@ public class AllTests {
 
     String proxyString3s = "test: " + helper.getTestEndpoint(1);
 
-    // testIdleCheckDoesNotAbortConnectionWhenThreadPoolIsExhausted(p, helper.getWriter());
+    testIdleCheckDoesNotAbortConnectionWhenThreadPoolIsExhausted(p, helper.getWriter());
     testConnectionAbortedByIdleCheck(proxyString, communicator.getProperties(), helper.getWriter());
     testEnableDisableIdleCheck(
         true, proxyString3s, communicator.getProperties(), helper.getWriter());
@@ -38,13 +39,16 @@ public class AllTests {
   private static void testIdleCheckDoesNotAbortConnectionWhenThreadPoolIsExhausted(
       TestIntfPrx p, PrintWriter output) {
     output.write(
-        "testing that the idle check does not abort a connection that receives heartbeats.. ");
+        "testing that the idle check does not abort a connection that receives heartbeats... ");
     output.flush();
 
     // Establish connection.
     p.ice_ping();
 
     p.sleep(2000); // the implementation in the server sleeps for 2,000ms
+
+    // close connection
+    p.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
     output.println("ok");
   }
 
