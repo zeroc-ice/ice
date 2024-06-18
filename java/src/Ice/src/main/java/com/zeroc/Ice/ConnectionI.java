@@ -7,6 +7,7 @@ package com.zeroc.Ice;
 import com.zeroc.Ice.Instrumentation.ConnectionState;
 import com.zeroc.IceInternal.AsyncStatus;
 import com.zeroc.IceInternal.Buffer;
+import com.zeroc.IceInternal.IdleTimeoutTransceiverDecorator;
 import com.zeroc.IceInternal.OutgoingAsyncBase;
 import com.zeroc.IceInternal.Protocol;
 import com.zeroc.IceInternal.SocketOperation;
@@ -1220,17 +1221,57 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     return _threadPool;
   }
 
+  public synchronized void idleCheck(int idleTimeout) {
+    if (_state == StateActive || _state == StateHolding) {
+      if (_instance.traceLevels().network >= 1) {
+        _instance
+            .initializationData()
+            .logger
+            .trace(
+                _instance.traceLevels().networkCat,
+                "connection aborted by the idle check because it did not receive any byte for "
+                    + idleTimeout
+                    + "s\n"
+                    + _transceiver.toDetailedString());
+      }
+
+      setState(
+          StateClosed, new ConnectionTimeoutException()); // TODO: should be ConnectionIdleException
+    }
+    // else nothing to do
+  }
+
+  public synchronized void sendHeartbeat() {
+    assert !_endpoint.datagram();
+
+    if (_state == StateActive || _state == StateHolding) {
+      OutputStream os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
+      os.writeBlob(Protocol.magic);
+      Protocol.currentProtocol.ice_writeMembers(os);
+      Protocol.currentProtocolEncoding.ice_writeMembers(os);
+      os.writeByte(Protocol.validateConnectionMsg);
+      os.writeByte((byte) 0);
+      os.writeInt(Protocol.headerSize); // Message size.
+
+      try {
+        sendMessage(new OutgoingMessage(os, false, false));
+      } catch (LocalException ex) {
+        setState(StateClosed, ex);
+      }
+    }
+  }
+
   public ConnectionI(
       Communicator communicator,
       com.zeroc.IceInternal.Instance instance,
       com.zeroc.IceInternal.Transceiver transceiver,
       com.zeroc.IceInternal.Connector connector,
       com.zeroc.IceInternal.EndpointI endpoint,
+      ObjectAdapter adapter,
       Consumer<ConnectionI> removeFromFactory, // can be null
-      ObjectAdapter adapter) {
+      ConnectionOptions options) {
     _communicator = communicator;
     _instance = instance;
-    _transceiver = transceiver;
     _desc = transceiver.toString();
     _type = transceiver.protocol();
     _connector = connector;
@@ -1241,6 +1282,10 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     _dispatcher = initData.dispatcher != null;
     _logger = initData.logger; // Cached for better performance.
     _traceLevels = instance.traceLevels(); // Cached for better performance.
+    _connectTimeout = options.connectTimeout();
+    _closeTimeout = options.closeTimeout(); // not used for datagram connections
+    // suppress inactivity timeout for datagram connections
+    _inactivityTimeout = endpoint.datagram() ? 0 : options.inactivityTimeout();
     _timer = instance.timer();
     _writeTimeout = new TimeoutCallback();
     _writeTimeoutFuture = null;
@@ -1270,6 +1315,17 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       compressionLevel = 9;
     }
     _compressionLevel = compressionLevel;
+
+    if (options.idleTimeout() > 0 && !endpoint.datagram()) {
+      transceiver =
+          new IdleTimeoutTransceiverDecorator(
+              transceiver,
+              this,
+              options.idleTimeout(),
+              options.enableIdleCheck(),
+              _instance.timer());
+    }
+    _transceiver = transceiver;
 
     if (adapter != null) {
       _servantManager = adapter.getServantManager();
@@ -1572,28 +1628,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
                 return null;
               }
             });
-  }
-
-  private void sendHeartbeatNow() {
-    assert (_state == StateActive);
-
-    if (!_endpoint.datagram()) {
-      OutputStream os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
-      os.writeBlob(Protocol.magic);
-      Protocol.currentProtocol.ice_writeMembers(os);
-      Protocol.currentProtocolEncoding.ice_writeMembers(os);
-      os.writeByte(Protocol.validateConnectionMsg);
-      os.writeByte((byte) 0);
-      os.writeInt(Protocol.headerSize); // Message size.
-
-      try {
-        OutgoingMessage message = new OutgoingMessage(os, false, false);
-        sendMessage(message);
-      } catch (LocalException ex) {
-        setState(StateClosed, ex);
-        assert (_exception != null);
-      }
-    }
   }
 
   private boolean initialize(int operation) {
@@ -2516,6 +2550,11 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   private final Logger _logger;
   private final com.zeroc.IceInternal.TraceLevels _traceLevels;
   private final com.zeroc.IceInternal.ThreadPool _threadPool;
+
+  // All these timeouts are in seconds. A value <= 0 means infinite timeout.
+  private final int _connectTimeout;
+  private final int _closeTimeout;
+  private final int _inactivityTimeout;
 
   private final java.util.concurrent.ScheduledExecutorService _timer;
   private final Runnable _writeTimeout;

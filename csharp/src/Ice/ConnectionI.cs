@@ -1430,7 +1430,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         ConnectionOptions options)
     {
         _instance = instance;
-        _transceiver = transceiver;
         _desc = transceiver.ToString();
         _type = transceiver.protocol();
         _connector = connector;
@@ -1469,12 +1468,13 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
         if (options.idleTimeout > TimeSpan.Zero && !endpoint.datagram())
         {
-            _transceiver = new IdleTimeoutTransceiverDecorator(
-                _transceiver,
+            transceiver = new IdleTimeoutTransceiverDecorator(
+                transceiver,
                 this,
                 options.idleTimeout,
                 options.enableIdleCheck);
         }
+        _transceiver = transceiver;
 
         try
         {
@@ -2769,7 +2769,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     }
 
     private Instance _instance;
-    private Transceiver _transceiver;
+    private readonly Transceiver _transceiver;
     private string _desc;
     private string _type;
     private Connector _connector;

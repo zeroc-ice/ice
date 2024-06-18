@@ -1618,6 +1618,11 @@ public final class ObjectAdapter {
 
   private static String[] _suffixes = {
     "AdapterId",
+    "Connection.CloseTimeout",
+    "Connection.ConnectTimeout",
+    "Connection.EnableIdleCheck",
+    "Connection.IdleTimeout",
+    "Connection.InactivityTimeout",
     "Endpoints",
     "Locator",
     "Locator.EncodingVersion",

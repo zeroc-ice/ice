@@ -5,6 +5,7 @@
 package com.zeroc.IceInternal;
 
 import com.zeroc.Ice.ConnectionI;
+import com.zeroc.Ice.ConnectionOptions;
 import com.zeroc.Ice.LocalException;
 import java.util.concurrent.Callable;
 
@@ -260,6 +261,7 @@ public final class OutgoingConnectionFactory {
   OutgoingConnectionFactory(com.zeroc.Ice.Communicator communicator, Instance instance) {
     _communicator = communicator;
     _instance = instance;
+    _connectionOptions = instance.clientConnectionOptions();
     _destroyed = false;
   }
 
@@ -454,8 +456,9 @@ public final class OutgoingConnectionFactory {
               transceiver,
               ci.connector,
               ci.endpoint.compress(false),
+              null,
               this::removeConnection,
-              null);
+              _connectionOptions);
     } catch (LocalException ex) {
       try {
         transceiver.close();
@@ -918,6 +921,7 @@ public final class OutgoingConnectionFactory {
 
   private com.zeroc.Ice.Communicator _communicator;
   private final Instance _instance;
+  private final ConnectionOptions _connectionOptions;
   private boolean _destroyed;
 
   private MultiHashMap<Connector, ConnectionI> _connections = new MultiHashMap<>();

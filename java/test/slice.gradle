@@ -22,6 +22,7 @@ task testSliceTask {
                                                      'Ice/faultTolerance/*.ice',
                                                      'Ice/hash/*.ice',
                                                      'Ice/hold/*.ice',
+                                                     'Ice/idleTimeout/*.ice',
                                                      'Ice/info/*.ice',
                                                      'Ice/inheritance/*.ice',
                                                      'Ice/interceptor/*.ice',
