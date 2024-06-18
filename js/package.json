@@ -7,7 +7,7 @@
     "repository": "https://github.com/zeroc-ice/ice.git",
     "license": "GPL-2.0",
     "engines": {
-        "node": ">=0.10.0"
+        "node": ">=18.20.3"
     },
     "keywords": [
         "Ice",

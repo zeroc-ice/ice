@@ -3,9 +3,10 @@
 allTests.py
 assets
 bin
+dist
+msbuild
 gulp
 gulpfile.js
-index.html
 Makefile
 test
 *.tgz
