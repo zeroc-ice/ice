@@ -13,10 +13,6 @@ if (typeof process != "undefined") {
     Timer.clearInterval = clearInterval;
     Timer.setImmediate = setImmediate;
 } else {
-    function isIE() {
-        return navigator.userAgent.indexOf("MSIE") !== -1 || navigator.userAgent.match(/Trident.*rv:11\./);
-    }
-
     function isWorker() {
         return typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope;
     }
@@ -53,34 +49,22 @@ if (typeof process != "undefined") {
             }
         };
 
-        //
-        // For Browsers that support setImmediate prefer that,
-        // otherwise implement it using MessageChannel
-        //
-        if (isIE()) {
-            Timer.setImmediate = function (cb) {
-                setImmediate(cb);
-            };
-        } else {
-            //
-            // Should be only called for workers
-            //
-            const channel = new MessageChannel();
-            channel.port1.onmessage = (event) => {
-                const id = event.data;
-                const cb = _timers.get(id);
-                if (cb !== undefined) {
-                    cb.call();
-                    _timers.delete(id);
-                }
-            };
+        // Only called for workers
+        const channel = new MessageChannel();
+        channel.port1.onmessage = (event) => {
+            const id = event.data;
+            const cb = _timers.get(id);
+            if (cb !== undefined) {
+                cb.call();
+                _timers.delete(id);
+            }
+        };
 
-            Timer.setImmediate = function (cb) {
-                const id = nextId();
-                _timers.set(id, cb);
-                channel.port2.postMessage(id);
-            };
-        }
+        Timer.setImmediate = function (cb) {
+            const id = nextId();
+            _timers.set(id, cb);
+            channel.port2.postMessage(id);
+        };
 
         return Timer;
     }

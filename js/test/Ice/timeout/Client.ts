@@ -86,8 +86,8 @@ export class Client extends TestHelper {
 
         const seq = new Uint8Array(10000000);
         if (!TestHelper.isSafari()) {
-            // Connection timeouts are not realiable with Safari because its WebSocket implementation
-            // buffers all the data without applying back presure.
+            // Connection timeouts are not reliable with Safari because its WebSocket implementation
+            // buffers all the data without applying back pressure.
             out.write("testing connection timeout... ");
             {
                 const to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(250 * mult));
@@ -105,7 +105,7 @@ export class Client extends TestHelper {
             }
 
             {
-                // NOTE: 30s timeout is necessary for Firefox/IE on Windows
+                // NOTE: 30s timeout is necessary for Firefox on Windows
                 const to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(30000 * mult));
                 await controller.holdAdapter(200 * mult);
                 try {
@@ -141,7 +141,7 @@ export class Client extends TestHelper {
         }
         out.writeLine("ok");
 
-        // Small delay is useful for IE which doesn't like too many connection failures in a row
+        // Small delay is useful for Firefox which doesn't like too many connection failures in a row
         await Ice.Promise.delay(500);
 
         out.write("testing close timeout... ");
@@ -173,10 +173,10 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         if (!TestHelper.isSafari()) {
-            // Connection timeouts are not realiable with Safari because its WebSocket implementation
-            // buffers all the data without applying back presure.
+            // Connection timeouts are not reliable with Safari because its WebSocket implementation
+            // buffers all the data without applying back pressure.
             {
-                // Small delay is useful for IE which doesn't like too many connection failures in a row
+                // Small delay is useful for Firefox which doesn't like too many connection failures in a row
                 await Ice.Promise.delay(500);
                 out.write("testing timeout overrides... ");
                 //

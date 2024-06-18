@@ -77,10 +77,6 @@ class Exception extends Error {
 
     static captureStackTrace(object) {
         const stack = new Error().stack;
-        //
-        // In IE 10 and greater the stack will be filled once the Error is throw
-        // we don't need to do anything.
-        //
         if (stack !== undefined) {
             Object.defineProperty(object, "stack", {
                 get: function () {

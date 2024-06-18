@@ -176,16 +176,9 @@ export class Client extends TestHelper {
         [communicator] = this.initialize(properties);
         com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
 
-        //
-        // Skip this test with IE it open too many connections IE doesn't allow more
-        // than 6 connections. Firefox has a configuration that causes failed connections
-        // to be delayed on retry (network.websocket.delay-failed-reconnects=true by
-        // default), so we prefer to also disable this test with Firefox.
-        //
-        if (
-            typeof navigator === "undefined" ||
-            ["MSIE", "Trident/7.0", "Firefox"].every((value) => navigator.userAgent.indexOf(value) === -1)
-        ) {
+        // Firefox has a configuration that causes failed connections to be delayed on retry
+        // (network.websocket.delay-failed-reconnects=true by default), so we prefer to disable this test with Firefox.
+        if (typeof navigator === "undefined" || navigator.userAgent.indexOf("Firefox") === -1) {
             out.write("testing binding with multiple random endpoints... ");
 
             const adapters = await Promise.all([
@@ -434,10 +427,7 @@ export class Client extends TestHelper {
         }
         out.writeLine("ok");
 
-        if (
-            typeof navigator === "undefined" ||
-            ["Firefox", "MSIE", "Trident/7.0"].every((value) => navigator.userAgent.indexOf(value) === -1)
-        ) {
+        if (typeof navigator === "undefined" || navigator.userAgent.indexOf("Firefox") === -1) {
             //
             // Firefox adds a delay on websocket failed reconnects that causes this test to take too
             // much time to complete.
