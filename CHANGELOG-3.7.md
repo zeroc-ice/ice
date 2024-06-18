@@ -10,6 +10,7 @@ particular aspect of Ice.
 
 - [Changes since Ice 3.7.10](#changes-since-ice-3710)
   - [C++ Changes](#c-changes)
+  - [C# Changes](#c-changes)
 - [Changes in Ice 3.7.10](#changes-in-ice-3710)
   - [C++ Changes](#c-changes-1)
   - [C# Changes](#c-changes-2)
@@ -101,6 +102,12 @@ particular aspect of Ice.
 ## C++ Changes
 
 - Fix bug with the Ice.ServerIdleTime affecting Apple platforms. (https://github.com/zeroc-ice/ice/issues/2025)
+
+## C# Changes
+
+- Fixed bug in the Ice for C# connection code. A connection no longer reads messages off the network when its
+  associated thread-pool has no thread available to process these messages. As a result, back-pressure now works in
+  Ice for C# just like in other language mappings.
 
 # Changes in Ice 3.7.10
 

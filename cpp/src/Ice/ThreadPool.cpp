@@ -778,7 +778,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                 // If there are no more ready handlers and there are still threads busy performing
                 // IO, we give up leadership and promote another follower (which will perform the
                 // select() only once all the IOs are completed). Otherwise, if there are no more
-                // threads peforming IOs, it's time to do another select().
+                // threads performing IOs, it's time to do another select().
                 //
                 if(_inUseIO > 0)
                 {
@@ -915,7 +915,7 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    current._ioCompleted = true; // Set the IO completed flag to specifiy that ioCompleted() has been called.
+    current._ioCompleted = true; // Set the IO completed flag to specify that ioCompleted() has been called.
 
     current._thread->setState(ICE_ENUM(ThreadState, ThreadStateInUseForUser));
 

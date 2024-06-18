@@ -566,16 +566,17 @@ namespace Ice
                     if(callback != null)
                     {
                         _threadPool.dispatch(() =>
-                        {
-                            try
                             {
-                                callback(this);
-                            }
-                            catch(System.Exception ex)
-                            {
-                                _logger.error("connection callback exception:\n" + ex + '\n' + _desc);
-                            }
-                        } , this);
+                                try
+                                {
+                                    callback(this);
+                                }
+                                catch(System.Exception ex)
+                                {
+                                    _logger.error("connection callback exception:\n" + ex + '\n' + _desc);
+                                }
+                            },
+                            this);
                     }
                 }
                 else
@@ -1035,45 +1036,67 @@ namespace Ice
         //
         // Operations from EventHandler
         //
-        public override bool startAsync(int operation, IceInternal.AsyncCallback cb, ref bool completedSynchronously)
+        public override bool startAsync(int operation, IceInternal.AsyncCallback completedCallback)
         {
             if(_state >= StateClosed)
             {
                 return false;
             }
 
-            try
-            {
-                if((operation & SocketOperation.Write) != 0)
+            // Run the IO operation on a .NET thread pool thread to ensure the IO operation won't be interrupted if the
+            // Ice thread pool thread is terminated (.NET Socket read/write fail with a SocketError.OperationAborted
+            // error if started from a thread which is later terminated).
+            Task.Run(() => {
+                lock(this)
                 {
-                    if(_observer != null)
+                    if(_state >= StateClosed)
                     {
-                        observerStartWrite(_writeStream.getBuffer());
+                        completedCallback(this);
+                        return;
                     }
 
-                    bool completed;
-                    completedSynchronously = _transceiver.startWrite(_writeStream.getBuffer(), cb, this, out completed);
-                    if(completed && _sendStreams.Count > 0)
+                    try
                     {
-                        // The whole message is written, assume it's sent now for at-most-once semantics.
-                        _sendStreams.First.Value.isSent = true;
-                    }
-                }
-                else if((operation & SocketOperation.Read) != 0)
-                {
-                    if(_observer != null && !_readHeader)
-                    {
-                        observerStartRead(_readStream.getBuffer());
-                    }
+                        if((operation & SocketOperation.Write) != 0)
+                        {
+                            if(_observer != null)
+                            {
+                                observerStartWrite(_writeStream.getBuffer());
+                            }
 
-                    completedSynchronously = _transceiver.startRead(_readStream.getBuffer(), cb, this);
+                            bool completed;
+                            if (_transceiver.startWrite(_writeStream.getBuffer(), completedCallback, this, out completed))
+                            {
+                                // If the write completed immediately and the buffer
+                                if (completed && _sendStreams.Count > 0)
+                                {
+                                    // The whole message is written, assume it's sent now for at-most-once semantics.
+                                    _sendStreams.First.Value.isSent = true;
+                                }
+                                completedCallback(this);
+                            }
+                        }
+                        else if((operation & SocketOperation.Read) != 0)
+                        {
+                            if(_observer != null && !_readHeader)
+                            {
+                                observerStartRead(_readStream.getBuffer());
+                            }
+
+                            if (_transceiver.startRead(_readStream.getBuffer(), completedCallback, this))
+                            {
+                                completedCallback(this);
+                            }
+                        }
+                    }
+                    catch(LocalException ex)
+                    {
+                        setState(StateClosed, ex);
+                        completedCallback(this);
+                    }
                 }
-            }
-            catch(LocalException ex)
-            {
-                setState(StateClosed, ex);
-                return false;
-            }
+            });
+
             return true;
         }
 
@@ -1152,274 +1175,276 @@ namespace Ice
             MessageInfo info = new MessageInfo();
             int dispatchCount = 0;
 
-            ThreadPoolMessage msg = new ThreadPoolMessage(this);
-            try
+            using(ThreadPoolMessage msg = new ThreadPoolMessage(current, this))
             {
                 lock(this)
                 {
-                    if(!msg.startIOScope(ref current))
-                    {
-                        return;
-                    }
-
-                    if(_state >= StateClosed)
-                    {
-                        return;
-                    }
-
-                    int readyOp = current.operation;
                     try
                     {
-                        unscheduleTimeout(current.operation);
-
-                        int writeOp = SocketOperation.None;
-                        int readOp = SocketOperation.None;
-                        if((readyOp & SocketOperation.Write) != 0)
+                        if(!msg.startIOScope())
                         {
-                            if(_observer != null)
-                            {
-                                observerStartWrite(_writeStream.getBuffer());
-                            }
-                            writeOp = write(_writeStream.getBuffer());
-                            if(_observer != null && (writeOp & SocketOperation.Write) == 0)
-                            {
-                                observerFinishWrite(_writeStream.getBuffer());
-                            }
+                            // No read/write IO is ready for the transceiver. This can call startAsync
+                            return;
                         }
 
-                        while((readyOp & SocketOperation.Read) != 0)
+                        if(_state >= StateClosed)
                         {
-                            IceInternal.Buffer buf = _readStream.getBuffer();
-
-                            if(_observer != null && !_readHeader)
-                            {
-                                observerStartRead(buf);
-                            }
-
-                            readOp = read(buf);
-                            if((readOp & SocketOperation.Read) != 0)
-                            {
-                                break;
-                            }
-                            if(_observer != null && !_readHeader)
-                            {
-                                Debug.Assert(!buf.b.hasRemaining());
-                                observerFinishRead(buf);
-                            }
-
-                            if(_readHeader) // Read header if necessary.
-                            {
-                                _readHeader = false;
-
-                                if(_observer != null)
-                                {
-                                    _observer.receivedBytes(Protocol.headerSize);
-                                }
-
-                                //
-                                // Connection is validated on first message. This is only used by
-                                // setState() to check wether or not we can print a connection
-                                // warning (a client might close the connection forcefully if the
-                                // connection isn't validated, we don't want to print a warning
-                                // in this case).
-                                //
-                                _validated = true;
-
-                                int pos = _readStream.pos();
-                                if(pos < Protocol.headerSize)
-                                {
-                                    //
-                                    // This situation is possible for small UDP packets.
-                                    //
-                                    throw new IllegalMessageSizeException();
-                                }
-
-                                _readStream.pos(0);
-                                byte[] m = new byte[4];
-                                m[0] = _readStream.readByte();
-                                m[1] = _readStream.readByte();
-                                m[2] = _readStream.readByte();
-                                m[3] = _readStream.readByte();
-                                if(m[0] != Protocol.magic[0] || m[1] != Protocol.magic[1] ||
-                                   m[2] != Protocol.magic[2] || m[3] != Protocol.magic[3])
-                                {
-                                    BadMagicException ex = new BadMagicException();
-                                    ex.badMagic = m;
-                                    throw ex;
-                                }
-
-                                ProtocolVersion pv  = new ProtocolVersion();
-                                pv.ice_readMembers(_readStream);
-                                Protocol.checkSupportedProtocol(pv);
-                                EncodingVersion ev = new EncodingVersion();
-                                ev.ice_readMembers(_readStream);
-                                Protocol.checkSupportedProtocolEncoding(ev);
-
-                                _readStream.readByte(); // messageType
-                                _readStream.readByte(); // compress
-                                int size = _readStream.readInt();
-                                if(size < Protocol.headerSize)
-                                {
-                                    throw new IllegalMessageSizeException();
-                                }
-
-                                if(size > _messageSizeMax)
-                                {
-                                    Ex.throwMemoryLimitException(size, _messageSizeMax);
-                                }
-                                if(size > _readStream.size())
-                                {
-                                    _readStream.resize(size);
-                                }
-                                _readStream.pos(pos);
-                            }
-
-                            if(buf.b.hasRemaining())
-                            {
-                                if(_endpoint.datagram())
-                                {
-                                    throw new DatagramLimitException(); // The message was truncated.
-                                }
-                                continue;
-                            }
-                            break;
+                            return;
                         }
 
-                        int newOp = readOp | writeOp;
-                        readyOp &= ~newOp;
-                        Debug.Assert(readyOp != 0 || newOp != 0);
-
-                        if(_state <= StateNotValidated)
+                        int readyOp = current.operation;
+                        try
                         {
-                            if(newOp != 0)
-                            {
-                                //
-                                // Wait for all the transceiver conditions to be
-                                // satisfied before continuing.
-                                //
-                                scheduleTimeout(newOp);
-                                _threadPool.update(this, current.operation, newOp);
-                                return;
-                            }
+                            unscheduleTimeout(current.operation);
 
-                            if(_state == StateNotInitialized && !initialize(current.operation))
-                            {
-                                return;
-                            }
-
-                            if(_state <= StateNotValidated && !validate(current.operation))
-                            {
-                                return;
-                            }
-
-                            _threadPool.unregister(this, current.operation);
-
-                            //
-                            // We start out in holding state.
-                            //
-                            setState(StateHolding);
-                            if(_startCallback != null)
-                            {
-                                startCB = _startCallback;
-                                _startCallback = null;
-                                if(startCB != null)
-                                {
-                                    ++dispatchCount;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            Debug.Assert(_state <= StateClosingPending);
-
-                            //
-                            // We parse messages first, if we receive a close
-                            // connection message we won't send more messages.
-                            //
-                            if((readyOp & SocketOperation.Read) != 0)
-                            {
-                                newOp |= parseMessage(ref info);
-                                dispatchCount += info.messageDispatchCount;
-                            }
-
+                            int writeOp = SocketOperation.None;
+                            int readOp = SocketOperation.None;
                             if((readyOp & SocketOperation.Write) != 0)
                             {
-                                newOp |= sendNextMessage(out sentCBs);
-                                if(sentCBs != null)
+                                if(_observer != null)
                                 {
-                                    ++dispatchCount;
+                                    observerStartWrite(_writeStream.getBuffer());
+                                }
+                                writeOp = write(_writeStream.getBuffer());
+                                if(_observer != null && (writeOp & SocketOperation.Write) == 0)
+                                {
+                                    observerFinishWrite(_writeStream.getBuffer());
                                 }
                             }
 
-                            if(_state < StateClosed)
+                            while((readyOp & SocketOperation.Read) != 0)
                             {
-                                scheduleTimeout(newOp);
-                                _threadPool.update(this, current.operation, newOp);
+                                IceInternal.Buffer buf = _readStream.getBuffer();
+
+                                if(_observer != null && !_readHeader)
+                                {
+                                    observerStartRead(buf);
+                                }
+
+                                readOp = read(buf);
+                                if((readOp & SocketOperation.Read) != 0)
+                                {
+                                    break;
+                                }
+                                if(_observer != null && !_readHeader)
+                                {
+                                    Debug.Assert(!buf.b.hasRemaining());
+                                    observerFinishRead(buf);
+                                }
+
+                                if(_readHeader) // Read header if necessary.
+                                {
+                                    _readHeader = false;
+
+                                    if(_observer != null)
+                                    {
+                                        _observer.receivedBytes(Protocol.headerSize);
+                                    }
+
+                                    //
+                                    // Connection is validated on first message. This is only used by
+                                    // setState() to check wether or not we can print a connection
+                                    // warning (a client might close the connection forcefully if the
+                                    // connection isn't validated, we don't want to print a warning
+                                    // in this case).
+                                    //
+                                    _validated = true;
+
+                                    int pos = _readStream.pos();
+                                    if(pos < Protocol.headerSize)
+                                    {
+                                        //
+                                        // This situation is possible for small UDP packets.
+                                        //
+                                        throw new IllegalMessageSizeException();
+                                    }
+
+                                    _readStream.pos(0);
+                                    byte[] m = new byte[4];
+                                    m[0] = _readStream.readByte();
+                                    m[1] = _readStream.readByte();
+                                    m[2] = _readStream.readByte();
+                                    m[3] = _readStream.readByte();
+                                    if(m[0] != Protocol.magic[0] || m[1] != Protocol.magic[1] ||
+                                    m[2] != Protocol.magic[2] || m[3] != Protocol.magic[3])
+                                    {
+                                        BadMagicException ex = new BadMagicException();
+                                        ex.badMagic = m;
+                                        throw ex;
+                                    }
+
+                                    ProtocolVersion pv  = new ProtocolVersion();
+                                    pv.ice_readMembers(_readStream);
+                                    Protocol.checkSupportedProtocol(pv);
+                                    EncodingVersion ev = new EncodingVersion();
+                                    ev.ice_readMembers(_readStream);
+                                    Protocol.checkSupportedProtocolEncoding(ev);
+
+                                    _readStream.readByte(); // messageType
+                                    _readStream.readByte(); // compress
+                                    int size = _readStream.readInt();
+                                    if(size < Protocol.headerSize)
+                                    {
+                                        throw new IllegalMessageSizeException();
+                                    }
+
+                                    if(size > _messageSizeMax)
+                                    {
+                                        Ex.throwMemoryLimitException(size, _messageSizeMax);
+                                    }
+                                    if(size > _readStream.size())
+                                    {
+                                        _readStream.resize(size);
+                                    }
+                                    _readStream.pos(pos);
+                                }
+
+                                if(buf.b.hasRemaining())
+                                {
+                                    if(_endpoint.datagram())
+                                    {
+                                        throw new DatagramLimitException(); // The message was truncated.
+                                    }
+                                    continue;
+                                }
+                                break;
                             }
-                        }
 
-                        if(_acmLastActivity > -1)
-                        {
-                            _acmLastActivity = Time.currentMonotonicTimeMillis();
-                        }
+                            int newOp = readOp | writeOp;
+                            readyOp &= ~newOp;
+                            Debug.Assert(readyOp != 0 || newOp != 0);
 
-                        if(dispatchCount == 0)
-                        {
-                            return; // Nothing to dispatch we're done!
-                        }
-
-                        _dispatchCount += dispatchCount;
-
-                        msg.completed(ref current);
-                    }
-                    catch(DatagramLimitException) // Expected.
-                    {
-                        if(_warnUdp)
-                        {
-                            _logger.warning(string.Format("maximum datagram size of {0} exceeded", _readStream.pos()));
-                        }
-                        _readStream.resize(Protocol.headerSize);
-                        _readStream.pos(0);
-                        _readHeader = true;
-                        return;
-                    }
-                    catch(SocketException ex)
-                    {
-                        setState(StateClosed, ex);
-                        return;
-                    }
-                    catch(LocalException ex)
-                    {
-                        if(_endpoint.datagram())
-                        {
-                            if(_warn)
+                            if(_state <= StateNotValidated)
                             {
-                                _logger.warning(string.Format("datagram connection exception:\n{0}\n{1}", ex, _desc));
+                                if(newOp != 0)
+                                {
+                                    //
+                                    // Wait for all the transceiver conditions to be
+                                    // satisfied before continuing.
+                                    //
+                                    scheduleTimeout(newOp);
+                                    _threadPool.update(this, current.operation, newOp);
+                                    return;
+                                }
+
+                                if(_state == StateNotInitialized && !initialize(current.operation))
+                                {
+                                    return;
+                                }
+
+                                if(_state <= StateNotValidated && !validate(current.operation))
+                                {
+                                    return;
+                                }
+
+                                _threadPool.unregister(this, current.operation);
+
+                                //
+                                // We start out in holding state.
+                                //
+                                setState(StateHolding);
+                                if(_startCallback != null)
+                                {
+                                    startCB = _startCallback;
+                                    _startCallback = null;
+                                    if(startCB != null)
+                                    {
+                                        ++dispatchCount;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                Debug.Assert(_state <= StateClosingPending);
+
+                                //
+                                // We parse messages first, if we receive a close
+                                // connection message we won't send more messages.
+                                //
+                                if((readyOp & SocketOperation.Read) != 0)
+                                {
+                                    newOp |= parseMessage(ref info);
+                                    dispatchCount += info.messageDispatchCount;
+                                }
+
+                                if((readyOp & SocketOperation.Write) != 0)
+                                {
+                                    newOp |= sendNextMessage(out sentCBs);
+                                    if(sentCBs != null)
+                                    {
+                                        ++dispatchCount;
+                                    }
+                                }
+
+                                if(_state < StateClosed)
+                                {
+                                    scheduleTimeout(newOp);
+                                    _threadPool.update(this, current.operation, newOp);
+                                }
+                            }
+
+                            if(_acmLastActivity > -1)
+                            {
+                                _acmLastActivity = Time.currentMonotonicTimeMillis();
+                            }
+
+                            if(dispatchCount == 0)
+                            {
+                                return; // Nothing to dispatch we're done!
+                            }
+
+                            _dispatchCount += dispatchCount;
+
+                            msg.ioCompleted();
+                        }
+                        catch(DatagramLimitException) // Expected.
+                        {
+                            if(_warnUdp)
+                            {
+                                _logger.warning(string.Format("maximum datagram size of {0} exceeded", _readStream.pos()));
                             }
                             _readStream.resize(Protocol.headerSize);
                             _readStream.pos(0);
                             _readHeader = true;
+                            return;
                         }
-                        else
+                        catch(SocketException ex)
                         {
                             setState(StateClosed, ex);
+                            return;
                         }
-                        return;
-                    }
+                        catch(LocalException ex)
+                        {
+                            if(_endpoint.datagram())
+                            {
+                                if(_warn)
+                                {
+                                    _logger.warning(string.Format("datagram connection exception:\n{0}\n{1}", ex, _desc));
+                                }
+                                _readStream.resize(Protocol.headerSize);
+                                _readStream.pos(0);
+                                _readHeader = true;
+                            }
+                            else
+                            {
+                                setState(StateClosed, ex);
+                            }
+                            return;
+                        }
 
-                    ThreadPoolCurrent c = current;
-                    _threadPool.dispatch(() =>
+                    }
+                    finally
+                    {
+                        msg.finishIOScope();
+                    }
+                }
+
+                _threadPool.dispatchFromThisThread(() =>
                     {
                         dispatch(startCB, sentCBs, info);
-                        msg.destroy(ref c);
-                    }, this);
-                }
+                    },
+                    this);
             }
-            finally
-            {
-                msg.finishIOScope(ref current);
-            }
-
         }
 
         private void dispatch(StartCallback startCB, Queue<OutgoingMessage> sentCBs, MessageInfo info)
@@ -1546,7 +1571,7 @@ namespace Ice
             //
             // If there are no callbacks to call, we don't call ioCompleted() since we're not going
             // to call code that will potentially block (this avoids promoting a new leader and
-            // unecessary thread creation, especially if this is called on shutdown).
+            // unnecessary thread creation, especially if this is called on shutdown).
             //
             if(_startCallback == null && _sendStreams.Count == 0 && _asyncRequests.Count == 0 &&
                _closeCallback == null && _heartbeatCallback == null)
@@ -1555,13 +1580,9 @@ namespace Ice
                 return;
             }
 
-            //
-            // Unlike C++/Java, this method is called from an IO thread of the .NET thread
-            // pool of from the communicator async IO thread. While it's fine to handle the
-            // non-blocking activity of the connection from these threads, the dispatching
-            // of the message must be taken care of by the Ice thread pool.
-            //
-            _threadPool.dispatch(finish, this);
+            current.ioCompleted();
+
+            _threadPool.dispatchFromThisThread(finish, this);
         }
 
         private void finish()

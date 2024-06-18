@@ -529,7 +529,7 @@ public class AllTests : Test.AllTests
             test(view["Connection"].Length == 1 && view["Connection"][0].current == 1 &&
                  view["Connection"][0].total == 1);
         }
-        test(view["Thread"].Length == 1 && view["Thread"][0].current == 5 && view["Thread"][0].total == 5);
+        test(view["Thread"].Length == 1 && view["Thread"][0].current == 4 && view["Thread"][0].total == 4);
         output.WriteLine("ok");
 
         output.Write("testing group by id...");
@@ -548,7 +548,7 @@ public class AllTests : Test.AllTests
         waitForCurrent(serverMetrics, "View", "Dispatch", 0);
 
         view = clientMetrics.getMetricsView("View", out timestamp);
-        test(view["Thread"].Length == 5);
+        test(view["Thread"].Length == 4);
         if(!collocated)
         {
             test(view["Connection"].Length == 2);
