@@ -4314,268 +4314,92 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for the per-proxy context.\n"
-        "@param newContext The context for the new proxy.\n"
-        "@return A proxy with the specified per-proxy context.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_context(java.util.Map<String, String> newContext)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_context(newContext);";
-    out << eb;
+    out << nl << p->name() << "Prx ice_context(java.util.Map<String, String> newContext);";
 
     out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for the adapter ID.\n"
-        "@param newAdapterId The adapter ID for the new proxy.\n"
-        "@return A proxy with the specified adapter ID.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_adapterId(String newAdapterId)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_adapterId(newAdapterId);";
-    out << eb;
+    out << nl << p->name() << "Prx ice_adapterId(String newAdapterId);";
 
     out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for the endpoints.\n"
-        "@param newEndpoints The endpoints for the new proxy.\n"
-        "@return A proxy with the specified endpoints.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_endpoints(com.zeroc.Ice.Endpoint[] newEndpoints)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_endpoints(newEndpoints);";
-    out << eb;
+    out << nl << p->name() << "Prx ice_endpoints(com.zeroc.Ice.Endpoint[] newEndpoints);";
 
     out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for the locator cache timeout.\n"
-        "@param newTimeout The new locator cache timeout (in seconds).\n"
-        "@return A proxy with the specified locator cache timeout.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_locatorCacheTimeout(int newTimeout)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_locatorCacheTimeout(newTimeout);";
-    out << eb;
+    out << nl << p->name() << "Prx ice_locatorCacheTimeout(int newTimeout);";
 
     out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for the invocation timeout.\n"
-        "@param newTimeout The new invocation timeout (in seconds).\n"
-        "@return A proxy with the specified invocation timeout.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_invocationTimeout(int newTimeout)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_invocationTimeout(newTimeout);";
-    out << eb;
+    out << nl << p->name() << "Prx ice_invocationTimeout(int newTimeout);";
 
     out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for connection caching.\n"
-        "@param newCache <code>true</code> if the new proxy should cache connections; <code>false</code> otherwise.\n"
-        "@return A proxy with the specified caching policy.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_connectionCached(boolean newCache)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_connectionCached(newCache);";
-    out << eb;
+    out << nl << p->name() << "Prx ice_connectionCached(boolean newCache);";
 
     out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for the endpoint selection policy.\n"
-        "@param newType The new endpoint selection policy.\n"
-        "@return A proxy with the specified endpoint selection policy.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_endpointSelection(com.zeroc.Ice.EndpointSelectionType newType)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_endpointSelection(newType);";
-    out << eb;
+    out << nl << p->name() << "Prx ice_endpointSelection(com.zeroc.Ice.EndpointSelectionType newType);";
 
     out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for how it selects endpoints.\n"
-        "@param b If <code>b</code> is <code>true</code>, only endpoints that use a secure transport are\n"
-        "used by the new proxy. If <code>b</code> is false, the returned proxy uses both secure and\n"
-        "insecure endpoints.\n"
-        "@return A proxy with the specified selection policy.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_secure(boolean b)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_secure(b);";
-    out << eb;
+    out << nl << p->name() << "Prx ice_secure(boolean b);";
 
     out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for the encoding used to marshal parameters.\n"
-        "@param e The encoding version to use to marshal request parameters.\n"
-        "@return A proxy with the specified encoding version.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_encodingVersion(com.zeroc.Ice.EncodingVersion e)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_encodingVersion(e);";
-    out << eb;
+    out << nl << p->name() << "Prx ice_encodingVersion(com.zeroc.Ice.EncodingVersion e);";
 
     out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for its endpoint selection policy.\n"
-        "@param b If <code>b</code> is <code>true</code>, the new proxy will use secure endpoints for invocations\n"
-        "and only use insecure endpoints if an invocation cannot be made via secure endpoints. If <code>b</code> is\n"
-        "<code>false</code>, the proxy prefers insecure endpoints to secure ones.\n"
-        "@return A proxy with the specified selection policy.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_preferSecure(boolean b)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_preferSecure(b);";
-    out << eb;
+    out << nl << p->name() << "Prx ice_preferSecure(boolean b);";
 
     out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for the router.\n"
-        "@param router The router for the new proxy.\n"
-        "@return A proxy with the specified router.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_router(com.zeroc.Ice.RouterPrx router)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_router(router);";
-    out << eb;
+    out << nl << p->name() << "Prx ice_router(com.zeroc.Ice.RouterPrx router);";
 
     out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for the locator.\n"
-        "@param locator The locator for the new proxy.\n"
-        "@return A proxy with the specified locator.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_locator(com.zeroc.Ice.LocatorPrx locator)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_locator(locator);";
-    out << eb;
+    out << nl << p->name() << "Prx ice_locator(com.zeroc.Ice.LocatorPrx locator);";
 
     out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for collocation optimization.\n"
-        "@param b <code>true</code> if the new proxy enables collocation optimization; <code>false</code> otherwise.\n"
-        "@return A proxy with the specified collocation optimization.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_collocationOptimized(boolean b)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_collocationOptimized(b);";
-    out << eb;
+    out << nl << p->name() << "Prx ice_collocationOptimized(boolean b);";
 
     out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, but uses twoway invocations.\n"
-        "@return A proxy that uses twoway invocations.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_twoway()";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_twoway();";
-    out << eb;
+    out << nl << p->name() << "Prx ice_twoway();";
 
     out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, but uses oneway invocations.\n"
-        "@return A proxy that uses oneway invocations.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_oneway()";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_oneway();";
-    out << eb;
+    out << nl << p->name() << "Prx ice_oneway();";
 
     out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, but uses batch oneway invocations.\n"
-        "@return A proxy that uses batch oneway invocations.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_batchOneway()";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_batchOneway();";
-    out << eb;
+    out << nl << p->name() << "Prx ice_batchOneway();";
 
     out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, but uses datagram invocations.\n"
-        "@return A proxy that uses datagram invocations.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_datagram()";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_datagram();";
-    out << eb;
+    out << nl << p->name() << "Prx ice_datagram();";
 
     out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, but uses batch datagram invocations.\n"
-        "@return A proxy that uses batch datagram invocations.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_batchDatagram()";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_batchDatagram();";
-    out << eb;
+    out << nl << p->name() << "Prx ice_batchDatagram();";
 
     out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for compression.\n"
-        "@param co <code>true</code> enables compression for the new proxy; <code>false</code> disables compression.\n"
-        "@return A proxy with the specified compression setting.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_compress(boolean co)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_compress(co);";
-    out << eb;
+    out << nl << p->name() << "Prx ice_compress(boolean co);";
 
     out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for its connection timeout setting.\n"
-        "@param t The connection timeout for the proxy in milliseconds.\n"
-        "@return A proxy with the specified timeout.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_timeout(int t)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_timeout(t);";
-    out << eb;
+    out << nl << p->name() << "Prx ice_timeout(int t);";
 
     out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for its connection ID.\n"
-        "@param connectionId The connection ID for the new proxy. An empty string removes the connection ID.\n"
-        "@return A proxy with the specified connection ID.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_connectionId(String connectionId)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_connectionId(connectionId);";
-    out << eb;
+    out << nl << p->name() << "Prx ice_connectionId(String connectionId);";
 
     out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except it's a fixed proxy bound\n"
-        "the given connection."
-        "@param connection The fixed proxy connection.\n"
-        "@return A fixed proxy bound to the given connection.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_fixed(com.zeroc.Ice.Connection connection)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_fixed(connection);";
-    out << eb;
+    out << nl << p->name() << "Prx ice_fixed(com.zeroc.Ice.Connection connection);";
 
     out << sp;
     out << nl << "static String ice_staticId()";
@@ -4601,6 +4425,161 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     outi << nl << "public class _" << p->name() << "PrxI extends com.zeroc.Ice._ObjectPrxI implements " << p->name()
          << "Prx";
     outi << sb;
+    
+    outi << sp;
+    outi << nl << "@Override";
+    outi << nl << "public " << p->name() << "Prx ice_context(java.util.Map<String, String> newContext)";
+    outi << sb;
+    outi << nl << "return (" << p->name() << "Prx)super.ice_context(newContext);";
+    outi << eb;
+    
+    outi << sp;
+    outi << nl << "@Override";
+    outi << nl << "public " << p->name() << "Prx ice_adapterId(String newAdapterId)";
+    outi << sb;
+    outi << nl << "return (" << p->name() << "Prx)super.ice_adapterId(newAdapterId);";
+    outi << eb;
+    
+    outi << sp;
+    outi << nl << "@Override";
+    outi << nl << "public " << p->name() << "Prx ice_endpoints(com.zeroc.Ice.Endpoint[] newEndpoints)";
+    outi << sb;
+    outi << nl << "return (" << p->name() << "Prx)super.ice_endpoints(newEndpoints);";
+    outi << eb;
+    
+    outi << sp;
+    outi << nl << "@Override";
+    outi << nl << "public " << p->name() << "Prx ice_locatorCacheTimeout(int newTimeout)";
+    outi << sb;
+    outi << nl << "return (" << p->name() << "Prx)super.ice_locatorCacheTimeout(newTimeout);";
+    outi << eb;
+    
+    outi << sp;
+    outi << nl << "@Override";
+    outi << nl << "public " << p->name() << "Prx ice_invocationTimeout(int newTimeout)";
+    outi << sb;
+    outi << nl << "return (" << p->name() << "Prx)super.ice_invocationTimeout(newTimeout);";
+    outi << eb;
+    
+    outi << sp;
+    outi << nl << "@Override";
+    outi << nl << "public " << p->name() << "Prx ice_connectionCached(boolean newCache)";
+    outi << sb;
+    outi << nl << "return (" << p->name() << "Prx)super.ice_connectionCached(newCache);";
+    outi << eb;
+    
+    outi << sp;
+    outi << nl << "@Override";
+    outi << nl << "public " << p->name() << "Prx ice_endpointSelection(com.zeroc.Ice.EndpointSelectionType newType)";
+    outi << sb;
+    outi << nl << "return (" << p->name() << "Prx)super.ice_endpointSelection(newType);";
+    outi << eb;
+    
+    outi << sp;
+    outi << nl << "@Override";
+    outi << nl << "public " << p->name() << "Prx ice_secure(boolean b)";
+    outi << sb;
+    outi << nl << "return (" << p->name() << "Prx)super.ice_secure(b);";
+    outi << eb;
+    
+    outi << sp;
+    outi << nl << "@Override";
+    outi << nl << "public " << p->name() << "Prx ice_encodingVersion(com.zeroc.Ice.EncodingVersion e)";
+    outi << sb;
+    outi << nl << "return (" << p->name() << "Prx)super.ice_encodingVersion(e);";
+    outi << eb;
+    
+    outi << sp;
+    outi << nl << "@Override";
+    outi << nl << "public " << p->name() << "Prx ice_preferSecure(boolean b)";
+    outi << sb;
+    outi << nl << "return (" << p->name() << "Prx)super.ice_preferSecure(b);";
+    outi << eb;
+    
+    outi << sp;
+    outi << nl << "@Override";
+    outi << nl << "public " << p->name() << "Prx ice_router(com.zeroc.Ice.RouterPrx router)";
+    outi << sb;
+    outi << nl << "return (" << p->name() << "Prx)super.ice_router(router);";
+    outi << eb;
+    
+    outi << sp;
+    outi << nl << "@Override";
+    outi << nl << "public " << p->name() << "Prx ice_locator(com.zeroc.Ice.LocatorPrx locator)";
+    outi << sb;
+    outi << nl << "return (" << p->name() << "Prx)super.ice_locator(locator);";
+    outi << eb;
+    
+    outi << sp;
+    outi << nl << "@Override";
+    outi << nl << "public " << p->name() << "Prx ice_collocationOptimized(boolean b)";
+    outi << sb;
+    outi << nl << "return (" << p->name() << "Prx)super.ice_collocationOptimized(b);";
+    outi << eb;
+    
+    outi << sp;
+    outi << nl << "@Override";
+    outi << nl << "public " << p->name() << "Prx ice_twoway()";
+    outi << sb;
+    outi << nl << "return (" << p->name() << "Prx)super.ice_twoway();";
+    outi << eb;
+    
+    outi << sp;
+    outi << nl << "@Override";
+    outi << nl << "public " << p->name() << "Prx ice_oneway()";
+    outi << sb;
+    outi << nl << "return (" << p->name() << "Prx)super.ice_oneway();";
+    outi << eb;
+    
+    outi << sp;
+    outi << nl << "@Override";
+    outi << nl << "public " << p->name() << "Prx ice_batchOneway()";
+    outi << sb;
+    outi << nl << "return (" << p->name() << "Prx)super.ice_batchOneway();";
+    outi << eb;
+    
+    outi << sp;
+    outi << nl << "@Override";
+    outi << nl << "public " << p->name() << "Prx ice_datagram()";
+    outi << sb;
+    outi << nl << "return (" << p->name() << "Prx)super.ice_datagram();";
+    outi << eb;
+
+    outi << sp;
+    outi << nl << "@Override";
+    outi << nl << "public " << p->name() << "Prx ice_batchDatagram()";
+    outi << sb;
+    outi << nl << "return (" << p->name() << "Prx)super.ice_batchDatagram();";
+    outi << eb;
+
+    outi << sp;
+    outi << nl << "@Override";
+    outi << nl << "public " << p->name() << "Prx ice_compress(boolean co)";
+    outi << sb;
+    outi << nl << "return (" << p->name() << "Prx)super.ice_compress(co);";
+    outi << eb;
+
+    outi << sp;
+    outi << nl << "@Override";
+    outi << nl << "public " << p->name() << "Prx ice_timeout(int t)";
+    outi << sb;
+    outi << nl << "return (" << p->name() << "Prx)super.ice_timeout(t);";
+    outi << eb;
+
+    outi << sp;
+    outi << nl << "@Override";
+    outi << nl << "public " << p->name() << "Prx ice_connectionId(String connectionId)";
+    outi << sb;
+    outi << nl << "return (" << p->name() << "Prx)super.ice_connectionId(connectionId);";
+    outi << eb;
+
+    outi << sp;
+    outi << nl << "@Override";
+    outi << nl << "public " << p->name() << "Prx ice_fixed(com.zeroc.Ice.Connection connection)";
+    outi << sb;
+    outi << nl << "return (" << p->name() << "Prx)super.ice_fixed(connection);";
+    outi << eb;
+
     outi << sp;
     writeHiddenDocComment(outi);
     outi << nl << "public static final long serialVersionUID = 0L;";
