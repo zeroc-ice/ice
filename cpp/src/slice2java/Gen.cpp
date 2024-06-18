@@ -4453,7 +4453,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     outi << sb;
     outi << nl << "return (" << p->name() << "Prx)super.ice_locatorCacheTimeout(newTimeout);";
     outi << eb;
-    
+
     outi << sp;
     outi << nl << "@Override";
     outi << nl << "public " << p->name() << "Prx ice_invocationTimeout(int newTimeout)";
