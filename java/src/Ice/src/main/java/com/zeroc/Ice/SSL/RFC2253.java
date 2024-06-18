@@ -22,7 +22,7 @@ class RFC2253 {
 
     public String reason;
 
-    public static final long serialVersionUID = 0L;
+    private static final long serialVersionUID = 6648623149548446986L;
   }
 
   static class RDNPair {

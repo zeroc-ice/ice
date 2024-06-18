@@ -47,8 +47,5 @@ public class TwowayOnlyException extends LocalException {
   /** The name of the operation that was invoked. */
   public String operation;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -7036652448391478186L;
+  private static final long serialVersionUID = -7036652448391478186L;
 }

@@ -37,8 +37,5 @@ public class UnknownReplyStatusException extends ProtocolException {
     return "::Ice::UnknownReplyStatusException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -6816121886863135119L;
+  private static final long serialVersionUID = -6816121886863135119L;
 }

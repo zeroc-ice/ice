@@ -42,10 +42,7 @@ public class InterfaceByValue extends Value {
     istr.endSlice();
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 0L;
-
   private String _id;
+
+  private static final long serialVersionUID = 7776480078901488923L;
 }

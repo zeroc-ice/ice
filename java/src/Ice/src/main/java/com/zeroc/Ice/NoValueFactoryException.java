@@ -52,8 +52,5 @@ public class NoValueFactoryException extends MarshalException {
   /** The Slice type ID of the class instance for which no factory could be found. */
   public String type;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -4888152001471748622L;
+  private static final long serialVersionUID = -4888152001471748622L;
 }

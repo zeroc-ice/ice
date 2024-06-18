@@ -43,9 +43,4 @@ public abstract class EndpointInfo extends com.zeroc.Ice.EndpointInfo {
   public EndpointInfo clone() {
     return (EndpointInfo) super.clone();
   }
-
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 4825481358879091449L;
 }

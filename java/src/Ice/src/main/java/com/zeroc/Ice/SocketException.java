@@ -37,8 +37,5 @@ public class SocketException extends SyscallException {
     return "::Ice::SocketException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -7634050967564791782L;
+  private static final long serialVersionUID = -7634050967564791782L;
 }

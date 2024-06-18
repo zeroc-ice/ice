@@ -37,9 +37,4 @@ public class ConnectionInfo extends com.zeroc.Ice.ConnectionInfo {
   public ConnectionInfo clone() {
     return (ConnectionInfo) super.clone();
   }
-
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 8227416448029738634L;
 }

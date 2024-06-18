@@ -56,8 +56,5 @@ public class DNSException extends LocalException {
   /** The host name that could not be resolved. */
   public String host;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 824453629913156786L;
+  private static final long serialVersionUID = 824453629913156786L;
 }

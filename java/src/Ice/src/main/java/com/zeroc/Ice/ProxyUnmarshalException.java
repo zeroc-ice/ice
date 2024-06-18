@@ -37,8 +37,5 @@ public class ProxyUnmarshalException extends MarshalException {
     return "::Ice::ProxyUnmarshalException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 2987361361391436704L;
+  private static final long serialVersionUID = 2987361361391436704L;
 }

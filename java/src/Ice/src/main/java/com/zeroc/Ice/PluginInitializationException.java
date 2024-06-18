@@ -42,8 +42,5 @@ public class PluginInitializationException extends LocalException {
   /** The reason for the failure. */
   public String reason;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 1589933368626096169L;
+  private static final long serialVersionUID = 1589933368626096169L;
 }

@@ -40,8 +40,5 @@ public class FacetNotExistException extends RequestFailedException {
     return "::Ice::FacetNotExistException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -584705670010603188L;
+  private static final long serialVersionUID = -584705670010603188L;
 }

@@ -37,8 +37,5 @@ public class CompressionException extends ProtocolException {
     return "::Ice::CompressionException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -3980762816174249071L;
+  private static final long serialVersionUID = -3980762816174249071L;
 }

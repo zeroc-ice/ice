@@ -27,8 +27,5 @@ public final class UnknownSlicedValue extends Value {
 
   private final String _unknownTypeId;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 0L;
+  private static final long serialVersionUID = -3199177633147630863L;
 }
