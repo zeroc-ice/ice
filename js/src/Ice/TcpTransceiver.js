@@ -171,7 +171,7 @@ if (typeof net.createConnection === "function") {
         }
 
         isWaitingToBeRead() {
-            return this._registered && this._readBuffers.length > 0;
+            return this._readBuffers.length > 0;
         }
 
         read(byteBuffer, moreData) {

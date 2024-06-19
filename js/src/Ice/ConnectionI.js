@@ -1086,18 +1086,35 @@ export class ConnectionI {
         }
     }
 
-    idleCheck(idleTimeout) {
+    idleCheck(idleTimeout, rescheduleTimer) {
         if (this._state == StateActive || this._state == StateHolding) {
-            if (this._instance.traceLevels().network >= 1) {
-                this._instance
-                    .initializationData()
-                    .logger.trace(
-                        this._instance.traceLevels().networkCat,
-                        `connection aborted by the idle check because it did not receive any byte for ${idleTimeout}s\n${this._transceiver.toString()}`,
-                    );
-            }
+            if (this._transceiver.isWaitingToBeRead()) {
+                // Bytes are available for reading but we the event loop hans't processed them yet. We don't want to abort
+                // the connection in this situation.
+                rescheduleTimer();
 
-            this.setState(StateClosed, new ConnectionTimeoutException()); // TODO: should be ConnectionIdleException
+                if (this._instance.traceLevels().network >= 3) {
+                    this._instance
+                        .initializationData()
+                        .logger.trace(
+                            this._instance.traceLevels().networkCat,
+                            `the idle check scheduled a new idle check in ${idleTimeout}s because ` +
+                                "the connection is waiting to be read\n" +
+                                _transceiver.toString(),
+                        );
+                }
+            } else {
+                if (this._instance.traceLevels().network >= 1) {
+                    this._instance
+                        .initializationData()
+                        .logger.trace(
+                            this._instance.traceLevels().networkCat,
+                            `connection aborted by the idle check because it did not receive any byte for ${idleTimeout}s\n${this._transceiver.toString()}`,
+                        );
+                }
+
+                this.setState(StateClosed, new ConnectionTimeoutException()); // TODO: should be ConnectionIdleException
+            }
         }
         // else nothing to do
     }

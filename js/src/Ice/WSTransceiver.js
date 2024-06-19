@@ -189,6 +189,10 @@ if (typeof WebSocket !== "undefined") {
             return true;
         }
 
+        isWaitingToBeRead() {
+            return this._readBuffers.length > 0;
+        }
+
         read(byteBuffer, moreData) {
             if (this._exception) {
                 throw this._exception;
