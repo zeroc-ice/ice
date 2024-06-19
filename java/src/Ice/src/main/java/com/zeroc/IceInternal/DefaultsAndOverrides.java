@@ -67,17 +67,6 @@ public final class DefaultsAndOverrides {
       throw ex;
     }
 
-    intValue = properties.getIcePropertyAsInt("Ice.Default.Timeout");
-    if (intValue < 1 && intValue != -1) {
-      defaultTimeout = 60000;
-      StringBuffer msg = new StringBuffer("invalid value for Ice.Default.Timeout `");
-      msg.append(properties.getProperty("Ice.Default.Timeout"));
-      msg.append("': defaulting to 60000");
-      logger.warning(msg.toString());
-    } else {
-      defaultTimeout = intValue;
-    }
-
     intValue = properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout");
     if (intValue < -1) {
       defaultLocatorCacheTimeout = -1;
@@ -121,7 +110,6 @@ public final class DefaultsAndOverrides {
   public final String defaultProtocol;
   public final boolean defaultCollocationOptimization;
   public final com.zeroc.Ice.EndpointSelectionType defaultEndpointSelection;
-  public final int defaultTimeout;
   public final int defaultLocatorCacheTimeout;
   public final int defaultInvocationTimeout;
   public final boolean defaultPreferSecure;

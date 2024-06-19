@@ -69,10 +69,6 @@ public class ProtocolInstance {
     return _instance.defaultsAndOverrides().defaultEncoding;
   }
 
-  public int defaultTimeout() {
-    return _instance.defaultsAndOverrides().defaultTimeout;
-  }
-
   public NetworkProxy networkProxy() {
     return _instance.networkProxy();
   }
