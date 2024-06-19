@@ -8,6 +8,15 @@ package com.zeroc.Ice;
  */
 @SuppressWarnings("unchecked")
 public abstract class _ObjectPrxFactoryMethods<T extends ObjectPrx> extends _ObjectPrxI {
+  // TODO: delete this default constructor eventually.
+  public _ObjectPrxFactoryMethods() {
+    super();
+  }
+
+  public _ObjectPrxFactoryMethods(ObjectPrx obj) {
+    super(obj);
+  }
+
   @Override
   public T ice_context(java.util.Map<String, String> newContext) {
     return (T) super.ice_context(newContext);

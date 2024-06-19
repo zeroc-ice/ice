@@ -665,7 +665,7 @@ public interface ObjectPrx {
    * @return <code>obj</code>.
    */
   static ObjectPrx checkedCast(ObjectPrx obj) {
-    return obj;
+    return checkedCast(obj, noExplicitContext);
   }
 
   /**
@@ -678,7 +678,16 @@ public interface ObjectPrx {
    * @return <code>obj</code>.
    */
   static ObjectPrx checkedCast(ObjectPrx obj, java.util.Map<String, String> context) {
-    return obj;
+    if (obj != null) {
+      try {
+        boolean ok = obj.ice_isA(ice_staticId, context);
+        if (ok) {
+          return new _ObjectPrxI(obj);
+        }
+      } catch (FacetNotExistException ex) {
+      }
+    }
+    return null;
   }
 
   /**
@@ -705,18 +714,7 @@ public interface ObjectPrx {
    * @return The new proxy with the specified facet.
    */
   static ObjectPrx checkedCast(ObjectPrx obj, String facet, java.util.Map<String, String> context) {
-    ObjectPrx r = null;
-    if (obj != null) {
-      ObjectPrx p = obj.ice_facet(facet);
-      try {
-        boolean ok = p.ice_isA(ice_staticId, context);
-        assert (ok);
-        r = new _ObjectPrxI();
-        r._copyFrom(p);
-      } catch (FacetNotExistException ex) {
-      }
-    }
-    return r;
+    return (obj == null) ? null : checkedCast(obj.ice_facet(facet), context);
   }
 
   /**
@@ -738,13 +736,7 @@ public interface ObjectPrx {
    * @return The new proxy with the specified facet.
    */
   static ObjectPrx uncheckedCast(ObjectPrx obj, String facet) {
-    ObjectPrx r = null;
-    if (obj != null) {
-      ObjectPrx p = obj.ice_facet(facet);
-      r = new _ObjectPrxI();
-      r._copyFrom(p);
-    }
-    return r;
+    return (obj == null) ? null : new _ObjectPrxI(obj.ice_facet(facet));
   }
 
   /**
@@ -769,197 +761,9 @@ public interface ObjectPrx {
 
   /**
    * @hidden
-   * @param <T> -
-   * @param obj -
-   * @param id -
-   * @param proxy -
-   * @param impl -
-   * @return -
-   */
-  static <T> T _checkedCast(ObjectPrx obj, String id, Class<T> proxy, Class<?> impl) {
-    return _checkedCast(obj, false, null, noExplicitContext, id, proxy, impl);
-  }
-
-  /**
-   * @hidden
-   * @param <T> -
-   * @param obj -
-   * @param ctx -
-   * @param id -
-   * @param proxy -
-   * @param impl -
-   * @return -
-   */
-  static <T> T _checkedCast(
-      ObjectPrx obj, java.util.Map<String, String> ctx, String id, Class<T> proxy, Class<?> impl) {
-    return _checkedCast(obj, false, null, ctx, id, proxy, impl);
-  }
-
-  /**
-   * @hidden
-   * @param <T> -
-   * @param obj -
-   * @param facet -
-   * @param id -
-   * @param proxy -
-   * @param impl -
-   * @return -
-   */
-  static <T> T _checkedCast(ObjectPrx obj, String facet, String id, Class<T> proxy, Class<?> impl) {
-    return _checkedCast(obj, true, facet, noExplicitContext, id, proxy, impl);
-  }
-
-  /**
-   * @hidden
-   * @param <T> -
-   * @param obj -
-   * @param facet -
-   * @param ctx -
-   * @param id -
-   * @param proxy -
-   * @param impl -
-   * @return -
-   */
-  static <T> T _checkedCast(
-      ObjectPrx obj,
-      String facet,
-      java.util.Map<String, String> ctx,
-      String id,
-      Class<T> proxy,
-      Class<?> impl) {
-    return _checkedCast(obj, true, facet, ctx, id, proxy, impl);
-  }
-
-  /**
-   * @hidden
-   * @param <T> -
-   * @param obj -
-   * @param explicitFacet -
-   * @param facet -
-   * @param ctx -
-   * @param id -
-   * @param proxy -
-   * @param impl -
-   * @return -
-   */
-  static <T> T _checkedCast(
-      ObjectPrx obj,
-      boolean explicitFacet,
-      String facet,
-      java.util.Map<String, String> ctx,
-      String id,
-      Class<T> proxy,
-      Class<?> impl) {
-    T r = null;
-    if (obj != null) {
-      if (explicitFacet) {
-        obj = obj.ice_facet(facet);
-      }
-      if (proxy.isInstance(obj)) {
-        r = proxy.cast(obj);
-      } else {
-        try {
-          boolean ok = obj.ice_isA(id, ctx);
-          if (ok) {
-            ObjectPrx h = null;
-            try {
-              h = _ObjectPrxI.class.cast(impl.getDeclaredConstructor().newInstance());
-            } catch (NoSuchMethodException ex) {
-              throw new SyscallException(ex);
-            } catch (java.lang.reflect.InvocationTargetException ex) {
-              throw new SyscallException(ex);
-            } catch (InstantiationException ex) {
-              throw new SyscallException(ex);
-            } catch (IllegalAccessException ex) {
-              throw new SyscallException(ex);
-            }
-            h._copyFrom(obj);
-            r = proxy.cast(h);
-          }
-        } catch (FacetNotExistException ex) {
-        }
-      }
-    }
-    return r;
-  }
-
-  /**
-   * @hidden
-   * @param <T> -
-   * @param obj -
-   * @param proxy -
-   * @param impl -
-   * @return -
-   */
-  static <T> T _uncheckedCast(ObjectPrx obj, Class<T> proxy, Class<?> impl) {
-    return _uncheckedCast(obj, false, null, proxy, impl);
-  }
-
-  /**
-   * @hidden
-   * @param <T> -
-   * @param obj -
-   * @param facet -
-   * @param proxy -
-   * @param impl -
-   * @return -
-   */
-  static <T> T _uncheckedCast(ObjectPrx obj, String facet, Class<T> proxy, Class<?> impl) {
-    return _uncheckedCast(obj, true, facet, proxy, impl);
-  }
-
-  /**
-   * @hidden
-   * @param <T> -
-   * @param obj -
-   * @param explicitFacet -
-   * @param facet -
-   * @param proxy -
-   * @param impl -
-   * @return -
-   */
-  static <T> T _uncheckedCast(
-      ObjectPrx obj, boolean explicitFacet, String facet, Class<T> proxy, Class<?> impl) {
-    T r = null;
-    if (obj != null) {
-      try {
-        if (explicitFacet) {
-          ObjectPrx h = _ObjectPrxI.class.cast(impl.getDeclaredConstructor().newInstance());
-          h._copyFrom(obj.ice_facet(facet));
-          r = proxy.cast(h);
-        } else {
-          if (proxy.isInstance(obj)) {
-            r = proxy.cast(obj);
-          } else {
-            ObjectPrx h = _ObjectPrxI.class.cast(impl.getDeclaredConstructor().newInstance());
-            h._copyFrom(obj);
-            r = proxy.cast(h);
-          }
-        }
-      } catch (NoSuchMethodException ex) {
-        throw new SyscallException(ex);
-      } catch (java.lang.reflect.InvocationTargetException ex) {
-        throw new SyscallException(ex);
-      } catch (InstantiationException ex) {
-        throw new SyscallException(ex);
-      } catch (IllegalAccessException ex) {
-        throw new SyscallException(ex);
-      }
-    }
-    return r;
-  }
-
-  /**
-   * @hidden
    * @param os -
    */
   void _write(OutputStream os);
-
-  /**
-   * @hidden
-   * @param p -
-   */
-  void _copyFrom(ObjectPrx p);
 
   /**
    * @hidden
