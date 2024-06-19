@@ -4367,7 +4367,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         outi << nl << "@Deprecated";
     }
     outi << nl << "public class _" << p->name() << "PrxI";
-    outi << " extends com.zeroc.Ice._PrxFactoryMethods<" << p->name() << "Prx>";
+    outi << " extends com.zeroc.Ice._ObjectPrxFactoryMethods<" << p->name() << "Prx>";
     outi << " implements " << p->name() << "Prx";
     outi << sb;
 
