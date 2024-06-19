@@ -404,9 +404,7 @@ export class ConnectionI {
         try {
             if (--this._upcallCount === 0) {
                 if (this._state === StateFinished) {
-                    if (this._removeFromFactory !== null) {
-                        this._removeFromFactory(this);
-                    }
+                    this._removeFromFactory(this);
                 }
                 this.checkState();
             }
@@ -435,7 +433,7 @@ export class ConnectionI {
         try {
             if (--this._upcallCount === 0) {
                 if (this._state === StateFinished) {
-                    this.reap();
+                    this._removeFromFactory(this);
                 }
                 this.checkState();
             }
@@ -697,9 +695,7 @@ export class ConnectionI {
                         }
                     }
                 } else if (this._state === StateFinished) {
-                    if (this._removeFromFactory !== null) {
-                        this._removeFromFactory(this);
-                    }
+                    this._removeFromFactory(this);
                 }
                 this.checkState();
             }
@@ -808,9 +804,7 @@ export class ConnectionI {
         // objects such as the timer might be destroyed too).
         //
         if (this._upcallCount === 0) {
-            if (this._removeFromFactory !== null) {
-                this._removeFromFactory(this);
-            }
+            this._removeFromFactory(this);
         }
         this.setState(StateFinished);
     }
@@ -874,9 +868,7 @@ export class ConnectionI {
             Debug.assert(this._upcallCount >= 0);
             if (this._upcallCount === 0) {
                 if (this._state === StateFinished) {
-                    if (this._removeFromFactory !== null) {
-                        this._removeFromFactory(this);
-                    }
+                    this._removeFromFactory(this);
                 }
                 this.checkState();
             }
