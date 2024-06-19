@@ -3,7 +3,6 @@
 //
 
 import { Instance, StateDestroyInProgress, StateDestroyed } from "./Instance.js";
-import { ACMConfig } from "./ACM.js";
 import { AsyncResultBase } from "./AsyncResultBase.js";
 import { DefaultsAndOverrides } from "./DefaultsAndOverrides.js";
 import { EndpointFactoryManager } from "./EndpointFactoryManager.js";
@@ -164,11 +163,6 @@ Instance.prototype.batchAutoFlushSize = function () {
     return this._batchAutoFlushSize;
 };
 
-Instance.prototype.clientACM = function () {
-    // This value is immutable.
-    return this._clientACM;
-};
-
 Instance.prototype.toStringMode = function () {
     // this value is immutable
     return this._toStringMode;
@@ -247,13 +241,6 @@ Instance.prototype.finishSetup = function (communicator, promise) {
                 this._batchAutoFlushSize = num * 1024; // Property is in kilobytes, _batchAutoFlushSize in bytes
             }
         }
-
-        this._clientACM = new ACMConfig(
-            this._initData.properties,
-            this._initData.logger,
-            "Ice.ACM.Client",
-            new ACMConfig(this._initData.properties, this._initData.logger, "Ice.ACM", new ACMConfig()),
-        );
 
         const toStringModeStr = this._initData.properties.getPropertyWithDefault("Ice.ToStringMode", "Unicode");
         if (toStringModeStr === "ASCII") {

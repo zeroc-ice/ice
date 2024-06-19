@@ -23,7 +23,7 @@ import {
     UnknownException,
 } from "./LocalException.js";
 
-import { ACM, ACMClose, ACMHeartbeat, ConnectionClose } from "./Connection.js";
+import { ConnectionClose } from "./Connection.js";
 
 import { BatchRequestQueue } from "./BatchRequestQueue.js";
 import { InputStream, OutputStream } from "./Stream.js";
@@ -64,16 +64,16 @@ class MessageInfo {
 }
 
 export class ConnectionI {
-    constructor(communicator, instance, monitor, transceiver, endpoint, incoming, adapter) {
+    constructor(communicator, instance, transceiver, endpoint, incoming, adapter, removeFromFactory) {
         this._communicator = communicator;
         this._instance = instance;
-        this._monitor = monitor;
         this._transceiver = transceiver;
         this._desc = transceiver.toString();
         this._type = transceiver.type();
         this._endpoint = endpoint;
         this._incoming = incoming;
         this._adapter = adapter;
+        this._removeFromFactory = removeFromFactory;
         const initData = instance.initializationData();
         this._logger = initData.logger; // Cached for better performance.
         this._traceLevels = instance.traceLevels(); // Cached for better performance.
@@ -86,7 +86,6 @@ export class ConnectionI {
         this._hasMoreData = { value: false };
 
         this._warn = initData.properties.getPropertyAsInt("Ice.Warn.Connections") > 0;
-        this._acmLastActivity = this._monitor !== null && this._monitor.getACM().timeout > 0 ? Date.now() : -1;
         this._nextRequestId = 1;
         this._messageSizeMax = adapter ? adapter.messageSizeMax() : instance.messageSizeMax();
         this._batchRequestQueue = new BatchRequestQueue(instance);
@@ -100,7 +99,7 @@ export class ConnectionI {
         this._readStreamPos = -1;
         this._writeStreamPos = -1;
 
-        this._dispatchCount = 0;
+        this._upcallCount = 0;
 
         this._state = StateNotInitialized;
         this._shutdownInitiated = false;
@@ -155,10 +154,6 @@ export class ConnectionI {
     activate() {
         if (this._state <= StateNotValidated) {
             return;
-        }
-
-        if (this._acmLastActivity > 0) {
-            this._acmLastActivity = Date.now();
         }
         this.setState(StateActive);
     }
@@ -237,7 +232,7 @@ export class ConnectionI {
     }
 
     isFinished() {
-        if (this._state !== StateFinished || this._dispatchCount !== 0) {
+        if (this._state !== StateFinished || this._upcallCount !== 0) {
             return false;
         }
 
@@ -257,69 +252,6 @@ export class ConnectionI {
         this._finishedPromises.push(promise);
         this.checkState();
         return promise;
-    }
-
-    monitor(now, acm) {
-        if (this._state !== StateActive) {
-            return;
-        }
-
-        //
-        // We send a heartbeat if there was no activity in the last
-        // (timeout / 4) period. Sending a heartbeat sooner than
-        // really needed is safer to ensure that the receiver will
-        // receive the heartbeat in time. Sending the heartbeat if
-        // there was no activity in the last (timeout / 2) period
-        // isn't enough since monitor() is called only every (timeout
-        // / 2) period.
-        //
-        // Note that this doesn't imply that we are sending 4 heartbeats
-        // per timeout period because the monitor() method is still only
-        // called every (timeout / 2) period.
-        //
-        if (
-            acm.heartbeat == ACMHeartbeat.HeartbeatAlways ||
-            (acm.heartbeat != ACMHeartbeat.HeartbeatOff &&
-                this._writeStream.isEmpty() &&
-                now >= this._acmLastActivity + acm.timeout / 4)
-        ) {
-            if (acm.heartbeat != ACMHeartbeat.HeartbeatOnDispatch || this._dispatchCount > 0) {
-                this.sendHeartbeatNow(); // Send heartbeat if idle in the last timeout / 2 period.
-            }
-        }
-
-        if (this._readStream.size > Protocol.headerSize || !this._writeStream.isEmpty()) {
-            //
-            // If writing or reading, nothing to do, the connection
-            // timeout will kick-in if writes or reads don't progress.
-            // This check is necessary because the activity timer is
-            // only set when a message is fully read/written.
-            //
-            return;
-        }
-
-        if (acm.close != ACMClose.CloseOff && now >= this._acmLastActivity + acm.timeout) {
-            if (
-                acm.close == ACMClose.CloseOnIdleForceful ||
-                (acm.close != ACMClose.CloseOnIdle && this._asyncRequests.size > 0)
-            ) {
-                //
-                // Close the connection if we didn't receive a heartbeat in
-                // the last period.
-                //
-                this.setState(StateClosed, new ConnectionTimeoutException());
-            } else if (
-                acm.close != ACMClose.CloseOnInvocation &&
-                this._dispatchCount === 0 &&
-                this._batchRequestQueue.isEmpty() &&
-                this._asyncRequests.size === 0
-            ) {
-                //
-                // The connection is idle, close it.
-                //
-                this.setState(StateClosing, new ConnectionTimeoutException());
-            }
-        }
     }
 
     sendAsyncRequest(out, response, batchRequestNum) {
@@ -432,34 +364,6 @@ export class ConnectionI {
         return result;
     }
 
-    setACM(timeout, close, heartbeat) {
-        if (timeout !== undefined && timeout < 0) {
-            throw new RangeError("invalid negative ACM timeout value");
-        }
-        if (this._monitor === null || this._state >= StateClosed) {
-            return;
-        }
-
-        if (this._state == StateActive) {
-            this._monitor.remove(this);
-        }
-        this._monitor = this._monitor.acm(timeout, close, heartbeat);
-        if (this._state == StateActive) {
-            this._monitor.add(this);
-        }
-        if (this._monitor.getACM().timeout <= 0) {
-            this._acmLastActivity = -1; // Disable the recording of last activity.
-        } else if (this._state == StateActive && this._acmLastActivity == -1) {
-            this._acmLastActivity = Date.now();
-        }
-    }
-
-    getACM() {
-        return this._monitor !== null
-            ? this._monitor.getACM()
-            : new ACM(0, ACMClose.CloseOff, ACMHeartbeat.HeartbeatOff);
-    }
-
     asyncRequestCanceled(outAsync, ex) {
         for (let i = 0; i < this._sendStreams.length; i++) {
             const o = this._sendStreams[i];
@@ -498,9 +402,9 @@ export class ConnectionI {
         Debug.assert(this._state > StateNotValidated);
 
         try {
-            if (--this._dispatchCount === 0) {
+            if (--this._upcallCount === 0) {
                 if (this._state === StateFinished) {
-                    this.reap();
+                    this._removeFromFactory(this);
                 }
                 this.checkState();
             }
@@ -512,7 +416,7 @@ export class ConnectionI {
 
             this.sendMessage(OutgoingMessage.createForStream(os, true));
 
-            if (this._state === StateClosing && this._dispatchCount === 0) {
+            if (this._state === StateClosing && this._upcallCount === 0) {
                 this.initiateShutdown();
             }
         } catch (ex) {
@@ -527,9 +431,9 @@ export class ConnectionI {
     sendNoResponse() {
         Debug.assert(this._state > StateNotValidated);
         try {
-            if (--this._dispatchCount === 0) {
+            if (--this._upcallCount === 0) {
                 if (this._state === StateFinished) {
-                    this.reap();
+                    this._removeFromFactory(this);
                 }
                 this.checkState();
             }
@@ -539,7 +443,7 @@ export class ConnectionI {
                 throw this._exception;
             }
 
-            if (this._state === StateClosing && this._dispatchCount === 0) {
+            if (this._state === StateClosing && this._upcallCount === 0) {
                 this.initiateShutdown();
             }
         } catch (ex) {
@@ -699,7 +603,7 @@ export class ConnectionI {
                 //
                 this.setState(StateHolding);
                 if (this._startPromise !== null) {
-                    ++this._dispatchCount;
+                    ++this._upcallCount;
                 }
             } else {
                 Debug.assert(this._state <= StateClosing);
@@ -726,10 +630,6 @@ export class ConnectionI {
             } else {
                 throw ex;
             }
-        }
-
-        if (this._acmLastActivity > 0) {
-            this._acmLastActivity = Date.now();
         }
 
         this.dispatch(info);
@@ -779,11 +679,11 @@ export class ConnectionI {
         }
 
         //
-        // Decrease dispatch count.
+        // Decrease the upcall count.
         //
         if (count > 0) {
-            this._dispatchCount -= count;
-            if (this._dispatchCount === 0) {
+            this._upcallCount -= count;
+            if (this._upcallCount === 0) {
                 if (this._state === StateClosing) {
                     try {
                         this.initiateShutdown();
@@ -795,7 +695,7 @@ export class ConnectionI {
                         }
                     }
                 } else if (this._state === StateFinished) {
-                    this.reap();
+                    this._removeFromFactory(this);
                 }
                 this.checkState();
             }
@@ -903,8 +803,8 @@ export class ConnectionI {
         // This must be done last as this will cause waitUntilFinished() to return (and communicator
         // objects such as the timer might be destroyed too).
         //
-        if (this._dispatchCount === 0) {
-            this.reap();
+        if (this._upcallCount === 0) {
+            this._removeFromFactory(this);
         }
         this.setState(StateFinished);
     }
@@ -954,21 +854,21 @@ export class ConnectionI {
         this.setState(StateClosed, ex);
     }
 
-    invokeException(ex, invokeNum) {
+    dispatchException(ex, invokeNum) {
         //
         // Fatal exception while invoking a request. Since sendResponse/sendNoResponse isn't
-        // called in case of a fatal exception we decrement this._dispatchCount here.
+        // called in case of a fatal exception we decrement this._upcallCount here.
         //
 
         this.setState(StateClosed, ex);
 
         if (invokeNum > 0) {
-            Debug.assert(this._dispatchCount > 0);
-            this._dispatchCount -= invokeNum;
-            Debug.assert(this._dispatchCount >= 0);
-            if (this._dispatchCount === 0) {
+            Debug.assert(this._upcallCount > 0);
+            this._upcallCount -= invokeNum;
+            Debug.assert(this._upcallCount >= 0);
+            if (this._upcallCount === 0) {
                 if (this._state === StateFinished) {
-                    this.reap();
+                    this._removeFromFactory(this);
                 }
                 this.checkState();
             }
@@ -1131,26 +1031,9 @@ export class ConnectionI {
             }
         }
 
-        //
-        // We only register with the connection monitor if our new state
-        // is StateActive. Otherwise we unregister with the connection
-        // monitor, but only if we were registered before, i.e., if our
-        // old state was StateActive.
-        //
-        if (this._monitor !== null) {
-            if (state === StateActive) {
-                this._monitor.add(this);
-                if (this._acmLastActivity > 0) {
-                    this._acmLastActivity = Date.now();
-                }
-            } else if (this._state === StateActive) {
-                this._monitor.remove(this);
-            }
-        }
-
         this._state = state;
 
-        if (this._state === StateClosing && this._dispatchCount === 0) {
+        if (this._state === StateClosing && this._upcallCount === 0) {
             try {
                 this.initiateShutdown();
             } catch (ex) {
@@ -1168,7 +1051,7 @@ export class ConnectionI {
     }
 
     initiateShutdown() {
-        Debug.assert(this._state === StateClosing && this._dispatchCount === 0);
+        Debug.assert(this._state === StateClosing && this._upcallCount === 0);
 
         if (this._shutdownInitiated) {
             return;
@@ -1410,10 +1293,6 @@ export class ConnectionI {
             // Entire buffer was written immediately.
             //
             message.sent();
-
-            if (this._acmLastActivity > 0) {
-                this._acmLastActivity = Date.now();
-            }
             return AsyncStatus.Sent;
         }
 
@@ -1472,7 +1351,7 @@ export class ConnectionI {
                         info.invokeNum = 1;
                         info.servantManager = this._servantManager;
                         info.adapter = this._adapter;
-                        ++this._dispatchCount;
+                        ++this._upcallCount;
                     }
                     break;
                 }
@@ -1494,7 +1373,7 @@ export class ConnectionI {
                         }
                         info.servantManager = this._servantManager;
                         info.adapter = this._adapter;
-                        this._dispatchCount += info.invokeNum;
+                        this._upcallCount += info.invokeNum;
                     }
                     break;
                 }
@@ -1505,7 +1384,7 @@ export class ConnectionI {
                     info.outAsync = this._asyncRequests.get(info.requestId);
                     if (info.outAsync) {
                         this._asyncRequests.delete(info.requestId);
-                        ++this._dispatchCount;
+                        ++this._upcallCount;
                     } else {
                         info = null;
                     }
@@ -1517,7 +1396,7 @@ export class ConnectionI {
                     TraceUtil.traceRecv(info.stream, this._logger, this._traceLevels);
                     if (this._heartbeatCallback !== null) {
                         info.heartbeatCallback = this._heartbeatCallback;
-                        ++this._dispatchCount;
+                        ++this._upcallCount;
                     }
                     break;
                 }
@@ -1568,14 +1447,14 @@ export class ConnectionI {
             stream.clear();
         } catch (ex) {
             if (ex instanceof LocalException) {
-                this.invokeException(ex, invokeNum);
+                this.dispatchException(ex, invokeNum);
             } else {
                 //
                 // An Error was raised outside of servant code (i.e., by Ice code).
                 // Attempt to log the error and clean up.
                 //
                 this._logger.error("unexpected exception:\n" + ex.toString());
-                this.invokeException(new UnknownException(ex), invokeNum);
+                this.dispatchException(new UnknownException(ex), invokeNum);
             }
         }
     }
@@ -1640,7 +1519,7 @@ export class ConnectionI {
     }
 
     checkState() {
-        if (this._state < StateHolding || this._dispatchCount > 0) {
+        if (this._state < StateHolding || this._upcallCount > 0) {
             return;
         }
 
@@ -1657,12 +1536,6 @@ export class ConnectionI {
             this._adapter = null;
             this._finishedPromises.forEach((p) => p.resolve());
             this._finishedPromises = [];
-        }
-    }
-
-    reap() {
-        if (this._monitor !== null) {
-            this._monitor.reap(this);
         }
     }
 

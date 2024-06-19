@@ -3,7 +3,6 @@
 //
 
 import { ConnectionI } from "./ConnectionI.js";
-import { FactoryACMMonitor } from "./ACM.js";
 import { HashMap } from "./HashMap.js";
 import { AsyncResultBase } from "./AsyncResultBase.js";
 import { Promise } from "./Promise.js";
@@ -19,8 +18,6 @@ export class OutgoingConnectionFactory {
         this._communicator = communicator;
         this._instance = instance;
         this._destroyed = false;
-
-        this._monitor = new FactoryACMMonitor(this._instance, this._instance.clientACM());
 
         this._connectionsByEndpoint = new ConnectionListMap(); // map<EndpointI, Array<Ice.ConnectionI>>
         this._pending = new HashMap(HashMap.compareEquals); // map<EndpointI, Array<ConnectCallback>>
@@ -220,17 +217,6 @@ export class OutgoingConnectionFactory {
         }
 
         //
-        // Reap closed connections
-        //
-        const cons = this._monitor.swapReapedConnections();
-        if (cons !== null) {
-            cons.forEach((c) => {
-                this._connectionsByEndpoint.removeConnection(c.endpoint(), c);
-                this._connectionsByEndpoint.removeConnection(c.endpoint().changeCompress(true), c);
-            });
-        }
-
-        //
         // Try to get the connection.
         //
         while (true) {
@@ -289,11 +275,11 @@ export class OutgoingConnectionFactory {
             connection = new ConnectionI(
                 this._communicator,
                 this._instance,
-                this._monitor,
                 transceiver,
                 endpoint.changeCompress(false),
                 false,
                 null,
+                (connection) => this.removeConnection(connection)
             );
         } catch (ex) {
             if (ex instanceof LocalException) {
@@ -309,6 +295,11 @@ export class OutgoingConnectionFactory {
         this._connectionsByEndpoint.set(connection.endpoint(), connection);
         this._connectionsByEndpoint.set(connection.endpoint().changeCompress(true), connection);
         return connection;
+    }
+
+    removeConnection(connection) {
+        this._connectionsByEndpoint.removeConnection(connection.endpoint(), connection);
+        this._connectionsByEndpoint.removeConnection(connection.endpoint().changeCompress(true), connection);
     }
 
     finishGetConnection(endpoints, endpoint, connection, cb) {
@@ -470,7 +461,7 @@ export class OutgoingConnectionFactory {
         }
     }
 
-    checkFinished() {
+    async checkFinished() {
         //
         // Can't continue until the factory is destroyed and there are no pending connections.
         //
@@ -478,29 +469,18 @@ export class OutgoingConnectionFactory {
             return;
         }
 
-        Promise.all(
-            this._connectionsByEndpoint.map((connection) =>
-                connection.waitUntilFinished().catch((ex) => Debug.assert(false)),
-            ),
-        ).then(() => {
-            const cons = this._monitor.swapReapedConnections();
-            if (cons !== null) {
-                const arr = [];
-                this._connectionsByEndpoint.forEach((connection) => {
-                    if (arr.indexOf(connection) === -1) {
-                        arr.push(connection);
-                    }
-                });
-                Debug.assert(cons.length === arr.length);
-                this._connectionsByEndpoint.clear();
-            } else {
-                Debug.assert(this._connectionsByEndpoint.size === 0);
-            }
+        await Promise.all(
+            this._connectionsByEndpoint.map(async (connection) => {
+                try {
+                    await connection.waitUntilFinished();
+                } catch (ex) {
+                    Debug.assert(false);
+                }
+            }),
+        );
 
-            Debug.assert(this._waitPromise !== null);
-            this._waitPromise.resolve();
-            this._monitor.destroy();
-        });
+        Debug.assert(this._waitPromise !== null);
+        this._waitPromise.resolve();
     }
 }
 

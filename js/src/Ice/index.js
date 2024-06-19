@@ -1,4 +1,3 @@
-import * as Ice_ACM from "./ACM.js";
 import * as Ice_Address from "./Address.js";
 import * as Ice_ArrayUtil from "./ArrayUtil.js";
 import * as Ice_AsyncResult from "./AsyncResult.js";
@@ -81,7 +80,6 @@ import * as Ice_SSL_ConnectionInfo from "./SSL/ConnectionInfo.js";
 import * as Ice_SSL_EndpointInfo from "./SSL/EndpointInfo.js";
 
 export const Ice = {
-    ...Ice_ACM,
     ...Ice_Address,
     ...Ice_ArrayUtil,
     ...Ice_AsyncResult,
