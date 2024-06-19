@@ -4313,93 +4313,37 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         << p->name() << "PrxI.class);";
     out << eb;
 
-    out << sp;
-    out << nl << "@Override";
-    out << nl << p->name() << "Prx ice_context(java.util.Map<String, String> newContext);";
-
-    out << sp;
-    out << nl << "@Override";
-    out << nl << p->name() << "Prx ice_adapterId(String newAdapterId);";
-
-    out << sp;
-    out << nl << "@Override";
-    out << nl << p->name() << "Prx ice_endpoints(com.zeroc.Ice.Endpoint[] newEndpoints);";
-
-    out << sp;
-    out << nl << "@Override";
-    out << nl << p->name() << "Prx ice_locatorCacheTimeout(int newTimeout);";
-
-    out << sp;
-    out << nl << "@Override";
-    out << nl << p->name() << "Prx ice_invocationTimeout(int newTimeout);";
-
-    out << sp;
-    out << nl << "@Override";
-    out << nl << p->name() << "Prx ice_connectionCached(boolean newCache);";
-
-    out << sp;
-    out << nl << "@Override";
-    out << nl << p->name() << "Prx ice_endpointSelection(com.zeroc.Ice.EndpointSelectionType newType);";
-
-    out << sp;
-    out << nl << "@Override";
-    out << nl << p->name() << "Prx ice_secure(boolean b);";
-
-    out << sp;
-    out << nl << "@Override";
-    out << nl << p->name() << "Prx ice_encodingVersion(com.zeroc.Ice.EncodingVersion e);";
-
-    out << sp;
-    out << nl << "@Override";
-    out << nl << p->name() << "Prx ice_preferSecure(boolean b);";
-
-    out << sp;
-    out << nl << "@Override";
-    out << nl << p->name() << "Prx ice_router(com.zeroc.Ice.RouterPrx router);";
-
-    out << sp;
-    out << nl << "@Override";
-    out << nl << p->name() << "Prx ice_locator(com.zeroc.Ice.LocatorPrx locator);";
-
-    out << sp;
-    out << nl << "@Override";
-    out << nl << p->name() << "Prx ice_collocationOptimized(boolean b);";
-
-    out << sp;
-    out << nl << "@Override";
-    out << nl << p->name() << "Prx ice_twoway();";
-
-    out << sp;
-    out << nl << "@Override";
-    out << nl << p->name() << "Prx ice_oneway();";
-
-    out << sp;
-    out << nl << "@Override";
-    out << nl << p->name() << "Prx ice_batchOneway();";
-
-    out << sp;
-    out << nl << "@Override";
-    out << nl << p->name() << "Prx ice_datagram();";
-
-    out << sp;
-    out << nl << "@Override";
-    out << nl << p->name() << "Prx ice_batchDatagram();";
-
-    out << sp;
-    out << nl << "@Override";
-    out << nl << p->name() << "Prx ice_compress(boolean co);";
-
-    out << sp;
-    out << nl << "@Override";
-    out << nl << p->name() << "Prx ice_timeout(int t);";
-
-    out << sp;
-    out << nl << "@Override";
-    out << nl << p->name() << "Prx ice_connectionId(String connectionId);";
-
-    out << sp;
-    out << nl << "@Override";
-    out << nl << p->name() << "Prx ice_fixed(com.zeroc.Ice.Connection connection);";
+    // Generate overrides for all the methods on `ObjectPrx` with covariant return types.
+    static constexpr string_view objectPrxMethods[] = {
+        "ice_context(java.util.Map<String, String> newContext)",
+        "ice_adapterId(String newAdapterId)",
+        "ice_endpoints(com.zeroc.Ice.Endpoint[] newEndpoints)",
+        "ice_locatorCacheTimeout(int newTimeout)",
+        "ice_invocationTimeout(int newTimeout)",
+        "ice_connectionCached(boolean newCache)",
+        "ice_endpointSelection(com.zeroc.Ice.EndpointSelectionType newType)",
+        "ice_secure(boolean b)",
+        "ice_encodingVersion(com.zeroc.Ice.EncodingVersion e)",
+        "ice_preferSecure(boolean b)",
+        "ice_router(com.zeroc.Ice.RouterPrx router)",
+        "ice_locator(com.zeroc.Ice.LocatorPrx locator)",
+        "ice_collocationOptimized(boolean b)",
+        "ice_twoway()",
+        "ice_oneway()",
+        "ice_batchOneway()",
+        "ice_datagram()",
+        "ice_batchDatagram()",
+        "ice_compress(boolean co)",
+        "ice_timeout(int t)",
+        "ice_connectionId(String connectionId)",
+        "ice_fixed(com.zeroc.Ice.Connection connection)",
+    };
+    for (const auto& method : objectPrxMethods)
+    {
+        out << sp;
+        out << nl << "@Override";
+        out << nl << p->name() << "Prx " << method << ";";
+    }
 
     out << sp;
     out << nl << "static String ice_staticId()";
@@ -4422,163 +4366,10 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     {
         outi << nl << "@Deprecated";
     }
-    outi << nl << "public class _" << p->name() << "PrxI extends com.zeroc.Ice._ObjectPrxI implements " << p->name()
-         << "Prx";
+    outi << nl << "public class _" << p->name() << "PrxI";
+    outi << " extends com.zeroc.Ice._ObjectPrxFactoryMethods<" << p->name() << "Prx>";
+    outi << " implements " << p->name() << "Prx";
     outi << sb;
-
-    outi << sp;
-    outi << nl << "@Override";
-    outi << nl << "public " << p->name() << "Prx ice_context(java.util.Map<String, String> newContext)";
-    outi << sb;
-    outi << nl << "return (" << p->name() << "Prx)super.ice_context(newContext);";
-    outi << eb;
-
-    outi << sp;
-    outi << nl << "@Override";
-    outi << nl << "public " << p->name() << "Prx ice_adapterId(String newAdapterId)";
-    outi << sb;
-    outi << nl << "return (" << p->name() << "Prx)super.ice_adapterId(newAdapterId);";
-    outi << eb;
-
-    outi << sp;
-    outi << nl << "@Override";
-    outi << nl << "public " << p->name() << "Prx ice_endpoints(com.zeroc.Ice.Endpoint[] newEndpoints)";
-    outi << sb;
-    outi << nl << "return (" << p->name() << "Prx)super.ice_endpoints(newEndpoints);";
-    outi << eb;
-
-    outi << sp;
-    outi << nl << "@Override";
-    outi << nl << "public " << p->name() << "Prx ice_locatorCacheTimeout(int newTimeout)";
-    outi << sb;
-    outi << nl << "return (" << p->name() << "Prx)super.ice_locatorCacheTimeout(newTimeout);";
-    outi << eb;
-
-    outi << sp;
-    outi << nl << "@Override";
-    outi << nl << "public " << p->name() << "Prx ice_invocationTimeout(int newTimeout)";
-    outi << sb;
-    outi << nl << "return (" << p->name() << "Prx)super.ice_invocationTimeout(newTimeout);";
-    outi << eb;
-
-    outi << sp;
-    outi << nl << "@Override";
-    outi << nl << "public " << p->name() << "Prx ice_connectionCached(boolean newCache)";
-    outi << sb;
-    outi << nl << "return (" << p->name() << "Prx)super.ice_connectionCached(newCache);";
-    outi << eb;
-
-    outi << sp;
-    outi << nl << "@Override";
-    outi << nl << "public " << p->name() << "Prx ice_endpointSelection(com.zeroc.Ice.EndpointSelectionType newType)";
-    outi << sb;
-    outi << nl << "return (" << p->name() << "Prx)super.ice_endpointSelection(newType);";
-    outi << eb;
-
-    outi << sp;
-    outi << nl << "@Override";
-    outi << nl << "public " << p->name() << "Prx ice_secure(boolean b)";
-    outi << sb;
-    outi << nl << "return (" << p->name() << "Prx)super.ice_secure(b);";
-    outi << eb;
-
-    outi << sp;
-    outi << nl << "@Override";
-    outi << nl << "public " << p->name() << "Prx ice_encodingVersion(com.zeroc.Ice.EncodingVersion e)";
-    outi << sb;
-    outi << nl << "return (" << p->name() << "Prx)super.ice_encodingVersion(e);";
-    outi << eb;
-
-    outi << sp;
-    outi << nl << "@Override";
-    outi << nl << "public " << p->name() << "Prx ice_preferSecure(boolean b)";
-    outi << sb;
-    outi << nl << "return (" << p->name() << "Prx)super.ice_preferSecure(b);";
-    outi << eb;
-
-    outi << sp;
-    outi << nl << "@Override";
-    outi << nl << "public " << p->name() << "Prx ice_router(com.zeroc.Ice.RouterPrx router)";
-    outi << sb;
-    outi << nl << "return (" << p->name() << "Prx)super.ice_router(router);";
-    outi << eb;
-
-    outi << sp;
-    outi << nl << "@Override";
-    outi << nl << "public " << p->name() << "Prx ice_locator(com.zeroc.Ice.LocatorPrx locator)";
-    outi << sb;
-    outi << nl << "return (" << p->name() << "Prx)super.ice_locator(locator);";
-    outi << eb;
-
-    outi << sp;
-    outi << nl << "@Override";
-    outi << nl << "public " << p->name() << "Prx ice_collocationOptimized(boolean b)";
-    outi << sb;
-    outi << nl << "return (" << p->name() << "Prx)super.ice_collocationOptimized(b);";
-    outi << eb;
-
-    outi << sp;
-    outi << nl << "@Override";
-    outi << nl << "public " << p->name() << "Prx ice_twoway()";
-    outi << sb;
-    outi << nl << "return (" << p->name() << "Prx)super.ice_twoway();";
-    outi << eb;
-
-    outi << sp;
-    outi << nl << "@Override";
-    outi << nl << "public " << p->name() << "Prx ice_oneway()";
-    outi << sb;
-    outi << nl << "return (" << p->name() << "Prx)super.ice_oneway();";
-    outi << eb;
-
-    outi << sp;
-    outi << nl << "@Override";
-    outi << nl << "public " << p->name() << "Prx ice_batchOneway()";
-    outi << sb;
-    outi << nl << "return (" << p->name() << "Prx)super.ice_batchOneway();";
-    outi << eb;
-
-    outi << sp;
-    outi << nl << "@Override";
-    outi << nl << "public " << p->name() << "Prx ice_datagram()";
-    outi << sb;
-    outi << nl << "return (" << p->name() << "Prx)super.ice_datagram();";
-    outi << eb;
-
-    outi << sp;
-    outi << nl << "@Override";
-    outi << nl << "public " << p->name() << "Prx ice_batchDatagram()";
-    outi << sb;
-    outi << nl << "return (" << p->name() << "Prx)super.ice_batchDatagram();";
-    outi << eb;
-
-    outi << sp;
-    outi << nl << "@Override";
-    outi << nl << "public " << p->name() << "Prx ice_compress(boolean co)";
-    outi << sb;
-    outi << nl << "return (" << p->name() << "Prx)super.ice_compress(co);";
-    outi << eb;
-
-    outi << sp;
-    outi << nl << "@Override";
-    outi << nl << "public " << p->name() << "Prx ice_timeout(int t)";
-    outi << sb;
-    outi << nl << "return (" << p->name() << "Prx)super.ice_timeout(t);";
-    outi << eb;
-
-    outi << sp;
-    outi << nl << "@Override";
-    outi << nl << "public " << p->name() << "Prx ice_connectionId(String connectionId)";
-    outi << sb;
-    outi << nl << "return (" << p->name() << "Prx)super.ice_connectionId(connectionId);";
-    outi << eb;
-
-    outi << sp;
-    outi << nl << "@Override";
-    outi << nl << "public " << p->name() << "Prx ice_fixed(com.zeroc.Ice.Connection connection)";
-    outi << sb;
-    outi << nl << "return (" << p->name() << "Prx)super.ice_fixed(connection);";
-    outi << eb;
 
     outi << sp;
     outi << nl << "private static final long serialVersionUID = 0L;";

@@ -22,4 +22,8 @@ interface MyDerivedClass extends MyClass
     Object* echo(Object* obj);
 }
 
+interface MyOtherDerivedClass extends MyClass {}
+
+interface DiamondClass extends MyDerivedClass, MyOtherDerivedClass {}
+
 }

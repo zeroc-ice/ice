@@ -9,6 +9,7 @@ import com.zeroc.Ice.EndpointSelectionType;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.Util;
 import java.io.PrintWriter;
+import test.Ice.proxy.Test.DiamondClassPrx;
 import test.Ice.proxy.Test.MyClassPrx;
 import test.Ice.proxy.Test.MyDerivedClassPrx;
 
@@ -694,6 +695,11 @@ public class AllTests {
       test(false);
     } catch (IllegalArgumentException e) {
     }
+
+    // Ensure that the proxy methods can be called unambiguously with the correct return type.
+    var diamondClass = DiamondClassPrx.uncheckedCast(base);
+    var onewayDiamondClass = diamondClass.ice_oneway();
+    test(onewayDiamondClass instanceof DiamondClassPrx);
 
     out.println("ok");
 

@@ -22,4 +22,8 @@ module Test
     Object* echo(Object* obj);
 }
 
+["amd"] interface MyOtherDerivedClass extends MyClass {}
+
+["amd"] interface DiamondClass extends MyDerivedClass, MyOtherDerivedClass {}
+
 }
