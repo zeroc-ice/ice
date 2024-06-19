@@ -170,6 +170,10 @@ if (typeof net.createConnection === "function") {
             return true;
         }
 
+        isWaitingToBeRead() {
+            return this._registered && this._readBuffers.length > 0;
+        }
+
         read(byteBuffer, moreData) {
             if (this._exception) {
                 throw this._exception;
@@ -231,8 +235,6 @@ if (typeof net.createConnection === "function") {
             info.sndSize = this._maxSendPacketSize;
             return info;
         }
-
-        checkSendSize(stream) {}
 
         setBufferSize(rcvSize, sndSize) {
             this._maxSendPacketSize = sndSize;

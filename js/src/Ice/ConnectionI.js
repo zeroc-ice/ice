@@ -42,6 +42,7 @@ import { RetryException } from "./RetryException.js";
 import { ConnectionFlushBatch, OutgoingAsync } from "./OutgoingAsync.js";
 import { IncomingAsync } from "./IncomingAsync.js";
 import { Debug } from "./Debug.js";
+import { IdleTimeoutTransceiverDecorator } from "./IdleTimeoutTransceiverDecorator.js";
 
 const StateNotInitialized = 0;
 const StateNotValidated = 1;
@@ -64,7 +65,7 @@ class MessageInfo {
 }
 
 export class ConnectionI {
-    constructor(communicator, instance, transceiver, endpoint, incoming, adapter, removeFromFactory) {
+    constructor(communicator, instance, transceiver, endpoint, incoming, adapter, removeFromFactory, options) {
         this._communicator = communicator;
         this._instance = instance;
         this._transceiver = transceiver;
@@ -74,6 +75,9 @@ export class ConnectionI {
         this._incoming = incoming;
         this._adapter = adapter;
         this._removeFromFactory = removeFromFactory;
+        this._connectTimeout = options.connectTimeout;
+        this._closeTimeout = options.closeTimeout;
+        this._inactivityTimeout = options.inactivityTimeout;
         const initData = instance.initializationData();
         this._logger = initData.logger; // Cached for better performance.
         this._traceLevels = instance.traceLevels(); // Cached for better performance.
@@ -116,6 +120,17 @@ export class ConnectionI {
         this._startPromise = null;
         this._closePromises = [];
         this._finishedPromises = [];
+
+        if (options.idleTimeout > 0) {
+            transceiver = new IdleTimeoutTransceiverDecorator(
+                transceiver,
+                this,
+                this._timer,
+                options.idleTimeout,
+                options.enableIdleCheck,
+            );
+        }
+        this._transceiver = transceiver;
 
         if (this._adapter !== null) {
             this._servantManager = this._adapter.getServantManager();
@@ -269,12 +284,6 @@ export class ConnectionI {
 
         Debug.assert(this._state > StateNotValidated);
         Debug.assert(this._state < StateClosing);
-
-        //
-        // Ensure the message isn't bigger than what we can send with the
-        // transport.
-        //
-        this._transceiver.checkSendSize(ostr);
 
         //
         // Notify the request that it's cancelable with this connection.
@@ -1077,21 +1086,37 @@ export class ConnectionI {
         }
     }
 
-    sendHeartbeatNow() {
-        Debug.assert(this._state === StateActive);
+    idleCheck(idleTimeout) {
+        if (this._state == StateActive || this._state == StateHolding) {
+            if (this._instance.traceLevels().network >= 1) {
+                this._instance
+                    .initializationData()
+                    .logger.trace(
+                        this._instance.traceLevels().networkCat,
+                        `connection aborted by the idle check because it did not receive any byte for ${idleTimeout}s\n${this._transceiver.toString()}`,
+                    );
+            }
 
-        const os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
-        os.writeBlob(Protocol.magic);
-        Protocol.currentProtocol._write(os);
-        Protocol.currentProtocolEncoding._write(os);
-        os.writeByte(Protocol.validateConnectionMsg);
-        os.writeByte(0);
-        os.writeInt(Protocol.headerSize); // Message size.
-        try {
-            this.sendMessage(OutgoingMessage.createForStream(os, false));
-        } catch (ex) {
-            this.setState(StateClosed, ex);
-            Debug.assert(this._exception !== null);
+            this.setState(StateClosed, new ConnectionTimeoutException()); // TODO: should be ConnectionIdleException
+        }
+        // else nothing to do
+    }
+
+    sendHeartbeat() {
+        if (this._state == StateActive || this._state == StateHolding) {
+            const os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
+            os.writeBlob(Protocol.magic);
+            Protocol.currentProtocol._write(os);
+            Protocol.currentProtocolEncoding._write(os);
+            os.writeByte(Protocol.validateConnectionMsg);
+            os.writeByte(0);
+            os.writeInt(Protocol.headerSize); // Message size.
+            try {
+                this.sendMessage(OutgoingMessage.createForStream(os, false));
+            } catch (ex) {
+                this.setState(StateClosed, ex);
+                Debug.assert(this._exception !== null);
+            }
         }
     }
 
