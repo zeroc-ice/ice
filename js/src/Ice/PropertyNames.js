@@ -10,8 +10,7 @@
 
 import { Property } from "./Property.js";
 export const PropertyNames = {};
-PropertyNames.IceProps =
-[
+PropertyNames.IceProps = [
     new Property("Ice.AcceptClassCycles", false, "0", false),
     new Property("Ice.Admin.AdapterId", false, "", false),
     new Property("Ice.Admin.Connection.CloseTimeout", false, "10", false),
@@ -29,7 +28,7 @@ PropertyNames.IceProps =
     new Property("Ice.Admin.Locator.Locator", false, "", false),
     new Property("Ice.Admin.Locator.Router", false, "", false),
     new Property("Ice.Admin.Locator.CollocationOptimized", false, "", false),
-    new Property("^Ice\.Admin\.Locator\.Context\..", true, "", false),
+    new Property("^Ice.Admin.Locator.Context..", true, "", false),
     new Property("Ice.Admin.Locator", false, "", false),
     new Property("Ice.Admin.PublishedEndpoints", false, "", false),
     new Property("Ice.Admin.ReplicaGroupId", false, "", false),
@@ -41,7 +40,7 @@ PropertyNames.IceProps =
     new Property("Ice.Admin.Router.Locator", false, "", false),
     new Property("Ice.Admin.Router.Router", false, "", false),
     new Property("Ice.Admin.Router.CollocationOptimized", false, "", false),
-    new Property("^Ice\.Admin\.Router\.Context\..", true, "", false),
+    new Property("^Ice.Admin.Router.Context..", true, "", false),
     new Property("Ice.Admin.Router", false, "", false),
     new Property("Ice.Admin.ProxyOptions", false, "", false),
     new Property("Ice.Admin.ThreadPool.Size", false, "1", false),
@@ -86,7 +85,7 @@ PropertyNames.IceProps =
     new Property("Ice.Default.Locator.Locator", false, "", false),
     new Property("Ice.Default.Locator.Router", false, "", false),
     new Property("Ice.Default.Locator.CollocationOptimized", false, "", false),
-    new Property("^Ice\.Default\.Locator\.Context\..", true, "", false),
+    new Property("^Ice.Default.Locator.Context..", true, "", false),
     new Property("Ice.Default.Locator", false, "", false),
     new Property("Ice.Default.LocatorCacheTimeout", false, "-1", false),
     new Property("Ice.Default.InvocationTimeout", false, "-1", false),
@@ -101,7 +100,7 @@ PropertyNames.IceProps =
     new Property("Ice.Default.Router.Locator", false, "", false),
     new Property("Ice.Default.Router.Router", false, "", false),
     new Property("Ice.Default.Router.CollocationOptimized", false, "", false),
-    new Property("^Ice\.Default\.Router\.Context\..", true, "", false),
+    new Property("^Ice.Default.Router.Context..", true, "", false),
     new Property("Ice.Default.Router", false, "", false),
     new Property("Ice.Default.SlicedFormat", false, "0", false),
     new Property("Ice.Default.SourceAddress", false, "", false),
@@ -124,8 +123,8 @@ PropertyNames.IceProps =
     new Property("Ice.Override.ConnectTimeout", false, "", false),
     new Property("Ice.Override.Timeout", false, "", false),
     new Property("Ice.Override.Secure", false, "", false),
-    new Property("^Ice\.Package\..", true, "", false),
-    new Property("^Ice\.Plugin\..", true, "", false),
+    new Property("^Ice.Package..", true, "", false),
+    new Property("^Ice.Plugin..", true, "", false),
     new Property("Ice.PluginLoadOrder", false, "", false),
     new Property("Ice.PreferIPv6Address", false, "0", false),
     new Property("Ice.PreloadAssemblies", false, "0", false),
@@ -184,12 +183,6 @@ PropertyNames.IceProps =
     new Property("Ice.ThreadInterruptSafe", false, "", false),
 ];
 
-PropertyNames.validProps =
-[
-    PropertyNames.IceProps,
-];
+PropertyNames.validProps = [PropertyNames.IceProps];
 
-PropertyNames.clPropNames =
-[
-    "Ice",
-];
+PropertyNames.clPropNames = ["Ice"];
