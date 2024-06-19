@@ -8,19 +8,6 @@ public class Server extends test.TestHelper {
   public void run(String[] args) {
     com.zeroc.Ice.Properties properties = createTestProperties(args);
     properties.setProperty("Ice.Package.Test", "test.Ice.timeout");
-
-    //
-    // Limit the recv buffer size, this test relies on the socket
-    // send() blocking after sending a given amount of data.
-    //
-    properties.setProperty("Ice.TCP.RcvSize", "50000");
-
-    //
-    // The client sends large messages to cause the transport
-    // buffers to fill up.
-    //
-    properties.setProperty("Ice.MessageSizeMax", "20000");
-
     //
     // This test kills connections, so we don't want warnings.
     //
