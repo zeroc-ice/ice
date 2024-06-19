@@ -123,7 +123,7 @@ IceObjC::StreamEndpointI::StreamEndpointI(
 IceObjC::StreamEndpointI::StreamEndpointI(const InstancePtr& instance)
     : IceInternal::IPEndpointI(instance),
       _streamInstance(instance),
-      _timeout(60,000), // the default timeout is 60,000 milliseconds
+      _timeout(60000), // the default timeout is 60,000 milliseconds
       _compress(false)
 {
 }
