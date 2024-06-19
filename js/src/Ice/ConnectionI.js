@@ -1089,7 +1089,7 @@ export class ConnectionI {
     idleCheck(idleTimeout, rescheduleTimer) {
         if (this._state == StateActive || this._state == StateHolding) {
             if (this._transceiver.isWaitingToBeRead()) {
-                // Bytes are available for reading but we the event loop hans't processed them yet. We don't want to abort
+                // Bytes are available for reading but the event loop hasn't processed them yet. We don't want to abort
                 // the connection in this situation.
                 rescheduleTimer();
 
