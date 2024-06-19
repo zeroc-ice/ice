@@ -389,6 +389,11 @@ final class WSTransceiver implements Transceiver {
   }
 
   @Override
+  public boolean isWaitingToBeRead() {
+    return _readBuffer.b.position() > _readBufferPos || _delegate.isWaitingToBeRead();
+  }
+
+  @Override
   public String protocol() {
     return _instance.protocol();
   }

@@ -1,10 +1,9 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #pragma once
 
-["cs:namespace:Ice.idleTimeout"]
+[["java:package:test.Ice.idleTimeout"]]
+
 module Test
 {
     interface TestIntf

@@ -1430,7 +1430,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         ConnectionOptions options)
     {
         _instance = instance;
-        _transceiver = transceiver;
         _desc = transceiver.ToString();
         _type = transceiver.protocol();
         _connector = connector;
@@ -1469,12 +1468,13 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
         if (options.idleTimeout > TimeSpan.Zero && !endpoint.datagram())
         {
-            _transceiver = new IdleTimeoutTransceiverDecorator(
-                _transceiver,
+            transceiver = new IdleTimeoutTransceiverDecorator(
+                transceiver,
                 this,
                 options.idleTimeout,
                 options.enableIdleCheck);
         }
+        _transceiver = transceiver;
 
         try
         {
@@ -1504,7 +1504,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     {
         lock (this)
         {
-            if (_state == StateActive || _state == StateHolding)
+            if (isActiveOrHolding())
             {
                 if (_instance.traceLevels().network >= 1)
                 {
@@ -1512,7 +1512,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
                     _instance.initializationData().logger.trace(
                         _instance.traceLevels().networkCat,
-                        $"connection aborted by the idle check because it did not receive any byte for {idleTimeoutInSeconds}s\n{_transceiver.toDetailedString()}");
+                        $"connection aborted by the idle check because it did not receive any bytes for {idleTimeoutInSeconds}s\n{_transceiver.toDetailedString()}");
                 }
 
                 setState(StateClosed, new ConnectionIdleException());
@@ -1527,7 +1527,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
         lock (this)
         {
-            if (_state == StateActive || _state == StateHolding)
+            if (isActiveOrHolding())
             {
                 OutputStream os = new OutputStream(_instance, Util.currentProtocolEncoding);
                 os.writeBlob(Protocol.magic);
@@ -2769,7 +2769,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     }
 
     private Instance _instance;
-    private Transceiver _transceiver;
+    private readonly Transceiver _transceiver;
     private string _desc;
     private string _type;
     private Connector _connector;

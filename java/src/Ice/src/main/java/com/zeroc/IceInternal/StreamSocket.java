@@ -207,6 +207,14 @@ public class StreamSocket {
     return _desc;
   }
 
+  boolean isWaitingToBeRead() {
+    try {
+      return _fd.socket().getInputStream().available() > 0;
+    } catch (java.io.IOException ex) {
+      return false;
+    }
+  }
+
   private void init() {
     Network.setBlock(_fd, false);
     Network.setTcpBufSize(_fd, _instance);

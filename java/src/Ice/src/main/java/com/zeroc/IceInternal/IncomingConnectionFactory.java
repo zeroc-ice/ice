@@ -5,6 +5,7 @@
 package com.zeroc.IceInternal;
 
 import com.zeroc.Ice.ConnectionI;
+import com.zeroc.Ice.ConnectionOptions;
 
 public final class IncomingConnectionFactory extends EventHandler
     implements ConnectionI.StartCallback {
@@ -234,8 +235,9 @@ public final class IncomingConnectionFactory extends EventHandler
                 transceiver,
                 null,
                 _endpoint,
+                _adapter,
                 this::removeConnection,
-                _adapter);
+                _connectionOptions);
       } catch (com.zeroc.Ice.LocalException ex) {
         try {
           transceiver.close();
@@ -332,6 +334,7 @@ public final class IncomingConnectionFactory extends EventHandler
       EndpointI publish,
       com.zeroc.Ice.ObjectAdapter adapter) {
     _instance = instance;
+    _connectionOptions = instance.serverConnectionOptions(adapter.getName());
     _endpoint = endpoint;
     _publishedEndpoint = publish;
     _adapter = adapter;
@@ -374,8 +377,9 @@ public final class IncomingConnectionFactory extends EventHandler
                 _transceiver,
                 null,
                 _endpoint,
+                _adapter,
                 null,
-                _adapter);
+                _connectionOptions);
         connection.startAndWait();
 
         _connections.add(connection);
@@ -590,6 +594,7 @@ public final class IncomingConnectionFactory extends EventHandler
   }
 
   private final Instance _instance;
+  private final ConnectionOptions _connectionOptions;
 
   private Acceptor _acceptor;
   private Transceiver _transceiver;

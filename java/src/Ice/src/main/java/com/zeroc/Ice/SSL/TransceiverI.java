@@ -228,6 +228,11 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver {
   }
 
   @Override
+  public boolean isWaitingToBeRead() {
+    return _appInput.position() > 0 || _netInput.b.position() > 0 || _delegate.isWaitingToBeRead();
+  }
+
+  @Override
   public String protocol() {
     return _delegate.protocol();
   }
