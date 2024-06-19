@@ -558,23 +558,6 @@ public interface ObjectPrx {
   java.util.Optional<Boolean> ice_getCompress();
 
   /**
-   * Returns a proxy that is identical to this proxy, except for its connection timeout setting
-   * which overrides the timeot setting from the proxy endpoints.
-   *
-   * @param t The connection timeout for the proxy in milliseconds.
-   * @return A proxy with the specified timeout.
-   */
-  ObjectPrx ice_timeout(int t);
-
-  /**
-   * Obtains the timeout override of this proxy.
-   *
-   * @return The timeout override. If no optional value is present, no override is set. Otherwise,
-   *     returns the timeout override value.
-   */
-  java.util.OptionalInt ice_getTimeout();
-
-  /**
    * Returns a proxy that is identical to this proxy, except for its connection ID.
    *
    * @param connectionId The connection ID for the new proxy. An empty string removes the connection

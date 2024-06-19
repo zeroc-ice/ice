@@ -261,10 +261,6 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
     return _reference.getCompress();
   }
 
-  public java.util.OptionalInt ice_getTimeout() {
-    return _reference.getTimeout();
-  }
-
   public Connection ice_getConnection() {
     return _iceI_ice_getConnectionAsync().waitForResponse();
   }
@@ -583,19 +579,6 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
   @Override
   public ObjectPrx ice_compress(boolean co) {
     com.zeroc.IceInternal.Reference ref = _getReference().changeCompress(co);
-    if (ref.equals(_getReference())) {
-      return this;
-    } else {
-      return _newInstance(ref);
-    }
-  }
-
-  @Override
-  public ObjectPrx ice_timeout(int t) {
-    if (t < 1 && t != -1) {
-      throw new IllegalArgumentException("invalid value passed to ice_timeout: " + t);
-    }
-    com.zeroc.IceInternal.Reference ref = _getReference().changeTimeout(t);
     if (ref.equals(_getReference())) {
       return this;
     } else {

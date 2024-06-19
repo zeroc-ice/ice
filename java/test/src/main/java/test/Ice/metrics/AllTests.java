@@ -539,47 +539,25 @@ public class AllTests {
 
       metrics.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
 
-      metrics.ice_timeout(500).ice_ping();
-      controller.hold();
+      // TODO: this appears necessary on slow macos VMs to give time to the server to clean-up the
+      // connection.
       try {
-        metrics.ice_timeout(500).opByteS(new byte[10000000]);
-        test(false);
-      } catch (com.zeroc.Ice.TimeoutException ex) {
+        Thread.sleep(100);
+      } catch (InterruptedException ex) {
       }
-      controller.resume();
 
-      cm1 =
-          (ConnectionMetrics) clientMetrics.getMetricsView("View").returnValue.get("Connection")[0];
-      while (true) {
-        sm1 =
-            (ConnectionMetrics)
-                serverMetrics.getMetricsView("View").returnValue.get("Connection")[0];
-        if (sm1.failures >= 2) {
-          break;
-        }
-        try {
-          Thread.sleep(10);
-        } catch (InterruptedException ex) {
-        }
-      }
-      test(cm1.failures == 2 && sm1.failures >= 2);
-
-      checkFailure(clientMetrics, "Connection", cm1.id, "::Ice::TimeoutException", 1, out);
-      checkFailure(clientMetrics, "Connection", cm1.id, "::Ice::ConnectTimeoutException", 1, out);
-      checkFailure(serverMetrics, "Connection", sm1.id, "::Ice::ConnectionLostException", 0, out);
-
-      MetricsPrx m = metrics.ice_timeout(500).ice_connectionId("Con1");
+      MetricsPrx m = metrics.ice_connectionId("Con1");
       m.ice_ping();
 
       testAttribute(clientMetrics, clientProps, "Connection", "parent", "Communicator", out);
       // testAttribute(clientMetrics, clientProps, "Connection", "id", "");
       testAttribute(
-          clientMetrics, clientProps, "Connection", "endpoint", endpoint + " -t 500", out);
+          clientMetrics, clientProps, "Connection", "endpoint", endpoint + " -t infinite", out);
 
       testAttribute(clientMetrics, clientProps, "Connection", "endpointType", type, out);
       testAttribute(clientMetrics, clientProps, "Connection", "endpointIsDatagram", "false", out);
       testAttribute(clientMetrics, clientProps, "Connection", "endpointIsSecure", isSecure, out);
-      testAttribute(clientMetrics, clientProps, "Connection", "endpointTimeout", "500", out);
+      testAttribute(clientMetrics, clientProps, "Connection", "endpointTimeout", "-1", out);
       testAttribute(clientMetrics, clientProps, "Connection", "endpointCompress", "false", out);
       testAttribute(clientMetrics, clientProps, "Connection", "endpointHost", host, out);
       testAttribute(clientMetrics, clientProps, "Connection", "endpointPort", port, out);
@@ -622,7 +600,7 @@ public class AllTests {
       metrics.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
       controller.hold();
       try {
-        communicator.stringToProxy("test:" + endpoint).ice_timeout(10).ice_ping();
+        communicator.stringToProxy("test:" + endpoint).ice_connectionId("con2").ice_ping();
         test(false);
       } catch (com.zeroc.Ice.ConnectTimeoutException ex) {
       } catch (com.zeroc.Ice.LocalException ex) {
@@ -742,23 +720,11 @@ public class AllTests {
 
       c = new Connect(prx);
 
+      String expected = protocol + " -h localhost -p " + port + " -t 500";
+
       testAttribute(clientMetrics, clientProps, "EndpointLookup", "parent", "Communicator", c, out);
-      testAttribute(
-          clientMetrics,
-          clientProps,
-          "EndpointLookup",
-          "id",
-          prx.ice_getConnection().getEndpoint().toString(),
-          c,
-          out);
-      testAttribute(
-          clientMetrics,
-          clientProps,
-          "EndpointLookup",
-          "endpoint",
-          prx.ice_getConnection().getEndpoint().toString(),
-          c,
-          out);
+      testAttribute(clientMetrics, clientProps, "EndpointLookup", "id", expected, c, out);
+      testAttribute(clientMetrics, clientProps, "EndpointLookup", "endpoint", expected, c, out);
 
       testAttribute(clientMetrics, clientProps, "EndpointLookup", "endpointType", type, c, out);
       testAttribute(

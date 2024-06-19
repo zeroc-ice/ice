@@ -171,24 +171,6 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
     invokeImpl(false);
   }
 
-  public void cancelable(final CancellationHandler handler) {
-    if (_proxy._getReference().getInvocationTimeout() == -2 && _cachedConnection != null) {
-      final int timeout = _cachedConnection.timeout();
-      if (timeout > 0) {
-        _timerFuture =
-            _instance
-                .timer()
-                .schedule(
-                    () -> {
-                      cancel(new com.zeroc.Ice.ConnectionTimeoutException());
-                    },
-                    timeout,
-                    java.util.concurrent.TimeUnit.MILLISECONDS);
-      }
-    }
-    super.cancelable(handler);
-  }
-
   @Override
   public void abort(com.zeroc.Ice.Exception ex) {
     assert (_childObserver == null);

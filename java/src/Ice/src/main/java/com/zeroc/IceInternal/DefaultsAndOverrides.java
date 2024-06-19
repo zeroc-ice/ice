@@ -29,60 +29,6 @@ public final class DefaultsAndOverrides {
       defaultSourceAddress = null;
     }
 
-    value = properties.getIceProperty("Ice.Override.Timeout");
-    if (!value.isEmpty()) {
-      overrideTimeout = true;
-      intValue = properties.getIcePropertyAsInt("Ice.Override.Timeout");
-      if (intValue < 0 && intValue != -1) {
-        overrideTimeoutValue = -1;
-        StringBuffer msg = new StringBuffer("invalid value for Ice.Override.Timeout `");
-        msg.append(properties.getIceProperty("Ice.Override.Timeout"));
-        msg.append("': defaulting to -1");
-        logger.warning(msg.toString());
-      } else {
-        overrideTimeoutValue = intValue;
-      }
-    } else {
-      overrideTimeout = false;
-      overrideTimeoutValue = -1;
-    }
-
-    value = properties.getIceProperty("Ice.Override.ConnectTimeout");
-    if (!value.isEmpty()) {
-      overrideConnectTimeout = true;
-      intValue = properties.getIcePropertyAsInt("Ice.Override.ConnectTimeout");
-      if (intValue < 0 && intValue != -1) {
-        overrideConnectTimeoutValue = -1;
-        StringBuffer msg = new StringBuffer("invalid value for Ice.Override.ConnectTimeout `");
-        msg.append(properties.getIceProperty("Ice.Override.ConnectTimeout"));
-        msg.append("': defaulting to -1");
-        logger.warning(msg.toString());
-      } else {
-        overrideConnectTimeoutValue = intValue;
-      }
-    } else {
-      overrideConnectTimeout = false;
-      overrideConnectTimeoutValue = -1;
-    }
-
-    value = properties.getIceProperty("Ice.Override.CloseTimeout");
-    if (!value.isEmpty()) {
-      overrideCloseTimeout = true;
-      intValue = properties.getIcePropertyAsInt("Ice.Override.CloseTimeout");
-      if (intValue < 0 && intValue != -1) {
-        overrideCloseTimeoutValue = -1;
-        StringBuffer msg = new StringBuffer("invalid value for Ice.Override.CloseTimeout `");
-        msg.append(properties.getIceProperty("Ice.Override.CloseTimeout"));
-        msg.append("': defaulting to -1");
-        logger.warning(msg.toString());
-      } else {
-        overrideCloseTimeoutValue = intValue;
-      }
-    } else {
-      overrideCloseTimeout = false;
-      overrideCloseTimeoutValue = -1;
-    }
-
     value = properties.getIceProperty("Ice.Override.Compress");
     if (!value.isEmpty()) {
       overrideCompress = true;
@@ -182,12 +128,6 @@ public final class DefaultsAndOverrides {
   public final com.zeroc.Ice.EncodingVersion defaultEncoding;
   public final com.zeroc.Ice.FormatType defaultFormat;
 
-  public final boolean overrideTimeout;
-  public final int overrideTimeoutValue;
-  public final boolean overrideConnectTimeout;
-  public final int overrideConnectTimeoutValue;
-  public final boolean overrideCloseTimeout;
-  public final int overrideCloseTimeoutValue;
   public final boolean overrideCompress;
   public final boolean overrideCompressValue;
   public final boolean overrideSecure;

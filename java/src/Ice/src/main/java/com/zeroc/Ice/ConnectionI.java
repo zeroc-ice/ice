@@ -1165,12 +1165,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   }
 
   @Override
-  public int timeout() {
-    return _endpoint.timeout(); // No mutex protection necessary, _endpoint
-    // is immutable.
-  }
-
-  @Override
   public synchronized ConnectionInfo getInfo() {
     if (_state >= StateClosed) {
       throw (LocalException) _exception.fillInStackTrace();
