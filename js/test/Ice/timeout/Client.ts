@@ -224,7 +224,7 @@ export class Client extends TestHelper {
                 await comm.destroy();
             }
 
-            // Small delay is useful for IE which doesn't like too many connection failures in a row
+            // Small delay is useful for Firefox which doesn't like too many connection failures in a row
             await Ice.Promise.delay(500);
 
             {
@@ -289,7 +289,7 @@ export class Client extends TestHelper {
             out.writeLine("ok");
         }
 
-        // Small delay is useful for IE which doesn't like too many connection failures in a row
+        // Small delay is useful for Firefox which doesn't like too many connection failures in a row
         await Ice.Promise.delay(500);
         {
             out.write("testing close timeout overrides... ");

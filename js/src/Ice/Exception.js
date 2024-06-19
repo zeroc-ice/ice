@@ -56,7 +56,7 @@ class Exception extends Error {
 
     toString() {
         //
-        // We have a guard here to prevent being re-entered. With some browsers (IE), accessing
+        // We have a guard here to prevent being re-entered. With some browsers, accessing
         // the stack property ends up calling toString on the exception to print it out with the
         // stack.
         //
