@@ -1224,7 +1224,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
   public synchronized void idleCheck(
       int idleTimeout, BooleanSupplier isTimerTaskStarted, Runnable rescheduleTimer) {
-    // If isTimerStartStarted returns false, it means that while we were waiting to acquire the
+    // If isTimerTaskStarted returns false, it means that while we were waiting to acquire the
     // lock, a read went through and rescheduled the read timer task. This means "this" task was
     // canceled so we don't do anything.
     if ((_state == StateActive || _state == StateHolding) && isTimerTaskStarted.getAsBoolean()) {
