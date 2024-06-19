@@ -1227,7 +1227,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     // If isTimerTaskStarted returns false, it means that while we were waiting to acquire the
     // lock, a read went through and rescheduled the read timer task. This means "this" task was
     // canceled so we don't do anything.
-    if ((_state == StateActive || _state == StateHolding) && isTimerTaskStarted.getAsBoolean()) {
+    if (isActiveOrHolding() && isTimerTaskStarted.getAsBoolean()) {
       if (_transceiver.isWaitingToBeRead()) {
         // Bytes are available for reading but the thread pool is exhausted. We don't want to abort
         // the connection in this situation.
@@ -1251,7 +1251,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
               .logger
               .trace(
                   _instance.traceLevels().networkCat,
-                  "connection aborted by the idle check because it did not receive any byte for "
+                  "connection aborted by the idle check because it did not receive any bytes for "
                       + idleTimeout
                       + "s\n"
                       + _transceiver.toDetailedString());
@@ -1268,7 +1268,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   public synchronized void sendHeartbeat() {
     assert !_endpoint.datagram();
 
-    if (_state == StateActive || _state == StateHolding) {
+    if (isActiveOrHolding()) {
       OutputStream os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
       os.writeBlob(Protocol.magic);
       Protocol.currentProtocol.ice_writeMembers(os);

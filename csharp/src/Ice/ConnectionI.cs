@@ -1504,7 +1504,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     {
         lock (this)
         {
-            if (_state == StateActive || _state == StateHolding)
+            if (isActiveOrHolding())
             {
                 if (_instance.traceLevels().network >= 1)
                 {
@@ -1512,7 +1512,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
                     _instance.initializationData().logger.trace(
                         _instance.traceLevels().networkCat,
-                        $"connection aborted by the idle check because it did not receive any byte for {idleTimeoutInSeconds}s\n{_transceiver.toDetailedString()}");
+                        $"connection aborted by the idle check because it did not receive any bytes for {idleTimeoutInSeconds}s\n{_transceiver.toDetailedString()}");
                 }
 
                 setState(StateClosed, new ConnectionIdleException());
@@ -1527,7 +1527,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
         lock (this)
         {
-            if (_state == StateActive || _state == StateHolding)
+            if (isActiveOrHolding())
             {
                 OutputStream os = new OutputStream(_instance, Util.currentProtocolEncoding);
                 os.writeBlob(Protocol.magic);
