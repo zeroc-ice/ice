@@ -32,7 +32,7 @@ public final class OutgoingConnectionFactory {
       return v;
     }
 
-    public static final long serialVersionUID = 0L;
+    private static final long serialVersionUID = -8109942200313578944L;
   }
 
   interface CreateConnectionCallback {

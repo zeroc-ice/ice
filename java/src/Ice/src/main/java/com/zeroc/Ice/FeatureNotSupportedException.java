@@ -45,8 +45,5 @@ public class FeatureNotSupportedException extends LocalException {
   /** The name of the unsupported feature. */
   public String unsupportedFeature;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -4629958372080397318L;
+  private static final long serialVersionUID = -4629958372080397318L;
 }

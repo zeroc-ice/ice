@@ -43,8 +43,5 @@ public class UnknownLocalException extends UnknownException {
     return "::Ice::UnknownLocalException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 1374449481624773050L;
+  private static final long serialVersionUID = 1374449481624773050L;
 }

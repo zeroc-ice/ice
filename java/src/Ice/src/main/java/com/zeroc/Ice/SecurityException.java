@@ -42,8 +42,5 @@ public class SecurityException extends LocalException {
   /** The reason for the failure. */
   public String reason;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 7929245908983964710L;
+  private static final long serialVersionUID = 7929245908983964710L;
 }

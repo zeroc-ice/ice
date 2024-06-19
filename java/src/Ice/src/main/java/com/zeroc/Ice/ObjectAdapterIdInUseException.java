@@ -45,8 +45,5 @@ public class ObjectAdapterIdInUseException extends LocalException {
   /** Adapter ID. */
   public String id;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 609699148378869554L;
+  private static final long serialVersionUID = 609699148378869554L;
 }

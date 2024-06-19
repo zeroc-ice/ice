@@ -37,8 +37,5 @@ public class ConnectFailedException extends SocketException {
     return "::Ice::ConnectFailedException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 3367444083227777090L;
+  private static final long serialVersionUID = 3367444083227777090L;
 }

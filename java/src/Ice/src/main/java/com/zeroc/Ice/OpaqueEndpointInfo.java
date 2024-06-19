@@ -46,9 +46,4 @@ public abstract class OpaqueEndpointInfo extends EndpointInfo {
   public OpaqueEndpointInfo clone() {
     return (OpaqueEndpointInfo) super.clone();
   }
-
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 2439699764526521524L;
 }

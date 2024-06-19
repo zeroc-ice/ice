@@ -41,8 +41,5 @@ public class DatagramLimitException extends ProtocolException {
     return "::Ice::DatagramLimitException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -783492847222783613L;
+  private static final long serialVersionUID = -783492847222783613L;
 }

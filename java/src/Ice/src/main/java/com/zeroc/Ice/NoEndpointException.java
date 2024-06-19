@@ -42,8 +42,5 @@ public class NoEndpointException extends LocalException {
   /** The stringified proxy for which no suitable endpoint is available. */
   public String proxy;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -5026638954785808518L;
+  private static final long serialVersionUID = -5026638954785808518L;
 }

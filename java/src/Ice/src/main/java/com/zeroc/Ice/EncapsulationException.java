@@ -37,8 +37,5 @@ public class EncapsulationException extends MarshalException {
     return "::Ice::EncapsulationException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 6924075986153135793L;
+  private static final long serialVersionUID = 6924075986153135793L;
 }

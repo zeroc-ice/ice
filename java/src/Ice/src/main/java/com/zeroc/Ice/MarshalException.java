@@ -37,8 +37,5 @@ public class MarshalException extends ProtocolException {
     return "::Ice::MarshalException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -1332260000897066889L;
+  private static final long serialVersionUID = -1332260000897066889L;
 }

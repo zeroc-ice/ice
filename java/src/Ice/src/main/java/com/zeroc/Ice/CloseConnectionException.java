@@ -44,8 +44,5 @@ public class CloseConnectionException extends ProtocolException {
     return "::Ice::CloseConnectionException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 4166975853591251903L;
+  private static final long serialVersionUID = 4166975853591251903L;
 }

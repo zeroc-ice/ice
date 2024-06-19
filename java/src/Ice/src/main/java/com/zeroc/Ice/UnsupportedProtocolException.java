@@ -53,8 +53,5 @@ public class UnsupportedProtocolException extends ProtocolException {
   /** The version of the protocol that is supported. */
   public ProtocolVersion supported;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 811091383730564025L;
+  private static final long serialVersionUID = 811091383730564025L;
 }

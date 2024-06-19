@@ -45,8 +45,5 @@ public class BadMagicException extends ProtocolException {
   /** A sequence containing the first four bytes of the incorrect message. */
   public byte[] badMagic;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -3934807911473944716L;
+  private static final long serialVersionUID = -3934807911473944716L;
 }

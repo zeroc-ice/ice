@@ -42,8 +42,5 @@ public class IllegalServantException extends LocalException {
   /** Describes why this servant is illegal. */
   public String reason;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 1134807368810099935L;
+  private static final long serialVersionUID = 1134807368810099935L;
 }

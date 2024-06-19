@@ -37,8 +37,5 @@ public class UnknownMessageException extends ProtocolException {
     return "::Ice::UnknownMessageException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 1625154579332341724L;
+  private static final long serialVersionUID = 1625154579332341724L;
 }

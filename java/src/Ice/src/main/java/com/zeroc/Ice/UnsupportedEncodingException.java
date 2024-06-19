@@ -53,8 +53,5 @@ public class UnsupportedEncodingException extends ProtocolException {
   /** The version of the encoding that is supported. */
   public EncodingVersion supported;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -4128311673376608852L;
+  private static final long serialVersionUID = -4128311673376608852L;
 }

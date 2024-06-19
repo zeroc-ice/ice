@@ -12,5 +12,5 @@ public abstract class LocalException extends Exception {
     super(cause);
   }
 
-  public static final long serialVersionUID = 0L;
+  private static final long serialVersionUID = 0L;
 }

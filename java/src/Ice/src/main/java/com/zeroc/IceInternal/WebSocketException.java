@@ -17,5 +17,5 @@ final class WebSocketException extends java.lang.RuntimeException {
     super(cause);
   }
 
-  public static final long serialVersionUID = 0L;
+  private static final long serialVersionUID = 133989672864895760L;
 }

@@ -42,8 +42,5 @@ public class BluetoothException extends com.zeroc.Ice.LocalException {
   /** Provides more information about the failure. */
   public String reason;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -2714934297616925968L;
+  private static final long serialVersionUID = -2714934297616925968L;
 }
