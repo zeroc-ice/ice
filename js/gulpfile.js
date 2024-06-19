@@ -99,10 +99,11 @@ function createCleanTask(taskName, patterns, extension, dest = undefined) {
 }
 
 for (const lib of libs) {
+    const slicePatterns = [`../slice/${lib}/*.ice`, ...(excludes[lib] || [])];
     gulp.task(libTask(lib, "generate"), (cb) => {
         pump(
             [
-                gulp.src([`../slice/${lib}/*.ice`, ...(excludes[lib] || [])]),
+                gulp.src(slicePatterns),
                 slice2js({
                     jsbundle: false,
                     tsbundle: false,
@@ -113,8 +114,6 @@ for (const lib of libs) {
             cb,
         );
     });
-
-    const slicePatterns = [`../slice/${lib}/*.ice`, ...(excludes[lib] || [])];
 
     createCleanTask(libTask(lib, "clean:js"), slicePatterns, ".js", `${root}/src/${lib}`);
     createCleanTask(libTask(lib, "clean:d.ts"), slicePatterns, ".d.ts", `${root}/src/${lib}`);
