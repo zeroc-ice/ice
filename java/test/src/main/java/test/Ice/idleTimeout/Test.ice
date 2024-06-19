@@ -6,8 +6,6 @@
 
 module Test
 {
-    sequence<byte> ByteSeq;
-
     interface TestIntf
     {
         void sleep(int ms);
