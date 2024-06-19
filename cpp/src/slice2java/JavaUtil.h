@@ -11,19 +11,12 @@
 namespace Slice
 {
     //
-    // Compute Java serialVersionUID for a Slice class
+    // These functions should only be called for classes, exceptions, and structs.
+    // Enums automatically implement Serializable (Java just serializes the enumerator's identifier),
+    // and proxies get their implementation from `_ObjectPrxI`.
     //
-    long computeSerialVersionUUID(const ClassDefPtr&);
-
-    //
-    // Compute Java serialVersionUID for a Slice class
-    //
-    long computeSerialVersionUUID(const ExceptionPtr&);
-
-    //
-    // Compute Java serialVersionUID for a Slice struct
-    //
-    long computeSerialVersionUUID(const StructPtr&);
+    std::string getSerialVersionUID(const ContainedPtr&);
+    long computeDefaultSerialVersionUID(const ContainedPtr&);
 
     //
     // Returns true if we can generate a method from the given data member list. A Java method

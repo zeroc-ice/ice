@@ -50,6 +50,11 @@ final class TcpTransceiver implements Transceiver {
   }
 
   @Override
+  public boolean isWaitingToBeRead() {
+    return _stream.isWaitingToBeRead();
+  }
+
+  @Override
   public String protocol() {
     return _instance.protocol();
   }

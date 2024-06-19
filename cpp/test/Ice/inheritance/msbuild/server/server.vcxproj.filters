@@ -72,12 +72,6 @@
     <ClInclude Include="..\..\TestI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="x64\Cpp11-Debug\Test.h">
-      <Filter>Header Files\x64\Cpp11-Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="Win32\Cpp11-Debug\Test.h">
-      <Filter>Header Files\Win32\Cpp11-Debug</Filter>
-    </ClInclude>
     <ClInclude Include="x64\Debug\Test.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
@@ -89,12 +83,6 @@
     </ClInclude>
     <ClInclude Include="Win32\Release\Test.h">
       <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="x64\Cpp11-Release\Test.h">
-      <Filter>Header Files\x64\Cpp11-Release</Filter>
-    </ClInclude>
-    <ClInclude Include="Win32\Cpp11-Release\Test.h">
-      <Filter>Header Files\Win32\Cpp11-Release</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

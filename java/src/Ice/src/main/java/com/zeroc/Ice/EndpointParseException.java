@@ -42,8 +42,5 @@ public class EndpointParseException extends LocalException {
   /** Describes the failure and includes the string that could not be parsed. */
   public String str;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 2726204311748106167L;
+  private static final long serialVersionUID = 2726204311748106167L;
 }

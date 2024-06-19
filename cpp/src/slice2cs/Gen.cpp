@@ -2536,7 +2536,7 @@ Slice::Gen::ProxyVisitor::ProxyVisitor(IceUtilInternal::Output& out) : CsVisitor
 bool
 Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (!p->hasInterfaceDefs())
+    if (!p->contains<InterfaceDef>())
     {
         return false;
     }
@@ -2652,7 +2652,7 @@ Slice::Gen::DispatchAdapterVisitor::DispatchAdapterVisitor(IceUtilInternal::Outp
 bool
 Slice::Gen::DispatchAdapterVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (!p->hasInterfaceDefs())
+    if (!p->contains<InterfaceDef>())
     {
         return false;
     }
@@ -2844,7 +2844,7 @@ Slice::Gen::HelperVisitor::HelperVisitor(IceUtilInternal::Output& out) : CsVisit
 bool
 Slice::Gen::HelperVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (!p->hasInterfaceDefs() && !p->hasSequences() && !p->hasDictionaries())
+    if (!p->contains<InterfaceDef>() && !p->contains<Sequence>() && !p->contains<Dictionary>())
     {
         return false;
     }
@@ -2878,21 +2878,15 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     OperationList ops = p->allOperations();
 
-    for (OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
+    for (const auto& op : ops)
     {
-        OperationPtr op = *r;
-        InterfaceDefPtr interface = op->interface();
         string opName = fixId(op->name(), DotNet::ICloneable, true);
         TypePtr ret = op->returnType();
         string retS = typeToString(ret, ns, op->returnIsOptional());
 
         vector<string> params = getParams(op, ns);
-        vector<string> args = getArgs(op);
         vector<string> argsAMI = getInArgs(op);
 
-        string deprecateReason = getDeprecationMessageForComment(op, "operation");
-
-        ParamDeclList inParams = op->inParameters();
         ParamDeclList outParams = op->outParameters();
 
         ExceptionList throws = op->throws();
@@ -2968,11 +2962,8 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
 
     // Async invocation
-    for (OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
+    for (const auto& op : ops)
     {
-        OperationPtr op = *r;
-
-        InterfaceDefPtr interface = op->interface();
         vector<string> paramsAMI = getInParams(op, ns);
         vector<string> argsAMI = getInArgs(op);
 
@@ -2986,8 +2977,6 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         string progress = getEscapedParamName(op, "progress");
 
         TypePtr ret = op->returnType();
-
-        string retS = typeToString(ret, ns, op->returnIsOptional());
 
         string returnTypeS = resultType(op, ns);
 
@@ -3421,7 +3410,7 @@ Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceUtilInternal::Output& out)
 bool
 Slice::Gen::DispatcherVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (!p->hasInterfaceDefs())
+    if (!p->contains<InterfaceDef>())
     {
         return false;
     }
@@ -3455,13 +3444,11 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << sb;
 
-    OperationList ops = p->operations();
-
-    for (OperationList::const_iterator i = ops.begin(); i != ops.end(); ++i)
+    for (const auto& op : p->operations())
     {
         string retS;
         vector<string> params, args;
-        string opName = getDispatchParams(*i, retS, params, args, ns);
+        string opName = getDispatchParams(op, retS, params, args, ns);
         _out << sp << nl << "public abstract " << retS << " " << opName << spar << params << epar << ';';
     }
 

@@ -14,7 +14,7 @@ namespace Ice;
 /// <param name="facet">The facet of the target Ice object.</param>
 /// <param name="operation">The name of the operation.</param>
 /// <param name="mode">The operation mode (idempotent or not).</param>
-/// <param name="ctx">The request context carried by the request.</param>
+/// <param name="ctx">The request context.</param>
 /// <param name="requestId">The request ID. 0 means the request is a one-way request.</param>
 /// <param name="encoding">The encoding of the request payload.</param>
 public sealed record class Current(

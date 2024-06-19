@@ -20,7 +20,6 @@ export class Instance {
         this._defaultsAndOverrides = null;
         this._messageSizeMax = 0;
         this._batchAutoFlushSize = 0;
-        this._clientACM = null;
         this._toStringMode = ToStringMode.Unicode;
         this._implicitContext = null;
         this._routerManager = null;

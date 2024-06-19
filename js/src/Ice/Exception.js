@@ -56,7 +56,7 @@ class Exception extends Error {
 
     toString() {
         //
-        // We have a guard here to prevent being re-entered. With some browsers (IE), accessing
+        // We have a guard here to prevent being re-entered. With some browsers, accessing
         // the stack property ends up calling toString on the exception to print it out with the
         // stack.
         //
@@ -77,10 +77,6 @@ class Exception extends Error {
 
     static captureStackTrace(object) {
         const stack = new Error().stack;
-        //
-        // In IE 10 and greater the stack will be filled once the Error is throw
-        // we don't need to do anything.
-        //
         if (stack !== undefined) {
             Object.defineProperty(object, "stack", {
                 get: function () {

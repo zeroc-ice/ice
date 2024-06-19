@@ -37,8 +37,5 @@ public class ConnectionLostException extends SocketException {
     return "::Ice::ConnectionLostException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -7871526265585148499L;
+  private static final long serialVersionUID = -7871526265585148499L;
 }

@@ -3058,13 +3058,19 @@ class BrowserProcessController(RemoteProcessController):
             self, current, "ws -h {0} -p 15002:wss -h {0} -p 15003".format(self.host)
         )
         self.httpServer = None
+        self.httpsServer = None
         self.url = None
         self.driver = None
         try:
-            cmd = "node -e \"require('./bin/HttpServer')()\""
+            httpServerCmd = "node node_modules/http-server/bin/http-server -p 8080 dist"
             cwd = current.testcase.getMapping().getPath()
-            self.httpServer = Expect.Expect(cmd, cwd=cwd)
-            self.httpServer.expect("listening on ports")
+            self.httpServer = Expect.Expect(httpServerCmd, cwd=cwd)
+            self.httpServer.expect("Available on:")
+
+            httpsServerCmd = "node node_modules/http-server/bin/http-server -p 9090 --tls --cert ../certs/server.pem --key ../certs/server_key.pem dist"
+            cwd = current.testcase.getMapping().getPath()
+            self.httpsServer = Expect.Expect(httpsServerCmd, cwd=cwd)
+            self.httpsServer.expect("Available on:")
 
             if current.config.browser.startswith("Remote:"):
                 from selenium import webdriver
@@ -3173,9 +3179,7 @@ class BrowserProcessController(RemoteProcessController):
                         if ident in self.processControllerProxies:
                             prx = self.processControllerProxies[ident]
                             break
-                        print(
-                            "Please load http://{0}:8080/{1}".format(self.host, "start")
-                        )
+                        print("Please load {}".format(url))
                         self.cond.wait(5)
 
                 try:
@@ -3223,6 +3227,10 @@ class BrowserProcessController(RemoteProcessController):
         if self.httpServer:
             self.httpServer.terminate()
             self.httpServer = None
+
+        if self.httpsServer:
+            self.httpsServer.terminate()
+            self.httpsServer = None
 
         try:
             self.driver.quit()
@@ -4317,7 +4325,7 @@ class JavaScriptMixin:
         return os.path.join(self.getPath(), "test", "Common")
 
     def getCommandLine(self, current, process, exe, args):
-        return "node {0}/run.js {1} {2} {3}".format(
+        return "node {0}/run.js file://{1} {2} {3}".format(
             self.getCommonDir(current),
             os.path.join(self.getTestCwd(process, current), exe),
             Path(exe).stem,

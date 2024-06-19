@@ -46,8 +46,5 @@ public class FailureException extends com.zeroc.Ice.LocalException {
   /** The reason for the failure. */
   public String reason;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -7740030157337496059L;
+  private static final long serialVersionUID = -7740030157337496059L;
 }

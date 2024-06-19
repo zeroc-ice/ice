@@ -31,6 +31,6 @@ Ice.Identity = class {
     }
 };
 
-// Moved to StreamHelpers.js to avoid circular dependencies.
+// Moved to IdentityExtensions.js to avoid circular dependencies.
 // Ice.defineStruct(Ice.Identity, true, true);
 // Ice.IdentitySeqHelper = Ice.StreamHelpers.generateSeqHelper(Ice.Identity, false);

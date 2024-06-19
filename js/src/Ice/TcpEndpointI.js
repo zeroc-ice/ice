@@ -9,6 +9,7 @@ import { EndpointParseException } from "./LocalException.js";
 import { IPEndpointI } from "./IPEndpointI.js";
 import { TcpTransceiver } from "./TcpTransceiver.js";
 import { Debug } from "./Debug.js";
+import { EndpointInfo as SSLEndpointInfo } from "./SSL/EndpointInfo.js";
 
 export class TcpEndpointI extends IPEndpointI {
     constructor(instance, ho, po, sif, ti, conId, co) {
@@ -23,8 +24,7 @@ export class TcpEndpointI extends IPEndpointI {
     getInfo() {
         const info = new TCPEndpointInfo();
         this.fillEndpointInfo(info);
-        Debug.assert(!this.secure()); // Secure endpoints are not supported in NodeJS
-        return info;
+        return this.secure() ? new SSLEndpointInfo(info, info.timeout, info.compress) : info;
     }
 
     //
@@ -115,7 +115,7 @@ export class TcpEndpointI extends IPEndpointI {
         //
         // TCP endpoints are not connectable when running in a browser, SSL isn't currently supported.
         //
-        return typeof process !== "undefined" && !this.secure();
+        return typeof TcpTransceiver !== null && !this.secure();
     }
 
     connect() {

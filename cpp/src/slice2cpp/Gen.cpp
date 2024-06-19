@@ -399,27 +399,20 @@ namespace
             out << nl << " * @deprecated";
         }
 
-        switch (p->containedType())
+        if (dynamic_pointer_cast<ClassDef>(p) || dynamic_pointer_cast<ClassDecl>(p) ||
+            dynamic_pointer_cast<Struct>(p) || dynamic_pointer_cast<Slice::Exception>(p))
         {
-            case Contained::ContainedTypeClass:
-            case Contained::ContainedTypeStruct:
-            case Contained::ContainedTypeException:
+            UnitPtr unt = p->container()->unit();
+            string file = p->file();
+            assert(!file.empty());
+            static const string prefix = "cpp:doxygen:include:";
+            DefinitionContextPtr dc = unt->findDefinitionContext(file);
+            assert(dc);
+            string q = dc->findMetaData(prefix);
+            if (!q.empty())
             {
-                UnitPtr unt = p->container()->unit();
-                string file = p->file();
-                assert(!file.empty());
-                static const string prefix = "cpp:doxygen:include:";
-                DefinitionContextPtr dc = unt->findDefinitionContext(file);
-                assert(dc);
-                string q = dc->findMetaData(prefix);
-                if (!q.empty())
-                {
-                    out << nl << " * \\headerfile " << q.substr(prefix.size());
-                }
-                break;
+                out << nl << " * \\headerfile " << q.substr(prefix.size());
             }
-            default:
-                break;
         }
 
         out << nl << " */";
@@ -1409,7 +1402,7 @@ Slice::Gen::DefaultFactoryVisitor::DefaultFactoryVisitor(Output& c) : C(c), _fac
 bool
 Slice::Gen::DefaultFactoryVisitor::visitUnitStart(const UnitPtr& p)
 {
-    if (p->hasClassDefs() || p->hasExceptions())
+    if (p->contains<ClassDef>() || p->contains<Exception>())
     {
         C << sp << nl << "namespace" << nl << "{";
         C.inc();
@@ -1439,8 +1432,7 @@ Slice::Gen::DefaultFactoryVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     C << nl << "const ::IceInternal::DefaultValueFactoryInit<" << fixKwd(p->scoped()) << "> ";
-    C << "iceC" + p->flattenedScope() + p->name() + "_init"
-      << "(\"" << p->scoped() << "\");";
+    C << "iceC" + p->flattenedScope() + p->name() + "_init" << "(\"" << p->scoped() << "\");";
 
     if (p->compactId() >= 0)
     {
@@ -1461,8 +1453,7 @@ Slice::Gen::DefaultFactoryVisitor::visitExceptionStart(const ExceptionPtr& p)
         _factoryTableInitDone = true;
     }
     C << nl << "const ::IceInternal::DefaultUserExceptionFactoryInit<" << fixKwd(p->scoped()) << "> ";
-    C << "iceC" + p->flattenedScope() + p->name() + "_init"
-      << "(\"" << p->scoped() << "\");";
+    C << "iceC" + p->flattenedScope() + p->name() + "_init" << "(\"" << p->scoped() << "\");";
     return false;
 }
 
@@ -1477,7 +1468,7 @@ Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, const string& dllEx
 bool
 Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (!p->hasInterfaceDefs())
+    if (!p->contains<InterfaceDef>())
     {
         return false;
     }
@@ -1845,8 +1836,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     C << nl << "return ::IceInternal::makeLambdaOutgoing<" << lambdaT << ">" << spar;
 
-    C << "::std::move(" + (lambdaOutParams.size() > 1 ? string("responseCb") : "response") + ")"
-      << "::std::move(ex)"
+    C << "::std::move(" + (lambdaOutParams.size() > 1 ? string("responseCb") : "response") + ")" << "::std::move(ex)"
       << "::std::move(sent)"
       << "this";
     C << string("&" + getUnqualified(scoped, interfaceScope.substr(2)) + lambdaImplPrefix + name);
@@ -2011,8 +2001,7 @@ Slice::Gen::DataDefVisitor::DataDefVisitor(
 bool
 Slice::Gen::DataDefVisitor::visitModuleStart(const ModulePtr& p)
 {
-    // TODO: this most likely includes definitions in included files, which is not what we want here.
-    if (!p->hasStructs() && !p->hasValueDefs() && !p->hasExceptions())
+    if (!p->contains<Struct>() && !p->contains<ClassDef>() && !p->contains<Exception>())
     {
         return false;
     }
@@ -2025,7 +2014,7 @@ Slice::Gen::DataDefVisitor::visitModuleStart(const ModulePtr& p)
 void
 Slice::Gen::DataDefVisitor::visitModuleEnd(const ModulePtr& p)
 {
-    if (p->hasStructs())
+    if (p->contains<Struct>())
     {
         H << sp << nl << "using Ice::operator<;";
         H << nl << "using Ice::operator<=;";
@@ -2703,7 +2692,7 @@ Slice::Gen::InterfaceVisitor::InterfaceVisitor(
 bool
 Slice::Gen::InterfaceVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (!p->hasInterfaceDefs())
+    if (!p->contains<InterfaceDef>())
     {
         return false;
     }
@@ -3253,8 +3242,7 @@ Slice::Gen::StreamVisitor::StreamVisitor(Output& h) : H(h) {}
 bool
 Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
 {
-    if (!m->hasContained(Contained::ContainedTypeStruct) && !m->hasContained(Contained::ContainedTypeEnum) &&
-        !m->hasContained(Contained::ContainedTypeException) && !m->hasContained(Contained::ContainedTypeClass))
+    if (!m->contains<Struct>() && !m->contains<Enum>() && !m->contains<Exception>() && !m->contains<ClassDef>())
     {
         return false;
     }

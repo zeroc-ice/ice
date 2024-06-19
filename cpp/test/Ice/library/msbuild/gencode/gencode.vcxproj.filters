@@ -49,22 +49,14 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Win32\Cpp11-Debug\Test.cpp" />
-    <ClCompile Include="Win32\Cpp11-Release\Test.cpp" />
     <ClCompile Include="Win32\Debug\Test.cpp" />
     <ClCompile Include="Win32\Release\Test.cpp" />
-    <ClCompile Include="x64\Cpp11-Debug\Test.cpp" />
-    <ClCompile Include="x64\Cpp11-Release\Test.cpp" />
     <ClCompile Include="x64\Debug\Test.cpp" />
     <ClCompile Include="x64\Release\Test.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Win32\Cpp11-Debug\Test.h" />
-    <ClInclude Include="Win32\Cpp11-Release\Test.h" />
     <ClInclude Include="Win32\Debug\Test.h" />
     <ClInclude Include="Win32\Release\Test.h" />
-    <ClInclude Include="x64\Cpp11-Debug\Test.h" />
-    <ClInclude Include="x64\Cpp11-Release\Test.h" />
     <ClInclude Include="x64\Debug\Test.h" />
     <ClInclude Include="x64\Release\Test.h" />
   </ItemGroup>

@@ -90,10 +90,7 @@ public abstract class Value implements java.lang.Cloneable, java.io.Serializable
    */
   protected void _iceReadImpl(InputStream istr) {}
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 0L;
-
   private SlicedData _slicedData;
+
+  private static final long serialVersionUID = 0L;
 }

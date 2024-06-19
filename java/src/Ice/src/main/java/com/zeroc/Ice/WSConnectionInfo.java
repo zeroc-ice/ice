@@ -37,9 +37,4 @@ public class WSConnectionInfo extends ConnectionInfo {
   public WSConnectionInfo clone() {
     return (WSConnectionInfo) super.clone();
   }
-
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 9085761366886580254L;
 }

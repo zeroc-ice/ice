@@ -42,8 +42,5 @@ public class IdentityParseException extends LocalException {
   /** Describes the failure and includes the string that could not be parsed. */
   public String str;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 8547577763521735682L;
+  private static final long serialVersionUID = 8547577763521735682L;
 }

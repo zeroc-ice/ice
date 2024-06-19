@@ -42,8 +42,5 @@ public class InitializationException extends LocalException {
   /** The reason for the failure. */
   public String reason;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 578611869232039264L;
+  private static final long serialVersionUID = 578611869232039264L;
 }

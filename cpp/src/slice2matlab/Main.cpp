@@ -1188,11 +1188,10 @@ namespace
             writeDocLines(out, doc.overview, true);
         }
 
-        if (p->containedType() == Contained::ContainedTypeEnum)
+        if (EnumPtr en = dynamic_pointer_cast<Enum>(p))
         {
             out << nl << "%";
             out << nl << "% " << n << " Properties:";
-            EnumPtr en = dynamic_pointer_cast<Enum>(p);
             const EnumeratorList el = en->enumerators();
             for (EnumeratorList::const_iterator q = el.begin(); q != el.end(); ++q)
             {
@@ -1205,11 +1204,10 @@ namespace
                 }
             }
         }
-        else if (p->containedType() == Contained::ContainedTypeStruct)
+        else if (StructPtr st = dynamic_pointer_cast<Struct>(p))
         {
             out << nl << "%";
             out << nl << "% " << n << " Properties:";
-            StructPtr st = dynamic_pointer_cast<Struct>(p);
             const DataMemberList dml = st->dataMembers();
             for (DataMemberList::const_iterator q = dml.begin(); q != dml.end(); ++q)
             {
@@ -1222,9 +1220,8 @@ namespace
                 }
             }
         }
-        else if (p->containedType() == Contained::ContainedTypeException)
+        else if (ExceptionPtr ex = dynamic_pointer_cast<Exception>(p))
         {
-            ExceptionPtr ex = dynamic_pointer_cast<Exception>(p);
             const DataMemberList dml = ex->dataMembers();
             if (!dml.empty())
             {
@@ -1242,9 +1239,8 @@ namespace
                 }
             }
         }
-        else if (p->containedType() == Contained::ContainedTypeClass)
+        else if (ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(p))
         {
-            ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(p);
             const DataMemberList dml = cl->dataMembers();
             if (!dml.empty())
             {
@@ -1531,8 +1527,7 @@ namespace
 
         string n;
 
-        ContainedPtr cont = dynamic_pointer_cast<Contained>(p->container());
-        if (cont->containedType() == Contained::ContainedTypeException)
+        if (dynamic_pointer_cast<Exception>(p))
         {
             n = fixExceptionMember(p->name());
         }

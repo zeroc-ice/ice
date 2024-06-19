@@ -41,8 +41,5 @@ public class OperationNotExistException extends RequestFailedException {
     return "::Ice::OperationNotExistException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 3973646568523472620L;
+  private static final long serialVersionUID = 3973646568523472620L;
 }

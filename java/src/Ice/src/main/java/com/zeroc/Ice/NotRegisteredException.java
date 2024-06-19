@@ -59,8 +59,5 @@ public class NotRegisteredException extends LocalException {
   /** The ID (or name) of the object that could not be removed. */
   public String id;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 3335358291266771447L;
+  private static final long serialVersionUID = 3335358291266771447L;
 }

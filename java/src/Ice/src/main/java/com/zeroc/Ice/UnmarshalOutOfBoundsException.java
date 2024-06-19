@@ -37,8 +37,5 @@ public class UnmarshalOutOfBoundsException extends MarshalException {
     return "::Ice::UnmarshalOutOfBoundsException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -1750105256021843030L;
+  private static final long serialVersionUID = -1750105256021843030L;
 }

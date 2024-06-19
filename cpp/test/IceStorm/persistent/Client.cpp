@@ -64,7 +64,7 @@ Client::run(int argc, char** argv)
         //
         // Create a subscriber for each topic
         //
-        cerr << "create a susbscriber for each topic... ";
+        cerr << "create a subscriber for each topic... ";
         for (int i = 0; i < 10; ++i)
         {
             ostringstream topicName;

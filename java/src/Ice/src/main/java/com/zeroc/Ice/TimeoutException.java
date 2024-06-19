@@ -27,8 +27,5 @@ public class TimeoutException extends LocalException {
     return "::Ice::TimeoutException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 1390295317871659332L;
+  private static final long serialVersionUID = 1390295317871659332L;
 }

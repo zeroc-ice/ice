@@ -175,7 +175,9 @@ class M
 }
 
 // Forward declarations
+["js:defined-in:./Forward.ice"]
 class F1;
+["js:defined-in:./Forward.ice"]
 interface F2;
 
 class F3

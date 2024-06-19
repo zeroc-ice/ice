@@ -32,7 +32,7 @@ public class LoggerPlugin implements Plugin {
       throw ex;
     }
 
-    com.zeroc.IceInternal.Instance instance = com.zeroc.IceInternal.Util.getInstance(communicator);
+    com.zeroc.IceInternal.Instance instance = communicator.getInstance();
     instance.setLogger(logger);
   }
 

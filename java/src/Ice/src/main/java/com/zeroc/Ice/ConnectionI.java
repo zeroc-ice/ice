@@ -7,18 +7,18 @@ package com.zeroc.Ice;
 import com.zeroc.Ice.Instrumentation.ConnectionState;
 import com.zeroc.IceInternal.AsyncStatus;
 import com.zeroc.IceInternal.Buffer;
-import com.zeroc.IceInternal.Incoming;
+import com.zeroc.IceInternal.IdleTimeoutTransceiverDecorator;
 import com.zeroc.IceInternal.OutgoingAsyncBase;
 import com.zeroc.IceInternal.Protocol;
 import com.zeroc.IceInternal.SocketOperation;
 import com.zeroc.IceInternal.TraceUtil;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionStage;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
-    implements Connection,
-        com.zeroc.IceInternal.ResponseHandler,
-        com.zeroc.IceInternal.CancellationHandler {
+    implements Connection, com.zeroc.IceInternal.CancellationHandler {
   public interface StartCallback {
     void connectionStartCompleted(ConnectionI connection);
 
@@ -492,153 +492,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     }
   }
 
-  @Override
-  public void sendResponse(int requestId, OutputStream os, byte compressFlag, boolean amd) {
-    //
-    // We may be executing on the "main thread" (e.g., in Android together with a custom dispatcher)
-    // and therefore we have to defer network calls to a separate thread.
-    //
-    final boolean queueResponse = _instance.queueRequests();
-
-    synchronized (this) {
-      assert (_state > StateNotValidated);
-
-      if (!queueResponse) {
-        sendResponseImpl(os, compressFlag);
-      }
-    }
-
-    if (queueResponse) {
-      _instance
-          .getQueueExecutor()
-          .executeNoThrow(
-              new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                  sendResponseImpl(os, compressFlag);
-                  return null;
-                }
-              });
-    }
-  }
-
-  private void sendResponseImpl(OutputStream os, byte compressFlag) {
-    boolean finished = false;
-    try {
-      synchronized (this) {
-        try {
-          if (--_upcallCount == 0) {
-            if (_state == StateFinished) {
-              finished = true;
-              if (_observer != null) {
-                _observer.detach();
-              }
-            }
-            notifyAll();
-          }
-
-          if (_state < StateClosed) {
-            sendMessage(new OutgoingMessage(os, compressFlag != 0, true));
-
-            if (_state == StateClosing && _upcallCount == 0) {
-              initiateShutdown();
-            }
-          }
-        } catch (LocalException ex) {
-          setState(StateClosed, ex);
-        }
-      }
-    } finally {
-      if (finished && _removeFromFactory != null) {
-        _removeFromFactory.accept(this);
-      }
-    }
-  }
-
-  @Override
-  public void sendNoResponse() {
-    boolean shutdown = false;
-    boolean finished = false;
-
-    try {
-      synchronized (this) {
-        assert (_state > StateNotValidated);
-        try {
-          if (--_upcallCount == 0) {
-            if (_state == StateFinished) {
-              finished = true;
-              if (_observer != null) {
-                _observer.detach();
-              }
-            }
-            notifyAll();
-          }
-
-          if (_state >= StateClosed) {
-            assert (_exception != null);
-            throw (LocalException) _exception.fillInStackTrace();
-          }
-
-          if (_state == StateClosing && _upcallCount == 0) {
-            //
-            // We may be executing on the "main thread" (e.g., in Android together with a custom
-            // dispatcher)
-            // and therefore we have to defer network calls to a separate thread.
-            //
-            if (_instance.queueRequests()) {
-              shutdown = true;
-            } else {
-              initiateShutdown();
-            }
-          }
-        } catch (LocalException ex) {
-          setState(StateClosed, ex);
-        }
-      }
-    } finally {
-      if (finished && _removeFromFactory != null) {
-        _removeFromFactory.accept(this);
-      }
-    }
-
-    if (shutdown) {
-      queueShutdown(false);
-    }
-  }
-
-  @Override
-  public void invokeException(int requestId, LocalException ex, int invokeNum, boolean amd) {
-    boolean finished = false;
-    synchronized (this) {
-      //
-      // Fatal exception while invoking a request. Since sendResponse/sendNoResponse
-      // isn't
-      // called in case of a fatal exception we decrement _dispatchCount here.
-      //
-
-      setState(StateClosed, ex);
-
-      if (invokeNum > 0) {
-        assert (_upcallCount > 0);
-        _upcallCount -= invokeNum;
-        assert (_upcallCount >= 0);
-        if (_upcallCount == 0) {
-          if (_state == StateFinished) {
-            finished = true;
-            if (_observer != null) {
-              _observer.detach();
-            }
-          }
-          notifyAll();
-        }
-      }
-    }
-
-    if (finished && _removeFromFactory != null) {
-      _removeFromFactory.accept(this);
-    }
-  }
-
   public com.zeroc.IceInternal.EndpointI endpoint() {
     return _endpoint; // No mutex protection necessary, _endpoint is
     // immutable.
@@ -654,7 +507,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     if (adapter != null) {
       // Go through the adapter to set the adapter and servant manager on this connection
       // to ensure the object adapter is still active.
-      ((ObjectAdapterI) adapter).setAdapterOnConnection(this);
+      adapter.setAdapterOnConnection(this);
     } else {
       synchronized (this) {
         if (_state <= StateNotValidated || _state >= StateClosing) {
@@ -699,7 +552,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     if (_state <= StateNotValidated || _state >= StateClosing) {
       return;
     }
-    assert (adapter != null); // Called by ObjectAdapterI::setAdapterOnConnection
+    assert (adapter != null); // Called by ObjectAdapter::setAdapterOnConnection
     _adapter = adapter;
     _servantManager = servantManager;
   }
@@ -1041,7 +894,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       // calls are possible.
       //
       if (info.invokeNum > 0) {
-        invokeAll(
+        dispatchAll(
             info.stream,
             info.invokeNum,
             info.requestId,
@@ -1369,17 +1222,80 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     return _threadPool;
   }
 
+  public synchronized void idleCheck(
+      int idleTimeout, BooleanSupplier isTimerTaskStarted, Runnable rescheduleTimer) {
+    // If isTimerTaskStarted returns false, it means that while we were waiting to acquire the
+    // lock, a read went through and rescheduled the read timer task. This means "this" task was
+    // canceled so we don't do anything.
+    if (isActiveOrHolding() && isTimerTaskStarted.getAsBoolean()) {
+      if (_transceiver.isWaitingToBeRead()) {
+        // Bytes are available for reading but the thread pool is exhausted. We don't want to abort
+        // the connection in this situation.
+        rescheduleTimer.run();
+
+        if (_instance.traceLevels().network >= 3) {
+          _instance
+              .initializationData()
+              .logger
+              .trace(
+                  _instance.traceLevels().networkCat,
+                  "the idle check scheduled a new idle check in "
+                      + idleTimeout
+                      + "s because the connection is waiting to be read\n"
+                      + _transceiver.toDetailedString());
+        }
+      } else {
+        if (_instance.traceLevels().network >= 1) {
+          _instance
+              .initializationData()
+              .logger
+              .trace(
+                  _instance.traceLevels().networkCat,
+                  "connection aborted by the idle check because it did not receive any bytes for "
+                      + idleTimeout
+                      + "s\n"
+                      + _transceiver.toDetailedString());
+        }
+
+        setState(
+            StateClosed,
+            new ConnectionTimeoutException()); // TODO: should be ConnectionIdleException
+      }
+    }
+    // else nothing to do
+  }
+
+  public synchronized void sendHeartbeat() {
+    assert !_endpoint.datagram();
+
+    if (isActiveOrHolding()) {
+      OutputStream os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
+      os.writeBlob(Protocol.magic);
+      Protocol.currentProtocol.ice_writeMembers(os);
+      Protocol.currentProtocolEncoding.ice_writeMembers(os);
+      os.writeByte(Protocol.validateConnectionMsg);
+      os.writeByte((byte) 0);
+      os.writeInt(Protocol.headerSize); // Message size.
+
+      try {
+        sendMessage(new OutgoingMessage(os, false, false));
+      } catch (LocalException ex) {
+        setState(StateClosed, ex);
+      }
+    }
+  }
+
   public ConnectionI(
       Communicator communicator,
       com.zeroc.IceInternal.Instance instance,
       com.zeroc.IceInternal.Transceiver transceiver,
       com.zeroc.IceInternal.Connector connector,
       com.zeroc.IceInternal.EndpointI endpoint,
+      ObjectAdapter adapter,
       Consumer<ConnectionI> removeFromFactory, // can be null
-      ObjectAdapterI adapter) {
+      ConnectionOptions options) {
     _communicator = communicator;
     _instance = instance;
-    _transceiver = transceiver;
     _desc = transceiver.toString();
     _type = transceiver.protocol();
     _connector = connector;
@@ -1390,6 +1306,10 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     _dispatcher = initData.dispatcher != null;
     _logger = initData.logger; // Cached for better performance.
     _traceLevels = instance.traceLevels(); // Cached for better performance.
+    _connectTimeout = options.connectTimeout();
+    _closeTimeout = options.closeTimeout(); // not used for datagram connections
+    // suppress inactivity timeout for datagram connections
+    _inactivityTimeout = endpoint.datagram() ? 0 : options.inactivityTimeout();
     _timer = instance.timer();
     _writeTimeout = new TimeoutCallback();
     _writeTimeoutFuture = null;
@@ -1419,6 +1339,17 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       compressionLevel = 9;
     }
     _compressionLevel = compressionLevel;
+
+    if (options.idleTimeout() > 0 && !endpoint.datagram()) {
+      transceiver =
+          new IdleTimeoutTransceiverDecorator(
+              transceiver,
+              this,
+              options.idleTimeout(),
+              options.enableIdleCheck(),
+              _instance.timer());
+    }
+    _transceiver = transceiver;
 
     if (adapter != null) {
       _servantManager = adapter.getServantManager();
@@ -1721,28 +1652,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
                 return null;
               }
             });
-  }
-
-  private void sendHeartbeatNow() {
-    assert (_state == StateActive);
-
-    if (!_endpoint.datagram()) {
-      OutputStream os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
-      os.writeBlob(Protocol.magic);
-      Protocol.currentProtocol.ice_writeMembers(os);
-      Protocol.currentProtocolEncoding.ice_writeMembers(os);
-      os.writeByte(Protocol.validateConnectionMsg);
-      os.writeByte((byte) 0);
-      os.writeInt(Protocol.headerSize); // Message size.
-
-      try {
-        OutgoingMessage message = new OutgoingMessage(os, false, false);
-        sendMessage(message);
-      } catch (LocalException ex) {
-        setState(StateClosed, ex);
-        assert (_exception != null);
-      }
-    }
   }
 
   private boolean initialize(int operation) {
@@ -2250,84 +2159,181 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     return _state == StateHolding ? SocketOperation.None : SocketOperation.Read;
   }
 
-  private void invokeAll(
+  private void dispatchAll(
       InputStream stream,
-      int invokeNum,
+      int requestCount,
       int requestId,
       byte compress,
       com.zeroc.IceInternal.ServantManager servantManager,
       ObjectAdapter adapter) {
-    //
-    // Note: In contrast to other private or protected methods, this
-    // operation must be called *without* the mutex locked.
-    //
 
-    Incoming in = null;
+    // Note: In contrast to other private or protected methods, this method must be called *without*
+    // the mutex locked.
+
+    Object dispatcher = adapter != null ? adapter.dispatchPipeline() : null;
+
     try {
-      while (invokeNum > 0) {
+      while (requestCount > 0) {
+        // adapter can be null here, however we never pass a null current.adapter to the application
+        // code.
+        var request = new IncomingRequest(requestId, this, adapter, stream);
+        final boolean isTwoWay = !_endpoint.datagram() && requestId != 0;
 
-        //
-        // Prepare the invocation.
-        //
-        boolean response = !_endpoint.datagram() && requestId != 0;
-        in = getIncoming(adapter, response, compress, requestId);
-
-        //
-        // Dispatch the invocation.
-        //
-        in.invoke(servantManager, stream);
-
-        --invokeNum;
-
-        reclaimIncoming(in);
-        in = null;
+        if (dispatcher != null) {
+          CompletionStage<OutgoingResponse> response = null;
+          try {
+            response = dispatcher.dispatch(request);
+          } catch (Throwable ex) { // UserException or an unchecked exception
+            sendResponse(request.current.createOutgoingResponse(ex), isTwoWay, (byte) 0);
+          }
+          if (response != null) {
+            response.whenComplete(
+                (result, exception) -> {
+                  if (exception != null) {
+                    sendResponse(
+                        request.current.createOutgoingResponse(exception), isTwoWay, (byte) 0);
+                  } else {
+                    sendResponse(result, isTwoWay, compress);
+                  }
+                  // Any exception thrown by this closure is effectively ignored.
+                });
+          }
+        } else {
+          // Received request on a connection without an object adapter.
+          sendResponse(
+              request.current.createOutgoingResponse(new com.zeroc.Ice.ObjectNotExistException()),
+              isTwoWay,
+              (byte) 0);
+        }
+        --requestCount;
       }
-
       stream.clear();
+
     } catch (LocalException ex) {
-      invokeException(requestId, ex, invokeNum, false);
-    } catch (com.zeroc.IceInternal.ServantError ex) {
-      //
-      // ServantError is thrown when an Error has been raised by servant (or servant locator)
-      // code. We've already attempted to complete the invocation and send a response.
-      //
-      Throwable t = ex.getCause();
-      //
-      // Suppress AssertionError and OutOfMemoryError, rethrow everything else.
-      //
-      if (!(t instanceof java.lang.AssertionError
-          || t instanceof java.lang.OutOfMemoryError
-          || t instanceof java.lang.StackOverflowError)) {
-        throw (java.lang.Error) t;
-      }
-    } catch (java.lang.Error ex) {
-      //
-      // An Error was raised outside of servant code (i.e., by Ice code).
-      // Attempt to log the error and clean up. This may still fail
-      // depending on the severity of the error.
-      //
-      // Note that this does NOT send a response to the client.
-      //
-      UnknownException uex = new UnknownException(ex);
-      java.io.StringWriter sw = new java.io.StringWriter();
-      java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+      dispatchException(ex, requestCount);
+    } catch (RuntimeException | java.lang.Error ex) {
+      // A runtime exception or an error was thrown outside of servant code (i.e., by Ice code).
+      // Note that this code does NOT send a response to the client.
+      var uex = new UnknownException(ex);
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
       ex.printStackTrace(pw);
       pw.flush();
       uex.unknown = sw.toString();
       _logger.error(uex.unknown);
-      invokeException(requestId, uex, invokeNum, false);
-      //
-      // Suppress AssertionError and OutOfMemoryError, rethrow everything else.
-      //
-      if (!(ex instanceof java.lang.AssertionError
-          || ex instanceof java.lang.OutOfMemoryError
-          || ex instanceof java.lang.StackOverflowError)) {
-        throw ex;
+      dispatchException(uex, requestCount);
+    }
+  }
+
+  private void sendResponse(OutgoingResponse response, boolean isTwoWay, byte compress) {
+    final OutputStream outputStream = response.outputStream;
+    boolean shutdown = false;
+
+    // We may be executing on the "main thread" (e.g., in Android together with a
+    // custom dispatcher) and therefore we have to defer network calls to a separate thread.
+    final boolean queueResponse = isTwoWay && _instance.queueRequests();
+
+    synchronized (this) {
+      assert (_state > StateNotValidated);
+
+      if (!queueResponse) {
+        // shutdown can be true only when isTwoWay is false.
+        shutdown = sendResponseImpl(outputStream, isTwoWay, compress);
+      }
+    }
+
+    if (queueResponse) {
+      _instance
+          .getQueueExecutor()
+          .executeNoThrow(
+              new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                  sendResponseImpl(outputStream, isTwoWay, compress);
+                  return null;
+                }
+              });
+    }
+
+    if (shutdown) {
+      queueShutdown(false);
+    }
+  }
+
+  private boolean sendResponseImpl(OutputStream outputStream, boolean isTwoWay, byte compress) {
+    boolean shutdown = false;
+    boolean finished = false;
+    try {
+      synchronized (this) {
+        try {
+          if (--_upcallCount == 0) {
+            if (_state == StateFinished) {
+              finished = true;
+              if (_observer != null) {
+                _observer.detach();
+              }
+            }
+            notifyAll();
+          }
+
+          if (_state >= StateClosed) {
+            assert (_exception != null);
+            throw (LocalException) _exception.fillInStackTrace();
+          }
+
+          if (isTwoWay) {
+            sendMessage(new OutgoingMessage(outputStream, compress != 0, true));
+          }
+
+          if (_state == StateClosing && _upcallCount == 0) {
+            //
+            // We may be executing on the "main thread" (e.g., in Android together with a custom
+            // dispatcher) and therefore we have to defer network calls to a separate thread.
+            //
+            if (!isTwoWay && _instance.queueRequests()) {
+              shutdown = true;
+            } else {
+              initiateShutdown();
+            }
+          }
+        } catch (LocalException ex) {
+          setState(StateClosed, ex);
+        }
       }
     } finally {
-      if (in != null) {
-        reclaimIncoming(in);
+      if (finished && _removeFromFactory != null) {
+        _removeFromFactory.accept(this);
       }
+    }
+    return shutdown;
+  }
+
+  private void dispatchException(LocalException ex, int requestCount) {
+    boolean finished = false;
+    synchronized (this) {
+      // Fatal exception while dispatching a request. Since sendResponse isn't
+      // called in case of a fatal exception we decrement _upcallCount here.
+
+      setState(StateClosed, ex);
+
+      if (requestCount > 0) {
+        assert (_upcallCount > 0);
+        _upcallCount -= requestCount;
+        assert (_upcallCount >= 0);
+        if (_upcallCount == 0) {
+          if (_state == StateFinished) {
+            finished = true;
+            if (_observer != null) {
+              _observer.detach();
+            }
+          }
+          notifyAll();
+        }
+      }
+    }
+
+    if (finished && _removeFromFactory != null) {
+      _removeFromFactory.accept(this);
     }
   }
 
@@ -2461,37 +2467,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     _writeStreamPos = -1;
   }
 
-  private Incoming getIncoming(
-      ObjectAdapter adapter, boolean response, byte compress, int requestId) {
-    Incoming in = null;
-
-    if (_cacheBuffers > 0) {
-      synchronized (_incomingCacheMutex) {
-        if (_incomingCache == null) {
-          in = new Incoming(_instance, this, this, adapter, response, compress, requestId);
-        } else {
-          in = _incomingCache;
-          _incomingCache = _incomingCache.next;
-          in.reset(_instance, this, this, adapter, response, compress, requestId);
-          in.next = null;
-        }
-      }
-    } else {
-      in = new Incoming(_instance, this, this, adapter, response, compress, requestId);
-    }
-
-    return in;
-  }
-
-  private void reclaimIncoming(Incoming in) {
-    if (_cacheBuffers > 0 && in.reclaim()) {
-      synchronized (_incomingCacheMutex) {
-        in.next = _incomingCache;
-        _incomingCache = in;
-      }
-    }
-  }
-
   private int read(Buffer buf) {
     int start = buf.b.position();
     int op = _transceiver.read(buf);
@@ -2600,6 +2575,11 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   private final com.zeroc.IceInternal.TraceLevels _traceLevels;
   private final com.zeroc.IceInternal.ThreadPool _threadPool;
 
+  // All these timeouts are in seconds. A value <= 0 means infinite timeout.
+  private final int _connectTimeout;
+  private final int _closeTimeout;
+  private final int _inactivityTimeout;
+
   private final java.util.concurrent.ScheduledExecutorService _timer;
   private final Runnable _writeTimeout;
   private java.util.concurrent.Future<?> _writeTimeoutFuture;
@@ -2640,9 +2620,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   private boolean _shutdownInitiated = false;
   private boolean _initialized = false;
   private boolean _validated = false;
-
-  private Incoming _incomingCache;
-  private final java.lang.Object _incomingCacheMutex = new java.lang.Object();
 
   private ProtocolVersion _readProtocol = new ProtocolVersion();
   private EncodingVersion _readProtocolEncoding = new EncodingVersion();

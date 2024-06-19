@@ -29,8 +29,5 @@ public class ConnectTimeoutException extends TimeoutException {
     return "::Ice::ConnectTimeoutException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -1271371420507272518L;
+  private static final long serialVersionUID = -1271371420507272518L;
 }

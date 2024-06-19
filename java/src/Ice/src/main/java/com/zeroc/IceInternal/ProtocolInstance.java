@@ -7,7 +7,7 @@ package com.zeroc.IceInternal;
 public class ProtocolInstance {
   public ProtocolInstance(
       com.zeroc.Ice.Communicator communicator, short type, String protocol, boolean secure) {
-    _instance = Util.getInstance(communicator);
+    _instance = communicator.getInstance();
     _traceLevel = _instance.traceLevels().network;
     _traceCategory = _instance.traceLevels().networkCat;
     _logger = _instance.initializationData().logger;

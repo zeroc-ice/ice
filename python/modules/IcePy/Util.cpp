@@ -214,7 +214,7 @@ IcePy::getFunction()
     //
     // Get name of current function.
     //
-    // Use PyEval_GetFrame with Pyhthon >= 3.11
+    // Use PyEval_GetFrame with Python >= 3.11
 #if PY_VERSION_HEX >= 0x030B0000
     PyFrameObject* f = PyEval_GetFrame();
 #else

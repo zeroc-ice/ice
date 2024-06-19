@@ -29,8 +29,5 @@ public abstract class ValueReader extends Value {
     read(is);
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 0L;
+  private static final long serialVersionUID = 0L;
 }

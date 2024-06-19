@@ -42,8 +42,5 @@ public class IllegalIdentityException extends LocalException {
   /** The illegal identity. */
   public Identity id;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -2349418144702375351L;
+  private static final long serialVersionUID = -2349418144702375351L;
 }

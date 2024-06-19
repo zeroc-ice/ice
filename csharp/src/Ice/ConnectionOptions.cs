@@ -4,11 +4,9 @@
 
 namespace Ice;
 
-internal sealed record class ConnectionOptions
-{
-    internal TimeSpan connectTimeout { get; init; }
-    internal TimeSpan closeTimeout { get; init; }
-    internal TimeSpan idleTimeout { get; init; }
-    internal bool enableIdleCheck { get; init; }
-    internal TimeSpan inactivityTimeout { get; init; }
-}
+internal sealed record class ConnectionOptions(
+    TimeSpan connectTimeout,
+    TimeSpan closeTimeout,
+    TimeSpan idleTimeout,
+    bool enableIdleCheck,
+    TimeSpan inactivityTimeout);

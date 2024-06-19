@@ -2,7 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-/* global self, ControllerHelper, Ice */
+/* global self */
+
+import { ControllerHelper } from "./ControllerHelper.js";
 
 class Output {
     static write(message) {
@@ -16,11 +18,17 @@ class Output {
 
 self.onmessage = async (e) => {
     try {
-        for (const script of e.data.scripts) {
-            self.importScripts(script);
-        }
         const helper = new ControllerHelper(e.data.exe, Output);
-        const cls = Ice._require(e.data.exe)[e.data.exe];
+
+        const entryPoints = {
+            "Server.js": "Server",
+            "ServerAMD.js": "ServerAMD",
+            "Client.js": "Client",
+        };
+
+        const module = await import(`/test/${e.data.testSuite}/index.js`);
+        const cls = module[entryPoints[e.data.exe]];
+
         const test = new cls();
         test.setControllerHelper(helper);
         const promise = test.run(e.data.args);

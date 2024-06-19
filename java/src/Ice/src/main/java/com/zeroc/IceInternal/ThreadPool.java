@@ -61,7 +61,7 @@ public final class ThreadPool implements java.util.concurrent.Executor {
   // Exception raised by the thread pool work queue when the thread pool is destroyed.
   //
   static final class DestroyedException extends RuntimeException {
-    public static final long serialVersionUID = 0L;
+    private static final long serialVersionUID = -6665535975321237670L;
   }
 
   public ThreadPool(Instance instance, String prefix, int timeout) {
