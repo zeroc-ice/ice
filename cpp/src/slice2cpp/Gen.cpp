@@ -72,12 +72,12 @@ namespace
         }
     }
 
-    string getDeprecateSymbol(const ContainedPtr& p1)
+    string getDeprecatedSymbol(const ContainedPtr& p1)
     {
         string deprecatedSymbol;
-        if (p1->isDeprecated(true))
+        if (p1->isDeprecated(false)) // 'false' means: don't check the parent type.
         {
-            if (auto reason = p1->getDeprecationReason(true))
+            if (auto reason = p1->getDeprecationReason(false))
             {
                 deprecatedSymbol = "[[deprecated(\"" + *reason + "\")]] ";
             }
@@ -805,16 +805,19 @@ Slice::Gen::generate(const UnitPtr& p)
     }
 
     //
-    // Disable shadow warnings in .cpp file
+    // Disable shadow and deprecation warnings in .cpp file
     //
     C << sp;
     C.zeroIndent();
     C << nl << "#if defined(_MSC_VER)";
-    C << nl << "#   pragma warning(disable:4458) // declaration of ... hides class member";
+    C << nl << "#   pragma warning(disable : 4458) // declaration of ... hides class member";
+    C << nl << "#   pragma warning(disable : 4996) // ... was declared deprecated";
     C << nl << "#elif defined(__clang__)";
     C << nl << "#   pragma clang diagnostic ignored \"-Wshadow\"";
+    C << nl << "#   pragma clang diagnostic ignored \"-Wdeprecated-declarations\"";
     C << nl << "#elif defined(__GNUC__)";
     C << nl << "#   pragma GCC diagnostic ignored \"-Wshadow\"";
+    C << nl << "#   pragma GCC diagnostic ignored \"-Wdeprecated-declarations\"";
     C << nl << "#endif";
 
     printVersionCheck(H);
@@ -1251,7 +1254,8 @@ Slice::Gen::ForwardDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     string name = fixKwd(p->name());
 
     H << nl << "class " << name << ';';
-    H << nl << "using " << p->name() << "Ptr = ::std::shared_ptr<" << name << ">;" << sp;
+    H << nl << "using " << p->name() << "Ptr " << getDeprecatedSymbol(p) << "= ::std::shared_ptr<" << name << ">;"
+      << sp;
 }
 
 bool
@@ -1277,7 +1281,7 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
     {
         H << "class ";
     }
-    H << fixKwd(p->name());
+    H << getDeprecatedSymbol(p) << fixKwd(p->name());
     if (!unscoped && p->maxValue() <= 0xFF)
     {
         H << " : ::std::uint8_t";
@@ -1293,6 +1297,16 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
     {
         writeDocSummary(H, *en);
         H << nl << fixKwd((*en)->name());
+
+        string deprecatedSymbol = getDeprecatedSymbol(*en);
+        if (!deprecatedSymbol.empty())
+        {
+            // The string returned by `deprecatedSymbol` has a trailing space character,
+            // here we need to remove it, and instead add it to the front.
+            deprecatedSymbol.pop_back();
+            H << ' ' << deprecatedSymbol;
+        }
+
         //
         // If any of the enumerators were assigned an explicit value, we emit
         // an explicit value for *all* enumerators.
@@ -1377,7 +1391,8 @@ Slice::Gen::ForwardDeclVisitor::visitConst(const ConstPtr& p)
     const string scope = fixKwd(p->scope());
     writeDocSummary(H, p);
     H << nl << (isConstexprType(p->type()) ? "constexpr " : "const ")
-      << typeToString(p->type(), false, scope, p->typeMetaData(), _useWstring) << " " << fixKwd(p->name()) << " = ";
+      << typeToString(p->type(), false, scope, p->typeMetaData(), _useWstring) << " " << fixKwd(p->name()) << " "
+      << getDeprecatedSymbol(p) << "= ";
     writeConstantValue(H, p->type(), p->valueType(), p->value(), _useWstring, p->typeMetaData(), scope);
     H << ';' << sp;
 }
@@ -1482,8 +1497,8 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     H << sp;
     writeDocSummary(H, p);
-    H << nl << "class " << _dllExport << p->name() << "Prx : public " << getUnqualified("::Ice::Proxy", scope) << "<"
-      << fixKwd(p->name() + "Prx") << ", ";
+    H << nl << "class " << _dllExport << getDeprecatedSymbol(p) << p->name() << "Prx : public "
+      << getUnqualified("::Ice::Proxy", scope) << "<" << fixKwd(p->name() + "Prx") << ", ";
     if (bases.empty())
     {
         H << getUnqualified("::Ice::ObjectPrx", scope);
@@ -1675,7 +1690,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     string futureTAbsolute = createOutgoingAsyncTypeParam(createOutgoingAsyncParams(p, "", _useWstring));
     string lambdaT = createOutgoingAsyncTypeParam(lambdaOutParams);
 
-    const string deprecateSymbol = getDeprecateSymbol(p);
+    const string deprecatedSymbol = getDeprecatedSymbol(p);
 
     CommentPtr comment = p->parseComment(false);
     const string contextDoc = "@param " + contextParam + " The Context map to send with the invocation.";
@@ -1691,7 +1706,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         postParams.push_back(contextDoc);
         writeOpDocSummary(H, p, comment, OpDocAllParams, true, StringList(), postParams, comment->returns());
     }
-    H << nl << deprecateSymbol << retS << ' ' << fixKwd(name) << spar << paramsDecl << contextDecl << epar << " const;";
+    H << nl << deprecatedSymbol << retS << ' ' << fixKwd(name) << spar << paramsDecl << contextDecl << epar
+      << " const;";
 
     C << sp;
     C << nl << retSImpl << nl << scoped << fixKwd(name) << spar << paramsImplDecl << "const ::Ice::Context& context"
@@ -1748,7 +1764,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         writeOpDocSummary(H, p, comment, OpDocInParams, false, StringList(), postParams, returns);
     }
 
-    H << nl << deprecateSymbol << "::std::future<" << futureT << "> " << name << "Async" << spar << inParamsDecl
+    H << nl << deprecatedSymbol << "::std::future<" << futureT << "> " << name << "Async" << spar << inParamsDecl
       << contextDecl << epar << " const;";
 
     C << sp;
@@ -1784,7 +1800,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         writeOpDocSummary(H, p, comment, OpDocInParams, false, StringList(), postParams, returns);
     }
     H << nl;
-    H << deprecateSymbol;
+    H << deprecatedSymbol;
     H << "::std::function<void()>";
 
     // TODO: need "nl" version of spar/epar
@@ -2018,7 +2034,7 @@ Slice::Gen::DataDefVisitor::visitStructStart(const StructPtr& p)
 
     H << sp;
     writeDocSummary(H, p);
-    H << nl << "struct " << fixKwd(p->name());
+    H << nl << "struct " << getDeprecatedSymbol(p) << fixKwd(p->name());
     H << sb;
 
     return true;
@@ -2094,7 +2110,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     H << sp;
     writeDocSummary(H, p);
-    H << nl << "class " << _dllClassExport << name << " : public " << baseClass;
+    H << nl << "class " << _dllClassExport << getDeprecatedSymbol(p) << name << " : public " << baseClass;
     H << sb;
 
     H.dec();
@@ -2317,7 +2333,7 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     H << sp;
     writeDocSummary(H, p);
-    H << nl << "class " << _dllClassExport << name << " : public ";
+    H << nl << "class " << _dllClassExport << getDeprecatedSymbol(p) << name << " : public ";
 
     if (!base)
     {
@@ -2637,7 +2653,8 @@ Slice::Gen::DataDefVisitor::emitDataMember(const DataMemberPtr& p)
     string scope = "";
 
     writeDocSummary(H, p);
-    H << nl << typeToString(p->type(), p->optional(), scope, p->getMetaData(), _useWstring) << ' ' << name;
+    H << nl << getDeprecatedSymbol(p) << typeToString(p->type(), p->optional(), scope, p->getMetaData(), _useWstring)
+      << ' ' << name;
 
     string defaultValue = p->defaultValue();
     if (!defaultValue.empty())
@@ -3070,7 +3087,6 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     string isConst = p->hasMetaData("cpp:const") ? " const" : "";
 
     string opName = amd ? (name + "Async") : fixKwd(name);
-    string deprecateSymbol = getDeprecateSymbol(p);
 
     H << sp;
     if (comment)
@@ -3093,7 +3109,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         postParams.push_back("@param " + currentParam + " The Current object for the invocation.");
         writeOpDocSummary(H, p, comment, pt, true, StringList(), postParams, returns);
     }
-    H << nl << deprecateSymbol << "virtual " << retS << ' ' << opName << spar << params << epar << isConst << " = 0;";
+    H << nl << "virtual " << retS << ' ' << opName << spar << params << epar << isConst << " = 0;";
     H << nl << "/// \\cond INTERNAL";
     H << nl << "void _iceD_" << name << "(::Ice::IncomingRequest&, ::std::function<void(::Ice::OutgoingResponse)>)"
       << isConst << ';';
