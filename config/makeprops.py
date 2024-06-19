@@ -120,7 +120,7 @@ jsPreamble = (
 /* eslint array-bracket-newline: "off" */
 /* eslint no-useless-escape: "off" */
 
-import { Property } from "./Property";
+import { Property } from "./Property.js";
 export const PropertyNames = {};
 """
 )
