@@ -444,7 +444,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
 
   @Override
   public ObjectPrx ice_invocationTimeout(int newTimeout) {
-    if (newTimeout < 1 && newTimeout != -1 && newTimeout != -2) {
+    if (newTimeout < 1 && newTimeout != -1) {
       throw new IllegalArgumentException(
           "invalid value passed to ice_invocationTimeout: " + newTimeout);
     }

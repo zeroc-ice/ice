@@ -90,7 +90,7 @@ public final class DefaultsAndOverrides {
     }
 
     intValue = properties.getIcePropertyAsInt("Ice.Default.InvocationTimeout");
-    if (intValue < 1 && intValue != -1 && intValue != -2) {
+    if (intValue < 1 && intValue != -1) {
       defaultInvocationTimeout = -1;
       StringBuffer msg = new StringBuffer("invalid value for Ice.Default.InvocationTimeout `");
       msg.append(properties.getIceProperty("Ice.Default.InvocationTimeout"));

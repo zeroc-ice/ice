@@ -649,13 +649,12 @@ public class AllTests {
 
     try {
       base.ice_invocationTimeout(-1);
-      base.ice_invocationTimeout(-2);
     } catch (IllegalArgumentException e) {
       test(false);
     }
 
     try {
-      base.ice_invocationTimeout(-3);
+      base.ice_invocationTimeout(-2);
       test(false);
     } catch (IllegalArgumentException e) {
     }

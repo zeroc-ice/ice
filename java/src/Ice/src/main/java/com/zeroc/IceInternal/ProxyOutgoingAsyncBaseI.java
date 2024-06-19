@@ -126,10 +126,6 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
     }
 
     _cachedConnection = null;
-    if (_proxy._getReference().getInvocationTimeout() == -2 && _timerFuture != null) {
-      _timerFuture.cancel(false);
-      _timerFuture = null;
-    }
 
     //
     // NOTE: at this point, synchronization isn't needed, no other threads should be
