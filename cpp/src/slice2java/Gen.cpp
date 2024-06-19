@@ -4314,7 +4314,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     out << eb;
 
     // Generate overrides for all the methods on `ObjectPrx` with covariant return types.
-    static const string objectPrxMethods[] = {
+    static constexpr string_view objectPrxMethods[] = {
         "ice_context(java.util.Map<String, String> newContext)",
         "ice_adapterId(String newAdapterId)",
         "ice_endpoints(com.zeroc.Ice.Endpoint[] newEndpoints)",
