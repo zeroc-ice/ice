@@ -32,7 +32,7 @@ public class AllTests
     {
         internal OpThread(BackgroundPrx background)
         {
-            _background = BackgroundPrxHelper.uncheckedCast(background.ice_oneway());
+            _background = background.ice_oneway();
             Start();
         }
 
@@ -271,7 +271,7 @@ public class AllTests
             {
                 configuration.connectException(new Ice.SocketException());
             }
-            BackgroundPrx prx = (i == 1 || i == 3) ? background : (BackgroundPrx)background.ice_oneway();
+            BackgroundPrx prx = (i == 1 || i == 3) ? background : background.ice_oneway();
 
             try
             {
@@ -372,7 +372,7 @@ public class AllTests
             {
                 continue;
             }
-            BackgroundPrx prx = (i == 1 || i == 3) ? background : (BackgroundPrx)background.ice_oneway();
+            BackgroundPrx prx = (i == 1 || i == 3) ? background : background.ice_oneway();
 
             try
             {
@@ -536,7 +536,7 @@ public class AllTests
         for (int i = 0; i < 2; ++i)
         {
             configuration.readException(new Ice.SocketException());
-            BackgroundPrx prx = i == 0 ? background : (BackgroundPrx)background.ice_oneway();
+            BackgroundPrx prx = i == 0 ? background : background.ice_oneway();
             var progress = new Progress();
             var t = prx.opAsync(progress: progress);
             test(!progress.SentSynchronously);
@@ -729,7 +729,7 @@ public class AllTests
 
         for (int i = 0; i < 2; ++i)
         {
-            BackgroundPrx prx = i == 0 ? background : (BackgroundPrx)background.ice_oneway();
+            BackgroundPrx prx = i == 0 ? background : background.ice_oneway();
 
             try
             {
@@ -827,7 +827,7 @@ public class AllTests
 
         for (int i = 0; i < 2; ++i)
         {
-            BackgroundPrx prx = i == 0 ? background : (BackgroundPrx)background.ice_oneway();
+            BackgroundPrx prx = i == 0 ? background : background.ice_oneway();
 
             background.ice_ping();
             configuration.writeReady(false);
@@ -900,7 +900,7 @@ public class AllTests
 
         background.ice_ping(); // Establish the connection
 
-        BackgroundPrx backgroundOneway = BackgroundPrxHelper.uncheckedCast(background.ice_oneway());
+        BackgroundPrx backgroundOneway = background.ice_oneway();
         test(backgroundOneway.ice_getConnection() == background.ice_getConnection());
 
         ctl.holdAdapter(); // Hold to block in request send.

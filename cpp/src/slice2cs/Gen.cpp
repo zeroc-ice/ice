@@ -2567,15 +2567,17 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "public interface " << name << "Prx : ";
 
     vector<string> baseInterfaces;
-    for (InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
+    for (const auto& q : bases)
     {
-        baseInterfaces.push_back(getUnqualified(*q, ns, "", "Prx"));
+        baseInterfaces.push_back(getUnqualified(q, ns, "", "Prx"));
     }
 
     if (baseInterfaces.empty())
     {
         baseInterfaces.push_back("Ice.ObjectPrx");
     }
+
+    baseInterfaces.push_back("Ice.ProxyFactoryMethods<" + name + "Prx>");
 
     for (vector<string>::const_iterator q = baseInterfaces.begin(); q != baseInterfaces.end();)
     {

@@ -16,7 +16,7 @@ namespace Ice
 
             internal static async Task onewaysAMI(Test.MyClassPrx proxy)
             {
-                Test.MyClassPrx p = Test.MyClassPrxHelper.uncheckedCast(proxy.ice_oneway());
+                Test.MyClassPrx p = proxy.ice_oneway();
 
                 await p.ice_pingAsync();
 

@@ -137,7 +137,7 @@ namespace Ice
                     Task result = null;
 
                     // We use the same proxy for all oneway calls.
-                    holdSerializedOneway = (Test.HoldPrx)holdSerialized.ice_oneway();
+                    holdSerializedOneway = holdSerialized.ice_oneway();
 
                     for (int i = 0; i < 10000; ++i)
                     {

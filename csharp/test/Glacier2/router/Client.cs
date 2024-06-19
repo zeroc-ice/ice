@@ -231,8 +231,8 @@ public class Client : Test.TestHelper
             {
                 Console.Out.Write("testing oneway callback... ");
                 Console.Out.Flush();
-                CallbackPrx oneway = CallbackPrxHelper.uncheckedCast(twoway.ice_oneway());
-                CallbackReceiverPrx onewayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_oneway());
+                CallbackPrx oneway = twoway.ice_oneway();
+                CallbackReceiverPrx onewayR = twowayR.ice_oneway();
                 Dictionary<string, string> context = new Dictionary<string, string>();
                 context["_fwd"] = "o";
                 oneway.initiateCallback(onewayR, context);

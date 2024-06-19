@@ -13,7 +13,7 @@ namespace Ice
                 Ice.Communicator communicator = helper.communicator();
                 Ice.ObjectPrx baseProxy = communicator.stringToProxy("test:" + helper.getTestEndpoint(0));
                 var cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
-                var oneway = Test.MyClassPrxHelper.uncheckedCast(cl.ice_oneway());
+                var oneway = cl.ice_oneway();
                 var batchOneway = Test.MyClassPrxHelper.uncheckedCast(cl.ice_batchOneway());
 
                 var output = helper.getWriter();

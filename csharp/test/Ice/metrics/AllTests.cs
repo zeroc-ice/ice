@@ -1168,7 +1168,7 @@ public class AllTests : Test.AllTests
         props["IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"] = "localPort";
         updateProps(clientProps, serverProps, update, props, "Invocation");
 
-        MetricsPrx metricsOneway = (MetricsPrx)metrics.ice_oneway();
+        MetricsPrx metricsOneway = metrics.ice_oneway();
         metricsOneway.op();
         await metricsOneway.opAsync();
 

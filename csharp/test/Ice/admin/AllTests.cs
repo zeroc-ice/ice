@@ -409,8 +409,7 @@ namespace Ice
                     //
                     try
                     {
-                        logger.attachRemoteLogger(Ice.RemoteLoggerPrxHelper.uncheckedCast(myProxy.ice_oneway()),
-                                                  messageTypes, categories, 4);
+                        logger.attachRemoteLogger(myProxy.ice_oneway(), messageTypes, categories, 4);
                         test(false);
                     }
                     catch (Ice.RemoteLoggerAlreadyAttachedException)

@@ -203,7 +203,7 @@ namespace Ice
 
                     try
                     {
-                        _ = ((Test.TestIntfPrx)p.ice_oneway()).opWithResultAsync();
+                        _ = p.ice_oneway().opWithResultAsync();
                         test(false);
                     }
                     catch (TwowayOnlyException)
