@@ -9,11 +9,11 @@ package com.zeroc.Ice;
 @SuppressWarnings("unchecked")
 public abstract class _ObjectPrxFactoryMethods<T extends ObjectPrx> extends _ObjectPrxI {
   // TODO: delete this default constructor eventually.
-  public _ObjectPrxFactoryMethods() {
+  protected _ObjectPrxFactoryMethods() {
     super();
   }
 
-  public _ObjectPrxFactoryMethods(ObjectPrx obj) {
+  protected _ObjectPrxFactoryMethods(ObjectPrx obj) {
     super(obj);
   }
 
