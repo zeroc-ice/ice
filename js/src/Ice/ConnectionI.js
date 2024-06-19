@@ -1109,7 +1109,7 @@ export class ConnectionI {
                         .initializationData()
                         .logger.trace(
                             this._instance.traceLevels().networkCat,
-                            `connection aborted by the idle check because it did not receive any byte for ${idleTimeout}s\n${this._transceiver.toString()}`,
+                            `connection aborted by the idle check because it did not receive any bytes for ${idleTimeout}s\n${this._transceiver.toString()}`,
                         );
                 }
 
