@@ -12,7 +12,7 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
 
 ## General Changes
 
-- Replaced ACM and connection timeouts by idle, inactivity, connect and close timeouts.
+- Replaced ACM and connection timeouts by idle, inactivity, connect, and close timeouts.
   - Idle timeout\
   Once a connection is established, this connection is considered healthy as long as it does not wait for more than idle
   timeout to read a byte. If a connection waits for more than idle timeout to read a byte, it's deemed idle and aborted.
