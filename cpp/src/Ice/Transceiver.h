@@ -37,8 +37,7 @@ namespace IceInternal
         /// Checks if this transceiver is waiting to be read, typically because it has bytes readily available for
         /// reading.
         /// @return true if this transceiver is waiting to be read, false otherwise.
-        /// @remark The caller can call this function concurrently with read() (and write()); however, the caller must
-        /// ensure the transceiver is not closed when calling this function.
+        /// @remark The caller must ensure the transceiver is not closed when calling this function.
         virtual bool isWaitingToBeRead() const noexcept = 0;
 
         virtual std::string protocol() const = 0;
