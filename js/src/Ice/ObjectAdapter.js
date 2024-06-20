@@ -29,11 +29,6 @@ import { Debug } from "./Debug.js";
 const _suffixes = [
     "ACM",
     "AdapterId",
-    "Connection.CloseTimeout",
-    "Connection.ConnectTimeout",
-    "Connection.EnableIdleCheck",
-    "Connection.IdleTimeout",
-    "Connection.InactivityTimeout",
     "Endpoints",
     "Locator",
     "Locator.EncodingVersion",

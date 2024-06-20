@@ -10,5 +10,6 @@ module Test
     {
         void sleep(int ms);
         void shutdown();
+        void setCallback(TestIntf* callback);
     }
 }

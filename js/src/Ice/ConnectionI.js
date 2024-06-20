@@ -1088,16 +1088,15 @@ export class ConnectionI {
 
     idleCheck(idleTimeout) {
         if (this._state == StateActive || this._state == StateHolding) {
-                if (this._instance.traceLevels().network >= 1) {
-                    this._instance
-                        .initializationData()
-                        .logger.trace(
-                            this._instance.traceLevels().networkCat,
-                            `connection aborted by the idle check because it did not receive any bytes for ${idleTimeout}s\n${this._transceiver.toString()}`,
-                        );
-                }
-
-                this.setState(StateClosed, new ConnectionTimeoutException()); // TODO: should be ConnectionIdleException
+            if (this._instance.traceLevels().network >= 1) {
+                this._instance
+                    .initializationData()
+                    .logger.trace(
+                        this._instance.traceLevels().networkCat,
+                        `connection aborted by the idle check because it did not receive any bytes for ${idleTimeout}s\n${this._transceiver.toString()}`,
+                    );
+            }
+            this.setState(StateClosed, new ConnectionTimeoutException()); // TODO: should be ConnectionIdleException
         }
         // else nothing to do
     }

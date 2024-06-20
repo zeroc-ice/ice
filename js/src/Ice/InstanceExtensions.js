@@ -439,5 +439,4 @@ Object.defineProperty(Instance.prototype, "clientConnectionOptions", {
         return this._clientConnectionOptions;
     },
     enumerable: true,
-    configurable: true,
 });

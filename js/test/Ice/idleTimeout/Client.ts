@@ -20,6 +20,26 @@ async function testConnectionAbortedByIdleCheck(
     const output = helper.getWriter();
     output.write("testing that the idle check aborts a connection that does not receive anything for 1s... ");
 
+    let completedResolve: () => void;
+    const completedPromise = new Promise<void>((resolve) => (completedResolve = resolve));
+
+    const TestI = class extends Test.TestIntf {
+        async sleep(msecs: number, current?: Ice.Current): Promise<void> {
+            setTimeout(() => {
+                completedResolve();
+            }, msecs);
+            await completedPromise;
+        }
+
+        shutdown(current: Ice.Current): void | PromiseLike<void> {
+            current.adapter.getCommunicator().shutdown();
+        }
+
+        setCallback(cb: Test.TestIntfPrx, current?: Ice.Current): void {
+            // Do nothing.
+        }
+    };
+
     // Create a new communicator with the desired properties.
     properties = properties.clone();
     properties.setProperty("Ice.Connection.IdleTimeout", "1");
@@ -28,24 +48,27 @@ async function testConnectionAbortedByIdleCheck(
     const initData = new Ice.InitializationData();
     initData.properties = properties;
     const communicator = Ice.initialize(initData);
-    const p = Test.TestIntfPrx.uncheckedCast(communicator.stringToProxy(proxyString));
-
-    // Establish connection.
-    const connection = await p.ice_getConnection();
-    test(connection !== null);
-
-    // The idle check on the server side aborts the connection because it doesn't get a heartbeat in a timely fashion.
     try {
-        await p.sleep(2000); // the implementation in the server sleeps for 2,000ms
-        test(false); // we expect the server to abort the connection after about 1 second.
-    } catch (ConnectionLostException) {
-        // Expected
+        const adapter = await communicator.createObjectAdapter("");
+        const obj = adapter.add(new TestI(), Ice.stringToIdentity("test"));
+        const callback = Test.TestIntfPrx.uncheckedCast(obj);
+
+        const p = Test.TestIntfPrx.uncheckedCast(communicator.stringToProxy(proxyString));
+
+        const connection = await p.ice_getConnection();
+        test(connection != null);
+        connection.setAdapter(adapter);
+
+        await p.ice_oneway().setCallback(callback);
+        await completedPromise;
+    } finally {
+        await communicator.destroy();
     }
     output.writeLine("ok");
 }
 
 // Verifies the behavior with the idle check enabled or disabled when the client and the server have mismatched idle
-// timeouts (here: 1s on the server side and 3s on the client side).
+// timeouts (here: 3s on the server side and 1s on the client side).
 async function testEnableDisableIdleCheck(
     enabled: boolean,
     proxyString: string,
@@ -58,23 +81,26 @@ async function testEnableDisableIdleCheck(
 
     // Create a new communicator with the desired properties.
     properties = properties.clone();
-    properties.setProperty("Ice.Connection.IdleTimeout", "3");
+    properties.setProperty("Ice.Connection.IdleTimeout", "1");
     properties.setProperty("Ice.Connection.EnableIdleCheck", enabled ? "1" : "0");
     properties.setProperty("Ice.Warn.Connections", "0");
     const initData = new Ice.InitializationData();
     initData.properties = properties;
     const communicator = Ice.initialize(initData);
     const p = Test.TestIntfPrx.uncheckedCast(communicator.stringToProxy(proxyString));
-
-    const connection = await p.ice_getConnection();
-    test(connection != null);
-
     try {
-        await p.sleep(2000); // the implementation in the server sleeps for 2,000ms
-        test(!enabled);
-    } catch (ex) {
-        test(ex instanceof Ice.ConnectionTimeoutException); // TODO: should be ConnectionIdleException
-        test(enabled);
+        const connection = await p.ice_getConnection();
+        test(connection != null);
+
+        try {
+            await p.sleep(2000); // the implementation in the server sleeps for 2,000ms
+            test(!enabled);
+        } catch (ex) {
+            test(ex instanceof Ice.ConnectionTimeoutException); // TODO: should be ConnectionIdleException
+            test(enabled);
+        }
+    } finally {
+        await communicator.destroy();
     }
     output.writeLine("ok");
 }
@@ -82,12 +108,15 @@ async function testEnableDisableIdleCheck(
 export class Client extends TestHelper {
     async allTests(): Promise<void> {
         const communicator = this.communicator();
+        // The server has 3s idle timeout, and disabled idle check.
         const proxyString = `test: ${this.getTestEndpoint(2)}`;
+        // The server has 3s idle timeout, and enabled idle check.
+        const proxyString3s = `test: ${this.getTestEndpoint(1)}`;
         const p = Test.TestIntfPrx.uncheckedCast(communicator.stringToProxy(proxyString));
 
         await testConnectionAbortedByIdleCheck(proxyString, communicator.getProperties(), this);
-        // await testEnableDisableIdleCheck(true, proxyString, communicator.getProperties(), this);
-        // await testEnableDisableIdleCheck(false, proxyString, communicator.getProperties(), this);
+        await testEnableDisableIdleCheck(true, proxyString3s, communicator.getProperties(), this);
+        await testEnableDisableIdleCheck(false, proxyString3s, communicator.getProperties(), this);
 
         await p.shutdown();
     }
