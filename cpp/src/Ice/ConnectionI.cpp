@@ -2283,13 +2283,13 @@ Ice::ConnectionI::idleCheck(
     const chrono::seconds& idleTimeout) noexcept
 {
     std::lock_guard lock(_mutex);
-    if (_state == StateActive || _state == StateHolding)
+    // When _timer->isScheduled(idleCheckTimerTask) returns true, it means a read rescheduled the
+    // timer task while we were waiting to lock _mutex. We don't do anything in this case.
+    if ((_state == StateActive || _state == StateHolding) && !_timer->isScheduled(idleCheckTimerTask))
     {
-        // _timer->cancel(task) returns true if a concurrent read rescheduled the timer task.
-        if (_transceiver->isWaitingToBeRead() || _timer->cancel(idleCheckTimerTask))
+        if (_transceiver->isWaitingToBeRead())
         {
-            // Schedule or reschedule timer task. Reschedule in the rare case where a concurrent read scheduled the task
-            // already.
+            // Schedule timer task.
             _timer->reschedule(idleCheckTimerTask, idleTimeout);
 
             if (_instance->traceLevels()->network >= 3)
@@ -2321,17 +2321,22 @@ Ice::ConnectionI::inactivityCheck() noexcept
 {
     // Called by the InactivityTimerTask.
     std::lock_guard lock(_mutex);
-    if (_state == StateActive && _inactivityTimerTaskScheduled && // it's false if some other thread canceled the timer
-                                                                  // while we were waiting for _mutex
-        !_timer->isScheduled(_inactivityTimerTask)) // make sure this timer task was not rescheduled for later while
-                                                    // we were waiting for _mutex (unlikely but may as well check)
+
+    // Make sure this timer task was not rescheduled for later while we were waiting for _mutex.
+    if (_inactivityTimerTaskScheduled && !_timer->isScheduled(_inactivityTimerTask))
     {
-        setState(
-            StateClosing,
-            make_exception_ptr(ConnectionClosedException{
-                __FILE__,
-                __LINE__,
-                "connection closed because it remained inactive for longer than the inactivity timeout"}));
+        // Clear flag - the task is no longer scheduled.
+        _inactivityTimerTaskScheduled = false;
+
+        if (_state == StateActive)
+        {
+            setState(
+                StateClosing,
+                make_exception_ptr(ConnectionClosedException{
+                    __FILE__,
+                    __LINE__,
+                    "connection closed because it remained inactive for longer than the inactivity timeout"}));
+        }
     }
 }
 
