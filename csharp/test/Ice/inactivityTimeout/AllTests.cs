@@ -67,10 +67,10 @@ internal class AllTests : global::Test.AllTests
         output.Write($"testing the inactivity timeout with an outstanding {onewayString} request... ");
         output.Flush();
 
-       if (oneway)
-       {
+        if (oneway)
+        {
             p = (Test.TestIntfPrx)p.ice_oneway();
-       }
+        }
 
         await p.ice_pingAsync();
         Connection connection = p.ice_getConnection();
