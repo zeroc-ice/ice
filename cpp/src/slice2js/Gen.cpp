@@ -2305,7 +2305,7 @@ Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable
                 t = _iceImportPrefix + typeScriptBuiltinTable[builtin->kind()];
                 if (nullable)
                 {
-                    t = _iceImportPrefix + "Ice.Nullable<" + t + ">";
+                    t += " | null";
                 }
                 break;
             }
@@ -2323,7 +2323,7 @@ Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable
         t = importPrefix(cl->scoped()) + fixId(cl->scoped());
         if (nullable)
         {
-            t = _iceImportPrefix + "Ice.Nullable<" + t + ">";
+            t += " | null";
         }
     }
 
@@ -2333,7 +2333,7 @@ Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable
         t = importPrefix(proxy->scoped()) + fixId(proxy->scoped() + "Prx");
         if (nullable)
         {
-            t = _iceImportPrefix + "Ice.Nullable<" + t + ">";
+            t += " | null";
         }
     }
 
@@ -2348,7 +2348,14 @@ Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable
         else
         {
             const string seqType = typeToTsString(seq->type(), nullable);
-            t = seqType + "[]";
+            if (seqType.find('|') != string::npos)
+            {
+                t = "(" + seqType + ")[]";
+            }
+            else
+            {
+                t = seqType + "[]";
+            }
         }
     }
 
@@ -2379,7 +2386,7 @@ Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable
     // For optional parameters we use "?:" instead of Ice.Optional<T>
     if (optional)
     {
-        t = _iceImportPrefix + "Ice.Optional<" + t + ">";
+        t += " | undefined";
     }
 
     return t;

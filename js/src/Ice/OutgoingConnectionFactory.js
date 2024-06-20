@@ -279,7 +279,7 @@ export class OutgoingConnectionFactory {
                 endpoint.changeCompress(false),
                 false,
                 null,
-                (connection) => this.removeConnection(connection)
+                (connection) => this.removeConnection(connection),
             );
         } catch (ex) {
             if (ex instanceof LocalException) {

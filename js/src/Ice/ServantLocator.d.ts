@@ -31,7 +31,7 @@ declare module "ice" {
              * @see Current
              * @see #finished
              */
-            locate(curr: Current, cookie: Holder<Object>): Ice.Nullable<Ice.Object>;
+            locate(curr: Current, cookie: Holder<Object>): Ice.Object | null;
             /**
              * Called by the object adapter after a request has been made. This operation is only called if
              * <code>locate</code> was called prior to the request and returned a non-null servant. This operation can be used
