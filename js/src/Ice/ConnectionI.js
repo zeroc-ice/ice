@@ -1086,24 +1086,8 @@ export class ConnectionI {
         }
     }
 
-    idleCheck(idleTimeout, rescheduleTimer) {
+    idleCheck(idleTimeout) {
         if (this._state == StateActive || this._state == StateHolding) {
-            if (this._transceiver.isWaitingToBeRead()) {
-                // Bytes are available for reading but the event loop hasn't processed them yet. We don't want to abort
-                // the connection in this situation.
-                rescheduleTimer();
-
-                if (this._instance.traceLevels().network >= 3) {
-                    this._instance
-                        .initializationData()
-                        .logger.trace(
-                            this._instance.traceLevels().networkCat,
-                            `the idle check scheduled a new idle check in ${idleTimeout}s because ` +
-                                "the connection is waiting to be read\n" +
-                                _transceiver.toString(),
-                        );
-                }
-            } else {
                 if (this._instance.traceLevels().network >= 1) {
                     this._instance
                         .initializationData()
@@ -1114,7 +1098,6 @@ export class ConnectionI {
                 }
 
                 this.setState(StateClosed, new ConnectionTimeoutException()); // TODO: should be ConnectionIdleException
-            }
         }
         // else nothing to do
     }

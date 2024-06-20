@@ -54,10 +54,6 @@ export class IdleTimeoutTransceiverDecorator {
         return completed;
     }
 
-    isWaitingToBeRead() {
-        return this._decoratee.isWaitingToBeRead();
-    }
-
     read(buf, moreData) {
         // We don't want the idle check to run while we're reading, so we reschedule it before reading.
         this.rescheduleReadTimer();
@@ -98,7 +94,7 @@ export class IdleTimeoutTransceiverDecorator {
         if (this._enableIdleCheck) {
             this.cancelReadTimer();
             this._readTimerToken = this._timer.schedule(() => {
-                this._connection.idleCheck(this._idleTimeout, () => this.rescheduleReadTimer());
+                this._connection.idleCheck(this._idleTimeout);
             }, this._idleTimeout);
         }
     }

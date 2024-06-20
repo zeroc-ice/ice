@@ -203,17 +203,12 @@ Instance.prototype.finishSetup = function (communicator, promise) {
             this._initData.properties = Properties.createProperties();
         }
 
-        const connectTimeout = this._initData.properties.getIcePropertyAsInt("Ice.Connection.ConnectTimeout");
-        const closeTimeout = this._initData.properties.getIcePropertyAsInt("Ice.Connection.CloseTimeout");
-        const idleTimeout = this._initData.properties.getIcePropertyAsInt("Ice.Connection.IdleTimeout");
-        const enableIdleCheck = this._initData.properties.getIcePropertyAsInt("Ice.Connection.EnableIdleCheck") > 0;
-        const inactivityTimeout = this._initData.properties.getIcePropertyAsInt("Ice.Connection.InactivityTimeout");
         this._clientConnectionOptions = new ConnectionOptions(
-            connectTimeout,
-            closeTimeout,
-            idleTimeout,
-            enableIdleCheck,
-            inactivityTimeout,
+            this._initData.properties.getIcePropertyAsInt("Ice.Connection.ConnectTimeout"),
+            this._initData.properties.getIcePropertyAsInt("Ice.Connection.CloseTimeout"),
+            this._initData.properties.getIcePropertyAsInt("Ice.Connection.IdleTimeout"),
+            this._initData.properties.getIcePropertyAsInt("Ice.Connection.EnableIdleCheck") > 0,
+            this._initData.properties.getIcePropertyAsInt("Ice.Connection.InactivityTimeout"),
         );
 
         if (_oneOfDone === undefined) {
