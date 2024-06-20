@@ -6,10 +6,18 @@
 
 module Test
 {
-    interface TestIntf
+    interface DelayedTestIntf
     {
         void sleep(int ms);
+    }
+
+    interface TestIntf extends DelayedTestIntf
+    {
         void shutdown();
-        void setCallback(TestIntf* callback);
+    }
+
+    interface TestIntfBidir
+    {
+        void putAsSleep(bool aborted, int ms, DelayedTestIntf* target);
     }
 }

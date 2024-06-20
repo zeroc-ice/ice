@@ -23,18 +23,24 @@ TestIntfI::shutdown(const Ice::Current& current)
 }
 
 void
-TestIntfI::setCallback(std::optional<Test::TestIntfPrx> prx, const Ice::Current& current)
+TestIntfBidirI::putAsSleep(
+    bool aborted,
+    int32_t ms,
+    std::optional<Test::DelayedTestIntfPrx> prx,
+    const Ice::Current& current)
 {
     // Call from a detach thread to avoid blocking the server thread
     std::thread(
-        [prx, current]()
+        [prx, ms, current, aborted]()
         {
             try
             {
-                prx->ice_fixed(current.con)->sleep(2000);
+                prx->ice_fixed(current.con)->sleep(ms);
+                test(!aborted);
             }
             catch (const Ice::ConnectionLostException&)
             {
+                test(aborted);
             }
         })
         .detach();

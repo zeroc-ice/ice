@@ -34,11 +34,22 @@ Server::run(int argc, char** argv)
     adapter->add(std::make_shared<TestIntfI>(), Ice::stringToIdentity("test"));
     adapter->activate();
 
+    // Used by the JavaScript tests
     communicator->getProperties()->setProperty("TestAdapterNoIdleCheck.Endpoints", getTestEndpoint(2));
-    communicator->getProperties()->setProperty("TestAdapterNoIdleCheck.Connection.IdleTimeout", "3");
+    communicator->getProperties()->setProperty("TestAdapterNoIdleCheck.Connection.IdleTimeout", "1");
     communicator->getProperties()->setProperty("TestAdapterNoIdleCheck.Connection.EnableIdleCheck", "0");
     adapter = communicator->createObjectAdapter("TestAdapterNoIdleCheck");
     adapter->add(std::make_shared<TestIntfI>(), Ice::stringToIdentity("test"));
+    adapter->add(std::make_shared<TestIntfBidirI>(), Ice::stringToIdentity("test-bidir"));
+    adapter->activate();
+
+    // Used by the JavaScript tests
+    communicator->getProperties()->setProperty("TestAdapterNoIdleCheck3s.Endpoints", getTestEndpoint(3));
+    communicator->getProperties()->setProperty("TestAdapterNoIdleCheck3s.Connection.IdleTimeout", "3");
+    communicator->getProperties()->setProperty("TestAdapterNoIdleCheck3s.Connection.EnableIdleCheck", "0");
+    adapter = communicator->createObjectAdapter("TestAdapterNoIdleCheck3s");
+    adapter->add(std::make_shared<TestIntfI>(), Ice::stringToIdentity("test"));
+    adapter->add(std::make_shared<TestIntfBidirI>(), Ice::stringToIdentity("test-bidir"));
     adapter->activate();
 
     serverReady();
