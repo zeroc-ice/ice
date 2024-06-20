@@ -161,7 +161,6 @@ export async function runController(clientOutput, serverOutput, scripts) {
             await registry.ice_ping();
             const connection = registry.ice_getCachedConnection();
             connection.setAdapter(adapter);
-            connection.setACM(5, Ice.ACMClose.CloseOff, Ice.ACMHeartbeat.HeartbeatAlways);
             connection.setCloseCallback(() => out.writeLine("connection with process controller registry closed"));
             await registry.setProcessController(Test.Common.ProcessControllerPrx.uncheckedCast(processController));
         } catch (ex) {

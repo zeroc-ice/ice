@@ -232,8 +232,6 @@ if (typeof net.createConnection === "function") {
             return info;
         }
 
-        checkSendSize(stream) {}
-
         setBufferSize(rcvSize, sndSize) {
             this._maxSendPacketSize = sndSize;
         }
