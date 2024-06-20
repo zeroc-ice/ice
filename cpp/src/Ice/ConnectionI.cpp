@@ -646,12 +646,6 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
     AsyncStatus status = AsyncStatusQueued;
     try
     {
-        if (isAtRest())
-        {
-            // If we were at rest, we're not anymore since we're sending a request.
-            cancelInactivityTimerTask();
-        }
-
         OutgoingMessage message(out, os, compress, requestId);
         status = sendMessage(message);
     }
@@ -666,11 +660,6 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
     {
         _asyncRequestsHint =
             _asyncRequests.insert(_asyncRequests.end(), pair<const int32_t, OutgoingAsyncBasePtr>(requestId, out));
-    }
-    else if (isAtRest())
-    {
-        // A oneway invocation is considered completed as soon as sendMessage returns.
-        scheduleInactivityTimerTask();
     }
     return status;
 }
@@ -865,22 +854,15 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
         {
             if (o->requestId)
             {
-                bool removed = false;
                 if (_asyncRequestsHint != _asyncRequests.end() &&
                     _asyncRequestsHint->second == dynamic_pointer_cast<OutgoingAsync>(outAsync))
                 {
                     _asyncRequests.erase(_asyncRequestsHint);
                     _asyncRequestsHint = _asyncRequests.end();
-                    removed = true;
                 }
                 else
                 {
-                    removed = _asyncRequests.erase(o->requestId) == 1;
-                }
-
-                if (removed && isAtRest())
-                {
-                    scheduleInactivityTimerTask();
+                    _asyncRequests.erase(o->requestId);
                 }
             }
 
@@ -935,11 +917,6 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
                     _asyncRequests.erase(_asyncRequestsHint);
                     _asyncRequestsHint = _asyncRequests.end();
 
-                    if (isAtRest())
-                    {
-                        scheduleInactivityTimerTask();
-                    }
-
                     if (outAsync->exception(ex))
                     {
                         outAsync->invokeExceptionAsync();
@@ -965,11 +942,6 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
                 {
                     assert(p != _asyncRequestsHint);
                     _asyncRequests.erase(p);
-
-                    if (isAtRest())
-                    {
-                        scheduleInactivityTimerTask();
-                    }
 
                     if (outAsync->exception(ex))
                     {
@@ -1011,10 +983,6 @@ Ice::ConnectionI::dispatchException(exception_ptr ex, int requestCount)
             }
 
             _dispatchCount -= requestCount;
-            if (isAtRest())
-            {
-                scheduleInactivityTimerTask();
-            }
         }
     }
     if (finished && _removeFromFactory)
@@ -1765,10 +1733,7 @@ Ice::ConnectionI::finish(bool close)
             o->completed(_exception);
             if (o->requestId) // Make sure finished isn't called twice.
             {
-                if (_asyncRequests.erase(o->requestId) == 1 && isAtRest())
-                {
-                    scheduleInactivityTimerTask();
-                }
+                _asyncRequests.erase(o->requestId);
             }
         }
 
@@ -1896,6 +1861,7 @@ Ice::ConnectionI::ConnectionI(
       _closeTimeout(options.closeTimeout), // not used for datagram connections
       // suppress inactivity timeout for datagram connections
       _inactivityTimeout(endpoint->datagram() ? chrono::seconds::zero() : options.inactivityTimeout),
+      _inactivityTimerTaskScheduled(false),
       _removeFromFactory(std::move(removeFromFactory)),
       _warn(_instance->initializationData().properties->getIcePropertyAsInt("Ice.Warn.Connections") > 0),
       _warnUdp(_instance->initializationData().properties->getIcePropertyAsInt("Ice.Warn.Datagrams") > 0),
@@ -2260,13 +2226,6 @@ Ice::ConnectionI::setState(State state)
             setState(StateClosed, current_exception());
         }
     }
-
-    if (isAtRest())
-    {
-        // If the connection became active and there is no outstanding invocation or dispatch (very common case), we
-        // schedule the inactivity timer task.
-        scheduleInactivityTimerTask();
-    }
 }
 
 void
@@ -2362,7 +2321,10 @@ Ice::ConnectionI::inactivityCheck() noexcept
 {
     // Called by the InactivityTimerTask.
     std::lock_guard lock(_mutex);
-    if (isAtRest())
+    if (_state == StateActive && _inactivityTimerTaskScheduled && // it's false if some other thread canceled the timer
+                                                                  // while we were waiting for _mutex
+        !_timer->isScheduled(_inactivityTimerTask)) // make sure this timer task was not rescheduled for later while
+                                                    // we were waiting for _mutex (unlikely but may as well check)
     {
         setState(
             StateClosing,
@@ -2480,10 +2442,6 @@ Ice::ConnectionI::sendResponse(OutgoingResponse response, uint8_t compress)
             }
 
             --_dispatchCount;
-            if (isAtRest())
-            {
-                scheduleInactivityTimerTask();
-            }
         }
         catch (const LocalException&)
         {
@@ -2806,6 +2764,41 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
 {
     assert(_state >= StateActive);
     assert(_state < StateClosed);
+
+    bool isHeartbeat = static_cast<uint8_t>(message.stream->b[8]) == IceInternal::validateConnectionMsg;
+    if (!isHeartbeat)
+    {
+        cancelInactivityTimerTask();
+    }
+    // If we're sending a heartbeat, there is a chance the connection is inactive and that we need to schedule the
+    // inactivity timer task.
+    // It's ok to do this before actually sending the heartbeat since the heartbeat does not count as an "activity".
+    else if (
+        _inactivityTimerTask &&           // null when the inactivity timeout is infinite
+        !_inactivityTimerTaskScheduled && // we never reschedule this task
+        _state == StateActive &&          // only schedule the task if the connection is active
+        _dispatchCount == 0 &&            // no pending dispatch
+        _asyncRequests.empty() &&         // no pending invocation
+        _readHeader)                      // we're not waiting for the remainder of an incoming message
+    {
+        bool isInactive = true;
+
+        // We may become inactive while the peer is back-pressuring us. In this case, we only schedule the inactivity
+        // timer task if all outgoing messages in _sendStreams are heartbeats.
+        for (const auto& queuedMessage : _sendStreams)
+        {
+            if (static_cast<uint8_t>(queuedMessage.stream->b[8]) != IceInternal::validateConnectionMsg)
+            {
+                isInactive = false;
+                break; // for
+            }
+        }
+
+        if (isInactive)
+        {
+            scheduleInactivityTimerTask();
+        }
+    }
 
     message.stream->i = 0; // Reset the message stream iterator before starting sending the message.
 
@@ -3185,10 +3178,7 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                     };
                     ++upcallCount;
 
-                    if (isAtRest())
-                    {
-                        cancelInactivityTimerTask();
-                    }
+                    cancelInactivityTimerTask();
                     ++_dispatchCount;
                 }
                 break;
@@ -3226,10 +3216,7 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                     };
                     upcallCount += requestCount;
 
-                    if (isAtRest())
-                    {
-                        cancelInactivityTimerTask();
-                    }
+                    cancelInactivityTimerTask();
                     _dispatchCount += requestCount;
                 }
                 break;
@@ -3269,11 +3256,6 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                     else
                     {
                         _asyncRequests.erase(q);
-                    }
-
-                    if (isAtRest())
-                    {
-                        scheduleInactivityTimerTask();
                     }
 
                     // The message stream is adopted by the outgoing.
@@ -3497,20 +3479,20 @@ void
 ConnectionI::scheduleInactivityTimerTask()
 {
     // Called with the ConnectionI mutex locked.
-    if (_inactivityTimeout > chrono::seconds::zero())
-    {
-        assert(_inactivityTimerTask);
-        _timer->schedule(_inactivityTimerTask, _inactivityTimeout);
-    }
+    assert(!_inactivityTimerTaskScheduled);
+    assert(_inactivityTimerTask);
+
+    _inactivityTimerTaskScheduled = true;
+    _timer->schedule(_inactivityTimerTask, _inactivityTimeout);
 }
 
 void
 ConnectionI::cancelInactivityTimerTask()
 {
     // Called with the ConnectionI mutex locked.
-    if (_inactivityTimeout > chrono::seconds::zero())
+    if (_inactivityTimerTaskScheduled && _inactivityTimerTask)
     {
-        assert(_inactivityTimerTask);
+        _inactivityTimerTaskScheduled = false;
         _timer->cancel(_inactivityTimerTask);
     }
 }

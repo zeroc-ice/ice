@@ -49,6 +49,17 @@ Timer::cancel(const TimerTaskPtr& task)
     return cancelNoSync(task);
 }
 
+bool
+Timer::isScheduled(const TimerTaskPtr& task)
+{
+    lock_guard lock(_mutex);
+    if (_destroyed)
+    {
+        return false;
+    }
+    return _tasks.find(task) != _tasks.end();
+}
+
 void
 Timer::run()
 {
