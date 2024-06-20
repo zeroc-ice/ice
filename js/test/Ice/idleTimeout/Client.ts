@@ -24,7 +24,7 @@ async function testConnectionNotAbortedByIdleCheck(properties: Ice.Properties, h
     const completedPromise = new Ice.Promise<void>();
 
     const TestI = class extends Test.DelayedTestIntf {
-        async sleep(msecs: number, current?: Ice.Current): Promise<void> {
+        async sleep(msecs: number, current: Ice.Current): Promise<void> {
             await Ice.Promise.delay(msecs);
             completedPromise.resolve();
         }
@@ -49,7 +49,7 @@ async function testConnectionNotAbortedByIdleCheck(properties: Ice.Properties, h
         test(connection != null);
         connection.setAdapter(adapter);
 
-        await p.ice_oneway().putAsSleep(false, 2000, callback);
+        await p.ice_oneway().makeSleep(false, 2000, callback);
         await completedPromise;
     } finally {
         await communicator.destroy();
@@ -73,7 +73,7 @@ async function testConnectionAbortedByIdleCheck(properties: Ice.Properties, help
     const completedPromise = new Ice.Promise<void>();
 
     const TestI = class extends Test.DelayedTestIntf {
-        async sleep(msecs: number, current?: Ice.Current): Promise<void> {
+        async sleep(msecs: number, current: Ice.Current): Promise<void> {
             await Ice.Promise.delay(msecs);
             completedPromise.resolve();
         }
@@ -98,7 +98,7 @@ async function testConnectionAbortedByIdleCheck(properties: Ice.Properties, help
         test(connection != null);
         connection.setAdapter(adapter);
 
-        await p.ice_oneway().putAsSleep(true, 2000, callback);
+        await p.ice_oneway().makeSleep(true, 2000, callback);
         await completedPromise;
     } finally {
         await communicator.destroy();

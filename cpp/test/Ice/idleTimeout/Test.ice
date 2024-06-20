@@ -18,6 +18,6 @@ module Test
 
     interface TestIntfBidir
     {
-        void putAsSleep(bool aborted, int ms, DelayedTestIntf* target);
+        void makeSleep(bool aborted, int ms, DelayedTestIntf* target);
     }
 }

@@ -18,6 +18,6 @@ public:
 class TestIntfBidirI final : public Test::TestIntfBidir
 {
 public:
-    void putAsSleep(bool, std::int32_t, std::optional<Test::DelayedTestIntfPrx>, const Ice::Current&) final;
+    void makeSleep(bool, std::int32_t, std::optional<Test::DelayedTestIntfPrx>, const Ice::Current&) final;
 };
 #endif
