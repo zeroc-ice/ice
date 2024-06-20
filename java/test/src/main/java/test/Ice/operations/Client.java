@@ -21,7 +21,7 @@ public class Client extends test.TestHelper {
       out.flush();
       myClass.shutdown();
       try {
-        myClass.ice_timeout(100).ice_ping(); // Use timeout to speed up testing on Windows
+        myClass.ice_invocationTimeout(100).ice_ping(); // Use timeout to speed up testing on Windows
         throw new RuntimeException();
       } catch (com.zeroc.Ice.LocalException ex) {
         out.println("ok");

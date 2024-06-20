@@ -14,6 +14,7 @@ import com.zeroc.IceInternal.SocketOperation;
 import com.zeroc.IceInternal.TraceUtil;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
@@ -23,13 +24,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     void connectionStartCompleted(ConnectionI connection);
 
     void connectionStartFailed(ConnectionI connection, LocalException ex);
-  }
-
-  private class TimeoutCallback implements Runnable {
-    @Override
-    public void run() {
-      timedOut();
-    }
   }
 
   public void start(StartCallback callback) {
@@ -43,6 +37,10 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         }
 
         if (!initialize(SocketOperation.None) || !validate(SocketOperation.None)) {
+          if (_connectTimeout > 0) {
+            // Schedules a one-time check.
+            _timer.schedule(this::connectTimedOut, _connectTimeout, TimeUnit.SECONDS);
+          }
           _startCallback = callback;
           return;
         }
@@ -451,7 +449,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
           _asyncRequests.remove(o.requestId);
         }
 
-        if (ex instanceof ConnectionTimeoutException) {
+        if (ex instanceof ConnectionIdleException) {
           setState(StateClosed, ex);
         } else {
           //
@@ -478,7 +476,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       java.util.Iterator<OutgoingAsyncBase> it2 = _asyncRequests.values().iterator();
       while (it2.hasNext()) {
         if (it2.next() == outAsync) {
-          if (ex instanceof ConnectionTimeoutException) {
+          if (ex instanceof ConnectionIdleException) {
             setState(StateClosed, ex);
           } else {
             it2.remove();
@@ -577,8 +575,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       }
 
       try {
-        unscheduleTimeout(current.operation);
-
         int writeOp = SocketOperation.None;
         int readOp = SocketOperation.None;
 
@@ -711,7 +707,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
           // If the connection is still not validated and there's still data to read or
           // write, continue waiting for data to read or write.
           if (newOp != 0) {
-            scheduleTimeout(newOp);
             _threadPool.update(this, current.operation, newOp);
             return;
           }
@@ -770,11 +765,9 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
             }
           }
 
-          // If the connection is not closed yet, we can schedule the read or write
-          // timeout and update the thread pool selector to wait for readiness of
-          // read, write or both operations.
+          // If the connection is not closed yet, we update the thread pool selector to wait
+          // for readiness of read, write or both operations.
           if (_state < StateClosed) {
-            scheduleTimeout(newOp);
             _threadPool.update(this, current.operation, newOp);
           }
         }
@@ -963,11 +956,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
   @Override
   public void finished(com.zeroc.IceInternal.ThreadPoolCurrent current, final boolean close) {
-    synchronized (this) {
-      assert (_state == StateClosed);
-      unscheduleTimeout(SocketOperation.Read | SocketOperation.Write);
-    }
-
     if (_instance.queueRequests()) {
       _instance
           .getQueueExecutor()
@@ -1041,7 +1029,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         //
         if (!(_exception instanceof CloseConnectionException
             || _exception instanceof ConnectionManuallyClosedException
-            || _exception instanceof ConnectionTimeoutException
+            || _exception instanceof ConnectionIdleException
             || _exception instanceof CommunicatorDestroyedException
             || _exception instanceof ObjectAdapterDeactivatedException)) {
           s.append("\n");
@@ -1171,25 +1159,9 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     _transceiver.setReadyCallback(callback);
   }
 
-  public synchronized void timedOut() {
-    if (_state <= StateNotValidated) {
-      setState(StateClosed, new ConnectTimeoutException());
-    } else if (_state < StateClosing) {
-      setState(StateClosed, new TimeoutException());
-    } else if (_state < StateClosed) {
-      setState(StateClosed, new CloseTimeoutException());
-    }
-  }
-
   @Override
   public String type() {
     return _type; // No mutex lock, _type is immutable.
-  }
-
-  @Override
-  public int timeout() {
-    return _endpoint.timeout(); // No mutex protection necessary, _endpoint
-    // is immutable.
   }
 
   @Override
@@ -1257,9 +1229,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
                       + _transceiver.toDetailedString());
         }
 
-        setState(
-            StateClosed,
-            new ConnectionTimeoutException()); // TODO: should be ConnectionIdleException
+        setState(StateClosed, new ConnectionIdleException());
       }
     }
     // else nothing to do
@@ -1311,15 +1281,10 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     // suppress inactivity timeout for datagram connections
     _inactivityTimeout = endpoint.datagram() ? 0 : options.inactivityTimeout();
     _timer = instance.timer();
-    _writeTimeout = new TimeoutCallback();
-    _writeTimeoutFuture = null;
-    _readTimeout = new TimeoutCallback();
-    _readTimeoutFuture = null;
     _removeFromFactory = removeFromFactory;
     _warn = initData.properties.getIcePropertyAsInt("Ice.Warn.Connections") > 0;
     _warnUdp =
         instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Datagrams") > 0;
-    _cacheBuffers = instance.cacheMessageBuffers();
     _nextRequestId = 1;
     _messageSizeMax = adapter != null ? adapter.messageSizeMax() : instance.messageSizeMax();
     _batchRequestQueue =
@@ -1424,7 +1389,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         //
         if (!(_exception instanceof CloseConnectionException
             || _exception instanceof ConnectionManuallyClosedException
-            || _exception instanceof ConnectionTimeoutException
+            || _exception instanceof ConnectionIdleException
             || _exception instanceof CommunicatorDestroyedException
             || _exception instanceof ObjectAdapterDeactivatedException
             || (_exception instanceof ConnectionLostException && _state >= StateClosing))) {
@@ -1572,7 +1537,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       if (_observer != null && state == StateClosed && _exception != null) {
         if (!(_exception instanceof CloseConnectionException
             || _exception instanceof ConnectionManuallyClosedException
-            || _exception instanceof ConnectionTimeoutException
+            || _exception instanceof ConnectionIdleException
             || _exception instanceof CommunicatorDestroyedException
             || _exception instanceof ObjectAdapterDeactivatedException
             || (_exception instanceof ConnectionLostException && _state >= StateClosing))) {
@@ -1614,6 +1579,11 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       // CloseConnection in Java.
       os.writeInt(Protocol.headerSize); // Message size.
 
+      if (_closeTimeout > 0) {
+        // Schedules a one-time check.
+        _timer.schedule(this::closeTimedOut, _closeTimeout, TimeUnit.SECONDS);
+      }
+
       if ((sendMessage(new OutgoingMessage(os, false, false)) & AsyncStatus.Sent) > 0) {
         setState(StateClosingPending);
 
@@ -1622,7 +1592,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         //
         int op = _transceiver.closing(true, _exception);
         if (op != 0) {
-          scheduleTimeout(op);
           _threadPool.register(this, op);
         }
       }
@@ -1657,7 +1626,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   private boolean initialize(int operation) {
     int s = _transceiver.initialize(_readStream.getBuffer(), _writeStream.getBuffer());
     if (s != SocketOperation.None) {
-      scheduleTimeout(s);
       _threadPool.update(this, operation, s);
       return false;
     }
@@ -1700,7 +1668,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         if (_writeStream.pos() != _writeStream.size()) {
           int op = write(_writeStream.getBuffer());
           if (op != 0) {
-            scheduleTimeout(op);
             _threadPool.update(this, operation, op);
             return false;
           }
@@ -1724,7 +1691,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         if (_readStream.pos() != _readStream.size()) {
           int op = read(_readStream.getBuffer());
           if (op != 0) {
-            scheduleTimeout(op);
             _threadPool.update(this, operation, op);
             return false;
           }
@@ -1933,7 +1899,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
     _writeStream.swap(message.stream);
     _sendStreams.addLast(message);
-    scheduleTimeout(op);
     _threadPool.register(this, op);
     return AsyncStatus.Queued;
   }
@@ -2064,6 +2029,10 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
               //
               int op = _transceiver.closing(false, _exception);
               if (op != 0) {
+                if (_closeTimeout > 0) {
+                  // Schedules a one-time check.
+                  _timer.schedule(this::closeTimedOut, _closeTimeout, TimeUnit.SECONDS);
+                }
                 return op;
               }
               setState(StateClosed);
@@ -2337,68 +2306,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     }
   }
 
-  private void scheduleTimeout(int status) {
-    int timeout;
-    if (_state < StateActive) {
-      com.zeroc.IceInternal.DefaultsAndOverrides defaultsAndOverrides =
-          _instance.defaultsAndOverrides();
-      if (defaultsAndOverrides.overrideConnectTimeout) {
-        timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
-      } else {
-        timeout = _endpoint.timeout();
-      }
-    } else if (_state < StateClosingPending) {
-      if (_readHeader) // No timeout for reading the header.
-      {
-        status &= ~SocketOperation.Read;
-      }
-      timeout = _endpoint.timeout();
-    } else {
-      com.zeroc.IceInternal.DefaultsAndOverrides defaultsAndOverrides =
-          _instance.defaultsAndOverrides();
-      if (defaultsAndOverrides.overrideCloseTimeout) {
-        timeout = defaultsAndOverrides.overrideCloseTimeoutValue;
-      } else {
-        timeout = _endpoint.timeout();
-      }
-    }
-
-    if (timeout < 0) {
-      return;
-    }
-
-    try {
-      if ((status & SocketOperation.Read) != 0) {
-        if (_readTimeoutFuture != null) {
-          _readTimeoutFuture.cancel(false);
-        }
-        _readTimeoutFuture =
-            _timer.schedule(_readTimeout, timeout, java.util.concurrent.TimeUnit.MILLISECONDS);
-      }
-      if ((status & (SocketOperation.Write | SocketOperation.Connect)) != 0) {
-        if (_writeTimeoutFuture != null) {
-          _writeTimeoutFuture.cancel(false);
-        }
-        _writeTimeoutFuture =
-            _timer.schedule(_writeTimeout, timeout, java.util.concurrent.TimeUnit.MILLISECONDS);
-      }
-    } catch (Throwable ex) {
-      assert (false);
-    }
-  }
-
-  private void unscheduleTimeout(int status) {
-    if ((status & SocketOperation.Read) != 0 && _readTimeoutFuture != null) {
-      _readTimeoutFuture.cancel(false);
-      _readTimeoutFuture = null;
-    }
-    if ((status & (SocketOperation.Write | SocketOperation.Connect)) != 0
-        && _writeTimeoutFuture != null) {
-      _writeTimeoutFuture.cancel(false);
-      _writeTimeoutFuture = null;
-    }
-  }
-
   private ConnectionInfo initConnectionInfo() {
     if (_state > StateNotInitialized
         && _info != null) // Update the connection information until it's initialized
@@ -2487,6 +2394,20 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
     }
     return op;
+  }
+
+  private synchronized void connectTimedOut() {
+    if (_state < StateActive) {
+      setState(StateClosed, new ConnectTimeoutException());
+    }
+    // else ignore since we're already connected
+  }
+
+  private synchronized void closeTimedOut() {
+    if (_state < StateClosed) {
+      setState(StateClosed, new CloseTimeoutException());
+    }
+    // else ignore since we're already closed.
   }
 
   private int write(Buffer buf) {
@@ -2581,10 +2502,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   private final int _inactivityTimeout;
 
   private final java.util.concurrent.ScheduledExecutorService _timer;
-  private final Runnable _writeTimeout;
-  private java.util.concurrent.Future<?> _writeTimeoutFuture;
-  private final Runnable _readTimeout;
-  private java.util.concurrent.Future<?> _readTimeoutFuture;
 
   private StartCallback _startCallback = null;
 
@@ -2623,8 +2540,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
   private ProtocolVersion _readProtocol = new ProtocolVersion();
   private EncodingVersion _readProtocolEncoding = new EncodingVersion();
-
-  private int _cacheBuffers;
 
   private ConnectionInfo _info;
 

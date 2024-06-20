@@ -346,10 +346,6 @@ public final class IncomingConnectionFactory extends EventHandler
     _acceptorStarted = false;
 
     DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-    if (defaultsAndOverrides.overrideTimeout) {
-      _endpoint = _endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
-    }
-
     if (defaultsAndOverrides.overrideCompress) {
       _endpoint = _endpoint.compress(defaultsAndOverrides.overrideCompressValue);
     }

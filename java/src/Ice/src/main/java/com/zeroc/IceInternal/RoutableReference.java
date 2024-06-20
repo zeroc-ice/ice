@@ -56,11 +56,6 @@ public class RoutableReference extends Reference {
   }
 
   @Override
-  public java.util.OptionalInt getTimeout() {
-    return _overrideTimeout ? java.util.OptionalInt.of(_timeout) : java.util.OptionalInt.empty();
-  }
-
-  @Override
   public final com.zeroc.IceInternal.ThreadPool getThreadPool() {
     return getInstance().clientThreadPool();
   }
@@ -193,24 +188,6 @@ public class RoutableReference extends Reference {
     }
     RoutableReference r = (RoutableReference) getInstance().referenceFactory().copy(this);
     r._locatorCacheTimeout = newTimeout;
-    return r;
-  }
-
-  @Override
-  public Reference changeTimeout(int newTimeout) {
-    if (_overrideTimeout && _timeout == newTimeout) {
-      return this;
-    }
-    RoutableReference r = (RoutableReference) getInstance().referenceFactory().copy(this);
-    r._timeout = newTimeout;
-    r._overrideTimeout = true;
-    if (_endpoints.length > 0) {
-      EndpointI[] newEndpoints = new EndpointI[_endpoints.length];
-      for (int i = 0; i < _endpoints.length; i++) {
-        newEndpoints[i] = _endpoints[i].timeout(newTimeout);
-      }
-      r._endpoints = newEndpoints;
-    }
     return r;
   }
 
@@ -406,12 +383,6 @@ public class RoutableReference extends Reference {
     if (!_connectionId.equals(rhs._connectionId)) {
       return false;
     }
-    if (_overrideTimeout != rhs._overrideTimeout) {
-      return false;
-    }
-    if (_overrideTimeout && _timeout != rhs._timeout) {
-      return false;
-    }
     if (!java.util.Arrays.equals(_endpoints, rhs._endpoints)) {
       return false;
     }
@@ -565,8 +536,6 @@ public class RoutableReference extends Reference {
     _preferSecure = prefereSecure;
     _endpointSelection = endpointSelection;
     _locatorCacheTimeout = locatorCacheTimeout;
-    _overrideTimeout = false;
-    _timeout = -1;
 
     if (_endpoints == null) {
       _endpoints = _emptyEndpoints;
@@ -585,9 +554,6 @@ public class RoutableReference extends Reference {
       endpts[i] = endpts[i].connectionId(_connectionId);
       if (_overrideCompress) {
         endpts[i] = endpts[i].compress(_compress);
-      }
-      if (_overrideTimeout) {
-        endpts[i] = endpts[i].timeout(_timeout);
       }
     }
   }
@@ -818,8 +784,5 @@ public class RoutableReference extends Reference {
   private boolean _preferSecure;
   private com.zeroc.Ice.EndpointSelectionType _endpointSelection;
   private int _locatorCacheTimeout;
-
-  private boolean _overrideTimeout;
-  private int _timeout; // Only used if _overrideTimeout == true
   private String _connectionId = "";
 }

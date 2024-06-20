@@ -17,6 +17,8 @@ public class Client extends test.TestHelper {
     initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
     initData.properties.setProperty("Ice.Warn.Connections", "0");
     initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
+    initData.properties.setProperty(
+        "Ice.Connection.ConnectTimeout", "1"); // speed up connection establishment tests
     initData.observer = observer;
 
     try (com.zeroc.Ice.Communicator communicator = initialize(initData)) {

@@ -193,7 +193,7 @@ public class AllTests {
     out.print("testing whether server is gone... ");
     out.flush();
     try {
-      obj.ice_timeout(100).ice_ping(); // Use timeout to speed up testing on Windows
+      obj.ice_invocationTimeout(100).ice_ping(); // Use timeout to speed up testing on Windows
       test(false);
     } catch (com.zeroc.Ice.LocalException ex) {
       out.println("ok");

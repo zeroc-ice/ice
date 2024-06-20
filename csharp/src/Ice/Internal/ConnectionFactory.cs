@@ -157,7 +157,6 @@ public sealed class OutgoingConnectionFactory
             // connections, so that callbacks from the router can be
             // received over such connections.
             //
-            DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
             for (int i = 0; i < endpoints.Length; i++)
             {
                 EndpointI endpoint = endpoints[i];

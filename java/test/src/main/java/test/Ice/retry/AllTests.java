@@ -214,18 +214,6 @@ public class AllTests {
         retry2.opIdempotent(-1); // Reset the counter
         instrumentation.testRetryCount(-1);
       }
-      if (retry1.ice_getConnection() != null) {
-        // The timeout might occur on connection establishment or because of the sleep. What's
-        // important here is to make sure there are 4 retries and that no calls succeed to
-        // ensure retries with the old connection timeout semantics work.
-        RetryPrx retryWithTimeout = (RetryPrx) retry1.ice_invocationTimeout(-2).ice_timeout(200);
-        try {
-          retryWithTimeout.sleep(1000);
-          test(false);
-        } catch (com.zeroc.Ice.TimeoutException ex) {
-        }
-        instrumentation.testRetryCount(4);
-      }
       out.println("ok");
     }
 
