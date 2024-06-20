@@ -1175,6 +1175,18 @@ public class DNSException : LocalException
 }
 
 /// <summary>
+/// This exception indicates that a connection was closed gracefully.
+/// </summary>
+public class ConnectionClosedException : LocalException
+{
+    public ConnectionClosedException()
+    {
+    }
+
+    public override string ice_id() => "::Ice::ConnectionClosedException";
+}
+
+/// <summary>
 /// This exception indicates that a connection was aborted by the idle check.
 /// </summary>
 public class ConnectionIdleException : LocalException

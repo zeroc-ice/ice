@@ -2058,6 +2058,11 @@ Ice::ConnectionI::setState(State state)
         return;
     }
 
+    if (state > StateActive)
+    {
+        cancelInactivityTimerTask();
+    }
+
     try
     {
         switch (state)
@@ -2103,9 +2108,6 @@ Ice::ConnectionI::setState(State state)
                 {
                     return;
                 }
-
-                // We don't shut down the connection due to inactivity when it's in the Holding state.
-                cancelInactivityTimerTask();
 
                 if (_state == StateActive)
                 {
