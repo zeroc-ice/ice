@@ -449,7 +449,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
           _asyncRequests.remove(o.requestId);
         }
 
-        if (ex instanceof ConnectionTimeoutException) {
+        if (ex instanceof ConnectionIdleException) {
           setState(StateClosed, ex);
         } else {
           //
@@ -476,7 +476,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       java.util.Iterator<OutgoingAsyncBase> it2 = _asyncRequests.values().iterator();
       while (it2.hasNext()) {
         if (it2.next() == outAsync) {
-          if (ex instanceof ConnectionTimeoutException) {
+          if (ex instanceof ConnectionIdleException) {
             setState(StateClosed, ex);
           } else {
             it2.remove();
@@ -1029,7 +1029,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         //
         if (!(_exception instanceof CloseConnectionException
             || _exception instanceof ConnectionManuallyClosedException
-            || _exception instanceof ConnectionTimeoutException
+            || _exception instanceof ConnectionIdleException
             || _exception instanceof CommunicatorDestroyedException
             || _exception instanceof ObjectAdapterDeactivatedException)) {
           s.append("\n");
@@ -1229,9 +1229,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
                       + _transceiver.toDetailedString());
         }
 
-        setState(
-            StateClosed,
-            new ConnectionTimeoutException()); // TODO: should be ConnectionIdleException
+        setState(StateClosed, new ConnectionIdleException());
       }
     }
     // else nothing to do
@@ -1391,7 +1389,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         //
         if (!(_exception instanceof CloseConnectionException
             || _exception instanceof ConnectionManuallyClosedException
-            || _exception instanceof ConnectionTimeoutException
+            || _exception instanceof ConnectionIdleException
             || _exception instanceof CommunicatorDestroyedException
             || _exception instanceof ObjectAdapterDeactivatedException
             || (_exception instanceof ConnectionLostException && _state >= StateClosing))) {
@@ -1539,7 +1537,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       if (_observer != null && state == StateClosed && _exception != null) {
         if (!(_exception instanceof CloseConnectionException
             || _exception instanceof ConnectionManuallyClosedException
-            || _exception instanceof ConnectionTimeoutException
+            || _exception instanceof ConnectionIdleException
             || _exception instanceof CommunicatorDestroyedException
             || _exception instanceof ObjectAdapterDeactivatedException
             || (_exception instanceof ConnectionLostException && _state >= StateClosing))) {
