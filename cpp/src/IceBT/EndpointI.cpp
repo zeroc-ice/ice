@@ -48,7 +48,7 @@ IceBT::EndpointI::EndpointI(
 IceBT::EndpointI::EndpointI(const InstancePtr& instance)
     : _instance(instance),
       _channel(0),
-      _timeout(instance->defaultTimeout()),
+      _timeout(60000), // the default timeout is 60,000 ms
       _compress(false)
 {
 }

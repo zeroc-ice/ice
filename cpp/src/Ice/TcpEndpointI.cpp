@@ -47,7 +47,8 @@ IceInternal::TcpEndpointI::TcpEndpointI(
 
 IceInternal::TcpEndpointI::TcpEndpointI(const ProtocolInstancePtr& instance)
     : IPEndpointI(instance),
-      _timeout(instance->defaultTimeout()),
+      // The default timeout for TCP endpoints is 60,000 milliseconds. This timeout is not used in Ice 3.8 and greater.
+      _timeout(60000),
       _compress(false)
 {
 }

@@ -70,15 +70,6 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
             "illegal value `" + value + "'; expected `Random' or `Ordered'");
     }
 
-    const_cast<int&>(defaultTimeout) = properties->getIcePropertyAsInt("Ice.Default.Timeout");
-    if (defaultTimeout < 1 && defaultTimeout != -1)
-    {
-        const_cast<int32_t&>(defaultTimeout) = 60000;
-        Warning out(logger);
-        out << "invalid value for Ice.Default.Timeout `" << properties->getIceProperty("Ice.Default.Timeout")
-            << "': defaulting to 60000";
-    }
-
     const_cast<int&>(defaultInvocationTimeout) = properties->getIcePropertyAsInt("Ice.Default.InvocationTimeout");
     if (defaultInvocationTimeout < 1 && defaultInvocationTimeout != -1)
     {

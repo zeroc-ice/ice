@@ -491,7 +491,7 @@ public class AllTests : Test.AllTests
         string endpoint = $"{protocol} -h {host} -p {port}";
         string forwardingEndpoint = $"{protocol} -h {host} -p {helper.getTestPort(1)}";
 
-        string timeout = communicator.getProperties().getPropertyWithDefault("Ice.Default.Timeout", "60000");
+        const string defaultTimeout = "60000";
 
         MetricsPrx metrics = MetricsPrxHelper.checkedCast(communicator.stringToProxy("metrics:" + endpoint));
         bool collocated = metrics.ice_getConnection() == null;
@@ -776,14 +776,14 @@ public class AllTests : Test.AllTests
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "parent", "Communicator", c, output);
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "id", hostAndPort, c, output);
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpoint",
-                          endpoint + " -t " + timeout, c, output);
+                          endpoint + " -t " + defaultTimeout, c, output);
 
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointType", type, c, output);
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsDatagram", "False",
                           c, output);
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsSecure", isSecure,
                           c, output);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointTimeout", timeout, c, output);
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointTimeout", defaultTimeout, c, output);
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointCompress", "False",
                           c, output);
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointHost", host, c, output);
@@ -1154,7 +1154,7 @@ public class AllTests : Test.AllTests
         testAttribute(clientMetrics, clientProps, update, "Invocation", "encoding", "1.1", op, output);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "twoway", op, output);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "proxy",
-                      "metrics -t -e 1.1:" + endpoint + " -t " + timeout, op, output);
+                      "metrics -t -e 1.1:" + endpoint + " -t " + defaultTimeout, op, output);
 
         testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry1", "test", op, output);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry2", "", op, output);
