@@ -18,19 +18,6 @@ public class AllTests {
     }
   }
 
-  private static com.zeroc.Ice.Connection connect(com.zeroc.Ice.ObjectPrx prx) {
-    int nRetry = 10;
-    while (--nRetry > 0) {
-      try {
-        prx.ice_getConnection();
-        break;
-      } catch (com.zeroc.Ice.ConnectTimeoutException ex) {
-        // Can sporadically occur with slow machines
-      }
-    }
-    return prx.ice_getConnection(); // Establish connection
-  }
-
   public static void allTests(test.TestHelper helper) {
     ControllerPrx controller =
         ControllerPrx.checkedCast(
@@ -141,7 +128,7 @@ public class AllTests {
     out.print("testing close timeout... ");
     out.flush();
     {
-      var connection = connect(timeout);
+      var connection = timeout.ice_getConnection();
       controller.holdAdapter(-1);
       connection.close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
 
