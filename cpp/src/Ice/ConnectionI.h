@@ -377,7 +377,7 @@ namespace Ice
         int _upcallCount;
 
         // The number of outstanding dispatches. This does not include heartbeat messages, even when the heartbeat
-        // callback is not null.
+        // callback is not null. Maintained only while state is StateActive or StateHolding.
         int _dispatchCount = 0;
 
         State _state; // The current state.

@@ -2547,12 +2547,12 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         sendMessage(new OutgoingMessage(response.outputStream, compress > 0, adopt: true));
                     }
 
+                    --_dispatchCount;
+
                     if (_state == StateClosing && _upcallCount == 0)
                     {
                         initiateShutdown();
                     }
-
-                    --_dispatchCount;
                 }
                 catch (LocalException ex)
                 {
@@ -2592,7 +2592,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                     }
                     Monitor.PulseAll(this);
                 }
-                _dispatchCount -= requestCount;
             }
         }
 
@@ -2906,6 +2905,9 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     private LinkedList<OutgoingMessage> _sendStreams = new LinkedList<OutgoingMessage>();
 
     private InputStream _readStream;
+
+    // When _readHeader is true, the next bytes we'll read are the header of a new message. When false, we're reading
+    // next the remainder of a message that was already partially received.
     private bool _readHeader;
     private OutputStream _writeStream;
 
@@ -2915,6 +2917,8 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     private int _upcallCount;
 
+    // The number of outstanding dispatches. This does not include heartbeat messages, even when the heartbeat
+    // callback is not null. Maintained only while state is StateActive or StateHolding.
     private int _dispatchCount;
 
     private int _state; // The current state.

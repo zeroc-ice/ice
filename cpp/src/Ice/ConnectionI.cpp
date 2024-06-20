@@ -981,8 +981,6 @@ Ice::ConnectionI::dispatchException(exception_ptr ex, int requestCount)
                 }
                 _conditionVariable.notify_all();
             }
-
-            _dispatchCount -= requestCount;
         }
     }
     if (finished && _removeFromFactory)
@@ -2443,12 +2441,12 @@ Ice::ConnectionI::sendResponse(OutgoingResponse response, uint8_t compress)
                 sendMessage(message);
             }
 
+            --_dispatchCount;
+
             if (_state == StateClosing && _upcallCount == 0)
             {
                 initiateShutdown();
             }
-
-            --_dispatchCount;
         }
         catch (const LocalException&)
         {
