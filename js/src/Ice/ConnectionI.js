@@ -68,7 +68,6 @@ export class ConnectionI {
     constructor(communicator, instance, transceiver, endpoint, incoming, adapter, removeFromFactory, options) {
         this._communicator = communicator;
         this._instance = instance;
-        this._transceiver = transceiver;
         this._desc = transceiver.toString();
         this._type = transceiver.type();
         this._endpoint = endpoint;
@@ -1114,7 +1113,6 @@ export class ConnectionI {
                 this.sendMessage(OutgoingMessage.createForStream(os, false));
             } catch (ex) {
                 this.setState(StateClosed, ex);
-                Debug.assert(this._exception !== null);
             }
         }
     }
