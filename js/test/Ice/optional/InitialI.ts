@@ -10,7 +10,7 @@ export class InitialI extends Test.Initial {
         current.adapter.getCommunicator().shutdown();
     }
 
-    pingPong(obj: Ice.Value | undefined, current: Ice.Current): Ice.Value | undefined {
+    pingPong(obj: Ice.Value | null, current: Ice.Current): Ice.Value | null {
         return obj;
     }
 
@@ -147,9 +147,9 @@ export class InitialI extends Test.Initial {
     }
 
     opLongSeq(
-        p1: Ice.Long[] | null | undefined,
+        p1: Ice.Long[] | undefined,
         current: Ice.Current,
-    ): [Ice.Long[] | null | undefined, Ice.Long[] | null | undefined] {
+    ): [Ice.Long[] | undefined, Ice.Long[] | undefined] {
         return [p1, p1];
     }
 
