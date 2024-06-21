@@ -2915,6 +2915,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     private int _readStreamPos;
     private int _writeStreamPos;
 
+    // The number of user calls currently executed by the thread-pool (servant dispatch, invocation response, etc.).
     private int _upcallCount;
 
     // The number of outstanding dispatches. This does not include heartbeat messages, even when the heartbeat

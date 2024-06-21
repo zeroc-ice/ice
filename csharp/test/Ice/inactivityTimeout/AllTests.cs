@@ -45,7 +45,7 @@ internal class AllTests : global::Test.AllTests
 
         // Create a new communicator with the desired properties.
         properties = properties.Clone();
-        properties.setProperty("Ice.Connection.InactivityTimeout", "3");
+        properties.setProperty("Ice.Connection.InactivityTimeout", "5");
         Communicator communicator = Util.initialize(new InitializationData { properties = properties });
         Test.TestIntfPrx p = Test.TestIntfPrxHelper.createProxy(communicator, proxyString);
 
