@@ -2119,10 +2119,15 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             // inactivity timer if all outgoing messages in _sendStreams are heartbeats.
             foreach (OutgoingMessage queuedMessage in _sendStreams)
             {
-                if (queuedMessage.stream.getBuffer().b.get(8) != Protocol.validateConnectionMsg)
+                // TODO: temporary work-around for #2336
+                Ice.Internal.Buffer buffer = queuedMessage.stream.getBuffer();
+                if (!buffer.empty()) // should never happen
                 {
-                    isInactive = false;
-                    break; // for
+                    if (buffer.b.get(8) != Protocol.validateConnectionMsg)
+                    {
+                        isInactive = false;
+                        break; // for
+                    }
                 }
             }
 
