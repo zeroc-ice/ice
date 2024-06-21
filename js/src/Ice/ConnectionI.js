@@ -468,6 +468,8 @@ export class ConnectionI {
                 throw this._exception;
             }
 
+            --this._dispatchCount;
+
             if (this._state === StateClosing && this._upcallCount === 0) {
                 this.initiateShutdown();
             }
@@ -1312,11 +1314,6 @@ export class ConnectionI {
     }
 
     sendMessage(message) {
-        if (this._sendStreams.length > 0) {
-            message.doAdopt();
-            this._sendStreams.push(message);
-            return AsyncStatus.Queued;
-        }
         Debug.assert(this._state >= StateActive);
         Debug.assert(this._state < StateClosed);
 
@@ -1333,9 +1330,8 @@ export class ConnectionI {
             this._state == StateActive && // only schedule the timer if the connection is active
             this._dispatchCount == 0 && // no pending dispatch
             this._asyncRequests.size == 0 && // no pending invocation
-            this._readHeader
+            this._readHeader // we're not waiting for the remainder of an incoming message
         ) {
-            // we're not waiting for the remainder of an incoming message
             let isInactive = true;
 
             // We may become inactive while the peer is back-pressuring us. In this case, we only schedule the
@@ -1350,6 +1346,12 @@ export class ConnectionI {
             if (isInactive) {
                 this.scheduleInactivityTimer();
             }
+        }
+
+        if (this._sendStreams.length > 0) {
+            message.doAdopt();
+            this._sendStreams.push(message);
+            return AsyncStatus.Queued;
         }
 
         Debug.assert(!message.prepared);
