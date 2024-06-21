@@ -151,11 +151,6 @@ declare module "ice" {
              */
             type(): string;
             /**
-             * Get the timeout for the connection.
-             * @return The connection's timeout.
-             */
-            timeout(): number;
-            /**
              * Return a description of the connection as human readable text, suitable for logging or error messages.
              * @return The description of the connection as human readable text.
              */

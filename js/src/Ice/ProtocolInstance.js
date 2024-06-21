@@ -54,10 +54,6 @@ export class ProtocolInstance {
         return this._instance.defaultsAndOverrides().defaultEncoding;
     }
 
-    defaultTimeout() {
-        return this._instance.defaultsAndOverrides().defaultTimeout;
-    }
-
     messageSizeMax() {
         return this._instance.messageSizeMax();
     }

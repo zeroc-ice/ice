@@ -191,7 +191,7 @@ export class Client extends TestHelper {
 
         out.write("testing whether server is gone... ");
         try {
-            await obj!.ice_timeout(100).ice_ping(); // Use timeout to speed up testing on Windows
+            await obj!.ice_invocationTimeout(100).ice_ping(); // Use timeout to speed up testing on Windows
             throw new Error();
         } catch (ex) {
             test(ex instanceof Ice.LocalException);

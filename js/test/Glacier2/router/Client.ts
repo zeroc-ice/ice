@@ -256,7 +256,7 @@ export class Client extends TestHelper {
             out.write("testing Glacier2 shutdown... ");
             await processPrx.shutdown();
             try {
-                await processPrx.ice_timeout(500).ice_ping();
+                await processPrx.ice_invocationTimeout(500).ice_ping();
                 test(false);
             } catch (ex) {
                 test(ex instanceof Ice.LocalException, ex);

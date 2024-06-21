@@ -246,21 +246,6 @@ declare module "ice" {
             ice_getCompress(): boolean;
 
             /**
-             * Obtains a proxy that is identical to this proxy, except for its connection timeout setting
-             * which overrides the timeot setting from the proxy endpoints.
-             * @param timeout The connection timeout override for the proxy (in milliseconds).
-             * @return A proxy with the specified timeout override.
-             */
-            ice_timeout(timeout: number): this;
-
-            /**
-             * Obtains the timeout override of this proxy.
-             * @return The timeout override. If nullopt is returned, no override is set. Otherwise, returns
-             * the timeout override value.
-             */
-            ice_getTimeout(): number;
-
-            /**
              * Obtains a proxy that is identical to this proxy, except for the router.
              * @param router The router for the new proxy.
              * @return A proxy with the specified router.

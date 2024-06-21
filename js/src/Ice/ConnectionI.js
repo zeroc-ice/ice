@@ -10,10 +10,9 @@ import {
     CloseConnectionException,
     ConnectionManuallyClosedException,
     ConnectTimeoutException,
-    ConnectionTimeoutException,
+    ConnectionIdleException,
     ConnectionLostException,
     CloseTimeoutException,
-    TimeoutException,
     SocketException,
     FeatureNotSupportedException,
     UnmarshalOutOfBoundsException,
@@ -74,17 +73,18 @@ export class ConnectionI {
         this._incoming = incoming;
         this._adapter = adapter;
         this._removeFromFactory = removeFromFactory;
-        this._connectTimeout = options.connectTimeout;
-        this._closeTimeout = options.closeTimeout;
+
+        this._connectTimeout = options.connectTimeout * 1000; // Seconds to milliseconds
+        this._connectTimeoutId = undefined;
+
+        this._closeTimeout = options.closeTimeout * 1000; // Seconds to milliseconds.
+        this._closeTimeoutId = undefined;
+
         this._inactivityTimeout = options.inactivityTimeout;
         const initData = instance.initializationData();
         this._logger = initData.logger; // Cached for better performance.
         this._traceLevels = instance.traceLevels(); // Cached for better performance.
         this._timer = instance.timer();
-        this._writeTimeoutId = 0;
-        this._writeTimeoutScheduled = false;
-        this._readTimeoutId = 0;
-        this._readTimeoutScheduled = false;
 
         this._hasMoreData = { value: false };
 
@@ -156,7 +156,14 @@ export class ConnectionI {
                 () => this.message(SocketOperation.Read), // read callback
                 () => this.message(SocketOperation.Write), // write callback
             );
-            this.initialize();
+
+            if (!this.initialize()) {
+                if (this._connectTimeout > 0) {
+                    this._connectTimeoutId = this._timer.schedule(() => {
+                        this.connectTimedOut();
+                    }, this._connectTimeout);
+                }
+            }
         } catch (ex) {
             const startPromise = this._startPromise;
             this.exception(ex);
@@ -507,8 +514,6 @@ export class ConnectionI {
             return;
         }
 
-        this.unscheduleTimeout(operation);
-
         //
         // Keep reading until no more data is available.
         //
@@ -519,7 +524,6 @@ export class ConnectionI {
             if ((operation & SocketOperation.Write) !== 0 && this._writeStream.buffer.remaining > 0) {
                 if (!this.write(this._writeStream.buffer)) {
                     Debug.assert(!this._writeStream.isEmpty());
-                    this.scheduleTimeout(SocketOperation.Write);
                     return;
                 }
                 Debug.assert(this._writeStream.buffer.remaining === 0);
@@ -588,7 +592,6 @@ export class ConnectionI {
                 if (this._readStream.pos != this._readStream.size) {
                     if (!this.read(this._readStream.buffer)) {
                         Debug.assert(!this._readStream.isEmpty());
-                        this.scheduleTimeout(SocketOperation.Read);
                         return;
                     }
                     Debug.assert(this._readStream.buffer.remaining === 0);
@@ -712,7 +715,15 @@ export class ConnectionI {
 
     finish() {
         Debug.assert(this._state === StateClosed);
-        this.unscheduleTimeout(SocketOperation.Read | SocketOperation.Write | SocketOperation.Connect);
+
+        // Cancel the timers to ensure they don't keep the event loop alive.
+        if (this._connectTimeoutId !== undefined) {
+            this._timer.cancel(this._connectTimeoutId);
+        }
+
+        if (this._closeTimeoutId !== undefined) {
+            this._timer.cancel(this._closeTimeoutId);
+        }
 
         const traceLevels = this._instance.traceLevels();
         if (!this._initialized) {
@@ -740,7 +751,7 @@ export class ConnectionI {
                 !(
                     this._exception instanceof CloseConnectionException ||
                     this._exception instanceof ConnectionManuallyClosedException ||
-                    this._exception instanceof ConnectionTimeoutException ||
+                    this._exception instanceof ConnectionIdleException ||
                     this._exception instanceof CommunicatorDestroyedException ||
                     this._exception instanceof ObjectAdapterDeactivatedException
                 )
@@ -821,22 +832,8 @@ export class ConnectionI {
         return this._desc;
     }
 
-    timedOut(event) {
-        if (this._state <= StateNotValidated) {
-            this.setState(StateClosed, new ConnectTimeoutException());
-        } else if (this._state < StateClosing) {
-            this.setState(StateClosed, new TimeoutException());
-        } else if (this._state === StateClosing) {
-            this.setState(StateClosed, new CloseTimeoutException());
-        }
-    }
-
     type() {
         return this._type;
-    }
-
-    timeout() {
-        return this._endpoint.timeout();
     }
 
     getInfo() {
@@ -912,7 +909,7 @@ export class ConnectionI {
                         !(
                             this._exception instanceof CloseConnectionException ||
                             this._exception instanceof ConnectionManuallyClosedException ||
-                            this._exception instanceof ConnectionTimeoutException ||
+                            this._exception instanceof ConnectionIdleException ||
                             this._exception instanceof CommunicatorDestroyedException ||
                             this._exception instanceof ObjectAdapterDeactivatedException ||
                             (this._exception instanceof ConnectionLostException && this._state === StateClosing)
@@ -1077,12 +1074,11 @@ export class ConnectionI {
         os.writeByte(0); // compression status: always report 0 for CloseConnection.
         os.writeInt(Protocol.headerSize); // Message size.
 
-        if ((this.sendMessage(OutgoingMessage.createForStream(os, false)) & AsyncStatus.Sent) > 0) {
-            //
-            // Schedule the close timeout to wait for the peer to close the connection.
-            //
-            this.scheduleTimeout(SocketOperation.Read);
+        if (this._closeTimeout > 0) {
+            // Schedules a one-time check.
+            this._closeTimeoutId = this._timer.schedule(() => this.closeTimedOut(), this._closeTimeout);
         }
+        this.sendMessage(OutgoingMessage.createForStream(os, false));
     }
 
     idleCheck(idleTimeout) {
@@ -1095,7 +1091,7 @@ export class ConnectionI {
                         `connection aborted by the idle check because it did not receive any bytes for ${idleTimeout}s\n${this._transceiver.toString()}`,
                     );
             }
-            this.setState(StateClosed, new ConnectionTimeoutException()); // TODO: should be ConnectionIdleException
+            this.setState(StateClosed, new ConnectionIdleException());
         }
         // else nothing to do
     }
@@ -1120,7 +1116,6 @@ export class ConnectionI {
     initialize() {
         const s = this._transceiver.initialize(this._readStream.buffer, this._writeStream.buffer);
         if (s != SocketOperation.None) {
-            this.scheduleTimeout(s);
             return false;
         }
 
@@ -1148,7 +1143,6 @@ export class ConnectionI {
             }
 
             if (this._writeStream.pos != this._writeStream.size && !this.write(this._writeStream.buffer)) {
-                this.scheduleTimeout(SocketOperation.Write);
                 return false;
             }
         } // The client side has the passive role for connection validation.
@@ -1159,7 +1153,6 @@ export class ConnectionI {
             }
 
             if (this._readStream.pos !== this._readStream.size && !this.read(this._readStream.buffer)) {
-                this.scheduleTimeout(SocketOperation.Read);
                 return false;
             }
 
@@ -1268,7 +1261,6 @@ export class ConnectionI {
                 //
                 if (this._writeStream.pos != this._writeStream.size && !this.write(this._writeStream.buffer)) {
                     Debug.assert(!this._writeStream.isEmpty());
-                    this.scheduleTimeout(SocketOperation.Write);
                     return;
                 }
             }
@@ -1282,14 +1274,6 @@ export class ConnectionI {
         }
 
         Debug.assert(this._writeStream.isEmpty());
-
-        //
-        // If all the messages were sent and we are in the closing state, we schedule
-        // the close timeout to wait for the peer to close the connection.
-        //
-        if (this._state === StateClosing && this._shutdownInitiated) {
-            this.scheduleTimeout(SocketOperation.Read);
-        }
     }
 
     sendMessage(message) {
@@ -1322,7 +1306,6 @@ export class ConnectionI {
 
         this._writeStream.swap(message.stream);
         this._sendStreams.push(message);
-        this.scheduleTimeout(SocketOperation.Write);
 
         return AsyncStatus.Queued;
     }
@@ -1348,7 +1331,7 @@ export class ConnectionI {
             const messageType = info.stream.readByte();
             const compress = info.stream.readByte();
             if (compress === 2) {
-                throw new FeatureNotSupportedException("Cannot uncompress compressed message");
+                throw new FeatureNotSupportedException("Cannot decompress compressed message");
             }
             info.stream.pos = Protocol.headerSize;
 
@@ -1481,59 +1464,18 @@ export class ConnectionI {
         }
     }
 
-    scheduleTimeout(op) {
-        let timeout;
+    connectTimedOut() {
         if (this._state < StateActive) {
-            const defaultsAndOverrides = this._instance.defaultsAndOverrides();
-            if (defaultsAndOverrides.overrideConnectTimeout) {
-                timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
-            } else {
-                timeout = this._endpoint.timeout();
-            }
-        } else if (this._state < StateClosing) {
-            if (this._readHeader) {
-                // No timeout for reading the header.
-                op &= ~SocketOperation.Read;
-            }
-            timeout = this._endpoint.timeout();
-        } else {
-            const defaultsAndOverrides = this._instance.defaultsAndOverrides();
-            if (defaultsAndOverrides.overrideCloseTimeout) {
-                timeout = defaultsAndOverrides.overrideCloseTimeoutValue;
-            } else {
-                timeout = this._endpoint.timeout();
-            }
+            this.setState(StateClosed, new ConnectTimeoutException());
         }
-
-        if (timeout < 0) {
-            return;
-        }
-
-        if ((op & SocketOperation.Read) !== 0) {
-            if (this._readTimeoutScheduled) {
-                this._timer.cancel(this._readTimeoutId);
-            }
-            this._readTimeoutId = this._timer.schedule(() => this.timedOut(), timeout);
-            this._readTimeoutScheduled = true;
-        }
-        if ((op & (SocketOperation.Write | SocketOperation.Connect)) !== 0) {
-            if (this._writeTimeoutScheduled) {
-                this._timer.cancel(this._writeTimeoutId);
-            }
-            this._writeTimeoutId = this._timer.schedule(() => this.timedOut(), timeout);
-            this._writeTimeoutScheduled = true;
-        }
+        // else ignore since we're already connected
     }
 
-    unscheduleTimeout(op) {
-        if ((op & SocketOperation.Read) !== 0 && this._readTimeoutScheduled) {
-            this._timer.cancel(this._readTimeoutId);
-            this._readTimeoutScheduled = false;
+    closeTimedOut() {
+        if (this._state < StateClosed) {
+            this.setState(StateClosed, new CloseTimeoutException());
         }
-        if ((op & (SocketOperation.Write | SocketOperation.Connect)) !== 0 && this._writeTimeoutScheduled) {
-            this._timer.cancel(this._writeTimeoutId);
-            this._writeTimeoutScheduled = false;
-        }
+        // else ignore since we're already closed.
     }
 
     warning(msg, ex) {
