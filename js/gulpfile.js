@@ -153,6 +153,7 @@ const tests = [
     "test/Ice/facets",
     "test/Ice/hold",
     "test/Ice/idleTimeout",
+    "test/Ice/inactivityTimeout",
     "test/Ice/info",
     "test/Ice/inheritance",
     "test/Ice/location",
