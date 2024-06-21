@@ -18,6 +18,7 @@ export class Instance {
 
         this._traceLevels = null;
         this._defaultsAndOverrides = null;
+        this._clientConnectionOptions = null;
         this._messageSizeMax = 0;
         this._batchAutoFlushSize = 0;
         this._toStringMode = ToStringMode.Unicode;

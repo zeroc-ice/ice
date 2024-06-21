@@ -152,6 +152,7 @@ const tests = [
     "test/Ice/exceptions",
     "test/Ice/facets",
     "test/Ice/hold",
+    "test/Ice/idleTimeout",
     "test/Ice/info",
     "test/Ice/inheritance",
     "test/Ice/location",

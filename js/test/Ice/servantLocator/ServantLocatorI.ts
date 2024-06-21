@@ -27,7 +27,7 @@ export class ServantLocatorI implements Ice.ServantLocator {
         this._requestId = -1;
     }
 
-    locate(current: Ice.Current, cookie: Ice.Holder<Object>): Ice.Nullable<Ice.Object> {
+    locate(current: Ice.Current, cookie: Ice.Holder<Object>): Ice.Object | null {
         test(!this._deactivated);
 
         test(current.id.category == this._category || this._category.length == 0);

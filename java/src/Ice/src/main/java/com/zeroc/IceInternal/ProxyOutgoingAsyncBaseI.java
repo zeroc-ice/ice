@@ -126,10 +126,6 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
     }
 
     _cachedConnection = null;
-    if (_proxy._getReference().getInvocationTimeout() == -2 && _timerFuture != null) {
-      _timerFuture.cancel(false);
-      _timerFuture = null;
-    }
 
     //
     // NOTE: at this point, synchronization isn't needed, no other threads should be
@@ -169,24 +165,6 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
   @Override
   public void retry() {
     invokeImpl(false);
-  }
-
-  public void cancelable(final CancellationHandler handler) {
-    if (_proxy._getReference().getInvocationTimeout() == -2 && _cachedConnection != null) {
-      final int timeout = _cachedConnection.timeout();
-      if (timeout > 0) {
-        _timerFuture =
-            _instance
-                .timer()
-                .schedule(
-                    () -> {
-                      cancel(new com.zeroc.Ice.ConnectionTimeoutException());
-                    },
-                    timeout,
-                    java.util.concurrent.TimeUnit.MILLISECONDS);
-      }
-    }
-    super.cancelable(handler);
   }
 
   @Override

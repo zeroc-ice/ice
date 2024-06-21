@@ -82,8 +82,6 @@ public abstract class Reference implements Cloneable {
 
   public abstract String getConnectionId();
 
-  public abstract java.util.OptionalInt getTimeout();
-
   public abstract com.zeroc.IceInternal.ThreadPool getThreadPool();
 
   public abstract com.zeroc.Ice.ConnectionI getConnection();
@@ -187,8 +185,6 @@ public abstract class Reference implements Cloneable {
   public abstract Reference changeEndpointSelection(com.zeroc.Ice.EndpointSelectionType newType);
 
   public abstract Reference changeLocatorCacheTimeout(int newTimeout);
-
-  public abstract Reference changeTimeout(int newTimeout);
 
   public abstract Reference changeConnectionId(String connectionId);
 
