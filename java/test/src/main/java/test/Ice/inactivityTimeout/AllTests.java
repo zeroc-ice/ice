@@ -93,8 +93,7 @@ public class AllTests {
     test(connection != null);
 
     // The inactivity timeout is 3s on the client side and 5s on the server side; 4 seconds tests
-    // only the
-    // client-side.
+    // only the client-side.
     p.sleep(4000); // two-way blocks for 4 seconds; one-way is non-blocking
     if (oneway) {
       try {
@@ -103,7 +102,6 @@ public class AllTests {
       }
     }
     p.ice_ping();
-    ;
     Connection connection2 = p.ice_getConnection();
 
     if (oneway) {
