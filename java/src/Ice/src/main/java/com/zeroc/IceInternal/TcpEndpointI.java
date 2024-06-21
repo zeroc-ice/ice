@@ -22,7 +22,8 @@ final class TcpEndpointI extends IPEndpointI {
 
   public TcpEndpointI(ProtocolInstance instance) {
     super(instance);
-    _timeout = _instance.defaultTimeout();
+    // The default timeout is 60,000 milliseconds (1 minute). It's not used in Ice 3.8 or greater.
+    _timeout = 60_000;
     _compress = false;
   }
 

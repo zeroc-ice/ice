@@ -87,11 +87,6 @@ public class FixedReference extends Reference {
   }
 
   @Override
-  public java.util.OptionalInt getTimeout() {
-    return java.util.OptionalInt.empty();
-  }
-
-  @Override
   public com.zeroc.IceInternal.ThreadPool getThreadPool() {
     return _fixedConnection.getThreadPool();
   }
@@ -143,11 +138,6 @@ public class FixedReference extends Reference {
 
   @Override
   public Reference changeLocatorCacheTimeout(int newTimeout) {
-    throw new com.zeroc.Ice.FixedProxyException();
-  }
-
-  @Override
-  public Reference changeTimeout(int newTimeout) {
     throw new com.zeroc.Ice.FixedProxyException();
   }
 

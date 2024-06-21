@@ -152,25 +152,10 @@ public final class RouterInfo {
       com.zeroc.Ice.ObjectPrx clientProxy, boolean hasRoutingTable) {
     if (_clientEndpoints == null) {
       _hasRoutingTable = hasRoutingTable;
-      if (clientProxy == null) {
-        //
-        // If getClientProxy() return nil, use router endpoints.
-        //
-        _clientEndpoints = ((com.zeroc.Ice._ObjectPrxI) _router)._getReference().getEndpoints();
-      } else {
-        clientProxy = clientProxy.ice_router(null); // The client proxy cannot be routed.
-
-        //
-        // In order to avoid creating a new connection to the
-        // router, we must use the same timeout as the already
-        // existing connection.
-        //
-        if (_router.ice_getConnection() != null) {
-          clientProxy = clientProxy.ice_timeout(_router.ice_getConnection().timeout());
-        }
-
-        _clientEndpoints = ((com.zeroc.Ice._ObjectPrxI) clientProxy)._getReference().getEndpoints();
-      }
+      _clientEndpoints =
+          clientProxy == null
+              ? ((com.zeroc.Ice._ObjectPrxI) _router)._getReference().getEndpoints()
+              : ((com.zeroc.Ice._ObjectPrxI) clientProxy)._getReference().getEndpoints();
     }
     return _clientEndpoints;
   }

@@ -7,6 +7,7 @@ package com.zeroc.IceInternal;
 import com.zeroc.Ice.ConnectionI;
 import com.zeroc.Ice.ConnectionOptions;
 import com.zeroc.Ice.LocalException;
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 
 public final class OutgoingConnectionFactory {
@@ -125,10 +126,8 @@ public final class OutgoingConnectionFactory {
       CreateConnectionCallback callback) {
     assert (endpts.length > 0);
 
-    //
-    // Apply the overrides.
-    //
-    java.util.List<EndpointI> endpoints = applyOverrides(endpts);
+    // TODO: fix API to use List directly.
+    var endpoints = Arrays.asList(endpts);
 
     //
     // Try to find a connection to one of the given endpoints.
@@ -178,8 +177,6 @@ public final class OutgoingConnectionFactory {
         throw new com.zeroc.Ice.CommunicatorDestroyedException();
       }
 
-      DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-
       //
       // Search for connections to the router's client proxy
       // endpoints, and update the object adapter for such
@@ -187,13 +184,6 @@ public final class OutgoingConnectionFactory {
       // received over such connections.
       //
       for (EndpointI endpoint : endpoints) {
-        //
-        // Modify endpoints with overrides.
-        //
-        if (defaultsAndOverrides.overrideTimeout) {
-          endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
-        }
-
         //
         // The Connection object does not take the compression flag of
         // endpoints into account, but instead gets the information
@@ -280,23 +270,6 @@ public final class OutgoingConnectionFactory {
     }
   }
 
-  private java.util.List<EndpointI> applyOverrides(EndpointI[] endpts) {
-    DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-    java.util.List<EndpointI> endpoints = new java.util.ArrayList<>();
-    for (EndpointI endpoint : endpts) {
-      //
-      // Modify endpoints with overrides.
-      //
-      if (defaultsAndOverrides.overrideTimeout) {
-        endpoints.add(endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue));
-      } else {
-        endpoints.add(endpoint);
-      }
-    }
-
-    return endpoints;
-  }
-
   private synchronized ConnectionI findConnectionByEndpoint(
       java.util.List<EndpointI> endpoints, Holder<Boolean> compress) {
     if (_destroyed) {
@@ -306,7 +279,9 @@ public final class OutgoingConnectionFactory {
     DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
     assert (!endpoints.isEmpty());
 
-    for (EndpointI endpoint : endpoints) {
+    for (EndpointI proxyEndpoint : endpoints) {
+      // Clear the timeout
+      EndpointI endpoint = proxyEndpoint.timeout(-1);
       java.util.List<ConnectionI> connectionList = _connectionsByEndpoint.get(endpoint);
       if (connectionList == null) {
         continue;
@@ -455,7 +430,7 @@ public final class OutgoingConnectionFactory {
               _instance,
               transceiver,
               ci.connector,
-              ci.endpoint.compress(false),
+              ci.endpoint.compress(false).timeout(-1),
               null,
               this::removeConnection,
               _connectionOptions);

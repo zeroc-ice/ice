@@ -27,6 +27,7 @@ import { ProtocolInstance } from "./ProtocolInstance.js";
 import { TcpEndpointFactory } from "./TcpEndpointFactory.js";
 import { WSEndpointFactory } from "./WSEndpointFactory.js";
 import { Promise } from "./Promise.js";
+import { ConnectionOptions } from "./ConnectionOptions.js";
 
 import { Ice as Ice_Router } from "./Router.js";
 const { RouterPrx } = Ice_Router;
@@ -201,6 +202,14 @@ Instance.prototype.finishSetup = function (communicator, promise) {
         if (this._initData.properties === null) {
             this._initData.properties = Properties.createProperties();
         }
+
+        this._clientConnectionOptions = new ConnectionOptions(
+            this._initData.properties.getIcePropertyAsInt("Ice.Connection.ConnectTimeout"),
+            this._initData.properties.getIcePropertyAsInt("Ice.Connection.CloseTimeout"),
+            this._initData.properties.getIcePropertyAsInt("Ice.Connection.IdleTimeout"),
+            this._initData.properties.getIcePropertyAsInt("Ice.Connection.EnableIdleCheck") > 0,
+            this._initData.properties.getIcePropertyAsInt("Ice.Connection.InactivityTimeout"),
+        );
 
         if (_oneOfDone === undefined) {
             _printStackTraces = this._initData.properties.getPropertyAsIntWithDefault("Ice.PrintStackTraces", 0) > 0;
@@ -424,3 +433,10 @@ Instance.prototype.destroy = function () {
         });
     return promise;
 };
+
+Object.defineProperty(Instance.prototype, "clientConnectionOptions", {
+    get: function () {
+        return this._clientConnectionOptions;
+    },
+    enumerable: true,
+});

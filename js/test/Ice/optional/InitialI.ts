@@ -146,10 +146,7 @@ export class InitialI extends Test.Initial {
         return [p1, p1];
     }
 
-    opLongSeq(
-        p1: Ice.Long[] | undefined,
-        current: Ice.Current,
-    ): [Ice.Long[] | undefined, Ice.Long[] | undefined] {
+    opLongSeq(p1: Ice.Long[] | undefined, current: Ice.Current): [Ice.Long[] | undefined, Ice.Long[] | undefined] {
         return [p1, p1];
     }
 

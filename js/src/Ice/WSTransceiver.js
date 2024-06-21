@@ -255,8 +255,6 @@ if (typeof WebSocket !== "undefined") {
             return info;
         }
 
-        checkSendSize(stream) {}
-
         setBufferSize(rcvSize, sndSize) {
             this._maxSendPacketSize = sndSize;
         }

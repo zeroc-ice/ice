@@ -104,11 +104,6 @@ public abstract class _ObjectPrxFactoryMethods<T extends ObjectPrx> extends _Obj
   }
 
   @Override
-  public T ice_timeout(int t) {
-    return (T) super.ice_timeout(t);
-  }
-
-  @Override
   public T ice_connectionId(String connectionId) {
     return (T) super.ice_connectionId(connectionId);
   }

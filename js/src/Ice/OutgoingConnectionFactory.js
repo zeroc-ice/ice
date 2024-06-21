@@ -18,6 +18,7 @@ export class OutgoingConnectionFactory {
         this._communicator = communicator;
         this._instance = instance;
         this._destroyed = false;
+        this._connectionOptions = instance.clientConnectionOptions;
 
         this._connectionsByEndpoint = new ConnectionListMap(); // map<EndpointI, Array<Ice.ConnectionI>>
         this._pending = new HashMap(HashMap.compareEquals); // map<EndpointI, Array<ConnectCallback>>
@@ -280,6 +281,7 @@ export class OutgoingConnectionFactory {
                 false,
                 null,
                 (connection) => this.removeConnection(connection),
+                this._connectionOptions,
             );
         } catch (ex) {
             if (ex instanceof LocalException) {

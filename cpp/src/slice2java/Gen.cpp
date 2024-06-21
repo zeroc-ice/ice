@@ -4334,7 +4334,6 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         "ice_datagram()",
         "ice_batchDatagram()",
         "ice_compress(boolean co)",
-        "ice_timeout(int t)",
         "ice_connectionId(String connectionId)",
         "ice_fixed(com.zeroc.Ice.Connection connection)",
     };

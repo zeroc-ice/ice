@@ -4,8 +4,8 @@ package test.Ice.idleTimeout;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.ConnectionClose;
+import com.zeroc.Ice.ConnectionIdleException;
 import com.zeroc.Ice.ConnectionLostException;
-import com.zeroc.Ice.ConnectionTimeoutException;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.Util;
@@ -112,7 +112,7 @@ public class AllTests {
       try {
         p.sleep(2000); // the implementation in the server sleeps for 2,000ms
         test(!enabled);
-      } catch (ConnectionTimeoutException e) {
+      } catch (ConnectionIdleException e) {
         test(enabled);
       }
       output.println("ok");
