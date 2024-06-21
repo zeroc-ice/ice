@@ -981,8 +981,6 @@ Ice::ConnectionI::dispatchException(exception_ptr ex, int requestCount)
                 }
                 _conditionVariable.notify_all();
             }
-
-            _dispatchCount -= requestCount;
         }
     }
     if (finished && _removeFromFactory)
@@ -2058,6 +2056,11 @@ Ice::ConnectionI::setState(State state)
         return;
     }
 
+    if (state > StateActive)
+    {
+        cancelInactivityTimerTask();
+    }
+
     try
     {
         switch (state)
@@ -2103,9 +2106,6 @@ Ice::ConnectionI::setState(State state)
                 {
                     return;
                 }
-
-                // We don't shut down the connection due to inactivity when it's in the Holding state.
-                cancelInactivityTimerTask();
 
                 if (_state == StateActive)
                 {
@@ -2441,12 +2441,12 @@ Ice::ConnectionI::sendResponse(OutgoingResponse response, uint8_t compress)
                 sendMessage(message);
             }
 
+            --_dispatchCount;
+
             if (_state == StateClosing && _upcallCount == 0)
             {
                 initiateShutdown();
             }
-
-            --_dispatchCount;
         }
         catch (const LocalException&)
         {

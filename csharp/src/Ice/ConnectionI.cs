@@ -1250,6 +1250,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 //
                 if (!(_exception is CloseConnectionException ||
                      _exception is ConnectionManuallyClosedException ||
+                     _exception is ConnectionClosedException ||
                      _exception is ConnectionIdleException ||
                      _exception is CommunicatorDestroyedException ||
                      _exception is ObjectAdapterDeactivatedException))
@@ -1590,6 +1591,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 //
                 if (!(_exception is CloseConnectionException ||
                      _exception is ConnectionManuallyClosedException ||
+                     _exception is ConnectionClosedException ||
                      _exception is ConnectionIdleException ||
                      _exception is CommunicatorDestroyedException ||
                      _exception is ObjectAdapterDeactivatedException ||
@@ -1630,6 +1632,12 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         if (_state == state) // Don't switch twice.
         {
             return;
+        }
+
+        if (state > StateActive)
+        {
+            // Dispose the inactivity timer, if not null.
+            cancelInactivityTimer();
         }
 
         try
@@ -1746,6 +1754,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             {
                 if (!(_exception is CloseConnectionException ||
                      _exception is ConnectionManuallyClosedException ||
+                     _exception is ConnectionClosedException ||
                      _exception is ConnectionIdleException ||
                      _exception is CommunicatorDestroyedException ||
                      _exception is ObjectAdapterDeactivatedException ||
@@ -2085,7 +2094,43 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     private int sendMessage(OutgoingMessage message)
     {
+        Debug.Assert(_state >= StateActive);
         Debug.Assert(_state < StateClosed);
+
+        bool isHeartbeat = message.stream.getBuffer().b.get(8) == Protocol.validateConnectionMsg;
+        if (!isHeartbeat)
+        {
+            cancelInactivityTimer();
+        }
+        // If we're sending a heartbeat, there is a chance the connection is inactive and that we need to schedule the
+        // inactivity timer. It's ok to do this before actually sending the heartbeat since the heartbeat does not count
+        // as an "activity".
+        else if (
+            _inactivityTimer is null &&           // timer not already scheduled
+            _inactivityTimeout > TimeSpan.Zero && // inactivity timeout is enabled
+            _state == StateActive &&              // only schedule the timer if the connection is active
+            _dispatchCount == 0 &&                // no pending dispatch
+            _asyncRequests.Count == 0 &&          // no pending invocation
+            _readHeader)                          // we're not waiting for the remainder of an incoming message
+        {
+            bool isInactive = true;
+
+            // We may become inactive while the peer is back-pressuring us. In this case, we only schedule the
+            // inactivity timer if all outgoing messages in _sendStreams are heartbeats.
+            foreach (OutgoingMessage queuedMessage in _sendStreams)
+            {
+                if (queuedMessage.stream.getBuffer().b.get(8) != Protocol.validateConnectionMsg)
+                {
+                    isInactive = false;
+                    break; // for
+                }
+            }
+
+            if (isInactive)
+            {
+                scheduleInactivityTimer();
+            }
+        }
 
         if (_sendStreams.Count > 0)
         {
@@ -2296,6 +2341,9 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         info.requestCount = 1;
                         info.adapter = _adapter;
                         ++info.upcallCount;
+
+                        cancelInactivityTimer();
+                        ++_dispatchCount;
                     }
                     break;
                 }
@@ -2319,6 +2367,9 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         }
                         info.adapter = _adapter;
                         info.upcallCount += info.requestCount;
+
+                        cancelInactivityTimer();
+                        _dispatchCount += info.requestCount;
                     }
                     break;
                 }
@@ -2496,6 +2547,8 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         sendMessage(new OutgoingMessage(response.outputStream, compress > 0, adopt: true));
                     }
 
+                    --_dispatchCount;
+
                     if (_state == StateClosing && _upcallCount == 0)
                     {
                         initiateShutdown();
@@ -2545,6 +2598,27 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         if (finished && _removeFromFactory is not null)
         {
             _removeFromFactory(this);
+        }
+    }
+
+    private void inactivityCheck(System.Threading.Timer inactivityTimer)
+    {
+        lock (this)
+        {
+            // If the timers are different, it means this inactivityTimer is no longer current.
+            if (inactivityTimer == _inactivityTimer)
+            {
+                _inactivityTimer = null;
+                inactivityTimer.Dispose(); // non-blocking
+
+                if (_state == StateActive)
+                {
+                    // TODO: fix LocalException to accept a message
+                    // "connection closed because it remained inactive for longer than the inactivity timeout"
+                    setState(StateClosing, new ConnectionClosedException());
+                }
+            }
+            // Else this timer was already canceled and disposed. Nothing to do.
         }
     }
 
@@ -2700,6 +2774,28 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         return op;
     }
 
+    private void scheduleInactivityTimer()
+    {
+        // Called with the ConnectionI mutex locked.
+        Debug.Assert(_inactivityTimer is null);
+        Debug.Assert(_inactivityTimeout > TimeSpan.Zero);
+
+        _inactivityTimer = new System.Threading.Timer(
+            inactivityTimer => inactivityCheck((System.Threading.Timer)inactivityTimer));
+        _inactivityTimer.Change(_inactivityTimeout, Timeout.InfiniteTimeSpan);
+    }
+
+    private void cancelInactivityTimer()
+    {
+        // Called with the ConnectionI mutex locked.
+        if (_inactivityTimer is not null)
+        {
+            _inactivityTimer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+            _inactivityTimer.Dispose();
+            _inactivityTimer = null;
+        }
+    }
+
     private class OutgoingMessage
     {
         internal OutgoingMessage(OutputStream stream, bool compress, bool adopt)
@@ -2785,6 +2881,8 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     private readonly TimeSpan _closeTimeout;
     private readonly TimeSpan _inactivityTimeout;
 
+    private System.Threading.Timer _inactivityTimer; // can be null
+
     private StartCallback _startCallback;
 
     // This action must be called outside the ConnectionI lock to avoid lock acquisition deadlocks.
@@ -2807,6 +2905,9 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     private LinkedList<OutgoingMessage> _sendStreams = new LinkedList<OutgoingMessage>();
 
     private InputStream _readStream;
+
+    // When _readHeader is true, the next bytes we'll read are the header of a new message. When false, we're reading
+    // next the remainder of a message that was already partially received.
     private bool _readHeader;
     private OutputStream _writeStream;
 
@@ -2814,7 +2915,12 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     private int _readStreamPos;
     private int _writeStreamPos;
 
+    // The number of user calls currently executed by the thread-pool (servant dispatch, invocation response, etc.).
     private int _upcallCount;
+
+    // The number of outstanding dispatches. This does not include heartbeat messages, even when the heartbeat
+    // callback is not null. Maintained only while state is StateActive or StateHolding.
+    private int _dispatchCount;
 
     private int _state; // The current state.
     private bool _shutdownInitiated;
