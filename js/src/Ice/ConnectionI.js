@@ -9,6 +9,7 @@ import {
     CommunicatorDestroyedException,
     CloseConnectionException,
     ConnectionManuallyClosedException,
+    ConnectionClosedException,
     ConnectTimeoutException,
     ConnectionIdleException,
     ConnectionLostException,
@@ -81,6 +82,8 @@ export class ConnectionI {
         this._closeTimeoutId = undefined;
 
         this._inactivityTimeout = options.inactivityTimeout;
+        this._inactivityTimer = undefined;
+
         const initData = instance.initializationData();
         this._logger = initData.logger; // Cached for better performance.
         this._traceLevels = instance.traceLevels(); // Cached for better performance.
@@ -102,7 +105,12 @@ export class ConnectionI {
         this._readStreamPos = -1;
         this._writeStreamPos = -1;
 
+        // The number of user calls currently executed by the event-loop (servant dispatch, invocation response, etc.).
         this._upcallCount = 0;
+
+        // The number of outstanding dispatches. This does not include heartbeat messages, even when the heartbeat
+        // callback is not null. Maintained only while state is StateActive or StateHolding.
+        this._dispatchCount = 0;
 
         this._state = StateNotInitialized;
         this._shutdownInitiated = false;
@@ -431,6 +439,8 @@ export class ConnectionI {
 
             this.sendMessage(OutgoingMessage.createForStream(os, true));
 
+            --this._dispatchCount;
+
             if (this._state === StateClosing && this._upcallCount === 0) {
                 this.initiateShutdown();
             }
@@ -457,6 +467,8 @@ export class ConnectionI {
                 Debug.assert(this._exception !== null);
                 throw this._exception;
             }
+
+            --this._dispatchCount;
 
             if (this._state === StateClosing && this._upcallCount === 0) {
                 this.initiateShutdown();
@@ -751,6 +763,7 @@ export class ConnectionI {
                 !(
                     this._exception instanceof CloseConnectionException ||
                     this._exception instanceof ConnectionManuallyClosedException ||
+                    this._exception instanceof ConnectionClosedException ||
                     this._exception instanceof ConnectionIdleException ||
                     this._exception instanceof CommunicatorDestroyedException ||
                     this._exception instanceof ObjectAdapterDeactivatedException
@@ -880,9 +893,27 @@ export class ConnectionI {
         }
     }
 
+    inactivityCheck(inactivityTimer) {
+        // If the timers are different, it means this inactivityTimer is no longer current.
+        if (inactivityTimer == this._inactivityTimer) {
+            this._inactivityTimer = undefined;
+            inactivityTimer.destroy();
+
+            if (this._state == StateActive) {
+                this.setState(
+                    StateClosing,
+                    new ConnectionClosedException(
+                        "connection closed because it remained inactive for longer than the inactivity timeout",
+                    ),
+                );
+            }
+        }
+        // Else this timer was already canceled and disposed. Nothing to do.
+    }
+
     setState(state, ex) {
         if (ex !== undefined) {
-            Debug.assert(ex instanceof LocalException);
+            Debug.assert(ex instanceof LocalException, ex);
 
             //
             // If setState() is called with an exception, then only closed
@@ -909,6 +940,7 @@ export class ConnectionI {
                         !(
                             this._exception instanceof CloseConnectionException ||
                             this._exception instanceof ConnectionManuallyClosedException ||
+                            this._exception instanceof ConnectionClosedException ||
                             this._exception instanceof ConnectionIdleException ||
                             this._exception instanceof CommunicatorDestroyedException ||
                             this._exception instanceof ObjectAdapterDeactivatedException ||
@@ -937,6 +969,11 @@ export class ConnectionI {
         if (this._state === state) {
             // Don't switch twice.
             return;
+        }
+
+        if (state > StateActive) {
+            // Cancel the inactivity timer, if not null.
+            this.cancelInactivityTimer();
         }
 
         try {
@@ -1277,12 +1314,45 @@ export class ConnectionI {
     }
 
     sendMessage(message) {
+        Debug.assert(this._state >= StateActive);
+        Debug.assert(this._state < StateClosed);
+
+        const isHeartbeat = message.stream.buffer.getAt(8) == Protocol.validateConnectionMsg;
+        if (!isHeartbeat) {
+            this.cancelInactivityTimer();
+        }
+        // If we're sending a heartbeat, there is a chance the connection is inactive and that we need to schedule the
+        // inactivity timer. It's ok to do this before actually sending the heartbeat since the heartbeat does not count
+        // as an "activity".
+        else if (
+            this._inactivityTimer === undefined && // timer not already scheduled
+            this._inactivityTimeout > 0 && // inactivity timeout is enabled
+            this._state == StateActive && // only schedule the timer if the connection is active
+            this._dispatchCount == 0 && // no pending dispatch
+            this._asyncRequests.size == 0 && // no pending invocation
+            this._readHeader // we're not waiting for the remainder of an incoming message
+        ) {
+            let isInactive = true;
+
+            // We may become inactive while the peer is back-pressuring us. In this case, we only schedule the
+            // inactivity timer if all outgoing messages in _sendStreams are heartbeats.
+            for (const queuedMessage of this._sendStreams) {
+                if (queuedMessage.stream.buffer.getAt(8) != Protocol.validateConnectionMsg) {
+                    isInactive = false;
+                    break; // for
+                }
+            }
+
+            if (isInactive) {
+                this.scheduleInactivityTimer();
+            }
+        }
+
         if (this._sendStreams.length > 0) {
             message.doAdopt();
             this._sendStreams.push(message);
             return AsyncStatus.Queued;
         }
-        Debug.assert(this._state < StateClosed);
 
         Debug.assert(!message.prepared);
 
@@ -1357,6 +1427,9 @@ export class ConnectionI {
                         info.servantManager = this._servantManager;
                         info.adapter = this._adapter;
                         ++this._upcallCount;
+
+                        this.cancelInactivityTimer();
+                        ++this._dispatchCount;
                     }
                     break;
                 }
@@ -1379,6 +1452,9 @@ export class ConnectionI {
                         info.servantManager = this._servantManager;
                         info.adapter = this._adapter;
                         this._upcallCount += info.invokeNum;
+
+                        this.cancelInactivityTimer();
+                        ++this._dispatchCount;
                     }
                     break;
                 }
@@ -1537,6 +1613,22 @@ export class ConnectionI {
             this._instance.initializationData().logger.trace(this._instance.traceLevels().networkCat, s.join(""));
         }
         return ret;
+    }
+
+    scheduleInactivityTimer() {
+        Debug.assert(this._inactivityTimer === undefined);
+        Debug.assert(this._inactivityTimeout > 0);
+
+        this._inactivityTimer = new Timer();
+        const inactivityTimer = this._inactivityTimer;
+        this._inactivityTimer.schedule(() => this.inactivityCheck(inactivityTimer), this._inactivityTimeout);
+    }
+
+    cancelInactivityTimer() {
+        if (this._inactivityTimer !== undefined) {
+            this._inactivityTimer.destroy();
+            this._inactivityTimer = undefined;
+        }
     }
 }
 
