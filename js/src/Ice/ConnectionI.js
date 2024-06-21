@@ -1493,15 +1493,13 @@ export class ConnectionI {
         // guarantee that there are no outstanding calls when deactivate()
         // is called on the servant locators.
         //
-        if (this._state === StateFinished) {
-            if (this._finishedPromises.length > 0) {
-                //
-                // Clear the OA. See bug 1673 for the details of why this is necessary.
-                //
-                this._adapter = null;
-                this._finishedPromises.forEach((p) => p.resolve());
-                this._finishedPromises = [];
-            }
+        if (this._state === StateFinished && this._finishedPromises.length > 0) {
+            //
+            // Clear the OA. See bug 1673 for the details of why this is necessary.
+            //
+            this._adapter = null;
+            this._finishedPromises.forEach((p) => p.resolve());
+            this._finishedPromises = [];
         }
     }
 
