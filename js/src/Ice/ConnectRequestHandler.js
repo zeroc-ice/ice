@@ -169,7 +169,7 @@ export class ConnectRequestHandler {
                     this._reference.getInstance().requestHandlerFactory().removeRequestHandler(this._reference, this);
                     request.retryException(ex.inner);
                 } else {
-                    Debug.assert(ex instanceof LocalException);
+                    Debug.assert(ex instanceof LocalException, ex);
                     exception = ex;
                     request.out.completedEx(ex);
                 }

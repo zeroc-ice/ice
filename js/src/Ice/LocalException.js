@@ -450,6 +450,19 @@ export class CloseTimeoutException extends TimeoutException {
 }
 
 /**
+ *  This exception indicates that a connection was closed gracefully.
+ **/
+export class ConnectionClosedException extends LocalException {
+    constructor(_cause = "") {
+        super(_cause);
+    }
+
+    static get _id() {
+        return "::Ice::ConnectionClosedException";
+    }
+}
+
+/**
  *  This exception indicates that a connection was aborted by the idle check.
  **/
 export class ConnectionIdleException extends LocalException {
