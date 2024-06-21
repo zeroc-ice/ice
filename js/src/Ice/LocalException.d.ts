@@ -388,9 +388,9 @@ declare module "ice" {
         class CloseTimeoutException extends TimeoutException {}
 
         /**
-         * This exception indicates that a connection has been shut down because it has been idle for some time.
+         * This exception indicates that a connection was aborted by the idle check.
          */
-        class ConnectionTimeoutException extends TimeoutException {}
+        class ConnectionIdleException extends LocalException {}
 
         /**
          * This exception indicates that an invocation failed because it timed out.

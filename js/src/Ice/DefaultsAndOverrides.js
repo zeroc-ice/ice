@@ -21,57 +21,6 @@ export class DefaultsAndOverrides {
         value = properties.getProperty("Ice.Default.SourceAddress");
         this.defaultSourceAddress = value.length > 0 ? value : null;
 
-        value = properties.getProperty("Ice.Override.Timeout");
-        if (value.length > 0) {
-            this.overrideTimeout = true;
-            this.overrideTimeoutValue = properties.getPropertyAsInt("Ice.Override.Timeout");
-            if (this.overrideTimeoutValue < 1 && this.overrideTimeoutValue !== -1) {
-                this.overrideTimeoutValue = -1;
-                logger.warning(
-                    "invalid value for Ice.Override.Timeout `" +
-                        properties.getProperty("Ice.Override.Timeout") +
-                        "': defaulting to -1",
-                );
-            }
-        } else {
-            this.overrideTimeout = false;
-            this.overrideTimeoutValue = -1;
-        }
-
-        value = properties.getProperty("Ice.Override.ConnectTimeout");
-        if (value.length > 0) {
-            this.overrideConnectTimeout = true;
-            this.overrideConnectTimeoutValue = properties.getPropertyAsInt("Ice.Override.ConnectTimeout");
-            if (this.overrideConnectTimeoutValue < 1 && this.overrideConnectTimeoutValue !== -1) {
-                this.overrideConnectTimeoutValue = -1;
-                logger.warning(
-                    "invalid value for Ice.Override.ConnectTimeout `" +
-                        properties.getProperty("Ice.Override.ConnectTimeout") +
-                        "': defaulting to -1",
-                );
-            }
-        } else {
-            this.overrideConnectTimeout = false;
-            this.overrideConnectTimeoutValue = -1;
-        }
-
-        value = properties.getProperty("Ice.Override.CloseTimeout");
-        if (value.length > 0) {
-            this.overrideCloseTimeout = true;
-            this.overrideCloseTimeoutValue = properties.getPropertyAsInt("Ice.Override.CloseTimeout");
-            if (this.overrideCloseTimeoutValue < 1 && this.overrideCloseTimeoutValue !== -1) {
-                this.overrideCloseTimeoutValue = -1;
-                logger.warning(
-                    "invalid value for Ice.Override.CloseTimeout `" +
-                        properties.getProperty("Ice.Override.CloseTimeout") +
-                        "': defaulting to -1",
-                );
-            }
-        } else {
-            this.overrideCloseTimeout = false;
-            this.overrideCloseTimeoutValue = -1;
-        }
-
         this.overrideSecure = false;
 
         value = properties.getPropertyWithDefault("Ice.Default.EndpointSelection", "Random");
@@ -83,16 +32,6 @@ export class DefaultsAndOverrides {
             const ex = new EndpointSelectionTypeParseException();
             ex.str = "illegal value `" + value + "'; expected `Random' or `Ordered'";
             throw ex;
-        }
-
-        this.defaultTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.Timeout", 60000);
-        if (this.defaultTimeout < 1 && this.defaultTimeout !== -1) {
-            this.defaultTimeout = 60000;
-            logger.warning(
-                "invalid value for Ice.Default.Timeout `" +
-                    properties.getProperty("Ice.Default.Timeout") +
-                    "': defaulting to 60000",
-            );
         }
 
         this.defaultLocatorCacheTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);

@@ -38,7 +38,7 @@ export class Client extends TestHelper {
         out.write("testing server shutdown... ");
         await cl.shutdown();
         try {
-            await cl.ice_timeout(100).ice_ping(); // Use timeout to speed up testing on Windows
+            await cl.ice_invocationTimeout(100).ice_ping(); // Use timeout to speed up testing on Windows
             throw new Error("test failed");
         } catch (ex) {
             if (ex instanceof Ice.LocalException) {

@@ -137,7 +137,7 @@ async function testServerWithEnableDisableIdleCheck(
             await p.sleep(2000); // the implementation in the server sleeps for 2,000ms
             test(!enabled);
         } catch (ex) {
-            test(ex instanceof Ice.ConnectionTimeoutException); // TODO: should be ConnectionIdleException
+            test(ex instanceof Ice.ConnectionIdleException);
             test(enabled);
         }
     } finally {

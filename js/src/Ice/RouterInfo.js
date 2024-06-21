@@ -102,31 +102,12 @@ export class RouterInfo {
     setClientEndpoints(clientProxy, hasRoutingTable, promise) {
         if (this._clientEndpoints === null) {
             this._hasRoutingTable = hasRoutingTable;
-            if (clientProxy === null) {
-                //
-                // If getClientProxy() return nil, use router endpoints.
-                //
-                this._clientEndpoints = this._router._getReference().getEndpoints();
-                promise.resolve(this._clientEndpoints);
-            } else {
-                clientProxy = clientProxy.ice_router(null); // The client proxy cannot be routed.
-
-                //
-                // In order to avoid creating a new connection to the
-                // router, we must use the same timeout as the already
-                // existing connection.
-                //
-                this._router
-                    .ice_getConnection()
-                    .then((con) => {
-                        this._clientEndpoints = clientProxy.ice_timeout(con.timeout())._getReference().getEndpoints();
-                        promise.resolve(this._clientEndpoints);
-                    })
-                    .catch(promise.reject);
-            }
-        } else {
-            promise.resolve(this._clientEndpoints);
+            this._clientEndpoints =
+                clientProxy === null
+                    ? this._router._getReference().getEndpoints()
+                    : clientProxy._getReference().getEndpoints();
         }
+        promise.resolve(this._clientEndpoints);
     }
 
     addAndEvictProxies(proxy, evictedProxies) {

@@ -289,22 +289,6 @@ ObjectPrx.prototype.ice_batchDatagram = function () {
     }
 };
 
-ObjectPrx.prototype.ice_timeout = function (t) {
-    if (t < 1 && t !== -1) {
-        throw new RangeError("invalid value passed to ice_timeout: " + t);
-    }
-    const ref = this._reference.changeTimeout(t);
-    if (ref.equals(this._reference)) {
-        return this;
-    } else {
-        return this._newInstance(ref);
-    }
-};
-
-ObjectPrx.prototype.ice_getTimeout = function () {
-    return this._reference.getTimeout();
-};
-
 ObjectPrx.prototype.ice_fixed = function (connection) {
     if (connection === null) {
         throw new RangeError("invalid null connection passed to ice_fixed");

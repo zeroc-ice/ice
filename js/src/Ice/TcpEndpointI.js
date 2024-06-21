@@ -14,7 +14,8 @@ import { EndpointInfo as SSLEndpointInfo } from "./SSL/EndpointInfo.js";
 export class TcpEndpointI extends IPEndpointI {
     constructor(instance, ho, po, sif, ti, conId, co) {
         super(instance, ho, po, sif, conId);
-        this._timeout = ti === undefined ? (instance ? instance.defaultTimeout() : undefined) : ti;
+        // The default timeout is 60,000 milliseconds (1 minute). It's not used in Ice 3.8 or greater.
+        this._timeout = ti === undefined ? (instance ? 60000 : undefined) : ti;
         this._compress = co === undefined ? false : co;
     }
 

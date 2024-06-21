@@ -450,15 +450,15 @@ export class CloseTimeoutException extends TimeoutException {
 }
 
 /**
- *  This exception indicates that a connection has been shut down because it has been idle for some time.
+ *  This exception indicates that a connection was aborted by the idle check.
  **/
-export class ConnectionTimeoutException extends TimeoutException {
+export class ConnectionIdleException extends LocalException {
     constructor(_cause = "") {
         super(_cause);
     }
 
     static get _id() {
-        return "::Ice::ConnectionTimeoutException";
+        return "::Ice::ConnectionIdleException";
     }
 }
 

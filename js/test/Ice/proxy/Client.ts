@@ -565,26 +565,6 @@ export class Client extends TestHelper {
         test(!base.ice_encodingVersion(Ice.Encoding_1_0).ice_getEncodingVersion().equals(Ice.Encoding_1_1));
 
         try {
-            base.ice_timeout(0);
-            test(false);
-        } catch (ex) {
-            test(!(ex instanceof TestError), ex);
-        }
-
-        try {
-            base.ice_timeout(-1);
-        } catch (ex) {
-            test(false, ex);
-        }
-
-        try {
-            base.ice_timeout(-2);
-            test(false);
-        } catch (ex) {
-            test(!(ex instanceof TestError), ex);
-        }
-
-        try {
             base.ice_invocationTimeout(0);
             test(false);
         } catch (ex) {
@@ -660,13 +640,6 @@ export class Client extends TestHelper {
 
         test(compObj.ice_connectionId("id1").ice_getConnectionId() === "id1");
         test(compObj.ice_connectionId("id2").ice_getConnectionId() === "id2");
-
-        test(compObj.ice_timeout(20).equals(compObj.ice_timeout(20)));
-        test(!compObj.ice_timeout(10).equals(compObj.ice_timeout(20)));
-
-        test(compObj.ice_getTimeout() === undefined);
-        test(compObj.ice_timeout(10).ice_getTimeout() == 10);
-        test(compObj.ice_timeout(20).ice_getTimeout() == 20);
 
         const loc1 = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy("loc1:default -p 10000"));
         const loc2 = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy("loc2:default -p 10000"));
@@ -778,7 +751,6 @@ export class Client extends TestHelper {
                 test(cl.ice_invocationTimeout(10).ice_fixed(connection).ice_getInvocationTimeout() == 10);
                 test((await cl.ice_fixed(connection).ice_getConnection()) == connection);
                 test((await cl.ice_fixed(connection).ice_fixed(connection).ice_getConnection()) == connection);
-                test(cl.ice_fixed(connection).ice_getTimeout() === undefined);
                 const fixedConnection = await cl.ice_connectionId("ice_fixed").ice_getConnection();
                 test(
                     (await cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection()) == fixedConnection,

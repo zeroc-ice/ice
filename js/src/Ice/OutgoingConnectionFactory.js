@@ -48,13 +48,8 @@ export class OutgoingConnectionFactory {
     //
     // Returns a promise, success callback receives the connection
     //
-    create(endpts, hasMore, selType) {
-        Debug.assert(endpts.length > 0);
-
-        //
-        // Apply the overrides.
-        //
-        const endpoints = this.applyOverrides(endpts);
+    create(endpoints, hasMore, selType) {
+        Debug.assert(endpoints.length > 0);
 
         //
         // Try to find a connection to one of the given endpoints.
@@ -85,15 +80,7 @@ export class OutgoingConnectionFactory {
             // received over such connections.
             //
             const adapter = routerInfo.getAdapter();
-            const defaultsAndOverrides = this._instance.defaultsAndOverrides();
             endpoints.forEach((endpoint) => {
-                //
-                // Modify endpoints with overrides.
-                //
-                if (defaultsAndOverrides.overrideTimeout) {
-                    endpoint = endpoint.changeTimeout(defaultsAndOverrides.overrideTimeoutValue);
-                }
-
                 //
                 // The Connection object does not take the compression flag of
                 // endpoints into account, but instead gets the information
@@ -148,17 +135,6 @@ export class OutgoingConnectionFactory {
         return promise;
     }
 
-    applyOverrides(endpts) {
-        const defaultsAndOverrides = this._instance.defaultsAndOverrides();
-        return endpts.map((endpoint) => {
-            if (defaultsAndOverrides.overrideTimeout) {
-                return endpoint.changeTimeout(defaultsAndOverrides.overrideTimeoutValue);
-            } else {
-                return endpoint;
-            }
-        });
-    }
-
     findConnectionByEndpoint(endpoints) {
         if (this._destroyed) {
             throw new CommunicatorDestroyedException();
@@ -166,14 +142,14 @@ export class OutgoingConnectionFactory {
 
         Debug.assert(endpoints.length > 0);
 
-        for (let i = 0; i < endpoints.length; ++i) {
-            const endpoint = endpoints[i];
+        for (const endpoint of endpoints) {
+            const proxyEndpoint = endpoint.changeTimeout(-1);
 
-            if (this._pending.has(endpoint)) {
+            if (this._pending.has(proxyEndpoint)) {
                 continue;
             }
 
-            const connectionList = this._connectionsByEndpoint.get(endpoint);
+            const connectionList = this._connectionsByEndpoint.get(proxyEndpoint);
             if (connectionList === undefined) {
                 continue;
             }
@@ -277,7 +253,7 @@ export class OutgoingConnectionFactory {
                 this._communicator,
                 this._instance,
                 transceiver,
-                endpoint.changeCompress(false),
+                endpoint.changeCompress(false).changeTimeout(-1),
                 false,
                 null,
                 (connection) => this.removeConnection(connection),

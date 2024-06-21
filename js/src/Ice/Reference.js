@@ -865,12 +865,6 @@ class Reference {
         return "";
     }
 
-    getTimeout() {
-        // Abstract
-        Debug.assert(false);
-        return "";
-    }
-
     //
     // The change* methods (here and in derived classes) create
     // a new reference based on the existing one, with the
@@ -986,12 +980,6 @@ class Reference {
     }
 
     changeLocatorCacheTimeout(newTimeout) {
-        // Abstract
-        Debug.assert(false);
-        return null;
-    }
-
-    changeTimeout(newTimeout) {
         // Abstract
         Debug.assert(false);
         return null;
@@ -1319,10 +1307,6 @@ export class FixedReference extends Reference {
         return "";
     }
 
-    getTimeout() {
-        return undefined;
-    }
-
     changeAdapterId(newAdapterId) {
         throw new FixedProxyException();
     }
@@ -1352,10 +1336,6 @@ export class FixedReference extends Reference {
     }
 
     changeLocatorCacheTimeout(newTimeout) {
-        throw new FixedProxyException();
-    }
-
-    changeTimeout(newTimeout) {
         throw new FixedProxyException();
     }
 
@@ -1500,8 +1480,6 @@ export class RoutableReference extends Reference {
         this._preferSecure = preferSecure;
         this._endpointSelection = endpointSelection;
         this._locatorCacheTimeout = locatorCacheTimeout;
-        this._overrideTimeout = false;
-        this._timeout = -1;
 
         if (this._endpoints === null) {
             this._endpoints = _emptyEndpoints;
@@ -1547,10 +1525,6 @@ export class RoutableReference extends Reference {
 
     getConnectionId() {
         return this._connectionId;
-    }
-
-    getTimeout() {
-        return this._overrideTimeout ? this._timeout : undefined;
     }
 
     changeEncoding(newEncoding) {
@@ -1639,17 +1613,6 @@ export class RoutableReference extends Reference {
         }
         const r = this.getInstance().referenceFactory().copy(this);
         r._locatorCacheTimeout = newTimeout;
-        return r;
-    }
-
-    changeTimeout(newTimeout) {
-        if (this._overrideTimeout && this._timeout === newTimeout) {
-            return this;
-        }
-        const r = this.getInstance().referenceFactory().copy(this);
-        r._timeout = newTimeout;
-        r._overrideTimeout = true;
-        r._endpoints = this._endpoints.map((endpoint) => endpoint.changeTimeout(newTimeout));
         return r;
     }
 
@@ -1815,12 +1778,6 @@ export class RoutableReference extends Reference {
         if (this._connectionId !== rhs._connectionId) {
             return false;
         }
-        if (this._overrideTimeout !== rhs._overrideTimeout) {
-            return false;
-        }
-        if (this._overrideTimeout && this._timeout !== rhs._timeout) {
-            return false;
-        }
         if (!ArrayUtil.equals(this._endpoints, rhs._endpoints, (e1, e2) => e1.equals(e2))) {
             return false;
         }
@@ -1943,20 +1900,15 @@ export class RoutableReference extends Reference {
         // Copy the members that are not passed to the constructor.
         //
         super.copyMembers(rhs);
-        rhs._overrideTimeout = this._overrideTimeout;
-        rhs._timeout = this._timeout;
         rhs._connectionId = this._connectionId;
     }
 
-    applyOverrides(endpts) {
+    applyOverrides(endpoints) {
         //
         // Apply the endpoint overrides to each endpoint.
         //
-        for (let i = 0; i < endpts.length; ++i) {
-            endpts[i] = endpts[i].changeConnectionId(this._connectionId);
-            if (this._overrideTimeout) {
-                endpts[i] = endpts[i].changeTimeout(this._timeout);
-            }
+        for (let i = 0; i < endpoints.length; ++i) {
+            endpoints[i] = endpoints[i].changeConnectionId(this._connectionId);
         }
     }
 
