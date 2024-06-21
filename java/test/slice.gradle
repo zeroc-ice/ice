@@ -23,6 +23,7 @@ task testSliceTask {
                                                      'Ice/hash/*.ice',
                                                      'Ice/hold/*.ice',
                                                      'Ice/idleTimeout/*.ice',
+                                                     'Ice/inactivityTimeout/*.ice',
                                                      'Ice/info/*.ice',
                                                      'Ice/inheritance/*.ice',
                                                      'Ice/interceptor/*.ice',
