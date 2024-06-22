@@ -58,6 +58,21 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   (the unit is seconds). You can also override this value for a specific object adapter with the configuration
   property `AdapterName.Connection.CloseTimeout`.
 
+- Consolidate and refactor the exceptions derived from LocalException.
+  | Local exception in Ice 3.7       | Replacement           |
+  |----------------------------------|-----------------------|
+  | EndpointParseException           | ParseException        |
+  | EndpointSelectionTypeParseException | ParseException     |
+  | IllegalIdentityException         | Argument exception from standard library |
+  | IllegalServantException          | Argument exception from standard library |
+  | IdentityParseException           | ParseException        |
+  | ProxyParseException              | ParseException        |
+  | VersionParseException            | ParseException        |
+  |
+
+  New exceptions:\
+  ConnectionIdleException,
+
 ## Slice Language Changes
 
 - Removed support for the `["preserve-slice"]` metadata. Slice classes encoded in the Sliced-format are now always
