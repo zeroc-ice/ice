@@ -36,7 +36,7 @@ namespace Ice
                     b1 = communicator.stringToProxy("\"test -f facet'");
                     test(false);
                 }
-                catch (Ice.ProxyParseException)
+                catch (ParseException)
                 {
                 }
                 b1 = communicator.stringToProxy("\"test -f facet\"");
@@ -53,7 +53,7 @@ namespace Ice
                     b1 = communicator.stringToProxy("test test");
                     test(false);
                 }
-                catch (Ice.ProxyParseException)
+                catch (ParseException)
                 {
                 }
                 b1 = communicator.stringToProxy("test\\040test");
@@ -101,7 +101,7 @@ namespace Ice
                     b1 = communicator.stringToProxy("\"\" test"); // Invalid trailing characters.
                     test(false);
                 }
-                catch (Ice.ProxyParseException)
+                catch (ParseException)
                 {
                 }
                 try
@@ -121,7 +121,7 @@ namespace Ice
                     b1 = communicator.stringToProxy("id@adapter test");
                     test(false);
                 }
-                catch (Ice.ProxyParseException)
+                catch (ParseException)
                 {
                 }
                 b1 = communicator.stringToProxy("category/test@adapter");
@@ -160,7 +160,7 @@ namespace Ice
                     b1 = communicator.stringToProxy("id -f \"facet x");
                     test(false);
                 }
-                catch (Ice.ProxyParseException)
+                catch (ParseException)
                 {
                 }
                 try
@@ -168,7 +168,7 @@ namespace Ice
                     b1 = communicator.stringToProxy("id -f \'facet x");
                     test(false);
                 }
-                catch (Ice.ProxyParseException)
+                catch (ParseException)
                 {
                 }
                 b1 = communicator.stringToProxy("test -f facet:tcp");
@@ -191,7 +191,7 @@ namespace Ice
                     b1 = communicator.stringToProxy("test -f facet@test @test");
                     test(false);
                 }
-                catch (Ice.ProxyParseException)
+                catch (ParseException)
                 {
                 }
                 b1 = communicator.stringToProxy("test");

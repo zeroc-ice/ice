@@ -513,49 +513,6 @@ public class IdentityParseException : LocalException
 }
 
 /// <summary>
-/// This exception is raised if there was an error while parsing a stringified proxy.
-/// </summary>
-public class ProxyParseException : LocalException
-{
-    public string str;
-
-    private void _initDM()
-    {
-        this.str = "";
-    }
-
-    public ProxyParseException()
-    {
-        _initDM();
-    }
-
-    public ProxyParseException(System.Exception ex) : base(ex)
-    {
-        _initDM();
-    }
-
-    private void _initDM(string str)
-    {
-        this.str = str;
-    }
-
-    public ProxyParseException(string str)
-    {
-        _initDM(str);
-    }
-
-    public ProxyParseException(string str, System.Exception ex) : base(ex)
-    {
-        _initDM(str);
-    }
-
-    public override string ice_id()
-    {
-        return "::Ice::ProxyParseException";
-    }
-}
-
-/// <summary>
 /// This exception is raised if an illegal identity is encountered.
 /// </summary>
 public class IllegalIdentityException : LocalException

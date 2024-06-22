@@ -1215,7 +1215,7 @@ public sealed class ObjectAdapter
         {
             _reference = _instance.referenceFactory().create("dummy " + proxyOptions, "");
         }
-        catch (ProxyParseException)
+        catch (ParseException)
         {
             InitializationException ex = new InitializationException();
             ex.reason = "invalid proxy options `" + proxyOptions + "' for object adapter `" + _name + "'";
