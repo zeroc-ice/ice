@@ -34,7 +34,7 @@ public class RequestFailedException : LocalException
 /// <summary>
 /// The dispatch could not find a servant for the identity carried by the request.
 /// </summary>
-public class ObjectNotExistException : RequestFailedException
+public sealed class ObjectNotExistException : RequestFailedException
 {
     public ObjectNotExistException(System.Exception? innerException = null)
         : base(new Identity(), "", "", innerException)
@@ -55,7 +55,7 @@ public class ObjectNotExistException : RequestFailedException
 /// <summary>
 /// The dispatch could not find a servant for the identity + facet carried by the request.
 /// </summary>
-public class FacetNotExistException : RequestFailedException
+public sealed class FacetNotExistException : RequestFailedException
 {
     public FacetNotExistException(System.Exception? innerException = null)
         : base(new Identity(), "", "", innerException)
@@ -77,7 +77,7 @@ public class FacetNotExistException : RequestFailedException
 /// The dispatch could not find the operation carried by the request on the target servant. This is typically due
 /// to a mismatch in the Slice definitions, such as the client using Slice definitions newer than the server's.
 /// </summary>
-public class OperationNotExistException : RequestFailedException
+public sealed class OperationNotExistException : RequestFailedException
 {
     public OperationNotExistException(System.Exception? innerException = null)
         : base(new Identity(), "", "", innerException)
@@ -117,7 +117,7 @@ public class UnknownException : LocalException
 /// The dispatch failed with a <see cref="LocalException" /> that is not one of the special marshal-able local
 /// exception.
 /// </summary>
-public class UnknownLocalException : UnknownException
+public sealed class UnknownLocalException : UnknownException
 {
     public UnknownLocalException(string message, LocalException? innerException = null)
         : base(message, innerException)
@@ -134,7 +134,7 @@ public class UnknownLocalException : UnknownException
 /// The dispatch returned a <see cref="UserException" /> that was not declared in the operation's exception
 /// specification.
 /// </summary>
-public class UnknownUserException : UnknownException
+public sealed class UnknownUserException : UnknownException
 {
     public UnknownUserException(string message)
         : base(message, innerException: null)
@@ -145,4 +145,19 @@ public class UnknownUserException : UnknownException
     {
         return "::Ice::UnknownUserException";
     }
+}
+
+/// <summary>
+/// Reports a failure that occurred while parsing a string.
+/// </summary>
+public sealed class ParseException : LocalException
+{
+    public string unknown => Message;
+
+    public ParseException(string message, System.Exception? innerException = null)
+        : base(message, innerException)
+    {
+    }
+
+    public override string ice_id() => "::Ice::ParseException";
 }

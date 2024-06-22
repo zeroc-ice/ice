@@ -384,49 +384,6 @@ public class NoEndpointException : LocalException
 }
 
 /// <summary>
-/// This exception is raised if there was an error while parsing an endpoint.
-/// </summary>
-public class EndpointParseException : LocalException
-{
-    public string str;
-
-    private void _initDM()
-    {
-        this.str = "";
-    }
-
-    public EndpointParseException()
-    {
-        _initDM();
-    }
-
-    public EndpointParseException(System.Exception ex) : base(ex)
-    {
-        _initDM();
-    }
-
-    private void _initDM(string str)
-    {
-        this.str = str;
-    }
-
-    public EndpointParseException(string str)
-    {
-        _initDM(str);
-    }
-
-    public EndpointParseException(string str, System.Exception ex) : base(ex)
-    {
-        _initDM(str);
-    }
-
-    public override string ice_id()
-    {
-        return "::Ice::EndpointParseException";
-    }
-}
-
-/// <summary>
 /// This exception is raised if there was an error while parsing an endpoint selection type.
 /// </summary>
 public class EndpointSelectionTypeParseException : LocalException

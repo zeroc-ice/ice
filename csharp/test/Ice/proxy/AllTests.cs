@@ -109,7 +109,7 @@ namespace Ice
                     b1 = communicator.stringToProxy("test:"); // Missing endpoint.
                     test(false);
                 }
-                catch (Ice.EndpointParseException)
+                catch (ParseException)
                 {
                 }
 
@@ -230,7 +230,7 @@ namespace Ice
                     communicator.stringToProxy("test:tcp@adapterId");
                     test(false);
                 }
-                catch (Ice.EndpointParseException)
+                catch (ParseException)
                 {
                 }
                 // This is an unknown endpoint warning, not a parse exception.
@@ -240,7 +240,7 @@ namespace Ice
                 //   b1 = communicator.stringToProxy("test -f the:facet:tcp");
                 //   test(false);
                 //}
-                //catch(Ice.EndpointParseException)
+                //catch(ParseException)
                 //{
                 //}
                 try
@@ -248,7 +248,7 @@ namespace Ice
                     communicator.stringToProxy("test: :tcp");
                     test(false);
                 }
-                catch (Ice.EndpointParseException)
+                catch (ParseException)
                 {
                 }
 
@@ -260,7 +260,7 @@ namespace Ice
                     communicator.createObjectAdapterWithEndpoints("BadAdapter", " : ");
                     test(false);
                 }
-                catch (Ice.EndpointParseException)
+                catch (ParseException)
                 {
                 }
 
@@ -269,7 +269,7 @@ namespace Ice
                     communicator.createObjectAdapterWithEndpoints("BadAdapter", "tcp: ");
                     test(false);
                 }
-                catch (Ice.EndpointParseException)
+                catch (ParseException)
                 {
                 }
 
@@ -278,7 +278,7 @@ namespace Ice
                     communicator.createObjectAdapterWithEndpoints("BadAdapter", ":tcp");
                     test(false);
                 }
-                catch (Ice.EndpointParseException)
+                catch (ParseException)
                 {
                 }
 
@@ -927,7 +927,7 @@ namespace Ice
                     communicator.stringToProxy("id:opaque -t 99 -v abcd -x abc");
                     test(false);
                 }
-                catch (Ice.EndpointParseException)
+                catch (ParseException)
                 {
                 }
 
@@ -937,7 +937,7 @@ namespace Ice
                     communicator.stringToProxy("id:opaque");
                     test(false);
                 }
-                catch (Ice.EndpointParseException)
+                catch (ParseException)
                 {
                 }
 
@@ -947,7 +947,7 @@ namespace Ice
                     communicator.stringToProxy("id:opaque -t 1 -t 1 -v abcd");
                     test(false);
                 }
-                catch (Ice.EndpointParseException)
+                catch (ParseException)
                 {
                 }
 
@@ -957,7 +957,7 @@ namespace Ice
                     communicator.stringToProxy("id:opaque -t 1 -v abcd -v abcd");
                     test(false);
                 }
-                catch (Ice.EndpointParseException)
+                catch (ParseException)
                 {
                 }
 
@@ -967,7 +967,7 @@ namespace Ice
                     communicator.stringToProxy("id:opaque -v abcd");
                     test(false);
                 }
-                catch (Ice.EndpointParseException)
+                catch (ParseException)
                 {
                 }
 
@@ -977,7 +977,7 @@ namespace Ice
                     communicator.stringToProxy("id:opaque -t 1");
                     test(false);
                 }
-                catch (Ice.EndpointParseException)
+                catch (ParseException)
                 {
                 }
 
@@ -987,7 +987,7 @@ namespace Ice
                     communicator.stringToProxy("id:opaque -t -v abcd");
                     test(false);
                 }
-                catch (Ice.EndpointParseException)
+                catch (ParseException)
                 {
                 }
 
@@ -997,7 +997,7 @@ namespace Ice
                     communicator.stringToProxy("id:opaque -t 1 -v");
                     test(false);
                 }
-                catch (Ice.EndpointParseException)
+                catch (ParseException)
                 {
                 }
 
@@ -1007,7 +1007,7 @@ namespace Ice
                     communicator.stringToProxy("id:opaque -t x -v abcd");
                     test(false);
                 }
-                catch (Ice.EndpointParseException)
+                catch (ParseException)
                 {
                 }
 
@@ -1017,7 +1017,7 @@ namespace Ice
                     communicator.stringToProxy("id:opaque -t -1 -v abcd");
                     test(false);
                 }
-                catch (Ice.EndpointParseException)
+                catch (ParseException)
                 {
                 }
 
@@ -1027,7 +1027,7 @@ namespace Ice
                     communicator.stringToProxy("id:opaque -t 99 -v x?c");
                     test(false);
                 }
-                catch (Ice.EndpointParseException)
+                catch (ParseException)
                 {
                 }
 
@@ -1037,7 +1037,7 @@ namespace Ice
                     communicator.stringToProxy("id:opaque -t 99 -v xc");
                     test(false);
                 }
-                catch (Ice.EndpointParseException)
+                catch (ParseException)
                 {
                 }
 

@@ -1397,7 +1397,7 @@ public sealed class ObjectAdapter
             {
                 if (endpoints.Count != 0)
                 {
-                    throw new EndpointParseException("invalid empty object adapter endpoint");
+                    throw new ParseException("invalid empty object adapter endpoint");
                 }
                 break;
             }
@@ -1447,14 +1447,14 @@ public sealed class ObjectAdapter
 
             if (end == beg)
             {
-                throw new EndpointParseException("invalid empty object adapter endpoint");
+                throw new ParseException("invalid empty object adapter endpoint");
             }
 
             string s = endpts.Substring(beg, (end) - (beg));
             EndpointI endp = _instance.endpointFactoryManager().create(s, oaEndpoints);
             if (endp is null)
             {
-                throw new EndpointParseException("invalid object adapter endpoint `" + s + "'");
+                throw new ParseException($"invalid object adapter endpoint {s}'");
             }
             endpoints.Add(endp);
 

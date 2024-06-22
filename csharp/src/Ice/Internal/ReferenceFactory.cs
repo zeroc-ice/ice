@@ -457,9 +457,7 @@ public class ReferenceFactory
             if (endpoints.Count == 0)
             {
                 Debug.Assert(unknownEndpoints.Count > 0);
-                Ice.EndpointParseException e2 = new Ice.EndpointParseException();
-                e2.str = "invalid endpoint `" + unknownEndpoints[0] + "' in `" + s + "'";
-                throw e2;
+                throw new ParseException($"invalid endpoint '{unknownEndpoints[0]}' in '{s}'");
             }
             else if (unknownEndpoints.Count != 0 &&
                     _instance.initializationData().properties.getPropertyAsIntWithDefault(
