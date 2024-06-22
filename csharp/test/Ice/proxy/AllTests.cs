@@ -63,7 +63,7 @@ namespace Ice
                     b1 = communicator.stringToProxy("test\\777");
                     test(false);
                 }
-                catch (Ice.IdentityParseException)
+                catch (ParseException)
                 {
                 }
                 b1 = communicator.stringToProxy("test\\40test");
@@ -309,7 +309,7 @@ namespace Ice
                     id = Ice.Util.stringToIdentity("xx\01FooBar");
                     test(false);
                 }
-                catch (Ice.IdentityParseException)
+                catch (ParseException)
                 {
                 }
 
@@ -319,7 +319,7 @@ namespace Ice
                     id = Ice.Util.stringToIdentity("xx\\ud911");
                     test(false);
                 }
-                catch (Ice.IdentityParseException)
+                catch (ParseException)
                 {
                 }
 

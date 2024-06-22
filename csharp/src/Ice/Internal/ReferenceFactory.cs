@@ -120,7 +120,7 @@ public class ReferenceFactory
         }
 
         //
-        // Parsing the identity may raise IdentityParseException.
+        // Parsing the identity may raise ParseException.
         //
         Ice.Identity ident = Ice.Util.stringToIdentity(idstr);
 
@@ -320,7 +320,7 @@ public class ReferenceFactory
                     {
                         encoding = Ice.Util.stringToEncodingVersion(argument);
                     }
-                    catch (Ice.VersionParseException e)
+                    catch (ParseException e)
                     {
                         throw new ParseException($"invalid encoding version '{argument}' in proxy string '{s}'", e);
                     }
@@ -338,7 +338,7 @@ public class ReferenceFactory
                     {
                         protocol = Ice.Util.stringToProtocolVersion(argument);
                     }
-                    catch (Ice.VersionParseException e)
+                    catch (ParseException e)
                     {
                         throw new ParseException($"invalid protocol version '{argument}' in proxy string '{s}'", e);
                     }
@@ -785,8 +785,7 @@ public class ReferenceFactory
                 }
                 else
                 {
-                    throw new Ice.EndpointSelectionTypeParseException("illegal value `" + type +
-                                                                      "'; expected `Random' or `Ordered'");
+                    throw new ParseException($"illegal value '{type}' in property '{property}'; expected 'Random' or 'Ordered'");
                 }
             }
 

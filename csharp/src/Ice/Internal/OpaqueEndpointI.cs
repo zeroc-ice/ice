@@ -396,7 +396,7 @@ internal sealed class OpaqueEndpointI : EndpointI
                 {
                     _rawEncoding = Ice.Util.stringToEncodingVersion(argument);
                 }
-                catch (Ice.VersionParseException e)
+                catch (ParseException e)
                 {
                     throw new ParseException($"invalid encoding version '{argument}' in endpoint '{endpoint}'", e);
                 }

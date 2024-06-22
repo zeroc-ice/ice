@@ -348,7 +348,7 @@ internal sealed class UdpEndpointI : IPEndpointI
                     instance_.logger().warning("deprecated udp endpoint option: " + option);
                 }
             }
-            catch (Ice.VersionParseException ex)
+            catch (ParseException ex)
             {
                 throw new ParseException($"invalid version '{argument}' in endpoint '{endpoint}'", ex);
             }

@@ -206,9 +206,7 @@ public sealed class Util
                     //
                     // Extra unescaped slash found.
                     //
-                    IdentityParseException ex = new IdentityParseException();
-                    ex.str = "unescaped backslash in identity `" + s + "'";
-                    throw ex;
+                    throw new ParseException($"unescaped backslash in identity string '{s}'");
                 }
             }
             pos++;
@@ -223,9 +221,7 @@ public sealed class Util
             }
             catch (ArgumentException e)
             {
-                IdentityParseException ex = new IdentityParseException();
-                ex.str = "invalid identity name `" + s + "': " + e.Message;
-                throw ex;
+                throw new ParseException($"invalid name in identity string '{s}'", e);
             }
         }
         else
@@ -236,9 +232,7 @@ public sealed class Util
             }
             catch (ArgumentException e)
             {
-                IdentityParseException ex = new IdentityParseException();
-                ex.str = "invalid category in identity `" + s + "': " + e.Message;
-                throw ex;
+                throw new ParseException($"invalid category in identity string '{s}'", e);
             }
             if (slash + 1 < s.Length)
             {
@@ -248,9 +242,7 @@ public sealed class Util
                 }
                 catch (ArgumentException e)
                 {
-                    IdentityParseException ex = new IdentityParseException();
-                    ex.str = "invalid name in identity `" + s + "': " + e.Message;
-                    throw ex;
+                    throw new ParseException($"invalid name in identity string '{s}'", e);
                 }
             }
             else
@@ -481,7 +473,7 @@ public sealed class Util
         int pos = str.IndexOf('.');
         if (pos == -1)
         {
-            throw new VersionParseException("malformed version value `" + str + "'");
+            throw new ParseException($"malformed version value in '{str}'");
         }
 
         string majStr = str.Substring(0, (pos) - (0));
@@ -493,14 +485,14 @@ public sealed class Util
             majVersion = int.Parse(majStr, CultureInfo.InvariantCulture);
             minVersion = int.Parse(minStr, CultureInfo.InvariantCulture);
         }
-        catch (FormatException)
+        catch (FormatException ex)
         {
-            throw new VersionParseException("invalid version value `" + str + "'");
+            throw new ParseException($"invalid version value in '{str}'", ex);
         }
 
         if (majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
         {
-            throw new VersionParseException("range error in version `" + str + "'");
+            throw new ParseException($"range error in version '{str}'");
         }
 
         major = (byte)majVersion;
