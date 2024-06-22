@@ -811,26 +811,26 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
                 case ReplyStatus.UnknownLocalException:
                 case ReplyStatus.UnknownUserException:
                 {
-                    string unknown = is_.readString();
+                    string message = is_.readString();
 
                     Ice.UnknownException ex = null;
                     switch (replyStatus)
                     {
                         case ReplyStatus.UnknownException:
                         {
-                            ex = new Ice.UnknownException();
+                            ex = new UnknownException(message);
                             break;
                         }
 
                         case ReplyStatus.UnknownLocalException:
                         {
-                            ex = new Ice.UnknownLocalException();
+                            ex = new UnknownLocalException(message);
                             break;
                         }
 
                         case ReplyStatus.UnknownUserException:
                         {
-                            ex = new Ice.UnknownUserException();
+                            ex = new UnknownUserException(message);
                             break;
                         }
 
@@ -840,8 +840,6 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
                             break;
                         }
                     }
-
-                    ex.unknown = unknown;
                     throw ex;
                 }
 

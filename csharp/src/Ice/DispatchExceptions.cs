@@ -1,0 +1,145 @@
+// Copyright (c) ZeroC, Inc.
+
+#nullable enable
+
+namespace Ice;
+
+// This file contains the 6 special local exceptions that can be marshaled in an Ice reply message.
+
+/// <summary>
+/// The base exception for the 3 NotExist exceptions.
+/// </summary>
+public class RequestFailedException : LocalException
+{
+    public Identity id;
+    public string facet;
+    public string operation;
+
+    protected RequestFailedException(
+        Identity id,
+        string facet,
+        string operation,
+        System.Exception? innerException = null)
+        : base(message: null, innerException)
+    {
+        this.id = id;
+        this.facet = facet;
+        this.operation = operation;
+    }
+}
+
+/// <summary>
+/// The dispatch could not find a servant for the identity carried by the request.
+/// </summary>
+public class ObjectNotExistException : RequestFailedException
+{
+    public ObjectNotExistException(System.Exception? innerException = null)
+        : base(new Identity(), "", "", innerException)
+    {
+    }
+
+    public ObjectNotExistException(Identity id, string facet, string operation, System.Exception? innerException = null)
+        : base(id, facet, operation, innerException)
+    {
+    }
+
+    public override string ice_id()
+    {
+        return "::Ice::ObjectNotExistException";
+    }
+}
+
+/// <summary>
+/// The dispatch could not find a servant for the identity + facet carried by the request.
+/// </summary>
+public class FacetNotExistException : RequestFailedException
+{
+    public FacetNotExistException(System.Exception? innerException = null)
+        : base(new Identity(), "", "", innerException)
+    {
+    }
+
+    public FacetNotExistException(Identity id, string facet, string operation, System.Exception? innerException = null)
+        : base(id, facet, operation, innerException)
+    {
+    }
+
+    public override string ice_id()
+    {
+        return "::Ice::FacetNotExistException";
+    }
+}
+
+/// <summary>
+/// The dispatch could not find the operation carried by the request on the target servant. This is typically due
+/// to a mismatch in the Slice definitions, such as the client using Slice definitions newer than the server's.
+/// </summary>
+public class OperationNotExistException : RequestFailedException
+{
+    public OperationNotExistException(System.Exception? innerException = null)
+        : base(new Identity(), "", "", innerException)
+    {
+    }
+
+    public OperationNotExistException(Identity id, string facet, string operation, System.Exception? innerException = null)
+        : base(id, facet, operation, innerException)
+    {
+    }
+
+    public override string ice_id()
+    {
+        return "::Ice::OperationNotExistException";
+    }
+}
+
+/// <summary>
+/// The dispatch failed with an exception that is not a <see cref="LocalException"/> or a <see cref="UserException"/>.
+/// </summary>
+public class UnknownException : LocalException
+{
+    public string unknown => Message;
+
+    public UnknownException(string message, System.Exception? innerException = null)
+        : base(message, innerException)
+    {
+    }
+
+    public override string ice_id()
+    {
+        return "::Ice::UnknownException";
+    }
+}
+
+/// <summary>
+/// The dispatch failed with a <see cref="LocalException" /> that is not one of the special marshal-able local
+/// exception.
+/// </summary>
+public class UnknownLocalException : UnknownException
+{
+    public UnknownLocalException(string message, LocalException? innerException = null)
+        : base(message, innerException)
+    {
+    }
+
+    public override string ice_id()
+    {
+        return "::Ice::UnknownLocalException";
+    }
+}
+
+/// <summary>
+/// The dispatch returned a <see cref="UserException" /> that was not declared in the operation's exception
+/// specification.
+/// </summary>
+public class UnknownUserException : UnknownException
+{
+    public UnknownUserException(string message)
+        : base(message, innerException: null)
+    {
+    }
+
+    public override string ice_id()
+    {
+        return "::Ice::UnknownUserException";
+    }
+}
