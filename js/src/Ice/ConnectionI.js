@@ -71,7 +71,6 @@ export class ConnectionI {
         this._desc = transceiver.toString();
         this._type = transceiver.type();
         this._endpoint = endpoint;
-        this._incoming = false;
         this._adapter = null;
         this._removeFromFactory = removeFromFactory;
 
@@ -852,7 +851,7 @@ export class ConnectionI {
         const info = this._transceiver.getInfo();
         for (let p = info; p !== null; p = p.underlying) {
             p.adapterName = this._adapter !== null ? this._adapter.getName() : "";
-            p.incoming = this._incoming;
+            p.incoming = false;
         }
         return info;
     }
@@ -987,14 +986,11 @@ export class ConnectionI {
                     //
                     // Register to receive validation message.
                     //
-                    if (!this._incoming) {
-                        //
-                        // Once validation is complete, a new connection starts out in the
-                        // Holding state. We only want to register the transceiver now if we
-                        // need to receive data in order to validate the connection.
-                        //
-                        this._transceiver.register();
-                    }
+                    // Once validation is complete, a new connection starts out in the
+                    // Holding state. We only want to register the transceiver now if we
+                    // need to receive data in order to validate the connection.
+                    //
+                    this._transceiver.register();
                     break;
                 }
 
