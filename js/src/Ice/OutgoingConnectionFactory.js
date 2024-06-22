@@ -254,8 +254,6 @@ export class OutgoingConnectionFactory {
                 this._instance,
                 transceiver,
                 endpoint.changeCompress(false).changeTimeout(-1),
-                false,
-                null,
                 (connection) => this.removeConnection(connection),
                 this._connectionOptions,
             );

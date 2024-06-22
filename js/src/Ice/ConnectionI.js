@@ -65,14 +65,14 @@ class MessageInfo {
 }
 
 export class ConnectionI {
-    constructor(communicator, instance, transceiver, endpoint, incoming, adapter, removeFromFactory, options) {
+    constructor(communicator, instance, transceiver, endpoint, removeFromFactory, options) {
         this._communicator = communicator;
         this._instance = instance;
         this._desc = transceiver.toString();
         this._type = transceiver.type();
         this._endpoint = endpoint;
-        this._incoming = incoming;
-        this._adapter = adapter;
+        this._incoming = false;
+        this._adapter = null;
         this._removeFromFactory = removeFromFactory;
 
         this._connectTimeout = options.connectTimeout * 1000; // Seconds to milliseconds
@@ -93,7 +93,7 @@ export class ConnectionI {
 
         this._warn = initData.properties.getPropertyAsInt("Ice.Warn.Connections") > 0;
         this._nextRequestId = 1;
-        this._messageSizeMax = adapter ? adapter.messageSizeMax() : instance.messageSizeMax();
+        this._messageSizeMax = instance.messageSizeMax();
         this._batchRequestQueue = new BatchRequestQueue(instance);
 
         this._sendStreams = [];
@@ -139,11 +139,7 @@ export class ConnectionI {
         }
         this._transceiver = transceiver;
 
-        if (this._adapter !== null) {
-            this._servantManager = this._adapter.getServantManager();
-        } else {
-            this._servantManager = null;
-        }
+        this._servantManager = null;
         this._closeCallback = null;
         this._heartbeatCallback = null;
     }
@@ -244,9 +240,9 @@ export class ConnectionI {
         //
         if (this._asyncRequests.size === 0 && this._closePromises.length > 0) {
             //
-            // The caller doesn't expect the state of the connection to change when this is called so
-            // we defer the check immediately after doing whather we're doing. This is consistent with
-            // other implementations as well.
+            // The caller doesn't expect the state of the connection to change when this is called so we queue the
+            // check in the event loop an return control to the caller. This is consistent with other implementations
+            // as well.
             //
             Timer.setImmediate(() => {
                 this.setState(StateClosing, new ConnectionManuallyClosedException(true));
@@ -493,7 +489,7 @@ export class ConnectionI {
                 return;
             }
             this._adapter = adapter;
-            this._servantManager = adapter.getServantManager(); // The OA's servant manager is immutable.
+            this._servantManager = adapter.getServantManager(); // The ObjectAdapter's servant manager is immutable.
         } else {
             if (this._state <= StateNotValidated || this._state >= StateClosing) {
                 return;
@@ -737,7 +733,7 @@ export class ConnectionI {
             this._timer.cancel(this._closeTimeoutId);
         }
 
-        const traceLevels = this._instance.traceLevels();
+        const traceLevels = this._traceLevels;
         if (!this._initialized) {
             if (traceLevels.network >= 2) {
                 const s = [];
@@ -747,7 +743,7 @@ export class ConnectionI {
                 s.push(this.toString());
                 s.push("\n");
                 s.push(this._exception.toString());
-                this._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
+                this._logger.trace(traceLevels.networkCat, s.join(""));
             }
         } else if (traceLevels.network >= 1) {
             const s = [];
@@ -773,7 +769,7 @@ export class ConnectionI {
                 s.push(this._exception.toString());
             }
 
-            this._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
+            this._logger.trace(traceLevels.networkCat, s.join(""));
         }
 
         if (this._startPromise !== null) {
@@ -1065,9 +1061,7 @@ export class ConnectionI {
             }
         } catch (ex) {
             if (ex instanceof LocalException) {
-                this._instance
-                    .initializationData()
-                    .logger.error(`unexpected connection exception:\n${this._desc}\n${ex.toString()}`);
+                this._logger.error(`unexpected connection exception:\n${this._desc}\n${ex.toString()}`);
             } else {
                 throw ex;
             }
@@ -1120,13 +1114,11 @@ export class ConnectionI {
 
     idleCheck(idleTimeout) {
         if (this._state == StateActive || this._state == StateHolding) {
-            if (this._instance.traceLevels().network >= 1) {
-                this._instance
-                    .initializationData()
-                    .logger.trace(
-                        this._instance.traceLevels().networkCat,
-                        `connection aborted by the idle check because it did not receive any bytes for ${idleTimeout}s\n${this._transceiver.toString()}`,
-                    );
+            if (this._traceLevels.network >= 1) {
+                this._logger.trace(
+                    this._traceLevels.networkCat,
+                    `connection aborted by the idle check because it did not receive any bytes for ${idleTimeout}s\n${this._transceiver.toString()}`,
+                );
             }
             this.setState(StateClosed, new ConnectionIdleException());
         }
@@ -1166,63 +1158,46 @@ export class ConnectionI {
     }
 
     validate() {
-        if (this._adapter !== null) {
-            // The server side has the active role for connection validation.
-            if (this._writeStream.size === 0) {
-                this._writeStream.writeBlob(Protocol.magic);
-                Protocol.currentProtocol._write(this._writeStream);
-                Protocol.currentProtocolEncoding._write(this._writeStream);
-                this._writeStream.writeByte(Protocol.validateConnectionMsg);
-                this._writeStream.writeByte(0); // Compression status (always zero for validate connection).
-                this._writeStream.writeInt(Protocol.headerSize); // Message size.
-                TraceUtil.traceSend(this._writeStream, this._logger, this._traceLevels);
-                this._writeStream.prepareWrite();
-            }
+        Debug.assert(this._adapter === null);
 
-            if (this._writeStream.pos != this._writeStream.size && !this.write(this._writeStream.buffer)) {
-                return false;
-            }
-        } // The client side has the passive role for connection validation.
-        else {
-            if (this._readStream.size === 0) {
-                this._readStream.resize(Protocol.headerSize);
-                this._readStream.pos = 0;
-            }
-
-            if (this._readStream.pos !== this._readStream.size && !this.read(this._readStream.buffer)) {
-                return false;
-            }
-
-            this._validated = true;
-
-            Debug.assert(this._readStream.pos === Protocol.headerSize);
+        if (this._readStream.size === 0) {
+            this._readStream.resize(Protocol.headerSize);
             this._readStream.pos = 0;
-            const m = this._readStream.readBlob(4);
-            if (
-                m[0] !== Protocol.magic[0] ||
-                m[1] !== Protocol.magic[1] ||
-                m[2] !== Protocol.magic[2] ||
-                m[3] !== Protocol.magic[3]
-            ) {
-                throw new BadMagicException("", m);
-            }
-
-            this._readProtocol._read(this._readStream);
-            Protocol.checkSupportedProtocol(this._readProtocol);
-
-            this._readProtocolEncoding._read(this._readStream);
-            Protocol.checkSupportedProtocolEncoding(this._readProtocolEncoding);
-
-            const messageType = this._readStream.readByte();
-            if (messageType !== Protocol.validateConnectionMsg) {
-                throw new ConnectionNotValidatedException();
-            }
-            this._readStream.readByte(); // Ignore compression status for validate connection.
-            if (this._readStream.readInt() !== Protocol.headerSize) {
-                throw new IllegalMessageSizeException();
-            }
-            TraceUtil.traceRecv(this._readStream, this._logger, this._traceLevels);
         }
+
+        if (this._readStream.pos !== this._readStream.size && !this.read(this._readStream.buffer)) {
+            return false;
+        }
+
+        this._validated = true;
+
+        Debug.assert(this._readStream.pos === Protocol.headerSize);
+        this._readStream.pos = 0;
+        const m = this._readStream.readBlob(4);
+        if (
+            m[0] !== Protocol.magic[0] ||
+            m[1] !== Protocol.magic[1] ||
+            m[2] !== Protocol.magic[2] ||
+            m[3] !== Protocol.magic[3]
+        ) {
+            throw new BadMagicException("", m);
+        }
+
+        this._readProtocol._read(this._readStream);
+        Protocol.checkSupportedProtocol(this._readProtocol);
+
+        this._readProtocolEncoding._read(this._readStream);
+        Protocol.checkSupportedProtocolEncoding(this._readProtocolEncoding);
+
+        const messageType = this._readStream.readByte();
+        if (messageType !== Protocol.validateConnectionMsg) {
+            throw new ConnectionNotValidatedException();
+        }
+        this._readStream.readByte(); // Ignore compression status for validate connection.
+        if (this._readStream.readInt() !== Protocol.headerSize) {
+            throw new IllegalMessageSizeException();
+        }
+        TraceUtil.traceRecv(this._readStream, this._logger, this._traceLevels);
 
         this._writeStream.resize(0);
         this._writeStream.pos = 0;
@@ -1231,14 +1206,14 @@ export class ConnectionI {
         this._readHeader = true;
         this._readStream.pos = 0;
 
-        const traceLevels = this._instance.traceLevels();
+        const traceLevels = this._traceLevels;
         if (traceLevels.network >= 1) {
             const s = [];
             s.push("established ");
             s.push(this._endpoint.protocol());
             s.push(" connection\n");
             s.push(this.toString());
-            this._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
+            this._logger.trace(traceLevels.networkCat, s.join(""));
         }
 
         return true;
@@ -1582,7 +1557,7 @@ export class ConnectionI {
     read(buf) {
         const start = buf.position;
         const ret = this._transceiver.read(buf, this._hasMoreData);
-        if (this._instance.traceLevels().network >= 3 && buf.position != start) {
+        if (this._traceLevels.network >= 3 && buf.position != start) {
             const s = [];
             s.push("received ");
             s.push(buf.position - start);
@@ -1592,7 +1567,7 @@ export class ConnectionI {
             s.push(this._endpoint.protocol());
             s.push("\n");
             s.push(this.toString());
-            this._instance.initializationData().logger.trace(this._instance.traceLevels().networkCat, s.join(""));
+            this._logger.trace(this._traceLevels.networkCat, s.join(""));
         }
         return ret;
     }
@@ -1600,7 +1575,7 @@ export class ConnectionI {
     write(buf) {
         const start = buf.position;
         const ret = this._transceiver.write(buf);
-        if (this._instance.traceLevels().network >= 3 && buf.position != start) {
+        if (this._traceLevels.network >= 3 && buf.position != start) {
             const s = [];
             s.push("sent ");
             s.push(buf.position - start);
@@ -1610,7 +1585,7 @@ export class ConnectionI {
             s.push(this._endpoint.protocol());
             s.push("\n");
             s.push(this.toString());
-            this._instance.initializationData().logger.trace(this._instance.traceLevels().networkCat, s.join(""));
+            this._logger.trace(this._traceLevels.networkCat, s.join(""));
         }
         return ret;
     }
