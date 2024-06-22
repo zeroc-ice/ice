@@ -1154,8 +1154,6 @@ export class ConnectionI {
     }
 
     validate() {
-        Debug.assert(this._adapter === null);
-
         if (this._readStream.size === 0) {
             this._readStream.resize(Protocol.headerSize);
             this._readStream.pos = 0;
