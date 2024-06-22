@@ -436,7 +436,7 @@ public sealed class ObjectAdapter
         {
             checkForDeactivation();
             checkIdentity(ident);
-            checkServant(obj);
+            ArgumentNullException.ThrowIfNull(obj);
 
             //
             // Create a copy of the Identity argument, in case the caller
@@ -501,7 +501,7 @@ public sealed class ObjectAdapter
     ///  </param>
     public void addDefaultServant(Ice.Object servant, string category)
     {
-        checkServant(servant);
+        ArgumentNullException.ThrowIfNull(servant);
 
         lock (this)
         {
@@ -1333,7 +1333,7 @@ public sealed class ObjectAdapter
     {
         if (ident.name.Length == 0)
         {
-            throw new IllegalIdentityException(ident);
+            throw new ArgumentException("The name of an Ice object identity cannot be empty.", nameof(ident));
         }
     }
 
@@ -1371,14 +1371,6 @@ public sealed class ObjectAdapter
             ObjectAdapterDeactivatedException ex = new ObjectAdapterDeactivatedException();
             ex.name = getName();
             throw ex;
-        }
-    }
-
-    private static void checkServant(Object servant)
-    {
-        if (servant is null)
-        {
-            throw new IllegalServantException("cannot add null servant to Object Adapter");
         }
     }
 

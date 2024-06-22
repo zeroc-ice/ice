@@ -108,9 +108,8 @@ namespace Ice
                         adapter.add(obj, Util.stringToIdentity(""));
                         test(false);
                     }
-                    catch (IllegalIdentityException e)
+                    catch (ArgumentException)
                     {
-                        test(e.id.name.Length == 0);
                     }
 
                     try
@@ -118,7 +117,7 @@ namespace Ice
                         adapter.add(null, Util.stringToIdentity("x"));
                         test(false);
                     }
-                    catch (IllegalServantException)
+                    catch (ArgumentNullException)
                     {
                     }
 

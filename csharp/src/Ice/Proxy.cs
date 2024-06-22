@@ -853,7 +853,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     {
         if (newIdentity.name.Length == 0)
         {
-            throw new IllegalIdentityException();
+            throw new ArgumentException("The name of an Ice object identity cannot be empty.", nameof(newIdentity));
         }
         if (newIdentity == _reference.getIdentity())
         {

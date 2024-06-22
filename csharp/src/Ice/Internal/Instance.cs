@@ -335,7 +335,7 @@ public sealed class Instance
 
             if (adminIdentity == null || adminIdentity.name.Length == 0)
             {
-                throw new Ice.IllegalIdentityException(adminIdentity);
+                throw new ArgumentException("The admin identity is not valid", nameof(adminIdentity));
             }
 
             if (_adminAdapter != null)

@@ -132,9 +132,7 @@ public class ReferenceFactory
             //
             if (ident.category.Length > 0)
             {
-                Ice.IllegalIdentityException e = new Ice.IllegalIdentityException();
-                e.id = ident;
-                throw e;
+                throw new ParseException("The category of a null Ice object identity must be empty.");
             }
             //
             // Treat a stringified proxy containing two double

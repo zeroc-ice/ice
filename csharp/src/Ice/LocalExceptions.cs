@@ -46,10 +46,7 @@ public sealed class ObjectNotExistException : RequestFailedException
     {
     }
 
-    public override string ice_id()
-    {
-        return "::Ice::ObjectNotExistException";
-    }
+    public override string ice_id() => "::Ice::ObjectNotExistException";
 }
 
 /// <summary>
@@ -67,10 +64,7 @@ public sealed class FacetNotExistException : RequestFailedException
     {
     }
 
-    public override string ice_id()
-    {
-        return "::Ice::FacetNotExistException";
-    }
+    public override string ice_id() => "::Ice::FacetNotExistException";
 }
 
 /// <summary>
@@ -89,10 +83,7 @@ public sealed class OperationNotExistException : RequestFailedException
     {
     }
 
-    public override string ice_id()
-    {
-        return "::Ice::OperationNotExistException";
-    }
+    public override string ice_id() => "::Ice::OperationNotExistException";
 }
 
 /// <summary>
@@ -107,10 +98,7 @@ public class UnknownException : LocalException
     {
     }
 
-    public override string ice_id()
-    {
-        return "::Ice::UnknownException";
-    }
+    public override string ice_id() => "::Ice::UnknownException";
 }
 
 /// <summary>
@@ -124,10 +112,7 @@ public sealed class UnknownLocalException : UnknownException
     {
     }
 
-    public override string ice_id()
-    {
-        return "::Ice::UnknownLocalException";
-    }
+    public override string ice_id() => "::Ice::UnknownLocalException";
 }
 
 /// <summary>
@@ -141,10 +126,7 @@ public sealed class UnknownUserException : UnknownException
     {
     }
 
-    public override string ice_id()
-    {
-        return "::Ice::UnknownUserException";
-    }
+    public override string ice_id() => "::Ice::UnknownUserException";
 }
 
 /// <summary>
