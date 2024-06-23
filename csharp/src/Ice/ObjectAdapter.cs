@@ -1198,9 +1198,7 @@ public sealed class ObjectAdapter
             _state = StateDestroyed;
             _incomingConnectionFactories = [];
 
-            InitializationException ex = new InitializationException();
-            ex.reason = "object adapter `" + _name + "' requires configuration";
-            throw ex;
+            throw new InitializationException($"Object adapter '{name}' requires configuration.");
         }
 
         _id = properties.getProperty(_name + ".AdapterId");
@@ -1215,11 +1213,11 @@ public sealed class ObjectAdapter
         {
             _reference = _instance.referenceFactory().create("dummy " + proxyOptions, "");
         }
-        catch (ParseException)
+        catch (ParseException ex)
         {
-            InitializationException ex = new InitializationException();
-            ex.reason = "invalid proxy options `" + proxyOptions + "' for object adapter `" + _name + "'";
-            throw ex;
+            throw new InitializationException(
+                $"Invalid proxy options '{proxyOptions}' for object adapter '{_name}'.",
+                ex);
         }
 
         {

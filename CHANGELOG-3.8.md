@@ -61,10 +61,14 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
 - Consolidate and refactor the exceptions derived from LocalException.
   | Local exception in Ice 3.7          | Replacement                |
   |-------------------------------------|----------------------------|
+  | BadMagicException                   | ProtocolException (base)   |
+  | CompressionException                | ProtocolException (base)   |
+  | ConnectionNotValidatedException     | ProtocolException (base)   |
   | EncapsulationException              | MarshalException (base)    |
   | EndpointParseException              | ParseException             |
   | EndpointSelectionTypeParseException | ParseException             |
   | IllegalIdentityException            | ArgumentException (C#)     |
+  | IllegalMessageSizeException         | MarshalException           |
   | IllegalServantException             | ArgumentNullException (C#) |
   | IdentityParseException              | ParseException             |
   | MemoryLimitException                | MarshalException (base)    |
@@ -72,13 +76,17 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   | ProxyParseException                 | ParseException             |
   | ProxyUnmarshalException             | MarshalException (base)    |
   | UnexpectedObjectException           | MarshalException (base)    |
+  | UnknownMessageException             | ProtocolException (base)   |
+  | UnknownReplyStatusException         | MarshalException           |
   | UnmarshalOutOfBoundsException       | MarshalException (base)    |
+  | UnsupportedEncodingException        | MarshalException           |
+  | UnsupportedProtocolException        | MarshalException, FeatureNotSupportedException |
   | VersionParseException               | ParseException             |
 
   base = was existing base class
 
   New local exceptions:\
-  ConnectionCloseException, ConnectionIdleException, ParseException
+  ConnectionClosedException, ConnectionIdleException, ParseException
 
 ## Slice Language Changes
 

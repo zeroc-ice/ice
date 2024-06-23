@@ -316,7 +316,7 @@ public static class BZip2
         }
         else if (rc < 0)
         {
-            throw new CompressionException($"BZ2_bzBuffToBuffCompress failed: {getBZ2Error(rc)}");
+            throw new ProtocolException($"BZ2_bzBuffToBuffCompress failed: {getBZ2Error(rc)}");
         }
 
         //
@@ -360,7 +360,7 @@ public static class BZip2
         int uncompressedSize = buf.b.getInt();
         if (uncompressedSize <= headerSize)
         {
-            throw new Ice.IllegalMessageSizeException("compressed size <= header size");
+            throw new MarshalException($"Unexpected message size after uncompress: {uncompressedSize}");
         }
         if (uncompressedSize > messageSizeMax)
         {
@@ -375,7 +375,7 @@ public static class BZip2
         int rc = _decompressBuffer(uncompressed, ref uncompressedLen, compressed, compressedLen, 0, 0);
         if (rc < 0)
         {
-            throw new CompressionException($"BZ2_bzBuffToBuffDecompress failed: {getBZ2Error(rc)}");
+            throw new ProtocolException($"BZ2_bzBuffToBuffDecompress failed: {getBZ2Error(rc)}");
         }
 
         Buffer r = new Buffer();

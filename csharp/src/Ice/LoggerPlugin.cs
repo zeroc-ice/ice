@@ -19,16 +19,12 @@ public class LoggerPlugin : Plugin
     {
         if (communicator == null)
         {
-            PluginInitializationException ex = new PluginInitializationException();
-            ex.reason = "Communicator cannot be null";
-            throw ex;
+            throw new PluginInitializationException("Communicator cannot be null.");
         }
 
         if (logger == null)
         {
-            PluginInitializationException ex = new PluginInitializationException();
-            ex.reason = "Logger cannot be null";
-            throw ex;
+            throw new PluginInitializationException("Logger cannot be null.");
         }
 
         Ice.Internal.Instance instance = communicator.instance;

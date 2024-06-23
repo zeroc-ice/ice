@@ -884,7 +884,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                                     //
                                     // This situation is possible for small UDP packets.
                                     //
-                                    throw new IllegalMessageSizeException();
+                                    throw new MarshalException("Received Ice message with too few bytes in header.");
                                 }
 
                                 // Decode the header.
@@ -897,22 +897,29 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                                 if (m[0] != Protocol.magic[0] || m[1] != Protocol.magic[1] ||
                                 m[2] != Protocol.magic[2] || m[3] != Protocol.magic[3])
                                 {
-                                    BadMagicException ex = new BadMagicException();
-                                    ex.badMagic = m;
-                                    throw ex;
+                                    throw new ProtocolException(
+                                        $"Bad magic in message header: {m[0]:X2} {m[1]:X2} {m[2]:X2} {m[3]:X2}");
                                 }
 
-                                ProtocolVersion pv = new ProtocolVersion(_readStream);
-                                Protocol.checkSupportedProtocol(pv);
-                                EncodingVersion ev = new EncodingVersion(_readStream);
-                                Protocol.checkSupportedProtocolEncoding(ev);
+                                var pv = new ProtocolVersion(_readStream);
+                                if (pv != Util.currentProtocol)
+                                {
+                                    throw new MarshalException(
+                                        $"Invalid protocol version in message header: {pv.major}.{pv.minor}");
+                                }
+                                var ev = new EncodingVersion(_readStream);
+                                if (ev != Util.currentProtocolEncoding)
+                                {
+                                    throw new MarshalException(
+                                        $"Invalid protocol encoding version in message header: {ev.major}.{ev.minor}");
+                                }
 
                                 _readStream.readByte(); // messageType
                                 _readStream.readByte(); // compress
                                 int size = _readStream.readInt();
                                 if (size < Protocol.headerSize)
                                 {
-                                    throw new IllegalMessageSizeException();
+                                    throw new MarshalException($"Received Ice message with unexpected size {size}.");
                                 }
 
                                 // Resize the read buffer to the message size.
@@ -1921,27 +1928,34 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 if (m[0] != Protocol.magic[0] || m[1] != Protocol.magic[1] ||
                    m[2] != Protocol.magic[2] || m[3] != Protocol.magic[3])
                 {
-                    BadMagicException ex = new BadMagicException();
-                    ex.badMagic = m;
-                    throw ex;
+                    throw new ProtocolException(
+                        $"Bad magic in message header: {m[0]:X2} {m[1]:X2} {m[2]:X2} {m[3]:X2}");
                 }
 
-                ProtocolVersion pv = new ProtocolVersion(_readStream);
-                Protocol.checkSupportedProtocol(pv);
-
-                EncodingVersion ev = new EncodingVersion(_readStream);
-                Protocol.checkSupportedProtocolEncoding(ev);
+                var pv = new ProtocolVersion(_readStream);
+                if (pv != Util.currentProtocol)
+                {
+                    throw new MarshalException(
+                        $"Invalid protocol version in message header: {pv.major}.{pv.minor}");
+                }
+                var ev = new EncodingVersion(_readStream);
+                if (ev != Util.currentProtocolEncoding)
+                {
+                    throw new MarshalException(
+                        $"Invalid protocol encoding version in message header: {ev.major}.{ev.minor}");
+                }
 
                 byte messageType = _readStream.readByte();
                 if (messageType != Protocol.validateConnectionMsg)
                 {
-                    throw new ConnectionNotValidatedException();
+                    throw new ProtocolException(
+                        $"Received message of type {messageType} on connection that is not yet validated.");
                 }
                 _readStream.readByte(); // Ignore compression status for validate connection.
                 int size = _readStream.readInt();
                 if (size != Protocol.headerSize)
                 {
-                    throw new IllegalMessageSizeException();
+                    throw new MarshalException($"Received ValidateConnection message with unexpected size {size}.");
                 }
                 TraceUtil.traceRecv(_readStream, _logger, _traceLevels);
             }
@@ -2422,7 +2436,8 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 {
                     TraceUtil.trace("received unknown message\n(invalid, closing connection)",
                                     info.stream, _logger, _traceLevels);
-                    throw new UnknownMessageException();
+
+                    throw new ProtocolException($"Received Ice protocol message with unknown type: {messageType}");
                 }
             }
         }

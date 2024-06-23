@@ -517,7 +517,7 @@ public class ReferenceFactory
         {
             if (facetPath.Length > 1)
             {
-                throw new MarshalException($"Received invalid proxy facet path with {facetPath.Length} elements.");
+                throw new MarshalException($"Received invalid facet path with {facetPath.Length} elements.");
             }
             facet = facetPath[0];
         }

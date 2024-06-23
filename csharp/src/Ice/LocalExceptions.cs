@@ -132,7 +132,7 @@ public sealed class UnknownUserException : UnknownException
 /// <summary>
 /// This exception indicates that a connection was closed gracefully.
 /// </summary>
-public class ConnectionClosedException : LocalException
+public sealed class ConnectionClosedException : LocalException
 {
     public ConnectionClosedException(string message)
         : base(message, innerException: null)
@@ -145,7 +145,7 @@ public class ConnectionClosedException : LocalException
 /// <summary>
 /// This exception indicates that a connection was aborted by the idle check.
 /// </summary>
-public class ConnectionIdleException : LocalException
+public sealed class ConnectionIdleException : LocalException
 {
     public ConnectionIdleException(string message)
         : base(message, innerException: null)
@@ -156,16 +156,16 @@ public class ConnectionIdleException : LocalException
 }
 
 /// <summary>
-/// This exception reports an error during marshaling or unmarshaling.
+/// This exception is raised when a failure occurs during initialization.
 /// </summary>
-public sealed class MarshalException : ProtocolException
+public sealed class InitializationException : LocalException
 {
-    public MarshalException(string message, System.Exception? innerException = null)
+    public InitializationException(string message, System.Exception? innerException = null)
         : base(message, innerException)
     {
     }
 
-    public override string ice_id() => "::Ice::MarshalException";
+    public override string ice_id() => "::Ice::InitializationException";
 }
 
 /// <summary>
@@ -181,4 +181,123 @@ public sealed class ParseException : LocalException
     }
 
     public override string ice_id() => "::Ice::ParseException";
+}
+
+/// <summary>
+/// This exception indicates that a failure occurred while initializing a plug-in.
+/// </summary>
+public sealed class PluginInitializationException : LocalException
+{
+    public PluginInitializationException(string message, System.Exception? innerException = null)
+        : base(message, innerException)
+    {
+    }
+
+    public override string ice_id() => "::Ice::PluginInitializationException";
+}
+
+/// <summary>
+/// The base class for Ice protocol exceptions.
+/// </summary>
+public class ProtocolException : LocalException
+{
+    public ProtocolException(string? message = null, System.Exception? innerException = null)
+        : base(message, innerException)
+    {
+    }
+
+    public override string ice_id() => "::Ice::ProtocolException";
+}
+
+/// <summary>
+/// This exception indicates that the connection has been gracefully closed by the server.
+/// The operation call that caused this exception has not been executed by the server. In most cases you will not get
+/// this exception because the client will automatically retry the operation call in case the server shut down the
+/// connection. However, if upon retry the server shuts down the connection again, and the retry limit has been reached,
+/// then this exception is propagated to the application code.
+/// </summary>
+public sealed class CloseConnectionException : ProtocolException
+{
+    public CloseConnectionException()
+        : base(message: "Connection closed by the peer.", innerException: null)
+    {
+    }
+
+    public override string ice_id() => "::Ice::CloseConnectionException";
+}
+
+/// <summary>
+/// A datagram exceeds the configured size.
+/// This exception is raised if a datagram exceeds the configured send or receive buffer size, or exceeds the maximum
+/// payload size of a UDP packet (65507 bytes).
+/// </summary>
+public sealed class DatagramLimitException : ProtocolException
+{
+    public DatagramLimitException()
+        : base(message: "Datagram limit exceeded.", innerException: null)
+    {
+    }
+
+    public override string ice_id() => "::Ice::DatagramLimitException";
+}
+
+/// <summary>
+/// This exception reports an error during marshaling or unmarshaling.
+/// </summary>
+public sealed class MarshalException : ProtocolException
+{
+    public MarshalException(string message, System.Exception? innerException = null)
+        : base(message, innerException)
+    {
+    }
+
+    public override string ice_id() => "::Ice::MarshalException";
+}
+
+/// <summary>This exception indicates a timeout condition.</summary>
+public class TimeoutException : LocalException
+{
+    public TimeoutException(string? message = null, System.Exception? innerException = null)
+        : base(message ?? "Operation timed out.", innerException)
+    {
+    }
+
+    public override string ice_id() => "::Ice::TimeoutException";
+}
+
+/// <summary>
+/// This exception indicates a connection establishment timeout condition.
+/// </summary>
+public sealed class ConnectTimeoutException : TimeoutException
+{
+    public ConnectTimeoutException()
+        : base("Connect timed out.")
+    {
+    }
+
+    public override string ice_id() => "::Ice::ConnectTimeoutException";
+}
+
+/// <summary>This exception indicates a connection closure timeout condition.</summary>
+public sealed class CloseTimeoutException : TimeoutException
+{
+    public CloseTimeoutException()
+        : base("Close timed out.")
+    {
+    }
+
+    public override string ice_id() => "::Ice::CloseTimeoutException";
+}
+
+/// <summary>
+/// This exception indicates that an invocation failed because it timed out.
+/// </summary>
+public sealed class InvocationTimeoutException : TimeoutException
+{
+    public InvocationTimeoutException()
+        : base("Invocation timed out.")
+    {
+    }
+
+    public override string ice_id() => "::Ice::InvocationTimeoutException";
 }

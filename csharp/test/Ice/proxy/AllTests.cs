@@ -830,9 +830,9 @@ namespace Ice
                     cl20.ice_ping();
                     test(false);
                 }
-                catch (Ice.UnsupportedEncodingException)
+                catch (MarshalException)
                 {
-                    // Server 2.0 endpoint doesn't support 1.1 version.
+                    // Cannot marshal with the 2.0 encoding version.
                 }
 
                 string ref10 = "test -e 1.0:" + helper.getTestEndpoint(0);
@@ -865,8 +865,7 @@ namespace Ice
                 }
                 catch (Ice.UnknownLocalException ex)
                 {
-                    // The server thrown an UnsupportedEncodingException
-                    test(ex.unknown.IndexOf("UnsupportedEncodingException") > 0);
+                    test(ex.unknown.Contains("MarshalException")); // encoding not supported
                 }
 
                 try
@@ -886,8 +885,7 @@ namespace Ice
                 }
                 catch (Ice.UnknownLocalException ex)
                 {
-                    // The server thrown an UnsupportedEncodingException
-                    test(ex.unknown.IndexOf("UnsupportedEncodingException") > 0);
+                    test(ex.unknown.Contains("MarshalException")); // encoding not supported
                 }
 
                 output.WriteLine("ok");
@@ -901,7 +899,7 @@ namespace Ice
                     cl20.ice_ping();
                     test(false);
                 }
-                catch (Ice.UnsupportedProtocolException)
+                catch (FeatureNotSupportedException)
                 {
                     // Server 2.0 proxy doesn't support 1.0 version.
                 }
@@ -910,8 +908,8 @@ namespace Ice
                 cl10 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref10));
                 cl10.ice_ping();
 
-                // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
-                // call will use the 1.1 protocol
+                // 1.3 isn't supported but since a 1.3 proxy supports 1.0, the
+                // call will use the 1.0 protocol
                 ref13 = "test -p 1.3:" + helper.getTestEndpoint(0);
                 cl13 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref13));
                 cl13.ice_ping();

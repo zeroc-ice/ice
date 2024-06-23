@@ -643,7 +643,11 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
 
     public void prepare(string operation, Ice.OperationMode mode, Dictionary<string, string> context)
     {
-        Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(proxy_.iceReference().getProtocol()));
+        if (proxy_.iceReference().getProtocol().major != Ice.Util.currentProtocol.major)
+        {
+            throw new FeatureNotSupportedException(
+                $"Cannot send request using protocol version {proxy_.iceReference().getProtocol()}.");
+        }
 
         mode_ = mode;
 
@@ -845,7 +849,7 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
 
                 default:
                 {
-                    throw new Ice.UnknownReplyStatusException();
+                    throw new MarshalException($"Received reply message with unknown reply status {replyStatus}.");
                 }
             }
 
@@ -1093,7 +1097,11 @@ internal class ProxyFlushBatchAsync : ProxyOutgoingAsyncBase
 
     public void invoke(string operation, bool synchronous)
     {
-        Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(proxy_.iceReference().getProtocol()));
+        if (proxy_.iceReference().getProtocol().major != Ice.Util.currentProtocol.major)
+        {
+            throw new FeatureNotSupportedException(
+                $"Cannot send request using protocol version {proxy_.iceReference().getProtocol()}.");
+        }
         synchronous_ = synchronous;
         observer_ = ObserverHelper.get(proxy_, operation, null);
         // Not used for proxy flush batch requests.
