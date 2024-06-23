@@ -313,7 +313,7 @@ public class InputStream
     /// </summary>
     /// <param name="b">If true (the default), slicing is enabled; if false,
     /// slicing is disabled. If slicing is disabled and the stream encounters a Slice type ID
-    /// during decoding for which no value factory is installed, it raises NoValueFactoryException.
+    /// during decoding for which no value factory is installed, it raises MarshalException.
     /// </param>
     public void setSliceValues(bool b)
     {
@@ -511,11 +511,11 @@ public class InputStream
         int sz = readInt();
         if (sz < 6)
         {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
         if (sz - 4 > _buf.b.remaining())
         {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
         _encapsStack.sz = sz;
 
@@ -538,14 +538,14 @@ public class InputStream
             skipOptionals();
             if (_buf.b.position() != _encapsStack.start + _encapsStack.sz)
             {
-                throw new EncapsulationException();
+                throw new MarshalException("Failed to unmarshal encapsulation.");
             }
         }
         else if (_buf.b.position() != _encapsStack.start + _encapsStack.sz)
         {
             if (_buf.b.position() + 1 != _encapsStack.start + _encapsStack.sz)
             {
-                throw new EncapsulationException();
+                throw new MarshalException("Failed to unmarshal encapsulation.");
             }
 
             //
@@ -560,7 +560,7 @@ public class InputStream
             }
             catch (InvalidOperationException ex)
             {
-                throw new UnmarshalOutOfBoundsException(ex);
+                throw new MarshalException(endOfBufferMessage, ex);
             }
         }
 
@@ -580,11 +580,11 @@ public class InputStream
         int sz = readInt();
         if (sz < 6)
         {
-            throw new EncapsulationException();
+            throw new MarshalException($"{sz} is not a valid encapsulation size.");
         }
         if (sz - 4 > _buf.b.remaining())
         {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
 
         var encoding = new EncodingVersion(this);
@@ -594,7 +594,7 @@ public class InputStream
         {
             if (sz != 6)
             {
-                throw new EncapsulationException();
+                throw new MarshalException($"{sz} is not a valid encapsulation size for a 1.0 empty encapsulation.");
             }
         }
         else
@@ -617,12 +617,12 @@ public class InputStream
         int sz = readInt();
         if (sz < 6)
         {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
 
         if (sz - 4 > _buf.b.remaining())
         {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
 
         encoding = new EncodingVersion(this);
@@ -636,7 +636,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -668,7 +668,7 @@ public class InputStream
         int sz = readInt();
         if (sz < 6)
         {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
         EncodingVersion encoding = new EncodingVersion(this);
         try
@@ -677,7 +677,7 @@ public class InputStream
         }
         catch (ArgumentOutOfRangeException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
         return encoding;
     }
@@ -751,7 +751,7 @@ public class InputStream
                 int v = _buf.b.getInt();
                 if (v < 0)
                 {
-                    throw new UnmarshalOutOfBoundsException();
+                    throw new MarshalException(endOfBufferMessage);
                 }
                 return v;
             }
@@ -762,7 +762,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -813,7 +813,7 @@ public class InputStream
         //
         if (_startSeq + _minSeqSize > _buf.size())
         {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
 
         return sz;
@@ -831,7 +831,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -844,7 +844,7 @@ public class InputStream
     {
         if (_buf.b.remaining() < sz)
         {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
         byte[] v = new byte[sz];
         try
@@ -854,7 +854,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -889,7 +889,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -943,7 +943,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -1051,7 +1051,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -1105,7 +1105,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -1213,7 +1213,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -1267,7 +1267,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -1377,7 +1377,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -1431,7 +1431,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -1466,7 +1466,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -1493,7 +1493,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -1561,7 +1561,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -1615,7 +1615,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -1650,7 +1650,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -1677,7 +1677,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -1745,7 +1745,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -1799,7 +1799,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -1834,7 +1834,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -1861,7 +1861,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -1929,7 +1929,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -1983,7 +1983,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -2018,7 +2018,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -2045,7 +2045,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
     }
 
@@ -2121,7 +2121,7 @@ public class InputStream
         //
         if (_buf.b.remaining() < len)
         {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
 
         try
@@ -2139,7 +2139,7 @@ public class InputStream
         }
         catch (InvalidOperationException ex)
         {
-            throw new UnmarshalOutOfBoundsException(ex);
+            throw new MarshalException(endOfBufferMessage, ex);
         }
         catch (ArgumentException ex)
         {
@@ -2452,7 +2452,7 @@ public class InputStream
     {
         if (size < 0 || size > _buf.b.remaining())
         {
-            throw new UnmarshalOutOfBoundsException();
+            throw new MarshalException(endOfBufferMessage);
         }
         _buf.b.position(_buf.b.position() + size);
     }
@@ -2633,9 +2633,9 @@ public class InputStream
         {
             return (UserException?)_instance!.getActivator().CreateInstance(id);
         }
-        catch (Exception ex)
+        catch (System.Exception ex)
         {
-            throw new MarshalException(ex);
+            throw new MarshalException($"Failed to create user exception with type ID '{id}'.", ex);
         }
     }
 
@@ -2703,7 +2703,7 @@ public class InputStream
                 int index = _stream.readSize();
                 if (!_typeIdMap.TryGetValue(index, out string? typeId))
                 {
-                    throw new UnmarshalOutOfBoundsException();
+                    throw new MarshalException(endOfBufferMessage);
                 }
                 return typeId;
             }
@@ -2749,9 +2749,9 @@ public class InputStream
                 {
                     v = (Value?)_stream._instance!.getActivator().CreateInstance(typeId);
                 }
-                catch (Exception ex)
+                catch (System.Exception ex)
                 {
-                    throw new NoValueFactoryException("no value factory", typeId, ex);
+                    throw new MarshalException($"Failed to create a class with type ID '{typeId}'.", ex);
                 }
             }
 
@@ -3000,12 +3000,11 @@ public class InputStream
                 {
                     startSlice();
                 }
-                catch (UnmarshalOutOfBoundsException)
+                catch (MarshalException)
                 {
                     // An oversight in the 1.0 encoding means there is no marker to indicate
                     // the last slice of an exception. As a result, we just try to read the
-                    // next type ID, which raises UnmarshalOutOfBoundsException when the
-                    // input buffer underflows.
+                    // next type ID, which raises MarshalException when the input buffer underflows.
                     throw new MarshalException($"unknown exception type '{mostDerivedId}'");
                 }
             }
@@ -3069,7 +3068,7 @@ public class InputStream
             _sliceSize = _stream.readInt();
             if (_sliceSize < 4)
             {
-                throw new UnmarshalOutOfBoundsException();
+                throw new MarshalException(endOfBufferMessage);
             }
 
             return _typeId;
@@ -3149,7 +3148,7 @@ public class InputStream
                 //
                 if (_typeId == Value.ice_staticId())
                 {
-                    throw new NoValueFactoryException("", mostDerivedId);
+                    throw new MarshalException($"Cannot find value factory for type ID '{mostDerivedId}'.");
                 }
 
                 v = newInstance(_typeId);
@@ -3167,7 +3166,8 @@ public class InputStream
                 //
                 if (!_sliceValues)
                 {
-                    throw new NoValueFactoryException("no value factory found and slicing is disabled", _typeId);
+                    throw new MarshalException(
+                        $"Cannot find value factory for type ID '{_typeId}' and slicing is disabled.");
                 }
 
                 //
@@ -3406,7 +3406,7 @@ public class InputStream
                 _current.sliceSize = _stream.readInt();
                 if (_current.sliceSize < 4)
                 {
-                    throw new UnmarshalOutOfBoundsException();
+                    throw new MarshalException(endOfBufferMessage);
                 }
             }
             else
@@ -3500,9 +3500,8 @@ public class InputStream
             {
                 if (_current.sliceType == SliceType.ValueSlice)
                 {
-                    throw new NoValueFactoryException("no value factory found and compact format prevents " +
-                                                      "slicing (the sender should use the sliced format " +
-                                                      "instead)", _current.typeId);
+                    throw new MarshalException(
+                        $"Cannot find value factory for type ID '{ _current.typeId}' and compact format prevents slicing.");
                 }
                 else
                 {
@@ -3640,7 +3639,8 @@ public class InputStream
                 //
                 if (!_sliceValues)
                 {
-                    throw new NoValueFactoryException("no value factory found and slicing is disabled", typeId);
+                    throw new MarshalException(
+                        $"Cannot find value factory for type ID '{typeId}' and slicing is disabled.");
                 }
 
                 //
@@ -3859,6 +3859,8 @@ public class InputStream
 
     private ValueFactoryManager? _valueFactoryManager;
     private Logger? _logger;
+
+    private const string endOfBufferMessage = "Attempting to unmarshal past the end of the buffer.";
 }
 
 /// <summary>

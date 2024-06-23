@@ -61,13 +61,21 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
 - Consolidate and refactor the exceptions derived from LocalException.
   | Local exception in Ice 3.7          | Replacement                |
   |-------------------------------------|----------------------------|
+  | EncapsulationException              | MarshalException (base)    |
   | EndpointParseException              | ParseException             |
   | EndpointSelectionTypeParseException | ParseException             |
   | IllegalIdentityException            | ArgumentException (C#)     |
   | IllegalServantException             | ArgumentNullException (C#) |
   | IdentityParseException              | ParseException             |
+  | MemoryLimitException                | MarshalException (base)    |
+  | NoValueFactoryException             | MarshalException (base)    |
   | ProxyParseException                 | ParseException             |
+  | ProxyUnmarshalException             | MarshalException (base)    |
+  | UnexpectedObjectException           | MarshalException (base)    |
+  | UnmarshalOutOfBoundsException       | MarshalException (base)    |
   | VersionParseException               | ParseException             |
+
+  base = was existing base class
 
   New local exceptions:\
   ConnectionCloseException, ConnectionIdleException, ParseException

@@ -517,7 +517,7 @@ public class ReferenceFactory
         {
             if (facetPath.Length > 1)
             {
-                throw new Ice.ProxyUnmarshalException();
+                throw new MarshalException($"Received invalid proxy facet path with {facetPath.Length} elements.");
             }
             facet = facetPath[0];
         }
@@ -529,7 +529,7 @@ public class ReferenceFactory
         int mode = s.readByte();
         if (mode < 0 || mode > (int)Reference.Mode.ModeLast)
         {
-            throw new Ice.ProxyUnmarshalException();
+            throw new MarshalException($"Received invalid proxy mode {mode}");
         }
 
         bool secure = s.readBool();

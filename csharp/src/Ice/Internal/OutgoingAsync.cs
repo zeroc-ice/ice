@@ -762,7 +762,7 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
                     {
                         if (facetPath.Length > 1)
                         {
-                            throw new Ice.MarshalException();
+                            throw new MarshalException($"Received invalid facet path with {facetPath.Length} elements.");
                         }
                         facet = facetPath[0];
                     }

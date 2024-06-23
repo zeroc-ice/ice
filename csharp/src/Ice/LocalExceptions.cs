@@ -156,6 +156,19 @@ public class ConnectionIdleException : LocalException
 }
 
 /// <summary>
+/// This exception reports an error during marshaling or unmarshaling.
+/// </summary>
+public sealed class MarshalException : ProtocolException
+{
+    public MarshalException(string message, System.Exception? innerException = null)
+        : base(message, innerException)
+    {
+    }
+
+    public override string ice_id() => "::Ice::MarshalException";
+}
+
+/// <summary>
 /// Reports a failure that occurred while parsing a string.
 /// </summary>
 public sealed class ParseException : LocalException

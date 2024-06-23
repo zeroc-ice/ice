@@ -2359,12 +2359,12 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                     else
                     {
                         TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
-                        info.requestCount = info.stream.readInt();
-                        if (info.requestCount < 0)
+                        int requestCount = info.stream.readInt();
+                        if (requestCount < 0)
                         {
-                            info.requestCount = 0;
-                            throw new UnmarshalOutOfBoundsException();
+                            throw new MarshalException($"Received batch request with {requestCount} batches.");
                         }
+                        info.requestCount = requestCount;
                         info.adapter = _adapter;
                         info.upcallCount += info.requestCount;
 

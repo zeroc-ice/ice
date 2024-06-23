@@ -215,9 +215,8 @@ internal sealed class RequestHandlerCache
         // instead), which means there was a problem in this process that will
         // not change if we try again.
         //
-        // The most likely cause for a MarshalException is exceeding the
-        // maximum message size, which is represented by the subclass
-        // MemoryLimitException. For example, a client can attempt to send a
+        // A likely cause for a MarshalException is exceeding the
+        // maximum message size. For example, a client can attempt to send a
         // message that exceeds the maximum memory size, or accumulate enough
         // batch requests without flushing that the maximum size is reached.
         //
