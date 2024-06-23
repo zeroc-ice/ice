@@ -808,7 +808,7 @@ namespace Ice
                     {
                         //
                         // Local case: start an operation and then close the connection forcefully on the client side.
-                        // There will be no retry and we expect the invocation to fail with ConnectionClosedException.
+                        // There will be no retry and we expect the invocation to fail with ConnectionAbortedException.
                         //
                         p.ice_ping();
                         Connection con = p.ice_getConnection();
@@ -822,7 +822,7 @@ namespace Ice
                             await t;
                             test(false);
                         }
-                        catch (ConnectionClosedException ex)
+                        catch (ConnectionAbortedException ex)
                         {
                             test(ex.closedByApplication);
                         }

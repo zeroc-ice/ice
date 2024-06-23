@@ -63,7 +63,7 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   |-------------------------------------|----------------------------|
   | BadMagicException                   | ProtocolException (base)   |
   | CompressionException                | ProtocolException (base)   |
-  | ConnectionManuallyClosedException   | ConnectionClosedException  |
+  | ConnectionManuallyClosedException   | ConnectionAbortedException, ConnectionClosedException  |
   | ConnectionNotValidatedException     | ProtocolException (base)   |
   | EncapsulationException              | MarshalException (base)    |
   | EndpointParseException              | ParseException             |
@@ -87,7 +87,7 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   base = was existing base class
 
   New local exceptions:\
-  ConnectionClosedException, ConnectionIdleException, ParseException
+  ConnectionAbortedException, ConnectionClosedException, ConnectionIdleException, ParseException
 
 ## Slice Language Changes
 

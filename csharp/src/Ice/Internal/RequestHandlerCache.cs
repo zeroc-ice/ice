@@ -237,9 +237,11 @@ internal sealed class RequestHandlerCache
         // Don't retry if the communicator is destroyed, object adapter is deactivated,
         // or connection is closed by the application.
         //
-        if (ex is Ice.CommunicatorDestroyedException ||
-           ex is Ice.ObjectAdapterDeactivatedException ||
-           (ex is Ice.ConnectionClosedException connectionClosedException &&
+        if (ex is CommunicatorDestroyedException ||
+           ex is ObjectAdapterDeactivatedException ||
+           (ex is ConnectionAbortedException connectionAbortedException &&
+            connectionAbortedException.closedByApplication) ||
+           (ex is ConnectionClosedException connectionClosedException &&
             connectionClosedException.closedByApplication))
         {
             throw ex;

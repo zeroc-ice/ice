@@ -162,7 +162,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             if (mode == ConnectionClose.Forcefully)
             {
                 setState(StateClosed,
-                    new ConnectionClosedException(
+                    new ConnectionAbortedException(
                         "Connection close forcefully by the application.",
                         closedByApplication: true));
             }
@@ -1267,6 +1267,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 // Trace the cause of unexpected connection closures
                 //
                 if (!(_exception is CloseConnectionException ||
+                     _exception is ConnectionAbortedException ||
                      _exception is ConnectionClosedException ||
                      _exception is ConnectionIdleException ||
                      _exception is CommunicatorDestroyedException ||
@@ -1607,6 +1608,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 // Don't warn about certain expected exceptions.
                 //
                 if (!(_exception is CloseConnectionException ||
+                     _exception is ConnectionAbortedException ||
                      _exception is ConnectionClosedException ||
                      _exception is ConnectionIdleException ||
                      _exception is CommunicatorDestroyedException ||
@@ -1769,6 +1771,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             if (_observer is not null && state == StateClosed && _exception is not null)
             {
                 if (!(_exception is CloseConnectionException ||
+                     _exception is ConnectionAbortedException ||
                      _exception is ConnectionClosedException ||
                      _exception is ConnectionIdleException ||
                      _exception is CommunicatorDestroyedException ||

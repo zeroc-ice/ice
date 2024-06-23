@@ -189,7 +189,7 @@ namespace Ice
         /// Throw an exception indicating the reason for connection closure.
         /// For example,
         ///  CloseConnectionException is raised if the connection was closed gracefully, whereas
-        ///  ConnectionClosedException is raised if the connection was manually closed by
+        ///  ConnectionAbortedException/ConnectionClosedException is raised if the connection was manually closed by
         ///  the application. This operation does nothing if the connection is not yet closed.
         /// </summary>
         void throwException();

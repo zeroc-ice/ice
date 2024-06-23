@@ -382,7 +382,21 @@ public sealed class CommunicatorDestroyedException : LocalException
 }
 
 /// <summary>
-/// This exception indicates that a connection was closed.
+/// This exception indicates that a connection was closed forcefully.
+/// </summary>
+public sealed class ConnectionAbortedException : LocalException
+{
+    public bool closedByApplication { get; }
+
+    public ConnectionAbortedException(string message, bool closedByApplication)
+        : base(message, innerException: null) =>
+        this.closedByApplication = closedByApplication;
+
+    public override string ice_id() => "::Ice::ConnectionAbortedException";
+}
+
+/// <summary>
+/// This exception indicates that a connection was closed gracefully.
 /// </summary>
 public sealed class ConnectionClosedException : LocalException
 {
