@@ -760,7 +760,6 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
                     // For compatibility with the old FacetPath.
                     //
                     string[] facetPath = is_.readStringSeq();
-                    ;
                     string facet;
                     if (facetPath.Length > 0)
                     {
@@ -776,39 +775,19 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
                     }
 
                     string operation = is_.readString();
-
-                    Ice.RequestFailedException ex = null;
                     switch (replyStatus)
                     {
                         case ReplyStatus.ObjectNotExist:
-                        {
-                            ex = new Ice.ObjectNotExistException();
-                            break;
-                        }
+                            throw new ObjectNotExistException(ident, facet, operation);
 
                         case ReplyStatus.FacetNotExist:
-                        {
-                            ex = new Ice.FacetNotExistException();
-                            break;
-                        }
+                            throw new FacetNotExistException(ident, facet, operation);
 
                         case ReplyStatus.OperationNotExist:
-                        {
-                            ex = new Ice.OperationNotExistException();
-                            break;
-                        }
-
-                        default:
-                        {
-                            Debug.Assert(false);
-                            break;
-                        }
+                            throw new OperationNotExistException(ident, facet, operation);
                     }
-
-                    ex.id = ident;
-                    ex.facet = facet;
-                    ex.operation = operation;
-                    throw ex;
+                    Debug.Assert(false);
+                    break;
                 }
 
                 case ReplyStatus.UnknownException:
@@ -816,35 +795,19 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
                 case ReplyStatus.UnknownUserException:
                 {
                     string message = is_.readString();
-
-                    Ice.UnknownException ex = null;
                     switch (replyStatus)
                     {
                         case ReplyStatus.UnknownException:
-                        {
-                            ex = new UnknownException(message);
-                            break;
-                        }
+                            throw new UnknownException(message);
 
                         case ReplyStatus.UnknownLocalException:
-                        {
-                            ex = new UnknownLocalException(message);
-                            break;
-                        }
+                            throw new UnknownLocalException(message);
 
                         case ReplyStatus.UnknownUserException:
-                        {
-                            ex = new UnknownUserException(message);
-                            break;
-                        }
-
-                        default:
-                        {
-                            Debug.Assert(false);
-                            break;
-                        }
+                            throw new UnknownUserException(message);
                     }
-                    throw ex;
+                    Debug.Assert(false);
+                    break;
                 }
 
                 default:
