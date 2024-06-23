@@ -43,9 +43,9 @@ internal sealed class TrustManager
                 }
             }
         }
-        catch (RFC2253.ParseException ex)
+        catch (ParseException ex)
         {
-            throw new Ice.PluginInitializationException($"IceSSL: invalid property {key}:\n {ex.reason}");
+            throw new PluginInitializationException($"IceSSL: invalid property {key}", ex);
         }
     }
 
@@ -176,10 +176,10 @@ internal sealed class TrustManager
                     }
                 }
             }
-            catch (RFC2253.ParseException e)
+            catch (ParseException e)
             {
                 _communicator.getLogger().warning(
-                    $"IceSSL: unable to parse certificate DN `{subjectName}'\nreason: {e.reason}");
+                    $"IceSSL: unable to parse certificate DN `{subjectName}'\nreason: {e.Message}");
             }
 
             // At this point we accept the connection if there are no explicit accept rules.

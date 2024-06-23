@@ -510,7 +510,7 @@ public sealed class ConnectionLostException : SocketException
 /// This exception is raised if an ObjectAdapter cannot be activated.
 /// This happens if the Locator detects another active ObjectAdapter with the same adapter ID.
 /// </summary>
-public class ObjectAdapterIdInUseException : LocalException
+public sealed class ObjectAdapterIdInUseException : LocalException
 {
     public ObjectAdapterIdInUseException(string adapterId)
         : base($"An object adapter with adapter ID '{adapterId}' is already active.")

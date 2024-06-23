@@ -345,7 +345,7 @@ internal sealed class PluginManagerI : PluginManager
             {
                 args = Ice.UtilInternal.Options.split(pluginSpec);
             }
-            catch (Ice.UtilInternal.Options.BadQuote ex)
+            catch (ParseException ex)
             {
                 throw new PluginInitializationException($"Invalid arguments for plug-in '{name}'.", ex);
             }

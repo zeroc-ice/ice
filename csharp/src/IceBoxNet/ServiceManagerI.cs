@@ -861,7 +861,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
             {
                 args = Ice.UtilInternal.Options.split(value);
             }
-            catch (Ice.UtilInternal.Options.BadQuote ex)
+            catch (Ice.ParseException ex)
             {
                 FailureException e = new FailureException();
                 e.reason = "ServiceManager: invalid arguments for service `" + name + "':\n" + ex.Message;

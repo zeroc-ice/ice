@@ -39,15 +39,9 @@ public static class Ex
 
 public class RetryException : System.Exception
 {
-    public RetryException(Ice.LocalException ex)
-    {
-        _ex = ex;
-    }
+    private readonly Ice.LocalException _ex;
 
-    public Ice.LocalException get()
-    {
-        return _ex;
-    }
+    public RetryException(Ice.LocalException ex) => _ex = ex;
 
-    private Ice.LocalException _ex;
+    public Ice.LocalException get() => _ex;
 }

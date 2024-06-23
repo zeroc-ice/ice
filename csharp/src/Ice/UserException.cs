@@ -7,7 +7,7 @@ namespace Ice;
 /// <summary>
 /// Base class for exceptions defined in Slice.
 /// </summary>
-public abstract class UserException : Exception
+public abstract class UserException : Ice.Exception
 {
     public virtual void iceWrite(OutputStream ostr)
     {

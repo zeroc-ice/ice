@@ -7,7 +7,7 @@ namespace Ice;
 /// <summary>
 /// Base class for Ice run-time exceptions.
 /// </summary>
-public class LocalException : Exception
+public class LocalException : Ice.Exception
 {
     /// <summary>
     /// Constructs a LocalException.
