@@ -122,10 +122,7 @@ internal sealed class PluginManagerI : PluginManager
                 return p;
             }
 
-            NotRegisteredException ex = new NotRegisteredException();
-            ex.id = name;
-            ex.kindOfObject = _kindOfObject;
-            throw ex;
+            throw new NotRegisteredException(_kindOfObject, name);
         }
     }
 
@@ -140,10 +137,7 @@ internal sealed class PluginManagerI : PluginManager
 
             if (findPlugin(name) is not null)
             {
-                AlreadyRegisteredException ex = new AlreadyRegisteredException();
-                ex.id = name;
-                ex.kindOfObject = _kindOfObject;
-                throw ex;
+                throw new AlreadyRegisteredException(_kindOfObject, name);
             }
 
             _plugins.Add(new PluginInfo(name, plugin));

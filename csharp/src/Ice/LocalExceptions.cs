@@ -14,16 +14,15 @@ namespace Ice;
 /// </summary>
 public class RequestFailedException : LocalException
 {
-    public Identity id;
-    public string facet;
-    public string operation;
+    public Identity id { get; set; }
+    public string facet { get; set; }
+    public string operation { get; set; }
 
-    protected RequestFailedException(
-        Identity id,
-        string facet,
-        string operation,
-        System.Exception? innerException = null)
-        : base(message: null, innerException)
+    // We can't set the message in the constructor because id/facet/operation can be set after construction.
+    public override string Message =>
+        $"{base.Message} id = '{Util.identityToString(id)}', facet = '{facet}', operation = '{operation}'";
+
+    protected RequestFailedException(Identity id, string facet, string operation)
     {
         this.id = id;
         this.facet = facet;
@@ -36,13 +35,13 @@ public class RequestFailedException : LocalException
 /// </summary>
 public sealed class ObjectNotExistException : RequestFailedException
 {
-    public ObjectNotExistException(System.Exception? innerException = null)
-        : base(new Identity(), "", "", innerException)
+    public ObjectNotExistException()
+        : base(new Identity(), "", "")
     {
     }
 
-    public ObjectNotExistException(Identity id, string facet, string operation, System.Exception? innerException = null)
-        : base(id, facet, operation, innerException)
+    public ObjectNotExistException(Identity id, string facet, string operation)
+        : base(id, facet, operation)
     {
     }
 
@@ -54,13 +53,13 @@ public sealed class ObjectNotExistException : RequestFailedException
 /// </summary>
 public sealed class FacetNotExistException : RequestFailedException
 {
-    public FacetNotExistException(System.Exception? innerException = null)
-        : base(new Identity(), "", "", innerException)
+    public FacetNotExistException()
+        : base(new Identity(), "", "")
     {
     }
 
-    public FacetNotExistException(Identity id, string facet, string operation, System.Exception? innerException = null)
-        : base(id, facet, operation, innerException)
+    public FacetNotExistException(Identity id, string facet, string operation)
+        : base(id, facet, operation)
     {
     }
 
@@ -73,13 +72,13 @@ public sealed class FacetNotExistException : RequestFailedException
 /// </summary>
 public sealed class OperationNotExistException : RequestFailedException
 {
-    public OperationNotExistException(System.Exception? innerException = null)
-        : base(new Identity(), "", "", innerException)
+    public OperationNotExistException()
+        : base(new Identity(), "", "")
     {
     }
 
-    public OperationNotExistException(Identity id, string facet, string operation, System.Exception? innerException = null)
-        : base(id, facet, operation, innerException)
+    public OperationNotExistException(Identity id, string facet, string operation)
+        : base(id, facet, operation)
     {
     }
 
@@ -147,10 +146,11 @@ public sealed class CommunicatorDestroyedException : LocalException
 /// </summary>
 public sealed class ConnectionClosedException : LocalException
 {
-    public ConnectionClosedException(string message)
-        : base(message, innerException: null)
-    {
-    }
+    public bool closedByApplication { get; }
+
+    public ConnectionClosedException(string message, bool closedByApplication)
+        : base(message, innerException: null) =>
+        this.closedByApplication = closedByApplication;
 
     public override string ice_id() => "::Ice::ConnectionClosedException";
 }
@@ -504,4 +504,59 @@ public sealed class ConnectionLostException : SocketException
     }
 
     public override string ice_id() => "::Ice::ConnectionLostException";
+}
+
+/// <summary>
+/// This exception is raised if an ObjectAdapter cannot be activated.
+/// This happens if the Locator detects another active ObjectAdapter with the same adapter ID.
+/// </summary>
+public class ObjectAdapterIdInUseException : LocalException
+{
+    public ObjectAdapterIdInUseException(string adapterId)
+        : base($"An object adapter with adapter ID '{adapterId}' is already active.")
+    {
+    }
+
+    public override string ice_id() => "::Ice::ObjectAdapterIdInUseException";
+}
+
+/// <summary>
+/// An attempt was made to register something more than once with the Ice run time.
+/// This exception is raised if an attempt is made to register a servant, servant locator, facet, value factory,
+/// plug-in, object adapter (etc.) more than once for the same ID.
+/// </summary>
+public sealed class AlreadyRegisteredException : LocalException
+{
+    public string kindOfObject { get; }
+    public string id { get; }
+
+    public AlreadyRegisteredException(string kindOfObject, string id)
+        : base($"Another {kindOfObject} is already registered with ID '{id}'.")
+    {
+        this.kindOfObject = kindOfObject;
+        this.id = id;
+    }
+
+    public override string ice_id() => "::Ice::AlreadyRegisteredException";
+}
+
+/// <summary>
+/// An attempt was made to find or deregister something that is not registered with the Ice run time or Ice locator.
+/// This exception is raised if an attempt is made to remove a servant, servant locator, facet, value factory, plug-in,
+/// object adapter (etc.) that is not currently registered. It's also raised if the Ice locator can't find an object or
+/// object adapter when resolving an indirect proxy or when an object adapter is activated.
+/// </summary>
+public sealed class NotRegisteredException : LocalException
+{
+    public string kindOfObject { get; }
+    public string id { get; }
+
+     public NotRegisteredException(string kindOfObject, string id)
+        : base($"No {kindOfObject} is registered with ID '{id}'.")
+    {
+        this.kindOfObject = kindOfObject;
+        this.id = id;
+    }
+
+    public override string ice_id() => "::Ice::NotRegisteredException";
 }

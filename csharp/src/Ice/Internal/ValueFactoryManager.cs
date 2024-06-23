@@ -10,10 +10,7 @@ public sealed class ValueFactoryManagerI : Ice.ValueFactoryManager
         {
             if (_factoryMap.ContainsKey(id))
             {
-                Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-                ex.id = id;
-                ex.kindOfObject = "value factory";
-                throw ex;
+                throw new AlreadyRegisteredException("value factory", id);
             }
             _factoryMap[id] = factory;
         }

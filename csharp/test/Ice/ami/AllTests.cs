@@ -442,9 +442,9 @@ namespace Ice
                                 await t;
                                 test(false);
                             }
-                            catch (ConnectionManuallyClosedException ex)
+                            catch (ConnectionClosedException ex)
                             {
-                                test(ex.graceful);
+                                test(ex.closedByApplication);
                             }
                             test(p.opBatchCount() == 0);
                             test(!tcs.Task.IsCompleted);
@@ -770,7 +770,7 @@ namespace Ice
                         //
                         // Local case: start an operation and then close the connection gracefully on the client side
                         // without waiting for the pending invocation to complete. There will be no retry and we expect the
-                        // invocation to fail with ConnectionManuallyClosedException.
+                        // invocation to fail with ConnectionClosedException.
                         //
                         p = (Test.TestIntfPrx)p.ice_connectionId("CloseGracefully"); // Start with a new connection.
                         Connection con = p.ice_getConnection();
@@ -783,9 +783,9 @@ namespace Ice
                             await t;
                             test(false);
                         }
-                        catch (ConnectionManuallyClosedException ex)
+                        catch (ConnectionClosedException ex)
                         {
-                            test(ex.graceful);
+                            test(ex.closedByApplication);
                         }
                         p.finishDispatch();
 
@@ -808,7 +808,7 @@ namespace Ice
                     {
                         //
                         // Local case: start an operation and then close the connection forcefully on the client side.
-                        // There will be no retry and we expect the invocation to fail with ConnectionManuallyClosedException.
+                        // There will be no retry and we expect the invocation to fail with ConnectionClosedException.
                         //
                         p.ice_ping();
                         Connection con = p.ice_getConnection();
@@ -822,9 +822,9 @@ namespace Ice
                             await t;
                             test(false);
                         }
-                        catch (ConnectionManuallyClosedException ex)
+                        catch (ConnectionClosedException ex)
                         {
-                            test(!ex.graceful);
+                            test(ex.closedByApplication);
                         }
                         p.finishDispatch();
 

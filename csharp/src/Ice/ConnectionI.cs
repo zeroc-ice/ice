@@ -161,11 +161,18 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         {
             if (mode == ConnectionClose.Forcefully)
             {
-                setState(StateClosed, new ConnectionManuallyClosedException(false));
+                setState(StateClosed,
+                    new ConnectionClosedException(
+                        "Connection close forcefully by the application.",
+                        closedByApplication: true));
             }
             else if (mode == ConnectionClose.Gracefully)
             {
-                setState(StateClosing, new ConnectionManuallyClosedException(true));
+                setState(
+                    StateClosing,
+                    new ConnectionClosedException(
+                        "Connection close gracefully by the application.",
+                        closedByApplication: true));
             }
             else
             {
@@ -179,7 +186,11 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                     Monitor.Wait(this);
                 }
 
-                setState(StateClosing, new ConnectionManuallyClosedException(true));
+                setState(
+                    StateClosing,
+                    new ConnectionClosedException(
+                        "Connection close gracefully by the application.",
+                        closedByApplication: true));
             }
         }
     }
@@ -1256,7 +1267,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 // Trace the cause of unexpected connection closures
                 //
                 if (!(_exception is CloseConnectionException ||
-                     _exception is ConnectionManuallyClosedException ||
                      _exception is ConnectionClosedException ||
                      _exception is ConnectionIdleException ||
                      _exception is CommunicatorDestroyedException ||
@@ -1597,7 +1607,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 // Don't warn about certain expected exceptions.
                 //
                 if (!(_exception is CloseConnectionException ||
-                     _exception is ConnectionManuallyClosedException ||
                      _exception is ConnectionClosedException ||
                      _exception is ConnectionIdleException ||
                      _exception is CommunicatorDestroyedException ||
@@ -1760,7 +1769,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             if (_observer is not null && state == StateClosed && _exception is not null)
             {
                 if (!(_exception is CloseConnectionException ||
-                     _exception is ConnectionManuallyClosedException ||
                      _exception is ConnectionClosedException ||
                      _exception is ConnectionIdleException ||
                      _exception is CommunicatorDestroyedException ||
@@ -2628,7 +2636,9 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 {
                     setState(
                         StateClosing,
-                        new ConnectionClosedException("Connection closed because it remained inactive for longer than the inactivity timeout."));
+                        new ConnectionClosedException(
+                            "Connection closed because it remained inactive for longer than the inactivity timeout.",
+                            closedByApplication: false));
                 }
             }
             // Else this timer was already canceled and disposed. Nothing to do.

@@ -1256,10 +1256,9 @@ public sealed class ObjectAdapter
                 //
                 if (_routerInfo.getAdapter() is not null)
                 {
-                    AlreadyRegisteredException ex = new AlreadyRegisteredException();
-                    ex.kindOfObject = "object adapter with router";
-                    ex.id = Util.identityToString(router.ice_getIdentity(), _instance.toStringMode());
-                    throw ex;
+                    throw new AlreadyRegisteredException(
+                        "object adapter with router",
+                        Util.identityToString(router.ice_getIdentity(), _instance.toStringMode()));
                 }
 
                 //
@@ -1561,10 +1560,7 @@ public sealed class ObjectAdapter
                 _instance.initializationData().logger!.trace(_instance.traceLevels().locationCat, s.ToString());
             }
 
-            NotRegisteredException ex1 = new NotRegisteredException();
-            ex1.kindOfObject = "object adapter";
-            ex1.id = _id;
-            throw ex1;
+            throw new NotRegisteredException("object adapter", _id);
         }
         catch (InvalidReplicaGroupIdException)
         {
@@ -1576,10 +1572,7 @@ public sealed class ObjectAdapter
                 _instance.initializationData().logger!.trace(_instance.traceLevels().locationCat, s.ToString());
             }
 
-            NotRegisteredException ex1 = new NotRegisteredException();
-            ex1.kindOfObject = "replica group";
-            ex1.id = _replicaGroupId;
-            throw ex1;
+            throw new NotRegisteredException("replica group", _replicaGroupId);
         }
         catch (AdapterAlreadyActiveException)
         {
@@ -1591,9 +1584,7 @@ public sealed class ObjectAdapter
                 _instance.initializationData().logger!.trace(_instance.traceLevels().locationCat, s.ToString());
             }
 
-            ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
-            ex1.id = _id;
-            throw;
+            throw new ObjectAdapterIdInUseException(_id);
         }
         catch (ObjectAdapterDeactivatedException)
         {
