@@ -16,15 +16,12 @@ namespace Ice;
 /// </summary>
 public class RequestFailedException : LocalException
 {
-    public Identity id { get; set; }
-    public string facet { get; set; }
-    public string operation { get; set; }
+    public Identity id { get; }
+    public string facet { get; }
+    public string operation { get; }
 
-    // We can't set the message in the constructor because id/facet/operation can be set after construction.
-    public override string Message =>
-        $"{base.Message} id = '{Util.identityToString(id)}', facet = '{facet}', operation = '{operation}'";
-
-    protected RequestFailedException(Identity id, string facet, string operation)
+    protected RequestFailedException(string typeName, Identity id, string facet, string operation)
+        : base(createMessage(typeName, id, facet, operation))
     {
         this.id = id;
         this.facet = facet;
@@ -32,9 +29,14 @@ public class RequestFailedException : LocalException
     }
 
     protected RequestFailedException()
-        : this(new Identity(), "", "")
     {
+        this.id = new Identity();
+        this.facet = "";
+        this.operation = "";
     }
+
+    internal static string createMessage(string typeName, Identity id, string facet, string operation) =>
+        $"Dispatch failed with {typeName} {{ id = '{Util.identityToString(id)}', facet = '{facet}', operation = '{operation}' }}";
 }
 
 /// <summary>
@@ -47,7 +49,7 @@ public sealed class ObjectNotExistException : RequestFailedException
     }
 
     public ObjectNotExistException(Identity id, string facet, string operation)
-        : base(id, facet, operation)
+        : base(nameof(ObjectNotExistException), id, facet, operation)
     {
     }
 
@@ -64,7 +66,7 @@ public sealed class FacetNotExistException : RequestFailedException
     }
 
     public FacetNotExistException(Identity id, string facet, string operation)
-        : base(id, facet, operation)
+        : base(nameof(FacetNotExistException), id, facet, operation)
     {
     }
 
@@ -82,7 +84,7 @@ public sealed class OperationNotExistException : RequestFailedException
     }
 
     public OperationNotExistException(Identity id, string facet, string operation)
-        : base(id, facet, operation)
+        : base(nameof(OperationNotExistException), id, facet, operation)
     {
     }
 
