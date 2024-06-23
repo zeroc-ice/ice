@@ -681,9 +681,7 @@ public interface ObjectPrx {
     if (obj != null) {
       try {
         boolean ok = obj.ice_isA(ice_staticId, context);
-        if (ok) {
-          return new _ObjectPrxI(obj);
-        }
+        return ok ? obj : null;
       } catch (FacetNotExistException ex) {
       }
     }

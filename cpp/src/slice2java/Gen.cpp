@@ -4260,10 +4260,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     out << nl << "try";
     out << sb;
     out << nl << "boolean ok = obj.ice_isA(ice_staticId(), context);";
-    out << nl << "if (ok)";
-    out << sb;
-    out << nl << "return new " << prxIName << "(obj);";
-    out << eb;
+    out << nl << "return ok ? new " << prxIName << "(obj) : null;";
     out << eb;
     out << nl << "catch (com.zeroc.Ice.FacetNotExistException ex)" << sb << eb;
     out << eb;
@@ -4382,16 +4379,16 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     // TODO: eventually remove this default constructor.
     // Default constructor
     outi << sp;
-    outi << nl << "public " << prxIName << "()";
+    outi << nl << prxIName << "()";
     outi << sb;
-    outi << "super();";
+    outi << nl << "super();";
     outi << eb;
 
     // Copy constructor
     outi << sp;
-    outi << nl << "public " << prxIName << "(com.zeroc.Ice.ObjectPrx obj)";
+    outi << nl << prxIName << "(com.zeroc.Ice.ObjectPrx obj)";
     outi << sb;
-    outi << "super(obj);";
+    outi << nl << "super(obj);";
     outi << eb;
 
     outi << sp;
