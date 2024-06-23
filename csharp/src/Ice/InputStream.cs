@@ -3000,18 +3000,13 @@ public class InputStream
                 {
                     startSlice();
                 }
-                catch (UnmarshalOutOfBoundsException ex)
+                catch (UnmarshalOutOfBoundsException)
                 {
-                    //
                     // An oversight in the 1.0 encoding means there is no marker to indicate
                     // the last slice of an exception. As a result, we just try to read the
                     // next type ID, which raises UnmarshalOutOfBoundsException when the
                     // input buffer underflows.
-                    //
-                    // Set the reason member to a more helpful message.
-                    //
-                    ex.reason = "unknown exception type `" + mostDerivedId + "'";
-                    throw;
+                    throw new MarshalException($"unknown exception type '{mostDerivedId}'");
                 }
             }
         }

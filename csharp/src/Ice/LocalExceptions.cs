@@ -130,6 +130,32 @@ public sealed class UnknownUserException : UnknownException
 }
 
 /// <summary>
+/// This exception indicates that a connection was closed gracefully.
+/// </summary>
+public class ConnectionClosedException : LocalException
+{
+    public ConnectionClosedException(string message)
+        : base(message, innerException: null)
+    {
+    }
+
+    public override string ice_id() => "::Ice::ConnectionClosedException";
+}
+
+/// <summary>
+/// This exception indicates that a connection was aborted by the idle check.
+/// </summary>
+public class ConnectionIdleException : LocalException
+{
+    public ConnectionIdleException(string message)
+        : base(message, innerException: null)
+    {
+    }
+
+    public override string ice_id() => "::Ice::ConnectionIdleException";
+}
+
+/// <summary>
 /// Reports a failure that occurred while parsing a string.
 /// </summary>
 public sealed class ParseException : LocalException

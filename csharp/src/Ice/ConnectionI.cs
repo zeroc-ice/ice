@@ -1507,16 +1507,16 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         {
             if (isActiveOrHolding())
             {
+                int idleTimeoutInSeconds = (int)idleTimeout.TotalSeconds;
+
                 if (_instance.traceLevels().network >= 1)
                 {
-                    int idleTimeoutInSeconds = (int)idleTimeout.TotalSeconds;
-
                     _instance.initializationData().logger.trace(
                         _instance.traceLevels().networkCat,
                         $"connection aborted by the idle check because it did not receive any bytes for {idleTimeoutInSeconds}s\n{_transceiver.toDetailedString()}");
                 }
 
-                setState(StateClosed, new ConnectionIdleException());
+                setState(StateClosed, new ConnectionIdleException($"Connection aborted by the idle check because it did not receive any bytes for {idleTimeoutInSeconds}s."));
             }
             // else nothing to do
         }
@@ -2613,9 +2613,9 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
                 if (_state == StateActive)
                 {
-                    // TODO: fix LocalException to accept a message
-                    // "connection closed because it remained inactive for longer than the inactivity timeout"
-                    setState(StateClosing, new ConnectionClosedException());
+                    setState(
+                        StateClosing,
+                        new ConnectionClosedException("Connection closed because it remained inactive for longer than the inactivity timeout."));
                 }
             }
             // Else this timer was already canceled and disposed. Nothing to do.

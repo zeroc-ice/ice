@@ -191,9 +191,7 @@ public class Buffer
         catch (System.Exception ex)
         {
             _capacity = b.capacity(); // Restore the previous capacity.
-            Ice.MarshalException e = new Ice.MarshalException(ex);
-            e.reason = "unexpected exception while trying to allocate a ByteBuffer:\n" + ex;
-            throw e;
+            throw new MarshalException("unexpected exception while trying to allocate a ByteBuffer", ex);
         }
         finally
         {

@@ -316,9 +316,7 @@ public static class BZip2
         }
         else if (rc < 0)
         {
-            Ice.CompressionException ex = new Ice.CompressionException("BZ2_bzBuffToBuffCompress failed");
-            ex.reason = getBZ2Error(rc);
-            throw ex;
+            throw new CompressionException($"BZ2_bzBuffToBuffCompress failed: {getBZ2Error(rc)}");
         }
 
         //
@@ -377,9 +375,7 @@ public static class BZip2
         int rc = _decompressBuffer(uncompressed, ref uncompressedLen, compressed, compressedLen, 0, 0);
         if (rc < 0)
         {
-            Ice.CompressionException ex = new Ice.CompressionException("BZ2_bzBuffToBuffDecompress failed");
-            ex.reason = getBZ2Error(rc);
-            throw ex;
+            throw new CompressionException($"BZ2_bzBuffToBuffDecompress failed: {getBZ2Error(rc)}");
         }
 
         Buffer r = new Buffer();

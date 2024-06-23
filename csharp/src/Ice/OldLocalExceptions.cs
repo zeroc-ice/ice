@@ -624,30 +624,6 @@ public class DNSException : LocalException
     }
 }
 
-/// <summary>
-/// This exception indicates that a connection was closed gracefully.
-/// </summary>
-public class ConnectionClosedException : LocalException
-{
-    public ConnectionClosedException()
-    {
-    }
-
-    public override string ice_id() => "::Ice::ConnectionClosedException";
-}
-
-/// <summary>
-/// This exception indicates that a connection was aborted by the idle check.
-/// </summary>
-public class ConnectionIdleException : LocalException
-{
-    public ConnectionIdleException()
-    {
-    }
-
-    public override string ice_id() => "::Ice::ConnectionIdleException";
-}
-
 /// <summary>This exception indicates a timeout condition.</summary>
 public class TimeoutException : LocalException
 {
@@ -744,42 +720,19 @@ public class InvocationCanceledException : LocalException
 /// </summary>
 public class ProtocolException : LocalException
 {
-    public string reason;
+    public string reason => Message;
 
-    private void _initDM()
+    public ProtocolException(string message = null, System.Exception innerException = null)
+        : base(message, innerException)
     {
-        this.reason = "";
     }
 
-    public ProtocolException()
+    public ProtocolException(System.Exception innerException)
+        : this(message: null, innerException)
     {
-        _initDM();
     }
 
-    public ProtocolException(System.Exception ex) : base(ex)
-    {
-        _initDM();
-    }
-
-    private void _initDM(string reason)
-    {
-        this.reason = reason;
-    }
-
-    public ProtocolException(string reason)
-    {
-        _initDM(reason);
-    }
-
-    public ProtocolException(string reason, System.Exception ex) : base(ex)
-    {
-        _initDM(reason);
-    }
-
-    public override string ice_id()
-    {
-        return "::Ice::ProtocolException";
-    }
+    public override string ice_id() => "::Ice::ProtocolException";
 }
 
 /// <summary>
