@@ -130,6 +130,19 @@ public sealed class UnknownUserException : UnknownException
 }
 
 /// <summary>
+/// This exception is raised if the Communicator has been destroyed.
+/// </summary>
+public sealed class CommunicatorDestroyedException : LocalException
+{
+    public CommunicatorDestroyedException()
+        : base("Communicator destroyed.")
+    {
+    }
+
+    public override string ice_id() => "::Ice::CommunicatorDestroyedException";
+}
+
+/// <summary>
 /// This exception indicates that a connection was closed gracefully.
 /// </summary>
 public sealed class ConnectionClosedException : LocalException
@@ -156,6 +169,32 @@ public sealed class ConnectionIdleException : LocalException
 }
 
 /// <summary>
+/// This exception is raised if an unsupported feature is used.
+/// </summary>
+public sealed class FeatureNotSupportedException : LocalException
+{
+    public FeatureNotSupportedException(string message)
+        : base(message)
+    {
+    }
+
+    public override string ice_id() => "::Ice::FeatureNotSupportedException";
+}
+
+/// <summary>
+/// This exception indicates that an attempt has been made to change the connection properties of a fixed proxy.
+/// </summary>
+public sealed class FixedProxyException : LocalException
+{
+    public FixedProxyException()
+        : base("Cannot change the connection properties of a fixed proxy.")
+    {
+    }
+
+    public override string ice_id() => "::Ice::FixedProxyException";
+}
+
+/// <summary>
 /// This exception is raised when a failure occurs during initialization.
 /// </summary>
 public sealed class InitializationException : LocalException
@@ -169,12 +208,54 @@ public sealed class InitializationException : LocalException
 }
 
 /// <summary>
+/// This exception indicates that an asynchronous invocation failed because it was canceled explicitly by the user.
+/// </summary>
+public sealed class InvocationCanceledException : LocalException
+{
+    public InvocationCanceledException()
+        : base("Invocation canceled.")
+    {
+    }
+
+    public override string ice_id() => "::Ice::InvocationCanceledException";
+}
+
+/// <summary>
+/// This exception is raised if no suitable endpoint is available.
+/// </summary>
+public sealed class NoEndpointException : LocalException
+{
+    public NoEndpointException(string message)
+        : base(message)
+    {
+    }
+
+    public NoEndpointException(ObjectPrx proxy)
+        : base($"No suitable endpoint available for proxy '{proxy}'.")
+    {
+    }
+
+    public override string ice_id() => "::Ice::NoEndpointException";
+}
+
+/// <summary>
+/// This exception is raised if an attempt is made to use a deactivated ObjectAdapter.
+/// </summary>
+public sealed class ObjectAdapterDeactivatedException : LocalException
+{
+    public ObjectAdapterDeactivatedException(string name)
+        : base($"Object adapter '{name}' is deactivated.")
+    {
+    }
+
+    public override string ice_id() => "::Ice::ObjectAdapterDeactivatedException";
+}
+
+/// <summary>
 /// Reports a failure that occurred while parsing a string.
 /// </summary>
 public sealed class ParseException : LocalException
 {
-    public string unknown => Message;
-
     public ParseException(string message, System.Exception? innerException = null)
         : base(message, innerException)
     {
@@ -194,6 +275,35 @@ public sealed class PluginInitializationException : LocalException
     }
 
     public override string ice_id() => "::Ice::PluginInitializationException";
+}
+
+/// <summary>
+/// This exception indicates a failure in a security subsystem.
+/// </summary>
+public sealed class SecurityException : LocalException
+{
+    public SecurityException(string message, System.Exception? innerException = null)
+        : base(message, innerException)
+    {
+    }
+
+    public override string ice_id() => "::Ice::SecurityException";
+}
+
+/// <summary>
+/// The operation can only be invoked with a two-way request.
+/// This exception is raised if an attempt is made to invoke an operation with ice_oneway, ice_batchOneway,
+/// ice_datagram, or ice_batchDatagram and the operation has a return value, out-parameters, or an exception
+/// specification.
+/// </summary>
+public sealed class TwowayOnlyException : LocalException
+{
+    public TwowayOnlyException(string operation)
+        : base($"Cannot invoke operation '{operation}' with a oneway, batchOneway, datagram, or batchDatagram proxy.")
+    {
+    }
+
+    public override string ice_id() => "::Ice::TwowayOnlyException";
 }
 
 /// <summary>
@@ -300,4 +410,98 @@ public sealed class InvocationTimeoutException : TimeoutException
     }
 
     public override string ice_id() => "::Ice::InvocationTimeoutException";
+}
+
+/// <summary>
+/// This exception is raised if a system error occurred in the server or client process.
+/// </summary>
+public class SyscallException : LocalException
+{
+    public SyscallException(string? message = null, System.Exception? innerException = null)
+        : base(message, innerException)
+    {
+    }
+
+    public SyscallException(System.Exception innerException)
+        : base(innerException)
+    {
+    }
+
+    public override string ice_id() => "::Ice::SyscallException";
+}
+
+/// <summary>
+/// This exception indicates a DNS problem.
+/// </summary>
+public sealed class DNSException : SyscallException
+{
+    public DNSException(string host, System.Exception? innerException = null)
+        : base($"Cannot resolve host '{host}'", innerException)
+    {
+    }
+
+    public override string ice_id() => "::Ice::DNSException";
+}
+
+/// <summary>
+/// This exception indicates socket errors.
+/// </summary>
+public class SocketException : SyscallException
+{
+    public SocketException(System.Exception? innerException = null)
+        : base(message: null, innerException)
+    {
+    }
+
+    public override string ice_id() => "::Ice::SocketException";
+}
+
+/// <summary>This exception indicates file errors.</summary>
+public sealed class FileException : SyscallException
+{
+    public FileException(string message, System.Exception innerException)
+        : base(message, innerException)
+    {
+    }
+
+    public override string ice_id() => "::Ice::FileException";
+}
+
+/// <summary>
+/// This exception indicates connection failures.
+/// </summary>
+public class ConnectFailedException : SocketException
+{
+    public ConnectFailedException(System.Exception? innerException = null)
+        : base(innerException)
+    {
+    }
+
+    public override string ice_id() => "::Ice::ConnectFailedException";
+}
+
+/// <summary>
+/// This exception indicates a connection failure for which the server host actively refuses a connection.
+/// </summary>
+public sealed class ConnectionRefusedException : ConnectFailedException
+{
+    public ConnectionRefusedException(System.Exception? innerException = null)
+        : base(innerException)
+    {
+    }
+
+    public override string ice_id() => "::Ice::ConnectionRefusedException";
+}
+
+/// <summary>
+/// This exception indicates a lost connection.
+/// </summary>
+public sealed class ConnectionLostException : SocketException
+{
+    public ConnectionLostException(System.Exception? innerException = null)
+        : base(innerException)
+    {
+    }
+
+    public override string ice_id() => "::Ice::ConnectionLostException";
 }

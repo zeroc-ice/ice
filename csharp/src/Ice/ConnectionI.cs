@@ -142,7 +142,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             {
                 case ObjectAdapterDeactivated:
                 {
-                    setState(StateClosing, new ObjectAdapterDeactivatedException());
+                    setState(StateClosing, new ObjectAdapterDeactivatedException(_adapter?.getName() ?? ""));
                     break;
                 }
 
@@ -2297,9 +2297,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 else
                 {
                     string lib = AssemblyUtil.isWindows ? "bzip2.dll" : "libbz2.so.1";
-                    FeatureNotSupportedException ex = new FeatureNotSupportedException();
-                    ex.unsupportedFeature = "Cannot uncompress compressed message: " + lib + " not found";
-                    throw ex;
+                    throw new FeatureNotSupportedException($"Cannot uncompress compressed message: {lib} not found");
                 }
             }
             info.stream.pos(Protocol.headerSize);

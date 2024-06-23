@@ -382,10 +382,10 @@ public sealed class StreamSocket
                 }
                 else if (Network.connectionLost(ex))
                 {
-                    throw new Ice.ConnectionLostException(ex);
+                    throw new ConnectionLostException(ex);
                 }
 
-                throw new Ice.SocketException(ex);
+                throw new SocketException(ex);
             }
         }
         return read;

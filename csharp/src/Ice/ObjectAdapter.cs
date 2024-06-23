@@ -1366,9 +1366,7 @@ public sealed class ObjectAdapter
     {
         if (_state >= StateDeactivating)
         {
-            ObjectAdapterDeactivatedException ex = new ObjectAdapterDeactivatedException();
-            ex.name = getName();
-            throw ex;
+            throw new ObjectAdapterDeactivatedException(getName());
         }
     }
 

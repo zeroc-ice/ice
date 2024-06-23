@@ -655,11 +655,9 @@ public sealed class Instance
                         {
                             outStream = System.IO.File.AppendText(stdOut);
                         }
-                        catch (System.IO.IOException ex)
+                        catch (IOException ex)
                         {
-                            Ice.FileException fe = new Ice.FileException(ex);
-                            fe.path = stdOut;
-                            throw fe;
+                            throw new FileException($"Cannot append to '{stdOut}'", ex);
                         }
                         outStream.AutoFlush = true;
                         Console.Out.Close();
@@ -678,11 +676,9 @@ public sealed class Instance
                             {
                                 errStream = System.IO.File.AppendText(stdErr);
                             }
-                            catch (System.IO.IOException ex)
+                            catch (IOException ex)
                             {
-                                Ice.FileException fe = new Ice.FileException(ex);
-                                fe.path = stdErr;
-                                throw fe;
+                                throw new FileException($"Cannot append to '{stdErr}'", ex);
                             }
                             errStream.AutoFlush = true;
                             Console.Error.Close();

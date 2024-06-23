@@ -130,9 +130,7 @@ namespace Ice
                 }
                 else if (current.operation == "localException")
                 {
-                    var ex = new Ice.SocketException();
-                    ex.error = 0;
-                    throw ex;
+                    throw new Ice.SocketException();
                 }
                 else if (current.operation == "csException")
                 {
