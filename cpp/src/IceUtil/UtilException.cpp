@@ -502,32 +502,20 @@ namespace
     }
 }
 
-IceUtil::Exception::Exception() noexcept
-    : Exception(nullptr, nullptr, 0)
-{
-}
-
-IceUtil::Exception::Exception(const char* message, const char* file, int line, exception_ptr innerException) noexcept
+IceUtil::Exception::Exception(const char* message, const char* file, int line) noexcept
     : _what(message),
       _file(file),
       _line(line),
-      _innerException(innerException),
       _stackFrames(getStackFrames())
 {
 }
 
-IceUtil::Exception::Exception(string&& message, const char* file, int line, exception_ptr innerException) noexcept
+IceUtil::Exception::Exception(string&& message, const char* file, int line) noexcept
     : _whatString(std::move(message)),
       _what(_whatString.c_str()),
       _file(file),
       _line(line),
-      _innerException(innerException),
       _stackFrames(getStackFrames())
-{
-}
-
-IceUtil::Exception::Exception(const char* file, int line) noexcept
-    : Exception(nullptr, file, line)
 {
 }
 
@@ -557,12 +545,6 @@ int
 IceUtil::Exception::ice_line() const noexcept
 {
     return _line;
-}
-
-exception_ptr
-IceUtil::Exception::ice_innerException() const noexcept
-{
-    return _innerException;
 }
 
 string

@@ -74,7 +74,10 @@ namespace IceUtil
     class ICE_API CtrlCHandlerException final : public Exception
     {
     public:
-        using Exception::Exception;
+        CtrlCHandlerException(const char* file, int line) noexcept
+            : Exception(file, line)
+        {
+        }
 
         const char* ice_id() const noexcept final;
     };

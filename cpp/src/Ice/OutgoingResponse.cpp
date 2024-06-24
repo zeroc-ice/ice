@@ -61,38 +61,36 @@ namespace
                 replyStatus = ReplyStatus::ObjectNotExist;
             }
 
-            if (rfe.id.name.empty())
+            Identity id = rfe.id;
+            string facet = rfe.facet;
+            if (id.name.empty())
             {
-                rfe.id = current.id;
+                id = current.id;
+                if (facet.empty())
+                {
+                    facet = current.facet;
+                }
             }
+            string operation = rfe.operation.empty() ? current.operation : rfe.operation;
 
-            if (rfe.facet.empty() && !current.facet.empty())
-            {
-                rfe.facet = current.facet;
-            }
-
-            if (rfe.operation.empty() && !current.operation.empty())
-            {
-                rfe.operation = current.operation;
-            }
-
-            exceptionMessage = rfe.what();
+            exceptionMessage = rfe.hasDefaultMessage ?
+                createRequestFailedMessage(rfe.ice_id(), id, facet, operation) : rfe.what();
 
             if (current.requestId != 0)
             {
                 ostr.write(static_cast<uint8_t>(replyStatus));
-                ostr.write(rfe.id);
+                ostr.write(id);
 
-                if (rfe.facet.empty())
+                if (facet.empty())
                 {
                     ostr.write(static_cast<string*>(nullptr), static_cast<string*>(nullptr));
                 }
                 else
                 {
-                    ostr.write(&rfe.facet, &rfe.facet + 1);
+                    ostr.write(&facet, &facet + 1);
                 }
 
-                ostr.write(rfe.operation, false);
+                ostr.write(operation, false);
             }
         }
         catch (const UserException& ex)

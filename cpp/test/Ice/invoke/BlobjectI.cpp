@@ -72,11 +72,7 @@ invokeInternal(InputStream& in, vector<byte>& outEncaps, const Current& current)
     }
     else
     {
-        OperationNotExistException ex(__FILE__, __LINE__);
-        ex.id = current.id;
-        ex.facet = current.facet;
-        ex.operation = current.operation;
-        throw ex;
+        throw OperationNotExistException{__FILE__, __LINE__};
     }
 }
 

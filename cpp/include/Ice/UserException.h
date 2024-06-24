@@ -41,6 +41,12 @@ namespace Ice
         /// \endcond
 
     protected:
+        /// Default constructor.
+        UserException()
+            : Exception(nullptr, nullptr, 0)
+        {
+        }
+
         /// \cond STREAM
         virtual void _writeImpl(OutputStream*) const = 0;
         virtual void _readImpl(InputStream*) = 0;

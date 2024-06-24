@@ -22,48 +22,10 @@ namespace IceUtil
     {
     public:
         /**
-         * Default constructor. Equivalent to Exception("", nullptr, 0, nullptr).
-         */
-        Exception() noexcept;
-
-        /**
-         * Constructs the exception.
-         * @param message The message returned by what().
-         * @param file The file where this exception is constructed.
-         * @param line The line where this exception is constructed.
-         * @param innerException The optional inner exception.
-         */
-        Exception(
-            const char* message,
-            const char* file,
-            int line,
-            std::exception_ptr innerException = nullptr) noexcept;
-
-        /**
-         * Constructs the exception.
-         * @param message The message adopted by this exception and returned by what().
-         * @param file The file where this exception is constructed.
-         * @param line The line where this exception is constructed.
-         * @param innerException The optional inner exception.
-         */
-        Exception(
-            std::string&& message,
-            const char* file,
-            int line,
-            std::exception_ptr innerException = nullptr) noexcept;
-
-        /**
-         * Constructs the exception.
-         * @param file The file where this exception is constructed.
-         * @param line The line where this exception is constructed.
-         */
-        Exception(const char* file, int line) noexcept;
-
-        /**
          * Returns a description of this exception.
          * @return The description.
          */
-        const char* what() const noexcept final;
+        const char* what() const noexcept override;
 
         /**
          * Returns the type ID of this exception. This corresponds to the Slice
@@ -92,23 +54,43 @@ namespace IceUtil
         int ice_line() const noexcept;
 
         /**
-         * Returns the inner exception, if any.
-         * @return The inner exception.
-         */
-        std::exception_ptr ice_innerException() const noexcept;
-
-        /**
          * Returns the stack trace at the point this exception was constructed
          * @return The stack trace as a string.
          */
         std::string ice_stackTrace() const;
+
+    protected:
+        /**
+         * Constructs an exception.
+         * @param message The message returned by what().
+         * @param file The file where this exception is constructed.
+         * @param line The line where this exception is constructed.
+         */
+        Exception(const char* message, const char* file, int line) noexcept;
+
+        /**
+         * Constructs an exception.
+         * @param message The message adopted by this exception and returned by what().
+         * @param file The file where this exception is constructed.
+         * @param line The line where this exception is constructed.
+         */
+        Exception(std::string&& message, const char* file, int line) noexcept;
+
+        /**
+         * Constructs an exception without a message. Exception's implementation of what() returns ice_id().
+         * @param file The file where this exception is constructed.
+         * @param line The line where this exception is constructed.
+         */
+        Exception(const char* file, int line) noexcept
+            : Exception(nullptr, file, line)
+        {
+        }
 
     private:
         const std::string _whatString; // optional storage for _what
         const char* _what;             // can be nullptr
         const char* _file;             // can be nullptr
         const int _line;
-        const std::exception_ptr _innerException;
         const std::vector<void*> _stackFrames;
     };
 
@@ -121,8 +103,12 @@ namespace IceUtil
     class ICE_API IllegalConversionException : public Exception
     {
     public:
-        using Exception::Exception;
         IllegalConversionException(const char*, int, std::string) noexcept;
+
+        IllegalConversionException(const char* file, int line) noexcept
+            : Exception(file, line)
+        {
+        }
 
         const char* ice_id() const noexcept override;
         void ice_print(std::ostream&) const override;

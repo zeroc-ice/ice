@@ -691,19 +691,34 @@ OutgoingAsync::response()
                 {
                     case replyObjectNotExist:
                     {
-                        throw ObjectNotExistException{__FILE__, __LINE__, ident, facet, operation};
+                        string message = createRequestFailedMessage(
+                            "::Ice::ObjectNotExistException",
+                            ident,
+                            facet,
+                            operation);
+                        throw ObjectNotExistException{std::move(message), __FILE__, __LINE__, ident, facet, operation};
                         break;
                     }
 
                     case replyFacetNotExist:
                     {
-                        throw FacetNotExistException{__FILE__, __LINE__, ident, facet, operation};
+                        string message = createRequestFailedMessage(
+                            "::Ice::FacetNotExistException",
+                            ident,
+                            facet,
+                            operation);
+                        throw FacetNotExistException{std::move(message), __FILE__, __LINE__, ident, facet, operation};
                         break;
                     }
 
                     case replyOperationNotExist:
                     {
-                        throw OperationNotExistException{__FILE__, __LINE__, ident, facet, operation};
+                        string message = createRequestFailedMessage(
+                            "::Ice::OperationNotExistException",
+                            ident,
+                            facet,
+                            operation);
+                        throw OperationNotExistException{std::move(message), __FILE__, __LINE__, ident, facet, operation};
                         break;
                     }
 

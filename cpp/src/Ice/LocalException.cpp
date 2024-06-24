@@ -24,6 +24,90 @@ namespace
     }
 }
 
+void
+Ice::RequestFailedException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out); // print file + line + what()
+    if (hasDefaultMessage)
+    {
+        out << "\nidentity: '" << identityToString(id, ToStringMode::Unicode) << "'";
+        out << "\nfacet: " << facet;
+        out << "\noperation: " << operation;
+    }
+}
+
+const char*
+Ice::ObjectNotExistException::ice_id() const noexcept
+{
+    return "::Ice::ObjectNotExistException";
+}
+
+const char*
+Ice::FacetNotExistException::ice_id() const noexcept
+{
+    return "::Ice::FacetNotExistException";
+}
+
+const char*
+Ice::OperationNotExistException::ice_id() const noexcept
+{
+    return "::Ice::OperationNotExistException";
+}
+
+const char*
+Ice::UnknownException::ice_id() const noexcept
+{
+    return "::Ice::UnknownException";
+}
+
+const char*
+Ice::UnknownLocalException::ice_id() const noexcept
+{
+    return "::Ice::UnknownLocalException";
+}
+
+const char*
+Ice::UnknownUserException::ice_id() const noexcept
+{
+    return "::Ice::UnknownUserException";
+}
+
+void
+Ice::UnknownException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nunknown exception";
+    if (!unknown.empty())
+    {
+        out << ":\n" << unknown;
+    }
+}
+
+void
+Ice::UnknownLocalException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nunknown local exception";
+    if (!unknown.empty())
+    {
+        out << ":\n" << unknown;
+    }
+}
+
+void
+Ice::UnknownUserException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nunknown user exception";
+    if (!unknown.empty())
+    {
+        out << ":\n" << unknown;
+    }
+}
+
+//
+// Below: not refactored yet
+//
 const char*
 Ice::InitializationException::ice_id() const noexcept
 {
@@ -58,24 +142,6 @@ const char*
 Ice::CloneNotImplementedException::ice_id() const noexcept
 {
     return "::Ice::CloneNotImplementedException";
-}
-
-const char*
-Ice::UnknownException::ice_id() const noexcept
-{
-    return "::Ice::UnknownException";
-}
-
-const char*
-Ice::UnknownLocalException::ice_id() const noexcept
-{
-    return "::Ice::UnknownLocalException";
-}
-
-const char*
-Ice::UnknownUserException::ice_id() const noexcept
-{
-    return "::Ice::UnknownUserException";
 }
 
 const char*
@@ -148,30 +214,6 @@ const char*
 Ice::IllegalServantException::ice_id() const noexcept
 {
     return "::Ice::IllegalServantException";
-}
-
-const char*
-Ice::RequestFailedException::ice_id() const noexcept
-{
-    return "::Ice::RequestFailedException";
-}
-
-const char*
-Ice::ObjectNotExistException::ice_id() const noexcept
-{
-    return "::Ice::ObjectNotExistException";
-}
-
-const char*
-Ice::FacetNotExistException::ice_id() const noexcept
-{
-    return "::Ice::FacetNotExistException";
-}
-
-const char*
-Ice::OperationNotExistException::ice_id() const noexcept
-{
-    return "::Ice::OperationNotExistException";
 }
 
 Ice::SyscallException::SyscallException(const char* file, int line) noexcept
@@ -426,39 +468,6 @@ Ice::InitializationException::ice_print(ostream& out) const
 }
 
 void
-Ice::UnknownException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nunknown exception";
-    if (!unknown.empty())
-    {
-        out << ":\n" << unknown;
-    }
-}
-
-void
-Ice::UnknownLocalException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nunknown local exception";
-    if (!unknown.empty())
-    {
-        out << ":\n" << unknown;
-    }
-}
-
-void
-Ice::UnknownUserException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nunknown user exception";
-    if (!unknown.empty())
-    {
-        out << ":\n" << unknown;
-    }
-}
-
-void
 Ice::VersionMismatchException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
@@ -540,46 +549,6 @@ Ice::IllegalServantException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nillegal servant: `" << reason << "'";
-}
-
-static void
-printFailedRequestData(ostream& out, const RequestFailedException& ex)
-{
-    out << ":\nidentity: `" << identityToString(ex.id, ToStringMode::Unicode) << "'";
-    out << "\nfacet: " << ex.facet;
-    out << "\noperation: " << ex.operation;
-}
-
-void
-Ice::RequestFailedException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nrequest failed";
-    printFailedRequestData(out, *this);
-}
-
-void
-Ice::ObjectNotExistException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nobject does not exist";
-    printFailedRequestData(out, *this);
-}
-
-void
-Ice::FacetNotExistException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nfacet does not exist";
-    printFailedRequestData(out, *this);
-}
-
-void
-Ice::OperationNotExistException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\noperation does not exist";
-    printFailedRequestData(out, *this);
 }
 
 void
@@ -1003,4 +972,21 @@ Ice::CFNetworkException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nnetwork exception: domain: " << domain << " error: " << error;
+}
+
+// TODO: move into another file
+
+string
+IceInternal::createRequestFailedMessage(
+    const char* typeId,
+    const Ice::Identity& id,
+    const string& facet,
+    const string& operation)
+{
+    ostringstream os;
+    os << "Dispatch failed with " << typeId;
+    os << "\nidentity: '" << identityToString(id, ToStringMode::Unicode) << "'";
+    os << "\nfacet: " << facet;
+    os << "\noperation: " << operation;
+    return os.str();
 }
