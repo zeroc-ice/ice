@@ -3,8 +3,8 @@
 //
 
 #include "IceUtil/FileUtil.h"
-#include "IceUtil/DisableWarnings.h"
 #include "Ice/Exception.h"
+#include "IceUtil/DisableWarnings.h"
 #include "IceUtil/StringConverter.h"
 #include <cassert>
 #include <climits>

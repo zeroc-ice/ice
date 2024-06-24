@@ -86,7 +86,7 @@ allTests(Test::TestHelper* helper)
             str << ule;
             test(str.str() == ulePrint);
         }
-         {
+        {
             stringstream str;
             str << customUle;
             test(str.str() == customUlePrint);

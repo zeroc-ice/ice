@@ -73,8 +73,9 @@ namespace
             }
             string operation = rfe.operation.empty() ? current.operation : rfe.operation;
 
-            exceptionMessage = rfe.ice_hasDefaultMessage() ?
-                createRequestFailedMessage(rfe.ice_id(), id, facet, operation) : rfe.what();
+            exceptionMessage = rfe.ice_hasDefaultMessage()
+                                   ? createRequestFailedMessage(rfe.ice_id(), id, facet, operation)
+                                   : rfe.what();
 
             if (current.requestId != 0)
             {

@@ -83,10 +83,7 @@ namespace Ice
          * @param file The file name in which the exception was raised, typically __FILE__.
          * @param line The line number at which the exception was raised, typically __LINE__.
          */
-        RequestFailedException(const char* file, int line) noexcept
-            : LocalException(file, line)
-        {
-        }
+        RequestFailedException(const char* file, int line) noexcept : LocalException(file, line) {}
 
         void ice_print(std::ostream& stream) const override;
 
@@ -145,7 +142,7 @@ namespace Ice
         const char* ice_id() const noexcept final;
     };
 
-     /**
+    /**
      * This exception is raised if an operation call on a server raises an unknown exception. For example, for C++, this
      * exception is raised if the server throws a C++ exception that is not directly or indirectly derived from
      * <code>Ice::LocalException</code> or <code>Ice::UserException</code>.

@@ -114,10 +114,7 @@ namespace Ice
     public:
         IllegalConversionException(const char*, int, std::string) noexcept;
 
-        IllegalConversionException(const char* file, int line) noexcept
-            : LocalException(file, line)
-        {
-        }
+        IllegalConversionException(const char* file, int line) noexcept : LocalException(file, line) {}
 
         const char* ice_id() const noexcept override;
         void ice_print(std::ostream&) const override;

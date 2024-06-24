@@ -42,10 +42,7 @@ namespace Ice
 
     protected:
         /// Default constructor.
-        UserException()
-            : Exception(nullptr, 0, nullptr)
-        {
-        }
+        UserException() : Exception(nullptr, 0, nullptr) {}
 
         /// \cond STREAM
         virtual void _writeImpl(OutputStream*) const = 0;

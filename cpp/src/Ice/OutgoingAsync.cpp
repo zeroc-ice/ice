@@ -691,34 +691,31 @@ OutgoingAsync::response()
                 {
                     case replyObjectNotExist:
                     {
-                        string message = createRequestFailedMessage(
-                            "::Ice::ObjectNotExistException",
-                            ident,
-                            facet,
-                            operation);
+                        string message =
+                            createRequestFailedMessage("::Ice::ObjectNotExistException", ident, facet, operation);
                         throw ObjectNotExistException{__FILE__, __LINE__, std::move(message), ident, facet, operation};
                         break;
                     }
 
                     case replyFacetNotExist:
                     {
-                        string message = createRequestFailedMessage(
-                            "::Ice::FacetNotExistException",
-                            ident,
-                            facet,
-                            operation);
+                        string message =
+                            createRequestFailedMessage("::Ice::FacetNotExistException", ident, facet, operation);
                         throw FacetNotExistException{__FILE__, __LINE__, std::move(message), ident, facet, operation};
                         break;
                     }
 
                     case replyOperationNotExist:
                     {
-                        string message = createRequestFailedMessage(
-                            "::Ice::OperationNotExistException",
+                        string message =
+                            createRequestFailedMessage("::Ice::OperationNotExistException", ident, facet, operation);
+                        throw OperationNotExistException{
+                            __FILE__,
+                            __LINE__,
+                            std::move(message),
                             ident,
                             facet,
-                            operation);
-                        throw OperationNotExistException{__FILE__, __LINE__, std::move(message), ident, facet, operation};
+                            operation};
                         break;
                     }
 

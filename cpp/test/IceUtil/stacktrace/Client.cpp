@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/StringUtil.h"
 #include "IceUtil/Exception.h"
+#include "IceUtil/StringUtil.h"
 #include "TestHelper.h"
 
 #include <fstream>
