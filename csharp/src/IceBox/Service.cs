@@ -6,7 +6,7 @@ namespace IceBox;
 
 /// <summary>
 /// This exception is a general failure notification.
-/// It is thrown for errors such as a service encountering an error  during initialization, or the service manager
+/// It is thrown for errors such as a service encountering an error during initialization, or the service manager
 /// being unable to load a service executable.
 /// </summary>
 public sealed class FailureException : Ice.LocalException
