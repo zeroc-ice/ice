@@ -2346,7 +2346,10 @@ Ice::InputStream::EncapsDecoder11::throwException(UserExceptionFactory factory)
         //
         if (_current->sliceFlags & FLAG_IS_LAST_SLICE)
         {
-            throw UnknownUserException(__FILE__, __LINE__, mostDerivedId);
+            throw MarshalException{
+                __FILE__,
+                __LINE__,
+                "cannot unmarshal exception with type ID '" + mostDerivedId + "'"};
         }
 
         startSlice();
@@ -2512,7 +2515,10 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
         }
         else
         {
-            throw UnknownUserException(__FILE__, __LINE__, _current->typeId);
+            throw MarshalException{
+                __FILE__,
+                __LINE__,
+                "Cannot unmarshal exception with type ID '" +  _current->typeId + "'"};
         }
     }
 

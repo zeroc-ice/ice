@@ -732,26 +732,26 @@ OutgoingAsync::response()
             case replyUnknownLocalException:
             case replyUnknownUserException:
             {
-                string unknown;
-                _is.read(unknown, false);
+                string message;
+                _is.read(message, false);
 
                 switch (replyStatus)
                 {
                     case replyUnknownException:
                     {
-                        throw UnknownException{__FILE__, __LINE__, unknown};
+                        throw UnknownException{__FILE__, __LINE__, std::move(message)};
                         break;
                     }
 
                     case replyUnknownLocalException:
                     {
-                        throw UnknownLocalException{__FILE__, __LINE__, unknown};
+                        throw UnknownLocalException{__FILE__, __LINE__, std::move(message)};
                         break;
                     }
 
                     case replyUnknownUserException:
                     {
-                        throw UnknownUserException{__FILE__, __LINE__, unknown};
+                        throw UnknownUserException{__FILE__, __LINE__, std::move(message)};
                         break;
                     }
 
@@ -870,7 +870,10 @@ OutgoingAsync::throwUserException()
         {
             _userException(ex);
         }
-        throw UnknownUserException(__FILE__, __LINE__, ex.ice_id());
+        throw UnknownUserException{
+            __FILE__,
+            __LINE__,
+            "Received unknown user exception with type ID '" + string{ex.ice_id()} + "'"};
     }
 }
 

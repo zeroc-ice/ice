@@ -78,7 +78,7 @@ testExceptions(const TestIntfPrx& obj)
     }
     catch (const UnknownUserException& ex)
     {
-        test(string{ex.what()} == "::Test::TestIntfUserException");
+        test(string{ex.what()}.find("::Test::TestIntfUserException") != string::npos);
     }
     catch (const OperationNotExistException&)
     {
@@ -226,7 +226,7 @@ allTests(Test::TestHelper* helper)
     }
     catch (const UnknownUserException& ex)
     {
-        test(string{ex.what()} == "::Test::TestIntfUserException");
+        test(string{ex.what()}.find("::Test::TestIntfUserException") != string::npos);
     }
     catch (...)
     {
@@ -241,7 +241,7 @@ allTests(Test::TestHelper* helper)
     }
     catch (const UnknownUserException& ex)
     {
-        test(string{ex.what()} == "::Test::TestIntfUserException");
+        test(string{ex.what()}.find("::Test::TestIntfUserException") != string::npos);
     }
     catch (...)
     {
