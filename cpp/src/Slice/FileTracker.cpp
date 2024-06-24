@@ -17,7 +17,7 @@ Slice::FileException::FileException(const char* file, int line, const string& r)
 {
 }
 
-string
+const char*
 Slice::FileException::ice_id() const
 {
     return "::Slice::FileException";

@@ -47,7 +47,7 @@ namespace IceDB
     public:
         LMDBException(const char*, int, int);
 
-        virtual std::string ice_id() const;
+        virtual const char* ice_id() const;
         virtual void ice_print(std::ostream&) const;
 
         int error() const;
@@ -66,7 +66,7 @@ namespace IceDB
     public:
         KeyTooLongException(const char*, int, size_t);
 
-        virtual std::string ice_id() const;
+        virtual const char* ice_id() const;
         virtual void ice_print(std::ostream&) const;
 
     private:
@@ -83,7 +83,7 @@ namespace IceDB
     public:
         BadEnvException(const char*, int, size_t);
 
-        virtual std::string ice_id() const;
+        virtual const char* ice_id() const;
         virtual void ice_print(std::ostream&) const;
 
     private:

@@ -62,7 +62,7 @@ namespace IceBT
 
         void ice_print(std::ostream& stream) const override;
 
-        std::string ice_id() const override;
+        const char* ice_id() const override;
 
         /**
          * Provides more information about the failure.

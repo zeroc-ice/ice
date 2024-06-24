@@ -20,7 +20,7 @@ namespace Ice::SSL
     public:
         CertificateReadException(const char*, int, std::string) noexcept;
 
-        std::string ice_id() const override;
+        const char* ice_id() const override;
 
         /** The reason for the exception. */
         std::string reason;
@@ -34,7 +34,7 @@ namespace Ice::SSL
     public:
         CertificateEncodingException(const char*, int, std::string) noexcept;
 
-        std::string ice_id() const override;
+        const char* ice_id() const override;
 
         /** The reason for the exception. */
         std::string reason;
@@ -48,7 +48,7 @@ namespace Ice::SSL
     public:
         ParseException(const char*, int, std::string) noexcept;
 
-        std::string ice_id() const override;
+        const char* ice_id() const override;
 
         /** The reason for the exception. */
         std::string reason;

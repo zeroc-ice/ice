@@ -27,7 +27,7 @@ namespace
     mutex globalMutex;
 }
 
-string
+const char*
 CtrlCHandlerException::ice_id() const
 {
     return "::IceUtil::CtrlCHandlerException";

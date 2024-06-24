@@ -23,7 +23,7 @@ IconvInitializationException::ice_print(ostream& out) const
     out << ": " << _reason;
 }
 
-string
+const char*
 IconvInitializationException::ice_id() const
 {
     return "::Ice::IconvInitializationException";

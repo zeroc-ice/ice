@@ -39,7 +39,7 @@ class IceStormRep1TestCase(IceStormTestCase):
                     break
             else:
                 raise RuntimeError(
-                    "unexected output `{0}' (expected `{1}')".format(output, expect)
+                    "unexpected output `{0}' (expected `{1}')".format(output, expect)
                 )
 
         def adminForReplica(replica, cmd, expect):

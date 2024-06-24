@@ -15,7 +15,7 @@ CertificateReadException::CertificateReadException(const char* file, int line, s
 {
 }
 
-string
+const char*
 CertificateReadException::ice_id() const
 {
     return "::Ice::SSL::CertificateReadException";
@@ -27,7 +27,7 @@ CertificateEncodingException::CertificateEncodingException(const char* file, int
 {
 }
 
-string
+const char*
 CertificateEncodingException::ice_id() const
 {
     return "::Ice::SSL::CertificateEncodingException";
@@ -39,7 +39,7 @@ ParseException::ParseException(const char* file, int line, string r) noexcept
 {
 }
 
-string
+const char*
 ParseException::ice_id() const
 {
     return "::Ice::SSL::ParseException";

@@ -2199,12 +2199,11 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     H << nl << " * Obtains the Slice type ID of this exception.";
     H << nl << " * @return The fully-scoped type ID.";
     H << nl << " */";
-    H << nl << _dllMemberExport << "static ::std::string_view ice_staticId() noexcept;";
+    H << nl << _dllMemberExport << "static const char* ice_staticId() noexcept;";
 
-    C << sp << nl << "::std::string_view" << nl << scoped.substr(2) << "::ice_staticId() noexcept";
+    C << sp << nl << "const char*" << nl << scoped.substr(2) << "::ice_staticId() noexcept";
     C << sb;
-    C << nl << "static constexpr ::std::string_view typeId = \"" << p->scoped() << "\";";
-    C << nl << "return typeId;";
+    C << nl << "return \"" << p->scoped() << "\";";
     C << eb;
 
     StringList metaData = p->getMetaData();
@@ -2217,10 +2216,10 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << nl << _dllMemberExport << "void ice_print(::std::ostream& stream) const override;";
     }
 
-    H << sp << nl << _dllMemberExport << "::std::string ice_id() const override;";
-    C << sp << nl << "::std::string" << nl << scoped.substr(2) << "::ice_id() const";
+    H << sp << nl << _dllMemberExport << "const char* ice_id() const override;";
+    C << sp << nl << "const char*" << nl << scoped.substr(2) << "::ice_id() const";
     C << sb;
-    C << nl << "return ::std::string{ice_staticId()};";
+    C << nl << "return ice_staticId();";
     C << eb;
 
     H << sp << nl << _dllMemberExport << "void ice_throw() const override;";

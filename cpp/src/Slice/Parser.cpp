@@ -47,7 +47,7 @@ Slice::CompilerException::CompilerException(const char* file, int line, const st
 {
 }
 
-string
+const char*
 Slice::CompilerException::ice_id() const
 {
     return "::Slice::CompilerException";

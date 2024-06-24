@@ -13,7 +13,7 @@ namespace Slice
     {
     public:
         FileException(const char*, int, const std::string&);
-        std::string ice_id() const override;
+        const char* ice_id() const override;
         void ice_print(std::ostream&) const override;
 
         std::string reason() const;

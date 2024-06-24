@@ -502,13 +502,39 @@ namespace
     }
 }
 
-IceUtil::Exception::Exception() noexcept : _file(0), _line(0), _stackFrames(getStackFrames()) {}
+IceUtil::Exception::Exception() noexcept
+    : Exception(nullptr, nullptr, 0)
+{
+}
 
-IceUtil::Exception::Exception(const char* file, int line) noexcept
-    : _file(file),
+IceUtil::Exception::Exception(const char* message, const char* file, int line, exception_ptr innerException) noexcept
+    : _what(message),
+      _file(file),
       _line(line),
+      _innerException(innerException),
       _stackFrames(getStackFrames())
 {
+}
+
+IceUtil::Exception::Exception(string&& message, const char* file, int line, exception_ptr innerException) noexcept
+    : _whatString(std::move(message)),
+      _what(_whatString.c_str()),
+      _file(file),
+      _line(line),
+      _innerException(innerException),
+      _stackFrames(getStackFrames())
+{
+}
+
+IceUtil::Exception::Exception(const char* file, int line) noexcept
+    : Exception(nullptr, file, line)
+{
+}
+
+const char*
+IceUtil::Exception::what() const noexcept
+{
+    return _what ? _what : ice_id();
 }
 
 void
@@ -518,29 +544,7 @@ IceUtil::Exception::ice_print(ostream& out) const
     {
         out << _file << ':' << _line << ": ";
     }
-    out << ice_id();
-}
-
-const char*
-IceUtil::Exception::what() const noexcept
-{
-    try
-    {
-        lock_guard lock(globalMutex);
-        {
-            if (_str.empty())
-            {
-                stringstream s;
-                ice_print(s);
-                _str = s.str(); // Lazy initialization.
-            }
-        }
-        return _str.c_str();
-    }
-    catch (...)
-    {
-    }
-    return "";
+    out << what();
 }
 
 const char*
@@ -553,6 +557,12 @@ int
 IceUtil::Exception::ice_line() const noexcept
 {
     return _line;
+}
+
+exception_ptr
+IceUtil::Exception::ice_innerException() const noexcept
+{
+    return _innerException;
 }
 
 string
@@ -585,7 +595,7 @@ IceUtil::IllegalConversionException::ice_print(ostream& out) const
     out << ": " << _reason;
 }
 
-string
+const char*
 IceUtil::IllegalConversionException::ice_id() const
 {
     return "::IceUtil::IllegalConversionException";
@@ -615,7 +625,7 @@ IceUtil::FileLockException::ice_print(ostream& os) const
     }
 }
 
-string
+const char*
 IceUtil::FileLockException::ice_id() const
 {
     return "::IceUtil::FileLockException";

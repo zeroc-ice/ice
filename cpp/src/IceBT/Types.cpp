@@ -6,15 +6,14 @@
 
 using namespace std;
 
-string
+const char*
 IceBT::BluetoothException::ice_id() const
 {
-    return string{ice_staticId()};
+    return ice_staticId();
 }
 
-std::string_view
+const char*
 IceBT::BluetoothException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::IceBT::BluetoothException";
-    return typeId;
+    return "::IceBT::BluetoothException";
 }

@@ -8,15 +8,14 @@
 
 using namespace std;
 
-string
+const char*
 IceStorm::SendQueueSizeMaxReached::ice_id() const
 {
-    return string{ice_staticId()};
+    return ice_staticId();
 }
 
-std::string_view
+const char*
 IceStorm::SendQueueSizeMaxReached::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::IceStorm::SendQueueSizeMaxReached";
-    return typeId;
+    return "::IceStorm::SendQueueSizeMaxReached";
 }

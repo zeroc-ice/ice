@@ -26,7 +26,7 @@ IceXML::ParserException::ParserException(const char* file, int line, string reas
 {
 }
 
-string
+const char*
 IceXML::ParserException::ice_id() const
 {
     return "::IceXML::ParserException";

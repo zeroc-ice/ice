@@ -49,7 +49,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        std::string ice_id() const final;
+        const char* ice_id() const final;
 
         /**
          * Prints a description of this exception to the given stream.

@@ -16,7 +16,7 @@ using namespace std;
 
 LMDBException::LMDBException(const char* file, int line, int err) : IceUtil::Exception(file, line), _error(err) {}
 
-string
+const char*
 LMDBException::ice_id() const
 {
     return "::IceDB::LMDBException";
@@ -41,7 +41,7 @@ KeyTooLongException::KeyTooLongException(const char* file, int line, size_t size
 {
 }
 
-string
+const char*
 KeyTooLongException::ice_id() const
 {
     return "::IceDB::KeyTooLongException";
@@ -63,7 +63,7 @@ BadEnvException::BadEnvException(const char* file, int line, size_t size) : IceU
 {
 }
 
-string
+const char*
 BadEnvException::ice_id() const
 {
     return "::IceDB::BadEnvException";

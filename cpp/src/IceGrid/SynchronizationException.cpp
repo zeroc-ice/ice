@@ -8,15 +8,14 @@
 
 using namespace std;
 
-string
+const char*
 IceGrid::SynchronizationException::ice_id() const
 {
-    return string{ice_staticId()};
+    return ice_staticId();
 }
 
-std::string_view
+const char*
 IceGrid::SynchronizationException::ice_staticId() noexcept
 {
-    static constexpr std::string_view typeId = "::IceGrid::SynchronizationException";
-    return typeId;
+    return "::IceGrid::SynchronizationException";
 }
