@@ -1009,7 +1009,8 @@ allTests(TestHelper* helper)
     catch (const Ice::UnknownLocalException& ex)
     {
         // The server thrown an UnsupportedEncodingException
-        test(ex.unknown.find("UnsupportedEncodingException") != string::npos);
+        string message{ex.what()};
+        test(message.find("UnsupportedEncodingException") != string::npos);
     }
 
     try
@@ -1029,8 +1030,8 @@ allTests(TestHelper* helper)
     }
     catch (const Ice::UnknownLocalException& ex)
     {
-        // The server thrown an UnsupportedEncodingException
-        test(ex.unknown.find("UnsupportedEncodingException") != string::npos);
+        string message{ex.what()};
+        test(message.find("UnsupportedEncodingException") != string::npos);
     }
 
     cout << "ok" << endl;

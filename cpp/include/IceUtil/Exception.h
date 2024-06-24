@@ -22,15 +22,31 @@ namespace IceUtil
     {
     public:
         /**
-         * Returns a description of this exception.
-         * @return The description.
+         * Constructs an exception.
+         * @param file The file where this exception is constructed.
+         * @param line The line where this exception is constructed.
+         * @param message The error message returned by what(), or nullptr to use the default message.
+         */
+        Exception(const char* file, int line, const char* message = nullptr) noexcept;
+
+        /**
+         * Constructs an exception.
+         * @param file The file where this exception is constructed.
+         * @param line The line where this exception is constructed.
+         * @param message The error message adopted by this exception and returned by what().
+         */
+        Exception(const char* file, int line, std::string message) noexcept;
+
+        /**
+         * Returns the error message of this exception.
+         * @return The error message.
          */
         const char* what() const noexcept override;
 
         /**
          * Returns the type ID of this exception. This corresponds to the Slice
          * type ID for Slice-defined exceptions, and to a similar fully scoped name
-         * for other exceptions. For example "::IceUtil::SyscallException".
+         * for other exceptions. For example "::Ice::CommunicatorDestroyedException".
          * @return The type ID of this exception
          */
         virtual const char* ice_id() const noexcept = 0;
@@ -59,38 +75,17 @@ namespace IceUtil
          */
         std::string ice_stackTrace() const;
 
-    protected:
         /**
-         * Constructs an exception.
-         * @param message The message returned by what().
-         * @param file The file where this exception is constructed.
-         * @param line The line where this exception is constructed.
+         * Indicates whether this exception has a default erro message.
+         * @return True when what() returns the default message, and false when what() returns a custom message.
          */
-        Exception(const char* message, const char* file, int line) noexcept;
-
-        /**
-         * Constructs an exception.
-         * @param message The message adopted by this exception and returned by what().
-         * @param file The file where this exception is constructed.
-         * @param line The line where this exception is constructed.
-         */
-        Exception(std::string&& message, const char* file, int line) noexcept;
-
-        /**
-         * Constructs an exception without a message. Exception's implementation of what() returns ice_id().
-         * @param file The file where this exception is constructed.
-         * @param line The line where this exception is constructed.
-         */
-        Exception(const char* file, int line) noexcept
-            : Exception(nullptr, file, line)
-        {
-        }
+        bool ice_hasDefaultMessage() const noexcept { return _what == nullptr; }
 
     private:
+        const char* _file;             // can be nullptr
+        const int _line;               // not used when _file is nullptr
         const std::string _whatString; // optional storage for _what
         const char* _what;             // can be nullptr
-        const char* _file;             // can be nullptr
-        const int _line;
         const std::vector<void*> _stackFrames;
     };
 

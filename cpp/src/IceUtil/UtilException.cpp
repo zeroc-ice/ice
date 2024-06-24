@@ -102,9 +102,8 @@ namespace IceUtilInternal
 
 namespace
 {
-    mutex globalMutex;
-
 #ifdef ICE_DBGHELP
+    mutex globalMutex;
     HANDLE process = 0;
 #endif
 
@@ -502,19 +501,19 @@ namespace
     }
 }
 
-IceUtil::Exception::Exception(const char* message, const char* file, int line) noexcept
-    : _what(message),
-      _file(file),
+IceUtil::Exception::Exception(const char* file, int line, const char* message) noexcept
+    : _file(file),
       _line(line),
+      _what(message),
       _stackFrames(getStackFrames())
 {
 }
 
-IceUtil::Exception::Exception(string&& message, const char* file, int line) noexcept
-    : _whatString(std::move(message)),
-      _what(_whatString.c_str()),
-      _file(file),
+IceUtil::Exception::Exception(const char* file, int line, string message) noexcept
+    : _file(file),
       _line(line),
+      _whatString(std::move(message)),
+      _what(_whatString.c_str()),
       _stackFrames(getStackFrames())
 {
 }

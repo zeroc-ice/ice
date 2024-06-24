@@ -48,7 +48,11 @@ allTests(Test::TestHelper* helper)
         string aMsg = "::Test::A";
 
         Ice::UnknownLocalException ule("thisFile", 99);
-        string uleMsg = "thisFile:99: ::Ice::UnknownLocalException:\nunknown local exception";
+        string ulePrint = "thisFile:99: ::Ice::UnknownLocalException";
+
+        const char* customMessage = "custom message";
+        Ice::UnknownLocalException customUle("thisFile", 199, customMessage);
+        string customUlePrint = "thisFile:199: custom message";
 
         //
         // Test ice_print().
@@ -61,7 +65,12 @@ allTests(Test::TestHelper* helper)
         {
             stringstream str;
             ule.ice_print(str);
-            test(str.str() == uleMsg);
+            test(str.str() == ulePrint);
+        }
+        {
+            stringstream str;
+            customUle.ice_print(str);
+            test(str.str() == customUlePrint);
         }
 
         //
@@ -75,13 +84,20 @@ allTests(Test::TestHelper* helper)
         {
             stringstream str;
             str << ule;
-            test(str.str() == uleMsg);
+            test(str.str() == ulePrint);
+        }
+         {
+            stringstream str;
+            str << customUle;
+            test(str.str() == customUlePrint);
         }
 
         //
         // Test what().
         //
         test(aMsg == a.what());
+        test(string{ule.ice_id()} == ule.what());
+        test(string{customMessage} == customUle.what());
 
         {
             E ex("E");

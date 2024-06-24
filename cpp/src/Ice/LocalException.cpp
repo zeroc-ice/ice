@@ -28,8 +28,9 @@ void
 Ice::RequestFailedException::ice_print(ostream& out) const
 {
     Exception::ice_print(out); // print file + line + what()
-    if (hasDefaultMessage)
+    if (ice_hasDefaultMessage() && !id.name.empty())
     {
+        // We assume a non-default message includes identity/facet/operation.
         out << "\nidentity: '" << identityToString(id, ToStringMode::Unicode) << "'";
         out << "\nfacet: " << facet;
         out << "\noperation: " << operation;
@@ -70,39 +71,6 @@ const char*
 Ice::UnknownUserException::ice_id() const noexcept
 {
     return "::Ice::UnknownUserException";
-}
-
-void
-Ice::UnknownException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nunknown exception";
-    if (!unknown.empty())
-    {
-        out << ":\n" << unknown;
-    }
-}
-
-void
-Ice::UnknownLocalException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nunknown local exception";
-    if (!unknown.empty())
-    {
-        out << ":\n" << unknown;
-    }
-}
-
-void
-Ice::UnknownUserException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nunknown user exception";
-    if (!unknown.empty())
-    {
-        out << ":\n" << unknown;
-    }
 }
 
 //
@@ -974,7 +942,7 @@ Ice::CFNetworkException::ice_print(ostream& out) const
     out << ":\nnetwork exception: domain: " << domain << " error: " << error;
 }
 
-// TODO: move into another file
+// TODO: move to another file
 
 string
 IceInternal::createRequestFailedMessage(

@@ -43,7 +43,7 @@ namespace Ice
     protected:
         /// Default constructor.
         UserException()
-            : Exception(nullptr, nullptr, 0)
+            : Exception(nullptr, 0, nullptr)
         {
         }
 

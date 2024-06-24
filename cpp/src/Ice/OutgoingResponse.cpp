@@ -73,7 +73,7 @@ namespace
             }
             string operation = rfe.operation.empty() ? current.operation : rfe.operation;
 
-            exceptionMessage = rfe.hasDefaultMessage ?
+            exceptionMessage = rfe.ice_hasDefaultMessage() ?
                 createRequestFailedMessage(rfe.ice_id(), id, facet, operation) : rfe.what();
 
             if (current.requestId != 0)
@@ -112,19 +112,19 @@ namespace
         {
             exceptionId = ex.ice_id();
             replyStatus = ReplyStatus::UnknownLocalException;
-            exceptionMessage = ex.unknown;
+            exceptionMessage = ex.what();
         }
         catch (const UnknownUserException& ex)
         {
             exceptionId = ex.ice_id();
             replyStatus = ReplyStatus::UnknownUserException;
-            exceptionMessage = ex.unknown;
+            exceptionMessage = ex.what();
         }
         catch (const UnknownException& ex)
         {
             exceptionId = ex.ice_id();
             replyStatus = ReplyStatus::UnknownException;
-            exceptionMessage = ex.unknown;
+            exceptionMessage = ex.what();
         }
         catch (const LocalException& ex)
         {

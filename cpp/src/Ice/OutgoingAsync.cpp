@@ -696,7 +696,7 @@ OutgoingAsync::response()
                             ident,
                             facet,
                             operation);
-                        throw ObjectNotExistException{std::move(message), __FILE__, __LINE__, ident, facet, operation};
+                        throw ObjectNotExistException{__FILE__, __LINE__, std::move(message), ident, facet, operation};
                         break;
                     }
 
@@ -707,7 +707,7 @@ OutgoingAsync::response()
                             ident,
                             facet,
                             operation);
-                        throw FacetNotExistException{std::move(message), __FILE__, __LINE__, ident, facet, operation};
+                        throw FacetNotExistException{__FILE__, __LINE__, std::move(message), ident, facet, operation};
                         break;
                     }
 
@@ -718,7 +718,7 @@ OutgoingAsync::response()
                             ident,
                             facet,
                             operation);
-                        throw OperationNotExistException{std::move(message), __FILE__, __LINE__, ident, facet, operation};
+                        throw OperationNotExistException{__FILE__, __LINE__, std::move(message), ident, facet, operation};
                         break;
                     }
 

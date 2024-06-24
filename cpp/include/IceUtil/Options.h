@@ -17,7 +17,6 @@ namespace IceUtilInternal
     class ICE_API APIException : public IceUtil::Exception
     {
     public:
-        using IceUtil::Exception::Exception;
         APIException(const char*, int, std::string) noexcept;
         const char* ice_id() const noexcept override;
         void ice_print(std::ostream&) const override;
@@ -29,7 +28,6 @@ namespace IceUtilInternal
     class ICE_API BadOptException : public IceUtil::Exception
     {
     public:
-        using IceUtil::Exception::Exception;
         BadOptException(const char*, int, std::string) noexcept;
         const char* ice_id() const noexcept override;
         void ice_print(std::ostream&) const override;

@@ -31,58 +31,7 @@ namespace Ice
     class ICE_API LocalException : public Exception
     {
     public:
-        /**
-         * Constructs a local exception with a what message.
-         * @param message The message returned by what().
-         * @param file The file where this exception is constructed.
-         * @param line The line where this exception is constructed.
-         * @param innerException The optional inner exception.
-         */
-        LocalException(
-            const char* message,
-            const char* file,
-            int line,
-            std::exception_ptr innerException = nullptr) noexcept
-            : Exception(message, file, line),
-              _innerException(innerException)
-        {
-        }
-
-        /**
-         * Constructs a local exception with a what message.
-         * @param message The message adopted by this exception and returned by what().
-         * @param file The file where this exception is constructed.
-         * @param line The line where this exception is constructed.
-         * @param innerException The optional inner exception.
-         */
-        LocalException(
-            std::string&& message,
-            const char* file,
-            int line,
-            std::exception_ptr innerException = nullptr) noexcept
-            : Exception(std::move(message), file, line),
-              _innerException(innerException)
-        {
-        }
-
-        /**
-         * Constructs a local exception without a what message. what() returns ice_id().
-         * @param file The file where this exception is constructed.
-         * @param line The line where this exception is constructed.
-         */
-        LocalException(const char* file, int line) noexcept
-            : LocalException(nullptr, file, line)
-        {
-        }
-
-        /**
-         * Returns the inner exception, if any.
-         * @return The inner exception.
-         */
-        std::exception_ptr ice_innerException() const noexcept;
-
-    private:
-        const std::exception_ptr _innerException;
+        using Exception::Exception;
     };
 
     /**
@@ -96,25 +45,24 @@ namespace Ice
     public:
         /**
          * Construct a RequestFailedException with a custom error message.
-         * @param message The error message.
          * @param file The file name in which the exception was raised, typically __FILE__.
          * @param line The line number at which the exception was raised, typically __LINE__.
+         * @param message The message returned by what().
          * @param id The identity of the Ice Object to which the request was sent.
          * @param facet The facet to which the request was sent.
          * @param operation The operation name of the request.
          */
         RequestFailedException(
-            std::string&& message,
             const char* file,
             int line,
+            std::string message,
             Identity id,
             std::string facet,
             std::string operation) noexcept
-            : LocalException(std::move(message), file, line),
+            : LocalException(file, line, std::move(message)),
               id(std::move(id)),
               facet(std::move(facet)),
-              operation(std::move(operation)),
-              hasDefaultMessage(false)
+              operation(std::move(operation))
         {
         }
 
@@ -135,8 +83,7 @@ namespace Ice
             : LocalException(file, line),
               id(std::move(id)),
               facet(std::move(facet)),
-              operation(std::move(operation)),
-              hasDefaultMessage(true)
+              operation(std::move(operation))
         {
         }
 
@@ -147,8 +94,7 @@ namespace Ice
          * @param line The line number at which the exception was raised, typically __LINE__.
          */
         RequestFailedException(const char* file, int line) noexcept
-            : LocalException(file, line),
-              hasDefaultMessage(true)
+            : LocalException(file, line)
         {
         }
 
@@ -168,11 +114,6 @@ namespace Ice
          * The operation name of the request.
          */
         const std::string operation;
-
-        /**
-         * Indicates whether this exception has the default error message.
-         */
-        const bool hasDefaultMessage;
     };
 
     /**
@@ -225,27 +166,7 @@ namespace Ice
     public:
         using LocalException::LocalException;
 
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param unknown This field is set to the textual representation of the unknown exception if available.
-         */
-        UnknownException(const char* file, int line, std::string unknown) noexcept
-            : LocalException(file, line),
-              unknown(std::move(unknown))
-        {
-        }
-
         const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * This field is set to the textual representation of the unknown exception if available.
-         */
-        std::string unknown;
     };
 
     /**
@@ -262,8 +183,6 @@ namespace Ice
         using UnknownException::UnknownException;
 
         const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
     };
 
     /**
@@ -280,8 +199,6 @@ namespace Ice
         using UnknownException::UnknownException;
 
         const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
     };
 
     //

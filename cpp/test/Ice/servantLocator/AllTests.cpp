@@ -36,7 +36,7 @@ testExceptions(const TestIntfPrx& obj)
     }
     catch (const UnknownUserException& ex)
     {
-        test(ex.unknown == "reason");
+        test(string{ex.what()} ==  "reason");
     }
     catch (...)
     {
@@ -50,7 +50,7 @@ testExceptions(const TestIntfPrx& obj)
     }
     catch (const UnknownLocalException& ex)
     {
-        test(ex.unknown == "reason");
+        test(string{ex.what()} ==  "reason");
     }
     catch (...)
     {
@@ -64,7 +64,7 @@ testExceptions(const TestIntfPrx& obj)
     }
     catch (const UnknownException& ex)
     {
-        test(ex.unknown == "reason");
+        test(string{ex.what()} ==  "reason");
     }
     catch (...)
     {
@@ -78,7 +78,7 @@ testExceptions(const TestIntfPrx& obj)
     }
     catch (const UnknownUserException& ex)
     {
-        test(ex.unknown == "::Test::TestIntfUserException");
+        test(string{ex.what()} ==  "::Test::TestIntfUserException");
     }
     catch (const OperationNotExistException&)
     {
@@ -96,8 +96,8 @@ testExceptions(const TestIntfPrx& obj)
     catch (const UnknownLocalException& ex)
     {
         test(
-            ex.unknown.find("SocketException") != string::npos ||
-            ex.unknown.find("Ice.SocketException") != string::npos);
+            string{ex.what()}.find("SocketException") != string::npos ||
+            string{ex.what()}.find("Ice.SocketException") != string::npos);
     }
     catch (...)
     {
@@ -114,7 +114,7 @@ testExceptions(const TestIntfPrx& obj)
     }
     catch (const UnknownException& ex)
     {
-        test(ex.unknown == "c++ exception: Hello");
+        test(string{ex.what()} ==  "c++ exception: Hello");
     }
     catch (...)
     {
@@ -128,7 +128,7 @@ testExceptions(const TestIntfPrx& obj)
     }
     catch (const UnknownException& ex)
     {
-        test(ex.unknown == "c++ exception: unknown");
+        test(string{ex.what()} ==  "c++ exception: unknown");
     }
     catch (const OperationNotExistException&)
     {
@@ -145,7 +145,7 @@ testExceptions(const TestIntfPrx& obj)
     }
     catch (const UnknownException& ex)
     {
-        test(ex.unknown == "reason");
+        test(string{ex.what()} ==  "reason");
     }
     catch (...)
     {
@@ -226,7 +226,7 @@ allTests(Test::TestHelper* helper)
     }
     catch (const UnknownUserException& ex)
     {
-        test(ex.unknown == "::Test::TestIntfUserException");
+        test(string{ex.what()} ==  "::Test::TestIntfUserException");
     }
     catch (...)
     {
@@ -241,7 +241,7 @@ allTests(Test::TestHelper* helper)
     }
     catch (const UnknownUserException& ex)
     {
-        test(ex.unknown == "::Test::TestIntfUserException");
+        test(string{ex.what()} ==  "::Test::TestIntfUserException");
     }
     catch (...)
     {
