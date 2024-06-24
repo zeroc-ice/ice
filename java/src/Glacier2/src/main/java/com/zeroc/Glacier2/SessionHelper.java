@@ -353,9 +353,7 @@ public class SessionHelper {
               if (_communicator.getDefaultRouter() == null) {
                 com.zeroc.Ice.RouterFinderPrx finder = null;
                 try {
-                  finder =
-                      com.zeroc.Ice.RouterFinderPrx.uncheckedCast(
-                          _communicator.stringToProxy(_finderStr));
+                  finder = com.zeroc.Ice.RouterFinderPrx.createProxy(_communicator, _finderStr);
                   _communicator.setDefaultRouter(finder.getRouter());
                 } catch (final com.zeroc.Ice.CommunicatorDestroyedException ex) {
                   dispatchCallback(

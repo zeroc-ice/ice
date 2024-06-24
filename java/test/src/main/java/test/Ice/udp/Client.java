@@ -25,9 +25,8 @@ public class Client extends test.TestHelper {
       }
 
       for (int i = 0; i < num; ++i) {
-        com.zeroc.Ice.ObjectPrx prx =
-            communicator().stringToProxy("control:" + getTestEndpoint(i, "tcp"));
-        TestIntfPrx.uncheckedCast(prx).shutdown();
+        var prx = TestIntfPrx.createProxy(communicator(), "control:" + getTestEndpoint(i, "tcp"));
+        prx.shutdown();
       }
     }
   }

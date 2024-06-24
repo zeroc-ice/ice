@@ -182,15 +182,12 @@ public class ControllerApp extends Application {
       adapter.activate();
       ProcessControllerRegistryPrx registry;
       if (isEmulator()) {
-        registry =
-            ProcessControllerRegistryPrx.uncheckedCast(
-                _communicator.stringToProxy(
-                    "Util/ProcessControllerRegistry:tcp -h 10.0.2.2 -p 15001"));
+        registry = ProcessControllerRegistryPrx.createProxy(
+            _communicator,
+            "Util/ProcessControllerRegistry:tcp -h 10.0.2.2 -p 15001");
       } else {
         // Use IceDiscovery to find a process controller registry
-        registry =
-            ProcessControllerRegistryPrx.uncheckedCast(
-                _communicator.stringToProxy("Util/ProcessControllerRegistry"));
+        registry = ProcessControllerRegistryPrx.createProxy(_communicator, "Util/ProcessControllerRegistry");
       }
       registerProcessController(adapter, registry, processController);
       println("Android/ProcessController");

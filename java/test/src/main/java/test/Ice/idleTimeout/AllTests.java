@@ -16,7 +16,7 @@ public class AllTests {
   static void allTests(test.TestHelper helper) {
     Communicator communicator = helper.communicator();
     String proxyString = "test: " + helper.getTestEndpoint();
-    TestIntfPrx p = TestIntfPrx.uncheckedCast(communicator.stringToProxy(proxyString));
+    var p = TestIntfPrx.createProxy(communicator, proxyString);
 
     String proxyString3s = "test: " + helper.getTestEndpoint(1);
 
@@ -70,7 +70,7 @@ public class AllTests {
     var initData = new InitializationData();
     initData.properties = properties;
     try (var communicator = Util.initialize(initData)) {
-      TestIntfPrx p = TestIntfPrx.uncheckedCast(communicator.stringToProxy(proxyString));
+      var p = TestIntfPrx.createProxy(communicator, proxyString);
 
       // Establish connection.
       var connection = p.ice_getConnection();
@@ -104,7 +104,7 @@ public class AllTests {
     var initData = new InitializationData();
     initData.properties = properties;
     try (var communicator = Util.initialize(initData)) {
-      TestIntfPrx p = TestIntfPrx.uncheckedCast(communicator.stringToProxy(proxyString));
+      var p = TestIntfPrx.createProxy(communicator, proxyString);
 
       var connection = p.ice_getConnection();
       test(connection != null);

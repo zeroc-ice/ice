@@ -1339,9 +1339,7 @@ class Twoways {
           ctx.put("two", "TWO");
           ctx.put("three", "THREE");
 
-          MyClassPrx p3 =
-              MyClassPrx.uncheckedCast(
-                  ic.stringToProxy("test:" + helper.getTestEndpoint(properties, 0)));
+          var p3 = MyClassPrx.createProxy(ic, "test:" + helper.getTestEndpoint(properties, 0));
 
           ic.getImplicitContext().setContext(ctx);
           test(ic.getImplicitContext().getContext().equals(ctx));

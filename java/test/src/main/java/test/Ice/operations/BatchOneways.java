@@ -124,7 +124,7 @@ class BatchOneways {
       BatchRequestInterceptorI interceptor = new BatchRequestInterceptorI();
       initData.batchRequestInterceptor = interceptor;
       try (com.zeroc.Ice.Communicator ic = helper.initialize(initData)) {
-        batch = MyClassPrx.uncheckedCast(ic.stringToProxy(p.toString())).ice_batchOneway();
+        batch = MyClassPrx.createProxy(ic, p.toString()).ice_batchOneway();
 
         test(interceptor.count() == 0);
         batch.ice_ping();

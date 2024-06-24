@@ -17,14 +17,10 @@ public class AllTests {
   public static void allTests(test.TestHelper helper) {
     com.zeroc.Ice.Communicator communicator = helper.communicator();
     PrintWriter out = helper.getWriter();
-    TestIntfPrx service1 =
-        TestIntfPrx.uncheckedCast(communicator.stringToProxy("test:" + helper.getTestEndpoint(0)));
-    TestIntfPrx service2 =
-        TestIntfPrx.uncheckedCast(communicator.stringToProxy("test:" + helper.getTestEndpoint(1)));
-    TestIntfPrx service3 =
-        TestIntfPrx.uncheckedCast(communicator.stringToProxy("test:" + helper.getTestEndpoint(2)));
-    TestIntfPrx service4 =
-        TestIntfPrx.uncheckedCast(communicator.stringToProxy("test:" + helper.getTestEndpoint(3)));
+    var service1 = TestIntfPrx.createProxy(communicator, "test:" + helper.getTestEndpoint(0));
+    var service2 = TestIntfPrx.createProxy(communicator, "test:" + helper.getTestEndpoint(1));
+    var service3 = TestIntfPrx.createProxy(communicator, "test:" + helper.getTestEndpoint(2));
+    var service4 = TestIntfPrx.createProxy(communicator, "test:" + helper.getTestEndpoint(3));
 
     if (service1.getProperty("IceBox.InheritProperties").equals("")) {
       out.print("testing service properties... ");

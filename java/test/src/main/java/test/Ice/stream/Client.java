@@ -205,7 +205,7 @@ public class Client extends test.TestHelper {
         s.d = 6.0;
         s.str = "7";
         s.e = MyEnum.enum2;
-        s.p = MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test:default"));
+        s.p = MyInterfacePrx.createProxy(communicator, "test:default");
         LargeStruct.ice_write(out, s);
         byte[] data = out.finished();
         in = new InputStream(communicator, data);
