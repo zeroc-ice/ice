@@ -2518,7 +2518,7 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
             throw MarshalException{
                 __FILE__,
                 __LINE__,
-                "Cannot unmarshal exception with type ID '" +  _current->typeId + "'"};
+                "Cannot unmarshal exception with type ID '" + _current->typeId + "'"};
         }
     }
 
