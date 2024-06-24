@@ -9,7 +9,7 @@
 
 namespace Slice
 {
-    class FileException : public ::IceUtil::Exception
+    class FileException : public ::Ice::LocalException
     {
     public:
         FileException(const char*, int, const std::string&);

@@ -11,10 +11,9 @@
 #include <stdexcept>
 
 using namespace std;
-using namespace IceUtil;
 
 IceUtilInternal::APIException::APIException(const char* file, int line, string r) noexcept
-    : Exception(file, line),
+    : Ice::LocalException(file, line),
       reason(std::move(r))
 {
 }
@@ -43,7 +42,7 @@ IceUtilInternal::operator<<(ostream& out, const IceUtilInternal::APIException& e
 }
 
 IceUtilInternal::BadOptException::BadOptException(const char* file, int line, string r) noexcept
-    : Exception(file, line),
+    : Ice::LocalException(file, line),
       reason(std::move(r))
 {
 }

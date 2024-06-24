@@ -12,7 +12,7 @@ using namespace IceUtilInternal;
 using namespace std;
 
 Slice::FileException::FileException(const char* file, int line, const string& r)
-    : IceUtil::Exception(file, line),
+    : Ice::LocalException(file, line),
       _reason(r)
 {
 }
@@ -26,7 +26,7 @@ Slice::FileException::ice_id() const noexcept
 void
 Slice::FileException::ice_print(ostream& out) const
 {
-    IceUtil::Exception::ice_print(out);
+    Ice::LocalException::ice_print(out);
     out << ": " << _reason;
 }
 

@@ -3,7 +3,7 @@
 //
 
 #include "IceUtil/UUID.h"
-#include "IceUtil/Exception.h"
+
 // We use a high quality random number generator
 // (std::random_device) to generate "version 4" UUIDs, as described in
 // http://www.ietf.org/internet-drafts/draft-mealling-uuid-urn-00.txt

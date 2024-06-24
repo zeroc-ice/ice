@@ -34,7 +34,7 @@ namespace Ice
      * Indicates that Iconv does not support the code.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API IconvInitializationException final : public Exception
+    class ICE_API IconvInitializationException final : public LocalException
     {
     public:
         /**

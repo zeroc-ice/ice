@@ -5,7 +5,7 @@
 #ifndef ICE_UTIL_TIMER_H
 #define ICE_UTIL_TIMER_H
 
-#include "Exception.h"
+#include "Config.h"
 
 #include <cassert>
 #include <chrono>

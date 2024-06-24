@@ -114,7 +114,7 @@ main(int argc, char* argv[])
             // Expected if the client is interrupted during the initialization.
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         consoleErr << args[0] << ": " << ex << endl;
         status = 1;

@@ -59,7 +59,7 @@ ConsoleUtil::toConsoleEncoding(const string& message) const
 
         return consoleString;
     }
-    catch (const IceUtil::IllegalConversionException&)
+    catch (const Ice::IllegalConversionException&)
     {
         //
         // If there is a problem with the encoding conversions we just

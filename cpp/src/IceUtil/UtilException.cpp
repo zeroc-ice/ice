@@ -22,6 +22,7 @@
 #    define __STDC_LIMIT_MACROS
 #endif
 
+#include "Ice/Exception.h"
 #include "IceUtil/Exception.h"
 #include "IceUtil/StringUtil.h"
 
@@ -501,7 +502,7 @@ namespace
     }
 }
 
-IceUtil::Exception::Exception(const char* file, int line, const char* message) noexcept
+Ice::Exception::Exception(const char* file, int line, const char* message) noexcept
     : _file(file),
       _line(line),
       _what(message),
@@ -509,7 +510,7 @@ IceUtil::Exception::Exception(const char* file, int line, const char* message) n
 {
 }
 
-IceUtil::Exception::Exception(const char* file, int line, string message) noexcept
+Ice::Exception::Exception(const char* file, int line, string message) noexcept
     : _file(file),
       _line(line),
       _whatString(std::move(message)),
@@ -519,13 +520,13 @@ IceUtil::Exception::Exception(const char* file, int line, string message) noexce
 }
 
 const char*
-IceUtil::Exception::what() const noexcept
+Ice::Exception::what() const noexcept
 {
     return _what ? _what : ice_id();
 }
 
 void
-IceUtil::Exception::ice_print(ostream& out) const
+Ice::Exception::ice_print(ostream& out) const
 {
     if (_file && _line > 0)
     {
@@ -535,25 +536,25 @@ IceUtil::Exception::ice_print(ostream& out) const
 }
 
 const char*
-IceUtil::Exception::ice_file() const noexcept
+Ice::Exception::ice_file() const noexcept
 {
     return _file;
 }
 
 int
-IceUtil::Exception::ice_line() const noexcept
+Ice::Exception::ice_line() const noexcept
 {
     return _line;
 }
 
 string
-IceUtil::Exception::ice_stackTrace() const
+Ice::Exception::ice_stackTrace() const
 {
     return getStackTrace(_stackFrames);
 }
 
 ostream&
-IceUtil::operator<<(ostream& out, const IceUtil::Exception& ex)
+Ice::operator<<(ostream& out, const Ice::Exception& ex)
 {
     ex.ice_print(out);
     return out;
@@ -563,40 +564,40 @@ IceUtil::operator<<(ostream& out, const IceUtil::Exception& ex)
 // IllegalConversionException
 //
 
-IceUtil::IllegalConversionException::IllegalConversionException(const char* file, int line, string reason) noexcept
-    : Exception(file, line),
+Ice::IllegalConversionException::IllegalConversionException(const char* file, int line, string reason) noexcept
+    : LocalException(file, line),
       _reason(std::move(reason))
 {
 }
 
 void
-IceUtil::IllegalConversionException::ice_print(ostream& out) const
+Ice::IllegalConversionException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ": " << _reason;
 }
 
 const char*
-IceUtil::IllegalConversionException::ice_id() const noexcept
+Ice::IllegalConversionException::ice_id() const noexcept
 {
     return "::IceUtil::IllegalConversionException";
 }
 
 string
-IceUtil::IllegalConversionException::reason() const noexcept
+Ice::IllegalConversionException::reason() const noexcept
 {
     return _reason;
 }
 
-IceUtil::FileLockException::FileLockException(const char* file, int line, int err, string path) noexcept
-    : Exception(file, line),
+Ice::FileLockException::FileLockException(const char* file, int line, int err, string path) noexcept
+    : LocalException(file, line),
       _error(err),
       _path(std::move(path))
 {
 }
 
 void
-IceUtil::FileLockException::ice_print(ostream& os) const
+Ice::FileLockException::ice_print(ostream& os) const
 {
     Exception::ice_print(os);
     os << ":\ncould not lock file: `" << _path << "'";
@@ -607,13 +608,13 @@ IceUtil::FileLockException::ice_print(ostream& os) const
 }
 
 const char*
-IceUtil::FileLockException::ice_id() const noexcept
+Ice::FileLockException::ice_id() const noexcept
 {
     return "::IceUtil::FileLockException";
 }
 
 int
-IceUtil::FileLockException::error() const noexcept
+Ice::FileLockException::error() const noexcept
 {
     return _error;
 }

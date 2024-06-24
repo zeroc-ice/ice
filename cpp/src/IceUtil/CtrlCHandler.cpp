@@ -27,8 +27,9 @@ namespace
     mutex globalMutex;
 }
 
+// TODO: move
 const char*
-CtrlCHandlerException::ice_id() const noexcept
+Ice::CtrlCHandlerException::ice_id() const noexcept
 {
     return "::IceUtil::CtrlCHandlerException";
 }
@@ -159,7 +160,7 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
 
     if (handler)
     {
-        throw CtrlCHandlerException(__FILE__, __LINE__);
+        throw Ice::CtrlCHandlerException(__FILE__, __LINE__);
     }
     else
     {

@@ -5,7 +5,7 @@
 #ifndef SLICE_PARSER_H
 #define SLICE_PARSER_H
 
-#include "IceUtil/Exception.h"
+#include "Ice/Exception.h"
 #include <array>
 #include <cstdint>
 #include <list>
@@ -21,7 +21,7 @@
 
 namespace Slice
 {
-    class CompilerException : public ::IceUtil::Exception
+    class CompilerException : public Ice::LocalException
     {
     public:
         CompilerException(const char*, int, const std::string&);

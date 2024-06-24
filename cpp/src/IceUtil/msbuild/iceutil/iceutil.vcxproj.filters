@@ -56,6 +56,9 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\DisableWarnings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\Exception.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\..\include\IceUtil\Exception.h">
       <Filter>Header Files</Filter>
     </ClInclude>

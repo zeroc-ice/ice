@@ -25,16 +25,6 @@
 namespace Ice
 {
     /**
-     * Abstract base class for all Ice run-time exceptions.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API LocalException : public Exception
-    {
-    public:
-        using Exception::Exception;
-    };
-
-    /**
      * This exception is raised if a request failed. This exception, and all exceptions derived from
      * {@link RequestFailedException}, are transmitted by the Ice protocol, even though they are declared
      * <code>local</code>.

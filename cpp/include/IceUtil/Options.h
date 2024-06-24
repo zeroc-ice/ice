@@ -6,7 +6,7 @@
 #define ICE_UTIL_OPTIONS_H
 
 #include "Config.h"
-#include "Exception.h"
+#include "Ice/Exception.h"
 #include <map>
 #include <memory>
 #include <string>
@@ -14,7 +14,7 @@
 
 namespace IceUtilInternal
 {
-    class ICE_API APIException : public IceUtil::Exception
+    class ICE_API APIException : public Ice::LocalException
     {
     public:
         APIException(const char*, int, std::string) noexcept;
@@ -25,7 +25,7 @@ namespace IceUtilInternal
 
     ICE_API std::ostream& operator<<(std::ostream&, const APIException&);
 
-    class ICE_API BadOptException : public IceUtil::Exception
+    class ICE_API BadOptException : public Ice::LocalException
     {
     public:
         BadOptException(const char*, int, std::string) noexcept;

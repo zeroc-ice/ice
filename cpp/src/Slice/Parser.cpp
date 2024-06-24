@@ -42,7 +42,7 @@ compareTag(const T& lhs, const T& rhs)
 }
 
 Slice::CompilerException::CompilerException(const char* file, int line, const string& r)
-    : IceUtil::Exception(file, line),
+    : Ice::LocalException(file, line),
       _reason(r)
 {
 }
@@ -56,7 +56,7 @@ Slice::CompilerException::ice_id() const noexcept
 void
 Slice::CompilerException::ice_print(ostream& out) const
 {
-    IceUtil::Exception::ice_print(out);
+    Ice::LocalException::ice_print(out);
     out << ": " << _reason;
 }
 

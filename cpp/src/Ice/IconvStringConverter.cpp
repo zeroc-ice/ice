@@ -11,7 +11,7 @@ using namespace Ice;
 using namespace IceUtil;
 
 IconvInitializationException::IconvInitializationException(const char* file, int line, string reason) noexcept
-    : Exception(file, line),
+    : LocalException(file, line),
       _reason(std::move(reason))
 {
 }
@@ -19,7 +19,7 @@ IconvInitializationException::IconvInitializationException(const char* file, int
 void
 IconvInitializationException::ice_print(ostream& out) const
 {
-    IceUtil::Exception::ice_print(out);
+    Ice::Exception::ice_print(out);
     out << ": " << _reason;
 }
 

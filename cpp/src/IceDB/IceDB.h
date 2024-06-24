@@ -42,7 +42,7 @@ namespace IceDB
     // LMDBException wraps an error condition (and error code)
     // returned by LMDB
     //
-    class ICE_DB_API LMDBException : public IceUtil::Exception
+    class ICE_DB_API LMDBException : public Ice::LocalException
     {
     public:
         LMDBException(const char*, int, int);
@@ -61,7 +61,7 @@ namespace IceDB
     // KeyTooLongException is thrown if we attempt to marshal a
     // key with a marshaled representation longer than maxKeySize.
     //
-    class ICE_DB_API KeyTooLongException : public IceUtil::Exception
+    class ICE_DB_API KeyTooLongException : public Ice::LocalException
     {
     public:
         KeyTooLongException(const char*, int, size_t);
@@ -78,7 +78,7 @@ namespace IceDB
     // The creation of an Env fails with BadEnvException when this
     // Env's max key size is smaller than maxKeySize.
     //
-    class ICE_DB_API BadEnvException : public IceUtil::Exception
+    class ICE_DB_API BadEnvException : public Ice::LocalException
     {
     public:
         BadEnvException(const char*, int, size_t);

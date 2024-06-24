@@ -143,7 +143,7 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
             _instance = std::move(instance);
             _managerProxy = TopicManagerPrx{topicAdapter->add(_manager->getServant(), topicManagerId)};
         }
-        catch (const IceUtil::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             _instance = 0;
 
@@ -341,7 +341,7 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
 
             node->start();
         }
-        catch (const IceUtil::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             _instance = nullptr;
 

@@ -21,9 +21,6 @@ namespace Ice
     using WstringConverter = IceUtil::WstringConverter;
     using WstringConverterPtr = IceUtil::WstringConverterPtr;
 
-    /** Indicates an error occurred during string conversion. */
-    using IllegalConversionException = IceUtil::IllegalConversionException;
-
     /** Base class for a string converter. */
     template<typename charT> using BasicStringConverter = IceUtil::BasicStringConverter<charT>;
 
