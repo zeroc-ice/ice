@@ -865,7 +865,10 @@ namespace Ice
                 }
                 catch (Ice.UnknownLocalException ex)
                 {
-                    test(ex.unknown.Contains("MarshalException")); // encoding not supported
+                    // TODO: remove UnsupportedEncodingException
+                    test(
+                        ex.unknown.Contains("MarshalException") ||
+                        ex.unknown.Contains("UnsupportedEncodingException"));
                 }
 
                 try

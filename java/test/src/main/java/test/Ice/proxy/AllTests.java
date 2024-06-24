@@ -920,8 +920,10 @@ public class AllTests {
       cl.ice_invoke("ice_ping", com.zeroc.Ice.OperationMode.Normal, inEncaps);
       test(false);
     } catch (com.zeroc.Ice.UnknownLocalException ex) {
-      // The server thrown an UnsupportedEncodingException
-      test(ex.unknown.indexOf("UnsupportedEncodingException") > 0);
+      // TODO: remove UnsupportedEncodingException
+      test(
+          ex.unknown.indexOf("MarshalException") > 0
+              || ex.unknown.indexOf("UnsupportedEncodingException") > 0);
     }
 
     try {
@@ -936,8 +938,10 @@ public class AllTests {
       cl.ice_invoke("ice_ping", com.zeroc.Ice.OperationMode.Normal, inEncaps);
       test(false);
     } catch (com.zeroc.Ice.UnknownLocalException ex) {
-      // The server thrown an UnsupportedEncodingException
-      test(ex.unknown.indexOf("UnsupportedEncodingException") > 0);
+      // TODO: remove UnsupportedEncodingException
+      test(
+          ex.unknown.indexOf("MarshalException") > 0
+              || ex.unknown.indexOf("UnsupportedEncodingException") > 0);
     }
 
     out.println("ok");

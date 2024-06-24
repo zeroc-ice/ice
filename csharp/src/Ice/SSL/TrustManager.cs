@@ -45,7 +45,7 @@ internal sealed class TrustManager
         }
         catch (ParseException ex)
         {
-            throw new PluginInitializationException($"IceSSL: invalid property {key}", ex);
+            throw new InitializationException($"IceSSL: invalid property {key}", ex);
         }
     }
 
