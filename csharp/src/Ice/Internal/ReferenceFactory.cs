@@ -329,7 +329,7 @@ public class ReferenceFactory
                 {
                     if (argument == null)
                     {
-                         throw new ParseException($"no argument provided for -p option in proxy string '{s}'");
+                        throw new ParseException($"no argument provided for -p option in proxy string '{s}'");
                     }
 
                     try
@@ -345,7 +345,7 @@ public class ReferenceFactory
 
                 default:
                 {
-                   throw new ParseException($"unknown option '{option}' in proxy string '{s}'");
+                    throw new ParseException($"unknown option '{option}' in proxy string '{s}'");
                 }
             }
         }

@@ -3501,7 +3501,7 @@ public class InputStream
                 if (_current.sliceType == SliceType.ValueSlice)
                 {
                     throw new MarshalException(
-                        $"Cannot find value factory for type ID '{ _current.typeId}' and compact format prevents slicing.");
+                        $"Cannot find value factory for type ID '{_current.typeId}' and compact format prevents slicing.");
                 }
                 else
                 {

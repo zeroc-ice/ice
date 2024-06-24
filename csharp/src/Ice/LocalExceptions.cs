@@ -505,8 +505,8 @@ public sealed class NotRegisteredException : LocalException
     public string kindOfObject { get; }
     public string id { get; }
 
-     public NotRegisteredException(string kindOfObject, string id)
-        : base($"No {kindOfObject} is registered with ID '{id}'.")
+    public NotRegisteredException(string kindOfObject, string id)
+       : base($"No {kindOfObject} is registered with ID '{id}'.")
     {
         this.kindOfObject = kindOfObject;
         this.id = id;
