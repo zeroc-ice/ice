@@ -9,13 +9,7 @@
 using namespace std;
 
 const char*
-IceGrid::SynchronizationException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-IceGrid::SynchronizationException::ice_staticId() noexcept
+IceGrid::SynchronizationException::ice_id() const noexcept
 {
     return "::IceGrid::SynchronizationException";
 }

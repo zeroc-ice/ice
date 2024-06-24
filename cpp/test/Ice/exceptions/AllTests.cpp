@@ -79,13 +79,9 @@ allTests(Test::TestHelper* helper)
         }
 
         //
-        // Test what(). (Called twice because of lazy initialization in what().)
+        // Test what().
         //
         test(aMsg == a.what());
-        test(aMsg == a.what());
-
-        test(uleMsg == ule.what());
-        test(uleMsg == ule.what());
 
         {
             E ex("E");

@@ -7,13 +7,7 @@
 using namespace std;
 
 const char*
-IceBT::BluetoothException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-IceBT::BluetoothException::ice_staticId() noexcept
+IceBT::BluetoothException::ice_id() const noexcept
 {
     return "::IceBT::BluetoothException";
 }

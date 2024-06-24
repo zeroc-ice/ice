@@ -9,13 +9,7 @@
 using namespace std;
 
 const char*
-IceStorm::SendQueueSizeMaxReached::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-IceStorm::SendQueueSizeMaxReached::ice_staticId() noexcept
+IceStorm::SendQueueSizeMaxReached::ice_id() const noexcept
 {
     return "::IceStorm::SendQueueSizeMaxReached";
 }

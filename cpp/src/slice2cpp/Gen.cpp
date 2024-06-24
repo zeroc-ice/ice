@@ -2216,8 +2216,8 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << nl << _dllMemberExport << "void ice_print(::std::ostream& stream) const override;";
     }
 
-    H << sp << nl << _dllMemberExport << "const char* ice_id() const override;";
-    C << sp << nl << "const char*" << nl << scoped.substr(2) << "::ice_id() const";
+    H << sp << nl << _dllMemberExport << "const char* ice_id() const noexcept override;";
+    C << sp << nl << "const char*" << nl << scoped.substr(2) << "::ice_id() const noexcept";
     C << sb;
     C << nl << "return ice_staticId();";
     C << eb;

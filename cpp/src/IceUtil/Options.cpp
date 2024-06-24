@@ -20,7 +20,7 @@ IceUtilInternal::APIException::APIException(const char* file, int line, string r
 }
 
 const char*
-IceUtilInternal::APIException::ice_id() const
+IceUtilInternal::APIException::ice_id() const noexcept
 {
     return "::IceUtilInternal::APIException";
 }
@@ -49,7 +49,7 @@ IceUtilInternal::BadOptException::BadOptException(const char* file, int line, st
 }
 
 const char*
-IceUtilInternal::BadOptException::ice_id() const
+IceUtilInternal::BadOptException::ice_id() const noexcept
 {
     return "::IceUtilInternal::BadOptException";
 }

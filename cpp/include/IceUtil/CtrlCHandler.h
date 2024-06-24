@@ -76,7 +76,7 @@ namespace IceUtil
     public:
         using Exception::Exception;
 
-        const char* ice_id() const final;
+        const char* ice_id() const noexcept final;
     };
 }
 

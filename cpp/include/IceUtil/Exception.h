@@ -71,7 +71,7 @@ namespace IceUtil
          * for other exceptions. For example "::IceUtil::SyscallException".
          * @return The type ID of this exception
          */
-        virtual const char* ice_id() const = 0;
+        virtual const char* ice_id() const noexcept = 0;
 
         /**
          * Outputs a description of this exception to a stream.
@@ -124,7 +124,7 @@ namespace IceUtil
         using Exception::Exception;
         IllegalConversionException(const char*, int, std::string) noexcept;
 
-        const char* ice_id() const override;
+        const char* ice_id() const noexcept override;
         void ice_print(std::ostream&) const override;
 
         /**
@@ -146,7 +146,7 @@ namespace IceUtil
     public:
         FileLockException(const char*, int, int, std::string) noexcept;
 
-        const char* ice_id() const override;
+        const char* ice_id() const noexcept override;
         void ice_print(std::ostream&) const override;
 
         /**

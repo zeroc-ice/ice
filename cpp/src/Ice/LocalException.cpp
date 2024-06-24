@@ -25,335 +25,153 @@ namespace
 }
 
 const char*
-Ice::LocalException::ice_staticId() noexcept
+Ice::InitializationException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::LocalException";
-    return typeId;
+    return "::Ice::InitializationException";
 }
 
 const char*
-Ice::InitializationException::ice_id() const
+Ice::PluginInitializationException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::PluginInitializationException";
 }
 
 const char*
-Ice::InitializationException::ice_staticId() noexcept
+Ice::AlreadyRegisteredException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::InitializationException";
-    return typeId;
+    return "::Ice::AlreadyRegisteredException";
 }
 
 const char*
-Ice::PluginInitializationException::ice_id() const
+Ice::NotRegisteredException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::NotRegisteredException";
 }
 
 const char*
-Ice::PluginInitializationException::ice_staticId() noexcept
+Ice::TwowayOnlyException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::PluginInitializationException";
-    return typeId;
+    return "::Ice::TwowayOnlyException";
 }
 
 const char*
-Ice::AlreadyRegisteredException::ice_id() const
+Ice::CloneNotImplementedException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::CloneNotImplementedException";
 }
 
 const char*
-Ice::AlreadyRegisteredException::ice_staticId() noexcept
+Ice::UnknownException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::AlreadyRegisteredException";
-    return typeId;
+    return "::Ice::UnknownException";
 }
 
 const char*
-Ice::NotRegisteredException::ice_id() const
+Ice::UnknownLocalException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::UnknownLocalException";
 }
 
 const char*
-Ice::NotRegisteredException::ice_staticId() noexcept
+Ice::UnknownUserException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::NotRegisteredException";
-    return typeId;
+    return "::Ice::UnknownUserException";
 }
 
 const char*
-Ice::TwowayOnlyException::ice_id() const
+Ice::VersionMismatchException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::VersionMismatchException";
 }
 
 const char*
-Ice::TwowayOnlyException::ice_staticId() noexcept
+Ice::CommunicatorDestroyedException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::TwowayOnlyException";
-    return typeId;
+    return "::Ice::CommunicatorDestroyedException";
 }
 
 const char*
-Ice::CloneNotImplementedException::ice_id() const
+Ice::ObjectAdapterDeactivatedException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::ObjectAdapterDeactivatedException";
 }
 
 const char*
-Ice::CloneNotImplementedException::ice_staticId() noexcept
+Ice::ObjectAdapterIdInUseException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::CloneNotImplementedException";
-    return typeId;
+    return "::Ice::ObjectAdapterIdInUseException";
 }
 
 const char*
-Ice::UnknownException::ice_id() const
+Ice::NoEndpointException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::NoEndpointException";
 }
 
 const char*
-Ice::UnknownException::ice_staticId() noexcept
+Ice::EndpointParseException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::UnknownException";
-    return typeId;
+    return "::Ice::EndpointParseException";
 }
 
 const char*
-Ice::UnknownLocalException::ice_id() const
+Ice::EndpointSelectionTypeParseException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::EndpointSelectionTypeParseException";
 }
 
 const char*
-Ice::UnknownLocalException::ice_staticId() noexcept
+Ice::VersionParseException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::UnknownLocalException";
-    return typeId;
+    return "::Ice::VersionParseException";
 }
 
 const char*
-Ice::UnknownUserException::ice_id() const
+Ice::IdentityParseException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::IdentityParseException";
 }
 
 const char*
-Ice::UnknownUserException::ice_staticId() noexcept
+Ice::ProxyParseException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::UnknownUserException";
-    return typeId;
+    return "::Ice::ProxyParseException";
 }
 
 const char*
-Ice::VersionMismatchException::ice_id() const
+Ice::IllegalIdentityException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::IllegalIdentityException";
 }
 
 const char*
-Ice::VersionMismatchException::ice_staticId() noexcept
+Ice::IllegalServantException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::VersionMismatchException";
-    return typeId;
+    return "::Ice::IllegalServantException";
 }
 
 const char*
-Ice::CommunicatorDestroyedException::ice_id() const
+Ice::RequestFailedException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::RequestFailedException";
 }
 
 const char*
-Ice::CommunicatorDestroyedException::ice_staticId() noexcept
+Ice::ObjectNotExistException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::CommunicatorDestroyedException";
-    return typeId;
+    return "::Ice::ObjectNotExistException";
 }
 
 const char*
-Ice::ObjectAdapterDeactivatedException::ice_id() const
+Ice::FacetNotExistException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::FacetNotExistException";
 }
 
 const char*
-Ice::ObjectAdapterDeactivatedException::ice_staticId() noexcept
+Ice::OperationNotExistException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::ObjectAdapterDeactivatedException";
-    return typeId;
-}
-
-const char*
-Ice::ObjectAdapterIdInUseException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::ObjectAdapterIdInUseException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::ObjectAdapterIdInUseException";
-    return typeId;
-}
-
-const char*
-Ice::NoEndpointException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::NoEndpointException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::NoEndpointException";
-    return typeId;
-}
-
-const char*
-Ice::EndpointParseException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::EndpointParseException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::EndpointParseException";
-    return typeId;
-}
-
-const char*
-Ice::EndpointSelectionTypeParseException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::EndpointSelectionTypeParseException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::EndpointSelectionTypeParseException";
-    return typeId;
-}
-
-const char*
-Ice::VersionParseException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::VersionParseException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::VersionParseException";
-    return typeId;
-}
-
-const char*
-Ice::IdentityParseException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::IdentityParseException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::IdentityParseException";
-    return typeId;
-}
-
-const char*
-Ice::ProxyParseException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::ProxyParseException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::ProxyParseException";
-    return typeId;
-}
-
-const char*
-Ice::IllegalIdentityException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::IllegalIdentityException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::IllegalIdentityException";
-    return typeId;
-}
-
-const char*
-Ice::IllegalServantException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::IllegalServantException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::IllegalServantException";
-    return typeId;
-}
-
-const char*
-Ice::RequestFailedException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::RequestFailedException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::RequestFailedException";
-    return typeId;
-}
-
-const char*
-Ice::ObjectNotExistException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::ObjectNotExistException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::ObjectNotExistException";
-    return typeId;
-}
-
-const char*
-Ice::FacetNotExistException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::FacetNotExistException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::FacetNotExistException";
-    return typeId;
-}
-
-const char*
-Ice::OperationNotExistException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::OperationNotExistException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::OperationNotExistException";
-    return typeId;
+    return "::Ice::OperationNotExistException";
 }
 
 Ice::SyscallException::SyscallException(const char* file, int line) noexcept
@@ -367,497 +185,231 @@ Ice::SyscallException::SyscallException(const char* file, int line) noexcept
 }
 
 const char*
-Ice::SyscallException::ice_id() const
+Ice::SyscallException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::SyscallException";
 }
 
 const char*
-Ice::SyscallException::ice_staticId() noexcept
+Ice::SocketException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::SyscallException";
-    return typeId;
+    return "::Ice::SocketException";
 }
 
 const char*
-Ice::SocketException::ice_id() const
+Ice::CFNetworkException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::CFNetworkException";
 }
 
 const char*
-Ice::SocketException::ice_staticId() noexcept
+Ice::FileException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::SocketException";
-    return typeId;
+    return "::Ice::FileException";
 }
 
 const char*
-Ice::CFNetworkException::ice_id() const
+Ice::ConnectFailedException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::ConnectFailedException";
 }
 
 const char*
-Ice::CFNetworkException::ice_staticId() noexcept
+Ice::ConnectionRefusedException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::CFNetworkException";
-    return typeId;
+    return "::Ice::ConnectionRefusedException";
 }
 
 const char*
-Ice::FileException::ice_id() const
+Ice::ConnectionLostException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::ConnectionLostException";
 }
 
 const char*
-Ice::FileException::ice_staticId() noexcept
+Ice::DNSException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::FileException";
-    return typeId;
+    return "::Ice::DNSException";
 }
 
 const char*
-Ice::ConnectFailedException::ice_id() const
+Ice::ConnectionClosedException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::ConnectionClosedException";
 }
 
 const char*
-Ice::ConnectFailedException::ice_staticId() noexcept
+Ice::ConnectionIdleException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::ConnectFailedException";
-    return typeId;
+    return "::Ice::ConnectionIdleException";
 }
 
 const char*
-Ice::ConnectionRefusedException::ice_id() const
+Ice::TimeoutException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::TimeoutException";
 }
 
 const char*
-Ice::ConnectionRefusedException::ice_staticId() noexcept
+Ice::ConnectTimeoutException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::ConnectionRefusedException";
-    return typeId;
+    return "::Ice::ConnectTimeoutException";
 }
 
 const char*
-Ice::ConnectionLostException::ice_id() const
+Ice::CloseTimeoutException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::CloseTimeoutException";
 }
 
 const char*
-Ice::ConnectionLostException::ice_staticId() noexcept
+Ice::InvocationTimeoutException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::ConnectionLostException";
-    return typeId;
+    return "::Ice::InvocationTimeoutException";
 }
 
 const char*
-Ice::DNSException::ice_id() const
+Ice::InvocationCanceledException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::InvocationCanceledException";
 }
 
 const char*
-Ice::DNSException::ice_staticId() noexcept
+Ice::ProtocolException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::DNSException";
-    return typeId;
+    return "::Ice::ProtocolException";
 }
 
 const char*
-Ice::ConnectionClosedException::ice_id() const
+Ice::BadMagicException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::BadMagicException";
 }
 
 const char*
-Ice::ConnectionClosedException::ice_staticId() noexcept
+Ice::UnsupportedProtocolException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::ConnectionClosedException";
-    return typeId;
+    return "::Ice::UnsupportedProtocolException";
 }
 
 const char*
-Ice::ConnectionIdleException::ice_id() const
+Ice::UnsupportedEncodingException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::UnsupportedEncodingException";
 }
 
 const char*
-Ice::ConnectionIdleException::ice_staticId() noexcept
+Ice::UnknownMessageException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::ConnectionIdleException";
-    return typeId;
+    return "::Ice::UnknownMessageException";
 }
 
 const char*
-Ice::TimeoutException::ice_id() const
+Ice::ConnectionNotValidatedException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::ConnectionNotValidatedException";
 }
 
 const char*
-Ice::TimeoutException::ice_staticId() noexcept
+Ice::UnknownReplyStatusException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::TimeoutException";
-    return typeId;
+    return "::Ice::UnknownReplyStatusException";
 }
 
 const char*
-Ice::ConnectTimeoutException::ice_id() const
+Ice::CloseConnectionException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::CloseConnectionException";
 }
 
 const char*
-Ice::ConnectTimeoutException::ice_staticId() noexcept
+Ice::ConnectionManuallyClosedException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::ConnectTimeoutException";
-    return typeId;
+    return "::Ice::ConnectionManuallyClosedException";
 }
 
 const char*
-Ice::CloseTimeoutException::ice_id() const
+Ice::IllegalMessageSizeException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::IllegalMessageSizeException";
 }
 
 const char*
-Ice::CloseTimeoutException::ice_staticId() noexcept
+Ice::CompressionException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::CloseTimeoutException";
-    return typeId;
+    return "::Ice::CompressionException";
 }
 
 const char*
-Ice::InvocationTimeoutException::ice_id() const
+Ice::DatagramLimitException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::DatagramLimitException";
 }
 
 const char*
-Ice::InvocationTimeoutException::ice_staticId() noexcept
+Ice::MarshalException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::InvocationTimeoutException";
-    return typeId;
+    return "::Ice::MarshalException";
 }
 
 const char*
-Ice::InvocationCanceledException::ice_id() const
+Ice::ProxyUnmarshalException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::ProxyUnmarshalException";
 }
 
 const char*
-Ice::InvocationCanceledException::ice_staticId() noexcept
+Ice::UnmarshalOutOfBoundsException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::InvocationCanceledException";
-    return typeId;
+    return "::Ice::UnmarshalOutOfBoundsException";
 }
 
 const char*
-Ice::ProtocolException::ice_id() const
+Ice::NoValueFactoryException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::NoValueFactoryException";
 }
 
 const char*
-Ice::ProtocolException::ice_staticId() noexcept
+Ice::UnexpectedObjectException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::ProtocolException";
-    return typeId;
+    return "::Ice::UnexpectedObjectException";
 }
 
 const char*
-Ice::BadMagicException::ice_id() const
+Ice::MemoryLimitException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::MemoryLimitException";
 }
 
 const char*
-Ice::BadMagicException::ice_staticId() noexcept
+Ice::StringConversionException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::BadMagicException";
-    return typeId;
+    return "::Ice::StringConversionException";
 }
 
 const char*
-Ice::UnsupportedProtocolException::ice_id() const
+Ice::EncapsulationException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::EncapsulationException";
 }
 
 const char*
-Ice::UnsupportedProtocolException::ice_staticId() noexcept
+Ice::FeatureNotSupportedException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::UnsupportedProtocolException";
-    return typeId;
+    return "::Ice::FeatureNotSupportedException";
 }
 
 const char*
-Ice::UnsupportedEncodingException::ice_id() const
+Ice::SecurityException::ice_id() const noexcept
 {
-    return ice_staticId();
+    return "::Ice::SecurityException";
 }
 
 const char*
-Ice::UnsupportedEncodingException::ice_staticId() noexcept
+Ice::FixedProxyException::ice_id() const noexcept
 {
-    static constexpr const char* typeId = "::Ice::UnsupportedEncodingException";
-    return typeId;
-}
-
-const char*
-Ice::UnknownMessageException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::UnknownMessageException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::UnknownMessageException";
-    return typeId;
-}
-
-const char*
-Ice::ConnectionNotValidatedException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::ConnectionNotValidatedException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::ConnectionNotValidatedException";
-    return typeId;
-}
-
-const char*
-Ice::UnknownReplyStatusException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::UnknownReplyStatusException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::UnknownReplyStatusException";
-    return typeId;
-}
-
-const char*
-Ice::CloseConnectionException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::CloseConnectionException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::CloseConnectionException";
-    return typeId;
-}
-
-const char*
-Ice::ConnectionManuallyClosedException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::ConnectionManuallyClosedException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::ConnectionManuallyClosedException";
-    return typeId;
-}
-
-const char*
-Ice::IllegalMessageSizeException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::IllegalMessageSizeException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::IllegalMessageSizeException";
-    return typeId;
-}
-
-const char*
-Ice::CompressionException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::CompressionException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::CompressionException";
-    return typeId;
-}
-
-const char*
-Ice::DatagramLimitException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::DatagramLimitException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::DatagramLimitException";
-    return typeId;
-}
-
-const char*
-Ice::MarshalException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::MarshalException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::MarshalException";
-    return typeId;
-}
-
-const char*
-Ice::ProxyUnmarshalException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::ProxyUnmarshalException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::ProxyUnmarshalException";
-    return typeId;
-}
-
-const char*
-Ice::UnmarshalOutOfBoundsException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::UnmarshalOutOfBoundsException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::UnmarshalOutOfBoundsException";
-    return typeId;
-}
-
-const char*
-Ice::NoValueFactoryException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::NoValueFactoryException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::NoValueFactoryException";
-    return typeId;
-}
-
-const char*
-Ice::UnexpectedObjectException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::UnexpectedObjectException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::UnexpectedObjectException";
-    return typeId;
-}
-
-const char*
-Ice::MemoryLimitException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::MemoryLimitException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::MemoryLimitException";
-    return typeId;
-}
-
-const char*
-Ice::StringConversionException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::StringConversionException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::StringConversionException";
-    return typeId;
-}
-
-const char*
-Ice::EncapsulationException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::EncapsulationException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::EncapsulationException";
-    return typeId;
-}
-
-const char*
-Ice::FeatureNotSupportedException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::FeatureNotSupportedException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::FeatureNotSupportedException";
-    return typeId;
-}
-
-const char*
-Ice::SecurityException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::SecurityException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::SecurityException";
-    return typeId;
-}
-
-const char*
-Ice::FixedProxyException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-Ice::FixedProxyException::ice_staticId() noexcept
-{
-    static constexpr const char* typeId = "::Ice::FixedProxyException";
-    return typeId;
+    return "::Ice::FixedProxyException";
 }
 
 // ice_print for all exceptions

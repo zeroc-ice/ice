@@ -28,7 +28,7 @@ namespace
 }
 
 const char*
-CtrlCHandlerException::ice_id() const
+CtrlCHandlerException::ice_id() const noexcept
 {
     return "::IceUtil::CtrlCHandlerException";
 }

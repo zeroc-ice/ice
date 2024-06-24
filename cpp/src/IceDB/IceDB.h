@@ -47,8 +47,8 @@ namespace IceDB
     public:
         LMDBException(const char*, int, int);
 
-        virtual const char* ice_id() const;
-        virtual void ice_print(std::ostream&) const;
+        const char* ice_id() const noexcept override;
+        void ice_print(std::ostream&) const override;
 
         int error() const;
 
@@ -66,8 +66,8 @@ namespace IceDB
     public:
         KeyTooLongException(const char*, int, size_t);
 
-        virtual const char* ice_id() const;
-        virtual void ice_print(std::ostream&) const;
+        const char* ice_id() const noexcept override;
+        void ice_print(std::ostream&) const override;
 
     private:
         const size_t _size;
@@ -83,8 +83,8 @@ namespace IceDB
     public:
         BadEnvException(const char*, int, size_t);
 
-        virtual const char* ice_id() const;
-        virtual void ice_print(std::ostream&) const;
+        const char* ice_id() const noexcept override;
+        void ice_print(std::ostream&) const override;
 
     private:
         const size_t _size;

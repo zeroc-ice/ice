@@ -7,13 +7,7 @@
 using namespace std;
 
 const char*
-IceBox::FailureException::ice_id() const
-{
-    return ice_staticId();
-}
-
-const char*
-IceBox::FailureException::ice_staticId() noexcept
+IceBox::FailureException::ice_id() const noexcept
 {
     return "::IceBox::FailureException";
 }
