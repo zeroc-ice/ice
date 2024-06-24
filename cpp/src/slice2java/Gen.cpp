@@ -4379,14 +4379,14 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     // TODO: eventually remove this default constructor.
     // Default constructor
     outi << sp;
-    outi << nl << prxIName << "()";
+    outi << nl << "public " << prxIName << "()";
     outi << sb;
     outi << nl << "super();";
     outi << eb;
 
     // Copy constructor
     outi << sp;
-    outi << nl << prxIName << "(com.zeroc.Ice.ObjectPrx obj)";
+    outi << nl << "public " << prxIName << "(com.zeroc.Ice.ObjectPrx obj)";
     outi << sb;
     outi << nl << "super(obj);";
     outi << eb;
