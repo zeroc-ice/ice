@@ -426,9 +426,9 @@ IceMatlab::convertException(const std::exception_ptr exc)
         }
         catch (const Ice::RequestFailedException& e)
         {
-            params[idx++] = createIdentity(e.id);
-            params[idx++] = createStringFromUTF8(e.facet);
-            params[idx++] = createStringFromUTF8(e.operation);
+            params[idx++] = createIdentity(e.id());
+            params[idx++] = createStringFromUTF8(e.facet());
+            params[idx++] = createStringFromUTF8(e.operation());
         }
         catch (const Ice::FileException& e)
         {

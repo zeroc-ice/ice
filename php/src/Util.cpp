@@ -458,15 +458,15 @@ convertLocalException(std::exception_ptr ex, zval* zex)
     catch (const Ice::RequestFailedException& e)
     {
         zval id;
-        if (!createIdentity(&id, e.id))
+        if (!createIdentity(&id, e.id()))
         {
             zval_ptr_dtor(&id);
             return false;
         }
         zendUpdateProperty(cls, zex, const_cast<char*>("id"), sizeof("id") - 1, &id);
         zval_ptr_dtor(&id);
-        setStringMember(zex, "facet", e.facet);
-        setStringMember(zex, "operation", e.operation);
+        setStringMember(zex, "facet", e.facet());
+        setStringMember(zex, "operation", e.operation());
     }
     catch (const Ice::FileException& e)
     {

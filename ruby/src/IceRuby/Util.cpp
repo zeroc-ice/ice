@@ -627,11 +627,11 @@ setExceptionMembers(std::exception_ptr ex, VALUE p)
     catch (const Ice::RequestFailedException& e)
     {
         volatile VALUE v;
-        v = IceRuby::createIdentity(e.id);
+        v = IceRuby::createIdentity(e.id());
         callRuby(rb_iv_set, p, "@id", v);
-        v = createString(e.facet);
+        v = createString(e.facet());
         callRuby(rb_iv_set, p, "@facet", v);
-        v = createString(e.operation);
+        v = createString(e.operation());
         callRuby(rb_iv_set, p, "@operation", v);
     }
     catch (const Ice::FileException& e)

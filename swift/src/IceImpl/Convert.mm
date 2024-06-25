@@ -125,39 +125,30 @@ convertException(std::exception_ptr exc)
     }
     catch (const Ice::ObjectNotExistException& e)
     {
-        return [factory objectNotExistException:toNSString(e.id.name)
-                                       category:toNSString(e.id.category)
-                                          facet:toNSString(e.facet)
-                                      operation:toNSString(e.operation)
+        return [factory objectNotExistException:toNSString(e.id().name)
+                                       category:toNSString(e.id().category)
+                                          facet:toNSString(e.facet())
+                                      operation:toNSString(e.operation())
                                            file:toNSString(e.ice_file())
                                            line:e.ice_line()];
     }
     catch (const Ice::FacetNotExistException& e)
     {
-        return [factory facetNotExistException:toNSString(e.id.name)
-                                      category:toNSString(e.id.category)
-                                         facet:toNSString(e.facet)
-                                     operation:toNSString(e.operation)
+        return [factory facetNotExistException:toNSString(e.id().name)
+                                      category:toNSString(e.id().category)
+                                         facet:toNSString(e.facet())
+                                     operation:toNSString(e.operation())
                                           file:toNSString(e.ice_file())
                                           line:e.ice_line()];
     }
     catch (const Ice::OperationNotExistException& e)
     {
-        return [factory operationNotExistException:toNSString(e.id.name)
-                                          category:toNSString(e.id.category)
-                                             facet:toNSString(e.facet)
-                                         operation:toNSString(e.operation)
+        return [factory operationNotExistException:toNSString(e.id().name)
+                                          category:toNSString(e.id().category)
+                                             facet:toNSString(e.facet())
+                                         operation:toNSString(e.operation())
                                               file:toNSString(e.ice_file())
                                               line:e.ice_line()];
-    }
-    catch (const Ice::RequestFailedException& e)
-    {
-        return [factory requestFailedException:toNSString(e.id.name)
-                                      category:toNSString(e.id.category)
-                                         facet:toNSString(e.facet)
-                                     operation:toNSString(e.operation)
-                                          file:toNSString(e.ice_file())
-                                          line:e.ice_line()];
     }
     catch (const Ice::ConnectionRefusedException& e)
     {

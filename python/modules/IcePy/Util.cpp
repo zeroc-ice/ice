@@ -776,11 +776,11 @@ convertLocalException(std::exception_ptr ex, PyObject* p)
     catch (const Ice::RequestFailedException& e)
     {
         IcePy::PyObjectHandle m;
-        m = IcePy::createIdentity(e.id);
+        m = IcePy::createIdentity(e.id());
         PyObject_SetAttrString(p, STRCAST("id"), m.get());
-        m = IcePy::createString(e.facet);
+        m = IcePy::createString(e.facet());
         PyObject_SetAttrString(p, STRCAST("facet"), m.get());
-        m = IcePy::createString(e.operation);
+        m = IcePy::createString(e.operation());
         PyObject_SetAttrString(p, STRCAST("operation"), m.get());
     }
     catch (const Ice::FileException& e)
