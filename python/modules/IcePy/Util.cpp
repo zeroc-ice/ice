@@ -299,7 +299,7 @@ IcePy::PyException::raise()
     PyObject* userExceptionType = lookupType("Ice.UserException");
     PyObject* localExceptionType = lookupType("Ice.LocalException");
 
-      // TODO: create better error messages.
+    // TODO: create better error messages.
 
     if (PyObject_IsInstance(ex.get(), userExceptionType))
     {
