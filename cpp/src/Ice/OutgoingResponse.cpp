@@ -61,8 +61,8 @@ namespace
                 replyStatus = ReplyStatus::ObjectNotExist;
             }
 
-            Identity id = rfe.id;
-            string facet = rfe.facet;
+            Identity id = rfe.id();
+            string facet = rfe.facet();
             if (id.name.empty())
             {
                 id = current.id;
@@ -71,7 +71,7 @@ namespace
                     facet = current.facet;
                 }
             }
-            string operation = rfe.operation.empty() ? current.operation : rfe.operation;
+            string operation = rfe.operation().empty() ? current.operation : rfe.operation();
 
             exceptionMessage = rfe.ice_hasDefaultMessage()
                                    ? createRequestFailedMessage(rfe.ice_id(), id, facet, operation)

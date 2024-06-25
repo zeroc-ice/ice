@@ -20,9 +20,9 @@ testExceptions(const TestIntfPrx& obj)
     }
     catch (const ObjectNotExistException& ex)
     {
-        test(ex.id == obj->ice_getIdentity());
-        test(ex.facet == obj->ice_getFacet());
-        test(ex.operation == "requestFailedException");
+        test(ex.id() == obj->ice_getIdentity());
+        test(ex.facet() == obj->ice_getFacet());
+        test(ex.operation() == "requestFailedException");
     }
     catch (...)
     {

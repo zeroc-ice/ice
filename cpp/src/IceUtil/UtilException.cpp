@@ -502,20 +502,21 @@ namespace
     }
 }
 
-Ice::Exception::Exception(const char* file, int line, const char* message) noexcept
+// TODO: make_shared is not noexcept.
+Ice::Exception::Exception(const char* file, int line) noexcept
     : _file(file),
       _line(line),
-      _what(message),
-      _stackFrames(getStackFrames())
+      _what(nullptr),
+      _stackFrames(make_shared<vector<void*>>(getStackFrames()))
 {
 }
 
-Ice::Exception::Exception(const char* file, int line, string message) noexcept
+Ice::Exception::Exception(const char* file, int line, string message)
     : _file(file),
       _line(line),
-      _whatString(std::move(message)),
-      _what(_whatString.c_str()),
-      _stackFrames(getStackFrames())
+      _whatString(make_shared<string>(std::move(message))),
+      _what(_whatString->c_str()),
+      _stackFrames(make_shared<vector<void*>>(getStackFrames()))
 {
 }
 
@@ -550,7 +551,7 @@ Ice::Exception::ice_line() const noexcept
 string
 Ice::Exception::ice_stackTrace() const
 {
-    return getStackTrace(_stackFrames);
+    return getStackTrace(*_stackFrames);
 }
 
 ostream&

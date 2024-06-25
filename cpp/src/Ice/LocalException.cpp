@@ -28,12 +28,12 @@ void
 Ice::RequestFailedException::ice_print(ostream& out) const
 {
     Exception::ice_print(out); // print file + line + what()
-    if (ice_hasDefaultMessage() && !id.name.empty())
+    if (ice_hasDefaultMessage() && !_id->name.empty())
     {
         // We assume a non-default message includes identity/facet/operation.
-        out << "\nidentity: '" << identityToString(id, ToStringMode::Unicode) << "'";
-        out << "\nfacet: " << facet;
-        out << "\noperation: " << operation;
+        out << "\nidentity: '" << identityToString(*_id, ToStringMode::Unicode) << "'";
+        out << "\nfacet: " << *_facet;
+        out << "\noperation: " << *_operation;
     }
 }
 
@@ -952,7 +952,7 @@ IceInternal::createRequestFailedMessage(
     const string& operation)
 {
     ostringstream os;
-    os << "Dispatch failed with " << typeId;
+    os << "dispatch failed with " << typeId;
     if (!id.name.empty())
     {
         os << "\nidentity: '" << identityToString(id, ToStringMode::Unicode) << "'";

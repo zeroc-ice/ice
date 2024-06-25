@@ -10,6 +10,7 @@
 #include "Ice/Identity.h"
 #include "Ice/Version.h"
 
+#include <memory>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -48,11 +49,11 @@ namespace Ice
             std::string message,
             Identity id,
             std::string facet,
-            std::string operation) noexcept
+            std::string operation)
             : LocalException(file, line, std::move(message)),
-              id(std::move(id)),
-              facet(std::move(facet)),
-              operation(std::move(operation))
+              _id(std::make_shared<Identity>(std::move(id))),
+              _facet(std::make_shared<std::string>(std::move(facet))),
+              _operation(std::make_shared<std::string>(std::move(operation)))
         {
         }
 
@@ -69,11 +70,11 @@ namespace Ice
             int line,
             Identity id,
             std::string facet,
-            std::string operation) noexcept
+            std::string operation)
             : LocalException(file, line),
-              id(std::move(id)),
-              facet(std::move(facet)),
-              operation(std::move(operation))
+              _id(std::make_shared<Identity>(std::move(id))),
+              _facet(std::make_shared<std::string>(std::move(facet))),
+              _operation(std::make_shared<std::string>(std::move(operation)))
         {
         }
 
@@ -83,24 +84,35 @@ namespace Ice
          * @param file The file name in which the exception was raised, typically __FILE__.
          * @param line The line number at which the exception was raised, typically __LINE__.
          */
-        RequestFailedException(const char* file, int line) noexcept : LocalException(file, line) {}
+        RequestFailedException(const char* file, int line) :
+            RequestFailedException(file, line, Identity{}, "", "")
+        {
+        }
 
-        void ice_print(std::ostream& stream) const override;
+        RequestFailedException(const RequestFailedException&) noexcept = default;
+        RequestFailedException& operator=(const RequestFailedException&) noexcept = default;
 
         /**
          * The identity of the Ice Object to which the request was sent.
          */
-        const Identity id;
+        const Identity& id() const noexcept { return *_id; }
 
         /**
          * The facet to which the request was sent.
          */
-        const std::string facet;
+        const std::string& facet() const noexcept { return *_facet; }
 
         /**
          * The operation name of the request.
          */
-        const std::string operation;
+        const std::string& operation() const noexcept { return *_operation; }
+
+        void ice_print(std::ostream& stream) const override;
+
+        private:
+            std::shared_ptr<Identity> _id;
+            std::shared_ptr<std::string> _facet;
+            std::shared_ptr<std::string> _operation;
     };
 
     /**
@@ -131,7 +143,7 @@ namespace Ice
 
     /**
      * This exception is raised if an operation for a given object does not exist on the server. Typically this is
-     * caused by either the client or the server using an outdated Slice specification.
+     * caused by either the client or the server using outdated Slice definitions.
      * \headerfile Ice/Ice.h
      */
     class ICE_API OperationNotExistException final : public RequestFailedException
@@ -143,21 +155,30 @@ namespace Ice
     };
 
     /**
-     * This exception is raised if an operation call on a server raises an unknown exception. For example, for C++, this
-     * exception is raised if the server throws a C++ exception that is not directly or indirectly derived from
+     * This exception is raised when a dispatch fails with an unknown exception. For example, for C++, this
+     * exception is raised if the dispatch throws a C++ exception that is not directly or indirectly derived from
      * <code>Ice::LocalException</code> or <code>Ice::UserException</code>.
      * \headerfile Ice/Ice.h
      */
     class ICE_API UnknownException : public LocalException
     {
     public:
-        using LocalException::LocalException;
+        /**
+         * Constructs an UnknownException.
+         * @param file The file name in which the exception was raised, typically __FILE__.
+         * @param line The line number at which the exception was raised, typically __LINE__.
+         * @param message The message returned by what().
+         */
+        UnknownException(const char* file, int line, std::string message)
+            : LocalException(file, line, std::move(message))
+        {
+        }
 
         const char* ice_id() const noexcept override;
     };
 
     /**
-     * This exception is raised if an operation call on a server raises a  local exception. Because local exceptions are
+     * This exception is raised if an operation call on a server raises a local exception. Because local exceptions are
      * not transmitted by the Ice protocol, the client receives all local exceptions raised by the server as
      * {@link UnknownLocalException}. The only exception to this rule are all exceptions derived from
      * {@link RequestFailedException}, which are transmitted by the Ice protocol even though they are declared

@@ -24,20 +24,31 @@ namespace Ice
     {
     public:
         /**
-         * Constructs an exception.
-         * @param file The file where this exception is constructed.
+         * Constructs an exception with a default message.
+         * @param file The file where this exception is constructed. This C string is not copied.
          * @param line The line where this exception is constructed.
-         * @param message The error message returned by what(), or nullptr to use the default message.
          */
-        Exception(const char* file, int line, const char* message = nullptr) noexcept;
+        Exception(const char* file, int line) noexcept;
 
         /**
          * Constructs an exception.
-         * @param file The file where this exception is constructed.
+         * @param file The file where this exception is constructed. This C string is not copied.
          * @param line The line where this exception is constructed.
          * @param message The error message adopted by this exception and returned by what().
          */
-        Exception(const char* file, int line, std::string message) noexcept;
+        Exception(const char* file, int line, std::string message);
+
+        /**
+         * Copy constructor.
+         * @param other The exception to copy.
+         */
+        Exception(const Exception& other) noexcept = default;
+
+        /**
+         * Assignment operator.
+         * @param rhs The exception to assign.
+         */
+        Exception& operator=(const Exception& rhs) noexcept = default;
 
         /**
          * Returns the error message of this exception.
@@ -84,11 +95,11 @@ namespace Ice
         bool ice_hasDefaultMessage() const noexcept { return _what == nullptr; }
 
     private:
-        const char* const _file;       // can be nullptr
-        const int _line;               // not used when _file is nullptr
-        const std::string _whatString; // optional storage for _what
-        const char* const _what;       // can be nullptr
-        const std::vector<void*> _stackFrames;
+        const char*  _file;                                // can be nullptr
+        int _line;                                         // not used when _file is nullptr
+        std::shared_ptr<std::string> _whatString;          // shared storage for custom _what message.
+        const char*  _what;                                // can be nullptr
+        std::shared_ptr<std::vector<void*>> _stackFrames;  // shared storage for stack frames.
     };
 
     ICE_API std::ostream& operator<<(std::ostream&, const Exception&);

@@ -47,8 +47,8 @@ allTests(Test::TestHelper* helper)
         A a;
         string aMsg = "::Test::A";
 
-        Ice::UnknownLocalException ule("thisFile", 99);
-        string ulePrint = "thisFile:99: ::Ice::UnknownLocalException";
+        Ice::OperationNotExistException one("thisFile", 99);
+        string onePrint = "thisFile:99: ::Ice::OperationNotExistException";
 
         const char* customMessage = "custom message";
         Ice::UnknownLocalException customUle("thisFile", 199, customMessage);
@@ -64,8 +64,8 @@ allTests(Test::TestHelper* helper)
         }
         {
             stringstream str;
-            ule.ice_print(str);
-            test(str.str() == ulePrint);
+            one.ice_print(str);
+            test(str.str() == onePrint);
         }
         {
             stringstream str;
@@ -83,8 +83,8 @@ allTests(Test::TestHelper* helper)
         }
         {
             stringstream str;
-            str << ule;
-            test(str.str() == ulePrint);
+            str << one;
+            test(str.str() == onePrint);
         }
         {
             stringstream str;
@@ -96,7 +96,7 @@ allTests(Test::TestHelper* helper)
         // Test what().
         //
         test(aMsg == a.what());
-        test(string{ule.ice_id()} == ule.what());
+        test(string{one.ice_id()} == one.what());
         test(string{customMessage} == customUle.what());
 
         {
@@ -627,7 +627,7 @@ allTests(Test::TestHelper* helper)
     }
     catch (const Ice::ObjectNotExistException& ex)
     {
-        test(ex.id == id);
+        test(ex.id() == id);
     }
     catch (...)
     {
@@ -648,7 +648,7 @@ allTests(Test::TestHelper* helper)
         }
         catch (const Ice::FacetNotExistException& ex)
         {
-            test(ex.facet == "no such facet");
+            test(ex.facet() == "no such facet");
         }
     }
     catch (...)
@@ -668,7 +668,7 @@ allTests(Test::TestHelper* helper)
     }
     catch (const Ice::OperationNotExistException& ex)
     {
-        test(ex.operation == "noSuchOperation");
+        test(ex.operation() == "noSuchOperation");
     }
     catch (...)
     {
@@ -1028,7 +1028,7 @@ allTests(Test::TestHelper* helper)
         }
         catch (const Ice::ObjectNotExistException& ex)
         {
-            test(ex.id == id);
+            test(ex.id() == id);
         }
         catch (...)
         {
@@ -1049,7 +1049,7 @@ allTests(Test::TestHelper* helper)
         }
         catch (const Ice::FacetNotExistException& ex)
         {
-            test(ex.facet == "no such facet");
+            test(ex.facet() == "no such facet");
         }
     }
 
@@ -1066,7 +1066,7 @@ allTests(Test::TestHelper* helper)
         }
         catch (const Ice::OperationNotExistException& ex)
         {
-            test(ex.operation == "noSuchOperation");
+            test(ex.operation() == "noSuchOperation");
         }
         catch (...)
         {
