@@ -724,7 +724,7 @@ struct_def
     }
     else
     {
-        st = cont->createStruct(IceUtil::generateUUID()); // Dummy
+        st = cont->createStruct(Ice::generateUUID()); // Dummy
         assert(st);
         currentUnit->pushContainer(st);
     }
@@ -1107,17 +1107,17 @@ data_member
     auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer());
     if (cl)
     {
-        $$ = cl->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
+        $$ = cl->createDataMember(Ice::generateUUID(), type, false, 0, 0, "", ""); // Dummy
     }
     auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
     if (st)
     {
-        $$ = st->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
+        $$ = st->createDataMember(Ice::generateUUID(), type, false, 0, 0, "", ""); // Dummy
     }
     auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
     if (ex)
     {
-        $$ = ex->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
+        $$ = ex->createDataMember(Ice::generateUUID(), type, false, 0, 0, "", ""); // Dummy
     }
     assert($$);
     currentUnit->error("missing data member name");
@@ -1525,7 +1525,7 @@ exception
     ExceptionPtr exception = cont->lookupException(scoped->v);
     if (!exception)
     {
-        exception = cont->createException(IceUtil::generateUUID(), 0, Dummy); // Dummy
+        exception = cont->createException(Ice::generateUUID(), 0, Dummy); // Dummy
     }
     cont->checkIntroduced(scoped->v, exception);
     $$ = exception;
@@ -1534,7 +1534,7 @@ exception
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
     currentUnit->error("keyword `" + ident->v + "' cannot be used as exception name");
-    $$ = currentUnit->currentContainer()->createException(IceUtil::generateUUID(), 0, Dummy); // Dummy
+    $$ = currentUnit->currentContainer()->createException(Ice::generateUUID(), 0, Dummy); // Dummy
 }
 ;
 
@@ -1615,7 +1615,7 @@ enum_def
     }
     else
     {
-        en = cont->createEnum(IceUtil::generateUUID(), Dummy);
+        en = cont->createEnum(Ice::generateUUID(), Dummy);
     }
     currentUnit->pushContainer(en);
     $$ = en;
@@ -1639,7 +1639,7 @@ ICE_ENUM
 {
     currentUnit->error("missing enumeration name");
     ContainerPtr cont = currentUnit->currentContainer();
-    EnumPtr en = cont->createEnum(IceUtil::generateUUID(), Dummy);
+    EnumPtr en = cont->createEnum(Ice::generateUUID(), Dummy);
     currentUnit->pushContainer(en);
     $$ = en;
 }
@@ -1844,7 +1844,7 @@ parameters
     auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
     if (op)
     {
-        op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v, false, 0); // Dummy
+        op->createParamDecl(Ice::generateUUID(), type, isOutParam->v, false, 0); // Dummy
         currentUnit->error("missing parameter name");
     }
 }
@@ -1855,7 +1855,7 @@ parameters
     auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
     if (op)
     {
-        op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v, false, 0); // Dummy
+        op->createParamDecl(Ice::generateUUID(), type, isOutParam->v, false, 0); // Dummy
         currentUnit->error("missing parameter name");
     }
 }
@@ -2105,7 +2105,7 @@ const_def
     auto const_type = dynamic_pointer_cast<Type>($3);
     auto value = dynamic_pointer_cast<ConstDefTok>($5);
     currentUnit->error("missing constant name");
-    $$ = currentUnit->currentContainer()->createConst(IceUtil::generateUUID(), const_type, metaData->v, value->v,
+    $$ = currentUnit->currentContainer()->createConst(Ice::generateUUID(), const_type, metaData->v, value->v,
                                                value->valueAsString, value->valueAsLiteral, Dummy); // Dummy
 }
 ;
