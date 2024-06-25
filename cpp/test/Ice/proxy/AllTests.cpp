@@ -1009,9 +1009,10 @@ allTests(TestHelper* helper)
     catch (const Ice::UnknownLocalException& ex)
     {
         // TODO: remove UnsupportedEncodingException
+        string message{ex.what()};
         test(
-            ex.unknown.find("MarshalException") != string::npos ||
-            ex.unknown.find("UnsupportedEncodingException") != string::npos);
+            message.find("MarshalException") != string::npos ||
+            message.find("UnsupportedEncodingException") != string::npos);
     }
 
     try
@@ -1032,9 +1033,10 @@ allTests(TestHelper* helper)
     catch (const Ice::UnknownLocalException& ex)
     {
         // TODO: remove UnsupportedEncodingException
+        string message{ex.what()};
         test(
-            ex.unknown.find("MarshalException") != string::npos ||
-            ex.unknown.find("UnsupportedEncodingException") != string::npos);
+            message.find("MarshalException") != string::npos ||
+            message.find("UnsupportedEncodingException") != string::npos);
     }
 
     cout << "ok" << endl;

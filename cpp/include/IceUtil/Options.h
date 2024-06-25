@@ -6,7 +6,7 @@
 #define ICE_UTIL_OPTIONS_H
 
 #include "Config.h"
-#include "Exception.h"
+#include "Ice/Exception.h"
 #include <map>
 #include <memory>
 #include <string>
@@ -14,24 +14,22 @@
 
 namespace IceUtilInternal
 {
-    class ICE_API APIException : public IceUtil::Exception
+    class ICE_API APIException : public Ice::LocalException
     {
     public:
-        using IceUtil::Exception::Exception;
         APIException(const char*, int, std::string) noexcept;
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
         void ice_print(std::ostream&) const override;
         std::string reason;
     };
 
     ICE_API std::ostream& operator<<(std::ostream&, const APIException&);
 
-    class ICE_API BadOptException : public IceUtil::Exception
+    class ICE_API BadOptException : public Ice::LocalException
     {
     public:
-        using IceUtil::Exception::Exception;
         BadOptException(const char*, int, std::string) noexcept;
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
         void ice_print(std::ostream&) const override;
 
         std::string reason;

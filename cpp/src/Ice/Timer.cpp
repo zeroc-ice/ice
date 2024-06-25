@@ -4,7 +4,7 @@
 
 #include "IceUtil/Timer.h"
 #include "ConsoleUtil.h"
-#include "IceUtil/Exception.h"
+#include "Ice/Exception.h"
 
 using namespace std;
 using namespace IceUtil;
@@ -127,7 +127,7 @@ Timer::run()
             {
                 runTimerTask(token.task);
             }
-            catch (const IceUtil::Exception& e)
+            catch (const Ice::Exception& e)
             {
                 consoleErr << "IceUtil::Timer::run(): uncaught exception:\n" << e.what();
 #ifdef __GNUC__

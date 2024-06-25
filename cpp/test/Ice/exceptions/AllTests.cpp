@@ -47,8 +47,12 @@ allTests(Test::TestHelper* helper)
         A a;
         string aMsg = "::Test::A";
 
-        Ice::UnknownLocalException ule("thisFile", 99);
-        string uleMsg = "thisFile:99: ::Ice::UnknownLocalException:\nunknown local exception";
+        Ice::OperationNotExistException one("thisFile", 99);
+        string onePrint = "thisFile:99: ::Ice::OperationNotExistException";
+
+        const char* customMessage = "custom message";
+        Ice::UnknownLocalException customUle("thisFile", 199, customMessage);
+        string customUlePrint = "thisFile:199: custom message";
 
         //
         // Test ice_print().
@@ -60,8 +64,13 @@ allTests(Test::TestHelper* helper)
         }
         {
             stringstream str;
-            ule.ice_print(str);
-            test(str.str() == uleMsg);
+            one.ice_print(str);
+            test(str.str() == onePrint);
+        }
+        {
+            stringstream str;
+            customUle.ice_print(str);
+            test(str.str() == customUlePrint);
         }
 
         //
@@ -74,18 +83,21 @@ allTests(Test::TestHelper* helper)
         }
         {
             stringstream str;
-            str << ule;
-            test(str.str() == uleMsg);
+            str << one;
+            test(str.str() == onePrint);
+        }
+        {
+            stringstream str;
+            str << customUle;
+            test(str.str() == customUlePrint);
         }
 
         //
-        // Test what(). (Called twice because of lazy initialization in what().)
+        // Test what().
         //
         test(aMsg == a.what());
-        test(aMsg == a.what());
-
-        test(uleMsg == ule.what());
-        test(uleMsg == ule.what());
+        test(string{one.ice_id()} == one.what());
+        test(string{customMessage} == customUle.what());
 
         {
             E ex("E");
@@ -615,7 +627,7 @@ allTests(Test::TestHelper* helper)
     }
     catch (const Ice::ObjectNotExistException& ex)
     {
-        test(ex.id == id);
+        test(ex.id() == id);
     }
     catch (...)
     {
@@ -636,7 +648,7 @@ allTests(Test::TestHelper* helper)
         }
         catch (const Ice::FacetNotExistException& ex)
         {
-            test(ex.facet == "no such facet");
+            test(ex.facet() == "no such facet");
         }
     }
     catch (...)
@@ -656,7 +668,7 @@ allTests(Test::TestHelper* helper)
     }
     catch (const Ice::OperationNotExistException& ex)
     {
-        test(ex.operation == "noSuchOperation");
+        test(ex.operation() == "noSuchOperation");
     }
     catch (...)
     {
@@ -1016,7 +1028,7 @@ allTests(Test::TestHelper* helper)
         }
         catch (const Ice::ObjectNotExistException& ex)
         {
-            test(ex.id == id);
+            test(ex.id() == id);
         }
         catch (...)
         {
@@ -1037,7 +1049,7 @@ allTests(Test::TestHelper* helper)
         }
         catch (const Ice::FacetNotExistException& ex)
         {
-            test(ex.facet == "no such facet");
+            test(ex.facet() == "no such facet");
         }
     }
 
@@ -1054,7 +1066,7 @@ allTests(Test::TestHelper* helper)
         }
         catch (const Ice::OperationNotExistException& ex)
         {
-            test(ex.operation == "noSuchOperation");
+            test(ex.operation() == "noSuchOperation");
         }
         catch (...)
         {

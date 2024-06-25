@@ -829,7 +829,7 @@ NodeI::loadServer(
     bool noRestart,
     function<void(const optional<ServerPrx>&, const AdapterPrxDict&, int, int)>&& response,
     function<void(exception_ptr)>&& exception,
-    const Ice::Current& current)
+    const Ice::Current&)
 {
     shared_ptr<ServerCommand> command;
     {
@@ -864,7 +864,7 @@ NodeI::loadServer(
                 // We throw an object not exist exception to avoid dispatch warnings. The registry will consider the
                 // node has being unreachable upon receipt of this exception (like any other Ice::LocalException). We
                 // could also have disabled dispatch warnings but they can still useful to catch other issues.
-                throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
+                throw Ice::ObjectNotExistException(__FILE__, __LINE__);
             }
 
             try
@@ -910,7 +910,7 @@ NodeI::destroyServer(
     bool noRestart,
     function<void()> response,
     function<void(exception_ptr)>,
-    const Ice::Current& current)
+    const Ice::Current&)
 {
     shared_ptr<ServerCommand> command;
     {
@@ -927,7 +927,7 @@ NodeI::destroyServer(
             // We throw an object not exist exception to avoid dispatch warnings. The registry will consider the node
             // has being unreachable upon receipt of this exception (like any other Ice::LocalException). We could also
             // have disabled dispatch warnings but they can still useful to catch other issues.
-            throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
+            throw Ice::ObjectNotExistException(__FILE__, __LINE__);
         }
 
         if (!server)

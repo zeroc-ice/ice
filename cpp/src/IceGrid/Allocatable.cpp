@@ -33,7 +33,7 @@ AllocationRequest::pending()
         {
             _session->getTimer()->schedule(shared_from_this(), chrono::milliseconds(_timeout));
         }
-        catch (const IceUtil::Exception&)
+        catch (const Ice::Exception&)
         {
             // Ignore, timer is destroyed because of shutdown
         }

@@ -792,7 +792,7 @@ Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
             }
         }
     }
-    catch (const IceUtil::IllegalConversionException& ex)
+    catch (const Ice::IllegalConversionException& ex)
     {
         throw StringConversionException(__FILE__, __LINE__, ex.reason());
     }
@@ -887,7 +887,7 @@ Ice::OutputStream::write(wstring_view v)
             }
         }
     }
-    catch (const IceUtil::IllegalConversionException& ex)
+    catch (const Ice::IllegalConversionException& ex)
     {
         throw StringConversionException(__FILE__, __LINE__, ex.reason());
     }

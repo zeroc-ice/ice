@@ -6,10 +6,10 @@
 #define ICE_UTIL_STRING_CONVERTER_H
 
 #include "Config.h"
-#include "Exception.h"
 
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace IceUtil
 {

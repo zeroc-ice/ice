@@ -2695,7 +2695,7 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
             {
                 _node->getTimer()->schedule(_timerTask, chrono::milliseconds(500));
             }
-            catch (const IceUtil::Exception&)
+            catch (const Ice::Exception&)
             {
                 // Ignore, timer is destroyed because node is shutting down.
             }
@@ -2725,7 +2725,7 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
                     _node->getTimer()->schedule(_timerTask, chrono::milliseconds(500));
                 }
             }
-            catch (const IceUtil::Exception&)
+            catch (const Ice::Exception&)
             {
                 // Ignore, timer is destroyed because node is shutting down.
             }

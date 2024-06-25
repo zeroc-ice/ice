@@ -3,6 +3,7 @@
 //
 
 #include "IceUtil/CtrlCHandler.h"
+#include "Ice/Exception.h"
 
 #ifdef _WIN32
 #    include <windows.h>
@@ -27,10 +28,11 @@ namespace
     mutex globalMutex;
 }
 
-string
-CtrlCHandlerException::ice_id() const
+// TODO: move
+const char*
+Ice::CtrlCHandlerException::ice_id() const noexcept
 {
-    return "::IceUtil::CtrlCHandlerException";
+    return "::Ice::CtrlCHandlerException";
 }
 
 CtrlCHandlerCallback
@@ -77,7 +79,7 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
 
     if (handler)
     {
-        throw CtrlCHandlerException(__FILE__, __LINE__);
+        throw Ice::CtrlCHandlerException(__FILE__, __LINE__);
     }
     else
     {
@@ -159,7 +161,7 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
 
     if (handler)
     {
-        throw CtrlCHandlerException(__FILE__, __LINE__);
+        throw Ice::CtrlCHandlerException(__FILE__, __LINE__);
     }
     else
     {

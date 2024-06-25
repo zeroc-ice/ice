@@ -14,10 +14,10 @@
 using namespace IceDB;
 using namespace std;
 
-LMDBException::LMDBException(const char* file, int line, int err) : IceUtil::Exception(file, line), _error(err) {}
+LMDBException::LMDBException(const char* file, int line, int err) : Ice::LocalException(file, line), _error(err) {}
 
-string
-LMDBException::ice_id() const
+const char*
+LMDBException::ice_id() const noexcept
 {
     return "::IceDB::LMDBException";
 }
@@ -25,7 +25,7 @@ LMDBException::ice_id() const
 void
 LMDBException::ice_print(ostream& out) const
 {
-    IceUtil::Exception::ice_print(out);
+    Ice::LocalException::ice_print(out);
     out << ": " << mdb_strerror(_error);
 }
 
@@ -36,13 +36,13 @@ LMDBException::error() const
 }
 
 KeyTooLongException::KeyTooLongException(const char* file, int line, size_t size)
-    : IceUtil::Exception(file, line),
+    : Ice::LocalException(file, line),
       _size(size)
 {
 }
 
-string
-KeyTooLongException::ice_id() const
+const char*
+KeyTooLongException::ice_id() const noexcept
 {
     return "::IceDB::KeyTooLongException";
 }
@@ -50,7 +50,7 @@ KeyTooLongException::ice_id() const
 void
 KeyTooLongException::ice_print(ostream& out) const
 {
-    IceUtil::Exception::ice_print(out);
+    Ice::LocalException::ice_print(out);
     out << ": ";
     if (_size > 0)
     {
@@ -59,12 +59,12 @@ KeyTooLongException::ice_print(ostream& out) const
     out << "Max size = " << maxKeySize;
 }
 
-BadEnvException::BadEnvException(const char* file, int line, size_t size) : IceUtil::Exception(file, line), _size(size)
+BadEnvException::BadEnvException(const char* file, int line, size_t size) : Ice::LocalException(file, line), _size(size)
 {
 }
 
-string
-BadEnvException::ice_id() const
+const char*
+BadEnvException::ice_id() const noexcept
 {
     return "::IceDB::BadEnvException";
 }
@@ -72,7 +72,7 @@ BadEnvException::ice_id() const
 void
 BadEnvException::ice_print(ostream& out) const
 {
-    IceUtil::Exception::ice_print(out);
+    Ice::LocalException::ice_print(out);
     out << ": LMDB env max key size = " << _size;
     out << ", IceDB max key size = " << maxKeySize;
 }

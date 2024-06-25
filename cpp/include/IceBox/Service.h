@@ -45,13 +45,7 @@ namespace IceBox
          */
         std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(reason); }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 

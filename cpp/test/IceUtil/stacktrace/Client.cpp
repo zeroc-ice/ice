@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "IceUtil/Exception.h"
 #include "IceUtil/StringUtil.h"
 #include "TestHelper.h"
 
@@ -50,7 +51,7 @@ namespace
         void fifth()
         {
             _idx++;
-            throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
+            throw Ice::IllegalConversionException(__FILE__, __LINE__);
         }
 
     private:
@@ -94,7 +95,7 @@ Client::run(int, char*[])
     {
         thrower->first();
     }
-    catch (const IceUtil::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         test(splitLines(ex.ice_stackTrace()).size() >= 3);
     }

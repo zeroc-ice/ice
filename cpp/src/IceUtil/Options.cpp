@@ -11,16 +11,15 @@
 #include <stdexcept>
 
 using namespace std;
-using namespace IceUtil;
 
 IceUtilInternal::APIException::APIException(const char* file, int line, string r) noexcept
-    : Exception(file, line),
+    : Ice::LocalException(file, line),
       reason(std::move(r))
 {
 }
 
-string
-IceUtilInternal::APIException::ice_id() const
+const char*
+IceUtilInternal::APIException::ice_id() const noexcept
 {
     return "::IceUtilInternal::APIException";
 }
@@ -43,13 +42,13 @@ IceUtilInternal::operator<<(ostream& out, const IceUtilInternal::APIException& e
 }
 
 IceUtilInternal::BadOptException::BadOptException(const char* file, int line, string r) noexcept
-    : Exception(file, line),
+    : Ice::LocalException(file, line),
       reason(std::move(r))
 {
 }
 
-string
-IceUtilInternal::BadOptException::ice_id() const
+const char*
+IceUtilInternal::BadOptException::ice_id() const noexcept
 {
     return "::IceUtilInternal::BadOptException";
 }

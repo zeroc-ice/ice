@@ -513,7 +513,7 @@ run(const Ice::StringSeq& args)
             fs.close();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         consoleErr << args[0] << ": " << (import ? "import" : "export") << " failed:\n" << ex << endl;
         return 1;

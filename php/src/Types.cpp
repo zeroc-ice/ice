@@ -3239,10 +3239,10 @@ IcePHP::ExceptionReader::~ExceptionReader()
 #endif
 }
 
-string
-IcePHP::ExceptionReader::ice_id() const
+const char*
+IcePHP::ExceptionReader::ice_id() const noexcept
 {
-    return _info->id;
+    return _info->id.c_str();
 }
 
 void

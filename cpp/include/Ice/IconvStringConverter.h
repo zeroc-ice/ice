@@ -34,7 +34,7 @@ namespace Ice
      * Indicates that Iconv does not support the code.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API IconvInitializationException final : public Exception
+    class ICE_API IconvInitializationException final : public LocalException
     {
     public:
         /**
@@ -49,7 +49,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        std::string ice_id() const final;
+        const char* ice_id() const noexcept final;
 
         /**
          * Prints a description of this exception to the given stream.

@@ -22,6 +22,11 @@ namespace Ice
     {
     public:
         /**
+         * Default constructor.
+         */
+        UserException() : Exception(nullptr, 0) {}
+
+        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */

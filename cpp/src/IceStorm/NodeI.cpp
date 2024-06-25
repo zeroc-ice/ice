@@ -1082,7 +1082,7 @@ NodeI::startUpdate(int64_t& generation, const char* file, int line)
 
     if (_destroy)
     {
-        throw Ice::UnknownException(file, line);
+        throw Ice::UnknownException(file, line, "node destroyed");
     }
     if (!_coordinatorProxy)
     {
@@ -1132,7 +1132,7 @@ NodeI::startCachedRead(int64_t& generation, const char* file, int line)
 
     if (_destroy)
     {
-        throw Ice::UnknownException(file, line);
+        throw Ice::UnknownException(file, line, "node destroyed");
     }
     generation = _generation;
     ++_updateCounter;
@@ -1146,7 +1146,7 @@ NodeI::startObserverUpdate(int64_t generation, const char* file, int line)
 
     if (_destroy)
     {
-        throw Ice::UnknownException(file, line);
+        throw Ice::UnknownException(file, line, "node destroyed");
     }
     if (_state != NodeState::NodeStateNormal)
     {

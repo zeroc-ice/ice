@@ -21,7 +21,6 @@
 
 using namespace std;
 using namespace Slice;
-using namespace IceUtil;
 using namespace IceUtilInternal;
 
 namespace

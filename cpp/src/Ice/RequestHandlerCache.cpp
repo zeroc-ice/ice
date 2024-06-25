@@ -51,7 +51,7 @@ namespace
         }
         catch (const ObjectNotExistException& one)
         {
-            if (ref->getRouterInfo() && one.operation == "ice_add_proxy")
+            if (ref->getRouterInfo() && one.operation() == "ice_add_proxy")
             {
                 //
                 // If we have a router, an ObjectNotExistException with an

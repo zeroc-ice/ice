@@ -36,7 +36,7 @@ Ice::operator<<(Ice::LoggerOutputBase& out, ios_base& (*val)(ios_base&))
 }
 
 Ice::LoggerOutputBase&
-Ice::loggerInsert(Ice::LoggerOutputBase& out, const IceUtil::Exception& ex)
+Ice::loggerInsert(Ice::LoggerOutputBase& out, const Ice::Exception& ex)
 {
     if (IceUtilInternal::printStackTraces)
     {

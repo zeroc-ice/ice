@@ -6,7 +6,6 @@
 #define ICE_UTIL_CTRL_C_HANDLER_H
 
 #include "Config.h"
-#include "Exception.h"
 
 #include <functional>
 
@@ -65,19 +64,5 @@ namespace IceUtil
          */
         CtrlCHandlerCallback getCallback() const;
     };
-
-    /**
-     * Raised by the CtrlCHandler constructor if another CtrlCHandler already exists.
-     *
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API CtrlCHandlerException final : public Exception
-    {
-    public:
-        using Exception::Exception;
-
-        std::string ice_id() const final;
-    };
 }
-
 #endif

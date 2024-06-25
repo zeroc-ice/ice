@@ -10,6 +10,7 @@
 #    include "IceUtil/DisableWarnings.h"
 #endif
 
+#include "Ice/Exception.h"
 #include "IceUtil/StringConverter.h"
 #include "IceUtil/StringUtil.h"
 
@@ -113,16 +114,16 @@ namespace
                         // Unexpected
                         //
                         assert(0);
-                        throw IllegalConversionException(__FILE__, __LINE__, "codecvt.out noconv");
+                        throw Ice::IllegalConversionException(__FILE__, __LINE__, "codecvt.out noconv");
 
                     default:
-                        throw IllegalConversionException(__FILE__, __LINE__, "codecvt.out error");
+                        throw Ice::IllegalConversionException(__FILE__, __LINE__, "codecvt.out error");
                 }
 
                 if (targetStart == targetNext)
                 {
                     // We didn't convert a single character
-                    throw IllegalConversionException(__FILE__, __LINE__, "no character converted by codecvt.out");
+                    throw Ice::IllegalConversionException(__FILE__, __LINE__, "no character converted by codecvt.out");
                 }
 
                 sourceStart = sourceNext;
@@ -161,7 +162,7 @@ namespace
 
                 if (result != codecvt_base::ok)
                 {
-                    throw IllegalConversionException(__FILE__, __LINE__, "codecvt.in failure");
+                    throw Ice::IllegalConversionException(__FILE__, __LINE__, "codecvt.in failure");
                 }
 
                 target.resize(static_cast<size_t>(targetNext - targetStart));
@@ -382,7 +383,7 @@ IceUtilInternal::toUTF16(const vector<uint8_t>& source)
         }
         catch (const std::range_error& ex)
         {
-            throw IllegalConversionException(__FILE__, __LINE__, ex.what());
+            throw Ice::IllegalConversionException(__FILE__, __LINE__, ex.what());
         }
     }
     return result;
@@ -411,7 +412,7 @@ IceUtilInternal::toUTF32(const vector<uint8_t>& source)
         }
         catch (const std::range_error& ex)
         {
-            throw IllegalConversionException(__FILE__, __LINE__, ex.what());
+            throw Ice::IllegalConversionException(__FILE__, __LINE__, ex.what());
         }
     }
     return result;
@@ -440,7 +441,7 @@ IceUtilInternal::fromUTF32(const vector<unsigned int>& source)
         }
         catch (const std::range_error& ex)
         {
-            throw IllegalConversionException(__FILE__, __LINE__, ex.what());
+            throw Ice::IllegalConversionException(__FILE__, __LINE__, ex.what());
         }
     }
     return result;
@@ -505,7 +506,7 @@ namespace
 
         if (writtenWchar == 0)
         {
-            throw IllegalConversionException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+            throw Ice::IllegalConversionException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
         }
 
         wbuffer.resize(static_cast<size_t>(writtenWchar));
@@ -565,7 +566,7 @@ namespace
 
         if (writtenChar == 0)
         {
-            throw IllegalConversionException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+            throw Ice::IllegalConversionException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
         }
 
         target.resize(static_cast<size_t>(writtenChar));

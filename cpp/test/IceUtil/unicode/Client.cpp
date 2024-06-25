@@ -262,7 +262,7 @@ main(int argc, char* argv[])
                 wcerr << L"Unexpected: " << ws << endl;
                 test(false);
             }
-            catch (const IllegalConversionException&)
+            catch (const Ice::IllegalConversionException&)
             {
             }
         }
@@ -281,7 +281,7 @@ main(int argc, char* argv[])
                 string s = wstringToString(badWstring[i]);
                 test(false);
             }
-            catch (const IllegalConversionException&)
+            catch (const Ice::IllegalConversionException&)
             {
             }
         }

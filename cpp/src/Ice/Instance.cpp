@@ -1497,7 +1497,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     {
         _timer = make_shared<Timer>();
     }
-    catch (const IceUtil::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         Error out(_initData.logger);
         out << "cannot create thread for timer:\n" << ex;
@@ -1509,7 +1509,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
         _endpointHostResolver = make_shared<EndpointHostResolver>(shared_from_this());
         _endpointHostResolverThread = std::thread([this] { _endpointHostResolver->run(); });
     }
-    catch (const IceUtil::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         Error out(_initData.logger);
         out << "cannot create thread for endpoint host resolver:\n" << ex;

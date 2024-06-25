@@ -61,38 +61,38 @@ namespace
                 replyStatus = ReplyStatus::ObjectNotExist;
             }
 
-            if (rfe.id.name.empty())
+            Identity id = rfe.id();
+            string facet = rfe.facet();
+            string operation = rfe.operation();
+            if (id.name.empty())
             {
-                rfe.id = current.id;
+                id = current.id;
+                facet = current.facet;
+            }
+            if (operation.empty())
+            {
+                operation = current.operation;
             }
 
-            if (rfe.facet.empty() && !current.facet.empty())
-            {
-                rfe.facet = current.facet;
-            }
-
-            if (rfe.operation.empty() && !current.operation.empty())
-            {
-                rfe.operation = current.operation;
-            }
-
-            exceptionMessage = rfe.what();
+            exceptionMessage = rfe.ice_hasDefaultMessage()
+                                   ? createRequestFailedMessage(rfe.ice_id(), id, facet, operation)
+                                   : rfe.what();
 
             if (current.requestId != 0)
             {
                 ostr.write(static_cast<uint8_t>(replyStatus));
-                ostr.write(rfe.id);
+                ostr.write(id);
 
-                if (rfe.facet.empty())
+                if (facet.empty())
                 {
                     ostr.write(static_cast<string*>(nullptr), static_cast<string*>(nullptr));
                 }
                 else
                 {
-                    ostr.write(&rfe.facet, &rfe.facet + 1);
+                    ostr.write(&facet, &facet + 1);
                 }
 
-                ostr.write(rfe.operation, false);
+                ostr.write(operation, false);
             }
         }
         catch (const UserException& ex)
@@ -114,19 +114,19 @@ namespace
         {
             exceptionId = ex.ice_id();
             replyStatus = ReplyStatus::UnknownLocalException;
-            exceptionMessage = ex.unknown;
+            exceptionMessage = ex.what();
         }
         catch (const UnknownUserException& ex)
         {
             exceptionId = ex.ice_id();
             replyStatus = ReplyStatus::UnknownUserException;
-            exceptionMessage = ex.unknown;
+            exceptionMessage = ex.what();
         }
         catch (const UnknownException& ex)
         {
             exceptionId = ex.ice_id();
             replyStatus = ReplyStatus::UnknownException;
-            exceptionMessage = ex.unknown;
+            exceptionMessage = ex.what();
         }
         catch (const LocalException& ex)
         {

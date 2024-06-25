@@ -3,8 +3,8 @@
 //
 
 #include "IceUtil/FileUtil.h"
+#include "Ice/Exception.h"
 #include "IceUtil/DisableWarnings.h"
-#include "IceUtil/Exception.h"
 #include "IceUtil/StringConverter.h"
 #include <cassert>
 #include <climits>
@@ -291,7 +291,7 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) : _fd(INVALID_HANDL
 
     if (_fd == INVALID_HANDLE_VALUE)
     {
-        throw IceUtil::FileLockException(__FILE__, __LINE__, GetLastError(), _path);
+        throw Ice::FileLockException(__FILE__, __LINE__, GetLastError(), _path);
     }
 
     OVERLAPPED overlaped;
@@ -309,7 +309,7 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) : _fd(INVALID_HANDL
     if (::LockFileEx(_fd, LOCKFILE_EXCLUSIVE_LOCK | LOCKFILE_FAIL_IMMEDIATELY, 0, 0, 0, &overlaped) == 0)
     {
         ::CloseHandle(_fd);
-        throw IceUtil::FileLockException(__FILE__, __LINE__, GetLastError(), _path);
+        throw Ice::FileLockException(__FILE__, __LINE__, GetLastError(), _path);
     }
     //
     // In Windows implementation we don't write the process pid to the file, as it is
@@ -414,7 +414,7 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) : _fd(-1), _path(pa
     _fd = ::open(path.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
     if (_fd < 0)
     {
-        throw IceUtil::FileLockException(__FILE__, __LINE__, errno, _path);
+        throw Ice::FileLockException(__FILE__, __LINE__, errno, _path);
     }
 
     struct ::flock lock;
@@ -432,7 +432,7 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) : _fd(-1), _path(pa
     {
         int err = errno;
         close(_fd);
-        throw IceUtil::FileLockException(__FILE__, __LINE__, err, _path);
+        throw Ice::FileLockException(__FILE__, __LINE__, err, _path);
     }
 
     //
@@ -451,7 +451,7 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) : _fd(-1), _path(pa
     {
         int err = errno;
         close(_fd);
-        throw IceUtil::FileLockException(__FILE__, __LINE__, err, _path);
+        throw Ice::FileLockException(__FILE__, __LINE__, err, _path);
     }
 }
 
