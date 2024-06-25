@@ -3,6 +3,7 @@
 //
 
 #include "RegistryI.h"
+#include "../../src/IceUtil/FileUtil.h"
 #include "../Ice/Network.h"
 #include "../Ice/ProtocolPluginFacade.h" // Just to get the hostname
 #include "../Ice/SSL/SSLUtil.h"
@@ -18,7 +19,6 @@
 #include "Ice/Ice.h"
 #include "Ice/UUID.h"
 #include "IceLocatorDiscovery.h"
-#include "../../src/IceUtil/FileUtil.h"
 #include "InternalRegistryI.h"
 #include "LocatorI.h"
 #include "LocatorRegistryI.h"

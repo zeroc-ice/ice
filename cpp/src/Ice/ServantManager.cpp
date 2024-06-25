@@ -7,8 +7,8 @@
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/ServantLocator.h"
-#include "Instance.h"
 #include "Ice/StringUtil.h"
+#include "Instance.h"
 
 using namespace std;
 using namespace Ice;

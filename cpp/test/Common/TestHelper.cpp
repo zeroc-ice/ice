@@ -4,8 +4,8 @@
 
 #include "TestHelper.h"
 #include "Ice/Communicator.h"
-#include "Ice/RegisterPlugins.h"
 #include "Ice/CtrlCHandler.h"
+#include "Ice/RegisterPlugins.h"
 
 using namespace std;
 using namespace Test;

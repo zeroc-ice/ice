@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "FileTracker.h"
 #include "../../src/IceUtil/ConsoleUtil.h"
 #include "../../src/IceUtil/FileUtil.h"
+#include "FileTracker.h"
 #include "Ice/StringConverter.h"
 #include "Ice/StringUtil.h"
 #include "Util.h"

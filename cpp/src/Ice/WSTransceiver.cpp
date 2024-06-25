@@ -3,6 +3,7 @@
 //
 
 #include "WSTransceiver.h"
+#include "../../src/IceUtil/Random.h"
 #include "Base64.h"
 #include "Endian.h"
 #include "HttpParser.h"
@@ -13,7 +14,6 @@
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/SHA1.h"
-#include "../../src/IceUtil/Random.h"
 #include "Ice/StringUtil.h"
 #include "ProtocolInstance.h"
 

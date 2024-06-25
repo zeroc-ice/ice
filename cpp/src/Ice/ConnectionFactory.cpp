@@ -3,6 +3,7 @@
 //
 
 #include "ConnectionFactory.h"
+#include "../../src/IceUtil/Random.h"
 #include "Acceptor.h"
 #include "CommunicatorFlushBatchAsync.h"
 #include "ConnectionI.h"
@@ -13,7 +14,6 @@
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
-#include "../../src/IceUtil/Random.h"
 #include "Instance.h"
 #include "ObjectAdapterI.h" // For getThreadPool().
 #include "Reference.h"

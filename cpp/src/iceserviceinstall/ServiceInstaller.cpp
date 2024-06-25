@@ -310,8 +310,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
             CloseServiceHandle(scm);
             CloseServiceHandle(service);
             throw runtime_error(
-                "Cannot set delayed auto start for service" + _serviceName + ": " +
-                IceInternal::errorToString(res));
+                "Cannot set delayed auto start for service" + _serviceName + ": " + IceInternal::errorToString(res));
         }
     }
 
@@ -471,8 +470,7 @@ IceServiceInstaller::initializeSid(const string& name)
                 domainName.resize(domainNameSize);
                 continue;
             }
-            throw runtime_error(
-                "Could not retrieve Security ID for " + name + ": " + IceInternal::errorToString(res));
+            throw runtime_error("Could not retrieve Security ID for " + name + ": " + IceInternal::errorToString(res));
         }
         _sid = reinterpret_cast<SID*>(_sidBuffer.data());
     }
@@ -546,8 +544,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
         GetNamedSecurityInfoW(const_cast<wchar_t*>(stringToWstring(path).c_str()), type, flags, 0, 0, &acl, 0, &sd);
     if (res != ERROR_SUCCESS)
     {
-        throw runtime_error(
-            "Could not retrieve securify info for " + path + ": " + IceInternal::errorToString(res));
+        throw runtime_error("Could not retrieve securify info for " + path + ": " + IceInternal::errorToString(res));
     }
 
     //
@@ -652,8 +649,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
             if (res != ERROR_SUCCESS)
             {
                 throw runtime_error(
-                    "Could not grant access to " + _sidName + " on " + path + ": " +
-                    IceInternal::errorToString(res));
+                    "Could not grant access to " + _sidName + " on " + path + ": " + IceInternal::errorToString(res));
             }
 
             if (_debug)

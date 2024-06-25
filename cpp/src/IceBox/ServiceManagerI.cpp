@@ -3,12 +3,12 @@
 //
 
 #include "ServiceManagerI.h"
-#include "../IceUtil/ConsoleUtil.h"
+#include "../../src/IceUtil/Options.h"
 #include "../Ice/DynamicLibrary.h"
 #include "../Ice/Instance.h"
+#include "../IceUtil/ConsoleUtil.h"
 #include "Ice/Ice.h"
 #include "Ice/Initialize.h"
-#include "../../src/IceUtil/Options.h"
 #include "Ice/StringUtil.h"
 
 using namespace Ice;

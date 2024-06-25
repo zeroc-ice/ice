@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/Ice.h"
 #include "../../src/IceUtil/Random.h"
+#include "Ice/Ice.h"
 #include "TestHelper.h"
 
 #if defined(__GNUC__)

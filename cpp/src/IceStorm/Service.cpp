@@ -6,8 +6,8 @@
 
 #include "Service.h"
 #include "../Ice/PluginManagerI.h" // For loadPlugin
-#include "IceGrid/Registry.h"
 #include "Ice/StringUtil.h"
+#include "IceGrid/Registry.h"
 #include "Instance.h"
 #include "NodeI.h"
 #include "Observers.h"

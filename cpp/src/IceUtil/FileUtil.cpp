@@ -3,8 +3,8 @@
 //
 
 #include "FileUtil.h"
-#include "Ice/Exception.h"
 #include "DisableWarnings.h"
+#include "Ice/Exception.h"
 #include "Ice/StringConverter.h"
 #include <cassert>
 #include <climits>
@@ -226,10 +226,7 @@ IceUtilInternal::open(const string& path, int flags)
     //
     if (flags & _O_CREAT)
     {
-        return ::_wopen(
-            stringToWstring(path, Ice::getProcessStringConverter()).c_str(),
-            flags,
-            _S_IREAD | _S_IWRITE);
+        return ::_wopen(stringToWstring(path, Ice::getProcessStringConverter()).c_str(), flags, _S_IREAD | _S_IWRITE);
     }
     else
     {

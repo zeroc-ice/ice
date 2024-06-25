@@ -5,8 +5,8 @@
 #ifndef C_PLUS_PLUS_UTIL_H
 #define C_PLUS_PLUS_UTIL_H
 
-#include "../Slice/Parser.h"
 #include "../../src/IceUtil/OutputUtil.h"
+#include "../Slice/Parser.h"
 #include "TypeContext.h"
 
 namespace Slice

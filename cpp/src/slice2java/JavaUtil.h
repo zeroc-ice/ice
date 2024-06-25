@@ -5,8 +5,8 @@
 #ifndef JAVA_UTIL_H
 #define JAVA_UTIL_H
 
-#include "../Slice/Parser.h"
 #include "../../src/IceUtil/OutputUtil.h"
+#include "../Slice/Parser.h"
 
 namespace Slice
 {

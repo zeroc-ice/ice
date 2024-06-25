@@ -7,9 +7,9 @@
 
 #include "../IceStorm/Service.h"
 #include "Glacier2/PermissionsVerifier.h"
+#include "Ice/Timer.h"
 #include "IceGrid/PluginFacade.h"
 #include "IceGrid/Registry.h"
-#include "Ice/Timer.h"
 #include "Internal.h"
 #include "PlatformInfo.h"
 #include "ReplicaSessionManager.h"

@@ -3,9 +3,11 @@
 //
 
 #include "Instance.h"
+#include "../../src/IceUtil/ConsoleUtil.h"
+#include "../../src/IceUtil/DisableWarnings.h"
+#include "../../src/IceUtil/FileUtil.h"
 #include "CheckIdentity.h"
 #include "ConnectionFactory.h"
-#include "../../src/IceUtil/ConsoleUtil.h"
 #include "DefaultsAndOverrides.h"
 #include "EndpointFactoryManager.h"
 #include "IPEndpointI.h" // For EndpointHostResolver
@@ -19,11 +21,8 @@
 #include "Ice/Properties.h"
 #include "Ice/ProxyFunctions.h"
 #include "Ice/Router.h"
-#include "Ice/UUID.h"
-#include "../../src/IceUtil/DisableWarnings.h"
-#include "../../src/IceUtil/ConsoleUtil.h"
-#include "../../src/IceUtil/FileUtil.h"
 #include "Ice/StringUtil.h"
+#include "Ice/UUID.h"
 #include "InstrumentationI.h"
 #include "LocatorInfo.h"
 #include "LoggerAdminI.h"

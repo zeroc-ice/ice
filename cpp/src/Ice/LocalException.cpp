@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/Initialize.h"
 #include "Ice/LocalException.h"
-#include "Network.h"
+#include "Ice/Initialize.h"
 #include "Ice/StringUtil.h"
+#include "Network.h"
 
 #include <iomanip>
 

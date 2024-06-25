@@ -8,7 +8,6 @@
 #include "Connection.h"
 #include "Endpoint.h"
 #include "Ice/Metrics.h"
-#include "../../src/IceUtil/StopWatch.h"
 #include "Instrumentation.h"
 #include "MetricsAdminI.h"
 #include "MetricsFunctional.h"
@@ -16,6 +15,36 @@
 #include <cassert>
 #include <sstream>
 #include <stdexcept>
+
+namespace IceInternal
+{
+    class StopWatch
+    {
+    public:
+        StopWatch() {}
+
+        void start() { _start = std::chrono::steady_clock::now(); }
+
+        std::chrono::microseconds stop()
+        {
+            assert(isStarted());
+            auto duration =
+                std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - _start);
+            _start = std::chrono::steady_clock::time_point();
+            return duration;
+        }
+
+        bool isStarted() const { return _start != std::chrono::steady_clock::time_point(); }
+
+        std::chrono::microseconds delay()
+        {
+            return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - _start);
+        }
+
+    private:
+        std::chrono::steady_clock::time_point _start;
+    };
+}
 
 namespace IceMX
 {
@@ -400,7 +429,7 @@ namespace IceMX
 
     private:
         EntrySeqType _objects;
-        IceUtilInternal::StopWatch _watch;
+        IceInternal::StopWatch _watch;
         std::chrono::microseconds _previousDelay;
     };
 

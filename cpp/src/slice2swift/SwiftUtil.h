@@ -5,8 +5,8 @@
 #ifndef SWIFT_UTIL_H
 #define SWIFT_UTIL_H
 
-#include "../Slice/Parser.h"
 #include "../../src/IceUtil/OutputUtil.h"
+#include "../Slice/Parser.h"
 
 typedef std::list<std::pair<std::string, std::string>> StringPairList;
 

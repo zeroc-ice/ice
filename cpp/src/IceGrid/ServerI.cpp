@@ -3,12 +3,12 @@
 //
 
 #include "ServerI.h"
+#include "../../src/IceUtil/DisableWarnings.h"
+#include "../../src/IceUtil/FileUtil.h"
 #include "../Ice/TimeUtil.h"
 #include "Activator.h"
 #include "DescriptorHelper.h"
 #include "Ice/Ice.h"
-#include "../../src/IceUtil/DisableWarnings.h"
-#include "../../src/IceUtil/FileUtil.h"
 #include "NodeI.h"
 #include "ServerAdapterI.h"
 #include "TraceLevels.h"

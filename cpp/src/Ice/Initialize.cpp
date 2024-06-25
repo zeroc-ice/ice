@@ -9,10 +9,10 @@
 #include "Ice/LocalException.h"
 #include "Ice/Properties.h"
 #include "Ice/StringConverter.h"
+#include "Ice/StringUtil.h"
 #include "Instance.h"
 #include "LoggerI.h"
 #include "PluginManagerI.h"
-#include "Ice/StringUtil.h"
 
 #include <mutex>
 #include <stdexcept>

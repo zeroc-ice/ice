@@ -7,8 +7,8 @@
 
 #include "Ice/StringUtil.h"
 
-#include "Ice/LocalException.h"
 #include "../../src/IceUtil/FileUtil.h"
+#include "Ice/LocalException.h"
 
 #include <iostream>
 #include <mutex>

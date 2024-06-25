@@ -8,10 +8,10 @@
 #include "Ice/Object.h"
 #include "Ice/OutputStream.h"
 #include "Ice/Proxy.h"
+#include "Ice/StringUtil.h"
 #include "Ice/VersionFunctions.h"
 #include "Instance.h"
 #include "ReplyStatus.h"
-#include "Ice/StringUtil.h"
 #include "TraceLevels.h"
 
 #include <mutex>

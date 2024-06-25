@@ -3,12 +3,12 @@
 //
 
 #include "SecureTransportUtil.h"
+#include "../../../src/IceUtil/FileUtil.h"
 #include "../Base64.h"
 #include "../UniqueRef.h"
 #include "DistinguishedName.h"
 #include "Ice/LocalException.h"
 #include "Ice/SSL/SSLException.h"
-#include "../../../src/IceUtil/FileUtil.h"
 #include "Ice/StringUtil.h"
 
 #include <fstream>

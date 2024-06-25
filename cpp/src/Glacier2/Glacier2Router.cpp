@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../../src/IceUtil/Options.h"
 #include "../IceUtil/ConsoleUtil.h"
 #include "Glacier2/NullPermissionsVerifier.h"
 #include "Glacier2/Session.h"
 #include "Ice/Ice.h"
-#include "../../src/IceUtil/Options.h"
 #include "Instance.h"
 #include "RouterI.h"
 #include "SessionRouterI.h"

@@ -3,6 +3,7 @@
 //
 
 #include "ConnectionI.h"
+#include "../../src/IceUtil/DisableWarnings.h"
 #include "BatchRequestQueue.h"
 #include "CheckIdentity.h"
 #include "DefaultsAndOverrides.h"
@@ -13,7 +14,6 @@
 #include "Ice/LoggerUtil.h"
 #include "Ice/OutgoingResponse.h"
 #include "Ice/Properties.h"
-#include "../../src/IceUtil/DisableWarnings.h"
 #include "IdleTimeoutTransceiverDecorator.h"
 #include "Instance.h"
 #include "ObjectAdapterI.h"   // For getThreadPool()
@@ -2278,9 +2278,7 @@ Ice::ConnectionI::initiateShutdown()
 }
 
 void
-Ice::ConnectionI::idleCheck(
-    const Ice::TimerTaskPtr& idleCheckTimerTask,
-    const chrono::seconds& idleTimeout) noexcept
+Ice::ConnectionI::idleCheck(const Ice::TimerTaskPtr& idleCheckTimerTask, const chrono::seconds& idleTimeout) noexcept
 {
     std::lock_guard lock(_mutex);
     // When _timer->isScheduled(idleCheckTimerTask) returns true, it means a read rescheduled the

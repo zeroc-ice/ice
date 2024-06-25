@@ -3,14 +3,14 @@
 //
 
 #include "../../src/IceUtil/ConsoleUtil.h"
-#include "Ice/CtrlCHandler.h"
 #include "../../src/IceUtil/Options.h"
+#include "Ice/CtrlCHandler.h"
 #include "Ice/StringUtil.h"
 // BUGFIX: With MSVC2013 if this isn't included you get strange linker errors.
+#include "../../src/IceUtil/FileUtil.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Preprocessor.h"
 #include "../Slice/Util.h"
-#include "../../src/IceUtil/FileUtil.h"
 #include "PythonUtil.h"
 
 #include <cassert>

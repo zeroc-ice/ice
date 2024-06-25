@@ -22,8 +22,8 @@
 #    define __STDC_LIMIT_MACROS
 #endif
 
-#include "Ice/Exception.h"
 #include "../../src/IceUtil/Exception.h"
+#include "Ice/Exception.h"
 #include "Ice/StringUtil.h"
 
 #ifdef _WIN32

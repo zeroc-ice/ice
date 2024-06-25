@@ -22,7 +22,6 @@
 #include "Ice/OutgoingAsync.h"
 #include "Ice/OutgoingResponse.h"
 #include "Ice/OutputStream.h"
-#include "../../src/IceUtil/StopWatch.h"
 #include "Ice/Timer.h"
 #include "RequestHandler.h"
 #include "TraceLevelsF.h"
@@ -228,8 +227,7 @@ namespace Ice
         /// - its transceiver is waiting to be read
         /// - the idle check timer task has been rescheduled by a concurrent read
         /// In the two latter cases, this function reschedules the idle check timer task in idle timeout.
-        void
-        idleCheck(const Ice::TimerTaskPtr& idleCheckTimerTask, const std::chrono::seconds& idleTimeout) noexcept;
+        void idleCheck(const Ice::TimerTaskPtr& idleCheckTimerTask, const std::chrono::seconds& idleTimeout) noexcept;
 
         /// Shuts down the connection gracefully if it's at rest when this function is called.
         void inactivityCheck() noexcept;

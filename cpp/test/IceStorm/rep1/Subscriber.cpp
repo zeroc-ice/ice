@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../../src/IceUtil/Options.h"
 #include "Ice/Ice.h"
 #include "IceStorm/IceStorm.h"
-#include "../../src/IceUtil/Options.h"
 #include "Single.h"
 #include "TestHelper.h"
 

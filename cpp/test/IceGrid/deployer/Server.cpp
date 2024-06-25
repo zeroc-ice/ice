@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/Ice.h"
 #include "../../src/IceUtil/DisableWarnings.h"
+#include "Ice/Ice.h"
 #include "TestHelper.h"
 #include "TestI.h"
 #include <fstream>

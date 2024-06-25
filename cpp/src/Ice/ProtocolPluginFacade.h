@@ -8,8 +8,8 @@
 #include "EndpointFactoryF.h"
 #include "EndpointIF.h"
 #include "Ice/CommunicatorF.h"
-#include "Ice/InstanceF.h"
 #include "Ice/Config.h"
+#include "Ice/InstanceF.h"
 #include "NetworkF.h"
 #include "ProtocolPluginFacadeF.h"
 

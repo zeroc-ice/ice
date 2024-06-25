@@ -12,13 +12,13 @@
 #    include <netinet/in.h>
 #endif
 
+#include "../../src/IceUtil/DisableWarnings.h"
+#include "../../src/IceUtil/Random.h"
 #include "Ice/Buffer.h"
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h" // For setTcpBufSize
 #include "Ice/Properties.h" // For setTcpBufSize
 #include "Ice/StringConverter.h"
-#include "../../src/IceUtil/DisableWarnings.h"
-#include "../../src/IceUtil/Random.h"
 #include "Ice/StringUtil.h"
 #include "Network.h"
 #include "NetworkProxy.h"

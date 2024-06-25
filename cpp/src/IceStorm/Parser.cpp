@@ -3,10 +3,10 @@
 //
 
 #include "Parser.h"
+#include "../../src/IceUtil/DisableWarnings.h"
 #include "../IceUtil/ConsoleUtil.h"
 #include "Ice/Ice.h"
 #include "IceStormInternal.h"
-#include "../../src/IceUtil/DisableWarnings.h"
 #include <algorithm>
 
 #if defined(__APPLE__) || defined(__linux__)

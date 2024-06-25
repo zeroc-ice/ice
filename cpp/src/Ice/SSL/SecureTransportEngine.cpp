@@ -3,6 +3,7 @@
 //
 
 #include "SecureTransportEngine.h"
+#include "../../../src/IceUtil/FileUtil.h"
 #include "../Instance.h"
 #include "../TraceLevels.h"
 #include "Ice/Config.h"
@@ -11,7 +12,6 @@
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
 #include "Ice/SSL/SSLException.h"
-#include "../../../src/IceUtil/FileUtil.h"
 #include "Ice/StringUtil.h"
 #include "SSLEngine.h"
 #include "SSLUtil.h"

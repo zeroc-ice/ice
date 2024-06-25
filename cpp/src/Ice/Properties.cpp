@@ -3,11 +3,11 @@
 //
 
 #include "Ice/Properties.h"
+#include "../../src/IceUtil/FileUtil.h"
 #include "Ice/Initialize.h"
 #include "Ice/LocalException.h"
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
-#include "../../src/IceUtil/FileUtil.h"
 #include "Ice/StringUtil.h"
 #include "PropertyNames.h"
 
@@ -475,8 +475,7 @@ Ice::Properties::load(string_view file)
                 throw InitializationException(
                     __FILE__,
                     __LINE__,
-                    "could not open Windows registry key `" + string{file} + "':\n" +
-                        IceInternal::errorToString(err));
+                    "could not open Windows registry key `" + string{file} + "':\n" + IceInternal::errorToString(err));
             }
 
             for (DWORD i = 0; i < numValues; ++i)

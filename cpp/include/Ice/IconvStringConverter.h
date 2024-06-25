@@ -11,8 +11,8 @@
 #ifndef _WIN32
 #    include "Config.h"
 #    include "Exception.h"
-#    include "StringUtil.h"
 #    include "StringConverter.h"
+#    include "StringUtil.h"
 
 #    include <algorithm>
 #    include <cassert>

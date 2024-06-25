@@ -3,14 +3,14 @@
 //
 
 #include "../IceXML/Parser.h"
+#include "../../src/IceUtil/ConsoleUtil.h"
+#include "../../src/IceUtil/DisableWarnings.h"
+#include "../../src/IceUtil/Options.h"
 #include "../Ice/TimeUtil.h"
 #include "DescriptorHelper.h"
 #include "DescriptorParser.h"
 #include "Ice/Ice.h"
 #include "IceBox/IceBox.h"
-#include "../../src/IceUtil/ConsoleUtil.h"
-#include "../../src/IceUtil/DisableWarnings.h"
-#include "../../src/IceUtil/Options.h"
 #include "Parser.h"
 #include "Util.h"
 

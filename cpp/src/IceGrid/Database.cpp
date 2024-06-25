@@ -3,13 +3,13 @@
 //
 
 #include "Database.h"
+#include "../../src/IceUtil/Random.h"
 #include "../Ice/Protocol.h"
 #include "DescriptorHelper.h"
 #include "Ice/Ice.h"
+#include "Ice/StringUtil.h"
 #include "IceGrid/IceGrid.h"
 #include "IceGrid/Session.h"
-#include "../../src/IceUtil/Random.h"
-#include "Ice/StringUtil.h"
 #include "NodeSessionI.h"
 #include "ReplicaSessionI.h"
 #include "Topics.h"

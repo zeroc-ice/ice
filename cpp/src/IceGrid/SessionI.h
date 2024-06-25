@@ -5,8 +5,8 @@
 #ifndef ICEGRID_SESSIONI_H
 #define ICEGRID_SESSIONI_H
 
-#include "IceGrid/Session.h"
 #include "Ice/Timer.h"
+#include "IceGrid/Session.h"
 #include "ReapThread.h"
 #include "SessionServantManager.h"
 #include <set>

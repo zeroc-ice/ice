@@ -3,14 +3,14 @@
 //
 
 #include "SchannelEngine.h"
+#include "../../../src/IceUtil/FileUtil.h"
 #include "DistinguishedName.h"
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"
 #include "Ice/Logger.h"
 #include "Ice/StringConverter.h"
-#include "Ice/UUID.h"
-#include "../../../src/IceUtil/FileUtil.h"
 #include "Ice/StringUtil.h"
+#include "Ice/UUID.h"
 #include "SSLUtil.h"
 #include "SchannelTransceiverI.h"
 
@@ -438,8 +438,7 @@ namespace
                         throw InitializationException(
                             __FILE__,
                             __LINE__,
-                            "SSL transport: error adding certificate to store:\n" +
-                                IceInternal::lastErrorToString());
+                            "SSL transport: error adding certificate to store:\n" + IceInternal::lastErrorToString());
                     }
 
                     if (field == "SUBJECT" || field == "ISSUER")

@@ -3,9 +3,9 @@
 //
 
 #include "JavaUtil.h"
+#include "../../src/IceUtil/FileUtil.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Util.h"
-#include "../../src/IceUtil/FileUtil.h"
 #include "Ice/StringUtil.h"
 
 #include <algorithm>

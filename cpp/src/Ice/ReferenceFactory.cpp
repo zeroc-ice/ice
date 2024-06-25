@@ -15,11 +15,11 @@
 #include "Ice/Properties.h"
 #include "Ice/ProxyFunctions.h"
 #include "Ice/Router.h"
+#include "Ice/StringUtil.h"
 #include "Instance.h"
 #include "LocatorInfo.h"
 #include "PropertyNames.h"
 #include "RouterInfo.h"
-#include "Ice/StringUtil.h"
 
 #include <stdexcept>
 

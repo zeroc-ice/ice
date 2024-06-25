@@ -3,8 +3,8 @@
 //
 
 #include "../../src/IceUtil/ConsoleUtil.h"
-#include "Ice/CtrlCHandler.h"
 #include "../../src/IceUtil/Options.h"
+#include "Ice/CtrlCHandler.h"
 
 #include "../Slice/FileTracker.h"
 #include "../Slice/Preprocessor.h"
