@@ -8,7 +8,7 @@
 #include <chrono>
 #include <thread>
 
-using namespace IceUtil;
+using namespace Ice;
 using namespace std;
 
 void

@@ -5,7 +5,7 @@
 #include "Ice/Communicator.h"
 #include "Ice/Properties.h"
 
-#include "IceUtil/FileUtil.h"
+#include "../../src/IceUtil/FileUtil.h"
 
 #include "FileCache.h"
 #include "IceGrid/Exception.h"

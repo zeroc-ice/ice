@@ -23,7 +23,7 @@
 
 using namespace std;
 using namespace IcePy;
-using namespace IceUtil;
+using namespace Ice;
 using namespace IceUtilInternal;
 
 typedef map<string, ClassInfoPtr, std::less<>> ClassInfoMap;

@@ -22,7 +22,7 @@ namespace IceInternal
             const TransceiverPtr& decoratee,
             const std::chrono::seconds& idleTimeout,
             bool enableIdleCheck,
-            const IceUtil::TimerPtr& timer)
+            const Ice::TimerPtr& timer)
             : _decoratee(decoratee),
               _idleTimeout(idleTimeout),
               _enableIdleCheck(enableIdleCheck),
@@ -71,11 +71,11 @@ namespace IceInternal
         const TransceiverPtr _decoratee;
         const std::chrono::seconds _idleTimeout;
         const bool _enableIdleCheck;
-        const IceUtil::TimerPtr _timer;
+        const Ice::TimerPtr _timer;
 
         // Set by decoratorInit
-        IceUtil::TimerTaskPtr _heartbeatTimerTask;
-        IceUtil::TimerTaskPtr _idleCheckTimerTask;
+        Ice::TimerTaskPtr _heartbeatTimerTask;
+        Ice::TimerTaskPtr _idleCheckTimerTask;
     };
 }
 

@@ -3,8 +3,8 @@
 //
 
 #include "ServiceInstaller.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "../../src/IceUtil/FileUtil.h"
+#include "Ice/StringUtil.h"
 
 #include <stdexcept>
 
@@ -208,7 +208,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     if (scm == 0)
     {
         DWORD res = GetLastError();
-        throw runtime_error("Cannot open SCM: " + IceUtilInternal::errorToString(res));
+        throw runtime_error("Cannot open SCM: " + IceInternal::errorToString(res));
     }
 
     string deps = dependency;
@@ -279,7 +279,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     {
         DWORD res = GetLastError();
         CloseServiceHandle(scm);
-        throw runtime_error("Cannot create service" + _serviceName + ": " + IceUtilInternal::errorToString(res));
+        throw runtime_error("Cannot create service" + _serviceName + ": " + IceInternal::errorToString(res));
     }
 
     //
@@ -294,7 +294,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         CloseServiceHandle(scm);
         CloseServiceHandle(service);
         throw runtime_error(
-            "Cannot set description for service" + _serviceName + ": " + IceUtilInternal::errorToString(res));
+            "Cannot set description for service" + _serviceName + ": " + IceInternal::errorToString(res));
     }
 
     //
@@ -311,7 +311,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
             CloseServiceHandle(service);
             throw runtime_error(
                 "Cannot set delayed auto start for service" + _serviceName + ": " +
-                IceUtilInternal::errorToString(res));
+                IceInternal::errorToString(res));
         }
     }
 
@@ -326,7 +326,7 @@ IceServiceInstaller::uninstall()
     if (scm == 0)
     {
         DWORD res = GetLastError();
-        throw runtime_error("Cannot open SCM: " + IceUtilInternal::errorToString(res));
+        throw runtime_error("Cannot open SCM: " + IceInternal::errorToString(res));
     }
 
     //
@@ -338,7 +338,7 @@ IceServiceInstaller::uninstall()
     {
         DWORD res = GetLastError();
         CloseServiceHandle(scm);
-        throw runtime_error("Cannot open service '" + _serviceName + "': " + IceUtilInternal::errorToString(res));
+        throw runtime_error("Cannot open service '" + _serviceName + "': " + IceInternal::errorToString(res));
     }
 
     //
@@ -352,7 +352,7 @@ IceServiceInstaller::uninstall()
         {
             CloseServiceHandle(scm);
             CloseServiceHandle(service);
-            throw runtime_error("Cannot stop service '" + _serviceName + "': " + IceUtilInternal::errorToString(res));
+            throw runtime_error("Cannot stop service '" + _serviceName + "': " + IceInternal::errorToString(res));
         }
     }
 
@@ -361,7 +361,7 @@ IceServiceInstaller::uninstall()
         DWORD res = GetLastError();
         CloseServiceHandle(scm);
         CloseServiceHandle(service);
-        throw runtime_error("Cannot delete service '" + _serviceName + "': " + IceUtilInternal::errorToString(res));
+        throw runtime_error("Cannot delete service '" + _serviceName + "': " + IceInternal::errorToString(res));
     }
 
     CloseServiceHandle(scm);
@@ -431,7 +431,7 @@ IceServiceInstaller::getServiceInstallerPath()
     wchar_t buffer[MAX_PATH];
     if (!GetModuleFileNameW(0, buffer, MAX_PATH))
     {
-        throw runtime_error("Can not get full path to service installer:\n" + IceUtilInternal::lastErrorToString());
+        throw runtime_error("Can not get full path to service installer:\n" + IceInternal::lastErrorToString());
     }
 
     string path = wstringToString(buffer);
@@ -472,7 +472,7 @@ IceServiceInstaller::initializeSid(const string& name)
                 continue;
             }
             throw runtime_error(
-                "Could not retrieve Security ID for " + name + ": " + IceUtilInternal::errorToString(res));
+                "Could not retrieve Security ID for " + name + ": " + IceInternal::errorToString(res));
         }
         _sid = reinterpret_cast<SID*>(_sidBuffer.data());
     }
@@ -504,7 +504,7 @@ IceServiceInstaller::initializeSid(const string& name)
         {
             DWORD res = GetLastError();
             throw runtime_error(
-                "Could not retrieve full account name for " + name + ": " + IceUtilInternal::errorToString(res));
+                "Could not retrieve full account name for " + name + ": " + IceInternal::errorToString(res));
         }
 
         _sidName = wstringToString(domainName) + "\\" + wstringToString(accountName);
@@ -547,7 +547,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
     if (res != ERROR_SUCCESS)
     {
         throw runtime_error(
-            "Could not retrieve securify info for " + path + ": " + IceUtilInternal::errorToString(res));
+            "Could not retrieve securify info for " + path + ": " + IceInternal::errorToString(res));
     }
 
     //
@@ -557,14 +557,14 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
     {
         if (!AuthzInitializeResourceManager(AUTHZ_RM_FLAG_NO_AUDIT, 0, 0, 0, 0, &manager))
         {
-            throw runtime_error("AutzInitializeResourceManager failed: " + IceUtilInternal::lastErrorToString());
+            throw runtime_error("AutzInitializeResourceManager failed: " + IceInternal::lastErrorToString());
         }
 
         LUID unusedId = {0};
 
         if (!AuthzInitializeContextFromSid(0, _sid, manager, 0, unusedId, 0, &clientContext))
         {
-            throw runtime_error("AuthzInitializeContextFromSid failed: " + IceUtilInternal::lastErrorToString());
+            throw runtime_error("AuthzInitializeContextFromSid failed: " + IceInternal::lastErrorToString());
         }
 
         AUTHZ_ACCESS_REQUEST accessRequest = {0};
@@ -585,7 +585,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
 
         if (!AuthzAccessCheck(0, clientContext, &accessRequest, 0, sd, 0, 0, &accessReply, 0))
         {
-            throw runtime_error("AuthzAccessCheck failed: " + IceUtilInternal::lastErrorToString());
+            throw runtime_error("AuthzAccessCheck failed: " + IceInternal::lastErrorToString());
         }
 
         bool done = false;
@@ -638,7 +638,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
             res = SetEntriesInAclW(1, &ea, acl, &newAcl);
             if (res != ERROR_SUCCESS)
             {
-                throw runtime_error("Could not modify ACL for " + path + ": " + IceUtilInternal::errorToString(res));
+                throw runtime_error("Could not modify ACL for " + path + ": " + IceInternal::errorToString(res));
             }
 
             res = SetNamedSecurityInfoW(
@@ -653,7 +653,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
             {
                 throw runtime_error(
                     "Could not grant access to " + _sidName + " on " + path + ": " +
-                    IceUtilInternal::errorToString(res));
+                    IceInternal::errorToString(res));
             }
 
             if (_debug)
@@ -701,7 +701,7 @@ IceServiceInstaller::mkdir(const string& path) const
         }
         else
         {
-            throw runtime_error("Could not create directory " + path + ": " + IceUtilInternal::errorToString(res));
+            throw runtime_error("Could not create directory " + path + ": " + IceInternal::errorToString(res));
         }
     }
     else
@@ -737,13 +737,13 @@ IceServiceInstaller::addLog(const string& log) const
 
     if (res != ERROR_SUCCESS)
     {
-        throw runtime_error("Could not create new Event Log '" + log + "': " + IceUtilInternal::errorToString(res));
+        throw runtime_error("Could not create new Event Log '" + log + "': " + IceInternal::errorToString(res));
     }
 
     res = RegCloseKey(key);
     if (res != ERROR_SUCCESS)
     {
-        throw runtime_error("Could not close registry key handle: " + IceUtilInternal::errorToString(res));
+        throw runtime_error("Could not close registry key handle: " + IceInternal::errorToString(res));
     }
 }
 
@@ -762,7 +762,7 @@ IceServiceInstaller::removeLog(const string& log) const
     if (res != ERROR_SUCCESS && res != ERROR_ACCESS_DENIED)
     {
         throw runtime_error(
-            "Could not remove registry key '" + createLog(log) + "': " + IceUtilInternal::errorToString(res));
+            "Could not remove registry key '" + createLog(log) + "': " + IceInternal::errorToString(res));
     }
 }
 
@@ -787,7 +787,7 @@ IceServiceInstaller::addSource(const string& source, const string& log, const st
         &disposition);
     if (res != ERROR_SUCCESS)
     {
-        throw runtime_error("Could not create Event Log source in registry: " + IceUtilInternal::errorToString(res));
+        throw runtime_error("Could not create Event Log source in registry: " + IceInternal::errorToString(res));
     }
 
     //
@@ -822,13 +822,13 @@ IceServiceInstaller::addSource(const string& source, const string& log, const st
     if (res != ERROR_SUCCESS)
     {
         RegCloseKey(key);
-        throw runtime_error("Could not set registry key: " + IceUtilInternal::errorToString(res));
+        throw runtime_error("Could not set registry key: " + IceInternal::errorToString(res));
     }
 
     res = RegCloseKey(key);
     if (res != ERROR_SUCCESS)
     {
-        throw runtime_error("Could not close registry key handle: " + IceUtilInternal::errorToString(res));
+        throw runtime_error("Could not close registry key handle: " + IceInternal::errorToString(res));
     }
 }
 
@@ -850,7 +850,7 @@ IceServiceInstaller::removeSource(const string& source) const
 
     if (res != ERROR_SUCCESS)
     {
-        throw runtime_error("Could not open EventLog key: " + IceUtilInternal::errorToString(res));
+        throw runtime_error("Could not open EventLog key: " + IceInternal::errorToString(res));
     }
 
     DWORD index = 0;
@@ -877,7 +877,7 @@ IceServiceInstaller::removeSource(const string& source) const
                 res = RegCloseKey(key);
                 if (res != ERROR_SUCCESS)
                 {
-                    throw runtime_error("Could not close registry key handle: " + IceUtilInternal::errorToString(res));
+                    throw runtime_error("Could not close registry key handle: " + IceInternal::errorToString(res));
                 }
                 return wstringToString(subkey);
             }
@@ -895,7 +895,7 @@ IceServiceInstaller::removeSource(const string& source) const
     {
         RegCloseKey(key);
         throw runtime_error(
-            "Error while searching EventLog with source '" + source + "': " + IceUtilInternal::errorToString(res));
+            "Error while searching EventLog with source '" + source + "': " + IceInternal::errorToString(res));
     }
 }
 

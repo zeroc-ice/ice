@@ -6,7 +6,7 @@
 #define GEN_H
 
 #include "../Slice/Parser.h"
-#include "IceUtil/OutputUtil.h"
+#include "../../src/IceUtil/OutputUtil.h"
 
 #include <map>
 

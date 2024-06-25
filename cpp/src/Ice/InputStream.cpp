@@ -12,7 +12,7 @@
 #include "Ice/StringConverter.h"
 #include "Ice/UserExceptionFactory.h"
 #include "Ice/ValueFactory.h"
-#include "IceUtil/DisableWarnings.h"
+#include "../../src/IceUtil/DisableWarnings.h"
 #include "Instance.h"
 #include "TraceLevels.h"
 #include "TraceUtil.h"

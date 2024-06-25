@@ -13,8 +13,8 @@
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/SHA1.h"
-#include "IceUtil/Random.h"
-#include "IceUtil/StringUtil.h"
+#include "../../src/IceUtil/Random.h"
+#include "Ice/StringUtil.h"
 #include "ProtocolInstance.h"
 
 #include <climits>
@@ -937,13 +937,13 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
     if (_parser->getHeader("Sec-WebSocket-Protocol", val, true))
     {
         vector<string> protocols;
-        if (!IceUtilInternal::splitString(val, ",", protocols))
+        if (!IceInternal::splitString(val, ",", protocols))
         {
             throw WebSocketException("invalid value `" + val + "' for WebSocket protocol");
         }
         for (vector<string>::iterator p = protocols.begin(); p != protocols.end(); ++p)
         {
-            if (IceUtilInternal::trim(*p) != _iceProtocol)
+            if (IceInternal::trim(*p) != _iceProtocol)
             {
                 throw WebSocketException("unknown value `" + *p + "' for WebSocket protocol");
             }

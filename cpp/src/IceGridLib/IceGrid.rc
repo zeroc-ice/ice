@@ -1,4 +1,4 @@
-#include "IceUtil/ResourceConfig.h"
+#include "../../src/IceUtil/ResourceConfig.h"
 
 #define ICE_INTERNALNAME ICE_LIBNAME("icegrid") "\0"
 #define ICE_ORIGINALFILENAME ICE_LIBNAME("icegrid") ".dll\0"

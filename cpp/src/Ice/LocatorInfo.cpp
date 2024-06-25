@@ -10,7 +10,7 @@
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
 #include "Ice/ProxyFunctions.h"
-#include "IceUtil/DisableWarnings.h"
+#include "../../src/IceUtil/DisableWarnings.h"
 #include "Instance.h"
 #include "Reference.h"
 #include "TraceLevels.h"

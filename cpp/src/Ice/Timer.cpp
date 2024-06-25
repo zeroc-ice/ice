@@ -3,12 +3,13 @@
 //
 
 #include "Ice/Timer.h"
-#include "ConsoleUtil.h"
+#include "../../src/IceUtil/ConsoleUtil.h"
 #include "Ice/Exception.h"
 
 using namespace std;
-using namespace IceUtil;
+using namespace Ice;
 using namespace IceInternal;
+using namespace IceUtilInternal;
 
 TimerTask::~TimerTask()
 {
@@ -129,7 +130,7 @@ Timer::run()
             }
             catch (const Ice::Exception& e)
             {
-                consoleErr << "IceUtil::Timer::run(): uncaught exception:\n" << e.what();
+                consoleErr << "Ice::Timer::run(): uncaught exception:\n" << e.what();
 #ifdef __GNUC__
                 consoleErr << "\n" << e.ice_stackTrace();
 #endif
@@ -137,11 +138,11 @@ Timer::run()
             }
             catch (const std::exception& e)
             {
-                consoleErr << "IceUtil::Timer::run(): uncaught exception:\n" << e.what() << endl;
+                consoleErr << "Ice::Timer::run(): uncaught exception:\n" << e.what() << endl;
             }
             catch (...)
             {
-                consoleErr << "IceUtil::Timer::run(): uncaught exception" << endl;
+                consoleErr << "Ice::Timer::run(): uncaught exception" << endl;
             }
 
             if (!token.delay)

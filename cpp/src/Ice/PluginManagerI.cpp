@@ -8,7 +8,7 @@
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
-#include "IceUtil/Options.h"
+#include "../../src/IceUtil/Options.h"
 #include "Instance.h"
 
 using namespace std;

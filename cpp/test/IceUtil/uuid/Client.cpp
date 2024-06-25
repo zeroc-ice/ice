@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/Random.h"
-#include "IceUtil/UUID.h"
+#include "../../src/IceUtil/Random.h"
+#include "Ice/UUID.h"
 #include "TestHelper.h"
 
 #include <mutex>
@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include <vector>
 
-using namespace IceUtil;
+using namespace Ice;
 using namespace std;
 
 namespace

@@ -16,8 +16,8 @@
 #    include <signal.h>
 #endif
 
+using namespace Ice;
 using namespace std;
-using namespace IceUtil;
 
 namespace
 {

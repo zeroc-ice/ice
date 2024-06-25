@@ -11,7 +11,7 @@
 #include "Instance.h"
 #include "InstrumentationI.h"
 
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 
 #include <chrono>
 #include <stdexcept>
@@ -42,7 +42,7 @@ namespace
             for (size_t i = 0; i < sizeof(suffixes) / sizeof(*suffixes); ++i)
             {
                 string prop = prefix + suffixes[i];
-                if (IceUtilInternal::match(p->first, prop))
+                if (IceInternal::match(p->first, prop))
                 {
                     valid = true;
                     break;
@@ -115,7 +115,7 @@ MetricsMapI::MetricsMapI(const std::string& mapPrefix, const PropertiesPtr& prop
     if (!groupBy.empty())
     {
         string v;
-        bool attribute = IceUtilInternal::isAlpha(groupBy[0]) || IceUtilInternal::isDigit(groupBy[0]);
+        bool attribute = IceInternal::isAlpha(groupBy[0]) || IceInternal::isDigit(groupBy[0]);
         if (!attribute)
         {
             groupByAttributes.push_back("");
@@ -123,7 +123,7 @@ MetricsMapI::MetricsMapI(const std::string& mapPrefix, const PropertiesPtr& prop
 
         for (string::const_iterator p = groupBy.begin(); p != groupBy.end(); ++p)
         {
-            bool isAlphaNum = IceUtilInternal::isAlpha(*p) || IceUtilInternal::isDigit(*p) || *p == '.';
+            bool isAlphaNum = IceInternal::isAlpha(*p) || IceInternal::isDigit(*p) || *p == '.';
             if (attribute && !isAlphaNum)
             {
                 groupByAttributes.push_back(v);

@@ -23,8 +23,8 @@
 #endif
 
 #include "Ice/Exception.h"
-#include "IceUtil/Exception.h"
-#include "IceUtil/StringUtil.h"
+#include "../../src/IceUtil/Exception.h"
+#include "Ice/StringUtil.h"
 
 #ifdef _WIN32
 #    include <windows.h>
@@ -368,7 +368,7 @@ namespace
             if (SymInitialize(process, 0, TRUE) == 0)
             {
                 process = 0;
-                return "No stack trace: SymInitialize failed with " + IceUtilInternal::errorToString(GetLastError());
+                return "No stack trace: SymInitialize failed with " + IceInternal::errorToString(GetLastError());
             }
         }
         lock.unlock();
@@ -395,10 +395,10 @@ namespace
 
         if (refreshModuleList && SymRefreshModuleList(process) == 0)
         {
-            return "No stack trace: SymRefreshModuleList failed with " + IceUtilInternal::errorToString(GetLastError());
+            return "No stack trace: SymRefreshModuleList failed with " + IceInternal::errorToString(GetLastError());
         }
 #    ifdef DBGHELP_TRANSLATE_TCHAR
-        const IceUtil::StringConverterPtr converter = IceUtil::getProcessStringConverter();
+        const Ice::StringConverterPtr converter = Ice::getProcessStringConverter();
 #    endif
         for (size_t i = 0; i < stackFrames.size(); i++)
         {
@@ -604,7 +604,7 @@ Ice::FileLockException::ice_print(ostream& os) const
     os << ":\ncould not lock file: `" << _path << "'";
     if (_error != 0)
     {
-        os << "\nsyscall exception: " << IceUtilInternal::errorToString(_error);
+        os << "\nsyscall exception: " << IceInternal::errorToString(_error);
     }
 }
 

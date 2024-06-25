@@ -9,7 +9,7 @@
 #include "AllocatableObjectCache.h"
 #include "Ice/CommunicatorF.h"
 #include "IceGrid/Admin.h"
-#include "IceUtil/FileUtil.h"
+#include "../../src/IceUtil/FileUtil.h"
 #include "Internal.h"
 #include "NodeCache.h"
 #include "ObjectCache.h"

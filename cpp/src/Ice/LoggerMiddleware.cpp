@@ -4,7 +4,7 @@
 
 #include "LoggerMiddleware.h"
 #include "Ice/UserException.h"
-#include "StringUtil.h"
+#include "Ice/StringUtil.h"
 
 using namespace std;
 using namespace Ice;

@@ -111,7 +111,7 @@ BaseSessionI::getGlacier2AdapterIdSet()
     return _servantManager->getGlacier2AdapterIdSet(shared_from_this());
 }
 
-SessionI::SessionI(const string& id, const shared_ptr<Database>& database, const IceUtil::TimerPtr& timer)
+SessionI::SessionI(const string& id, const shared_ptr<Database>& database, const Ice::TimerPtr& timer)
     : BaseSessionI(id, "client", database),
       _timer(timer),
       _allocationTimeout(-1)
@@ -261,7 +261,7 @@ SessionI::destroyImpl(bool shutdown)
 ClientSessionFactory::ClientSessionFactory(
     const shared_ptr<SessionServantManager>& servantManager,
     const shared_ptr<Database>& database,
-    const IceUtil::TimerPtr& timer,
+    const Ice::TimerPtr& timer,
     const shared_ptr<ReapThread>& reaper)
     : _servantManager(servantManager),
       _database(database),

@@ -11,8 +11,8 @@
 #include "Ice/SSL/SSLException.h"
 #include "Ice/StringConverter.h"
 #include "Ice/Config.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "../../../src/IceUtil/FileUtil.h"
+#include "Ice/StringUtil.h"
 #include "RFC2253.h"
 
 #include <fstream>
@@ -20,7 +20,6 @@
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
-using namespace IceUtil;
 using namespace Ice::SSL;
 
 #if defined(__APPLE__)
@@ -45,7 +44,7 @@ Ice::SSL::fromCFString(CFStringRef v)
 bool
 Ice::SSL::parseBytes(const string& arg, vector<unsigned char>& buffer)
 {
-    string v = IceUtilInternal::toUpper(arg);
+    string v = IceInternal::toUpper(arg);
 
     // Check for any invalid characters.
     size_t pos = v.find_first_not_of(" :0123456789ABCDEF");
@@ -184,7 +183,7 @@ namespace
         if ((length =
                  CertNameToStr(X509_ASN_ENCODING, certName, CERT_OID_NAME_STR | CERT_NAME_STR_REVERSE_FLAG, 0, 0)) == 0)
         {
-            throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+            throw CertificateEncodingException(__FILE__, __LINE__, IceInternal::lastErrorToString());
         }
 
         vector<char> buffer(length);
@@ -195,7 +194,7 @@ namespace
                 &buffer[0],
                 length))
         {
-            throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+            throw CertificateEncodingException(__FILE__, __LINE__, IceInternal::lastErrorToString());
         }
 
         string s(&buffer[0]);
@@ -250,7 +249,7 @@ Ice::SSL::getSubjectAltNames(PCCERT_CONTEXT cert)
                 &altName,
                 &length))
         {
-            throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+            throw CertificateEncodingException(__FILE__, __LINE__, IceInternal::lastErrorToString());
         }
 
         for (DWORD i = 0; i < altName->cAltEntry; ++i)
@@ -330,7 +329,7 @@ Ice::SSL::encodeCertificate(PCCERT_CONTEXT cert)
             0,
             &encodedLength))
     {
-        throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+        throw CertificateEncodingException(__FILE__, __LINE__, IceInternal::lastErrorToString());
     }
 
     vector<char> encoded;
@@ -342,7 +341,7 @@ Ice::SSL::encodeCertificate(PCCERT_CONTEXT cert)
             &encoded[0],
             &encodedLength))
     {
-        throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+        throw CertificateEncodingException(__FILE__, __LINE__, IceInternal::lastErrorToString());
     }
     s.assign(&encoded[0]);
     return s;
@@ -367,7 +366,7 @@ Ice::SSL::decodeCertificate(const string& data)
     {
         // Base64 data should always be bigger than binary
         assert(GetLastError() != ERROR_MORE_DATA);
-        throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+        throw CertificateEncodingException(__FILE__, __LINE__, IceInternal::lastErrorToString());
     }
 
     DWORD decodedLeng = 0;
@@ -381,14 +380,14 @@ Ice::SSL::decodeCertificate(const string& data)
             &cert,
             &decodedLeng))
     {
-        throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+        throw CertificateEncodingException(__FILE__, __LINE__, IceInternal::lastErrorToString());
     }
     PCCERT_CONTEXT certContext =
         CertCreateCertificateContext(X509_ASN_ENCODING, cert->ToBeSigned.pbData, cert->ToBeSigned.cbData);
     LocalFree(cert);
     if (!certContext)
     {
-        throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+        throw CertificateEncodingException(__FILE__, __LINE__, IceInternal::lastErrorToString());
     }
     return certContext;
 }

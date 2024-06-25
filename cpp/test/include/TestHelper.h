@@ -117,7 +117,7 @@ namespace Test
         ControllerHelper* _controllerHelper;
         Ice::CommunicatorPtr _communicator;
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
-        IceUtil::CtrlCHandler* _ctrlCHandler;
+        Ice::CtrlCHandler* _ctrlCHandler;
 #endif
     };
 

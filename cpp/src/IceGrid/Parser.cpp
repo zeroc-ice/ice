@@ -8,8 +8,9 @@
 #include "DescriptorParser.h"
 #include "Ice/Ice.h"
 #include "IceBox/IceBox.h"
-#include "IceUtil/DisableWarnings.h"
-#include "IceUtil/Options.h"
+#include "../../src/IceUtil/ConsoleUtil.h"
+#include "../../src/IceUtil/DisableWarnings.h"
+#include "../../src/IceUtil/Options.h"
 #include "Parser.h"
 #include "Util.h"
 
@@ -29,9 +30,9 @@ extern int yydebug;
 int yyparse();
 
 using namespace std;
-using namespace IceUtil;
-using namespace IceUtilInternal;
 using namespace Ice;
+using namespace IceUtilInternal;
+using namespace IceInternal;
 using namespace IceGrid;
 
 namespace

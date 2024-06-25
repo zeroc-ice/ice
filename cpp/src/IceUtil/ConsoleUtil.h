@@ -27,8 +27,8 @@ namespace IceUtilInternal
 
     private:
         std::string toConsoleEncoding(const std::string&) const;
-        IceUtil::StringConverterPtr _converter;
-        IceUtil::StringConverterPtr _consoleConverter;
+        Ice::StringConverterPtr _converter;
+        Ice::StringConverterPtr _consoleConverter;
     };
 
     const ICE_API ConsoleUtil& getConsoleUtil();

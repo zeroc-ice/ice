@@ -2,21 +2,23 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../Ice/ConsoleUtil.h"
+#include "../IceUtil/ConsoleUtil.h"
 #include "../IceDB/IceDB.h"
 #include "DBTypes.h"
 #include "Ice/Ice.h"
 #include "IceGrid/Admin.h"
-#include "IceUtil/DisableWarnings.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/Options.h"
-#include "IceUtil/StringUtil.h"
+#include "../../src/IceUtil/DisableWarnings.h"
+#include "../../src/IceUtil/ConsoleUtil.h"
+#include "../../src/IceUtil/FileUtil.h"
+#include "../../src/IceUtil/Options.h"
+#include "Ice/StringUtil.h"
 
 #include <fstream>
 #include <iterator>
 
 using namespace std;
 using namespace IceInternal;
+using namespace IceUtilInternal;
 
 namespace
 {
@@ -200,7 +202,7 @@ run(const Ice::StringSeq& args)
             ifstream fs(IceUtilInternal::streamFilename(dbFile).c_str(), ios::binary);
             if (fs.fail())
             {
-                consoleErr << args[0] << ": could not open input file: " << IceUtilInternal::errorToString(errno)
+                consoleErr << args[0] << ": could not open input file: " << IceInternal::errorToString(errno)
                            << endl;
                 return 1;
             }
@@ -505,7 +507,7 @@ run(const Ice::StringSeq& args)
             ofstream fs(IceUtilInternal::streamFilename(dbFile).c_str(), ios::binary);
             if (fs.fail())
             {
-                consoleErr << args[0] << ": could not open output file: " << IceUtilInternal::errorToString(errno)
+                consoleErr << args[0] << ": could not open output file: " << IceInternal::errorToString(errno)
                            << endl;
                 return 1;
             }

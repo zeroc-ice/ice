@@ -4,7 +4,7 @@
 
 #include "DynamicLibrary.h"
 #include "Ice/StringConverter.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 
 #include <cassert>
 #include <sstream>
@@ -208,7 +208,7 @@ IceInternal::DynamicLibrary::load(const string& lib)
         // Remember the most recent error in _err.
         //
 #if defined(_WIN32)
-        _err = "LoadLibraryW on `" + lib + "' failed with `" + IceUtilInternal::lastErrorToString() + "'";
+        _err = "LoadLibraryW on `" + lib + "' failed with `" + IceInternal::lastErrorToString() + "'";
 #else
         const char* err = dlerror();
         if (err)
@@ -237,7 +237,7 @@ IceInternal::DynamicLibrary::getSymbol(const string& name)
         // Remember the most recent error in _err.
         //
 #ifdef _WIN32
-        _err = "GetProcAddress for `" + name + "' failed with `" + IceUtilInternal::lastErrorToString() + "'";
+        _err = "GetProcAddress for `" + name + "' failed with `" + IceInternal::lastErrorToString() + "'";
 #else
         const char* err = dlerror();
         if (err)

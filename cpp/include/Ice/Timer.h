@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_UTIL_TIMER_H
-#define ICE_UTIL_TIMER_H
+#ifndef ICE_TIMER_H
+#define ICE_TIMER_H
 
 #include "Config.h"
 
@@ -18,7 +18,7 @@
 #include <stdexcept>
 #include <thread>
 
-namespace IceUtil
+namespace Ice
 {
     class Timer;
     using TimerPtr = std::shared_ptr<Timer>;
@@ -160,7 +160,7 @@ namespace IceUtil
         bool isScheduled(const TimerTaskPtr&);
 
     protected:
-        virtual void runTimerTask(const IceUtil::TimerTaskPtr&);
+        virtual void runTimerTask(const TimerTaskPtr&);
 
     private:
         struct Token

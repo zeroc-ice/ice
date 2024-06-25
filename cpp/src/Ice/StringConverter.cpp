@@ -7,12 +7,12 @@
 #if defined(_MSC_VER) && (_MSVC_LANG >= 201703L)
 #    define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 #elif (__cplusplus >= 201703L)
-#    include "IceUtil/DisableWarnings.h"
+#    include "../../src/IceUtil/DisableWarnings.h"
 #endif
 
 #include "Ice/Exception.h"
 #include "Ice/StringConverter.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 
 #ifdef _WIN32
 #    include <windows.h>
@@ -23,15 +23,15 @@
 #include <locale>
 #include <mutex>
 
-using namespace IceUtil;
-using namespace IceUtilInternal;
+using namespace Ice;
+using namespace IceInternal;
 using namespace std;
 
 namespace
 {
     mutex processStringConverterMutex;
-    IceUtil::StringConverterPtr processStringConverter;
-    IceUtil::WstringConverterPtr processWstringConverter;
+    StringConverterPtr processStringConverter;
+    WstringConverterPtr processWstringConverter;
 
     template<size_t wcharSize> struct SelectCodeCvt;
 
@@ -114,16 +114,16 @@ namespace
                         // Unexpected
                         //
                         assert(0);
-                        throw Ice::IllegalConversionException(__FILE__, __LINE__, "codecvt.out noconv");
+                        throw IllegalConversionException(__FILE__, __LINE__, "codecvt.out noconv");
 
                     default:
-                        throw Ice::IllegalConversionException(__FILE__, __LINE__, "codecvt.out error");
+                        throw IllegalConversionException(__FILE__, __LINE__, "codecvt.out error");
                 }
 
                 if (targetStart == targetNext)
                 {
                     // We didn't convert a single character
-                    throw Ice::IllegalConversionException(__FILE__, __LINE__, "no character converted by codecvt.out");
+                    throw IllegalConversionException(__FILE__, __LINE__, "no character converted by codecvt.out");
                 }
 
                 sourceStart = sourceNext;
@@ -162,7 +162,7 @@ namespace
 
                 if (result != codecvt_base::ok)
                 {
-                    throw Ice::IllegalConversionException(__FILE__, __LINE__, "codecvt.in failure");
+                    throw IllegalConversionException(__FILE__, __LINE__, "codecvt.in failure");
                 }
 
                 target.resize(static_cast<size_t>(targetNext - targetStart));
@@ -214,33 +214,33 @@ namespace
     };
 }
 
-IceUtil::UTF8Buffer::~UTF8Buffer()
+Ice::UTF8Buffer::~UTF8Buffer()
 {
     // Out of line to avoid weak vtable
 }
 
 WstringConverterPtr
-IceUtil::createUnicodeWstringConverter()
+Ice::createUnicodeWstringConverter()
 {
     return getUnicodeWstringConverter();
 }
 
 StringConverterPtr
-IceUtil::getProcessStringConverter()
+Ice::getProcessStringConverter()
 {
     lock_guard lock(processStringConverterMutex);
     return processStringConverter;
 }
 
 void
-IceUtil::setProcessStringConverter(const StringConverterPtr& converter)
+Ice::setProcessStringConverter(const StringConverterPtr& converter)
 {
     lock_guard lock(processStringConverterMutex);
     processStringConverter = converter;
 }
 
 WstringConverterPtr
-IceUtil::getProcessWstringConverter()
+Ice::getProcessWstringConverter()
 {
     lock_guard lock(processStringConverterMutex);
     if (processWstringConverter)
@@ -254,14 +254,14 @@ IceUtil::getProcessWstringConverter()
 }
 
 void
-IceUtil::setProcessWstringConverter(const WstringConverterPtr& converter)
+Ice::setProcessWstringConverter(const WstringConverterPtr& converter)
 {
     lock_guard lock(processStringConverterMutex);
     processWstringConverter = converter;
 }
 
 string
-IceUtil::wstringToString(const wstring& v, const StringConverterPtr& converter, const WstringConverterPtr& wConverter)
+Ice::wstringToString(const wstring& v, const StringConverterPtr& converter, const WstringConverterPtr& wConverter)
 {
     string target;
     if (!v.empty())
@@ -293,7 +293,7 @@ IceUtil::wstringToString(const wstring& v, const StringConverterPtr& converter, 
 }
 
 wstring
-IceUtil::stringToWstring(const string& v, const StringConverterPtr& converter, const WstringConverterPtr& wConverter)
+Ice::stringToWstring(const string& v, const StringConverterPtr& converter, const WstringConverterPtr& wConverter)
 {
     wstring target;
     if (!v.empty())
@@ -328,7 +328,7 @@ IceUtil::stringToWstring(const string& v, const StringConverterPtr& converter, c
 }
 
 string
-IceUtil::nativeToUTF8(const string& str, const IceUtil::StringConverterPtr& converter)
+Ice::nativeToUTF8(const string& str, const Ice::StringConverterPtr& converter)
 {
     if (!converter || str.empty())
     {
@@ -342,7 +342,7 @@ IceUtil::nativeToUTF8(const string& str, const IceUtil::StringConverterPtr& conv
 }
 
 string
-IceUtil::UTF8ToNative(const string& str, const IceUtil::StringConverterPtr& converter)
+Ice::UTF8ToNative(const string& str, const Ice::StringConverterPtr& converter)
 {
     if (!converter || str.empty())
     {
@@ -360,7 +360,7 @@ typedef char16_t Char16T;
 typedef char32_t Char32T;
 
 vector<unsigned short>
-IceUtilInternal::toUTF16(const vector<uint8_t>& source)
+IceInternal::toUTF16(const vector<uint8_t>& source)
 {
     vector<unsigned short> result;
     if (!source.empty())
@@ -390,7 +390,7 @@ IceUtilInternal::toUTF16(const vector<uint8_t>& source)
 }
 
 vector<unsigned int>
-IceUtilInternal::toUTF32(const vector<uint8_t>& source)
+IceInternal::toUTF32(const vector<uint8_t>& source)
 {
     vector<unsigned int> result;
     if (!source.empty())
@@ -419,7 +419,7 @@ IceUtilInternal::toUTF32(const vector<uint8_t>& source)
 }
 
 vector<uint8_t>
-IceUtilInternal::fromUTF32(const vector<unsigned int>& source)
+IceInternal::fromUTF32(const vector<unsigned int>& source)
 {
     vector<uint8_t> result;
     if (!source.empty())
@@ -506,7 +506,7 @@ namespace
 
         if (writtenWchar == 0)
         {
-            throw Ice::IllegalConversionException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+            throw IllegalConversionException(__FILE__, __LINE__, IceInternal::lastErrorToString());
         }
 
         wbuffer.resize(static_cast<size_t>(writtenWchar));
@@ -566,7 +566,7 @@ namespace
 
         if (writtenChar == 0)
         {
-            throw Ice::IllegalConversionException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+            throw IllegalConversionException(__FILE__, __LINE__, IceInternal::lastErrorToString());
         }
 
         target.resize(static_cast<size_t>(writtenChar));
@@ -574,7 +574,7 @@ namespace
 }
 
 StringConverterPtr
-IceUtil::createWindowsStringConverter(unsigned int cp)
+Ice::createWindowsStringConverter(unsigned int cp)
 {
     return make_shared<WindowsStringConverter>(cp);
 }

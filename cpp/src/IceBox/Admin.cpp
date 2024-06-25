@@ -2,13 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../Ice/ConsoleUtil.h"
+#include "../IceUtil/ConsoleUtil.h"
 #include "Ice/Ice.h"
 #include "IceBox/IceBox.h"
-#include "IceUtil/Options.h"
+#include "../../src/IceUtil/Options.h"
 
 using namespace std;
 using namespace IceInternal;
+using namespace IceUtilInternal;
 
 int run(const Ice::StringSeq&);
 

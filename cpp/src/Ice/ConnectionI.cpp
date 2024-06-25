@@ -13,7 +13,7 @@
 #include "Ice/LoggerUtil.h"
 #include "Ice/OutgoingResponse.h"
 #include "Ice/Properties.h"
-#include "IceUtil/DisableWarnings.h"
+#include "../../src/IceUtil/DisableWarnings.h"
 #include "IdleTimeoutTransceiverDecorator.h"
 #include "Instance.h"
 #include "ObjectAdapterI.h"   // For getThreadPool()
@@ -37,7 +37,7 @@ using namespace IceInternal;
 
 namespace
 {
-    class ConnectTimerTask final : public IceUtil::TimerTask
+    class ConnectTimerTask final : public Ice::TimerTask
     {
     public:
         ConnectTimerTask(const Ice::ConnectionIPtr& connection) : _connection(connection) {}
@@ -54,7 +54,7 @@ namespace
         const weak_ptr<Ice::ConnectionI> _connection;
     };
 
-    class CloseTimerTask final : public IceUtil::TimerTask
+    class CloseTimerTask final : public Ice::TimerTask
     {
     public:
         CloseTimerTask(const Ice::ConnectionIPtr& connection) : _connection(connection) {}
@@ -71,7 +71,7 @@ namespace
         const weak_ptr<Ice::ConnectionI> _connection;
     };
 
-    class InactivityTimerTask final : public IceUtil::TimerTask
+    class InactivityTimerTask final : public Ice::TimerTask
     {
     public:
         InactivityTimerTask(const Ice::ConnectionIPtr& connection) : _connection(connection) {}
@@ -2279,7 +2279,7 @@ Ice::ConnectionI::initiateShutdown()
 
 void
 Ice::ConnectionI::idleCheck(
-    const IceUtil::TimerTaskPtr& idleCheckTimerTask,
+    const Ice::TimerTaskPtr& idleCheckTimerTask,
     const chrono::seconds& idleTimeout) noexcept
 {
     std::lock_guard lock(_mutex);

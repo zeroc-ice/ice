@@ -8,8 +8,8 @@
 #include "Ice/Ice.h"
 #include "IceGrid/IceGrid.h"
 #include "IceGrid/Session.h"
-#include "IceUtil/Random.h"
-#include "IceUtil/StringUtil.h"
+#include "../../src/IceUtil/Random.h"
+#include "Ice/StringUtil.h"
 #include "NodeSessionI.h"
 #include "ReplicaSessionI.h"
 #include "Topics.h"
@@ -1467,12 +1467,12 @@ Database::getAllAdapters(const string& expression)
     AdapterMapROCursor cursor(_adapters, txn);
     while (cursor.get(name, info, MDB_NEXT))
     {
-        if (expression.empty() || IceUtilInternal::match(name, expression, true))
+        if (expression.empty() || IceInternal::match(name, expression, true))
         {
             result.push_back(name);
         }
         string replicaGroupId = info.replicaGroupId;
-        if (!replicaGroupId.empty() && (expression.empty() || IceUtilInternal::match(replicaGroupId, expression, true)))
+        if (!replicaGroupId.empty() && (expression.empty() || IceInternal::match(replicaGroupId, expression, true)))
         {
             groups.insert(replicaGroupId);
         }
@@ -1883,7 +1883,7 @@ Database::getAllObjectInfos(const string& expression)
     ObjectsMapROCursor cursor(_objects, txn);
     while (cursor.get(id, info, MDB_NEXT))
     {
-        if (expression.empty() || IceUtilInternal::match(_communicator->identityToString(id), expression, true))
+        if (expression.empty() || IceInternal::match(_communicator->identityToString(id), expression, true))
         {
             infos.push_back(info);
         }

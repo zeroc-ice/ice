@@ -5,7 +5,7 @@
 #include "CsUtil.h"
 #include "../Slice/Util.h"
 #include "DotNetNames.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 
 #include <algorithm>
 #include <cassert>
@@ -412,7 +412,7 @@ string
 Slice::CsGenerator::resultStructName(const string& className, const string& opName, bool marshaledResult)
 {
     ostringstream s;
-    s << className << "_" << IceUtilInternal::toUpper(opName.substr(0, 1)) << opName.substr(1)
+    s << className << "_" << IceInternal::toUpper(opName.substr(0, 1)) << opName.substr(1)
       << (marshaledResult ? "MarshaledResult" : "Result");
     return s.str();
 }

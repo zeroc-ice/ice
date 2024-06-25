@@ -8,7 +8,7 @@
 #include "Connection.h"
 #include "Endpoint.h"
 #include "Ice/Metrics.h"
-#include "IceUtil/StopWatch.h"
+#include "../../src/IceUtil/StopWatch.h"
 #include "Instrumentation.h"
 #include "MetricsAdminI.h"
 #include "MetricsFunctional.h"

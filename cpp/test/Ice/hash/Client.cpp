@@ -3,7 +3,7 @@
 //
 
 #include "Ice/Ice.h"
-#include "IceUtil/Random.h"
+#include "../../src/IceUtil/Random.h"
 #include "TestHelper.h"
 
 #if defined(__GNUC__)

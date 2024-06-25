@@ -23,10 +23,10 @@
 #include "OpaqueEndpointI.h"
 #include "ReferenceFactory.h"
 #include "RouterInfo.h"
-#include "StringUtil.h"
+#include "Ice/StringUtil.h"
 #include "TraceLevels.h"
 
-#include "IceUtil/Random.h"
+#include "../../src/IceUtil/Random.h"
 
 #include <algorithm>
 #include <functional>

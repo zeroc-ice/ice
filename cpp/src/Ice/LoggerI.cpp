@@ -5,10 +5,10 @@
 #include "LoggerI.h"
 #include "TimeUtil.h"
 
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 
 #include "Ice/LocalException.h"
-#include "IceUtil/FileUtil.h"
+#include "../../src/IceUtil/FileUtil.h"
 
 #include <iostream>
 #include <mutex>
@@ -186,7 +186,7 @@ Ice::LoggerI::write(const string& message, bool indent)
                     size_t sizeMax = _sizeMax;
                     _sizeMax = 0;
                     lock.unlock();
-                    error("FileLogger: cannot rename `" + _file + "'\n" + IceUtilInternal::lastErrorToString());
+                    error("FileLogger: cannot rename `" + _file + "'\n" + IceInternal::lastErrorToString());
                     lock.lock();
                     _sizeMax = sizeMax;
                 }

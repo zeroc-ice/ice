@@ -4,7 +4,7 @@
 
 #include "RubyUtil.h"
 #include "../Slice/Util.h"
-#include "IceUtil/FileUtil.h"
+#include "../../src/IceUtil/FileUtil.h"
 
 #include <algorithm>
 #include <cassert>

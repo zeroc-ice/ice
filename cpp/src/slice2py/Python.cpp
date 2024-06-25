@@ -2,15 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/ConsoleUtil.h"
+#include "../../src/IceUtil/ConsoleUtil.h"
 #include "Ice/CtrlCHandler.h"
-#include "IceUtil/Options.h"
-#include "IceUtil/StringUtil.h"
+#include "../../src/IceUtil/Options.h"
+#include "Ice/StringUtil.h"
 // BUGFIX: With MSVC2013 if this isn't included you get strange linker errors.
 #include "../Slice/FileTracker.h"
 #include "../Slice/Preprocessor.h"
 #include "../Slice/Util.h"
-#include "IceUtil/FileUtil.h"
+#include "../../src/IceUtil/FileUtil.h"
 #include "PythonUtil.h"
 
 #include <cassert>
@@ -61,7 +61,7 @@ namespace
         if (IceUtilInternal::mkdir(dir, 0777) != 0)
         {
             ostringstream os;
-            os << "cannot create directory '" << dir << "': " << IceUtilInternal::errorToString(errno);
+            os << "cannot create directory '" << dir << "': " << IceInternal::errorToString(errno);
             throw FileException(__FILE__, __LINE__, os.str());
         }
     }
@@ -76,7 +76,7 @@ namespace
         assert(!pkgdir.empty());
 
         vector<string> elements;
-        if (!IceUtilInternal::splitString(pkgdir, "/", elements))
+        if (!IceInternal::splitString(pkgdir, "/", elements))
         {
             throw FileException(__FILE__, __LINE__, "invalid path in '" + pkgdir + "'");
         }
@@ -100,7 +100,7 @@ namespace
                 if (IceUtilInternal::mkdir(path, 0777) != 0)
                 {
                     ostringstream os;
-                    os << "cannot create directory '" << path << "': " << IceUtilInternal::errorToString(errno);
+                    os << "cannot create directory '" << path << "': " << IceInternal::errorToString(errno);
                     throw FileException(__FILE__, __LINE__, os.str());
                 }
                 FileTracker::instance()->addDirectory(path);
@@ -128,7 +128,7 @@ namespace
                 if (!out)
                 {
                     ostringstream os;
-                    os << "cannot open '" << initFile << "': " << IceUtilInternal::errorToString(errno);
+                    os << "cannot open '" << initFile << "': " << IceInternal::errorToString(errno);
                     throw FileException(__FILE__, __LINE__, os.str());
                 }
                 FileTracker::instance()->addFile(initFile);
@@ -202,7 +202,7 @@ namespace
         for (StringList::iterator p = modules.begin(); p != modules.end(); ++p)
         {
             vector<string> vs;
-            if (!IceUtilInternal::splitString(*p, ".", vs))
+            if (!IceInternal::splitString(*p, ".", vs))
             {
                 assert(false);
             }
@@ -285,7 +285,7 @@ namespace
             if (!in)
             {
                 ostringstream os;
-                os << "cannot open file '" << initPath << "': " << IceUtilInternal::errorToString(errno);
+                os << "cannot open file '" << initPath << "': " << IceInternal::errorToString(errno);
                 throw FileException(__FILE__, __LINE__, os.str());
             }
 
@@ -380,7 +380,7 @@ namespace
         if (!os)
         {
             ostringstream oss;
-            oss << "cannot open file '" << initPath << "': " << IceUtilInternal::errorToString(errno);
+            oss << "cannot open file '" << initPath << "': " << IceInternal::errorToString(errno);
             throw FileException(__FILE__, __LINE__, oss.str());
         }
         FileTracker::instance()->addFile(initPath);
@@ -534,7 +534,7 @@ Slice::Python::compile(const vector<string>& argv)
 
     int status = EXIT_SUCCESS;
 
-    IceUtil::CtrlCHandler ctrlCHandler;
+    Ice::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
     bool keepComments = true;
@@ -703,7 +703,7 @@ Slice::Python::compile(const vector<string>& argv)
                             if (!out)
                             {
                                 ostringstream oss;
-                                oss << "cannot open '" << path << "': " << IceUtilInternal::errorToString(errno);
+                                oss << "cannot open '" << path << "': " << IceInternal::errorToString(errno);
                                 throw FileException(__FILE__, __LINE__, oss.str());
                             }
                             FileTracker::instance()->addFile(path);

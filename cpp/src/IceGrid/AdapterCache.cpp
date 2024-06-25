@@ -6,7 +6,7 @@
 #include "Ice/Communicator.h"
 #include "Ice/Locator.h"
 #include "Ice/LoggerUtil.h"
-#include "IceUtil/Random.h"
+#include "../../src/IceUtil/Random.h"
 #include "NodeCache.h"
 #include "NodeSessionI.h"
 #include "ServerCache.h"

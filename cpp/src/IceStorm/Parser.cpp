@@ -3,10 +3,10 @@
 //
 
 #include "Parser.h"
-#include "../Ice/ConsoleUtil.h"
+#include "../IceUtil/ConsoleUtil.h"
 #include "Ice/Ice.h"
 #include "IceStormInternal.h"
-#include "IceUtil/DisableWarnings.h"
+#include "../../src/IceUtil/DisableWarnings.h"
 #include <algorithm>
 
 #if defined(__APPLE__) || defined(__linux__)
@@ -24,6 +24,7 @@ int yyparse();
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
+using namespace IceUtilInternal;
 using namespace IceStorm;
 
 namespace IceStorm

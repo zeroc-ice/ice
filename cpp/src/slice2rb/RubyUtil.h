@@ -6,7 +6,7 @@
 #define SLICE_RUBY_UTIL_H
 
 #include "../Slice/Parser.h"
-#include "IceUtil/OutputUtil.h"
+#include "../../src/IceUtil/OutputUtil.h"
 
 namespace Slice
 {

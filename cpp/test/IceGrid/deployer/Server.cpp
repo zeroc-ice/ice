@@ -3,7 +3,7 @@
 //
 
 #include "Ice/Ice.h"
-#include "IceUtil/DisableWarnings.h"
+#include "../../src/IceUtil/DisableWarnings.h"
 #include "TestHelper.h"
 #include "TestI.h"
 #include <fstream>

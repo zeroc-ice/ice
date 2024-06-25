@@ -28,7 +28,7 @@
 
 using namespace std;
 using namespace IceRuby;
-using namespace IceUtil;
+using namespace Ice;
 using namespace IceUtilInternal;
 
 static VALUE _typeInfoClass, _exceptionInfoClass, _unsetTypeClass;

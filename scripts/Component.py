@@ -243,7 +243,7 @@ class Ice(Util.Component):
 
     def getSoVersion(self):
         with open(
-            os.path.join(Util.toplevel, "cpp", "include", "IceUtil", "Config.h"), "r"
+            os.path.join(Util.toplevel, "cpp", "include", "Ice", "Config.h"), "r"
         ) as config:
             intVersion = int(
                 re.search("ICE_INT_VERSION ([0-9]*)", config.read()).group(1)

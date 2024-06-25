@@ -5,7 +5,7 @@
 #include "Event.h"
 #include "Ice/Ice.h"
 #include "IceStorm/IceStorm.h"
-#include "IceUtil/Options.h"
+#include "../../src/IceUtil/Options.h"
 #include "TestHelper.h"
 
 #include <stdexcept>

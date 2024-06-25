@@ -339,7 +339,7 @@ Test::TestHelper::shutdownOnInterrupt()
     assert(!_ctrlCHandler);
     if (_ctrlCHandler == 0)
     {
-        _ctrlCHandler = new IceUtil::CtrlCHandler();
+        _ctrlCHandler = new Ice::CtrlCHandler();
     }
     _ctrlCHandler->setCallback(shutdownOnInterruptCallback);
 }

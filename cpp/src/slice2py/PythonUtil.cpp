@@ -4,7 +4,7 @@
 
 #include "PythonUtil.h"
 #include "../Slice/Util.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 #include <algorithm>
 #include <cassert>
 #include <climits>
@@ -12,6 +12,7 @@
 
 using namespace std;
 using namespace Slice;
+using namespace IceInternal;
 using namespace IceUtilInternal;
 
 namespace
@@ -2712,7 +2713,7 @@ Slice::Python::getImportFileName(const string& file, const UnitPtr& ut, const ve
         // The metadata is present, so the generated file was placed in the specified directory.
         //
         vector<string> names;
-        IceUtilInternal::splitString(pkgdir, "/", names);
+        IceInternal::splitString(pkgdir, "/", names);
         assert(!names.empty());
         pkgdir = "";
         for (vector<string>::iterator p = names.begin(); p != names.end(); ++p)

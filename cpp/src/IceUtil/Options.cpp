@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/Options.h"
-#include "IceUtil/StringUtil.h"
+#include "Options.h"
+#include "Ice/StringUtil.h"
 
 #include <cassert>
 #include <iostream>
@@ -457,7 +457,7 @@ IceUtilInternal::Options::split(const string& line)
                             case 'c':
                             {
                                 c = l[++i];
-                                if (IceUtilInternal::isAlpha(c) || c == '@' || (c >= '[' && c <= '_'))
+                                if (IceInternal::isAlpha(c) || c == '@' || (c >= '[' && c <= '_'))
                                 {
                                     arg.push_back(static_cast<char>(toupper(static_cast<unsigned char>(c)) - '@'));
                                 }

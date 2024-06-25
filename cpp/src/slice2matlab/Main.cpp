@@ -6,12 +6,12 @@
 #include "../Slice/Parser.h"
 #include "../Slice/Preprocessor.h"
 #include "../Slice/Util.h"
-#include "IceUtil/ConsoleUtil.h"
+#include "../../src/IceUtil/ConsoleUtil.h"
 #include "Ice/CtrlCHandler.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/Options.h"
-#include "IceUtil/OutputUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "../../src/IceUtil/FileUtil.h"
+#include "../../src/IceUtil/Options.h"
+#include "../../src/IceUtil/OutputUtil.h"
+#include "Ice/StringUtil.h"
 
 #include <algorithm>
 #include <cassert>
@@ -342,7 +342,7 @@ namespace
                 else
                 {
                     ostringstream os;
-                    os << "cannot create directory `" << path << "': " << IceUtilInternal::errorToString(errno);
+                    os << "cannot create directory `" << path << "': " << IceInternal::errorToString(errno);
                     throw FileException(__FILE__, __LINE__, os.str());
                 }
                 FileTracker::instance()->addDirectory(path);
@@ -804,10 +804,10 @@ namespace
         string::size_type nextPos;
         while ((nextPos = comment.find_first_of('\n', pos)) != string::npos)
         {
-            result.push_back(IceUtilInternal::trim(string(comment, pos, nextPos - pos)));
+            result.push_back(IceInternal::trim(string(comment, pos, nextPos - pos)));
             pos = nextPos + 1;
         }
-        string lastLine = IceUtilInternal::trim(string(comment, pos));
+        string lastLine = IceInternal::trim(string(comment, pos));
         if (!lastLine.empty())
         {
             result.push_back(lastLine);
@@ -884,7 +884,7 @@ namespace
         // First check metadata for a deprecated tag.
         if (auto reason = p->getDeprecationReason(false))
         {
-            doc.deprecateReason.push_back(IceUtilInternal::trim(*reason));
+            doc.deprecateReason.push_back(IceInternal::trim(*reason));
         }
 
         //
@@ -923,7 +923,7 @@ namespace
         const string seeTag = "@see";
         for (; i != lines.end(); ++i)
         {
-            const string l = IceUtilInternal::trim(*i);
+            const string l = IceInternal::trim(*i);
             string line;
             if (parseCommentLine(l, paramTag, true, name, line))
             {
@@ -4643,7 +4643,7 @@ compile(const vector<string>& argv)
 
     int status = EXIT_SUCCESS;
 
-    IceUtil::CtrlCHandler ctrlCHandler;
+    Ice::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
     ostringstream os;

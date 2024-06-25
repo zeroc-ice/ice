@@ -5,7 +5,7 @@
 #include "ObjectAdapterI.h"
 #include "CheckIdentity.h"
 #include "ConnectionFactory.h"
-#include "ConsoleUtil.h"
+#include "../../src/IceUtil/ConsoleUtil.h"
 #include "DefaultsAndOverrides.h"
 #include "EndpointFactoryManager.h"
 #include "EndpointI.h"
@@ -42,6 +42,7 @@
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
+using namespace IceUtilInternal;
 
 namespace
 {

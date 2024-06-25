@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/ConsoleUtil.h"
+#include "../../src/IceUtil/ConsoleUtil.h"
 #include "Ice/CtrlCHandler.h"
-#include "IceUtil/Options.h"
+#include "../../src/IceUtil/Options.h"
 
 #include "../Slice/FileTracker.h"
 #include "../Slice/Preprocessor.h"
@@ -176,7 +176,7 @@ compile(const vector<string>& argv)
 
     int status = EXIT_SUCCESS;
 
-    IceUtil::CtrlCHandler ctrlCHandler;
+    Ice::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
     ostringstream os;

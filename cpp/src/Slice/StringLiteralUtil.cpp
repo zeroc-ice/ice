@@ -12,8 +12,9 @@
 
 using namespace std;
 using namespace Slice;
-using namespace IceUtil;
+using namespace Ice;
 using namespace IceUtilInternal;
+using namespace IceInternal;
 
 namespace
 {

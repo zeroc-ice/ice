@@ -3,13 +3,13 @@
 //
 
 #include "ServiceManagerI.h"
-#include "../Ice/ConsoleUtil.h"
+#include "../IceUtil/ConsoleUtil.h"
 #include "../Ice/DynamicLibrary.h"
 #include "../Ice/Instance.h"
 #include "Ice/Ice.h"
 #include "Ice/Initialize.h"
-#include "IceUtil/Options.h"
-#include "IceUtil/StringUtil.h"
+#include "../../src/IceUtil/Options.h"
+#include "Ice/StringUtil.h"
 
 using namespace Ice;
 using namespace IceUtilInternal;
@@ -969,7 +969,7 @@ IceBox::ServiceManagerI::configureAdmin(const PropertiesPtr& properties, const s
             if (!facetNames.empty())
             {
                 // TODO: need joinString with escape!
-                properties->setProperty("Ice.Admin.Facets", IceUtilInternal::joinString(facetNames, " "));
+                properties->setProperty("Ice.Admin.Facets", IceInternal::joinString(facetNames, " "));
             }
             return true;
         }

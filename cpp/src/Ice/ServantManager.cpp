@@ -8,7 +8,7 @@
 #include "Ice/LoggerUtil.h"
 #include "Ice/ServantLocator.h"
 #include "Instance.h"
-#include "StringUtil.h"
+#include "Ice/StringUtil.h"
 
 using namespace std;
 using namespace Ice;

@@ -5,8 +5,8 @@
 #include "JavaUtil.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Util.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "../../src/IceUtil/FileUtil.h"
+#include "Ice/StringUtil.h"
 
 #include <algorithm>
 #include <cassert>
@@ -707,7 +707,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
             else
             {
                 ostringstream os;
-                os << "cannot create directory `" << path << "': " << IceUtilInternal::errorToString(errno);
+                os << "cannot create directory `" << path << "': " << IceInternal::errorToString(errno);
                 throw FileException(__FILE__, __LINE__, os.str());
             }
             FileTracker::instance()->addDirectory(path);
@@ -745,7 +745,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
     else
     {
         ostringstream os;
-        os << "cannot open file `" << path << "': " << IceUtilInternal::errorToString(errno);
+        os << "cannot open file `" << path << "': " << IceInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
 }

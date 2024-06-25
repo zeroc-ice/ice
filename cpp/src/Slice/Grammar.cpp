@@ -111,7 +111,7 @@
 /* First part of user prologue.  */
 #line 66 "src/Slice/Grammar.y"
 
-#include "IceUtil/UUID.h"
+#include "Ice/UUID.h"
 #include "Parser.h"
 
 #include <cstring>
@@ -2231,7 +2231,7 @@ yyreduce:
             }
             else
             {
-                st = cont->createStruct(IceUtil::generateUUID()); // Dummy
+                st = cont->createStruct(Ice::generateUUID()); // Dummy
                 assert(st);
                 currentUnit->pushContainer(st);
             }
@@ -2675,17 +2675,17 @@ yyreduce:
             auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer());
             if (cl)
             {
-                yyval = cl->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
+                yyval = cl->createDataMember(Ice::generateUUID(), type, false, 0, 0, "", ""); // Dummy
             }
             auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
             if (st)
             {
-                yyval = st->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
+                yyval = st->createDataMember(Ice::generateUUID(), type, false, 0, 0, "", ""); // Dummy
             }
             auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
             if (ex)
             {
-                yyval = ex->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
+                yyval = ex->createDataMember(Ice::generateUUID(), type, false, 0, 0, "", ""); // Dummy
             }
             assert(yyval);
             currentUnit->error("missing data member name");
@@ -3156,7 +3156,7 @@ yyreduce:
             ExceptionPtr exception = cont->lookupException(scoped->v);
             if (!exception)
             {
-                exception = cont->createException(IceUtil::generateUUID(), 0, Dummy); // Dummy
+                exception = cont->createException(Ice::generateUUID(), 0, Dummy); // Dummy
             }
             cont->checkIntroduced(scoped->v, exception);
             yyval = exception;
@@ -3169,7 +3169,7 @@ yyreduce:
         {
             auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
             currentUnit->error("keyword `" + ident->v + "' cannot be used as exception name");
-            yyval = currentUnit->currentContainer()->createException(IceUtil::generateUUID(), 0, Dummy); // Dummy
+            yyval = currentUnit->currentContainer()->createException(Ice::generateUUID(), 0, Dummy); // Dummy
         }
 #line 3305 "src/Slice/Grammar.cpp"
         break;
@@ -3258,7 +3258,7 @@ yyreduce:
             }
             else
             {
-                en = cont->createEnum(IceUtil::generateUUID(), Dummy);
+                en = cont->createEnum(Ice::generateUUID(), Dummy);
             }
             currentUnit->pushContainer(en);
             yyval = en;
@@ -3289,7 +3289,7 @@ yyreduce:
         {
             currentUnit->error("missing enumeration name");
             ContainerPtr cont = currentUnit->currentContainer();
-            EnumPtr en = cont->createEnum(IceUtil::generateUUID(), Dummy);
+            EnumPtr en = cont->createEnum(Ice::generateUUID(), Dummy);
             currentUnit->pushContainer(en);
             yyval = en;
         }
@@ -3537,7 +3537,7 @@ yyreduce:
             auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
             if (op)
             {
-                op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v, false, 0); // Dummy
+                op->createParamDecl(Ice::generateUUID(), type, isOutParam->v, false, 0); // Dummy
                 currentUnit->error("missing parameter name");
             }
         }
@@ -3552,7 +3552,7 @@ yyreduce:
             auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
             if (op)
             {
-                op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v, false, 0); // Dummy
+                op->createParamDecl(Ice::generateUUID(), type, isOutParam->v, false, 0); // Dummy
                 currentUnit->error("missing parameter name");
             }
         }
@@ -3909,7 +3909,7 @@ yyreduce:
             auto value = dynamic_pointer_cast<ConstDefTok>(yyvsp[0]);
             currentUnit->error("missing constant name");
             yyval = currentUnit->currentContainer()->createConst(
-                IceUtil::generateUUID(),
+                Ice::generateUUID(),
                 const_type,
                 metaData->v,
                 value->v,

@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../Ice/ConsoleUtil.h"
+#include "../IceUtil/ConsoleUtil.h"
 #include "Glacier2/NullPermissionsVerifier.h"
 #include "Glacier2/Session.h"
 #include "Ice/Ice.h"
-#include "IceUtil/Options.h"
+#include "../../src/IceUtil/Options.h"
 #include "Instance.h"
 #include "RouterI.h"
 #include "SessionRouterI.h"
@@ -15,6 +15,8 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 using namespace IceInternal;
+using namespace IceUtilInternal;
+
 namespace
 {
     class ClientLocator final : public ServantLocator

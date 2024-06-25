@@ -42,8 +42,8 @@ namespace Ice
 
 namespace IceInternal
 {
-    class Timer;
-    using TimerPtr = std::shared_ptr<Timer>;
+    class ThreadObserverTimer;
+    using ThreadObserverTimerPtr = std::shared_ptr<ThreadObserverTimer>;
 
     class MetricsAdminI;
     using MetricsAdminIPtr = std::shared_ptr<MetricsAdminI>;
@@ -88,7 +88,7 @@ namespace IceInternal
         EndpointHostResolverPtr endpointHostResolver();
         RetryQueuePtr retryQueue();
         const std::vector<int>& retryIntervals() const { return _retryIntervals; }
-        IceUtil::TimerPtr timer();
+        Ice::TimerPtr timer();
         EndpointFactoryManagerPtr endpointFactoryManager() const;
         Ice::PluginManagerPtr pluginManager() const;
         size_t messageSizeMax() const { return _messageSizeMax; }
@@ -170,7 +170,7 @@ namespace IceInternal
         std::thread _endpointHostResolverThread;
         RetryQueuePtr _retryQueue;
         std::vector<int> _retryIntervals;
-        TimerPtr _timer;
+        ThreadObserverTimerPtr _timer;
         EndpointFactoryManagerPtr _endpointFactoryManager;
         Ice::PluginManagerPtr _pluginManager;
         const Ice::ImplicitContextPtr _implicitContext;

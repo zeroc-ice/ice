@@ -11,7 +11,7 @@
 #include "Ice/VersionFunctions.h"
 #include "Instance.h"
 #include "ReplyStatus.h"
-#include "StringUtil.h"
+#include "Ice/StringUtil.h"
 #include "TraceLevels.h"
 
 #include <mutex>

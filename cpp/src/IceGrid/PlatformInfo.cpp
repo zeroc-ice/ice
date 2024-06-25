@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "../../src/IceUtil/FileUtil.h"
+#include "Ice/StringUtil.h"
 
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"
@@ -36,7 +36,7 @@ namespace
 
     string pdhErrorToString(PDH_STATUS err)
     {
-        return IceUtilInternal::errorToString(err, GetModuleHandle(TEXT("PDH.DLL")));
+        return IceInternal::errorToString(err, GetModuleHandle(TEXT("PDH.DLL")));
     }
 
     static string getLocalizedPerfName(int idx, const Ice::LoggerPtr& logger)
@@ -93,7 +93,7 @@ namespace
                 {
                     Ice::Warning out(logger);
                     out << "Unable to figure out the number of process sockets:\n";
-                    out << IceUtilInternal::lastErrorToString();
+                    out << IceInternal::lastErrorToString();
                     return 0;
                 }
             }
@@ -332,7 +332,7 @@ PlatformInfo::PlatformInfo(
     string cwd;
     if (IceUtilInternal::getcwd(cwd) != 0)
     {
-        throw runtime_error("cannot get the current directory:\n" + IceUtilInternal::lastErrorToString());
+        throw runtime_error("cannot get the current directory:\n" + IceInternal::lastErrorToString());
     }
     _cwd = string(cwd);
 

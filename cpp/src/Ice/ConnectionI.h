@@ -22,7 +22,7 @@
 #include "Ice/OutgoingAsync.h"
 #include "Ice/OutgoingResponse.h"
 #include "Ice/OutputStream.h"
-#include "IceUtil/StopWatch.h"
+#include "../../src/IceUtil/StopWatch.h"
 #include "Ice/Timer.h"
 #include "RequestHandler.h"
 #include "TraceLevelsF.h"
@@ -229,7 +229,7 @@ namespace Ice
         /// - the idle check timer task has been rescheduled by a concurrent read
         /// In the two latter cases, this function reschedules the idle check timer task in idle timeout.
         void
-        idleCheck(const IceUtil::TimerTaskPtr& idleCheckTimerTask, const std::chrono::seconds& idleTimeout) noexcept;
+        idleCheck(const Ice::TimerTaskPtr& idleCheckTimerTask, const std::chrono::seconds& idleTimeout) noexcept;
 
         /// Shuts down the connection gracefully if it's at rest when this function is called.
         void inactivityCheck() noexcept;
@@ -332,13 +332,13 @@ namespace Ice
         const IceInternal::TraceLevelsPtr _traceLevels;
         const IceInternal::ThreadPoolPtr _threadPool;
 
-        const IceUtil::TimerPtr _timer;
+        const Ice::TimerPtr _timer;
 
         const std::chrono::seconds _connectTimeout;
         const std::chrono::seconds _closeTimeout;
         const std::chrono::seconds _inactivityTimeout;
 
-        IceUtil::TimerTaskPtr _inactivityTimerTask;
+        Ice::TimerTaskPtr _inactivityTimerTask;
         bool _inactivityTimerTaskScheduled;
 
         std::function<void(ConnectionIPtr)> _connectionStartCompleted;

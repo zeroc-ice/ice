@@ -6,7 +6,7 @@
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
-#include "IceUtil/Random.h"
+#include "../../src/IceUtil/Random.h"
 #include "NodeSessionI.h"
 #include "ServerCache.h"
 #include "SessionI.h"
@@ -133,7 +133,7 @@ ObjectCache::getAll(const string& expression)
     ObjectInfoSeq infos;
     for (auto p = _entries.cbegin(); p != _entries.cend(); ++p)
     {
-        if (expression.empty() || IceUtilInternal::match(_communicator->identityToString(p->first), expression, true))
+        if (expression.empty() || IceInternal::match(_communicator->identityToString(p->first), expression, true))
         {
             infos.push_back(p->second->getObjectInfo());
         }

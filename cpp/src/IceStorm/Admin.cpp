@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../Ice/ConsoleUtil.h"
+#include "../IceUtil/ConsoleUtil.h"
 #include "Ice/Ice.h"
-#include "IceUtil/Options.h"
+#include "../../src/IceUtil/Options.h"
 #include "Parser.h"
 
 #ifdef _WIN32
@@ -14,6 +14,7 @@
 
 using namespace std;
 using namespace IceInternal;
+using namespace IceUtilInternal;
 
 int run(const shared_ptr<Ice::Communicator>&, const Ice::StringSeq&);
 

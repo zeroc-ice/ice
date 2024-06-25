@@ -3,7 +3,7 @@
 //
 
 #include "../Slice/Util.h"
-#include "IceUtil/ConsoleUtil.h"
+#include "../../src/IceUtil/ConsoleUtil.h"
 #include "PythonUtil.h"
 
 using namespace std;

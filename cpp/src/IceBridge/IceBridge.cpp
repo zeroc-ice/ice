@@ -7,7 +7,7 @@
 #include "Ice/Router.h"
 #include "Ice/Service.h"
 #include "Ice/UUID.h"
-#include "IceUtil/Options.h"
+#include "../../src/IceUtil/Options.h"
 
 #include <iostream>
 

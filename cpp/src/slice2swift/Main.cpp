@@ -7,9 +7,9 @@
 #include "../Slice/Preprocessor.h"
 #include "../Slice/Util.h"
 #include "Gen.h"
-#include "IceUtil/ConsoleUtil.h"
+#include "../../src/IceUtil/ConsoleUtil.h"
 #include "Ice/CtrlCHandler.h"
-#include "IceUtil/Options.h"
+#include "../../src/IceUtil/Options.h"
 
 #include <algorithm>
 #include <climits>
@@ -157,7 +157,7 @@ compile(const vector<string>& argv)
 
     int status = EXIT_SUCCESS;
 
-    IceUtil::CtrlCHandler ctrlCHandler;
+    Ice::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
     ostringstream os;
