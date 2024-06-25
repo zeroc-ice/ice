@@ -4032,10 +4032,10 @@ IcePy::ExceptionWriter::~ExceptionWriter()
     _ex = 0;
 }
 
-string
-IcePy::ExceptionWriter::ice_id() const
+const char*
+IcePy::ExceptionWriter::ice_id() const noexcept
 {
-    return _info->id;
+    return _info->id.c_str();
 }
 
 void
@@ -4076,10 +4076,10 @@ IcePy::ExceptionReader::~ExceptionReader()
     _ex = 0;
 }
 
-string
-IcePy::ExceptionReader::ice_id() const
+const char*
+IcePy::ExceptionReader::ice_id() const noexcept
 {
-    return _info->id;
+    return _info->id.c_str();
 }
 
 void

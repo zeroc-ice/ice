@@ -429,7 +429,7 @@ convertLocalException(std::exception_ptr ex, zval* zex)
     }
     catch (const Ice::UnknownException& e)
     {
-        setStringMember(zex, "unknown", e.unknown);
+        setStringMember(zex, "unknown", e.what());
     }
     catch (const Ice::ObjectAdapterDeactivatedException& e)
     {

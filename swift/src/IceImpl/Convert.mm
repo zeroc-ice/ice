@@ -113,15 +113,15 @@ convertException(std::exception_ptr exc)
     }
     catch (const Ice::UnknownLocalException& e)
     {
-        return [factory unknownLocalException:toNSString(e.unknown) file:toNSString(e.ice_file()) line:e.ice_line()];
+        return [factory unknownLocalException:toNSString(e.what()) file:toNSString(e.ice_file()) line:e.ice_line()];
     }
     catch (const Ice::UnknownUserException& e)
     {
-        return [factory unknownUserException:toNSString(e.unknown) file:toNSString(e.ice_file()) line:e.ice_line()];
+        return [factory unknownUserException:toNSString(e.what()) file:toNSString(e.ice_file()) line:e.ice_line()];
     }
     catch (const Ice::UnknownException& e)
     {
-        return [factory unknownException:toNSString(e.unknown) file:toNSString(e.ice_file()) line:e.ice_line()];
+        return [factory unknownException:toNSString(e.what()) file:toNSString(e.ice_file()) line:e.ice_line()];
     }
     catch (const Ice::ObjectNotExistException& e)
     {

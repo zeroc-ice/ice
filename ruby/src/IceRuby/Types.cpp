@@ -2844,10 +2844,10 @@ IceRuby::ExceptionReader::ExceptionReader(const ExceptionReader& reader) : _info
 
 IceRuby::ExceptionReader::~ExceptionReader() { rb_gc_unregister_address(&_ex); }
 
-string
-IceRuby::ExceptionReader::ice_id() const
+const char*
+IceRuby::ExceptionReader::ice_id() const noexcept
 {
-    return _info->id;
+    return _info->id.c_str();
 }
 
 void

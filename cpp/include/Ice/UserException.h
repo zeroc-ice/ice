@@ -22,6 +22,14 @@ namespace Ice
     {
     public:
         /**
+         * Default constructor.
+         */
+        UserException()
+            : Exception(nullptr, 0, nullptr)
+        {
+        }
+
+        /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
@@ -41,9 +49,6 @@ namespace Ice
         /// \endcond
 
     protected:
-        /// Default constructor.
-        UserException() : Exception(nullptr, 0, nullptr) {}
-
         /// \cond STREAM
         virtual void _writeImpl(OutputStream*) const = 0;
         virtual void _readImpl(InputStream*) = 0;

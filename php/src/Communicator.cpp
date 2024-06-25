@@ -1513,7 +1513,7 @@ createProfile(const string& name, const string& config, const string& options)
         {
             properties->load(config);
         }
-        catch (const IceUtil::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             ostringstream ostr;
             ex.ice_print(ostr);
@@ -1534,7 +1534,7 @@ createProfile(const string& name, const string& config, const string& options)
         {
             args = IceUtilInternal::Options::split(options);
         }
-        catch (const IceUtil::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             ostringstream ostr;
             ex.ice_print(ostr);

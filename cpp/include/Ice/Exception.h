@@ -78,16 +78,16 @@ namespace Ice
         std::string ice_stackTrace() const;
 
         /**
-         * Indicates whether this exception has a default erro message.
+         * Indicates whether this exception has a default error message.
          * @return True when what() returns the default message, and false when what() returns a custom message.
          */
         bool ice_hasDefaultMessage() const noexcept { return _what == nullptr; }
 
     private:
-        const char* _file;             // can be nullptr
+        const char* const _file;       // can be nullptr
         const int _line;               // not used when _file is nullptr
         const std::string _whatString; // optional storage for _what
-        const char* _what;             // can be nullptr
+        const char* const _what;       // can be nullptr
         const std::vector<void*> _stackFrames;
     };
 

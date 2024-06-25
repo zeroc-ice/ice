@@ -645,7 +645,7 @@ namespace IcePy
 
         ExceptionWriter(const ExceptionWriter&) = default;
 
-        std::string ice_id() const final;
+        const char* ice_id() const noexcept final;
         void ice_throw() const final;
 
         void _write(Ice::OutputStream*) const final;
@@ -674,7 +674,7 @@ namespace IcePy
 
         ExceptionReader(const ExceptionReader&) = default;
 
-        std::string ice_id() const final;
+        const char* ice_id() const noexcept final;
         void ice_throw() const final;
 
         void _write(Ice::OutputStream*) const final;

@@ -386,7 +386,7 @@ IceMatlab::convertException(const std::exception_ptr exc)
         }
         catch (const Ice::UnknownException& e)
         {
-            params[idx++] = createStringFromUTF8(e.unknown);
+            params[idx++] = createStringFromUTF8(e.what());
         }
         catch (const Ice::ObjectAdapterDeactivatedException& e)
         {
