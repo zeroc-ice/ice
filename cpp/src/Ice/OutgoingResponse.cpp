@@ -63,12 +63,16 @@ namespace
 
             Identity id = rfe.id();
             string facet = rfe.facet();
+            string operation = rfe.operation();
             if (id.name.empty())
             {
                 id = current.id;
                 facet = current.facet;
             }
-            string operation = rfe.operation().empty() ? current.operation : string{rfe.operation()};
+            if (operation.empty())
+            {
+                operation = current.operation;
+            }
 
             exceptionMessage = rfe.ice_hasDefaultMessage()
                                    ? createRequestFailedMessage(rfe.ice_id(), id, facet, operation)
