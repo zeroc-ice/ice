@@ -953,8 +953,11 @@ IceInternal::createRequestFailedMessage(
 {
     ostringstream os;
     os << "Dispatch failed with " << typeId;
-    os << "\nidentity: '" << identityToString(id, ToStringMode::Unicode) << "'";
-    os << "\nfacet: " << facet;
-    os << "\noperation: " << operation;
+    if (!id.name.empty())
+    {
+        os << "\nidentity: '" << identityToString(id, ToStringMode::Unicode) << "'";
+        os << "\nfacet: " << facet;
+        os << "\noperation: " << operation;
+    }
     return os.str();
 }
