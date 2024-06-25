@@ -5,7 +5,7 @@
 #include "IceUtil/FileUtil.h"
 #include "Ice/Exception.h"
 #include "IceUtil/DisableWarnings.h"
-#include "IceUtil/StringConverter.h"
+#include "Ice/StringConverter.h"
 #include <cassert>
 #include <climits>
 #include <sstream>

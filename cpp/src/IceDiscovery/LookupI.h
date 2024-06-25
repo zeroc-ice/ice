@@ -10,7 +10,7 @@
 
 #include "Ice/Comparable.h"
 #include "Ice/Properties.h"
-#include "IceUtil/Timer.h"
+#include "Ice/Timer.h"
 
 #include <chrono>
 #include <set>

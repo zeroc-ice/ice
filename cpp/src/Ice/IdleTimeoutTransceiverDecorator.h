@@ -6,7 +6,7 @@
 #define ICE_IDLE_TIMEOUT_TRANSCEIVER_DECORATOR_H
 
 #include "ConnectionI.h"
-#include "IceUtil/Timer.h"
+#include "Ice/Timer.h"
 #include "Transceiver.h"
 
 #include <cassert>

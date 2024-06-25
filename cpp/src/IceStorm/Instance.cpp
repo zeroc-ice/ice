@@ -7,7 +7,7 @@
 #include "../Ice/TraceUtil.h"
 #include "Ice/Communicator.h"
 #include "Ice/Properties.h"
-#include "IceUtil/Timer.h"
+#include "Ice/Timer.h"
 #include "InstrumentationI.h"
 #include "NodeI.h"
 #include "Observers.h"

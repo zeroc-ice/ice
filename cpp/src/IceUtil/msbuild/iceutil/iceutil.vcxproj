@@ -98,9 +98,9 @@
     <ClCompile Include="..\..\UUID.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\include\IceUtil\Config.h" />
+    <ClInclude Include="..\..\..\..\include\Ice\Config.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\ConsoleUtil.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\CtrlCHandler.h" />
+    <ClInclude Include="..\..\..\..\include\Ice\CtrlCHandler.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\DisableWarnings.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Exception.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Exception.h" />
@@ -109,13 +109,13 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\Optional.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Options.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\OutputUtil.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\PopDisableWarnings.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\PushDisableWarnings.h" />
+    <ClInclude Include="..\..\..\..\include\Ice\PopDisableWarnings.h" />
+    <ClInclude Include="..\..\..\..\include\Ice\PushDisableWarnings.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Random.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\ScannerConfig.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\StringConverter.h" />
+    <ClInclude Include="..\..\..\..\include\Ice\StringConverter.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\StringUtil.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\Timer.h" />
+    <ClInclude Include="..\..\..\..\include\Ice\Timer.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\UndefSysMacros.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\UUID.h" />
   </ItemGroup>

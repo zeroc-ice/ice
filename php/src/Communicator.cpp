@@ -11,7 +11,7 @@
 
 #include "IceUtil/Options.h"
 #include "IceUtil/StringUtil.h"
-#include "IceUtil/Timer.h"
+#include "Ice/Timer.h"
 
 #include <chrono>
 #include <condition_variable>

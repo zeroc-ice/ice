@@ -8,7 +8,7 @@
 #include "EndpointI.h"
 #include "IPEndpointIF.h"
 #include "Ice/ObserverHelper.h"
-#include "IceUtil/Config.h"
+#include "Ice/Config.h"
 #include "Network.h"
 #include "ProtocolInstanceF.h"
 

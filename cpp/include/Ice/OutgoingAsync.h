@@ -8,7 +8,7 @@
 #include "CommunicatorF.h"
 #include "ConnectionF.h"
 #include "ConnectionIF.h"
-#include "IceUtil/Timer.h"
+#include "Ice/Timer.h"
 #include "InputStream.h"
 #include "LocalException.h"
 #include "ObjectAdapterF.h"

@@ -5,12 +5,16 @@
 #ifndef ICE_UUID_H
 #define ICE_UUID_H
 
-#include "IceUtil/UUID.h"
+#include "Config.h"
+#include <string>
 
 namespace Ice
 {
-    /** Generates a UUID. */
-    using IceUtil::generateUUID;
+    /**
+     * Generates a universally unique identifier (UUID).
+     * @return The UUID.
+     */
+    ICE_API std::string generateUUID();
 }
 
 #endif

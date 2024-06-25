@@ -7,7 +7,7 @@
 #include "../Slice/Preprocessor.h"
 #include "../Slice/Util.h"
 #include "IceUtil/ConsoleUtil.h"
-#include "IceUtil/CtrlCHandler.h"
+#include "Ice/CtrlCHandler.h"
 #include "IceUtil/Options.h"
 #include "IceUtil/OutputUtil.h"
 #include "IceUtil/StringUtil.h"

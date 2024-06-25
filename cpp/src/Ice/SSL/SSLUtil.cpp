@@ -10,7 +10,7 @@
 #include "Ice/LocalException.h"
 #include "Ice/SSL/SSLException.h"
 #include "Ice/StringConverter.h"
-#include "IceUtil/Config.h"
+#include "Ice/Config.h"
 #include "IceUtil/FileUtil.h"
 #include "IceUtil/StringUtil.h"
 #include "RFC2253.h"

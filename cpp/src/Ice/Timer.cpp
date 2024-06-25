@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/Timer.h"
+#include "Ice/Timer.h"
 #include "ConsoleUtil.h"
 #include "Ice/Exception.h"
 

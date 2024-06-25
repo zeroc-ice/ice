@@ -7,7 +7,7 @@
 #include "../Slice/Util.h"
 #include "Gen.h"
 #include "IceUtil/ConsoleUtil.h"
-#include "IceUtil/CtrlCHandler.h"
+#include "Ice/CtrlCHandler.h"
 #include "IceUtil/Options.h"
 
 #include <algorithm>

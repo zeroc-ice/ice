@@ -6,7 +6,7 @@
 #include "Activator.h"
 #include "Ice/Ice.h"
 #include "IceUtil/FileUtil.h"
-#include "IceUtil/Timer.h"
+#include "Ice/Timer.h"
 #include "NodeSessionManager.h"
 #include "ServerAdapterI.h"
 #include "ServerI.h"

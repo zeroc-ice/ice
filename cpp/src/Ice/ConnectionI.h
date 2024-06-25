@@ -23,7 +23,7 @@
 #include "Ice/OutgoingResponse.h"
 #include "Ice/OutputStream.h"
 #include "IceUtil/StopWatch.h"
-#include "IceUtil/Timer.h"
+#include "Ice/Timer.h"
 #include "RequestHandler.h"
 #include "TraceLevelsF.h"
 #include "TransceiverF.h"

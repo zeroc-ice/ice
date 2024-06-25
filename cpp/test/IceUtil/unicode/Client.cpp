@@ -3,7 +3,7 @@
 //
 
 #include "../../../src/Ice/Endian.h"
-#include "IceUtil/StringConverter.h"
+#include "Ice/StringConverter.h"
 #include "TestHelper.h"
 
 #ifdef _WIN32

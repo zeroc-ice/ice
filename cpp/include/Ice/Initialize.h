@@ -9,7 +9,7 @@
 #include "CommunicatorF.h"
 #include "Connection.h"
 #include "Ice/BuiltinSequences.h"
-#include "IceUtil/Timer.h"
+#include "Ice/Timer.h"
 #include "InstanceF.h"
 #include "Instrumentation.h"
 #include "Logger.h"

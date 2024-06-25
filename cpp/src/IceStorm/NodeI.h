@@ -7,7 +7,7 @@
 
 #include "Election.h"
 #include "Ice/Ice.h"
-#include "IceUtil/Timer.h"
+#include "Ice/Timer.h"
 #include "Instance.h"
 #include "Replica.h"
 

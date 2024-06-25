@@ -6,7 +6,7 @@
 #define ICE_RETRY_QUEUE_H
 
 #include "Ice/InstanceF.h"
-#include "IceUtil/Timer.h"
+#include "Ice/Timer.h"
 #include "RequestHandler.h" // For CancellationHandler
 #include "RetryQueueF.h"
 

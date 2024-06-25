@@ -4,7 +4,7 @@
 
 #include "Util.h"
 
-#include "IceUtil/StringConverter.h"
+#include "Ice/StringConverter.h"
 
 #include <cassert>
 #include <iomanip>

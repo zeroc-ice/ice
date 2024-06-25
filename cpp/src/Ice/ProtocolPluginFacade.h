@@ -9,7 +9,7 @@
 #include "EndpointIF.h"
 #include "Ice/CommunicatorF.h"
 #include "Ice/InstanceF.h"
-#include "IceUtil/Config.h"
+#include "Ice/Config.h"
 #include "NetworkF.h"
 #include "ProtocolPluginFacadeF.h"
 

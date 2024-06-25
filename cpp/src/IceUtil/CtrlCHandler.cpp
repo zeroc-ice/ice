@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/CtrlCHandler.h"
+#include "Ice/CtrlCHandler.h"
 #include "Ice/Exception.h"
 
 #ifdef _WIN32

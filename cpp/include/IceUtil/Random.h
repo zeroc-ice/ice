@@ -5,7 +5,7 @@
 #ifndef ICE_UTIL_RANDOM_H
 #define ICE_UTIL_RANDOM_H
 
-#include "Config.h"
+#include "Ice/Random.h"
 
 #include <algorithm>
 #include <random>

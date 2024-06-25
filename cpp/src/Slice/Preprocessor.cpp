@@ -5,7 +5,7 @@
 #include "Preprocessor.h"
 #include "IceUtil/ConsoleUtil.h"
 #include "IceUtil/FileUtil.h"
-#include "IceUtil/StringConverter.h"
+#include "Ice/StringConverter.h"
 #include "IceUtil/StringUtil.h"
 #include "IceUtil/UUID.h"
 #include "Util.h"

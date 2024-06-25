@@ -64,7 +64,7 @@
 #if defined(_WIN32) && !defined(ICE_BUILDING_SLICE_COMPILERS)
 #    define ICE_DBGHELP
 #    define DBGHELP_TRANSLATE_TCHAR
-#    include "IceUtil/StringConverter.h"
+#    include "Ice/StringConverter.h"
 // TODO: check if this is still needed for VS2022
 #    pragma warning(disable : 4091) // VS 2015 RC issues this warning for code in DbgHelp.h
 #    include <DbgHelp.h>

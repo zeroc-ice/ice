@@ -5,7 +5,7 @@
 #ifndef SLICE_PHP_UTIL_H
 #define SLICE_PHP_UTIL_H
 
-#include "IceUtil/Config.h"
+#include "Ice/Config.h"
 #include <string>
 
 namespace Slice

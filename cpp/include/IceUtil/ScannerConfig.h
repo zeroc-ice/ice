@@ -5,7 +5,7 @@
 #ifndef ICE_UTIL_SCANNER_CONFIG_H
 #define ICE_UTIL_SCANNER_CONFIG_H
 
-#include "Config.h" // Required by generated Scanners.
+#include "Ice/Config.h" // Required by generated Scanners.
 
 #ifdef _MSC_VER
 // Suppress the scanner's inclusion of the non-ANSI header file 'unistd.h'.

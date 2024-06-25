@@ -5,7 +5,7 @@
 #ifndef ICE_UTIL_EXCEPTION_H
 #define ICE_UTIL_EXCEPTION_H
 
-#include "Config.h"
+#include "Ice/Config.h"
 
 namespace IceUtilInternal
 {

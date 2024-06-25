@@ -7,7 +7,7 @@
 
 #include "FileCache.h"
 #include "IceGrid/UserAccountMapper.h"
-#include "IceUtil/Timer.h"
+#include "Ice/Timer.h"
 #include "Internal.h"
 #include "PlatformInfo.h"
 

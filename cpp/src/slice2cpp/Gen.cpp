@@ -626,7 +626,7 @@ Slice::Gen::Gen(
 
 Slice::Gen::~Gen()
 {
-    H << "\n\n#include <IceUtil/PopDisableWarnings.h>";
+    H << "\n\n#include <Ice/PopDisableWarnings.h>";
     H << "\n#endif\n";
     C << '\n';
 
@@ -729,7 +729,7 @@ Slice::Gen::generate(const UnitPtr& p)
     }
     C << _base << "." << _headerExtension << "\"";
 
-    H << "\n#include <IceUtil/PushDisableWarnings.h>";
+    H << "\n#include <Ice/PushDisableWarnings.h>";
 
     if (!dc->hasMetaDataDirective("cpp:no-default-include"))
     {

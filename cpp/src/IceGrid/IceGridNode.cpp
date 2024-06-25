@@ -9,7 +9,7 @@
 #include "Ice/Ice.h"
 #include "IceUtil/FileUtil.h"
 #include "IceUtil/StringUtil.h"
-#include "IceUtil/Timer.h"
+#include "Ice/Timer.h"
 #include "NodeAdminRouter.h"
 #include "NodeI.h"
 #include "NodeSessionManager.h"

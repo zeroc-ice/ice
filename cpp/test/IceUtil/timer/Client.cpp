@@ -3,7 +3,7 @@
 //
 
 #include "IceUtil/Random.h"
-#include "IceUtil/Timer.h"
+#include "Ice/Timer.h"
 #include "TestHelper.h"
 
 #include <chrono>

@@ -5,7 +5,7 @@
 #ifndef ICE_UTIL_OPTIONS_H
 #define ICE_UTIL_OPTIONS_H
 
-#include "Config.h"
+#include "Ice/Config.h"
 #include "Ice/Exception.h"
 #include <map>
 #include <memory>

@@ -3,7 +3,7 @@
 //
 
 #include "IceUtil/StringUtil.h"
-#include "IceUtil/StringConverter.h"
+#include "Ice/StringConverter.h"
 #include <cassert>
 #include <cstring>
 #include <string.h> // for strerror_r
