@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "Ice/Exception.h"
 #include "IceUtil/CtrlCHandler.h"
 
 #ifdef _WIN32
@@ -31,7 +32,7 @@ namespace
 const char*
 Ice::CtrlCHandlerException::ice_id() const noexcept
 {
-    return "::IceUtil::CtrlCHandlerException";
+    return "::Ice::CtrlCHandlerException";
 }
 
 CtrlCHandlerCallback
@@ -78,7 +79,7 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
 
     if (handler)
     {
-        throw CtrlCHandlerException(__FILE__, __LINE__);
+        throw Ice::CtrlCHandlerException(__FILE__, __LINE__);
     }
     else
     {

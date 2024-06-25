@@ -6,7 +6,6 @@
 #define ICE_UTIL_CTRL_C_HANDLER_H
 
 #include "Config.h"
-#include "Ice/Exception.h"
 
 #include <functional>
 
