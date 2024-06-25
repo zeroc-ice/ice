@@ -693,7 +693,13 @@ OutgoingAsync::response()
                     {
                         string message =
                             createRequestFailedMessage("::Ice::ObjectNotExistException", ident, facet, operation);
-                        throw ObjectNotExistException{__FILE__, __LINE__, std::move(message), ident, facet, operation};
+                        throw ObjectNotExistException{
+                            __FILE__,
+                            __LINE__,
+                            std::move(message),
+                            std::move(ident),
+                            std::move(facet),
+                            std::move(operation)};
                         break;
                     }
 
@@ -701,7 +707,13 @@ OutgoingAsync::response()
                     {
                         string message =
                             createRequestFailedMessage("::Ice::FacetNotExistException", ident, facet, operation);
-                        throw FacetNotExistException{__FILE__, __LINE__, std::move(message), ident, facet, operation};
+                        throw FacetNotExistException{
+                            __FILE__,
+                            __LINE__,
+                            std::move(message),
+                            std::move(ident),
+                            std::move(facet),
+                            std::move(operation)};
                         break;
                     }
 
@@ -713,9 +725,9 @@ OutgoingAsync::response()
                             __FILE__,
                             __LINE__,
                             std::move(message),
-                            ident,
-                            facet,
-                            operation};
+                            std::move(ident),
+                            std::move(facet),
+                            std::move(operation)};
                         break;
                     }
 

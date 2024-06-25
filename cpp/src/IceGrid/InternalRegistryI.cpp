@@ -68,7 +68,7 @@ InternalRegistryI::registerNode(
     }
     catch (const Ice::ObjectAdapterDeactivatedException&)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 }
 
@@ -99,7 +99,7 @@ InternalRegistryI::registerReplica(
     }
     catch (const Ice::ObjectAdapterDeactivatedException&)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 }
 
