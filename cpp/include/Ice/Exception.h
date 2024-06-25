@@ -95,11 +95,11 @@ namespace Ice
         bool ice_hasDefaultMessage() const noexcept { return _what == nullptr; }
 
     private:
-        const char*  _file;                                // can be nullptr
-        int _line;                                         // not used when _file is nullptr
-        std::shared_ptr<std::string> _whatString;          // shared storage for custom _what message.
-        const char*  _what;                                // can be nullptr
-        std::shared_ptr<std::vector<void*>> _stackFrames;  // shared storage for stack frames.
+        const char* _file;                                // can be nullptr
+        int _line;                                        // not used when _file is nullptr
+        std::shared_ptr<std::string> _whatString;         // shared storage for custom _what message.
+        const char* _what;                                // can be nullptr
+        std::shared_ptr<std::vector<void*>> _stackFrames; // shared storage for stack frames.
     };
 
     ICE_API std::ostream& operator<<(std::ostream&, const Exception&);

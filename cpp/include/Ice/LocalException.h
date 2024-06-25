@@ -65,12 +65,7 @@ namespace Ice
          * @param facet The facet to which the request was sent.
          * @param operation The operation name of the request.
          */
-        RequestFailedException(
-            const char* file,
-            int line,
-            Identity id,
-            std::string facet,
-            std::string operation)
+        RequestFailedException(const char* file, int line, Identity id, std::string facet, std::string operation)
             : LocalException(file, line),
               _id(std::make_shared<Identity>(std::move(id))),
               _facet(std::make_shared<std::string>(std::move(facet))),
@@ -84,10 +79,7 @@ namespace Ice
          * @param file The file name in which the exception was raised, typically __FILE__.
          * @param line The line number at which the exception was raised, typically __LINE__.
          */
-        RequestFailedException(const char* file, int line) :
-            RequestFailedException(file, line, Identity{}, "", "")
-        {
-        }
+        RequestFailedException(const char* file, int line) : RequestFailedException(file, line, Identity{}, "", "") {}
 
         RequestFailedException(const RequestFailedException&) noexcept = default;
         RequestFailedException& operator=(const RequestFailedException&) noexcept = default;
@@ -109,10 +101,10 @@ namespace Ice
 
         void ice_print(std::ostream& stream) const override;
 
-        private:
-            std::shared_ptr<Identity> _id;
-            std::shared_ptr<std::string> _facet;
-            std::shared_ptr<std::string> _operation;
+    private:
+        std::shared_ptr<Identity> _id;
+        std::shared_ptr<std::string> _facet;
+        std::shared_ptr<std::string> _operation;
     };
 
     /**
