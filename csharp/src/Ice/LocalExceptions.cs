@@ -98,8 +98,8 @@ public class UnknownException : LocalException
 {
     public string unknown => Message;
 
-    public UnknownException(string message, System.Exception? innerException = null)
-        : base(message, innerException)
+    public UnknownException(string message)
+        : base(message)
     {
     }
 
@@ -112,8 +112,8 @@ public class UnknownException : LocalException
 /// </summary>
 public sealed class UnknownLocalException : UnknownException
 {
-    public UnknownLocalException(string message, LocalException? innerException = null)
-        : base(message, innerException)
+    public UnknownLocalException(string message)
+        : base(message)
     {
     }
 
@@ -127,7 +127,7 @@ public sealed class UnknownLocalException : UnknownException
 public sealed class UnknownUserException : UnknownException
 {
     public UnknownUserException(string message)
-        : base(message, innerException: null)
+        : base(message)
     {
     }
 
