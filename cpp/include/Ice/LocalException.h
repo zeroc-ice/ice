@@ -828,8 +828,6 @@ namespace Ice
     class ICE_API SyscallException : public LocalException
     {
     public:
-        using LocalException::LocalException;
-
         /**
          * Construct a SyscallException.
          * The file and line number are required for all local exceptions.
