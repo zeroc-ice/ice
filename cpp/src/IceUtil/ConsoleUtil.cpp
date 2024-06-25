@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/Exception.h"
 #include "IceUtil/ConsoleUtil.h"
+#include "Ice/Exception.h"
 
 #ifdef _WIN32
 #    include <windows.h>
