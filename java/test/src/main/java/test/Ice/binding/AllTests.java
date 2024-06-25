@@ -45,8 +45,7 @@ public class AllTests {
     PrintWriter out = helper.getWriter();
 
     String ref = "communicator:" + helper.getTestEndpoint(0);
-    RemoteCommunicatorPrx rcom =
-        RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
+    var rcom = RemoteCommunicatorPrx.createProxy(communicator, ref);
 
     out.print("testing binding with single endpoint... ");
     out.flush();

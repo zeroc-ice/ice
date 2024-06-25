@@ -24,9 +24,8 @@ public class AllTests {
     List<ControllerPrx> indirectProxies = new ArrayList<>();
     for (int i = 0; i < num; ++i) {
       String id = "controller" + i;
-      proxies.add(ControllerPrx.uncheckedCast(communicator.stringToProxy(id)));
-      indirectProxies.add(
-          ControllerPrx.uncheckedCast(communicator.stringToProxy(id + "@control" + i)));
+      proxies.add(ControllerPrx.createProxy(communicator, id));
+      indirectProxies.add(ControllerPrx.createProxy(communicator, id + "@control" + i));
     }
 
     System.out.print("testing indirect proxies... ");
@@ -142,7 +141,7 @@ public class AllTests {
       adapterIds.add("oa1");
       adapterIds.add("oa2");
       adapterIds.add("oa3");
-      TestIntfPrx intf = TestIntfPrx.uncheckedCast(communicator.stringToProxy("object"));
+      var intf = TestIntfPrx.createProxy(communicator, "object");
       intf = intf.ice_connectionCached(false).ice_locatorCacheTimeout(0);
       while (!adapterIds.isEmpty()) {
         adapterIds.remove(intf.getAdapterId());
@@ -152,9 +151,7 @@ public class AllTests {
         adapterIds.add("oa1");
         adapterIds.add("oa2");
         adapterIds.add("oa3");
-        intf =
-            TestIntfPrx.uncheckedCast(
-                communicator.stringToProxy("object @ rg").ice_connectionCached(false));
+        intf = TestIntfPrx.createProxy(communicator, "object @ rg").ice_connectionCached(false);
         int nRetry = 100;
         while (!adapterIds.isEmpty() && --nRetry > 0) {
           adapterIds.remove(intf.getAdapterId());
@@ -169,18 +166,12 @@ public class AllTests {
 
       proxies.get(0).deactivateObjectAdapter("oa");
       proxies.get(1).deactivateObjectAdapter("oa");
-      test(
-          TestIntfPrx.uncheckedCast(communicator.stringToProxy("object @ rg"))
-              .getAdapterId()
-              .equals("oa3"));
+      test(TestIntfPrx.createProxy(communicator, "object @ rg").getAdapterId().equals("oa3"));
       proxies.get(2).deactivateObjectAdapter("oa");
 
       proxies.get(0).activateObjectAdapter("oa", "oa1", "rg");
       proxies.get(0).addObject("oa", "object");
-      test(
-          TestIntfPrx.uncheckedCast(communicator.stringToProxy("object @ rg"))
-              .getAdapterId()
-              .equals("oa1"));
+      test(TestIntfPrx.createProxy(communicator, "object @ rg").getAdapterId().equals("oa1"));
       proxies.get(0).deactivateObjectAdapter("oa");
     }
     System.out.println("ok");

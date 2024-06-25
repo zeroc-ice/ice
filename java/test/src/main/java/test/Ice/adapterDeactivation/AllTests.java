@@ -161,8 +161,7 @@ public class AllTests {
 
       try {
         router =
-            com.zeroc.Ice.RouterPrx.uncheckedCast(
-                communicator.stringToProxy("test:" + helper.getTestEndpoint(1)));
+            com.zeroc.Ice.RouterPrx.createProxy(communicator, "test:" + helper.getTestEndpoint(1));
         communicator.createObjectAdapterWithRouter("", router);
         test(false);
       } catch (com.zeroc.Ice.ConnectFailedException ex) {

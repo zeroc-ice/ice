@@ -640,6 +640,18 @@ public interface ObjectPrx {
   }
 
   /**
+   * Creates a new proxy that implements {@link ObjectPrx}.
+   *
+   * @param communicator The communicator of the new proxy.
+   * @param proxyString The string representation of the proxy.
+   * @return The new proxy.
+   * @throws ProxyParseException Thrown when <code>proxyString</code> is not a valid proxy string.
+   */
+  public static ObjectPrx createProxy(Communicator communicator, String proxyString) {
+    return communicator.stringToProxy(proxyString);
+  }
+
+  /**
    * Casts a proxy to {@link ObjectPrx}. For user-defined types, this call contacts the server and
    * will throw an Ice run-time exception if the target object does not exist or the server cannot
    * be reached.

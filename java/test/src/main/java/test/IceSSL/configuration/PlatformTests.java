@@ -125,8 +125,8 @@ public class PlatformTests {
         try (var clientCommunicator =
             createClient(helper, null, certificatesPath + "/cacert1.jks")) {
           var obj =
-              ServerPrx.uncheckedCast(
-                  clientCommunicator.stringToProxy("server:" + helper.getTestEndpoint(10, "ssl")));
+              ServerPrx.createProxy(
+                  clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
           obj.ice_ping();
         }
       }
@@ -147,9 +147,9 @@ public class PlatformTests {
 
       try (var clientCommunicator = createClient(helper, null, null)) {
         var obj =
-            ObjectPrx.uncheckedCast(
-                clientCommunicator.stringToProxy(
-                    "Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2"));
+            ObjectPrx.createProxy(
+                clientCommunicator,
+                "Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
         obj.ice_ping();
       }
       out.println("ok");
@@ -171,8 +171,8 @@ public class PlatformTests {
         try (var clientCommunicator =
             createClient(helper, null, certificatesPath + "/cacert2.jks")) {
           var obj =
-              ServerPrx.uncheckedCast(
-                  clientCommunicator.stringToProxy("server:" + helper.getTestEndpoint(10, "ssl")));
+              ServerPrx.createProxy(
+                  clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
 
           try {
             obj.ice_ping();
@@ -204,8 +204,8 @@ public class PlatformTests {
         try (var clientCommunicator =
             createClient(helper, clientCertificatePath, trustedStorePath)) {
           var obj =
-              ServerPrx.uncheckedCast(
-                  clientCommunicator.stringToProxy("server:" + helper.getTestEndpoint(10, "ssl")));
+              ServerPrx.createProxy(
+                  clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
           obj.ice_ping();
         }
       }
@@ -232,8 +232,8 @@ public class PlatformTests {
         try (var clientCommunicator =
             createClient(helper, clientCertificatePath, trustedStorePath)) {
           var obj =
-              ServerPrx.uncheckedCast(
-                  clientCommunicator.stringToProxy("server:" + helper.getTestEndpoint(10, "ssl")));
+              ServerPrx.createProxy(
+                  clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
 
           try {
             obj.ice_ping();
@@ -331,16 +331,16 @@ public class PlatformTests {
 
       try (var clientCommunicator = createClient(helper, null, certificatesPath + "/cacert1.jks")) {
         var obj =
-            ServerPrx.uncheckedCast(
-                clientCommunicator.stringToProxy("server:" + helper.getTestEndpoint(10, "ssl")));
+            ServerPrx.createProxy(
+                clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
         obj.ice_ping();
       }
 
       // CA2 is not accepted with the initial configuration
       try (var clientCommunicator = createClient(helper, null, certificatesPath + "/cacert2.jks")) {
         var obj =
-            ServerPrx.uncheckedCast(
-                clientCommunicator.stringToProxy("server:" + helper.getTestEndpoint(10, "ssl")));
+            ServerPrx.createProxy(
+                clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
         try {
           obj.ice_ping();
           test(false);
@@ -354,16 +354,16 @@ public class PlatformTests {
       // CA2 is accepted with the new configuration
       try (var clientCommunicator = createClient(helper, null, certificatesPath + "/cacert2.jks")) {
         var obj =
-            ServerPrx.uncheckedCast(
-                clientCommunicator.stringToProxy("server:" + helper.getTestEndpoint(10, "ssl")));
+            ServerPrx.createProxy(
+                clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
         obj.ice_ping();
       }
 
       // CA1 is not accepted with the initial configuration
       try (var clientCommunicator = createClient(helper, null, certificatesPath + "/cacert1.jks")) {
         var obj =
-            ServerPrx.uncheckedCast(
-                clientCommunicator.stringToProxy("server:" + helper.getTestEndpoint(10, "ssl")));
+            ServerPrx.createProxy(
+                clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
         try {
           obj.ice_ping();
           test(false);
