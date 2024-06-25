@@ -1029,6 +1029,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         //
         if (!(_exception instanceof CloseConnectionException
             || _exception instanceof ConnectionManuallyClosedException
+            || _exception instanceof ConnectionClosedException
             || _exception instanceof ConnectionIdleException
             || _exception instanceof CommunicatorDestroyedException
             || _exception instanceof ObjectAdapterDeactivatedException)) {
@@ -1389,6 +1390,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         //
         if (!(_exception instanceof CloseConnectionException
             || _exception instanceof ConnectionManuallyClosedException
+            || _exception instanceof ConnectionClosedException
             || _exception instanceof ConnectionIdleException
             || _exception instanceof CommunicatorDestroyedException
             || _exception instanceof ObjectAdapterDeactivatedException
@@ -1422,9 +1424,13 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       state = StateClosed;
     }
 
-    if (_state == state) // Don't switch twice.
-    {
+    if (_state == state) {
+      // Don't switch twice.
       return;
+    }
+
+    if (state > StateActive) {
+      cancelInactivityTimer();
     }
 
     try {
@@ -1537,6 +1543,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       if (_observer != null && state == StateClosed && _exception != null) {
         if (!(_exception instanceof CloseConnectionException
             || _exception instanceof ConnectionManuallyClosedException
+            || _exception instanceof ConnectionClosedException
             || _exception instanceof ConnectionIdleException
             || _exception instanceof CommunicatorDestroyedException
             || _exception instanceof ObjectAdapterDeactivatedException
@@ -1852,7 +1859,44 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   }
 
   private int sendMessage(OutgoingMessage message) {
-    assert (_state < StateClosed);
+    assert _state >= StateActive;
+    assert _state < StateClosed;
+
+    boolean isHeartbeat = message.stream.getBuffer().b.get(8) == Protocol.validateConnectionMsg;
+
+    if (!isHeartbeat) {
+      cancelInactivityTimer();
+    } else if (
+    // timer not already scheduled
+    _inactivityTimerFuture == null
+        &&
+        // inactivity timeout is enabled
+        _inactivityTimeout > 0
+        &&
+        // only schedule the timer if the connection is active
+        _state == StateActive
+        &&
+        // no pending dispatch
+        _dispatchCount == 0
+        &&
+        // no pending invocation
+        _asyncRequests.isEmpty()
+        &&
+        // we're not waiting for the remainder of an incoming message
+        _readHeader) {
+      boolean isInactive = true;
+
+      for (OutgoingMessage queuedMessage : _sendStreams) {
+        if (queuedMessage.stream.getBuffer().b.get(8) != Protocol.validateConnectionMsg) {
+          isInactive = false;
+          break;
+        }
+      }
+
+      if (isInactive) {
+        scheduleInactivityTimer();
+      }
+    }
 
     if (!_sendStreams.isEmpty()) {
       message.adopt();
@@ -2055,6 +2099,9 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
               info.servantManager = _servantManager;
               info.adapter = _adapter;
               ++info.messageDispatchCount;
+
+              cancelInactivityTimer();
+              ++_dispatchCount;
             }
             break;
           }
@@ -2077,6 +2124,9 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
               info.servantManager = _servantManager;
               info.adapter = _adapter;
               info.messageDispatchCount += info.invokeNum;
+
+              cancelInactivityTimer();
+              _dispatchCount += info.invokeNum;
             }
             break;
           }
@@ -2254,6 +2304,8 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
             sendMessage(new OutgoingMessage(outputStream, compress != 0, true));
           }
 
+          --_dispatchCount;
+
           if (_state == StateClosing && _upcallCount == 0) {
             //
             // We may be executing on the "main thread" (e.g., in Android together with a custom
@@ -2396,6 +2448,19 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     return op;
   }
 
+  private synchronized void inactivityCheck() {
+    if (_inactivityTimerFuture.getDelay(TimeUnit.NANOSECONDS) <= 0) {
+      _inactivityTimerFuture = null;
+
+      if (_state == StateActive) {
+        // TODO: fix LocalException to accept a message
+        // "connection closed because it remained inactive for longer than the inactivity timeout"
+        setState(StateClosing, new ConnectionClosedException());
+      }
+    }
+    // Else this timer was already canceled and disposed. Nothing to do.
+  }
+
   private synchronized void connectTimedOut() {
     if (_state < StateActive) {
       setState(StateClosed, new ConnectTimeoutException());
@@ -2427,6 +2492,23 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
     }
     return op;
+  }
+
+  private void scheduleInactivityTimer() {
+    // Called within the synchronization lock
+    assert _inactivityTimerFuture == null;
+    assert _inactivityTimeout > 0;
+
+    _inactivityTimerFuture =
+        _timer.schedule(this::inactivityCheck, _inactivityTimeout, TimeUnit.SECONDS);
+  }
+
+  private void cancelInactivityTimer() {
+    // Called within the synchronization lock
+    if (_inactivityTimerFuture != null) {
+      _inactivityTimerFuture.cancel(false);
+      _inactivityTimerFuture = null;
+    }
   }
 
   private static class OutgoingMessage {
@@ -2501,6 +2583,8 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   private final int _closeTimeout;
   private final int _inactivityTimeout;
 
+  private java.util.concurrent.ScheduledFuture<?> _inactivityTimerFuture; // can be null
+
   private final java.util.concurrent.ScheduledExecutorService _timer;
 
   private StartCallback _startCallback = null;
@@ -2524,6 +2608,10 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   private java.util.LinkedList<OutgoingMessage> _sendStreams = new java.util.LinkedList<>();
 
   private InputStream _readStream;
+
+  // When _readHeader is true, the next bytes we'll read are the header of a new message. When
+  // false, we're reading
+  // next the remainder of a message that was already partially received.
   private boolean _readHeader;
   private OutputStream _writeStream;
 
@@ -2531,7 +2619,14 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   private int _readStreamPos;
   private int _writeStreamPos;
 
+  // The number of user calls currently executed by the thread-pool (servant dispatch, invocation
+  // response, etc.).
   private int _upcallCount;
+
+  // The number of outstanding dispatches. This does not include heartbeat messages, even when the
+  // heartbeat
+  // callback is not null. Maintained only while state is StateActive or StateHolding.
+  private int _dispatchCount;
 
   private int _state; // The current state.
   private boolean _shutdownInitiated = false;
