@@ -63,11 +63,7 @@ namespace Ice
                 }
                 else
                 {
-                    Ice.OperationNotExistException ex = new Ice.OperationNotExistException();
-                    ex.id = current.id;
-                    ex.facet = current.facet;
-                    ex.operation = current.operation;
-                    throw ex;
+                    throw new Ice.OperationNotExistException();
                 }
             }
         }
@@ -122,11 +118,7 @@ namespace Ice
                 }
                 else
                 {
-                    Ice.OperationNotExistException ex = new Ice.OperationNotExistException();
-                    ex.id = current.id;
-                    ex.facet = current.facet;
-                    ex.operation = current.operation;
-                    throw ex;
+                    throw new Ice.OperationNotExistException();
                 }
             }
         }

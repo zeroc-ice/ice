@@ -1552,7 +1552,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
             }
             else
             {
-                throw new Ice.SyscallException(ex);
+                throw new SyscallException(ex);
             }
         }
     }

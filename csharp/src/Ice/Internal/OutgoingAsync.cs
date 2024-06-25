@@ -643,7 +643,11 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
 
     public void prepare(string operation, Ice.OperationMode mode, Dictionary<string, string> context)
     {
-        Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(proxy_.iceReference().getProtocol()));
+        if (proxy_.iceReference().getProtocol().major != Ice.Util.currentProtocol.major)
+        {
+            throw new FeatureNotSupportedException(
+                $"Cannot send request using protocol version {proxy_.iceReference().getProtocol()}.");
+        }
 
         mode_ = mode;
 
@@ -756,13 +760,12 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
                     // For compatibility with the old FacetPath.
                     //
                     string[] facetPath = is_.readStringSeq();
-                    ;
                     string facet;
                     if (facetPath.Length > 0)
                     {
                         if (facetPath.Length > 1)
                         {
-                            throw new Ice.MarshalException();
+                            throw new MarshalException($"Received invalid facet path with {facetPath.Length} elements.");
                         }
                         facet = facetPath[0];
                     }
@@ -772,82 +775,44 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
                     }
 
                     string operation = is_.readString();
-
-                    Ice.RequestFailedException ex = null;
                     switch (replyStatus)
                     {
                         case ReplyStatus.ObjectNotExist:
-                        {
-                            ex = new Ice.ObjectNotExistException();
-                            break;
-                        }
+                            throw new ObjectNotExistException(ident, facet, operation);
 
                         case ReplyStatus.FacetNotExist:
-                        {
-                            ex = new Ice.FacetNotExistException();
-                            break;
-                        }
+                            throw new FacetNotExistException(ident, facet, operation);
 
                         case ReplyStatus.OperationNotExist:
-                        {
-                            ex = new Ice.OperationNotExistException();
-                            break;
-                        }
-
-                        default:
-                        {
-                            Debug.Assert(false);
-                            break;
-                        }
+                            throw new OperationNotExistException(ident, facet, operation);
                     }
-
-                    ex.id = ident;
-                    ex.facet = facet;
-                    ex.operation = operation;
-                    throw ex;
+                    Debug.Assert(false);
+                    break;
                 }
 
                 case ReplyStatus.UnknownException:
                 case ReplyStatus.UnknownLocalException:
                 case ReplyStatus.UnknownUserException:
                 {
-                    string unknown = is_.readString();
-
-                    Ice.UnknownException ex = null;
+                    string message = is_.readString();
                     switch (replyStatus)
                     {
                         case ReplyStatus.UnknownException:
-                        {
-                            ex = new Ice.UnknownException();
-                            break;
-                        }
+                            throw new UnknownException(message);
 
                         case ReplyStatus.UnknownLocalException:
-                        {
-                            ex = new Ice.UnknownLocalException();
-                            break;
-                        }
+                            throw new UnknownLocalException(message);
 
                         case ReplyStatus.UnknownUserException:
-                        {
-                            ex = new Ice.UnknownUserException();
-                            break;
-                        }
-
-                        default:
-                        {
-                            Debug.Assert(false);
-                            break;
-                        }
+                            throw new UnknownUserException(message);
                     }
-
-                    ex.unknown = unknown;
-                    throw ex;
+                    Debug.Assert(false);
+                    break;
                 }
 
                 default:
                 {
-                    throw new Ice.UnknownReplyStatusException();
+                    throw new MarshalException($"Received reply message with unknown reply status {replyStatus}.");
                 }
             }
 
@@ -1095,7 +1060,11 @@ internal class ProxyFlushBatchAsync : ProxyOutgoingAsyncBase
 
     public void invoke(string operation, bool synchronous)
     {
-        Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(proxy_.iceReference().getProtocol()));
+        if (proxy_.iceReference().getProtocol().major != Ice.Util.currentProtocol.major)
+        {
+            throw new FeatureNotSupportedException(
+                $"Cannot send request using protocol version {proxy_.iceReference().getProtocol()}.");
+        }
         synchronous_ = synchronous;
         observer_ = ObserverHelper.get(proxy_, operation, null);
         // Not used for proxy flush batch requests.

@@ -108,9 +108,8 @@ namespace Ice
                         adapter.add(obj, Util.stringToIdentity(""));
                         test(false);
                     }
-                    catch (IllegalIdentityException e)
+                    catch (ArgumentException)
                     {
-                        test(e.id.name.Length == 0);
                     }
 
                     try
@@ -118,7 +117,7 @@ namespace Ice
                         adapter.add(null, Util.stringToIdentity("x"));
                         test(false);
                     }
-                    catch (IllegalServantException)
+                    catch (ArgumentNullException)
                     {
                     }
 
@@ -404,8 +403,9 @@ namespace Ice
                         thrower.throwMemoryLimitException(null);
                         test(false);
                     }
-                    catch (MemoryLimitException)
+                    catch (MarshalException ex)
                     {
+                        test(ex.Message.Contains("exceeds the maximum allowed"));
                     }
                     catch (Exception)
                     {
@@ -437,9 +437,11 @@ namespace Ice
                         {
                             thrower2.throwMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB(no limits)
                         }
-                        catch (MemoryLimitException)
+                        catch (MarshalException ex)
                         {
+                            test(ex.Message.Contains("exceeds the maximum allowed"));
                         }
+
                         var thrower3 = Test.ThrowerPrxHelper.uncheckedCast(
                             communicator.stringToProxy("thrower:" + helper.getTestEndpoint(2)));
                         try

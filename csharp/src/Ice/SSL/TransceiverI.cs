@@ -393,15 +393,13 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
             if (Ice.Internal.Network.connectionLost(ex))
             {
                 // This situation occurs when connectToSelf is called; the "remote" end closes the socket immediately.
-                throw new Ice.ConnectionLostException();
+                throw new ConnectionLostException(ex);
             }
-            throw new Ice.SocketException(ex);
+            throw new SocketException(ex);
         }
         catch (AuthenticationException ex)
         {
-            var e = new Ice.SecurityException(ex);
-            e.reason = ex.Message;
-            throw e;
+            throw new SecurityException("Authentication failure.", ex);
         }
         catch (Exception ex)
         {
@@ -437,11 +435,9 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         }
         catch (AuthenticationException ex)
         {
-            var e = new Ice.SecurityException(ex);
-            e.reason = ex.Message;
-            throw e;
+            throw new SecurityException("Authentication failure.", ex);
         }
-        catch (Exception ex)
+        catch (System.Exception ex)
         {
             throw new Ice.SyscallException(ex);
         }

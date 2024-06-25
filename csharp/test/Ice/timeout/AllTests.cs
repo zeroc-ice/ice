@@ -163,10 +163,10 @@ public class AllTests : global::Test.AllTests
                     connection.getInfo();
                     Thread.Sleep(10);
                 }
-                catch (ConnectionManuallyClosedException ex)
+                catch (ConnectionClosedException ex)
                 {
                     // Expected.
-                    test(ex.graceful);
+                    test(ex.closedByApplication);
                     break;
                 }
             }

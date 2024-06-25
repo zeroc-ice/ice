@@ -12,15 +12,6 @@ namespace Ice.SSL;
 
 internal class RFC2253
 {
-    public class ParseException : System.Exception
-    {
-        public ParseException(string reason) => this.reason = reason;
-
-        internal string ice_id() => "::RFC2253::ParseException";
-
-        internal readonly string reason;
-    }
-
     internal struct RDNPair
     {
         internal string key;

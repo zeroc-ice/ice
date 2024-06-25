@@ -58,6 +58,37 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   (the unit is seconds). You can also override this value for a specific object adapter with the configuration
   property `AdapterName.Connection.CloseTimeout`.
 
+- Consolidate and refactor the exceptions derived from LocalException.
+  | Local exception in Ice 3.7          | Replacement                |
+  |-------------------------------------|----------------------------|
+  | BadMagicException                   | ProtocolException (base)   |
+  | CompressionException                | ProtocolException (base)   |
+  | ConnectionManuallyClosedException   | ConnectionAbortedException, ConnectionClosedException  |
+  | ConnectionNotValidatedException     | ProtocolException (base)   |
+  | EncapsulationException              | MarshalException (base)    |
+  | EndpointParseException              | ParseException             |
+  | EndpointSelectionTypeParseException | ParseException             |
+  | IllegalIdentityException            | ArgumentException (C#)     |
+  | IllegalMessageSizeException         | MarshalException           |
+  | IllegalServantException             | ArgumentNullException (C#) |
+  | IdentityParseException              | ParseException             |
+  | MemoryLimitException                | MarshalException (base)    |
+  | NoValueFactoryException             | MarshalException (base)    |
+  | ProxyParseException                 | ParseException             |
+  | ProxyUnmarshalException             | MarshalException (base)    |
+  | UnexpectedObjectException           | MarshalException (base)    |
+  | UnknownMessageException             | ProtocolException (base)   |
+  | UnknownReplyStatusException         | MarshalException           |
+  | UnmarshalOutOfBoundsException       | MarshalException (base)    |
+  | UnsupportedEncodingException        | MarshalException           |
+  | UnsupportedProtocolException        | MarshalException, FeatureNotSupportedException |
+  | VersionParseException               | ParseException             |
+
+  base = was existing base class
+
+  New local exceptions:\
+  ConnectionAbortedException, ConnectionClosedException, ConnectionIdleException, ParseException
+
 ## Slice Language Changes
 
 - Removed support for the `["preserve-slice"]` metadata. Slice classes encoded in the Sliced-format are now always
