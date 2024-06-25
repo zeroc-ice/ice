@@ -3,12 +3,13 @@
 //
 
 #include "../../src/IceUtil/Options.h"
-#include "../IceUtil/ConsoleUtil.h"
+#include "../../src/IceUtil/ConsoleUtil.h"
 #include "Ice/Ice.h"
 #include "ServiceInstaller.h"
 
 using namespace std;
 using namespace IceInternal;
+using namespace IceUtilInternal;
 
 int run(const Ice::StringSeq&);
 

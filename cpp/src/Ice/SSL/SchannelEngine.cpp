@@ -34,6 +34,7 @@ const int ICESSL_CALG_ECDH_EPHEM = 0x0000AE06;
 using namespace std;
 using namespace Ice;
 using namespace Ice;
+using namespace IceInternal;
 using namespace IceUtilInternal;
 using namespace Ice::SSL;
 

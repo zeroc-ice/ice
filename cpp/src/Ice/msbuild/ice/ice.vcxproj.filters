@@ -216,7 +216,7 @@
     <ClCompile Include="..\..\..\IceUtil\ConsoleUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IceUtil\CtrlCHandler.cpp">
+    <ClCompile Include="..\..\CtrlCHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IceUtil\FileUtil.cpp">
@@ -231,16 +231,16 @@
     <ClCompile Include="..\..\..\IceUtil\Random.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IceUtil\StringConverter.cpp">
+    <ClCompile Include="..\..\StringConverter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IceUtil\StringUtil.cpp">
+    <ClCompile Include="..\..\StringUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IceUtil\UtilException.cpp">
+    <ClCompile Include="..\..\UtilException.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IceUtil\UUID.cpp">
+    <ClCompile Include="..\..\UUID.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\ArgVector.cpp">
