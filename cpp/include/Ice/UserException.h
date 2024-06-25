@@ -24,10 +24,7 @@ namespace Ice
         /**
          * Default constructor.
          */
-        UserException()
-            : Exception(nullptr, 0, nullptr)
-        {
-        }
+        UserException() : Exception(nullptr, 0, nullptr) {}
 
         /**
          * Obtains the Slice type ID of this exception.
