@@ -7,6 +7,8 @@
 #include "Ice/CtrlCHandler.h"
 #include "Ice/RegisterPlugins.h"
 
+#include <sstream>
+
 using namespace std;
 using namespace Test;
 

@@ -3,15 +3,14 @@
 //
 
 #include "LoggerI.h"
-#include "TimeUtil.h"
-
-#include "Ice/StringUtil.h"
-
 #include "../../src/IceUtil/FileUtil.h"
 #include "Ice/LocalException.h"
+#include "Ice/StringUtil.h"
+#include "TimeUtil.h"
 
 #include <iostream>
 #include <mutex>
+#include <sstream>
 
 using namespace std;
 using namespace Ice;
