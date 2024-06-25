@@ -580,7 +580,7 @@ Ice::IllegalConversionException::ice_print(ostream& out) const
 const char*
 Ice::IllegalConversionException::ice_id() const noexcept
 {
-    return "::IceUtil::IllegalConversionException";
+    return "::Ice::IllegalConversionException";
 }
 
 string
@@ -610,7 +610,7 @@ Ice::FileLockException::ice_print(ostream& os) const
 const char*
 Ice::FileLockException::ice_id() const noexcept
 {
-    return "::IceUtil::FileLockException";
+    return "::Ice::FileLockException";
 }
 
 int

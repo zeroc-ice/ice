@@ -506,7 +506,7 @@ namespace
 
         if (writtenWchar == 0)
         {
-            throw IllegalConversionException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+            throw Ice::IllegalConversionException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
         }
 
         wbuffer.resize(static_cast<size_t>(writtenWchar));
@@ -566,7 +566,7 @@ namespace
 
         if (writtenChar == 0)
         {
-            throw IllegalConversionException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+            throw Ice::IllegalConversionException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
         }
 
         target.resize(static_cast<size_t>(writtenChar));

@@ -281,7 +281,7 @@ main(int argc, char* argv[])
                 string s = wstringToString(badWstring[i]);
                 test(false);
             }
-            catch (const IllegalConversionException&)
+            catch (const Ice::IllegalConversionException&)
             {
             }
         }

@@ -109,7 +109,7 @@ namespace Ice
      * This exception indicates the failure of a string conversion.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API IllegalConversionException : public Ice::LocalException
+    class ICE_API IllegalConversionException : public LocalException
     {
     public:
         IllegalConversionException(const char*, int, std::string) noexcept;
