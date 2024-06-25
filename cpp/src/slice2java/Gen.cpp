@@ -4236,11 +4236,13 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     out << sp;
     writeDocComment(
         out,
-        "Creates a new proxy that implements {@link " + prxName + "}.\n"
-        "@param communicator The communicator of the new proxy.\n"
-        "@param proxyString The string representation of the proxy.\n"
-        "@return The new proxy.");
-    out << nl << "public static " << prxName << " createProxy(com.zeroc.Ice.Communicator communicator, String proxyString)";
+        "Creates a new proxy that implements {@link " + prxName +
+            "}.\n"
+            "@param communicator The communicator of the new proxy.\n"
+            "@param proxyString The string representation of the proxy.\n"
+            "@return The new proxy.");
+    out << nl << "public static " << prxName
+        << " createProxy(com.zeroc.Ice.Communicator communicator, String proxyString)";
     out << sb;
     out << nl << "return uncheckedCast(communicator.stringToProxy(proxyString));";
     out << eb;
