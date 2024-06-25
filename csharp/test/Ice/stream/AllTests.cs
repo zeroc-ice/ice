@@ -175,7 +175,7 @@ namespace Ice
                         inS.readBool();
                         test(false);
                     }
-                    catch (Ice.UnmarshalOutOfBoundsException)
+                    catch (Ice.MarshalException)
                     {
                     }
                 }

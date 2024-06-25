@@ -269,7 +269,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
 
             if (services.Count == 0)
             {
-                throw new FailureException("ServiceManager: configuration must include at least one IceBox service");
+                throw new FailureException("ServiceManager: configuration must include at least one IceBox service.");
             }
 
             string[] loadOrder = properties.getIcePropertyAsList("IceBox.LoadOrder");
@@ -279,12 +279,9 @@ internal class ServiceManagerI : ServiceManagerDisp_
                 if (loadOrder[i].Length > 0)
                 {
                     string key = prefix + loadOrder[i];
-                    string value;
-                    if (!services.TryGetValue(key, out value))
+                    if (!services.TryGetValue(key, out string value))
                     {
-                        FailureException ex = new FailureException();
-                        ex.reason = "ServiceManager: no service definition for `" + loadOrder[i] + "'";
-                        throw ex;
+                        throw new FailureException($"ServiceManager: no service definition for '{loadOrder[i]}'.");
                     }
                     servicesInfo.Add(new StartServiceInfo(loadOrder[i], value, _argv));
                     services.Remove(key);
@@ -452,9 +449,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
             }
             if (sepPos == -1)
             {
-                FailureException e = new FailureException();
-                e.reason = err + "invalid entry point format";
-                throw e;
+                throw new FailureException($"{err}invalid entry point format.");
             }
 
             System.Reflection.Assembly serviceAssembly = null;
@@ -487,9 +482,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
             }
             catch (Exception ex)
             {
-                FailureException e = new FailureException(ex);
-                e.reason = err + "unable to load assembly: " + assemblyName;
-                throw e;
+                throw new FailureException($"{err}unable to load assembly: {assemblyName}", ex);
             }
 
             //
@@ -502,9 +495,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
             }
             catch (Exception ex)
             {
-                FailureException e = new FailureException(ex);
-                e.reason = err + "GetType failed for '" + className + "'";
-                throw e;
+                throw new FailureException($"{err}GetType failed for '{className}'.", ex);
             }
 
             ServiceInfo info = new ServiceInfo();
@@ -611,9 +602,9 @@ internal class ServiceManagerI : ServiceManagerDisp_
                         }
                         catch (MethodAccessException ex)
                         {
-                            FailureException e = new FailureException(ex);
-                            e.reason = err + "unable to access service constructor " + className + "(Ice.Communicator)";
-                            throw e;
+                            throw new FailureException(
+                                $"{err}unable to access service constructor {className}(Ice.Communicator).",
+                                ex);
                         }
                     }
                     else
@@ -626,16 +617,12 @@ internal class ServiceManagerI : ServiceManagerDisp_
                             info.service = (Service)Ice.Internal.AssemblyUtil.createInstance(c);
                             if (info.service == null)
                             {
-                                FailureException e = new FailureException();
-                                e.reason = err + "no default constructor for '" + className + "'";
-                                throw e;
+                                throw new FailureException($"{err}no default constructor for '{className}'.");
                             }
                         }
                         catch (UnauthorizedAccessException ex)
                         {
-                            FailureException e = new FailureException(ex);
-                            e.reason = err + "unauthorized access to default service constructor for " + className;
-                            throw e;
+                            throw new FailureException($"{err}unauthorized access to default service constructor for '{className}'.", ex);
                         }
                     }
                 }
@@ -645,9 +632,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
                 }
                 catch (InvalidCastException ex)
                 {
-                    FailureException e = new FailureException(ex);
-                    e.reason = err + "service does not implement IceBox.Service";
-                    throw e;
+                    throw new FailureException($"{err}service does not implement IceBox.Service.", ex);
                 }
                 catch (System.Reflection.TargetInvocationException ex)
                 {
@@ -657,16 +642,12 @@ internal class ServiceManagerI : ServiceManagerDisp_
                     }
                     else
                     {
-                        FailureException e = new FailureException(ex.InnerException);
-                        e.reason = err + "exception in service constructor for " + className;
-                        throw e;
+                        throw new FailureException($"{err}exception in service constructor for '{className}'.", ex.InnerException);
                     }
                 }
                 catch (Exception ex)
                 {
-                    FailureException e = new FailureException(ex);
-                    e.reason = err + "exception in service constructor " + className;
-                    throw e;
+                    throw new FailureException($"{err}exception in service constructor for '{className}'.", ex);
                 }
 
                 try
@@ -679,9 +660,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
                 }
                 catch (Exception ex)
                 {
-                    FailureException e = new FailureException(ex);
-                    e.reason = "exception while starting service " + service;
-                    throw e;
+                    throw new FailureException($"{err}exception while starting service '{service}'.", ex);
                 }
 
                 info.status = ServiceStatus.Started;
@@ -861,11 +840,9 @@ internal class ServiceManagerI : ServiceManagerDisp_
             {
                 args = Ice.UtilInternal.Options.split(value);
             }
-            catch (Ice.UtilInternal.Options.BadQuote ex)
+            catch (Ice.ParseException ex)
             {
-                FailureException e = new FailureException();
-                e.reason = "ServiceManager: invalid arguments for service `" + name + "':\n" + ex.Message;
-                throw e;
+                throw new FailureException($"ServiceManager: invalid arguments for service '{name}'.", ex);
             }
 
             Debug.Assert(args.Length > 0);

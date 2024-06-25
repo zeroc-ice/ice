@@ -239,7 +239,7 @@ public class AllTests : Test.AllTests
                 testPrx.SBSUnknownDerivedAsSBaseCompact();
                 test(false);
             }
-            catch (Ice.NoValueFactoryException)
+            catch (Ice.MarshalException)
             {
                 // Expected.
             }
@@ -279,7 +279,7 @@ public class AllTests : Test.AllTests
             }
             catch (AggregateException ae)
             {
-                test(ae.InnerException is Ice.NoValueFactoryException);
+                test(ae.InnerException is Ice.MarshalException);
             }
         }
         output.WriteLine("ok");
@@ -296,7 +296,7 @@ public class AllTests : Test.AllTests
                 test((o as Ice.UnknownSlicedValue).ice_getSlicedData() != null);
                 testPrx.checkSUnknown(o);
             }
-            catch (Ice.NoValueFactoryException)
+            catch (Ice.MarshalException)
             {
                 test(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
             }
@@ -321,14 +321,7 @@ public class AllTests : Test.AllTests
                     }
                     catch (AggregateException ae)
                     {
-                        try
-                        {
-                            throw ae.InnerException;
-                        }
-                        catch (Ice.Exception ex)
-                        {
-                            test(ex.GetType().FullName == "Ice.NoValueFactoryException");
-                        }
+                        test(ae.InnerException is Ice.MarshalException);
                     }
                 }
                 else

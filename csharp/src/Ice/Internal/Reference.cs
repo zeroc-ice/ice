@@ -659,7 +659,7 @@ public class FixedReference : Reference
             {
                 if (_fixedConnection.endpoint().datagram())
                 {
-                    throw new Ice.NoEndpointException(ToString());
+                    throw new NoEndpointException(new ObjectPrxHelper(this));
                 }
                 break;
             }
@@ -669,7 +669,7 @@ public class FixedReference : Reference
             {
                 if (!_fixedConnection.endpoint().datagram())
                 {
-                    throw new Ice.NoEndpointException(ToString());
+                    throw new NoEndpointException(new ObjectPrxHelper(this));
                 }
                 break;
             }
@@ -691,7 +691,7 @@ public class FixedReference : Reference
         }
         if (secure && !_fixedConnection.endpoint().secure())
         {
-            throw new Ice.NoEndpointException(ToString());
+            throw new NoEndpointException(new ObjectPrxHelper(this));
         }
 
         _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
@@ -1188,7 +1188,7 @@ public class RoutableReference : Reference
         {
             if (endpoints.Length == 0)
             {
-                _cb.setException(new Ice.NoEndpointException(_ir.ToString()));
+                _cb.setException(new NoEndpointException(new ObjectPrxHelper(_ir)));
                 return;
             }
 
@@ -1225,7 +1225,7 @@ public class RoutableReference : Reference
             {
                 throw exc;
             }
-            catch (Ice.NoEndpointException ex)
+            catch (NoEndpointException ex)
             {
                 _cb.setException(ex); // No need to retry if there's no endpoints.
             }
@@ -1268,7 +1268,7 @@ public class RoutableReference : Reference
         }
         else
         {
-            callback.setException(new Ice.NoEndpointException(ToString()));
+            callback.setException(new NoEndpointException(new ObjectPrxHelper(this)));
         }
     }
 
@@ -1509,7 +1509,7 @@ public class RoutableReference : Reference
         EndpointI[] endpoints = filterEndpoints(allEndpoints);
         if (endpoints.Length == 0)
         {
-            callback.setException(new Ice.NoEndpointException(ToString()));
+            callback.setException(new NoEndpointException(new ObjectPrxHelper(this)));
             return;
         }
 

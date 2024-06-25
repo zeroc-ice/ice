@@ -743,8 +743,9 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
         _ = try cl.ice_invoke(operation: "ice_ping", mode: Ice.OperationMode.Normal, inEncaps: inEncaps)
         try test(false)
     } catch let ex as Ice.UnknownLocalException {
-        // The server thrown an UnsupportedEncodingException
-        try test(ex.unknown.contains("UnsupportedEncodingException"))
+        // TODO: remove UnsupportedEncodingException
+        try test(
+            ex.unknown.contains("MarshalException") || ex.unknown.contains("UnsupportedEncodingException"))
     }
 
     do {
@@ -759,8 +760,9 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
         _ = try cl.ice_invoke(operation: "ice_ping", mode: Ice.OperationMode.Normal, inEncaps: inEncaps)
         try test(false)
     } catch let ex as Ice.UnknownLocalException {
-        // The server thrown an UnsupportedEncodingException
-        try test(ex.unknown.contains("UnsupportedEncodingException"))
+        // TODO: remove UnsupportedEncodingException
+        try test(
+            ex.unknown.contains("MarshalException") || ex.unknown.contains("UnsupportedEncodingException"))
     }
     writer.writeLine("ok")
 

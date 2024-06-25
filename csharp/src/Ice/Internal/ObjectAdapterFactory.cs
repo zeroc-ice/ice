@@ -140,10 +140,7 @@ public sealed class ObjectAdapterFactory
             {
                 if (_adapterNamesInUse.Contains(name))
                 {
-                    Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-                    ex.kindOfObject = "object adapter";
-                    ex.id = name;
-                    throw ex;
+                    throw new AlreadyRegisteredException("object adapter", name);
                 }
                 _adapterNamesInUse.Add(name);
             }

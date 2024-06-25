@@ -376,7 +376,7 @@ public class OutputStream
     {
         if (v.Length < 6)
         {
-            throw new EncapsulationException();
+            throw new MarshalException($"A byte sequence with {v.Length} bytes is not a valid encapsulation.");
         }
         expand(v.Length);
         _buf.b.put(v);

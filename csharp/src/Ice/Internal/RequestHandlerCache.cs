@@ -215,9 +215,8 @@ internal sealed class RequestHandlerCache
         // instead), which means there was a problem in this process that will
         // not change if we try again.
         //
-        // The most likely cause for a MarshalException is exceeding the
-        // maximum message size, which is represented by the subclass
-        // MemoryLimitException. For example, a client can attempt to send a
+        // A likely cause for a MarshalException is exceeding the
+        // maximum message size. For example, a client can attempt to send a
         // message that exceeds the maximum memory size, or accumulate enough
         // batch requests without flushing that the maximum size is reached.
         //
@@ -236,11 +235,14 @@ internal sealed class RequestHandlerCache
 
         //
         // Don't retry if the communicator is destroyed, object adapter is deactivated,
-        // or connection is manually closed.
+        // or connection is closed by the application.
         //
-        if (ex is Ice.CommunicatorDestroyedException ||
-           ex is Ice.ObjectAdapterDeactivatedException ||
-           ex is Ice.ConnectionManuallyClosedException)
+        if (ex is CommunicatorDestroyedException ||
+           ex is ObjectAdapterDeactivatedException ||
+           (ex is ConnectionAbortedException connectionAbortedException &&
+            connectionAbortedException.closedByApplication) ||
+           (ex is ConnectionClosedException connectionClosedException &&
+            connectionClosedException.closedByApplication))
         {
             throw ex;
         }

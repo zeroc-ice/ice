@@ -73,7 +73,7 @@ namespace Ice
                     {
                         batch.opByteSOneway(bs1);
                     }
-                    catch (Ice.MemoryLimitException)
+                    catch (Ice.MarshalException)
                     {
                         test(false);
                     }

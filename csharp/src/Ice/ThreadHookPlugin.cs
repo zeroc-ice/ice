@@ -23,9 +23,7 @@ public class ThreadHookPlugin : Plugin
     {
         if (communicator == null)
         {
-            PluginInitializationException ex = new PluginInitializationException();
-            ex.reason = "Communicator cannot be null";
-            throw ex;
+            throw new PluginInitializationException("Communicator cannot be null.");
         }
 
         Ice.Internal.Instance instance = communicator.instance;

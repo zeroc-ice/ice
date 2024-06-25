@@ -477,9 +477,7 @@ public sealed class Properties
         }
         catch (IOException ex)
         {
-            var fe = new FileException(ex);
-            fe.path = file;
-            throw fe;
+            throw new FileException($"Cannot read '{file}'", ex);
         }
     }
 

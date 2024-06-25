@@ -162,8 +162,7 @@ internal sealed class UdpEndpointI : IPEndpointI
             }
             else
             {
-                throw new Ice.EndpointParseException("`--interface *' not valid for proxy endpoint `" +
-                                                     ToString() + "'");
+                throw new ParseException($"'--interface *' not valid for proxy endpoint '{this}'");
             }
         }
     }
@@ -320,9 +319,7 @@ internal sealed class UdpEndpointI : IPEndpointI
         {
             if (argument != null)
             {
-                Ice.EndpointParseException e = new Ice.EndpointParseException();
-                e.str = "unexpected argument `" + argument + "' provided for -c option in " + endpoint;
-                throw e;
+                throw new ParseException($"unexpected argument '{argument}' provided for -c option in endpoint '{endpoint}'");
             }
 
             _connect = true;
@@ -331,9 +328,7 @@ internal sealed class UdpEndpointI : IPEndpointI
         {
             if (argument != null)
             {
-                Ice.EndpointParseException e = new Ice.EndpointParseException();
-                e.str = "unexpected argument `" + argument + "' provided for -z option in " + endpoint;
-                throw e;
+                throw new ParseException($"unexpected argument '{argument}' provided for -z option in endpoint '{endpoint}'");
             }
 
             _compress = true;
@@ -342,9 +337,7 @@ internal sealed class UdpEndpointI : IPEndpointI
         {
             if (argument == null)
             {
-                Ice.EndpointParseException e = new Ice.EndpointParseException();
-                e.str = "no argument provided for " + option + " option in endpoint " + endpoint;
-                throw e;
+                throw new ParseException($"unexpected argument '{argument}' provided for {option} option in endpoint '{endpoint}'");
             }
 
             try
@@ -355,20 +348,16 @@ internal sealed class UdpEndpointI : IPEndpointI
                     instance_.logger().warning("deprecated udp endpoint option: " + option);
                 }
             }
-            catch (Ice.VersionParseException ex)
+            catch (ParseException ex)
             {
-                Ice.EndpointParseException e = new Ice.EndpointParseException();
-                e.str = "invalid version `" + argument + "' in endpoint " + endpoint + ":\n" + ex.str;
-                throw e;
+                throw new ParseException($"invalid version '{argument}' in endpoint '{endpoint}'", ex);
             }
         }
         else if (option == "--ttl")
         {
             if (argument == null)
             {
-                Ice.EndpointParseException e = new Ice.EndpointParseException();
-                e.str = "no argument provided for --ttl option in endpoint " + endpoint;
-                throw e;
+                throw new ParseException($"no argument provided for --ttl option in endpoint '{endpoint}'");
             }
 
             try
@@ -377,25 +366,19 @@ internal sealed class UdpEndpointI : IPEndpointI
             }
             catch (FormatException ex)
             {
-                Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
-                e.str = "invalid TTL value `" + argument + "' in endpoint " + endpoint;
-                throw e;
+                throw new ParseException($"invalid TTL value '{argument}' in endpoint '{endpoint}'", ex);
             }
 
             if (_mcastTtl < 0)
             {
-                Ice.EndpointParseException e = new Ice.EndpointParseException();
-                e.str = "TTL value `" + argument + "' out of range in endpoint " + endpoint;
-                throw e;
+                throw new ParseException($"TTL value '{argument}' out of range in endpoint '{endpoint}'");
             }
         }
         else if (option == "--interface")
         {
             if (argument == null)
             {
-                Ice.EndpointParseException e = new Ice.EndpointParseException();
-                e.str = "no argument provided for --interface option in endpoint " + endpoint;
-                throw e;
+                throw new ParseException($"no argument provided for --interface option in endpoint '{endpoint}'");
             }
             _mcastInterface = argument;
         }

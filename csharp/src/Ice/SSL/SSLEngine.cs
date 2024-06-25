@@ -195,7 +195,7 @@ internal class SSLEngine
                 _logger.trace(_securityTraceCategory, msg);
             }
 
-            throw new Ice.SecurityException($"IceSSL: {msg}");
+            throw new SecurityException($"IceSSL: {msg}");
         }
     }
 

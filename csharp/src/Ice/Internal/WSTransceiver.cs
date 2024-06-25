@@ -127,7 +127,9 @@ internal sealed class WSTransceiver : Transceiver
                         int oldSize = _readBuffer.b.position();
                         if (oldSize + 1024 > _instance.messageSizeMax())
                         {
-                            throw new Ice.MemoryLimitException();
+                            Ex.throwMemoryLimitException(
+                                requested: oldSize + 1024,
+                                maximum: _instance.messageSizeMax());
                         }
                         _readBuffer.resize(oldSize + 1024, true);
                         _readBuffer.b.position(oldSize);
@@ -273,11 +275,6 @@ internal sealed class WSTransceiver : Transceiver
         {
             _closingReason = CLOSURE_PROTOCOL_ERROR;
         }
-        else if (reason is Ice.MemoryLimitException)
-        {
-            _closingReason = CLOSURE_TOO_BIG;
-        }
-
         if (_state == StateOpened)
         {
             _state = StateClosingRequestPending;
@@ -1684,7 +1681,6 @@ internal sealed class WSTransceiver : Transceiver
     private const int CLOSURE_NORMAL = 1000;
     private const int CLOSURE_SHUTDOWN = 1001;
     private const int CLOSURE_PROTOCOL_ERROR = 1002;
-    private const int CLOSURE_TOO_BIG = 1009;
 
     private const string _iceProtocol = "ice.zeroc.com";
     private const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
