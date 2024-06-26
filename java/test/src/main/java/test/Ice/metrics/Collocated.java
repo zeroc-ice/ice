@@ -33,7 +33,12 @@ public class Collocated extends test.TestHelper {
       adapter.add(new MetricsI(), com.zeroc.Ice.Util.stringToIdentity("metrics"));
       // adapter.activate(); // Don't activate OA to ensure collocation is used.
 
-      communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+      communicator.getProperties().setProperty("ForwardingAdapter.Endpoints", getTestEndpoint(1));
+      com.zeroc.Ice.ObjectAdapter forwardingAdapter =
+          communicator.createObjectAdapter("ForwardingAdapter");
+      forwardingAdapter.addDefaultServant(adapter.dispatchPipeline(), "");
+
+      communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(2));
       com.zeroc.Ice.ObjectAdapter controllerAdapter =
           communicator.createObjectAdapter("ControllerAdapter");
       controllerAdapter.add(
