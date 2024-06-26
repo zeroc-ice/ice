@@ -542,8 +542,8 @@ class JSPropertyHandler(PropertyHandler):
     def propertyImpl(self, propertyName, usesRegex, defaultValue, deprecated):
         if self.currentSection in self.validSections:
             name = f"{self.currentSection}.{propertyName}"
-            line = 'new Property("{pattern}", {usesRegex}, {defaultValue}, {deprecated})'.format(
-                pattern=f"^{self.fix(name)}" if usesRegex else name,
+            line = 'new Property({pattern}, {usesRegex}, {defaultValue}, {deprecated})'.format(
+                pattern=f"/^{self.fix(name)}/" if usesRegex else f'"{name}"',
                 usesRegex="true" if usesRegex else "false",
                 defaultValue=f'"{defaultValue}"',
                 deprecated="true" if deprecated else "false",
