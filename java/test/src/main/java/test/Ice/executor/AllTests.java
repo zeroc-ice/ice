@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-package test.Ice.dispatcher;
+package test.Ice.executor;
 
 import com.zeroc.Ice.InvocationFuture;
 import java.io.PrintWriter;
 import java.util.concurrent.CompletableFuture;
-import test.Ice.dispatcher.Test.TestIntfControllerPrx;
-import test.Ice.dispatcher.Test.TestIntfPrx;
+import test.Ice.executor.Test.TestIntfControllerPrx;
+import test.Ice.executor.Test.TestIntfPrx;
 
 public class AllTests {
   private static class Callback {
@@ -57,7 +57,7 @@ public class AllTests {
     }
   }
 
-  public static void allTests(test.TestHelper helper, final Dispatcher dispatcher) {
+  public static void allTests(test.TestHelper helper, final CustomExecutor executor) {
     com.zeroc.Ice.Communicator communicator = helper.communicator();
     PrintWriter out = helper.getWriter();
 
@@ -79,7 +79,7 @@ public class AllTests {
 
     TestIntfControllerPrx testController = TestIntfControllerPrx.uncheckedCast(obj);
 
-    out.print("testing dispatcher... ");
+    out.print("testing executor... ");
     out.flush();
     {
       p.op();
@@ -92,11 +92,11 @@ public class AllTests {
                   if (ex != null) {
                     cb.exception(ex);
                   } else {
-                    test(dispatcher.isDispatcherThread());
+                    test(executor.isCustomExecutorThread());
                     cb.called();
                   }
                 },
-                dispatcher);
+                executor);
         cb.check();
       }
 
@@ -108,7 +108,7 @@ public class AllTests {
                   if (ex != null) {
                     cb.exception(ex);
                   } else {
-                    test(dispatcher.isDispatcherThread());
+                    test(executor.isCustomExecutorThread());
                     cb.called();
                   }
                 },
@@ -124,13 +124,13 @@ public class AllTests {
                 (result, ex) -> {
                   if (ex != null) {
                     test(ex instanceof com.zeroc.Ice.NoEndpointException);
-                    test(dispatcher.isDispatcherThread());
+                    test(executor.isCustomExecutorThread());
                     cb.called();
                   } else {
                     cb.exception(new RuntimeException());
                   }
                 },
-                dispatcher);
+                executor);
         cb.check();
       }
 
@@ -142,7 +142,7 @@ public class AllTests {
                 (result, ex) -> {
                   if (ex != null) {
                     test(ex instanceof com.zeroc.Ice.NoEndpointException);
-                    test(dispatcher.isDispatcherThread());
+                    test(executor.isCustomExecutorThread());
                     cb.called();
                   } else {
                     cb.exception(new RuntimeException());
@@ -163,20 +163,20 @@ public class AllTests {
             (result, ex) -> {
               if (ex != null) {
                 test(ex instanceof com.zeroc.Ice.InvocationTimeoutException);
-                test(dispatcher.isDispatcherThread());
+                test(executor.isCustomExecutorThread());
                 cb.called();
               } else {
                 cb.exception(new RuntimeException());
               }
             },
-            dispatcher);
+            executor);
         com.zeroc.Ice.Util.getInvocationFuture(r)
             .whenSentAsync(
                 (sentSynchronously, ex) -> {
                   test(ex == null);
-                  test(dispatcher.isDispatcherThread());
+                  test(executor.isCustomExecutorThread());
                 },
-                dispatcher);
+                executor);
         cb.check();
       }
 
@@ -191,18 +191,18 @@ public class AllTests {
             (result, ex) -> {
               if (ex != null) {
                 test(ex instanceof com.zeroc.Ice.InvocationTimeoutException);
-                test(dispatcher.isDispatcherThread());
+                test(executor.isCustomExecutorThread());
                 cb.called();
               } else {
                 cb.exception(new RuntimeException());
               }
             },
-            dispatcher);
+            executor);
         com.zeroc.Ice.Util.getInvocationFuture(r)
             .whenSentAsync(
                 (sentSynchronously, ex) -> {
                   test(ex == null);
-                  test(dispatcher.isDispatcherThread());
+                  test(executor.isCustomExecutorThread());
                 },
                 p.ice_executor());
         cb.check();
@@ -223,16 +223,16 @@ public class AllTests {
               if (ex != null) {
                 test(ex instanceof com.zeroc.Ice.CommunicatorDestroyedException);
               } else {
-                test(dispatcher.isDispatcherThread());
+                test(executor.isCustomExecutorThread());
               }
             });
         InvocationFuture<Void> f = com.zeroc.Ice.Util.getInvocationFuture(r);
         f.whenSentAsync(
             (sentSynchronously, ex) -> {
               test(ex == null);
-              test(dispatcher.isDispatcherThread());
+              test(executor.isCustomExecutorThread());
             },
-            dispatcher);
+            executor);
         if (!f.sentSynchronously()) {
           break;
         }

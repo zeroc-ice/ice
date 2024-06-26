@@ -20,7 +20,7 @@ public class Client extends test.TestHelper {
     initData.properties = createTestProperties(args);
     initData.properties.setProperty(
         "Ice.Default.Router", "Glacier2/router:" + getTestEndpoint(initData.properties, 50));
-    initData.dispatcher =
+    initData.executor =
         (Runnable runnable, com.zeroc.Ice.Connection c) -> {
           _workQueue.submit(runnable);
         };

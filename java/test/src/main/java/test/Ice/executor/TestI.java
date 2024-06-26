@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-package test.Ice.dispatcher;
+package test.Ice.executor;
 
-import test.Ice.dispatcher.Test.TestIntf;
+import test.Ice.executor.Test.TestIntf;
 
 public class TestI implements TestIntf {
   private static void test(boolean b) {
@@ -13,13 +13,13 @@ public class TestI implements TestIntf {
     }
   }
 
-  TestI(Dispatcher dispatcher) {
-    _dispatcher = dispatcher;
+  TestI(CustomExecutor executor) {
+    _executor = executor;
   }
 
   @Override
   public void op(com.zeroc.Ice.Current current) {
-    test(_dispatcher.isDispatcherThread());
+    test(_executor.isCustomExecutorThread());
   }
 
   @Override
@@ -33,7 +33,7 @@ public class TestI implements TestIntf {
 
   @Override
   public void opWithPayload(byte[] seq, com.zeroc.Ice.Current current) {
-    test(_dispatcher.isDispatcherThread());
+    test(_executor.isCustomExecutorThread());
   }
 
   @Override
@@ -41,5 +41,5 @@ public class TestI implements TestIntf {
     current.adapter.getCommunicator().shutdown();
   }
 
-  private Dispatcher _dispatcher;
+  private CustomExecutor _executor;
 }

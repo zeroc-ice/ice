@@ -53,18 +53,16 @@ public final class InitializationData implements Cloneable {
   public ClassLoader classLoader;
 
   /**
-   * You can control which thread receives operation invocations and AMI callbacks by supplying a
-   * dispatcher.
+   * You can control which thread receives operation dispatches and async invocation callbacks by
+   * supplying an executor. For example, you can use this execution facility to ensure that all
+   * dispatches and invocation callbacks are executed in a GUI event loop thread so that it is safe
+   * to invoke directly on GUI objects.
    *
-   * <p>For example, you can use this dispatching facility to ensure that all invocations and
-   * callbacks are dispatched in a GUI event loop thread so that it is safe to invoke directly on
-   * GUI objects.
-   *
-   * <p>The dispatcher is responsible for running (dispatching) the invocation or AMI callback on
-   * its favorite thread. It must execute the the provided <code>Runnable</code> parameter. The con
-   * parameter represents the connection associated with this dispatch.
+   * <p>The executor is responsible for running the dispatch or async invocation callback on its
+   * favorite thread. It must execute the the provided <code>Runnable</code> parameter. The con
+   * parameter represents the connection associated with this call.
    */
-  public java.util.function.BiConsumer<Runnable, Connection> dispatcher;
+  public java.util.function.BiConsumer<Runnable, Connection> executor;
 
   /**
    * Applications that make use of compact type IDs to conserve space when marshaling class
