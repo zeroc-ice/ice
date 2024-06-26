@@ -82,8 +82,10 @@ namespace Ice
          * @param line The line where this exception is constructed.
          * @param message The error message adopted by this exception and returned by what().
          */
-        RequestFailedException(const char* file, int line, std::string message) :
-            RequestFailedException(file, line, std::move(message), Identity{}, "", "") {}
+        RequestFailedException(const char* file, int line, std::string message)
+            : RequestFailedException(file, line, std::move(message), Identity{}, "", "")
+        {
+        }
 
     private:
         std::shared_ptr<Identity> _id;

@@ -13,6 +13,7 @@ IceUtil_extra_sources   := src/Ice/ConsoleUtil.cpp \
                            src/Ice/CtrlCHandler.cpp \
                            src/Ice/Exception.cpp \
                            src/Ice/FileUtil.cpp \
+                           src/Ice/LocalException.cpp \
                            src/Ice/Options.cpp \
                            src/Ice/OutputUtil.cpp \
                            src/Ice/Random.cpp \

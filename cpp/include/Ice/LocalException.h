@@ -10,13 +10,15 @@
 namespace Ice
 {
     /**
-     * Abstract base class for all Ice exceptions not defined in Slice.
+     * Base class for all Ice exceptions not defined in Slice.
      * \headerfile Ice/Ice.h
      */
     class ICE_API LocalException : public Exception
     {
     public:
         using Exception::Exception;
+
+        const char* ice_id() const noexcept override;
     };
 }
 

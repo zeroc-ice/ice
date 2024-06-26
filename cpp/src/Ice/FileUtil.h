@@ -132,7 +132,7 @@ namespace IceInternal
     class ICE_API FileLockException final : public Ice::LocalException
     {
     public:
-       /**
+        /**
          * Constructs a FileLockException.
          * @param file The file where this exception is constructed. This C string is not copied.
          * @param line The line where this exception is constructed.

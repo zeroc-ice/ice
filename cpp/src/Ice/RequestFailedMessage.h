@@ -13,8 +13,11 @@
 
 namespace IceInternal
 {
-    inline std::string
-    createRequestFailedMessage(const char* typeName, const Ice::Identity& id, const std::string& facet, const std::string& operation)
+    inline std::string createRequestFailedMessage(
+        const char* typeName,
+        const Ice::Identity& id,
+        const std::string& facet,
+        const std::string& operation)
     {
         std::ostringstream os;
         os << "dispatch failed with " << typeName;
