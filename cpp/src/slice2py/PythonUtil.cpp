@@ -13,7 +13,6 @@
 using namespace std;
 using namespace Slice;
 using namespace IceInternal;
-using namespace IceUtilInternal;
 
 namespace
 {
@@ -95,7 +94,7 @@ namespace Slice
         class CodeVisitor final : public ParserVisitor
         {
         public:
-            CodeVisitor(IceUtilInternal::Output&, set<string>&);
+            CodeVisitor(IceInternal::Output&, set<string>&);
 
             bool visitModuleStart(const ModulePtr&) final;
             void visitModuleEnd(const ModulePtr&) final;
@@ -2886,7 +2885,7 @@ Slice::Python::getAbsolute(const ContainedPtr& cont, const string& suffix, const
 }
 
 void
-Slice::Python::printHeader(IceUtilInternal::Output& out)
+Slice::Python::printHeader(IceInternal::Output& out)
 {
     static const char* header = "#\n"
                                 "# Copyright (c) ZeroC, Inc. All rights reserved.\n"

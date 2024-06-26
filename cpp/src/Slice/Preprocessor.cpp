@@ -3,8 +3,8 @@
 //
 
 #include "Preprocessor.h"
-#include "../IceUtil/ConsoleUtil.h"
-#include "../IceUtil/FileUtil.h"
+#include "../Ice/ConsoleUtil.h"
+#include "../Ice/FileUtil.h"
 #include "Ice/StringConverter.h"
 #include "Ice/StringUtil.h"
 #include "Ice/UUID.h"
@@ -25,7 +25,6 @@
 using namespace std;
 using namespace Slice;
 using namespace IceInternal;
-using namespace IceUtilInternal;
 
 //
 // mcpp defines
@@ -249,7 +248,7 @@ Slice::Preprocessor::preprocess(bool keepComments, const vector<string>& extraAr
         {
             _cppFile = Ice::wstringToString(name);
             free(name);
-            _cppHandle = IceUtilInternal::fopen(_cppFile, "w+");
+            _cppHandle = IceInternal::fopen(_cppFile, "w+");
         }
 #else
         _cppHandle = tmpfile();
@@ -265,7 +264,7 @@ Slice::Preprocessor::preprocess(bool keepComments, const vector<string>& extraAr
 #else
             _cppFile = ".slice-" + Ice::generateUUID();
 #endif
-            _cppHandle = IceUtilInternal::fopen(_cppFile, "w+");
+            _cppHandle = IceInternal::fopen(_cppFile, "w+");
         }
 
         if (_cppHandle != 0)
@@ -458,7 +457,7 @@ Slice::Preprocessor::printMakefileDependencies(
         string file = IceInternal::trim(unprocessed.substr(pos, end - pos));
         if (file.rfind(".ice") == file.size() - 4)
         {
-            if (IceUtilInternal::isAbsolutePath(file))
+            if (IceInternal::isAbsolutePath(file))
             {
                 if (file == _fileName)
                 {
@@ -477,7 +476,7 @@ Slice::Preprocessor::printMakefileDependencies(
                         {
                             string s = includePaths[static_cast<size_t>(p - fullIncludePaths.begin())] +
                                        file.substr(p->length());
-                            if (IceUtilInternal::isAbsolutePath(newFile) || s.size() < newFile.size())
+                            if (IceInternal::isAbsolutePath(newFile) || s.size() < newFile.size())
                             {
                                 newFile = s;
                             }
@@ -762,7 +761,7 @@ Slice::Preprocessor::close()
 
         if (_cppFile.size() != 0)
         {
-            IceUtilInternal::unlink(_cppFile);
+            IceInternal::unlink(_cppFile);
         }
 
         if (status != 0)
@@ -790,7 +789,7 @@ Slice::Preprocessor::checkInputFile()
         return false;
     }
 
-    ifstream test(IceUtilInternal::streamFilename(_fileName).c_str());
+    ifstream test(IceInternal::streamFilename(_fileName).c_str());
     if (!test)
     {
         consoleErr << _path << ": error: cannot open `" << _fileName << "' for reading" << endl;

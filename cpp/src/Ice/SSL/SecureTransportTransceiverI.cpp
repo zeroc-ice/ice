@@ -13,7 +13,7 @@
 #include <sstream>
 
 // Disable deprecation warnings from SecureTransport APIs
-#include "../../IceUtil/DisableWarnings.h"
+#include "../DisableWarnings.h"
 
 using namespace std;
 using namespace Ice;

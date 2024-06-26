@@ -7,7 +7,6 @@
 
 using namespace Test;
 using namespace Ice;
-using namespace Ice;
 using namespace std;
 
 InitialI::InitialI() {}

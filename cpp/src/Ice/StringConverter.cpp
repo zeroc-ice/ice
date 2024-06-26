@@ -7,7 +7,7 @@
 #if defined(_MSC_VER) && (_MSVC_LANG >= 201703L)
 #    define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 #elif (__cplusplus >= 201703L)
-#    include "../IceUtil/DisableWarnings.h"
+#    include "DisableWarnings.h"
 #endif
 
 #include "Ice/Exception.h"

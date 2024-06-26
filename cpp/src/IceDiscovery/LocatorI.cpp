@@ -9,7 +9,7 @@
 #include "Ice/LocalException.h"
 #include "Ice/ObjectAdapter.h"
 
-#include "../IceUtil/Random.h"
+#include "../Ice/Random.h"
 
 #include <iterator>
 
@@ -136,7 +136,7 @@ LocatorRegistryI::findObject(const Ice::Identity& id) const
         return nullopt;
     }
 
-    IceUtilInternal::shuffle(adapterIds.begin(), adapterIds.end());
+    IceInternal::shuffle(adapterIds.begin(), adapterIds.end());
     return prx->ice_adapterId(adapterIds[0]);
 }
 

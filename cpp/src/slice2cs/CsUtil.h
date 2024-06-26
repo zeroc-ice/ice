@@ -5,7 +5,7 @@
 #ifndef CS_UTIL_H
 #define CS_UTIL_H
 
-#include "../IceUtil/OutputUtil.h"
+#include "../Ice/OutputUtil.h"
 #include "../Slice/Parser.h"
 
 namespace Slice
@@ -68,14 +68,14 @@ namespace Slice
         // Generate code to marshal or unmarshal a type
         //
         void writeMarshalUnmarshalCode(
-            ::IceUtilInternal::Output&,
+            ::IceInternal::Output&,
             const TypePtr&,
             const std::string&,
             const std::string&,
             bool,
             const std::string& = "");
         void writeOptionalMarshalUnmarshalCode(
-            ::IceUtilInternal::Output&,
+            ::IceInternal::Output&,
             const TypePtr&,
             const std::string&,
             const std::string&,
@@ -83,7 +83,7 @@ namespace Slice
             bool,
             const std::string& = "");
         void writeSequenceMarshalUnmarshalCode(
-            ::IceUtilInternal::Output&,
+            ::IceInternal::Output&,
             const SequencePtr&,
             const std::string&,
             const std::string&,
@@ -91,7 +91,7 @@ namespace Slice
             bool,
             const std::string& = "");
         void writeOptionalSequenceMarshalUnmarshalCode(
-            ::IceUtilInternal::Output&,
+            ::IceInternal::Output&,
             const SequencePtr&,
             const std::string&,
             const std::string&,
@@ -100,7 +100,7 @@ namespace Slice
             const std::string& = "");
 
         void writeSerializeDeserializeCode(
-            ::IceUtilInternal::Output&,
+            ::IceInternal::Output&,
             const TypePtr&,
             const std::string&,
             const std::string&,

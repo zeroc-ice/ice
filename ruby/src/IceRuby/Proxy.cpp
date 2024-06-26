@@ -6,11 +6,11 @@
 #include "Communicator.h"
 #include "Connection.h"
 #include "Endpoint.h"
+#include "Ice/DisableWarnings.h"
 #include "Ice/LocalException.h"
 #include "Ice/Locator.h"
 #include "Ice/Proxy.h"
 #include "Ice/Router.h"
-#include "IceUtil/DisableWarnings.h"
 #include "Types.h"
 #include "Util.h"
 

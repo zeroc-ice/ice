@@ -4,7 +4,7 @@
 
 #include "Gen.h"
 #include "../Ice/Endian.h"
-#include "../IceUtil/FileUtil.h"
+#include "../Ice/FileUtil.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Util.h"
 #include "Ice/StringUtil.h"
@@ -18,7 +18,7 @@
 using namespace std;
 using namespace Slice;
 using namespace Ice;
-using namespace IceUtilInternal;
+using namespace IceInternal;
 
 namespace
 {
@@ -86,7 +86,7 @@ namespace
         return "???";
     }
 
-    void printHeader(IceUtilInternal::Output& out)
+    void printHeader(IceInternal::Output& out)
     {
         static const char* header = "//\n"
                                     "// Copyright (c) ZeroC, Inc. All rights reserved.\n"
@@ -757,7 +757,7 @@ Slice::Gen::generate(const UnitPtr& p)
     }
 }
 
-Slice::Gen::ImportVisitor::ImportVisitor(IceUtilInternal::Output& out, vector<string> includePaths)
+Slice::Gen::ImportVisitor::ImportVisitor(IceInternal::Output& out, vector<string> includePaths)
     : JsVisitor(out),
       _seenClass(false),
       _seenInterface(false),
@@ -967,7 +967,7 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
             // For Slice modules mapped to the same JavaScript module, or Slice files that doesn't use "js:module".
             // We import them using their Slice include relative path.
             string f = removeExtension(included) + ".js";
-            if (IceUtilInternal::isAbsolutePath(f))
+            if (IceInternal::isAbsolutePath(f))
             {
                 // If the include file is an absolute path, we need to generate a relative path.
                 f = relativePath(f, p->topLevelFile());
@@ -1126,7 +1126,7 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
     return importedModules;
 }
 
-Slice::Gen::ExportsVisitor::ExportsVisitor(::IceUtilInternal::Output& out, std::set<std::string> importedModules)
+Slice::Gen::ExportsVisitor::ExportsVisitor(::IceInternal::Output& out, std::set<std::string> importedModules)
     : JsVisitor(out),
       _importedModules(importedModules)
 {
@@ -1176,7 +1176,7 @@ Slice::Gen::ExportsVisitor::exportedModules() const
     return _exportedModules;
 }
 
-Slice::Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& out) : JsVisitor(out) {}
+Slice::Gen::TypesVisitor::TypesVisitor(IceInternal::Output& out) : JsVisitor(out) {}
 
 bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
@@ -2002,7 +2002,7 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
     return "???";
 }
 
-Slice::Gen::TypeScriptImportVisitor::TypeScriptImportVisitor(IceUtilInternal::Output& out) : JsVisitor(out) {}
+Slice::Gen::TypeScriptImportVisitor::TypeScriptImportVisitor(IceInternal::Output& out) : JsVisitor(out) {}
 
 namespace
 {
@@ -2041,7 +2041,7 @@ Slice::Gen::TypeScriptImportVisitor::addImport(const ContainedPtr& definition)
             else
             {
                 string f = removeExtension(filename);
-                if (IceUtilInternal::isAbsolutePath(f))
+                if (IceInternal::isAbsolutePath(f))
                 {
                     // If the include file is an absolute path, we need to generate a relative path.
                     f = relativePath(f, _filename);
@@ -2087,7 +2087,7 @@ Slice::Gen::TypeScriptImportVisitor::visitUnitStart(const UnitPtr& p)
             if (jsImportedModule.empty())
             {
                 string f = removeExtension(included) + ".js";
-                if (IceUtilInternal::isAbsolutePath(f))
+                if (IceInternal::isAbsolutePath(f))
                 {
                     // If the include file is an absolute path, we need to generate a relative path.
                     f = relativePath(f, _filename);
@@ -2393,7 +2393,7 @@ Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable
 }
 
 Slice::Gen::TypeScriptVisitor::TypeScriptVisitor(
-    IceUtilInternal::Output& out,
+    IceInternal::Output& out,
     std::map<std::string, std::string> importedTypes)
     : JsVisitor(out),
       _importedTypes(std::move(importedTypes))

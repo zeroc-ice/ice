@@ -1,4 +1,4 @@
-#include "../../cpp/src/IceUtil/ResourceConfig.h"
+#include "../../cpp/src/Ice/ResourceConfig.h"
 
 #ifdef _DEBUG
 #   define ICE_INTERNALNAME "ice\0"

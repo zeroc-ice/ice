@@ -5,7 +5,7 @@
 #ifndef ICE_GRID_DESCRIPTOR_HELPER_H
 #define ICE_GRID_DESCRIPTOR_HELPER_H
 
-#include "../IceUtil/OutputUtil.h"
+#include "../Ice/OutputUtil.h"
 #include "../IceXML/Parser.h"
 #include "IceGrid/Admin.h"
 #include "Internal.h"
@@ -88,11 +88,11 @@ namespace IceGrid
         virtual void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
         virtual void getReplicaGroups(std::set<std::string>&) const;
 
-        void print(const Ice::CommunicatorPtr&, IceUtilInternal::Output&) const;
+        void print(const Ice::CommunicatorPtr&, IceInternal::Output&) const;
 
     protected:
-        void printObjectAdapter(const Ice::CommunicatorPtr&, IceUtilInternal::Output&, const AdapterDescriptor&) const;
-        void printPropertySet(IceUtilInternal::Output&, const PropertySetDescriptor&) const;
+        void printObjectAdapter(const Ice::CommunicatorPtr&, IceInternal::Output&, const AdapterDescriptor&) const;
+        void printPropertySet(IceInternal::Output&, const PropertySetDescriptor&) const;
         virtual std::string getProperty(const std::string&) const;
 
         void instantiateImpl(const std::shared_ptr<CommunicatorDescriptor>&, const Resolver&) const;
@@ -114,7 +114,7 @@ namespace IceGrid
         std::shared_ptr<ServiceDescriptor>
         instantiate(const Resolver&, const PropertyDescriptorSeq&, const PropertySetDescriptorDict&) const;
 
-        void print(const Ice::CommunicatorPtr&, IceUtilInternal::Output&) const;
+        void print(const Ice::CommunicatorPtr&, IceInternal::Output&) const;
 
     protected:
         using CommunicatorHelper::instantiateImpl;
@@ -142,13 +142,13 @@ namespace IceGrid
         virtual std::shared_ptr<ServerDescriptor>
         instantiate(const Resolver&, const PropertyDescriptorSeq&, const PropertySetDescriptorDict&) const;
 
-        void print(const Ice::CommunicatorPtr&, IceUtilInternal::Output&) const;
-        void print(const Ice::CommunicatorPtr&, IceUtilInternal::Output&, const ServerInfo&) const;
+        void print(const Ice::CommunicatorPtr&, IceInternal::Output&) const;
+        void print(const Ice::CommunicatorPtr&, IceInternal::Output&, const ServerInfo&) const;
 
     protected:
         using CommunicatorHelper::instantiateImpl;
 
-        void printImpl(const Ice::CommunicatorPtr&, IceUtilInternal::Output&, const ServerInfo&) const;
+        void printImpl(const Ice::CommunicatorPtr&, IceInternal::Output&, const ServerInfo&) const;
         void
         instantiateImpl(const std::shared_ptr<ServerDescriptor>&, const Resolver&, const PropertyDescriptorSeq&) const;
 
@@ -179,7 +179,7 @@ namespace IceGrid
         void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
         void getReplicaGroups(std::set<std::string>&) const;
 
-        void print(const Ice::CommunicatorPtr&, IceUtilInternal::Output&) const;
+        void print(const Ice::CommunicatorPtr&, IceInternal::Output&) const;
 
     private:
         ServiceInstanceDescriptor _def;
@@ -200,8 +200,8 @@ namespace IceGrid
         void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const override;
         void getReplicaGroups(std::set<std::string>&) const override;
 
-        void print(const Ice::CommunicatorPtr&, IceUtilInternal::Output&) const;
-        void print(const Ice::CommunicatorPtr&, IceUtilInternal::Output&, const ServerInfo&) const;
+        void print(const Ice::CommunicatorPtr&, IceInternal::Output&) const;
+        void print(const Ice::CommunicatorPtr&, IceInternal::Output&, const ServerInfo&) const;
 
     protected:
         void instantiateImpl(
@@ -264,8 +264,8 @@ namespace IceGrid
         void getServerInfos(const std::string&, const std::string&, int, std::map<std::string, ServerInfo>&) const;
         bool hasServers() const;
         bool hasServer(const std::string&) const;
-        void print(IceUtilInternal::Output&) const;
-        void printDiff(IceUtilInternal::Output&, const NodeHelper&) const;
+        void print(IceInternal::Output&) const;
+        void printDiff(IceInternal::Output&, const NodeHelper&) const;
 
     private:
         NodeDescriptor instantiate(const Resolver&) const;
@@ -294,8 +294,8 @@ namespace IceGrid
         const ApplicationDescriptor& getDefinition() const;
         const ApplicationDescriptor& getInstance() const;
 
-        void print(IceUtilInternal::Output&, const ApplicationInfo&) const;
-        void printDiff(IceUtilInternal::Output&, const ApplicationHelper&) const;
+        void print(IceInternal::Output&, const ApplicationInfo&) const;
+        void printDiff(IceInternal::Output&, const ApplicationHelper&) const;
         std::map<std::string, ServerInfo> getServerInfos(const std::string&, int) const;
 
     private:

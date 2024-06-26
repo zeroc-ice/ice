@@ -1,4 +1,4 @@
-#include "../IceUtil/ResourceConfig.h"
+#include "../Ice/ResourceConfig.h"
 
 #define ICE_INTERNALNAME "slice2matlab\0"
 #define ICE_ORIGINALFILENAME "slice2matlab.exe\0"

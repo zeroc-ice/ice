@@ -15,7 +15,7 @@
 
 using namespace std;
 using namespace Slice;
-using namespace IceUtilInternal;
+using namespace IceInternal;
 
 namespace
 {
@@ -725,7 +725,7 @@ Slice::writeAllocateCode(
 
 void
 Slice::writeMarshalUnmarshalAllInHolder(
-    IceUtilInternal::Output& out,
+    IceInternal::Output& out,
     const string& holder,
     const DataMemberList& dataMembers,
     bool optional,
@@ -859,7 +859,7 @@ Slice::writeStreamHelpers(Output& out, const ContainedPtr& c, DataMemberList dat
 }
 
 void
-Slice::writeIceTuple(::IceUtilInternal::Output& out, DataMemberList dataMembers, TypeContext typeCtx)
+Slice::writeIceTuple(::IceInternal::Output& out, DataMemberList dataMembers, TypeContext typeCtx)
 {
     //
     // Use an empty scope to get full qualified names from calls to typeToString.

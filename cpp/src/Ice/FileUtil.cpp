@@ -22,7 +22,7 @@
 
 using namespace std;
 
-namespace IceUtilInternal
+namespace IceInternal
 {
 #ifdef _WIN32
     const string pathsep = ";";
@@ -37,7 +37,7 @@ namespace IceUtilInternal
 // Determine if path is an absolute path
 //
 bool
-IceUtilInternal::isAbsolutePath(const string& path)
+IceInternal::isAbsolutePath(const string& path)
 {
     size_t i = 0;
     size_t size = path.size();
@@ -78,10 +78,10 @@ IceUtilInternal::isAbsolutePath(const string& path)
 // Determine if a directory exists.
 //
 bool
-IceUtilInternal::directoryExists(const string& path)
+IceInternal::directoryExists(const string& path)
 {
-    IceUtilInternal::structstat st;
-    if (IceUtilInternal::stat(path, &st) != 0 || !S_ISDIR(st.st_mode))
+    IceInternal::structstat st;
+    if (IceInternal::stat(path, &st) != 0 || !S_ISDIR(st.st_mode))
     {
         return false;
     }
@@ -92,7 +92,7 @@ IceUtilInternal::directoryExists(const string& path)
 // Determine if a directory exists and is empty.
 //
 bool
-IceUtilInternal::isEmptyDirectory(const string& path)
+IceInternal::isEmptyDirectory(const string& path)
 {
 #ifdef _WIN32
     return PathIsDirectoryEmptyW(stringToWstring(path, Ice::getProcessStringConverter()).c_str());
@@ -125,10 +125,10 @@ IceUtilInternal::isEmptyDirectory(const string& path)
 // Determine if a regular file exists.
 //
 bool
-IceUtilInternal::fileExists(const string& path)
+IceInternal::fileExists(const string& path)
 {
-    IceUtilInternal::structstat st;
-    if (IceUtilInternal::stat(path, &st) != 0 || !S_ISREG(st.st_mode))
+    IceInternal::structstat st;
+    if (IceInternal::stat(path, &st) != 0 || !S_ISREG(st.st_mode))
     {
         return false;
     }
@@ -136,7 +136,7 @@ IceUtilInternal::fileExists(const string& path)
 }
 
 FILE*
-IceUtilInternal::freopen(const std::string& path, const std::string& mode, FILE* stream)
+IceInternal::freopen(const std::string& path, const std::string& mode, FILE* stream)
 {
 #ifdef _LARGEFILE64_SOURCE
     return freopen64(path.c_str(), mode.c_str(), stream);
@@ -160,7 +160,7 @@ IceUtilInternal::freopen(const std::string& path, const std::string& mode, FILE*
 // Stat
 //
 int
-IceUtilInternal::stat(const string& path, structstat* buffer)
+IceInternal::stat(const string& path, structstat* buffer)
 {
     //
     // Don't need to use a wide string converter, the wide string is directly passed
@@ -170,13 +170,13 @@ IceUtilInternal::stat(const string& path, structstat* buffer)
 }
 
 int
-IceUtilInternal::remove(const string& path)
+IceInternal::remove(const string& path)
 {
     return ::_wremove(stringToWstring(path, Ice::getProcessStringConverter()).c_str());
 }
 
 int
-IceUtilInternal::rename(const string& from, const string& to)
+IceInternal::rename(const string& from, const string& to)
 {
     //
     // Don't need to use a wide string converter, the wide strings are directly passed
@@ -187,7 +187,7 @@ IceUtilInternal::rename(const string& from, const string& to)
 }
 
 int
-IceUtilInternal::rmdir(const string& path)
+IceInternal::rmdir(const string& path)
 {
     //
     // Don't need to use a wide string converter, the wide string is directly passed
@@ -197,7 +197,7 @@ IceUtilInternal::rmdir(const string& path)
 }
 
 int
-IceUtilInternal::mkdir(const string& path, int)
+IceInternal::mkdir(const string& path, int)
 {
     //
     // Don't need to use a wide string converter, the wide string is directly passed
@@ -207,7 +207,7 @@ IceUtilInternal::mkdir(const string& path, int)
 }
 
 FILE*
-IceUtilInternal::fopen(const string& path, const string& mode)
+IceInternal::fopen(const string& path, const string& mode)
 {
     //
     // Don't need to use a wide string converter, the wide strings are directly passed
@@ -218,7 +218,7 @@ IceUtilInternal::fopen(const string& path, const string& mode)
 }
 
 int
-IceUtilInternal::open(const string& path, int flags)
+IceInternal::open(const string& path, int flags)
 {
     //
     // Don't need to use a wide string converter, the wide string is directly passed
@@ -235,7 +235,7 @@ IceUtilInternal::open(const string& path, int flags)
 }
 
 int
-IceUtilInternal::getcwd(string& cwd)
+IceInternal::getcwd(string& cwd)
 {
     //
     // Don't need to use a wide string converter, the wide string come
@@ -251,7 +251,7 @@ IceUtilInternal::getcwd(string& cwd)
 }
 
 int
-IceUtilInternal::unlink(const string& path)
+IceInternal::unlink(const string& path)
 {
     //
     // Don't need to use a wide string converter, the wide string is directly passed
@@ -261,7 +261,7 @@ IceUtilInternal::unlink(const string& path)
 }
 
 int
-IceUtilInternal::close(int fd)
+IceInternal::close(int fd)
 {
 #    ifdef _WIN32
     return _close(fd);
@@ -270,7 +270,7 @@ IceUtilInternal::close(int fd)
 #    endif
 }
 
-IceUtilInternal::FileLock::FileLock(const std::string& path) : _fd(INVALID_HANDLE_VALUE), _path(path)
+IceInternal::FileLock::FileLock(const std::string& path) : _fd(INVALID_HANDLE_VALUE), _path(path)
 {
     //
     // Don't need to use a wide string converter, the wide string is directly passed
@@ -314,7 +314,7 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) : _fd(INVALID_HANDL
     //
 }
 
-IceUtilInternal::FileLock::~FileLock()
+IceInternal::FileLock::~FileLock()
 {
     assert(_fd != INVALID_HANDLE_VALUE);
     CloseHandle(_fd);
@@ -322,7 +322,7 @@ IceUtilInternal::FileLock::~FileLock()
 }
 
 wstring
-IceUtilInternal::streamFilename(const string& filename)
+IceInternal::streamFilename(const string& filename)
 {
     return stringToWstring(filename, Ice::getProcessStringConverter());
 }
@@ -333,43 +333,43 @@ IceUtilInternal::streamFilename(const string& filename)
 // Stat
 //
 int
-IceUtilInternal::stat(const string& path, structstat* buffer)
+IceInternal::stat(const string& path, structstat* buffer)
 {
     return ::stat(path.c_str(), buffer);
 }
 
 int
-IceUtilInternal::remove(const string& path)
+IceInternal::remove(const string& path)
 {
     return ::remove(path.c_str());
 }
 
 int
-IceUtilInternal::rename(const string& from, const string& to)
+IceInternal::rename(const string& from, const string& to)
 {
     return ::rename(from.c_str(), to.c_str());
 }
 
 int
-IceUtilInternal::rmdir(const string& path)
+IceInternal::rmdir(const string& path)
 {
     return ::rmdir(path.c_str());
 }
 
 int
-IceUtilInternal::mkdir(const string& path, int perm)
+IceInternal::mkdir(const string& path, int perm)
 {
     return ::mkdir(path.c_str(), static_cast<mode_t>(perm));
 }
 
 FILE*
-IceUtilInternal::fopen(const string& path, const string& mode)
+IceInternal::fopen(const string& path, const string& mode)
 {
     return ::fopen(path.c_str(), mode.c_str());
 }
 
 int
-IceUtilInternal::open(const string& path, int flags)
+IceInternal::open(const string& path, int flags)
 {
     if (flags & O_CREAT)
     {
@@ -383,7 +383,7 @@ IceUtilInternal::open(const string& path, int flags)
 }
 
 int
-IceUtilInternal::getcwd(string& cwd)
+IceInternal::getcwd(string& cwd)
 {
     char cwdbuf[PATH_MAX];
     if (::getcwd(cwdbuf, PATH_MAX) == nullptr)
@@ -395,18 +395,18 @@ IceUtilInternal::getcwd(string& cwd)
 }
 
 int
-IceUtilInternal::unlink(const string& path)
+IceInternal::unlink(const string& path)
 {
     return ::unlink(path.c_str());
 }
 
 int
-IceUtilInternal::close(int fd)
+IceInternal::close(int fd)
 {
     return ::close(fd);
 }
 
-IceUtilInternal::FileLock::FileLock(const std::string& path) : _fd(-1), _path(path)
+IceInternal::FileLock::FileLock(const std::string& path) : _fd(-1), _path(path)
 {
     _fd = ::open(path.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
     if (_fd < 0)
@@ -452,7 +452,7 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) : _fd(-1), _path(pa
     }
 }
 
-IceUtilInternal::FileLock::~FileLock()
+IceInternal::FileLock::~FileLock()
 {
     assert(_fd > -1);
     ::close(_fd);

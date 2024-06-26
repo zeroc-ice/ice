@@ -17,7 +17,6 @@
 
 using namespace std;
 using namespace Ice;
-using namespace Ice;
 using namespace Ice::SSL;
 
 Ice::SSL::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)

@@ -127,7 +127,7 @@ namespace IceStorm
         void destroy() override;
 
     private:
-        IceUtilInternal::FileLock _dbLock;
+        IceInternal::FileLock _dbLock;
         IceDB::Env _dbEnv;
         LLUMap _lluMap;
         SubscriberMap _subscriberMap;

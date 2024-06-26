@@ -3,8 +3,8 @@
 //
 
 #include "SSLUtil.h"
-#include "../../IceUtil/FileUtil.h"
 #include "../Base64.h"
+#include "../FileUtil.h"
 #include "../Network.h"
 #include "../UniqueRef.h"
 #include "DistinguishedName.h"
@@ -77,7 +77,7 @@ Ice::SSL::parseBytes(const string& arg, vector<unsigned char>& buffer)
 void
 Ice::SSL::readFile(const string& file, vector<char>& buffer)
 {
-    ifstream is(IceUtilInternal::streamFilename(file).c_str(), ios::in | ios::binary);
+    ifstream is(IceInternal::streamFilename(file).c_str(), ios::in | ios::binary);
     if (!is.good())
     {
         throw CertificateReadException(__FILE__, __LINE__, "error opening file " + file);
@@ -112,7 +112,7 @@ Ice::SSL::checkPath(const string& path, const string& defaultDir, bool dir, stri
         if (CFURLGetFileSystemRepresentation(url.get(), true, filePath, sizeof(filePath)))
         {
             string tmp = string(reinterpret_cast<char*>(filePath));
-            if ((dir && IceUtilInternal::directoryExists(tmp)) || (!dir && IceUtilInternal::fileExists(tmp)))
+            if ((dir && IceInternal::directoryExists(tmp)) || (!dir && IceInternal::fileExists(tmp)))
             {
                 resolved = tmp;
                 return true;
@@ -120,9 +120,9 @@ Ice::SSL::checkPath(const string& path, const string& defaultDir, bool dir, stri
         }
     }
 #endif
-    if (IceUtilInternal::isAbsolutePath(path))
+    if (IceInternal::isAbsolutePath(path))
     {
-        if ((dir && IceUtilInternal::directoryExists(path)) || (!dir && IceUtilInternal::fileExists(path)))
+        if ((dir && IceInternal::directoryExists(path)) || (!dir && IceInternal::fileExists(path)))
         {
             resolved = path;
             return true;
@@ -136,14 +136,14 @@ Ice::SSL::checkPath(const string& path, const string& defaultDir, bool dir, stri
     string tmp;
     if (!defaultDir.empty())
     {
-        tmp = defaultDir + IceUtilInternal::separator + path;
+        tmp = defaultDir + IceInternal::separator + path;
     }
     else
     {
         tmp = path;
     }
 
-    if ((dir && IceUtilInternal::directoryExists(tmp)) || (!dir && IceUtilInternal::fileExists(tmp)))
+    if ((dir && IceInternal::directoryExists(tmp)) || (!dir && IceInternal::fileExists(tmp)))
     {
         resolved = tmp;
         return true;

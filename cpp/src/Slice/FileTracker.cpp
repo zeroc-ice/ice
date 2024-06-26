@@ -3,12 +3,12 @@
 //
 
 #include "FileTracker.h"
-#include "../IceUtil/ConsoleUtil.h"
-#include "../IceUtil/FileUtil.h"
+#include "../Ice/ConsoleUtil.h"
+#include "../Ice/FileUtil.h"
 
 #include <cassert>
 
-using namespace IceUtilInternal;
+using namespace IceInternal;
 using namespace std;
 
 Slice::FileException::FileException(const char* file, int line, const string& r)
@@ -93,11 +93,11 @@ Slice::FileTracker::cleanup()
     {
         if (!p->second)
         {
-            IceUtilInternal::unlink(p->first);
+            IceInternal::unlink(p->first);
         }
         else
         {
-            IceUtilInternal::rmdir(p->first);
+            IceInternal::rmdir(p->first);
         }
     }
 }

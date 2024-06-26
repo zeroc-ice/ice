@@ -11,9 +11,8 @@
 #include <stdexcept>
 
 using namespace std;
-using namespace IceInternal;
 using namespace Ice;
-using namespace IceUtilInternal;
+using namespace IceInternal;
 using namespace IceGrid;
 
 namespace

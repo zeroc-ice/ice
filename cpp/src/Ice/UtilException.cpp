@@ -22,9 +22,9 @@
 #    define __STDC_LIMIT_MACROS
 #endif
 
-#include "../IceUtil/Exception.h"
 #include "Ice/Exception.h"
 #include "Ice/StringUtil.h"
+#include "StackTrace.h"
 
 #ifdef _WIN32
 #    include <windows.h>
@@ -73,7 +73,7 @@
 
 using namespace std;
 
-namespace IceUtilInternal
+namespace IceInternal
 {
 #ifdef NDEBUG
     bool ICE_API printStackTraces = false;
@@ -310,7 +310,7 @@ namespace
     {
         vector<void*> stackFrames;
 
-        if (!IceUtilInternal::printStackTraces)
+        if (!IceInternal::printStackTraces)
         {
             return stackFrames;
         }

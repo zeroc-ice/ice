@@ -3,9 +3,9 @@
 //
 
 #include "ServerI.h"
+#include "../Ice/DisableWarnings.h"
+#include "../Ice/FileUtil.h"
 #include "../Ice/TimeUtil.h"
-#include "../IceUtil/DisableWarnings.h"
-#include "../IceUtil/FileUtil.h"
 #include "Activator.h"
 #include "DescriptorHelper.h"
 #include "Ice/Ice.h"
@@ -77,8 +77,8 @@ namespace IceGrid
             {
                 name = path + "/" + name;
 
-                IceUtilInternal::structstat buf;
-                if (IceUtilInternal::stat(name, &buf) == -1)
+                IceInternal::structstat buf;
+                if (IceInternal::stat(name, &buf) == -1)
                 {
                     throw runtime_error("cannot stat `" + name + "':\n" + IceInternal::lastErrorToString());
                 }
@@ -2065,7 +2065,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
     for (const auto& log : _desc->logs)
     {
         string path = simplify(log);
-        if (IceUtilInternal::isAbsolutePath(path))
+        if (IceInternal::isAbsolutePath(path))
         {
             _logs.push_back(path);
         }
@@ -2119,7 +2119,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
 
             const string configFilePath = _serverDir + "/config/" + prop.first;
             ofstream configfile(
-                IceUtilInternal::streamFilename(configFilePath).c_str()); // configFilePath is a UTF-8 string
+                IceInternal::streamFilename(configFilePath).c_str()); // configFilePath is a UTF-8 string
             if (!configfile.good())
             {
                 throw runtime_error("couldn't create configuration file: " + configFilePath);
@@ -2234,7 +2234,7 @@ ServerI::checkRevision(const string& replicaName, const string& uuid, int revisi
     else
     {
         string idFilePath = _serverDir + "/revision";
-        ifstream is(IceUtilInternal::streamFilename(idFilePath).c_str()); // idFilePath is a UTF-8 string
+        ifstream is(IceInternal::streamFilename(idFilePath).c_str()); // idFilePath is a UTF-8 string
         if (!is.good())
         {
             return;
@@ -2437,7 +2437,7 @@ ServerI::updateRevision(const string& uuid, int revision)
     }
 
     string idFilePath = _serverDir + "/revision";
-    ofstream os(IceUtilInternal::streamFilename(idFilePath).c_str()); // idFilePath is a UTF-8 string
+    ofstream os(IceInternal::streamFilename(idFilePath).c_str()); // idFilePath is a UTF-8 string
     if (os.good())
     {
         os << "#" << endl;
@@ -2902,7 +2902,7 @@ ServerI::getFilePath(const string& filename) const
     else if (!filename.empty() && filename[0] == '#')
     {
         string path = simplify(filename.substr(1));
-        if (!IceUtilInternal::isAbsolutePath(path))
+        if (!IceInternal::isAbsolutePath(path))
         {
             path = _node->getPlatformInfo().getCwd() + "/" + path;
         }

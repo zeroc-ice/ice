@@ -2,14 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../IceUtil/ConsoleUtil.h"
+#include "../Ice/ConsoleUtil.h"
 #include "../Slice/Util.h"
 #include "RubyUtil.h"
 
 using namespace std;
 using namespace Slice;
 using namespace Slice::Ruby;
-using namespace IceUtilInternal;
+using namespace IceInternal;
 
 #ifdef _WIN32
 int

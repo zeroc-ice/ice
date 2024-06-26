@@ -12,7 +12,7 @@ namespace Slice
     class CsVisitor : public CsGenerator, public ParserVisitor
     {
     public:
-        CsVisitor(::IceUtilInternal::Output&);
+        CsVisitor(::IceInternal::Output&);
         virtual ~CsVisitor();
 
     protected:
@@ -89,7 +89,7 @@ namespace Slice
         void moduleStart(const ModulePtr&);
         void moduleEnd(const ModulePtr&);
 
-        ::IceUtilInternal::Output& _out;
+        ::IceInternal::Output& _out;
     };
 
     class Gen final
@@ -102,7 +102,7 @@ namespace Slice
         void generate(const UnitPtr&);
 
     private:
-        IceUtilInternal::Output _out;
+        IceInternal::Output _out;
         std::vector<std::string> _includePaths;
 
         void printHeader();
@@ -110,7 +110,7 @@ namespace Slice
         class UnitVisitor final : public CsVisitor
         {
         public:
-            UnitVisitor(::IceUtilInternal::Output&);
+            UnitVisitor(::IceInternal::Output&);
 
             bool visitUnitStart(const UnitPtr&) final;
         };
@@ -118,7 +118,7 @@ namespace Slice
         class TypesVisitor final : public CsVisitor
         {
         public:
-            TypesVisitor(::IceUtilInternal::Output&);
+            TypesVisitor(::IceInternal::Output&);
 
             bool visitModuleStart(const ModulePtr&) final;
             void visitModuleEnd(const ModulePtr&) final;
@@ -140,7 +140,7 @@ namespace Slice
         class ResultVisitor final : public CsVisitor
         {
         public:
-            ResultVisitor(::IceUtilInternal::Output&);
+            ResultVisitor(::IceInternal::Output&);
 
             bool visitModuleStart(const ModulePtr&) final;
             void visitModuleEnd(const ModulePtr&) final;
@@ -150,7 +150,7 @@ namespace Slice
         class ProxyVisitor final : public CsVisitor
         {
         public:
-            ProxyVisitor(::IceUtilInternal::Output&);
+            ProxyVisitor(::IceInternal::Output&);
 
             bool visitModuleStart(const ModulePtr&) final;
             void visitModuleEnd(const ModulePtr&) final;
@@ -163,7 +163,7 @@ namespace Slice
         class DispatchAdapterVisitor final : public CsVisitor
         {
         public:
-            DispatchAdapterVisitor(::IceUtilInternal::Output&);
+            DispatchAdapterVisitor(::IceInternal::Output&);
 
             bool visitModuleStart(const ModulePtr&) final;
             void visitModuleEnd(const ModulePtr&) final;
@@ -175,7 +175,7 @@ namespace Slice
         class HelperVisitor final : public CsVisitor
         {
         public:
-            HelperVisitor(::IceUtilInternal::Output&);
+            HelperVisitor(::IceInternal::Output&);
 
             bool visitModuleStart(const ModulePtr&) final;
             void visitModuleEnd(const ModulePtr&) final;
@@ -188,7 +188,7 @@ namespace Slice
         class DispatcherVisitor final : public CsVisitor
         {
         public:
-            DispatcherVisitor(::IceUtilInternal::Output&);
+            DispatcherVisitor(::IceInternal::Output&);
 
             bool visitModuleStart(const ModulePtr&) final;
             void visitModuleEnd(const ModulePtr&) final;

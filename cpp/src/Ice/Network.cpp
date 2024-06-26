@@ -12,8 +12,7 @@
 #    include <netinet/in.h>
 #endif
 
-#include "../IceUtil/DisableWarnings.h"
-#include "../IceUtil/Random.h"
+#include "DisableWarnings.h"
 #include "Ice/Buffer.h"
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h" // For setTcpBufSize
@@ -23,6 +22,7 @@
 #include "Network.h"
 #include "NetworkProxy.h"
 #include "ProtocolInstance.h" // For setTcpBufSize
+#include "Random.h"
 
 #include <cassert>
 #include <functional>
@@ -70,7 +70,7 @@ namespace
     {
         if (selType == Ice::EndpointSelectionType::Random)
         {
-            IceUtilInternal::shuffle(addrs.begin(), addrs.end());
+            IceInternal::shuffle(addrs.begin(), addrs.end());
         }
 
         if (protocol == EnableBoth)

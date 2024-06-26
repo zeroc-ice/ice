@@ -3,7 +3,7 @@
 //
 
 #include "ObjectCache.h"
-#include "../IceUtil/Random.h"
+#include "../Ice/Random.h"
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"

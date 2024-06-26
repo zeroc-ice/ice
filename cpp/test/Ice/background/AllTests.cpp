@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../../src/IceUtil/Random.h"
+#include "../../src/Ice/Random.h"
 #include "Configuration.h"
 #include "Ice/Ice.h"
 #include "PluginI.h"
@@ -1112,7 +1112,7 @@ readWriteTests(
     seq.resize(10024); // Make sure the request doesn't compress too well.
     for (Ice::ByteSeq::iterator p = seq.begin(); p != seq.end(); ++p)
     {
-        *p = static_cast<byte>(IceUtilInternal::random(255));
+        *p = static_cast<byte>(IceInternal::random(255));
     }
 
     // Fill up the receive and send buffers

@@ -3,7 +3,6 @@
 //
 
 #include "Reference.h"
-#include "../IceUtil/Random.h"
 #include "CollocatedRequestHandler.h"
 #include "ConnectRequestHandler.h"
 #include "ConnectionFactory.h"
@@ -23,6 +22,7 @@
 #include "LocatorInfo.h"
 #include "ObjectAdapterFactory.h"
 #include "OpaqueEndpointI.h"
+#include "Random.h"
 #include "ReferenceFactory.h"
 #include "RouterInfo.h"
 #include "TraceLevels.h"
@@ -1683,7 +1683,7 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
     {
         case EndpointSelectionType::Random:
         {
-            IceUtilInternal::shuffle(endpoints.begin(), endpoints.end());
+            IceInternal::shuffle(endpoints.begin(), endpoints.end());
             break;
         }
         case EndpointSelectionType::Ordered:

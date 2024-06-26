@@ -3,8 +3,8 @@
 //
 
 #include "Parser.h"
-#include "../IceUtil/ConsoleUtil.h"
-#include "../IceUtil/DisableWarnings.h"
+#include "../Ice/ConsoleUtil.h"
+#include "../Ice/DisableWarnings.h"
 #include "Ice/Ice.h"
 #include "IceStormInternal.h"
 #include <algorithm>
@@ -24,7 +24,6 @@ int yyparse();
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
-using namespace IceUtilInternal;
 using namespace IceStorm;
 
 namespace IceStorm
