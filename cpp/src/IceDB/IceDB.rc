@@ -1,4 +1,4 @@
-#include "../../src/IceUtil/ResourceConfig.h"
+#include "../IceUtil/ResourceConfig.h"
 
 #define ICE_INTERNALNAME ICE_LIBNAME("icedb") "\0"
 #define ICE_ORIGINALFILENAME ICE_LIBNAME("icedb") ".dll\0"

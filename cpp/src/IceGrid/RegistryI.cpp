@@ -3,11 +3,11 @@
 //
 
 #include "RegistryI.h"
-#include "../../src/IceUtil/FileUtil.h"
 #include "../Ice/Network.h"
 #include "../Ice/ProtocolPluginFacade.h" // Just to get the hostname
 #include "../Ice/SSL/SSLUtil.h"
 #include "../IceStorm/Service.h"
+#include "../IceUtil/FileUtil.h"
 #include "AdminCallbackRouter.h"
 #include "AdminI.h"
 #include "AdminSessionI.h"

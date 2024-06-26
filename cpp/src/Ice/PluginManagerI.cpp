@@ -3,7 +3,7 @@
 //
 
 #include "PluginManagerI.h"
-#include "../../src/IceUtil/Options.h"
+#include "../IceUtil/Options.h"
 #include "DynamicLibrary.h"
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"

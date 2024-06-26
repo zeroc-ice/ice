@@ -3,7 +3,7 @@
 //
 
 #include "SecureTransportEngine.h"
-#include "../../../src/IceUtil/FileUtil.h"
+#include "../../IceUtil/FileUtil.h"
 #include "../Instance.h"
 #include "../TraceLevels.h"
 #include "Ice/Config.h"
@@ -20,7 +20,7 @@
 #include "SecureTransportUtil.h"
 
 // Disable deprecation warnings from SecureTransport APIs
-#include "../../../src/IceUtil/DisableWarnings.h"
+#include "../../IceUtil/DisableWarnings.h"
 
 using namespace std;
 using namespace Ice;

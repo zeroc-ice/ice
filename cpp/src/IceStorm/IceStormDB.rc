@@ -1,4 +1,4 @@
-#include "../../src/IceUtil/ResourceConfig.h"
+#include "../IceUtil/ResourceConfig.h"
 
 #define ICE_INTERNALNAME "icestormdb\0"
 #define ICE_ORIGINALFILENAME "icestormdb.exe\0"

@@ -5,7 +5,7 @@
 #include "Glacier2/PermissionsVerifier.h"
 #include "Ice/Ice.h"
 
-#include "../../src/IceUtil/FileUtil.h"
+#include "../IceUtil/FileUtil.h"
 #include "Ice/StringUtil.h"
 
 #include <fstream>
@@ -25,7 +25,7 @@
 #endif
 
 // Disable deprecation warnings from CommonCrypto APIs
-#include "../../src/IceUtil/DisableWarnings.h"
+#include "../IceUtil/DisableWarnings.h"
 
 using namespace std;
 using namespace Ice;

@@ -3,7 +3,7 @@
 //
 
 #include "ServerCache.h"
-#include "../../src/IceUtil/DisableWarnings.h"
+#include "../IceUtil/DisableWarnings.h"
 #include "AdapterCache.h"
 #include "AllocatableObjectCache.h"
 #include "DescriptorHelper.h"

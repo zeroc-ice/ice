@@ -3,7 +3,7 @@
 //
 
 #include "SecureTransportUtil.h"
-#include "../../../src/IceUtil/FileUtil.h"
+#include "../../IceUtil/FileUtil.h"
 #include "../Base64.h"
 #include "../UniqueRef.h"
 #include "DistinguishedName.h"

@@ -3,9 +3,9 @@
 //
 
 #include "ServerI.h"
-#include "../../src/IceUtil/DisableWarnings.h"
-#include "../../src/IceUtil/FileUtil.h"
 #include "../Ice/TimeUtil.h"
+#include "../IceUtil/DisableWarnings.h"
+#include "../IceUtil/FileUtil.h"
 #include "Activator.h"
 #include "DescriptorHelper.h"
 #include "Ice/Ice.h"

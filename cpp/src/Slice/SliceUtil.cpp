@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../../src/IceUtil/ConsoleUtil.h"
-#include "../../src/IceUtil/FileUtil.h"
+#include "../IceUtil/ConsoleUtil.h"
+#include "../IceUtil/FileUtil.h"
 #include "FileTracker.h"
 #include "Ice/StringConverter.h"
 #include "Ice/StringUtil.h"

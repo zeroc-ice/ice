@@ -22,7 +22,7 @@
 #    define __STDC_LIMIT_MACROS
 #endif
 
-#include "../../src/IceUtil/Exception.h"
+#include "../IceUtil/Exception.h"
 #include "Ice/Exception.h"
 #include "Ice/StringUtil.h"
 

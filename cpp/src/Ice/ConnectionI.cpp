@@ -3,7 +3,7 @@
 //
 
 #include "ConnectionI.h"
-#include "../../src/IceUtil/DisableWarnings.h"
+#include "../IceUtil/DisableWarnings.h"
 #include "BatchRequestQueue.h"
 #include "CheckIdentity.h"
 #include "DefaultsAndOverrides.h"

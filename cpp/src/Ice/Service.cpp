@@ -3,7 +3,7 @@
 //
 
 #include "Ice/Service.h"
-#include "../../src/IceUtil/ConsoleUtil.h"
+#include "../IceUtil/ConsoleUtil.h"
 #include "ArgVector.h"
 #include "Ice/StringUtil.h"
 #include "LoggerI.h"

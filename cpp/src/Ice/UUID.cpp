@@ -7,7 +7,7 @@
 // We use a high quality random number generator
 // (std::random_device) to generate "version 4" UUIDs, as described in
 // http://www.ietf.org/internet-drafts/draft-mealling-uuid-urn-00.txt
-#include "../../src/IceUtil/Random.h"
+#include "../IceUtil/Random.h"
 
 using namespace std;
 

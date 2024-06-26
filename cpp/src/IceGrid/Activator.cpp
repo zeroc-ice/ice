@@ -3,8 +3,8 @@
 //
 
 #include "Activator.h"
-#include "../../src/IceUtil/FileUtil.h"
 #include "../Ice/ArgVector.h"
+#include "../IceUtil/FileUtil.h"
 #include "Ice/Ice.h"
 #include "IceGrid/Admin.h"
 #include "Internal.h"

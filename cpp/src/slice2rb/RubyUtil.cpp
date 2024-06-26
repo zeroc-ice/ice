@@ -3,7 +3,7 @@
 //
 
 #include "RubyUtil.h"
-#include "../../src/IceUtil/FileUtil.h"
+#include "../IceUtil/FileUtil.h"
 #include "../Slice/Util.h"
 
 #include <algorithm>

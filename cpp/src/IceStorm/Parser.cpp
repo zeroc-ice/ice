@@ -3,8 +3,8 @@
 //
 
 #include "Parser.h"
-#include "../../src/IceUtil/DisableWarnings.h"
 #include "../IceUtil/ConsoleUtil.h"
+#include "../IceUtil/DisableWarnings.h"
 #include "Ice/Ice.h"
 #include "IceStormInternal.h"
 #include <algorithm>

@@ -2,12 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../../src/IceUtil/ConsoleUtil.h"
-#include "../../src/IceUtil/DisableWarnings.h"
-#include "../../src/IceUtil/FileUtil.h"
-#include "../../src/IceUtil/Options.h"
 #include "../IceDB/IceDB.h"
 #include "../IceUtil/ConsoleUtil.h"
+#include "../IceUtil/DisableWarnings.h"
+#include "../IceUtil/FileUtil.h"
+#include "../IceUtil/Options.h"
 #include "DBTypes.h"
 #include "Ice/Ice.h"
 #include "Ice/StringUtil.h"

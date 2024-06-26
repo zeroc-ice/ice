@@ -3,8 +3,8 @@
 //
 
 #include "Gen.h"
-#include "../../src/IceUtil/FileUtil.h"
 #include "../Ice/Endian.h"
+#include "../IceUtil/FileUtil.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Util.h"
 #include "Ice/StringUtil.h"

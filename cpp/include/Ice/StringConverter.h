@@ -113,8 +113,10 @@ namespace Ice
      * depending on the size of wchar_t.
      * @return A narrow string.
      */
-    ICE_API std::string
-    wstringToString(const std::wstring& str, const StringConverterPtr& nc = 0, const WstringConverterPtr& wc = 0);
+    ICE_API std::string wstringToString(
+        const std::wstring& str,
+        const StringConverterPtr& nc = nullptr,
+        const WstringConverterPtr& wc = nullptr);
 
     /**
      * Converts the given narrow string to a wide string.
@@ -124,8 +126,10 @@ namespace Ice
      * depending on the size of wchar_t.
      * @return A wide string.
      */
-    ICE_API std::wstring
-    stringToWstring(const std::string& str, const StringConverterPtr& nc = 0, const WstringConverterPtr& wc = 0);
+    ICE_API std::wstring stringToWstring(
+        const std::string& str,
+        const StringConverterPtr& nc = nullptr,
+        const WstringConverterPtr& wc = nullptr);
 
     /**
      * Converts the given string from the native narrow string encoding to

@@ -3,8 +3,8 @@
 //
 
 #include "LoggerI.h"
-#include "../../src/IceUtil/ConsoleUtil.h"
-#include "../../src/IceUtil/FileUtil.h"
+#include "../IceUtil/ConsoleUtil.h"
+#include "../IceUtil/FileUtil.h"
 #include "Ice/LocalException.h"
 #include "Ice/StringUtil.h"
 #include "TimeUtil.h"

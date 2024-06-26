@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../../src/IceUtil/ConsoleUtil.h"
+#include "../IceUtil/ConsoleUtil.h"
 #include "../Slice/Util.h"
 #include "PythonUtil.h"
 

@@ -1,4 +1,4 @@
-#include "../../src/IceUtil/ResourceConfig.h"
+#include "../IceUtil/ResourceConfig.h"
 
 #define ICE_INTERNALNAME "glacier2router\0"
 #define ICE_ORIGINALFILENAME "glacier2router.exe\0"

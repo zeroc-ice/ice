@@ -3,7 +3,7 @@
 //
 
 #include "SSLUtil.h"
-#include "../../../src/IceUtil/FileUtil.h"
+#include "../../IceUtil/FileUtil.h"
 #include "../Base64.h"
 #include "../Network.h"
 #include "../UniqueRef.h"

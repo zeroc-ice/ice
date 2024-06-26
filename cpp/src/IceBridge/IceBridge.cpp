@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../../src/IceUtil/Options.h"
+#include "../IceUtil/Options.h"
 #include "Ice/Connection.h"
 #include "Ice/ObjectAdapter.h"
 #include "Ice/Router.h"

@@ -3,8 +3,8 @@
 //
 
 #include "Database.h"
-#include "../../src/IceUtil/Random.h"
 #include "../Ice/Protocol.h"
+#include "../IceUtil/Random.h"
 #include "DescriptorHelper.h"
 #include "Ice/Ice.h"
 #include "Ice/StringUtil.h"

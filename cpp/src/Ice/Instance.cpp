@@ -3,9 +3,9 @@
 //
 
 #include "Instance.h"
-#include "../../src/IceUtil/ConsoleUtil.h"
-#include "../../src/IceUtil/DisableWarnings.h"
-#include "../../src/IceUtil/FileUtil.h"
+#include "../IceUtil/ConsoleUtil.h"
+#include "../IceUtil/DisableWarnings.h"
+#include "../IceUtil/FileUtil.h"
 #include "CheckIdentity.h"
 #include "ConnectionFactory.h"
 #include "DefaultsAndOverrides.h"

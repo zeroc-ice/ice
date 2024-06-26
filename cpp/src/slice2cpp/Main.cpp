@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../../src/IceUtil/ConsoleUtil.h"
-#include "../../src/IceUtil/Options.h"
+#include "../IceUtil/ConsoleUtil.h"
+#include "../IceUtil/Options.h"
 #include "Ice/CtrlCHandler.h"
 
 #include "../Slice/FileTracker.h"
