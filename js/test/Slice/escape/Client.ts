@@ -25,10 +25,7 @@ export class Client extends TestHelper {
 
         out.write("testing proxies... ");
 
-        let casePrx = _await.casePrx.uncheckedCast(
-            communicator.stringToProxy("hello:" + this.getTestEndpoint()).ice_invocationTimeout(100),
-        );
-        test(casePrx !== null);
+        const casePrx = new _await.casePrx(communicator, `hello: ${this.getTestEndpoint()}`);
 
         try {
             await casePrx._catch(10);
@@ -37,10 +34,9 @@ export class Client extends TestHelper {
             test(ex instanceof Ice.LocalException);
         }
 
-        let typeofPrx = _await.typeofPrx.uncheckedCast(
-            communicator.stringToProxy("hello:" + this.getTestEndpoint()).ice_invocationTimeout(100),
+        const typeofPrx = new _await.typeofPrx(communicator, `hello: ${this.getTestEndpoint()}`).ice_invocationTimeout(
+            100,
         );
-        test(typeofPrx !== null);
 
         try {
             await typeofPrx._default();

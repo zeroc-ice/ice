@@ -40,10 +40,9 @@ async function testConnectionNotAbortedByIdleCheck(properties: Ice.Properties, h
     const communicator = Ice.initialize(initData);
     try {
         const adapter = await communicator.createObjectAdapter("");
-        const obj = adapter.add(new TestI(), Ice.stringToIdentity("test"));
-        const callback = Test.TestIntfPrx.uncheckedCast(obj);
+        const callback = new Test.TestIntfPrx(adapter.add(new TestI(), Ice.stringToIdentity("test")));
 
-        const p = Test.TestIntfBidirPrx.uncheckedCast(communicator.stringToProxy(proxyString));
+        const p = new Test.TestIntfBidirPrx(communicator, proxyString);
 
         const connection = await p.ice_getConnection();
         test(connection != null);
@@ -128,7 +127,7 @@ async function testServerWithEnableDisableIdleCheck(
     const initData = new Ice.InitializationData();
     initData.properties = properties;
     const communicator = Ice.initialize(initData);
-    const p = Test.TestIntfPrx.uncheckedCast(communicator.stringToProxy(proxyString3s));
+    const p = new Test.TestIntfPrx(communicator, proxyString3s);
     try {
         const connection = await p.ice_getConnection();
         test(connection != null);

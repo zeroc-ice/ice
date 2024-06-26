@@ -10,9 +10,7 @@ const test = TestHelper.test;
 
 export class Client extends TestHelper {
     async allTests() {
-        const controller = Test.ControllerPrx.uncheckedCast(
-            this.communicator().stringToProxy("controller:" + this.getTestEndpoint(1)),
-        );
+        const controller = new Test.ControllerPrx(this.communicator(), `controller:${this.getTestEndpoint(1)}`);
         test(controller !== null);
         try {
             await this.allTestsWithController(controller);
@@ -28,7 +26,7 @@ export class Client extends TestHelper {
         const communicator = this.communicator();
         const out = this.getWriter();
 
-        const timeout = Test.TimeoutPrx.uncheckedCast(communicator.stringToProxy(`timeout: ${this.getTestEndpoint()}`));
+        const timeout = new Test.TimeoutPrx(communicator, `timeout: ${this.getTestEndpoint()}`);
 
         out.write("testing connect timeout... ");
         {
@@ -48,7 +46,7 @@ export class Client extends TestHelper {
             properties.setProperty("Ice.Connection.ConnectTimeout", "-1");
             const [communicator2, _] = this.initialize(properties);
 
-            const to = Test.TimeoutPrx.uncheckedCast(communicator2.stringToProxy(timeout.toString()));
+            const to = new Test.TimeoutPrx(communicator2, timeout.toString());
             controller.holdAdapter(100);
             try {
                 await to.op(); // Expect success.

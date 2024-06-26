@@ -2513,10 +2513,30 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     // Define servant an proxy types
     //
+    const string prx = p->name() + "Prx";
     _out << sp;
-    _out << nl << "export abstract class " << fixId(p->name() + "Prx") << " extends " << _iceImportPrefix
+    _out << nl << "export class " << prx << " extends " << _iceImportPrefix
          << "Ice.ObjectPrx";
     _out << sb;
+
+    _out << sp;
+    _out << nl << "/**";
+    _out << nl << " * Constructs a new " << prx << " proxy.";
+    _out << nl << " * @param communicator - The communicator for the new proxy.";
+    _out << nl << " * @param proxyString - The string representation of the proxy.";
+    _out << nl << " * @returns The new " << prx << " proxy.";
+    _out << nl << " * @throws ProxyParseException - Thrown if the proxyString is not a valid proxy string.";
+    _out << nl << " */";
+    _out << nl << "constructor(communicator: " << _iceImportPrefix << "Ice.Communicator, proxyString: string);";
+
+    _out << sp;
+    _out << nl << "/**";
+    _out << nl << " * Constructs a new " << prx << " proxy from an ObjectPrx. The new proxy is a clone of the";
+    _out << nl << " * provided proxy.";
+    _out << nl << " * @param prx - The proxy to clone.";
+    _out << nl << " * @returns The new " << prx << " proxy.";
+    _out << nl << " */";
+    _out << nl << "constructor(other: " << _iceImportPrefix << "Ice.ObjectPrx);";
 
     for (const auto& op : p->allOperations())
     {
@@ -2539,6 +2559,8 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         CommentPtr comment = op->parseComment(false);
         const string contextDoc = "@param " + contextParam + " The Context map to send with the invocation.";
         const string asyncDoc = "The asynchronous result object for the invocation.";
+
+        _out << sp;
         if (comment)
         {
             StringList postParams, returns;

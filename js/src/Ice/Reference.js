@@ -42,6 +42,7 @@ import { Ice as Ice_Version } from "./Version.js";
 const { ProtocolVersion, EncodingVersion } = Ice_Version;
 import { Promise } from "./Promise.js";
 import { Debug } from "./Debug.js";
+import { ConnectRequestHandler } from "./ConnectRequestHandler.js";
 
 const suffixes = [
     "EndpointSelection",
@@ -66,7 +67,7 @@ export class ReferenceFactory {
         this._defaultLocator = null;
     }
 
-    create(ident, facet, tmpl, endpoints) {
+    create(ident, facet, template, endpoints) {
         if (ident.name.length === 0 && ident.category.length === 0) {
             return null;
         }
@@ -74,17 +75,17 @@ export class ReferenceFactory {
         return this.createImpl(
             ident,
             facet,
-            tmpl.getMode(),
-            tmpl.getSecure(),
-            tmpl.getProtocol(),
-            tmpl.getEncoding(),
+            template.getMode(),
+            template.getSecure(),
+            template.getProtocol(),
+            template.getEncoding(),
             endpoints,
             null,
             null,
         );
     }
 
-    createWithAdapterId(ident, facet, tmpl, adapterId) {
+    createWithAdapterId(ident, facet, template, adapterId) {
         if (ident.name.length === 0 && ident.category.length === 0) {
             return null;
         }
@@ -92,10 +93,10 @@ export class ReferenceFactory {
         return this.createImpl(
             ident,
             facet,
-            tmpl.getMode(),
-            tmpl.getSecure(),
-            tmpl.getProtocol(),
-            tmpl.getEncoding(),
+            template.getMode(),
+            template.getSecure(),
+            template.getProtocol(),
+            template.getEncoding(),
             null,
             adapterId,
             null,
@@ -749,7 +750,7 @@ export class ReferenceFactory {
 const _emptyContext = new Map();
 const _emptyEndpoints = [];
 
-class Reference {
+export class Reference {
     constructor(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context) {
         //
         // Validate string arguments.
@@ -773,6 +774,14 @@ class Reference {
 
     getMode() {
         return this._mode;
+    }
+
+    get isBatch() {
+        return this._mode == ReferenceMode.ModeBatchOneway || this._mode == ReferenceMode.ModeBatchDatagram;
+    }
+
+    get isTwoway() {
+        return this._mode == ReferenceMode.ModeTwoway;
     }
 
     getSecure() {
@@ -884,54 +893,36 @@ class Reference {
     }
 
     changeMode(newMode) {
-        if (newMode === this._mode) {
-            return this;
-        }
         const r = this._instance.referenceFactory().copy(this);
         r._mode = newMode;
         return r;
     }
 
     changeSecure(newSecure) {
-        if (newSecure === this._secure) {
-            return this;
-        }
         const r = this._instance.referenceFactory().copy(this);
         r._secure = newSecure;
         return r;
     }
 
     changeIdentity(newIdentity) {
-        if (newIdentity.equals(this._identity)) {
-            return this;
-        }
         const r = this._instance.referenceFactory().copy(this);
         r._identity = new Identity(newIdentity.name, newIdentity.category);
         return r;
     }
 
     changeFacet(newFacet) {
-        if (newFacet === this._facet) {
-            return this;
-        }
         const r = this._instance.referenceFactory().copy(this);
         r._facet = newFacet;
         return r;
     }
 
     changeInvocationTimeout(newInvocationTimeout) {
-        if (newInvocationTimeout === this._invocationTimeout) {
-            return this;
-        }
         const r = this._instance.referenceFactory().copy(this);
         r._invocationTimeout = newInvocationTimeout;
         return r;
     }
 
     changeEncoding(newEncoding) {
-        if (newEncoding.equals(this._encoding)) {
-            return this;
-        }
         const r = this._instance.referenceFactory().copy(this);
         r._encoding = newEncoding;
         return r;
@@ -1194,11 +1185,6 @@ class Reference {
         Debug.assert(false);
     }
 
-    getBatchRequestQueue() {
-        // Abstract
-        Debug.assert(false);
-    }
-
     equals(r) {
         //
         // Note: if(this === r) and type test are performed by each non-abstract derived class.
@@ -1315,7 +1301,7 @@ export class FixedReference extends Reference {
         throw new FixedProxyException();
     }
 
-    changeLocato(newLocator) {
+    changeLocator(newLocator) {
         throw new FixedProxyException();
     }
 
@@ -1344,9 +1330,6 @@ export class FixedReference extends Reference {
     }
 
     changeConnection(newConnection) {
-        if (newConnection == this._fixedConnection) {
-            return this;
-        }
         const r = this.getInstance().referenceFactory().copy(this);
         r._fixedConnection = newConnection;
         return r;
@@ -1390,7 +1373,7 @@ export class FixedReference extends Reference {
         return r;
     }
 
-    getRequestHandler(proxy) {
+    getRequestHandler() {
         switch (this.getMode()) {
             case ReferenceMode.ModeTwoway:
             case ReferenceMode.ModeOneway:
@@ -1429,10 +1412,11 @@ export class FixedReference extends Reference {
 
         this._fixedConnection.throwException(); // Throw in case our connection is already destroyed.
 
-        return proxy._setRequestHandler(new ConnectionRequestHandler(this, this._fixedConnection));
+        // TODO: rename ConnectionRequestHandler to FixedRequestHandler
+        return new ConnectionRequestHandler(this, this._fixedConnection);
     }
 
-    getBatchRequestQueue() {
+    get batchRequestQueue() {
         return this._fixedConnection.getBatchRequestQueue();
     }
 
@@ -1488,6 +1472,7 @@ export class RoutableReference extends Reference {
             this._adapterId = "";
         }
         this._connectionId = "";
+        this.setBatchRequestQueue();
         Debug.assert(this._adapterId.length === 0 || this._endpoints.length === 0);
     }
 
@@ -1525,6 +1510,12 @@ export class RoutableReference extends Reference {
 
     getConnectionId() {
         return this._connectionId;
+    }
+
+    changeMode(newMode) {
+        const r = super.changeMode(newMode);
+        r.setBatchRequestQueue();
+        return r;
     }
 
     changeEncoding(newEncoding) {
@@ -1581,45 +1572,30 @@ export class RoutableReference extends Reference {
     }
 
     changeCacheConnection(newCache) {
-        if (newCache === this._cacheConnection) {
-            return this;
-        }
         const r = this.getInstance().referenceFactory().copy(this);
         r._cacheConnection = newCache;
         return r;
     }
 
     changePreferSecure(newPreferSecure) {
-        if (newPreferSecure === this._preferSecure) {
-            return this;
-        }
         const r = this.getInstance().referenceFactory().copy(this);
         r._preferSecure = newPreferSecure;
         return r;
     }
 
     changeEndpointSelection(newType) {
-        if (newType === this._endpointSelection) {
-            return this;
-        }
         const r = this.getInstance().referenceFactory().copy(this);
         r._endpointSelection = newType;
         return r;
     }
 
     changeLocatorCacheTimeout(newTimeout) {
-        if (this._locatorCacheTimeout === newTimeout) {
-            return this;
-        }
         const r = this.getInstance().referenceFactory().copy(this);
         r._locatorCacheTimeout = newTimeout;
         return r;
     }
 
     changeConnectionId(id) {
-        if (this._connectionId === id) {
-            return this;
-        }
         const r = this.getInstance().referenceFactory().copy(this);
         r._connectionId = id;
         r._endpoints = this._endpoints.map((endpoint) => endpoint.changeConnectionId(id));
@@ -1787,15 +1763,24 @@ export class RoutableReference extends Reference {
         return true;
     }
 
-    getRequestHandler(proxy) {
-        return this._instance.requestHandlerFactory().getRequestHandler(this, proxy);
+    getRequestHandler() {
+        var handler = new ConnectRequestHandler(this);
+        this.getConnection(handler);
+        return handler;
     }
 
-    getBatchRequestQueue() {
-        return new BatchRequestQueue(this._instance, this._mode === ReferenceMode.ModeBatchDatagram);
+    get batchRequestQueue() {
+        return this._batchRequestQueue;
     }
 
-    getConnection() {
+    // Sets or resets _batchRequestQueue based on _mode.
+    setBatchRequestQueue() {
+        this._batchRequestQueue = this.isBatch
+            ? new BatchRequestQueue(this._instance, this._mode === ReferenceMode.ModeBatchDatagram)
+            : null;
+    }
+
+    getConnection(handler) {
         const p = new Promise(); // success callback receives (connection)
 
         if (this._routerInfo !== null) {
@@ -1805,10 +1790,10 @@ export class RoutableReference extends Reference {
             //
             this._routerInfo
                 .getClientEndpoints()
-                .then((endpts) => {
-                    if (endpts.length > 0) {
-                        this.applyOverrides(endpts);
-                        this.createConnection(endpts).then(p.resolve, p.reject);
+                .then((endpoints) => {
+                    if (endpoints.length > 0) {
+                        this.applyOverrides(endpoints);
+                        this.createConnection(endpoints).then(p.resolve, p.reject);
                     } else {
                         this.getConnectionNoRouterInfo(p);
                     }
@@ -1817,6 +1802,8 @@ export class RoutableReference extends Reference {
         } else {
             this.getConnectionNoRouterInfo(p);
         }
+
+        p.then((connection) => handler.setConnection(connection)).catch((ex) => handler.setException(ex));
         return p;
     }
 

@@ -100,17 +100,7 @@ export class Client extends TestHelper {
         }
         out.writeLine("ok");
 
-        out.write("testing stringToProxy... ");
-        const ref = "thrower:" + this.getTestEndpoint();
-        const base = communicator.stringToProxy(ref);
-        test(base !== null);
-        out.writeLine("ok");
-
-        out.write("testing checked cast... ");
-        const thrower = await Test.ThrowerPrx.checkedCast(base);
-        test(thrower !== null);
-        test(thrower.equals(base));
-        out.writeLine("ok");
+        const thrower = new Test.ThrowerPrx(communicator, `thrower:${this.getTestEndpoint()}`);
 
         out.write("catching exact types... ");
         try {
@@ -303,7 +293,7 @@ export class Client extends TestHelper {
 
         out.write("catching operation not exist exception... ");
         try {
-            const thrower2 = Test.WrongOperationPrx.uncheckedCast(thrower);
+            const thrower2 = new Test.WrongOperationPrx(thrower);
             await thrower2.noSuchOperation();
             test(false);
         } catch (ex) {

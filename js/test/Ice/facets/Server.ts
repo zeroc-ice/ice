@@ -16,7 +16,7 @@ export class Server extends TestHelper {
         try {
             [communicator] = this.initialize(args);
             const out = this.getWriter();
-            echo = await Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:" + this.getTestEndpoint()));
+            echo = new Test.EchoPrx(communicator, "__echo:" + this.getTestEndpoint());
 
             out.write("testing facet registration exceptions... ");
             let adapter = await communicator.createObjectAdapter("");

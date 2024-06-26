@@ -13,11 +13,7 @@ export class Client extends TestHelper {
         const communicator = this.communicator();
         const out = this.getWriter();
 
-        out.write("testing stringToProxy... ");
-        const ref = "d:" + this.getTestEndpoint();
-        const db = communicator.stringToProxy(ref);
-        test(db !== null);
-        out.writeLine("ok");
+        const db = new Ice.ObjectPrx(communicator, `d:${this.getTestEndpoint()}`);
 
         out.write("testing unchecked cast... ");
         let prx = Ice.ObjectPrx.uncheckedCast(db);

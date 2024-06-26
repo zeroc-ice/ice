@@ -43,8 +43,8 @@ export class OutgoingAsyncBase extends AsyncResult {
         this.markSent(true);
     }
 
-    completedEx(ex) {
-        this.markFinishedEx(ex);
+    exception(ex) {
+        return this.markFinishedEx(ex);
     }
 }
 
@@ -63,7 +63,14 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
 
     completedEx(ex) {
         try {
-            this._instance.retryQueue().add(this, this.handleException(ex));
+            const cnt = { value: this._cnt };
+            this._instance
+                .retryQueue()
+                .add(
+                    this,
+                    this._proxy._requestHandlerCache.handleException(ex, this._handler, this._mode, this._sent, cnt),
+                );
+            this._cnt = cnt.value;
         } catch (ex) {
             this.markFinishedEx(ex);
         }
@@ -71,7 +78,11 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
 
     retryException(ex) {
         try {
-            this._proxy._updateRequestHandler(this._handler, null); // Clear request handler and always retry.
+            // It's important to let the retry queue do the retry. This is
+            // called from the connect request handler and the retry might
+            // require could end up waiting for the flush of the
+            // connection to be done.
+            this._proxy._requestHandlerCache.clearCachedRequestHandler(this._handler);
             this._instance.retryQueue().add(this, 0);
         } catch (ex) {
             this.completedEx(ex);
@@ -100,17 +111,15 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
             while (true) {
                 try {
                     this._sent = false;
-                    this._handler = this._proxy._getRequestHandler();
-                    if ((this._handler.sendAsyncRequest(this) & AsyncStatus.Sent) > 0) {
-                        if (userThread) {
-                            this._sentSynchronously = true;
-                        }
+                    this._handler = this._proxy._requestHandlerCache.requestHandler;
+                    if ((this._handler.sendAsyncRequest(this) & AsyncStatus.Sent) > 0 && userThread) {
+                        this._sentSynchronously = true;
                     }
                     return; // We're done!
                 } catch (ex) {
                     if (ex instanceof RetryException) {
                         // Clear request handler and always retry
-                        this._proxy._updateRequestHandler(this._handler, null);
+                        this._proxy._requestHandlerCache.clearCachedRequestHandler(this._handler);
                     } else {
                         const interval = this.handleException(ex);
                         if (interval > 0) {
@@ -143,9 +152,16 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
     }
 
     handleException(ex) {
-        const interval = { value: 0 };
-        this._cnt = this._proxy._handleException(ex, this._handler, this._mode, this._sent, interval, this._cnt);
-        return interval.value;
+        const cnt = { value: this._cnt };
+        const interval = this._proxy._requestHandlerCache.handleException(
+            ex,
+            this._handler,
+            this._mode,
+            this._sent,
+            cnt,
+        );
+        this._cnt = cnt.value;
+        return interval;
     }
 }
 
@@ -167,7 +183,7 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
         }
 
         if (this._proxy.ice_isBatchOneway() || this._proxy.ice_isBatchDatagram()) {
-            this._proxy._getBatchRequestQueue().prepareBatchRequest(this._os);
+            this._proxy._reference.batchRequestQueue.prepareBatchRequest(this._os);
         } else {
             this._os.writeBlob(Protocol.requestHdr);
         }
@@ -224,7 +240,7 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
 
     abort(ex) {
         if (this._proxy.ice_isBatchOneway() || this._proxy.ice_isBatchDatagram()) {
-            this._proxy._getBatchRequestQueue().abortBatchRequest(this._os);
+            this._proxy._reference.batchRequestQueue.abortBatchRequest(this._os);
         }
         super.abort(ex);
     }
@@ -232,7 +248,7 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
     invoke() {
         if (this._proxy.ice_isBatchOneway() || this._proxy.ice_isBatchDatagram()) {
             this._sentSynchronously = true;
-            this._proxy._getBatchRequestQueue().finishBatchRequest(this._os, this._proxy, this._operation);
+            this._proxy._reference.batchRequestQueue.finishBatchRequest(this._os, this._proxy, this._operation);
             this.markFinished(true);
             return;
         }
@@ -405,7 +421,7 @@ OutgoingAsync._emptyContext = new Map(); // Map<string, string>
 export class ProxyFlushBatch extends ProxyOutgoingAsyncBase {
     constructor(prx, operation) {
         super(prx, operation);
-        this._batchRequestNum = prx._getBatchRequestQueue().swap(this._os);
+        this._batchRequestNum = prx._reference.batchRequestQueue.swap(this._os);
     }
 
     invokeRemote(connection, response) {
