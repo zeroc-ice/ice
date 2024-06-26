@@ -11,22 +11,9 @@ const test = TestHelper.test;
 export class Client extends TestHelper {
     async allTests(communicator: Ice.Communicator, communicator2: Ice.Communicator) {
         const out = this.getWriter();
-        out.write("testing stringToProxy... ");
-        const ref = "retry:" + this.getTestEndpoint();
-        const base1 = communicator.stringToProxy(ref);
-        test(base1 !== null);
-        const base2 = communicator.stringToProxy(ref);
-        test(base2 !== null);
-        out.writeLine("ok");
 
-        out.write("testing checked cast... ");
-        const retry1 = await Test.RetryPrx.checkedCast(base1);
-        test(retry1 !== null);
-        test(retry1.equals(base1));
-        let retry2 = await Test.RetryPrx.checkedCast(base2);
-        test(retry2 !== null);
-        test(retry2.equals(base2));
-        out.writeLine("ok");
+        const retry1 = new Test.RetryPrx(communicator, `retry:${this.getTestEndpoint()}`);
+        let retry2 = new Test.RetryPrx(communicator, `retry:${this.getTestEndpoint()}`);
 
         out.write("calling regular operation with first proxy... ");
         await retry1.op(false);
@@ -65,7 +52,7 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing invocation timeout and retries... ");
-        retry2 = Test.RetryPrx.uncheckedCast(communicator2.stringToProxy(retry1.toString()));
+        retry2 = new Test.RetryPrx(communicator2, retry1.toString());
         try {
             await retry2.ice_invocationTimeout(500).opIdempotent(4);
             test(false);

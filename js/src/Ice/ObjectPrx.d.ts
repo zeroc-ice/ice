@@ -5,6 +5,23 @@
 declare module "ice" {
     namespace Ice {
         class ObjectPrx {
+            /**
+             * Constructs a new ObjectPrx proxy.
+             * @param communicator - The communicator for the new proxy.
+             * @param proxyString - The string representation of the proxy.
+             * @returns The new proxy.
+             * @throws ProxyParseException - Thrown if the proxyString is not a valid proxy string.
+             */
+            constructor(communicator: Communicator, proxyString: string);
+
+            /**
+             * Constructs a new ObjectPrx proxy from another ObjectPrx. The new proxy is a clone of the
+             * provided proxy.
+             * @param prx - The proxy to clone.
+             * @returns The new proxy.
+             */
+            constructor(prx: ObjectPrx);
+
             static ice_staticId(): string;
 
             /**

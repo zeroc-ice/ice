@@ -115,17 +115,8 @@ export class Client extends TestHelper {
 
         const out = this.getWriter();
         const communicator = this.communicator();
-        out.write("testing stringToProxy... ");
-        const ref = "asm:" + this.getTestEndpoint();
-        let base = communicator.stringToProxy(ref);
-        test(base !== null);
-        out.writeLine("ok");
 
-        out.write("testing checked cast... ");
-        let obj = await Test.TestIntfPrx.checkedCast(base);
-        test(obj !== null);
-        test(obj.equals(base));
-        out.writeLine("ok");
+        let obj = new Test.TestIntfPrx(communicator, `asm:${this.getTestEndpoint()}`);
 
         out.write("testing ice_ids... ");
         try {
@@ -146,13 +137,12 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing servant locator... ");
-        base = communicator.stringToProxy("category/locate:" + this.getTestEndpoint());
-        obj = await Test.TestIntfPrx.checkedCast(base);
+        obj = new Test.TestIntfPrx(communicator, `category/locate:${this.getTestEndpoint()}`);
+        await obj.ice_ping();
 
         try {
-            await Test.TestIntfPrx.checkedCast(
-                communicator.stringToProxy("category/unknown:" + this.getTestEndpoint()),
-            );
+            obj = new Test.TestIntfPrx(communicator, `category/unknown:${this.getTestEndpoint()}`);
+            await obj.ice_ping();
             test(false);
         } catch (ex) {
             test(ex instanceof Ice.ObjectNotExistException, ex);
@@ -160,21 +150,21 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing default servant locator... ");
-        base = communicator.stringToProxy("anothercat/locate:" + this.getTestEndpoint());
-        obj = await Test.TestIntfPrx.checkedCast(base);
-        base = communicator.stringToProxy("locate:" + this.getTestEndpoint());
-        obj = await Test.TestIntfPrx.checkedCast(base);
+        obj = new Test.TestIntfPrx(communicator, `anothercat/locate:${this.getTestEndpoint()}`);
+        await obj.ice_ping();
+        obj = new Test.TestIntfPrx(communicator, `locate:${this.getTestEndpoint()}`);
+        await obj.ice_ping();
         try {
-            await Test.TestIntfPrx.checkedCast(
-                communicator.stringToProxy("anothercat/unknown:" + this.getTestEndpoint()),
-            );
+            obj = new Test.TestIntfPrx(communicator, `anothercat/unknown:${this.getTestEndpoint()}`);
+            await obj.ice_ping();
             test(false);
         } catch (ex) {
             test(ex instanceof Ice.ObjectNotExistException, ex);
         }
 
         try {
-            await Test.TestIntfPrx.checkedCast(communicator.stringToProxy("unknown:" + this.getTestEndpoint()));
+            obj = new Test.TestIntfPrx(communicator, `unknown:${this.getTestEndpoint()}`);
+            await obj.ice_ping();
             test(false);
         } catch (ex) {
             test(ex instanceof Ice.ObjectNotExistException, ex);
@@ -182,14 +172,12 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing locate exceptions... ");
-        base = communicator.stringToProxy("category/locate:" + this.getTestEndpoint());
-        obj = await Test.TestIntfPrx.checkedCast(base);
+        obj = new Test.TestIntfPrx(communicator, `category/locate:${this.getTestEndpoint()}`);
         await testExceptions(obj);
         out.writeLine("ok");
 
         out.write("testing finished exceptions... ");
-        base = communicator.stringToProxy("category/finished:" + this.getTestEndpoint());
-        obj = await Test.TestIntfPrx.checkedCast(base);
+        obj = new Test.TestIntfPrx(communicator, `category/finished:${this.getTestEndpoint()}`);
         await testExceptions(obj);
 
         try {
@@ -211,8 +199,7 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing servant locator removal... ");
-        base = communicator.stringToProxy("test/activation:" + this.getTestEndpoint());
-        const activation = await Test.TestActivationPrx.checkedCast(base);
+        const activation = new Test.TestActivationPrx(communicator, `test/activation:${this.getTestEndpoint()}`);
         await activation.activateServantLocator(false);
         try {
             await obj.ice_ping();

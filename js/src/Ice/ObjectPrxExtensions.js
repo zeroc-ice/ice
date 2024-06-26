@@ -8,21 +8,19 @@ import { ArrayUtil } from "./ArrayUtil.js";
 import { AsyncResultBase } from "./AsyncResultBase.js";
 import { OutgoingAsync, ProxyFlushBatch, ProxyGetConnection } from "./OutgoingAsync.js";
 import { ReferenceMode } from "./ReferenceMode.js";
-import { Ice as Ice_OperationMode } from "./OperationMode.js";
-const { OperationMode } = Ice_OperationMode;
-import { LocalException, UserException } from "./Exception.js";
+import { UserException } from "./Exception.js";
 import {
-    CloseConnectionException,
-    CommunicatorDestroyedException,
     FacetNotExistException,
     IllegalIdentityException,
-    ObjectNotExistException,
     TwowayOnlyException,
     UnknownUserException,
 } from "./LocalException.js";
 import { ConnectionI } from "./ConnectionI.js";
 import { TypeRegistry } from "./TypeRegistry.js";
 import { Debug } from "./Debug.js";
+import { Communicator } from "./Communicator.js";
+import { Reference } from "./Reference.js";
+import { RequestHandlerCache } from "./RequestHandlerCache.js";
 
 ObjectPrx.prototype.hashCode = function (r) {
     return this._reference.hashCode();
@@ -47,9 +45,7 @@ ObjectPrx.prototype.ice_identity = function (newIdentity) {
     if (newIdentity.equals(this._reference.getIdentity())) {
         return this;
     } else {
-        const proxy = new ObjectPrx();
-        proxy._setup(this._reference.changeIdentity(newIdentity));
-        return proxy;
+        return new ObjectPrx(this._reference.changeIdentity(newIdentity));
     }
 };
 
@@ -73,9 +69,7 @@ ObjectPrx.prototype.ice_facet = function (newFacet) {
     if (newFacet === this._reference.getFacet()) {
         return this;
     } else {
-        const proxy = new ObjectPrx();
-        proxy._setup(this._reference.changeFacet(newFacet));
-        return proxy;
+        return new ObjectPrx(this._reference.changeFacet(newFacet));
     }
 };
 
@@ -332,7 +326,7 @@ ObjectPrx.prototype.ice_getConnection = function () {
 };
 
 ObjectPrx.prototype.ice_getCachedConnection = function () {
-    return this._requestHandler ? this._requestHandler.getConnection() : null;
+    return this._requestHandlerCache.cachedConnection;
 };
 
 ObjectPrx.prototype.ice_flushBatchRequests = function () {
@@ -366,113 +360,36 @@ ObjectPrx.prototype._getReference = function () {
     return this._reference;
 };
 
-ObjectPrx.prototype._copyFrom = function (from) {
-    Debug.assert(this._reference === null);
-    Debug.assert(this._requestHandler === null);
-
-    this._reference = from._reference;
-    this._requestHandler = from._requestHandler;
-};
-
-ObjectPrx.prototype._handleException = function (ex, handler, mode, sent, sleep, cnt) {
-    this._updateRequestHandler(handler, null); // Clear the request handler
-
-    //
-    // We only retry local exception, system exceptions aren't retried.
-    //
-    // A CloseConnectionException indicates graceful server shutdown, and is therefore
-    // always repeatable without violating "at-most-once". That's because by sending a
-    // close connection message, the server guarantees that all outstanding requests
-    // can safely be repeated.
-    //
-    // An ObjectNotExistException can always be retried as well without violating
-    // "at-most-once" (see the implementation of the checkRetryAfterException method
-    //  of the ProxyFactory class for the reasons why it can be useful).
-    //
-    // If the request didn't get sent or if it's non-mutating or idempotent it can
-    // also always be retried if the retry count isn't reached.
-    //
-    if (
-        ex instanceof LocalException &&
-        (!sent ||
-            mode == OperationMode.Nonmutating ||
-            mode == OperationMode.Idempotent ||
-            ex instanceof CloseConnectionException ||
-            ex instanceof ObjectNotExistException)
-    ) {
-        try {
-            return this._reference
-                .getInstance()
-                .proxyFactory()
-                .checkRetryAfterException(ex, this._reference, sleep, cnt);
-        } catch (exc) {
-            if (exc instanceof CommunicatorDestroyedException) {
-                //
-                // The communicator is already destroyed, so we cannot retry.
-                //
-                throw ex;
-            } else {
-                throw exc;
-            }
-        }
-    } else {
-        throw ex;
-    }
-};
-
 ObjectPrx.prototype._checkAsyncTwowayOnly = function (name) {
     if (!this.ice_isTwoway()) {
         throw new TwowayOnlyException(name);
     }
 };
 
-ObjectPrx.prototype._getRequestHandler = function () {
-    if (this._reference.getCacheConnection()) {
-        if (this._requestHandler) {
-            return this._requestHandler;
-        }
-    }
-    return this._reference.getRequestHandler(this);
-};
-
-ObjectPrx.prototype._getBatchRequestQueue = function () {
-    if (!this._batchRequestQueue) {
-        this._batchRequestQueue = this._reference.getBatchRequestQueue();
-    }
-    return this._batchRequestQueue;
-};
-
-ObjectPrx.prototype._setRequestHandler = function (handler) {
-    if (this._reference.getCacheConnection()) {
-        if (!this._requestHandler) {
-            this._requestHandler = handler;
-        }
-        return this._requestHandler;
-    }
-    return handler;
-};
-
-ObjectPrx.prototype._updateRequestHandler = function (previous, handler) {
-    if (this._reference.getCacheConnection() && previous !== null) {
-        if (this._requestHandler && this._requestHandler !== handler) {
-            this._requestHandler = this._requestHandler.update(previous, handler);
-        }
-    }
-};
-
 //
-// Only for use by IceInternal.ProxyFactory
+// Only for use by ObjectPrx constructor
 //
-ObjectPrx.prototype._setup = function (ref) {
-    Debug.assert(this._reference === null);
-
-    this._reference = ref;
+ObjectPrx.prototype._setup = function (arg0, proxyString = "") {
+    Debug.assert(this._reference === undefined);
+    if (arg0 instanceof Communicator) {
+        this._reference = arg0.instance.referenceFactory().createFromString(proxyString, "");
+        if (this._reference === null) {
+            throw new ProxyParseException("Invalid empty proxy string.");
+        }
+        this._requestHandlerCache = new RequestHandlerCache(this._reference);
+    } else if (arg0 instanceof Reference) {
+        this._reference = arg0;
+        this._requestHandlerCache = new RequestHandlerCache(this._reference);
+    } else if (arg0 instanceof ObjectPrx) {
+        this._reference = arg0._reference;
+        this._requestHandlerCache = arg0._requestHandlerCache;
+    } else {
+        throw new Error("invalid argument passed to ObjectPrx constructor");
+    }
 };
 
 ObjectPrx.prototype._newInstance = function (ref) {
-    const proxy = new this.constructor();
-    proxy._setup(ref);
-    return proxy;
+    return new this.constructor(ref);
 };
 
 ObjectPrx.prototype.ice_instanceof = function (T) {
@@ -581,13 +498,7 @@ ObjectPrx.checkedCast = function (prx, facet, ctx) {
         r = new AsyncResultBase(prx.ice_getCommunicator(), "checkedCast", null, prx, null);
         prx.ice_isA(this.ice_staticId(), ctx)
             .then((ret) => {
-                if (ret) {
-                    const h = new this();
-                    h._copyFrom(prx);
-                    r.resolve(h);
-                } else {
-                    r.resolve(null);
-                }
+                r.resolve(ret ? new this(prx) : null);
             })
             .catch((ex) => {
                 if (ex instanceof FacetNotExistException) {
@@ -602,15 +513,7 @@ ObjectPrx.checkedCast = function (prx, facet, ctx) {
 };
 
 ObjectPrx.uncheckedCast = function (prx, facet) {
-    let r = null;
-    if (prx !== undefined && prx !== null) {
-        r = new this();
-        if (facet !== undefined) {
-            prx = prx.ice_facet(facet);
-        }
-        r._copyFrom(prx);
-    }
-    return r;
+    return prx === null ? null : new this(facet === undefined ? prx : prx.ice_facet(facet));
 };
 
 Object.defineProperty(ObjectPrx, "minWireSize", { get: () => 2 });

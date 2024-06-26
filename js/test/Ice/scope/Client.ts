@@ -16,7 +16,7 @@ export class Client extends TestHelper {
         out.write("test using same type name in different Slice modules... ");
 
         {
-            const i1 = await Test.IPrx.checkedCast(communicator.stringToProxy("i1:" + this.getTestEndpoint()));
+            const i1 = new Test.IPrx(communicator, `i1:${this.getTestEndpoint()}`);
             const s1 = new Test.S(0);
 
             const [s2, s3] = await i1.opS(s1);
@@ -58,9 +58,7 @@ export class Client extends TestHelper {
         }
 
         {
-            const i2 = await Test.Inner.Inner2.IPrx.checkedCast(
-                communicator.stringToProxy("i2:" + this.getTestEndpoint()),
-            );
+            const i2 = new Test.Inner.Inner2.IPrx(communicator, `i2:${this.getTestEndpoint()}`);
             const s1 = new Test.Inner.Inner2.S(0);
 
             const [s2, s3] = await i2.opS(s1);
@@ -93,7 +91,7 @@ export class Client extends TestHelper {
         }
 
         {
-            const i3 = await Test.Inner.IPrx.checkedCast(communicator.stringToProxy("i3:" + this.getTestEndpoint()));
+            const i3 = new Test.Inner.IPrx(communicator, `i3:${this.getTestEndpoint()}`);
             const s1 = new Test.Inner.Inner2.S(0);
 
             const [s2, s3] = await i3.opS(s1);
@@ -126,9 +124,7 @@ export class Client extends TestHelper {
         }
 
         {
-            const i4 = await Inner.Test.Inner2.IPrx.checkedCast(
-                communicator.stringToProxy("i4:" + this.getTestEndpoint()),
-            );
+            const i4 = new Inner.Test.Inner2.IPrx(communicator, `i4:${this.getTestEndpoint()}`);
             const s1 = new Test.S(0);
 
             const [s2, s3] = await i4.opS(s1);
@@ -161,7 +157,7 @@ export class Client extends TestHelper {
         }
 
         {
-            const i1 = await Test.IPrx.checkedCast(communicator.stringToProxy("i1:" + this.getTestEndpoint()));
+            const i1 = new Test.IPrx(communicator, `i1:${this.getTestEndpoint()}`);
             await i1.shutdown();
         }
 

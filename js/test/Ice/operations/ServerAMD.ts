@@ -15,7 +15,7 @@ export class ServerAMD extends TestHelper {
             const [properties] = this.createTestProperties(args);
             properties.setProperty("Ice.BatchAutoFlushSize", "100");
             [communicator] = this.initialize(properties);
-            echo = await Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:" + this.getTestEndpoint()));
+            echo = new Test.EchoPrx(communicator, `__echo:${this.getTestEndpoint()}`);
             const adapter = await communicator.createObjectAdapter("");
             adapter.add(new AMDMyDerivedClassI(echo.ice_getEndpoints()), Ice.stringToIdentity("test"));
             await echo.setConnection();

@@ -35,15 +35,11 @@ export class Client extends TestHelper {
         const communicator = this.communicator();
         const out = this.getWriter();
 
-        const ref = "hold:" + this.getTestEndpoint();
-        const hold = await Test.HoldPrx.checkedCast(communicator.stringToProxy(ref));
-        test(hold !== null);
-        const holdOneway = Test.HoldPrx.uncheckedCast(hold.ice_oneway());
+        const hold = new Test.HoldPrx(communicator, `hold:${this.getTestEndpoint()}`);
+        const holdOneway = hold.ice_oneway();
 
-        const refSerialized = "hold:" + this.getTestEndpoint(1);
-        const holdSerialized = await Test.HoldPrx.checkedCast(communicator.stringToProxy(refSerialized));
-        test(holdSerialized !== null);
-        const holdSerializedOneway = Test.HoldPrx.uncheckedCast(holdSerialized.ice_oneway());
+        const holdSerialized = new Test.HoldPrx(communicator, `hold:${this.getTestEndpoint(1)}`);
+        const holdSerializedOneway = holdSerialized.ice_oneway();
 
         out.write("changing state between active and hold rapidly... ");
 

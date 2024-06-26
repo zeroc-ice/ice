@@ -60,8 +60,7 @@ export class Client extends TestHelper {
     async allTests(): Promise<void> {
         const communicator = this.communicator();
 
-        const proxyString = `test: ${this.getTestEndpoint()}`;
-        const p = Test.TestIntfPrx.uncheckedCast(communicator.stringToProxy(proxyString));
+        const p = new Test.TestIntfPrx(communicator, `test: ${this.getTestEndpoint()}`);
 
         await testClientInactivityTimeout(p, this);
         await testWithOutstandingRequest(p, false, this);

@@ -13,18 +13,7 @@ export class Client extends TestHelper {
         const out = this.getWriter();
         const communicator = this.communicator();
 
-        out.write("testing stringToProxy... ");
-        const ref = "test:" + this.getTestEndpoint();
-        const base = communicator.stringToProxy(ref);
-        test(base !== null);
-        out.writeLine("ok");
-
-        out.write("testing checked cast... ");
-        const obj = await Test.TestIntfPrx.checkedCast(base);
-        test(obj !== null);
-        test(obj!.equals(base));
-        out.writeLine("ok");
-
+        const obj = new Test.TestIntfPrx(communicator, `test:${this.getTestEndpoint()}`);
         {
             out.write("creating/destroying/recreating object adapter... ");
             communicator.getProperties().setProperty("TransientTestAdapter.AdapterId", "dummy");
@@ -113,10 +102,11 @@ export class Client extends TestHelper {
         {
             const routerId = new Ice.Identity();
             routerId.name = "router";
-            let router = Ice.RouterPrx.uncheckedCast(base.ice_identity(routerId).ice_connectionId("rc"));
+            let router = Ice.RouterPrx.uncheckedCast(obj.ice_identity(routerId).ice_connectionId("rc"));
             const adapter = await communicator.createObjectAdapterWithRouter("", router);
             test(adapter.getPublishedEndpoints().length == 1);
             test(adapter.getPublishedEndpoints()[0].toString() == "tcp -h localhost -p 23456 -t 30000");
+
             await adapter.refreshPublishedEndpoints();
             test(adapter.getPublishedEndpoints().length == 1);
             test(adapter.getPublishedEndpoints()[0].toString() == "tcp -h localhost -p 23457 -t 30000");
@@ -131,7 +121,7 @@ export class Client extends TestHelper {
 
             try {
                 routerId.name = "test";
-                router = Ice.RouterPrx.uncheckedCast(base.ice_identity(routerId));
+                router = new Ice.RouterPrx(communicator, `test:${this.getTestEndpoint(0)}`);
                 await communicator.createObjectAdapterWithRouter("", router);
                 test(false);
             } catch (ex) {
@@ -140,7 +130,7 @@ export class Client extends TestHelper {
             }
 
             try {
-                router = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("router:" + this.getTestEndpoint(1)));
+                router = new Ice.RouterPrx(communicator, `router:${this.getTestEndpoint(1)}`);
                 await communicator.createObjectAdapterWithRouter("", router);
                 test(false);
             } catch (ex) {

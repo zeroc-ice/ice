@@ -17,10 +17,7 @@ export class Client extends TestHelper {
 
         const defaultProtocol = communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp");
 
-        out.write("testing stringToProxy... ");
-        const ref = "test:" + this.getTestEndpoint();
-        const base = communicator.stringToProxy(ref);
-        test(base !== null);
+        const base = new Ice.ObjectPrx(communicator, `test:${this.getTestEndpoint()}`);
 
         let b1 = communicator.stringToProxy("test");
         test(
@@ -1072,9 +1069,7 @@ export class Client extends TestHelper {
             }
             out.writeLine("ok");
 
-            derived = Test.MyDerivedClassPrx.uncheckedCast(
-                communicator.stringToProxy("test:" + this.getTestEndpoint()),
-            );
+            derived = new Test.MyDerivedClassPrx(communicator, `test:${this.getTestEndpoint()}`);
             await derived.shutdown();
         }
     }

@@ -101,17 +101,7 @@ export class Client extends TestHelper {
         communicator.getValueFactoryManager().add(MyValueFactory, "::Test::Inner::A");
         communicator.getValueFactoryManager().add(MyValueFactory, "::Test::Inner::Sub::A");
 
-        out.write("testing stringToProxy... ");
-        let ref = "initial:" + this.getTestEndpoint();
-        let base = communicator.stringToProxy(ref);
-        test(base !== null);
-        out.writeLine("ok");
-
-        out.write("testing checked cast... ");
-        const initial = await Test.InitialPrx.checkedCast(base);
-        test(initial !== null);
-        test(initial!.equals(base));
-        out.writeLine("ok");
+        const initial = new Test.InitialPrx(communicator, `initial:${this.getTestEndpoint()}`);
 
         out.write("getting B1... ");
         let b1 = await initial!.getB1();
@@ -305,12 +295,7 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing UnexpectedObjectException... ");
-        ref = "uoet:" + this.getTestEndpoint();
-        base = communicator.stringToProxy(ref);
-        test(base !== null);
-
-        const uoet = Test.UnexpectedObjectExceptionTestPrx.uncheckedCast(base);
-        test(uoet !== null);
+        const uoet = new Test.UnexpectedObjectExceptionTestPrx(communicator, "uoet:" + this.getTestEndpoint());
         try {
             await uoet.op();
             test(false);

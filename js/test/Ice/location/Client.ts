@@ -12,18 +12,14 @@ export class Client extends TestHelper {
     async allTests() {
         const communicator = this.communicator();
         const out = this.getWriter();
-        let base = communicator.stringToProxy("ServerManager:" + this.getTestEndpoint());
-        const manager = Test.ServerManagerPrx.uncheckedCast(base);
-        test(manager !== null);
+        const manager = new Test.ServerManagerPrx(communicator, `ServerManager:${this.getTestEndpoint()}`);
 
-        const locator = Test.TestLocatorPrx.uncheckedCast(communicator.getDefaultLocator());
-        test(locator !== null);
+        const locator = new Test.TestLocatorPrx(communicator.getDefaultLocator());
 
-        const registry = Test.TestLocatorRegistryPrx.uncheckedCast((await locator.getRegistry())!);
-        test(registry !== null);
+        const registry = new Test.TestLocatorRegistryPrx((await locator.getRegistry())!);
 
         out.write("testing stringToProxy... ");
-        base = communicator.stringToProxy("test @ TestAdapter");
+        let base = communicator.stringToProxy("test @ TestAdapter");
         const base2 = communicator.stringToProxy("test @ TestAdapter");
         const base3 = communicator.stringToProxy("test");
         const base4 = communicator.stringToProxy("ServerManager");

@@ -143,7 +143,7 @@ export class Client extends TestHelper {
             s.d = 6.0;
             s.str = "7";
             s.e = Test.MyEnum.enum2;
-            s.p = Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test:default"));
+            s.p = new Test.MyInterfacePrx(communicator, "test:default");
             Test.LargeStruct.write(outS, s);
             const data = outS.finished();
             const s2 = Test.LargeStruct.read(new Ice.InputStream(communicator, data));
@@ -374,7 +374,7 @@ export class Client extends TestHelper {
             s.d = 6.0;
             s.str = "7";
             s.e = Test.MyEnum.enum2;
-            s.p = Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test:default"));
+            s.p = new Test.MyInterfacePrx(communicator, "test:default");
             largeStructArray[i] = s;
         }
 

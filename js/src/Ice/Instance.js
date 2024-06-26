@@ -26,8 +26,6 @@ export class Instance {
         this._routerManager = null;
         this._locatorManager = null;
         this._referenceFactory = null;
-        this._requestHandlerFactory = null;
-        this._proxyFactory = null;
         this._outgoingConnectionFactory = null;
         this._objectAdapterFactory = null;
         this._retryQueue = null;

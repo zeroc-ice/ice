@@ -3,8 +3,8 @@
 //
 
 export class ObjectPrx {
-    constructor() {
-        this._reference = null;
-        this._requestHandler = null;
+    constructor(communicatorOrReference, proxyString = undefined) {
+        // _setup is implemented in ObjectPrxExtensions.js
+        this._setup(communicatorOrReference, proxyString);
     }
 }

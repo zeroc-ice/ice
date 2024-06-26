@@ -2,35 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { ReferenceMode } from "./ReferenceMode.js";
 import { AsyncStatus } from "./AsyncStatus.js";
 import { LocalException } from "./Exception.js";
 import { RetryException } from "./RetryException.js";
-import { ConnectionRequestHandler } from "./ConnectionRequestHandler.js";
 import { Debug } from "./Debug.js";
 
 export class ConnectRequestHandler {
-    constructor(ref, proxy) {
-        this._reference = ref;
-        this._response = ref.getMode() === ReferenceMode.ModeTwoway;
-        this._proxy = proxy;
-        this._proxies = [];
+    constructor(reference) {
+        this._reference = reference;
+        this._response = reference.isTwoway;
         this._initialized = false;
-
         this._connection = null;
         this._exception = null;
         this._requests = [];
-    }
-
-    connect(proxy) {
-        if (!this.initialized()) {
-            this._proxies.push(proxy);
-        }
-        return this._requestHandler ? this._requestHandler : this;
-    }
-
-    update(previousHandler, newHandler) {
-        return previousHandler === this ? newHandler : this;
     }
 
     sendAsyncRequest(out) {
@@ -63,16 +47,16 @@ export class ConnectRequestHandler {
         this._connection.asyncRequestCanceled(out, ex);
     }
 
-    getReference() {
-        return this._reference;
-    }
-
     getConnection() {
-        if (this._exception !== null) {
-            throw this._exception;
-        } else {
+        // First check for the connection, it's important otherwise the user could first get a connection
+        // and then the exception if he tries to obtain the proxy cached connection multiple times (the
+        // exception can be set after the connection is set if the flush of pending requests fails).
+        if (this._connection !== null) {
             return this._connection;
+        } else if (this._exception !== null) {
+            throw this._exception;
         }
+        return null;
     }
 
     //
@@ -83,27 +67,19 @@ export class ConnectRequestHandler {
 
         this._connection = connection;
 
-        //
-        // If this proxy is for a non-local object, and we are using a router, then
-        // add this proxy to the router info object.
-        //
+        // If this proxy is for a non-local object, and we are using a router, then add this proxy to the router info
+        // object.
         const ri = this._reference.getRouterInfo();
         if (ri !== null) {
-            ri.addProxy(this._proxy).then(
-                //
-                // The proxy was added to the router
-                // info, we're now ready to send the
-                // queued requests.
-                //
+            ri.addProxy(this._reference).then(
+                // The proxy was added to the router info, we're now ready to send the queued requests.
                 () => this.flushRequests(),
                 (ex) => this.setException(ex),
             );
             return; // The request handler will be initialized once addProxy completes.
         }
 
-        //
         // We can now send the queued requests.
-        //
         this.flushRequests();
     }
 
@@ -111,26 +87,10 @@ export class ConnectRequestHandler {
         Debug.assert(!this._initialized && this._exception === null);
 
         this._exception = ex;
-        this._proxies.length = 0;
-        this._proxy = null; // Break cyclic reference count.
 
-        //
-        // NOTE: remove the request handler *before* notifying the
-        // requests that the connection failed. It's important to ensure
-        // that future invocations will obtain a new connect request
-        // handler once invocations are notified.
-        //
-        try {
-            this._reference.getInstance().requestHandlerFactory().removeRequestHandler(this._reference, this);
-        } catch (exc) {
-            // Ignore
+        for (const request of this._requests) {
+            request.completedEx(this._exception);
         }
-
-        this._requests.forEach((request) => {
-            if (request !== null) {
-                request.completedEx(this._exception);
-            }
-        });
         this._requests.length = 0;
     }
 
@@ -138,27 +98,25 @@ export class ConnectRequestHandler {
         if (this._initialized) {
             Debug.assert(this._connection !== null);
             return true;
-        } else if (this._exception !== null) {
-            if (this._connection !== null) {
-                //
-                // Only throw if the connection didn't get established. If
-                // it died after being established, we allow the caller to
-                // retry the connection establishment by not throwing here
-                // (the connection will throw RetryException).
-                //
-                return true;
-            }
-            throw this._exception;
         } else {
-            return this._initialized;
+            if (this._exception !== null) {
+                if (this._connection !== null) {
+                    // Only throw if the connection didn't get established. If it died after being established, we allow
+                    // the caller to retry the connection establishment by not throwing here (the connection will throw
+                    // RetryException).
+                    return true;
+                }
+                throw this._exception;
+            } else {
+                return this._initialized;
+            }
         }
     }
 
     flushRequests() {
         Debug.assert(this._connection !== null && !this._initialized);
-
         let exception = null;
-        this._requests.forEach((request) => {
+        for (const request of this._requests) {
             try {
                 request.invokeRemote(this._connection, this._response);
             } catch (ex) {
@@ -174,25 +132,11 @@ export class ConnectRequestHandler {
                     request.out.completedEx(ex);
                 }
             }
-        });
-        this._requests.length = 0;
-
-        if (this._reference.getCacheConnection() && exception === null) {
-            this._requestHandler = new ConnectionRequestHandler(this._reference, this._connection);
-            this._proxies.forEach((proxy) => proxy._updateRequestHandler(this, this._requestHandler));
         }
+        this._requests.length = 0;
 
         Debug.assert(!this._initialized);
         this._exception = exception;
         this._initialized = this._exception === null;
-
-        //
-        // Only remove once all the requests are flushed to
-        // guarantee serialization.
-        //
-        this._reference.getInstance().requestHandlerFactory().removeRequestHandler(this._reference, this);
-
-        this._proxies.length = 0;
-        this._proxy = null; // Break cyclic reference count.
     }
 }
