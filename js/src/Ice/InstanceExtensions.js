@@ -11,7 +11,7 @@ import { LocatorManager } from "./LocatorManager.js";
 import { ObjectAdapterFactory } from "./ObjectAdapterFactory.js";
 import { OutgoingConnectionFactory } from "./OutgoingConnectionFactory.js";
 import { Properties } from "./Properties.js";
-import { ReferenceFactory } from "./Reference.js";
+import { ReferenceFactory } from "./ReferenceFactory.js";
 import { RetryQueue } from "./RetryQueue.js";
 import { RouterManager } from "./RouterManager.js";
 import { Timer } from "./Timer.js";
