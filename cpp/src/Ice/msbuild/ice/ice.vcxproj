@@ -169,6 +169,7 @@
     <ClCompile Include="..\..\IdleTimeoutTransceiverDecorator.cpp" />
     <ClCompile Include="..\..\ImplicitContext.cpp" />
     <ClCompile Include="..\..\LocalException.cpp" />
+    <ClCompile Include="..\..\LocalExceptions.cpp" />
     <ClCompile Include="..\..\MarshaledResult.cpp" />
     <ClCompile Include="..\..\Properties.cpp" />
     <ClCompile Include="..\..\ProxyAsync.cpp" />
@@ -936,6 +937,7 @@
     <ClInclude Include="..\..\..\..\include\Ice\InputStream.h" />
     <ClInclude Include="..\..\..\..\include\Ice\InstanceF.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Instrumentation.h" />
+    <ClInclude Include="..\..\..\..\include\Ice\LocalException.h" />
     <ClInclude Include="..\..\..\..\include\Ice\LocalExceptions.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Logger.h" />
     <ClInclude Include="..\..\..\..\include\Ice\LoggerUtil.h" />
@@ -976,6 +978,7 @@
     <ClInclude Include="..\..\..\..\include\Ice\ValueFactory.h" />
     <ClInclude Include="..\..\ConsoleUtil.h" />
     <ClInclude Include="..\..\EndpointI.h" />
+    <ClInclude Include="..\..\RequestFailedMessage.h" />
     <ClInclude Include="..\..\SSL\RFC2253.h" />
     <ClInclude Include="..\..\SSL\SchannelEngine.h" />
     <ClInclude Include="..\..\SSL\SchannelEngineF.h" />

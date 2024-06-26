@@ -609,6 +609,9 @@
     <ClCompile Include="..\..\SSL\SSLException.cpp">
       <Filter>Source Files\SSL</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\LocalExceptions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\EventLoggerMsg.mc">
@@ -1022,6 +1025,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\StackTrace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\LocalException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\RequestFailedMessage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
