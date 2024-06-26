@@ -373,6 +373,9 @@ ObjectPrx.prototype._setup = function (arg0, proxyString = "") {
     Debug.assert(this._reference === undefined);
     if (arg0 instanceof Communicator) {
         this._reference = arg0.instance.referenceFactory().createFromString(proxyString, "");
+        if (this._reference === null) {
+            throw new ProxyParseException("Invalid empty proxy string.");
+        }
         this._requestHandlerCache = new RequestHandlerCache(this._reference);
     } else if (arg0 instanceof Reference) {
         this._reference = arg0;
