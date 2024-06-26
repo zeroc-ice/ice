@@ -489,7 +489,7 @@ export class Client extends TestHelper {
                 test(p2[i] === true);
             }
         }
-        
+
         {
             let [p1, p2] = await initial.opShortSeq();
             test(p1 === undefined);
