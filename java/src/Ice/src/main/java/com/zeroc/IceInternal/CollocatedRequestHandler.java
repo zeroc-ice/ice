@@ -14,7 +14,7 @@ import com.zeroc.Ice.UnknownException;
 import java.util.concurrent.CompletionStage;
 
 public class CollocatedRequestHandler implements RequestHandler {
-  private class InvokeAllAsync extends DispatchWorkItem {
+  private class InvokeAllAsync extends RunnableThreadPoolWorkItem {
     private InvokeAllAsync(
         OutgoingAsyncBase outAsync,
         com.zeroc.Ice.OutputStream os,

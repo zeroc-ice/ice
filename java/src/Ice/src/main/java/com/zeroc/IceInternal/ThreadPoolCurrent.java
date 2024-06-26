@@ -28,7 +28,7 @@ public final class ThreadPoolCurrent {
     _threadPool.ioCompleted(this);
   }
 
-  public void executeFromThisThread(DispatchWorkItem workItem) {
+  public void executeFromThisThread(RunnableThreadPoolWorkItem workItem) {
     _threadPool.executeFromThisThread(workItem);
   }
 

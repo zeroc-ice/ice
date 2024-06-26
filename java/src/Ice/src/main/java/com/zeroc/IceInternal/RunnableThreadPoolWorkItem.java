@@ -10,10 +10,10 @@ package com.zeroc.IceInternal;
 // thread pool work item is executed with the executor, otherwise it's
 // executed by a thread pool thread (after promoting a follower thread).
 //
-public abstract class DispatchWorkItem implements ThreadPoolWorkItem, Runnable {
-  public DispatchWorkItem() {}
+public abstract class RunnableThreadPoolWorkItem implements ThreadPoolWorkItem, Runnable {
+  public RunnableThreadPoolWorkItem() {}
 
-  public DispatchWorkItem(com.zeroc.Ice.Connection connection) {
+  public RunnableThreadPoolWorkItem(com.zeroc.Ice.Connection connection) {
     _connection = connection;
   }
 

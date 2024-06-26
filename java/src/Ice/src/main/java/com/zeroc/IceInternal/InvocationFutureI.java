@@ -206,7 +206,7 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
     _instance
         .clientThreadPool()
         .dispatch(
-            new DispatchWorkItem(_cachedConnection) {
+            new RunnableThreadPoolWorkItem(_cachedConnection) {
               @Override
               public void run() {
                 invokeCompleted();
@@ -363,7 +363,7 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
       _instance
           .clientThreadPool()
           .dispatch(
-              new DispatchWorkItem(_cachedConnection) {
+              new RunnableThreadPoolWorkItem(_cachedConnection) {
                 @Override
                 public void run() {
                   runnable.run();

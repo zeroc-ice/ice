@@ -266,7 +266,7 @@ public final class ThreadPool implements java.util.concurrent.Executor {
     return closeNow;
   }
 
-  public void executeFromThisThread(DispatchWorkItem workItem) {
+  public void executeFromThisThread(RunnableThreadPoolWorkItem workItem) {
     if (_executor != null) {
       try {
         _executor.accept(workItem, workItem.getConnection());
@@ -285,7 +285,7 @@ public final class ThreadPool implements java.util.concurrent.Executor {
     }
   }
 
-  public synchronized void dispatch(DispatchWorkItem workItem) {
+  public synchronized void dispatch(RunnableThreadPoolWorkItem workItem) {
     if (_destroyed) {
       throw new com.zeroc.Ice.CommunicatorDestroyedException();
     }
@@ -315,7 +315,7 @@ public final class ThreadPool implements java.util.concurrent.Executor {
   @Override
   public void execute(Runnable command) {
     dispatch(
-        new com.zeroc.IceInternal.DispatchWorkItem() {
+        new com.zeroc.IceInternal.RunnableThreadPoolWorkItem() {
           @Override
           public void run() {
             command.run();

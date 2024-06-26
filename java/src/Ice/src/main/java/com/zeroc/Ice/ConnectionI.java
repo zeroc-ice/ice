@@ -336,7 +336,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     if (_state >= StateClosed) {
       if (callback != null) {
         _threadPool.dispatch(
-            new com.zeroc.IceInternal.DispatchWorkItem(this) {
+            new com.zeroc.IceInternal.RunnableThreadPoolWorkItem(this) {
               @Override
               public void run() {
                 try {
@@ -830,7 +830,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       final java.util.List<OutgoingMessage> finalSentCBs = sentCBs;
       final MessageInfo finalInfo = info;
       _threadPool.executeFromThisThread(
-          new com.zeroc.IceInternal.DispatchWorkItem(this) {
+          new com.zeroc.IceInternal.RunnableThreadPoolWorkItem(this) {
             @Override
             public void run() {
               upcall(finalStartCB, finalSentCBs, finalInfo);
@@ -992,7 +992,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       finish(close);
     } else {
       _threadPool.executeFromThisThread(
-          new com.zeroc.IceInternal.DispatchWorkItem(this) {
+          new com.zeroc.IceInternal.RunnableThreadPoolWorkItem(this) {
             @Override
             public void run() {
               finish(close);
