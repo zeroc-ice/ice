@@ -3,9 +3,9 @@
 //
 
 #include "ServiceManagerI.h"
+#include "../Ice/ConsoleUtil.h"
 #include "../Ice/DynamicLibrary.h"
 #include "../Ice/Instance.h"
-#include "../Ice/ConsoleUtil.h"
 #include "../Ice/Options.h"
 #include "Ice/Ice.h"
 #include "Ice/Initialize.h"

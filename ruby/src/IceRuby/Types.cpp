@@ -6,8 +6,8 @@
 #include "Ice/InputStream.h"
 #include "Ice/LocalException.h"
 #include "Ice/OutputStream.h"
-#include "Ice/SlicedData.h"
 #include "Ice/OutputUtil.h"
+#include "Ice/SlicedData.h"
 #include "Proxy.h"
 #include "Util.h"
 #include <limits>

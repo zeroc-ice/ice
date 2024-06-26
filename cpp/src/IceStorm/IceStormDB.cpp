@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../IceDB/IceDB.h"
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/FileUtil.h"
 #include "../Ice/Options.h"
+#include "../IceDB/IceDB.h"
 #include "DBTypes.h"
 #include "Ice/Ice.h"
 #include "Ice/StringUtil.h"

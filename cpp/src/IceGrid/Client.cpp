@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../IceLocatorDiscovery/Plugin.h"
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/Options.h"
+#include "../IceLocatorDiscovery/Plugin.h"
 #include "FileParserI.h"
 #include "Glacier2/Router.h"
 #include "Ice/Ice.h"

@@ -3,10 +3,10 @@
 //
 
 #include "../IceXML/Parser.h"
-#include "../Ice/TimeUtil.h"
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/DisableWarnings.h"
 #include "../Ice/Options.h"
+#include "../Ice/TimeUtil.h"
 #include "DescriptorHelper.h"
 #include "DescriptorParser.h"
 #include "Ice/Ice.h"

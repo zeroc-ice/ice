@@ -9,9 +9,9 @@
 #include "Types.h"
 #include "Util.h"
 
+#include "Ice/Options.h"
 #include "Ice/StringUtil.h"
 #include "Ice/Timer.h"
-#include "Ice/Options.h"
 
 #include <chrono>
 #include <condition_variable>

@@ -26,11 +26,8 @@ namespace Slice
 
         std::string getResultType(const OperationPtr&, const std::string&, bool, bool);
         void writeResultType(::IceInternal::Output&, const OperationPtr&, const std::string&, const CommentPtr&);
-        void writeMarshaledResultType(
-            ::IceInternal::Output&,
-            const OperationPtr&,
-            const std::string&,
-            const CommentPtr&);
+        void
+        writeMarshaledResultType(::IceInternal::Output&, const OperationPtr&, const std::string&, const CommentPtr&);
 
         void allocatePatcher(::IceInternal::Output&, const TypePtr&, const std::string&, const std::string&);
         std::string getPatcher(const TypePtr&, const std::string&, const std::string&);
@@ -52,11 +49,8 @@ namespace Slice
 
         void writeMarshalProxyParams(::IceInternal::Output&, const std::string&, const OperationPtr&, bool);
         void writeUnmarshalProxyResults(::IceInternal::Output&, const std::string&, const OperationPtr&);
-        void writeMarshalServantResults(
-            ::IceInternal::Output&,
-            const std::string&,
-            const OperationPtr&,
-            const std::string&);
+        void
+        writeMarshalServantResults(::IceInternal::Output&, const std::string&, const OperationPtr&, const std::string&);
 
         //
         // Generate a throws clause containing only checked exceptions.
@@ -66,18 +60,10 @@ namespace Slice
         //
         // Marshal/unmarshal a data member.
         //
-        void writeMarshalDataMember(
-            ::IceInternal::Output&,
-            const std::string&,
-            const DataMemberPtr&,
-            int&,
-            bool = false);
-        void writeUnmarshalDataMember(
-            ::IceInternal::Output&,
-            const std::string&,
-            const DataMemberPtr&,
-            int&,
-            bool = false);
+        void
+        writeMarshalDataMember(::IceInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
+        void
+        writeUnmarshalDataMember(::IceInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
 
         //
         // Generate dispatch methods for an interface.

@@ -3,7 +3,6 @@
 //
 
 #include "Reference.h"
-#include "Random.h"
 #include "CollocatedRequestHandler.h"
 #include "ConnectRequestHandler.h"
 #include "ConnectionFactory.h"
@@ -23,6 +22,7 @@
 #include "LocatorInfo.h"
 #include "ObjectAdapterFactory.h"
 #include "OpaqueEndpointI.h"
+#include "Random.h"
 #include "ReferenceFactory.h"
 #include "RouterInfo.h"
 #include "TraceLevels.h"

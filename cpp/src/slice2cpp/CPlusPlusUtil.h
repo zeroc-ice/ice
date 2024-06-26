@@ -66,8 +66,7 @@ namespace Slice
         const std::string&,
         TypeContext);
 
-    void
-    writeMarshalUnmarshalAllInHolder(IceInternal::Output&, const std::string&, const DataMemberList&, bool, bool);
+    void writeMarshalUnmarshalAllInHolder(IceInternal::Output&, const std::string&, const DataMemberList&, bool, bool);
     void writeStreamHelpers(::IceInternal::Output&, const ContainedPtr&, DataMemberList, bool);
     void writeIceTuple(::IceInternal::Output&, DataMemberList, TypeContext);
 

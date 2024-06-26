@@ -3,8 +3,8 @@
 //
 
 #include "SecureTransportUtil.h"
-#include "../FileUtil.h"
 #include "../Base64.h"
+#include "../FileUtil.h"
 #include "../UniqueRef.h"
 #include "DistinguishedName.h"
 #include "Ice/LocalException.h"

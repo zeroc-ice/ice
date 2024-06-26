@@ -9,11 +9,11 @@
 
 #include "Types.h"
 #include "Current.h"
+#include "Ice/DisableWarnings.h"
 #include "Ice/InputStream.h"
 #include "Ice/LocalException.h"
 #include "Ice/OutputStream.h"
 #include "Ice/SlicedData.h"
-#include "Ice/DisableWarnings.h"
 #include "Proxy.h"
 #include "Thread.h"
 #include "Util.h"

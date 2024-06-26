@@ -1048,8 +1048,7 @@ namespace
         return doc;
     }
 
-    void
-    writeDocLines(IceInternal::Output& out, const StringList& lines, bool commentFirst, const string& space = " ")
+    void writeDocLines(IceInternal::Output& out, const StringList& lines, bool commentFirst, const string& space = " ")
     {
         StringList l = lines;
         if (!commentFirst)

@@ -22,9 +22,9 @@
 #    define __STDC_LIMIT_MACROS
 #endif
 
-#include "StackTrace.h"
 #include "Ice/Exception.h"
 #include "Ice/StringUtil.h"
+#include "StackTrace.h"
 
 #ifdef _WIN32
 #    include <windows.h>

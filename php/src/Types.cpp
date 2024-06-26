@@ -3,8 +3,8 @@
 //
 
 #include "Types.h"
-#include "Ice/SlicedData.h"
 #include "Ice/OutputUtil.h"
+#include "Ice/SlicedData.h"
 #include "Proxy.h"
 #include "Util.h"
 #include "slice2php/PHPUtil.h"

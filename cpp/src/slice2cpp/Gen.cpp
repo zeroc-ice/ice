@@ -1983,10 +1983,7 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
     C << ");" << eb;
 }
 
-Slice::Gen::DataDefVisitor::DataDefVisitor(
-    IceInternal::Output& h,
-    IceInternal::Output& c,
-    const string& dllExport)
+Slice::Gen::DataDefVisitor::DataDefVisitor(IceInternal::Output& h, IceInternal::Output& c, const string& dllExport)
     : H(h),
       C(c),
       _dllExport(dllExport),

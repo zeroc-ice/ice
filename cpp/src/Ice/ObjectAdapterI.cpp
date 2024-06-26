@@ -3,9 +3,9 @@
 //
 
 #include "ObjectAdapterI.h"
-#include "ConsoleUtil.h"
 #include "CheckIdentity.h"
 #include "ConnectionFactory.h"
+#include "ConsoleUtil.h"
 #include "DefaultsAndOverrides.h"
 #include "EndpointFactoryManager.h"
 #include "EndpointI.h"

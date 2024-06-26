@@ -5,8 +5,8 @@
 #ifndef ICE_DB_H
 #define ICE_DB_H
 
-#include "Ice/Exception.h"
 #include "../Ice/FileUtil.h"
+#include "Ice/Exception.h"
 #include "Ice/Initialize.h"
 #include "Ice/InputStream.h"
 #include "Ice/OutputStream.h"

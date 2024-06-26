@@ -558,11 +558,7 @@ SwiftGenerator::parseComment(const ContainedPtr& p)
 }
 
 void
-SwiftGenerator::writeDocLines(
-    IceInternal::Output& out,
-    const StringList& lines,
-    bool commentFirst,
-    const string& space)
+SwiftGenerator::writeDocLines(IceInternal::Output& out, const StringList& lines, bool commentFirst, const string& space)
 {
     StringList l = lines;
     if (!commentFirst)
@@ -863,10 +859,7 @@ SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDe
 }
 
 void
-SwiftGenerator::writeServantDocSummary(
-    IceInternal::Output& out,
-    const InterfaceDefPtr& p,
-    const string& swiftModule)
+SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
 {
     DocElements doc = parseComment(p);
 

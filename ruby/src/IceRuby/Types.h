@@ -10,8 +10,8 @@
 
 #include "Ice/FactoryTable.h"
 #include "Ice/Object.h"
-#include "Ice/SlicedData.h"
 #include "Ice/OutputUtil.h"
+#include "Ice/SlicedData.h"
 
 namespace IceRuby
 {
