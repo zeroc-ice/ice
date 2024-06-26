@@ -12,7 +12,7 @@
 #include "Ice/Properties.h"
 #include "Ice/Router.h"
 #include "Ice/ValueFactory.h"
-#include "IceUtil/DisableWarnings.h"
+#include "Ice/DisableWarnings.h"
 #include "ImplicitContext.h"
 #include "Logger.h"
 #include "ObjectAdapter.h"

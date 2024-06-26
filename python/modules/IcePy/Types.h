@@ -11,7 +11,7 @@
 #include "Ice/OutputStream.h"
 #include "Ice/SlicedDataF.h"
 #include "Ice/Value.h"
-#include "IceUtil/OutputUtil.h"
+#include "Ice/OutputUtil.h"
 #include "Util.h"
 
 #include <memory>

@@ -3,7 +3,7 @@
 //
 
 #include "Reference.h"
-#include "../IceUtil/Random.h"
+#include "Random.h"
 #include "CollocatedRequestHandler.h"
 #include "ConnectRequestHandler.h"
 #include "ConnectionFactory.h"

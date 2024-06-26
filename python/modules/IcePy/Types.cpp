@@ -13,7 +13,7 @@
 #include "Ice/LocalException.h"
 #include "Ice/OutputStream.h"
 #include "Ice/SlicedData.h"
-#include "IceUtil/DisableWarnings.h"
+#include "Ice/DisableWarnings.h"
 #include "Proxy.h"
 #include "Thread.h"
 #include "Util.h"

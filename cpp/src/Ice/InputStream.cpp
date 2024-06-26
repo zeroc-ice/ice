@@ -3,7 +3,7 @@
 //
 
 #include "Ice/InputStream.h"
-#include "../IceUtil/DisableWarnings.h"
+#include "DisableWarnings.h"
 #include "DefaultsAndOverrides.h"
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"

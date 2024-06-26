@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_UTIL_OUTPUT_UTIL_H
-#define ICE_UTIL_OUTPUT_UTIL_H
+#ifndef ICE_OUTPUT_UTIL_H
+#define ICE_OUTPUT_UTIL_H
 
 #include "Ice/Config.h"
 #include <fstream>

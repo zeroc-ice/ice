@@ -4,7 +4,7 @@
 
 #include "Activator.h"
 #include "../Ice/ArgVector.h"
-#include "../IceUtil/FileUtil.h"
+#include "../Ice/FileUtil.h"
 #include "Ice/Ice.h"
 #include "IceGrid/Admin.h"
 #include "Internal.h"

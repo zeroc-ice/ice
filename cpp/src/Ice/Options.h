@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_UTIL_OPTIONS_H
-#define ICE_UTIL_OPTIONS_H
+#ifndef ICE_OPTIONS_H
+#define ICE_OPTIONS_H
 
 #include "Ice/Config.h"
 #include "Ice/Exception.h"

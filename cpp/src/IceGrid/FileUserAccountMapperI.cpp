@@ -3,7 +3,7 @@
 //
 
 #include "FileUserAccountMapperI.h"
-#include "../IceUtil/FileUtil.h"
+#include "../Ice/FileUtil.h"
 #include "Ice/StringUtil.h"
 #include <fstream>
 

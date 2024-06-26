@@ -22,7 +22,7 @@
 #    define __STDC_LIMIT_MACROS
 #endif
 
-#include "../IceUtil/StackTrace.h"
+#include "StackTrace.h"
 #include "Ice/Exception.h"
 #include "Ice/StringUtil.h"
 

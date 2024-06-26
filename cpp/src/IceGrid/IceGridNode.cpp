@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../IceUtil/ConsoleUtil.h"
-#include "../IceUtil/FileUtil.h"
+#include "../Ice/ConsoleUtil.h"
+#include "../Ice/FileUtil.h"
 #include "Activator.h"
 #include "DescriptorParser.h"
 #include "FileUserAccountMapperI.h"

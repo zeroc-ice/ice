@@ -3,10 +3,10 @@
 //
 
 #include "../IceDB/IceDB.h"
-#include "../IceUtil/ConsoleUtil.h"
-#include "../IceUtil/DisableWarnings.h"
-#include "../IceUtil/FileUtil.h"
-#include "../IceUtil/Options.h"
+#include "../Ice/ConsoleUtil.h"
+#include "../Ice/DisableWarnings.h"
+#include "../Ice/FileUtil.h"
+#include "../Ice/Options.h"
 #include "DBTypes.h"
 #include "Ice/Ice.h"
 #include "Ice/StringUtil.h"

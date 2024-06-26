@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../../src/IceUtil/Options.h"
+#include "../../src/Ice/Options.h"
 #include "Event.h"
 #include "Ice/Ice.h"
 #include "IceStorm/IceStorm.h"

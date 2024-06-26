@@ -5,7 +5,7 @@
 #ifndef ICE_GRID_DESCRIPTOR_HELPER_H
 #define ICE_GRID_DESCRIPTOR_HELPER_H
 
-#include "../IceUtil/OutputUtil.h"
+#include "../Ice/OutputUtil.h"
 #include "../IceXML/Parser.h"
 #include "IceGrid/Admin.h"
 #include "Internal.h"

@@ -11,7 +11,7 @@
 
 #include "Ice/StringUtil.h"
 #include "Ice/Timer.h"
-#include "IceUtil/Options.h"
+#include "Ice/Options.h"
 
 #include <chrono>
 #include <condition_variable>
@@ -23,7 +23,7 @@
 #    undef getcwd
 #endif
 
-#include "IceUtil/FileUtil.h"
+#include "Ice/FileUtil.h"
 
 using namespace std;
 using namespace IcePHP;

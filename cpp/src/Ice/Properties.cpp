@@ -3,7 +3,7 @@
 //
 
 #include "Ice/Properties.h"
-#include "../IceUtil/FileUtil.h"
+#include "FileUtil.h"
 #include "Ice/Initialize.h"
 #include "Ice/LocalException.h"
 #include "Ice/Logger.h"

@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_UTIL_RESOURCE_CONFIG_H
-#define ICE_UTIL_RESOURCE_CONFIG_H
+#ifndef ICE_RESOURCE_CONFIG_H
+#define ICE_RESOURCE_CONFIG_H
 
 #include "winver.h"
 

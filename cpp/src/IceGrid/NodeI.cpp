@@ -3,7 +3,7 @@
 //
 
 #include "NodeI.h"
-#include "../IceUtil/FileUtil.h"
+#include "../Ice/FileUtil.h"
 #include "Activator.h"
 #include "Ice/Ice.h"
 #include "Ice/Timer.h"

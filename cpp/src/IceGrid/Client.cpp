@@ -3,8 +3,8 @@
 //
 
 #include "../IceLocatorDiscovery/Plugin.h"
-#include "../IceUtil/ConsoleUtil.h"
-#include "../IceUtil/Options.h"
+#include "../Ice/ConsoleUtil.h"
+#include "../Ice/Options.h"
 #include "FileParserI.h"
 #include "Glacier2/Router.h"
 #include "Ice/Ice.h"

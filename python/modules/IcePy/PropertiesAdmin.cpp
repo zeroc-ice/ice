@@ -3,7 +3,7 @@
 //
 
 #include "PropertiesAdmin.h"
-#include "IceUtil/DisableWarnings.h"
+#include "Ice/DisableWarnings.h"
 #include "Thread.h"
 #include "Types.h"
 #include "Util.h"

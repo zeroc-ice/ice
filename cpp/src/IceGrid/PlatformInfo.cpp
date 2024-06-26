@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../IceUtil/FileUtil.h"
+#include "../Ice/FileUtil.h"
 #include "Ice/StringUtil.h"
 
 #include "Ice/Communicator.h"

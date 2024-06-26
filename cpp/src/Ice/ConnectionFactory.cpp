@@ -3,7 +3,7 @@
 //
 
 #include "ConnectionFactory.h"
-#include "../IceUtil/Random.h"
+#include "Random.h"
 #include "Acceptor.h"
 #include "CommunicatorFlushBatchAsync.h"
 #include "ConnectionI.h"

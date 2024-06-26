@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../IceUtil/ConsoleUtil.h"
-#include "../IceUtil/Options.h"
+#include "../Ice/ConsoleUtil.h"
+#include "../Ice/Options.h"
 #include "Ice/CtrlCHandler.h"
 #include "Ice/StringUtil.h"
 // BUGFIX: With MSVC2013 if this isn't included you get strange linker errors.
-#include "../IceUtil/FileUtil.h"
+#include "../Ice/FileUtil.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Preprocessor.h"
 #include "../Slice/Util.h"

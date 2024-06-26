@@ -5,7 +5,7 @@
 #ifndef ICE_GRID_UTIL_H
 #define ICE_GRID_UTIL_H
 
-#include "../IceUtil/Random.h"
+#include "../Ice/Random.h"
 #include "Ice/BuiltinSequences.h"
 #include "Ice/StringUtil.h"
 #include "IceGrid/Admin.h"

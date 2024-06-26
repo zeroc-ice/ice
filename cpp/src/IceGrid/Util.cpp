@@ -3,7 +3,7 @@
 //
 
 #include "Util.h"
-#include "../IceUtil/FileUtil.h"
+#include "../Ice/FileUtil.h"
 #include "Ice/Ice.h"
 #include "Ice/StringUtil.h"
 #include "IceGrid/Admin.h"

@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_UTIL_CONSOLE_UTIL_H
-#define ICE_UTIL_CONSOLE_UTIL_H
+#ifndef ICE_CONSOLE_UTIL_H
+#define ICE_CONSOLE_UTIL_H
 
 #include "Ice/Config.h"
 #include "Ice/StringConverter.h"

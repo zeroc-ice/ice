@@ -3,7 +3,7 @@
 //
 
 #include "Ice/Timer.h"
-#include "../IceUtil/ConsoleUtil.h"
+#include "ConsoleUtil.h"
 #include "Ice/Exception.h"
 
 using namespace std;

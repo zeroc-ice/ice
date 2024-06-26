@@ -3,7 +3,7 @@
 //
 //
 
-#include "../IceUtil/OutputUtil.h"
+#include "../Ice/OutputUtil.h"
 #include "Ice/StringUtil.h"
 
 #include "../Slice/Util.h"

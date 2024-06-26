@@ -6,7 +6,7 @@
 #define ICEPHP_TYPES_H
 
 #include "Communicator.h"
-#include "IceUtil/OutputUtil.h"
+#include "Ice/OutputUtil.h"
 #include "Operation.h"
 
 //

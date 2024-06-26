@@ -7,7 +7,7 @@
 #include "../Ice/ProtocolPluginFacade.h" // Just to get the hostname
 #include "../Ice/SSL/SSLUtil.h"
 #include "../IceStorm/Service.h"
-#include "../IceUtil/FileUtil.h"
+#include "../Ice/FileUtil.h"
 #include "AdminCallbackRouter.h"
 #include "AdminI.h"
 #include "AdminSessionI.h"

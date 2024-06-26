@@ -3,7 +3,7 @@
 //
 
 #include "ObjectAdapterI.h"
-#include "../IceUtil/ConsoleUtil.h"
+#include "ConsoleUtil.h"
 #include "CheckIdentity.h"
 #include "ConnectionFactory.h"
 #include "DefaultsAndOverrides.h"

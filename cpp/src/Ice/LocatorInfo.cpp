@@ -3,7 +3,7 @@
 //
 
 #include "LocatorInfo.h"
-#include "../IceUtil/DisableWarnings.h"
+#include "DisableWarnings.h"
 #include "EndpointI.h"
 #include "Ice/Comparable.h"
 #include "Ice/LocalException.h"

@@ -10,7 +10,7 @@
 #include "Ice/Locator.h"
 #include "Ice/Proxy.h"
 #include "Ice/Router.h"
-#include "IceUtil/DisableWarnings.h"
+#include "Ice/DisableWarnings.h"
 #include "Types.h"
 #include "Util.h"
 

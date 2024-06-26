@@ -3,7 +3,7 @@
 //
 
 #include "ProxyVerifier.h"
-#include "../IceUtil/ConsoleUtil.h"
+#include "../Ice/ConsoleUtil.h"
 
 #include <stdexcept>
 #include <string>

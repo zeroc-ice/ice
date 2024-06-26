@@ -7,7 +7,7 @@
 #include "Ice/LocalException.h"
 #include "Ice/OutputStream.h"
 #include "Ice/SlicedData.h"
-#include "IceUtil/OutputUtil.h"
+#include "Ice/OutputUtil.h"
 #include "Proxy.h"
 #include "Util.h"
 #include <limits>

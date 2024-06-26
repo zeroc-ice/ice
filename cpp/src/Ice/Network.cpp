@@ -12,8 +12,8 @@
 #    include <netinet/in.h>
 #endif
 
-#include "../IceUtil/DisableWarnings.h"
-#include "../IceUtil/Random.h"
+#include "DisableWarnings.h"
+#include "Random.h"
 #include "Ice/Buffer.h"
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h" // For setTcpBufSize

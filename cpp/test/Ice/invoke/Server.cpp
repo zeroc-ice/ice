@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../../src/IceUtil/Options.h"
+#include "../../src/Ice/Options.h"
 #include "BlobjectI.h"
 #include "Ice/Ice.h"
 #include "TestHelper.h"

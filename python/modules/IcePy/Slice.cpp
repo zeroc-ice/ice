@@ -3,8 +3,8 @@
 //
 
 #include "Slice.h"
-#include "IceUtil/ConsoleUtil.h"
-#include "IceUtil/Options.h"
+#include "Ice/ConsoleUtil.h"
+#include "Ice/Options.h"
 #include "Slice/Preprocessor.h"
 #include "Slice/Util.h"
 #include "Util.h"

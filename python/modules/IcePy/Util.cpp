@@ -4,7 +4,7 @@
 
 #include "Util.h"
 #include "Ice/Protocol.h"
-#include "IceUtil/DisableWarnings.h"
+#include "Ice/DisableWarnings.h"
 #include "slice2py/PythonUtil.h"
 
 #include <compile.h>

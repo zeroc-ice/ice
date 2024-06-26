@@ -11,7 +11,7 @@
 #include "Ice/Locator.h"
 #include "Ice/Proxy.h"
 #include "Ice/Router.h"
-#include "IceUtil/DisableWarnings.h"
+#include "Ice/DisableWarnings.h"
 #include "Operation.h"
 #include "Thread.h"
 #include "Types.h"

@@ -3,7 +3,7 @@
 //
 
 #include "Ice/Ice.h"
-#include "../IceUtil/Options.h"
+#include "../Ice/Options.h"
 #include "ServiceManagerI.h"
 
 using namespace std;

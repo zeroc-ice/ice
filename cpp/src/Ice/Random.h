@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_UTIL_RANDOM_H
-#define ICE_UTIL_RANDOM_H
+#ifndef ICE_RANDOM_H
+#define ICE_RANDOM_H
 
 #include "Ice/Config.h"
 #include <algorithm>

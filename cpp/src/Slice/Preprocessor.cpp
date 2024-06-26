@@ -3,8 +3,8 @@
 //
 
 #include "Preprocessor.h"
-#include "../IceUtil/ConsoleUtil.h"
-#include "../IceUtil/FileUtil.h"
+#include "../Ice/ConsoleUtil.h"
+#include "../Ice/FileUtil.h"
 #include "Ice/StringConverter.h"
 #include "Ice/StringUtil.h"
 #include "Ice/UUID.h"

@@ -5,7 +5,7 @@
 #ifndef SLICE_PYTHON_UTIL_H
 #define SLICE_PYTHON_UTIL_H
 
-#include "../IceUtil/OutputUtil.h"
+#include "../Ice/OutputUtil.h"
 #include "../Slice/Parser.h"
 
 namespace Slice

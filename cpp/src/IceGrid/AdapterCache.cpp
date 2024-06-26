@@ -3,7 +3,7 @@
 //
 
 #include "AdapterCache.h"
-#include "../IceUtil/Random.h"
+#include "../Ice/Random.h"
 #include "Ice/Communicator.h"
 #include "Ice/Locator.h"
 #include "Ice/LoggerUtil.h"
