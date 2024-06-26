@@ -68,7 +68,7 @@ public final class ThreadPool implements java.util.concurrent.Executor {
     com.zeroc.Ice.Properties properties = instance.initializationData().properties;
 
     _instance = instance;
-    _dispatcher = instance.initializationData().dispatcher;
+    _dispatcher = instance.initializationData().executor;
     _destroyed = false;
     _prefix = prefix;
     _selector = new Selector(instance);

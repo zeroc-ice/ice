@@ -6,8 +6,8 @@ package com.zeroc.IceInternal;
 
 //
 // A helper class for thread pool work items that only need to call user
-// callbacks. If a dispatcher is installed with the communicator, the
-// thread pool work item is executed with the dispatcher, otherwise it's
+// callbacks. If a executor is installed with the communicator, the
+// thread pool work item is executed with the executor, otherwise it's
 // executed by a thread pool thread (after promoting a follower thread).
 //
 public abstract class DispatchWorkItem implements ThreadPoolWorkItem, Runnable {

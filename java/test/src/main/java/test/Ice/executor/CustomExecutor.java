@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-package test.Ice.dispatcher;
+package test.Ice.executor;
 
-public class Dispatcher
+public class CustomExecutor
     implements Runnable,
         java.util.function.BiConsumer<Runnable, com.zeroc.Ice.Connection>,
         java.util.concurrent.Executor {
@@ -14,7 +14,7 @@ public class Dispatcher
     }
   }
 
-  public Dispatcher() {
+  public CustomExecutor() {
     _thread = new Thread(this);
     _thread.start();
   }
@@ -79,7 +79,7 @@ public class Dispatcher
     }
   }
 
-  public boolean isDispatcherThread() {
+  public boolean isCustomExecutorThread() {
     return Thread.currentThread() == _thread;
   }
 

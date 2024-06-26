@@ -810,7 +810,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       }
     }
 
-    if (!_dispatcher) // Optimization, call dispatch() directly if there's no dispatcher.
+    if (!_dispatcher) // Optimization, call dispatch() directly if there's no executor.
     {
       dispatch(startCB, sentCBs, info);
     } else {
@@ -987,7 +987,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
     current.ioCompleted();
     if (!_dispatcher) // Optimization, call finish() directly if there's no
-    // dispatcher.
+    // executor.
     {
       finish(close);
     } else {
@@ -1274,7 +1274,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     _adapter = adapter;
     final InitializationData initData = instance.initializationData();
     // Cached for better performance.
-    _dispatcher = initData.dispatcher != null;
+    _dispatcher = initData.executor != null;
     _logger = initData.logger; // Cached for better performance.
     _traceLevels = instance.traceLevels(); // Cached for better performance.
     _connectTimeout = options.connectTimeout();
@@ -2189,7 +2189,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     // Note: In contrast to other private or protected methods, this method must be called *without*
     // the mutex locked.
 
-    Object dispatcher = adapter != null ? adapter.dispatchPipeline() : null;
+    Object executor = adapter != null ? adapter.dispatchPipeline() : null;
 
     try {
       while (requestCount > 0) {
@@ -2198,10 +2198,10 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         var request = new IncomingRequest(requestId, this, adapter, stream);
         final boolean isTwoWay = !_endpoint.datagram() && requestId != 0;
 
-        if (dispatcher != null) {
+        if (executor != null) {
           CompletionStage<OutgoingResponse> response = null;
           try {
-            response = dispatcher.dispatch(request);
+            response = executor.dispatch(request);
           } catch (Throwable ex) { // UserException or an unchecked exception
             sendResponse(request.current.createOutgoingResponse(ex), isTwoWay, (byte) 0);
           }
@@ -2249,7 +2249,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     boolean shutdown = false;
 
     // We may be executing on the "main thread" (e.g., in Android together with a
-    // custom dispatcher) and therefore we have to defer network calls to a separate thread.
+    // custom executor) and therefore we have to defer network calls to a separate thread.
     final boolean queueResponse = isTwoWay && _instance.queueRequests();
 
     synchronized (this) {
@@ -2309,7 +2309,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
           if (_state == StateClosing && _upcallCount == 0) {
             //
             // We may be executing on the "main thread" (e.g., in Android together with a custom
-            // dispatcher) and therefore we have to defer network calls to a separate thread.
+            // executor) and therefore we have to defer network calls to a separate thread.
             //
             if (!isTwoWay && _instance.queueRequests()) {
               shutdown = true;

@@ -15,7 +15,7 @@ task testSliceTask {
                                                      'Ice/custom/*.ice',
                                                      'Ice/defaultServant/*.ice',
                                                      'Ice/defaultValue/*.ice',
-                                                     'Ice/dispatcher/*.ice',
+                                                     'Ice/executor/*.ice',
                                                      'Ice/echo/*.ice',
                                                      'Ice/exceptions/*.ice',
                                                      'Ice/facets/*.ice',

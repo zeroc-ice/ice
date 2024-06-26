@@ -41,7 +41,7 @@ public class CollocatedRequestHandler implements RequestHandler {
 
   public CollocatedRequestHandler(Reference ref, com.zeroc.Ice.ObjectAdapter adapter) {
     _reference = ref;
-    _dispatcher = ref.getInstance().initializationData().dispatcher != null;
+    _dispatcher = ref.getInstance().initializationData().executor != null;
     _adapter = adapter;
     _response = _reference.getMode() == Reference.ModeTwoway;
 
@@ -137,7 +137,7 @@ public class CollocatedRequestHandler implements RequestHandler {
           .getThreadPool()
           .dispatchFromThisThread(
               new InvokeAllAsync(outAsync, outAsync.getOs(), requestId, batchRequestNum));
-    } else // Optimization: directly call dispatchAll if there's no dispatcher.
+    } else // Optimization: directly call dispatchAll if there's no executor.
     {
       if (sentAsync(outAsync)) {
         dispatchAll(outAsync.getOs(), requestId, batchRequestNum);
@@ -189,8 +189,8 @@ public class CollocatedRequestHandler implements RequestHandler {
     int dispatchCount = requestCount > 0 ? requestCount : 1;
     assert !_response || dispatchCount == 1;
 
-    Object dispatcher = _adapter.dispatchPipeline();
-    assert dispatcher != null;
+    Object executor = _adapter.dispatchPipeline();
+    assert executor != null;
 
     try {
       while (dispatchCount > 0) {
@@ -210,7 +210,7 @@ public class CollocatedRequestHandler implements RequestHandler {
         var request = new IncomingRequest(requestId, null, _adapter, is);
         CompletionStage<OutgoingResponse> response = null;
         try {
-          response = dispatcher.dispatch(request);
+          response = executor.dispatch(request);
         } catch (Throwable ex) { // UserException or an unchecked exception
           sendResponse(request.current.createOutgoingResponse(ex), requestId, false);
         }

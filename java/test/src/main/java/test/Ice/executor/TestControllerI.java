@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-package test.Ice.dispatcher;
+package test.Ice.executor;
 
-import test.Ice.dispatcher.Test.TestIntfController;
+import test.Ice.executor.Test.TestIntfController;
 
 class TestControllerI implements TestIntfController {
   @Override
