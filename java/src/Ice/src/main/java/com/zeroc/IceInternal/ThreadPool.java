@@ -266,7 +266,7 @@ public final class ThreadPool implements java.util.concurrent.Executor {
     return closeNow;
   }
 
-  public void dispatchFromThisThread(DispatchWorkItem workItem) {
+  public void executeFromThisThread(DispatchWorkItem workItem) {
     if (_executor != null) {
       try {
         _executor.accept(workItem, workItem.getConnection());

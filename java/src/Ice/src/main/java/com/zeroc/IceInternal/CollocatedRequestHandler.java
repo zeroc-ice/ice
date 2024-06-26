@@ -135,7 +135,7 @@ public class CollocatedRequestHandler implements RequestHandler {
     } else if (_executor) {
       _adapter
           .getThreadPool()
-          .dispatchFromThisThread(
+          .executeFromThisThread(
               new InvokeAllAsync(outAsync, outAsync.getOs(), requestId, batchRequestNum));
     } else // Optimization: directly call dispatchAll if there's no executor.
     {

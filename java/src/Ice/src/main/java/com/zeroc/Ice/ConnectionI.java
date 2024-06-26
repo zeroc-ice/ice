@@ -829,7 +829,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       final StartCallback finalStartCB = startCB;
       final java.util.List<OutgoingMessage> finalSentCBs = sentCBs;
       final MessageInfo finalInfo = info;
-      _threadPool.dispatchFromThisThread(
+      _threadPool.executeFromThisThread(
           new com.zeroc.IceInternal.DispatchWorkItem(this) {
             @Override
             public void run() {
@@ -991,7 +991,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     {
       finish(close);
     } else {
-      _threadPool.dispatchFromThisThread(
+      _threadPool.executeFromThisThread(
           new com.zeroc.IceInternal.DispatchWorkItem(this) {
             @Override
             public void run() {

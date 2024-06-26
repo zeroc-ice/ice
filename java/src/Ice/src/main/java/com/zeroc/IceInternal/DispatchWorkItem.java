@@ -20,7 +20,7 @@ public abstract class DispatchWorkItem implements ThreadPoolWorkItem, Runnable {
   @Override
   public final void execute(ThreadPoolCurrent current) {
     current.ioCompleted(); // Promote a follower
-    current.dispatchFromThisThread(this);
+    current.executeFromThisThread(this);
   }
 
   public com.zeroc.Ice.Connection getConnection() {
