@@ -2515,8 +2515,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     const string prx = p->name() + "Prx";
     _out << sp;
-    _out << nl << "export class " << prx << " extends " << _iceImportPrefix
-         << "Ice.ObjectPrx";
+    _out << nl << "export class " << prx << " extends " << _iceImportPrefix << "Ice.ObjectPrx";
     _out << sb;
 
     _out << sp;
