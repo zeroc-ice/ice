@@ -35,8 +35,8 @@ namespace Slice
         //
         // Generate code to marshal or unmarshal a type
         //
-        void writeMarshalUnmarshalCode(IceUtilInternal::Output&, const TypePtr&, const std::string&, bool);
-        void writeOptionalMarshalUnmarshalCode(IceUtilInternal::Output&, const TypePtr&, const std::string&, int, bool);
+        void writeMarshalUnmarshalCode(IceInternal::Output&, const TypePtr&, const std::string&, bool);
+        void writeOptionalMarshalUnmarshalCode(IceInternal::Output&, const TypePtr&, const std::string&, int, bool);
     };
 }
 

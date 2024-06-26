@@ -380,9 +380,9 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
         //
         try
         {
-            args = IceUtilInternal::Options::split(pluginSpec);
+            args = IceInternal::Options::split(pluginSpec);
         }
-        catch (const IceUtilInternal::BadOptException& ex)
+        catch (const IceInternal::BadOptException& ex)
         {
             throw PluginInitializationException(
                 __FILE__,

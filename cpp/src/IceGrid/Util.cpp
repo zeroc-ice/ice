@@ -371,7 +371,7 @@ IceGrid::createDirectory(const string& pa)
 {
     const string path = simplify(pa);
 
-    if (IceUtilInternal::mkdir(path, 0777) == -1)
+    if (IceInternal::mkdir(path, 0777) == -1)
     {
         if (errno != EEXIST)
         {
@@ -466,15 +466,15 @@ IceGrid::remove(const string& pa)
 {
     const string path = simplify(pa);
 
-    IceUtilInternal::structstat buf;
-    if (IceUtilInternal::stat(path, &buf) == -1)
+    IceInternal::structstat buf;
+    if (IceInternal::stat(path, &buf) == -1)
     {
         throw runtime_error("cannot stat `" + path + "':\n" + IceInternal::lastErrorToString());
     }
 
     if (S_ISDIR(buf.st_mode))
     {
-        if (IceUtilInternal::rmdir(path) == -1)
+        if (IceInternal::rmdir(path) == -1)
         {
             if (errno == EACCES)
             {
@@ -485,7 +485,7 @@ IceGrid::remove(const string& pa)
     }
     else
     {
-        if (IceUtilInternal::remove(path) == -1)
+        if (IceInternal::remove(path) == -1)
         {
             throw runtime_error("cannot remove file `" + path + "':\n" + IceInternal::lastErrorToString());
         }
@@ -497,8 +497,8 @@ IceGrid::removeRecursive(const string& pa)
 {
     const string path = simplify(pa);
 
-    IceUtilInternal::structstat buf;
-    if (IceUtilInternal::stat(path, &buf) == -1)
+    IceInternal::structstat buf;
+    if (IceInternal::stat(path, &buf) == -1)
     {
         throw runtime_error("cannot stat `" + path + "':\n" + IceInternal::lastErrorToString());
     }
@@ -513,7 +513,7 @@ IceGrid::removeRecursive(const string& pa)
 
         if (!isRoot(path))
         {
-            if (IceUtilInternal::rmdir(path) == -1)
+            if (IceInternal::rmdir(path) == -1)
             {
                 throw runtime_error("cannot remove directory `" + path + "':\n" + IceInternal::lastErrorToString());
             }
@@ -521,7 +521,7 @@ IceGrid::removeRecursive(const string& pa)
     }
     else
     {
-        if (IceUtilInternal::remove(path) == -1)
+        if (IceInternal::remove(path) == -1)
         {
             throw runtime_error("cannot remove file `" + path + "':\n" + IceInternal::lastErrorToString());
         }

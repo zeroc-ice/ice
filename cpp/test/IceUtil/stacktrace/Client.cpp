@@ -12,7 +12,7 @@
 using namespace Ice;
 using namespace std;
 
-namespace IceUtilInternal
+namespace IceInternal
 {
     extern bool ICE_API printStackTraces;
 }
@@ -81,12 +81,12 @@ public:
 void
 Client::run(int, char*[])
 {
-    if (IceUtilInternal::stackTraceImpl() == IceUtilInternal::STNone)
+    if (IceInternal::stackTraceImpl() == IceInternal::STNone)
     {
         cout << "This Ice build cannot capture stack traces" << endl;
         return;
     }
-    IceUtilInternal::printStackTraces = true;
+    IceInternal::printStackTraces = true;
 
     cout << "checking stacktrace... ";
 

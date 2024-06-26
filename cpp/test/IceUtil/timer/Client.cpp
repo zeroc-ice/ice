@@ -177,7 +177,7 @@ Client::run(int, char*[])
                 tasks.push_back(make_shared<TestTask>(chrono::milliseconds(500 + i * 50)));
             }
 
-            IceUtilInternal::shuffle(tasks.begin(), tasks.end());
+            IceInternal::shuffle(tasks.begin(), tasks.end());
             vector<TestTaskPtr>::const_iterator p;
             for (p = tasks.begin(); p != tasks.end(); ++p)
             {

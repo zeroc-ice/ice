@@ -136,7 +136,7 @@ LocatorRegistryI::findObject(const Ice::Identity& id) const
         return nullopt;
     }
 
-    IceUtilInternal::shuffle(adapterIds.begin(), adapterIds.end());
+    IceInternal::shuffle(adapterIds.begin(), adapterIds.end());
     return prx->ice_adapterId(adapterIds[0]);
 }
 

@@ -42,7 +42,6 @@
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
-using namespace IceUtilInternal;
 
 namespace
 {

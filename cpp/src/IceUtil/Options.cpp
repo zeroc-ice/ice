@@ -12,20 +12,20 @@
 
 using namespace std;
 
-IceUtilInternal::APIException::APIException(const char* file, int line, string r) noexcept
+IceInternal::APIException::APIException(const char* file, int line, string r) noexcept
     : Ice::LocalException(file, line),
       reason(std::move(r))
 {
 }
 
 const char*
-IceUtilInternal::APIException::ice_id() const noexcept
+IceInternal::APIException::ice_id() const noexcept
 {
-    return "::IceUtilInternal::APIException";
+    return "::IceInternal::APIException";
 }
 
 void
-IceUtilInternal::APIException::ice_print(ostream& out) const
+IceInternal::APIException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     if (!reason.empty())
@@ -35,26 +35,26 @@ IceUtilInternal::APIException::ice_print(ostream& out) const
 }
 
 ostream&
-IceUtilInternal::operator<<(ostream& out, const IceUtilInternal::APIException& ex)
+IceInternal::operator<<(ostream& out, const IceInternal::APIException& ex)
 {
     ex.ice_print(out);
     return out;
 }
 
-IceUtilInternal::BadOptException::BadOptException(const char* file, int line, string r) noexcept
+IceInternal::BadOptException::BadOptException(const char* file, int line, string r) noexcept
     : Ice::LocalException(file, line),
       reason(std::move(r))
 {
 }
 
 const char*
-IceUtilInternal::BadOptException::ice_id() const noexcept
+IceInternal::BadOptException::ice_id() const noexcept
 {
-    return "::IceUtilInternal::BadOptException";
+    return "::IceInternal::BadOptException";
 }
 
 void
-IceUtilInternal::BadOptException::ice_print(ostream& out) const
+IceInternal::BadOptException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     if (!reason.empty())
@@ -64,16 +64,16 @@ IceUtilInternal::BadOptException::ice_print(ostream& out) const
 }
 
 ostream&
-IceUtilInternal::operator<<(ostream& out, const IceUtilInternal::BadOptException& ex)
+IceInternal::operator<<(ostream& out, const IceInternal::BadOptException& ex)
 {
     ex.ice_print(out);
     return out;
 }
 
-IceUtilInternal::Options::Options() : parseCalled(false) {}
+IceInternal::Options::Options() : parseCalled(false) {}
 
 void
-IceUtilInternal::Options::checkArgs(const string& shortOpt, const string& longOpt, bool needArg, const string& dflt)
+IceInternal::Options::checkArgs(const string& shortOpt, const string& longOpt, bool needArg, const string& dflt)
 {
     if (shortOpt.empty() && longOpt.empty())
     {
@@ -130,7 +130,7 @@ IceUtilInternal::Options::checkArgs(const string& shortOpt, const string& longOp
 }
 
 void
-IceUtilInternal::Options::addOpt(const string& shortOpt, const string& longOpt, ArgType at, string dflt, RepeatType rt)
+IceInternal::Options::addOpt(const string& shortOpt, const string& longOpt, ArgType at, string dflt, RepeatType rt)
 {
     if (parseCalled)
     {
@@ -149,8 +149,8 @@ IceUtilInternal::Options::addOpt(const string& shortOpt, const string& longOpt, 
 // quotes removed.
 //
 
-IceUtilInternal::Options::StringVector
-IceUtilInternal::Options::split(const string& line)
+IceInternal::Options::StringVector
+IceInternal::Options::split(const string& line)
 {
     const string IFS = " \t\n"; // Internal Field Separator.
 
@@ -552,8 +552,8 @@ IceUtilInternal::Options::split(const string& line)
 // of the executable.
 //
 
-IceUtilInternal::Options::StringVector
-IceUtilInternal::Options::parse(const StringVector& args)
+IceInternal::Options::StringVector
+IceInternal::Options::parse(const StringVector& args)
 {
     if (parseCalled)
     {
@@ -727,8 +727,8 @@ IceUtilInternal::Options::parse(const StringVector& args)
 // arguments as the return value.
 //
 
-IceUtilInternal::Options::StringVector
-IceUtilInternal::Options::parse(int argc, const char* const argv[])
+IceInternal::Options::StringVector
+IceInternal::Options::parse(int argc, const char* const argv[])
 {
     StringVector vec;
     for (int i = 0; i < argc; ++i)
@@ -739,7 +739,7 @@ IceUtilInternal::Options::parse(int argc, const char* const argv[])
 }
 
 bool
-IceUtilInternal::Options::isSet(const string& opt) const
+IceInternal::Options::isSet(const string& opt) const
 {
     if (!parseCalled)
     {
@@ -751,7 +751,7 @@ IceUtilInternal::Options::isSet(const string& opt) const
 }
 
 string
-IceUtilInternal::Options::optArg(const string& opt) const
+IceInternal::Options::optArg(const string& opt) const
 {
     if (!parseCalled)
     {
@@ -780,8 +780,8 @@ IceUtilInternal::Options::optArg(const string& opt) const
     return p->second->val;
 }
 
-IceUtilInternal::Options::StringVector
-IceUtilInternal::Options::argVec(const string& opt) const
+IceInternal::Options::StringVector
+IceInternal::Options::argVec(const string& opt) const
 {
     if (!parseCalled)
     {
@@ -806,7 +806,7 @@ IceUtilInternal::Options::argVec(const string& opt) const
 }
 
 void
-IceUtilInternal::Options::addValidOpt(
+IceInternal::Options::addValidOpt(
     const string& shortOpt,
     const string& longOpt,
     ArgType at,
@@ -852,8 +852,8 @@ IceUtilInternal::Options::addValidOpt(
     }
 }
 
-IceUtilInternal::Options::ValidOpts::iterator
-IceUtilInternal::Options::checkOpt(const string& opt, LengthType lt)
+IceInternal::Options::ValidOpts::iterator
+IceInternal::Options::checkOpt(const string& opt, LengthType lt)
 {
     ValidOpts::iterator pos = _validOpts.find(opt);
     if (pos == _validOpts.end())
@@ -871,7 +871,7 @@ IceUtilInternal::Options::checkOpt(const string& opt, LengthType lt)
 }
 
 void
-IceUtilInternal::Options::setOpt(const string& opt1, const string& opt2, const string& val, RepeatType rt)
+IceInternal::Options::setOpt(const string& opt1, const string& opt2, const string& val, RepeatType rt)
 {
     //
     // opt1 and opt2 (short and long opt) can't both be empty.
@@ -891,7 +891,7 @@ IceUtilInternal::Options::setOpt(const string& opt1, const string& opt2, const s
 }
 
 void
-IceUtilInternal::Options::setNonRepeatingOpt(const string& opt, const string& val)
+IceInternal::Options::setNonRepeatingOpt(const string& opt, const string& val)
 {
     if (opt.empty())
     {
@@ -916,7 +916,7 @@ IceUtilInternal::Options::setNonRepeatingOpt(const string& opt, const string& va
 }
 
 void
-IceUtilInternal::Options::setRepeatingOpt(const string& opt, const string& val)
+IceInternal::Options::setRepeatingOpt(const string& opt, const string& val)
 {
     if (opt.empty())
     {
@@ -974,8 +974,8 @@ IceUtilInternal::Options::setRepeatingOpt(const string& opt, const string& val)
     }
 }
 
-IceUtilInternal::Options::ValidOpts::const_iterator
-IceUtilInternal::Options::checkOptIsValid(const string& opt) const
+IceInternal::Options::ValidOpts::const_iterator
+IceInternal::Options::checkOptIsValid(const string& opt) const
 {
     ValidOpts::const_iterator pos = _validOpts.find(opt);
     if (pos == _validOpts.end())
@@ -988,8 +988,8 @@ IceUtilInternal::Options::checkOptIsValid(const string& opt) const
     return pos;
 }
 
-IceUtilInternal::Options::ValidOpts::const_iterator
-IceUtilInternal::Options::checkOptHasArg(const string& opt) const
+IceInternal::Options::ValidOpts::const_iterator
+IceInternal::Options::checkOptHasArg(const string& opt) const
 {
     ValidOpts::const_iterator pos = checkOptIsValid(opt);
     if (pos->second->arg == NoArg)
@@ -1007,7 +1007,7 @@ IceUtilInternal::Options::checkOptHasArg(const string& opt) const
 }
 
 void
-IceUtilInternal::Options::updateSynonyms(const ::std::string& shortOpt, const ::std::string& longOpt)
+IceInternal::Options::updateSynonyms(const ::std::string& shortOpt, const ::std::string& longOpt)
 {
     if (!shortOpt.empty() && !longOpt.empty())
     {
@@ -1017,7 +1017,7 @@ IceUtilInternal::Options::updateSynonyms(const ::std::string& shortOpt, const ::
 }
 
 string
-IceUtilInternal::Options::getSynonym(const ::std::string& optName) const
+IceInternal::Options::getSynonym(const ::std::string& optName) const
 {
     Synonyms::const_iterator pos = _synonyms.find(optName);
     return pos != _synonyms.end() ? pos->second : string("");

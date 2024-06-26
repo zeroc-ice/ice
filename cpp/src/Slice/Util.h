@@ -19,7 +19,7 @@ namespace Slice
     void emitWarning(const std::string&, const std::string&, const std::string&);
     void emitRaw(const char*);
     std::vector<std::string> filterMcppWarnings(const std::string&);
-    void printGeneratedHeader(IceUtilInternal::Output& out, const std::string&, const std::string& commentStyle = "//");
+    void printGeneratedHeader(IceInternal::Output& out, const std::string&, const std::string& commentStyle = "//");
 #ifdef _WIN32
     std::vector<std::string> argvToArgs(int argc, wchar_t* argv[]);
 #else

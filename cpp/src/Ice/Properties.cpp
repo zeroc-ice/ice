@@ -556,7 +556,7 @@ Ice::Properties::load(string_view file)
     else
 #endif
     {
-        ifstream in(IceUtilInternal::streamFilename(string{file}).c_str());
+        ifstream in(IceInternal::streamFilename(string{file}).c_str());
         if (!in)
         {
             throw FileException(__FILE__, __LINE__, string{file});

@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <random>
 
-namespace IceUtilInternal
+namespace IceInternal
 {
     ICE_API void generateRandom(char*, size_t);
     ICE_API unsigned int random(unsigned int = 0);

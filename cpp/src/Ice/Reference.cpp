@@ -1683,7 +1683,7 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
     {
         case EndpointSelectionType::Random:
         {
-            IceUtilInternal::shuffle(endpoints.begin(), endpoints.end());
+            IceInternal::shuffle(endpoints.begin(), endpoints.end());
             break;
         }
         case EndpointSelectionType::Ordered:

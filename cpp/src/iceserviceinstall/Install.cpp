@@ -9,7 +9,6 @@
 
 using namespace std;
 using namespace IceInternal;
-using namespace IceUtilInternal;
 
 int run(const Ice::StringSeq&);
 
@@ -107,7 +106,7 @@ usage(const string& name)
 int
 run(const Ice::StringSeq& args)
 {
-    IceUtilInternal::Options opts;
+    IceInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
     opts.addOpt("u", "uninstall");
@@ -117,7 +116,7 @@ run(const Ice::StringSeq& args)
 
     for (size_t i = 0; i < propNames.size(); ++i)
     {
-        opts.addOpt("", propNames[i], IceUtilInternal::Options::NeedArg);
+        opts.addOpt("", propNames[i], IceInternal::Options::NeedArg);
     }
 
     vector<string> commands;
@@ -125,7 +124,7 @@ run(const Ice::StringSeq& args)
     {
         commands = opts.parse(args);
     }
-    catch (const IceUtilInternal::BadOptException& e)
+    catch (const IceInternal::BadOptException& e)
     {
         consoleErr << "Error:" << e.reason << endl;
         usage(args[0]);

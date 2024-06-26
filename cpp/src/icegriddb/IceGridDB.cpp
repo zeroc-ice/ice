@@ -17,7 +17,6 @@
 
 using namespace std;
 using namespace IceInternal;
-using namespace IceUtilInternal;
 
 namespace
 {
@@ -103,16 +102,16 @@ usage(const string& name)
 int
 run(const Ice::StringSeq& args)
 {
-    IceUtilInternal::Options opts;
+    IceInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
     opts.addOpt("d", "debug");
-    opts.addOpt("", "import", IceUtilInternal::Options::NeedArg);
-    opts.addOpt("", "export", IceUtilInternal::Options::NeedArg);
-    opts.addOpt("", "dbhome", IceUtilInternal::Options::NeedArg);
-    opts.addOpt("", "dbpath", IceUtilInternal::Options::NeedArg);
-    opts.addOpt("", "mapsize", IceUtilInternal::Options::NeedArg);
-    opts.addOpt("", "server-version", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "import", IceInternal::Options::NeedArg);
+    opts.addOpt("", "export", IceInternal::Options::NeedArg);
+    opts.addOpt("", "dbhome", IceInternal::Options::NeedArg);
+    opts.addOpt("", "dbpath", IceInternal::Options::NeedArg);
+    opts.addOpt("", "mapsize", IceInternal::Options::NeedArg);
+    opts.addOpt("", "server-version", IceInternal::Options::NeedArg);
 
     try
     {
@@ -123,7 +122,7 @@ run(const Ice::StringSeq& args)
             return 1;
         }
     }
-    catch (const IceUtilInternal::BadOptException& e)
+    catch (const IceInternal::BadOptException& e)
     {
         consoleErr << args[0] << ": " << e.reason << endl;
         usage(args[0]);
@@ -186,19 +185,19 @@ run(const Ice::StringSeq& args)
         {
             consoleOut << "Importing database to directory `" << dbPath << "' from file `" << dbFile << "'" << endl;
 
-            if (!IceUtilInternal::directoryExists(dbPath))
+            if (!IceInternal::directoryExists(dbPath))
             {
                 consoleErr << args[0] << ": output directory does not exist: " << dbPath << endl;
                 return 1;
             }
 
-            if (!IceUtilInternal::isEmptyDirectory(dbPath))
+            if (!IceInternal::isEmptyDirectory(dbPath))
             {
                 consoleErr << args[0] << ": output directory is not empty: " << dbPath << endl;
                 return 1;
             }
 
-            ifstream fs(IceUtilInternal::streamFilename(dbFile).c_str(), ios::binary);
+            ifstream fs(IceInternal::streamFilename(dbFile).c_str(), ios::binary);
             if (fs.fail())
             {
                 consoleErr << args[0] << ": could not open input file: " << IceInternal::errorToString(errno) << endl;
@@ -502,7 +501,7 @@ run(const Ice::StringSeq& args)
             stream.write(ICE_INT_VERSION);
             stream.write(data);
 
-            ofstream fs(IceUtilInternal::streamFilename(dbFile).c_str(), ios::binary);
+            ofstream fs(IceInternal::streamFilename(dbFile).c_str(), ios::binary);
             if (fs.fail())
             {
                 consoleErr << args[0] << ": could not open output file: " << IceInternal::errorToString(errno) << endl;

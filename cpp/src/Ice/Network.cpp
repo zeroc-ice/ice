@@ -70,7 +70,7 @@ namespace
     {
         if (selType == Ice::EndpointSelectionType::Random)
         {
-            IceUtilInternal::shuffle(addrs.begin(), addrs.end());
+            IceInternal::shuffle(addrs.begin(), addrs.end());
         }
 
         if (protocol == EnableBoth)

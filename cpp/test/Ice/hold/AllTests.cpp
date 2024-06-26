@@ -75,7 +75,7 @@ allTests(Test::TestHelper* helper)
             auto expected = value;
             hold->setAsync(
                 value + 1,
-                static_cast<int32_t>(IceUtilInternal::random(5)),
+                static_cast<int32_t>(IceInternal::random(5)),
                 [cond, expected, completed](int val)
                 {
                     if (val != expected)
@@ -118,7 +118,7 @@ allTests(Test::TestHelper* helper)
             auto expected = value;
             holdSerialized->setAsync(
                 value + 1,
-                static_cast<int32_t>(IceUtilInternal::random(1)),
+                static_cast<int32_t>(IceInternal::random(1)),
                 [cond, expected, completed](int val)
                 {
                     if (val != expected)

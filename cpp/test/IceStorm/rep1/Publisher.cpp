@@ -26,14 +26,14 @@ Publisher::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder ich = initialize(argc, argv);
     auto communicator = ich.communicator();
-    IceUtilInternal::Options opts;
+    IceInternal::Options opts;
     opts.addOpt("", "cycle");
 
     try
     {
         opts.parse(argc, (const char**)argv);
     }
-    catch (const IceUtilInternal::BadOptException& e)
+    catch (const IceInternal::BadOptException& e)
     {
         ostringstream os;
         os << argv[0] << ": " << e.reason;

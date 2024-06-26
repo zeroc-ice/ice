@@ -134,7 +134,7 @@ namespace IcePHP
         virtual void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) = 0;
         virtual void
         unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&, zval*, void*, bool) = 0;
-        virtual void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) = 0;
+        virtual void print(zval*, IceInternal::Output&, PrintObjectHistory*) = 0;
     };
     using TypeInfoPtr = std::shared_ptr<TypeInfo>;
 
@@ -153,7 +153,7 @@ namespace IcePHP
         void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
         void
         unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&, zval*, void*, bool) final;
-        void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
+        void print(zval*, IceInternal::Output&, PrintObjectHistory*) final;
 
         enum Kind
         {
@@ -188,7 +188,7 @@ namespace IcePHP
         void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
         void
         unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&, zval*, void*, bool) final;
-        void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
+        void print(zval*, IceInternal::Output&, PrintObjectHistory*) final;
 
         const std::string id;
         const std::map<std::int32_t, std::string> enumerators;
@@ -230,7 +230,7 @@ namespace IcePHP
         void
         unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&, zval*, void*, bool) final;
 
-        void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
+        void print(zval*, IceInternal::Output&, PrintObjectHistory*) final;
 
         virtual void destroy();
 
@@ -265,7 +265,7 @@ namespace IcePHP
         void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
         void
         unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&, zval*, void*, bool) final;
-        void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
+        void print(zval*, IceInternal::Output&, PrintObjectHistory*) final;
         void unmarshaled(zval*, zval*, void*) final;
         void destroy() final;
 
@@ -301,7 +301,7 @@ namespace IcePHP
         void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
         void
         unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&, zval*, void*, bool) final;
-        void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
+        void print(zval*, IceInternal::Output&, PrintObjectHistory*) final;
         void destroy() final;
 
         class KeyCallback final : public UnmarshalCallback
@@ -364,9 +364,9 @@ namespace IcePHP
         void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
         void
         unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&, zval*, void*, bool) final;
-        void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
+        void print(zval*, IceInternal::Output&, PrintObjectHistory*) final;
         void destroy() final;
-        void printMembers(zval*, IceUtilInternal::Output&, PrintObjectHistory*);
+        void printMembers(zval*, IceInternal::Output&, PrintObjectHistory*);
 
         bool isA(std::string_view) const;
 
@@ -404,7 +404,7 @@ namespace IcePHP
         void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
         void
         unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&, zval*, void*, bool) final;
-        void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
+        void print(zval*, IceInternal::Output&, PrintObjectHistory*) final;
 
         void destroy() final;
         bool isA(std::string_view) const;
@@ -426,8 +426,8 @@ namespace IcePHP
     public:
         void unmarshal(Ice::InputStream*, const CommunicatorInfoPtr&, zval*);
 
-        void print(zval*, IceUtilInternal::Output&);
-        void printMembers(zval*, IceUtilInternal::Output&, PrintObjectHistory*);
+        void print(zval*, IceInternal::Output&);
+        void printMembers(zval*, IceInternal::Output&, PrintObjectHistory*);
 
         bool isA(std::string_view) const;
 

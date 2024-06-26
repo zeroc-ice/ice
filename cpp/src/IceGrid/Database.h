@@ -247,7 +247,7 @@ namespace IceGrid
         std::shared_ptr<AdapterObserverTopic> _adapterObserverTopic;
         std::shared_ptr<ObjectObserverTopic> _objectObserverTopic;
 
-        IceUtilInternal::FileLock _dbLock;
+        IceInternal::FileLock _dbLock;
         IceDB::Env _env;
 
         StringApplicationInfoMap _applications;

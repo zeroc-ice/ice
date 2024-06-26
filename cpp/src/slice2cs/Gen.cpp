@@ -26,7 +26,6 @@ using namespace std;
 using namespace Slice;
 using namespace Ice;
 using namespace IceInternal;
-using namespace IceUtilInternal;
 
 namespace
 {
@@ -1552,7 +1551,7 @@ Slice::Gen::printHeader()
     _out << "//\n";
 }
 
-Slice::Gen::UnitVisitor::UnitVisitor(IceUtilInternal::Output& out) : CsVisitor(out) {}
+Slice::Gen::UnitVisitor::UnitVisitor(IceInternal::Output& out) : CsVisitor(out) {}
 
 bool
 Slice::Gen::UnitVisitor::visitUnitStart(const UnitPtr& p)
@@ -1581,7 +1580,7 @@ Slice::Gen::UnitVisitor::visitUnitStart(const UnitPtr& p)
     return false;
 }
 
-Slice::Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& out) : CsVisitor(out) {}
+Slice::Gen::TypesVisitor::TypesVisitor(IceInternal::Output& out) : CsVisitor(out) {}
 bool
 Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
@@ -2409,7 +2408,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     }
 }
 
-Slice::Gen::ResultVisitor::ResultVisitor(::IceUtilInternal::Output& out) : CsVisitor(out) {}
+Slice::Gen::ResultVisitor::ResultVisitor(::IceInternal::Output& out) : CsVisitor(out) {}
 
 namespace
 {
@@ -2532,7 +2531,7 @@ Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::ProxyVisitor::ProxyVisitor(IceUtilInternal::Output& out) : CsVisitor(out) {}
+Slice::Gen::ProxyVisitor::ProxyVisitor(IceInternal::Output& out) : CsVisitor(out) {}
 
 bool
 Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
@@ -2648,7 +2647,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::DispatchAdapterVisitor::DispatchAdapterVisitor(IceUtilInternal::Output& out) : CsVisitor(out) {}
+Slice::Gen::DispatchAdapterVisitor::DispatchAdapterVisitor(IceInternal::Output& out) : CsVisitor(out) {}
 
 bool
 Slice::Gen::DispatchAdapterVisitor::visitModuleStart(const ModulePtr& p)
@@ -2840,7 +2839,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
     _out << eb;
 }
 
-Slice::Gen::HelperVisitor::HelperVisitor(IceUtilInternal::Output& out) : CsVisitor(out) {}
+Slice::Gen::HelperVisitor::HelperVisitor(IceInternal::Output& out) : CsVisitor(out) {}
 
 bool
 Slice::Gen::HelperVisitor::visitModuleStart(const ModulePtr& p)
@@ -3406,7 +3405,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << eb;
 }
 
-Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceUtilInternal::Output& out) : CsVisitor(out) {}
+Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceInternal::Output& out) : CsVisitor(out) {}
 
 bool
 Slice::Gen::DispatcherVisitor::visitModuleStart(const ModulePtr& p)

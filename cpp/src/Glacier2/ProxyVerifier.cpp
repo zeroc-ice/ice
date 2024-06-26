@@ -12,7 +12,6 @@
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
-using namespace IceUtilInternal;
 
 //
 // TODO: Some of the address matching helper classes can probably be

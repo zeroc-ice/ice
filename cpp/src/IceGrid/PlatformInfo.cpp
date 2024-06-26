@@ -330,14 +330,14 @@ PlatformInfo::PlatformInfo(
     }
 
     string cwd;
-    if (IceUtilInternal::getcwd(cwd) != 0)
+    if (IceInternal::getcwd(cwd) != 0)
     {
         throw runtime_error("cannot get the current directory:\n" + IceInternal::lastErrorToString());
     }
     _cwd = string(cwd);
 
     _dataDir = properties->getProperty(prefix + ".Data");
-    if (!IceUtilInternal::isAbsolutePath(_dataDir))
+    if (!IceInternal::isAbsolutePath(_dataDir))
     {
         _dataDir = _cwd + '/' + _dataDir;
     }

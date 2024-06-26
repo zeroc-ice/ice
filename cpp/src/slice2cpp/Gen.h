@@ -33,7 +33,7 @@ namespace Slice
         static TypeContext resetUseWstring(std::list<TypeContext>&);
 
     private:
-        void writeExtraHeaders(::IceUtilInternal::Output&);
+        void writeExtraHeaders(::IceInternal::Output&);
 
         //
         // Returns the header extension defined in the file metadata for a given file,
@@ -47,8 +47,8 @@ namespace Slice
         //
         std::string getSourceExt(const std::string& file, const UnitPtr& unit);
 
-        ::IceUtilInternal::Output H;
-        ::IceUtilInternal::Output C;
+        ::IceInternal::Output H;
+        ::IceInternal::Output C;
 
         std::string _base;
         std::string _headerExtension;
@@ -66,7 +66,7 @@ namespace Slice
         class ForwardDeclVisitor final : public ParserVisitor
         {
         public:
-            ForwardDeclVisitor(::IceUtilInternal::Output&);
+            ForwardDeclVisitor(::IceInternal::Output&);
             ForwardDeclVisitor(const ForwardDeclVisitor&) = delete;
 
             bool visitModuleStart(const ModulePtr&) final;
@@ -80,7 +80,7 @@ namespace Slice
             void visitConst(const ConstPtr&) final;
 
         private:
-            ::IceUtilInternal::Output& H;
+            ::IceInternal::Output& H;
 
             TypeContext _useWstring;
             std::list<TypeContext> _useWstringHist;
@@ -90,7 +90,7 @@ namespace Slice
         class DefaultFactoryVisitor final : public ParserVisitor
         {
         public:
-            DefaultFactoryVisitor(::IceUtilInternal::Output&);
+            DefaultFactoryVisitor(::IceInternal::Output&);
             DefaultFactoryVisitor(const DefaultFactoryVisitor&) = delete;
 
             bool visitUnitStart(const UnitPtr&) final;
@@ -99,7 +99,7 @@ namespace Slice
             bool visitExceptionStart(const ExceptionPtr&) final;
 
         private:
-            ::IceUtilInternal::Output& C;
+            ::IceInternal::Output& C;
             bool _factoryTableInitDone; // when false, we need to generate a factory table init
         };
 
@@ -108,7 +108,7 @@ namespace Slice
         class ProxyVisitor final : public ParserVisitor
         {
         public:
-            ProxyVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+            ProxyVisitor(::IceInternal::Output&, ::IceInternal::Output&, const std::string&);
             ProxyVisitor(const ProxyVisitor&) = delete;
 
             bool visitModuleStart(const ModulePtr&) final;
@@ -123,8 +123,8 @@ namespace Slice
                 const std::string& prefix,
                 const std::vector<std::string>& outgoingAsyncParams);
 
-            ::IceUtilInternal::Output& H;
-            ::IceUtilInternal::Output& C;
+            ::IceInternal::Output& H;
+            ::IceInternal::Output& C;
 
             std::string _dllExport;
             TypeContext _useWstring;
@@ -135,7 +135,7 @@ namespace Slice
         class DataDefVisitor final : public ParserVisitor
         {
         public:
-            DataDefVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+            DataDefVisitor(::IceInternal::Output&, ::IceInternal::Output&, const std::string&);
             DataDefVisitor(const DataDefVisitor&) = delete;
 
             bool visitModuleStart(const ModulePtr&) final;
@@ -153,8 +153,8 @@ namespace Slice
             void emitOneShotConstructor(const ClassDefPtr&);
             void emitDataMember(const DataMemberPtr&);
 
-            ::IceUtilInternal::Output& H;
-            ::IceUtilInternal::Output& C;
+            ::IceInternal::Output& H;
+            ::IceInternal::Output& C;
 
             std::string _dllExport;
             std::string _dllClassExport;
@@ -168,7 +168,7 @@ namespace Slice
         class InterfaceVisitor final : public ParserVisitor
         {
         public:
-            InterfaceVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+            InterfaceVisitor(::IceInternal::Output&, ::IceInternal::Output&, const std::string&);
             InterfaceVisitor(const InterfaceVisitor&) = delete;
 
             bool visitModuleStart(const ModulePtr&) final;
@@ -178,8 +178,8 @@ namespace Slice
             void visitOperation(const OperationPtr&) final;
 
         private:
-            ::IceUtilInternal::Output& H;
-            ::IceUtilInternal::Output& C;
+            ::IceInternal::Output& H;
+            ::IceInternal::Output& C;
 
             std::string _dllExport;
             TypeContext _useWstring;
@@ -190,7 +190,7 @@ namespace Slice
         class StreamVisitor final : public ParserVisitor
         {
         public:
-            StreamVisitor(::IceUtilInternal::Output&);
+            StreamVisitor(::IceInternal::Output&);
             StreamVisitor(const StreamVisitor&) = delete;
 
             bool visitModuleStart(const ModulePtr&) final;
@@ -201,7 +201,7 @@ namespace Slice
             void visitEnum(const EnumPtr&) final;
 
         private:
-            ::IceUtilInternal::Output& H;
+            ::IceInternal::Output& H;
         };
 
         class MetaDataVisitor final : public ParserVisitor

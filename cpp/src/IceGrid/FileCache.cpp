@@ -24,7 +24,7 @@ FileCache::FileCache(const shared_ptr<Ice::Communicator>& com)
 int64_t
 FileCache::getOffsetFromEnd(const string& file, int originalCount)
 {
-    ifstream is(IceUtilInternal::streamFilename(file).c_str()); // file is a UTF-8 string
+    ifstream is(IceInternal::streamFilename(file).c_str()); // file is a UTF-8 string
     if (is.fail())
     {
         throw FileNotAvailableException("failed to open file `" + file + "'");
@@ -135,7 +135,7 @@ FileCache::read(const string& file, int64_t offset, int size, int64_t& newOffset
         throw FileNotAvailableException("maximum bytes per read request is too low");
     }
 
-    ifstream is(IceUtilInternal::streamFilename(file).c_str()); // file is a UTF-8 string
+    ifstream is(IceInternal::streamFilename(file).c_str()); // file is a UTF-8 string
     if (is.fail())
     {
         throw FileNotAvailableException("failed to open file `" + file + "'");

@@ -7,7 +7,7 @@
 
 #include "Ice/Config.h"
 
-namespace IceUtilInternal
+namespace IceInternal
 {
     enum StackTraceImpl
     {

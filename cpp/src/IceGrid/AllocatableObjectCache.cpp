@@ -208,7 +208,7 @@ AllocatableObjectCache::allocateByType(const string& type, const shared_ptr<Obje
     }
 
     vector<shared_ptr<AllocatableObjectEntry>> objects = p->second.getObjects();
-    IceUtilInternal::shuffle(objects.begin(), objects.end()); // TODO: OPTIMIZE
+    IceInternal::shuffle(objects.begin(), objects.end()); // TODO: OPTIMIZE
     int allocatable = 0;
     try
     {

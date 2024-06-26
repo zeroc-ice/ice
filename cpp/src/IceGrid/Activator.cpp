@@ -41,7 +41,6 @@
 
 using namespace std;
 using namespace Ice;
-using namespace IceInternal;
 using namespace IceGrid;
 
 #define ICE_STRING(X) #X
@@ -357,7 +356,7 @@ Activator::activate(
 
     string pwd = simplify(pwdPath);
 #ifdef _WIN32
-    if (!IceUtilInternal::isAbsolutePath(path))
+    if (!IceInternal::isAbsolutePath(path))
     {
         if (path.find('/') == string::npos)
         {
@@ -431,7 +430,7 @@ Activator::activate(
             if (pwd.empty())
             {
                 string cwd;
-                if (IceUtilInternal::getcwd(cwd) == 0)
+                if (IceInternal::getcwd(cwd) == 0)
                 {
                     out << "pwd = " << cwd << "\n";
                 }

@@ -28,7 +28,6 @@
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
-using namespace IceUtilInternal;
 using namespace IceGrid;
 
 namespace
@@ -322,7 +321,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     }
     else
     {
-        if (!IceUtilInternal::directoryExists(dataPath))
+        if (!IceInternal::directoryExists(dataPath))
         {
             FileException ex(__FILE__, __LINE__, dataPath);
             ServiceError err(this);

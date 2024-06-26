@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-namespace IceUtilInternal
+namespace IceInternal
 {
     class ICE_API APIException : public Ice::LocalException
     {

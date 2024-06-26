@@ -305,7 +305,7 @@ RegistryI::startImpl()
     }
     else
     {
-        if (!IceUtilInternal::directoryExists(dbPath))
+        if (!IceInternal::directoryExists(dbPath))
         {
             Ice::SyscallException ex(__FILE__, __LINE__);
             Ice::Error out(_communicator->getLogger());

@@ -29,7 +29,7 @@
 using namespace std;
 using namespace IceRuby;
 using namespace Ice;
-using namespace IceUtilInternal;
+using namespace IceInternal;
 
 static VALUE _typeInfoClass, _exceptionInfoClass, _unsetTypeClass;
 
@@ -685,7 +685,7 @@ IceRuby::PrimitiveInfo::unmarshal(
 }
 
 void
-IceRuby::PrimitiveInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory*)
+IceRuby::PrimitiveInfo::print(VALUE value, IceInternal::Output& out, PrintObjectHistory*)
 {
     switch (kind)
     {
@@ -837,7 +837,7 @@ IceRuby::EnumInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& c
 }
 
 void
-IceRuby::EnumInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory*)
+IceRuby::EnumInfo::print(VALUE value, IceInternal::Output& out, PrintObjectHistory*)
 {
     if (!validate(value))
     {
@@ -1059,7 +1059,7 @@ IceRuby::StructInfo::unmarshal(
 }
 
 void
-IceRuby::StructInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory* history)
+IceRuby::StructInfo::print(VALUE value, IceInternal::Output& out, PrintObjectHistory* history)
 {
     if (!validate(value))
     {
@@ -1297,7 +1297,7 @@ IceRuby::SequenceInfo::unmarshaled(VALUE val, VALUE target, void* closure)
 }
 
 void
-IceRuby::SequenceInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory* history)
+IceRuby::SequenceInfo::print(VALUE value, IceInternal::Output& out, PrintObjectHistory* history)
 {
     if (!validate(value))
     {
@@ -1880,7 +1880,7 @@ namespace
 {
     struct DictionaryPrintIterator : public IceRuby::HashIterator
     {
-        DictionaryPrintIterator(const DictionaryInfoPtr& d, IceUtilInternal::Output& o, PrintObjectHistory* h)
+        DictionaryPrintIterator(const DictionaryInfoPtr& d, IceInternal::Output& o, PrintObjectHistory* h)
             : dict(d),
               out(o),
               history(h)
@@ -1890,13 +1890,13 @@ namespace
         virtual void element(VALUE key, VALUE value) { dict->printElement(key, value, out, history); }
 
         IceRuby::DictionaryInfoPtr dict;
-        IceUtilInternal::Output& out;
+        IceInternal::Output& out;
         IceRuby::PrintObjectHistory* history;
     };
 }
 
 void
-IceRuby::DictionaryInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory* history)
+IceRuby::DictionaryInfo::print(VALUE value, IceInternal::Output& out, PrintObjectHistory* history)
 {
     if (!validate(value))
     {
@@ -1930,7 +1930,7 @@ IceRuby::DictionaryInfo::print(VALUE value, IceUtilInternal::Output& out, PrintO
 }
 
 void
-IceRuby::DictionaryInfo::printElement(VALUE key, VALUE value, IceUtilInternal::Output& out, PrintObjectHistory* history)
+IceRuby::DictionaryInfo::printElement(VALUE key, VALUE value, IceInternal::Output& out, PrintObjectHistory* history)
 {
     out << nl << "key = ";
     keyType->print(key, out, history);
@@ -2127,7 +2127,7 @@ IceRuby::ClassInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& 
 }
 
 void
-IceRuby::ClassInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory* history)
+IceRuby::ClassInfo::print(VALUE value, IceInternal::Output& out, PrintObjectHistory* history)
 {
     if (!validate(value))
     {
@@ -2180,7 +2180,7 @@ IceRuby::ClassInfo::destroy()
 }
 
 void
-IceRuby::ClassInfo::printMembers(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory* history)
+IceRuby::ClassInfo::printMembers(VALUE value, IceInternal::Output& out, PrintObjectHistory* history)
 {
     if (base)
     {
@@ -2380,7 +2380,7 @@ IceRuby::ProxyInfo::unmarshal(
 }
 
 void
-IceRuby::ProxyInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory*)
+IceRuby::ProxyInfo::print(VALUE value, IceInternal::Output& out, PrintObjectHistory*)
 {
     if (!validate(value))
     {
@@ -2767,7 +2767,7 @@ IceRuby::ExceptionInfo::unmarshal(Ice::InputStream* is)
 }
 
 void
-IceRuby::ExceptionInfo::print(VALUE value, IceUtilInternal::Output& out)
+IceRuby::ExceptionInfo::print(VALUE value, IceInternal::Output& out)
 {
     if (callRuby(rb_obj_is_kind_of, value, rubyClass) == Qfalse)
     {
@@ -2785,7 +2785,7 @@ IceRuby::ExceptionInfo::print(VALUE value, IceUtilInternal::Output& out)
 }
 
 void
-IceRuby::ExceptionInfo::printMembers(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory* history)
+IceRuby::ExceptionInfo::printMembers(VALUE value, IceInternal::Output& out, PrintObjectHistory* history)
 {
     if (base)
     {
@@ -3083,7 +3083,7 @@ IceRuby_stringify(VALUE /*self*/, VALUE obj, VALUE type)
         TypeInfoPtr info = getType(type);
 
         ostringstream ostr;
-        IceUtilInternal::Output out(ostr);
+        IceInternal::Output out(ostr);
         PrintObjectHistory history;
         history.index = 0;
         info->print(obj, out, &history);
@@ -3105,7 +3105,7 @@ IceRuby_stringifyException(VALUE /*self*/, VALUE exc)
         ExceptionInfoPtr info = getException(type);
 
         ostringstream ostr;
-        IceUtilInternal::Output out(ostr);
+        IceInternal::Output out(ostr);
         info->print(exc, out);
 
         string str = ostr.str();

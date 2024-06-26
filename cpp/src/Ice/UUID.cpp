@@ -54,7 +54,7 @@ Ice::generateUUID()
 
     // Get a random sequence of bytes.
     char* buffer = reinterpret_cast<char*>(&uuid);
-    IceUtilInternal::generateRandom(buffer, sizeof(UUID));
+    IceInternal::generateRandom(buffer, sizeof(UUID));
 
     // Adjust the bits that say "version 4" UUID
     uuid.timeHighAndVersion[0] &= 0x0F;

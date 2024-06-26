@@ -19,7 +19,7 @@
 #include <string>
 #include <sys/stat.h>
 
-namespace IceUtilInternal
+namespace IceInternal
 {
     extern const ICE_API std::string pathsep;
     extern const ICE_API std::string separator;

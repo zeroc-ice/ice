@@ -24,7 +24,6 @@
 
 using namespace std;
 using namespace Ice;
-using namespace Ice;
 using namespace Ice::SSL;
 using namespace IceInternal;
 using namespace Ice::SSL::SecureTransport;
@@ -621,7 +620,7 @@ SecureTransport::SSLEngine::initialize()
     if (!certFile.empty())
     {
         vector<string> files;
-        if (!IceInternal::splitString(certFile, IceUtilInternal::pathsep, files) || files.size() > 2)
+        if (!IceInternal::splitString(certFile, IceInternal::pathsep, files) || files.size() > 2)
         {
             throw InitializationException(
                 __FILE__,
@@ -633,7 +632,7 @@ SecureTransport::SSLEngine::initialize()
             string keyFile = properties->getIceProperty("IceSSL.KeyFile");
             if (!keyFile.empty())
             {
-                if (!IceInternal::splitString(keyFile, IceUtilInternal::pathsep, keyFiles) || keyFiles.size() > 2)
+                if (!IceInternal::splitString(keyFile, IceInternal::pathsep, keyFiles) || keyFiles.size() > 2)
                 {
                     throw InitializationException(
                         __FILE__,

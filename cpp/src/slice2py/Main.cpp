@@ -9,7 +9,7 @@
 using namespace std;
 using namespace Slice;
 using namespace Slice::Python;
-using namespace IceUtilInternal;
+using namespace IceInternal;
 
 #ifdef _WIN32
 int

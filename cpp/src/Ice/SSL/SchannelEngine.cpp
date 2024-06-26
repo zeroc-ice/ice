@@ -33,9 +33,7 @@ const int ICESSL_CALG_ECDH_EPHEM = 0x0000AE06;
 
 using namespace std;
 using namespace Ice;
-using namespace Ice;
 using namespace IceInternal;
-using namespace IceUtilInternal;
 using namespace Ice::SSL;
 
 namespace
@@ -822,7 +820,7 @@ Schannel::SSLEngine::initialize()
     if (!certFileValue.empty())
     {
         vector<string> certFiles;
-        if (!splitString(certFileValue, IceUtilInternal::pathsep, certFiles) || certFiles.size() > 2)
+        if (!splitString(certFileValue, IceInternal::pathsep, certFiles) || certFiles.size() > 2)
         {
             throw InitializationException(
                 __FILE__,
@@ -833,7 +831,7 @@ Schannel::SSLEngine::initialize()
         vector<string> keyFiles;
         if (!keyFile.empty())
         {
-            if (!splitString(keyFile, IceUtilInternal::pathsep, keyFiles) || keyFiles.size() > 2)
+            if (!splitString(keyFile, IceInternal::pathsep, keyFiles) || keyFiles.size() > 2)
             {
                 throw InitializationException(
                     __FILE__,

@@ -11,7 +11,7 @@
 
 using namespace std;
 
-namespace IceUtilInternal
+namespace IceInternal
 {
     extern bool printStackTraces;
 }
@@ -38,7 +38,7 @@ Ice::operator<<(Ice::LoggerOutputBase& out, ios_base& (*val)(ios_base&))
 Ice::LoggerOutputBase&
 Ice::loggerInsert(Ice::LoggerOutputBase& out, const Ice::Exception& ex)
 {
-    if (IceUtilInternal::printStackTraces)
+    if (IceInternal::printStackTraces)
     {
         out._stream() << ex.what() << '\n' << ex.ice_stackTrace();
     }

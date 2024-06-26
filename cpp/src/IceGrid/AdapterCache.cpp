@@ -654,7 +654,7 @@ ReplicaGroupEntry::getLocatorAdapterInfo(
         else if (dynamic_pointer_cast<AdaptiveLoadBalancingPolicy>(_loadBalancing))
         {
             replicas = _replicas;
-            IceUtilInternal::shuffle(replicas.begin(), replicas.end());
+            IceInternal::shuffle(replicas.begin(), replicas.end());
             loadSample = _loadSample;
             adaptive = true;
         }
@@ -669,7 +669,7 @@ ReplicaGroupEntry::getLocatorAdapterInfo(
         else if (dynamic_pointer_cast<RandomLoadBalancingPolicy>(_loadBalancing))
         {
             replicas = _replicas;
-            IceUtilInternal::shuffle(replicas.begin(), replicas.end());
+            IceInternal::shuffle(replicas.begin(), replicas.end());
         }
     }
 
@@ -777,7 +777,7 @@ ReplicaGroupEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
     }
     else
     {
-        IceUtilInternal::shuffle(replicas.begin(), replicas.end());
+        IceInternal::shuffle(replicas.begin(), replicas.end());
         vector<pair<float, shared_ptr<ServerAdapterEntry>>> rl;
         transform(
             replicas.begin(),

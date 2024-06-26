@@ -11,7 +11,7 @@
 #include <ostream>
 #include <sstream>
 
-namespace IceUtilInternal
+namespace IceInternal
 {
 #if defined(_WIN32)
 

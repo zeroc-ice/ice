@@ -152,7 +152,7 @@ namespace IceRuby
         virtual void marshal(VALUE, Ice::OutputStream*, ValueMap*, bool) = 0;
         virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool) = 0;
 
-        virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*) = 0;
+        virtual void print(VALUE, IceInternal::Output&, PrintObjectHistory*) = 0;
     };
     using TypeInfoPtr = std::shared_ptr<TypeInfo>;
 
@@ -186,7 +186,7 @@ namespace IceRuby
         void marshal(VALUE, Ice::OutputStream*, ValueMap*, bool) final;
         void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool) final;
 
-        void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*) final;
+        void print(VALUE, IceInternal::Output&, PrintObjectHistory*) final;
 
         static double toDouble(VALUE);
 
@@ -213,7 +213,7 @@ namespace IceRuby
         void marshal(VALUE, Ice::OutputStream*, ValueMap*, bool) final;
         void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool) final;
 
-        void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*) final;
+        void print(VALUE, IceInternal::Output&, PrintObjectHistory*) final;
 
         const std::string id;
         const VALUE rubyClass;
@@ -255,7 +255,7 @@ namespace IceRuby
         void marshal(VALUE, Ice::OutputStream*, ValueMap*, bool) final;
         void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool) final;
 
-        void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*) final;
+        void print(VALUE, IceInternal::Output&, PrintObjectHistory*) final;
 
         void destroy() final;
 
@@ -290,7 +290,7 @@ namespace IceRuby
         void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool) final;
         void unmarshaled(VALUE, VALUE, void*) final;
 
-        void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*) final;
+        void print(VALUE, IceInternal::Output&, PrintObjectHistory*) final;
 
         void destroy() final;
 
@@ -329,8 +329,8 @@ namespace IceRuby
         void marshalElement(VALUE, VALUE, Ice::OutputStream*, ValueMap*);
         void unmarshaled(VALUE, VALUE, void*) final;
 
-        void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*) final;
-        void printElement(VALUE, VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
+        void print(VALUE, IceInternal::Output&, PrintObjectHistory*) final;
+        void printElement(VALUE, VALUE, IceInternal::Output&, PrintObjectHistory*);
 
         virtual void destroy();
 
@@ -375,11 +375,11 @@ namespace IceRuby
         void marshal(VALUE, Ice::OutputStream*, ValueMap*, bool) final;
         void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool) final;
 
-        void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*) final;
+        void print(VALUE, IceInternal::Output&, PrintObjectHistory*) final;
 
         void destroy() final;
 
-        void printMembers(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
+        void printMembers(VALUE, IceInternal::Output&, PrintObjectHistory*);
 
         bool isA(const ClassInfoPtr&);
 
@@ -416,7 +416,7 @@ namespace IceRuby
         void marshal(VALUE, Ice::OutputStream*, ValueMap*, bool) final;
         void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool) final;
 
-        void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*) final;
+        void print(VALUE, IceInternal::Output&, PrintObjectHistory*) final;
 
         void destroy() final;
 
@@ -436,8 +436,8 @@ namespace IceRuby
     public:
         VALUE unmarshal(Ice::InputStream*);
 
-        void print(VALUE, IceUtilInternal::Output&);
-        void printMembers(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
+        void print(VALUE, IceInternal::Output&);
+        void printMembers(VALUE, IceInternal::Output&, PrintObjectHistory*);
 
         std::string id;
         ExceptionInfoPtr base;

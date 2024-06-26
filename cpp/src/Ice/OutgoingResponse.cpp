@@ -12,7 +12,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-namespace IceUtilInternal
+namespace IceInternal
 {
     extern bool printStackTraces;
 }
@@ -134,7 +134,7 @@ namespace
             replyStatus = ReplyStatus::UnknownLocalException;
             ostringstream str;
             str << ex;
-            if (IceUtilInternal::printStackTraces)
+            if (IceInternal::printStackTraces)
             {
                 str << '\n' << ex.ice_stackTrace();
             }
@@ -146,7 +146,7 @@ namespace
             replyStatus = ReplyStatus::UnknownException;
             ostringstream str;
             str << ex;
-            if (IceUtilInternal::printStackTraces)
+            if (IceInternal::printStackTraces)
             {
                 str << '\n' << ex.ice_stackTrace();
             }

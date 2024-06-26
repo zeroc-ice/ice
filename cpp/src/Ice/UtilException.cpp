@@ -73,7 +73,7 @@
 
 using namespace std;
 
-namespace IceUtilInternal
+namespace IceInternal
 {
 #ifdef NDEBUG
     bool ICE_API printStackTraces = false;
@@ -310,7 +310,7 @@ namespace
     {
         vector<void*> stackFrames;
 
-        if (!IceUtilInternal::printStackTraces)
+        if (!IceInternal::printStackTraces)
         {
             return stackFrames;
         }

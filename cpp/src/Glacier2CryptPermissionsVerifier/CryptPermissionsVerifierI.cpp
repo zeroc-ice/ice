@@ -68,7 +68,7 @@ namespace
 
     map<string, string> retrievePasswordMap(const string& file)
     {
-        ifstream passwordFile(IceUtilInternal::streamFilename(file).c_str());
+        ifstream passwordFile(IceInternal::streamFilename(file).c_str());
         if (!passwordFile)
         {
             string err = IceInternal::lastErrorToString();

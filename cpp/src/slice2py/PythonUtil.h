@@ -26,7 +26,7 @@ namespace Slice
         //
         // Generate Python code for a translation unit.
         //
-        void generate(const Slice::UnitPtr&, bool, const std::vector<std::string>&, IceUtilInternal::Output&);
+        void generate(const Slice::UnitPtr&, bool, const std::vector<std::string>&, IceInternal::Output&);
 
         //
         // Convert a scoped name into a Python name.
@@ -59,7 +59,7 @@ namespace Slice
         //
         // Emit a comment header.
         //
-        void printHeader(IceUtilInternal::Output&);
+        void printHeader(IceInternal::Output&);
 
         int compile(const std::vector<std::string>&);
 

@@ -41,7 +41,7 @@
 using namespace std;
 using namespace Slice;
 using namespace Slice::PHP;
-using namespace IceUtilInternal;
+using namespace IceInternal;
 
 namespace
 {
@@ -58,7 +58,7 @@ namespace
 class CodeVisitor final : public ParserVisitor
 {
 public:
-    CodeVisitor(IceUtilInternal::Output&);
+    CodeVisitor(IceInternal::Output&);
 
     void visitClassDecl(const ClassDeclPtr&) final;
     bool visitClassDefStart(const ClassDefPtr&) final;
@@ -1306,7 +1306,7 @@ generate(const UnitPtr& un, bool all, const vector<string>& includePaths, Output
 }
 
 static void
-printHeader(IceUtilInternal::Output& out)
+printHeader(IceInternal::Output& out)
 {
     static const char* header = "//\n"
                                 "// Copyright (c) ZeroC, Inc. All rights reserved.\n"
@@ -1355,18 +1355,18 @@ usage(const string& n)
 int
 compile(const vector<string>& argv)
 {
-    IceUtilInternal::Options opts;
+    IceInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
     opts.addOpt("", "validate");
-    opts.addOpt("D", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
-    opts.addOpt("U", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
-    opts.addOpt("I", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("D", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
+    opts.addOpt("U", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
+    opts.addOpt("I", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("E");
-    opts.addOpt("", "output-dir", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "output-dir", IceInternal::Options::NeedArg);
     opts.addOpt("", "depend");
     opts.addOpt("", "depend-xml");
-    opts.addOpt("", "depend-file", IceUtilInternal::Options::NeedArg, "");
+    opts.addOpt("", "depend-file", IceInternal::Options::NeedArg, "");
     opts.addOpt("d", "debug");
     opts.addOpt("", "all");
 
@@ -1377,7 +1377,7 @@ compile(const vector<string>& argv)
     {
         args = opts.parse(argv);
     }
-    catch (const IceUtilInternal::BadOptException& e)
+    catch (const IceInternal::BadOptException& e)
     {
         consoleErr << argv[0] << ": error: " << e.reason << endl;
         if (!validate)
@@ -1567,7 +1567,7 @@ compile(const vector<string>& argv)
 
                     try
                     {
-                        IceUtilInternal::Output out;
+                        IceInternal::Output out;
                         out.open(file.c_str());
                         if (!out)
                         {

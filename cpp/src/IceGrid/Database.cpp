@@ -1774,7 +1774,7 @@ Database::getObjectByType(const string& type, const shared_ptr<Ice::Connection>&
     {
         return nullopt;
     }
-    return objs[IceUtilInternal::random(static_cast<unsigned int>(objs.size()))];
+    return objs[IceInternal::random(static_cast<unsigned int>(objs.size()))];
 }
 
 optional<Ice::ObjectPrx>
@@ -1790,7 +1790,7 @@ Database::getObjectByTypeOnLeastLoadedNode(
         return nullopt;
     }
 
-    IceUtilInternal::shuffle(objs.begin(), objs.end());
+    IceInternal::shuffle(objs.begin(), objs.end());
     vector<pair<optional<Ice::ObjectPrx>, float>> objectsWithLoad;
     objectsWithLoad.reserve(objs.size());
     for (const auto& obj : objs)

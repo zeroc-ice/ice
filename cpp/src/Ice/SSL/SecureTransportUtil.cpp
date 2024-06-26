@@ -31,7 +31,7 @@ namespace
 {
     CFMutableDataRef readCertFile(const string& file)
     {
-        ifstream is(IceUtilInternal::streamFilename(file).c_str(), ios::in | ios::binary);
+        ifstream is(IceInternal::streamFilename(file).c_str(), ios::in | ios::binary);
         if (!is.good())
         {
             throw CertificateReadException(__FILE__, __LINE__, "error opening file " + file);
@@ -337,10 +337,10 @@ namespace
             //
             // KeyChain path is relative to the current working directory.
             //
-            if (!IceUtilInternal::isAbsolutePath(keychainPath))
+            if (!IceInternal::isAbsolutePath(keychainPath))
             {
                 string cwd;
-                if (IceUtilInternal::getcwd(cwd) == 0)
+                if (IceInternal::getcwd(cwd) == 0)
                 {
                     keychainPath = string(cwd) + '/' + keychainPath;
                 }

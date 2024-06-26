@@ -25,7 +25,7 @@ namespace Slice
         void printHeader();
 
     private:
-        IceUtilInternal::Output _out;
+        IceInternal::Output _out;
 
         std::vector<std::string> _includePaths;
         std::string _fileBase;
@@ -33,7 +33,7 @@ namespace Slice
         class ImportVisitor final : public SwiftGenerator, public ParserVisitor
         {
         public:
-            ImportVisitor(IceUtilInternal::Output&);
+            ImportVisitor(IceInternal::Output&);
 
             bool visitModuleStart(const ModulePtr&) final;
             bool visitClassDefStart(const ClassDefPtr&) final;
@@ -50,14 +50,14 @@ namespace Slice
             void addImport(const ContainedPtr&, const ContainedPtr&);
             void addImport(const std::string&);
 
-            IceUtilInternal::Output& out;
+            IceInternal::Output& out;
             std::vector<std::string> _imports;
         };
 
         class TypesVisitor final : public SwiftGenerator, public ParserVisitor
         {
         public:
-            TypesVisitor(IceUtilInternal::Output&);
+            TypesVisitor(IceInternal::Output&);
 
             bool visitClassDefStart(const ClassDefPtr&) final;
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
@@ -69,13 +69,13 @@ namespace Slice
             void visitConst(const ConstPtr&) final;
 
         private:
-            IceUtilInternal::Output& out;
+            IceInternal::Output& out;
         };
 
         class ProxyVisitor final : public SwiftGenerator, public ParserVisitor
         {
         public:
-            ProxyVisitor(::IceUtilInternal::Output&);
+            ProxyVisitor(::IceInternal::Output&);
 
             bool visitModuleStart(const ModulePtr&) final;
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
@@ -83,45 +83,45 @@ namespace Slice
             void visitOperation(const OperationPtr&) final;
 
         private:
-            IceUtilInternal::Output& out;
+            IceInternal::Output& out;
         };
 
         class ValueVisitor final : public SwiftGenerator, public ParserVisitor
         {
         public:
-            ValueVisitor(::IceUtilInternal::Output&);
+            ValueVisitor(::IceInternal::Output&);
 
             bool visitClassDefStart(const ClassDefPtr&) final;
             void visitClassDefEnd(const ClassDefPtr&) final;
 
         private:
-            IceUtilInternal::Output& out;
+            IceInternal::Output& out;
         };
 
         class ObjectVisitor final : public SwiftGenerator, public ParserVisitor
         {
         public:
-            ObjectVisitor(::IceUtilInternal::Output&);
+            ObjectVisitor(::IceInternal::Output&);
 
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
             void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
             void visitOperation(const OperationPtr&) final;
 
         private:
-            IceUtilInternal::Output& out;
+            IceInternal::Output& out;
         };
 
         class ObjectExtVisitor final : public SwiftGenerator, public ParserVisitor
         {
         public:
-            ObjectExtVisitor(::IceUtilInternal::Output&);
+            ObjectExtVisitor(::IceInternal::Output&);
 
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
             void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
             void visitOperation(const OperationPtr&) final;
 
         private:
-            IceUtilInternal::Output& out;
+            IceInternal::Output& out;
         };
     };
 }
