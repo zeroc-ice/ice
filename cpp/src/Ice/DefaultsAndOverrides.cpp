@@ -64,10 +64,10 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     }
     else
     {
-        throw EndpointSelectionTypeParseException(
+        throw ParseException(
             __FILE__,
             __LINE__,
-            "illegal value `" + value + "'; expected `Random' or `Ordered'");
+            "illegal value '" + value + "'; expected `Random' or `Ordered'");
     }
 
     const_cast<int&>(defaultInvocationTimeout) = properties->getIcePropertyAsInt("Ice.Default.InvocationTimeout");

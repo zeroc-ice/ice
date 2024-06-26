@@ -135,7 +135,7 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
                     assert(manager);
                     managers.insert({manager->ice_getIdentity(), *manager});
                 }
-                catch (const Ice::ProxyParseException&)
+                catch (const Ice::ParseException&)
                 {
                     consoleErr << args[0] << ": malformed proxy: " << p.second << endl;
                     return 1;

@@ -39,20 +39,6 @@ namespace Ice::SSL
         /** The reason for the exception. */
         std::string reason;
     };
-
-    /**
-     * This exception is thrown if a distinguished name cannot be parsed.
-     */
-    class ICE_API ParseException final : public Ice::LocalException
-    {
-    public:
-        ParseException(const char*, int, std::string) noexcept;
-
-        const char* ice_id() const noexcept override;
-
-        /** The reason for the exception. */
-        std::string reason;
-    };
 }
 
 #endif

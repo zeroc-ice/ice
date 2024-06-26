@@ -52,7 +52,7 @@ TrustManager::TrustManager(const IceInternal::InstancePtr& instance) : _instance
         throw Ice::InitializationException(
             __FILE__,
             __LINE__,
-            "SSL transport: invalid property " + key + ":\n" + ex.reason);
+            "SSL transport: invalid property '" + key + "':\n" + ex.what());
     }
 }
 

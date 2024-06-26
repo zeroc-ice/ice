@@ -443,17 +443,9 @@ convertLocalException(std::exception_ptr ex, zval* zex)
     {
         setStringMember(zex, "proxy", e.proxy);
     }
-    catch (const Ice::EndpointParseException& e)
+    catch (const Ice::ParseException& e)
     {
-        setStringMember(zex, "str", e.str);
-    }
-    catch (const Ice::IdentityParseException& e)
-    {
-        setStringMember(zex, "str", e.str);
-    }
-    catch (const Ice::ProxyParseException& e)
-    {
-        setStringMember(zex, "str", e.str);
+        setStringMember(zex, "str", e.what());
     }
     catch (const Ice::RequestFailedException& e)
     {

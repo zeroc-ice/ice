@@ -137,6 +137,12 @@ Ice::UnknownUserException::ice_id() const noexcept
     return "::Ice::UnknownUserException";
 }
 
+const char*
+Ice::ParseException::ice_id() const noexcept
+{
+    return "::Ice::ParseException";
+}
+
 //
 // Below: not refactored yet
 //
@@ -204,36 +210,6 @@ const char*
 Ice::NoEndpointException::ice_id() const noexcept
 {
     return "::Ice::NoEndpointException";
-}
-
-const char*
-Ice::EndpointParseException::ice_id() const noexcept
-{
-    return "::Ice::EndpointParseException";
-}
-
-const char*
-Ice::EndpointSelectionTypeParseException::ice_id() const noexcept
-{
-    return "::Ice::EndpointSelectionTypeParseException";
-}
-
-const char*
-Ice::VersionParseException::ice_id() const noexcept
-{
-    return "::Ice::VersionParseException";
-}
-
-const char*
-Ice::IdentityParseException::ice_id() const noexcept
-{
-    return "::Ice::IdentityParseException";
-}
-
-const char*
-Ice::ProxyParseException::ice_id() const noexcept
-{
-    return "::Ice::ProxyParseException";
 }
 
 const char*
@@ -532,41 +508,6 @@ Ice::NoEndpointException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nno suitable endpoint available for proxy `" << proxy << "'";
-}
-
-void
-Ice::EndpointParseException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nerror while parsing endpoint `" << str << "'";
-}
-
-void
-Ice::EndpointSelectionTypeParseException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nerror while parsing endpoint selection type `" << str << "'";
-}
-
-void
-Ice::VersionParseException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nerror while parsing version `" << str << "'";
-}
-
-void
-Ice::IdentityParseException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nerror while parsing identity `" << str << "'";
-}
-
-void
-Ice::ProxyParseException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nerror while parsing proxy `" << str << "'";
 }
 
 void

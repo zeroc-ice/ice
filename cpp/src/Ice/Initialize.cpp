@@ -459,7 +459,7 @@ Ice::stringToIdentity(const string& s)
                 //
                 // Extra unescaped slash found.
                 //
-                throw IdentityParseException(__FILE__, __LINE__, "unescaped '/' in identity `" + s + "'");
+                throw ParseException(__FILE__, __LINE__, "unescaped '/' in identity '" + s + "'");
             }
         }
         pos++;
@@ -473,7 +473,7 @@ Ice::stringToIdentity(const string& s)
         }
         catch (const invalid_argument& ex)
         {
-            throw IdentityParseException(__FILE__, __LINE__, "invalid identity name `" + s + "': " + ex.what());
+            throw ParseException(__FILE__, __LINE__, "invalid identity name '" + s + "': " + ex.what());
         }
     }
     else
@@ -484,7 +484,7 @@ Ice::stringToIdentity(const string& s)
         }
         catch (const invalid_argument& ex)
         {
-            throw IdentityParseException(__FILE__, __LINE__, "invalid category in identity `" + s + "': " + ex.what());
+            throw ParseException(__FILE__, __LINE__, "invalid category in identity '" + s + "': " + ex.what());
         }
 
         if (slash + 1 < s.size())
@@ -495,7 +495,7 @@ Ice::stringToIdentity(const string& s)
             }
             catch (const invalid_argument& ex)
             {
-                throw IdentityParseException(__FILE__, __LINE__, "invalid name in identity `" + s + "': " + ex.what());
+                throw ParseException(__FILE__, __LINE__, "invalid name in identity '" + s + "': " + ex.what());
             }
         }
     }

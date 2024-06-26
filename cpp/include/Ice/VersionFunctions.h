@@ -42,7 +42,7 @@ namespace Ice
      * Converts a string into a protocol version.
      * @param v The string containing a stringified protocol version.
      * @return The protocol version.
-     * @throws VersionParseException If the given string is not in the X.Y format.
+     * @throws ParseException If the given string is not in the X.Y format.
      */
     ICE_API ProtocolVersion stringToProtocolVersion(std::string_view v);
 
@@ -57,7 +57,7 @@ namespace Ice
      * Converts a string into an encoding version.
      * @param v The string containing a stringified encoding version.
      * @return The encoding version.
-     * @throws VersionParseException If the given string is not in the X.Y format.
+     * @throws ParseException If the given string is not in the X.Y format.
      */
     ICE_API EncodingVersion stringToEncodingVersion(std::string_view v);
 

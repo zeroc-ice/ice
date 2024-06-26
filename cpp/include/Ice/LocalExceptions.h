@@ -211,12 +211,12 @@ namespace Ice
      * <code>local</code>.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API UnknownLocalException : public UnknownException
+    class ICE_API UnknownLocalException final : public UnknownException
     {
     public:
         using UnknownException::UnknownException;
 
-        const char* ice_id() const noexcept override;
+        const char* ice_id() const noexcept final;
     };
 
     /**
@@ -227,12 +227,32 @@ namespace Ice
      * signature: Only local exceptions and user exceptions declared in the <code>throws</code> clause can be raised.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API UnknownUserException : public UnknownException
+    class ICE_API UnknownUserException final : public UnknownException
     {
     public:
         using UnknownException::UnknownException;
 
-        const char* ice_id() const noexcept override;
+        const char* ice_id() const noexcept final;
+    };
+
+    /**
+     * Reports a failure that occurred while parsing a string.
+     */
+    class ICE_API ParseException final : public LocalException
+    {
+    public:
+        /**
+         * Constructs a ParseException.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         * @param message The message returned by what().
+         */
+        ParseException(const char* file, int line, std::string message)
+            : LocalException(file, line, std::move(message))
+        {
+        }
+
+        const char* ice_id() const noexcept final;
     };
 
     //
@@ -623,196 +643,6 @@ namespace Ice
          * The stringified proxy for which no suitable endpoint is available.
          */
         std::string proxy;
-    };
-
-    /**
-     * This exception is raised if there was an error while parsing an endpoint.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API EndpointParseException : public LocalException
-    {
-    public:
-        using LocalException::LocalException;
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param str Describes the failure and includes the string that could not be parsed.
-         */
-        EndpointParseException(const char* file, int line, std::string str) noexcept
-            : LocalException(file, line),
-              str(std::move(str))
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(str); }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * Describes the failure and includes the string that could not be parsed.
-         */
-        std::string str;
-    };
-
-    /**
-     * This exception is raised if there was an error while parsing an endpoint selection type.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API EndpointSelectionTypeParseException : public LocalException
-    {
-    public:
-        using LocalException::LocalException;
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param str Describes the failure and includes the string that could not be parsed.
-         */
-        EndpointSelectionTypeParseException(const char* file, int line, std::string str) noexcept
-            : LocalException(file, line),
-              str(std::move(str))
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(str); }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * Describes the failure and includes the string that could not be parsed.
-         */
-        std::string str;
-    };
-
-    /**
-     * This exception is raised if there was an error while parsing a version.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API VersionParseException : public LocalException
-    {
-    public:
-        using LocalException::LocalException;
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param str Describes the failure and includes the string that could not be parsed.
-         */
-        VersionParseException(const char* file, int line, std::string str) noexcept
-            : LocalException(file, line),
-              str(std::move(str))
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(str); }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * Describes the failure and includes the string that could not be parsed.
-         */
-        std::string str;
-    };
-
-    /**
-     * This exception is raised if there was an error while parsing a stringified identity.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API IdentityParseException : public LocalException
-    {
-    public:
-        using LocalException::LocalException;
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param str Describes the failure and includes the string that could not be parsed.
-         */
-        IdentityParseException(const char* file, int line, std::string str) noexcept
-            : LocalException(file, line),
-              str(std::move(str))
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(str); }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * Describes the failure and includes the string that could not be parsed.
-         */
-        std::string str;
-    };
-
-    /**
-     * This exception is raised if there was an error while parsing a stringified proxy.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API ProxyParseException : public LocalException
-    {
-    public:
-        using LocalException::LocalException;
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param str Describes the failure and includes the string that could not be parsed.
-         */
-        ProxyParseException(const char* file, int line, std::string str) noexcept
-            : LocalException(file, line),
-              str(std::move(str))
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(str); }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * Describes the failure and includes the string that could not be parsed.
-         */
-        std::string str;
     };
 
     /**

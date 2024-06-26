@@ -380,10 +380,10 @@ IceObjC::StreamEndpointI::checkOption(const string& option, const string& argume
         {
             if (argument.empty())
             {
-                throw EndpointParseException(
+                throw ParseException(
                     __FILE__,
                     __LINE__,
-                    "no argument provided for -t option in endpoint " + endpoint);
+                    "no argument provided for -t option in endpoint '" + endpoint + "'");
             }
 
             if (argument == "infinite")
@@ -395,10 +395,10 @@ IceObjC::StreamEndpointI::checkOption(const string& option, const string& argume
                 istringstream t(argument);
                 if (!(t >> const_cast<int32_t&>(_timeout)) || !t.eof() || _timeout < 1)
                 {
-                    throw EndpointParseException(
+                    throw ParseException(
                         __FILE__,
                         __LINE__,
-                        "invalid timeout value `" + argument + "' in endpoint " + endpoint);
+                        "invalid timeout value '" + argument + "' in endpoint '" + endpoint + "'");
                 }
             }
             return true;
@@ -408,10 +408,10 @@ IceObjC::StreamEndpointI::checkOption(const string& option, const string& argume
         {
             if (!argument.empty())
             {
-                throw EndpointParseException(
+                throw ParseException(
                     __FILE__,
                     __LINE__,
-                    "unexpected argument `" + argument + "' provided for -z option in " + endpoint);
+                    "unexpected argument '" + argument + "' provided for -z option in endpoint '" + endpoint + "'");
             }
             const_cast<bool&>(_compress) = true;
             return true;

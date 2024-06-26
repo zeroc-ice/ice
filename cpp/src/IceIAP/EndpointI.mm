@@ -574,9 +574,7 @@ IceObjC::iAPEndpointI::checkOption(const string& option, const string& argument,
         {
             if (argument.empty())
             {
-                EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "no argument provided for -h option in endpoint " + endpoint;
-                throw ex;
+                throw new ParseException{__FILE__, __LINE__, "no argument provided for -m option in endpoint '" + endpoint + "'"};
             }
             const_cast<string&>(_manufacturer) = argument;
             break;
@@ -586,9 +584,7 @@ IceObjC::iAPEndpointI::checkOption(const string& option, const string& argument,
         {
             if (argument.empty())
             {
-                EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "no argument provided for -h option in endpoint " + endpoint;
-                throw ex;
+                throw new ParseException{__FILE__, __LINE__, "no argument provided for -o option in endpoint '" + endpoint + "'"};
             }
             const_cast<string&>(_modelNumber) = argument;
             break;
@@ -598,9 +594,7 @@ IceObjC::iAPEndpointI::checkOption(const string& option, const string& argument,
         {
             if (argument.empty())
             {
-                EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "no argument provided for -h option in endpoint " + endpoint;
-                throw ex;
+                throw new ParseException{__FILE__, __LINE__, "no argument provided for -n option in endpoint '" + endpoint + "'"};
             }
             const_cast<string&>(_name) = argument;
             break;
@@ -610,9 +604,7 @@ IceObjC::iAPEndpointI::checkOption(const string& option, const string& argument,
         {
             if (argument.empty())
             {
-                EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "no argument provided for -h option in endpoint " + endpoint;
-                throw ex;
+               throw new ParseException{__FILE__, __LINE__, "no argument provided for -p option in endpoint '" + endpoint + "'"};
             }
             const_cast<string&>(_protocol) = argument;
             break;
@@ -629,9 +621,7 @@ IceObjC::iAPEndpointI::checkOption(const string& option, const string& argument,
                 istringstream t(argument);
                 if (!(t >> const_cast<int32_t&>(_timeout)) || !t.eof() || _timeout < 1)
                 {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "invalid timeout value `" + argument + "' in endpoint " + endpoint;
-                    throw ex;
+                    throw new ParseException{__FILE__, __LINE__, "invalid timeout value in endpoint '" + endpoint + "'"};
                 }
             }
             break;
@@ -641,9 +631,7 @@ IceObjC::iAPEndpointI::checkOption(const string& option, const string& argument,
         {
             if (!argument.empty())
             {
-                EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "no argument provided for -h option in endpoint " + endpoint;
-                throw ex;
+                throw new ParseException{__FILE__, __LINE__, "argument provided for -z option in endpoint '" + endpoint + "'"};
             }
             const_cast<bool&>(_compress) = true;
             break;

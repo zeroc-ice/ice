@@ -429,10 +429,10 @@ IceInternal::WSEndpoint::checkOption(const string& option, const string& argumen
         {
             if (argument.empty())
             {
-                throw EndpointParseException(
+                throw ParseException(
                     __FILE__,
                     __LINE__,
-                    "no argument provided for -r option in endpoint " + endpoint + _delegate->options());
+                    "no argument provided for -r option in endpoint '" + endpoint + _delegate->options() + "'");
             }
             const_cast<string&>(_resource) = argument;
             return true;

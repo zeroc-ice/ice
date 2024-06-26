@@ -963,12 +963,12 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
         {
             _reference = _instance->referenceFactory()->create("dummy " + proxyOptions, "");
         }
-        catch (const ProxyParseException&)
+        catch (const ParseException&)
         {
             throw InitializationException(
                 __FILE__,
                 __LINE__,
-                "invalid proxy options `" + proxyOptions + "' for object adapter `" + _name + "'");
+                "invalid proxy options '" + proxyOptions + "' for object adapter `" + _name + "'");
         }
 
         {
@@ -1172,7 +1172,7 @@ Ice::ObjectAdapterI::parseEndpoints(const string& endpts, bool oaEndpoints) cons
         {
             if (!endpoints.empty())
             {
-                throw EndpointParseException(__FILE__, __LINE__, "invalid empty object adapter endpoint");
+                throw ParseException(__FILE__, __LINE__, "invalid empty object adapter endpoint");
             }
             break;
         }
@@ -1222,14 +1222,14 @@ Ice::ObjectAdapterI::parseEndpoints(const string& endpts, bool oaEndpoints) cons
 
         if (end == beg)
         {
-            throw EndpointParseException(__FILE__, __LINE__, "invalid empty object adapter endpoint");
+            throw ParseException(__FILE__, __LINE__, "invalid empty object adapter endpoint");
         }
 
         string s = endpts.substr(beg, end - beg);
         EndpointIPtr endp = _instance->endpointFactoryManager()->create(s, oaEndpoints);
         if (endp == 0)
         {
-            throw EndpointParseException(__FILE__, __LINE__, "invalid object adapter endpoint `" + s + "'");
+            throw ParseException(__FILE__, __LINE__, "invalid object adapter endpoint '" + s + "'");
         }
         endpoints.push_back(endp);
 

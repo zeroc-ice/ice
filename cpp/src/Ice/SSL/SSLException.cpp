@@ -32,15 +32,3 @@ CertificateEncodingException::ice_id() const noexcept
 {
     return "::Ice::SSL::CertificateEncodingException";
 }
-
-ParseException::ParseException(const char* file, int line, string r) noexcept
-    : LocalException(file, line),
-      reason(std::move(r))
-{
-}
-
-const char*
-ParseException::ice_id() const noexcept
-{
-    return "::Ice::SSL::ParseException";
-}

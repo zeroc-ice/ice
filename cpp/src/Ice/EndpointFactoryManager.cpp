@@ -71,12 +71,12 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
     bool b = IceInternal::splitString(str, " \t\n\r", v);
     if (!b)
     {
-        throw EndpointParseException(__FILE__, __LINE__, "mismatched quote");
+        throw ParseException(__FILE__, __LINE__, "mismatched quotes in endpoint '" + str + "'");
     }
 
     if (v.empty())
     {
-        throw EndpointParseException(__FILE__, __LINE__, "value has no non-whitespace characters");
+        throw ParseException(__FILE__, __LINE__, "endpoint '" + str + "' has no non-whitespace characters");
     }
 
     string protocol = v.front();
@@ -108,10 +108,10 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
         EndpointIPtr e = factory->create(v, oaEndpoint);
         if (!v.empty())
         {
-            throw EndpointParseException(
+            throw ParseException(
                 __FILE__,
                 __LINE__,
-                "unrecognized argument `" + v.front() + "' in endpoint `" + str + "'");
+                "unrecognized argument `" + v.front() + "' in endpoint '" + str + "'");
         }
         return e;
     }
@@ -125,10 +125,10 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
         EndpointIPtr ue = make_shared<OpaqueEndpointI>(v);
         if (!v.empty())
         {
-            throw EndpointParseException(
+            throw ParseException(
                 __FILE__,
                 __LINE__,
-                "unrecognized argument `" + v.front() + "' in endpoint `" + str + "'");
+                "unrecognized argument '" + v.front() + "' in endpoint '" + str + "'");
         }
         factory = get(ue->type());
         if (factory)
