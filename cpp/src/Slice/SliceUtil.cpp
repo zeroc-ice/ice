@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../IceUtil/ConsoleUtil.h"
-#include "../IceUtil/FileUtil.h"
+#include "../Ice/ConsoleUtil.h"
+#include "../Ice/FileUtil.h"
 #include "FileTracker.h"
 #include "Ice/StringConverter.h"
 #include "Ice/StringUtil.h"
@@ -19,7 +19,7 @@
 
 using namespace std;
 using namespace Slice;
-using namespace IceUtilInternal;
+using namespace IceInternal;
 
 namespace
 {
@@ -96,10 +96,10 @@ Slice::fullPath(const string& path)
     //
 
     string result = path;
-    if (!IceUtilInternal::isAbsolutePath(result))
+    if (!IceInternal::isAbsolutePath(result))
     {
         string cwd;
-        if (IceUtilInternal::getcwd(cwd) == 0)
+        if (IceInternal::getcwd(cwd) == 0)
         {
             result = string(cwd) + '/' + result;
         }
@@ -132,7 +132,7 @@ Slice::fullPath(const string& path)
         {
             buf[len] = '\0';
             string linkpath = buf;
-            if (!IceUtilInternal::isAbsolutePath(linkpath)) // Path relative to the location of the link
+            if (!IceInternal::isAbsolutePath(linkpath)) // Path relative to the location of the link
             {
                 string::size_type pos = subpath.rfind('/');
                 assert(pos != string::npos);
@@ -353,7 +353,7 @@ Slice::filterMcppWarnings(const string& message)
 }
 
 void
-Slice::printGeneratedHeader(IceUtilInternal::Output& out, const string& path, const string& comment)
+Slice::printGeneratedHeader(IceInternal::Output& out, const string& path, const string& comment)
 {
     //
     // Get only the file name part of the given path.
@@ -386,7 +386,7 @@ Slice::writeDependencies(const string& dependencies, const string& dependFile)
     }
     else
     {
-        ofstream of(IceUtilInternal::streamFilename(dependFile).c_str()); // dependFile is a UTF-8 string
+        ofstream of(IceInternal::streamFilename(dependFile).c_str()); // dependFile is a UTF-8 string
         if (!of)
         {
             ostringstream os;

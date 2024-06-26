@@ -3,7 +3,7 @@
 //
 
 #include "Gen.h"
-#include "../IceUtil/FileUtil.h"
+#include "../Ice/FileUtil.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Util.h"
 #include "CPlusPlusUtil.h"
@@ -17,7 +17,6 @@
 using namespace std;
 using namespace Slice;
 using namespace IceInternal;
-using namespace IceUtilInternal;
 
 namespace
 {
@@ -90,7 +89,7 @@ namespace
     }
 
     void writeConstantValue(
-        IceUtilInternal::Output& out,
+        IceInternal::Output& out,
         const TypePtr& type,
         const SyntaxTreeBasePtr& valueType,
         const string& value,
@@ -186,7 +185,7 @@ namespace
 
     // Marshals the parameters of an outgoing request.
     void writeInParamsLambda(
-        IceUtilInternal::Output& C,
+        IceInternal::Output& C,
         const OperationPtr& p,
         const ParamDeclList& inParams,
         const string& scope)
@@ -208,7 +207,7 @@ namespace
         }
     }
 
-    void throwUserExceptionLambda(IceUtilInternal::Output& C, ExceptionList throws, const string& scope)
+    void throwUserExceptionLambda(IceInternal::Output& C, ExceptionList throws, const string& scope)
     {
         if (throws.empty())
         {
@@ -854,7 +853,7 @@ Slice::Gen::generate(const UnitPtr& p)
 }
 
 void
-Slice::Gen::writeExtraHeaders(IceUtilInternal::Output& out)
+Slice::Gen::writeExtraHeaders(IceInternal::Output& out)
 {
     for (string header : _extraHeaders)
     {
@@ -1984,10 +1983,7 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
     C << ");" << eb;
 }
 
-Slice::Gen::DataDefVisitor::DataDefVisitor(
-    IceUtilInternal::Output& h,
-    IceUtilInternal::Output& c,
-    const string& dllExport)
+Slice::Gen::DataDefVisitor::DataDefVisitor(IceInternal::Output& h, IceInternal::Output& c, const string& dllExport)
     : H(h),
       C(c),
       _dllExport(dllExport),
@@ -2678,8 +2674,8 @@ Slice::Gen::DataDefVisitor::emitDataMember(const DataMemberPtr& p)
 }
 
 Slice::Gen::InterfaceVisitor::InterfaceVisitor(
-    ::IceUtilInternal::Output& h,
-    ::IceUtilInternal::Output& c,
+    ::IceInternal::Output& h,
+    ::IceInternal::Output& c,
     const string& dllExport)
     : H(h),
       C(c),

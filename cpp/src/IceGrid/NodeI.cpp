@@ -3,7 +3,7 @@
 //
 
 #include "NodeI.h"
-#include "../IceUtil/FileUtil.h"
+#include "../Ice/FileUtil.h"
 #include "Activator.h"
 #include "Ice/Ice.h"
 #include "Ice/Timer.h"
@@ -735,7 +735,7 @@ NodeI::canRemoveServerDirectory(const string& name)
         }
     }
 
-    if (IceUtilInternal::directoryExists(_serversDir + "/" + name + "/dbs"))
+    if (IceInternal::directoryExists(_serversDir + "/" + name + "/dbs"))
     {
         c = readDirectory(_serversDir + "/" + name + "/dbs");
         for (Ice::StringSeq::const_iterator p = c.begin(); p != c.end(); ++p)
@@ -757,7 +757,7 @@ NodeI::canRemoveServerDirectory(const string& name)
         }
     }
 
-    if (IceUtilInternal::directoryExists(_serversDir + "/" + name + "/data"))
+    if (IceInternal::directoryExists(_serversDir + "/" + name + "/data"))
     {
         if (!readDirectory(_serversDir + "/" + name + "/data").empty())
         {

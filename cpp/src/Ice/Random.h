@@ -2,14 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_UTIL_RANDOM_H
-#define ICE_UTIL_RANDOM_H
+#ifndef ICE_RANDOM_H
+#define ICE_RANDOM_H
 
 #include "Ice/Config.h"
 #include <algorithm>
 #include <random>
 
-namespace IceUtilInternal
+namespace IceInternal
 {
     ICE_API void generateRandom(char*, size_t);
     ICE_API unsigned int random(unsigned int = 0);

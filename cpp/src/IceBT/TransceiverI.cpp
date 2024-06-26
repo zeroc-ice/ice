@@ -11,7 +11,7 @@
 #include "Ice/Connection.h"
 #include "Ice/LocalException.h"
 
-#include "../IceUtil/DisableWarnings.h"
+#include "../Ice/DisableWarnings.h"
 
 using namespace std;
 using namespace Ice;

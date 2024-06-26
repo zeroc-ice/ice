@@ -3,8 +3,8 @@
 //
 
 #include "Ice/Service.h"
-#include "../IceUtil/ConsoleUtil.h"
 #include "ArgVector.h"
+#include "ConsoleUtil.h"
 #include "Ice/StringUtil.h"
 #include "LoggerI.h"
 
@@ -24,7 +24,6 @@
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
-using namespace IceUtilInternal;
 
 Ice::Service* Ice::Service::_instance = 0;
 static CtrlCHandler* _ctrlCHandler = 0;

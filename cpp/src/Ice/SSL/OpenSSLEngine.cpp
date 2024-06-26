@@ -3,7 +3,7 @@
 //
 
 #include "OpenSSLEngine.h"
-#include "../../IceUtil/FileUtil.h"
+#include "../FileUtil.h"
 #include "Ice/Communicator.h"
 #include "Ice/Config.h"
 #include "Ice/LocalException.h"

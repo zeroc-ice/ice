@@ -7,7 +7,7 @@
 // We use a high quality random number generator
 // (std::random_device) to generate "version 4" UUIDs, as described in
 // http://www.ietf.org/internet-drafts/draft-mealling-uuid-urn-00.txt
-#include "../IceUtil/Random.h"
+#include "Random.h"
 
 using namespace std;
 
@@ -54,7 +54,7 @@ Ice::generateUUID()
 
     // Get a random sequence of bytes.
     char* buffer = reinterpret_cast<char*>(&uuid);
-    IceUtilInternal::generateRandom(buffer, sizeof(UUID));
+    IceInternal::generateRandom(buffer, sizeof(UUID));
 
     // Adjust the bits that say "version 4" UUID
     uuid.timeHighAndVersion[0] &= 0x0F;

@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_UTIL_SCANNER_CONFIG_H
-#define ICE_UTIL_SCANNER_CONFIG_H
+#ifndef ICE_SCANNER_CONFIG_H
+#define ICE_SCANNER_CONFIG_H
 
 #include "Ice/Config.h" // Required by generated Scanners.
 

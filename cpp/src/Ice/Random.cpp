@@ -9,7 +9,7 @@
 using namespace std;
 
 void
-IceUtilInternal::generateRandom(char* buffer, size_t size)
+IceInternal::generateRandom(char* buffer, size_t size)
 {
     // We use the random_device directly here to get cryptographic random numbers when possible.
     thread_local static std::random_device rd;
@@ -21,7 +21,7 @@ IceUtilInternal::generateRandom(char* buffer, size_t size)
 }
 
 unsigned int
-IceUtilInternal::random(unsigned int limit)
+IceInternal::random(unsigned int limit)
 {
     assert(limit > 0);
     thread_local static std::random_device rd;

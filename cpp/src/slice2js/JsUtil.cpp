@@ -21,7 +21,6 @@
 using namespace std;
 using namespace Slice;
 using namespace IceInternal;
-using namespace IceUtilInternal;
 
 string
 Slice::relativePath(const string& p1, const string& p2)

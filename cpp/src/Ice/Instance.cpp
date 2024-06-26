@@ -3,13 +3,13 @@
 //
 
 #include "Instance.h"
-#include "../IceUtil/ConsoleUtil.h"
-#include "../IceUtil/DisableWarnings.h"
-#include "../IceUtil/FileUtil.h"
 #include "CheckIdentity.h"
 #include "ConnectionFactory.h"
+#include "ConsoleUtil.h"
 #include "DefaultsAndOverrides.h"
+#include "DisableWarnings.h"
 #include "EndpointFactoryManager.h"
+#include "FileUtil.h"
 #include "IPEndpointI.h" // For EndpointHostResolver
 #include "Ice/Communicator.h"
 #include "Ice/Exception.h"
@@ -76,9 +76,8 @@
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
-using namespace IceUtilInternal;
 
-namespace IceUtilInternal
+namespace IceInternal
 {
     extern bool nullHandleAbort;
     extern bool printStackTraces;
@@ -936,7 +935,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
                 if (stdOutFilename != "")
                 {
-                    FILE* file = IceUtilInternal::freopen(stdOutFilename, "a", stdout);
+                    FILE* file = IceInternal::freopen(stdOutFilename, "a", stdout);
                     if (file == 0)
                     {
                         throw FileException(__FILE__, __LINE__, stdOutFilename);
@@ -945,7 +944,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
                 if (stdErrFilename != "")
                 {
-                    FILE* file = IceUtilInternal::freopen(stdErrFilename, "a", stderr);
+                    FILE* file = IceInternal::freopen(stdErrFilename, "a", stderr);
                     if (file == 0)
                     {
                         throw FileException(__FILE__, __LINE__, stdErrFilename);
@@ -955,12 +954,12 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 #ifdef NDEBUG
                 if (_initData.properties->getIcePropertyAsInt("Ice.PrintStackTraces") > 0)
                 {
-                    IceUtilInternal::printStackTraces = true;
+                    IceInternal::printStackTraces = true;
                 }
 #else
                 if (_initData.properties->getPropertyAsIntWithDefault("Ice.PrintStackTraces", 1) == 0)
                 {
-                    IceUtilInternal::printStackTraces = false;
+                    IceInternal::printStackTraces = false;
                 }
 #endif
 

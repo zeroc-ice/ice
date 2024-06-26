@@ -3,8 +3,8 @@
 //
 
 #include "Slice.h"
-#include "IceUtil/ConsoleUtil.h"
-#include "IceUtil/Options.h"
+#include "Ice/ConsoleUtil.h"
+#include "Ice/Options.h"
 #include "Slice/Preprocessor.h"
 #include "Slice/Util.h"
 #include "Util.h"
@@ -25,7 +25,7 @@ using namespace std;
 using namespace IcePy;
 using namespace Slice;
 using namespace Slice::Python;
-using namespace IceUtilInternal;
+using namespace IceInternal;
 
 extern "C" PyObject*
 IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
@@ -40,14 +40,14 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     vector<string> argSeq;
     try
     {
-        argSeq = IceUtilInternal::Options::split(cmd);
+        argSeq = IceInternal::Options::split(cmd);
     }
-    catch (const IceUtilInternal::BadOptException& ex)
+    catch (const IceInternal::BadOptException& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
         return 0;
     }
-    catch (const IceUtilInternal::APIException& ex)
+    catch (const IceInternal::APIException& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
         return 0;
@@ -61,10 +61,10 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         }
     }
 
-    IceUtilInternal::Options opts;
-    opts.addOpt("D", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
-    opts.addOpt("U", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
-    opts.addOpt("I", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    IceInternal::Options opts;
+    opts.addOpt("D", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
+    opts.addOpt("U", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
+    opts.addOpt("I", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("d", "debug");
     opts.addOpt("", "all");
 
@@ -79,12 +79,12 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
             return 0;
         }
     }
-    catch (const IceUtilInternal::BadOptException& ex)
+    catch (const IceInternal::BadOptException& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
         return 0;
     }
-    catch (const IceUtilInternal::APIException& ex)
+    catch (const IceInternal::APIException& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
         return 0;
@@ -149,7 +149,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         // Generate the Python code into a string stream.
         //
         ostringstream codeStream;
-        IceUtilInternal::Output out(codeStream);
+        IceInternal::Output out(codeStream);
         out.setUseTab(false);
 
         //

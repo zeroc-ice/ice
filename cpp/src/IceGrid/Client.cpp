@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../Ice/ConsoleUtil.h"
+#include "../Ice/Options.h"
 #include "../IceLocatorDiscovery/Plugin.h"
-#include "../IceUtil/ConsoleUtil.h"
-#include "../IceUtil/Options.h"
 #include "FileParserI.h"
 #include "Glacier2/Router.h"
 #include "Ice/Ice.h"
@@ -28,7 +28,6 @@
 #endif
 
 using namespace std;
-using namespace IceUtilInternal;
 using namespace IceInternal;
 
 class Client;
@@ -187,19 +186,19 @@ run(const Ice::StringSeq& args)
     string commands;
     bool debug;
 
-    IceUtilInternal::Options opts;
+    IceInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
-    opts.addOpt("e", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
-    opts.addOpt("i", "instanceName", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::NoRepeat);
-    opts.addOpt("H", "host", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::NoRepeat);
-    opts.addOpt("P", "port", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::NoRepeat);
-    opts.addOpt("u", "username", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::NoRepeat);
-    opts.addOpt("p", "password", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::NoRepeat);
+    opts.addOpt("e", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
+    opts.addOpt("i", "instanceName", IceInternal::Options::NeedArg, "", IceInternal::Options::NoRepeat);
+    opts.addOpt("H", "host", IceInternal::Options::NeedArg, "", IceInternal::Options::NoRepeat);
+    opts.addOpt("P", "port", IceInternal::Options::NeedArg, "", IceInternal::Options::NoRepeat);
+    opts.addOpt("u", "username", IceInternal::Options::NeedArg, "", IceInternal::Options::NoRepeat);
+    opts.addOpt("p", "password", IceInternal::Options::NeedArg, "", IceInternal::Options::NoRepeat);
     opts.addOpt("S", "ssl");
     opts.addOpt("d", "debug");
     opts.addOpt("s", "server");
-    opts.addOpt("r", "replica", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::NoRepeat);
+    opts.addOpt("r", "replica", IceInternal::Options::NeedArg, "", IceInternal::Options::NoRepeat);
 
     try
     {
@@ -210,7 +209,7 @@ run(const Ice::StringSeq& args)
             return 1;
         }
     }
-    catch (const IceUtilInternal::BadOptException& e)
+    catch (const IceInternal::BadOptException& e)
     {
         consoleErr << e.reason << endl;
         usage(args[0]);

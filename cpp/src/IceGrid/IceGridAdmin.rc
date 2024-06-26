@@ -1,4 +1,4 @@
-#include "../IceUtil/ResourceConfig.h"
+#include "../Ice/ResourceConfig.h"
 
 #define ICE_INTERNALNAME "icegridadmin\0"
 #define ICE_ORIGINALFILENAME "icegridadmin.exe\0"

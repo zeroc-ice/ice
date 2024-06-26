@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../IceUtil/Options.h"
+#include "../Ice/Options.h"
 #include "Ice/Connection.h"
 #include "Ice/ObjectAdapter.h"
 #include "Ice/Router.h"
@@ -513,7 +513,7 @@ BridgeI::outgoingException(const shared_ptr<BridgeConnection>& bc, exception_ptr
 bool
 BridgeService::start(int argc, char* argv[], int& status)
 {
-    IceUtilInternal::Options opts;
+    IceInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
 
@@ -522,7 +522,7 @@ BridgeService::start(int argc, char* argv[], int& status)
     {
         args = opts.parse(argc, const_cast<const char**>(argv));
     }
-    catch (const IceUtilInternal::BadOptException& e)
+    catch (const IceInternal::BadOptException& e)
     {
         error(e.reason);
         usage(argv[0]);

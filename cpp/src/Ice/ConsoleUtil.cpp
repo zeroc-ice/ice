@@ -12,7 +12,7 @@
 #include <iostream>
 #include <mutex>
 
-using namespace IceUtilInternal;
+using namespace IceInternal;
 using namespace std;
 
 #if defined(_WIN32)
@@ -24,7 +24,7 @@ namespace
 }
 
 const ConsoleUtil&
-IceUtilInternal::getConsoleUtil()
+IceInternal::getConsoleUtil()
 {
     lock_guard sync(consoleMutex);
     if (consoleUtil == 0)
@@ -34,8 +34,8 @@ IceUtilInternal::getConsoleUtil()
     return *consoleUtil;
 }
 
-ConsoleOut IceUtilInternal::consoleOut;
-ConsoleErr IceUtilInternal::consoleErr;
+ConsoleOut IceInternal::consoleOut;
+ConsoleErr IceInternal::consoleErr;
 
 ConsoleUtil::ConsoleUtil()
     : _converter(Ice::getProcessStringConverter()),
@@ -91,7 +91,7 @@ ConsoleUtil::error(const string& message) const
 }
 
 ConsoleOut&
-IceUtilInternal::endl(ConsoleOut& out)
+IceInternal::endl(ConsoleOut& out)
 {
     fprintf_s(stdout, "\n");
     fflush(stdout);
@@ -99,7 +99,7 @@ IceUtilInternal::endl(ConsoleOut& out)
 }
 
 ConsoleOut&
-IceUtilInternal::flush(ConsoleOut& out)
+IceInternal::flush(ConsoleOut& out)
 {
     fflush(stdout);
     return out;
@@ -113,7 +113,7 @@ ConsoleOut::operator<<(ConsoleOut& (*pf)(ConsoleOut&))
 }
 
 ConsoleErr&
-IceUtilInternal::endl(ConsoleErr& err)
+IceInternal::endl(ConsoleErr& err)
 {
     fprintf_s(stderr, "\n");
     fflush(stderr);
@@ -121,7 +121,7 @@ IceUtilInternal::endl(ConsoleErr& err)
 }
 
 ConsoleErr&
-IceUtilInternal::flush(ConsoleErr& err)
+IceInternal::flush(ConsoleErr& err)
 {
     fflush(stderr);
     return err;
@@ -134,6 +134,6 @@ ConsoleErr::operator<<(ConsoleErr& (*pf)(ConsoleErr&))
     return *this;
 }
 #else
-std::ostream& IceUtilInternal::consoleOut = cout;
-std::ostream& IceUtilInternal::consoleErr = cerr;
+std::ostream& IceInternal::consoleOut = cout;
+std::ostream& IceInternal::consoleErr = cerr;
 #endif

@@ -5,7 +5,7 @@
 #ifndef SWIFT_UTIL_H
 #define SWIFT_UTIL_H
 
-#include "../IceUtil/OutputUtil.h"
+#include "../Ice/OutputUtil.h"
 #include "../Slice/Parser.h"
 
 typedef std::list<std::pair<std::string, std::string>> StringPairList;
@@ -64,18 +64,18 @@ namespace Slice
         bool parseCommentLine(const std::string&, const std::string&, bool, std::string&, std::string&);
         DocElements parseComment(const ContainedPtr&);
         void writeDocLines(
-            IceUtilInternal::Output&,
+            IceInternal::Output&,
             const StringList&,
             bool commentFirst = true,
             const std::string& space = " ");
-        void writeDocSentence(IceUtilInternal::Output&, const StringList&);
-        void writeSeeAlso(IceUtilInternal::Output&, const StringList&, const ContainerPtr&);
-        void writeDocSummary(IceUtilInternal::Output&, const ContainedPtr&);
-        void writeOpDocSummary(IceUtilInternal::Output&, const OperationPtr&, bool, bool);
+        void writeDocSentence(IceInternal::Output&, const StringList&);
+        void writeSeeAlso(IceInternal::Output&, const StringList&, const ContainerPtr&);
+        void writeDocSummary(IceInternal::Output&, const ContainedPtr&);
+        void writeOpDocSummary(IceInternal::Output&, const OperationPtr&, bool, bool);
 
-        void writeProxyDocSummary(IceUtilInternal::Output&, const InterfaceDefPtr&, const std::string&);
-        void writeServantDocSummary(IceUtilInternal::Output&, const InterfaceDefPtr&, const std::string&);
-        void writeMemberDoc(IceUtilInternal::Output&, const DataMemberPtr&);
+        void writeProxyDocSummary(IceInternal::Output&, const InterfaceDefPtr&, const std::string&);
+        void writeServantDocSummary(IceInternal::Output&, const InterfaceDefPtr&, const std::string&);
+        void writeMemberDoc(IceInternal::Output&, const DataMemberPtr&);
 
         std::string paramLabel(const std::string&, const ParamDeclList&);
         std::string operationReturnType(const OperationPtr&, int typeCtx = 0);
@@ -115,27 +115,27 @@ namespace Slice
 
         std::string getValue(const std::string&, const TypePtr&);
         void writeConstantValue(
-            IceUtilInternal::Output& out,
+            IceInternal::Output& out,
             const TypePtr&,
             const SyntaxTreeBasePtr&,
             const std::string&,
             const StringList&,
             const std::string&,
             bool optional = false);
-        void writeDefaultInitializer(IceUtilInternal::Output&, bool, bool);
-        void writeMemberwiseInitializer(IceUtilInternal::Output&, const DataMemberList&, const ContainedPtr&);
+        void writeDefaultInitializer(IceInternal::Output&, bool, bool);
+        void writeMemberwiseInitializer(IceInternal::Output&, const DataMemberList&, const ContainedPtr&);
         void writeMemberwiseInitializer(
-            IceUtilInternal::Output&,
+            IceInternal::Output&,
             const DataMemberList&,
             const DataMemberList&,
             const DataMemberList&,
             const ContainedPtr&,
             bool rootClass = false,
             const StringPairList& = StringPairList());
-        void writeMembers(IceUtilInternal::Output&, const DataMemberList&, const ContainedPtr&, int = 0);
+        void writeMembers(IceInternal::Output&, const DataMemberList&, const ContainedPtr&, int = 0);
 
         void writeMarshalUnmarshalCode(
-            ::IceUtilInternal::Output&,
+            ::IceInternal::Output&,
             const TypePtr&,
             const ContainedPtr&,
             const std::string&,
@@ -143,16 +143,16 @@ namespace Slice
             int = -1);
 
         bool usesMarshalHelper(const TypePtr&);
-        void writeMarshalInParams(::IceUtilInternal::Output&, const OperationPtr&);
-        void writeMarshalOutParams(::IceUtilInternal::Output&, const OperationPtr&);
-        void writeMarshalAsyncOutParams(::IceUtilInternal::Output&, const OperationPtr&);
-        void writeUnmarshalInParams(::IceUtilInternal::Output&, const OperationPtr&);
-        void writeUnmarshalOutParams(::IceUtilInternal::Output&, const OperationPtr&);
-        void writeUnmarshalUserException(::IceUtilInternal::Output& out, const OperationPtr&);
-        void writeSwiftAttributes(::IceUtilInternal::Output&, const StringList&);
-        void writeProxyOperation(::IceUtilInternal::Output&, const OperationPtr&);
-        void writeProxyAsyncOperation(::IceUtilInternal::Output&, const OperationPtr&);
-        void writeDispatchOperation(::IceUtilInternal::Output&, const OperationPtr&);
+        void writeMarshalInParams(::IceInternal::Output&, const OperationPtr&);
+        void writeMarshalOutParams(::IceInternal::Output&, const OperationPtr&);
+        void writeMarshalAsyncOutParams(::IceInternal::Output&, const OperationPtr&);
+        void writeUnmarshalInParams(::IceInternal::Output&, const OperationPtr&);
+        void writeUnmarshalOutParams(::IceInternal::Output&, const OperationPtr&);
+        void writeUnmarshalUserException(::IceInternal::Output& out, const OperationPtr&);
+        void writeSwiftAttributes(::IceInternal::Output&, const StringList&);
+        void writeProxyOperation(::IceInternal::Output&, const OperationPtr&);
+        void writeProxyAsyncOperation(::IceInternal::Output&, const OperationPtr&);
+        void writeDispatchOperation(::IceInternal::Output&, const OperationPtr&);
 
     private:
         class MetaDataVisitor final : public ParserVisitor

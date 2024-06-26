@@ -5,7 +5,7 @@
 #ifndef JAVA_UTIL_H
 #define JAVA_UTIL_H
 
-#include "../IceUtil/OutputUtil.h"
+#include "../Ice/OutputUtil.h"
 #include "../Slice/Parser.h"
 
 namespace Slice
@@ -26,7 +26,7 @@ namespace Slice
     //
     bool isValidMethodParameterList(const DataMemberList&, int additionalUnits = 0);
 
-    class JavaOutput final : public ::IceUtilInternal::Output
+    class JavaOutput final : public ::IceInternal::Output
     {
     public:
         JavaOutput();
@@ -74,7 +74,7 @@ namespace Slice
         //
         void open(const std::string&, const std::string&);
 
-        ::IceUtilInternal::Output& output() const;
+        ::IceInternal::Output& output() const;
 
         //
         // Check a symbol against any of the Java keywords. If a
@@ -174,7 +174,7 @@ namespace Slice
         std::string getReadFunction(const std::string&, const TypePtr&);
 
         void writeMarshalUnmarshalCode(
-            ::IceUtilInternal::Output&,
+            ::IceInternal::Output&,
             const std::string&,
             const TypePtr&,
             OptionalMode,
@@ -191,7 +191,7 @@ namespace Slice
         // Generate code to marshal or unmarshal a dictionary type.
         //
         void writeDictionaryMarshalUnmarshalCode(
-            ::IceUtilInternal::Output&,
+            ::IceInternal::Output&,
             const std::string&,
             const DictionaryPtr&,
             const std::string&,
@@ -205,7 +205,7 @@ namespace Slice
         // Generate code to marshal or unmarshal a sequence type.
         //
         void writeSequenceMarshalUnmarshalCode(
-            ::IceUtilInternal::Output&,
+            ::IceInternal::Output&,
             const std::string&,
             const SequencePtr&,
             const std::string&,
@@ -250,7 +250,7 @@ namespace Slice
 
     private:
         std::string _dir;
-        ::IceUtilInternal::Output* _out;
+        ::IceInternal::Output* _out;
     };
 }
 

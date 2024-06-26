@@ -6,8 +6,8 @@
     \hideincludedbygraph
 */
 
-#ifndef ICE_UTIL_UNDEF_SYS_MACROS_H
-#define ICE_UTIL_UNDEF_SYS_MACROS_H
+#ifndef ICE_UNDEF_SYS_MACROS_H
+#define ICE_UNDEF_SYS_MACROS_H
 
 //
 // This header includes macros that can end up being dragged into

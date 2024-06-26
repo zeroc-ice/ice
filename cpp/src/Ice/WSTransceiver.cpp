@@ -3,7 +3,6 @@
 //
 
 #include "WSTransceiver.h"
-#include "../IceUtil/Random.h"
 #include "Base64.h"
 #include "Endian.h"
 #include "HttpParser.h"
@@ -16,6 +15,7 @@
 #include "Ice/SHA1.h"
 #include "Ice/StringUtil.h"
 #include "ProtocolInstance.h"
+#include "Random.h"
 
 #include <climits>
 #include <stdint.h>
@@ -193,7 +193,7 @@ IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
                 // encoded with Base64.
                 //
                 vector<byte> key(16);
-                IceUtilInternal::generateRandom(reinterpret_cast<char*>(&key[0]), key.size());
+                IceInternal::generateRandom(reinterpret_cast<char*>(&key[0]), key.size());
                 _key = IceInternal::Base64::encode(key);
                 out << _key << "\r\n\r\n"; // EOM
 
@@ -1714,7 +1714,7 @@ IceInternal::WSTransceiver::prepareWriteHeader(uint8_t opCode, IceInternal::Buff
         // and apply the mask.
         //
         _writeBuffer.b[1] |= byte{FLAG_MASKED};
-        IceUtilInternal::generateRandom(reinterpret_cast<char*>(_writeMask), sizeof(_writeMask));
+        IceInternal::generateRandom(reinterpret_cast<char*>(_writeMask), sizeof(_writeMask));
         memcpy(_writeBuffer.i, _writeMask, sizeof(_writeMask));
         _writeBuffer.i += sizeof(_writeMask);
     }

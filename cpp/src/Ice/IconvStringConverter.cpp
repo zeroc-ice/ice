@@ -8,7 +8,6 @@
 
 using namespace std;
 using namespace Ice;
-using namespace Ice;
 
 IconvInitializationException::IconvInitializationException(const char* file, int line, string reason) noexcept
     : LocalException(file, line),

@@ -3,16 +3,16 @@
 //
 
 #include "ServiceManagerI.h"
+#include "../Ice/ConsoleUtil.h"
 #include "../Ice/DynamicLibrary.h"
 #include "../Ice/Instance.h"
-#include "../IceUtil/ConsoleUtil.h"
-#include "../IceUtil/Options.h"
+#include "../Ice/Options.h"
 #include "Ice/Ice.h"
 #include "Ice/Initialize.h"
 #include "Ice/StringUtil.h"
 
 using namespace Ice;
-using namespace IceUtilInternal;
+using namespace IceInternal;
 using namespace IceBox;
 using namespace std;
 
@@ -32,9 +32,9 @@ namespace
             //
             try
             {
-                args = IceUtilInternal::Options::split(value);
+                args = IceInternal::Options::split(value);
             }
-            catch (const IceUtilInternal::BadOptException& ex)
+            catch (const IceInternal::BadOptException& ex)
             {
                 throw FailureException(
                     __FILE__,

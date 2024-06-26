@@ -3,7 +3,7 @@
 //
 
 #include "ProxyVerifier.h"
-#include "../IceUtil/ConsoleUtil.h"
+#include "../Ice/ConsoleUtil.h"
 
 #include <stdexcept>
 #include <string>
@@ -12,7 +12,6 @@
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
-using namespace IceUtilInternal;
 
 //
 // TODO: Some of the address matching helper classes can probably be

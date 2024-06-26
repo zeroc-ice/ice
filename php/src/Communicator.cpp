@@ -9,9 +9,9 @@
 #include "Types.h"
 #include "Util.h"
 
+#include "Ice/Options.h"
 #include "Ice/StringUtil.h"
 #include "Ice/Timer.h"
-#include "IceUtil/Options.h"
 
 #include <chrono>
 #include <condition_variable>
@@ -23,7 +23,7 @@
 #    undef getcwd
 #endif
 
-#include "IceUtil/FileUtil.h"
+#include "Ice/FileUtil.h"
 
 using namespace std;
 using namespace IcePHP;
@@ -1532,7 +1532,7 @@ createProfile(const string& name, const string& config, const string& options)
         vector<string> args;
         try
         {
-            args = IceUtilInternal::Options::split(options);
+            args = IceInternal::Options::split(options);
         }
         catch (const Ice::Exception& ex)
         {
@@ -1562,7 +1562,7 @@ parseProfiles(const string& file)
     // [profile-name]
     // ice.config = config-file
     // ice.options = args
-    ifstream in(IceUtilInternal::streamFilename(file).c_str());
+    ifstream in(IceInternal::streamFilename(file).c_str());
     if (!in)
     {
         php_error_docref(0, E_WARNING, "unable to open Ice profiles in %s", file.c_str());

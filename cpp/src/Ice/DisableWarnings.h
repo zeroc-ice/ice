@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_UTIL_DISABLEWARNINGS_H
-#define ICE_UTIL_DISABLEWARNINGS_H
+#ifndef ICE_DISABLEWARNINGS_H
+#define ICE_DISABLEWARNINGS_H
 
 //
 // This header file disables various compiler warnings that we don't want.

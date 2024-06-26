@@ -3,7 +3,7 @@
 //
 
 #include "ServiceInstaller.h"
-#include "../IceUtil/FileUtil.h"
+#include "../Ice/FileUtil.h"
 #include "Ice/StringUtil.h"
 
 #include <stdexcept>
@@ -109,7 +109,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     string imagePath = fixDirSeparator(properties->getPropertyWithDefault(
         "ImagePath",
         getServiceInstallerPath() + '\\' + serviceTypeToLowerString(_serviceType) + ".exe"));
-    if (!IceUtilInternal::fileExists(imagePath))
+    if (!IceInternal::fileExists(imagePath))
     {
         throw runtime_error(imagePath + ": not found");
     }
@@ -137,7 +137,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         {
             throw logic_error("IceGrid.Registry.LMDB.Path must be set in " + _configFile);
         }
-        if (!IceUtilInternal::isAbsolutePath(registryDataDir))
+        if (!IceInternal::isAbsolutePath(registryDataDir))
         {
             throw logic_error(
                 "'" + registryDataDir + "' is a relative path; IceGrid.Registry.LMDB.Path must be an absolute path");
@@ -155,7 +155,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         {
             throw logic_error("IceGrid.Node.Data must be set in " + _configFile);
         }
-        if (!IceUtilInternal::isAbsolutePath(nodeDataDir))
+        if (!IceInternal::isAbsolutePath(nodeDataDir))
         {
             throw logic_error("'" + nodeDataDir + "' is a relative path; IceGrid.Node.Data must be an absolute path");
         }
@@ -954,10 +954,10 @@ IceServiceInstaller::getIceDLLPath(const string& imagePath) const
     const string version = os.str();
 
     string result = imagePathDir + '\\' + "ice" + version + ".dll";
-    if (!IceUtilInternal::fileExists(result))
+    if (!IceInternal::fileExists(result))
     {
         result = imagePathDir + '\\' + "ice" + version + "d.dll";
-        if (!IceUtilInternal::fileExists(result))
+        if (!IceInternal::fileExists(result))
         {
             throw runtime_error("Could not find Ice DLL");
         }

@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../../src/IceUtil/Random.h"
+#include "../../src/Ice/Random.h"
 #include "Ice/UUID.h"
 #include "TestHelper.h"
 
@@ -82,7 +82,7 @@ struct GenerateRandomString
         string s;
         s.resize(21);
         char buf[21];
-        IceUtilInternal::generateRandom(buf, sizeof(buf));
+        IceInternal::generateRandom(buf, sizeof(buf));
         for (unsigned int i = 0; i < sizeof(buf); ++i)
         {
             s[i] =
@@ -96,7 +96,7 @@ struct GenerateRandomString
 struct GenerateRandomInt
 {
 public:
-    int operator()() { return static_cast<int>(IceUtilInternal::random()); }
+    int operator()() { return static_cast<int>(IceInternal::random()); }
 };
 
 template<typename T, typename GenerateFunc>

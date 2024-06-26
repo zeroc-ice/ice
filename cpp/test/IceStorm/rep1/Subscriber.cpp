@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../../src/IceUtil/Options.h"
+#include "../../src/Ice/Options.h"
 #include "Ice/Ice.h"
 #include "IceStorm/IceStorm.h"
 #include "Single.h"
@@ -74,16 +74,16 @@ void
 Subscriber::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    IceUtilInternal::Options opts;
+    IceInternal::Options opts;
     opts.addOpt("", "ordered");
     opts.addOpt("", "twoway");
-    opts.addOpt("", "events", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "events", IceInternal::Options::NeedArg);
 
     try
     {
         opts.parse(argc, (const char**)argv);
     }
-    catch (const IceUtilInternal::BadOptException& e)
+    catch (const IceInternal::BadOptException& e)
     {
         ostringstream os;
         os << argv[0] << ": error: " << e.reason;

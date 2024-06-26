@@ -5,7 +5,7 @@
 #ifndef GEN_H
 #define GEN_H
 
-#include "../IceUtil/OutputUtil.h"
+#include "../Ice/OutputUtil.h"
 #include "../Slice/Parser.h"
 
 #include <map>
@@ -53,11 +53,11 @@ namespace Slice
             virtual void visitEnum(const EnumPtr&);
 
         private:
-            IceUtilInternal::Output& getOutput(const ContainedPtr&);
+            IceInternal::Output& getOutput(const ContainedPtr&);
 
             std::string _fileBase;
             std::set<std::string> _modules;
-            std::map<std::string, IceUtilInternal::Output*> _outputs;
+            std::map<std::string, IceInternal::Output*> _outputs;
         };
     };
 }

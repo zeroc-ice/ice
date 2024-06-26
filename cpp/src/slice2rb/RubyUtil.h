@@ -5,7 +5,7 @@
 #ifndef SLICE_RUBY_UTIL_H
 #define SLICE_RUBY_UTIL_H
 
-#include "../IceUtil/OutputUtil.h"
+#include "../Ice/OutputUtil.h"
 #include "../Slice/Parser.h"
 
 namespace Slice
@@ -15,7 +15,7 @@ namespace Slice
         //
         // Generate Ruby code for a translation unit.
         //
-        void generate(const Slice::UnitPtr&, bool, const std::vector<std::string>&, IceUtilInternal::Output&);
+        void generate(const Slice::UnitPtr&, bool, const std::vector<std::string>&, IceInternal::Output&);
 
         //
         // Check the given identifier against Ruby's list of reserved words. If it matches
@@ -38,7 +38,7 @@ namespace Slice
         //
         // Emit a comment header.
         //
-        void printHeader(IceUtilInternal::Output&);
+        void printHeader(IceInternal::Output&);
 
         int compile(const std::vector<std::string>&);
 

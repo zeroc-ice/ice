@@ -3,8 +3,8 @@
 //
 
 #include "Util.h"
+#include "Ice/DisableWarnings.h"
 #include "Ice/Protocol.h"
-#include "IceUtil/DisableWarnings.h"
 #include "slice2py/PythonUtil.h"
 
 #include <compile.h>
