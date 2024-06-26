@@ -42,6 +42,7 @@ namespace
             replace(module.begin(), module.end(), '\\', '_');
             replace(module.begin(), module.end(), '.', '_');
         }
+
         return module;
     }
 
@@ -2040,7 +2041,7 @@ Slice::Gen::TypeScriptImportVisitor::addImport(const ContainedPtr& definition)
             }
             else
             {
-                string f = removeExtension(filename);
+                string f = filename;
                 if (IceInternal::isAbsolutePath(f))
                 {
                     // If the include file is an absolute path, we need to generate a relative path.
@@ -2051,7 +2052,8 @@ Slice::Gen::TypeScriptImportVisitor::addImport(const ContainedPtr& definition)
                     // Make the import relative to the current file.
                     f = "./" + f;
                 }
-                _importedTypes[definition->scoped()] = pathToModule(f);
+                _importedTypes[definition->scoped()] = "__module_" + pathToModule(f) + ".";
+                _importedModules.insert(removeExtension(f) + ".js");
             }
         }
     }
@@ -2507,6 +2509,27 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     return false;
 }
 
+namespace
+{
+    bool areRemainingParamsOptional(const ParamDeclList& params, string name)
+    {
+        auto it = params.begin();
+        do
+        {
+            it++;
+        } while (it != params.end() && (*it)->name() != name);
+
+        for (; it != params.end(); ++it)
+        {
+            if (!(*it)->optional())
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
 bool
 Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
@@ -2570,7 +2593,12 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << nl << fixId(op->name()) << spar;
         for (const auto& param : inParams)
         {
-            _out << (fixId(param->name()) + ":" + typeToTsString(param->type(), true, true, param->optional()));
+            // TypeScript doesn't allow optional parameters with '?' prefix before required parameters.
+            const string optionalPrefix =
+                param->optional() && areRemainingParamsOptional(paramList, param->name()) ? "?" : "";
+            _out
+                << (fixId(param->name()) + optionalPrefix + ":" +
+                    typeToTsString(param->type(), true, true, param->optional()));
         }
         _out << "context?:Map<string, string>";
         _out << epar;
