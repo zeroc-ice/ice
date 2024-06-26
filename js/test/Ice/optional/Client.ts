@@ -547,7 +547,7 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opFloatSeq();
             test(p1 === undefined);
             test(p2 === undefined);
-            let data: number[]  = [];
+            let data: number[] = [];
             for (let i = 0; i < 100; ++i) {
                 data[i] = 1.0;
             }
