@@ -1150,7 +1150,7 @@ Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "///    - communicator: The communicator of the new proxy.";
     out << nl << "///    - proxyString: The proxy string to parse.";
     out << nl << "///    - type: The type of the new proxy.";
-    out << nl << "/// - Throws: `Ice.ProxyParseException` if the proxy string is invalid.";
+    out << nl << "/// - Throws: `Ice.ParseException` if the proxy string is invalid.";
     out << nl << "/// - Returns: A new proxy with the requested type.";
     out << nl << "public func makeProxy(communicator: Ice.Communicator, proxyString: String, type: " << prx
         << ".Protocol) throws -> " << prx;

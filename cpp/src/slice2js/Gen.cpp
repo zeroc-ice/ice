@@ -2524,7 +2524,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << " * @param communicator - The communicator for the new proxy.";
     _out << nl << " * @param proxyString - The string representation of the proxy.";
     _out << nl << " * @returns The new " << prx << " proxy.";
-    _out << nl << " * @throws ParseException - Thrown if the proxyString is not a valid proxy string.";
+    _out << nl << " * @throws ProxyParseException - Thrown if the proxyString is not a valid proxy string.";
     _out << nl << " */";
     _out << nl << "constructor(communicator: " << _iceImportPrefix << "Ice.Communicator, proxyString: string);";
 

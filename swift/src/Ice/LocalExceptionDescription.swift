@@ -172,51 +172,11 @@ extension NoEndpointException {
     }
 }
 
-extension EndpointParseException {
-    var _EndpointParseExceptionDescription: String {
+extension ParseException {
+    var _ParseExceptionDescription: String {
         var s = String()
 
-        s.sep("error while parsing endpoint `\(str)'")
-
-        return s
-    }
-}
-
-extension EndpointSelectionTypeParseException {
-    var _EndpointSelectionTypeParseExceptionDescription: String {
-        var s = String()
-
-        s.sep("error while parsing endpoint selection type `\(str)'")
-
-        return s
-    }
-}
-
-extension VersionParseException {
-    var _VersionParseExceptionDescription: String {
-        var s = String()
-
-        s.sep("error while parsing version `\(str)'")
-
-        return s
-    }
-}
-
-extension IdentityParseException {
-    var _IdentityParseExceptionDescription: String {
-        var s = String()
-
-        s.sep("error while parsing identity `\(str)'")
-
-        return s
-    }
-}
-
-extension ProxyParseException {
-    var _ProxyParseExceptionDescription: String {
-        var s = String()
-
-        s.sep("error while parsing proxy `\(str)'")
+        s.sep("error while parsing: `\(str)'")
 
         return s
     }

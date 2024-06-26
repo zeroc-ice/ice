@@ -437,12 +437,12 @@ if "NoEndpointException" not in _M_Ice.__dict__:
     _M_Ice.NoEndpointException = NoEndpointException
     del NoEndpointException
 
-if "EndpointParseException" not in _M_Ice.__dict__:
-    _M_Ice.EndpointParseException = Ice.createTempClass()
+if "ParseException" not in _M_Ice.__dict__:
+    _M_Ice.ParseException = Ice.createTempClass()
 
-    class EndpointParseException(Ice.LocalException):
+    class ParseException(Ice.LocalException):
         """
-         This exception is raised if there was an error while parsing an endpoint.
+         This exception is raised if there was an error while parsing a string.
         Members:
         str --  Describes the failure and includes the string that could not be parsed.
         """
@@ -455,149 +455,19 @@ if "EndpointParseException" not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = "::Ice::EndpointParseException"
+        _ice_id = "::Ice::ParseException"
 
-    _M_Ice._t_EndpointParseException = IcePy.defineException(
-        "::Ice::EndpointParseException",
-        EndpointParseException,
+    _M_Ice._t_ParseException = IcePy.defineException(
+        "::Ice::ParseException",
+        ParseException,
         (),
         None,
         (("str", (), IcePy._t_string, False, 0),),
     )
-    EndpointParseException._ice_type = _M_Ice._t_EndpointParseException
+    ParseException._ice_type = _M_Ice._t_ParseException
 
-    _M_Ice.EndpointParseException = EndpointParseException
-    del EndpointParseException
-
-if "EndpointSelectionTypeParseException" not in _M_Ice.__dict__:
-    _M_Ice.EndpointSelectionTypeParseException = Ice.createTempClass()
-
-    class EndpointSelectionTypeParseException(Ice.LocalException):
-        """
-         This exception is raised if there was an error while parsing an endpoint selection type.
-        Members:
-        str --  Describes the failure and includes the string that could not be parsed.
-        """
-
-        def __init__(self, str=""):
-            self.str = str
-
-        def __str__(self):
-            return IcePy.stringifyException(self)
-
-        __repr__ = __str__
-
-        _ice_id = "::Ice::EndpointSelectionTypeParseException"
-
-    _M_Ice._t_EndpointSelectionTypeParseException = IcePy.defineException(
-        "::Ice::EndpointSelectionTypeParseException",
-        EndpointSelectionTypeParseException,
-        (),
-        None,
-        (("str", (), IcePy._t_string, False, 0),),
-    )
-    EndpointSelectionTypeParseException._ice_type = (
-        _M_Ice._t_EndpointSelectionTypeParseException
-    )
-
-    _M_Ice.EndpointSelectionTypeParseException = EndpointSelectionTypeParseException
-    del EndpointSelectionTypeParseException
-
-if "VersionParseException" not in _M_Ice.__dict__:
-    _M_Ice.VersionParseException = Ice.createTempClass()
-
-    class VersionParseException(Ice.LocalException):
-        """
-         This exception is raised if there was an error while parsing a version.
-        Members:
-        str --  Describes the failure and includes the string that could not be parsed.
-        """
-
-        def __init__(self, str=""):
-            self.str = str
-
-        def __str__(self):
-            return IcePy.stringifyException(self)
-
-        __repr__ = __str__
-
-        _ice_id = "::Ice::VersionParseException"
-
-    _M_Ice._t_VersionParseException = IcePy.defineException(
-        "::Ice::VersionParseException",
-        VersionParseException,
-        (),
-        None,
-        (("str", (), IcePy._t_string, False, 0),),
-    )
-    VersionParseException._ice_type = _M_Ice._t_VersionParseException
-
-    _M_Ice.VersionParseException = VersionParseException
-    del VersionParseException
-
-if "IdentityParseException" not in _M_Ice.__dict__:
-    _M_Ice.IdentityParseException = Ice.createTempClass()
-
-    class IdentityParseException(Ice.LocalException):
-        """
-         This exception is raised if there was an error while parsing a stringified identity.
-        Members:
-        str --  Describes the failure and includes the string that could not be parsed.
-        """
-
-        def __init__(self, str=""):
-            self.str = str
-
-        def __str__(self):
-            return IcePy.stringifyException(self)
-
-        __repr__ = __str__
-
-        _ice_id = "::Ice::IdentityParseException"
-
-    _M_Ice._t_IdentityParseException = IcePy.defineException(
-        "::Ice::IdentityParseException",
-        IdentityParseException,
-        (),
-        None,
-        (("str", (), IcePy._t_string, False, 0),),
-    )
-    IdentityParseException._ice_type = _M_Ice._t_IdentityParseException
-
-    _M_Ice.IdentityParseException = IdentityParseException
-    del IdentityParseException
-
-if "ProxyParseException" not in _M_Ice.__dict__:
-    _M_Ice.ProxyParseException = Ice.createTempClass()
-
-    class ProxyParseException(Ice.LocalException):
-        """
-         This exception is raised if there was an error while parsing a stringified proxy.
-        Members:
-        str --  Describes the failure and includes the string that could not be parsed.
-        """
-
-        def __init__(self, str=""):
-            self.str = str
-
-        def __str__(self):
-            return IcePy.stringifyException(self)
-
-        __repr__ = __str__
-
-        _ice_id = "::Ice::ProxyParseException"
-
-    _M_Ice._t_ProxyParseException = IcePy.defineException(
-        "::Ice::ProxyParseException",
-        ProxyParseException,
-        (),
-        None,
-        (("str", (), IcePy._t_string, False, 0),),
-    )
-    ProxyParseException._ice_type = _M_Ice._t_ProxyParseException
-
-    _M_Ice.ProxyParseException = ProxyParseException
-    del ProxyParseException
+    _M_Ice.ParseException = ParseException
+    del ParseException
 
 if "IllegalIdentityException" not in _M_Ice.__dict__:
     _M_Ice.IllegalIdentityException = Ice.createTempClass()

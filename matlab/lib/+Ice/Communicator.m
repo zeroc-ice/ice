@@ -79,9 +79,7 @@ classdef Communicator < IceInternal.WrapperObject
             % is a proxy that refers to the Ice object having an identity with
             % a name "MyObject" and a category "MyCategory", with the server
             % running on host "some_host", port 10000. If the stringified proxy
-            % does not parse correctly, the operation throws one of
-            % ProxyParseException, EndpointParseException, or
-            % IdentityParseException.
+            % does not parse correctly, the operation throws ParseException.
             %
             % The Ice manual provides a detailed description of the syntax
             % supported by stringified proxies.

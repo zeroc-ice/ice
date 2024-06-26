@@ -214,84 +214,20 @@ module ::Ice
         T_NoEndpointException = ::Ice::__defineException('::Ice::NoEndpointException', NoEndpointException, nil, [["proxy", ::Ice::T_string, false, 0]])
     end
 
-    if not defined?(::Ice::EndpointParseException)
-        class EndpointParseException < Ice::LocalException
+    if not defined?(::Ice::ParseException)
+        class ParseException < Ice::LocalException
             def initialize(str='')
                 @str = str
             end
 
             def to_s
-                '::Ice::EndpointParseException'
+                '::Ice::ParseException'
             end
 
             attr_accessor :str
         end
 
-        T_EndpointParseException = ::Ice::__defineException('::Ice::EndpointParseException', EndpointParseException, nil, [["str", ::Ice::T_string, false, 0]])
-    end
-
-    if not defined?(::Ice::EndpointSelectionTypeParseException)
-        class EndpointSelectionTypeParseException < Ice::LocalException
-            def initialize(str='')
-                @str = str
-            end
-
-            def to_s
-                '::Ice::EndpointSelectionTypeParseException'
-            end
-
-            attr_accessor :str
-        end
-
-        T_EndpointSelectionTypeParseException = ::Ice::__defineException('::Ice::EndpointSelectionTypeParseException', EndpointSelectionTypeParseException, nil, [["str", ::Ice::T_string, false, 0]])
-    end
-
-    if not defined?(::Ice::VersionParseException)
-        class VersionParseException < Ice::LocalException
-            def initialize(str='')
-                @str = str
-            end
-
-            def to_s
-                '::Ice::VersionParseException'
-            end
-
-            attr_accessor :str
-        end
-
-        T_VersionParseException = ::Ice::__defineException('::Ice::VersionParseException', VersionParseException, nil, [["str", ::Ice::T_string, false, 0]])
-    end
-
-    if not defined?(::Ice::IdentityParseException)
-        class IdentityParseException < Ice::LocalException
-            def initialize(str='')
-                @str = str
-            end
-
-            def to_s
-                '::Ice::IdentityParseException'
-            end
-
-            attr_accessor :str
-        end
-
-        T_IdentityParseException = ::Ice::__defineException('::Ice::IdentityParseException', IdentityParseException, nil, [["str", ::Ice::T_string, false, 0]])
-    end
-
-    if not defined?(::Ice::ProxyParseException)
-        class ProxyParseException < Ice::LocalException
-            def initialize(str='')
-                @str = str
-            end
-
-            def to_s
-                '::Ice::ProxyParseException'
-            end
-
-            attr_accessor :str
-        end
-
-        T_ProxyParseException = ::Ice::__defineException('::Ice::ProxyParseException', ProxyParseException, nil, [["str", ::Ice::T_string, false, 0]])
+        T_ParseException = ::Ice::__defineException('::Ice::ParseException', ParseException, nil, [["str", ::Ice::T_string, false, 0]])
     end
 
     if not defined?(::Ice::IllegalIdentityException)

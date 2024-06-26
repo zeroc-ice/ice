@@ -16,11 +16,7 @@ ICEIMPL_API @protocol ICEExceptionFactory
                                      file:(NSString*)file
                                      line:(int32_t)line NS_SWIFT_NAME(objectAdapterIdInUseException(_:file:line:));
 + (NSError*)noEndpointException:(NSString*)proxy file:(NSString*)file line:(int32_t)line;
-+ (NSError*)endpointParseException:(NSString*)str file:(NSString*)file line:(int32_t)line;
-+ (NSError*)endpointSelectionTypeParseException:(NSString*)str file:(NSString*)file line:(int32_t)line;
-+ (NSError*)versionParseException:(NSString*)str file:(NSString*)file line:(int32_t)line;
-+ (NSError*)identityParseException:(NSString*)str file:(NSString*)file line:(int32_t)line;
-+ (NSError*)proxyParseException:(NSString*)str file:(NSString*)file line:(int32_t)line;
++ (NSError*)parseException:(NSString*)str file:(NSString*)file line:(int32_t)line;
 + (NSError*)illegalIdentityException:(NSString*)file line:(int32_t)line;
 + (NSError*)illegalServantException:(NSString*)reason file:(NSString*)file line:(int32_t)line;
 + (NSError*)dNSException:(int32_t)error host:(NSString*)host file:(NSString*)file line:(int32_t)line;

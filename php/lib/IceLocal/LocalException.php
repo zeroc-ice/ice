@@ -364,8 +364,8 @@ namespace Ice
 
 namespace Ice
 {
-    global $Ice__t_EndpointParseException;
-    class EndpointParseException extends \Ice\LocalException
+    global $Ice__t_ParseException;
+    class ParseException extends \Ice\LocalException
     {
         public function __construct($str='')
         {
@@ -374,136 +374,20 @@ namespace Ice
 
         public function ice_id()
         {
-            return '::Ice::EndpointParseException';
+            return '::Ice::ParseException';
         }
 
         public function __toString(): string
         {
-            global $Ice__t_EndpointParseException;
-            return IcePHP_stringifyException($this, $Ice__t_EndpointParseException);
+            global $Ice__t_ParseException;
+            return IcePHP_stringifyException($this, $Ice__t_ParseException);
         }
 
         public $str;
     }
     global $IcePHP__t_string;
 
-    $Ice__t_EndpointParseException = IcePHP_defineException('::Ice::EndpointParseException', '\\Ice\\EndpointParseException', null, array(
-        array('str', $IcePHP__t_string, false, 0)));
-}
-
-namespace Ice
-{
-    global $Ice__t_EndpointSelectionTypeParseException;
-    class EndpointSelectionTypeParseException extends \Ice\LocalException
-    {
-        public function __construct($str='')
-        {
-            $this->str = $str;
-        }
-
-        public function ice_id()
-        {
-            return '::Ice::EndpointSelectionTypeParseException';
-        }
-
-        public function __toString(): string
-        {
-            global $Ice__t_EndpointSelectionTypeParseException;
-            return IcePHP_stringifyException($this, $Ice__t_EndpointSelectionTypeParseException);
-        }
-
-        public $str;
-    }
-    global $IcePHP__t_string;
-
-    $Ice__t_EndpointSelectionTypeParseException = IcePHP_defineException('::Ice::EndpointSelectionTypeParseException', '\\Ice\\EndpointSelectionTypeParseException', null, array(
-        array('str', $IcePHP__t_string, false, 0)));
-}
-
-namespace Ice
-{
-    global $Ice__t_VersionParseException;
-    class VersionParseException extends \Ice\LocalException
-    {
-        public function __construct($str='')
-        {
-            $this->str = $str;
-        }
-
-        public function ice_id()
-        {
-            return '::Ice::VersionParseException';
-        }
-
-        public function __toString(): string
-        {
-            global $Ice__t_VersionParseException;
-            return IcePHP_stringifyException($this, $Ice__t_VersionParseException);
-        }
-
-        public $str;
-    }
-    global $IcePHP__t_string;
-
-    $Ice__t_VersionParseException = IcePHP_defineException('::Ice::VersionParseException', '\\Ice\\VersionParseException', null, array(
-        array('str', $IcePHP__t_string, false, 0)));
-}
-
-namespace Ice
-{
-    global $Ice__t_IdentityParseException;
-    class IdentityParseException extends \Ice\LocalException
-    {
-        public function __construct($str='')
-        {
-            $this->str = $str;
-        }
-
-        public function ice_id()
-        {
-            return '::Ice::IdentityParseException';
-        }
-
-        public function __toString(): string
-        {
-            global $Ice__t_IdentityParseException;
-            return IcePHP_stringifyException($this, $Ice__t_IdentityParseException);
-        }
-
-        public $str;
-    }
-    global $IcePHP__t_string;
-
-    $Ice__t_IdentityParseException = IcePHP_defineException('::Ice::IdentityParseException', '\\Ice\\IdentityParseException', null, array(
-        array('str', $IcePHP__t_string, false, 0)));
-}
-
-namespace Ice
-{
-    global $Ice__t_ProxyParseException;
-    class ProxyParseException extends \Ice\LocalException
-    {
-        public function __construct($str='')
-        {
-            $this->str = $str;
-        }
-
-        public function ice_id()
-        {
-            return '::Ice::ProxyParseException';
-        }
-
-        public function __toString(): string
-        {
-            global $Ice__t_ProxyParseException;
-            return IcePHP_stringifyException($this, $Ice__t_ProxyParseException);
-        }
-
-        public $str;
-    }
-    global $IcePHP__t_string;
-
-    $Ice__t_ProxyParseException = IcePHP_defineException('::Ice::ProxyParseException', '\\Ice\\ProxyParseException', null, array(
+    $Ice__t_ParseException = IcePHP_defineException('::Ice::ParseException', '\\Ice\\ParseException', null, array(
         array('str', $IcePHP__t_string, false, 0)));
 }
 
