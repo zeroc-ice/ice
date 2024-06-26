@@ -204,16 +204,14 @@ IceBT::AcceptorI::AcceptorI(
         throw ParseException(
             __FILE__,
             __LINE__,
-            "invalid address value '" + s + "' in endpoint '" + endpoint->toString()) +
-            "'";
+            "invalid address value '" + s + "' in endpoint '" + endpoint->toString() + "'");
     }
     if (!_instance->engine()->adapterExists(s))
     {
         throw ParseException(
             __FILE__,
             __LINE__,
-            "no device found for '" + s + "' in endpoint '" + endpoint->toString()) +
-            "'";
+            "no device found for '" + s + "' in endpoint '" + endpoint->toString() + "'");
     }
 
     const_cast<string&>(_addr) = s;

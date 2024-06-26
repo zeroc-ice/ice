@@ -680,7 +680,7 @@ export class ReferenceFactory {
                     endpointSelection = EndpointSelectionType.Ordered;
                 } else {
                     throw new EndpointSelectionTypeParseException(
-                        "illegal value `" + type + "'; expected `Random' or `Ordered'",
+                        "illegal value `" + type + "'; expected 'Random' or 'Ordered'",
                     );
                 }
             }

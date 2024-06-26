@@ -721,7 +721,7 @@ public final class ReferenceFactory {
           endpointSelection = com.zeroc.Ice.EndpointSelectionType.Ordered;
         } else {
           throw new com.zeroc.Ice.EndpointSelectionTypeParseException(
-              "illegal value `" + type + "'; expected `Random' or `Ordered'");
+              "illegal value `" + type + "'; expected 'Random' or 'Ordered'");
         }
       }
 

@@ -63,7 +63,7 @@ public final class DefaultsAndOverrides {
     } else {
       com.zeroc.Ice.EndpointSelectionTypeParseException ex =
           new com.zeroc.Ice.EndpointSelectionTypeParseException();
-      ex.str = "illegal value `" + value + "'; expected `Random' or `Ordered'";
+      ex.str = "illegal value `" + value + "'; expected 'Random' or 'Ordered'";
       throw ex;
     }
 
