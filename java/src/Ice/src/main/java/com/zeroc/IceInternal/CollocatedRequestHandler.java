@@ -41,7 +41,7 @@ public class CollocatedRequestHandler implements RequestHandler {
 
   public CollocatedRequestHandler(Reference ref, com.zeroc.Ice.ObjectAdapter adapter) {
     _reference = ref;
-    _dispatcher = ref.getInstance().initializationData().executor != null;
+    _executor = ref.getInstance().initializationData().executor != null;
     _adapter = adapter;
     _response = _reference.getMode() == Reference.ModeTwoway;
 
@@ -132,7 +132,7 @@ public class CollocatedRequestHandler implements RequestHandler {
       _adapter
           .getThreadPool()
           .dispatch(new InvokeAllAsync(outAsync, outAsync.getOs(), requestId, batchRequestNum));
-    } else if (_dispatcher) {
+    } else if (_executor) {
       _adapter
           .getThreadPool()
           .dispatchFromThisThread(
@@ -189,8 +189,8 @@ public class CollocatedRequestHandler implements RequestHandler {
     int dispatchCount = requestCount > 0 ? requestCount : 1;
     assert !_response || dispatchCount == 1;
 
-    Object executor = _adapter.dispatchPipeline();
-    assert executor != null;
+    Object dispatcher = _adapter.dispatchPipeline();
+    assert dispatcher != null;
 
     try {
       while (dispatchCount > 0) {
@@ -210,7 +210,7 @@ public class CollocatedRequestHandler implements RequestHandler {
         var request = new IncomingRequest(requestId, null, _adapter, is);
         CompletionStage<OutgoingResponse> response = null;
         try {
-          response = executor.dispatch(request);
+          response = dispatcher.dispatch(request);
         } catch (Throwable ex) { // UserException or an unchecked exception
           sendResponse(request.current.createOutgoingResponse(ex), requestId, false);
         }
@@ -331,7 +331,7 @@ public class CollocatedRequestHandler implements RequestHandler {
   }
 
   private final Reference _reference;
-  private final boolean _dispatcher;
+  private final boolean _executor;
   private final boolean _response;
   private final com.zeroc.Ice.ObjectAdapter _adapter;
   private final com.zeroc.Ice.Logger _logger;

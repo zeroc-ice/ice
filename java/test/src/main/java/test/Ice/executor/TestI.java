@@ -14,12 +14,12 @@ public class TestI implements TestIntf {
   }
 
   TestI(CustomExecutor executor) {
-    _dispatcher = executor;
+    _executor = executor;
   }
 
   @Override
   public void op(com.zeroc.Ice.Current current) {
-    test(_dispatcher.isCustomExecutorThread());
+    test(_executor.isCustomExecutorThread());
   }
 
   @Override
@@ -33,7 +33,7 @@ public class TestI implements TestIntf {
 
   @Override
   public void opWithPayload(byte[] seq, com.zeroc.Ice.Current current) {
-    test(_dispatcher.isCustomExecutorThread());
+    test(_executor.isCustomExecutorThread());
   }
 
   @Override
@@ -41,5 +41,5 @@ public class TestI implements TestIntf {
     current.adapter.getCommunicator().shutdown();
   }
 
-  private CustomExecutor _dispatcher;
+  private CustomExecutor _executor;
 }
