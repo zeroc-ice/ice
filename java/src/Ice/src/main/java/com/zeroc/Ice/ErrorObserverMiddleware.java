@@ -17,7 +17,7 @@ public final class ErrorObserverMiddleware implements Object {
   /**
    * Constructs a new ErrorObserverMiddleware.
    *
-   * @param next The next executor in the chain.
+   * @param next The next dispatcher in the chain.
    * @param errorObserver The error observer. If error observer throws an exception while observing
    *     an error, this exception replaces the error for the remainder of the dispatch.
    */
