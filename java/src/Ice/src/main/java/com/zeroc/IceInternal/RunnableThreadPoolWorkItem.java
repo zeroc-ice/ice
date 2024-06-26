@@ -6,21 +6,21 @@ package com.zeroc.IceInternal;
 
 //
 // A helper class for thread pool work items that only need to call user
-// callbacks. If a dispatcher is installed with the communicator, the
-// thread pool work item is executed with the dispatcher, otherwise it's
+// callbacks. If an executor is installed with the communicator, the
+// thread pool work item is executed with the executor, otherwise it's
 // executed by a thread pool thread (after promoting a follower thread).
 //
-public abstract class DispatchWorkItem implements ThreadPoolWorkItem, Runnable {
-  public DispatchWorkItem() {}
+public abstract class RunnableThreadPoolWorkItem implements ThreadPoolWorkItem, Runnable {
+  public RunnableThreadPoolWorkItem() {}
 
-  public DispatchWorkItem(com.zeroc.Ice.Connection connection) {
+  public RunnableThreadPoolWorkItem(com.zeroc.Ice.Connection connection) {
     _connection = connection;
   }
 
   @Override
   public final void execute(ThreadPoolCurrent current) {
     current.ioCompleted(); // Promote a follower
-    current.dispatchFromThisThread(this);
+    current.executeFromThisThread(this);
   }
 
   public com.zeroc.Ice.Connection getConnection() {

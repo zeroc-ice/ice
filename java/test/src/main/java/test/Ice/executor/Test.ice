@@ -6,7 +6,7 @@
 
 #include "Ice/BuiltinSequences.ice"
 
-[["java:package:test.Ice.dispatcher"]]
+[["java:package:test.Ice.executor"]]
 module Test
 {
 

@@ -18,9 +18,9 @@ public class AllTests {
     }
   }
 
-  static String getPort(com.zeroc.Ice.PropertiesAdminPrx p) {
+  static String getPort(com.zeroc.Ice.PropertiesAdminPrx p, int testPort) {
     return Integer.toString(
-        test.TestHelper.getTestPort(p.ice_getCommunicator().getProperties(), 0));
+        test.TestHelper.getTestPort(p.ice_getCommunicator().getProperties(), testPort));
   }
 
   static ConnectionMetrics getServerConnectionMetrics(MetricsAdminPrx metrics, long expected) {
@@ -98,7 +98,7 @@ public class AllTests {
       map += "Map." + m + '.';
     }
     props.put("IceMX.Metrics.View." + map + "Reject.parent", "Ice\\.Admin");
-    props.put("IceMX.Metrics.View." + map + "Accept.endpointPort", getPort(p));
+    props.put("IceMX.Metrics.View." + map + "Accept.endpointPort", getPort(p, 0));
     props.put("IceMX.Metrics.View." + map + "Reject.identity", ".*/admin|controller");
     return props;
   }
@@ -117,7 +117,9 @@ public class AllTests {
       map += "Map." + m + '.';
     }
     props.put("IceMX.Metrics.View." + map + "Reject.parent", "Ice\\.Admin|Controller");
-    props.put("IceMX.Metrics.View." + map + "Accept.endpointPort", getPort(p));
+    // Regular expression to match server test endpoint 0 and test endpoint 1
+    props.put(
+        "IceMX.Metrics.View." + map + "Accept.endpointPort", getPort(p, 0) + "|" + getPort(p, 1));
     return props;
   }
 
@@ -312,6 +314,8 @@ public class AllTests {
     String hostAndPort = host + ":" + port;
     String protocol = helper.getTestProtocol();
     String endpoint = protocol + " -h " + host + " -p " + port;
+    String forwardingEndpoint =
+        protocol + " -h " + host + " -p " + Integer.toString(helper.getTestPort(1));
 
     MetricsPrx metrics = MetricsPrx.checkedCast(communicator.stringToProxy("metrics:" + endpoint));
     boolean collocated = metrics.ice_getConnection() == null;
@@ -514,7 +518,7 @@ public class AllTests {
 
       ControllerPrx controller =
           ControllerPrx.checkedCast(
-              communicator.stringToProxy("controller:" + helper.getTestEndpoint(1)));
+              communicator.stringToProxy("controller:" + helper.getTestEndpoint(2)));
       controller.hold();
 
       map = toMap(clientMetrics.getMetricsView("View").returnValue.get("Connection"));
@@ -843,6 +847,16 @@ public class AllTests {
     testAttribute(serverMetrics, serverProps, "Dispatch", "context.entry2", "", op, out);
     testAttribute(serverMetrics, serverProps, "Dispatch", "context.entry3", "", op, out);
 
+    out.println("ok");
+
+    out.print("testing dispatch metrics with forwarding object adapter... ");
+    out.flush();
+    MetricsPrx indirectMetrics =
+        MetricsPrx.createProxy(communicator, "metrics:" + forwardingEndpoint);
+    var secondOp = new InvokeOp(indirectMetrics);
+    testAttribute(
+        serverMetrics, serverProps, "Dispatch", "parent", "ForwardingAdapter", secondOp, out);
+    testAttribute(serverMetrics, serverProps, "Dispatch", "id", "metrics [op]", secondOp, out);
     out.println("ok");
 
     out.print("testing invocation metrics... ");

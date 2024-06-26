@@ -396,17 +396,17 @@ public class SessionHelper {
   }
 
   private void dispatchCallback(Runnable runnable, com.zeroc.Ice.Connection conn) {
-    if (_initData.dispatcher != null) {
-      _initData.dispatcher.accept(runnable, conn);
+    if (_initData.executor != null) {
+      _initData.executor.accept(runnable, conn);
     } else {
       runnable.run();
     }
   }
 
   private void dispatchCallbackAndWait(final Runnable runnable) {
-    if (_initData.dispatcher != null) {
+    if (_initData.executor != null) {
       final java.util.concurrent.Semaphore sem = new java.util.concurrent.Semaphore(0);
-      _initData.dispatcher.accept(
+      _initData.executor.accept(
           () -> {
             runnable.run();
             sem.release();

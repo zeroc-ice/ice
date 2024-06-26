@@ -1461,7 +1461,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
         { self->upcall(std::move(connectionStartCompleted), std::move(sentCBs), std::move(messageUpcall), *stream); },
         self);
 #else
-    if (!_hasExecutor) // Optimization, call dispatch() directly if there's no executor.
+    if (!_hasExecutor) // Optimization, call upcall() directly if there's no executor.
     {
         upcall(std::move(connectionStartCompleted), std::move(sentCBs), std::move(messageUpcall), messageStream);
     }
