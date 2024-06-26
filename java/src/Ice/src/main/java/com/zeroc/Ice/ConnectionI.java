@@ -336,7 +336,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     if (_state >= StateClosed) {
       if (callback != null) {
         _threadPool.dispatch(
-            new com.zeroc.IceInternal.DispatchWorkItem(this) {
+            new com.zeroc.IceInternal.RunnableThreadPoolWorkItem(this) {
               @Override
               public void run() {
                 try {
@@ -810,9 +810,9 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       }
     }
 
-    if (!_dispatcher) // Optimization, call dispatch() directly if there's no dispatcher.
+    if (!_executor) // Optimization, call upcall() directly if there's no executor.
     {
-      dispatch(startCB, sentCBs, info);
+      upcall(startCB, sentCBs, info);
     } else {
       // No need for the stream if heartbeat callback
       if (info != null && info.heartbeatCallback == null) {
@@ -829,17 +829,17 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       final StartCallback finalStartCB = startCB;
       final java.util.List<OutgoingMessage> finalSentCBs = sentCBs;
       final MessageInfo finalInfo = info;
-      _threadPool.dispatchFromThisThread(
-          new com.zeroc.IceInternal.DispatchWorkItem(this) {
+      _threadPool.executeFromThisThread(
+          new com.zeroc.IceInternal.RunnableThreadPoolWorkItem(this) {
             @Override
             public void run() {
-              dispatch(finalStartCB, finalSentCBs, finalInfo);
+              upcall(finalStartCB, finalSentCBs, finalInfo);
             }
           });
     }
   }
 
-  protected void dispatch(
+  protected void upcall(
       StartCallback startCB, java.util.List<OutgoingMessage> sentCBs, MessageInfo info) {
     int dispatchedCount = 0;
 
@@ -986,13 +986,13 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     }
 
     current.ioCompleted();
-    if (!_dispatcher) // Optimization, call finish() directly if there's no
-    // dispatcher.
+    if (!_executor) // Optimization, call finish() directly if there's no
+    // executor.
     {
       finish(close);
     } else {
-      _threadPool.dispatchFromThisThread(
-          new com.zeroc.IceInternal.DispatchWorkItem(this) {
+      _threadPool.executeFromThisThread(
+          new com.zeroc.IceInternal.RunnableThreadPoolWorkItem(this) {
             @Override
             public void run() {
               finish(close);
@@ -1274,7 +1274,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     _adapter = adapter;
     final InitializationData initData = instance.initializationData();
     // Cached for better performance.
-    _dispatcher = initData.dispatcher != null;
+    _executor = initData.executor != null;
     _logger = initData.logger; // Cached for better performance.
     _traceLevels = instance.traceLevels(); // Cached for better performance.
     _connectTimeout = options.connectTimeout();
@@ -2249,7 +2249,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     boolean shutdown = false;
 
     // We may be executing on the "main thread" (e.g., in Android together with a
-    // custom dispatcher) and therefore we have to defer network calls to a separate thread.
+    // custom executor) and therefore we have to defer network calls to a separate thread.
     final boolean queueResponse = isTwoWay && _instance.queueRequests();
 
     synchronized (this) {
@@ -2309,7 +2309,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
           if (_state == StateClosing && _upcallCount == 0) {
             //
             // We may be executing on the "main thread" (e.g., in Android together with a custom
-            // dispatcher) and therefore we have to defer network calls to a separate thread.
+            // executor) and therefore we have to defer network calls to a separate thread.
             //
             if (!isTwoWay && _instance.queueRequests()) {
               shutdown = true;
@@ -2573,7 +2573,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   private ObjectAdapter _adapter;
   private com.zeroc.IceInternal.ServantManager _servantManager;
 
-  private final boolean _dispatcher;
+  private final boolean _executor;
   private final Logger _logger;
   private final com.zeroc.IceInternal.TraceLevels _traceLevels;
   private final com.zeroc.IceInternal.ThreadPool _threadPool;
