@@ -457,10 +457,7 @@ IceBT::EndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
         }
         else
         {
-            throw ParseException(
-                __FILE__,
-                __LINE__,
-                "'-a *' not valid for proxy endpoint '" + toString() + "'");
+            throw ParseException(__FILE__, __LINE__, "'-a *' not valid for proxy endpoint '" + toString() + "'");
         }
     }
 

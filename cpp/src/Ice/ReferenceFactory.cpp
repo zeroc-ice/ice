@@ -254,7 +254,10 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
             {
                 if (argument.empty())
                 {
-                    throw ParseException(__FILE__, __LINE__, "no argument provided for -f option in proxy string '" + s + "'");
+                    throw ParseException(
+                        __FILE__,
+                        __LINE__,
+                        "no argument provided for -f option in proxy string '" + s + "'");
                 }
 
                 try
@@ -351,7 +354,10 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
             {
                 if (argument.empty())
                 {
-                    throw ParseException(__FILE__, __LINE__, "no argument provided for -e option in proxy string '" + s + "'");
+                    throw ParseException(
+                        __FILE__,
+                        __LINE__,
+                        "no argument provided for -e option in proxy string '" + s + "'");
                 }
 
                 try
@@ -372,7 +378,10 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
             {
                 if (argument.empty())
                 {
-                    throw ParseException(__FILE__, __LINE__, "no argument provided for -p option in proxy string '" + s + "'");
+                    throw ParseException(
+                        __FILE__,
+                        __LINE__,
+                        "no argument provided for -p option in proxy string '" + s + "'");
                 }
 
                 try
@@ -502,7 +511,10 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
             end = IceInternal::checkQuote(s, beg);
             if (end == string::npos)
             {
-                throw ParseException(__FILE__, __LINE__, "mismatched quotes around adapter id in proxy string '" + s + "'");
+                throw ParseException(
+                    __FILE__,
+                    __LINE__,
+                    "mismatched quotes around adapter id in proxy string '" + s + "'");
             }
             else if (end == 0)
             {
@@ -535,7 +547,10 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
             }
             catch (const invalid_argument& ex)
             {
-                throw ParseException(__FILE__, __LINE__, "invalid adapter id in proxy string '" + s + "': " + ex.what());
+                throw ParseException(
+                    __FILE__,
+                    __LINE__,
+                    "invalid adapter id in proxy string '" + s + "': " + ex.what());
             }
             if (adapter.size() == 0)
             {

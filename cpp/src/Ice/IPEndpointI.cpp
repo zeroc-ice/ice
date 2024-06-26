@@ -389,10 +389,7 @@ IceInternal::IPEndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
         }
         else
         {
-            throw Ice::ParseException(
-                __FILE__,
-                __LINE__,
-                "'-h *' not valid for proxy endpoint '" + toString() + "'");
+            throw Ice::ParseException(__FILE__, __LINE__, "'-h *' not valid for proxy endpoint '" + toString() + "'");
         }
     }
 

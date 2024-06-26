@@ -247,8 +247,7 @@ namespace Ice
          * @param line The line where this exception is constructed.
          * @param message The message returned by what().
          */
-        ParseException(const char* file, int line, std::string message)
-            : LocalException(file, line, std::move(message))
+        ParseException(const char* file, int line, std::string message) : LocalException(file, line, std::move(message))
         {
         }
 
