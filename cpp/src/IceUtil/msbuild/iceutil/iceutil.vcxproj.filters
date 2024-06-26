@@ -18,7 +18,7 @@
     <ClCompile Include="..\..\..\Ice\CtrlCHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Ice\UtilException.cpp">
+    <ClCompile Include="..\..\..\Ice\Exception.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Ice\FileUtil.cpp">

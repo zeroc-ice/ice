@@ -6,6 +6,7 @@
 #define ICE_FILE_UTIL_H
 
 #include "Ice/Config.h"
+#include "Ice/LocalException.h"
 
 #ifdef _WIN32
 #    ifndef NOMINMAX
@@ -125,10 +126,26 @@ namespace IceInternal
         std::string _path;
     };
 
-//
-// Use streamFilename to construct the filename given to std stream classes
-// like ifstream and ofstream.
-//
+    /**
+     * This exception indicates the failure to lock a file.
+     */
+    class ICE_API FileLockException final : public Ice::LocalException
+    {
+    public:
+       /**
+         * Constructs a FileLockException.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         * @param error The error code.
+         * @param path The path of the file.
+         */
+        FileLockException(const char* file, int line, int error, const std::string& path);
+
+        const char* ice_id() const noexcept final;
+    };
+
+    // Use streamFilename to construct the filename given to std stream classes
+    // like ifstream and ofstream.
 #if defined(_WIN32)
     ICE_API std::wstring streamFilename(const std::string&);
 #else

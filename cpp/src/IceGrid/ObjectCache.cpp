@@ -5,7 +5,7 @@
 #include "ObjectCache.h"
 #include "../Ice/Random.h"
 #include "Ice/Communicator.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "NodeSessionI.h"
 #include "ServerCache.h"

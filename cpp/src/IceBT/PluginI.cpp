@@ -7,7 +7,7 @@
 #include "../Ice/ProtocolPluginFacade.h"
 #include "EndpointI.h"
 #include "Engine.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Instance.h"
 #include "Util.h"
 

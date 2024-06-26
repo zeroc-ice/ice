@@ -7,9 +7,9 @@
 
 #include "Buffer.h"
 #include "CommunicatorF.h"
-#include "Exception.h"
 #include "Ice/Version.h"
 #include "InstanceF.h"
+#include "LocalException.h"
 #include "Logger.h"
 #include "ReferenceF.h"
 #include "SlicedDataF.h"
@@ -23,6 +23,13 @@
 #include <map>
 #include <string>
 #include <string_view>
+
+namespace IceInternal::Ex
+{
+    ICE_API void throwUOE(const std::string&, const Ice::ValuePtr&);
+    ICE_API void throwMemoryLimitException(const char*, int, size_t, size_t);
+    ICE_API void throwMarshalException(const char*, int, std::string);
+}
 
 namespace Ice
 {

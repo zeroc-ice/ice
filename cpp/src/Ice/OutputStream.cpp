@@ -5,7 +5,7 @@
 #include "Ice/OutputStream.h"
 #include "DefaultsAndOverrides.h"
 #include "Endian.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Object.h"
 #include "Ice/Proxy.h"
@@ -794,7 +794,7 @@ Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
     }
     catch (const Ice::IllegalConversionException& ex)
     {
-        throw StringConversionException(__FILE__, __LINE__, ex.reason());
+        throw StringConversionException(__FILE__, __LINE__, ex.what());
     }
 }
 
@@ -889,7 +889,7 @@ Ice::OutputStream::write(wstring_view v)
     }
     catch (const Ice::IllegalConversionException& ex)
     {
-        throw StringConversionException(__FILE__, __LINE__, ex.reason());
+        throw StringConversionException(__FILE__, __LINE__, ex.what());
     }
 }
 

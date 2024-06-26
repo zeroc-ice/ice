@@ -508,7 +508,7 @@
     <ClCompile Include="..\..\Random.cpp" />
     <ClCompile Include="..\..\StringConverter.cpp" />
     <ClCompile Include="..\..\StringUtil.cpp" />
-    <ClCompile Include="..\..\UtilException.cpp" />
+    <ClCompile Include="..\..\Exception.cpp" />
     <ClCompile Include="..\..\UUID.cpp" />
     <ClCompile Include="..\..\ArgVector.cpp" />
     <ClCompile Include="..\..\Base64.cpp" />
@@ -527,7 +527,6 @@
     <ClCompile Include="..\..\EndpointFactoryManager.cpp" />
     <ClCompile Include="..\..\EndpointI.cpp" />
     <ClCompile Include="..\..\EventHandler.cpp" />
-    <ClCompile Include="..\..\Exception.cpp" />
     <ClCompile Include="..\..\FactoryTable.cpp" />
     <ClCompile Include="..\..\HttpParser.cpp" />
     <ClCompile Include="..\..\IconvStringConverter.cpp" />
@@ -937,7 +936,7 @@
     <ClInclude Include="..\..\..\..\include\Ice\InputStream.h" />
     <ClInclude Include="..\..\..\..\include\Ice\InstanceF.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Instrumentation.h" />
-    <ClInclude Include="..\..\..\..\include\Ice\LocalException.h" />
+    <ClInclude Include="..\..\..\..\include\Ice\LocalExceptions.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Logger.h" />
     <ClInclude Include="..\..\..\..\include\Ice\LoggerUtil.h" />
     <ClInclude Include="..\..\..\..\include\Ice\MarshaledResult.h" />

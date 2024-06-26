@@ -7,7 +7,7 @@
 #include "Dispatcher.h"
 #include "Ice/DisableWarnings.h"
 #include "Ice/Initialize.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Locator.h"
 #include "Ice/ObjectAdapter.h"
 #include "Ice/Properties.h"

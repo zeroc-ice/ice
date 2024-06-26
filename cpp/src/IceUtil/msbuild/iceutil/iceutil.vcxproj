@@ -90,7 +90,7 @@
     <ClCompile Include="..\..\..\Ice\CtrlCHandler.cpp" />
     <ClCompile Include="..\..\..\Ice\OutputUtil.cpp" />
     <ClCompile Include="..\..\..\Ice\StringConverter.cpp" />
-    <ClCompile Include="..\..\..\Ice\UtilException.cpp" />
+    <ClCompile Include="..\..\..\Ice\Exception.cpp" />
     <ClCompile Include="..\..\..\Ice\FileUtil.cpp" />
     <ClCompile Include="..\..\..\Ice\Options.cpp" />
     <ClCompile Include="..\..\..\Ice\Random.cpp" />

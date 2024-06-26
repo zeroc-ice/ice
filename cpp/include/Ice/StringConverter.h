@@ -6,6 +6,7 @@
 #define ICE_STRING_CONVERTER_H
 
 #include "Config.h"
+#include "LocalException.h"
 
 #include <cstdint>
 #include <memory>
@@ -159,6 +160,27 @@ namespace Ice
      */
     ICE_API StringConverterPtr createWindowsStringConverter(unsigned int page);
 #endif
+
+    /**
+     * This exception indicates the failure of a string conversion.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API IllegalConversionException final : public LocalException
+    {
+    public:
+        /**
+         * Constructs an IllegalConversionException.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         * @param message The error message adopted by this exception and returned by what().
+         */
+        IllegalConversionException(const char* file, int line, std::string message)
+            : LocalException(file, line, std::move(message))
+        {
+        }
+
+        const char* ice_id() const noexcept final;
+    };
 }
 
 namespace IceInternal

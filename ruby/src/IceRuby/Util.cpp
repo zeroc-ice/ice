@@ -3,7 +3,7 @@
 //
 
 #include "Util.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/VersionFunctions.h"
 #include <stdarg.h>
 

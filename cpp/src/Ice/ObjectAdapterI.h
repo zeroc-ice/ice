@@ -10,7 +10,6 @@
 #include "EndpointIF.h"
 #include "Ice/BuiltinSequences.h"
 #include "Ice/CommunicatorF.h"
-#include "Ice/Exception.h"
 #include "Ice/InstanceF.h"
 #include "Ice/ObjectAdapter.h"
 #include "Ice/ObjectF.h"

@@ -3,7 +3,7 @@
 //
 
 #include "SecureTransportTransceiverI.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/SSL/ConnectionInfo.h"
 #include "SSLInstance.h"

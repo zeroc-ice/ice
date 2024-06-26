@@ -8,7 +8,7 @@
 #include "AcceptorI.h"
 #include "ConnectorI.h"
 #include "Engine.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Object.h"
 #include "Ice/Properties.h"
 #include "Ice/StringUtil.h"

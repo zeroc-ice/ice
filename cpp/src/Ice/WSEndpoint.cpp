@@ -8,7 +8,7 @@
 #include "IPEndpointI.h"
 #include "Ice/Comparable.h"
 #include "Ice/InputStream.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/OutputStream.h"
 #include "WSAcceptor.h"
 #include "WSConnector.h"

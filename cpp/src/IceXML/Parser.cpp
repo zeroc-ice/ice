@@ -19,7 +19,7 @@ using namespace IceXML;
 // ParserException
 //
 IceXML::ParserException::ParserException(const char* file, int line, string reason) noexcept
-    : Exception(file, line),
+    : LocalException(file, line),
       _reason(std::move(reason))
 {
 }

@@ -6,7 +6,7 @@
 #include "DefaultsAndOverrides.h"
 #include "Ice/Endpoint.h"
 #include "Ice/InputStream.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/OutputStream.h"
 #include "Ice/Properties.h"
 #include "Ice/StringUtil.h"

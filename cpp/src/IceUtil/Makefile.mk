@@ -11,13 +11,13 @@ IceUtil_cppflags        := $(if $(filter yes,$(libbacktrace)),-DICE_LIBBACKTRACE
 
 IceUtil_extra_sources   := src/Ice/ConsoleUtil.cpp \
                            src/Ice/CtrlCHandler.cpp \
+                           src/Ice/Exception.cpp \
                            src/Ice/FileUtil.cpp \
                            src/Ice/Options.cpp \
                            src/Ice/OutputUtil.cpp \
                            src/Ice/Random.cpp \
                            src/Ice/StringConverter.cpp \
                            src/Ice/StringUtil.cpp \
-                           src/Ice/UtilException.cpp \
                            src/Ice/UUID.cpp
 
 # Always enable the static configuration for the IceUtil library and never

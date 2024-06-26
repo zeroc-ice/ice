@@ -3,7 +3,7 @@
 //
 
 #include "Ice/VersionFunctions.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Protocol.h"
 
 using namespace std;

@@ -9,7 +9,7 @@
 #include "Util.h"
 
 #include "Ice/Connection.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 
 #include "../Ice/DisableWarnings.h"
 

@@ -3,7 +3,7 @@
 //
 
 #include "UdpConnector.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "ProtocolInstance.h"
 #include "UdpEndpointI.h"
 #include "UdpTransceiver.h"

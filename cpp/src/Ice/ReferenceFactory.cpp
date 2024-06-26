@@ -9,7 +9,7 @@
 #include "EndpointI.h"
 #include "Ice/Communicator.h"
 #include "Ice/InputStream.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Locator.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"

@@ -3,7 +3,6 @@
 //
 
 #include "ConsoleUtil.h"
-#include "Ice/Exception.h"
 
 #ifdef _WIN32
 #    include <windows.h>

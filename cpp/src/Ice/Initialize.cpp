@@ -6,7 +6,7 @@
 #include "ArgVector.h"
 #include "CheckIdentity.h"
 #include "Ice/Communicator.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Properties.h"
 #include "Ice/StringConverter.h"
 #include "Ice/StringUtil.h"

@@ -8,7 +8,7 @@
 
 #    include "Ice/Buffer.h"
 #    include "Ice/Connection.h"
-#    include "Ice/LocalException.h"
+#    include "Ice/LocalExceptions.h"
 #    include "Ice/LoggerUtil.h"
 #    include "ProtocolInstance.h"
 #    include "TcpTransceiver.h"

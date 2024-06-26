@@ -3,7 +3,6 @@
 //
 
 #include "Ice/CtrlCHandler.h"
-#include "Ice/Exception.h"
 
 #ifdef _WIN32
 #    include <windows.h>
@@ -26,13 +25,6 @@ namespace
     const CtrlCHandler* _handler = 0;
 
     mutex globalMutex;
-}
-
-// TODO: move
-const char*
-Ice::CtrlCHandlerException::ice_id() const noexcept
-{
-    return "::Ice::CtrlCHandlerException";
 }
 
 CtrlCHandlerCallback
@@ -223,3 +215,15 @@ CtrlCHandler::~CtrlCHandler()
 }
 
 #endif
+
+const char*
+Ice::CtrlCHandlerException::what() const noexcept
+{
+    return "another CtrlCHandler was already created";
+}
+
+const char*
+Ice::CtrlCHandlerException::ice_id() const noexcept
+{
+    return "::Ice::CtrlCHandlerException";
+}

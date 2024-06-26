@@ -5,7 +5,7 @@
 #include "Ice/Object.h"
 #include "Ice/AsyncResponseHandler.h"
 #include "Ice/InputStream.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/OutputStream.h"
 #include "Ice/SlicedData.h"
 

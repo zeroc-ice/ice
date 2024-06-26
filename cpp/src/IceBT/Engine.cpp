@@ -4,7 +4,7 @@
 
 #include "Engine.h"
 #include "DBus.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/StringUtil.h"
 #include "Ice/UUID.h"
 #include "Util.h"

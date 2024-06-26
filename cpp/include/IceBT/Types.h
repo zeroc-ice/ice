@@ -6,7 +6,7 @@
 #define ICE_BT_TYPES_H
 
 #include "Ice/Config.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 
 #ifndef ICEBT_API
 #    if defined(ICE_STATIC_LIBS)
@@ -38,8 +38,8 @@ namespace IceBT
         /**
          * One-shot constructor to initialize all data members.
          * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
          * @param reason Provides more information about the failure.
          */
         BluetoothException(const char* file, int line, std::string reason) noexcept

@@ -7,7 +7,7 @@
 #include "Current.h"
 #include "Endpoint.h"
 #include "Ice/Communicator.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Locator.h"
 #include "Ice/Logger.h"
 #include "Ice/ObjectAdapter.h"

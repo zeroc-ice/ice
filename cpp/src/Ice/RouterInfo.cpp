@@ -4,7 +4,7 @@
 
 #include "RouterInfo.h"
 #include "Ice/Connection.h" // For ice_connection()->timeout().
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/ProxyFunctions.h"
 #include "Ice/Router.h"
 #include "Reference.h"

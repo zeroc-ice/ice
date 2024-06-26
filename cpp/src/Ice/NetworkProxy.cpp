@@ -4,7 +4,7 @@
 
 #include "NetworkProxy.h"
 #include "HttpParser.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Properties.h"
 
 using namespace std;

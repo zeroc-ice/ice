@@ -12,7 +12,7 @@
 #    include "../NetworkProxy.h"
 #    include "Ice/Communicator.h"
 #    include "Ice/InputStream.h"
-#    include "Ice/LocalException.h"
+#    include "Ice/LocalExceptions.h"
 #    include "Ice/OutputStream.h"
 #    include "Ice/Properties.h"
 #    include "Ice/StringUtil.h"

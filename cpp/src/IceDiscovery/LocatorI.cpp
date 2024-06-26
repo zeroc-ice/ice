@@ -6,7 +6,7 @@
 #include "LookupI.h"
 
 #include "Ice/Communicator.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/ObjectAdapter.h"
 
 #include "../Ice/Random.h"

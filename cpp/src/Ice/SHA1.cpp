@@ -5,7 +5,7 @@
 #include "Ice/SHA1.h"
 
 #if defined(_WIN32)
-#    include "Ice/LocalException.h"
+#    include "Ice/LocalExceptions.h"
 // clang-format off
 #    include <windows.h>
 #    include <Wincrypt.h>

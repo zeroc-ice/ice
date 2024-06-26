@@ -7,7 +7,7 @@
 #include "ConnectionI.h"
 #include "EndpointI.h"
 #include "Ice/Comparable.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Instance.h"
 #include "LocatorInfo.h"
 #include "Reference.h"

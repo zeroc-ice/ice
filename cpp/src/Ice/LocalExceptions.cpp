@@ -2,10 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/LocalException.h"
 #include "Ice/Initialize.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/StringUtil.h"
 #include "Network.h"
+#include "RequestFailedMessage.h"
 
 #include <iomanip>
 
@@ -25,17 +26,33 @@ namespace
     }
 }
 
-void
-Ice::RequestFailedException::ice_print(ostream& out) const
+namespace
 {
-    Exception::ice_print(out); // print file + line + what()
-    if (ice_hasDefaultMessage() && !_id->name.empty())
+    inline std::string
+    createRequestFailedMessage(const char* typeName)
     {
-        // We assume a non-default message includes identity/facet/operation.
-        out << "\nidentity: '" << identityToString(*_id, ToStringMode::Unicode) << "'";
-        out << "\nfacet: " << *_facet;
-        out << "\noperation: " << *_operation;
+        ostringstream os;
+        os << "dispatch failed with " << typeName;
+        return os.str();
     }
+}
+
+// Can't move id/facet/operation because the evaluation order is unspecified.
+// https://en.cppreference.com/w/cpp/language/eval_order
+Ice::ObjectNotExistException::ObjectNotExistException(const char* file, int line, Identity id, string facet, string operation)
+    : RequestFailedException(
+        file,
+        line,
+        createRequestFailedMessage("ObjectNotExistException", id, facet, operation),
+        id,
+        facet,
+        operation)
+{
+}
+
+Ice::ObjectNotExistException::ObjectNotExistException(const char* file, int line)
+    : RequestFailedException(file, line, createRequestFailedMessage("ObjectNotExistException"))
+{
 }
 
 const char*
@@ -44,10 +61,42 @@ Ice::ObjectNotExistException::ice_id() const noexcept
     return "::Ice::ObjectNotExistException";
 }
 
+Ice::FacetNotExistException::FacetNotExistException(const char* file, int line, Identity id, string facet, string operation)
+    : RequestFailedException(
+        file,
+        line,
+        createRequestFailedMessage("FacetNotExistException", id, facet, operation),
+        id,
+        facet,
+        operation)
+{
+}
+
+Ice::FacetNotExistException::FacetNotExistException(const char* file, int line)
+    : RequestFailedException(file, line, createRequestFailedMessage("FacetNotExistException"))
+{
+}
+
 const char*
 Ice::FacetNotExistException::ice_id() const noexcept
 {
     return "::Ice::FacetNotExistException";
+}
+
+Ice::OperationNotExistException::OperationNotExistException(const char* file, int line, Identity id, string facet, string operation)
+    : RequestFailedException(
+        file,
+        line,
+        createRequestFailedMessage("OperationNotExistException", id, facet, operation),
+        id,
+        facet,
+        operation)
+{
+}
+
+Ice::OperationNotExistException::OperationNotExistException(const char* file, int line)
+    : RequestFailedException(file, line, createRequestFailedMessage("OperationNotExistException"))
+{
 }
 
 const char*
@@ -941,24 +990,4 @@ Ice::CFNetworkException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nnetwork exception: domain: " << domain << " error: " << error;
-}
-
-// TODO: move to another file
-
-string
-IceInternal::createRequestFailedMessage(
-    const char* typeId,
-    const Ice::Identity& id,
-    const string& facet,
-    const string& operation)
-{
-    ostringstream os;
-    os << "dispatch failed with " << typeId;
-    if (!id.name.empty())
-    {
-        os << "\nidentity: '" << identityToString(id, ToStringMode::Unicode) << "'";
-        os << "\nfacet: " << facet;
-        os << "\noperation: " << operation;
-    }
-    return os.str();
 }

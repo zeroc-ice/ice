@@ -237,9 +237,6 @@
     <ClCompile Include="..\..\StringUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\UtilException.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\UUID.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -859,7 +856,7 @@
     <ClInclude Include="..\..\..\..\include\Ice\Instrumentation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\Ice\LocalException.h">
+    <ClInclude Include="..\..\..\..\include\Ice\LocalExceptions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\Ice\Logger.h">

@@ -7,7 +7,7 @@
 
 #include "Ice/Ice.h"
 
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Selector.h"
 
 #ifndef TEST_API

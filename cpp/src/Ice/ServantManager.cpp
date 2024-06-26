@@ -4,7 +4,7 @@
 
 #include "ServantManager.h"
 #include "Ice/InputStream.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/ServantLocator.h"
 #include "Ice/StringUtil.h"

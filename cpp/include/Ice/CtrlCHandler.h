@@ -6,6 +6,8 @@
 #define ICE_CTRL_C_HANDLER_H
 
 #include "Config.h"
+#include "LocalException.h"
+
 #include <functional>
 
 namespace Ice
@@ -62,6 +64,28 @@ namespace Ice
          * @return The callback.
          */
         CtrlCHandlerCallback getCallback() const;
+    };
+
+    /**
+     * Raised by the CtrlCHandler constructor if another CtrlCHandler already exists.
+     *
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API CtrlCHandlerException final : public LocalException
+    {
+    public:
+        /**
+         * Constructs a CtrlCHandlerException.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         */
+        CtrlCHandlerException(const char* file, int line) noexcept
+            : LocalException(file, line)
+        {
+        }
+
+        const char* what() const noexcept final;
+        const char* ice_id() const noexcept final;
     };
 }
 

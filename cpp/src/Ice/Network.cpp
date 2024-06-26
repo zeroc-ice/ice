@@ -14,7 +14,7 @@
 
 #include "DisableWarnings.h"
 #include "Ice/Buffer.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h" // For setTcpBufSize
 #include "Ice/Properties.h" // For setTcpBufSize
 #include "Ice/StringConverter.h"
