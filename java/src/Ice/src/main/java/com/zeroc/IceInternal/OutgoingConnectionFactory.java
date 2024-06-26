@@ -147,8 +147,7 @@ public final class OutgoingConnectionFactory {
     final ConnectCallback cb = new ConnectCallback(this, endpoints, hasMore, callback, selType);
     //
     // Calling cb.getConnectors() can eventually result in a call to connect() on a socket, which is
-    // not
-    // allowed while in Android's main thread (with a executor installed).
+    // not allowed while in Android's main thread (with an executor installed).
     //
     if (_instance.queueRequests()) {
       _instance
