@@ -4,11 +4,11 @@
 
 #include "Gen.h"
 #include "../Ice/Endian.h"
+#include "../IceUtil/FileUtil.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Util.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
-#include "IceUtil/UUID.h"
+#include "Ice/StringUtil.h"
+#include "Ice/UUID.h"
 
 #include <algorithm>
 #include <cassert>
@@ -17,7 +17,7 @@
 
 using namespace std;
 using namespace Slice;
-using namespace IceUtil;
+using namespace Ice;
 using namespace IceUtilInternal;
 
 namespace
@@ -628,7 +628,7 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     if (!_javaScriptOutput)
     {
         ostringstream os;
-        os << "cannot open `" << file << "': " << IceUtilInternal::errorToString(errno);
+        os << "cannot open `" << file << "': " << IceInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(file);
@@ -646,7 +646,7 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
         if (!_typeScriptOutput)
         {
             ostringstream os;
-            os << "cannot open `" << file << "': " << IceUtilInternal::errorToString(errno);
+            os << "cannot open `" << file << "': " << IceInternal::errorToString(errno);
             throw FileException(__FILE__, __LINE__, os.str());
         }
         FileTracker::instance()->addFile(file);

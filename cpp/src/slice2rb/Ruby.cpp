@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../IceUtil/ConsoleUtil.h"
+#include "../IceUtil/Options.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Preprocessor.h"
 #include "../Slice/Util.h"
-#include "IceUtil/ConsoleUtil.h"
-#include "IceUtil/CtrlCHandler.h"
-#include "IceUtil/Options.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/CtrlCHandler.h"
+#include "Ice/StringUtil.h"
 #include "RubyUtil.h"
 
 #include <algorithm>
@@ -142,7 +142,7 @@ Slice::Ruby::compile(const vector<string>& argv)
 
     int status = EXIT_SUCCESS;
 
-    IceUtil::CtrlCHandler ctrlCHandler;
+    Ice::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
     ostringstream os;
@@ -257,7 +257,7 @@ Slice::Ruby::compile(const vector<string>& argv)
                         if (!out)
                         {
                             ostringstream oss;
-                            oss << "cannot open`" << file << "': " << IceUtilInternal::errorToString(errno);
+                            oss << "cannot open`" << file << "': " << IceInternal::errorToString(errno);
                             throw FileException(__FILE__, __LINE__, oss.str());
                         }
                         FileTracker::instance()->addFile(file);

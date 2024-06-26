@@ -15,7 +15,7 @@
 
 using namespace std;
 using namespace IcePHP;
-using namespace IceUtil;
+using namespace Ice;
 using namespace IceUtilInternal;
 
 ZEND_EXTERN_MODULE_GLOBALS(ice)

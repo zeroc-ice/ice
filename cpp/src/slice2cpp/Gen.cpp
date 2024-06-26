@@ -3,11 +3,11 @@
 //
 
 #include "Gen.h"
+#include "../IceUtil/FileUtil.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Util.h"
 #include "CPlusPlusUtil.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 
 #include <algorithm>
 #include <cassert>
@@ -16,6 +16,7 @@
 
 using namespace std;
 using namespace Slice;
+using namespace IceInternal;
 using namespace IceUtilInternal;
 
 namespace
@@ -252,7 +253,7 @@ namespace
     string marshaledResultStructName(const string& name)
     {
         assert(!name.empty());
-        string stName = IceUtilInternal::toUpper(name.substr(0, 1)) + name.substr(1);
+        string stName = IceInternal::toUpper(name.substr(0, 1)) + name.substr(1);
         stName += "MarshaledResult";
         return stName;
     }
@@ -626,7 +627,7 @@ Slice::Gen::Gen(
 
 Slice::Gen::~Gen()
 {
-    H << "\n\n#include <IceUtil/PopDisableWarnings.h>";
+    H << "\n\n#include <Ice/PopDisableWarnings.h>";
     H << "\n#endif\n";
     C << '\n';
 
@@ -681,7 +682,7 @@ Slice::Gen::generate(const UnitPtr& p)
     if (!H)
     {
         ostringstream os;
-        os << "cannot open `" << fileH << "': " << IceUtilInternal::errorToString(errno);
+        os << "cannot open `" << fileH << "': " << IceInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(fileH);
@@ -690,7 +691,7 @@ Slice::Gen::generate(const UnitPtr& p)
     if (!C)
     {
         ostringstream os;
-        os << "cannot open `" << fileC << "': " << IceUtilInternal::errorToString(errno);
+        os << "cannot open `" << fileC << "': " << IceInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(fileC);
@@ -729,7 +730,7 @@ Slice::Gen::generate(const UnitPtr& p)
     }
     C << _base << "." << _headerExtension << "\"";
 
-    H << "\n#include <IceUtil/PushDisableWarnings.h>";
+    H << "\n#include <Ice/PushDisableWarnings.h>";
 
     if (!dc->hasMetaDataDirective("cpp:no-default-include"))
     {

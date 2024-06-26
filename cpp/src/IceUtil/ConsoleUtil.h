@@ -5,8 +5,8 @@
 #ifndef ICE_UTIL_CONSOLE_UTIL_H
 #define ICE_UTIL_CONSOLE_UTIL_H
 
-#include "Config.h"
-#include "StringConverter.h"
+#include "Ice/Config.h"
+#include "Ice/StringConverter.h"
 
 #include <ostream>
 #include <sstream>
@@ -27,8 +27,8 @@ namespace IceUtilInternal
 
     private:
         std::string toConsoleEncoding(const std::string&) const;
-        IceUtil::StringConverterPtr _converter;
-        IceUtil::StringConverterPtr _consoleConverter;
+        Ice::StringConverterPtr _converter;
+        Ice::StringConverterPtr _consoleConverter;
     };
 
     const ICE_API ConsoleUtil& getConsoleUtil();

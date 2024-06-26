@@ -4,7 +4,7 @@
 
 #include "Util.h"
 
-#include "IceUtil/StringConverter.h"
+#include "Ice/StringConverter.h"
 
 #include <cassert>
 #include <iomanip>
@@ -12,8 +12,9 @@
 
 using namespace std;
 using namespace Slice;
-using namespace IceUtil;
+using namespace Ice;
 using namespace IceUtilInternal;
+using namespace IceInternal;
 
 namespace
 {

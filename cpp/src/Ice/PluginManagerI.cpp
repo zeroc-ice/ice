@@ -3,12 +3,12 @@
 //
 
 #include "PluginManagerI.h"
+#include "../IceUtil/Options.h"
 #include "DynamicLibrary.h"
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
-#include "IceUtil/Options.h"
 #include "Instance.h"
 
 using namespace std;

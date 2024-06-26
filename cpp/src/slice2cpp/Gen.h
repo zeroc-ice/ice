@@ -5,8 +5,8 @@
 #ifndef GEN_H
 #define GEN_H
 
+#include "../IceUtil/OutputUtil.h"
 #include "../Slice/Parser.h"
-#include "IceUtil/OutputUtil.h"
 #include "TypeContext.h"
 
 namespace Slice

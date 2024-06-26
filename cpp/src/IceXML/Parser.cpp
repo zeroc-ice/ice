@@ -3,7 +3,7 @@
 //
 
 #include "Parser.h"
-#include "IceUtil/FileUtil.h"
+#include "../IceUtil/FileUtil.h"
 
 #include <expat.h>
 

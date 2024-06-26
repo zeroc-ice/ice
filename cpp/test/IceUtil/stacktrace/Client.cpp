@@ -2,14 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/Exception.h"
-#include "IceUtil/StringUtil.h"
+#include "../../src/IceUtil/Exception.h"
+#include "Ice/StringUtil.h"
 #include "TestHelper.h"
 
 #include <fstream>
 #include <sstream>
 
-using namespace IceUtil;
+using namespace Ice;
 using namespace std;
 
 namespace IceUtilInternal

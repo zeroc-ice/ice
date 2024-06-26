@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/StringUtil.h"
-#include "IceUtil/StringConverter.h"
+#include "Ice/StringUtil.h"
+#include "Ice/StringConverter.h"
 #include <cassert>
 #include <cstring>
 #include <string.h> // for strerror_r
@@ -17,7 +17,8 @@
 #endif
 
 using namespace std;
-using namespace IceUtil;
+using namespace Ice;
+using namespace IceInternal;
 
 namespace
 {
@@ -109,7 +110,7 @@ namespace
 // Add escape sequences. Any characters that appear in special are prefixed with a backslash in the returned string.
 //
 string
-IceUtilInternal::escapeString(const string& s, const string& special, ToStringMode toStringMode)
+IceInternal::escapeString(const string& s, const string& special, ToStringMode toStringMode)
 {
     for (string::size_type i = 0; i < special.size(); ++i)
     {
@@ -558,7 +559,7 @@ namespace
 // Remove escape sequences added by escapeString.
 //
 string
-IceUtilInternal::unescapeString(const string& s, string::size_type start, string::size_type end, const string& special)
+IceInternal::unescapeString(const string& s, string::size_type start, string::size_type end, const string& special)
 {
     assert(start <= end && end <= s.size());
 
@@ -628,7 +629,7 @@ IceUtilInternal::unescapeString(const string& s, string::size_type start, string
 }
 
 bool
-IceUtilInternal::splitString(string_view str, string_view delim, vector<string>& result)
+IceInternal::splitString(string_view str, string_view delim, vector<string>& result)
 {
     string::size_type pos = 0;
     string::size_type length = str.length();
@@ -689,7 +690,7 @@ IceUtilInternal::splitString(string_view str, string_view delim, vector<string>&
 }
 
 string
-IceUtilInternal::joinString(const std::vector<std::string>& values, const std::string& delimiter)
+IceInternal::joinString(const std::vector<std::string>& values, const std::string& delimiter)
 {
     ostringstream out;
     for (unsigned int i = 0; i < values.size(); i++)
@@ -707,7 +708,7 @@ IceUtilInternal::joinString(const std::vector<std::string>& values, const std::s
 // Trim white space (" \t\r\n")
 //
 string
-IceUtilInternal::trim(const string& s)
+IceInternal::trim(const string& s)
 {
     static const string delim = " \t\r\n";
     string::size_type beg = s.find_first_not_of(delim);
@@ -728,7 +729,7 @@ IceUtilInternal::trim(const string& s)
 // If no matching closing quote is found, then -1 is returned.
 //
 string::size_type
-IceUtilInternal::checkQuote(const string& s, string::size_type start)
+IceInternal::checkQuote(const string& s, string::size_type start)
 {
     string::value_type quoteChar = s[start];
     if (quoteChar == '"' || quoteChar == '\'')
@@ -755,7 +756,7 @@ IceUtilInternal::checkQuote(const string& s, string::size_type start)
 // (whereas regex() isn't). Only one * per pattern is supported.
 //
 bool
-IceUtilInternal::match(const string& s, const string& pat, bool emptyMatch)
+IceInternal::match(const string& s, const string& pat, bool emptyMatch)
 {
     assert(!s.empty());
     assert(!pat.empty());
@@ -806,7 +807,7 @@ IceUtilInternal::match(const string& s, const string& pat, bool emptyMatch)
 #ifdef _WIN32
 
 string
-IceUtilInternal::errorToString(int error, LPCVOID source)
+IceInternal::errorToString(int error, LPCVOID source)
 {
     if (error < WSABASEERR)
     {
@@ -1009,7 +1010,7 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
 }
 
 string
-IceUtilInternal::lastErrorToString()
+IceInternal::lastErrorToString()
 {
     return errorToString(GetLastError());
 }
@@ -1017,7 +1018,7 @@ IceUtilInternal::lastErrorToString()
 #else
 
 string
-IceUtilInternal::errorToString(int error)
+IceInternal::errorToString(int error)
 {
     vector<char> buffer(500);
     while (true)
@@ -1059,7 +1060,7 @@ IceUtilInternal::errorToString(int error)
 }
 
 string
-IceUtilInternal::lastErrorToString()
+IceInternal::lastErrorToString()
 {
     return errorToString(errno);
 }
@@ -1067,7 +1068,7 @@ IceUtilInternal::lastErrorToString()
 #endif
 
 string
-IceUtilInternal::toLower(std::string_view s)
+IceInternal::toLower(std::string_view s)
 {
     string result;
     result.reserve(s.size());
@@ -1086,7 +1087,7 @@ IceUtilInternal::toLower(std::string_view s)
 }
 
 string
-IceUtilInternal::toUpper(std::string_view s)
+IceInternal::toUpper(std::string_view s)
 {
     string result;
     result.reserve(s.size());
@@ -1105,19 +1106,19 @@ IceUtilInternal::toUpper(std::string_view s)
 }
 
 bool
-IceUtilInternal::isAlpha(char c)
+IceInternal::isAlpha(char c)
 {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
 
 bool
-IceUtilInternal::isDigit(char c)
+IceInternal::isDigit(char c)
 {
     return c >= '0' && c <= '9';
 }
 
 string
-IceUtilInternal::removeWhitespace(const std::string& s)
+IceInternal::removeWhitespace(const std::string& s)
 {
     string result;
     for (unsigned int i = 0; i < s.length(); ++i)

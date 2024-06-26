@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/CtrlCHandler.h"
+#include "Ice/CtrlCHandler.h"
 #include "Ice/Exception.h"
 
 #ifdef _WIN32
@@ -16,8 +16,8 @@
 #    include <signal.h>
 #endif
 
+using namespace Ice;
 using namespace std;
-using namespace IceUtil;
 
 namespace
 {

@@ -3,10 +3,10 @@
 //
 
 #include "NodeI.h"
+#include "../IceUtil/FileUtil.h"
 #include "Activator.h"
 #include "Ice/Ice.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/Timer.h"
+#include "Ice/Timer.h"
 #include "NodeSessionManager.h"
 #include "ServerAdapterI.h"
 #include "ServerI.h"
@@ -48,7 +48,7 @@ NodeI::NodeI(
     const Ice::ObjectAdapterPtr& adapter,
     NodeSessionManager& sessions,
     const shared_ptr<Activator>& activator,
-    const IceUtil::TimerPtr& timer,
+    const Ice::TimerPtr& timer,
     const shared_ptr<TraceLevels>& traceLevels,
     NodePrx proxy,
     const string& name,
@@ -277,7 +277,7 @@ NodeI::getActivator() const
     return _activator;
 }
 
-IceUtil::TimerPtr
+Ice::TimerPtr
 NodeI::getTimer() const
 {
     return _timer;

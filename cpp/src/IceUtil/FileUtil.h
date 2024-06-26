@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_FILE_UTIL_H
-#define ICE_FILE_UTIL_H
+#ifndef ICE_UTIL_FILE_UTIL_H
+#define ICE_UTIL_FILE_UTIL_H
 
-#include "Config.h"
+#include "Ice/Config.h"
 
 #ifdef _WIN32
 #    ifndef NOMINMAX

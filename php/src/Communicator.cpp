@@ -9,9 +9,9 @@
 #include "Types.h"
 #include "Util.h"
 
+#include "Ice/StringUtil.h"
+#include "Ice/Timer.h"
 #include "IceUtil/Options.h"
-#include "IceUtil/StringUtil.h"
-#include "IceUtil/Timer.h"
 
 #include <chrono>
 #include <condition_variable>
@@ -1636,7 +1636,7 @@ parseProfiles(const string& file)
                 value = s.substr(beg, end - beg);
 
                 // Check for quotes and remove them if present
-                string::size_type qpos = IceUtilInternal::checkQuote(value);
+                string::size_type qpos = IceInternal::checkQuote(value);
                 if (qpos != string::npos)
                 {
                     value = value.substr(1, qpos - 1);

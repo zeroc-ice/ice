@@ -3,9 +3,11 @@
 //
 
 #include "Instance.h"
+#include "../IceUtil/ConsoleUtil.h"
+#include "../IceUtil/DisableWarnings.h"
+#include "../IceUtil/FileUtil.h"
 #include "CheckIdentity.h"
 #include "ConnectionFactory.h"
-#include "ConsoleUtil.h"
 #include "DefaultsAndOverrides.h"
 #include "EndpointFactoryManager.h"
 #include "IPEndpointI.h" // For EndpointHostResolver
@@ -19,10 +21,8 @@
 #include "Ice/Properties.h"
 #include "Ice/ProxyFunctions.h"
 #include "Ice/Router.h"
+#include "Ice/StringUtil.h"
 #include "Ice/UUID.h"
-#include "IceUtil/DisableWarnings.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
 #include "InstrumentationI.h"
 #include "LocatorInfo.h"
 #include "LoggerAdminI.h"
@@ -76,6 +76,7 @@
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
+using namespace IceUtilInternal;
 
 namespace IceUtilInternal
 {
@@ -183,15 +184,15 @@ namespace IceInternal // Required because ObserverUpdaterI is a friend of Instan
     //
     // Timer specialization which supports the thread observer
     //
-    class Timer final : public IceUtil::Timer
+    class ThreadObserverTimer final : public Ice::Timer
     {
     public:
-        Timer() : _hasObserver(false) {}
+        ThreadObserverTimer() : _hasObserver(false) {}
 
         void updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr&);
 
     private:
-        void runTimerTask(const IceUtil::TimerTaskPtr&) final;
+        void runTimerTask(const Ice::TimerTaskPtr&) final;
 
         std::mutex _mutex;
         std::atomic<bool> _hasObserver;
@@ -200,7 +201,7 @@ namespace IceInternal // Required because ObserverUpdaterI is a friend of Instan
 }
 
 void
-Timer::updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr& obsv)
+ThreadObserverTimer::updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr& obsv)
 {
     lock_guard lock(_mutex);
     assert(obsv);
@@ -213,7 +214,7 @@ Timer::updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr& obsv)
 }
 
 void
-Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
+ThreadObserverTimer::runTimerTask(const Ice::TimerTaskPtr& task)
 {
     if (_hasObserver)
     {
@@ -446,7 +447,7 @@ IceInternal::Instance::retryQueue()
     return _retryQueue;
 }
 
-IceUtil::TimerPtr
+Ice::TimerPtr
 IceInternal::Instance::timer()
 {
     lock_guard lock(_mutex);
@@ -1495,7 +1496,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     //
     try
     {
-        _timer = make_shared<Timer>();
+        _timer = make_shared<ThreadObserverTimer>();
     }
     catch (const Ice::Exception& ex)
     {

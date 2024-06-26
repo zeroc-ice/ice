@@ -9,7 +9,7 @@
 #include "Ice/LocalException.h"
 #include "Ice/OutputStream.h"
 #include "Ice/Properties.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 #include "Instance.h"
 #include "OpaqueEndpointI.h"
 
@@ -68,7 +68,7 @@ EndpointIPtr
 IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) const
 {
     vector<string> v;
-    bool b = IceUtilInternal::splitString(str, " \t\n\r", v);
+    bool b = IceInternal::splitString(str, " \t\n\r", v);
     if (!b)
     {
         throw EndpointParseException(__FILE__, __LINE__, "mismatched quote");

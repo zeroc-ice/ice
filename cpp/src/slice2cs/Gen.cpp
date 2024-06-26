@@ -3,8 +3,8 @@
 //
 
 #include "Gen.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "../IceUtil/FileUtil.h"
+#include "Ice/StringUtil.h"
 
 #include <limits>
 #ifndef _WIN32
@@ -16,7 +16,7 @@
 #include "../Slice/FileTracker.h"
 #include "../Slice/Util.h"
 #include "DotNetNames.h"
-#include "IceUtil/UUID.h"
+#include "Ice/UUID.h"
 #include <algorithm>
 #include <cassert>
 #include <iterator>
@@ -24,7 +24,8 @@
 
 using namespace std;
 using namespace Slice;
-using namespace IceUtil;
+using namespace Ice;
+using namespace IceInternal;
 using namespace IceUtilInternal;
 
 namespace
@@ -1489,7 +1490,7 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     if (!_out)
     {
         ostringstream os;
-        os << "cannot open `" << file << "': " << IceUtilInternal::errorToString(errno);
+        os << "cannot open `" << file << "': " << IceInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(file);

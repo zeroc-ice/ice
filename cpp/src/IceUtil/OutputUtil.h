@@ -5,7 +5,7 @@
 #ifndef ICE_UTIL_OUTPUT_UTIL_H
 #define ICE_UTIL_OUTPUT_UTIL_H
 
-#include "Config.h"
+#include "Ice/Config.h"
 #include <fstream>
 #include <sstream>
 #include <stack>

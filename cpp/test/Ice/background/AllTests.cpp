@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../../src/IceUtil/Random.h"
 #include "Configuration.h"
 #include "Ice/Ice.h"
-#include "IceUtil/Random.h"
 #include "PluginI.h"
 #include "Test.h"
 #include "TestHelper.h"

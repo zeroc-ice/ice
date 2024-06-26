@@ -3,8 +3,8 @@
 //
 //
 
-#include "IceUtil/OutputUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "../IceUtil/OutputUtil.h"
+#include "Ice/StringUtil.h"
 
 #include "../Slice/Util.h"
 
@@ -330,10 +330,10 @@ SwiftGenerator::splitComment(const string& c)
     string::size_type nextPos;
     while ((nextPos = comment.find_first_of('\n', pos)) != string::npos)
     {
-        result.push_back(IceUtilInternal::trim(string(comment, pos, nextPos - pos)));
+        result.push_back(IceInternal::trim(string(comment, pos, nextPos - pos)));
         pos = nextPos + 1;
     }
-    string lastLine = IceUtilInternal::trim(string(comment, pos));
+    string lastLine = IceInternal::trim(string(comment, pos));
     if (!lastLine.empty())
     {
         result.push_back(lastLine);
@@ -400,7 +400,7 @@ SwiftGenerator::parseComment(const ContainedPtr& p)
     // First check metadata for a deprecated tag.
     if (auto reason = p->getDeprecationReason(false))
     {
-        doc.deprecateReason.push_back(IceUtilInternal::trim(*reason));
+        doc.deprecateReason.push_back(IceInternal::trim(*reason));
     }
 
     //
@@ -438,7 +438,7 @@ SwiftGenerator::parseComment(const ContainedPtr& p)
     const string seeTag = "@see";
     for (; i != lines.end(); ++i)
     {
-        const string l = IceUtilInternal::trim(*i);
+        const string l = IceInternal::trim(*i);
         string line;
         if (parseCommentLine(l, paramTag, true, name, line))
         {

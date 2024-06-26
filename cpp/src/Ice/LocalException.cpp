@@ -3,8 +3,9 @@
 //
 
 #include "Ice/LocalException.h"
+#include "Ice/Initialize.h"
+#include "Ice/StringUtil.h"
 #include "Network.h"
-#include "StringUtil.h"
 
 #include <iomanip>
 
@@ -20,7 +21,7 @@ namespace
         {
             return "unknown error";
         }
-        return IceUtilInternal::errorToString(error);
+        return IceInternal::errorToString(error);
     }
 }
 
@@ -525,7 +526,7 @@ Ice::SyscallException::ice_print(ostream& out) const
     Exception::ice_print(out);
     if (error != 0)
     {
-        out << ":\nsyscall exception: " << IceUtilInternal::errorToString(error);
+        out << ":\nsyscall exception: " << IceInternal::errorToString(error);
     }
 }
 
@@ -547,7 +548,7 @@ Ice::FileException::ice_print(ostream& out) const
     }
     else
     {
-        out << IceUtilInternal::errorToString(error);
+        out << IceInternal::errorToString(error);
     }
     if (!path.empty())
     {

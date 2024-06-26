@@ -3,11 +3,11 @@
 //
 
 #include "Preprocessor.h"
-#include "IceUtil/ConsoleUtil.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringConverter.h"
-#include "IceUtil/StringUtil.h"
-#include "IceUtil/UUID.h"
+#include "../IceUtil/ConsoleUtil.h"
+#include "../IceUtil/FileUtil.h"
+#include "Ice/StringConverter.h"
+#include "Ice/StringUtil.h"
+#include "Ice/UUID.h"
 #include "Util.h"
 #include <algorithm>
 #include <cassert>
@@ -24,6 +24,7 @@
 
 using namespace std;
 using namespace Slice;
+using namespace IceInternal;
 using namespace IceUtilInternal;
 
 //
@@ -87,7 +88,7 @@ Slice::Preprocessor::addQuotes(const string& arg)
     // Add quotes around the given argument to ensure that arguments
     // with spaces will be preserved as a single argument
     //
-    return "\"" + escapeString(arg, "", ToStringMode::Unicode) + "\"";
+    return "\"" + escapeString(arg, "", Ice::ToStringMode::Unicode) + "\"";
 }
 
 string
@@ -124,7 +125,7 @@ Slice::Preprocessor::normalizeIncludePath(const string& path)
     }
 
     if (result == "/" ||
-        (result.size() == 3 && IceUtilInternal::isAlpha(result[0]) && result[1] == ':' && result[2] == '/'))
+        (result.size() == 3 && IceInternal::isAlpha(result[0]) && result[1] == ':' && result[2] == '/'))
     {
         return result;
     }
@@ -243,10 +244,10 @@ Slice::Preprocessor::preprocess(bool keepComments, const vector<string>& extraAr
         // process call _tempnam before any of them call fopen and
         // they will end up using the same tmp file.
         //
-        wchar_t* name = _wtempnam(0, IceUtil::stringToWstring("slice-" + IceUtil::generateUUID()).c_str());
+        wchar_t* name = _wtempnam(0, Ice::stringToWstring("slice-" + Ice::generateUUID()).c_str());
         if (name)
         {
-            _cppFile = IceUtil::wstringToString(name);
+            _cppFile = Ice::wstringToString(name);
             free(name);
             _cppHandle = IceUtilInternal::fopen(_cppFile, "w+");
         }
@@ -260,9 +261,9 @@ Slice::Preprocessor::preprocess(bool keepComments, const vector<string>& extraAr
         if (_cppHandle == 0)
         {
 #ifdef _WIN32
-            _cppFile = "slice-" + IceUtil::generateUUID();
+            _cppFile = "slice-" + Ice::generateUUID();
 #else
-            _cppFile = ".slice-" + IceUtil::generateUUID();
+            _cppFile = ".slice-" + Ice::generateUUID();
 #endif
             _cppHandle = IceUtilInternal::fopen(_cppFile, "w+");
         }
@@ -454,7 +455,7 @@ Slice::Preprocessor::printMakefileDependencies(
     while ((end = unprocessed.find("\n", pos)) != string::npos)
     {
         end += 1;
-        string file = IceUtilInternal::trim(unprocessed.substr(pos, end - pos));
+        string file = IceInternal::trim(unprocessed.substr(pos, end - pos));
         if (file.rfind(".ice") == file.size() - 4)
         {
             if (IceUtilInternal::isAbsolutePath(file))
@@ -781,7 +782,7 @@ Slice::Preprocessor::checkInputFile()
     string::size_type pos = base.rfind('.');
     if (pos != string::npos)
     {
-        suffix = IceUtilInternal::toLower(base.substr(pos));
+        suffix = IceInternal::toLower(base.substr(pos));
     }
     if (suffix != ".ice")
     {

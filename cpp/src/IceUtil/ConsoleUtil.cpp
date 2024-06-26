@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/ConsoleUtil.h"
+#include "ConsoleUtil.h"
 #include "Ice/Exception.h"
 
 #ifdef _WIN32
@@ -38,8 +38,8 @@ ConsoleOut IceUtilInternal::consoleOut;
 ConsoleErr IceUtilInternal::consoleErr;
 
 ConsoleUtil::ConsoleUtil()
-    : _converter(IceUtil::getProcessStringConverter()),
-      _consoleConverter(IceUtil::createWindowsStringConverter(GetConsoleOutputCP()))
+    : _converter(Ice::getProcessStringConverter()),
+      _consoleConverter(Ice::createWindowsStringConverter(GetConsoleOutputCP()))
 {
 }
 

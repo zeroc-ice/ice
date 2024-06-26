@@ -9,10 +9,10 @@
 #include "Ice/LocalException.h"
 #include "Ice/Properties.h"
 #include "Ice/StringConverter.h"
+#include "Ice/StringUtil.h"
 #include "Instance.h"
 #include "LoggerI.h"
 #include "PluginManagerI.h"
-#include "StringUtil.h"
 
 #include <mutex>
 #include <stdexcept>
@@ -420,7 +420,7 @@ IceInternal::getInstance(const CommunicatorPtr& communicator)
     return communicator->_instance;
 }
 
-IceUtil::TimerPtr
+Ice::TimerPtr
 IceInternal::getInstanceTimer(const CommunicatorPtr& communicator)
 {
     return communicator->_instance->timer();

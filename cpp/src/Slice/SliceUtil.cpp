@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../IceUtil/ConsoleUtil.h"
+#include "../IceUtil/FileUtil.h"
 #include "FileTracker.h"
-#include "IceUtil/ConsoleUtil.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringConverter.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringConverter.h"
+#include "Ice/StringUtil.h"
 #include "Util.h"
 #include <algorithm>
 #include <cassert>
@@ -390,7 +390,7 @@ Slice::writeDependencies(const string& dependencies, const string& dependFile)
         if (!of)
         {
             ostringstream os;
-            os << "cannot open file `" << dependFile << "': " << IceUtilInternal::errorToString(errno);
+            os << "cannot open file `" << dependFile << "': " << IceInternal::errorToString(errno);
             throw Slice::FileException(__FILE__, __LINE__, os.str());
         }
         of << dependencies;
@@ -405,7 +405,7 @@ Slice::argvToArgs(int argc, wchar_t* argv[])
     vector<string> args;
     for (int i = 0; i < argc; i++)
     {
-        args.push_back(IceUtil::wstringToString(argv[i]));
+        args.push_back(Ice::wstringToString(argv[i]));
     }
     return args;
 }

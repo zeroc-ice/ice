@@ -3,6 +3,7 @@
 //
 
 #include "Reference.h"
+#include "../IceUtil/Random.h"
 #include "CollocatedRequestHandler.h"
 #include "ConnectRequestHandler.h"
 #include "ConnectionFactory.h"
@@ -17,16 +18,14 @@
 #include "Ice/LoggerUtil.h"
 #include "Ice/OutputStream.h"
 #include "Ice/Router.h"
+#include "Ice/StringUtil.h"
 #include "Instance.h"
 #include "LocatorInfo.h"
 #include "ObjectAdapterFactory.h"
 #include "OpaqueEndpointI.h"
 #include "ReferenceFactory.h"
 #include "RouterInfo.h"
-#include "StringUtil.h"
 #include "TraceLevels.h"
-
-#include "IceUtil/Random.h"
 
 #include <algorithm>
 #include <functional>

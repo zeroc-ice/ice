@@ -2,15 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../IceUtil/ConsoleUtil.h"
+#include "../IceUtil/Options.h"
+#include "../IceUtil/OutputUtil.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Parser.h"
 #include "../Slice/Preprocessor.h"
 #include "../Slice/Util.h"
-#include "IceUtil/ConsoleUtil.h"
-#include "IceUtil/CtrlCHandler.h"
-#include "IceUtil/Options.h"
-#include "IceUtil/OutputUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/CtrlCHandler.h"
+#include "Ice/StringUtil.h"
 #include "PHPUtil.h"
 
 #include <cassert>
@@ -1459,7 +1459,7 @@ compile(const vector<string>& argv)
 
     int status = EXIT_SUCCESS;
 
-    IceUtil::CtrlCHandler ctrlCHandler;
+    Ice::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
     ostringstream os;
@@ -1572,7 +1572,7 @@ compile(const vector<string>& argv)
                         if (!out)
                         {
                             ostringstream os;
-                            os << "cannot open`" << file << "': " << IceUtilInternal::errorToString(errno);
+                            os << "cannot open`" << file << "': " << IceInternal::errorToString(errno);
                             throw FileException(__FILE__, __LINE__, os.str());
                         }
                         FileTracker::instance()->addFile(file);

@@ -9,7 +9,7 @@
 #include "Ice/Initialize.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/StringConverter.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 
 #include <cstring>
 
@@ -107,7 +107,7 @@ extern "C"
             {
                 if (args[i].find("iconv=") == 0)
                 {
-                    if (!IceUtilInternal::splitString(args[i].substr(strlen("iconv=")), ", \t\r\n", iconvArgs))
+                    if (!IceInternal::splitString(args[i].substr(strlen("iconv=")), ", \t\r\n", iconvArgs))
                     {
                         Error out(communicator->getLogger());
                         out << "Plugin " << name << ": invalid iconv argument";

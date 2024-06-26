@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/UUID.h"
+#include "Ice/UUID.h"
 
 // We use a high quality random number generator
 // (std::random_device) to generate "version 4" UUIDs, as described in
 // http://www.ietf.org/internet-drafts/draft-mealling-uuid-urn-00.txt
-#include "IceUtil/Random.h"
+#include "../IceUtil/Random.h"
 
 using namespace std;
 
@@ -37,7 +37,7 @@ namespace
 }
 
 string
-IceUtil::generateUUID()
+Ice::generateUUID()
 {
     struct UUID
     {

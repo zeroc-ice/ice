@@ -200,7 +200,7 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
 
 + (NSString*)errorToString:(int32_t)error
 {
-    return toNSString(IceUtilInternal::errorToString(error));
+    return toNSString(IceInternal::errorToString(error));
 }
 
 + (NSString*)errorToStringDNS:(int32_t)error

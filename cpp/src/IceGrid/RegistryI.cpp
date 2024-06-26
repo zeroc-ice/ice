@@ -7,6 +7,7 @@
 #include "../Ice/ProtocolPluginFacade.h" // Just to get the hostname
 #include "../Ice/SSL/SSLUtil.h"
 #include "../IceStorm/Service.h"
+#include "../IceUtil/FileUtil.h"
 #include "AdminCallbackRouter.h"
 #include "AdminI.h"
 #include "AdminSessionI.h"
@@ -18,7 +19,6 @@
 #include "Ice/Ice.h"
 #include "Ice/UUID.h"
 #include "IceLocatorDiscovery.h"
-#include "IceUtil/FileUtil.h"
 #include "InternalRegistryI.h"
 #include "LocatorI.h"
 #include "LocatorRegistryI.h"
@@ -730,7 +730,7 @@ RegistryI::setupClientSessionFactory(const IceGrid::LocatorPrx& locator)
     }
 
     assert(_reaper);
-    _timer = make_shared<IceUtil::Timer>(); // Used for session allocation timeout.
+    _timer = make_shared<Ice::Timer>(); // Used for session allocation timeout.
     _clientSessionFactory = make_shared<ClientSessionFactory>(servantManager, _database, _timer, _reaper);
 
     if (servantManager && _master) // Slaves don't support client session manager objects.

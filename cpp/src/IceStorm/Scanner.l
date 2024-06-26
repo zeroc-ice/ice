@@ -3,7 +3,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/ScannerConfig.h"
+#include "../IceUtil/ScannerConfig.h"
 #include <cstdint>
 
 }

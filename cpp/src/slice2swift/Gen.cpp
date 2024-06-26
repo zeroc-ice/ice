@@ -3,11 +3,11 @@
 //
 //
 
+#include "../IceUtil/OutputUtil.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Parser.h"
 #include "../Slice/Util.h"
-#include "IceUtil/OutputUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 
 #include <algorithm>
 #include <cassert>
@@ -58,7 +58,7 @@ Gen::Gen(const string& base, const vector<string>& includePaths, const string& d
     if (!_out)
     {
         ostringstream os;
-        os << "cannot open `" << file << "': " << IceUtilInternal::errorToString(errno);
+        os << "cannot open `" << file << "': " << IceInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(file);

@@ -23,7 +23,7 @@ using namespace IceInternal;
 
 namespace
 {
-    class StreamUTF8BufferI final : public IceUtil::UTF8Buffer
+    class StreamUTF8BufferI final : public Ice::UTF8Buffer
     {
     public:
         StreamUTF8BufferI(OutputStream& stream) : _stream(stream) {}

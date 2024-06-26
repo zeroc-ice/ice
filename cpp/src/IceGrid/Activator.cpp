@@ -4,9 +4,9 @@
 
 #include "Activator.h"
 #include "../Ice/ArgVector.h"
+#include "../IceUtil/FileUtil.h"
 #include "Ice/Ice.h"
 #include "IceGrid/Admin.h"
-#include "IceUtil/FileUtil.h"
 #include "Internal.h"
 #include "ServerI.h"
 #include "TraceLevels.h"
@@ -72,7 +72,7 @@ namespace IceGrid
         os << cannot << " `" << name << "'";
         if (err)
         {
-            os << ": " << IceUtilInternal::errorToString(err);
+            os << ": " << IceInternal::errorToString(err);
         }
         const string msg = os.str();
         ssize_t sz = write(fd, msg.c_str(), msg.size());
@@ -582,7 +582,7 @@ Activator::activate(
 
     if (!b)
     {
-        string message = IceUtilInternal::lastErrorToString();
+        string message = IceInternal::lastErrorToString();
 
         Ice::Warning out(_traceLevels->logger);
         out << "server activation failed for `" << name << "':\n" << message;
@@ -612,7 +612,7 @@ Activator::activate(
     {
         TerminateProcess(pp->hnd, 0);
 
-        string message = IceUtilInternal::lastErrorToString();
+        string message = IceInternal::lastErrorToString();
 
         Ice::Warning out(_traceLevels->logger);
         out << "server activation failed for `" << name << "':\ncouldn't register wait callback\n" << message;
@@ -662,7 +662,7 @@ Activator::activate(
         throw SyscallException(__FILE__, __LINE__);
     }
     vector<string> grps;
-    if (IceUtilInternal::splitString(grouplist, ",", grps))
+    if (IceInternal::splitString(grouplist, ",", grps))
     {
         for (vector<string>::const_iterator p = grps.begin(); p != grps.end(); ++p)
         {
@@ -738,7 +738,7 @@ Activator::activate(
         //
 
         //
-        // Unblock signals blocked by IceUtil::CtrlCHandler.
+        // Unblock signals blocked by Ice::CtrlCHandler.
         //
         sigset_t sigs;
         sigemptyset(&sigs);

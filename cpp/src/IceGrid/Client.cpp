@@ -2,15 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../Ice/ConsoleUtil.h"
 #include "../IceLocatorDiscovery/Plugin.h"
+#include "../IceUtil/ConsoleUtil.h"
+#include "../IceUtil/Options.h"
 #include "FileParserI.h"
 #include "Glacier2/Router.h"
 #include "Ice/Ice.h"
+#include "Ice/StringUtil.h"
 #include "Ice/UUID.h"
 #include "IceGrid/Registry.h"
-#include "IceUtil/Options.h"
-#include "IceUtil/StringUtil.h"
 #include "Parser.h"
 
 #include <fstream>
@@ -28,6 +28,7 @@
 #endif
 
 using namespace std;
+using namespace IceUtilInternal;
 using namespace IceInternal;
 
 class Client;
@@ -78,7 +79,7 @@ main(int argc, char* argv[])
 
     try
     {
-        IceUtil::CtrlCHandler ctrlCHandler;
+        Ice::CtrlCHandler ctrlCHandler;
         auto defaultProps = Ice::createProperties();
         defaultProps->setProperty("IceGridAdmin.Server.Endpoints", "tcp -h localhost");
         Ice::InitializationData id;
@@ -174,7 +175,7 @@ getPassword(const string& prompt)
     }
 #endif
     consoleOut << endl;
-    return IceUtilInternal::trim(password);
+    return IceInternal::trim(password);
 }
 
 extern "C" ICE_LOCATOR_DISCOVERY_API Ice::Plugin*
@@ -358,7 +359,7 @@ run(const Ice::StringSeq& args)
                         {
                             return 1;
                         }
-                        line = IceUtilInternal::trim(line);
+                        line = IceInternal::trim(line);
 
                         istringstream is(line);
                         is >> num;
@@ -414,7 +415,7 @@ run(const Ice::StringSeq& args)
                     {
                         return 1;
                     }
-                    id = IceUtilInternal::trim(id);
+                    id = IceInternal::trim(id);
                 }
 
                 if (password.empty())
@@ -566,7 +567,7 @@ run(const Ice::StringSeq& args)
                     {
                         return 1;
                     }
-                    id = IceUtilInternal::trim(id);
+                    id = IceInternal::trim(id);
                 }
 
                 if (password.empty())

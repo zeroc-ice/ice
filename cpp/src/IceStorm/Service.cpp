@@ -6,8 +6,8 @@
 
 #include "Service.h"
 #include "../Ice/PluginManagerI.h" // For loadPlugin
+#include "Ice/StringUtil.h"
 #include "IceGrid/Registry.h"
-#include "IceUtil/StringUtil.h"
 #include "Instance.h"
 #include "NodeI.h"
 #include "Observers.h"
@@ -231,12 +231,12 @@ ServiceI::start(const string& name, const CommunicatorPtr& communicator, const S
                 // The node id follows. We find the first digit (the start of the node id, and then the end of the
                 // digits).
                 string::size_type start = instanceName.size();
-                while (start < adapterid.size() && !IceUtilInternal::isDigit(adapterid[start]))
+                while (start < adapterid.size() && !IceInternal::isDigit(adapterid[start]))
                 {
                     ++start;
                 }
                 string::size_type end = start;
-                while (end < adapterid.size() && IceUtilInternal::isDigit(adapterid[end]))
+                while (end < adapterid.size() && IceInternal::isDigit(adapterid[end]))
                 {
                     ++end;
                 }
@@ -494,7 +494,7 @@ ServiceI::validateProperties(const string& name, const Ice::PropertiesPtr& prope
         for (unsigned int i = 0; i < sizeof(suffixes) / sizeof(*suffixes); ++i)
         {
             string prop = prefix + suffixes[i];
-            if (IceUtilInternal::match(p->first, prop))
+            if (IceInternal::match(p->first, prop))
             {
                 valid = true;
                 break;

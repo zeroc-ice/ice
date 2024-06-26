@@ -15,7 +15,7 @@
 #    include "Ice/LocalException.h"
 #    include "Ice/OutputStream.h"
 #    include "Ice/Properties.h"
-#    include "IceUtil/StringUtil.h"
+#    include "Ice/StringUtil.h"
 #    include "StreamAcceptor.h"
 #    include "StreamConnector.h"
 #    include "StreamEndpointI.h"

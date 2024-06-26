@@ -5,8 +5,8 @@
 #ifndef JS_UTIL_H
 #define JS_UTIL_H
 
+#include "../IceUtil/OutputUtil.h"
 #include "../Slice/Parser.h"
-#include "IceUtil/OutputUtil.h"
 
 namespace Slice
 {

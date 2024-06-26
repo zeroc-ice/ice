@@ -67,7 +67,7 @@ namespace IceStorm
         std::shared_ptr<IceStormElection::NodeI> node() const;
         std::optional<IceStormElection::NodePrx> nodeProxy() const;
         std::shared_ptr<TraceLevels> traceLevels() const;
-        IceUtil::TimerPtr timer() const;
+        Ice::TimerPtr timer() const;
         std::optional<Ice::ObjectPrx> topicReplicaProxy() const;
         std::optional<Ice::ObjectPrx> publisherReplicaProxy() const;
         std::shared_ptr<IceStorm::Instrumentation::TopicManagerObserver> observer() const;
@@ -101,7 +101,7 @@ namespace IceStorm
         const std::shared_ptr<TopicReaper> _topicReaper;
         std::shared_ptr<IceStormElection::NodeI> _node;
         std::shared_ptr<IceStormElection::Observers> _observers;
-        IceUtil::TimerPtr _timer;
+        Ice::TimerPtr _timer;
         std::shared_ptr<IceStorm::Instrumentation::TopicManagerObserver> _observer;
     };
 

@@ -3,14 +3,14 @@
 //
 
 #include "SchannelEngine.h"
+#include "../../IceUtil/FileUtil.h"
 #include "DistinguishedName.h"
 #include "Ice/Communicator.h"
 #include "Ice/LocalException.h"
 #include "Ice/Logger.h"
 #include "Ice/StringConverter.h"
+#include "Ice/StringUtil.h"
 #include "Ice/UUID.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
 #include "SSLUtil.h"
 #include "SchannelTransceiverI.h"
 
@@ -33,7 +33,8 @@ const int ICESSL_CALG_ECDH_EPHEM = 0x0000AE06;
 
 using namespace std;
 using namespace Ice;
-using namespace IceUtil;
+using namespace Ice;
+using namespace IceInternal;
 using namespace IceUtilInternal;
 using namespace Ice::SSL;
 
@@ -315,7 +316,7 @@ namespace
                     throw InitializationException(
                         __FILE__,
                         __LINE__,
-                        "SSL transport: error adding certificate to store:\n" + IceUtilInternal::lastErrorToString());
+                        "SSL transport: error adding certificate to store:\n" + IceInternal::lastErrorToString());
                 }
             }
         } while (next);
@@ -337,7 +338,7 @@ namespace
                 __FILE__,
                 __LINE__,
                 "SSL transport: failed to open certificate store `" + storeName + "':\n" +
-                    IceUtilInternal::lastErrorToString());
+                    IceInternal::lastErrorToString());
         }
 
         //
@@ -369,7 +370,7 @@ namespace
                 size_t pos;
                 while ((pos = value.find(':', start)) != string::npos)
                 {
-                    string field = IceUtilInternal::toUpper(IceUtilInternal::trim(value.substr(start, pos - start)));
+                    string field = IceInternal::toUpper(IceInternal::trim(value.substr(start, pos - start)));
                     if (field != "SUBJECT" && field != "SUBJECTDN" && field != "ISSUER" && field != "ISSUERDN" &&
                         field != "THUMBPRINT" && field != "SUBJECTKEYID" && field != "SERIAL")
                     {
@@ -438,8 +439,7 @@ namespace
                         throw InitializationException(
                             __FILE__,
                             __LINE__,
-                            "SSL transport: error adding certificate to store:\n" +
-                                IceUtilInternal::lastErrorToString());
+                            "SSL transport: error adding certificate to store:\n" + IceInternal::lastErrorToString());
                     }
 
                     if (field == "SUBJECT" || field == "ISSUER")
@@ -465,7 +465,7 @@ namespace
                                     __FILE__,
                                     __LINE__,
                                     "SSL transport: invalid value `" + value + "' for `IceSSL.FindCert' property:\n" +
-                                        IceUtilInternal::lastErrorToString());
+                                        IceInternal::lastErrorToString());
                             }
 
                             vector<BYTE> buffer(length);
@@ -475,7 +475,7 @@ namespace
                                     __FILE__,
                                     __LINE__,
                                     "SSL transport: invalid value `" + value + "' for `IceSSL.FindCert' property:\n" +
-                                        IceUtilInternal::lastErrorToString());
+                                        IceInternal::lastErrorToString());
                             }
 
                             CERT_NAME_BLOB name = {length, &buffer[0]};
@@ -530,7 +530,7 @@ namespace
                                             __FILE__,
                                             __LINE__,
                                             "SSL transport: error adding certificate to store:\n" +
-                                                IceUtilInternal::lastErrorToString());
+                                                IceInternal::lastErrorToString());
                                     }
                                 }
                             }
@@ -667,16 +667,16 @@ namespace
         {
             if (p->first == AltNAmeIP)
             {
-                ipAddresses.push_back(IceUtilInternal::toLower(p->second));
+                ipAddresses.push_back(IceInternal::toLower(p->second));
             }
             else if (p->first == AltNameDNS)
             {
-                dnsNames.push_back(IceUtilInternal::toLower(p->second));
+                dnsNames.push_back(IceInternal::toLower(p->second));
             }
         }
 
         bool certNameOK = false;
-        string addrLower = IceUtilInternal::toLower(address);
+        string addrLower = IceInternal::toLower(address);
         bool isIpAddress = IceInternal::isIpAddress(address);
 
         // If address is an IP address, compare it to the subject alternative names IP address
@@ -691,7 +691,7 @@ namespace
             if (dnsNames.empty())
             {
                 auto d = DistinguishedName(getSubjectName(cert));
-                string dn = IceUtilInternal::toLower(string(d));
+                string dn = IceInternal::toLower(string(d));
                 string cn = "cn=" + addrLower;
                 string::size_type pos = dn.find(cn);
                 if (pos != string::npos)
@@ -1389,7 +1389,7 @@ Schannel::SSLEngine::validationCallback(
     if (err && (err != SEC_E_NO_CREDENTIALS || certificateRequired))
     {
         ostringstream os;
-        os << "SSL transport: certificate verification failure:\n" << IceUtilInternal::errorToString(err);
+        os << "SSL transport: certificate verification failure:\n" << IceInternal::errorToString(err);
         throw SecurityException(__FILE__, __LINE__, os.str());
     }
 
@@ -1444,7 +1444,7 @@ Schannel::SSLEngine::validationCallback(
         extraPolicyPara.dwAuthType = incoming ? AUTHTYPE_CLIENT : AUTHTYPE_SERVER;
         // Disable because the policy only matches the CN of the certificate, not the SAN.
         extraPolicyPara.fdwChecks = SECURITY_FLAG_IGNORE_CERT_CN_INVALID;
-        extraPolicyPara.pwszServerName = const_cast<wchar_t*>(IceUtil::stringToWstring(host).c_str());
+        extraPolicyPara.pwszServerName = const_cast<wchar_t*>(Ice::stringToWstring(host).c_str());
 
         CERT_CHAIN_POLICY_PARA policyPara;
         memset(&policyPara, 0, sizeof(policyPara));

@@ -1,6 +1,6 @@
 #include "winver.h"
 
-#include "IceUtil/ResourceConfig.h"
+#include "../IceUtil/ResourceConfig.h"
 
 #define ICE_INTERNALNAME "icegridregistry\0"
 #define ICE_ORIGINALFILENAME "icegridregistry.exe\0"

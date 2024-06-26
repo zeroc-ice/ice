@@ -5,7 +5,7 @@
 #ifndef ICE_GRID_ALLOCATABLE_H
 #define ICE_GRID_ALLOCATABLE_H
 
-#include "IceUtil/Timer.h"
+#include "Ice/Timer.h"
 
 #include "IceGrid/Session.h"
 
@@ -17,7 +17,7 @@ namespace IceGrid
     class Allocatable;
     class SessionI;
 
-    class AllocationRequest : public IceUtil::TimerTask, public std::enable_shared_from_this<AllocationRequest>
+    class AllocationRequest : public Ice::TimerTask, public std::enable_shared_from_this<AllocationRequest>
     {
     public:
         virtual ~AllocationRequest() = default;

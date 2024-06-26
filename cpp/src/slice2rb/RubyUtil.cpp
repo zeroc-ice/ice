@@ -3,8 +3,8 @@
 //
 
 #include "RubyUtil.h"
+#include "../IceUtil/FileUtil.h"
 #include "../Slice/Util.h"
-#include "IceUtil/FileUtil.h"
 
 #include <algorithm>
 #include <cassert>

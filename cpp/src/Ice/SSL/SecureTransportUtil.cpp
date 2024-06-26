@@ -3,13 +3,13 @@
 //
 
 #include "SecureTransportUtil.h"
+#include "../../IceUtil/FileUtil.h"
 #include "../Base64.h"
 #include "../UniqueRef.h"
 #include "DistinguishedName.h"
 #include "Ice/LocalException.h"
 #include "Ice/SSL/SSLException.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 
 #include <fstream>
 #include <sstream>
@@ -813,7 +813,7 @@ Ice::SSL::SecureTransport::findCertificateChain(
     bool valid = false;
     while ((pos = value.find(':', start)) != string::npos)
     {
-        string field = IceUtilInternal::toUpper(IceUtilInternal::trim(value.substr(start, pos - start)));
+        string field = IceInternal::toUpper(IceInternal::trim(value.substr(start, pos - start)));
         string arg;
         if (field != "LABEL" && field != "SERIAL" && field != "SUBJECT" && field != "SUBJECTKEYID")
         {

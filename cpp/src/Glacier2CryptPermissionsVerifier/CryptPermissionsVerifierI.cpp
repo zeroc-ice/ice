@@ -5,8 +5,8 @@
 #include "Glacier2/PermissionsVerifier.h"
 #include "Ice/Ice.h"
 
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "../IceUtil/FileUtil.h"
+#include "Ice/StringUtil.h"
 
 #include <fstream>
 #include <mutex>
@@ -25,7 +25,7 @@
 #endif
 
 // Disable deprecation warnings from CommonCrypto APIs
-#include "IceUtil/DisableWarnings.h"
+#include "../IceUtil/DisableWarnings.h"
 
 using namespace std;
 using namespace Ice;
@@ -71,7 +71,7 @@ namespace
         ifstream passwordFile(IceUtilInternal::streamFilename(file).c_str());
         if (!passwordFile)
         {
-            string err = IceUtilInternal::lastErrorToString();
+            string err = IceInternal::lastErrorToString();
             throw Ice::InitializationException(__FILE__, __LINE__, "cannot open `" + file + "' for reading: " + err);
         }
         map<string, string> passwords;

@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../IceUtil/ConsoleUtil.h"
 #include "../Slice/Util.h"
-#include "IceUtil/ConsoleUtil.h"
 #include "RubyUtil.h"
 
 using namespace std;

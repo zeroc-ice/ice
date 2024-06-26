@@ -9,7 +9,7 @@
 #include "Ice/LocalException.h"
 #include "Ice/ObjectAdapter.h"
 
-#include "IceUtil/Random.h"
+#include "../IceUtil/Random.h"
 
 #include <iterator>
 

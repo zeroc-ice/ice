@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/Random.h"
+#include "Random.h"
 
 #include <cassert>
 

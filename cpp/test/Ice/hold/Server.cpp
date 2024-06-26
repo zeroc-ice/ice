@@ -22,7 +22,7 @@ Server::run(int argc, char** argv)
     initData.properties->setProperty("Ice.Connection.IdleTimeout", "1");
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
-    IceUtil::TimerPtr timer = make_shared<IceUtil::Timer>();
+    Ice::TimerPtr timer = make_shared<Ice::Timer>();
     auto properties = communicator->getProperties();
 
     properties->setProperty("TestAdapter1.Endpoints", getTestEndpoint());

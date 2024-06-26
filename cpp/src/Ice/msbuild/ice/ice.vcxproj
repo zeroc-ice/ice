@@ -501,15 +501,15 @@
       <SliceCompileSource>..\..\..\..\..\slice\Ice\Version.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="..\..\..\IceUtil\ConsoleUtil.cpp" />
-    <ClCompile Include="..\..\..\IceUtil\CtrlCHandler.cpp" />
+    <ClCompile Include="..\..\CtrlCHandler.cpp" />
     <ClCompile Include="..\..\..\IceUtil\FileUtil.cpp" />
     <ClCompile Include="..\..\..\IceUtil\Options.cpp" />
     <ClCompile Include="..\..\..\IceUtil\OutputUtil.cpp" />
     <ClCompile Include="..\..\..\IceUtil\Random.cpp" />
-    <ClCompile Include="..\..\..\IceUtil\StringConverter.cpp" />
-    <ClCompile Include="..\..\..\IceUtil\StringUtil.cpp" />
-    <ClCompile Include="..\..\..\IceUtil\UtilException.cpp" />
-    <ClCompile Include="..\..\..\IceUtil\UUID.cpp" />
+    <ClCompile Include="..\..\StringConverter.cpp" />
+    <ClCompile Include="..\..\StringUtil.cpp" />
+    <ClCompile Include="..\..\UtilException.cpp" />
+    <ClCompile Include="..\..\UUID.cpp" />
     <ClCompile Include="..\..\ArgVector.cpp" />
     <ClCompile Include="..\..\Base64.cpp" />
     <ClCompile Include="..\..\BatchRequestQueue.cpp" />

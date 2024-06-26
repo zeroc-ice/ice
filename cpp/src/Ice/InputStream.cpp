@@ -3,6 +3,7 @@
 //
 
 #include "Ice/InputStream.h"
+#include "../IceUtil/DisableWarnings.h"
 #include "DefaultsAndOverrides.h"
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
@@ -12,7 +13,6 @@
 #include "Ice/StringConverter.h"
 #include "Ice/UserExceptionFactory.h"
 #include "Ice/ValueFactory.h"
-#include "IceUtil/DisableWarnings.h"
 #include "Instance.h"
 #include "TraceLevels.h"
 #include "TraceUtil.h"

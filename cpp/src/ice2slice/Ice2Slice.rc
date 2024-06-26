@@ -1,4 +1,4 @@
-#include "IceUtil/ResourceConfig.h"
+#include "../IceUtil/ResourceConfig.h"
 
 #define ICE_INTERNALNAME "ice2slice\0"
 #define ICE_ORIGINALFILENAME "ice2slice.exe\0"

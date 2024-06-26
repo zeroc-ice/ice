@@ -4,7 +4,7 @@
 
 #include "Gen.h"
 #include "../Slice/Util.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 #include <cstring>
 
 #include <algorithm>
@@ -1844,12 +1844,12 @@ Slice::JavaVisitor::writeDocCommentLines(Output& out, const string& text)
     }
     else
     {
-        string s = IceUtilInternal::trim(text.substr(start, pos - start));
+        string s = IceInternal::trim(text.substr(start, pos - start));
         out << s; // Emit the first line.
         start = pos + 1;
         while ((pos = text.find_first_of(ws, start)) != string::npos)
         {
-            string line = IceUtilInternal::trim(text.substr(start, pos - start));
+            string line = IceInternal::trim(text.substr(start, pos - start));
             if (line.empty())
             {
                 out << nl << " *";
@@ -1862,7 +1862,7 @@ Slice::JavaVisitor::writeDocCommentLines(Output& out, const string& text)
         }
         if (start < text.size())
         {
-            string line = IceUtilInternal::trim(text.substr(start));
+            string line = IceInternal::trim(text.substr(start));
             if (line.empty())
             {
                 out << nl << " *";
