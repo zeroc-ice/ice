@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../../src/IceUtil/Exception.h"
+#include "../../src/IceUtil/StackTrace.h"
 #include "Ice/StringUtil.h"
 #include "TestHelper.h"
 

@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_UTIL_EXCEPTION_H
-#define ICE_UTIL_EXCEPTION_H
+#ifndef ICE_STACK_TRACE_H
+#define ICE_STACK_TRACE_H
 
 #include "Ice/Config.h"
 
