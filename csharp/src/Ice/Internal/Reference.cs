@@ -124,10 +124,6 @@ public abstract class Reference : IEquatable<Reference>
 
     public virtual Reference changeMode(Mode newMode)
     {
-        if (newMode == _mode)
-        {
-            return this;
-        }
         Reference r = _instance.referenceFactory().copy(this);
         r._mode = newMode;
         return r;
@@ -135,10 +131,6 @@ public abstract class Reference : IEquatable<Reference>
 
     public Reference changeSecure(bool newSecure)
     {
-        if (newSecure == secure_)
-        {
-            return this;
-        }
         Reference r = _instance.referenceFactory().copy(this);
         r.secure_ = newSecure;
         return r;
@@ -146,10 +138,6 @@ public abstract class Reference : IEquatable<Reference>
 
     public Reference changeIdentity(Ice.Identity newIdentity)
     {
-        if (newIdentity.Equals(_identity))
-        {
-            return this;
-        }
         Reference r = _instance.referenceFactory().copy(this);
         // Identity is a reference type, therefore we make a copy of newIdentity.
         r._identity = newIdentity with { };
@@ -158,10 +146,6 @@ public abstract class Reference : IEquatable<Reference>
 
     public Reference changeFacet(string newFacet)
     {
-        if (newFacet.Equals(_facet))
-        {
-            return this;
-        }
         Reference r = _instance.referenceFactory().copy(this);
         r._facet = newFacet;
         return r;
@@ -169,10 +153,6 @@ public abstract class Reference : IEquatable<Reference>
 
     public Reference changeInvocationTimeout(int newTimeout)
     {
-        if (newTimeout == _invocationTimeout)
-        {
-            return this;
-        }
         Reference r = _instance.referenceFactory().copy(this);
         r._invocationTimeout = newTimeout;
         return r;
@@ -180,10 +160,6 @@ public abstract class Reference : IEquatable<Reference>
 
     public virtual Reference changeEncoding(Ice.EncodingVersion newEncoding)
     {
-        if (newEncoding.Equals(_encoding))
-        {
-            return this;
-        }
         Reference r = _instance.referenceFactory().copy(this);
         r._encoding = newEncoding;
         return r;
@@ -191,11 +167,6 @@ public abstract class Reference : IEquatable<Reference>
 
     public virtual Reference changeCompress(bool newCompress)
     {
-        if (overrideCompress_ && compress_ == newCompress)
-        {
-            return this;
-        }
-
         Reference r = _instance.referenceFactory().copy(this);
         r.compress_ = newCompress;
         r.overrideCompress_ = true;
@@ -821,10 +792,6 @@ public class RoutableReference : Reference
 
     public override Reference changeEndpoints(EndpointI[] newEndpoints)
     {
-        if (Equals(newEndpoints, _endpoints))
-        {
-            return this;
-        }
         RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
         r._endpoints = newEndpoints;
         r._adapterId = "";
@@ -834,10 +801,6 @@ public class RoutableReference : Reference
 
     public override Reference changeAdapterId(string newAdapterId)
     {
-        if (_adapterId.Equals(newAdapterId))
-        {
-            return this;
-        }
         RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
         r._adapterId = newAdapterId;
         r._endpoints = _emptyEndpoints;
@@ -846,34 +809,20 @@ public class RoutableReference : Reference
 
     public override Reference changeLocator(Ice.LocatorPrx newLocator)
     {
-        LocatorInfo newLocatorInfo = getInstance().locatorManager().get(newLocator);
-        if (newLocatorInfo != null && _locatorInfo != null && newLocatorInfo.Equals(_locatorInfo))
-        {
-            return this;
-        }
         RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-        r._locatorInfo = newLocatorInfo;
+        r._locatorInfo = getInstance().locatorManager().get(newLocator);
         return r;
     }
 
     public override Reference changeRouter(Ice.RouterPrx newRouter)
     {
-        RouterInfo newRouterInfo = getInstance().routerManager().get(newRouter);
-        if (newRouterInfo != null && _routerInfo != null && newRouterInfo.Equals(_routerInfo))
-        {
-            return this;
-        }
         RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-        r._routerInfo = newRouterInfo;
+        r._routerInfo = getInstance().routerManager().get(newRouter);
         return r;
     }
 
     public override Reference changeCollocationOptimized(bool newCollocationOptimized)
     {
-        if (newCollocationOptimized == _collocationOptimized)
-        {
-            return this;
-        }
         RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
         r._collocationOptimized = newCollocationOptimized;
         return r;
@@ -881,10 +830,6 @@ public class RoutableReference : Reference
 
     public override Reference changeCacheConnection(bool newCache)
     {
-        if (newCache == _cacheConnection)
-        {
-            return this;
-        }
         RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
         r._cacheConnection = newCache;
         return r;
@@ -892,10 +837,6 @@ public class RoutableReference : Reference
 
     public override Reference changePreferSecure(bool newPreferSecure)
     {
-        if (newPreferSecure == _preferSecure)
-        {
-            return this;
-        }
         RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
         r._preferSecure = newPreferSecure;
         return r;
@@ -903,10 +844,6 @@ public class RoutableReference : Reference
 
     public override Reference changeEndpointSelection(Ice.EndpointSelectionType newType)
     {
-        if (newType == _endpointSelection)
-        {
-            return this;
-        }
         RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
         r._endpointSelection = newType;
         return r;
@@ -914,10 +851,6 @@ public class RoutableReference : Reference
 
     public override Reference changeLocatorCacheTimeout(int newTimeout)
     {
-        if (newTimeout == _locatorCacheTimeout)
-        {
-            return this;
-        }
         RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
         r._locatorCacheTimeout = newTimeout;
         return r;
@@ -925,10 +858,6 @@ public class RoutableReference : Reference
 
     public override Reference changeConnectionId(string id)
     {
-        if (_connectionId.Equals(id))
-        {
-            return this;
-        }
         RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
         r._connectionId = id;
         if (_endpoints.Length > 0)
