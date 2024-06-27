@@ -17,9 +17,17 @@ export async function batchOneways(prx: Test.MyClassPrx) {
     const batch = Test.MyClassPrx.uncheckedCast(prx.ice_batchOneway());
     await batch.ice_flushBatchRequests();
 
-    test(batch.ice_flushBatchRequests().isCompleted()); // Empty flush
-    test(batch.ice_flushBatchRequests().isSent()); // Empty flush
-    test(batch.ice_flushBatchRequests().sentSynchronously()); // Empty flush
+    let r = batch.ice_flushBatchRequests();
+    await r;
+    test(r.isCompleted()); // Empty flush
+
+    r = batch.ice_flushBatchRequests();
+    await r;
+    test(r.isSent()); // Empty flush
+
+    r = batch.ice_flushBatchRequests();
+    await r;
+    test(r.isCompleted()); // Empty flush
 
     for (let i = 0; i < 30; ++i) {
         await batch.opByteSOneway(bs1);

@@ -379,10 +379,10 @@ namespace Ice
                         uoet.op();
                         test(false);
                     }
-                    catch (Ice.UnexpectedObjectException ex)
+                    catch (Ice.MarshalException ex)
                     {
-                        test(ex.type == "::Test::AlsoEmpty");
-                        test(ex.expectedType == "::Test::Empty");
+                        test(ex.Message.Contains("'::Test::AlsoEmpty'"));
+                        test(ex.Message.Contains("'::Test::Empty'"));
                     }
                     catch (System.Exception ex)
                     {

@@ -54,16 +54,12 @@ public sealed class EndpointFactoryManager
         string[] arr = Ice.UtilInternal.StringUtil.splitString(str, " \t\r\n");
         if (arr == null)
         {
-            Ice.EndpointParseException e = new Ice.EndpointParseException();
-            e.str = "mismatched quote";
-            throw e;
+            throw new ParseException($"Failed to parse endpoint '{str}': mismatched quote");
         }
 
         if (arr.Length == 0)
         {
-            Ice.EndpointParseException e = new Ice.EndpointParseException();
-            e.str = "value has no non-whitespace characters";
-            throw e;
+            throw new ParseException($"Failed to parse endpoint '{str}': value has no non-whitespace characters");
         }
 
         List<string> v = new List<string>(arr);
@@ -94,9 +90,7 @@ public sealed class EndpointFactoryManager
             EndpointI e = factory.create(v, oaEndpoint);
             if (v.Count > 0)
             {
-                Ice.EndpointParseException ex = new Ice.EndpointParseException();
-                ex.str = "unrecognized argument `" + v[0] + "' in endpoint `" + str + "'";
-                throw ex;
+                throw new ParseException($"Failed to parse endpoint '{str}': unrecognized argument '{v[0]}'");
             }
             return e;
 
@@ -125,9 +119,7 @@ public sealed class EndpointFactoryManager
             EndpointI ue = new OpaqueEndpointI(v);
             if (v.Count > 0)
             {
-                Ice.EndpointParseException ex = new Ice.EndpointParseException();
-                ex.str = "unrecognized argument `" + v[0] + "' in endpoint `" + str + "'";
-                throw ex;
+                throw new ParseException($"Failed to parse endpoint '{str}': unrecognized argument '{v[0]}'");
             }
             factory = get(ue.type());
             if (factory != null)

@@ -35,7 +35,7 @@ export class Client extends TestHelper {
         out.write("testing proxy endpoint information... ");
         const ref =
             "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:opaque -e 1.8 -t 100 -v ABCD";
-        const p1 = communicator.stringToProxy(ref);
+        const p1 = new Ice.ObjectPrx(communicator, ref);
 
         let endpoints = p1.ice_getEndpoints();
         let endpoint = endpoints[0].getInfo();
@@ -79,10 +79,9 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing connection endpoint information... ");
-        const base = communicator.stringToProxy("test:" + this.getTestEndpoint());
-        const testIntf = Test.TestIntfPrx.uncheckedCast(base);
+        const testIntf = new Test.TestIntfPrx(communicator, `test:${this.getTestEndpoint()}`);
         const endpointPort = this.getTestPort(0);
-        let conn = await base.ice_getConnection();
+        let conn = await testIntf.ice_getConnection();
         let ipinfo = getTCPEndpointInfo(conn.getEndpoint().getInfo());
         test(ipinfo != null);
         test(ipinfo!.port == endpointPort);
@@ -99,7 +98,7 @@ export class Client extends TestHelper {
 
         out.write("testing connection information... ");
 
-        conn = await base.ice_getConnection();
+        conn = await testIntf.ice_getConnection();
         conn.setBufferSize(1024, 2048);
 
         const info = conn.getInfo();

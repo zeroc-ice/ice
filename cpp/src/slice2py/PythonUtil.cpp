@@ -4,7 +4,7 @@
 
 #include "PythonUtil.h"
 #include "../Slice/Util.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 #include <algorithm>
 #include <cassert>
 #include <climits>
@@ -12,8 +12,7 @@
 
 using namespace std;
 using namespace Slice;
-using namespace IceUtil;
-using namespace IceUtilInternal;
+using namespace IceInternal;
 
 namespace
 {
@@ -95,7 +94,7 @@ namespace Slice
         class CodeVisitor final : public ParserVisitor
         {
         public:
-            CodeVisitor(IceUtilInternal::Output&, set<string>&);
+            CodeVisitor(IceInternal::Output&, set<string>&);
 
             bool visitModuleStart(const ModulePtr&) final;
             void visitModuleEnd(const ModulePtr&) final;
@@ -2713,7 +2712,7 @@ Slice::Python::getImportFileName(const string& file, const UnitPtr& ut, const ve
         // The metadata is present, so the generated file was placed in the specified directory.
         //
         vector<string> names;
-        IceUtilInternal::splitString(pkgdir, "/", names);
+        IceInternal::splitString(pkgdir, "/", names);
         assert(!names.empty());
         pkgdir = "";
         for (vector<string>::iterator p = names.begin(); p != names.end(); ++p)
@@ -2886,7 +2885,7 @@ Slice::Python::getAbsolute(const ContainedPtr& cont, const string& suffix, const
 }
 
 void
-Slice::Python::printHeader(IceUtilInternal::Output& out)
+Slice::Python::printHeader(IceInternal::Output& out)
 {
     static const char* header = "#\n"
                                 "# Copyright (c) ZeroC, Inc. All rights reserved.\n"

@@ -3,8 +3,8 @@
 //
 
 #include "../Ice/ConsoleUtil.h"
+#include "../Ice/Options.h"
 #include "Ice/Ice.h"
-#include "IceUtil/Options.h"
 #include "Parser.h"
 
 #ifdef _WIN32
@@ -73,10 +73,10 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
     string commands;
     bool debug;
 
-    IceUtilInternal::Options opts;
+    IceInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
-    opts.addOpt("e", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("e", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("d", "debug");
 
     try
@@ -88,7 +88,7 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
             return 1;
         }
     }
-    catch (const IceUtilInternal::BadOptException& e)
+    catch (const IceInternal::BadOptException& e)
     {
         consoleErr << e.reason << endl;
         usage(args[0]);

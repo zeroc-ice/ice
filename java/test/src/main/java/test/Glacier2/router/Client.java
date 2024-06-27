@@ -41,9 +41,9 @@ public class Client extends test.TestHelper {
       {
         out.print("testing router finder... ");
         out.flush();
-        com.zeroc.Ice.RouterFinderPrx finder =
-            com.zeroc.Ice.RouterFinderPrx.uncheckedCast(
-                communicator.stringToProxy("Ice/RouterFinder:" + getTestEndpoint(50)));
+        var finder =
+            com.zeroc.Ice.RouterFinderPrx.createProxy(
+                communicator, "Ice/RouterFinder:" + getTestEndpoint(50));
         test(finder.getRouter().ice_getIdentity().equals(router.ice_getIdentity()));
         out.println("ok");
       }

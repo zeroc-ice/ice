@@ -1,4 +1,4 @@
-#include "IceUtil/ResourceConfig.h"
+#include "../Ice/ResourceConfig.h"
 
 #define ICE_INTERNALNAME "slice2js\0"
 #define ICE_ORIGINALFILENAME "slice2js.exe\0"

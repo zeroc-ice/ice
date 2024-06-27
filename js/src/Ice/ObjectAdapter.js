@@ -25,6 +25,7 @@ import { StringUtil } from "./StringUtil.js";
 import { Timer } from "./Timer.js";
 import { identityToString } from "./IdentityUtil.js";
 import { Debug } from "./Debug.js";
+import { ObjectPrx } from "./ObjectPrx.js";
 
 const _suffixes = [
     "ACM",
@@ -142,8 +143,8 @@ export class ObjectAdapter {
         }
 
         try {
-            if (router === null) {
-                router = RouterPrx.uncheckedCast(this._instance.proxyFactory().propertyToProxy(this._name + ".Router"));
+            if (router === null && properties.getProperty(this._name + ".Router").length > 0) {
+                router = new RouterPrx(communicator.propertyToProxy(this._name + ".Router"));
             }
             let p;
             if (router !== null) {
@@ -272,8 +273,8 @@ export class ObjectAdapter {
 
     addFacet(object, ident, facet) {
         this.checkForDeactivation();
-        this.checkIdentity(ident);
-        this.checkServant(object);
+        ObjectAdapter.checkIdentity(ident);
+        ObjectAdapter.checkServant(object);
 
         //
         // Create a copy of the Identity argument, in case the caller
@@ -295,7 +296,7 @@ export class ObjectAdapter {
     }
 
     addDefaultServant(servant, category) {
-        this.checkServant(servant);
+        ObjectAdapter.checkServant(servant);
         this.checkForDeactivation();
 
         this._servantManager.addDefaultServant(servant, category);
@@ -307,14 +308,14 @@ export class ObjectAdapter {
 
     removeFacet(ident, facet) {
         this.checkForDeactivation();
-        this.checkIdentity(ident);
+        ObjectAdapter.checkIdentity(ident);
 
         return this._servantManager.removeServant(ident, facet);
     }
 
     removeAllFacets(ident) {
         this.checkForDeactivation();
-        this.checkIdentity(ident);
+        ObjectAdapter.checkIdentity(ident);
 
         return this._servantManager.removeAllFacets(ident);
     }
@@ -331,13 +332,13 @@ export class ObjectAdapter {
 
     findFacet(ident, facet) {
         this.checkForDeactivation();
-        this.checkIdentity(ident);
+        ObjectAdapter.checkIdentity(ident);
         return this._servantManager.findServant(ident, facet);
     }
 
     findAllFacets(ident) {
         this.checkForDeactivation();
-        this.checkIdentity(ident);
+        ObjectAdapter.checkIdentity(ident);
         return this._servantManager.findAllFacets(ident);
     }
 
@@ -369,7 +370,7 @@ export class ObjectAdapter {
 
     createProxy(ident) {
         this.checkForDeactivation();
-        this.checkIdentity(ident);
+        ObjectAdapter.checkIdentity(ident);
         return this.newProxy(ident, "");
     }
 
@@ -433,11 +434,10 @@ export class ObjectAdapter {
         //
         // Create a reference and return a proxy for this reference.
         //
-        return this._instance
-            .proxyFactory()
-            .referenceToProxy(
-                this._instance.referenceFactory().create(ident, facet, this._reference, this._publishedEndpoints),
-            );
+        const reference = this._instance
+            .referenceFactory()
+            .create(ident, facet, this._reference, this._publishedEndpoints);
+        return new ObjectPrx(reference);
     }
 
     checkForDeactivation() {
@@ -448,7 +448,7 @@ export class ObjectAdapter {
         }
     }
 
-    checkIdentity(ident) {
+    static checkIdentity(ident) {
         if (ident.name === undefined || ident.name === null || ident.name.length === 0) {
             throw new IllegalIdentityException();
         }
@@ -458,7 +458,7 @@ export class ObjectAdapter {
         }
     }
 
-    checkServant(servant) {
+    static checkServant(servant) {
         if (servant === undefined || servant === null) {
             throw new IllegalServantException("cannot add null servant to Object Adapter");
         }

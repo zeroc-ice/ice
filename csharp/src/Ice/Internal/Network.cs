@@ -748,9 +748,7 @@ public sealed class Network
                 }
                 else
                 {
-                    Ice.DNSException e = new Ice.DNSException();
-                    e.host = host;
-                    throw e;
+                    throw new DNSException(host);
                 }
             }
             catch (FormatException)
@@ -793,15 +791,11 @@ public sealed class Network
             {
                 goto repeatGetHostByName;
             }
-            Ice.DNSException e = new Ice.DNSException(ex);
-            e.host = host;
-            throw e;
+            throw new DNSException(host, ex);
         }
         catch (System.Exception ex)
         {
-            Ice.DNSException e = new Ice.DNSException(ex);
-            e.host = host;
-            throw e;
+            throw new DNSException(host, ex);
         }
 
         //
@@ -809,9 +803,7 @@ public sealed class Network
         //
         if (addresses.Count == 0)
         {
-            Ice.DNSException e = new Ice.DNSException();
-            e.host = host;
-            throw e;
+            throw new DNSException(host);
         }
         return addresses;
     }
@@ -854,15 +846,11 @@ public sealed class Network
             {
                 goto repeatGetHostByName;
             }
-            Ice.DNSException e = new Ice.DNSException(ex);
-            e.host = "0.0.0.0";
-            throw e;
+            throw new DNSException("0.0.0.0", ex);
         }
         catch (System.Exception ex)
         {
-            Ice.DNSException e = new Ice.DNSException(ex);
-            e.host = "0.0.0.0";
-            throw e;
+            throw new DNSException("0.0.0.0", ex);
         }
 
         return addresses.ToArray();
@@ -1200,7 +1188,7 @@ public sealed class Network
         //
         // The iface parameter must either be an IP address, an
         // index or the name of an interface. If it's an index we
-        // just return it. If it's an IP addess we search for an
+        // just return it. If it's an IP address we search for an
         // interface which has this IP address. If it's a name we
         // search an interface with this name.
         //

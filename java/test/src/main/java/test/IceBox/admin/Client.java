@@ -11,12 +11,11 @@ public class Client extends test.TestHelper {
     try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
       AllTests.allTests(this);
 
-      //
       // Shutdown the IceBox server.
-      //
-      com.zeroc.Ice.ProcessPrx.uncheckedCast(
-              communicator().stringToProxy("DemoIceBox/admin -f Process:default -p 9996"))
-          .shutdown();
+      var prx =
+          com.zeroc.Ice.ProcessPrx.createProxy(
+              communicator(), "DemoIceBox/admin -f Process:default -p 9996");
+      prx.shutdown();
     }
   }
 }

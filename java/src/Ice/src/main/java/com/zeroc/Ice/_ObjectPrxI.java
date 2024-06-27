@@ -12,6 +12,15 @@ import java.util.concurrent.CompletableFuture;
 
 /** Concrete proxy implementation. */
 public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
+  // TODO: delete this default constructor eventually.
+  public _ObjectPrxI() {}
+
+  public _ObjectPrxI(ObjectPrx obj) {
+    _ObjectPrxI source = (_ObjectPrxI) obj;
+    _reference = source._reference;
+    _requestHandler = source._requestHandler;
+  }
+
   public Communicator ice_getCommunicator() {
     return _reference.getCommunicator();
   }
@@ -335,15 +344,6 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
   public void _write(OutputStream os) {
     _reference.getIdentity().ice_writeMembers(os);
     _reference.streamWrite(os);
-  }
-
-  @Override
-  public void _copyFrom(ObjectPrx p) {
-    synchronized (p) {
-      _ObjectPrxI h = (_ObjectPrxI) p;
-      _reference = h._reference;
-      _requestHandler = h._requestHandler;
-    }
   }
 
   @Override

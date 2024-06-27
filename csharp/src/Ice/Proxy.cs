@@ -853,7 +853,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     {
         if (newIdentity.name.Length == 0)
         {
-            throw new IllegalIdentityException();
+            throw new ArgumentException("The name of an Ice object identity cannot be empty.", nameof(newIdentity));
         }
         if (newIdentity == _reference.getIdentity())
         {
@@ -1806,7 +1806,7 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// <param name="communicator">The communicator of the new proxy.</param>
     /// <param name="proxyString">The string representation of the proxy.</param>
     /// <returns>The new proxy.</returns>
-    /// <exception name="ProxyParseException">Thrown when <paramref name="proxyString" /> is not a valid proxy string.
+    /// <exception name="ParseException">Thrown when <paramref name="proxyString" /> is not a valid proxy string.
     /// </exception>
     public static ObjectPrx createProxy(Communicator communicator, string proxyString)
     {
@@ -1814,7 +1814,7 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
 
         return reference is not null ?
             new ObjectPrxHelper(reference) :
-            throw new ProxyParseException("Invalid empty proxy string.");
+            throw new ParseException("Invalid empty proxy string.");
     }
 
     /// Casts a proxy to {@link ObjectPrx}. This call contacts

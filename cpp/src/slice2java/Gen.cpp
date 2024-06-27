@@ -4,7 +4,7 @@
 
 #include "Gen.h"
 #include "../Slice/Util.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 #include <cstring>
 
 #include <algorithm>
@@ -13,8 +13,7 @@
 
 using namespace std;
 using namespace Slice;
-using namespace IceUtil;
-using namespace IceUtilInternal;
+using namespace IceInternal;
 
 namespace
 {
@@ -1845,12 +1844,12 @@ Slice::JavaVisitor::writeDocCommentLines(Output& out, const string& text)
     }
     else
     {
-        string s = IceUtilInternal::trim(text.substr(start, pos - start));
+        string s = IceInternal::trim(text.substr(start, pos - start));
         out << s; // Emit the first line.
         start = pos + 1;
         while ((pos = text.find_first_of(ws, start)) != string::npos)
         {
-            string line = IceUtilInternal::trim(text.substr(start, pos - start));
+            string line = IceInternal::trim(text.substr(start, pos - start));
             if (line.empty())
             {
                 out << nl << " *";
@@ -1863,7 +1862,7 @@ Slice::JavaVisitor::writeDocCommentLines(Output& out, const string& text)
         }
         if (start < text.size())
         {
-            string line = IceUtilInternal::trim(text.substr(start));
+            string line = IceInternal::trim(text.substr(start));
             if (line.empty())
             {
                 out << nl << " *";
@@ -4230,6 +4229,22 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     const string package = getPackage(p);
     const string contextParam = "java.util.Map<String, String> context";
+    const string prxName = p->name() + "Prx";
+    const string prxIName = "_" + prxName + "I";
+
+    out << sp;
+    writeDocComment(
+        out,
+        "Creates a new proxy that implements {@link " + prxName +
+            "}.\n"
+            "@param communicator The communicator of the new proxy.\n"
+            "@param proxyString The string representation of the proxy.\n"
+            "@return The new proxy.");
+    out << nl << "public static " << prxName
+        << " createProxy(com.zeroc.Ice.Communicator communicator, String proxyString)";
+    out << sb;
+    out << nl << "return uncheckedCast(communicator.stringToProxy(proxyString));";
+    out << eb;
 
     out << sp;
     writeDocComment(
@@ -4238,10 +4253,9 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         "Raises a local exception if a communication error occurs.\n"
         "@param obj The untyped proxy.\n"
         "@return A proxy for this type, or null if the object does not support this type.");
-    out << nl << "static " << p->name() << "Prx checkedCast(com.zeroc.Ice.ObjectPrx obj)";
+    out << nl << "static " << prxName << " checkedCast(com.zeroc.Ice.ObjectPrx obj)";
     out << sb;
-    out << nl << "return com.zeroc.Ice.ObjectPrx._checkedCast(obj, ice_staticId(), " << p->name() << "Prx.class, _"
-        << p->name() << "PrxI.class);";
+    out << nl << "return checkedCast(obj, noExplicitContext);";
     out << eb;
 
     out << sp;
@@ -4252,10 +4266,18 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         "@param obj The untyped proxy.\n"
         "@param context The Context map to send with the invocation.\n"
         "@return A proxy for this type, or null if the object does not support this type.");
-    out << nl << "static " << p->name() << "Prx checkedCast(com.zeroc.Ice.ObjectPrx obj, " << contextParam << ')';
+    out << nl << "static " << prxName << " checkedCast(com.zeroc.Ice.ObjectPrx obj, " << contextParam << ')';
     out << sb;
-    out << nl << "return com.zeroc.Ice.ObjectPrx._checkedCast(obj, context, ice_staticId(), " << p->name()
-        << "Prx.class, _" << p->name() << "PrxI.class);";
+    out << nl << "if (obj != null)";
+    out << sb;
+    out << nl << "try";
+    out << sb;
+    out << nl << "boolean ok = obj.ice_isA(ice_staticId(), context);";
+    out << nl << "return ok ? new " << prxIName << "(obj) : null;";
+    out << eb;
+    out << nl << "catch (com.zeroc.Ice.FacetNotExistException ex)" << sb << eb;
+    out << eb;
+    out << nl << "return null;";
     out << eb;
 
     out << sp;
@@ -4266,10 +4288,9 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         "@param obj The untyped proxy.\n"
         "@param facet The name of the desired facet.\n"
         "@return A proxy for this type, or null if the object does not support this type.");
-    out << nl << "static " << p->name() << "Prx checkedCast(com.zeroc.Ice.ObjectPrx obj, String facet)";
+    out << nl << "static " << prxName << " checkedCast(com.zeroc.Ice.ObjectPrx obj, String facet)";
     out << sb;
-    out << nl << "return com.zeroc.Ice.ObjectPrx._checkedCast(obj, facet, ice_staticId(), " << p->name()
-        << "Prx.class, _" << p->name() << "PrxI.class);";
+    out << nl << "return checkedCast(obj, facet, noExplicitContext);";
     out << eb;
 
     out << sp;
@@ -4281,11 +4302,10 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         "@param facet The name of the desired facet.\n"
         "@param context The Context map to send with the invocation.\n"
         "@return A proxy for this type, or null if the object does not support this type.");
-    out << nl << "static " << p->name() << "Prx checkedCast(com.zeroc.Ice.ObjectPrx obj, String facet, " << contextParam
+    out << nl << "static " << prxName << " checkedCast(com.zeroc.Ice.ObjectPrx obj, String facet, " << contextParam
         << ')';
     out << sb;
-    out << nl << "return com.zeroc.Ice.ObjectPrx._checkedCast(obj, facet, context, ice_staticId(), " << p->name()
-        << "Prx.class, _" << p->name() << "PrxI.class);";
+    out << nl << "return (obj == null) ? null : checkedCast(obj.ice_facet(facet), context);";
     out << eb;
 
     out << sp;
@@ -4294,10 +4314,9 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         "Downcasts the given proxy to this type without contacting the remote server.\n"
         "@param obj The untyped proxy.\n"
         "@return A proxy for this type.");
-    out << nl << "static " << p->name() << "Prx uncheckedCast(com.zeroc.Ice.ObjectPrx obj)";
+    out << nl << "static " << prxName << " uncheckedCast(com.zeroc.Ice.ObjectPrx obj)";
     out << sb;
-    out << nl << "return com.zeroc.Ice.ObjectPrx._uncheckedCast(obj, " << p->name() << "Prx.class, _" << p->name()
-        << "PrxI.class);";
+    out << nl << "return (obj == null) ? null : new " << prxIName << "(obj);";
     out << eb;
 
     out << sp;
@@ -4307,10 +4326,9 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         "@param obj The untyped proxy.\n"
         "@param facet The name of the desired facet.\n"
         "@return A proxy for this type.");
-    out << nl << "static " << p->name() << "Prx uncheckedCast(com.zeroc.Ice.ObjectPrx obj, String facet)";
+    out << nl << "static " << prxName << " uncheckedCast(com.zeroc.Ice.ObjectPrx obj, String facet)";
     out << sb;
-    out << nl << "return com.zeroc.Ice.ObjectPrx._uncheckedCast(obj, facet, " << p->name() << "Prx.class, _"
-        << p->name() << "PrxI.class);";
+    out << nl << "return (obj == null) ? null : new " << prxIName << "(obj.ice_facet(facet));";
     out << eb;
 
     // Generate overrides for all the methods on `ObjectPrx` with covariant return types.
@@ -4341,7 +4359,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     {
         out << sp;
         out << nl << "@Override";
-        out << nl << p->name() << "Prx " << method << ";";
+        out << nl << prxName << " " << method << ";";
     }
 
     out << sp;
@@ -4365,10 +4383,25 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     {
         outi << nl << "@Deprecated";
     }
-    outi << nl << "public class _" << p->name() << "PrxI";
-    outi << " extends com.zeroc.Ice._ObjectPrxFactoryMethods<" << p->name() << "Prx>";
-    outi << " implements " << p->name() << "Prx";
+    outi << nl << "public class " << prxIName;
+    outi << " extends com.zeroc.Ice._ObjectPrxFactoryMethods<" << prxName << ">";
+    outi << " implements " << prxName;
     outi << sb;
+
+    // TODO: eventually remove this default constructor.
+    // Default constructor
+    outi << sp;
+    outi << nl << "public " << prxIName << "()";
+    outi << sb;
+    outi << nl << "super();";
+    outi << eb;
+
+    // Copy constructor
+    outi << sp;
+    outi << nl << "public " << prxIName << "(com.zeroc.Ice.ObjectPrx obj)";
+    outi << sb;
+    outi << nl << "super(obj);";
+    outi << eb;
 
     outi << sp;
     outi << nl << "private static final long serialVersionUID = 0L;";

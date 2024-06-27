@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/DisableWarnings.h"
+#include "../Ice/DisableWarnings.h"
 
 #include "../Ice/SSL/RFC2253.h"
 #include "../Ice/SSL/SSLUtil.h"
@@ -68,7 +68,7 @@ InternalRegistryI::registerNode(
     }
     catch (const Ice::ObjectAdapterDeactivatedException&)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 }
 
@@ -99,7 +99,7 @@ InternalRegistryI::registerReplica(
     }
     catch (const Ice::ObjectAdapterDeactivatedException&)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 }
 

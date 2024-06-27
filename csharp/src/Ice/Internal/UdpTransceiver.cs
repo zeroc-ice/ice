@@ -250,7 +250,7 @@ internal sealed class UdpTransceiver : Transceiver
 
                 if (Network.connectionLost(e))
                 {
-                    throw new Ice.ConnectionLostException();
+                    throw new ConnectionLostException(e);
                 }
                 else
                 {
@@ -259,7 +259,7 @@ internal sealed class UdpTransceiver : Transceiver
             }
             catch (System.Exception e)
             {
-                throw new Ice.SyscallException(e);
+                throw new SyscallException(e);
             }
         }
 

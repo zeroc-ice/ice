@@ -13,7 +13,7 @@ using namespace std;
 
 namespace
 {
-    class CheckTask : public IceUtil::TimerTask
+    class CheckTask : public Ice::TimerTask
     {
         const shared_ptr<NodeI> _node;
 
@@ -22,7 +22,7 @@ namespace
         virtual void runTimerTask() { _node->check(); }
     };
 
-    class MergeTask : public IceUtil::TimerTask
+    class MergeTask : public Ice::TimerTask
     {
         const shared_ptr<NodeI> _node;
         const set<int> _s;
@@ -32,7 +32,7 @@ namespace
         virtual void runTimerTask() { _node->merge(_s); }
     };
 
-    class MergeContinueTask : public IceUtil::TimerTask
+    class MergeContinueTask : public Ice::TimerTask
     {
         const shared_ptr<NodeI> _node;
 
@@ -41,7 +41,7 @@ namespace
         virtual void runTimerTask() { _node->mergeContinue(); }
     };
 
-    class TimeoutTask : public IceUtil::TimerTask
+    class TimeoutTask : public Ice::TimerTask
     {
         const shared_ptr<NodeI> _node;
 
@@ -1082,7 +1082,7 @@ NodeI::startUpdate(int64_t& generation, const char* file, int line)
 
     if (_destroy)
     {
-        throw Ice::UnknownException(file, line);
+        throw Ice::UnknownException(file, line, "node destroyed");
     }
     if (!_coordinatorProxy)
     {
@@ -1132,7 +1132,7 @@ NodeI::startCachedRead(int64_t& generation, const char* file, int line)
 
     if (_destroy)
     {
-        throw Ice::UnknownException(file, line);
+        throw Ice::UnknownException(file, line, "node destroyed");
     }
     generation = _generation;
     ++_updateCounter;
@@ -1146,7 +1146,7 @@ NodeI::startObserverUpdate(int64_t generation, const char* file, int line)
 
     if (_destroy)
     {
-        throw Ice::UnknownException(file, line);
+        throw Ice::UnknownException(file, line, "node destroyed");
     }
     if (_state != NodeState::NodeStateNormal)
     {

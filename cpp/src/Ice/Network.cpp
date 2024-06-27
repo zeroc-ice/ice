@@ -12,17 +12,17 @@
 #    include <netinet/in.h>
 #endif
 
+#include "DisableWarnings.h"
 #include "Ice/Buffer.h"
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h" // For setTcpBufSize
 #include "Ice/Properties.h" // For setTcpBufSize
 #include "Ice/StringConverter.h"
-#include "IceUtil/DisableWarnings.h"
-#include "IceUtil/Random.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 #include "Network.h"
 #include "NetworkProxy.h"
 #include "ProtocolInstance.h" // For setTcpBufSize
+#include "Random.h"
 
 #include <cassert>
 #include <functional>
@@ -70,7 +70,7 @@ namespace
     {
         if (selType == Ice::EndpointSelectionType::Random)
         {
-            IceUtilInternal::shuffle(addrs.begin(), addrs.end());
+            IceInternal::shuffle(addrs.begin(), addrs.end());
         }
 
         if (protocol == EnableBoth)
@@ -786,7 +786,7 @@ string
 IceInternal::errorToStringDNS(int error)
 {
 #if defined(_WIN32)
-    return IceUtilInternal::errorToString(error);
+    return IceInternal::errorToString(error);
 #else
     return gai_strerror(error);
 #endif

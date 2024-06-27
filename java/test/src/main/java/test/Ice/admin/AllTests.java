@@ -159,8 +159,7 @@ public class AllTests {
     out.println("ok");
 
     String ref = "factory:" + helper.getTestEndpoint(0) + " -t 10000";
-    RemoteCommunicatorFactoryPrx factory =
-        RemoteCommunicatorFactoryPrx.uncheckedCast(helper.communicator().stringToProxy(ref));
+    var factory = RemoteCommunicatorFactoryPrx.createProxy(helper.communicator(), ref);
 
     out.print("testing process facet... ");
     out.flush();

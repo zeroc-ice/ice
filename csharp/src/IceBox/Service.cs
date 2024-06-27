@@ -1,50 +1,24 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 namespace IceBox;
 
 /// <summary>
 /// This exception is a general failure notification.
-/// It is thrown for errors such as a service encountering an error
-///  during initialization, or the service manager being unable to load a service executable.
+/// It is thrown for errors such as a service encountering an error during initialization, or the service manager
+/// being unable to load a service executable.
 /// </summary>
-public class FailureException : Ice.LocalException
+public sealed class FailureException : Ice.LocalException
 {
-    public string reason;
+    public string reason => Message;
 
-    private void _initDM()
+    public FailureException(string? message, System.Exception? innerException = null)
+        : base(message, innerException)
     {
-        this.reason = "";
     }
 
-    public FailureException()
-    {
-        _initDM();
-    }
-
-    public FailureException(System.Exception ex) : base(ex)
-    {
-        _initDM();
-    }
-
-    private void _initDM(string reason)
-    {
-        this.reason = reason;
-    }
-
-    public FailureException(string reason)
-    {
-        _initDM(reason);
-    }
-
-    public FailureException(string reason, System.Exception ex) : base(ex)
-    {
-        _initDM(reason);
-    }
-
-    public override string ice_id()
-    {
-        return "::IceBox::FailureException";
-    }
+    public override string ice_id() => "::IceBox::FailureException";
 }
 
 public interface Service

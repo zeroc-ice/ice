@@ -5,12 +5,12 @@
 #ifndef ICE_GRID_UTIL_H
 #define ICE_GRID_UTIL_H
 
+#include "../Ice/Random.h"
 #include "Ice/BuiltinSequences.h"
+#include "Ice/StringUtil.h"
 #include "IceGrid/Admin.h"
 #include "IceGrid/Descriptor.h"
 #include "IceGrid/Exception.h"
-#include "IceUtil/Random.h"
-#include "IceUtil/StringUtil.h"
 
 #include <functional>
 #include <iterator>
@@ -128,7 +128,7 @@ namespace IceGrid
         std::vector<std::string> keys;
         for (typename T::const_iterator p = m.begin(); p != m.end(); ++p)
         {
-            if (expression.empty() || IceUtilInternal::match(p->first, expression, true))
+            if (expression.empty() || IceInternal::match(p->first, expression, true))
             {
                 keys.push_back(p->first);
             }

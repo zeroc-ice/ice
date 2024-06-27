@@ -913,7 +913,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
                 // TODO: Provide the parameter name instead?
                 ostringstream ostr;
                 ostr << "invalid value for out argument " << (info->pos + 1) << " in operation `" << dispatchName;
-                ostr << "':\n" << ex.unknown;
+                ostr << "':\n" << ex.what();
                 throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
             }
         }
@@ -930,7 +930,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
             catch (const Ice::UnknownException& ex)
             {
                 ostringstream ostr;
-                ostr << "invalid return value for operation `" << dispatchName << "':\n" << ex.unknown;
+                ostr << "invalid return value for operation `" << dispatchName << "':\n" << ex.what();
                 throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
             }
         }
@@ -2334,10 +2334,7 @@ Upcall::dispatchImpl(PyObject* servant, const string& dispatchName, PyObject* ar
         ostringstream ostr;
         ostr << "servant for identity " << communicator->identityToString(current.id) << " does not define operation `"
              << dispatchName << "'";
-        string str = ostr.str();
-        Ice::UnknownException ex(__FILE__, __LINE__);
-        ex.unknown = str;
-        throw ex;
+        throw Ice::UnknownException{__FILE__, __LINE__, ostr.str()};
     }
 
     //
@@ -2349,10 +2346,7 @@ Upcall::dispatchImpl(PyObject* servant, const string& dispatchName, PyObject* ar
         ostringstream ostr;
         ostr << "_iceDispatch method not found for identity " << communicator->identityToString(current.id)
              << " and operation `" << dispatchName << "'";
-        string str = ostr.str();
-        Ice::UnknownException ex(__FILE__, __LINE__);
-        ex.unknown = str;
-        throw ex;
+        throw Ice::UnknownException{__FILE__, __LINE__, ostr.str()};
     }
 
     PyObjectHandle dispatchArgs = PyTuple_New(3);
@@ -3019,11 +3013,7 @@ IcePy::TypedServantWrapper::ice_invokeAsync(
                 if (!h.get())
                 {
                     PyErr_Clear();
-                    Ice::OperationNotExistException ex(__FILE__, __LINE__);
-                    ex.id = current.id;
-                    ex.facet = current.facet;
-                    ex.operation = current.operation;
-                    throw ex;
+                    throw Ice::OperationNotExistException{__FILE__, __LINE__};
                 }
 
                 assert(PyObject_IsInstance(h.get(), reinterpret_cast<PyObject*>(&OperationType)) == 1);

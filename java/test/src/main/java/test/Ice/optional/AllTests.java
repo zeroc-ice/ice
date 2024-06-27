@@ -68,7 +68,7 @@ public class AllTests {
     mo1.setG(1.0);
     mo1.setH("test");
     mo1.setI(MyEnum.MyEnumMember);
-    mo1.setJ(MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")));
+    mo1.setJ(MyInterfacePrx.createProxy(communicator, "test"));
     mo1.setBs(new byte[] {(byte) 5});
     mo1.setSs(new String[] {"test", "test2"});
     mo1.setIid(new java.util.HashMap<>());
@@ -86,8 +86,7 @@ public class AllTests {
     mo1.setEs(new MyEnum[] {MyEnum.MyEnumMember, MyEnum.MyEnumMember});
     mo1.setFss(new FixedStruct[] {fs});
     mo1.setVss(new VarStruct[] {vs});
-    mo1.setMips(
-        new MyInterfacePrx[] {MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test"))});
+    mo1.setMips(new MyInterfacePrx[] {MyInterfacePrx.createProxy(communicator, "test")});
 
     mo1.setIed(new java.util.HashMap<>());
     mo1.getIed().put(4, MyEnum.MyEnumMember);
@@ -96,7 +95,7 @@ public class AllTests {
     mo1.setIvsd(new java.util.HashMap<>());
     mo1.getIvsd().put(5, vs);
     mo1.setImipd(new java.util.HashMap<>());
-    mo1.getImipd().put(5, MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")));
+    mo1.getImipd().put(5, MyInterfacePrx.createProxy(communicator, "test"));
 
     mo1.setBos(new boolean[] {false, true, false});
 
@@ -989,7 +988,7 @@ public class AllTests {
       Initial.OpMyInterfaceProxyResult r = initial.opMyInterfaceProxy(p1);
       test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-      p1 = Optional.of(MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")));
+      p1 = Optional.of(MyInterfacePrx.createProxy(communicator, "test"));
       r = initial.opMyInterfaceProxy(p1);
       test(r.returnValue.get().equals(p1.get()) && r.p3.get().equals(p1.get()));
       r = initial.opMyInterfaceProxyAsync(p1).join();

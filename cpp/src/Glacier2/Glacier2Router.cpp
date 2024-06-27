@@ -3,10 +3,10 @@
 //
 
 #include "../Ice/ConsoleUtil.h"
+#include "../Ice/Options.h"
 #include "Glacier2/NullPermissionsVerifier.h"
 #include "Glacier2/Session.h"
 #include "Ice/Ice.h"
-#include "IceUtil/Options.h"
 #include "Instance.h"
 #include "RouterI.h"
 #include "SessionRouterI.h"
@@ -15,6 +15,7 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 using namespace IceInternal;
+
 namespace
 {
     class ClientLocator final : public ServantLocator
@@ -90,7 +91,7 @@ RouterService::start(int argc, char* argv[], int& status)
 {
     bool nowarn;
 
-    IceUtilInternal::Options opts;
+    IceInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
     opts.addOpt("", "nowarn");
@@ -100,7 +101,7 @@ RouterService::start(int argc, char* argv[], int& status)
     {
         args = opts.parse(argc, argv);
     }
-    catch (const IceUtilInternal::BadOptException& e)
+    catch (const IceInternal::BadOptException& e)
     {
         error(e.reason);
         usage(argv[0]);

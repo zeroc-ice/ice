@@ -44,9 +44,7 @@ internal sealed class PluginManagerI : PluginManager
     {
         if (_initialized)
         {
-            InitializationException ex = new InitializationException();
-            ex.reason = "plug-ins already initialized";
-            throw ex;
+            throw new InitializationException("Plug-ins already initialized.");
         }
 
         //
@@ -67,7 +65,7 @@ internal sealed class PluginManagerI : PluginManager
                 }
                 catch (System.Exception ex)
                 {
-                    throw new PluginInitializationException(String.Format("plugin `{0}' initialization failed", p.name), ex);
+                    throw new PluginInitializationException($"Plugin '{p.name}' initialization failed.", ex);
                 }
                 initializedPlugins.Add(p.plugin);
             }
@@ -124,10 +122,7 @@ internal sealed class PluginManagerI : PluginManager
                 return p;
             }
 
-            NotRegisteredException ex = new NotRegisteredException();
-            ex.id = name;
-            ex.kindOfObject = _kindOfObject;
-            throw ex;
+            throw new NotRegisteredException(_kindOfObject, name);
         }
     }
 
@@ -142,10 +137,7 @@ internal sealed class PluginManagerI : PluginManager
 
             if (findPlugin(name) is not null)
             {
-                AlreadyRegisteredException ex = new AlreadyRegisteredException();
-                ex.id = name;
-                ex.kindOfObject = _kindOfObject;
-                throw ex;
+                throw new AlreadyRegisteredException(_kindOfObject, name);
             }
 
             _plugins.Add(new PluginInfo(name, plugin));
@@ -254,9 +246,7 @@ internal sealed class PluginManagerI : PluginManager
 
             if (findPlugin(loadOrder[i]) is not null)
             {
-                PluginInitializationException e = new PluginInitializationException();
-                e.reason = "plug-in `" + loadOrder[i] + "' already loaded";
-                throw e;
+                throw new PluginInitializationException($"Plug-in '{loadOrder[i]}' already loaded.");
             }
 
             string key = "Ice.Plugin." + loadOrder[i] + ".clr";
@@ -278,9 +268,7 @@ internal sealed class PluginManagerI : PluginManager
             }
             else
             {
-                PluginInitializationException e = new PluginInitializationException();
-                e.reason = "plug-in `" + loadOrder[i] + "' not defined";
-                throw e;
+                throw new PluginInitializationException($"Plug-in '{loadOrder[i]}' not defined.");
             }
         }
 
@@ -357,11 +345,9 @@ internal sealed class PluginManagerI : PluginManager
             {
                 args = Ice.UtilInternal.Options.split(pluginSpec);
             }
-            catch (Ice.UtilInternal.Options.BadQuote ex)
+            catch (ParseException ex)
             {
-                PluginInitializationException e = new PluginInitializationException();
-                e.reason = "invalid arguments for plug-in `" + name + "':\n" + ex.Message;
-                throw e;
+                throw new PluginInitializationException($"Invalid arguments for plug-in '{name}'.", ex);
             }
 
             Debug.Assert(args.Length > 0);
@@ -411,9 +397,7 @@ internal sealed class PluginManagerI : PluginManager
             }
             if (sepPos == -1)
             {
-                PluginInitializationException e = new PluginInitializationException();
-                e.reason = err + "invalid entry point format";
-                throw e;
+                throw new PluginInitializationException($"{err}invalid entry point format");
             }
 
             System.Reflection.Assembly? pluginAssembly = null;
@@ -451,9 +435,7 @@ internal sealed class PluginManagerI : PluginManager
             }
             catch (System.Exception ex)
             {
-                PluginInitializationException e = new PluginInitializationException();
-                e.reason = err + "unable to load assembly: `" + assemblyName + "': " + ex.ToString();
-                throw e;
+                throw new PluginInitializationException($"{err}unable to load assembly '{assemblyName}'.", ex);
             }
 
             //
@@ -466,9 +448,7 @@ internal sealed class PluginManagerI : PluginManager
             }
             catch (System.Exception ex)
             {
-                PluginInitializationException e = new PluginInitializationException(ex);
-                e.reason = err + "GetType failed for `" + className + "'";
-                throw e;
+                throw new PluginInitializationException($"{err}GetType failed for '{className}'.", ex);
             }
 
             try
@@ -476,53 +456,32 @@ internal sealed class PluginManagerI : PluginManager
                 pluginFactory = (PluginFactory)Ice.Internal.AssemblyUtil.createInstance(c);
                 if (pluginFactory is null)
                 {
-                    PluginInitializationException e = new PluginInitializationException();
-                    e.reason = err + "can't find constructor for `" + className + "'";
-                    throw e;
+                    throw new PluginInitializationException($"{err}can't find constructor for '{className}'.");
                 }
-            }
-            catch (InvalidCastException ex)
-            {
-                PluginInitializationException e = new PluginInitializationException(ex);
-                e.reason = err + "InvalidCastException to Ice.PluginFactory";
-                throw e;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                PluginInitializationException e = new PluginInitializationException(ex);
-                e.reason = err + "UnauthorizedAccessException: " + ex.ToString();
-                throw e;
             }
             catch (System.Exception ex)
             {
-                PluginInitializationException e = new PluginInitializationException(ex);
-                e.reason = err + "System.Exception: " + ex.ToString();
-                throw e;
+                throw new PluginInitializationException($"{err}SystemException", ex);
             }
         }
 
-        Plugin? plugin = null;
+        Plugin? plugin;
         try
         {
             plugin = pluginFactory.create(_communicator, name, args);
         }
-        catch (PluginInitializationException ex)
+        catch (PluginInitializationException)
         {
-            ex.reason = err + ex.reason;
             throw;
         }
         catch (System.Exception ex)
         {
-            PluginInitializationException e = new PluginInitializationException(ex);
-            e.reason = err + "System.Exception in factory.create: " + ex.ToString();
-            throw e;
+            throw new PluginInitializationException($"{err}System.Exception in factory.create", ex);
         }
 
         if (plugin is null)
         {
-            PluginInitializationException ex = new PluginInitializationException();
-            ex.reason = err + "factory.create returned null plug-in";
-            throw ex;
+            throw new PluginInitializationException($"{err}factory.create returned null plug-in");
         }
 
         _plugins.Add(new PluginInfo(name, plugin));

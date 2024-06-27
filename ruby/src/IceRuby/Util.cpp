@@ -576,7 +576,7 @@ setExceptionMembers(std::exception_ptr ex, VALUE p)
     }
     catch (const Ice::UnknownException& e)
     {
-        volatile VALUE v = createString(e.unknown);
+        volatile VALUE v = createString(e.what());
         callRuby(rb_iv_set, p, "@unknown", v);
     }
     catch (const Ice::ObjectAdapterDeactivatedException& e)
@@ -627,11 +627,11 @@ setExceptionMembers(std::exception_ptr ex, VALUE p)
     catch (const Ice::RequestFailedException& e)
     {
         volatile VALUE v;
-        v = IceRuby::createIdentity(e.id);
+        v = IceRuby::createIdentity(e.id());
         callRuby(rb_iv_set, p, "@id", v);
-        v = createString(e.facet);
+        v = createString(e.facet());
         callRuby(rb_iv_set, p, "@facet", v);
-        v = createString(e.operation);
+        v = createString(e.operation());
         callRuby(rb_iv_set, p, "@operation", v);
     }
     catch (const Ice::FileException& e)
@@ -751,7 +751,7 @@ IceRuby::convertLocalException(std::exception_ptr eptr)
     {
         try
         {
-            string name = ex.ice_id().substr(2);
+            string name = string{ex.ice_id()}.substr(2);
             volatile VALUE cls = callRuby(rb_path2class, name.c_str());
             if (NIL_P(cls))
             {
@@ -767,7 +767,7 @@ IceRuby::convertLocalException(std::exception_ptr eptr)
         }
         catch (...)
         {
-            string msg = "failure occurred while converting exception " + ex.ice_id();
+            string msg = "failure occurred while converting exception " + string{ex.ice_id()};
             return rb_exc_new2(rb_eRuntimeError, msg.c_str());
         }
     }

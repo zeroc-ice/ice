@@ -3,8 +3,8 @@
 //
 
 #include "RubyUtil.h"
+#include "../Ice/FileUtil.h"
 #include "../Slice/Util.h"
-#include "IceUtil/FileUtil.h"
 
 #include <algorithm>
 #include <cassert>
@@ -12,8 +12,7 @@
 
 using namespace std;
 using namespace Slice;
-using namespace IceUtil;
-using namespace IceUtilInternal;
+using namespace IceInternal;
 
 namespace
 {
@@ -42,7 +41,7 @@ namespace Slice
         class CodeVisitor final : public ParserVisitor
         {
         public:
-            CodeVisitor(IceUtilInternal::Output&);
+            CodeVisitor(IceInternal::Output&);
 
             bool visitModuleStart(const ModulePtr&) final;
             void visitModuleEnd(const ModulePtr&) final;
@@ -1495,7 +1494,7 @@ Slice::Ruby::getAbsolute(const ContainedPtr& cont, IdentStyle style, const strin
 }
 
 void
-Slice::Ruby::printHeader(IceUtilInternal::Output& out)
+Slice::Ruby::printHeader(IceInternal::Output& out)
 {
     static const char* header = "#\n"
                                 "# Copyright (c) ZeroC, Inc. All rights reserved.\n"

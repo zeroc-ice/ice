@@ -4,6 +4,7 @@
 
 #include "Ice/InputStream.h"
 #include "DefaultsAndOverrides.h"
+#include "DisableWarnings.h"
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Object.h"
@@ -12,7 +13,6 @@
 #include "Ice/StringConverter.h"
 #include "Ice/UserExceptionFactory.h"
 #include "Ice/ValueFactory.h"
-#include "IceUtil/DisableWarnings.h"
 #include "Instance.h"
 #include "TraceLevels.h"
 #include "TraceUtil.h"
@@ -2346,7 +2346,10 @@ Ice::InputStream::EncapsDecoder11::throwException(UserExceptionFactory factory)
         //
         if (_current->sliceFlags & FLAG_IS_LAST_SLICE)
         {
-            throw UnknownUserException(__FILE__, __LINE__, mostDerivedId);
+            throw MarshalException{
+                __FILE__,
+                __LINE__,
+                "cannot unmarshal exception with type ID '" + mostDerivedId + "'"};
         }
 
         startSlice();
@@ -2512,7 +2515,10 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
         }
         else
         {
-            throw UnknownUserException(__FILE__, __LINE__, _current->typeId);
+            throw MarshalException{
+                __FILE__,
+                __LINE__,
+                "Cannot unmarshal exception with type ID '" + _current->typeId + "'"};
         }
     }
 

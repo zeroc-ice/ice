@@ -85,55 +85,12 @@ public sealed class Protocol
         0, 0, 0, 0 // Message size (placeholder).
     };
 
-    internal static void
-    checkSupportedProtocol(Ice.ProtocolVersion v)
-    {
-        if (v.major != protocolMajor || v.minor > protocolMinor)
-        {
-            throw new Ice.UnsupportedProtocolException("", v, Ice.Util.currentProtocol);
-        }
-    }
-
-    public static void
-    checkSupportedProtocolEncoding(Ice.EncodingVersion v)
-    {
-        if (v.major != protocolEncodingMajor || v.minor > protocolEncodingMinor)
-        {
-            throw new Ice.UnsupportedEncodingException("", v, Ice.Util.currentProtocolEncoding);
-        }
-    }
-
-    internal static void
-    checkSupportedEncoding(Ice.EncodingVersion v)
+    internal static void checkSupportedEncoding(Ice.EncodingVersion v)
     {
         if (v.major != encodingMajor || v.minor > encodingMinor)
         {
-            throw new Ice.UnsupportedEncodingException("", v, Ice.Util.currentEncoding);
-        }
-    }
-
-    //
-    // Either return the given protocol if not compatible, or the greatest
-    // supported protocol otherwise.
-    //
-    internal static Ice.ProtocolVersion
-    getCompatibleProtocol(Ice.ProtocolVersion v)
-    {
-        if (v.major != Ice.Util.currentProtocol.major)
-        {
-            return v; // Unsupported protocol, return as is.
-        }
-        else if (v.minor < Ice.Util.currentProtocol.minor)
-        {
-            return v; // Supported protocol.
-        }
-        else
-        {
-            //
-            // Unsupported but compatible, use the currently supported
-            // protocol, that's the best we can do.
-            //
-            return Ice.Util.currentProtocol;
+            throw new MarshalException(
+                $"This Ice runtime does not support encoding version {v.major}.{v.minor}");
         }
     }
 
@@ -160,12 +117,6 @@ public sealed class Protocol
             //
             return Ice.Util.currentEncoding;
         }
-    }
-
-    internal static bool
-    isSupported(Ice.ProtocolVersion version, Ice.ProtocolVersion supported)
-    {
-        return version.major == supported.major && version.minor <= supported.minor;
     }
 
     internal static bool

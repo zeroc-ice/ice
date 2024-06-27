@@ -384,7 +384,7 @@ allTests(Test::TestHelper* helper)
             }
             catch (const BaseEx& ex)
             {
-                test(ex.ice_id() == "::Test::DerivedEx");
+                test(string{ex.ice_id()} == "::Test::DerivedEx");
             }
         }
         cout << "ok" << endl;

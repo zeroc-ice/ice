@@ -11,9 +11,7 @@ import { LocatorManager } from "./LocatorManager.js";
 import { ObjectAdapterFactory } from "./ObjectAdapterFactory.js";
 import { OutgoingConnectionFactory } from "./OutgoingConnectionFactory.js";
 import { Properties } from "./Properties.js";
-import { ProxyFactory } from "./ProxyFactory.js";
-import { ReferenceFactory } from "./Reference.js";
-import { RequestHandlerFactory } from "./RequestHandlerFactory.js";
+import { ReferenceFactory } from "./ReferenceFactory.js";
 import { RetryQueue } from "./RetryQueue.js";
 import { RouterManager } from "./RouterManager.js";
 import { Timer } from "./Timer.js";
@@ -28,6 +26,7 @@ import { TcpEndpointFactory } from "./TcpEndpointFactory.js";
 import { WSEndpointFactory } from "./WSEndpointFactory.js";
 import { Promise } from "./Promise.js";
 import { ConnectionOptions } from "./ConnectionOptions.js";
+import { StringUtil } from "./StringUtil.js";
 
 import { Ice as Ice_Router } from "./Router.js";
 const { RouterPrx } = Ice_Router;
@@ -89,24 +88,6 @@ Instance.prototype.referenceFactory = function () {
 
     Debug.assert(this._referenceFactory !== null);
     return this._referenceFactory;
-};
-
-Instance.prototype.requestHandlerFactory = function () {
-    if (this._state === StateDestroyed) {
-        throw new CommunicatorDestroyedException();
-    }
-
-    Debug.assert(this._requestHandlerFactory !== null);
-    return this._requestHandlerFactory;
-};
-
-Instance.prototype.proxyFactory = function () {
-    if (this._state === StateDestroyed) {
-        throw new CommunicatorDestroyedException();
-    }
-
-    Debug.assert(this._proxyFactory !== null);
-    return this._proxyFactory;
 };
 
 Instance.prototype.outgoingConnectionFactory = function () {
@@ -268,10 +249,6 @@ Instance.prototype.finishSetup = function (communicator, promise) {
 
         this._referenceFactory = new ReferenceFactory(this, communicator);
 
-        this._requestHandlerFactory = new RequestHandlerFactory(this, communicator);
-
-        this._proxyFactory = new ProxyFactory(this);
-
         this._endpointFactoryManager = new EndpointFactoryManager(this);
 
         const tcpInstance = new ProtocolInstance(this, TCPEndpointType, "tcp", false);
@@ -299,16 +276,42 @@ Instance.prototype.finishSetup = function (communicator, promise) {
         this._objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 
         this._retryQueue = new RetryQueue(this);
-        this._timer = new Timer(this._initData.logger);
+        const retryIntervals = this._initData.properties.getPropertyAsList("Ice.RetryIntervals");
+        if (retryIntervals.length > 0) {
+            this._retryIntervals = [];
 
-        const router = RouterPrx.uncheckedCast(this._proxyFactory.propertyToProxy("Ice.Default.Router"));
-        if (router !== null) {
-            this._referenceFactory = this._referenceFactory.setDefaultRouter(router);
+            for (let i = 0; i < retryIntervals.length; i++) {
+                let v;
+
+                try {
+                    v = StringUtil.toInt(retryIntervals[i]);
+                } catch (ex) {
+                    v = 0;
+                }
+
+                //
+                // If -1 is the first value, no retry and wait intervals.
+                //
+                if (i === 0 && v === -1) {
+                    break;
+                }
+
+                this._retryIntervals[i] = v > 0 ? v : 0;
+            }
+        } else {
+            this._retryIntervals = [0];
         }
 
-        const loc = LocatorPrx.uncheckedCast(this._proxyFactory.propertyToProxy("Ice.Default.Locator"));
+        this._timer = new Timer(this._initData.logger);
+
+        const router = communicator.propertyToProxy("Ice.Default.Router");
+        if (router !== null) {
+            this._referenceFactory = this._referenceFactory.setDefaultRouter(new RouterPrx(router));
+        }
+
+        const loc = communicator.propertyToProxy("Ice.Default.Locator");
         if (loc !== null) {
-            this._referenceFactory = this._referenceFactory.setDefaultLocator(loc);
+            this._referenceFactory = this._referenceFactory.setDefaultLocator(new LocatorPrx(loc));
         }
 
         if (promise !== null) {
@@ -412,8 +415,6 @@ Instance.prototype.destroy = function () {
             this._timer = null;
 
             this._referenceFactory = null;
-            this._requestHandlerFactory = null;
-            this._proxyFactory = null;
             this._routerManager = null;
             this._locatorManager = null;
             this._endpointFactoryManager = null;

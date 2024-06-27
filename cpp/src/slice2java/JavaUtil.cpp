@@ -3,10 +3,10 @@
 //
 
 #include "JavaUtil.h"
+#include "../Ice/FileUtil.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Util.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 
 #include <algorithm>
 #include <cassert>
@@ -23,8 +23,7 @@
 
 using namespace std;
 using namespace Slice;
-using namespace IceUtil;
-using namespace IceUtilInternal;
+using namespace IceInternal;
 
 namespace
 {
@@ -685,8 +684,8 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
                 path += dir.substr(start);
             }
 
-            IceUtilInternal::structstat st;
-            if (!IceUtilInternal::stat(path, &st))
+            IceInternal::structstat st;
+            if (!IceInternal::stat(path, &st))
             {
                 if (!(st.st_mode & S_IFDIR))
                 {
@@ -698,17 +697,17 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
                 continue;
             }
 
-            int err = IceUtilInternal::mkdir(path, 0777);
+            int err = IceInternal::mkdir(path, 0777);
             // If slice2java is run concurrently, it's possible that another instance of slice2java has already
             // created the directory.
-            if (err == 0 || (errno == EEXIST && IceUtilInternal::directoryExists(path)))
+            if (err == 0 || (errno == EEXIST && IceInternal::directoryExists(path)))
             {
                 // Directory successfully created or already exists.
             }
             else
             {
                 ostringstream os;
-                os << "cannot create directory `" << path << "': " << IceUtilInternal::errorToString(errno);
+                os << "cannot create directory `" << path << "': " << IceInternal::errorToString(errno);
                 throw FileException(__FILE__, __LINE__, os.str());
             }
             FileTracker::instance()->addDirectory(path);
@@ -746,7 +745,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
     else
     {
         ostringstream os;
-        os << "cannot open file `" << path << "': " << IceUtilInternal::errorToString(errno);
+        os << "cannot open file `" << path << "': " << IceInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
 }

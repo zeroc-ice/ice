@@ -172,10 +172,7 @@ public abstract class ObjectImpl : Object
             }
             else
             {
-                MarshalException ex = new MarshalException();
-                ex.reason = "unexpected operation mode. expected = " + operationModeToString(expected) +
-                    " received = " + operationModeToString(received);
-                throw ex;
+                throw new MarshalException($"unexpected operation mode: expected = {operationModeToString(expected)} received = {operationModeToString(received)}");
             }
         }
     }

@@ -5,11 +5,11 @@
 #ifndef ICE_GRID_DATABASE_H
 #define ICE_GRID_DATABASE_H
 
+#include "../Ice/FileUtil.h"
 #include "AdapterCache.h"
 #include "AllocatableObjectCache.h"
 #include "Ice/CommunicatorF.h"
 #include "IceGrid/Admin.h"
-#include "IceUtil/FileUtil.h"
 #include "Internal.h"
 #include "NodeCache.h"
 #include "ObjectCache.h"
@@ -247,7 +247,7 @@ namespace IceGrid
         std::shared_ptr<AdapterObserverTopic> _adapterObserverTopic;
         std::shared_ptr<ObjectObserverTopic> _objectObserverTopic;
 
-        IceUtilInternal::FileLock _dbLock;
+        IceInternal::FileLock _dbLock;
         IceDB::Env _env;
 
         StringApplicationInfoMap _applications;

@@ -3,11 +3,11 @@
 //
 
 #include "Gen.h"
+#include "../Ice/FileUtil.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Util.h"
 #include "CPlusPlusUtil.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 
 #include <algorithm>
 #include <cassert>
@@ -16,8 +16,7 @@
 
 using namespace std;
 using namespace Slice;
-using namespace IceUtil;
-using namespace IceUtilInternal;
+using namespace IceInternal;
 
 namespace
 {
@@ -90,7 +89,7 @@ namespace
     }
 
     void writeConstantValue(
-        IceUtilInternal::Output& out,
+        IceInternal::Output& out,
         const TypePtr& type,
         const SyntaxTreeBasePtr& valueType,
         const string& value,
@@ -186,7 +185,7 @@ namespace
 
     // Marshals the parameters of an outgoing request.
     void writeInParamsLambda(
-        IceUtilInternal::Output& C,
+        IceInternal::Output& C,
         const OperationPtr& p,
         const ParamDeclList& inParams,
         const string& scope)
@@ -208,7 +207,7 @@ namespace
         }
     }
 
-    void throwUserExceptionLambda(IceUtilInternal::Output& C, ExceptionList throws, const string& scope)
+    void throwUserExceptionLambda(IceInternal::Output& C, ExceptionList throws, const string& scope)
     {
         if (throws.empty())
         {
@@ -253,7 +252,7 @@ namespace
     string marshaledResultStructName(const string& name)
     {
         assert(!name.empty());
-        string stName = IceUtilInternal::toUpper(name.substr(0, 1)) + name.substr(1);
+        string stName = IceInternal::toUpper(name.substr(0, 1)) + name.substr(1);
         stName += "MarshaledResult";
         return stName;
     }
@@ -627,7 +626,7 @@ Slice::Gen::Gen(
 
 Slice::Gen::~Gen()
 {
-    H << "\n\n#include <IceUtil/PopDisableWarnings.h>";
+    H << "\n\n#include <Ice/PopDisableWarnings.h>";
     H << "\n#endif\n";
     C << '\n';
 
@@ -682,7 +681,7 @@ Slice::Gen::generate(const UnitPtr& p)
     if (!H)
     {
         ostringstream os;
-        os << "cannot open `" << fileH << "': " << IceUtilInternal::errorToString(errno);
+        os << "cannot open `" << fileH << "': " << IceInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(fileH);
@@ -691,7 +690,7 @@ Slice::Gen::generate(const UnitPtr& p)
     if (!C)
     {
         ostringstream os;
-        os << "cannot open `" << fileC << "': " << IceUtilInternal::errorToString(errno);
+        os << "cannot open `" << fileC << "': " << IceInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(fileC);
@@ -730,7 +729,7 @@ Slice::Gen::generate(const UnitPtr& p)
     }
     C << _base << "." << _headerExtension << "\"";
 
-    H << "\n#include <IceUtil/PushDisableWarnings.h>";
+    H << "\n#include <Ice/PushDisableWarnings.h>";
 
     if (!dc->hasMetaDataDirective("cpp:no-default-include"))
     {
@@ -854,7 +853,7 @@ Slice::Gen::generate(const UnitPtr& p)
 }
 
 void
-Slice::Gen::writeExtraHeaders(IceUtilInternal::Output& out)
+Slice::Gen::writeExtraHeaders(IceInternal::Output& out)
 {
     for (string header : _extraHeaders)
     {
@@ -1984,10 +1983,7 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
     C << ");" << eb;
 }
 
-Slice::Gen::DataDefVisitor::DataDefVisitor(
-    IceUtilInternal::Output& h,
-    IceUtilInternal::Output& c,
-    const string& dllExport)
+Slice::Gen::DataDefVisitor::DataDefVisitor(IceInternal::Output& h, IceInternal::Output& c, const string& dllExport)
     : H(h),
       C(c),
       _dllExport(dllExport),
@@ -2199,12 +2195,11 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     H << nl << " * Obtains the Slice type ID of this exception.";
     H << nl << " * @return The fully-scoped type ID.";
     H << nl << " */";
-    H << nl << _dllMemberExport << "static ::std::string_view ice_staticId() noexcept;";
+    H << nl << _dllMemberExport << "static const char* ice_staticId() noexcept;";
 
-    C << sp << nl << "::std::string_view" << nl << scoped.substr(2) << "::ice_staticId() noexcept";
+    C << sp << nl << "const char*" << nl << scoped.substr(2) << "::ice_staticId() noexcept";
     C << sb;
-    C << nl << "static constexpr ::std::string_view typeId = \"" << p->scoped() << "\";";
-    C << nl << "return typeId;";
+    C << nl << "return \"" << p->scoped() << "\";";
     C << eb;
 
     StringList metaData = p->getMetaData();
@@ -2217,10 +2212,10 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << nl << _dllMemberExport << "void ice_print(::std::ostream& stream) const override;";
     }
 
-    H << sp << nl << _dllMemberExport << "::std::string ice_id() const override;";
-    C << sp << nl << "::std::string" << nl << scoped.substr(2) << "::ice_id() const";
+    H << sp << nl << _dllMemberExport << "const char* ice_id() const noexcept override;";
+    C << sp << nl << "const char*" << nl << scoped.substr(2) << "::ice_id() const noexcept";
     C << sb;
-    C << nl << "return ::std::string{ice_staticId()};";
+    C << nl << "return ice_staticId();";
     C << eb;
 
     H << sp << nl << _dllMemberExport << "void ice_throw() const override;";
@@ -2679,8 +2674,8 @@ Slice::Gen::DataDefVisitor::emitDataMember(const DataMemberPtr& p)
 }
 
 Slice::Gen::InterfaceVisitor::InterfaceVisitor(
-    ::IceUtilInternal::Output& h,
-    ::IceUtilInternal::Output& c,
+    ::IceInternal::Output& h,
+    ::IceInternal::Output& c,
     const string& dllExport)
     : H(h),
       C(c),

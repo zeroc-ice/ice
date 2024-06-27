@@ -5,8 +5,8 @@
 #ifndef JS_UTIL_H
 #define JS_UTIL_H
 
+#include "../Ice/OutputUtil.h"
 #include "../Slice/Parser.h"
-#include "IceUtil/OutputUtil.h"
 
 namespace Slice
 {
@@ -35,8 +35,8 @@ namespace Slice
         //
         // Generate code to marshal or unmarshal a type
         //
-        void writeMarshalUnmarshalCode(IceUtilInternal::Output&, const TypePtr&, const std::string&, bool);
-        void writeOptionalMarshalUnmarshalCode(IceUtilInternal::Output&, const TypePtr&, const std::string&, int, bool);
+        void writeMarshalUnmarshalCode(IceInternal::Output&, const TypePtr&, const std::string&, bool);
+        void writeOptionalMarshalUnmarshalCode(IceInternal::Output&, const TypePtr&, const std::string&, int, bool);
     };
 }
 

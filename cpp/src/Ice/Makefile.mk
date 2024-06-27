@@ -10,12 +10,11 @@ Ice_ldflags             = $(iconv_ldflags)
 
 Ice_sliceflags          := --include-dir Ice
 Ice_libs                := bz2
-Ice_extra_sources       := $(wildcard src/IceUtil/*.cpp)
 
 ifeq ($(os),Darwin)
-Ice_extra_sources       += $(filter-out src/Ice/SSL/OpenSSL%.cpp src/Ice/SSL/Schannel%.cpp, $(wildcard src/Ice/SSL/*.cpp))
+Ice_extra_sources       := $(filter-out src/Ice/SSL/OpenSSL%.cpp src/Ice/SSL/Schannel%.cpp, $(wildcard src/Ice/SSL/*.cpp))
 else
-Ice_extra_sources       += $(filter-out src/Ice/SSL/SecureTransport%.cpp src/Ice/SSL/Schannel%.cpp, $(wildcard src/Ice/SSL/*.cpp))
+Ice_extra_sources       := $(filter-out src/Ice/SSL/SecureTransport%.cpp src/Ice/SSL/Schannel%.cpp, $(wildcard src/Ice/SSL/*.cpp))
 endif
 Ice_excludes            = src/Ice/DLLMain.cpp
 
@@ -25,7 +24,7 @@ Ice_cppflags                            += -DICE_USE_SYSTEMD $(shell pkg-config 
 endif
 endif
 
-Ice[iphoneos]_excludes                  := $(wildcard src/IceUtil/CtrlCHandler.cpp $(addprefix $(currentdir)/,Tcp*.cpp Service.cpp))
+Ice[iphoneos]_excludes                  := $(wildcard src/Ice/CtrlCHandler.cpp $(addprefix $(currentdir)/,Tcp*.cpp Service.cpp))
 Ice[iphoneos]_extra_sources             := $(wildcard $(addprefix $(currentdir)/ios/,*.cpp *.mm))
 Ice[iphonesimulator]_excludes           = $(Ice[iphoneos]_excludes)
 Ice[iphonesimulator]_extra_sources      = $(Ice[iphoneos]_extra_sources)

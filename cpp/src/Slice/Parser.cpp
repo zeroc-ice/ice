@@ -4,7 +4,7 @@
 
 #include "Parser.h"
 #include "GrammarUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 #include "Util.h"
 
 #include <algorithm>
@@ -42,13 +42,13 @@ compareTag(const T& lhs, const T& rhs)
 }
 
 Slice::CompilerException::CompilerException(const char* file, int line, const string& r)
-    : IceUtil::Exception(file, line),
+    : Ice::LocalException(file, line),
       _reason(r)
 {
 }
 
-string
-Slice::CompilerException::ice_id() const
+const char*
+Slice::CompilerException::ice_id() const noexcept
 {
     return "::Slice::CompilerException";
 }
@@ -56,7 +56,7 @@ Slice::CompilerException::ice_id() const
 void
 Slice::CompilerException::ice_print(ostream& out) const
 {
-    IceUtil::Exception::ice_print(out);
+    Ice::LocalException::ice_print(out);
     out << ": " << _reason;
 }
 
@@ -255,10 +255,10 @@ Slice::DefinitionContext::initSuppressedWarnings()
         {
             value = value.substr(prefix.length() + 1);
             vector<string> result;
-            IceUtilInternal::splitString(value, ",", result);
+            IceInternal::splitString(value, ",", result);
             for (const auto& p : result)
             {
-                string s = IceUtilInternal::trim(p);
+                string s = IceInternal::trim(p);
                 if (s == "all")
                 {
                     _suppressedWarnings.insert(All);
@@ -689,10 +689,10 @@ namespace
         string::size_type nextPos;
         while ((nextPos = comment.find_first_of('\n', pos)) != string::npos)
         {
-            result.push_back(IceUtilInternal::trim(string(comment, pos, nextPos - pos)));
+            result.push_back(IceInternal::trim(string(comment, pos, nextPos - pos)));
             pos = nextPos + 1;
         }
-        string lastLine = IceUtilInternal::trim(string(comment, pos));
+        string lastLine = IceInternal::trim(string(comment, pos));
         if (!lastLine.empty())
         {
             result.push_back(lastLine);
@@ -761,7 +761,7 @@ Slice::Contained::parseComment(bool stripMarkup) const
     //
     if (auto reason = getDeprecationReason(false))
     {
-        comment->_deprecated.push_back(IceUtilInternal::trim(*reason));
+        comment->_deprecated.push_back(IceInternal::trim(*reason));
     }
 
     if (!comment->_isDeprecated && _comment.empty())
@@ -804,7 +804,7 @@ Slice::Contained::parseComment(bool stripMarkup) const
     const string seeTag = "@see";
     for (; i != lines.end(); ++i)
     {
-        const string l = IceUtilInternal::trim(*i);
+        const string l = IceInternal::trim(*i);
         string line;
         if (parseCommentLine(l, paramTag, true, name, line))
         {
@@ -2724,8 +2724,8 @@ Slice::ClassDef::createDataMember(
                 return nullptr;
             }
 
-            string baseName = IceUtilInternal::toLower(dataMember->name());
-            string newName = IceUtilInternal::toLower(name);
+            string baseName = IceInternal::toLower(dataMember->name());
+            string newName = IceInternal::toLower(name);
             if (baseName == newName)
             {
                 ostringstream os;
@@ -3220,8 +3220,8 @@ Slice::InterfaceDef::createOperation(
         return nullptr;
     }
 
-    string newName = IceUtilInternal::toLower(name);
-    string thisName = IceUtilInternal::toLower(this->name());
+    string newName = IceInternal::toLower(name);
+    string thisName = IceInternal::toLower(this->name());
     if (newName == thisName)
     {
         ostringstream os;
@@ -3244,8 +3244,8 @@ Slice::InterfaceDef::createOperation(
                 return nullptr;
             }
 
-            string baseName = IceUtilInternal::toLower(op->name());
-            string newName2 = IceUtilInternal::toLower(name);
+            string baseName = IceInternal::toLower(op->name());
+            string newName2 = IceInternal::toLower(name);
             if (baseName == newName2)
             {
                 ostringstream os;
@@ -3478,8 +3478,8 @@ Slice::Exception::createDataMember(
                 return nullptr;
             }
 
-            string baseName = IceUtilInternal::toLower(r->name());
-            string newName = IceUtilInternal::toLower(name);
+            string baseName = IceInternal::toLower(r->name());
+            string newName = IceInternal::toLower(name);
             if (baseName == newName) // TODO use ciCompare
             {
                 ostringstream os;
@@ -5154,7 +5154,7 @@ Slice::Unit::findDefinitionContext(const string& file) const
 void
 Slice::Unit::addContent(const ContainedPtr& contained)
 {
-    string scoped = IceUtilInternal::toLower(contained->scoped());
+    string scoped = IceInternal::toLower(contained->scoped());
     _contentMap[scoped].push_back(contained);
 }
 
@@ -5164,7 +5164,7 @@ Slice::Unit::findContents(const string& scoped) const
     assert(!scoped.empty());
     assert(scoped[0] == ':');
 
-    string name = IceUtilInternal::toLower(scoped);
+    string name = IceInternal::toLower(scoped);
     map<string, ContainedList>::const_iterator p = _contentMap.find(name);
     if (p != _contentMap.end())
     {

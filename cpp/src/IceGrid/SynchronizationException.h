@@ -15,12 +15,6 @@ namespace IceGrid
     public:
         using LocalException::LocalException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
     };
 }

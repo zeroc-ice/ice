@@ -13,9 +13,9 @@
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
-#include "IceUtil/Random.h"
 #include "Instance.h"
 #include "ObjectAdapterI.h" // For getThreadPool().
+#include "Random.h"
 #include "Reference.h"
 #include "RouterInfo.h"
 #include "ThreadPool.h"
@@ -69,7 +69,7 @@ namespace
         return nullptr;
     }
 
-    class StartAcceptor : public IceUtil::TimerTask, public std::enable_shared_from_this<StartAcceptor>
+    class StartAcceptor : public Ice::TimerTask, public std::enable_shared_from_this<StartAcceptor>
     {
     public:
         StartAcceptor(const IncomingConnectionFactoryPtr& factory, const InstancePtr& instance)

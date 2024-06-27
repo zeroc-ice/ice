@@ -3,6 +3,7 @@
 //
 
 #include "SecureTransportEngine.h"
+#include "../FileUtil.h"
 #include "../Instance.h"
 #include "../TraceLevels.h"
 #include "Ice/Config.h"
@@ -11,8 +12,7 @@
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
 #include "Ice/SSL/SSLException.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 #include "SSLEngine.h"
 #include "SSLUtil.h"
 #include "SecureTransportEngineF.h"
@@ -20,10 +20,9 @@
 #include "SecureTransportUtil.h"
 
 // Disable deprecation warnings from SecureTransport APIs
-#include "IceUtil/DisableWarnings.h"
+#include "../DisableWarnings.h"
 
 using namespace std;
-using namespace IceUtil;
 using namespace Ice;
 using namespace Ice::SSL;
 using namespace IceInternal;
@@ -621,7 +620,7 @@ SecureTransport::SSLEngine::initialize()
     if (!certFile.empty())
     {
         vector<string> files;
-        if (!IceUtilInternal::splitString(certFile, IceUtilInternal::pathsep, files) || files.size() > 2)
+        if (!IceInternal::splitString(certFile, IceInternal::pathsep, files) || files.size() > 2)
         {
             throw InitializationException(
                 __FILE__,
@@ -633,7 +632,7 @@ SecureTransport::SSLEngine::initialize()
             string keyFile = properties->getIceProperty("IceSSL.KeyFile");
             if (!keyFile.empty())
             {
-                if (!IceUtilInternal::splitString(keyFile, IceUtilInternal::pathsep, keyFiles) || keyFiles.size() > 2)
+                if (!IceInternal::splitString(keyFile, IceInternal::pathsep, keyFiles) || keyFiles.size() > 2)
                 {
                     throw InitializationException(
                         __FILE__,

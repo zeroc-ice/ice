@@ -15,11 +15,11 @@
 #include "Ice/Properties.h"
 #include "Ice/ProxyFunctions.h"
 #include "Ice/Router.h"
+#include "Ice/StringUtil.h"
 #include "Instance.h"
 #include "LocatorInfo.h"
 #include "PropertyNames.h"
 #include "RouterInfo.h"
-#include "StringUtil.h"
 
 #include <stdexcept>
 
@@ -117,7 +117,7 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
     // or double quotation marks.
     //
     string idstr;
-    end = IceUtilInternal::checkQuote(s, beg);
+    end = IceInternal::checkQuote(s, beg);
     if (end == string::npos)
     {
         throw ProxyParseException(__FILE__, __LINE__, "mismatched quotes around identity in `" + s + "'");
@@ -218,7 +218,7 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
             if (s[argumentBeg] != '@' && s[argumentBeg] != ':' && s[argumentBeg] != '-')
             {
                 beg = argumentBeg;
-                end = IceUtilInternal::checkQuote(s, beg);
+                end = IceInternal::checkQuote(s, beg);
                 if (end == string::npos)
                 {
                     throw ProxyParseException(
@@ -499,7 +499,7 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
             }
 
             string adapterstr;
-            end = IceUtilInternal::checkQuote(s, beg);
+            end = IceInternal::checkQuote(s, beg);
             if (end == string::npos)
             {
                 throw ProxyParseException(__FILE__, __LINE__, "mismatched quotes around adapter id in `" + s + "'");
@@ -701,7 +701,7 @@ IceInternal::ReferenceFactory::checkForUnknownProperties(const string& prefix)
         for (unsigned int i = 0; i < sizeof(suffixes) / sizeof(*suffixes); ++i)
         {
             string prop = prefix + "." + suffixes[i];
-            if (IceUtilInternal::match(p->first, prop))
+            if (IceInternal::match(p->first, prop))
             {
                 valid = true;
                 break;

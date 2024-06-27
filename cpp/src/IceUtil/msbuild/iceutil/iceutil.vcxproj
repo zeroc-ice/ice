@@ -86,37 +86,33 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\ConsoleUtil.cpp" />
-    <ClCompile Include="..\..\CtrlCHandler.cpp" />
-    <ClCompile Include="..\..\OutputUtil.cpp" />
-    <ClCompile Include="..\..\StringConverter.cpp" />
-    <ClCompile Include="..\..\UtilException.cpp" />
-    <ClCompile Include="..\..\FileUtil.cpp" />
-    <ClCompile Include="..\..\Options.cpp" />
-    <ClCompile Include="..\..\Random.cpp" />
-    <ClCompile Include="..\..\StringUtil.cpp" />
-    <ClCompile Include="..\..\UUID.cpp" />
+    <ClCompile Include="..\..\..\Ice\ConsoleUtil.cpp" />
+    <ClCompile Include="..\..\..\Ice\CtrlCHandler.cpp" />
+    <ClCompile Include="..\..\..\Ice\OutputUtil.cpp" />
+    <ClCompile Include="..\..\..\Ice\StringConverter.cpp" />
+    <ClCompile Include="..\..\..\Ice\UtilException.cpp" />
+    <ClCompile Include="..\..\..\Ice\FileUtil.cpp" />
+    <ClCompile Include="..\..\..\Ice\Options.cpp" />
+    <ClCompile Include="..\..\..\Ice\Random.cpp" />
+    <ClCompile Include="..\..\..\Ice\StringUtil.cpp" />
+    <ClCompile Include="..\..\..\Ice\UUID.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\include\IceUtil\Config.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\ConsoleUtil.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\CtrlCHandler.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\DisableWarnings.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\Exception.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\FileUtil.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\Iterator.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\Optional.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\Options.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\OutputUtil.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\PopDisableWarnings.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\PushDisableWarnings.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\Random.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\ScannerConfig.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\StringConverter.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\StringUtil.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\Timer.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\UndefSysMacros.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\UUID.h" />
+    <ClInclude Include="..\..\..\..\include\Ice\Config.h" />
+    <ClInclude Include="..\..\..\..\include\Ice\CtrlCHandler.h" />
+    <ClInclude Include="..\..\..\..\include\Ice\Exception.h" />
+    <ClInclude Include="..\..\..\..\include\Ice\StringConverter.h" />
+    <ClInclude Include="..\..\..\..\include\Ice\UUID.h" />
+    <ClInclude Include="..\..\..\Ice\ConsoleUtil.h" />
+    <ClInclude Include="..\..\..\Ice\DisableWarnings.h" />
+    <ClInclude Include="..\..\..\Ice\StackTrace.h" />
+    <ClInclude Include="..\..\..\Ice\FileUtil.h" />
+    <ClInclude Include="..\..\..\Ice\Options.h" />
+    <ClInclude Include="..\..\..\Ice\OutputUtil.h" />
+    <ClInclude Include="..\..\..\Ice\Random.h" />
+    <ClInclude Include="..\..\..\Ice\ResourceConfig.h" />
+    <ClInclude Include="..\..\..\Ice\ScannerConfig.h" />
+    <ClInclude Include="..\..\..\Ice\UndefSysMacros.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -314,7 +314,7 @@ public abstract class IPEndpointI : EndpointI
             }
             else
             {
-                throw new Ice.EndpointParseException("`-h *' not valid for proxy endpoint `" + ToString() + "'");
+                throw new ParseException($"'-h *' not valid for proxy endpoint '{ToString()}'");
             }
         }
 
@@ -327,8 +327,7 @@ public abstract class IPEndpointI : EndpointI
         {
             if (oaEndpoint)
             {
-                throw new Ice.EndpointParseException("`--sourceAddress' not valid for object adapter endpoint `" +
-                                                     ToString() + "'");
+                throw new ParseException($"'--sourceAddress' not valid for object adapter endpoint '{ToString()}'");
             }
         }
         else if (!oaEndpoint)
@@ -343,8 +342,7 @@ public abstract class IPEndpointI : EndpointI
         {
             if (argument == null)
             {
-                throw new Ice.EndpointParseException("no argument provided for -h option in endpoint " +
-                                                     endpoint);
+                throw new ParseException($"no argument provided for -h option in endpoint '{endpoint}'");
             }
             host_ = argument;
         }
@@ -352,8 +350,7 @@ public abstract class IPEndpointI : EndpointI
         {
             if (argument == null)
             {
-                throw new Ice.EndpointParseException("no argument provided for -p option in endpoint " +
-                                                     endpoint);
+                throw new ParseException($"no argument provided for -p option in endpoint '{endpoint}'");
             }
 
             try
@@ -362,29 +359,25 @@ public abstract class IPEndpointI : EndpointI
             }
             catch (FormatException ex)
             {
-                Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
-                e.str = "invalid port value `" + argument + "' in endpoint " + endpoint;
-                throw e;
+                throw new ParseException($"invalid port value '{argument}' in endpoint '{endpoint}'", ex);
             }
 
             if (port_ < 0 || port_ > 65535)
             {
-                throw new Ice.EndpointParseException("port value `" + argument +
-                                                     "' out of range in endpoint " + endpoint);
+                throw new ParseException($"port value '{argument}' out of range in endpoint '{endpoint}'");
             }
         }
         else if (option == "--sourceAddress")
         {
             if (argument == null)
             {
-                throw new Ice.EndpointParseException("no argument provided for --sourceAddress option in endpoint " +
-                                                     endpoint);
+                throw new ParseException($"no argument provided for --sourceAddress option in endpoint '{endpoint}'");
             }
             sourceAddr_ = Network.getNumericAddress(argument);
             if (sourceAddr_ == null)
             {
-                throw new Ice.EndpointParseException(
-                    "invalid IP address provided for --sourceAddress option in endpoint " + endpoint);
+                throw new ParseException(
+                    $"invalid IP address provided for --sourceAddress option in endpoint '{endpoint}'");
             }
         }
         else

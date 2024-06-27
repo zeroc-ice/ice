@@ -13,9 +13,9 @@
 #include "Ice/LocalException.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/SHA1.h"
-#include "IceUtil/Random.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 #include "ProtocolInstance.h"
+#include "Random.h"
 
 #include <climits>
 #include <stdint.h>
@@ -193,7 +193,7 @@ IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
                 // encoded with Base64.
                 //
                 vector<byte> key(16);
-                IceUtilInternal::generateRandom(reinterpret_cast<char*>(&key[0]), key.size());
+                IceInternal::generateRandom(reinterpret_cast<char*>(&key[0]), key.size());
                 _key = IceInternal::Base64::encode(key);
                 out << _key << "\r\n\r\n"; // EOM
 
@@ -937,13 +937,13 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
     if (_parser->getHeader("Sec-WebSocket-Protocol", val, true))
     {
         vector<string> protocols;
-        if (!IceUtilInternal::splitString(val, ",", protocols))
+        if (!IceInternal::splitString(val, ",", protocols))
         {
             throw WebSocketException("invalid value `" + val + "' for WebSocket protocol");
         }
         for (vector<string>::iterator p = protocols.begin(); p != protocols.end(); ++p)
         {
-            if (IceUtilInternal::trim(*p) != _iceProtocol)
+            if (IceInternal::trim(*p) != _iceProtocol)
             {
                 throw WebSocketException("unknown value `" + *p + "' for WebSocket protocol");
             }
@@ -1714,7 +1714,7 @@ IceInternal::WSTransceiver::prepareWriteHeader(uint8_t opCode, IceInternal::Buff
         // and apply the mask.
         //
         _writeBuffer.b[1] |= byte{FLAG_MASKED};
-        IceUtilInternal::generateRandom(reinterpret_cast<char*>(_writeMask), sizeof(_writeMask));
+        IceInternal::generateRandom(reinterpret_cast<char*>(_writeMask), sizeof(_writeMask));
         memcpy(_writeBuffer.i, _writeMask, sizeof(_writeMask));
         _writeBuffer.i += sizeof(_writeMask);
     }

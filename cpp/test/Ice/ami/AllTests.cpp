@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../../src/Ice/Random.h"
 #include "Ice/Ice.h"
-#include "IceUtil/Random.h"
 #include "Test.h"
 #include "TestHelper.h"
 
@@ -1103,7 +1103,7 @@ allTests(TestHelper* helper, bool collocated)
                 seq.resize(1024 * 10);
                 for (ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
                 {
-                    *q = static_cast<byte>(IceUtilInternal::random(255));
+                    *q = static_cast<byte>(IceInternal::random(255));
                 }
 
                 //

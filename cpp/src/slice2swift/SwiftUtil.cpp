@@ -3,8 +3,8 @@
 //
 //
 
-#include "IceUtil/OutputUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "../Ice/OutputUtil.h"
+#include "Ice/StringUtil.h"
 
 #include "../Slice/Util.h"
 
@@ -15,7 +15,7 @@
 
 using namespace std;
 using namespace Slice;
-using namespace IceUtilInternal;
+using namespace IceInternal;
 
 namespace
 {
@@ -330,10 +330,10 @@ SwiftGenerator::splitComment(const string& c)
     string::size_type nextPos;
     while ((nextPos = comment.find_first_of('\n', pos)) != string::npos)
     {
-        result.push_back(IceUtilInternal::trim(string(comment, pos, nextPos - pos)));
+        result.push_back(IceInternal::trim(string(comment, pos, nextPos - pos)));
         pos = nextPos + 1;
     }
-    string lastLine = IceUtilInternal::trim(string(comment, pos));
+    string lastLine = IceInternal::trim(string(comment, pos));
     if (!lastLine.empty())
     {
         result.push_back(lastLine);
@@ -400,7 +400,7 @@ SwiftGenerator::parseComment(const ContainedPtr& p)
     // First check metadata for a deprecated tag.
     if (auto reason = p->getDeprecationReason(false))
     {
-        doc.deprecateReason.push_back(IceUtilInternal::trim(*reason));
+        doc.deprecateReason.push_back(IceInternal::trim(*reason));
     }
 
     //
@@ -438,7 +438,7 @@ SwiftGenerator::parseComment(const ContainedPtr& p)
     const string seeTag = "@see";
     for (; i != lines.end(); ++i)
     {
-        const string l = IceUtilInternal::trim(*i);
+        const string l = IceInternal::trim(*i);
         string line;
         if (parseCommentLine(l, paramTag, true, name, line))
         {
@@ -558,11 +558,7 @@ SwiftGenerator::parseComment(const ContainedPtr& p)
 }
 
 void
-SwiftGenerator::writeDocLines(
-    IceUtilInternal::Output& out,
-    const StringList& lines,
-    bool commentFirst,
-    const string& space)
+SwiftGenerator::writeDocLines(IceInternal::Output& out, const StringList& lines, bool commentFirst, const string& space)
 {
     StringList l = lines;
     if (!commentFirst)
@@ -582,7 +578,7 @@ SwiftGenerator::writeDocLines(
 }
 
 void
-SwiftGenerator::writeDocSentence(IceUtilInternal::Output& out, const StringList& lines)
+SwiftGenerator::writeDocSentence(IceInternal::Output& out, const StringList& lines)
 {
     //
     // Write the first sentence.
@@ -636,7 +632,7 @@ SwiftGenerator::writeDocSentence(IceUtilInternal::Output& out, const StringList&
 }
 
 void
-SwiftGenerator::writeDocSummary(IceUtilInternal::Output& out, const ContainedPtr& p)
+SwiftGenerator::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
 {
     DocElements doc = parseComment(p);
 
@@ -668,7 +664,7 @@ SwiftGenerator::writeDocSummary(IceUtilInternal::Output& out, const ContainedPtr
 }
 
 void
-SwiftGenerator::writeOpDocSummary(IceUtilInternal::Output& out, const OperationPtr& p, bool async, bool dispatch)
+SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p, bool async, bool dispatch)
 {
     DocElements doc = parseComment(p);
     if (!doc.overview.empty())
@@ -815,7 +811,7 @@ SwiftGenerator::writeOpDocSummary(IceUtilInternal::Output& out, const OperationP
 }
 
 void
-SwiftGenerator::writeProxyDocSummary(IceUtilInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
+SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
 {
     DocElements doc = parseComment(p);
 
@@ -863,10 +859,7 @@ SwiftGenerator::writeProxyDocSummary(IceUtilInternal::Output& out, const Interfa
 }
 
 void
-SwiftGenerator::writeServantDocSummary(
-    IceUtilInternal::Output& out,
-    const InterfaceDefPtr& p,
-    const string& swiftModule)
+SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
 {
     DocElements doc = parseComment(p);
 
@@ -906,7 +899,7 @@ SwiftGenerator::writeServantDocSummary(
 }
 
 void
-SwiftGenerator::writeMemberDoc(IceUtilInternal::Output& out, const DataMemberPtr& p)
+SwiftGenerator::writeMemberDoc(IceInternal::Output& out, const DataMemberPtr& p)
 {
     DocElements doc = parseComment(p);
 
@@ -1046,7 +1039,7 @@ SwiftGenerator::getValue(const string& swiftModule, const TypePtr& type)
 
 void
 SwiftGenerator::writeConstantValue(
-    IceUtilInternal::Output& out,
+    IceInternal::Output& out,
     const TypePtr& type,
     const SyntaxTreeBasePtr& valueType,
     const string& value,
@@ -1404,7 +1397,7 @@ SwiftGenerator::isProxyType(const TypePtr& p)
 }
 
 void
-SwiftGenerator::writeDefaultInitializer(IceUtilInternal::Output& out, bool required, bool rootClass)
+SwiftGenerator::writeDefaultInitializer(IceInternal::Output& out, bool required, bool rootClass)
 {
     out << sp;
     out << nl << "public ";
@@ -1428,7 +1421,7 @@ SwiftGenerator::writeDefaultInitializer(IceUtilInternal::Output& out, bool requi
 
 void
 SwiftGenerator::writeMemberwiseInitializer(
-    IceUtilInternal::Output& out,
+    IceInternal::Output& out,
     const DataMemberList& members,
     const ContainedPtr& p)
 {
@@ -1437,7 +1430,7 @@ SwiftGenerator::writeMemberwiseInitializer(
 
 void
 SwiftGenerator::writeMemberwiseInitializer(
-    IceUtilInternal::Output& out,
+    IceInternal::Output& out,
     const DataMemberList& members,
     const DataMemberList& baseMembers,
     const DataMemberList& allMembers,
@@ -1490,7 +1483,7 @@ SwiftGenerator::writeMemberwiseInitializer(
 
 void
 SwiftGenerator::writeMembers(
-    IceUtilInternal::Output& out,
+    IceInternal::Output& out,
     const DataMemberList& members,
     const ContainedPtr& p,
     int typeCtx)
@@ -2144,7 +2137,7 @@ SwiftGenerator::getOutParams(const OperationPtr& op, ParamInfoList& required, Pa
 }
 
 void
-SwiftGenerator::writeMarshalInParams(::IceUtilInternal::Output& out, const OperationPtr& op)
+SwiftGenerator::writeMarshalInParams(::IceInternal::Output& out, const OperationPtr& op)
 {
     ParamInfoList requiredInParams, optionalInParams;
     getInParams(op, requiredInParams, optionalInParams);
@@ -2176,7 +2169,7 @@ SwiftGenerator::writeMarshalInParams(::IceUtilInternal::Output& out, const Opera
 }
 
 void
-SwiftGenerator::writeMarshalOutParams(::IceUtilInternal::Output& out, const OperationPtr& op)
+SwiftGenerator::writeMarshalOutParams(::IceInternal::Output& out, const OperationPtr& op)
 {
     ParamInfoList requiredOutParams, optionalOutParams;
     getOutParams(op, requiredOutParams, optionalOutParams);
@@ -2204,7 +2197,7 @@ SwiftGenerator::writeMarshalOutParams(::IceUtilInternal::Output& out, const Oper
 }
 
 void
-SwiftGenerator::writeMarshalAsyncOutParams(::IceUtilInternal::Output& out, const OperationPtr& op)
+SwiftGenerator::writeMarshalAsyncOutParams(::IceInternal::Output& out, const OperationPtr& op)
 {
     ParamInfoList requiredOutParams, optionalOutParams;
     getOutParams(op, requiredOutParams, optionalOutParams);
@@ -2233,7 +2226,7 @@ SwiftGenerator::writeMarshalAsyncOutParams(::IceUtilInternal::Output& out, const
 }
 
 void
-SwiftGenerator::writeUnmarshalOutParams(::IceUtilInternal::Output& out, const OperationPtr& op)
+SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const OperationPtr& op)
 {
     TypePtr returnType = op->returnType();
 
@@ -2312,7 +2305,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceUtilInternal::Output& out, const Op
 }
 
 void
-SwiftGenerator::writeUnmarshalInParams(::IceUtilInternal::Output& out, const OperationPtr& op)
+SwiftGenerator::writeUnmarshalInParams(::IceInternal::Output& out, const OperationPtr& op)
 {
     ParamInfoList requiredInParams, optionalInParams;
     getInParams(op, requiredInParams, optionalInParams);
@@ -2362,7 +2355,7 @@ SwiftGenerator::writeUnmarshalInParams(::IceUtilInternal::Output& out, const Ope
 }
 
 void
-SwiftGenerator::writeUnmarshalUserException(::IceUtilInternal::Output& out, const OperationPtr& op)
+SwiftGenerator::writeUnmarshalUserException(::IceInternal::Output& out, const OperationPtr& op)
 {
     const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(op)));
     ExceptionList throws = op->throws();
@@ -2387,7 +2380,7 @@ SwiftGenerator::writeUnmarshalUserException(::IceUtilInternal::Output& out, cons
 }
 
 void
-SwiftGenerator::writeSwiftAttributes(::IceUtilInternal::Output& out, const StringList& metadata)
+SwiftGenerator::writeSwiftAttributes(::IceInternal::Output& out, const StringList& metadata)
 {
     static const string prefix = "swift:attribute:";
     for (StringList::const_iterator q = metadata.begin(); q != metadata.end(); ++q)
@@ -2400,7 +2393,7 @@ SwiftGenerator::writeSwiftAttributes(::IceUtilInternal::Output& out, const Strin
 }
 
 void
-SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const OperationPtr& op)
+SwiftGenerator::writeProxyOperation(::IceInternal::Output& out, const OperationPtr& op)
 {
     const string opName = fixIdent(op->name());
 
@@ -2486,7 +2479,7 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
 }
 
 void
-SwiftGenerator::writeProxyAsyncOperation(::IceUtilInternal::Output& out, const OperationPtr& op)
+SwiftGenerator::writeProxyAsyncOperation(::IceInternal::Output& out, const OperationPtr& op)
 {
     const string opName = fixIdent(op->name() + "Async");
 
@@ -2577,7 +2570,7 @@ SwiftGenerator::writeProxyAsyncOperation(::IceUtilInternal::Output& out, const O
 }
 
 void
-SwiftGenerator::writeDispatchOperation(::IceUtilInternal::Output& out, const OperationPtr& op)
+SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const OperationPtr& op)
 {
     const string opName = op->name();
 

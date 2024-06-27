@@ -13,17 +13,7 @@ export class Client extends TestHelper {
         const out = this.getWriter();
         const communicator = this.communicator();
 
-        out.write("testing stringToProxy... ");
-        const ref = "test:" + this.getTestEndpoint();
-        const base = communicator.stringToProxy(ref);
-        test(base !== null);
-        out.writeLine("ok");
-
-        out.write("testing checked cast... ");
-        const proxy = await Test.TestIntfPrx.checkedCast(base);
-        test(proxy !== null);
-        test(proxy.equals(base));
-        out.writeLine("ok");
+        const proxy = new Test.TestIntfPrx(communicator, `test:${this.getTestEndpoint()}`);
 
         out.write("testing enum values... ");
         test(Test.ByteEnum.benum1.value === 0);

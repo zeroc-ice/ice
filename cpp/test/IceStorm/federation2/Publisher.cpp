@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../../src/Ice/Options.h"
 #include "Event.h"
 #include "Ice/Ice.h"
 #include "IceStorm/IceStorm.h"
-#include "IceUtil/Options.h"
 #include "TestHelper.h"
 #include <thread>
 
@@ -25,8 +25,8 @@ Publisher::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder ich = initialize(argc, argv);
     auto communicator = ich.communicator();
-    IceUtilInternal::Options opts;
-    opts.addOpt("", "count", IceUtilInternal::Options::NeedArg);
+    IceInternal::Options opts;
+    opts.addOpt("", "count", IceInternal::Options::NeedArg);
     opts.parse(argc, (const char**)argv);
 
     auto properties = communicator->getProperties();

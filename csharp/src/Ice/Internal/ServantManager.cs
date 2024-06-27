@@ -85,14 +85,12 @@ internal sealed class ServantManager : Object
             {
                 if (m.ContainsKey(facet))
                 {
-                    AlreadyRegisteredException ex = new AlreadyRegisteredException();
-                    ex.id = Ice.Util.identityToString(ident, _instance.toStringMode());
-                    ex.kindOfObject = "servant";
+                    string id = Ice.Util.identityToString(ident, _instance.toStringMode());
                     if (facet.Length > 0)
                     {
-                        ex.id += " -f " + UtilInternal.StringUtil.escapeString(facet, "", _instance.toStringMode());
+                        id += " -f " + UtilInternal.StringUtil.escapeString(facet, "", _instance.toStringMode());
                     }
-                    throw ex;
+                    throw new AlreadyRegisteredException("servant", id);
                 }
             }
             else
@@ -111,10 +109,7 @@ internal sealed class ServantManager : Object
         {
             if (_defaultServantMap.TryGetValue(category, out Object? obj))
             {
-                AlreadyRegisteredException ex = new AlreadyRegisteredException();
-                ex.kindOfObject = "default servant";
-                ex.id = category;
-                throw ex;
+                throw new AlreadyRegisteredException("default servant", category);
             }
 
             _defaultServantMap[category] = servant;
@@ -132,14 +127,12 @@ internal sealed class ServantManager : Object
             Object? obj = null;
             if (m is null || !m.TryGetValue(facet, out Object? value))
             {
-                NotRegisteredException ex = new NotRegisteredException();
-                ex.id = Ice.Util.identityToString(ident, _instance.toStringMode());
-                ex.kindOfObject = "servant";
+                string id = Ice.Util.identityToString(ident, _instance.toStringMode());
                 if (facet.Length > 0)
                 {
-                    ex.id += " -f " + UtilInternal.StringUtil.escapeString(facet, "", _instance.toStringMode());
+                    id += " -f " + UtilInternal.StringUtil.escapeString(facet, "", _instance.toStringMode());
                 }
-                throw ex;
+                throw new NotRegisteredException("servant", id);
             }
             obj = value;
             m.Remove(facet);
@@ -158,10 +151,7 @@ internal sealed class ServantManager : Object
         {
             if (!_defaultServantMap.TryGetValue(category, out Object? obj))
             {
-                NotRegisteredException ex = new NotRegisteredException();
-                ex.kindOfObject = "default servant";
-                ex.id = category;
-                throw ex;
+                throw new NotRegisteredException("default servant", category);
             }
 
             _defaultServantMap.Remove(category);
@@ -175,10 +165,7 @@ internal sealed class ServantManager : Object
         {
             if (!_servantMapMap.TryGetValue(ident, out Dictionary<string, Object>? m))
             {
-                NotRegisteredException ex = new NotRegisteredException();
-                ex.id = Ice.Util.identityToString(ident, _instance.toStringMode());
-                ex.kindOfObject = "servant";
-                throw ex;
+                throw new NotRegisteredException("servant", Ice.Util.identityToString(ident, _instance.toStringMode()));
             }
             _servantMapMap.Remove(ident);
 
@@ -246,10 +233,9 @@ internal sealed class ServantManager : Object
         {
             if (_locatorMap.TryGetValue(category, out ServantLocator? l))
             {
-                AlreadyRegisteredException ex = new AlreadyRegisteredException();
-                ex.id = UtilInternal.StringUtil.escapeString(category, "", _instance.toStringMode());
-                ex.kindOfObject = "servant locator";
-                throw ex;
+                throw new AlreadyRegisteredException(
+                    "servant locator",
+                    UtilInternal.StringUtil.escapeString(category, "", _instance.toStringMode()));
             }
 
             _locatorMap[category] = locator;
@@ -262,10 +248,9 @@ internal sealed class ServantManager : Object
         {
             if (!_locatorMap.TryGetValue(category, out ServantLocator? l))
             {
-                NotRegisteredException ex = new NotRegisteredException();
-                ex.id = UtilInternal.StringUtil.escapeString(category, "", _instance.toStringMode());
-                ex.kindOfObject = "servant locator";
-                throw ex;
+                throw new NotRegisteredException(
+                    "servant locator",
+                    UtilInternal.StringUtil.escapeString(category, "", _instance.toStringMode()));
             }
             _locatorMap.Remove(category);
             return l;

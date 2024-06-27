@@ -39,11 +39,8 @@ export class Client extends TestHelper {
         const out = this.getWriter();
         let communicator = this.communicator();
         const properties = communicator.getProperties().clone();
-        out.write("testing stringToProxy... ");
-        const ref = "communicator:" + this.getTestEndpoint();
-        let com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
-        test(com !== null);
-        out.writeLine("ok");
+        const ref = `communicator:${this.getTestEndpoint()}`;
+        let com = new Test.RemoteCommunicatorPrx(communicator, ref);
 
         out.write("testing binding with single endpoint... ");
         {
@@ -73,7 +70,7 @@ export class Client extends TestHelper {
 
         await communicator.destroy();
         [communicator] = this.initialize(properties);
-        com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
+        com = new Test.RemoteCommunicatorPrx(communicator, ref);
 
         out.write("testing binding with multiple endpoints... ");
         {
@@ -174,7 +171,7 @@ export class Client extends TestHelper {
 
         await communicator.destroy();
         [communicator] = this.initialize(properties);
-        com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
+        com = new Test.RemoteCommunicatorPrx(communicator, ref);
 
         // Firefox has a configuration that causes failed connections to be delayed on retry
         // (network.websocket.delay-failed-reconnects=true by default), so we prefer to disable this test with Firefox.
@@ -246,7 +243,7 @@ export class Client extends TestHelper {
 
         await communicator.destroy();
         [communicator] = this.initialize(properties);
-        com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
+        com = new Test.RemoteCommunicatorPrx(communicator, ref);
 
         out.write("testing random endpoint selection... ");
         {

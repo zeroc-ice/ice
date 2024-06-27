@@ -13,17 +13,7 @@ export class Client extends TestHelper {
         const communicator = this.communicator();
         const out = this.getWriter();
 
-        out.write("testing stringToProxy... ");
-        const ref = "initial:" + this.getTestEndpoint();
-        const base = communicator.stringToProxy(ref);
-        test(base !== null);
-        out.writeLine("ok");
-
-        out.write("testing checked cast... ");
-        const initial = await Test.InitialPrx.checkedCast(base);
-        test(initial !== null);
-        test(initial.equals(base));
-        out.writeLine("ok");
+        const initial = new Test.InitialPrx(communicator, `initial:${this.getTestEndpoint()}`);
 
         out.write("getting proxies for interface hierarchy... ");
         const ia = await initial.iaop();

@@ -9,7 +9,7 @@
 #    include "Ice/LocalException.h"
 #    include "Ice/LoggerUtil.h"
 #    include "Ice/Properties.h"
-#    include "IceUtil/StringUtil.h"
+#    include "Ice/StringUtil.h"
 #    include "ProtocolInstance.h"
 #    include "StreamSocket.h"
 #    include "TcpAcceptor.h"
@@ -173,7 +173,7 @@ IceInternal::TcpAcceptor::toDetailedString() const
     if (!intfs.empty())
     {
         os << "\nlocal interfaces = ";
-        os << IceUtilInternal::joinString(intfs, ", ");
+        os << IceInternal::joinString(intfs, ", ");
     }
     return os.str();
 }

@@ -3,10 +3,10 @@
 //
 
 #include "NodeI.h"
+#include "../Ice/FileUtil.h"
 #include "Activator.h"
 #include "Ice/Ice.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/Timer.h"
+#include "Ice/Timer.h"
 #include "NodeSessionManager.h"
 #include "ServerAdapterI.h"
 #include "ServerI.h"
@@ -48,7 +48,7 @@ NodeI::NodeI(
     const Ice::ObjectAdapterPtr& adapter,
     NodeSessionManager& sessions,
     const shared_ptr<Activator>& activator,
-    const IceUtil::TimerPtr& timer,
+    const Ice::TimerPtr& timer,
     const shared_ptr<TraceLevels>& traceLevels,
     NodePrx proxy,
     const string& name,
@@ -277,7 +277,7 @@ NodeI::getActivator() const
     return _activator;
 }
 
-IceUtil::TimerPtr
+Ice::TimerPtr
 NodeI::getTimer() const
 {
     return _timer;
@@ -735,7 +735,7 @@ NodeI::canRemoveServerDirectory(const string& name)
         }
     }
 
-    if (IceUtilInternal::directoryExists(_serversDir + "/" + name + "/dbs"))
+    if (IceInternal::directoryExists(_serversDir + "/" + name + "/dbs"))
     {
         c = readDirectory(_serversDir + "/" + name + "/dbs");
         for (Ice::StringSeq::const_iterator p = c.begin(); p != c.end(); ++p)
@@ -757,7 +757,7 @@ NodeI::canRemoveServerDirectory(const string& name)
         }
     }
 
-    if (IceUtilInternal::directoryExists(_serversDir + "/" + name + "/data"))
+    if (IceInternal::directoryExists(_serversDir + "/" + name + "/data"))
     {
         if (!readDirectory(_serversDir + "/" + name + "/data").empty())
         {
@@ -829,7 +829,7 @@ NodeI::loadServer(
     bool noRestart,
     function<void(const optional<ServerPrx>&, const AdapterPrxDict&, int, int)>&& response,
     function<void(exception_ptr)>&& exception,
-    const Ice::Current& current)
+    const Ice::Current&)
 {
     shared_ptr<ServerCommand> command;
     {
@@ -864,7 +864,7 @@ NodeI::loadServer(
                 // We throw an object not exist exception to avoid dispatch warnings. The registry will consider the
                 // node has being unreachable upon receipt of this exception (like any other Ice::LocalException). We
                 // could also have disabled dispatch warnings but they can still useful to catch other issues.
-                throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
+                throw Ice::ObjectNotExistException(__FILE__, __LINE__);
             }
 
             try
@@ -910,7 +910,7 @@ NodeI::destroyServer(
     bool noRestart,
     function<void()> response,
     function<void(exception_ptr)>,
-    const Ice::Current& current)
+    const Ice::Current&)
 {
     shared_ptr<ServerCommand> command;
     {
@@ -927,7 +927,7 @@ NodeI::destroyServer(
             // We throw an object not exist exception to avoid dispatch warnings. The registry will consider the node
             // has being unreachable upon receipt of this exception (like any other Ice::LocalException). We could also
             // have disabled dispatch warnings but they can still useful to catch other issues.
-            throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
+            throw Ice::ObjectNotExistException(__FILE__, __LINE__);
         }
 
         if (!server)

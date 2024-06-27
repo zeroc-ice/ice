@@ -43,6 +43,8 @@ import { ConnectionFlushBatch, OutgoingAsync } from "./OutgoingAsync.js";
 import { IncomingAsync } from "./IncomingAsync.js";
 import { Debug } from "./Debug.js";
 import { IdleTimeoutTransceiverDecorator } from "./IdleTimeoutTransceiverDecorator.js";
+import { ObjectAdapter } from "./ObjectAdapter.js";
+import { ObjectPrx } from "./ObjectPrx.js";
 
 const StateNotInitialized = 0;
 const StateNotValidated = 1;
@@ -507,13 +509,8 @@ export class ConnectionI {
     }
 
     createProxy(ident) {
-        //
-        // Create a reference and return a reverse proxy for this
-        // reference.
-        //
-        return this._instance
-            .proxyFactory()
-            .referenceToProxy(this._instance.referenceFactory().createFixed(ident, this));
+        ObjectAdapter.checkIdentity(ident);
+        return new ObjectPrx(this._instance.referenceFactory().createFixed(ident, this));
     }
 
     message(operation) {

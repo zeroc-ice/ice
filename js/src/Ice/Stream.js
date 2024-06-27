@@ -29,6 +29,7 @@ import { Instance } from "./Instance.js";
 import { Communicator } from "./Communicator.js";
 import { TypeRegistry } from "./TypeRegistry.js";
 import { Debug } from "./Debug.js";
+import { ObjectPrx } from "./ObjectPrx.js";
 
 const SliceType = {
     NoSlice: 0,
@@ -1444,7 +1445,11 @@ export class InputStream {
     }
 
     readProxy(type) {
-        return this._instance.proxyFactory().streamToProxy(this, type);
+        const ident = new Identity();
+        ident._read(this);
+        const reference = this._instance.referenceFactory().createFromStream(ident, this);
+        const TPrx = type == null ? ObjectPrx : type;
+        return reference == null ? null : new TPrx(reference);
     }
 
     readOptionalProxy(tag, type) {

@@ -11,9 +11,9 @@
 #include "Ice/LocalException.h"
 #include "Ice/Object.h"
 #include "Ice/Properties.h"
+#include "Ice/StringUtil.h"
 #include "Ice/UUID.h"
 #include "IceBT/ConnectionInfo.h"
-#include "IceUtil/StringUtil.h"
 #include "Instance.h"
 #include "Util.h"
 
@@ -517,7 +517,7 @@ IceBT::EndpointI::hash() const noexcept
 bool
 IceBT::EndpointI::checkOption(const string& option, const string& argument, const string& endpoint)
 {
-    string arg = IceUtilInternal::trim(argument);
+    string arg = IceInternal::trim(argument);
     if (option == "-a")
     {
         if (arg.empty())

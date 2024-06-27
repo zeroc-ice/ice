@@ -3,8 +3,8 @@
 //
 
 #include "FileUserAccountMapperI.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "../Ice/FileUtil.h"
+#include "Ice/StringUtil.h"
 #include <fstream>
 
 using namespace std;
@@ -12,10 +12,10 @@ using namespace IceGrid;
 
 FileUserAccountMapperI::FileUserAccountMapperI(const string& filename)
 {
-    ifstream file(IceUtilInternal::streamFilename(filename).c_str()); // filename is a UTF-8 string
+    ifstream file(IceInternal::streamFilename(filename).c_str()); // filename is a UTF-8 string
     if (!file)
     {
-        throw runtime_error("cannot open `" + filename + "' for reading: " + IceUtilInternal::errorToString(errno));
+        throw runtime_error("cannot open `" + filename + "' for reading: " + IceInternal::errorToString(errno));
     }
 
     const string delim = " \t\r\n";

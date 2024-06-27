@@ -6,6 +6,7 @@ import { HashMap } from "./HashMap.js";
 import { Promise } from "./Promise.js";
 import { NoEndpointException } from "./LocalException.js";
 import { Debug } from "./Debug.js";
+import { ObjectPrx } from "./ObjectPrx.js";
 
 export class RouterInfo {
     constructor(router) {
@@ -71,18 +72,17 @@ export class RouterInfo {
         });
     }
 
-    addProxy(proxy) {
-        Debug.assert(proxy !== null);
+    addProxy(reference) {
+        const identity = reference.getIdentity();
+        Debug.assert(reference !== null);
         if (!this._hasRoutingTable) {
             return Promise.resolve(); // The router implementation doesn't maintain a routing table.
-        } else if (this._identities.has(proxy.ice_getIdentity())) {
-            //
+        } else if (this._identities.has(identity)) {
             // Only add the proxy to the router if it's not already in our local map.
-            //
             return Promise.resolve();
         } else {
-            return this._router.addProxies([proxy]).then((evictedProxies) => {
-                this.addAndEvictProxies(proxy, evictedProxies);
+            return this._router.addProxies([new ObjectPrx(reference)]).then((evictedProxies) => {
+                this.addAndEvictProxies(identity, evictedProxies);
             });
         }
     }
@@ -110,13 +110,13 @@ export class RouterInfo {
         promise.resolve(this._clientEndpoints);
     }
 
-    addAndEvictProxies(proxy, evictedProxies) {
+    addAndEvictProxies(identity, evictedProxies) {
         //
         // Check if the proxy hasn't already been evicted by a
         // concurrent addProxies call. If it's the case, don't
         // add it to our local map.
         //
-        const index = this._evictedIdentities.findIndex((e) => e.equals(proxy.ice_getIdentity()));
+        const index = this._evictedIdentities.findIndex((e) => e.equals(identity));
         if (index >= 0) {
             this._evictedIdentities.splice(index, 1);
         } else {
@@ -124,7 +124,7 @@ export class RouterInfo {
             // If we successfully added the proxy to the router,
             // we add it to our local map.
             //
-            this._identities.set(proxy.ice_getIdentity(), 1);
+            this._identities.set(identity, 1);
         }
 
         //

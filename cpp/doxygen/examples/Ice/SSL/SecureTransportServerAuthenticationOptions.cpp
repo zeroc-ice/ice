@@ -4,7 +4,7 @@
 
 #include <Ice/Ice.h>
 // Disable deprecation warnings from SecureTransport APIs
-#include "IceUtil/DisableWarnings.h"
+#include "../../src/Ice/DisableWarnings.h"
 
 #if defined(ICE_USE_SECURE_TRANSPORT)
 void

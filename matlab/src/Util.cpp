@@ -341,7 +341,7 @@ IceMatlab::convertException(const std::exception_ptr exc)
     }
     catch (const Ice::LocalException& iceEx)
     {
-        auto typeId = iceEx.ice_id();
+        string typeId{iceEx.ice_id()};
         //
         // The exception ID uses single colon separators.
         //
@@ -354,7 +354,7 @@ IceMatlab::convertException(const std::exception_ptr exc)
         mxArray* params[10];
         params[0] = createStringFromUTF8(id);
         int idx = 2;
-        auto msg = typeId; // Use the type ID as the default exception message
+        string msg = typeId; // Use the type ID as the default exception message
 
         try
         {
@@ -386,7 +386,7 @@ IceMatlab::convertException(const std::exception_ptr exc)
         }
         catch (const Ice::UnknownException& e)
         {
-            params[idx++] = createStringFromUTF8(e.unknown);
+            params[idx++] = createStringFromUTF8(e.what());
         }
         catch (const Ice::ObjectAdapterDeactivatedException& e)
         {
@@ -426,9 +426,9 @@ IceMatlab::convertException(const std::exception_ptr exc)
         }
         catch (const Ice::RequestFailedException& e)
         {
-            params[idx++] = createIdentity(e.id);
-            params[idx++] = createStringFromUTF8(e.facet);
-            params[idx++] = createStringFromUTF8(e.operation);
+            params[idx++] = createIdentity(e.id());
+            params[idx++] = createStringFromUTF8(e.facet());
+            params[idx++] = createStringFromUTF8(e.operation());
         }
         catch (const Ice::FileException& e)
         {

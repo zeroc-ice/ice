@@ -14,8 +14,7 @@
 
 using namespace std;
 using namespace Slice;
-using namespace IceUtil;
-using namespace IceUtilInternal;
+using namespace IceInternal;
 
 namespace
 {
@@ -660,7 +659,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl;
 }
 
-IceUtilInternal::Output&
+IceInternal::Output&
 Gen::TypesVisitor::getOutput(const ContainedPtr& contained)
 {
     string scopedName = contained->scope();

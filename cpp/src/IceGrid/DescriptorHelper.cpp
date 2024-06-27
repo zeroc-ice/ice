@@ -11,9 +11,8 @@
 #include <stdexcept>
 
 using namespace std;
+using namespace Ice;
 using namespace IceInternal;
-using namespace IceUtil;
-using namespace IceUtilInternal;
 using namespace IceGrid;
 
 namespace
@@ -568,11 +567,11 @@ Resolver::operator()(const ObjectDescriptorSeq& objects, const string& proxyOpti
         obj.id = operator()(q->id, type + " object identity");
         if (!q->proxyOptions.empty())
         {
-            obj.proxyOptions = IceUtilInternal::trim(operator()(q->proxyOptions, type + " object proxy options"));
+            obj.proxyOptions = IceInternal::trim(operator()(q->proxyOptions, type + " object proxy options"));
         }
         else if (!proxyOptions.empty())
         {
-            obj.proxyOptions = IceUtilInternal::trim(operator()(proxyOptions, type + " object proxy options"));
+            obj.proxyOptions = IceInternal::trim(operator()(proxyOptions, type + " object proxy options"));
         }
         validateProxyOptions(*this, obj.proxyOptions);
         result.push_back(obj);

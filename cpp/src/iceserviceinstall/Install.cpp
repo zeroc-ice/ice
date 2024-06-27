@@ -3,8 +3,8 @@
 //
 
 #include "../Ice/ConsoleUtil.h"
+#include "../Ice/Options.h"
 #include "Ice/Ice.h"
-#include "IceUtil/Options.h"
 #include "ServiceInstaller.h"
 
 using namespace std;
@@ -106,7 +106,7 @@ usage(const string& name)
 int
 run(const Ice::StringSeq& args)
 {
-    IceUtilInternal::Options opts;
+    IceInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
     opts.addOpt("u", "uninstall");
@@ -116,7 +116,7 @@ run(const Ice::StringSeq& args)
 
     for (size_t i = 0; i < propNames.size(); ++i)
     {
-        opts.addOpt("", propNames[i], IceUtilInternal::Options::NeedArg);
+        opts.addOpt("", propNames[i], IceInternal::Options::NeedArg);
     }
 
     vector<string> commands;
@@ -124,7 +124,7 @@ run(const Ice::StringSeq& args)
     {
         commands = opts.parse(args);
     }
-    catch (const IceUtilInternal::BadOptException& e)
+    catch (const IceInternal::BadOptException& e)
     {
         consoleErr << "Error:" << e.reason << endl;
         usage(args[0]);

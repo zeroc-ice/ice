@@ -9,11 +9,11 @@
 
 #include "Types.h"
 #include "Current.h"
+#include "Ice/DisableWarnings.h"
 #include "Ice/InputStream.h"
 #include "Ice/LocalException.h"
 #include "Ice/OutputStream.h"
 #include "Ice/SlicedData.h"
-#include "IceUtil/DisableWarnings.h"
 #include "Proxy.h"
 #include "Thread.h"
 #include "Util.h"
@@ -23,8 +23,8 @@
 
 using namespace std;
 using namespace IcePy;
-using namespace IceUtil;
-using namespace IceUtilInternal;
+using namespace Ice;
+using namespace IceInternal;
 
 typedef map<string, ClassInfoPtr, std::less<>> ClassInfoMap;
 static ClassInfoMap _classInfoMap;
@@ -962,7 +962,7 @@ IcePy::PrimitiveInfo::unmarshal(
 }
 
 void
-IcePy::PrimitiveInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory*)
+IcePy::PrimitiveInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectHistory*)
 {
     if (!validate(value))
     {
@@ -1076,7 +1076,7 @@ IcePy::EnumInfo::unmarshal(
 }
 
 void
-IcePy::EnumInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory*)
+IcePy::EnumInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectHistory*)
 {
     if (!validate(value))
     {
@@ -1392,7 +1392,7 @@ IcePy::StructInfo::unmarshal(
 }
 
 void
-IcePy::StructInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory* history)
+IcePy::StructInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectHistory* history)
 {
     if (!validate(value))
     {
@@ -1679,7 +1679,7 @@ IcePy::SequenceInfo::unmarshal(
 }
 
 void
-IcePy::SequenceInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory* history)
+IcePy::SequenceInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectHistory* history)
 {
     if (!validate(value))
     {
@@ -2722,7 +2722,7 @@ IcePy::CustomInfo::unmarshal(
 }
 
 void
-IcePy::CustomInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory*)
+IcePy::CustomInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectHistory*)
 {
     if (!validate(value))
     {
@@ -2926,7 +2926,7 @@ IcePy::DictionaryInfo::unmarshaled(PyObject* val, PyObject* target, void* closur
 }
 
 void
-IcePy::DictionaryInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory* history)
+IcePy::DictionaryInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectHistory* history)
 {
     if (!validate(value))
     {
@@ -3075,7 +3075,7 @@ IcePy::ClassInfo::unmarshal(
 }
 
 void
-IcePy::ClassInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory* history)
+IcePy::ClassInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectHistory* history)
 {
     if (!validate(value))
     {
@@ -3280,7 +3280,7 @@ IcePy::ValueInfo::unmarshal(
 }
 
 void
-IcePy::ValueInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory* history)
+IcePy::ValueInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectHistory* history)
 {
     if (!validate(value))
     {
@@ -3335,7 +3335,7 @@ IcePy::ValueInfo::destroy()
 }
 
 void
-IcePy::ValueInfo::printMembers(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory* history)
+IcePy::ValueInfo::printMembers(PyObject* value, IceInternal::Output& out, PrintObjectHistory* history)
 {
     if (base)
     {
@@ -3490,7 +3490,7 @@ IcePy::ProxyInfo::unmarshal(
 }
 
 void
-IcePy::ProxyInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory*)
+IcePy::ProxyInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectHistory*)
 {
     if (!validate(value))
     {
@@ -3947,7 +3947,7 @@ IcePy::ExceptionInfo::unmarshal(Ice::InputStream* is)
 }
 
 void
-IcePy::ExceptionInfo::print(PyObject* value, IceUtilInternal::Output& out)
+IcePy::ExceptionInfo::print(PyObject* value, IceInternal::Output& out)
 {
     if (!PyObject_IsInstance(value, pythonType))
     {
@@ -3965,7 +3965,7 @@ IcePy::ExceptionInfo::print(PyObject* value, IceUtilInternal::Output& out)
 }
 
 void
-IcePy::ExceptionInfo::printMembers(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory* history)
+IcePy::ExceptionInfo::printMembers(PyObject* value, IceInternal::Output& out, PrintObjectHistory* history)
 {
     if (base)
     {
@@ -4032,10 +4032,10 @@ IcePy::ExceptionWriter::~ExceptionWriter()
     _ex = 0;
 }
 
-string
-IcePy::ExceptionWriter::ice_id() const
+const char*
+IcePy::ExceptionWriter::ice_id() const noexcept
 {
-    return _info->id;
+    return _info->id.c_str();
 }
 
 void
@@ -4076,10 +4076,10 @@ IcePy::ExceptionReader::~ExceptionReader()
     _ex = 0;
 }
 
-string
-IcePy::ExceptionReader::ice_id() const
+const char*
+IcePy::ExceptionReader::ice_id() const noexcept
 {
-    return _info->id;
+    return _info->id.c_str();
 }
 
 void
@@ -4829,7 +4829,7 @@ IcePy_stringify(PyObject*, PyObject* args)
     assert(info);
 
     ostringstream ostr;
-    IceUtilInternal::Output out(ostr);
+    IceInternal::Output out(ostr);
     PrintObjectHistory history;
     history.index = 0;
     info->print(value, out, &history);
@@ -4853,7 +4853,7 @@ IcePy_stringifyException(PyObject*, PyObject* args)
     assert(info);
 
     ostringstream ostr;
-    IceUtilInternal::Output out(ostr);
+    IceInternal::Output out(ostr);
     info->print(value, out);
 
     string str = ostr.str();

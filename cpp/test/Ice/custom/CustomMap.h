@@ -5,7 +5,7 @@
 #ifndef CUSTOM_MAP_H
 #define CUSTOM_MAP_H
 
-#include "IceUtil/Config.h"
+#include "Ice/Config.h"
 #include <map>
 
 namespace Test

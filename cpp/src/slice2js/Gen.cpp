@@ -4,11 +4,11 @@
 
 #include "Gen.h"
 #include "../Ice/Endian.h"
+#include "../Ice/FileUtil.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Util.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
-#include "IceUtil/UUID.h"
+#include "Ice/StringUtil.h"
+#include "Ice/UUID.h"
 
 #include <algorithm>
 #include <cassert>
@@ -17,8 +17,8 @@
 
 using namespace std;
 using namespace Slice;
-using namespace IceUtil;
-using namespace IceUtilInternal;
+using namespace Ice;
+using namespace IceInternal;
 
 namespace
 {
@@ -42,6 +42,7 @@ namespace
             replace(module.begin(), module.end(), '\\', '_');
             replace(module.begin(), module.end(), '.', '_');
         }
+
         return module;
     }
 
@@ -86,7 +87,7 @@ namespace
         return "???";
     }
 
-    void printHeader(IceUtilInternal::Output& out)
+    void printHeader(IceInternal::Output& out)
     {
         static const char* header = "//\n"
                                     "// Copyright (c) ZeroC, Inc. All rights reserved.\n"
@@ -628,7 +629,7 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     if (!_javaScriptOutput)
     {
         ostringstream os;
-        os << "cannot open `" << file << "': " << IceUtilInternal::errorToString(errno);
+        os << "cannot open `" << file << "': " << IceInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(file);
@@ -646,7 +647,7 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
         if (!_typeScriptOutput)
         {
             ostringstream os;
-            os << "cannot open `" << file << "': " << IceUtilInternal::errorToString(errno);
+            os << "cannot open `" << file << "': " << IceInternal::errorToString(errno);
             throw FileException(__FILE__, __LINE__, os.str());
         }
         FileTracker::instance()->addFile(file);
@@ -757,7 +758,7 @@ Slice::Gen::generate(const UnitPtr& p)
     }
 }
 
-Slice::Gen::ImportVisitor::ImportVisitor(IceUtilInternal::Output& out, vector<string> includePaths)
+Slice::Gen::ImportVisitor::ImportVisitor(IceInternal::Output& out, vector<string> includePaths)
     : JsVisitor(out),
       _seenClass(false),
       _seenInterface(false),
@@ -967,7 +968,7 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
             // For Slice modules mapped to the same JavaScript module, or Slice files that doesn't use "js:module".
             // We import them using their Slice include relative path.
             string f = removeExtension(included) + ".js";
-            if (IceUtilInternal::isAbsolutePath(f))
+            if (IceInternal::isAbsolutePath(f))
             {
                 // If the include file is an absolute path, we need to generate a relative path.
                 f = relativePath(f, p->topLevelFile());
@@ -1126,7 +1127,7 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
     return importedModules;
 }
 
-Slice::Gen::ExportsVisitor::ExportsVisitor(::IceUtilInternal::Output& out, std::set<std::string> importedModules)
+Slice::Gen::ExportsVisitor::ExportsVisitor(::IceInternal::Output& out, std::set<std::string> importedModules)
     : JsVisitor(out),
       _importedModules(importedModules)
 {
@@ -1176,7 +1177,7 @@ Slice::Gen::ExportsVisitor::exportedModules() const
     return _exportedModules;
 }
 
-Slice::Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& out) : JsVisitor(out) {}
+Slice::Gen::TypesVisitor::TypesVisitor(IceInternal::Output& out) : JsVisitor(out) {}
 
 bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
@@ -2002,7 +2003,7 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
     return "???";
 }
 
-Slice::Gen::TypeScriptImportVisitor::TypeScriptImportVisitor(IceUtilInternal::Output& out) : JsVisitor(out) {}
+Slice::Gen::TypeScriptImportVisitor::TypeScriptImportVisitor(IceInternal::Output& out) : JsVisitor(out) {}
 
 namespace
 {
@@ -2040,8 +2041,8 @@ Slice::Gen::TypeScriptImportVisitor::addImport(const ContainedPtr& definition)
             }
             else
             {
-                string f = removeExtension(filename);
-                if (IceUtilInternal::isAbsolutePath(f))
+                string f = filename;
+                if (IceInternal::isAbsolutePath(f))
                 {
                     // If the include file is an absolute path, we need to generate a relative path.
                     f = relativePath(f, _filename);
@@ -2051,7 +2052,8 @@ Slice::Gen::TypeScriptImportVisitor::addImport(const ContainedPtr& definition)
                     // Make the import relative to the current file.
                     f = "./" + f;
                 }
-                _importedTypes[definition->scoped()] = pathToModule(f);
+                _importedTypes[definition->scoped()] = "__module_" + pathToModule(f) + ".";
+                _importedModules.insert(removeExtension(f) + ".js");
             }
         }
     }
@@ -2087,7 +2089,7 @@ Slice::Gen::TypeScriptImportVisitor::visitUnitStart(const UnitPtr& p)
             if (jsImportedModule.empty())
             {
                 string f = removeExtension(included) + ".js";
-                if (IceUtilInternal::isAbsolutePath(f))
+                if (IceInternal::isAbsolutePath(f))
                 {
                     // If the include file is an absolute path, we need to generate a relative path.
                     f = relativePath(f, _filename);
@@ -2393,7 +2395,7 @@ Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable
 }
 
 Slice::Gen::TypeScriptVisitor::TypeScriptVisitor(
-    IceUtilInternal::Output& out,
+    IceInternal::Output& out,
     std::map<std::string, std::string> importedTypes)
     : JsVisitor(out),
       _importedTypes(std::move(importedTypes))
@@ -2507,16 +2509,56 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     return false;
 }
 
+namespace
+{
+    bool areRemainingParamsOptional(const ParamDeclList& params, string name)
+    {
+        auto it = params.begin();
+        do
+        {
+            it++;
+        } while (it != params.end() && (*it)->name() != name);
+
+        for (; it != params.end(); ++it)
+        {
+            if (!(*it)->optional())
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
 bool
 Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     //
     // Define servant an proxy types
     //
+    const string prx = p->name() + "Prx";
     _out << sp;
-    _out << nl << "export abstract class " << fixId(p->name() + "Prx") << " extends " << _iceImportPrefix
-         << "Ice.ObjectPrx";
+    _out << nl << "export class " << prx << " extends " << _iceImportPrefix << "Ice.ObjectPrx";
     _out << sb;
+
+    _out << sp;
+    _out << nl << "/**";
+    _out << nl << " * Constructs a new " << prx << " proxy.";
+    _out << nl << " * @param communicator - The communicator for the new proxy.";
+    _out << nl << " * @param proxyString - The string representation of the proxy.";
+    _out << nl << " * @returns The new " << prx << " proxy.";
+    _out << nl << " * @throws ProxyParseException - Thrown if the proxyString is not a valid proxy string.";
+    _out << nl << " */";
+    _out << nl << "constructor(communicator: " << _iceImportPrefix << "Ice.Communicator, proxyString: string);";
+
+    _out << sp;
+    _out << nl << "/**";
+    _out << nl << " * Constructs a new " << prx << " proxy from an ObjectPrx. The new proxy is a clone of the";
+    _out << nl << " * provided proxy.";
+    _out << nl << " * @param prx - The proxy to clone.";
+    _out << nl << " * @returns The new " << prx << " proxy.";
+    _out << nl << " */";
+    _out << nl << "constructor(other: " << _iceImportPrefix << "Ice.ObjectPrx);";
 
     for (const auto& op : p->allOperations())
     {
@@ -2539,6 +2581,8 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         CommentPtr comment = op->parseComment(false);
         const string contextDoc = "@param " + contextParam + " The Context map to send with the invocation.";
         const string asyncDoc = "The asynchronous result object for the invocation.";
+
+        _out << sp;
         if (comment)
         {
             StringList postParams, returns;
@@ -2549,7 +2593,12 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << nl << fixId(op->name()) << spar;
         for (const auto& param : inParams)
         {
-            _out << (fixId(param->name()) + ":" + typeToTsString(param->type(), true, true, param->optional()));
+            // TypeScript doesn't allow optional parameters with '?' prefix before required parameters.
+            const string optionalPrefix =
+                param->optional() && areRemainingParamsOptional(paramList, param->name()) ? "?" : "";
+            _out
+                << (fixId(param->name()) + optionalPrefix + ":" +
+                    typeToTsString(param->type(), true, true, param->optional()));
         }
         _out << "context?:Map<string, string>";
         _out << epar;

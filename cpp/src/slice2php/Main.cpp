@@ -2,15 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../Ice/ConsoleUtil.h"
+#include "../Ice/Options.h"
+#include "../Ice/OutputUtil.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Parser.h"
 #include "../Slice/Preprocessor.h"
 #include "../Slice/Util.h"
-#include "IceUtil/ConsoleUtil.h"
-#include "IceUtil/CtrlCHandler.h"
-#include "IceUtil/Options.h"
-#include "IceUtil/OutputUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/CtrlCHandler.h"
+#include "Ice/StringUtil.h"
 #include "PHPUtil.h"
 
 #include <cassert>
@@ -41,7 +41,7 @@
 using namespace std;
 using namespace Slice;
 using namespace Slice::PHP;
-using namespace IceUtilInternal;
+using namespace IceInternal;
 
 namespace
 {
@@ -58,7 +58,7 @@ namespace
 class CodeVisitor final : public ParserVisitor
 {
 public:
-    CodeVisitor(IceUtilInternal::Output&);
+    CodeVisitor(IceInternal::Output&);
 
     void visitClassDecl(const ClassDeclPtr&) final;
     bool visitClassDefStart(const ClassDefPtr&) final;
@@ -1306,7 +1306,7 @@ generate(const UnitPtr& un, bool all, const vector<string>& includePaths, Output
 }
 
 static void
-printHeader(IceUtilInternal::Output& out)
+printHeader(IceInternal::Output& out)
 {
     static const char* header = "//\n"
                                 "// Copyright (c) ZeroC, Inc. All rights reserved.\n"
@@ -1355,18 +1355,18 @@ usage(const string& n)
 int
 compile(const vector<string>& argv)
 {
-    IceUtilInternal::Options opts;
+    IceInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
     opts.addOpt("", "validate");
-    opts.addOpt("D", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
-    opts.addOpt("U", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
-    opts.addOpt("I", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("D", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
+    opts.addOpt("U", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
+    opts.addOpt("I", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("E");
-    opts.addOpt("", "output-dir", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "output-dir", IceInternal::Options::NeedArg);
     opts.addOpt("", "depend");
     opts.addOpt("", "depend-xml");
-    opts.addOpt("", "depend-file", IceUtilInternal::Options::NeedArg, "");
+    opts.addOpt("", "depend-file", IceInternal::Options::NeedArg, "");
     opts.addOpt("d", "debug");
     opts.addOpt("", "all");
 
@@ -1377,7 +1377,7 @@ compile(const vector<string>& argv)
     {
         args = opts.parse(argv);
     }
-    catch (const IceUtilInternal::BadOptException& e)
+    catch (const IceInternal::BadOptException& e)
     {
         consoleErr << argv[0] << ": error: " << e.reason << endl;
         if (!validate)
@@ -1459,7 +1459,7 @@ compile(const vector<string>& argv)
 
     int status = EXIT_SUCCESS;
 
-    IceUtil::CtrlCHandler ctrlCHandler;
+    Ice::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
     ostringstream os;
@@ -1567,12 +1567,12 @@ compile(const vector<string>& argv)
 
                     try
                     {
-                        IceUtilInternal::Output out;
+                        IceInternal::Output out;
                         out.open(file.c_str());
                         if (!out)
                         {
                             ostringstream os;
-                            os << "cannot open`" << file << "': " << IceUtilInternal::errorToString(errno);
+                            os << "cannot open`" << file << "': " << IceInternal::errorToString(errno);
                             throw FileException(__FILE__, __LINE__, os.str());
                         }
                         FileTracker::instance()->addFile(file);

@@ -5,8 +5,8 @@
 #ifndef ICEGRID_SESSIONI_H
 #define ICEGRID_SESSIONI_H
 
+#include "Ice/Timer.h"
 #include "IceGrid/Session.h"
-#include "IceUtil/Timer.h"
 #include "ReapThread.h"
 #include "SessionServantManager.h"
 #include <set>
@@ -53,7 +53,7 @@ namespace IceGrid
     class SessionI final : public BaseSessionI, public Session
     {
     public:
-        SessionI(const std::string&, const std::shared_ptr<Database>&, const IceUtil::TimerPtr&);
+        SessionI(const std::string&, const std::shared_ptr<Database>&, const Ice::TimerPtr&);
 
         Ice::ObjectPrx _register(const std::shared_ptr<SessionServantManager>&, const Ice::ConnectionPtr&);
 
@@ -74,7 +74,7 @@ namespace IceGrid
         void destroy(const Ice::Current&) final;
 
         int getAllocationTimeout() const;
-        const IceUtil::TimerPtr& getTimer() const { return _timer; }
+        const Ice::TimerPtr& getTimer() const { return _timer; }
 
         bool addAllocationRequest(const std::shared_ptr<AllocationRequest>&);
         void removeAllocationRequest(const std::shared_ptr<AllocationRequest>&);
@@ -84,7 +84,7 @@ namespace IceGrid
     private:
         void destroyImpl(bool) final;
 
-        const IceUtil::TimerPtr _timer;
+        const Ice::TimerPtr _timer;
         int _allocationTimeout;
         std::set<std::shared_ptr<AllocationRequest>> _requests;
         std::set<std::shared_ptr<Allocatable>> _allocations;
@@ -96,7 +96,7 @@ namespace IceGrid
         ClientSessionFactory(
             const std::shared_ptr<SessionServantManager>&,
             const std::shared_ptr<Database>&,
-            const IceUtil::TimerPtr&,
+            const Ice::TimerPtr&,
             const std::shared_ptr<ReapThread>&);
 
         Glacier2::SessionPrx
@@ -109,7 +109,7 @@ namespace IceGrid
     private:
         const std::shared_ptr<SessionServantManager> _servantManager;
         const std::shared_ptr<Database> _database;
-        const IceUtil::TimerPtr _timer;
+        const Ice::TimerPtr _timer;
         const std::shared_ptr<ReapThread> _reaper;
         const bool _filters;
     };

@@ -7,7 +7,9 @@
 #include "ConnectionFactory.h"
 #include "ConsoleUtil.h"
 #include "DefaultsAndOverrides.h"
+#include "DisableWarnings.h"
 #include "EndpointFactoryManager.h"
+#include "FileUtil.h"
 #include "IPEndpointI.h" // For EndpointHostResolver
 #include "Ice/Communicator.h"
 #include "Ice/Exception.h"
@@ -19,10 +21,8 @@
 #include "Ice/Properties.h"
 #include "Ice/ProxyFunctions.h"
 #include "Ice/Router.h"
+#include "Ice/StringUtil.h"
 #include "Ice/UUID.h"
-#include "IceUtil/DisableWarnings.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
 #include "InstrumentationI.h"
 #include "LocatorInfo.h"
 #include "LoggerAdminI.h"
@@ -77,7 +77,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-namespace IceUtilInternal
+namespace IceInternal
 {
     extern bool nullHandleAbort;
     extern bool printStackTraces;
@@ -183,15 +183,15 @@ namespace IceInternal // Required because ObserverUpdaterI is a friend of Instan
     //
     // Timer specialization which supports the thread observer
     //
-    class Timer final : public IceUtil::Timer
+    class ThreadObserverTimer final : public Ice::Timer
     {
     public:
-        Timer() : _hasObserver(false) {}
+        ThreadObserverTimer() : _hasObserver(false) {}
 
         void updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr&);
 
     private:
-        void runTimerTask(const IceUtil::TimerTaskPtr&) final;
+        void runTimerTask(const Ice::TimerTaskPtr&) final;
 
         std::mutex _mutex;
         std::atomic<bool> _hasObserver;
@@ -200,7 +200,7 @@ namespace IceInternal // Required because ObserverUpdaterI is a friend of Instan
 }
 
 void
-Timer::updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr& obsv)
+ThreadObserverTimer::updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr& obsv)
 {
     lock_guard lock(_mutex);
     assert(obsv);
@@ -213,7 +213,7 @@ Timer::updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr& obsv)
 }
 
 void
-Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
+ThreadObserverTimer::runTimerTask(const Ice::TimerTaskPtr& task)
 {
     if (_hasObserver)
     {
@@ -446,7 +446,7 @@ IceInternal::Instance::retryQueue()
     return _retryQueue;
 }
 
-IceUtil::TimerPtr
+Ice::TimerPtr
 IceInternal::Instance::timer()
 {
     lock_guard lock(_mutex);
@@ -935,7 +935,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
                 if (stdOutFilename != "")
                 {
-                    FILE* file = IceUtilInternal::freopen(stdOutFilename, "a", stdout);
+                    FILE* file = IceInternal::freopen(stdOutFilename, "a", stdout);
                     if (file == 0)
                     {
                         throw FileException(__FILE__, __LINE__, stdOutFilename);
@@ -944,7 +944,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
                 if (stdErrFilename != "")
                 {
-                    FILE* file = IceUtilInternal::freopen(stdErrFilename, "a", stderr);
+                    FILE* file = IceInternal::freopen(stdErrFilename, "a", stderr);
                     if (file == 0)
                     {
                         throw FileException(__FILE__, __LINE__, stdErrFilename);
@@ -954,12 +954,12 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 #ifdef NDEBUG
                 if (_initData.properties->getIcePropertyAsInt("Ice.PrintStackTraces") > 0)
                 {
-                    IceUtilInternal::printStackTraces = true;
+                    IceInternal::printStackTraces = true;
                 }
 #else
                 if (_initData.properties->getPropertyAsIntWithDefault("Ice.PrintStackTraces", 1) == 0)
                 {
-                    IceUtilInternal::printStackTraces = false;
+                    IceInternal::printStackTraces = false;
                 }
 #endif
 
@@ -1495,9 +1495,9 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     //
     try
     {
-        _timer = make_shared<Timer>();
+        _timer = make_shared<ThreadObserverTimer>();
     }
-    catch (const IceUtil::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         Error out(_initData.logger);
         out << "cannot create thread for timer:\n" << ex;
@@ -1509,7 +1509,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
         _endpointHostResolver = make_shared<EndpointHostResolver>(shared_from_this());
         _endpointHostResolverThread = std::thread([this] { _endpointHostResolver->run(); });
     }
-    catch (const IceUtil::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         Error out(_initData.logger);
         out << "cannot create thread for endpoint host resolver:\n" << ex;

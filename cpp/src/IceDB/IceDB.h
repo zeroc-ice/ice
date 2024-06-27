@@ -5,11 +5,11 @@
 #ifndef ICE_DB_H
 #define ICE_DB_H
 
+#include "../Ice/FileUtil.h"
+#include "Ice/Exception.h"
 #include "Ice/Initialize.h"
 #include "Ice/InputStream.h"
 #include "Ice/OutputStream.h"
-#include "IceUtil/Exception.h"
-#include "IceUtil/FileUtil.h"
 
 #include <lmdb.h>
 
@@ -42,13 +42,13 @@ namespace IceDB
     // LMDBException wraps an error condition (and error code)
     // returned by LMDB
     //
-    class ICE_DB_API LMDBException : public IceUtil::Exception
+    class ICE_DB_API LMDBException : public Ice::LocalException
     {
     public:
         LMDBException(const char*, int, int);
 
-        virtual std::string ice_id() const;
-        virtual void ice_print(std::ostream&) const;
+        const char* ice_id() const noexcept override;
+        void ice_print(std::ostream&) const override;
 
         int error() const;
 
@@ -61,13 +61,13 @@ namespace IceDB
     // KeyTooLongException is thrown if we attempt to marshal a
     // key with a marshaled representation longer than maxKeySize.
     //
-    class ICE_DB_API KeyTooLongException : public IceUtil::Exception
+    class ICE_DB_API KeyTooLongException : public Ice::LocalException
     {
     public:
         KeyTooLongException(const char*, int, size_t);
 
-        virtual std::string ice_id() const;
-        virtual void ice_print(std::ostream&) const;
+        const char* ice_id() const noexcept override;
+        void ice_print(std::ostream&) const override;
 
     private:
         const size_t _size;
@@ -78,13 +78,13 @@ namespace IceDB
     // The creation of an Env fails with BadEnvException when this
     // Env's max key size is smaller than maxKeySize.
     //
-    class ICE_DB_API BadEnvException : public IceUtil::Exception
+    class ICE_DB_API BadEnvException : public Ice::LocalException
     {
     public:
         BadEnvException(const char*, int, size_t);
 
-        virtual std::string ice_id() const;
-        virtual void ice_print(std::ostream&) const;
+        const char* ice_id() const noexcept override;
+        void ice_print(std::ostream&) const override;
 
     private:
         const size_t _size;

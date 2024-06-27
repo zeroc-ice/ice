@@ -4,9 +4,9 @@
 
 #include "Activator.h"
 #include "../Ice/ArgVector.h"
+#include "../Ice/FileUtil.h"
 #include "Ice/Ice.h"
 #include "IceGrid/Admin.h"
-#include "IceUtil/FileUtil.h"
 #include "Internal.h"
 #include "ServerI.h"
 #include "TraceLevels.h"
@@ -41,7 +41,6 @@
 
 using namespace std;
 using namespace Ice;
-using namespace IceInternal;
 using namespace IceGrid;
 
 #define ICE_STRING(X) #X
@@ -72,7 +71,7 @@ namespace IceGrid
         os << cannot << " `" << name << "'";
         if (err)
         {
-            os << ": " << IceUtilInternal::errorToString(err);
+            os << ": " << IceInternal::errorToString(err);
         }
         const string msg = os.str();
         ssize_t sz = write(fd, msg.c_str(), msg.size());
@@ -357,7 +356,7 @@ Activator::activate(
 
     string pwd = simplify(pwdPath);
 #ifdef _WIN32
-    if (!IceUtilInternal::isAbsolutePath(path))
+    if (!IceInternal::isAbsolutePath(path))
     {
         if (path.find('/') == string::npos)
         {
@@ -431,7 +430,7 @@ Activator::activate(
             if (pwd.empty())
             {
                 string cwd;
-                if (IceUtilInternal::getcwd(cwd) == 0)
+                if (IceInternal::getcwd(cwd) == 0)
                 {
                     out << "pwd = " << cwd << "\n";
                 }
@@ -582,7 +581,7 @@ Activator::activate(
 
     if (!b)
     {
-        string message = IceUtilInternal::lastErrorToString();
+        string message = IceInternal::lastErrorToString();
 
         Ice::Warning out(_traceLevels->logger);
         out << "server activation failed for `" << name << "':\n" << message;
@@ -612,7 +611,7 @@ Activator::activate(
     {
         TerminateProcess(pp->hnd, 0);
 
-        string message = IceUtilInternal::lastErrorToString();
+        string message = IceInternal::lastErrorToString();
 
         Ice::Warning out(_traceLevels->logger);
         out << "server activation failed for `" << name << "':\ncouldn't register wait callback\n" << message;
@@ -662,7 +661,7 @@ Activator::activate(
         throw SyscallException(__FILE__, __LINE__);
     }
     vector<string> grps;
-    if (IceUtilInternal::splitString(grouplist, ",", grps))
+    if (IceInternal::splitString(grouplist, ",", grps))
     {
         for (vector<string>::const_iterator p = grps.begin(); p != grps.end(); ++p)
         {
@@ -738,7 +737,7 @@ Activator::activate(
         //
 
         //
-        // Unblock signals blocked by IceUtil::CtrlCHandler.
+        // Unblock signals blocked by Ice::CtrlCHandler.
         //
         sigset_t sigs;
         sigemptyset(&sigs);

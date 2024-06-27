@@ -10,6 +10,7 @@
 #include "Ice/Identity.h"
 #include "Ice/Version.h"
 
+#include <memory>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -25,20 +26,184 @@
 namespace Ice
 {
     /**
-     * Abstract base class for all Ice run-time exceptions.
+     * This exception is raised if a request failed. This exception, and all exceptions derived from
+     * {@link RequestFailedException}, are transmitted by the Ice protocol, even though they are declared
+     * <code>local</code>.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API LocalException : public Exception
+    class ICE_API RequestFailedException : public LocalException
     {
     public:
-        using Exception::Exception;
+        /**
+         * Construct a RequestFailedException with a custom error message.
+         * @param file The file name in which the exception was raised, typically __FILE__.
+         * @param line The line number at which the exception was raised, typically __LINE__.
+         * @param message The message returned by what().
+         * @param id The identity of the Ice Object to which the request was sent.
+         * @param facet The facet to which the request was sent.
+         * @param operation The operation name of the request.
+         */
+        RequestFailedException(
+            const char* file,
+            int line,
+            std::string message,
+            Identity id,
+            std::string facet,
+            std::string operation)
+            : LocalException(file, line, std::move(message)),
+              _id(std::make_shared<Identity>(std::move(id))),
+              _facet(std::make_shared<std::string>(std::move(facet))),
+              _operation(std::make_shared<std::string>(std::move(operation)))
+        {
+        }
 
         /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
+         * Construct a RequestFailedException with the default error message.
+         * @param file The file name in which the exception was raised, typically __FILE__.
+         * @param line The line number at which the exception was raised, typically __LINE__.
+         * @param id The identity of the Ice Object to which the request was sent.
+         * @param facet The facet to which the request was sent.
+         * @param operation The operation name of the request.
          */
-        static std::string_view ice_staticId() noexcept;
+        RequestFailedException(const char* file, int line, Identity id, std::string facet, std::string operation)
+            : LocalException(file, line),
+              _id(std::make_shared<Identity>(std::move(id))),
+              _facet(std::make_shared<std::string>(std::move(facet))),
+              _operation(std::make_shared<std::string>(std::move(operation)))
+        {
+        }
+
+        /**
+         * Construct a RequestFailedException without specifying the details of the current request. The details will
+         * be filled-in automatically by the Ice runtime before marshaling the exception.
+         * @param file The file name in which the exception was raised, typically __FILE__.
+         * @param line The line number at which the exception was raised, typically __LINE__.
+         */
+        RequestFailedException(const char* file, int line) : RequestFailedException(file, line, Identity{}, "", "") {}
+
+        RequestFailedException(const RequestFailedException&) noexcept = default;
+        RequestFailedException& operator=(const RequestFailedException&) noexcept = default;
+
+        /**
+         * The identity of the Ice Object to which the request was sent.
+         */
+        const Identity& id() const noexcept { return *_id; }
+
+        /**
+         * The facet to which the request was sent.
+         */
+        const std::string& facet() const noexcept { return *_facet; }
+
+        /**
+         * The operation name of the request.
+         */
+        const std::string& operation() const noexcept { return *_operation; }
+
+        void ice_print(std::ostream& stream) const override;
+
+    private:
+        std::shared_ptr<Identity> _id;
+        std::shared_ptr<std::string> _facet;
+        std::shared_ptr<std::string> _operation;
     };
+
+    /**
+     * This exception is raised if an object does not exist on the server, that is, if no facets with the given identity
+     * exist.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API ObjectNotExistException final : public RequestFailedException
+    {
+    public:
+        using RequestFailedException::RequestFailedException;
+
+        const char* ice_id() const noexcept final;
+    };
+
+    /**
+     * This exception is raised if no facet with the given name exists, but at least one facet with the given identity
+     * exists.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API FacetNotExistException final : public RequestFailedException
+    {
+    public:
+        using RequestFailedException::RequestFailedException;
+
+        const char* ice_id() const noexcept final;
+    };
+
+    /**
+     * This exception is raised if an operation for a given object does not exist on the server. Typically this is
+     * caused by either the client or the server using outdated Slice definitions.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API OperationNotExistException final : public RequestFailedException
+    {
+    public:
+        using RequestFailedException::RequestFailedException;
+
+        const char* ice_id() const noexcept final;
+    };
+
+    /**
+     * This exception is raised when a dispatch fails with an unknown exception. For example, for C++, this
+     * exception is raised if the dispatch throws a C++ exception that is not directly or indirectly derived from
+     * <code>Ice::LocalException</code> or <code>Ice::UserException</code>.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API UnknownException : public LocalException
+    {
+    public:
+        /**
+         * Constructs an UnknownException.
+         * @param file The file name in which the exception was raised, typically __FILE__.
+         * @param line The line number at which the exception was raised, typically __LINE__.
+         * @param message The message returned by what().
+         */
+        UnknownException(const char* file, int line, std::string message)
+            : LocalException(file, line, std::move(message))
+        {
+        }
+
+        const char* ice_id() const noexcept override;
+    };
+
+    /**
+     * This exception is raised if an operation call on a server raises a local exception. Because local exceptions are
+     * not transmitted by the Ice protocol, the client receives all local exceptions raised by the server as
+     * {@link UnknownLocalException}. The only exception to this rule are all exceptions derived from
+     * {@link RequestFailedException}, which are transmitted by the Ice protocol even though they are declared
+     * <code>local</code>.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API UnknownLocalException : public UnknownException
+    {
+    public:
+        using UnknownException::UnknownException;
+
+        const char* ice_id() const noexcept override;
+    };
+
+    /**
+     * An operation raised an incorrect user exception. This exception is raised if an operation raises a user exception
+     * that is not declared in the exception's <code>throws</code> clause. Such undeclared exceptions are not
+     * transmitted from the server to the client by the Ice protocol, but instead the client just gets an {@link
+     * UnknownUserException}. This is necessary in order to not violate the contract established by an operation's
+     * signature: Only local exceptions and user exceptions declared in the <code>throws</code> clause can be raised.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API UnknownUserException : public UnknownException
+    {
+    public:
+        using UnknownException::UnknownException;
+
+        const char* ice_id() const noexcept override;
+    };
+
+    //
+    // Below: not refactored yet
+    //
 
     /**
      * This exception is raised when a failure occurs during initialization.
@@ -68,13 +233,7 @@ namespace Ice
          */
         std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(reason); }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -112,13 +271,7 @@ namespace Ice
          */
         std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(reason); }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -165,13 +318,7 @@ namespace Ice
             return std::tie(kindOfObject, id);
         }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -225,13 +372,7 @@ namespace Ice
             return std::tie(kindOfObject, id);
         }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -277,13 +418,7 @@ namespace Ice
          */
         std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(operation); }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -305,107 +440,7 @@ namespace Ice
     public:
         using LocalException::LocalException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception is raised if an operation call on a server raises an unknown exception. For example, for C++, this
-     * exception is raised if the server throws a C++ exception that is not directly or indirectly derived from
-     * <code>Ice::LocalException</code> or <code>Ice::UserException</code>.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API UnknownException : public LocalException
-    {
-    public:
-        using LocalException::LocalException;
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param unknown This field is set to the textual representation of the unknown exception if available.
-         */
-        UnknownException(const char* file, int line, std::string unknown) noexcept
-            : LocalException(file, line),
-              unknown(std::move(unknown))
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(unknown); }
-
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * This field is set to the textual representation of the unknown exception if available.
-         */
-        std::string unknown;
-    };
-
-    /**
-     * This exception is raised if an operation call on a server raises a  local exception. Because local exceptions are
-     * not transmitted by the Ice protocol, the client receives all local exceptions raised by the server as
-     * {@link UnknownLocalException}. The only exception to this rule are all exceptions derived from
-     * {@link RequestFailedException}, which are transmitted by the Ice protocol even though they are declared
-     * <code>local</code>.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API UnknownLocalException : public UnknownException
-    {
-    public:
-        using UnknownException::UnknownException;
-
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * An operation raised an incorrect user exception. This exception is raised if an operation raises a user exception
-     * that is not declared in the exception's <code>throws</code> clause. Such undeclared exceptions are not
-     * transmitted from the server to the client by the Ice protocol, but instead the client just gets an {@link
-     * UnknownUserException}. This is necessary in order to not violate the contract established by an operation's
-     * signature: Only local exceptions and user exceptions declared in the <code>throws</code> clause can be raised.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API UnknownUserException : public UnknownException
-    {
-    public:
-        using UnknownException::UnknownException;
-
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -419,13 +454,7 @@ namespace Ice
     public:
         using LocalException::LocalException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -440,13 +469,7 @@ namespace Ice
     public:
         using LocalException::LocalException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -481,13 +504,7 @@ namespace Ice
          */
         std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(name); }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -526,13 +543,7 @@ namespace Ice
          */
         std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(id); }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -570,13 +581,7 @@ namespace Ice
          */
         std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(proxy); }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -614,13 +619,7 @@ namespace Ice
          */
         std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(str); }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -658,13 +657,7 @@ namespace Ice
          */
         std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(str); }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -702,13 +695,7 @@ namespace Ice
          */
         std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(str); }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -746,13 +733,7 @@ namespace Ice
          */
         std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(str); }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -790,13 +771,7 @@ namespace Ice
          */
         std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(str); }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -815,13 +790,7 @@ namespace Ice
     public:
         using LocalException::LocalException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -854,13 +823,7 @@ namespace Ice
          */
         std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(reason); }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -871,134 +834,6 @@ namespace Ice
     };
 
     /**
-     * This exception is raised if a request failed. This exception, and all exceptions derived from
-     * {@link RequestFailedException}, are transmitted by the Ice protocol, even though they are declared
-     * <code>local</code>.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API RequestFailedException : public LocalException
-    {
-    public:
-        using LocalException::LocalException;
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
-         * @param id The identity of the Ice Object to which the request was sent.
-         * @param facet The facet to which the request was sent.
-         * @param operation The operation name of the request.
-         */
-        RequestFailedException(
-            const char* file,
-            int line,
-            Identity id,
-            std::string facet,
-            std::string operation) noexcept
-            : LocalException(file, line),
-              id(std::move(id)),
-              facet(std::move(facet)),
-              operation(std::move(operation))
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const Identity&, const std::string&, const std::string&> ice_tuple() const noexcept
-        {
-            return std::tie(id, facet, operation);
-        }
-
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * The identity of the Ice Object to which the request was sent.
-         */
-        Identity id;
-        /**
-         * The facet to which the request was sent.
-         */
-        std::string facet;
-        /**
-         * The operation name of the request.
-         */
-        std::string operation;
-    };
-
-    /**
-     * This exception is raised if an object does not exist on the server, that is, if no facets with the given identity
-     * exist.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API ObjectNotExistException : public RequestFailedException
-    {
-    public:
-        using RequestFailedException::RequestFailedException;
-
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception is raised if no facet with the given name exists, but at least one facet with the given identity
-     * exists.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API FacetNotExistException : public RequestFailedException
-    {
-    public:
-        using RequestFailedException::RequestFailedException;
-
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception is raised if an operation for a given object does not exist on the server. Typically this is
-     * caused by either the client or the server using an outdated Slice specification. \headerfile Ice/Ice.h
-     */
-    class ICE_API OperationNotExistException : public RequestFailedException
-    {
-    public:
-        using RequestFailedException::RequestFailedException;
-
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
      * This exception is raised if a system error occurred in the server or client process. There are many possible
      * causes for such a system exception. For details on the cause, {@link SyscallException#error} should be inspected.
      * \headerfile Ice/Ice.h
@@ -1006,8 +841,6 @@ namespace Ice
     class ICE_API SyscallException : public LocalException
     {
     public:
-        using LocalException::LocalException;
-
         /**
          * Construct a SyscallException.
          * The file and line number are required for all local exceptions.
@@ -1032,13 +865,7 @@ namespace Ice
          */
         std::tuple<const int&> ice_tuple() const noexcept { return std::tie(error); }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -1059,13 +886,7 @@ namespace Ice
     public:
         using SyscallException::SyscallException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -1099,13 +920,7 @@ namespace Ice
          */
         std::tuple<const int&, const std::string&> ice_tuple() const noexcept { return std::tie(error, domain); }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -1143,13 +958,7 @@ namespace Ice
          */
         std::tuple<const int&, const std::string&> ice_tuple() const noexcept { return std::tie(error, path); }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -1168,13 +977,7 @@ namespace Ice
     public:
         using SocketException::SocketException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -1188,13 +991,7 @@ namespace Ice
     public:
         using ConnectFailedException::ConnectFailedException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -1208,13 +1005,7 @@ namespace Ice
     public:
         using SocketException::SocketException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -1249,13 +1040,7 @@ namespace Ice
          */
         std::tuple<const int&, const std::string&> ice_tuple() const noexcept { return std::tie(error, host); }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -1283,13 +1068,7 @@ namespace Ice
         {
         }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -1308,13 +1087,7 @@ namespace Ice
     public:
         using LocalException::LocalException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -1328,13 +1101,7 @@ namespace Ice
     public:
         using LocalException::LocalException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -1348,13 +1115,7 @@ namespace Ice
     public:
         using TimeoutException::TimeoutException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -1368,13 +1129,7 @@ namespace Ice
     public:
         using TimeoutException::TimeoutException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -1388,13 +1143,7 @@ namespace Ice
     public:
         using TimeoutException::TimeoutException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -1408,13 +1157,7 @@ namespace Ice
     public:
         using LocalException::LocalException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -1447,13 +1190,7 @@ namespace Ice
          */
         std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(reason); }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -1492,13 +1229,7 @@ namespace Ice
          */
         std::tuple<const std::string&, const ByteSeq&> ice_tuple() const noexcept { return std::tie(reason, badMagic); }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -1547,13 +1278,7 @@ namespace Ice
             return std::tie(reason, bad, supported);
         }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -1606,13 +1331,7 @@ namespace Ice
             return std::tie(reason, bad, supported);
         }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -1635,13 +1354,7 @@ namespace Ice
     public:
         using ProtocolException::ProtocolException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -1655,13 +1368,7 @@ namespace Ice
     public:
         using ProtocolException::ProtocolException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -1675,13 +1382,7 @@ namespace Ice
     public:
         using ProtocolException::ProtocolException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -1698,13 +1399,7 @@ namespace Ice
     public:
         using ProtocolException::ProtocolException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -1739,13 +1434,7 @@ namespace Ice
          */
         std::tuple<const bool&> ice_tuple() const noexcept { return std::tie(graceful); }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -1764,13 +1453,7 @@ namespace Ice
     public:
         using ProtocolException::ProtocolException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -1784,13 +1467,7 @@ namespace Ice
     public:
         using ProtocolException::ProtocolException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -1805,13 +1482,7 @@ namespace Ice
     public:
         using ProtocolException::ProtocolException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -1825,13 +1496,7 @@ namespace Ice
     public:
         using ProtocolException::ProtocolException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -1845,13 +1510,7 @@ namespace Ice
     public:
         using MarshalException::MarshalException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -1865,13 +1524,7 @@ namespace Ice
     public:
         using MarshalException::MarshalException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -1909,13 +1562,7 @@ namespace Ice
          */
         std::tuple<const std::string&, const std::string&> ice_tuple() const noexcept { return std::tie(reason, type); }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -1967,13 +1614,7 @@ namespace Ice
             return std::tie(reason, type, expectedType);
         }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -1996,13 +1637,7 @@ namespace Ice
     public:
         using MarshalException::MarshalException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -2016,13 +1651,7 @@ namespace Ice
     public:
         using MarshalException::MarshalException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -2036,13 +1665,7 @@ namespace Ice
     public:
         using MarshalException::MarshalException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
@@ -2075,13 +1698,7 @@ namespace Ice
          */
         std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(unsupportedFeature); }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -2119,13 +1736,7 @@ namespace Ice
          */
         std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(reason); }
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
 
@@ -2144,16 +1755,21 @@ namespace Ice
     public:
         using LocalException::LocalException;
 
-        /**
-         * Obtains the Slice type ID of this exception.
-         * @return The fully-scoped type ID.
-         */
-        static std::string_view ice_staticId() noexcept;
-
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
 
         void ice_print(std::ostream& stream) const override;
     };
+}
+
+namespace IceInternal
+{
+    // Helper function.
+    // TODO: move to internal header file
+    std::string createRequestFailedMessage(
+        const char* typeId,
+        const Ice::Identity& id,
+        const std::string& facet,
+        const std::string& operation);
 }
 
 #if defined(__clang__)

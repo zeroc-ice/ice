@@ -5,7 +5,7 @@
 #include "Ice/Service.h"
 #include "ArgVector.h"
 #include "ConsoleUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 #include "LoggerI.h"
 
 #ifdef _WIN32
@@ -886,7 +886,7 @@ Ice::Service::initializeCommunicator(int& argc, char* argv[], const Initializati
 void
 Ice::Service::syserror(const string& msg)
 {
-    string errmsg = IceUtilInternal::lastErrorToString();
+    string errmsg = IceInternal::lastErrorToString();
     if (_logger)
     {
         ostringstream ostr;
@@ -1197,7 +1197,7 @@ Ice::Service::serviceMain(int argc, const wchar_t* const argv[])
     // Don't need to pass a wide string converter in the argv conversions
     // as argv come from Windows API.
     //
-    const IceUtil::StringConverterPtr converter = IceUtil::getProcessStringConverter();
+    const Ice::StringConverterPtr converter = Ice::getProcessStringConverter();
 
     //
     // Merge the executable's arguments with the service's arguments.
@@ -1223,7 +1223,7 @@ Ice::Service::serviceMain(int argc, const wchar_t* const argv[])
     vector<string> executableArgs;
     for (int j = 1; j < argc; ++j)
     {
-        executableArgs.push_back(IceUtil::wstringToString(argv[j], converter));
+        executableArgs.push_back(Ice::wstringToString(argv[j], converter));
     }
     for (vector<string>::iterator p = executableArgs.begin(); p != executableArgs.end(); ++p)
     {
@@ -1453,7 +1453,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
         {
             consoleErr << argv[0] << ": ";
         }
-        consoleErr << IceUtilInternal::errorToString(errno) << endl;
+        consoleErr << IceInternal::errorToString(errno) << endl;
         return EXIT_FAILURE;
     }
 
@@ -1486,7 +1486,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
                 {
                     consoleErr << argv[0] << ": ";
                 }
-                consoleErr << IceUtilInternal::errorToString(errno) << endl;
+                consoleErr << IceInternal::errorToString(errno) << endl;
                 _exit(EXIT_FAILURE);
             }
             break;
@@ -1513,7 +1513,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             if (rs == -1)
             {
                 consoleErr << "I/O error while reading error message from child:\n"
-                           << IceUtilInternal::errorToString(errno);
+                           << IceInternal::errorToString(errno);
             }
             else
             {

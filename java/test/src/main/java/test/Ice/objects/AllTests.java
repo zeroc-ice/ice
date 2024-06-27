@@ -355,16 +355,14 @@ public class AllTests {
       test(opF1Result.f12.name.equals("F12"));
 
       Initial.OpF2Result opF2Result =
-          initial.opF2(
-              F2Prx.uncheckedCast(communicator.stringToProxy("F21:" + helper.getTestEndpoint())));
+          initial.opF2(F2Prx.createProxy(communicator, "F21:" + helper.getTestEndpoint()));
       test(opF2Result.returnValue.ice_getIdentity().name.equals("F21"));
       opF2Result.returnValue.op();
       test(opF2Result.f22.ice_getIdentity().name.equals("F22"));
 
       if (initial.hasF3()) {
         Initial.OpF3Result opF3Result =
-            initial.opF3(
-                new F3(new F1("F11"), F2Prx.uncheckedCast(communicator.stringToProxy("F21"))));
+            initial.opF3(new F3(new F1("F11"), F2Prx.createProxy(communicator, "F21")));
         test(opF3Result.returnValue.f1.name.equals("F11"));
         test(opF3Result.returnValue.f2.ice_getIdentity().name.equals("F21"));
 

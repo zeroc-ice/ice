@@ -3,7 +3,7 @@
 //
 
 #include "../../../src/Ice/Endian.h"
-#include "IceUtil/StringConverter.h"
+#include "Ice/StringConverter.h"
 #include "TestHelper.h"
 
 #ifdef _WIN32
@@ -21,7 +21,7 @@
 // Uncomment to include performance testing
 // #define TEST_PERF
 
-using namespace IceUtil;
+using namespace Ice;
 using namespace std;
 
 //
@@ -212,26 +212,26 @@ main(int argc, char* argv[])
 
         cout << "ok" << endl;
 
-        cout << "testing IceUtilInternal::toUTF16, toUTF32 and fromUTF32... ";
+        cout << "testing IceInternal::toUTF16, toUTF32 and fromUTF32... ";
 
         vector<uint8_t> u8 = vector<uint8_t>(
             reinterpret_cast<const uint8_t*>(ns.data()),
             reinterpret_cast<const uint8_t*>(ns.data() + ns.length()));
 
-        vector<unsigned short> u16 = IceUtilInternal::toUTF16(u8);
+        vector<unsigned short> u16 = IceInternal::toUTF16(u8);
         test(u16.size() == 4);
         test(u16[0] == 0x20ac);
         test(u16[1] == 0x20ac);
         test(u16[2] == 0xd801);
         test(u16[3] == 0xdc37);
 
-        vector<unsigned int> u32 = IceUtilInternal::toUTF32(u8);
+        vector<unsigned int> u32 = IceInternal::toUTF32(u8);
         test(u32.size() == 3);
         test(u32[0] == 0x20ac);
         test(u32[1] == 0x20ac);
         test(u32[2] == 0x10437);
 
-        vector<uint8_t> nu8 = IceUtilInternal::fromUTF32(u32);
+        vector<uint8_t> nu8 = IceInternal::fromUTF32(u32);
         test(nu8 == u8);
 
         cout << "ok" << endl;
@@ -262,7 +262,7 @@ main(int argc, char* argv[])
                 wcerr << L"Unexpected: " << ws << endl;
                 test(false);
             }
-            catch (const IllegalConversionException&)
+            catch (const Ice::IllegalConversionException&)
             {
             }
         }
@@ -281,7 +281,7 @@ main(int argc, char* argv[])
                 string s = wstringToString(badWstring[i]);
                 test(false);
             }
-            catch (const IllegalConversionException&)
+            catch (const Ice::IllegalConversionException&)
             {
             }
         }

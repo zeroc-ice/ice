@@ -10,7 +10,7 @@
 
 #include "Ice/Comparable.h"
 #include "Ice/Properties.h"
-#include "IceUtil/Timer.h"
+#include "Ice/Timer.h"
 
 #include <chrono>
 #include <set>
@@ -19,7 +19,7 @@ namespace IceDiscovery
 {
     class LookupI;
 
-    class Request : public IceUtil::TimerTask
+    class Request : public Ice::TimerTask
     {
     public:
         Request(const LookupIPtr&, int);
@@ -137,7 +137,7 @@ namespace IceDiscovery
         void objectRequestTimedOut(const ObjectRequestPtr&);
         void objectRequestException(const ObjectRequestPtr&, std::exception_ptr);
 
-        const IceUtil::TimerPtr& timer() { return _timer; }
+        const Ice::TimerPtr& timer() { return _timer; }
 
         int latencyMultiplier() { return _latencyMultiplier; }
 
@@ -150,7 +150,7 @@ namespace IceDiscovery
         const int _latencyMultiplier;
         const std::string _domainId;
 
-        IceUtil::TimerPtr _timer;
+        Ice::TimerPtr _timer;
         bool _warnOnce;
 
         std::map<Ice::Identity, ObjectRequestPtr> _objectRequests;

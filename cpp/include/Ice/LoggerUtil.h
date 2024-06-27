@@ -40,11 +40,11 @@ namespace Ice
     };
 
     /// \cond INTERNAL
-    ICE_API LoggerOutputBase& loggerInsert(LoggerOutputBase& out, const IceUtil::Exception& ex);
+    ICE_API LoggerOutputBase& loggerInsert(LoggerOutputBase& out, const Ice::Exception& ex);
 
     template<typename T> struct IsException
     {
-        static char testex(IceUtil::Exception*);
+        static char testex(Ice::Exception*);
         static long testex(...);
 
         static const bool value = sizeof(testex(static_cast<T*>(0))) == sizeof(char);

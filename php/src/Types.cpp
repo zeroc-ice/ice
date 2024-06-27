@@ -3,8 +3,8 @@
 //
 
 #include "Types.h"
+#include "Ice/OutputUtil.h"
 #include "Ice/SlicedData.h"
-#include "IceUtil/OutputUtil.h"
 #include "Proxy.h"
 #include "Util.h"
 #include "slice2php/PHPUtil.h"
@@ -15,8 +15,8 @@
 
 using namespace std;
 using namespace IcePHP;
-using namespace IceUtil;
-using namespace IceUtilInternal;
+using namespace Ice;
+using namespace IceInternal;
 
 ZEND_EXTERN_MODULE_GLOBALS(ice)
 
@@ -936,7 +936,7 @@ IcePHP::PrimitiveInfo::unmarshal(
 }
 
 void
-IcePHP::PrimitiveInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHistory*)
+IcePHP::PrimitiveInfo::print(zval* zv, IceInternal::Output& out, PrintObjectHistory*)
 {
     if (!validate(zv, false))
     {
@@ -1046,7 +1046,7 @@ IcePHP::EnumInfo::unmarshal(
 }
 
 void
-IcePHP::EnumInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHistory*)
+IcePHP::EnumInfo::print(zval* zv, IceInternal::Output& out, PrintObjectHistory*)
 {
     if (!validate(zv, false))
     {
@@ -1331,7 +1331,7 @@ IcePHP::StructInfo::unmarshal(
 }
 
 void
-IcePHP::StructInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHistory* history)
+IcePHP::StructInfo::print(zval* zv, IceInternal::Output& out, PrintObjectHistory* history)
 {
     if (!validate(zv, false))
     {
@@ -1530,7 +1530,7 @@ IcePHP::SequenceInfo::unmarshal(
 }
 
 void
-IcePHP::SequenceInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHistory* history)
+IcePHP::SequenceInfo::print(zval* zv, IceInternal::Output& out, PrintObjectHistory* history)
 {
     if (!validate(zv, false))
     {
@@ -2149,7 +2149,7 @@ IcePHP::DictionaryInfo::unmarshal(
 }
 
 void
-IcePHP::DictionaryInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHistory* history)
+IcePHP::DictionaryInfo::print(zval* zv, IceInternal::Output& out, PrintObjectHistory* history)
 {
     if (!validate(zv, false))
     {
@@ -2407,7 +2407,7 @@ IcePHP::ClassInfo::unmarshal(
 }
 
 void
-IcePHP::ClassInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHistory* history)
+IcePHP::ClassInfo::print(zval* zv, IceInternal::Output& out, PrintObjectHistory* history)
 {
     if (!validate(zv, false))
     {
@@ -2454,7 +2454,7 @@ IcePHP::ClassInfo::destroy()
 }
 
 void
-IcePHP::ClassInfo::printMembers(zval* zv, IceUtilInternal::Output& out, PrintObjectHistory* history)
+IcePHP::ClassInfo::printMembers(zval* zv, IceInternal::Output& out, PrintObjectHistory* history)
 {
     if (base)
     {
@@ -2663,7 +2663,7 @@ IcePHP::ProxyInfo::unmarshal(
 }
 
 void
-IcePHP::ProxyInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHistory*)
+IcePHP::ProxyInfo::print(zval* zv, IceInternal::Output& out, PrintObjectHistory*)
 {
     if (!validate(zv, false))
     {
@@ -3123,7 +3123,7 @@ IcePHP::ExceptionInfo::unmarshal(Ice::InputStream* is, const CommunicatorInfoPtr
 }
 
 void
-IcePHP::ExceptionInfo::print(zval* zv, IceUtilInternal::Output& out)
+IcePHP::ExceptionInfo::print(zval* zv, IceInternal::Output& out)
 {
     out << "exception " << id;
     out.sb();
@@ -3153,7 +3153,7 @@ IcePHP::ExceptionInfo::print(zval* zv, IceUtilInternal::Output& out)
 }
 
 void
-IcePHP::ExceptionInfo::printMembers(zval* zv, IceUtilInternal::Output& out, PrintObjectHistory* history)
+IcePHP::ExceptionInfo::printMembers(zval* zv, IceInternal::Output& out, PrintObjectHistory* history)
 {
     if (base)
     {
@@ -3239,10 +3239,10 @@ IcePHP::ExceptionReader::~ExceptionReader()
 #endif
 }
 
-string
-IcePHP::ExceptionReader::ice_id() const
+const char*
+IcePHP::ExceptionReader::ice_id() const noexcept
 {
-    return _info->id;
+    return _info->id.c_str();
 }
 
 void
@@ -3642,7 +3642,7 @@ ZEND_FUNCTION(IcePHP_stringify)
     assert(type);
 
     ostringstream ostr;
-    IceUtilInternal::Output out(ostr);
+    IceInternal::Output out(ostr);
     PrintObjectHistory history;
     history.index = 0;
     type->print(v, out, &history);
@@ -3670,7 +3670,7 @@ ZEND_FUNCTION(IcePHP_stringifyException)
     assert(ex);
 
     ostringstream ostr;
-    IceUtilInternal::Output out(ostr);
+    IceInternal::Output out(ostr);
     ex->print(v, out);
 
     string str = ostr.str();

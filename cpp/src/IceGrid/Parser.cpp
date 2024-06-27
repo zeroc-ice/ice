@@ -3,13 +3,14 @@
 //
 
 #include "../IceXML/Parser.h"
+#include "../Ice/ConsoleUtil.h"
+#include "../Ice/DisableWarnings.h"
+#include "../Ice/Options.h"
 #include "../Ice/TimeUtil.h"
 #include "DescriptorHelper.h"
 #include "DescriptorParser.h"
 #include "Ice/Ice.h"
 #include "IceBox/IceBox.h"
-#include "IceUtil/DisableWarnings.h"
-#include "IceUtil/Options.h"
 #include "Parser.h"
 #include "Util.h"
 
@@ -29,9 +30,8 @@ extern int yydebug;
 int yyparse();
 
 using namespace std;
-using namespace IceUtil;
-using namespace IceUtilInternal;
 using namespace Ice;
+using namespace IceInternal;
 using namespace IceGrid;
 
 namespace
@@ -424,7 +424,7 @@ Parser::addApplication(const list<string>& origArgs)
     list<string> copyArgs = origArgs;
     copyArgs.push_front("icegridadmin");
 
-    IceUtilInternal::Options opts;
+    IceInternal::Options opts;
     vector<string> args;
     try
     {
@@ -434,7 +434,7 @@ Parser::addApplication(const list<string>& origArgs)
         }
         args = opts.parse(args);
     }
-    catch (const IceUtilInternal::BadOptException& e)
+    catch (const IceInternal::BadOptException& e)
     {
         error(e.reason);
         return;
@@ -535,7 +535,7 @@ Parser::diffApplication(const list<string>& origArgs)
     list<string> copyArgs = origArgs;
     copyArgs.push_front("icegridadmin");
 
-    IceUtilInternal::Options opts;
+    IceInternal::Options opts;
     opts.addOpt("s", "servers");
     vector<string> args;
     try
@@ -546,7 +546,7 @@ Parser::diffApplication(const list<string>& origArgs)
         }
         args = opts.parse(args);
     }
-    catch (const IceUtilInternal::BadOptException& e)
+    catch (const IceInternal::BadOptException& e)
     {
         error(e.reason);
         return;
@@ -652,7 +652,7 @@ Parser::updateApplication(const list<string>& origArgs)
     list<string> copyArgs = origArgs;
     copyArgs.push_front("icegridadmin");
 
-    IceUtilInternal::Options opts;
+    IceInternal::Options opts;
     opts.addOpt("n", "no-restart");
     vector<string> args;
     try
@@ -663,7 +663,7 @@ Parser::updateApplication(const list<string>& origArgs)
         }
         args = opts.parse(args);
     }
-    catch (const IceUtilInternal::BadOptException& e)
+    catch (const IceInternal::BadOptException& e)
     {
         error(e.reason);
         return;
@@ -1994,10 +1994,10 @@ Parser::show(const string& reader, const list<string>& origArgs)
     list<string> copyArgs = origArgs;
     copyArgs.push_front("icegridadmin");
 
-    IceUtilInternal::Options opts;
+    IceInternal::Options opts;
     opts.addOpt("f", "follow");
-    opts.addOpt("h", "head", IceUtilInternal::Options::NeedArg);
-    opts.addOpt("t", "tail", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("h", "head", IceInternal::Options::NeedArg);
+    opts.addOpt("t", "tail", IceInternal::Options::NeedArg);
 
     vector<string> args;
     try
@@ -2008,7 +2008,7 @@ Parser::show(const string& reader, const list<string>& origArgs)
         }
         args = opts.parse(args);
     }
-    catch (const IceUtilInternal::BadOptException& e)
+    catch (const IceInternal::BadOptException& e)
     {
         error(e.reason);
         return;

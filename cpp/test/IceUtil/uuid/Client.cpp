@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/Random.h"
-#include "IceUtil/UUID.h"
+#include "../../src/Ice/Random.h"
+#include "Ice/UUID.h"
 #include "TestHelper.h"
 
 #include <mutex>
@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include <vector>
 
-using namespace IceUtil;
+using namespace Ice;
 using namespace std;
 
 namespace
@@ -82,7 +82,7 @@ struct GenerateRandomString
         string s;
         s.resize(21);
         char buf[21];
-        IceUtilInternal::generateRandom(buf, sizeof(buf));
+        IceInternal::generateRandom(buf, sizeof(buf));
         for (unsigned int i = 0; i < sizeof(buf); ++i)
         {
             s[i] =
@@ -96,7 +96,7 @@ struct GenerateRandomString
 struct GenerateRandomInt
 {
 public:
-    int operator()() { return static_cast<int>(IceUtilInternal::random()); }
+    int operator()() { return static_cast<int>(IceInternal::random()); }
 };
 
 template<typename T, typename GenerateFunc>

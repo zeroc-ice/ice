@@ -13,7 +13,7 @@ namespace Slice
     {
     public:
         JsVisitor(
-            ::IceUtilInternal::Output&,
+            ::IceInternal::Output&,
             const std::vector<std::pair<std::string, std::string>>& imports =
                 std::vector<std::pair<std::string, std::string>>());
         virtual ~JsVisitor();
@@ -33,7 +33,7 @@ namespace Slice
         static StringList splitComment(const ContainedPtr&);
         void writeDocCommentFor(const ContainedPtr&);
 
-        ::IceUtilInternal::Output& _out;
+        ::IceInternal::Output& _out;
 
         std::vector<std::pair<std::string, std::string>> _imports;
     };
@@ -50,8 +50,8 @@ namespace Slice
         void generate(const UnitPtr&);
 
     private:
-        IceUtilInternal::Output _javaScriptOutput;
-        IceUtilInternal::Output _typeScriptOutput;
+        IceInternal::Output _javaScriptOutput;
+        IceInternal::Output _typeScriptOutput;
 
         std::vector<std::string> _includePaths;
         std::string _fileBase;
@@ -61,7 +61,7 @@ namespace Slice
         class ImportVisitor final : public JsVisitor
         {
         public:
-            ImportVisitor(::IceUtilInternal::Output&, std::vector<std::string>);
+            ImportVisitor(::IceInternal::Output&, std::vector<std::string>);
 
             bool visitClassDefStart(const ClassDefPtr&) final;
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
@@ -95,7 +95,7 @@ namespace Slice
         class ExportsVisitor final : public JsVisitor
         {
         public:
-            ExportsVisitor(::IceUtilInternal::Output&, std::set<std::string>);
+            ExportsVisitor(::IceInternal::Output&, std::set<std::string>);
 
             bool visitModuleStart(const ModulePtr&) final;
 
@@ -111,7 +111,7 @@ namespace Slice
         class TypesVisitor final : public JsVisitor
         {
         public:
-            TypesVisitor(::IceUtilInternal::Output&);
+            TypesVisitor(::IceInternal::Output&);
 
             bool visitClassDefStart(const ClassDefPtr&) final;
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
@@ -129,7 +129,7 @@ namespace Slice
         class TypeScriptImportVisitor final : public JsVisitor
         {
         public:
-            TypeScriptImportVisitor(::IceUtilInternal::Output&);
+            TypeScriptImportVisitor(::IceInternal::Output&);
 
             bool visitUnitStart(const UnitPtr&) final;
             bool visitClassDefStart(const ClassDefPtr&) final;
@@ -158,7 +158,7 @@ namespace Slice
         class TypeScriptVisitor final : public JsVisitor
         {
         public:
-            TypeScriptVisitor(::IceUtilInternal::Output&, std::map<std::string, std::string>);
+            TypeScriptVisitor(::IceInternal::Output&, std::map<std::string, std::string>);
 
             bool visitUnitStart(const UnitPtr&) final;
             void visitUnitEnd(const UnitPtr&) final;

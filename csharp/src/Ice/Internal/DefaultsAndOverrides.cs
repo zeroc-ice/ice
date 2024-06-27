@@ -82,9 +82,7 @@ public sealed class DefaultsAndOverrides
         }
         else
         {
-            Ice.EndpointSelectionTypeParseException ex = new Ice.EndpointSelectionTypeParseException();
-            ex.str = "illegal value `" + val + "'; expected `Random' or `Ordered'";
-            throw ex;
+            throw new ParseException($"illegal value '{val}' in property Ice.Default.EndpointSelection; expected 'Random' or 'Ordered'");
         }
 
         defaultLocatorCacheTimeout = properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout");
