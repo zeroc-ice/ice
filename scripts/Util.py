@@ -121,8 +121,6 @@ class Component(object):
             return os.path.join(
                 mapping.getPath(), "test", "src", "main", "java", "test"
             )
-        elif isinstance(mapping, TypeScriptMapping):
-            return os.path.join(mapping.getPath(), "test", "typescript")
         return os.path.join(mapping.getPath(), "test")
 
     def getScriptDir(self):
@@ -3141,10 +3139,7 @@ class BrowserProcessController(RemoteProcessController):
         # another testcase, the controller page will connect to the process controller registry
         # to register itself with this script.
         #
-        testsuite = ""
-        if isinstance(current.testcase.getMapping(), TypeScriptMapping):
-            testsuite += "typescript/"
-        testsuite += str(current.testsuite)
+        testsuite = str(current.testsuite)
 
         if current.config.protocol == "wss":
             protocol = "https"
@@ -4388,37 +4383,6 @@ class JavaScriptMapping(JavaScriptMixin, Mapping):
             }
         )
         return options
-
-
-class TypeScriptMapping(JavaScriptMixin, Mapping):
-    class Config(Mapping.Config):
-        @classmethod
-        def getSupportedArgs(self):
-            return ("", ["browser=", "worker"])
-
-        @classmethod
-        def usage(self):
-            print("")
-            print("TypeScript mapping options:")
-            print("--browser=<name>      Run with the given browser.")
-            print("--worker              Run with Web workers enabled.")
-
-        def __init__(self, options=[]):
-            Mapping.Config.__init__(self, options)
-
-            if self.browser and self.protocol == "tcp":
-                self.protocol = "ws"
-
-        def canRun(self, testId, current):
-            # TODO: test TypeScript with browser, the test are currently only compiled for CommonJS (NodeJS)
-            return Mapping.Config.canRun(self, testId, current) and not self.browser
-
-    def _getDefaultSource(self, processType):
-        return {
-            "client": "Client.ts",
-            "serveramd": "ServerAMD.ts",
-            "server": "Server.ts",
-        }[processType]
 
 
 class SwiftMapping(Mapping):
