@@ -308,7 +308,10 @@ Ice::OutputStream::writeEncapsulation(const byte* v, int32_t sz)
 {
     if (sz < 6)
     {
-        throw MarshalException{__FILE__, __LINE__, "the provided array does not have enough bytes for an encapsulation"};
+        throw MarshalException{
+            __FILE__,
+            __LINE__,
+            "the provided array does not have enough bytes for an encapsulation"};
     }
 
     Container::size_type position = b.size();

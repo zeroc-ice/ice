@@ -377,11 +377,14 @@ public class InputStream {
         // instead.
         //
         if let usv = v as? UnknownSlicedValue {
-            throw MarshalException(reason: "cannot find value factory to unmarshal class with type ID '\(usv.ice_id())'")
+            throw MarshalException(
+                reason: "cannot find value factory to unmarshal class with type ID '\(usv.ice_id())'")
         }
 
         throw MarshalException(
-            reason: "failed to unmarshal class with type ID '\(expectedType.ice_staticId())': value factory returned a class with type ID '\(v.ice_id())'")
+            reason:
+                "failed to unmarshal class with type ID '\(expectedType.ice_staticId())': value factory returned a class with type ID '\(v.ice_id())'"
+        )
     }
 }
 
@@ -1271,7 +1274,7 @@ private class EncapsDecoder10: EncapsDecoder {
             // marks the last slice.
             //
             if typeId == "::Ice::Object" {
-                throw MarshalException(reason: "cannot find value factory for type ID '\(mostDerivedId)'");
+                throw MarshalException(reason: "cannot find value factory for type ID '\(mostDerivedId)'")
             }
 
             v = try newInstance(typeId: typeId)
@@ -1574,7 +1577,9 @@ private class EncapsDecoder11: EncapsDecoder {
         } else {
             if current.sliceType == .ValueSlice {
                 throw MarshalException(
-                    reason: "cannot find value factory for type ID '\(current.typeId!)' and compact format prevents slicing")
+                    reason:
+                        "cannot find value factory for type ID '\(current.typeId!)' and compact format prevents slicing"
+                )
             } else {
                 throw MarshalException(
                     reason: "cannot find user exception for type ID '\(current.typeId!)'")

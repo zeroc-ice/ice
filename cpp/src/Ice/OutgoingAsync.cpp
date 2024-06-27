@@ -561,8 +561,11 @@ OutgoingAsync::prepare(string_view operation, OperationMode mode, const Context&
 {
     if (_proxy._getReference()->getProtocol().major != currentProtocol.major)
     {
-        throw FeatureNotSupportedException{__FILE__, __LINE__,
-            "cannot send request using protocol version " + Ice::protocolVersionToString(_proxy._getReference()->getProtocol())};
+        throw FeatureNotSupportedException{
+            __FILE__,
+            __LINE__,
+            "cannot send request using protocol version " +
+                Ice::protocolVersionToString(_proxy._getReference()->getProtocol())};
     }
 
     _mode = mode;
@@ -772,7 +775,10 @@ OutgoingAsync::response()
 
             default:
             {
-                throw ProtocolException{__FILE__, __LINE__, "received unknown reply status in Reply message" + to_string(replyStatus)};
+                throw ProtocolException{
+                    __FILE__,
+                    __LINE__,
+                    "received unknown reply status in Reply message" + to_string(replyStatus)};
             }
         }
 

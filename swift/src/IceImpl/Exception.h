@@ -78,7 +78,9 @@ ICEIMPL_API @protocol ICEExceptionFactory
 
 // ProtocolException
 + (NSError*)closeConnectionException:(NSString*)reason file:(NSString*)file line:(int32_t)line;
-+ (NSError*)connectionManuallyClosedException:(BOOL)graceful file:(NSString*)file line:(int32_t)line; // not a protocol exception
++ (NSError*)connectionManuallyClosedException:(BOOL)graceful
+                                         file:(NSString*)file
+                                         line:(int32_t)line; // not a protocol exception
 + (NSError*)datagramLimitException:(NSString*)reason file:(NSString*)file line:(int32_t)line;
 // ProtocolException/MarshalException
 + (NSError*)marshalException:(NSString*)reason file:(NSString*)file line:(int32_t)line;

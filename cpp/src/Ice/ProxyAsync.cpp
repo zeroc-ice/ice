@@ -255,8 +255,11 @@ ProxyFlushBatchAsync::invoke(string_view operation)
 {
     if (_proxy._getReference()->getProtocol().major != currentProtocol.major)
     {
-        throw FeatureNotSupportedException{__FILE__, __LINE__,
-            "cannot send request using protocol version " + Ice::protocolVersionToString(_proxy._getReference()->getProtocol())};
+        throw FeatureNotSupportedException{
+            __FILE__,
+            __LINE__,
+            "cannot send request using protocol version " +
+                Ice::protocolVersionToString(_proxy._getReference()->getProtocol())};
     }
     _observer.attach(_proxy, operation, noExplicitContext);
     bool compress; // Ignore for proxy flushBatchRequests

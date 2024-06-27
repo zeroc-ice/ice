@@ -633,10 +633,7 @@ IceObjC::iAPEndpointI::checkOption(const string& option, const string& argument,
                 istringstream t(argument);
                 if (!(t >> const_cast<int32_t&>(_timeout)) || !t.eof() || _timeout < 1)
                 {
-                    throw ParseException{
-                        __FILE__,
-                        __LINE__,
-                        "invalid timeout value in endpoint '" + endpoint + "'"};
+                    throw ParseException{__FILE__, __LINE__, "invalid timeout value in endpoint '" + endpoint + "'"};
                 }
             }
             break;

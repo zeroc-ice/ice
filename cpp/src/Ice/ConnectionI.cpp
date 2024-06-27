@@ -1272,7 +1272,10 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                             //
                             // This situation is possible for small UDP packets.
                             //
-                            throw MarshalException{__FILE__, __LINE__, "received Ice message with too few bytes in header"};
+                            throw MarshalException{
+                                __FILE__,
+                                __LINE__,
+                                "received Ice message with too few bytes in header"};
                         }
 
                         // Decode the header.
@@ -1281,20 +1284,26 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                         _readStream.readBlob(m, static_cast<int32_t>(sizeof(magic)));
                         if (m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
                         {
-
                             throw ProtocolException{__FILE__, __LINE__, createBadMagicMessage(m)};
                         }
                         ProtocolVersion pv;
                         _readStream.read(pv);
                         if (pv != currentProtocol)
                         {
-                            throw ProtocolException{__FILE__, __LINE__, "invalid protocol version in message header: " + Ice::protocolVersionToString(pv)};
+                            throw ProtocolException{
+                                __FILE__,
+                                __LINE__,
+                                "invalid protocol version in message header: " + Ice::protocolVersionToString(pv)};
                         }
                         EncodingVersion ev;
                         _readStream.read(ev);
                         if (ev != currentProtocolEncoding)
                         {
-                            throw ProtocolException{__FILE__, __LINE__, "invalid protocol encoding version in message header: " + Ice::encodingVersionToString(ev)};
+                            throw ProtocolException{
+                                __FILE__,
+                                __LINE__,
+                                "invalid protocol encoding version in message header: " +
+                                    Ice::encodingVersionToString(ev)};
                         }
                         uint8_t messageType;
                         _readStream.read(messageType);
@@ -1304,7 +1313,10 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                         _readStream.read(size);
                         if (size < headerSize)
                         {
-                            throw MarshalException{__FILE__, __LINE__, "received Ice message with unexpected size " + to_string(size)};
+                            throw MarshalException{
+                                __FILE__,
+                                __LINE__,
+                                "received Ice message with unexpected size " + to_string(size)};
                         }
 
                         // Resize the read buffer to the message size.
@@ -2611,7 +2623,10 @@ Ice::ConnectionI::validate(SocketOperation operation)
             _readStream.read(size);
             if (size != headerSize)
             {
-                throw MarshalException{__FILE__, __LINE__, "received ValidateConnection message with unexpected size " + to_string(size)};
+                throw MarshalException{
+                    __FILE__,
+                    __LINE__,
+                    "received ValidateConnection message with unexpected size " + to_string(size)};
             }
             traceRecv(_readStream, _logger, _traceLevels);
         }
@@ -3039,7 +3054,10 @@ Ice::ConnectionI::doCompress(OutputStream& uncompressed, OutputStream& compresse
         0);
     if (bzError != BZ_OK)
     {
-        throw ProtocolException{__FILE__, __LINE__, "cannot compress message - BZ2_bzBuffToBuffCompress failed" + getBZ2Error(bzError)};
+        throw ProtocolException{
+            __FILE__,
+            __LINE__,
+            "cannot compress message - BZ2_bzBuffToBuffCompress failed" + getBZ2Error(bzError)};
     }
     compressed.b.resize(headerSize + sizeof(int32_t) + compressedLen);
 
@@ -3088,7 +3106,10 @@ Ice::ConnectionI::doUncompress(InputStream& compressed, InputStream& uncompresse
     compressed.read(uncompressedSize);
     if (uncompressedSize <= headerSize)
     {
-        throw MarshalException{__FILE__, __LINE__, "unexpected message size after uncompress: " + to_string(uncompressedSize)};
+        throw MarshalException{
+            __FILE__,
+            __LINE__,
+            "unexpected message size after uncompress: " + to_string(uncompressedSize)};
     }
 
     if (uncompressedSize > static_cast<int32_t>(_messageSizeMax))
@@ -3108,7 +3129,10 @@ Ice::ConnectionI::doUncompress(InputStream& compressed, InputStream& uncompresse
         0);
     if (bzError != BZ_OK)
     {
-        throw ProtocolException{__FILE__, __LINE__, "cannot decompress message - BZ2_bzBuffToBuffDecompress failed" + getBZ2Error(bzError)};
+        throw ProtocolException{
+            __FILE__,
+            __LINE__,
+            "cannot decompress message - BZ2_bzBuffToBuffDecompress failed" + getBZ2Error(bzError)};
     }
 
     copy(compressed.b.begin(), compressed.b.begin() + headerSize, uncompressed.b.begin());
@@ -3242,7 +3266,10 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                     if (requestCount < 0)
                     {
                         requestCount = 0;
-                        throw MarshalException{__FILE__, __LINE__, "received batch request with " + to_string(requestCount) + " batches"};
+                        throw MarshalException{
+                            __FILE__,
+                            __LINE__,
+                            "received batch request with " + to_string(requestCount) + " batches"};
                     }
 
                     upcall = [self = shared_from_this(), requestCount, adapter, compress](InputStream& messageStream)
@@ -3358,7 +3385,10 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
             default:
             {
                 trace("received unknown message\n(invalid, closing connection)", stream, _logger, _traceLevels);
-                throw ProtocolException{__FILE__, __LINE__, "received Ice protocol message with unknown type: " + to_string(messageType)};
+                throw ProtocolException{
+                    __FILE__,
+                    __LINE__,
+                    "received Ice protocol message with unknown type: " + to_string(messageType)};
             }
         }
     }

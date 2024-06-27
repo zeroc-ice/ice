@@ -50,7 +50,10 @@ IceInternal::Ex::throwUOE(const char* file, int line, const string& expectedType
     UnknownSlicedValue* usv = dynamic_cast<UnknownSlicedValue*>(v.get());
     if (usv)
     {
-        throw MarshalException{file, line, "cannot find value factory to unmarshal class with type ID '" + usv->ice_id() + "'"};
+        throw MarshalException{
+            file,
+            line,
+            "cannot find value factory to unmarshal class with type ID '" + usv->ice_id() + "'"};
     }
 
     string type = v->ice_id();
@@ -58,7 +61,8 @@ IceInternal::Ex::throwUOE(const char* file, int line, const string& expectedType
     throw MarshalException{
         file,
         line,
-        "failed to unmarshal class with type ID '" + expectedType + "': value factory returned a class with type ID '" + type + "'"};
+        "failed to unmarshal class with type ID '" + expectedType + "': value factory returned a class with type ID '" +
+            type + "'"};
 }
 
 void
@@ -68,7 +72,7 @@ IceInternal::Ex::throwMemoryLimitException(const char* file, int line, size_t re
         file,
         line,
         "cannot unmarshal Ice message: the message size of " + to_string(requested) +
-        " bytes exceeds the maximum allowed of " + to_string(maximum) + " bytes (see Ice.MessageSizeMax)."};
+            " bytes exceeds the maximum allowed of " + to_string(maximum) + " bytes (see Ice.MessageSizeMax)."};
 }
 
 void
@@ -464,7 +468,10 @@ Ice::InputStream::skipEmptyEncapsulation()
     {
         if (sz != static_cast<std::int32_t>(sizeof(std::int32_t)) + 2)
         {
-            throw MarshalException{__FILE__, __LINE__, to_string(sz) + " is not a valid encapsulation size for a 1.0 empty encapsulation"};
+            throw MarshalException{
+                __FILE__,
+                __LINE__,
+                to_string(sz) + " is not a valid encapsulation size for a 1.0 empty encapsulation"};
         }
     }
     else
@@ -2232,7 +2239,10 @@ Ice::InputStream::EncapsDecoder10::readInstance()
         //
         if (!_sliceValues)
         {
-            throw MarshalException{__FILE__, __LINE__, "cannot find value factory for type ID '" + mostDerivedId + "' and slicing is disabled"};
+            throw MarshalException{
+                __FILE__,
+                __LINE__,
+                "cannot find value factory for type ID '" + mostDerivedId + "' and slicing is disabled"};
         }
 
         //
@@ -2663,7 +2673,7 @@ Ice::InputStream::EncapsDecoder11::readInstance(int32_t index, PatchFunc patchFu
         //
         if (!_sliceValues)
         {
-              throw MarshalException{
+            throw MarshalException{
                 __FILE__,
                 __LINE__,
                 "cannot find value factory for type ID '" + _current->typeId + "' and compact format prevents slicing"};
