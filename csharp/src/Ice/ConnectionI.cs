@@ -828,9 +828,9 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         int upcallCount = 0;
 
         using ThreadPoolMessage msg = new ThreadPoolMessage(current, this);
-        try
+        lock (this)
         {
-            lock (this)
+            try
             {
                 if (!msg.startIOScope())
                 {
@@ -1112,10 +1112,10 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                     return;
                 }
             }
-        }
-        finally
-        {
-            msg.finishIOScope();
+            finally
+            {
+                msg.finishIOScope();
+            }
         }
 
         _threadPool.executeFromThisThread(() => upcall(startCB, sentCBs, info), this);
