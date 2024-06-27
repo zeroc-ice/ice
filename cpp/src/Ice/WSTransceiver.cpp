@@ -49,7 +49,6 @@ using namespace IceInternal;
 #define CLOSURE_NORMAL 1000
 #define CLOSURE_SHUTDOWN 1001
 #define CLOSURE_PROTOCOL_ERROR 1002
-#define CLOSURE_TOO_BIG 1009
 
 namespace
 {
@@ -255,7 +254,7 @@ IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
                     const size_t oldSize = static_cast<size_t>(_readBuffer.i - _readBuffer.b.begin());
                     if (oldSize + 1024 > _instance->messageSizeMax())
                     {
-                        throw MemoryLimitException(__FILE__, __LINE__);
+                        Ex::throwMemoryLimitException(__FILE__, __LINE__, oldSize + 1024, _instance->messageSizeMax());
                     }
                     _readBuffer.b.resize(oldSize + 1024);
                     _readBuffer.i = _readBuffer.b.begin() + oldSize;
@@ -407,10 +406,6 @@ IceInternal::WSTransceiver::closing(bool initiator, exception_ptr reason)
     catch (const Ice::CommunicatorDestroyedException&)
     {
         _closingReason = CLOSURE_SHUTDOWN;
-    }
-    catch (const Ice::MemoryLimitException&)
-    {
-        _closingReason = CLOSURE_TOO_BIG;
     }
     catch (const Ice::ProtocolException&)
     {

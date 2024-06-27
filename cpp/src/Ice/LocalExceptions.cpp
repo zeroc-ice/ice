@@ -143,6 +143,36 @@ Ice::ParseException::ice_id() const noexcept
     return "::Ice::ParseException";
 }
 
+const char*
+Ice::ProtocolException::ice_id() const noexcept
+{
+    return "::Ice::ProtocolException";
+}
+
+const char*
+Ice::CloseConnectionException::ice_id() const noexcept
+{
+    return "::Ice::CloseConnectionException";
+}
+
+const char*
+Ice::DatagramLimitException::ice_id() const noexcept
+{
+    return "::Ice::DatagramLimitException";
+}
+
+const char*
+Ice::MarshalException::ice_id() const noexcept
+{
+    return "::Ice::MarshalException";
+}
+
+const char*
+Ice::FeatureNotSupportedException::ice_id() const noexcept
+{
+    return "::Ice::FeatureNotSupportedException";
+}
+
 //
 // Below: not refactored yet
 //
@@ -325,129 +355,9 @@ Ice::InvocationCanceledException::ice_id() const noexcept
 }
 
 const char*
-Ice::ProtocolException::ice_id() const noexcept
-{
-    return "::Ice::ProtocolException";
-}
-
-const char*
-Ice::BadMagicException::ice_id() const noexcept
-{
-    return "::Ice::BadMagicException";
-}
-
-const char*
-Ice::UnsupportedProtocolException::ice_id() const noexcept
-{
-    return "::Ice::UnsupportedProtocolException";
-}
-
-const char*
-Ice::UnsupportedEncodingException::ice_id() const noexcept
-{
-    return "::Ice::UnsupportedEncodingException";
-}
-
-const char*
-Ice::UnknownMessageException::ice_id() const noexcept
-{
-    return "::Ice::UnknownMessageException";
-}
-
-const char*
-Ice::ConnectionNotValidatedException::ice_id() const noexcept
-{
-    return "::Ice::ConnectionNotValidatedException";
-}
-
-const char*
-Ice::UnknownReplyStatusException::ice_id() const noexcept
-{
-    return "::Ice::UnknownReplyStatusException";
-}
-
-const char*
-Ice::CloseConnectionException::ice_id() const noexcept
-{
-    return "::Ice::CloseConnectionException";
-}
-
-const char*
 Ice::ConnectionManuallyClosedException::ice_id() const noexcept
 {
     return "::Ice::ConnectionManuallyClosedException";
-}
-
-const char*
-Ice::IllegalMessageSizeException::ice_id() const noexcept
-{
-    return "::Ice::IllegalMessageSizeException";
-}
-
-const char*
-Ice::CompressionException::ice_id() const noexcept
-{
-    return "::Ice::CompressionException";
-}
-
-const char*
-Ice::DatagramLimitException::ice_id() const noexcept
-{
-    return "::Ice::DatagramLimitException";
-}
-
-const char*
-Ice::MarshalException::ice_id() const noexcept
-{
-    return "::Ice::MarshalException";
-}
-
-const char*
-Ice::ProxyUnmarshalException::ice_id() const noexcept
-{
-    return "::Ice::ProxyUnmarshalException";
-}
-
-const char*
-Ice::UnmarshalOutOfBoundsException::ice_id() const noexcept
-{
-    return "::Ice::UnmarshalOutOfBoundsException";
-}
-
-const char*
-Ice::NoValueFactoryException::ice_id() const noexcept
-{
-    return "::Ice::NoValueFactoryException";
-}
-
-const char*
-Ice::UnexpectedObjectException::ice_id() const noexcept
-{
-    return "::Ice::UnexpectedObjectException";
-}
-
-const char*
-Ice::MemoryLimitException::ice_id() const noexcept
-{
-    return "::Ice::MemoryLimitException";
-}
-
-const char*
-Ice::StringConversionException::ice_id() const noexcept
-{
-    return "::Ice::StringConversionException";
-}
-
-const char*
-Ice::EncapsulationException::ice_id() const noexcept
-{
-    return "::Ice::EncapsulationException";
-}
-
-const char*
-Ice::FeatureNotSupportedException::ice_id() const noexcept
-{
-    return "::Ice::FeatureNotSupportedException";
 }
 
 const char*
@@ -648,232 +558,10 @@ Ice::InvocationCanceledException::ice_print(ostream& out) const
 }
 
 void
-Ice::ProtocolException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol exception";
-    if (!reason.empty())
-    {
-        out << ":\n" << reason;
-    }
-}
-
-void
-Ice::BadMagicException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nunknown magic number: ";
-
-    ios_base::fmtflags originalFlags = out.flags(); // Save stream state
-    ostream::char_type originalFill = out.fill();
-
-    out.flags(ios_base::hex); // Change to hex
-    out.fill('0');            // Fill with leading zeros
-
-    out << "0x" << setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(badMagic[0])) << ", ";
-    out << "0x" << setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(badMagic[1])) << ", ";
-    out << "0x" << setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(badMagic[2])) << ", ";
-    out << "0x" << setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(badMagic[3]));
-
-    out.fill(originalFill); // Restore stream state
-    out.flags(originalFlags);
-
-    if (!reason.empty())
-    {
-        out << "\n" << reason;
-    }
-}
-
-void
-Ice::UnsupportedProtocolException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: unsupported protocol version: " << bad;
-    out << "\n(can only support protocols compatible with version " << supported << ")";
-}
-
-void
-Ice::UnsupportedEncodingException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nencoding error: unsupported encoding version: " << bad;
-    out << "\n(can only support encodings compatible with version " << supported << ")";
-    if (!reason.empty())
-    {
-        out << "\n" << reason;
-    }
-}
-
-void
-Ice::UnknownMessageException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: unknown message type";
-    if (!reason.empty())
-    {
-        out << ":\n" << reason;
-    }
-}
-
-void
-Ice::ConnectionNotValidatedException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: received message over unvalidated connection";
-    if (!reason.empty())
-    {
-        out << ":\n" << reason;
-    }
-}
-
-void
-Ice::UnknownReplyStatusException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: unknown reply status";
-    if (!reason.empty())
-    {
-        out << ":\n" << reason;
-    }
-}
-
-void
-Ice::CloseConnectionException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: connection closed";
-    if (!reason.empty())
-    {
-        out << ":\n" << reason;
-    }
-}
-
-void
 Ice::ConnectionManuallyClosedException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nprotocol error: connection manually closed (" << (graceful ? "gracefully" : "forcefully") << ")";
-}
-
-void
-Ice::IllegalMessageSizeException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: illegal message size";
-    if (!reason.empty())
-    {
-        out << ":\n" << reason;
-    }
-}
-
-void
-Ice::CompressionException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: failed to compress or uncompress data";
-    if (!reason.empty())
-    {
-        out << ":\n" << reason;
-    }
-}
-
-void
-Ice::DatagramLimitException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: maximum datagram payload size exceeded";
-    if (!reason.empty())
-    {
-        out << ":\n" << reason;
-    }
-}
-
-void
-Ice::MarshalException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: error during marshaling or unmarshaling";
-    if (!reason.empty())
-    {
-        out << ":\n" << reason;
-    }
-}
-
-void
-Ice::ProxyUnmarshalException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: inconsistent proxy data during unmarshaling";
-    if (!reason.empty())
-    {
-        out << ":\n" << reason;
-    }
-}
-
-void
-Ice::UnmarshalOutOfBoundsException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: out of bounds during unmarshaling";
-    if (!reason.empty())
-    {
-        out << ":\n" << reason;
-    }
-}
-
-void
-Ice::NoValueFactoryException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: no suitable value factory found for `" << type << "'";
-    if (!reason.empty())
-    {
-        out << ":\n" << reason;
-    }
-}
-
-void
-Ice::UnexpectedObjectException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nunexpected class instance of type `" << type << "'; expected instance of type `" << expectedType << "'";
-    if (!reason.empty())
-    {
-        out << ":\n" << reason;
-    }
-}
-
-void
-Ice::MemoryLimitException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: memory limit exceeded";
-    if (!reason.empty())
-    {
-        out << ":\n" << reason;
-    }
-}
-
-void
-Ice::StringConversionException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: string conversion failed";
-    if (!reason.empty())
-    {
-        out << ":\n" << reason;
-    }
-}
-
-void
-Ice::EncapsulationException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: illegal encapsulation";
-    if (!reason.empty())
-    {
-        out << ":\n" << reason;
-    }
 }
 
 void
@@ -913,13 +601,6 @@ Ice::CloneNotImplementedException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nice_clone() must be implemented in classes derived from abstract base classes";
-}
-
-void
-Ice::FeatureNotSupportedException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nfeature `" << unsupportedFeature << "' is not supported";
 }
 
 void

@@ -84,7 +84,7 @@ class ThrowerI(Test.Thrower):
         raise RuntimeError("12345")
 
     def throwAssertException(self, current=None):
-        raise RuntimeError("operation `throwAssertException' not supported")
+        raise RuntimeError("operation 'throwAssertException' not supported")
 
     def throwMemoryLimitException(self, seq, current=None):
         return bytearray(20 * 1024)

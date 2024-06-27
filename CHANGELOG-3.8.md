@@ -76,6 +76,7 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   | NoValueFactoryException             | MarshalException (base)    |
   | ProxyParseException                 | ParseException             |
   | ProxyUnmarshalException             | MarshalException (base)    |
+  | StringConversionException           | MarshalException (base)    |
   | UnexpectedObjectException           | MarshalException (base)    |
   | UnknownMessageException             | ProtocolException (base)   |
   | UnknownReplyStatusException         | MarshalException           |

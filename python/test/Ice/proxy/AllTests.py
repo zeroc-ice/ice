@@ -867,7 +867,7 @@ def allTests(helper, communicator, collocated):
     try:
         cl20.ice_ping()
         test(False)
-    except Ice.UnsupportedEncodingException:
+    except Ice.MarshalException:
         # Server 2.0 endpoint doesn't support 1.1 version.
         pass
 

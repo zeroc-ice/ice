@@ -720,7 +720,7 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     do {
         try cl20.ice_ping()
         try test(false)
-    } catch is Ice.UnsupportedEncodingException {
+    } catch is Ice.MarshalException {
         // Server 2.0 endpoint doesn't support 1.1 version.
     }
 
@@ -772,7 +772,7 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     do {
         try cl20.ice_ping()
         try test(false)
-    } catch is Ice.UnsupportedProtocolException {
+    } catch is Ice.FeatureNotSupportedException {
         // Server 2.0 proxy doesn't support 1.0 version.
     }
 

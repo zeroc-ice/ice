@@ -6,6 +6,7 @@
 #define ICE_PROTOCOL_H
 
 #include "Ice/Config.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/VersionFunctions.h"
 
 #include <sstream>
@@ -62,11 +63,6 @@ namespace IceInternal
         return version.major == supported.major && version.minor <= supported.minor;
     }
 
-    ICE_API void
-    throwUnsupportedProtocolException(const char*, int, const Ice::ProtocolVersion&, const Ice::ProtocolVersion&);
-    ICE_API void
-    throwUnsupportedEncodingException(const char*, int, const Ice::EncodingVersion&, const Ice::EncodingVersion&);
-
     const std::uint8_t OPTIONAL_END_MARKER = 0xFF;
 
     const std::uint8_t FLAG_HAS_TYPE_ID_STRING = (1 << 0);
@@ -77,27 +73,14 @@ namespace IceInternal
     const std::uint8_t FLAG_HAS_SLICE_SIZE = (1 << 4);
     const std::uint8_t FLAG_IS_LAST_SLICE = (1 << 5);
 
-    inline void checkSupportedProtocol(const Ice::ProtocolVersion& v)
-    {
-        if (!isSupported(v, Ice::currentProtocol))
-        {
-            throwUnsupportedProtocolException(__FILE__, __LINE__, v, Ice::currentProtocol);
-        }
-    }
-
-    inline void checkSupportedProtocolEncoding(const Ice::EncodingVersion& v)
-    {
-        if (!isSupported(v, Ice::currentProtocolEncoding))
-        {
-            throwUnsupportedEncodingException(__FILE__, __LINE__, v, Ice::currentProtocolEncoding);
-        }
-    }
-
     inline void checkSupportedEncoding(const Ice::EncodingVersion& v)
     {
         if (!isSupported(v, Ice::currentEncoding))
         {
-            throwUnsupportedEncodingException(__FILE__, __LINE__, v, Ice::currentEncoding);
+            throw Ice::MarshalException{
+                __FILE__,
+                __LINE__,
+                "this Ice runtime does not support encoding version " + Ice::encodingVersionToString(v)};
         }
     }
 }

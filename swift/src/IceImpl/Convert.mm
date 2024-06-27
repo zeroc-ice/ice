@@ -81,7 +81,7 @@ convertException(std::exception_ptr exc)
     }
     catch (const Ice::FeatureNotSupportedException& e)
     {
-        return [factory featureNotSupportedException:toNSString(e.unsupportedFeature)
+        return [factory featureNotSupportedException:toNSString(e.what())
                                                 file:toNSString(e.ice_file())
                                                 line:e.ice_line()];
     }
@@ -176,112 +176,25 @@ convertException(std::exception_ptr exc)
     {
         return [factory timeoutException:toNSString(e.ice_file()) line:e.ice_line()];
     }
-    catch (const Ice::BadMagicException& e)
-    {
-        NSData* badMagic = [[NSData alloc] initWithBytes:e.badMagic.data() length:e.badMagic.size()];
-        return [factory badMagicException:toNSString(e.reason)
-                                 badMagic:badMagic
-                                     file:toNSString(e.ice_file())
-                                     line:e.ice_line()];
-    }
-    catch (const Ice::UnsupportedProtocolException& e)
-    {
-        return [factory unsupportedProtocolException:toNSString(e.reason)
-                                            badMajor:e.bad.major
-                                            badMinor:e.bad.minor
-                                      supportedMajor:e.supported.major
-                                      supportedMinor:e.supported.minor
-                                                file:toNSString(e.ice_file())
-                                                line:e.ice_line()];
-    }
-    catch (const Ice::UnsupportedEncodingException& e)
-    {
-        return [factory unsupportedEncodingException:toNSString(e.reason)
-                                            badMajor:e.bad.major
-                                            badMinor:e.bad.minor
-                                      supportedMajor:e.supported.major
-                                      supportedMinor:e.supported.minor
-                                                file:toNSString(e.ice_file())
-                                                line:e.ice_line()];
-    }
-    catch (const Ice::UnknownMessageException& e)
-    {
-        return [factory unknownMessageException:toNSString(e.reason) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::ConnectionNotValidatedException& e)
-    {
-        return [factory connectionNotValidatedException:toNSString(e.reason)
-                                                   file:toNSString(e.ice_file())
-                                                   line:e.ice_line()];
-    }
-    catch (const Ice::UnknownReplyStatusException& e)
-    {
-        return [factory unknownReplyStatusException:toNSString(e.reason)
-                                               file:toNSString(e.ice_file())
-                                               line:e.ice_line()];
-    }
     catch (const Ice::CloseConnectionException& e)
     {
-        return [factory closeConnectionException:toNSString(e.reason) file:toNSString(e.ice_file()) line:e.ice_line()];
+        return [factory closeConnectionException:toNSString(e.what()) file:toNSString(e.ice_file()) line:e.ice_line()];
     }
     catch (const Ice::ConnectionManuallyClosedException& e)
     {
         return [factory connectionManuallyClosedException:e.graceful file:toNSString(e.ice_file()) line:e.ice_line()];
     }
-    catch (const Ice::IllegalMessageSizeException& e)
-    {
-        return [factory illegalMessageSizeException:toNSString(e.reason)
-                                               file:toNSString(e.ice_file())
-                                               line:e.ice_line()];
-    }
-    catch (const Ice::CompressionException& e)
-    {
-        return [factory compressionException:toNSString(e.reason) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
     catch (const Ice::DatagramLimitException& e)
     {
-        return [factory datagramLimitException:toNSString(e.reason) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::ProxyUnmarshalException& e)
-    {
-        return [factory proxyUnmarshalException:toNSString(e.reason) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::UnmarshalOutOfBoundsException& e)
-    {
-        return [factory unmarshalOutOfBoundsException:toNSString(e.reason)
-                                                 file:toNSString(e.ice_file())
-                                                 line:e.ice_line()];
-    }
-    catch (const Ice::NoValueFactoryException& e)
-    {
-        return [factory noValueFactoryException:toNSString(e.reason)
-                                           type:toNSString(e.type)
-                                           file:toNSString(e.ice_file())
-                                           line:e.ice_line()];
-    }
-    catch (const Ice::UnexpectedObjectException& e)
-    {
-        return [factory unexpectedObjectException:toNSString(e.reason)
-                                             type:toNSString(e.type)
-                                     expectedType:toNSString(e.expectedType)
-                                             file:toNSString(e.ice_file())
-                                             line:e.ice_line()];
-    }
-    catch (const Ice::MemoryLimitException& e)
-    {
-        return [factory memoryLimitException:toNSString(e.reason) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::EncapsulationException& e)
-    {
-        return [factory encapsulationException:toNSString(e.reason) file:toNSString(e.ice_file()) line:e.ice_line()];
+        return [factory datagramLimitException:toNSString(e.what()) file:toNSString(e.ice_file()) line:e.ice_line()];
     }
     catch (const Ice::MarshalException& e)
     {
-        return [factory marshalException:toNSString(e.reason) file:toNSString(e.ice_file()) line:e.ice_line()];
+        return [factory marshalException:toNSString(e.what()) file:toNSString(e.ice_file()) line:e.ice_line()];
     }
     catch (const Ice::ProtocolException& e)
     {
-        return [factory protocolException:toNSString(e.reason) file:toNSString(e.ice_file()) line:e.ice_line()];
+        return [factory protocolException:toNSString(e.what()) file:toNSString(e.ice_file()) line:e.ice_line()];
     }
     catch (const Ice::LocalException& e)
     {

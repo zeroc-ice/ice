@@ -968,7 +968,7 @@ allTests(TestHelper* helper)
         cl20->ice_ping();
         test(false);
     }
-    catch (const Ice::UnsupportedEncodingException&)
+    catch (const Ice::MarshalException&)
     {
         // Server 2.0 endpoint doesn't support 1.1 version.
     }
@@ -980,7 +980,7 @@ allTests(TestHelper* helper)
         cl13->ice_ping();
         test(false);
     }
-    catch (const Ice::UnsupportedEncodingException&)
+    catch (const Ice::MarshalException&)
     {
         // Same for 1.3
     }
@@ -1050,22 +1050,14 @@ allTests(TestHelper* helper)
         cl20->ice_ping();
         test(false);
     }
-    catch (const Ice::UnsupportedProtocolException&)
+    catch (const Ice::FeatureNotSupportedException&)
     {
         // Server 2.0 proxy doesn't support 1.0 version.
     }
 
     ref13 = "test -p 1.3:" + endp;
     cl13 = MyClassPrx(communicator, ref13);
-    try
-    {
-        cl13->ice_ping();
-        test(false);
-    }
-    catch (const Ice::UnsupportedProtocolException&)
-    {
-        // Same with 1.3
-    }
+    cl13->ice_ping(); // use protocol 1.0
 
     ref10 = "test -p 1.0:" + endp;
     cl10 = MyClassPrx(communicator, ref10);

@@ -275,9 +275,9 @@ def allTests(helper, communicator):
         try:
             uoet.op()
             test(False)
-        except Ice.UnexpectedObjectException as ex:
-            test(ex.type == "::Test::AlsoEmpty")
-            test(ex.expectedType == "::Test::Empty")
+        except Ice.MarshalException as ex:
+            test("::Test::AlsoEmpty" in ex.reason)
+            test("::Test::Empty" in ex.reason)
         except Ice.Exception as ex:
             print(ex)
             test(False)

@@ -673,7 +673,7 @@ def allTests(helper, communicator)
     begin
         cl20.ice_ping();
         test(false);
-    rescue Ice::UnsupportedEncodingException
+    rescue Ice::MarshalException
         # Server 2.0 endpoint doesn't support 1.1 version.
     end
 

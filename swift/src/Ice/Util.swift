@@ -78,6 +78,6 @@ func escapeString(string: String, special: String, communicator: Communicator) t
 func checkSupportedEncoding(_ v: EncodingVersion) throws {
     let c = currentEncoding
     if v.major != c.major || v.minor > c.minor {
-        throw UnsupportedEncodingException(reason: "", bad: v, supported: c)
+        throw MarshalException(reason: "the Ice runtime does not support encoding version " + encodingVersionToString(v))
     }
 }

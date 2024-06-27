@@ -563,7 +563,7 @@ allTests(Test::TestHelper* helper)
             thrower->throwMemoryLimitException(Ice::ByteSeq());
             test(false);
         }
-        catch (const Ice::MemoryLimitException&)
+        catch (const Ice::MarshalException&)
         {
         }
         catch (...)
@@ -596,7 +596,7 @@ allTests(Test::TestHelper* helper)
             {
                 thrower2->throwMemoryLimitException(Ice::ByteSeq(2 * 1024 * 1024)); // 2MB (no limits)
             }
-            catch (const Ice::MemoryLimitException&)
+            catch (const Ice::MarshalException&)
             {
             }
 

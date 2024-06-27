@@ -127,7 +127,7 @@ allTests(Test::TestHelper* helper)
             in.read(v);
             test(false);
         }
-        catch (const Ice::UnmarshalOutOfBoundsException&)
+        catch (const Ice::MarshalException&)
         {
         }
     }

@@ -412,88 +412,6 @@ extension ProtocolException {
         return s
     }
 }
-
-extension BadMagicException {
-    var _BadMagicExceptionDescription: String {
-        var s = String()
-
-        s.sep("unknown magic number: ")
-
-        s.hex(badMagic[0])
-        s.append(", ")
-        s.hex(badMagic[1])
-        s.append(", ")
-        s.hex(badMagic[2])
-        s.append(", ")
-        s.hex(badMagic[3])
-
-        if !reason.isEmpty {
-            s.nl(reason)
-        }
-
-        return s
-    }
-}
-
-extension UnsupportedProtocolException {
-    var _UnsupportedProtocolExceptionDescription: String {
-        var s = String()
-
-        s.sep("protocol error: unsupported protocol version: \(bad)")
-        s.nl("(can only support protocols compatible with version \(supported))")
-
-        return s
-    }
-}
-
-extension UnsupportedEncodingException {
-    var _UnsupportedEncodingExceptionDescription: String {
-        var s = String()
-
-        s.sep("encoding error: unsupported encoding version: \(bad)")
-        s.nl("(can only support encodings compatible with version \(supported))")
-
-        if !reason.isEmpty {
-            s.nl(reason)
-        }
-
-        return s
-    }
-}
-
-extension UnknownMessageException {
-    var _UnknownMessageExceptionDescription: String {
-        var s = String()
-
-        s.sep("protocol error: unknown message type")
-        s.sep(reason)
-
-        return s
-    }
-}
-
-extension ConnectionNotValidatedException {
-    var _ConnectionNotValidatedExceptionDescription: String {
-        var s = String()
-
-        s.sep("protocol error: received message over unvalidated connection")
-        s.sep(reason)
-
-        return s
-    }
-}
-
-extension UnknownReplyStatusException {
-    var _UnknownReplyStatusExceptionDescription: String {
-        var s = String()
-
-        s.sep("protocol error: unknown unknown reply status")
-        s.sep(reason)
-
-        return s
-    }
-}
-
 extension CloseConnectionException {
     var _CloseConnectionExceptionDescription: String {
         var s = String()
@@ -516,28 +434,6 @@ extension ConnectionManuallyClosedException {
     }
 }
 
-extension IllegalMessageSizeException {
-    var _IllegalMessageSizeExceptionDescription: String {
-        var s = String()
-
-        s.sep("protocol error: illegal message size")
-        s.sep(reason)
-
-        return s
-    }
-}
-
-extension CompressionException {
-    var _CompressionExceptionDescription: String {
-        var s = String()
-
-        s.sep("protocol error: failed to compress or uncompress data")
-        s.sep(reason)
-
-        return s
-    }
-}
-
 extension DatagramLimitException {
     var _DatagramLimitExceptionDescription: String {
         var s = String()
@@ -554,73 +450,6 @@ extension MarshalException {
         var s = String()
 
         s.sep("protocol error: error during marshaling or unmarshaling")
-        s.sep(reason)
-
-        return s
-    }
-}
-
-extension ProxyUnmarshalException {
-    var _ProxyUnmarshalExceptionDescription: String {
-        var s = String()
-
-        s.sep("protocol error: inconsistent proxy data during unmarshaling")
-        s.sep(reason)
-
-        return s
-    }
-}
-
-extension UnmarshalOutOfBoundsException {
-    var _UnmarshalOutOfBoundsExceptionDescription: String {
-        var s = String()
-
-        s.sep("protocol error: out of bounds during unmarshaling")
-        s.sep(reason)
-
-        return s
-    }
-}
-
-extension NoValueFactoryException {
-    var _NoValueFactoryExceptionDescription: String {
-        var s = String()
-
-        s.sep("protocol error: no suitable value factory found for `\(type)'")
-        s.sep(reason)
-
-        return s
-    }
-}
-
-extension UnexpectedObjectException {
-    var _UnexpectedObjectExceptionDescription: String {
-        var s = String()
-
-        s.sep(
-            "unexpected class instance of type `\(type)'; expected instance of type `\(expectedType)'")
-        s.sep(reason)
-
-        return s
-    }
-}
-
-extension MemoryLimitException {
-    var _MemoryLimitExceptionDescription: String {
-        var s = String()
-
-        s.sep("protocol error: memory limit exceeded")
-        s.sep(reason)
-
-        return s
-    }
-}
-
-extension EncapsulationException {
-    var _EncapsulationExceptionDescription: String {
-        var s = String()
-
-        s.sep("protocol error: illegal encapsulation")
         s.sep(reason)
 
         return s
