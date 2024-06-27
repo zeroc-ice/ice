@@ -57,18 +57,6 @@ public class FI: F {
     }
 }
 
-public class II: Ice.InterfaceByValue {
-    public required init() {
-        super.init(id: "::Test::I")
-    }
-}
-
-public class JI: Ice.InterfaceByValue {
-    public required init() {
-        super.init(id: "::Test::J")
-    }
-}
-
 class InitialI: Initial {
     var _adapter: Ice.ObjectAdapter
     var _b1: B

@@ -73,22 +73,6 @@ class FI extends Test\F
     }
 }
 
-class II extends Ice\InterfaceByValue
-{
-    public function __construct()
-    {
-        parent::__construct("::Test::I");
-    }
-}
-
-class JI extends Ice\InterfaceByValue
-{
-    public function __construct()
-    {
-        parent::__construct("::Test::J");
-    }
-}
-
 class MyValueFactory implements Ice\ValueFactory
 {
     function create($id)
@@ -112,14 +96,6 @@ class MyValueFactory implements Ice\ValueFactory
         else if($id == "::Test::F")
         {
             return new FI();
-        }
-        else if($id == "::Test::I")
-        {
-            return new II();
-        }
-        else if($id == "::Test::J")
-        {
-            return new JI();
         }
         return null;
     }

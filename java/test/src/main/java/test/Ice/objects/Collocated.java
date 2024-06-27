@@ -20,10 +20,6 @@ public class Collocated extends test.TestHelper {
         return new EI();
       } else if (type.equals("::Test::F")) {
         return new FI();
-      } else if (type.equals("::Test::I")) {
-        return new II();
-      } else if (type.equals("::Test::J")) {
-        return new JI();
       }
 
       assert (false); // Should never be reached
@@ -43,8 +39,6 @@ public class Collocated extends test.TestHelper {
       communicator.getValueFactoryManager().add(factory, "::Test::D");
       communicator.getValueFactoryManager().add(factory, "::Test::E");
       communicator.getValueFactoryManager().add(factory, "::Test::F");
-      communicator.getValueFactoryManager().add(factory, "::Test::I");
-      communicator.getValueFactoryManager().add(factory, "::Test::J");
 
       communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
       com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
