@@ -169,7 +169,7 @@ export class InitialI extends Test.Initial {
     setRecursive(r: Test.Recursive, current: Ice.Current) {}
 
     supportsClassGraphDepthMax(current: Ice.Current) {
-        return false;
+        return true;
     }
 
     setCycle(r: Test.Recursive, current: Ice.Current) {}
