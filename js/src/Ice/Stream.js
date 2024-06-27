@@ -49,10 +49,12 @@ class IndirectPatchEntry {
 }
 
 class EncapsDecoder {
-    constructor(stream, encaps, sliceValues, f) {
+    constructor(stream, encaps, sliceValues, classGraphDepth, f) {
         this._stream = stream;
         this._encaps = encaps;
         this._sliceValues = sliceValues;
+        this._classGraphDepthMax = classGraphDepth;
+        this._classGraphDepth = 0;
         this._valueFactoryManager = f;
         this._patchMap = null; // Lazy initialized, Map<int, Patcher[] >()
         this._unmarshaledMap = new Map(); // Map<int, Value>()
@@ -154,7 +156,7 @@ class EncapsDecoder {
         //
         // Append a patch entry for this instance.
         //
-        l.push(cb);
+        l.push(new PatchEntry(cb, this._classGraphDepth));
     }
 
     unmarshal(index, v) {
@@ -181,7 +183,7 @@ class EncapsDecoder {
                 // Patch all pointers that refer to the instance.
                 //
                 for (let i = 0; i < l.length; ++i) {
-                    l[i](v);
+                    l[i].cb(v);
                 }
 
                 //
@@ -230,8 +232,8 @@ class EncapsDecoder {
 }
 
 class EncapsDecoder10 extends EncapsDecoder {
-    constructor(stream, encaps, sliceValues, f) {
-        super(stream, encaps, sliceValues, f);
+    constructor(stream, encaps, sliceValues, classGraphDepth, f) {
+        super(stream, encaps, sliceValues, classGraphDepth, f);
         this._sliceType = SliceType.NoSlice;
     }
 
@@ -440,6 +442,26 @@ class EncapsDecoder10 extends EncapsDecoder {
         }
 
         //
+        // Compute the biggest class graph depth of this object. To compute this,
+        // we get the class graph depth of each ancestor from the patch map and
+        // keep the biggest one.
+        //
+        this._classGraphDepth = 0;
+        const l = this._patchMap === null ? null : this._patchMap.get(index);
+        if (l !== undefined) {
+            Debug.assert(l.length > 0);
+            for (const entry of l) {
+                if (entry.classGraphDepth > this._classGraphDepth) {
+                    this._classGraphDepth = entry.classGraphDepth;
+                }
+            }
+        }
+
+        if (++this._classGraphDepth > this._classGraphDepthMax) {
+            throw new MarshalException("maximum class graph depth reached");
+        }
+
+        //
         // Unmarshal the instance and add it to the map of unmarshaled instances.
         //
         this.unmarshal(index, v);
@@ -447,8 +469,8 @@ class EncapsDecoder10 extends EncapsDecoder {
 }
 
 class EncapsDecoder11 extends EncapsDecoder {
-    constructor(stream, encaps, sliceValues, f, r) {
-        super(stream, encaps, sliceValues, f);
+    constructor(stream, encaps, sliceValues, classGraphDepth, f, r) {
+        super(stream, encaps, sliceValues, classGraphDepth, f);
         this._compactIdResolver = r;
         this._current = null;
         this._valueIdIndex = 1;
@@ -812,10 +834,16 @@ class EncapsDecoder11 extends EncapsDecoder {
             this.startSlice(); // Read next Slice header for next iteration.
         }
 
+        if (++this._classGraphDepth > this._classGraphDepthMax) {
+            throw new MarshalException("maximum class graph depth reached");
+        }
+
         //
         // Unmarshal the instance.
         //
         this.unmarshal(index, v);
+
+        --this._classGraphDepth;
 
         if (this._current === null && this._patchMap !== null && this._patchMap.size !== 0) {
             //
@@ -925,6 +953,21 @@ class ReadEncaps {
     }
 }
 
+class PatchEntry {
+    constructor(cb, classGraphDepth) {
+        this._cb = cb;
+        this._classGraphDepth = classGraphDepth;
+    }
+
+    get cb() {
+        return this._cb;
+    }
+
+    get classGraphDepth() {
+        return this._classGraphDepth;
+    }
+}
+
 export class InputStream {
     constructor(arg1, arg2, arg3) {
         const args = {
@@ -1004,6 +1047,7 @@ export class InputStream {
             this._traceSlicing = this._instance.traceLevels().slicing > 0;
             this._valueFactoryManager = this._instance.initializationData().valueFactoryManager;
             this._logger = this._instance.initializationData().logger;
+            this._classGraphDepthMax = this._instance.classGraphDepthMax();
         } else {
             if (this._encoding === null) {
                 this._encoding = Protocol.currentEncoding;
@@ -1011,6 +1055,7 @@ export class InputStream {
             this._traceSlicing = false;
             this._valueFactoryManager = null;
             this._logger = null;
+            this._classGraphDepthMax = 0x7fffffff;
         }
 
         if (args.bytes !== null) {
@@ -1051,6 +1096,7 @@ export class InputStream {
         [other._traceSlicing, this._traceSlicing] = [this._traceSlicing, other._traceSlicing];
         [other._closure, this._closure] = [this._closure, other.closure];
         [other._sliceValues, this._sliceValues] = [this._sliceValues, other._sliceValues];
+        [other._classGraphDepthMax, this._classGraphDepthMax] = [this._classGraphDepthMax, other._classGraphDepthMax];
 
         //
         // Swap is never called for InputStreams that have encapsulations being read/write. However,
@@ -1686,6 +1732,7 @@ export class InputStream {
                     this,
                     this._encapsStack,
                     this._sliceValues,
+                    this._classGraphDepthMax,
                     this._valueFactoryManager,
                 );
             } else {
@@ -1693,6 +1740,7 @@ export class InputStream {
                     this,
                     this._encapsStack,
                     this._sliceValues,
+                    this._classGraphDepthMax,
                     this._valueFactoryManager,
                     this._compactIdResolver,
                 );
