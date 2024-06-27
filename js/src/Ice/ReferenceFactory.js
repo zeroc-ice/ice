@@ -36,6 +36,7 @@ const suffixes = [
     "Locator",
     "Router",
     "CollocationOptimized",
+    "Context\\..*",
 ];
 
 //
@@ -565,16 +566,28 @@ export class ReferenceFactory {
         //
         // Do not warn about unknown properties for Ice prefixes (Ice, Glacier2, etc.)
         //
-        for (let i = 0; i < PropertyNames.clPropNames.length; ++i) {
-            if (prefix.indexOf(PropertyNames.clPropNames[i] + ".") === 0) {
+        for (const [validPrefix, _] of PropertyNames.validProps) {
+            if (prefix.indexOf(`${validPrefix}.`) === 0) {
                 return;
             }
         }
 
         const properties = this._instance.initializationData().properties.getPropertiesForPrefix(prefix + ".");
-        unknownProps = unknownProps.concat(
-            Array.from(properties.keys()).filter((key) => !suffixes.some((suffix) => key === prefix + "." + suffix)),
-        );
+        const escapedPrefix = prefix.replace(/\./g, "\\.");
+        for (const [key, _] of properties) {
+            let valid = false;
+            for (const suffix of suffixes) {
+                const pattern = new RegExp(`^${escapedPrefix}.${suffix}$`);
+                if (pattern.test(key)) {
+                    valid = true;
+                    break;
+                }
+            }
+            if (!valid) {
+                unknownProps.push(key);
+            }
+        }
+
         if (unknownProps.length > 0) {
             const message = [];
             message.push("found unknown properties for proxy '");
@@ -605,6 +618,7 @@ export class ReferenceFactory {
         let endpointSelection = defaultsAndOverrides.defaultEndpointSelection;
         let locatorCacheTimeout = defaultsAndOverrides.defaultLocatorCacheTimeout;
         let invocationTimeout = defaultsAndOverrides.defaultInvocationTimeout;
+        let context = null;
 
         //
         // Override the defaults with the proxy properties if a property prefix is defined.
@@ -702,6 +716,15 @@ export class ReferenceFactory {
                         );
                 }
             }
+
+            property = propertyPrefix + ".Context.";
+            const contexts = properties.getPropertiesForPrefix(property);
+            if (contexts.size > 0) {
+                context = new Map();
+                for (const [key, value] of contexts) {
+                    context.set(key.substring(property.length), value);
+                }
+            }
         }
 
         //
@@ -725,6 +748,7 @@ export class ReferenceFactory {
             endpointSelection,
             locatorCacheTimeout,
             invocationTimeout,
+            context,
         );
     }
 }

@@ -19,6 +19,7 @@ export class Client extends TestHelper {
 
         const base = new Ice.ObjectPrx(communicator, `test:${this.getTestEndpoint()}`);
 
+        out.write("testing stringToProxy... ");
         let b1 = communicator.stringToProxy("test");
         test(
             b1.ice_getIdentity().name === "test" &&
@@ -475,6 +476,12 @@ export class Client extends TestHelper {
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(b1.ice_getEndpointSelection() === Ice.EndpointSelectionType.Ordered);
         prop.setProperty(property, "");
+
+        property = propertyPrefix + ".Context.c1";
+        test(!b1.ice_getContext().has("c1"));
+        prop.setProperty(property, "TEST");
+        b1 = communicator.propertyToProxy(propertyPrefix);
+        test(b1.ice_getContext().get("c1") == "TEST");
 
         out.writeLine("ok");
 

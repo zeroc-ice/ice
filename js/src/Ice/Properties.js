@@ -193,8 +193,8 @@ export class Properties {
 
     parseIceCommandLineOptions(options) {
         let args = options.slice();
-        for (let i = 0; i < PropertyNames.clPropNames.length; ++i) {
-            args = this.parseCommandLineOptions(PropertyNames.clPropNames[i], args);
+        for (const [prefix, properties] of PropertyNames.validProps) {
+            args = this.parseCommandLineOptions(prefix, args);
         }
         return args;
     }
@@ -384,38 +384,27 @@ export class Properties {
         }
 
         const prefix = key.substr(0, dotPos);
-        var propertyPrefix = null;
+        var propertiesForPrefix = null;
 
         // Search for the property prefix
-        for (let i = 0; i < PropertyNames.validProps.length; ++i) {
-            let pattern = PropertyNames.validProps[i][0].pattern;
-            dotPos = pattern.indexOf(".");
-
-            // Each top level prefix describes a non-empty namespace. Having a string without a
-            // prefix followed by a dot is an error.
-            Debug.assert(dotPos != -1);
-
-            const propPrefix = pattern.substring(0, dotPos).replace(/\\|^/g, "");
-
-            if (propPrefix === prefix) {
-                propertyPrefix = PropertyNames.validProps[i];
+        for (const [validPropsPrefix, validPropsValue] of PropertyNames.validProps) {
+            if (validPropsPrefix === prefix) {
+                propertiesForPrefix = validPropsValue;
                 break;
             }
 
-            if (logWarnings && propPrefix.toUpperCase() === prefix.toUpperCase()) {
-                logger.warning("unknown property prefix: `" + prefix + "'; did you mean `" + propPrefix + "'?");
+            if (logWarnings && validPropsPrefix.toUpperCase() === prefix.toUpperCase()) {
+                logger.warning("unknown property prefix: `" + prefix + "'; did you mean `" + validPropsPrefix + "'?");
                 return null;
             }
         }
 
-        if (propertyPrefix === null) {
+        if (propertiesForPrefix === null) {
             // The prefix is not a valid Ice property.
             return null;
         }
 
-        for (let j = 0; j < propertyPrefix.length; ++j) {
-            const prop = propertyPrefix[j];
-
+        for (const prop of propertiesForPrefix) {    
             if (prop.usesRegex ? key.match(prop.pattern) : key === prop.pattern) {
                 return prop;
             }
