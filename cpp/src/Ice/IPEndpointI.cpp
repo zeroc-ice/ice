@@ -400,7 +400,7 @@ IceInternal::IPEndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
             throw Ice::ParseException(
                 __FILE__,
                 __LINE__,
-                "'--sourceAddress' not valid for object adapter endpoint `" + toString() + "'");
+                "'--sourceAddress' not valid for object adapter endpoint '" + toString() + "'");
         }
     }
     else if (!oaEndpoint)
