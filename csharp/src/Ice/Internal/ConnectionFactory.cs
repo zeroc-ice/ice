@@ -2,6 +2,7 @@
 
 using System.Diagnostics;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Ice.Internal;
 public class MultiDictionary<K, V> : Dictionary<K, ICollection<V>>
@@ -1252,23 +1253,39 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
     //
     // Operations from EventHandler.
     //
-    public override bool startAsync(int operation, AsyncCallback callback, ref bool completedSynchronously)
+    public override bool startAsync(int operation, AsyncCallback completedCallback)
     {
         if (_state >= StateClosed)
         {
             return false;
         }
 
-        Debug.Assert(_acceptor != null);
-        try
-        {
-            completedSynchronously = _acceptor.startAccept(callback, this);
-        }
-        catch (Ice.LocalException ex)
-        {
-            _acceptorException = ex;
-            completedSynchronously = true;
-        }
+        // Run the IO operation on a .NET thread pool thread to ensure the IO operation won't be interrupted if the
+        // Ice thread pool thread is terminated.
+        Task.Run(() => {
+            lock (this)
+            {
+                if(_state >= StateClosed)
+                {
+                    completedCallback(this);
+                    return;
+                }
+
+                try
+                {
+                    if(_acceptor.startAccept(completedCallback, this))
+                    {
+                        completedCallback(this);
+                    }
+                }
+                catch(Ice.LocalException ex)
+                {
+                    _acceptorException = ex;
+                    completedCallback(this);
+                }
+            }
+        });
+
         return true;
     }
 
@@ -1298,15 +1315,15 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
         return _state < StateClosed;
     }
 
-    public override void message(ref ThreadPoolCurrent current)
+    public override void message(ThreadPoolCurrent current)
     {
         Ice.ConnectionI connection = null;
 
-        ThreadPoolMessage msg = new ThreadPoolMessage(this);
+        using ThreadPoolMessage msg = new ThreadPoolMessage(current, this);
 
         lock (this)
         {
-            if (!msg.startIOScope(ref current))
+            if (!msg.startIOScope())
             {
                 return;
             }
@@ -1404,7 +1421,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
             }
             finally
             {
-                msg.finishIOScope(ref current);
+                msg.finishIOScope();
             }
         }
 
@@ -1412,7 +1429,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
         connection.start(this);
     }
 
-    public override void finished(ref ThreadPoolCurrent current)
+    public override void finished(ThreadPoolCurrent current)
     {
         lock (this)
         {

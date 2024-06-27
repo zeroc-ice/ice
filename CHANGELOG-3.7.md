@@ -8,6 +8,9 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
+- [Changes since Ice 3.7.10](#changes-since-ice-3710)
+  - [C++ Changes](#c-changes)
+  - [C# Changes](#c-changes)
 - [Changes in Ice 3.7.10](#changes-in-ice-3710)
   - [C++ Changes](#c-changes)
   - [C# Changes](#c-changes-1)
@@ -93,6 +96,18 @@ particular aspect of Ice.
   - [PHP Changes](#php-changes-5)
   - [Python Changes](#python-changes-8)
   - [Ruby Changes](#ruby-changes-4)
+
+# Changes since Ice 3.7.10
+
+## C++ Changes
+
+- Fix bug with the Ice.ServerIdleTime affecting Apple platforms. (https://github.com/zeroc-ice/ice/issues/2025)
+
+## C# Changes
+
+- Fixed bug in the Ice for C# connection code. A connection no longer reads messages off the network when its
+  associated thread-pool has no thread available to process these messages. As a result, back-pressure now works in
+  Ice for C# just like in other language mappings.
 
 # Changes in Ice 3.7.10
 

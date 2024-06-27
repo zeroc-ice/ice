@@ -676,45 +676,68 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     //
     // Operations from EventHandler
     //
-    public override bool startAsync(int operation, Ice.Internal.AsyncCallback cb, ref bool completedSynchronously)
+    public override bool startAsync(int operation, Ice.Internal.AsyncCallback completedCallback)
     {
         if (_state >= StateClosed)
         {
             return false;
         }
 
-        try
+        // Run the IO operation on a .NET thread pool thread to ensure the IO operation won't be interrupted if the
+        // Ice thread pool thread is terminated (.NET Socket read/write fail with a SocketError.OperationAborted
+        // error if started from a thread which is later terminated).
+        Task.Run(() =>
         {
-            if ((operation & SocketOperation.Write) != 0)
+            lock (this)
             {
-                if (_observer is not null)
+                if (_state >= StateClosed)
                 {
-                    observerStartWrite(_writeStream.getBuffer());
+                    completedCallback(this);
+                    return;
                 }
 
-                bool completed;
-                completedSynchronously = _transceiver.startWrite(_writeStream.getBuffer(), cb, this, out completed);
-                if (completed && _sendStreams.Count > 0)
+                try
                 {
-                    // The whole message is written, assume it's sent now for at-most-once semantics.
-                    _sendStreams.First.Value.isSent = true;
-                }
-            }
-            else if ((operation & SocketOperation.Read) != 0)
-            {
-                if (_observer is not null && !_readHeader)
-                {
-                    observerStartRead(_readStream.getBuffer());
-                }
+                    if ((operation & SocketOperation.Write) != 0)
+                    {
+                        if (_observer != null)
+                        {
+                            observerStartWrite(_writeStream.getBuffer());
+                        }
 
-                completedSynchronously = _transceiver.startRead(_readStream.getBuffer(), cb, this);
+                        bool completed;
+                        if (_transceiver.startWrite(_writeStream.getBuffer(), completedCallback, this, out completed))
+                        {
+                            // If the write completed immediately and the buffer
+                            if (completed && _sendStreams.Count > 0)
+                            {
+                                // The whole message is written, assume it's sent now for at-most-once semantics.
+                                _sendStreams.First.Value.isSent = true;
+                            }
+                            completedCallback(this);
+                        }
+                    }
+                    else if ((operation & SocketOperation.Read) != 0)
+                    {
+                        if (_observer != null && !_readHeader)
+                        {
+                            observerStartRead(_readStream.getBuffer());
+                        }
+
+                        if (_transceiver.startRead(_readStream.getBuffer(), completedCallback, this))
+                        {
+                            completedCallback(this);
+                        }
+                    }
+                }
+                catch (LocalException ex)
+                {
+                    setState(StateClosed, ex);
+                    completedCallback(this);
+                }
             }
-        }
-        catch (LocalException ex)
-        {
-            setState(StateClosed, ex);
-            return false;
-        }
+        });
+
         return true;
     }
 
@@ -786,19 +809,19 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         return _state < StateClosed;
     }
 
-    public override void message(ref ThreadPoolCurrent current)
+    public override void message(ThreadPoolCurrent current)
     {
         StartCallback startCB = null;
         Queue<OutgoingMessage> sentCBs = null;
         MessageInfo info = new MessageInfo();
         int upcallCount = 0;
 
-        ThreadPoolMessage msg = new ThreadPoolMessage(this);
+        using ThreadPoolMessage msg = new ThreadPoolMessage(current, this);
         try
         {
             lock (this)
             {
-                if (!msg.startIOScope(ref current))
+                if (!msg.startIOScope())
                 {
                     return;
                 }
@@ -1034,7 +1057,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
                     // There's something to dispatch so we mark IO as completed to elect a new leader thread and let IO
                     // be performed on this new leader thread while this thread continues with dispatching the up-calls.
-                    msg.completed(ref current);
+                    msg.ioCompleted();
                 }
                 catch (DatagramLimitException) // Expected.
                 {
@@ -1070,20 +1093,14 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                     }
                     return;
                 }
-
-                ThreadPoolCurrent c = current;
-                _threadPool.execute(() =>
-                {
-                    upcall(startCB, sentCBs, info);
-                    msg.destroy(ref c);
-                }, this);
             }
         }
         finally
         {
-            msg.finishIOScope(ref current);
+            msg.finishIOScope();
         }
 
+        _threadPool.executeFromThisThread(() => upcall(startCB, sentCBs, info), this);
     }
 
     private void upcall(StartCallback startCB, Queue<OutgoingMessage> sentCBs, MessageInfo info)
@@ -1196,7 +1213,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
     }
 
-    public override void finished(ref ThreadPoolCurrent current)
+    public override void finished(ThreadPoolCurrent current)
     {
         //
         // If there are no callbacks to call, we don't call ioCompleted() since we're not going
@@ -1210,13 +1227,8 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             return;
         }
 
-        //
-        // Unlike C++/Java, this method is called from an IO thread of the .NET thread
-        // pool of from the communicator async IO thread. While it's fine to handle the
-        // non-blocking activity of the connection from these threads, the dispatching
-        // of the message must be taken care of by the Ice thread pool.
-        //
-        _threadPool.execute(finish, this);
+        current.ioCompleted();
+        _threadPool.executeFromThisThread(finish, this);
     }
 
     private void finish()
