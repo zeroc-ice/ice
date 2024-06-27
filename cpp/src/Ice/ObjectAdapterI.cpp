@@ -968,7 +968,7 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
             throw InitializationException(
                 __FILE__,
                 __LINE__,
-                "invalid proxy options '" + proxyOptions + "' for object adapter `" + _name + "'");
+                "invalid proxy options '" + proxyOptions + "' for object adapter '" + _name + "'");
         }
 
         {
