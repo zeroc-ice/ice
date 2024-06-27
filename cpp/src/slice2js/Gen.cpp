@@ -377,46 +377,79 @@ Slice::JsVisitor::imports() const
 }
 
 void
-Slice::JsVisitor::writeMarshalDataMembers(const DataMemberList& dataMembers, const DataMemberList& optionalMembers)
+Slice::JsVisitor::writeMarshalDataMembers(
+    const DataMemberList& dataMembers,
+    const DataMemberList& optionalMembers,
+    const ContainedPtr& contained)
 {
+    bool isStruct = dynamic_pointer_cast<Struct>(contained) != nullptr;
+    bool isLegalKeyType = Dictionary::legalKeyType(dynamic_pointer_cast<Struct>(contained));
+
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         if (!(*q)->optional())
         {
-            writeMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), true);
+            writeMarshalUnmarshalCode(
+                _out,
+                (*q)->type(),
+                "this." + fixDataMemberName((*q)->name(), isStruct, isLegalKeyType),
+                true);
         }
     }
 
     for (DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
     {
-        writeOptionalMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), (*q)->tag(), true);
+        writeOptionalMarshalUnmarshalCode(
+            _out,
+            (*q)->type(),
+            "this." + fixDataMemberName((*q)->name(), isStruct, isLegalKeyType),
+            (*q)->tag(),
+            true);
     }
 }
 
 void
-Slice::JsVisitor::writeUnmarshalDataMembers(const DataMemberList& dataMembers, const DataMemberList& optionalMembers)
+Slice::JsVisitor::writeUnmarshalDataMembers(
+    const DataMemberList& dataMembers,
+    const DataMemberList& optionalMembers,
+    const ContainedPtr& contained)
 {
+    bool isStruct = dynamic_pointer_cast<Struct>(contained) != nullptr;
+    bool isLegalKeyType = Dictionary::legalKeyType(dynamic_pointer_cast<Struct>(contained));
+
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         if (!(*q)->optional())
         {
-            writeMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), false);
+            writeMarshalUnmarshalCode(
+                _out,
+                (*q)->type(),
+                "this." + fixDataMemberName((*q)->name(), isStruct, isLegalKeyType),
+                false);
         }
     }
 
     for (DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
     {
-        writeOptionalMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), (*q)->tag(), false);
+        writeOptionalMarshalUnmarshalCode(
+            _out,
+            (*q)->type(),
+            "this." + fixDataMemberName((*q)->name(), isStruct, isLegalKeyType),
+            (*q)->tag(),
+            false);
     }
 }
 
 void
-Slice::JsVisitor::writeInitDataMembers(const DataMemberList& dataMembers)
+Slice::JsVisitor::writeInitDataMembers(const DataMemberList& dataMembers, const ContainedPtr& contained)
 {
+    bool isStruct = dynamic_pointer_cast<Struct>(contained) != nullptr;
+    bool isLegalKeyType = Dictionary::legalKeyType(dynamic_pointer_cast<Struct>(contained));
+
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        const string m = fixId((*q)->name());
-        _out << nl << "this." << m << " = " << m << ';';
+        const string m = fixDataMemberName((*q)->name(), isStruct, isLegalKeyType);
+        _out << nl << "this." << m << " = " << fixId((*q)->name()) << ';';
     }
 }
 
@@ -1255,7 +1288,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         _out << epar << sb;
         _out << nl << "super" << spar << baseParamNames << epar << ';';
-        writeInitDataMembers(dataMembers);
+        writeInitDataMembers(dataMembers, p);
         _out << eb;
 
         if (p->compactId() != -1)
@@ -1272,13 +1305,13 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << sp;
             _out << nl << "_iceWriteMemberImpl(ostr)";
             _out << sb;
-            writeMarshalDataMembers(dataMembers, optionalMembers);
+            writeMarshalDataMembers(dataMembers, optionalMembers, p);
             _out << eb;
 
             _out << sp;
             _out << nl << "_iceReadMemberImpl(istr)";
             _out << sb;
-            writeUnmarshalDataMembers(dataMembers, optionalMembers);
+            writeUnmarshalDataMembers(dataMembers, optionalMembers, p);
             _out << eb;
         }
     }
@@ -1705,7 +1738,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << "_cause = \"\"" << epar;
     _out << sb;
     _out << nl << "super" << spar << baseParamNames << "_cause" << epar << ';';
-    writeInitDataMembers(dataMembers);
+    writeInitDataMembers(dataMembers, p);
     _out << eb;
 
     _out << sp;
@@ -1731,13 +1764,13 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         _out << sp;
         _out << nl << "_writeMemberImpl(ostr)";
         _out << sb;
-        writeMarshalDataMembers(dataMembers, optionalMembers);
+        writeMarshalDataMembers(dataMembers, optionalMembers, p);
         _out << eb;
 
         _out << sp;
         _out << nl << "_readMemberImpl(istr)";
         _out << sb;
-        writeUnmarshalDataMembers(dataMembers, optionalMembers);
+        writeUnmarshalDataMembers(dataMembers, optionalMembers, p);
         _out << eb;
     }
 
@@ -1812,19 +1845,19 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     _out << epar;
     _out << sb;
-    writeInitDataMembers(dataMembers);
+    writeInitDataMembers(dataMembers, p);
     _out << eb;
 
     _out << sp;
     _out << nl << "_write(ostr)";
     _out << sb;
-    writeMarshalDataMembers(dataMembers, DataMemberList());
+    writeMarshalDataMembers(dataMembers, DataMemberList(), p);
     _out << eb;
 
     _out << sp;
     _out << nl << "_read(istr)";
     _out << sb;
-    writeUnmarshalDataMembers(dataMembers, DataMemberList());
+    writeUnmarshalDataMembers(dataMembers, DataMemberList(), p);
     _out << eb;
 
     _out << sp;
@@ -2502,7 +2535,8 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     for (const auto& dataMember : allDataMembers)
     {
         writeDocSummary(_out, dataMember);
-        _out << nl << fixId(dataMember->name()) << ":" << typeToTsString(dataMember->type(), true) << ";";
+        _out << nl << fixDataMemberName(dataMember->name(), false, false) << ":"
+             << typeToTsString(dataMember->type(), true) << ";";
     }
     _out << eb;
 
@@ -2805,7 +2839,7 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
     _out << nl << "constructor" << spar;
     for (const auto& dataMember : dataMembers)
     {
-        _out << (fixId(dataMember->name()) + "?:" + typeToTsString(dataMember->type()));
+        _out << (fixDataMemberName(dataMember->name(), false, false) + "?:" + typeToTsString(dataMember->type()));
     }
     _out << epar << ";";
 
@@ -2815,14 +2849,16 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
     //
     // Only generate hashCode if this structure type is a legal dictionary key type.
     //
-    if (Dictionary::legalKeyType(p))
+    bool isLegalKeyType = Dictionary::legalKeyType(p);
+    if (isLegalKeyType)
     {
         _out << nl << "hashCode():number;";
     }
 
     for (const auto& dataMember : dataMembers)
     {
-        _out << nl << fixId(dataMember->name()) << ":" << typeToTsString(dataMember->type(), true) << ";";
+        _out << nl << fixDataMemberName(dataMember->name(), true, isLegalKeyType) << ":"
+             << typeToTsString(dataMember->type(), true) << ";";
     }
 
     //

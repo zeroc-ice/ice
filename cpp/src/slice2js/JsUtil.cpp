@@ -186,6 +186,20 @@ Slice::JsGenerator::fixId(const string& name)
     return result.str();
 }
 
+string
+Slice::JsGenerator::fixDataMemberName(const std::string& name, bool isStruct, bool isLegalKeyType)
+{
+    if (name == "constructor")
+    {
+        return "_constructor";
+    }
+    else if (isStruct && (name == "equals" || name == "clone" || (isLegalKeyType && name == "hashCode")))
+    {
+        return "_" + name;
+    }
+    return Slice::JsGenerator::fixId(name);
+}
+
 bool
 Slice::JsGenerator::findMetaData(const string& prefix, const StringList& metaData, string& value)
 {

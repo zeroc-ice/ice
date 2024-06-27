@@ -21,9 +21,9 @@ namespace Slice
         std::vector<std::pair<std::string, std::string>> imports() const;
 
     protected:
-        void writeMarshalDataMembers(const DataMemberList&, const DataMemberList&);
-        void writeUnmarshalDataMembers(const DataMemberList&, const DataMemberList&);
-        void writeInitDataMembers(const DataMemberList&);
+        void writeMarshalDataMembers(const DataMemberList&, const DataMemberList&, const ContainedPtr&);
+        void writeUnmarshalDataMembers(const DataMemberList&, const DataMemberList&, const ContainedPtr&);
+        void writeInitDataMembers(const DataMemberList&, const ContainedPtr&);
 
         std::string getValue(const std::string&, const TypePtr&);
 
