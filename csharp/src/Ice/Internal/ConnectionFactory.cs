@@ -1262,10 +1262,11 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
 
         // Run the IO operation on a .NET thread pool thread to ensure the IO operation won't be interrupted if the
         // Ice thread pool thread is terminated.
-        Task.Run(() => {
+        Task.Run(() =>
+        {
             lock (this)
             {
-                if(_state >= StateClosed)
+                if (_state >= StateClosed)
                 {
                     completedCallback(this);
                     return;
@@ -1273,12 +1274,12 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
 
                 try
                 {
-                    if(_acceptor.startAccept(completedCallback, this))
+                    if (_acceptor.startAccept(completedCallback, this))
                     {
                         completedCallback(this);
                     }
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     _acceptorException = ex;
                     completedCallback(this);

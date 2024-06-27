@@ -7,9 +7,9 @@
 #include "Test.h"
 #include "TestHelper.h"
 
-#include <thread>
 #include <chrono>
 #include <future>
+#include <thread>
 
 using namespace std;
 using namespace Ice;
