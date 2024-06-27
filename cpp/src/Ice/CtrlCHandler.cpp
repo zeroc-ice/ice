@@ -3,7 +3,7 @@
 //
 
 #include "Ice/CtrlCHandler.h"
-#include "Ice/Exception.h"
+#include "Ice/LocalException.h"
 
 #ifdef _WIN32
 #    include <windows.h>
@@ -26,13 +26,6 @@ namespace
     const CtrlCHandler* _handler = 0;
 
     mutex globalMutex;
-}
-
-// TODO: move
-const char*
-Ice::CtrlCHandlerException::ice_id() const noexcept
-{
-    return "::Ice::CtrlCHandlerException";
 }
 
 CtrlCHandlerCallback
@@ -79,7 +72,7 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
 
     if (handler)
     {
-        throw Ice::CtrlCHandlerException(__FILE__, __LINE__);
+        throw Ice::LocalException{__FILE__, __LINE__, "another CtrlCHandler was already created"};
     }
     else
     {
@@ -161,7 +154,7 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
 
     if (handler)
     {
-        throw Ice::CtrlCHandlerException(__FILE__, __LINE__);
+        throw Ice::LocalException{__FILE__, __LINE__, "another CtrlCHandler was already created"};
     }
     else
     {

@@ -8,7 +8,7 @@
 #include "../NetworkProxy.h"
 #include "../StreamSocket.h"
 #include "Ice/Communicator.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/SSL/ClientAuthenticationOptions.h"
 #include "SSLEndpointI.h"

@@ -6,7 +6,7 @@
 #include "../FileUtil.h"
 #include "DistinguishedName.h"
 #include "Ice/Communicator.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Logger.h"
 #include "Ice/StringConverter.h"
 #include "Ice/StringUtil.h"

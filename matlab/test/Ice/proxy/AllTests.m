@@ -42,7 +42,7 @@ classdef AllTests
                 b1 = communicator.stringToProxy('"test -f facet''');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.ProxyParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
             b1 = communicator.stringToProxy('"test -f facet"');
             assert(strcmp(b1.ice_getIdentity().name, 'test -f facet') && isempty(b1.ice_getIdentity().category) && ...
@@ -57,7 +57,7 @@ classdef AllTests
                 b1 = communicator.stringToProxy('test test');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.ProxyParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
             b1 = communicator.stringToProxy('test\040test');
             assert(strcmp(b1.ice_getIdentity().name, 'test test') && isempty(b1.ice_getIdentity().category));
@@ -65,7 +65,7 @@ classdef AllTests
                 b1 = communicator.stringToProxy('test\777');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.IdentityParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
             b1 = communicator.stringToProxy('test\40test');
             assert(strcmp(b1.ice_getIdentity().name, 'test test'));
@@ -102,7 +102,7 @@ classdef AllTests
                 b1 = communicator.stringToProxy('id@adapter test');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.ProxyParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
             b1 = communicator.stringToProxy('category/test@adapter');
             assert(strcmp(b1.ice_getIdentity().name, 'test') && ...
@@ -144,13 +144,13 @@ classdef AllTests
                 b1 = communicator.stringToProxy('id -f "facet x');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.ProxyParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
             try
                 b1 = communicator.stringToProxy('id -f ''facet x');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.ProxyParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
             b1 = communicator.stringToProxy('test -f facet:tcp');
             assert(strcmp(b1.ice_getIdentity().name, 'test') && isempty(b1.ice_getIdentity().category) && ...
@@ -171,7 +171,7 @@ classdef AllTests
                 b1 = communicator.stringToProxy('test -f facet@test @test');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.ProxyParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
             b1 = communicator.stringToProxy('test');
             assert(b1.ice_isTwoway());
@@ -194,7 +194,7 @@ classdef AllTests
                 b1 = communicator.stringToProxy('test:tcp@adapterId');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
             % This is an unknown endpoint warning, not a parse exception.
             %
@@ -202,13 +202,13 @@ classdef AllTests
             %   b1 = communicator.stringToProxy('test -f the:facet:tcp');
             %   assert(false);
             %catch ex
-            %    assert(isa(ex, 'Ice.EndpointParseException'));
+            %    assert(isa(ex, 'Ice.ParseException'));
             %end
             try
                 b1 = communicator.stringToProxy('test::tcp');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
 
             b1 = communicator.stringToProxy('test:tcp --sourceAddress "::1"');
@@ -722,7 +722,7 @@ classdef AllTests
                 p = communicator.stringToProxy('id:opaque -t 99 -v abc -x abc');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
 
             try
@@ -730,7 +730,7 @@ classdef AllTests
                 p = communicator.stringToProxy('id:opaque');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
 
             try
@@ -738,7 +738,7 @@ classdef AllTests
                 p = communicator.stringToProxy('id:opaque -t 1 -t 1 -v abc');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
 
             try
@@ -746,7 +746,7 @@ classdef AllTests
                 p = communicator.stringToProxy('id:opaque -t 1 -v abc -v abc')
                 assert(false)
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
 
             try
@@ -754,7 +754,7 @@ classdef AllTests
                 p = communicator.stringToProxy('id:opaque -v abc');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
 
             try
@@ -762,7 +762,7 @@ classdef AllTests
                 p = communicator.stringToProxy('id:opaque -t 1');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
 
             try
@@ -770,7 +770,7 @@ classdef AllTests
                 p = communicator.stringToProxy('id:opaque -t -v abc');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
 
             try
@@ -778,7 +778,7 @@ classdef AllTests
                 p = communicator.stringToProxy('id:opaque -t 1 -v');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
 
             try
@@ -786,7 +786,7 @@ classdef AllTests
                 p = communicator.stringToProxy('id:opaque -t x -v abc');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
 
             try
@@ -794,7 +794,7 @@ classdef AllTests
                 p = communicator.stringToProxy('id:opaque -t -1 -v abc');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
 
             try
@@ -802,7 +802,7 @@ classdef AllTests
                 p = communicator.stringToProxy('id:opaque -t 99 -v x?c');
                 assert(false);
             catch ex
-                assert(isa(ex, 'Ice.EndpointParseException'));
+                assert(isa(ex, 'Ice.ParseException'));
             end
 
             % Legal TCP endpoint expressed as opaque endpoint

@@ -10,7 +10,7 @@
 #include "DefaultsAndOverrides.h"
 #include "EndpointI.h"
 #include "Ice/Communicator.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
 #include "Instance.h"

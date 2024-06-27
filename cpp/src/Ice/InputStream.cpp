@@ -5,7 +5,9 @@
 #include "Ice/InputStream.h"
 #include "DefaultsAndOverrides.h"
 #include "DisableWarnings.h"
-#include "Ice/LocalException.h"
+#include "Endian.h"
+#include "Ice/FactoryTable.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Object.h"
 #include "Ice/Proxy.h"
@@ -14,12 +16,10 @@
 #include "Ice/UserExceptionFactory.h"
 #include "Ice/ValueFactory.h"
 #include "Instance.h"
+#include "ReferenceFactory.h"
 #include "TraceLevels.h"
 #include "TraceUtil.h"
 
-#include "Endian.h"
-#include "Ice/FactoryTable.h"
-#include "ReferenceFactory.h"
 #include <iterator>
 
 #ifndef ICE_UNALIGNED
@@ -36,6 +36,43 @@ namespace
 {
     // Make sure the global factory table is initialized before we use it.
     const FactoryTableInit factoryTableInit;
+}
+
+void
+IceInternal::Ex::throwUOE(const string& expectedType, const ValuePtr& v)
+{
+    //
+    // If the object is an unknown sliced object, we didn't find a
+    // value factory, in this case raise a NoValueFactoryException
+    // instead.
+    //
+    UnknownSlicedValue* usv = dynamic_cast<UnknownSlicedValue*>(v.get());
+    if (usv)
+    {
+        throw NoValueFactoryException(__FILE__, __LINE__, "", usv->ice_id());
+    }
+
+    string type = v->ice_id();
+    throw Ice::UnexpectedObjectException(
+        __FILE__,
+        __LINE__,
+        "expected element of type `" + expectedType + "' but received `" + type + "'",
+        type,
+        expectedType);
+}
+
+void
+IceInternal::Ex::throwMemoryLimitException(const char* file, int line, size_t requested, size_t maximum)
+{
+    ostringstream s;
+    s << "requested " << requested << " bytes, maximum allowed is " << maximum << " bytes (see Ice.MessageSizeMax)";
+    throw Ice::MemoryLimitException(file, line, s.str());
+}
+
+void
+IceInternal::Ex::throwMarshalException(const char* file, int line, string reason)
+{
+    throw Ice::MarshalException{file, line, std::move(reason)};
 }
 
 Ice::InputStream::InputStream() { initialize(currentEncoding); }
@@ -1323,7 +1360,7 @@ Ice::InputStream::readConverted(string& v, int sz)
     }
     catch (const IllegalConversionException& ex)
     {
-        throw StringConversionException(__FILE__, __LINE__, ex.reason());
+        throw StringConversionException(__FILE__, __LINE__, ex.what());
     }
 }
 
@@ -1373,7 +1410,7 @@ Ice::InputStream::read(wstring& v)
         }
         catch (const IllegalConversionException& ex)
         {
-            throw StringConversionException(__FILE__, __LINE__, ex.reason());
+            throw StringConversionException(__FILE__, __LINE__, ex.what());
         }
     }
     else

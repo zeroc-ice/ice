@@ -5,7 +5,7 @@
 #include "OpenSSLTransceiverI.h"
 #include "Ice/Buffer.h"
 #include "Ice/Communicator.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/SSL/ConnectionInfo.h"
 #include "OpenSSLEngine.h"

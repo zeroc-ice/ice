@@ -3,7 +3,7 @@
 //
 
 #include "DefaultsAndOverrides.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
 
@@ -64,10 +64,7 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     }
     else
     {
-        throw EndpointSelectionTypeParseException(
-            __FILE__,
-            __LINE__,
-            "illegal value `" + value + "'; expected `Random' or `Ordered'");
+        throw ParseException(__FILE__, __LINE__, "illegal value '" + value + "'; expected 'Random' or 'Ordered'");
     }
 
     const_cast<int&>(defaultInvocationTimeout) = properties->getIcePropertyAsInt("Ice.Default.InvocationTimeout");

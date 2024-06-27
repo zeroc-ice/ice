@@ -10,7 +10,7 @@
 #include "Ice/Communicator.h"
 #include "Ice/Connection.h"
 #include "Ice/Endpoint.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/SHA1.h"
 #include "Ice/StringUtil.h"

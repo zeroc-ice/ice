@@ -4,7 +4,7 @@
 
 #include "ReplicaCache.h"
 #include "Ice/Communicator.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "ReplicaSessionI.h"
 #include "Topics.h"

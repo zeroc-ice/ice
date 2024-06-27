@@ -17,7 +17,7 @@
 namespace Ice
 {
     /**
-     * Abstract base class for all Ice exceptions.
+     * Abstract base class for all Ice exceptions. It has only two derived classes: LocalException and UserException.
      * \headerfile Ice/Ice.h
      */
     class ICE_API Exception : public std::exception
@@ -88,12 +88,6 @@ namespace Ice
          */
         std::string ice_stackTrace() const;
 
-        /**
-         * Indicates whether this exception has a default error message.
-         * @return True when what() returns the default message, and false when what() returns a custom message.
-         */
-        bool ice_hasDefaultMessage() const noexcept { return _what == nullptr; }
-
     private:
         const char* _file;                                // can be nullptr
         int _line;                                        // not used when _file is nullptr
@@ -103,91 +97,6 @@ namespace Ice
     };
 
     ICE_API std::ostream& operator<<(std::ostream&, const Exception&);
-
-    /**
-     * Abstract base class for all Ice run-time exceptions.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API LocalException : public Exception
-    {
-    public:
-        using Exception::Exception;
-    };
-
-    // Below: local exceptions used by IceUtil that need to be refactored.
-
-    /**
-     * This exception indicates the failure of a string conversion.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API IllegalConversionException : public LocalException
-    {
-    public:
-        IllegalConversionException(const char*, int, std::string) noexcept;
-
-        IllegalConversionException(const char* file, int line) noexcept : LocalException(file, line) {}
-
-        const char* ice_id() const noexcept override;
-        void ice_print(std::ostream&) const override;
-
-        /**
-         * Provides the reason this exception was thrown.
-         * @return The reason.
-         */
-        std::string reason() const noexcept;
-
-    private:
-        const std::string _reason;
-    };
-
-    /**
-     * This exception indicates the failure to lock a file.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API FileLockException : public LocalException
-    {
-    public:
-        FileLockException(const char*, int, int, std::string) noexcept;
-
-        const char* ice_id() const noexcept override;
-        void ice_print(std::ostream&) const override;
-
-        /**
-         * Returns the path to the file.
-         * @return The file path.
-         */
-        const std::string& path() const noexcept;
-
-        /**
-         * Returns the error number for the failed locking attempt.
-         * @return The error number.
-         */
-        int error() const noexcept;
-
-    private:
-        const int _error;
-        std::string _path;
-    };
-
-    /**
-     * Raised by the CtrlCHandler constructor if another CtrlCHandler already exists.
-     *
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API CtrlCHandlerException final : public LocalException
-    {
-    public:
-        CtrlCHandlerException(const char* file, int line) noexcept : LocalException(file, line) {}
-
-        const char* ice_id() const noexcept final;
-    };
-}
-
-namespace IceInternal::Ex
-{
-    ICE_API void throwUOE(const std::string&, const Ice::ValuePtr&);
-    ICE_API void throwMemoryLimitException(const char*, int, size_t, size_t);
-    ICE_API void throwMarshalException(const char*, int, std::string);
 }
 
 #endif

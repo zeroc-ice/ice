@@ -9,7 +9,7 @@
 #include "Ice/Config.h"
 #include "Ice/CtrlCHandler.h"
 #include "Ice/Initialize.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Logger.h"
 #include "Ice/ProxyF.h"
 

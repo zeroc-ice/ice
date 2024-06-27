@@ -4,7 +4,7 @@
 
 #include "Ice/IncomingRequest.h"
 #include "Ice/InputStream.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 
 using namespace std;
 using namespace Ice;

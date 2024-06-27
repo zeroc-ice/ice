@@ -43,24 +43,8 @@ class ExceptionFactory: ICEExceptionFactory {
         return NoEndpointException(proxy: proxy, file: file, line: line)
     }
 
-    static func endpointParseException(_ str: String, file: String, line: Int32) -> Error {
-        return EndpointParseException(str: str, file: file, line: line)
-    }
-
-    static func endpointSelectionTypeParseException(_ str: String, file: String, line: Int32) -> Error {
-        return EndpointSelectionTypeParseException(str: str, file: file, line: line)
-    }
-
-    static func versionParseException(_ str: String, file: String, line: Int32) -> Error {
-        return VersionParseException(str: str, file: file, line: line)
-    }
-
-    static func identityParseException(_ str: String, file: String, line: Int32) -> Error {
-        return IdentityParseException(str: str, file: file, line: line)
-    }
-
-    static func proxyParseException(_ str: String, file: String, line: Int32) -> Error {
-        return ProxyParseException(str: str, file: file, line: line)
+    static func parseException(_ str: String, file: String, line: Int32) -> Error {
+        return ParseException(str: str, file: file, line: line)
     }
 
     static func illegalIdentityException(_ file: String, line: Int32) -> Error {

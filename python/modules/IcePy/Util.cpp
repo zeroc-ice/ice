@@ -743,29 +743,9 @@ convertLocalException(std::exception_ptr ex, PyObject* p)
         IcePy::PyObjectHandle m = IcePy::createString(e.proxy);
         PyObject_SetAttrString(p, STRCAST("proxy"), m.get());
     }
-    catch (const Ice::EndpointParseException& e)
+    catch (const Ice::ParseException& e)
     {
-        IcePy::PyObjectHandle m = IcePy::createString(e.str);
-        PyObject_SetAttrString(p, STRCAST("str"), m.get());
-    }
-    catch (const Ice::EndpointSelectionTypeParseException& e)
-    {
-        IcePy::PyObjectHandle m = IcePy::createString(e.str);
-        PyObject_SetAttrString(p, STRCAST("str"), m.get());
-    }
-    catch (const Ice::VersionParseException& e)
-    {
-        IcePy::PyObjectHandle m = IcePy::createString(e.str);
-        PyObject_SetAttrString(p, STRCAST("str"), m.get());
-    }
-    catch (const Ice::IdentityParseException& e)
-    {
-        IcePy::PyObjectHandle m = IcePy::createString(e.str);
-        PyObject_SetAttrString(p, STRCAST("str"), m.get());
-    }
-    catch (const Ice::ProxyParseException& e)
-    {
-        IcePy::PyObjectHandle m = IcePy::createString(e.str);
+        IcePy::PyObjectHandle m = IcePy::createString(e.what());
         PyObject_SetAttrString(p, STRCAST("str"), m.get());
     }
     catch (const Ice::IllegalServantException& e)

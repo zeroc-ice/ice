@@ -5,7 +5,7 @@
 #ifndef SLICE_PARSER_H
 #define SLICE_PARSER_H
 
-#include "Ice/Exception.h"
+#include "Ice/LocalException.h"
 #include <array>
 #include <cstdint>
 #include <list>

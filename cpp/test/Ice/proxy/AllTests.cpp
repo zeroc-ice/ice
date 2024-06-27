@@ -49,7 +49,7 @@ allTests(TestHelper* helper)
         b1 = communicator->stringToProxy("\"test -f facet'");
         test(false);
     }
-    catch (const Ice::ProxyParseException&)
+    catch (const Ice::ParseException&)
     {
     }
     b1 = communicator->stringToProxy("\"test -f facet\"");
@@ -69,7 +69,7 @@ allTests(TestHelper* helper)
         b1 = communicator->stringToProxy("test test");
         test(false);
     }
-    catch (const Ice::ProxyParseException&)
+    catch (const Ice::ParseException&)
     {
     }
 
@@ -80,7 +80,7 @@ allTests(TestHelper* helper)
         b1 = communicator->stringToProxy("test\\777");
         test(false);
     }
-    catch (const Ice::IdentityParseException&)
+    catch (const Ice::ParseException&)
     {
     }
 
@@ -115,7 +115,7 @@ allTests(TestHelper* helper)
         b1 = communicator->stringToProxy("\"\" test"); // Invalid trailing characters.
         test(false);
     }
-    catch (const Ice::ProxyParseException&)
+    catch (const Ice::ParseException&)
     {
     }
 
@@ -124,7 +124,7 @@ allTests(TestHelper* helper)
         b1 = communicator->stringToProxy("test:"); // Missing endpoint.
         test(false);
     }
-    catch (const Ice::EndpointParseException&)
+    catch (const Ice::ParseException&)
     {
     }
 
@@ -137,7 +137,7 @@ allTests(TestHelper* helper)
         b1 = communicator->stringToProxy("id@adapter test");
         test(false);
     }
-    catch (const Ice::ProxyParseException&)
+    catch (const Ice::ParseException&)
     {
     }
     b1 = communicator->stringToProxy("category/test@adapter");
@@ -186,7 +186,7 @@ allTests(TestHelper* helper)
         b1 = communicator->stringToProxy("id -f \"facet x");
         test(false);
     }
-    catch (const Ice::ProxyParseException&)
+    catch (const Ice::ParseException&)
     {
     }
     try
@@ -194,7 +194,7 @@ allTests(TestHelper* helper)
         b1 = communicator->stringToProxy("id -f \'facet x");
         test(false);
     }
-    catch (const Ice::ProxyParseException&)
+    catch (const Ice::ParseException&)
     {
     }
     b1 = communicator->stringToProxy("test -f facet:tcp");
@@ -222,7 +222,7 @@ allTests(TestHelper* helper)
         b1 = communicator->stringToProxy("test -f facet@test @test");
         test(false);
     }
-    catch (const Ice::ProxyParseException&)
+    catch (const Ice::ParseException&)
     {
     }
     b1 = communicator->stringToProxy("test");
@@ -267,7 +267,7 @@ allTests(TestHelper* helper)
         communicator->stringToProxy("test:tcp@adapterId");
         test(false);
     }
-    catch (const Ice::EndpointParseException&)
+    catch (const Ice::ParseException&)
     {
     }
     // This is an unknown endpoint warning, not a parse exception.
@@ -277,7 +277,7 @@ allTests(TestHelper* helper)
     //   b1 = communicator->stringToProxy("test -f the:facet:tcp");
     //   test(false);
     //}
-    // catch(const Ice::EndpointParseException&)
+    // catch(const Ice::ParseException&)
     //{
     //}
     try
@@ -285,7 +285,7 @@ allTests(TestHelper* helper)
         communicator->stringToProxy("test: :tcp");
         test(false);
     }
-    catch (const Ice::EndpointParseException&)
+    catch (const Ice::ParseException&)
     {
     }
 
@@ -297,7 +297,7 @@ allTests(TestHelper* helper)
         communicator->createObjectAdapterWithEndpoints("BadAdapter", " : ");
         test(false);
     }
-    catch (const Ice::EndpointParseException&)
+    catch (const Ice::ParseException&)
     {
     }
 
@@ -306,7 +306,7 @@ allTests(TestHelper* helper)
         communicator->createObjectAdapterWithEndpoints("BadAdapter", "tcp: ");
         test(false);
     }
-    catch (const Ice::EndpointParseException&)
+    catch (const Ice::ParseException&)
     {
     }
 
@@ -315,7 +315,7 @@ allTests(TestHelper* helper)
         communicator->createObjectAdapterWithEndpoints("BadAdapter", ":tcp");
         test(false);
     }
-    catch (const Ice::EndpointParseException&)
+    catch (const Ice::ParseException&)
     {
     }
 
@@ -358,7 +358,7 @@ allTests(TestHelper* helper)
         id = Ice::stringToIdentity("xx\01FooBar");
         test(false);
     }
-    catch (const Ice::IdentityParseException&)
+    catch (const Ice::ParseException&)
     {
     }
 
@@ -368,7 +368,7 @@ allTests(TestHelper* helper)
         id = Ice::stringToIdentity("xx\\ud911");
         test(false);
     }
-    catch (const Ice::IdentityParseException&)
+    catch (const Ice::ParseException&)
     {
     }
 
@@ -1079,7 +1079,7 @@ allTests(TestHelper* helper)
         optional<ObjectPrx> p = communicator->stringToProxy("id:opaque -t 99 -v abc -x abc");
         test(false);
     }
-    catch (const Ice::EndpointParseException&)
+    catch (const Ice::ParseException&)
     {
     }
 
@@ -1089,7 +1089,7 @@ allTests(TestHelper* helper)
         optional<ObjectPrx> p = communicator->stringToProxy("id:opaque");
         test(false);
     }
-    catch (const Ice::EndpointParseException&)
+    catch (const Ice::ParseException&)
     {
     }
 
@@ -1099,7 +1099,7 @@ allTests(TestHelper* helper)
         optional<ObjectPrx> p = communicator->stringToProxy("id:opaque -t 1 -t 1 -v abc");
         test(false);
     }
-    catch (const Ice::EndpointParseException&)
+    catch (const Ice::ParseException&)
     {
     }
 
@@ -1109,7 +1109,7 @@ allTests(TestHelper* helper)
         optional<ObjectPrx> p = communicator->stringToProxy("id:opaque -t 1 -v abc -v abc");
         test(false);
     }
-    catch (const Ice::EndpointParseException&)
+    catch (const Ice::ParseException&)
     {
     }
 
@@ -1119,7 +1119,7 @@ allTests(TestHelper* helper)
         optional<ObjectPrx> p = communicator->stringToProxy("id:opaque -v abc");
         test(false);
     }
-    catch (const Ice::EndpointParseException&)
+    catch (const Ice::ParseException&)
     {
     }
 
@@ -1129,7 +1129,7 @@ allTests(TestHelper* helper)
         optional<ObjectPrx> p = communicator->stringToProxy("id:opaque -t 1");
         test(false);
     }
-    catch (const Ice::EndpointParseException&)
+    catch (const Ice::ParseException&)
     {
     }
 
@@ -1139,7 +1139,7 @@ allTests(TestHelper* helper)
         optional<ObjectPrx> p = communicator->stringToProxy("id:opaque -t -v abc");
         test(false);
     }
-    catch (const Ice::EndpointParseException&)
+    catch (const Ice::ParseException&)
     {
     }
 
@@ -1149,7 +1149,7 @@ allTests(TestHelper* helper)
         optional<ObjectPrx> p = communicator->stringToProxy("id:opaque -t 1 -v");
         test(false);
     }
-    catch (const Ice::EndpointParseException&)
+    catch (const Ice::ParseException&)
     {
     }
 
@@ -1159,7 +1159,7 @@ allTests(TestHelper* helper)
         optional<ObjectPrx> p = communicator->stringToProxy("id:opaque -t x -v abc");
         test(false);
     }
-    catch (const Ice::EndpointParseException&)
+    catch (const Ice::ParseException&)
     {
     }
 
@@ -1169,7 +1169,7 @@ allTests(TestHelper* helper)
         optional<ObjectPrx> p = communicator->stringToProxy("id:opaque -t -1 -v abc");
         test(false);
     }
-    catch (const Ice::EndpointParseException&)
+    catch (const Ice::ParseException&)
     {
     }
 
@@ -1179,7 +1179,7 @@ allTests(TestHelper* helper)
         optional<ObjectPrx> p = communicator->stringToProxy("id:opaque -t 99 -v x?c");
         test(false);
     }
-    catch (const Ice::EndpointParseException&)
+    catch (const Ice::ParseException&)
     {
     }
 

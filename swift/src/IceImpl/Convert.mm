@@ -59,27 +59,9 @@ convertException(std::exception_ptr exc)
     {
         return [factory noEndpointException:toNSString(e.proxy) file:toNSString(e.ice_file()) line:e.ice_line()];
     }
-    catch (const Ice::EndpointParseException& e)
+    catch (const Ice::ParseException& e)
     {
-        return [factory endpointParseException:toNSString(e.str) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::EndpointSelectionTypeParseException& e)
-    {
-        return [factory endpointSelectionTypeParseException:toNSString(e.str)
-                                                       file:toNSString(e.ice_file())
-                                                       line:e.ice_line()];
-    }
-    catch (const Ice::VersionParseException& e)
-    {
-        return [factory versionParseException:toNSString(e.str) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::IdentityParseException& e)
-    {
-        return [factory identityParseException:toNSString(e.str) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::ProxyParseException& e)
-    {
-        return [factory proxyParseException:toNSString(e.str) file:toNSString(e.ice_file()) line:e.ice_line()];
+        return [factory parseException:toNSString(e.what()) file:toNSString(e.ice_file()) line:e.ice_line()];
     }
     catch (const Ice::IllegalIdentityException& e)
     {

@@ -5,7 +5,7 @@
 #include "UdpEndpointI.h"
 #include "HashUtil.h"
 #include "Ice/InputStream.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Logger.h"
 #include "Ice/OutputStream.h"
 #include "Network.h"
@@ -203,10 +203,10 @@ IceInternal::UdpEndpointI::initWithOptions(vector<string>& args, bool oaEndpoint
         }
         else
         {
-            throw EndpointParseException(
+            throw ParseException(
                 __FILE__,
                 __LINE__,
-                "`--interface *' not valid for proxy endpoint `" + toString() + "'");
+                "'--interface *' not valid for proxy endpoint '" + toString() + "'");
         }
     }
 }
@@ -394,10 +394,10 @@ IceInternal::UdpEndpointI::checkOption(const string& option, const string& argum
     {
         if (!argument.empty())
         {
-            throw EndpointParseException(
+            throw ParseException(
                 __FILE__,
                 __LINE__,
-                "unexpected argument `" + argument + "' provided for -c option in " + endpoint);
+                "unexpected argument '" + argument + "' provided for -c option in endpoint '" + endpoint + "'");
         }
         const_cast<bool&>(_connect) = true;
     }
@@ -405,10 +405,10 @@ IceInternal::UdpEndpointI::checkOption(const string& option, const string& argum
     {
         if (!argument.empty())
         {
-            throw EndpointParseException(
+            throw ParseException(
                 __FILE__,
                 __LINE__,
-                "unexpected argument `" + argument + "' provided for -z option in " + endpoint);
+                "unexpected argument '" + argument + "' provided for -z option in endpoint '" + endpoint + "'");
         }
         const_cast<bool&>(_compress) = true;
     }
@@ -416,10 +416,10 @@ IceInternal::UdpEndpointI::checkOption(const string& option, const string& argum
     {
         if (argument.empty())
         {
-            throw EndpointParseException(
+            throw ParseException(
                 __FILE__,
                 __LINE__,
-                "no argument provided for " + option + " option in endpoint " + endpoint);
+                "no argument provided for " + option + " option in endpoint '" + endpoint + "'");
         }
         try
         {
@@ -430,22 +430,22 @@ IceInternal::UdpEndpointI::checkOption(const string& option, const string& argum
                 _instance->logger()->warning("deprecated udp endpoint option: " + option);
             }
         }
-        catch (const VersionParseException& ex)
+        catch (const ParseException& ex)
         {
-            throw EndpointParseException(
+            throw ParseException(
                 __FILE__,
                 __LINE__,
-                "invalid version `" + argument + "' in endpoint " + endpoint + ":\n" + ex.str);
+                "invalid version '" + argument + "' in endpoint '" + endpoint + "':\n" + ex.what());
         }
     }
     else if (option == "--interface")
     {
         if (argument.empty())
         {
-            throw EndpointParseException(
+            throw ParseException(
                 __FILE__,
                 __LINE__,
-                "no argument provided for --interface option in endpoint " + endpoint);
+                "no argument provided for --interface option in endpoint '" + endpoint + "'");
         }
         const_cast<string&>(_mcastInterface) = argument;
     }
@@ -453,18 +453,18 @@ IceInternal::UdpEndpointI::checkOption(const string& option, const string& argum
     {
         if (argument.empty())
         {
-            throw EndpointParseException(
+            throw ParseException(
                 __FILE__,
                 __LINE__,
-                "no argument provided for --ttl option in endpoint " + endpoint);
+                "no argument provided for --ttl option in endpoint '" + endpoint + "'");
         }
         istringstream p(argument);
         if (!(p >> const_cast<int32_t&>(_mcastTtl)) || !p.eof())
         {
-            throw EndpointParseException(
+            throw ParseException(
                 __FILE__,
                 __LINE__,
-                "invalid TTL value `" + argument + "' in endpoint " + endpoint);
+                "invalid TTL value '" + argument + "' in endpoint '" + endpoint + "'");
         }
     }
     else

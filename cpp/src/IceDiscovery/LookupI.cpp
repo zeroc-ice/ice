@@ -5,7 +5,7 @@
 #include "Ice/Communicator.h"
 #include "Ice/Connection.h"
 #include "Ice/Initialize.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/ObjectAdapter.h"
 #include "Ice/UUID.h"

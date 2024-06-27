@@ -254,7 +254,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
     func makeProxyImpl<ProxyImpl>(_ proxyString: String) throws -> ProxyImpl where ProxyImpl: ObjectPrxI {
         guard let proxy: ProxyImpl = try stringToProxyImpl(proxyString) else {
-            throw ProxyParseException(str: "Invalid empty proxy string")
+            throw ParseException(str: "invalid empty proxy string")
         }
         return proxy
     }

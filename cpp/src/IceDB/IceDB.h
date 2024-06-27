@@ -6,9 +6,9 @@
 #define ICE_DB_H
 
 #include "../Ice/FileUtil.h"
-#include "Ice/Exception.h"
 #include "Ice/Initialize.h"
 #include "Ice/InputStream.h"
+#include "Ice/LocalException.h"
 #include "Ice/OutputStream.h"
 
 #include <lmdb.h>

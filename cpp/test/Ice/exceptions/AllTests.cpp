@@ -47,12 +47,13 @@ allTests(Test::TestHelper* helper)
         A a;
         string aMsg = "::Test::A";
 
-        Ice::OperationNotExistException one("thisFile", 99);
-        string onePrint = "thisFile:99: ::Ice::OperationNotExistException";
+        Ice::OperationNotExistException opNotExist("thisFile", 99);
+        string opNotExistWhat = "dispatch failed with OperationNotExistException";
+        string opNotExistPrint = "thisFile:99: " + opNotExistWhat;
 
-        const char* customMessage = "custom message";
+        string customMessage = "custom message";
         Ice::UnknownLocalException customUle("thisFile", 199, customMessage);
-        string customUlePrint = "thisFile:199: custom message";
+        string customUlePrint = "thisFile:199: " + customMessage;
 
         //
         // Test ice_print().
@@ -64,8 +65,8 @@ allTests(Test::TestHelper* helper)
         }
         {
             stringstream str;
-            one.ice_print(str);
-            test(str.str() == onePrint);
+            opNotExist.ice_print(str);
+            test(str.str() == opNotExistPrint);
         }
         {
             stringstream str;
@@ -83,8 +84,8 @@ allTests(Test::TestHelper* helper)
         }
         {
             stringstream str;
-            str << one;
-            test(str.str() == onePrint);
+            str << opNotExistPrint;
+            test(str.str() == opNotExistPrint);
         }
         {
             stringstream str;
@@ -96,7 +97,7 @@ allTests(Test::TestHelper* helper)
         // Test what().
         //
         test(aMsg == a.what());
-        test(string{one.ice_id()} == one.what());
+        test(opNotExistWhat == opNotExist.what());
         test(string{customMessage} == customUle.what());
 
         {

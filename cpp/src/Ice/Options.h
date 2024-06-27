@@ -6,7 +6,7 @@
 #define ICE_OPTIONS_H
 
 #include "Ice/Config.h"
-#include "Ice/Exception.h"
+#include "Ice/LocalException.h"
 #include <map>
 #include <memory>
 #include <string>

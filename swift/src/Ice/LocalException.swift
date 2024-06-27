@@ -367,8 +367,8 @@ open class NoEndpointException: LocalException {
     }
 }
 
-/// This exception is raised if there was an error while parsing an endpoint.
-open class EndpointParseException: LocalException {
+/// This exception is raised if there was an error while parsing a string.
+open class ParseException: LocalException {
     /// Describes the failure and includes the string that could not be parsed.
     public var str: String = ""
 
@@ -385,130 +385,14 @@ open class EndpointParseException: LocalException {
     ///
     /// - returns: `String` - the Slice type ID of this exception.
     override open class func ice_staticId() -> String {
-        return "::Ice::EndpointParseException"
+        return "::Ice::ParseException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `String` - The string representaton of this exception.
     override open func ice_print() -> String {
-        return _EndpointParseExceptionDescription
-    }
-}
-
-/// This exception is raised if there was an error while parsing an endpoint selection type.
-open class EndpointSelectionTypeParseException: LocalException {
-    /// Describes the failure and includes the string that could not be parsed.
-    public var str: String = ""
-
-    public required init() {
-        super.init()
-    }
-
-    public init(str: String, file: String = #file, line: Int32 = #line) {
-        self.str = str
-        super.init(file: file, line: line)
-    }
-
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
-    override open class func ice_staticId() -> String {
-        return "::Ice::EndpointSelectionTypeParseException"
-    }
-
-    /// Returns a string representation of this exception
-    ///
-    /// - returns: `String` - The string representaton of this exception.
-    override open func ice_print() -> String {
-        return _EndpointSelectionTypeParseExceptionDescription
-    }
-}
-
-/// This exception is raised if there was an error while parsing a version.
-open class VersionParseException: LocalException {
-    /// Describes the failure and includes the string that could not be parsed.
-    public var str: String = ""
-
-    public required init() {
-        super.init()
-    }
-
-    public init(str: String, file: String = #file, line: Int32 = #line) {
-        self.str = str
-        super.init(file: file, line: line)
-    }
-
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
-    override open class func ice_staticId() -> String {
-        return "::Ice::VersionParseException"
-    }
-
-    /// Returns a string representation of this exception
-    ///
-    /// - returns: `String` - The string representaton of this exception.
-    override open func ice_print() -> String {
-        return _VersionParseExceptionDescription
-    }
-}
-
-/// This exception is raised if there was an error while parsing a stringified identity.
-open class IdentityParseException: LocalException {
-    /// Describes the failure and includes the string that could not be parsed.
-    public var str: String = ""
-
-    public required init() {
-        super.init()
-    }
-
-    public init(str: String, file: String = #file, line: Int32 = #line) {
-        self.str = str
-        super.init(file: file, line: line)
-    }
-
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
-    override open class func ice_staticId() -> String {
-        return "::Ice::IdentityParseException"
-    }
-
-    /// Returns a string representation of this exception
-    ///
-    /// - returns: `String` - The string representaton of this exception.
-    override open func ice_print() -> String {
-        return _IdentityParseExceptionDescription
-    }
-}
-
-/// This exception is raised if there was an error while parsing a stringified proxy.
-open class ProxyParseException: LocalException {
-    /// Describes the failure and includes the string that could not be parsed.
-    public var str: String = ""
-
-    public required init() {
-        super.init()
-    }
-
-    public init(str: String, file: String = #file, line: Int32 = #line) {
-        self.str = str
-        super.init(file: file, line: line)
-    }
-
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
-    override open class func ice_staticId() -> String {
-        return "::Ice::ProxyParseException"
-    }
-
-    /// Returns a string representation of this exception
-    ///
-    /// - returns: `String` - The string representaton of this exception.
-    override open func ice_print() -> String {
-        return _ProxyParseExceptionDescription
+        return _ParseExceptionDescription
     }
 }
 

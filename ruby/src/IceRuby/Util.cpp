@@ -3,7 +3,7 @@
 //
 
 #include "Util.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/VersionFunctions.h"
 #include <stdarg.h>
 
@@ -594,29 +594,9 @@ setExceptionMembers(std::exception_ptr ex, VALUE p)
         volatile VALUE v = createString(e.proxy);
         callRuby(rb_iv_set, p, "@proxy", v);
     }
-    catch (const Ice::EndpointParseException& e)
+    catch (const Ice::ParseException& e)
     {
-        volatile VALUE v = createString(e.str);
-        callRuby(rb_iv_set, p, "@str", v);
-    }
-    catch (const Ice::EndpointSelectionTypeParseException& e)
-    {
-        volatile VALUE v = createString(e.str);
-        callRuby(rb_iv_set, p, "@str", v);
-    }
-    catch (const Ice::VersionParseException& e)
-    {
-        volatile VALUE v = createString(e.str);
-        callRuby(rb_iv_set, p, "@str", v);
-    }
-    catch (const Ice::IdentityParseException& e)
-    {
-        volatile VALUE v = createString(e.str);
-        callRuby(rb_iv_set, p, "@str", v);
-    }
-    catch (const Ice::ProxyParseException& e)
-    {
-        volatile VALUE v = createString(e.str);
+        volatile VALUE v = createString(e.what());
         callRuby(rb_iv_set, p, "@str", v);
     }
     catch (const Ice::IllegalServantException& e)

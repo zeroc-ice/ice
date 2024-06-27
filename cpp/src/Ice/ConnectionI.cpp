@@ -10,7 +10,7 @@
 #include "Endian.h"
 #include "EndpointI.h"
 #include "Ice/IncomingRequest.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/OutgoingResponse.h"
 #include "Ice/Properties.h"

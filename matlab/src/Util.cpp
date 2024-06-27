@@ -3,7 +3,7 @@
 //
 
 #include "Util.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "ice.h"
 #include <codecvt>
 #include <iostream>
@@ -400,25 +400,9 @@ IceMatlab::convertException(const std::exception_ptr exc)
         {
             params[idx++] = createStringFromUTF8(e.proxy);
         }
-        catch (const Ice::EndpointParseException& e)
+        catch (const Ice::ParseException& e)
         {
-            params[idx++] = createStringFromUTF8(e.str);
-        }
-        catch (const Ice::EndpointSelectionTypeParseException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.str);
-        }
-        catch (const Ice::VersionParseException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.str);
-        }
-        catch (const Ice::IdentityParseException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.str);
-        }
-        catch (const Ice::ProxyParseException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.str);
+            params[idx++] = createStringFromUTF8(e.what());
         }
         catch (const Ice::IllegalServantException& e)
         {

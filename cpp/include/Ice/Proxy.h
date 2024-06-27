@@ -11,7 +11,7 @@
 #include "EndpointF.h"
 #include "EndpointSelectionType.h"
 #include "Ice/BuiltinSequences.h"
-#include "LocalException.h"
+#include "LocalExceptions.h"
 #include "ReferenceF.h"
 #include "RequestHandlerF.h"
 

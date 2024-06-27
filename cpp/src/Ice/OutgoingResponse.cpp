@@ -3,10 +3,11 @@
 //
 
 #include "Ice/OutgoingResponse.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/ObjectAdapter.h"
 #include "Ice/UserException.h"
 #include "Protocol.h"
+#include "RequestFailedMessage.h"
 
 using namespace std;
 using namespace Ice;
@@ -74,9 +75,8 @@ namespace
                 operation = current.operation;
             }
 
-            exceptionMessage = rfe.ice_hasDefaultMessage()
-                                   ? createRequestFailedMessage(rfe.ice_id(), id, facet, operation)
-                                   : rfe.what();
+            // +7 to slice-off "::Ice::".
+            exceptionMessage = createRequestFailedMessage(rfe.ice_id() + 7, id, facet, operation);
 
             if (current.requestId != 0)
             {

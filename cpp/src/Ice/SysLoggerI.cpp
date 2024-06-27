@@ -5,7 +5,7 @@
 #ifndef _WIN32
 
 #    include "SysLoggerI.h"
-#    include "Ice/LocalException.h"
+#    include "Ice/LocalExceptions.h"
 #    include <syslog.h>
 
 using namespace std;

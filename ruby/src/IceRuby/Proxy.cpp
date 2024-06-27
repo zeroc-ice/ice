@@ -7,7 +7,7 @@
 #include "Connection.h"
 #include "Endpoint.h"
 #include "Ice/DisableWarnings.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Locator.h"
 #include "Ice/Proxy.h"
 #include "Ice/Router.h"

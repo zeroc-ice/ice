@@ -7,7 +7,7 @@
 #include "ConnectionFactory.h"
 #include "ConnectionI.h"
 #include "Ice/ImplicitContext.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Instance.h"
 #include "ObjectAdapterFactory.h"
@@ -686,17 +686,13 @@ OutgoingAsync::response()
 
                 string operation;
                 _is.read(operation, false);
-
                 switch (replyStatus)
                 {
                     case replyObjectNotExist:
                     {
-                        string message =
-                            createRequestFailedMessage("::Ice::ObjectNotExistException", ident, facet, operation);
                         throw ObjectNotExistException{
                             __FILE__,
                             __LINE__,
-                            std::move(message),
                             std::move(ident),
                             std::move(facet),
                             std::move(operation)};
@@ -705,12 +701,9 @@ OutgoingAsync::response()
 
                     case replyFacetNotExist:
                     {
-                        string message =
-                            createRequestFailedMessage("::Ice::FacetNotExistException", ident, facet, operation);
                         throw FacetNotExistException{
                             __FILE__,
                             __LINE__,
-                            std::move(message),
                             std::move(ident),
                             std::move(facet),
                             std::move(operation)};
@@ -719,12 +712,9 @@ OutgoingAsync::response()
 
                     case replyOperationNotExist:
                     {
-                        string message =
-                            createRequestFailedMessage("::Ice::OperationNotExistException", ident, facet, operation);
                         throw OperationNotExistException{
                             __FILE__,
                             __LINE__,
-                            std::move(message),
                             std::move(ident),
                             std::move(facet),
                             std::move(operation)};

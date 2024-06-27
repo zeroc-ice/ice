@@ -5,7 +5,7 @@
 #include "Ice/Properties.h"
 #include "FileUtil.h"
 #include "Ice/Initialize.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/StringUtil.h"

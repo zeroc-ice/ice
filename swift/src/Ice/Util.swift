@@ -16,11 +16,11 @@ func stringToEncodingVersion(_ s: String) throws -> EncodingVersion {
 func stringToMajorMinor(_ s: String) throws -> (UInt8, UInt8) {
     let components = s.components(separatedBy: ".")
     guard components.count == 2 else {
-        throw VersionParseException(str: "malformed value `\(s)'")
+        throw ParseException(str: "malformed Ice version string '\(s)'")
     }
 
     guard let major = UInt8(components[0] as String), let minor = UInt8(components[1]) else {
-        throw VersionParseException(str: "invalid version value `\(s)'")
+        throw ParseException(str: "invalid Ice version value '\(s)'")
     }
 
     return (major, minor)

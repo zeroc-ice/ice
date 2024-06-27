@@ -6,7 +6,7 @@
 #include "../Instance.h"
 #include "../Network.h"
 #include "Ice/Communicator.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
@@ -52,7 +52,7 @@ TrustManager::TrustManager(const IceInternal::InstancePtr& instance) : _instance
         throw Ice::InitializationException(
             __FILE__,
             __LINE__,
-            "SSL transport: invalid property " + key + ":\n" + ex.reason);
+            "SSL transport: invalid property '" + key + "':\n" + ex.what());
     }
 }
 

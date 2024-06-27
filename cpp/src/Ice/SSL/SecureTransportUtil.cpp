@@ -7,7 +7,7 @@
 #include "../FileUtil.h"
 #include "../UniqueRef.h"
 #include "DistinguishedName.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/SSL/SSLException.h"
 #include "Ice/StringUtil.h"
 

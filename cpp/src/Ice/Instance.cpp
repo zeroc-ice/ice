@@ -12,9 +12,8 @@
 #include "FileUtil.h"
 #include "IPEndpointI.h" // For EndpointHostResolver
 #include "Ice/Communicator.h"
-#include "Ice/Exception.h"
 #include "Ice/Initialize.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Locator.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/ObserverHelper.h"

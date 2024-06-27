@@ -10,7 +10,7 @@
 #include "ConnectionIF.h"
 #include "Ice/Timer.h"
 #include "InputStream.h"
-#include "LocalException.h"
+#include "LocalExceptions.h"
 #include "ObjectAdapterF.h"
 #include "ObserverHelper.h"
 #include "OutputStream.h"
