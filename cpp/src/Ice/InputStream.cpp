@@ -42,7 +42,7 @@ void
 IceInternal::Ex::throwUOE(const string& expectedType, const ValuePtr& v)
 {
     //
-    // If the object is an unknown sliced object, we didn't find an
+    // If the object is an unknown sliced object, we didn't find a
     // value factory, in this case raise a NoValueFactoryException
     // instead.
     //
