@@ -15,6 +15,10 @@ enum var
 struct break
 {
     int while;
+    string clone;
+    string equals;
+    string hashCode;
+    string constructor;
 }
 
 interface case
@@ -32,6 +36,10 @@ class delete
     int if;
     case* else;
     int export;
+    string clone;
+    string equals;
+    string hashCode;
+    string constructor;
 }
 
 interface explicit extends typeof, case
