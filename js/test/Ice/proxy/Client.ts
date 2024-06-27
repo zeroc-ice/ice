@@ -483,6 +483,15 @@ export class Client extends TestHelper {
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(b1.ice_getContext().get("c1") == "TEST");
 
+        property = propertyPrefix + ".Context.c2";
+        test(!b1.ice_getContext().has("c2"));
+        prop.setProperty(property, "TEST");
+        b1 = communicator.propertyToProxy(propertyPrefix);
+        test(b1.ice_getContext().get("c2") == "TEST");
+
+        prop.setProperty(propertyPrefix + ".Context.c1", "");
+        prop.setProperty(propertyPrefix + ".Context.c2", "");
+
         out.writeLine("ok");
 
         out.write("testing proxyToProperty... ");
