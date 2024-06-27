@@ -10,8 +10,7 @@
 
 import { Property } from "./Property.js";
 export const PropertyNames = {};
-const IceProps =
-[
+const IceProps = [
     new Property("Ice.AcceptClassCycles", false, "0", false),
     new Property("Ice.Admin.AdapterId", false, "", false),
     new Property("Ice.Admin.Connection.CloseTimeout", false, "10", false),

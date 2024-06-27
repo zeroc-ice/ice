@@ -404,7 +404,7 @@ export class Properties {
             return null;
         }
 
-        for (const prop of propertiesForPrefix) {    
+        for (const prop of propertiesForPrefix) {
             if (prop.usesRegex ? key.match(prop.pattern) : key === prop.pattern) {
                 return prop;
             }
