@@ -937,7 +937,7 @@ namespace Ice
                     Task sleep2Task = p.sleepAsync(1000);
                     Task sleep3Task = p.sleepAsync(1000);
                     bool canceled = false;
-                    using(var cts = new CancellationTokenSource(200))
+                    using (var cts = new CancellationTokenSource(200))
                     {
                         try
                         {
@@ -948,7 +948,7 @@ namespace Ice
                             // cancellation doesn't cancel the operation whose payload is being sent.
                             onewayProxy.opWithPayloadAsync(new byte[768 * 1024]).Wait(cts.Token);
                         }
-                        catch(OperationCanceledException)
+                        catch (OperationCanceledException)
                         {
                             canceled = true;
                         }

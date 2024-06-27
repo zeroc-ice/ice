@@ -49,7 +49,6 @@ internal sealed class ThreadPoolSynchronizationContext : SynchronizationContext
     private ThreadPool _threadPool;
 }
 
-
 internal class ThreadPoolMessage : IDisposable
 {
     public ThreadPoolMessage(ThreadPoolCurrent current, object mutex)
