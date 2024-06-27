@@ -566,7 +566,7 @@ export class ReferenceFactory {
         //
         // Do not warn about unknown properties for Ice prefixes (Ice, Glacier2, etc.)
         //
-        for (const [validPrefix, _] of PropertyNames.validProps) {
+        for (const validPrefix of PropertyNames.validProps.keys()) {
             if (prefix.indexOf(`${validPrefix}.`) === 0) {
                 return;
             }

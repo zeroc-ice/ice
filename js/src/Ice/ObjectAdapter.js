@@ -567,7 +567,7 @@ export class ObjectAdapter {
         //
         let addUnknown = true;
         const prefix = this._name + ".";
-        for (const [validPrefix, _] of PropertyNames.validProps) {
+        for (const validPrefix of PropertyNames.validProps.keys()) {
             if (prefix.indexOf(`${validPrefix}.`) === 0) {
                 addUnknown = false;
                 break;

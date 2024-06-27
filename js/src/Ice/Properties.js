@@ -193,7 +193,7 @@ export class Properties {
 
     parseIceCommandLineOptions(options) {
         let args = options.slice();
-        for (const [prefix, properties] of PropertyNames.validProps) {
+        for (const prefix of PropertyNames.validProps.keys()) {
             args = this.parseCommandLineOptions(prefix, args);
         }
         return args;
