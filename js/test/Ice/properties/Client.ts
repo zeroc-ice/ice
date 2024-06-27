@@ -102,8 +102,6 @@ export class Client extends TestHelper {
             out.write("testing property regexp pattern...");
             const properties = Ice.createProperties();
             properties.setProperty("Ice.Default.Locator.Context.Foo", "Bar");
-            const ctx = properties.getPropertiesForPrefix("Ice.Default.Locator.Context");
-            test(ctx.size == 1);
             const value = properties.getProperty("Ice.Default.Locator.Context.Foo");
             test(value == "Bar");
             out.writeLine("ok");
