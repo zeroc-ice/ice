@@ -19,10 +19,6 @@ def MyValueFactory(type):
         return TestI.EI()
     elif type == "::Test::F":
         return TestI.FI()
-    elif type == "::Test::I":
-        return TestI.II()
-    elif type == "::Test::J":
-        return TestI.JI()
     assert False  # Should never be reached
 
 
@@ -37,8 +33,6 @@ def allTests(helper, communicator):
     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::D")
     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::E")
     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::F")
-    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::I")
-    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::J")
 
     sys.stdout.write("testing stringToProxy... ")
     sys.stdout.flush()

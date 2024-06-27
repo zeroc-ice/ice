@@ -142,16 +142,6 @@ module Ice
 
     T_ObjectPrx.defineProxy(ObjectPrx, nil, [])
 
-    class InterfaceByValue < Value
-        def initialize(id)
-            @id = id
-        end
-
-        def ice_id
-            @id
-        end
-    end
-
     #
     # UnknownSlicedValue.
     #

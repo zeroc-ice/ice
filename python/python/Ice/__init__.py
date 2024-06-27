@@ -364,14 +364,6 @@ class Value(object):
         return getattr(self, "_ice_slicedData", None)
 
 
-class InterfaceByValue(Value):
-    def __init__(self, id):
-        self.id = id
-
-    def ice_id(self):
-        return self.id
-
-
 class Object(object):
     def ice_isA(self, id, current=None):
         """Determines whether the target object supports the interface denoted

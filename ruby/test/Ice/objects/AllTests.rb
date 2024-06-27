@@ -4,18 +4,6 @@
 
 require './TestI.rb'
 
-class II < ::Ice::InterfaceByValue
-    def initialize()
-        super("::Test::I")
-    end
-end
-
-class JI < ::Ice::InterfaceByValue
-    def initialize()
-        super("::Test::J")
-    end
-end
-
 #
 # Ice for Ruby behaves differently than Ice for C++, because
 # collocated invocations are still sent "over the wire". Therefore
@@ -38,10 +26,6 @@ class MyValueFactory
             return EI.new
         elsif type == '::Test::F'
             return FI.new
-        elsif type == '::Test::I'
-            return II.new
-        elsif type == '::Test::J'
-            return JI.new
         end
         fail "unknown type"
     end

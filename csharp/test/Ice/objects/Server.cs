@@ -9,20 +9,6 @@ namespace Ice
     {
         public class Server : TestHelper
         {
-            public static Ice.Value MyValueFactory(string type)
-            {
-                if (type == "::Test::I")
-                {
-                    return new II();
-                }
-                else if (type == "::Test::J")
-                {
-                    return new JI();
-                }
-                Debug.Assert(false); // Should never be reached
-                return null;
-            }
-
             public override void run(string[] args)
             {
                 var initData = new InitializationData();
@@ -30,9 +16,6 @@ namespace Ice
                 initData.properties.setProperty("Ice.Warn.Dispatch", "0");
                 using (var communicator = initialize(initData))
                 {
-                    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::I");
-                    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::J");
-
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                     Ice.Object @object = new InitialI(adapter);
