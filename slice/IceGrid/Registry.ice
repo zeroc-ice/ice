@@ -16,7 +16,7 @@
 #include "Exception.ice"
 #include "Session.ice"
 #include "Admin.ice"
-#include "../Ice/Locator.ice"
+#include "Ice/Locator.ice"
 
 [["java:package:com.zeroc"]]
 
