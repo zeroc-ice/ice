@@ -918,9 +918,9 @@ public class AllTests {
     } catch (com.zeroc.Ice.UnknownLocalException ex) {
       // TODO: remove UnsupportedEncodingException
       test(
-          ex.unknown.indexOf("this Ice runtime does not support encoding version 1.2") > 0
-            || ex.unknown.indexOf("This Ice runtime does not support encoding version 1.2") > 0
-            || ex.unknown.indexOf("UnsupportedEncodingException") > 0);
+          ex.unknown.indexOf("::Ice::MarshalException") > 0
+              || ex.unknown.indexOf("Ice.MarshalException") > 0
+              || ex.unknown.indexOf("UnsupportedEncodingException") > 0);
     }
 
     try {
@@ -937,9 +937,9 @@ public class AllTests {
     } catch (com.zeroc.Ice.UnknownLocalException ex) {
       // TODO: remove UnsupportedEncodingException
       test(
-        ex.unknown.indexOf("this Ice runtime does not support encoding version 2.0") > 0
-          || ex.unknown.indexOf("This Ice runtime does not support encoding version 2.0") > 0
-          || ex.unknown.indexOf("UnsupportedEncodingException") > 0);
+          ex.unknown.indexOf("::Ice::MarshalException") > 0
+              || ex.unknown.indexOf("Ice.MarshalException") > 0
+              || ex.unknown.indexOf("UnsupportedEncodingException") > 0);
     }
 
     out.println("ok");

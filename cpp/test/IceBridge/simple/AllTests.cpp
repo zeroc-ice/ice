@@ -85,7 +85,7 @@ allTests(Test::TestHelper* helper)
                 // UnknownLocalException. It eventually closes the connection when notified
                 // of the connection close.
                 string message{ex.what()};
-                test(message.find("connection closed by the peer") != string::npos);
+                test(message.find("::Ice::CloseConnectionException") != string::npos);
             }
             this_thread::sleep_for(1ms);
         }

@@ -867,8 +867,8 @@ namespace Ice
                 {
                     // TODO: remove UnsupportedEncodingException
                     test(
-                        ex.unknown.Contains("this Ice runtime does not support encoding version 1.2") ||
-                        ex.unknown.Contains("This Ice runtime does not support encoding version 1.2") ||
+                        ex.unknown.Contains("::Ice::MarshalException") ||
+                        ex.unknown.Contains("Ice.MarshalException") ||
                         ex.unknown.Contains("UnsupportedEncodingException"));
                 }
 
@@ -883,16 +883,15 @@ namespace Ice
                     inEncaps[4] = version.major;
                     inEncaps[5] = version.minor;
                     byte[] outEncaps;
-                    cl.ice_invoke("ice_ping", Ice.OperationMode.Normal, inEncaps,
-                                                                  out outEncaps);
+                    cl.ice_invoke("ice_ping", Ice.OperationMode.Normal, inEncaps, out outEncaps);
                     test(false);
                 }
                 catch (Ice.UnknownLocalException ex)
                 {
                     // TODO: remove UnsupportedEncodingException
                     test(
-                        ex.unknown.Contains("this Ice runtime does not support encoding version 2.0") ||
-                        ex.unknown.Contains("This Ice runtime does not support encoding version 2.0") ||
+                        ex.unknown.Contains("::Ice::MarshalException") ||
+                        ex.unknown.Contains("Ice.MarshalException") ||
                         ex.unknown.Contains("UnsupportedEncodingException"));
                 }
 
