@@ -226,6 +226,14 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                 end
 
                 %
+                % If slicing is disabled, stop unmarshaling.
+                %
+                if ~obj.sliceValues
+                    reason = sprintf('cannot find a value factory for ''%s'' and slicing is disabled', obj.typeId);
+                    throw(Ice.MarshalException('', '', reason));
+                end
+
+                %
                 % Slice off what we don't understand.
                 %
                 obj.skipSlice();
