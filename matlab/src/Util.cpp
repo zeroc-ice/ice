@@ -428,37 +428,9 @@ IceMatlab::convertException(const std::exception_ptr exc)
             params[idx++] = mxCreateDoubleScalar(e.error);
             params[idx++] = createStringFromUTF8(e.host);
         }
-        catch (const Ice::BadMagicException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.reason);
-            params[idx++] = createByteList(e.badMagic);
-        }
-        catch (const Ice::UnsupportedProtocolException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.reason);
-            params[idx++] = createProtocolVersion(e.bad);
-            params[idx++] = createProtocolVersion(e.supported);
-        }
-        catch (const Ice::UnsupportedEncodingException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.reason);
-            params[idx++] = createEncodingVersion(e.bad);
-            params[idx++] = createEncodingVersion(e.supported);
-        }
-        catch (const Ice::NoValueFactoryException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.reason);
-            params[idx++] = createStringFromUTF8(e.type);
-        }
-        catch (const Ice::UnexpectedObjectException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.reason);
-            params[idx++] = createStringFromUTF8(e.type);
-            params[idx++] = createStringFromUTF8(e.expectedType);
-        }
         catch (const Ice::ProtocolException& e) // This must appear after all subclasses of ProtocolException.
         {
-            params[idx++] = createStringFromUTF8(e.reason);
+            params[idx++] = createStringFromUTF8(e.what());
         }
         catch (const Ice::ConnectionManuallyClosedException& e)
         {
@@ -466,7 +438,7 @@ IceMatlab::convertException(const std::exception_ptr exc)
         }
         catch (const Ice::FeatureNotSupportedException& e)
         {
-            params[idx++] = createStringFromUTF8(e.unsupportedFeature);
+            params[idx++] = createStringFromUTF8(e.what());
         }
         catch (const Ice::SecurityException& e)
         {

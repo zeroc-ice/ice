@@ -237,6 +237,7 @@ namespace Ice
 
     /**
      * Reports a failure that occurred while parsing a string.
+     *  \headerfile Ice/Ice.h
      */
     class ICE_API ParseException final : public LocalException
     {
@@ -248,6 +249,97 @@ namespace Ice
          * @param message The message returned by what().
          */
         ParseException(const char* file, int line, std::string message) : LocalException(file, line, std::move(message))
+        {
+        }
+
+        const char* ice_id() const noexcept final;
+    };
+
+    /**
+     * A generic exception base for all kinds of protocol error conditions.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API ProtocolException : public LocalException
+    {
+    public:
+        /**
+         * Constructs a ProtocolException.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         * @param message The message returned by what().
+         */
+        ProtocolException(const char* file, int line, std::string message)
+            : LocalException(file, line, std::move(message))
+        {
+        }
+
+        const char* ice_id() const noexcept override;
+    };
+
+    /**
+     * This exception indicates that the connection has been gracefully shut down by the server. The operation call that
+     * caused this exception has not been executed by the server. In most cases you will not get this exception, because
+     * the client will automatically retry the operation call in case the server shut down the connection. However, if
+     * upon retry the server shuts down the connection again, and the retry limit has been reached, then this exception
+     * is propagated to the application code.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API CloseConnectionException final : public ProtocolException
+    {
+    public:
+        CloseConnectionException(const char* file, int line)
+            : ProtocolException(file, line, "connection closed by the peer")
+        {
+        }
+
+        const char* ice_id() const noexcept final;
+    };
+
+    /**
+     * A datagram exceeds the configured size. This exception is raised if a datagram exceeds the configured send or
+     * receive buffer size, or exceeds the maximum payload size of a UDP packet (65507 bytes).
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API DatagramLimitException final : public ProtocolException
+    {
+    public:
+        DatagramLimitException(const char* file, int line)
+            : ProtocolException(file, line, "datagram size exceeds configured limit")
+        {
+        }
+
+        const char* ice_id() const noexcept final;
+    };
+
+    /**
+     * This exception is raised for errors during marshaling or unmarshaling data.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API MarshalException : public ProtocolException
+    {
+    public:
+        using ProtocolException::ProtocolException;
+
+        const char* ice_id() const noexcept final;
+    };
+
+    /**
+     * This exception is raised if an unsupported feature is used.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API FeatureNotSupportedException final : public LocalException
+    {
+    public:
+        using LocalException::LocalException;
+
+        /**
+         * Constructs a FeatureNotSupportedException.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         * @param message The message returned by what().
+         */
+        FeatureNotSupportedException(const char* file, int line, std::string message)
+            : LocalException(file, line, std::move(message))
         {
         }
 
@@ -1026,248 +1118,6 @@ namespace Ice
     };
 
     /**
-     * A generic exception base for all kinds of protocol error conditions.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API ProtocolException : public LocalException
-    {
-    public:
-        using LocalException::LocalException;
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param reason The reason for the failure.
-         */
-        ProtocolException(const char* file, int line, std::string reason) noexcept
-            : LocalException(file, line),
-              reason(std::move(reason))
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(reason); }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * The reason for the failure.
-         */
-        std::string reason;
-    };
-
-    /**
-     * This exception indicates that a message did not start with the expected magic number ('I', 'c', 'e', 'P').
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API BadMagicException : public ProtocolException
-    {
-    public:
-        using ProtocolException::ProtocolException;
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param reason The reason for the failure.
-         * @param badMagic A sequence containing the first four bytes of the incorrect message.
-         */
-        BadMagicException(const char* file, int line, std::string reason, ByteSeq badMagic) noexcept
-            : ProtocolException(file, line, std::move(reason)),
-              badMagic(std::move(badMagic))
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&, const ByteSeq&> ice_tuple() const noexcept { return std::tie(reason, badMagic); }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * A sequence containing the first four bytes of the incorrect message.
-         */
-        ByteSeq badMagic;
-    };
-
-    /**
-     * This exception indicates an unsupported protocol version.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API UnsupportedProtocolException : public ProtocolException
-    {
-    public:
-        using ProtocolException::ProtocolException;
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param reason The reason for the failure.
-         * @param bad The version of the unsupported protocol.
-         * @param supported The version of the protocol that is supported.
-         */
-        UnsupportedProtocolException(
-            const char* file,
-            int line,
-            std::string reason,
-            ProtocolVersion bad,
-            ProtocolVersion supported) noexcept
-            : ProtocolException(file, line, std::move(reason)),
-              bad(std::move(bad)),
-              supported(std::move(supported))
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&, const ProtocolVersion&, const ProtocolVersion&> ice_tuple() const noexcept
-        {
-            return std::tie(reason, bad, supported);
-        }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * The version of the unsupported protocol.
-         */
-        ProtocolVersion bad;
-        /**
-         * The version of the protocol that is supported.
-         */
-        ProtocolVersion supported;
-    };
-
-    /**
-     * This exception indicates an unsupported data encoding version.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API UnsupportedEncodingException : public ProtocolException
-    {
-    public:
-        using ProtocolException::ProtocolException;
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param reason The reason for the failure.
-         * @param bad The version of the unsupported encoding.
-         * @param supported The version of the encoding that is supported.
-         */
-        UnsupportedEncodingException(
-            const char* file,
-            int line,
-            std::string reason,
-            EncodingVersion bad,
-            EncodingVersion supported) noexcept
-            : ProtocolException(file, line, std::move(reason)),
-              bad(std::move(bad)),
-              supported(std::move(supported))
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&, const EncodingVersion&, const EncodingVersion&> ice_tuple() const noexcept
-        {
-            return std::tie(reason, bad, supported);
-        }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * The version of the unsupported encoding.
-         */
-        EncodingVersion bad;
-        /**
-         * The version of the encoding that is supported.
-         */
-        EncodingVersion supported;
-    };
-
-    /**
-     * This exception indicates that an unknown protocol message has been received.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API UnknownMessageException : public ProtocolException
-    {
-    public:
-        using ProtocolException::ProtocolException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception is raised if a message is received over a connection that is not yet validated.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API ConnectionNotValidatedException : public ProtocolException
-    {
-    public:
-        using ProtocolException::ProtocolException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception indicates that an unknown reply status has been received.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API UnknownReplyStatusException : public ProtocolException
-    {
-    public:
-        using ProtocolException::ProtocolException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception indicates that the connection has been gracefully shut down by the server. The operation call that
-     * caused this exception has not been executed by the server. In most cases you will not get this exception, because
-     * the client will automatically retry the operation call in case the server shut down the connection. However, if
-     * upon retry the server shuts down the connection again, and the retry limit has been reached, then this exception
-     * is propagated to the application code. \headerfile Ice/Ice.h
-     */
-    class ICE_API CloseConnectionException : public ProtocolException
-    {
-    public:
-        using ProtocolException::ProtocolException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
      * This exception is raised by an operation call if the application closes the connection locally using
      * {@link Connection#close}.
      * @see Connection#close
@@ -1305,270 +1155,6 @@ namespace Ice
          * True if the connection was closed gracefully, false otherwise.
          */
         bool graceful;
-    };
-
-    /**
-     * This exception indicates that a message size is less than the minimum required size.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API IllegalMessageSizeException : public ProtocolException
-    {
-    public:
-        using ProtocolException::ProtocolException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception indicates a problem with compressing or uncompressing data.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API CompressionException : public ProtocolException
-    {
-    public:
-        using ProtocolException::ProtocolException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * A datagram exceeds the configured size. This exception is raised if a datagram exceeds the configured send or
-     * receive buffer size, or exceeds the maximum payload size of a UDP packet (65507 bytes).
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API DatagramLimitException : public ProtocolException
-    {
-    public:
-        using ProtocolException::ProtocolException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception is raised for errors during marshaling or unmarshaling data.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API MarshalException : public ProtocolException
-    {
-    public:
-        using ProtocolException::ProtocolException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception is raised if inconsistent data is received while unmarshaling a proxy.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API ProxyUnmarshalException : public MarshalException
-    {
-    public:
-        using MarshalException::MarshalException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception is raised if an out-of-bounds condition occurs during unmarshaling.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API UnmarshalOutOfBoundsException : public MarshalException
-    {
-    public:
-        using MarshalException::MarshalException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception is raised if no suitable value factory was found during unmarshaling of a Slice class instance.
-     * @see ValueFactory
-     * @see Communicator#getValueFactoryManager
-     * @see ValueFactoryManager#add
-     * @see ValueFactoryManager#find
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API NoValueFactoryException : public MarshalException
-    {
-    public:
-        using MarshalException::MarshalException;
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param reason The reason for the failure.
-         * @param type The Slice type ID of the class instance for which no factory could be found.
-         */
-        NoValueFactoryException(const char* file, int line, std::string reason, std::string type) noexcept
-            : MarshalException(file, line, std::move(reason)),
-              type(std::move(type))
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&, const std::string&> ice_tuple() const noexcept { return std::tie(reason, type); }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * The Slice type ID of the class instance for which no factory could be found.
-         */
-        std::string type;
-    };
-
-    /**
-     * This exception is raised if the type of an unmarshaled Slice class instance does not match its expected type.
-     * This can happen if client and server are compiled with mismatched Slice definitions or if a class of the wrong
-     * type is passed as a parameter or return value using dynamic invocation. This exception can also be raised if
-     * IceStorm is used to send Slice class instances and an operation is subscribed to the wrong topic. \headerfile
-     * Ice/Ice.h
-     */
-    class ICE_API UnexpectedObjectException : public MarshalException
-    {
-    public:
-        using MarshalException::MarshalException;
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param reason The reason for the failure.
-         * @param type The Slice type ID of the class instance that was unmarshaled.
-         * @param expectedType The Slice type ID that was expected by the receiving operation.
-         */
-        UnexpectedObjectException(
-            const char* file,
-            int line,
-            std::string reason,
-            std::string type,
-            std::string expectedType) noexcept
-            : MarshalException(file, line, std::move(reason)),
-              type(std::move(type)),
-              expectedType(std::move(expectedType))
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&, const std::string&, const std::string&> ice_tuple() const noexcept
-        {
-            return std::tie(reason, type, expectedType);
-        }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * The Slice type ID of the class instance that was unmarshaled.
-         */
-        std::string type;
-        /**
-         * The Slice type ID that was expected by the receiving operation.
-         */
-        std::string expectedType;
-    };
-
-    /**
-     * This exception is raised when Ice receives a request or reply message whose size exceeds the limit specified by
-     * the <code>Ice.MessageSizeMax</code> property. \headerfile Ice/Ice.h
-     */
-    class ICE_API MemoryLimitException : public MarshalException
-    {
-    public:
-        using MarshalException::MarshalException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception is raised when a string conversion to or from UTF-8 fails during marshaling or unmarshaling.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API StringConversionException : public MarshalException
-    {
-    public:
-        using MarshalException::MarshalException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception indicates a malformed data encapsulation.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API EncapsulationException : public MarshalException
-    {
-    public:
-        using MarshalException::MarshalException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception is raised if an unsupported feature is used. The unsupported feature string contains the name of
-     * the unsupported feature. \headerfile Ice/Ice.h
-     */
-    class ICE_API FeatureNotSupportedException : public LocalException
-    {
-    public:
-        using LocalException::LocalException;
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param unsupportedFeature The name of the unsupported feature.
-         */
-        FeatureNotSupportedException(const char* file, int line, std::string unsupportedFeature) noexcept
-            : LocalException(file, line),
-              unsupportedFeature(std::move(unsupportedFeature))
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(unsupportedFeature); }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * The name of the unsupported feature.
-         */
-        std::string unsupportedFeature;
     };
 
     /**

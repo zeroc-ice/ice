@@ -559,7 +559,14 @@ OutgoingAsync::OutgoingAsync(ObjectPrx proxy, bool synchronous)
 void
 OutgoingAsync::prepare(string_view operation, OperationMode mode, const Context& context)
 {
-    checkSupportedProtocol(_proxy._getReference()->getProtocol());
+    if (_proxy._getReference()->getProtocol().major != currentProtocol.major)
+    {
+        throw FeatureNotSupportedException{
+            __FILE__,
+            __LINE__,
+            "cannot send request using protocol version " +
+                Ice::protocolVersionToString(_proxy._getReference()->getProtocol())};
+    }
 
     _mode = mode;
 
@@ -679,7 +686,7 @@ OutgoingAsync::response()
                 {
                     if (facetPath.size() > 1)
                     {
-                        throw MarshalException(__FILE__, __LINE__);
+                        throw MarshalException{__FILE__, __LINE__, "received facet path with more than one element"};
                     }
                     facet.swap(facetPath[0]);
                 }
@@ -768,7 +775,10 @@ OutgoingAsync::response()
 
             default:
             {
-                throw UnknownReplyStatusException(__FILE__, __LINE__);
+                throw ProtocolException{
+                    __FILE__,
+                    __LINE__,
+                    "received unknown reply status in Reply message" + to_string(replyStatus)};
             }
         }
 

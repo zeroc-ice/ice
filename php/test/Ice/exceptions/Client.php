@@ -220,7 +220,7 @@ function allTests($helper)
             $thrower->throwMemoryLimitException(array(0x00));
             test(false);
         }
-        catch(Ice\MemoryLimitException $ex)
+        catch(Ice\MarshalException $ex)
         {
         }
 

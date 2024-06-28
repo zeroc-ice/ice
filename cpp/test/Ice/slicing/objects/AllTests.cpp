@@ -197,6 +197,7 @@ namespace
 
         void exception_SBSUnknownDerivedAsSBaseCompact(const Ice::Exception& exc)
         {
+            // TODO: this test appears unused since this type ID no longer exists.
             test(string{exc.ice_id()} == "::Ice::NoValueFactoryException");
             called();
         }
@@ -205,6 +206,7 @@ namespace
 
         void exception_SUnknownAsObject10(const Ice::Exception& exc)
         {
+            // TODO: this test appears unused since this type ID no longer exists.
             test(string{exc.ice_id()} == "::Ice::NoValueFactoryException");
             called();
         }
@@ -589,7 +591,7 @@ namespace
             testPrx->checkSUnknown(o);
             dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_getSlicedData()->clear();
         }
-        catch (const Ice::NoValueFactoryException&)
+        catch (const Ice::MarshalException&)
         {
             test(testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0);
         }
@@ -795,7 +797,7 @@ allTests(Test::TestHelper* helper)
         catch (const Ice::OperationNotExistException&)
         {
         }
-        catch (const Ice::NoValueFactoryException&)
+        catch (const Ice::MarshalException&)
         {
             // Expected.
         }
@@ -847,7 +849,7 @@ allTests(Test::TestHelper* helper)
             f.get();
             test(false);
         }
-        catch (const Ice::NoValueFactoryException&)
+        catch (const Ice::MarshalException&)
         {
         }
         catch (...)
@@ -875,7 +877,7 @@ allTests(Test::TestHelper* helper)
                     f.get();
                     test(false);
                 }
-                catch (const Ice::NoValueFactoryException&)
+                catch (const Ice::MarshalException&)
                 {
                 }
                 catch (...)

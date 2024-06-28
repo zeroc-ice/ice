@@ -484,7 +484,7 @@ def allTests(helper, communicator):
         try:
             thrower.throwMemoryLimitException(array.array("B"))
             test(False)
-        except Ice.MemoryLimitException:
+        except Ice.MarshalException:
             pass
         except Exception:
             print(sys.exc_info())
@@ -838,15 +838,15 @@ def allTests(helper, communicator):
         try:
             thrower.throwMarshalException(context={"response": ""})
         except Ice.UnknownLocalException as ex:
-            test("::Ice::MarshalException" in str(ex))
+           test("cannot marshal result" in str(ex))
         try:
             thrower.throwMarshalException(context={"param": ""})
         except Ice.UnknownLocalException as ex:
-            test("::Ice::MarshalException" in str(ex))
+            test("cannot marshal result" in str(ex))
         try:
             thrower.throwMarshalException()
         except Ice.UnknownLocalException as ex:
-            test("::Ice::MarshalException" in str(ex))
+            test("cannot marshal result" in str(ex))
     except Ice.OperationNotExistException:
         pass
     print("ok")

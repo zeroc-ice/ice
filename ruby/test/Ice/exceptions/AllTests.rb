@@ -258,7 +258,7 @@ def allTests(helper, communicator)
     begin
         thrower.throwMemoryLimitException(Array.new(1, 0x00));
         test(false)
-    rescue Ice::MemoryLimitException
+    rescue Ice::MarshalException
         # Expected
     rescue
         test(false)

@@ -34,7 +34,7 @@ classdef InputStream < handle
         function r = readBool(obj)
             pos = obj.pos;
             if pos > obj.size
-                throw(Ice.UnmarshalOutOfBoundsException());
+                throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
             end
             if obj.buf(pos) == 0
                 r = false;
@@ -50,7 +50,7 @@ classdef InputStream < handle
             else
                 pos = obj.pos;
                 if pos + sz - 1 > obj.size
-                    throw(Ice.UnmarshalOutOfBoundsException());
+                    throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
                 end
                 r = logical(obj.buf(pos:pos + sz - 1));
                 obj.pos = pos + sz;
@@ -73,7 +73,7 @@ classdef InputStream < handle
         function r = readByte(obj)
             pos = obj.pos;
             if pos > obj.size
-                throw(Ice.UnmarshalOutOfBoundsException());
+                throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
             end
             r = obj.buf(pos);
             obj.pos = pos + 1;
@@ -85,7 +85,7 @@ classdef InputStream < handle
             else
                 pos = obj.pos;
                 if pos + sz - 1 > obj.size
-                    throw(Ice.UnmarshalOutOfBoundsException());
+                    throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
                 end
                 r = obj.buf(pos:pos + sz - 1);
                 obj.pos = pos + sz;
@@ -108,7 +108,7 @@ classdef InputStream < handle
         function r = readShort(obj)
             pos = obj.pos;
             if pos + 1 > obj.size
-                throw(Ice.UnmarshalOutOfBoundsException());
+                throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
             end
             r = typecast(uint8(obj.buf(pos:pos + 1)), 'int16');
             obj.pos = pos + 2;
@@ -120,7 +120,7 @@ classdef InputStream < handle
             else
                 pos = obj.pos;
                 if pos + sz * 2 - 1 > obj.size
-                    throw(Ice.UnmarshalOutOfBoundsException());
+                    throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
                 end
                 r = typecast(uint8(obj.buf(pos:pos + sz * 2 - 1)), 'int16');
                 obj.pos = pos + sz * 2;
@@ -144,7 +144,7 @@ classdef InputStream < handle
         function r = readInt(obj)
             pos = obj.pos;
             if pos + 3 > obj.size
-                throw(Ice.UnmarshalOutOfBoundsException());
+                throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
             end
             r = typecast(uint8(obj.buf(pos:pos + 3)), 'int32');
             obj.pos = pos + 4;
@@ -156,7 +156,7 @@ classdef InputStream < handle
             else
                 pos = obj.pos;
                 if pos + sz * 4 - 1 > obj.size
-                    throw(Ice.UnmarshalOutOfBoundsException());
+                    throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
                 end
                 r = typecast(uint8(obj.buf(pos:pos + sz * 4 - 1)), 'int32');
                 obj.pos = pos + sz * 4;
@@ -180,7 +180,7 @@ classdef InputStream < handle
         function r = readLong(obj)
             pos = obj.pos;
             if pos + 7 > obj.size
-                throw(Ice.UnmarshalOutOfBoundsException());
+                throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
             end
             r = typecast(uint8(obj.buf(pos:pos + 7)), 'int64');
             obj.pos = pos + 8;
@@ -192,7 +192,7 @@ classdef InputStream < handle
             else
                 pos = obj.pos;
                 if pos + sz * 8 - 1 > obj.size
-                    throw(Ice.UnmarshalOutOfBoundsException());
+                    throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
                 end
                 r = typecast(uint8(obj.buf(pos:pos + sz * 8 - 1)), 'int64');
                 obj.pos = pos + sz * 8;
@@ -216,7 +216,7 @@ classdef InputStream < handle
         function r = readFloat(obj)
             pos = obj.pos;
             if pos + 3 > obj.size
-                throw(Ice.UnmarshalOutOfBoundsException());
+                throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
             end
             r = typecast(uint8(obj.buf(pos:pos + 3)), 'single');
             obj.pos = pos + 4;
@@ -228,7 +228,7 @@ classdef InputStream < handle
             else
                 pos = obj.pos;
                 if pos + sz * 4 - 1 > obj.size
-                    throw(Ice.UnmarshalOutOfBoundsException());
+                    throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
                 end
                 r = typecast(uint8(obj.buf(pos:pos + sz * 4 - 1)), 'single');
                 obj.pos = pos + sz * 4;
@@ -252,7 +252,7 @@ classdef InputStream < handle
         function r = readDouble(obj)
             pos = obj.pos;
             if pos + 7 > obj.size
-                throw(Ice.UnmarshalOutOfBoundsException());
+                throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
             end
             r = typecast(uint8(obj.buf(pos:pos + 7)), 'double');
             obj.pos = pos + 8;
@@ -264,7 +264,7 @@ classdef InputStream < handle
             else
                 pos = obj.pos;
                 if pos + sz * 8 - 1 > obj.size
-                    throw(Ice.UnmarshalOutOfBoundsException());
+                    throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
                 end
                 r = typecast(uint8(obj.buf(pos:pos + sz * 8 - 1)), 'double');
                 obj.pos = pos + sz * 8;
@@ -292,7 +292,7 @@ classdef InputStream < handle
             else
                 pos = obj.pos;
                 if pos + sz - 1 > obj.size
-                    throw(Ice.UnmarshalOutOfBoundsException());
+                    throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
                 end
                 r = native2unicode(obj.buf(pos:pos + sz - 1), 'utf-8');
                 obj.pos = pos + sz;
@@ -323,7 +323,7 @@ classdef InputStream < handle
         function skip(obj, n)
             pos = obj.pos;
             if n < 0 || pos + n > obj.size + 1
-                throw(Ice.UnmarshalOutOfBoundsException());
+                throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
             end
             obj.pos = pos + n;
         end
@@ -361,10 +361,10 @@ classdef InputStream < handle
             %
             sz = obj.readInt();
             if sz < 6
-                throw(Ice.UnmarshalOutOfBoundsException());
+                throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
             end
             if obj.pos - 4 + sz > obj.size + 1
-                throw(Ice.UnmarshalOutOfBoundsException());
+                throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
             end
             obj.encapsStack.endPos = pos + sz;
 
@@ -384,7 +384,9 @@ classdef InputStream < handle
             % IceInternal.Protocol.checkSupportedEncoding(encoding); % Make sure the encoding is supported
             %
             if obj.encoding.major ~= 1 || (obj.encoding.minor ~= 0 && obj.encoding.minor ~= 1)
-                throw(Ice.UnsupportedEncodingException('', '', '', obj.encoding, Ice.EncodingVersion(1, 1)));
+                throw(Ice.MarshalException('', '', ...
+                    sprintf('this Ice runtime does not support encoding version ''%s''', ...
+                        Ice.encodingVersionToString(obj.encoding.major, obj.encoding.minor))));
             end
 
             obj.encapsStack.setEncoding(obj.encoding);
@@ -396,11 +398,11 @@ classdef InputStream < handle
             if ~obj.encoding_1_0
                 obj.skipOptionals();
                 if obj.pos ~= obj.encapsStack.endPos
-                    throw(Ice.EncapsulationException());
+                    throw(Ice.MarshalException('', '', 'buffer size does not match decoded encapsulation size'));
                 end
             elseif obj.pos ~= obj.encapsStack.endPos
                 if obj.pos + 1 ~= obj.encapsStack.endPos
-                    throw(Ice.EncapsulationException());
+                    throw(Ice.MarshalException('', '', 'buffer size does not match decoded encapsulation size'));
                 end
 
                 %
@@ -437,10 +439,10 @@ classdef InputStream < handle
         function skipEmptyEncapsulation(obj)
             sz = obj.readInt();
             if sz < 6
-                throw(Ice.EncapsulationException());
+                throw(Ice.MarshalException('', '', 'invalid encapsulation size'));
             end
             if obj.pos - 4 + sz > obj.size + 1
-                throw(Ice.UnmarshalOutOfBoundsException());
+                throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
             end
 
             %
@@ -459,13 +461,14 @@ classdef InputStream < handle
             % IceInternal.Protocol.checkSupportedEncoding(encoding); % Make sure the encoding is supported
             %
             if major ~= 1 || (minor ~= 0 && minor ~= 1)
-                throw(Ice.UnsupportedEncodingException('', '', '', Ice.EncodingVersion(major, minor), ...
-                                                       Ice.EncodingVersion(1, 1)));
+                throw(Ice.MarshalException('', '', ...
+                    sprintf('this Ice runtime does not support encoding version ''%s''', ...
+                        Ice.encodingVersionToString(major, minor))));
             end
 
             if major == 1 && minor == 0
                 if sz ~= 6
-                    throw(Ice.EncapsulationException());
+                    throw(Ice.MarshalException('', '', 'invalid encapsulation size'));
                 end
             else
                 %
@@ -479,10 +482,10 @@ classdef InputStream < handle
         function skipEncapsulation(obj)
             sz = obj.readInt();
             if sz < 6
-                throw(Ice.EncapsulationException());
+                throw(Ice.MarshalException('', '', 'invalid encapsulation size'));
             end
             if obj.pos - 4 + sz > obj.size + 1
-                throw(Ice.UnmarshalOutOfBoundsException());
+                throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
             end
 
             obj.pos = obj.pos + sz - 4;
@@ -509,18 +512,18 @@ classdef InputStream < handle
         function r = readSize(obj)
             pos = obj.pos;
             if pos > obj.size
-                throw(Ice.UnmarshalOutOfBoundsException());
+                throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
             end
             b = obj.buf(pos);
             pos = pos + 1;
             if b == 255
                 if pos + 3 > obj.size
-                    throw(Ice.UnmarshalOutOfBoundsException());
+                    throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
                 end
                 r = typecast(uint8(obj.buf(pos:pos + 3)), 'int32');
                 obj.pos = pos + 4;
                 if r < 0
-                    throw(Ice.UnmarshalOutOfBoundsException());
+                    throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
                 end
             else
                 obj.pos = pos;
@@ -579,7 +582,7 @@ classdef InputStream < handle
                         obj.skipOptional(format); % Skip optional data members
                     elseif format ~= expectedFormat
                         throw(Ice.MarshalException('', '', ...
-                                sprintf('invalid optional data member ''%d'': unexpected format', tag)));
+                            sprintf('invalid optional data member ''%d'': unexpected format', tag)));
                     else
                         r = true;
                         break;
@@ -626,7 +629,7 @@ classdef InputStream < handle
                 case Ice.OptionalFormat.FSize
                     sz = obj.readInt();
                     if sz < 0
-                        throw(Ice.UnmarshalOutOfBoundsException());
+                        throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
                     end
                     obj.skip(sz);
                 case Ice.OptionalFormat.Class
@@ -763,7 +766,7 @@ classdef InputStream < handle
         end
         function r = getBytes(obj, startPos, endPos) % The start and end positions are inclusive
             if startPos > obj.size || endPos > obj.size
-                throw(Ice.UnmarshalOutOfBoundsException());
+                throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
             elseif startPos < 1 || endPos < 1 || endPos < startPos
                 throw(Ice.MarshalException());
             end
@@ -807,7 +810,7 @@ classdef InputStream < handle
             % data: it's claiming to have more data than what is possible to read.
             %
             if obj.startSeq + obj.minSeqSize > obj.size + int32(1)
-                throw(Ice.UnmarshalOutOfBoundsException());
+                throw(Ice.MarshalException('', '', obj.endOfBufferMessage));
             end
 
             r = sz;
@@ -831,32 +834,34 @@ classdef InputStream < handle
                 if obj.encapsStack.encoding_1_0
                     obj.encapsStack.decoder = ...
                         IceInternal.EncapsDecoder10(obj, obj.encapsStack, obj.sliceValues, valueFactoryManager, ...
-                                                    obj.communicator.getClassResolver(), obj.classGraphDepthMax);
+                            obj.communicator.getClassResolver(), obj.classGraphDepthMax);
                 else
                     obj.encapsStack.decoder = ...
                         IceInternal.EncapsDecoder11(obj, obj.encapsStack, obj.sliceValues, valueFactoryManager, ...
-                                                    obj.communicator.getClassResolver(), obj.classGraphDepthMax);
+                            obj.communicator.getClassResolver(), obj.classGraphDepthMax);
                 end
                 obj.encapsStackDecoder = obj.encapsStack.decoder;
             end
         end
     end
-    methods(Static,Access=private)
+    methods (Static, Access = private)
+
         function throwUOE(expectedType, v)
             %
             % If the object is an unknown sliced object, we didn't find a
-            % value factory, in this case raise a NoValueFactoryException
+            % value factory, in this case raise a MarshalException
             % instead.
             %
             if isa(v, 'Ice.UnknownSlicedValue')
-                throw(Ice.NoValueFactoryException('', '', '', v.ice_id()));
+                throw(Ice.MarshalException('', '', ...
+                    sprintf('cannot find value factory to unmarshal class with type ID ''%s''', v.ice_id())));
             end
 
             type = class(v);
-            throw(Ice.UnexpectedObjectException('', '', ...
-                sprintf('expected element of type ''%s'' but received ''%s''', expectedType, type), type, ...
-                expectedType));
+            throw(Ice.MarshalException('', '', ...
+                sprintf('failed to unmarshal class with type ID ''%s'': value factory returned a class with type ID ''%s''', expectedType, type)));
         end
+
     end
     properties(Access=private)
         communicator
@@ -872,5 +877,8 @@ classdef InputStream < handle
         startSeq int32 = -1
         minSeqSize int32 = 0
         classGraphDepthMax = 0
+    end
+    properties(Constant,Access=private)
+        endOfBufferMessage = 'attempting to unmarshal past the end of the buffer'
     end
 end

@@ -586,7 +586,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, InputStream* s)
     {
         if (facetPath.size() > 1)
         {
-            throw ProxyUnmarshalException(__FILE__, __LINE__);
+            throw MarshalException{__FILE__, __LINE__, "received facet path with more than one element"};
         }
         facet.swap(facetPath[0]);
     }
@@ -596,7 +596,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, InputStream* s)
     Reference::Mode mode = static_cast<Reference::Mode>(modeAsByte);
     if (mode < 0 || mode > Reference::ModeLast)
     {
-        throw ProxyUnmarshalException(__FILE__, __LINE__);
+        throw MarshalException{__FILE__, __LINE__, "received proxy with invalid mode " + to_string(mode)};
     }
 
     bool secure;

@@ -433,10 +433,10 @@ function allTests($helper)
     }
     catch(Exception $ex)
     {
-        if($ex instanceof Ice\UnexpectedObjectException)
+        if($ex instanceof Ice\MarshalException)
         {
-            test($ex->type == "::Test::AlsoEmpty");
-            test($ex->expectedType == "::Test::Empty");
+            test(str_contains($ex->reason, "::Test::AlsoEmpty"));
+            test(str_contains($ex->reason, "::Test::Empty"));
         }
         else if($ex instanceof Ice\UnmarshalOutOfBoundsException)
         {

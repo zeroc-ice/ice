@@ -65,7 +65,7 @@ func createSentCallback(
 
 func escapeString(string: String, special: String, communicator: Communicator) throws -> String {
     guard factoriesRegistered else {
-        fatalError("Unable to initialie Ice")
+        fatalError("Unable to initialize Ice")
     }
     return try autoreleasepool {
         try ICEUtil.escapeString(
@@ -78,6 +78,7 @@ func escapeString(string: String, special: String, communicator: Communicator) t
 func checkSupportedEncoding(_ v: EncodingVersion) throws {
     let c = currentEncoding
     if v.major != c.major || v.minor > c.minor {
-        throw UnsupportedEncodingException(reason: "", bad: v, supported: c)
+        throw MarshalException(
+            reason: "this Ice runtime does not support encoding version \(encodingVersionToString(v))")
     }
 }

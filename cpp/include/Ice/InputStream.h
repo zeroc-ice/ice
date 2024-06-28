@@ -26,9 +26,9 @@
 
 namespace IceInternal::Ex
 {
-    ICE_API void throwUOE(const std::string&, const Ice::ValuePtr&);
-    ICE_API void throwMemoryLimitException(const char*, int, size_t, size_t);
-    ICE_API void throwMarshalException(const char*, int, std::string);
+    ICE_API void throwUOE(const char* file, int line, const std::string&, const Ice::ValuePtr&);
+    ICE_API void throwMemoryLimitException(const char* file, int line, size_t, size_t);
+    ICE_API void throwMarshalException(const char* file, int line, std::string);
 }
 
 namespace Ice
@@ -42,7 +42,7 @@ namespace Ice
         *ptr = std::dynamic_pointer_cast<T>(v);
         if (v && !(*ptr))
         {
-            IceInternal::Ex::throwUOE(std::string{T::ice_staticId()}, v);
+            IceInternal::Ex::throwUOE(__FILE__, __LINE__, std::string{T::ice_staticId()}, v);
         }
     }
     /// \endcond
@@ -270,7 +270,7 @@ namespace Ice
          * derived type is unknown. An instance is "sliced" when no static information is available
          * for a Slice type ID and no factory can be found for that type, resulting in the creation
          * of an instance of a less-derived type. If slicing is disabled in this situation, the
-         * stream raises the exception NoValueFactoryException. The default behavior is to allow slicing.
+         * stream raises the exception MarshalException. The default behavior is to allow slicing.
          * @param b True to enable slicing, false otherwise.
          */
         void setSliceValues(bool b);
@@ -949,19 +949,9 @@ namespace Ice
         // Reads a reference from the stream; the return value can be null.
         IceInternal::ReferencePtr readReference();
 
-        //
-        // String
-        //
         bool readConverted(std::string&, std::int32_t);
 
-        //
-        // We can't throw these exception from inline functions from within
-        // this file, because we cannot include the header with the
-        // exceptions. Doing so would screw up the whole include file
-        // ordering.
-        //
         void throwUnmarshalOutOfBoundsException(const char*, int);
-        void throwEncapsulationException(const char*, int);
 
         std::string resolveCompactId(int) const;
 

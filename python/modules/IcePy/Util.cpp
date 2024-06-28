@@ -783,57 +783,18 @@ convertLocalException(std::exception_ptr ex, PyObject* p)
         m = IcePy::createString(e.host);
         PyObject_SetAttrString(p, STRCAST("host"), m.get());
     }
-    catch (const Ice::BadMagicException& e)
-    {
-        IcePy::PyObjectHandle m = IcePy::byteSeqToList(e.badMagic);
-        PyObject_SetAttrString(p, STRCAST("badMagic"), m.get());
-    }
-    catch (const Ice::UnsupportedProtocolException& e)
-    {
-        IcePy::PyObjectHandle m;
-        m = IcePy::createProtocolVersion(e.bad);
-        PyObject_SetAttrString(p, STRCAST("bad"), m.get());
-        m = IcePy::createProtocolVersion(e.supported);
-        PyObject_SetAttrString(p, STRCAST("supported"), m.get());
-    }
-    catch (const Ice::UnsupportedEncodingException& e)
-    {
-        IcePy::PyObjectHandle m;
-        m = IcePy::createEncodingVersion(e.bad);
-        PyObject_SetAttrString(p, STRCAST("bad"), m.get());
-        m = IcePy::createEncodingVersion(e.supported);
-        PyObject_SetAttrString(p, STRCAST("supported"), m.get());
-    }
     catch (const Ice::ConnectionManuallyClosedException& e)
     {
         PyObject_SetAttrString(p, STRCAST("graceful"), e.graceful ? IcePy::getTrue() : IcePy::getFalse());
     }
-    catch (const Ice::NoValueFactoryException& e)
-    {
-        IcePy::PyObjectHandle m;
-        m = IcePy::createString(e.reason);
-        PyObject_SetAttrString(p, STRCAST("reason"), m.get());
-        m = IcePy::createString(e.type);
-        PyObject_SetAttrString(p, STRCAST("type"), m.get());
-    }
-    catch (const Ice::UnexpectedObjectException& e)
-    {
-        IcePy::PyObjectHandle m;
-        m = IcePy::createString(e.reason);
-        PyObject_SetAttrString(p, STRCAST("reason"), m.get());
-        m = IcePy::createString(e.type);
-        PyObject_SetAttrString(p, STRCAST("type"), m.get());
-        m = IcePy::createString(e.expectedType);
-        PyObject_SetAttrString(p, STRCAST("expectedType"), m.get());
-    }
     catch (const Ice::ProtocolException& e) // This must appear after all subclasses of ProtocolException.
     {
-        IcePy::PyObjectHandle m = IcePy::createString(e.reason);
+        IcePy::PyObjectHandle m = IcePy::createString(e.what());
         PyObject_SetAttrString(p, STRCAST("reason"), m.get());
     }
     catch (const Ice::FeatureNotSupportedException& e)
     {
-        IcePy::PyObjectHandle m = IcePy::createString(e.unsupportedFeature);
+        IcePy::PyObjectHandle m = IcePy::createString(e.what());
         PyObject_SetAttrString(p, STRCAST("unsupportedFeature"), m.get());
     }
     catch (const Ice::SecurityException& e)
@@ -865,10 +826,6 @@ IcePy::convertException(std::exception_ptr ex)
     }
     catch (const Ice::LocalException& e)
     {
-        ostringstream ostr;
-        ostr << e;
-        string str = ostr.str();
-
         type = lookupType(scopedToName(e.ice_id()));
         if (type)
         {
@@ -885,7 +842,7 @@ IcePy::convertException(std::exception_ptr ex)
             p = createExceptionInstance(type);
             if (p.get())
             {
-                PyObjectHandle s = createString(str);
+                PyObjectHandle s = createString(e.what());
                 PyObject_SetAttrString(p.get(), STRCAST("unknown"), s.get());
             }
         }

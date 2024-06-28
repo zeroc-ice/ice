@@ -294,9 +294,9 @@ def allTests(helper, communicator)
     begin
         uoet.op()
         test(false)
-    rescue Ice::UnexpectedObjectException => ex
-        test(ex.type == "::Test::AlsoEmpty")
-        test(ex.expectedType == "::Test::Empty")
+    rescue Ice::MarshalException => ex
+        test(ex.reason["::Test::AlsoEmpty"])
+        test(ex.reason["::Test::Empty"])
     rescue Ice::UnmarshalOutOfBoundsException => ex
         # This test raises Ice::UnmarshalOutOfBoundsException on Windows when the
         # server is compiled with VC6.

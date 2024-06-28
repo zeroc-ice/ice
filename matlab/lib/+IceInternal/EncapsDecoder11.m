@@ -102,7 +102,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                     % If this is the last slice, raise an exception and stop unmarshaling.
                     %
                     if bitand(obj.current.sliceFlags, Protocol.FLAG_IS_LAST_SLICE)
-                        throw(Ice.UnknownUserException('', '', mostDerivedId));
+                        throw(Ice.MarshalException('', '', sprintf('unknown exception type ''%s''', mostDerivedId)));
                     end
 
                     obj.startSlice();
@@ -179,7 +179,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             if bitand(current.sliceFlags, Protocol.FLAG_HAS_SLICE_SIZE)
                 current.sliceSize = is.readInt();
                 if current.sliceSize < 4
-                    throw(Ice.UnmarshalOutOfBoundsException());
+                    throw(Ice.MarshalException('', '', 'invalid slice size'));
                 end
             else
                 current.sliceSize = 0;
@@ -251,11 +251,11 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 is.skip(current.sliceSize - 4);
             else
                 if current.sliceType == IceInternal.SliceType.ValueSlice
-                    reason = ['no value factory found and compact format prevents ', ...
-                              'slicing (the sender should use the sliced format instead)'];
-                    throw(Ice.NoValueFactoryException('', reason, reason, current.typeId));
+                    reason = sprintf('cannot find value factory for type ID ''%s''', current.typeId);
+                    throw(Ice.MarshalException('', '', reason));
                 else
-                    throw(Ice.UnknownUserException('', '', current.typeId));
+                    reason = sprintf('cannot find user exception for type ID ''%s''', current.typeId);
+                    throw(Ice.MarshalException('', '', reason));
                 end
             end
 
@@ -371,8 +371,9 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 % If slicing is disabled, stop unmarshaling.
                 %
                 if ~obj.sliceValues
-                    reason = 'no value factory found and slicing is disabled';
-                    throw(Ice.NoValueFactoryException('', reason, reason, current.typeId));
+
+                    reason = sprintf('cannot find value factory for type ID ''%s'' and slicing is disabled', current.typeId);
+                    throw(Ice.MarshalException('', '', reason));
                 end
 
                 %

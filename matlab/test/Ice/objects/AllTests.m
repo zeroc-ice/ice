@@ -226,9 +226,9 @@ classdef AllTests
                 uoet.op();
                 assert(false);
             catch ex
-                if isa(ex, 'Ice.UnexpectedObjectException')
-                    assert(strcmp(ex.type_, 'Test.AlsoEmpty'));
-                    assert(strcmp(ex.expectedType, 'Test.Empty'));
+                if isa(ex, 'Ice.MarshalException')
+                    assert(contains(ex.reason, 'Test.AlsoEmpty'));
+                    assert(contains(ex.reason, 'Test.Empty'));
                 else
                     rethrow(ex);
                 end

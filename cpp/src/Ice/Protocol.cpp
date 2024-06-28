@@ -70,22 +70,4 @@ namespace IceInternal
         byte{0},
         byte{0} // Message size (placeholder)
     };
-
-    void throwUnsupportedProtocolException(
-        const char* f,
-        int l,
-        const Ice::ProtocolVersion& v,
-        const Ice::ProtocolVersion& s)
-    {
-        throw UnsupportedProtocolException(f, l, "", v, s);
-    }
-
-    void throwUnsupportedEncodingException(
-        const char* f,
-        int l,
-        const Ice::EncodingVersion& v,
-        const Ice::EncodingVersion& s)
-    {
-        throw UnsupportedEncodingException(f, l, "", v, s);
-    }
 }

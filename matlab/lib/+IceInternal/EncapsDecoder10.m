@@ -107,16 +107,14 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                     try
                         obj.startSlice();
                     catch ex
-                        if isa(ex, 'Ice.UnmarshalOutOfBoundsException')
+                        if isa(ex, 'Ice.MarshalException')
                             %
                             % An oversight in the 1.0 encoding means there is no marker to indicate
                             % the last slice of an exception. As a result, we just try to read the
                             % next type ID, which raises UnmarshalOutOfBoundsException when the
                             % input buffer underflows.
                             %
-                            % Set the reason member to a more helpful message.
-                            %
-                            ex.reason = ['unknown exception type `', mostDerivedId, ''''];
+                            throw(Ice.MarshalException('', '', sprintf('unknown exception type ''%s''', mostDerivedId)));
                         end
                         rethrow(ex);
                     end
@@ -176,7 +174,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
 
             obj.sliceSize = obj.is.readInt();
             if obj.sliceSize < 4
-                throw(Ice.UnmarshalOutOfBoundsException());
+                throw(Ice.MarshalException('', '', 'invalid slice size'));
             end
 
             r = obj.typeId;
@@ -215,7 +213,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                 % marks the last slice.
                 %
                 if strcmp(obj.typeId, Ice.Value.ice_staticId())
-                    throw(Ice.NoValueFactoryException('', '', '', mostDerivedId));
+                    throw(Ice.MarshalException('', '', sprintf('cannot find value factory for type ID ''%s''', mostDerivedId)));
                 end
 
                 v = obj.newInstance(obj.typeIdIndex, obj.typeId);
@@ -231,8 +229,8 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                 % If slicing is disabled, stop unmarshaling.
                 %
                 if ~obj.sliceValues
-                    reason = 'no value factory found and slicing is disabled';
-                    throw(Ice.NoValueFactoryException('', reason, reason, obj.typeId));
+                    reason = sprintf('cannot find a value factory for ''%s'' and slicing is disabled', obj.typeId);
+                    throw(Ice.MarshalException('', '', reason));
                 end
 
                 %

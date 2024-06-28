@@ -31,7 +31,7 @@ IncomingRequest::IncomingRequest(
     {
         if (facetPath.size() > 1)
         {
-            throw MarshalException{__FILE__, __LINE__};
+            throw MarshalException{__FILE__, __LINE__, "received facet path with more than one element"};
         }
         _current.facet = facetPath[0];
     }

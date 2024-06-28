@@ -869,7 +869,8 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
     if (numResults > 1 && (!PyTuple_Check(result) || PyTuple_GET_SIZE(result) != numResults))
     {
         ostringstream ostr;
-        ostr << "operation `" << fixIdent(name) << "' should return a tuple of length " << numResults;
+        ostr << "cannot marshal result: operation '" << fixIdent(name) << "' should return a tuple of length "
+             << numResults;
         throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
     }
 
@@ -912,7 +913,8 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
             {
                 // TODO: Provide the parameter name instead?
                 ostringstream ostr;
-                ostr << "invalid value for out argument " << (info->pos + 1) << " in operation `" << dispatchName;
+                ostr << "cannot marshal result: invalid value for out argument " << (info->pos + 1) << " in operation '"
+                     << dispatchName;
                 ostr << "':\n" << ex.what();
                 throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
             }
@@ -930,7 +932,8 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
             catch (const Ice::UnknownException& ex)
             {
                 ostringstream ostr;
-                ostr << "invalid return value for operation `" << dispatchName << "':\n" << ex.what();
+                ostr << "cannot marshal result: invalid return value for operation '" << dispatchName << "':\n"
+                     << ex.what();
                 throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
             }
         }
@@ -1393,7 +1396,7 @@ IcePy::Invocation::prepareRequest(
                     }
                     PyErr_Format(
                         PyExc_ValueError,
-                        STRCAST("invalid value for argument %" PY_FORMAT_SIZE_T "d in operation `%s'"),
+                        STRCAST("invalid value for argument %" PY_FORMAT_SIZE_T "d in operation '%s'"),
                         info->pos + 1,
                         const_cast<char*>(name.c_str()));
                     return false;
@@ -2332,7 +2335,7 @@ Upcall::dispatchImpl(PyObject* servant, const string& dispatchName, PyObject* ar
     if (!servantMethod.get())
     {
         ostringstream ostr;
-        ostr << "servant for identity " << communicator->identityToString(current.id) << " does not define operation `"
+        ostr << "servant for identity " << communicator->identityToString(current.id) << " does not define operation '"
              << dispatchName << "'";
         throw Ice::UnknownException{__FILE__, __LINE__, ostr.str()};
     }
@@ -2345,7 +2348,7 @@ Upcall::dispatchImpl(PyObject* servant, const string& dispatchName, PyObject* ar
     {
         ostringstream ostr;
         ostr << "_iceDispatch method not found for identity " << communicator->identityToString(current.id)
-             << " and operation `" << dispatchName << "'";
+             << " and operation '" << dispatchName << "'";
         throw Ice::UnknownException{__FILE__, __LINE__, ostr.str()};
     }
 
@@ -2637,7 +2640,7 @@ IcePy::BlobjectUpcall::response(PyObject* result)
         //
         if (!PyTuple_Check(result) || PyTuple_GET_SIZE(result) != 2)
         {
-            throw Ice::MarshalException(__FILE__, __LINE__, "operation `ice_invoke' should return a tuple of length 2");
+            throw Ice::MarshalException(__FILE__, __LINE__, "operation 'ice_invoke' should return a tuple of length 2");
         }
 
         PyObject* arg = PyTuple_GET_ITEM(result, 0);
@@ -2647,7 +2650,7 @@ IcePy::BlobjectUpcall::response(PyObject* result)
 
         if (!PyBytes_Check(arg))
         {
-            throw Ice::MarshalException(__FILE__, __LINE__, "invalid return value for operation `ice_invoke'");
+            throw Ice::MarshalException(__FILE__, __LINE__, "invalid return value for operation 'ice_invoke'");
         }
 
         Py_ssize_t sz = PyBytes_GET_SIZE(arg);

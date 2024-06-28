@@ -1331,7 +1331,7 @@ IcePy::StructInfo::marshal(
         {
             PyErr_Format(
                 PyExc_AttributeError,
-                STRCAST("no member `%s' found in %s value"),
+                STRCAST("no member '%s' found in %s value"),
                 memberName,
                 const_cast<char*>(id.c_str()));
             throw AbortMarshaling();
@@ -1340,7 +1340,7 @@ IcePy::StructInfo::marshal(
         {
             PyErr_Format(
                 PyExc_ValueError,
-                STRCAST("invalid value for %s member `%s'"),
+                STRCAST("invalid value for %s member '%s'"),
                 const_cast<char*>(id.c_str()),
                 memberName);
             throw AbortMarshaling();
@@ -1586,7 +1586,7 @@ IcePy::SequenceInfo::marshal(
             {
                 PyErr_Format(
                     PyExc_ValueError,
-                    STRCAST("invalid value for element %d of `%s'"),
+                    STRCAST("invalid value for element %d of '%s'"),
                     static_cast<int>(i),
                     const_cast<char*>(id.c_str()));
                 throw AbortMarshaling();
@@ -1799,7 +1799,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                     PyErr_Format(
                         PyExc_ValueError,
                         "sequence buffer byte order doesn't match the platform native byte-order "
-                        "`little-endian'");
+                        "'little-endian'");
                     PyBuffer_Release(&pybuf);
                     throw AbortMarshaling();
                 }
@@ -1808,7 +1808,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 {
                     PyErr_Format(
                         PyExc_ValueError,
-                        "sequence item size doesn't match the size of the sequence type `%s'",
+                        "sequence item size doesn't match the size of the sequence type '%s'",
                         itemtype[pi->kind]);
                     PyBuffer_Release(&pybuf);
                     throw AbortMarshaling();
@@ -2483,7 +2483,7 @@ IcePy::SequenceInfo::SequenceMapping::init(const Ice::StringSeq& meta)
         factory = lookupType("Ice.createArray");
         if (!factory)
         {
-            PyErr_Format(PyExc_ImportError, STRCAST("factory type not found `Ice.createArray'"));
+            PyErr_Format(PyExc_ImportError, STRCAST("factory type not found 'Ice.createArray'"));
             throw InvalidSequenceFactoryException();
         }
     }
@@ -2492,7 +2492,7 @@ IcePy::SequenceInfo::SequenceMapping::init(const Ice::StringSeq& meta)
         factory = lookupType("Ice.createNumPyArray");
         if (!factory)
         {
-            PyErr_Format(PyExc_ImportError, STRCAST("factory type not found `Ice.createNumPyArray'"));
+            PyErr_Format(PyExc_ImportError, STRCAST("factory type not found 'Ice.createNumPyArray'"));
             throw InvalidSequenceFactoryException();
         }
     }
@@ -2507,12 +2507,12 @@ IcePy::SequenceInfo::SequenceMapping::init(const Ice::StringSeq& meta)
                 factory = lookupType(typestr);
                 if (!factory)
                 {
-                    PyErr_Format(PyExc_ImportError, STRCAST("factory type not found `%s'"), typestr.c_str());
+                    PyErr_Format(PyExc_ImportError, STRCAST("factory type not found '%s'"), typestr.c_str());
                     throw InvalidSequenceFactoryException();
                 }
                 if (!PyCallable_Check(factory))
                 {
-                    PyErr_Format(PyExc_RuntimeError, STRCAST("factory type `%s' is not callable"), typestr.c_str());
+                    PyErr_Format(PyExc_RuntimeError, STRCAST("factory type '%s' is not callable"), typestr.c_str());
                     throw InvalidSequenceFactoryException();
                 }
                 break;
@@ -2831,14 +2831,14 @@ IcePy::DictionaryInfo::marshal(
         {
             if (!keyType->validate(key))
             {
-                PyErr_Format(PyExc_ValueError, STRCAST("invalid key in `%s' element"), const_cast<char*>(id.c_str()));
+                PyErr_Format(PyExc_ValueError, STRCAST("invalid key in '%s' element"), const_cast<char*>(id.c_str()));
                 throw AbortMarshaling();
             }
             keyType->marshal(key, os, objectMap, false);
 
             if (!valueType->validate(value))
             {
-                PyErr_Format(PyExc_ValueError, STRCAST("invalid value in `%s' element"), const_cast<char*>(id.c_str()));
+                PyErr_Format(PyExc_ValueError, STRCAST("invalid value in '%s' element"), const_cast<char*>(id.c_str()));
                 throw AbortMarshaling();
             }
             valueType->marshal(value, os, objectMap, false);
@@ -3623,7 +3623,7 @@ IcePy::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& me
             {
                 PyErr_Format(
                     PyExc_AttributeError,
-                    STRCAST("no member `%s' found in %s value"),
+                    STRCAST("no member '%s' found in %s value"),
                     memberName,
                     const_cast<char*>(_info->id.c_str()));
                 throw AbortMarshaling();
@@ -3639,7 +3639,7 @@ IcePy::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& me
         {
             PyErr_Format(
                 PyExc_ValueError,
-                STRCAST("invalid value for %s member `%s'"),
+                STRCAST("invalid value for %s member '%s'"),
                 const_cast<char*>(_info->id.c_str()),
                 memberName);
             throw AbortMarshaling();
@@ -3802,11 +3802,11 @@ IcePy::ReadValueCallback::invoke(const std::shared_ptr<Ice::Value>& p)
         PyObject* obj = reader->getObject(); // Borrowed reference.
         if (!PyObject_IsInstance(obj, _info->pythonType))
         {
-            Ice::UnexpectedObjectException ex(__FILE__, __LINE__);
-            ex.reason = "unmarshaled value is not an instance of " + _info->id;
-            ex.type = reader->getInfo()->getId();
-            ex.expectedType = _info->id;
-            throw ex;
+            throw MarshalException{
+                __FILE__,
+                __LINE__,
+                "failed to unmarshal class with type ID '" + _info->id +
+                    "': value factory returned a class with type ID '" + reader->getInfo()->id + "'"};
         }
 
         _cb->unmarshaled(obj, _target, _closure);
@@ -3872,7 +3872,7 @@ IcePy::ExceptionInfo::writeMembers(
             {
                 PyErr_Format(
                     PyExc_AttributeError,
-                    STRCAST("no member `%s' found in %s value"),
+                    STRCAST("no member '%s' found in %s value"),
                     memberName,
                     const_cast<char*>(id.c_str()));
                 throw AbortMarshaling();
@@ -3888,7 +3888,7 @@ IcePy::ExceptionInfo::writeMembers(
         {
             PyErr_Format(
                 PyExc_ValueError,
-                STRCAST("invalid value for %s member `%s'"),
+                STRCAST("invalid value for %s member '%s'"),
                 const_cast<char*>(id.c_str()),
                 memberName);
             throw AbortMarshaling();

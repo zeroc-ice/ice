@@ -11,33 +11,6 @@ using namespace Test;
 
 namespace
 {
-    void testUOE(const Ice::CommunicatorPtr& communicator)
-    {
-        UnexpectedObjectExceptionTestPrx uoet(
-            communicator,
-            "uoet:" + TestHelper::getTestEndpoint(communicator->getProperties()));
-
-        try
-        {
-            uoet->op();
-            test(false);
-        }
-        catch (const Ice::UnexpectedObjectException& ex)
-        {
-            test(ex.type == "::Test::AlsoEmpty");
-            test(ex.expectedType == "::Test::Empty");
-        }
-        catch (const Ice::Exception& ex)
-        {
-            cout << ex << endl;
-            test(false);
-        }
-        catch (...)
-        {
-            test(false);
-        }
-    }
-
     void clear(const CPtr&);
 
     void clear(const BPtr& b)
@@ -360,7 +333,30 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing UnexpectedObjectException... " << flush;
-    testUOE(communicator);
+    UnexpectedObjectExceptionTestPrx uoet(
+        communicator,
+        "uoet:" + TestHelper::getTestEndpoint(communicator->getProperties()));
+
+    try
+    {
+        uoet->op();
+        test(false);
+    }
+    catch (const Ice::MarshalException& ex)
+    {
+        string what = ex.what();
+        test(what.find("::Test::AlsoEmpty") != string::npos);
+        test(what.find("::Test::Empty") != string::npos);
+    }
+    catch (const Ice::Exception& ex)
+    {
+        cout << ex << endl;
+        test(false);
+    }
+    catch (...)
+    {
+        test(false);
+    }
     cout << "ok" << endl;
 
     try

@@ -9,6 +9,8 @@
 #include "Protocol.h"
 #include "RequestFailedMessage.h"
 
+#include <typeinfo>
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -133,7 +135,7 @@ namespace
             exceptionId = ex.ice_id();
             replyStatus = ReplyStatus::UnknownLocalException;
             ostringstream str;
-            str << ex;
+            str << ex; // this includes more details than ex.what()
             if (IceInternal::printStackTraces)
             {
                 str << '\n' << ex.ice_stackTrace();
@@ -145,7 +147,7 @@ namespace
             exceptionId = ex.ice_id();
             replyStatus = ReplyStatus::UnknownException;
             ostringstream str;
-            str << ex;
+            str << ex; // this includes more details than ex.what()
             if (IceInternal::printStackTraces)
             {
                 str << '\n' << ex.ice_stackTrace();
@@ -155,9 +157,9 @@ namespace
         catch (const std::exception& ex)
         {
             replyStatus = ReplyStatus::UnknownException;
-            exceptionId = ex.what();
+            exceptionId = typeid(ex).name(); // can be a mangled name with some compilers
             ostringstream str;
-            str << "c++ exception: " << exceptionId;
+            str << "c++ exception: " << ex.what();
             exceptionMessage = str.str();
         }
         catch (...)

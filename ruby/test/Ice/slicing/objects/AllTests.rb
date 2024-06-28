@@ -86,7 +86,7 @@ def allTests(helper, communicator)
             #
             sb = t.SBSUnknownDerivedAsSBaseCompact()
             test(false)
-        rescue Ice::NoValueFactoryException
+        rescue Ice::MarshalException
             # Expected.
         rescue
             test(false)
@@ -103,7 +103,7 @@ def allTests(helper, communicator)
         test(o.ice_id() == "::Test::SUnknown")
         test(o.ice_getSlicedData() != nil)
         t.checkSUnknown(o)
-    rescue Ice::NoValueFactoryException
+    rescue Ice::MarshalException
         test(t.ice_getEncodingVersion() == Ice::Encoding_1_0)
     rescue Ice::Exception
         test(false)

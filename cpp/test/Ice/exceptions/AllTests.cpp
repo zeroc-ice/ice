@@ -49,11 +49,11 @@ allTests(Test::TestHelper* helper)
 
         Ice::OperationNotExistException opNotExist("thisFile", 99);
         string opNotExistWhat = "dispatch failed with OperationNotExistException";
-        string opNotExistPrint = "thisFile:99: " + opNotExistWhat;
+        string opNotExistPrint = "thisFile:99 ::Ice::OperationNotExistException " + opNotExistWhat;
 
         string customMessage = "custom message";
         Ice::UnknownLocalException customUle("thisFile", 199, customMessage);
-        string customUlePrint = "thisFile:199: " + customMessage;
+        string customUlePrint = "thisFile:199 ::Ice::UnknownLocalException " + customMessage;
 
         //
         // Test ice_print().
@@ -563,7 +563,7 @@ allTests(Test::TestHelper* helper)
             thrower->throwMemoryLimitException(Ice::ByteSeq());
             test(false);
         }
-        catch (const Ice::MemoryLimitException&)
+        catch (const Ice::MarshalException&)
         {
         }
         catch (...)
@@ -596,7 +596,7 @@ allTests(Test::TestHelper* helper)
             {
                 thrower2->throwMemoryLimitException(Ice::ByteSeq(2 * 1024 * 1024)); // 2MB (no limits)
             }
-            catch (const Ice::MemoryLimitException&)
+            catch (const Ice::MarshalException&)
             {
             }
 

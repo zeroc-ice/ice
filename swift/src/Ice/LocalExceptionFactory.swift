@@ -179,52 +179,6 @@ class ExceptionFactory: ICEExceptionFactory {
         return TimeoutException(file: file, line: line)
     }
 
-    static func badMagicException(_ reason: String, badMagic: Data, file: String, line: Int32)
-        -> Error
-    {
-        return BadMagicException(reason: reason, badMagic: badMagic, file: file, line: line)
-    }
-
-    static func unsupportedProtocolException(
-        _ reason: String,
-        badMajor: UInt8,
-        badMinor: UInt8,
-        supportedMajor: UInt8,
-        supportedMinor: UInt8, file: String, line: Int32
-    ) -> Error {
-        return UnsupportedProtocolException(
-            reason: reason,
-            bad: ProtocolVersion(major: badMajor, minor: badMinor),
-            supported: ProtocolVersion(major: supportedMajor, minor: supportedMinor),
-            file: file, line: line)
-    }
-
-    static func unsupportedEncodingException(
-        _ reason: String,
-        badMajor: UInt8,
-        badMinor: UInt8,
-        supportedMajor: UInt8,
-        supportedMinor: UInt8, file: String, line: Int32
-    ) -> Error {
-        return UnsupportedEncodingException(
-            reason: reason,
-            bad: EncodingVersion(major: badMajor, minor: badMinor),
-            supported: EncodingVersion(major: supportedMajor, minor: supportedMinor),
-            file: file, line: line)
-    }
-
-    static func unknownMessageException(_ reason: String, file: String, line: Int32) -> Error {
-        return UnknownMessageException(reason: reason, file: file, line: line)
-    }
-
-    static func connectionNotValidatedException(_ reason: String, file: String, line: Int32) -> Error {
-        return ConnectionNotValidatedException(reason: reason, file: file, line: line)
-    }
-
-    static func unknownReplyStatusException(_ reason: String, file: String, line: Int32) -> Error {
-        return UnknownReplyStatusException(reason: reason, file: file, line: line)
-    }
-
     static func closeConnectionException(_ reason: String, file: String, line: Int32) -> Error {
         return CloseConnectionException(reason: reason, file: file, line: line)
     }
@@ -235,47 +189,8 @@ class ExceptionFactory: ICEExceptionFactory {
         return ConnectionManuallyClosedException(graceful: graceful, file: file, line: line)
     }
 
-    static func illegalMessageSizeException(_ reason: String, file: String, line: Int32) -> Error {
-        return IllegalMessageSizeException(reason: reason, file: file, line: line)
-    }
-
-    static func compressionException(_ reason: String, file: String, line: Int32) -> Error {
-        return CompressionException(reason: reason, file: file, line: line)
-    }
-
     static func datagramLimitException(_ reason: String, file: String, line: Int32) -> Error {
         return DatagramLimitException(reason: reason, file: file, line: line)
-    }
-
-    static func proxyUnmarshalException(_ reason: String, file: String, line: Int32) -> Error {
-        return ProxyUnmarshalException(reason: reason, file: file, line: line)
-    }
-
-    static func unmarshalOutOfBoundsException(_ reason: String, file: String, line: Int32) -> Error {
-        return UnmarshalOutOfBoundsException(reason: reason, file: file, line: line)
-    }
-
-    static func noValueFactoryException(_ reason: String, type: String, file: String, line: Int32)
-        -> Error
-    {
-        return NoValueFactoryException(reason: reason, type: type, file: file, line: line)
-    }
-
-    static func unexpectedObjectException(
-        _ reason: String, type: String, expectedType: String,
-        file: String, line: Int32
-    ) -> Error {
-        return UnexpectedObjectException(
-            reason: reason, type: type, expectedType: expectedType,
-            file: file, line: line)
-    }
-
-    static func memoryLimitException(_ reason: String, file: String, line: Int32) -> Error {
-        return MemoryLimitException(reason: reason, file: file, line: line)
-    }
-
-    static func encapsulationException(_ reason: String, file: String, line: Int32) -> Error {
-        return EncapsulationException(reason: reason, file: file, line: line)
     }
 
     static func marshalException(_ reason: String, file: String, line: Int32) -> Error {

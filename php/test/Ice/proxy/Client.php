@@ -505,7 +505,7 @@ function allTests($helper)
         $cl20->ice_ping();
         test(false);
     }
-    catch(Ice\UnsupportedEncodingException $ex)
+    catch(Ice\MarshalException $ex)
     {
         // Server 2.0 endpoint doesn't support 1.1 version.
     }

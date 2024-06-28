@@ -224,17 +224,7 @@ namespace Ice
          * @param v The start of the buffer.
          * @param sz The number of bytes to copy.
          */
-        void writeEncapsulation(const std::byte* v, std::int32_t sz)
-        {
-            if (sz < 6)
-            {
-                throwEncapsulationException(__FILE__, __LINE__);
-            }
-
-            Container::size_type position = b.size();
-            resize(position + static_cast<size_t>(sz));
-            memcpy(&b[position], &v[0], static_cast<size_t>(sz));
-        }
+        void writeEncapsulation(const std::byte* v, std::int32_t sz);
 
         /**
          * Determines the current encoding version.
@@ -814,14 +804,6 @@ namespace Ice
         // String
         //
         void writeConverted(const char*, size_t);
-
-        //
-        // We can't throw this exception from inline functions from within
-        // this file, because we cannot include the header with the
-        // exceptions. Doing so would screw up the whole include file
-        // ordering.
-        //
-        void throwEncapsulationException(const char*, int);
 
         //
         // Optimization. The instance may not be deleted while a

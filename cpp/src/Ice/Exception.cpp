@@ -531,9 +531,14 @@ Ice::Exception::ice_print(ostream& out) const
 {
     if (_file && _line > 0)
     {
-        out << _file << ':' << _line << ": ";
+        out << _file << ':' << _line << ' ';
     }
-    out << what();
+    out << ice_id();
+    // We assume a custom what message does not repeat the exception type ID.
+    if (_what)
+    {
+        out << ' ' << _what;
+    }
 }
 
 const char*

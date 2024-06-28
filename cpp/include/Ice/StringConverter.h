@@ -16,7 +16,7 @@
 namespace Ice
 {
     /**
-     * Provides bytes to toUTF8. Can raise std::bad_alloc or Ice::MemoryLimitException
+     * Provides bytes to toUTF8. Can raise std::bad_alloc or Ice::MarshalException
      * when too many bytes are requested.
      * \headerfile Ice/Ice.h
      */

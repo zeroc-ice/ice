@@ -635,48 +635,9 @@ setExceptionMembers(std::exception_ptr ex, VALUE p)
         v = createString(e.host);
         callRuby(rb_iv_set, p, "@host", v);
     }
-    catch (const Ice::BadMagicException& e)
-    {
-        volatile VALUE v = createNumSeq(e.badMagic);
-        callRuby(rb_iv_set, p, "@badMagic", v);
-    }
-    catch (const Ice::UnsupportedProtocolException& e)
-    {
-        VALUE m;
-        m = createProtocolVersion(e.bad);
-        callRuby(rb_iv_set, p, "@bad", m);
-        m = createProtocolVersion(e.supported);
-        callRuby(rb_iv_set, p, "@supported", m);
-    }
-    catch (const Ice::UnsupportedEncodingException& e)
-    {
-        VALUE m;
-        m = createEncodingVersion(e.bad);
-        callRuby(rb_iv_set, p, "@bad", m);
-        m = createEncodingVersion(e.supported);
-        callRuby(rb_iv_set, p, "@supported", m);
-    }
-    catch (const Ice::NoValueFactoryException& e)
-    {
-        volatile VALUE v;
-        v = createString(e.reason);
-        callRuby(rb_iv_set, p, "@reason", v);
-        v = createString(e.type);
-        callRuby(rb_iv_set, p, "@type", v);
-    }
-    catch (const Ice::UnexpectedObjectException& e)
-    {
-        volatile VALUE v;
-        v = createString(e.reason);
-        callRuby(rb_iv_set, p, "@reason", v);
-        v = createString(e.type);
-        callRuby(rb_iv_set, p, "@type", v);
-        v = createString(e.expectedType);
-        callRuby(rb_iv_set, p, "@expectedType", v);
-    }
     catch (const Ice::ProtocolException& e) // This must appear after all subclasses of ProtocolException.
     {
-        volatile VALUE v = createString(e.reason);
+        volatile VALUE v = createString(e.what());
         callRuby(rb_iv_set, p, "@reason", v);
     }
     catch (const Ice::ConnectionManuallyClosedException& e)
@@ -685,7 +646,7 @@ setExceptionMembers(std::exception_ptr ex, VALUE p)
     }
     catch (const Ice::FeatureNotSupportedException& e)
     {
-        volatile VALUE v = createString(e.unsupportedFeature);
+        volatile VALUE v = createString(e.what());
         callRuby(rb_iv_set, p, "@unsupportedFeature", v);
     }
     catch (const Ice::SecurityException& e)
