@@ -28,19 +28,7 @@ import array
 _dlopenflags = -1
 try:
     _dlopenflags = sys.getdlopenflags()
-
-    try:
-        import dl
-
-        sys.setdlopenflags(dl.RTLD_NOW | dl.RTLD_GLOBAL)
-    except ImportError:
-        #
-        # If the dl module is not available and we're running on a Linux
-        # platform, use the hard coded value of RTLD_NOW|RTLD_GLOBAL.
-        #
-        if sys.platform.startswith("linux"):
-            sys.setdlopenflags(258)
-        pass
+    sys.setdlopenflags(os.RTLD_NOW | os.RTLD_GLOBAL)
 
 except AttributeError:
     #
