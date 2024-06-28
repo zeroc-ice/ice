@@ -63,7 +63,7 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   |-------------------------------------|----------------------------|
   | BadMagicException                   | ProtocolException (base)   |
   | CompressionException                | ProtocolException (base)   |
-  | ConnectionManuallyClosedException   | ConnectionAbortedException, ConnectionClosedException  |
+  | ConnectionManuallyClosedException   | ConnectionAbortedException, ConnectionClosedException |
   | ConnectionNotValidatedException     | ProtocolException (base)   |
   | EncapsulationException              | MarshalException (base)    |
   | EndpointParseException              | ParseException             |
