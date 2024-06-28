@@ -574,7 +574,7 @@ IceRuby::OperationI::unmarshalException(const vector<byte>& bytes, const Ice::Co
             volatile VALUE cls = CLASS_OF(ex);
             volatile VALUE path = callRuby(rb_class_path, cls);
             assert(TYPE(path) == T_STRING);
-            throw Ice::UnknownUserException{__FILE__, __LINE__, RSTRING_PTR(path)};
+            throw Ice::UnknownUserException{__FILE__, __LINE__, string(RSTRING_PTR(path), RSTRING_LEN(path))};
         }
     }
 
