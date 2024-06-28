@@ -430,7 +430,7 @@ IceMatlab::convertException(const std::exception_ptr exc)
         }
         catch (const Ice::ProtocolException& e) // This must appear after all subclasses of ProtocolException.
         {
-            params[idx++] = createStringFromUTF8(e.reason);
+            params[idx++] = createStringFromUTF8(e.what());
         }
         catch (const Ice::ConnectionManuallyClosedException& e)
         {
@@ -438,7 +438,7 @@ IceMatlab::convertException(const std::exception_ptr exc)
         }
         catch (const Ice::FeatureNotSupportedException& e)
         {
-            params[idx++] = createStringFromUTF8(e.unsupportedFeature);
+            params[idx++] = createStringFromUTF8(e.what());
         }
         catch (const Ice::SecurityException& e)
         {

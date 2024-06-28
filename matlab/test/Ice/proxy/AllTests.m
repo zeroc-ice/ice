@@ -704,7 +704,7 @@ classdef AllTests
                 assert(false);
             catch ex
                 % Server 2.0 endpoint doesn't support 1.1 version.
-                assert(isa(ex, 'Ice.UnsupportedEncodingException'));
+                assert(isa(ex, 'Ice.MarshalException'));
             end
 
             ref10 = 'test -e 1.0:default -p 12010';

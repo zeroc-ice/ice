@@ -116,7 +116,7 @@ classdef AllTests
                     proxy.SBSUnknownDerivedAsSBaseCompact();
                     assert(false);
                 catch ex
-                    if isa(ex, 'Ice.NoValueFactoryException')
+                    if isa(ex, 'Ice.MarshalException')
                         % Expected.
                     elseif isa(ex, 'Ice.OperationNotExistException')
                         % Ignore
@@ -151,7 +151,7 @@ classdef AllTests
                     proxy.SBSUnknownDerivedAsSBaseCompactAsync().fetchOutputs();
                     assert(false);
                 catch ex
-                    if isa(ex, 'Ice.NoValueFactoryException')
+                    if isa(ex, 'Ice.MarshalException')
                         % Expected.
                     elseif isa(ex, 'Ice.OperationNotExistException')
                         % Ignore
@@ -173,7 +173,7 @@ classdef AllTests
                 assert(~isempty(o.ice_getSlicedData()));
                 proxy.checkSUnknown(o);
             catch ex
-                if isa(ex, 'Ice.NoValueFactoryException')
+                if isa(ex, 'Ice.MarshalException')
                     assert(proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0));
                 else
                     rethrow(ex);
@@ -192,7 +192,7 @@ classdef AllTests
                 assert(~isempty(o.ice_getSlicedData()));
                 proxy.checkSUnknown(o);
             catch ex
-                if isa(ex, 'Ice.NoValueFactoryException')
+                if isa(ex, 'Ice.MarshalException')
                     assert(proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0));
                 else
                     rethrow(ex);

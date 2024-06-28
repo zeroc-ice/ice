@@ -68,7 +68,7 @@ classdef (Abstract) EncapsDecoder < handle
             if typeIdIndex <= length(obj.typeIdMap)
                 r = obj.typeIdMap{typeIdIndex};
             else
-                throw(Ice.UnmarshalOutOfBoundsException());
+                throw(Ice.MarshalException('', '', 'unknown type id index'));
             end
         end
         function [typeIdIndex, typeId] = readTypeId(obj)
@@ -91,7 +91,7 @@ classdef (Abstract) EncapsDecoder < handle
                     r = constructor(); % Invoke the constructor.
                 catch e
                     reason = sprintf('constructor failed for %s', typeId);
-                    ex = Ice.NoValueFactoryException('', reason, reason, typeId);
+                    ex = Ice.MarshalException('', reason, reason);
                     ex.addCause(e);
                     throw(ex);
                 end
