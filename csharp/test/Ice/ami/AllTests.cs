@@ -937,26 +937,24 @@ namespace Ice
                     Task sleep2Task = p.sleepAsync(1000);
                     Task sleep3Task = p.sleepAsync(1000);
                     bool canceled = false;
-                    using(var cts = new CancellationTokenSource(200))
+                    using var cts = new CancellationTokenSource(200);
+                    try
                     {
-                        try
-                        {
-                            var onewayProxy = (Test.TestIntfPrx)p.ice_oneway();
+                        var onewayProxy = (Test.TestIntfPrx)p.ice_oneway();
 
-                            // Sending should be canceled because the TCP send/receive buffer size on the server is set
-                            // to 50KB. Note: we don't use the cancel parameter of the operation here because the
-                            // cancellation doesn't cancel the operation whose payload is being sent.
-                            onewayProxy.opWithPayloadAsync(new byte[768 * 1024]).Wait(cts.Token);
-                        }
-                        catch(OperationCanceledException)
-                        {
-                            canceled = true;
-                        }
+                        // Sending should be canceled because the TCP send/receive buffer size on the server is set
+                        // to 50KB. Note: we don't use the cancel parameter of the operation here because the
+                        // cancellation doesn't cancel the operation whose payload is being sent.
+                        await onewayProxy.opWithPayloadAsync(new byte[768 * 1024]).WaitAsync(cts.Token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        canceled = true;
                     }
                     test(canceled && !sleep1Task.IsCompleted);
-                    sleep1Task.Wait();
-                    sleep2Task.Wait();
-                    sleep3Task.Wait();
+                    await sleep1Task;
+                    await sleep2Task;
+                    await sleep3Task;
                 }
                 output.WriteLine("ok");
 
