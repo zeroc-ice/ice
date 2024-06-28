@@ -867,7 +867,8 @@ namespace Ice
                 {
                     // TODO: remove UnsupportedEncodingException
                     test(
-                        ex.unknown.Contains("MarshalException") ||
+                        ex.unknown.Contains("this Ice runtime does not support encoding version 1.2") ||
+                        ex.unknown.Contains("This Ice runtime does not support encoding version 1.2") ||
                         ex.unknown.Contains("UnsupportedEncodingException"));
                 }
 
@@ -890,7 +891,8 @@ namespace Ice
                 {
                     // TODO: remove UnsupportedEncodingException
                     test(
-                        ex.unknown.Contains("MarshalException") ||
+                        ex.unknown.Contains("this Ice runtime does not support encoding version 2.0") ||
+                        ex.unknown.Contains("This Ice runtime does not support encoding version 2.0") ||
                         ex.unknown.Contains("UnsupportedEncodingException"));
                 }
 

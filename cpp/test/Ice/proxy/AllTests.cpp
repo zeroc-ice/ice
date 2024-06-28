@@ -1011,7 +1011,8 @@ allTests(TestHelper* helper)
         // TODO: remove UnsupportedEncodingException
         string message{ex.what()};
         test(
-            message.find("MarshalException") != string::npos ||
+            message.find("this Ice runtime does not support encoding version 1.2") != string::npos ||
+            message.find("This Ice runtime does not support encoding version 1.2") != string::npos ||
             message.find("UnsupportedEncodingException") != string::npos);
     }
 
@@ -1035,7 +1036,8 @@ allTests(TestHelper* helper)
         // TODO: remove UnsupportedEncodingException
         string message{ex.what()};
         test(
-            message.find("MarshalException") != string::npos ||
+            message.find("this Ice runtime does not support encoding version 2.0") != string::npos ||
+            message.find("This Ice runtime does not support encoding version 2.0") != string::npos ||
             message.find("UnsupportedEncodingException") != string::npos);
     }
 

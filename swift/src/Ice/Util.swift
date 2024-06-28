@@ -79,6 +79,6 @@ func checkSupportedEncoding(_ v: EncodingVersion) throws {
     let c = currentEncoding
     if v.major != c.major || v.minor > c.minor {
         throw MarshalException(
-            reason: "the Ice runtime does not support encoding version \(encodingVersionToString(v))")
+            reason: "this Ice runtime does not support encoding version \(encodingVersionToString(v))")
     }
 }

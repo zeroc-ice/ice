@@ -745,7 +745,9 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     } catch let ex as Ice.UnknownLocalException {
         // TODO: remove UnsupportedEncodingException
         try test(
-            ex.unknown.contains("MarshalException") || ex.unknown.contains("UnsupportedEncodingException"))
+            ex.unknown.contains("this Ice runtime does not support encoding version 1.2") ||
+            ex.unknown.contains("This Ice runtime does not support encoding version 1.2") ||
+            ex.unknown.contains("UnsupportedEncodingException"))
     }
 
     do {
@@ -762,7 +764,9 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     } catch let ex as Ice.UnknownLocalException {
         // TODO: remove UnsupportedEncodingException
         try test(
-            ex.unknown.contains("MarshalException") || ex.unknown.contains("UnsupportedEncodingException"))
+            ex.unknown.contains("this Ice runtime does not support encoding version 2.0") ||
+            ex.unknown.contains("This Ice runtime does not support encoding version 2.0") ||
+            ex.unknown.contains("UnsupportedEncodingException"))
     }
     writer.writeLine("ok")
 

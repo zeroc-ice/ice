@@ -49,11 +49,11 @@ allTests(Test::TestHelper* helper)
 
         Ice::OperationNotExistException opNotExist("thisFile", 99);
         string opNotExistWhat = "dispatch failed with OperationNotExistException";
-        string opNotExistPrint = "thisFile:99: " + opNotExistWhat;
+        string opNotExistPrint = "thisFile:99 ::Ice::OperationNotExistException " + opNotExistWhat;
 
         string customMessage = "custom message";
         Ice::UnknownLocalException customUle("thisFile", 199, customMessage);
-        string customUlePrint = "thisFile:199: " + customMessage;
+        string customUlePrint = "thisFile:199 ::Ice::UnknownLocalException " + customMessage;
 
         //
         // Test ice_print().
