@@ -16,13 +16,12 @@ public interface Transceiver {
 
   /**
    * Sets the transceiver ready callback. This method is called by the thread pool to provide
-   * a ready callback object that the transceiver can use to notify the thread pool's
-   * selector that more data is ready to be read or written by this transceiver. The
-   * transceiver implementation typically uses this mechanism when it buffers data read from
-   * the selectable channel define above or when there's no the transceiver doesn't provide
-   * a selectable channel (the fd() method above returns null).
+   * a callback object that the transceiver can use to notify the thread pool's selector when
+   * more data is ready to be read or written by this transceiver.
    *
    * @param callback The ready callback provided by the thread pool's selector.
+   * @remark  The transceiver implementation typically uses this callback when it buffers
+   * data read from the selectable channel of if it doesn't use a selectable channel.
    */
   void setReadyCallback(ReadyCallback callback);
 
