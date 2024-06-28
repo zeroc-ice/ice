@@ -1102,6 +1102,11 @@ namespace Ice
 
         public override bool finishAsync(int operation)
         {
+            if(_state >= StateClosed)
+            {
+                return false;
+            }
+
             try
             {
                 if((operation & SocketOperation.Write) != 0)
