@@ -70,14 +70,6 @@ class G extends Base
 {
 }
 
-interface I
-{
-}
-
-interface J extends I
-{
-}
-
 sequence<Base> BaseSeq;
 
 class CompactExt;

@@ -18,9 +18,6 @@ public class Client: TestHelperI {
         defer {
             communicator.destroy()
         }
-        try communicator.getValueFactoryManager().add(
-            factory: { Ice.InterfaceByValue(id: $0) }, id: "::Test::MyInterface"
-        )
 
         var inS: Ice.InputStream
         var outS: Ice.OutputStream
@@ -415,11 +412,6 @@ public class Client: TestHelperI {
             myClassArray[i].seq9 = [MyEnum.enum3, MyEnum.enum2, MyEnum.enum1]
             myClassArray[i].seq10 = [nil, nil, nil, nil]
             myClassArray[i].d = ["hi": myClassArray[i]]
-        }
-
-        var myInterfaceArray = [Ice.Value]()
-        for _ in 0..<4 {
-            myInterfaceArray.append(Ice.InterfaceByValue(id: "::Test::MyInterface"))
         }
 
         do {

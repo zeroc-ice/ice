@@ -76,21 +76,6 @@ namespace Ice
         }
     }
 
-    class InterfaceByValue extends Value
-    {
-        public $id;
-
-        public function __construct($id)
-        {
-            $this->id =$id;
-        }
-
-        public function ice_id()
-        {
-            return $this->id;
-        }
-    }
-
     class ObjectPrxHelper
     {
         public static function checkedCast($proxy, $facetOrContext=null, $context=null)

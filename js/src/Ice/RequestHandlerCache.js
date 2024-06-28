@@ -85,7 +85,15 @@ export class RequestHandlerCache {
                 ex instanceof CloseConnectionException ||
                 ex instanceof ObjectNotExistException)
         ) {
-            return RequestHandlerCache.checkRetryAfterException(ex, this._reference, cnt);
+            try {
+                return RequestHandlerCache.checkRetryAfterException(ex, this._reference, cnt);
+            } catch (e) {
+                if (e instanceof CommunicatorDestroyedException) {
+                    // The communicator is already destroyed, so we cannot retry.
+                    e = ex;
+                }
+                throw e;
+            }
         } else {
             throw ex; // Retry could break at-most-once semantics, don't retry.
         }

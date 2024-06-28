@@ -78,14 +78,6 @@ namespace Ice
                     {
                         return new FI();
                     }
-                    else if (type == "::Test::I")
-                    {
-                        return new II();
-                    }
-                    else if (type == "::Test::J")
-                    {
-                        return new JI();
-                    }
                     Debug.Assert(false); // Should never be reached
                     return null;
                 }
@@ -98,8 +90,6 @@ namespace Ice
                     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::D");
                     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::E");
                     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::F");
-                    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::I");
-                    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::J");
                     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::H");
 
                     var output = helper.getWriter();

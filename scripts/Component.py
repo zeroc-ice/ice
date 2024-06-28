@@ -291,14 +291,6 @@ for m in filter(
         Util.Mapping.add(
             m, Util.JavaScriptMapping(), component, enable=Util.platform.hasNodeJS()
         )
-        # TODO Add TypeScript mapping tests
-        #Util.Mapping.add(
-        #    "typescript",
-        #    Util.TypeScriptMapping(),
-        #    component,
-        #    "js",
-        #    enable=Util.platform.hasNodeJS(),
-        #)
     elif m == "swift" or re.match("swift-.*", m):
         # Swift mapping requires Swift 5.0 or greater
         Util.Mapping.add(

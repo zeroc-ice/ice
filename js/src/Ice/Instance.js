@@ -21,6 +21,7 @@ export class Instance {
         this._clientConnectionOptions = null;
         this._messageSizeMax = 0;
         this._batchAutoFlushSize = 0;
+        this._classGraphDepthMax = 0;
         this._toStringMode = ToStringMode.Unicode;
         this._implicitContext = null;
         this._routerManager = null;

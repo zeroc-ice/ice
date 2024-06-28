@@ -273,12 +273,8 @@ export class Client extends TestHelper {
             //
             // Ice.UnknownLocalException: Expected marshal exception from the server (max class graph depth reached)
             // Ice.UnknownException: Expected stack overflow from the server (Java only)
-            // Error: Expected, JavaScript stack overflow
             //
-            test(
-                ex instanceof Ice.UnknownLocalException || ex instanceof Ice.UnknownException || ex instanceof Error,
-                ex,
-            );
+            test(ex instanceof Ice.UnknownLocalException || ex instanceof Ice.UnknownException, ex);
         }
         await initial!.setRecursive(new Test.Recursive());
         out.writeLine("ok");

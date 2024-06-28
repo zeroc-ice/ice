@@ -86,32 +86,3 @@ public abstract class Value
 
     private SlicedData? _slicedData;
 }
-
-public class InterfaceByValue : Value
-{
-    public InterfaceByValue(string id)
-    {
-        _id = id;
-    }
-
-    public override string ice_id()
-    {
-        return _id;
-    }
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    protected override void iceWriteImpl(OutputStream ostr)
-    {
-        ostr.startSlice(ice_id(), -1, true);
-        ostr.endSlice();
-    }
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    protected override void iceReadImpl(InputStream istr)
-    {
-        istr.startSlice();
-        istr.endSlice();
-    }
-
-    private string _id;
-}

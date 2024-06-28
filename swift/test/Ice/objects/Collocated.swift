@@ -21,8 +21,6 @@ class Collocated: TestHelperI {
         try communicator.getValueFactoryManager().add(factory: { _ in DI() }, id: "::Test::D")
         try communicator.getValueFactoryManager().add(factory: { _ in EI() }, id: "::Test::E")
         try communicator.getValueFactoryManager().add(factory: { _ in FI() }, id: "::Test::F")
-        try communicator.getValueFactoryManager().add(factory: { _ in II() }, id: "::Test::I")
-        try communicator.getValueFactoryManager().add(factory: { _ in JI() }, id: "::Test::J")
 
         communicator.getProperties().setProperty(
             key: "TestAdapter.Endpoints",
