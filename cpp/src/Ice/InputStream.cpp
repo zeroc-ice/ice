@@ -2676,7 +2676,7 @@ Ice::InputStream::EncapsDecoder11::readInstance(int32_t index, PatchFunc patchFu
             throw MarshalException{
                 __FILE__,
                 __LINE__,
-                "cannot find value factory for type ID '" + _current->typeId + "' and compact format prevents slicing"};
+                "cannot find value factory for type ID '" + _current->typeId + "' and slicing is disabled"};
         }
 
         //
