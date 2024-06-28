@@ -956,6 +956,17 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
   @Override
   public void finished(com.zeroc.IceInternal.ThreadPoolCurrent current, final boolean close) {
+    // Lock the connection here to ensure setState() completes before
+    // the code below is executed. This method can be called by the
+    // thread pool as soon as setState() calls _threadPool->finish(...).
+    // There's no need to lock the mutex for the remainder of the code
+    // because the data members accessed by finish() are immutable once
+    // _state == StateClosed (and we don't want to hold the mutex when
+    // calling upcalls).
+    synchronized (this) {
+      assert _state == StateClosed;
+    }
+
     if (_instance.queueRequests()) {
       _instance
           .getQueueExecutor()

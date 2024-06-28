@@ -208,7 +208,8 @@ IceRuby::RubyException::operator<<(ostream& ostr) const
 {
     volatile VALUE cls = rb_class_path(CLASS_OF(ex));
     volatile VALUE msg = rb_obj_as_string(ex);
-    ostr << RSTRING_PTR(cls) << ": " << RSTRING_PTR(msg);
+    ostr << string_view{RSTRING_PTR(cls), static_cast<size_t>(RSTRING_LEN(cls))} << ": "
+         << string_view{RSTRING_PTR(msg), static_cast<size_t>(RSTRING_LEN(msg))};
     return ostr;
 }
 

@@ -22,8 +22,7 @@ namespace Glacier2
     const int GLACIER2_TCP_PORT = 4063;
 
     /**
-     * Encapsulates a Glacier2 session and provides much of the same functionality as Glacier2::Application
-     * but better suited for graphical applications.
+     * Encapsulates a Glacier2 session and provides functionality for using Glacier2 with graphical applications.
      * \headerfile Glacier2/Glacier2.h
      */
     class SessionHelper
