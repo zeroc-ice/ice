@@ -1216,6 +1216,15 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     public override void finished(ref ThreadPoolCurrent current)
     {
+        // Lock the connection here to ensure setState() completes before the code below is executed. This method can
+        // be called by the thread pool as soon as setState() calls _threadPool->finish(...). There's no need to lock
+        // the mutex for the remainder of the code because the data members accessed by finish() are immutable once
+        // _state == StateClosed (and we don't want to hold the mutex when calling upcalls).
+        lock (this)
+        {
+            Debug.Assert(_state == StateClosed);
+        }
+
         //
         // If there are no callbacks to call, we don't call ioCompleted() since we're not going
         // to call code that will potentially block (this avoids promoting a new leader and
