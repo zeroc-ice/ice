@@ -754,6 +754,11 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     public override bool finishAsync(int operation)
     {
+        if (_state >= StateClosed)
+        {
+            return false;
+        }
+
         try
         {
             if ((operation & SocketOperation.Write) != 0)
