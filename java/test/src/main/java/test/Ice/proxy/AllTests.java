@@ -918,9 +918,9 @@ public class AllTests {
     } catch (com.zeroc.Ice.UnknownLocalException ex) {
       // TODO: remove UnsupportedEncodingException
       test(
-          ex.unknown.indexOf("::Ice::MarshalException") > 0
-              || ex.unknown.indexOf("Ice.MarshalException") > 0
-              || ex.unknown.indexOf("UnsupportedEncodingException") > 0);
+          ex.unknown.contains("::Ice::MarshalException")
+              || ex.unknown.contains("Ice.MarshalException")
+              || ex.unknown.contains("UnsupportedEncodingException"));
     }
 
     try {
@@ -937,9 +937,9 @@ public class AllTests {
     } catch (com.zeroc.Ice.UnknownLocalException ex) {
       // TODO: remove UnsupportedEncodingException
       test(
-          ex.unknown.indexOf("::Ice::MarshalException") > 0
-              || ex.unknown.indexOf("Ice.MarshalException") > 0
-              || ex.unknown.indexOf("UnsupportedEncodingException") > 0);
+          ex.unknown.contains("::Ice::MarshalException")
+              || ex.unknown.contains("Ice.MarshalException")
+              || ex.unknown.contains("UnsupportedEncodingException"));
     }
 
     out.println("ok");
