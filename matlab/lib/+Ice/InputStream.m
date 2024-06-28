@@ -834,11 +834,11 @@ classdef InputStream < handle
                 if obj.encapsStack.encoding_1_0
                     obj.encapsStack.decoder = ...
                         IceInternal.EncapsDecoder10(obj, obj.encapsStack, obj.sliceValues, valueFactoryManager, ...
-                        obj.communicator.getClassResolver(), obj.classGraphDepthMax);
+                            obj.communicator.getClassResolver(), obj.classGraphDepthMax);
                 else
                     obj.encapsStack.decoder = ...
                         IceInternal.EncapsDecoder11(obj, obj.encapsStack, obj.sliceValues, valueFactoryManager, ...
-                        obj.communicator.getClassResolver(), obj.classGraphDepthMax);
+                            obj.communicator.getClassResolver(), obj.classGraphDepthMax);
                 end
                 obj.encapsStackDecoder = obj.encapsStack.decoder;
             end

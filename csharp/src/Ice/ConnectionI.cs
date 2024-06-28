@@ -1969,7 +1969,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 if (messageType != Protocol.validateConnectionMsg)
                 {
                     throw new ProtocolException(
-                        $"Received message of type {messageType} on connection that is not yet validated.");
+                        $"Received message of type {messageType} over a connection that is not yet validated.");
                 }
                 _readStream.readByte(); // Ignore compression status for validate connection.
                 int size = _readStream.readInt();

@@ -2624,7 +2624,8 @@ Ice::ConnectionI::validate(SocketOperation operation)
                 throw ProtocolException{
                     __FILE__,
                     __LINE__,
-                    "received message of type " + to_string(messageType) + " on connection that is not yet validated"};
+                    "received message of type " + to_string(messageType) +
+                        " over a connection that is not yet validated"};
             }
             uint8_t compress;
             _readStream.read(compress); // Ignore compression status for validate connection.
