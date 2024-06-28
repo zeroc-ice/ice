@@ -3036,7 +3036,7 @@ IcePy::TypedServantWrapper::ice_invokeAsync(
         }
 
         UpcallPtr up =
-            make_shared<TypedUpcall>(op, std::move(response), std::move(error), current.adapter->getCommunicator());
+            make_shared<TypedUpcall>(op, std::move(response), error, current.adapter->getCommunicator());
         up->dispatch(_servant, inParams, current);
     }
     catch (...)
@@ -3060,7 +3060,7 @@ IcePy::BlobjectServantWrapper::ice_invokeAsync(
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
     try
     {
-        UpcallPtr up = make_shared<BlobjectUpcall>(std::move(response), std::move(error));
+        UpcallPtr up = make_shared<BlobjectUpcall>(std::move(response), error);
         up->dispatch(_servant, inParams, current);
     }
     catch (...)
