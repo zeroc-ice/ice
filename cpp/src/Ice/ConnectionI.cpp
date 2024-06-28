@@ -1582,7 +1582,7 @@ ConnectionI::upcall(
 void
 Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
 {
-    // Lock the connection here to ensure setState() completes before the code bellow is executed. This method can be
+    // Lock the connection here to ensure setState() completes before the code below is executed. This method can be
     // called by the thread pool as soon as setState() calls _threadPool->finish(...). There's no need to lock the mutex
     // for the remainder of the code because the data members accessed by finish() are immutable once _state ==
     // StateClosed (and we don't want to hold the mutex when calling upcalls).
