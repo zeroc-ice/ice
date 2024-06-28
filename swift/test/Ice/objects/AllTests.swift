@@ -207,20 +207,14 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     let top = Recursive()
     var p = top
     do {
-        for depth in 0..<1000 {
+        for _ in 0...100 {
             p.v = Recursive()
             p = p.v!
-            if (depth < 10 && (depth % 10) == 0) || (depth < 1000 && (depth % 100) == 0)
-                || (depth < 10000 && (depth % 1000) == 0) || (depth % 10000) == 0
-            {
-                try initial.setRecursive(top)
-            }
         }
-        try test(!initial.supportsClassGraphDepthMax())
+        try initial.setRecursive(top)
+        try test(false)
     } catch is Ice.UnknownLocalException {
         // Expected marshal exception from the server(max class graph depth reached)
-    } catch is Ice.UnknownException {
-        // Expected stack overflow from the server(Java only)
     }
     try initial.setRecursive(Recursive())
     output.writeLine("ok")

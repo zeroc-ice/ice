@@ -150,10 +150,6 @@ class InitialI: Initial {
 
     func setRecursive(p _: Recursive?, current _: Ice.Current) {}
 
-    func supportsClassGraphDepthMax(current _: Ice.Current) throws -> Bool {
-        return true
-    }
-
     func setCycle(r: Recursive?, current _: Ice.Current) {
         precondition(r != nil)
         precondition(r!.v === r)

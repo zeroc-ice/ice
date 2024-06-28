@@ -310,30 +310,20 @@ namespace Ice
                     output.Flush();
                     var top = new Test.Recursive();
                     var p = top;
-                    int depth = 0;
+                    int maxDepth = 100;
                     try
                     {
-                        for (; depth <= 1000; ++depth)
+                        for (int i = 0; i <= maxDepth; i++)
                         {
                             p.v = new Test.Recursive();
                             p = p.v;
-                            if ((depth < 10 && (depth % 10) == 0) ||
-                              (depth < 1000 && (depth % 100) == 0) ||
-                              (depth < 10000 && (depth % 1000) == 0) ||
-                              (depth % 10000) == 0)
-                            {
-                                initial.setRecursive(top);
-                            }
                         }
-                        test(!initial.supportsClassGraphDepthMax());
+                        initial.setRecursive(top);
+                        test(false);
                     }
                     catch (Ice.UnknownLocalException)
                     {
                         // Expected marshal exception from the server(max class graph depth reached)
-                    }
-                    catch (Ice.UnknownException)
-                    {
-                        // Expected stack overflow from the server(Java only)
                     }
                     initial.setRecursive(new Test.Recursive());
                     output.WriteLine("ok");

@@ -308,6 +308,11 @@ public final class Instance implements java.util.function.Function<String, Class
     return _batchAutoFlushSize;
   }
 
+  public int classGraphDepthMax() {
+    // No mutex lock, immutable.
+    return _classGraphDepthMax;
+  }
+
   public com.zeroc.Ice.ToStringMode toStringMode() {
     // No mutex lock, immutable
     return _toStringMode;
@@ -811,6 +816,15 @@ public final class Instance implements java.util.function.Function<String, Class
         } else {
           _batchAutoFlushSize =
               num * 1024; // Property is in kilobytes, _batchAutoFlushSize in bytes
+        }
+      }
+
+      {
+        var num = properties.getIcePropertyAsInt("Ice.ClassGraphDepthMax");
+        if (num < 1 || num > 0x7fffffff) {
+          _classGraphDepthMax = 0x7fffffff;
+        } else {
+          _classGraphDepthMax = num;
         }
       }
 
@@ -1516,6 +1530,7 @@ public final class Instance implements java.util.function.Function<String, Class
   private DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
   private int _messageSizeMax; // Immutable, not reset by destroy().
   private int _batchAutoFlushSize; // Immutable, not reset by destroy().
+  private int _classGraphDepthMax; // Immutable, not reset by destroy().
   private com.zeroc.Ice.ToStringMode _toStringMode; // Immutable, not reset by destroy().
   private int _cacheMessageBuffers; // Immutable, not reset by destroy().
   private com.zeroc.Ice.ImplicitContextI _implicitContext;

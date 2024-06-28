@@ -164,12 +164,6 @@ InitialI::setRecursive(RecursivePtr, const Current&)
 {
 }
 
-bool
-InitialI::supportsClassGraphDepthMax(const Current&)
-{
-    return true;
-}
-
 void
 InitialI::setCycle(RecursivePtr r, const Current&)
 {

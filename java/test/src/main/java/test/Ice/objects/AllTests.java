@@ -267,25 +267,16 @@ public class AllTests {
     out.flush();
     Recursive top = new Recursive();
     Recursive p = top;
-    int depth = 0;
+    int maxDepth = 100;
     try {
-      for (; depth <= 20000; ++depth) {
+      for (int i = 0; i <= maxDepth; ++i) {
         p.v = new Recursive();
         p = p.v;
-        if ((depth < 10 && (depth % 10) == 0)
-            || (depth < 1000 && (depth % 100) == 0)
-            || (depth < 10000 && (depth % 1000) == 0)
-            || (depth % 10000) == 0) {
-          initial.setRecursive(top);
-        }
       }
-      test(!initial.supportsClassGraphDepthMax());
+      initial.setRecursive(top);
+      test(false);
     } catch (com.zeroc.Ice.UnknownLocalException ex) {
       // Expected marshal exception from the server (max class graph depth reached)
-    } catch (com.zeroc.Ice.UnknownException ex) {
-      // Expected stack overflow from the server (Java only)
-    } catch (java.lang.StackOverflowError ex) {
-      // Stack overflow while writing instances
     }
     initial.setRecursive(new Recursive());
     out.println("ok");

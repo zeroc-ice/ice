@@ -247,18 +247,13 @@ def allTests(helper, communicator)
     p = top;
     depth = 0;
     begin
-        while depth <= 700
+        while depth <= 100
             p.v = Test::Recursive.new
             p = p.v;
-            if (depth < 10 && (depth % 10) == 0) || \
-               (depth < 1000 && (depth % 100) == 0) || \
-               (depth < 10000 && (depth % 1000) == 0) || \
-               (depth % 10000) == 0
-                initial.setRecursive(top)
-            end
             depth += 1
         end
-        test(!initial.supportsClassGraphDepthMax())
+        initial.setRecursive(top)
+        test(false)
     rescue Ice::UnknownLocalException
         # Expected marshal exception from the server (max class graph depth reached)
     rescue Ice::UnknownException

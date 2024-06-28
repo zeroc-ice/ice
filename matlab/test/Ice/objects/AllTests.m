@@ -184,17 +184,17 @@ classdef AllTests
             p = top;
             depth = 0;
             try
-                for depth = 0:20000
+                for depth = 0:100
                     p.v = Recursive();
                     p = p.v;
-                    os = communicator.createOutputStream();
-                    os.writeValue(top);
-                    os.writePendingValues();
-                    is = os.createInputStream();
-                    h = IceInternal.ValueHolder();
-                    is.readValue(@(v) h.set(v), 'Test.Recursive');
-                    is.readPendingValues();
                 end
+                os = communicator.createOutputStream();
+                os.writeValue(top);
+                os.writePendingValues();
+                is = os.createInputStream();
+                h = IceInternal.ValueHolder();
+                is.readValue(@(v) h.set(v), 'Test.Recursive');
+                is.readPendingValues();
                 assert(false);
             catch ex
                 if isa(ex, 'Ice.MarshalException')

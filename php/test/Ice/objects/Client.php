@@ -366,30 +366,20 @@ function allTests($helper)
     $depth = 0;
     try
     {
-        while($depth <= 700)
+        while($depth <= 100)
         {
             $p->v = new Test\Recursive();
             $p = $p->v;
-            if(($depth < 10 && ($depth % 10) == 0) ||
-               ($depth < 1000 && ($depth % 100) == 0) ||
-               ($depth < 10000 && ($depth % 1000) == 0) ||
-               ($depth % 10000) == 0)
-            {
-                $initial->setRecursive($top);
-            }
             $depth += 1;
         }
-        test(!$initial->supportsClassGraphDepthMax());
+        $initial->setRecursive($top);
+        test(false);
     }
     catch(Exception $ex)
     {
         if($ex instanceof Ice\UnknownLocalException)
         {
             // Expected marshal exception from the server (max class graph depth reached)
-        }
-        else if($ex instanceof Ice\UnknownException)
-        {
-            // Expected stack overflow from the server (Java only)
         }
         else
         {
