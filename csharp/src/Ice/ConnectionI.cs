@@ -163,7 +163,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             {
                 setState(StateClosed,
                     new ConnectionAbortedException(
-                        "Connection close forcefully by the application.",
+                        "The connection was aborted by the application.",
                         closedByApplication: true));
             }
             else if (mode == ConnectionClose.Gracefully)
@@ -171,7 +171,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 setState(
                     StateClosing,
                     new ConnectionClosedException(
-                        "Connection close gracefully by the application.",
+                        "The connection was closed gracefully by the application.",
                         closedByApplication: true));
             }
             else
@@ -1543,7 +1543,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         $"connection aborted by the idle check because it did not receive any bytes for {idleTimeoutInSeconds}s\n{_transceiver.toDetailedString()}");
                 }
 
-                setState(StateClosed, new ConnectionIdleException($"Connection aborted by the idle check because it did not receive any bytes for {idleTimeoutInSeconds}s."));
+                setState(StateClosed, new ConnectionIdleException($"The connection was aborted by the idle check because it did not receive any bytes for {idleTimeoutInSeconds}s."));
             }
             // else nothing to do
         }

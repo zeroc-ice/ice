@@ -5,9 +5,7 @@
 #ifndef ICE_LOCAL_EXCEPTIONS_H
 #define ICE_LOCAL_EXCEPTIONS_H
 
-#include "Ice/BuiltinSequences.h"
 #include "Ice/Identity.h"
-#include "Ice/Version.h"
 #include "LocalException.h"
 
 #include <memory>
@@ -15,22 +13,19 @@
 #include <string_view>
 #include <utility>
 
-#if defined(__clang__)
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
-#elif defined(__GNUC__)
-#    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wshadow"
-#endif
-
 // This file contains most exceptions derived from Ice::LocalException.
 
 namespace Ice
 {
+    class ObjectPrx;
+
+    //
+    // The 6 (7 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice
+    // reply message. Other local exceptions can't be marshaled.
+    //
+
     /**
-     * This exception is raised if a request failed. This exception, and all exceptions derived from
-     * {@link RequestFailedException}, are transmitted by the Ice protocol, even though they are declared
-     * <code>local</code>.
+     * The base exception for the 3 NotExist exceptions.
      * \headerfile Ice/Ice.h
      */
     class ICE_API RequestFailedException : public LocalException
@@ -94,8 +89,7 @@ namespace Ice
     };
 
     /**
-     * This exception is raised if an object does not exist on the server, that is, if no facets with the given identity
-     * exist.
+     * The dispatch could not find a servant for the identity carried by the request.
      * \headerfile Ice/Ice.h
      */
     class ICE_API ObjectNotExistException final : public RequestFailedException
@@ -123,8 +117,7 @@ namespace Ice
     };
 
     /**
-     * This exception is raised if no facet with the given name exists, but at least one facet with the given identity
-     * exists.
+     * The dispatch could not find a servant for the identity + facet carried by the request.
      * \headerfile Ice/Ice.h
      */
     class ICE_API FacetNotExistException final : public RequestFailedException
@@ -152,8 +145,8 @@ namespace Ice
     };
 
     /**
-     * This exception is raised if an operation for a given object does not exist on the server. Typically this is
-     * caused by either the client or the server using outdated Slice definitions.
+     * The dispatch could not find the operation carried by the request on the target servant. This is typically due
+     * to a mismatch in the Slice definitions, such as the client using Slice definitions newer than the server's.
      * \headerfile Ice/Ice.h
      */
     class ICE_API OperationNotExistException final : public RequestFailedException
@@ -181,9 +174,7 @@ namespace Ice
     };
 
     /**
-     * This exception is raised when a dispatch fails with an unknown exception. For example, for C++, this
-     * exception is raised if the dispatch throws a C++ exception that is not directly or indirectly derived from
-     * <code>Ice::LocalException</code> or <code>Ice::UserException</code>.
+     * The dispatch failed with an exception that is not a LocalException or a UserException.
      * \headerfile Ice/Ice.h
      */
     class ICE_API UnknownException : public LocalException
@@ -204,11 +195,7 @@ namespace Ice
     };
 
     /**
-     * This exception is raised if an operation call on a server raises a local exception. Because local exceptions are
-     * not transmitted by the Ice protocol, the client receives all local exceptions raised by the server as
-     * {@link UnknownLocalException}. The only exception to this rule are all exceptions derived from
-     * {@link RequestFailedException}, which are transmitted by the Ice protocol even though they are declared
-     * <code>local</code>.
+     * The dispatch failed with a LocalException that is not one of the special marshal-able local exceptions.
      * \headerfile Ice/Ice.h
      */
     class ICE_API UnknownLocalException final : public UnknownException
@@ -220,11 +207,7 @@ namespace Ice
     };
 
     /**
-     * An operation raised an incorrect user exception. This exception is raised if an operation raises a user exception
-     * that is not declared in the exception's <code>throws</code> clause. Such undeclared exceptions are not
-     * transmitted from the server to the client by the Ice protocol, but instead the client just gets an {@link
-     * UnknownUserException}. This is necessary in order to not violate the contract established by an operation's
-     * signature: Only local exceptions and user exceptions declared in the <code>throws</code> clause can be raised.
+     * The dispatch returned a UserException that was not declared in the operation's exception specification.
      * \headerfile Ice/Ice.h
      */
     class ICE_API UnknownUserException final : public UnknownException
@@ -235,25 +218,9 @@ namespace Ice
         const char* ice_id() const noexcept final;
     };
 
-    /**
-     * Reports a failure that occurred while parsing a string.
-     *  \headerfile Ice/Ice.h
-     */
-    class ICE_API ParseException final : public LocalException
-    {
-    public:
-        /**
-         * Constructs a ParseException.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param message The message returned by what().
-         */
-        ParseException(const char* file, int line, std::string message) : LocalException(file, line, std::move(message))
-        {
-        }
-
-        const char* ice_id() const noexcept final;
-    };
+    //
+    // Protocol exceptions
+    //
 
     /**
      * A generic exception base for all kinds of protocol error conditions.
@@ -323,6 +290,426 @@ namespace Ice
         const char* ice_id() const noexcept final;
     };
 
+    //
+    // Timeout exceptions
+    //
+
+    /**
+     * This exception indicates a timeout condition.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API TimeoutException : public LocalException
+    {
+    public:
+        /**
+         * Constructs a TimeoutException.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         * @param message The message returned by what().
+         */
+        TimeoutException(const char* file, int line, std::string message)
+            : LocalException(file, line, std::move(message))
+        {
+        }
+
+        const char* ice_id() const noexcept override;
+    };
+
+    /**
+     * This exception indicates a connection establishment timeout condition.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API ConnectTimeoutException final : public TimeoutException
+    {
+    public:
+        /**
+         * Constructs a ConnectTimeoutException.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         */
+        ConnectTimeoutException(const char* file, int line)
+            : TimeoutException(file, line, "connection establishment timed out")
+        {
+        }
+
+        const char* ice_id() const noexcept final;
+    };
+
+    /**
+     * This exception indicates a connection closure timeout condition.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API CloseTimeoutException final : public TimeoutException
+    {
+    public:
+        /**
+         * Constructs a CloseTimeoutException.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         */
+        CloseTimeoutException(const char* file, int line)
+            : TimeoutException(file, line, "graceful connection closure timed out")
+        {
+        }
+
+        const char* ice_id() const noexcept final;
+    };
+
+    /**
+     * This exception indicates that an invocation failed because it timed out.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API InvocationTimeoutException final : public TimeoutException
+    {
+    public:
+        /**
+         * Constructs an InvocationTimeoutException.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         */
+        InvocationTimeoutException(const char* file, int line) : TimeoutException(file, line, "invocation timed out") {}
+
+        const char* ice_id() const noexcept final;
+    };
+
+    //
+    // Syscall exceptions
+    //
+
+    /**
+     * This exception is raised if a system error occurred in the server or client process. There are many possible
+     * causes for such a system exception. For details on the cause, {@link SyscallException#error} should be inspected.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API SyscallException : public LocalException
+    {
+    public:
+        /**
+         * Constructs a SyscallException.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         * @param messagePrefix The start of the message returned by what().
+         * @param error The error code.
+         */
+        SyscallException(const char* file, int line, std::string messagePrefix, int error);
+
+        /**
+         * Gets the error number describing the system exception. For C++ and Unix, this is equivalent to
+         * <code>errno</code>. For C++ and Windows, this is the value returned by <code>GetLastError()</code> or
+         * <code>WSAGetLastError()</code>.
+         */
+        int error() const noexcept { return _error; }
+
+        const char* ice_id() const noexcept override;
+
+    protected:
+        /**
+         * Constructs a SyscallException.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         * @param messagePrefix The start of the message returned by what().
+         * @param error The error code.
+         * @param errorToString A function that converts the error code to a string.
+         */
+        SyscallException(
+            const char* file,
+            int line,
+            std::string messagePrefix,
+            int error,
+            std::function<std::string(int)> errorToString);
+
+        /**
+         * Constructs a SyscallException without an error.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         * @param message The message returned by what().
+         */
+        SyscallException(const char* file, int line, std::string message)
+            : LocalException(file, line, std::move(message)),
+              _error(0)
+        {
+        }
+
+    private:
+        int _error;
+    };
+
+    /**
+     * This exception indicates a DNS problem. For details on the cause, {@link DNSException#error} should be inspected.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API DNSException final : public SyscallException
+    {
+    public:
+        /**
+         * Constructs a DNSException.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         * @param error The error code.
+         * @param host The host name that could not be resolved.
+         */
+        DNSException(const char* file, int line, int error, std::string_view host);
+
+        const char* ice_id() const noexcept final;
+    };
+
+    /**
+     * This exception indicates file errors.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API FileException final : public SyscallException
+    {
+    public:
+        /**
+         * Constructs a FileException.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         * @param path The path of the file that caused the exception.
+         * @param error The error code.
+         */
+        FileException(const char* file, int line, std::string_view path, int error = 0);
+
+        const char* ice_id() const noexcept final;
+    };
+
+    //
+    // Socket exceptions
+    //
+
+    /**
+     * This exception indicates socket errors.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API SocketException : public SyscallException
+    {
+    public:
+        /**
+         * Constructs a SocketException.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         * @param messagePrefix The start of the message returned by what().
+         * @param error The error code.
+         */
+        SocketException(const char* file, int line, std::string messagePrefix, int error);
+
+        /**
+         * Constructs a SocketException without a generic message.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         * @param error The error code.
+         */
+        SocketException(const char* file, int line, int error) : SocketException(file, line, "socket error", error) {}
+
+        /**
+         * Constructs a SocketException without an error.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         */
+        SocketException(const char* file, int line, std::string message)
+            : SyscallException(file, line, std::move(message))
+        {
+        }
+
+        const char* ice_id() const noexcept override;
+
+    protected:
+        using SyscallException::SyscallException;
+    };
+
+    /**
+     * This exception indicates connection failures.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API ConnectFailedException : public SocketException
+    {
+    public:
+        using SocketException::SocketException;
+
+        const char* ice_id() const noexcept override;
+    };
+
+    /**
+     * This exception indicates a lost connection.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API ConnectionLostException final : public SocketException
+    {
+    public:
+        /**
+         * Constructs a ConnectionLostException.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         * @param error The error code.
+         */
+        ConnectionLostException(const char* file, int line, int error);
+
+        const char* ice_id() const noexcept final;
+    };
+
+    /**
+     * This exception indicates a connection failure for which the server host actively refuses a connection.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API ConnectionRefusedException final : public ConnectFailedException
+    {
+    public:
+        /**
+         * Constructs a ConnectionRefusedException.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         */
+        ConnectionRefusedException(const char* file, int line)
+            : ConnectFailedException(file, line, "connection refused")
+        {
+        }
+
+        const char* ice_id() const noexcept final;
+    };
+
+    //
+    // Other leaf local exceptions in alphabetical order.
+    //
+
+    /**
+     * An attempt was made to register something more than once with the Ice run time. This exception is raised if an
+     * attempt is made to register a servant, servant locator, facet, value factory, plug-in, object adapter, object, or
+     * user exception factory more than once for the same ID.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API AlreadyRegisteredException final : public LocalException
+    {
+    public:
+        /**
+         * Constructs a AlreadyRegisteredException.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         * @param kindOfObject The kind of object that could not be removed: "servant", "facet", "object", "default
+         * servant", "servant locator", "value factory", "plugin", "object adapter", "object adapter with router",
+         * "replica group".
+         * @param id The ID (or name) of the object that is registered already.
+         */
+        AlreadyRegisteredException(const char* file, int line, std::string kindOfObject, std::string id);
+
+        /**
+         * Gets the kind of object that could not be removed: "servant", "facet", "object", "default servant",
+         * "servant locator", "value factory", "plugin", "object adapter", "object adapter with router", "replica
+         * group".
+         */
+        const std::string& kindOfObject() const noexcept { return *_kindOfObject; }
+
+        /**
+         * Gets the ID (or name) of the object that is registered already.
+         */
+        const std::string& id() const noexcept { return *_id; }
+
+        const char* ice_id() const noexcept final;
+
+    private:
+        std::shared_ptr<std::string> _kindOfObject;
+        std::shared_ptr<std::string> _id;
+    };
+
+    /**
+     * This exception is raised if the {@link Communicator} has been destroyed.
+     * @see Communicator#destroy
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API CommunicatorDestroyedException final : public LocalException
+    {
+    public:
+        CommunicatorDestroyedException(const char* file, int line)
+            : LocalException(file, line, "the Ice communicator object is destroyed")
+        {
+        }
+
+        const char* ice_id() const noexcept final;
+    };
+
+    /**
+     * This exception indicates that a connection was closed gracefully.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API ConnectionAbortedException final : public LocalException
+    {
+    public:
+        /**
+         * Constructs a ConnectionAbortedException.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         * @param message The message returned by what().
+         * @param closedByApplication True if the connection was aborted by the application, false if the connection was
+         * aborted by the Ice runtime.
+         */
+        ConnectionAbortedException(const char* file, int line, std::string message, bool closedByApplication)
+            : LocalException(file, line, std::move(message)),
+              _closedByApplication(closedByApplication)
+        {
+        }
+
+        /**
+         * Returns true if the connection was aborted by the application, false if it was aborted by the Ice runtime.
+         */
+        bool closedByApplication() const noexcept { return _closedByApplication; }
+
+        const char* ice_id() const noexcept final;
+
+    private:
+        bool _closedByApplication;
+    };
+
+    /**
+     * This exception indicates that a connection was closed gracefully.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API ConnectionClosedException final : public LocalException
+    {
+    public:
+        /**
+         * Constructs a ConnectionClosedException.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         * @param message The message returned by what().
+         * @param closedByApplication True if the connection was closed by the application, false if the connection was
+         * closed by the Ice runtime.
+         */
+        ConnectionClosedException(const char* file, int line, std::string message, bool closedByApplication)
+            : LocalException(file, line, std::move(message)),
+              _closedByApplication(closedByApplication)
+        {
+        }
+
+        /**
+         * Returns true if the connection was closed by the application, false if it was closed by the Ice runtime.
+         */
+        bool closedByApplication() const noexcept { return _closedByApplication; }
+
+        const char* ice_id() const noexcept final;
+
+    private:
+        bool _closedByApplication;
+    };
+
+    /**
+     * This exception indicates that a connection was aborted by the idle check.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API ConnectionIdleException final : public LocalException
+    {
+    public:
+        /**
+         * Constructs a ConnectionIdleException.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         * @param message The message returned by what().
+         */
+        ConnectionIdleException(const char* file, int line, std::string message)
+            : LocalException(file, line, std::move(message))
+        {
+        }
+
+        const char* ice_id() const noexcept final;
+    };
+
     /**
      * This exception is raised if an unsupported feature is used.
      * \headerfile Ice/Ice.h
@@ -330,8 +717,6 @@ namespace Ice
     class ICE_API FeatureNotSupportedException final : public LocalException
     {
     public:
-        using LocalException::LocalException;
-
         /**
          * Constructs a FeatureNotSupportedException.
          * @param file The file where this exception is constructed. This C string is not copied.
@@ -346,137 +731,91 @@ namespace Ice
         const char* ice_id() const noexcept final;
     };
 
-    //
-    // Below: not refactored yet
-    //
+    /**
+     * This exception indicates that an attempt has been made to change the connection properties of a fixed proxy.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API FixedProxyException final : public LocalException
+    {
+    public:
+        /**
+         * Constructs a FixedProxyException.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         */
+        FixedProxyException(const char* file, int line)
+            : LocalException(file, line, "cannot change the properties of a fixed proxy")
+        {
+        }
+
+        const char* ice_id() const noexcept final;
+    };
 
     /**
      * This exception is raised when a failure occurs during initialization.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API InitializationException : public LocalException
+    class ICE_API InitializationException final : public LocalException
     {
     public:
-        using LocalException::LocalException;
-
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
+         * Constructs a InitializationException.
          * @param file The file where this exception is constructed. This C string is not copied.
          * @param line The line where this exception is constructed.
-         * @param reason The reason for the failure.
+         * @param message The message returned by what().
          */
-        InitializationException(const char* file, int line, std::string reason) noexcept
-            : LocalException(file, line),
-              reason(std::move(reason))
+        InitializationException(const char* file, int line, std::string message)
+            : LocalException(file, line, std::move(message))
         {
         }
 
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(reason); }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * The reason for the failure.
-         */
-        std::string reason;
+        const char* ice_id() const noexcept final;
     };
 
     /**
-     * This exception indicates that a failure occurred while initializing a plug-in.
+     * This exception indicates that an asynchronous invocation failed because it was canceled explicitly by the user.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API PluginInitializationException : public LocalException
+    class ICE_API InvocationCanceledException final : public LocalException
     {
     public:
-        using LocalException::LocalException;
-
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
+         * Constructs an InvocationCanceledException.
          * @param file The file where this exception is constructed. This C string is not copied.
          * @param line The line where this exception is constructed.
-         * @param reason The reason for the failure.
          */
-        PluginInitializationException(const char* file, int line, std::string reason) noexcept
-            : LocalException(file, line),
-              reason(std::move(reason))
-        {
-        }
+        InvocationCanceledException(const char* file, int line) : LocalException(file, line, "invocation canceled") {}
 
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(reason); }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * The reason for the failure.
-         */
-        std::string reason;
+        const char* ice_id() const noexcept final;
     };
 
     /**
-     * An attempt was made to register something more than once with the Ice run time. This exception is raised if an
-     * attempt is made to register a servant, servant locator, facet, value factory, plug-in, object adapter, object, or
-     * user exception factory more than once for the same ID.
+     * This exception is raised if no suitable endpoint is available.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API AlreadyRegisteredException : public LocalException
+    class ICE_API NoEndpointException final : public LocalException
     {
     public:
-        using LocalException::LocalException;
-
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
+         * Constructs a NoEndpointException.
          * @param file The file where this exception is constructed. This C string is not copied.
          * @param line The line where this exception is constructed.
-         * @param kindOfObject The kind of object that could not be removed: "servant", "facet", "object", "default
-         * servant", "servant locator", "value factory", "plugin", "object adapter", "object adapter with router",
-         * "replica group".
-         * @param id The ID (or name) of the object that is registered already.
+         * @param message The message returned by what().
          */
-        AlreadyRegisteredException(const char* file, int line, std::string kindOfObject, std::string id) noexcept
-            : LocalException(file, line),
-              kindOfObject(std::move(kindOfObject)),
-              id(std::move(id))
+        NoEndpointException(const char* file, int line, std::string message)
+            : LocalException(file, line, std::move(message))
         {
         }
 
         /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
+         * Constructs a NoEndpointException.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         * @param proxy The proxy used to create the message return by what().
          */
-        std::tuple<const std::string&, const std::string&> ice_tuple() const noexcept
-        {
-            return std::tie(kindOfObject, id);
-        }
+        NoEndpointException(const char* file, int line, const ObjectPrx& proxy);
 
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * The kind of object that could not be removed: "servant", "facet", "object", "default servant",
-         * "servant locator", "value factory", "plugin", "object adapter", "object adapter with router", "replica
-         * group".
-         */
-        std::string kindOfObject;
-        /**
-         * The ID (or name) of the object that is registered already.
-         */
-        std::string id;
+        const char* ice_id() const noexcept final;
     };
 
     /**
@@ -484,16 +823,14 @@ namespace Ice
      * This exception is raised if an attempt is made to remove a servant, servant locator, facet, value factory,
      * plug-in, object adapter, object, or user exception factory that is not currently registered. It's also raised if
      * the Ice locator can't find an object or object adapter when resolving an indirect proxy or when an object adapter
-     * is activated. \headerfile Ice/Ice.h
+     * is activated.
+     * \headerfile Ice/Ice.h
      */
-    class ICE_API NotRegisteredException : public LocalException
+    class ICE_API NotRegisteredException final : public LocalException
     {
     public:
-        using LocalException::LocalException;
-
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
+         * Constructs a NotRegisteredException.
          * @param file The file where this exception is constructed. This C string is not copied.
          * @param line The line where this exception is constructed.
          * @param kindOfObject The kind of object that could not be removed: "servant", "facet", "object", "default
@@ -501,122 +838,25 @@ namespace Ice
          * "replica group".
          * @param id The ID (or name) of the object that could not be removed.
          */
-        NotRegisteredException(const char* file, int line, std::string kindOfObject, std::string id) noexcept
-            : LocalException(file, line),
-              kindOfObject(std::move(kindOfObject)),
-              id(std::move(id))
-        {
-        }
+        NotRegisteredException(const char* file, int line, std::string kindOfObject, std::string id);
 
         /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&, const std::string&> ice_tuple() const noexcept
-        {
-            return std::tie(kindOfObject, id);
-        }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * The kind of object that could not be removed: "servant", "facet", "object", "default servant",
+         * Gets the kind of object that could not be removed: "servant", "facet", "object", "default servant",
          * "servant locator", "value factory", "plugin", "object adapter", "object adapter with router", "replica
          * group".
          */
-        std::string kindOfObject;
-        /**
-         * The ID (or name) of the object that could not be removed.
-         */
-        std::string id;
-    };
-
-    /**
-     * The operation can only be invoked with a twoway request. This exception is raised if an attempt is made to invoke
-     * an operation with <code>ice_oneway</code>, <code>ice_batchOneway</code>, <code>ice_datagram</code>, or
-     * <code>ice_batchDatagram</code> and the operation has a return value, out-parameters, or an exception
-     * specification. \headerfile Ice/Ice.h
-     */
-    class ICE_API TwowayOnlyException : public LocalException
-    {
-    public:
-        using LocalException::LocalException;
+        const std::string& kindOfObject() const noexcept { return *_kindOfObject; }
 
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param operation The name of the operation that was invoked.
+         * Gets the ID (or name) of the object that could not be removed.
          */
-        TwowayOnlyException(const char* file, int line, std::string operation) noexcept
-            : LocalException(file, line),
-              operation(std::move(operation))
-        {
-        }
+        const std::string& id() const noexcept { return *_id; };
 
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(operation); }
+        const char* ice_id() const noexcept final;
 
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * The name of the operation that was invoked.
-         */
-        std::string operation;
-    };
-
-    /**
-     * An attempt was made to clone a class that does not support cloning. This exception is raised if
-     * <code>ice_clone</code> is called on a class that is derived from an abstract Slice class (that is, a class
-     * containing operations), and the derived class does not provide an implementation of the <code>ice_clone</code>
-     * operation (C++ only).
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API CloneNotImplementedException : public LocalException
-    {
-    public:
-        using LocalException::LocalException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception is raised if the Ice library version does not match the version in the Ice header files.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API VersionMismatchException : public LocalException
-    {
-    public:
-        using LocalException::LocalException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception is raised if the {@link Communicator} has been destroyed.
-     * @see Communicator#destroy
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API CommunicatorDestroyedException : public LocalException
-    {
-    public:
-        using LocalException::LocalException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
+    private:
+        std::shared_ptr<std::string> _kindOfObject;
+        std::shared_ptr<std::string> _id;
     };
 
     /**
@@ -625,38 +865,21 @@ namespace Ice
      * @see Communicator#shutdown
      * \headerfile Ice/Ice.h
      */
-    class ICE_API ObjectAdapterDeactivatedException : public LocalException
+    class ICE_API ObjectAdapterDeactivatedException final : public LocalException
     {
     public:
-        using LocalException::LocalException;
-
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
+         * Constructs an ObjectAdapterDeactivatedException.
          * @param file The file where this exception is constructed. This C string is not copied.
          * @param line The line where this exception is constructed.
-         * @param name Name of the adapter.
+         * @param name The name of the object adapter that is deactivated.
          */
-        ObjectAdapterDeactivatedException(const char* file, int line, std::string name) noexcept
-            : LocalException(file, line),
-              name(std::move(name))
+        ObjectAdapterDeactivatedException(const char* file, int line, std::string_view name)
+            : LocalException(file, line, "object adapter '" + std::string{name} + "' is deactivated")
         {
         }
 
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(name); }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * Name of the adapter.
-         */
-        std::string name;
+        const char* ice_id() const noexcept final;
     };
 
     /**
@@ -664,556 +887,112 @@ namespace Ice
      * detects another active {@link ObjectAdapter} with the same adapter id.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API ObjectAdapterIdInUseException : public LocalException
+    class ICE_API ObjectAdapterIdInUseException final : public LocalException
     {
     public:
-        using LocalException::LocalException;
-
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
+         * Constructs an ObjectAdapterIdInUseException.
          * @param file The file where this exception is constructed. This C string is not copied.
          * @param line The line where this exception is constructed.
-         * @param id Adapter ID.
+         * @param adapterId The adapter ID used to create the message returned by what().
          */
-        ObjectAdapterIdInUseException(const char* file, int line, std::string id) noexcept
-            : LocalException(file, line),
-              id(std::move(id))
+        ObjectAdapterIdInUseException(const char* file, int line, std::string_view adapterId)
+            : LocalException(file, line, "an object adapter with ID '" + std::string{adapterId} + "' is already active")
         {
         }
 
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(id); }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * Adapter ID.
-         */
-        std::string id;
+        const char* ice_id() const noexcept final;
     };
 
     /**
-     * This exception is raised if no suitable endpoint is available.
-     * \headerfile Ice/Ice.h
+     * Reports a failure that occurred while parsing a string.
+     *  \headerfile Ice/Ice.h
      */
-    class ICE_API NoEndpointException : public LocalException
+    class ICE_API ParseException final : public LocalException
     {
     public:
-        using LocalException::LocalException;
-
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
+         * Constructs a ParseException.
          * @param file The file where this exception is constructed. This C string is not copied.
          * @param line The line where this exception is constructed.
-         * @param proxy The stringified proxy for which no suitable endpoint is available.
+         * @param message The message returned by what().
          */
-        NoEndpointException(const char* file, int line, std::string proxy) noexcept
-            : LocalException(file, line),
-              proxy(std::move(proxy))
+        ParseException(const char* file, int line, std::string message) : LocalException(file, line, std::move(message))
         {
         }
 
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(proxy); }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * The stringified proxy for which no suitable endpoint is available.
-         */
-        std::string proxy;
+        const char* ice_id() const noexcept final;
     };
 
     /**
-     * This exception is raised if an illegal identity is encountered.
+     * This exception indicates that a failure occurred while initializing a plug-in.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API IllegalIdentityException : public LocalException
+    class ICE_API PluginInitializationException final : public LocalException
     {
     public:
-        using LocalException::LocalException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception is raised to reject an illegal servant (typically a null servant).
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API IllegalServantException : public LocalException
-    {
-    public:
-        using LocalException::LocalException;
-
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
+         * Constructs a PluginInitializationException.
          * @param file The file where this exception is constructed. This C string is not copied.
          * @param line The line where this exception is constructed.
-         * @param reason Describes why this servant is illegal.
+         * @param message The message returned by what().
          */
-        IllegalServantException(const char* file, int line, std::string reason) noexcept
-            : LocalException(file, line),
-              reason(std::move(reason))
+        PluginInitializationException(const char* file, int line, std::string message)
+            : LocalException(file, line, std::move(message))
         {
         }
 
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(reason); }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * Describes why this servant is illegal.
-         */
-        std::string reason;
-    };
-
-    /**
-     * This exception is raised if a system error occurred in the server or client process. There are many possible
-     * causes for such a system exception. For details on the cause, {@link SyscallException#error} should be inspected.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API SyscallException : public LocalException
-    {
-    public:
-        /**
-         * Construct a SyscallException.
-         * The file and line number are required for all local exceptions.
-         * The error code is filled automatically with the value of the current error code.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         */
-        SyscallException(const char* file, int line) noexcept;
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param error The error number describing the system exception.
-         */
-        SyscallException(const char* file, int line, int error) noexcept : LocalException(file, line), error(error) {}
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const int&> ice_tuple() const noexcept { return std::tie(error); }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * The error number describing the system exception. For C++ and Unix, this is equivalent to <code>errno</code>.
-         * For C++ and Windows, this is the value returned by <code>GetLastError()</code> or
-         * <code>WSAGetLastError()</code>.
-         */
-        int error = 0;
-    };
-
-    /**
-     * This exception indicates socket errors.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API SocketException : public SyscallException
-    {
-    public:
-        using SyscallException::SyscallException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception indicates CFNetwork errors.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API CFNetworkException : public SocketException
-    {
-    public:
-        using SocketException::SocketException;
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param error The error number describing the system exception.
-         * @param domain The domain of the error.
-         */
-        CFNetworkException(const char* file, int line, int error, std::string domain) noexcept
-            : SocketException(file, line, error),
-              domain(std::move(domain))
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const int&, const std::string&> ice_tuple() const noexcept { return std::tie(error, domain); }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * The domain of the error.
-         */
-        std::string domain;
-    };
-
-    /**
-     * This exception indicates file errors.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API FileException : public SyscallException
-    {
-    public:
-        using SyscallException::SyscallException;
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param path The path of the file responsible for the error.
-         */
-        FileException(const char* file, int line, std::string path) noexcept
-            : SyscallException(file, line),
-              path(std::move(path))
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const int&, const std::string&> ice_tuple() const noexcept { return std::tie(error, path); }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * The path of the file responsible for the error.
-         */
-        std::string path;
-    };
-
-    /**
-     * This exception indicates connection failures.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API ConnectFailedException : public SocketException
-    {
-    public:
-        using SocketException::SocketException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception indicates a connection failure for which the server host actively refuses a connection.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API ConnectionRefusedException : public ConnectFailedException
-    {
-    public:
-        using ConnectFailedException::ConnectFailedException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception indicates a lost connection.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API ConnectionLostException : public SocketException
-    {
-    public:
-        using SocketException::SocketException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception indicates a DNS problem. For details on the cause, {@link DNSException#error} should be inspected.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API DNSException : public LocalException
-    {
-    public:
-        using LocalException::LocalException;
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param error The error number describing the DNS problem.
-         * @param host The host name that could not be resolved.
-         */
-        DNSException(const char* file, int line, int error, std::string host) noexcept
-            : LocalException(file, line),
-              error(error),
-              host(std::move(host))
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const int&, const std::string&> ice_tuple() const noexcept { return std::tie(error, host); }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * The error number describing the DNS problem. For C++ and Unix, this is equivalent to <code>h_errno</code>.
-         * For C++ and Windows, this is the value returned by <code>WSAGetLastError()</code>.
-         */
-        int error = 0;
-        /**
-         * The host name that could not be resolved.
-         */
-        std::string host;
-    };
-
-    /**
-     * This exception indicates that a connection was closed gracefully.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API ConnectionClosedException : public LocalException
-    {
-    public:
-        ConnectionClosedException(const char* file, int line, std::string message) noexcept
-            : LocalException(file, line),
-              message(std::move(message))
-        {
-        }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * The error message.
-         */
-        std::string message;
-    };
-
-    /**
-     * This exception indicates that a connection was aborted by the idle check.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API ConnectionIdleException : public LocalException
-    {
-    public:
-        using LocalException::LocalException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception indicates a timeout condition.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API TimeoutException : public LocalException
-    {
-    public:
-        using LocalException::LocalException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception indicates a connection establishment timeout condition.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API ConnectTimeoutException : public TimeoutException
-    {
-    public:
-        using TimeoutException::TimeoutException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception indicates a connection closure timeout condition.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API CloseTimeoutException : public TimeoutException
-    {
-    public:
-        using TimeoutException::TimeoutException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception indicates that an invocation failed because it timed out.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API InvocationTimeoutException : public TimeoutException
-    {
-    public:
-        using TimeoutException::TimeoutException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception indicates that an asynchronous invocation failed because it was canceled explicitly by the user.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API InvocationCanceledException : public LocalException
-    {
-    public:
-        using LocalException::LocalException;
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-    };
-
-    /**
-     * This exception is raised by an operation call if the application closes the connection locally using
-     * {@link Connection#close}.
-     * @see Connection#close
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API ConnectionManuallyClosedException : public LocalException
-    {
-    public:
-        using LocalException::LocalException;
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param graceful True if the connection was closed gracefully, false otherwise.
-         */
-        ConnectionManuallyClosedException(const char* file, int line, bool graceful) noexcept
-            : LocalException(file, line),
-              graceful(graceful)
-        {
-        }
-
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const bool&> ice_tuple() const noexcept { return std::tie(graceful); }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * True if the connection was closed gracefully, false otherwise.
-         */
-        bool graceful;
+        const char* ice_id() const noexcept final;
     };
 
     /**
      * This exception indicates a failure in a security subsystem, such as the IceSSL plug-in.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API SecurityException : public LocalException
+    class ICE_API SecurityException final : public LocalException
     {
     public:
-        using LocalException::LocalException;
-
         /**
-         * One-shot constructor to initialize all data members.
-         * The file and line number are required for all local exceptions.
+         * Constructs a SecurityException.
          * @param file The file where this exception is constructed. This C string is not copied.
          * @param line The line where this exception is constructed.
-         * @param reason The reason for the failure.
+         * @param message The message returned by what().
          */
-        SecurityException(const char* file, int line, std::string reason) noexcept
-            : LocalException(file, line),
-              reason(std::move(reason))
+        SecurityException(const char* file, int line, std::string message)
+            : LocalException(file, line, std::move(message))
         {
         }
 
-        /**
-         * Obtains a tuple containing all of the exception's data members.
-         * @return The data members in a tuple.
-         */
-        std::tuple<const std::string&> ice_tuple() const noexcept { return std::tie(reason); }
-
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
-
-        /**
-         * The reason for the failure.
-         */
-        std::string reason;
+        const char* ice_id() const noexcept final;
     };
 
     /**
-     * This exception indicates that an attempt has been made to change the connection properties of a fixed proxy.
+     * The operation can only be invoked with a twoway request. This exception is raised if an attempt is made to invoke
+     * an operation with <code>ice_oneway</code>, <code>ice_batchOneway</code>, <code>ice_datagram</code>, or
+     * <code>ice_batchDatagram</code> and the operation has a return value, out-parameters, or an exception
+     * specification.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API FixedProxyException : public LocalException
+    class ICE_API TwowayOnlyException final : public LocalException
     {
     public:
-        using LocalException::LocalException;
+        /**
+         * Constructs a TwowayOnlyException.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         * @param operation The two-way only operation used to create the message returned by what().
+         */
+        TwowayOnlyException(const char* file, int line, std::string_view operation)
+            : LocalException(
+                  file,
+                  line,
+                  "cannot invoke operation '" + std::string{operation} +
+                      "' with a oneway, batchOneway, datagram, or batchDatagram proxy")
+        {
+        }
 
-        const char* ice_id() const noexcept override;
-
-        void ice_print(std::ostream& stream) const override;
+        const char* ice_id() const noexcept final;
     };
 }
-
-#if defined(__clang__)
-#    pragma clang diagnostic pop
-#elif defined(__GNUC__)
-#    pragma GCC diagnostic pop
-#endif
 
 #endif

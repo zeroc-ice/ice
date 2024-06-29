@@ -609,7 +609,7 @@ Ice::SSL::SecureTransport::TransceiverI::writeRaw(const byte* data, size_t* leng
     }
     catch (const Ice::SocketException& ex)
     {
-        return ex.error;
+        return ex.error();
     }
     catch (...)
     {
@@ -642,7 +642,7 @@ Ice::SSL::SecureTransport::TransceiverI::readRaw(byte* data, size_t* length) con
     }
     catch (const Ice::SocketException& ex)
     {
-        return ex.error;
+        return ex.error();
     }
     catch (...)
     {

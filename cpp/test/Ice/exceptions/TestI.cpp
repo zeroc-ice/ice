@@ -130,7 +130,7 @@ ThrowerI::throwUndeclaredC(int32_t a, int32_t b, int32_t c, const Ice::Current&)
 void
 ThrowerI::throwLocalException(const Ice::Current&)
 {
-    throw Ice::TimeoutException(__FILE__, __LINE__);
+    throw Ice::TimeoutException{__FILE__, __LINE__, "thrower throwing timeout exception"};
 }
 
 void
@@ -154,7 +154,7 @@ ThrowerI::throwMemoryLimitException(Ice::ByteSeq, const Ice::Current&)
 void
 ThrowerI::throwLocalExceptionIdempotent(const Ice::Current&)
 {
-    throw Ice::TimeoutException(__FILE__, __LINE__);
+    throw Ice::TimeoutException{__FILE__, __LINE__, "thrower throwing timeout exception"};
 }
 
 void

@@ -307,7 +307,7 @@ RouterService::start(int argc, char* argv[], int& status)
     }
     catch (const Ice::InitializationException& ex)
     {
-        error("Glacier2 initialization failed:\n" + ex.reason);
+        error("Glacier2 initialization failed:\n" + string{ex.what()});
         return false;
     }
 

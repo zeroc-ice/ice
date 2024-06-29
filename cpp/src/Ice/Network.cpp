@@ -1839,7 +1839,7 @@ repeatConnect:
         closeSocketNoThrow(fd);
         if (connectionRefused())
         {
-            throw ConnectionRefusedException(__FILE__, __LINE__, getSocketErrno());
+            throw ConnectionRefusedException{__FILE__, __LINE__};
         }
         else if (connectFailed())
         {
@@ -1863,7 +1863,7 @@ repeatConnect:
         fdToLocalAddress(fd, localAddr);
         if (compareAddress(addr, localAddr) == 0)
         {
-            throw ConnectionRefusedException(__FILE__, __LINE__, 0); // No appropriate errno
+            throw ConnectionRefusedException{__FILE__, __LINE__};
         }
     }
     catch (const LocalException&)
@@ -1879,7 +1879,7 @@ void
 IceInternal::doFinishConnect(SOCKET fd)
 {
     //
-    // Note: we don't close the socket if there's an exception. It's the responsability
+    // Note: we don't close the socket if there's an exception. It's the responsibility
     // of the caller to do so.
     //
 
@@ -1908,7 +1908,7 @@ IceInternal::doFinishConnect(SOCKET fd)
 #endif
         if (connectionRefused())
         {
-            throw ConnectionRefusedException(__FILE__, __LINE__, getSocketErrno());
+            throw ConnectionRefusedException{__FILE__, __LINE__};
         }
         else if (connectFailed())
         {
@@ -1931,7 +1931,7 @@ IceInternal::doFinishConnect(SOCKET fd)
     Address remoteAddr;
     if (fdToRemoteAddress(fd, remoteAddr) && compareAddress(remoteAddr, localAddr) == 0)
     {
-        throw ConnectionRefusedException(__FILE__, __LINE__, 0); // No appropriate errno
+        throw ConnectionRefusedException{__FILE__, __LINE__};
     }
 #endif
 }
@@ -2034,7 +2034,7 @@ IceInternal::createPipe(SOCKET fds[2])
 
     if (::pipe(fds) != 0)
     {
-        throw SyscallException(__FILE__, __LINE__);
+        throw SyscallException{__FILE__, __LINE__, "pipe failed", errno};
     }
 
     try
@@ -2123,7 +2123,7 @@ IceInternal::doConnectAsync(SOCKET fd, const Address& addr, const Address& sourc
         {
             if (connectionRefused())
             {
-                throw ConnectionRefusedException(__FILE__, __LINE__, getSocketErrno());
+                throw ConnectionRefusedException{__FILE__, __LINE__};
             }
             else if (connectFailed())
             {
@@ -2150,7 +2150,7 @@ IceInternal::doFinishConnectAsync(SOCKET fd, AsyncInfo& info)
         WSASetLastError(info.error);
         if (connectionRefused())
         {
-            throw ConnectionRefusedException(__FILE__, __LINE__, getSocketErrno());
+            throw ConnectionRefusedException{__FILE__, __LINE__};
         }
         else if (connectFailed())
         {

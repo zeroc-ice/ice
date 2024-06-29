@@ -340,11 +340,11 @@ allTests(TestHelper* helper)
 
     try
     {
-        // Ice APIs can't return all illegal identity.
+        // Ice APIs don't return illegal identities.
         id = Ice::stringToIdentity("");
         assert(false);
     }
-    catch (const Ice::IllegalIdentityException&)
+    catch (const std::invalid_argument&)
     {
     }
 

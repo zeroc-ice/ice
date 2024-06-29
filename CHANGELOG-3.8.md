@@ -59,31 +59,34 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   property `AdapterName.Connection.CloseTimeout`.
 
 - Consolidate and refactor the exceptions derived from LocalException.
-  | Local exception in Ice 3.7          | Replacement                |
-  |-------------------------------------|----------------------------|
-  | BadMagicException                   | ProtocolException (base)   |
-  | CompressionException                | ProtocolException (base)   |
-  | ConnectionManuallyClosedException   | ConnectionAbortedException, ConnectionClosedException |
-  | ConnectionNotValidatedException     | ProtocolException (base)   |
-  | EncapsulationException              | MarshalException (base)    |
-  | EndpointParseException              | ParseException             |
-  | EndpointSelectionTypeParseException | ParseException             |
-  | IllegalIdentityException            | ArgumentException (C#)     |
-  | IllegalMessageSizeException         | MarshalException           |
-  | IllegalServantException             | ArgumentNullException (C#) |
-  | IdentityParseException              | ParseException             |
-  | MemoryLimitException                | MarshalException (base)    |
-  | NoValueFactoryException             | MarshalException (base)    |
-  | ProxyParseException                 | ParseException             |
-  | ProxyUnmarshalException             | MarshalException (base)    |
-  | StringConversionException           | MarshalException (base)    |
-  | UnexpectedObjectException           | MarshalException (base)    |
-  | UnknownMessageException             | ProtocolException (base)   |
-  | UnknownReplyStatusException         | MarshalException           |
-  | UnmarshalOutOfBoundsException       | MarshalException (base)    |
-  | UnsupportedEncodingException        | MarshalException           |
-  | UnsupportedProtocolException        | MarshalException, FeatureNotSupportedException |
-  | VersionParseException               | ParseException             |
+  | Local exception in Ice 3.7          | Replacement                | Notes    |
+  |-------------------------------------|----------------------------| ---------|
+  | BadMagicException                   | ProtocolException (base)   |          |
+  | CFNetworkException                  | SocketsException (base)    |          |
+  | CloneNotImplementedException        | logic_error                | C++ only |
+  | CompressionException                | ProtocolException (base)   |          |
+  | ConnectionManuallyClosedException   | ConnectionAbortedException, ConnectionClosedException | |
+  | ConnectionNotValidatedException     | ProtocolException (base)   |          |
+  | EncapsulationException              | MarshalException (base)    |          |
+  | EndpointParseException              | ParseException             |          |
+  | EndpointSelectionTypeParseException | ParseException             |          |
+  | IllegalIdentityException            | ArgumentException (C#), invalid_argument (C++)     | |
+  | IllegalMessageSizeException         | MarshalException           |          |
+  | IllegalServantException             | ArgumentNullException (C#), invalid_argument (C++) | |
+  | IdentityParseException              | ParseException             |          |
+  | MemoryLimitException                | MarshalException (base)    |          |
+  | NoValueFactoryException             | MarshalException (base)    |          |
+  | ProxyParseException                 | ParseException             |          |
+  | ProxyUnmarshalException             | MarshalException (base)    |          |
+  | StringConversionException           | MarshalException (base)    |          |
+  | UnexpectedObjectException           | MarshalException (base)    |          |
+  | UnknownMessageException             | ProtocolException (base)   |          |
+  | UnknownReplyStatusException         | MarshalException           |          |
+  | UnmarshalOutOfBoundsException       | MarshalException (base)    |          |
+  | UnsupportedEncodingException        | MarshalException           |          |
+  | UnsupportedProtocolException        | MarshalException, FeatureNotSupportedException | |
+  | VersionMismatchException            | InitializationException    |          |
+  | VersionParseException               | ParseException             |          |
 
   base = was existing base class
 

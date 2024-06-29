@@ -305,7 +305,7 @@ Activator::Activator(const shared_ptr<TraceLevels>& traceLevels) : _traceLevels(
     int fds[2];
     if (pipe(fds) != 0)
     {
-        throw SyscallException(__FILE__, __LINE__);
+        throw SyscallException{__FILE__, __LINE__, "pipe failed", errno};
     }
     _fdIntrRead = fds[0];
     _fdIntrWrite = fds[1];
@@ -644,7 +644,7 @@ Activator::activate(
 
     if (err != 0)
     {
-        throw SyscallException(__FILE__, __LINE__, err);
+        throw SyscallException{__FILE__, __LINE__, "getpwuid_r failed", err};
     }
     else if (pw == 0)
     {
@@ -704,13 +704,13 @@ Activator::activate(
     int fds[2];
     if (pipe(fds) != 0)
     {
-        throw SyscallException(__FILE__, __LINE__);
+        throw SyscallException{__FILE__, __LINE__, "pipe failed", errno};
     }
 
     int errorFds[2];
     if (pipe(errorFds) != 0)
     {
-        throw SyscallException(__FILE__, __LINE__);
+        throw SyscallException{__FILE__, __LINE__, "pipe failed", errno};
     }
 
     //
@@ -727,7 +727,7 @@ Activator::activate(
     pid_t pid = fork();
     if (pid == -1)
     {
-        throw SyscallException(__FILE__, __LINE__);
+        throw SyscallException{__FILE__, __LINE__, "fork failed", errno};
     }
 
     if (pid == 0) // Child process.
@@ -1053,9 +1053,9 @@ Activator::sendSignal(const string& name, int signal)
     }
 #else
     int ret = ::kill(static_cast<pid_t>(pid), signal);
-    if (ret != 0 && getSystemErrno() != ESRCH)
+    if (ret != 0 && errno != ESRCH)
     {
-        throw SyscallException(__FILE__, __LINE__);
+        throw SyscallException{__FILE__, __LINE__, "kill failed", errno};
     }
 
     if (_traceLevels->activator > 1)
@@ -1311,7 +1311,7 @@ Activator::terminationListener()
             }
 #    endif
 
-            throw SyscallException(__FILE__, __LINE__);
+            throw SyscallException{__FILE__, __LINE__, "select failed", errno};
         }
 
         vector<Process> terminated;
@@ -1363,7 +1363,7 @@ Activator::terminationListener()
                 {
                     if (errno != EAGAIN || message.empty())
                     {
-                        throw SyscallException(__FILE__, __LINE__);
+                        throw SyscallException{__FILE__, __LINE__, "read failed", errno};
                     }
 
                     ++p;
@@ -1449,7 +1449,7 @@ Activator::setInterrupt()
     ssize_t sz = write(_fdIntrWrite, &c, 1);
     if (sz == -1)
     {
-        throw SyscallException(__FILE__, __LINE__);
+        throw SyscallException{__FILE__, __LINE__, "write failed", errno};
     }
 #endif
 }
@@ -1481,7 +1481,7 @@ Activator::waitPid(pid_t processPid)
                     ++nRetry;
                     continue;
                 }
-                throw SyscallException(__FILE__, __LINE__);
+                throw SyscallException{__FILE__, __LINE__, "waitpid failed", errno};
             }
             assert(pid == processPid);
             break;
@@ -1490,7 +1490,7 @@ Activator::waitPid(pid_t processPid)
         pid_t pid = waitpid(processPid, &status, 0);
         if (pid < 0)
         {
-            throw SyscallException(__FILE__, __LINE__);
+            throw SyscallException{__FILE__, __LINE__, "waitpid failed", errno};
         }
         assert(pid == processPid);
 #    endif

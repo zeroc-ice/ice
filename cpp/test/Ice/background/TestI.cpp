@@ -71,7 +71,8 @@ BackgroundControllerI::initializeSocketOperation(int status, const Current&)
 void
 BackgroundControllerI::initializeException(bool enable, const Current&)
 {
-    _configuration->initializeException(enable ? make_exception_ptr(SocketException(__FILE__, __LINE__)) : nullptr);
+    _configuration->initializeException(
+        enable ? make_exception_ptr(SocketException{__FILE__, __LINE__, "simulated socket error"}) : nullptr);
 }
 
 void
@@ -83,7 +84,8 @@ BackgroundControllerI::readReady(bool enable, const Current&)
 void
 BackgroundControllerI::readException(bool enable, const Current&)
 {
-    _configuration->readException(enable ? make_exception_ptr(SocketException(__FILE__, __LINE__)) : nullptr);
+    _configuration->readException(
+        enable ? make_exception_ptr(SocketException{__FILE__, __LINE__, "simulated socket error"}) : nullptr);
 }
 
 void
@@ -95,7 +97,8 @@ BackgroundControllerI::writeReady(bool enable, const Current&)
 void
 BackgroundControllerI::writeException(bool enable, const Current&)
 {
-    _configuration->writeException(enable ? make_exception_ptr(SocketException(__FILE__, __LINE__)) : nullptr);
+    _configuration->writeException(
+        enable ? make_exception_ptr(SocketException{__FILE__, __LINE__, "simulated socket error"}) : nullptr);
 }
 
 void

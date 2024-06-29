@@ -2386,7 +2386,7 @@ ServerI::checkAndUpdateUser(const shared_ptr<InternalServerDescriptor>& desc, bo
 
         if (err != 0)
         {
-            throw Ice::SyscallException(__FILE__, __LINE__, err);
+            throw Ice::SyscallException{__FILE__, __LINE__, "getpwnam_r failed", err};
         }
         else if (pw == 0)
         {

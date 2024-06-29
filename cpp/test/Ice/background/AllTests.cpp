@@ -16,52 +16,59 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
-class OpThread final
+namespace
 {
-public:
-    OpThread(const BackgroundPrx& background) : _destroyed(false), _background(background->ice_oneway()) {}
 
-    void run()
+    const char* socketErrorMessage = "simulated socket error";
+
+    class OpThread final
     {
-        int count = 0;
-        while (true)
-        {
-            {
-                lock_guard lock(_mutex);
-                if (_destroyed)
-                {
-                    return;
-                }
-            }
+    public:
+        OpThread(const BackgroundPrx& background) : _destroyed(false), _background(background->ice_oneway()) {}
 
-            try
+        void run()
+        {
+            int count = 0;
+            while (true)
             {
-                if (++count == 10) // Don't blast the connection with only oneway's
                 {
-                    count = 0;
-                    _background->ice_twoway()->ice_ping();
+                    lock_guard lock(_mutex);
+                    if (_destroyed)
+                    {
+                        return;
+                    }
                 }
-                _background->opAsync();
-                this_thread::sleep_for(chrono::milliseconds(1));
-            }
-            catch (const Ice::LocalException&)
-            {
+
+                try
+                {
+                    if (++count == 10) // Don't blast the connection with only oneway's
+                    {
+                        count = 0;
+                        _background->ice_twoway()->ice_ping();
+                    }
+                    _background->opAsync();
+                    this_thread::sleep_for(chrono::milliseconds(1));
+                }
+                catch (const Ice::LocalException&)
+                {
+                }
             }
         }
-    }
 
-    void destroy()
-    {
-        lock_guard lock(_mutex);
-        _destroyed = true;
-    }
+        void destroy()
+        {
+            lock_guard lock(_mutex);
+            _destroyed = true;
+        }
 
-private:
-    bool _destroyed;
-    BackgroundPrx _background;
-    mutex _mutex;
-};
-using OpThreadPtr = shared_ptr<OpThread>;
+    private:
+        bool _destroyed;
+        BackgroundPrx _background;
+        mutex _mutex;
+    };
+    using OpThreadPtr = shared_ptr<OpThread>;
+
+}
 
 void connectTests(const ConfigurationPtr&, const BackgroundPrx&);
 void initializeTests(const ConfigurationPtr&, const BackgroundPrx&, const BackgroundControllerPrx&);
@@ -246,11 +253,13 @@ connectTests(const ConfigurationPtr& configuration, const BackgroundPrx& backgro
     {
         if (i == 0 || i == 2)
         {
-            configuration->connectorsException(make_exception_ptr(Ice::DNSException(__FILE__, __LINE__)));
+            configuration->connectorsException(
+                make_exception_ptr(Ice::DNSException{__FILE__, __LINE__, 0, "host.fake"}));
         }
         else
         {
-            configuration->connectException(make_exception_ptr(Ice::SocketException(__FILE__, __LINE__)));
+            configuration->connectException(
+                make_exception_ptr(Ice::SocketException{__FILE__, __LINE__, socketErrorMessage}));
         }
         BackgroundPrx prx = (i == 1 || i == 3) ? background : background->ice_oneway();
 
@@ -313,7 +322,8 @@ connectTests(const ConfigurationPtr& configuration, const BackgroundPrx& backgro
             test(false);
         }
 
-        configuration->connectException(make_exception_ptr(Ice::SocketException{__FILE__, __LINE__}));
+        configuration->connectException(
+            make_exception_ptr(Ice::SocketException{__FILE__, __LINE__, socketErrorMessage}));
         background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
         this_thread::sleep_for(chrono::milliseconds(10));
         configuration->connectException(0);
@@ -355,7 +365,8 @@ initializeTests(
     {
         if (i == 0 || i == 2)
         {
-            configuration->initializeException(make_exception_ptr(Ice::SocketException{__FILE__, __LINE__}));
+            configuration->initializeException(
+                make_exception_ptr(Ice::SocketException{__FILE__, __LINE__, socketErrorMessage}));
         }
         else
         {
@@ -363,7 +374,8 @@ initializeTests(
             continue;
 #else
             configuration->initializeSocketOperation(IceInternal::SocketOperationWrite);
-            configuration->initializeException(make_exception_ptr(Ice::SocketException{__FILE__, __LINE__}));
+            configuration->initializeException(
+                make_exception_ptr(Ice::SocketException{__FILE__, __LINE__, socketErrorMessage}));
 #endif
         }
         BackgroundPrx prx = (i == 1 || i == 3) ? background : background->ice_oneway();
@@ -499,7 +511,8 @@ initializeTests(
             test(false);
         }
 
-        configuration->initializeException(make_exception_ptr(Ice::SocketException{__FILE__, __LINE__}));
+        configuration->initializeException(
+            make_exception_ptr(Ice::SocketException{__FILE__, __LINE__, socketErrorMessage}));
         background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
         this_thread::sleep_for(chrono::milliseconds(10));
         configuration->initializeException(0);
@@ -594,7 +607,7 @@ validationTests(
     try
     {
         // Get the read() of connection validation to throw right away.
-        configuration->readException(make_exception_ptr(Ice::SocketException{__FILE__, __LINE__}));
+        configuration->readException(make_exception_ptr(Ice::SocketException{__FILE__, __LINE__, socketErrorMessage}));
         background->op();
         test(false);
     }
@@ -611,7 +624,7 @@ validationTests(
 
     for (int i = 0; i < 2; i++)
     {
-        configuration->readException(make_exception_ptr(Ice::SocketException{__FILE__, __LINE__}));
+        configuration->readException(make_exception_ptr(Ice::SocketException{__FILE__, __LINE__, socketErrorMessage}));
         BackgroundPrx prx = i == 0 ? background : background->ice_oneway();
         promise<bool> sent;
         promise<void> completed;
@@ -647,7 +660,8 @@ validationTests(
         {
             // Get the read() of the connection validation to return "would block" and then throw.
             configuration->readReady(false);
-            configuration->readException(make_exception_ptr(Ice::SocketException{__FILE__, __LINE__}));
+            configuration->readException(
+                make_exception_ptr(Ice::SocketException{__FILE__, __LINE__, socketErrorMessage}));
             background->op();
             test(false);
         }
@@ -666,7 +680,8 @@ validationTests(
         for (int i = 0; i < 2; i++)
         {
             configuration->readReady(false);
-            configuration->readException(make_exception_ptr(Ice::SocketException{__FILE__, __LINE__}));
+            configuration->readException(
+                make_exception_ptr(Ice::SocketException{__FILE__, __LINE__, socketErrorMessage}));
             promise<void> completed;
             background->opAsync(
                 []() { test(false); },
@@ -875,7 +890,8 @@ readWriteTests(
         try
         {
             background->ice_ping();
-            configuration->writeException(make_exception_ptr(Ice::SocketException{__FILE__, __LINE__}));
+            configuration->writeException(
+                make_exception_ptr(Ice::SocketException{__FILE__, __LINE__, socketErrorMessage}));
             prx->op();
             test(false);
         }
@@ -885,7 +901,7 @@ readWriteTests(
         }
 
         background->ice_ping();
-        configuration->writeException(make_exception_ptr(Ice::SocketException{__FILE__, __LINE__}));
+        configuration->writeException(make_exception_ptr(Ice::SocketException{__FILE__, __LINE__, socketErrorMessage}));
         promise<bool> sent;
         promise<void> completed;
         prx->opAsync(
@@ -914,7 +930,7 @@ readWriteTests(
     try
     {
         background->ice_ping();
-        configuration->readException(make_exception_ptr(Ice::SocketException{__FILE__, __LINE__}));
+        configuration->readException(make_exception_ptr(Ice::SocketException{__FILE__, __LINE__, socketErrorMessage}));
         background->op();
         test(false);
     }
@@ -925,7 +941,7 @@ readWriteTests(
 
     background->ice_ping();
     configuration->readReady(false); // Required in C# to make sure beginRead() doesn't throw too soon.
-    configuration->readException(make_exception_ptr(Ice::SocketException{__FILE__, __LINE__}));
+    configuration->readException(make_exception_ptr(Ice::SocketException{__FILE__, __LINE__, socketErrorMessage}));
     {
         promise<void> completed;
         background->opAsync(
@@ -985,7 +1001,8 @@ readWriteTests(
         {
             background->ice_ping();
             configuration->writeReady(false);
-            configuration->writeException(make_exception_ptr(Ice::SocketException{__FILE__, __LINE__}));
+            configuration->writeException(
+                make_exception_ptr(Ice::SocketException{__FILE__, __LINE__, socketErrorMessage}));
             background->op();
             test(false);
         }
@@ -1001,7 +1018,8 @@ readWriteTests(
 
             background->ice_ping();
             configuration->writeReady(false);
-            configuration->writeException(make_exception_ptr(Ice::SocketException{__FILE__, __LINE__}));
+            configuration->writeException(
+                make_exception_ptr(Ice::SocketException{__FILE__, __LINE__, socketErrorMessage}));
             promise<void> completed;
             promise<bool> sent;
             prx->opAsync(
@@ -1032,7 +1050,8 @@ readWriteTests(
         {
             background->ice_ping();
             configuration->readReady(false);
-            configuration->readException(make_exception_ptr(Ice::SocketException{__FILE__, __LINE__}));
+            configuration->readException(
+                make_exception_ptr(Ice::SocketException{__FILE__, __LINE__, socketErrorMessage}));
             background->op();
             test(false);
         }
@@ -1045,7 +1064,8 @@ readWriteTests(
         {
             background->ice_ping();
             configuration->readReady(false);
-            configuration->readException(make_exception_ptr(Ice::SocketException{__FILE__, __LINE__}));
+            configuration->readException(
+                make_exception_ptr(Ice::SocketException{__FILE__, __LINE__, socketErrorMessage}));
             promise<void> completed;
             background->opAsync(
                 []() { test(false); },
@@ -1073,7 +1093,8 @@ readWriteTests(
             background->ice_ping();
             configuration->readReady(false);
             configuration->writeReady(false);
-            configuration->readException(make_exception_ptr(Ice::SocketException{__FILE__, __LINE__}));
+            configuration->readException(
+                make_exception_ptr(Ice::SocketException{__FILE__, __LINE__, socketErrorMessage}));
             promise<void> completed;
             background->opAsync(
                 []() { test(false); },
@@ -1272,7 +1293,7 @@ readWriteTests(
         }
 
         this_thread::sleep_for(chrono::milliseconds(10));
-        configuration->writeException(make_exception_ptr(Ice::SocketException{__FILE__, __LINE__}));
+        configuration->writeException(make_exception_ptr(Ice::SocketException{__FILE__, __LINE__, socketErrorMessage}));
         try
         {
             background->op();

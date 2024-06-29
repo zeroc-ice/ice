@@ -977,26 +977,26 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                     }
                     if (err != 0)
                     {
-                        throw Ice::SyscallException(__FILE__, __LINE__, err);
+                        throw Ice::SyscallException{__FILE__, __LINE__, "getpwnam_r failed", err};
                     }
                     else if (pw == 0)
                     {
-                        throw InitializationException(__FILE__, __LINE__, "unknown user account `" + newUser + "'");
+                        throw InitializationException(__FILE__, __LINE__, "unknown user account '" + newUser + "'");
                     }
 
                     if (setgid(pw->pw_gid) == -1)
                     {
-                        throw SyscallException(__FILE__, __LINE__);
+                        throw SyscallException{__FILE__, __LINE__, "setgid failed", errno};
                     }
 
                     if (initgroups(pw->pw_name, static_cast<int>(pw->pw_gid)) == -1)
                     {
-                        throw SyscallException(__FILE__, __LINE__);
+                        throw SyscallException{__FILE__, __LINE__, "initgroups failed", errno};
                     }
 
                     if (setuid(pw->pw_uid) == -1)
                     {
-                        throw SyscallException(__FILE__, __LINE__);
+                        throw SyscallException{__FILE__, __LINE__, "setuid failed", errno};
                     }
                 }
 #endif

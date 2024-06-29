@@ -285,9 +285,9 @@ namespace Ice
 
         /**
          * Throw an exception indicating the reason for connection closure. For example,
-         * {@link CloseConnectionException} is raised if the connection was closed gracefully, whereas
-         * {@link ConnectionManuallyClosedException} is raised if the connection was manually closed by
-         * the application. This operation does nothing if the connection is not yet closed.
+         * {@link CloseConnectionException} is raised if the connection was closed gracefully by the peer, whereas
+         * {@link ConnectionAbortedException} or {@link ConnectionClosedException} is raised if the connection was
+         * manually closed by the application. This operation does nothing if the connection is not yet closed.
          */
         virtual void throwException() const = 0;
     };

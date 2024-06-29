@@ -1543,7 +1543,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
         //
         if (setsid() == -1)
         {
-            throw SyscallException(__FILE__, __LINE__);
+            throw SyscallException{__FILE__, __LINE__, "setsid failed", errno};
         }
 
         //
@@ -1558,7 +1558,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
         pid = fork();
         if (pid < 0)
         {
-            throw SyscallException(__FILE__, __LINE__);
+            throw SyscallException{__FILE__, __LINE__, "fork failed", errno};
         }
         if (pid != 0)
         {
@@ -1572,7 +1572,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             //
             if (chdir("/") != 0)
             {
-                throw SyscallException(__FILE__, __LINE__);
+                throw SyscallException{__FILE__, __LINE__, "chdir failed", errno};
             }
         }
 
@@ -1588,7 +1588,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             int fdMax = static_cast<int>(sysconf(_SC_OPEN_MAX));
             if (fdMax <= 0)
             {
-                throw SyscallException(__FILE__, __LINE__);
+                throw SyscallException{__FILE__, __LINE__, "sysconf failed", errno};
             }
 
             for (int i = 0; i < fdMax; ++i)
@@ -1648,7 +1648,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             assert(fd == 0);
             if (fd != 0)
             {
-                throw SyscallException(__FILE__, __LINE__);
+                throw SyscallException{__FILE__, __LINE__, "open /dev/null failed", errno};
             }
             if (stdOut.empty())
             {
@@ -1656,7 +1656,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
                 assert(fd == 1);
                 if (fd != 1)
                 {
-                    throw SyscallException(__FILE__, __LINE__);
+                    throw SyscallException{__FILE__, __LINE__, "dup2(0, 1) failed", errno};
                 }
             }
             if (stdErr.empty())
@@ -1665,7 +1665,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
                 assert(fd == 2);
                 if (fd != 2)
                 {
-                    throw SyscallException(__FILE__, __LINE__);
+                    throw SyscallException{__FILE__, __LINE__, "dup2(1, 2) failed", errno};
                 }
             }
         }

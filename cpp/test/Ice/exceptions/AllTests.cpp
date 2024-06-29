@@ -218,12 +218,12 @@ allTests(Test::TestHelper* helper)
             {
                 adapter->add(obj, Ice::stringToIdentity(""));
             }
-            catch (const Ice::IllegalIdentityException& ex)
+            catch (const std::invalid_argument& ex)
             {
                 if (printException)
                 {
                     Ice::Print printer(communicator->getLogger());
-                    printer << ex;
+                    printer << ex.what();
                 }
             }
 
@@ -232,12 +232,12 @@ allTests(Test::TestHelper* helper)
                 obj = nullptr;
                 adapter->add(obj, Ice::stringToIdentity("x"));
             }
-            catch (const Ice::IllegalServantException& ex)
+            catch (const std::invalid_argument& ex)
             {
                 if (printException)
                 {
                     Ice::Print printer(communicator->getLogger());
-                    printer << ex;
+                    printer << ex.what();
                 }
             }
 

@@ -300,16 +300,15 @@ RegistryI::startImpl()
     if (dbPath.empty())
     {
         Ice::Error out(_communicator->getLogger());
-        out << "property `IceGrid.Registry.LMDB.Path' is not set";
+        out << "property 'IceGrid.Registry.LMDB.Path' is not set";
         return false;
     }
     else
     {
         if (!IceInternal::directoryExists(dbPath))
         {
-            Ice::SyscallException ex(__FILE__, __LINE__);
             Ice::Error out(_communicator->getLogger());
-            out << "property `IceGrid.Registry.LMDB.Path' is set to an invalid path:\n" << ex;
+            out << "property 'IceGrid.Registry.LMDB.Path' is set to an invalid path: " << dbPath;
             return false;
         }
     }
