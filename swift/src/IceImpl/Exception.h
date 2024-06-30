@@ -6,7 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 ICEIMPL_API @protocol ICELocalExceptionFactory
 
-// The local exceptions with the same fields share a factory method.
+// Local exceptions with the same fields share a factory method.
 
 // The 3 NoExist exceptions.
 + (NSError*)requestFailedException:(NSString*)typeId
@@ -27,17 +27,6 @@ ICEIMPL_API @protocol ICELocalExceptionFactory
                  cxxDescription:(NSString*)cxxDescription
                            file:(NSString*)file
                            line:(int32_t)line;
-
-// ConnectionClosedException + ConnectionAbortedException
-/*
-+ (NSError*)connectionClosedException:(NSString*)typeId
-                       closedByApplication:(BOOL)closedByApplication
-                            message:(NSString*)message
-                     cxxDescription:(NSString*)cxxDescription
-                               file:(NSString*)file
-                               line:(int32_t)line;
-*/
-
 // Temporary
 + (NSError*)connectionManuallyClosedException:(BOOL)graceful
                             message:(NSString*)message
