@@ -8,9 +8,7 @@ open class LocalException: Exception, CustomStringConvertible {
     private let cxxDescription: String?
 
     /// A textual representation of this Ice exception.
-    public var description: String {
-        cxxDescription ?? "\(file):\(line) \(ice_id()) \(message)"
-    }
+    public var description: String { cxxDescription ?? "\(file):\(line) \(ice_id()) \(message)" }
 
     /// Creates a LocalException.
     /// - Parameters:
@@ -37,11 +35,7 @@ open class LocalException: Exception, CustomStringConvertible {
         self.cxxDescription = cxxDescription
     }
 
-    public func ice_id() -> String {
-        return type(of: self).ice_staticId()
-    }
+    public func ice_id() -> String { type(of: self).ice_staticId() }
 
-    public class func ice_staticId() -> String {
-        return "::Ice::LocalException"
-    }
+    public class func ice_staticId() -> String { "::Ice::LocalException" }
 }

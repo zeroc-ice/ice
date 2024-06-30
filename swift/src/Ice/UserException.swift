@@ -7,13 +7,9 @@ open class UserException: Exception {
     open func _iceReadImpl(from _: InputStream) throws {}
     open func _iceWriteImpl(to _: OutputStream) {}
 
-    open func _usesClasses() -> Bool {
-        false
-    }
+    open func _usesClasses() -> Bool { false }
 
-    open class func ice_staticId() -> String {
-        "::Ice::UserException"
-    }
+    open class func ice_staticId() -> String { "::Ice::UserException" }
 
     open func _iceRead(from istr: InputStream) throws {
         istr.startException()
@@ -29,7 +25,5 @@ open class UserException: Exception {
 }
 
 extension UserException {
-    public func ice_id() -> String {
-        return type(of: self).ice_staticId()
-    }
+    public func ice_id() -> String { type(of: self).ice_staticId() }
 }
