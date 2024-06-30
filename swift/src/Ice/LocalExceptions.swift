@@ -2,9 +2,6 @@
 
 /// This exception is raised when a failure occurs during initialization.
 public final class InitializationException: LocalException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::InitializationException"
     }
@@ -12,9 +9,6 @@ public final class InitializationException: LocalException {
 
 /// This exception indicates that a failure occurred while initializing a plug-in.
 public final class PluginInitializationException: LocalException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::PluginInitializationException"
     }
@@ -36,9 +30,6 @@ public final class AlreadyRegisteredException: LocalException {
         super.init("another \(kindOfObject) is already registered with ID '\(id)'", file: file, line: line)
     }
 
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::AlreadyRegisteredException"
     }
@@ -74,9 +65,6 @@ public final class NotRegisteredException: LocalException {
         super.init("no \(kindOfObject) is registered with ID '\(id)'", file: file, line: line)
     }
 
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::NotRegisteredException"
     }
@@ -104,9 +92,6 @@ public final class TwowayOnlyException: LocalException {
             file: file, line: line)
     }
 
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::TwowayOnlyException"
     }
@@ -116,9 +101,6 @@ public final class TwowayOnlyException: LocalException {
 /// exception is raised if the server throws a C++ exception that is not directly or indirectly derived from
 /// Ice::LocalException or Ice::UserException.
 public class UnknownException: LocalException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::UnknownException"
     }
@@ -130,9 +112,6 @@ public class UnknownException: LocalException {
 /// RequestFailedException, which are transmitted by the Ice protocol even though they are declared
 /// local.
 public final class UnknownLocalException: UnknownException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::UnknownLocalException"
     }
@@ -149,9 +128,6 @@ public final class UnknownUserException: UnknownException {
             "the user exception carried by the reply does not conform to the operation's exception specification: \(badTypeId)",
             file: file, line: line)
     }
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::UnknownUserException"
     }
@@ -159,9 +135,6 @@ public final class UnknownUserException: UnknownException {
 
 /// This exception is raised if the Communicator has been destroyed.
 public final class CommunicatorDestroyedException: LocalException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::CommunicatorDestroyedException"
     }
@@ -173,9 +146,6 @@ public final class ObjectAdapterDeactivatedException: LocalException {
         self.init("object adapter '\(name)' is deactivated", file: file, line: line)
     }
 
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::ObjectAdapterDeactivatedException"
     }
@@ -188,9 +158,6 @@ public final class ObjectAdapterIdInUseException: LocalException {
         self.init("an object adapter with adapter ID'\(id)' is already active", file: file, line: line)
     }
 
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::ObjectAdapterIdInUseException"
     }
@@ -202,9 +169,6 @@ public final class NoEndpointException: LocalException {
         self.init("no suitable endpoint available for proxy '\(proxy)'", file: file, line: line)
     }
 
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::NoEndpointException"
     }
@@ -212,9 +176,6 @@ public final class NoEndpointException: LocalException {
 
 /// This exception is raised if there was an error while parsing a string.
 public final class ParseException: LocalException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::ParseException"
     }
@@ -231,9 +192,6 @@ public class RequestFailedException: LocalException {
     /// The operation name of the request.
     public let operation: String
 
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::RequestFailedException"
     }
@@ -291,9 +249,6 @@ public final class ObjectNotExistException: RequestFailedException {
         self.init("dispatch failed with ObjectNotExistException", file: file, line: line)
     }
 
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::ObjectNotExistException"
     }
@@ -310,9 +265,6 @@ public final class FacetNotExistException: RequestFailedException {
     public convenience init(file: String = #file, line: Int32 = #line) {
         self.init("dispatch failed with FacetNotExistException", file: file, line: line)
     }
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::FacetNotExistException"
     }
@@ -330,9 +282,6 @@ public final class OperationNotExistException: RequestFailedException {
         self.init("dispatch failed with OperationNotExistException", file: file, line: line)
     }
 
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::OperationNotExistException"
     }
@@ -341,9 +290,6 @@ public final class OperationNotExistException: RequestFailedException {
 /// This exception is raised if a system error occurred in the server or client process. There are many possible causes
 /// for such a system exception. For details on the cause, SyscallException.error should be inspected.
 public class SyscallException: LocalException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::SyscallException"
     }
@@ -351,9 +297,6 @@ public class SyscallException: LocalException {
 
 /// This exception indicates socket errors.
 public class SocketException: SyscallException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::SocketException"
     }
@@ -361,9 +304,6 @@ public class SocketException: SyscallException {
 
 /// This exception indicates connection failures.
 public class ConnectFailedException: SocketException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::ConnectFailedException"
     }
@@ -371,9 +311,6 @@ public class ConnectFailedException: SocketException {
 
 /// This exception indicates a connection failure for which the server host actively refuses a connection.
 public final class ConnectionRefusedException: ConnectFailedException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::ConnectionRefusedException"
     }
@@ -381,9 +318,6 @@ public final class ConnectionRefusedException: ConnectFailedException {
 
 /// This exception indicates a lost connection.
 public final class ConnectionLostException: SocketException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::ConnectionLostException"
     }
@@ -391,9 +325,6 @@ public final class ConnectionLostException: SocketException {
 
 /// This exception indicates that a connection was aborted by the idle check.
 public class ConnectionIdleException: LocalException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::ConnectionIdleException"
     }
@@ -401,9 +332,6 @@ public class ConnectionIdleException: LocalException {
 
 /// This exception indicates a timeout condition.
 public class TimeoutException: LocalException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::TimeoutException"
     }
@@ -411,9 +339,6 @@ public class TimeoutException: LocalException {
 
 /// This exception indicates a connection establishment timeout condition.
 public final class ConnectTimeoutException: TimeoutException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::ConnectTimeoutException"
     }
@@ -421,9 +346,6 @@ public final class ConnectTimeoutException: TimeoutException {
 
 /// This exception indicates a connection closure timeout condition.
 public final class CloseTimeoutException: TimeoutException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::CloseTimeoutException"
     }
@@ -431,9 +353,6 @@ public final class CloseTimeoutException: TimeoutException {
 
 /// This exception indicates that an invocation failed because it timed out.
 public final class InvocationTimeoutException: TimeoutException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::InvocationTimeoutException"
     }
@@ -441,9 +360,6 @@ public final class InvocationTimeoutException: TimeoutException {
 
 /// This exception indicates that an asynchronous invocation failed because it was canceled explicitly by the user.
 public final class InvocationCanceledException: LocalException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::InvocationCanceledException"
     }
@@ -451,9 +367,6 @@ public final class InvocationCanceledException: LocalException {
 
 /// A generic exception base for all kinds of protocol error conditions.
 public class ProtocolException: LocalException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::ProtocolException"
     }
@@ -465,9 +378,6 @@ public class ProtocolException: LocalException {
 /// upon retry the server shuts down the connection again, and the retry limit has been reached, then this exception is
 /// propagated to the application code.
 public final class CloseConnectionException: ProtocolException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::CloseConnectionException"
     }
@@ -476,9 +386,6 @@ public final class CloseConnectionException: ProtocolException {
 /// A datagram exceeds the configured size. This exception is raised if a datagram exceeds the configured send or
 /// receive buffer size, or exceeds the maximum payload size of a UDP packet (65507 bytes).
 public final class DatagramLimitException: ProtocolException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::DatagramLimitException"
     }
@@ -486,9 +393,6 @@ public final class DatagramLimitException: ProtocolException {
 
 /// This exception is raised for errors during marshaling or unmarshaling data.
 public final class MarshalException: ProtocolException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::MarshalException"
     }
@@ -496,9 +400,6 @@ public final class MarshalException: ProtocolException {
 
 /// This exception is raised if an unsupported feature is used.
 public final class FeatureNotSupportedException: LocalException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::FeatureNotSupportedException"
     }
@@ -506,9 +407,6 @@ public final class FeatureNotSupportedException: LocalException {
 
 /// This exception indicates a failure in a security subsystem, such as the IceSSL plug-in.
 public final class SecurityException: LocalException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::SecurityException"
     }
@@ -516,9 +414,6 @@ public final class SecurityException: LocalException {
 
 /// This exception indicates that an attempt has been made to change the connection properties of a fixed proxy.
 public final class FixedProxyException: LocalException {
-    /// Returns the Slice type ID of this exception.
-    ///
-    /// - returns: `String` - the Slice type ID of this exception.
     override public class func ice_staticId() -> String {
         return "::Ice::FixedProxyException"
     }
