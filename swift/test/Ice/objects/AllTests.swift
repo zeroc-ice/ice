@@ -248,8 +248,8 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         _ = try uoet.op()
         try test(false)
     } catch let ex as Ice.MarshalException {
-        try test(ex.reason.contains("::Test::AlsoEmpty"))
-        try test(ex.reason.contains("::Test::Empty"))
+        try test(ex.message.contains("::Test::AlsoEmpty"))
+        try test(ex.message.contains("::Test::Empty"))
     } catch {
         output.writeLine("\(error)")
         try test(false)

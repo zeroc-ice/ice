@@ -56,7 +56,7 @@ class ProcessControllerI: CommonProcessController {
         current: Ice.Current
     ) throws -> CommonProcessPrx? {
         guard let adapter = current.adapter else {
-            throw Ice.RuntimeError("Error")
+            throw Ice.LocalException("current.adapter is nil")
         }
         _view.println("starting \(testsuite) \(exe)... ")
 

@@ -2,42 +2,58 @@
 
 /// Base protocol for Ice exceptions.
 public protocol Exception: Error {
-    /// Returns the type id of this exception.
-    ///
-    /// - returns: `String` - The type id of this exception.
+    /// Gets the type ID of this Ice exception.
+    /// - Returns: The type ID of this Ice exception.
     func ice_id() -> String
+
+    /// Gets the type ID of the class.
+    /// - Returns: The type ID of the class.
     static func ice_staticId() -> String
 }
 
-extension Exception {
+/// Base class for Ice local exceptions.
+open class LocalException: Exception, CustomStringConvertible {
+    public let message: String
+    public let file: String
+    public let line: Int32
+    private let cxxDescription: String?
+
+    /// A textual representation of this Ice exception.
+    public var description: String {
+        cxxDescription ?? "\(file): \(line) \(ice_id()) \(message)"
+    }
+
+    /// Creates a LocalException.
+    /// - Parameters:
+    ///   - message: The exception message.
+    ///   - file: The file where the exception was thrown.
+    ///   - line: The line where the exception was thrown.
+    public init(_ message: String, file: String = #file, line: Int32 = #line) {
+        self.message = message
+        self.file = file
+        self.line = line
+        self.cxxDescription = nil
+    }
+
+    /// Creates a LocalException from an Ice C++ local exception.
+    /// - Parameters:
+    ///   - message: The exception message.
+    ///   - cxxDescription: The C++ exception description.
+    ///   - file: The file where the exception was thrown.
+    ///   - line: The line where the exception was thrown.
+    public required init(message: String, cxxDescription: String, file: String, line: Int32) {
+        self.message = message
+        self.file = file
+        self.line = line
+        self.cxxDescription = cxxDescription
+    }
+
     public func ice_id() -> String {
         return type(of: self).ice_staticId()
     }
-}
 
-/// Base class for Ice run-time exceptions.
-open class LocalException: Exception, CustomStringConvertible {
-    public let file: String
-    public let line: Int32
-
-    public var description: String {
-        return "\(file): \(line): \(ice_id())\(ice_print())"
-    }
-
-    public init(file: String = #file, line: Int32 = #line) {
-        self.file = file
-        self.line = line
-    }
-
-    open class func ice_staticId() -> String {
+    public class func ice_staticId() -> String {
         return "::Ice::LocalException"
-    }
-
-    /// Returns a stringified description of this exception.
-    ///
-    /// - returns: `String` - The exception description.
-    open func ice_print() -> String {
-        return ""
     }
 }
 
@@ -52,9 +68,6 @@ open class UserException: Exception {
         return false
     }
 
-    /// Returns the Slice type ID of the exception.
-    ///
-    /// - returns: `String` The Slice type ID.
     open class func ice_staticId() -> String {
         return "::Ice::UserException"
     }
@@ -72,19 +85,26 @@ open class UserException: Exception {
     }
 }
 
-/// Error used to wrap C++ std::exception errors.
-public class RuntimeError: LocalException {
-    private let message: String
+extension UserException {
+    public func ice_id() -> String {
+        return type(of: self).ice_staticId()
+    }
+}
 
-    override public var description: String {
-        return message
+/// Represents a C++ local exception or a std::exception without its own corresponding Swift class.
+internal final class CxxLocalException: LocalException {
+    private let typeId: String
+
+    internal init(typeId: String, message: String, cxxDescription: String, file: String, line: Int32) {
+        self.typeId = typeId
+        super.init(message: message, cxxDescription: cxxDescription, file: file, line: line)
     }
 
-    override open class func ice_staticId() -> String {
-        return "::Ice::RuntimeError"
+    internal required init(message: String, cxxDescription: String, file: String, line: Int32) {
+        fatalError("CxxLocalException must be initialized with a typeId")
     }
 
-    public init(_ message: String) {
-        self.message = message
+    override public func ice_id() -> String {
+        typeId
     }
 }

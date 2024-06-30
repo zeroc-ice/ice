@@ -120,7 +120,10 @@ func allTests(_ helper: TestHelper) throws {
         do {
             try adapter.setPublishedEndpoints(router.ice_getEndpoints())
             try test(false)
-        } catch is Ice.RuntimeError {}
+        } catch let error as Ice.LocalException {
+            try test(error.ice_id() == "std::invalid_argument")
+            try test(error.message == "can't set published endpoints on object adapter associated with a router")
+        }
         adapter.destroy()
 
         do {
