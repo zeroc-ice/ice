@@ -3,7 +3,7 @@
 #import "Communicator.h"
 #import "Connection.h"
 #import "Endpoint.h"
-#import "Exception.h"
+#import "LocalExceptionFactory.h"
 #import "Logger.h"
 #import "Properties.h"
 

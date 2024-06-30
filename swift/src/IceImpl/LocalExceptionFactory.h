@@ -29,10 +29,10 @@ ICEIMPL_API @protocol ICELocalExceptionFactory
                            line:(int32_t)line;
 // Temporary
 + (NSError*)connectionManuallyClosedException:(BOOL)graceful
-                            message:(NSString*)message
-                     cxxDescription:(NSString*)cxxDescription
-                               file:(NSString*)file
-                               line:(int32_t)line;
+                                      message:(NSString*)message
+                               cxxDescription:(NSString*)cxxDescription
+                                         file:(NSString*)file
+                                         line:(int32_t)line;
 
 // All other local exceptions.
 + (NSError*)localException:(NSString*)typeId

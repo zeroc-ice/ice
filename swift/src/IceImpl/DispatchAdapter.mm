@@ -2,8 +2,8 @@
 #import "DispatchAdapter.h"
 #import "Connection.h"
 #import "Convert.h"
-#import "Exception.h"
 #import "Ice/AsyncResponseHandler.h"
+#import "LocalExceptionFactory.h"
 #import "ObjectAdapter.h"
 
 void

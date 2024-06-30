@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 #import "Convert.h"
-#import "Exception.h"
 #import "IceUtil.h"
+#import "LocalExceptionFactory.h"
 
 #include <cstdlib>
 #include <cxxabi.h>
