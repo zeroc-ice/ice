@@ -387,6 +387,24 @@ public final class ConnectionManuallyClosedException: LocalException {
     }
 }
 
+/// Represents a C++ local exception or a std::exception without its own corresponding Swift class.
+internal final class CxxLocalException: LocalException {
+    private let typeId: String
+
+    internal init(typeId: String, message: String, cxxDescription: String, file: String, line: Int32) {
+        self.typeId = typeId
+        super.init(message: message, cxxDescription: cxxDescription, file: file, line: line)
+    }
+
+    internal required init(message: String, cxxDescription: String, file: String, line: Int32) {
+        fatalError("CxxLocalException must be initialized with a typeId")
+    }
+
+    override public func ice_id() -> String {
+        typeId
+    }
+}
+
 /// This exception is raised if an unsupported feature is used.
 public final class FeatureNotSupportedException: LocalException {
     override public class func ice_staticId() -> String {
