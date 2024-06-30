@@ -35,8 +35,11 @@ class LocalExceptionFactory: ICELocalExceptionFactory {
         }
     }
 
-    static func connectionManuallyClosedException(_ graceful: Bool, message: String, cxxDescription: String, file: String, line: Int32) -> Error {
-        ConnectionManuallyClosedException(graceful: graceful, message: message, cxxDescription: cxxDescription, file: file, line: line)
+    static func connectionManuallyClosedException(
+        _ graceful: Bool, message: String, cxxDescription: String, file: String, line: Int32
+    ) -> Error {
+        ConnectionManuallyClosedException(
+            graceful: graceful, message: message, cxxDescription: cxxDescription, file: file, line: line)
     }
 
     static func localException(_ typeId: String, message: String, cxxDescription: String, file: String, line: Int32)
@@ -51,6 +54,7 @@ class LocalExceptionFactory: ICELocalExceptionFactory {
     }
 
     static func cxxException(_ typeName: String, message: String) -> Error {
-        CxxLocalException(typeId: typeName, message: message, cxxDescription: "\(typeName) \(message)", file: "???", line: 0)
+        CxxLocalException(
+            typeId: typeName, message: message, cxxDescription: "\(typeName) \(message)", file: "???", line: 0)
     }
 }
