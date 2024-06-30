@@ -2,7 +2,7 @@
 
 import IceImpl
 
-class ExceptionFactory: ICEExceptionFactory {
+class LocalExceptionFactory: ICELocalExceptionFactory {
     static func requestFailedException(
         _ typeId: String, name: String, category: String, facet: String, operation: String,
         message: String, cxxDescription: String, file: String, line: Int32

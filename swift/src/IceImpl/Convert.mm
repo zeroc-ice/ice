@@ -22,7 +22,7 @@ NSError*
 convertException(std::exception_ptr exc)
 {
     assert(exc);
-    Class<ICEExceptionFactory> factory = [ICEUtil exceptionFactory];
+    Class<ICELocalExceptionFactory> factory = [ICEUtil localExceptionFactory];
 
     try
     {

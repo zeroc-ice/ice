@@ -4,7 +4,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-ICEIMPL_API @protocol ICEExceptionFactory
+ICEIMPL_API @protocol ICELocalExceptionFactory
 
 // The local exceptions with the same fields share a factory method.
 

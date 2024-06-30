@@ -1,7 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-import Foundation
-
 /// This exception is raised when a failure occurs during initialization.
 public final class InitializationException: LocalException {
     /// Returns the Slice type ID of this exception.
