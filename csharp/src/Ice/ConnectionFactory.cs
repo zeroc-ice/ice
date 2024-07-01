@@ -1401,7 +1401,7 @@ namespace IceInternal
             return _state < StateClosed;
         }
 
-        public override void message(ref ThreadPoolCurrent current)
+        public override void message(ThreadPoolCurrent current)
         {
             Ice.ConnectionI connection = null;
 
@@ -1522,7 +1522,7 @@ namespace IceInternal
             connection.start(this);
         }
 
-        public override void finished(ref ThreadPoolCurrent current)
+        public override void finished(ThreadPoolCurrent current)
         {
             lock(this)
             {

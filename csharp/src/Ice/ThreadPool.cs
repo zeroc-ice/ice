@@ -361,7 +361,7 @@ namespace IceInternal
                         {
                             current.operation = SocketOperation.None;
                             current._handler = handler;
-                            handler.finished(ref current);
+                            handler.finished(current);
                         });
                     Monitor.Pulse(this);
                 }
@@ -472,7 +472,7 @@ namespace IceInternal
                         current.operation = operation;
                         try
                         {
-                            current._handler.message(ref current);
+                            current._handler.message(current);
                         }
                         catch(System.Exception ex)
                         {

@@ -17,12 +17,12 @@ public abstract class EventHandler
     //
     // Called when there's a message ready to be processed.
     //
-    abstract public void message(ref ThreadPoolCurrent op);
+    abstract public void message(ThreadPoolCurrent op);
 
     //
     // Called when the event handler is unregistered.
     //
-    abstract public void finished(ref ThreadPoolCurrent op);
+    abstract public void finished(ThreadPoolCurrent op);
 
     internal int _ready = 0;
     internal int _pending = 0;

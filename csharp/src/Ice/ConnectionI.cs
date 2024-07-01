@@ -1102,6 +1102,11 @@ namespace Ice
 
         public override bool finishAsync(int operation)
         {
+            if(_state >= StateClosed)
+            {
+                return false;
+            }
+
             try
             {
                 if((operation & SocketOperation.Write) != 0)
@@ -1168,7 +1173,7 @@ namespace Ice
             return _state < StateClosed;
         }
 
-        public override void message(ref ThreadPoolCurrent current)
+        public override void message(ThreadPoolCurrent current)
         {
             StartCallback startCB = null;
             Queue<OutgoingMessage> sentCBs = null;
@@ -1560,7 +1565,7 @@ namespace Ice
             }
         }
 
-        public override void finished(ref ThreadPoolCurrent current)
+        public override void finished(ThreadPoolCurrent current)
         {
             lock(this)
             {
