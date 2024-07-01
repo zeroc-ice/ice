@@ -17,7 +17,7 @@ public final class RequestHandlerFactory {
       final RoutableReference ref, com.zeroc.Ice._ObjectPrxI proxy) {
     if (ref.getCollocationOptimized()) {
       com.zeroc.Ice.ObjectAdapter adapter =
-          _instance.objectAdapterFactory().findObjectAdapter(proxy);
+          _instance.objectAdapterFactory().findObjectAdapter(proxy._getReference());
       if (adapter != null) {
         return proxy._setRequestHandler(new CollocatedRequestHandler(ref, adapter));
       }

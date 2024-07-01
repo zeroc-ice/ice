@@ -5,6 +5,7 @@
 package com.zeroc.Ice;
 
 import com.zeroc.IceInternal.OutgoingAsync;
+import com.zeroc.IceInternal.Reference;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 /** Concrete proxy implementation. */
 public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
   // TODO: Only public for 'IceInternal.ProxyFactory', should become protected after refactoring.
-  public _ObjectPrxI(com.zeroc.IceInternal.Reference ref) {
+  public _ObjectPrxI(Reference ref) {
     _reference = ref;
   }
 
@@ -245,23 +246,23 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
   }
 
   public boolean ice_isTwoway() {
-    return _reference.getMode() == com.zeroc.IceInternal.Reference.ModeTwoway;
+    return _reference.getMode() == Reference.ModeTwoway;
   }
 
   public boolean ice_isOneway() {
-    return _reference.getMode() == com.zeroc.IceInternal.Reference.ModeOneway;
+    return _reference.getMode() == Reference.ModeOneway;
   }
 
   public boolean ice_isBatchOneway() {
-    return _reference.getMode() == com.zeroc.IceInternal.Reference.ModeBatchOneway;
+    return _reference.getMode() == Reference.ModeBatchOneway;
   }
 
   public boolean ice_isDatagram() {
-    return _reference.getMode() == com.zeroc.IceInternal.Reference.ModeDatagram;
+    return _reference.getMode() == Reference.ModeDatagram;
   }
 
   public boolean ice_isBatchDatagram() {
-    return _reference.getMode() == com.zeroc.IceInternal.Reference.ModeBatchDatagram;
+    return _reference.getMode() == Reference.ModeBatchDatagram;
   }
 
   public java.util.Optional<Boolean> ice_getCompress() {
@@ -345,7 +346,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
   }
 
   @Override
-  public com.zeroc.IceInternal.Reference _getReference() {
+  public Reference _getReference() {
     return _reference;
   }
 
@@ -480,7 +481,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
   public ObjectPrx ice_locator(LocatorPrx newLocator) {
     com.zeroc.IceInternal.LocatorInfo locatorInfo = _reference.getLocatorInfo();
     LocatorPrx locator = locatorInfo != null ? locatorInfo.getLocator() : null;
-    com.zeroc.IceInternal.Reference ref = _reference.changeLocator(locator);
+    Reference ref = _reference.changeLocator(locator);
     if (locator == newLocator || (locator != null && locator.equals(newLocator))) {
       return this;
     } else {
@@ -499,47 +500,31 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
 
   @Override
   public ObjectPrx ice_twoway() {
-    if (_reference.getMode() == com.zeroc.IceInternal.Reference.ModeTwoway) {
-      return this;
-    } else {
-      return _newInstance(_reference.changeMode(com.zeroc.IceInternal.Reference.ModeTwoway));
-    }
+    return ice_isTwoway() ? this : _newInstance(_reference.changeMode(Reference.ModeTwoway));
   }
 
   @Override
   public ObjectPrx ice_oneway() {
-    if (_reference.getMode() == com.zeroc.IceInternal.Reference.ModeOneway) {
-      return this;
-    } else {
-      return _newInstance(_reference.changeMode(com.zeroc.IceInternal.Reference.ModeOneway));
-    }
+    return ice_isOneway() ? this : _newInstance(_reference.changeMode(Reference.ModeOneway));
   }
 
   @Override
   public ObjectPrx ice_batchOneway() {
-    if (_reference.getMode() == com.zeroc.IceInternal.Reference.ModeBatchOneway) {
-      return this;
-    } else {
-      return _newInstance(_reference.changeMode(com.zeroc.IceInternal.Reference.ModeBatchOneway));
-    }
+    return ice_isBatchOneway()
+        ? this
+        : _newInstance(_reference.changeMode(Reference.ModeBatchOneway));
   }
 
   @Override
   public ObjectPrx ice_datagram() {
-    if (_reference.getMode() == com.zeroc.IceInternal.Reference.ModeDatagram) {
-      return this;
-    } else {
-      return _newInstance(_reference.changeMode(com.zeroc.IceInternal.Reference.ModeDatagram));
-    }
+    return ice_isDatagram() ? this : _newInstance(_reference.changeMode(Reference.ModeDatagram));
   }
 
   @Override
   public ObjectPrx ice_batchDatagram() {
-    if (_reference.getMode() == com.zeroc.IceInternal.Reference.ModeBatchDatagram) {
-      return this;
-    } else {
-      return _newInstance(_reference.changeMode(com.zeroc.IceInternal.Reference.ModeBatchDatagram));
-    }
+    return ice_isBatchDatagram()
+        ? this
+        : _newInstance(_reference.changeMode(Reference.ModeBatchDatagram));
   }
 
   @Override
@@ -711,7 +696,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
     public OutputStream os;
   }
 
-  protected transient com.zeroc.IceInternal.Reference _reference;
+  protected transient Reference _reference;
   private transient com.zeroc.IceInternal.RequestHandler _requestHandler;
   private transient com.zeroc.IceInternal.BatchRequestQueue _batchRequestQueue;
   private transient List<StreamPair> _streamCache;

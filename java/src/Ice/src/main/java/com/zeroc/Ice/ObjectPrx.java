@@ -648,7 +648,8 @@ public interface ObjectPrx {
    * @throws ProxyParseException Thrown when <code>proxyString</code> is not a valid proxy string.
    */
   public static ObjectPrx createProxy(Communicator communicator, String proxyString) {
-    return communicator.stringToProxy(proxyString);
+    var ref = communicator.getInstance().referenceFactory().create(proxyString, null);
+    return (ref == null) ? null : new com.zeroc.Ice._ObjectPrxI(ref);
   }
 
   /**

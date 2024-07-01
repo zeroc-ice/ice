@@ -7,34 +7,10 @@ package com.zeroc.IceInternal;
 import com.zeroc.Ice.OperationInterruptedException;
 
 public final class ProxyFactory {
-  public com.zeroc.Ice.ObjectPrx stringToProxy(String str) {
-    Reference ref = _instance.referenceFactory().create(str, null);
-    return referenceToProxy(ref);
-  }
-
-  public String proxyToString(com.zeroc.Ice.ObjectPrx proxy) {
-    if (proxy != null) {
-      com.zeroc.Ice._ObjectPrxI h = (com.zeroc.Ice._ObjectPrxI) proxy;
-      return h._getReference().toString();
-    } else {
-      return "";
-    }
-  }
-
   public com.zeroc.Ice.ObjectPrx propertyToProxy(String prefix) {
     String proxy = _instance.initializationData().properties.getProperty(prefix);
     Reference ref = _instance.referenceFactory().create(proxy, prefix);
     return referenceToProxy(ref);
-  }
-
-  public java.util.Map<String, String> proxyToProperty(
-      com.zeroc.Ice.ObjectPrx proxy, String prefix) {
-    if (proxy != null) {
-      com.zeroc.Ice._ObjectPrxI h = (com.zeroc.Ice._ObjectPrxI) proxy;
-      return h._getReference().toProperty(prefix);
-    } else {
-      return new java.util.HashMap<>();
-    }
   }
 
   public com.zeroc.Ice.ObjectPrx streamToProxy(com.zeroc.Ice.InputStream s) {

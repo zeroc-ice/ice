@@ -8,6 +8,7 @@ import com.zeroc.IceInternal.EndpointI;
 import com.zeroc.IceInternal.IncomingConnectionFactory;
 import com.zeroc.IceInternal.LoggerMiddleware;
 import com.zeroc.IceInternal.ObserverMiddleware;
+import com.zeroc.IceInternal.Reference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +42,7 @@ public final class ObjectAdapter {
   private final String _name;
   private final String _id;
   private final String _replicaGroupId;
-  private com.zeroc.IceInternal.Reference _reference;
+  private Reference _reference;
   private List<IncomingConnectionFactory> _incomingConnectionFactories = new ArrayList<>();
   private com.zeroc.IceInternal.RouterInfo _routerInfo = null;
   private EndpointI[] _publishedEndpoints = new EndpointI[0];
@@ -688,7 +689,7 @@ public final class ObjectAdapter {
   public synchronized Object findByProxy(ObjectPrx proxy) {
     checkForDeactivation();
 
-    com.zeroc.IceInternal.Reference ref = ((_ObjectPrxI) proxy)._getReference();
+    Reference ref = proxy._getReference();
     return findFacet(ref.getIdentity(), ref.getFacet());
   }
 
@@ -975,13 +976,12 @@ public final class ObjectAdapter {
     }
   }
 
-  public boolean isLocal(ObjectPrx proxy) {
+  public boolean isLocal(Reference ref) {
     //
     // NOTE: it's important that isLocal() doesn't perform any blocking operations as
     // it can be called for AMI invocations if the proxy has no delegate set yet.
     //
 
-    com.zeroc.IceInternal.Reference ref = ((_ObjectPrxI) proxy)._getReference();
     if (ref.isWellKnown()) {
       //
       // Check the active servant map to see if the well-known
@@ -1337,21 +1337,14 @@ public final class ObjectAdapter {
   }
 
   private ObjectPrx newDirectProxy(Identity ident, String facet) {
-    //
     // Create a reference and return a proxy for this reference.
-    //
-    com.zeroc.IceInternal.Reference ref =
-        _instance.referenceFactory().create(ident, facet, _reference, _publishedEndpoints);
+    var ref = _instance.referenceFactory().create(ident, facet, _reference, _publishedEndpoints);
     return _instance.proxyFactory().referenceToProxy(ref);
   }
 
   private ObjectPrx newIndirectProxy(Identity ident, String facet, String id) {
-    //
-    // Create a reference with the adapter id and return a proxy
-    // for the reference.
-    //
-    com.zeroc.IceInternal.Reference ref =
-        _instance.referenceFactory().create(ident, facet, _reference, id);
+    // Create a reference with the adapter id and return a proxy for the reference.
+    var ref = _instance.referenceFactory().create(ident, facet, _reference, id);
     return _instance.proxyFactory().referenceToProxy(ref);
   }
 
