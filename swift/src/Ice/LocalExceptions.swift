@@ -70,7 +70,8 @@ public final class ObjectNotExistException: RequestFailedException {
     ///   - message: The exception message.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
-    public convenience init(id: Identity, facet: String, operation: String, file: String = #fileID, line: Int32 = #line) {
+    public convenience init(id: Identity, facet: String, operation: String, file: String = #fileID, line: Int32 = #line)
+    {
         self.init(
             typeName: "ObjectNotExistException", id: id, facet: facet, operation: operation, file: file, line: line)
     }
@@ -95,7 +96,8 @@ public final class FacetNotExistException: RequestFailedException {
     ///   - message: The exception message.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
-    public convenience init(id: Identity, facet: String, operation: String, file: String = #fileID, line: Int32 = #line) {
+    public convenience init(id: Identity, facet: String, operation: String, file: String = #fileID, line: Int32 = #line)
+    {
         self.init(
             typeName: "FacetNotExistException", id: id, facet: facet, operation: operation, file: file, line: line)
     }
@@ -121,7 +123,8 @@ public final class OperationNotExistException: RequestFailedException {
     ///   - message: The exception message.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
-    public convenience init(id: Identity, facet: String, operation: String, file: String = #fileID, line: Int32 = #line) {
+    public convenience init(id: Identity, facet: String, operation: String, file: String = #fileID, line: Int32 = #line)
+    {
         self.init(
             typeName: "OperationNotExistException", id: id, facet: facet, operation: operation, file: file, line: line)
     }
