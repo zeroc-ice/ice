@@ -92,7 +92,7 @@ extension Current {
                 operation = self.operation
             }
 
-            // [7..] to slice-off the"::Ice::" prefix
+            // [7..] to slice-off the "::Ice::" prefix
             let typeName = String(exceptionId!.dropFirst(7))
             exceptionMessage = RequestFailedException.makeMessage(
                 typeName: typeName, id: id, facet: facet, operation: operation)
