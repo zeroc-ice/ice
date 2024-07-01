@@ -98,9 +98,6 @@ public class RoutableReference extends Reference {
 
   @Override
   public Reference changeEndpoints(EndpointI[] newEndpoints) {
-    if (java.util.Arrays.equals(newEndpoints, _endpoints)) {
-      return this;
-    }
     RoutableReference r = (RoutableReference) getInstance().referenceFactory().copy(this);
     r._endpoints = newEndpoints;
     r._adapterId = "";
@@ -110,9 +107,6 @@ public class RoutableReference extends Reference {
 
   @Override
   public Reference changeAdapterId(String newAdapterId) {
-    if (_adapterId.equals(newAdapterId)) {
-      return this;
-    }
     RoutableReference r = (RoutableReference) getInstance().referenceFactory().copy(this);
     r._adapterId = newAdapterId;
     r._endpoints = _emptyEndpoints;
@@ -121,31 +115,20 @@ public class RoutableReference extends Reference {
 
   @Override
   public Reference changeLocator(com.zeroc.Ice.LocatorPrx newLocator) {
-    LocatorInfo newLocatorInfo = getInstance().locatorManager().get(newLocator);
-    if (newLocatorInfo != null && _locatorInfo != null && newLocatorInfo.equals(_locatorInfo)) {
-      return this;
-    }
     RoutableReference r = (RoutableReference) getInstance().referenceFactory().copy(this);
-    r._locatorInfo = newLocatorInfo;
+    r._locatorInfo = getInstance().locatorManager().get(newLocator);
     return r;
   }
 
   @Override
   public Reference changeRouter(com.zeroc.Ice.RouterPrx newRouter) {
-    RouterInfo newRouterInfo = getInstance().routerManager().get(newRouter);
-    if (newRouterInfo != null && _routerInfo != null && newRouterInfo.equals(_routerInfo)) {
-      return this;
-    }
     RoutableReference r = (RoutableReference) getInstance().referenceFactory().copy(this);
-    r._routerInfo = newRouterInfo;
+    r._routerInfo = getInstance().routerManager().get(newRouter);
     return r;
   }
 
   @Override
   public Reference changeCollocationOptimized(boolean newCollocationOptimized) {
-    if (newCollocationOptimized == _collocationOptimized) {
-      return this;
-    }
     RoutableReference r = (RoutableReference) getInstance().referenceFactory().copy(this);
     r._collocationOptimized = newCollocationOptimized;
     return r;
@@ -153,9 +136,6 @@ public class RoutableReference extends Reference {
 
   @Override
   public final Reference changeCacheConnection(boolean newCache) {
-    if (newCache == _cacheConnection) {
-      return this;
-    }
     RoutableReference r = (RoutableReference) getInstance().referenceFactory().copy(this);
     r._cacheConnection = newCache;
     return r;
@@ -163,9 +143,6 @@ public class RoutableReference extends Reference {
 
   @Override
   public Reference changePreferSecure(boolean newPreferSecure) {
-    if (newPreferSecure == _preferSecure) {
-      return this;
-    }
     RoutableReference r = (RoutableReference) getInstance().referenceFactory().copy(this);
     r._preferSecure = newPreferSecure;
     return r;
@@ -173,9 +150,6 @@ public class RoutableReference extends Reference {
 
   @Override
   public final Reference changeEndpointSelection(com.zeroc.Ice.EndpointSelectionType newType) {
-    if (newType == _endpointSelection) {
-      return this;
-    }
     RoutableReference r = (RoutableReference) getInstance().referenceFactory().copy(this);
     r._endpointSelection = newType;
     return r;
@@ -183,9 +157,6 @@ public class RoutableReference extends Reference {
 
   @Override
   public Reference changeLocatorCacheTimeout(int newTimeout) {
-    if (_locatorCacheTimeout == newTimeout) {
-      return this;
-    }
     RoutableReference r = (RoutableReference) getInstance().referenceFactory().copy(this);
     r._locatorCacheTimeout = newTimeout;
     return r;
@@ -193,9 +164,6 @@ public class RoutableReference extends Reference {
 
   @Override
   public Reference changeConnectionId(String id) {
-    if (_connectionId.equals(id)) {
-      return this;
-    }
     RoutableReference r = (RoutableReference) getInstance().referenceFactory().copy(this);
     r._connectionId = id;
     if (_endpoints.length > 0) {

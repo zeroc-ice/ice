@@ -105,63 +105,42 @@ public abstract class Reference implements Cloneable {
   }
 
   public final Reference changeMode(int newMode) {
-    if (newMode == _mode) {
-      return this;
-    }
     Reference r = _instance.referenceFactory().copy(this);
     r._mode = newMode;
     return r;
   }
 
   public Reference changeSecure(boolean newSecure) {
-    if (newSecure == _secure) {
-      return this;
-    }
     Reference r = _instance.referenceFactory().copy(this);
     r._secure = newSecure;
     return r;
   }
 
   public final Reference changeIdentity(com.zeroc.Ice.Identity newIdentity) {
-    if (newIdentity.equals(_identity)) {
-      return this;
-    }
     Reference r = _instance.referenceFactory().copy(this);
     r._identity = newIdentity.clone();
     return r;
   }
 
   public final Reference changeFacet(String newFacet) {
-    if (newFacet.equals(_facet)) {
-      return this;
-    }
     Reference r = _instance.referenceFactory().copy(this);
     r._facet = newFacet;
     return r;
   }
 
   public final Reference changeInvocationTimeout(int newTimeout) {
-    if (newTimeout == _invocationTimeout) {
-      return this;
-    }
     Reference r = _instance.referenceFactory().copy(this);
     r._invocationTimeout = newTimeout;
     return r;
   }
 
   public Reference changeEncoding(com.zeroc.Ice.EncodingVersion newEncoding) {
-    if (newEncoding.equals(_encoding)) {
-      return this;
-    }
     Reference r = _instance.referenceFactory().copy(this);
     r._encoding = newEncoding;
     return r;
   }
 
   public Reference changeCompress(boolean newCompress) {
-    if (_overrideCompress && _compress == newCompress) {
-      return this;
-    }
     Reference r = _instance.referenceFactory().copy(this);
     r._compress = newCompress;
     r._overrideCompress = true;
