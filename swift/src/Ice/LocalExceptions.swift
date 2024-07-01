@@ -76,7 +76,7 @@ public final class ObjectNotExistException: RequestFailedException {
             typeName: "ObjectNotExistException", id: id, facet: facet, operation: operation, file: file, line: line)
     }
 
-    /// Creates an OperationNotExistException. The request details (id, facet, operation) will be filled-in by the Ice
+    /// Creates an ObjectNotExistException. The request details (id, facet, operation) will be filled-in by the Ice
     /// runtime when the exception is marshaled.
     /// - Parameters:
     ///   - file: The file where the exception was thrown.
