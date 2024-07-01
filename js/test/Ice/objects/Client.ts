@@ -368,14 +368,24 @@ export class Client extends TestHelper {
 
         out.write("testing sending class cycle... ");
         {
-            const rec = new Test.Recursive();
-            rec.v = rec;
-            const acceptsCycles = await initial!.acceptsClassCycles();
+            const top = new Test.Recursive();
+            let bottom = top;
+            const maxDepth = 99;
+            for (let i = 0; i < maxDepth; ++i) {
+                bottom.v = new Test.Recursive();
+                bottom = bottom.v;
+            }
+            await initial.setRecursive(top);
+
+            // Adding one more level would exceed the max class graph depth
+            bottom.v = new Test.Recursive();
+            bottom = bottom.v;
             try {
-                await initial!.setCycle(rec);
-                test(acceptsCycles);
-            } catch (error) {
-                test(!acceptsCycles);
+                await initial.setRecursive(top);
+                test(false);
+            } catch (ex) {
+                // Expected marshal exception from the server (max class graph depth reached)
+                test(ex instanceof Ice.UnknownLocalException, ex);
             }
         }
         out.writeLine("ok");

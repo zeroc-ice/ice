@@ -205,12 +205,17 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
 
     output.write("testing recursive type... ")
     let top = Recursive()
-    var p = top
+    var bottom = top
+    for _ in 0...100 {
+        bottom.v = Recursive()
+        bottom = bottom.v!
+    }
+    try initial.setRecursive(top)
+
+    // Adding one more level would exceed the max class graph depth
+    bottom.v = Recursive()
+    bottom = bottom.v!
     do {
-        for _ in 0...100 {
-            p.v = Recursive()
-            p = p.v!
-        }
         try initial.setRecursive(top)
         try test(false)
     } catch is Ice.UnknownLocalException {

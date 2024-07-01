@@ -3035,8 +3035,7 @@ IcePy::TypedServantWrapper::ice_invokeAsync(
             _iceCheckMode(op->mode, current.mode);
         }
 
-        UpcallPtr up =
-            make_shared<TypedUpcall>(op, std::move(response), error, current.adapter->getCommunicator());
+        UpcallPtr up = make_shared<TypedUpcall>(op, std::move(response), error, current.adapter->getCommunicator());
         up->dispatch(_servant, inParams, current);
     }
     catch (...)

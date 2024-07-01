@@ -362,16 +362,21 @@ function allTests($helper)
     echo "testing recursive type... ";
     flush();
     $top = new Test\Recursive();
-    $p = $top;
-    $depth = 0;
+    $bottom = $top;
+    $maxDepth = 99;
+    for ($i = 0; $i < $maxDepth; $i++)
+    {
+        $bottom->v = new Test\Recursive();
+        $bottom = $bottom->v;
+    }
+    $initial->setRecursive($top);
+
+    // Adding one more level would exceed the max class graph depth
+    $bottom->v = new Test\Recursive();
+    $bottom = $bottom->v;
+
     try
     {
-        while($depth <= 100)
-        {
-            $p->v = new Test\Recursive();
-            $p = $p->v;
-            $depth += 1;
-        }
         $initial->setRecursive($top);
         test(false);
     }
@@ -386,7 +391,6 @@ function allTests($helper)
             throw $ex;
         }
     }
-    $initial->setRecursive(new Test\Recursive());
     echo "ok\n";
 
     echo "testing compact ID... ";

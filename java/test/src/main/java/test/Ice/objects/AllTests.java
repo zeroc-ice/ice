@@ -266,19 +266,24 @@ public class AllTests {
     out.print("testing recursive type... ");
     out.flush();
     Recursive top = new Recursive();
-    Recursive p = top;
-    int maxDepth = 100;
+    Recursive bottom = top;
+    int maxDepth = 99;
+    for (int i = 0; i < maxDepth; ++i) {
+      bottom.v = new Recursive();
+      bottom = bottom.v;
+    }
+    initial.setRecursive(top);
+
+    // Adding one more level would exceed the max class graph depth
+    bottom.v = new Recursive();
+    bottom = bottom.v;
+
     try {
-      for (int i = 0; i <= maxDepth; ++i) {
-        p.v = new Recursive();
-        p = p.v;
-      }
       initial.setRecursive(top);
       test(false);
     } catch (com.zeroc.Ice.UnknownLocalException ex) {
       // Expected marshal exception from the server (max class graph depth reached)
     }
-    initial.setRecursive(new Recursive());
     out.println("ok");
 
     out.print("testing compact ID...");

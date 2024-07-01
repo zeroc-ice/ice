@@ -306,15 +306,21 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing recursive type... " << flush;
     RecursivePtr top = make_shared<Recursive>();
+    RecursivePtr bottom = top;
+    int maxDepth = 99;
+    for (int i = 0; i < maxDepth; i++)
+    {
+        bottom->v = make_shared<Recursive>();
+        bottom = bottom->v;
+    }
+    initial->setRecursive(top);
+
+    // Adding one more level would exceed the max class graph depth
+    bottom->v = make_shared<Recursive>();
+    bottom = bottom->v;
+
     try
     {
-        RecursivePtr p = top;
-        int maxDepth = 100;
-        for (int i = 0; i <= maxDepth; i++)
-        {
-            p->v = make_shared<Recursive>();
-            p = p->v;
-        }
         initial->setRecursive(top);
         test(false);
     }
@@ -322,7 +328,6 @@ allTests(Test::TestHelper* helper)
     {
         // Expected marshal exception from the server (max class graph depth reached)
     }
-    initial->setRecursive(make_shared<Recursive>());
     cout << "ok" << endl;
 
     cout << "testing compact ID..." << flush;

@@ -214,13 +214,19 @@ def allTests(helper, communicator):
     sys.stdout.write("testing recursive type... ")
     sys.stdout.flush()
     top = Test.Recursive()
-    p = top
-    depth = 0
+    bottom = top
+    maxDepth = 99
+
+    for _ in range(maxDepth):
+        bottom.v = Test.Recursive()
+        bottom = bottom.v
+    initial.setRecursive(top)
+
+    # Adding one more level would exceed the max class graph depth
+    bottom.v = Test.Recursive()
+    bottom = bottom.v
+
     try:
-        while depth <= 100:
-            p.v = Test.Recursive()
-            p = p.v
-            depth += 1
         initial.setRecursive(top)
         test(False)
     except Ice.UnknownLocalException:
