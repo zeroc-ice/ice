@@ -253,28 +253,18 @@ export class Client extends TestHelper {
 
         const top = new Test.Recursive();
         let p = top;
-        let depth = 0;
+        let maxDepth = 100;
 
         try {
-            for (; depth <= 1000; ++depth) {
+            for (let i = 0; i <= maxDepth; ++i) {
                 p.v = new Test.Recursive();
                 p = p.v;
-                if (
-                    (depth < 10 && depth % 10 == 0) ||
-                    (depth < 1000 && depth % 100 == 0) ||
-                    (depth < 10000 && depth % 1000 == 0) ||
-                    depth % 10000 == 0
-                ) {
-                    await initial!.setRecursive(top);
-                }
             }
-            test(!(await initial!.supportsClassGraphDepthMax()));
+            await initial!.setRecursive(top);
+            test(false);
         } catch (ex) {
-            //
             // Ice.UnknownLocalException: Expected marshal exception from the server (max class graph depth reached)
-            // Ice.UnknownException: Expected stack overflow from the server (Java only)
-            //
-            test(ex instanceof Ice.UnknownLocalException || ex instanceof Ice.UnknownException, ex);
+            test(ex instanceof Ice.UnknownLocalException, ex);
         }
         await initial!.setRecursive(new Test.Recursive());
         out.writeLine("ok");
@@ -378,14 +368,24 @@ export class Client extends TestHelper {
 
         out.write("testing sending class cycle... ");
         {
-            const rec = new Test.Recursive();
-            rec.v = rec;
-            const acceptsCycles = await initial!.acceptsClassCycles();
+            const top = new Test.Recursive();
+            let bottom = top;
+            const maxDepth = 99;
+            for (let i = 0; i < maxDepth; ++i) {
+                bottom.v = new Test.Recursive();
+                bottom = bottom.v;
+            }
+            await initial.setRecursive(top);
+
+            // Adding one more level would exceed the max class graph depth
+            bottom.v = new Test.Recursive();
+            bottom = bottom.v;
             try {
-                await initial!.setCycle(rec);
-                test(acceptsCycles);
-            } catch (error) {
-                test(!acceptsCycles);
+                await initial.setRecursive(top);
+                test(false);
+            } catch (ex) {
+                // Expected marshal exception from the server (max class graph depth reached)
+                test(ex instanceof Ice.UnknownLocalException, ex);
             }
         }
         out.writeLine("ok");

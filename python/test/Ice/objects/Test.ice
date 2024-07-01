@@ -195,7 +195,6 @@ interface Initial
     F getF();
 
     void setRecursive(Recursive p);
-    bool supportsClassGraphDepthMax();
 
     void setCycle(Recursive r);
     bool acceptsClassCycles();

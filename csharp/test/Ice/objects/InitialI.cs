@@ -98,11 +98,6 @@ namespace Ice
             {
             }
 
-            public override bool supportsClassGraphDepthMax(Ice.Current current)
-            {
-                return true;
-            }
-
             public override void setCycle(Test.Recursive r, Ice.Current current)
             {
             }

@@ -244,25 +244,24 @@ def allTests(helper, communicator)
     print "testing recursive type... "
     STDOUT.flush
     top = Test::Recursive.new
-    p = top;
-    depth = 0;
+    bottom = top;
+    maxDepth = 99;
+
+    maxDepth.times do |_|
+        bottom.v = Test::Recursive.new
+        bottom = bottom.v;
+    end
+    initial.setRecursive(top)
+
+    # Adding one more level would exceed the max class graph depth
+    bottom.v = Test::Recursive.new
+    bottom = bottom.v;
+
     begin
-        while depth <= 700
-            p.v = Test::Recursive.new
-            p = p.v;
-            if (depth < 10 && (depth % 10) == 0) || \
-               (depth < 1000 && (depth % 100) == 0) || \
-               (depth < 10000 && (depth % 1000) == 0) || \
-               (depth % 10000) == 0
-                initial.setRecursive(top)
-            end
-            depth += 1
-        end
-        test(!initial.supportsClassGraphDepthMax())
+        initial.setRecursive(top)
+        test(false)
     rescue Ice::UnknownLocalException
         # Expected marshal exception from the server (max class graph depth reached)
-    rescue Ice::UnknownException
-        # Expected stack overflow from the server (Java only)
     end
     initial.setRecursive(Test::Recursive.new)
     puts "ok"

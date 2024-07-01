@@ -279,38 +279,28 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing recursive type... " << flush;
     RecursivePtr top = make_shared<Recursive>();
-    int depth = 0;
+    RecursivePtr bottom = top;
+    int maxDepth = 99;
+    for (int i = 0; i < maxDepth; i++)
+    {
+        bottom->v = make_shared<Recursive>();
+        bottom = bottom->v;
+    }
+    initial->setRecursive(top);
+
+    // Adding one more level would exceed the max class graph depth
+    bottom->v = make_shared<Recursive>();
+    bottom = bottom->v;
+
     try
     {
-        RecursivePtr p = top;
-#if defined(NDEBUG) || !defined(__APPLE__)
-        const int maxDepth = 2000;
-#else
-        // With debug, marshaling a graph of 2000 elements can cause a stack overflow on macOS
-        const int maxDepth = 1500;
-#endif
-        for (; depth <= maxDepth; ++depth)
-        {
-            p->v = make_shared<Recursive>();
-            p = p->v;
-            if ((depth < 10 && (depth % 10) == 0) || (depth < 1000 && (depth % 100) == 0) ||
-                (depth < 10000 && (depth % 1000) == 0) || (depth % 10000) == 0)
-            {
-                initial->setRecursive(top);
-            }
-        }
-        test(!initial->supportsClassGraphDepthMax());
+        initial->setRecursive(top);
+        test(false);
     }
     catch (const Ice::UnknownLocalException&)
     {
         // Expected marshal exception from the server (max class graph depth reached)
-        test(depth == 100); // The default is 100.
     }
-    catch (const Ice::UnknownException&)
-    {
-        // Expected stack overflow from the server (Java only)
-    }
-    initial->setRecursive(make_shared<Recursive>());
     cout << "ok" << endl;
 
     cout << "testing compact ID..." << flush;
