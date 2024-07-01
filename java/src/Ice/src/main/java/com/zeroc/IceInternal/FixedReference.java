@@ -148,9 +148,6 @@ public class FixedReference extends Reference {
 
   @Override
   public Reference changeConnection(com.zeroc.Ice.ConnectionI connection) {
-    if (_fixedConnection == connection) {
-      return this;
-    }
     FixedReference r = (FixedReference) getInstance().referenceFactory().copy(this);
     r._fixedConnection = connection;
     return r;

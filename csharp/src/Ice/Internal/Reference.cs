@@ -99,6 +99,8 @@ public abstract class Reference : IEquatable<Reference>
     public abstract string getConnectionId();
     public abstract ThreadPool getThreadPool();
 
+    public abstract Connection getConnection();
+
     //
     // The change* methods (here and in derived classes) create
     // a new reference based on the existing one, with the
@@ -536,6 +538,11 @@ public class FixedReference : Reference
         return _fixedConnection.getThreadPool();
     }
 
+    public override Connection getConnection()
+    {
+        return _fixedConnection;
+    }
+
     public override Reference changeEndpoints(EndpointI[] newEndpoints)
     {
         throw new Ice.FixedProxyException();
@@ -758,6 +765,11 @@ public class RoutableReference : Reference
     public override ThreadPool getThreadPool()
     {
         return getInstance().clientThreadPool();
+    }
+
+    public override Connection getConnection()
+    {
+        return null;
     }
 
     public override Reference changeEncoding(Ice.EncodingVersion newEncoding)
