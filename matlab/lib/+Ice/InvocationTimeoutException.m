@@ -16,8 +16,5 @@ classdef InvocationTimeoutException < Ice.TimeoutException
             end
             obj = obj@Ice.TimeoutException(ice_exid, ice_exmsg);
         end
-        function id = ice_id(~)
-            id = '::Ice::InvocationTimeoutException';
-        end
     end
 end

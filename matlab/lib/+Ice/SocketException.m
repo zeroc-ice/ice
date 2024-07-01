@@ -19,8 +19,5 @@ classdef SocketException < Ice.SyscallException
             end
             obj = obj@Ice.SyscallException(ice_exid, ice_exmsg, error);
         end
-        function id = ice_id(~)
-            id = '::Ice::SocketException';
-        end
     end
 end

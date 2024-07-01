@@ -22,8 +22,5 @@ classdef FacetNotExistException < Ice.RequestFailedException
             end
             obj = obj@Ice.RequestFailedException(ice_exid, ice_exmsg, id, facet, operation);
         end
-        function id = ice_id(~)
-            id = '::Ice::FacetNotExistException';
-        end
     end
 end

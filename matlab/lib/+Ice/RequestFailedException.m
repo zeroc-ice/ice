@@ -39,8 +39,5 @@ classdef RequestFailedException < Ice.LocalException
             obj.facet = facet;
             obj.operation = operation;
         end
-        function id = ice_id(~)
-            id = '::Ice::RequestFailedException';
-        end
     end
 end

@@ -16,8 +16,5 @@ classdef InvocationCanceledException < Ice.LocalException
             end
             obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
         end
-        function id = ice_id(~)
-            id = '::Ice::InvocationCanceledException';
-        end
     end
 end

@@ -35,8 +35,5 @@ classdef AlreadyRegisteredException < Ice.LocalException
             obj.kindOfObject = kindOfObject;
             obj.id = id;
         end
-        function id = ice_id(~)
-            id = '::Ice::AlreadyRegisteredException';
-        end
     end
 end

@@ -37,8 +37,5 @@ classdef NotRegisteredException < Ice.LocalException
             obj.kindOfObject = kindOfObject;
             obj.id = id;
         end
-        function id = ice_id(~)
-            id = '::Ice::NotRegisteredException';
-        end
     end
 end

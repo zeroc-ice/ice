@@ -29,8 +29,5 @@ classdef UnknownException < Ice.LocalException
             obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
             obj.unknown = unknown;
         end
-        function id = ice_id(~)
-            id = '::Ice::UnknownException';
-        end
     end
 end

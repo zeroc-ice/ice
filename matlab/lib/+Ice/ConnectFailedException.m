@@ -19,8 +19,5 @@ classdef ConnectFailedException < Ice.SocketException
             end
             obj = obj@Ice.SocketException(ice_exid, ice_exmsg, error);
         end
-        function id = ice_id(~)
-            id = '::Ice::ConnectFailedException';
-        end
     end
 end

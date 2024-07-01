@@ -30,8 +30,5 @@ classdef ConnectionManuallyClosedException < Ice.LocalException
             obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
             obj.graceful = graceful;
         end
-        function id = ice_id(~)
-            id = '::Ice::ConnectionManuallyClosedException';
-        end
     end
 end

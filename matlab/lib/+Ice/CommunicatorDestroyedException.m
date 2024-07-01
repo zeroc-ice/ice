@@ -18,8 +18,5 @@ classdef CommunicatorDestroyedException < Ice.LocalException
             end
             obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
         end
-        function id = ice_id(~)
-            id = '::Ice::CommunicatorDestroyedException';
-        end
     end
 end

@@ -20,8 +20,5 @@ classdef DatagramLimitException < Ice.ProtocolException
             end
             obj = obj@Ice.ProtocolException(ice_exid, ice_exmsg, reason);
         end
-        function id = ice_id(~)
-            id = '::Ice::DatagramLimitException';
-        end
     end
 end

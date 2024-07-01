@@ -26,8 +26,5 @@ classdef ParseException < Ice.LocalException
             obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
             obj.str = str;
         end
-        function id = ice_id(~)
-            id = '::Ice::ParseException';
-        end
     end
 end

@@ -16,8 +16,5 @@ classdef ConnectTimeoutException < Ice.TimeoutException
             end
             obj = obj@Ice.TimeoutException(ice_exid, ice_exmsg);
         end
-        function id = ice_id(~)
-            id = '::Ice::ConnectTimeoutException';
-        end
     end
 end

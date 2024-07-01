@@ -33,8 +33,5 @@ classdef DNSException < Ice.LocalException
             obj.error = error;
             obj.host = host;
         end
-        function id = ice_id(~)
-            id = '::Ice::DNSException';
-        end
     end
 end

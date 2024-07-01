@@ -27,8 +27,5 @@ classdef PluginInitializationException < Ice.LocalException
             obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
             obj.reason = reason;
         end
-        function id = ice_id(~)
-            id = '::Ice::PluginInitializationException';
-        end
     end
 end

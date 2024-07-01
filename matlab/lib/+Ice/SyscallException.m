@@ -30,8 +30,5 @@ classdef SyscallException < Ice.LocalException
             obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
             obj.error = error;
         end
-        function id = ice_id(~)
-            id = '::Ice::SyscallException';
-        end
     end
 end

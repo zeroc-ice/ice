@@ -23,8 +23,5 @@ classdef UnknownUserException < Ice.UnknownException
             end
             obj = obj@Ice.UnknownException(ice_exid, ice_exmsg, unknown);
         end
-        function id = ice_id(~)
-            id = '::Ice::UnknownUserException';
-        end
     end
 end

@@ -29,8 +29,5 @@ classdef TwowayOnlyException < Ice.LocalException
             obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
             obj.operation = operation;
         end
-        function id = ice_id(~)
-            id = '::Ice::TwowayOnlyException';
-        end
     end
 end

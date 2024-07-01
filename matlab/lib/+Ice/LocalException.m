@@ -5,9 +5,6 @@ classdef (Abstract) LocalException < Ice.Exception
     %
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
-    methods(Abstract)
-        ice_id(obj)
-    end
     methods
         function obj = LocalException(id, msg)
             obj = obj@Ice.Exception(id, msg);

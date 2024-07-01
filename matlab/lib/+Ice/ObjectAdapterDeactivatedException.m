@@ -29,8 +29,5 @@ classdef ObjectAdapterDeactivatedException < Ice.LocalException
             obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
             obj.name = name;
         end
-        function id = ice_id(~)
-            id = '::Ice::ObjectAdapterDeactivatedException';
-        end
     end
 end
