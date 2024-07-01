@@ -14,17 +14,17 @@ classdef NoEndpointException < Ice.LocalException
         proxy char
     end
     methods
-        function obj = NoEndpointException(ice_exid, ice_exmsg, proxy)
+        function obj = NoEndpointException(errID, msg, proxy)
             if nargin <= 2
                 proxy = '';
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:NoEndpointException';
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:NoEndpointException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.NoEndpointException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.NoEndpointException';
             end
-            obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
+            obj = obj@Ice.LocalException(errID, msg);
             obj.proxy = proxy;
         end
     end

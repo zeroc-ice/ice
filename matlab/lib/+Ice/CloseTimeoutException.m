@@ -7,14 +7,14 @@
 
 classdef CloseTimeoutException < Ice.TimeoutException
     methods
-        function obj = CloseTimeoutException(ice_exid, ice_exmsg)
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:CloseTimeoutException';
+        function obj = CloseTimeoutException(errID, msg)
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:CloseTimeoutException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.CloseTimeoutException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.CloseTimeoutException';
             end
-            obj = obj@Ice.TimeoutException(ice_exid, ice_exmsg);
+            obj = obj@Ice.TimeoutException(errID, msg);
         end
     end
 end

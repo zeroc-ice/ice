@@ -7,17 +7,17 @@
 
 classdef SocketException < Ice.SyscallException
     methods
-        function obj = SocketException(ice_exid, ice_exmsg, error)
+        function obj = SocketException(errID, msg, error)
             if nargin <= 2
                 error = 0;
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:SocketException';
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:SocketException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.SocketException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.SocketException';
             end
-            obj = obj@Ice.SyscallException(ice_exid, ice_exmsg, error);
+            obj = obj@Ice.SyscallException(errID, msg, error);
         end
     end
 end

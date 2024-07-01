@@ -7,14 +7,14 @@
 
 classdef InvocationTimeoutException < Ice.TimeoutException
     methods
-        function obj = InvocationTimeoutException(ice_exid, ice_exmsg)
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:InvocationTimeoutException';
+        function obj = InvocationTimeoutException(errID, msg)
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:InvocationTimeoutException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.InvocationTimeoutException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.InvocationTimeoutException';
             end
-            obj = obj@Ice.TimeoutException(ice_exid, ice_exmsg);
+            obj = obj@Ice.TimeoutException(errID, msg);
         end
     end
 end

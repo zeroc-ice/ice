@@ -6,14 +6,14 @@
 
 classdef ConnectionIdleException < Ice.LocalException
     methods
-        function obj = ConnectionIdleException(ice_exid, ice_exmsg)
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:ConnectionIdleException';
+        function obj = ConnectionIdleException(errID, msg)
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:ConnectionIdleException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.ConnectionIdleException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.ConnectionIdleException';
             end
-            obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
+            obj = obj@Ice.LocalException(errID, msg);
         end
     end
 end

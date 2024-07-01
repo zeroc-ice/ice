@@ -20,18 +20,18 @@ classdef AlreadyRegisteredException < Ice.LocalException
         id char
     end
     methods
-        function obj = AlreadyRegisteredException(ice_exid, ice_exmsg, kindOfObject, id)
+        function obj = AlreadyRegisteredException(errID, msg, kindOfObject, id)
             if nargin <= 2
                 kindOfObject = '';
                 id = '';
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:AlreadyRegisteredException';
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:AlreadyRegisteredException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.AlreadyRegisteredException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.AlreadyRegisteredException';
             end
-            obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
+            obj = obj@Ice.LocalException(errID, msg);
             obj.kindOfObject = kindOfObject;
             obj.id = id;
         end

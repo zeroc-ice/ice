@@ -14,17 +14,17 @@ classdef PluginInitializationException < Ice.LocalException
         reason char
     end
     methods
-        function obj = PluginInitializationException(ice_exid, ice_exmsg, reason)
+        function obj = PluginInitializationException(errID, msg, reason)
             if nargin <= 2
                 reason = '';
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:PluginInitializationException';
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:PluginInitializationException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.PluginInitializationException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.PluginInitializationException';
             end
-            obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
+            obj = obj@Ice.LocalException(errID, msg);
             obj.reason = reason;
         end
     end

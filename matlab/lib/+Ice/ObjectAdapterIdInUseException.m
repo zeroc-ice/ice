@@ -15,17 +15,17 @@ classdef ObjectAdapterIdInUseException < Ice.LocalException
         id char
     end
     methods
-        function obj = ObjectAdapterIdInUseException(ice_exid, ice_exmsg, id)
+        function obj = ObjectAdapterIdInUseException(errID, msg, id)
             if nargin <= 2
                 id = '';
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:ObjectAdapterIdInUseException';
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:ObjectAdapterIdInUseException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.ObjectAdapterIdInUseException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.ObjectAdapterIdInUseException';
             end
-            obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
+            obj = obj@Ice.LocalException(errID, msg);
             obj.id = id;
         end
     end

@@ -13,17 +13,17 @@ classdef ParseException < Ice.LocalException
         str char
     end
     methods
-        function obj = ParseException(ice_exid, ice_exmsg, str)
+        function obj = ParseException(errID, msg, str)
             if nargin <= 2
                 str = '';
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:ParseException';
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:ParseException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.ParseException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.ParseException';
             end
-            obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
+            obj = obj@Ice.LocalException(errID, msg);
             obj.str = str;
         end
     end

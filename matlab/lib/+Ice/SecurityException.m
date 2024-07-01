@@ -14,17 +14,17 @@ classdef SecurityException < Ice.LocalException
         reason char
     end
     methods
-        function obj = SecurityException(ice_exid, ice_exmsg, reason)
+        function obj = SecurityException(errID, msg, reason)
             if nargin <= 2
                 reason = '';
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:SecurityException';
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:SecurityException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.SecurityException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.SecurityException';
             end
-            obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
+            obj = obj@Ice.LocalException(errID, msg);
             obj.reason = reason;
         end
     end

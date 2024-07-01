@@ -22,19 +22,19 @@ classdef RequestFailedException < Ice.LocalException
         operation char
     end
     methods
-        function obj = RequestFailedException(ice_exid, ice_exmsg, id, facet, operation)
+        function obj = RequestFailedException(errID, msg, id, facet, operation)
             if nargin <= 2
                 id = Ice.Identity();
                 facet = '';
                 operation = '';
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:RequestFailedException';
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:RequestFailedException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.RequestFailedException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.RequestFailedException';
             end
-            obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
+            obj = obj@Ice.LocalException(errID, msg);
             obj.id = id;
             obj.facet = facet;
             obj.operation = operation;

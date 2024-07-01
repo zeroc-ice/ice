@@ -16,17 +16,17 @@ classdef ObjectAdapterDeactivatedException < Ice.LocalException
         name char
     end
     methods
-        function obj = ObjectAdapterDeactivatedException(ice_exid, ice_exmsg, name)
+        function obj = ObjectAdapterDeactivatedException(errID, msg, name)
             if nargin <= 2
                 name = '';
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:ObjectAdapterDeactivatedException';
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:ObjectAdapterDeactivatedException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.ObjectAdapterDeactivatedException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.ObjectAdapterDeactivatedException';
             end
-            obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
+            obj = obj@Ice.LocalException(errID, msg);
             obj.name = name;
         end
     end

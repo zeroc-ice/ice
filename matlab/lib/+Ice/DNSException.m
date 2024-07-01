@@ -18,18 +18,18 @@ classdef DNSException < Ice.LocalException
         host char
     end
     methods
-        function obj = DNSException(ice_exid, ice_exmsg, error, host)
+        function obj = DNSException(errID, msg, error, host)
             if nargin <= 2
                 error = 0;
                 host = '';
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:DNSException';
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:DNSException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.DNSException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.DNSException';
             end
-            obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
+            obj = obj@Ice.LocalException(errID, msg);
             obj.error = error;
             obj.host = host;
         end

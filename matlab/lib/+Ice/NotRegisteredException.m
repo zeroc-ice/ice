@@ -22,18 +22,18 @@ classdef NotRegisteredException < Ice.LocalException
         id char
     end
     methods
-        function obj = NotRegisteredException(ice_exid, ice_exmsg, kindOfObject, id)
+        function obj = NotRegisteredException(errID, msg, kindOfObject, id)
             if nargin <= 2
                 kindOfObject = '';
                 id = '';
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:NotRegisteredException';
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:NotRegisteredException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.NotRegisteredException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.NotRegisteredException';
             end
-            obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
+            obj = obj@Ice.LocalException(errID, msg);
             obj.kindOfObject = kindOfObject;
             obj.id = id;
         end

@@ -7,17 +7,17 @@
 
 classdef ConnectionRefusedException < Ice.ConnectFailedException
     methods
-        function obj = ConnectionRefusedException(ice_exid, ice_exmsg, error)
+        function obj = ConnectionRefusedException(errID, msg, error)
             if nargin <= 2
                 error = 0;
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:ConnectionRefusedException';
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:ConnectionRefusedException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.ConnectionRefusedException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.ConnectionRefusedException';
             end
-            obj = obj@Ice.ConnectFailedException(ice_exid, ice_exmsg, error);
+            obj = obj@Ice.ConnectFailedException(errID, msg, error);
         end
     end
 end

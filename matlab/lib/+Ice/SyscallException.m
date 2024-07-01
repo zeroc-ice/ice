@@ -17,17 +17,17 @@ classdef SyscallException < Ice.LocalException
         error int32
     end
     methods
-        function obj = SyscallException(ice_exid, ice_exmsg, error)
+        function obj = SyscallException(errID, msg, error)
             if nargin <= 2
                 error = 0;
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:SyscallException';
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:SyscallException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.SyscallException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.SyscallException';
             end
-            obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
+            obj = obj@Ice.LocalException(errID, msg);
             obj.error = error;
         end
     end

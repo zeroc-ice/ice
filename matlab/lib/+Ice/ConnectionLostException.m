@@ -7,17 +7,17 @@
 
 classdef ConnectionLostException < Ice.SocketException
     methods
-        function obj = ConnectionLostException(ice_exid, ice_exmsg, error)
+        function obj = ConnectionLostException(errID, msg, error)
             if nargin <= 2
                 error = 0;
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:ConnectionLostException';
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:ConnectionLostException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.ConnectionLostException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.ConnectionLostException';
             end
-            obj = obj@Ice.SocketException(ice_exid, ice_exmsg, error);
+            obj = obj@Ice.SocketException(errID, msg, error);
         end
     end
 end

@@ -16,17 +16,17 @@ classdef TwowayOnlyException < Ice.LocalException
         operation char
     end
     methods
-        function obj = TwowayOnlyException(ice_exid, ice_exmsg, operation)
+        function obj = TwowayOnlyException(errID, msg, operation)
             if nargin <= 2
                 operation = '';
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:TwowayOnlyException';
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:TwowayOnlyException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.TwowayOnlyException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.TwowayOnlyException';
             end
-            obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
+            obj = obj@Ice.LocalException(errID, msg);
             obj.operation = operation;
         end
     end

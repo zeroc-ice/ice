@@ -11,17 +11,17 @@
 
 classdef UnknownLocalException < Ice.UnknownException
     methods
-        function obj = UnknownLocalException(ice_exid, ice_exmsg, unknown)
+        function obj = UnknownLocalException(errID, msg, unknown)
             if nargin <= 2
                 unknown = '';
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:UnknownLocalException';
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:UnknownLocalException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.UnknownLocalException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.UnknownLocalException';
             end
-            obj = obj@Ice.UnknownException(ice_exid, ice_exmsg, unknown);
+            obj = obj@Ice.UnknownException(errID, msg, unknown);
         end
     end
 end

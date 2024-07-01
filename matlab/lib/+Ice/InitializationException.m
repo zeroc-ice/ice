@@ -14,17 +14,17 @@ classdef InitializationException < Ice.LocalException
         reason char
     end
     methods
-        function obj = InitializationException(ice_exid, ice_exmsg, reason)
+        function obj = InitializationException(errID, msg, reason)
             if nargin <= 2
                 reason = '';
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:InitializationException';
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:InitializationException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.InitializationException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.InitializationException';
             end
-            obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
+            obj = obj@Ice.LocalException(errID, msg);
             obj.reason = reason;
         end
     end

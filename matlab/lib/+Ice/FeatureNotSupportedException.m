@@ -15,17 +15,17 @@ classdef FeatureNotSupportedException < Ice.LocalException
         unsupportedFeature char
     end
     methods
-        function obj = FeatureNotSupportedException(ice_exid, ice_exmsg, unsupportedFeature)
+        function obj = FeatureNotSupportedException(errID, msg, unsupportedFeature)
             if nargin <= 2
                 unsupportedFeature = '';
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:FeatureNotSupportedException';
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:FeatureNotSupportedException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.FeatureNotSupportedException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.FeatureNotSupportedException';
             end
-            obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
+            obj = obj@Ice.LocalException(errID, msg);
             obj.unsupportedFeature = unsupportedFeature;
         end
     end

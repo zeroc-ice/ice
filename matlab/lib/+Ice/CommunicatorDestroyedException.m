@@ -9,14 +9,14 @@
 
 classdef CommunicatorDestroyedException < Ice.LocalException
     methods
-        function obj = CommunicatorDestroyedException(ice_exid, ice_exmsg)
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:CommunicatorDestroyedException';
+        function obj = CommunicatorDestroyedException(errID, msg)
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:CommunicatorDestroyedException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.CommunicatorDestroyedException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.CommunicatorDestroyedException';
             end
-            obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
+            obj = obj@Ice.LocalException(errID, msg);
         end
     end
 end

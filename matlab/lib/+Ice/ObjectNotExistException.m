@@ -8,19 +8,19 @@
 
 classdef ObjectNotExistException < Ice.RequestFailedException
     methods
-        function obj = ObjectNotExistException(ice_exid, ice_exmsg, id, facet, operation)
+        function obj = ObjectNotExistException(errID, msg, id, facet, operation)
             if nargin <= 2
                 id = Ice.Identity();
                 facet = '';
                 operation = '';
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:ObjectNotExistException';
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:ObjectNotExistException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.ObjectNotExistException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.ObjectNotExistException';
             end
-            obj = obj@Ice.RequestFailedException(ice_exid, ice_exmsg, id, facet, operation);
+            obj = obj@Ice.RequestFailedException(errID, msg, id, facet, operation);
         end
     end
 end

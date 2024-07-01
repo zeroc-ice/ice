@@ -11,17 +11,17 @@
 
 classdef CloseConnectionException < Ice.ProtocolException
     methods
-        function obj = CloseConnectionException(ice_exid, ice_exmsg, reason)
+        function obj = CloseConnectionException(errID, msg, reason)
             if nargin <= 2
                 reason = '';
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:CloseConnectionException';
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:CloseConnectionException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.CloseConnectionException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.CloseConnectionException';
             end
-            obj = obj@Ice.ProtocolException(ice_exid, ice_exmsg, reason);
+            obj = obj@Ice.ProtocolException(errID, msg, reason);
         end
     end
 end

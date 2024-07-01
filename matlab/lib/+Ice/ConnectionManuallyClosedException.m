@@ -17,17 +17,17 @@ classdef ConnectionManuallyClosedException < Ice.LocalException
         graceful logical
     end
     methods
-        function obj = ConnectionManuallyClosedException(ice_exid, ice_exmsg, graceful)
+        function obj = ConnectionManuallyClosedException(errID, msg, graceful)
             if nargin <= 2
                 graceful = false;
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:ConnectionManuallyClosedException';
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:ConnectionManuallyClosedException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.ConnectionManuallyClosedException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.ConnectionManuallyClosedException';
             end
-            obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
+            obj = obj@Ice.LocalException(errID, msg);
             obj.graceful = graceful;
         end
     end

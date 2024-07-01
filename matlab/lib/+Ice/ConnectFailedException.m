@@ -7,17 +7,17 @@
 
 classdef ConnectFailedException < Ice.SocketException
     methods
-        function obj = ConnectFailedException(ice_exid, ice_exmsg, error)
+        function obj = ConnectFailedException(errID, msg, error)
             if nargin <= 2
                 error = 0;
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:ConnectFailedException';
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:ConnectFailedException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.ConnectFailedException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.ConnectFailedException';
             end
-            obj = obj@Ice.SocketException(ice_exid, ice_exmsg, error);
+            obj = obj@Ice.SocketException(errID, msg, error);
         end
     end
 end

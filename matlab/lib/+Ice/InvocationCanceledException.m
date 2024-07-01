@@ -7,14 +7,14 @@
 
 classdef InvocationCanceledException < Ice.LocalException
     methods
-        function obj = InvocationCanceledException(ice_exid, ice_exmsg)
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:InvocationCanceledException';
+        function obj = InvocationCanceledException(errID, msg)
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:InvocationCanceledException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.InvocationCanceledException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.InvocationCanceledException';
             end
-            obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
+            obj = obj@Ice.LocalException(errID, msg);
         end
     end
 end

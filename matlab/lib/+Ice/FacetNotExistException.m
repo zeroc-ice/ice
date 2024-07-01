@@ -8,19 +8,19 @@
 
 classdef FacetNotExistException < Ice.RequestFailedException
     methods
-        function obj = FacetNotExistException(ice_exid, ice_exmsg, id, facet, operation)
+        function obj = FacetNotExistException(errID, msg, id, facet, operation)
             if nargin <= 2
                 id = Ice.Identity();
                 facet = '';
                 operation = '';
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:FacetNotExistException';
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:FacetNotExistException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.FacetNotExistException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.FacetNotExistException';
             end
-            obj = obj@Ice.RequestFailedException(ice_exid, ice_exmsg, id, facet, operation);
+            obj = obj@Ice.RequestFailedException(errID, msg, id, facet, operation);
         end
     end
 end

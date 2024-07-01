@@ -11,17 +11,17 @@
 
 classdef UnknownUserException < Ice.UnknownException
     methods
-        function obj = UnknownUserException(ice_exid, ice_exmsg, unknown)
+        function obj = UnknownUserException(errID, msg, unknown)
             if nargin <= 2
                 unknown = '';
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:UnknownUserException';
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:UnknownUserException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.UnknownUserException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.UnknownUserException';
             end
-            obj = obj@Ice.UnknownException(ice_exid, ice_exmsg, unknown);
+            obj = obj@Ice.UnknownException(errID, msg, unknown);
         end
     end
 end

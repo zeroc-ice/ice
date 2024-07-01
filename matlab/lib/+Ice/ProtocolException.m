@@ -14,17 +14,17 @@ classdef ProtocolException < Ice.LocalException
         reason char
     end
     methods
-        function obj = ProtocolException(ice_exid, ice_exmsg, reason)
+        function obj = ProtocolException(errID, msg, reason)
             if nargin <= 2
                 reason = '';
             end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:ProtocolException';
+            if nargin == 0 || isempty(errID)
+                errID = 'Ice:ProtocolException';
             end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.ProtocolException';
+            if nargin < 2 || isempty(msg)
+                msg = 'Ice.ProtocolException';
             end
-            obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
+            obj = obj@Ice.LocalException(errID, msg);
             obj.reason = reason;
         end
     end
