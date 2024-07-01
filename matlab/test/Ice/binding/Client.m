@@ -9,7 +9,9 @@ function client(args)
     end
 
     helper = TestHelper();
-    communicator = helper.initialize(args);
+    properties = helper.createTestProperties(args);
+    properties.setProperty('Ice.Connection.ConnectTimeout', '1'); % speed up testing on Windows
+    communicator = helper.initialize(properties);
     cleanup = onCleanup(@() communicator.destroy());
     AllTests.allTests(helper);
 

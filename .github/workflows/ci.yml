@@ -104,7 +104,6 @@ jobs:
           working_directory: ${{ matrix.working_directory || '.' }}
           # See:
           # - https://github.com/zeroc-ice/ice/issues/1653 IceGrid/replication
-          # - https://github.com/zeroc-ice/ice/issues/1945 matlab/Ice/slicing
-          flags: "--rfilter=IceGrid/replication --rfilter=matlab/Ice/slicing ${{ matrix.test_flags }}"
+          flags: "--rfilter=IceGrid/replication  ${{ matrix.test_flags }}"
         # Don't test matlab on Windows (see setup-dependencies/action.yml)
         if: matrix.config != 'matlab' || runner.os != 'Windows'
