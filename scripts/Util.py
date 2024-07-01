@@ -490,7 +490,7 @@ class Windows(Platform):
         pass  # Nothing to do, we don't support the make build system on Windows
 
     def getDefaultBuildPlatform(self):
-        return "x64" if "X64" in os.environ.get("PLATFORM", "") else "Win32"
+        return "Win32" if "x86" in os.environ.get("PLATFORM", "") else "x64"
 
     def getDefaultBuildConfig(self):
         return "Release"
