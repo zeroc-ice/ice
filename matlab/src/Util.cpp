@@ -339,6 +339,25 @@ IceMatlab::convertException(const std::exception_ptr exc)
     {
         rethrow_exception(exc);
     }
+    catch (const Ice::RequestFailedException& e)
+    {
+        string typeId{e.ice_id()};
+
+        string className = typeId.substr(2); // Remove leading "::" from type ID
+        className = replace(className, "::", ".");
+
+        string errID = typeId.substr(2); // Remove leading "::" from type ID
+        errID = replace(errID, "::", ":");
+
+        mxArray* params[10];
+        int index = 0;
+        params[index++] = createIdentity(e.id());
+        params[index++] = createStringFromUTF8(e.facet());
+        params[index++] = createStringFromUTF8(e.operation());
+        params[index++] = createStringFromUTF8(e.what());
+        mexCallMATLAB(1, &ex, index, params, className.c_str());
+    }
+    // Not refactored yet!
     catch (const Ice::LocalException& iceEx)
     {
         string typeId{iceEx.ice_id()};
@@ -407,12 +426,6 @@ IceMatlab::convertException(const std::exception_ptr exc)
         catch (const Ice::IllegalServantException& e)
         {
             params[idx++] = createStringFromUTF8(e.reason);
-        }
-        catch (const Ice::RequestFailedException& e)
-        {
-            params[idx++] = createIdentity(e.id());
-            params[idx++] = createStringFromUTF8(e.facet());
-            params[idx++] = createStringFromUTF8(e.operation());
         }
         catch (const Ice::FileException& e)
         {

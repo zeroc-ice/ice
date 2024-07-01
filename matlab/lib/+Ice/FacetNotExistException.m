@@ -4,23 +4,12 @@
 % exists.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.10
 
 classdef FacetNotExistException < Ice.RequestFailedException
     methods
-        function obj = FacetNotExistException(errID, msg, id, facet, operation)
-            if nargin <= 2
-                id = Ice.Identity();
-                facet = '';
-                operation = '';
-            end
-            if nargin == 0 || isempty(errID)
-                errID = 'Ice:FacetNotExistException';
-            end
-            if nargin < 2 || isempty(msg)
-                msg = 'Ice.FacetNotExistException';
-            end
-            obj = obj@Ice.RequestFailedException(errID, msg, id, facet, operation);
+        function obj = FacetNotExistException(id, facet, operation, msg)
+            assert(nargin == 4); % always created from the corresponding C++ exception
+            obj = obj@Ice.RequestFailedException(id, facet, operation, 'Ice:FacetNotExistException', msg);
         end
     end
 end

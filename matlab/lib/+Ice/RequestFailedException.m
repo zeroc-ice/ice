@@ -10,7 +10,6 @@
 %   operation - The operation name of the request.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.10
 
 classdef RequestFailedException < Ice.LocalException
     properties
@@ -22,18 +21,8 @@ classdef RequestFailedException < Ice.LocalException
         operation char
     end
     methods
-        function obj = RequestFailedException(errID, msg, id, facet, operation)
-            if nargin <= 2
-                id = Ice.Identity();
-                facet = '';
-                operation = '';
-            end
-            if nargin == 0 || isempty(errID)
-                errID = 'Ice:RequestFailedException';
-            end
-            if nargin < 2 || isempty(msg)
-                msg = 'Ice.RequestFailedException';
-            end
+        function obj = RequestFailedException(id, facet, operation, errID, msg)
+            assert(nargin == 5); % always created from a derived class
             obj = obj@Ice.LocalException(errID, msg);
             obj.id = id;
             obj.facet = facet;
