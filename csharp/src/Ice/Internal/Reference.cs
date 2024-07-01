@@ -362,7 +362,7 @@ public abstract class Reference : IEquatable<Reference>
         hash.Add(_identity);
         hash.Add(_context.Count); // we only hash the count, not the contents
         hash.Add(_facet);
-        if (compress is not null)
+        if (compress_ is not null)
         {
             hash.Add(compress_.Value);
         }
