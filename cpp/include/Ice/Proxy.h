@@ -206,7 +206,7 @@ namespace Ice
          */
         Prx ice_router(const std::optional<RouterPrx>& router) const
         {
-            return fromReference(asPrx()._router(std::move(router)));
+            return fromReference(asPrx()._router(router));
         }
 
         /**

@@ -79,7 +79,7 @@ public abstract class Reference : IEquatable<Reference>
     public bool?
     getCompress()
     {
-        return overrideCompress_ ? compress_ : null;
+        return compress_;
     }
 
     public Ice.Communicator getCommunicator()
@@ -169,7 +169,6 @@ public abstract class Reference : IEquatable<Reference>
     {
         Reference r = _instance.referenceFactory().copy(this);
         r.compress_ = newCompress;
-        r.overrideCompress_ = true;
         return r;
     }
 
@@ -186,23 +185,10 @@ public abstract class Reference : IEquatable<Reference>
     public abstract Reference changeConnectionId(string connectionId);
     public abstract Reference changeConnection(Ice.ConnectionI connection);
 
-    public bool getCompressOverride(out bool compress)
+    public bool? getCompressOverride()
     {
         DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
-        if (defaultsAndOverrides.overrideCompress)
-        {
-            compress = defaultsAndOverrides.overrideCompressValue;
-        }
-        else if (overrideCompress_)
-        {
-            compress = compress_;
-        }
-        else
-        {
-            compress = false;
-            return false;
-        }
-        return true;
+        return defaultsAndOverrides.overrideCompress ? defaultsAndOverrides.overrideCompressValue : compress_;
     }
 
     public abstract bool isIndirect();
@@ -376,10 +362,9 @@ public abstract class Reference : IEquatable<Reference>
         hash.Add(_identity);
         hash.Add(_context.Count); // we only hash the count, not the contents
         hash.Add(_facet);
-        hash.Add(overrideCompress_);
-        if (overrideCompress_)
+        if (compress is not null)
         {
-            hash.Add(compress_);
+            hash.Add(compress_.Value);
         }
         // We don't hash protocol and encoding; they are usually "1.0" and "1.1" respectively.
         hash.Add(_invocationTimeout);
@@ -396,8 +381,7 @@ public abstract class Reference : IEquatable<Reference>
             _identity == other._identity &&
             _context.DictionaryEqual(other._context) &&
             _facet == other._facet &&
-            overrideCompress_ == other.overrideCompress_ &&
-            (!overrideCompress_ || compress_ == other.compress_) &&
+            compress_ == other.compress_ &&
             _protocol == other._protocol &&
             _encoding == other._encoding &&
             _invocationTimeout == other._invocationTimeout;
@@ -420,9 +404,7 @@ public abstract class Reference : IEquatable<Reference>
     private Ice.ProtocolVersion _protocol;
     private Ice.EncodingVersion _encoding;
     private int _invocationTimeout;
-
-    protected bool overrideCompress_;
-    protected bool compress_; // Only used if _overrideCompress == true
+    protected bool? compress_; // Only used if _overrideCompress == true
 
     protected Reference(Instance instance,
                         Ice.Communicator communicator,
@@ -448,8 +430,7 @@ public abstract class Reference : IEquatable<Reference>
         _encoding = encoding;
         _invocationTimeout = invocationTimeout;
         secure_ = secure;
-        overrideCompress_ = false;
-        compress_ = false;
+        compress_ = null;
     }
 
     protected static Random rand_ = new Random(unchecked((int)DateTime.Now.Ticks));
@@ -474,11 +455,7 @@ public class FixedReference : Reference
     : base(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
     {
         _fixedConnection = connection;
-        if (compress.HasValue)
-        {
-            overrideCompress_ = true;
-            compress_ = compress.Value;
-        }
+        compress_ = compress;
     }
 
     public override EndpointI[] getEndpoints()
@@ -667,16 +644,8 @@ public class FixedReference : Reference
 
         _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
 
-        bool compress = false;
-        if (defaultsAndOverrides.overrideCompress)
-        {
-            compress = defaultsAndOverrides.overrideCompressValue;
-        }
-        else if (overrideCompress_)
-        {
-            compress = compress_;
-        }
-
+        bool compress = defaultsAndOverrides.overrideCompress ?
+            defaultsAndOverrides.overrideCompressValue : compress_ ?? false;
         return new FixedRequestHandler(this, _fixedConnection, compress);
     }
 
@@ -1251,9 +1220,9 @@ public class RoutableReference : Reference
         for (int i = 0; i < endpts.Length; ++i)
         {
             endpts[i] = endpts[i].connectionId(_connectionId);
-            if (overrideCompress_)
+            if (compress_ is not null)
             {
-                endpts[i] = endpts[i].compress(compress_);
+                endpts[i] = endpts[i].compress(compress_ ?? false);
             }
         }
     }

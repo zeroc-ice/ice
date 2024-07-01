@@ -30,10 +30,7 @@ public class FixedReference extends Reference {
         invocationTimeout,
         context);
     _fixedConnection = connection;
-    if (compress.isPresent()) {
-      _overrideCompress = true;
-      _compress = compress.get();
-    }
+    _compress = compress;
   }
 
   @Override
@@ -216,13 +213,10 @@ public class FixedReference extends Reference {
 
     _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
 
-    boolean compress = false;
-    if (defaultsAndOverrides.overrideCompress) {
-      compress = defaultsAndOverrides.overrideCompressValue;
-    } else if (_overrideCompress) {
-      compress = _compress;
-    }
-
+    boolean compress =
+        defaultsAndOverrides.overrideCompress
+            ? defaultsAndOverrides.overrideCompressValue
+            : _compress.orElse(false);
     RequestHandler handler = new ConnectionRequestHandler(this, _fixedConnection, compress);
     if (getInstance().queueRequests()) {
       handler = new QueueRequestHandler(getInstance(), handler);

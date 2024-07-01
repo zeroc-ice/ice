@@ -58,7 +58,7 @@ namespace IceInternal
         int getInvocationTimeout() const { return _invocationTimeout; }
         std::optional<bool> getCompress() const
         {
-            return _overrideCompress ? std::optional<bool>(_compress) : std::nullopt;
+            return _compress;
         }
 
         Ice::CommunicatorPtr getCommunicator() const;
@@ -103,7 +103,7 @@ namespace IceInternal
 
         virtual std::size_t hash() const noexcept;
 
-        bool getCompressOverride(bool&) const;
+        std::optional<bool> getCompressOverride() const;
 
         //
         // Utility methods.
@@ -156,8 +156,7 @@ namespace IceInternal
         Reference(const Reference&);
 
         const InstancePtr _instance;
-        bool _overrideCompress;
-        bool _compress; // Only used if _overrideCompress == true
+        std::optional<bool> _compress;
 
     private:
         const Ice::CommunicatorPtr _communicator;

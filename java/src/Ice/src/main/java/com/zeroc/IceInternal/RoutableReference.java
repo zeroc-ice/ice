@@ -552,8 +552,8 @@ public class RoutableReference extends Reference {
     //
     for (int i = 0; i < endpts.length; ++i) {
       endpts[i] = endpts[i].connectionId(_connectionId);
-      if (_overrideCompress) {
-        endpts[i] = endpts[i].compress(_compress);
+      if (_compress.isPresent()) {
+        endpts[i] = endpts[i].compress(_compress.get());
       }
     }
   }

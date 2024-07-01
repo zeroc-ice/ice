@@ -101,27 +101,16 @@ IceInternal::Reference::changeCompress(bool newCompress) const
 {
     ReferencePtr r = clone();
     r->_compress = newCompress;
-    r->_overrideCompress = true;
     return r;
 }
 
-bool
-IceInternal::Reference::getCompressOverride(bool& compress) const
+optional<bool>
+IceInternal::Reference::getCompressOverride() const
 {
     DefaultsAndOverridesPtr defaultsAndOverrides = getInstance()->defaultsAndOverrides();
-    if (defaultsAndOverrides->overrideCompress)
-    {
-        compress = defaultsAndOverrides->overrideCompressValue;
-    }
-    else if (_overrideCompress)
-    {
-        compress = _compress;
-    }
-    else
-    {
-        return false;
-    }
-    return true;
+    optional<bool> compress = defaultsAndOverrides->overrideCompress ?
+        defaultsAndOverrides->overrideCompressValue : _compress;
+    return compress;
 }
 
 size_t
@@ -134,10 +123,9 @@ Reference::hash() const noexcept
     hashAdd(h, _identity.category);
     hashAdd(h, _context->getValue());
     hashAdd(h, _facet);
-    hashAdd(h, _overrideCompress);
-    if (_overrideCompress)
+    if (_compress.has_value())
     {
-        hashAdd(h, _compress);
+        hashAdd(h, *_compress);
     }
     // We don't include protocol and encoding in the hash; they are using 1.0 and 1.1, respectively.
     hashAdd(h, _invocationTimeout);
@@ -322,7 +310,7 @@ IceInternal::Reference::operator==(const Reference& r) const
         return false;
     }
 
-    if ((_overrideCompress != r._overrideCompress) || (_overrideCompress && _compress != r._compress))
+    if (_compress != r._compress)
     {
         return false;
     }
@@ -387,21 +375,21 @@ IceInternal::Reference::operator<(const Reference& r) const
         return false;
     }
 
-    if (!_overrideCompress && r._overrideCompress)
+    if (!_compress.has_value() && r._compress.has_value())
     {
         return true;
     }
-    else if (r._overrideCompress < _overrideCompress)
+    else if (r._compress.has_value() < _compress.has_value())
     {
         return false;
     }
-    else if (_overrideCompress)
+    else if (_compress.has_value())
     {
-        if (!_compress && r._compress)
+        if (!_compress.value() && r._compress.value_or(false))
         {
             return true;
         }
-        else if (r._compress < _compress)
+        else if (r._compress.value_or(false) < _compress)
         {
             return false;
         }
@@ -458,8 +446,7 @@ IceInternal::Reference::Reference(
     int invocationTimeout,
     const Ice::Context& ctx)
     : _instance(instance),
-      _overrideCompress(false),
-      _compress(false),
+      _compress(nullopt),
       _communicator(communicator),
       _mode(mode),
       _secure(secure),
@@ -475,7 +462,6 @@ IceInternal::Reference::Reference(
 IceInternal::Reference::Reference(const Reference& r)
     : enable_shared_from_this<Reference>(),
       _instance(r._instance),
-      _overrideCompress(r._overrideCompress),
       _compress(r._compress),
       _communicator(r._communicator),
       _mode(r._mode),
@@ -505,9 +491,8 @@ IceInternal::FixedReference::FixedReference(
     : Reference(instance, communicator, id, facet, mode, secure, protocol, encoding, invocationTimeout, context),
       _fixedConnection(std::move(fixedConnection))
 {
-    if (compress)
+    if (compress.has_value())
     {
-        _overrideCompress = true;
         _compress = *compress;
     }
 }
@@ -703,15 +688,8 @@ IceInternal::FixedReference::getRequestHandler() const
 
     _fixedConnection->throwException(); // Throw in case our connection is already destroyed.
 
-    bool compress = false;
-    if (defaultsAndOverrides->overrideCompress)
-    {
-        compress = defaultsAndOverrides->overrideCompressValue;
-    }
-    else if (_overrideCompress)
-    {
-        compress = _compress;
-    }
+    bool compress = defaultsAndOverrides->overrideCompress ?
+        defaultsAndOverrides->overrideCompressValue : _compress.value_or(false);
 
     ReferencePtr ref = const_cast<FixedReference*>(this)->shared_from_this();
     return make_shared<FixedRequestHandler>(ref, _fixedConnection, compress);
@@ -1129,6 +1107,7 @@ IceInternal::RoutableReference::toProperty(const string& prefix) const
         s << getInvocationTimeout();
         properties[prefix + ".InvocationTimeout"] = s.str();
     }
+
     if (_routerInfo)
     {
         PropertyDict routerProperties = _routerInfo->getRouter()->_getReference()->toProperty(prefix + ".Router");
@@ -1615,9 +1594,9 @@ IceInternal::RoutableReference::applyOverrides(vector<EndpointIPtr>& endpoints) 
     for (vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
     {
         *p = (*p)->connectionId(_connectionId);
-        if (_overrideCompress)
+        if (_compress.has_value())
         {
-            *p = (*p)->compress(_compress);
+            *p = (*p)->compress(*_compress);
         }
     }
 }
