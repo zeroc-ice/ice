@@ -62,7 +62,7 @@ public class RequestFailedException: LocalException {
 
 /// The dispatch could not find a servant for the identity carried by the request.
 public final class ObjectNotExistException: RequestFailedException {
-    /// Creates an OperationNotExistException.
+    /// Creates an ObjectNotExistException.
     /// - Parameters:
     ///   - id: The identity of the target Ice object carried by the request.
     ///   - facet: The facet of the target Ice object.
