@@ -12,10 +12,12 @@ import java.util.concurrent.CompletableFuture;
 
 /** Concrete proxy implementation. */
 public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
-  // TODO: delete this default constructor eventually.
-  public _ObjectPrxI() {}
+  // TODO: Only public for 'IceInternal.ProxyFactory', should become protected after refactoring.
+  public _ObjectPrxI(com.zeroc.IceInternal.Reference ref) {
+    _reference = ref;
+  }
 
-  public _ObjectPrxI(ObjectPrx obj) {
+  protected _ObjectPrxI(ObjectPrx obj) {
     _ObjectPrxI source = (_ObjectPrxI) obj;
     _reference = source._reference;
     _requestHandler = source._requestHandler;
@@ -160,9 +162,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
     if (newIdentity.equals(_reference.getIdentity())) {
       return this;
     } else {
-      _ObjectPrxI proxy = new _ObjectPrxI();
-      proxy._setup(_reference.changeIdentity(newIdentity));
-      return proxy;
+      return new _ObjectPrxI(_reference.changeIdentity(newIdentity));
     }
   }
 
@@ -182,9 +182,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
     if (newFacet.equals(_reference.getFacet())) {
       return this;
     } else {
-      _ObjectPrxI proxy = new _ObjectPrxI();
-      proxy._setup(_reference.changeFacet(newFacet));
-      return proxy;
+      return new _ObjectPrxI(_reference.changeFacet(newFacet));
     }
   }
 
@@ -349,39 +347,6 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
   @Override
   public com.zeroc.IceInternal.Reference _getReference() {
     return _reference;
-  }
-
-  @Override
-  public ObjectPrx _newInstance(com.zeroc.IceInternal.Reference ref) {
-    try {
-      _ObjectPrxI proxy = getClass().getDeclaredConstructor().newInstance();
-      proxy._setup(ref);
-      return proxy;
-    } catch (NoSuchMethodException ex) {
-      //
-      // Impossible
-      //
-      assert false;
-      return null;
-    } catch (java.lang.reflect.InvocationTargetException ex) {
-      //
-      // Impossible
-      //
-      assert false;
-      return null;
-    } catch (InstantiationException e) {
-      //
-      // Impossible
-      //
-      assert false;
-      return null;
-    } catch (IllegalAccessException e) {
-      //
-      // Impossible
-      //
-      assert false;
-      return null;
-    }
   }
 
   @Override
@@ -707,21 +672,6 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
         }
       }
     }
-  }
-
-  //
-  // Only for use by ProxyFactory
-  //
-  public void _setup(com.zeroc.IceInternal.Reference ref) {
-    //
-    // No need to synchronize, as this operation is only called
-    // upon initial initialization.
-    //
-
-    assert (_reference == null);
-    assert (_requestHandler == null);
-
-    _reference = ref;
   }
 
   private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {

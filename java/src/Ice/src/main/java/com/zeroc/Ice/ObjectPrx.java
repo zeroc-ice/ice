@@ -766,10 +766,10 @@ public interface ObjectPrx {
 
   /**
    * @hidden
-   * @param r -
-   * @return -
    */
-  ObjectPrx _newInstance(com.zeroc.IceInternal.Reference r);
+  default ObjectPrx _newInstance(com.zeroc.IceInternal.Reference ref) {
+    return new _ObjectPrxI(ref);
+  }
 
   /**
    * A special empty context that is indistinguishable from the absence of a context parameter. For

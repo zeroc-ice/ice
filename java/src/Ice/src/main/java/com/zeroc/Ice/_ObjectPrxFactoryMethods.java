@@ -8,9 +8,8 @@ package com.zeroc.Ice;
  */
 @SuppressWarnings("unchecked")
 public abstract class _ObjectPrxFactoryMethods<T extends ObjectPrx> extends _ObjectPrxI {
-  // TODO: delete this default constructor eventually.
-  protected _ObjectPrxFactoryMethods() {
-    super();
+  protected _ObjectPrxFactoryMethods(com.zeroc.IceInternal.Reference ref) {
+    super(ref);
   }
 
   protected _ObjectPrxFactoryMethods(ObjectPrx obj) {
