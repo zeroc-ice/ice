@@ -56,10 +56,7 @@ namespace IceInternal
         const InstancePtr& getInstance() const { return _instance; }
         const SharedContextPtr& getContext() const { return _context; }
         int getInvocationTimeout() const { return _invocationTimeout; }
-        std::optional<bool> getCompress() const
-        {
-            return _compress;
-        }
+        std::optional<bool> getCompress() const { return _compress; }
 
         Ice::CommunicatorPtr getCommunicator() const;
 

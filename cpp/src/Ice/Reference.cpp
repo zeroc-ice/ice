@@ -108,8 +108,8 @@ optional<bool>
 IceInternal::Reference::getCompressOverride() const
 {
     DefaultsAndOverridesPtr defaultsAndOverrides = getInstance()->defaultsAndOverrides();
-    optional<bool> compress = defaultsAndOverrides->overrideCompress ?
-        defaultsAndOverrides->overrideCompressValue : _compress;
+    optional<bool> compress =
+        defaultsAndOverrides->overrideCompress ? defaultsAndOverrides->overrideCompressValue : _compress;
     return compress;
 }
 
@@ -688,8 +688,8 @@ IceInternal::FixedReference::getRequestHandler() const
 
     _fixedConnection->throwException(); // Throw in case our connection is already destroyed.
 
-    bool compress = defaultsAndOverrides->overrideCompress ?
-        defaultsAndOverrides->overrideCompressValue : _compress.value_or(false);
+    bool compress = defaultsAndOverrides->overrideCompress ? defaultsAndOverrides->overrideCompressValue
+                                                           : _compress.value_or(false);
 
     ReferencePtr ref = const_cast<FixedReference*>(this)->shared_from_this();
     return make_shared<FixedRequestHandler>(ref, _fixedConnection, compress);

@@ -204,10 +204,7 @@ namespace Ice
          * @param router The router for the new proxy.
          * @return A proxy with the specified router.
          */
-        Prx ice_router(const std::optional<RouterPrx>& router) const
-        {
-            return fromReference(asPrx()._router(router));
-        }
+        Prx ice_router(const std::optional<RouterPrx>& router) const { return fromReference(asPrx()._router(router)); }
 
         /**
          * Obtains a proxy that is identical to this proxy, except for how it selects endpoints.
