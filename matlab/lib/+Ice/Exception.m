@@ -6,8 +6,8 @@ classdef (Abstract) Exception < MException
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
     methods
-        function obj = Exception(id, msg)
-            obj = obj@MException(id, msg);
+        function obj = Exception(varargin)
+            obj = obj@MException(varargin{:});
         end
     end
 end

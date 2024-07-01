@@ -6,8 +6,8 @@ classdef (Abstract) LocalException < Ice.Exception
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
     methods
-        function obj = LocalException(id, msg)
-            obj = obj@Ice.Exception(id, msg);
+        function obj = LocalException(varargin)
+            obj = obj@Ice.Exception(varargin{:});
         end
     end
 end
