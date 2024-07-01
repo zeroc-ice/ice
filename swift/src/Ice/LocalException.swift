@@ -15,7 +15,7 @@ open class LocalException: Exception, CustomStringConvertible {
     ///   - message: The exception message.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
-    public init(_ message: String, file: String = #file, line: Int32 = #line) {
+    public init(_ message: String, file: String = #fileID, line: Int32 = #line) {
         self.message = message
         self.file = file
         self.line = line
@@ -35,7 +35,10 @@ open class LocalException: Exception, CustomStringConvertible {
         self.cxxDescription = cxxDescription
     }
 
-    public func ice_id() -> String { type(of: self).ice_staticId() }
-
-    public class func ice_staticId() -> String { "::Ice::LocalException" }
+    /// Gets the type ID of the class, for example "::Ice::CommunicatorDestroyedException".
+    /// This type ID is provided for informational purposes.
+    /// - Returns: The type ID of the class.
+    public func ice_id() -> String {
+        "::" + String(reflecting: type(of: self)).replacingOccurrences(of: ".", with: "::")
+    }
 }

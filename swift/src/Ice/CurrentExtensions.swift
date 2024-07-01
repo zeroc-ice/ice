@@ -140,11 +140,6 @@ extension Current {
             replyStatus = .unknownLocalException
             exceptionMessage = "\(ex)"
 
-        case let ex as Exception:
-            exceptionId = ex.ice_id()
-            replyStatus = .unknownException
-            exceptionMessage = "\(ex)"
-
         default:
             replyStatus = .unknownException
             exceptionId = "\(type(of: error))"

@@ -7,8 +7,7 @@ class ValueFactoryManagerI: ValueFactoryManager {
     func add(factory: @escaping ValueFactory, id: String) throws {
         try mutex.sync {
             if factories[id] != nil {
-                throw AlreadyRegisteredException(
-                    kindOfObject: "value factory", id: id, file: #file, line: #line)
+                throw AlreadyRegisteredException(kindOfObject: "value factory", id: id)
             }
             factories[id] = factory
         }

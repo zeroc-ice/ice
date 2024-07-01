@@ -40,8 +40,6 @@ public class RequestFailedException: LocalException {
         fatalError("RequestFailedException must be initialized with an id, facet, and operation")
     }
 
-    override public class func ice_staticId() -> String { "::Ice::RequestFailedException" }
-
     internal init(typeName: String, id: Identity, facet: String, operation: String, file: String, line: Int32) {
         self.id = id
         self.facet = facet
@@ -72,7 +70,7 @@ public final class ObjectNotExistException: RequestFailedException {
     ///   - message: The exception message.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
-    public convenience init(id: Identity, facet: String, operation: String, file: String = #file, line: Int32 = #line) {
+    public convenience init(id: Identity, facet: String, operation: String, file: String = #fileID, line: Int32 = #line) {
         self.init(
             typeName: "ObjectNotExistException", id: id, facet: facet, operation: operation, file: file, line: line)
     }
@@ -82,11 +80,9 @@ public final class ObjectNotExistException: RequestFailedException {
     /// - Parameters:
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
-    public convenience init(file: String = #file, line: Int32 = #line) {
+    public convenience init(file: String = #fileID, line: Int32 = #line) {
         self.init("dispatch failed with ObjectNotExistException", file: file, line: line)
     }
-
-    override public class func ice_staticId() -> String { "::Ice::ObjectNotExistException" }
 }
 
 /// The dispatch could not find a servant for the identity + facet carried by the request.
@@ -99,7 +95,7 @@ public final class FacetNotExistException: RequestFailedException {
     ///   - message: The exception message.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
-    public convenience init(id: Identity, facet: String, operation: String, file: String = #file, line: Int32 = #line) {
+    public convenience init(id: Identity, facet: String, operation: String, file: String = #fileID, line: Int32 = #line) {
         self.init(
             typeName: "FacetNotExistException", id: id, facet: facet, operation: operation, file: file, line: line)
     }
@@ -109,11 +105,9 @@ public final class FacetNotExistException: RequestFailedException {
     /// - Parameters:
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
-    public convenience init(file: String = #file, line: Int32 = #line) {
+    public convenience init(file: String = #fileID, line: Int32 = #line) {
         self.init("dispatch failed with FacetNotExistException", file: file, line: line)
     }
-
-    override public class func ice_staticId() -> String { "::Ice::FacetNotExistException" }
 }
 
 /// The dispatch could not find the operation carried by the request on the target servant. This is typically due
@@ -127,7 +121,7 @@ public final class OperationNotExistException: RequestFailedException {
     ///   - message: The exception message.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
-    public convenience init(id: Identity, facet: String, operation: String, file: String = #file, line: Int32 = #line) {
+    public convenience init(id: Identity, facet: String, operation: String, file: String = #fileID, line: Int32 = #line) {
         self.init(
             typeName: "OperationNotExistException", id: id, facet: facet, operation: operation, file: file, line: line)
     }
@@ -137,25 +131,19 @@ public final class OperationNotExistException: RequestFailedException {
     /// - Parameters:
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
-    public convenience init(file: String = #file, line: Int32 = #line) {
+    public convenience init(file: String = #fileID, line: Int32 = #line) {
         self.init("dispatch failed with OperationNotExistException", file: file, line: line)
     }
-
-    override public class func ice_staticId() -> String { "::Ice::OperationNotExistException" }
 }
 
 /// The dispatch failed with an exception that is not an `Ice.LocalException` or an `Ice.UserException`.
 public class UnknownException: LocalException {
     @available(*, deprecated, renamed: "message")
     public var reason: String { message }
-
-    override public class func ice_staticId() -> String { "::Ice::UnknownException" }
 }
 
 /// The dispatch failed with an `Ice.LocalException` that is not one of the special marshal-able local exceptions.
-public final class UnknownLocalException: UnknownException {
-    override public class func ice_staticId() -> String { "::Ice::UnknownLocalException" }
-}
+public final class UnknownLocalException: UnknownException {}
 
 /// The dispatch returned an `Ice.UserException` that was not declared in the operation's exception specification.
 public final class UnknownUserException: UnknownException {
@@ -164,13 +152,11 @@ public final class UnknownUserException: UnknownException {
     ///   - badTypeId: The type ID of the user exception carried by the reply.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
-    public convenience init(badTypeId: String, file: String = #file, line: Int32 = #line) {
+    public convenience init(badTypeId: String, file: String = #fileID, line: Int32 = #line) {
         self.init(
             "the user exception carried by the reply does not conform to the operation's exception specification: \(badTypeId)",
             file: file, line: line)
     }
-
-    override public class func ice_staticId() -> String { "::Ice::UnknownUserException" }
 }
 
 //
@@ -178,91 +164,63 @@ public final class UnknownUserException: UnknownException {
 //
 
 /// The base class for Ice protocol exceptions.
-public class ProtocolException: LocalException {
-    override public class func ice_staticId() -> String { "::Ice::ProtocolException" }
-}
+public class ProtocolException: LocalException {}
 
 /// This exception indicates that the connection has been gracefully shut down by the server. The operation call that
 /// caused this exception has not been executed by the server. In most cases you will not get this exception, because
 /// the client will automatically retry the operation call in case the server shut down the connection. However, if
 /// upon retry the server shuts down the connection again, and the retry limit has been reached, then this exception is
 /// propagated to the application code.
-public final class CloseConnectionException: ProtocolException {
-    override public class func ice_staticId() -> String { "::Ice::CloseConnectionException" }
-}
+public final class CloseConnectionException: ProtocolException {}
 
 /// A datagram exceeds the configured size. This exception is raised if a datagram exceeds the configured send or
 /// receive buffer size, or exceeds the maximum payload size of a UDP packet (65507 bytes).
-public final class DatagramLimitException: ProtocolException {
-    override public class func ice_staticId() -> String { "::Ice::DatagramLimitException" }
-}
+public final class DatagramLimitException: ProtocolException {}
 
 /// This exception is raised for errors during marshaling or unmarshaling data.
-public final class MarshalException: ProtocolException {
-    override public class func ice_staticId() -> String { "::Ice::MarshalException" }
-}
+public final class MarshalException: ProtocolException {}
 
 //
 // Timeout exceptions
 //
 
 /// This exception indicates a timeout condition.
-public class TimeoutException: LocalException {
-    override public class func ice_staticId() -> String { "::Ice::TimeoutException" }
-}
+public class TimeoutException: LocalException {}
 
 /// This exception indicates a connection establishment timeout condition.
-public final class ConnectTimeoutException: TimeoutException {
-    override public class func ice_staticId() -> String { "::Ice::ConnectTimeoutException" }
-}
+public final class ConnectTimeoutException: TimeoutException {}
 
 /// This exception indicates a connection closure timeout condition.
-public final class CloseTimeoutException: TimeoutException {
-    override public class func ice_staticId() -> String { "::Ice::CloseTimeoutException" }
-}
+public final class CloseTimeoutException: TimeoutException {}
 
 /// This exception indicates that an invocation failed because it timed out.
-public final class InvocationTimeoutException: TimeoutException {
-    override public class func ice_staticId() -> String { "::Ice::InvocationTimeoutException" }
-}
+public final class InvocationTimeoutException: TimeoutException {}
 
 //
 // Syscall exceptions
 //
 
 /// This exception is raised if a system error occurred in the server or client process.
-public class SyscallException: LocalException {
-    override public class func ice_staticId() -> String { "::Ice::SyscallException" }
-}
+public class SyscallException: LocalException {}
 
 /// This exception indicates a DNS problem.
-public final class DNSException: SyscallException {
-    override public class func ice_staticId() -> String { "::Ice::DNSException" }
-}
+public final class DNSException: SyscallException {}
 
 //
 // Socket exceptions
 //
 
 /// This exception indicates a socket error.
-public class SocketException: SyscallException {
-    override public class func ice_staticId() -> String { "::Ice::SocketException" }
-}
+public class SocketException: SyscallException {}
 
 /// This exception indicates a connection failure.
-public class ConnectFailedException: SocketException {
-    override public class func ice_staticId() -> String { "::Ice::ConnectFailedException" }
-}
+public class ConnectFailedException: SocketException {}
 
 /// This exception indicates a connection failure for which the server host actively refuses a connection.
-public final class ConnectionRefusedException: ConnectFailedException {
-    override public class func ice_staticId() -> String { "::Ice::ConnectionRefusedException" }
-}
+public final class ConnectionRefusedException: ConnectFailedException {}
 
 /// This exception indicates a lost connection.
-public final class ConnectionLostException: SocketException {
-    override public class func ice_staticId() -> String { "::Ice::ConnectionLostException" }
-}
+public final class ConnectionLostException: SocketException {}
 
 //
 // Other leaf local exceptions in alphabetical order.
@@ -285,7 +243,7 @@ public final class AlreadyRegisteredException: LocalException {
     ///   - id: The ID (or name) of the object that is already registered.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
-    public init(kindOfObject: String, id: String, file: String = #file, line: Int32 = #line) {
+    public init(kindOfObject: String, id: String, file: String = #fileID, line: Int32 = #line) {
         self.kindOfObject = kindOfObject
         self.id = id
         super.init("another \(kindOfObject) is already registered with ID '\(id)'", file: file, line: line)
@@ -295,8 +253,6 @@ public final class AlreadyRegisteredException: LocalException {
     public required init(message: String, cxxDescription: String, file: String, line: Int32) {
         fatalError("AlreadyRegisteredException must be initialized with a kindOfObject and id")
     }
-
-    override public class func ice_staticId() -> String { "::Ice::AlreadyRegisteredException" }
 
     // Initializer for C++ exceptions
     internal init(kindOfObject: String, id: String, message: String, cxxDescription: String, file: String, line: Int32)
@@ -308,20 +264,16 @@ public final class AlreadyRegisteredException: LocalException {
 }
 
 /// This exception is raised if the Communicator has been destroyed.
-public final class CommunicatorDestroyedException: LocalException {
-    override public class func ice_staticId() -> String { "::Ice::CommunicatorDestroyedException" }
-}
+public final class CommunicatorDestroyedException: LocalException {}
 
 /// This exception indicates that a connection was aborted by the idle check.
-public class ConnectionIdleException: LocalException {
-    override public class func ice_staticId() -> String { "::Ice::ConnectionIdleException" }
-}
+public class ConnectionIdleException: LocalException {}
 
 /// To be removed
 public final class ConnectionManuallyClosedException: LocalException {
     public var graceful: Bool
 
-    public init(graceful: Bool, file: String = #file, line: Int32 = #line) {
+    public init(graceful: Bool, file: String = #fileID, line: Int32 = #line) {
         self.graceful = graceful
         super.init("connection was manually closed", file: file, line: line)
     }
@@ -329,8 +281,6 @@ public final class ConnectionManuallyClosedException: LocalException {
     public required init(message: String, cxxDescription: String, file: String, line: Int32) {
         fatalError("ConnectionManuallyClosedException must be initialized with a graceful flag")
     }
-
-    override public class func ice_staticId() -> String { "::Ice::ConnectionManuallyClosedException" }
 
     internal init(graceful: Bool, message: String, cxxDescription: String, file: String, line: Int32) {
         self.graceful = graceful
@@ -355,24 +305,16 @@ internal final class CxxLocalException: LocalException {
 }
 
 /// This exception is raised if an unsupported feature is used.
-public final class FeatureNotSupportedException: LocalException {
-    override public class func ice_staticId() -> String { "::Ice::FeatureNotSupportedException" }
-}
+public final class FeatureNotSupportedException: LocalException {}
 
 /// This exception indicates that an attempt has been made to change the connection properties of a fixed proxy.
-public final class FixedProxyException: LocalException {
-    override public class func ice_staticId() -> String { "::Ice::FixedProxyException" }
-}
+public final class FixedProxyException: LocalException {}
 
 /// This exception is raised when a failure occurs during initialization.
-public final class InitializationException: LocalException {
-    override public class func ice_staticId() -> String { "::Ice::InitializationException" }
-}
+public final class InitializationException: LocalException {}
 
 /// This exception indicates that an asynchronous invocation failed because it was canceled explicitly by the user.
-public final class InvocationCanceledException: LocalException {
-    override public class func ice_staticId() -> String { "::Ice::InvocationCanceledException" }
-}
+public final class InvocationCanceledException: LocalException {}
 
 /// This exception is raised if no suitable endpoint is available.
 public final class NoEndpointException: LocalException {
@@ -381,11 +323,9 @@ public final class NoEndpointException: LocalException {
     ///   - proxy: The proxy that carries the endpoints.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
-    public convenience init(proxy: ObjectPrx, file: String = #file, line: Int32 = #line) {
+    public convenience init(proxy: ObjectPrx, file: String = #fileID, line: Int32 = #line) {
         self.init("no suitable endpoint available for proxy '\(proxy)'", file: file, line: line)
     }
-
-    override public class func ice_staticId() -> String { "::Ice::NoEndpointException" }
 }
 
 /// An attempt was made to find or deregister something that is not registered with the Ice run time or Ice locator.
@@ -407,7 +347,7 @@ public final class NotRegisteredException: LocalException {
     ///   - id: The ID (or name) of the object that is not registered.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
-    public init(kindOfObject: String, id: String, file: String = #file, line: Int32 = #line) {
+    public init(kindOfObject: String, id: String, file: String = #fileID, line: Int32 = #line) {
         self.kindOfObject = kindOfObject
         self.id = id
         super.init("no \(kindOfObject) is registered with ID '\(id)'", file: file, line: line)
@@ -417,8 +357,6 @@ public final class NotRegisteredException: LocalException {
     public required init(message: String, cxxDescription: String, file: String, line: Int32) {
         fatalError("NotRegisteredException must be initialized with a kindOfObject and id")
     }
-
-    override public class func ice_staticId() -> String { "::Ice::NotRegisteredException" }
 
     // Initializer for C++ exceptions
     internal init(kindOfObject: String, id: String, message: String, cxxDescription: String, file: String, line: Int32)
@@ -436,11 +374,9 @@ public final class ObjectAdapterDeactivatedException: LocalException {
     ///   - name: The name of the object adapter.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
-    public convenience init(name: String, file: String = #file, line: Int32 = #line) {
+    public convenience init(name: String, file: String = #fileID, line: Int32 = #line) {
         self.init("object adapter '\(name)' is deactivated", file: file, line: line)
     }
-
-    override public class func ice_staticId() -> String { "::Ice::ObjectAdapterDeactivatedException" }
 }
 
 /// This exception is raised if an ObjectAdapter cannot be activated. This happens if the Locator
@@ -451,27 +387,19 @@ public final class ObjectAdapterIdInUseException: LocalException {
     ///   - id: The adapter ID that is already active in the Locator.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
-    public convenience init(id: String, file: String = #file, line: Int32 = #line) {
+    public convenience init(id: String, file: String = #fileID, line: Int32 = #line) {
         self.init("an object adapter with adapter ID'\(id)' is already active", file: file, line: line)
     }
-
-    override public class func ice_staticId() -> String { "::Ice::ObjectAdapterIdInUseException" }
 }
 
 /// This exception is raised if there was an error while parsing a string.
-public final class ParseException: LocalException {
-    override public class func ice_staticId() -> String { "::Ice::ParseException" }
-}
+public final class ParseException: LocalException {}
 
 /// This exception indicates that a failure occurred while initializing a plug-in.
-public final class PluginInitializationException: LocalException {
-    override public class func ice_staticId() -> String { "::Ice::PluginInitializationException" }
-}
+public final class PluginInitializationException: LocalException {}
 
 /// This exception indicates a failure in a security subsystem, such as the IceSSL plug-in.
-public final class SecurityException: LocalException {
-    override public class func ice_staticId() -> String { "::Ice::SecurityException" }
-}
+public final class SecurityException: LocalException {}
 
 /// The operation can only be invoked with a twoway request. This exception is raised if an attempt is made to invoke
 /// an operation with ice_oneway, ice_batchOneway, ice_datagram, or
@@ -482,11 +410,9 @@ public final class TwowayOnlyException: LocalException {
     ///   - operation: The name of the two-way only operation.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
-    public convenience init(operation: String, file: String = #file, line: Int32 = #line) {
+    public convenience init(operation: String, file: String = #fileID, line: Int32 = #line) {
         self.init(
             "cannot invoke operation '\(operation)' with a oneway, batchOneway, datagram, or batchDatagram proxy",
             file: file, line: line)
     }
-
-    override public class func ice_staticId() -> String { "::Ice::TwowayOnlyException" }
 }

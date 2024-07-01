@@ -14,6 +14,8 @@ class ServantLocatorI: Ice.ServantLocator {
     func deactivate(_: String) {}
 }
 
+class CustomLocalException: LocalException {}
+
 func allTests(_ helper: TestHelper) throws -> ThrowerPrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
