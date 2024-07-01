@@ -15,7 +15,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         defaultsAndOverrides = DefaultsAndOverrides(handle: handle)
         self.initData = initData
         let num = initData.properties!.getPropertyAsIntWithDefault(
-            key: "Ice.ClassGraphDepthMax", value: 50)
+            key: "Ice.ClassGraphDepthMax", value: 100)
         if num < 1 || num > 0x7FFF_FFFF {
             classGraphDepthMax = 0x7FFF_FFFF
         } else {
