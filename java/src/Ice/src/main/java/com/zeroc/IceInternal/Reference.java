@@ -211,6 +211,7 @@ public abstract class Reference implements Cloneable {
     return _hashValue;
   }
 
+  // Gets the effective compression setting, taking into account the override.
   public java.util.Optional<Boolean> getCompressOverride() {
     DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
 

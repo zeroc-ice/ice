@@ -185,6 +185,7 @@ public abstract class Reference : IEquatable<Reference>
     public abstract Reference changeConnectionId(string connectionId);
     public abstract Reference changeConnection(Ice.ConnectionI connection);
 
+    // Gets the effective compression setting, taking into account the override.
     public bool? getCompressOverride()
     {
         DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();

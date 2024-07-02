@@ -100,6 +100,7 @@ namespace IceInternal
 
         virtual std::size_t hash() const noexcept;
 
+        // Gets the effective compression setting, taking into account the override.
         std::optional<bool> getCompressOverride() const;
 
         //
