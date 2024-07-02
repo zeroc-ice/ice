@@ -1274,7 +1274,6 @@ class Mapping(object):
 
     def getSSLProps(self, process, current):
         sslProps = {
-            "Ice.Plugin.IceSSL": "",
             "IceSSL.Password": "password",
             "IceSSL.DefaultDir": ""
             if current.config.buildPlatform == "iphoneos"
