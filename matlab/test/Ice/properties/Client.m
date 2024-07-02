@@ -7,9 +7,21 @@ function client(args)
         loadlibrary('ice', @iceproto)
     end
 
+    fprintf("testing load properties exception... ");
     props = Ice.createProperties();
+    try
+        props.load('./config/xxxx.config')
+        assert(false)
+    catch ex
+        % We don't define Ice.FileException in MATLAB. This allows us to test the conversion of
+        % unmapped C++ local exceptions to Ice.LocalException.
+        assert(strcmp(ex.identifier, 'Ice:FileException'));
+        assert(isa(ex, 'Ice.LocalException'));
+    end
+    fprintf('ok\n');
 
     fprintf('testing ice properties with set default values...');
+    props = Ice.createProperties();
     toStringMode = props.getIceProperty('Ice.ToStringMode');
     assert(strcmp(toStringMode, 'Unicode'));
     closeTimeout = props.getIcePropertyAsInt('Ice.Connection.CloseTimeout');

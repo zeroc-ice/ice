@@ -7,8 +7,6 @@
 #include "Util.h"
 #include "ice.h"
 
-#include <iostream> // temp
-
 using namespace std;
 using namespace IceMatlab;
 

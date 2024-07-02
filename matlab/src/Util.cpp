@@ -5,9 +5,9 @@
 #include "Util.h"
 #include "Ice/LocalExceptions.h"
 #include "ice.h"
+
 #include <array>
 #include <codecvt>
-#include <iostream>
 #include <locale>
 #include <string>
 
