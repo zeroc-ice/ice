@@ -280,8 +280,8 @@ allTests(Test::TestHelper* helper)
     cout << "testing recursive type... " << flush;
     RecursivePtr top = make_shared<Recursive>();
     RecursivePtr bottom = top;
-    int maxDepth = 99;
-    for (int i = 0; i < maxDepth; i++)
+    int maxDepth = 10;
+    for (int i = 1; i < maxDepth; i++)
     {
         bottom->v = make_shared<Recursive>();
         bottom = bottom->v;

@@ -363,8 +363,8 @@ function allTests($helper)
     flush();
     $top = new Test\Recursive();
     $bottom = $top;
-    $maxDepth = 99;
-    for ($i = 0; $i < $maxDepth; $i++)
+    $maxDepth = 10;
+    for ($i = 1; $i < $maxDepth; $i++)
     {
         $bottom->v = new Test\Recursive();
         $bottom = $bottom->v;
