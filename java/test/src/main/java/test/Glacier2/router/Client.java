@@ -81,8 +81,8 @@ public class Client extends test.TestHelper {
         } catch (com.zeroc.Ice.ConnectionLostException ex) {
           out.println("ok");
         } catch (com.zeroc.Ice.SocketException ex) {
-            System.err.println(ex);
-            test(false);
+          System.err.println(ex);
+          test(false);
         }
       }
 
