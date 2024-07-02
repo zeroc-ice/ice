@@ -4,10 +4,4 @@ classdef (Abstract) Exception < MException
     % Base class for all Ice exceptions.
     %
     % Copyright (c) ZeroC, Inc. All rights reserved.
-
-    methods
-        function obj = Exception(varargin)
-            obj = obj@MException(varargin{:});
-        end
-    end
 end
