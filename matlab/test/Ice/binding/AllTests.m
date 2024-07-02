@@ -756,64 +756,65 @@ classdef AllTests
 
             fprintf('ok\n');
 
-            fprintf('testing unsecure vs. secure endpoints... ');
+            if strcmp(communicator.getProperties().getProperty('Ice.Default.Protocol'), 'ssl')
+                fprintf('testing unsecure vs. secure endpoints... ');
 
-            adapters = {};
-            adapters{end + 1} = rcom.createObjectAdapter('Adapter81', 'ssl');
-            adapters{end + 1} = rcom.createObjectAdapter('Adapter82', 'tcp');
+                adapters = {};
+                adapters{end + 1} = rcom.createObjectAdapter('Adapter81', 'ssl');
+                adapters{end + 1} = rcom.createObjectAdapter('Adapter82', 'tcp');
 
-            test = AllTests.createTestIntfPrx(adapters);
-            for i = 1:5
-                assert(strcmp(test.getAdapterName(), 'Adapter82'));
-                test.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
-            end
-
-            testSecure = test.ice_secure(true);
-            assert(testSecure.ice_isSecure());
-            testSecure = test.ice_secure(false);
-            assert(~testSecure.ice_isSecure());
-            testSecure = test.ice_secure(true);
-            assert(testSecure.ice_isSecure());
-            assert(test.ice_getConnection() ~= testSecure.ice_getConnection());
-
-            rcom.deactivateObjectAdapter(adapters{2});
-
-            for i = 1:5
-                assert(strcmp(test.getAdapterName(), 'Adapter81'));
-                test.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
-            end
-
-            endpts = test.ice_getEndpoints();
-            rcom.createObjectAdapter('Adapter83', endpts{2}.toString()); % Reactivate tcp OA.
-
-            for i = 1:5
-                assert(strcmp(test.getAdapterName(), 'Adapter83'));
-                test.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
-            end
-
-            rcom.deactivateObjectAdapter(adapters{1});
-            try
-                testSecure.ice_ping();
-                assert(false);
-            catch ex
-                if isa(ex, 'Ice.ConnectFailedException')
-                    %
-                    % Usually the actual type of this exception is ConnectionRefusedException,
-                    % but not always. See bug 3179.
-                    %
-                elseif isa(ex, 'Ice.ConnectTimeoutException')
-                    %
-                    % We reduce Ice.Connection.ConnectTimeout to speed up testing.
-                    %
-                else
-                    rethrow(ex);
+                test = AllTests.createTestIntfPrx(adapters);
+                for i = 1:5
+                    assert(strcmp(test.getAdapterName(), 'Adapter82'));
+                    test.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                 end
+
+                testSecure = test.ice_secure(true);
+                assert(testSecure.ice_isSecure());
+                testSecure = test.ice_secure(false);
+                assert(~testSecure.ice_isSecure());
+                testSecure = test.ice_secure(true);
+                assert(testSecure.ice_isSecure());
+                assert(test.ice_getConnection() ~= testSecure.ice_getConnection());
+
+                rcom.deactivateObjectAdapter(adapters{2});
+
+                for i = 1:5
+                    assert(strcmp(test.getAdapterName(), 'Adapter81'));
+                    test.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                end
+
+                endpts = test.ice_getEndpoints();
+                rcom.createObjectAdapter('Adapter83', endpts{2}.toString()); % Reactivate tcp OA.
+
+                for i = 1:5
+                    assert(strcmp(test.getAdapterName(), 'Adapter83'));
+                    test.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                end
+
+                rcom.deactivateObjectAdapter(adapters{1});
+                try
+                    testSecure.ice_ping();
+                    assert(false);
+                catch ex
+                    if isa(ex, 'Ice.ConnectFailedException')
+                        %
+                        % Usually the actual type of this exception is ConnectionRefusedException,
+                        % but not always. See bug 3179.
+                        %
+                    elseif isa(ex, 'Ice.ConnectTimeoutException')
+                        %
+                        % We reduce Ice.Connection.ConnectTimeout to speed up testing.
+                        %
+                    else
+                        rethrow(ex);
+                    end
+                end
+
+                AllTests.deactivate(rcom, adapters);
+
+                fprintf('ok\n');
             end
-
-            AllTests.deactivate(rcom, adapters);
-
-            fprintf('ok\n');
-
             rcom.shutdown();
         end
     end
