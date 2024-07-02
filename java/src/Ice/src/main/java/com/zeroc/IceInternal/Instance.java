@@ -1118,7 +1118,6 @@ public final class Instance implements java.util.function.Function<String, Class
   //
   // Only for use by com.zeroc.Ice.Communicator
   //
-  @SuppressWarnings("deprecation")
   public void destroy(boolean interruptible) {
     if (interruptible && Thread.interrupted()) {
       throw new com.zeroc.Ice.OperationInterruptedException();
