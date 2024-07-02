@@ -9,9 +9,8 @@
 %   id - The ID (or name) of the object that is registered already.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.10
 
-classdef AlreadyRegisteredException < Ice.LocalException
+classdef (Sealed) AlreadyRegisteredException < Ice.LocalException
     properties
         % kindOfObject - The kind of object that could not be removed: "servant", "facet", "object", "default servant",
         % "servant locator", "value factory", "plugin", "object adapter", "object adapter with router", "replica group".
@@ -20,18 +19,18 @@ classdef AlreadyRegisteredException < Ice.LocalException
         id char
     end
     methods
-        function obj = AlreadyRegisteredException(errID, msg, kindOfObject, id)
-            if nargin <= 2
+        % Convenience constructor without an errID or what message.
+        function obj = AlreadyRegisteredException(kindOfObject, id)
+            if nargin == 0 % default constructor
+                superArgs = {};
                 kindOfObject = '';
                 id = '';
+            else
+                assert(nargin == 2, 'Invalid number of arguments');
+                superArgs = {'Ice:AlreadyRegisteredException', sprintf('Another %s is already registered with ID ''%s''.', ...
+                    kindOfObject, id)};
             end
-            if nargin == 0 || isempty(errID)
-                errID = 'Ice:AlreadyRegisteredException';
-            end
-            if nargin < 2 || isempty(msg)
-                msg = 'Ice.AlreadyRegisteredException';
-            end
-            obj = obj@Ice.LocalException(errID, msg);
+            obj = obj@Ice.LocalException(superArgs{:});
             obj.kindOfObject = kindOfObject;
             obj.id = id;
         end

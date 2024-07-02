@@ -5,11 +5,16 @@
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
 
-classdef ObjectNotExistException < Ice.RequestFailedException
+classdef (Sealed) ObjectNotExistException < Ice.RequestFailedException
     methods
-        function obj = ObjectNotExistException(id, facet, operation, msg)
-            assert(nargin == 4); % always created from the corresponding C++ exception
-            obj = obj@Ice.RequestFailedException(id, facet, operation, 'Ice:ObjectNotExistException', msg);
+        function obj = ObjectNotExistException(id, facet, operation, what)
+            if nargin == 0 % default constructor
+                superArgs = {};
+            else
+                assert(nargin == 4, 'Invalid number of arguments');
+                superArgs = {id, facet, operation, 'Ice:ObjectNotExistException', what};
+            end
+            obj = obj@Ice.RequestFailedException(superArgs{:});
         end
     end
 end

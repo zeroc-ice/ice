@@ -20,10 +20,19 @@ classdef RequestFailedException < Ice.LocalException
         % operation - The operation name of the request.
         operation char
     end
-    methods
-        function obj = RequestFailedException(id, facet, operation, errID, msg)
-            assert(nargin == 5); % always created from a derived class
-            obj = obj@Ice.LocalException(errID, msg);
+    methods(Access=protected)
+        function obj = RequestFailedException(id, facet, operation, errID, what)
+            if nargin == 0 % default constructor
+                id = Ice.Identity();
+                facet = '';
+                operation = '';
+                superArgs = {};
+            else
+                assert(nargin == 5, 'Invalid number of arguments');
+                superArgs = {errID, what};
+            end
+
+            obj = obj@Ice.LocalException(superArgs{:});
             obj.id = id;
             obj.facet = facet;
             obj.operation = operation;

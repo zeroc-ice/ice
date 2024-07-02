@@ -7,21 +7,6 @@
 % propagated to the application code.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.10
 
-classdef CloseConnectionException < Ice.ProtocolException
-    methods
-        function obj = CloseConnectionException(errID, msg, reason)
-            if nargin <= 2
-                reason = '';
-            end
-            if nargin == 0 || isempty(errID)
-                errID = 'Ice:CloseConnectionException';
-            end
-            if nargin < 2 || isempty(msg)
-                msg = 'Ice.CloseConnectionException';
-            end
-            obj = obj@Ice.ProtocolException(errID, msg, reason);
-        end
-    end
+classdef (Sealed) CloseConnectionException < Ice.ProtocolException
 end

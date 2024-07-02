@@ -7,21 +7,21 @@
 % exceptions and user exceptions declared in the throws clause can be raised.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.10
 
-classdef UnknownUserException < Ice.UnknownException
+classdef (Sealed) UnknownUserException < Ice.UnknownException
     methods
-        function obj = UnknownUserException(errID, msg, unknown)
-            if nargin <= 2
-                unknown = '';
+        function obj = UnknownUserException(typeID, what)
+            errID = 'Ice:UnknownUserException';
+            if nargin == 0
+                superArgs = {};
+            elseif nargin == 1
+                superArgs = {errID,...
+                    sprintf('The invocation returned an exception that does not conform to the operation''s exception specification: %s', typeID)};
+            else
+                assert(nargin == 2, 'Invalid number of arguments');
+                superArgs = {errID, what}; % we ignore typeID in this case
             end
-            if nargin == 0 || isempty(errID)
-                errID = 'Ice:UnknownUserException';
-            end
-            if nargin < 2 || isempty(msg)
-                msg = 'Ice.UnknownUserException';
-            end
-            obj = obj@Ice.UnknownException(errID, msg, unknown);
+            obj = obj@Ice.UnknownException(superArgs{:});
         end
     end
 end

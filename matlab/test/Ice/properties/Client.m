@@ -33,6 +33,7 @@ function client(args)
         props.getIceProperty('Ice.UnknownProperty');
         assert(false);
     catch ex
+        assert(strcmp(ex.identifier, 'Ice:CppException'));
     end
     fprintf('ok\n');
 

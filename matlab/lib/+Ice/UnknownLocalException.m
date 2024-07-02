@@ -7,21 +7,6 @@
 % local.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.10
 
-classdef UnknownLocalException < Ice.UnknownException
-    methods
-        function obj = UnknownLocalException(errID, msg, unknown)
-            if nargin <= 2
-                unknown = '';
-            end
-            if nargin == 0 || isempty(errID)
-                errID = 'Ice:UnknownLocalException';
-            end
-            if nargin < 2 || isempty(msg)
-                msg = 'Ice.UnknownLocalException';
-            end
-            obj = obj@Ice.UnknownException(errID, msg, unknown);
-        end
-    end
+classdef (Sealed) UnknownLocalException < Ice.UnknownException
 end
