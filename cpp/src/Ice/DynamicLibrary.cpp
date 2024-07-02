@@ -131,23 +131,6 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     {
         lib += "." + version;
     }
-#elif defined(__hpux)
-    lib += "lib" + libName;
-    if (!version.empty())
-    {
-        lib += "." + version;
-    }
-    else
-    {
-        lib += ".sl";
-    }
-#elif defined(_AIX)
-    lib += "lib" + libName + ".a(lib" + libName + ".so";
-    if (!version.empty())
-    {
-        lib += "." + version;
-    }
-    lib += ")";
 #else
     lib += "lib" + libName + ".so";
     if (!version.empty())
@@ -196,10 +179,6 @@ IceInternal::DynamicLibrary::load(const string& lib)
     _hnd = LoadLibraryW(stringToWstring(lib, getProcessStringConverter()).c_str());
 #else
     int flags = RTLD_NOW | RTLD_GLOBAL;
-#    ifdef _AIX
-    flags |= RTLD_MEMBER;
-#    endif
-
     _hnd = dlopen(lib.c_str(), flags);
 #endif
     if (_hnd == 0)

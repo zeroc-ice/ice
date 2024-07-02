@@ -401,7 +401,6 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
         Ice.Properties mainProps = communicator.getProperties();
 
         copyProperties("Ice.Default.Locator", mainProps, initData.properties);
-        copyProperties("Ice.Plugin.IceSSL", mainProps, initData.properties);
         copyProperties("IceSSL.", mainProps, initData.properties);
 
         string[] extraProps = mainProps.getIcePropertyAsList("Ice.Admin.Logger.Properties");

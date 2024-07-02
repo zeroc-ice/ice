@@ -229,7 +229,6 @@ namespace
         PropertiesPtr mainProps = communicator->getProperties();
 
         copyProperties("Ice.Default.Locator", mainProps, initData.properties);
-        copyProperties("Ice.Plugin.IceSSL", mainProps, initData.properties);
         copyProperties("IceSSL.", mainProps, initData.properties);
 
         StringSeq extraProps = mainProps->getIcePropertyAsList("Ice.Admin.Logger.Properties");

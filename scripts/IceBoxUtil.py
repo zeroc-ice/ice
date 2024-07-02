@@ -2,9 +2,7 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Component
 from Util import (
-    AIX,
     CSharpMapping,
     Client,
     CppMapping,
@@ -37,8 +35,6 @@ class IceBox(ProcessFromBinDir, Server):
                 and current.config.buildPlatform == "x86"
             ):
                 name += "32"  # Multilib platform
-            if isinstance(platform, AIX) and current.config.buildPlatform == "ppc":
-                name += "_32"
             return name
 
     def getEffectiveArgs(self, current, args):
@@ -69,11 +65,5 @@ class IceBoxAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, Client):
         mapping = self.getMapping(current)
         if isinstance(mapping, JavaMapping):
             return "com.zeroc.IceBox.Admin"
-        elif (
-            isinstance(platform, AIX)
-            and current.config.buildPlatform == "ppc"
-            and not Component.component.useBinDist(mapping, current)
-        ):
-            return "iceboxadmin_32"
         else:
             return "iceboxadmin"
