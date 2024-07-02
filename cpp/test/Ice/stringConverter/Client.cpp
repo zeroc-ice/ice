@@ -50,7 +50,6 @@ Client::run(int argc, char** argv)
 
     if (useIconv)
     {
-
 #ifndef _LIBICONV_VERSION
 
         // Always big-endian
