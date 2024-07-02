@@ -4,5 +4,5 @@
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
 
-classdef ConnectTimeoutException < Ice.TimeoutException
+classdef (Sealed) ConnectTimeoutException < Ice.TimeoutException
 end

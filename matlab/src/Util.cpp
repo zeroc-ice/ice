@@ -333,8 +333,7 @@ IceMatlab::getProtocolVersion(mxArray* p, Ice::ProtocolVersion& v)
 
 namespace
 {
-    template<size_t N>
-    mxArray* createMatlabException(const char* typeId, std::array<mxArray*, N> params)
+    template<size_t N> mxArray* createMatlabException(const char* typeId, std::array<mxArray*, N> params)
     {
         string className = replace(string{typeId}.substr(2), "::", ".");
         mxArray* ex;
@@ -342,8 +341,7 @@ namespace
         return ex;
     }
 
-    template<size_t N>
-    mxArray* createMatlabExceptionWithTrap(const char* typeId, std::array<mxArray*, N> params)
+    template<size_t N> mxArray* createMatlabExceptionWithTrap(const char* typeId, std::array<mxArray*, N> params)
     {
         string className = replace(string{typeId}.substr(2), "::", ".");
         mxArray* ex;
@@ -363,10 +361,13 @@ IceMatlab::convertException(const std::exception_ptr exc)
         rethrow_exception(exc);
     }
     // We need to catch and convert:
-    // - local exceptions defined in MATLAB that as a result have a special constructor (e.g. MarshalException)
-    // - local exceptions that define extra properties we want to expose to MATLAB users (e.g. ObjectNotExistException)
+    // - local exceptions thrown from MATLAB code for which we provide a convience constructor (e.g. MarshalException)
+    // - local exceptions that define extra properties we want to expose to MATLAB users (e.g. ObjectNotExistException
+    // via its base class, RequestFailedException)
     catch (const Ice::RequestFailedException& e)
     {
+        // The *NotExist exceptions are thrown only from the C++ code. They don't have a convenience constructor, but
+        // they have extra properties.
         string errID = replace(string{e.ice_id()}.substr(2), "::", ":");
         std::array params{
             createIdentity(e.id()),
@@ -379,12 +380,13 @@ IceMatlab::convertException(const std::exception_ptr exc)
     }
     catch (const Ice::MarshalException& e)
     {
+        // Adapt to convenience constructor.
         std::array params{createStringFromUTF8(e.what())};
         result = createMatlabException(e.ice_id(), params);
     }
     catch (const Ice::UnknownUserException& e)
     {
-        //The typeID is ignore when what is provided.
+        // Adapt to convenience constructor. First parameter is ignored.
         std::array params{createStringFromUTF8(""), createStringFromUTF8(e.what())};
         result = createMatlabException(e.ice_id(), params);
     }
