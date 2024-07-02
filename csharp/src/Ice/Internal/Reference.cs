@@ -79,7 +79,7 @@ public abstract class Reference : IEquatable<Reference>
     public bool?
     getCompress()
     {
-        return compress_;
+        return _compress;
     }
 
     public Ice.Communicator getCommunicator()
@@ -168,7 +168,7 @@ public abstract class Reference : IEquatable<Reference>
     public virtual Reference changeCompress(bool newCompress)
     {
         Reference r = _instance.referenceFactory().copy(this);
-        r.compress_ = newCompress;
+        r._compress = newCompress;
         return r;
     }
 
@@ -188,7 +188,7 @@ public abstract class Reference : IEquatable<Reference>
     public bool? getCompressOverride()
     {
         DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
-        return defaultsAndOverrides.overrideCompress ? defaultsAndOverrides.overrideCompressValue : compress_;
+        return defaultsAndOverrides.overrideCompress ?? _compress;
     }
 
     public abstract bool isIndirect();
@@ -362,10 +362,7 @@ public abstract class Reference : IEquatable<Reference>
         hash.Add(_identity);
         hash.Add(_context.Count); // we only hash the count, not the contents
         hash.Add(_facet);
-        if (compress_ is not null)
-        {
-            hash.Add(compress_.Value);
-        }
+        hash.Add(_compress);
         // We don't hash protocol and encoding; they are usually "1.0" and "1.1" respectively.
         hash.Add(_invocationTimeout);
         return hash.ToHashCode();
@@ -381,7 +378,7 @@ public abstract class Reference : IEquatable<Reference>
             _identity == other._identity &&
             _context.DictionaryEqual(other._context) &&
             _facet == other._facet &&
-            compress_ == other.compress_ &&
+            _compress == other._compress &&
             _protocol == other._protocol &&
             _encoding == other._encoding &&
             _invocationTimeout == other._invocationTimeout;
@@ -404,7 +401,7 @@ public abstract class Reference : IEquatable<Reference>
     private Ice.ProtocolVersion _protocol;
     private Ice.EncodingVersion _encoding;
     private int _invocationTimeout;
-    protected bool? compress_; // Only used if _overrideCompress == true
+    private bool? _compress;
 
     protected Reference(Instance instance,
                         Ice.Communicator communicator,
@@ -412,6 +409,7 @@ public abstract class Reference : IEquatable<Reference>
                         string facet,
                         Mode mode,
                         bool secure,
+                        bool? compress,
                         Ice.ProtocolVersion protocol,
                         Ice.EncodingVersion encoding,
                         int invocationTimeout,
@@ -430,7 +428,7 @@ public abstract class Reference : IEquatable<Reference>
         _encoding = encoding;
         _invocationTimeout = invocationTimeout;
         secure_ = secure;
-        compress_ = null;
+        _compress = compress;
     }
 
     protected static Random rand_ = new Random(unchecked((int)DateTime.Now.Ticks));
@@ -446,16 +444,15 @@ public class FixedReference : Reference
                           string facet,
                           Mode mode,
                           bool secure,
+                          bool? compress,
                           Ice.ProtocolVersion protocol,
                           Ice.EncodingVersion encoding,
                           Ice.ConnectionI connection,
                           int invocationTimeout,
-                          Dictionary<string, string> context,
-                          bool? compress)
-    : base(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
+                          Dictionary<string, string> context)
+    : base(instance, communicator, identity, facet, mode, secure, compress, protocol, encoding, invocationTimeout, context)
     {
         _fixedConnection = connection;
-        compress_ = compress;
     }
 
     public override EndpointI[] getEndpoints()
@@ -629,9 +626,9 @@ public class FixedReference : Reference
         //
         bool secure;
         DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
-        if (defaultsAndOverrides.overrideSecure)
+        if (defaultsAndOverrides.overrideSecure is not null)
         {
-            secure = defaultsAndOverrides.overrideSecureValue;
+            secure = defaultsAndOverrides.overrideSecure.Value;
         }
         else
         {
@@ -644,8 +641,7 @@ public class FixedReference : Reference
 
         _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
 
-        bool compress = defaultsAndOverrides.overrideCompress ?
-            defaultsAndOverrides.overrideCompressValue : compress_ ?? false;
+        bool compress = defaultsAndOverrides.overrideCompress ?? getCompress() ?? false;
         return new FixedRequestHandler(this, _fixedConnection, compress);
     }
 
@@ -849,12 +845,12 @@ public class RoutableReference : Reference
                                   getFacet(),
                                   getMode(),
                                   getSecure(),
+                                  getCompress(),
                                   getProtocol(),
                                   getEncoding(),
                                   connection,
                                   getInvocationTimeout(),
-                                  getContext(),
-                                  getCompress());
+                                  getContext());
     }
 
     public override bool isIndirect()
@@ -1021,12 +1017,12 @@ public class RoutableReference : Reference
             _cb = cb;
         }
 
-        public void setEndpoints(EndpointI[] endpts)
+        public void setEndpoints(EndpointI[] endpoints)
         {
-            if (endpts.Length > 0)
+            if (endpoints.Length > 0)
             {
-                _ir.applyOverrides(ref endpts);
-                _ir.createConnection(endpts, _cb);
+                _ir.applyOverrides(ref endpoints);
+                _ir.createConnection(endpoints, _cb);
             }
             else
             {
@@ -1176,6 +1172,7 @@ public class RoutableReference : Reference
                              string facet,
                              Mode mode,
                              bool secure,
+                             bool? compress,
                              Ice.ProtocolVersion protocol,
                              Ice.EncodingVersion encoding,
                              EndpointI[] endpoints,
@@ -1189,7 +1186,7 @@ public class RoutableReference : Reference
                              int locatorCacheTimeout,
                              int invocationTimeout,
                              Dictionary<string, string> context)
-    : base(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
+    : base(instance, communicator, identity, facet, mode, secure, compress, protocol, encoding, invocationTimeout, context)
     {
         _endpoints = endpoints;
         _adapterId = adapterId;
@@ -1215,14 +1212,15 @@ public class RoutableReference : Reference
         Debug.Assert(_adapterId.Length == 0 || _endpoints.Length == 0);
     }
 
-    protected void applyOverrides(ref EndpointI[] endpts)
+    protected void applyOverrides(ref EndpointI[] endpoints)
     {
-        for (int i = 0; i < endpts.Length; ++i)
+        for (int i = 0; i < endpoints.Length; ++i)
         {
-            endpts[i] = endpts[i].connectionId(_connectionId);
-            if (compress_ is not null)
+            endpoints[i] = endpoints[i].connectionId(_connectionId);
+            bool? compress = getCompress();
+            if (compress is not null)
             {
-                endpts[i] = endpts[i].compress(compress_ ?? false);
+                endpoints[i] = endpoints[i].compress(compress.Value);
             }
         }
     }
@@ -1328,7 +1326,7 @@ public class RoutableReference : Reference
         // endpoints come first.
         //
         DefaultsAndOverrides overrides = getInstance().defaultsAndOverrides();
-        if (overrides.overrideSecure ? overrides.overrideSecureValue : getSecure())
+        if (overrides.overrideSecure ?? getSecure())
         {
             List<EndpointI> tmp = new List<EndpointI>();
             foreach (EndpointI endpoint in endpoints)

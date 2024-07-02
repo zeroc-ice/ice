@@ -146,6 +146,7 @@ namespace IceInternal
             const std::string&,
             Mode,
             bool,
+            std::optional<bool>,
             const Ice::ProtocolVersion&,
             const Ice::EncodingVersion&,
             int,
@@ -153,13 +154,13 @@ namespace IceInternal
         Reference(const Reference&);
 
         const InstancePtr _instance;
-        std::optional<bool> _compress;
 
     private:
         const Ice::CommunicatorPtr _communicator;
 
         Mode _mode;
         bool _secure;
+        std::optional<bool> _compress;
         Ice::Identity _identity;
         SharedContextPtr _context;
         std::string _facet;
@@ -178,12 +179,12 @@ namespace IceInternal
             const std::string&,
             Mode,
             bool,
+            std::optional<bool>,
             const Ice::ProtocolVersion&,
             const Ice::EncodingVersion&,
             Ice::ConnectionIPtr,
             int,
-            const Ice::Context&,
-            const std::optional<bool>&);
+            const Ice::Context&);
 
         FixedReference(const FixedReference&);
 
@@ -239,6 +240,7 @@ namespace IceInternal
             const std::string&,
             Mode,
             bool,
+            std::optional<bool>,
             const Ice::ProtocolVersion&,
             const Ice::EncodingVersion&,
             const std::vector<EndpointIPtr>&,

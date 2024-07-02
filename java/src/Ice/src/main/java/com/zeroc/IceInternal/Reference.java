@@ -214,8 +214,8 @@ public abstract class Reference implements Cloneable {
   public java.util.Optional<Boolean> getCompressOverride() {
     DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
 
-    return defaultsAndOverrides.overrideCompress
-        ? java.util.Optional.of(defaultsAndOverrides.overrideCompressValue)
+    return defaultsAndOverrides.overrideCompress.isPresent()
+        ? defaultsAndOverrides.overrideCompress
         : _compress;
   }
 
@@ -443,13 +443,13 @@ public abstract class Reference implements Cloneable {
 
   private int _mode;
   private boolean _secure;
+  private java.util.Optional<Boolean> _compress;
   private com.zeroc.Ice.Identity _identity;
   private java.util.Map<String, String> _context;
   private String _facet;
   private com.zeroc.Ice.ProtocolVersion _protocol;
   private com.zeroc.Ice.EncodingVersion _encoding;
   private int _invocationTimeout;
-  protected java.util.Optional<Boolean> _compress;
 
   protected Reference(
       Instance instance,
@@ -458,6 +458,7 @@ public abstract class Reference implements Cloneable {
       String facet,
       int mode,
       boolean secure,
+      java.util.Optional<Boolean> compress,
       com.zeroc.Ice.ProtocolVersion protocol,
       com.zeroc.Ice.EncodingVersion encoding,
       int invocationTimeout,
@@ -473,6 +474,7 @@ public abstract class Reference implements Cloneable {
     _communicator = communicator;
     _mode = mode;
     _secure = secure;
+    _compress = compress;
     _identity = identity;
     _context = context != null ? new java.util.HashMap<>(context) : _emptyContext;
     _facet = facet;
@@ -480,6 +482,5 @@ public abstract class Reference implements Cloneable {
     _encoding = encoding;
     _invocationTimeout = invocationTimeout;
     _hashInitialized = false;
-    _compress = java.util.Optional.empty();
   }
 }

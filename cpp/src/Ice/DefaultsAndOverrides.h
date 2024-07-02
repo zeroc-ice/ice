@@ -31,10 +31,8 @@ namespace IceInternal
         Ice::EncodingVersion defaultEncoding;
         Ice::FormatType defaultFormat;
 
-        bool overrideCompress;
-        bool overrideCompressValue;
-        bool overrideSecure;
-        bool overrideSecureValue;
+        std::optional<bool> overrideCompress;
+        std::optional<bool> overrideSecure;
     };
 }
 
