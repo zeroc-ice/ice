@@ -20,7 +20,7 @@ classdef RequestFailedException < Ice.LocalException
         % operation - The operation name of the request.
         operation char
     end
-    methods(Access=protected)
+    methods
         function obj = RequestFailedException(id, facet, operation, errID, what)
             if nargin == 0 % default constructor
                 id = Ice.Identity();

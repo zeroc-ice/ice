@@ -367,10 +367,12 @@ IceMatlab::convertException(const std::exception_ptr exc)
     // - local exceptions that define extra properties we want to expose to MATLAB users (e.g. ObjectNotExistException)
     catch (const Ice::RequestFailedException& e)
     {
+        string errID = replace(string{e.ice_id()}.substr(2), "::", ":");
         std::array params{
             createIdentity(e.id()),
             createStringFromUTF8(e.facet()),
             createStringFromUTF8(e.operation()),
+            createStringFromUTF8(errID),
             createStringFromUTF8(e.what())};
 
         result = createMatlabException(e.ice_id(), params);

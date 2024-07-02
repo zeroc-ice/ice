@@ -6,15 +6,4 @@
 % Copyright (c) ZeroC, Inc. All rights reserved.
 
 classdef (Sealed) OperationNotExistException < Ice.RequestFailedException
-    methods
-        function obj = OperationNotExistException(id, facet, operation, what)
-            if nargin == 0 % default constructor
-                superArgs = {};
-            else
-                assert(nargin == 4, 'Invalid number of arguments');
-                superArgs = {id, facet, operation, 'Ice:OperationNotExistException', what};
-            end
-            obj = obj@Ice.RequestFailedException(superArgs{:});
-        end
-    end
 end
