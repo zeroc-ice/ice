@@ -206,7 +206,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     output.write("testing recursive type... ")
     let top = Recursive()
     var bottom = top
-    for _ in 0..<99 {
+    for _ in 1..<10 {
         bottom.v = Recursive()
         bottom = bottom.v!
     }

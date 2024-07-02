@@ -310,8 +310,8 @@ namespace Ice
                     output.Flush();
                     var top = new Test.Recursive();
                     var bottom = top;
-                    int maxDepth = 99;
-                    for (int i = 0; i < maxDepth; i++)
+                    int maxDepth = 10;
+                    for (int i = 1; i < maxDepth; i++)
                     {
                         bottom.v = new Test.Recursive();
                         bottom = bottom.v;

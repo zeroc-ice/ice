@@ -277,7 +277,7 @@ generated from the section label.
         <property name="BatchAutoFlush" deprecated="true"/>
         <property name="BatchAutoFlushSize" default="1024" />
         <property name="ChangeUser" />
-        <property name="ClassGraphDepthMax" default="100" />
+        <property name="ClassGraphDepthMax" default="10" />
         <property name="Compression.Level" default="1" />
         <property name="Config" />
         <property name="Connection" class="connection"/>
