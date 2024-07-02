@@ -833,10 +833,7 @@ Schannel::SSLEngine::initialize()
         readFile(certFile, buffer);
         if (buffer.empty())
         {
-            throw InitializationException(
-                __FILE__,
-                __LINE__,
-                "SSL transport: certificate file is empty:\n" + certFile);
+            throw InitializationException(__FILE__, __LINE__, "SSL transport: certificate file is empty:\n" + certFile);
         }
 
         CRYPT_DATA_BLOB pfxBlob;
@@ -894,218 +891,213 @@ Schannel::SSLEngine::initialize()
             }
             _allCerts.push_back(cert);
             _stores.push_back(store);
-            continue;
         }
-
-        assert(err);
-        if (err != CRYPT_E_BAD_ENCODE)
+        else
         {
-            throw InitializationException(
-                __FILE__,
-                __LINE__,
-                "SSL transport: error decoding certificate:\n" + lastErrorToString());
-        }
-
-        // Try to load certificate & key as PEM files.
-        if (keyFiles.empty())
-        {
-            throw InitializationException(__FILE__, __LINE__, "SSL transport: no key file specified");
-        }
-
-        err = 0;
-        keyFile = keyFiles[i];
-        if (!checkPath(keyFile, defaultDir, false, resolved))
-        {
-            throw InitializationException(__FILE__, __LINE__, "SSL transport: key file not found:\n" + keyFile);
-        }
-        keyFile = resolved;
-
-        readFile(keyFile, buffer);
-        if (buffer.empty())
-        {
-            throw InitializationException(__FILE__, __LINE__, "SSL transport: key file is empty:\n" + keyFile);
-        }
-
-        vector<BYTE> outBuffer;
-        outBuffer.resize(buffer.size());
-        DWORD outLength = static_cast<DWORD>(buffer.size());
-
-        // Convert the PEM encoded buffer to DER binary format.
-        if (!CryptStringToBinary(
-                &buffer[0],
-                static_cast<DWORD>(buffer.size()),
-                CRYPT_STRING_BASE64HEADER,
-                &outBuffer[0],
-                &outLength,
-                0,
-                0))
-        {
-            throw InitializationException(
-                __FILE__,
-                __LINE__,
-                "SSL transport: error decoding key `" + keyFile + "':\n" + lastErrorToString());
-        }
-
-        PCRYPT_PRIVATE_KEY_INFO keyInfo = nullptr;
-        BYTE* key = nullptr;
-        HCRYPTKEY hKey = 0;
-        try
-        {
-            // First try to decode as a PKCS#8 key, if that fails try PKCS#1.
-            DWORD decodedLength = 0;
-            if (CryptDecodeObjectEx(
-                    X509_ASN_ENCODING,
-                    PKCS_PRIVATE_KEY_INFO,
-                    &outBuffer[0],
-                    outLength,
-                    CRYPT_DECODE_ALLOC_FLAG,
-                    0,
-                    &keyInfo,
-                    &decodedLength))
+            assert(err);
+            if (err != CRYPT_E_BAD_ENCODE)
             {
-                // Check that we are using an RSA Key.
-                if (strcmp(keyInfo->Algorithm.pszObjId, szOID_RSA_RSA))
-                {
-                    throw InitializationException(
-                        __FILE__,
-                        __LINE__,
-                        string("SSL transport: error unknow key algorithm: `") + keyInfo->Algorithm.pszObjId + "'");
-                }
-
-                // Decode the private key BLOB.
-                if (!CryptDecodeObjectEx(
-                        X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
-                        PKCS_RSA_PRIVATE_KEY,
-                        keyInfo->PrivateKey.pbData,
-                        keyInfo->PrivateKey.cbData,
-                        CRYPT_DECODE_ALLOC_FLAG,
-                        0,
-                        &key,
-                        &outLength))
-                {
-                    throw InitializationException(
-                        __FILE__,
-                        __LINE__,
-                        "SSL transport: error decoding key `" + keyFile + "':\n" + lastErrorToString());
-                }
-                LocalFree(keyInfo);
-                keyInfo = nullptr;
+                throw InitializationException(
+                    __FILE__,
+                    __LINE__,
+                    "SSL transport: error decoding certificate:\n" + lastErrorToString());
             }
-            else
+
+            // Try to load certificate & key as PEM files.
+            err = 0;
+            if (!checkPath(keyFile, defaultDir, false, resolved))
             {
-                // Decode the private key BLOB.
-                if (!CryptDecodeObjectEx(
-                        X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
-                        PKCS_RSA_PRIVATE_KEY,
+                throw InitializationException(__FILE__, __LINE__, "SSL transport: key file not found:\n" + keyFile);
+            }
+            keyFile = resolved;
+
+            readFile(keyFile, buffer);
+            if (buffer.empty())
+            {
+                throw InitializationException(__FILE__, __LINE__, "SSL transport: key file is empty:\n" + keyFile);
+            }
+
+            vector<BYTE> outBuffer;
+            outBuffer.resize(buffer.size());
+            DWORD outLength = static_cast<DWORD>(buffer.size());
+
+            // Convert the PEM encoded buffer to DER binary format.
+            if (!CryptStringToBinary(
+                    &buffer[0],
+                    static_cast<DWORD>(buffer.size()),
+                    CRYPT_STRING_BASE64HEADER,
+                    &outBuffer[0],
+                    &outLength,
+                    0,
+                    0))
+            {
+                throw InitializationException(
+                    __FILE__,
+                    __LINE__,
+                    "SSL transport: error decoding key `" + keyFile + "':\n" + lastErrorToString());
+            }
+
+            PCRYPT_PRIVATE_KEY_INFO keyInfo = nullptr;
+            BYTE* key = nullptr;
+            HCRYPTKEY hKey = 0;
+            try
+            {
+                // First try to decode as a PKCS#8 key, if that fails try PKCS#1.
+                DWORD decodedLength = 0;
+                if (CryptDecodeObjectEx(
+                        X509_ASN_ENCODING,
+                        PKCS_PRIVATE_KEY_INFO,
                         &outBuffer[0],
                         outLength,
                         CRYPT_DECODE_ALLOC_FLAG,
                         0,
-                        &key,
-                        &outLength))
+                        &keyInfo,
+                        &decodedLength))
+                {
+                    // Check that we are using an RSA Key.
+                    if (strcmp(keyInfo->Algorithm.pszObjId, szOID_RSA_RSA))
+                    {
+                        throw InitializationException(
+                            __FILE__,
+                            __LINE__,
+                            string("SSL transport: error unknow key algorithm: `") + keyInfo->Algorithm.pszObjId + "'");
+                    }
+
+                    // Decode the private key BLOB.
+                    if (!CryptDecodeObjectEx(
+                            X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
+                            PKCS_RSA_PRIVATE_KEY,
+                            keyInfo->PrivateKey.pbData,
+                            keyInfo->PrivateKey.cbData,
+                            CRYPT_DECODE_ALLOC_FLAG,
+                            0,
+                            &key,
+                            &outLength))
+                    {
+                        throw InitializationException(
+                            __FILE__,
+                            __LINE__,
+                            "SSL transport: error decoding key `" + keyFile + "':\n" + lastErrorToString());
+                    }
+                    LocalFree(keyInfo);
+                    keyInfo = nullptr;
+                }
+                else
+                {
+                    // Decode the private key BLOB.
+                    if (!CryptDecodeObjectEx(
+                            X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
+                            PKCS_RSA_PRIVATE_KEY,
+                            &outBuffer[0],
+                            outLength,
+                            CRYPT_DECODE_ALLOC_FLAG,
+                            0,
+                            &key,
+                            &outLength))
+                    {
+                        throw InitializationException(
+                            __FILE__,
+                            __LINE__,
+                            "SSL transport: error decoding key `" + keyFile + "':\n" + lastErrorToString());
+                    }
+                }
+
+                // Create a new RSA key set to store our key.
+                const wstring keySetName = Ice::stringToWstring(generateUUID());
+                HCRYPTPROV cryptProv = 0;
+
+                DWORD contextFlags = CRYPT_NEWKEYSET;
+                if (certStoreLocation == "LocalMachine")
+                {
+                    contextFlags |= CRYPT_MACHINE_KEYSET;
+                };
+
+                if (!CryptAcquireContextW(
+                        &cryptProv,
+                        keySetName.c_str(),
+                        MS_ENHANCED_PROV_W,
+                        PROV_RSA_FULL,
+                        contextFlags))
                 {
                     throw InitializationException(
                         __FILE__,
                         __LINE__,
-                        "SSL transport: error decoding key `" + keyFile + "':\n" + lastErrorToString());
+                        "SSL transport: error acquiring cryptographic context:\n" + lastErrorToString());
                 }
-            }
 
-            // Create a new RSA key set to store our key.
-            const wstring keySetName = Ice::stringToWstring(generateUUID());
-            HCRYPTPROV cryptProv = 0;
-
-            DWORD contextFlags = CRYPT_NEWKEYSET;
-            if (certStoreLocation == "LocalMachine")
-            {
-                contextFlags |= CRYPT_MACHINE_KEYSET;
-            };
-
-            if (!CryptAcquireContextW(
-                    &cryptProv,
-                    keySetName.c_str(),
-                    MS_ENHANCED_PROV_W,
-                    PROV_RSA_FULL,
-                    contextFlags))
-            {
-                throw InitializationException(
-                    __FILE__,
-                    __LINE__,
-                    "SSL transport: error acquiring cryptographic context:\n" + lastErrorToString());
-            }
-
-            // Import the private key.
-            if (!CryptImportKey(cryptProv, key, outLength, 0, 0, &hKey))
-            {
-                throw InitializationException(
-                    __FILE__,
-                    __LINE__,
-                    "SSL transport: error importing key `" + keyFile + "':\n" + lastErrorToString());
-            }
-            LocalFree(key);
-            key = nullptr;
-
-            CryptDestroyKey(hKey);
-            hKey = 0;
-
-            // Create a new memory store to place the certificate.
-            store = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, 0, 0, 0);
-            if (!store)
-            {
-                throw InitializationException(
-                    __FILE__,
-                    __LINE__,
-                    "SSL transport: error creating certificate store:\n" + lastErrorToString());
-            }
-
-            addCertificatesToStore(certFile, store, &cert);
-
-            // Associate key & certificate.
-            CRYPT_KEY_PROV_INFO keyProvInfo;
-            memset(&keyProvInfo, 0, sizeof(keyProvInfo));
-            keyProvInfo.pwszContainerName = const_cast<wchar_t*>(keySetName.c_str());
-            keyProvInfo.pwszProvName = const_cast<wchar_t*>(MS_DEF_PROV_W);
-            keyProvInfo.dwProvType = PROV_RSA_FULL;
-            keyProvInfo.dwKeySpec = AT_KEYEXCHANGE;
-            if (!CertSetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, 0, &keyProvInfo))
-            {
-                throw InitializationException(
-                    __FILE__,
-                    __LINE__,
-                    "SSL transport: error setting certificate property:\n" + lastErrorToString());
-            }
-
-            _importedCerts.push_back(cert);
-            _allCerts.push_back(cert);
-            _stores.push_back(store);
-        }
-        catch (...)
-        {
-            if (keyInfo)
-            {
-                LocalFree(keyInfo);
-            }
-
-            if (key)
-            {
+                // Import the private key.
+                if (!CryptImportKey(cryptProv, key, outLength, 0, 0, &hKey))
+                {
+                    throw InitializationException(
+                        __FILE__,
+                        __LINE__,
+                        "SSL transport: error importing key `" + keyFile + "':\n" + lastErrorToString());
+                }
                 LocalFree(key);
-            }
+                key = nullptr;
 
-            if (hKey)
-            {
                 CryptDestroyKey(hKey);
-            }
+                hKey = 0;
 
-            if (cert)
-            {
-                CertFreeCertificateContext(cert);
-            }
+                // Create a new memory store to place the certificate.
+                store = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, 0, 0, 0);
+                if (!store)
+                {
+                    throw InitializationException(
+                        __FILE__,
+                        __LINE__,
+                        "SSL transport: error creating certificate store:\n" + lastErrorToString());
+                }
 
-            if (store)
-            {
-                CertCloseStore(store, 0);
+                addCertificatesToStore(certFile, store, &cert);
+
+                // Associate key & certificate.
+                CRYPT_KEY_PROV_INFO keyProvInfo;
+                memset(&keyProvInfo, 0, sizeof(keyProvInfo));
+                keyProvInfo.pwszContainerName = const_cast<wchar_t*>(keySetName.c_str());
+                keyProvInfo.pwszProvName = const_cast<wchar_t*>(MS_DEF_PROV_W);
+                keyProvInfo.dwProvType = PROV_RSA_FULL;
+                keyProvInfo.dwKeySpec = AT_KEYEXCHANGE;
+                if (!CertSetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, 0, &keyProvInfo))
+                {
+                    throw InitializationException(
+                        __FILE__,
+                        __LINE__,
+                        "SSL transport: error setting certificate property:\n" + lastErrorToString());
+                }
+
+                _importedCerts.push_back(cert);
+                _allCerts.push_back(cert);
+                _stores.push_back(store);
             }
-            throw;
+            catch (...)
+            {
+                if (keyInfo)
+                {
+                    LocalFree(keyInfo);
+                }
+
+                if (key)
+                {
+                    LocalFree(key);
+                }
+
+                if (hKey)
+                {
+                    CryptDestroyKey(hKey);
+                }
+
+                if (cert)
+                {
+                    CertFreeCertificateContext(cert);
+                }
+
+                if (store)
+                {
+                    CertCloseStore(store, 0);
+                }
+                throw;
+            }
         }
     }
     else if (!findCert.empty())
