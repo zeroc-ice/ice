@@ -182,8 +182,7 @@ classdef AllTests
             fprintf('testing recursive type... ');
             top = Recursive();
             bottom = top;
-            depth = 0;
-            for depth = 0:99
+            for depth = 1:99
                 bottom.v = Recursive();
                 bottom = bottom.v;
             end
@@ -196,7 +195,7 @@ classdef AllTests
                 initial.setRecursive(top);
                 assert(false);
             catch ex
-                if isa(ex, 'Ice.MarshalException')
+                if isa(ex, 'Ice.UnknownLocalException')
                     % Expected marshal exception from the server (max class graph depth reached)
                 else
                     rethrow(ex);
