@@ -41,31 +41,27 @@ public sealed class DefaultsAndOverrides
         val = properties.getIceProperty("Ice.Override.Compress");
         if (val.Length > 0)
         {
-            overrideCompress = true;
-            overrideCompressValue = properties.getIcePropertyAsInt("Ice.Override.Compress") > 0;
-            if (!BZip2.supported() && overrideCompressValue)
+            overrideCompress = properties.getIcePropertyAsInt("Ice.Override.Compress") > 0;
+            if (!BZip2.supported() && overrideCompress.Value)
             {
                 string lib = AssemblyUtil.isWindows ? "bzip2.dll" : "libbz2.so.1";
                 Console.Error.WriteLine("warning: " + lib + " not found, Ice.Override.Compress ignored.");
-                overrideCompressValue = false;
+                overrideCompress = null;
             }
         }
         else
         {
-            overrideCompress = !BZip2.supported();
-            overrideCompressValue = false;
+            overrideCompress = BZip2.supported() ? null : false;
         }
 
         val = properties.getIceProperty("Ice.Override.Secure");
         if (val.Length > 0)
         {
-            overrideSecure = true;
-            overrideSecureValue = properties.getIcePropertyAsInt("Ice.Override.Secure") > 0;
+            overrideSecure = properties.getIcePropertyAsInt("Ice.Override.Secure") > 0;
         }
         else
         {
-            overrideSecure = false;
-            overrideSecureValue = false;
+            overrideSecure = null;
         }
 
         defaultCollocationOptimization =
@@ -127,8 +123,6 @@ public sealed class DefaultsAndOverrides
     public Ice.EncodingVersion defaultEncoding;
     public Ice.FormatType defaultFormat;
 
-    public bool overrideCompress;
-    public bool overrideCompressValue;
-    public bool overrideSecure;
-    public bool overrideSecureValue;
+    public bool? overrideCompress;
+    public bool? overrideSecure;
 }
