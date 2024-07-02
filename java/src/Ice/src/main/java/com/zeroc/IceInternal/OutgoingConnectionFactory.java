@@ -802,11 +802,11 @@ public final class OutgoingConnectionFactory {
           assert (_iter.hasNext());
           _current = _iter.next();
 
-          com.zeroc.Ice.Instrumentation.CommunicatorObserver obsv =
+          com.zeroc.Ice.Instrumentation.CommunicatorObserver observer =
               _factory._instance.initializationData().observer;
-          if (obsv != null) {
+          if (observer != null) {
             _observer =
-                obsv.getConnectionEstablishmentObserver(
+                observer.getConnectionEstablishmentObserver(
                     _current.endpoint, _current.connector.toString());
             if (_observer != null) {
               _observer.attach();

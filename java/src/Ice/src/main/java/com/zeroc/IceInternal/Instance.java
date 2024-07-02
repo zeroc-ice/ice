@@ -48,7 +48,7 @@ public final class Instance implements java.util.function.Function<String, Class
     private final String _threadName;
     //
     // We use a volatile to avoid synchronization when reading
-    // _observer. Reference assignement is atomic in Java so it
+    // _observer. Reference assignment is atomic in Java so it
     // also doesn't need to be synchronized.
     //
     private volatile com.zeroc.Ice.Instrumentation.ThreadObserver _observer;
@@ -751,10 +751,10 @@ public final class Instance implements java.util.function.Function<String, Class
       }
 
       if (_initData.logger == null) {
-        String logfile = properties.getIceProperty("Ice.LogFile");
+        String logFile = properties.getIceProperty("Ice.LogFile");
         if (properties.getIcePropertyAsInt("Ice.UseSyslog") > 0
             && !System.getProperty("os.name").startsWith("Windows")) {
-          if (logfile.length() != 0) {
+          if (logFile.length() != 0) {
             throw new com.zeroc.Ice.InitializationException(
                 "Both syslog and file logger cannot be enabled.");
           }
@@ -762,9 +762,9 @@ public final class Instance implements java.util.function.Function<String, Class
               new com.zeroc.Ice.SysLoggerI(
                   properties.getIceProperty("Ice.ProgramName"),
                   properties.getIceProperty("Ice.SyslogFacility"));
-        } else if (logfile.length() != 0) {
+        } else if (logFile.length() != 0) {
           _initData.logger =
-              new com.zeroc.Ice.LoggerI(properties.getIceProperty("Ice.ProgramName"), logfile);
+              new com.zeroc.Ice.LoggerI(properties.getIceProperty("Ice.ProgramName"), logFile);
         } else {
           _initData.logger = com.zeroc.Ice.Util.getProcessLogger();
           if (_initData.logger instanceof com.zeroc.Ice.LoggerI) {
@@ -1118,7 +1118,6 @@ public final class Instance implements java.util.function.Function<String, Class
   //
   // Only for use by com.zeroc.Ice.Communicator
   //
-  @SuppressWarnings("deprecation")
   public void destroy(boolean interruptible) {
     if (interruptible && Thread.interrupted()) {
       throw new com.zeroc.Ice.OperationInterruptedException();

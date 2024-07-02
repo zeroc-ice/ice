@@ -3696,8 +3696,6 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     }
 
     out << nl << "public enum " << name;
-    out << " implements java.io.Serializable";
-
     out << sb;
 
     for (EnumeratorList::const_iterator en = enumerators.begin(); en != enumerators.end(); ++en)

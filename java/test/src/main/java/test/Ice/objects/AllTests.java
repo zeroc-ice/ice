@@ -38,7 +38,6 @@ public class AllTests {
     }
   }
 
-  @SuppressWarnings("deprecation")
   public static InitialPrx allTests(test.TestHelper helper) {
     com.zeroc.Ice.Communicator communicator = helper.communicator();
     PrintWriter out = helper.getWriter();
