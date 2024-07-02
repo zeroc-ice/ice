@@ -372,7 +372,6 @@ class ReplicaGroupEditor extends Editor {
       java.util.Map<String, String[]> map) {
     String badIdentities = "";
     java.util.LinkedList<ObjectDescriptor> result = new java.util.LinkedList<>();
-    com.zeroc.Ice.Communicator communicator = _target.getCoordinator().getCommunicator();
 
     for (java.util.Map.Entry<String, String[]> p : map.entrySet()) {
       try {

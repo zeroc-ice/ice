@@ -23,7 +23,6 @@ public class Collocated extends test.TestHelper {
     properties.setProperty("Ice.Warn.Dispatch", "0");
     try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
       communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-      java.io.PrintWriter out = getWriter();
       com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
       com.zeroc.Ice.ObjectPrx prx =
           adapter.add(new MyDerivedClassI(), Util.stringToIdentity("test"));
