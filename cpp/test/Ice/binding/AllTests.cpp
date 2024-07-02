@@ -796,8 +796,7 @@ allTests(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
-    if (!communicator->getProperties()->getProperty("Ice.Plugin.IceSSL").empty() &&
-        communicator->getProperties()->getProperty("Ice.Default.Protocol") == "ssl")
+    if (communicator->getProperties()->getProperty("Ice.Default.Protocol") == "ssl")
     {
         cout << "testing unsecure vs. secure endpoints... " << flush;
         {
