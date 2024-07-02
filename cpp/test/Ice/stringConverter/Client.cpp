@@ -50,11 +50,8 @@ Client::run(int argc, char** argv)
 
     if (useIconv)
     {
-#if defined(__hpux)
-        narrowEncoding = "iso815";
-        wideEncoding = "ucs4";
 
-#elif defined(_AIX) && !defined(_LIBICONV_VERSION)
+#ifndef _LIBICONV_VERSION
 
         // Always big-endian
         narrowEncoding = "ISO8859-15";

@@ -6,7 +6,7 @@
 import re
 import uuid
 
-from Util import AIX, Client, ClientServerTestCase, Linux, Server, TestSuite, platform
+from Util import Client, ClientServerTestCase, Linux, Server, TestSuite, platform
 
 domainId = uuid.uuid4()  # Ensures each test uses a unique domain ID
 
@@ -53,12 +53,6 @@ def suppressWarning(x):
 # Filter-out the warning about invalid lookup proxy
 outfilters = [lambda x: suppressWarning(x)]
 
-options = None
-if isinstance(platform, AIX):
-    # AIX test VMs only have IPv6 enabled on the loopback interface
-    # where multicast doesn't work
-    options = {"ipv6": [False]}
-
 TestSuite(
     __name__,
     [
@@ -69,5 +63,4 @@ TestSuite(
         )
     ],
     multihost=False,
-    options=options,
 )
