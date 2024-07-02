@@ -11,7 +11,6 @@ unnecessary.
   - [C++ Build Requirements](#c-build-requirements)
     - [Operating Systems and Compilers](#operating-systems-and-compilers)
     - [Third-Party Libraries](#third-party-libraries)
-      - [AIX](#aix)
       - [Linux](#linux)
         - [Amazon Linux 2](#amazon-linux-2)
         - [RHEL 8](#rhel-8)
@@ -19,17 +18,17 @@ unnecessary.
         - [SLES 12](#sles-12)
       - [macOS](#macos)
       - [Windows](#windows)
-  - [Building Ice for AIX, Linux or macOS](#building-ice-for-aix-linux-or-macos)
+  - [Building Ice for Linux or macOS](#building-ice-for-linux-or-macos)
     - [Build configurations and platforms](#build-configurations-and-platforms)
     - [Ice Xcode SDK (macOS only)](#ice-xcode-sdk-macos-only)
   - [Building Ice for Windows](#building-ice-for-windows)
     - [Build Using MSBuild](#build-using-msbuild)
     - [Build Using Visual Studio](#build-using-visual-studio)
-  - [Installing a C++ Source Build on AIX, Linux or macOS](#installing-a-c-source-build-on-aix-linux-or-macos)
+  - [Installing a C++ Source Build on Linux or macOS](#installing-a-c-source-build-on-linux-or-macos)
   - [Creating a NuGet Package on Windows](#creating-a-nuget-package-on-windows)
-  - [Cleaning the source build on AIX, Linux or macOS](#cleaning-the-source-build-on-aix-linux-or-macos)
+  - [Cleaning the source build on Linux or macOS](#cleaning-the-source-build-on-linux-or-macos)
   - [Running the Test Suite](#running-the-test-suite)
-    - [AIX, Linux, macOS or Windows](#aix-linux-macos-or-windows)
+    - [Linux, macOS or Windows](#linux-macos-or-windows)
       - [iOS Simulator](#ios-simulator)
       - [iOS Device](#ios-device)
 
@@ -51,25 +50,9 @@ Ice has dependencies on a number of third-party libraries:
 - [libedit][12] (Linux and macOS)
 - [LMDB][5] 0.9
 - [mcpp][6] 2.7.2 with patches
-- [OpenSSL][7] 1.0.0 or later (on AIX and Linux)
+- [OpenSSL][7] 1.0.0 or later on Linux
 
 You do not need to build these packages from source.
-
-#### AIX
-
-OpenSSL (openssl.base) is provided by AIX.
-bzip2 and bzip2-devel are included in the [IBM AIX Toolbox for Linux Applications][8].
-
-ZeroC provide RPM packages for expat, LDMB and mcpp. You can install these packages
-as shown below:
-
-```shell
-sudo yum install https://zeroc.com/download/ice/3.7/aix7.2/ice-repo-3.7.aix7.2.noarch.rpm
-sudo yum install expat-devel lmdb-devel mcpp-devel
-```
-
-The expat-devel package contains the static library libexpat-static.a built with
-xlc_r, together with header files and other development files.
 
 #### Linux
 
@@ -144,17 +127,11 @@ The Ice build system for Windows downloads and installs the NuGet command-line
 executable and the required NuGet packages when you build Ice for C++. The
 third-party packages are installed in the `ice/cpp/msbuild/packages` folder.
 
-## Building Ice for AIX, Linux or macOS
+## Building Ice for Linux or macOS
 
 Review the top-level [config/Make.rules](../config/Make.rules) in your build
 tree and update the configuration if needed. The comments in the file provide
 more information.
-
-On AIX, add /opt/freeware/bin as the first element of your PATH:
-
-```shell
-export PATH=/opt/freeware/bin:$PATH
-```
 
 In a command window, change to the `cpp` subdirectory:
 
@@ -319,7 +296,7 @@ Then launch Visual Studio and open the desired test solution, you must now use
 NuGet package manager to restore the NuGet packages, and the build will use Ice
 NuGet packages instead of your local source build.
 
-## Installing a C++ Source Build on AIX, Linux or macOS
+## Installing a C++ Source Build on Linux or macOS
 
 Simply run `make install`. This will install Ice in the directory specified by
 the `<prefix>` variable in `../config/Make.rules`.
@@ -330,12 +307,8 @@ After installation, make sure that the `<prefix>/bin` directory is in your
 If you choose to not embed a `runpath` into executables at build time (see your
 build settings in `../config/Make.rules`) or did not create a symbolic link from
 the `runpath` directory to the installation directory, you also need to add the
-library directory to your `LD_LIBRARY_PATH` (AIX, Linux) or `DYLD_LIBRARY_PATH`
+library directory to your `LD_LIBRARY_PATH` (Linux) or `DYLD_LIBRARY_PATH`
 (macOS).
-
-On an AIX system:
-
-- `<prefix>/lib`
 
 On a Linux x86_64 system:
 
@@ -360,7 +333,7 @@ msbuild msbuild\ice.proj /t:NuGetPack /p:BuildAllConfigurations=yes
 
 This creates `zeroc.ice.v143\zeroc.ice.v143.nupkg`.
 
-## Cleaning the source build on AIX, Linux or macOS
+## Cleaning the source build on Linux or macOS
 
 Running `make clean` will remove the binaries created for the default
 configuration and platform.
@@ -378,7 +351,7 @@ the Slice compilers.
 
 ## Running the Test Suite
 
-### AIX, Linux, macOS or Windows
+### Linux, macOS or Windows
 
 Python is required to run the test suite. Additionally, the Glacier2 tests
 require the Python module `passlib`, which you can install with the command:

@@ -380,26 +380,6 @@ class Darwin(Platform):
         return "/usr/local"
 
 
-class AIX(Platform):
-    def hasOpenSSL(self):
-        return True
-
-    def _getLibDir(self, component, process, mapping, current):
-        installDir = component.getInstallDir(mapping, current)
-        if component.useBinDist(mapping, current):
-            return os.path.join(installDir, "lib")
-        else:
-            return os.path.join(
-                installDir, "lib32" if current.config.buildPlatform == "ppc" else "lib"
-            )
-
-    def getDefaultBuildPlatform(self):
-        return "ppc64"
-
-    def getInstallDir(self):
-        return "/opt/freeware"
-
-
 class Linux(Platform):
     def __init__(self):
         Platform.__init__(self)
@@ -3692,16 +3672,6 @@ class CppMapping(Mapping):
         if not isinstance(platform, Darwin):
             libPaths.append(self.component.getLibDir(process, self, current))
 
-        # On AIX we also need to add the lib directory for the TestCommon library
-        # when testing against a binary distribution
-        if isinstance(platform, AIX) and self.component.useBinDist(self, current):
-            libPaths.append(
-                os.path.join(
-                    self.path,
-                    "lib32" if current.config.buildPlatform == "ppc" else "lib",
-                )
-            )
-
         #
         # Add the test suite library directories to the platform library path environment variable.
         #
@@ -4492,8 +4462,6 @@ class SwiftMapping(Mapping):
 platform = None
 if sys.platform == "darwin":
     platform = Darwin()
-elif sys.platform.startswith("aix"):
-    platform = AIX()
 elif sys.platform.startswith("linux") or sys.platform.startswith("gnukfreebsd"):
     platform = Linux()
 elif sys.platform == "win32" or sys.platform[:6] == "cygwin":
