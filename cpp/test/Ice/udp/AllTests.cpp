@@ -138,7 +138,21 @@ allTests(Test::TestHelper* helper)
     while (nRetry-- > 0)
     {
         replyI->reset();
-        objMcast->ping(reply);
+        try
+        {
+            objMcast->ping(reply);
+        }
+        catch (const Ice::SocketException&)
+        {
+            // Multicast IPv6 not supported on the platform.
+            if (communicator->getProperties()->getProperty("Ice.IPv6") == "1")
+            {
+                cout << "(not supported) ";
+                ret = true;
+                break;
+            }
+            throw;
+        }
 
         ret = replyI->waitReply(5, chrono::seconds(2));
         if (ret)
