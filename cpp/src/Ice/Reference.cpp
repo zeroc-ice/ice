@@ -475,7 +475,18 @@ IceInternal::FixedReference::FixedReference(
     ConnectionIPtr fixedConnection,
     int invocationTimeout,
     const Ice::Context& context)
-    : Reference(instance, communicator, id, facet, mode, secure, compress, protocol, encoding, invocationTimeout, context),
+    : Reference(
+          instance,
+          communicator,
+          id,
+          facet,
+          mode,
+          secure,
+          compress,
+          protocol,
+          encoding,
+          invocationTimeout,
+          context),
       _fixedConnection(std::move(fixedConnection))
 {
 }
