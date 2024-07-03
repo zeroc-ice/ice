@@ -426,7 +426,7 @@ def allTests(helper, communicator)
 
     puts "ok"
 
-    if communicator.getProperties().getProperty("Ice.Plugin.IceSSL").length > 0
+    if communicator.getProperties().getProperty("Ice.Default.Protocol") == "ssl"
         print "testing unsecure vs. secure endpoints... "
         STDOUT.flush
 

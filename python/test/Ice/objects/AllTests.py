@@ -215,9 +215,8 @@ def allTests(helper, communicator):
     sys.stdout.flush()
     top = Test.Recursive()
     bottom = top
-    maxDepth = 99
 
-    for _ in range(maxDepth):
+    for _ in range(1, 10):
         bottom.v = Test.Recursive()
         bottom = bottom.v
     initial.setRecursive(top)

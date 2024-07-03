@@ -185,12 +185,12 @@ public class RoutableReference extends Reference {
         getFacet(),
         getMode(),
         getSecure(),
+        getCompress(),
         getProtocol(),
         getEncoding(),
         connection,
         getInvocationTimeout(),
-        getContext(),
-        getCompress());
+        getContext());
   }
 
   @Override
@@ -471,6 +471,7 @@ public class RoutableReference extends Reference {
       String facet,
       int mode,
       boolean secure,
+      java.util.Optional<Boolean> compress,
       com.zeroc.Ice.ProtocolVersion protocol,
       com.zeroc.Ice.EncodingVersion encoding,
       EndpointI[] endpoints,
@@ -491,6 +492,7 @@ public class RoutableReference extends Reference {
         facet,
         mode,
         secure,
+        compress,
         protocol,
         encoding,
         invocationTimeout,
@@ -520,8 +522,8 @@ public class RoutableReference extends Reference {
     //
     for (int i = 0; i < endpts.length; ++i) {
       endpts[i] = endpts[i].connectionId(_connectionId);
-      if (_overrideCompress) {
-        endpts[i] = endpts[i].compress(_compress);
+      if (getCompress().isPresent()) {
+        endpts[i] = endpts[i].compress(getCompress().get());
       }
     }
   }
@@ -604,7 +606,7 @@ public class RoutableReference extends Reference {
     // endpoints preferred over secure endpoints.
     //
     DefaultsAndOverrides overrides = getInstance().defaultsAndOverrides();
-    if (overrides.overrideSecure ? overrides.overrideSecureValue : getSecure()) {
+    if (overrides.overrideSecure.isPresent() ? overrides.overrideSecure.get() : getSecure()) {
       java.util.Iterator<EndpointI> i = endpoints.iterator();
       while (i.hasNext()) {
         EndpointI endpoint = i.next();

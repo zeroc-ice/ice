@@ -89,9 +89,9 @@ public class BatchRequestQueue {
         _request.reset(proxy, operation, _batchStream.size() - _batchMarker);
         _interceptor.enqueue(_request, _batchRequestNum, _batchMarker);
       } else {
-        Boolean compress = proxy._getReference().getCompressOverride();
-        if (compress != null) {
-          _batchCompress |= compress.booleanValue();
+        java.util.Optional<Boolean> compress = proxy._getReference().getCompressOverride();
+        if (compress.isPresent()) {
+          _batchCompress |= compress.get();
         }
         _batchMarker = _batchStream.size();
         ++_batchRequestNum;
@@ -188,9 +188,9 @@ public class BatchRequestQueue {
 
   private void enqueueBatchRequest(com.zeroc.Ice.ObjectPrx proxy) {
     assert (_batchMarker < _batchStream.size());
-    Boolean compress = proxy._getReference().getCompressOverride();
-    if (compress != null) {
-      _batchCompress |= compress.booleanValue();
+    java.util.Optional<Boolean> compress = proxy._getReference().getCompressOverride();
+    if (compress.isPresent()) {
+      _batchCompress |= compress.get();
     }
     _batchMarker = _batchStream.size();
     ++_batchRequestNum;

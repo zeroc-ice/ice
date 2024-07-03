@@ -4,7 +4,6 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
-import com.zeroc.IceGridGUI.*;
 import java.util.Enumeration;
 import javax.swing.SwingUtilities;
 

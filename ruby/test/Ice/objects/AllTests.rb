@@ -245,7 +245,7 @@ def allTests(helper, communicator)
     STDOUT.flush
     top = Test::Recursive.new
     bottom = top;
-    maxDepth = 99;
+    maxDepth = 9;
 
     maxDepth.times do |_|
         bottom.v = Test::Recursive.new

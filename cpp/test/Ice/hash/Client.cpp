@@ -24,7 +24,6 @@ void
 Client::run(int argc, char** argv)
 {
     PropertiesPtr properties = createProperties(argc, argv);
-    properties->setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL");
     properties->setProperty("IceSSL.Keychain", "client.keychain");
     properties->setProperty("IceSSL.KeychainPassword", "password");
     CommunicatorHolder holder = initialize(argc, argv, properties);
