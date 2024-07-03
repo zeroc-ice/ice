@@ -10,7 +10,7 @@ namespace
 
 namespace Ice
 {
-    class InitializationException extends \Ice\LocalException
+    class InitializationException extends LocalException
     {
         public function __construct($reason='')
         {
@@ -30,7 +30,7 @@ namespace Ice
         public $reason;
     }
 
-    class PluginInitializationException extends \Ice\LocalException
+    class PluginInitializationException extends LocalException
     {
         public function __construct($reason='')
         {
@@ -50,7 +50,7 @@ namespace Ice
         public $reason;
     }
 
-    class AlreadyRegisteredException extends \Ice\LocalException
+    class AlreadyRegisteredException extends LocalException
     {
         public function __construct($kindOfObject='', $id='')
         {
@@ -70,7 +70,7 @@ namespace Ice
 
         public $kindOfObject;
         public $id;
-    }    class NotRegisteredException extends \Ice\LocalException
+    }    class NotRegisteredException extends LocalException
     {
         public function __construct($kindOfObject='', $id='')
         {
@@ -90,7 +90,7 @@ namespace Ice
 
         public $kindOfObject;
         public $id;
-    }    class TwowayOnlyException extends \Ice\LocalException
+    }    class TwowayOnlyException extends LocalException
     {
         public function __construct($operation='')
         {
@@ -110,7 +110,7 @@ namespace Ice
         public $operation;
     }
 
-    class UnknownException extends \Ice\LocalException
+    class UnknownException extends LocalException
     {
         public function __construct($unknown='')
         {
@@ -130,7 +130,7 @@ namespace Ice
         public $unknown;
     }
 
-    class UnknownLocalException extends \Ice\UnknownException
+    class UnknownLocalException extends UnknownException
     {
         public function __construct($unknown='')
         {
@@ -148,7 +148,7 @@ namespace Ice
         }
     }
 
-    class UnknownUserException extends \Ice\UnknownException
+    class UnknownUserException extends UnknownException
     {
         public function __construct($unknown='')
         {
@@ -166,7 +166,7 @@ namespace Ice
         }
     }
 
-    class CommunicatorDestroyedException extends \Ice\LocalException
+    class CommunicatorDestroyedException extends LocalException
     {
         public function __construct()
         {
@@ -183,7 +183,7 @@ namespace Ice
         }
     }
 
-    class ObjectAdapterDeactivatedException extends \Ice\LocalException
+    class ObjectAdapterDeactivatedException extends LocalException
     {
         public function __construct($name='')
         {
@@ -203,7 +203,7 @@ namespace Ice
         public $name;
     }
 
-    class ObjectAdapterIdInUseException extends \Ice\LocalException
+    class ObjectAdapterIdInUseException extends LocalException
     {
         public function __construct($id='')
         {
@@ -223,7 +223,7 @@ namespace Ice
         public $id;
     }
 
-    class NoEndpointException extends \Ice\LocalException
+    class NoEndpointException extends LocalException
     {
         public function __construct($proxy='')
         {
@@ -243,7 +243,7 @@ namespace Ice
         public $proxy;
     }
 
-    class ParseException extends \Ice\LocalException
+    class ParseException extends LocalException
     {
         public function __construct($str='')
         {
@@ -263,7 +263,7 @@ namespace Ice
         public $str;
     }
 
-    class IllegalIdentityException extends \Ice\LocalException
+    class IllegalIdentityException extends LocalException
     {
         public function __construct($id=null)
         {
@@ -280,7 +280,7 @@ namespace Ice
         }
     }
 
-    class IllegalServantException extends \Ice\LocalException
+    class IllegalServantException extends LocalException
     {
         public function __construct($reason='')
         {
@@ -300,11 +300,11 @@ namespace Ice
         public $reason;
     }
 
-    class RequestFailedException extends \Ice\LocalException
+    class RequestFailedException extends LocalException
     {
         public function __construct($id=null, $facet='', $operation='')
         {
-            $this->id = is_null($id) ? new \Ice\Identity : $id;
+            $this->id = is_null($id) ? new Identity : $id;
             $this->facet = $facet;
             $this->operation = $operation;
         }
@@ -324,7 +324,7 @@ namespace Ice
         public $operation;
     }
 
-    class ObjectNotExistException extends \Ice\RequestFailedException
+    class ObjectNotExistException extends RequestFailedException
     {
         public function __construct($id=null, $facet='', $operation='')
         {
@@ -342,7 +342,7 @@ namespace Ice
         }
     }
 
-    class FacetNotExistException extends \Ice\RequestFailedException
+    class FacetNotExistException extends RequestFailedException
     {
         public function __construct($id=null, $facet='', $operation='')
         {
@@ -360,7 +360,7 @@ namespace Ice
         }
     }
 
-    class OperationNotExistException extends \Ice\RequestFailedException
+    class OperationNotExistException extends RequestFailedException
     {
         public function __construct($id=null, $facet='', $operation='')
         {
@@ -378,7 +378,7 @@ namespace Ice
         }
     }
 
-    class SyscallException extends \Ice\LocalException
+    class SyscallException extends LocalException
     {
         public function __construct($error=0)
         {
@@ -398,7 +398,7 @@ namespace Ice
         public $error;
     }
 
-    class SocketException extends \Ice\SyscallException
+    class SocketException extends SyscallException
     {
         public function __construct($error=0)
         {
@@ -416,7 +416,7 @@ namespace Ice
         }
     }
 
-    class CFNetworkException extends \Ice\SocketException
+    class CFNetworkException extends SocketException
     {
         public function __construct($error=0, $domain='')
         {
@@ -437,7 +437,7 @@ namespace Ice
         public $domain;
     }
 
-    class FileException extends \Ice\SyscallException
+    class FileException extends SyscallException
     {
         public function __construct($error=0, $path='')
         {
@@ -458,7 +458,7 @@ namespace Ice
         public $path;
     }
 
-    class ConnectFailedException extends \Ice\SocketException
+    class ConnectFailedException extends SocketException
     {
         public function __construct($error=0)
         {
@@ -476,7 +476,7 @@ namespace Ice
         }
     }
 
-    class ConnectionRefusedException extends \Ice\ConnectFailedException
+    class ConnectionRefusedException extends ConnectFailedException
     {
         public function __construct($error=0)
         {
@@ -494,7 +494,7 @@ namespace Ice
         }
     }
 
-    class ConnectionLostException extends \Ice\SocketException
+    class ConnectionLostException extends SocketException
     {
         public function __construct($error=0)
         {
@@ -512,7 +512,7 @@ namespace Ice
         }
     }
 
-    class DNSException extends \Ice\LocalException
+    class DNSException extends LocalException
     {
         public function __construct($error=0, $host='')
         {
@@ -534,7 +534,7 @@ namespace Ice
         public $host;
     }
 
-    class ConnectionIdleException extends \Ice\LocalException
+    class ConnectionIdleException extends LocalException
     {
         public function __construct()
         {
@@ -552,7 +552,7 @@ namespace Ice
         }
     }
 
-    class TimeoutException extends \Ice\LocalException
+    class TimeoutException extends LocalException
     {
         public function __construct()
         {
@@ -569,7 +569,7 @@ namespace Ice
         }
     }
 
-    class ConnectTimeoutException extends \Ice\TimeoutException
+    class ConnectTimeoutException extends TimeoutException
     {
         public function __construct()
         {
@@ -587,7 +587,7 @@ namespace Ice
         }
     }
 
-    class CloseTimeoutException extends \Ice\TimeoutException
+    class CloseTimeoutException extends TimeoutException
     {
         public function __construct()
         {
@@ -605,7 +605,7 @@ namespace Ice
         }
     }
 
-    class InvocationTimeoutException extends \Ice\TimeoutException
+    class InvocationTimeoutException extends TimeoutException
     {
         public function __construct()
         {
@@ -623,7 +623,7 @@ namespace Ice
         }
     }
 
-    class InvocationCanceledException extends \Ice\LocalException
+    class InvocationCanceledException extends LocalException
     {
         public function __construct()
         {
@@ -640,7 +640,7 @@ namespace Ice
         }
     }
 
-    class ProtocolException extends \Ice\LocalException
+    class ProtocolException extends LocalException
     {
         public function __construct($reason='')
         {
@@ -660,7 +660,7 @@ namespace Ice
         public $reason;
     }
 
-    class CloseConnectionException extends \Ice\ProtocolException
+    class CloseConnectionException extends ProtocolException
     {
         public function __construct($reason='')
         {
@@ -678,7 +678,7 @@ namespace Ice
         }
     }
 
-    class ConnectionManuallyClosedException extends \Ice\LocalException
+    class ConnectionManuallyClosedException extends LocalException
     {
         public function __construct($graceful=false)
         {
@@ -698,7 +698,7 @@ namespace Ice
         public $graceful;
     }
 
-    class DatagramLimitException extends \Ice\ProtocolException
+    class DatagramLimitException extends ProtocolException
     {
         public function __construct($reason='')
         {
@@ -716,7 +716,7 @@ namespace Ice
         }
     }
 
-    class MarshalException extends \Ice\ProtocolException
+    class MarshalException extends ProtocolException
     {
         public function __construct($reason='')
         {
@@ -734,7 +734,7 @@ namespace Ice
         }
     }
 
-    class SecurityException extends \Ice\LocalException
+    class SecurityException extends LocalException
     {
         public function __construct($reason='')
         {
@@ -754,7 +754,7 @@ namespace Ice
         public $reason;
     }
 
-    class FixedProxyException extends \Ice\LocalException
+    class FixedProxyException extends LocalException
     {
         public function __construct()
         {
