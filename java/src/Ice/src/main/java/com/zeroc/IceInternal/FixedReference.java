@@ -12,12 +12,12 @@ public class FixedReference extends Reference {
       String facet,
       int mode,
       boolean secure,
+      java.util.Optional<Boolean> compress,
       com.zeroc.Ice.ProtocolVersion protocol,
       com.zeroc.Ice.EncodingVersion encoding,
       com.zeroc.Ice.ConnectionI connection,
       int invocationTimeout,
-      java.util.Map<String, String> context,
-      java.util.Optional<Boolean> compress) {
+      java.util.Map<String, String> context) {
     super(
         instance,
         communicator,
@@ -25,15 +25,12 @@ public class FixedReference extends Reference {
         facet,
         mode,
         secure,
+        compress,
         protocol,
         encoding,
         invocationTimeout,
         context);
     _fixedConnection = connection;
-    if (compress.isPresent()) {
-      _overrideCompress = true;
-      _compress = compress.get();
-    }
   }
 
   @Override
@@ -148,9 +145,6 @@ public class FixedReference extends Reference {
 
   @Override
   public Reference changeConnection(com.zeroc.Ice.ConnectionI connection) {
-    if (_fixedConnection == connection) {
-      return this;
-    }
     FixedReference r = (FixedReference) getInstance().referenceFactory().copy(this);
     r._fixedConnection = connection;
     return r;
@@ -205,8 +199,8 @@ public class FixedReference extends Reference {
     //
     boolean secure;
     DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
-    if (defaultsAndOverrides.overrideSecure) {
-      secure = defaultsAndOverrides.overrideSecureValue;
+    if (defaultsAndOverrides.overrideSecure.isPresent()) {
+      secure = defaultsAndOverrides.overrideSecure.get();
     } else {
       secure = getSecure();
     }
@@ -216,13 +210,10 @@ public class FixedReference extends Reference {
 
     _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
 
-    boolean compress = false;
-    if (defaultsAndOverrides.overrideCompress) {
-      compress = defaultsAndOverrides.overrideCompressValue;
-    } else if (_overrideCompress) {
-      compress = _compress;
-    }
-
+    boolean compress =
+        defaultsAndOverrides.overrideCompress.isPresent()
+            ? defaultsAndOverrides.overrideCompress.get()
+            : getCompress().orElse(false);
     RequestHandler handler = new ConnectionRequestHandler(this, _fixedConnection, compress);
     if (getInstance().queueRequests()) {
       handler = new QueueRequestHandler(getInstance(), handler);

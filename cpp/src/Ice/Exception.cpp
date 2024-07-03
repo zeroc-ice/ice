@@ -50,7 +50,7 @@
 #        endif
 #    endif
 
-#    if !defined(_AIX) && !defined(__FreeBSD__) && !defined(ICE_STATIC_LIBS)
+#    if !defined(__FreeBSD__) && !defined(ICE_STATIC_LIBS)
 #        include <cxxabi.h>
 #        include <execinfo.h>
 #        include <stdint.h>

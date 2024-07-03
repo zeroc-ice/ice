@@ -6,7 +6,6 @@ package com.zeroc.IceGridGUI.LiveDeployment;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
-import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;

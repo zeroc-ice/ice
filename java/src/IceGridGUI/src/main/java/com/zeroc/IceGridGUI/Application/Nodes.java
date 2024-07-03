@@ -177,7 +177,6 @@ class Nodes extends ListTreeNode {
       java.util.Set<String> serverTemplates,
       java.util.Set<String> serviceTemplates)
       throws UpdateFailedException {
-    Root root = getRoot();
 
     //
     // Note: _descriptors has already the nodes removed but

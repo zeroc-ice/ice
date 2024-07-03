@@ -144,8 +144,7 @@ allTests(Test::TestHelper* helper)
         }
         catch (const Ice::SocketException&)
         {
-            // Multicast IPv6 not supported on the platform. This occurs for example
-            // on AIX PVP clould VMs.
+            // Multicast IPv6 not supported on the platform.
             if (communicator->getProperties()->getProperty("Ice.IPv6") == "1")
             {
                 cout << "(not supported) ";
@@ -154,6 +153,7 @@ allTests(Test::TestHelper* helper)
             }
             throw;
         }
+
         ret = replyI->waitReply(5, chrono::seconds(2));
         if (ret)
         {

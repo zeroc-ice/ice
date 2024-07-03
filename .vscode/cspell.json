@@ -2,13 +2,16 @@
     "version": "0.2",
     "language": "en",
     "words": [
+        "datagram",
         "decoratee",
         "icegrid",
         "ICESTORM",
         "nohup",
         "nullopt",
+        "oneway",
         "Postamble",
         "Syscall",
+        "twoway",
         "unmarshal",
         "unmarshaling",
         "zeroc"
