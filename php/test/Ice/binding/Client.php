@@ -431,7 +431,7 @@ function allTests($helper)
     }
     echo "ok" . "\n";
 
-    if(strlen($communicator->getProperties()->getProperty("Ice.Plugin.IceSSL")) > 0)
+    if($communicator->getProperties()->getProperty("Ice.Default.Protocol") == "ssl")
     {
         echo "testing unsecure vs. secure endpoints... ";
         flush();

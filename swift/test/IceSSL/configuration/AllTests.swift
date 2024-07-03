@@ -9,10 +9,6 @@ var keychainN = 0
 func createClientProps(_ defaultProperties: Ice.Properties) -> Ice.Properties {
     let properties = Ice.createProperties()
     properties.setProperty(
-        key: "Ice.Plugin.IceSSL",
-        value: "1")
-
-    properties.setProperty(
         key: "IceSSL.DefaultDir",
         value: defaultProperties.getProperty("IceSSL.DefaultDir"))
 
@@ -38,7 +34,6 @@ func createClientProps(_ defaultProperties: Ice.Properties) -> Ice.Properties {
 
 func createServerProps(_ defaultProperties: Ice.Properties) -> [String: String] {
     var result = [
-        "Ice.Plugin.IceSSL": "1",
         "IceSSL.DefaultDir": defaultProperties.getProperty("IceSSL.DefaultDir"),
         "Ice.Default.Host": defaultProperties.getProperty("Ice.Default.Host"),
     ]

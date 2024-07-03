@@ -14,7 +14,6 @@ public class Server extends test.TestHelper {
     public CompletionStage<com.zeroc.Ice.ObjectPrx> findAdapterByIdAsync(
         String adapter, com.zeroc.Ice.Current current) {
       _controller.checkCallPause(current);
-      com.zeroc.Ice.Communicator communicator = current.adapter.getCommunicator();
       return CompletableFuture.completedFuture(
           current.adapter.createDirectProxy(com.zeroc.Ice.Util.stringToIdentity("dummy")));
     }

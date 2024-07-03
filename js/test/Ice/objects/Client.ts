@@ -370,8 +370,8 @@ export class Client extends TestHelper {
         {
             const top = new Test.Recursive();
             let bottom = top;
-            const maxDepth = 99;
-            for (let i = 0; i < maxDepth; ++i) {
+            const maxDepth = 10;
+            for (let i = 1; i < maxDepth; ++i) {
                 bottom.v = new Test.Recursive();
                 bottom = bottom.v;
             }

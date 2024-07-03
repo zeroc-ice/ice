@@ -31,25 +31,22 @@ public final class DefaultsAndOverrides {
 
     value = properties.getIceProperty("Ice.Override.Compress");
     if (!value.isEmpty()) {
-      overrideCompress = true;
       boolean b = properties.getIcePropertyAsInt("Ice.Override.Compress") > 0;
       if (b && !BZip2.supported()) {
         System.err.println("warning: bzip2 support not available, Ice.Override.Compress ignored");
         b = false;
       }
-      overrideCompressValue = b;
+      overrideCompress = java.util.Optional.of(b);
     } else {
-      overrideCompress = false;
-      overrideCompressValue = false;
+      overrideCompress = java.util.Optional.empty();
     }
 
     value = properties.getIceProperty("Ice.Override.Secure");
     if (!value.isEmpty()) {
-      overrideSecure = true;
-      overrideSecureValue = properties.getIcePropertyAsInt("Ice.Override.Secure") > 0;
+      boolean overrideSecureValue = properties.getIcePropertyAsInt("Ice.Override.Secure") > 0;
+      overrideSecure = java.util.Optional.of(overrideSecureValue);
     } else {
-      overrideSecure = false;
-      overrideSecureValue = false;
+      overrideSecure = java.util.Optional.empty();
     }
 
     defaultCollocationOptimization =
@@ -116,8 +113,6 @@ public final class DefaultsAndOverrides {
   public final com.zeroc.Ice.EncodingVersion defaultEncoding;
   public final com.zeroc.Ice.FormatType defaultFormat;
 
-  public final boolean overrideCompress;
-  public final boolean overrideCompressValue;
-  public final boolean overrideSecure;
-  public final boolean overrideSecureValue;
+  public final java.util.Optional<Boolean> overrideCompress;
+  public final java.util.Optional<Boolean> overrideSecure;
 }

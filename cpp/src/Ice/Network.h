@@ -5,10 +5,6 @@
 #ifndef ICE_NETWORK_H
 #define ICE_NETWORK_H
 
-#ifdef __hpux
-#    define _XOPEN_SOURCE_EXTENDED
-#endif
-
 #include "Ice/Config.h"
 
 #include "Ice/EndpointSelectionType.h"

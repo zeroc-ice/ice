@@ -4,8 +4,6 @@
 
 package test.Ice.faultTolerance;
 
-import java.io.PrintWriter;
-
 public class Server extends test.TestHelper {
   private static void usage() {
     System.err.println("Usage: Server port");
@@ -17,13 +15,14 @@ public class Server extends test.TestHelper {
     properties.setProperty("Ice.Package.Test", "test.Ice.faultTolerance");
     try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
       int port = 0;
-      PrintWriter out = getWriter();
       for (String arg : remainingArgs) {
         if (arg.charAt(0) == '-') {
+          usage();
           throw new RuntimeException("Server: unknown option `" + arg + "'");
         }
 
         if (port > 0) {
+          usage();
           throw new RuntimeException("Server: only one port can be specified");
         }
 
@@ -31,6 +30,7 @@ public class Server extends test.TestHelper {
       }
 
       if (port <= 0) {
+        usage();
         throw new RuntimeException("Server: no port specified");
       }
 

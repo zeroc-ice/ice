@@ -61,16 +61,7 @@ public final class Network {
     if (msg != null) {
       msg = msg.toLowerCase();
 
-      final String[] msgs = {
-        "connection refused", // ECONNREFUSED
-        "remote host refused an attempted connect operation" // ECONNREFUSED (AIX JDK 1.4.2)
-      };
-
-      for (String m : msgs) {
-        if (msg.indexOf(m) != -1) {
-          return true;
-        }
-      }
+      return msg.indexOf("connection refused") != -1;
     }
 
     return false;

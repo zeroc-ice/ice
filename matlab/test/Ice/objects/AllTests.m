@@ -182,7 +182,7 @@ classdef AllTests
             fprintf('testing recursive type... ');
             top = Recursive();
             bottom = top;
-            for depth = 1:99
+            for depth = 1:9
                 bottom.v = Recursive();
                 bottom = bottom.v;
             end

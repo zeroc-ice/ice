@@ -52,11 +52,11 @@ public class ReferenceFactory
             "", // Facet
             connection.endpoint().datagram() ? Reference.Mode.ModeDatagram : Reference.Mode.ModeTwoway,
             connection.endpoint().secure(),
+            compress: null,
             Ice.Util.Protocol_1_0,
             _instance.defaultsAndOverrides().defaultEncoding,
             connection,
             -1,
-            null,
             null);
     }
 
@@ -844,6 +844,7 @@ public class ReferenceFactory
                                      facet,
                                      mode,
                                      secure,
+                                     compress: null,
                                      protocol,
                                      encoding,
                                      endpoints,

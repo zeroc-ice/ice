@@ -111,10 +111,10 @@ public sealed class BatchRequestQueue
             }
             else
             {
-                bool compress;
-                if (((Ice.ObjectPrxHelperBase)proxy).iceReference().getCompressOverride(out compress))
+                bool? compress = ((Ice.ObjectPrxHelperBase)proxy).iceReference().getCompressOverride();
+                if (compress is not null)
                 {
-                    _batchCompress |= compress;
+                    _batchCompress |= compress.Value;
                 }
                 _batchMarker = _batchStream.size();
                 ++_batchRequestNum;
@@ -225,10 +225,10 @@ public sealed class BatchRequestQueue
     internal void enqueueBatchRequest(Ice.ObjectPrx proxy)
     {
         Debug.Assert(_batchMarker < _batchStream.size());
-        bool compress;
-        if (((Ice.ObjectPrxHelperBase)proxy).iceReference().getCompressOverride(out compress))
+        bool? compress = ((Ice.ObjectPrxHelperBase)proxy).iceReference().getCompressOverride();
+        if (compress is not null)
         {
-            _batchCompress |= compress;
+            _batchCompress |= compress.Value;
         }
         _batchMarker = _batchStream.size();
         ++_batchRequestNum;
