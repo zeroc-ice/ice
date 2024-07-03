@@ -12,6 +12,15 @@ import java.util.concurrent.CompletableFuture;
 
 /** Concrete proxy implementation. */
 public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
+  // TODO: delete this default constructor eventually.
+  public _ObjectPrxI() {}
+
+  public _ObjectPrxI(ObjectPrx obj) {
+    _ObjectPrxI source = (_ObjectPrxI) obj;
+    _reference = source._reference;
+    _requestHandler = source._requestHandler;
+  }
+
   public Communicator ice_getCommunicator() {
     return _reference.getCommunicator();
   }
@@ -261,10 +270,6 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
     return _reference.getCompress();
   }
 
-  public java.util.OptionalInt ice_getTimeout() {
-    return _reference.getTimeout();
-  }
-
   public Connection ice_getConnection() {
     return _iceI_ice_getConnectionAsync().waitForResponse();
   }
@@ -342,15 +347,6 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
   }
 
   @Override
-  public void _copyFrom(ObjectPrx p) {
-    synchronized (p) {
-      _ObjectPrxI h = (_ObjectPrxI) p;
-      _reference = h._reference;
-      _requestHandler = h._requestHandler;
-    }
-  }
-
-  @Override
   public com.zeroc.IceInternal.Reference _getReference() {
     return _reference;
   }
@@ -385,6 +381,217 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
       //
       assert false;
       return null;
+    }
+  }
+
+  @Override
+  public ObjectPrx ice_context(java.util.Map<String, String> newContext) {
+    return _newInstance(_reference.changeContext(newContext));
+  }
+
+  @Override
+  public ObjectPrx ice_adapterId(String newAdapterId) {
+    if (newAdapterId == null) {
+      newAdapterId = "";
+    }
+
+    if (newAdapterId.equals(_reference.getAdapterId())) {
+      return this;
+    } else {
+      return _newInstance(_reference.changeAdapterId(newAdapterId));
+    }
+  }
+
+  @Override
+  public ObjectPrx ice_endpoints(Endpoint[] newEndpoints) {
+    if (java.util.Arrays.equals(newEndpoints, _reference.getEndpoints())) {
+      return this;
+    } else {
+      com.zeroc.IceInternal.EndpointI[] edpts =
+          new com.zeroc.IceInternal.EndpointI[newEndpoints.length];
+      edpts = java.util.Arrays.asList(newEndpoints).toArray(edpts);
+      return _newInstance(_reference.changeEndpoints(edpts));
+    }
+  }
+
+  @Override
+  public ObjectPrx ice_fixed(com.zeroc.Ice.Connection connection) {
+    if (connection == null) {
+      throw new IllegalArgumentException("invalid null connection passed to ice_fixed");
+    }
+    if (!(connection instanceof com.zeroc.Ice.ConnectionI)) {
+      throw new IllegalArgumentException("invalid connection passed to ice_fixed");
+    }
+    if (connection == _reference.getConnection()) {
+      return this;
+    } else {
+      return _newInstance(_reference.changeConnection((com.zeroc.Ice.ConnectionI) connection));
+    }
+  }
+
+  @Override
+  public ObjectPrx ice_locatorCacheTimeout(int newTimeout) {
+    if (newTimeout < -1) {
+      throw new IllegalArgumentException(
+          "invalid value passed to ice_locatorCacheTimeout: " + newTimeout);
+    }
+    if (newTimeout == _reference.getLocatorCacheTimeout()) {
+      return this;
+    } else {
+      return _newInstance(_reference.changeLocatorCacheTimeout(newTimeout));
+    }
+  }
+
+  @Override
+  public ObjectPrx ice_invocationTimeout(int newTimeout) {
+    if (newTimeout < 1 && newTimeout != -1) {
+      throw new IllegalArgumentException(
+          "invalid value passed to ice_invocationTimeout: " + newTimeout);
+    }
+    if (newTimeout == _reference.getInvocationTimeout()) {
+      return this;
+    } else {
+      return _newInstance(_reference.changeInvocationTimeout(newTimeout));
+    }
+  }
+
+  @Override
+  public ObjectPrx ice_connectionCached(boolean newCache) {
+    if (newCache == _reference.getCacheConnection()) {
+      return this;
+    } else {
+      return _newInstance(_reference.changeCacheConnection(newCache));
+    }
+  }
+
+  @Override
+  public ObjectPrx ice_endpointSelection(EndpointSelectionType newType) {
+    if (newType == _reference.getEndpointSelection()) {
+      return this;
+    } else {
+      return _newInstance(_reference.changeEndpointSelection(newType));
+    }
+  }
+
+  @Override
+  public ObjectPrx ice_secure(boolean b) {
+    if (b == _reference.getSecure()) {
+      return this;
+    } else {
+      return _newInstance(_reference.changeSecure(b));
+    }
+  }
+
+  @Override
+  public ObjectPrx ice_encodingVersion(EncodingVersion e) {
+    if (e.equals(_reference.getEncoding())) {
+      return this;
+    } else {
+      return _newInstance(_reference.changeEncoding(e));
+    }
+  }
+
+  @Override
+  public ObjectPrx ice_preferSecure(boolean b) {
+    if (b == _reference.getPreferSecure()) {
+      return this;
+    } else {
+      return _newInstance(_reference.changePreferSecure(b));
+    }
+  }
+
+  @Override
+  public ObjectPrx ice_router(RouterPrx newRouter) {
+    com.zeroc.IceInternal.RouterInfo routerInfo = _reference.getRouterInfo();
+    RouterPrx router = routerInfo != null ? routerInfo.getRouter() : null;
+    if (router == newRouter || (router != null && router.equals(newRouter))) {
+      return this;
+    } else {
+      return _newInstance(_reference.changeRouter(newRouter));
+    }
+  }
+
+  @Override
+  public ObjectPrx ice_locator(LocatorPrx newLocator) {
+    com.zeroc.IceInternal.LocatorInfo locatorInfo = _reference.getLocatorInfo();
+    LocatorPrx locator = locatorInfo != null ? locatorInfo.getLocator() : null;
+    if (locator == newLocator || (locator != null && locator.equals(newLocator))) {
+      return this;
+    } else {
+      return _newInstance(_reference.changeLocator(newLocator));
+    }
+  }
+
+  @Override
+  public ObjectPrx ice_collocationOptimized(boolean b) {
+    if (b == _reference.getCollocationOptimized()) {
+      return this;
+    } else {
+      return _newInstance(_reference.changeCollocationOptimized(b));
+    }
+  }
+
+  @Override
+  public ObjectPrx ice_twoway() {
+    if (_reference.getMode() == com.zeroc.IceInternal.Reference.ModeTwoway) {
+      return this;
+    } else {
+      return _newInstance(_reference.changeMode(com.zeroc.IceInternal.Reference.ModeTwoway));
+    }
+  }
+
+  @Override
+  public ObjectPrx ice_oneway() {
+    if (_reference.getMode() == com.zeroc.IceInternal.Reference.ModeOneway) {
+      return this;
+    } else {
+      return _newInstance(_reference.changeMode(com.zeroc.IceInternal.Reference.ModeOneway));
+    }
+  }
+
+  @Override
+  public ObjectPrx ice_batchOneway() {
+    if (_reference.getMode() == com.zeroc.IceInternal.Reference.ModeBatchOneway) {
+      return this;
+    } else {
+      return _newInstance(_reference.changeMode(com.zeroc.IceInternal.Reference.ModeBatchOneway));
+    }
+  }
+
+  @Override
+  public ObjectPrx ice_datagram() {
+    if (_reference.getMode() == com.zeroc.IceInternal.Reference.ModeDatagram) {
+      return this;
+    } else {
+      return _newInstance(_reference.changeMode(com.zeroc.IceInternal.Reference.ModeDatagram));
+    }
+  }
+
+  @Override
+  public ObjectPrx ice_batchDatagram() {
+    if (_reference.getMode() == com.zeroc.IceInternal.Reference.ModeBatchDatagram) {
+      return this;
+    } else {
+      return _newInstance(_reference.changeMode(com.zeroc.IceInternal.Reference.ModeBatchDatagram));
+    }
+  }
+
+  @Override
+  public ObjectPrx ice_compress(boolean compress) {
+    var value = _reference.getCompress();
+    if (value.isPresent() && value.get() == compress) {
+      return this;
+    } else {
+      return _newInstance(_reference.changeCompress(compress));
+    }
+  }
+
+  @Override
+  public ObjectPrx ice_connectionId(String connectionId) {
+    if (connectionId.equals(_reference.getConnectionId())) {
+      return this;
+    } else {
+      return _newInstance(_reference.changeConnectionId(connectionId));
     }
   }
 
@@ -557,5 +764,5 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
   private transient com.zeroc.IceInternal.RequestHandler _requestHandler;
   private transient com.zeroc.IceInternal.BatchRequestQueue _batchRequestQueue;
   private transient List<StreamPair> _streamCache;
-  public static final long serialVersionUID = 0L;
+  private static final long serialVersionUID = 0L;
 }

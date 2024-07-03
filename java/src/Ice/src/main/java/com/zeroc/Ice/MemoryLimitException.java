@@ -40,8 +40,5 @@ public class MemoryLimitException extends MarshalException {
     return "::Ice::MemoryLimitException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 8256664949263546187L;
+  private static final long serialVersionUID = 8256664949263546187L;
 }

@@ -56,10 +56,7 @@ namespace IceInternal
         const InstancePtr& getInstance() const { return _instance; }
         const SharedContextPtr& getContext() const { return _context; }
         int getInvocationTimeout() const { return _invocationTimeout; }
-        std::optional<bool> getCompress() const
-        {
-            return _overrideCompress ? std::optional<bool>(_compress) : std::nullopt;
-        }
+        std::optional<bool> getCompress() const { return _compress; }
 
         Ice::CommunicatorPtr getCommunicator() const;
 
@@ -73,7 +70,6 @@ namespace IceInternal
         virtual Ice::EndpointSelectionType getEndpointSelection() const = 0;
         virtual int getLocatorCacheTimeout() const = 0;
         virtual std::string getConnectionId() const = 0;
-        virtual std::optional<int> getTimeout() const = 0;
 
         //
         // The change* methods (here and in derived classes) create
@@ -99,13 +95,13 @@ namespace IceInternal
         virtual ReferencePtr changePreferSecure(bool) const = 0;
         virtual ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const = 0;
 
-        virtual ReferencePtr changeTimeout(int) const = 0;
         virtual ReferencePtr changeConnectionId(std::string) const = 0;
         virtual ReferencePtr changeConnection(Ice::ConnectionIPtr) const = 0;
 
         virtual std::size_t hash() const noexcept;
 
-        bool getCompressOverride(bool&) const;
+        // Gets the effective compression setting, taking into account the override.
+        std::optional<bool> getCompressOverride() const;
 
         //
         // Utility methods.
@@ -151,6 +147,7 @@ namespace IceInternal
             const std::string&,
             Mode,
             bool,
+            std::optional<bool>,
             const Ice::ProtocolVersion&,
             const Ice::EncodingVersion&,
             int,
@@ -158,14 +155,13 @@ namespace IceInternal
         Reference(const Reference&);
 
         const InstancePtr _instance;
-        bool _overrideCompress;
-        bool _compress; // Only used if _overrideCompress == true
 
     private:
         const Ice::CommunicatorPtr _communicator;
 
         Mode _mode;
         bool _secure;
+        std::optional<bool> _compress;
         Ice::Identity _identity;
         SharedContextPtr _context;
         std::string _facet;
@@ -184,12 +180,12 @@ namespace IceInternal
             const std::string&,
             Mode,
             bool,
+            std::optional<bool>,
             const Ice::ProtocolVersion&,
             const Ice::EncodingVersion&,
             Ice::ConnectionIPtr,
             int,
-            const Ice::Context&,
-            const std::optional<bool>&);
+            const Ice::Context&);
 
         FixedReference(const FixedReference&);
 
@@ -201,7 +197,6 @@ namespace IceInternal
         Ice::EndpointSelectionType getEndpointSelection() const final;
         int getLocatorCacheTimeout() const final;
         std::string getConnectionId() const final;
-        std::optional<int> getTimeout() const final;
 
         ReferencePtr changeEndpoints(std::vector<EndpointIPtr>) const final;
         ReferencePtr changeAdapterId(std::string) const final;
@@ -213,7 +208,6 @@ namespace IceInternal
         ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const final;
         ReferencePtr changeLocatorCacheTimeout(int) const final;
 
-        ReferencePtr changeTimeout(int) const final;
         ReferencePtr changeConnectionId(std::string) const final;
         ReferencePtr changeConnection(Ice::ConnectionIPtr) const final;
 
@@ -247,6 +241,7 @@ namespace IceInternal
             const std::string&,
             Mode,
             bool,
+            std::optional<bool>,
             const Ice::ProtocolVersion&,
             const Ice::EncodingVersion&,
             const std::vector<EndpointIPtr>&,
@@ -273,7 +268,6 @@ namespace IceInternal
         Ice::EndpointSelectionType getEndpointSelection() const final;
         int getLocatorCacheTimeout() const final;
         std::string getConnectionId() const final;
-        std::optional<int> getTimeout() const final;
 
         ReferencePtr changeEncoding(Ice::EncodingVersion) const final;
         ReferencePtr changeCompress(bool) const final;
@@ -288,7 +282,6 @@ namespace IceInternal
         ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const final;
         ReferencePtr changeLocatorCacheTimeout(int) const final;
 
-        ReferencePtr changeTimeout(int) const final;
         ReferencePtr changeConnectionId(std::string) const final;
         ReferencePtr changeConnection(Ice::ConnectionIPtr) const final;
 
@@ -344,8 +337,6 @@ namespace IceInternal
         Ice::EndpointSelectionType _endpointSelection;
         int _locatorCacheTimeout;
 
-        bool _overrideTimeout;
-        int _timeout; // Only used if _overrideTimeout == true
         std::string _connectionId;
     };
 

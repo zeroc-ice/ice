@@ -1505,9 +1505,7 @@ public class Coordinator {
           .submit(
               () -> {
                 try {
-                  com.zeroc.Ice.RouterFinderPrx finder =
-                      com.zeroc.Ice.RouterFinderPrx.uncheckedCast(
-                          _communicator.stringToProxy(finderStr));
+                  var finder = com.zeroc.Ice.RouterFinderPrx.createProxy(_communicator, finderStr);
                   info.setInstanceName(finder.getRouter().ice_getIdentity().category);
                   info.save();
                   com.zeroc.Glacier2.RouterPrx router =
@@ -1674,8 +1672,7 @@ public class Coordinator {
               () -> {
                 synchronized (Coordinator.this) {
                   try {
-                    LocatorFinderPrx finder =
-                        LocatorFinderPrx.uncheckedCast(_communicator.stringToProxy(finderStr));
+                    var finder = LocatorFinderPrx.createProxy(_communicator, finderStr);
 
                     info.setInstanceName(finder.getLocator().ice_getIdentity().category);
                     info.save();
@@ -1734,9 +1731,9 @@ public class Coordinator {
                     masterRegistryId.name = "Registry";
 
                     cb.setRegistry(
-                        RegistryPrx.uncheckedCast(
-                            _communicator.stringToProxy(
-                                "\"" + _communicator.identityToString(masterRegistryId) + "\"")));
+                        RegistryPrx.createProxy(
+                            _communicator,
+                            "\"" + _communicator.identityToString(masterRegistryId) + "\""));
                   }
 
                   //

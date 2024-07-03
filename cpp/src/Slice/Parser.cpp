@@ -4,7 +4,7 @@
 
 #include "Parser.h"
 #include "GrammarUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 #include "Util.h"
 
 #include <algorithm>
@@ -42,13 +42,13 @@ compareTag(const T& lhs, const T& rhs)
 }
 
 Slice::CompilerException::CompilerException(const char* file, int line, const string& r)
-    : IceUtil::Exception(file, line),
+    : Ice::LocalException(file, line),
       _reason(r)
 {
 }
 
-string
-Slice::CompilerException::ice_id() const
+const char*
+Slice::CompilerException::ice_id() const noexcept
 {
     return "::Slice::CompilerException";
 }
@@ -56,7 +56,7 @@ Slice::CompilerException::ice_id() const
 void
 Slice::CompilerException::ice_print(ostream& out) const
 {
-    IceUtil::Exception::ice_print(out);
+    Ice::LocalException::ice_print(out);
     out << ": " << _reason;
 }
 
@@ -255,10 +255,10 @@ Slice::DefinitionContext::initSuppressedWarnings()
         {
             value = value.substr(prefix.length() + 1);
             vector<string> result;
-            IceUtilInternal::splitString(value, ",", result);
+            IceInternal::splitString(value, ",", result);
             for (const auto& p : result)
             {
-                string s = IceUtilInternal::trim(p);
+                string s = IceInternal::trim(p);
                 if (s == "all")
                 {
                     _suppressedWarnings.insert(All);
@@ -689,10 +689,10 @@ namespace
         string::size_type nextPos;
         while ((nextPos = comment.find_first_of('\n', pos)) != string::npos)
         {
-            result.push_back(IceUtilInternal::trim(string(comment, pos, nextPos - pos)));
+            result.push_back(IceInternal::trim(string(comment, pos, nextPos - pos)));
             pos = nextPos + 1;
         }
-        string lastLine = IceUtilInternal::trim(string(comment, pos));
+        string lastLine = IceInternal::trim(string(comment, pos));
         if (!lastLine.empty())
         {
             result.push_back(lastLine);
@@ -761,7 +761,7 @@ Slice::Contained::parseComment(bool stripMarkup) const
     //
     if (auto reason = getDeprecationReason(false))
     {
-        comment->_deprecated.push_back(IceUtilInternal::trim(*reason));
+        comment->_deprecated.push_back(IceInternal::trim(*reason));
     }
 
     if (!comment->_isDeprecated && _comment.empty())
@@ -804,7 +804,7 @@ Slice::Contained::parseComment(bool stripMarkup) const
     const string seeTag = "@see";
     for (; i != lines.end(); ++i)
     {
-        const string l = IceUtilInternal::trim(*i);
+        const string l = IceInternal::trim(*i);
         string line;
         if (parseCommentLine(l, paramTag, true, name, line))
         {
@@ -2141,185 +2141,6 @@ Slice::Container::contents() const
     return _contents;
 }
 
-bool
-Slice::Container::hasSequences() const
-{
-    for (const auto& p : _contents)
-    {
-        if (dynamic_pointer_cast<Sequence>(p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = dynamic_pointer_cast<Container>(p);
-        if (container && container->hasSequences())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasStructs() const
-{
-    for (const auto& p : _contents)
-    {
-        if (dynamic_pointer_cast<Struct>(p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = dynamic_pointer_cast<Container>(p);
-        if (container && container->hasStructs())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasExceptions() const
-{
-    for (const auto& p : _contents)
-    {
-        if (dynamic_pointer_cast<Exception>(p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = dynamic_pointer_cast<Container>(p);
-        if (container && container->hasExceptions())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasDictionaries() const
-{
-    for (const auto& p : _contents)
-    {
-        if (dynamic_pointer_cast<Dictionary>(p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = dynamic_pointer_cast<Container>(p);
-        if (container && container->hasDictionaries())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasClassDefs() const
-{
-    for (const auto& p : _contents)
-    {
-        if (dynamic_pointer_cast<ClassDef>(p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = dynamic_pointer_cast<Container>(p);
-        if (container && container->hasClassDefs())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasInterfaceDefs() const
-{
-    for (const auto& p : _contents)
-    {
-        if (dynamic_pointer_cast<InterfaceDef>(p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = dynamic_pointer_cast<Container>(p);
-        if (container && container->hasInterfaceDefs())
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool
-Slice::Container::hasValueDefs() const
-{
-    for (const auto& p : _contents)
-    {
-        if (dynamic_pointer_cast<ClassDef>(p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = dynamic_pointer_cast<Container>(p);
-        if (container && container->hasValueDefs())
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool
-Slice::Container::hasOperations() const
-{
-    for (const auto& p : _contents)
-    {
-        InterfaceDefPtr def = dynamic_pointer_cast<InterfaceDef>(p);
-        if (def && def->hasOperations())
-        {
-            return true;
-        }
-
-        ContainerPtr container = dynamic_pointer_cast<Container>(p);
-        if (container && container->hasOperations())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasContained(Contained::ContainedType type) const
-{
-    for (const auto& p : _contents)
-    {
-        if (p->containedType() == type)
-        {
-            return true;
-        }
-
-        ContainerPtr container = dynamic_pointer_cast<Container>(p);
-        if (container && container->hasContained(type))
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 string
 Slice::Container::thisScope() const
 {
@@ -2697,13 +2518,6 @@ Slice::Container::validateConstant(
                 if (lte)
                 {
                     valueType = lte;
-                    if (lastColon != string::npos)
-                    {
-                        ostringstream os;
-                        os << "referencing enumerator `" << lte->name()
-                           << "' in its enumeration's enclosing scope is deprecated";
-                        _unit->warning(Deprecated, os.str());
-                    }
                 }
                 else
                 {
@@ -2747,12 +2561,6 @@ Slice::Container::validateEnumerator(const string& name)
 // ----------------------------------------------------------------------
 // Module
 // ----------------------------------------------------------------------
-
-Contained::ContainedType
-Slice::Module::containedType() const
-{
-    return ContainedTypeModule;
-}
 
 string
 Slice::Module::kindOf() const
@@ -2810,12 +2618,6 @@ ClassDefPtr
 Slice::ClassDecl::definition() const
 {
     return _definition;
-}
-
-Contained::ContainedType
-Slice::ClassDecl::containedType() const
-{
-    return ContainedTypeClass;
 }
 
 bool
@@ -2922,8 +2724,8 @@ Slice::ClassDef::createDataMember(
                 return nullptr;
             }
 
-            string baseName = IceUtilInternal::toLower(dataMember->name());
-            string newName = IceUtilInternal::toLower(name);
+            string baseName = IceInternal::toLower(dataMember->name());
+            string newName = IceInternal::toLower(name);
             if (baseName == newName)
             {
                 ostringstream os;
@@ -3118,12 +2920,6 @@ Slice::ClassDef::hasBaseDataMembers() const
     return _base && !_base->allDataMembers().empty();
 }
 
-Contained::ContainedType
-Slice::ClassDef::containedType() const
-{
-    return ContainedTypeClass;
-}
-
 string
 Slice::ClassDef::kindOf() const
 {
@@ -3176,12 +2972,6 @@ InterfaceDefPtr
 Slice::InterfaceDecl::definition() const
 {
     return _definition;
-}
-
-Contained::ContainedType
-Slice::InterfaceDecl::containedType() const
-{
-    return ContainedTypeInterface;
 }
 
 size_t
@@ -3430,8 +3220,8 @@ Slice::InterfaceDef::createOperation(
         return nullptr;
     }
 
-    string newName = IceUtilInternal::toLower(name);
-    string thisName = IceUtilInternal::toLower(this->name());
+    string newName = IceInternal::toLower(name);
+    string thisName = IceInternal::toLower(this->name());
     if (newName == thisName)
     {
         ostringstream os;
@@ -3454,8 +3244,8 @@ Slice::InterfaceDef::createOperation(
                 return nullptr;
             }
 
-            string baseName = IceUtilInternal::toLower(op->name());
-            string newName2 = IceUtilInternal::toLower(name);
+            string baseName = IceInternal::toLower(op->name());
+            string newName2 = IceInternal::toLower(name);
             if (baseName == newName2)
             {
                 ostringstream os;
@@ -3589,12 +3379,6 @@ Slice::InterfaceDef::inheritsMetaData(const string& meta) const
     return false;
 }
 
-Contained::ContainedType
-Slice::InterfaceDef::containedType() const
-{
-    return ContainedTypeInterface;
-}
-
 string
 Slice::InterfaceDef::kindOf() const
 {
@@ -3694,8 +3478,8 @@ Slice::Exception::createDataMember(
                 return nullptr;
             }
 
-            string baseName = IceUtilInternal::toLower(r->name());
-            string newName = IceUtilInternal::toLower(name);
+            string baseName = IceInternal::toLower(r->name());
+            string newName = IceInternal::toLower(name);
             if (baseName == newName) // TODO use ciCompare
             {
                 ostringstream os;
@@ -3853,18 +3637,12 @@ Slice::Exception::isBaseOf(const ExceptionPtr& other) const
     return false;
 }
 
-Contained::ContainedType
-Slice::Exception::containedType() const
-{
-    return ContainedTypeException;
-}
-
 bool
-Slice::Exception::usesClasses(bool includeOptional) const
+Slice::Exception::usesClasses() const
 {
     for (const auto& i : dataMembers())
     {
-        if (i->type()->usesClasses() && (includeOptional || !i->optional()))
+        if (i->type()->usesClasses())
         {
             return true;
         }
@@ -3872,7 +3650,7 @@ Slice::Exception::usesClasses(bool includeOptional) const
 
     if (_base)
     {
-        return _base->usesClasses(includeOptional);
+        return _base->usesClasses();
     }
     return false;
 }
@@ -4036,12 +3814,6 @@ Slice::Struct::getOptionalFormat() const
     return isVariableLength() ? "FSize" : "VSize";
 }
 
-Contained::ContainedType
-Slice::Struct::containedType() const
-{
-    return ContainedTypeStruct;
-}
-
 bool
 Slice::Struct::usesClasses() const
 {
@@ -4139,12 +3911,6 @@ Slice::Sequence::typeMetaData() const
     return _typeMetaData;
 }
 
-Contained::ContainedType
-Slice::Sequence::containedType() const
-{
-    return ContainedTypeSequence;
-}
-
 bool
 Slice::Sequence::usesClasses() const
 {
@@ -4221,12 +3987,6 @@ StringList
 Slice::Dictionary::valueMetaData() const
 {
     return _valueMetaData;
-}
-
-Contained::ContainedType
-Slice::Dictionary::containedType() const
-{
-    return ContainedTypeDictionary;
 }
 
 bool
@@ -4363,12 +4123,6 @@ Slice::Enum::maxValue() const
     return static_cast<int>(_maxValue);
 }
 
-Contained::ContainedType
-Slice::Enum::containedType() const
-{
-    return ContainedTypeEnum;
-}
-
 size_t
 Slice::Enum::minWireSize() const
 {
@@ -4483,12 +4237,6 @@ Slice::Enumerator::type() const
     return dynamic_pointer_cast<Enum>(container());
 }
 
-Contained::ContainedType
-Slice::Enumerator::containedType() const
-{
-    return ContainedTypeEnumerator;
-}
-
 string
 Slice::Enumerator::kindOf() const
 {
@@ -4567,12 +4315,6 @@ string
 Slice::Const::literal() const
 {
     return _literal;
-}
-
-Contained::ContainedType
-Slice::Const::containedType() const
-{
-    return ContainedTypeConstant;
 }
 
 string
@@ -4865,18 +4607,12 @@ Slice::Operation::setExceptionList(const ExceptionList& el)
     }
 }
 
-Contained::ContainedType
-Slice::Operation::containedType() const
-{
-    return ContainedTypeOperation;
-}
-
 bool
-Slice::Operation::sendsClasses(bool includeOptional) const
+Slice::Operation::sendsClasses() const
 {
     for (const auto& i : parameters())
     {
-        if (!i->isOutParam() && i->type()->usesClasses() && (includeOptional || !i->optional()))
+        if (!i->isOutParam() && i->type()->usesClasses())
         {
             return true;
         }
@@ -4885,17 +4621,17 @@ Slice::Operation::sendsClasses(bool includeOptional) const
 }
 
 bool
-Slice::Operation::returnsClasses(bool includeOptional) const
+Slice::Operation::returnsClasses() const
 {
     TypePtr t = returnType();
-    if (t && t->usesClasses() && (includeOptional || !_returnIsOptional))
+    if (t && t->usesClasses())
     {
         return true;
     }
 
     for (const auto& i : parameters())
     {
-        if (i->isOutParam() && i->type()->usesClasses() && (includeOptional || !i->optional()))
+        if (i->isOutParam() && i->type()->usesClasses())
         {
             return true;
         }
@@ -5023,12 +4759,6 @@ Slice::ParamDecl::tag() const
     return _tag;
 }
 
-Contained::ContainedType
-Slice::ParamDecl::containedType() const
-{
-    return ContainedTypeDataMember;
-}
-
 string
 Slice::ParamDecl::kindOf() const
 {
@@ -5095,12 +4825,6 @@ SyntaxTreeBasePtr
 Slice::DataMember::defaultValueType() const
 {
     return _defaultValueType;
-}
-
-Contained::ContainedType
-Slice::DataMember::containedType() const
-{
-    return ContainedTypeDataMember;
 }
 
 string
@@ -5430,7 +5154,7 @@ Slice::Unit::findDefinitionContext(const string& file) const
 void
 Slice::Unit::addContent(const ContainedPtr& contained)
 {
-    string scoped = IceUtilInternal::toLower(contained->scoped());
+    string scoped = IceInternal::toLower(contained->scoped());
     _contentMap[scoped].push_back(contained);
 }
 
@@ -5440,7 +5164,7 @@ Slice::Unit::findContents(const string& scoped) const
     assert(!scoped.empty());
     assert(scoped[0] == ':');
 
-    string name = IceUtilInternal::toLower(scoped);
+    string name = IceInternal::toLower(scoped);
     map<string, ContainedList>::const_iterator p = _contentMap.find(name);
     if (p != _contentMap.end())
     {

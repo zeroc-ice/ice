@@ -2,12 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/Promise").Ice;
+import { Promise } from "./Promise.js";
 
-class AsyncResultBase extends Ice.Promise
-{
-    constructor(communicator, op, connection, proxy, adapter)
-    {
+export class AsyncResultBase extends Promise {
+    constructor(communicator, op, connection, proxy, adapter) {
         super();
         this._communicator = communicator;
         this._instance = communicator ? communicator.instance : null;
@@ -17,32 +15,23 @@ class AsyncResultBase extends Ice.Promise
         this._adapter = adapter;
     }
 
-    get communicator()
-    {
+    get communicator() {
         return this._communicator;
     }
 
-    get connection()
-    {
+    get connection() {
         return this._connection;
     }
 
-    get proxy()
-    {
+    get proxy() {
         return this._proxy;
     }
 
-    get adapter()
-    {
+    get adapter() {
         return this._adapter;
     }
 
-    get operation()
-    {
+    get operation() {
         return this._operation;
     }
 }
-
-Ice.AsyncResultBase = AsyncResultBase;
-
-module.exports.Ice = Ice;

@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import Ice
 import TestCommon
@@ -16,9 +14,6 @@ class Server: TestHelperI {
         defer {
             communicator.destroy()
         }
-
-        try communicator.getValueFactoryManager().add(factory: { _ in II() }, id: "::Test::I")
-        try communicator.getValueFactoryManager().add(factory: { _ in JI() }, id: "::Test::J")
 
         communicator.getProperties().setProperty(
             key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))

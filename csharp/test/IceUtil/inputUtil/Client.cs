@@ -62,7 +62,7 @@ public class Client : Test.TestHelper
             args = Ice.UtilInternal.Options.split("-Dir=$'C:\\\\\\cM\\x66\\146i'"); // -Dir=$'C:\\\cM\x66\146i'
             test(args.Length == 1 && args[0] == "-Dir=C:\\\x000Dffi");
         }
-        catch (Ice.UtilInternal.Options.BadQuote)
+        catch (Ice.ParseException)
         {
             test(false);
         }
@@ -81,7 +81,7 @@ public class Client : Test.TestHelper
                 Ice.UtilInternal.Options.split(badQuoteCommands[i]);
                 test(false);
             }
-            catch (Ice.UtilInternal.Options.BadQuote)
+            catch (Ice.ParseException)
             {
             }
         }

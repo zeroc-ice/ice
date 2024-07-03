@@ -1,4 +1,4 @@
-#include "IceUtil/ResourceConfig.h"
+#include "../Ice/ResourceConfig.h"
 
 #define ICE_INTERNALNAME "iceboxadmin\0"
 #define ICE_ORIGINALFILENAME "iceboxadmin.exe\0"

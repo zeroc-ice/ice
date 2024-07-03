@@ -217,7 +217,7 @@ classdef AllTests
                     thrower.throwMemoryLimitException([]);
                     assert(false);
                 catch ex
-                    if ~isa(ex, 'Ice.MemoryLimitException')
+                    if ~isa(ex, 'Ice.MarshalException')
                         rethrow(ex);
                     end
                 end
@@ -238,7 +238,7 @@ classdef AllTests
                     try
                         thrower2.throwMemoryLimitException(zeros(1, 2 * 1024 * 1024)); % 2MB (no limits)
                     catch ex
-                        if ~isa(ex, 'Ice.MemoryLimitException')
+                        if ~isa(ex, 'Ice.MarshalException')
                             rethrow(ex);
                         end
                     end

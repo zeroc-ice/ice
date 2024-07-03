@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import Foundation
 import IceImpl
@@ -21,6 +19,8 @@ public class InputStream {
     private var startSeq: Int32 = -1
     private var minSeqSize: Int32 = 0
     private let classGraphDepthMax: Int32
+
+    private let endOfBufferMessage = "attempting to unmarshal past the end of the buffer"
 
     private var remaining: Int {
         return data.count - pos
@@ -55,11 +55,11 @@ public class InputStream {
     public func readEncapsulation() throws -> (bytes: Data, encoding: EncodingVersion) {
         let sz: Int32 = try read()
         if sz < 6 {
-            throw UnmarshalOutOfBoundsException(reason: "Invalid size")
+            throw MarshalException(reason: endOfBufferMessage)
         }
 
         if sz - 4 > remaining {
-            throw UnmarshalOutOfBoundsException(reason: "Invalid size")
+            throw MarshalException(reason: endOfBufferMessage)
         }
 
         let encoding: EncodingVersion = try read()
@@ -87,10 +87,10 @@ public class InputStream {
         let sz: Int32 = try read()
 
         if sz < 6 {
-            throw UnmarshalOutOfBoundsException(reason: "invalid size")
+            throw MarshalException(reason: endOfBufferMessage)
         }
         if sz - 4 > remaining {
-            throw UnmarshalOutOfBoundsException(reason: "invalid size")
+            throw MarshalException(reason: endOfBufferMessage)
         }
 
         let encoding: EncodingVersion = try read()
@@ -107,12 +107,12 @@ public class InputStream {
         if !encaps.encoding_1_0 {
             try skipOptionals()
             if pos != encaps.start + encaps.sz {
-                throw EncapsulationException(
+                throw MarshalException(
                     reason: "buffer size does not match decoded encapsulation size")
             }
         } else if pos != encaps.start + encaps.sz {
             if pos + 1 != encaps.start + encaps.sz {
-                throw EncapsulationException(
+                throw MarshalException(
                     reason: "buffer size does not match decoded encapsulation size")
             }
 
@@ -134,11 +134,11 @@ public class InputStream {
         let sz: Int32 = try read()
 
         if sz < 6 {
-            throw EncapsulationException(reason: "invalid size")
+            throw MarshalException(reason: "invalid encapsulation size")
         }
 
         if sz - 4 > remaining {
-            throw UnmarshalOutOfBoundsException(reason: "")
+            throw MarshalException(reason: endOfBufferMessage)
         }
 
         let encoding: EncodingVersion = try read()
@@ -146,7 +146,7 @@ public class InputStream {
 
         if encoding == Encoding_1_0 {
             if sz != 6 {
-                throw EncapsulationException(reason: "")
+                throw MarshalException(reason: "invalid encapsulation size")
             }
         } else {
             //
@@ -166,7 +166,7 @@ public class InputStream {
         let sz: Int32 = try read()
 
         if sz < 6 {
-            throw EncapsulationException(reason: "invalid size")
+            throw MarshalException(reason: "invalid encapsulation size")
         }
 
         let encodingVersion: EncodingVersion = try read()
@@ -239,7 +239,7 @@ public class InputStream {
         case .FSize:
             try skip(read())
         case .Class:
-            try read(UnknownSlicedValue.self, cb: nil)
+            throw MarshalException(reason: "cannot skip an optional class")
         }
     }
 
@@ -280,7 +280,7 @@ public class InputStream {
         precondition(pos + offset >= 0, "Negative position")
 
         guard offset <= remaining else {
-            throw UnmarshalOutOfBoundsException(reason: "Attempt to move past end of buffer")
+            throw MarshalException(reason: endOfBufferMessage)
         }
         pos += offset
     }
@@ -377,13 +377,14 @@ public class InputStream {
         // instead.
         //
         if let usv = v as? UnknownSlicedValue {
-            throw NoValueFactoryException(reason: "", type: usv.ice_id())
+            throw MarshalException(
+                reason: "cannot find value factory to unmarshal class with type ID '\(usv.ice_id())'")
         }
 
-        throw UnexpectedObjectException(
-            reason: "expected element of type `\(expectedType)' but received `\(v)'",
-            type: v.ice_id(),
-            expectedType: expectedType.ice_staticId())
+        throw MarshalException(
+            reason:
+                "failed to unmarshal class with type ID '\(expectedType.ice_staticId())': value factory returned a class with type ID '\(v.ice_id())'"
+        )
     }
 }
 
@@ -394,7 +395,7 @@ extension InputStream {
     public func read<Element>() throws -> Element where Element: StreamableNumeric {
         let size = MemoryLayout<Element>.size
         guard size <= remaining else {
-            throw UnmarshalOutOfBoundsException(reason: "attempting to read past buffer capacity")
+            throw MarshalException(reason: endOfBufferMessage)
         }
 
         var value: Element = 0
@@ -468,7 +469,7 @@ extension InputStream {
     /// - returns: `UInt8` - The byte read from the stream.
     public func read() throws -> UInt8 {
         guard remaining > 0 else {
-            throw UnmarshalOutOfBoundsException(reason: "attempting to read past buffer capacity")
+            throw MarshalException(reason: endOfBufferMessage)
         }
         let value = data[pos]
         pos += 1
@@ -615,7 +616,7 @@ extension InputStream {
         // data: it's claiming having more data that what is possible to read.
         //
         if startSeq + minSeqSize > data.count {
-            throw UnmarshalOutOfBoundsException(reason: "bad sequence size")
+            throw MarshalException(reason: endOfBufferMessage)
         }
 
         return sz
@@ -684,20 +685,20 @@ extension InputStream {
             } else if enumMaxValue < 32767 {
                 let v: Int16 = try read()
                 guard v <= UInt8.max else {
-                    throw UnmarshalOutOfBoundsException(reason: "1.0 encoded enum value is larger than UInt8")
+                    throw MarshalException(reason: "unexpected enumerator value")
                 }
                 return UInt8(v)
             } else {
                 let v: Int32 = try read()
                 guard v <= UInt8.max else {
-                    throw UnmarshalOutOfBoundsException(reason: "1.0 encoded enum value is larger than UInt8")
+                    throw MarshalException(reason: "unexpected enumerator value")
                 }
                 return UInt8(v)
             }
         } else {
             let v = try readSize()
             guard v <= UInt8.max else {
-                throw UnmarshalOutOfBoundsException(reason: "1.1 encoded enum value is larger than UInt8")
+                throw MarshalException(reason: "unexpected enumerator value")
             }
             return UInt8(v)
         }
@@ -808,47 +809,28 @@ extension InputStream {
     /// Reads an optional base proxy from the stream.
     ///
     /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
-    /// 
+    ///
     /// - returns: `ObjectPrx?` - The proxy read from the stream.
     public func read(tag: Int32, type _: ObjectPrx.Protocol) throws -> ObjectPrx? {
         return try read(tag: tag) as ObjectPrxI?
     }
 
     /// Reads a value from the stream.
-    public func read(cb: ((Value?) throws -> Void)?) throws {
+    public func read(cb: @escaping (Value?) throws -> Void) throws {
         initEncaps()
         try encaps.decoder.readValue(cb: cb)
     }
 
-    /// Reads an optional value from the stream.
-    public func read(tag: Int32, cb: ((Value?) throws -> Void)?) throws {
-        if try readOptional(tag: tag, expectedFormat: .Class) {
-            try read(cb: cb)
-        }
-    }
-
     /// Reads a value from the stream.
-    public func read<ValueType>(_ value: ValueType.Type, cb: ((ValueType?) -> Void)?) throws
+    public func read<ValueType>(_ value: ValueType.Type, cb: @escaping (ValueType?) -> Void) throws
     where ValueType: Value {
         initEncaps()
-        if let cb = cb {
-            try encaps.decoder.readValue { v in
-                if v == nil || v is ValueType {
-                    cb(v as? ValueType)
-                } else {
-                    try InputStream.throwUOE(expectedType: value, v: v!)
-                }
+        try encaps.decoder.readValue { v in
+            if v == nil || v is ValueType {
+                cb(v as? ValueType)
+            } else {
+                try InputStream.throwUOE(expectedType: value, v: v!)
             }
-        } else {
-            try encaps.decoder.readValue(cb: nil)
-        }
-    }
-
-    /// Reads an optional value from the stream.
-    public func read<ValueType>(tag: Int32, value: ValueType.Type, cb: ((ValueType?) -> Void)?) throws
-    where ValueType: Value {
-        if try readOptional(tag: tag, expectedFormat: .Class) {
-            try read(value, cb: cb)
         }
     }
 }
@@ -904,7 +886,7 @@ private protocol EncapsDecoder: AnyObject {
     var classGraphDepthMax: Int32 { get }
     var classGraphDepth: Int32 { get set }
 
-    func readValue(cb: Callback?) throws
+    func readValue(cb: @escaping Callback) throws
     func throwException() throws
 
     func startInstance(type: SliceType)
@@ -928,7 +910,7 @@ extension EncapsDecoder {
         if isIndex {
             let index = try stream.readSize()
             guard let typeId = typeIdMap[index] else {
-                throw UnmarshalOutOfBoundsException(reason: "invalid typeId")
+                throw MarshalException(reason: "invalid typeId")
             }
             return typeId
         } else {
@@ -1107,11 +1089,7 @@ private class EncapsDecoder10: EncapsDecoder {
         classGraphDepth = 0
     }
 
-    func readValue(cb: Callback?) throws {
-        guard let cb = cb else {
-            preconditionFailure("patch fuction can not be nil")
-        }
-
+    func readValue(cb: @escaping Callback) throws {
         //
         // Object references are encoded as a negative integer in 1.0.
         //
@@ -1183,18 +1161,14 @@ private class EncapsDecoder10: EncapsDecoder {
             try skipSlice()
             do {
                 try startSlice()
-            } catch let ex as UnmarshalOutOfBoundsException {
+            } catch is MarshalException {
                 //
                 // An oversight in the 1.0 encoding means there is no marker to indicate
                 // the last slice of an exception. As a result, we just try to read the
-                // next type ID, which raises UnmarshalOutOfBoundsException when the
+                // next type ID, which raises MarshalException when the
                 // input buffer underflows.
-                //
-                // Set the reason member to a more helpful message.
-                //
 
-                ex.reason = "unknown exception type `\(mostDerivedId)'"
-                throw ex
+                throw MarshalException(reason: "unknown exception type '\(mostDerivedId)'")
             }
         }
     }
@@ -1247,7 +1221,7 @@ private class EncapsDecoder10: EncapsDecoder {
 
         sliceSize = try stream.read()
         if sliceSize < 4 {
-            throw UnmarshalOutOfBoundsException(reason: "invalid slice size")
+            throw MarshalException(reason: "unexpected slice size")
         }
         return typeId
     }
@@ -1300,7 +1274,7 @@ private class EncapsDecoder10: EncapsDecoder {
             // marks the last slice.
             //
             if typeId == "::Ice::Object" {
-                throw NoValueFactoryException(reason: "invalid typeId", type: mostDerivedId)
+                throw MarshalException(reason: "cannot find value factory for type ID '\(mostDerivedId)'")
             }
 
             v = try newInstance(typeId: typeId)
@@ -1401,12 +1375,12 @@ private class EncapsDecoder11: EncapsDecoder {
         classGraphDepth = 0
     }
 
-    func readValue(cb: Callback?) throws {
+    func readValue(cb: @escaping Callback) throws {
         let index = try stream.readSize()
         if index < 0 {
             throw MarshalException(reason: "invalid object id")
         } else if index == 0 {
-            try cb?(nil)
+            try cb(nil)
         } else if current != nil, current.sliceFlags.contains(.FLAG_HAS_INDIRECTION_TABLE) {
             //
             // When reading a class instance within a slice and there's an
@@ -1419,9 +1393,7 @@ private class EncapsDecoder11: EncapsDecoder {
             // derive an index into the indirection table that we'll read
             // at the end of the slice.
             //
-            if let cb = cb {
-                current.indirectPatchList.append(IndirectPatchEntry(index: index - 1, cb: cb))
-            }
+            current.indirectPatchList.append(IndirectPatchEntry(index: index - 1, cb: cb))
         } else {
             _ = try readInstance(index: index, cb: cb)
         }
@@ -1540,7 +1512,7 @@ private class EncapsDecoder11: EncapsDecoder {
         if current.sliceFlags.contains(SliceFlags.FLAG_HAS_SLICE_SIZE) {
             current.sliceSize = try stream.read()
             if current.sliceSize < 4 {
-                throw UnmarshalOutOfBoundsException(reason: "invalid slice size")
+                throw MarshalException(reason: "invalid slice size")
             }
         } else {
             current.sliceSize = 0
@@ -1604,16 +1576,13 @@ private class EncapsDecoder11: EncapsDecoder {
             try stream.skip(current.sliceSize - 4)
         } else {
             if current.sliceType == .ValueSlice {
-                throw NoValueFactoryException(
-                    reason: "no value factory found and compact format prevents "
-                        + "slicing (the sender should use the sliced format instead)",
-                    type: current.typeId)
+                throw MarshalException(
+                    reason:
+                        "cannot find value factory for type ID '\(current.typeId!)' and compact format prevents slicing"
+                )
             } else {
-                if let r = current.typeId.range(of: "::") {
-                    throw UnknownUserException(unknown: String(current.typeId[r.upperBound...]))
-                } else {
-                    throw UnknownUserException(unknown: current.typeId)
-                }
+                throw MarshalException(
+                    reason: "cannot find user exception for type ID '\(current.typeId!)'")
             }
         }
 

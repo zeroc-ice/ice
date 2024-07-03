@@ -125,13 +125,6 @@ public interface Connection {
   String type();
 
   /**
-   * Get the timeout for the connection.
-   *
-   * @return The connection's timeout.
-   */
-  int timeout();
-
-  /**
    * Return a description of the connection as human readable text, suitable for logging or error
    * messages.
    *

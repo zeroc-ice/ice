@@ -2,111 +2,75 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
+import { Communicator } from "./Communicator.js";
+import { Protocol } from "./Protocol.js";
+import { InitializationException } from "./LocalException.js";
+import { Properties } from "./Properties.js";
 
-require("../Ice/Communicator");
-require("../Ice/LocalException");
-require("../Ice/Properties");
-require("../Ice/Protocol");
-
-const Protocol = Ice.Protocol;
-
-//
-// Ice.InitializationData
-//
-Ice.InitializationData = class
-{
-    constructor()
-    {
+export class InitializationData {
+    constructor() {
         this.properties = null;
         this.logger = null;
         this.valueFactoryManager = null;
     }
 
-    clone()
-    {
-        const r = new Ice.InitializationData();
+    clone() {
+        const r = new InitializationData();
         r.properties = this.properties;
         r.logger = this.logger;
         r.valueFactoryManager = this.valueFactoryManager;
         return r;
     }
-};
+}
 
-//
-// Ice.initialize()
-//
-Ice.initialize = function(arg1, arg2)
-{
+export function initialize(arg1, arg2) {
     let args = null;
     let initData = null;
 
-    if(arg1 instanceof Array)
-    {
+    if (arg1 instanceof Array) {
         args = arg1;
-    }
-    else if(arg1 instanceof Ice.InitializationData)
-    {
+    } else if (arg1 instanceof InitializationData) {
         initData = arg1;
-    }
-    else if(arg1 !== undefined && arg1 !== null)
-    {
-        throw new Ice.InitializationException("invalid argument to initialize");
+    } else if (arg1 !== undefined && arg1 !== null) {
+        throw new InitializationException("invalid argument to initialize");
     }
 
-    if(arg2 !== undefined && arg2 !== null)
-    {
-        if(arg2 instanceof Ice.InitializationData && initData === null)
-        {
+    if (arg2 !== undefined && arg2 !== null) {
+        if (arg2 instanceof InitializationData && initData === null) {
             initData = arg2;
-        }
-        else
-        {
-            throw new Ice.InitializationException("invalid argument to initialize");
+        } else {
+            throw new InitializationException("invalid argument to initialize");
         }
     }
 
-    if(initData === null)
-    {
-        initData = new Ice.InitializationData();
-    }
-    else
-    {
+    if (initData === null) {
+        initData = new InitializationData();
+    } else {
         initData = initData.clone();
     }
-    initData.properties = Ice.createProperties(args, initData.properties);
+    initData.properties = createProperties(args, initData.properties);
 
-    const result = new Ice.Communicator(initData);
+    const result = new Communicator(initData);
     result.finishSetup(null);
     return result;
-};
+}
 
-//
-// Ice.createProperties()
-//
-Ice.createProperties = function(args, defaults)
-{
-    return new Ice.Properties(args, defaults);
-};
+export function createProperties(args, defaults) {
+    return new Properties(args, defaults);
+}
 
-Ice.currentProtocol = function()
-{
+export function currentProtocol() {
     return Protocol.currentProtocol.clone();
-};
+}
 
-Ice.currentEncoding = function()
-{
+export function currentEncoding() {
     return Protocol.currentEncoding.clone();
-};
+}
 
-Ice.stringVersion = function()
-{
+export function stringVersion() {
     return "3.8.0-alpha.0"; // "A.B.C", with A=major, B=minor, C=patch
-};
+}
 
-Ice.intVersion = function()
-{
+export function intVersion() {
     return 30850; // AABBCC, with AA=major, BB=minor, CC=patch
-};
-
-module.exports.Ice = Ice;
+}

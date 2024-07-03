@@ -51,8 +51,7 @@ public class AllTests {
 
     out.print("testing ice_locator and ice_getLocator... ");
     test(Util.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator()) == 0);
-    com.zeroc.Ice.LocatorPrx anotherLocator =
-        com.zeroc.Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy("anotherLocator"));
+    var anotherLocator = com.zeroc.Ice.LocatorPrx.createProxy(communicator, "anotherLocator");
     base = base.ice_locator(anotherLocator);
     test(Util.proxyIdentityCompare(base.ice_getLocator(), anotherLocator) == 0);
     communicator.setDefaultLocator(null);
@@ -69,12 +68,10 @@ public class AllTests {
     // test/Ice/router test?)
     //
     test(base.ice_getRouter() == null);
-    com.zeroc.Ice.RouterPrx anotherRouter =
-        com.zeroc.Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("anotherRouter"));
+    var anotherRouter = com.zeroc.Ice.RouterPrx.createProxy(communicator, "anotherRouter");
     base = base.ice_router(anotherRouter);
     test(Util.proxyIdentityCompare(base.ice_getRouter(), anotherRouter) == 0);
-    com.zeroc.Ice.RouterPrx router =
-        com.zeroc.Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("dummyrouter"));
+    var router = com.zeroc.Ice.RouterPrx.createProxy(communicator, "dummyrouter");
     communicator.setDefaultRouter(router);
     base = communicator.stringToProxy("test @ TestAdapter");
     test(Util.proxyIdentityCompare(base.ice_getRouter(), communicator.getDefaultRouter()) == 0);

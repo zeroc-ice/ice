@@ -8,7 +8,7 @@
 #include "Ice/Ice.h"
 #include "Ice/Logger.h"
 #include "Ice/Properties.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 
 using namespace std;
 using namespace Ice;
@@ -20,7 +20,7 @@ using namespace Ice;
 static void
 stringToSeq(const string& str, vector<string>& seq)
 {
-    IceUtilInternal::splitString(str, " \t", seq);
+    IceInternal::splitString(str, " \t", seq);
 
     //
     // TODO: do something about unmatched quotes

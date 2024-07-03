@@ -37,8 +37,5 @@ public class IllegalMessageSizeException extends ProtocolException {
     return "::Ice::IllegalMessageSizeException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 3581741698610780247L;
+  private static final long serialVersionUID = 3581741698610780247L;
 }

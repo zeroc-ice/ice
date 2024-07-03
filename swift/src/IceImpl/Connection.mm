@@ -1,14 +1,13 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
+// Copyright (c) ZeroC, Inc.
 #import "include/Connection.h"
-#import "../../cpp/src/Ice/SSL/SSLUtil.h"
-#import "Convert.h"
 #import "include/Endpoint.h"
 #import "include/IceUtil.h"
 #import "include/ObjectAdapter.h"
 #import "include/ObjectPrx.h"
+
+#import "Convert.h"
+
+#import "../../cpp/src/Ice/SSL/SSLUtil.h"
 
 @implementation ICEConnection
 

@@ -13,7 +13,7 @@
 
 #    include "../Ice/ProtocolInstance.h"
 #    include "Ice/Buffer.h"
-#    include "Ice/LocalException.h"
+#    include "Ice/LocalExceptions.h"
 
 #    import <Foundation/NSError.h>
 #    import <Foundation/NSRunLoop.h>

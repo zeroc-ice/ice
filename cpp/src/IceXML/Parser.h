@@ -5,7 +5,7 @@
 #ifndef ICE_XML_PARSER_H
 #define ICE_XML_PARSER_H
 
-#include "Ice/Exception.h"
+#include "Ice/LocalException.h"
 
 #include <map>
 #include <vector>
@@ -34,13 +34,12 @@
 
 namespace IceXML
 {
-    class ICE_XML_API ParserException final : public Ice::Exception
+    class ICE_XML_API ParserException final : public Ice::LocalException
     {
     public:
-        ParserException(std::string) noexcept;
         ParserException(const char*, int, std::string) noexcept;
 
-        std::string ice_id() const override;
+        const char* ice_id() const noexcept override;
         void ice_print(std::ostream&) const override;
 
         std::string reason() const noexcept;

@@ -5,7 +5,7 @@
 #include "Operation.h"
 #include "Ice/Communicator.h"
 #include "Ice/Initialize.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Logger.h"
 #include "Ice/Properties.h"
 #include "Ice/Proxy.h"
@@ -197,10 +197,7 @@ IceRuby::OperationI::OperationI(
     if (!NIL_P(returnType))
     {
         _returnType = convertParam(returnType, 0);
-        if (!_returnType->optional)
-        {
-            _returnsClasses = _returnType->type->usesClasses();
-        }
+        _returnsClasses = _returnType->type->usesClasses();
     }
 
     //
@@ -577,9 +574,10 @@ IceRuby::OperationI::unmarshalException(const vector<byte>& bytes, const Ice::Co
             volatile VALUE cls = CLASS_OF(ex);
             volatile VALUE path = callRuby(rb_class_path, cls);
             assert(TYPE(path) == T_STRING);
-            Ice::UnknownUserException e(__FILE__, __LINE__);
-            e.unknown = RSTRING_PTR(path);
-            throw e;
+            throw Ice::UnknownUserException{
+                __FILE__,
+                __LINE__,
+                string{RSTRING_PTR(path), static_cast<size_t>(RSTRING_LEN(path))}};
         }
     }
 

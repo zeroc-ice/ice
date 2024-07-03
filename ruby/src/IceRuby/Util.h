@@ -497,7 +497,7 @@ ice_start:                                                                      
     catch (const ::Ice::LocalException&) { ICE_RUBY_RETHROW(convertLocalException(current_exception())); }             \
     catch (const ::Ice::Exception& ex)                                                                                 \
     {                                                                                                                  \
-        string msg_ = "unknown Ice exception: " + ex.ice_id();                                                         \
+        string msg_ = "unknown Ice exception: " + std::string{ex.ice_id()};                                            \
         ICE_RUBY_RETHROW(rb_exc_new2(rb_eRuntimeError, msg_.c_str()));                                                 \
     }                                                                                                                  \
     catch (const std::bad_alloc& ex) { ICE_RUBY_RETHROW(rb_exc_new2(rb_eNoMemError, ex.what())); }                     \

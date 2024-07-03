@@ -8,9 +8,9 @@
 #include "CommunicatorF.h"
 #include "ConnectionF.h"
 #include "ConnectionIF.h"
-#include "IceUtil/Timer.h"
+#include "Ice/Timer.h"
 #include "InputStream.h"
-#include "LocalException.h"
+#include "LocalExceptions.h"
 #include "ObjectAdapterF.h"
 #include "ObserverHelper.h"
 #include "OutputStream.h"
@@ -138,7 +138,7 @@ namespace IceInternal
     // correct notified of failures and make sure the retry task is
     // correctly canceled when the invocation completes.
     //
-    class ICE_API ProxyOutgoingAsyncBase : public OutgoingAsyncBase, public IceUtil::TimerTask
+    class ICE_API ProxyOutgoingAsyncBase : public OutgoingAsyncBase, public Ice::TimerTask
     {
     public:
         virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool) = 0;

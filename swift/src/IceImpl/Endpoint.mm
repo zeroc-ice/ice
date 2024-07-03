@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 #import "include/Endpoint.h"
 #import "Convert.h"

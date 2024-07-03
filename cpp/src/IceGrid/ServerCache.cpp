@@ -3,13 +3,13 @@
 //
 
 #include "ServerCache.h"
+#include "../Ice/DisableWarnings.h"
 #include "AdapterCache.h"
 #include "AllocatableObjectCache.h"
 #include "DescriptorHelper.h"
 #include "Ice/Communicator.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
-#include "IceUtil/DisableWarnings.h"
 #include "NodeCache.h"
 #include "ObjectCache.h"
 #include "SessionI.h"

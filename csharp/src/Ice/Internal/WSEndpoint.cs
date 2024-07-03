@@ -309,9 +309,7 @@ internal sealed class WSEndpoint : EndpointI
             {
                 if (argument == null)
                 {
-                    Ice.EndpointParseException e = new Ice.EndpointParseException();
-                    e.str = "no argument provided for -r option in endpoint " + endpoint + _delegate.options();
-                    throw e;
+                    throw new ParseException($"no argument provided for -r option in endpoint '{endpoint}{_delegate.options()}'");
                 }
                 _resource = argument;
                 return true;

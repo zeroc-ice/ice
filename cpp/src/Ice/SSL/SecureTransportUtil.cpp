@@ -4,12 +4,12 @@
 
 #include "SecureTransportUtil.h"
 #include "../Base64.h"
+#include "../FileUtil.h"
 #include "../UniqueRef.h"
 #include "DistinguishedName.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/SSL/SSLException.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 
 #include <fstream>
 #include <sstream>
@@ -31,7 +31,7 @@ namespace
 {
     CFMutableDataRef readCertFile(const string& file)
     {
-        ifstream is(IceUtilInternal::streamFilename(file).c_str(), ios::in | ios::binary);
+        ifstream is(IceInternal::streamFilename(file).c_str(), ios::in | ios::binary);
         if (!is.good())
         {
             throw CertificateReadException(__FILE__, __LINE__, "error opening file " + file);
@@ -337,10 +337,10 @@ namespace
             //
             // KeyChain path is relative to the current working directory.
             //
-            if (!IceUtilInternal::isAbsolutePath(keychainPath))
+            if (!IceInternal::isAbsolutePath(keychainPath))
             {
                 string cwd;
-                if (IceUtilInternal::getcwd(cwd) == 0)
+                if (IceInternal::getcwd(cwd) == 0)
                 {
                     keychainPath = string(cwd) + '/' + keychainPath;
                 }
@@ -813,7 +813,7 @@ Ice::SSL::SecureTransport::findCertificateChain(
     bool valid = false;
     while ((pos = value.find(':', start)) != string::npos)
     {
-        string field = IceUtilInternal::toUpper(IceUtilInternal::trim(value.substr(start, pos - start)));
+        string field = IceInternal::toUpper(IceInternal::trim(value.substr(start, pos - start)));
         string arg;
         if (field != "LABEL" && field != "SERIAL" && field != "SUBJECT" && field != "SUBJECTKEYID")
         {

@@ -32,7 +32,7 @@ internal class AllTests : global::Test.AllTests
         Test.TestIntfPrx p,
         TextWriter output)
     {
-        output.Write("testing that the idle check does not abort a connection that receives heartbeats.. ");
+        output.Write("testing that the idle check does not abort a connection that receives heartbeats... ");
         output.Flush();
 
         // Establish connection.

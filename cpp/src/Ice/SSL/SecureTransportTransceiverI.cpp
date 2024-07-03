@@ -3,7 +3,7 @@
 //
 
 #include "SecureTransportTransceiverI.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/SSL/ConnectionInfo.h"
 #include "SSLInstance.h"
@@ -13,7 +13,7 @@
 #include <sstream>
 
 // Disable deprecation warnings from SecureTransport APIs
-#include "IceUtil/DisableWarnings.h"
+#include "../DisableWarnings.h"
 
 using namespace std;
 using namespace Ice;
@@ -195,9 +195,9 @@ Ice::SSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuf
                 }
                 else if (_trust)
                 {
-                    for (CFIndex i = 0, count = SecTrustGetCertificateCount(_trust.get()); i < count; ++i)
+                    if (SecTrustGetCertificateCount(_trust.get()) > 0)
                     {
-                        SecCertificateRef peerCertificate = SecTrustGetCertificateAtIndex(_trust.get(), i);
+                        SecCertificateRef peerCertificate = SecTrustGetCertificateAtIndex(_trust.get(), 0);
                         CFRetain(peerCertificate);
                         _peerCertificate.reset(peerCertificate);
                     }

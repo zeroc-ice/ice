@@ -3,14 +3,14 @@
 //
 
 #include "../Ice/ConsoleUtil.h"
+#include "../Ice/Options.h"
 #include "../IceLocatorDiscovery/Plugin.h"
 #include "FileParserI.h"
 #include "Glacier2/Router.h"
 #include "Ice/Ice.h"
+#include "Ice/StringUtil.h"
 #include "Ice/UUID.h"
 #include "IceGrid/Registry.h"
-#include "IceUtil/Options.h"
-#include "IceUtil/StringUtil.h"
 #include "Parser.h"
 
 #include <fstream>
@@ -78,7 +78,7 @@ main(int argc, char* argv[])
 
     try
     {
-        IceUtil::CtrlCHandler ctrlCHandler;
+        Ice::CtrlCHandler ctrlCHandler;
         auto defaultProps = Ice::createProperties();
         defaultProps->setProperty("IceGridAdmin.Server.Endpoints", "tcp -h localhost");
         Ice::InitializationData id;
@@ -114,7 +114,7 @@ main(int argc, char* argv[])
             // Expected if the client is interrupted during the initialization.
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         consoleErr << args[0] << ": " << ex << endl;
         status = 1;
@@ -174,7 +174,7 @@ getPassword(const string& prompt)
     }
 #endif
     consoleOut << endl;
-    return IceUtilInternal::trim(password);
+    return IceInternal::trim(password);
 }
 
 extern "C" ICE_LOCATOR_DISCOVERY_API Ice::Plugin*
@@ -186,19 +186,19 @@ run(const Ice::StringSeq& args)
     string commands;
     bool debug;
 
-    IceUtilInternal::Options opts;
+    IceInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
-    opts.addOpt("e", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
-    opts.addOpt("i", "instanceName", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::NoRepeat);
-    opts.addOpt("H", "host", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::NoRepeat);
-    opts.addOpt("P", "port", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::NoRepeat);
-    opts.addOpt("u", "username", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::NoRepeat);
-    opts.addOpt("p", "password", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::NoRepeat);
+    opts.addOpt("e", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
+    opts.addOpt("i", "instanceName", IceInternal::Options::NeedArg, "", IceInternal::Options::NoRepeat);
+    opts.addOpt("H", "host", IceInternal::Options::NeedArg, "", IceInternal::Options::NoRepeat);
+    opts.addOpt("P", "port", IceInternal::Options::NeedArg, "", IceInternal::Options::NoRepeat);
+    opts.addOpt("u", "username", IceInternal::Options::NeedArg, "", IceInternal::Options::NoRepeat);
+    opts.addOpt("p", "password", IceInternal::Options::NeedArg, "", IceInternal::Options::NoRepeat);
     opts.addOpt("S", "ssl");
     opts.addOpt("d", "debug");
     opts.addOpt("s", "server");
-    opts.addOpt("r", "replica", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::NoRepeat);
+    opts.addOpt("r", "replica", IceInternal::Options::NeedArg, "", IceInternal::Options::NoRepeat);
 
     try
     {
@@ -209,7 +209,7 @@ run(const Ice::StringSeq& args)
             return 1;
         }
     }
-    catch (const IceUtilInternal::BadOptException& e)
+    catch (const IceInternal::BadOptException& e)
     {
         consoleErr << e.reason << endl;
         usage(args[0]);
@@ -358,7 +358,7 @@ run(const Ice::StringSeq& args)
                         {
                             return 1;
                         }
-                        line = IceUtilInternal::trim(line);
+                        line = IceInternal::trim(line);
 
                         istringstream is(line);
                         is >> num;
@@ -414,7 +414,7 @@ run(const Ice::StringSeq& args)
                     {
                         return 1;
                     }
-                    id = IceUtilInternal::trim(id);
+                    id = IceInternal::trim(id);
                 }
 
                 if (password.empty())
@@ -566,7 +566,7 @@ run(const Ice::StringSeq& args)
                     {
                         return 1;
                     }
-                    id = IceUtilInternal::trim(id);
+                    id = IceInternal::trim(id);
                 }
 
                 if (password.empty())

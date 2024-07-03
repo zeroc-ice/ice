@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-// Don't include IceUtil/Config.h the MATLAB mex parser doesn't support C++ code
+// Don't include Ice/Config.h the MATLAB mex parser doesn't support C++ code
 #ifdef _MSC_VER
 #    ifndef ICE_MATLAB_API
 #        if defined(ICE_MATLAB_API_EXPORTS)

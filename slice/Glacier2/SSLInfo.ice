@@ -10,11 +10,10 @@
 [["cpp:include:Glacier2/Config.h"]]
 
 [["js:module:ice"]]
-[["js:cjs-module"]]
 
 [["python:pkgdir:Glacier2"]]
 
-#include "../Ice/BuiltinSequences.ice"
+#include "Ice/BuiltinSequences.ice"
 
 [["java:package:com.zeroc"]]
 

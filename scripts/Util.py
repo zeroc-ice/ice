@@ -18,6 +18,7 @@ import shutil
 import copy
 import xml.sax.saxutils
 from platform import machine as platform_machine
+from pathlib import Path
 
 from io import StringIO
 
@@ -120,8 +121,6 @@ class Component(object):
             return os.path.join(
                 mapping.getPath(), "test", "src", "main", "java", "test"
             )
-        elif isinstance(mapping, TypeScriptMapping):
-            return os.path.join(mapping.getPath(), "test", "typescript")
         return os.path.join(mapping.getPath(), "test")
 
     def getScriptDir(self):
@@ -381,26 +380,6 @@ class Darwin(Platform):
         return "/usr/local"
 
 
-class AIX(Platform):
-    def hasOpenSSL(self):
-        return True
-
-    def _getLibDir(self, component, process, mapping, current):
-        installDir = component.getInstallDir(mapping, current)
-        if component.useBinDist(mapping, current):
-            return os.path.join(installDir, "lib")
-        else:
-            return os.path.join(
-                installDir, "lib32" if current.config.buildPlatform == "ppc" else "lib"
-            )
-
-    def getDefaultBuildPlatform(self):
-        return "ppc64"
-
-    def getInstallDir(self):
-        return "/opt/freeware"
-
-
 class Linux(Platform):
     def __init__(self):
         Platform.__init__(self)
@@ -491,7 +470,7 @@ class Windows(Platform):
         pass  # Nothing to do, we don't support the make build system on Windows
 
     def getDefaultBuildPlatform(self):
-        return "x64" if "X64" in os.environ.get("PLATFORM", "") else "Win32"
+        return "Win32" if "x86" in os.environ.get("PLATFORM", "") else "x64"
 
     def getDefaultBuildConfig(self):
         return "Release"
@@ -1275,7 +1254,6 @@ class Mapping(object):
 
     def getSSLProps(self, process, current):
         sslProps = {
-            "Ice.Plugin.IceSSL": "",
             "IceSSL.Password": "password",
             "IceSSL.DefaultDir": ""
             if current.config.buildPlatform == "iphoneos"
@@ -3058,13 +3036,19 @@ class BrowserProcessController(RemoteProcessController):
             self, current, "ws -h {0} -p 15002:wss -h {0} -p 15003".format(self.host)
         )
         self.httpServer = None
+        self.httpsServer = None
         self.url = None
         self.driver = None
         try:
-            cmd = "node -e \"require('./bin/HttpServer')()\""
+            httpServerCmd = "node node_modules/http-server/bin/http-server -p 8080 dist"
             cwd = current.testcase.getMapping().getPath()
-            self.httpServer = Expect.Expect(cmd, cwd=cwd)
-            self.httpServer.expect("listening on ports")
+            self.httpServer = Expect.Expect(httpServerCmd, cwd=cwd)
+            self.httpServer.expect("Available on:")
+
+            httpsServerCmd = "node node_modules/http-server/bin/http-server -p 9090 --tls --cert ../certs/server.pem --key ../certs/server_key.pem dist"
+            cwd = current.testcase.getMapping().getPath()
+            self.httpsServer = Expect.Expect(httpsServerCmd, cwd=cwd)
+            self.httpsServer.expect("Available on:")
 
             if current.config.browser.startswith("Remote:"):
                 from selenium import webdriver
@@ -3135,10 +3119,7 @@ class BrowserProcessController(RemoteProcessController):
         # another testcase, the controller page will connect to the process controller registry
         # to register itself with this script.
         #
-        testsuite = ""
-        if isinstance(current.testcase.getMapping(), TypeScriptMapping):
-            testsuite += "typescript/"
-        testsuite += str(current.testsuite)
+        testsuite = str(current.testsuite)
 
         if current.config.protocol == "wss":
             protocol = "https"
@@ -3173,9 +3154,7 @@ class BrowserProcessController(RemoteProcessController):
                         if ident in self.processControllerProxies:
                             prx = self.processControllerProxies[ident]
                             break
-                        print(
-                            "Please load http://{0}:8080/{1}".format(self.host, "start")
-                        )
+                        print("Please load {}".format(url))
                         self.cond.wait(5)
 
                 try:
@@ -3223,6 +3202,10 @@ class BrowserProcessController(RemoteProcessController):
         if self.httpServer:
             self.httpServer.terminate()
             self.httpServer = None
+
+        if self.httpsServer:
+            self.httpsServer.terminate()
+            self.httpsServer = None
 
         try:
             self.driver.quit()
@@ -3689,16 +3672,6 @@ class CppMapping(Mapping):
         #
         if not isinstance(platform, Darwin):
             libPaths.append(self.component.getLibDir(process, self, current))
-
-        # On AIX we also need to add the lib directory for the TestCommon library
-        # when testing against a binary distribution
-        if isinstance(platform, AIX) and self.component.useBinDist(self, current):
-            libPaths.append(
-                os.path.join(
-                    self.path,
-                    "lib32" if current.config.buildPlatform == "ppc" else "lib",
-                )
-            )
 
         #
         # Add the test suite library directories to the platform library path environment variable.
@@ -4278,7 +4251,7 @@ class MatlabMapping(CppBasedClientMapping):
         return Mapping.getByName("python")  # Run clients against Python mapping servers
 
     def _getDefaultSource(self, processType):
-        return {"client": "client.m"}[processType]
+        return {"client": "Client.m"}[processType]
 
     def getOptions(self, current):
         #
@@ -4317,14 +4290,11 @@ class JavaScriptMixin:
         return os.path.join(self.getPath(), "test", "Common")
 
     def getCommandLine(self, current, process, exe, args):
-        return "node {0}/run.js {1} {2}".format(self.getCommonDir(current), exe, args)
-
-    def getEnv(self, process, current):
-        env = Mapping.getEnv(self, process, current)
-        env["NODE_PATH"] = os.pathsep.join(
-            [self.getCommonDir(current), self.getTestCwd(process, current)]
-        )
-        return env
+        return "node {0}/run.js file://{1} {2} {3}".format(
+            self.getCommonDir(current),
+            os.path.join(self.getTestCwd(process, current), exe),
+            Path(exe).stem,
+            args)
 
     def getSSLProps(self, process, current):
         return {}
@@ -4369,6 +4339,9 @@ class JavaScriptMapping(JavaScriptMixin, Mapping):
             "server": "Server.js",
         }[processType]
 
+    def _getDefaultExe(self, processType):
+        return self.getDefaultSource(processType)
+
     def getTestCwd(self, process, current):
         return os.path.join(self.path, "test", current.testcase.getTestSuite().getId())
 
@@ -4380,37 +4353,6 @@ class JavaScriptMapping(JavaScriptMixin, Mapping):
             }
         )
         return options
-
-
-class TypeScriptMapping(JavaScriptMixin, Mapping):
-    class Config(Mapping.Config):
-        @classmethod
-        def getSupportedArgs(self):
-            return ("", ["browser=", "worker"])
-
-        @classmethod
-        def usage(self):
-            print("")
-            print("TypeScript mapping options:")
-            print("--browser=<name>      Run with the given browser.")
-            print("--worker              Run with Web workers enabled.")
-
-        def __init__(self, options=[]):
-            Mapping.Config.__init__(self, options)
-
-            if self.browser and self.protocol == "tcp":
-                self.protocol = "ws"
-
-        def canRun(self, testId, current):
-            # TODO: test TypeScript with browser, the test are currently only compiled for CommonJS (NodeJS)
-            return Mapping.Config.canRun(self, testId, current) and not self.browser
-
-    def _getDefaultSource(self, processType):
-        return {
-            "client": "Client.ts",
-            "serveramd": "ServerAMD.ts",
-            "server": "Server.ts",
-        }[processType]
 
 
 class SwiftMapping(Mapping):
@@ -4505,8 +4447,6 @@ class SwiftMapping(Mapping):
 platform = None
 if sys.platform == "darwin":
     platform = Darwin()
-elif sys.platform.startswith("aix"):
-    platform = AIX()
 elif sys.platform.startswith("linux") or sys.platform.startswith("gnukfreebsd"):
     platform = Linux()
 elif sys.platform == "win32" or sys.platform[:6] == "cygwin":

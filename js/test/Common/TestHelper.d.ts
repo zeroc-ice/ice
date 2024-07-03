@@ -1,29 +1,32 @@
 import { Ice } from "ice";
-import ControllerHelper from "./ControllerI"
+import ControllerHelper from "./ControllerI";
 
-export class TestHelper
-{
-    getTestEndpoint(protocol:string):string;
-    getTestEndpoint(num?:number, protocol?:string):string;
-    getTestEndpoint(properties:Ice.Properties, num?:number, protocol?:string):string;
+export class TestHelper {
+    getTestEndpoint(protocol: string): string;
+    getTestEndpoint(num?: number, protocol?: string): string;
+    getTestEndpoint(properties: Ice.Properties, num?: number, protocol?: string): string;
 
-    getTestHost(properties:Ice.Properties):string;
+    getTestHost(properties: Ice.Properties): string;
 
-    getTestProtocol(properties:Ice.Properties):string;
-    getTestPort(num?:number):number;
+    getTestProtocol(properties: Ice.Properties): string;
+    getTestPort(num?: number): number;
 
-    createTestProperties(args?:string[]):[Ice.Properties, string[]];
+    createTestProperties(args?: string[]): [Ice.Properties, string[]];
 
-    initialize(initData:Ice.InitializationData):[Ice.Communicator, string[]];
-    initialize(args:Ice.Properties):[Ice.Communicator, string[]];
-    initialize(args:string[]):[Ice.Communicator, string[]];
+    initialize(initData: Ice.InitializationData): [Ice.Communicator, string[]];
+    initialize(args: Ice.Properties): [Ice.Communicator, string[]];
+    initialize(args: string[]): [Ice.Communicator, string[]];
 
-    communicator():Ice.Communicator;
-    shutdown():void;
+    communicator(): Ice.Communicator;
+    shutdown(): void;
 
-    getWriter():ControllerHelper;
+    getWriter(): ControllerHelper;
 
-    setControllerHelper(controllerHelper:ControllerHelper):void;
-    serverReady():void;
-    static test(value:boolean, ex?:Error):void;
+    setControllerHelper(controllerHelper: ControllerHelper): void;
+    serverReady(): void;
+    static test(value: boolean, ex?: Error): void;
+
+    static isSafari(): boolean;
+    static isBrowser(): boolean;
+    static isWorker(): boolean;
 }

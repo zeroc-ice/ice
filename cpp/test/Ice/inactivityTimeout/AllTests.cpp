@@ -17,8 +17,8 @@ testClientInactivityTimeout(const TestIntfPrx& p)
     ConnectionPtr connection = p->ice_getCachedConnection();
     test(connection);
 
-    // The inactivity timeout is 1s on the client side and 2s on the server side. 1.5 seconds tests the client side.
-    this_thread::sleep_for(chrono::milliseconds(1500));
+    // The inactivity timeout is 3s on the client side and 5s on the server side. 4 seconds tests the client side.
+    this_thread::sleep_for(chrono::seconds(4));
     p->ice_ping();
     ConnectionPtr connection2 = p->ice_getCachedConnection();
     test(connection2 != connection);
@@ -33,7 +33,7 @@ testServerInactivityTimeout(const string& proxyString, const PropertiesPtr& prop
     // Create a new communicator with the desired properties.
     Ice::InitializationData initData;
     initData.properties = properties->clone();
-    initData.properties->setProperty("Ice.Connection.InactivityTimeout", "2");
+    initData.properties->setProperty("Ice.Connection.InactivityTimeout", "5");
     Ice::CommunicatorHolder holder = initialize(initData);
     TestIntfPrx p(holder.communicator(), proxyString);
 
@@ -41,8 +41,8 @@ testServerInactivityTimeout(const string& proxyString, const PropertiesPtr& prop
     ConnectionPtr connection = p->ice_getCachedConnection();
     test(connection);
 
-    // The inactivity timeout is 2s on the client side and 1s on the server side. 1.5 seconds tests the server side.
-    this_thread::sleep_for(chrono::milliseconds(1500));
+    // The inactivity timeout is 5s on the client side and 3s on the server side. 4 seconds tests the server side.
+    this_thread::sleep_for(chrono::seconds(4));
     p->ice_ping();
     ConnectionPtr connection2 = p->ice_getCachedConnection();
     test(connection2 != connection);
@@ -63,22 +63,23 @@ testWithOutstandingRequest(TestIntfPrx p, bool oneway)
     ConnectionPtr connection = p->ice_getCachedConnection();
     test(connection);
 
-    // The inactivity timeout is 1s on the client side and 2s on the server side; 2.5 seconds tests both sides.
-    p->sleep(2500);
+    // The inactivity timeout is 3s on the client side and 5s on the server side; 4 seconds tests only the client-side.
+    p->sleep(4000); // two-way blocks for 4 seconds; one-way is non-blocking
     if (oneway)
     {
-        this_thread::sleep_for(chrono::milliseconds(2500));
+        this_thread::sleep_for(chrono::milliseconds(4000));
     }
     p->ice_ping();
     ConnectionPtr connection2 = p->ice_getCachedConnection();
 
     if (oneway)
     {
-        // With a oneway invocation, the inactivity timeout on the client side shuts down the connection.
+        // With a oneway invocation, the inactivity timeout on the client side shut down the first connection.
         test(connection2 != connection);
     }
     else
     {
+        // With a two-way invocation, the inactivity timeout should not shutdown any connection.
         test(connection2 == connection);
     }
     cout << "ok" << endl;
@@ -91,10 +92,10 @@ allTests(TestHelper* helper)
     string proxyString = "test: " + helper->getTestEndpoint();
     TestIntfPrx p(communicator, proxyString);
 
-    string proxyString1s = "test: " + helper->getTestEndpoint(1);
+    string proxyString3s = "test: " + helper->getTestEndpoint(1);
 
     testClientInactivityTimeout(p);
-    testServerInactivityTimeout(proxyString1s, communicator->getProperties());
+    testServerInactivityTimeout(proxyString3s, communicator->getProperties());
     testWithOutstandingRequest(p, false);
     testWithOutstandingRequest(p, true);
 

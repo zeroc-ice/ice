@@ -6,7 +6,7 @@
 #include "Ice/Communicator.h"
 #include "Ice/Connection.h"
 #include "Ice/Initialize.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/ObjectAdapter.h"
 #include "Ice/Properties.h"
@@ -229,7 +229,6 @@ namespace
         PropertiesPtr mainProps = communicator->getProperties();
 
         copyProperties("Ice.Default.Locator", mainProps, initData.properties);
-        copyProperties("Ice.Plugin.IceSSL", mainProps, initData.properties);
         copyProperties("IceSSL.", mainProps, initData.properties);
 
         StringSeq extraProps = mainProps->getIcePropertyAsList("Ice.Admin.Logger.Properties");

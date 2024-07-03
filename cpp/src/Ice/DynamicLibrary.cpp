@@ -4,7 +4,7 @@
 
 #include "DynamicLibrary.h"
 #include "Ice/StringConverter.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 
 #include <cassert>
 #include <sstream>
@@ -131,23 +131,6 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     {
         lib += "." + version;
     }
-#elif defined(__hpux)
-    lib += "lib" + libName;
-    if (!version.empty())
-    {
-        lib += "." + version;
-    }
-    else
-    {
-        lib += ".sl";
-    }
-#elif defined(_AIX)
-    lib += "lib" + libName + ".a(lib" + libName + ".so";
-    if (!version.empty())
-    {
-        lib += "." + version;
-    }
-    lib += ")";
 #else
     lib += "lib" + libName + ".so";
     if (!version.empty())
@@ -196,10 +179,6 @@ IceInternal::DynamicLibrary::load(const string& lib)
     _hnd = LoadLibraryW(stringToWstring(lib, getProcessStringConverter()).c_str());
 #else
     int flags = RTLD_NOW | RTLD_GLOBAL;
-#    ifdef _AIX
-    flags |= RTLD_MEMBER;
-#    endif
-
     _hnd = dlopen(lib.c_str(), flags);
 #endif
     if (_hnd == 0)
@@ -208,7 +187,7 @@ IceInternal::DynamicLibrary::load(const string& lib)
         // Remember the most recent error in _err.
         //
 #if defined(_WIN32)
-        _err = "LoadLibraryW on `" + lib + "' failed with `" + IceUtilInternal::lastErrorToString() + "'";
+        _err = "LoadLibraryW on `" + lib + "' failed with `" + IceInternal::lastErrorToString() + "'";
 #else
         const char* err = dlerror();
         if (err)
@@ -237,7 +216,7 @@ IceInternal::DynamicLibrary::getSymbol(const string& name)
         // Remember the most recent error in _err.
         //
 #ifdef _WIN32
-        _err = "GetProcAddress for `" + name + "' failed with `" + IceUtilInternal::lastErrorToString() + "'";
+        _err = "GetProcAddress for `" + name + "' failed with `" + IceInternal::lastErrorToString() + "'";
 #else
         const char* err = dlerror();
         if (err)

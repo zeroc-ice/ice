@@ -3,14 +3,14 @@
 //
 
 #include "LocatorInfo.h"
+#include "DisableWarnings.h"
 #include "EndpointI.h"
 #include "Ice/Comparable.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Locator.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
 #include "Ice/ProxyFunctions.h"
-#include "IceUtil/DisableWarnings.h"
 #include "Instance.h"
 #include "Reference.h"
 #include "TraceLevels.h"

@@ -61,8 +61,6 @@ generated
 .depend
 
 # MSBuild Build System
-Cpp11-Debug/
-Cpp11-Release/
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/

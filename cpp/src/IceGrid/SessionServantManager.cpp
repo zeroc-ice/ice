@@ -3,7 +3,7 @@
 //
 
 #include "SessionServantManager.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/ObjectAdapter.h"
 #include "Ice/UUID.h"
 #include <iterator>

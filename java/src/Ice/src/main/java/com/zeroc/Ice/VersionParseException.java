@@ -42,8 +42,5 @@ public class VersionParseException extends LocalException {
   /** Describes the failure and includes the string that could not be parsed. */
   public String str;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 8839069742920598766L;
+  private static final long serialVersionUID = 8839069742920598766L;
 }

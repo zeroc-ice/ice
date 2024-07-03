@@ -4,18 +4,6 @@
 
 require './TestI.rb'
 
-class II < ::Ice::InterfaceByValue
-    def initialize()
-        super("::Test::I")
-    end
-end
-
-class JI < ::Ice::InterfaceByValue
-    def initialize()
-        super("::Test::J")
-    end
-end
-
 #
 # Ice for Ruby behaves differently than Ice for C++, because
 # collocated invocations are still sent "over the wire". Therefore
@@ -38,10 +26,6 @@ class MyValueFactory
             return EI.new
         elsif type == '::Test::F'
             return FI.new
-        elsif type == '::Test::I'
-            return II.new
-        elsif type == '::Test::J'
-            return JI.new
         end
         fail "unknown type"
     end
@@ -260,25 +244,24 @@ def allTests(helper, communicator)
     print "testing recursive type... "
     STDOUT.flush
     top = Test::Recursive.new
-    p = top;
-    depth = 0;
+    bottom = top;
+    maxDepth = 9;
+
+    maxDepth.times do |_|
+        bottom.v = Test::Recursive.new
+        bottom = bottom.v;
+    end
+    initial.setRecursive(top)
+
+    # Adding one more level would exceed the max class graph depth
+    bottom.v = Test::Recursive.new
+    bottom = bottom.v;
+
     begin
-        while depth <= 700
-            p.v = Test::Recursive.new
-            p = p.v;
-            if (depth < 10 && (depth % 10) == 0) || \
-               (depth < 1000 && (depth % 100) == 0) || \
-               (depth < 10000 && (depth % 1000) == 0) || \
-               (depth % 10000) == 0
-                initial.setRecursive(top)
-            end
-            depth += 1
-        end
-        test(!initial.supportsClassGraphDepthMax())
+        initial.setRecursive(top)
+        test(false)
     rescue Ice::UnknownLocalException
         # Expected marshal exception from the server (max class graph depth reached)
-    rescue Ice::UnknownException
-        # Expected stack overflow from the server (Java only)
     end
     initial.setRecursive(Test::Recursive.new)
     puts "ok"
@@ -310,9 +293,9 @@ def allTests(helper, communicator)
     begin
         uoet.op()
         test(false)
-    rescue Ice::UnexpectedObjectException => ex
-        test(ex.type == "::Test::AlsoEmpty")
-        test(ex.expectedType == "::Test::Empty")
+    rescue Ice::MarshalException => ex
+        test(ex.reason["::Test::AlsoEmpty"])
+        test(ex.reason["::Test::Empty"])
     rescue Ice::UnmarshalOutOfBoundsException => ex
         # This test raises Ice::UnmarshalOutOfBoundsException on Windows when the
         # server is compiled with VC6.

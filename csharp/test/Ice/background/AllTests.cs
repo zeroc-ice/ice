@@ -265,7 +265,7 @@ public class AllTests
         {
             if (i == 0 || i == 2)
             {
-                configuration.connectorsException(new Ice.DNSException());
+                configuration.connectorsException(new Ice.DNSException("dummy"));
             }
             else
             {

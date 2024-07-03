@@ -37,7 +37,7 @@ Collocated::run(int argc, char** argv)
 
     communicator->getProperties()->setProperty("ForwardingAdapter.Endpoints", getTestEndpoint(1));
     Ice::ObjectAdapterPtr forwardingAdapter = communicator->createObjectAdapter("ForwardingAdapter");
-    forwardingAdapter->addDefaultServant(adapter->dispatcher(), "");
+    forwardingAdapter->addDefaultServant(adapter->dispatchPipeline(), "");
 
     communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", getTestEndpoint(2));
     Ice::ObjectAdapterPtr controllerAdapter = communicator->createObjectAdapter("ControllerAdapter");

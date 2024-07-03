@@ -18,11 +18,11 @@ internal sealed class OpaqueEndpointI : EndpointI
 
         if (_type < 0)
         {
-            throw new Ice.EndpointParseException("no -t option in endpoint " + ToString());
+            throw new ParseException($"no -t option in endpoint '{this}'");
         }
         if (_rawBytes.Length == 0)
         {
-            throw new Ice.EndpointParseException("no -v option in endpoint " + ToString());
+            throw new ParseException($"no -v option in endpoint '{this}'");
         }
     }
 
@@ -336,11 +336,11 @@ internal sealed class OpaqueEndpointI : EndpointI
             {
                 if (_type > -1)
                 {
-                    throw new Ice.EndpointParseException("multiple -t options in endpoint " + endpoint);
+                    throw new ParseException($"multiple -t options in endpoint '{endpoint}'");
                 }
                 if (argument == null)
                 {
-                    throw new Ice.EndpointParseException("no argument provided for -t option in endpoint " + endpoint);
+                    throw new ParseException($"no argument provided for -t option in endpoint '{endpoint}'");
                 }
 
                 int t;
@@ -348,16 +348,14 @@ internal sealed class OpaqueEndpointI : EndpointI
                 {
                     t = System.Int32.Parse(argument, CultureInfo.InvariantCulture);
                 }
-                catch (System.FormatException)
+                catch (FormatException ex)
                 {
-                    throw new Ice.EndpointParseException("invalid type value `" + argument + "' in endpoint " +
-                                                         endpoint);
+                    throw new ParseException($"invalid type value '{argument}' in endpoint '{endpoint}'", ex);
                 }
 
                 if (t < 0 || t > 65535)
                 {
-                    throw new Ice.EndpointParseException("type value `" + argument + "' out of range in endpoint " +
-                                                         endpoint);
+                    throw new ParseException($"type value '{argument}' out of range in endpoint '{endpoint}'");
                 }
 
                 _type = (short)t;
@@ -368,11 +366,11 @@ internal sealed class OpaqueEndpointI : EndpointI
             {
                 if (_rawBytes.Length > 0)
                 {
-                    throw new Ice.EndpointParseException("multiple -v options in endpoint " + endpoint);
+                    throw new ParseException($"multiple -v options in endpoint '{endpoint}'");
                 }
                 if (argument == null)
                 {
-                    throw new Ice.EndpointParseException("no argument provided for -v option in endpoint " + endpoint);
+                    throw new ParseException($"no argument provided for -v option in endpoint '{endpoint}'");
                 }
 
                 try
@@ -381,7 +379,7 @@ internal sealed class OpaqueEndpointI : EndpointI
                 }
                 catch (System.FormatException ex)
                 {
-                    throw new Ice.EndpointParseException("Invalid Base64 input in endpoint " + endpoint, ex);
+                    throw new ParseException($"invalid Base64 input in endpoint '{endpoint}'", ex);
                 }
 
                 return true;
@@ -391,17 +389,16 @@ internal sealed class OpaqueEndpointI : EndpointI
             {
                 if (argument == null)
                 {
-                    throw new Ice.EndpointParseException("no argument provided for -e option in endpoint " + endpoint);
+                    throw new ParseException($"no argument provided for -e option in endpoint '{endpoint}'");
                 }
 
                 try
                 {
                     _rawEncoding = Ice.Util.stringToEncodingVersion(argument);
                 }
-                catch (Ice.VersionParseException e)
+                catch (ParseException e)
                 {
-                    throw new Ice.EndpointParseException("invalid encoding version `" + argument +
-                                                         "' in endpoint " + endpoint + ":\n" + e.str);
+                    throw new ParseException($"invalid encoding version '{argument}' in endpoint '{endpoint}'", e);
                 }
                 return true;
             }

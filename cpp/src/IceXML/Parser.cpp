@@ -3,7 +3,7 @@
 //
 
 #include "Parser.h"
-#include "IceUtil/FileUtil.h"
+#include "../Ice/FileUtil.h"
 
 #include <expat.h>
 
@@ -18,16 +18,14 @@ using namespace IceXML;
 //
 // ParserException
 //
-IceXML::ParserException::ParserException(string reason) noexcept : _reason(std::move(reason)) {}
-
 IceXML::ParserException::ParserException(const char* file, int line, string reason) noexcept
-    : Exception(file, line),
+    : LocalException(file, line),
       _reason(std::move(reason))
 {
 }
 
-string
-IceXML::ParserException::ice_id() const
+const char*
+IceXML::ParserException::ice_id() const noexcept
 {
     return "::IceXML::ParserException";
 }
@@ -358,7 +356,7 @@ IceXML::Parser::parse(istream& in)
 void
 IceXML::Parser::parse(const string& file, Handler& handler) // The given filename must be UTF-8 encoded
 {
-    ifstream in(IceUtilInternal::streamFilename(file).c_str());
+    ifstream in(IceInternal::streamFilename(file).c_str());
     if (!in.good())
     {
         ostringstream out;

@@ -22,8 +22,7 @@
 #include "Ice/OutgoingAsync.h"
 #include "Ice/OutgoingResponse.h"
 #include "Ice/OutputStream.h"
-#include "IceUtil/StopWatch.h"
-#include "IceUtil/Timer.h"
+#include "Ice/Timer.h"
 #include "RequestHandler.h"
 #include "TraceLevelsF.h"
 #include "TransceiverF.h"
@@ -89,6 +88,10 @@ namespace Ice
                   receivedReply(false)
 #endif
             {
+                assert(stream);
+                // The outgoing message can be sent asynchronously. If the stream doesn't own its memory, the memory
+                // owner could release it before the message is sent.
+                assert(stream->b.ownsMemory());
             }
 
             OutgoingMessage(const IceInternal::OutgoingAsyncBasePtr& o, Ice::OutputStream* str, bool comp, int rid)
@@ -104,6 +107,8 @@ namespace Ice
                   receivedReply(false)
 #endif
             {
+                assert(stream);
+                assert(stream->b.ownsMemory());
             }
 
             void adopt(Ice::OutputStream*);
@@ -222,8 +227,7 @@ namespace Ice
         /// - its transceiver is waiting to be read
         /// - the idle check timer task has been rescheduled by a concurrent read
         /// In the two latter cases, this function reschedules the idle check timer task in idle timeout.
-        void
-        idleCheck(const IceUtil::TimerTaskPtr& idleCheckTimerTask, const std::chrono::seconds& idleTimeout) noexcept;
+        void idleCheck(const Ice::TimerTaskPtr& idleCheckTimerTask, const std::chrono::seconds& idleTimeout) noexcept;
 
         /// Shuts down the connection gracefully if it's at rest when this function is called.
         void inactivityCheck() noexcept;
@@ -306,15 +310,6 @@ namespace Ice
         IceInternal::SocketOperation read(IceInternal::Buffer&);
         IceInternal::SocketOperation write(IceInternal::Buffer&);
 
-        // A connection is at rest if it is active and has no outstanding invocations or dispatches.
-        // We schedule the inactivity timer task when it enters the "at rest" state, and we cancel this timer task when
-        // the connection is about to leave this state.
-        // Must be called with _mutex locked.
-        bool isAtRest() const noexcept
-        {
-            return _state == StateActive && _dispatchCount == 0 && _asyncRequests.empty();
-        }
-
         void scheduleInactivityTimerTask();
         void cancelInactivityTimerTask();
 
@@ -335,13 +330,14 @@ namespace Ice
         const IceInternal::TraceLevelsPtr _traceLevels;
         const IceInternal::ThreadPoolPtr _threadPool;
 
-        const IceUtil::TimerPtr _timer;
+        const Ice::TimerPtr _timer;
 
         const std::chrono::seconds _connectTimeout;
         const std::chrono::seconds _closeTimeout;
         const std::chrono::seconds _inactivityTimeout;
 
-        IceUtil::TimerTaskPtr _inactivityTimerTask;
+        Ice::TimerTaskPtr _inactivityTimerTask;
+        bool _inactivityTimerTaskScheduled;
 
         std::function<void(ConnectionIPtr)> _connectionStartCompleted;
         std::function<void(ConnectionIPtr, std::exception_ptr)> _connectionStartFailed;
@@ -367,6 +363,9 @@ namespace Ice
         std::deque<OutgoingMessage> _sendStreams;
 
         Ice::InputStream _readStream;
+
+        // When _readHeader is true, the next bytes we'll read are the header of a new message. When false, we're
+        // reading next the remainder of a message that was already partially received.
         bool _readHeader;
         Ice::OutputStream _writeStream;
 
@@ -376,7 +375,7 @@ namespace Ice
         int _upcallCount;
 
         // The number of outstanding dispatches. This does not include heartbeat messages, even when the heartbeat
-        // callback is not null.
+        // callback is not null. Maintained only while state is StateActive or StateHolding.
         int _dispatchCount = 0;
 
         State _state; // The current state.

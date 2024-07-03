@@ -73,22 +73,6 @@ class FI extends Test\F
     }
 }
 
-class II extends Ice\InterfaceByValue
-{
-    public function __construct()
-    {
-        parent::__construct("::Test::I");
-    }
-}
-
-class JI extends Ice\InterfaceByValue
-{
-    public function __construct()
-    {
-        parent::__construct("::Test::J");
-    }
-}
-
 class MyValueFactory implements Ice\ValueFactory
 {
     function create($id)
@@ -112,14 +96,6 @@ class MyValueFactory implements Ice\ValueFactory
         else if($id == "::Test::F")
         {
             return new FI();
-        }
-        else if($id == "::Test::I")
-        {
-            return new II();
-        }
-        else if($id == "::Test::J")
-        {
-            return new JI();
         }
         return null;
     }
@@ -386,24 +362,23 @@ function allTests($helper)
     echo "testing recursive type... ";
     flush();
     $top = new Test\Recursive();
-    $p = $top;
-    $depth = 0;
+    $bottom = $top;
+    $maxDepth = 10;
+    for ($i = 1; $i < $maxDepth; $i++)
+    {
+        $bottom->v = new Test\Recursive();
+        $bottom = $bottom->v;
+    }
+    $initial->setRecursive($top);
+
+    // Adding one more level would exceed the max class graph depth
+    $bottom->v = new Test\Recursive();
+    $bottom = $bottom->v;
+
     try
     {
-        while($depth <= 700)
-        {
-            $p->v = new Test\Recursive();
-            $p = $p->v;
-            if(($depth < 10 && ($depth % 10) == 0) ||
-               ($depth < 1000 && ($depth % 100) == 0) ||
-               ($depth < 10000 && ($depth % 1000) == 0) ||
-               ($depth % 10000) == 0)
-            {
-                $initial->setRecursive($top);
-            }
-            $depth += 1;
-        }
-        test(!$initial->supportsClassGraphDepthMax());
+        $initial->setRecursive($top);
+        test(false);
     }
     catch(Exception $ex)
     {
@@ -411,16 +386,11 @@ function allTests($helper)
         {
             // Expected marshal exception from the server (max class graph depth reached)
         }
-        else if($ex instanceof Ice\UnknownException)
-        {
-            // Expected stack overflow from the server (Java only)
-        }
         else
         {
             throw $ex;
         }
     }
-    $initial->setRecursive(new Test\Recursive());
     echo "ok\n";
 
     echo "testing compact ID... ";
@@ -457,10 +427,10 @@ function allTests($helper)
     }
     catch(Exception $ex)
     {
-        if($ex instanceof Ice\UnexpectedObjectException)
+        if($ex instanceof Ice\MarshalException)
         {
-            test($ex->type == "::Test::AlsoEmpty");
-            test($ex->expectedType == "::Test::Empty");
+            test(str_contains($ex->reason, "::Test::AlsoEmpty"));
+            test(str_contains($ex->reason, "::Test::Empty"));
         }
         else if($ex instanceof Ice\UnmarshalOutOfBoundsException)
         {

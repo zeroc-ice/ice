@@ -19,10 +19,6 @@ def MyValueFactory(type):
         return TestI.EI()
     elif type == "::Test::F":
         return TestI.FI()
-    elif type == "::Test::I":
-        return TestI.II()
-    elif type == "::Test::J":
-        return TestI.JI()
     assert False  # Should never be reached
 
 
@@ -37,8 +33,6 @@ def allTests(helper, communicator):
     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::D")
     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::E")
     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::F")
-    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::I")
-    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::J")
 
     sys.stdout.write("testing stringToProxy... ")
     sys.stdout.flush()
@@ -220,26 +214,22 @@ def allTests(helper, communicator):
     sys.stdout.write("testing recursive type... ")
     sys.stdout.flush()
     top = Test.Recursive()
-    p = top
-    depth = 0
+    bottom = top
+
+    for _ in range(1, 10):
+        bottom.v = Test.Recursive()
+        bottom = bottom.v
+    initial.setRecursive(top)
+
+    # Adding one more level would exceed the max class graph depth
+    bottom.v = Test.Recursive()
+    bottom = bottom.v
+
     try:
-        while depth <= 700:
-            p.v = Test.Recursive()
-            p = p.v
-            if (
-                (depth < 10 and (depth % 10) == 0)
-                or (depth < 1000 and (depth % 100) == 0)
-                or (depth < 10000 and (depth % 1000) == 0)
-                or (depth % 10000) == 0
-            ):
-                initial.setRecursive(top)
-            depth += 1
-        test(not initial.supportsClassGraphDepthMax())
+        initial.setRecursive(top)
+        test(False)
     except Ice.UnknownLocalException:
         # Expected marshal exception from the server (max class graph depth reached)
-        pass
-    except Ice.UnknownException:
-        # Expected stack overflow from the server (Java only)
         pass
     initial.setRecursive(Test.Recursive())
     print("ok")
@@ -275,9 +265,9 @@ def allTests(helper, communicator):
         try:
             uoet.op()
             test(False)
-        except Ice.UnexpectedObjectException as ex:
-            test(ex.type == "::Test::AlsoEmpty")
-            test(ex.expectedType == "::Test::Empty")
+        except Ice.MarshalException as ex:
+            test("::Test::AlsoEmpty" in ex.reason)
+            test("::Test::Empty" in ex.reason)
         except Ice.Exception as ex:
             print(ex)
             test(False)

@@ -62,9 +62,4 @@ public abstract class EndpointInfo implements java.lang.Cloneable {
     }
     return c;
   }
-
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -7228250335304066764L;
 }

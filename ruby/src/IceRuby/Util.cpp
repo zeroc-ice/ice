@@ -3,7 +3,7 @@
 //
 
 #include "Util.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/VersionFunctions.h"
 #include <stdarg.h>
 
@@ -208,7 +208,8 @@ IceRuby::RubyException::operator<<(ostream& ostr) const
 {
     volatile VALUE cls = rb_class_path(CLASS_OF(ex));
     volatile VALUE msg = rb_obj_as_string(ex);
-    ostr << RSTRING_PTR(cls) << ": " << RSTRING_PTR(msg);
+    ostr << string_view{RSTRING_PTR(cls), static_cast<size_t>(RSTRING_LEN(cls))} << ": "
+         << string_view{RSTRING_PTR(msg), static_cast<size_t>(RSTRING_LEN(msg))};
     return ostr;
 }
 
@@ -576,7 +577,7 @@ setExceptionMembers(std::exception_ptr ex, VALUE p)
     }
     catch (const Ice::UnknownException& e)
     {
-        volatile VALUE v = createString(e.unknown);
+        volatile VALUE v = createString(e.what());
         callRuby(rb_iv_set, p, "@unknown", v);
     }
     catch (const Ice::ObjectAdapterDeactivatedException& e)
@@ -594,29 +595,9 @@ setExceptionMembers(std::exception_ptr ex, VALUE p)
         volatile VALUE v = createString(e.proxy);
         callRuby(rb_iv_set, p, "@proxy", v);
     }
-    catch (const Ice::EndpointParseException& e)
+    catch (const Ice::ParseException& e)
     {
-        volatile VALUE v = createString(e.str);
-        callRuby(rb_iv_set, p, "@str", v);
-    }
-    catch (const Ice::EndpointSelectionTypeParseException& e)
-    {
-        volatile VALUE v = createString(e.str);
-        callRuby(rb_iv_set, p, "@str", v);
-    }
-    catch (const Ice::VersionParseException& e)
-    {
-        volatile VALUE v = createString(e.str);
-        callRuby(rb_iv_set, p, "@str", v);
-    }
-    catch (const Ice::IdentityParseException& e)
-    {
-        volatile VALUE v = createString(e.str);
-        callRuby(rb_iv_set, p, "@str", v);
-    }
-    catch (const Ice::ProxyParseException& e)
-    {
-        volatile VALUE v = createString(e.str);
+        volatile VALUE v = createString(e.what());
         callRuby(rb_iv_set, p, "@str", v);
     }
     catch (const Ice::IllegalServantException& e)
@@ -627,11 +608,11 @@ setExceptionMembers(std::exception_ptr ex, VALUE p)
     catch (const Ice::RequestFailedException& e)
     {
         volatile VALUE v;
-        v = IceRuby::createIdentity(e.id);
+        v = IceRuby::createIdentity(e.id());
         callRuby(rb_iv_set, p, "@id", v);
-        v = createString(e.facet);
+        v = createString(e.facet());
         callRuby(rb_iv_set, p, "@facet", v);
-        v = createString(e.operation);
+        v = createString(e.operation());
         callRuby(rb_iv_set, p, "@operation", v);
     }
     catch (const Ice::FileException& e)
@@ -654,48 +635,9 @@ setExceptionMembers(std::exception_ptr ex, VALUE p)
         v = createString(e.host);
         callRuby(rb_iv_set, p, "@host", v);
     }
-    catch (const Ice::BadMagicException& e)
-    {
-        volatile VALUE v = createNumSeq(e.badMagic);
-        callRuby(rb_iv_set, p, "@badMagic", v);
-    }
-    catch (const Ice::UnsupportedProtocolException& e)
-    {
-        VALUE m;
-        m = createProtocolVersion(e.bad);
-        callRuby(rb_iv_set, p, "@bad", m);
-        m = createProtocolVersion(e.supported);
-        callRuby(rb_iv_set, p, "@supported", m);
-    }
-    catch (const Ice::UnsupportedEncodingException& e)
-    {
-        VALUE m;
-        m = createEncodingVersion(e.bad);
-        callRuby(rb_iv_set, p, "@bad", m);
-        m = createEncodingVersion(e.supported);
-        callRuby(rb_iv_set, p, "@supported", m);
-    }
-    catch (const Ice::NoValueFactoryException& e)
-    {
-        volatile VALUE v;
-        v = createString(e.reason);
-        callRuby(rb_iv_set, p, "@reason", v);
-        v = createString(e.type);
-        callRuby(rb_iv_set, p, "@type", v);
-    }
-    catch (const Ice::UnexpectedObjectException& e)
-    {
-        volatile VALUE v;
-        v = createString(e.reason);
-        callRuby(rb_iv_set, p, "@reason", v);
-        v = createString(e.type);
-        callRuby(rb_iv_set, p, "@type", v);
-        v = createString(e.expectedType);
-        callRuby(rb_iv_set, p, "@expectedType", v);
-    }
     catch (const Ice::ProtocolException& e) // This must appear after all subclasses of ProtocolException.
     {
-        volatile VALUE v = createString(e.reason);
+        volatile VALUE v = createString(e.what());
         callRuby(rb_iv_set, p, "@reason", v);
     }
     catch (const Ice::ConnectionManuallyClosedException& e)
@@ -704,7 +646,7 @@ setExceptionMembers(std::exception_ptr ex, VALUE p)
     }
     catch (const Ice::FeatureNotSupportedException& e)
     {
-        volatile VALUE v = createString(e.unsupportedFeature);
+        volatile VALUE v = createString(e.what());
         callRuby(rb_iv_set, p, "@unsupportedFeature", v);
     }
     catch (const Ice::SecurityException& e)
@@ -751,7 +693,7 @@ IceRuby::convertLocalException(std::exception_ptr eptr)
     {
         try
         {
-            string name = ex.ice_id().substr(2);
+            string name = string{ex.ice_id()}.substr(2);
             volatile VALUE cls = callRuby(rb_path2class, name.c_str());
             if (NIL_P(cls))
             {
@@ -767,7 +709,7 @@ IceRuby::convertLocalException(std::exception_ptr eptr)
         }
         catch (...)
         {
-            string msg = "failure occurred while converting exception " + ex.ice_id();
+            string msg = "failure occurred while converting exception " + string{ex.ice_id()};
             return rb_exc_new2(rb_eRuntimeError, msg.c_str());
         }
     }

@@ -18,9 +18,9 @@ public class AllTests {
     }
   }
 
-  static String getPort(com.zeroc.Ice.PropertiesAdminPrx p) {
+  static String getPort(com.zeroc.Ice.PropertiesAdminPrx p, int testPort) {
     return Integer.toString(
-        test.TestHelper.getTestPort(p.ice_getCommunicator().getProperties(), 0));
+        test.TestHelper.getTestPort(p.ice_getCommunicator().getProperties(), testPort));
   }
 
   static ConnectionMetrics getServerConnectionMetrics(MetricsAdminPrx metrics, long expected) {
@@ -98,7 +98,7 @@ public class AllTests {
       map += "Map." + m + '.';
     }
     props.put("IceMX.Metrics.View." + map + "Reject.parent", "Ice\\.Admin");
-    props.put("IceMX.Metrics.View." + map + "Accept.endpointPort", getPort(p));
+    props.put("IceMX.Metrics.View." + map + "Accept.endpointPort", getPort(p, 0));
     props.put("IceMX.Metrics.View." + map + "Reject.identity", ".*/admin|controller");
     return props;
   }
@@ -117,7 +117,9 @@ public class AllTests {
       map += "Map." + m + '.';
     }
     props.put("IceMX.Metrics.View." + map + "Reject.parent", "Ice\\.Admin|Controller");
-    props.put("IceMX.Metrics.View." + map + "Accept.endpointPort", getPort(p));
+    // Regular expression to match server test endpoint 0 and test endpoint 1
+    props.put(
+        "IceMX.Metrics.View." + map + "Accept.endpointPort", getPort(p, 0) + "|" + getPort(p, 1));
     return props;
   }
 
@@ -312,6 +314,8 @@ public class AllTests {
     String hostAndPort = host + ":" + port;
     String protocol = helper.getTestProtocol();
     String endpoint = protocol + " -h " + host + " -p " + port;
+    String forwardingEndpoint =
+        protocol + " -h " + host + " -p " + Integer.toString(helper.getTestPort(1));
 
     MetricsPrx metrics = MetricsPrx.checkedCast(communicator.stringToProxy("metrics:" + endpoint));
     boolean collocated = metrics.ice_getConnection() == null;
@@ -514,7 +518,7 @@ public class AllTests {
 
       ControllerPrx controller =
           ControllerPrx.checkedCast(
-              communicator.stringToProxy("controller:" + helper.getTestEndpoint(1)));
+              communicator.stringToProxy("controller:" + helper.getTestEndpoint(2)));
       controller.hold();
 
       map = toMap(clientMetrics.getMetricsView("View").returnValue.get("Connection"));
@@ -539,47 +543,25 @@ public class AllTests {
 
       metrics.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
 
-      metrics.ice_timeout(500).ice_ping();
-      controller.hold();
+      // TODO: this appears necessary on slow macos VMs to give time to the server to clean-up the
+      // connection.
       try {
-        metrics.ice_timeout(500).opByteS(new byte[10000000]);
-        test(false);
-      } catch (com.zeroc.Ice.TimeoutException ex) {
+        Thread.sleep(100);
+      } catch (InterruptedException ex) {
       }
-      controller.resume();
 
-      cm1 =
-          (ConnectionMetrics) clientMetrics.getMetricsView("View").returnValue.get("Connection")[0];
-      while (true) {
-        sm1 =
-            (ConnectionMetrics)
-                serverMetrics.getMetricsView("View").returnValue.get("Connection")[0];
-        if (sm1.failures >= 2) {
-          break;
-        }
-        try {
-          Thread.sleep(10);
-        } catch (InterruptedException ex) {
-        }
-      }
-      test(cm1.failures == 2 && sm1.failures >= 2);
-
-      checkFailure(clientMetrics, "Connection", cm1.id, "::Ice::TimeoutException", 1, out);
-      checkFailure(clientMetrics, "Connection", cm1.id, "::Ice::ConnectTimeoutException", 1, out);
-      checkFailure(serverMetrics, "Connection", sm1.id, "::Ice::ConnectionLostException", 0, out);
-
-      MetricsPrx m = metrics.ice_timeout(500).ice_connectionId("Con1");
+      MetricsPrx m = metrics.ice_connectionId("Con1");
       m.ice_ping();
 
       testAttribute(clientMetrics, clientProps, "Connection", "parent", "Communicator", out);
       // testAttribute(clientMetrics, clientProps, "Connection", "id", "");
       testAttribute(
-          clientMetrics, clientProps, "Connection", "endpoint", endpoint + " -t 500", out);
+          clientMetrics, clientProps, "Connection", "endpoint", endpoint + " -t infinite", out);
 
       testAttribute(clientMetrics, clientProps, "Connection", "endpointType", type, out);
       testAttribute(clientMetrics, clientProps, "Connection", "endpointIsDatagram", "false", out);
       testAttribute(clientMetrics, clientProps, "Connection", "endpointIsSecure", isSecure, out);
-      testAttribute(clientMetrics, clientProps, "Connection", "endpointTimeout", "500", out);
+      testAttribute(clientMetrics, clientProps, "Connection", "endpointTimeout", "-1", out);
       testAttribute(clientMetrics, clientProps, "Connection", "endpointCompress", "false", out);
       testAttribute(clientMetrics, clientProps, "Connection", "endpointHost", host, out);
       testAttribute(clientMetrics, clientProps, "Connection", "endpointPort", port, out);
@@ -622,7 +604,7 @@ public class AllTests {
       metrics.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
       controller.hold();
       try {
-        communicator.stringToProxy("test:" + endpoint).ice_timeout(10).ice_ping();
+        communicator.stringToProxy("test:" + endpoint).ice_connectionId("con2").ice_ping();
         test(false);
       } catch (com.zeroc.Ice.ConnectTimeoutException ex) {
       } catch (com.zeroc.Ice.LocalException ex) {
@@ -742,23 +724,11 @@ public class AllTests {
 
       c = new Connect(prx);
 
+      String expected = protocol + " -h localhost -p " + port + " -t 500";
+
       testAttribute(clientMetrics, clientProps, "EndpointLookup", "parent", "Communicator", c, out);
-      testAttribute(
-          clientMetrics,
-          clientProps,
-          "EndpointLookup",
-          "id",
-          prx.ice_getConnection().getEndpoint().toString(),
-          c,
-          out);
-      testAttribute(
-          clientMetrics,
-          clientProps,
-          "EndpointLookup",
-          "endpoint",
-          prx.ice_getConnection().getEndpoint().toString(),
-          c,
-          out);
+      testAttribute(clientMetrics, clientProps, "EndpointLookup", "id", expected, c, out);
+      testAttribute(clientMetrics, clientProps, "EndpointLookup", "endpoint", expected, c, out);
 
       testAttribute(clientMetrics, clientProps, "EndpointLookup", "endpointType", type, c, out);
       testAttribute(
@@ -877,6 +847,16 @@ public class AllTests {
     testAttribute(serverMetrics, serverProps, "Dispatch", "context.entry2", "", op, out);
     testAttribute(serverMetrics, serverProps, "Dispatch", "context.entry3", "", op, out);
 
+    out.println("ok");
+
+    out.print("testing dispatch metrics with forwarding object adapter... ");
+    out.flush();
+    MetricsPrx indirectMetrics =
+        MetricsPrx.createProxy(communicator, "metrics:" + forwardingEndpoint);
+    var secondOp = new InvokeOp(indirectMetrics);
+    testAttribute(
+        serverMetrics, serverProps, "Dispatch", "parent", "ForwardingAdapter", secondOp, out);
+    testAttribute(serverMetrics, serverProps, "Dispatch", "id", "metrics [op]", secondOp, out);
     out.println("ok");
 
     out.print("testing invocation metrics... ");

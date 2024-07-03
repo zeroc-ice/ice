@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 /// SlicedData holds the slices of unknown class or exception types.
 public final class SlicedData {

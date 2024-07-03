@@ -4,7 +4,7 @@
 
 #include "Selector.h"
 #include "EventHandler.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Instance.h"
 
@@ -197,7 +197,7 @@ Selector::Selector(const InstancePtr& instance) : _instance(instance), _interrup
     if (epoll_ctl(_queueFd, EPOLL_CTL_ADD, _fdIntrRead, &event) != 0)
     {
         Ice::Error out(_instance->initializationData().logger);
-        out << "error while updating selector:\n" << IceUtilInternal::errorToString(IceInternal::getSocketErrno());
+        out << "error while updating selector:\n" << IceInternal::errorToString(IceInternal::getSocketErrno());
     }
 #    elif defined(ICE_USE_KQUEUE)
     _events.resize(256);
@@ -213,7 +213,7 @@ Selector::Selector(const InstancePtr& instance) : _instance(instance), _interrup
     if (rs < 0)
     {
         Ice::Error out(_instance->initializationData().logger);
-        out << "error while updating selector:\n" << IceUtilInternal::errorToString(IceInternal::getSocketErrno());
+        out << "error while updating selector:\n" << IceInternal::errorToString(IceInternal::getSocketErrno());
     }
 #    elif defined(ICE_USE_SELECT)
     FD_ZERO(&_readFdSet);
@@ -319,7 +319,7 @@ Selector::enable(EventHandler* handler, SocketOperation status)
         if (epoll_ctl(_queueFd, previous ? EPOLL_CTL_MOD : EPOLL_CTL_ADD, fd, &event) != 0)
         {
             Ice::Error out(_instance->initializationData().logger);
-            out << "error while updating selector:\n" << IceUtilInternal::errorToString(IceInternal::getSocketErrno());
+            out << "error while updating selector:\n" << IceInternal::errorToString(IceInternal::getSocketErrno());
         }
 #    elif defined(ICE_USE_KQUEUE)
         struct kevent ev;
@@ -373,7 +373,7 @@ Selector::disable(EventHandler* handler, SocketOperation status)
         if (epoll_ctl(_queueFd, newStatus ? EPOLL_CTL_MOD : EPOLL_CTL_DEL, fd, &event) != 0)
         {
             Ice::Error out(_instance->initializationData().logger);
-            out << "error while updating selector:\n" << IceUtilInternal::errorToString(IceInternal::getSocketErrno());
+            out << "error while updating selector:\n" << IceInternal::errorToString(IceInternal::getSocketErrno());
         }
 #    elif defined(ICE_USE_KQUEUE)
         SOCKET fd = nativeInfo->fd();
@@ -545,7 +545,7 @@ Selector::finishSelect(vector<pair<EventHandler*, SocketOperation>>& handlers)
         if (ev.flags & EV_ERROR)
         {
             Ice::Error out(_instance->initializationData().logger);
-            out << "selector returned error:\n" << IceUtilInternal::errorToString(static_cast<int>(ev.data));
+            out << "selector returned error:\n" << IceInternal::errorToString(static_cast<int>(ev.data));
             continue;
         }
         p.first = reinterpret_cast<EventHandler*>(ev.udata);
@@ -745,7 +745,7 @@ Selector::updateSelector()
     if (rs < 0)
     {
         Ice::Error out(_instance->initializationData().logger);
-        out << "error while updating selector:\n" << IceUtilInternal::errorToString(IceInternal::getSocketErrno());
+        out << "error while updating selector:\n" << IceInternal::errorToString(IceInternal::getSocketErrno());
     }
     else
     {
@@ -760,7 +760,7 @@ Selector::updateSelector()
             {
                 Ice::Error out(_instance->initializationData().logger);
                 out << "error while updating selector:\n"
-                    << IceUtilInternal::errorToString(static_cast<int>(_changes[static_cast<size_t>(i)].data));
+                    << IceInternal::errorToString(static_cast<int>(_changes[static_cast<size_t>(i)].data));
             }
         }
     }
@@ -909,7 +909,7 @@ Selector::updateSelectorForEventHandler(
     if (epoll_ctl(_queueFd, op, fd, &event) != 0)
     {
         Ice::Error out(_instance->initializationData().logger);
-        out << "error while updating selector:\n" << IceUtilInternal::errorToString(IceInternal::getSocketErrno());
+        out << "error while updating selector:\n" << IceInternal::errorToString(IceInternal::getSocketErrno());
     }
 #    elif defined(ICE_USE_KQUEUE)
     SOCKET fd = handler->getNativeInfo()->fd();

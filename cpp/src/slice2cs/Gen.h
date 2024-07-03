@@ -12,7 +12,7 @@ namespace Slice
     class CsVisitor : public CsGenerator, public ParserVisitor
     {
     public:
-        CsVisitor(::IceUtilInternal::Output&);
+        CsVisitor(::IceInternal::Output&);
         virtual ~CsVisitor();
 
     protected:
@@ -27,8 +27,8 @@ namespace Slice
         void writeMarshalDataMember(const DataMemberPtr&, const std::string&, const std::string&, bool = false);
         void writeUnmarshalDataMember(const DataMemberPtr&, const std::string&, const std::string&, bool = false);
 
-        virtual void writeInheritedOperations(const InterfaceDefPtr&);
-        virtual void writeMarshaling(const ClassDefPtr&);
+        void writeInheritedOperations(const InterfaceDefPtr&);
+        void writeMarshaling(const ClassDefPtr&);
 
         static std::vector<std::string> getParams(const OperationPtr&, const std::string&);
         static std::vector<std::string> getInParams(const OperationPtr&, const std::string&, bool = false);
@@ -89,10 +89,10 @@ namespace Slice
         void moduleStart(const ModulePtr&);
         void moduleEnd(const ModulePtr&);
 
-        ::IceUtilInternal::Output& _out;
+        ::IceInternal::Output& _out;
     };
 
-    class Gen
+    class Gen final
     {
     public:
         Gen(const std::string&, const std::vector<std::string>&, const std::string&);
@@ -102,68 +102,55 @@ namespace Slice
         void generate(const UnitPtr&);
 
     private:
-        IceUtilInternal::Output _out;
+        IceInternal::Output _out;
         std::vector<std::string> _includePaths;
 
         void printHeader();
 
-        class UnitVisitor : public CsVisitor
+        class UnitVisitor final : public CsVisitor
         {
         public:
-            UnitVisitor(::IceUtilInternal::Output&);
+            UnitVisitor(::IceInternal::Output&);
 
-            virtual bool visitUnitStart(const UnitPtr&);
+            bool visitUnitStart(const UnitPtr&) final;
         };
 
-        class TypesVisitor : public CsVisitor
+        class TypesVisitor final : public CsVisitor
         {
         public:
-            TypesVisitor(::IceUtilInternal::Output&);
+            TypesVisitor(::IceInternal::Output&);
 
-            virtual bool visitModuleStart(const ModulePtr&);
-            virtual void visitModuleEnd(const ModulePtr&);
-            virtual bool visitClassDefStart(const ClassDefPtr&);
-            virtual void visitClassDefEnd(const ClassDefPtr&);
-            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-            virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
-            virtual void visitOperation(const OperationPtr&);
-            virtual bool visitExceptionStart(const ExceptionPtr&);
-            virtual void visitExceptionEnd(const ExceptionPtr&);
-            virtual bool visitStructStart(const StructPtr&);
-            virtual void visitStructEnd(const StructPtr&);
-            virtual void visitSequence(const SequencePtr&);
-            virtual void visitEnum(const EnumPtr&);
-            virtual void visitConst(const ConstPtr&);
-            virtual void visitDataMember(const DataMemberPtr&);
+            bool visitModuleStart(const ModulePtr&) final;
+            void visitModuleEnd(const ModulePtr&) final;
+            bool visitClassDefStart(const ClassDefPtr&) final;
+            void visitClassDefEnd(const ClassDefPtr&) final;
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
+            void visitOperation(const OperationPtr&) final;
+            bool visitExceptionStart(const ExceptionPtr&) final;
+            void visitExceptionEnd(const ExceptionPtr&) final;
+            bool visitStructStart(const StructPtr&) final;
+            void visitStructEnd(const StructPtr&) final;
+            void visitSequence(const SequencePtr&) final;
+            void visitEnum(const EnumPtr&) final;
+            void visitConst(const ConstPtr&) final;
+            void visitDataMember(const DataMemberPtr&) final;
         };
 
-        class ResultVisitor : public CsVisitor
+        class ResultVisitor final : public CsVisitor
         {
         public:
-            ResultVisitor(::IceUtilInternal::Output&);
+            ResultVisitor(::IceInternal::Output&);
 
-            virtual bool visitModuleStart(const ModulePtr&);
-            virtual void visitModuleEnd(const ModulePtr&);
-            virtual void visitOperation(const OperationPtr&);
+            bool visitModuleStart(const ModulePtr&) final;
+            void visitModuleEnd(const ModulePtr&) final;
+            void visitOperation(const OperationPtr&) final;
         };
 
-        class ProxyVisitor : public CsVisitor
+        class ProxyVisitor final : public CsVisitor
         {
         public:
-            ProxyVisitor(::IceUtilInternal::Output&);
-
-            virtual bool visitModuleStart(const ModulePtr&);
-            virtual void visitModuleEnd(const ModulePtr&);
-            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-            virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
-            virtual void visitOperation(const OperationPtr&);
-        };
-
-        // Generates the iceD helper methods in the server-side interface.
-        class DispatchAdapterVisitor final : public CsVisitor
-        {
-        public:
-            DispatchAdapterVisitor(::IceUtilInternal::Output&);
+            ProxyVisitor(::IceInternal::Output&);
 
             bool visitModuleStart(const ModulePtr&) final;
             void visitModuleEnd(const ModulePtr&) final;
@@ -172,28 +159,41 @@ namespace Slice
             void visitOperation(const OperationPtr&) final;
         };
 
-        class HelperVisitor : public CsVisitor
+        // Generates the iceD helper methods in the server-side interface.
+        class DispatchAdapterVisitor final : public CsVisitor
         {
         public:
-            HelperVisitor(::IceUtilInternal::Output&);
+            DispatchAdapterVisitor(::IceInternal::Output&);
 
-            virtual bool visitModuleStart(const ModulePtr&);
-            virtual void visitModuleEnd(const ModulePtr&);
-            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-            virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
-            virtual void visitSequence(const SequencePtr&);
-            virtual void visitDictionary(const DictionaryPtr&);
+            bool visitModuleStart(const ModulePtr&) final;
+            void visitModuleEnd(const ModulePtr&) final;
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
+            void visitOperation(const OperationPtr&) final;
         };
 
-        class DispatcherVisitor : public CsVisitor
+        class HelperVisitor final : public CsVisitor
         {
         public:
-            DispatcherVisitor(::IceUtilInternal::Output&);
+            HelperVisitor(::IceInternal::Output&);
 
-            virtual bool visitModuleStart(const ModulePtr&);
-            virtual void visitModuleEnd(const ModulePtr&);
-            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-            virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
+            bool visitModuleStart(const ModulePtr&) final;
+            void visitModuleEnd(const ModulePtr&) final;
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
+            void visitSequence(const SequencePtr&) final;
+            void visitDictionary(const DictionaryPtr&) final;
+        };
+
+        class DispatcherVisitor final : public CsVisitor
+        {
+        public:
+            DispatcherVisitor(::IceInternal::Output&);
+
+            bool visitModuleStart(const ModulePtr&) final;
+            void visitModuleEnd(const ModulePtr&) final;
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
 
         private:
             void writeDispatch(const InterfaceDefPtr&);

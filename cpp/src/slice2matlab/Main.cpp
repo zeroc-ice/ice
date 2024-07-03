@@ -2,16 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../Ice/ConsoleUtil.h"
+#include "../Ice/FileUtil.h"
+#include "../Ice/Options.h"
+#include "../Ice/OutputUtil.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Parser.h"
 #include "../Slice/Preprocessor.h"
 #include "../Slice/Util.h"
-#include "IceUtil/ConsoleUtil.h"
-#include "IceUtil/CtrlCHandler.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/Options.h"
-#include "IceUtil/OutputUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/CtrlCHandler.h"
+#include "Ice/StringUtil.h"
 
 #include <algorithm>
 #include <cassert>
@@ -31,7 +31,7 @@
 
 using namespace std;
 using namespace Slice;
-using namespace IceUtilInternal;
+using namespace IceInternal;
 
 namespace
 {
@@ -299,7 +299,7 @@ namespace
         return r;
     }
 
-    void writeCopyright(IceUtilInternal::Output& out, const string& file)
+    void writeCopyright(IceInternal::Output& out, const string& file)
     {
         string f = file;
         string::size_type pos = f.find_last_of("/");
@@ -313,7 +313,7 @@ namespace
         out << nl;
     }
 
-    void openClass(const string& abs, const string& dir, IceUtilInternal::Output& out)
+    void openClass(const string& abs, const string& dir, IceInternal::Output& out)
     {
         vector<string> v = splitAbsoluteName(abs);
         assert(v.size() > 1);
@@ -330,19 +330,19 @@ namespace
         for (vector<string>::size_type i = 0; i < v.size() - 1; i++)
         {
             path += "+" + lookupKwd(v[i]);
-            if (!IceUtilInternal::directoryExists(path))
+            if (!IceInternal::directoryExists(path))
             {
-                int err = IceUtilInternal::mkdir(path, 0777);
+                int err = IceInternal::mkdir(path, 0777);
                 // If slice2matlab is run concurrently, it's possible that another instance of slice2matlab has already
                 // created the directory.
-                if (err == 0 || (errno == EEXIST && IceUtilInternal::directoryExists(path)))
+                if (err == 0 || (errno == EEXIST && IceInternal::directoryExists(path)))
                 {
                     // Directory successfully created or already exists.
                 }
                 else
                 {
                     ostringstream os;
-                    os << "cannot create directory `" << path << "': " << IceUtilInternal::errorToString(errno);
+                    os << "cannot create directory `" << path << "': " << IceInternal::errorToString(errno);
                     throw FileException(__FILE__, __LINE__, os.str());
                 }
                 FileTracker::instance()->addDirectory(path);
@@ -680,7 +680,7 @@ namespace
     }
 
     void convertValueType(
-        IceUtilInternal::Output& out,
+        IceInternal::Output& out,
         const string& dest,
         const string& src,
         const TypePtr& type,
@@ -804,10 +804,10 @@ namespace
         string::size_type nextPos;
         while ((nextPos = comment.find_first_of('\n', pos)) != string::npos)
         {
-            result.push_back(IceUtilInternal::trim(string(comment, pos, nextPos - pos)));
+            result.push_back(IceInternal::trim(string(comment, pos, nextPos - pos)));
             pos = nextPos + 1;
         }
-        string lastLine = IceUtilInternal::trim(string(comment, pos));
+        string lastLine = IceInternal::trim(string(comment, pos));
         if (!lastLine.empty())
         {
             result.push_back(lastLine);
@@ -884,7 +884,7 @@ namespace
         // First check metadata for a deprecated tag.
         if (auto reason = p->getDeprecationReason(false))
         {
-            doc.deprecateReason.push_back(IceUtilInternal::trim(*reason));
+            doc.deprecateReason.push_back(IceInternal::trim(*reason));
         }
 
         //
@@ -923,7 +923,7 @@ namespace
         const string seeTag = "@see";
         for (; i != lines.end(); ++i)
         {
-            const string l = IceUtilInternal::trim(*i);
+            const string l = IceInternal::trim(*i);
             string line;
             if (parseCommentLine(l, paramTag, true, name, line))
             {
@@ -1048,8 +1048,7 @@ namespace
         return doc;
     }
 
-    void
-    writeDocLines(IceUtilInternal::Output& out, const StringList& lines, bool commentFirst, const string& space = " ")
+    void writeDocLines(IceInternal::Output& out, const StringList& lines, bool commentFirst, const string& space = " ")
     {
         StringList l = lines;
         if (!commentFirst)
@@ -1067,7 +1066,7 @@ namespace
         }
     }
 
-    void writeDocSentence(IceUtilInternal::Output& out, const StringList& lines)
+    void writeDocSentence(IceInternal::Output& out, const StringList& lines)
     {
         //
         // Write the first sentence.
@@ -1120,7 +1119,7 @@ namespace
         }
     }
 
-    void writeSeeAlso(IceUtilInternal::Output& out, const StringList& seeAlso, const ContainerPtr& container)
+    void writeSeeAlso(IceInternal::Output& out, const StringList& seeAlso, const ContainerPtr& container)
     {
         assert(!seeAlso.empty());
         //
@@ -1171,7 +1170,7 @@ namespace
         }
     }
 
-    void writeDocSummary(IceUtilInternal::Output& out, const ContainedPtr& p)
+    void writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
     {
         DocElements doc = parseComment(p);
 
@@ -1188,11 +1187,10 @@ namespace
             writeDocLines(out, doc.overview, true);
         }
 
-        if (p->containedType() == Contained::ContainedTypeEnum)
+        if (EnumPtr en = dynamic_pointer_cast<Enum>(p))
         {
             out << nl << "%";
             out << nl << "% " << n << " Properties:";
-            EnumPtr en = dynamic_pointer_cast<Enum>(p);
             const EnumeratorList el = en->enumerators();
             for (EnumeratorList::const_iterator q = el.begin(); q != el.end(); ++q)
             {
@@ -1205,11 +1203,10 @@ namespace
                 }
             }
         }
-        else if (p->containedType() == Contained::ContainedTypeStruct)
+        else if (StructPtr st = dynamic_pointer_cast<Struct>(p))
         {
             out << nl << "%";
             out << nl << "% " << n << " Properties:";
-            StructPtr st = dynamic_pointer_cast<Struct>(p);
             const DataMemberList dml = st->dataMembers();
             for (DataMemberList::const_iterator q = dml.begin(); q != dml.end(); ++q)
             {
@@ -1222,9 +1219,8 @@ namespace
                 }
             }
         }
-        else if (p->containedType() == Contained::ContainedTypeException)
+        else if (ExceptionPtr ex = dynamic_pointer_cast<Exception>(p))
         {
-            ExceptionPtr ex = dynamic_pointer_cast<Exception>(p);
             const DataMemberList dml = ex->dataMembers();
             if (!dml.empty())
             {
@@ -1242,9 +1238,8 @@ namespace
                 }
             }
         }
-        else if (p->containedType() == Contained::ContainedTypeClass)
+        else if (ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(p))
         {
-            ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(p);
             const DataMemberList dml = cl->dataMembers();
             if (!dml.empty())
             {
@@ -1290,7 +1285,7 @@ namespace
         out << nl;
     }
 
-    void writeOpDocSummary(IceUtilInternal::Output& out, const OperationPtr& p, bool async)
+    void writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p, bool async)
     {
         DocElements doc = parseComment(p);
 
@@ -1446,7 +1441,7 @@ namespace
         out << nl;
     }
 
-    void writeProxyDocSummary(IceUtilInternal::Output& out, const InterfaceDefPtr& p)
+    void writeProxyDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p)
     {
         DocElements doc = parseComment(p);
 
@@ -1516,7 +1511,7 @@ namespace
         out << nl;
     }
 
-    void writeMemberDoc(IceUtilInternal::Output& out, const DataMemberPtr& p)
+    void writeMemberDoc(IceInternal::Output& out, const DataMemberPtr& p)
     {
         DocElements doc = parseComment(p);
 
@@ -1531,8 +1526,7 @@ namespace
 
         string n;
 
-        ContainedPtr cont = dynamic_pointer_cast<Contained>(p->container());
-        if (cont->containedType() == Contained::ContainedTypeException)
+        if (dynamic_pointer_cast<Exception>(p))
         {
             n = fixExceptionMember(p->name());
         }
@@ -1578,19 +1572,19 @@ namespace
 //
 // CodeVisitor generates the Matlab mapping for a translation unit.
 //
-class CodeVisitor : public ParserVisitor
+class CodeVisitor final : public ParserVisitor
 {
 public:
     CodeVisitor(const string&);
 
-    virtual bool visitClassDefStart(const ClassDefPtr&);
-    virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-    virtual bool visitExceptionStart(const ExceptionPtr&);
-    virtual bool visitStructStart(const StructPtr&);
-    virtual void visitSequence(const SequencePtr&);
-    virtual void visitDictionary(const DictionaryPtr&);
-    virtual void visitEnum(const EnumPtr&);
-    virtual void visitConst(const ConstPtr&);
+    bool visitClassDefStart(const ClassDefPtr&) final;
+    bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+    bool visitExceptionStart(const ExceptionPtr&) final;
+    bool visitStructStart(const StructPtr&) final;
+    void visitSequence(const SequencePtr&) final;
+    void visitDictionary(const DictionaryPtr&) final;
+    void visitEnum(const EnumPtr&) final;
+    void visitConst(const ConstPtr&) final;
 
 private:
     struct MemberInfo
@@ -1628,13 +1622,13 @@ private:
     string getOptionalFormat(const TypePtr&);
     string getFormatType(FormatType);
 
-    void marshal(IceUtilInternal::Output&, const string&, const string&, const TypePtr&, bool, int);
-    void unmarshal(IceUtilInternal::Output&, const string&, const string&, const TypePtr&, bool, int);
+    void marshal(IceInternal::Output&, const string&, const string&, const TypePtr&, bool, int);
+    void unmarshal(IceInternal::Output&, const string&, const string&, const TypePtr&, bool, int);
 
-    void unmarshalStruct(IceUtilInternal::Output&, const StructPtr&, const string&);
-    void convertStruct(IceUtilInternal::Output&, const StructPtr&, const string&);
+    void unmarshalStruct(IceInternal::Output&, const StructPtr&, const string&);
+    void convertStruct(IceInternal::Output&, const StructPtr&, const string&);
 
-    void writeBaseClassArrayParams(IceUtilInternal::Output&, const MemberInfoList&, bool);
+    void writeBaseClassArrayParams(IceInternal::Output&, const MemberInfoList&, bool);
 
     const string _dir;
 };
@@ -1654,7 +1648,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     ClassDefPtr base = p->base();
 
-    IceUtilInternal::Output out;
+    IceInternal::Output out;
     openClass(abs, _dir, out);
 
     writeDocSummary(out, p);
@@ -2059,7 +2053,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const string prxName = p->name() + "Prx";
     const string prxAbs = getAbsolute(p, "", "Prx");
 
-    IceUtilInternal::Output out;
+    IceInternal::Output out;
     openClass(prxAbs, _dir, out);
 
     writeProxyDocSummary(out, p);
@@ -2180,7 +2174,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 marshal(out, "os_", r->fixedName, r->type, r->optional, r->tag);
             }
-            if (op->sendsClasses(false))
+            if (op->sendsClasses())
             {
                 out << nl << "os_.writePendingValues();";
             }
@@ -2287,7 +2281,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     convertParams.push_back(*r);
                 }
             }
-            if (op->returnsClasses(false))
+            if (op->returnsClasses())
             {
                 out << nl << "is_.readPendingValues();";
             }
@@ -2343,7 +2337,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 marshal(out, "os_", r->fixedName, r->type, r->optional, r->tag);
             }
-            if (op->sendsClasses(false))
+            if (op->sendsClasses())
             {
                 out << nl << "os_.writePendingValues();";
             }
@@ -2414,7 +2408,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 }
                 unmarshal(out, "is_", param, r->type, r->optional, r->tag);
             }
-            if (op->returnsClasses(false))
+            if (op->returnsClasses())
             {
                 out << nl << "is_.readPendingValues();";
             }
@@ -2605,7 +2599,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     const bool basePreserved = p->inheritsMetaData("preserve-slice");
     const bool preserved = p->hasMetaData("preserve-slice");
 
-    IceUtilInternal::Output out;
+    IceInternal::Output out;
     openClass(abs, _dir, out);
 
     writeDocSummary(out, p);
@@ -2785,7 +2779,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
                 string m = "obj." + q->fixedName;
                 convertValueType(out, m, m, q->dataMember->type(), q->dataMember->optional());
             }
-            if (base && base->usesClasses(true))
+            if (base && base->usesClasses())
             {
                 out << nl << "obj = icePostUnmarshal@" << getAbsolute(base) << "(obj);";
             }
@@ -2869,7 +2863,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     const string scoped = p->scoped();
     const string abs = getAbsolute(p);
 
-    IceUtilInternal::Output out;
+    IceInternal::Output out;
     openClass(abs, _dir, out);
 
     writeDocSummary(out, p);
@@ -3067,7 +3061,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     const bool proxy = isProxy(content);
     const bool convert = needsConversion(content);
 
-    IceUtilInternal::Output out;
+    IceInternal::Output out;
     openClass(abs, _dir, out);
 
     writeCopyright(out, p->file());
@@ -3326,7 +3320,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     const string abs = getAbsolute(p);
     const string self = name == "obj" ? "this" : "obj";
 
-    IceUtilInternal::Output out;
+    IceInternal::Output out;
     openClass(abs, _dir, out);
 
     writeCopyright(out, p->file());
@@ -3561,7 +3555,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     const string abs = getAbsolute(p);
     const EnumeratorList enumerators = p->enumerators();
 
-    IceUtilInternal::Output out;
+    IceInternal::Output out;
     openClass(abs, _dir, out);
 
     writeDocSummary(out, p);
@@ -3677,7 +3671,7 @@ CodeVisitor::visitConst(const ConstPtr& p)
     const string scoped = p->scoped();
     const string abs = getAbsolute(p);
 
-    IceUtilInternal::Output out;
+    IceInternal::Output out;
     openClass(abs, _dir, out);
 
     writeDocSummary(out, p);
@@ -3966,7 +3960,7 @@ CodeVisitor::getFormatType(FormatType type)
 
 void
 CodeVisitor::marshal(
-    IceUtilInternal::Output& out,
+    IceInternal::Output& out,
     const string& stream,
     const string& v,
     const TypePtr& type,
@@ -4201,7 +4195,7 @@ CodeVisitor::marshal(
 
 void
 CodeVisitor::unmarshal(
-    IceUtilInternal::Output& out,
+    IceInternal::Output& out,
     const string& stream,
     const string& v,
     const TypePtr& type,
@@ -4445,7 +4439,7 @@ CodeVisitor::unmarshal(
 }
 
 void
-CodeVisitor::unmarshalStruct(IceUtilInternal::Output& out, const StructPtr& p, const string& v)
+CodeVisitor::unmarshalStruct(IceInternal::Output& out, const StructPtr& p, const string& v)
 {
     for (const auto& dm : p->dataMembers())
     {
@@ -4464,7 +4458,7 @@ CodeVisitor::unmarshalStruct(IceUtilInternal::Output& out, const StructPtr& p, c
 }
 
 void
-CodeVisitor::convertStruct(IceUtilInternal::Output& out, const StructPtr& p, const string& v)
+CodeVisitor::convertStruct(IceInternal::Output& out, const StructPtr& p, const string& v)
 {
     for (const auto& dm : p->dataMembers())
     {
@@ -4481,7 +4475,7 @@ CodeVisitor::convertStruct(IceUtilInternal::Output& out, const StructPtr& p, con
 }
 
 void
-CodeVisitor::writeBaseClassArrayParams(IceUtilInternal::Output& out, const MemberInfoList& members, bool noInit)
+CodeVisitor::writeBaseClassArrayParams(IceInternal::Output& out, const MemberInfoList& members, bool noInit)
 {
     out << nl << "v = { ";
     bool first = true;
@@ -4541,18 +4535,18 @@ usage(const string& n)
 int
 compile(const vector<string>& argv)
 {
-    IceUtilInternal::Options opts;
+    IceInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
     opts.addOpt("", "validate");
-    opts.addOpt("D", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
-    opts.addOpt("U", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
-    opts.addOpt("I", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("D", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
+    opts.addOpt("U", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
+    opts.addOpt("I", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("E");
-    opts.addOpt("", "output-dir", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "output-dir", IceInternal::Options::NeedArg);
     opts.addOpt("", "depend");
     opts.addOpt("", "depend-xml");
-    opts.addOpt("", "depend-file", IceUtilInternal::Options::NeedArg, "");
+    opts.addOpt("", "depend-file", IceInternal::Options::NeedArg, "");
     opts.addOpt("", "list-generated");
     opts.addOpt("d", "debug");
     opts.addOpt("", "all");
@@ -4564,7 +4558,7 @@ compile(const vector<string>& argv)
     {
         args = opts.parse(argv);
     }
-    catch (const IceUtilInternal::BadOptException& e)
+    catch (const IceInternal::BadOptException& e)
     {
         consoleErr << argv[0] << ": error: " << e.reason << endl;
         if (!validate)
@@ -4648,7 +4642,7 @@ compile(const vector<string>& argv)
 
     int status = EXIT_SUCCESS;
 
-    IceUtil::CtrlCHandler ctrlCHandler;
+    Ice::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
     ostringstream os;

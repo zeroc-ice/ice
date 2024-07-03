@@ -45,8 +45,7 @@ public class AllTests {
     PrintWriter out = helper.getWriter();
 
     String ref = "communicator:" + helper.getTestEndpoint(0);
-    RemoteCommunicatorPrx rcom =
-        RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
+    var rcom = RemoteCommunicatorPrx.createProxy(communicator, ref);
 
     out.print("testing binding with single endpoint... ");
     out.flush();
@@ -390,7 +389,7 @@ public class AllTests {
       int i;
 
       //
-      // Ensure that endpoints are tried in order by deactiving the adapters
+      // Ensure that endpoints are tried in order by deactivating the adapters
       // one after the other.
       //
       for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter31"); i++)
@@ -566,7 +565,7 @@ public class AllTests {
       int i;
 
       //
-      // Ensure that endpoints are tried in order by deactiving the adapters
+      // Ensure that endpoints are tried in order by deactivating the adapters
       // one after the other.
       //
       for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter61"); i++)
@@ -637,7 +636,7 @@ public class AllTests {
       int i;
 
       //
-      // Ensure that endpoints are tried in order by deactiving the adapters
+      // Ensure that endpoints are tried in order by deactivating the adapters
       // one after the other.
       //
       for (i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI61"); i++)
@@ -710,7 +709,7 @@ public class AllTests {
     }
     out.println("ok");
 
-    if (communicator.getProperties().getProperty("Ice.Plugin.Ice.SSL").length() > 0) {
+    if (communicator.getProperties().getProperty("Ice.Default.Protocol").equals("ssl")) {
       out.print("testing unsecure vs. secure endpoints... ");
       out.flush();
       {

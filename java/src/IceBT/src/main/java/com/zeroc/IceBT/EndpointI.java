@@ -43,7 +43,8 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI {
     _uuid = "";
     _name = "";
     _channel = 0;
-    _timeout = instance.defaultTimeout();
+    // The default timeout is 60,000 milliseconds (1 minute). It's not used in Ice 3.8 or greater.
+    _timeout = 60_000;
     _connectionId = "";
     _compress = false;
   }

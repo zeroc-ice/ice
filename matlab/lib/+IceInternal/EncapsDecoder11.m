@@ -21,9 +21,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             if index < 0
                 throw(Ice.MarshalException('', '', 'invalid object id'));
             elseif index == 0
-                if ~isempty(cb)
-                    cb([]);
-                end
+                cb([]);
             elseif isobject(current) && bitand(current.sliceFlags, Protocol.FLAG_HAS_INDIRECTION_TABLE)
                 %
                 % When reading a class instance within a slice and there's an
@@ -36,16 +34,14 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 % derive an index into the indirection table that we'll read
                 % at the end of the slice.
                 %
-                if ~isempty(cb)
-                    if isempty(current.indirectPatchList) % Lazy initialization
-                        current.indirectPatchList = containers.Map('KeyType', 'int32', 'ValueType', 'any');
-                    end
-                    e = IceInternal.IndirectPatchEntry();
-                    e.index = index; % MATLAB indexing starts at 1
-                    e.cb = cb;
-                    sz = length(current.indirectPatchList);
-                    current.indirectPatchList(sz) = e;
+                if isempty(current.indirectPatchList) % Lazy initialization
+                    current.indirectPatchList = containers.Map('KeyType', 'int32', 'ValueType', 'any');
                 end
+                e = IceInternal.IndirectPatchEntry();
+                e.index = index; % MATLAB indexing starts at 1
+                e.cb = cb;
+                sz = length(current.indirectPatchList);
+                current.indirectPatchList(sz) = e;
             else
                 obj.readInstance(index, cb);
             end
@@ -106,7 +102,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                     % If this is the last slice, raise an exception and stop unmarshaling.
                     %
                     if bitand(obj.current.sliceFlags, Protocol.FLAG_IS_LAST_SLICE)
-                        throw(Ice.UnknownUserException('', '', mostDerivedId));
+                        throw(Ice.MarshalException('', '', sprintf('unknown exception type ''%s''', mostDerivedId)));
                     end
 
                     obj.startSlice();
@@ -183,7 +179,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             if bitand(current.sliceFlags, Protocol.FLAG_HAS_SLICE_SIZE)
                 current.sliceSize = is.readInt();
                 if current.sliceSize < 4
-                    throw(Ice.UnmarshalOutOfBoundsException());
+                    throw(Ice.MarshalException('', '', 'invalid slice size'));
                 end
             else
                 current.sliceSize = 0;
@@ -255,11 +251,11 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 is.skip(current.sliceSize - 4);
             else
                 if current.sliceType == IceInternal.SliceType.ValueSlice
-                    reason = ['no value factory found and compact format prevents ', ...
-                              'slicing (the sender should use the sliced format instead)'];
-                    throw(Ice.NoValueFactoryException('', reason, reason, current.typeId));
+                    reason = sprintf('cannot find value factory for type ID ''%s''', current.typeId);
+                    throw(Ice.MarshalException('', '', reason));
                 else
-                    throw(Ice.UnknownUserException('', '', current.typeId));
+                    reason = sprintf('cannot find user exception for type ID ''%s''', current.typeId);
+                    throw(Ice.MarshalException('', '', reason));
                 end
             end
 
@@ -375,8 +371,9 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 % If slicing is disabled, stop unmarshaling.
                 %
                 if ~obj.sliceValues
-                    reason = 'no value factory found and slicing is disabled';
-                    throw(Ice.NoValueFactoryException('', reason, reason, current.typeId));
+
+                    reason = sprintf('cannot find value factory for type ID ''%s'' and slicing is disabled', current.typeId);
+                    throw(Ice.MarshalException('', '', reason));
                 end
 
                 %

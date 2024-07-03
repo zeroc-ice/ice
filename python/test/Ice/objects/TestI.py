@@ -58,16 +58,6 @@ class FI(Test.F):
         return self._e1 is not None and self._e1 == self.e2
 
 
-class II(Ice.InterfaceByValue):
-    def __init__(self):
-        Ice.InterfaceByValue.__init__(self, "::Test::I")
-
-
-class JI(Ice.InterfaceByValue):
-    def __init__(self):
-        Ice.InterfaceByValue.__init__(self, "::Test::J")
-
-
 class InitialI(Test.Initial):
     def __init__(self, adapter):
         self._adapter = adapter
@@ -128,9 +118,6 @@ class InitialI(Test.Initial):
 
     def setRecursive(self, r, current):
         pass
-
-    def supportsClassGraphDepthMax(self, current):
-        return True
 
     def setCycle(self, r, current):
         pass

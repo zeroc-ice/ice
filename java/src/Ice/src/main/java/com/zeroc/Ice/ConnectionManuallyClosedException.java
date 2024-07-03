@@ -44,8 +44,5 @@ public class ConnectionManuallyClosedException extends LocalException {
   /** True if the connection was closed gracefully, false otherwise. */
   public boolean graceful;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 1412128468475443570L;
+  private static final long serialVersionUID = 1412128468475443570L;
 }

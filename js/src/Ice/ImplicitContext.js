@@ -2,81 +2,62 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
+import { Ice as Ice_Context } from "./Context.js";
+const { Context, ContextHelper } = Ice_Context;
 
-require("../Ice/Current");
-require("../Ice/LocalException");
-
-const Context = Ice.Context;
-const InitializationException = Ice.InitializationException;
+import { InitializationException } from "./LocalException.js";
 
 //
 // The base class for all ImplicitContext implementations
 //
-class ImplicitContext
-{
-    constructor()
-    {
+export class ImplicitContext {
+    constructor() {
         this._context = new Context();
     }
 
-    getContext()
-    {
+    getContext() {
         return new Context(this._context);
     }
 
-    setContext(context)
-    {
-        if(context !== null && context.size > 0)
-        {
+    setContext(context) {
+        if (context !== null && context.size > 0) {
             this._context = new Context(context);
-        }
-        else
-        {
+        } else {
             this._context.clear();
         }
     }
 
-    containsKey(key)
-    {
-        if(key === null)
-        {
+    containsKey(key) {
+        if (key === null) {
             key = "";
         }
 
         return this._context.has(key);
     }
 
-    get(key)
-    {
-        if(key === null)
-        {
+    get(key) {
+        if (key === null) {
             key = "";
         }
 
         let val = this._context.get(key);
-        if(val === null)
-        {
+        if (val === null) {
             val = "";
         }
 
         return val;
     }
 
-    put(key, value)
-    {
-        if(key === null)
-        {
+    put(key, value) {
+        if (key === null) {
             key = "";
         }
-        if(value === null)
-        {
+        if (value === null) {
             value = "";
         }
 
         let oldVal = this._context.get(key);
-        if(oldVal === null)
-        {
+        if (oldVal === null) {
             oldVal = "";
         }
 
@@ -85,64 +66,44 @@ class ImplicitContext
         return oldVal;
     }
 
-    remove(key)
-    {
-        if(key === null)
-        {
+    remove(key) {
+        if (key === null) {
             key = "";
         }
 
         let val = this._context.get(key);
         this._context.delete(key);
 
-        if(val === null)
-        {
+        if (val === null) {
             val = "";
         }
         return val;
     }
 
-    write(prxContext, os)
-    {
-        if(prxContext.size === 0)
-        {
-            Ice.ContextHelper.write(os, this._context);
-        }
-        else
-        {
+    write(prxContext, os) {
+        if (prxContext.size === 0) {
+            ContextHelper.write(os, this._context);
+        } else {
             let ctx = null;
-            if(this._context.size === 0)
-            {
+            if (this._context.size === 0) {
                 ctx = prxContext;
-            }
-            else
-            {
+            } else {
                 ctx = new Context(this._context);
-                for(const [key, value] of prxContext)
-                {
+                for (const [key, value] of prxContext) {
                     ctx.set(key, value);
                 }
             }
-            Ice.ContextHelper.write(os, ctx);
+            ContextHelper.write(os, ctx);
         }
     }
 
-    static create(kind)
-    {
-        if(kind.length === 0 || kind === "None")
-        {
+    static create(kind) {
+        if (kind.length === 0 || kind === "None") {
             return null;
-        }
-        else if(kind === "Shared")
-        {
+        } else if (kind === "Shared") {
             return new ImplicitContext();
-        }
-        else
-        {
+        } else {
             throw new InitializationException("'" + kind + "' is not a valid value for Ice.ImplicitContext");
         }
     }
 }
-
-Ice.ImplicitContext = ImplicitContext;
-module.exports.Ice = Ice;

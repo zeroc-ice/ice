@@ -1,17 +1,13 @@
-
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/Logger").Ice;
-const Logger = Ice.Logger;
+import { Logger } from "./Logger.js";
 
 let processLogger = null;
 
-Ice.getProcessLogger = function()
-{
-    if(processLogger === null)
-    {
+export function getProcessLogger() {
+    if (processLogger === null) {
         //
         // TODO: Would be nice to be able to use process name as prefix by default.
         //
@@ -19,11 +15,8 @@ Ice.getProcessLogger = function()
     }
 
     return processLogger;
-};
+}
 
-Ice.setProcessLogger = function(logger)
-{
+export function setProcessLogger(logger) {
     processLogger = logger;
-};
-
-module.exports.Ice = Ice;
+}

@@ -4,6 +4,8 @@
 
 package com.zeroc.IceInternal;
 
+import com.zeroc.Ice.ReplyStatus;
+
 public final class TraceUtil {
   public static void traceSend(
       com.zeroc.Ice.OutputStream str, com.zeroc.Ice.Logger logger, TraceLevels tl) {
@@ -176,99 +178,73 @@ public final class TraceUtil {
     int requestId = str.readInt();
     s.write("\nrequest id = " + requestId);
 
-    byte replyStatus = str.readByte();
-    s.write("\nreply status = " + (int) replyStatus + ' ');
+    ReplyStatus replyStatus = ReplyStatus.valueOf(str.readByte());
+    s.write("\nreply status = " + (int) replyStatus.value() + ' ');
 
     switch (replyStatus) {
-      case ReplyStatus.replyOK:
-        {
-          s.write("(ok)");
-          break;
+      case Ok:
+        s.write("(ok)");
+        break;
+
+      case UserException:
+        s.write("(user exception)");
+        break;
+
+      case ObjectNotExist:
+      case FacetNotExist:
+      case OperationNotExist:
+        switch (replyStatus) {
+          case ObjectNotExist:
+            s.write("(object not exist)");
+            break;
+
+          case FacetNotExist:
+            s.write("(facet not exist)");
+            break;
+
+          case OperationNotExist:
+            s.write("(operation not exist)");
+            break;
+
+          default:
+            assert (false);
+            break;
         }
 
-      case ReplyStatus.replyUserException:
-        {
-          s.write("(user exception)");
-          break;
+        printIdentityFacetOperation(s, str);
+        break;
+
+      case UnknownException:
+      case UnknownLocalException:
+      case UnknownUserException:
+        switch (replyStatus) {
+          case UnknownException:
+            s.write("(unknown exception)");
+            break;
+
+          case UnknownLocalException:
+            s.write("(unknown local exception)");
+            break;
+
+          case UnknownUserException:
+            s.write("(unknown user exception)");
+            break;
+
+          default:
+            assert (false);
+            break;
         }
 
-      case ReplyStatus.replyObjectNotExist:
-      case ReplyStatus.replyFacetNotExist:
-      case ReplyStatus.replyOperationNotExist:
-        {
-          switch (replyStatus) {
-            case ReplyStatus.replyObjectNotExist:
-              {
-                s.write("(object not exist)");
-                break;
-              }
-
-            case ReplyStatus.replyFacetNotExist:
-              {
-                s.write("(facet not exist)");
-                break;
-              }
-
-            case ReplyStatus.replyOperationNotExist:
-              {
-                s.write("(operation not exist)");
-                break;
-              }
-
-            default:
-              {
-                assert (false);
-                break;
-              }
-          }
-
-          printIdentityFacetOperation(s, str);
-          break;
-        }
-
-      case ReplyStatus.replyUnknownException:
-      case ReplyStatus.replyUnknownLocalException:
-      case ReplyStatus.replyUnknownUserException:
-        {
-          switch (replyStatus) {
-            case ReplyStatus.replyUnknownException:
-              {
-                s.write("(unknown exception)");
-                break;
-              }
-
-            case ReplyStatus.replyUnknownLocalException:
-              {
-                s.write("(unknown local exception)");
-                break;
-              }
-
-            case ReplyStatus.replyUnknownUserException:
-              {
-                s.write("(unknown user exception)");
-                break;
-              }
-
-            default:
-              {
-                assert (false);
-                break;
-              }
-          }
-
-          String unknown = str.readString();
-          s.write("\nunknown = " + unknown);
-          break;
-        }
+        String unknown = str.readString();
+        s.write("\nunknown = " + unknown);
+        break;
 
       default:
-        {
-          s.write("(unknown)");
-          break;
-        }
+        s.write("(unknown)");
+        break;
     }
 
-    if (replyStatus == ReplyStatus.replyOK || replyStatus == ReplyStatus.replyUserException) {
+    if (replyStatus == ReplyStatus.Ok || replyStatus == ReplyStatus.UserException) {
       com.zeroc.Ice.EncodingVersion v = str.skipEncapsulation();
       if (!v.equals(com.zeroc.Ice.Util.Encoding_1_0)) {
         s.write("\nencoding = ");

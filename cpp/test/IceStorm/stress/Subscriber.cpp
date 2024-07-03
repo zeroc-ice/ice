@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../../src/Ice/Options.h"
 #include "Event.h"
 #include "Ice/Ice.h"
 #include "IceStorm/IceStorm.h"
-#include "IceUtil/Options.h"
 #include "TestHelper.h"
 #include <random>
 #include <thread>
@@ -241,19 +241,19 @@ Subscriber::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder ich = initialize(argc, argv);
     auto communicator = ich.communicator();
-    IceUtilInternal::Options opts;
-    opts.addOpt("", "events", IceUtilInternal::Options::NeedArg);
-    opts.addOpt("", "qos", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    IceInternal::Options opts;
+    opts.addOpt("", "events", IceInternal::Options::NeedArg);
+    opts.addOpt("", "qos", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("", "slow");
-    opts.addOpt("", "erratic", IceUtilInternal::Options::NeedArg);
-    opts.addOpt("", "maxQueueDropEvents", IceUtilInternal::Options::NeedArg);
-    opts.addOpt("", "maxQueueRemoveSub", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "erratic", IceInternal::Options::NeedArg);
+    opts.addOpt("", "maxQueueDropEvents", IceInternal::Options::NeedArg);
+    opts.addOpt("", "maxQueueRemoveSub", IceInternal::Options::NeedArg);
 
     try
     {
         opts.parse(argc, (const char**)argv);
     }
-    catch (const IceUtilInternal::BadOptException& e)
+    catch (const IceInternal::BadOptException& e)
     {
         ostringstream os;
         os << argv[0] << ": error: " << e.reason;

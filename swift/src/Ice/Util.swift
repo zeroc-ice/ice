@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import Dispatch
 import IceImpl
@@ -18,11 +16,11 @@ func stringToEncodingVersion(_ s: String) throws -> EncodingVersion {
 func stringToMajorMinor(_ s: String) throws -> (UInt8, UInt8) {
     let components = s.components(separatedBy: ".")
     guard components.count == 2 else {
-        throw VersionParseException(str: "malformed value `\(s)'")
+        throw ParseException(str: "malformed Ice version string '\(s)'")
     }
 
     guard let major = UInt8(components[0] as String), let minor = UInt8(components[1]) else {
-        throw VersionParseException(str: "invalid version value `\(s)'")
+        throw ParseException(str: "invalid Ice version value '\(s)'")
     }
 
     return (major, minor)
@@ -67,7 +65,7 @@ func createSentCallback(
 
 func escapeString(string: String, special: String, communicator: Communicator) throws -> String {
     guard factoriesRegistered else {
-        fatalError("Unable to initialie Ice")
+        fatalError("Unable to initialize Ice")
     }
     return try autoreleasepool {
         try ICEUtil.escapeString(
@@ -80,6 +78,7 @@ func escapeString(string: String, special: String, communicator: Communicator) t
 func checkSupportedEncoding(_ v: EncodingVersion) throws {
     let c = currentEncoding
     if v.major != c.major || v.minor > c.minor {
-        throw UnsupportedEncodingException(reason: "", bad: v, supported: c)
+        throw MarshalException(
+            reason: "this Ice runtime does not support encoding version \(encodingVersionToString(v))")
     }
 }

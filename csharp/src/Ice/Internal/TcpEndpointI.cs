@@ -20,7 +20,9 @@ internal sealed class TcpEndpointI : IPEndpointI
     public TcpEndpointI(ProtocolInstance instance) :
         base(instance)
     {
-        _timeout = instance.defaultTimeout();
+        // The default timeout for TCP endpoints is 60,000 milliseconds (1 minute).
+        // This timeout is not used in Ice 3.8 or greater.
+        _timeout = 60_000;
         _compress = false;
     }
 
@@ -217,8 +219,7 @@ internal sealed class TcpEndpointI : IPEndpointI
             {
                 if (argument == null)
                 {
-                    throw new Ice.EndpointParseException("no argument provided for -t option in endpoint " +
-                                                         endpoint);
+                    throw new ParseException($"no argument provided for -t option in endpoint '{endpoint}'");
                 }
 
                 if (argument == "infinite")
@@ -232,16 +233,12 @@ internal sealed class TcpEndpointI : IPEndpointI
                         _timeout = int.Parse(argument, CultureInfo.InvariantCulture);
                         if (_timeout < 1)
                         {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException();
-                            e.str = "invalid timeout value `" + argument + "' in endpoint " + endpoint;
-                            throw e;
+                            throw new ParseException($"invalid timeout value '{argument}' in endpoint {endpoint}");
                         }
                     }
                     catch (System.FormatException ex)
                     {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
-                        e.str = "invalid timeout value `" + argument + "' in endpoint " + endpoint;
-                        throw e;
+                        throw new ParseException($"invalid timeout value '{argument}' in endpoint {endpoint}", ex);
                     }
                 }
 
@@ -252,8 +249,7 @@ internal sealed class TcpEndpointI : IPEndpointI
             {
                 if (argument != null)
                 {
-                    throw new Ice.EndpointParseException("unexpected argument `" + argument +
-                                                         "' provided for -z option in " + endpoint);
+                    throw new ParseException($"unexpected argument '{argument}' provided for -z option in endpoint '{endpoint}'");
                 }
 
                 _compress = true;

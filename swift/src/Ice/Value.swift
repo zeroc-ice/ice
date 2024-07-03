@@ -1,8 +1,6 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-// The base class for all Ice values.
+/// The base class for all Ice values.
 open class Value {
     private var slicedData: SlicedData?
 
@@ -53,33 +51,5 @@ open class Value {
     /// - returns: `String` - The Slice type ID.
     open class func ice_staticId() -> String {
         return ObjectTraits.staticId
-    }
-}
-
-/// Helper class used to represent an interface passed by value. Note that
-/// passing interface by values is deprecated.
-open class InterfaceByValue: Value {
-    private var id: String
-
-    public required init() {
-        fatalError("Not supported")
-    }
-
-    public init(id: String) {
-        self.id = id
-    }
-
-    override open func ice_id() -> String {
-        return id
-    }
-
-    override open func _iceReadImpl(from ostr: InputStream) throws {
-        _ = try ostr.startSlice()
-        try ostr.endSlice()
-    }
-
-    override open func _iceWriteImpl(to istr: OutputStream) {
-        istr.startSlice(typeId: ice_id(), compactId: -1, last: true)
-        istr.endSlice()
     }
 }

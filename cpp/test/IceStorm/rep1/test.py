@@ -39,7 +39,7 @@ class IceStormRep1TestCase(IceStormTestCase):
                     break
             else:
                 raise RuntimeError(
-                    "unexected output `{0}' (expected `{1}')".format(output, expect)
+                    "unexpected output `{0}' (expected `{1}')".format(output, expect)
                 )
 
         def adminForReplica(replica, cmd, expect):
@@ -101,7 +101,7 @@ class IceStormRep1TestCase(IceStormTestCase):
         current.write("testing topic creation across replicas... ")
         self.runadmin(current, "create single")
         for replica in range(0, 3):
-            adminForReplica(replica, "create single", "error: topic `single' exists")
+            adminForReplica(replica, "create single", "error: topic 'single' exists")
         current.writeln("ok")
 
         current.write("testing topic destruction across replicas... ")
@@ -110,7 +110,7 @@ class IceStormRep1TestCase(IceStormTestCase):
 
         for replica in range(0, 3):
             adminForReplica(
-                replica, "destroy single", "error: couldn't find topic `single'"
+                replica, "destroy single", "error: couldn't find topic 'single'"
             )
         current.writeln("ok")
 
@@ -121,13 +121,13 @@ class IceStormRep1TestCase(IceStormTestCase):
         self.runadmin(current, "create single")
 
         for replica in range(1, 3):
-            adminForReplica(replica, "create single", "error: topic `single' exists")
+            adminForReplica(replica, "create single", "error: topic 'single' exists")
 
         adminForReplica(0, "create single", ["ConnectionRefused", "ConnectFailed"])
 
         startReplica(0)
 
-        adminForReplica(0, "create single", "error: topic `single' exists")
+        adminForReplica(0, "create single", "error: topic 'single' exists")
         current.writeln("ok")
 
         self.runadmin(current, "destroy single")
@@ -140,13 +140,13 @@ class IceStormRep1TestCase(IceStormTestCase):
         self.runadmin(current, "create single")
 
         for replica in range(0, 2):
-            adminForReplica(replica, "create single", "error: topic `single' exists")
+            adminForReplica(replica, "create single", "error: topic 'single' exists")
 
         adminForReplica(2, "create single", ["ConnectionRefused", "ConnectFailed"])
 
         startReplica(2)
 
-        adminForReplica(2, "create single", "error: topic `single' exists")
+        adminForReplica(2, "create single", "error: topic 'single' exists")
         current.writeln("ok")
 
         # All replicas are running
@@ -159,14 +159,14 @@ class IceStormRep1TestCase(IceStormTestCase):
 
         for replica in range(1, 3):
             adminForReplica(
-                replica, "destroy single", "error: couldn't find topic `single'"
+                replica, "destroy single", "error: couldn't find topic 'single'"
             )
 
         adminForReplica(0, "destroy single", ["ConnectionRefused", "ConnectFailed"])
 
         startReplica(0)
 
-        adminForReplica(0, "destroy single", "error: couldn't find topic `single'")
+        adminForReplica(0, "destroy single", "error: couldn't find topic 'single'")
         current.writeln("ok")
 
         current.write("testing topic destruction without master... ")
@@ -179,14 +179,14 @@ class IceStormRep1TestCase(IceStormTestCase):
 
         for replica in range(0, 2):
             adminForReplica(
-                replica, "destroy single", "error: couldn't find topic `single'"
+                replica, "destroy single", "error: couldn't find topic 'single'"
             )
 
         adminForReplica(2, "destroy single", ["ConnectionRefused", "ConnectFailed"])
 
         startReplica(2)
 
-        adminForReplica(2, "destroy single", "error: couldn't find topic `single'")
+        adminForReplica(2, "destroy single", "error: couldn't find topic 'single'")
         current.writeln("ok")
 
         # Now test subscription/unsubscription on all replicas.

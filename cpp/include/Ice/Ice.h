@@ -7,6 +7,7 @@
 
 #include "Comparable.h"
 #include "Config.h"
+#include "Exception.h"
 #include "InputStream.h"
 #include "MarshaledResult.h"
 #include "Object.h"
@@ -26,6 +27,7 @@
 #    include "Initialize.h"
 #    include "Instrumentation.h"
 #    include "LocalException.h"
+#    include "LocalExceptions.h"
 #    include "Logger.h"
 #    include "LoggerUtil.h"
 #    include "NativePropertiesAdmin.h"

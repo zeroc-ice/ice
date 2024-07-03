@@ -335,7 +335,7 @@ public sealed class Instance
 
             if (adminIdentity == null || adminIdentity.name.Length == 0)
             {
-                throw new Ice.IllegalIdentityException(adminIdentity);
+                throw new ArgumentException("The admin identity is not valid", nameof(adminIdentity));
             }
 
             if (_adminAdapter != null)
@@ -655,11 +655,9 @@ public sealed class Instance
                         {
                             outStream = System.IO.File.AppendText(stdOut);
                         }
-                        catch (System.IO.IOException ex)
+                        catch (IOException ex)
                         {
-                            Ice.FileException fe = new Ice.FileException(ex);
-                            fe.path = stdOut;
-                            throw fe;
+                            throw new FileException($"Cannot append to '{stdOut}'", ex);
                         }
                         outStream.AutoFlush = true;
                         Console.Out.Close();
@@ -678,11 +676,9 @@ public sealed class Instance
                             {
                                 errStream = System.IO.File.AppendText(stdErr);
                             }
-                            catch (System.IO.IOException ex)
+                            catch (IOException ex)
                             {
-                                Ice.FileException fe = new Ice.FileException(ex);
-                                fe.path = stdErr;
-                                throw fe;
+                                throw new FileException($"Cannot append to '{stdErr}'", ex);
                             }
                             errStream.AutoFlush = true;
                             Console.Error.Close();
@@ -724,14 +720,12 @@ public sealed class Instance
             Properties properties = _initData.properties;
 
             // The TimeSpan value can be <= 0. In this case, the timeout is considered infinite.
-            clientConnectionOptions = new()
-            {
-                connectTimeout = TimeSpan.FromSeconds(properties.getIcePropertyAsInt("Ice.Connection.ConnectTimeout")),
-                closeTimeout = TimeSpan.FromSeconds(properties.getIcePropertyAsInt("Ice.Connection.CloseTimeout")),
-                idleTimeout = TimeSpan.FromSeconds(properties.getIcePropertyAsInt("Ice.Connection.IdleTimeout")),
-                enableIdleCheck = properties.getIcePropertyAsInt("Ice.Connection.EnableIdleCheck") > 0,
-                inactivityTimeout = TimeSpan.FromSeconds(properties.getIcePropertyAsInt("Ice.Connection.InactivityTimeout")),
-            };
+            clientConnectionOptions = new(
+                connectTimeout: TimeSpan.FromSeconds(properties.getIcePropertyAsInt("Ice.Connection.ConnectTimeout")),
+                closeTimeout: TimeSpan.FromSeconds(properties.getIcePropertyAsInt("Ice.Connection.CloseTimeout")),
+                idleTimeout: TimeSpan.FromSeconds(properties.getIcePropertyAsInt("Ice.Connection.IdleTimeout")),
+                enableIdleCheck: properties.getIcePropertyAsInt("Ice.Connection.EnableIdleCheck") > 0,
+                inactivityTimeout: TimeSpan.FromSeconds(properties.getIcePropertyAsInt("Ice.Connection.InactivityTimeout")));
 
             {
                 int num =
@@ -1455,28 +1449,26 @@ public sealed class Instance
         {
             Properties properties = _initData.properties;
 
-            return clientConnectionOptions with
-            {
-                connectTimeout = TimeSpan.FromSeconds(properties.getPropertyAsIntWithDefault(
+            return new(
+                connectTimeout: TimeSpan.FromSeconds(properties.getPropertyAsIntWithDefault(
                     $"{adapterName}.Connection.ConnectTimeout",
                     (int)clientConnectionOptions.connectTimeout.TotalSeconds)),
 
-                closeTimeout = TimeSpan.FromSeconds(properties.getPropertyAsIntWithDefault(
+                closeTimeout: TimeSpan.FromSeconds(properties.getPropertyAsIntWithDefault(
                     $"{adapterName}.Connection.CloseTimeout",
                     (int)clientConnectionOptions.closeTimeout.TotalSeconds)),
 
-                idleTimeout = TimeSpan.FromSeconds(properties.getPropertyAsIntWithDefault(
+                idleTimeout: TimeSpan.FromSeconds(properties.getPropertyAsIntWithDefault(
                     $"{adapterName}.Connection.IdleTimeout",
                     (int)clientConnectionOptions.idleTimeout.TotalSeconds)),
 
-                enableIdleCheck = properties.getPropertyAsIntWithDefault(
+                enableIdleCheck: properties.getPropertyAsIntWithDefault(
                     $"{adapterName}.Connection.EnableIdleCheck",
                     clientConnectionOptions.enableIdleCheck ? 1 : 0) > 0,
 
-                inactivityTimeout = TimeSpan.FromSeconds(properties.getPropertyAsIntWithDefault(
+                inactivityTimeout: TimeSpan.FromSeconds(properties.getPropertyAsIntWithDefault(
                     $"{adapterName}.Connection.InactivityTimeout",
-                    (int)clientConnectionOptions.inactivityTimeout.TotalSeconds))
-            };
+                    (int)clientConnectionOptions.inactivityTimeout.TotalSeconds)));
         }
         else
         {

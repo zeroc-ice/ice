@@ -10,11 +10,10 @@
 [["cpp:include:Glacier2/Config.h"]]
 
 [["js:module:ice"]]
-[["js:cjs-module"]]
 
 [["python:pkgdir:Glacier2"]]
 
-#include "../Ice/Router.ice"
+#include "Ice/Router.ice"
 #include "Session.ice"
 #include "PermissionsVerifier.ice"
 

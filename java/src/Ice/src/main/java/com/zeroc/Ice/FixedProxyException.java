@@ -30,8 +30,5 @@ public class FixedProxyException extends LocalException {
     return "::Ice::FixedProxyException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 3198117120780643493L;
+  private static final long serialVersionUID = 3198117120780643493L;
 }

@@ -52,11 +52,11 @@ public class ReferenceFactory
             "", // Facet
             connection.endpoint().datagram() ? Reference.Mode.ModeDatagram : Reference.Mode.ModeTwoway,
             connection.endpoint().secure(),
+            compress: null,
             Ice.Util.Protocol_1_0,
             _instance.defaultsAndOverrides().defaultEncoding,
             connection,
             -1,
-            null,
             null);
     }
 
@@ -85,9 +85,7 @@ public class ReferenceFactory
         beg = Ice.UtilInternal.StringUtil.findFirstNotOf(s, delim, end);
         if (beg == -1)
         {
-            Ice.ProxyParseException e = new Ice.ProxyParseException();
-            e.str = "no non-whitespace characters found in `" + s + "'";
-            throw e;
+            throw new ParseException($"no non-whitespace characters found in proxy string '{s}'");
         }
 
         //
@@ -98,9 +96,7 @@ public class ReferenceFactory
         end = Ice.UtilInternal.StringUtil.checkQuote(s, beg);
         if (end == -1)
         {
-            Ice.ProxyParseException e = new Ice.ProxyParseException();
-            e.str = "mismatched quotes around identity in `" + s + "'";
-            throw e;
+            throw new ParseException($"mismatched quotes around identity in proxy string '{s}'");
         }
         else if (end == 0)
         {
@@ -120,13 +116,11 @@ public class ReferenceFactory
 
         if (beg == end)
         {
-            Ice.ProxyParseException e = new Ice.ProxyParseException();
-            e.str = "no identity in `" + s + "'";
-            throw e;
+            throw new ParseException($"no identity in proxy string '{s}'");
         }
 
         //
-        // Parsing the identity may raise IdentityParseException.
+        // Parsing the identity may raise ParseException.
         //
         Ice.Identity ident = Ice.Util.stringToIdentity(idstr);
 
@@ -138,9 +132,7 @@ public class ReferenceFactory
             //
             if (ident.category.Length > 0)
             {
-                Ice.IllegalIdentityException e = new Ice.IllegalIdentityException();
-                e.id = ident;
-                throw e;
+                throw new ParseException("The category of a null Ice object identity must be empty.");
             }
             //
             // Treat a stringified proxy containing two double
@@ -150,9 +142,7 @@ public class ReferenceFactory
             //
             else if (Ice.UtilInternal.StringUtil.findFirstNotOf(s, delim, end) != -1)
             {
-                Ice.ProxyParseException e = new Ice.ProxyParseException();
-                e.str = "invalid characters after identity in `" + s + "'";
-                throw e;
+                throw new ParseException($"invalid characters after identity in proxy string '{s}'");
             }
             else
             {
@@ -194,9 +184,7 @@ public class ReferenceFactory
             string option = s.Substring(beg, end - beg);
             if (option.Length != 2 || option[0] != '-')
             {
-                Ice.ProxyParseException e = new Ice.ProxyParseException();
-                e.str = "expected a proxy option but found `" + option + "' in `" + s + "'";
-                throw e;
+                throw new ParseException($"expected a proxy option but found '{option}' in proxy string '{s}'");
             }
 
             //
@@ -215,9 +203,7 @@ public class ReferenceFactory
                     end = Ice.UtilInternal.StringUtil.checkQuote(s, beg);
                     if (end == -1)
                     {
-                        Ice.ProxyParseException e = new Ice.ProxyParseException();
-                        e.str = "mismatched quotes around value for " + option + " option in `" + s + "'";
-                        throw e;
+                        throw new ParseException($"mismatched quotes around value for '{option}' option in proxy string '{s}'");
                     }
                     else if (end == 0)
                     {
@@ -247,9 +233,7 @@ public class ReferenceFactory
                 {
                     if (argument == null)
                     {
-                        Ice.ProxyParseException e = new Ice.ProxyParseException();
-                        e.str = "no argument provided for -f option in `" + s + "'";
-                        throw e;
+                        throw new ParseException($"no argument provided for -f option in proxy string '{s}'");
                     }
 
                     try
@@ -258,9 +242,7 @@ public class ReferenceFactory
                     }
                     catch (ArgumentException argEx)
                     {
-                        Ice.ProxyParseException e = new Ice.ProxyParseException();
-                        e.str = "invalid facet in `" + s + "': " + argEx.Message;
-                        throw e;
+                        throw new ParseException($"invalid facet in proxy string '{s}'", argEx);
                     }
                     break;
                 }
@@ -269,9 +251,7 @@ public class ReferenceFactory
                 {
                     if (argument != null)
                     {
-                        Ice.ProxyParseException e = new Ice.ProxyParseException();
-                        e.str = "unexpected argument `" + argument + "' provided for -t option in `" + s + "'";
-                        throw e;
+                        throw new ParseException($"unexpected argument '{argument}' provided for -t option in proxy string '{s}'");
                     }
                     mode = Reference.Mode.ModeTwoway;
                     break;
@@ -281,9 +261,7 @@ public class ReferenceFactory
                 {
                     if (argument != null)
                     {
-                        Ice.ProxyParseException e = new Ice.ProxyParseException();
-                        e.str = "unexpected argument `" + argument + "' provided for -o option in `" + s + "'";
-                        throw e;
+                        throw new ParseException($"unexpected argument '{argument}' provided for -o option in proxy string '{s}'");
                     }
                     mode = Reference.Mode.ModeOneway;
                     break;
@@ -293,9 +271,7 @@ public class ReferenceFactory
                 {
                     if (argument != null)
                     {
-                        Ice.ProxyParseException e = new Ice.ProxyParseException();
-                        e.str = "unexpected argument `" + argument + "' provided for -O option in `" + s + "'";
-                        throw e;
+                        throw new ParseException($"unexpected argument '{argument}' provided for -O option in proxy string '{s}'");
                     }
                     mode = Reference.Mode.ModeBatchOneway;
                     break;
@@ -305,9 +281,7 @@ public class ReferenceFactory
                 {
                     if (argument != null)
                     {
-                        Ice.ProxyParseException e = new Ice.ProxyParseException();
-                        e.str = "unexpected argument `" + argument + "' provided for -d option in `" + s + "'";
-                        throw e;
+                        throw new ParseException($"unexpected argument '{argument}' provided for -d option in proxy string '{s}'");
                     }
                     mode = Reference.Mode.ModeDatagram;
                     break;
@@ -317,9 +291,7 @@ public class ReferenceFactory
                 {
                     if (argument != null)
                     {
-                        Ice.ProxyParseException e = new Ice.ProxyParseException();
-                        e.str = "unexpected argument `" + argument + "' provided for -D option in `" + s + "'";
-                        throw e;
+                        throw new ParseException($"unexpected argument '{argument}' provided for -D option in proxy string '{s}'");
                     }
                     mode = Reference.Mode.ModeBatchDatagram;
                     break;
@@ -329,9 +301,7 @@ public class ReferenceFactory
                 {
                     if (argument != null)
                     {
-                        Ice.ProxyParseException e = new Ice.ProxyParseException();
-                        e.str = "unexpected argument `" + argument + "' provided for -s option in `" + s + "'";
-                        throw e;
+                        throw new ParseException($"unexpected argument '{argument}' provided for -s option in proxy string '{s}'");
                     }
                     secure = true;
                     break;
@@ -341,17 +311,16 @@ public class ReferenceFactory
                 {
                     if (argument == null)
                     {
-                        throw new Ice.ProxyParseException("no argument provided for -e option `" + s + "'");
+                        throw new ParseException($"no argument provided for -e option in proxy string '{s}'");
                     }
 
                     try
                     {
                         encoding = Ice.Util.stringToEncodingVersion(argument);
                     }
-                    catch (Ice.VersionParseException e)
+                    catch (ParseException e)
                     {
-                        throw new Ice.ProxyParseException("invalid encoding version `" + argument + "' in `" + s +
-                                                          "':\n" + e.str);
+                        throw new ParseException($"invalid encoding version '{argument}' in proxy string '{s}'", e);
                     }
                     break;
                 }
@@ -360,26 +329,23 @@ public class ReferenceFactory
                 {
                     if (argument == null)
                     {
-                        throw new Ice.ProxyParseException("no argument provided for -p option `" + s + "'");
+                        throw new ParseException($"no argument provided for -p option in proxy string '{s}'");
                     }
 
                     try
                     {
                         protocol = Ice.Util.stringToProtocolVersion(argument);
                     }
-                    catch (Ice.VersionParseException e)
+                    catch (ParseException e)
                     {
-                        throw new Ice.ProxyParseException("invalid protocol version `" + argument + "' in `" + s +
-                                                          "':\n" + e.str);
+                        throw new ParseException($"invalid protocol version '{argument}' in proxy string '{s}'", e);
                     }
                     break;
                 }
 
                 default:
                 {
-                    Ice.ProxyParseException e = new Ice.ProxyParseException();
-                    e.str = "unknown option `" + option + "' in `" + s + "'";
-                    throw e;
+                    throw new ParseException($"unknown option '{option}' in proxy string '{s}'");
                 }
             }
         }
@@ -457,9 +423,7 @@ public class ReferenceFactory
             if (endpoints.Count == 0)
             {
                 Debug.Assert(unknownEndpoints.Count > 0);
-                Ice.EndpointParseException e2 = new Ice.EndpointParseException();
-                e2.str = "invalid endpoint `" + unknownEndpoints[0] + "' in `" + s + "'";
-                throw e2;
+                throw new ParseException($"invalid endpoint '{unknownEndpoints[0]}' in '{s}'");
             }
             else if (unknownEndpoints.Count != 0 &&
                     _instance.initializationData().properties.getPropertyAsIntWithDefault(
@@ -484,18 +448,14 @@ public class ReferenceFactory
             beg = Ice.UtilInternal.StringUtil.findFirstNotOf(s, delim, beg + 1);
             if (beg == -1)
             {
-                Ice.ProxyParseException e = new Ice.ProxyParseException();
-                e.str = "missing adapter id in `" + s + "'";
-                throw e;
+                throw new ParseException($"missing adapter ID in proxy string '{s}'");
             }
 
             string adapterstr = null;
             end = Ice.UtilInternal.StringUtil.checkQuote(s, beg);
             if (end == -1)
             {
-                Ice.ProxyParseException e = new Ice.ProxyParseException();
-                e.str = "mismatched quotes around adapter id in `" + s + "'";
-                throw e;
+                throw new ParseException($"mismatched quotes around adapter ID in proxy string '{s}'");
             }
             else if (end == 0)
             {
@@ -515,9 +475,7 @@ public class ReferenceFactory
 
             if (end != s.Length && Ice.UtilInternal.StringUtil.findFirstNotOf(s, delim, end) != -1)
             {
-                Ice.ProxyParseException e = new Ice.ProxyParseException();
-                e.str = "invalid trailing characters after `" + s.Substring(0, end + 1) + "' in `" + s + "'";
-                throw e;
+                throw new ParseException($"invalid characters after adapter ID in proxy string '{s}'");
             }
 
             try
@@ -526,22 +484,16 @@ public class ReferenceFactory
             }
             catch (ArgumentException argEx)
             {
-                Ice.ProxyParseException e = new Ice.ProxyParseException();
-                e.str = "invalid adapter id in `" + s + "': " + argEx.Message;
-                throw e;
+                throw new ParseException($"invalid adapter ID in proxy string '{s}'", argEx);
             }
             if (adapter.Length == 0)
             {
-                Ice.ProxyParseException e = new Ice.ProxyParseException();
-                e.str = "empty adapter id in `" + s + "'";
-                throw e;
+                throw new ParseException($"empty adapter ID in proxy string '{s}'");
             }
             return create(ident, facet, mode, secure, protocol, encoding, null, adapter, propertyPrefix);
         }
 
-        Ice.ProxyParseException ex = new Ice.ProxyParseException();
-        ex.str = "malformed proxy `" + s + "'";
-        throw ex;
+        throw new ParseException($"malformed proxy string '{s}'");
     }
 
     public Reference create(Ice.Identity ident, Ice.InputStream s)
@@ -565,7 +517,7 @@ public class ReferenceFactory
         {
             if (facetPath.Length > 1)
             {
-                throw new Ice.ProxyUnmarshalException();
+                throw new MarshalException($"Received invalid facet path with {facetPath.Length} elements.");
             }
             facet = facetPath[0];
         }
@@ -577,7 +529,7 @@ public class ReferenceFactory
         int mode = s.readByte();
         if (mode < 0 || mode > (int)Reference.Mode.ModeLast)
         {
-            throw new Ice.ProxyUnmarshalException();
+            throw new MarshalException($"Received invalid proxy mode {mode}");
         }
 
         bool secure = s.readBool();
@@ -831,8 +783,7 @@ public class ReferenceFactory
                 }
                 else
                 {
-                    throw new Ice.EndpointSelectionTypeParseException("illegal value `" + type +
-                                                                      "'; expected `Random' or `Ordered'");
+                    throw new ParseException($"illegal value '{type}' in property '{property}'; expected 'Random' or 'Ordered'");
                 }
             }
 
@@ -893,6 +844,7 @@ public class ReferenceFactory
                                      facet,
                                      mode,
                                      secure,
+                                     compress: null,
                                      protocol,
                                      encoding,
                                      endpoints,

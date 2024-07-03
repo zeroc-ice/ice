@@ -18,8 +18,6 @@
     <Compile Include="../../DI.cs" />
     <Compile Include="../../EI.cs" />
     <Compile Include="../../FI.cs" />
-    <Compile Include="../../II.cs" />
-    <Compile Include="../../JI.cs" />
     <Compile Include="generated\Forward.cs">
       <SliceCompileSource>../../Forward.ice</SliceCompileSource>
     </Compile>

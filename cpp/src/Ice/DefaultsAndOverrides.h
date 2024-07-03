@@ -25,17 +25,14 @@ namespace IceInternal
         std::string defaultProtocol;
         bool defaultCollocationOptimization;
         Ice::EndpointSelectionType defaultEndpointSelection;
-        int defaultTimeout;
         int defaultInvocationTimeout;
         int defaultLocatorCacheTimeout;
         bool defaultPreferSecure;
         Ice::EncodingVersion defaultEncoding;
         Ice::FormatType defaultFormat;
 
-        bool overrideCompress;
-        bool overrideCompressValue;
-        bool overrideSecure;
-        bool overrideSecureValue;
+        std::optional<bool> overrideCompress;
+        std::optional<bool> overrideSecure;
     };
 }
 

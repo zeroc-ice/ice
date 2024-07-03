@@ -11,9 +11,8 @@
 #include <stdexcept>
 
 using namespace std;
+using namespace Ice;
 using namespace IceInternal;
-using namespace IceUtil;
-using namespace IceUtilInternal;
 using namespace IceGrid;
 
 namespace
@@ -322,10 +321,10 @@ namespace
             {
                 resolver.getCommunicator()->stringToProxy("dummy " + proxyOptions);
             }
-            catch (const Ice::ProxyParseException& ex)
+            catch (const Ice::ParseException& ex)
             {
-                string reason = ex.str;
-                size_t pos = ex.str.find("dummy ");
+                string reason = ex.what();
+                size_t pos = reason.find("dummy ");
                 if (pos != string::npos)
                 {
                     reason = reason.replace(pos, 6, "");
@@ -568,11 +567,11 @@ Resolver::operator()(const ObjectDescriptorSeq& objects, const string& proxyOpti
         obj.id = operator()(q->id, type + " object identity");
         if (!q->proxyOptions.empty())
         {
-            obj.proxyOptions = IceUtilInternal::trim(operator()(q->proxyOptions, type + " object proxy options"));
+            obj.proxyOptions = IceInternal::trim(operator()(q->proxyOptions, type + " object proxy options"));
         }
         else if (!proxyOptions.empty())
         {
-            obj.proxyOptions = IceUtilInternal::trim(operator()(proxyOptions, type + " object proxy options"));
+            obj.proxyOptions = IceInternal::trim(operator()(proxyOptions, type + " object proxy options"));
         }
         validateProxyOptions(*this, obj.proxyOptions);
         result.push_back(obj);

@@ -12,10 +12,9 @@
 #include "../Ice/Network.h"
 #include "../Ice/StreamSocket.h"
 #include "Ice/Communicator.h"
-#include "Ice/Exception.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Properties.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 
 using namespace std;
 using namespace Ice;
@@ -188,7 +187,7 @@ IceBT::AcceptorI::AcceptorI(
       _name(name),
       _channel(channel)
 {
-    string s = IceUtilInternal::trim(_addr);
+    string s = IceInternal::trim(_addr);
     if (s.empty())
     {
         //
@@ -197,22 +196,22 @@ IceBT::AcceptorI::AcceptorI(
         s = _instance->engine()->getDefaultAdapterAddress();
     }
 
-    s = IceUtilInternal::toUpper(s);
+    s = IceInternal::toUpper(s);
 
     DeviceAddress da;
     if (!parseDeviceAddress(s, da))
     {
-        throw EndpointParseException(
+        throw ParseException(
             __FILE__,
             __LINE__,
-            "invalid address value `" + s + "' in endpoint " + endpoint->toString());
+            "invalid address value '" + s + "' in endpoint '" + endpoint->toString() + "'");
     }
     if (!_instance->engine()->adapterExists(s))
     {
-        throw EndpointParseException(
+        throw ParseException(
             __FILE__,
             __LINE__,
-            "no device found for `" + s + "' in endpoint " + endpoint->toString());
+            "no device found for '" + s + "' in endpoint '" + endpoint->toString() + "'");
     }
 
     const_cast<string&>(_addr) = s;

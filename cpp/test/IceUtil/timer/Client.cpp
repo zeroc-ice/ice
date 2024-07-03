@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/Random.h"
-#include "IceUtil/Timer.h"
+#include "../../src/Ice/Random.h"
+#include "Ice/Timer.h"
 #include "TestHelper.h"
 
 #include <chrono>
@@ -11,7 +11,7 @@
 #include <thread>
 #include <vector>
 
-using namespace IceUtil;
+using namespace Ice;
 using namespace std;
 
 template<typename T> struct TargetLess
@@ -29,7 +29,7 @@ template<typename T> struct TargetLess
     }
 };
 
-class TestTask : public IceUtil::TimerTask
+class TestTask : public Ice::TimerTask
 {
 public:
     TestTask() : _count(0) {}
@@ -93,10 +93,10 @@ private:
 };
 using TestTaskPtr = std::shared_ptr<TestTask>;
 
-class DestroyTask : public IceUtil::TimerTask
+class DestroyTask : public Ice::TimerTask
 {
 public:
-    DestroyTask(const IceUtil::TimerPtr& timer) : _timer(timer), _run(false) {}
+    DestroyTask(const Ice::TimerPtr& timer) : _timer(timer), _run(false) {}
 
     virtual void runTimerTask()
     {
@@ -119,7 +119,7 @@ public:
     }
 
 private:
-    IceUtil::TimerPtr _timer;
+    Ice::TimerPtr _timer;
     bool _run;
     mutable mutex _mutex;
     condition_variable _condition;
@@ -137,7 +137,7 @@ Client::run(int, char*[])
 {
     cout << "testing timer... " << flush;
     {
-        auto timer = make_shared<IceUtil::Timer>();
+        auto timer = make_shared<Ice::Timer>();
         {
             TestTaskPtr task = make_shared<TestTask>();
             timer->schedule(task, chrono::seconds::zero());
@@ -177,7 +177,7 @@ Client::run(int, char*[])
                 tasks.push_back(make_shared<TestTask>(chrono::milliseconds(500 + i * 50)));
             }
 
-            IceUtilInternal::shuffle(tasks.begin(), tasks.end());
+            IceInternal::shuffle(tasks.begin(), tasks.end());
             vector<TestTaskPtr>::const_iterator p;
             for (p = tasks.begin(); p != tasks.end(); ++p)
             {
@@ -221,7 +221,7 @@ Client::run(int, char*[])
     cout << "testing timer destroy... " << flush;
     {
         {
-            auto timer = make_shared<IceUtil::Timer>();
+            auto timer = make_shared<Ice::Timer>();
             DestroyTaskPtr destroyTask = make_shared<DestroyTask>(timer);
             timer->schedule(destroyTask, chrono::seconds::zero());
             destroyTask->waitForRun();
@@ -235,7 +235,7 @@ Client::run(int, char*[])
             }
         }
         {
-            auto timer = make_shared<IceUtil::Timer>();
+            auto timer = make_shared<Ice::Timer>();
             TestTaskPtr testTask = make_shared<TestTask>();
             timer->schedule(testTask, chrono::seconds::zero());
             timer->destroy();

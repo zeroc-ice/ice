@@ -90,7 +90,13 @@ sequence<Base> BaseSeq;
 
 class CompactExt;
 
-class Compact(1)
+enum CompactIdEnum { First = 1, Second = 2 }
+
+class Compact(First)
+{
+}
+
+class CompactScoped(CompactIdEnum::Second)
 {
 }
 
@@ -210,7 +216,6 @@ interface Initial
     F getF();
 
     void setRecursive(Recursive p);
-    bool supportsClassGraphDepthMax();
 
     void setCycle(Recursive r);
     bool acceptsClassCycles();

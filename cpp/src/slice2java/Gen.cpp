@@ -4,7 +4,7 @@
 
 #include "Gen.h"
 #include "../Slice/Util.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 #include <cstring>
 
 #include <algorithm>
@@ -13,8 +13,7 @@
 
 using namespace std;
 using namespace Slice;
-using namespace IceUtil;
-using namespace IceUtilInternal;
+using namespace IceInternal;
 
 namespace
 {
@@ -42,7 +41,7 @@ namespace
         switch (op->format())
         {
             case DefaultFormat:
-                format = "null"; // shorthand for most common case
+                format += "DefaultFormat";
                 break;
             case CompactFormat:
                 format += "CompactFormat";
@@ -362,7 +361,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
     ParamDeclList required, optional;
     op->outParameters(required, optional);
 
-    out << sp << nl << "public void write(" << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr)";
+    out << sp << nl << "public void write(com.zeroc.Ice.OutputStream ostr)";
     out << sb;
 
     int iter = 0;
@@ -445,7 +444,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
 
     out << eb;
 
-    out << sp << nl << "public void read(" << getUnqualified("com.zeroc.Ice.InputStream", package) << " istr)";
+    out << sp << nl << "public void read(com.zeroc.Ice.InputStream istr)";
     out << sb;
 
     iter = 0;
@@ -565,13 +564,12 @@ Slice::JavaVisitor::writeMarshaledResultType(
 
     out << sp;
     writeDocComment(out, "Holds the marshaled result of operation " + op->name() + ".");
-    out << nl << "public static class " << opName << "MarshaledResult implements "
-        << getUnqualified("com.zeroc.Ice.MarshaledResult", package) << sb;
+    out << nl << "public static class " << opName << "MarshaledResult implements com.zeroc.Ice.MarshaledResult" << sb;
 
     const ParamDeclList outParams = op->outParameters();
     const string retval = getEscapedParamName(op, "returnValue");
     const string currentParamName = getEscapedParamName(op, "current");
-    const string currentParam = getUnqualified("com.zeroc.Ice.Current", package) + " " + currentParamName;
+    const string currentParam = "com.zeroc.Ice.Current " + currentParamName;
 
     out << sp;
 
@@ -620,8 +618,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
     }
     out << currentParam << epar;
     out << sb;
-    out << nl << "_ostr = " << getUnqualified("com.zeroc.IceInternal.Incoming", package)
-        << ".createResponseOutputStream(" << currentParamName << ");";
+    out << nl << "_ostr = " << currentParamName << ".startReplyStream();";
     out << nl << "_ostr.startEncapsulation(" << currentParamName << ".encoding, " << opFormatTypeToString(op) << ");";
 
     ParamDeclList required, optional;
@@ -715,7 +712,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
             op->getMetaData());
     }
 
-    if (op->returnsClasses(false))
+    if (op->returnsClasses())
     {
         out << nl << "_ostr.writePendingValues();";
     }
@@ -800,11 +797,11 @@ Slice::JavaVisitor::writeMarshaledResultType(
     }
 
     out << sp;
-    out << nl << "@Override" << nl << "public " << getUnqualified("com.zeroc.Ice.OutputStream", package)
-        << " getOutputStream()" << sb << nl << "return _ostr;" << eb;
+    out << nl << "@Override" << nl << "public com.zeroc.Ice.OutputStream getOutputStream()" << sb << nl
+        << "return _ostr;" << eb;
 
     out << sp;
-    out << nl << "private " << getUnqualified("com.zeroc.Ice.OutputStream", package) << " _ostr;";
+    out << nl << "private com.zeroc.Ice.OutputStream _ostr;";
     out << eb;
 }
 
@@ -818,7 +815,7 @@ Slice::JavaVisitor::allocatePatcher(Output& out, const TypePtr& type, const stri
     string clsName;
     if (b)
     {
-        clsName = getUnqualified("com.zeroc.Ice.Value", package);
+        clsName = "com.zeroc.Ice.Value";
     }
     else
     {
@@ -839,7 +836,7 @@ Slice::JavaVisitor::getPatcher(const TypePtr& type, const string& package, const
         string clsName;
         if (b)
         {
-            clsName = getUnqualified("com.zeroc.Ice.Value", package);
+            clsName = "com.zeroc.Ice.Value";
         }
         else
         {
@@ -988,7 +985,7 @@ Slice::JavaVisitor::writeMarshalProxyParams(
             (*pli)->getMetaData());
     }
 
-    if (op->sendsClasses(false))
+    if (op->sendsClasses())
     {
         out << nl << "ostr.writePendingValues();";
     }
@@ -1006,7 +1003,7 @@ Slice::JavaVisitor::writeUnmarshalProxyResults(Output& out, const string& packag
         string resultType = getResultType(op, package, false, false);
         out << nl << resultType << ' ' << name << " = new " << resultType << "();";
         out << nl << name << ".read(istr);";
-        if (op->returnsClasses(false))
+        if (op->returnsClasses())
         {
             out << nl << "istr.readPendingValues();";
         }
@@ -1083,7 +1080,7 @@ Slice::JavaVisitor::writeUnmarshalProxyResults(Output& out, const string& packag
                 patchParams);
         }
 
-        if (op->returnsClasses(false))
+        if (op->returnsClasses())
         {
             out << nl << "istr.readPendingValues();";
         }
@@ -1140,7 +1137,7 @@ Slice::JavaVisitor::writeMarshalServantResults(
         writeMarshalUnmarshalCode(out, package, type, mode, true, tag, param, true, iter, "", metaData);
     }
 
-    if (op->returnsClasses(false))
+    if (op->returnsClasses())
     {
         out << nl << "ostr.writePendingValues();";
     }
@@ -1154,7 +1151,7 @@ Slice::JavaVisitor::writeThrowsClause(const string& package, const ExceptionList
     if (op && (op->hasMetaData("java:UserException") || op->hasMetaData("UserException")))
     {
         out.inc();
-        out << nl << "throws " << getUnqualified("com.zeroc.Ice.UserException", package);
+        out << nl << "throws com.zeroc.Ice.UserException";
         out.dec();
     }
     else if (throws.size() > 0)
@@ -1297,8 +1294,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
     {
         CommentPtr dc = op->parseComment(false);
         vector<string> params = getParams(op, package);
-        const string currentParam =
-            getUnqualified("com.zeroc.Ice.Current", package) + " " + getEscapedParamName(op, "current");
+        const string currentParam = "com.zeroc.Ice.Current " + getEscapedParamName(op, "current");
 
         const bool amd = p->hasMetaData("amd") || op->hasMetaData("amd");
 
@@ -1346,14 +1342,12 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
     }
     out << eb << ';';
 
-    out << sp << nl << "@Override" << nl << "default String[] ice_ids("
-        << getUnqualified("com.zeroc.Ice.Current", package) << " current)";
+    out << sp << nl << "@Override" << nl << "default String[] ice_ids(com.zeroc.Ice.Current current)";
     out << sb;
     out << nl << "return _iceIds;";
     out << eb;
 
-    out << sp << nl << "@Override" << nl << "default String ice_id(" << getUnqualified("com.zeroc.Ice.Current", package)
-        << " current)";
+    out << sp << nl << "@Override" << nl << "default String ice_id(com.zeroc.Ice.Current current)";
     out << sb;
     out << nl << "return ice_staticId();";
     out << eb;
@@ -1380,30 +1374,13 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
         string opName = op->name();
         out << sp;
 
-        out << nl << "/**";
-        out << nl << " * @hidden";
-        out << nl << " * @param obj -";
-        out << nl << " * @param inS -";
-        out << nl << " * @param current -";
-        out << nl << " * @return -";
-        if (!op->throws().empty() || op->hasMetaData("java:UserException") || op->hasMetaData("UserException"))
-        {
-            out << nl << " * @throws " << getUnqualified("com.zeroc.Ice.UserException", package) << " -";
-        }
-        out << nl << "**/";
-        if (dc && dc->isDeprecated())
-        {
-            out << nl << "@Deprecated";
-        }
-        out << nl << "static java.util.concurrent.CompletionStage<"
-            << getUnqualified("com.zeroc.Ice.OutputStream", package) << "> _iceD_" << opName << '(';
-        out << name;
-        out << " obj, final " << getUnqualified("com.zeroc.IceInternal.Incoming", package) << " inS, "
-            << getUnqualified("com.zeroc.Ice.Current", package) << " current)";
+        writeHiddenDocComment(out);
+        out << nl << "static java.util.concurrent.CompletionStage<com.zeroc.Ice.OutgoingResponse> _iceD_" << opName
+            << '(' << name << " obj, com.zeroc.Ice.IncomingRequest request)";
         if (!op->throws().empty() || op->hasMetaData("java:UserException") || op->hasMetaData("UserException"))
         {
             out.inc();
-            out << nl << "throws " << getUnqualified("com.zeroc.Ice.UserException", package);
+            out << nl << "throws com.zeroc.Ice.UserException";
             out.dec();
         }
         out << sb;
@@ -1411,12 +1388,11 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
         const bool amd = p->hasMetaData("amd") || op->hasMetaData("amd");
 
         const TypePtr ret = op->returnType();
-
         const ParamDeclList inParams = op->inParameters();
         const ParamDeclList outParams = op->outParameters();
 
-        out << nl << getUnqualified("com.zeroc.Ice.Object", package) << "._iceCheckMode("
-            << sliceModeToIceMode(op->mode()) << ", current.mode);";
+        out << nl << "com.zeroc.Ice.Object._iceCheckMode(" << sliceModeToIceMode(op->mode())
+            << ", request.current.mode);";
 
         if (!inParams.empty())
         {
@@ -1425,7 +1401,8 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
             //
             // Declare 'in' parameters.
             //
-            out << nl << getUnqualified("com.zeroc.Ice.InputStream", package) << " istr = inS.startReadParams();";
+            out << nl << "com.zeroc.Ice.InputStream istr = request.inputStream;";
+            out << nl << "istr.startEncapsulation();";
             for (const auto& param : inParams)
             {
                 const TypePtr paramType = param->type();
@@ -1488,11 +1465,11 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
                     param->getMetaData(),
                     patchParams);
             }
-            if (op->sendsClasses(false))
+            if (op->sendsClasses())
             {
                 out << nl << "istr.readPendingValues();";
             }
-            out << nl << "inS.endReadParams();";
+            out << nl << "istr.endEncapsulation();";
 
             for (ParamDeclList::const_iterator pli = values.begin(); pli != values.end(); ++pli)
             {
@@ -1503,187 +1480,110 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
         }
         else
         {
-            out << nl << "inS.readEmptyParams();";
+            out << nl << "request.inputStream.skipEmptyEncapsulation();";
         }
 
-        if (op->format() != DefaultFormat)
+        vector<string> inArgs;
+        for (const auto& pli : inParams)
         {
-            out << nl << "inS.setFormat(" << opFormatTypeToString(op) << ");";
+            inArgs.push_back("iceP_" + pli->name());
         }
 
-        if (amd)
+        string retS = getResultType(op, package, false, true);
+
+        if (op->hasMarshaledResult())
         {
-            if (op->hasMarshaledResult())
+            if (amd)
             {
-                out << nl << "return inS.setMarshaledResultFuture(obj." << opName << "Async" << spar
-                    << getInArgs(op, true) << "current" << epar << ");";
+                out << nl << "var result = obj." << opName << "Async" << spar << inArgs << "request.current" << epar
+                    << ";";
+                out << nl << "return result.thenApply(r -> new com.zeroc.Ice.OutgoingResponse(r.getOutputStream()));";
             }
             else
             {
-                out << nl << "return inS.setResultFuture(obj." << opName << "Async" << spar << getInArgs(op, true)
-                    << "current" << epar;
-                if (ret || !outParams.empty())
-                {
-                    out << ", (ostr, ret) ->";
-                    out.inc();
-                    out << sb;
-                    writeMarshalServantResults(out, package, op, "ret");
-                    out << eb;
-                    out.dec();
-                }
-                out << ");";
+                out << nl << "var result = obj." << fixKwd(opName) << spar << inArgs << "request.current" << epar
+                    << ";";
+                out << nl
+                    << "return java.util.concurrent.CompletableFuture.completedFuture(new "
+                       "com.zeroc.Ice.OutgoingResponse(result.getOutputStream()));";
+            }
+        }
+        else if (amd)
+        {
+            out << nl << "var result = obj." << opName << "Async" << spar << inArgs << "request.current" << epar << ";";
+            if (retS == "void")
+            {
+                out << nl << "return result.thenApply(r -> request.current.createEmptyOutgoingResponse());";
+            }
+            else
+            {
+                out << nl << "return result.thenApply(r -> request.current.createOutgoingResponse(";
+                out.inc();
+                out << nl << "r,";
+                out << nl << "(ostr, value) -> ";
+                out << sb;
+                writeMarshalServantResults(out, package, op, "value");
+                out << eb;
+                out << ",";
+                out << nl << opFormatTypeToString(op) << "));";
+                out.dec();
             }
         }
         else
         {
-            //
-            // Call on the servant.
-            //
             out << nl;
             if (ret || !outParams.empty())
             {
-                out << getResultType(op, package, false, true) << " ret = ";
+                out << retS << " ret = ";
             }
-            out << "obj." << fixKwd(opName) << spar << getInArgs(op, true) << "current" << epar << ';';
+            out << "obj." << fixKwd(opName) << spar << inArgs << "request.current" << epar << ';';
 
-            //
-            // Marshal 'out' parameters and return value.
-            //
-            if (op->hasMarshaledResult())
+            if (ret || !outParams.empty())
             {
-                out << nl << "return inS.setMarshaledResult(ret);";
-            }
-            else if (ret || !outParams.empty())
-            {
-                out << nl << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr = inS.startWriteParams();";
+                out << nl << "var ostr = request.current.startReplyStream();";
+                out << nl << "ostr.startEncapsulation(request.current.encoding, " << opFormatTypeToString(op) << ");";
                 writeMarshalServantResults(out, package, op, "ret");
-                out << nl << "inS.endWriteParams(ostr);";
-                out << nl << "return inS.setResult(ostr);";
+                out << nl << "ostr.endEncapsulation();";
+                out << nl
+                    << "return java.util.concurrent.CompletableFuture.completedFuture(new "
+                       "com.zeroc.Ice.OutgoingResponse(ostr));";
             }
             else
             {
-                out << nl << "return inS.setResult(inS.writeEmptyParams());";
+                out << nl
+                    << "return "
+                       "java.util.concurrent.CompletableFuture.completedFuture(request.current."
+                       "createEmptyOutgoingResponse());";
             }
         }
-
         out << eb;
     }
 
     OperationList allOps = p->allOperations();
     if (!allOps.empty())
     {
-        StringList allOpNames;
-        transform(
-            allOps.begin(),
-            allOps.end(),
-            back_inserter(allOpNames),
-            [](const ContainedPtr& it) { return it->name(); });
-        allOpNames.push_back("ice_id");
-        allOpNames.push_back("ice_ids");
-        allOpNames.push_back("ice_isA");
-        allOpNames.push_back("ice_ping");
-        allOpNames.sort();
-        allOpNames.unique();
-
         out << sp;
-        writeHiddenDocComment(out);
-        out << nl << "final static String[] _iceOps =";
-        out << sb;
-        for (StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end();)
-        {
-            out << nl << '"' << *q << '"';
-            if (++q != allOpNames.end())
-            {
-                out << ',';
-            }
-        }
-        out << eb << ';';
-
-        out << sp;
-        writeHiddenDocComment(out);
-        for (const OperationPtr& op : allOps)
-        {
-            // TODO: remove this when we fix where deprecation messages are applied.
-            // Suppress deprecation warnings if this method dispatches to a deprecated operation.
-            if (op->isDeprecated(true))
-            {
-                out << nl << "@SuppressWarnings(\"deprecation\")";
-                break;
-            }
-        }
-        out << nl << "@Override" << nl << "default java.util.concurrent.CompletionStage<"
-            << getUnqualified("com.zeroc.Ice.OutputStream", package) << "> _iceDispatch("
-            << getUnqualified("com.zeroc.IceInternal.Incoming", package) << " in, "
-            << getUnqualified("com.zeroc.Ice.Current", package) << " current)";
+        out << nl << "@Override" << nl
+            << "default java.util.concurrent.CompletionStage<com.zeroc.Ice.OutgoingResponse> dispatch("
+            << "com.zeroc.Ice.IncomingRequest request)";
         out.inc();
-        out << nl << "throws " << getUnqualified("com.zeroc.Ice.UserException", package);
+        out << nl << "throws com.zeroc.Ice.UserException";
         out.dec();
         out << sb;
-        out << nl << "int pos = java.util.Arrays.binarySearch(_iceOps, current.operation);";
-        out << nl << "if(pos < 0)";
+        out << nl << "return switch (request.current.operation)";
         out << sb;
-        out << nl << "throw new " << getUnqualified("com.zeroc.Ice.OperationNotExistException", package)
-            << "(current.id, current.facet, current.operation);";
-        out << eb;
-        out << sp << nl << "switch(pos)";
-        out << sb;
-        int i = 0;
-        for (StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end(); ++q)
+        for (const auto& op : allOps)
         {
-            string opName = *q;
-
-            out << nl << "case " << i++ << ':';
-            out << sb;
-            if (opName == "ice_id")
-            {
-                out << nl << "return " << getUnqualified("com.zeroc.Ice.Object", package)
-                    << "._iceD_ice_id(this, in, current);";
-            }
-            else if (opName == "ice_ids")
-            {
-                out << nl << "return " << getUnqualified("com.zeroc.Ice.Object", package)
-                    << "._iceD_ice_ids(this, in, current);";
-            }
-            else if (opName == "ice_isA")
-            {
-                out << nl << "return " << getUnqualified("com.zeroc.Ice.Object", package)
-                    << "._iceD_ice_isA(this, in, current);";
-            }
-            else if (opName == "ice_ping")
-            {
-                out << nl << "return " << getUnqualified("com.zeroc.Ice.Object", package)
-                    << "._iceD_ice_ping(this, in, current);";
-            }
-            else
-            {
-                //
-                // There's probably a better way to do this.
-                //
-                for (OperationList::const_iterator t = allOps.begin(); t != allOps.end(); ++t)
-                {
-                    if ((*t)->name() == (*q))
-                    {
-                        InterfaceDefPtr interface = (*t)->interface();
-                        assert(interface);
-                        if (interface->scoped() == p->scoped())
-                        {
-                            out << nl << "return _iceD_" << opName << "(this, in, current);";
-                        }
-                        else
-                        {
-                            string baseName = getUnqualified(interface, package);
-                            out << nl << "return " << baseName << "._iceD_" << opName << "(this, in, current);";
-                        }
-                        break;
-                    }
-                }
-            }
-            out << eb;
+            out << nl << "case \"" << op->name() << "\" -> " << getUnqualified(op->interface(), package) << "._iceD_"
+                << op->name() << "(this, request);";
         }
+        for (const auto& opName : {"ice_id", "ice_ids", "ice_isA", "ice_ping"})
+        {
+            out << nl << "case \"" << opName << "\" -> com.zeroc.Ice.Object._iceD_" << opName << "(this, request);";
+        }
+        out << nl << "default -> throw new com.zeroc.Ice.OperationNotExistException();";
         out << eb;
-        out << sp << nl << "assert(false);";
-        out << nl << "throw new " << getUnqualified("com.zeroc.Ice.OperationNotExistException", package)
-            << "(current.id, current.facet, current.operation);";
+        out << ";";
         out << eb;
     }
 }
@@ -1703,7 +1603,7 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
     out << sp;
     writeHiddenDocComment(out);
     out << nl << "@Override";
-    out << nl << "protected void _iceWriteImpl(" << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr_)";
+    out << nl << "protected void _iceWriteImpl(com.zeroc.Ice.OutputStream ostr_)";
     out << sb;
     out << nl << "ostr_.startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
     iter = 0;
@@ -1731,7 +1631,7 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
     out << sp;
     writeHiddenDocComment(out);
     out << nl << "@Override";
-    out << nl << "protected void _iceReadImpl(" << getUnqualified("com.zeroc.Ice.InputStream", package) << " istr_)";
+    out << nl << "protected void _iceReadImpl(com.zeroc.Ice.InputStream istr_)";
     out << sb;
     out << nl << "istr_.startSlice();";
 
@@ -1944,12 +1844,12 @@ Slice::JavaVisitor::writeDocCommentLines(Output& out, const string& text)
     }
     else
     {
-        string s = IceUtilInternal::trim(text.substr(start, pos - start));
+        string s = IceInternal::trim(text.substr(start, pos - start));
         out << s; // Emit the first line.
         start = pos + 1;
         while ((pos = text.find_first_of(ws, start)) != string::npos)
         {
-            string line = IceUtilInternal::trim(text.substr(start, pos - start));
+            string line = IceInternal::trim(text.substr(start, pos - start));
             if (line.empty())
             {
                 out << nl << " *";
@@ -1962,7 +1862,7 @@ Slice::JavaVisitor::writeDocCommentLines(Output& out, const string& text)
         }
         if (start < text.size())
         {
-            string line = IceUtilInternal::trim(text.substr(start));
+            string line = IceInternal::trim(text.substr(start));
             if (line.empty())
             {
                 out << nl << " *";
@@ -2290,7 +2190,7 @@ Slice::JavaVisitor::writeServantDocComment(
 
     if (p->hasMetaData("java:UserException") || p->hasMetaData("UserException"))
     {
-        out << nl << " * @throws " << getUnqualified("com.zeroc.Ice.UserException", package);
+        out << nl << " * @throws com.zeroc.Ice.UserException";
     }
     else
     {
@@ -2480,7 +2380,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     else
     {
-        out << " extends " << getUnqualified("com.zeroc.Ice.Value", package);
+        out << " extends com.zeroc.Ice.Value";
     }
 
     if (!implements.empty())
@@ -2678,49 +2578,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     out << sp;
     writeHiddenDocComment(out);
-    out << nl << "public static final long serialVersionUID = ";
-    string serialVersionUID;
-    if (p->findMetaData("java:serialVersionUID", serialVersionUID))
-    {
-        const UnitPtr unt = p->unit();
-        const DefinitionContextPtr dc = unt->findDefinitionContext(p->file());
-        assert(dc);
-
-        string::size_type pos = serialVersionUID.rfind(":") + 1;
-        if (pos == string::npos)
-        {
-            ostringstream os;
-            os << "ignoring invalid serialVersionUID for class `" << p->scoped() << "'; generating default value";
-            dc->warning(InvalidMetaData, "", "", os.str());
-            out << computeSerialVersionUUID(p);
-        }
-        else
-        {
-            std::int64_t v = 0;
-            serialVersionUID = serialVersionUID.substr(pos);
-            if (serialVersionUID != "0")
-            {
-                try
-                {
-                    v = std::stoll(serialVersionUID, nullptr, 0);
-                }
-                catch (const std::exception&)
-                {
-                    ostringstream os;
-                    os << "ignoring invalid serialVersionUID for class `" << p->scoped()
-                       << "'; generating default value";
-                    dc->warning(InvalidMetaData, "", "", os.str());
-                    out << computeSerialVersionUUID(p);
-                }
-            }
-            out << v;
-        }
-    }
-    else
-    {
-        out << computeSerialVersionUUID(p);
-    }
-    out << "L;";
+    out << nl << getSerialVersionUID(p);
 
     writeMarshaling(out, p);
 
@@ -2776,7 +2634,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out.useCurrentPosAsIndent();
     if (bases.empty())
     {
-        out << getUnqualified("com.zeroc.Ice.Object", package);
+        out << "com.zeroc.Ice.Object";
     }
     else if (q != bases.end())
     {
@@ -2862,7 +2720,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     if (!base)
     {
-        out << getUnqualified("com.zeroc.Ice.UserException", package);
+        out << "com.zeroc.Ice.UserException";
     }
     else
     {
@@ -3133,7 +2991,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     out << sp;
     writeHiddenDocComment(out);
     out << nl << "@Override";
-    out << nl << "protected void _writeImpl(" << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr_)";
+    out << nl << "protected void _writeImpl(com.zeroc.Ice.OutputStream ostr_)";
     out << sb;
     out << nl << "ostr_.startSlice(\"" << scoped << "\", -1, " << (!base ? "true" : "false") << ");";
     iter = 0;
@@ -3161,7 +3019,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     out << sp;
     writeHiddenDocComment(out);
     out << nl << "@Override";
-    out << nl << "protected void _readImpl(" << getUnqualified("com.zeroc.Ice.InputStream", package) << " istr_)";
+    out << nl << "protected void _readImpl(com.zeroc.Ice.InputStream istr_)";
     out << sb;
     out << nl << "istr_.startSlice();";
     iter = 0;
@@ -3183,65 +3041,20 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
     out << eb;
 
-    if (p->usesClasses(false))
+    if (p->usesClasses() && !(base && base->usesClasses()))
     {
-        if (!base || (base && !base->usesClasses(false)))
-        {
-            out << sp;
-            writeHiddenDocComment(out);
-            out << nl << "@Override";
-            out << nl << "public boolean _usesClasses()";
-            out << sb;
-            out << nl << "return true;";
-            out << eb;
-        }
+        out << sp;
+        writeHiddenDocComment(out);
+        out << nl << "@Override";
+        out << nl << "public boolean _usesClasses()";
+        out << sb;
+        out << nl << "return true;";
+        out << eb;
     }
 
     out << sp;
     writeHiddenDocComment(out);
-    out << nl << "public static final long serialVersionUID = ";
-    string serialVersionUID;
-    if (p->findMetaData("java:serialVersionUID", serialVersionUID))
-    {
-        const UnitPtr unt = p->unit();
-        const DefinitionContextPtr dc = unt->findDefinitionContext(p->file());
-        assert(dc);
-
-        string::size_type pos = serialVersionUID.rfind(":") + 1;
-        if (pos == string::npos)
-        {
-            ostringstream os;
-            os << "ignoring invalid serialVersionUID for exception `" << p->scoped() << "'; generating default value";
-            dc->warning(InvalidMetaData, "", "", os.str());
-            out << computeSerialVersionUUID(p);
-        }
-        else
-        {
-            std::int64_t v = 0;
-            serialVersionUID = serialVersionUID.substr(pos);
-            if (serialVersionUID != "0")
-            {
-                try
-                {
-                    v = std::stoll(serialVersionUID, nullptr, 0);
-                }
-                catch (const std::exception&)
-                {
-                    ostringstream os;
-                    os << "ignoring invalid serialVersionUID for exception `" << p->scoped()
-                       << "'; generating default value";
-                    dc->warning(InvalidMetaData, "", "", os.str());
-                    out << computeSerialVersionUUID(p);
-                }
-            }
-            out << v;
-        }
-    }
-    else
-    {
-        out << computeSerialVersionUUID(p);
-    }
-    out << "L;";
+    out << nl << getSerialVersionUID(p);
 
     out << eb;
     close();
@@ -3469,8 +3282,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << "return c;";
     out << eb;
 
-    out << sp << nl << "public void ice_writeMembers(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
-        << " ostr)";
+    out << sp << nl << "public void ice_writeMembers(com.zeroc.Ice.OutputStream ostr)";
     out << sb;
     iter = 0;
     for (DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
@@ -3481,8 +3293,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     DataMemberList classMembers = p->classDataMembers();
 
-    out << sp << nl << "public void ice_readMembers(" << getUnqualified("com.zeroc.Ice.InputStream", package)
-        << " istr)";
+    out << sp << nl << "public void ice_readMembers(com.zeroc.Ice.InputStream istr)";
     out << sb;
     iter = 0;
     for (DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
@@ -3491,8 +3302,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     }
     out << eb;
 
-    out << sp << nl << "static public void ice_write(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
-        << " ostr, " << name << " v)";
+    out << sp << nl << "static public void ice_write(com.zeroc.Ice.OutputStream ostr, " << name << " v)";
     out << sb;
     out << nl << "if(v == null)";
     out << sb;
@@ -3504,8 +3314,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << eb;
     out << eb;
 
-    out << sp << nl << "static public " << name << " ice_read(" << getUnqualified("com.zeroc.Ice.InputStream", package)
-        << " istr)";
+    out << sp << nl << "static public " << name << " ice_read(com.zeroc.Ice.InputStream istr)";
     out << sb;
     out << nl << name << " v = new " << name << "();";
     out << nl << "v.ice_readMembers(istr);";
@@ -3514,8 +3323,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     string optName = "java.util.Optional<" + name + ">";
     out << sp;
-    out << nl << "static public void ice_write(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
-        << " ostr, int tag, " << optName << " v)";
+    out << nl << "static public void ice_write(com.zeroc.Ice.OutputStream ostr, int tag, " << optName << " v)";
     out << sb;
     out << nl << "if(v != null && v.isPresent())";
     out << sb;
@@ -3524,8 +3332,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "static public void ice_write(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
-        << " ostr, int tag, " << name << " v)";
+    out << nl << "static public void ice_write(com.zeroc.Ice.OutputStream ostr, int tag, " << name << " v)";
     out << sb;
     out << nl << "if(ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
     out << sb;
@@ -3544,8 +3351,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "static public " << optName << " ice_read(" << getUnqualified("com.zeroc.Ice.InputStream", package)
-        << " istr, int tag)";
+    out << nl << "static public " << optName << " ice_read(com.zeroc.Ice.InputStream istr, int tag)";
     out << sb;
     out << nl << "if(istr.readOptional(tag, " << getOptionalFormat(p) << "))";
     out << sb;
@@ -3569,48 +3375,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     out << sp;
     writeHiddenDocComment(out);
-    out << nl << "public static final long serialVersionUID = ";
-    string serialVersionUID;
-    if (p->findMetaData("java:serialVersionUID", serialVersionUID))
-    {
-        const UnitPtr unt = p->unit();
-        const DefinitionContextPtr dc = unt->findDefinitionContext(p->file());
-        assert(dc);
-        string::size_type pos = serialVersionUID.rfind(":") + 1;
-        if (pos == string::npos)
-        {
-            ostringstream os;
-            os << "ignoring invalid serialVersionUID for struct `" << p->scoped() << "'; generating default value";
-            dc->warning(InvalidMetaData, "", "", os.str());
-            out << computeSerialVersionUUID(p);
-        }
-        else
-        {
-            std::int64_t v = 0;
-            serialVersionUID = serialVersionUID.substr(pos);
-            if (serialVersionUID != "0")
-            {
-                try
-                {
-                    v = std::stoll(serialVersionUID, nullptr, 0);
-                }
-                catch (const std::exception&)
-                {
-                    ostringstream os;
-                    os << "ignoring invalid serialVersionUID for struct `" << p->scoped()
-                       << "'; generating default value";
-                    dc->warning(InvalidMetaData, "", "", os.str());
-                    out << computeSerialVersionUUID(p);
-                }
-            }
-            out << v;
-        }
-    }
-    else
-    {
-        out << computeSerialVersionUUID(p);
-    }
-    out << "L;";
+    out << nl << getSerialVersionUID(p);
 
     out << eb;
     close();
@@ -3931,8 +3696,6 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     }
 
     out << nl << "public enum " << name;
-    out << " implements java.io.Serializable";
-
     out << sb;
 
     for (EnumeratorList::const_iterator en = enumerators.begin(); en != enumerators.end(); ++en)
@@ -3978,13 +3741,12 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "_value = v;";
     out << eb;
 
-    out << sp << nl << "public void ice_write(" << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr)";
+    out << sp << nl << "public void ice_write(com.zeroc.Ice.OutputStream ostr)";
     out << sb;
     out << nl << "ostr.writeEnum(_value, " << p->maxValue() << ");";
     out << eb;
 
-    out << sp << nl << "public static void ice_write(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
-        << " ostr, " << name << " v)";
+    out << sp << nl << "public static void ice_write(com.zeroc.Ice.OutputStream ostr, " << name << " v)";
     out << sb;
     out << nl << "if(v == null)";
     out << sb;
@@ -3997,8 +3759,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << eb;
     out << eb;
 
-    out << sp << nl << "public static " << name << " ice_read(" << getUnqualified("com.zeroc.Ice.InputStream", package)
-        << " istr)";
+    out << sp << nl << "public static " << name << " ice_read(com.zeroc.Ice.InputStream istr)";
     out << sb;
     out << nl << "int v = istr.readEnum(" << p->maxValue() << ");";
     out << nl << "return validate(v);";
@@ -4006,8 +3767,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     string optName = "java.util.Optional<" + name + ">";
     out << sp;
-    out << nl << "public static void ice_write(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
-        << " ostr, int tag, " << optName << " v)";
+    out << nl << "public static void ice_write(com.zeroc.Ice.OutputStream ostr, int tag, " << optName << " v)";
     out << sb;
     out << nl << "if(v != null && v.isPresent())";
     out << sb;
@@ -4016,8 +3776,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "public static void ice_write(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
-        << " ostr, int tag, " << name << " v)";
+    out << nl << "public static void ice_write(com.zeroc.Ice.OutputStream ostr, int tag, " << name << " v)";
     out << sb;
     out << nl << "if(ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
     out << sb;
@@ -4026,8 +3785,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "public static " << optName << " ice_read(" << getUnqualified("com.zeroc.Ice.InputStream", package)
-        << " istr, int tag)";
+    out << nl << "public static " << optName << " ice_read(com.zeroc.Ice.InputStream istr, int tag)";
     out << sb;
     out << nl << "if(istr.readOptional(tag, " << getOptionalFormat(p) << "))";
     out << sb;
@@ -4044,8 +3802,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "final " << name << " e = valueOf(v);";
     out << nl << "if(e == null)";
     out << sb;
-    out << nl << "throw new " << getUnqualified("com.zeroc.Ice.MarshalException", package)
-        << "(\"enumerator value \" + v + \" is out of range\");";
+    out << nl << "throw new com.zeroc.Ice.MarshalException(\"enumerator value \" + v + \" is out of range\");";
     out << eb;
     out << nl << "return e;";
     out << eb;
@@ -4195,8 +3952,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     out << nl << "public final class " << name << "Helper";
     out << sb;
 
-    out << nl << "public static void write(" << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr, "
-        << typeS << " v)";
+    out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, " << typeS << " v)";
     out << sb;
     iter = 0;
     writeSequenceMarshalUnmarshalCode(out, package, p, "v", true, iter, false);
@@ -4207,8 +3963,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     {
         out << nl << "@SuppressWarnings(\"unchecked\")";
     }
-    out << nl << "public static " << typeS << " read(" << getUnqualified("com.zeroc.Ice.InputStream", package)
-        << " istr)";
+    out << nl << "public static " << typeS << " read(com.zeroc.Ice.InputStream istr)";
     out << sb;
     out << nl << "final " << typeS << " v;";
     iter = 0;
@@ -4220,8 +3975,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 
     string optTypeS = "java.util.Optional<" + typeS + ">";
     out << sp;
-    out << nl << "public static void write(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
-        << " ostr, int tag, " << optTypeS << " v)";
+    out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, int tag, " << optTypeS << " v)";
     out << sb;
     if (!hasTypeMetaData(p) && builtin && builtin->kind() < Builtin::KindObject)
     {
@@ -4237,8 +3991,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "public static void write(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
-        << " ostr, int tag, " << typeS << " v)";
+    out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, int tag, " << typeS << " v)";
     out << sb;
     if (!hasTypeMetaData(p) && builtin && builtin->kind() < Builtin::KindObject)
     {
@@ -4286,8 +4039,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "public static " << optTypeS << " read(" << getUnqualified("com.zeroc.Ice.InputStream", package)
-        << " istr, int tag)";
+    out << nl << "public static " << optTypeS << " read(com.zeroc.Ice.InputStream istr, int tag)";
     out << sb;
     if (!hasTypeMetaData(p) && builtin && builtin->kind() < Builtin::KindObject)
     {
@@ -4342,15 +4094,13 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     out << sp << nl << "public final class " << name << "Helper";
     out << sb;
 
-    out << nl << "public static void write(" << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr, "
-        << formalType << " v)";
+    out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, " << formalType << " v)";
     out << sb;
     iter = 0;
     writeDictionaryMarshalUnmarshalCode(out, package, p, "v", true, iter, false);
     out << eb;
 
-    out << sp << nl << "public static " << formalType << " read("
-        << getUnqualified("com.zeroc.Ice.InputStream", package) << " istr)";
+    out << sp << nl << "public static " << formalType << " read(com.zeroc.Ice.InputStream istr)";
     out << sb;
     out << nl << formalType << " v;";
     iter = 0;
@@ -4360,8 +4110,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 
     string optTypeS = "java.util.Optional<" + formalType + ">";
     out << sp;
-    out << nl << "public static void write(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
-        << " ostr, int tag, " << optTypeS << " v)";
+    out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, int tag, " << optTypeS << " v)";
     out << sb;
     out << nl << "if(v != null && v.isPresent())";
     out << sb;
@@ -4370,8 +4119,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "public static void write(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
-        << " ostr, int tag, " << formalType << " v)";
+    out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, int tag, " << formalType << " v)";
     out << sb;
     out << nl << "if(ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
     out << sb;
@@ -4394,8 +4142,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "public static " << optTypeS << " read(" << getUnqualified("com.zeroc.Ice.InputStream", package)
-        << " istr, int tag)";
+    out << nl << "public static " << optTypeS << " read(com.zeroc.Ice.InputStream istr, int tag)";
     out << sb;
     out << nl << "if(istr.readOptional(tag, " << getOptionalFormat(p) << "))";
     out << sb;
@@ -4451,7 +4198,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out.useCurrentPosAsIndent();
     if (bases.empty())
     {
-        out << getUnqualified("com.zeroc.Ice.ObjectPrx", package);
+        out << "com.zeroc.Ice.ObjectPrx";
     }
     else
     {
@@ -4480,6 +4227,22 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     const string package = getPackage(p);
     const string contextParam = "java.util.Map<String, String> context";
+    const string prxName = p->name() + "Prx";
+    const string prxIName = "_" + prxName + "I";
+
+    out << sp;
+    writeDocComment(
+        out,
+        "Creates a new proxy that implements {@link " + prxName +
+            "}.\n"
+            "@param communicator The communicator of the new proxy.\n"
+            "@param proxyString The string representation of the proxy.\n"
+            "@return The new proxy.");
+    out << nl << "public static " << prxName
+        << " createProxy(com.zeroc.Ice.Communicator communicator, String proxyString)";
+    out << sb;
+    out << nl << "return uncheckedCast(communicator.stringToProxy(proxyString));";
+    out << eb;
 
     out << sp;
     writeDocComment(
@@ -4488,11 +4251,9 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         "Raises a local exception if a communication error occurs.\n"
         "@param obj The untyped proxy.\n"
         "@return A proxy for this type, or null if the object does not support this type.");
-    out << nl << "static " << p->name() << "Prx checkedCast(" << getUnqualified("com.zeroc.Ice.ObjectPrx", package)
-        << " obj)";
+    out << nl << "static " << prxName << " checkedCast(com.zeroc.Ice.ObjectPrx obj)";
     out << sb;
-    out << nl << "return " << getUnqualified("com.zeroc.Ice.ObjectPrx", package)
-        << "._checkedCast(obj, ice_staticId(), " << p->name() << "Prx.class, _" << p->name() << "PrxI.class);";
+    out << nl << "return checkedCast(obj, noExplicitContext);";
     out << eb;
 
     out << sp;
@@ -4503,11 +4264,18 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         "@param obj The untyped proxy.\n"
         "@param context The Context map to send with the invocation.\n"
         "@return A proxy for this type, or null if the object does not support this type.");
-    out << nl << "static " << p->name() << "Prx checkedCast(" << getUnqualified("com.zeroc.Ice.ObjectPrx", package)
-        << " obj, " << contextParam << ')';
+    out << nl << "static " << prxName << " checkedCast(com.zeroc.Ice.ObjectPrx obj, " << contextParam << ')';
     out << sb;
-    out << nl << "return " << getUnqualified("com.zeroc.Ice.ObjectPrx", package)
-        << "._checkedCast(obj, context, ice_staticId(), " << p->name() << "Prx.class, _" << p->name() << "PrxI.class);";
+    out << nl << "if (obj != null)";
+    out << sb;
+    out << nl << "try";
+    out << sb;
+    out << nl << "boolean ok = obj.ice_isA(ice_staticId(), context);";
+    out << nl << "return ok ? new " << prxIName << "(obj) : null;";
+    out << eb;
+    out << nl << "catch (com.zeroc.Ice.FacetNotExistException ex)" << sb << eb;
+    out << eb;
+    out << nl << "return null;";
     out << eb;
 
     out << sp;
@@ -4518,11 +4286,9 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         "@param obj The untyped proxy.\n"
         "@param facet The name of the desired facet.\n"
         "@return A proxy for this type, or null if the object does not support this type.");
-    out << nl << "static " << p->name() << "Prx checkedCast(" << getUnqualified("com.zeroc.Ice.ObjectPrx", package)
-        << " obj, String facet)";
+    out << nl << "static " << prxName << " checkedCast(com.zeroc.Ice.ObjectPrx obj, String facet)";
     out << sb;
-    out << nl << "return " << getUnqualified("com.zeroc.Ice.ObjectPrx", package)
-        << "._checkedCast(obj, facet, ice_staticId(), " << p->name() << "Prx.class, _" << p->name() << "PrxI.class);";
+    out << nl << "return checkedCast(obj, facet, noExplicitContext);";
     out << eb;
 
     out << sp;
@@ -4534,12 +4300,10 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         "@param facet The name of the desired facet.\n"
         "@param context The Context map to send with the invocation.\n"
         "@return A proxy for this type, or null if the object does not support this type.");
-    out << nl << "static " << p->name() << "Prx checkedCast(" << getUnqualified("com.zeroc.Ice.ObjectPrx", package)
-        << " obj, String facet, " << contextParam << ')';
+    out << nl << "static " << prxName << " checkedCast(com.zeroc.Ice.ObjectPrx obj, String facet, " << contextParam
+        << ')';
     out << sb;
-    out << nl << "return " << getUnqualified("com.zeroc.Ice.ObjectPrx", package)
-        << "._checkedCast(obj, facet, context, ice_staticId(), " << p->name() << "Prx.class, _" << p->name()
-        << "PrxI.class);";
+    out << nl << "return (obj == null) ? null : checkedCast(obj.ice_facet(facet), context);";
     out << eb;
 
     out << sp;
@@ -4548,11 +4312,9 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         "Downcasts the given proxy to this type without contacting the remote server.\n"
         "@param obj The untyped proxy.\n"
         "@return A proxy for this type.");
-    out << nl << "static " << p->name() << "Prx uncheckedCast(" << getUnqualified("com.zeroc.Ice.ObjectPrx", package)
-        << " obj)";
+    out << nl << "static " << prxName << " uncheckedCast(com.zeroc.Ice.ObjectPrx obj)";
     out << sb;
-    out << nl << "return " << getUnqualified("com.zeroc.Ice.ObjectPrx", package) << "._uncheckedCast(obj, " << p->name()
-        << "Prx.class, _" << p->name() << "PrxI.class);";
+    out << nl << "return (obj == null) ? null : new " << prxIName << "(obj);";
     out << eb;
 
     out << sp;
@@ -4562,281 +4324,41 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         "@param obj The untyped proxy.\n"
         "@param facet The name of the desired facet.\n"
         "@return A proxy for this type.");
-    out << nl << "static " << p->name() << "Prx uncheckedCast(" << getUnqualified("com.zeroc.Ice.ObjectPrx", package)
-        << " obj, String facet)";
+    out << nl << "static " << prxName << " uncheckedCast(com.zeroc.Ice.ObjectPrx obj, String facet)";
     out << sb;
-    out << nl << "return " << getUnqualified("com.zeroc.Ice.ObjectPrx", package) << "._uncheckedCast(obj, facet, "
-        << p->name() << "Prx.class, _" << p->name() << "PrxI.class);";
+    out << nl << "return (obj == null) ? null : new " << prxIName << "(obj.ice_facet(facet));";
     out << eb;
 
-    out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for the per-proxy context.\n"
-        "@param newContext The context for the new proxy.\n"
-        "@return A proxy with the specified per-proxy context.");
-    out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_context(java.util.Map<String, String> newContext)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_context(newContext);";
-    out << eb;
-
-    out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for the adapter ID.\n"
-        "@param newAdapterId The adapter ID for the new proxy.\n"
-        "@return A proxy with the specified adapter ID.");
-    out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_adapterId(String newAdapterId)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_adapterId(newAdapterId);";
-    out << eb;
-
-    out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for the endpoints.\n"
-        "@param newEndpoints The endpoints for the new proxy.\n"
-        "@return A proxy with the specified endpoints.");
-    out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_endpoints(" << getUnqualified("com.zeroc.Ice.Endpoint", package)
-        << "[] newEndpoints)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_endpoints(newEndpoints);";
-    out << eb;
-
-    out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for the locator cache timeout.\n"
-        "@param newTimeout The new locator cache timeout (in seconds).\n"
-        "@return A proxy with the specified locator cache timeout.");
-    out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_locatorCacheTimeout(int newTimeout)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_locatorCacheTimeout(newTimeout);";
-    out << eb;
-
-    out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for the invocation timeout.\n"
-        "@param newTimeout The new invocation timeout (in seconds).\n"
-        "@return A proxy with the specified invocation timeout.");
-    out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_invocationTimeout(int newTimeout)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_invocationTimeout(newTimeout);";
-    out << eb;
-
-    out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for connection caching.\n"
-        "@param newCache <code>true</code> if the new proxy should cache connections; <code>false</code> otherwise.\n"
-        "@return A proxy with the specified caching policy.");
-    out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_connectionCached(boolean newCache)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_connectionCached(newCache);";
-    out << eb;
-
-    out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for the endpoint selection policy.\n"
-        "@param newType The new endpoint selection policy.\n"
-        "@return A proxy with the specified endpoint selection policy.");
-    out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_endpointSelection("
-        << getUnqualified("com.zeroc.Ice.EndpointSelectionType", package) << " newType)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_endpointSelection(newType);";
-    out << eb;
-
-    out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for how it selects endpoints.\n"
-        "@param b If <code>b</code> is <code>true</code>, only endpoints that use a secure transport are\n"
-        "used by the new proxy. If <code>b</code> is false, the returned proxy uses both secure and\n"
-        "insecure endpoints.\n"
-        "@return A proxy with the specified selection policy.");
-    out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_secure(boolean b)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_secure(b);";
-    out << eb;
-
-    out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for the encoding used to marshal parameters.\n"
-        "@param e The encoding version to use to marshal request parameters.\n"
-        "@return A proxy with the specified encoding version.");
-    out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_encodingVersion("
-        << getUnqualified("com.zeroc.Ice.EncodingVersion", package) << " e)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_encodingVersion(e);";
-    out << eb;
-
-    out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for its endpoint selection policy.\n"
-        "@param b If <code>b</code> is <code>true</code>, the new proxy will use secure endpoints for invocations\n"
-        "and only use insecure endpoints if an invocation cannot be made via secure endpoints. If <code>b</code> is\n"
-        "<code>false</code>, the proxy prefers insecure endpoints to secure ones.\n"
-        "@return A proxy with the specified selection policy.");
-    out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_preferSecure(boolean b)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_preferSecure(b);";
-    out << eb;
-
-    out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for the router.\n"
-        "@param router The router for the new proxy.\n"
-        "@return A proxy with the specified router.");
-    out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_router(" << getUnqualified("com.zeroc.Ice.RouterPrx", package)
-        << " router)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_router(router);";
-    out << eb;
-
-    out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for the locator.\n"
-        "@param locator The locator for the new proxy.\n"
-        "@return A proxy with the specified locator.");
-    out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_locator(" << getUnqualified("com.zeroc.Ice.LocatorPrx", package)
-        << " locator)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_locator(locator);";
-    out << eb;
-
-    out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for collocation optimization.\n"
-        "@param b <code>true</code> if the new proxy enables collocation optimization; <code>false</code> otherwise.\n"
-        "@return A proxy with the specified collocation optimization.");
-    out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_collocationOptimized(boolean b)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_collocationOptimized(b);";
-    out << eb;
-
-    out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, but uses twoway invocations.\n"
-        "@return A proxy that uses twoway invocations.");
-    out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_twoway()";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_twoway();";
-    out << eb;
-
-    out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, but uses oneway invocations.\n"
-        "@return A proxy that uses oneway invocations.");
-    out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_oneway()";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_oneway();";
-    out << eb;
-
-    out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, but uses batch oneway invocations.\n"
-        "@return A proxy that uses batch oneway invocations.");
-    out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_batchOneway()";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_batchOneway();";
-    out << eb;
-
-    out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, but uses datagram invocations.\n"
-        "@return A proxy that uses datagram invocations.");
-    out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_datagram()";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_datagram();";
-    out << eb;
-
-    out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, but uses batch datagram invocations.\n"
-        "@return A proxy that uses batch datagram invocations.");
-    out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_batchDatagram()";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_batchDatagram();";
-    out << eb;
-
-    out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for compression.\n"
-        "@param co <code>true</code> enables compression for the new proxy; <code>false</code> disables compression.\n"
-        "@return A proxy with the specified compression setting.");
-    out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_compress(boolean co)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_compress(co);";
-    out << eb;
-
-    out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for its connection timeout setting.\n"
-        "@param t The connection timeout for the proxy in milliseconds.\n"
-        "@return A proxy with the specified timeout.");
-    out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_timeout(int t)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_timeout(t);";
-    out << eb;
-
-    out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except for its connection ID.\n"
-        "@param connectionId The connection ID for the new proxy. An empty string removes the connection ID.\n"
-        "@return A proxy with the specified connection ID.");
-    out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_connectionId(String connectionId)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_connectionId(connectionId);";
-    out << eb;
-
-    out << sp;
-    writeDocComment(
-        out,
-        "Returns a proxy that is identical to this proxy, except it's a fixed proxy bound\n"
-        "the given connection."
-        "@param connection The fixed proxy connection.\n"
-        "@return A fixed proxy bound to the given connection.");
-    out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_fixed(com.zeroc.Ice.Connection connection)";
-    out << sb;
-    out << nl << "return (" << p->name() << "Prx)_ice_fixed(connection);";
-    out << eb;
+    // Generate overrides for all the methods on `ObjectPrx` with covariant return types.
+    static constexpr string_view objectPrxMethods[] = {
+        "ice_context(java.util.Map<String, String> newContext)",
+        "ice_adapterId(String newAdapterId)",
+        "ice_endpoints(com.zeroc.Ice.Endpoint[] newEndpoints)",
+        "ice_locatorCacheTimeout(int newTimeout)",
+        "ice_invocationTimeout(int newTimeout)",
+        "ice_connectionCached(boolean newCache)",
+        "ice_endpointSelection(com.zeroc.Ice.EndpointSelectionType newType)",
+        "ice_secure(boolean b)",
+        "ice_encodingVersion(com.zeroc.Ice.EncodingVersion e)",
+        "ice_preferSecure(boolean b)",
+        "ice_router(com.zeroc.Ice.RouterPrx router)",
+        "ice_locator(com.zeroc.Ice.LocatorPrx locator)",
+        "ice_collocationOptimized(boolean b)",
+        "ice_twoway()",
+        "ice_oneway()",
+        "ice_batchOneway()",
+        "ice_datagram()",
+        "ice_batchDatagram()",
+        "ice_compress(boolean co)",
+        "ice_connectionId(String connectionId)",
+        "ice_fixed(com.zeroc.Ice.Connection connection)",
+    };
+    for (const auto& method : objectPrxMethods)
+    {
+        out << sp;
+        out << nl << "@Override";
+        out << nl << prxName << " " << method << ";";
+    }
 
     out << sp;
     out << nl << "static String ice_staticId()";
@@ -4859,12 +4381,28 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     {
         outi << nl << "@Deprecated";
     }
-    outi << nl << "public class _" << p->name() << "PrxI extends "
-         << getUnqualified("com.zeroc.Ice._ObjectPrxI", package) << " implements " << p->name() << "Prx";
+    outi << nl << "public class " << prxIName;
+    outi << " extends com.zeroc.Ice._ObjectPrxFactoryMethods<" << prxName << ">";
+    outi << " implements " << prxName;
     outi << sb;
+
+    // TODO: eventually remove this default constructor.
+    // Default constructor
     outi << sp;
-    writeHiddenDocComment(outi);
-    outi << nl << "public static final long serialVersionUID = 0L;";
+    outi << nl << "public " << prxIName << "()";
+    outi << sb;
+    outi << nl << "super();";
+    outi << eb;
+
+    // Copy constructor
+    outi << sp;
+    outi << nl << "public " << prxIName << "(com.zeroc.Ice.ObjectPrx obj)";
+    outi << sb;
+    outi << nl << "super(obj);";
+    outi << eb;
+
+    outi << sp;
+    outi << nl << "private static final long serialVersionUID = 0L;";
     outi << eb;
     close();
 }
@@ -4968,10 +4506,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             out << nl << "throw ex;";
             out << eb;
         }
-        out << nl << "catch(" << getUnqualified("com.zeroc.Ice.UserException", package) << " ex)";
+        out << nl << "catch(com.zeroc.Ice.UserException ex)";
         out << sb;
-        out << nl << "throw new " << getUnqualified("com.zeroc.Ice.UnknownUserException", package)
-            << "(ex.ice_id(), ex);";
+        out << nl << "throw new com.zeroc.Ice.UnknownUserException(ex.ice_id(), ex);";
         out << eb;
     }
     out << eb;
@@ -5037,10 +4574,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
                 out << nl << "throw ex;";
                 out << eb;
             }
-            out << nl << "catch(" << getUnqualified("com.zeroc.Ice.UserException", package) << " ex)";
+            out << nl << "catch(com.zeroc.Ice.UserException ex)";
             out << sb;
-            out << nl << "throw new " << getUnqualified("com.zeroc.Ice.UnknownUserException", package)
-                << "(ex.ice_id(), ex);";
+            out << nl << "throw new com.zeroc.Ice.UnknownUserException(ex.ice_id(), ex);";
             out << eb;
         }
         out << eb;
@@ -5083,9 +4619,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         << getParamsProxy(p, package, false, true) << "java.util.Map<String, String> context"
         << "boolean sync" << epar;
     out << sb;
-    out << nl << futureImpl << " f = new " << getUnqualified("com.zeroc.IceInternal.OutgoingAsync", package)
-        << "<>(this, \"" << p->name() << "\", " << sliceModeToIceMode(p->mode()) << ", sync, "
-        << (throws.empty() ? "null" : "_iceE_" + p->name()) << ");";
+    out << nl << futureImpl << " f = new com.zeroc.IceInternal.OutgoingAsync<>(this, \"" << p->name() << "\", "
+        << sliceModeToIceMode(p->mode()) << ", sync, " << (throws.empty() ? "null" : "_iceE_" + p->name()) << ");";
 
     out << nl << "f.invoke(";
     out.useCurrentPosAsIndent();
@@ -5173,9 +4708,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             << getParamsProxy(p, package, true, true) << "java.util.Map<String, String> context"
             << "boolean sync" << epar;
         out << sb;
-        out << nl << futureImpl << " f = new " << getUnqualified("com.zeroc.IceInternal.OutgoingAsync", package)
-            << "<>(this, \"" << p->name() << "\", " << sliceModeToIceMode(p->mode()) << ", sync, "
-            << (throws.empty() ? "null" : "_iceE_" + p->name()) << ");";
+        out << nl << futureImpl << " f = new com.zeroc.IceInternal.OutgoingAsync<>(this, \"" << p->name() << "\", "
+            << sliceModeToIceMode(p->mode()) << ", sync, " << (throws.empty() ? "null" : "_iceE_" + p->name()) << ");";
 
         out << nl << "f.invoke(";
         out.useCurrentPosAsIndent();

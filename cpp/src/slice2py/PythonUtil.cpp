@@ -4,7 +4,7 @@
 
 #include "PythonUtil.h"
 #include "../Slice/Util.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 #include <algorithm>
 #include <cassert>
 #include <climits>
@@ -12,8 +12,7 @@
 
 using namespace std;
 using namespace Slice;
-using namespace IceUtil;
-using namespace IceUtilInternal;
+using namespace IceInternal;
 
 namespace
 {
@@ -36,23 +35,23 @@ namespace Slice
 {
     namespace Python
     {
-        class MetaDataVisitor : public ParserVisitor
+        class MetaDataVisitor final : public ParserVisitor
         {
         public:
-            virtual bool visitUnitStart(const UnitPtr&);
-            virtual bool visitModuleStart(const ModulePtr&);
-            virtual void visitClassDecl(const ClassDeclPtr&);
-            virtual bool visitClassDefStart(const ClassDefPtr&);
-            virtual void visitInterfaceDecl(const InterfaceDeclPtr&);
-            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-            virtual bool visitExceptionStart(const ExceptionPtr&);
-            virtual bool visitStructStart(const StructPtr&);
-            virtual void visitOperation(const OperationPtr&);
-            virtual void visitDataMember(const DataMemberPtr&);
-            virtual void visitSequence(const SequencePtr&);
-            virtual void visitDictionary(const DictionaryPtr&);
-            virtual void visitEnum(const EnumPtr&);
-            virtual void visitConst(const ConstPtr&);
+            bool visitUnitStart(const UnitPtr&) final;
+            bool visitModuleStart(const ModulePtr&) final;
+            void visitClassDecl(const ClassDeclPtr&) final;
+            bool visitClassDefStart(const ClassDefPtr&) final;
+            void visitInterfaceDecl(const InterfaceDeclPtr&) final;
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            bool visitExceptionStart(const ExceptionPtr&) final;
+            bool visitStructStart(const StructPtr&) final;
+            void visitOperation(const OperationPtr&) final;
+            void visitDataMember(const DataMemberPtr&) final;
+            void visitSequence(const SequencePtr&) final;
+            void visitDictionary(const DictionaryPtr&) final;
+            void visitEnum(const EnumPtr&) final;
+            void visitConst(const ConstPtr&) final;
 
         private:
             //
@@ -77,12 +76,12 @@ namespace Slice
         // This statement allows the code generated for this translation unit to refer
         // to types residing in those included modules.
         //
-        class ModuleVisitor : public ParserVisitor
+        class ModuleVisitor final : public ParserVisitor
         {
         public:
             ModuleVisitor(Output&, set<string>&);
 
-            virtual bool visitModuleStart(const ModulePtr&);
+            bool visitModuleStart(const ModulePtr&) final;
 
         private:
             Output& _out;
@@ -92,23 +91,23 @@ namespace Slice
         //
         // CodeVisitor generates the Python mapping for a translation unit.
         //
-        class CodeVisitor : public ParserVisitor
+        class CodeVisitor final : public ParserVisitor
         {
         public:
-            CodeVisitor(IceUtilInternal::Output&, set<string>&);
+            CodeVisitor(IceInternal::Output&, set<string>&);
 
-            virtual bool visitModuleStart(const ModulePtr&);
-            virtual void visitModuleEnd(const ModulePtr&);
-            virtual void visitClassDecl(const ClassDeclPtr&);
-            virtual bool visitClassDefStart(const ClassDefPtr&);
-            virtual void visitInterfaceDecl(const InterfaceDeclPtr&);
-            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-            virtual bool visitExceptionStart(const ExceptionPtr&);
-            virtual bool visitStructStart(const StructPtr&);
-            virtual void visitSequence(const SequencePtr&);
-            virtual void visitDictionary(const DictionaryPtr&);
-            virtual void visitEnum(const EnumPtr&);
-            virtual void visitConst(const ConstPtr&);
+            bool visitModuleStart(const ModulePtr&) final;
+            void visitModuleEnd(const ModulePtr&) final;
+            void visitClassDecl(const ClassDeclPtr&) final;
+            bool visitClassDefStart(const ClassDefPtr&) final;
+            void visitInterfaceDecl(const InterfaceDeclPtr&) final;
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            bool visitExceptionStart(const ExceptionPtr&) final;
+            bool visitStructStart(const StructPtr&) final;
+            void visitSequence(const SequencePtr&) final;
+            void visitDictionary(const DictionaryPtr&) final;
+            void visitEnum(const EnumPtr&) final;
+            void visitConst(const ConstPtr&) final;
 
         private:
             //
@@ -2713,7 +2712,7 @@ Slice::Python::getImportFileName(const string& file, const UnitPtr& ut, const ve
         // The metadata is present, so the generated file was placed in the specified directory.
         //
         vector<string> names;
-        IceUtilInternal::splitString(pkgdir, "/", names);
+        IceInternal::splitString(pkgdir, "/", names);
         assert(!names.empty());
         pkgdir = "";
         for (vector<string>::iterator p = names.begin(); p != names.end(); ++p)
@@ -2886,7 +2885,7 @@ Slice::Python::getAbsolute(const ContainedPtr& cont, const string& suffix, const
 }
 
 void
-Slice::Python::printHeader(IceUtilInternal::Output& out)
+Slice::Python::printHeader(IceInternal::Output& out)
 {
     static const char* header = "#\n"
                                 "# Copyright (c) ZeroC, Inc. All rights reserved.\n"

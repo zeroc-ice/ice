@@ -3,10 +3,10 @@
 //
 
 #include "JavaUtil.h"
+#include "../Ice/FileUtil.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Util.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 
 #include <algorithm>
 #include <cassert>
@@ -23,8 +23,7 @@
 
 using namespace std;
 using namespace Slice;
-using namespace IceUtil;
-using namespace IceUtilInternal;
+using namespace IceInternal;
 
 namespace
 {
@@ -84,10 +83,10 @@ namespace
         return found ? "_" + name : name;
     }
 
-    class MetaDataVisitor : public ParserVisitor
+    class MetaDataVisitor final : public ParserVisitor
     {
     public:
-        virtual bool visitUnitStart(const UnitPtr& p)
+        bool visitUnitStart(const UnitPtr& p) final
         {
             static const string prefix = "java:";
 
@@ -125,7 +124,7 @@ namespace
             return true;
         }
 
-        virtual bool visitModuleStart(const ModulePtr& p)
+        bool visitModuleStart(const ModulePtr& p) final
         {
             StringList metaData = getMetaData(p);
             metaData = validateType(p, metaData, p->file(), p->line());
@@ -134,7 +133,7 @@ namespace
             return true;
         }
 
-        virtual void visitClassDecl(const ClassDeclPtr& p)
+        void visitClassDecl(const ClassDeclPtr& p) final
         {
             StringList metaData = getMetaData(p);
             metaData = validateType(p, metaData, p->file(), p->line());
@@ -142,16 +141,7 @@ namespace
             p->setMetaData(metaData);
         }
 
-        virtual bool visitClassDefStart(const ClassDefPtr& p)
-        {
-            StringList metaData = getMetaData(p);
-            metaData = validateType(p, metaData, p->file(), p->line());
-            metaData = validateGetSet(p, metaData, p->file(), p->line());
-            p->setMetaData(metaData);
-            return true;
-        }
-
-        virtual bool visitExceptionStart(const ExceptionPtr& p)
+        bool visitClassDefStart(const ClassDefPtr& p) final
         {
             StringList metaData = getMetaData(p);
             metaData = validateType(p, metaData, p->file(), p->line());
@@ -160,7 +150,7 @@ namespace
             return true;
         }
 
-        virtual bool visitStructStart(const StructPtr& p)
+        bool visitExceptionStart(const ExceptionPtr& p) final
         {
             StringList metaData = getMetaData(p);
             metaData = validateType(p, metaData, p->file(), p->line());
@@ -169,7 +159,16 @@ namespace
             return true;
         }
 
-        virtual void visitOperation(const OperationPtr& p)
+        bool visitStructStart(const StructPtr& p) final
+        {
+            StringList metaData = getMetaData(p);
+            metaData = validateType(p, metaData, p->file(), p->line());
+            metaData = validateGetSet(p, metaData, p->file(), p->line());
+            p->setMetaData(metaData);
+            return true;
+        }
+
+        void visitOperation(const OperationPtr& p) final
         {
             TypePtr returnType = p->returnType();
             StringList metaData = getMetaData(p);
@@ -212,7 +211,7 @@ namespace
             }
         }
 
-        virtual void visitDataMember(const DataMemberPtr& p)
+        void visitDataMember(const DataMemberPtr& p) final
         {
             StringList metaData = getMetaData(p);
             metaData = validateType(p->type(), metaData, p->file(), p->line());
@@ -220,7 +219,7 @@ namespace
             p->setMetaData(metaData);
         }
 
-        virtual void visitSequence(const SequencePtr& p)
+        void visitSequence(const SequencePtr& p) final
         {
             static const string protobuf = "java:protobuf:";
             static const string serializable = "java:serializable:";
@@ -282,7 +281,7 @@ namespace
             p->setMetaData(newMetaData);
         }
 
-        virtual void visitDictionary(const DictionaryPtr& p)
+        void visitDictionary(const DictionaryPtr& p) final
         {
             StringList metaData = getMetaData(p);
             metaData = validateType(p, metaData, p->file(), p->line());
@@ -290,7 +289,7 @@ namespace
             p->setMetaData(metaData);
         }
 
-        virtual void visitEnum(const EnumPtr& p)
+        void visitEnum(const EnumPtr& p) final
         {
             StringList metaData = getMetaData(p);
             metaData = validateType(p, metaData, p->file(), p->line());
@@ -298,7 +297,7 @@ namespace
             p->setMetaData(metaData);
         }
 
-        virtual void visitConst(const ConstPtr& p)
+        void visitConst(const ConstPtr& p) final
         {
             StringList metaData = getMetaData(p);
             metaData = validateType(p, metaData, p->file(), p->line());
@@ -527,71 +526,83 @@ namespace
     };
 }
 
-long
-Slice::computeSerialVersionUUID(const ClassDefPtr& p)
+string
+Slice::getSerialVersionUID(const ContainedPtr& p)
 {
-    ostringstream os;
-    os << "Name: " << p->scoped();
+    optional<std::int64_t> serialVersionUID = nullopt;
 
-    os << " Base: [";
-    if (p->base())
+    // Check if the user provided their own UID value with metadata.
+    string metadata;
+    if (p->findMetaData("java:serialVersionUID", metadata))
     {
-        os << p->base()->scoped();
-    }
-    os << "]";
-
-    os << " Members: [";
-    DataMemberList members = p->dataMembers();
-    for (DataMemberList::const_iterator i = members.begin(); i != members.end();)
-    {
-        os << (*i)->name() << ":" << (*i)->type();
-        i++;
-        if (i != members.end())
+        string::size_type pos = metadata.rfind(":") + 1;
+        if (pos == string::npos)
         {
-            os << ", ";
+            ostringstream os;
+            os << "missing serialVersionUID value for " << p->kindOf() << " `" << p->scoped()
+               << "'; generating default value";
+            const DefinitionContextPtr dc = p->unit()->findDefinitionContext(p->file());
+            dc->warning(InvalidMetaData, "", "", os.str());
+        }
+        else
+        {
+            try
+            {
+                metadata = metadata.substr(pos);
+                serialVersionUID = std::stoll(metadata, nullptr, 0);
+            }
+            catch (const std::exception&)
+            {
+                ostringstream os;
+                os << "ignoring invalid serialVersionUID for " << p->kindOf() << " `" << p->scoped()
+                   << "'; generating default value";
+                const DefinitionContextPtr dc = p->unit()->findDefinitionContext(p->file());
+                dc->warning(InvalidMetaData, "", "", os.str());
+            }
         }
     }
-    os << "]";
 
-    const string data = os.str();
-    long hashCode = 5381;
-    hashAdd(hashCode, data);
-    return hashCode;
+    // If the user didn't specify a UID through metadata (or it was malformed), compute a default UID instead.
+    if (!serialVersionUID)
+    {
+        serialVersionUID = computeDefaultSerialVersionUID(p);
+    }
+
+    ostringstream os;
+    os << "private static final long serialVersionUID = " << *serialVersionUID << "L;";
+    return os.str();
 }
 
 long
-Slice::computeSerialVersionUUID(const StructPtr& p)
+Slice::computeDefaultSerialVersionUID(const ContainedPtr& p)
 {
-    ostringstream os;
-
-    os << "Name: " << p->scoped();
-    os << " Members: [";
-    DataMemberList members = p->dataMembers();
-    for (DataMemberList::const_iterator i = members.begin(); i != members.end();)
+    string name = p->scoped();
+    DataMemberList members;
+    optional<string> baseName;
+    if (ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(p))
     {
-        os << (*i)->name() << ":" << (*i)->type();
-        i++;
-        if (i != members.end())
-        {
-            os << ", ";
-        }
+        members = cl->dataMembers();
+        baseName = (cl->base()) ? cl->base()->scoped() : "";
     }
-    os << "]";
+    if (ExceptionPtr ex = dynamic_pointer_cast<Exception>(p))
+    {
+        members = ex->dataMembers();
+        baseName = nullopt;
+    }
+    if (StructPtr st = dynamic_pointer_cast<Struct>(p))
+    {
+        members = st->dataMembers();
+        baseName = nullopt;
+    }
 
-    const string data = os.str();
-    long hashCode = 5381;
-    hashAdd(hashCode, data);
-    return hashCode;
-}
-
-long
-Slice::computeSerialVersionUUID(const ExceptionPtr& p)
-{
+    // Actually compute the `SerialVersionUID` value.
     ostringstream os;
-
-    os << "Name: " << p->scoped();
+    os << "Name: " << name;
+    if (baseName)
+    {
+        os << " Base: [" << *baseName << "]";
+    }
     os << " Members: [";
-    DataMemberList members = p->dataMembers();
     for (DataMemberList::const_iterator i = members.begin(); i != members.end();)
     {
         os << (*i)->name() << ":" << (*i)->type();
@@ -673,8 +684,8 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
                 path += dir.substr(start);
             }
 
-            IceUtilInternal::structstat st;
-            if (!IceUtilInternal::stat(path, &st))
+            IceInternal::structstat st;
+            if (!IceInternal::stat(path, &st))
             {
                 if (!(st.st_mode & S_IFDIR))
                 {
@@ -686,17 +697,17 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
                 continue;
             }
 
-            int err = IceUtilInternal::mkdir(path, 0777);
+            int err = IceInternal::mkdir(path, 0777);
             // If slice2java is run concurrently, it's possible that another instance of slice2java has already
             // created the directory.
-            if (err == 0 || (errno == EEXIST && IceUtilInternal::directoryExists(path)))
+            if (err == 0 || (errno == EEXIST && IceInternal::directoryExists(path)))
             {
                 // Directory successfully created or already exists.
             }
             else
             {
                 ostringstream os;
-                os << "cannot create directory `" << path << "': " << IceUtilInternal::errorToString(errno);
+                os << "cannot create directory `" << path << "': " << IceInternal::errorToString(errno);
                 throw FileException(__FILE__, __LINE__, os.str());
             }
             FileTracker::instance()->addDirectory(path);
@@ -734,7 +745,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
     else
     {
         ostringstream os;
-        os << "cannot open file `" << path << "': " << IceUtilInternal::errorToString(errno);
+        os << "cannot open file `" << path << "': " << IceInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
 }
@@ -998,11 +1009,11 @@ Slice::JavaGenerator::getStaticId(const TypePtr& type, const string& package) co
 
     if (b && b->kind() == Builtin::KindObject)
     {
-        return getUnqualified("com.zeroc.Ice.Object", package) + ".ice_staticId()";
+        return "com.zeroc.Ice.Object.ice_staticId()";
     }
     else if (b && b->kind() == Builtin::KindValue)
     {
-        return getUnqualified("com.zeroc.Ice.Value", package) + ".ice_staticId()";
+        return "com.zeroc.Ice.Value.ice_staticId()";
     }
     else
     {

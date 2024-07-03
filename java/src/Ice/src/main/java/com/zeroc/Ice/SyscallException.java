@@ -50,8 +50,5 @@ public class SyscallException extends LocalException {
    */
   public int error;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -2440066513892919497L;
+  private static final long serialVersionUID = -2440066513892919497L;
 }

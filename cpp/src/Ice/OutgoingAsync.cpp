@@ -7,7 +7,7 @@
 #include "ConnectionFactory.h"
 #include "ConnectionI.h"
 #include "Ice/ImplicitContext.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Instance.h"
 #include "ObjectAdapterFactory.h"
@@ -559,7 +559,14 @@ OutgoingAsync::OutgoingAsync(ObjectPrx proxy, bool synchronous)
 void
 OutgoingAsync::prepare(string_view operation, OperationMode mode, const Context& context)
 {
-    checkSupportedProtocol(_proxy._getReference()->getProtocol());
+    if (_proxy._getReference()->getProtocol().major != currentProtocol.major)
+    {
+        throw FeatureNotSupportedException{
+            __FILE__,
+            __LINE__,
+            "cannot send request using protocol version " +
+                Ice::protocolVersionToString(_proxy._getReference()->getProtocol())};
+    }
 
     _mode = mode;
 
@@ -679,31 +686,45 @@ OutgoingAsync::response()
                 {
                     if (facetPath.size() > 1)
                     {
-                        throw MarshalException(__FILE__, __LINE__);
+                        throw MarshalException{__FILE__, __LINE__, "received facet path with more than one element"};
                     }
                     facet.swap(facetPath[0]);
                 }
 
                 string operation;
                 _is.read(operation, false);
-
                 switch (replyStatus)
                 {
                     case replyObjectNotExist:
                     {
-                        throw ObjectNotExistException{__FILE__, __LINE__, ident, facet, operation};
+                        throw ObjectNotExistException{
+                            __FILE__,
+                            __LINE__,
+                            std::move(ident),
+                            std::move(facet),
+                            std::move(operation)};
                         break;
                     }
 
                     case replyFacetNotExist:
                     {
-                        throw FacetNotExistException{__FILE__, __LINE__, ident, facet, operation};
+                        throw FacetNotExistException{
+                            __FILE__,
+                            __LINE__,
+                            std::move(ident),
+                            std::move(facet),
+                            std::move(operation)};
                         break;
                     }
 
                     case replyOperationNotExist:
                     {
-                        throw OperationNotExistException{__FILE__, __LINE__, ident, facet, operation};
+                        throw OperationNotExistException{
+                            __FILE__,
+                            __LINE__,
+                            std::move(ident),
+                            std::move(facet),
+                            std::move(operation)};
                         break;
                     }
 
@@ -720,26 +741,26 @@ OutgoingAsync::response()
             case replyUnknownLocalException:
             case replyUnknownUserException:
             {
-                string unknown;
-                _is.read(unknown, false);
+                string message;
+                _is.read(message, false);
 
                 switch (replyStatus)
                 {
                     case replyUnknownException:
                     {
-                        throw UnknownException{__FILE__, __LINE__, unknown};
+                        throw UnknownException{__FILE__, __LINE__, std::move(message)};
                         break;
                     }
 
                     case replyUnknownLocalException:
                     {
-                        throw UnknownLocalException{__FILE__, __LINE__, unknown};
+                        throw UnknownLocalException{__FILE__, __LINE__, std::move(message)};
                         break;
                     }
 
                     case replyUnknownUserException:
                     {
-                        throw UnknownUserException{__FILE__, __LINE__, unknown};
+                        throw UnknownUserException{__FILE__, __LINE__, std::move(message)};
                         break;
                     }
 
@@ -754,7 +775,10 @@ OutgoingAsync::response()
 
             default:
             {
-                throw UnknownReplyStatusException(__FILE__, __LINE__);
+                throw ProtocolException{
+                    __FILE__,
+                    __LINE__,
+                    "received unknown reply status in Reply message" + to_string(replyStatus)};
             }
         }
 
@@ -858,7 +882,10 @@ OutgoingAsync::throwUserException()
         {
             _userException(ex);
         }
-        throw UnknownUserException(__FILE__, __LINE__, ex.ice_id());
+        throw UnknownUserException{
+            __FILE__,
+            __LINE__,
+            "Received unknown user exception with type ID '" + string{ex.ice_id()} + "'"};
     }
 }
 

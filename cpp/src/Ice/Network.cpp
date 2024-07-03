@@ -2,27 +2,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-//
-// The following is required on HP-UX in order to bring in
-// the definition for the ip_mreq structure.
-//
-#if defined(__hpux)
-#    undef _XOPEN_SOURCE_EXTENDED
-#    define _XOPEN_SOURCE
-#    include <netinet/in.h>
-#endif
-
+#include "Network.h"
+#include "DisableWarnings.h"
 #include "Ice/Buffer.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h" // For setTcpBufSize
 #include "Ice/Properties.h" // For setTcpBufSize
 #include "Ice/StringConverter.h"
-#include "IceUtil/DisableWarnings.h"
-#include "IceUtil/Random.h"
-#include "IceUtil/StringUtil.h"
-#include "Network.h"
+#include "Ice/StringUtil.h"
 #include "NetworkProxy.h"
 #include "ProtocolInstance.h" // For setTcpBufSize
+#include "Random.h"
 
 #include <cassert>
 #include <functional>
@@ -45,8 +35,6 @@
 
 #if defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__)
 #    include <ifaddrs.h>
-#elif defined(__sun)
-#    include <sys/sockio.h>
 #endif
 
 #if defined(__GNUC__) && (__GNUC__ < 5)
@@ -70,7 +58,7 @@ namespace
     {
         if (selType == Ice::EndpointSelectionType::Random)
         {
-            IceUtilInternal::shuffle(addrs.begin(), addrs.end());
+            IceInternal::shuffle(addrs.begin(), addrs.end());
         }
 
         if (protocol == EnableBoth)
@@ -260,11 +248,7 @@ namespace
             }
             SOCKET fd = createSocketImpl(false, i == 0 ? AF_INET : AF_INET6);
 
-#    ifdef _AIX
-            int cmd = CSIOCGIFCONF;
-#    else
             int cmd = SIOCGIFCONF;
-#    endif
             struct ifconf ifc;
             int numaddrs = 10;
             int old_ifc_len = 0;
@@ -498,7 +482,7 @@ namespace
         {
             throw Ice::SocketException(__FILE__, __LINE__, WSAEINVAL);
         }
-#elif !defined(__hpux)
+#else
 
         //
         // Look for an interface with a matching IP address
@@ -527,11 +511,7 @@ namespace
             }
 #    else
             SOCKET fd = createSocketImpl(false, AF_INET6);
-#        ifdef _AIX
-            int cmd = CSIOCGIFCONF;
-#        else
             int cmd = SIOCGIFCONF;
-#        endif
             struct ifconf ifc;
             int numaddrs = 10;
             int old_ifc_len = 0;
@@ -786,7 +766,7 @@ string
 IceInternal::errorToStringDNS(int error)
 {
 #if defined(_WIN32)
-    return IceUtilInternal::errorToString(error);
+    return IceInternal::errorToString(error);
 #else
     return gai_strerror(error);
 #endif

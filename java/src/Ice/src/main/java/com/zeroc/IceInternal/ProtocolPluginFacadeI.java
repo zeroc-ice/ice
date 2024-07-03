@@ -7,7 +7,7 @@ package com.zeroc.IceInternal;
 public class ProtocolPluginFacadeI implements ProtocolPluginFacade {
   public ProtocolPluginFacadeI(com.zeroc.Ice.Communicator communicator) {
     _communicator = communicator;
-    _instance = Util.getInstance(communicator);
+    _instance = communicator.getInstance();
   }
 
   //

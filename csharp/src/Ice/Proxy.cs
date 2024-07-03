@@ -853,7 +853,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     {
         if (newIdentity.name.Length == 0)
         {
-            throw new IllegalIdentityException();
+            throw new ArgumentException("The name of an Ice object identity cannot be empty.", nameof(newIdentity));
         }
         if (newIdentity == _reference.getIdentity())
         {
@@ -967,12 +967,12 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         }
         else
         {
-            var endpts = new EndpointI[newEndpoints.Length];
+            var endpoints = new EndpointI[newEndpoints.Length];
             for (int i = 0; i < newEndpoints.Length; ++i)
             {
-                endpts[i] = (EndpointI)newEndpoints[i];
+                endpoints[i] = (EndpointI)newEndpoints[i];
             }
-            return iceNewInstance(_reference.changeEndpoints(endpts));
+            return iceNewInstance(_reference.changeEndpoints(endpoints));
         }
     }
 
@@ -1098,19 +1098,19 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for how it selects endpoints.
     /// </summary>
-    /// <param name="b"> If b is true, only endpoints that use a secure transport are
-    /// used by the new proxy. If b is false, the returned proxy uses both secure and insecure
+    /// <param name="secure"> If secure is true, only endpoints that use a secure transport are
+    /// used by the new proxy. If secure is false, the returned proxy uses both secure and insecure
     /// endpoints.</param>
     /// <returns>The new proxy with the specified selection policy.</returns>
-    public ObjectPrx ice_secure(bool b)
+    public ObjectPrx ice_secure(bool secure)
     {
-        if (b == _reference.getSecure())
+        if (secure == _reference.getSecure())
         {
             return this;
         }
         else
         {
-            return iceNewInstance(_reference.changeSecure(b));
+            return iceNewInstance(_reference.changeSecure(secure));
         }
     }
 
@@ -1118,17 +1118,17 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// Creates a new proxy that is identical to this proxy, except for the encoding used to marshal
     /// parameters.
     /// </summary>
-    /// <param name="e">The encoding version to use to marshal requests parameters.</param>
+    /// <param name="encodingVersion">The encoding version to use to marshal requests parameters.</param>
     /// <returns>The new proxy with the specified encoding version.</returns>
-    public ObjectPrx ice_encodingVersion(EncodingVersion e)
+    public ObjectPrx ice_encodingVersion(EncodingVersion encodingVersion)
     {
-        if (e == _reference.getEncoding())
+        if (encodingVersion == _reference.getEncoding())
         {
             return this;
         }
         else
         {
-            return iceNewInstance(_reference.changeEncoding(e));
+            return iceNewInstance(_reference.changeEncoding(encodingVersion));
         }
     }
 
@@ -1152,19 +1152,19 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for its endpoint selection policy.
     /// </summary>
-    /// <param name="b">If b is true, the new proxy will use secure endpoints for invocations
-    /// and only use insecure endpoints if an invocation cannot be made via secure endpoints. If b is
+    /// <param name="preferSecure">If preferSecure is true, the new proxy will use secure endpoints for invocations
+    /// and only use insecure endpoints if an invocation cannot be made via secure endpoints. If preferSecure is
     /// false, the proxy prefers insecure endpoints to secure ones.</param>
     /// <returns>The new proxy with the new endpoint selection policy.</returns>
-    public ObjectPrx ice_preferSecure(bool b)
+    public ObjectPrx ice_preferSecure(bool preferSecure)
     {
-        if (b == _reference.getPreferSecure())
+        if (preferSecure == _reference.getPreferSecure())
         {
             return this;
         }
         else
         {
-            return iceNewInstance(_reference.changePreferSecure(b));
+            return iceNewInstance(_reference.changePreferSecure(preferSecure));
         }
     }
 
@@ -1186,14 +1186,13 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <returns>The new proxy with the specified router.</returns>
     public ObjectPrx ice_router(RouterPrx? router)
     {
-        Reference @ref = _reference.changeRouter(router);
-        if (@ref == _reference)
+        if (router == _reference.getRouterInfo()?.getRouter())
         {
             return this;
         }
         else
         {
-            return iceNewInstance(@ref);
+            return iceNewInstance(_reference.changeRouter(router));
         }
     }
 
@@ -1214,14 +1213,13 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <returns>The new proxy with the specified locator.</returns>
     public ObjectPrx ice_locator(LocatorPrx? locator)
     {
-        var @ref = _reference.changeLocator(locator);
-        if (@ref == _reference)
+        if (locator == _reference.getLocatorInfo()?.getLocator())
         {
             return this;
         }
         else
         {
-            return iceNewInstance(@ref);
+            return iceNewInstance(_reference.changeLocator(locator));
         }
     }
 
@@ -1237,17 +1235,17 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for collocation optimization.
     /// </summary>
-    /// <param name="b">True if the new proxy enables collocation optimization; false, otherwise.</param>
+    /// <param name="collocated">True if the new proxy enables collocation optimization; false, otherwise.</param>
     /// <returns>The new proxy the specified collocation optimization.</returns>
-    public ObjectPrx ice_collocationOptimized(bool b)
+    public ObjectPrx ice_collocationOptimized(bool collocated)
     {
-        if (b == _reference.getCollocationOptimized())
+        if (collocated == _reference.getCollocationOptimized())
         {
             return this;
         }
         else
         {
-            return iceNewInstance(_reference.changeCollocationOptimized(b));
+            return iceNewInstance(_reference.changeCollocationOptimized(collocated));
         }
     }
 
@@ -1376,18 +1374,17 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for compression.
     /// </summary>
-    /// <param name="co">True enables compression for the new proxy; false disables compression.</param>
+    /// <param name="compress">True enables compression for the new proxy; false disables compression.</param>
     /// <returns>A new proxy with the specified compression setting.</returns>
-    public ObjectPrx ice_compress(bool co)
+    public ObjectPrx ice_compress(bool compress)
     {
-        var @ref = _reference.changeCompress(co);
-        if (@ref == _reference)
+        if (compress == _reference.getCompress())
         {
             return this;
         }
         else
         {
-            return iceNewInstance(@ref);
+            return iceNewInstance(_reference.changeCompress(compress));
         }
     }
 
@@ -1409,14 +1406,13 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <returns>A new proxy with the specified connection ID.</returns>
     public ObjectPrx ice_connectionId(string connectionId)
     {
-        var @ref = _reference.changeConnectionId(connectionId);
-        if (@ref == _reference)
+        if (connectionId == _reference.getConnectionId())
         {
             return this;
         }
         else
         {
-            return iceNewInstance(@ref);
+            return iceNewInstance(_reference.changeConnectionId(connectionId));
         }
     }
 
@@ -1445,14 +1441,14 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         {
             throw new ArgumentException("invalid connection passed to ice_fixed");
         }
-        var @ref = _reference.changeConnection((Ice.ConnectionI)connection);
-        if (@ref == _reference)
+
+        if (connection == _reference.getConnection())
         {
             return this;
         }
         else
         {
-            return iceNewInstance(@ref);
+            return iceNewInstance(_reference.changeConnection((Ice.ConnectionI)connection));
         }
     }
 
@@ -1503,8 +1499,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         }
     }
 
-    public Task<Connection> ice_getConnectionAsync(IProgress<bool>? progress = null,
-                                                   CancellationToken cancel = default)
+    public Task<Connection> ice_getConnectionAsync(IProgress<bool>? progress = null, CancellationToken cancel = default)
     {
         var completed = new GetConnectionTaskCompletionCallback(this, progress, cancel);
         iceI_ice_getConnection(completed, false);
@@ -1806,7 +1801,7 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// <param name="communicator">The communicator of the new proxy.</param>
     /// <param name="proxyString">The string representation of the proxy.</param>
     /// <returns>The new proxy.</returns>
-    /// <exception name="ProxyParseException">Thrown when <paramref name="proxyString" /> is not a valid proxy string.
+    /// <exception name="ParseException">Thrown when <paramref name="proxyString" /> is not a valid proxy string.
     /// </exception>
     public static ObjectPrx createProxy(Communicator communicator, string proxyString)
     {
@@ -1814,18 +1809,18 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
 
         return reference is not null ?
             new ObjectPrxHelper(reference) :
-            throw new ProxyParseException("Invalid empty proxy string.");
+            throw new ParseException("Invalid empty proxy string.");
     }
 
-    /// Casts a proxy to {@link ObjectPrx}. This call contacts
+    /// Casts a proxy to <see cref="ObjectPrx" />. This call contacts
     /// the server and throws an Ice run-time exception if the target
     /// object does not exist or the server cannot be reached.
     /// </summary>
-    /// <param name="b">The proxy to cast to ObjectPrx.</param>
+    /// <param name="proxy">The proxy to cast to ObjectPrx.</param>
     /// <param name="ctx">The Context map for the invocation.</param>
-    /// <returns>b.</returns>
-    public static ObjectPrx? checkedCast(ObjectPrx? b, Dictionary<string, string>? context = null) =>
-        b is not null && b.ice_isA("::Ice::Object", context) ? b : null;
+    /// <returns>proxy.</returns>
+    public static ObjectPrx? checkedCast(ObjectPrx? proxy, Dictionary<string, string>? context = null) =>
+        proxy is not null && proxy.ice_isA("::Ice::Object", context) ? proxy : null;
 
     /// <summary>
     /// Creates a new proxy that is identical to the passed proxy, except
@@ -1833,13 +1828,13 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// the server and throws an Ice run-time exception if the target
     /// object does not exist, the specified facet does not exist, or the server cannot be reached.
     /// </summary>
-    /// <param name="b">The proxy to cast to ObjectPrx.</param>
-    /// <param name="f">The facet for the new proxy.</param>
+    /// <param name="proxy">The proxy to cast to ObjectPrx.</param>
+    /// <param name="facet">The facet for the new proxy.</param>
     /// <param name="context">The Context map for the invocation.</param>
     /// <returns>The new proxy with the specified facet.</returns>
-    public static ObjectPrx? checkedCast(ObjectPrx? b, string f, Dictionary<string, string>? context = null)
+    public static ObjectPrx? checkedCast(ObjectPrx? proxy, string facet, Dictionary<string, string>? context = null)
     {
-        ObjectPrx? bb = b?.ice_facet(f);
+        ObjectPrx? bb = proxy?.ice_facet(facet);
         try
         {
             if (bb is not null && bb.ice_isA("::Ice::Object", context))
@@ -1854,23 +1849,23 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     }
 
     /// <summary>
-    /// Casts a proxy to {@link ObjectPrx}. This call does
+    /// Casts a proxy to <see cref="ObjectPrx" />. This call does
     /// not contact the server and always succeeds.
     /// </summary>
-    /// <param name="b">The proxy to cast to ObjectPrx.</param>
+    /// <param name="proxy">The proxy to cast to ObjectPrx.</param>
     /// <returns>b.</returns>
-    [return: NotNullIfNotNull("b")]
-    public static ObjectPrx? uncheckedCast(ObjectPrx? b) => b;
+    [return: NotNullIfNotNull("proxy")]
+    public static ObjectPrx? uncheckedCast(ObjectPrx? proxy) => proxy;
 
     /// <summary>
     /// Creates a new proxy that is identical to the passed proxy, except
     /// for its facet. This call does not contact the server and always succeeds.
     /// </summary>
-    /// <param name="b">The proxy to cast to ObjectPrx.</param>
-    /// <param name="f">The facet for the new proxy.</param>
+    /// <param name="proxy">The proxy to cast to ObjectPrx.</param>
+    /// <param name="facet">The facet for the new proxy.</param>
     /// <returns>The new proxy with the specified facet.</returns>
-    [return: NotNullIfNotNull("b")]
-    public static ObjectPrx? uncheckedCast(ObjectPrx? b, string f) => b?.ice_facet(f);
+    [return: NotNullIfNotNull("proxy")]
+    public static ObjectPrx? uncheckedCast(ObjectPrx? proxy, string facet) => proxy?.ice_facet(facet);
 
     /// <summary>
     /// Returns the Slice type id of the interface or class associated

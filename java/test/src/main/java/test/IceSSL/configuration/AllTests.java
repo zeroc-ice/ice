@@ -1303,7 +1303,6 @@ public class AllTests {
       int retryCount = 0;
 
       initData = createClientProps(defaultProperties);
-      initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
       com.zeroc.Ice.Communicator comm = Util.initialize(initData);
       com.zeroc.Ice.ObjectPrx p =
           comm.stringToProxy("dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
@@ -1339,7 +1338,6 @@ public class AllTests {
 
       retryCount = 0;
       initData = createClientProps(defaultProperties);
-      initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
       initData.properties.setProperty("IceSSL.UsePlatformCAs", "1");
       comm = Util.initialize(initData);
       p = comm.stringToProxy("dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");

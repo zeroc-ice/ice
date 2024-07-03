@@ -206,13 +206,6 @@ generated from the section label.
         <suffix name="Context.[any]" />
     </class>
 
-    <!-- TODO remove -->
-    <class name="acm" prefix-only="false">
-        <suffix name="Timeout" />
-        <suffix name="Heartbeat" />
-        <suffix name="Close" />
-    </class>
-
     <class name="connection" prefix-only="false">
         <suffix name="CloseTimeout" default="10" />
         <suffix name="ConnectTimeout" default="10" />
@@ -232,8 +225,6 @@ generated from the section label.
     </class>
 
     <class name="objectadapter" prefix-only="true">
-        <!-- TODO: Remove ACM as it's getting replaced by Connection -->
-        <suffix name="ACM" class="acm"/>
         <suffix name="AdapterId" />
         <suffix name="Connection" class="connection"/>
         <suffix name="Endpoints" />
@@ -273,11 +264,6 @@ generated from the section label.
 
     <section name="Ice">
         <property name="AcceptClassCycles" default="0" />
-        <property name="ACM.Client" deprecated="true"/>
-        <property name="ACM.Server" deprecated="true"/>
-        <property name="ACM" class="acm"/>
-        <property name="ACM.Client" class="acm"/>
-        <property name="ACM.Server" class="acm"/>
         <property name="Admin" class="objectadapter" />
         <property name="Admin.DelayCreation" default="0" />
         <property name="Admin.Enabled" />
@@ -291,7 +277,7 @@ generated from the section label.
         <property name="BatchAutoFlush" deprecated="true"/>
         <property name="BatchAutoFlushSize" default="1024" />
         <property name="ChangeUser" />
-        <property name="ClassGraphDepthMax" default="100" />
+        <property name="ClassGraphDepthMax" default="10" />
         <property name="Compression.Level" default="1" />
         <property name="Config" />
         <property name="Connection" class="connection"/>
@@ -309,7 +295,7 @@ generated from the section label.
         <property name="Default.Router" class="proxy" />
         <property name="Default.SlicedFormat" default="0" />
         <property name="Default.SourceAddress" />
-        <!-- TODO: Remove Defualt.Timeout-->
+        <!-- TODO: Remove Default.Timeout-->
         <property name="Default.Timeout" default="60000" />
         <property name="EventLog.Source" />
         <property name="FactoryAssemblies" />

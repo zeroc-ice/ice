@@ -2,20 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
+import { Protocol } from "./Protocol.js";
+import { OutputStream } from "./Stream.js";
+import { Debug } from "./Debug.js";
 
-require("../Ice/Debug");
-require("../Ice/Protocol");
-require("../Ice/Stream");
-
-const OutputStream = Ice.OutputStream;
-const Debug = Ice.Debug;
-const Protocol = Ice.Protocol;
-
-class BatchRequestQueue
-{
-    constructor(instance)
-    {
+export class BatchRequestQueue {
+    constructor(instance) {
         this._batchStreamInUse = false;
         this._batchRequestNum = 0;
         this._batchStream = new OutputStream(instance, Protocol.currentProtocolEncoding);
@@ -26,56 +18,45 @@ class BatchRequestQueue
         this._maxSize = instance.batchAutoFlushSize();
     }
 
-    prepareBatchRequest(os)
-    {
-        if(this._exception)
-        {
+    prepareBatchRequest(os) {
+        if (this._exception) {
             throw this._exception;
         }
         this._batchStream.swap(os);
     }
 
-    finishBatchRequest(os, proxy, operation)
-    {
+    finishBatchRequest(os, proxy, operation) {
         //
         // No need for synchronization, no other threads are supposed
         // to modify the queue since we set this._batchStreamInUse to true.
         //
         this._batchStream.swap(os);
 
-        try
-        {
-            if(this._maxSize > 0 && this._batchStream.size >= this._maxSize)
-            {
+        try {
+            if (this._maxSize > 0 && this._batchStream.size >= this._maxSize) {
                 proxy.ice_flushBatchRequests(); // Auto flush
             }
 
             Debug.assert(this._batchMarker < this._batchStream.size);
             this._batchMarker = this._batchStream.size;
             ++this._batchRequestNum;
-        }
-        finally
-        {
+        } finally {
             this._batchStream.resize(this._batchMarker);
         }
     }
 
-    abortBatchRequest(os)
-    {
+    abortBatchRequest(os) {
         this._batchStream.swap(os);
         this._batchStream.resize(this._batchMarker);
     }
 
-    swap(os)
-    {
-        if(this._batchRequestNum === 0)
-        {
+    swap(os) {
+        if (this._batchRequestNum === 0) {
             return 0;
         }
 
         let lastRequest = null;
-        if(this._batchMarker < this._batchStream.size)
-        {
+        if (this._batchMarker < this._batchStream.size) {
             const length = this._batchStream.size - this._batchMarker;
             this._batchStream.pos = this._batchMarker;
             lastRequest = this._batchStream.buffer.getArray(length);
@@ -91,23 +72,17 @@ class BatchRequestQueue
         this._batchRequestNum = 0;
         this._batchStream.writeBlob(Protocol.requestBatchHdr);
         this._batchMarker = this._batchStream.size;
-        if(lastRequest !== null)
-        {
+        if (lastRequest !== null) {
             this._batchStream.writeBlob(lastRequest);
         }
         return requestNum;
     }
 
-    destroy(ex)
-    {
+    destroy(ex) {
         this._exception = ex;
     }
 
-    isEmpty()
-    {
+    isEmpty() {
         return this._batchStream.size === Protocol.requestBatchHdr.length;
     }
 }
-
-Ice.BatchRequestQueue = BatchRequestQueue;
-module.exports.Ice = Ice;

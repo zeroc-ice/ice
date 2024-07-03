@@ -22,8 +22,7 @@ namespace Glacier2
     const int GLACIER2_TCP_PORT = 4063;
 
     /**
-     * Encapsulates a Glacier2 session and provides much of the same functionality as Glacier2::Application
-     * but better suited for graphical applications.
+     * Encapsulates a Glacier2 session and provides functionality for using Glacier2 with graphical applications.
      * \headerfile Glacier2/Glacier2.h
      */
     class SessionHelper
@@ -201,18 +200,6 @@ namespace Glacier2
         std::string getProtocol() const;
 
         /**
-         * Sets the timeout in milliseconds for the connection to the Glacier2 router.
-         * @param timeout The timeout in milliseconds.
-         */
-        void setTimeout(int timeout);
-
-        /**
-         * Obtains the timeout in milliseconds for the connection to the Glacier2 router.
-         * @return The timeout in milliseconds.
-         */
-        int getTimeout() const;
-
-        /**
          * Sets the port on which the Glacier2 router is listening.
          * @param port The router port.
          */
@@ -275,7 +262,6 @@ namespace Glacier2
         Ice::Identity _identity;
         std::string _protocol;
         int _port;
-        int _timeout;
         Ice::InitializationData _initData;
         SessionCallbackPtr _callback;
         std::map<std::string, std::string> _context;

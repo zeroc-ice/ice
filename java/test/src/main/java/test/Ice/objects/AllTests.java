@@ -38,7 +38,6 @@ public class AllTests {
     }
   }
 
-  @SuppressWarnings("deprecation")
   public static InitialPrx allTests(test.TestHelper helper) {
     com.zeroc.Ice.Communicator communicator = helper.communicator();
     PrintWriter out = helper.getWriter();
@@ -266,28 +265,24 @@ public class AllTests {
     out.print("testing recursive type... ");
     out.flush();
     Recursive top = new Recursive();
-    Recursive p = top;
-    int depth = 0;
+    Recursive bottom = top;
+    int maxDepth = 10;
+    for (int i = 1; i < maxDepth; ++i) {
+      bottom.v = new Recursive();
+      bottom = bottom.v;
+    }
+    initial.setRecursive(top);
+
+    // Adding one more level would exceed the max class graph depth
+    bottom.v = new Recursive();
+    bottom = bottom.v;
+
     try {
-      for (; depth <= 20000; ++depth) {
-        p.v = new Recursive();
-        p = p.v;
-        if ((depth < 10 && (depth % 10) == 0)
-            || (depth < 1000 && (depth % 100) == 0)
-            || (depth < 10000 && (depth % 1000) == 0)
-            || (depth % 10000) == 0) {
-          initial.setRecursive(top);
-        }
-      }
-      test(!initial.supportsClassGraphDepthMax());
+      initial.setRecursive(top);
+      test(false);
     } catch (com.zeroc.Ice.UnknownLocalException ex) {
       // Expected marshal exception from the server (max class graph depth reached)
-    } catch (com.zeroc.Ice.UnknownException ex) {
-      // Expected stack overflow from the server (Java only)
-    } catch (java.lang.StackOverflowError ex) {
-      // Stack overflow while writing instances
     }
-    initial.setRecursive(new Recursive());
     out.println("ok");
 
     out.print("testing compact ID...");
@@ -355,16 +350,14 @@ public class AllTests {
       test(opF1Result.f12.name.equals("F12"));
 
       Initial.OpF2Result opF2Result =
-          initial.opF2(
-              F2Prx.uncheckedCast(communicator.stringToProxy("F21:" + helper.getTestEndpoint())));
+          initial.opF2(F2Prx.createProxy(communicator, "F21:" + helper.getTestEndpoint()));
       test(opF2Result.returnValue.ice_getIdentity().name.equals("F21"));
       opF2Result.returnValue.op();
       test(opF2Result.f22.ice_getIdentity().name.equals("F22"));
 
       if (initial.hasF3()) {
         Initial.OpF3Result opF3Result =
-            initial.opF3(
-                new F3(new F1("F11"), F2Prx.uncheckedCast(communicator.stringToProxy("F21"))));
+            initial.opF3(new F3(new F1("F11"), F2Prx.createProxy(communicator, "F21")));
         test(opF3Result.returnValue.f1.name.equals("F11"));
         test(opF3Result.returnValue.f2.ice_getIdentity().name.equals("F21"));
 

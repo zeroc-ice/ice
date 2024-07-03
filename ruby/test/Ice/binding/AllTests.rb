@@ -345,7 +345,7 @@ def allTests(helper, communicator)
     nRetry = 5
 
     #
-    # Ensure that endpoints are tried in order by deactiving the adapters
+    # Ensure that endpoints are tried in order by deactivating the adapters
     # one after the other.
     #
     i = 0
@@ -426,7 +426,7 @@ def allTests(helper, communicator)
 
     puts "ok"
 
-    if communicator.getProperties().getProperty("Ice.Plugin.IceSSL").length > 0
+    if communicator.getProperties().getProperty("Ice.Default.Protocol") == "ssl"
         print "testing unsecure vs. secure endpoints... "
         STDOUT.flush
 

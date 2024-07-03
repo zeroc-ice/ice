@@ -7,7 +7,7 @@
 #include "ConnectionI.h"
 #include "EndpointI.h"
 #include "Ice/Comparable.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Instance.h"
 #include "LocatorInfo.h"
 #include "Reference.h"
@@ -228,12 +228,6 @@ optional<bool>
 Ice::ObjectPrx::ice_getCompress() const
 {
     return _reference->getCompress();
-}
-
-optional<int>
-Ice::ObjectPrx::ice_getTimeout() const
-{
-    return _reference->getTimeout();
 }
 
 string
@@ -580,26 +574,6 @@ Ice::ObjectPrx::_secure(bool b) const
     else
     {
         return _reference->changeSecure(b);
-    }
-}
-
-ReferencePtr
-Ice::ObjectPrx::_timeout(int t) const
-{
-    if (t < 1 && t != -1)
-    {
-        ostringstream s;
-        s << "invalid value passed to ice_timeout: " << t;
-        throw invalid_argument(s.str());
-    }
-    ReferencePtr ref = _reference->changeTimeout(t);
-    if (targetEqualTo(ref, _reference))
-    {
-        return _reference;
-    }
-    else
-    {
-        return ref;
     }
 }
 

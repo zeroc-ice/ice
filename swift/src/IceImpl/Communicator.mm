@@ -1,7 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
+// Copyright (c) ZeroC, Inc.
 #import "include/Communicator.h"
 #import "include/DispatchAdapter.h"
 #import "include/IceUtil.h"

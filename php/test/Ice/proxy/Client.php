@@ -42,7 +42,7 @@ function allTests($helper)
         $b1 = $communicator->stringToProxy("\"test -f facet'");
         test(false);
     }
-    catch(Ice\ProxyParseException $ex)
+    catch(Ice\ParseException $ex)
     {
     }
     $b1 = $communicator->stringToProxy("\"test -f facet\"");
@@ -59,7 +59,7 @@ function allTests($helper)
         $b1 = $communicator->stringToProxy("test test");
         test(false);
     }
-    catch(Ice\ProxyParseException $ex)
+    catch(Ice\ParseException $ex)
     {
     }
     $b1 = $communicator->stringToProxy("test\\040test");
@@ -69,7 +69,7 @@ function allTests($helper)
         $b1 = $communicator->stringToProxy("test\\777");
         test(false);
     }
-    catch(Ice\IdentityParseException $ex)
+    catch(Ice\ParseException $ex)
     {
     }
     $b1 = $communicator->stringToProxy("test\\40test");
@@ -106,7 +106,7 @@ function allTests($helper)
         $b1 = $communicator->stringToProxy("id@adapter test");
         test(false);
     }
-    catch(Ice\ProxyParseException $ex)
+    catch(Ice\ParseException $ex)
     {
     }
     $b1 = $communicator->stringToProxy("category/test@adapter");
@@ -145,7 +145,7 @@ function allTests($helper)
         $b1 = $communicator->stringToProxy("id -f \"facet x");
         test(false);
     }
-    catch(Ice\ProxyParseException $ex)
+    catch(Ice\ParseException $ex)
     {
     }
     try
@@ -153,7 +153,7 @@ function allTests($helper)
         $b1 = $communicator->stringToProxy("id -f \'facet x");
         test(false);
     }
-    catch(Ice\ProxyParseException $ex)
+    catch(Ice\ParseException $ex)
     {
     }
     $b1 = $communicator->stringToProxy("test -f facet:tcp");
@@ -176,7 +176,7 @@ function allTests($helper)
         $b1 = $communicator->stringToProxy("test -f facet@test @test");
         test(false);
     }
-    catch(Ice\ProxyParseException $ex)
+    catch(Ice\ParseException $ex)
     {
     }
     $b1 = $communicator->stringToProxy("test");
@@ -201,7 +201,7 @@ function allTests($helper)
         $b1 = $communicator->stringToProxy("test:tcp@adapterId");
         test(false);
     }
-    catch(Ice\EndpointParseException $ex)
+    catch(Ice\ParseException $ex)
     {
     }
     // This is an unknown endpoint warning, not a parse exception.
@@ -211,7 +211,7 @@ function allTests($helper)
     //   $b1 = $communicator->stringToProxy("test -f the:facet:tcp");
     //   test(false);
     //}
-    //catch(Ice_EndpointParseException $ex)
+    //catch(Ice_ParseException $ex)
     //{
     //}
     try
@@ -219,7 +219,7 @@ function allTests($helper)
         $b1 = $communicator->stringToProxy("test::tcp");
         test(false);
     }
-    catch(Ice\EndpointParseException $ex)
+    catch(Ice\ParseException $ex)
     {
     }
     echo "ok\n";
@@ -505,7 +505,7 @@ function allTests($helper)
         $cl20->ice_ping();
         test(false);
     }
-    catch(Ice\UnsupportedEncodingException $ex)
+    catch(Ice\MarshalException $ex)
     {
         // Server 2.0 endpoint doesn't support 1.1 version.
     }
@@ -524,7 +524,7 @@ function allTests($helper)
         $p = $communicator->stringToProxy("id:opaque -t 99 -v abc -x abc");
         test(false);
     }
-    catch(Ice\EndpointParseException $ex)
+    catch(Ice\ParseException $ex)
     {
     }
 
@@ -534,7 +534,7 @@ function allTests($helper)
         $p = $communicator->stringToProxy("id:opaque");
         test(false);
     }
-    catch(Ice\EndpointParseException $ex)
+    catch(Ice\ParseException $ex)
     {
     }
 
@@ -544,7 +544,7 @@ function allTests($helper)
         $p = $communicator->stringToProxy("id:opaque -t 1 -t 1 -v abc");
         test(false);
     }
-    catch(Ice\EndpointParseException $ex)
+    catch(Ice\ParseException $ex)
     {
     }
 
@@ -554,7 +554,7 @@ function allTests($helper)
         $p = $communicator->stringToProxy("id:opaque -t 1 -v abc -v abc");
         test(false);
     }
-    catch(Ice\EndpointParseException $ex)
+    catch(Ice\ParseException $ex)
     {
     }
 
@@ -564,7 +564,7 @@ function allTests($helper)
         $p = $communicator->stringToProxy("id:opaque -v abc");
         test(false);
     }
-    catch(Ice\EndpointParseException $ex)
+    catch(Ice\ParseException $ex)
     {
     }
 
@@ -574,7 +574,7 @@ function allTests($helper)
         $p = $communicator->stringToProxy("id:opaque -t 1");
         test(false);
     }
-    catch(Ice\EndpointParseException $ex)
+    catch(Ice\ParseException $ex)
     {
     }
 
@@ -584,7 +584,7 @@ function allTests($helper)
         $p = $communicator->stringToProxy("id:opaque -t -v abc");
         test(false);
     }
-    catch(Ice\EndpointParseException $ex)
+    catch(Ice\ParseException $ex)
     {
     }
 
@@ -594,7 +594,7 @@ function allTests($helper)
         $p = $communicator->stringToProxy("id:opaque -t 1 -v");
         test(false);
     }
-    catch(Ice\EndpointParseException $ex)
+    catch(Ice\ParseException $ex)
     {
     }
 
@@ -604,7 +604,7 @@ function allTests($helper)
         $p = $communicator->stringToProxy("id:opaque -t x -v abc");
         test(false);
     }
-    catch(Ice\EndpointParseException $ex)
+    catch(Ice\ParseException $ex)
     {
     }
 
@@ -614,7 +614,7 @@ function allTests($helper)
         $p = $communicator->stringToProxy("id:opaque -t -1 -v abc");
         test(false);
     }
-    catch(Ice\EndpointParseException $ex)
+    catch(Ice\ParseException $ex)
     {
     }
 
@@ -624,7 +624,7 @@ function allTests($helper)
         $p = $communicator->stringToProxy("id:opaque -t 99 -v x?c");
         test(false);
     }
-    catch(Ice\EndpointParseException $ex)
+    catch(Ice\ParseException $ex)
     {
     }
 

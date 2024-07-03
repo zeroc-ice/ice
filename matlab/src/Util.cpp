@@ -3,7 +3,7 @@
 //
 
 #include "Util.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "ice.h"
 #include <codecvt>
 #include <iostream>
@@ -341,7 +341,7 @@ IceMatlab::convertException(const std::exception_ptr exc)
     }
     catch (const Ice::LocalException& iceEx)
     {
-        auto typeId = iceEx.ice_id();
+        string typeId{iceEx.ice_id()};
         //
         // The exception ID uses single colon separators.
         //
@@ -354,7 +354,7 @@ IceMatlab::convertException(const std::exception_ptr exc)
         mxArray* params[10];
         params[0] = createStringFromUTF8(id);
         int idx = 2;
-        auto msg = typeId; // Use the type ID as the default exception message
+        string msg = typeId; // Use the type ID as the default exception message
 
         try
         {
@@ -386,7 +386,7 @@ IceMatlab::convertException(const std::exception_ptr exc)
         }
         catch (const Ice::UnknownException& e)
         {
-            params[idx++] = createStringFromUTF8(e.unknown);
+            params[idx++] = createStringFromUTF8(e.what());
         }
         catch (const Ice::ObjectAdapterDeactivatedException& e)
         {
@@ -400,25 +400,9 @@ IceMatlab::convertException(const std::exception_ptr exc)
         {
             params[idx++] = createStringFromUTF8(e.proxy);
         }
-        catch (const Ice::EndpointParseException& e)
+        catch (const Ice::ParseException& e)
         {
-            params[idx++] = createStringFromUTF8(e.str);
-        }
-        catch (const Ice::EndpointSelectionTypeParseException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.str);
-        }
-        catch (const Ice::VersionParseException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.str);
-        }
-        catch (const Ice::IdentityParseException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.str);
-        }
-        catch (const Ice::ProxyParseException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.str);
+            params[idx++] = createStringFromUTF8(e.what());
         }
         catch (const Ice::IllegalServantException& e)
         {
@@ -426,9 +410,9 @@ IceMatlab::convertException(const std::exception_ptr exc)
         }
         catch (const Ice::RequestFailedException& e)
         {
-            params[idx++] = createIdentity(e.id);
-            params[idx++] = createStringFromUTF8(e.facet);
-            params[idx++] = createStringFromUTF8(e.operation);
+            params[idx++] = createIdentity(e.id());
+            params[idx++] = createStringFromUTF8(e.facet());
+            params[idx++] = createStringFromUTF8(e.operation());
         }
         catch (const Ice::FileException& e)
         {
@@ -444,37 +428,9 @@ IceMatlab::convertException(const std::exception_ptr exc)
             params[idx++] = mxCreateDoubleScalar(e.error);
             params[idx++] = createStringFromUTF8(e.host);
         }
-        catch (const Ice::BadMagicException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.reason);
-            params[idx++] = createByteList(e.badMagic);
-        }
-        catch (const Ice::UnsupportedProtocolException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.reason);
-            params[idx++] = createProtocolVersion(e.bad);
-            params[idx++] = createProtocolVersion(e.supported);
-        }
-        catch (const Ice::UnsupportedEncodingException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.reason);
-            params[idx++] = createEncodingVersion(e.bad);
-            params[idx++] = createEncodingVersion(e.supported);
-        }
-        catch (const Ice::NoValueFactoryException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.reason);
-            params[idx++] = createStringFromUTF8(e.type);
-        }
-        catch (const Ice::UnexpectedObjectException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.reason);
-            params[idx++] = createStringFromUTF8(e.type);
-            params[idx++] = createStringFromUTF8(e.expectedType);
-        }
         catch (const Ice::ProtocolException& e) // This must appear after all subclasses of ProtocolException.
         {
-            params[idx++] = createStringFromUTF8(e.reason);
+            params[idx++] = createStringFromUTF8(e.what());
         }
         catch (const Ice::ConnectionManuallyClosedException& e)
         {
@@ -482,7 +438,7 @@ IceMatlab::convertException(const std::exception_ptr exc)
         }
         catch (const Ice::FeatureNotSupportedException& e)
         {
-            params[idx++] = createStringFromUTF8(e.unsupportedFeature);
+            params[idx++] = createStringFromUTF8(e.what());
         }
         catch (const Ice::SecurityException& e)
         {

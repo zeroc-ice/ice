@@ -1,7 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
+// Copyright (c) ZeroC, Inc.
 #pragma once
 
 [["swift:class-resolver-prefix:IceObjects"]]
@@ -74,14 +71,6 @@ class F
 
 // Exercise empty class with non-empty base
 class G extends Base
-{
-}
-
-interface I
-{
-}
-
-interface J extends I
 {
 }
 
@@ -210,7 +199,6 @@ interface Initial
     F getF();
 
     void setRecursive(Recursive p);
-    bool supportsClassGraphDepthMax();
 
     void setCycle(Recursive r);
     bool acceptsClassCycles();

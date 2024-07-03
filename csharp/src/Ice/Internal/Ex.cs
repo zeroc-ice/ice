@@ -8,15 +8,10 @@ public static class Ex
 {
     public static void throwUOE(Type expectedType, Ice.Value v)
     {
-        //
-        // If the object is an unknown sliced object, we didn't find an
-        // value factory, in this case raise a NoValueFactoryException
-        // instead.
-        //
-        if (v is Ice.UnknownSlicedValue)
+        // If the object is an unknown sliced object, we didn't find an value factory.
+        if (v is UnknownSlicedValue usv)
         {
-            Ice.UnknownSlicedValue usv = (Ice.UnknownSlicedValue)v;
-            throw new Ice.NoValueFactoryException("", usv.ice_id());
+            throw new MarshalException($"Cannot find value factory to unmarshal class with type ID '{usv.ice_id()}'.");
         }
 
         string type = v.ice_id();
@@ -31,28 +26,22 @@ public static class Ex
             Debug.Assert(false);
         }
 
-        throw new Ice.UnexpectedObjectException("expected element of type `" + expected + "' but received `" +
-                                                type + "'", type, expected);
+        throw new MarshalException(
+            $"Failed to unmarshal class with type ID '{expected}': value factory returned class with type ID '{type}'.");
     }
 
     public static void throwMemoryLimitException(int requested, int maximum)
     {
-        throw new Ice.MemoryLimitException("requested " + requested + " bytes, maximum allowed is " + maximum +
-                                           " bytes (see Ice.MessageSizeMax)");
+        throw new MarshalException(
+            $"Cannot unmarshal Ice message: the message size of {requested} bytes exceeds the maximum allowed of {maximum} bytes (see Ice.MessageSizeMax).");
     }
 }
 
 public class RetryException : System.Exception
 {
-    public RetryException(Ice.LocalException ex)
-    {
-        _ex = ex;
-    }
+    private readonly Ice.LocalException _ex;
 
-    public Ice.LocalException get()
-    {
-        return _ex;
-    }
+    public RetryException(Ice.LocalException ex) => _ex = ex;
 
-    private Ice.LocalException _ex;
+    public Ice.LocalException get() => _ex;
 }

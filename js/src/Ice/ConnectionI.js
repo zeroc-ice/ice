@@ -2,47 +2,49 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
-require("../Ice/AsyncStatus");
-require("../Ice/Stream");
-require("../Ice/OutgoingAsync");
-require("../Ice/Debug");
-require("../Ice/ExUtil");
-require("../Ice/HashMap");
-require("../Ice/IncomingAsync");
-require("../Ice/RetryException");
-require("../Ice/Promise");
-require("../Ice/Protocol");
-require("../Ice/SocketOperation");
-require("../Ice/Timer");
-require("../Ice/TraceUtil");
-require("../Ice/Version");
-require("../Ice/Exception");
-require("../Ice/LocalException");
-require("../Ice/BatchRequestQueue");
+import { LocalException } from "./Exception.js";
+import {
+    IllegalMessageSizeException,
+    ObjectAdapterDeactivatedException,
+    CommunicatorDestroyedException,
+    CloseConnectionException,
+    ConnectionManuallyClosedException,
+    ConnectionClosedException,
+    ConnectTimeoutException,
+    ConnectionIdleException,
+    ConnectionLostException,
+    CloseTimeoutException,
+    SocketException,
+    FeatureNotSupportedException,
+    UnmarshalOutOfBoundsException,
+    BadMagicException,
+    ConnectionNotValidatedException,
+    UnknownMessageException,
+    UnknownException,
+} from "./LocalException.js";
 
-const AsyncStatus = Ice.AsyncStatus;
-const AsyncResultBase = Ice.AsyncResultBase;
-const InputStream = Ice.InputStream;
-const OutputStream = Ice.OutputStream;
-const BatchRequestQueue = Ice.BatchRequestQueue;
-const ConnectionFlushBatch = Ice.ConnectionFlushBatch;
-const HeartbeatAsync = Ice.HeartbeatAsync;
-const Debug = Ice.Debug;
-const ExUtil = Ice.ExUtil;
-const HashMap = Ice.HashMap;
-const IncomingAsync = Ice.IncomingAsync;
-const RetryException = Ice.RetryException;
-const Protocol = Ice.Protocol;
-const SocketOperation = Ice.SocketOperation;
-const Timer = Ice.Timer;
-const TraceUtil = Ice.TraceUtil;
-const ProtocolVersion = Ice.ProtocolVersion;
-const EncodingVersion = Ice.EncodingVersion;
-const ACM = Ice.ACM;
-const ACMClose = Ice.ACMClose;
-const ACMHeartbeat = Ice.ACMHeartbeat;
-const ConnectionClose = Ice.ConnectionClose;
+import { ConnectionClose } from "./Connection.js";
+
+import { BatchRequestQueue } from "./BatchRequestQueue.js";
+import { InputStream, OutputStream } from "./Stream.js";
+import { Protocol } from "./Protocol.js";
+import { Ice as Ice_Version } from "./Version.js";
+const { ProtocolVersion, EncodingVersion } = Ice_Version;
+import { throwMemoryLimitException } from "./ExUtil.js";
+import { Timer } from "./Timer.js";
+import { Promise } from "./Promise.js";
+import { HashMap } from "./HashMap.js";
+import { SocketOperation } from "./SocketOperation.js";
+import { TraceUtil } from "./TraceUtil.js";
+import { AsyncStatus } from "./AsyncStatus.js";
+import { AsyncResultBase } from "./AsyncResultBase.js";
+import { RetryException } from "./RetryException.js";
+import { ConnectionFlushBatch, OutgoingAsync } from "./OutgoingAsync.js";
+import { IncomingAsync } from "./IncomingAsync.js";
+import { Debug } from "./Debug.js";
+import { IdleTimeoutTransceiverDecorator } from "./IdleTimeoutTransceiverDecorator.js";
+import { ObjectAdapter } from "./ObjectAdapter.js";
+import { ObjectPrx } from "./ObjectPrx.js";
 
 const StateNotInitialized = 0;
 const StateNotValidated = 1;
@@ -52,10 +54,8 @@ const StateClosing = 4;
 const StateClosed = 5;
 const StateFinished = 6;
 
-class MessageInfo
-{
-    constructor(instance)
-    {
+class MessageInfo {
+    constructor(instance) {
         this.stream = new InputStream(instance, Protocol.currentProtocolEncoding);
         this.invokeNum = 0;
         this.requestId = 0;
@@ -66,34 +66,35 @@ class MessageInfo
     }
 }
 
-class ConnectionI
-{
-    constructor(communicator, instance, monitor, transceiver, endpoint, incoming, adapter)
-    {
+export class ConnectionI {
+    constructor(communicator, instance, transceiver, endpoint, removeFromFactory, options) {
         this._communicator = communicator;
         this._instance = instance;
-        this._monitor = monitor;
-        this._transceiver = transceiver;
         this._desc = transceiver.toString();
         this._type = transceiver.type();
         this._endpoint = endpoint;
-        this._incoming = incoming;
-        this._adapter = adapter;
+        this._adapter = null;
+        this._removeFromFactory = removeFromFactory;
+
+        this._connectTimeout = options.connectTimeout * 1000; // Seconds to milliseconds
+        this._connectTimeoutId = undefined;
+
+        this._closeTimeout = options.closeTimeout * 1000; // Seconds to milliseconds.
+        this._closeTimeoutId = undefined;
+
+        this._inactivityTimeout = options.inactivityTimeout;
+        this._inactivityTimer = undefined;
+
         const initData = instance.initializationData();
         this._logger = initData.logger; // Cached for better performance.
         this._traceLevels = instance.traceLevels(); // Cached for better performance.
         this._timer = instance.timer();
-        this._writeTimeoutId = 0;
-        this._writeTimeoutScheduled = false;
-        this._readTimeoutId = 0;
-        this._readTimeoutScheduled = false;
 
-        this._hasMoreData = {value: false};
+        this._hasMoreData = { value: false };
 
         this._warn = initData.properties.getPropertyAsInt("Ice.Warn.Connections") > 0;
-        this._acmLastActivity = this._monitor !== null && this._monitor.getACM().timeout > 0 ? Date.now() : -1;
         this._nextRequestId = 1;
-        this._messageSizeMax = adapter ? adapter.messageSizeMax() : instance.messageSizeMax();
+        this._messageSizeMax = instance.messageSizeMax();
         this._batchRequestQueue = new BatchRequestQueue(instance);
 
         this._sendStreams = [];
@@ -105,6 +106,11 @@ class ConnectionI
         this._readStreamPos = -1;
         this._writeStreamPos = -1;
 
+        // The number of user calls currently executed by the event-loop (servant dispatch, invocation response, etc.).
+        this._upcallCount = 0;
+
+        // The number of outstanding dispatches. This does not include heartbeat messages, even when the heartbeat
+        // callback is not null. Maintained only while state is StateActive or StateHolding.
         this._dispatchCount = 0;
 
         this._state = StateNotInitialized;
@@ -123,41 +129,47 @@ class ConnectionI
         this._closePromises = [];
         this._finishedPromises = [];
 
-        if(this._adapter !== null)
-        {
-            this._servantManager = this._adapter.getServantManager();
+        if (options.idleTimeout > 0) {
+            transceiver = new IdleTimeoutTransceiverDecorator(
+                transceiver,
+                this,
+                this._timer,
+                options.idleTimeout,
+                options.enableIdleCheck,
+            );
         }
-        else
-        {
-            this._servantManager = null;
-        }
+        this._transceiver = transceiver;
+
+        this._servantManager = null;
         this._closeCallback = null;
         this._heartbeatCallback = null;
     }
 
-    start()
-    {
+    start() {
         Debug.assert(this._startPromise === null);
 
-        try
-        {
+        try {
             // The connection might already be closed if the communicator was destroyed.
-            if(this._state >= StateClosed)
-            {
+            if (this._state >= StateClosed) {
                 Debug.assert(this._exception !== null);
-                return Ice.Promise.reject(this._exception);
+                return Promise.reject(this._exception);
             }
 
-            this._startPromise = new Ice.Promise();
+            this._startPromise = new Promise();
             this._transceiver.setCallbacks(
                 () => this.message(SocketOperation.Write), // connected callback
                 () => this.message(SocketOperation.Read), // read callback
-                () => this.message(SocketOperation.Write) // write callback
+                () => this.message(SocketOperation.Write), // write callback
             );
-            this.initialize();
-        }
-        catch(ex)
-        {
+
+            if (!this.initialize()) {
+                if (this._connectTimeout > 0) {
+                    this._connectTimeoutId = this._timer.schedule(() => {
+                        this.connectTimedOut();
+                    }, this._connectTimeout);
+                }
+            }
+        } catch (ex) {
             const startPromise = this._startPromise;
             this.exception(ex);
             return startPromise;
@@ -165,70 +177,50 @@ class ConnectionI
         return this._startPromise;
     }
 
-    activate()
-    {
-        if(this._state <= StateNotValidated)
-        {
+    activate() {
+        if (this._state <= StateNotValidated) {
             return;
-        }
-
-        if(this._acmLastActivity > 0)
-        {
-            this._acmLastActivity = Date.now();
         }
         this.setState(StateActive);
     }
 
-    hold()
-    {
-        if(this._state <= StateNotValidated)
-        {
+    hold() {
+        if (this._state <= StateNotValidated) {
             return;
         }
 
         this.setState(StateHolding);
     }
 
-    destroy(reason)
-    {
-        switch(reason)
-        {
-            case ConnectionI.ObjectAdapterDeactivated:
-            {
-                this.setState(StateClosing, new Ice.ObjectAdapterDeactivatedException());
+    destroy(reason) {
+        switch (reason) {
+            case ConnectionI.ObjectAdapterDeactivated: {
+                this.setState(StateClosing, new ObjectAdapterDeactivatedException());
                 break;
             }
 
-            case ConnectionI.CommunicatorDestroyed:
-            {
-                this.setState(StateClosing, new Ice.CommunicatorDestroyedException());
+            case ConnectionI.CommunicatorDestroyed: {
+                this.setState(StateClosing, new CommunicatorDestroyedException());
                 break;
             }
 
-            default:
-            {
+            default: {
                 Debug.assert(false);
                 break;
             }
         }
     }
 
-    close(mode)
-    {
+    close(mode) {
         const r = new AsyncResultBase(this._communicator, "close", this, null, null);
 
-        if(mode == ConnectionClose.Forcefully)
-        {
-            this.setState(StateClosed, new Ice.ConnectionManuallyClosedException(false));
+        if (mode == ConnectionClose.Forcefully) {
+            this.setState(StateClosed, new ConnectionManuallyClosedException(false));
             r.resolve();
-        }
-        else if(mode == ConnectionClose.Gracefully)
-        {
-            this.setState(StateClosing, new Ice.ConnectionManuallyClosedException(true));
+        } else if (mode == ConnectionClose.Gracefully) {
+            this.setState(StateClosing, new ConnectionManuallyClosedException(true));
             r.resolve();
-        }
-        else
-        {
+        } else {
             Debug.assert(mode == ConnectionClose.GracefullyWithWait);
 
             //
@@ -241,38 +233,32 @@ class ConnectionI
         return r;
     }
 
-    checkClose()
-    {
+    checkClose() {
         //
         // If close(GracefullyWithWait) has been called, then we need to check if all
         // requests have completed and we can transition to StateClosing. We also
         // complete outstanding promises.
         //
-        if(this._asyncRequests.size === 0 && this._closePromises.length > 0)
-        {
+        if (this._asyncRequests.size === 0 && this._closePromises.length > 0) {
             //
-            // The caller doesn't expect the state of the connection to change when this is called so
-            // we defer the check immediately after doing whather we're doing. This is consistent with
-            // other implementations as well.
+            // The caller doesn't expect the state of the connection to change when this is called so we queue the
+            // check in the event loop an return control to the caller. This is consistent with other implementations
+            // as well.
             //
-            Timer.setImmediate(() =>
-            {
-                this.setState(StateClosing, new Ice.ConnectionManuallyClosedException(true));
-                this._closePromises.forEach(p => p.resolve());
+            Timer.setImmediate(() => {
+                this.setState(StateClosing, new ConnectionManuallyClosedException(true));
+                this._closePromises.forEach((p) => p.resolve());
                 this._closePromises = [];
             });
         }
     }
 
-    isActiveOrHolding()
-    {
+    isActiveOrHolding() {
         return this._state > StateNotValidated && this._state < StateClosing;
     }
 
-    isFinished()
-    {
-        if(this._state !== StateFinished || this._dispatchCount !== 0)
-        {
+    isFinished() {
+        if (this._state !== StateFinished || this._upcallCount !== 0) {
             return false;
         }
 
@@ -280,93 +266,25 @@ class ConnectionI
         return true;
     }
 
-    throwException()
-    {
-        if(this._exception !== null)
-        {
+    throwException() {
+        if (this._exception !== null) {
             Debug.assert(this._state >= StateClosing);
             throw this._exception;
         }
     }
 
-    waitUntilFinished()
-    {
-        const promise = new Ice.Promise();
+    waitUntilFinished() {
+        const promise = new Promise();
         this._finishedPromises.push(promise);
         this.checkState();
         return promise;
     }
 
-    monitor(now, acm)
-    {
-        if(this._state !== StateActive)
-        {
-            return;
-        }
-
-        //
-        // We send a heartbeat if there was no activity in the last
-        // (timeout / 4) period. Sending a heartbeat sooner than
-        // really needed is safer to ensure that the receiver will
-        // receive the heartbeat in time. Sending the heartbeat if
-        // there was no activity in the last (timeout / 2) period
-        // isn't enough since monitor() is called only every (timeout
-        // / 2) period.
-        //
-        // Note that this doesn't imply that we are sending 4 heartbeats
-        // per timeout period because the monitor() method is still only
-        // called every (timeout / 2) period.
-        //
-        if(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatAlways ||
-           (acm.heartbeat != Ice.ACMHeartbeat.HeartbeatOff && this._writeStream.isEmpty() &&
-            now >= (this._acmLastActivity + (acm.timeout / 4))))
-        {
-            if(acm.heartbeat != Ice.ACMHeartbeat.HeartbeatOnDispatch || this._dispatchCount > 0)
-            {
-                this.sendHeartbeatNow(); // Send heartbeat if idle in the last timeout / 2 period.
-            }
-        }
-
-        if(this._readStream.size > Protocol.headerSize || !this._writeStream.isEmpty())
-        {
-            //
-            // If writing or reading, nothing to do, the connection
-            // timeout will kick-in if writes or reads don't progress.
-            // This check is necessary because the activity timer is
-            // only set when a message is fully read/written.
-            //
-            return;
-        }
-
-        if(acm.close != Ice.ACMClose.CloseOff && now >= (this._acmLastActivity + acm.timeout))
-        {
-            if(acm.close == Ice.ACMClose.CloseOnIdleForceful ||
-               (acm.close != Ice.ACMClose.CloseOnIdle && this._asyncRequests.size > 0))
-            {
-                //
-                // Close the connection if we didn't receive a heartbeat in
-                // the last period.
-                //
-                this.setState(StateClosed, new Ice.ConnectionTimeoutException());
-            }
-            else if(acm.close != Ice.ACMClose.CloseOnInvocation &&
-                    this._dispatchCount === 0 && this._batchRequestQueue.isEmpty() && this._asyncRequests.size === 0)
-            {
-                //
-                // The connection is idle, close it.
-                //
-                this.setState(StateClosing, new Ice.ConnectionTimeoutException());
-            }
-        }
-    }
-
-    sendAsyncRequest(out, response, batchRequestNum)
-    {
+    sendAsyncRequest(out, response, batchRequestNum) {
         let requestId = 0;
         const ostr = out.getOs();
 
-        if(this._exception !== null)
-        {
+        if (this._exception !== null) {
             //
             // If the connection is closed before we even have a chance
             // to send our request, we always try to send the request
@@ -379,25 +297,17 @@ class ConnectionI
         Debug.assert(this._state < StateClosing);
 
         //
-        // Ensure the message isn't bigger than what we can send with the
-        // transport.
-        //
-        this._transceiver.checkSendSize(ostr);
-
-        //
         // Notify the request that it's cancelable with this connection.
         // This will throw if the request is canceled.
         //
         out.cancelable(this); // Notify the request that it's cancelable
 
-        if(response)
-        {
+        if (response) {
             //
             // Create a new unique request ID.
             //
             requestId = this._nextRequestId++;
-            if(requestId <= 0)
-            {
+            if (requestId <= 0) {
                 this._nextRequestId = 1;
                 requestId = this._nextRequestId++;
             }
@@ -407,34 +317,25 @@ class ConnectionI
             //
             ostr.pos = Protocol.headerSize;
             ostr.writeInt(requestId);
-        }
-        else if(batchRequestNum > 0)
-        {
+        } else if (batchRequestNum > 0) {
             ostr.pos = Protocol.headerSize;
             ostr.writeInt(batchRequestNum);
         }
 
         let status;
-        try
-        {
+        try {
             status = this.sendMessage(OutgoingMessage.create(out, out.getOs(), requestId));
-        }
-        catch(ex)
-        {
-            if(ex instanceof Ice.LocalException)
-            {
+        } catch (ex) {
+            if (ex instanceof LocalException) {
                 this.setState(StateClosed, ex);
                 Debug.assert(this._exception !== null);
                 throw this._exception;
-            }
-            else
-            {
+            } else {
                 throw ex;
             }
         }
 
-        if(response)
-        {
+        if (response) {
             //
             // Add to the async requests map.
             //
@@ -444,104 +345,50 @@ class ConnectionI
         return status;
     }
 
-    getBatchRequestQueue()
-    {
+    getBatchRequestQueue() {
         return this._batchRequestQueue;
     }
 
-    flushBatchRequests()
-    {
+    flushBatchRequests() {
         const result = new ConnectionFlushBatch(this, this._communicator, "flushBatchRequests");
         result.invoke();
         return result;
     }
 
-    setCloseCallback(callback)
-    {
-        if(this._state >= StateClosed)
-        {
-            if(callback !== null)
-            {
-                Timer.setImmediate(() =>
-                {
-                    try
-                    {
+    setCloseCallback(callback) {
+        if (this._state >= StateClosed) {
+            if (callback !== null) {
+                Timer.setImmediate(() => {
+                    try {
                         callback(this);
-                    }
-                    catch(ex)
-                    {
-                        this._logger.error("connection callback exception:\n" + ex + '\n' + this._desc);
+                    } catch (ex) {
+                        this._logger.error("connection callback exception:\n" + ex + "\n" + this._desc);
                     }
                 });
             }
-        }
-        else
-        {
+        } else {
             this._closeCallback = callback;
         }
     }
 
-    setHeartbeatCallback(callback)
-    {
-        if(this._state >= StateClosed)
-        {
+    setHeartbeatCallback(callback) {
+        if (this._state >= StateClosed) {
             return;
         }
         this._heartbeatCallback = callback;
     }
 
-    heartbeat()
-    {
+    heartbeat() {
         const result = new HeartbeatAsync(this, this._communicator);
         result.invoke();
         return result;
     }
 
-    setACM(timeout, close, heartbeat)
-    {
-        if(timeout !== undefined && timeout < 0)
-        {
-            throw new RangeError("invalid negative ACM timeout value");
-        }
-        if(this._monitor === null || this._state >= StateClosed)
-        {
-            return;
-        }
-
-        if(this._state == StateActive)
-        {
-            this._monitor.remove(this);
-        }
-        this._monitor = this._monitor.acm(timeout, close, heartbeat);
-        if(this._state == StateActive)
-        {
-            this._monitor.add(this);
-        }
-        if(this._monitor.getACM().timeout <= 0)
-        {
-            this._acmLastActivity = -1; // Disable the recording of last activity.
-        }
-        else if(this._state == StateActive && this._acmLastActivity == -1)
-        {
-            this._acmLastActivity = Date.now();
-        }
-    }
-
-    getACM()
-    {
-        return this._monitor !== null ? this._monitor.getACM() :
-            new ACM(0, ACMClose.CloseOff, ACMHeartbeat.HeartbeatOff);
-    }
-
-    asyncRequestCanceled(outAsync, ex)
-    {
-        for(let i = 0; i < this._sendStreams.length; i++)
-        {
+    asyncRequestCanceled(outAsync, ex) {
+        for (let i = 0; i < this._sendStreams.length; i++) {
             const o = this._sendStreams[i];
-            if(o.outAsync === outAsync)
-            {
-                if(o.requestId > 0)
-                {
+            if (o.outAsync === outAsync) {
+                if (o.requestId > 0) {
                     this._asyncRequests.delete(o.requestId);
                 }
 
@@ -550,8 +397,7 @@ class ConnectionI
                 // it will be removed once the sending is finished.
                 //
                 o.canceled();
-                if(i !== 0)
-                {
+                if (i !== 0) {
                     this._sendStreams.splice(i, 1);
                 }
                 outAsync.completedEx(ex);
@@ -560,12 +406,9 @@ class ConnectionI
             }
         }
 
-        if(outAsync instanceof Ice.OutgoingAsync)
-        {
-            for(const [key, value] of this._asyncRequests)
-            {
-                if(value === outAsync)
-                {
+        if (outAsync instanceof OutgoingAsync) {
+            for (const [key, value] of this._asyncRequests) {
+                if (value === outAsync) {
                     this._asyncRequests.delete(key);
                     outAsync.completedEx(ex);
                     this.checkClose();
@@ -575,106 +418,81 @@ class ConnectionI
         }
     }
 
-    sendResponse(os)
-    {
+    sendResponse(os) {
         Debug.assert(this._state > StateNotValidated);
 
-        try
-        {
-            if(--this._dispatchCount === 0)
-            {
-                if(this._state === StateFinished)
-                {
-                    this.reap();
+        try {
+            if (--this._upcallCount === 0) {
+                if (this._state === StateFinished) {
+                    this._removeFromFactory(this);
                 }
                 this.checkState();
             }
 
-            if(this._state >= StateClosed)
-            {
+            if (this._state >= StateClosed) {
                 Debug.assert(this._exception !== null);
                 throw this._exception;
             }
 
             this.sendMessage(OutgoingMessage.createForStream(os, true));
 
-            if(this._state === StateClosing && this._dispatchCount === 0)
-            {
+            --this._dispatchCount;
+
+            if (this._state === StateClosing && this._upcallCount === 0) {
                 this.initiateShutdown();
             }
-        }
-        catch(ex)
-        {
-            if(ex instanceof Ice.LocalException)
-            {
+        } catch (ex) {
+            if (ex instanceof LocalException) {
                 this.setState(StateClosed, ex);
-            }
-            else
-            {
+            } else {
                 throw ex;
             }
         }
     }
 
-    sendNoResponse()
-    {
+    sendNoResponse() {
         Debug.assert(this._state > StateNotValidated);
-        try
-        {
-            if(--this._dispatchCount === 0)
-            {
-                if(this._state === StateFinished)
-                {
-                    this.reap();
+        try {
+            if (--this._upcallCount === 0) {
+                if (this._state === StateFinished) {
+                    this._removeFromFactory(this);
                 }
                 this.checkState();
             }
 
-            if(this._state >= StateClosed)
-            {
+            if (this._state >= StateClosed) {
                 Debug.assert(this._exception !== null);
                 throw this._exception;
             }
 
-            if(this._state === StateClosing && this._dispatchCount === 0)
-            {
+            --this._dispatchCount;
+
+            if (this._state === StateClosing && this._upcallCount === 0) {
                 this.initiateShutdown();
             }
-        }
-        catch(ex)
-        {
-            if(ex instanceof Ice.LocalException)
-            {
+        } catch (ex) {
+            if (ex instanceof LocalException) {
                 this.setState(StateClosed, ex);
-            }
-            else
-            {
+            } else {
                 throw ex;
             }
         }
     }
 
-    endpoint()
-    {
+    endpoint() {
         return this._endpoint;
     }
 
-    setAdapter(adapter)
-    {
-        if(adapter !== null)
-        {
+    setAdapter(adapter) {
+        if (adapter !== null) {
             adapter.checkForDeactivation();
-            if(this._state <= StateNotValidated || this._state >= StateClosing)
-            {
+            if (this._state <= StateNotValidated || this._state >= StateClosing) {
                 return;
             }
             this._adapter = adapter;
-            this._servantManager = adapter.getServantManager(); // The OA's servant manager is immutable.
-        }
-        else
-        {
-            if(this._state <= StateNotValidated || this._state >= StateClosing)
-            {
+            this._servantManager = adapter.getServantManager(); // The ObjectAdapter's servant manager is immutable.
+        } else {
+            if (this._state <= StateNotValidated || this._state >= StateClosing) {
                 return;
             }
             this._adapter = null;
@@ -682,34 +500,23 @@ class ConnectionI
         }
     }
 
-    getAdapter()
-    {
+    getAdapter() {
         return this._adapter;
     }
 
-    getEndpoint()
-    {
+    getEndpoint() {
         return this._endpoint;
     }
 
-    createProxy(ident)
-    {
-        //
-        // Create a reference and return a reverse proxy for this
-        // reference.
-        //
-        return this._instance.proxyFactory().referenceToProxy(
-            this._instance.referenceFactory().createFixed(ident, this));
+    createProxy(ident) {
+        ObjectAdapter.checkIdentity(ident);
+        return new ObjectPrx(this._instance.referenceFactory().createFixed(ident, this));
     }
 
-    message(operation)
-    {
-        if(this._state >= StateClosed)
-        {
+    message(operation) {
+        if (this._state >= StateClosed) {
             return;
         }
-
-        this.unscheduleTimeout(operation);
 
         //
         // Keep reading until no more data is available.
@@ -717,24 +524,18 @@ class ConnectionI
         this._hasMoreData.value = (operation & SocketOperation.Read) !== 0;
 
         let info = null;
-        try
-        {
-            if((operation & SocketOperation.Write) !== 0 && this._writeStream.buffer.remaining > 0)
-            {
-                if(!this.write(this._writeStream.buffer))
-                {
+        try {
+            if ((operation & SocketOperation.Write) !== 0 && this._writeStream.buffer.remaining > 0) {
+                if (!this.write(this._writeStream.buffer)) {
                     Debug.assert(!this._writeStream.isEmpty());
-                    this.scheduleTimeout(SocketOperation.Write);
                     return;
                 }
                 Debug.assert(this._writeStream.buffer.remaining === 0);
             }
-            if((operation & SocketOperation.Read) !== 0 && !this._readStream.isEmpty())
-            {
-                if(this._readHeader) // Read header if necessary.
-                {
-                    if(!this.read(this._readStream.buffer))
-                    {
+            if ((operation & SocketOperation.Read) !== 0 && !this._readStream.isEmpty()) {
+                if (this._readHeader) {
+                    // Read header if necessary.
+                    if (!this.read(this._readStream.buffer)) {
                         //
                         // We didn't get enough data to complete the header.
                         //
@@ -761,10 +562,13 @@ class ConnectionI
                     const magic1 = this._readStream.readByte();
                     const magic2 = this._readStream.readByte();
                     const magic3 = this._readStream.readByte();
-                    if(magic0 !== Protocol.magic[0] || magic1 !== Protocol.magic[1] ||
-                       magic2 !== Protocol.magic[2] || magic3 !== Protocol.magic[3])
-                    {
-                        throw new Ice.BadMagicException("", new Uint8Array([magic0, magic1, magic2, magic3]));
+                    if (
+                        magic0 !== Protocol.magic[0] ||
+                        magic1 !== Protocol.magic[1] ||
+                        magic2 !== Protocol.magic[2] ||
+                        magic3 !== Protocol.magic[3]
+                    ) {
+                        throw new BadMagicException("", new Uint8Array([magic0, magic1, magic2, magic3]));
                     }
 
                     this._readProtocol._read(this._readStream);
@@ -776,43 +580,34 @@ class ConnectionI
                     this._readStream.readByte(); // messageType
                     this._readStream.readByte(); // compress
                     const size = this._readStream.readInt();
-                    if(size < Protocol.headerSize)
-                    {
-                        throw new Ice.IllegalMessageSizeException();
+                    if (size < Protocol.headerSize) {
+                        throw new IllegalMessageSizeException();
                     }
 
-                    if(size > this._messageSizeMax)
-                    {
-                        ExUtil.throwMemoryLimitException(size, this._messageSizeMax);
+                    if (size > this._messageSizeMax) {
+                        throwMemoryLimitException(size, this._messageSizeMax);
                     }
-                    if(size > this._readStream.size)
-                    {
+                    if (size > this._readStream.size) {
                         this._readStream.resize(size);
                     }
                     this._readStream.pos = pos;
                 }
 
-                if(this._readStream.pos != this._readStream.size)
-                {
-                    if(!this.read(this._readStream.buffer))
-                    {
+                if (this._readStream.pos != this._readStream.size) {
+                    if (!this.read(this._readStream.buffer)) {
                         Debug.assert(!this._readStream.isEmpty());
-                        this.scheduleTimeout(SocketOperation.Read);
                         return;
                     }
                     Debug.assert(this._readStream.buffer.remaining === 0);
                 }
             }
 
-            if(this._state <= StateNotValidated)
-            {
-                if(this._state === StateNotInitialized && !this.initialize())
-                {
+            if (this._state <= StateNotValidated) {
+                if (this._state === StateNotInitialized && !this.initialize()) {
                     return;
                 }
 
-                if(this._state <= StateNotValidated && !this.validate())
-                {
+                if (this._state <= StateNotValidated && !this.validate()) {
                     return;
                 }
 
@@ -822,86 +617,63 @@ class ConnectionI
                 // We start out in holding state.
                 //
                 this.setState(StateHolding);
-                if(this._startPromise !== null)
-                {
-                    ++this._dispatchCount;
+                if (this._startPromise !== null) {
+                    ++this._upcallCount;
                 }
-            }
-            else
-            {
+            } else {
                 Debug.assert(this._state <= StateClosing);
 
                 //
                 // We parse messages first, if we receive a close
                 // connection message we won't send more messages.
                 //
-                if((operation & SocketOperation.Read) !== 0)
-                {
+                if ((operation & SocketOperation.Read) !== 0) {
                     info = this.parseMessage();
                 }
 
-                if((operation & SocketOperation.Write) !== 0)
-                {
+                if ((operation & SocketOperation.Write) !== 0) {
                     this.sendNextMessage();
                 }
             }
-        }
-        catch(ex)
-        {
-            if(ex instanceof Ice.SocketException)
-            {
+        } catch (ex) {
+            if (ex instanceof SocketException) {
                 this.setState(StateClosed, ex);
                 return;
-            }
-            else if(ex instanceof Ice.LocalException)
-            {
+            } else if (ex instanceof LocalException) {
                 this.setState(StateClosed, ex);
                 return;
-            }
-            else
-            {
+            } else {
                 throw ex;
             }
         }
 
-        if(this._acmLastActivity > 0)
-        {
-            this._acmLastActivity = Date.now();
-        }
-
         this.dispatch(info);
 
-        if(this._hasMoreData.value)
-        {
+        if (this._hasMoreData.value) {
             Timer.setImmediate(() => this.message(SocketOperation.Read)); // Don't tie up the thread.
         }
     }
 
-    dispatch(info)
-    {
+    dispatch(info) {
         let count = 0;
         //
         // Notify the factory that the connection establishment and
         // validation has completed.
         //
-        if(this._startPromise !== null)
-        {
+        if (this._startPromise !== null) {
             this._startPromise.resolve();
 
             this._startPromise = null;
             ++count;
         }
 
-        if(info !== null)
-        {
-            if(info.outAsync !== null)
-            {
+        if (info !== null) {
+            if (info.outAsync !== null) {
                 info.outAsync.completed(info.stream);
                 ++count;
             }
 
-            if(info.invokeNum > 0)
-            {
+            if (info.invokeNum > 0) {
                 this.invokeAll(info.stream, info.invokeNum, info.requestId, info.servantManager, info.adapter);
 
                 //
@@ -910,15 +682,11 @@ class ConnectionI
                 //
             }
 
-            if(info.heartbeatCallback)
-            {
-                try
-                {
+            if (info.heartbeatCallback) {
+                try {
                     info.heartbeatCallback(this);
-                }
-                catch(ex)
-                {
-                    this._logger.error("connection callback exception:\n" + ex + '\n' + this._desc);
+                } catch (ex) {
+                    this._logger.error("connection callback exception:\n" + ex + "\n" + this._desc);
                 }
                 info.heartbeatCallback = null;
                 ++count;
@@ -926,50 +694,44 @@ class ConnectionI
         }
 
         //
-        // Decrease dispatch count.
+        // Decrease the upcall count.
         //
-        if(count > 0)
-        {
-            this._dispatchCount -= count;
-            if(this._dispatchCount === 0)
-            {
-                if(this._state === StateClosing)
-                {
-                    try
-                    {
+        if (count > 0) {
+            this._upcallCount -= count;
+            if (this._upcallCount === 0) {
+                if (this._state === StateClosing) {
+                    try {
                         this.initiateShutdown();
-                    }
-                    catch(ex)
-                    {
-                        if(ex instanceof Ice.LocalException)
-                        {
+                    } catch (ex) {
+                        if (ex instanceof LocalException) {
                             this.setState(StateClosed, ex);
-                        }
-                        else
-                        {
+                        } else {
                             throw ex;
                         }
                     }
-                }
-                else if(this._state === StateFinished)
-                {
-                    this.reap();
+                } else if (this._state === StateFinished) {
+                    this._removeFromFactory(this);
                 }
                 this.checkState();
             }
         }
     }
 
-    finish()
-    {
+    finish() {
         Debug.assert(this._state === StateClosed);
-        this.unscheduleTimeout(SocketOperation.Read | SocketOperation.Write | SocketOperation.Connect);
 
-        const traceLevels = this._instance.traceLevels();
-        if(!this._initialized)
-        {
-            if(traceLevels.network >= 2)
-            {
+        // Cancel the timers to ensure they don't keep the event loop alive.
+        if (this._connectTimeoutId !== undefined) {
+            this._timer.cancel(this._connectTimeoutId);
+        }
+
+        if (this._closeTimeoutId !== undefined) {
+            this._timer.cancel(this._closeTimeoutId);
+        }
+
+        const traceLevels = this._traceLevels;
+        if (!this._initialized) {
+            if (traceLevels.network >= 2) {
                 const s = [];
                 s.push("failed to establish ");
                 s.push(this._endpoint.protocol());
@@ -977,11 +739,9 @@ class ConnectionI
                 s.push(this.toString());
                 s.push("\n");
                 s.push(this._exception.toString());
-                this._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
+                this._logger.trace(traceLevels.networkCat, s.join(""));
             }
-        }
-        else if(traceLevels.network >= 1)
-        {
+        } else if (traceLevels.network >= 1) {
             const s = [];
             s.push("closed ");
             s.push(this._endpoint.protocol());
@@ -991,29 +751,30 @@ class ConnectionI
             //
             // Trace the cause of unexpected connection closures
             //
-            if(!(this._exception instanceof Ice.CloseConnectionException ||
-                 this._exception instanceof Ice.ConnectionManuallyClosedException ||
-                 this._exception instanceof Ice.ConnectionTimeoutException ||
-                 this._exception instanceof Ice.CommunicatorDestroyedException ||
-                 this._exception instanceof Ice.ObjectAdapterDeactivatedException))
-            {
+            if (
+                !(
+                    this._exception instanceof CloseConnectionException ||
+                    this._exception instanceof ConnectionManuallyClosedException ||
+                    this._exception instanceof ConnectionClosedException ||
+                    this._exception instanceof ConnectionIdleException ||
+                    this._exception instanceof CommunicatorDestroyedException ||
+                    this._exception instanceof ObjectAdapterDeactivatedException
+                )
+            ) {
                 s.push("\n");
                 s.push(this._exception.toString());
             }
 
-            this._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
+            this._logger.trace(traceLevels.networkCat, s.join(""));
         }
 
-        if(this._startPromise !== null)
-        {
+        if (this._startPromise !== null) {
             this._startPromise.reject(this._exception);
             this._startPromise = null;
         }
 
-        if(this._sendStreams.length > 0)
-        {
-            if(!this._writeStream.isEmpty())
-            {
+        if (this._sendStreams.length > 0) {
+            if (!this._writeStream.isEmpty()) {
                 //
                 // Return the stream to the outgoing call. This is important for
                 // retriable AMI calls which are not marshaled again.
@@ -1027,11 +788,9 @@ class ConnectionI
             // because it's either in the _requests/_asyncRequests set. This is fine, only the
             // first call should be taken into account by the implementation of finished.
             //
-            for(let i = 0; i < this._sendStreams.length; ++i)
-            {
+            for (let i = 0; i < this._sendStreams.length; ++i) {
                 const p = this._sendStreams[i];
-                if(p.requestId > 0)
-                {
+                if (p.requestId > 0) {
                     this._asyncRequests.delete(p.requestId);
                 }
                 p.completed(this._exception);
@@ -1039,8 +798,7 @@ class ConnectionI
             this._sendStreams = [];
         }
 
-        for(const value of this._asyncRequests.values())
-        {
+        for (const value of this._asyncRequests.values()) {
             value.completedEx(this._exception);
         }
         this._asyncRequests.clear();
@@ -1054,15 +812,11 @@ class ConnectionI
         this._writeStream.clear();
         this._writeStream.buffer.clear();
 
-        if(this._closeCallback !== null)
-        {
-            try
-            {
+        if (this._closeCallback !== null) {
+            try {
                 this._closeCallback(this);
-            }
-            catch(ex)
-            {
-                this._logger.error("connection callback exception:\n" + ex + '\n' + this._desc);
+            } catch (ex) {
+                this._logger.error("connection callback exception:\n" + ex + "\n" + this._desc);
             }
             this._closeCallback = null;
         }
@@ -1073,103 +827,85 @@ class ConnectionI
         // This must be done last as this will cause waitUntilFinished() to return (and communicator
         // objects such as the timer might be destroyed too).
         //
-        if(this._dispatchCount === 0)
-        {
-            this.reap();
+        if (this._upcallCount === 0) {
+            this._removeFromFactory(this);
         }
         this.setState(StateFinished);
     }
 
-    toString()
-    {
+    toString() {
         return this._desc;
     }
 
-    timedOut(event)
-    {
-        if(this._state <= StateNotValidated)
-        {
-            this.setState(StateClosed, new Ice.ConnectTimeoutException());
-        }
-        else if(this._state < StateClosing)
-        {
-            this.setState(StateClosed, new Ice.TimeoutException());
-        }
-        else if(this._state === StateClosing)
-        {
-            this.setState(StateClosed, new Ice.CloseTimeoutException());
-        }
-    }
-
-    type()
-    {
+    type() {
         return this._type;
     }
 
-    timeout()
-    {
-        return this._endpoint.timeout();
-    }
-
-    getInfo()
-    {
-        if(this._state >= StateClosed)
-        {
+    getInfo() {
+        if (this._state >= StateClosed) {
             throw this._exception;
         }
         const info = this._transceiver.getInfo();
-        for(let p = info; p !== null; p = p.underlying)
-        {
+        for (let p = info; p !== null; p = p.underlying) {
             p.adapterName = this._adapter !== null ? this._adapter.getName() : "";
-            p.incoming = this._incoming;
+            p.incoming = false;
         }
         return info;
     }
 
-    setBufferSize(rcvSize, sndSize)
-    {
-        if(this._state >= StateClosed)
-        {
+    setBufferSize(rcvSize, sndSize) {
+        if (this._state >= StateClosed) {
             throw this._exception;
         }
         this._transceiver.setBufferSize(rcvSize, sndSize);
     }
 
-    exception(ex)
-    {
+    exception(ex) {
         this.setState(StateClosed, ex);
     }
 
-    invokeException(ex, invokeNum)
-    {
+    dispatchException(ex, invokeNum) {
         //
         // Fatal exception while invoking a request. Since sendResponse/sendNoResponse isn't
-        // called in case of a fatal exception we decrement this._dispatchCount here.
+        // called in case of a fatal exception we decrement this._upcallCount here.
         //
 
         this.setState(StateClosed, ex);
 
-        if(invokeNum > 0)
-        {
-            Debug.assert(this._dispatchCount > 0);
-            this._dispatchCount -= invokeNum;
-            Debug.assert(this._dispatchCount >= 0);
-            if(this._dispatchCount === 0)
-            {
-                if(this._state === StateFinished)
-                {
-                    this.reap();
+        if (invokeNum > 0) {
+            Debug.assert(this._upcallCount > 0);
+            this._upcallCount -= invokeNum;
+            Debug.assert(this._upcallCount >= 0);
+            if (this._upcallCount === 0) {
+                if (this._state === StateFinished) {
+                    this._removeFromFactory(this);
                 }
                 this.checkState();
             }
         }
     }
 
-    setState(state, ex)
-    {
-        if(ex !== undefined)
-        {
-            Debug.assert(ex instanceof Ice.LocalException);
+    inactivityCheck(inactivityTimer) {
+        // If the timers are different, it means this inactivityTimer is no longer current.
+        if (inactivityTimer == this._inactivityTimer) {
+            this._inactivityTimer = undefined;
+            inactivityTimer.destroy();
+
+            if (this._state == StateActive) {
+                this.setState(
+                    StateClosing,
+                    new ConnectionClosedException(
+                        "connection closed because it remained inactive for longer than the inactivity timeout",
+                    ),
+                );
+            }
+        }
+        // Else this timer was already canceled and disposed. Nothing to do.
+    }
+
+    setState(state, ex) {
+        if (ex !== undefined) {
+            Debug.assert(ex instanceof LocalException, ex);
 
             //
             // If setState() is called with an exception, then only closed
@@ -1177,30 +913,32 @@ class ConnectionI
             //
             Debug.assert(state >= StateClosing);
 
-            if(this._state === state) // Don't switch twice.
-            {
+            if (this._state === state) {
+                // Don't switch twice.
                 return;
             }
 
-            if(this._exception === null)
-            {
+            if (this._exception === null) {
                 this._exception = ex;
 
                 //
                 // We don't warn if we are not validated.
                 //
-                if(this._warn && this._validated)
-                {
+                if (this._warn && this._validated) {
                     //
                     // Don't warn about certain expected exceptions.
                     //
-                    if(!(this._exception instanceof Ice.CloseConnectionException ||
-                         this._exception instanceof Ice.ConnectionManuallyClosedException ||
-                         this._exception instanceof Ice.ConnectionTimeoutException ||
-                         this._exception instanceof Ice.CommunicatorDestroyedException ||
-                         this._exception instanceof Ice.ObjectAdapterDeactivatedException ||
-                         (this._exception instanceof Ice.ConnectionLostException && this._state === StateClosing)))
-                    {
+                    if (
+                        !(
+                            this._exception instanceof CloseConnectionException ||
+                            this._exception instanceof ConnectionManuallyClosedException ||
+                            this._exception instanceof ConnectionClosedException ||
+                            this._exception instanceof ConnectionIdleException ||
+                            this._exception instanceof CommunicatorDestroyedException ||
+                            this._exception instanceof ObjectAdapterDeactivatedException ||
+                            (this._exception instanceof ConnectionLostException && this._state === StateClosing)
+                        )
+                    ) {
                         this.warning("connection exception", this._exception);
                     }
                 }
@@ -1216,100 +954,85 @@ class ConnectionI
         //
         // Skip graceful shutdown if we are destroyed before validation.
         //
-        if(this._state <= StateNotValidated && state === StateClosing)
-        {
+        if (this._state <= StateNotValidated && state === StateClosing) {
             state = StateClosed;
         }
 
-        if(this._state === state) // Don't switch twice.
-        {
+        if (this._state === state) {
+            // Don't switch twice.
             return;
         }
 
-        try
-        {
-            switch(state)
-            {
-                case StateNotInitialized:
-                {
+        if (state > StateActive) {
+            // Cancel the inactivity timer, if not null.
+            this.cancelInactivityTimer();
+        }
+
+        try {
+            switch (state) {
+                case StateNotInitialized: {
                     Debug.assert(false);
                     break;
                 }
 
-                case StateNotValidated:
-                {
-                    if(this._state !== StateNotInitialized)
-                    {
+                case StateNotValidated: {
+                    if (this._state !== StateNotInitialized) {
                         Debug.assert(this._state === StateClosed);
                         return;
                     }
                     //
                     // Register to receive validation message.
                     //
-                    if(!this._incoming)
-                    {
-                        //
-                        // Once validation is complete, a new connection starts out in the
-                        // Holding state. We only want to register the transceiver now if we
-                        // need to receive data in order to validate the connection.
-                        //
-                        this._transceiver.register();
-                    }
+                    // Once validation is complete, a new connection starts out in the
+                    // Holding state. We only want to register the transceiver now if we
+                    // need to receive data in order to validate the connection.
+                    //
+                    this._transceiver.register();
                     break;
                 }
 
-                case StateActive:
-                {
+                case StateActive: {
                     //
                     // Can only switch from holding or not validated to
                     // active.
                     //
-                    if(this._state !== StateHolding && this._state !== StateNotValidated)
-                    {
+                    if (this._state !== StateHolding && this._state !== StateNotValidated) {
                         return;
                     }
                     this._transceiver.register();
                     break;
                 }
 
-                case StateHolding:
-                {
+                case StateHolding: {
                     //
                     // Can only switch from active or not validated to
                     // holding.
                     //
-                    if(this._state !== StateActive && this._state !== StateNotValidated)
-                    {
+                    if (this._state !== StateActive && this._state !== StateNotValidated) {
                         return;
                     }
-                    if(this._state === StateActive)
-                    {
+                    if (this._state === StateActive) {
                         this._transceiver.unregister();
                     }
                     break;
                 }
 
-                case StateClosing:
-                {
+                case StateClosing: {
                     //
                     // Can't change back from closed.
                     //
-                    if(this._state >= StateClosed)
-                    {
+                    if (this._state >= StateClosed) {
                         return;
                     }
-                    if(this._state === StateHolding)
-                    {
+                    if (this._state === StateHolding) {
                         // We need to continue to read in closing state.
                         this._transceiver.register();
                     }
                     break;
                 }
 
-                case StateClosed:
-                {
-                    if(this._state === StateFinished)
-                    {
+                case StateClosed: {
+                    if (this._state === StateFinished) {
                         return;
                     }
                     this._batchRequestQueue.destroy(this._exception);
@@ -1317,90 +1040,49 @@ class ConnectionI
                     break;
                 }
 
-                case StateFinished:
-                {
+                case StateFinished: {
                     Debug.assert(this._state === StateClosed);
                     this._transceiver.close();
                     this._communicator = null;
                     break;
                 }
 
-                default:
-                {
+                default: {
                     Debug.assert(false);
                     break;
                 }
             }
-        }
-        catch(ex)
-        {
-            if(ex instanceof Ice.LocalException)
-            {
-                this._instance.initializationData().logger.error(
-                    `unexpected connection exception:\n${this._desc}\n${ex.toString()}`);
-            }
-            else
-            {
+        } catch (ex) {
+            if (ex instanceof LocalException) {
+                this._logger.error(`unexpected connection exception:\n${this._desc}\n${ex.toString()}`);
+            } else {
                 throw ex;
-            }
-        }
-
-        //
-        // We only register with the connection monitor if our new state
-        // is StateActive. Otherwise we unregister with the connection
-        // monitor, but only if we were registered before, i.e., if our
-        // old state was StateActive.
-        //
-        if(this._monitor !== null)
-        {
-            if(state === StateActive)
-            {
-                this._monitor.add(this);
-                if(this._acmLastActivity > 0)
-                {
-                    this._acmLastActivity = Date.now();
-                }
-            }
-            else if(this._state === StateActive)
-            {
-                this._monitor.remove(this);
             }
         }
 
         this._state = state;
 
-        if(this._state === StateClosing && this._dispatchCount === 0)
-        {
-            try
-            {
+        if (this._state === StateClosing && this._upcallCount === 0) {
+            try {
                 this.initiateShutdown();
-            }
-            catch(ex)
-            {
-                if(ex instanceof Ice.LocalException)
-                {
+            } catch (ex) {
+                if (ex instanceof LocalException) {
                     this.setState(StateClosed, ex);
-                }
-                else
-                {
+                } else {
                     throw ex;
                 }
             }
-        }
-        else if(this._state === StateClosed)
-        {
+        } else if (this._state === StateClosed) {
             this.finish();
         }
 
         this.checkState();
     }
 
-    initiateShutdown()
-    {
-        Debug.assert(this._state === StateClosing && this._dispatchCount === 0);
+    initiateShutdown() {
+        Debug.assert(this._state === StateClosing && this._upcallCount === 0);
 
-        if(this._shutdownInitiated)
-        {
+        if (this._shutdownInitiated) {
             return;
         }
         this._shutdownInitiated = true;
@@ -1416,43 +1098,46 @@ class ConnectionI
         os.writeByte(0); // compression status: always report 0 for CloseConnection.
         os.writeInt(Protocol.headerSize); // Message size.
 
-        if((this.sendMessage(OutgoingMessage.createForStream(os, false)) & AsyncStatus.Sent) > 0)
-        {
-            //
-            // Schedule the close timeout to wait for the peer to close the connection.
-            //
-            this.scheduleTimeout(SocketOperation.Read);
+        if (this._closeTimeout > 0) {
+            // Schedules a one-time check.
+            this._closeTimeoutId = this._timer.schedule(() => this.closeTimedOut(), this._closeTimeout);
+        }
+        this.sendMessage(OutgoingMessage.createForStream(os, false));
+    }
+
+    idleCheck(idleTimeout) {
+        if (this._state == StateActive || this._state == StateHolding) {
+            if (this._traceLevels.network >= 1) {
+                this._logger.trace(
+                    this._traceLevels.networkCat,
+                    `connection aborted by the idle check because it did not receive any bytes for ${idleTimeout}s\n${this._transceiver.toString()}`,
+                );
+            }
+            this.setState(StateClosed, new ConnectionIdleException());
+        }
+        // else nothing to do
+    }
+
+    sendHeartbeat() {
+        if (this._state == StateActive || this._state == StateHolding) {
+            const os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
+            os.writeBlob(Protocol.magic);
+            Protocol.currentProtocol._write(os);
+            Protocol.currentProtocolEncoding._write(os);
+            os.writeByte(Protocol.validateConnectionMsg);
+            os.writeByte(0);
+            os.writeInt(Protocol.headerSize); // Message size.
+            try {
+                this.sendMessage(OutgoingMessage.createForStream(os, false));
+            } catch (ex) {
+                this.setState(StateClosed, ex);
+            }
         }
     }
 
-    sendHeartbeatNow()
-    {
-        Debug.assert(this._state === StateActive);
-
-        const os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
-        os.writeBlob(Protocol.magic);
-        Protocol.currentProtocol._write(os);
-        Protocol.currentProtocolEncoding._write(os);
-        os.writeByte(Protocol.validateConnectionMsg);
-        os.writeByte(0);
-        os.writeInt(Protocol.headerSize); // Message size.
-        try
-        {
-            this.sendMessage(OutgoingMessage.createForStream(os, false));
-        }
-        catch(ex)
-        {
-            this.setState(StateClosed, ex);
-            Debug.assert(this._exception !== null);
-        }
-    }
-
-    initialize()
-    {
+    initialize() {
         const s = this._transceiver.initialize(this._readStream.buffer, this._writeStream.buffer);
-        if(s != SocketOperation.None)
-        {
-            this.scheduleTimeout(s);
+        if (s != SocketOperation.None) {
             return false;
         }
 
@@ -1465,72 +1150,45 @@ class ConnectionI
         return true;
     }
 
-    validate()
-    {
-        if(this._adapter !== null) // The server side has the active role for connection validation.
-        {
-            if(this._writeStream.size === 0)
-            {
-                this._writeStream.writeBlob(Protocol.magic);
-                Protocol.currentProtocol._write(this._writeStream);
-                Protocol.currentProtocolEncoding._write(this._writeStream);
-                this._writeStream.writeByte(Protocol.validateConnectionMsg);
-                this._writeStream.writeByte(0); // Compression status (always zero for validate connection).
-                this._writeStream.writeInt(Protocol.headerSize); // Message size.
-                TraceUtil.traceSend(this._writeStream, this._logger, this._traceLevels);
-                this._writeStream.prepareWrite();
-            }
-
-            if(this._writeStream.pos != this._writeStream.size && !this.write(this._writeStream.buffer))
-            {
-                this.scheduleTimeout(SocketOperation.Write);
-                return false;
-            }
-        }
-        else // The client side has the passive role for connection validation.
-        {
-            if(this._readStream.size === 0)
-            {
-                this._readStream.resize(Protocol.headerSize);
-                this._readStream.pos = 0;
-            }
-
-            if(this._readStream.pos !== this._readStream.size &&
-                !this.read(this._readStream.buffer))
-            {
-                this.scheduleTimeout(SocketOperation.Read);
-                return false;
-            }
-
-            this._validated = true;
-
-            Debug.assert(this._readStream.pos === Protocol.headerSize);
+    validate() {
+        if (this._readStream.size === 0) {
+            this._readStream.resize(Protocol.headerSize);
             this._readStream.pos = 0;
-            const m = this._readStream.readBlob(4);
-            if(m[0] !== Protocol.magic[0] || m[1] !== Protocol.magic[1] ||
-                m[2] !== Protocol.magic[2] || m[3] !== Protocol.magic[3])
-            {
-                throw new Ice.BadMagicException("", m);
-            }
-
-            this._readProtocol._read(this._readStream);
-            Protocol.checkSupportedProtocol(this._readProtocol);
-
-            this._readProtocolEncoding._read(this._readStream);
-            Protocol.checkSupportedProtocolEncoding(this._readProtocolEncoding);
-
-            const messageType = this._readStream.readByte();
-            if(messageType !== Protocol.validateConnectionMsg)
-            {
-                throw new Ice.ConnectionNotValidatedException();
-            }
-            this._readStream.readByte(); // Ignore compression status for validate connection.
-            if(this._readStream.readInt() !== Protocol.headerSize)
-            {
-                throw new Ice.IllegalMessageSizeException();
-            }
-            TraceUtil.traceRecv(this._readStream, this._logger, this._traceLevels);
         }
+
+        if (this._readStream.pos !== this._readStream.size && !this.read(this._readStream.buffer)) {
+            return false;
+        }
+
+        this._validated = true;
+
+        Debug.assert(this._readStream.pos === Protocol.headerSize);
+        this._readStream.pos = 0;
+        const m = this._readStream.readBlob(4);
+        if (
+            m[0] !== Protocol.magic[0] ||
+            m[1] !== Protocol.magic[1] ||
+            m[2] !== Protocol.magic[2] ||
+            m[3] !== Protocol.magic[3]
+        ) {
+            throw new BadMagicException("", m);
+        }
+
+        this._readProtocol._read(this._readStream);
+        Protocol.checkSupportedProtocol(this._readProtocol);
+
+        this._readProtocolEncoding._read(this._readStream);
+        Protocol.checkSupportedProtocolEncoding(this._readProtocolEncoding);
+
+        const messageType = this._readStream.readByte();
+        if (messageType !== Protocol.validateConnectionMsg) {
+            throw new ConnectionNotValidatedException();
+        }
+        this._readStream.readByte(); // Ignore compression status for validate connection.
+        if (this._readStream.readInt() !== Protocol.headerSize) {
+            throw new IllegalMessageSizeException();
+        }
+        TraceUtil.traceRecv(this._readStream, this._logger, this._traceLevels);
 
         this._writeStream.resize(0);
         this._writeStream.pos = 0;
@@ -1539,32 +1197,27 @@ class ConnectionI
         this._readHeader = true;
         this._readStream.pos = 0;
 
-        const traceLevels = this._instance.traceLevels();
-        if(traceLevels.network >= 1)
-        {
+        const traceLevels = this._traceLevels;
+        if (traceLevels.network >= 1) {
             const s = [];
             s.push("established ");
             s.push(this._endpoint.protocol());
             s.push(" connection\n");
             s.push(this.toString());
-            this._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
+            this._logger.trace(traceLevels.networkCat, s.join(""));
         }
 
         return true;
     }
 
-    sendNextMessage()
-    {
-        if(this._sendStreams.length === 0)
-        {
+    sendNextMessage() {
+        if (this._sendStreams.length === 0) {
             return;
         }
 
         Debug.assert(!this._writeStream.isEmpty() && this._writeStream.pos === this._writeStream.size);
-        try
-        {
-            while(true)
-            {
+        try {
+            while (true) {
                 //
                 // Notify the message that it was sent.
                 //
@@ -1575,8 +1228,7 @@ class ConnectionI
                 //
                 // If there's nothing left to send, we're done.
                 //
-                if(this._sendStreams.length === 0)
-                {
+                if (this._sendStreams.length === 0) {
                     break;
                 }
 
@@ -1587,8 +1239,7 @@ class ConnectionI
                 // (called before sendNextMessage by message()) closes the
                 // connection.
                 //
-                if(this._state >= StateClosed)
-                {
+                if (this._state >= StateClosed) {
                     return;
                 }
 
@@ -1611,48 +1262,63 @@ class ConnectionI
                 //
                 // Send the message.
                 //
-                if(this._writeStream.pos != this._writeStream.size && !this.write(this._writeStream.buffer))
-                {
+                if (this._writeStream.pos != this._writeStream.size && !this.write(this._writeStream.buffer)) {
                     Debug.assert(!this._writeStream.isEmpty());
-                    this.scheduleTimeout(SocketOperation.Write);
                     return;
                 }
             }
-        }
-        catch(ex)
-        {
-            if(ex instanceof Ice.LocalException)
-            {
+        } catch (ex) {
+            if (ex instanceof LocalException) {
                 this.setState(StateClosed, ex);
                 return;
-            }
-            else
-            {
+            } else {
                 throw ex;
             }
         }
 
         Debug.assert(this._writeStream.isEmpty());
-
-        //
-        // If all the messages were sent and we are in the closing state, we schedule
-        // the close timeout to wait for the peer to close the connection.
-        //
-        if(this._state === StateClosing && this._shutdownInitiated)
-        {
-            this.scheduleTimeout(SocketOperation.Read);
-        }
     }
 
-    sendMessage(message)
-    {
-        if(this._sendStreams.length > 0)
-        {
+    sendMessage(message) {
+        Debug.assert(this._state >= StateActive);
+        Debug.assert(this._state < StateClosed);
+
+        const isHeartbeat = message.stream.buffer.getAt(8) == Protocol.validateConnectionMsg;
+        if (!isHeartbeat) {
+            this.cancelInactivityTimer();
+        }
+        // If we're sending a heartbeat, there is a chance the connection is inactive and that we need to schedule the
+        // inactivity timer. It's ok to do this before actually sending the heartbeat since the heartbeat does not count
+        // as an "activity".
+        else if (
+            this._inactivityTimer === undefined && // timer not already scheduled
+            this._inactivityTimeout > 0 && // inactivity timeout is enabled
+            this._state == StateActive && // only schedule the timer if the connection is active
+            this._dispatchCount == 0 && // no pending dispatch
+            this._asyncRequests.size == 0 && // no pending invocation
+            this._readHeader // we're not waiting for the remainder of an incoming message
+        ) {
+            let isInactive = true;
+
+            // We may become inactive while the peer is back-pressuring us. In this case, we only schedule the
+            // inactivity timer if all outgoing messages in _sendStreams are heartbeats.
+            for (const queuedMessage of this._sendStreams) {
+                if (queuedMessage.stream.buffer.getAt(8) != Protocol.validateConnectionMsg) {
+                    isInactive = false;
+                    break; // for
+                }
+            }
+
+            if (isInactive) {
+                this.scheduleInactivityTimer();
+            }
+        }
+
+        if (this._sendStreams.length > 0) {
             message.doAdopt();
             this._sendStreams.push(message);
             return AsyncStatus.Queued;
         }
-        Debug.assert(this._state < StateClosed);
 
         Debug.assert(!message.prepared);
 
@@ -1664,17 +1330,11 @@ class ConnectionI
 
         TraceUtil.traceSend(stream, this._logger, this._traceLevels);
 
-        if(this.write(stream.buffer))
-        {
+        if (this.write(stream.buffer)) {
             //
             // Entire buffer was written immediately.
             //
             message.sent();
-
-            if(this._acmLastActivity > 0)
-            {
-                this._acmLastActivity = Date.now();
-            }
             return AsyncStatus.Sent;
         }
 
@@ -1682,13 +1342,11 @@ class ConnectionI
 
         this._writeStream.swap(message.stream);
         this._sendStreams.push(message);
-        this.scheduleTimeout(SocketOperation.Write);
 
         return AsyncStatus.Queued;
     }
 
-    parseMessage()
-    {
+    parseMessage() {
         Debug.assert(this._state > StateNotValidated && this._state < StateClosed);
 
         let info = new MessageInfo(this._instance);
@@ -1700,8 +1358,7 @@ class ConnectionI
 
         Debug.assert(info.stream.pos === info.stream.size);
 
-        try
-        {
+        try {
             //
             // We don't need to check magic and version here. This has already
             // been done by the caller.
@@ -1709,110 +1366,102 @@ class ConnectionI
             info.stream.pos = 8;
             const messageType = info.stream.readByte();
             const compress = info.stream.readByte();
-            if(compress === 2)
-            {
-                throw new Ice.FeatureNotSupportedException("Cannot uncompress compressed message");
+            if (compress === 2) {
+                throw new FeatureNotSupportedException("Cannot decompress compressed message");
             }
             info.stream.pos = Protocol.headerSize;
 
-            switch(messageType)
-            {
-                case Protocol.closeConnectionMsg:
-                {
+            switch (messageType) {
+                case Protocol.closeConnectionMsg: {
                     TraceUtil.traceRecv(info.stream, this._logger, this._traceLevels);
-                    this.setState(StateClosed, new Ice.CloseConnectionException());
+                    this.setState(StateClosed, new CloseConnectionException());
                     break;
                 }
 
-                case Protocol.requestMsg:
-                {
-                    if(this._state === StateClosing)
-                    {
-                        TraceUtil.traceIn("received request during closing\n" +
-                                          "(ignored by server, client will retry)",
-                                          info.stream, this._logger, this._traceLevels);
-                    }
-                    else
-                    {
+                case Protocol.requestMsg: {
+                    if (this._state === StateClosing) {
+                        TraceUtil.traceIn(
+                            "received request during closing\n" + "(ignored by server, client will retry)",
+                            info.stream,
+                            this._logger,
+                            this._traceLevels,
+                        );
+                    } else {
                         TraceUtil.traceRecv(info.stream, this._logger, this._traceLevels);
                         info.requestId = info.stream.readInt();
                         info.invokeNum = 1;
                         info.servantManager = this._servantManager;
                         info.adapter = this._adapter;
+                        ++this._upcallCount;
+
+                        this.cancelInactivityTimer();
                         ++this._dispatchCount;
                     }
                     break;
                 }
 
-                case Protocol.requestBatchMsg:
-                {
-                    if(this._state === StateClosing)
-                    {
-                        TraceUtil.traceIn("received batch request during closing\n" +
-                                          "(ignored by server, client will retry)",
-                                          info.stream, this._logger, this._traceLevels);
-                    }
-                    else
-                    {
+                case Protocol.requestBatchMsg: {
+                    if (this._state === StateClosing) {
+                        TraceUtil.traceIn(
+                            "received batch request during closing\n" + "(ignored by server, client will retry)",
+                            info.stream,
+                            this._logger,
+                            this._traceLevels,
+                        );
+                    } else {
                         TraceUtil.traceRecv(info.stream, this._logger, this._traceLevels);
                         info.invokeNum = info.stream.readInt();
-                        if(info.invokeNum < 0)
-                        {
+                        if (info.invokeNum < 0) {
                             info.invokeNum = 0;
-                            throw new Ice.UnmarshalOutOfBoundsException();
+                            throw new UnmarshalOutOfBoundsException();
                         }
                         info.servantManager = this._servantManager;
                         info.adapter = this._adapter;
-                        this._dispatchCount += info.invokeNum;
+                        this._upcallCount += info.invokeNum;
+
+                        this.cancelInactivityTimer();
+                        ++this._dispatchCount;
                     }
                     break;
                 }
 
-                case Protocol.replyMsg:
-                {
+                case Protocol.replyMsg: {
                     TraceUtil.traceRecv(info.stream, this._logger, this._traceLevels);
                     info.requestId = info.stream.readInt();
                     info.outAsync = this._asyncRequests.get(info.requestId);
-                    if(info.outAsync)
-                    {
+                    if (info.outAsync) {
                         this._asyncRequests.delete(info.requestId);
-                        ++this._dispatchCount;
-                    }
-                    else
-                    {
+                        ++this._upcallCount;
+                    } else {
                         info = null;
                     }
                     this.checkClose();
                     break;
                 }
 
-                case Protocol.validateConnectionMsg:
-                {
+                case Protocol.validateConnectionMsg: {
                     TraceUtil.traceRecv(info.stream, this._logger, this._traceLevels);
-                    if(this._heartbeatCallback !== null)
-                    {
+                    if (this._heartbeatCallback !== null) {
                         info.heartbeatCallback = this._heartbeatCallback;
-                        ++this._dispatchCount;
+                        ++this._upcallCount;
                     }
                     break;
                 }
 
-                default:
-                {
-                    TraceUtil.traceIn("received unknown message\n(invalid, closing connection)",
-                                      info.stream, this._logger, this._traceLevels);
-                    throw new Ice.UnknownMessageException();
+                default: {
+                    TraceUtil.traceIn(
+                        "received unknown message\n(invalid, closing connection)",
+                        info.stream,
+                        this._logger,
+                        this._traceLevels,
+                    );
+                    throw new UnknownMessageException();
                 }
             }
-        }
-        catch(ex)
-        {
-            if(ex instanceof Ice.LocalException)
-            {
+        } catch (ex) {
+            if (ex instanceof LocalException) {
                 this.setState(StateClosed, ex);
-            }
-            else
-            {
+            } else {
                 throw ex;
             }
         }
@@ -1820,19 +1469,19 @@ class ConnectionI
         return info;
     }
 
-    invokeAll(stream, invokeNum, requestId, servantManager, adapter)
-    {
-        try
-        {
-            while(invokeNum > 0)
-            {
+    invokeAll(stream, invokeNum, requestId, servantManager, adapter) {
+        try {
+            while (invokeNum > 0) {
                 //
                 // Prepare the invocation.
                 //
-                const inc = new IncomingAsync(this._instance, this,
-                                              adapter,
-                                              requestId !== 0, // response
-                                              requestId);
+                const inc = new IncomingAsync(
+                    this._instance,
+                    this,
+                    adapter,
+                    requestId !== 0, // response
+                    requestId,
+                );
 
                 //
                 // Dispatch the invocation.
@@ -1843,109 +1492,40 @@ class ConnectionI
             }
 
             stream.clear();
-        }
-        catch(ex)
-        {
-            if(ex instanceof Ice.LocalException)
-            {
-                this.invokeException(ex, invokeNum);
-            }
-            else
-            {
+        } catch (ex) {
+            if (ex instanceof LocalException) {
+                this.dispatchException(ex, invokeNum);
+            } else {
                 //
                 // An Error was raised outside of servant code (i.e., by Ice code).
                 // Attempt to log the error and clean up.
                 //
                 this._logger.error("unexpected exception:\n" + ex.toString());
-                this.invokeException(new Ice.UnknownException(ex), invokeNum);
+                this.dispatchException(new UnknownException(ex), invokeNum);
             }
         }
     }
 
-    scheduleTimeout(op)
-    {
-        let timeout;
-        if(this._state < StateActive)
-        {
-            const defaultsAndOverrides = this._instance.defaultsAndOverrides();
-            if(defaultsAndOverrides.overrideConnectTimeout)
-            {
-                timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
-            }
-            else
-            {
-                timeout = this._endpoint.timeout();
-            }
+    connectTimedOut() {
+        if (this._state < StateActive) {
+            this.setState(StateClosed, new ConnectTimeoutException());
         }
-        else if(this._state < StateClosing)
-        {
-            if(this._readHeader) // No timeout for reading the header.
-            {
-                op &= ~SocketOperation.Read;
-            }
-            timeout = this._endpoint.timeout();
-        }
-        else
-        {
-            const defaultsAndOverrides = this._instance.defaultsAndOverrides();
-            if(defaultsAndOverrides.overrideCloseTimeout)
-            {
-                timeout = defaultsAndOverrides.overrideCloseTimeoutValue;
-            }
-            else
-            {
-                timeout = this._endpoint.timeout();
-            }
-        }
-
-        if(timeout < 0)
-        {
-            return;
-        }
-
-        if((op & SocketOperation.Read) !== 0)
-        {
-            if(this._readTimeoutScheduled)
-            {
-                this._timer.cancel(this._readTimeoutId);
-            }
-            this._readTimeoutId = this._timer.schedule(() => this.timedOut(), timeout);
-            this._readTimeoutScheduled = true;
-        }
-        if((op & (SocketOperation.Write | SocketOperation.Connect)) !== 0)
-        {
-            if(this._writeTimeoutScheduled)
-            {
-                this._timer.cancel(this._writeTimeoutId);
-            }
-            this._writeTimeoutId = this._timer.schedule(() => this.timedOut(), timeout);
-            this._writeTimeoutScheduled = true;
-        }
+        // else ignore since we're already connected
     }
 
-    unscheduleTimeout(op)
-    {
-        if((op & SocketOperation.Read) !== 0 && this._readTimeoutScheduled)
-        {
-            this._timer.cancel(this._readTimeoutId);
-            this._readTimeoutScheduled = false;
+    closeTimedOut() {
+        if (this._state < StateClosed) {
+            this.setState(StateClosed, new CloseTimeoutException());
         }
-        if((op & (SocketOperation.Write | SocketOperation.Connect)) !== 0 && this._writeTimeoutScheduled)
-        {
-            this._timer.cancel(this._writeTimeoutId);
-            this._writeTimeoutScheduled = false;
-        }
+        // else ignore since we're already closed.
     }
 
-    warning(msg, ex)
-    {
+    warning(msg, ex) {
         this._logger.warning(msg + ":\n" + this._desc + "\n" + ex.toString());
     }
 
-    checkState()
-    {
-        if(this._state < StateHolding || this._dispatchCount > 0)
-        {
+    checkState() {
+        if (this._state < StateHolding || this._upcallCount > 0) {
             return;
         }
 
@@ -1955,31 +1535,20 @@ class ConnectionI
         // guarantee that there are no outstanding calls when deactivate()
         // is called on the servant locators.
         //
-        if(this._state === StateFinished && this._finishedPromises.length > 0)
-        {
+        if (this._state === StateFinished && this._finishedPromises.length > 0) {
             //
             // Clear the OA. See bug 1673 for the details of why this is necessary.
             //
             this._adapter = null;
-            this._finishedPromises.forEach(p => p.resolve());
+            this._finishedPromises.forEach((p) => p.resolve());
             this._finishedPromises = [];
         }
     }
 
-    reap()
-    {
-        if(this._monitor !== null)
-        {
-            this._monitor.reap(this);
-        }
-    }
-
-    read(buf)
-    {
+    read(buf) {
         const start = buf.position;
         const ret = this._transceiver.read(buf, this._hasMoreData);
-        if(this._instance.traceLevels().network >= 3 && buf.position != start)
-        {
+        if (this._traceLevels.network >= 3 && buf.position != start) {
             const s = [];
             s.push("received ");
             s.push(buf.position - start);
@@ -1989,17 +1558,15 @@ class ConnectionI
             s.push(this._endpoint.protocol());
             s.push("\n");
             s.push(this.toString());
-            this._instance.initializationData().logger.trace(this._instance.traceLevels().networkCat, s.join(""));
+            this._logger.trace(this._traceLevels.networkCat, s.join(""));
         }
         return ret;
     }
 
-    write(buf)
-    {
+    write(buf) {
         const start = buf.position;
         const ret = this._transceiver.write(buf);
-        if(this._instance.traceLevels().network >= 3 && buf.position != start)
-        {
+        if (this._traceLevels.network >= 3 && buf.position != start) {
             const s = [];
             s.push("sent ");
             s.push(buf.position - start);
@@ -2009,9 +1576,25 @@ class ConnectionI
             s.push(this._endpoint.protocol());
             s.push("\n");
             s.push(this.toString());
-            this._instance.initializationData().logger.trace(this._instance.traceLevels().networkCat, s.join(""));
+            this._logger.trace(this._traceLevels.networkCat, s.join(""));
         }
         return ret;
+    }
+
+    scheduleInactivityTimer() {
+        Debug.assert(this._inactivityTimer === undefined);
+        Debug.assert(this._inactivityTimeout > 0);
+
+        this._inactivityTimer = new Timer();
+        const inactivityTimer = this._inactivityTimer;
+        this._inactivityTimer.schedule(() => this.inactivityCheck(inactivityTimer), this._inactivityTimeout);
+    }
+
+    cancelInactivityTimer() {
+        if (this._inactivityTimer !== undefined) {
+            this._inactivityTimer.destroy();
+            this._inactivityTimer = undefined;
+        }
     }
 }
 
@@ -2019,28 +1602,21 @@ class ConnectionI
 ConnectionI.ObjectAdapterDeactivated = 0;
 ConnectionI.CommunicatorDestroyed = 1;
 
-Ice.ConnectionI = ConnectionI;
-
-class OutgoingMessage
-{
-    constructor()
-    {
+class OutgoingMessage {
+    constructor() {
         this.stream = null;
         this.outAsync = null;
         this.requestId = 0;
         this.prepared = false;
     }
 
-    canceled()
-    {
+    canceled() {
         Debug.assert(this.outAsync !== null);
         this.outAsync = null;
     }
 
-    doAdopt()
-    {
-        if(this.adopt)
-        {
+    doAdopt() {
+        if (this.adopt) {
             const stream = new OutputStream(this.stream.instance, Protocol.currentProtocolEncoding);
             stream.swap(this.stream);
             this.stream = stream;
@@ -2048,24 +1624,19 @@ class OutgoingMessage
         }
     }
 
-    sent()
-    {
-        if(this.outAsync !== null)
-        {
+    sent() {
+        if (this.outAsync !== null) {
             this.outAsync.sent();
         }
     }
 
-    completed(ex)
-    {
-        if(this.outAsync !== null)
-        {
+    completed(ex) {
+        if (this.outAsync !== null) {
             this.outAsync.completedEx(ex);
         }
     }
 
-    static createForStream(stream, adopt)
-    {
+    static createForStream(stream, adopt) {
         const m = new OutgoingMessage();
         m.stream = stream;
         m.adopt = adopt;
@@ -2075,8 +1646,7 @@ class OutgoingMessage
         return m;
     }
 
-    static create(out, stream, requestId)
-    {
+    static create(out, stream, requestId) {
         const m = new OutgoingMessage();
         m.stream = stream;
         m.outAsync = out;
@@ -2086,5 +1656,3 @@ class OutgoingMessage
         return m;
     }
 }
-
-module.exports.Ice = Ice;

@@ -415,7 +415,7 @@ namespace Ice
                     int i;
 
                     //
-                    // Ensure that endpoints are tried in order by deactiving the adapters
+                    // Ensure that endpoints are tried in order by deactivating the adapters
                     // one after the other.
                     //
                     for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter31"; i++) ;
@@ -585,7 +585,7 @@ namespace Ice
                     int i;
 
                     //
-                    // Ensure that endpoints are tried in order by deactiving the adapters
+                    // Ensure that endpoints are tried in order by deactivating the adapters
                     // one after the other.
                     //
                     for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter61"; i++) ;
@@ -648,7 +648,7 @@ namespace Ice
                     int i;
 
                     //
-                    // Ensure that endpoints are tried in order by deactiving the adapters
+                    // Ensure that endpoints are tried in order by deactivating the adapters
                     // one after the other.
                     //
                     for (i = 0; i < nRetry && (await obj.getAdapterNameAsync()) == "AdapterAMI61"; i++) ;
@@ -715,7 +715,7 @@ namespace Ice
                     }
                 }
                 output.WriteLine("ok");
-                if (communicator.getProperties().getProperty("Ice.Plugin.IceSSL").Length > 0)
+                if (communicator.getProperties().getProperty("Ice.Default.Protocol") == "ssl")
                 {
                     output.Write("testing unsecure vs. secure endpoints... ");
                     output.Flush();

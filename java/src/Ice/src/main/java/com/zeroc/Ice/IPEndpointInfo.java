@@ -52,9 +52,4 @@ public abstract class IPEndpointInfo extends EndpointInfo {
   public IPEndpointInfo clone() {
     return (IPEndpointInfo) super.clone();
   }
-
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 1740540942649122045L;
 }

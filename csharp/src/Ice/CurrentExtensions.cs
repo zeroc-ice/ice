@@ -148,7 +148,6 @@ public static class CurrentExtensions
             {
                 case RequestFailedException rfe:
                     exceptionId = rfe.ice_id();
-                    exceptionMessage = rfe.ToString();
 
                     replyStatus = rfe switch
                     {
@@ -158,36 +157,32 @@ public static class CurrentExtensions
                         _ => throw new Ice.MarshalException("Unexpected exception type")
                     };
 
-                    if (rfe.id.name.Length == 0)
+                    Identity id = rfe.id;
+                    string facet = rfe.facet;
+                    if (id.name.Length == 0)
                     {
-                        rfe.id = current.id;
+                        id = current.id;
+                        facet = current.facet;
                     }
+                    string operation = rfe.operation.Length == 0 ? current.operation : rfe.operation;
 
-                    if (rfe.facet.Length == 0 && current.facet.Length > 0)
-                    {
-                        rfe.facet = current.facet;
-                    }
-
-                    if (rfe.operation.Length == 0 && current.operation.Length > 0)
-                    {
-                        rfe.operation = current.operation;
-                    }
+                    exceptionMessage = RequestFailedException.createMessage(rfe.GetType().Name, id, facet, operation);
 
                     if (current.requestId != 0)
                     {
                         ostr.writeByte((byte)replyStatus);
-                        Identity.ice_write(ostr, rfe.id);
+                        Identity.ice_write(ostr, id);
 
-                        if (rfe.facet.Length == 0)
+                        if (facet.Length == 0)
                         {
                             ostr.writeStringSeq([]);
                         }
                         else
                         {
-                            ostr.writeStringSeq([rfe.facet]);
+                            ostr.writeStringSeq([facet]);
                         }
 
-                        ostr.writeString(rfe.operation);
+                        ostr.writeString(operation);
                     }
                     break;
 

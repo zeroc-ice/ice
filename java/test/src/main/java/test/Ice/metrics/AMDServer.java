@@ -20,7 +20,13 @@ public class AMDServer extends test.TestHelper {
       adapter.add(new AMDMetricsI(), com.zeroc.Ice.Util.stringToIdentity("metrics"));
       adapter.activate();
 
-      communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+      communicator.getProperties().setProperty("ForwardingAdapter.Endpoints", getTestEndpoint(1));
+      com.zeroc.Ice.ObjectAdapter forwardingAdapter =
+          communicator.createObjectAdapter("ForwardingAdapter");
+      forwardingAdapter.addDefaultServant(adapter.dispatchPipeline(), "");
+      forwardingAdapter.activate();
+
+      communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(2));
       com.zeroc.Ice.ObjectAdapter controllerAdapter =
           communicator.createObjectAdapter("ControllerAdapter");
       controllerAdapter.add(

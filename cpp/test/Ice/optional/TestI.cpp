@@ -6,7 +6,6 @@
 #include "Ice/Ice.h"
 
 using namespace Test;
-using namespace IceUtil;
 using namespace Ice;
 using namespace std;
 

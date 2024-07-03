@@ -3,13 +3,13 @@
 //
 
 #include "../Ice/ConsoleUtil.h"
+#include "../Ice/FileUtil.h"
 #include "Activator.h"
 #include "DescriptorParser.h"
 #include "FileUserAccountMapperI.h"
 #include "Ice/Ice.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
-#include "IceUtil/Timer.h"
+#include "Ice/StringUtil.h"
+#include "Ice/Timer.h"
 #include "NodeAdminRouter.h"
 #include "NodeI.h"
 #include "NodeSessionManager.h"
@@ -61,7 +61,7 @@ namespace
         void usage(const std::string&);
 
         shared_ptr<Activator> _activator;
-        IceUtil::TimerPtr _timer;
+        Ice::TimerPtr _timer;
         shared_ptr<RegistryI> _registry;
         shared_ptr<NodeI> _node;
         unique_ptr<NodeSessionManager> _sessions;
@@ -321,7 +321,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     }
     else
     {
-        if (!IceUtilInternal::directoryExists(dataPath))
+        if (!IceInternal::directoryExists(dataPath))
         {
             FileException ex(__FILE__, __LINE__, dataPath);
             ServiceError err(this);
@@ -417,7 +417,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     // Create a new timer to handle server activation/deactivation timeouts.
     //
-    _timer = make_shared<IceUtil::Timer>();
+    _timer = make_shared<Ice::Timer>();
 
     //
     // The IceGrid instance name.
@@ -552,14 +552,14 @@ NodeService::startImpl(int argc, char* argv[], int& status)
                 {
                     consoleOut << "user id: " << flush;
                     getline(cin, username);
-                    username = IceUtilInternal::trim(username);
+                    username = IceInternal::trim(username);
                 }
 
                 if (password.empty())
                 {
                     consoleOut << "password: " << flush;
                     getline(cin, password);
-                    password = IceUtilInternal::trim(password);
+                    password = IceInternal::trim(password);
                 }
 
                 session = registry->createAdminSession(username, password);

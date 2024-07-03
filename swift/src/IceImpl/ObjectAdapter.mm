@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 #import "include/ObjectAdapter.h"
 #import "include/Communicator.h"

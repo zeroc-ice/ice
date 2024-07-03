@@ -5,19 +5,18 @@
 #include "SSLEngine.h"
 #include "../Instance.h"
 #include "Ice/Communicator.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
 #include "Ice/SSL/ConnectionInfo.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 #include "TrustManager.h"
 
 #include <string>
 
 using namespace std;
 using namespace Ice;
-using namespace IceUtil;
 using namespace Ice::SSL;
 
 Ice::SSL::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)

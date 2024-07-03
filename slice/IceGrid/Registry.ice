@@ -10,14 +10,13 @@
 [["cpp:include:IceGrid/Config.h"]]
 
 [["js:module:ice"]]
-[["js:cjs-module"]]
 
 [["python:pkgdir:IceGrid"]]
 
 #include "Exception.ice"
 #include "Session.ice"
 #include "Admin.ice"
-#include "../Ice/Locator.ice"
+#include "Ice/Locator.ice"
 
 [["java:package:com.zeroc"]]
 

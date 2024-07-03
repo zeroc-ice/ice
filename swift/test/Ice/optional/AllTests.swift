@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import Ice
 import PromiseKit
@@ -62,7 +60,6 @@ class DValueWriter: Ice.Value {
         ostr.endSize(position: pos)
         let a = A()
         a.mc = 18
-        _ = ostr.writeOptional(tag: 1000, format: .Class)
         ostr.write(a)
         ostr.endSlice()
         // ::Test::B
@@ -101,7 +98,7 @@ class DValueReader: Ice.Value {
         let o: [String] = try istr.read()
         try helper!.test(
             o.count == 4 && o[0] == "test1" && o[1] == "test2" && o[2] == "test3" && o[3] == "test4")
-        try istr.read(tag: 1000, value: A.self) { self.a = $0 }
+        try istr.read(A.self) { self.a = $0 }
         try istr.endSlice()
         // ::Test::B
         _ = try istr.startSlice()
@@ -3023,7 +3020,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
 
         ostr = Ice.OutputStream(communicator: communicator)
         ostr.startEncapsulation()
-        ostr.write(tag: 1, value: f)
         ostr.write(tag: 2, value: f.fse)
         ostr.endEncapsulation()
         inEncaps = ostr.finished()

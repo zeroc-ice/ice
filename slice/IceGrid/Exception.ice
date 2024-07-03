@@ -9,14 +9,13 @@
 [["cpp:include:IceGrid/Config.h"]]
 
 [["js:module:ice"]]
-[["js:cjs-module"]]
 
 [["python:pkgdir:IceGrid"]]
 
 [["cpp:dll-export:ICEGRID_API"]]
 
-#include "../Ice/Identity.ice"
-#include "../Ice/BuiltinSequences.ice"
+#include "Ice/Identity.ice"
+#include "Ice/BuiltinSequences.ice"
 
 [["java:package:com.zeroc"]]
 

@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import IceImpl
 
@@ -29,14 +27,6 @@ class ExceptionFactory: ICEExceptionFactory {
         return TwowayOnlyException(operation: operation, file: file, line: line)
     }
 
-    static func cloneNotImplementedException(_ file: String, line: Int32) -> Error {
-        return CloneNotImplementedException(file: file, line: line)
-    }
-
-    static func versionMismatchException(_ file: String, line: Int32) -> Error {
-        return VersionMismatchException(file: file, line: line)
-    }
-
     static func communicatorDestroyedException(_ file: String, line: Int32) -> Error {
         return CommunicatorDestroyedException(file: file, line: line)
     }
@@ -53,24 +43,8 @@ class ExceptionFactory: ICEExceptionFactory {
         return NoEndpointException(proxy: proxy, file: file, line: line)
     }
 
-    static func endpointParseException(_ str: String, file: String, line: Int32) -> Error {
-        return EndpointParseException(str: str, file: file, line: line)
-    }
-
-    static func endpointSelectionTypeParseException(_ str: String, file: String, line: Int32) -> Error {
-        return EndpointSelectionTypeParseException(str: str, file: file, line: line)
-    }
-
-    static func versionParseException(_ str: String, file: String, line: Int32) -> Error {
-        return VersionParseException(str: str, file: file, line: line)
-    }
-
-    static func identityParseException(_ str: String, file: String, line: Int32) -> Error {
-        return IdentityParseException(str: str, file: file, line: line)
-    }
-
-    static func proxyParseException(_ str: String, file: String, line: Int32) -> Error {
-        return ProxyParseException(str: str, file: file, line: line)
+    static func parseException(_ str: String, file: String, line: Int32) -> Error {
+        return ParseException(str: str, file: file, line: line)
     }
 
     static func illegalIdentityException(_ file: String, line: Int32) -> Error {
@@ -83,10 +57,6 @@ class ExceptionFactory: ICEExceptionFactory {
 
     static func dNSException(_ error: Int32, host: String, file: String, line: Int32) -> Error {
         return DNSException(error: error, host: host, file: file, line: line)
-    }
-
-    static func operationInterruptedException(_ file: String, line: Int32) -> Error {
-        return OperationInterruptedException(file: file, line: line)
     }
 
     static func invocationCanceledException(_ file: String, line: Int32) -> Error {
@@ -209,56 +179,6 @@ class ExceptionFactory: ICEExceptionFactory {
         return TimeoutException(file: file, line: line)
     }
 
-    static func badMagicException(_ reason: String, badMagic: Data, file: String, line: Int32)
-        -> Error
-    {
-        return BadMagicException(reason: reason, badMagic: badMagic, file: file, line: line)
-    }
-
-    static func unsupportedProtocolException(
-        _ reason: String,
-        badMajor: UInt8,
-        badMinor: UInt8,
-        supportedMajor: UInt8,
-        supportedMinor: UInt8, file: String, line: Int32
-    ) -> Error {
-        return UnsupportedProtocolException(
-            reason: reason,
-            bad: ProtocolVersion(major: badMajor, minor: badMinor),
-            supported: ProtocolVersion(major: supportedMajor, minor: supportedMinor),
-            file: file, line: line)
-    }
-
-    static func unsupportedEncodingException(
-        _ reason: String,
-        badMajor: UInt8,
-        badMinor: UInt8,
-        supportedMajor: UInt8,
-        supportedMinor: UInt8, file: String, line: Int32
-    ) -> Error {
-        return UnsupportedEncodingException(
-            reason: reason,
-            bad: EncodingVersion(major: badMajor, minor: badMinor),
-            supported: EncodingVersion(major: supportedMajor, minor: supportedMinor),
-            file: file, line: line)
-    }
-
-    static func unknownMessageException(_ reason: String, file: String, line: Int32) -> Error {
-        return UnknownMessageException(reason: reason, file: file, line: line)
-    }
-
-    static func connectionNotValidatedException(_ reason: String, file: String, line: Int32) -> Error {
-        return ConnectionNotValidatedException(reason: reason, file: file, line: line)
-    }
-
-    static func unknownRequestIdException(_ reason: String, file: String, line: Int32) -> Error {
-        return UnknownRequestIdException(reason: reason, file: file, line: line)
-    }
-
-    static func unknownReplyStatusException(_ reason: String, file: String, line: Int32) -> Error {
-        return UnknownReplyStatusException(reason: reason, file: file, line: line)
-    }
-
     static func closeConnectionException(_ reason: String, file: String, line: Int32) -> Error {
         return CloseConnectionException(reason: reason, file: file, line: line)
     }
@@ -269,51 +189,8 @@ class ExceptionFactory: ICEExceptionFactory {
         return ConnectionManuallyClosedException(graceful: graceful, file: file, line: line)
     }
 
-    static func illegalMessageSizeException(_ reason: String, file: String, line: Int32) -> Error {
-        return IllegalMessageSizeException(reason: reason, file: file, line: line)
-    }
-
-    static func compressionException(_ reason: String, file: String, line: Int32) -> Error {
-        return CompressionException(reason: reason, file: file, line: line)
-    }
-
     static func datagramLimitException(_ reason: String, file: String, line: Int32) -> Error {
         return DatagramLimitException(reason: reason, file: file, line: line)
-    }
-
-    static func proxyUnmarshalException(_ reason: String, file: String, line: Int32) -> Error {
-        return ProxyUnmarshalException(reason: reason, file: file, line: line)
-    }
-
-    static func unmarshalOutofBoundsException(_ reason: String, file: String, line: Int32) -> Error {
-        return UnmarshalOutOfBoundsException(reason: reason, file: file, line: line)
-    }
-
-    static func noValueFactoryException(_ reason: String, type: String, file: String, line: Int32)
-        -> Error
-    {
-        return NoValueFactoryException(reason: reason, type: type, file: file, line: line)
-    }
-
-    static func unexpectedObjectException(
-        _ reason: String, type: String, expectedType: String,
-        file: String, line: Int32
-    ) -> Error {
-        return UnexpectedObjectException(
-            reason: reason, type: type, expectedType: expectedType,
-            file: file, line: line)
-    }
-
-    static func memoryLimitException(_ reason: String, file: String, line: Int32) -> Error {
-        return MemoryLimitException(reason: reason, file: file, line: line)
-    }
-
-    static func stringConversionException(_ reason: String, file: String, line: Int32) -> Error {
-        return StringConversionException(reason: reason, file: file, line: line)
-    }
-
-    static func encapsulationException(_ reason: String, file: String, line: Int32) -> Error {
-        return EncapsulationException(reason: reason, file: file, line: line)
     }
 
     static func marshalException(_ reason: String, file: String, line: Int32) -> Error {

@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import Dispatch
 import Foundation
@@ -233,7 +231,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             //
             _ = try testPrx.SBSUnknownDerivedAsSBaseCompact()
             try test(false)
-        } catch is Ice.NoValueFactoryException {  // Expected.
+        } catch is Ice.MarshalException {  // Expected.
         }
     }
     output.writeLine("ok")
@@ -278,7 +276,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
                 try test(false)
             }.catch { ex in
                 do {
-                    try test(ex is Ice.NoValueFactoryException)
+                    try test(ex is Ice.MarshalException)
                     seal.fulfill(())
                 } catch {
                     seal.reject(error)
@@ -297,7 +295,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         try test((o as! Ice.UnknownSlicedValue).ice_getSlicedData() != nil)
         try testPrx.checkSUnknown(o)
         (o as! Ice.UnknownSlicedValue).ice_getSlicedData()!.clear()
-    } catch is Ice.NoValueFactoryException {
+    } catch is Ice.MarshalException {
         try test(testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0)
     }
     output.writeLine("ok")
@@ -311,7 +309,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
                 try test(false)
             }.catch { ex in
                 do {
-                    try test(ex is Ice.NoValueFactoryException)
+                    try test(ex is Ice.MarshalException)
                     seal.fulfill(())
                 } catch {
                     seal.reject(error)

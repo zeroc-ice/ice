@@ -5,10 +5,10 @@
 #include "SchannelTransceiverI.h"
 #include "Ice/Buffer.h"
 #include "Ice/Communicator.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/SSL/ConnectionInfo.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 #include "SSLInstance.h"
 #include "SSLUtil.h"
 #include "SchannelEngine.h"
@@ -75,7 +75,7 @@ namespace
                 throw InitializationException(
                     __FILE__,
                     __LINE__,
-                    "SSL transport: error creating certificate chain engine:\n" + IceUtilInternal::lastErrorToString());
+                    "SSL transport: error creating certificate chain engine:\n" + IceInternal::lastErrorToString());
             }
             return chainEngine;
         }
@@ -167,7 +167,7 @@ Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
             throw SecurityException(
                 __FILE__,
                 __LINE__,
-                "SSL transport: failed to acquire credentials handle:\n" + IceUtilInternal::lastErrorToString());
+                "SSL transport: failed to acquire credentials handle:\n" + IceInternal::lastErrorToString());
         }
 
         _ctxFlags = 0;
@@ -199,7 +199,7 @@ Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
             if (err != SEC_E_OK && err != SEC_I_CONTINUE_NEEDED)
             {
                 ostringstream os;
-                os << "SSL transport: handshake failure:\n" << IceUtilInternal::errorToString(err);
+                os << "SSL transport: handshake failure:\n" << IceInternal::errorToString(err);
                 throw SecurityException(__FILE__, __LINE__, os.str());
             }
 
@@ -297,7 +297,7 @@ Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
             else if (err != SEC_I_CONTINUE_NEEDED && err != SEC_E_OK)
             {
                 ostringstream os;
-                os << "SSL handshake failure:\n" << IceUtilInternal::errorToString(err);
+                os << "SSL handshake failure:\n" << IceInternal::errorToString(err);
                 throw SecurityException(__FILE__, __LINE__, os.str());
             }
 
@@ -442,7 +442,7 @@ Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
     if (err != SEC_E_OK)
     {
         ostringstream os;
-        os << "SSL transport: failure to query stream sizes attributes:\n" << IceUtilInternal::errorToString(err);
+        os << "SSL transport: failure to query stream sizes attributes:\n" << IceInternal::errorToString(err);
         throw SecurityException(__FILE__, __LINE__, os.str());
     }
 
@@ -457,7 +457,7 @@ Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
     if (err != SEC_E_OK && err != SEC_E_NO_CREDENTIALS)
     {
         ostringstream os;
-        os << "SSL transport: failure to query remote certificate context:\n" << IceUtilInternal::errorToString(err);
+        os << "SSL transport: failure to query remote certificate context:\n" << IceInternal::errorToString(err);
         throw SecurityException(__FILE__, __LINE__, os.str());
     }
 
@@ -560,7 +560,7 @@ Schannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
             throw ProtocolException(
                 __FILE__,
                 __LINE__,
-                "SSL transport: protocol error during read:\n" + IceUtilInternal::errorToString(err));
+                "SSL transport: protocol error during read:\n" + IceInternal::errorToString(err));
         }
 
         SecBuffer* dataBuffer = getSecBufferWithType(inBufferDesc, SECBUFFER_DATA);
@@ -632,7 +632,7 @@ Schannel::TransceiverI::encryptMessage(IceInternal::Buffer& buffer)
         throw ProtocolException(
             __FILE__,
             __LINE__,
-            "SSL transport: protocol error encrypting message:\n" + IceUtilInternal::errorToString(err));
+            "SSL transport: protocol error encrypting message:\n" + IceInternal::errorToString(err));
     }
 
     // EncryptMessage resizes the buffers, so resize the write buffer as well to reflect this.

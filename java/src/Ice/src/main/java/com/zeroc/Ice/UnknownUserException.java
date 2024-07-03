@@ -44,8 +44,5 @@ public class UnknownUserException extends UnknownException {
     return "::Ice::UnknownUserException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -6046568406824082586L;
+  private static final long serialVersionUID = -6046568406824082586L;
 }

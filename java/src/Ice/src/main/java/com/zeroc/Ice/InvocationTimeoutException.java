@@ -29,8 +29,5 @@ public class InvocationTimeoutException extends TimeoutException {
     return "::Ice::InvocationTimeoutException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -4956443780705036860L;
+  private static final long serialVersionUID = -4956443780705036860L;
 }

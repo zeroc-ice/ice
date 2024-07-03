@@ -14,7 +14,7 @@ namespace Slice
     class Preprocessor;
     using PreprocessorPtr = std::shared_ptr<Preprocessor>;
 
-    class Preprocessor
+    class Preprocessor final
     {
     public:
         static PreprocessorPtr create(const std::string&, const std::string&, const std::vector<std::string>&);

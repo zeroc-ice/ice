@@ -61,14 +61,14 @@ public final class ThreadPool implements java.util.concurrent.Executor {
   // Exception raised by the thread pool work queue when the thread pool is destroyed.
   //
   static final class DestroyedException extends RuntimeException {
-    public static final long serialVersionUID = 0L;
+    private static final long serialVersionUID = -6665535975321237670L;
   }
 
   public ThreadPool(Instance instance, String prefix, int timeout) {
     com.zeroc.Ice.Properties properties = instance.initializationData().properties;
 
     _instance = instance;
-    _dispatcher = instance.initializationData().dispatcher;
+    _executor = instance.initializationData().executor;
     _destroyed = false;
     _prefix = prefix;
     _selector = new Selector(instance);
@@ -266,10 +266,10 @@ public final class ThreadPool implements java.util.concurrent.Executor {
     return closeNow;
   }
 
-  public void dispatchFromThisThread(DispatchWorkItem workItem) {
-    if (_dispatcher != null) {
+  public void executeFromThisThread(RunnableThreadPoolWorkItem workItem) {
+    if (_executor != null) {
       try {
-        _dispatcher.accept(workItem, workItem.getConnection());
+        _executor.accept(workItem, workItem.getConnection());
       } catch (java.lang.Exception ex) {
         if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch")
             > 1) {
@@ -285,7 +285,7 @@ public final class ThreadPool implements java.util.concurrent.Executor {
     }
   }
 
-  public synchronized void dispatch(DispatchWorkItem workItem) {
+  public synchronized void dispatch(RunnableThreadPoolWorkItem workItem) {
     if (_destroyed) {
       throw new com.zeroc.Ice.CommunicatorDestroyedException();
     }
@@ -315,7 +315,7 @@ public final class ThreadPool implements java.util.concurrent.Executor {
   @Override
   public void execute(Runnable command) {
     dispatch(
-        new com.zeroc.IceInternal.DispatchWorkItem() {
+        new com.zeroc.IceInternal.RunnableThreadPoolWorkItem() {
           @Override
           public void run() {
             command.run();
@@ -567,7 +567,7 @@ public final class ThreadPool implements java.util.concurrent.Executor {
   }
 
   private final Instance _instance;
-  private final java.util.function.BiConsumer<Runnable, com.zeroc.Ice.Connection> _dispatcher;
+  private final java.util.function.BiConsumer<Runnable, com.zeroc.Ice.Connection> _executor;
   private final ThreadPoolWorkQueue _workQueue;
   private boolean _destroyed;
   private final String _prefix;

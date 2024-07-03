@@ -10,7 +10,6 @@
 #include "EndpointIF.h"
 #include "Ice/BuiltinSequences.h"
 #include "Ice/CommunicatorF.h"
-#include "Ice/Exception.h"
 #include "Ice/InstanceF.h"
 #include "Ice/ObjectAdapter.h"
 #include "Ice/ObjectF.h"
@@ -29,6 +28,7 @@
 #include <list>
 #include <mutex>
 #include <optional>
+#include <stack>
 
 namespace IceInternal
 {
@@ -53,6 +53,8 @@ namespace Ice
         bool isDeactivated() const noexcept final;
         void destroy() noexcept final;
 
+        ObjectAdapterPtr use(std::function<ObjectPtr(ObjectPtr)> middlewareFactory) final;
+
         ObjectPrx add(const ObjectPtr&, const Identity&) final;
         ObjectPrx addFacet(const ObjectPtr&, const Identity&, const std::string&) final;
         ObjectPrx addWithUUID(const ObjectPtr&) final;
@@ -70,7 +72,8 @@ namespace Ice
         void addServantLocator(const ServantLocatorPtr&, const std::string&) final;
         ServantLocatorPtr removeServantLocator(const std::string&) final;
         ServantLocatorPtr findServantLocator(const std::string&) const final;
-        ObjectPtr dispatcher() const noexcept final;
+
+        const ObjectPtr& dispatchPipeline() const noexcept final;
 
         ObjectPrx createProxy(const Identity&) const final;
         ObjectPrx createDirectProxy(const Identity&) const final;
@@ -101,10 +104,6 @@ namespace Ice
         IceInternal::ThreadPoolPtr getThreadPool() const;
         void setAdapterOnConnection(const ConnectionIPtr&);
         size_t messageSizeMax() const { return _messageSizeMax; }
-
-        // The dispatch pipeline is the dispatcher plus the logger and observer middleware. They are installed in the
-        // dispatch pipeline only when the communicator configuration enables them.
-        const ObjectPtr& dispatchPipeline() const noexcept { return _dispatchPipeline; }
 
         ObjectAdapterI(
             const IceInternal::InstancePtr&,
@@ -151,10 +150,9 @@ namespace Ice
         IceInternal::ThreadPoolPtr _threadPool;
         const IceInternal::ServantManagerPtr _servantManager;
 
-        // There is no need to clear _dispatchPipeline during destroy because _dispatchPipeline does not hold onto this
-        // object adapter directly. It can hold onto a communicator that holds onto this object adapter, but the
-        // communicator will release this refcount when it is destroyed or when the object adapter is destroyed.
-        const ObjectPtr _dispatchPipeline; // must be declared after _servantManager
+        mutable ObjectPtr _dispatchPipeline;
+        mutable std::stack<std::function<ObjectPtr(ObjectPtr)>> _middlewareFactoryStack;
+
         const std::string _name;
         const std::string _id;
         const std::string _replicaGroupId;

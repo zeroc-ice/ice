@@ -4,9 +4,9 @@
 
 #include "Engine.h"
 #include "DBus.h"
-#include "Ice/LocalException.h"
-#include "IceUtil/StringUtil.h"
-#include "IceUtil/UUID.h"
+#include "Ice/LocalExceptions.h"
+#include "Ice/StringUtil.h"
+#include "Ice/UUID.h"
 #include "Util.h"
 
 #include <thread>
@@ -218,7 +218,7 @@ namespace IceBT
                     assert(str);
                     addr = str->v;
                 }
-                return IceUtilInternal::toUpper(addr);
+                return IceInternal::toUpper(addr);
             }
 
             string getAdapter() const
@@ -253,7 +253,7 @@ namespace IceBT
                     assert(str);
                     addr = str->v;
                 }
-                return IceUtilInternal::toUpper(addr);
+                return IceInternal::toUpper(addr);
             }
 
             VariantMap properties;
@@ -462,7 +462,7 @@ namespace IceBT
             //
             for (RemoteDeviceMap::const_iterator p = _remoteDevices.begin(); p != _remoteDevices.end(); ++p)
             {
-                if (p->second.getAddress() == IceUtilInternal::toUpper(addr))
+                if (p->second.getAddress() == IceInternal::toUpper(addr))
                 {
                     return true;
                 }
@@ -543,7 +543,7 @@ namespace IceBT
 
                 for (AdapterMap::iterator p = _adapters.begin(); p != _adapters.end(); ++p)
                 {
-                    if (p->second.getAddress() == IceUtilInternal::toUpper(addr))
+                    if (p->second.getAddress() == IceInternal::toUpper(addr))
                     {
                         path = p->first;
                         p->second.callbacks.push_back(move(cb));
@@ -585,7 +585,7 @@ namespace IceBT
 
                 for (AdapterMap::iterator p = _adapters.begin(); p != _adapters.end(); ++p)
                 {
-                    if (p->second.getAddress() == IceUtilInternal::toUpper(addr))
+                    if (p->second.getAddress() == IceInternal::toUpper(addr))
                     {
                         path = p->first;
                         p->second.callbacks.clear();
@@ -830,7 +830,7 @@ namespace IceBT
             //
             // Generate a unique object path. Path elements can only contain "[A-Z][a-z][0-9]_".
             //
-            string path = "/com/zeroc/P" + IceUtil::generateUUID();
+            string path = "/com/zeroc/P" + Ice::generateUUID();
             for (string::iterator p = path.begin(); p != path.end(); ++p)
             {
                 if (*p == '-')
@@ -1109,7 +1109,7 @@ namespace IceBT
 
                     for (RemoteDeviceMap::iterator p = _remoteDevices.begin(); p != _remoteDevices.end(); ++p)
                     {
-                        if (p->second.getAddress() == IceUtilInternal::toUpper(addr))
+                        if (p->second.getAddress() == IceInternal::toUpper(addr))
                         {
                             devicePath = p->first;
                             break;

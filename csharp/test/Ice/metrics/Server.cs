@@ -28,7 +28,7 @@ public class Server : Test.TestHelper
 
         communicator.getProperties().setProperty("ForwardingAdapter.Endpoints", getTestEndpoint(1));
         Ice.ObjectAdapter forwardingAdapter = communicator.createObjectAdapter("ForwardingAdapter");
-        forwardingAdapter.addDefaultServant(adapter.dispatcher, "");
+        forwardingAdapter.addDefaultServant(adapter.dispatchPipeline, "");
         forwardingAdapter.activate();
 
         communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(2));

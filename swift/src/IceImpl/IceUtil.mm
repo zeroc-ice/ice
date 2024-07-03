@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 #import "include/IceUtil.h"
 #import "Convert.h"
@@ -203,7 +201,7 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
 
 + (NSString*)errorToString:(int32_t)error
 {
-    return toNSString(IceUtilInternal::errorToString(error));
+    return toNSString(IceInternal::errorToString(error));
 }
 
 + (NSString*)errorToStringDNS:(int32_t)error

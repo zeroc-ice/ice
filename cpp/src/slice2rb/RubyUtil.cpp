@@ -3,8 +3,8 @@
 //
 
 #include "RubyUtil.h"
+#include "../Ice/FileUtil.h"
 #include "../Slice/Util.h"
-#include "IceUtil/FileUtil.h"
 
 #include <algorithm>
 #include <cassert>
@@ -12,8 +12,7 @@
 
 using namespace std;
 using namespace Slice;
-using namespace IceUtil;
-using namespace IceUtilInternal;
+using namespace IceInternal;
 
 namespace
 {
@@ -39,23 +38,23 @@ namespace Slice
         //
         // CodeVisitor generates the Ruby mapping for a translation unit.
         //
-        class CodeVisitor : public ParserVisitor
+        class CodeVisitor final : public ParserVisitor
         {
         public:
-            CodeVisitor(IceUtilInternal::Output&);
+            CodeVisitor(IceInternal::Output&);
 
-            virtual bool visitModuleStart(const ModulePtr&);
-            virtual void visitModuleEnd(const ModulePtr&);
-            virtual void visitClassDecl(const ClassDeclPtr&);
-            virtual bool visitClassDefStart(const ClassDefPtr&);
-            virtual void visitInterfaceDecl(const InterfaceDeclPtr&);
-            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-            virtual bool visitExceptionStart(const ExceptionPtr&);
-            virtual bool visitStructStart(const StructPtr&);
-            virtual void visitSequence(const SequencePtr&);
-            virtual void visitDictionary(const DictionaryPtr&);
-            virtual void visitEnum(const EnumPtr&);
-            virtual void visitConst(const ConstPtr&);
+            bool visitModuleStart(const ModulePtr&) final;
+            void visitModuleEnd(const ModulePtr&) final;
+            void visitClassDecl(const ClassDeclPtr&) final;
+            bool visitClassDefStart(const ClassDefPtr&) final;
+            void visitInterfaceDecl(const InterfaceDeclPtr&) final;
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            bool visitExceptionStart(const ExceptionPtr&) final;
+            bool visitStructStart(const StructPtr&) final;
+            void visitSequence(const SequencePtr&) final;
+            void visitDictionary(const DictionaryPtr&) final;
+            void visitEnum(const EnumPtr&) final;
+            void visitConst(const ConstPtr&) final;
 
         private:
             //
@@ -1495,7 +1494,7 @@ Slice::Ruby::getAbsolute(const ContainedPtr& cont, IdentStyle style, const strin
 }
 
 void
-Slice::Ruby::printHeader(IceUtilInternal::Output& out)
+Slice::Ruby::printHeader(IceInternal::Output& out)
 {
     static const char* header = "#\n"
                                 "# Copyright (c) ZeroC, Inc. All rights reserved.\n"

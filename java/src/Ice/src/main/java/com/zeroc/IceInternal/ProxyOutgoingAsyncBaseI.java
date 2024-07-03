@@ -4,6 +4,8 @@
 
 package com.zeroc.IceInternal;
 
+import com.zeroc.Ice.ReplyStatus;
+
 //
 // Base class for proxy based invocations. This class handles the
 // retry for proxy invocations. It also ensures the child observer is
@@ -37,27 +39,23 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
       _childObserver = null;
     }
 
-    byte replyStatus;
+    ReplyStatus replyStatus;
     try {
-      replyStatus = is.readByte();
+      replyStatus = ReplyStatus.valueOf(is.readByte());
 
       switch (replyStatus) {
-        case ReplyStatus.replyOK:
-          {
-            break;
-          }
+        case Ok:
+          break;
 
-        case ReplyStatus.replyUserException:
-          {
-            if (_observer != null) {
-              _observer.userException();
-            }
-            break;
+        case UserException:
+          if (_observer != null) {
+            _observer.userException();
           }
+          break;
 
-        case ReplyStatus.replyObjectNotExist:
-        case ReplyStatus.replyFacetNotExist:
-        case ReplyStatus.replyOperationNotExist:
+        case ObjectNotExist:
+        case FacetNotExist:
+        case OperationNotExist:
           {
             com.zeroc.Ice.Identity id = com.zeroc.Ice.Identity.ice_read(is);
 
@@ -77,32 +75,12 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
 
             String operation = is.readString();
 
-            com.zeroc.Ice.RequestFailedException ex = null;
-            switch (replyStatus) {
-              case ReplyStatus.replyObjectNotExist:
-                {
-                  ex = new com.zeroc.Ice.ObjectNotExistException();
-                  break;
-                }
-
-              case ReplyStatus.replyFacetNotExist:
-                {
-                  ex = new com.zeroc.Ice.FacetNotExistException();
-                  break;
-                }
-
-              case ReplyStatus.replyOperationNotExist:
-                {
-                  ex = new com.zeroc.Ice.OperationNotExistException();
-                  break;
-                }
-
-              default:
-                {
-                  assert (false);
-                  break;
-                }
-            }
+            com.zeroc.Ice.RequestFailedException ex =
+                switch (replyStatus) {
+                  case ObjectNotExist -> new com.zeroc.Ice.ObjectNotExistException();
+                  case FacetNotExist -> new com.zeroc.Ice.FacetNotExistException();
+                  default -> new com.zeroc.Ice.OperationNotExistException();
+                };
 
             ex.id = id;
             ex.facet = facet;
@@ -110,50 +88,30 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
             throw ex;
           }
 
-        case ReplyStatus.replyUnknownException:
-        case ReplyStatus.replyUnknownLocalException:
-        case ReplyStatus.replyUnknownUserException:
+        case UnknownException:
+        case UnknownLocalException:
+        case UnknownUserException:
           {
             String unknown = is.readString();
 
-            com.zeroc.Ice.UnknownException ex = null;
-            switch (replyStatus) {
-              case ReplyStatus.replyUnknownException:
-                {
-                  ex = new com.zeroc.Ice.UnknownException();
-                  break;
-                }
-
-              case ReplyStatus.replyUnknownLocalException:
-                {
-                  ex = new com.zeroc.Ice.UnknownLocalException();
-                  break;
-                }
-
-              case ReplyStatus.replyUnknownUserException:
-                {
-                  ex = new com.zeroc.Ice.UnknownUserException();
-                  break;
-                }
-
-              default:
-                {
-                  assert (false);
-                  break;
-                }
-            }
+            com.zeroc.Ice.UnknownException ex =
+                switch (replyStatus) {
+                  case UnknownException -> new com.zeroc.Ice.UnknownException();
+                  case UnknownLocalException -> new com.zeroc.Ice.UnknownLocalException();
+                  default -> new com.zeroc.Ice.UnknownUserException();
+                };
 
             ex.unknown = unknown;
             throw ex;
           }
 
         default:
-          {
-            throw new com.zeroc.Ice.UnknownReplyStatusException();
-          }
+          // Can't happen. We throw MarshalException in ReplyStatus.valueOf if we receive an invalid
+          // byte.
+          assert false;
       }
 
-      return finished(replyStatus == ReplyStatus.replyOK, true);
+      return finished(replyStatus == ReplyStatus.Ok, true);
     } catch (com.zeroc.Ice.Exception ex) {
       return completed(ex);
     }
@@ -168,10 +126,6 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
     }
 
     _cachedConnection = null;
-    if (_proxy._getReference().getInvocationTimeout() == -2 && _timerFuture != null) {
-      _timerFuture.cancel(false);
-      _timerFuture = null;
-    }
 
     //
     // NOTE: at this point, synchronization isn't needed, no other threads should be
@@ -211,24 +165,6 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
   @Override
   public void retry() {
     invokeImpl(false);
-  }
-
-  public void cancelable(final CancellationHandler handler) {
-    if (_proxy._getReference().getInvocationTimeout() == -2 && _cachedConnection != null) {
-      final int timeout = _cachedConnection.timeout();
-      if (timeout > 0) {
-        _timerFuture =
-            _instance
-                .timer()
-                .schedule(
-                    () -> {
-                      cancel(new com.zeroc.Ice.ConnectionTimeoutException());
-                    },
-                    timeout,
-                    java.util.concurrent.TimeUnit.MILLISECONDS);
-      }
-    }
-    super.cancelable(handler);
   }
 
   @Override

@@ -4,7 +4,7 @@
 
 #include "Util.h"
 
-#include "IceUtil/StringConverter.h"
+#include "Ice/StringConverter.h"
 
 #include <cassert>
 #include <iomanip>
@@ -12,12 +12,12 @@
 
 using namespace std;
 using namespace Slice;
-using namespace IceUtil;
-using namespace IceUtilInternal;
+using namespace Ice;
+using namespace IceInternal;
 
 namespace
 {
-    class StringLiteralGenerator
+    class StringLiteralGenerator final
     {
     public:
         StringLiteralGenerator(const string&, const string&, EscapeMode, unsigned char);

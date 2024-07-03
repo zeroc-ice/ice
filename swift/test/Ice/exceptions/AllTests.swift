@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import Ice
 import PromiseKit
@@ -255,7 +253,7 @@ func allTests(_ helper: TestHelper) throws -> ThrowerPrx {
         do {
             _ = try thrower.throwMemoryLimitException(ByteSeq())
             try test(false)
-        } catch is Ice.MemoryLimitException {} catch {
+        } catch is Ice.MarshalException {} catch {
             try test(false)
         }
 
@@ -274,7 +272,7 @@ func allTests(_ helper: TestHelper) throws -> ThrowerPrx {
             do {
                 // 2MB(no limits)
                 _ = try thrower2.throwMemoryLimitException(ByteSeq(repeating: 0, count: 2 * 1024 * 1024))
-            } catch is Ice.MemoryLimitException {}
+            } catch is Ice.MarshalException {}
             str = "thrower:\(helper.getTestEndpoint(num: 2))"
             let thrower3 = try uncheckedCast(prx: communicator.stringToProxy(str)!, type: ThrowerPrx.self)
             do {

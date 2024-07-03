@@ -3,12 +3,12 @@
 //
 
 #include "ServerI.h"
+#include "../Ice/DisableWarnings.h"
+#include "../Ice/FileUtil.h"
 #include "../Ice/TimeUtil.h"
 #include "Activator.h"
 #include "DescriptorHelper.h"
 #include "Ice/Ice.h"
-#include "IceUtil/DisableWarnings.h"
-#include "IceUtil/FileUtil.h"
 #include "NodeI.h"
 #include "ServerAdapterI.h"
 #include "TraceLevels.h"
@@ -40,7 +40,7 @@ namespace IceGrid
         DIR* d;
         if ((d = opendir(path.c_str())) == 0)
         {
-            throw runtime_error("cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString());
+            throw runtime_error("cannot read directory `" + path + "':\n" + IceInternal::lastErrorToString());
         }
 
         struct dirent* entry;
@@ -57,7 +57,7 @@ namespace IceGrid
 
         if (closedir(d))
         {
-            throw runtime_error("cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString());
+            throw runtime_error("cannot read directory `" + path + "':\n" + IceInternal::lastErrorToString());
         }
 
         for (size_t i = 0; i < namelist.size(); ++i)
@@ -70,17 +70,17 @@ namespace IceGrid
                 if (chown(path.c_str(), uid, gid) != 0)
                 {
                     throw runtime_error(
-                        "can't change permissions on `" + name + "':\n" + IceUtilInternal::lastErrorToString());
+                        "can't change permissions on `" + name + "':\n" + IceInternal::lastErrorToString());
                 }
             }
             else if (name != "..")
             {
                 name = path + "/" + name;
 
-                IceUtilInternal::structstat buf;
-                if (IceUtilInternal::stat(name, &buf) == -1)
+                IceInternal::structstat buf;
+                if (IceInternal::stat(name, &buf) == -1)
                 {
-                    throw runtime_error("cannot stat `" + name + "':\n" + IceUtilInternal::lastErrorToString());
+                    throw runtime_error("cannot stat `" + name + "':\n" + IceInternal::lastErrorToString());
                 }
 
                 if (S_ISDIR(buf.st_mode))
@@ -92,7 +92,7 @@ namespace IceGrid
                     if (chown(name.c_str(), uid, gid) != 0)
                     {
                         throw runtime_error(
-                            "can't change permissions on `" + name + "':\n" + IceUtilInternal::lastErrorToString());
+                            "can't change permissions on `" + name + "':\n" + IceInternal::lastErrorToString());
                     }
                 }
             }
@@ -167,7 +167,7 @@ namespace IceGrid
         return props;
     }
 
-    class CommandTimeoutTimerTask final : public IceUtil::TimerTask
+    class CommandTimeoutTimerTask final : public Ice::TimerTask
     {
     public:
         CommandTimeoutTimerTask(const shared_ptr<TimedServerCommand>& command) : _command(command) {}
@@ -178,7 +178,7 @@ namespace IceGrid
         const shared_ptr<TimedServerCommand> _command;
     };
 
-    class DelayedStart : public IceUtil::TimerTask
+    class DelayedStart : public Ice::TimerTask
     {
     public:
         DelayedStart(const shared_ptr<ServerI>& server, const shared_ptr<TraceLevels>& traceLevels)
@@ -381,7 +381,7 @@ ServerCommand::ServerCommand(const shared_ptr<ServerI>& server) : _server(server
 
 TimedServerCommand::TimedServerCommand(
     const shared_ptr<ServerI>& server,
-    const IceUtil::TimerPtr& timer,
+    const Ice::TimerPtr& timer,
     chrono::seconds timeout)
     : ServerCommand(server),
       _timer(timer),
@@ -634,7 +634,7 @@ StartCommand::finished()
 
 StopCommand::StopCommand(
     const shared_ptr<ServerI>& server,
-    const IceUtil::TimerPtr& timer,
+    const Ice::TimerPtr& timer,
     chrono::seconds timeout,
     bool deactivate)
     : TimedServerCommand(server, timer, timeout),
@@ -2065,7 +2065,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
     for (const auto& log : _desc->logs)
     {
         string path = simplify(log);
-        if (IceUtilInternal::isAbsolutePath(path))
+        if (IceInternal::isAbsolutePath(path))
         {
             _logs.push_back(path);
         }
@@ -2119,7 +2119,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
 
             const string configFilePath = _serverDir + "/config/" + prop.first;
             ofstream configfile(
-                IceUtilInternal::streamFilename(configFilePath).c_str()); // configFilePath is a UTF-8 string
+                IceInternal::streamFilename(configFilePath).c_str()); // configFilePath is a UTF-8 string
             if (!configfile.good())
             {
                 throw runtime_error("couldn't create configuration file: " + configFilePath);
@@ -2234,7 +2234,7 @@ ServerI::checkRevision(const string& replicaName, const string& uuid, int revisi
     else
     {
         string idFilePath = _serverDir + "/revision";
-        ifstream is(IceUtilInternal::streamFilename(idFilePath).c_str()); // idFilePath is a UTF-8 string
+        ifstream is(IceInternal::streamFilename(idFilePath).c_str()); // idFilePath is a UTF-8 string
         if (!is.good())
         {
             return;
@@ -2437,7 +2437,7 @@ ServerI::updateRevision(const string& uuid, int revision)
     }
 
     string idFilePath = _serverDir + "/revision";
-    ofstream os(IceUtilInternal::streamFilename(idFilePath).c_str()); // idFilePath is a UTF-8 string
+    ofstream os(IceInternal::streamFilename(idFilePath).c_str()); // idFilePath is a UTF-8 string
     if (os.good())
     {
         os << "#" << endl;
@@ -2695,7 +2695,7 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
             {
                 _node->getTimer()->schedule(_timerTask, chrono::milliseconds(500));
             }
-            catch (const IceUtil::Exception&)
+            catch (const Ice::Exception&)
             {
                 // Ignore, timer is destroyed because node is shutting down.
             }
@@ -2725,7 +2725,7 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
                     _node->getTimer()->schedule(_timerTask, chrono::milliseconds(500));
                 }
             }
-            catch (const IceUtil::Exception&)
+            catch (const Ice::Exception&)
             {
                 // Ignore, timer is destroyed because node is shutting down.
             }
@@ -2902,7 +2902,7 @@ ServerI::getFilePath(const string& filename) const
     else if (!filename.empty() && filename[0] == '#')
     {
         string path = simplify(filename.substr(1));
-        if (!IceUtilInternal::isAbsolutePath(path))
+        if (!IceInternal::isAbsolutePath(path))
         {
             path = _node->getPlatformInfo().getCwd() + "/" + path;
         }

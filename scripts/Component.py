@@ -152,18 +152,6 @@ class Ice(Util.Component):
                     and current.config.buildConfig.find("Debug") >= 0
                 ):
                     return False
-        elif isinstance(Util.platform, Util.AIX):
-            if current.config.buildPlatform == "ppc" and self.useBinDist(
-                mapping, current
-            ):
-                #
-                # Don't test Glacier2, IceBridge and IceGrid services on ppc with bindist. We only ship
-                # ppc64 binaries for these services
-                #
-                if parent in ["Glacier2", "IceBridge", "IceGrid"]:
-                    return False
-                if testId == "IceStorm/repgrid":
-                    return False
 
         return True
 
@@ -243,7 +231,7 @@ class Ice(Util.Component):
 
     def getSoVersion(self):
         with open(
-            os.path.join(Util.toplevel, "cpp", "include", "IceUtil", "Config.h"), "r"
+            os.path.join(Util.toplevel, "cpp", "include", "Ice", "Config.h"), "r"
         ) as config:
             intVersion = int(
                 re.search("ICE_INT_VERSION ([0-9]*)", config.read()).group(1)
@@ -290,13 +278,6 @@ for m in filter(
     elif m == "js" or re.match("js-.*", m):
         Util.Mapping.add(
             m, Util.JavaScriptMapping(), component, enable=Util.platform.hasNodeJS()
-        )
-        Util.Mapping.add(
-            "typescript",
-            Util.TypeScriptMapping(),
-            component,
-            "js",
-            enable=Util.platform.hasNodeJS(),
         )
     elif m == "swift" or re.match("swift-.*", m):
         # Swift mapping requires Swift 5.0 or greater

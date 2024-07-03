@@ -3,10 +3,10 @@
 //
 
 #include "Util.h"
+#include "../Ice/FileUtil.h"
 #include "Ice/Ice.h"
+#include "Ice/StringUtil.h"
 #include "IceGrid/Admin.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
 #include "Internal.h"
 
 #ifdef _WIN32
@@ -30,7 +30,7 @@ namespace
     {
         string path = simplify(pa);
 #ifdef _WIN32
-        return path == "/" || path.size() == 3 && IceUtilInternal::isAlpha(path[0]) && path[1] == ':' && path[2] == '/';
+        return path == "/" || path.size() == 3 && IceInternal::isAlpha(path[0]) && path[1] == ':' && path[2] == '/';
 #else
         return path == "/";
 #endif
@@ -241,7 +241,7 @@ IceGrid::toObjectInfo(
     {
         info.proxy = communicator->stringToProxy(proxyStr.str());
     }
-    catch (const Ice::ProxyParseException&)
+    catch (const Ice::ParseException&)
     {
         ostringstream fallbackProxyStr;
         fallbackProxyStr << "\"" << communicator->identityToString(obj.id) << "\""
@@ -371,11 +371,11 @@ IceGrid::createDirectory(const string& pa)
 {
     const string path = simplify(pa);
 
-    if (IceUtilInternal::mkdir(path, 0777) == -1)
+    if (IceInternal::mkdir(path, 0777) == -1)
     {
         if (errno != EEXIST)
         {
-            throw runtime_error("cannot create directory `" + path + "':\n" + IceUtilInternal::lastErrorToString());
+            throw runtime_error("cannot create directory `" + path + "':\n" + IceInternal::lastErrorToString());
         }
     }
 }
@@ -392,13 +392,13 @@ IceGrid::readDirectory(const string& pa)
     // any string converter in stringToWstring or wstringToString conversions.
     //
     StringSeq result;
-    const wstring fs = IceUtil::stringToWstring(simplify(path + "/*"));
+    const wstring fs = Ice::stringToWstring(simplify(path + "/*"));
 
     struct _wfinddata_t data;
     intptr_t h = _wfindfirst(fs.c_str(), &data);
     if (h == -1)
     {
-        throw runtime_error("cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString());
+        throw runtime_error("cannot read directory `" + path + "':\n" + IceInternal::lastErrorToString());
     }
 
     while (true)
@@ -417,7 +417,7 @@ IceGrid::readDirectory(const string& pa)
             {
                 break;
             }
-            string reason = "cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString();
+            string reason = "cannot read directory `" + path + "':\n" + IceInternal::lastErrorToString();
             _findclose(h);
             throw runtime_error(reason);
         }
@@ -435,7 +435,7 @@ IceGrid::readDirectory(const string& pa)
 
     if (n < 0)
     {
-        throw runtime_error("cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString());
+        throw runtime_error("cannot read directory `" + path + "':\n" + IceInternal::lastErrorToString());
     }
 
     StringSeq result;
@@ -466,28 +466,28 @@ IceGrid::remove(const string& pa)
 {
     const string path = simplify(pa);
 
-    IceUtilInternal::structstat buf;
-    if (IceUtilInternal::stat(path, &buf) == -1)
+    IceInternal::structstat buf;
+    if (IceInternal::stat(path, &buf) == -1)
     {
-        throw runtime_error("cannot stat `" + path + "':\n" + IceUtilInternal::lastErrorToString());
+        throw runtime_error("cannot stat `" + path + "':\n" + IceInternal::lastErrorToString());
     }
 
     if (S_ISDIR(buf.st_mode))
     {
-        if (IceUtilInternal::rmdir(path) == -1)
+        if (IceInternal::rmdir(path) == -1)
         {
             if (errno == EACCES)
             {
                 assert(false);
             }
-            throw runtime_error("cannot remove directory `" + path + "':\n" + IceUtilInternal::lastErrorToString());
+            throw runtime_error("cannot remove directory `" + path + "':\n" + IceInternal::lastErrorToString());
         }
     }
     else
     {
-        if (IceUtilInternal::remove(path) == -1)
+        if (IceInternal::remove(path) == -1)
         {
-            throw runtime_error("cannot remove file `" + path + "':\n" + IceUtilInternal::lastErrorToString());
+            throw runtime_error("cannot remove file `" + path + "':\n" + IceInternal::lastErrorToString());
         }
     }
 }
@@ -497,10 +497,10 @@ IceGrid::removeRecursive(const string& pa)
 {
     const string path = simplify(pa);
 
-    IceUtilInternal::structstat buf;
-    if (IceUtilInternal::stat(path, &buf) == -1)
+    IceInternal::structstat buf;
+    if (IceInternal::stat(path, &buf) == -1)
     {
-        throw runtime_error("cannot stat `" + path + "':\n" + IceUtilInternal::lastErrorToString());
+        throw runtime_error("cannot stat `" + path + "':\n" + IceInternal::lastErrorToString());
     }
 
     if (S_ISDIR(buf.st_mode))
@@ -513,17 +513,17 @@ IceGrid::removeRecursive(const string& pa)
 
         if (!isRoot(path))
         {
-            if (IceUtilInternal::rmdir(path) == -1)
+            if (IceInternal::rmdir(path) == -1)
             {
-                throw runtime_error("cannot remove directory `" + path + "':\n" + IceUtilInternal::lastErrorToString());
+                throw runtime_error("cannot remove directory `" + path + "':\n" + IceInternal::lastErrorToString());
             }
         }
     }
     else
     {
-        if (IceUtilInternal::remove(path) == -1)
+        if (IceInternal::remove(path) == -1)
         {
-            throw runtime_error("cannot remove file `" + path + "':\n" + IceUtilInternal::lastErrorToString());
+            throw runtime_error("cannot remove file `" + path + "':\n" + IceInternal::lastErrorToString());
         }
     }
 }
@@ -573,7 +573,7 @@ IceGrid::simplify(const string& path)
         result.erase(0, 2);
     }
 
-    if (result == "/." || (result.size() == 4 && IceUtilInternal::isAlpha(result[0]) && result[1] == ':' &&
+    if (result == "/." || (result.size() == 4 && IceInternal::isAlpha(result[0]) && result[1] == ':' &&
                            result[2] == '/' && result[3] == '.'))
     {
         return result.substr(0, result.size() - 1);
@@ -585,7 +585,7 @@ IceGrid::simplify(const string& path)
     }
 
     if (result == "/" ||
-        (result.size() == 3 && IceUtilInternal::isAlpha(result[0]) && result[1] == ':' && result[2] == '/'))
+        (result.size() == 3 && IceInternal::isAlpha(result[0]) && result[1] == ':' && result[2] == '/'))
     {
         return result;
     }

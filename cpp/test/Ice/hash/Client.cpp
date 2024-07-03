@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../../src/Ice/Random.h"
 #include "Ice/Ice.h"
-#include "IceUtil/Random.h"
 #include "TestHelper.h"
 
 #if defined(__GNUC__)
@@ -24,7 +24,6 @@ void
 Client::run(int argc, char** argv)
 {
     PropertiesPtr properties = createProperties(argc, argv);
-    properties->setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL");
     properties->setProperty("IceSSL.Keychain", "client.keychain");
     properties->setProperty("IceSSL.KeychainPassword", "password");
     CommunicatorHolder holder = initialize(argc, argv, properties);
@@ -39,8 +38,8 @@ Client::run(int argc, char** argv)
     for (i = 0; proxyCollisions < maxCollisions && i < maxIterations; ++i)
     {
         ostringstream os;
-        os << i << ":tcp -p " << IceUtilInternal::random(65536) << " -t 10" << IceUtilInternal::random(1000000)
-           << ":udp -p " << IceUtilInternal::random(65536) << " -h " << IceUtilInternal::random(100);
+        os << i << ":tcp -p " << IceInternal::random(65536) << " -t 10" << IceInternal::random(1000000) << ":udp -p "
+           << IceInternal::random(65536) << " -h " << IceInternal::random(100);
 
         ObjectPrx obj(communicator, os.str());
         EndpointSeq endpoints = obj->ice_getEndpoints();

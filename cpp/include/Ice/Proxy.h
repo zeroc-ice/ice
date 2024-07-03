@@ -11,7 +11,7 @@
 #include "EndpointF.h"
 #include "EndpointSelectionType.h"
 #include "Ice/BuiltinSequences.h"
-#include "LocalException.h"
+#include "LocalExceptions.h"
 #include "ReferenceF.h"
 #include "RequestHandlerF.h"
 
@@ -204,10 +204,7 @@ namespace Ice
          * @param router The router for the new proxy.
          * @return A proxy with the specified router.
          */
-        Prx ice_router(const std::optional<RouterPrx>& router) const
-        {
-            return fromReference(asPrx()._router(std::move(router)));
-        }
+        Prx ice_router(const std::optional<RouterPrx>& router) const { return fromReference(asPrx()._router(router)); }
 
         /**
          * Obtains a proxy that is identical to this proxy, except for how it selects endpoints.
@@ -216,14 +213,6 @@ namespace Ice
          * @return A proxy with the specified security policy.
          */
         Prx ice_secure(bool b) const { return fromReference(asPrx()._secure(b)); }
-
-        /**
-         * Obtains a proxy that is identical to this proxy, except for its connection timeout setting
-         * which overrides the timeout setting from the proxy endpoints.
-         * @param timeout The connection timeout override for the proxy (in milliseconds).
-         * @return A proxy with the specified timeout override.
-         */
-        Prx ice_timeout(int timeout) const { return fromReference(asPrx()._timeout(timeout)); }
 
         /**
          * Obtains a proxy that is identical to this proxy, but uses twoway invocations.
@@ -712,13 +701,6 @@ namespace Ice
          * if compression is enabled, false otherwise.
          */
         std::optional<bool> ice_getCompress() const;
-
-        /**
-         * Obtains the timeout override of this proxy.
-         * @return The timeout override. If nullopt is returned, no override is set. Otherwise, returns
-         * the timeout override value.
-         */
-        std::optional<int> ice_getTimeout() const;
 
         /**
          * Obtains the connection ID of this proxy.

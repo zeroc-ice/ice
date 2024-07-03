@@ -1,3 +1,4 @@
+dist
 lib
 node_modules
 npm-debug.log
@@ -6,22 +7,27 @@ server-languages.json
 ICE_LICENSE
 LICENSE
 
-src/index.d.ts
+# Test generated files
+test/**/Test.js
+test/**/Test.d.ts
 
-#
-# Babel generated files
-#
-src/es5/Glacier2
-src/es5/Ice
-src/es5/IceGrid
-src/es5/IceMX
-src/es5/IceSSL
-src/es5/IceStorm
-test/es5
+test/Common/Controller.js
+test/Glacier2/router/Callback.d.ts
+test/Glacier2/router/Callback.js
+test/Ice/objects/Forward.d.ts
+test/Ice/objects/Forward.js
+test/Ice/optional/ClientPrivate.d.ts
+test/Ice/optional/ClientPrivate.js
+test/Slice/escape/Clash.d.ts
+test/Slice/escape/Clash.js
+test/Slice/escape/Key.d.ts
+test/Slice/escape/Key.js
 
-#
-# Typescript test generated files
-#
-test/typescript/**/*.js
-test/typescript/**/*.d.ts
-test/typescript/**/*.js.map
+test/**/Client.js
+test/**/Server.js
+test/**/ServerAMD.js
+test/**/*I.js
+
+test/Ice/operations/BatchOneways.js
+test/Ice/operations/Oneways.js
+test/Ice/operations/Twoways.js

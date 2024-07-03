@@ -161,8 +161,7 @@ public class AllTests {
 
       try {
         router =
-            com.zeroc.Ice.RouterPrx.uncheckedCast(
-                communicator.stringToProxy("test:" + helper.getTestEndpoint(1)));
+            com.zeroc.Ice.RouterPrx.createProxy(communicator, "test:" + helper.getTestEndpoint(1));
         communicator.createObjectAdapterWithRouter("", router);
         test(false);
       } catch (com.zeroc.Ice.ConnectFailedException ex) {
@@ -193,7 +192,7 @@ public class AllTests {
     out.print("testing whether server is gone... ");
     out.flush();
     try {
-      obj.ice_timeout(100).ice_ping(); // Use timeout to speed up testing on Windows
+      obj.ice_invocationTimeout(100).ice_ping(); // Use timeout to speed up testing on Windows
       test(false);
     } catch (com.zeroc.Ice.LocalException ex) {
       out.println("ok");

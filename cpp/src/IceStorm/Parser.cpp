@@ -4,9 +4,9 @@
 
 #include "Parser.h"
 #include "../Ice/ConsoleUtil.h"
+#include "../Ice/DisableWarnings.h"
 #include "Ice/Ice.h"
 #include "IceStormInternal.h"
-#include "IceUtil/DisableWarnings.h"
 #include <algorithm>
 
 #if defined(__APPLE__) || defined(__linux__)
@@ -623,27 +623,27 @@ Parser::exception(exception_ptr pex, bool warn)
     }
     catch (const LinkExists& ex)
     {
-        os << "link `" << ex.name << "' already exists";
+        os << "link '" << ex.name << "' already exists";
     }
     catch (const NoSuchLink& ex)
     {
-        os << "couldn't find link `" << ex.name << "'";
+        os << "couldn't find link '" << ex.name << "'";
     }
     catch (const TopicExists& ex)
     {
-        os << "topic `" << ex.name << "' exists";
+        os << "topic '" << ex.name << "' exists";
     }
     catch (const NoSuchTopic& ex)
     {
-        os << "couldn't find topic `" << ex.name << "'";
+        os << "couldn't find topic '" << ex.name << "'";
     }
     catch (const UnknownManagerException& ex)
     {
-        os << "couldn't find IceStorm service `" << ex.what() << "'";
+        os << "couldn't find IceStorm service '" << ex.what() << "'";
     }
-    catch (const IdentityParseException& ex)
+    catch (const ParseException& ex)
     {
-        os << "invalid identity `" << ex.str << "'";
+        os << "parse exception:\n" << ex;
     }
     catch (const Ice::LocalException& ex)
     {

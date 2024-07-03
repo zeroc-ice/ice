@@ -5,13 +5,13 @@
 #include "Glacier2/PermissionsVerifier.h"
 #include "Ice/Ice.h"
 
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "../Ice/FileUtil.h"
+#include "Ice/StringUtil.h"
 
 #include <fstream>
 #include <mutex>
 
-#if defined(__GLIBC__) || defined(_AIX)
+#if defined(__GLIBC__)
 #    include <crypt.h>
 #elif defined(__FreeBSD__)
 #    include <unistd.h>
@@ -25,7 +25,7 @@
 #endif
 
 // Disable deprecation warnings from CommonCrypto APIs
-#include "IceUtil/DisableWarnings.h"
+#include "../Ice/DisableWarnings.h"
 
 using namespace std;
 using namespace Ice;
@@ -68,10 +68,10 @@ namespace
 
     map<string, string> retrievePasswordMap(const string& file)
     {
-        ifstream passwordFile(IceUtilInternal::streamFilename(file).c_str());
+        ifstream passwordFile(IceInternal::streamFilename(file).c_str());
         if (!passwordFile)
         {
-            string err = IceUtilInternal::lastErrorToString();
+            string err = IceInternal::lastErrorToString();
             throw Ice::InitializationException(__FILE__, __LINE__, "cannot open `" + file + "' for reading: " + err);
         }
         map<string, string> passwords;

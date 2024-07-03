@@ -10,9 +10,9 @@
 //
 #ifndef _WIN32
 #    include "Config.h"
-#    include "Exception.h"
-#    include "IceUtil/StringUtil.h"
+#    include "LocalException.h"
 #    include "StringConverter.h"
+#    include "StringUtil.h"
 
 #    include <algorithm>
 #    include <cassert>
@@ -34,13 +34,13 @@ namespace Ice
      * Indicates that Iconv does not support the code.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API IconvInitializationException final : public Exception
+    class ICE_API IconvInitializationException final : public LocalException
     {
     public:
         /**
          * Constructs the exception with a reason. The file and line number are required.
-         * @param file The file name in which the exception was raised, typically __FILE__.
-         * @param line The line number at which the exception was raised, typically __LINE__.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
          * @param reason More detail about the failure.
          */
         IconvInitializationException(const char* file, int line, std::string reason) noexcept;
@@ -49,7 +49,7 @@ namespace Ice
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
-        std::string ice_id() const final;
+        const char* ice_id() const noexcept final;
 
         /**
          * Prints a description of this exception to the given stream.
@@ -71,7 +71,7 @@ namespace IceInternal
     // opening / closing iconv_t objects all the time.
     //
     //
-    template<typename charT> class IconvStringConverter final : public IceUtil::BasicStringConverter<charT>
+    template<typename charT> class IconvStringConverter final : public Ice::BasicStringConverter<charT>
     {
     public:
         IconvStringConverter(const std::string&);
@@ -146,7 +146,7 @@ namespace IceInternal
         }
         catch (const Ice::IllegalConversionException& sce)
         {
-            throw Ice::IconvInitializationException(__FILE__, __LINE__, sce.reason());
+            throw Ice::IconvInitializationException(__FILE__, __LINE__, sce.what());
         }
     }
 
@@ -193,10 +193,10 @@ namespace IceInternal
 
         if (count == size_t(-1))
         {
-            throw Ice::IllegalConversionException(
-                __FILE__,
-                __LINE__,
-                errno == 0 ? "Unknown error" : IceUtilInternal::errorToString(errno));
+            int errorCode = errno;
+            std::ostringstream os;
+            os << "iconv failed with: " << (errorCode == 0 ? "unknown error" : IceInternal::errorToString(errorCode));
+            throw Ice::IllegalConversionException(__FILE__, __LINE__, os.str());
         }
         return outbuf;
     }
@@ -253,10 +253,10 @@ namespace IceInternal
 
         if (count == size_t(-1))
         {
-            throw Ice::IllegalConversionException(
-                __FILE__,
-                __LINE__,
-                errno == 0 ? "Unknown error" : IceUtilInternal::errorToString(errno));
+            int errorCode = errno;
+            std::ostringstream os;
+            os << "iconv failed with: " << (errorCode == 0 ? "unknown error" : IceInternal::errorToString(errorCode));
+            throw Ice::IllegalConversionException(__FILE__, __LINE__, os.str());
         }
 
         target.resize(target.size() - (outbytesleft / sizeof(charT)));
@@ -272,7 +272,7 @@ namespace Ice
      * @throws IconvInitializationException If the code is not supported.
      */
     template<typename charT>
-    std::shared_ptr<IceUtil::BasicStringConverter<charT>>
+    std::shared_ptr<Ice::BasicStringConverter<charT>>
     createIconvStringConverter(const std::string& internalCodeWithDefault = "")
     {
         std::string internalCode = internalCodeWithDefault;

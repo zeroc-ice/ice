@@ -41,31 +41,27 @@ public sealed class DefaultsAndOverrides
         val = properties.getIceProperty("Ice.Override.Compress");
         if (val.Length > 0)
         {
-            overrideCompress = true;
-            overrideCompressValue = properties.getIcePropertyAsInt("Ice.Override.Compress") > 0;
-            if (!BZip2.supported() && overrideCompressValue)
+            overrideCompress = properties.getIcePropertyAsInt("Ice.Override.Compress") > 0;
+            if (!BZip2.supported() && overrideCompress.Value)
             {
                 string lib = AssemblyUtil.isWindows ? "bzip2.dll" : "libbz2.so.1";
                 Console.Error.WriteLine("warning: " + lib + " not found, Ice.Override.Compress ignored.");
-                overrideCompressValue = false;
+                overrideCompress = null;
             }
         }
         else
         {
-            overrideCompress = !BZip2.supported();
-            overrideCompressValue = false;
+            overrideCompress = BZip2.supported() ? null : false;
         }
 
         val = properties.getIceProperty("Ice.Override.Secure");
         if (val.Length > 0)
         {
-            overrideSecure = true;
-            overrideSecureValue = properties.getIcePropertyAsInt("Ice.Override.Secure") > 0;
+            overrideSecure = properties.getIcePropertyAsInt("Ice.Override.Secure") > 0;
         }
         else
         {
-            overrideSecure = false;
-            overrideSecureValue = false;
+            overrideSecure = null;
         }
 
         defaultCollocationOptimization =
@@ -82,19 +78,7 @@ public sealed class DefaultsAndOverrides
         }
         else
         {
-            Ice.EndpointSelectionTypeParseException ex = new Ice.EndpointSelectionTypeParseException();
-            ex.str = "illegal value `" + val + "'; expected `Random' or `Ordered'";
-            throw ex;
-        }
-
-        defaultTimeout = properties.getIcePropertyAsInt("Ice.Default.Timeout");
-        if (defaultTimeout < 1 && defaultTimeout != -1)
-        {
-            defaultTimeout = 60000;
-            StringBuilder msg = new StringBuilder("invalid value for Ice.Default.Timeout `");
-            msg.Append(properties.getIceProperty("Ice.Default.Timeout"));
-            msg.Append("': defaulting to 60000");
-            logger.warning(msg.ToString());
+            throw new ParseException($"illegal value '{val}' in property Ice.Default.EndpointSelection; expected 'Random' or 'Ordered'");
         }
 
         defaultLocatorCacheTimeout = properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout");
@@ -133,15 +117,12 @@ public sealed class DefaultsAndOverrides
     public string defaultProtocol;
     public bool defaultCollocationOptimization;
     public Ice.EndpointSelectionType defaultEndpointSelection;
-    public int defaultTimeout;
     public int defaultLocatorCacheTimeout;
     public int defaultInvocationTimeout;
     public bool defaultPreferSecure;
     public Ice.EncodingVersion defaultEncoding;
     public Ice.FormatType defaultFormat;
 
-    public bool overrideCompress;
-    public bool overrideCompressValue;
-    public bool overrideSecure;
-    public bool overrideSecureValue;
+    public bool? overrideCompress;
+    public bool? overrideSecure;
 }

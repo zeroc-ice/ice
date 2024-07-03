@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import Foundation
 import IceImpl
@@ -506,19 +504,6 @@ extension OutputStream {
     public func write(_ v: Value?) {
         initEncaps()
         encaps.encoder.writeValue(v: v)
-    }
-
-    /// Writes an optional value to the stream.
-    ///
-    /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
-    ///
-    /// - parameter value: `Value?` - The value to write.
-    public func write(tag: Int32, value v: Value?) {
-        if let val = v {
-            if writeOptional(tag: tag, format: .Class) {
-                write(val)
-            }
-        }
     }
 
     /// Writes a user exception to the stream.

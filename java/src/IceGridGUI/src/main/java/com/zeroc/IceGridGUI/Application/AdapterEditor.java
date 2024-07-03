@@ -529,8 +529,6 @@ class AdapterEditor extends CommunicatorChildEditor {
       java.util.Map<String, String[]> map) {
     String badIdentities = "";
     java.util.LinkedList<ObjectDescriptor> result = new java.util.LinkedList<>();
-    com.zeroc.Ice.Communicator communicator =
-        getAdapter().getRoot().getCoordinator().getCommunicator();
     for (java.util.Map.Entry<String, String[]> p : map.entrySet()) {
       try {
         com.zeroc.Ice.Identity id = com.zeroc.Ice.Util.stringToIdentity(p.getKey());

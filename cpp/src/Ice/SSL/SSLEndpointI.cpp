@@ -8,7 +8,7 @@
 #include "../HashUtil.h"
 #include "Ice/Comparable.h"
 #include "Ice/InputStream.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Object.h"
 #include "Ice/OutputStream.h"
 #include "SSLAcceptorI.h"

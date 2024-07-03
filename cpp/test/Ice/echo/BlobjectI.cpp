@@ -104,8 +104,7 @@ BlobjectI::getConnection(const Ice::Current& current)
     catch (const Ice::ConnectionLostException&)
     {
         // If we lost the connection, wait 5 seconds for the server to re-establish it. Some tests,
-        // involve connection closure (e.g.: exceptions MemoryLimitException test) and the server
-        // automatically re-establishes the connection with the echo server.
+        // involve connection closure and the server automatically re-establishes the connection with the echo server.
         _condition.wait_for(lock, chrono::seconds(5));
         if (!_connection)
         {

@@ -165,8 +165,6 @@ class ServerTemplates extends Templates {
     // Note: _descriptors is updated by Root
     //
 
-    Root root = getRoot();
-
     //
     // One big set of removes
     //

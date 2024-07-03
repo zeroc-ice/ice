@@ -6,13 +6,13 @@
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/DynamicLibrary.h"
 #include "../Ice/Instance.h"
+#include "../Ice/Options.h"
 #include "Ice/Ice.h"
 #include "Ice/Initialize.h"
-#include "IceUtil/Options.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 
 using namespace Ice;
-using namespace IceUtilInternal;
+using namespace IceInternal;
 using namespace IceBox;
 using namespace std;
 
@@ -32,9 +32,9 @@ namespace
             //
             try
             {
-                args = IceUtilInternal::Options::split(value);
+                args = IceInternal::Options::split(value);
             }
-            catch (const IceUtilInternal::BadOptException& ex)
+            catch (const IceInternal::BadOptException& ex)
             {
                 throw FailureException(
                     __FILE__,
@@ -969,7 +969,7 @@ IceBox::ServiceManagerI::configureAdmin(const PropertiesPtr& properties, const s
             if (!facetNames.empty())
             {
                 // TODO: need joinString with escape!
-                properties->setProperty("Ice.Admin.Facets", IceUtilInternal::joinString(facetNames, " "));
+                properties->setProperty("Ice.Admin.Facets", IceInternal::joinString(facetNames, " "));
             }
             return true;
         }

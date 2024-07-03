@@ -3,8 +3,9 @@
 //
 
 #include "RFC2253.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/SSL/SSLException.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 
 #include <cassert>
 #include <string>
@@ -66,7 +67,7 @@ RFC2253::parse(const string& data)
         }
         else if (pos < data.size())
         {
-            throw ParseException(__FILE__, __LINE__, "expected ',' or ';' at `" + data.substr(pos) + "'");
+            throw ParseException(__FILE__, __LINE__, "expected ',' or ';' at '" + data.substr(pos) + "'");
         }
     }
     if (!current.rdn.empty())
@@ -92,7 +93,7 @@ RFC2253::parseStrict(const string& data)
         }
         else if (pos < data.size())
         {
-            throw ParseException(__FILE__, __LINE__, "expected ',' or ';' at `" + data.substr(pos) + "'");
+            throw ParseException(__FILE__, __LINE__, "expected ',' or ';' at '" + data.substr(pos) + "'");
         }
     }
     return results;
@@ -181,7 +182,7 @@ hexToInt(char v)
     {
         return 10 + (v - 'A');
     }
-    throw ParseException(__FILE__, __LINE__, "unescape: invalid hex pair");
+    throw Ice::ParseException(__FILE__, __LINE__, "unescape: invalid hex pair");
 }
 
 static char
@@ -190,7 +191,7 @@ unescapeHex(const string& data, size_t pos)
     assert(pos < data.size());
     if (pos + 2 >= data.size())
     {
-        throw ParseException(__FILE__, __LINE__, "unescape: invalid hex pair");
+        throw Ice::ParseException(__FILE__, __LINE__, "unescape: invalid hex pair");
     }
     return static_cast<char>(hexToInt(data[pos]) * 16 + hexToInt(data[pos + 1]));
 }
@@ -228,11 +229,11 @@ parseAttributeTypeAndValue(const string& data, size_t& pos)
 
     if (pos >= data.size())
     {
-        throw ParseException(__FILE__, __LINE__, "invalid attribute type/value pair (unexpected end of data)");
+        throw Ice::ParseException(__FILE__, __LINE__, "invalid attribute type/value pair (unexpected end of data)");
     }
     if (data[pos] != '=')
     {
-        throw ParseException(__FILE__, __LINE__, "invalid attribute type/value pair (missing =)");
+        throw Ice::ParseException(__FILE__, __LINE__, "invalid attribute type/value pair (missing =)");
     }
     ++pos;
     p.second = parseAttributeValue(data, pos);
@@ -245,7 +246,7 @@ parseAttributeType(const string& data, size_t& pos)
     eatWhite(data, pos);
     if (pos >= data.size())
     {
-        throw ParseException(__FILE__, __LINE__, "invalid attribute type (expected end of data)");
+        throw Ice::ParseException(__FILE__, __LINE__, "invalid attribute type (expected end of data)");
     }
 
     string result;
@@ -268,10 +269,10 @@ parseAttributeType(const string& data, size_t& pos)
     //
     // First the OID case.
     //
-    if (IceUtilInternal::isDigit(data[pos]) ||
+    if (IceInternal::isDigit(data[pos]) ||
         (data.size() - pos >= 4 && (data.substr(pos, 4) == "oid." || data.substr(pos, 4) == "OID.")))
     {
-        if (!IceUtilInternal::isDigit(data[pos]))
+        if (!IceInternal::isDigit(data[pos]))
         {
             result += data.substr(pos, 4);
             pos += 4;
@@ -280,7 +281,7 @@ parseAttributeType(const string& data, size_t& pos)
         while (true)
         {
             // 1*DIGIT
-            while (pos < data.size() && IceUtilInternal::isDigit(data[pos]))
+            while (pos < data.size() && IceInternal::isDigit(data[pos]))
             {
                 result += data[pos];
                 ++pos;
@@ -291,9 +292,9 @@ parseAttributeType(const string& data, size_t& pos)
                 result += data[pos];
                 ++pos;
                 // 1*DIGIT must follow "."
-                if (pos < data.size() && !IceUtilInternal::isDigit(data[pos]))
+                if (pos < data.size() && !IceInternal::isDigit(data[pos]))
                 {
-                    throw ParseException(__FILE__, __LINE__, "invalid attribute type (expected end of data)");
+                    throw Ice::ParseException(__FILE__, __LINE__, "invalid attribute type (expected end of data)");
                 }
             }
             else
@@ -302,7 +303,7 @@ parseAttributeType(const string& data, size_t& pos)
             }
         }
     }
-    else if (IceUtilInternal::isAlpha(data[pos]))
+    else if (IceInternal::isAlpha(data[pos]))
     {
         //
         // The grammar is wrong in this case. It should be ALPHA
@@ -313,7 +314,7 @@ parseAttributeType(const string& data, size_t& pos)
         ++pos;
         // 1* KEYCHAR
         while (pos < data.size() &&
-               (IceUtilInternal::isAlpha(data[pos]) || IceUtilInternal::isDigit(data[pos]) || data[pos] == '-'))
+               (IceInternal::isAlpha(data[pos]) || IceInternal::isDigit(data[pos]) || data[pos] == '-'))
         {
             result += data[pos];
             ++pos;
@@ -321,7 +322,7 @@ parseAttributeType(const string& data, size_t& pos)
     }
     else
     {
-        throw ParseException(__FILE__, __LINE__, "invalid attribute type");
+        throw Ice::ParseException(__FILE__, __LINE__, "invalid attribute type");
     }
     return result;
 }
@@ -367,7 +368,7 @@ parseAttributeValue(const string& data, size_t& pos)
         {
             if (pos >= data.size())
             {
-                throw ParseException(__FILE__, __LINE__, "invalid attribute value (unexpected end of data)");
+                throw Ice::ParseException(__FILE__, __LINE__, "invalid attribute value (unexpected end of data)");
             }
             // final terminating "
             if (data[pos] == '"')
@@ -431,7 +432,7 @@ parsePair(const string& data, size_t& pos)
 
     if (pos >= data.size())
     {
-        throw ParseException(__FILE__, __LINE__, "invalid escape format (unexpected end of data)");
+        throw Ice::ParseException(__FILE__, __LINE__, "invalid escape format (unexpected end of data)");
     }
 
     if (special.find(data[pos]) != string::npos || data[pos] != '\\' || data[pos] != '"')
@@ -467,7 +468,7 @@ parseHexPair(const string& data, size_t& pos, bool allowEmpty)
         {
             return result;
         }
-        throw ParseException(__FILE__, __LINE__, "invalid hex format");
+        throw Ice::ParseException(__FILE__, __LINE__, "invalid hex format");
     }
     return result;
 }

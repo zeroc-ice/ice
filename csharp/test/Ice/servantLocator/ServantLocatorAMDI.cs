@@ -116,21 +116,15 @@ namespace Ice
                     }
                     else if (current.operation == "unknownUserException")
                     {
-                        var ex = new Ice.UnknownUserException();
-                        ex.unknown = "reason";
-                        throw ex;
+                        throw new Ice.UnknownUserException("reason");
                     }
                     else if (current.operation == "unknownLocalException")
                     {
-                        var ex = new Ice.UnknownLocalException();
-                        ex.unknown = "reason";
-                        throw ex;
+                        throw new Ice.UnknownLocalException("reason");
                     }
                     else if (current.operation == "unknownException")
                     {
-                        var ex = new Ice.UnknownException();
-                        ex.unknown = "reason";
-                        throw ex;
+                        throw new Ice.UnknownException("reason");
                     }
                     else if (current.operation == "userException")
                     {
@@ -138,9 +132,7 @@ namespace Ice
                     }
                     else if (current.operation == "localException")
                     {
-                        var ex = new Ice.SocketException();
-                        ex.error = 0;
-                        throw ex;
+                        throw new Ice.SocketException();
                     }
                     else if (current.operation == "csException")
                     {

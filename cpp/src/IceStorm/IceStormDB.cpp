@@ -3,12 +3,12 @@
 //
 
 #include "../Ice/ConsoleUtil.h"
+#include "../Ice/FileUtil.h"
+#include "../Ice/Options.h"
 #include "../IceDB/IceDB.h"
 #include "DBTypes.h"
 #include "Ice/Ice.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/Options.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 
 #include <fstream>
 #include <iterator>
@@ -61,15 +61,15 @@ usage(const string& name)
 int
 run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& args)
 {
-    IceUtilInternal::Options opts;
+    IceInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
     opts.addOpt("d", "debug");
-    opts.addOpt("", "import", IceUtilInternal::Options::NeedArg);
-    opts.addOpt("", "export", IceUtilInternal::Options::NeedArg);
-    opts.addOpt("", "dbhome", IceUtilInternal::Options::NeedArg);
-    opts.addOpt("", "dbpath", IceUtilInternal::Options::NeedArg);
-    opts.addOpt("", "mapsize", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "import", IceInternal::Options::NeedArg);
+    opts.addOpt("", "export", IceInternal::Options::NeedArg);
+    opts.addOpt("", "dbhome", IceInternal::Options::NeedArg);
+    opts.addOpt("", "dbpath", IceInternal::Options::NeedArg);
+    opts.addOpt("", "mapsize", IceInternal::Options::NeedArg);
 
     try
     {
@@ -80,7 +80,7 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
             return 1;
         }
     }
-    catch (const IceUtilInternal::BadOptException& e)
+    catch (const IceInternal::BadOptException& e)
     {
         consoleErr << args[0] << ": " << e.reason << endl;
         usage(args[0]);
@@ -139,23 +139,22 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
         {
             consoleOut << "Importing database to directory " << dbPath << " from file " << dbFile << endl;
 
-            if (!IceUtilInternal::directoryExists(dbPath))
+            if (!IceInternal::directoryExists(dbPath))
             {
                 consoleErr << args[0] << ": output directory does not exist: " << dbPath << endl;
                 return 1;
             }
 
-            if (!IceUtilInternal::isEmptyDirectory(dbPath))
+            if (!IceInternal::isEmptyDirectory(dbPath))
             {
                 consoleErr << args[0] << ": output directory is not empty: " << dbPath << endl;
                 return 1;
             }
 
-            ifstream fs(IceUtilInternal::streamFilename(dbFile).c_str(), ios::binary);
+            ifstream fs(IceInternal::streamFilename(dbFile).c_str(), ios::binary);
             if (fs.fail())
             {
-                consoleErr << args[0] << ": could not open input file: " << IceUtilInternal::errorToString(errno)
-                           << endl;
+                consoleErr << args[0] << ": could not open input file: " << IceInternal::errorToString(errno) << endl;
                 return 1;
             }
             fs.unsetf(ios::skipws);
@@ -308,18 +307,17 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
             stream.write(ICE_INT_VERSION);
             stream.write(data);
 
-            ofstream fs(IceUtilInternal::streamFilename(dbFile).c_str(), ios::binary);
+            ofstream fs(IceInternal::streamFilename(dbFile).c_str(), ios::binary);
             if (fs.fail())
             {
-                consoleErr << args[0] << ": could not open output file: " << IceUtilInternal::errorToString(errno)
-                           << endl;
+                consoleErr << args[0] << ": could not open output file: " << IceInternal::errorToString(errno) << endl;
                 return 1;
             }
             fs.write(reinterpret_cast<const char*>(stream.b.begin()), static_cast<streamsize>(stream.b.size()));
             fs.close();
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         consoleErr << args[0] << ": " << (import ? "import" : "export") << " failed:\n" << ex << endl;
         return 1;

@@ -42,8 +42,5 @@ public class ProtocolException extends LocalException {
   /** The reason for the failure. */
   public String reason;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 6046324714700663302L;
+  private static final long serialVersionUID = 6046324714700663302L;
 }

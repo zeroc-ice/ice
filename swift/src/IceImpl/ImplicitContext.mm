@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 #import "include/ImplicitContext.h"
 #import "Convert.h"

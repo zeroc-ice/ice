@@ -60,8 +60,5 @@ public class RequestFailedException extends LocalException {
   /** The operation name of the request. */
   public String operation;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 4181164754424262091L;
+  private static final long serialVersionUID = 4181164754424262091L;
 }

@@ -4,9 +4,9 @@
 
 #include "Activator.h"
 #include "../Ice/ArgVector.h"
+#include "../Ice/FileUtil.h"
 #include "Ice/Ice.h"
 #include "IceGrid/Admin.h"
-#include "IceUtil/FileUtil.h"
 #include "Internal.h"
 #include "ServerI.h"
 #include "TraceLevels.h"
@@ -35,13 +35,12 @@
 #    endif
 #endif
 
-#if defined(__linux__) || defined(__sun) || defined(_AIX) || defined(__GLIBC__)
+#if defined(__linux__) || defined(__GLIBC__)
 #    include <grp.h> // for setgroups
 #endif
 
 using namespace std;
 using namespace Ice;
-using namespace IceInternal;
 using namespace IceGrid;
 
 #define ICE_STRING(X) #X
@@ -72,7 +71,7 @@ namespace IceGrid
         os << cannot << " `" << name << "'";
         if (err)
         {
-            os << ": " << IceUtilInternal::errorToString(err);
+            os << ": " << IceInternal::errorToString(err);
         }
         const string msg = os.str();
         ssize_t sz = write(fd, msg.c_str(), msg.size());
@@ -357,7 +356,7 @@ Activator::activate(
 
     string pwd = simplify(pwdPath);
 #ifdef _WIN32
-    if (!IceUtilInternal::isAbsolutePath(path))
+    if (!IceInternal::isAbsolutePath(path))
     {
         if (path.find('/') == string::npos)
         {
@@ -431,7 +430,7 @@ Activator::activate(
             if (pwd.empty())
             {
                 string cwd;
-                if (IceUtilInternal::getcwd(cwd) == 0)
+                if (IceInternal::getcwd(cwd) == 0)
                 {
                     out << "pwd = " << cwd << "\n";
                 }
@@ -582,7 +581,7 @@ Activator::activate(
 
     if (!b)
     {
-        string message = IceUtilInternal::lastErrorToString();
+        string message = IceInternal::lastErrorToString();
 
         Ice::Warning out(_traceLevels->logger);
         out << "server activation failed for `" << name << "':\n" << message;
@@ -612,7 +611,7 @@ Activator::activate(
     {
         TerminateProcess(pp->hnd, 0);
 
-        string message = IceUtilInternal::lastErrorToString();
+        string message = IceInternal::lastErrorToString();
 
         Ice::Warning out(_traceLevels->logger);
         out << "server activation failed for `" << name << "':\ncouldn't register wait callback\n" << message;
@@ -655,47 +654,25 @@ Activator::activate(
     }
 
     vector<gid_t> groups;
-#    ifdef _AIX
-    char* grouplist = getgrset(pw->pw_name);
-    if (grouplist == 0)
-    {
-        throw SyscallException(__FILE__, __LINE__);
-    }
-    vector<string> grps;
-    if (IceUtilInternal::splitString(grouplist, ",", grps))
-    {
-        for (vector<string>::const_iterator p = grps.begin(); p != grps.end(); ++p)
-        {
-            gid_t group;
-            istringstream is(*p);
-            if (is >> group)
-            {
-                groups.push_back(group);
-            }
-        }
-    }
-    free(grouplist);
-#    else
     groups.resize(20);
     int ngroups = static_cast<int>(groups.size());
-#        if defined(__APPLE__)
+#    if defined(__APPLE__)
     if (getgrouplist(pw->pw_name, static_cast<int>(gid), reinterpret_cast<int*>(&groups[0]), &ngroups) < 0)
-#        else
+#    else
     if (getgrouplist(pw->pw_name, gid, &groups[0], &ngroups) < 0)
-#        endif
+#    endif
     {
         groups.resize(static_cast<size_t>(ngroups));
-#        if defined(__APPLE__)
+#    if defined(__APPLE__)
         getgrouplist(pw->pw_name, static_cast<int>(gid), reinterpret_cast<int*>(&groups[0]), &ngroups);
-#        else
+#    else
         getgrouplist(pw->pw_name, gid, &groups[0], &ngroups);
-#        endif
+#    endif
     }
     else
     {
         groups.resize(static_cast<size_t>(ngroups));
     }
-#    endif
 
     if (groups.size() > NGROUPS_MAX)
     {
@@ -738,7 +715,7 @@ Activator::activate(
         //
 
         //
-        // Unblock signals blocked by IceUtil::CtrlCHandler.
+        // Unblock signals blocked by Ice::CtrlCHandler.
         //
         sigset_t sigs;
         sigemptyset(&sigs);

@@ -3,16 +3,19 @@
 //
 
 #include "Ice/OutgoingResponse.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/ObjectAdapter.h"
 #include "Ice/UserException.h"
 #include "Protocol.h"
+#include "RequestFailedMessage.h"
+
+#include <typeinfo>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-namespace IceUtilInternal
+namespace IceInternal
 {
     extern bool printStackTraces;
 }
@@ -41,7 +44,6 @@ namespace
         catch (RequestFailedException& rfe)
         {
             exceptionId = rfe.ice_id();
-            exceptionMessage = rfe.what();
 
             if (dynamic_cast<ObjectNotExistException*>(&rfe))
             {
@@ -62,36 +64,37 @@ namespace
                 replyStatus = ReplyStatus::ObjectNotExist;
             }
 
-            if (rfe.id.name.empty())
+            Identity id = rfe.id();
+            string facet = rfe.facet();
+            string operation = rfe.operation();
+            if (id.name.empty())
             {
-                rfe.id = current.id;
+                id = current.id;
+                facet = current.facet;
+            }
+            if (operation.empty())
+            {
+                operation = current.operation;
             }
 
-            if (rfe.facet.empty() && !current.facet.empty())
-            {
-                rfe.facet = current.facet;
-            }
-
-            if (rfe.operation.empty() && !current.operation.empty())
-            {
-                rfe.operation = current.operation;
-            }
+            // +7 to slice-off "::Ice::".
+            exceptionMessage = createRequestFailedMessage(rfe.ice_id() + 7, id, facet, operation);
 
             if (current.requestId != 0)
             {
                 ostr.write(static_cast<uint8_t>(replyStatus));
-                ostr.write(rfe.id);
+                ostr.write(id);
 
-                if (rfe.facet.empty())
+                if (facet.empty())
                 {
                     ostr.write(static_cast<string*>(nullptr), static_cast<string*>(nullptr));
                 }
                 else
                 {
-                    ostr.write(&rfe.facet, &rfe.facet + 1);
+                    ostr.write(&facet, &facet + 1);
                 }
 
-                ostr.write(rfe.operation, false);
+                ostr.write(operation, false);
             }
         }
         catch (const UserException& ex)
@@ -113,27 +116,27 @@ namespace
         {
             exceptionId = ex.ice_id();
             replyStatus = ReplyStatus::UnknownLocalException;
-            exceptionMessage = ex.unknown;
+            exceptionMessage = ex.what();
         }
         catch (const UnknownUserException& ex)
         {
             exceptionId = ex.ice_id();
             replyStatus = ReplyStatus::UnknownUserException;
-            exceptionMessage = ex.unknown;
+            exceptionMessage = ex.what();
         }
         catch (const UnknownException& ex)
         {
             exceptionId = ex.ice_id();
             replyStatus = ReplyStatus::UnknownException;
-            exceptionMessage = ex.unknown;
+            exceptionMessage = ex.what();
         }
         catch (const LocalException& ex)
         {
             exceptionId = ex.ice_id();
             replyStatus = ReplyStatus::UnknownLocalException;
             ostringstream str;
-            str << ex;
-            if (IceUtilInternal::printStackTraces)
+            str << ex; // this includes more details than ex.what()
+            if (IceInternal::printStackTraces)
             {
                 str << '\n' << ex.ice_stackTrace();
             }
@@ -144,8 +147,8 @@ namespace
             exceptionId = ex.ice_id();
             replyStatus = ReplyStatus::UnknownException;
             ostringstream str;
-            str << ex;
-            if (IceUtilInternal::printStackTraces)
+            str << ex; // this includes more details than ex.what()
+            if (IceInternal::printStackTraces)
             {
                 str << '\n' << ex.ice_stackTrace();
             }
@@ -154,9 +157,9 @@ namespace
         catch (const std::exception& ex)
         {
             replyStatus = ReplyStatus::UnknownException;
-            exceptionId = ex.what();
+            exceptionId = typeid(ex).name(); // can be a mangled name with some compilers
             ostringstream str;
-            str << "c++ exception: " << exceptionId;
+            str << "c++ exception: " << ex.what();
             exceptionMessage = str.str();
         }
         catch (...)

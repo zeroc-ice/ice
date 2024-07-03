@@ -30,8 +30,5 @@ public class InvocationCanceledException extends LocalException {
     return "::Ice::InvocationCanceledException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -6429704142271073768L;
+  private static final long serialVersionUID = -6429704142271073768L;
 }

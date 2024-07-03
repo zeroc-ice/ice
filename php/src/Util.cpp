@@ -429,7 +429,7 @@ convertLocalException(std::exception_ptr ex, zval* zex)
     }
     catch (const Ice::UnknownException& e)
     {
-        setStringMember(zex, "unknown", e.unknown);
+        setStringMember(zex, "unknown", e.what());
     }
     catch (const Ice::ObjectAdapterDeactivatedException& e)
     {
@@ -443,30 +443,22 @@ convertLocalException(std::exception_ptr ex, zval* zex)
     {
         setStringMember(zex, "proxy", e.proxy);
     }
-    catch (const Ice::EndpointParseException& e)
+    catch (const Ice::ParseException& e)
     {
-        setStringMember(zex, "str", e.str);
-    }
-    catch (const Ice::IdentityParseException& e)
-    {
-        setStringMember(zex, "str", e.str);
-    }
-    catch (const Ice::ProxyParseException& e)
-    {
-        setStringMember(zex, "str", e.str);
+        setStringMember(zex, "str", e.what());
     }
     catch (const Ice::RequestFailedException& e)
     {
         zval id;
-        if (!createIdentity(&id, e.id))
+        if (!createIdentity(&id, e.id()))
         {
             zval_ptr_dtor(&id);
             return false;
         }
         zendUpdateProperty(cls, zex, const_cast<char*>("id"), sizeof("id") - 1, &id);
         zval_ptr_dtor(&id);
-        setStringMember(zex, "facet", e.facet);
-        setStringMember(zex, "operation", e.operation);
+        setStringMember(zex, "facet", e.facet());
+        setStringMember(zex, "operation", e.operation());
     }
     catch (const Ice::FileException& e)
     {
@@ -482,62 +474,13 @@ convertLocalException(std::exception_ptr ex, zval* zex)
         zendUpdatePropertyLong(cls, zex, const_cast<char*>("error"), sizeof("error") - 1, e.error);
         setStringMember(zex, "host", e.host);
     }
-    catch (const Ice::UnsupportedProtocolException& e)
-    {
-        zval v;
-        if (!createProtocolVersion(&v, e.bad))
-        {
-            zval_ptr_dtor(&v);
-            return false;
-        }
-        zendUpdateProperty(cls, zex, const_cast<char*>("bad"), sizeof("bad") - 1, &v);
-        zval_ptr_dtor(&v);
-
-        if (!createProtocolVersion(&v, e.supported))
-        {
-            zval_ptr_dtor(&v);
-            return false;
-        }
-        zendUpdateProperty(cls, zex, const_cast<char*>("supported"), sizeof("supported") - 1, &v);
-        zval_ptr_dtor(&v);
-    }
-    catch (const Ice::UnsupportedEncodingException& e)
-    {
-        zval v;
-        if (!createEncodingVersion(&v, e.bad))
-        {
-            zval_ptr_dtor(&v);
-            return false;
-        }
-        zendUpdateProperty(cls, zex, const_cast<char*>("bad"), sizeof("bad") - 1, &v);
-        zval_ptr_dtor(&v);
-
-        if (!createEncodingVersion(&v, e.supported))
-        {
-            zval_ptr_dtor(&v);
-            return false;
-        }
-        zendUpdateProperty(cls, zex, const_cast<char*>("supported"), sizeof("supported") - 1, &v);
-        zval_ptr_dtor(&v);
-    }
-    catch (const Ice::NoValueFactoryException& e)
-    {
-        setStringMember(zex, "reason", e.reason);
-        setStringMember(zex, "type", e.type);
-    }
-    catch (const Ice::UnexpectedObjectException& e)
-    {
-        setStringMember(zex, "reason", e.reason);
-        setStringMember(zex, "type", e.type);
-        setStringMember(zex, "expectedType", e.expectedType);
-    }
     catch (const Ice::ProtocolException& e) // This must appear after all subclasses of ProtocolException.
     {
-        setStringMember(zex, "reason", e.reason);
+        setStringMember(zex, "reason", e.what());
     }
     catch (const Ice::FeatureNotSupportedException& e)
     {
-        setStringMember(zex, "unsupportedFeature", e.unsupportedFeature);
+        setStringMember(zex, "unsupportedFeature", e.what());
     }
     catch (const Ice::SecurityException& e)
     {

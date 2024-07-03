@@ -5,8 +5,8 @@
 #include "Util.h"
 
 #include "../Ice/Network.h"
-#include "Ice/LocalException.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/LocalExceptions.h"
+#include "Ice/StringUtil.h"
 
 using namespace std;
 using namespace Ice;
@@ -68,7 +68,7 @@ IceBT::formatDeviceAddress(const DeviceAddress& addr)
         addr.b[2],
         addr.b[1],
         addr.b[0]);
-    return IceUtilInternal::toUpper(string(buf));
+    return IceInternal::toUpper(string(buf));
 }
 
 string

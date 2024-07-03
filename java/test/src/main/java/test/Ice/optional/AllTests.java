@@ -68,7 +68,7 @@ public class AllTests {
     mo1.setG(1.0);
     mo1.setH("test");
     mo1.setI(MyEnum.MyEnumMember);
-    mo1.setJ(MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")));
+    mo1.setJ(MyInterfacePrx.createProxy(communicator, "test"));
     mo1.setBs(new byte[] {(byte) 5});
     mo1.setSs(new String[] {"test", "test2"});
     mo1.setIid(new java.util.HashMap<>());
@@ -86,8 +86,7 @@ public class AllTests {
     mo1.setEs(new MyEnum[] {MyEnum.MyEnumMember, MyEnum.MyEnumMember});
     mo1.setFss(new FixedStruct[] {fs});
     mo1.setVss(new VarStruct[] {vs});
-    mo1.setMips(
-        new MyInterfacePrx[] {MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test"))});
+    mo1.setMips(new MyInterfacePrx[] {MyInterfacePrx.createProxy(communicator, "test")});
 
     mo1.setIed(new java.util.HashMap<>());
     mo1.getIed().put(4, MyEnum.MyEnumMember);
@@ -96,7 +95,7 @@ public class AllTests {
     mo1.setIvsd(new java.util.HashMap<>());
     mo1.getIvsd().put(5, vs);
     mo1.setImipd(new java.util.HashMap<>());
-    mo1.getImipd().put(5, MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")));
+    mo1.getImipd().put(5, MyInterfacePrx.createProxy(communicator, "test"));
 
     mo1.setBos(new boolean[] {false, true, false});
 
@@ -510,42 +509,46 @@ public class AllTests {
       out.print("testing marshaling with unknown class slices... ");
       out.flush();
       {
-        C c = new C();
-        c.ss = "test";
-        c.setMs("testms");
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeValue(c);
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        factory.setEnabled(true);
-        inv = initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps);
-        test(inv.returnValue);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        Wrapper<CObjectReader> ccb = new Wrapper<>();
-        in.readValue(v -> ccb.value = v, CObjectReader.class);
-        in.endEncapsulation();
-        test(ccb.value != null);
-        factory.setEnabled(false);
+        {
+          C c = new C();
+          c.ss = "test";
+          c.setMs("testms");
+          os = new OutputStream(communicator);
+          os.startEncapsulation();
+          os.writeValue(c);
+          os.endEncapsulation();
+          inEncaps = os.finished();
+          factory.setEnabled(true);
+          inv = initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps);
+          test(inv.returnValue);
+          in = new InputStream(communicator, inv.outParams);
+          in.startEncapsulation();
+          Wrapper<CObjectReader> ccb = new Wrapper<>();
+          in.readValue(v -> ccb.value = v, CObjectReader.class);
+          in.endEncapsulation();
+          test(ccb.value != null);
+          factory.setEnabled(false);
+        }
 
-        factory.setEnabled(true);
-        os = new OutputStream(communicator);
-        os.startEncapsulation();
-        com.zeroc.Ice.Value d = new DObjectWriter();
-        os.writeValue(d);
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        inv = initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps);
-        test(inv.returnValue);
-        in = new InputStream(communicator, inv.outParams);
-        in.startEncapsulation();
-        Wrapper<DObjectReader> dcb = new Wrapper<>();
-        in.readValue(v -> dcb.value = v, DObjectReader.class);
-        in.endEncapsulation();
-        test(dcb.value != null);
-        dcb.value.check();
-        factory.setEnabled(false);
+        {
+          factory.setEnabled(true);
+          os = new OutputStream(communicator);
+          os.startEncapsulation();
+          com.zeroc.Ice.Value d = new DObjectWriter();
+          os.writeValue(d);
+          os.endEncapsulation();
+          inEncaps = os.finished();
+          inv = initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps);
+          test(inv.returnValue);
+          in = new InputStream(communicator, inv.outParams);
+          in.startEncapsulation();
+          Wrapper<DObjectReader> dcb = new Wrapper<>();
+          in.readValue(v -> dcb.value = v, DObjectReader.class);
+          in.endEncapsulation();
+          test(dcb.value != null);
+          dcb.value.check();
+          factory.setEnabled(false);
+        }
       }
       out.println("ok");
 
@@ -985,7 +988,7 @@ public class AllTests {
       Initial.OpMyInterfaceProxyResult r = initial.opMyInterfaceProxy(p1);
       test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-      p1 = Optional.of(MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")));
+      p1 = Optional.of(MyInterfacePrx.createProxy(communicator, "test"));
       r = initial.opMyInterfaceProxy(p1);
       test(r.returnValue.get().equals(p1.get()) && r.p3.get().equals(p1.get()));
       r = initial.opMyInterfaceProxyAsync(p1).join();
@@ -1641,8 +1644,6 @@ public class AllTests {
 
       os = new OutputStream(communicator);
       os.startEncapsulation();
-      os.writeOptional(1, OptionalFormat.Class);
-      os.writeValue(f);
       os.writeOptional(2, OptionalFormat.VSize);
       os.writeSize(4);
       FixedStruct.ice_write(os, f.fse);
@@ -1846,7 +1847,6 @@ public class AllTests {
       out.endSize(pos);
       A a = new A();
       a.setMc(18);
-      out.writeOptional(1000, OptionalFormat.Class);
       out.writeValue(a);
       out.endSlice();
       // ::Test::B
@@ -1877,7 +1877,7 @@ public class AllTests {
               && o[1].equals("test2")
               && o[2].equals("test3")
               && o[3].equals("test4"));
-      in.readValue(1000, v -> a.value = v, A.class);
+      in.readValue(v -> a.value = v, A.class);
       in.endSlice();
       // ::Test::B
       in.startSlice();
@@ -1891,10 +1891,10 @@ public class AllTests {
     }
 
     void check() {
-      test(a.value.get().getMc() == 18);
+      test(a.value.getMc() == 18);
     }
 
-    private Wrapper<java.util.Optional<A>> a = new Wrapper<>();
+    private Wrapper<A> a = new Wrapper<>();
   }
 
   private static class FObjectReader extends com.zeroc.Ice.ValueReader {

@@ -172,25 +172,6 @@ public class SessionFactoryHelper {
   }
 
   /**
-   * Sets the connect and connection timeout for the Glacier2 router.
-   *
-   * @param timeoutMillisecs The timeout in milliseconds. A zero or negative timeout value indicates
-   *     that the router proxy has no associated timeout.
-   */
-  public synchronized void setTimeout(int timeoutMillisecs) {
-    _timeout = timeoutMillisecs;
-  }
-
-  /**
-   * Returns the connect and connection timeout associated with the Glacier2 router.
-   *
-   * @return The timeout.
-   */
-  public synchronized int getTimeout() {
-    return _timeout;
-  }
-
-  /**
    * Sets the Glacier2 router port to connect to.
    *
    * @param port The port. If 0, then the default port (4063 for TCP or 4064 for SSL) is used.
@@ -316,10 +297,6 @@ public class SessionFactoryHelper {
     sb.append(" -h \"");
     sb.append(_routerHost);
     sb.append("\"");
-    if (_timeout > 0) {
-      sb.append(" -t ");
-      sb.append(_timeout);
-    }
     return sb.toString();
   }
 
@@ -329,7 +306,6 @@ public class SessionFactoryHelper {
   private com.zeroc.Ice.Identity _identity = null;
   private String _protocol = "ssl";
   private int _port = 0;
-  private int _timeout = 10000;
   private java.util.Map<String, String> _context;
   private boolean _useCallbacks = true;
   private static final int GLACIER2_SSL_PORT = 4064;

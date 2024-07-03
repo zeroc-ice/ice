@@ -2,16 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/StringUtil.h"
+#include "../../src/Ice/StackTrace.h"
+#include "Ice/StringConverter.h"
+#include "Ice/StringUtil.h"
 #include "TestHelper.h"
 
 #include <fstream>
 #include <sstream>
 
-using namespace IceUtil;
+using namespace Ice;
 using namespace std;
 
-namespace IceUtilInternal
+namespace IceInternal
 {
     extern bool ICE_API printStackTraces;
 }
@@ -50,7 +52,7 @@ namespace
         void fifth()
         {
             _idx++;
-            throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
+            throw Ice::IllegalConversionException{__FILE__, __LINE__, "error message"};
         }
 
     private:
@@ -80,12 +82,12 @@ public:
 void
 Client::run(int, char*[])
 {
-    if (IceUtilInternal::stackTraceImpl() == IceUtilInternal::STNone)
+    if (IceInternal::stackTraceImpl() == IceInternal::STNone)
     {
         cout << "This Ice build cannot capture stack traces" << endl;
         return;
     }
-    IceUtilInternal::printStackTraces = true;
+    IceInternal::printStackTraces = true;
 
     cout << "checking stacktrace... ";
 
@@ -94,7 +96,7 @@ Client::run(int, char*[])
     {
         thrower->first();
     }
-    catch (const IceUtil::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         test(splitLines(ex.ice_stackTrace()).size() >= 3);
     }

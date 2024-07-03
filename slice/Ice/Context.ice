@@ -14,7 +14,6 @@
 [["cpp:include:string"]]
 
 [["js:module:ice"]]
-[["js:cjs-module"]]
 
 [["python:pkgdir:Ice"]]
 

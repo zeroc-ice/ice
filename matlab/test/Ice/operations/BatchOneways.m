@@ -25,7 +25,7 @@ classdef BatchOneways
                 try
                     batch.opByteSOneway(bs1);
                 catch ex
-                    if isa(ex, 'Ice.MemoryLimitException')
+                    if isa(ex, 'Ice.MarshalException')
                         assert(false);
                     else
                         rethrow(ex);

@@ -15,12 +15,17 @@ namespace Ice
     class OutputStream;
 
     /**
-     * Base class for all Ice user exceptions.
+     * Abstract base class for all Ice exceptions defined in Slice.
      * \headerfile Ice/Ice.h
      */
     class ICE_API UserException : public Exception
     {
     public:
+        /**
+         * Default constructor.
+         */
+        UserException() : Exception(nullptr, 0) {}
+
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.

@@ -5,8 +5,8 @@
 #ifndef C_PLUS_PLUS_UTIL_H
 #define C_PLUS_PLUS_UTIL_H
 
+#include "../Ice/OutputUtil.h"
 #include "../Slice/Parser.h"
-#include "IceUtil/OutputUtil.h"
 #include "TypeContext.h"
 
 namespace Slice
@@ -18,9 +18,9 @@ namespace Slice
         char operator()(char);
     };
 
-    void printHeader(::IceUtilInternal::Output&);
-    void printVersionCheck(::IceUtilInternal::Output&);
-    void printDllExportStuff(::IceUtilInternal::Output&, const std::string&);
+    void printHeader(::IceInternal::Output&);
+    void printVersionCheck(::IceInternal::Output&);
+    void printDllExportStuff(::IceInternal::Output&, const std::string&);
 
     bool isMovable(const TypePtr&);
 
@@ -57,19 +57,18 @@ namespace Slice
 
     std::string fixKwd(const std::string&);
 
-    void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&);
-    void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&);
+    void writeMarshalCode(::IceInternal::Output&, const ParamDeclList&, const OperationPtr&);
+    void writeUnmarshalCode(::IceInternal::Output&, const ParamDeclList&, const OperationPtr&);
     void writeAllocateCode(
-        ::IceUtilInternal::Output&,
+        ::IceInternal::Output&,
         const ParamDeclList&,
         const OperationPtr&,
         const std::string&,
         TypeContext);
 
-    void
-    writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output&, const std::string&, const DataMemberList&, bool, bool);
-    void writeStreamHelpers(::IceUtilInternal::Output&, const ContainedPtr&, DataMemberList, bool);
-    void writeIceTuple(::IceUtilInternal::Output&, DataMemberList, TypeContext);
+    void writeMarshalUnmarshalAllInHolder(IceInternal::Output&, const std::string&, const DataMemberList&, bool, bool);
+    void writeStreamHelpers(::IceInternal::Output&, const ContainedPtr&, DataMemberList, bool);
+    void writeIceTuple(::IceInternal::Output&, DataMemberList, TypeContext);
 
     bool findMetaData(const std::string&, const ClassDeclPtr&, std::string&);
     bool findMetaData(const std::string&, const StringList&, std::string&);

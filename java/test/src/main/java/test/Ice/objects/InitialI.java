@@ -94,11 +94,6 @@ public final class InitialI implements Initial {
   public void setRecursive(Recursive r, com.zeroc.Ice.Current current) {}
 
   @Override
-  public boolean supportsClassGraphDepthMax(com.zeroc.Ice.Current current) {
-    return false;
-  }
-
-  @Override
   public void setCycle(Recursive r, com.zeroc.Ice.Current current) {}
 
   @Override
@@ -206,7 +201,7 @@ public final class InitialI implements Initial {
   public Initial.OpF2Result opF2(F2Prx f21, com.zeroc.Ice.Current current) {
     Initial.OpF2Result r = new Initial.OpF2Result();
     r.returnValue = f21;
-    r.f22 = F2Prx.uncheckedCast(current.adapter.getCommunicator().stringToProxy("F22"));
+    r.f22 = F2Prx.createProxy(current.adapter.getCommunicator(), "F22");
     return r;
   }
 
@@ -214,10 +209,7 @@ public final class InitialI implements Initial {
   public Initial.OpF3Result opF3(F3 f31, com.zeroc.Ice.Current current) {
     Initial.OpF3Result r = new Initial.OpF3Result();
     r.returnValue = f31;
-    r.f32 =
-        new F3(
-            new F1("F12"),
-            F2Prx.uncheckedCast(current.adapter.getCommunicator().stringToProxy("F22")));
+    r.f32 = new F3(new F1("F12"), F2Prx.createProxy(current.adapter.getCommunicator(), "F22"));
     return r;
   }
 

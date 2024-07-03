@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "../Ice/FileUtil.h"
+#include "Ice/StringUtil.h"
 
 #include "Ice/Communicator.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
 
@@ -36,7 +36,7 @@ namespace
 
     string pdhErrorToString(PDH_STATUS err)
     {
-        return IceUtilInternal::errorToString(err, GetModuleHandle(TEXT("PDH.DLL")));
+        return IceInternal::errorToString(err, GetModuleHandle(TEXT("PDH.DLL")));
     }
 
     static string getLocalizedPerfName(int idx, const Ice::LoggerPtr& logger)
@@ -93,7 +93,7 @@ namespace
                 {
                     Ice::Warning out(logger);
                     out << "Unable to figure out the number of process sockets:\n";
-                    out << IceUtilInternal::lastErrorToString();
+                    out << IceInternal::lastErrorToString();
                     return 0;
                 }
             }
@@ -330,14 +330,14 @@ PlatformInfo::PlatformInfo(
     }
 
     string cwd;
-    if (IceUtilInternal::getcwd(cwd) != 0)
+    if (IceInternal::getcwd(cwd) != 0)
     {
-        throw runtime_error("cannot get the current directory:\n" + IceUtilInternal::lastErrorToString());
+        throw runtime_error("cannot get the current directory:\n" + IceInternal::lastErrorToString());
     }
     _cwd = string(cwd);
 
     _dataDir = properties->getProperty(prefix + ".Data");
-    if (!IceUtilInternal::isAbsolutePath(_dataDir))
+    if (!IceInternal::isAbsolutePath(_dataDir))
     {
         _dataDir = _cwd + '/' + _dataDir;
     }
@@ -403,7 +403,7 @@ PlatformInfo::getLoadInfo() const
     info.avg1 = static_cast<float>(_last1Total) / _usages1.size() / 100.0f;
     info.avg5 = static_cast<float>(_last5Total) / _usages5.size() / 100.0f;
     info.avg15 = static_cast<float>(_last15Total) / _usages15.size() / 100.0f;
-#elif defined(__sun) || defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
+#elif defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
     //
     // We use the load average divided by the number of
     // processors to figure out if the machine is busy or

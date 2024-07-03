@@ -94,7 +94,7 @@ We recommend using the following build environments:
 ### Build Instructions
 
 The MATLAB extension depends on Ice for C++ components from the cpp subdirectory, and those need to be built, using the
-`cpp11-shared` configuration, if you have not built the C++ distribution first review [cpp/README.md](../cpp/README.md).
+`shared` configuration, if you have not built the C++ distribution first review [cpp/README.md](../cpp/README.md).
 
 In a command window, change to the matlab subdirectory:
 

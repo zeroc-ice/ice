@@ -10,11 +10,10 @@
 [["cpp:include:IceStorm/Config.h"]]
 
 [["js:module:ice"]]
-[["js:cjs-module"]]
 
 [["python:pkgdir:IceStorm"]]
 
-#include "../Ice/Identity.ice"
+#include "Ice/Identity.ice"
 #include "Metrics.ice"
 
 [["java:package:com.zeroc"]]

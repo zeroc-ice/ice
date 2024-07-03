@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../../src/Ice/Random.h"
 #include "Ice/Ice.h"
-#include "IceUtil/Random.h"
 #include "Test.h"
 #include "TestHelper.h"
 #include <set>
@@ -99,9 +99,9 @@ allTests(Test::TestHelper* helper)
             vector<optional<RemoteObjectAdapterPrx>> adpts = adapters;
 
             TestIntfPrx test1 = createTestIntfPrx(adpts);
-            IceUtilInternal::shuffle(adpts.begin(), adpts.end());
+            IceInternal::shuffle(adpts.begin(), adpts.end());
             TestIntfPrx test2 = createTestIntfPrx(adpts);
-            IceUtilInternal::shuffle(adpts.begin(), adpts.end());
+            IceInternal::shuffle(adpts.begin(), adpts.end());
             TestIntfPrx test3 = createTestIntfPrx(adpts);
 
             test(test1->ice_getConnection() == test2->ice_getConnection());
@@ -147,9 +147,9 @@ allTests(Test::TestHelper* helper)
             vector<optional<RemoteObjectAdapterPrx>> adpts = adapters;
 
             TestIntfPrx test1 = createTestIntfPrx(adpts);
-            IceUtilInternal::shuffle(adpts.begin(), adpts.end());
+            IceInternal::shuffle(adpts.begin(), adpts.end());
             TestIntfPrx test2 = createTestIntfPrx(adpts);
-            IceUtilInternal::shuffle(adpts.begin(), adpts.end());
+            IceInternal::shuffle(adpts.begin(), adpts.end());
             TestIntfPrx test3 = createTestIntfPrx(adpts);
 
             test(test1->ice_getConnection() == test2->ice_getConnection());
@@ -203,14 +203,14 @@ allTests(Test::TestHelper* helper)
             for (i = 0; i < proxies.size(); ++i)
             {
                 vector<optional<RemoteObjectAdapterPrx>> adpts;
-                adpts.resize(IceUtilInternal::random(static_cast<unsigned int>(adapters.size())));
+                adpts.resize(IceInternal::random(static_cast<unsigned int>(adapters.size())));
                 if (adpts.empty())
                 {
                     adpts.resize(1);
                 }
                 for (vector<optional<RemoteObjectAdapterPrx>>::iterator p = adpts.begin(); p != adpts.end(); ++p)
                 {
-                    *p = adapters[IceUtilInternal::random(static_cast<unsigned int>(adapters.size()))];
+                    *p = adapters[IceInternal::random(static_cast<unsigned int>(adapters.size()))];
                 }
                 proxies[i] = createTestIntfPrx(adpts);
             }
@@ -274,9 +274,9 @@ allTests(Test::TestHelper* helper)
             vector<optional<RemoteObjectAdapterPrx>> adpts = adapters;
 
             TestIntfPrx test1 = createTestIntfPrx(adpts);
-            IceUtilInternal::shuffle(adpts.begin(), adpts.end());
+            IceInternal::shuffle(adpts.begin(), adpts.end());
             TestIntfPrx test2 = createTestIntfPrx(adpts);
-            IceUtilInternal::shuffle(adpts.begin(), adpts.end());
+            IceInternal::shuffle(adpts.begin(), adpts.end());
             TestIntfPrx test3 = createTestIntfPrx(adpts);
 
             test(test1->ice_getConnection() == test2->ice_getConnection());
@@ -323,9 +323,9 @@ allTests(Test::TestHelper* helper)
             vector<optional<RemoteObjectAdapterPrx>> adpts = adapters;
 
             TestIntfPrx test1 = createTestIntfPrx(adpts);
-            IceUtilInternal::shuffle(adpts.begin(), adpts.end());
+            IceInternal::shuffle(adpts.begin(), adpts.end());
             TestIntfPrx test2 = createTestIntfPrx(adpts);
-            IceUtilInternal::shuffle(adpts.begin(), adpts.end());
+            IceInternal::shuffle(adpts.begin(), adpts.end());
             TestIntfPrx test3 = createTestIntfPrx(adpts);
 
             test(test1->ice_getConnection() == test2->ice_getConnection());
@@ -397,7 +397,7 @@ allTests(Test::TestHelper* helper)
         int i;
 
         //
-        // Ensure that endpoints are tried in order by deactiving the adapters
+        // Ensure that endpoints are tried in order by deactivating the adapters
         // one after the other.
         //
         for (i = 0; i < nRetry && test->getAdapterName() == "Adapter31"; i++)
@@ -616,7 +616,7 @@ allTests(Test::TestHelper* helper)
         int i;
 
         //
-        // Ensure that endpoints are tried in order by deactiving the adapters
+        // Ensure that endpoints are tried in order by deactivating the adapters
         // one after the other.
         //
         for (i = 0; i < nRetry && test->getAdapterName() == "Adapter61"; i++)
@@ -707,7 +707,7 @@ allTests(Test::TestHelper* helper)
         int i;
 
         //
-        // Ensure that endpoints are tried in order by deactiving the adapters
+        // Ensure that endpoints are tried in order by deactivating the adapters
         // one after the other.
         //
         for (i = 0; i < nRetry && getAdapterNameWithAMI(test) == "AdapterAMI61"; i++)
@@ -796,8 +796,7 @@ allTests(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
-    if (!communicator->getProperties()->getProperty("Ice.Plugin.IceSSL").empty() &&
-        communicator->getProperties()->getProperty("Ice.Default.Protocol") == "ssl")
+    if (communicator->getProperties()->getProperty("Ice.Default.Protocol") == "ssl")
     {
         cout << "testing unsecure vs. secure endpoints... " << flush;
         {

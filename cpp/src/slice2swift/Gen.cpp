@@ -3,11 +3,11 @@
 //
 //
 
+#include "../Ice/OutputUtil.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Parser.h"
 #include "../Slice/Util.h"
-#include "IceUtil/OutputUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 
 #include <algorithm>
 #include <cassert>
@@ -17,7 +17,7 @@
 
 using namespace std;
 using namespace Slice;
-using namespace IceUtilInternal;
+using namespace IceInternal;
 
 namespace
 {
@@ -58,7 +58,7 @@ Gen::Gen(const string& base, const vector<string>& includePaths, const string& d
     if (!_out)
     {
         ostringstream os;
-        os << "cannot open `" << file << "': " << IceUtilInternal::errorToString(errno);
+        os << "cannot open `" << file << "': " << IceInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(file);
@@ -116,7 +116,7 @@ Gen::printHeader()
     _out << "//\n";
 }
 
-Gen::ImportVisitor::ImportVisitor(IceUtilInternal::Output& o) : out(o) {}
+Gen::ImportVisitor::ImportVisitor(IceInternal::Output& o) : out(o) {}
 
 bool
 Gen::ImportVisitor::visitModuleStart(const ModulePtr& p)
@@ -136,7 +136,7 @@ Gen::ImportVisitor::visitModuleStart(const ModulePtr& p)
     //
     // Add PromiseKit import for interfaces and local interfaces which contain "async-oneway" metadata
     //
-    if (p->hasInterfaceDefs())
+    if (p->contains<InterfaceDef>())
     {
         addImport("PromiseKit");
     }
@@ -308,7 +308,7 @@ Gen::ImportVisitor::addImport(const string& module)
     }
 }
 
-Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& o) : out(o) {}
+Gen::TypesVisitor::TypesVisitor(IceInternal::Output& o) : out(o) {}
 
 bool
 Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
@@ -526,7 +526,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     out << eb;
 
-    if (p->usesClasses(false) && (!base || (base && !base->usesClasses(false))))
+    if (p->usesClasses() && !(base && base->usesClasses()))
     {
         out << sp;
         out << nl << "open override func _usesClasses() -> Swift.Bool" << sb;
@@ -1080,12 +1080,12 @@ Gen::TypesVisitor::visitConst(const ConstPtr& p)
     out << nl;
 }
 
-Gen::ProxyVisitor::ProxyVisitor(::IceUtilInternal::Output& o) : out(o) {}
+Gen::ProxyVisitor::ProxyVisitor(::IceInternal::Output& o) : out(o) {}
 
 bool
 Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
 {
-    return p->hasInterfaceDefs();
+    return p->contains<InterfaceDef>();
 }
 
 bool
@@ -1138,6 +1138,24 @@ Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "return " << traits << ".staticId";
     out << eb;
 
+    out << eb;
+
+    //
+    // makeProxy
+    //
+    out << sp;
+    out << nl << "/// Makes a new proxy from a communicator and a proxy string.";
+    out << nl << "///";
+    out << nl << "/// - Parameters:";
+    out << nl << "///    - communicator: The communicator of the new proxy.";
+    out << nl << "///    - proxyString: The proxy string to parse.";
+    out << nl << "///    - type: The type of the new proxy.";
+    out << nl << "/// - Throws: `Ice.ParseException` if the proxy string is invalid.";
+    out << nl << "/// - Returns: A new proxy with the requested type.";
+    out << nl << "public func makeProxy(communicator: Ice.Communicator, proxyString: String, type: " << prx
+        << ".Protocol) throws -> " << prx;
+    out << sb;
+    out << nl << "try communicator.makeProxyImpl(proxyString) as " << prxI;
     out << eb;
 
     //
@@ -1257,7 +1275,7 @@ Gen::ProxyVisitor::visitOperation(const OperationPtr& op)
     writeProxyAsyncOperation(out, op);
 }
 
-Gen::ValueVisitor::ValueVisitor(::IceUtilInternal::Output& o) : out(o) {}
+Gen::ValueVisitor::ValueVisitor(::IceInternal::Output& o) : out(o) {}
 
 bool
 Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
@@ -1421,7 +1439,7 @@ Gen::ValueVisitor::visitClassDefEnd(const ClassDefPtr&)
     out << eb;
 }
 
-Gen::ObjectVisitor::ObjectVisitor(::IceUtilInternal::Output& o) : out(o) {}
+Gen::ObjectVisitor::ObjectVisitor(::IceInternal::Output& o) : out(o) {}
 
 bool
 Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
@@ -1585,7 +1603,7 @@ Gen::ObjectVisitor::visitOperation(const OperationPtr& op)
     }
 }
 
-Gen::ObjectExtVisitor::ObjectExtVisitor(::IceUtilInternal::Output& o) : out(o) {}
+Gen::ObjectExtVisitor::ObjectExtVisitor(::IceInternal::Output& o) : out(o) {}
 
 bool
 Gen::ObjectExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)

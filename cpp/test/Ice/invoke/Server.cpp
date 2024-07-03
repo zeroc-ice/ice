@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../../src/Ice/Options.h"
 #include "BlobjectI.h"
 #include "Ice/Ice.h"
-#include "IceUtil/Options.h"
 #include "TestHelper.h"
 
 using namespace std;
@@ -58,7 +58,7 @@ void
 Server::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    IceUtilInternal::Options opts;
+    IceInternal::Options opts;
     opts.addOpt("", "array");
     opts.addOpt("", "async");
 
@@ -67,7 +67,7 @@ Server::run(int argc, char** argv)
     {
         args = opts.parse(argc, (const char**)argv);
     }
-    catch (const IceUtilInternal::BadOptException& e)
+    catch (const IceInternal::BadOptException& e)
     {
         cout << argv[0] << ": error: " << e.reason << endl;
         throw;

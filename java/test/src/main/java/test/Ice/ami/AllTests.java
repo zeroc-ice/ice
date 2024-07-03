@@ -1067,9 +1067,9 @@ public class AllTests {
     out.print("testing result struct... ");
     out.flush();
     {
-      test.Ice.ami.Test.Outer.Inner.TestIntfPrx q =
-          test.Ice.ami.Test.Outer.Inner.TestIntfPrx.uncheckedCast(
-              communicator.stringToProxy("test2:" + helper.getTestEndpoint(0)));
+      var q =
+          test.Ice.ami.Test.Outer.Inner.TestIntfPrx.createProxy(
+              communicator, "test2:" + helper.getTestEndpoint(0));
 
       q.opAsync(1)
           .whenComplete(

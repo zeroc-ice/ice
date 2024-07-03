@@ -5,25 +5,18 @@
 #ifndef JAVA_UTIL_H
 #define JAVA_UTIL_H
 
+#include "../Ice/OutputUtil.h"
 #include "../Slice/Parser.h"
-#include "IceUtil/OutputUtil.h"
 
 namespace Slice
 {
     //
-    // Compute Java serialVersionUID for a Slice class
+    // These functions should only be called for classes, exceptions, and structs.
+    // Enums automatically implement Serializable (Java just serializes the enumerator's identifier),
+    // and proxies get their implementation from `_ObjectPrxI`.
     //
-    long computeSerialVersionUUID(const ClassDefPtr&);
-
-    //
-    // Compute Java serialVersionUID for a Slice class
-    //
-    long computeSerialVersionUUID(const ExceptionPtr&);
-
-    //
-    // Compute Java serialVersionUID for a Slice struct
-    //
-    long computeSerialVersionUUID(const StructPtr&);
+    std::string getSerialVersionUID(const ContainedPtr&);
+    long computeDefaultSerialVersionUID(const ContainedPtr&);
 
     //
     // Returns true if we can generate a method from the given data member list. A Java method
@@ -33,7 +26,7 @@ namespace Slice
     //
     bool isValidMethodParameterList(const DataMemberList&, int additionalUnits = 0);
 
-    class JavaOutput : public ::IceUtilInternal::Output
+    class JavaOutput final : public ::IceInternal::Output
     {
     public:
         JavaOutput();
@@ -54,7 +47,7 @@ namespace Slice
         //
         void openClass(const std::string&, const std::string&, const std::string& = std::string());
 
-        virtual void printHeader();
+        void printHeader();
     };
 
     class JavaGenerator
@@ -81,7 +74,7 @@ namespace Slice
         //
         void open(const std::string&, const std::string&);
 
-        ::IceUtilInternal::Output& output() const;
+        ::IceInternal::Output& output() const;
 
         //
         // Check a symbol against any of the Java keywords. If a
@@ -181,7 +174,7 @@ namespace Slice
         std::string getReadFunction(const std::string&, const TypePtr&);
 
         void writeMarshalUnmarshalCode(
-            ::IceUtilInternal::Output&,
+            ::IceInternal::Output&,
             const std::string&,
             const TypePtr&,
             OptionalMode,
@@ -198,7 +191,7 @@ namespace Slice
         // Generate code to marshal or unmarshal a dictionary type.
         //
         void writeDictionaryMarshalUnmarshalCode(
-            ::IceUtilInternal::Output&,
+            ::IceInternal::Output&,
             const std::string&,
             const DictionaryPtr&,
             const std::string&,
@@ -212,7 +205,7 @@ namespace Slice
         // Generate code to marshal or unmarshal a sequence type.
         //
         void writeSequenceMarshalUnmarshalCode(
-            ::IceUtilInternal::Output&,
+            ::IceInternal::Output&,
             const std::string&,
             const SequencePtr&,
             const std::string&,
@@ -251,13 +244,13 @@ namespace Slice
         bool
         getSequenceTypes(const SequencePtr&, const std::string&, const StringList&, std::string&, std::string&) const;
 
-        virtual JavaOutput* createOutput();
+        JavaOutput* createOutput();
 
         static const std::string _getSetMetaData;
 
     private:
         std::string _dir;
-        ::IceUtilInternal::Output* _out;
+        ::IceInternal::Output* _out;
     };
 }
 

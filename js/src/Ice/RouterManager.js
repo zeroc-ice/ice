@@ -2,27 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/ModuleRegistry").Ice;
+import { HashMap } from "./HashMap.js";
+import { Ice as Ice_Router } from "./Router.js";
+const { RouterPrx } = Ice_Router;
+import { RouterInfo } from "./RouterInfo.js";
 
-require("../Ice/HashMap");
-require("../Ice/Router");
-require("../Ice/RouterInfo");
-
-const HashMap = Ice.HashMap;
-const RouterInfo = Ice.RouterInfo;
-const RouterPrx = Ice.RouterPrx;
-
-class RouterManager
-{
-    constructor()
-    {
+export class RouterManager {
+    constructor() {
         this._table = new HashMap(HashMap.compareEquals); // Map<Ice.RouterPrx, RouterInfo>
     }
 
-    destroy()
-    {
-        for(const router of this._table.values())
-        {
+    destroy() {
+        for (const router of this._table.values()) {
             router.destroy();
         }
         this._table.clear();
@@ -32,10 +23,8 @@ class RouterManager
     // Returns router info for a given router. Automatically creates
     // the router info if it doesn't exist yet.
     //
-    find(rtr)
-    {
-        if(rtr === null)
-        {
+    find(rtr) {
+        if (rtr === null) {
             return null;
         }
 
@@ -45,8 +34,7 @@ class RouterManager
         const router = RouterPrx.uncheckedCast(rtr.ice_router(null));
 
         let info = this._table.get(router);
-        if(info === undefined)
-        {
+        if (info === undefined) {
             info = new RouterInfo(router);
             this._table.set(router, info);
         }
@@ -54,11 +42,9 @@ class RouterManager
         return info;
     }
 
-    erase(rtr)
-    {
+    erase(rtr) {
         let info = null;
-        if(rtr !== null)
-        {
+        if (rtr !== null) {
             // The router cannot be routed.
             const router = RouterPrx.uncheckedCast(rtr.ice_router(null));
 
@@ -68,5 +54,3 @@ class RouterManager
         return info;
     }
 }
-Ice.RouterManager = RouterManager;
-module.exports.Ice = Ice;

@@ -9,9 +9,9 @@
 #    include "../Instance.h"
 #    include "../Network.h"
 #    include "../UniqueRef.h"
-#    include "Ice/Exception.h"
+#    include "Ice/LocalException.h"
 #    include "Ice/Properties.h"
-#    include "IceUtil/StringUtil.h"
+#    include "Ice/StringUtil.h"
 #    include "StreamAcceptor.h"
 #    include "StreamEndpointI.h"
 #    include "StreamTransceiver.h"
@@ -105,7 +105,7 @@ IceObjC::StreamAcceptor::toDetailedString() const
     if (!intfs.empty())
     {
         os << "\nlocal interfaces = ";
-        os << IceUtilInternal::joinString(intfs, ", ");
+        os << IceInternal::joinString(intfs, ", ");
     }
     return os.str();
 }

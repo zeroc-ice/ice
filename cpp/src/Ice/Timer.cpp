@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "IceUtil/Timer.h"
+#include "Ice/Timer.h"
 #include "ConsoleUtil.h"
-#include "IceUtil/Exception.h"
+#include "Ice/Exception.h"
 
 using namespace std;
-using namespace IceUtil;
+using namespace Ice;
 using namespace IceInternal;
 
 TimerTask::~TimerTask()
@@ -47,6 +47,17 @@ Timer::cancel(const TimerTaskPtr& task)
 {
     lock_guard lock(_mutex);
     return cancelNoSync(task);
+}
+
+bool
+Timer::isScheduled(const TimerTaskPtr& task)
+{
+    lock_guard lock(_mutex);
+    if (_destroyed)
+    {
+        return false;
+    }
+    return _tasks.find(task) != _tasks.end();
 }
 
 void
@@ -116,9 +127,9 @@ Timer::run()
             {
                 runTimerTask(token.task);
             }
-            catch (const IceUtil::Exception& e)
+            catch (const Ice::Exception& e)
             {
-                consoleErr << "IceUtil::Timer::run(): uncaught exception:\n" << e.what();
+                consoleErr << "Ice::Timer::run(): uncaught exception:\n" << e.what();
 #ifdef __GNUC__
                 consoleErr << "\n" << e.ice_stackTrace();
 #endif
@@ -126,11 +137,11 @@ Timer::run()
             }
             catch (const std::exception& e)
             {
-                consoleErr << "IceUtil::Timer::run(): uncaught exception:\n" << e.what() << endl;
+                consoleErr << "Ice::Timer::run(): uncaught exception:\n" << e.what() << endl;
             }
             catch (...)
             {
-                consoleErr << "IceUtil::Timer::run(): uncaught exception" << endl;
+                consoleErr << "Ice::Timer::run(): uncaught exception" << endl;
             }
 
             if (!token.delay)

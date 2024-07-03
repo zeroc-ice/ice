@@ -8,7 +8,7 @@
 
 #    include "HashUtil.h"
 #    include "Ice/InputStream.h"
-#    include "Ice/LocalException.h"
+#    include "Ice/LocalExceptions.h"
 #    include "Ice/OutputStream.h"
 #    include "Network.h"
 #    include "ProtocolInstance.h"
@@ -47,7 +47,8 @@ IceInternal::TcpEndpointI::TcpEndpointI(
 
 IceInternal::TcpEndpointI::TcpEndpointI(const ProtocolInstancePtr& instance)
     : IPEndpointI(instance),
-      _timeout(instance->defaultTimeout()),
+      // The default timeout for TCP endpoints is 60,000 milliseconds. This timeout is not used in Ice 3.8 and greater.
+      _timeout(60000),
       _compress(false)
 {
 }
@@ -284,10 +285,10 @@ IceInternal::TcpEndpointI::checkOption(const string& option, const string& argum
         {
             if (argument.empty())
             {
-                throw EndpointParseException(
+                throw ParseException(
                     __FILE__,
                     __LINE__,
-                    "no argument provided for -t option in endpoint " + endpoint);
+                    "no argument provided for -t option in endpoint '" + endpoint + "'");
             }
 
             if (argument == "infinite")
@@ -299,10 +300,10 @@ IceInternal::TcpEndpointI::checkOption(const string& option, const string& argum
                 istringstream t(argument);
                 if (!(t >> const_cast<int32_t&>(_timeout)) || !t.eof() || _timeout < 1)
                 {
-                    throw EndpointParseException(
+                    throw ParseException(
                         __FILE__,
                         __LINE__,
-                        "invalid timeout value `" + argument + "' in endpoint " + endpoint);
+                        "invalid timeout value '" + argument + "' in endpoint '" + endpoint + "'");
                 }
             }
             return true;
@@ -312,10 +313,10 @@ IceInternal::TcpEndpointI::checkOption(const string& option, const string& argum
         {
             if (!argument.empty())
             {
-                throw EndpointParseException(
+                throw ParseException(
                     __FILE__,
                     __LINE__,
-                    "unexpected argument `" + argument + "' provided for -z option in " + endpoint);
+                    "unexpected argument '" + argument + "' provided for -z option in endpoint '" + endpoint + "'");
             }
             const_cast<bool&>(_compress) = true;
             return true;

@@ -2,76 +2,42 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-/* globals Ice, Test, URI, WorkerGlobalScope */
-/* eslint no-unused-vars: ["error", { "varsIgnorePattern": "isSafari|isChrome|isWorker|isWindows|runController" }] */
+import { Ice } from "ice";
+import { Test } from "./Controller.js";
+import { ControllerHelper } from "./ControllerHelper.js";
 
-function isSafari()
-{
-    return (/^((?!chrome).)*safari/i).test(navigator.userAgent);
-}
-
-function isChrome()
-{
-    //
-    // We need to check for Edge browser as it might include Chrome in its user agent.
-    //
-    return navigator.userAgent.indexOf("Edge/") === -1 &&
-           navigator.userAgent.indexOf("Chrome/") !== -1;
-}
-
-function isWorker()
-{
-    return typeof WorkerGlobalScope !== 'undefined' && this instanceof WorkerGlobalScope;
-}
-
-function isWindows()
-{
-    return navigator.userAgent.indexOf("Windows") != -1;
-}
-
-class Logger extends Ice.Logger
-{
-    constructor(out)
-    {
+export class Logger extends Ice.Logger {
+    constructor(out) {
         super();
         this._out = out;
     }
 
-    write(message, indent)
-    {
-        if(indent)
-        {
+    write(message, indent) {
+        if (indent) {
             message = message.replace(/\n/g, "\n   ");
         }
         this._out.writeLine(message);
     }
 }
 
-class ProcessI extends Test.Common.Process
-{
-    constructor(promise, helper, output)
-    {
+class ProcessI extends Test.Common.Process {
+    constructor(promise, helper, output) {
         super();
         this._promise = promise;
         this._helper = helper;
         this._output = output;
     }
 
-    async waitReady()
-    {
+    async waitReady() {
         await this._helper.waitReady();
     }
 
-    async waitSuccess()
-    {
-        try
-        {
+    async waitSuccess() {
+        try {
             await this._promise;
             this._helper.serverReady();
             return 0;
-        }
-        catch(ex)
-        {
+        } catch (ex) {
             this._output.writeLine(`unexpected exception while running test: ${ex.toString()}`);
             this._output.writeLine(ex.stack);
             this._helper.serverReady(ex);
@@ -79,62 +45,14 @@ class ProcessI extends Test.Common.Process
         }
     }
 
-    terminate(current)
-    {
+    terminate(current) {
         current.adapter.remove(current.id);
         return this._output.get();
     }
 }
 
-class ControllerHelper
-{
-    constructor(exe, output)
-    {
-        if(exe === "Server" || exe === "ServerAMD")
-        {
-            this._serverReady = new Ice.Promise();
-        }
-        this._output = output;
-    }
-
-    serverReady(ex)
-    {
-        if(this._serverReady)
-        {
-            if(ex)
-            {
-                this._serverReady.reject(ex);
-            }
-            else
-            {
-                this._serverReady.resolve();
-            }
-        }
-    }
-
-    async waitReady()
-    {
-        if(this._serverReady)
-        {
-            await this._serverReady;
-        }
-    }
-
-    write(msg)
-    {
-        this._output.write(msg);
-    }
-
-    writeLine(msg)
-    {
-        this._output.writeLine(msg);
-    }
-}
-
-class ProcessControllerI extends Test.Common.BrowserProcessController
-{
-    constructor(clientOutput, serverOutput, useWorker, scripts)
-    {
+class ProcessControllerI extends Test.Common.BrowserProcessController {
+    constructor(clientOutput, serverOutput, useWorker, scripts) {
         super();
         this._clientOutput = clientOutput;
         this._serverOutput = serverOutput;
@@ -142,62 +60,48 @@ class ProcessControllerI extends Test.Common.BrowserProcessController
         this._scripts = scripts;
     }
 
-    start(testSuite, exe, args, current)
-    {
+    async start(testSuite, exe, args, current) {
         let promise;
         let out;
-        if(exe === "Server" || exe === "ServerAMD")
-        {
+        if (exe === "Server.js" || exe === "ServerAMD.js") {
             out = this._serverOutput;
-        }
-        else
-        {
+        } else {
             out = this._clientOutput;
         }
         out.clear();
         const helper = new ControllerHelper(exe, out);
 
-        if(this._useWorker)
-        {
-            const scripts = this._scripts;
-            promise = new Promise(
-                (resolve, reject) =>
-                    {
-                        const worker = new Worker("/test/Common/ControllerWorker.js");
-                        this._worker = worker;
-                        worker.onmessage = function(e)
-                        {
-                            if(e.data.type == "write")
-                            {
-                                helper.write(e.data.message);
-                            }
-                            else if(e.data.type == "writeLine")
-                            {
-                                helper.writeLine(e.data.message);
-                            }
-                            else if(e.data.type == "ready")
-                            {
-                                helper.serverReady();
-                            }
-                            else if(e.data.type == "finished")
-                            {
-                                if(e.data.exception)
-                                {
-                                    reject(e.data.exception);
-                                }
-                                else
-                                {
-                                    resolve();
-                                }
-                                worker.terminate();
-                            }
-                        };
-                        worker.postMessage({scripts: scripts, exe: exe, args: args});
-                    });
-        }
-        else
-        {
-            const cls = Ice._require(exe)[exe];
+        if (this._useWorker) {
+            promise = new Promise((resolve, reject) => {
+                const worker = new Worker("/test/Common/ControllerWorker.js", { type: "module" });
+                this._worker = worker;
+                worker.onmessage = function (e) {
+                    if (e.data.type == "write") {
+                        helper.write(e.data.message);
+                    } else if (e.data.type == "writeLine") {
+                        helper.writeLine(e.data.message);
+                    } else if (e.data.type == "ready") {
+                        helper.serverReady();
+                    } else if (e.data.type == "finished") {
+                        if (e.data.exception) {
+                            reject(e.data.exception);
+                        } else {
+                            resolve();
+                        }
+                        worker.terminate();
+                    }
+                };
+                worker.postMessage({ exe: exe, testSuite: testSuite, args: args });
+            });
+        } else {
+            const entryPoints = {
+                "Server.js": "Server",
+                "ServerAMD.js": "ServerAMD",
+                "Client.js": "Client",
+            };
+
+            const module = await import(`/test/${testSuite}/index.js`);
+            const cls = module[entryPoints[exe]];
             const test = new cls();
             test.setControllerHelper(helper);
             promise = test.run(args);
@@ -205,92 +109,74 @@ class ProcessControllerI extends Test.Common.BrowserProcessController
         return Test.Common.ProcessPrx.uncheckedCast(current.adapter.addWithUUID(new ProcessI(promise, helper, out)));
     }
 
-    getHost()
-    {
+    getHost() {
         return "127.0.0.1";
     }
 
-    redirect(url, current)
-    {
+    redirect(url, current) {
         current.con.close(Ice.ConnectionClose.Gracefully);
         window.location.href = url;
     }
 }
 
-async function runController(clientOutput, serverOutput, scripts)
-{
-    class Output
-    {
-        constructor(output)
-        {
+export async function runController(clientOutput, serverOutput, scripts) {
+    class Output {
+        constructor(output) {
             this.output = output;
         }
 
-        write(msg)
-        {
-            const text = this.output.val();
-            this.output.val(text + msg);
+        write(msg) {
+            this.output.value += msg;
         }
 
-        writeLine(msg)
-        {
+        writeLine(msg) {
             this.write(msg + "\n");
-            this.output.scrollTop(this.output.get(0).scrollHeight);
+            this.output.scrollTop = this.output.scrollHeight;
         }
 
-        get()
-        {
-            return this.output.val();
+        get() {
+            return this.output.value;
         }
 
-        clear()
-        {
-            this.output.val("");
+        clear() {
+            this.output.value = "";
         }
     }
 
     const out = new Output(clientOutput);
     const serverOut = new Output(serverOutput);
 
-    const uri = new URI(document.location.href);
-    const protocol = uri.protocol() === "http" ? "ws" : "wss";
-    const query = uri.search(true);
-    const port = query.port || 15002;
-    const worker = query.worker === "True";
+    const url = new URL(document.location);
+    const protocol = url.protocol === "http:" ? "ws" : "wss";
+    const port = url.searchParams.get("port") || 15002;
+    const worker = url.searchParams.get("worker") === "True";
 
     const initData = new Ice.InitializationData();
     initData.logger = new Logger(out);
     initData.properties = Ice.createProperties();
     initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000");
 
-    async function registerProcessController(adapter, registry, processController)
-    {
-        try
-        {
+    async function registerProcessController(adapter, registry, processController) {
+        try {
             await registry.ice_ping();
             const connection = registry.ice_getCachedConnection();
             connection.setAdapter(adapter);
-            connection.setACM(5, Ice.ACMClose.CloseOff, Ice.ACMHeartbeat.HeartbeatAlways);
-            connection.setCloseCallback(
-                () => out.writeLine("connection with process controller registry closed"));
+            connection.setCloseCallback(() => out.writeLine("connection with process controller registry closed"));
             await registry.setProcessController(Test.Common.ProcessControllerPrx.uncheckedCast(processController));
-        }
-        catch(ex)
-        {
-            if(ex instanceof Ice.ConnectFailedException)
-            {
+        } catch (ex) {
+            if (ex instanceof Ice.ConnectFailedException) {
                 setTimeout(() => registerProcessController(adapter, registry, processController), 2000);
-            }
-            else
-            {
-                out.writeLine("unexpected exception while connecting to process controller registry:\n" + ex.toString());
+            } else {
+                out.writeLine(
+                    "unexpected exception while connecting to process controller registry:\n" + ex.toString(),
+                );
+                out.writeLine(ex.stack);
             }
         }
     }
 
     let comm;
-    try
-    {
+    try {
         comm = Ice.initialize(initData);
         const str = `Util/ProcessControllerRegistry:${protocol} -h ${document.location.hostname} -p ${port}`;
         const registry = Test.Common.ProcessControllerRegistryPrx.uncheckedCast(comm.stringToProxy(str));
@@ -299,9 +185,7 @@ async function runController(clientOutput, serverOutput, scripts)
         const processController = adapter.add(new ProcessControllerI(out, serverOut, worker, scripts), ident);
         adapter.activate();
         registerProcessController(adapter, registry, processController);
-    }
-    catch(ex)
-    {
+    } catch (ex) {
         out.writeLine("unexpected exception while creating controller:\n" + ex.toString());
         comm.destroy();
     }

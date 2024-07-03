@@ -197,7 +197,8 @@ namespace
 
         void exception_SBSUnknownDerivedAsSBaseCompact(const Ice::Exception& exc)
         {
-            test(exc.ice_id() == "::Ice::NoValueFactoryException");
+            // TODO: this test appears unused since this type ID no longer exists.
+            test(string{exc.ice_id()} == "::Ice::NoValueFactoryException");
             called();
         }
 
@@ -205,7 +206,8 @@ namespace
 
         void exception_SUnknownAsObject10(const Ice::Exception& exc)
         {
-            test(exc.ice_id() == "::Ice::NoValueFactoryException");
+            // TODO: this test appears unused since this type ID no longer exists.
+            test(string{exc.ice_id()} == "::Ice::NoValueFactoryException");
             called();
         }
 
@@ -405,7 +407,7 @@ namespace
 
         void exception_throwBaseAsBase(const ::Ice::Exception& ex)
         {
-            test(ex.ice_id() == "::Test::BaseException");
+            test(string{ex.ice_id()} == "::Test::BaseException");
             const BaseException& e = dynamic_cast<const BaseException&>(ex);
             test(e.sbe == "sbe");
             test(e.pb);
@@ -417,7 +419,7 @@ namespace
 
         void exception_throwDerivedAsBase(const ::Ice::Exception& ex)
         {
-            test(ex.ice_id() == "::Test::DerivedException");
+            test(string{ex.ice_id()} == "::Test::DerivedException");
             const DerivedException& e = dynamic_cast<const DerivedException&>(ex);
             test(e.sbe == "sbe");
             test(e.pb);
@@ -434,7 +436,7 @@ namespace
 
         void exception_throwDerivedAsDerived(const ::Ice::Exception& ex)
         {
-            test(ex.ice_id() == "::Test::DerivedException");
+            test(string{ex.ice_id()} == "::Test::DerivedException");
             const DerivedException& e = dynamic_cast<const DerivedException&>(ex);
             test(e.sbe == "sbe");
             test(e.pb);
@@ -451,7 +453,7 @@ namespace
 
         void exception_throwUnknownDerivedAsBase(const ::Ice::Exception& ex)
         {
-            test(ex.ice_id() == "::Test::BaseException");
+            test(string{ex.ice_id()} == "::Test::BaseException");
             const BaseException& e = dynamic_cast<const BaseException&>(ex);
             test(e.sbe == "sbe");
             test(e.pb);
@@ -589,7 +591,7 @@ namespace
             testPrx->checkSUnknown(o);
             dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_getSlicedData()->clear();
         }
-        catch (const Ice::NoValueFactoryException&)
+        catch (const Ice::MarshalException&)
         {
             test(testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0);
         }
@@ -795,7 +797,7 @@ allTests(Test::TestHelper* helper)
         catch (const Ice::OperationNotExistException&)
         {
         }
-        catch (const Ice::NoValueFactoryException&)
+        catch (const Ice::MarshalException&)
         {
             // Expected.
         }
@@ -847,7 +849,7 @@ allTests(Test::TestHelper* helper)
             f.get();
             test(false);
         }
-        catch (const Ice::NoValueFactoryException&)
+        catch (const Ice::MarshalException&)
         {
         }
         catch (...)
@@ -875,7 +877,7 @@ allTests(Test::TestHelper* helper)
                     f.get();
                     test(false);
                 }
-                catch (const Ice::NoValueFactoryException&)
+                catch (const Ice::MarshalException&)
                 {
                 }
                 catch (...)
@@ -2241,7 +2243,7 @@ allTests(Test::TestHelper* helper)
         }
         catch (const BaseException& e)
         {
-            test(e.ice_id() == "::Test::BaseException");
+            test(string{e.ice_id()} == "::Test::BaseException");
             test(e.sbe == "sbe");
             test(e.pb);
             test(e.pb->sb == "sb");
@@ -2264,7 +2266,7 @@ allTests(Test::TestHelper* helper)
         }
         catch (const BaseException& ex)
         {
-            test(ex.ice_id() == "::Test::BaseException");
+            test(string{ex.ice_id()} == "::Test::BaseException");
             test(ex.sbe == "sbe");
             test(ex.pb);
             test(ex.pb->sb == "sb");
@@ -2287,7 +2289,7 @@ allTests(Test::TestHelper* helper)
         }
         catch (const DerivedException& e)
         {
-            test(e.ice_id() == "::Test::DerivedException");
+            test(string{e.ice_id()} == "::Test::DerivedException");
             test(e.sbe == "sbe");
             test(e.pb);
             test(e.pb->sb == "sb1");
@@ -2317,7 +2319,7 @@ allTests(Test::TestHelper* helper)
         }
         catch (const DerivedException& ex)
         {
-            test(ex.ice_id() == "::Test::DerivedException");
+            test(string{ex.ice_id()} == "::Test::DerivedException");
             test(ex.sbe == "sbe");
             test(ex.pb);
             test(ex.pb->sb == "sb1");
@@ -2347,7 +2349,7 @@ allTests(Test::TestHelper* helper)
         }
         catch (const DerivedException& e)
         {
-            test(e.ice_id() == "::Test::DerivedException");
+            test(string{e.ice_id()} == "::Test::DerivedException");
             test(e.sbe == "sbe");
             test(e.pb);
             test(e.pb->sb == "sb1");
@@ -2377,7 +2379,7 @@ allTests(Test::TestHelper* helper)
         }
         catch (const DerivedException& e)
         {
-            test(e.ice_id() == "::Test::DerivedException");
+            test(string{e.ice_id()} == "::Test::DerivedException");
             test(e.sbe == "sbe");
             test(e.pb);
             test(e.pb->sb == "sb1");
@@ -2407,7 +2409,7 @@ allTests(Test::TestHelper* helper)
         }
         catch (const BaseException& e)
         {
-            test(e.ice_id() == "::Test::BaseException");
+            test(string{e.ice_id()} == "::Test::BaseException");
             test(e.sbe == "sbe");
             test(e.pb);
             test(e.pb->sb == "sb d2");
@@ -2430,7 +2432,7 @@ allTests(Test::TestHelper* helper)
         }
         catch (const BaseException& e)
         {
-            test(e.ice_id() == "::Test::BaseException");
+            test(string{e.ice_id()} == "::Test::BaseException");
             test(e.sbe == "sbe");
             test(e.pb);
             test(e.pb->sb == "sb d2");

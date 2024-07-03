@@ -25,7 +25,7 @@ allTests(Test::TestHelper* helper)
         catch (const Base& b)
         {
             test(b.b == "Base.b");
-            test(b.ice_id() == "::Test::Base");
+            test(string{b.ice_id()} == "::Test::Base");
         }
         catch (...)
         {
@@ -45,7 +45,7 @@ allTests(Test::TestHelper* helper)
         catch (const Base& b)
         {
             test(b.b == "Base.b");
-            test(b.ice_id() == "::Test::Base");
+            test(string{b.ice_id()} == "::Test::Base");
         }
         catch (...)
         {
@@ -64,7 +64,7 @@ allTests(Test::TestHelper* helper)
         catch (const Base& b)
         {
             test(b.b == "UnknownDerived.b");
-            test(b.ice_id() == "::Test::Base");
+            test(string{b.ice_id()} == "::Test::Base");
         }
         catch (...)
         {
@@ -84,7 +84,7 @@ allTests(Test::TestHelper* helper)
         catch (const Base& b)
         {
             test(b.b == "UnknownDerived.b");
-            test(b.ice_id() == "::Test::Base");
+            test(string{b.ice_id()} == "::Test::Base");
         }
         catch (...)
         {
@@ -104,7 +104,7 @@ allTests(Test::TestHelper* helper)
         {
             test(k.b == "KnownDerived.b");
             test(k.kd == "KnownDerived.kd");
-            test(k.ice_id() == "::Test::KnownDerived");
+            test(string{k.ice_id()} == "::Test::KnownDerived");
         }
         catch (...)
         {
@@ -125,7 +125,7 @@ allTests(Test::TestHelper* helper)
         {
             test(k.b == "KnownDerived.b");
             test(k.kd == "KnownDerived.kd");
-            test(k.ice_id() == "::Test::KnownDerived");
+            test(string{k.ice_id()} == "::Test::KnownDerived");
         }
         catch (...)
         {
@@ -145,7 +145,7 @@ allTests(Test::TestHelper* helper)
         {
             test(k.b == "KnownDerived.b");
             test(k.kd == "KnownDerived.kd");
-            test(k.ice_id() == "::Test::KnownDerived");
+            test(string{k.ice_id()} == "::Test::KnownDerived");
         }
         catch (...)
         {
@@ -165,7 +165,7 @@ allTests(Test::TestHelper* helper)
         {
             test(k.b == "KnownDerived.b");
             test(k.kd == "KnownDerived.kd");
-            test(k.ice_id() == "::Test::KnownDerived");
+            test(string{k.ice_id()} == "::Test::KnownDerived");
         }
         catch (...)
         {
@@ -184,7 +184,7 @@ allTests(Test::TestHelper* helper)
         catch (const Base& b)
         {
             test(b.b == "UnknownIntermediate.b");
-            test(b.ice_id() == "::Test::Base");
+            test(string{b.ice_id()} == "::Test::Base");
         }
         catch (...)
         {
@@ -204,7 +204,7 @@ allTests(Test::TestHelper* helper)
         catch (const Base& b)
         {
             test(b.b == "UnknownIntermediate.b");
-            test(b.ice_id() == "::Test::Base");
+            test(string{b.ice_id()} == "::Test::Base");
         }
         catch (...)
         {
@@ -224,7 +224,7 @@ allTests(Test::TestHelper* helper)
         {
             test(ki.b == "KnownIntermediate.b");
             test(ki.ki == "KnownIntermediate.ki");
-            test(ki.ice_id() == "::Test::KnownIntermediate");
+            test(string{ki.ice_id()} == "::Test::KnownIntermediate");
         }
         catch (...)
         {
@@ -245,7 +245,7 @@ allTests(Test::TestHelper* helper)
         {
             test(ki.b == "KnownIntermediate.b");
             test(ki.ki == "KnownIntermediate.ki");
-            test(ki.ice_id() == "::Test::KnownIntermediate");
+            test(string{ki.ice_id()} == "::Test::KnownIntermediate");
         }
         catch (...)
         {
@@ -266,7 +266,7 @@ allTests(Test::TestHelper* helper)
             test(kmd.b == "KnownMostDerived.b");
             test(kmd.ki == "KnownMostDerived.ki");
             test(kmd.kmd == "KnownMostDerived.kmd");
-            test(kmd.ice_id() == "::Test::KnownMostDerived");
+            test(string{kmd.ice_id()} == "::Test::KnownMostDerived");
         }
         catch (...)
         {
@@ -288,7 +288,7 @@ allTests(Test::TestHelper* helper)
             test(kmd.b == "KnownMostDerived.b");
             test(kmd.ki == "KnownMostDerived.ki");
             test(kmd.kmd == "KnownMostDerived.kmd");
-            test(kmd.ice_id() == "::Test::KnownMostDerived");
+            test(string{kmd.ice_id()} == "::Test::KnownMostDerived");
         }
         catch (...)
         {
@@ -308,7 +308,7 @@ allTests(Test::TestHelper* helper)
         {
             test(ki.b == "KnownIntermediate.b");
             test(ki.ki == "KnownIntermediate.ki");
-            test(ki.ice_id() == "::Test::KnownIntermediate");
+            test(string{ki.ice_id()} == "::Test::KnownIntermediate");
         }
         catch (...)
         {
@@ -329,7 +329,7 @@ allTests(Test::TestHelper* helper)
         {
             test(ki.b == "KnownIntermediate.b");
             test(ki.ki == "KnownIntermediate.ki");
-            test(ki.ice_id() == "::Test::KnownIntermediate");
+            test(string{ki.ice_id()} == "::Test::KnownIntermediate");
         }
         catch (...)
         {
@@ -350,7 +350,7 @@ allTests(Test::TestHelper* helper)
             test(kmd.b == "KnownMostDerived.b");
             test(kmd.ki == "KnownMostDerived.ki");
             test(kmd.kmd == "KnownMostDerived.kmd");
-            test(kmd.ice_id() == "::Test::KnownMostDerived");
+            test(string{kmd.ice_id()} == "::Test::KnownMostDerived");
         }
         catch (...)
         {
@@ -372,7 +372,7 @@ allTests(Test::TestHelper* helper)
             test(kmd.b == "KnownMostDerived.b");
             test(kmd.ki == "KnownMostDerived.ki");
             test(kmd.kmd == "KnownMostDerived.kmd");
-            test(kmd.ice_id() == "::Test::KnownMostDerived");
+            test(string{kmd.ice_id()} == "::Test::KnownMostDerived");
         }
         catch (...)
         {
@@ -393,7 +393,7 @@ allTests(Test::TestHelper* helper)
             test(kmd.b == "KnownMostDerived.b");
             test(kmd.ki == "KnownMostDerived.ki");
             test(kmd.kmd == "KnownMostDerived.kmd");
-            test(kmd.ice_id() == "::Test::KnownMostDerived");
+            test(string{kmd.ice_id()} == "::Test::KnownMostDerived");
         }
         catch (...)
         {
@@ -415,7 +415,7 @@ allTests(Test::TestHelper* helper)
             test(kmd.b == "KnownMostDerived.b");
             test(kmd.ki == "KnownMostDerived.ki");
             test(kmd.kmd == "KnownMostDerived.kmd");
-            test(kmd.ice_id() == "::Test::KnownMostDerived");
+            test(string{kmd.ice_id()} == "::Test::KnownMostDerived");
         }
         catch (...)
         {
@@ -435,7 +435,7 @@ allTests(Test::TestHelper* helper)
         {
             test(ki.b == "UnknownMostDerived1.b");
             test(ki.ki == "UnknownMostDerived1.ki");
-            test(ki.ice_id() == "::Test::KnownIntermediate");
+            test(string{ki.ice_id()} == "::Test::KnownIntermediate");
         }
         catch (...)
         {
@@ -456,7 +456,7 @@ allTests(Test::TestHelper* helper)
         {
             test(ki.b == "UnknownMostDerived1.b");
             test(ki.ki == "UnknownMostDerived1.ki");
-            test(ki.ice_id() == "::Test::KnownIntermediate");
+            test(string{ki.ice_id()} == "::Test::KnownIntermediate");
         }
         catch (...)
         {
@@ -476,7 +476,7 @@ allTests(Test::TestHelper* helper)
         {
             test(ki.b == "UnknownMostDerived1.b");
             test(ki.ki == "UnknownMostDerived1.ki");
-            test(ki.ice_id() == "::Test::KnownIntermediate");
+            test(string{ki.ice_id()} == "::Test::KnownIntermediate");
         }
         catch (...)
         {
@@ -497,7 +497,7 @@ allTests(Test::TestHelper* helper)
         {
             test(ki.b == "UnknownMostDerived1.b");
             test(ki.ki == "UnknownMostDerived1.ki");
-            test(ki.ice_id() == "::Test::KnownIntermediate");
+            test(string{ki.ice_id()} == "::Test::KnownIntermediate");
         }
         catch (...)
         {
@@ -516,7 +516,7 @@ allTests(Test::TestHelper* helper)
         catch (const Base& b)
         {
             test(b.b == "UnknownMostDerived2.b");
-            test(b.ice_id() == "::Test::Base");
+            test(string{b.ice_id()} == "::Test::Base");
         }
         catch (...)
         {
@@ -536,7 +536,7 @@ allTests(Test::TestHelper* helper)
         catch (const Base& b)
         {
             test(b.b == "UnknownMostDerived2.b");
-            test(b.ice_id() == "::Test::Base");
+            test(string{b.ice_id()} == "::Test::Base");
         }
         catch (...)
         {

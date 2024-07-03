@@ -47,8 +47,5 @@ public class ObjectAdapterDeactivatedException extends LocalException {
   /** Name of the adapter. */
   public String name;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -1946575462194055987L;
+  private static final long serialVersionUID = -1946575462194055987L;
 }

@@ -6,15 +6,8 @@
 
 using namespace std;
 
-string
-IceBox::FailureException::ice_id() const
+const char*
+IceBox::FailureException::ice_id() const noexcept
 {
-    return string{ice_staticId()};
-}
-
-std::string_view
-IceBox::FailureException::ice_staticId() noexcept
-{
-    static constexpr std::string_view typeId = "::IceBox::FailureException";
-    return typeId;
+    return "::IceBox::FailureException";
 }

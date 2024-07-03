@@ -27,8 +27,5 @@ public class OperationInterruptedException extends LocalException {
     return "::Ice::OperationInterruptedException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -1099536335133286580L;
+  private static final long serialVersionUID = -1099536335133286580L;
 }

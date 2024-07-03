@@ -4,7 +4,7 @@
 
 #include "Subscriber.h"
 #include "Ice/LoggerUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 #include "Instance.h"
 #include "NodeI.h"
 #include "SendQueueSizeMaxReached.h"
@@ -426,7 +426,7 @@ Subscriber::create(const shared_ptr<Instance>& instance, const SubscriberRecord&
             p = rec.theQoS.find("locatorCacheTimeout");
             if (p != rec.theQoS.end())
             {
-                istringstream is(IceUtilInternal::trim(p->second));
+                istringstream is(IceInternal::trim(p->second));
                 int locatorCacheTimeout;
                 if (!(is >> locatorCacheTimeout) || !is.eof())
                 {
@@ -438,7 +438,7 @@ Subscriber::create(const shared_ptr<Instance>& instance, const SubscriberRecord&
             p = rec.theQoS.find("connectionCached");
             if (p != rec.theQoS.end())
             {
-                istringstream is(IceUtilInternal::trim(p->second));
+                istringstream is(IceInternal::trim(p->second));
                 int connectionCached;
                 if (!(is >> connectionCached) || !is.eof())
                 {

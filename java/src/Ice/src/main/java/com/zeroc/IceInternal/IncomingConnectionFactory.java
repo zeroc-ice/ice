@@ -5,6 +5,7 @@
 package com.zeroc.IceInternal;
 
 import com.zeroc.Ice.ConnectionI;
+import com.zeroc.Ice.ConnectionOptions;
 
 public final class IncomingConnectionFactory extends EventHandler
     implements ConnectionI.StartCallback {
@@ -234,8 +235,9 @@ public final class IncomingConnectionFactory extends EventHandler
                 transceiver,
                 null,
                 _endpoint,
+                _adapter,
                 this::removeConnection,
-                _adapter);
+                _connectionOptions);
       } catch (com.zeroc.Ice.LocalException ex) {
         try {
           transceiver.close();
@@ -330,8 +332,9 @@ public final class IncomingConnectionFactory extends EventHandler
       Instance instance,
       EndpointI endpoint,
       EndpointI publish,
-      com.zeroc.Ice.ObjectAdapterI adapter) {
+      com.zeroc.Ice.ObjectAdapter adapter) {
     _instance = instance;
+    _connectionOptions = instance.serverConnectionOptions(adapter.getName());
     _endpoint = endpoint;
     _publishedEndpoint = publish;
     _adapter = adapter;
@@ -343,12 +346,8 @@ public final class IncomingConnectionFactory extends EventHandler
     _acceptorStarted = false;
 
     DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-    if (defaultsAndOverrides.overrideTimeout) {
-      _endpoint = _endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
-    }
-
-    if (defaultsAndOverrides.overrideCompress) {
-      _endpoint = _endpoint.compress(defaultsAndOverrides.overrideCompressValue);
+    if (defaultsAndOverrides.overrideCompress.isPresent()) {
+      _endpoint = _endpoint.compress(defaultsAndOverrides.overrideCompress.get());
     }
 
     try {
@@ -374,8 +373,9 @@ public final class IncomingConnectionFactory extends EventHandler
                 _transceiver,
                 null,
                 _endpoint,
+                _adapter,
                 null,
-                _adapter);
+                _connectionOptions);
         connection.startAndWait();
 
         _connections.add(connection);
@@ -590,13 +590,14 @@ public final class IncomingConnectionFactory extends EventHandler
   }
 
   private final Instance _instance;
+  private final ConnectionOptions _connectionOptions;
 
   private Acceptor _acceptor;
   private Transceiver _transceiver;
   private EndpointI _endpoint;
   private final EndpointI _publishedEndpoint;
 
-  private com.zeroc.Ice.ObjectAdapterI _adapter;
+  private com.zeroc.Ice.ObjectAdapter _adapter;
 
   private final boolean _warn;
 

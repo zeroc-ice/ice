@@ -70,16 +70,6 @@ class G extends Base
 {
 }
 
-interface I
-{
-    void doI();
-}
-
-interface J extends I
-{
-    void doJ();
-}
-
 sequence<Base> BaseSeq;
 
 class CompactExt;
@@ -185,7 +175,9 @@ class M
 }
 
 // Forward declarations
+["js:defined-in:./Forward.ice"]
 class F1;
+["js:defined-in:./Forward.ice"]
 interface F2;
 
 class F3
@@ -205,7 +197,6 @@ interface Initial
     F getF();
 
     void setRecursive(Recursive p);
-    bool supportsClassGraphDepthMax();
 
     void setCycle(Recursive r);
     bool acceptsClassCycles();

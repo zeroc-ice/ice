@@ -9,9 +9,9 @@
 #include "Util.h"
 
 #include "Ice/Connection.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 
-#include "IceUtil/DisableWarnings.h"
+#include "../Ice/DisableWarnings.h"
 
 using namespace std;
 using namespace Ice;

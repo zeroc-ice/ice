@@ -4,7 +4,7 @@
 
 #include "NetworkProxy.h"
 #include "HttpParser.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Properties.h"
 
 using namespace std;
@@ -131,7 +131,7 @@ SOCKSNetworkProxy::finish(Buffer& readBuffer, Buffer&)
 
     if (readBuffer.b.end() - readBuffer.i < 2)
     {
-        throw Ice::UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        throw Ice::MarshalException{__FILE__, __LINE__, "attempting to unmarshal past the end of the buffer"};
     }
 
     const byte* src = &(*readBuffer.i);

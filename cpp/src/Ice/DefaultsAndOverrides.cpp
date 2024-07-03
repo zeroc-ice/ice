@@ -3,7 +3,7 @@
 //
 
 #include "DefaultsAndOverrides.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
 
@@ -12,10 +12,8 @@ using namespace Ice;
 using namespace IceInternal;
 
 IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& properties, const LoggerPtr& logger)
-    : overrideCompress(false),
-      overrideCompressValue(false),
-      overrideSecure(false),
-      overrideSecureValue(false)
+    : overrideCompress(nullopt),
+      overrideSecure(nullopt)
 {
     const_cast<string&>(defaultProtocol) = properties->getIceProperty("Ice.Default.Protocol");
 
@@ -39,15 +37,13 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     value = properties->getIceProperty("Ice.Override.Compress");
     if (!value.empty())
     {
-        const_cast<bool&>(overrideCompress) = true;
-        const_cast<bool&>(overrideCompressValue) = properties->getIcePropertyAsInt("Ice.Override.Compress") > 0;
+        const_cast<optional<bool>&>(overrideCompress) = properties->getIcePropertyAsInt("Ice.Override.Compress") > 0;
     }
 
     value = properties->getIceProperty("Ice.Override.Secure");
     if (!value.empty())
     {
-        const_cast<bool&>(overrideSecure) = true;
-        const_cast<bool&>(overrideSecureValue) = properties->getIcePropertyAsInt("Ice.Override.Secure") > 0;
+        const_cast<optional<bool>&>(overrideSecure) = properties->getIcePropertyAsInt("Ice.Override.Secure") > 0;
     }
 
     const_cast<bool&>(defaultCollocationOptimization) =
@@ -64,19 +60,7 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     }
     else
     {
-        throw EndpointSelectionTypeParseException(
-            __FILE__,
-            __LINE__,
-            "illegal value `" + value + "'; expected `Random' or `Ordered'");
-    }
-
-    const_cast<int&>(defaultTimeout) = properties->getIcePropertyAsInt("Ice.Default.Timeout");
-    if (defaultTimeout < 1 && defaultTimeout != -1)
-    {
-        const_cast<int32_t&>(defaultTimeout) = 60000;
-        Warning out(logger);
-        out << "invalid value for Ice.Default.Timeout `" << properties->getIceProperty("Ice.Default.Timeout")
-            << "': defaulting to 60000";
+        throw ParseException(__FILE__, __LINE__, "illegal value '" + value + "'; expected 'Random' or 'Ordered'");
     }
 
     const_cast<int&>(defaultInvocationTimeout) = properties->getIcePropertyAsInt("Ice.Default.InvocationTimeout");

@@ -3,8 +3,8 @@
 //
 
 #include "Gen.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "../Ice/FileUtil.h"
+#include "Ice/StringUtil.h"
 
 #include <limits>
 #ifndef _WIN32
@@ -16,7 +16,7 @@
 #include "../Slice/FileTracker.h"
 #include "../Slice/Util.h"
 #include "DotNetNames.h"
-#include "IceUtil/UUID.h"
+#include "Ice/UUID.h"
 #include <algorithm>
 #include <cassert>
 #include <iterator>
@@ -24,8 +24,8 @@
 
 using namespace std;
 using namespace Slice;
-using namespace IceUtil;
-using namespace IceUtilInternal;
+using namespace Ice;
+using namespace IceInternal;
 
 namespace
 {
@@ -1489,7 +1489,7 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     if (!_out)
     {
         ostringstream os;
-        os << "cannot open `" << file << "': " << IceUtilInternal::errorToString(errno);
+        os << "cannot open `" << file << "': " << IceInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(file);
@@ -1551,7 +1551,7 @@ Slice::Gen::printHeader()
     _out << "//\n";
 }
 
-Slice::Gen::UnitVisitor::UnitVisitor(IceUtilInternal::Output& out) : CsVisitor(out) {}
+Slice::Gen::UnitVisitor::UnitVisitor(IceInternal::Output& out) : CsVisitor(out) {}
 
 bool
 Slice::Gen::UnitVisitor::visitUnitStart(const UnitPtr& p)
@@ -1580,7 +1580,7 @@ Slice::Gen::UnitVisitor::visitUnitStart(const UnitPtr& p)
     return false;
 }
 
-Slice::Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& out) : CsVisitor(out) {}
+Slice::Gen::TypesVisitor::TypesVisitor(IceInternal::Output& out) : CsVisitor(out) {}
 bool
 Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
@@ -2086,7 +2086,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
     _out << eb;
 
-    if ((!base || (base && !base->usesClasses(false))) && p->usesClasses(false))
+    if (p->usesClasses() && !(base && base->usesClasses()))
     {
         _out << sp;
         emitGeneratedCodeAttribute();
@@ -2408,7 +2408,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     }
 }
 
-Slice::Gen::ResultVisitor::ResultVisitor(::IceUtilInternal::Output& out) : CsVisitor(out) {}
+Slice::Gen::ResultVisitor::ResultVisitor(::IceInternal::Output& out) : CsVisitor(out) {}
 
 namespace
 {
@@ -2517,7 +2517,7 @@ Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
         _out << nl << "_ostr = Ice.CurrentExtensions.startReplyStream(current);";
         _out << nl << "_ostr.startEncapsulation(current.encoding, " << opFormatTypeToString(p) << ");";
         writeMarshalUnmarshalParams(outParams, p, true, ns, false, true, "_ostr");
-        if (p->returnsClasses(false))
+        if (p->returnsClasses())
         {
             _out << nl << "_ostr.writePendingValues();";
         }
@@ -2531,12 +2531,12 @@ Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::ProxyVisitor::ProxyVisitor(IceUtilInternal::Output& out) : CsVisitor(out) {}
+Slice::Gen::ProxyVisitor::ProxyVisitor(IceInternal::Output& out) : CsVisitor(out) {}
 
 bool
 Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (!p->hasInterfaceDefs())
+    if (!p->contains<InterfaceDef>())
     {
         return false;
     }
@@ -2647,12 +2647,12 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::DispatchAdapterVisitor::DispatchAdapterVisitor(IceUtilInternal::Output& out) : CsVisitor(out) {}
+Slice::Gen::DispatchAdapterVisitor::DispatchAdapterVisitor(IceInternal::Output& out) : CsVisitor(out) {}
 
 bool
 Slice::Gen::DispatchAdapterVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (!p->hasInterfaceDefs())
+    if (!p->contains<InterfaceDef>())
     {
         return false;
     }
@@ -2725,7 +2725,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
             _out << nl << typeS << ' ' << param << (pli->type()->isClassType() ? " = null;" : ";");
         }
         writeMarshalUnmarshalParams(inParams, 0, false, ns);
-        if (op->sendsClasses(false))
+        if (op->sendsClasses())
         {
             _out << nl << "istr.readPendingValues();";
         }
@@ -2786,7 +2786,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
             _out << nl << "static (ostr, " << resultParam << ") =>";
             _out << sb;
             writeMarshalUnmarshalParams(outParams, op, true, ns, true);
-            if (op->returnsClasses(false))
+            if (op->returnsClasses())
             {
                 _out << nl << "ostr.writePendingValues();";
             }
@@ -2828,7 +2828,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
             _out << nl << "var ostr = Ice.CurrentExtensions.startReplyStream(request.current);";
             _out << nl << "ostr.startEncapsulation(request.current.encoding, " << opFormatTypeToString(op) << ");";
             writeMarshalUnmarshalParams(outParams, op, true, ns);
-            if (op->returnsClasses(false))
+            if (op->returnsClasses())
             {
                 _out << nl << "ostr.writePendingValues();";
             }
@@ -2839,12 +2839,12 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
     _out << eb;
 }
 
-Slice::Gen::HelperVisitor::HelperVisitor(IceUtilInternal::Output& out) : CsVisitor(out) {}
+Slice::Gen::HelperVisitor::HelperVisitor(IceInternal::Output& out) : CsVisitor(out) {}
 
 bool
 Slice::Gen::HelperVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (!p->hasInterfaceDefs() && !p->hasSequences() && !p->hasDictionaries())
+    if (!p->contains<InterfaceDef>() && !p->contains<Sequence>() && !p->contains<Dictionary>())
     {
         return false;
     }
@@ -2878,21 +2878,15 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     OperationList ops = p->allOperations();
 
-    for (OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
+    for (const auto& op : ops)
     {
-        OperationPtr op = *r;
-        InterfaceDefPtr interface = op->interface();
         string opName = fixId(op->name(), DotNet::ICloneable, true);
         TypePtr ret = op->returnType();
         string retS = typeToString(ret, ns, op->returnIsOptional());
 
         vector<string> params = getParams(op, ns);
-        vector<string> args = getArgs(op);
         vector<string> argsAMI = getInArgs(op);
 
-        string deprecateReason = getDeprecationMessageForComment(op, "operation");
-
-        ParamDeclList inParams = op->inParameters();
         ParamDeclList outParams = op->outParameters();
 
         ExceptionList throws = op->throws();
@@ -2968,11 +2962,8 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
 
     // Async invocation
-    for (OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
+    for (const auto& op : ops)
     {
-        OperationPtr op = *r;
-
-        InterfaceDefPtr interface = op->interface();
         vector<string> paramsAMI = getInParams(op, ns);
         vector<string> argsAMI = getInArgs(op);
 
@@ -2986,8 +2977,6 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         string progress = getEscapedParamName(op, "progress");
 
         TypePtr ret = op->returnType();
-
-        string retS = typeToString(ret, ns, op->returnIsOptional());
 
         string returnTypeS = resultType(op, ns);
 
@@ -3095,7 +3084,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             _out << nl << "write: (Ice.OutputStream ostr) =>";
             _out << sb;
             writeMarshalUnmarshalParams(inParams, 0, true, ns);
-            if (op->sendsClasses(false))
+            if (op->sendsClasses())
             {
                 _out << nl << "ostr.writePendingValues();";
             }
@@ -3152,7 +3141,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
 
             writeMarshalUnmarshalParams(outParams, op, false, ns, true);
-            if (op->returnsClasses(false))
+            if (op->returnsClasses())
             {
                 _out << nl << "istr.readPendingValues();";
             }
@@ -3416,12 +3405,12 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << eb;
 }
 
-Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceUtilInternal::Output& out) : CsVisitor(out) {}
+Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceInternal::Output& out) : CsVisitor(out) {}
 
 bool
 Slice::Gen::DispatcherVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (!p->hasInterfaceDefs())
+    if (!p->contains<InterfaceDef>())
     {
         return false;
     }
@@ -3455,13 +3444,11 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << sb;
 
-    OperationList ops = p->operations();
-
-    for (OperationList::const_iterator i = ops.begin(); i != ops.end(); ++i)
+    for (const auto& op : p->operations())
     {
         string retS;
         vector<string> params, args;
-        string opName = getDispatchParams(*i, retS, params, args, ns);
+        string opName = getDispatchParams(op, retS, params, args, ns);
         _out << sp << nl << "public abstract " << retS << " " << opName << spar << params << epar << ';';
     }
 

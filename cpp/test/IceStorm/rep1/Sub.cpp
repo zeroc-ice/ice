@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../../src/Ice/Options.h"
 #include "Ice/Ice.h"
 #include "IceStorm/IceStorm.h"
-#include "IceUtil/Options.h"
 #include "Single.h"
 #include "TestHelper.h"
 
@@ -31,15 +31,15 @@ void
 Sub::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    IceUtilInternal::Options opts;
-    opts.addOpt("", "id", IceUtilInternal::Options::NeedArg);
+    IceInternal::Options opts;
+    opts.addOpt("", "id", IceInternal::Options::NeedArg);
     opts.addOpt("", "unsub");
 
     try
     {
         opts.parse(argc, (const char**)argv);
     }
-    catch (const IceUtilInternal::BadOptException& e)
+    catch (const IceInternal::BadOptException& e)
     {
         ostringstream os;
         os << argv[0] << ": error: " << e.reason;

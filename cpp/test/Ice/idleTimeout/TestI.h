@@ -14,4 +14,10 @@ public:
 
     void shutdown(const Ice::Current&) final;
 };
+
+class TestIntfBidirI final : public Test::TestIntfBidir
+{
+public:
+    void makeSleep(bool, std::int32_t, std::optional<Test::DelayedTestIntfPrx>, const Ice::Current&) final;
+};
 #endif

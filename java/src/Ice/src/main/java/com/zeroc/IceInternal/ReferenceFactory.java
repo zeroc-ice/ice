@@ -19,6 +19,7 @@ public final class ReferenceFactory {
         facet,
         tmpl.getMode(),
         tmpl.getSecure(),
+        tmpl.getCompress(),
         tmpl.getProtocol(),
         tmpl.getEncoding(),
         endpoints,
@@ -37,6 +38,7 @@ public final class ReferenceFactory {
         facet,
         tmpl.getMode(),
         tmpl.getSecure(),
+        tmpl.getCompress(),
         tmpl.getProtocol(),
         tmpl.getEncoding(),
         null,
@@ -59,12 +61,12 @@ public final class ReferenceFactory {
         "", // Facet
         fixedConnection.endpoint().datagram() ? Reference.ModeDatagram : Reference.ModeTwoway,
         fixedConnection.endpoint().secure(),
+        java.util.Optional.empty(),
         com.zeroc.Ice.Util.Protocol_1_0,
         _instance.defaultsAndOverrides().defaultEncoding,
         fixedConnection,
         -1,
-        null,
-        java.util.Optional.empty());
+        null);
   }
 
   public Reference copy(Reference r) {
@@ -349,7 +351,17 @@ public final class ReferenceFactory {
     }
 
     if (beg == -1) {
-      return create(ident, facet, mode, secure, protocol, encoding, null, null, propertyPrefix);
+      return create(
+          ident,
+          facet,
+          mode,
+          secure,
+          java.util.Optional.empty(),
+          protocol,
+          encoding,
+          null,
+          null,
+          propertyPrefix);
     }
 
     java.util.ArrayList<EndpointI> endpoints = new java.util.ArrayList<>();
@@ -419,7 +431,17 @@ public final class ReferenceFactory {
 
       EndpointI[] endp = new EndpointI[endpoints.size()];
       endpoints.toArray(endp);
-      return create(ident, facet, mode, secure, protocol, encoding, endp, null, propertyPrefix);
+      return create(
+          ident,
+          facet,
+          mode,
+          secure,
+          java.util.Optional.empty(),
+          protocol,
+          encoding,
+          endp,
+          null,
+          propertyPrefix);
     } else if (s.charAt(beg) == '@') {
       beg = StringUtil.findFirstNotOf(s, delim, beg + 1);
       if (beg == -1) {
@@ -465,7 +487,17 @@ public final class ReferenceFactory {
         e.str = "empty adapter id in `" + s + "'";
         throw e;
       }
-      return create(ident, facet, mode, secure, protocol, encoding, null, adapter, propertyPrefix);
+      return create(
+          ident,
+          facet,
+          mode,
+          secure,
+          java.util.Optional.empty(),
+          protocol,
+          encoding,
+          null,
+          adapter,
+          propertyPrefix);
     }
 
     ProxyParseException ex = new ProxyParseException();
@@ -527,7 +559,17 @@ public final class ReferenceFactory {
       adapterId = s.readString();
     }
 
-    return create(ident, facet, mode, secure, protocol, encoding, endpoints, adapterId, null);
+    return create(
+        ident,
+        facet,
+        mode,
+        secure,
+        java.util.Optional.empty(),
+        protocol,
+        encoding,
+        endpoints,
+        adapterId,
+        null);
   }
 
   public ReferenceFactory setDefaultRouter(com.zeroc.Ice.RouterPrx defaultRouter) {
@@ -627,6 +669,7 @@ public final class ReferenceFactory {
       String facet,
       int mode,
       boolean secure,
+      java.util.Optional<Boolean> compress,
       com.zeroc.Ice.ProtocolVersion protocol,
       com.zeroc.Ice.EncodingVersion encoding,
       EndpointI[] endpoints,
@@ -721,7 +764,7 @@ public final class ReferenceFactory {
           endpointSelection = com.zeroc.Ice.EndpointSelectionType.Ordered;
         } else {
           throw new com.zeroc.Ice.EndpointSelectionTypeParseException(
-              "illegal value `" + type + "'; expected `Random' or `Ordered'");
+              "illegal value `" + type + "'; expected 'Random' or 'Ordered'");
         }
       }
 
@@ -777,6 +820,7 @@ public final class ReferenceFactory {
         facet,
         mode,
         secure,
+        compress,
         protocol,
         encoding,
         endpoints,

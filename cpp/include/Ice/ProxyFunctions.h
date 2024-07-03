@@ -112,7 +112,7 @@ namespace Ice
 
     /**
      * Downcasts a proxy after confirming the target object's type via a remote invocation.
-     * @param proxy The source proxy (can be nullopt).
+     * @param proxy The source proxy.
      * @param facet A facet name.
      * @param context The context map for the invocation.
      * @return A proxy with the requested type and facet, or nullopt if the target object does not have the requested

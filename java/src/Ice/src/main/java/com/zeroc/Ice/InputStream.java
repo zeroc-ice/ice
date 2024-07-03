@@ -65,7 +65,7 @@ public class InputStream {
    * @param communicator The communicator to use when initializing the stream.
    */
   public InputStream(Communicator communicator) {
-    Instance instance = com.zeroc.IceInternal.Util.getInstance(communicator);
+    Instance instance = communicator.getInstance();
     initialize(instance, instance.defaultsAndOverrides().defaultEncoding);
     _buf = new Buffer(instance.cacheMessageBuffers() > 1);
   }
@@ -149,7 +149,7 @@ public class InputStream {
    * @param encoding The desired encoding version.
    */
   public InputStream(Communicator communicator, EncodingVersion encoding) {
-    Instance instance = com.zeroc.IceInternal.Util.getInstance(communicator);
+    Instance instance = communicator.getInstance();
     initialize(instance, encoding);
     _buf = new Buffer(instance.cacheMessageBuffers() > 1);
   }
@@ -218,7 +218,7 @@ public class InputStream {
    * @param communicator The communicator to use when initializing the stream.
    */
   public void initialize(Communicator communicator) {
-    Instance instance = com.zeroc.IceInternal.Util.getInstance(communicator);
+    Instance instance = communicator.getInstance();
     initialize(instance, instance.defaultsAndOverrides().defaultEncoding);
   }
 
@@ -229,7 +229,7 @@ public class InputStream {
    * @param encoding The desired encoding version.
    */
   public void initialize(Communicator communicator, EncodingVersion encoding) {
-    Instance instance = com.zeroc.IceInternal.Util.getInstance(communicator);
+    Instance instance = communicator.getInstance();
     initialize(instance, encoding);
   }
 
@@ -238,6 +238,7 @@ public class InputStream {
 
     _instance = instance;
     _traceSlicing = _instance.traceLevels().slicing > 0;
+    _classGraphDepthMax = _instance.classGraphDepthMax();
 
     _valueFactoryManager = _instance.initializationData().valueFactoryManager;
     _logger = _instance.initializationData().logger;
@@ -250,6 +251,7 @@ public class InputStream {
     _encapsStack = null;
     _encapsCache = null;
     _traceSlicing = false;
+    _classGraphDepthMax = 0x7fffffff;
     _closure = null;
     _sliceValues = true;
     _startSeq = -1;
@@ -349,6 +351,19 @@ public class InputStream {
   }
 
   /**
+   * Set the maximum depth allowed for graph of Slice class instances.
+   *
+   * @param classGraphDepthMax The maximum depth.
+   */
+  public void setClassGraphDepthMax(int classGraphDepthMax) {
+    if (classGraphDepthMax < 1) {
+      _classGraphDepthMax = 0x7fffffff;
+    } else {
+      _classGraphDepthMax = classGraphDepthMax;
+    }
+  }
+
+  /**
    * Retrieves the closure object associated with this stream.
    *
    * @return The closure object.
@@ -400,6 +415,10 @@ public class InputStream {
     boolean tmpSliceValues = other._sliceValues;
     other._sliceValues = _sliceValues;
     _sliceValues = tmpSliceValues;
+
+    int tmpClassGraphDepthMax = other._classGraphDepthMax;
+    other._classGraphDepthMax = _classGraphDepthMax;
+    _classGraphDepthMax = tmpClassGraphDepthMax;
 
     //
     // Swap is never called for streams that have encapsulations being read. However,
@@ -1597,18 +1616,14 @@ public class InputStream {
    */
   public <T extends Value> void readValue(java.util.function.Consumer<T> cb, Class<T> cls) {
     initEncaps();
-    if (cb == null) {
-      _encapsStack.decoder.readValue(null);
-    } else {
-      _encapsStack.decoder.readValue(
-          v -> {
-            if (v == null || cls.isInstance(v)) {
-              cb.accept(cls.cast(v));
-            } else {
-              com.zeroc.IceInternal.Ex.throwUOE(cls, v);
-            }
-          });
-    }
+    _encapsStack.decoder.readValue(
+        v -> {
+          if (v == null || cls.isInstance(v)) {
+            cb.accept(cls.cast(v));
+          } else {
+            com.zeroc.IceInternal.Ex.throwUOE(cls, v);
+          }
+        });
   }
 
   /**
@@ -1620,43 +1635,6 @@ public class InputStream {
    */
   public void readValue(java.util.function.Consumer<Value> cb) {
     readValue(cb, Value.class);
-  }
-
-  /**
-   * Extracts an optional Slice value from the stream.
-   *
-   * @param <T> The value type.
-   * @param tag The numeric tag associated with the value.
-   * @param cb The consumer to notify when the extracted instance is available. The stream extracts
-   *     Slice values in stages. The Ice run time calls accept on the consumer when the
-   *     corresponding instance has been fully unmarshaled.
-   * @param cls The type of the Ice.Value to unmarshal.
-   */
-  public <T extends Value> void readValue(
-      int tag, java.util.function.Consumer<java.util.Optional<T>> cb, Class<T> cls) {
-    if (readOptional(tag, OptionalFormat.Class)) {
-      if (cb != null) {
-        readValue(v -> cb.accept(java.util.Optional.ofNullable(v)), cls);
-      } else {
-        readValue(null);
-      }
-    } else {
-      if (cb != null) {
-        cb.accept(java.util.Optional.empty());
-      }
-    }
-  }
-
-  /**
-   * Extracts an optional Slice value from the stream.
-   *
-   * @param tag The numeric tag associated with the value.
-   * @param cb The consumer to notify when the extracted instance is available. The stream extracts
-   *     Slice values in stages. The Ice run time calls accept on the consumer when the
-   *     corresponding instance has been fully unmarshaled.
-   */
-  public void readValue(int tag, java.util.function.Consumer<java.util.Optional<Value>> cb) {
-    readValue(tag, cb, Value.class);
   }
 
   /**
@@ -1758,8 +1736,7 @@ public class InputStream {
         }
       case Class:
         {
-          readValue(null, null);
-          break;
+          throw new MarshalException("cannot skip an optional class");
         }
     }
   }
@@ -1873,13 +1850,27 @@ public class InputStream {
   }
 
   private abstract static class EncapsDecoder {
+
+    protected class PatchEntry {
+      public PatchEntry(java.util.function.Consumer<Value> cb, int classGraphDepth) {
+        this.cb = cb;
+        this.classGraphDepth = classGraphDepth;
+      }
+
+      public java.util.function.Consumer<Value> cb;
+      public int classGraphDepth;
+    }
+
     EncapsDecoder(
         InputStream stream,
         boolean sliceValues,
+        int classGraphDepthMax,
         ValueFactoryManager f,
         java.util.function.Function<String, Class<?>> cr) {
       _stream = stream;
       _sliceValues = sliceValues;
+      _classGraphDepthMax = classGraphDepthMax;
+      _classGraphDepth = 0;
       _valueFactoryManager = f;
       _classResolver = cr;
       _typeIdIndex = 0;
@@ -2013,7 +2004,7 @@ public class InputStream {
       // the callback will be called when the instance is
       // unmarshaled.
       //
-      java.util.LinkedList<java.util.function.Consumer<Value>> l = _patchMap.get(index);
+      java.util.LinkedList<PatchEntry> l = _patchMap.get(index);
       if (l == null) {
         //
         // We have no outstanding instances to be patched for this
@@ -2026,7 +2017,7 @@ public class InputStream {
       //
       // Append a patch entry for this instance.
       //
-      l.add(cb);
+      l.add(new PatchEntry(cb, _classGraphDepth));
     }
 
     protected void unmarshal(int index, Value v) {
@@ -2045,15 +2036,15 @@ public class InputStream {
         //
         // Patch all instances now that the instance is unmarshaled.
         //
-        java.util.LinkedList<java.util.function.Consumer<Value>> l = _patchMap.get(index);
+        java.util.LinkedList<PatchEntry> l = _patchMap.get(index);
         if (l != null) {
           assert (l.size() > 0);
 
           //
           // Patch all pointers that refer to the instance.
           //
-          for (java.util.function.Consumer<Value> cb : l) {
-            cb.accept(v);
+          for (PatchEntry entry : l) {
+            entry.cb.accept(v);
           }
 
           //
@@ -2103,14 +2094,15 @@ public class InputStream {
 
     protected final InputStream _stream;
     protected final boolean _sliceValues;
+    protected final int _classGraphDepthMax;
+    protected int _classGraphDepth;
     protected ValueFactoryManager _valueFactoryManager;
     protected java.util.function.Function<String, Class<?>> _classResolver;
 
     //
     // Encapsulation attributes for value unmarshaling.
     //
-    protected java.util.TreeMap<Integer, java.util.LinkedList<java.util.function.Consumer<Value>>>
-        _patchMap;
+    protected java.util.TreeMap<Integer, java.util.LinkedList<PatchEntry>> _patchMap;
     private java.util.TreeMap<Integer, Value> _unmarshaledMap;
     private java.util.TreeMap<Integer, String> _typeIdMap;
     private int _typeIdIndex;
@@ -2122,16 +2114,15 @@ public class InputStream {
     EncapsDecoder10(
         InputStream stream,
         boolean sliceValues,
+        int classGraphDepthMax,
         ValueFactoryManager f,
         java.util.function.Function<String, Class<?>> cr) {
-      super(stream, sliceValues, f, cr);
+      super(stream, sliceValues, classGraphDepthMax, f, cr);
       _sliceType = SliceType.NoSlice;
     }
 
     @Override
     void readValue(java.util.function.Consumer<Value> cb) {
-      assert (cb != null);
-
       //
       // Object references are encoded as a negative integer in 1.0.
       //
@@ -2359,6 +2350,26 @@ public class InputStream {
       }
 
       //
+      // Compute the biggest class graph depth of this object. To compute this,
+      // we get the class graph depth of each ancestor from the patch map and
+      // keep the biggest one.
+      //
+      _classGraphDepth = 0;
+      var l = _patchMap != null ? _patchMap.get(index) : null;
+      if (l != null) {
+        assert (l.size() > 0);
+        for (PatchEntry entry : l) {
+          if (entry.classGraphDepth > _classGraphDepth) {
+            _classGraphDepth = entry.classGraphDepth;
+          }
+        }
+      }
+
+      if (++_classGraphDepth > _classGraphDepthMax) {
+        throw new MarshalException("maximum class graph depth reached");
+      }
+
+      //
       // Unmarshal the instance and add it to the map of unmarshaled instances.
       //
       unmarshal(index, v);
@@ -2377,10 +2388,11 @@ public class InputStream {
     EncapsDecoder11(
         InputStream stream,
         boolean sliceValues,
+        int classGraphDepthMax,
         ValueFactoryManager f,
         java.util.function.Function<String, Class<?>> cr,
         java.util.function.IntFunction<String> r) {
-      super(stream, sliceValues, f, cr);
+      super(stream, sliceValues, classGraphDepthMax, f, cr);
       _compactIdResolver = r;
       _current = null;
       _valueIdIndex = 1;
@@ -2392,9 +2404,7 @@ public class InputStream {
       if (index < 0) {
         throw new MarshalException("invalid object id");
       } else if (index == 0) {
-        if (cb != null) {
-          cb.accept(null);
-        }
+        cb.accept(null);
       } else if (_current != null
           && (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0) {
         //
@@ -2408,16 +2418,14 @@ public class InputStream {
         // derive an index into the indirection table that we'll read
         // at the end of the slice.
         //
-        if (cb != null) {
-          if (_current.indirectPatchList == null) // Lazy initialization
-          {
-            _current.indirectPatchList = new java.util.ArrayDeque<>();
-          }
-          IndirectPatchEntry e = new IndirectPatchEntry();
-          e.index = index - 1;
-          e.cb = cb;
-          _current.indirectPatchList.push(e);
+        if (_current.indirectPatchList == null) // Lazy initialization
+        {
+          _current.indirectPatchList = new java.util.ArrayDeque<>();
         }
+        IndirectPatchEntry e = new IndirectPatchEntry();
+        e.index = index - 1;
+        e.cb = cb;
+        _current.indirectPatchList.push(e);
       } else {
         readInstance(index, cb);
       }
@@ -2815,10 +2823,16 @@ public class InputStream {
         startSlice(); // Read next Slice header for next iteration.
       }
 
+      if (++_classGraphDepth > _classGraphDepthMax) {
+        throw new MarshalException("maximum class graph depth reached");
+      }
+
       //
       // Unmarshal the instance.
       //
       unmarshal(index, v);
+
+      --_classGraphDepth;
 
       if (_current == null && _patchMap != null && !_patchMap.isEmpty()) {
         //
@@ -2965,11 +2979,17 @@ public class InputStream {
     {
       if (_encapsStack.encoding_1_0) {
         _encapsStack.decoder =
-            new EncapsDecoder10(this, _sliceValues, _valueFactoryManager, _classResolver);
+            new EncapsDecoder10(
+                this, _sliceValues, _classGraphDepthMax, _valueFactoryManager, _classResolver);
       } else {
         _encapsStack.decoder =
             new EncapsDecoder11(
-                this, _sliceValues, _valueFactoryManager, _classResolver, _compactIdResolver);
+                this,
+                _sliceValues,
+                _classGraphDepthMax,
+                _valueFactoryManager,
+                _classResolver,
+                _compactIdResolver);
       }
     }
   }
@@ -2993,6 +3013,7 @@ public class InputStream {
   }
 
   private boolean _sliceValues;
+  private int _classGraphDepthMax;
   private boolean _traceSlicing;
 
   private int _startSeq;

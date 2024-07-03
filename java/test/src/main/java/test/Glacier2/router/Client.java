@@ -41,9 +41,9 @@ public class Client extends test.TestHelper {
       {
         out.print("testing router finder... ");
         out.flush();
-        com.zeroc.Ice.RouterFinderPrx finder =
-            com.zeroc.Ice.RouterFinderPrx.uncheckedCast(
-                communicator.stringToProxy("Ice/RouterFinder:" + getTestEndpoint(50)));
+        var finder =
+            com.zeroc.Ice.RouterFinderPrx.createProxy(
+                communicator, "Ice/RouterFinder:" + getTestEndpoint(50));
         test(finder.getRouter().ice_getIdentity().equals(router.ice_getIdentity()));
         out.println("ok");
       }
@@ -81,17 +81,8 @@ public class Client extends test.TestHelper {
         } catch (com.zeroc.Ice.ConnectionLostException ex) {
           out.println("ok");
         } catch (com.zeroc.Ice.SocketException ex) {
-          //
-          // The JSSE implementation in the AIX JDK appears to have a
-          // bug that causes a "bad certificate" exception to be raised
-          // when the connection is forcefully dropped and a retry occurs.
-          //
-          if (System.getProperty("os.name").equals("AIX")) {
-            out.println("ok");
-          } else {
-            System.err.println(ex);
-            test(false);
-          }
+          System.err.println(ex);
+          test(false);
         }
       }
 
@@ -356,16 +347,7 @@ public class Client extends test.TestHelper {
         } catch (com.zeroc.Ice.ConnectionLostException ex) {
           out.println("ok");
         } catch (com.zeroc.Ice.SocketException ex) {
-          //
-          // The JSSE implementation in the AIX JDK appears to have a
-          // bug that causes a "bad certificate" exception to be raised
-          // when the connection is forcefully dropped and a retry occurs.
-          //
-          if (System.getProperty("os.name").equals("AIX")) {
-            out.println("ok");
-          } else {
-            test(false);
-          }
+          test(false);
         }
       }
 

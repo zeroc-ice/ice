@@ -27,7 +27,7 @@ def allTests(helper, communicator)
     begin
         b1 = communicator.stringToProxy("\"test -f facet'")
         test(false)
-    rescue Ice::ProxyParseException
+    rescue Ice::ParseException
     end
     b1 = communicator.stringToProxy("\"test -f facet\"")
     test(b1.ice_getIdentity().name == "test -f facet" && b1.ice_getIdentity().category.empty? && \
@@ -41,14 +41,14 @@ def allTests(helper, communicator)
     begin
         b1 = communicator.stringToProxy("test test")
         test(false)
-    rescue Ice::ProxyParseException
+    rescue Ice::ParseException
     end
     b1 = communicator.stringToProxy("test\\040test")
     test(b1.ice_getIdentity().name == "test test" && b1.ice_getIdentity().category.empty?)
     begin
         b1 = communicator.stringToProxy("test\\777")
         test(false)
-    rescue Ice::IdentityParseException
+    rescue Ice::ParseException
     end
     b1 = communicator.stringToProxy("test\\40test")
     test(b1.ice_getIdentity().name == "test test")
@@ -82,7 +82,7 @@ def allTests(helper, communicator)
     begin
         b1 = communicator.stringToProxy("id@adapter test")
         test(false)
-    rescue Ice::ProxyParseException
+    rescue Ice::ParseException
     end
     b1 = communicator.stringToProxy("category/test@adapter")
     test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category == "category" && \
@@ -118,12 +118,12 @@ def allTests(helper, communicator)
     begin
         b1 = communicator.stringToProxy("id -f \"facet x")
         test(false)
-    rescue Ice::ProxyParseException
+    rescue Ice::ParseException
     end
     begin
         b1 = communicator.stringToProxy("id -f \'facet x")
         test(false)
-    rescue Ice::ProxyParseException
+    rescue Ice::ParseException
     end
     b1 = communicator.stringToProxy("test -f facet:tcp")
     test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category.empty? && \
@@ -143,7 +143,7 @@ def allTests(helper, communicator)
     begin
         b1 = communicator.stringToProxy("test -f facet@test @test")
         test(false)
-    rescue Ice::ProxyParseException
+    rescue Ice::ParseException
     end
     b1 = communicator.stringToProxy("test")
     test(b1.ice_isTwoway())
@@ -173,19 +173,19 @@ def allTests(helper, communicator)
     begin
         b1 = communicator.stringToProxy("test:tcp@adapterId")
         test(false)
-    rescue Ice::EndpointParseException
+    rescue Ice::ParseException
     end
     # This is an unknown endpoint warning, not a parse rescueion.
     #
     #begin
     #   b1 = communicator.stringToProxy("test -f the:facet:tcp")
     #   test(false)
-    #rescue Ice::EndpointParseException
+    #rescue Ice::ParseException
     #end
     begin
         b1 = communicator.stringToProxy("test::tcp")
         test(false)
-    rescue Ice::EndpointParseException
+    rescue Ice::ParseException
     end
     puts "ok"
 
@@ -673,7 +673,7 @@ def allTests(helper, communicator)
     begin
         cl20.ice_ping();
         test(false);
-    rescue Ice::UnsupportedEncodingException
+    rescue Ice::MarshalException
         # Server 2.0 endpoint doesn't support 1.1 version.
     end
 
@@ -692,77 +692,77 @@ def allTests(helper, communicator)
         # Invalid -x option
         p = communicator.stringToProxy("id:opaque -t 99 -v abc -x abc")
         test(false)
-    rescue Ice::EndpointParseException
+    rescue Ice::ParseException
     end
 
     begin
         # Missing -t and -v
         p = communicator.stringToProxy("id:opaque")
         test(false)
-    rescue Ice::EndpointParseException
+    rescue Ice::ParseException
     end
 
     begin
         # Repeated -t
         p = communicator.stringToProxy("id:opaque -t 1 -t 1 -v abc")
         test(false)
-    rescue Ice::EndpointParseException
+    rescue Ice::ParseException
     end
 
     begin
         # Repeated -v
         p = communicator.stringToProxy("id:opaque -t 1 -v abc -v abc")
         test(false)
-    rescue Ice::EndpointParseException
+    rescue Ice::ParseException
     end
 
     begin
         # Missing -t
         p = communicator.stringToProxy("id:opaque -v abc")
         test(false)
-    rescue Ice::EndpointParseException
+    rescue Ice::ParseException
     end
 
     begin
         # Missing -v
         p = communicator.stringToProxy("id:opaque -t 1")
         test(false)
-    rescue Ice::EndpointParseException
+    rescue Ice::ParseException
     end
 
     begin
         # Missing arg for -t
         p = communicator.stringToProxy("id:opaque -t -v abc")
         test(false)
-    rescue Ice::EndpointParseException
+    rescue Ice::ParseException
     end
 
     begin
         # Missing arg for -v
         p = communicator.stringToProxy("id:opaque -t 1 -v")
         test(false)
-    rescue Ice::EndpointParseException
+    rescue Ice::ParseException
     end
 
     begin
         # Not a number for -t
         p = communicator.stringToProxy("id:opaque -t x -v abc")
         test(false)
-    rescue Ice::EndpointParseException
+    rescue Ice::ParseException
     end
 
     begin
         # < 0 for -t
         p = communicator.stringToProxy("id:opaque -t -1 -v abc")
         test(false)
-    rescue Ice::EndpointParseException
+    rescue Ice::ParseException
     end
 
     begin
         # Invalid char for -v
         p = communicator.stringToProxy("id:opaque -t 99 -v x?c")
         test(false)
-    rescue Ice::EndpointParseException
+    rescue Ice::ParseException
     end
 
     # Legal TCP endpoint expressed as opaque endpoint.

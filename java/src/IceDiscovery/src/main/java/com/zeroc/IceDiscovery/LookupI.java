@@ -209,7 +209,7 @@ class LookupI implements Lookup {
     _retryCount = properties.getIcePropertyAsInt("IceDiscovery.RetryCount");
     _latencyMultiplier = properties.getIcePropertyAsInt("IceDiscovery.LatencyMultiplier");
     _domainId = properties.getIceProperty("IceDiscovery.DomainId");
-    _timer = com.zeroc.IceInternal.Util.getInstance(lookup.ice_getCommunicator()).timer();
+    _timer = lookup.ice_getCommunicator().getInstance().timer();
 
     com.zeroc.Ice.Endpoint[] single = new com.zeroc.Ice.Endpoint[1];
     for (com.zeroc.Ice.Endpoint endpt : lookup.ice_getEndpoints()) {

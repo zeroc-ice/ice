@@ -157,7 +157,6 @@ public sealed class OutgoingConnectionFactory
             // connections, so that callbacks from the router can be
             // received over such connections.
             //
-            DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
             for (int i = 0; i < endpoints.Length; i++)
             {
                 EndpointI endpoint = endpoints[i];
@@ -281,9 +280,9 @@ public sealed class OutgoingConnectionFactory
                 {
                     if (connection.isActiveOrHolding()) // Don't return destroyed or un-validated connections
                     {
-                        if (defaultsAndOverrides.overrideCompress)
+                        if (defaultsAndOverrides.overrideCompress is not null)
                         {
-                            compress = defaultsAndOverrides.overrideCompressValue;
+                            compress = defaultsAndOverrides.overrideCompress.Value;
                         }
                         else
                         {
@@ -322,9 +321,9 @@ public sealed class OutgoingConnectionFactory
             {
                 if (connection.isActiveOrHolding()) // Don't return destroyed or un-validated connections
                 {
-                    if (defaultsAndOverrides.overrideCompress)
+                    if (defaultsAndOverrides.overrideCompress is not null)
                     {
-                        compress = defaultsAndOverrides.overrideCompressValue;
+                        compress = defaultsAndOverrides.overrideCompress.Value;
                     }
                     else
                     {
@@ -542,9 +541,9 @@ public sealed class OutgoingConnectionFactory
 
         bool compress;
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-        if (defaultsAndOverrides.overrideCompress)
+        if (defaultsAndOverrides.overrideCompress is not null)
         {
-            compress = defaultsAndOverrides.overrideCompressValue;
+            compress = defaultsAndOverrides.overrideCompress.Value;
         }
         else
         {
@@ -1489,9 +1488,9 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
 
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
 
-        if (defaultsAndOverrides.overrideCompress)
+        if (defaultsAndOverrides.overrideCompress is not null)
         {
-            _endpoint = _endpoint.compress(defaultsAndOverrides.overrideCompressValue);
+            _endpoint = _endpoint.compress(defaultsAndOverrides.overrideCompress.Value);
         }
 
         try
@@ -1553,7 +1552,7 @@ public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.St
             }
             else
             {
-                throw new Ice.SyscallException(ex);
+                throw new SyscallException(ex);
             }
         }
     }

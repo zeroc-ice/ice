@@ -41,8 +41,7 @@ public class OutputStream {
    */
   public OutputStream(Communicator communicator) {
     assert (communicator != null);
-    final com.zeroc.IceInternal.Instance instance =
-        com.zeroc.IceInternal.Util.getInstance(communicator);
+    final com.zeroc.IceInternal.Instance instance = communicator.getInstance();
     initialize(
         instance,
         instance.defaultsAndOverrides().defaultEncoding,
@@ -57,8 +56,7 @@ public class OutputStream {
    */
   public OutputStream(Communicator communicator, boolean direct) {
     assert (communicator != null);
-    final com.zeroc.IceInternal.Instance instance =
-        com.zeroc.IceInternal.Util.getInstance(communicator);
+    final com.zeroc.IceInternal.Instance instance = communicator.getInstance();
     initialize(instance, instance.defaultsAndOverrides().defaultEncoding, direct);
   }
 
@@ -70,8 +68,7 @@ public class OutputStream {
    */
   public OutputStream(Communicator communicator, EncodingVersion encoding) {
     assert (communicator != null);
-    final com.zeroc.IceInternal.Instance instance =
-        com.zeroc.IceInternal.Util.getInstance(communicator);
+    final com.zeroc.IceInternal.Instance instance = communicator.getInstance();
     initialize(instance, encoding, instance.cacheMessageBuffers() > 1);
   }
 
@@ -84,8 +81,7 @@ public class OutputStream {
    */
   public OutputStream(Communicator communicator, EncodingVersion encoding, boolean direct) {
     assert (communicator != null);
-    final com.zeroc.IceInternal.Instance instance =
-        com.zeroc.IceInternal.Util.getInstance(communicator);
+    final com.zeroc.IceInternal.Instance instance = communicator.getInstance();
     initialize(instance, encoding, direct);
   }
 
@@ -114,8 +110,7 @@ public class OutputStream {
    */
   public void initialize(Communicator communicator) {
     assert (communicator != null);
-    final com.zeroc.IceInternal.Instance instance =
-        com.zeroc.IceInternal.Util.getInstance(communicator);
+    final com.zeroc.IceInternal.Instance instance = communicator.getInstance();
     initialize(
         instance,
         instance.defaultsAndOverrides().defaultEncoding,
@@ -131,8 +126,7 @@ public class OutputStream {
    */
   public void initialize(Communicator communicator, EncodingVersion encoding) {
     assert (communicator != null);
-    final com.zeroc.IceInternal.Instance instance =
-        com.zeroc.IceInternal.Util.getInstance(communicator);
+    final com.zeroc.IceInternal.Instance instance = communicator.getInstance();
     initialize(instance, encoding, instance.cacheMessageBuffers() > 1);
   }
 
@@ -1450,31 +1444,6 @@ public class OutputStream {
   public void writeValue(Value v) {
     initEncaps();
     _encapsStack.encoder.writeValue(v);
-  }
-
-  /**
-   * Writes an optional value to the stream.
-   *
-   * @param tag The optional tag.
-   * @param v The optional value to write to the stream.
-   * @param <T> The type of the optional value.
-   */
-  public <T extends Value> void writeValue(int tag, java.util.Optional<T> v) {
-    if (v != null && v.isPresent()) {
-      writeValue(tag, v.get());
-    }
-  }
-
-  /**
-   * Writes an optional value to the stream.
-   *
-   * @param tag The optional tag.
-   * @param v The value to write to the stream.
-   */
-  public void writeValue(int tag, Value v) {
-    if (writeOptional(tag, OptionalFormat.Class)) {
-      writeValue(v);
-    }
   }
 
   /**

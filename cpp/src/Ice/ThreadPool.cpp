@@ -4,7 +4,7 @@
 
 #include "ThreadPool.h"
 #include "EventHandler.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
 #include "Instance.h"
@@ -328,7 +328,7 @@ IceInternal::ThreadPool::initialize()
             _threads.insert(std::move(thread));
         }
     }
-    catch (const IceUtil::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         {
             Error out(_instance->initializationData().logger);
@@ -888,7 +888,7 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
                     thread->start();
                     _threads.insert(std::move(thread));
                 }
-                catch (const IceUtil::Exception& ex)
+                catch (const Ice::Exception& ex)
                 {
                     Error out(_instance->initializationData().logger);
                     out << "cannot create thread for `" << _prefix << "':\n" << ex;

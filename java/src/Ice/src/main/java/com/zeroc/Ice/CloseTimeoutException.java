@@ -29,8 +29,5 @@ public class CloseTimeoutException extends TimeoutException {
     return "::Ice::CloseTimeoutException";
   }
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = -702193953324375086L;
+  private static final long serialVersionUID = -702193953324375086L;
 }

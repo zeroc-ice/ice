@@ -50,7 +50,6 @@ namespace IceInternal
         const Ice::EncodingVersion& defaultEncoding() const;
         NetworkProxyPtr networkProxy() const;
         size_t messageSizeMax() const;
-        int defaultTimeout() const;
 
         void resolve(
             const std::string&,

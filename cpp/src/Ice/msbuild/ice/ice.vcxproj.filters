@@ -213,34 +213,31 @@
     <ClCompile Include="x64\Release\Version.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IceUtil\ConsoleUtil.cpp">
+    <ClCompile Include="..\..\ConsoleUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IceUtil\CtrlCHandler.cpp">
+    <ClCompile Include="..\..\CtrlCHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IceUtil\FileUtil.cpp">
+    <ClCompile Include="..\..\FileUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IceUtil\Options.cpp">
+    <ClCompile Include="..\..\Options.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IceUtil\OutputUtil.cpp">
+    <ClCompile Include="..\..\OutputUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IceUtil\Random.cpp">
+    <ClCompile Include="..\..\Random.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IceUtil\StringConverter.cpp">
+    <ClCompile Include="..\..\StringConverter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IceUtil\StringUtil.cpp">
+    <ClCompile Include="..\..\StringUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IceUtil\UtilException.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IceUtil\UUID.cpp">
+    <ClCompile Include="..\..\UUID.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\ArgVector.cpp">
@@ -612,6 +609,9 @@
     <ClCompile Include="..\..\SSL\SSLException.cpp">
       <Filter>Source Files\SSL</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\LocalExceptions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\EventLoggerMsg.mc">
@@ -742,9 +742,6 @@
     <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\Version.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\EndpointI.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\Context.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
@@ -784,9 +781,6 @@
     <ClInclude Include="..\..\..\..\include\Ice\AsyncResponseHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\Ice\BatchRequestInterceptor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\Ice\BatchRequestQueueF.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -812,9 +806,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\Ice\ConnectionIF.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\Ice\ConsoleUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\Ice\CtrlCHandler.h">
@@ -853,9 +844,6 @@
     <ClInclude Include="..\..\..\..\include\Ice\ImplicitContext.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\Ice\ImplicitContextF.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\Ice\IncomingRequest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -871,10 +859,7 @@
     <ClInclude Include="..\..\..\..\include\Ice\Instrumentation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\Ice\InstrumentationF.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\Ice\LocalException.h">
+    <ClInclude Include="..\..\..\..\include\Ice\LocalExceptions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\Ice\Logger.h">
@@ -928,9 +913,6 @@
     <ClInclude Include="..\..\..\..\include\Ice\Plugin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\Ice\PluginF.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\Ice\Properties.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -958,9 +940,6 @@
     <ClInclude Include="..\..\..\..\include\Ice\ServantLocator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\Ice\ServantManagerF.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\Ice\Service.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -977,9 +956,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\Ice\StringConverter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\Ice\ThreadPoolF.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\Ice\UserException.h">
@@ -1041,6 +1017,21 @@
     </ClInclude>
     <ClInclude Include="..\..\SSL\TrustManagerF.h">
       <Filter>Source Files\SSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ConsoleUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\EndpointI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\StackTrace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\LocalException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\RequestFailedMessage.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

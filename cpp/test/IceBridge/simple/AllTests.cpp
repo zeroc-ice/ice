@@ -84,7 +84,8 @@ allTests(Test::TestHelper* helper)
                 // The bridge forwards the CloseConnectionException from the server as an
                 // UnknownLocalException. It eventually closes the connection when notified
                 // of the connection close.
-                test(ex.unknown.find("CloseConnectionException") != string::npos);
+                string message{ex.what()};
+                test(message.find("::Ice::CloseConnectionException") != string::npos);
             }
             this_thread::sleep_for(1ms);
         }

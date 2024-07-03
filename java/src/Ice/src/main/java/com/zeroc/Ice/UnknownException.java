@@ -47,8 +47,5 @@ public class UnknownException extends LocalException {
   /** This field is set to the textual representation of the unknown exception if available. */
   public String unknown;
 
-  /**
-   * @hidden
-   */
-  public static final long serialVersionUID = 4845487294380422868L;
+  private static final long serialVersionUID = 4845487294380422868L;
 }

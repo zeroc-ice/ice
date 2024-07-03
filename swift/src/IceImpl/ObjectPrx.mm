@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 #import "include/ObjectPrx.h"
 #import "include/Communicator.h"

@@ -131,12 +131,6 @@ namespace Ice
                 MyClassFactoryWrapper factoryWrapper = new MyClassFactoryWrapper();
 
                 communicator.getValueFactoryManager().add(factoryWrapper.create, Test.MyClass.ice_staticId());
-                communicator.getValueFactoryManager().add((id) =>
-                    {
-                        return new Ice.InterfaceByValue("::Test::MyInterface");
-                    },
-                    "::Test::MyInterface");
-
                 Ice.InputStream inS;
                 Ice.OutputStream outS;
 
@@ -175,7 +169,7 @@ namespace Ice
                         inS.readBool();
                         test(false);
                     }
-                    catch (Ice.UnmarshalOutOfBoundsException)
+                    catch (Ice.MarshalException)
                     {
                     }
                 }
@@ -536,12 +530,6 @@ namespace Ice
                     myClassArray[i].seq10 = new Test.MyClass[4]; // null elements.
                     myClassArray[i].d = new Dictionary<string, Test.MyClass>();
                     myClassArray[i].d["hi"] = myClassArray[i];
-                }
-
-                var myInterfaceArray = new Ice.Value[4];
-                for (int i = 0; i < myInterfaceArray.Length; ++i)
-                {
-                    myInterfaceArray[i] = new Ice.InterfaceByValue("::Test::MyInterface");
                 }
 
                 {

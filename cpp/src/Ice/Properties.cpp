@@ -3,12 +3,12 @@
 //
 
 #include "Ice/Properties.h"
+#include "FileUtil.h"
 #include "Ice/Initialize.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
-#include "IceUtil/FileUtil.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/StringUtil.h"
 #include "PropertyNames.h"
 
 #include <cassert>
@@ -61,7 +61,7 @@ namespace
 
             // As a courtesy to the user, perform a case-insensitive match and suggest the correct property.
             // Otherwise no other warning is issued.
-            if (logWarnings && IceUtilInternal::toLower(propPrefix) == IceUtilInternal::toLower(prefix))
+            if (logWarnings && IceInternal::toLower(propPrefix) == IceInternal::toLower(prefix))
             {
                 ostringstream os;
                 os << "unknown property prefix: `" << prefix << "'; did you mean `" << propPrefix << "'?";
@@ -79,7 +79,7 @@ namespace
         {
             auto prop = propertyArray->properties[i];
 
-            if (prop.usesRegex ? IceUtilInternal::match(string{key}, prop.pattern) : key == prop.pattern)
+            if (prop.usesRegex ? IceInternal::match(string{key}, prop.pattern) : key == prop.pattern)
             {
                 return prop;
             }
@@ -282,7 +282,7 @@ Ice::Properties::getIcePropertyAsList(string_view key)
 {
     string_view defaultValue = getDefaultValue(key);
     StringSeq defaultList;
-    IceUtilInternal::splitString(defaultValue, ", \t\r\n", defaultList);
+    IceInternal::splitString(defaultValue, ", \t\r\n", defaultList);
     return getPropertyAsListWithDefault(key, defaultList);
 }
 
@@ -297,7 +297,7 @@ Ice::Properties::getPropertyAsListWithDefault(string_view key, const StringSeq& 
         p->second.used = true;
 
         StringSeq result;
-        if (!IceUtilInternal::splitString(p->second.value, ", \t\r\n", result))
+        if (!IceInternal::splitString(p->second.value, ", \t\r\n", result))
         {
             Warning out(getProcessLogger());
             out << "mismatched quotes in property " << key << "'s value, returning default value";
@@ -338,7 +338,7 @@ Ice::Properties::setProperty(string_view key, string_view value)
     //
     // Trim whitespace
     //
-    string currentKey = IceUtilInternal::trim(string{key});
+    string currentKey = IceInternal::trim(string{key});
     if (currentKey.empty())
     {
         throw InitializationException(__FILE__, __LINE__, "Attempt to set property with empty key");
@@ -449,7 +449,7 @@ Ice::Properties::load(string_view file)
             throw InitializationException(
                 __FILE__,
                 __LINE__,
-                "could not open Windows registry key `" + string{file} + "':\n" + IceUtilInternal::errorToString(err));
+                "could not open Windows registry key `" + string{file} + "':\n" + IceInternal::errorToString(err));
         }
 
         DWORD maxNameSize; // Size in characters not including terminating null character.
@@ -475,8 +475,7 @@ Ice::Properties::load(string_view file)
                 throw InitializationException(
                     __FILE__,
                     __LINE__,
-                    "could not open Windows registry key `" + string{file} + "':\n" +
-                        IceUtilInternal::errorToString(err));
+                    "could not open Windows registry key `" + string{file} + "':\n" + IceInternal::errorToString(err));
             }
 
             for (DWORD i = 0; i < numValues; ++i)
@@ -498,7 +497,7 @@ Ice::Properties::load(string_view file)
                     }
                     else
                     {
-                        os << IceUtilInternal::errorToString(err);
+                        os << IceInternal::errorToString(err);
                     }
                     getProcessLogger()->warning(os.str());
                     continue;
@@ -537,7 +536,7 @@ Ice::Properties::load(string_view file)
                             ostringstream os;
                             os << "could not expand variable in property `" << name
                                << "', key: `" + string{file} + "':\n";
-                            os << IceUtilInternal::lastErrorToString();
+                            os << IceInternal::lastErrorToString();
                             getProcessLogger()->warning(os.str());
                             continue;
                         }
@@ -557,7 +556,7 @@ Ice::Properties::load(string_view file)
     else
 #endif
     {
-        ifstream in(IceUtilInternal::streamFilename(string{file}).c_str());
+        ifstream in(IceInternal::streamFilename(string{file}).c_str());
         if (!in)
         {
             throw FileException(__FILE__, __LINE__, string{file});
@@ -811,10 +810,10 @@ Ice::Properties::loadConfig()
     if (!value.empty())
     {
         vector<string> files;
-        IceUtilInternal::splitString(value, ",", files);
+        IceInternal::splitString(value, ",", files);
         for (vector<string>::const_iterator i = files.begin(); i != files.end(); ++i)
         {
-            load(IceUtilInternal::trim(string{*i}));
+            load(IceInternal::trim(string{*i}));
         }
 
         PropertyValue pv{std::move(value), true};

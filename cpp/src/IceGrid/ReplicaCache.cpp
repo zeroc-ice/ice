@@ -4,7 +4,7 @@
 
 #include "ReplicaCache.h"
 #include "Ice/Communicator.h"
-#include "Ice/LocalException.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "ReplicaSessionI.h"
 #include "Topics.h"
@@ -185,7 +185,7 @@ ReplicaCache::subscribe(const ReplicaObserverPrx& observer)
         {
             ostringstream os;
             os << "topic: `" << _topic->ice_toString() << "' returned null publisher proxy";
-            throw Ice::MarshalException(__FILE__, __LINE__);
+            throw Ice::MarshalException{__FILE__, __LINE__, os.str()};
         }
         ReplicaObserverPrx(*publisher)->replicaInit(replicas);
     }

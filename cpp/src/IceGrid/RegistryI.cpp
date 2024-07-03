@@ -3,6 +3,7 @@
 //
 
 #include "RegistryI.h"
+#include "../Ice/FileUtil.h"
 #include "../Ice/Network.h"
 #include "../Ice/ProtocolPluginFacade.h" // Just to get the hostname
 #include "../Ice/SSL/SSLUtil.h"
@@ -18,7 +19,6 @@
 #include "Ice/Ice.h"
 #include "Ice/UUID.h"
 #include "IceLocatorDiscovery.h"
-#include "IceUtil/FileUtil.h"
 #include "InternalRegistryI.h"
 #include "LocatorI.h"
 #include "LocatorRegistryI.h"
@@ -305,7 +305,7 @@ RegistryI::startImpl()
     }
     else
     {
-        if (!IceUtilInternal::directoryExists(dbPath))
+        if (!IceInternal::directoryExists(dbPath))
         {
             Ice::SyscallException ex(__FILE__, __LINE__);
             Ice::Error out(_communicator->getLogger());
@@ -730,7 +730,7 @@ RegistryI::setupClientSessionFactory(const IceGrid::LocatorPrx& locator)
     }
 
     assert(_reaper);
-    _timer = make_shared<IceUtil::Timer>(); // Used for session allocation timeout.
+    _timer = make_shared<Ice::Timer>(); // Used for session allocation timeout.
     _clientSessionFactory = make_shared<ClientSessionFactory>(servantManager, _database, _timer, _reaper);
 
     if (servantManager && _master) // Slaves don't support client session manager objects.

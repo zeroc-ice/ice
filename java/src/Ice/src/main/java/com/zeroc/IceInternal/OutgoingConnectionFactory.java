@@ -5,7 +5,9 @@
 package com.zeroc.IceInternal;
 
 import com.zeroc.Ice.ConnectionI;
+import com.zeroc.Ice.ConnectionOptions;
 import com.zeroc.Ice.LocalException;
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 
 public final class OutgoingConnectionFactory {
@@ -22,17 +24,7 @@ public final class OutgoingConnectionFactory {
       list.add(value);
     }
 
-    public boolean removeElementWithValue(K key, V value) {
-      java.util.List<V> list = this.get(key);
-      assert (list != null);
-      boolean v = list.remove(value);
-      if (list.isEmpty()) {
-        this.remove(key);
-      }
-      return v;
-    }
-
-    public static final long serialVersionUID = 0L;
+    private static final long serialVersionUID = -8109942200313578944L;
   }
 
   interface CreateConnectionCallback {
@@ -124,10 +116,8 @@ public final class OutgoingConnectionFactory {
       CreateConnectionCallback callback) {
     assert (endpts.length > 0);
 
-    //
-    // Apply the overrides.
-    //
-    java.util.List<EndpointI> endpoints = applyOverrides(endpts);
+    // TODO: fix API to use List directly.
+    var endpoints = Arrays.asList(endpts);
 
     //
     // Try to find a connection to one of the given endpoints.
@@ -147,8 +137,7 @@ public final class OutgoingConnectionFactory {
     final ConnectCallback cb = new ConnectCallback(this, endpoints, hasMore, callback, selType);
     //
     // Calling cb.getConnectors() can eventually result in a call to connect() on a socket, which is
-    // not
-    // allowed while in Android's main thread (with a dispatcher installed).
+    // not allowed while in Android's main thread (with an executor installed).
     //
     if (_instance.queueRequests()) {
       _instance
@@ -177,8 +166,6 @@ public final class OutgoingConnectionFactory {
         throw new com.zeroc.Ice.CommunicatorDestroyedException();
       }
 
-      DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-
       //
       // Search for connections to the router's client proxy
       // endpoints, and update the object adapter for such
@@ -186,13 +173,6 @@ public final class OutgoingConnectionFactory {
       // received over such connections.
       //
       for (EndpointI endpoint : endpoints) {
-        //
-        // Modify endpoints with overrides.
-        //
-        if (defaultsAndOverrides.overrideTimeout) {
-          endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
-        }
-
         //
         // The Connection object does not take the compression flag of
         // endpoints into account, but instead gets the information
@@ -260,6 +240,7 @@ public final class OutgoingConnectionFactory {
   OutgoingConnectionFactory(com.zeroc.Ice.Communicator communicator, Instance instance) {
     _communicator = communicator;
     _instance = instance;
+    _connectionOptions = instance.clientConnectionOptions();
     _destroyed = false;
   }
 
@@ -278,23 +259,6 @@ public final class OutgoingConnectionFactory {
     }
   }
 
-  private java.util.List<EndpointI> applyOverrides(EndpointI[] endpts) {
-    DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-    java.util.List<EndpointI> endpoints = new java.util.ArrayList<>();
-    for (EndpointI endpoint : endpts) {
-      //
-      // Modify endpoints with overrides.
-      //
-      if (defaultsAndOverrides.overrideTimeout) {
-        endpoints.add(endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue));
-      } else {
-        endpoints.add(endpoint);
-      }
-    }
-
-    return endpoints;
-  }
-
   private synchronized ConnectionI findConnectionByEndpoint(
       java.util.List<EndpointI> endpoints, Holder<Boolean> compress) {
     if (_destroyed) {
@@ -304,7 +268,9 @@ public final class OutgoingConnectionFactory {
     DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
     assert (!endpoints.isEmpty());
 
-    for (EndpointI endpoint : endpoints) {
+    for (EndpointI proxyEndpoint : endpoints) {
+      // Clear the timeout
+      EndpointI endpoint = proxyEndpoint.timeout(-1);
       java.util.List<ConnectionI> connectionList = _connectionsByEndpoint.get(endpoint);
       if (connectionList == null) {
         continue;
@@ -313,8 +279,8 @@ public final class OutgoingConnectionFactory {
       for (ConnectionI connection : connectionList) {
         if (connection.isActiveOrHolding()) // Don't return destroyed or un-validated connections
         {
-          if (defaultsAndOverrides.overrideCompress) {
-            compress.value = defaultsAndOverrides.overrideCompressValue;
+          if (defaultsAndOverrides.overrideCompress.isPresent()) {
+            compress.value = defaultsAndOverrides.overrideCompress.get();
           } else {
             compress.value = endpoint.compress();
           }
@@ -345,8 +311,8 @@ public final class OutgoingConnectionFactory {
       for (ConnectionI connection : connectionList) {
         if (connection.isActiveOrHolding()) // Don't return destroyed or un-validated connections
         {
-          if (defaultsAndOverrides.overrideCompress) {
-            compress.value = defaultsAndOverrides.overrideCompressValue;
+          if (defaultsAndOverrides.overrideCompress.isPresent()) {
+            compress.value = defaultsAndOverrides.overrideCompress.get();
           } else {
             compress.value = ci.endpoint.compress();
           }
@@ -453,9 +419,10 @@ public final class OutgoingConnectionFactory {
               _instance,
               transceiver,
               ci.connector,
-              ci.endpoint.compress(false),
+              ci.endpoint.compress(false).timeout(-1),
+              null,
               this::removeConnection,
-              null);
+              _connectionOptions);
     } catch (LocalException ex) {
       try {
         transceiver.close();
@@ -508,8 +475,8 @@ public final class OutgoingConnectionFactory {
 
     boolean compress;
     DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-    if (defaultsAndOverrides.overrideCompress) {
-      compress = defaultsAndOverrides.overrideCompressValue;
+    if (defaultsAndOverrides.overrideCompress.isPresent()) {
+      compress = defaultsAndOverrides.overrideCompress.get();
     } else {
       compress = ci.endpoint.compress();
     }
@@ -835,11 +802,11 @@ public final class OutgoingConnectionFactory {
           assert (_iter.hasNext());
           _current = _iter.next();
 
-          com.zeroc.Ice.Instrumentation.CommunicatorObserver obsv =
+          com.zeroc.Ice.Instrumentation.CommunicatorObserver observer =
               _factory._instance.initializationData().observer;
-          if (obsv != null) {
+          if (observer != null) {
             _observer =
-                obsv.getConnectionEstablishmentObserver(
+                observer.getConnectionEstablishmentObserver(
                     _current.endpoint, _current.connector.toString());
             if (_observer != null) {
               _observer.attach();
@@ -918,6 +885,7 @@ public final class OutgoingConnectionFactory {
 
   private com.zeroc.Ice.Communicator _communicator;
   private final Instance _instance;
+  private final ConnectionOptions _connectionOptions;
   private boolean _destroyed;
 
   private MultiHashMap<Connector, ConnectionI> _connections = new MultiHashMap<>();

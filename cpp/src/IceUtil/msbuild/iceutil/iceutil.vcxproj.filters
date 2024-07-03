@@ -15,96 +15,87 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\CtrlCHandler.cpp">
+    <ClCompile Include="..\..\..\Ice\CtrlCHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\UtilException.cpp">
+    <ClCompile Include="..\..\..\Ice\Exception.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\FileUtil.cpp">
+    <ClCompile Include="..\..\..\Ice\FileUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Options.cpp">
+    <ClCompile Include="..\..\..\Ice\Options.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Random.cpp">
+    <ClCompile Include="..\..\..\Ice\Random.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\StringUtil.cpp">
+    <ClCompile Include="..\..\..\Ice\StringUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\UUID.cpp">
+    <ClCompile Include="..\..\..\Ice\UUID.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\OutputUtil.cpp">
+    <ClCompile Include="..\..\..\Ice\OutputUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\StringConverter.cpp">
+    <ClCompile Include="..\..\..\Ice\StringConverter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ConsoleUtil.cpp">
+    <ClCompile Include="..\..\..\Ice\ConsoleUtil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Ice\LocalException.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\include\IceUtil\Config.h">
+    <ClInclude Include="..\..\..\Ice\ConsoleUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\IceUtil\CtrlCHandler.h">
+    <ClInclude Include="..\..\..\Ice\DisableWarnings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\IceUtil\DisableWarnings.h">
+    <ClInclude Include="..\..\..\Ice\StackTrace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\IceUtil\Exception.h">
+    <ClInclude Include="..\..\..\Ice\FileUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\IceUtil\FileUtil.h">
+    <ClInclude Include="..\..\..\Ice\Options.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\IceUtil\Iterator.h">
+    <ClInclude Include="..\..\..\Ice\OutputUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\IceUtil\Optional.h">
+    <ClInclude Include="..\..\..\Ice\Random.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\IceUtil\Options.h">
+    <ClInclude Include="..\..\..\Ice\ResourceConfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\IceUtil\OutputUtil.h">
+    <ClInclude Include="..\..\..\Ice\ScannerConfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\IceUtil\PopDisableWarnings.h">
+    <ClInclude Include="..\..\..\Ice\UndefSysMacros.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\IceUtil\PushDisableWarnings.h">
+    <ClInclude Include="..\..\..\..\include\Ice\Config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\IceUtil\Random.h">
+    <ClInclude Include="..\..\..\..\include\Ice\CtrlCHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\IceUtil\ScannerConfig.h">
+    <ClInclude Include="..\..\..\..\include\Ice\Exception.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\IceUtil\StringConverter.h">
+    <ClInclude Include="..\..\..\..\include\Ice\StringConverter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\IceUtil\StringUtil.h">
+    <ClInclude Include="..\..\..\..\include\Ice\UUID.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\IceUtil\Thread.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\IceUtil\Timer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\IceUtil\UndefSysMacros.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\IceUtil\UUID.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\IceUtil\ConsoleUtil.h">
+    <ClInclude Include="..\..\..\..\include\Ice\LocalException.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

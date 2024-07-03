@@ -3,9 +3,9 @@
 //
 
 #include "HttpParser.h"
-#include "Ice/LocalException.h"
-#include "IceUtil/Config.h"
-#include "IceUtil/StringUtil.h"
+#include "Ice/Config.h"
+#include "Ice/LocalExceptions.h"
+#include "Ice/StringUtil.h"
 
 #include <cassert>
 
@@ -299,7 +299,7 @@ IceInternal::HttpParser::parse(const byte* begin, const byte* end)
             {
                 if (_headerName.empty())
                 {
-                    _headerName = IceUtilInternal::toLower(bytesToString(start, p));
+                    _headerName = IceInternal::toLower(bytesToString(start, p));
                     HeaderFields::iterator q = _headers.find(_headerName);
                     //
                     // Add a placeholder entry if necessary.
@@ -666,13 +666,13 @@ IceInternal::HttpParser::reason() const
 bool
 IceInternal::HttpParser::getHeader(const string& name, string& value, bool toLower) const
 {
-    HeaderFields::const_iterator q = _headers.find(IceUtilInternal::toLower(name));
+    HeaderFields::const_iterator q = _headers.find(IceInternal::toLower(name));
     if (q != _headers.end())
     {
-        value = IceUtilInternal::trim(q->second.second);
+        value = IceInternal::trim(q->second.second);
         if (toLower)
         {
-            value = IceUtilInternal::toLower(value);
+            value = IceInternal::toLower(value);
         }
         return true;
     }
@@ -686,7 +686,7 @@ IceInternal::HttpParser::getHeaders() const
     map<string, string> headers;
     for (HeaderFields::const_iterator q = _headers.begin(); q != _headers.end(); ++q)
     {
-        headers.insert(make_pair(q->second.first, IceUtilInternal::trim(q->second.second)));
+        headers.insert(make_pair(q->second.first, IceInternal::trim(q->second.second)));
     }
     return headers;
 }
