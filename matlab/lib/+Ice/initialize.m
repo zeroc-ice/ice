@@ -23,7 +23,7 @@ function [communicator, args] = initialize(varargin)
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
     if length(varargin) > 2
-        throw(MException('Ice:ArgumentException', 'too many arguments to Ice.initialize'));
+        throw(LocalException('Ice:ArgumentException', 'too many arguments to Ice.initialize'));
     end
 
     args = {};
@@ -38,12 +38,12 @@ function [communicator, args] = initialize(varargin)
         elseif isa(varargin{i}, 'char') && isempty(configFile)
             configFile = varargin{i};
         else
-            throw(MException('Ice:ArgumentException', 'unexpected argument to Ice.initialize'));
+            throw(LocalException('Ice:ArgumentException', 'unexpected argument to Ice.initialize'));
         end
     end
 
     if ~isempty(initData) && ~isempty(configFile)
-        throw(MException('Ice:ArgumentException', ...
+        throw(LocalException('Ice:ArgumentException', ...
                          'initialize accepts either Ice.InitializationData or a configuration filename'));
     end
 
@@ -65,7 +65,7 @@ function [communicator, args] = initialize(varargin)
     props = libpointer('voidPtr');
     if ~isempty(initData.properties_)
         if ~isa(initData.properties_, 'Ice.Properties')
-            throw(MException('Ice:ArgumentException', 'invalid value for properties_ member'));
+            throw(LocalException('Ice:ArgumentException', 'invalid value for properties_ member'));
         else
             props = initData.properties_.impl_;
         end

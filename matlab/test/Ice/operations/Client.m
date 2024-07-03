@@ -21,7 +21,7 @@ function client(args)
     myClass.shutdown();
     try
         myClass.ice_invocationTimeout(100).ice_ping(); % Use timeout to speed up testing on Windows
-        throw(MException());
+        throw(MException('Ice:TestException', 'expected exception not thrown'));
     catch ex
         if isa(ex, 'Ice.LocalException')
             fprintf('ok\n');

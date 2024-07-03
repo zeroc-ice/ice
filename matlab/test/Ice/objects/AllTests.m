@@ -224,8 +224,8 @@ classdef AllTests
                 assert(false);
             catch ex
                 if isa(ex, 'Ice.MarshalException')
-                    assert(contains(ex.reason, 'Test.AlsoEmpty'));
-                    assert(contains(ex.reason, 'Test.Empty'));
+                    assert(contains(ex.message, 'Test.AlsoEmpty'));
+                    assert(contains(ex.message, 'Test.Empty'));
                 else
                     rethrow(ex);
                 end
