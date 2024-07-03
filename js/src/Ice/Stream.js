@@ -2672,7 +2672,7 @@ export class OutputStream {
     }
 
     writeOptionalProxy(tag, v) {
-        if (v !== undefined) {
+        if (v !== undefined && v !== null) {
             if (this.writeOptional(tag, OptionalFormat.FSize)) {
                 const pos = this.startSize();
                 this.writeProxy(v);
