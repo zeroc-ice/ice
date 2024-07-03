@@ -9,7 +9,7 @@ function r = protocolVersionToString(v)
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
     if ~isa(v, 'Ice.ProtocolVersion')
-        throw(MException('Ice:ArgumentException', 'expecting an Ice.ProtocolVersion'));
+        throw(LocalException('Ice:ArgumentException', 'expecting an Ice.ProtocolVersion'));
     end
     r = sprintf('%d.%d', v.major, v.minor);
 end

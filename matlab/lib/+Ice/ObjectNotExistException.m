@@ -4,26 +4,6 @@
 % exist.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.10
 
-classdef ObjectNotExistException < Ice.RequestFailedException
-    methods
-        function obj = ObjectNotExistException(ice_exid, ice_exmsg, id, facet, operation)
-            if nargin <= 2
-                id = Ice.Identity();
-                facet = '';
-                operation = '';
-            end
-            if nargin == 0 || isempty(ice_exid)
-                ice_exid = 'Ice:ObjectNotExistException';
-            end
-            if nargin < 2 || isempty(ice_exmsg)
-                ice_exmsg = 'Ice.ObjectNotExistException';
-            end
-            obj = obj@Ice.RequestFailedException(ice_exid, ice_exmsg, id, facet, operation);
-        end
-        function id = ice_id(~)
-            id = '::Ice::ObjectNotExistException';
-        end
-    end
+classdef (Sealed) ObjectNotExistException < Ice.RequestFailedException
 end

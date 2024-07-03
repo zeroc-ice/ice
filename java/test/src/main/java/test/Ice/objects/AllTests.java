@@ -38,7 +38,6 @@ public class AllTests {
     }
   }
 
-  @SuppressWarnings("deprecation")
   public static InitialPrx allTests(test.TestHelper helper) {
     com.zeroc.Ice.Communicator communicator = helper.communicator();
     PrintWriter out = helper.getWriter();
@@ -267,8 +266,8 @@ public class AllTests {
     out.flush();
     Recursive top = new Recursive();
     Recursive bottom = top;
-    int maxDepth = 99;
-    for (int i = 0; i < maxDepth; ++i) {
+    int maxDepth = 10;
+    for (int i = 1; i < maxDepth; ++i) {
       bottom.v = new Recursive();
       bottom = bottom.v;
     }

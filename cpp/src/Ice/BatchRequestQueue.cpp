@@ -108,10 +108,10 @@ BatchRequestQueue::finishBatchRequest(OutputStream* os, const Ice::ObjectPrx& pr
         }
         else
         {
-            bool compress;
-            if (proxy->_getReference()->getCompressOverride(compress))
+            optional<bool> compress = proxy->_getReference()->getCompressOverride();
+            if (compress.has_value())
             {
-                _batchCompress |= compress;
+                _batchCompress |= *compress;
             }
             _batchMarker = _batchStream.b.size();
             ++_batchRequestNum;
@@ -201,10 +201,10 @@ void
 BatchRequestQueue::enqueueBatchRequest(const Ice::ObjectPrx& proxy)
 {
     assert(_batchMarker < _batchStream.b.size());
-    bool compress;
-    if (proxy->_getReference()->getCompressOverride(compress))
+    optional<bool> compress = proxy->_getReference()->getCompressOverride();
+    if (compress.has_value())
     {
-        _batchCompress |= compress;
+        _batchCompress |= *compress;
     }
     _batchMarker = _batchStream.b.size();
     ++_batchRequestNum;

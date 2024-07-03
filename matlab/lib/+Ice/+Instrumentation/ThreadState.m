@@ -36,7 +36,7 @@ classdef ThreadState < uint8
                 case 3
                     r = Ice.Instrumentation.ThreadState.ThreadStateInUseForOther;
                 otherwise
-                    throw(Ice.MarshalException('', '', sprintf('enumerator value %d is out of range', v)));
+                    throw(Ice.MarshalException(sprintf('enumerator value %d is out of range', v)));
             end
         end
     end

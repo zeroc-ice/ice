@@ -24,7 +24,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                 % If any entries remain in the patch map, the sender has sent an index for an object, but failed
                 % to supply the object.
                 %
-                throw(Ice.MarshalException('', '', 'index for class received, but no instance'));
+                throw(Ice.MarshalException('index for class received, but no instance'));
             end
         end
 
@@ -34,7 +34,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
             %
             index = obj.is.readInt();
             if index > 0
-                throw(Ice.MarshalException('', '', 'invalid object id'));
+                throw(Ice.MarshalException('invalid object id'));
             end
             index = -index;
 
@@ -114,7 +114,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                             % next type ID, which raises UnmarshalOutOfBoundsException when the
                             % input buffer underflows.
                             %
-                            throw(Ice.MarshalException('', '', sprintf('unknown exception type ''%s''', mostDerivedId)));
+                            throw(Ice.MarshalException(sprintf('unknown exception type ''%s''', mostDerivedId)));
                         end
                         rethrow(ex);
                     end
@@ -135,7 +135,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                 obj.startSlice();
                 sz = obj.is.readSize(); % For compatibility with the old AFM.
                 if sz ~= 0
-                    throw(Ice.MarshalException('', '', 'invalid Object slice'));
+                    throw(Ice.MarshalException('invalid Object slice'));
                 end
                 obj.endSlice();
             end
@@ -174,7 +174,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
 
             obj.sliceSize = obj.is.readInt();
             if obj.sliceSize < 4
-                throw(Ice.MarshalException('', '', 'invalid slice size'));
+                throw(Ice.MarshalException('invalid slice size'));
             end
 
             r = obj.typeId;
@@ -195,7 +195,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
         function readInstance(obj)
             index = obj.is.readInt();
             if index <= 0
-                throw(Ice.MarshalException('', '', 'invalid object id'));
+                throw(Ice.MarshalException('invalid object id'));
             end
 
             obj.sliceType = IceInternal.SliceType.ValueSlice;
@@ -213,7 +213,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                 % marks the last slice.
                 %
                 if strcmp(obj.typeId, Ice.Value.ice_staticId())
-                    throw(Ice.MarshalException('', '', sprintf('cannot find value factory for type ID ''%s''', mostDerivedId)));
+                    throw(Ice.MarshalException(sprintf('cannot find value factory for type ID ''%s''', mostDerivedId)));
                 end
 
                 v = obj.newInstance(obj.typeIdIndex, obj.typeId);
@@ -230,7 +230,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                 %
                 if ~obj.sliceValues
                     reason = sprintf('cannot find a value factory for ''%s'' and slicing is disabled', obj.typeId);
-                    throw(Ice.MarshalException('', '', reason));
+                    throw(Ice.MarshalException(reason));
                 end
 
                 %
@@ -260,7 +260,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
 
             obj.classGraphDepth = obj.classGraphDepth + 1;
             if obj.classGraphDepth > obj.classGraphDepthMax
-                throw(Ice.MarshalException('', '', 'maximum class graph depth reached'));
+                throw(Ice.MarshalException('maximum class graph depth reached'));
             end
 
             %

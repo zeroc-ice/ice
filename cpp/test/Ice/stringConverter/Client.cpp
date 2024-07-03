@@ -50,25 +50,6 @@ Client::run(int argc, char** argv)
 
     if (useIconv)
     {
-#if defined(__hpux)
-        narrowEncoding = "iso815";
-        wideEncoding = "ucs4";
-
-#elif defined(_AIX) && !defined(_LIBICONV_VERSION)
-
-        // Always big-endian
-        narrowEncoding = "ISO8859-15";
-
-        if (sizeof(wchar_t) == 4)
-        {
-            wideEncoding = "UTF-32";
-        }
-        else
-        {
-            wideEncoding = "UTF-16";
-        }
-#else
-
         narrowEncoding = "ISO8859-15";
 
         if (sizeof(wchar_t) == 4)
@@ -93,7 +74,6 @@ Client::run(int argc, char** argv)
                 wideEncoding = "UTF-16LE";
             }
         }
-#endif
     }
 
     {

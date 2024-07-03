@@ -76,8 +76,8 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
   //
   // This class allow to render a number with a format
   //
-  public static class FormatedNumberRenderer extends DefaultTableCellRenderer {
-    public FormatedNumberRenderer(String format) {
+  public static class FormattedNumberRenderer extends DefaultTableCellRenderer {
+    public FormattedNumberRenderer(String format) {
       _format = new DecimalFormat(format);
     }
 
@@ -948,7 +948,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
     public String getColumnToolTip();
 
     //
-    // The Java class correspoding to the field, is used in the table models.
+    // The Java class corresponding to the field, is used in the table models.
     //
     public Class getColumnClass();
 
@@ -1081,7 +1081,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
     }
 
     public void setFormat(String format) {
-      _cellRenderer = new FormatedNumberRenderer(format);
+      _cellRenderer = new FormattedNumberRenderer(format);
     }
 
     @Override
@@ -1112,7 +1112,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
     }
 
     public void setFormat(String format) {
-      _cellRenderer = new FormatedNumberRenderer(format);
+      _cellRenderer = new FormattedNumberRenderer(format);
     }
 
     @Override
@@ -1165,7 +1165,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
     }
 
     public void setFormat(String format) {
-      _cellRenderer = new FormatedNumberRenderer(format);
+      _cellRenderer = new FormattedNumberRenderer(format);
     }
 
     @Override

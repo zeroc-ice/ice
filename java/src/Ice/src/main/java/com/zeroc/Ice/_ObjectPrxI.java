@@ -481,7 +481,6 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
   public ObjectPrx ice_locator(LocatorPrx newLocator) {
     com.zeroc.IceInternal.LocatorInfo locatorInfo = _reference.getLocatorInfo();
     LocatorPrx locator = locatorInfo != null ? locatorInfo.getLocator() : null;
-    Reference ref = _reference.changeLocator(locator);
     if (locator == newLocator || (locator != null && locator.equals(newLocator))) {
       return this;
     } else {

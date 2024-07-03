@@ -24,16 +24,6 @@ public final class OutgoingConnectionFactory {
       list.add(value);
     }
 
-    public boolean removeElementWithValue(K key, V value) {
-      java.util.List<V> list = this.get(key);
-      assert (list != null);
-      boolean v = list.remove(value);
-      if (list.isEmpty()) {
-        this.remove(key);
-      }
-      return v;
-    }
-
     private static final long serialVersionUID = -8109942200313578944L;
   }
 
@@ -289,8 +279,8 @@ public final class OutgoingConnectionFactory {
       for (ConnectionI connection : connectionList) {
         if (connection.isActiveOrHolding()) // Don't return destroyed or un-validated connections
         {
-          if (defaultsAndOverrides.overrideCompress) {
-            compress.value = defaultsAndOverrides.overrideCompressValue;
+          if (defaultsAndOverrides.overrideCompress.isPresent()) {
+            compress.value = defaultsAndOverrides.overrideCompress.get();
           } else {
             compress.value = endpoint.compress();
           }
@@ -321,8 +311,8 @@ public final class OutgoingConnectionFactory {
       for (ConnectionI connection : connectionList) {
         if (connection.isActiveOrHolding()) // Don't return destroyed or un-validated connections
         {
-          if (defaultsAndOverrides.overrideCompress) {
-            compress.value = defaultsAndOverrides.overrideCompressValue;
+          if (defaultsAndOverrides.overrideCompress.isPresent()) {
+            compress.value = defaultsAndOverrides.overrideCompress.get();
           } else {
             compress.value = ci.endpoint.compress();
           }
@@ -485,8 +475,8 @@ public final class OutgoingConnectionFactory {
 
     boolean compress;
     DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-    if (defaultsAndOverrides.overrideCompress) {
-      compress = defaultsAndOverrides.overrideCompressValue;
+    if (defaultsAndOverrides.overrideCompress.isPresent()) {
+      compress = defaultsAndOverrides.overrideCompress.get();
     } else {
       compress = ci.endpoint.compress();
     }
@@ -812,11 +802,11 @@ public final class OutgoingConnectionFactory {
           assert (_iter.hasNext());
           _current = _iter.next();
 
-          com.zeroc.Ice.Instrumentation.CommunicatorObserver obsv =
+          com.zeroc.Ice.Instrumentation.CommunicatorObserver observer =
               _factory._instance.initializationData().observer;
-          if (obsv != null) {
+          if (observer != null) {
             _observer =
-                obsv.getConnectionEstablishmentObserver(
+                observer.getConnectionEstablishmentObserver(
                     _current.endpoint, _current.connector.toString());
             if (_observer != null) {
               _observer.attach();

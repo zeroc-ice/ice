@@ -251,11 +251,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
         Trace out(_instance->logger(), _instance->traceCategory());
         out << "SSL summary for " << (_incoming ? "incoming" : "outgoing") << " connection\n";
 
-        //
-        // The const_cast is necessary because Solaris still uses OpenSSL 0.9.7.
-        //
-        // const SSL_CIPHER *cipher = SSL_get_current_cipher(ssl);
-        SSL_CIPHER* cipher = const_cast<SSL_CIPHER*>(SSL_get_current_cipher(_ssl));
+        const SSL_CIPHER* cipher = SSL_get_current_cipher(_ssl);
         if (!cipher)
         {
             out << "unknown cipher\n";

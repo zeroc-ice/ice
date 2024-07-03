@@ -36,7 +36,7 @@ classdef ImplicitContext < IceInternal.WrapperObject
     methods
         function obj = ImplicitContext(impl)
             if ~isa(impl, 'lib.pointer')
-                throw(MException('Ice:ArgumentException', 'invalid argument'));
+                throw(LocalException('Ice:ArgumentException', 'invalid argument'));
             end
             obj = obj@IceInternal.WrapperObject(impl);
         end

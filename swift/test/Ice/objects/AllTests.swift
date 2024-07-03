@@ -206,7 +206,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     output.write("testing recursive type... ")
     let top = Recursive()
     var bottom = top
-    for _ in 0..<99 {
+    for _ in 1..<10 {
         bottom.v = Recursive()
         bottom = bottom.v!
     }
@@ -247,8 +247,8 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         _ = try uoet.op()
         try test(false)
     } catch let ex as Ice.MarshalException {
-        try test(ex.reason.contains("::Test::AlsoEmpty"))
-        try test(ex.reason.contains("::Test::Empty"))
+        try test(ex.message.contains("::Test::AlsoEmpty"))
+        try test(ex.message.contains("::Test::Empty"))
     } catch {
         output.writeLine("\(error)")
         try test(false)

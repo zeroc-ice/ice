@@ -1,7 +1,7 @@
 classdef (Abstract) UserException < Ice.Exception
     % UserException   Summary of UserException
     %
-    % Base class for Slice user exceptions.
+    % Base class for exceptions defined in Slice.
     %
     % UserException Methods:
     %   ice_getSlicedData - Obtain the SlicedData object that contains the
@@ -9,6 +9,9 @@ classdef (Abstract) UserException < Ice.Exception
 
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
+    methods(Abstract)
+        ice_id(obj)
+    end
     methods
         function obj = UserException(id, msg)
             obj = obj@Ice.Exception(id, msg);

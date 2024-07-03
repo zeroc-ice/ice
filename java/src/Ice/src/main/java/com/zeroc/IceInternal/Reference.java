@@ -55,7 +55,7 @@ public abstract class Reference implements Cloneable {
   }
 
   public java.util.Optional<Boolean> getCompress() {
-    return _overrideCompress ? java.util.Optional.of(_compress) : java.util.Optional.empty();
+    return _compress;
   }
 
   public final com.zeroc.Ice.Communicator getCommunicator() {
@@ -142,8 +142,7 @@ public abstract class Reference implements Cloneable {
 
   public Reference changeCompress(boolean newCompress) {
     Reference r = _instance.referenceFactory().copy(this);
-    r._compress = newCompress;
-    r._overrideCompress = true;
+    r._compress = java.util.Optional.of(newCompress);
     return r;
   }
 
@@ -181,9 +180,8 @@ public abstract class Reference implements Cloneable {
     h = HashUtil.hashAdd(h, _identity);
     h = HashUtil.hashAdd(h, _context);
     h = HashUtil.hashAdd(h, _facet);
-    h = HashUtil.hashAdd(h, _overrideCompress);
-    if (_overrideCompress) {
-      h = HashUtil.hashAdd(h, _compress);
+    if (_compress.isPresent()) {
+      h = HashUtil.hashAdd(h, _compress.get());
     }
     h = HashUtil.hashAdd(h, _protocol);
     h = HashUtil.hashAdd(h, _encoding);
@@ -195,14 +193,13 @@ public abstract class Reference implements Cloneable {
     return _hashValue;
   }
 
-  public java.lang.Boolean getCompressOverride() {
+  // Gets the effective compression setting, taking into account the override.
+  public java.util.Optional<Boolean> getCompressOverride() {
     DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
-    if (defaultsAndOverrides.overrideCompress) {
-      return Boolean.valueOf(defaultsAndOverrides.overrideCompressValue);
-    } else if (_overrideCompress) {
-      return Boolean.valueOf(_compress);
-    }
-    return null; // Null indicates that compress is not overridden.
+
+    return defaultsAndOverrides.overrideCompress.isPresent()
+        ? defaultsAndOverrides.overrideCompress
+        : _compress;
   }
 
   //
@@ -390,10 +387,7 @@ public abstract class Reference implements Cloneable {
       return false;
     }
 
-    if (_overrideCompress != r._overrideCompress) {
-      return false;
-    }
-    if (_overrideCompress && _compress != r._compress) {
+    if (!_compress.equals(r._compress)) {
       return false;
     }
 
@@ -432,14 +426,13 @@ public abstract class Reference implements Cloneable {
 
   private int _mode;
   private boolean _secure;
+  private java.util.Optional<Boolean> _compress;
   private com.zeroc.Ice.Identity _identity;
   private java.util.Map<String, String> _context;
   private String _facet;
   private com.zeroc.Ice.ProtocolVersion _protocol;
   private com.zeroc.Ice.EncodingVersion _encoding;
   private int _invocationTimeout;
-  protected boolean _overrideCompress;
-  protected boolean _compress; // Only used if _overrideCompress == true
 
   protected Reference(
       Instance instance,
@@ -448,6 +441,7 @@ public abstract class Reference implements Cloneable {
       String facet,
       int mode,
       boolean secure,
+      java.util.Optional<Boolean> compress,
       com.zeroc.Ice.ProtocolVersion protocol,
       com.zeroc.Ice.EncodingVersion encoding,
       int invocationTimeout,
@@ -463,6 +457,7 @@ public abstract class Reference implements Cloneable {
     _communicator = communicator;
     _mode = mode;
     _secure = secure;
+    _compress = compress;
     _identity = identity;
     _context = context != null ? new java.util.HashMap<>(context) : _emptyContext;
     _facet = facet;
@@ -470,7 +465,5 @@ public abstract class Reference implements Cloneable {
     _encoding = encoding;
     _invocationTimeout = invocationTimeout;
     _hashInitialized = false;
-    _overrideCompress = false;
-    _compress = false;
   }
 }
