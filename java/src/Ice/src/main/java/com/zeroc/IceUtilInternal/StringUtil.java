@@ -575,8 +575,8 @@ public final class StringUtil {
   }
 
   public static boolean match(String s, String pat, boolean emptyMatch) {
-    assert (s.length() > 0);
-    assert (pat.length() > 0);
+    assert (!s.isEmpty());
+    assert (!pat.isEmpty());
 
     //
     // If pattern does not contain a wildcard just compare strings.

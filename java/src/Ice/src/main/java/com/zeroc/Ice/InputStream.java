@@ -2038,7 +2038,7 @@ public class InputStream {
         //
         java.util.LinkedList<PatchEntry> l = _patchMap.get(index);
         if (l != null) {
-          assert (l.size() > 0);
+          assert (!l.isEmpty());
 
           //
           // Patch all pointers that refer to the instance.
@@ -2357,7 +2357,7 @@ public class InputStream {
       _classGraphDepth = 0;
       var l = _patchMap != null ? _patchMap.get(index) : null;
       if (l != null) {
-        assert (l.size() > 0);
+        assert (!l.isEmpty());
         for (PatchEntry entry : l) {
           if (entry.classGraphDepth > _classGraphDepth) {
             _classGraphDepth = entry.classGraphDepth;

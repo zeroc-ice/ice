@@ -617,7 +617,7 @@ public final class Instance implements java.util.function.Function<String, Class
       String packagePrefix = _initData.properties.getProperty("Ice.Default.Package");
       c =
           getConcreteClass(
-              packagePrefix.length() == 0
+              packagePrefix.isEmpty()
                   ? fullyQualifiedClassName
                   : packagePrefix + "." + fullyQualifiedClassName);
     }
@@ -715,7 +715,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
           java.io.PrintStream outStream = null;
 
-          if (stdOut.length() > 0) {
+          if (!stdOut.isEmpty()) {
             //
             // We need to close the existing stdout for JVM thread dump to go
             // to the new file
@@ -730,7 +730,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
             System.setOut(outStream);
           }
-          if (stdErr.length() > 0) {
+          if (!stdErr.isEmpty()) {
             //
             // close for consistency with stdout
             //
@@ -754,7 +754,7 @@ public final class Instance implements java.util.function.Function<String, Class
         String logFile = properties.getIceProperty("Ice.LogFile");
         if (properties.getIcePropertyAsInt("Ice.UseSyslog") > 0
             && !System.getProperty("os.name").startsWith("Windows")) {
-          if (logFile.length() != 0) {
+          if (!logFile.isEmpty()) {
             throw new com.zeroc.Ice.InitializationException(
                 "Both syslog and file logger cannot be enabled.");
           }
@@ -762,7 +762,7 @@ public final class Instance implements java.util.function.Function<String, Class
               new com.zeroc.Ice.SysLoggerI(
                   properties.getIceProperty("Ice.ProgramName"),
                   properties.getIceProperty("Ice.SyslogFacility"));
-        } else if (logFile.length() != 0) {
+        } else if (!logFile.isEmpty()) {
           _initData.logger =
               new com.zeroc.Ice.LoggerI(properties.getIceProperty("Ice.ProgramName"), logFile);
         } else {
@@ -1246,7 +1246,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
       if (_initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0) {
         java.util.List<String> unusedProperties = _initData.properties.getUnusedProperties();
-        if (unusedProperties.size() != 0) {
+        if (!unusedProperties.isEmpty()) {
           StringBuilder message =
               new StringBuilder("The following properties were set but never read:");
           for (String p : unusedProperties) {
@@ -1431,7 +1431,7 @@ public final class Instance implements java.util.function.Function<String, Class
     }
 
     String pkg = _initData.properties.getProperty("Ice.Default.Package");
-    if (pkg.length() > 0) {
+    if (!pkg.isEmpty()) {
       packages.add(pkg);
     }
     return packages.toArray(new String[packages.size()]);

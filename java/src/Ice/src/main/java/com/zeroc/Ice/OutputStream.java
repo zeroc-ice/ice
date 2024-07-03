@@ -1675,7 +1675,7 @@ public class OutputStream {
 
     @Override
     void writePendingValues() {
-      while (_toBeMarshaledMap.size() > 0) {
+      while (!_toBeMarshaledMap.isEmpty()) {
         //
         // Consider the to be marshaled instances as marshaled now,
         // this is necessary to avoid adding again the "to be

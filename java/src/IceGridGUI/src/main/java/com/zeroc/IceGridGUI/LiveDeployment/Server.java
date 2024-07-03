@@ -548,7 +548,7 @@ public class Server extends Communicator {
       getRoot().getTreeModel().nodeStructureChanged(this);
       updateMetrics();
     } else if (serviceTemplates != null
-        && serviceTemplates.size() > 0
+        && !serviceTemplates.isEmpty()
         && _serverDescriptor instanceof IceBoxDescriptor) {
       _metrics.clear();
       _services.clear();
@@ -765,7 +765,7 @@ public class Server extends Communicator {
       String adapterName = Utils.substitute(p.name, _resolver);
       String adapterId = Utils.substitute(p.id, _resolver);
       com.zeroc.Ice.ObjectPrx proxy = null;
-      if (adapterId.length() > 0) {
+      if (!adapterId.isEmpty()) {
         proxy = ((Node) _parent).getProxy(adapterId);
       }
 

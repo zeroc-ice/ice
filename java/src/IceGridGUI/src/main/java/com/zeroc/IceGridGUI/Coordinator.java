@@ -1572,7 +1572,7 @@ public class Coordinator {
                   SwingUtilities.invokeLater(
                       () -> {
                         String msg = e.reason;
-                        if (msg.length() == 0) {
+                        if (msg.isEmpty()) {
                           msg =
                               info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType
                                   ? "Invalid credentials"
@@ -1657,7 +1657,7 @@ public class Coordinator {
 
       final RegistryCallback cb = new RegistryCallback();
 
-      if (info.getCustomEndpoint() && info.getEndpoint().equals("")) {
+      if (info.getCustomEndpoint() && info.getEndpoint().isEmpty()) {
         JOptionPane.showMessageDialog(
             parent,
             "You need to provide one or more endpoints for the Registry",
@@ -1790,7 +1790,7 @@ public class Coordinator {
                       SwingUtilities.invokeLater(
                           () -> {
                             String msg = e.reason;
-                            if (msg.length() == 0) {
+                            if (msg.isEmpty()) {
                               msg =
                                   info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType
                                       ? "Invalid credentials"
@@ -1974,7 +1974,7 @@ public class Coordinator {
         String str = reader.readLine();
         reader.close();
 
-        if (str == null || str.length() == 0) {
+        if (str == null || str.isEmpty()) {
           JOptionPane.showMessageDialog(
               _mainFrame,
               "The icegridadmin subprocess failed",
@@ -2228,7 +2228,7 @@ public class Coordinator {
         new AbstractAction("Logout") {
           @Override
           public void actionPerformed(ActionEvent e) {
-            if (_graphViews.size() > 0) {
+            if (!_graphViews.isEmpty()) {
               if (JOptionPane.YES_OPTION
                   != JOptionPane.showConfirmDialog(
                       getMainFrame(),
@@ -2702,7 +2702,7 @@ public class Coordinator {
     } else {
       StringBuilder title = new StringBuilder();
       title.append("Metrics Graph");
-      if (_graphViews.size() > 0) {
+      if (!_graphViews.isEmpty()) {
         title.append(" - ");
         title.append(Integer.toString(_graphViews.size()));
       }
@@ -2836,7 +2836,7 @@ public class Coordinator {
   }
 
   void exit(int status) {
-    if (_graphViews.size() > 0) {
+    if (!_graphViews.isEmpty()) {
       if (JOptionPane.YES_OPTION
           != JOptionPane.showConfirmDialog(
               getMainFrame(),

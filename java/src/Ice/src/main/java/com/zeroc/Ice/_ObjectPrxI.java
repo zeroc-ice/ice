@@ -154,7 +154,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
   }
 
   public ObjectPrx ice_identity(Identity newIdentity) {
-    if (newIdentity.name == null || newIdentity.name.equals("")) {
+    if (newIdentity.name == null || newIdentity.name.isEmpty()) {
       throw new IllegalIdentityException();
     }
     if (newIdentity.equals(_reference.getIdentity())) {

@@ -10,7 +10,7 @@ import com.zeroc.IceUtilInternal.StringUtil;
 public final class ReferenceFactory {
   public Reference create(
       com.zeroc.Ice.Identity ident, String facet, Reference tmpl, EndpointI[] endpoints) {
-    if (ident.name.length() == 0 && ident.category.length() == 0) {
+    if (ident.name.isEmpty() && ident.category.isEmpty()) {
       return null;
     }
 
@@ -29,7 +29,7 @@ public final class ReferenceFactory {
 
   public Reference create(
       com.zeroc.Ice.Identity ident, String facet, Reference tmpl, String adapterId) {
-    if (ident.name.length() == 0 && ident.category.length() == 0) {
+    if (ident.name.isEmpty() && ident.category.isEmpty()) {
       return null;
     }
 
@@ -47,7 +47,7 @@ public final class ReferenceFactory {
   }
 
   public Reference create(com.zeroc.Ice.Identity ident, com.zeroc.Ice.ConnectionI fixedConnection) {
-    if (ident.name.length() == 0 && ident.category.length() == 0) {
+    if (ident.name.isEmpty() && ident.category.isEmpty()) {
       return null;
     }
 
@@ -71,14 +71,14 @@ public final class ReferenceFactory {
 
   public Reference copy(Reference r) {
     com.zeroc.Ice.Identity ident = r.getIdentity();
-    if (ident.name.length() == 0 && ident.category.length() == 0) {
+    if (ident.name.isEmpty() && ident.category.isEmpty()) {
       return null;
     }
     return r.clone();
   }
 
   public Reference create(String s, String propertyPrefix) {
-    if (s == null || s.length() == 0) {
+    if (s == null || s.isEmpty()) {
       return null;
     }
 
@@ -127,7 +127,7 @@ public final class ReferenceFactory {
     //
     com.zeroc.Ice.Identity ident = com.zeroc.Ice.Util.stringToIdentity(idstr);
 
-    if (ident.name.length() == 0) {
+    if (ident.name.isEmpty()) {
       //
       // An identity with an empty name and a non-empty
       // category is illegal.
@@ -412,12 +412,12 @@ public final class ReferenceFactory {
           unknownEndpoints.add(es);
         }
       }
-      if (endpoints.size() == 0) {
+      if (endpoints.isEmpty()) {
         assert (!unknownEndpoints.isEmpty());
         com.zeroc.Ice.EndpointParseException e = new com.zeroc.Ice.EndpointParseException();
         e.str = "invalid endpoint `" + unknownEndpoints.get(0) + "' in `" + s + "'";
         throw e;
-      } else if (unknownEndpoints.size() != 0
+      } else if (!unknownEndpoints.isEmpty()
           && _instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Endpoints")
               > 0) {
         StringBuffer msg = new StringBuffer("Proxy contains unknown endpoints:");
@@ -482,7 +482,7 @@ public final class ReferenceFactory {
         e.str = "invalid adapter id in `" + s + "': " + ex.getMessage();
         throw e;
       }
-      if (adapter.length() == 0) {
+      if (adapter.isEmpty()) {
         ProxyParseException e = new ProxyParseException();
         e.str = "empty adapter id in `" + s + "'";
         throw e;
@@ -511,7 +511,7 @@ public final class ReferenceFactory {
     // constructor read the identity, and pass it as a parameter.
     //
 
-    if (ident.name.length() == 0 && ident.category.length() == 0) {
+    if (ident.name.isEmpty() && ident.category.isEmpty()) {
       return null;
     }
 
@@ -652,7 +652,7 @@ public final class ReferenceFactory {
       }
     }
 
-    if (unknownProps.size() != 0) {
+    if (!unknownProps.isEmpty()) {
       StringBuffer message = new StringBuffer("found unknown properties for proxy '");
       message.append(prefix);
       message.append("':");
@@ -704,7 +704,7 @@ public final class ReferenceFactory {
     //
     // Override the defaults with the proxy properties if a property prefix is defined.
     //
-    if (propertyPrefix != null && propertyPrefix.length() > 0) {
+    if (propertyPrefix != null && !propertyPrefix.isEmpty()) {
       com.zeroc.Ice.Properties properties = _instance.initializationData().properties;
 
       //

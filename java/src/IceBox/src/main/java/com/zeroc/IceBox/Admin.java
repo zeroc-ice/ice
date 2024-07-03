@@ -70,9 +70,9 @@ public final class Admin {
       managerIdentity.name = "ServiceManager";
 
       String managerProxy;
-      if (properties.getIceProperty("Ice.Default.Locator").length() == 0) {
+      if (properties.getIceProperty("Ice.Default.Locator").isEmpty()) {
         String managerEndpoints = properties.getIceProperty("IceBox.ServiceManager.Endpoints");
-        if (managerEndpoints.length() == 0) {
+        if (managerEndpoints.isEmpty()) {
           System.err.println(
               "IceBox.Admin: property `IceBoxAdmin.ServiceManager.Proxy' is not set");
           return 1;
@@ -82,7 +82,7 @@ public final class Admin {
             "\"" + communicator.identityToString(managerIdentity) + "\" :" + managerEndpoints;
       } else {
         String managerAdapterId = properties.getIceProperty("IceBox.ServiceManager.AdapterId");
-        if (managerAdapterId.length() == 0) {
+        if (managerAdapterId.isEmpty()) {
           System.err.println(
               "IceBox.Admin: property `IceBoxAdmin.ServiceManager.Proxy' is not set");
           return 1;

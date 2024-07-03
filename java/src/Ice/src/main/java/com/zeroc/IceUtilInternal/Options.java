@@ -21,7 +21,7 @@ public final class Options {
     final int ANSIQuoteState = 4;
 
     line = line.trim();
-    if (line.length() == 0) {
+    if (line.isEmpty()) {
       return new String[0];
     }
 

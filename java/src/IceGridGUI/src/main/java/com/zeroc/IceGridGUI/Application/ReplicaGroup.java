@@ -145,7 +145,7 @@ class ReplicaGroup extends TreeNode {
       }
 
       if (_descriptor.loadBalancing == null
-          && _descriptor.description.length() == 0
+          && _descriptor.description.isEmpty()
           && _descriptor.objects.isEmpty()) {
         writer.writeElement("replica-group", attributes);
       } else {

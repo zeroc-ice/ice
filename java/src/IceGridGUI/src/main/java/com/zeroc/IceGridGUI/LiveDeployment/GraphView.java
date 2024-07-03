@@ -325,13 +325,13 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
               Map<String, Map<String, MetricsRow>> k = j.get(row.cell.getField().getMetricsName());
               Map<String, MetricsRow> l = k.get(row.cell.getId());
               l.remove(row.cell.getField().getFieldName());
-              if (l.size() == 0) {
+              if (l.isEmpty()) {
                 k.remove(row.cell.getId());
-                if (k.size() == 0) {
+                if (k.isEmpty()) {
                   j.remove(row.cell.getField().getMetricsName());
-                  if (j.size() == 0) {
+                  if (j.isEmpty()) {
                     _series.remove(row.info);
-                    if (_series.size() == 0) {
+                    if (_series.isEmpty()) {
                       stopRefresh();
                     }
                   }
@@ -686,7 +686,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                       });
                 }
                 //
-                // Add the serie to the legend, must run in Swing thread.
+                // Add the series to the legend, must run in Swing thread.
                 //
                 enqueueSwing(() -> _legendModel.addRow(row));
               }
@@ -796,7 +796,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                 //
                 if (metrics == null) {
                   //
-                  // If the row isn't disabled we add a new serie to represent the gap
+                  // If the row isn't disabled we add a new series to represent the gap
                   // and mark the row as disabled.
                   //
                   if (!row.disabled) {
@@ -884,7 +884,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
           // Remove empty series not longer in use, if there is only one
           // series that is keep to add new values.
           //
-          if (series.getData().size() == 0 && row.series.size() > 1) {
+          if (series.getData().isEmpty() && row.series.size() > 1) {
             row.series.remove(series);
             i--;
           }
@@ -1281,7 +1281,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
   //
   // Must be called in JavaFX thread.
   //
-  // Return the class used to style a serie.
+  // Return the class used to style a series.
   //
   public String getSeriesClass(XYChart.Series<Number, Number> series) {
     if (series == null || series.getNode() == null || series.getNode().getStyleClass() == null) {

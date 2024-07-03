@@ -224,7 +224,7 @@ final class WSEndpoint extends EndpointI {
     //
     String s = _delegate.options();
 
-    if (_resource != null && _resource.length() > 0) {
+    if (_resource != null && !_resource.isEmpty()) {
       s += " -r ";
       boolean addQuote = _resource.indexOf(':') != -1;
       if (addQuote) {

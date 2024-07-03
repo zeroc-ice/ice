@@ -209,7 +209,7 @@ final class UdpMulticastClientTransceiver implements Transceiver {
       // systems
       // such as macOS.
       //
-      if (mcastInterface.length() > 0) {
+      if (!mcastInterface.isEmpty()) {
         _socket.setNetworkInterface(Network.getInterface(mcastInterface));
       }
       if (mcastTtl != -1) {
