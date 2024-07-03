@@ -36,7 +36,7 @@ class Adapter extends TreeNode {
       _inactiveIcon = Utils.getIcon("/icons/16x16/adapter_inactive.png");
     }
 
-    if (_currentEndpoints == null || _currentEndpoints.length() == 0) {
+    if (_currentEndpoints == null || _currentEndpoints.isEmpty()) {
       _cellRenderer.setLeafIcon(_inactiveIcon);
     } else {
       _cellRenderer.setLeafIcon(_activeIcon);

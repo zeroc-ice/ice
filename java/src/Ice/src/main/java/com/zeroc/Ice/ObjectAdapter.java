@@ -1155,7 +1155,7 @@ public final class ObjectAdapter {
     //
     // Warn about unknown object adapter properties.
     //
-    if (unknownProps.size() != 0
+    if (!unknownProps.isEmpty()
         && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0) {
       StringBuffer message = new StringBuffer("found unknown properties for object adapter `");
       message.append(_name);
@@ -1327,9 +1327,9 @@ public final class ObjectAdapter {
   }
 
   private ObjectPrx newProxy(Identity ident, String facet) {
-    if (_id.length() == 0) {
+    if (_id.isEmpty()) {
       return newDirectProxy(ident, facet);
-    } else if (_replicaGroupId.length() == 0) {
+    } else if (_replicaGroupId.isEmpty()) {
       return newIndirectProxy(ident, facet, _id);
     } else {
       return newIndirectProxy(ident, facet, _replicaGroupId);
@@ -1357,7 +1357,7 @@ public final class ObjectAdapter {
   }
 
   private static void checkIdentity(Identity ident) {
-    if (ident.name == null || ident.name.length() == 0) {
+    if (ident.name == null || ident.name.isEmpty()) {
       throw new IllegalIdentityException(ident);
     }
 
@@ -1485,7 +1485,7 @@ public final class ObjectAdapter {
       boolean first = true;
       for (com.zeroc.IceInternal.EndpointI endpoint : endpoints) {
         if (!first) {
-          s.append(":");
+          s.append(':');
         }
         s.append(endpoint.toString());
         first = false;
@@ -1497,7 +1497,7 @@ public final class ObjectAdapter {
 
   private void updateLocatorRegistry(
       com.zeroc.IceInternal.LocatorInfo locatorInfo, ObjectPrx proxy) {
-    if (_id.length() == 0 || locatorInfo == null) {
+    if (_id.isEmpty() || locatorInfo == null) {
       return; // Nothing to update.
     }
 
@@ -1511,7 +1511,7 @@ public final class ObjectAdapter {
     }
 
     try {
-      if (_replicaGroupId.length() == 0) {
+      if (_replicaGroupId.isEmpty()) {
         locatorRegistry.setAdapterDirectProxy(_id, proxy);
       } else {
         locatorRegistry.setReplicatedAdapterDirectProxy(_id, _replicaGroupId, proxy);
@@ -1598,7 +1598,7 @@ public final class ObjectAdapter {
         for (int i = 0; i < endpoints.length; i++) {
           s.append(endpoints[i].toString());
           if (i + 1 < endpoints.length) {
-            s.append(":");
+            s.append(':');
           }
         }
       }
@@ -1655,9 +1655,9 @@ public final class ObjectAdapter {
     // Do not create unknown properties list if Ice prefix, ie Ice, Glacier2, etc
     //
     boolean addUnknown = true;
-    String prefix = _name + ".";
+    String prefix = _name + '.';
     for (int i = 0; com.zeroc.IceInternal.PropertyNames.clPropNames[i] != null; ++i) {
-      if (prefix.startsWith(com.zeroc.IceInternal.PropertyNames.clPropNames[i] + ".")) {
+      if (prefix.startsWith(com.zeroc.IceInternal.PropertyNames.clPropNames[i] + '.')) {
         addUnknown = false;
         break;
       }

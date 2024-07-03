@@ -180,7 +180,7 @@ public class ServiceManagerI implements ServiceManager {
       }
     }
 
-    if (activeServices.size() > 0) {
+    if (!activeServices.isEmpty()) {
       observer
           .servicesStartedAsync(activeServices.toArray(new String[0]))
           .exceptionally(
@@ -235,7 +235,7 @@ public class ServiceManagerI implements ServiceManager {
       String[] loadOrder = properties.getPropertyAsList("IceBox.LoadOrder");
       java.util.List<StartServiceInfo> servicesInfo = new java.util.ArrayList<>();
       for (String name : loadOrder) {
-        if (name.length() > 0) {
+        if (!name.isEmpty()) {
           String key = prefix + name;
           String value = services.get(key);
           if (value == null) {
@@ -281,7 +281,7 @@ public class ServiceManagerI implements ServiceManager {
           //
           java.util.Map<String, String> allProps = initData.properties.getPropertiesForPrefix("");
           for (String key : allProps.keySet()) {
-            if (serviceProps.getProperty(key).length() == 0) {
+            if (serviceProps.getProperty(key).isEmpty()) {
               initData.properties.setProperty(key, "");
             }
           }
@@ -344,7 +344,7 @@ public class ServiceManagerI implements ServiceManager {
       // services.
       //
       String bundleName = properties.getProperty("IceBox.PrintServicesReady");
-      if (bundleName.length() > 0) {
+      if (!bundleName.isEmpty()) {
         System.out.println(bundleName + " ready");
       }
 
@@ -486,7 +486,7 @@ public class ServiceManagerI implements ServiceManager {
         // Clone the logger to assign a new prefix. If one of the built-in loggers is configured
         // don't set any logger.
         //
-        if (initData.properties.getProperty("Ice.LogFile").length() == 0
+        if (initData.properties.getProperty("Ice.LogFile").isEmpty()
             && (initData.properties.getPropertyAsInt("Ice.UseSyslog") <= 0
                 || System.getProperty("os.name").startsWith("Windows"))) {
           initData.logger =
@@ -685,7 +685,7 @@ public class ServiceManagerI implements ServiceManager {
 
   private void servicesStarted(
       java.util.List<String> services, java.util.Set<ServiceObserverPrx> observers) {
-    if (services.size() > 0) {
+    if (!services.isEmpty()) {
       String[] servicesArray = services.toArray(new String[0]);
 
       for (final ServiceObserverPrx observer : observers) {
@@ -702,7 +702,7 @@ public class ServiceManagerI implements ServiceManager {
 
   private void servicesStopped(
       java.util.List<String> services, java.util.Set<ServiceObserverPrx> observers) {
-    if (services.size() > 0) {
+    if (!services.isEmpty()) {
       String[] servicesArray = services.toArray(new String[0]);
 
       for (final ServiceObserverPrx observer : observers) {
@@ -873,7 +873,7 @@ public class ServiceManagerI implements ServiceManager {
     }
 
     String programName = communicatorProperties.getProperty("Ice.ProgramName");
-    if (programName.length() == 0) {
+    if (programName.isEmpty()) {
       properties.setProperty("Ice.ProgramName", service);
     } else {
       properties.setProperty("Ice.ProgramName", programName + "-" + service);

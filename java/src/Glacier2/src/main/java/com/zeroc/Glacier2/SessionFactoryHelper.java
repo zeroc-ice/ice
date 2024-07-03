@@ -156,7 +156,7 @@ public class SessionFactoryHelper {
         && !protocol.equals("ssl")
         && !protocol.equals("wss")
         && !protocol.equals("ws")) {
-      throw new IllegalArgumentException("Unknow protocol `" + protocol + "'");
+      throw new IllegalArgumentException("Unknown protocol `" + protocol + "'");
     }
 
     _protocol = protocol;
@@ -276,7 +276,7 @@ public class SessionFactoryHelper {
     InitializationData initData = _initData.clone();
     initData.properties = initData.properties._clone();
 
-    if (initData.properties.getProperty("Ice.Default.Router").length() == 0 && _identity != null) {
+    if (initData.properties.getProperty("Ice.Default.Router").isEmpty() && _identity != null) {
       initData.properties.setProperty("Ice.Default.Router", getProxyStr(_identity));
     }
     return initData;

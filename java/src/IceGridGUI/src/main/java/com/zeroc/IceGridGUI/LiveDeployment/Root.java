@@ -320,7 +320,7 @@ public class Root extends Communicator {
       }
     }
 
-    if (toRemove.size() > 0) {
+    if (!toRemove.isEmpty()) {
       _nodes.removeAll(toRemove);
       _treeModel.nodesWereRemoved(this, toRemoveIndices, toRemove.toArray());
     }

@@ -372,7 +372,7 @@ public final class LocatorInfo {
     for (int i = 0; i < sz; i++) {
       s.append(endpoints[i].toString());
       if (i + 1 < sz) {
-        s.append(":");
+        s.append(':');
       }
     }
 

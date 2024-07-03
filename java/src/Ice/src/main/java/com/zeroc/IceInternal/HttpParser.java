@@ -303,7 +303,7 @@ final class HttpParser {
                 str.append((char) buf.get(i));
               }
               String s = _headers.get(_headerName);
-              if (s == null || s.length() == 0) {
+              if (s == null || s.isEmpty()) {
                 _headers.put(_headerName, str.toString());
               } else {
                 _headers.put(_headerName, s + ", " + str.toString());

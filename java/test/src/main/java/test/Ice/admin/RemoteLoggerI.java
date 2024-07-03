@@ -26,7 +26,7 @@ class RemoteLoggerI implements com.zeroc.Ice.RemoteLogger {
   synchronized void checkNextInit(
       String prefix, com.zeroc.Ice.LogMessageType type, String message, String category) {
     test(_prefix.equals(prefix));
-    test(_initMessages.size() > 0);
+    test(!_initMessages.isEmpty());
     com.zeroc.Ice.LogMessage logMessage = _initMessages.pop();
     test(logMessage.type == type);
     test(logMessage.message.equals(message));
@@ -35,7 +35,7 @@ class RemoteLoggerI implements com.zeroc.Ice.RemoteLogger {
 
   synchronized void checkNextLog(
       com.zeroc.Ice.LogMessageType type, String message, String category) {
-    test(_logMessages.size() > 0);
+    test(!_logMessages.isEmpty());
     com.zeroc.Ice.LogMessage logMessage = _logMessages.pop();
     test(logMessage.type == type);
     test(logMessage.message.equals(message));

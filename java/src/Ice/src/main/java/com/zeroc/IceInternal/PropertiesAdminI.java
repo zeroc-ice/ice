@@ -45,7 +45,7 @@ class PropertiesAdminI
       final String key = e.getKey();
       final String value = e.getValue();
       if (!old.containsKey(key)) {
-        if (value.length() > 0) {
+        if (!value.isEmpty()) {
           //
           // This property is new.
           //
@@ -53,7 +53,7 @@ class PropertiesAdminI
         }
       } else {
         if (!value.equals(old.get(key))) {
-          if (value.length() == 0) {
+          if (value.isEmpty()) {
             //
             // This property was removed.
             //
@@ -96,7 +96,7 @@ class PropertiesAdminI
             out.append(e.getValue());
             out.append(" (old value = ");
             out.append(_properties.getProperty(e.getKey()));
-            out.append(")");
+            out.append(')');
           }
         }
       }
