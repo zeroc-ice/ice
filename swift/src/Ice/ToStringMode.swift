@@ -32,7 +32,7 @@ extension InputStream {
     public func read() throws -> ToStringMode {
         let rawValue: UInt8 = try read(enumMaxValue: 2)
         guard let val = ToStringMode(rawValue: rawValue) else {
-            throw MarshalException(reason: "invalid enum value")
+            throw MarshalException("invalid enum value")
         }
         return val
     }

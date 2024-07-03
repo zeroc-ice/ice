@@ -9,8 +9,7 @@ project.ext.description = "Ice is a comprehensive RPC framework that helps you b
 
 slice {
     java {
-        files = fileTree(dir: "$project.ext.topSrcDir/slice", includes:['Ice/*.ice'],
-                excludes:['Ice/*F.ice'])
+        srcDir = "$project.ext.topSrcDir/slice/Ice"
     }
 }
 
