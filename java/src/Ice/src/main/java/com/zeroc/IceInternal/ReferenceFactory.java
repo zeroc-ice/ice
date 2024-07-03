@@ -168,7 +168,8 @@ public final class ReferenceFactory {
 
       String option = s.substring(beg, end);
       if (option.length() != 2 || option.charAt(0) != '-') {
-        throw new ProxyParseException("expected a proxy option but found `" + option + "' in `" + s + "'");
+        throw new ProxyParseException(
+            "expected a proxy option but found `" + option + "' in `" + s + "'");
       }
 
       //
@@ -184,7 +185,8 @@ public final class ReferenceFactory {
           beg = argumentBeg;
           end = StringUtil.checkQuote(s, beg);
           if (end == -1) {
-            throw new ProxyParseException("mismatched quotes around value for " + option + " option in `" + s + "'");
+            throw new ProxyParseException(
+                "mismatched quotes around value for " + option + " option in `" + s + "'");
           } else if (end == 0) {
             end = StringUtil.findFirstOf(s, delim + ":@", beg);
             if (end == -1) {
