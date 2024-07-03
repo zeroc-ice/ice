@@ -649,7 +649,9 @@ public interface ObjectPrx {
    */
   public static ObjectPrx createProxy(Communicator communicator, String proxyString) {
     var ref = communicator.getInstance().referenceFactory().create(proxyString, null);
-    return (ref == null) ? null : new com.zeroc.Ice._ObjectPrxI(ref);
+    return (ref != null)
+        ? new com.zeroc.Ice._ObjectPrxI(ref)
+        : throw new ProxyParseException("Invalid empty proxy string.");
   }
 
   /**
