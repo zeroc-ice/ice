@@ -8,7 +8,7 @@ project.ext.description = "IceBox is an easy-to-use framework for Ice applicatio
 
 slice {
     java {
-        files = fileTree(dir: "$project.ext.topSrcDir/slice/IceBox", includes:['*.ice'], excludes:["*F.ice"])
+        srcDir = "$project.ext.topSrcDir/slice/IceBox"
     }
 }
 
