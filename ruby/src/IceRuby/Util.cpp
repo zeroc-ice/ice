@@ -7,8 +7,6 @@
 #include "Ice/VersionFunctions.h"
 #include <stdarg.h>
 
-#include <iostream> // temp
-
 using namespace std;
 using namespace IceRuby;
 
@@ -552,19 +550,24 @@ namespace
     template<size_t N> VALUE createRubyException(
         const char* typeId,
         std::array<VALUE, N> args,
-        bool throwIfNotFound = true)
+        bool fallbackToLocalException = false)
     {
         string className = string{typeId}.substr(2);
-        VALUE rubyClass = callRuby(rb_path2class, className.c_str());
-        if (NIL_P(rubyClass))
+        VALUE rubyClass = T_NIL;
+        try
         {
-            if (throwIfNotFound)
+            // callRuby throws a RubyException if rb_path2class fails.
+            rubyClass = callRuby(rb_path2class, className.c_str());
+        }
+        catch (const RubyException&)
+        {
+            if (fallbackToLocalException)
             {
-                throw RubyException(rb_eRuntimeError, "exception class `%s' not found", className.c_str());
+                rubyClass = callRuby(rb_path2class, "Ice::LocalException");
             }
             else
             {
-                return T_NIL;
+                throw;
             }
         }
         return callRuby(rb_class_new_instance, N, args.data(), rubyClass);
@@ -572,19 +575,19 @@ namespace
 }
 
 VALUE
-IceRuby::convertLocalException(std::exception_ptr eptr)
+IceRuby::convertException(std::exception_ptr eptr)
 {
-    //
-    // We cannot throw a C++ exception or raise a Ruby exception. If an error
-    // occurs while we are converting the exception, we do our best to return
-    // an appropriate Ruby exception.
-    //
+    const char* const localExceptionTypeId = "::Ice::LocalException";
+
+    // We cannot throw a C++ exception or raise a Ruby exception. If an error occurs while we are converting the
+    // exception, we do our best to _return_ an appropriate Ruby exception.
     try
     {
         try
         {
             rethrow_exception(eptr);
         }
+        // First handle exceptions with extra fields we want to provide to Ruby users.
         catch (const Ice::RequestFailedException& ex)
         {
             std::array args = {
@@ -613,36 +616,34 @@ IceRuby::convertLocalException(std::exception_ptr eptr)
 
             return createRubyException(ex.ice_id(), args);
         }
+        // Then all other exceptions.
         catch (const Ice::LocalException& ex)
         {
             std::array args = {IceRuby::createString(ex.what())};
-            VALUE result = createRubyException(ex.ice_id(), args, false); // returns nil if not found
-            if (NIL_P(result))
-            {
-                // Fallback to a plain LocalException
-                result = createRubyException("::Ice::LocalException", args);
-            }
-            return result;
+            return createRubyException(ex.ice_id(), args, true);
         }
         catch (const std::exception& ex)
         {
-            // Set the Ruby msg to the what message from the C++ exception.
             std::array args = {IceRuby::createString(ex.what())};
-            return createRubyException("::Ice::LocalException", args);
+            return createRubyException(localExceptionTypeId, args);
         }
         catch (...)
         {
             std::array args = {IceRuby::createString("unknown C++ exception")};
-            return createRubyException("::Ice::LocalException", args);
+            return createRubyException(localExceptionTypeId, args);
         }
     }
     catch (const RubyException& e)
     {
         return e.ex;
     }
+    catch (const std::exception& e)
+    {
+        string msg = "failure occurred while converting C++ exception to Ruby: " + string{e.what()};
+        return rb_exc_new2(rb_eRuntimeError, msg.c_str());
+    }
     catch (...)
     {
-        string msg = "failure occurred while converting C++ exception to Ruby";
-        return rb_exc_new2(rb_eRuntimeError, msg.c_str());
+        return rb_exc_new2(rb_eRuntimeError, "failure occurred while converting C++ exception to Ruby");
     }
 }
