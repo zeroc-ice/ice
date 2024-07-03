@@ -2,53 +2,13 @@
 #
 # Copyright (c) ZeroC, Inc.
 
+# This file provides all the exceptions derived from Ice::LocalException.
+
 module Ice
-    class InitializationException < LocalException
-    end
-
-    class PluginInitializationException < LocalException
-    end
-
-    class AlreadyRegisteredException < LocalException
-        def initialize(kindOfObject, id, msg)
-            super(msg)
-            @kindOfObject = kindOfObject
-            @id = id
-        end
-
-        attr_reader :kindOfObject, :id
-    end
-
-    class NotRegisteredException < LocalException
-        def initialize(kindOfObject, id, msg)
-            super(msg)
-            @kindOfObject = kindOfObject
-            @id = id
-        end
-
-        attr_reader :kindOfObject, :id
-    end
-
-    class TwowayOnlyException < LocalException
-    end
-
-    class UnknownException < LocalException
-    end
-
-    class UnknownLocalException < UnknownException
-    end
-
-    class UnknownUserException < UnknownException
-    end
-
-    class CommunicatorDestroyedException < LocalException
-    end
-
-    class NoEndpointException < LocalException
-    end
-
-    class ParseException < LocalException
-    end
+    #
+    # The 6 (7 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice
+    # reply message. Other local exceptions can't be marshaled.
+    #
 
     class RequestFailedException < LocalException
         def initialize(id, facet, operation, msg)
@@ -70,41 +30,18 @@ module Ice
     class OperationNotExistException < RequestFailedException
     end
 
-    class SyscallException < LocalException
+    class UnknownException < LocalException
     end
 
-    class SocketException < SyscallException
+    class UnknownLocalException < UnknownException
     end
 
-    class ConnectFailedException < SocketException
+    class UnknownUserException < UnknownException
     end
 
-    class ConnectionRefusedException < ConnectFailedException
-    end
-
-    class ConnectionLostException < SocketException
-    end
-
-    class DNSException < SyscallException
-    end
-
-    class ConnectionIdleException < LocalException
-    end
-
-    class TimeoutException < LocalException
-    end
-
-    class ConnectTimeoutException < TimeoutException
-    end
-
-    class CloseTimeoutException < TimeoutException
-    end
-
-    class InvocationTimeoutException < TimeoutException
-    end
-
-    class InvocationCanceledException < LocalException
-    end
+    #
+    # Protocol exceptions
+    #
 
     class ProtocolException < LocalException
     end
@@ -121,12 +58,102 @@ module Ice
     class MarshalException < ProtocolException
     end
 
+    #
+    # Timeout exceptions
+    #
+
+    class TimeoutException < LocalException
+    end
+
+    class ConnectTimeoutException < TimeoutException
+    end
+
+    class CloseTimeoutException < TimeoutException
+    end
+
+    class InvocationTimeoutException < TimeoutException
+    end
+
+    #
+    # Syscall exceptions
+    #
+
+    class SyscallException < LocalException
+    end
+
+    class DNSException < SyscallException
+    end
+
+    #
+    # Socket exceptions
+    #
+
+    class SocketException < SyscallException
+    end
+
+    class ConnectFailedException < SocketException
+    end
+
+    class ConnectionLostException < SocketException
+    end
+
+    class ConnectionRefusedException < ConnectFailedException
+    end
+
+    #
+    # Other leaf local exceptions in alphabetical order.
+    #
+
+    class AlreadyRegisteredException < LocalException
+        def initialize(kindOfObject, id, msg)
+            super(msg)
+            @kindOfObject = kindOfObject
+            @id = id
+        end
+
+        attr_reader :kindOfObject, :id
+    end
+
+    class CommunicatorDestroyedException < LocalException
+    end
+
+    class ConnectionIdleException < LocalException
+    end
+
     class FeatureNotSupportedException < LocalException
+    end
+
+    class FixedProxyException < LocalException
+    end
+
+    class InitializationException < LocalException
+    end
+
+    class InvocationCanceledException < LocalException
+    end
+
+    class NoEndpointException < LocalException
+    end
+
+    class NotRegisteredException < LocalException
+        def initialize(kindOfObject, id, msg)
+            super(msg)
+            @kindOfObject = kindOfObject
+            @id = id
+        end
+
+        attr_reader :kindOfObject, :id
+    end
+
+    class ParseException < LocalException
+    end
+
+    class PluginInitializationException < LocalException
     end
 
     class SecurityException < LocalException
     end
 
-    class FixedProxyException < LocalException
+    class TwowayOnlyException < LocalException
     end
 end
