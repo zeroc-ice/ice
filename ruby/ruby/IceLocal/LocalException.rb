@@ -9,22 +9,24 @@ module Ice
     class PluginInitializationException < LocalException
     end
 
-    class AlreadyRegisteredException < LocalException # TODO: refactor
-        def initialize(kindOfObject = '', id = '')
+    class AlreadyRegisteredException < LocalException
+        def initialize(kindOfObject, id, msg)
+            super(msg)
             @kindOfObject = kindOfObject
             @id = id
         end
 
-        attr_accessor :kindOfObject, :id
+        attr_reader :kindOfObject, :id
     end
 
-    class NotRegisteredException < LocalException # TODO: refactor
-        def initialize(kindOfObject = '', id = '')
+    class NotRegisteredException < LocalException
+        def initialize(kindOfObject, id, msg)
+            super(msg)
             @kindOfObject = kindOfObject
             @id = id
         end
 
-        attr_accessor :kindOfObject, :id
+        attr_reader :kindOfObject, :id
     end
 
     class TwowayOnlyException < LocalException
