@@ -172,11 +172,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Debug|StaticLibrary'">
-      <TargetName>$(ProjectName)d</TargetName>
+      <TargetName>$(ProjectName)$(IceSoVersion)d</TargetName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Release|StaticLibrary'">
-      <TargetName>$(ProjectName)</TargetName>
+      <TargetName>$(ProjectName)$(IceSoVersion)</TargetName>
   </PropertyGroup>
 
   <!--
