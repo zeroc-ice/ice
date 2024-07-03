@@ -70,7 +70,9 @@ namespace Ice
 
         public $kindOfObject;
         public $id;
-    }    class NotRegisteredException extends LocalException
+    }
+
+    class NotRegisteredException extends LocalException
     {
         public function __construct($kindOfObject='', $id='')
         {
@@ -90,7 +92,9 @@ namespace Ice
 
         public $kindOfObject;
         public $id;
-    }    class TwowayOnlyException extends LocalException
+    }
+
+    class TwowayOnlyException extends LocalException
     {
         public function __construct($operation='')
         {
@@ -168,10 +172,6 @@ namespace Ice
 
     class CommunicatorDestroyedException extends LocalException
     {
-        public function __construct()
-        {
-        }
-
         public function ice_id()
         {
             return '::Ice::CommunicatorDestroyedException';
@@ -536,11 +536,6 @@ namespace Ice
 
     class ConnectionIdleException extends LocalException
     {
-        public function __construct()
-        {
-            parent::__construct();
-        }
-
         public function ice_id()
         {
             return '::Ice::ConnectionIdleException';
@@ -554,10 +549,6 @@ namespace Ice
 
     class TimeoutException extends LocalException
     {
-        public function __construct()
-        {
-        }
-
         public function ice_id()
         {
             return '::Ice::TimeoutException';
@@ -571,11 +562,6 @@ namespace Ice
 
     class ConnectTimeoutException extends TimeoutException
     {
-        public function __construct()
-        {
-            parent::__construct();
-        }
-
         public function ice_id()
         {
             return '::Ice::ConnectTimeoutException';
@@ -589,11 +575,6 @@ namespace Ice
 
     class CloseTimeoutException extends TimeoutException
     {
-        public function __construct()
-        {
-            parent::__construct();
-        }
-
         public function ice_id()
         {
             return '::Ice::CloseTimeoutException';
@@ -607,11 +588,6 @@ namespace Ice
 
     class InvocationTimeoutException extends TimeoutException
     {
-        public function __construct()
-        {
-            parent::__construct();
-        }
-
         public function ice_id()
         {
             return '::Ice::InvocationTimeoutException';
@@ -625,10 +601,6 @@ namespace Ice
 
     class InvocationCanceledException extends LocalException
     {
-        public function __construct()
-        {
-        }
-
         public function ice_id()
         {
             return '::Ice::InvocationCanceledException';
@@ -756,11 +728,7 @@ namespace Ice
 
     class FixedProxyException extends LocalException
     {
-        public function __construct()
-        {
-        }
-
-        public function ice_id()
+                public function ice_id()
         {
             return '::Ice::FixedProxyException';
         }
