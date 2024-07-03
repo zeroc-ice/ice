@@ -4243,8 +4243,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     out << nl << "public static " << prxName
         << " createProxy(com.zeroc.Ice.Communicator communicator, String proxyString)";
     out << sb;
-    out << nl << "var ref = communicator.getInstance().referenceFactory().create(proxyString, null);";
-    out << nl << "return (ref == null) ? null : new " << prxIName << "(ref);";
+    out << nl << "return new " << prxIName << "(com.zeroc.Ice.ObjectPrx.createProxy(communicator, proxyString));";
     out << eb;
 
     out << sp;
