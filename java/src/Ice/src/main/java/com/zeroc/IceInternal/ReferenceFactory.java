@@ -89,9 +89,7 @@ public final class ReferenceFactory {
 
     beg = StringUtil.findFirstNotOf(s, delim, end);
     if (beg == -1) {
-      ProxyParseException e = new ProxyParseException();
-      e.str = "no non-whitespace characters found in `" + s + "'";
-      throw e;
+      throw new ProxyParseException("no non-whitespace characters found in `" + s + "'");
     }
 
     //
@@ -101,9 +99,7 @@ public final class ReferenceFactory {
     String idstr = null;
     end = StringUtil.checkQuote(s, beg);
     if (end == -1) {
-      ProxyParseException e = new ProxyParseException();
-      e.str = "mismatched quotes around identity in `" + s + "'";
-      throw e;
+      throw new ProxyParseException("mismatched quotes around identity in `" + s + "'");
     } else if (end == 0) {
       end = StringUtil.findFirstOf(s, delim + ":@", beg);
       if (end == -1) {
@@ -117,9 +113,7 @@ public final class ReferenceFactory {
     }
 
     if (beg == end) {
-      ProxyParseException e = new ProxyParseException();
-      e.str = "no identity in `" + s + "'";
-      throw e;
+      throw new ProxyParseException("no identity in `" + s + "'");
     }
 
     //
@@ -133,9 +127,7 @@ public final class ReferenceFactory {
       // category is illegal.
       //
       if (ident.category.length() > 0) {
-        com.zeroc.Ice.IllegalIdentityException e = new com.zeroc.Ice.IllegalIdentityException();
-        e.id = ident;
-        throw e;
+        throw new com.zeroc.Ice.IllegalIdentityException(ident);
       }
       //
       // Treat a stringified proxy containing two double
@@ -144,9 +136,7 @@ public final class ReferenceFactory {
       // quotes.
       //
       else if (StringUtil.findFirstNotOf(s, delim, end) != -1) {
-        ProxyParseException e = new ProxyParseException();
-        e.str = "invalid characters after identity in `" + s + "'";
-        throw e;
+        throw new ProxyParseException("invalid characters after identity in `" + s + "'");
       } else {
         return null;
       }
@@ -180,9 +170,8 @@ public final class ReferenceFactory {
 
       String option = s.substring(beg, end);
       if (option.length() != 2 || option.charAt(0) != '-') {
-        ProxyParseException e = new ProxyParseException();
-        e.str = "expected a proxy option but found `" + option + "' in `" + s + "'";
-        throw e;
+        throw new ProxyParseException(
+            "expected a proxy option but found `" + option + "' in `" + s + "'");
       }
 
       //
@@ -198,9 +187,8 @@ public final class ReferenceFactory {
           beg = argumentBeg;
           end = StringUtil.checkQuote(s, beg);
           if (end == -1) {
-            ProxyParseException e = new ProxyParseException();
-            e.str = "mismatched quotes around value for " + option + " option in `" + s + "'";
-            throw e;
+            throw new ProxyParseException(
+                "mismatched quotes around value for " + option + " option in `" + s + "'");
           } else if (end == 0) {
             end = StringUtil.findFirstOf(s, delim + ":@", beg);
             if (end == -1) {
@@ -223,17 +211,13 @@ public final class ReferenceFactory {
         case 'f':
           {
             if (argument == null) {
-              ProxyParseException e = new ProxyParseException();
-              e.str = "no argument provided for -f option in `" + s + "'";
-              throw e;
+              throw new ProxyParseException("no argument provided for -f option in `" + s + "'");
             }
 
             try {
               facet = StringUtil.unescapeString(argument, 0, argument.length(), "");
             } catch (IllegalArgumentException ex) {
-              ProxyParseException e = new ProxyParseException();
-              e.str = "invalid facet in `" + s + "': " + ex.getMessage();
-              throw e;
+              throw new ProxyParseException("invalid facet in `" + s + "': " + ex.getMessage());
             }
 
             break;
@@ -343,9 +327,7 @@ public final class ReferenceFactory {
 
         default:
           {
-            ProxyParseException e = new ProxyParseException();
-            e.str = "unknown option `" + option + "' in `" + s + "'";
-            throw e;
+            throw new ProxyParseException("unknown option `" + option + "' in `" + s + "'");
           }
       }
     }
@@ -445,17 +427,13 @@ public final class ReferenceFactory {
     } else if (s.charAt(beg) == '@') {
       beg = StringUtil.findFirstNotOf(s, delim, beg + 1);
       if (beg == -1) {
-        ProxyParseException e = new ProxyParseException();
-        e.str = "missing adapter id in `" + s + "'";
-        throw e;
+        throw new ProxyParseException("missing adapter id in `" + s + "'");
       }
 
       String adapterstr = null;
       end = StringUtil.checkQuote(s, beg);
       if (end == -1) {
-        ProxyParseException e = new ProxyParseException();
-        e.str = "mismatched quotes around adapter id in `" + s + "'";
-        throw e;
+        throw new ProxyParseException("mismatched quotes around adapter id in `" + s + "'");
       } else if (end == 0) {
         end = StringUtil.findFirstOf(s, delim, beg);
         if (end == -1) {
@@ -478,14 +456,10 @@ public final class ReferenceFactory {
       try {
         adapter = StringUtil.unescapeString(adapterstr, 0, adapterstr.length(), "");
       } catch (IllegalArgumentException ex) {
-        ProxyParseException e = new ProxyParseException();
-        e.str = "invalid adapter id in `" + s + "': " + ex.getMessage();
-        throw e;
+        throw new ProxyParseException("invalid adapter id in `" + s + "': " + ex.getMessage());
       }
       if (adapter.isEmpty()) {
-        ProxyParseException e = new ProxyParseException();
-        e.str = "empty adapter id in `" + s + "'";
-        throw e;
+        throw new ProxyParseException("empty adapter id in `" + s + "'");
       }
       return create(
           ident,
@@ -500,9 +474,7 @@ public final class ReferenceFactory {
           propertyPrefix);
     }
 
-    ProxyParseException ex = new ProxyParseException();
-    ex.str = "malformed proxy `" + s + "'";
-    throw ex;
+    throw new ProxyParseException("malformed proxy `" + s + "'");
   }
 
   public Reference create(com.zeroc.Ice.Identity ident, com.zeroc.Ice.InputStream s) {

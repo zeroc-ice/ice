@@ -110,7 +110,8 @@ public final class Communicator implements AutoCloseable {
    * @see #proxyToString
    */
   public ObjectPrx stringToProxy(String str) {
-    return _instance.proxyFactory().stringToProxy(str);
+    var ref = _instance.referenceFactory().create(str, null);
+    return (ref == null) ? null : new com.zeroc.Ice._ObjectPrxI(ref);
   }
 
   /**
@@ -121,7 +122,7 @@ public final class Communicator implements AutoCloseable {
    * @see #stringToProxy
    */
   public String proxyToString(ObjectPrx proxy) {
-    return _instance.proxyFactory().proxyToString(proxy);
+    return (proxy == null) ? "" : proxy._getReference().toString();
   }
 
   /**
@@ -146,7 +147,7 @@ public final class Communicator implements AutoCloseable {
    * @return The property set.
    */
   public java.util.Map<String, String> proxyToProperty(ObjectPrx proxy, String prefix) {
-    return _instance.proxyFactory().proxyToProperty(proxy, prefix);
+    return (proxy == null) ? new java.util.HashMap<>() : proxy._getReference().toProperty(prefix);
   }
 
   /**

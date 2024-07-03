@@ -648,7 +648,11 @@ public interface ObjectPrx {
    * @throws ProxyParseException Thrown when <code>proxyString</code> is not a valid proxy string.
    */
   public static ObjectPrx createProxy(Communicator communicator, String proxyString) {
-    return communicator.stringToProxy(proxyString);
+    var ref = communicator.getInstance().referenceFactory().create(proxyString, null);
+    if (ref == null) {
+      throw new ProxyParseException("Invalid empty proxy string.");
+    }
+    return new com.zeroc.Ice._ObjectPrxI(ref);
   }
 
   /**
@@ -766,10 +770,10 @@ public interface ObjectPrx {
 
   /**
    * @hidden
-   * @param r -
-   * @return -
    */
-  ObjectPrx _newInstance(com.zeroc.IceInternal.Reference r);
+  default ObjectPrx _newInstance(com.zeroc.IceInternal.Reference ref) {
+    return new _ObjectPrxI(ref);
+  }
 
   /**
    * A special empty context that is indistinguishable from the absence of a context parameter. For

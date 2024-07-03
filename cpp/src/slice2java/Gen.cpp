@@ -4241,7 +4241,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     out << nl << "public static " << prxName
         << " createProxy(com.zeroc.Ice.Communicator communicator, String proxyString)";
     out << sb;
-    out << nl << "return uncheckedCast(communicator.stringToProxy(proxyString));";
+    out << nl << "return new " << prxIName << "(com.zeroc.Ice.ObjectPrx.createProxy(communicator, proxyString));";
     out << eb;
 
     out << sp;
@@ -4366,6 +4366,14 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     out << nl << "return \"" << p->scoped() << "\";";
     out << eb;
 
+    out << sp;
+    writeDocComment(out, "@hidden");
+    out << nl << "@Override";
+    out << nl << "default " << prxName << " _newInstance(com.zeroc.IceInternal.Reference ref)";
+    out << sb;
+    out << nl << "return new " << prxIName << "(ref);";
+    out << eb;
+
     out << eb;
     close();
 
@@ -4386,17 +4394,16 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     outi << " implements " << prxName;
     outi << sb;
 
-    // TODO: eventually remove this default constructor.
-    // Default constructor
+    // Constructor which directly takes a Reference.
     outi << sp;
-    outi << nl << "public " << prxIName << "()";
+    outi << nl << prxIName << "(com.zeroc.IceInternal.Reference ref)";
     outi << sb;
-    outi << nl << "super();";
+    outi << nl << "super(ref);";
     outi << eb;
 
     // Copy constructor
     outi << sp;
-    outi << nl << "public " << prxIName << "(com.zeroc.Ice.ObjectPrx obj)";
+    outi << nl << prxIName << "(com.zeroc.Ice.ObjectPrx obj)";
     outi << sb;
     outi << nl << "super(obj);";
     outi << eb;

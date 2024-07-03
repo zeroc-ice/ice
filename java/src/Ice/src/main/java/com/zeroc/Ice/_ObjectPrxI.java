@@ -5,6 +5,7 @@
 package com.zeroc.Ice;
 
 import com.zeroc.IceInternal.OutgoingAsync;
+import com.zeroc.IceInternal.Reference;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -12,10 +13,12 @@ import java.util.concurrent.CompletableFuture;
 
 /** Concrete proxy implementation. */
 public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
-  // TODO: delete this default constructor eventually.
-  public _ObjectPrxI() {}
+  // TODO: Only public for 'IceInternal.ProxyFactory', should become protected after refactoring.
+  public _ObjectPrxI(Reference ref) {
+    _reference = ref;
+  }
 
-  public _ObjectPrxI(ObjectPrx obj) {
+  protected _ObjectPrxI(ObjectPrx obj) {
     _ObjectPrxI source = (_ObjectPrxI) obj;
     _reference = source._reference;
     _requestHandler = source._requestHandler;
@@ -160,9 +163,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
     if (newIdentity.equals(_reference.getIdentity())) {
       return this;
     } else {
-      _ObjectPrxI proxy = new _ObjectPrxI();
-      proxy._setup(_reference.changeIdentity(newIdentity));
-      return proxy;
+      return new _ObjectPrxI(_reference.changeIdentity(newIdentity));
     }
   }
 
@@ -182,9 +183,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
     if (newFacet.equals(_reference.getFacet())) {
       return this;
     } else {
-      _ObjectPrxI proxy = new _ObjectPrxI();
-      proxy._setup(_reference.changeFacet(newFacet));
-      return proxy;
+      return new _ObjectPrxI(_reference.changeFacet(newFacet));
     }
   }
 
@@ -247,23 +246,23 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
   }
 
   public boolean ice_isTwoway() {
-    return _reference.getMode() == com.zeroc.IceInternal.Reference.ModeTwoway;
+    return _reference.getMode() == Reference.ModeTwoway;
   }
 
   public boolean ice_isOneway() {
-    return _reference.getMode() == com.zeroc.IceInternal.Reference.ModeOneway;
+    return _reference.getMode() == Reference.ModeOneway;
   }
 
   public boolean ice_isBatchOneway() {
-    return _reference.getMode() == com.zeroc.IceInternal.Reference.ModeBatchOneway;
+    return _reference.getMode() == Reference.ModeBatchOneway;
   }
 
   public boolean ice_isDatagram() {
-    return _reference.getMode() == com.zeroc.IceInternal.Reference.ModeDatagram;
+    return _reference.getMode() == Reference.ModeDatagram;
   }
 
   public boolean ice_isBatchDatagram() {
-    return _reference.getMode() == com.zeroc.IceInternal.Reference.ModeBatchDatagram;
+    return _reference.getMode() == Reference.ModeBatchDatagram;
   }
 
   public java.util.Optional<Boolean> ice_getCompress() {
@@ -347,41 +346,8 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
   }
 
   @Override
-  public com.zeroc.IceInternal.Reference _getReference() {
+  public Reference _getReference() {
     return _reference;
-  }
-
-  @Override
-  public ObjectPrx _newInstance(com.zeroc.IceInternal.Reference ref) {
-    try {
-      _ObjectPrxI proxy = getClass().getDeclaredConstructor().newInstance();
-      proxy._setup(ref);
-      return proxy;
-    } catch (NoSuchMethodException ex) {
-      //
-      // Impossible
-      //
-      assert false;
-      return null;
-    } catch (java.lang.reflect.InvocationTargetException ex) {
-      //
-      // Impossible
-      //
-      assert false;
-      return null;
-    } catch (InstantiationException e) {
-      //
-      // Impossible
-      //
-      assert false;
-      return null;
-    } catch (IllegalAccessException e) {
-      //
-      // Impossible
-      //
-      assert false;
-      return null;
-    }
   }
 
   @Override
@@ -533,47 +499,31 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
 
   @Override
   public ObjectPrx ice_twoway() {
-    if (_reference.getMode() == com.zeroc.IceInternal.Reference.ModeTwoway) {
-      return this;
-    } else {
-      return _newInstance(_reference.changeMode(com.zeroc.IceInternal.Reference.ModeTwoway));
-    }
+    return ice_isTwoway() ? this : _newInstance(_reference.changeMode(Reference.ModeTwoway));
   }
 
   @Override
   public ObjectPrx ice_oneway() {
-    if (_reference.getMode() == com.zeroc.IceInternal.Reference.ModeOneway) {
-      return this;
-    } else {
-      return _newInstance(_reference.changeMode(com.zeroc.IceInternal.Reference.ModeOneway));
-    }
+    return ice_isOneway() ? this : _newInstance(_reference.changeMode(Reference.ModeOneway));
   }
 
   @Override
   public ObjectPrx ice_batchOneway() {
-    if (_reference.getMode() == com.zeroc.IceInternal.Reference.ModeBatchOneway) {
-      return this;
-    } else {
-      return _newInstance(_reference.changeMode(com.zeroc.IceInternal.Reference.ModeBatchOneway));
-    }
+    return ice_isBatchOneway()
+        ? this
+        : _newInstance(_reference.changeMode(Reference.ModeBatchOneway));
   }
 
   @Override
   public ObjectPrx ice_datagram() {
-    if (_reference.getMode() == com.zeroc.IceInternal.Reference.ModeDatagram) {
-      return this;
-    } else {
-      return _newInstance(_reference.changeMode(com.zeroc.IceInternal.Reference.ModeDatagram));
-    }
+    return ice_isDatagram() ? this : _newInstance(_reference.changeMode(Reference.ModeDatagram));
   }
 
   @Override
   public ObjectPrx ice_batchDatagram() {
-    if (_reference.getMode() == com.zeroc.IceInternal.Reference.ModeBatchDatagram) {
-      return this;
-    } else {
-      return _newInstance(_reference.changeMode(com.zeroc.IceInternal.Reference.ModeBatchDatagram));
-    }
+    return ice_isBatchDatagram()
+        ? this
+        : _newInstance(_reference.changeMode(Reference.ModeBatchDatagram));
   }
 
   @Override
@@ -708,21 +658,6 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
     }
   }
 
-  //
-  // Only for use by ProxyFactory
-  //
-  public void _setup(com.zeroc.IceInternal.Reference ref) {
-    //
-    // No need to synchronize, as this operation is only called
-    // upon initial initialization.
-    //
-
-    assert (_reference == null);
-    assert (_requestHandler == null);
-
-    _reference = ref;
-  }
-
   private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
     out.writeUTF(toString());
   }
@@ -760,7 +695,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
     public OutputStream os;
   }
 
-  protected transient com.zeroc.IceInternal.Reference _reference;
+  protected transient Reference _reference;
   private transient com.zeroc.IceInternal.RequestHandler _requestHandler;
   private transient com.zeroc.IceInternal.BatchRequestQueue _batchRequestQueue;
   private transient List<StreamPair> _streamCache;
