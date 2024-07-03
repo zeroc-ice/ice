@@ -547,10 +547,8 @@ IceRuby::createArray(long sz)
 
 namespace
 {
-    template<size_t N> VALUE createRubyException(
-        const char* typeId,
-        std::array<VALUE, N> args,
-        bool fallbackToLocalException = false)
+    template<size_t N>
+    VALUE createRubyException(const char* typeId, std::array<VALUE, N> args, bool fallbackToLocalException = false)
     {
         string className = string{typeId}.substr(2);
         VALUE rubyClass = T_NIL;
@@ -596,7 +594,7 @@ IceRuby::convertException(std::exception_ptr eptr)
                 IceRuby::createString(ex.operation()),
                 IceRuby::createString(ex.what())};
 
-            return createRubyException(ex.ice_id(), args);
+            return createRubyException(ex.ice_id(), std::move(args));
         }
         catch (const Ice::AlreadyRegisteredException& ex)
         {
@@ -605,7 +603,7 @@ IceRuby::convertException(std::exception_ptr eptr)
                 IceRuby::createString(ex.id),
                 IceRuby::createString(ex.what())};
 
-            return createRubyException(ex.ice_id(), args);
+            return createRubyException(ex.ice_id(), std::move(args));
         }
         catch (const Ice::NotRegisteredException& ex)
         {
@@ -614,23 +612,23 @@ IceRuby::convertException(std::exception_ptr eptr)
                 IceRuby::createString(ex.id),
                 IceRuby::createString(ex.what())};
 
-            return createRubyException(ex.ice_id(), args);
+            return createRubyException(ex.ice_id(), std::move(args));
         }
         // Then all other exceptions.
         catch (const Ice::LocalException& ex)
         {
             std::array args = {IceRuby::createString(ex.what())};
-            return createRubyException(ex.ice_id(), args, true);
+            return createRubyException(ex.ice_id(), std::move(args), true);
         }
         catch (const std::exception& ex)
         {
             std::array args = {IceRuby::createString(ex.what())};
-            return createRubyException(localExceptionTypeId, args);
+            return createRubyException(localExceptionTypeId, std::move(args));
         }
         catch (...)
         {
             std::array args = {IceRuby::createString("unknown C++ exception")};
-            return createRubyException(localExceptionTypeId, args);
+            return createRubyException(localExceptionTypeId, std::move(args));
         }
     }
     catch (const RubyException& e)
