@@ -179,7 +179,7 @@ module Ice
     end
 
     class RequestFailedException < Ice::LocalException
-        def initialize(id = ::Ice::Identity.new, facet = '', operation = '')
+        def initialize(id, facet, operation)
             @id = id
             @facet = facet
             @operation = operation
@@ -193,30 +193,18 @@ module Ice
     end
 
     class ObjectNotExistException < ::Ice::RequestFailedException
-        def initialize(id = ::Ice::Identity.new, facet = '', operation = '')
-            super(id, facet, operation)
-        end
-
         def to_s
             '::Ice::ObjectNotExistException'
         end
     end
 
     class FacetNotExistException < ::Ice::RequestFailedException
-        def initialize(id = ::Ice::Identity.new, facet = '', operation = '')
-            super(id, facet, operation)
-        end
-
         def to_s
             '::Ice::FacetNotExistException'
         end
     end
 
     class OperationNotExistException < ::Ice::RequestFailedException
-        def initialize(id = ::Ice::Identity.new, facet = '', operation = '')
-            super(id, facet, operation)
-        end
-
         def to_s
             '::Ice::OperationNotExistException'
         end

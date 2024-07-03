@@ -7,6 +7,8 @@
 #include "Ice/VersionFunctions.h"
 #include <stdarg.h>
 
+#include <iostream> // temp
+
 using namespace std;
 using namespace IceRuby;
 
@@ -677,6 +679,30 @@ IceRuby::createArray(long sz)
     return arr;
 }
 
+namespace
+{
+    template<size_t N> VALUE createRubyException(
+        const char* typeId,
+        std::array<VALUE, N> args,
+        bool throwIfNotFound = true)
+    {
+        string className = string{typeId}.substr(2);
+        VALUE rubyClass = callRuby(rb_path2class, className.c_str());
+        if (NIL_P(rubyClass))
+        {
+            if (throwIfNotFound)
+            {
+                throw RubyException(rb_eRuntimeError, "exception class `%s' not found", className.c_str());
+            }
+            else
+            {
+                return T_NIL;
+            }
+        }
+        return callRuby(rb_class_new_instance, N, args.data(), rubyClass);
+    }
+}
+
 VALUE
 IceRuby::convertLocalException(std::exception_ptr eptr)
 {
@@ -687,12 +713,22 @@ IceRuby::convertLocalException(std::exception_ptr eptr)
     //
     try
     {
-        rethrow_exception(eptr);
-    }
-    catch (const Ice::LocalException& ex)
-    {
         try
         {
+            rethrow_exception(eptr);
+        }
+        catch (const Ice::RequestFailedException& ex)
+        {
+            std::array args = {
+                    IceRuby::createIdentity(ex.id()),
+                    IceRuby::createString(ex.facet()),
+                    IceRuby::createString(ex.operation())}; // TODO: missing what
+
+            return createRubyException(ex.ice_id(), args);
+        }
+        catch (const Ice::LocalException& ex)
+        {
+            // TODO: not refactored yet!
             string name = string{ex.ice_id()}.substr(2);
             volatile VALUE cls = callRuby(rb_path2class, name.c_str());
             if (NIL_P(cls))
@@ -703,15 +739,15 @@ IceRuby::convertLocalException(std::exception_ptr eptr)
             setExceptionMembers(eptr, result);
             return result;
         }
-        catch (const RubyException& e)
-        {
-            return e.ex;
-        }
-        catch (...)
-        {
-            string msg = "failure occurred while converting exception " + string{ex.ice_id()};
-            return rb_exc_new2(rb_eRuntimeError, msg.c_str());
-        }
+        // TODO: add more exceptions
     }
-    // never reached since eptr is always a LocalException ptr
+    catch (const RubyException& e)
+    {
+        return e.ex;
+    }
+    catch (...)
+    {
+        string msg = "failure occurred while converting exception";
+        return rb_exc_new2(rb_eRuntimeError, msg.c_str());
+    }
 }
