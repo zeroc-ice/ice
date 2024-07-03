@@ -49,6 +49,7 @@
 #    include "VersionFunctions.h"
 
 // Generated header files:
+#    include "CtrlCHandler.h"
 #    include "Ice/EndpointTypes.h"
 #    include "Ice/Locator.h"
 #    include "Ice/Metrics.h"
@@ -56,10 +57,6 @@
 #    include "Ice/PropertiesAdmin.h"
 #    include "Ice/RemoteLogger.h"
 #    include "Ice/Router.h"
-
-#    if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
-#        include "CtrlCHandler.h"
-#    endif
 #endif
 
 #endif

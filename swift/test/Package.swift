@@ -31,11 +31,11 @@ struct TestConfig {
     var exclude: [String] {
         return sliceFiles + (amd ? (amdSourcesFiles + amdSliceFiles + ["amd"]) : [])
     }
-    
+
     var amdExclude: [String] {
         return amdSliceFiles + sourceFiles + sliceFiles + ["slice-plugin.json"]
     }
-    
+
 }
 
 let testDirectories: [String: TestConfig] = [
@@ -57,8 +57,9 @@ let testDirectories: [String: TestConfig] = [
     "Ice/hold": TestConfig(collocated: false),
     "Ice/info": TestConfig(collocated: false),
     "Ice/inheritance": TestConfig(),
-     "Ice/invoke": TestConfig(collocated: false),
-     "Ice/location": TestConfig(collocated: false),
+    "Ice/invoke": TestConfig(collocated: false),
+    "Ice/location": TestConfig(collocated: false),
+    "Ice/middleware": TestConfig(collocated: false, sources: ["Client.swift", "AllTests.swift"]),
     "Ice/objects": TestConfig(
         sliceFiles: defaultSliceFiles + ["Derived.ice", "DerivedEx.ice", "Forward.ice"]
     ),

@@ -12,6 +12,20 @@ let iceCppSettings: [CXXSetting] = [
     .headerSearchPath("include/generated"),
 ]
 
+let iceUtilSources: [String] = [
+    "src/Ice/ConsoleUtil.cpp",
+    "src/Ice/CtrlCHandler.cpp",
+    "src/Ice/Exception.cpp",
+    "src/Ice/FileUtil.cpp",
+    "src/Ice/LocalException.cpp",
+    "src/Ice/Options.cpp",
+    "src/Ice/OutputUtil.cpp",
+    "src/Ice/Random.cpp",
+    "src/Ice/StringConverter.cpp",
+    "src/Ice/StringUtil.cpp",
+    "src/Ice/UUID.cpp"
+]
+
 let package = Package(
     name: "ice",
     defaultLocalization: "en",
@@ -105,7 +119,7 @@ let package = Package(
                 "src/Ice/generated/Router.ice.d",
                 "src/Ice/generated/Version.ice.d",
                 "src/IceIAP/Makefile.mk",
-            ],
+            ] + iceUtilSources,
             sources: ["src/Ice", "src/IceIAP"],
             publicHeadersPath: "include/Ice",
             cxxSettings: iceCppSettings,
@@ -130,7 +144,7 @@ let package = Package(
         .target(
             name: "IceLocatorDiscoveryCpp",
             dependencies: ["IceCpp"],
-            path: "cpp/",
+            path: "cpp",
             exclude: [
                 "test",
                 "src/IceLocatorDiscovery/build",
@@ -153,8 +167,8 @@ let package = Package(
                 "src/IceUtil/msbuild",
                 "src/IceUtil/Makefile.mk"
             ],
-            sources: ["src/IceUtil"],
-            publicHeadersPath: "include/IceUtil",
+            sources: iceUtilSources,
+            publicHeadersPath: "src/IceUtil", // dummy path as we can't re-use include/Ice
             cxxSettings: iceCppSettings
         ),
         .target(
