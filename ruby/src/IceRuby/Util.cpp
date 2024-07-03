@@ -726,6 +726,12 @@ IceRuby::convertLocalException(std::exception_ptr eptr)
 
             return createRubyException(ex.ice_id(), args);
         }
+        catch (const Ice::MarshalException& e)
+        {
+            // temporary, there is nothing special about MarshalException in Ruby
+            std::array args = {IceRuby::createString(e.what())};
+            return createRubyException(e.ice_id(), args);
+        }
         catch (const Ice::LocalException& ex)
         {
             // TODO: not refactored yet!
@@ -747,7 +753,7 @@ IceRuby::convertLocalException(std::exception_ptr eptr)
     }
     catch (...)
     {
-        string msg = "failure occurred while converting exception";
+        string msg = "!!!failure occurred while converting exception";
         return rb_exc_new2(rb_eRuntimeError, msg.c_str());
     }
 }

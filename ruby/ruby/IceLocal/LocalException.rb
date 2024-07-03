@@ -1,9 +1,6 @@
 # encoding: utf-8
 #
-# Copyright (c) ZeroC, Inc. All rights reserved.
-#
-
-require_relative '../Ice/Identity.rb'
+# Copyright (c) ZeroC, Inc.
 
 module Ice
     class InitializationException < LocalException
@@ -189,7 +186,7 @@ module Ice
             '::Ice::RequestFailedException'
         end
 
-        attr_accessor :id, :facet, :operation
+        attr_reader :id, :facet, :operation
     end
 
     class ObjectNotExistException < RequestFailedException
@@ -399,14 +396,7 @@ module Ice
         end
     end
 
-    class MarshalException < ProtocolException
-        def initialize(reason = '')
-            super(reason)
-        end
-
-        def to_s
-            '::Ice::MarshalException'
-        end
+    class MarshalException < LocalException # TODO: ProtocolException
     end
 
     class FeatureNotSupportedException < LocalException
