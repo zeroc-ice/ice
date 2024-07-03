@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-// This file contains all the exception classes derived from LocalException defined in the Ice assembly.
+// This file contains all the exception classes derived from LocalException defined in the Ice module.
 
 //
 // The 6 (7 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice reply
