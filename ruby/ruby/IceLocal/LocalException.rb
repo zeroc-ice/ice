@@ -6,7 +6,7 @@
 require_relative '../Ice/Identity.rb'
 
 module Ice
-    class InitializationException < Ice::LocalException
+    class InitializationException < LocalException
         def initialize(reason = '')
             @reason = reason
         end
@@ -18,7 +18,7 @@ module Ice
         attr_accessor :reason
     end
 
-    class PluginInitializationException < Ice::LocalException
+    class PluginInitializationException < LocalException
         def initialize(reason = '')
             @reason = reason
         end
@@ -30,7 +30,7 @@ module Ice
         attr_accessor :reason
     end
 
-    class AlreadyRegisteredException < Ice::LocalException
+    class AlreadyRegisteredException < LocalException
         def initialize(kindOfObject = '', id = '')
             @kindOfObject = kindOfObject
             @id = id
@@ -43,7 +43,7 @@ module Ice
         attr_accessor :kindOfObject, :id
     end
 
-    class NotRegisteredException < Ice::LocalException
+    class NotRegisteredException < LocalException
         def initialize(kindOfObject = '', id = '')
             @kindOfObject = kindOfObject
             @id = id
@@ -56,7 +56,7 @@ module Ice
         attr_accessor :kindOfObject, :id
     end
 
-    class TwowayOnlyException < Ice::LocalException
+    class TwowayOnlyException < LocalException
         def initialize(operation = '')
             @operation = operation
         end
@@ -68,7 +68,7 @@ module Ice
         attr_accessor :operation
     end
 
-    class UnknownException < Ice::LocalException
+    class UnknownException < LocalException
         def initialize(unknown = '')
             @unknown = unknown
         end
@@ -80,7 +80,7 @@ module Ice
         attr_accessor :unknown
     end
 
-    class UnknownLocalException < ::Ice::UnknownException
+    class UnknownLocalException < UnknownException
         def initialize(unknown = '')
             super(unknown)
         end
@@ -90,7 +90,7 @@ module Ice
         end
     end
 
-    class UnknownUserException < ::Ice::UnknownException
+    class UnknownUserException < UnknownException
         def initialize(unknown = '')
             super(unknown)
         end
@@ -100,7 +100,7 @@ module Ice
         end
     end
 
-    class CommunicatorDestroyedException < Ice::LocalException
+    class CommunicatorDestroyedException < LocalException
         def initialize
         end
 
@@ -109,7 +109,7 @@ module Ice
         end
     end
 
-    class ObjectAdapterDeactivatedException < Ice::LocalException
+    class ObjectAdapterDeactivatedException < LocalException
         def initialize(name = '')
             @name = name
         end
@@ -121,7 +121,7 @@ module Ice
         attr_accessor :name
     end
 
-    class ObjectAdapterIdInUseException < Ice::LocalException
+    class ObjectAdapterIdInUseException < LocalException
         def initialize(id = '')
             @id = id
         end
@@ -133,7 +133,7 @@ module Ice
         attr_accessor :id
     end
 
-    class NoEndpointException < Ice::LocalException
+    class NoEndpointException < LocalException
         def initialize(proxy = '')
             @proxy = proxy
         end
@@ -145,7 +145,7 @@ module Ice
         attr_accessor :proxy
     end
 
-    class ParseException < Ice::LocalException
+    class ParseException < LocalException
         def initialize(str = '')
             @str = str
         end
@@ -157,7 +157,7 @@ module Ice
         attr_accessor :str
     end
 
-    class IllegalIdentityException < Ice::LocalException
+    class IllegalIdentityException < LocalException
         def initialize
         end
 
@@ -166,7 +166,7 @@ module Ice
         end
     end
 
-    class IllegalServantException < Ice::LocalException
+    class IllegalServantException < LocalException
         def initialize(reason = '')
             @reason = reason
         end
@@ -178,7 +178,7 @@ module Ice
         attr_accessor :reason
     end
 
-    class RequestFailedException < Ice::LocalException
+    class RequestFailedException < LocalException
         def initialize(id, facet, operation)
             @id = id
             @facet = facet
@@ -192,25 +192,25 @@ module Ice
         attr_accessor :id, :facet, :operation
     end
 
-    class ObjectNotExistException < ::Ice::RequestFailedException
+    class ObjectNotExistException < RequestFailedException
         def to_s
             '::Ice::ObjectNotExistException'
         end
     end
 
-    class FacetNotExistException < ::Ice::RequestFailedException
+    class FacetNotExistException < RequestFailedException
         def to_s
             '::Ice::FacetNotExistException'
         end
     end
 
-    class OperationNotExistException < ::Ice::RequestFailedException
+    class OperationNotExistException < RequestFailedException
         def to_s
             '::Ice::OperationNotExistException'
         end
     end
 
-    class SyscallException < Ice::LocalException
+    class SyscallException < LocalException
         def initialize(error = 0)
             @error = error
         end
@@ -222,7 +222,7 @@ module Ice
         attr_accessor :error
     end
 
-    class SocketException < ::Ice::SyscallException
+    class SocketException < SyscallException
         def initialize(error = 0)
             super(error)
         end
@@ -232,7 +232,7 @@ module Ice
         end
     end
 
-    class CFNetworkException < ::Ice::SocketException
+    class CFNetworkException < SocketException
         def initialize(error = 0, domain = '')
             super(error)
             @domain = domain
@@ -245,7 +245,7 @@ module Ice
         attr_accessor :domain
     end
 
-    class FileException < ::Ice::SyscallException
+    class FileException < SyscallException
         def initialize(error = 0, path = '')
             super(error)
             @path = path
@@ -258,7 +258,7 @@ module Ice
         attr_accessor :path
     end
 
-    class ConnectFailedException < ::Ice::SocketException
+    class ConnectFailedException < SocketException
         def initialize(error = 0)
             super(error)
         end
@@ -268,7 +268,7 @@ module Ice
         end
     end
 
-    class ConnectionRefusedException < ::Ice::ConnectFailedException
+    class ConnectionRefusedException < ConnectFailedException
         def initialize(error = 0)
             super(error)
         end
@@ -278,7 +278,7 @@ module Ice
         end
     end
 
-    class ConnectionLostException < ::Ice::SocketException
+    class ConnectionLostException < SocketException
         def initialize(error = 0)
             super(error)
         end
@@ -288,7 +288,7 @@ module Ice
         end
     end
 
-    class DNSException < Ice::LocalException
+    class DNSException < LocalException
         def initialize(error = 0, host = '')
             @error = error
             @host = host
@@ -301,7 +301,7 @@ module Ice
         attr_accessor :error, :host
     end
 
-    class ConnectionIdleException < ::Ice::LocalException
+    class ConnectionIdleException < LocalException
         def initialize
         end
 
@@ -310,7 +310,7 @@ module Ice
         end
     end
 
-    class TimeoutException < Ice::LocalException
+    class TimeoutException < LocalException
         def initialize
         end
 
@@ -319,7 +319,7 @@ module Ice
         end
     end
 
-    class ConnectTimeoutException < ::Ice::TimeoutException
+    class ConnectTimeoutException < TimeoutException
         def initialize
         end
 
@@ -328,7 +328,7 @@ module Ice
         end
     end
 
-    class CloseTimeoutException < ::Ice::TimeoutException
+    class CloseTimeoutException < TimeoutException
         def initialize
         end
 
@@ -337,7 +337,7 @@ module Ice
         end
     end
 
-    class InvocationTimeoutException < ::Ice::TimeoutException
+    class InvocationTimeoutException < TimeoutException
         def initialize
         end
 
@@ -346,7 +346,7 @@ module Ice
         end
     end
 
-    class InvocationCanceledException < Ice::LocalException
+    class InvocationCanceledException < LocalException
         def initialize
         end
 
@@ -355,7 +355,7 @@ module Ice
         end
     end
 
-    class ProtocolException < Ice::LocalException
+    class ProtocolException < LocalException
         def initialize(reason = '')
             @reason = reason
         end
@@ -367,7 +367,7 @@ module Ice
         attr_accessor :reason
     end
 
-    class CloseConnectionException < ::Ice::ProtocolException
+    class CloseConnectionException < ProtocolException
         def initialize(reason = '')
             super(reason)
         end
@@ -377,7 +377,7 @@ module Ice
         end
     end
 
-    class ConnectionManuallyClosedException < Ice::LocalException
+    class ConnectionManuallyClosedException < LocalException
         def initialize(graceful = false)
             @graceful = graceful
         end
@@ -389,7 +389,7 @@ module Ice
         attr_accessor :graceful
     end
 
-    class DatagramLimitException < ::Ice::ProtocolException
+    class DatagramLimitException < ProtocolException
         def initialize(reason = '')
             super(reason)
         end
@@ -399,7 +399,7 @@ module Ice
         end
     end
 
-    class MarshalException < ::Ice::ProtocolException
+    class MarshalException < ProtocolException
         def initialize(reason = '')
             super(reason)
         end
@@ -409,7 +409,7 @@ module Ice
         end
     end
 
-    class FeatureNotSupportedException < Ice::LocalException
+    class FeatureNotSupportedException < LocalException
         def initialize(unsupportedFeature = '')
             @unsupportedFeature = unsupportedFeature
         end
@@ -421,7 +421,7 @@ module Ice
         attr_accessor :unsupportedFeature
     end
 
-    class SecurityException < Ice::LocalException
+    class SecurityException < LocalException
         def initialize(reason = '')
             @reason = reason
         end
@@ -433,7 +433,7 @@ module Ice
         attr_accessor :reason
     end
 
-    class FixedProxyException < Ice::LocalException
+    class FixedProxyException < LocalException
         def initialize
         end
 
