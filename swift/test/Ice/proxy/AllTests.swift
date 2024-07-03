@@ -745,8 +745,8 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     } catch let ex as Ice.UnknownLocalException {
         // TODO: remove UnsupportedEncodingException
         try test(
-            ex.unknown.contains("::Ice::MarshalException") || ex.unknown.contains("Ice.MarshalException")
-                || ex.unknown.contains("UnsupportedEncodingException"))
+            ex.message.contains("::Ice::MarshalException") || ex.message.contains("Ice.MarshalException")
+                || ex.message.contains("UnsupportedEncodingException"))
     }
 
     do {
@@ -763,8 +763,8 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     } catch let ex as Ice.UnknownLocalException {
         // TODO: remove UnsupportedEncodingException
         try test(
-            ex.unknown.contains("::Ice::MarshalException") || ex.unknown.contains("Ice.MarshalException")
-                || ex.unknown.contains("UnsupportedEncodingException"))
+            ex.message.contains("::Ice::MarshalException") || ex.message.contains("Ice.MarshalException")
+                || ex.message.contains("UnsupportedEncodingException"))
     }
     writer.writeLine("ok")
 

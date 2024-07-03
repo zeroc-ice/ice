@@ -1013,7 +1013,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "let rawValue: " << enumType << " = try read(enumMaxValue: " << p->maxValue() << ")";
     out << nl << "guard let val = " << name << "(rawValue: rawValue) else";
     out << sb;
-    out << nl << "throw " << getUnqualified("Ice.MarshalException", swiftModule) << "(reason: \"invalid enum value\")";
+    out << nl << "throw " << getUnqualified("Ice.MarshalException", swiftModule) << "(\"invalid enum value\")";
     out << eb;
     out << nl << "return val";
     out << eb;

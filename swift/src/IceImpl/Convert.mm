@@ -1,212 +1,103 @@
 // Copyright (c) ZeroC, Inc.
 #import "Convert.h"
-#import "Exception.h"
 #import "IceUtil.h"
+#import "LocalExceptionFactory.h"
+
+#include <cstdlib>
+#include <cxxabi.h>
+#include <sstream>
+#include <typeinfo>
+
+namespace
+{
+    inline std::string cxxDescription(const Ice::LocalException& e)
+    {
+        std::ostringstream os;
+        os << e;
+        return os.str();
+    }
+}
 
 NSError*
 convertException(std::exception_ptr exc)
 {
     assert(exc);
-    Class<ICEExceptionFactory> factory = [ICEUtil exceptionFactory];
+    Class<ICELocalExceptionFactory> factory = [ICEUtil localExceptionFactory];
 
     try
     {
         rethrow_exception(exc);
     }
-    catch (const Ice::InitializationException& e)
+    catch (const Ice::RequestFailedException& e)
     {
-        return [factory initializationException:toNSString(e.reason) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::PluginInitializationException& e)
-    {
-        return [factory pluginInitializationException:toNSString(e.reason)
-                                                 file:toNSString(e.ice_file())
-                                                 line:e.ice_line()];
-    }
-    catch (const Ice::AlreadyRegisteredException& e)
-    {
-        return [factory alreadyRegisteredException:toNSString(e.kindOfObject)
-                                                id:toNSString(e.id)
-                                              file:toNSString(e.ice_file())
-                                              line:e.ice_line()];
-    }
-    catch (const Ice::NotRegisteredException& e)
-    {
-        return [factory notRegisteredException:toNSString(e.kindOfObject)
-                                            id:toNSString(e.id)
-                                          file:toNSString(e.ice_file())
-                                          line:e.ice_line()];
-    }
-    catch (const Ice::TwowayOnlyException& e)
-    {
-        return [factory twowayOnlyException:toNSString(e.operation) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::CommunicatorDestroyedException& e)
-    {
-        return [factory communicatorDestroyedException:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::ObjectAdapterDeactivatedException& e)
-    {
-        return [factory objectAdapterDeactivatedException:toNSString(e.name)
-                                                     file:toNSString(e.ice_file())
-                                                     line:e.ice_line()];
-    }
-    catch (const Ice::ObjectAdapterIdInUseException& e)
-    {
-        return [factory objectAdapterIdInUseException:toNSString(e.id) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::NoEndpointException& e)
-    {
-        return [factory noEndpointException:toNSString(e.proxy) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::ParseException& e)
-    {
-        return [factory parseException:toNSString(e.what()) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::IllegalIdentityException& e)
-    {
-        return [factory illegalIdentityException:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::IllegalServantException& e)
-    {
-        return [factory illegalServantException:toNSString(e.reason) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::DNSException& e)
-    {
-        return [factory dNSException:e.error host:toNSString(e.host) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::InvocationCanceledException& e)
-    {
-        return [factory invocationCanceledException:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::FeatureNotSupportedException& e)
-    {
-        return [factory featureNotSupportedException:toNSString(e.what())
-                                                file:toNSString(e.ice_file())
-                                                line:e.ice_line()];
-    }
-    catch (const Ice::FixedProxyException& e)
-    {
-        return [factory fixedProxyException:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::SecurityException& e)
-    {
-        return [factory securityException:toNSString(e.reason) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::UnknownLocalException& e)
-    {
-        return [factory unknownLocalException:toNSString(e.what()) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::UnknownUserException& e)
-    {
-        return [factory unknownUserException:toNSString(e.what()) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::UnknownException& e)
-    {
-        return [factory unknownException:toNSString(e.what()) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::ObjectNotExistException& e)
-    {
-        return [factory objectNotExistException:toNSString(e.id().name)
-                                       category:toNSString(e.id().category)
-                                          facet:toNSString(e.facet())
-                                      operation:toNSString(e.operation())
-                                           file:toNSString(e.ice_file())
-                                           line:e.ice_line()];
-    }
-    catch (const Ice::FacetNotExistException& e)
-    {
-        return [factory facetNotExistException:toNSString(e.id().name)
+        return [factory requestFailedException:toNSString(e.ice_id())
+                                          name:toNSString(e.id().name)
                                       category:toNSString(e.id().category)
                                          facet:toNSString(e.facet())
                                      operation:toNSString(e.operation())
+                                       message:toNSString(e.what())
+                                cxxDescription:toNSString(cxxDescription(e))
                                           file:toNSString(e.ice_file())
                                           line:e.ice_line()];
     }
-    catch (const Ice::OperationNotExistException& e)
+    catch (const Ice::AlreadyRegisteredException& e)
     {
-        return [factory operationNotExistException:toNSString(e.id().name)
-                                          category:toNSString(e.id().category)
-                                             facet:toNSString(e.facet())
-                                         operation:toNSString(e.operation())
-                                              file:toNSString(e.ice_file())
-                                              line:e.ice_line()];
+        return [factory registeredException:toNSString(e.ice_id())
+                               kindOfObject:toNSString(e.kindOfObject)
+                                   objectId:toNSString(e.id)
+                                    message:toNSString(e.what())
+                             cxxDescription:toNSString(cxxDescription(e))
+                                       file:toNSString(e.ice_file())
+                                       line:e.ice_line()];
     }
-    catch (const Ice::ConnectionRefusedException& e)
+    catch (const Ice::NotRegisteredException& e)
     {
-        return [factory connectionRefusedException:e.error file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::FileException& e)
-    {
-        return [factory fileException:e.error path:toNSString(e.path) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::ConnectFailedException& e)
-    {
-        return [factory connectFailedException:e.error file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::ConnectionLostException& e)
-    {
-        return [factory connectionLostException:e.error file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::SocketException& e)
-    {
-        return [factory socketException:e.error file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::SyscallException& e)
-    {
-        return [factory syscallException:e.error file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::ConnectTimeoutException& e)
-    {
-        return [factory connectTimeoutException:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::CloseTimeoutException& e)
-    {
-        return [factory closeTimeoutException:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::ConnectionIdleException& e)
-    {
-        return [factory connectionIdleException:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::InvocationTimeoutException& e)
-    {
-        return [factory invocationTimeoutException:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::TimeoutException& e)
-    {
-        return [factory timeoutException:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::CloseConnectionException& e)
-    {
-        return [factory closeConnectionException:toNSString(e.what()) file:toNSString(e.ice_file()) line:e.ice_line()];
+        return [factory registeredException:toNSString(e.ice_id())
+                               kindOfObject:toNSString(e.kindOfObject)
+                                   objectId:toNSString(e.id)
+                                    message:toNSString(e.what())
+                             cxxDescription:toNSString(cxxDescription(e))
+                                       file:toNSString(e.ice_file())
+                                       line:e.ice_line()];
     }
     catch (const Ice::ConnectionManuallyClosedException& e)
     {
-        return [factory connectionManuallyClosedException:e.graceful file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::DatagramLimitException& e)
-    {
-        return [factory datagramLimitException:toNSString(e.what()) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::MarshalException& e)
-    {
-        return [factory marshalException:toNSString(e.what()) file:toNSString(e.ice_file()) line:e.ice_line()];
-    }
-    catch (const Ice::ProtocolException& e)
-    {
-        return [factory protocolException:toNSString(e.what()) file:toNSString(e.ice_file()) line:e.ice_line()];
+        return [factory connectionManuallyClosedException:e.graceful
+                                                  message:toNSString(e.what())
+                                           cxxDescription:toNSString(cxxDescription(e))
+                                                     file:toNSString(e.ice_file())
+                                                     line:e.ice_line()];
     }
     catch (const Ice::LocalException& e)
     {
-        return [factory localException:toNSString(e.ice_file()) line:e.ice_line()];
+        return [factory localException:toNSString(e.ice_id())
+                               message:toNSString(e.what())
+                        cxxDescription:toNSString(cxxDescription(e))
+                                  file:toNSString(e.ice_file())
+                                  line:e.ice_line()];
     }
     catch (const std::exception& e)
     {
-        return [factory runtimeError:toNSString(e.what())];
+        int status = 0;
+        const char* mangled = typeid(e).name();
+        char* demangled = abi::__cxa_demangle(mangled, nullptr, nullptr, &status);
+
+        NSError* error = nullptr;
+        if (status == 0) // success
+        {
+            error = [factory cxxException:toNSString(demangled) message:toNSString(e.what())];
+            std::free(demangled);
+        }
+        else
+        {
+            error = [factory cxxException:toNSString(mangled) message:toNSString(e.what())];
+            assert(demangled == nullptr);
+        }
+        return error;
     }
     catch (...)
     {
-        return [factory runtimeError:toNSString("unknown c++ exception")];
+        return [factory cxxException:toNSString("unknown C++ exception") message:toNSString("(no message)")];
     }
 }
 

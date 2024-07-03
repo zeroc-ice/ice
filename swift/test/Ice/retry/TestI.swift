@@ -15,7 +15,7 @@ class RetryI: Retry {
             if let con = current.con {
                 try con.close(.Forcefully)
             } else {
-                throw Ice.ConnectionLostException(error: 1)
+                throw Ice.ConnectionLostException("op failed")
             }
         }
     }
@@ -27,7 +27,7 @@ class RetryI: Retry {
         }
         if c > _counter {
             _counter += 1
-            throw Ice.ConnectionLostException(error: 1)
+            throw Ice.ConnectionLostException("opIdempotent failed")
         }
         let counter = _counter
         _counter = 0
@@ -35,7 +35,7 @@ class RetryI: Retry {
     }
 
     func opNotIdempotent(current _: Ice.Current) throws {
-        throw Ice.ConnectionLostException(error: 1)
+        throw Ice.ConnectionLostException("opNotIdempotent failed")
     }
 
     func sleep(delay: Int32, current _: Ice.Current) throws {

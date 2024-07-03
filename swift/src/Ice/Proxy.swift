@@ -1425,7 +1425,7 @@ open class ObjectPrxI: ObjectPrx {
             if let userException = userException {
                 try userException(error)
             }
-            throw UnknownUserException(unknown: error.ice_id())
+            throw UnknownUserException(badTypeId: error.ice_id())
         }
         fatalError("Failed to throw user exception")
     }

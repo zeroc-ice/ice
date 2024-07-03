@@ -2,206 +2,59 @@
 
 import IceImpl
 
-class ExceptionFactory: ICEExceptionFactory {
-    static func initializationException(_ reason: String, file: String, line: Int32) -> Error {
-        return InitializationException(reason: reason, file: file, line: line)
-    }
-
-    static func pluginInitializationException(_ reason: String, file: String, line: Int32) -> Error {
-        return PluginInitializationException(reason: reason, file: file, line: line)
-    }
-
-    static func alreadyRegisteredException(
-        _ kindOfObject: String, id: String, file: String, line: Int32
-    ) -> Error {
-        return AlreadyRegisteredException(kindOfObject: kindOfObject, id: id, file: file, line: line)
-    }
-
-    static func notRegisteredException(_ kindOfObject: String, id: String, file: String, line: Int32)
-        -> Error
-    {
-        return NotRegisteredException(kindOfObject: kindOfObject, id: id, file: file, line: line)
-    }
-
-    static func twowayOnlyException(_ operation: String, file: String, line: Int32) -> Error {
-        return TwowayOnlyException(operation: operation, file: file, line: line)
-    }
-
-    static func communicatorDestroyedException(_ file: String, line: Int32) -> Error {
-        return CommunicatorDestroyedException(file: file, line: line)
-    }
-
-    static func objectAdapterDeactivatedException(_ name: String, file: String, line: Int32) -> Error {
-        return ObjectAdapterDeactivatedException(name: name, file: file, line: line)
-    }
-
-    static func objectAdapterIdInUseException(_ id: String, file: String, line: Int32) -> Error {
-        return ObjectAdapterIdInUseException(id: id, file: file, line: line)
-    }
-
-    static func noEndpointException(_ proxy: String, file: String, line: Int32) -> Error {
-        return NoEndpointException(proxy: proxy, file: file, line: line)
-    }
-
-    static func parseException(_ str: String, file: String, line: Int32) -> Error {
-        return ParseException(str: str, file: file, line: line)
-    }
-
-    static func illegalIdentityException(_ file: String, line: Int32) -> Error {
-        return IllegalIdentityException(file: file, line: line)
-    }
-
-    static func illegalServantException(_ reason: String, file: String, line: Int32) -> Error {
-        return IllegalServantException(reason: reason, file: file, line: line)
-    }
-
-    static func dNSException(_ error: Int32, host: String, file: String, line: Int32) -> Error {
-        return DNSException(error: error, host: host, file: file, line: line)
-    }
-
-    static func invocationCanceledException(_ file: String, line: Int32) -> Error {
-        return InvocationCanceledException(file: file, line: line)
-    }
-
-    static func featureNotSupportedException(_ unsupportedFeature: String, file: String, line: Int32)
-        -> Error
-    {
-        return FeatureNotSupportedException(
-            unsupportedFeature: unsupportedFeature, file: file, line: line)
-    }
-
-    static func fixedProxyException(_ file: String, line: Int32) -> Error {
-        return FixedProxyException(file: file, line: line)
-    }
-
-    static func securityException(_ reason: String, file: String, line: Int32) -> Error {
-        return SecurityException(reason: reason, file: file, line: line)
-    }
-
-    static func localException(_ file: String, line: Int32) -> Error {
-        return LocalException(file: file, line: line)
-    }
-
-    static func unknownLocalException(_ unknown: String, file: String, line: Int32) -> Error {
-        return UnknownLocalException(unknown: unknown, file: file, line: line)
-    }
-
-    static func unknownUserException(_ unknown: String, file: String, line: Int32) -> Error {
-        return UnknownUserException(unknown: unknown, file: file, line: line)
-    }
-
-    static func unknownException(_ unknown: String, file: String, line: Int32) -> Error {
-        return UnknownException(unknown: unknown, file: file, line: line)
-    }
-
-    static func objectNotExistException(
-        _ name: String, category: String, facet: String, operation: String,
-        file: String, line: Int32
-    ) -> Error {
-        return ObjectNotExistException(
-            id: Identity(name: name, category: category), facet: facet, operation: operation,
-            file: file, line: line)
-    }
-
-    static func facetNotExistException(
-        _ name: String, category: String, facet: String, operation: String,
-        file: String, line: Int32
-    ) -> Error {
-        return FacetNotExistException(
-            id: Identity(name: name, category: category), facet: facet, operation: operation,
-            file: file, line: line)
-    }
-
-    static func operationNotExistException(
-        _ name: String,
-        category: String,
-        facet: String,
-        operation: String, file: String, line: Int32
-    ) -> Error {
-        return OperationNotExistException(
-            id: Identity(
-                name: name,
-                category: category),
-            facet: facet,
-            operation: operation, file: file, line: line)
-    }
-
+class LocalExceptionFactory: ICELocalExceptionFactory {
     static func requestFailedException(
-        _ name: String, category: String, facet: String, operation: String,
-        file: String, line: Int32
+        _ typeId: String, name: String, category: String, facet: String, operation: String,
+        message: String, cxxDescription: String, file: String, line: Int32
     ) -> Error {
-        return RequestFailedException(
-            id: Identity(name: name, category: category), facet: facet, operation: operation,
-            file: file, line: line)
+        let className = typeId.dropFirst(2).replacingOccurrences(of: "::", with: ".")
+        if let requestFailedExceptionType = NSClassFromString(className) as? RequestFailedException.Type {
+            return requestFailedExceptionType.init(
+                id: Identity(name: name, category: category), facet: facet, operation: operation, message: message,
+                cxxDescription: cxxDescription, file: file, line: line)
+        } else {
+            fatalError("unexpected RequestFailedException type: \(typeId)")
+        }
     }
 
-    static func connectionRefusedException(_ error: Int32, file: String, line: Int32) -> Error {
-        return ConnectionRefusedException(error: error, file: file, line: line)
+    static func registeredException(
+        _ typeId: String, kindOfObject: String, objectId: String, message: String, cxxDescription: String, file: String,
+        line: Int32
+    ) -> Error {
+        switch typeId {
+        case "::Ice::AlreadyRegisteredException":
+            AlreadyRegisteredException(
+                kindOfObject: kindOfObject, id: objectId, message: message, cxxDescription: cxxDescription, file: file,
+                line: line)
+        case "::Ice::NotRegisteredException":
+            NotRegisteredException(
+                kindOfObject: kindOfObject, id: objectId, message: message, cxxDescription: cxxDescription, file: file,
+                line: line)
+        default:
+            fatalError("unexpected XxxRegisteredException type: \(typeId)")
+        }
     }
 
-    static func fileException(_ error: Int32, path: String, file: String, line: Int32) -> Error {
-        return FileException(error: error, path: path, file: file, line: line)
+    static func connectionManuallyClosedException(
+        _ graceful: Bool, message: String, cxxDescription: String, file: String, line: Int32
+    ) -> Error {
+        ConnectionManuallyClosedException(
+            graceful: graceful, message: message, cxxDescription: cxxDescription, file: file, line: line)
     }
 
-    static func connectFailedException(_ error: Int32, file: String, line: Int32) -> Error {
-        return ConnectionRefusedException(error: error, file: file, line: line)
-    }
-
-    static func connectionLostException(_ error: Int32, file: String, line: Int32) -> Error {
-        return ConnectionLostException(error: error, file: file, line: line)
-    }
-
-    static func socketException(_ error: Int32, file: String, line: Int32) -> Error {
-        return SocketException(error: error, file: file, line: line)
-    }
-
-    static func syscallException(_ error: Int32, file: String, line: Int32) -> Error {
-        return SyscallException(error: error, file: file, line: line)
-    }
-
-    static func connectionIdleException(_ file: String, line: Int32) -> Error {
-        return ConnectionIdleException(file: file, line: line)
-    }
-
-    static func connectTimeoutException(_ file: String, line: Int32) -> Error {
-        return ConnectTimeoutException(file: file, line: line)
-    }
-
-    static func closeTimeoutException(_ file: String, line: Int32) -> Error {
-        return CloseTimeoutException(file: file, line: line)
-    }
-
-    static func invocationTimeoutException(_ file: String, line: Int32) -> Error {
-        return InvocationTimeoutException(file: file, line: line)
-    }
-
-    static func timeoutException(_ file: String, line: Int32) -> Error {
-        return TimeoutException(file: file, line: line)
-    }
-
-    static func closeConnectionException(_ reason: String, file: String, line: Int32) -> Error {
-        return CloseConnectionException(reason: reason, file: file, line: line)
-    }
-
-    static func connectionManuallyClosedException(_ graceful: Bool, file: String, line: Int32)
+    static func localException(_ typeId: String, message: String, cxxDescription: String, file: String, line: Int32)
         -> Error
     {
-        return ConnectionManuallyClosedException(graceful: graceful, file: file, line: line)
+        let className = typeId.dropFirst(2).replacingOccurrences(of: "::", with: ".")
+        return if let localExceptionType = NSClassFromString(className) as? LocalException.Type {
+            localExceptionType.init(message: message, cxxDescription: cxxDescription, file: file, line: line)
+        } else {
+            CxxLocalException(typeId: typeId, message: message, cxxDescription: cxxDescription, file: file, line: line)
+        }
     }
 
-    static func datagramLimitException(_ reason: String, file: String, line: Int32) -> Error {
-        return DatagramLimitException(reason: reason, file: file, line: line)
-    }
-
-    static func marshalException(_ reason: String, file: String, line: Int32) -> Error {
-        return MarshalException(reason: reason, file: file, line: line)
-    }
-
-    static func protocolException(_ reason: String, file: String, line: Int32) -> Error {
-        return ProtocolException(reason: reason, file: file, line: line)
-    }
-
-    static func runtimeError(_ message: String) -> Error {
-        return RuntimeError(message)
+    static func cxxException(_ typeName: String, message: String) -> Error {
+        CxxLocalException(
+            typeId: typeName, message: message, cxxDescription: "\(typeName) \(message)", file: "???", line: 0)
     }
 }

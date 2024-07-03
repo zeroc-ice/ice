@@ -21,7 +21,7 @@ extension InputStream {
     public func read() throws -> EndpointSelectionType {
         let rawValue: UInt8 = try read(enumMaxValue: 1)
         guard let val = EndpointSelectionType(rawValue: rawValue) else {
-            throw MarshalException(reason: "invalid enum value")
+            throw MarshalException("invalid enum value")
         }
         return val
     }
