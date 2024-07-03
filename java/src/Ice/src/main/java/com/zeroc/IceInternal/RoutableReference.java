@@ -200,7 +200,7 @@ public class RoutableReference extends Reference {
 
   @Override
   public boolean isWellKnown() {
-    return _endpoints.length == 0 && _adapterId.length() == 0;
+    return _endpoints.length == 0 && _adapterId.isEmpty();
   }
 
   @Override
@@ -209,7 +209,7 @@ public class RoutableReference extends Reference {
 
     s.writeSize(_endpoints.length);
     if (_endpoints.length > 0) {
-      assert (_adapterId.length() == 0);
+      assert (_adapterId.isEmpty());
       for (EndpointI endpoint : _endpoints) {
         s.writeShort(endpoint.type());
         endpoint.streamWrite(s);
@@ -233,12 +233,12 @@ public class RoutableReference extends Reference {
     if (_endpoints.length > 0) {
       for (EndpointI endpoint : _endpoints) {
         String endp = endpoint.toString();
-        if (endp != null && endp.length() > 0) {
+        if (endp != null && !endp.isEmpty()) {
           s.append(':');
           s.append(endp);
         }
       }
-    } else if (_adapterId.length() > 0) {
+    } else if (!_adapterId.isEmpty()) {
       s.append(" @ ");
 
       //
@@ -513,7 +513,7 @@ public class RoutableReference extends Reference {
     if (_adapterId == null) {
       _adapterId = "";
     }
-    assert (_adapterId.length() == 0 || _endpoints.length == 0);
+    assert (_adapterId.isEmpty() || _endpoints.length == 0);
   }
 
   protected void applyOverrides(EndpointI[] endpts) {

@@ -221,7 +221,7 @@ public abstract class Reference implements Cloneable {
     //
     // For compatibility with the old FacetPath.
     //
-    if (_facet.length() == 0) {
+    if (_facet.isEmpty()) {
       s.writeStringSeq(null);
     } else {
       String[] facetPath = {_facet};
@@ -273,7 +273,7 @@ public abstract class Reference implements Cloneable {
       s.append(id);
     }
 
-    if (_facet.length() > 0) {
+    if (!_facet.isEmpty()) {
       //
       // If the encoded facet string contains characters which
       // the reference parser uses as separators, then we enclose

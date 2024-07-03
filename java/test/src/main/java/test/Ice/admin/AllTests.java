@@ -196,7 +196,7 @@ public class AllTests {
       // Test: PropertiesAdmin::getProperty()
       //
       test(pa.getProperty("Prop2").equals("2"));
-      test(pa.getProperty("Bogus").equals(""));
+      test(pa.getProperty("Bogus").isEmpty());
 
       //
       // Test: PropertiesAdmin::getProperties()
@@ -223,14 +223,14 @@ public class AllTests {
       pa.setProperties(setProps);
       test(pa.getProperty("Prop1").equals("10"));
       test(pa.getProperty("Prop2").equals("20"));
-      test(pa.getProperty("Prop3").equals(""));
+      test(pa.getProperty("Prop3").isEmpty());
       test(pa.getProperty("Prop4").equals("4"));
       test(pa.getProperty("Prop5").equals("5"));
       changes = rcom.getChanges();
       test(changes.size() == 5);
       test(changes.get("Prop1").equals("10"));
       test(changes.get("Prop2").equals("20"));
-      test(changes.get("Prop3").equals(""));
+      test(changes.get("Prop3").isEmpty());
       test(changes.get("Prop4").equals("4"));
       test(changes.get("Prop5").equals("5"));
       pa.setProperties(setProps);

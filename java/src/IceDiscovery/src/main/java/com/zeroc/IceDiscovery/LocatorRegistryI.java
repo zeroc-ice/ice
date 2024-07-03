@@ -64,7 +64,7 @@ class LocatorRegistryI implements com.zeroc.Ice.LocatorRegistry {
   }
 
   synchronized com.zeroc.Ice.ObjectPrx findObject(com.zeroc.Ice.Identity id) {
-    if (id.name.length() == 0) {
+    if (id.name.isEmpty()) {
       return null;
     }
 

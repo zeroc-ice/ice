@@ -81,7 +81,7 @@ class CommunicatorSubEditor {
       String prop = p.getValue().trim();
 
       descriptor.logs[i++] = path;
-      if (!prop.equals("")) {
+      if (!prop.isEmpty()) {
         setProperty(
             (java.util.LinkedList<PropertyDescriptor>) descriptor.propertySet.properties,
             prop,

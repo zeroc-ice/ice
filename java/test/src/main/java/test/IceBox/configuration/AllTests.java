@@ -22,14 +22,14 @@ public class AllTests {
     var service3 = TestIntfPrx.createProxy(communicator, "test:" + helper.getTestEndpoint(2));
     var service4 = TestIntfPrx.createProxy(communicator, "test:" + helper.getTestEndpoint(3));
 
-    if (service1.getProperty("IceBox.InheritProperties").equals("")) {
+    if (service1.getProperty("IceBox.InheritProperties").isEmpty()) {
       out.print("testing service properties... ");
       out.flush();
 
       test(service1.getProperty("Ice.ProgramName").equals("IceBox-Service1"));
       test(service1.getProperty("Service").equals("1"));
       test(service1.getProperty("Service1.Ovrd").equals("2"));
-      test(service1.getProperty("Service1.Unset").equals(""));
+      test(service1.getProperty("Service1.Unset").isEmpty());
       test(service1.getProperty("Arg").equals("1"));
 
       String[] args1 = {"-a", "--Arg=2"};
@@ -37,7 +37,7 @@ public class AllTests {
 
       test(service2.getProperty("Ice.ProgramName").equals("Test"));
       test(service2.getProperty("Service").equals("2"));
-      test(service2.getProperty("Service1.ArgProp").equals(""));
+      test(service2.getProperty("Service1.ArgProp").isEmpty());
       test(service2.getProperty("IceBox.InheritProperties").equals("1"));
 
       String[] args2 = {"--Service1.ArgProp=1"};
@@ -50,13 +50,13 @@ public class AllTests {
 
       test(service3.getProperty("Ice.ProgramName").equals("IceBox-SharedCommunicator"));
       test(service3.getProperty("Service").equals("4"));
-      test(service3.getProperty("Prop").equals(""));
+      test(service3.getProperty("Prop").isEmpty());
       test(service3.getProperty("Service3.Prop").equals("1"));
       test(service3.getProperty("Ice.Trace.Slicing").equals("3"));
 
       test(service4.getProperty("Ice.ProgramName").equals("IceBox-SharedCommunicator"));
       test(service4.getProperty("Service").equals("4"));
-      test(service4.getProperty("Prop").equals(""));
+      test(service4.getProperty("Prop").isEmpty());
       test(service4.getProperty("Service3.Prop").equals("1"));
       test(service4.getProperty("Ice.Trace.Slicing").equals("3"));
 
@@ -71,14 +71,14 @@ public class AllTests {
       test(service1.getProperty("Ice.ProgramName").equals("IceBox2-Service1"));
       test(service1.getProperty("ServerProp").equals("1"));
       test(service1.getProperty("OverrideMe").equals("2"));
-      test(service1.getProperty("UnsetMe").equals(""));
+      test(service1.getProperty("UnsetMe").isEmpty());
       test(service1.getProperty("Service1.Prop").equals("1"));
       test(service1.getProperty("Service1.ArgProp").equals("2"));
 
       test(service2.getProperty("Ice.ProgramName").equals("IceBox2-SharedCommunicator"));
       test(service2.getProperty("ServerProp").equals("1"));
       test(service2.getProperty("OverrideMe").equals("3"));
-      test(service2.getProperty("UnsetMe").equals(""));
+      test(service2.getProperty("UnsetMe").isEmpty());
       test(service2.getProperty("Service2.Prop").equals("1"));
 
       out.println("ok");

@@ -197,15 +197,15 @@ public abstract class IPEndpointI extends EndpointI {
     //
     String s = "";
 
-    if (_host != null && _host.length() > 0) {
+    if (_host != null && !_host.isEmpty()) {
       s += " -h ";
       boolean addQuote = _host.indexOf(':') != -1;
       if (addQuote) {
-        s += "\"";
+        s += '"';
       }
       s += _host;
       if (addQuote) {
-        s += "\"";
+        s += '"';
       }
     }
 
@@ -285,7 +285,7 @@ public abstract class IPEndpointI extends EndpointI {
   public void initWithOptions(java.util.ArrayList<String> args, boolean oaEndpoint) {
     super.initWithOptions(args);
 
-    if (_host == null || _host.length() == 0) {
+    if (_host == null || _host.isEmpty()) {
       _host = _instance.defaultHost();
     } else if (_host.equals("*")) {
       if (oaEndpoint) {

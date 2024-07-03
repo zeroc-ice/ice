@@ -122,7 +122,7 @@ public final class ServantManager implements Object {
             new com.zeroc.Ice.AlreadyRegisteredException();
         ex.id = com.zeroc.Ice.Util.identityToString(ident, _instance.toStringMode());
         ex.kindOfObject = "servant";
-        if (facet.length() > 0) {
+        if (!facet.isEmpty()) {
           ex.id +=
               " -f "
                   + com.zeroc.IceUtilInternal.StringUtil.escapeString(
@@ -162,7 +162,7 @@ public final class ServantManager implements Object {
       com.zeroc.Ice.NotRegisteredException ex = new com.zeroc.Ice.NotRegisteredException();
       ex.id = com.zeroc.Ice.Util.identityToString(ident, _instance.toStringMode());
       ex.kindOfObject = "servant";
-      if (facet.length() > 0) {
+      if (!facet.isEmpty()) {
         ex.id +=
             " -f "
                 + com.zeroc.IceUtilInternal.StringUtil.escapeString(

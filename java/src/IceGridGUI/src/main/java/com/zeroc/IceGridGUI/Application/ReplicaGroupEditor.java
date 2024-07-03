@@ -382,7 +382,7 @@ class ReplicaGroupEditor extends Editor {
         badIdentities += "- " + p.getKey() + "\n";
       }
     }
-    if (!badIdentities.equals("")) {
+    if (!badIdentities.isEmpty()) {
       JOptionPane.showMessageDialog(
           _target.getCoordinator().getMainFrame(),
           "The following identities could not be parsed properly:\n" + badIdentities,

@@ -28,7 +28,7 @@ public class MetricsAdminI
       }
     }
 
-    if (unknownProps.size() != 0
+    if (!unknownProps.isEmpty()
         && properties.getIcePropertyAsInt("Ice.Warn.UnknownProperties") > 0) {
       StringBuffer message = new StringBuffer("found unknown IceMX properties for `");
       message.append(prefix.substring(0, prefix.length() - 1));
@@ -91,7 +91,7 @@ public class MetricsAdminI
           continue; // View already configured.
         }
 
-        validateProperties(viewsPrefix + viewName + ".", _properties);
+        validateProperties(viewsPrefix + viewName + '.', _properties);
 
         if (_properties.getPropertyAsIntWithDefault(viewsPrefix + viewName + ".Disabled", 0) > 0) {
           _disabledViews.add(viewName);

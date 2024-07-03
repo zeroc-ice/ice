@@ -215,15 +215,15 @@ public final class Current implements Cloneable {
         throw new MarshalException("Unexpected exception type");
       }
 
-      if (rfe.id.name.length() == 0) {
+      if (rfe.id.name.isEmpty()) {
         rfe.id = id;
       }
 
-      if (rfe.facet.length() == 0 && facet.length() > 0) {
+      if (rfe.facet.isEmpty() && !facet.isEmpty()) {
         rfe.facet = facet;
       }
 
-      if (rfe.operation.length() == 0 && operation.length() > 0) {
+      if (rfe.operation.isEmpty() && !operation.isEmpty()) {
         rfe.operation = operation;
       }
 
@@ -234,7 +234,7 @@ public final class Current implements Cloneable {
         ostr.writeByte(replyStatus.value());
         Identity.ice_write(ostr, rfe.id);
 
-        if (rfe.facet.length() == 0) {
+        if (rfe.facet.isEmpty()) {
           ostr.writeStringSeq(new String[] {});
         } else {
           ostr.writeStringSeq(new String[] {rfe.facet});

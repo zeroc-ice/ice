@@ -39,7 +39,7 @@ public final class AMDServantLocatorI implements ServantLocator {
       test(!_deactivated);
     }
 
-    test(current.id.category.equals(_category) || _category.length() == 0);
+    test(current.id.category.equals(_category) || _category.isEmpty());
 
     if (current.id.name.equals("unknown")) {
       return new ServantLocator.LocateResult();
@@ -78,7 +78,7 @@ public final class AMDServantLocatorI implements ServantLocator {
     test(_requestId == current.requestId);
     _requestId = -1;
 
-    test(current.id.category.equals(_category) || _category.length() == 0);
+    test(current.id.category.equals(_category) || _category.isEmpty());
     test(current.id.name.equals("locate") || current.id.name.equals("finished"));
 
     if (current.id.name.equals("finished")) {

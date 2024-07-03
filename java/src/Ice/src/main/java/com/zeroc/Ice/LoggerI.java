@@ -8,7 +8,7 @@ public class LoggerI implements Logger {
   public LoggerI(String prefix, String file) {
     _prefix = prefix;
 
-    if (prefix.length() > 0) {
+    if (!prefix.isEmpty()) {
       _formattedPrefix = prefix + ": ";
     }
 
@@ -16,7 +16,7 @@ public class LoggerI implements Logger {
     _date = java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT);
     _time = new java.text.SimpleDateFormat(" HH:mm:ss:SSS");
 
-    if (file.length() != 0) {
+    if (!file.isEmpty()) {
       _file = file;
       try {
         _out = new java.io.FileOutputStream(new java.io.File(_file), true);
@@ -115,7 +115,7 @@ public class LoggerI implements Logger {
   }
 
   public void destroy() {
-    if (_file.length() > 0) {
+    if (!_file.isEmpty()) {
       try {
         _out.close();
       } catch (java.io.IOException ex) {

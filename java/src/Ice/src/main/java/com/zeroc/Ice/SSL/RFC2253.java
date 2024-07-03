@@ -220,7 +220,7 @@ class RFC2253 {
       ++state.pos;
       while (true) {
         String h = parseHexPair(state, true);
-        if (h.length() == 0) {
+        if (h.isEmpty()) {
           break;
         }
         result.append(h);
@@ -316,7 +316,7 @@ class RFC2253 {
       ++state.pos;
     }
     if (result.length() != 2) {
-      if (allowEmpty && result.length() == 0) {
+      if (allowEmpty && result.isEmpty()) {
         return result;
       }
       throw new ParseException("invalid hex format");

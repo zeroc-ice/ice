@@ -151,7 +151,7 @@ public class ArrayMapField extends JTable {
       String key = row.elementAt(0).toString();
       if (key != null) {
         key = key.trim();
-        if (!key.equals("")) {
+        if (!key.isEmpty()) {
           String[] val = new String[_vectorSize - 1];
           for (int i = 1; i < _vectorSize; ++i) {
             val[i - 1] = row.elementAt(i).toString();

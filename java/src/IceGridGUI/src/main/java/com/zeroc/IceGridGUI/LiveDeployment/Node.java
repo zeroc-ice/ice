@@ -608,7 +608,7 @@ class Node extends Communicator {
       ApplicationData ad = p.getValue();
 
       String val = ad.resolver.substitute(ad.descriptor.loadFactor);
-      if (val.length() == 0) {
+      if (val.isEmpty()) {
         val = "Default";
       }
 

@@ -51,8 +51,8 @@ public class ApplicationPane extends JSplitPane implements Tab {
     }
     c.getSaveToFileAction().setEnabled(true);
 
-    c.getBackAction().setEnabled(_previousNodes.size() > 0);
-    c.getForwardAction().setEnabled(_nextNodes.size() > 0);
+    c.getBackAction().setEnabled(!_previousNodes.isEmpty());
+    c.getForwardAction().setEnabled(!_nextNodes.isEmpty());
     c.showActions(_currentNode);
   }
 
@@ -118,10 +118,10 @@ public class ApplicationPane extends JSplitPane implements Tab {
     TreeNode previousNode = null;
     do {
       previousNode = _previousNodes.removeLast();
-    } while (_previousNodes.size() > 0
+    } while (!_previousNodes.isEmpty()
         && (previousNode == _currentNode || !_root.hasNode(previousNode)));
 
-    if (_previousNodes.size() == 0) {
+    if (_previousNodes.isEmpty()) {
       _root.getCoordinator().getBackAction().setEnabled(false);
     }
 
@@ -148,9 +148,9 @@ public class ApplicationPane extends JSplitPane implements Tab {
     TreeNode nextNode = null;
     do {
       nextNode = _nextNodes.removeFirst();
-    } while (_nextNodes.size() > 0 && (nextNode == _currentNode || !_root.hasNode(nextNode)));
+    } while (!_nextNodes.isEmpty() && (nextNode == _currentNode || !_root.hasNode(nextNode)));
 
-    if (_nextNodes.size() == 0) {
+    if (_nextNodes.isEmpty()) {
       _root.getCoordinator().getForwardAction().setEnabled(false);
     }
 

@@ -219,7 +219,7 @@ final class UdpEndpointI extends IPEndpointI {
     //
     String s = super.options();
 
-    if (_mcastInterface.length() != 0) {
+    if (!_mcastInterface.isEmpty()) {
       s += " --interface ";
       boolean addQuote = _mcastInterface.indexOf(':') != -1;
       if (addQuote) {

@@ -207,8 +207,8 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent {
       attributes.addFirst(createAttribute("template", _descriptor.template));
 
       if (_descriptor.propertySet.references.length == 0
-          && _descriptor.propertySet.properties.size() == 0
-          && _children.size() == 0) {
+          && _descriptor.propertySet.properties.isEmpty()
+          && _children.isEmpty()) {
         writer.writeElement("server-instance", attributes);
       } else {
         writer.writeStartTag("server-instance", attributes);

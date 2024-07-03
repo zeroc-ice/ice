@@ -91,7 +91,7 @@ class LookupI implements Lookup {
 
     @Override
     boolean retry() {
-      return _proxies.size() == 0 && --_retryCount >= 0;
+      return _proxies.isEmpty() && --_retryCount >= 0;
     }
 
     boolean response(com.zeroc.Ice.ObjectPrx proxy, boolean isReplicaGroup) {
