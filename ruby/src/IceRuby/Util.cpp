@@ -722,19 +722,14 @@ IceRuby::convertLocalException(std::exception_ptr eptr)
             std::array args = {
                     IceRuby::createIdentity(ex.id()),
                     IceRuby::createString(ex.facet()),
-                    IceRuby::createString(ex.operation())}; // TODO: missing what
+                    IceRuby::createString(ex.operation()),
+                    IceRuby::createString(ex.what())};
 
             return createRubyException(ex.ice_id(), args);
         }
-        catch (const Ice::MarshalException& e)
+        catch (const Ice::AdapterAlreadyActiveException& ex)
         {
-            // temporary, there is nothing special about MarshalException in Ruby
-            std::array args = {IceRuby::createString(e.what())};
-            return createRubyException(e.ice_id(), args);
-        }
-        catch (const Ice::LocalException& ex)
-        {
-            // TODO: not refactored yet!
+            // TODO: old code
             string name = string{ex.ice_id()}.substr(2);
             volatile VALUE cls = callRuby(rb_path2class, name.c_str());
             if (NIL_P(cls))
@@ -743,6 +738,30 @@ IceRuby::convertLocalException(std::exception_ptr eptr)
             }
             volatile VALUE result = callRuby(rb_class_new_instance, 0, reinterpret_cast<VALUE*>(0), cls);
             setExceptionMembers(eptr, result);
+            return result;
+        }
+        catch (const Ice::NotRegisteredException& ex)
+        {
+            // TODO: old code
+            string name = string{ex.ice_id()}.substr(2);
+            volatile VALUE cls = callRuby(rb_path2class, name.c_str());
+            if (NIL_P(cls))
+            {
+                throw RubyException(rb_eRuntimeError, "exception class `%s' not found", name.c_str());
+            }
+            volatile VALUE result = callRuby(rb_class_new_instance, 0, reinterpret_cast<VALUE*>(0), cls);
+            setExceptionMembers(eptr, result);
+            return result;
+        }
+        catch (const Ice::LocalException& ex)
+        {
+            std::array args = {IceRuby::createString(ex.what())};
+            VALUE result = createRubyException(ex.ice_id(), args, false); // returns nil if not found
+            if (NIL_P(result))
+            {
+                // Fallback to a plain LocalException
+                result = createRubyException("::Ice::LocalException", args);
+            }
             return result;
         }
         // TODO: add more exceptions
