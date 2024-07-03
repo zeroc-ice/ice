@@ -28,7 +28,8 @@ class Client < ::TestHelper
         begin
             props.load("./config/xxxx.config")
         rescue Ice::LocalException => ex
-            print ex.message
+            # The corresponding C++ exception (Ice::FileException) is not mapped to Ruby.
+            test(ex.message == "::Ice::FileException") # TODO: temporary until C++ message is fixed
         end
         puts "ok"
 
@@ -113,6 +114,7 @@ class Client < ::TestHelper
             properties.getIceProperty("Ice.UnknownProperty")
             test(false)
         rescue Ice::LocalException => ex
+            # The corresponding C++ exception is std::invalid_argument.
             test(ex.message["unknown Ice property: Ice.UnknownProperty"])
         end
         puts "ok"
