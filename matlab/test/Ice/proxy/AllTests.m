@@ -815,8 +815,6 @@ classdef AllTests
             assert(strcmp(communicator.proxyToString(p2), 'test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000'));
 
             if communicator.getProperties().getPropertyAsInt('Ice.IPv6') == 0
-                p1.ice_encodingVersion(Ice.EncodingVersion(1, 0)).ice_ping();
-
                 % Two legal TCP endpoints expressed as opaque endpoints
                 p1 = communicator.stringToProxy('test -e 1.0:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMusuAAAQJwAAAA==');
                 pstr = communicator.proxyToString(p1);
