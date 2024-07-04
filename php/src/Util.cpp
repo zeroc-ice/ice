@@ -394,6 +394,7 @@ IcePHP::extractEncodingVersion(zval* zv, Ice::EncodingVersion& v)
     return getVersion<Ice::EncodingVersion>(zv, v, Ice_EncodingVersion);
 }
 
+/*
 static bool
 convertLocalException(std::exception_ptr ex, zval* zex)
 {
@@ -500,6 +501,7 @@ convertLocalException(std::exception_ptr ex, zval* zex)
 
     return true;
 }
+*/
 
 void
 IcePHP::convertException(zval* zex, std::exception_ptr ex)
@@ -515,7 +517,7 @@ IcePHP::convertException(zval* zex, std::exception_ptr ex)
         assert(cls);
         if (object_init_ex(zex, cls) != SUCCESS)
         {
-            runtimeError("unable to create exception %s", cls->name->val);
+            runtimeError("unable to create PHP exception class %s", cls->name->val);
         }
         else
         {
@@ -534,6 +536,26 @@ IcePHP::convertException(zval* zex, std::exception_ptr ex)
             setStringMember(zex, "message", e.what()); // message is a protected property of the base class.
         }
     }
+    catch (const Ice::LocalException& e)
+    {
+        zend_class_entry* cls = idToClass(e.ice_id());
+        if (!cls)
+        {
+            // fallback to local exception
+            cls = idToClass("::Ice::LocalException");
+            assert(cls);
+        }
+
+        if (object_init_ex(zex, cls) != SUCCESS)
+        {
+            runtimeError("unable to create PHP exception class %s", cls->name->val);
+        }
+        else
+        {
+            setStringMember(zex, "message", e.what()); // message is a protected property of the base class.
+        }
+    }
+    /*
     catch (const Ice::LocalException& e)
     {
         ostringstream ostr;
@@ -565,6 +587,7 @@ IcePHP::convertException(zval* zex, std::exception_ptr ex)
             setStringMember(zex, "unknown", str);
         }
     }
+    */
     catch (const std::exception& e)
     {
         string str = e.what();

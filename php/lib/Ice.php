@@ -28,7 +28,11 @@ namespace Ice
     //
     // Exceptions.
     //
-    abstract class Exception extends \Exception
+    class Exception extends \Exception
+    {
+    }
+
+    class LocalException extends Exception
     {
     }
 
@@ -37,14 +41,6 @@ namespace Ice
         abstract public function ice_id();
 
         public $_ice_slicedData;
-    }
-
-    abstract class LocalException extends Exception
-    {
-        public function __construct($message = '')
-        {
-            parent::__construct($message);
-        }
     }
 
     class Value
