@@ -3,97 +3,115 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace
+// This file contains all the exception classes derived from LocalException.
+// All these exceptions are created from the C++ code.
+
+namespace Ice;
+
+//
+// The 6 (7 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice reply
+// message. Other local exceptions can't be marshaled.
+//
+
+class RequestFailedException extends LocalException
 {
-    require_once 'Ice/Identity.php';
+    public Identity $id;
+    public string $facet;
+    public string $operation;
 }
 
-namespace Ice
+final class ObjectNotExistException extends RequestFailedException {}
+
+final class FacetNotExistException extends RequestFailedException {}
+
+final class OperationNotExistException extends RequestFailedException {}
+
+class UnknownException extends LocalException {}
+
+final class UnknownLocalException extends UnknownException {}
+
+final class UnknownUserException extends UnknownException {}
+
+//
+// Protocol exceptions
+//
+
+class ProtocolException extends LocalException {}
+
+final class CloseConnectionException extends ProtocolException {}
+
+final class DatagramLimitException extends ProtocolException {}
+
+final class MarshalException extends ProtocolException {}
+
+//
+// Timeout exceptions
+//
+
+class TimeoutException extends LocalException {}
+
+final class ConnectTimeoutException extends TimeoutException {}
+
+final class CloseTimeoutException extends TimeoutException {}
+
+final class InvocationTimeoutException extends TimeoutException {}
+
+//
+// Syscall exceptions
+//
+
+class SyscallException extends LocalException {}
+
+final class DNSException extends SyscallException {}
+
+//
+// Socket exceptions
+//
+
+class SocketException extends SyscallException {}
+
+class ConnectFailedException extends SocketException {}
+
+final class ConnectionLostException extends SocketException {}
+
+final class ConnectionRefusedException extends ConnectFailedException {}
+
+//
+// Other leaf local exceptions in alphabetical order.
+//
+
+final class AlreadyRegisteredException extends LocalException
 {
-    class RequestFailedException extends LocalException
-    {
-        public Identity $id;
-        public string $facet;
-        public string $operation;
-    }
-
-    final class ObjectNotExistException extends RequestFailedException {}
-
-    final class FacetNotExistException extends RequestFailedException {}
-
-    final class OperationNotExistException extends RequestFailedException {}
-
-    final class InitializationException extends LocalException {}
-
-    final class PluginInitializationException extends LocalException {}
-
-    final class AlreadyRegisteredException extends LocalException
-    {
-        public string $kindOfObject;
-        public string $id;
-    }
-
-    final class NotRegisteredException extends LocalException
-    {
-        public string $kindOfObject;
-        public string $id;
-    }
-
-    final class TwowayOnlyException extends LocalException {}
-
-    class UnknownException extends LocalException {}
-
-    final class UnknownLocalException extends UnknownException {}
-
-    final class UnknownUserException extends UnknownException {}
-
-    final class CommunicatorDestroyedException extends LocalException {}
-
-    final class ObjectAdapterDeactivatedException extends LocalException {}
-
-    final class ObjectAdapterIdInUseException extends LocalException {}
-
-    final class NoEndpointException extends LocalException {}
-
-    final class ParseException extends LocalException {}
-
-    class SyscallException extends LocalException {}
-
-    class SocketException extends SyscallException {}
-
-    class ConnectFailedException extends SocketException {}
-
-    final class ConnectionRefusedException extends ConnectFailedException {}
-
-    final class ConnectionLostException extends SocketException {}
-
-    final class DNSException extends LocalException {}
-
-    final class ConnectionIdleException extends LocalException {}
-
-    class TimeoutException extends LocalException {}
-
-    final class ConnectTimeoutException extends TimeoutException {}
-
-    final class CloseTimeoutException extends TimeoutException {}
-
-    final class InvocationTimeoutException extends TimeoutException {}
-
-    final class InvocationCanceledException extends LocalException {}
-
-    class ProtocolException extends LocalException {}
-
-    final class CloseConnectionException extends ProtocolException {}
-
-    final class ConnectionManuallyClosedException extends LocalException {}
-
-    final class DatagramLimitException extends ProtocolException {}
-
-    final class MarshalException extends ProtocolException {}
-
-    final class SecurityException extends LocalException {}
-
-    final class FixedProxyException extends LocalException {}
+    public string $kindOfObject;
+    public string $id;
 }
+
+final class CommunicatorDestroyedException extends LocalException {}
+
+final class ConnectionIdleException extends LocalException {}
+
+final class ConnectionManuallyClosedException extends LocalException {}
+
+final class FixedProxyException extends LocalException {}
+
+final class InitializationException extends LocalException {}
+
+final class InvocationCanceledException extends LocalException {}
+
+final class NoEndpointException extends LocalException {}
+
+final class NotRegisteredException extends LocalException
+{
+    public string $kindOfObject;
+    public string $id;
+}
+
+final class ParseException extends LocalException {}
+
+final class PluginInitializationException extends LocalException {}
+
+final class SecurityException extends LocalException {}
+
+final class TwowayOnlyException extends LocalException {}
 
 ?>

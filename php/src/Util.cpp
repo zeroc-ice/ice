@@ -394,114 +394,47 @@ IcePHP::extractEncodingVersion(zval* zv, Ice::EncodingVersion& v)
     return getVersion<Ice::EncodingVersion>(zv, v, Ice_EncodingVersion);
 }
 
-/*
-static bool
-convertLocalException(std::exception_ptr ex, zval* zex)
+namespace
 {
-    zend_class_entry* cls = Z_OBJCE_P(zex);
-    assert(cls);
+    const char* const localExceptionTypeId = "::Ice::LocalException";
 
-    // Transfer data members from Ice exception to PHP object.
-    try
+    zend_class_entry* createPHPException(zval* ex, const char* typeId, bool fallbackToLocalException = false)
     {
-        rethrow_exception(ex);
-    }
-    catch (const Ice::InitializationException& e)
-    {
-        setStringMember(zex, "reason", e.reason);
-    }
-    catch (const Ice::PluginInitializationException& e)
-    {
-        setStringMember(zex, "reason", e.reason);
-    }
-    catch (const Ice::AlreadyRegisteredException& e)
-    {
-        setStringMember(zex, "kindOfObject", e.kindOfObject);
-        setStringMember(zex, "id", e.id);
-    }
-    catch (const Ice::NotRegisteredException& e)
-    {
-        setStringMember(zex, "kindOfObject", e.kindOfObject);
-        setStringMember(zex, "id", e.id);
-    }
-    catch (const Ice::TwowayOnlyException& e)
-    {
-        setStringMember(zex, "operation", e.operation);
-    }
-    catch (const Ice::UnknownException& e)
-    {
-        setStringMember(zex, "unknown", e.what());
-    }
-    catch (const Ice::ObjectAdapterDeactivatedException& e)
-    {
-        setStringMember(zex, "name", e.name);
-    }
-    catch (const Ice::ObjectAdapterIdInUseException& e)
-    {
-        setStringMember(zex, "id", e.id);
-    }
-    catch (const Ice::NoEndpointException& e)
-    {
-        setStringMember(zex, "proxy", e.proxy);
-    }
-    catch (const Ice::ParseException& e)
-    {
-        setStringMember(zex, "str", e.what());
-    }
-    catch (const Ice::RequestFailedException& e)
-    {
-        zval id;
-        if (!createIdentity(&id, e.id()))
+        zend_class_entry* cls = idToClass(typeId);
+        if (!cls)
         {
-            zval_ptr_dtor(&id);
-            return false;
+            if (fallbackToLocalException)
+            {
+                cls = idToClass(localExceptionTypeId);
+                assert(cls);
+            }
+            else
+            {
+                runtimeError("unable to create PHP exception class for type ID %s", typeId);
+                return nullptr;
+            }
         }
-        zendUpdateProperty(cls, zex, "id", sizeof("id") - 1, &id);
-        zval_ptr_dtor(&id);
-        setStringMember(zex, "facet", e.facet());
-        setStringMember(zex, "operation", e.operation());
-    }
-    catch (const Ice::FileException& e)
-    {
-        zendUpdatePropertyLong(cls, zex, const_cast<char*>("error"), sizeof("error") - 1, e.error);
-        setStringMember(zex, "path", e.path);
-    }
-    catch (const Ice::SyscallException& e) // This must appear after all subclasses of SyscallException.
-    {
-        zendUpdatePropertyLong(cls, zex, const_cast<char*>("error"), sizeof("error") - 1, e.error);
-    }
-    catch (const Ice::DNSException& e)
-    {
-        zendUpdatePropertyLong(cls, zex, const_cast<char*>("error"), sizeof("error") - 1, e.error);
-        setStringMember(zex, "host", e.host);
-    }
-    catch (const Ice::ProtocolException& e) // This must appear after all subclasses of ProtocolException.
-    {
-        setStringMember(zex, "reason", e.what());
-    }
-    catch (const Ice::FeatureNotSupportedException& e)
-    {
-        setStringMember(zex, "unsupportedFeature", e.what());
-    }
-    catch (const Ice::SecurityException& e)
-    {
-        setStringMember(zex, "reason", e.reason);
-    }
-    catch (const Ice::ConnectionManuallyClosedException& e)
-    {
-        add_property_bool(zex, "graceful", e.graceful ? 1 : 0);
-    }
-    catch (const Ice::LocalException&)
-    {
-    }
-    catch (...)
-    {
-        assert(false);
+
+        if (object_init_ex(ex, cls) != SUCCESS)
+        {
+            runtimeError("unable to create PHP exception class %s", cls->name->val);
+            return nullptr;
+        }
+        return cls;
     }
 
-    return true;
+    void createInvalidArgumentException(zval* ex, const char* msg)
+    {
+        zend_class_entry* cls = nameToClass("InvalidArgumentException");
+        assert(cls);
+        if (object_init_ex(ex, cls) != SUCCESS)
+        {
+            runtimeError("unable to create InvalidArgumentException");
+            return;
+        }
+        setStringMember(ex, "message", msg);
+    }
 }
-*/
 
 void
 IcePHP::convertException(zval* zex, std::exception_ptr ex)
@@ -513,106 +446,79 @@ IcePHP::convertException(zval* zex, std::exception_ptr ex)
     // Write the PHP exception into zex
     catch (const Ice::RequestFailedException& e)
     {
-        zend_class_entry* cls = idToClass(e.ice_id());
-        assert(cls);
-        if (object_init_ex(zex, cls) != SUCCESS)
-        {
-            runtimeError("unable to create PHP exception class %s", cls->name->val);
-        }
-        else
-        {
-            zval id;
-            if (!createIdentity(&id, e.id()))
-            {
-                zval_ptr_dtor(&id);
-                return;
-            }
-            // It would be nicer to make the properties read-only and call the constructor; however, it's not easy to do
-            // with the PHP C API.
-            zendUpdateProperty(cls, zex, const_cast<char*>("id"), sizeof("id") - 1, &id);
-            zval_ptr_dtor(&id);
-            setStringMember(zex, "facet", e.facet());
-            setStringMember(zex, "operation", e.operation());
-            setStringMember(zex, "message", e.what()); // message is a protected property of the base class.
-        }
-    }
-    catch (const Ice::LocalException& e)
-    {
-        zend_class_entry* cls = idToClass(e.ice_id());
+        zend_class_entry* cls = createPHPException(zex, e.ice_id());
         if (!cls)
         {
-            // fallback to local exception
-            cls = idToClass("::Ice::LocalException");
-            assert(cls);
-        }
-
-        if (object_init_ex(zex, cls) != SUCCESS)
-        {
-            runtimeError("unable to create PHP exception class %s", cls->name->val);
-        }
-        else
-        {
-            setStringMember(zex, "message", e.what()); // message is a protected property of the base class.
-        }
-    }
-    /*
-    catch (const Ice::LocalException& e)
-    {
-        ostringstream ostr;
-        ostr << e;
-        string str = ostr.str();
-
-        zend_class_entry* cls = idToClass(e.ice_id());
-        if (cls)
-        {
-            if (object_init_ex(zex, cls) != SUCCESS)
-            {
-                runtimeError("unable to create exception %s", cls->name->val);
-                return;
-            }
-            if (!convertLocalException(ex, zex))
-            {
-                return;
-            }
-        }
-        else
-        {
-            cls = idToClass("Ice::UnknownLocalException");
-            assert(cls);
-            if (object_init_ex(zex, cls) != SUCCESS)
-            {
-                runtimeError("unable to create exception %s", cls->name->val);
-                return;
-            }
-            setStringMember(zex, "unknown", str);
-        }
-    }
-    */
-    catch (const std::exception& e)
-    {
-        string str = e.what();
-
-        zend_class_entry* cls = idToClass("Ice::UnknownException");
-        assert(cls);
-        if (object_init_ex(zex, cls) != SUCCESS)
-        {
-            runtimeError("unable to create exception %s", cls->name->val);
             return;
         }
-        setStringMember(zex, "unknown", str);
+
+        zval id;
+        if (!createIdentity(&id, e.id()))
+        {
+            zval_ptr_dtor(&id);
+            return;
+        }
+        // It would be nicer to make the properties read-only and call the constructor; however, it's not easy to do
+        // with the PHP C API.
+        zendUpdateProperty(cls, zex, const_cast<char*>("id"), sizeof("id") - 1, &id);
+        zval_ptr_dtor(&id);
+        setStringMember(zex, "facet", e.facet());
+        setStringMember(zex, "operation", e.operation());
+        setStringMember(zex, "message", e.what()); // message is a protected property of the base class.
+    }
+    catch (const Ice::AlreadyRegisteredException& e)
+    {
+        zend_class_entry* cls = createPHPException(zex, e.ice_id());
+        if (!cls)
+        {
+            return;
+        }
+        setStringMember(zex, "kindOfObject", e.kindOfObject);
+        setStringMember(zex, "id", e.id);
+        setStringMember(zex, "message", e.what());
+    }
+     catch (const Ice::NotRegisteredException& e)
+    {
+        zend_class_entry* cls = createPHPException(zex, e.ice_id());
+        if (!cls)
+        {
+            return;
+        }
+        setStringMember(zex, "kindOfObject", e.kindOfObject);
+        setStringMember(zex, "id", e.id);
+        setStringMember(zex, "message", e.what());
+    }
+    catch (const Ice::LocalException& e)
+    {
+        zend_class_entry* cls = createPHPException(zex, e.ice_id(), true);
+        if (!cls)
+        {
+            return;
+        }
+        setStringMember(zex, "message", e.what());
+    }
+    catch (const std::invalid_argument& e)
+    {
+        createInvalidArgumentException(zex, e.what());
+    }
+    catch (const std::exception& e)
+    {
+        // Create a plain local exception.
+        zend_class_entry* cls = createPHPException(zex, localExceptionTypeId);
+        if (!cls)
+        {
+            return;
+        }
+        setStringMember(zex, "message", e.what());
     }
     catch (...)
     {
-        string str = "unknown c++ exception";
-
-        zend_class_entry* cls = idToClass("Ice::UnknownException");
-        assert(cls);
-        if (object_init_ex(zex, cls) != SUCCESS)
+        zend_class_entry* cls = createPHPException(zex, localExceptionTypeId);
+        if (!cls)
         {
-            runtimeError("unable to create exception %s", cls->name->val);
             return;
         }
-        setStringMember(zex, "unknown", str);
+        setStringMember(zex, "message", "unknown C++ exception");
     }
 }
 

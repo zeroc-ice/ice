@@ -27,6 +27,8 @@ function allTests($helper)
     }
     catch(Ice\AlreadyRegisteredException $ex)
     {
+        test($ex->kindOfObject == "value factory");
+        test($ex->id == "x");
     }
     $communicator->getValueFactoryManager()->add($vf, "");
     try
@@ -36,6 +38,8 @@ function allTests($helper)
     }
     catch(Ice\AlreadyRegisteredException $ex)
     {
+        test($ex->kindOfObject == "value factory");
+        test($ex->id == "");
     }
     echo "ok\n";
 
