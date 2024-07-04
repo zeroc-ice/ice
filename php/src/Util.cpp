@@ -477,7 +477,7 @@ IcePHP::convertException(zval* zex, std::exception_ptr ex)
         setStringMember(zex, "id", e.id);
         setStringMember(zex, "message", e.what());
     }
-     catch (const Ice::NotRegisteredException& e)
+    catch (const Ice::NotRegisteredException& e)
     {
         zend_class_entry* cls = createPHPException(zex, e.ice_id());
         if (!cls)
