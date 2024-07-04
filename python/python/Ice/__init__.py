@@ -73,8 +73,6 @@ from .Blobject import Blobject
 from .BlobjectAsync import BlobjectAsync
 from .Value import Value
 
-
-
 #
 # This value is used as the default value for struct types in the constructors
 # of user-defined types. It allows us to determine whether the application has

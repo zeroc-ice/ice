@@ -14,6 +14,6 @@ class UserException(Exception):
         Returns:
             The sliced data or null."""
         return getattr(self, "_ice_slicedData", None)
-    
+
     __module__ = "Ice"
     __class__ = "UserException"

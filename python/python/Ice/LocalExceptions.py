@@ -18,7 +18,7 @@ class InitializationException(LocalException):
 
     def __str__(self):
         return "::Ice::InitializationException"
-    
+
     __module__ = "Ice"
     __class__ = "InitializationException"
 
@@ -40,7 +40,7 @@ class AlreadyRegisteredException(LocalException):
 
     def __str__(self):
         return "::Ice::AlreadyRegisteredException"
-    
+
     __module__ = "Ice"
     __class__ = "AlreadyRegisteredException"
 
@@ -64,7 +64,7 @@ class NotRegisteredException(LocalException):
 
     def __str__(self):
         return "::Ice::NotRegisteredException"
-    
+
     __module__ = "Ice"
     __class__ = "NotRegisteredException"
 
@@ -83,7 +83,7 @@ class TwowayOnlyException(LocalException):
 
     def __str__(self):
             return "::Ice::TwowayOnlyException"
-    
+
     __module__ = "Ice"
     __class__ = "TwowayOnlyException"
 
@@ -102,7 +102,7 @@ class UnknownException(LocalException):
 
     def __str__(self):
         return "::Ice::UnknownException"
-    
+
     __module__ = "Ice"
     __class__ = "UnknownException"
 
@@ -121,7 +121,7 @@ class UnknownLocalException(UnknownException):
 
     def __str__(self):
         return "::Ice::UnknownLocalException"
-    
+
     __module__ = "Ice"
     __class__ = "UnknownLocalException"
 
@@ -140,7 +140,7 @@ class UnknownUserException(UnknownException):
 
     def __str__(self):
         return "::Ice::UnknownUserException"
-    
+
     __module__ = "Ice"
     __class__ = "UnknownUserException"
 
@@ -155,7 +155,7 @@ class CommunicatorDestroyedException(LocalException):
 
     def __str__(self):
         return "::Ice::CommunicatorDestroyedException"
-    
+
     __module__ = "Ice"
     __class__ = "CommunicatorDestroyedException"
 
@@ -172,7 +172,7 @@ class ObjectAdapterDeactivatedException(LocalException):
 
     def __str__(self):
         return "::Ice::ObjectAdapterDeactivatedException"
-    
+
     __module__ = "Ice"
     __class__ = "ObjectAdapterDeactivatedException"
 
@@ -190,7 +190,7 @@ class ObjectAdapterIdInUseException(LocalException):
 
     def __str__(self):
         return "::Ice::ObjectAdapterIdInUseException"
-    
+
     __module__ = "Ice"
     __class__ = "ObjectAdapterIdInUseException"
 
@@ -207,7 +207,7 @@ class NoEndpointException(LocalException):
 
     def __str__(self):
         return "::Ice::NoEndpointException"
-    
+
     __module__ = "Ice"
     __class__ = "NoEndpointException"
 
@@ -224,7 +224,7 @@ class ParseException(LocalException):
 
     def __str__(self):
         return "::Ice::ParseException"
-    
+
     __module__ = "Ice"
     __class__ = "ParseException"
 
@@ -239,7 +239,7 @@ class IllegalIdentityException(LocalException):
 
     def __str__(self):
         return "::Ice::IllegalIdentityException"
-    
+
     __module__ = "Ice"
     __class__ = "IllegalIdentityException"
 
@@ -256,7 +256,7 @@ class IllegalServantException(LocalException):
 
     def __str__(self):
         return "::Ice::IllegalServantException"
-    
+
     __module__ = "Ice"
     __class__ = "IllegalServantException"
 
@@ -282,7 +282,7 @@ class RequestFailedException(LocalException):
 
     def __str__(self):
         return "::Ice::RequestFailedException"
-    
+
     __module__ = "Ice"
     __class__ = "RequestFailedException"
 
@@ -298,7 +298,7 @@ class ObjectNotExistException(RequestFailedException):
 
     def __str__(self):
         return "::Ice::ObjectNotExistException"
-    
+
     __module__ = "Ice"
     __class__ = "ObjectNotExistException"
 
@@ -314,7 +314,7 @@ class FacetNotExistException(RequestFailedException):
 
     def __str__(self):
         return "::Ice::FacetNotExistException"
-    
+
     __module__ = "Ice"
     __class__ = "FacetNotExistException"
 
@@ -330,7 +330,7 @@ class OperationNotExistException(RequestFailedException):
 
     def __str__(self):
         return "::Ice::OperationNotExistException"
-    
+
     __module__ = "Ice"
     __class__ = "OperationNotExistException"
 
@@ -350,7 +350,7 @@ class SyscallException(LocalException):
 
     def __str__(self):
         return "::Ice::SyscallException"
-    
+
     __module__ = "Ice"
     __class__ = "SyscallException"
 
@@ -365,7 +365,7 @@ class SocketException(SyscallException):
 
     def __str__(self):
         return "::Ice::SocketException"
-    
+
     __module__ = "Ice"
     __class__ = "SocketException"
 
@@ -383,7 +383,7 @@ class FileException(SyscallException):
 
     def __str__(self):
         return "::Ice::FileException"
-    
+
     __module__ = "Ice"
     __class__ = "FileException"
 
@@ -398,7 +398,7 @@ class ConnectFailedException(SocketException):
 
     def __str__(self):
         return "::Ice::ConnectFailedException"
-    
+
     __module__ = "Ice"
     __class__ = "ConnectFailedException"
 
@@ -413,7 +413,7 @@ class ConnectionRefusedException(ConnectFailedException):
 
     def __str__(self):
         return "::Ice::ConnectionRefusedException"
-    
+
     __module__ = "Ice"
     __class__ = "ConnectionRefusedException"
 
@@ -428,7 +428,7 @@ class ConnectionLostException(SocketException):
 
     def __str__(self):
         return "::Ice::ConnectionLostException"
-    
+
     __module__ = "Ice"
     __class__ = "ConnectionLostException"
 
@@ -448,7 +448,7 @@ class DNSException(LocalException):
 
     def __str__(self):
         return "::Ice::DNSException"
-    
+
     __module__ = "Ice"
     __class__ = "DNSException"
 
@@ -463,7 +463,7 @@ class ConnectionIdleException(LocalException):
 
     def __str__(self):
         return "::Ice::ConnectionIdleException"
-    
+
     __module__ = "Ice"
     __class__ = "ConnectionIdleException"
 
@@ -478,7 +478,7 @@ class TimeoutException(LocalException):
 
     def __str__(self):
         return "::Ice::TimeoutException"
-    
+
     __module__ = "Ice"
     __class__ = "TimeoutException"
 
@@ -493,7 +493,7 @@ class ConnectTimeoutException(TimeoutException):
 
     def __str__(self):
         return "::Ice::ConnectTimeoutException"
-    
+
     __module__ = "Ice"
     __class__ = "ConnectTimeoutException"
 
@@ -508,7 +508,7 @@ class CloseTimeoutException(TimeoutException):
 
     def __str__(self):
         return "::Ice::CloseTimeoutException"
-    
+
     __module__ = "Ice"
     __class__ = "CloseTimeoutException"
 
@@ -523,7 +523,7 @@ class InvocationTimeoutException(TimeoutException):
 
     def __str__(self):
         return "::Ice::InvocationTimeoutException"
-    
+
     __module__ = "Ice"
     __class__ = "InvocationTimeoutException"
 
@@ -538,7 +538,7 @@ class InvocationCanceledException(LocalException):
 
     def __str__(self):
         return "::Ice::InvocationCanceledException"
-    
+
     __module__ = "Ice"
     __class__ = "InvocationCanceledException"
 
@@ -555,7 +555,7 @@ class ProtocolException(LocalException):
 
     def __str__(self):
         return "::Ice::ProtocolException"
-    
+
     __module__ = "Ice"
     __class__ = "ProtocolException"
 
@@ -574,7 +574,7 @@ class CloseConnectionException(ProtocolException):
 
     def __str__(self):
         return "::Ice::CloseConnectionException"
-    
+
     __module__ = "Ice"
     __class__ = "CloseConnectionException"
 
@@ -592,7 +592,7 @@ class ConnectionManuallyClosedException(LocalException):
 
     def __str__(self):
         return "::Ice::ConnectionManuallyClosedException"
-    
+
     __module__ = "Ice"
     __class__ = "ConnectionManuallyClosedException"
 
@@ -608,7 +608,7 @@ class DatagramLimitException(ProtocolException):
 
     def __str__(self):
         return "::Ice::DatagramLimitException"
-    
+
     __module__ = "Ice"
     __class__ = "DatagramLimitException"
 
@@ -623,7 +623,7 @@ class MarshalException(ProtocolException):
 
     def __str__(self):
         return "::Ice::MarshalException"
-    
+
     __module__ = "Ice"
     __class__ = "MarshalException"
 
@@ -641,7 +641,7 @@ class FeatureNotSupportedException(LocalException):
 
     def __str__(self):
         return "::Ice::FeatureNotSupportedException"
-    
+
     __module__ = "Ice"
     __class__ = "FeatureNotSupportedException"
 
@@ -658,7 +658,7 @@ class SecurityException(LocalException):
 
     def __str__(self):
         return "::Ice::SecurityException"
-    
+
     __module__ = "Ice"
     __class__ = "SecurityException"
 
@@ -673,6 +673,6 @@ class FixedProxyException(LocalException):
 
     def __str__(self):
         return "::Ice::FixedProxyException"
-    
+
     __module__ = "Ice"
     __class__ = "FixedProxyException"

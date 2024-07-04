@@ -106,4 +106,3 @@ class CtrlCHandler(threading.Thread):
         self._self._condVar.release()
 
     signalHandler = classmethod(signalHandler)
-
