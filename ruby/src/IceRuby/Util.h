@@ -466,9 +466,8 @@ namespace IceRuby
     //
     VALUE createArray(long);
 
-    //
-    // Create the Ruby equivalent of an Ice local exception.
-    //
+    // Convert an Ice::LocalException, std::exception or other C++ exception into an Ice Ruby local exception.
+    // Ice C++ exceptions that are not LocalException are handled as std::exceptions.
     VALUE convertException(std::exception_ptr);
 }
 
@@ -479,18 +478,11 @@ namespace IceRuby
 //
 #define ICE_RUBY_TRY                                                                                                   \
     volatile VALUE ex_ = Qnil;                                                                                         \
-                                                                                                                       \
-    goto ice_start;                                                                                                    \
-                                                                                                                       \
-ice_handle_exception:                                                                                                  \
-    rb_exc_raise(ex_);                                                                                                 \
-                                                                                                                       \
-ice_start:                                                                                                             \
     try
 
 #define ICE_RUBY_RETHROW(ex)                                                                                           \
     ex_ = ex;                                                                                                          \
-    goto ice_handle_exception;
+    rb_exc_raise(ex_);
 
 #define ICE_RUBY_CATCH                                                                                                 \
     catch (const ::IceRuby::RubyException& ex) { ICE_RUBY_RETHROW(ex.ex); }                                            \

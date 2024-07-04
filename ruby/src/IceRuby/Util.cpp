@@ -551,7 +551,7 @@ namespace
     VALUE createRubyException(const char* typeId, std::array<VALUE, N> args, bool fallbackToLocalException = false)
     {
         string className = string{typeId}.substr(2);
-        VALUE rubyClass = T_NIL;
+        VALUE rubyClass;
         try
         {
             // callRuby throws a RubyException if rb_path2class fails.
