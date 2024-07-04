@@ -88,10 +88,12 @@ namespace IcePHP
     // Extracts the members of an encoding version.
     bool extractEncodingVersion(zval*, Ice::EncodingVersion&);
 
-    // Convert the given exception into its PHP equivalent.
+    // Convert a C++ Ice::LocalException or std::exception (or other C++ exception) to a PHP exception.
+    // Other Ice C++ exceptions such as user exceptions are handled as std::exception.
     void convertException(zval*, std::exception_ptr);
 
-    // Convert the exception and "throw" it.
+    // Convert a C++ exception to a PHP exception and throw it.
+    // Uses convertException to convert the exception.
     void throwException(std::exception_ptr);
 
     // Convert a Zend type (e.g., IS_BOOL, etc.) to a string for use in error messages.

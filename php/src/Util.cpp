@@ -539,36 +539,6 @@ IcePHP::convertException(zval* zex, std::exception_ptr ex)
             setStringMember(zex, "unknown", str);
         }
     }
-    catch (const Ice::UserException& e)
-    {
-        ostringstream ostr;
-        ostr << e;
-        string str = ostr.str();
-
-        zend_class_entry* cls = idToClass("Ice::UnknownUserException");
-        assert(cls);
-        if (object_init_ex(zex, cls) != SUCCESS)
-        {
-            runtimeError("unable to create exception %s", cls->name->val);
-            return;
-        }
-        setStringMember(zex, "unknown", str);
-    }
-    catch (const Ice::Exception& e)
-    {
-        ostringstream ostr;
-        ostr << e;
-        string str = ostr.str();
-
-        zend_class_entry* cls = idToClass("Ice::UnknownException");
-        assert(cls);
-        if (object_init_ex(zex, cls) != SUCCESS)
-        {
-            runtimeError("unable to create exception %s", cls->name->val);
-            return;
-        }
-        setStringMember(zex, "unknown", str);
-    }
     catch (const std::exception& e)
     {
         string str = e.what();
@@ -595,8 +565,6 @@ IcePHP::convertException(zval* zex, std::exception_ptr ex)
         }
         setStringMember(zex, "unknown", str);
     }
-
-    return;
 }
 
 void
