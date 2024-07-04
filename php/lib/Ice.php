@@ -30,22 +30,13 @@ namespace Ice
     //
     abstract class Exception extends \Exception
     {
-        public function __construct($message = '')
-        {
-            parent::__construct($message);
-        }
-
-        abstract public function ice_id();
     }
 
     abstract class UserException extends Exception
     {
-        public $_ice_slicedData;
+        abstract public function ice_id();
 
-        public function __construct($message = '')
-        {
-            parent::__construct($message);
-        }
+        public $_ice_slicedData;
     }
 
     abstract class LocalException extends Exception

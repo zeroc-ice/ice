@@ -252,7 +252,7 @@ function allTests($helper)
     }
     catch(Ice\ObjectNotExistException $ex)
     {
-        test($ex->id == $id);
+        test(str_contains($ex->getMessage(), "dispatch failed with ObjectNotExistException"));
     }
 
     echo "ok\n";

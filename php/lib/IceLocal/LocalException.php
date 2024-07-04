@@ -10,6 +10,25 @@ namespace
 
 namespace Ice
 {
+    class RequestFailedException extends LocalException
+    {
+        public Identity $id;
+        public string $facet;
+        public string $operation;
+    }
+
+    final class ObjectNotExistException extends RequestFailedException
+    {
+    }
+
+    final class FacetNotExistException extends RequestFailedException
+    {
+    }
+
+    final class OperationNotExistException extends RequestFailedException
+    {
+    }
+
     class InitializationException extends LocalException
     {
         public function __construct($reason='')
@@ -300,84 +319,6 @@ namespace Ice
         public $reason;
     }
 
-    class RequestFailedException extends LocalException
-    {
-        public function __construct($id=null, $facet='', $operation='')
-        {
-            $this->id = is_null($id) ? new Identity : $id;
-            $this->facet = $facet;
-            $this->operation = $operation;
-        }
-
-        public function ice_id()
-        {
-            return '::Ice::RequestFailedException';
-        }
-
-        public function __toString(): string
-        {
-            return $this->ice_id();
-        }
-
-        public $id;
-        public $facet;
-        public $operation;
-    }
-
-    class ObjectNotExistException extends RequestFailedException
-    {
-        public function __construct($id=null, $facet='', $operation='')
-        {
-            parent::__construct($id, $facet, $operation);
-        }
-
-        public function ice_id()
-        {
-            return '::Ice::ObjectNotExistException';
-        }
-
-        public function __toString(): string
-        {
-            return $this->ice_id();
-        }
-    }
-
-    class FacetNotExistException extends RequestFailedException
-    {
-        public function __construct($id=null, $facet='', $operation='')
-        {
-            parent::__construct($id, $facet, $operation);
-        }
-
-        public function ice_id()
-        {
-            return '::Ice::FacetNotExistException';
-        }
-
-        public function __toString(): string
-        {
-            return $this->ice_id();
-        }
-    }
-
-    class OperationNotExistException extends RequestFailedException
-    {
-        public function __construct($id=null, $facet='', $operation='')
-        {
-            parent::__construct($id, $facet, $operation);
-        }
-
-        public function ice_id()
-        {
-            return '::Ice::OperationNotExistException';
-        }
-
-        public function __toString(): string
-        {
-            return $this->ice_id();
-        }
-    }
-
     class SyscallException extends LocalException
     {
         public function __construct($error=0)
@@ -414,27 +355,6 @@ namespace Ice
         {
             return $this->ice_id();
         }
-    }
-
-    class CFNetworkException extends SocketException
-    {
-        public function __construct($error=0, $domain='')
-        {
-            parent::__construct($error);
-            $this->domain = $domain;
-        }
-
-        public function ice_id()
-        {
-            return '::Ice::CFNetworkException';
-        }
-
-        public function __toString(): string
-        {
-            return $this->ice_id();
-        }
-
-        public $domain;
     }
 
     class FileException extends SyscallException
