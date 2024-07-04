@@ -136,7 +136,9 @@ public final class Communicator implements AutoCloseable {
    * @return The proxy.
    */
   public ObjectPrx propertyToProxy(String prefix) {
-    return _instance.proxyFactory().propertyToProxy(prefix);
+    String proxy = _instance.initializationData().properties.getProperty(prefix);
+    var ref = _instance.referenceFactory().create(proxy, prefix);
+    return (ref == null) ? null : new com.zeroc.Ice._ObjectPrxI(ref);
   }
 
   /**

@@ -1538,15 +1538,13 @@ public class InputStream {
       throw new MarshalException("cannot unmarshal a proxy without a communicator");
     }
 
-    return _instance.proxyFactory().streamToProxy(this);
+    var ident = com.zeroc.Ice.Identity.ice_read(this);
+    var ref = _instance.referenceFactory().create(ident, this);
+    return (ref == null) ? null : new com.zeroc.Ice._ObjectPrxI(ref);
   }
 
   public <T extends ObjectPrx> T readProxy(java.util.function.Function<ObjectPrx, T> cast) {
-    if (_instance == null) {
-      throw new MarshalException("cannot unmarshal a proxy without a communicator");
-    }
-
-    return cast.apply(_instance.proxyFactory().streamToProxy(this));
+    return cast.apply(readProxy());
   }
 
   /**
