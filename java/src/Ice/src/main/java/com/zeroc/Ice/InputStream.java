@@ -1539,8 +1539,12 @@ public class InputStream {
     }
 
     var ident = com.zeroc.Ice.Identity.ice_read(this);
-    var ref = _instance.referenceFactory().create(ident, this);
-    return (ref == null) ? null : new com.zeroc.Ice._ObjectPrxI(ref);
+    if (ident.name.isEmpty()) {
+      return null;
+    } else {
+      var ref = _instance.referenceFactory().create(ident, this);
+      return new com.zeroc.Ice._ObjectPrxI(ref);
+    }
   }
 
   public <T extends ObjectPrx> T readProxy(java.util.function.Function<ObjectPrx, T> cast) {

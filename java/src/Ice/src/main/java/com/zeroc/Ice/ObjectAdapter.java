@@ -1337,13 +1337,13 @@ public final class ObjectAdapter {
   private ObjectPrx newDirectProxy(Identity ident, String facet) {
     // Create a reference and return a proxy for this reference.
     var ref = _instance.referenceFactory().create(ident, facet, _reference, _publishedEndpoints);
-    return (ref == null) ? null : new com.zeroc.Ice._ObjectPrxI(ref);
+    return new com.zeroc.Ice._ObjectPrxI(ref);
   }
 
   private ObjectPrx newIndirectProxy(Identity ident, String facet, String id) {
     // Create a reference with the adapter id and return a proxy for the reference.
     var ref = _instance.referenceFactory().create(ident, facet, _reference, id);
-    return (ref == null) ? null : new com.zeroc.Ice._ObjectPrxI(ref);
+    return new com.zeroc.Ice._ObjectPrxI(ref);
   }
 
   private void checkForDeactivation() {
