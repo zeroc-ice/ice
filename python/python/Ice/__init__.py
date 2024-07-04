@@ -10,12 +10,6 @@ Ice module
 
 import sys
 import os
-import threading
-import datetime
-import logging
-import time
-import inspect
-import traceback
 import types
 import array
 import atexit
@@ -71,240 +65,14 @@ loadSlice = IcePy.loadSlice
 AsyncInvocationContext = IcePy.AsyncInvocationContext
 Unset = IcePy.Unset
 
-from Ice.IceFuture import FutureBase, wrap_future  # noqa
+from .Future import Future, wrap_future
+from .InvocationFuture import InvocationFuture
 
+from .Object import Object
+from .Blobject import Blobject
+from .BlobjectAsync import BlobjectAsync
+from .Value import Value
 
-class Future(FutureBase):
-    def __init__(self):
-        self._result = None
-        self._exception = None
-        self._condition = threading.Condition()
-        self._doneCallbacks = []
-        self._state = Future.StateRunning
-
-    def cancel(self):
-        callbacks = []
-        with self._condition:
-            if self._state == Future.StateDone:
-                return False
-
-            if self._state == Future.StateCancelled:
-                return True
-
-            self._state = Future.StateCancelled
-            callbacks = self._doneCallbacks
-            self._doneCallbacks = []
-            self._condition.notify_all()
-
-        self._callCallbacks(callbacks)
-
-        return True
-
-    def cancelled(self):
-        with self._condition:
-            return self._state == Future.StateCancelled
-
-    def running(self):
-        with self._condition:
-            return self._state == Future.StateRunning
-
-    def done(self):
-        with self._condition:
-            return self._state in [Future.StateCancelled, Future.StateDone]
-
-    def add_done_callback(self, fn):
-        with self._condition:
-            if self._state == Future.StateRunning:
-                self._doneCallbacks.append(fn)
-                return
-        fn(self)
-
-    def result(self, timeout=None):
-        with self._condition:
-            if not self._wait(timeout, lambda: self._state == Future.StateRunning):
-                raise TimeoutException()
-
-            if self._state == Future.StateCancelled:
-                raise InvocationCanceledException()
-            elif self._exception:
-                raise self._exception
-            else:
-                return self._result
-
-    def exception(self, timeout=None):
-        with self._condition:
-            if not self._wait(timeout, lambda: self._state == Future.StateRunning):
-                raise TimeoutException()
-            if self._state == Future.StateCancelled:
-                raise InvocationCanceledException()
-            else:
-                return self._exception
-
-    def set_result(self, result):
-        callbacks = []
-        with self._condition:
-            if self._state != Future.StateRunning:
-                return
-            self._result = result
-            self._state = Future.StateDone
-            callbacks = self._doneCallbacks
-            self._doneCallbacks = []
-            self._condition.notify_all()
-
-        self._callCallbacks(callbacks)
-
-    def set_exception(self, ex):
-        callbacks = []
-        with self._condition:
-            if self._state != Future.StateRunning:
-                return
-            self._exception = ex
-            self._state = Future.StateDone
-            callbacks = self._doneCallbacks
-            self._doneCallbacks = []
-            self._condition.notify_all()
-
-        self._callCallbacks(callbacks)
-
-    @staticmethod
-    def completed(result):
-        f = Future()
-        f.set_result(result)
-        return f
-
-    def _wait(self, timeout, testFn=None):
-        # Must be called with _condition acquired
-
-        while testFn():
-            if timeout:
-                start = time.time()
-                self._condition.wait(timeout)
-                # Subtract the elapsed time so far from the timeout
-                timeout -= time.time() - start
-                if timeout <= 0:
-                    return False
-            else:
-                self._condition.wait()
-
-        return True
-
-    def _callCallbacks(self, callbacks):
-        for callback in callbacks:
-            try:
-                callback(self)
-            except Exception:
-                self._warn("done callback raised exception")
-
-    def _warn(self, msg):
-        logging.getLogger("Ice.Future").exception(msg)
-
-    StateRunning = "running"
-    StateCancelled = "cancelled"
-    StateDone = "done"
-
-
-class InvocationFuture(Future):
-    def __init__(self, operation, asyncInvocationContext):
-        Future.__init__(self)
-        assert asyncInvocationContext
-        self._operation = operation
-        self._asyncInvocationContext = asyncInvocationContext
-        self._sent = False
-        self._sentSynchronously = False
-        self._sentCallbacks = []
-
-    def cancel(self):
-        self._asyncInvocationContext.cancel()
-        return Future.cancel(self)
-
-    def add_done_callback_async(self, fn):
-        def callback():
-            try:
-                fn(self)
-            except Exception:
-                self._warn("done callback raised exception")
-
-        with self._condition:
-            if self._state == Future.StateRunning:
-                self._doneCallbacks.append(fn)
-                return
-        self._asyncInvocationContext.callLater(callback)
-
-    def is_sent(self):
-        with self._condition:
-            return self._sent
-
-    def is_sent_synchronously(self):
-        with self._condition:
-            return self._sentSynchronously
-
-    def add_sent_callback(self, fn):
-        with self._condition:
-            if not self._sent:
-                self._sentCallbacks.append(fn)
-                return
-        fn(self, self._sentSynchronously)
-
-    def add_sent_callback_async(self, fn):
-        def callback():
-            try:
-                fn(self, self._sentSynchronously)
-            except Exception:
-                self._warn("sent callback raised exception")
-
-        with self._condition:
-            if not self._sent:
-                self._sentCallbacks.append(fn)
-                return
-        self._asyncInvocationContext.callLater(callback)
-
-    def sent(self, timeout=None):
-        with self._condition:
-            if not self._wait(timeout, lambda: not self._sent):
-                raise TimeoutException()
-
-            if self._state == Future.StateCancelled:
-                raise InvocationCanceledException()
-            elif self._exception:
-                raise self._exception
-            else:
-                return self._sentSynchronously
-
-    def set_sent(self, sentSynchronously):
-        callbacks = []
-        with self._condition:
-            if self._sent:
-                return
-
-            self._sent = True
-            self._sentSynchronously = sentSynchronously
-            callbacks = self._sentCallbacks
-            self._sentCallbacks = []
-            self._condition.notify_all()
-
-        for callback in callbacks:
-            try:
-                callback(self, sentSynchronously)
-            except Exception:
-                self._warn("sent callback raised exception")
-
-    def operation(self):
-        return self._operation
-
-    def _warn(self, msg):
-        communicator = self.communicator()
-        if communicator:
-            if (
-                communicator.getProperties().getPropertyAsIntWithDefault(
-                    "Ice.Warn.AMICallback", 1
-                )
-                > 0
-            ):
-                communicator.getLogger().warning(
-                    "Ice.Future: " + msg + ":\n" + traceback.format_exc()
-                )
-        else:
-            logging.getLogger("Ice.Future").exception(msg)
 
 
 #
@@ -312,267 +80,8 @@ class InvocationFuture(Future):
 # of user-defined types. It allows us to determine whether the application has
 # supplied a value. (See bug 3676)
 #
+# TODO: can we use None instead?
 _struct_marker = object()
-
-#
-# Core Ice types.
-#
-
-
-class Value(object):
-    def ice_id(self):
-        """Obtains the type id corresponding to the most-derived Slice
-        interface supported by the target object.
-        Returns:
-            The type id."""
-        return "::Ice::Object"
-
-    @staticmethod
-    def ice_staticId():
-        """Obtains the type id of this Slice class or interface.
-        Returns:
-            The type id."""
-        return "::Ice::Object"
-
-    #
-    # Do not define these here. They will be invoked if defined by a subclass.
-    #
-    # def ice_preMarshal(self):
-    #    pass
-    #
-    # def ice_postUnmarshal(self):
-    #    pass
-
-    def ice_getSlicedData(self):
-        """Returns the sliced data if the value has a preserved-slice base class and has been sliced during
-        un-marshaling of the value, null is returned otherwise.
-        Returns:
-            The sliced data or null."""
-        return getattr(self, "_ice_slicedData", None)
-
-
-class Object(object):
-    def ice_isA(self, id, current=None):
-        """Determines whether the target object supports the interface denoted
-        by the given Slice type id.
-        Arguments:
-            id The Slice type id
-        Returns:
-            True if the target object supports the interface, or False otherwise."""
-        return id in self.ice_ids(current)
-
-    def ice_ping(self, current=None):
-        """A reachability test for the target object."""
-        pass
-
-    def ice_ids(self, current=None):
-        """Obtains the type ids corresponding to the Slice interface
-        that are supported by the target object.
-        Returns:
-            A list of type ids."""
-        return [self.ice_id(current)]
-
-    def ice_id(self, current=None):
-        """Obtains the type id corresponding to the most-derived Slice
-        interface supported by the target object.
-        Returns:
-            The type id."""
-        return "::Ice::Object"
-
-    @staticmethod
-    def ice_staticId():
-        """Obtains the type id of this Slice class or interface.
-        Returns:
-            The type id."""
-        return "::Ice::Object"
-
-    def _iceDispatch(self, cb, method, args):
-        # Invoke the given servant method. Exceptions can propagate to the caller.
-        result = method(*args)
-
-        # Check for a future.
-        if isinstance(result, Future) or callable(
-            getattr(result, "add_done_callback", None)
-        ):
-
-            def handler(future):
-                try:
-                    cb.response(future.result())
-                except Exception:
-                    cb.exception(sys.exc_info()[1])
-
-            result.add_done_callback(handler)
-        elif inspect.iscoroutine(result):
-            self._iceDispatchCoroutine(cb, result)
-        else:
-            cb.response(result)
-
-    def _iceDispatchCoroutine(self, cb, coro, value=None, exception=None):
-        try:
-            if exception:
-                result = coro.throw(exception)
-            else:
-                result = coro.send(value)
-
-            if result is None:
-                # The result can be None if the coroutine performs a bare yield (such as asyncio.sleep(0))
-                cb.response(None)
-            elif isinstance(result, Future) or callable(
-                getattr(result, "add_done_callback", None)
-            ):
-                # If we've received a future from the coroutine setup a done callback to continue the dispatching
-                # when the future completes.
-                def handler(future):
-                    try:
-                        self._iceDispatchCoroutine(cb, coro, value=future.result())
-                    except BaseException:
-                        self._iceDispatchCoroutine(
-                            cb, coro, exception=sys.exc_info()[1]
-                        )
-
-                result.add_done_callback(handler)
-            else:
-                raise RuntimeError(
-                    "unexpected value of type "
-                    + str(type(result))
-                    + " provided by coroutine"
-                )
-        except StopIteration as ex:
-            # StopIteration is raised when the coroutine completes.
-            cb.response(ex.value)
-        except BaseException:
-            cb.exception(sys.exc_info()[1])
-
-
-class Blobject(Object):
-    """Special-purpose servant base class that allows a subclass to
-    handle synchronous Ice invocations as "blobs" of bytes."""
-
-    def ice_invoke(self, bytes, current):
-        """Dispatch a synchronous Ice invocation. The operation's
-        arguments are encoded in the bytes argument. The return
-        value must be a tuple of two values: the first is a
-        boolean indicating whether the operation succeeded (True)
-        or raised a user exception (False), and the second is
-        the encoded form of the operation's results or the user
-        exception."""
-        pass
-
-
-class BlobjectAsync(Object):
-    """Special-purpose servant base class that allows a subclass to
-    handle asynchronous Ice invocations as "blobs" of bytes."""
-
-    def ice_invoke(self, bytes, current):
-        """Dispatch an asynchronous Ice invocation. The operation's
-        arguments are encoded in the bytes argument. The result must be
-        a tuple of two values: the first is a boolean indicating whether the
-        operation succeeded (True) or raised a user exception (False), and
-        the second is the encoded form of the operation's results or the user
-        exception. The subclass can either return the tuple directly (for
-        synchronous completion) or return a future that is eventually
-        completed with the tuple."""
-        pass
-
-
-#
-# Exceptions.
-#
-
-
-class Exception(Exception):  # Derives from built-in base 'Exception' class.
-    """The base class for all Ice exceptions."""
-
-    def __str__(self):
-        return self.__class__.__name__
-
-    def ice_id(self):
-        """Returns the type id of this exception."""
-        return self._ice_id
-
-
-class LocalException(Exception):
-    """The base class for all Ice run-time exceptions."""
-
-    def __init__(self, args=""):
-        self.args = args
-
-
-class UserException(Exception):
-    """The base class for all user-defined exceptions."""
-
-    def ice_getSlicedData(self):
-        """Returns the sliced data if the value has a preserved-slice base class and has been sliced during
-        un-marshaling of the value, null is returned otherwise.
-        Returns:
-            The sliced data or null."""
-        return getattr(self, "_ice_slicedData", None)
-
-
-class EnumBase(object):
-    def __init__(self, _n, _v):
-        self._name = _n
-        self._value = _v
-
-    def __str__(self):
-        return self._name
-
-    __repr__ = __str__
-
-    def __hash__(self):
-        return self._value
-
-    def __lt__(self, other):
-        if isinstance(other, self.__class__):
-            return self._value < other._value
-        elif other is None:
-            return False
-        return NotImplemented
-
-    def __le__(self, other):
-        if isinstance(other, self.__class__):
-            return self._value <= other._value
-        elif other is None:
-            return False
-        return NotImplemented
-
-    def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            return self._value == other._value
-        elif other is None:
-            return False
-        return NotImplemented
-
-    def __ne__(self, other):
-        if isinstance(other, self.__class__):
-            return self._value != other._value
-        elif other is None:
-            return False
-        return NotImplemented
-
-    def __gt__(self, other):
-        if isinstance(other, self.__class__):
-            return self._value > other._value
-        elif other is None:
-            return False
-        return NotImplemented
-
-    def __ge__(self, other):
-        if isinstance(other, self.__class__):
-            return self._value >= other._value
-        elif other is None:
-            return False
-        return NotImplemented
-
-    def _getName(self):
-        return self._name
-
-    def _getValue(self):
-        return self._value
-
-    name = property(_getName)
-    value = property(_getValue)
-
 
 class SlicedData(object):
     #
@@ -762,29 +271,88 @@ IcePy._t_LocalObject = IcePy.declareValue("::Ice::LocalObject")
 #
 # Import "local slice" and generated Ice modules.
 #
+from .EnumBase import EnumBase
+
+from .ToStringMode import ToStringMode
+from .Exception import Exception
+from .LocalException import LocalException
+from .UserException import UserException
+
 import Ice.BuiltinSequences_ice
-import Ice.Current_local
-import Ice.Communicator_local
-import Ice.ImplicitContext_local
-import Ice.Endpoint_local
-import Ice.EndpointSelectionType_local
+import Ice.Current
+import Ice.Communicator
+
+import Ice.ImplicitContext
+import Ice.Endpoint
+from .EndpointSelectionType import EndpointSelectionType
+
+
 import Ice.EndpointTypes_ice
 import Ice.Identity_ice
-import Ice.LocalException_local
 import Ice.Locator_ice
-import Ice.Logger_local
-import Ice.ObjectAdapter_local
-import Ice.ValueFactory_local
+import Ice.Logger
+import Ice.ObjectAdapter
+import Ice.ValueFactory
 import Ice.Process_ice
-import Ice.Properties_local
+import Ice.Properties
 import Ice.PropertiesAdmin_ice
 import Ice.RemoteLogger_ice
 import Ice.Router_ice
-import Ice.ServantLocator_local
-import Ice.Connection_local
+from .ServantLocator import ServantLocator
+import Ice.Connection
 import Ice.Version_ice
-import Ice.Instrumentation_local
+import Ice.Instrumentation
 import Ice.Metrics_ice
+
+from .InitializationData import InitializationData
+
+from .initialize import initialize
+from .PropertiesI import PropertiesI
+from .ObjectAdapterI import ObjectAdapterI
+from .ImplicitContextI import ImplicitContextI
+from .LoggerI import LoggerI
+
+
+# Local exceptions
+from .LocalExceptions import InitializationException
+from .LocalExceptions import AlreadyRegisteredException
+from .LocalExceptions import NotRegisteredException
+from .LocalExceptions import TwowayOnlyException
+from .LocalExceptions import UnknownException
+from .LocalExceptions import UnknownLocalException
+from .LocalExceptions import UnknownUserException
+from .LocalExceptions import CommunicatorDestroyedException
+from .LocalExceptions import ObjectAdapterDeactivatedException
+from .LocalExceptions import ObjectAdapterIdInUseException
+from .LocalExceptions import NoEndpointException
+from .LocalExceptions import ParseException
+from .LocalExceptions import IllegalIdentityException
+from .LocalExceptions import IllegalServantException
+from .LocalExceptions import RequestFailedException
+from .LocalExceptions import ObjectNotExistException
+from .LocalExceptions import FacetNotExistException
+from .LocalExceptions import OperationNotExistException
+from .LocalExceptions import SyscallException
+from .LocalExceptions import SocketException
+from .LocalExceptions import FileException
+from .LocalExceptions import ConnectFailedException
+from .LocalExceptions import ConnectionRefusedException
+from .LocalExceptions import ConnectionLostException
+from .LocalExceptions import DNSException
+from .LocalExceptions import ConnectionIdleException
+from .LocalExceptions import TimeoutException
+from .LocalExceptions import ConnectTimeoutException
+from .LocalExceptions import CloseTimeoutException
+from .LocalExceptions import InvocationTimeoutException
+from .LocalExceptions import InvocationCanceledException
+from .LocalExceptions import ProtocolException
+from .LocalExceptions import CloseConnectionException
+from .LocalExceptions import ConnectionManuallyClosedException
+from .LocalExceptions import DatagramLimitException
+from .LocalExceptions import MarshalException
+from .LocalExceptions import FeatureNotSupportedException
+from .LocalExceptions import SecurityException
+from .LocalExceptions import FixedProxyException
 
 #
 # Replace EndpointInfo with our implementation.
@@ -834,198 +402,6 @@ class BatchRequestInterceptor(object):
 
 
 #
-# Initialization data.
-#
-
-
-class InitializationData(object):
-    """The attributes of this class are used to initialize a new
-    communicator instance. The supported attributes are as follows:
-
-    properties: An instance of Ice.Properties. You can use the
-        Ice.createProperties function to create a new property set.
-
-    logger: An instance of Ice.Logger.
-
-    threadStart: A callable that is invoked for each new Ice thread that is started.
-
-    threadStop: A callable that is invoked when an Ice thread is stopped.
-
-    dispatcher: A callable that is invoked when Ice needs to dispatch an activity. The callable
-        receives two arguments: a callable and an Ice.Connection object. The dispatcher must
-        eventually invoke the callable with no arguments.
-
-    batchRequestInterceptor: A callable that will be invoked when a batch request is queued.
-        The callable receives three arguments: a BatchRequest object, an integer representing
-        the number of requests in the queue, and an integer representing the number of bytes
-        consumed by the requests in the queue. The interceptor must eventually invoke the
-        enqueue method on the BatchRequest object.
-
-    valueFactoryManager: An object that implements ValueFactoryManager."""
-
-    def __init__(self):
-        self.properties = None
-        self.logger = None
-        self.threadStart = None
-        self.threadStop = None
-        self.dispatcher = None
-        self.batchRequestInterceptor = None
-        self.valueFactoryManager = None
-
-
-#
-# Communicator wrapper.
-#
-
-
-class CommunicatorI(Communicator):
-    def __init__(self, impl):
-        self._impl = impl
-        impl._setWrapper(self)
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, type, value, traceback):
-        self._impl.destroy()
-
-    def getImpl(self):
-        return self._impl
-
-    def destroy(self):
-        self._impl.destroy()
-
-    def shutdown(self):
-        self._impl.shutdown()
-
-    def waitForShutdown(self):
-        #
-        # If invoked by the main thread, waitForShutdown only blocks for
-        # the specified timeout in order to give us a chance to handle
-        # signals.
-        #
-        while not self._impl.waitForShutdown(500):
-            pass
-
-    def isShutdown(self):
-        return self._impl.isShutdown()
-
-    def stringToProxy(self, str):
-        return self._impl.stringToProxy(str)
-
-    def proxyToString(self, obj):
-        return self._impl.proxyToString(obj)
-
-    def propertyToProxy(self, str):
-        return self._impl.propertyToProxy(str)
-
-    def proxyToProperty(self, obj, str):
-        return self._impl.proxyToProperty(obj, str)
-
-    def stringToIdentity(self, str):
-        return self._impl.stringToIdentity(str)
-
-    def identityToString(self, ident):
-        return self._impl.identityToString(ident)
-
-    def createObjectAdapter(self, name):
-        adapter = self._impl.createObjectAdapter(name)
-        return ObjectAdapterI(adapter)
-
-    def createObjectAdapterWithEndpoints(self, name, endpoints):
-        adapter = self._impl.createObjectAdapterWithEndpoints(name, endpoints)
-        return ObjectAdapterI(adapter)
-
-    def createObjectAdapterWithRouter(self, name, router):
-        adapter = self._impl.createObjectAdapterWithRouter(name, router)
-        return ObjectAdapterI(adapter)
-
-    def getValueFactoryManager(self):
-        return self._impl.getValueFactoryManager()
-
-    def getImplicitContext(self):
-        context = self._impl.getImplicitContext()
-        if context is None:
-            return None
-        else:
-            return ImplicitContextI(context)
-
-    def getProperties(self):
-        properties = self._impl.getProperties()
-        return PropertiesI(properties)
-
-    def getLogger(self):
-        logger = self._impl.getLogger()
-        if isinstance(logger, Logger):
-            return logger
-        else:
-            return LoggerI(logger)
-
-    def getStats(self):
-        raise RuntimeError("operation `getStats' not implemented")
-
-    def getDefaultRouter(self):
-        return self._impl.getDefaultRouter()
-
-    def setDefaultRouter(self, rtr):
-        self._impl.setDefaultRouter(rtr)
-
-    def getDefaultLocator(self):
-        return self._impl.getDefaultLocator()
-
-    def setDefaultLocator(self, loc):
-        self._impl.setDefaultLocator(loc)
-
-    def getPluginManager(self):
-        raise RuntimeError("operation `getPluginManager' not implemented")
-
-    def flushBatchRequests(self, compress):
-        self._impl.flushBatchRequests(compress)
-
-    def flushBatchRequestsAsync(self, compress):
-        return self._impl.flushBatchRequestsAsync(compress)
-
-    def createAdmin(self, adminAdapter, adminIdentity):
-        return self._impl.createAdmin(adminAdapter, adminIdentity)
-
-    def getAdmin(self):
-        return self._impl.getAdmin()
-
-    def addAdminFacet(self, servant, facet):
-        self._impl.addAdminFacet(servant, facet)
-
-    def findAdminFacet(self, facet):
-        return self._impl.findAdminFacet(facet)
-
-    def findAllAdminFacets(self):
-        return self._impl.findAllAdminFacets()
-
-    def removeAdminFacet(self, facet):
-        return self._impl.removeAdminFacet(facet)
-
-
-#
-# Ice.initialize()
-#
-
-
-def initialize(args=None, data=None):
-    """Initializes a new communicator. The optional arguments represent
-    an argument list (such as sys.argv) and an instance of InitializationData.
-    You can invoke this function as follows:
-
-    Ice.initialize()
-    Ice.initialize(args)
-    Ice.initialize(data)
-    Ice.initialize(args, data)
-
-    If you supply an argument list, the function removes those arguments from
-    the list that were recognized by the Ice run time."""
-    communicator = IcePy.Communicator(args, data)
-    return CommunicatorI(communicator)
-
-
-#
 # Ice.identityToString
 #
 
@@ -1041,232 +417,6 @@ def identityToString(id, toStringMode=None):
 
 def stringToIdentity(str):
     return IcePy.stringToIdentity(str)
-
-
-#
-# ObjectAdapter wrapper.
-#
-
-
-class ObjectAdapterI(ObjectAdapter):
-    def __init__(self, impl):
-        self._impl = impl
-
-    def getName(self):
-        return self._impl.getName()
-
-    def getCommunicator(self):
-        communicator = self._impl.getCommunicator()
-        return communicator._getWrapper()
-
-    def activate(self):
-        self._impl.activate()
-
-    def hold(self):
-        self._impl.hold()
-
-    def waitForHold(self):
-        #
-        # If invoked by the main thread, waitForHold only blocks for
-        # the specified timeout in order to give us a chance to handle
-        # signals.
-        #
-        while not self._impl.waitForHold(1000):
-            pass
-
-    def deactivate(self):
-        self._impl.deactivate()
-
-    def waitForDeactivate(self):
-        #
-        # If invoked by the main thread, waitForDeactivate only blocks for
-        # the specified timeout in order to give us a chance to handle
-        # signals.
-        #
-        while not self._impl.waitForDeactivate(1000):
-            pass
-
-    def isDeactivated(self):
-        self._impl.isDeactivated()
-
-    def destroy(self):
-        self._impl.destroy()
-
-    def add(self, servant, id):
-        return self._impl.add(servant, id)
-
-    def addFacet(self, servant, id, facet):
-        return self._impl.addFacet(servant, id, facet)
-
-    def addWithUUID(self, servant):
-        return self._impl.addWithUUID(servant)
-
-    def addFacetWithUUID(self, servant, facet):
-        return self._impl.addFacetWIthUUID(servant, facet)
-
-    def addDefaultServant(self, servant, category):
-        self._impl.addDefaultServant(servant, category)
-
-    def remove(self, id):
-        return self._impl.remove(id)
-
-    def removeFacet(self, id, facet):
-        return self._impl.removeFacet(id, facet)
-
-    def removeAllFacets(self, id):
-        return self._impl.removeAllFacets(id)
-
-    def removeDefaultServant(self, category):
-        return self._impl.removeDefaultServant(category)
-
-    def find(self, id):
-        return self._impl.find(id)
-
-    def findFacet(self, id, facet):
-        return self._impl.findFacet(id, facet)
-
-    def findAllFacets(self, id):
-        return self._impl.findAllFacets(id)
-
-    def findByProxy(self, proxy):
-        return self._impl.findByProxy(proxy)
-
-    def findDefaultServant(self, category):
-        return self._impl.findDefaultServant(category)
-
-    def addServantLocator(self, locator, category):
-        self._impl.addServantLocator(locator, category)
-
-    def removeServantLocator(self, category):
-        return self._impl.removeServantLocator(category)
-
-    def findServantLocator(self, category):
-        return self._impl.findServantLocator(category)
-
-    def createProxy(self, id):
-        return self._impl.createProxy(id)
-
-    def createDirectProxy(self, id):
-        return self._impl.createDirectProxy(id)
-
-    def createIndirectProxy(self, id):
-        return self._impl.createIndirectProxy(id)
-
-    def createReverseProxy(self, id):
-        return self._impl.createReverseProxy(id)
-
-    def setLocator(self, loc):
-        self._impl.setLocator(loc)
-
-    def getLocator(self):
-        return self._impl.getLocator()
-
-    def getEndpoints(self):
-        return self._impl.getEndpoints()
-
-    def refreshPublishedEndpoints(self):
-        self._impl.refreshPublishedEndpoints()
-
-    def getPublishedEndpoints(self):
-        return self._impl.getPublishedEndpoints()
-
-    def setPublishedEndpoints(self, newEndpoints):
-        self._impl.setPublishedEndpoints(newEndpoints)
-
-
-#
-# Logger wrapper.
-#
-
-
-class LoggerI(Logger):
-    def __init__(self, impl):
-        self._impl = impl
-
-    def _print(self, message):
-        return self._impl._print(message)
-
-    def trace(self, category, message):
-        return self._impl.trace(category, message)
-
-    def warning(self, message):
-        return self._impl.warning(message)
-
-    def error(self, message):
-        return self._impl.error(message)
-
-    def getPrefix(self):
-        return self._impl.getPrefix()
-
-    def cloneWithPrefix(self, prefix):
-        logger = self._impl.cloneWithPrefix(prefix)
-        return LoggerI(logger)
-
-
-#
-# Properties wrapper.
-#
-
-
-class PropertiesI(Properties):
-    def __init__(self, impl):
-        self._impl = impl
-
-    def getProperty(self, key):
-        return self._impl.getProperty(key)
-
-    def getIceProperty(self, key):
-        return self._impl.getIceProperty(key)
-
-    def getPropertyWithDefault(self, key, value):
-        return self._impl.getPropertyWithDefault(key, value)
-
-    def getPropertyAsInt(self, key):
-        return self._impl.getPropertyAsInt(key)
-
-    def getIcePropertyAsInt(self, key):
-        return self._impl.getIcePropertyAsInt(key)
-
-    def getPropertyAsIntWithDefault(self, key, value):
-        return self._impl.getPropertyAsIntWithDefault(key, value)
-
-    def getPropertyAsList(self, key):
-        return self._impl.getPropertyAsList(key)
-
-    def getIcePropertyAsList(self, key):
-        return self._impl.getIcePropertyAsList(key)
-
-    def getPropertyAsListWithDefault(self, key, value):
-        return self._impl.getPropertyAsListWithDefault(key, value)
-
-    def getPropertiesForPrefix(self, prefix):
-        return self._impl.getPropertiesForPrefix(prefix)
-
-    def setProperty(self, key, value):
-        self._impl.setProperty(key, value)
-
-    def getCommandLineOptions(self):
-        return self._impl.getCommandLineOptions()
-
-    def parseCommandLineOptions(self, prefix, options):
-        return self._impl.parseCommandLineOptions(prefix, options)
-
-    def parseIceCommandLineOptions(self, options):
-        return self._impl.parseIceCommandLineOptions(options)
-
-    def load(self, file):
-        self._impl.load(file)
-
-    def clone(self):
-        properties = self._impl.clone()
-        return PropertiesI(properties)
-
-    def __iter__(self):
-        dict = self._impl.getPropertiesForPrefix("")
-        return iter(dict)
-
-    def __str__(self):
-        return str(self._impl)
 
 
 #
@@ -1289,163 +439,6 @@ def createProperties(args=None, defaults=None):
 
     properties = IcePy.createProperties(args, defaults)
     return PropertiesI(properties)
-
-
-#
-# Ice.getProcessLogger()
-# Ice.setProcessLogger()
-#
-
-
-def getProcessLogger():
-    """Returns the default logger object."""
-    logger = IcePy.getProcessLogger()
-    if isinstance(logger, Logger):
-        return logger
-    else:
-        return LoggerI(logger)
-
-
-def setProcessLogger(logger):
-    """Sets the default logger object."""
-    IcePy.setProcessLogger(logger)
-
-
-#
-# ImplicitContext wrapper
-#
-
-
-class ImplicitContextI(ImplicitContext):
-    def __init__(self, impl):
-        self._impl = impl
-
-    def setContext(self, ctx):
-        self._impl.setContext(ctx)
-
-    def getContext(self):
-        return self._impl.getContext()
-
-    def containsKey(self, key):
-        return self._impl.containsKey(key)
-
-    def get(self, key):
-        return self._impl.get(key)
-
-    def put(self, key, value):
-        return self._impl.put(key, value)
-
-    def remove(self, key):
-        return self._impl.remove(key)
-
-
-#
-# Its not possible to block in a python signal handler since this
-# blocks the main thread from doing further work. As such we queue the
-# signal with a worker thread which then "dispatches" the signal to
-# the registered callback object.
-#
-# Note the interface is the same as the C++ CtrlCHandler
-# implementation, however, the implementation is different.
-#
-
-
-class CtrlCHandler(threading.Thread):
-    # Class variable referring to the one and only handler for use
-    # from the signal handling callback.
-    _self = None
-
-    def __init__(self):
-        threading.Thread.__init__(self)
-
-        if CtrlCHandler._self is not None:
-            raise RuntimeError(
-                "Only a single instance of a CtrlCHandler can be instantiated."
-            )
-        CtrlCHandler._self = self
-
-        # State variables. These are not class static variables.
-        self._condVar = threading.Condition()
-        self._queue = []
-        self._done = False
-        self._callback = None
-
-        #
-        # Setup and install signal handlers
-        #
-        if "SIGHUP" in signal.__dict__:
-            signal.signal(signal.SIGHUP, CtrlCHandler.signalHandler)
-        if "SIGBREAK" in signal.__dict__:
-            signal.signal(signal.SIGBREAK, CtrlCHandler.signalHandler)
-        signal.signal(signal.SIGINT, CtrlCHandler.signalHandler)
-        signal.signal(signal.SIGTERM, CtrlCHandler.signalHandler)
-
-        # Start the thread once everything else is done.
-        self.start()
-
-    # Dequeue and dispatch signals.
-    def run(self):
-        while True:
-            self._condVar.acquire()
-            while len(self._queue) == 0 and not self._done:
-                self._condVar.wait()
-            if self._done:
-                self._condVar.release()
-                break
-            sig, callback = self._queue.pop()
-            self._condVar.release()
-            if callback:
-                callback(sig)
-
-    # Destroy the object. Wait for the thread to terminate and cleanup
-    # the internal state.
-    def destroy(self):
-        self._condVar.acquire()
-        self._done = True
-        self._condVar.notify()
-        self._condVar.release()
-
-        # Wait for the thread to terminate
-        self.join()
-        #
-        # Cleanup any state set by the CtrlCHandler.
-        #
-        if "SIGHUP" in signal.__dict__:
-            signal.signal(signal.SIGHUP, signal.SIG_DFL)
-        if "SIGBREAK" in signal.__dict__:
-            signal.signal(signal.SIGBREAK, signal.SIG_DFL)
-        signal.signal(signal.SIGINT, signal.SIG_DFL)
-        signal.signal(signal.SIGTERM, signal.SIG_DFL)
-        CtrlCHandler._self = None
-
-    def setCallback(self, callback):
-        self._condVar.acquire()
-        self._callback = callback
-        self._condVar.release()
-
-    def getCallback(self):
-        self._condVar.acquire()
-        callback = self._callback
-        self._condVar.release()
-        return callback
-
-    # Private. Only called by the signal handling mechanism.
-    def signalHandler(self, sig, frame):
-        self._self._condVar.acquire()
-        #
-        # The signal AND the current callback are queued together.
-        #
-        self._self._queue.append([sig, self._self._callback])
-        self._self._condVar.notify()
-        self._self._condVar.release()
-
-    signalHandler = classmethod(signalHandler)
-
-
-#
-# Application class.
-#
-import signal
 
 
 #
@@ -1509,53 +502,6 @@ IcePy._t_UnknownSlicedValue = IcePy.defineValue(
     "::Ice::UnknownSlicedValue", UnknownSlicedValue, -1, (), False, None, ()
 )
 UnknownSlicedValue._ice_type = IcePy._t_UnknownSlicedValue
-
-#
-# Annotate some exceptions.
-#
-
-
-def SyscallException__str__(self):
-    return "Ice.SyscallException:\n" + os.strerror(self.error)
-
-
-SyscallException.__str__ = SyscallException__str__
-del SyscallException__str__
-
-
-def SocketException__str__(self):
-    return "Ice.SocketException:\n" + os.strerror(self.error)
-
-
-SocketException.__str__ = SocketException__str__
-del SocketException__str__
-
-
-def ConnectFailedException__str__(self):
-    return "Ice.ConnectFailedException:\n" + os.strerror(self.error)
-
-
-ConnectFailedException.__str__ = ConnectFailedException__str__
-del ConnectFailedException__str__
-
-
-def ConnectionRefusedException__str__(self):
-    return "Ice.ConnectionRefusedException:\n" + os.strerror(self.error)
-
-
-ConnectionRefusedException.__str__ = ConnectionRefusedException__str__
-del ConnectionRefusedException__str__
-
-
-def ConnectionLostException__str__(self):
-    if self.error == 0:
-        return "Ice.ConnectionLostException:\nrecv() returned zero"
-    else:
-        return "Ice.ConnectionLostException:\n" + os.strerror(self.error)
-
-
-ConnectionLostException.__str__ = ConnectionLostException__str__
-del ConnectionLostException__str__
 
 #
 # Proxy comparison functions.
