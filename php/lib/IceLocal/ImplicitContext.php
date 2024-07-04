@@ -16,7 +16,6 @@
 
 namespace
 {
-    require_once 'IceLocal/LocalException.php';
     require_once 'IceLocal/Current.php';
 }
 

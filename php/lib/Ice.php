@@ -158,7 +158,7 @@ namespace
     require_once 'IceLocal/Connection.php';
     require_once 'IceLocal/EndpointSelectionType.php';
     require_once 'Ice/EndpointTypes.php';
-    require_once 'IceLocal/LocalException.php';
+    require_once 'IceLocal/LocalExceptions.php';
     require_once 'Ice/Locator.php';
     require_once 'IceLocal/ValueFactory.php';
     require_once 'Ice/Process.php';
