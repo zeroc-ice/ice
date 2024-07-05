@@ -11,14 +11,14 @@ enum PluginError: Error {
 
     var description: String {
         switch self {
-        case let .invalidTarget(target):
+        case .invalidTarget(let target):
             return "Expected a SwiftSourceModuleTarget but got '\(type(of: target))'."
-        case let .missingCompiler(path):
+        case .missingCompiler(let path):
             return "Missing slice compiler: '\(path)'."
-        case let .missingConfigFile(path, target):
+        case .missingConfigFile(let path, let target):
             return
                 "Missing config file '\(path)` for target `\(target)`. '. This file must be included in your sources."
-        case let .missingIceSliceFiles(path):
+        case .missingIceSliceFiles(let path):
             return "The Ice slice files are missing. Expected location: `\(path)`"
         }
     }
