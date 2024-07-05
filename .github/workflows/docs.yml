@@ -43,6 +43,11 @@ jobs:
           cd doxygen
           doxygen
 
+      - name: Generate TypeDoc Documentation for JavaScript
+        working-directory: ./js
+        run: |
+          make doc
+
       - name: Generate Documentation for Swift
         working-directory: ./swift
         run: |
@@ -88,6 +93,8 @@ jobs:
 
           aws s3 sync ./cpp/doxygen/cpp s3://${AWS_S3_DOC_BUCKET}/api/ice/main/cpp --delete
           aws s3 cp ./cpp/doxygen/icecpp.tag s3://${AWS_S3_DOC_BUCKET}/api/ice/main/icecpp.tag
+
+          aws s3 sync ./js/docs s3://${AWS_S3_DOC_BUCKET}/api/ice/main/js --delete
 
           aws s3 sync ./swift/docs/ice s3://${AWS_S3_DOC_BUCKET}/api/ice/main/swift/ice --delete
           aws s3 sync ./swift/docs/glacier2 s3://${AWS_S3_DOC_BUCKET}/api/ice/main/swift/glacier2 --delete
