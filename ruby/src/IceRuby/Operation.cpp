@@ -558,6 +558,7 @@ IceRuby::OperationI::unmarshalException(const vector<byte>& bytes, const Ice::Co
                     throw ExceptionReader(info);
                 }
             });
+        assert(false); // throwException always throws an exception
     }
     catch (const ExceptionReader& r)
     {
@@ -571,17 +572,12 @@ IceRuby::OperationI::unmarshalException(const vector<byte>& bytes, const Ice::Co
         }
         else
         {
-            volatile VALUE cls = CLASS_OF(ex);
-            volatile VALUE path = callRuby(rb_class_path, cls);
-            assert(TYPE(path) == T_STRING);
-            throw Ice::UnknownUserException{
-                __FILE__,
-                __LINE__,
-                string{RSTRING_PTR(path), static_cast<size_t>(RSTRING_LEN(path))}};
+            throw Ice::UnknownUserException::fromTypeId(__FILE__, __LINE__, r.ice_id());
         }
     }
 
-    throw Ice::UnknownUserException(__FILE__, __LINE__, "unknown exception");
+    // TODO: we should never reach this line, and throwing UnknownUserException is not correct.
+    throw Ice::UnknownUserException::fromTypeId(__FILE__, __LINE__, "unknown exception");
 }
 
 bool
@@ -603,9 +599,7 @@ IceRuby::OperationI::checkTwowayOnly(const Ice::ObjectPrx& proxy) const
 {
     if ((_returnType != 0 || !_outParams.empty()) && !proxy->ice_isTwoway())
     {
-        Ice::TwowayOnlyException ex(__FILE__, __LINE__);
-        ex.operation = _name;
-        throw ex;
+        throw Ice::TwowayOnlyException{__FILE__, __LINE__, _name};
     }
 }
 

@@ -34,11 +34,11 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
         }
         catch (const IceInternal::BadOptException& ex)
         {
-            throw RubyException(rb_eArgError, "error in Slice options: %s", ex.reason.c_str());
+            throw RubyException(rb_eArgError, "error in Slice options: %s", ex.what());
         }
         catch (const IceInternal::APIException& ex)
         {
-            throw RubyException(rb_eArgError, "error in Slice options: %s", ex.reason.c_str());
+            throw RubyException(rb_eArgError, "error in Slice options: %s", ex.what());
         }
 
         if (argc > 1)
@@ -68,11 +68,11 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
         }
         catch (const IceInternal::BadOptException& ex)
         {
-            throw RubyException(rb_eArgError, "error in Slice options: %s", ex.reason.c_str());
+            throw RubyException(rb_eArgError, "error in Slice options: %s", ex.what());
         }
         catch (const IceInternal::APIException& ex)
         {
-            throw RubyException(rb_eArgError, "error in Slice options: %s", ex.reason.c_str());
+            throw RubyException(rb_eArgError, "error in Slice options: %s", ex.what());
         }
 
         vector<string> cppArgs;

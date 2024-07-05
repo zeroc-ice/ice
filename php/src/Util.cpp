@@ -473,8 +473,8 @@ IcePHP::convertException(zval* zex, std::exception_ptr ex)
         {
             return;
         }
-        setStringMember(zex, "kindOfObject", e.kindOfObject);
-        setStringMember(zex, "id", e.id);
+        setStringMember(zex, "kindOfObject", e.kindOfObject());
+        setStringMember(zex, "id", e.id());
         setStringMember(zex, "message", e.what());
     }
     catch (const Ice::NotRegisteredException& e)
@@ -484,8 +484,8 @@ IcePHP::convertException(zval* zex, std::exception_ptr ex)
         {
             return;
         }
-        setStringMember(zex, "kindOfObject", e.kindOfObject);
-        setStringMember(zex, "id", e.id);
+        setStringMember(zex, "kindOfObject", e.kindOfObject());
+        setStringMember(zex, "id", e.id());
         setStringMember(zex, "message", e.what());
     }
     catch (const Ice::LocalException& e)

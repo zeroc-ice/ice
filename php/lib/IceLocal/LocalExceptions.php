@@ -90,8 +90,6 @@ final class CommunicatorDestroyedException extends LocalException {}
 
 final class ConnectionIdleException extends LocalException {}
 
-final class ConnectionManuallyClosedException extends LocalException {}
-
 final class FixedProxyException extends LocalException {}
 
 final class InitializationException extends LocalException {}

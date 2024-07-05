@@ -49,9 +49,6 @@ module Ice
     class CloseConnectionException < ProtocolException
     end
 
-    class ConnectionManuallyClosedException < LocalException
-    end
-
     class DatagramLimitException < ProtocolException
     end
 

@@ -599,8 +599,8 @@ IceRuby::convertException(std::exception_ptr eptr)
         catch (const Ice::AlreadyRegisteredException& ex)
         {
             std::array args = {
-                IceRuby::createString(ex.kindOfObject),
-                IceRuby::createString(ex.id),
+                IceRuby::createString(ex.kindOfObject()),
+                IceRuby::createString(ex.id()),
                 IceRuby::createString(ex.what())};
 
             return createRubyException(ex.ice_id(), std::move(args));
@@ -608,8 +608,8 @@ IceRuby::convertException(std::exception_ptr eptr)
         catch (const Ice::NotRegisteredException& ex)
         {
             std::array args = {
-                IceRuby::createString(ex.kindOfObject),
-                IceRuby::createString(ex.id),
+                IceRuby::createString(ex.kindOfObject()),
+                IceRuby::createString(ex.id()),
                 IceRuby::createString(ex.what())};
 
             return createRubyException(ex.ice_id(), std::move(args));
