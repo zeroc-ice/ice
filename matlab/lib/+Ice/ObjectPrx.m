@@ -429,7 +429,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
             for i = 1:length(endpts)
                 if ~isa(endpts{i}, 'Ice.Endpoint')
-                    throw(MException('Ice:ArgumentException', 'expected an Ice.Endpoint'))
+                    throw(LocalException('Ice:ArgumentException', 'expected an Ice.Endpoint'))
                 end
             end
             arr = libpointer('voidPtr');
@@ -846,7 +846,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % Returns (Ice.ObjectPrx) - A fixed proxy bound to the given connection.
 
             if isempty(connection)
-                throw(MException('Ice:ArgumentException', 'invalid null connection passed to ice_fixed'));
+                throw(LocalException('Ice:ArgumentException', 'invalid null connection passed to ice_fixed'));
             end
 
             r = obj.factory_('ice_fixed', true, connection.iceGetImpl());
@@ -975,11 +975,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
             try
                 % Vararg accepted for optional context argument.
                 if length(varargin) > 1
-                    throw(MException('Ice:ArgumentException', 'one optional argument is allowed for request context'))
+                    throw(LocalException('Ice:ArgumentException', 'one optional argument is allowed for request context'))
                 end
 
                 if twowayOnly && ~obj.isTwoway
-                    throw(Ice.TwowayOnlyException('', 'invocation requires twoway proxy', op));
+                    throw(Ice.TwowayOnlyException(op));
                 end
 
                 if isempty(os)
@@ -1078,10 +1078,10 @@ classdef ObjectPrx < IceInternal.WrapperObject
             try
                 % Vararg accepted for optional context argument.
                 if length(varargin) > 1
-                    throw(MException('Ice:ArgumentException', 'one optional argument is allowed for request context'))
+                    throw(LocalException('Ice:ArgumentException', 'one optional argument is allowed for request context'))
                 end
                 if twowayOnly && ~isTwoway
-                    throw(Ice.TwowayOnlyException('', 'invocation requires twoway proxy', op));
+                    throw(Ice.TwowayOnlyException(op));
                 end
                 if isempty(os)
                     buf = [];
@@ -1126,7 +1126,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                             ex.throwAsCaller();
                         end
                     end
-                    uue = Ice.UnknownUserException('', '', ex.ice_id());
+                    uue = Ice.UnknownUserException(ex.ice_id());
                     uue.throwAsCaller();
                 else
                     rethrow(ex);
@@ -1158,7 +1158,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                     r = p;
                 end
             else
-                throw(MException('Ice:ArgumentException', 'too many arguments to uncheckedCast'));
+                throw(LocalException('Ice:ArgumentException', 'too many arguments to uncheckedCast'));
             end
         end
     end
@@ -1176,14 +1176,14 @@ classdef ObjectPrx < IceInternal.WrapperObject
                         hasFacet = true;
                         facet = varargin{1};
                     else
-                        throw(MException('Ice:ArgumentException', 'expecting string or containers.Map'));
+                        throw(LocalException('Ice:ArgumentException', 'expecting string or containers.Map'));
                     end
                 elseif length(varargin) == 2
                     hasFacet = true;
                     facet = varargin{1};
                     context = { varargin{2} };
                 elseif length(varargin) > 2
-                    throw(MException('Ice:ArgumentException', 'too many arguments to checkedCast'));
+                    throw(LocalException('Ice:ArgumentException', 'too many arguments to checkedCast'));
                 end
                 if ~isempty(p)
                     if hasFacet
@@ -1216,7 +1216,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 hasFacet = true;
                 facet = varargin{1};
             elseif length(varargin) > 1
-                throw(MException('Ice:ArgumentException', 'too many arguments to uncheckedCast'));
+                throw(LocalException('Ice:ArgumentException', 'too many arguments to uncheckedCast'));
             end
             if ~isempty(p)
                 if hasFacet

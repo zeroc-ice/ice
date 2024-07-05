@@ -138,7 +138,7 @@ public class SimpleMapField extends JTable {
       String key = row.elementAt(0).toString();
       if (key != null) {
         key = key.trim();
-        if (!key.equals("")) {
+        if (!key.isEmpty()) {
           String val = row.elementAt(1).toString();
           if (val == null) {
             val = "";

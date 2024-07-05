@@ -429,8 +429,8 @@ function allTests($helper)
     {
         if($ex instanceof Ice\MarshalException)
         {
-            test(str_contains($ex->reason, "::Test::AlsoEmpty"));
-            test(str_contains($ex->reason, "::Test::Empty"));
+            test(str_contains($ex->getMessage(), "::Test::AlsoEmpty"));
+            test(str_contains($ex->getMessage(), "::Test::Empty"));
         }
         else if($ex instanceof Ice\UnmarshalOutOfBoundsException)
         {

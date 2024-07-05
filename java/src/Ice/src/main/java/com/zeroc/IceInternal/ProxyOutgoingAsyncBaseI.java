@@ -340,7 +340,7 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T>
     // For compatibility with the old FacetPath.
     //
     String facet = ref.getFacet();
-    if (facet == null || facet.length() == 0) {
+    if (facet == null || facet.isEmpty()) {
       _os.writeStringSeq(null);
     } else {
       String[] facetPath = {facet};

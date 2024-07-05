@@ -232,7 +232,7 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
     if (childIds.length == 0) {
       return; // nothing to do
     }
-    assert fromChildren.size() > 0;
+    assert !fromChildren.isEmpty();
 
     String[] ids = childIds.clone();
     java.util.Arrays.sort(ids);

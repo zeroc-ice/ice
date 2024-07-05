@@ -50,7 +50,7 @@ class ServerFactoryI implements ServerFactory {
 
   @Override
   public void shutdown(com.zeroc.Ice.Current current) {
-    test(_servers.size() == 0);
+    test(_servers.isEmpty());
     current.adapter.getCommunicator().shutdown();
   }
 

@@ -12,7 +12,7 @@ import IceImpl
 //
 let factoriesRegistered: Bool = {
     ICEUtil.registerFactories(
-        exception: ExceptionFactory.self,
+        exception: LocalExceptionFactory.self,
         connectionInfo: ConnectionInfoFactory.self,
         endpointInfo: EndpointInfoFactory.self,
         adminFacet: AdminFacetFactory.self)

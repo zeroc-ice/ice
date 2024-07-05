@@ -553,10 +553,10 @@ class Node extends TreeNode implements PropertySetParent {
     if (!_editable.isNew()
         && !_editable.isModified()
         && update.removePropertySets.length == 0
-        && update.propertySets.size() == 0
+        && update.propertySets.isEmpty()
         && update.removeServers.length == 0
-        && update.servers.size() == 0
-        && update.serverInstances.size() == 0) {
+        && update.servers.isEmpty()
+        && update.serverInstances.isEmpty()) {
       return null;
     }
 
@@ -907,7 +907,7 @@ class Node extends TreeNode implements PropertySetParent {
       }
     }
 
-    if (toRemove.size() > 0) {
+    if (!toRemove.isEmpty()) {
       removeServers(toRemove.toArray(new String[0]));
     }
   }

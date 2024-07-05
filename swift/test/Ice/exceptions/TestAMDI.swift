@@ -94,7 +94,7 @@ class ThrowerI: Thrower {
 
     func throwLocalExceptionAsync(current _: Current) -> Promise<Void> {
         return Promise<Void> { seal in
-            seal.reject(Ice.TimeoutException())
+            seal.reject(Ice.TimeoutException("thrower throwing TimeOutException"))
         }
     }
 
@@ -117,21 +117,21 @@ class ThrowerI: Thrower {
 
     func throwLocalExceptionIdempotentAsync(current _: Current) -> Promise<Void> {
         return Promise { seal in
-            seal.reject(Ice.TimeoutException())
+            seal.reject(Ice.TimeoutException("thrower throwing TimeOutException"))
         }
     }
 
     func throwAfterResponseAsync(current _: Current) -> Promise<Void> {
         return Promise { seal in
             seal.fulfill(())
-            throw Ice.RuntimeError("")
+            throw Ice.LocalException("after response")
         }
     }
 
     func throwAfterExceptionAsync(current _: Current) -> Promise<Void> {
         return Promise { seal in
             seal.reject(A(aMem: 12345))
-            throw Ice.RuntimeError("")
+            throw Ice.LocalException("after exception")
         }
     }
 

@@ -540,9 +540,8 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     // Create a reference and return a reverse proxy for this
     // reference.
     //
-    return _instance
-        .proxyFactory()
-        .referenceToProxy(_instance.referenceFactory().create(ident, this));
+    var ref = _instance.referenceFactory().create(ident, this);
+    return (ref == null) ? null : new com.zeroc.Ice._ObjectPrxI(ref);
   }
 
   public synchronized void setAdapterAndServantManager(

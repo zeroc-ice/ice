@@ -52,7 +52,7 @@ public final class ServantLocatorI implements ServantLocator {
       return new ServantLocator.LocateResult(_router, null);
     }
 
-    test(current.id.category.length() == 0);
+    test(current.id.category.isEmpty());
     test(current.id.name.equals("test"));
 
     return new ServantLocator.LocateResult(new TestI(), new Cookie());

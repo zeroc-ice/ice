@@ -162,7 +162,7 @@ class BatchOneways {
     p.ice_ping();
     if (supportsCompress
         && p.ice_getConnection() != null
-        && properties.getProperty("Ice.Override.Compress").equals("")) {
+        && properties.getProperty("Ice.Override.Compress").isEmpty()) {
       com.zeroc.Ice.ObjectPrx prx =
           p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway();
 

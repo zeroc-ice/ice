@@ -105,7 +105,7 @@ export function defineEnum(enumerators) {
     };
 
     type._writeOpt = function (os, tag, v) {
-        if (v !== undefined) {
+        if (v !== undefined && v !== null) {
             if (os.writeOptional(tag, OptionalFormat_Size)) {
                 type._write(os, v);
             }

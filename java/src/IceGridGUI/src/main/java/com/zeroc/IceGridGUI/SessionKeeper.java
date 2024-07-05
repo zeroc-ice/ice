@@ -841,12 +841,12 @@ public class SessionKeeper {
                             for (com.zeroc.Ice.LocatorPrx locator : locators) {
                               _directDiscoveryLocatorModel.addElement(locator);
                             }
-                            if (_directDiscoveryLocatorModel.size() > 0
+                            if (!_directDiscoveryLocatorModel.isEmpty()
                                 && _directDiscoveryLocatorList.getSelectedIndex() == -1) {
                               _directDiscoveryLocatorList.setSelectedIndex(0);
                             }
 
-                            if (_directDiscoveryLocatorModel.size() > 0) {
+                            if (!_directDiscoveryLocatorModel.isEmpty()) {
                               _discoveryStatus.setText("");
                             } else {
                               _discoveryStatus.setText("No registries found");
@@ -1991,7 +1991,7 @@ public class SessionKeeper {
                     break;
                   }
               }
-              if (_wizardSteps.size() > 0) {
+              if (!_wizardSteps.isEmpty()) {
                 _backButton.setEnabled(true);
               }
               // Validate the new selected panel
@@ -2307,7 +2307,7 @@ public class SessionKeeper {
                 _directDefaultEndpointHost.getText() != null
                     && _directDefaultEndpointHost.getText().length() > 0;
             String port = _directDefaultEndpointPort.getText();
-            if (port != null && port.length() > 0) {
+            if (port != null && !port.isEmpty()) {
               try {
                 Integer.parseInt(port);
               } catch (NumberFormatException ex) {
@@ -2335,7 +2335,7 @@ public class SessionKeeper {
                 _routedDefaultEndpointHost.getText() != null
                     && _routedDefaultEndpointHost.getText().length() > 0;
             String port = _routedDefaultEndpointPort.getText();
-            if (port != null && port.length() > 0) {
+            if (port != null && !port.isEmpty()) {
               try {
                 Integer.parseInt(port);
               } catch (NumberFormatException ex) {
@@ -2928,7 +2928,7 @@ public class SessionKeeper {
                         if (index > 0) {
                           _connectionList.setSelectedIndex(index - 1);
                         }
-                        if (_connectionListModel.size() > 0) {
+                        if (!_connectionListModel.isEmpty()) {
                           _connectionList.setSelectedIndex(0);
                         }
 
@@ -3272,7 +3272,7 @@ public class SessionKeeper {
           new AbstractTableModel() {
             @Override
             public String getColumnName(int col) {
-              return columnNames[col].toString();
+              return columnNames[col];
             }
 
             @Override
@@ -3338,7 +3338,7 @@ public class SessionKeeper {
                 String defaultPath =
                     Coordinator.getPreferences().node("Configurations").get("importDirectory", "");
                 JFileChooser chooser =
-                    new JFileChooser(defaultPath.equals("") ? null : new File(defaultPath));
+                    new JFileChooser(defaultPath.isEmpty() ? null : new File(defaultPath));
                 chooser.setFileFilter(
                     new FileFilter() {
                       // Accept all directories and *.pfx, *.p12 files.
@@ -3474,7 +3474,7 @@ public class SessionKeeper {
                                 "Certificate Alias",
                                 "Certificate Alias",
                                 JOptionPane.INFORMATION_MESSAGE);
-                        if (newAlias == null || newAlias.length() == 0) {
+                        if (newAlias == null || newAlias.isEmpty()) {
                           continue;
                         }
                         if (_keyStore.containsAlias(newAlias)) {
@@ -3635,7 +3635,7 @@ public class SessionKeeper {
           Certificate[] chain = keyStore.getCertificateChain(alias);
 
           String newAlias = alias;
-          if (newAlias == null || newAlias.length() == 0 || _keyStore.containsAlias(newAlias)) {
+          if (newAlias == null || newAlias.isEmpty() || _keyStore.containsAlias(newAlias)) {
             newAlias =
                 JOptionPane.showInputDialog(
                     KeyStorePanel.this,
@@ -3664,7 +3664,7 @@ public class SessionKeeper {
           _keyStore.setKeyEntry(newAlias, key, r.password, chain);
         } else if (keyStore.isCertificateEntry(alias)) {
           String newAlias = alias;
-          if (newAlias == null || newAlias.length() == 0 || _keyStore.containsAlias(newAlias)) {
+          if (newAlias == null || newAlias.isEmpty() || _keyStore.containsAlias(newAlias)) {
             newAlias =
                 JOptionPane.showInputDialog(
                     KeyStorePanel.this,

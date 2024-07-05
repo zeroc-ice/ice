@@ -79,7 +79,7 @@ public class Utils {
   public static int getIntVersion(String version) {
     int result = 0;
     version = version.trim();
-    if (version.length() > 0) {
+    if (!version.isEmpty()) {
       try {
         int firstDotPos = version.indexOf('.');
 
@@ -217,7 +217,7 @@ public class Utils {
           r.toolTip += "<br>";
         }
 
-        if (elt.length() == 0) {
+        if (elt.isEmpty()) {
           r.returnValue += "\"\"";
         } else if (elt.matches("\\S*")) {
           //

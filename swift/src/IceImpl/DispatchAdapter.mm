@@ -5,6 +5,8 @@
 #import "include/ObjectAdapter.h"
 #import "Convert.h"
 #import "Ice/AsyncResponseHandler.h"
+#import "LocalExceptionFactory.h"
+#import "ObjectAdapter.h"
 
 void
 CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::OutgoingResponse)> sendResponse)

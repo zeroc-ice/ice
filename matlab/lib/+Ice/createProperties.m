@@ -33,7 +33,7 @@ function [properties, remArgs] = createProperties(varargin)
     end
     if length(varargin) >= 2 && ~isempty(varargin{2})
         if ~isa(varargin{2}, 'Ice.Properties')
-            throw(MException('Ice:ArgumentException', 'expecting Ice.Properties object'));
+            throw(LocalException('Ice:ArgumentException', 'expecting Ice.Properties object'));
         end
         defaults = varargin{2}.impl_;
     else

@@ -5,6 +5,7 @@
 package com.zeroc.Ice;
 
 import com.zeroc.IceInternal.OutgoingAsync;
+import com.zeroc.IceInternal.Reference;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -12,10 +13,11 @@ import java.util.concurrent.CompletableFuture;
 
 /** Concrete proxy implementation. */
 public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
-  // TODO: delete this default constructor eventually.
-  public _ObjectPrxI() {}
+  protected _ObjectPrxI(Reference ref) {
+    _reference = ref;
+  }
 
-  public _ObjectPrxI(ObjectPrx obj) {
+  protected _ObjectPrxI(ObjectPrx obj) {
     _ObjectPrxI source = (_ObjectPrxI) obj;
     _reference = source._reference;
     _requestHandler = source._requestHandler;
@@ -154,15 +156,13 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
   }
 
   public ObjectPrx ice_identity(Identity newIdentity) {
-    if (newIdentity.name == null || newIdentity.name.equals("")) {
+    if (newIdentity.name == null || newIdentity.name.isEmpty()) {
       throw new IllegalIdentityException();
     }
     if (newIdentity.equals(_reference.getIdentity())) {
       return this;
     } else {
-      _ObjectPrxI proxy = new _ObjectPrxI();
-      proxy._setup(_reference.changeIdentity(newIdentity));
-      return proxy;
+      return new _ObjectPrxI(_reference.changeIdentity(newIdentity));
     }
   }
 
@@ -182,9 +182,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
     if (newFacet.equals(_reference.getFacet())) {
       return this;
     } else {
-      _ObjectPrxI proxy = new _ObjectPrxI();
-      proxy._setup(_reference.changeFacet(newFacet));
-      return proxy;
+      return new _ObjectPrxI(_reference.changeFacet(newFacet));
     }
   }
 
@@ -247,23 +245,23 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
   }
 
   public boolean ice_isTwoway() {
-    return _reference.getMode() == com.zeroc.IceInternal.Reference.ModeTwoway;
+    return _reference.getMode() == Reference.ModeTwoway;
   }
 
   public boolean ice_isOneway() {
-    return _reference.getMode() == com.zeroc.IceInternal.Reference.ModeOneway;
+    return _reference.getMode() == Reference.ModeOneway;
   }
 
   public boolean ice_isBatchOneway() {
-    return _reference.getMode() == com.zeroc.IceInternal.Reference.ModeBatchOneway;
+    return _reference.getMode() == Reference.ModeBatchOneway;
   }
 
   public boolean ice_isDatagram() {
-    return _reference.getMode() == com.zeroc.IceInternal.Reference.ModeDatagram;
+    return _reference.getMode() == Reference.ModeDatagram;
   }
 
   public boolean ice_isBatchDatagram() {
-    return _reference.getMode() == com.zeroc.IceInternal.Reference.ModeBatchDatagram;
+    return _reference.getMode() == Reference.ModeBatchDatagram;
   }
 
   public java.util.Optional<Boolean> ice_getCompress() {
@@ -347,41 +345,8 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
   }
 
   @Override
-  public com.zeroc.IceInternal.Reference _getReference() {
+  public Reference _getReference() {
     return _reference;
-  }
-
-  @Override
-  public ObjectPrx _newInstance(com.zeroc.IceInternal.Reference ref) {
-    try {
-      _ObjectPrxI proxy = getClass().getDeclaredConstructor().newInstance();
-      proxy._setup(ref);
-      return proxy;
-    } catch (NoSuchMethodException ex) {
-      //
-      // Impossible
-      //
-      assert false;
-      return null;
-    } catch (java.lang.reflect.InvocationTargetException ex) {
-      //
-      // Impossible
-      //
-      assert false;
-      return null;
-    } catch (InstantiationException e) {
-      //
-      // Impossible
-      //
-      assert false;
-      return null;
-    } catch (IllegalAccessException e) {
-      //
-      // Impossible
-      //
-      assert false;
-      return null;
-    }
   }
 
   @Override
@@ -533,47 +498,31 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
 
   @Override
   public ObjectPrx ice_twoway() {
-    if (_reference.getMode() == com.zeroc.IceInternal.Reference.ModeTwoway) {
-      return this;
-    } else {
-      return _newInstance(_reference.changeMode(com.zeroc.IceInternal.Reference.ModeTwoway));
-    }
+    return ice_isTwoway() ? this : _newInstance(_reference.changeMode(Reference.ModeTwoway));
   }
 
   @Override
   public ObjectPrx ice_oneway() {
-    if (_reference.getMode() == com.zeroc.IceInternal.Reference.ModeOneway) {
-      return this;
-    } else {
-      return _newInstance(_reference.changeMode(com.zeroc.IceInternal.Reference.ModeOneway));
-    }
+    return ice_isOneway() ? this : _newInstance(_reference.changeMode(Reference.ModeOneway));
   }
 
   @Override
   public ObjectPrx ice_batchOneway() {
-    if (_reference.getMode() == com.zeroc.IceInternal.Reference.ModeBatchOneway) {
-      return this;
-    } else {
-      return _newInstance(_reference.changeMode(com.zeroc.IceInternal.Reference.ModeBatchOneway));
-    }
+    return ice_isBatchOneway()
+        ? this
+        : _newInstance(_reference.changeMode(Reference.ModeBatchOneway));
   }
 
   @Override
   public ObjectPrx ice_datagram() {
-    if (_reference.getMode() == com.zeroc.IceInternal.Reference.ModeDatagram) {
-      return this;
-    } else {
-      return _newInstance(_reference.changeMode(com.zeroc.IceInternal.Reference.ModeDatagram));
-    }
+    return ice_isDatagram() ? this : _newInstance(_reference.changeMode(Reference.ModeDatagram));
   }
 
   @Override
   public ObjectPrx ice_batchDatagram() {
-    if (_reference.getMode() == com.zeroc.IceInternal.Reference.ModeBatchDatagram) {
-      return this;
-    } else {
-      return _newInstance(_reference.changeMode(com.zeroc.IceInternal.Reference.ModeBatchDatagram));
-    }
+    return ice_isBatchDatagram()
+        ? this
+        : _newInstance(_reference.changeMode(Reference.ModeBatchDatagram));
   }
 
   @Override
@@ -632,7 +581,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
     //
     // An ObjectNotExistException can always be retried as well without violating
     // "at-most-once" (see the implementation of the checkRetryAfterException method
-    //  of the ProxyFactory class for the reasons why it can be useful).
+    // below for the reasons why it can be useful).
     //
     // If the request didn't get sent or if it's non-mutating or idempotent it can
     // also always be retried if the retry count isn't reached.
@@ -644,10 +593,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
             || ex instanceof CloseConnectionException
             || ex instanceof ObjectNotExistException)) {
       try {
-        return _reference
-            .getInstance()
-            .proxyFactory()
-            .checkRetryAfterException((LocalException) ex, _reference, interval, cnt);
+        return checkRetryAfterException((LocalException) ex, _reference, interval, cnt);
       } catch (CommunicatorDestroyedException exc) {
         //
         // The communicator is already destroyed, so we cannot retry.
@@ -708,19 +654,166 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
     }
   }
 
-  //
-  // Only for use by ProxyFactory
-  //
-  public void _setup(com.zeroc.IceInternal.Reference ref) {
-    //
-    // No need to synchronize, as this operation is only called
-    // upon initial initialization.
-    //
+  private static int checkRetryAfterException(
+      LocalException ex,
+      Reference ref,
+      com.zeroc.IceInternal.Holder<Integer> sleepInterval,
+      int cnt) {
 
-    assert (_reference == null);
-    assert (_requestHandler == null);
+    com.zeroc.IceInternal.Instance instance = ref.getInstance();
+    com.zeroc.IceInternal.TraceLevels traceLevels = instance.traceLevels();
+    Logger logger = instance.initializationData().logger;
+    int[] retryIntervals = instance.retryIntervals();
 
-    _reference = ref;
+    //
+    // We don't retry batch requests because the exception might have caused
+    // all the requests batched with the connection to be aborted and we
+    // want the application to be notified.
+    //
+    if (ref.getMode() == Reference.ModeBatchOneway
+        || ref.getMode() == Reference.ModeBatchDatagram) {
+      throw ex;
+    }
+
+    //
+    // If it's a fixed proxy, retrying isn't useful as the proxy is tied to
+    // the connection and the request will fail with the exception.
+    //
+    if (ref instanceof com.zeroc.IceInternal.FixedReference) {
+      throw ex;
+    }
+
+    if (ex instanceof ObjectNotExistException) {
+      ObjectNotExistException one = (ObjectNotExistException) ex;
+
+      if (ref.getRouterInfo() != null && one.operation.equals("ice_add_proxy")) {
+        //
+        // If we have a router, an ObjectNotExistException with an
+        // operation name "ice_add_proxy" indicates to the client
+        // that the router isn't aware of the proxy (for example,
+        // because it was evicted by the router). In this case, we
+        // must *always* retry, so that the missing proxy is added
+        // to the router.
+        //
+
+        ref.getRouterInfo().clearCache(ref);
+
+        if (traceLevels.retry >= 1) {
+          String s = "retrying operation call to add proxy to router\n" + ex.toString();
+          logger.trace(traceLevels.retryCat, s);
+        }
+
+        if (sleepInterval != null) {
+          sleepInterval.value = 0;
+        }
+        return cnt; // We must always retry, so we don't look at the retry count.
+      } else if (ref.isIndirect()) {
+        //
+        // We retry ObjectNotExistException if the reference is
+        // indirect.
+        //
+
+        if (ref.isWellKnown()) {
+          com.zeroc.IceInternal.LocatorInfo li = ref.getLocatorInfo();
+          if (li != null) {
+            li.clearCache(ref);
+          }
+        }
+      } else {
+        //
+        // For all other cases, we don't retry ObjectNotExistException.
+        //
+        throw ex;
+      }
+    } else if (ex instanceof RequestFailedException) {
+      //
+      // For all other cases, we don't retry ObjectNotExistException
+      //
+      throw ex;
+    }
+
+    //
+    // There is no point in retrying an operation that resulted in a
+    // MarshalException. This must have been raised locally (because
+    // if it happened in a server it would result in an
+    // UnknownLocalException instead), which means there was a problem
+    // in this process that will not change if we try again.
+    //
+    // The most likely cause for a MarshalException is exceeding the
+    // maximum message size, which is represented by the subclass
+    // MemoryLimitException. For example, a client can attempt to send
+    // a message that exceeds the maximum memory size, or accumulate
+    // enough batch requests without flushing that the maximum size is
+    // reached.
+    //
+    // This latter case is especially problematic, because if we were
+    // to retry a batch request after a MarshalException, we would in
+    // fact silently discard the accumulated requests and allow new
+    // batch requests to accumulate. If the subsequent batched
+    // requests do not exceed the maximum message size, it appears to
+    // the client that all of the batched requests were accepted, when
+    // in reality only the last few are actually sent.
+    //
+    if (ex instanceof MarshalException) {
+      throw ex;
+    }
+
+    //
+    // Don't retry if the communicator is destroyed, object adapter is deactivated,
+    // or connection is manually closed.
+    //
+    if (ex instanceof CommunicatorDestroyedException
+        || ex instanceof ObjectAdapterDeactivatedException
+        || ex instanceof ConnectionManuallyClosedException) {
+      throw ex;
+    }
+
+    //
+    // Don't retry invocation timeouts.
+    //
+    if (ex instanceof InvocationTimeoutException || ex instanceof InvocationCanceledException) {
+      throw ex;
+    }
+
+    //
+    // Don't retry on OperationInterruptedException.
+    //
+    if (ex instanceof OperationInterruptedException) {
+      throw ex;
+    }
+
+    ++cnt;
+    assert (cnt > 0);
+
+    int interval;
+    if (cnt == (retryIntervals.length + 1) && ex instanceof CloseConnectionException) {
+      //
+      // A close connection exception is always retried at least once, even if the retry
+      // limit is reached.
+      //
+      interval = 0;
+    } else if (cnt > retryIntervals.length) {
+      if (traceLevels.retry >= 1) {
+        String s =
+            "cannot retry operation call because retry limit has been exceeded\n" + ex.toString();
+        logger.trace(traceLevels.retryCat, s);
+      }
+      throw ex;
+    } else {
+      interval = retryIntervals[cnt - 1];
+    }
+
+    if (traceLevels.retry >= 1) {
+      String s = "retrying operation call";
+      if (interval > 0) {
+        s += " in " + interval + "ms";
+      }
+      s += " because of exception\n" + ex;
+      logger.trace(traceLevels.retryCat, s);
+    }
+
+    sleepInterval.value = interval;
+    return cnt;
   }
 
   private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
@@ -760,7 +853,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
     public OutputStream os;
   }
 
-  protected transient com.zeroc.IceInternal.Reference _reference;
+  protected transient Reference _reference;
   private transient com.zeroc.IceInternal.RequestHandler _requestHandler;
   private transient com.zeroc.IceInternal.BatchRequestQueue _batchRequestQueue;
   private transient List<StreamPair> _streamCache;

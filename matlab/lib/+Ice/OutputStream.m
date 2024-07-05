@@ -409,7 +409,7 @@ classdef OutputStream < handle
         end
         function writeEncapsulation(obj, data)
             if length(data) < 6
-                throw(Ice.MarshalException('', '', 'invalid encapsulation size'));
+                throw(Ice.MarshalException('invalid encapsulation size'));
             end
             obj.buf.push(data);
         end

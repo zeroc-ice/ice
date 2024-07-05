@@ -365,7 +365,7 @@ public class Service extends Communicator {
 
       String adapterId = Utils.substitute(p.id, _resolver);
       com.zeroc.Ice.ObjectPrx proxy = null;
-      if (adapterId.length() > 0) {
+      if (!adapterId.isEmpty()) {
         proxy = ((Node) _parent.getParent()).getProxy(adapterId);
       }
 

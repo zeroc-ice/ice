@@ -17,11 +17,11 @@ public class Client extends test.TestHelper {
       test(Options.split("").length == 0);
 
       args = Options.split("\"\"");
-      test(args.length == 1 && args[0].equals(""));
+      test(args.length == 1 && args[0].isEmpty());
       args = Options.split("''");
-      test(args.length == 1 && args[0].equals(""));
+      test(args.length == 1 && args[0].isEmpty());
       args = Options.split("$''");
-      test(args.length == 1 && args[0].equals(""));
+      test(args.length == 1 && args[0].isEmpty());
 
       args = Options.split("-a -b -c");
       test(

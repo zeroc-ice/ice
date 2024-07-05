@@ -56,6 +56,9 @@ class ProcessControllerI: CommonProcessController {
         args: CommonStringSeq,
         current: Ice.Current
     ) throws -> CommonProcessPrx? {
+        guard let adapter = current.adapter else {
+            throw Ice.LocalException("current.adapter is nil")
+        }
         _view.println("starting \(testsuite) \(exe)... ")
 
         _currentTest = testsuite.replacingOccurrences(of: "/", with: "_")

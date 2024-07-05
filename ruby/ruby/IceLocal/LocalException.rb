@@ -3,635 +3,454 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-require 'Ice'
-require 'Ice/Identity.rb'
-require 'Ice/Version.rb'
-require 'Ice/BuiltinSequences.rb'
+require_relative '../Ice/Identity.rb'
 
-module ::Ice
-
-    if not defined?(::Ice::InitializationException)
-        class InitializationException < Ice::LocalException
-            def initialize(reason='')
-                @reason = reason
-            end
-
-            def to_s
-                '::Ice::InitializationException'
-            end
-
-            attr_accessor :reason
+module Ice
+    class InitializationException < Ice::LocalException
+        def initialize(reason = '')
+            @reason = reason
         end
 
-        T_InitializationException = ::Ice::__defineException('::Ice::InitializationException', InitializationException, nil, [["reason", ::Ice::T_string, false, 0]])
+        def to_s
+            '::Ice::InitializationException'
+        end
+
+        attr_accessor :reason
     end
 
-    if not defined?(::Ice::PluginInitializationException)
-        class PluginInitializationException < Ice::LocalException
-            def initialize(reason='')
-                @reason = reason
-            end
-
-            def to_s
-                '::Ice::PluginInitializationException'
-            end
-
-            attr_accessor :reason
+    class PluginInitializationException < Ice::LocalException
+        def initialize(reason = '')
+            @reason = reason
         end
 
-        T_PluginInitializationException = ::Ice::__defineException('::Ice::PluginInitializationException', PluginInitializationException, nil, [["reason", ::Ice::T_string, false, 0]])
+        def to_s
+            '::Ice::PluginInitializationException'
+        end
+
+        attr_accessor :reason
     end
 
-    if not defined?(::Ice::AlreadyRegisteredException)
-        class AlreadyRegisteredException < Ice::LocalException
-            def initialize(kindOfObject='', id='')
-                @kindOfObject = kindOfObject
-                @id = id
-            end
-
-            def to_s
-                '::Ice::AlreadyRegisteredException'
-            end
-
-            attr_accessor :kindOfObject, :id
+    class AlreadyRegisteredException < Ice::LocalException
+        def initialize(kindOfObject = '', id = '')
+            @kindOfObject = kindOfObject
+            @id = id
         end
 
-        T_AlreadyRegisteredException = ::Ice::__defineException('::Ice::AlreadyRegisteredException', AlreadyRegisteredException, nil, [
-            ["kindOfObject", ::Ice::T_string, false, 0],
-            ["id", ::Ice::T_string, false, 0]
-        ])
+        def to_s
+            '::Ice::AlreadyRegisteredException'
+        end
+
+        attr_accessor :kindOfObject, :id
     end
 
-    if not defined?(::Ice::NotRegisteredException)
-        class NotRegisteredException < Ice::LocalException
-            def initialize(kindOfObject='', id='')
-                @kindOfObject = kindOfObject
-                @id = id
-            end
-
-            def to_s
-                '::Ice::NotRegisteredException'
-            end
-
-            attr_accessor :kindOfObject, :id
+    class NotRegisteredException < Ice::LocalException
+        def initialize(kindOfObject = '', id = '')
+            @kindOfObject = kindOfObject
+            @id = id
         end
 
-        T_NotRegisteredException = ::Ice::__defineException('::Ice::NotRegisteredException', NotRegisteredException, nil, [
-            ["kindOfObject", ::Ice::T_string, false, 0],
-            ["id", ::Ice::T_string, false, 0]
-        ])
+        def to_s
+            '::Ice::NotRegisteredException'
+        end
+
+        attr_accessor :kindOfObject, :id
     end
 
-    if not defined?(::Ice::TwowayOnlyException)
-        class TwowayOnlyException < Ice::LocalException
-            def initialize(operation='')
-                @operation = operation
-            end
-
-            def to_s
-                '::Ice::TwowayOnlyException'
-            end
-
-            attr_accessor :operation
+    class TwowayOnlyException < Ice::LocalException
+        def initialize(operation = '')
+            @operation = operation
         end
 
-        T_TwowayOnlyException = ::Ice::__defineException('::Ice::TwowayOnlyException', TwowayOnlyException, nil, [["operation", ::Ice::T_string, false, 0]])
+        def to_s
+            '::Ice::TwowayOnlyException'
+        end
+
+        attr_accessor :operation
     end
 
-    if not defined?(::Ice::UnknownException)
-        class UnknownException < Ice::LocalException
-            def initialize(unknown='')
-                @unknown = unknown
-            end
-
-            def to_s
-                '::Ice::UnknownException'
-            end
-
-            attr_accessor :unknown
+    class UnknownException < Ice::LocalException
+        def initialize(unknown = '')
+            @unknown = unknown
         end
 
-        T_UnknownException = ::Ice::__defineException('::Ice::UnknownException', UnknownException, nil, [["unknown", ::Ice::T_string, false, 0]])
+        def to_s
+            '::Ice::UnknownException'
+        end
+
+        attr_accessor :unknown
     end
 
-    if not defined?(::Ice::UnknownLocalException)
-        class UnknownLocalException < ::Ice::UnknownException
-            def initialize(unknown='')
-                super(unknown)
-            end
-
-            def to_s
-                '::Ice::UnknownLocalException'
-            end
+    class UnknownLocalException < ::Ice::UnknownException
+        def initialize(unknown = '')
+            super(unknown)
         end
 
-        T_UnknownLocalException = ::Ice::__defineException('::Ice::UnknownLocalException', UnknownLocalException, ::Ice::T_UnknownException, [])
+        def to_s
+            '::Ice::UnknownLocalException'
+        end
     end
 
-    if not defined?(::Ice::UnknownUserException)
-        class UnknownUserException < ::Ice::UnknownException
-            def initialize(unknown='')
-                super(unknown)
-            end
-
-            def to_s
-                '::Ice::UnknownUserException'
-            end
+    class UnknownUserException < ::Ice::UnknownException
+        def initialize(unknown = '')
+            super(unknown)
         end
 
-        T_UnknownUserException = ::Ice::__defineException('::Ice::UnknownUserException', UnknownUserException, ::Ice::T_UnknownException, [])
+        def to_s
+            '::Ice::UnknownUserException'
+        end
     end
 
-    if not defined?(::Ice::CommunicatorDestroyedException)
-        class CommunicatorDestroyedException < Ice::LocalException
-            def initialize
-            end
-
-            def to_s
-                '::Ice::CommunicatorDestroyedException'
-            end
+    class CommunicatorDestroyedException < Ice::LocalException
+        def initialize
         end
 
-        T_CommunicatorDestroyedException = ::Ice::__defineException('::Ice::CommunicatorDestroyedException', CommunicatorDestroyedException, nil, [])
+        def to_s
+            '::Ice::CommunicatorDestroyedException'
+        end
     end
 
-    if not defined?(::Ice::ObjectAdapterDeactivatedException)
-        class ObjectAdapterDeactivatedException < Ice::LocalException
-            def initialize(name='')
-                @name = name
-            end
-
-            def to_s
-                '::Ice::ObjectAdapterDeactivatedException'
-            end
-
-            attr_accessor :name
+    class ObjectAdapterDeactivatedException < Ice::LocalException
+        def initialize(name = '')
+            @name = name
         end
 
-        T_ObjectAdapterDeactivatedException = ::Ice::__defineException('::Ice::ObjectAdapterDeactivatedException', ObjectAdapterDeactivatedException, nil, [["name", ::Ice::T_string, false, 0]])
+        def to_s
+            '::Ice::ObjectAdapterDeactivatedException'
+        end
+
+        attr_accessor :name
     end
 
-    if not defined?(::Ice::ObjectAdapterIdInUseException)
-        class ObjectAdapterIdInUseException < Ice::LocalException
-            def initialize(id='')
-                @id = id
-            end
-
-            def to_s
-                '::Ice::ObjectAdapterIdInUseException'
-            end
-
-            attr_accessor :id
+    class ObjectAdapterIdInUseException < Ice::LocalException
+        def initialize(id = '')
+            @id = id
         end
 
-        T_ObjectAdapterIdInUseException = ::Ice::__defineException('::Ice::ObjectAdapterIdInUseException', ObjectAdapterIdInUseException, nil, [["id", ::Ice::T_string, false, 0]])
+        def to_s
+            '::Ice::ObjectAdapterIdInUseException'
+        end
+
+        attr_accessor :id
     end
 
-    if not defined?(::Ice::NoEndpointException)
-        class NoEndpointException < Ice::LocalException
-            def initialize(proxy='')
-                @proxy = proxy
-            end
-
-            def to_s
-                '::Ice::NoEndpointException'
-            end
-
-            attr_accessor :proxy
+    class NoEndpointException < Ice::LocalException
+        def initialize(proxy = '')
+            @proxy = proxy
         end
 
-        T_NoEndpointException = ::Ice::__defineException('::Ice::NoEndpointException', NoEndpointException, nil, [["proxy", ::Ice::T_string, false, 0]])
+        def to_s
+            '::Ice::NoEndpointException'
+        end
+
+        attr_accessor :proxy
     end
 
-    if not defined?(::Ice::ParseException)
-        class ParseException < Ice::LocalException
-            def initialize(str='')
-                @str = str
-            end
-
-            def to_s
-                '::Ice::ParseException'
-            end
-
-            attr_accessor :str
+    class ParseException < Ice::LocalException
+        def initialize(str = '')
+            @str = str
         end
 
-        T_ParseException = ::Ice::__defineException('::Ice::ParseException', ParseException, nil, [["str", ::Ice::T_string, false, 0]])
+        def to_s
+            '::Ice::ParseException'
+        end
+
+        attr_accessor :str
     end
 
-    if not defined?(::Ice::IllegalIdentityException)
-        class IllegalIdentityException < Ice::LocalException
-            def initialize
-            end
-
-            def to_s
-                '::Ice::IllegalIdentityException'
-            end
+    class IllegalIdentityException < Ice::LocalException
+        def initialize
         end
 
-        T_IllegalIdentityException = ::Ice::__defineException('::Ice::IllegalIdentityException', IllegalIdentityException, nil, [])
+        def to_s
+            '::Ice::IllegalIdentityException'
+        end
     end
 
-    if not defined?(::Ice::IllegalServantException)
-        class IllegalServantException < Ice::LocalException
-            def initialize(reason='')
-                @reason = reason
-            end
-
-            def to_s
-                '::Ice::IllegalServantException'
-            end
-
-            attr_accessor :reason
+    class IllegalServantException < Ice::LocalException
+        def initialize(reason = '')
+            @reason = reason
         end
 
-        T_IllegalServantException = ::Ice::__defineException('::Ice::IllegalServantException', IllegalServantException, nil, [["reason", ::Ice::T_string, false, 0]])
+        def to_s
+            '::Ice::IllegalServantException'
+        end
+
+        attr_accessor :reason
     end
 
-    if not defined?(::Ice::RequestFailedException)
-        class RequestFailedException < Ice::LocalException
-            def initialize(id=::Ice::Identity.new, facet='', operation='')
-                @id = id
-                @facet = facet
-                @operation = operation
-            end
-
-            def to_s
-                '::Ice::RequestFailedException'
-            end
-
-            attr_accessor :id, :facet, :operation
+    class RequestFailedException < Ice::LocalException
+        def initialize(id = ::Ice::Identity.new, facet = '', operation = '')
+            @id = id
+            @facet = facet
+            @operation = operation
         end
 
-        T_RequestFailedException = ::Ice::__defineException('::Ice::RequestFailedException', RequestFailedException, nil, [
-            ["id", ::Ice::T_Identity, false, 0],
-            ["facet", ::Ice::T_string, false, 0],
-            ["operation", ::Ice::T_string, false, 0]
-        ])
+        def to_s
+            '::Ice::RequestFailedException'
+        end
+
+        attr_accessor :id, :facet, :operation
     end
 
-    if not defined?(::Ice::ObjectNotExistException)
-        class ObjectNotExistException < ::Ice::RequestFailedException
-            def initialize(id=::Ice::Identity.new, facet='', operation='')
-                super(id, facet, operation)
-            end
-
-            def to_s
-                '::Ice::ObjectNotExistException'
-            end
+    class ObjectNotExistException < ::Ice::RequestFailedException
+        def initialize(id = ::Ice::Identity.new, facet = '', operation = '')
+            super(id, facet, operation)
         end
 
-        T_ObjectNotExistException = ::Ice::__defineException('::Ice::ObjectNotExistException', ObjectNotExistException, ::Ice::T_RequestFailedException, [])
+        def to_s
+            '::Ice::ObjectNotExistException'
+        end
     end
 
-    if not defined?(::Ice::FacetNotExistException)
-        class FacetNotExistException < ::Ice::RequestFailedException
-            def initialize(id=::Ice::Identity.new, facet='', operation='')
-                super(id, facet, operation)
-            end
-
-            def to_s
-                '::Ice::FacetNotExistException'
-            end
+    class FacetNotExistException < ::Ice::RequestFailedException
+        def initialize(id = ::Ice::Identity.new, facet = '', operation = '')
+            super(id, facet, operation)
         end
 
-        T_FacetNotExistException = ::Ice::__defineException('::Ice::FacetNotExistException', FacetNotExistException, ::Ice::T_RequestFailedException, [])
+        def to_s
+            '::Ice::FacetNotExistException'
+        end
     end
 
-    if not defined?(::Ice::OperationNotExistException)
-        class OperationNotExistException < ::Ice::RequestFailedException
-            def initialize(id=::Ice::Identity.new, facet='', operation='')
-                super(id, facet, operation)
-            end
-
-            def to_s
-                '::Ice::OperationNotExistException'
-            end
+    class OperationNotExistException < ::Ice::RequestFailedException
+        def initialize(id = ::Ice::Identity.new, facet = '', operation = '')
+            super(id, facet, operation)
         end
 
-        T_OperationNotExistException = ::Ice::__defineException('::Ice::OperationNotExistException', OperationNotExistException, ::Ice::T_RequestFailedException, [])
+        def to_s
+            '::Ice::OperationNotExistException'
+        end
     end
 
-    if not defined?(::Ice::SyscallException)
-        class SyscallException < Ice::LocalException
-            def initialize(error=0)
-                @error = error
-            end
-
-            def to_s
-                '::Ice::SyscallException'
-            end
-
-            attr_accessor :error
+    class SyscallException < Ice::LocalException
+        def initialize(error = 0)
+            @error = error
         end
 
-        T_SyscallException = ::Ice::__defineException('::Ice::SyscallException', SyscallException, nil, [["error", ::Ice::T_int, false, 0]])
+        def to_s
+            '::Ice::SyscallException'
+        end
+
+        attr_accessor :error
     end
 
-    if not defined?(::Ice::SocketException)
-        class SocketException < ::Ice::SyscallException
-            def initialize(error=0)
-                super(error)
-            end
-
-            def to_s
-                '::Ice::SocketException'
-            end
+    class SocketException < ::Ice::SyscallException
+        def initialize(error = 0)
+            super(error)
         end
 
-        T_SocketException = ::Ice::__defineException('::Ice::SocketException', SocketException, ::Ice::T_SyscallException, [])
+        def to_s
+            '::Ice::SocketException'
+        end
     end
 
-    if not defined?(::Ice::CFNetworkException)
-        class CFNetworkException < ::Ice::SocketException
-            def initialize(error=0, domain='')
-                super(error)
-                @domain = domain
-            end
-
-            def to_s
-                '::Ice::CFNetworkException'
-            end
-
-            attr_accessor :domain
+    class CFNetworkException < ::Ice::SocketException
+        def initialize(error = 0, domain = '')
+            super(error)
+            @domain = domain
         end
 
-        T_CFNetworkException = ::Ice::__defineException('::Ice::CFNetworkException', CFNetworkException, ::Ice::T_SocketException, [["domain", ::Ice::T_string, false, 0]])
+        def to_s
+            '::Ice::CFNetworkException'
+        end
+
+        attr_accessor :domain
     end
 
-    if not defined?(::Ice::FileException)
-        class FileException < ::Ice::SyscallException
-            def initialize(error=0, path='')
-                super(error)
-                @path = path
-            end
-
-            def to_s
-                '::Ice::FileException'
-            end
-
-            attr_accessor :path
+    class FileException < ::Ice::SyscallException
+        def initialize(error = 0, path = '')
+            super(error)
+            @path = path
         end
 
-        T_FileException = ::Ice::__defineException('::Ice::FileException', FileException, ::Ice::T_SyscallException, [["path", ::Ice::T_string, false, 0]])
+        def to_s
+            '::Ice::FileException'
+        end
+
+        attr_accessor :path
     end
 
-    if not defined?(::Ice::ConnectFailedException)
-        class ConnectFailedException < ::Ice::SocketException
-            def initialize(error=0)
-                super(error)
-            end
-
-            def to_s
-                '::Ice::ConnectFailedException'
-            end
+    class ConnectFailedException < ::Ice::SocketException
+        def initialize(error = 0)
+            super(error)
         end
 
-        T_ConnectFailedException = ::Ice::__defineException('::Ice::ConnectFailedException', ConnectFailedException, ::Ice::T_SocketException, [])
+        def to_s
+            '::Ice::ConnectFailedException'
+        end
     end
 
-    if not defined?(::Ice::ConnectionRefusedException)
-        class ConnectionRefusedException < ::Ice::ConnectFailedException
-            def initialize(error=0)
-                super(error)
-            end
-
-            def to_s
-                '::Ice::ConnectionRefusedException'
-            end
+    class ConnectionRefusedException < ::Ice::ConnectFailedException
+        def initialize(error = 0)
+            super(error)
         end
 
-        T_ConnectionRefusedException = ::Ice::__defineException('::Ice::ConnectionRefusedException', ConnectionRefusedException, ::Ice::T_ConnectFailedException, [])
+        def to_s
+            '::Ice::ConnectionRefusedException'
+        end
     end
 
-    if not defined?(::Ice::ConnectionLostException)
-        class ConnectionLostException < ::Ice::SocketException
-            def initialize(error=0)
-                super(error)
-            end
-
-            def to_s
-                '::Ice::ConnectionLostException'
-            end
+    class ConnectionLostException < ::Ice::SocketException
+        def initialize(error = 0)
+            super(error)
         end
 
-        T_ConnectionLostException = ::Ice::__defineException('::Ice::ConnectionLostException', ConnectionLostException, ::Ice::T_SocketException, [])
+        def to_s
+            '::Ice::ConnectionLostException'
+        end
     end
 
-    if not defined?(::Ice::DNSException)
-        class DNSException < Ice::LocalException
-            def initialize(error=0, host='')
-                @error = error
-                @host = host
-            end
-
-            def to_s
-                '::Ice::DNSException'
-            end
-
-            attr_accessor :error, :host
+    class DNSException < Ice::LocalException
+        def initialize(error = 0, host = '')
+            @error = error
+            @host = host
         end
 
-        T_DNSException = ::Ice::__defineException('::Ice::DNSException', DNSException, nil, [
-            ["error", ::Ice::T_int, false, 0],
-            ["host", ::Ice::T_string, false, 0]
-        ])
+        def to_s
+            '::Ice::DNSException'
+        end
+
+        attr_accessor :error, :host
     end
 
-    if not defined?(::Ice::ConnectionIdleException)
-        class ConnectionIdleException < ::Ice::LocalException
-            def initialize
-            end
-
-            def to_s
-                '::Ice::ConnectionIdleException'
-            end
+    class ConnectionIdleException < ::Ice::LocalException
+        def initialize
         end
 
-        T_ConnectionIdleException = ::Ice::__defineException('::Ice::ConnectionIdleException', ConnectionIdleException, nil, [])
+        def to_s
+            '::Ice::ConnectionIdleException'
+        end
     end
 
-    if not defined?(::Ice::TimeoutException)
-        class TimeoutException < Ice::LocalException
-            def initialize
-            end
-
-            def to_s
-                '::Ice::TimeoutException'
-            end
+    class TimeoutException < Ice::LocalException
+        def initialize
         end
 
-        T_TimeoutException = ::Ice::__defineException('::Ice::TimeoutException', TimeoutException, nil, [])
+        def to_s
+            '::Ice::TimeoutException'
+        end
     end
 
-    if not defined?(::Ice::ConnectTimeoutException)
-        class ConnectTimeoutException < ::Ice::TimeoutException
-            def initialize
-            end
-
-            def to_s
-                '::Ice::ConnectTimeoutException'
-            end
+    class ConnectTimeoutException < ::Ice::TimeoutException
+        def initialize
         end
 
-        T_ConnectTimeoutException = ::Ice::__defineException('::Ice::ConnectTimeoutException', ConnectTimeoutException, ::Ice::T_TimeoutException, [])
+        def to_s
+            '::Ice::ConnectTimeoutException'
+        end
     end
 
-    if not defined?(::Ice::CloseTimeoutException)
-        class CloseTimeoutException < ::Ice::TimeoutException
-            def initialize
-            end
-
-            def to_s
-                '::Ice::CloseTimeoutException'
-            end
+    class CloseTimeoutException < ::Ice::TimeoutException
+        def initialize
         end
 
-        T_CloseTimeoutException = ::Ice::__defineException('::Ice::CloseTimeoutException', CloseTimeoutException, ::Ice::T_TimeoutException, [])
+        def to_s
+            '::Ice::CloseTimeoutException'
+        end
     end
 
-    if not defined?(::Ice::InvocationTimeoutException)
-        class InvocationTimeoutException < ::Ice::TimeoutException
-            def initialize
-            end
-
-            def to_s
-                '::Ice::InvocationTimeoutException'
-            end
+    class InvocationTimeoutException < ::Ice::TimeoutException
+        def initialize
         end
 
-        T_InvocationTimeoutException = ::Ice::__defineException('::Ice::InvocationTimeoutException', InvocationTimeoutException, ::Ice::T_TimeoutException, [])
+        def to_s
+            '::Ice::InvocationTimeoutException'
+        end
     end
 
-    if not defined?(::Ice::InvocationCanceledException)
-        class InvocationCanceledException < Ice::LocalException
-            def initialize
-            end
-
-            def to_s
-                '::Ice::InvocationCanceledException'
-            end
+    class InvocationCanceledException < Ice::LocalException
+        def initialize
         end
 
-        T_InvocationCanceledException = ::Ice::__defineException('::Ice::InvocationCanceledException', InvocationCanceledException, nil, [])
+        def to_s
+            '::Ice::InvocationCanceledException'
+        end
     end
 
-    if not defined?(::Ice::ProtocolException)
-        class ProtocolException < Ice::LocalException
-            def initialize(reason='')
-                @reason = reason
-            end
-
-            def to_s
-                '::Ice::ProtocolException'
-            end
-
-            attr_accessor :reason
+    class ProtocolException < Ice::LocalException
+        def initialize(reason = '')
+            @reason = reason
         end
 
-        T_ProtocolException = ::Ice::__defineException('::Ice::ProtocolException', ProtocolException, nil, [["reason", ::Ice::T_string, false, 0]])
+        def to_s
+            '::Ice::ProtocolException'
+        end
+
+        attr_accessor :reason
     end
 
-    if not defined?(::Ice::CloseConnectionException)
-        class CloseConnectionException < ::Ice::ProtocolException
-            def initialize(reason='')
-                super(reason)
-            end
-
-            def to_s
-                '::Ice::CloseConnectionException'
-            end
+    class CloseConnectionException < ::Ice::ProtocolException
+        def initialize(reason = '')
+            super(reason)
         end
 
-        T_CloseConnectionException = ::Ice::__defineException('::Ice::CloseConnectionException', CloseConnectionException, ::Ice::T_ProtocolException, [])
+        def to_s
+            '::Ice::CloseConnectionException'
+        end
     end
 
-    if not defined?(::Ice::ConnectionManuallyClosedException)
-        class ConnectionManuallyClosedException < Ice::LocalException
-            def initialize(graceful=false)
-                @graceful = graceful
-            end
-
-            def to_s
-                '::Ice::ConnectionManuallyClosedException'
-            end
-
-            attr_accessor :graceful
+    class ConnectionManuallyClosedException < Ice::LocalException
+        def initialize(graceful = false)
+            @graceful = graceful
         end
 
-        T_ConnectionManuallyClosedException = ::Ice::__defineException('::Ice::ConnectionManuallyClosedException', ConnectionManuallyClosedException, nil, [["graceful", ::Ice::T_bool, false, 0]])
+        def to_s
+            '::Ice::ConnectionManuallyClosedException'
+        end
+
+        attr_accessor :graceful
     end
 
-    if not defined?(::Ice::DatagramLimitException)
-        class DatagramLimitException < ::Ice::ProtocolException
-            def initialize(reason='')
-                super(reason)
-            end
-
-            def to_s
-                '::Ice::DatagramLimitException'
-            end
+    class DatagramLimitException < ::Ice::ProtocolException
+        def initialize(reason = '')
+            super(reason)
         end
 
-        T_DatagramLimitException = ::Ice::__defineException('::Ice::DatagramLimitException', DatagramLimitException, ::Ice::T_ProtocolException, [])
+        def to_s
+            '::Ice::DatagramLimitException'
+        end
     end
 
-    if not defined?(::Ice::MarshalException)
-        class MarshalException < ::Ice::ProtocolException
-            def initialize(reason='')
-                super(reason)
-            end
-
-            def to_s
-                '::Ice::MarshalException'
-            end
+    class MarshalException < ::Ice::ProtocolException
+        def initialize(reason = '')
+            super(reason)
         end
 
-        T_MarshalException = ::Ice::__defineException('::Ice::MarshalException', MarshalException, ::Ice::T_ProtocolException, [])
+        def to_s
+            '::Ice::MarshalException'
+        end
     end
 
-    if not defined?(::Ice::FeatureNotSupportedException)
-        class FeatureNotSupportedException < Ice::LocalException
-            def initialize(unsupportedFeature='')
-                @unsupportedFeature = unsupportedFeature
-            end
-
-            def to_s
-                '::Ice::FeatureNotSupportedException'
-            end
-
-            attr_accessor :unsupportedFeature
+    class FeatureNotSupportedException < Ice::LocalException
+        def initialize(unsupportedFeature = '')
+            @unsupportedFeature = unsupportedFeature
         end
 
-        T_FeatureNotSupportedException = ::Ice::__defineException('::Ice::FeatureNotSupportedException', FeatureNotSupportedException, nil, [["unsupportedFeature", ::Ice::T_string, false, 0]])
+        def to_s
+            '::Ice::FeatureNotSupportedException'
+        end
+
+        attr_accessor :unsupportedFeature
     end
 
-    if not defined?(::Ice::SecurityException)
-        class SecurityException < Ice::LocalException
-            def initialize(reason='')
-                @reason = reason
-            end
-
-            def to_s
-                '::Ice::SecurityException'
-            end
-
-            attr_accessor :reason
+    class SecurityException < Ice::LocalException
+        def initialize(reason = '')
+            @reason = reason
         end
 
-        T_SecurityException = ::Ice::__defineException('::Ice::SecurityException', SecurityException, nil, [["reason", ::Ice::T_string, false, 0]])
+        def to_s
+            '::Ice::SecurityException'
+        end
+
+        attr_accessor :reason
     end
 
-    if not defined?(::Ice::FixedProxyException)
-        class FixedProxyException < Ice::LocalException
-            def initialize
-            end
-
-            def to_s
-                '::Ice::FixedProxyException'
-            end
+    class FixedProxyException < Ice::LocalException
+        def initialize
         end
 
-        T_FixedProxyException = ::Ice::__defineException('::Ice::FixedProxyException', FixedProxyException, nil, [])
+        def to_s
+            '::Ice::FixedProxyException'
+        end
     end
 end

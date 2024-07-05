@@ -14,6 +14,12 @@ toNSString(const std::string& s)
     return [[NSString alloc] initWithUTF8String:s.c_str()];
 }
 
+inline NSString*
+toNSString(const char* s)
+{
+    return [[NSString alloc] initWithUTF8String:s];
+}
+
 inline std::string
 fromNSString(NSString* s)
 {

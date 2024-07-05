@@ -32,7 +32,7 @@ public class ListTextField extends JTextField {
     String text = getText().trim();
     java.util.LinkedList<String> result = new java.util.LinkedList<>();
 
-    while (text.length() > 0) {
+    while (!text.isEmpty()) {
       if (text.startsWith("\"")) {
         int last = text.indexOf("\"", 1);
         if (last == -1) {

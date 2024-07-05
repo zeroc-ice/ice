@@ -201,7 +201,7 @@ public class AllTests {
 
       TCPConnectionInfo info = getTCPConnectionInfo(connection.getInfo());
       test(!info.incoming);
-      test(info.adapterName.length() == 0);
+      test(info.adapterName.isEmpty());
       test(info.localPort > 0);
       test(info.remotePort == endpointPort);
       if (defaultHost.equals("127.0.0.1")) {
@@ -245,7 +245,7 @@ public class AllTests {
 
       UDPConnectionInfo udpinfo = (UDPConnectionInfo) connection.getInfo();
       test(!udpinfo.incoming);
-      test(udpinfo.adapterName.length() == 0);
+      test(udpinfo.adapterName.isEmpty());
       test(udpinfo.localPort > 0);
       test(udpinfo.remotePort == endpointPort);
       if (defaultHost.equals("127.0.0.1")) {

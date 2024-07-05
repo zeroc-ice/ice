@@ -68,7 +68,7 @@ classdef (Abstract) EncapsDecoder < handle
             if typeIdIndex <= length(obj.typeIdMap)
                 r = obj.typeIdMap{typeIdIndex};
             else
-                throw(Ice.MarshalException('', '', 'unknown type id index'));
+                throw(Ice.MarshalException('unknown type id index'));
             end
         end
         function [typeIdIndex, typeId] = readTypeId(obj)

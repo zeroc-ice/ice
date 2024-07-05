@@ -1538,15 +1538,17 @@ public class InputStream {
       throw new MarshalException("cannot unmarshal a proxy without a communicator");
     }
 
-    return _instance.proxyFactory().streamToProxy(this);
+    var ident = com.zeroc.Ice.Identity.ice_read(this);
+    if (ident.name.isEmpty()) {
+      return null;
+    } else {
+      var ref = _instance.referenceFactory().create(ident, this);
+      return new com.zeroc.Ice._ObjectPrxI(ref);
+    }
   }
 
   public <T extends ObjectPrx> T readProxy(java.util.function.Function<ObjectPrx, T> cast) {
-    if (_instance == null) {
-      throw new MarshalException("cannot unmarshal a proxy without a communicator");
-    }
-
-    return cast.apply(_instance.proxyFactory().streamToProxy(this));
+    return cast.apply(readProxy());
   }
 
   /**
@@ -2038,7 +2040,7 @@ public class InputStream {
         //
         java.util.LinkedList<PatchEntry> l = _patchMap.get(index);
         if (l != null) {
-          assert (l.size() > 0);
+          assert (!l.isEmpty());
 
           //
           // Patch all pointers that refer to the instance.
@@ -2357,7 +2359,7 @@ public class InputStream {
       _classGraphDepth = 0;
       var l = _patchMap != null ? _patchMap.get(index) : null;
       if (l != null) {
-        assert (l.size() > 0);
+        assert (!l.isEmpty());
         for (PatchEntry entry : l) {
           if (entry.classGraphDepth > _classGraphDepth) {
             _classGraphDepth = entry.classGraphDepth;

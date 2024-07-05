@@ -111,7 +111,7 @@ public class SSLEngine {
         //
         javax.net.ssl.KeyManager[] keyManagers = null;
         java.security.KeyStore keys = null;
-        if (_keystoreStream != null || keystorePath.length() > 0) {
+        if (_keystoreStream != null || !keystorePath.isEmpty()) {
           java.io.InputStream keystoreStream = null;
           try {
             if (_keystoreStream != null) {
@@ -126,7 +126,7 @@ public class SSLEngine {
 
             keys = java.security.KeyStore.getInstance(keystoreType);
             char[] passwordChars = null;
-            if (keystorePassword.length() > 0) {
+            if (!keystorePassword.isEmpty()) {
               passwordChars = keystorePassword.toCharArray();
             } else if (keystoreType.equals("BKS") || keystoreType.equals("PKCS12")) {
               // Bouncy Castle or PKCS12 does not permit null passwords.
@@ -156,7 +156,7 @@ public class SSLEngine {
           javax.net.ssl.KeyManagerFactory kmf =
               javax.net.ssl.KeyManagerFactory.getInstance(algorithm);
           char[] passwordChars = new char[0]; // This password cannot be null.
-          if (password.length() > 0) {
+          if (!password.isEmpty()) {
             passwordChars = password.toCharArray();
           }
           kmf.init(keys, passwordChars);
@@ -206,13 +206,13 @@ public class SSLEngine {
         // Load the truststore.
         //
         java.security.KeyStore ts = null;
-        if (_truststoreStream != null || truststorePath.length() > 0) {
+        if (_truststoreStream != null || !truststorePath.isEmpty()) {
           //
           // If the trust store and the key store are the same input
           // stream or file, don't create another key store.
           //
           if ((_truststoreStream != null && _truststoreStream == _keystoreStream)
-              || (truststorePath.length() > 0 && truststorePath.equals(keystorePath))) {
+              || (!truststorePath.isEmpty() && truststorePath.equals(keystorePath))) {
             assert keys != null;
             ts = keys;
           } else {
@@ -231,7 +231,7 @@ public class SSLEngine {
               ts = java.security.KeyStore.getInstance(truststoreType);
 
               char[] passwordChars = null;
-              if (truststorePassword.length() > 0) {
+              if (!truststorePassword.isEmpty()) {
                 passwordChars = truststorePassword.toCharArray();
               } else if (truststoreType.equals("BKS") || truststoreType.equals("PKCS12")) {
                 // Bouncy Castle or PKCS12 does not permit null passwords.
@@ -481,7 +481,7 @@ public class SSLEngine {
     // relative,
     // we prepend the default directory and try again.
     //
-    if (stream == null && _defaultDir.length() > 0 && !isAbsolute) {
+    if (stream == null && !_defaultDir.isEmpty() && !isAbsolute) {
       stream =
           com.zeroc.IceInternal.Util.openResource(
               getClass().getClassLoader(), _defaultDir + java.io.File.separator + path);

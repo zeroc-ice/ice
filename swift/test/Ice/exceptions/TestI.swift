@@ -58,7 +58,7 @@ class ThrowerI: Thrower {
     }
 
     func throwLocalException(current _: Ice.Current) throws {
-        throw Ice.TimeoutException()
+        throw Ice.TimeoutException("thrower throwing TimeOutException")
     }
 
     func throwNonIceException(current _: Ice.Current) throws {
@@ -73,7 +73,7 @@ class ThrowerI: Thrower {
     }
 
     func throwLocalExceptionIdempotent(current _: Ice.Current) throws {
-        throw Ice.TimeoutException()
+        throw Ice.TimeoutException("thrower throwing TimeOutException")
     }
 
     func throwUndeclaredA(a: Int32, current _: Ice.Current) throws {

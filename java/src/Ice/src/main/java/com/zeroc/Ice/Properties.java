@@ -319,7 +319,7 @@ public final class Properties {
     java.util.HashMap<String, String> result = new java.util.HashMap<>();
     for (java.util.Map.Entry<String, PropertyValue> p : _properties.entrySet()) {
       String key = p.getKey();
-      if (prefix.length() == 0 || key.startsWith(prefix)) {
+      if (prefix.isEmpty() || key.startsWith(prefix)) {
         PropertyValue pv = p.getValue();
         pv.used = true;
         result.put(key, pv.value);
@@ -343,7 +343,7 @@ public final class Properties {
       key = key.trim();
     }
 
-    if (key == null || key.length() == 0) {
+    if (key == null || key.isEmpty()) {
       throw new InitializationException("Attempt to set property with empty key");
     }
 
@@ -360,7 +360,7 @@ public final class Properties {
       //
       // Set or clear the property.
       //
-      if (value != null && value.length() > 0) {
+      if (value != null && !value.isEmpty()) {
         PropertyValue pv = _properties.get(key);
         if (pv != null) {
           pv.value = value;
@@ -403,7 +403,7 @@ public final class Properties {
    *     order.
    */
   public String[] parseCommandLineOptions(String prefix, String[] options) {
-    if (prefix.length() > 0 && prefix.charAt(prefix.length() - 1) != '.') {
+    if (!prefix.isEmpty() && prefix.charAt(prefix.length() - 1) != '.') {
       prefix += '.';
     }
     prefix = "--" + prefix;
@@ -479,8 +479,8 @@ public final class Properties {
             String name = line.substring(0, pos).trim();
             line = line.substring(pos + 13, line.length()).trim();
             while (true) {
-              int start = line.indexOf("%", 0);
-              int end = line.indexOf("%", start + 1);
+              int start = line.indexOf('%', 0);
+              int end = line.indexOf('%', start + 1);
 
               //
               // If there isn't more %var% break the loop
@@ -616,7 +616,7 @@ public final class Properties {
                       break;
 
                     case ' ':
-                      if (key.length() != 0) {
+                      if (!key.isEmpty()) {
                         whitespace += c;
                       }
                       break;
@@ -638,7 +638,7 @@ public final class Properties {
               case '\t':
               case '\r':
               case '\n':
-                if (key.length() != 0) {
+                if (!key.isEmpty()) {
                   whitespace += c;
                 }
                 break;
@@ -671,7 +671,7 @@ public final class Properties {
                     case '\\':
                     case '#':
                     case '=':
-                      value += value.length() == 0 ? escapedspace : whitespace;
+                      value += value.isEmpty() ? escapedspace : whitespace;
                       whitespace = "";
                       escapedspace = "";
                       value += c;
@@ -683,7 +683,7 @@ public final class Properties {
                       break;
 
                     default:
-                      value += value.length() == 0 ? escapedspace : whitespace;
+                      value += value.isEmpty() ? escapedspace : whitespace;
                       whitespace = "";
                       escapedspace = "";
                       value += '\\';
@@ -691,7 +691,7 @@ public final class Properties {
                       break;
                   }
                 } else {
-                  value += value.length() == 0 ? escapedspace : whitespace;
+                  value += value.isEmpty() ? escapedspace : whitespace;
                   value += c;
                 }
                 break;
@@ -700,7 +700,7 @@ public final class Properties {
               case '\t':
               case '\r':
               case '\n':
-                if (value.length() != 0) {
+                if (!value.isEmpty()) {
                   whitespace += c;
                 }
                 break;
@@ -710,7 +710,7 @@ public final class Properties {
                 break;
 
               default:
-                value += value.length() == 0 ? escapedspace : whitespace;
+                value += value.isEmpty() ? escapedspace : whitespace;
                 whitespace = "";
                 escapedspace = "";
                 value += c;
@@ -725,11 +725,10 @@ public final class Properties {
     }
     value += escapedspace;
 
-    if ((state == ParseStateKey && key.length() != 0)
-        || (state == ParseStateValue && key.length() == 0)) {
+    if ((state == ParseStateKey && !key.isEmpty()) || (state == ParseStateValue && key.isEmpty())) {
       Util.getProcessLogger().warning("invalid config file entry: \"" + line + "\"");
       return;
-    } else if (key.length() == 0) {
+    } else if (key.isEmpty()) {
       return;
     }
 
@@ -739,7 +738,7 @@ public final class Properties {
   private void loadConfig() {
     String value = getProperty("Ice.Config");
 
-    if (value.length() == 0 || value.equals("1")) {
+    if (value.isEmpty() || value.equals("1")) {
       try {
         value = System.getenv("ICE_CONFIG");
         if (value == null) {
@@ -750,7 +749,7 @@ public final class Properties {
       }
     }
 
-    if (value.length() > 0) {
+    if (!value.isEmpty()) {
       for (String file : value.split(",")) {
         load(file.trim());
       }
