@@ -98,6 +98,16 @@ class Client(TestHelper):
 
         print("ok")
 
+        sys.stdout.write("testing load properties exception... ")
+        sys.stdout.flush()
+        try:
+            properties = Ice.createProperties()
+            properties.load("./config/xxx_client.config")
+            test(False)
+        except Ice.LocalException as ex:
+            test(str(ex) == "::Ice::FileException") # temporary C++ what() message
+        print("ok")
+
         sys.stdout.write(
             "testing that getting an unknown ice property throws an exception..."
         )
