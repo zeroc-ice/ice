@@ -5,11 +5,20 @@
 
 from .LocalException import LocalException
 
+from typing import final
+
+__name__ = "Ice"
+
+#
+# The 6 (7 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice
+# reply message. Other local exceptions can't be marshaled.
+#
+
 class RequestFailedException(LocalException):
     """
-        This exception is raised if a request failed. This exception, and all exceptions derived from
-        RequestFailedException, are transmitted by the Ice protocol, even though they are declared
-        local.
+    This exception is raised if a request failed. This exception, and all exceptions derived from
+    RequestFailedException, are transmitted by the Ice protocol, even though they are declared
+    local.
     Members:
     id --  The identity of the Ice Object to which the request was sent.
     facet --  The facet to which the request was sent.
@@ -18,37 +27,42 @@ class RequestFailedException(LocalException):
 
     def __init__(self, id=None, facet= "", operation="", msg=""):
         LocalException.__init__(self, msg)
-        self.id = id
-        self.facet = facet
-        self.operation = operation
+        self.__id = id
+        self.__facet = facet
+        self.__operation = operation
 
-    __module__ = "Ice"
+    @property
+    def id(self):
+        return self.__id
 
+    @property
+    def facet(self):
+        return self.__facet
+
+    @property
+    def operation(self):
+        return self.__operation
+
+@final
 class ObjectNotExistException(RequestFailedException):
     """
     This exception is raised if an object does not exist on the server, that is, if no facets with the given identity
     exist.
     """
 
-    __module__ = "Ice"
-
-
+@final
 class FacetNotExistException(RequestFailedException):
     """
     This exception is raised if no facet with the given name exists, but at least one facet with the given identity
     exists.
     """
 
-    __module__ = "Ice"
-
-
+@final
 class OperationNotExistException(RequestFailedException):
     """
     This exception is raised if an operation for a given object does not exist on the server. Typically this is caused
     by either the client or the server using an outdated Slice specification.
     """
-
-    __module__ = "Ice"
 
 class UnknownException(LocalException):
     """
@@ -57,9 +71,7 @@ class UnknownException(LocalException):
         Ice::LocalException or Ice::UserException.
     """
 
-    __module__ = "Ice"
-
-
+@final
 class UnknownLocalException(UnknownException):
     """
     This exception is raised if an operation call on a server raises a  local exception. Because local exceptions are
@@ -69,9 +81,7 @@ class UnknownLocalException(UnknownException):
     local.
     """
 
-    __module__ = "Ice"
-
-
+@final
 class UnknownUserException(UnknownException):
     """
     An operation raised an incorrect user exception. This exception is raised if an operation raises a user exception
@@ -81,17 +91,16 @@ class UnknownUserException(UnknownException):
     exceptions and user exceptions declared in the throws clause can be raised.
     """
 
-    __module__ = "Ice"
-
+#
+# Protocol exceptions
+#
 
 class ProtocolException(LocalException):
     """
-        A generic exception base for all kinds of protocol error conditions.
+    A generic exception base for all kinds of protocol error conditions.
     """
 
-    __module__ = "Ice"
-
-
+@final
 class CloseConnectionException(ProtocolException):
     """
     This exception indicates that the connection has been gracefully shut down by the server. The operation call that
@@ -101,118 +110,93 @@ class CloseConnectionException(ProtocolException):
     propagated to the application code.
     """
 
-    __module__ = "Ice"
-
-
-class ConnectionManuallyClosedException(LocalException):
-    """
-        This exception is raised by an operation call if the application closes the connection locally using
-        Connection#close.
-    """
-
-    __module__ = "Ice"
-
-
+@final
 class DatagramLimitException(ProtocolException):
     """
     A datagram exceeds the configured size. This exception is raised if a datagram exceeds the configured send or
     receive buffer size, or exceeds the maximum payload size of a UDP packet (65507 bytes).
     """
 
-    __module__ = "Ice"
-
-
+@final
 class MarshalException(ProtocolException):
     """
     This exception is raised for errors during marshaling or unmarshaling data.
     """
 
-    __module__ = "Ice"
-
+#
+# Timeout exceptions
+#
 
 class TimeoutException(LocalException):
     """
     This exception indicates a timeout condition.
     """
 
-    __module__ = "Ice"
-
-
+@final
 class ConnectTimeoutException(TimeoutException):
     """
     This exception indicates a connection establishment timeout condition.
     """
 
-    __module__ = "Ice"
-
-
+@final
 class CloseTimeoutException(TimeoutException):
     """
     This exception indicates a connection closure timeout condition.
     """
 
-    __module__ = "Ice"
-
-
+@final
 class InvocationTimeoutException(TimeoutException):
     """
     This exception indicates that an invocation failed because it timed out.
     """
 
-    __module__ = "Ice"
-
+#
+# Syscall exceptions
+#
 
 class SyscallException(LocalException):
     """
-        This exception is raised if a system error occurred in the server or client process. There are many possible causes
-        for such a system exception.
+    This exception is raised if a system error occurred in the server or client process. There are many possible causes
+    for such a system exception.
     """
 
-    __module__ = "Ice"
-
-
+@final
 class DNSException(SyscallException):
     """
-        This exception indicates a DNS problem.
+    This exception indicates a DNS problem.
     """
 
-    __module__ = "Ice"
-
+#
+# Socket exceptions
+#
 
 class SocketException(SyscallException):
     """
     This exception indicates socket errors.
     """
 
-    __module__ = "Ice"
-    __class__ = "SocketException"
-
-
 class ConnectFailedException(SocketException):
     """
     This exception indicates connection failures.
     """
 
-    __module__ = "Ice"
-    __class__ = "ConnectFailedException"
-
-
+@final
 class ConnectionLostException(SocketException):
     """
     This exception indicates a lost connection.
     """
 
-    __module__ = "Ice"
-
-
+@final
 class ConnectionRefusedException(ConnectFailedException):
     """
     This exception indicates a connection failure for which the server host actively refuses a connection.
     """
 
-    __module__ = "Ice"
+#
+# Other leaf local exceptions in alphabetical order.
+#
 
-
+@final
 class AlreadyRegisteredException(LocalException):
     """
         An attempt was made to register something more than once with the Ice run time. This exception is raised if an
@@ -226,44 +210,49 @@ class AlreadyRegisteredException(LocalException):
 
     def __init__(self, kindOfObject, id, msg):
         LocalException.__init__(self, msg)
-        self.kindOfObject = kindOfObject
-        self.id = id
+        self.__kindOfObject = kindOfObject
+        self.__id = id
 
-    __module__ = "Ice"
+    @property
+    def kindOfObject(self):
+        return self.__kindOfObject
 
+    @property
+    def id(self):
+        return self.__id
 
+@final
 class CommunicatorDestroyedException(LocalException):
     """
     This exception is raised if the Communicator has been destroyed.
     """
 
-    __module__ = "Ice"
-
-
+@final
 class ConnectionIdleException(LocalException):
     """
     This exception indicates that a connection was aborted by the idle check.
     """
 
-    __module__ = "Ice"
+@final
+class ConnectionManuallyClosedException(LocalException):
+    """
+    This exception is raised by an operation call if the application closes the connection locally using
+    Connection#close.
+    """
 
-
+@final
 class FeatureNotSupportedException(LocalException):
     """
         This exception is raised if an unsupported feature is used.
     """
 
-    __module__ = "Ice"
-
-
+@final
 class FixedProxyException(LocalException):
     """
     This exception indicates that an attempt has been made to change the connection properties of a fixed proxy.
     """
 
-    __module__ = "Ice"
-
-
+@final
 class InitializationException(LocalException):
     """
         This exception is raised when a failure occurs during initialization.
@@ -271,25 +260,18 @@ class InitializationException(LocalException):
     reason --  The reason for the failure.
     """
 
-    __module__ = "Ice"
-
-
 class InvocationCanceledException(LocalException):
     """
     This exception indicates that an asynchronous invocation failed because it was canceled explicitly by the user.
     """
 
-    __module__ = "Ice"
-
-
+@final
 class NoEndpointException(LocalException):
     """
-        This exception is raised if no suitable endpoint is available.
+    This exception is raised if no suitable endpoint is available.
     """
 
-    __module__ = "Ice"
-
-
+@final
 class NotRegisteredException(LocalException):
     """
         An attempt was made to find or deregister something that is not registered with the Ice run time or Ice locator.
@@ -305,56 +287,46 @@ class NotRegisteredException(LocalException):
 
     def __init__(self, kindOfObject, id, msg):
         LocalException.__init__(self, msg)
-        self.kindOfObject = kindOfObject
-        self.id = id
+        self.__kindOfObject = kindOfObject
+        self.__id = id
 
-    __module__ = "Ice"
+    @property
+    def kindOfObject(self):
+        return self.__kindOfObject
 
+    @property
+    def id(self):
+        return self.__id
 
+@final
 class ObjectAdapterDeactivatedException(LocalException):
     """
         This exception is raised if an attempt is made to use a deactivated ObjectAdapter.
     """
 
-    def __init__(self, msg):
-        LocalException.__init__(self, msg)
-
-    __module__ = "Ice"
-
-
+@final
 class ObjectAdapterIdInUseException(LocalException):
     """
         This exception is raised if an ObjectAdapter cannot be activated. This happens if the Locator
         detects another active ObjectAdapter with the same adapter id.
     """
 
-    def __init__(self, msg):
-        LocalException.__init__(self, msg)
-
-    __module__ = "Ice"
-
-
+@final
 class ParseException(LocalException):
     """
         This exception is raised if there was an error while parsing a string.
     """
 
-    __module__ = "Ice"
-
-
+@final
 class SecurityException(LocalException):
     """
         This exception indicates a failure in a security subsystem, such as the SSL transport.
     """
 
-    __module__ = "Ice"
-
-
+@final
 class TwowayOnlyException(LocalException):
     """
         The operation can only be invoked with a twoway request. This exception is raised if an attempt is made to invoke
         an operation with ice_oneway, ice_batchOneway, ice_datagram, or
         ice_batchDatagram and the operation has a return value, out-parameters, or an exception specification.
     """
-
-    __module__ = "Ice"
