@@ -838,15 +838,15 @@ def allTests(helper, communicator):
         try:
             thrower.throwMarshalException(context={"response": ""})
         except Ice.UnknownLocalException as ex:
-           test("cannot marshal result" in str(ex))
+            test("::Ice::UnknownLocalException" in str(ex))
         try:
             thrower.throwMarshalException(context={"param": ""})
         except Ice.UnknownLocalException as ex:
-            test("cannot marshal result" in str(ex))
+            test("::Ice::UnknownLocalException" in str(ex))
         try:
             thrower.throwMarshalException()
         except Ice.UnknownLocalException as ex:
-            test("cannot marshal result" in str(ex))
+            test("::Ice::UnknownLocalException" in str(ex))
     except Ice.OperationNotExistException:
         pass
     print("ok")
