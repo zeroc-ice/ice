@@ -716,7 +716,7 @@ namespace
 }
 
 PyObject*
-IcePy::convertException(std::exception_ptr ex)
+IcePy::convertException(std::exception_ptr exPtr)
 {
     const char* const localExceptionTypeId = "::Ice::LocalException";
 
@@ -724,7 +724,7 @@ IcePy::convertException(std::exception_ptr ex)
     // exception, we do our best to _return_ an appropriate Python exception.
     try
     {
-        rethrow_exception(ex);
+        rethrow_exception(exPtr);
     }
     // First handle exceptions with extra fields we want to provide to Python users.
     catch (const Ice::RequestFailedException& ex)
