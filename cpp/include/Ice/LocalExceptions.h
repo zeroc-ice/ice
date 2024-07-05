@@ -671,18 +671,6 @@ namespace Ice
     };
 
     /**
-     * This exception indicates that a connection was aborted by the idle check.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API ConnectionIdleException final : public LocalException
-    {
-    public:
-        using LocalException::LocalException;
-
-        const char* ice_id() const noexcept final;
-    };
-
-    /**
      * This exception is raised if an unsupported feature is used.
      * \headerfile Ice/Ice.h
      */

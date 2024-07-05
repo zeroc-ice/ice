@@ -900,7 +900,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
             {
                 rethrow_exception(ex);
             }
-            catch (const ConnectionIdleException&)
+            catch (const ConnectionAbortedException&)
             {
                 setState(StateClosed, ex);
             }
@@ -938,7 +938,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
                 {
                     rethrow_exception(ex);
                 }
-                catch (const ConnectionIdleException&)
+                catch (const ConnectionAbortedException&)
                 {
                     setState(StateClosed, ex);
                 }
@@ -964,7 +964,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
                 {
                     rethrow_exception(ex);
                 }
-                catch (const ConnectionIdleException&)
+                catch (const ConnectionAbortedException&)
                 {
                     setState(StateClosed, ex);
                 }
@@ -1710,9 +1710,6 @@ Ice::ConnectionI::finish(bool close)
             catch (const ConnectionClosedException&)
             {
             }
-            catch (const ConnectionIdleException&)
-            {
-            }
             catch (const CommunicatorDestroyedException&)
             {
             }
@@ -2055,9 +2052,6 @@ Ice::ConnectionI::setState(State state, exception_ptr ex)
             catch (const ConnectionClosedException&)
             {
             }
-            catch (const ConnectionIdleException&)
-            {
-            }
             catch (const CommunicatorDestroyedException&)
             {
             }
@@ -2243,9 +2237,6 @@ Ice::ConnectionI::setState(State state)
             catch (const ConnectionClosedException&)
             {
             }
-            catch (const ConnectionIdleException&)
-            {
-            }
             catch (const CommunicatorDestroyedException&)
             {
             }
@@ -2367,11 +2358,12 @@ Ice::ConnectionI::idleCheck(const Ice::TimerTaskPtr& idleCheckTimerTask, const c
 
             setState(
                 StateClosed,
-                make_exception_ptr(ConnectionIdleException{
+                make_exception_ptr(ConnectionAbortedException{
                     __FILE__,
                     __LINE__,
                     "connection aborted by the idle check because it did not receive any bytes for " +
-                        to_string(idleTimeout.count()) + "s"}));
+                        to_string(idleTimeout.count()) + "s",
+                    false})); // closedByApplication: false
         }
     }
     // else, nothing to do

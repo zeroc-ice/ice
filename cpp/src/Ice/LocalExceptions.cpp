@@ -371,12 +371,6 @@ Ice::ConnectionClosedException::ice_id() const noexcept
 }
 
 const char*
-Ice::ConnectionIdleException::ice_id() const noexcept
-{
-    return "::Ice::ConnectionIdleException";
-}
-
-const char*
 Ice::FeatureNotSupportedException::ice_id() const noexcept
 {
     return "::Ice::FeatureNotSupportedException";
