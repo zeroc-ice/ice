@@ -2592,7 +2592,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << " * @param prx - The proxy to clone.";
     _out << nl << " * @returns The new " << prx << " proxy.";
     _out << nl << " */";
-    _out << nl << "constructor(other: " << _iceImportPrefix << "Ice.ObjectPrx);";
+    _out << nl << "constructor(prx: " << _iceImportPrefix << "Ice.ObjectPrx);";
 
     for (const auto& op : p->allOperations())
     {

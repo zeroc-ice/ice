@@ -42,7 +42,7 @@ declare module "ice" {
             containsKey(key: string): boolean;
             /**
              * Get the value associated with the given key in the underlying context. Returns an empty string if no value is
-             * associated with the key. {@link #containsKey} allows you to distinguish between an empty-string value and no
+             * associated with the key. {@link ImplicitContext#containsKey} allows you to distinguish between an empty-string value and no
              * value at all.
              * @param key The key.
              * @return The value associated with the key.

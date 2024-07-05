@@ -21,4 +21,9 @@ lint: npminstall
 	$(NPM) run lint
 
 npminstall:
-	$(NPM) install --omit=optional
+	$(NPM) install
+
+doc: srcs
+	mkdir -p dist
+	node dts-bundle.js
+	npx typedoc dist/bundle.d.ts --disableGit --disableSources
