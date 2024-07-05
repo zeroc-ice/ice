@@ -7,10 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D83899002C35CA2C001A4177 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D8E4B5DF2C18CE08001D65D3 /* Main.storyboard */; };
+		D83899022C35CAA4001A4177 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E4B5D92C18CE08001D65D3 /* AppDelegate.swift */; };
 		D87A136A2C1B4FAE001E3331 /* TestBundle in Frameworks */ = {isa = PBXBuildFile; productRef = D87A13692C1B4FAE001E3331 /* TestBundle */; };
 		D87A136C2C1B4FAE001E3331 /* TestCommon in Frameworks */ = {isa = PBXBuildFile; productRef = D87A136B2C1B4FAE001E3331 /* TestCommon */; };
 		D8D2FCBE2C1BAB020080ED3A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8D2FCBD2C1BAB020080ED3A /* Foundation.framework */; };
-		D8E4B5DA2C18CE08001D65D3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E4B5D92C18CE08001D65D3 /* AppDelegate.swift */; };
 		D8E4B5DC2C18CE08001D65D3 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E4B5DB2C18CE08001D65D3 /* SceneDelegate.swift */; };
 		D8E4B5DE2C18CE08001D65D3 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E4B5DD2C18CE08001D65D3 /* ViewController.swift */; };
 		D8E4B5E32C18CE09001D65D3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D8E4B5E22C18CE09001D65D3 /* Assets.xcassets */; };
@@ -149,6 +150,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D83899002C35CA2C001A4177 /* Main.storyboard in Resources */,
 				D8E4B5E32C18CE09001D65D3 /* Assets.xcassets in Resources */,
 				D8E4B5E62C18CE09001D65D3 /* Base in Resources */,
 			);
@@ -161,9 +163,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D83899022C35CAA4001A4177 /* AppDelegate.swift in Sources */,
 				D8E4B5DE2C18CE08001D65D3 /* ViewController.swift in Sources */,
 				D8E4B5EE2C18CE4F001D65D3 /* ControllerI.swift in Sources */,
-				D8E4B5DA2C18CE08001D65D3 /* AppDelegate.swift in Sources */,
 				D8E4B5DC2C18CE08001D65D3 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -329,7 +331,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.TestDriverApp;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.zeroc.Swift-Test-Controller";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -361,7 +363,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.TestDriverApp;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.zeroc.Swift-Test-Controller";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;

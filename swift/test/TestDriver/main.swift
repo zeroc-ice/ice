@@ -25,7 +25,8 @@ do {
 
     let testName = "\(testPath).\(exe)"
 
-    try TestBundle.runTest(name: testName, args: args)
+    let testHelper = TestBundle.getTestHelper(name: testName)
+    try testHelper.run(args: args)
 
 } catch {
     for s in Thread.callStackSymbols {

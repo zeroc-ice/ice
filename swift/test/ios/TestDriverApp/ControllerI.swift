@@ -2,6 +2,7 @@
 
 import Foundation
 import Ice
+import TestBundle
 import TestCommon
 
 class ProcessI: CommonProcess {
@@ -32,7 +33,7 @@ class ProcessControllerI: CommonProcessController {
     var _ipv4: String
     var _ipv6: String
 
-    var _bundleName: String = ""
+    var _currentTest: String = ""
 
     //
     // Run each process in its own queue
@@ -56,26 +57,16 @@ class ProcessControllerI: CommonProcessController {
         current: Ice.Current
     ) throws -> CommonProcessPrx? {
         _view.println("starting \(testsuite) \(exe)... ")
-
-        //
-        // For a Client test reuse the Server or ServerAMD bundle
-        // if it has been loaded.
-        //
-        _bundleName = testsuite.split(separator: "/").map {
-            if let c = $0.first {
-                return c.uppercased() + $0.dropFirst()
-            } else {
-                return String($0)
-            }
-        }.joined(separator: "")
+        
+        _currentTest = testsuite.replacingOccurrences(of: "/", with: "_")
 
         if exe == "ServerAMD" {
-            _bundleName += "AMD"
+            _currentTest += "AMD"
         }
 
         let helper = ControllerHelperI(
             view: _view,
-            bundleName: _bundleName,
+            testName: _currentTest,
             args: args,
             exe: exe,
             queue: (exe == "Server" || exe == "ServerAMD") ? _serverDispatchQueue : _clientDispatchQueue)
@@ -156,13 +147,13 @@ class ControllerHelperI: ControllerHelper, TextWriter {
     var _semaphore: DispatchSemaphore
     var _exe: String
     var _queue: DispatchQueue
-    var _bundleName: String
+    var _testName: String
 
     public init(
-        view: ViewController, bundleName: String, args: [String], exe: String, queue: DispatchQueue
+        view: ViewController, testName: String, args: [String], exe: String, queue: DispatchQueue
     ) {
         _view = view
-        _bundleName = bundleName
+        _testName = testName
         _args = args
         _ready = false
         _completed = false
@@ -184,7 +175,7 @@ class ControllerHelperI: ControllerHelper, TextWriter {
     }
 
     public func loggerPrefix() -> String {
-        return _bundleName
+        return _testName
     }
 
     public func write(_ msg: String) {
@@ -202,24 +193,13 @@ class ControllerHelperI: ControllerHelper, TextWriter {
     }
 
     public func run() {
-        let path = "\(Bundle.main.bundlePath)/Frameworks/\(_bundleName).bundle"
 
-        guard let bundle = Bundle(url: URL(fileURLWithPath: path)) else {
-            writeLine("Bundle: `\(path)' not found")
-            completed(status: 1)
-            return
-        }
 
-        let className = "\(_bundleName).\(_exe)"
-        guard let helperClass = bundle.classNamed(className) as? TestHelperI.Type else {
-            writeLine("test: `\(className)' not found")
-            completed(status: 1)
-            return
-        }
-
+        let className = "\(_testName).\(_exe)"
+        
         _queue.async {
             do {
-                let testHelper = helperClass.init()
+                let testHelper = TestBundle.getTestHelper(name: className)
                 testHelper.setControllerHelper(controllerHelper: self)
                 testHelper.setWriter(writer: self)
                 try testHelper.run(args: self._args)
