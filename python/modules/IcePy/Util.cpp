@@ -685,7 +685,10 @@ IcePy::createExceptionInstance(PyObject* type)
 namespace
 {
     template<size_t N>
-    PyObject* createPythonException(const char* typeId, std::array<IcePy::PyObjectHandle, N> args, bool fallbackToLocalException = false)
+    PyObject* createPythonException(
+        const char* typeId,
+        std::array<IcePy::PyObjectHandle, N> args,
+        bool fallbackToLocalException = false)
     {
         PyObject* type = IcePy::lookupType(scopedToName(typeId));
         if (!type)
