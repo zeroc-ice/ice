@@ -1222,8 +1222,7 @@ public final class ObjectAdapter {
       }
 
       if (router == null) {
-        router =
-            RouterPrx.uncheckedCast(_instance.proxyFactory().propertyToProxy(name + ".Router"));
+        router = RouterPrx.uncheckedCast(communicator.propertyToProxy(name + ".Router"));
       }
       if (router != null) {
         _routerInfo = _instance.routerManager().get(router);
@@ -1279,13 +1278,12 @@ public final class ObjectAdapter {
       }
 
       //
-      // Compute the publsihed endpoints.
+      // Compute the published endpoints.
       //
       _publishedEndpoints = computePublishedEndpoints();
 
       if (properties.getProperty(_name + ".Locator").length() > 0) {
-        setLocator(
-            LocatorPrx.uncheckedCast(_instance.proxyFactory().propertyToProxy(_name + ".Locator")));
+        setLocator(LocatorPrx.uncheckedCast(communicator.propertyToProxy(_name + ".Locator")));
       } else {
         setLocator(_instance.referenceFactory().getDefaultLocator());
       }
@@ -1339,13 +1337,13 @@ public final class ObjectAdapter {
   private ObjectPrx newDirectProxy(Identity ident, String facet) {
     // Create a reference and return a proxy for this reference.
     var ref = _instance.referenceFactory().create(ident, facet, _reference, _publishedEndpoints);
-    return _instance.proxyFactory().referenceToProxy(ref);
+    return new com.zeroc.Ice._ObjectPrxI(ref);
   }
 
   private ObjectPrx newIndirectProxy(Identity ident, String facet, String id) {
     // Create a reference with the adapter id and return a proxy for the reference.
     var ref = _instance.referenceFactory().create(ident, facet, _reference, id);
-    return _instance.proxyFactory().referenceToProxy(ref);
+    return new com.zeroc.Ice._ObjectPrxI(ref);
   }
 
   private void checkForDeactivation() {

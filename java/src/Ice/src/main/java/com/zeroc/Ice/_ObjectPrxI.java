@@ -13,8 +13,7 @@ import java.util.concurrent.CompletableFuture;
 
 /** Concrete proxy implementation. */
 public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
-  // TODO: Only public for 'IceInternal.ProxyFactory', should become protected after refactoring.
-  public _ObjectPrxI(Reference ref) {
+  protected _ObjectPrxI(Reference ref) {
     _reference = ref;
   }
 
@@ -582,7 +581,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
     //
     // An ObjectNotExistException can always be retried as well without violating
     // "at-most-once" (see the implementation of the checkRetryAfterException method
-    //  of the ProxyFactory class for the reasons why it can be useful).
+    // below for the reasons why it can be useful).
     //
     // If the request didn't get sent or if it's non-mutating or idempotent it can
     // also always be retried if the retry count isn't reached.
@@ -594,10 +593,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
             || ex instanceof CloseConnectionException
             || ex instanceof ObjectNotExistException)) {
       try {
-        return _reference
-            .getInstance()
-            .proxyFactory()
-            .checkRetryAfterException((LocalException) ex, _reference, interval, cnt);
+        return checkRetryAfterException((LocalException) ex, _reference, interval, cnt);
       } catch (CommunicatorDestroyedException exc) {
         //
         // The communicator is already destroyed, so we cannot retry.
@@ -656,6 +652,168 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
         }
       }
     }
+  }
+
+  private static int checkRetryAfterException(
+      LocalException ex,
+      Reference ref,
+      com.zeroc.IceInternal.Holder<Integer> sleepInterval,
+      int cnt) {
+
+    com.zeroc.IceInternal.Instance instance = ref.getInstance();
+    com.zeroc.IceInternal.TraceLevels traceLevels = instance.traceLevels();
+    Logger logger = instance.initializationData().logger;
+    int[] retryIntervals = instance.retryIntervals();
+
+    //
+    // We don't retry batch requests because the exception might have caused
+    // all the requests batched with the connection to be aborted and we
+    // want the application to be notified.
+    //
+    if (ref.getMode() == Reference.ModeBatchOneway
+        || ref.getMode() == Reference.ModeBatchDatagram) {
+      throw ex;
+    }
+
+    //
+    // If it's a fixed proxy, retrying isn't useful as the proxy is tied to
+    // the connection and the request will fail with the exception.
+    //
+    if (ref instanceof com.zeroc.IceInternal.FixedReference) {
+      throw ex;
+    }
+
+    if (ex instanceof ObjectNotExistException) {
+      ObjectNotExistException one = (ObjectNotExistException) ex;
+
+      if (ref.getRouterInfo() != null && one.operation.equals("ice_add_proxy")) {
+        //
+        // If we have a router, an ObjectNotExistException with an
+        // operation name "ice_add_proxy" indicates to the client
+        // that the router isn't aware of the proxy (for example,
+        // because it was evicted by the router). In this case, we
+        // must *always* retry, so that the missing proxy is added
+        // to the router.
+        //
+
+        ref.getRouterInfo().clearCache(ref);
+
+        if (traceLevels.retry >= 1) {
+          String s = "retrying operation call to add proxy to router\n" + ex.toString();
+          logger.trace(traceLevels.retryCat, s);
+        }
+
+        if (sleepInterval != null) {
+          sleepInterval.value = 0;
+        }
+        return cnt; // We must always retry, so we don't look at the retry count.
+      } else if (ref.isIndirect()) {
+        //
+        // We retry ObjectNotExistException if the reference is
+        // indirect.
+        //
+
+        if (ref.isWellKnown()) {
+          com.zeroc.IceInternal.LocatorInfo li = ref.getLocatorInfo();
+          if (li != null) {
+            li.clearCache(ref);
+          }
+        }
+      } else {
+        //
+        // For all other cases, we don't retry ObjectNotExistException.
+        //
+        throw ex;
+      }
+    } else if (ex instanceof RequestFailedException) {
+      //
+      // For all other cases, we don't retry ObjectNotExistException
+      //
+      throw ex;
+    }
+
+    //
+    // There is no point in retrying an operation that resulted in a
+    // MarshalException. This must have been raised locally (because
+    // if it happened in a server it would result in an
+    // UnknownLocalException instead), which means there was a problem
+    // in this process that will not change if we try again.
+    //
+    // The most likely cause for a MarshalException is exceeding the
+    // maximum message size, which is represented by the subclass
+    // MemoryLimitException. For example, a client can attempt to send
+    // a message that exceeds the maximum memory size, or accumulate
+    // enough batch requests without flushing that the maximum size is
+    // reached.
+    //
+    // This latter case is especially problematic, because if we were
+    // to retry a batch request after a MarshalException, we would in
+    // fact silently discard the accumulated requests and allow new
+    // batch requests to accumulate. If the subsequent batched
+    // requests do not exceed the maximum message size, it appears to
+    // the client that all of the batched requests were accepted, when
+    // in reality only the last few are actually sent.
+    //
+    if (ex instanceof MarshalException) {
+      throw ex;
+    }
+
+    //
+    // Don't retry if the communicator is destroyed, object adapter is deactivated,
+    // or connection is manually closed.
+    //
+    if (ex instanceof CommunicatorDestroyedException
+        || ex instanceof ObjectAdapterDeactivatedException
+        || ex instanceof ConnectionManuallyClosedException) {
+      throw ex;
+    }
+
+    //
+    // Don't retry invocation timeouts.
+    //
+    if (ex instanceof InvocationTimeoutException || ex instanceof InvocationCanceledException) {
+      throw ex;
+    }
+
+    //
+    // Don't retry on OperationInterruptedException.
+    //
+    if (ex instanceof OperationInterruptedException) {
+      throw ex;
+    }
+
+    ++cnt;
+    assert (cnt > 0);
+
+    int interval;
+    if (cnt == (retryIntervals.length + 1) && ex instanceof CloseConnectionException) {
+      //
+      // A close connection exception is always retried at least once, even if the retry
+      // limit is reached.
+      //
+      interval = 0;
+    } else if (cnt > retryIntervals.length) {
+      if (traceLevels.retry >= 1) {
+        String s =
+            "cannot retry operation call because retry limit has been exceeded\n" + ex.toString();
+        logger.trace(traceLevels.retryCat, s);
+      }
+      throw ex;
+    } else {
+      interval = retryIntervals[cnt - 1];
+    }
+
+    if (traceLevels.retry >= 1) {
+      String s = "retrying operation call";
+      if (interval > 0) {
+        s += " in " + interval + "ms";
+      }
+      s += " because of exception\n" + ex;
+      logger.trace(traceLevels.retryCat, s);
+    }
+
+    sleepInterval.value = interval;
+    return cnt;
   }
 
   private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
