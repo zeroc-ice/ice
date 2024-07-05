@@ -2043,6 +2043,7 @@ Ice::InputStream::EncapsDecoder10::throwException(UserExceptionFactory factory)
 
         //
         // We found a factory, we get out of this loop.
+        // A factory that doesn't throw is equivalent to a null factory.
         //
         if (exceptionFactory)
         {
@@ -2063,8 +2064,6 @@ Ice::InputStream::EncapsDecoder10::throwException(UserExceptionFactory factory)
                     readPendingValues();
                 }
                 throw;
-
-                // Never reached.
             }
         }
 
@@ -2350,6 +2349,7 @@ Ice::InputStream::EncapsDecoder11::throwException(UserExceptionFactory factory)
 
         //
         // We found a factory, we get out of this loop.
+        // A factory that doesn't throw is equivalent to a null factory.
         //
         if (exceptionFactory)
         {
@@ -2366,8 +2366,6 @@ Ice::InputStream::EncapsDecoder11::throwException(UserExceptionFactory factory)
             {
                 ex._read(_stream);
                 throw;
-
-                // Never reached.
             }
         }
 
