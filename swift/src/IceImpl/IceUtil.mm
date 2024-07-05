@@ -2,8 +2,8 @@
 
 #import "include/IceUtil.h"
 #import "Convert.h"
-#import "include/Logger.h"
 #import "LoggerWrapperI.h"
+#import "include/Logger.h"
 #import "include/Properties.h"
 
 #import "Ice/Instance.h"
