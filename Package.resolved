@@ -1,5 +1,4 @@
 {
-  "originHash" : "f7f2df20e61d948c79f375bdcb040b0189008430c79ac7fee2e573c13914528a",
   "pins" : [
     {
       "identity" : "mcpp",
@@ -20,5 +19,5 @@
       }
     }
   ],
-  "version" : 3
+  "version" : 2
 }
