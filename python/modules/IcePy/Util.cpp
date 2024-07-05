@@ -381,11 +381,11 @@ IcePy::PyException::raiseLocalException()
         throw Ice::FacetNotExistException(__FILE__, __LINE__);
     }
 
-    IcePy::PyObjectHandle member = getAttr(ex.get(), "unknown", true);
+    IcePy::PyObjectHandle exStr = PyObject_Str(ex.get());
     string message;
-    if (member.get() && checkString(member.get()))
+    if (exStr.get() && checkString(exStr.get()))
     {
-        message = getString(member.get());
+        message = getString(exStr.get());
     }
 
     if (typeName == "Ice.UnknownLocalException")
@@ -682,229 +682,92 @@ IcePy::createExceptionInstance(PyObject* type)
     return PyEval_CallObject(type, args.get());
 }
 
-static void
-convertLocalException(std::exception_ptr ex, PyObject* p)
+namespace
 {
-    //
-    // Transfer data members from Ice exception to Python exception.
-    //
-    try
+    template<size_t N>
+    PyObject* createPythonException(const char* typeId, std::array<IcePy::PyObjectHandle, N> args, bool fallbackToLocalException = false)
     {
-        rethrow_exception(ex);
-    }
-    catch (const Ice::InitializationException& e)
-    {
-        IcePy::PyObjectHandle m = IcePy::createString(e.reason);
-        PyObject_SetAttrString(p, STRCAST("reason"), m.get());
-    }
-    catch (const Ice::PluginInitializationException& e)
-    {
-        IcePy::PyObjectHandle m = IcePy::createString(e.reason);
-        PyObject_SetAttrString(p, STRCAST("reason"), m.get());
-    }
-    catch (const Ice::AlreadyRegisteredException& e)
-    {
-        IcePy::PyObjectHandle m;
-        m = IcePy::createString(e.kindOfObject);
-        PyObject_SetAttrString(p, STRCAST("kindOfObject"), m.get());
-        m = IcePy::createString(e.id);
-        PyObject_SetAttrString(p, STRCAST("id"), m.get());
-    }
-    catch (const Ice::NotRegisteredException& e)
-    {
-        IcePy::PyObjectHandle m;
-        m = IcePy::createString(e.kindOfObject);
-        PyObject_SetAttrString(p, STRCAST("kindOfObject"), m.get());
-        m = IcePy::createString(e.id);
-        PyObject_SetAttrString(p, STRCAST("id"), m.get());
-    }
-    catch (const Ice::TwowayOnlyException& e)
-    {
-        IcePy::PyObjectHandle m = IcePy::createString(e.operation);
-        PyObject_SetAttrString(p, STRCAST("operation"), m.get());
-    }
-    catch (const Ice::UnknownException& e)
-    {
-        IcePy::PyObjectHandle m = IcePy::createString(e.what());
-        PyObject_SetAttrString(p, STRCAST("unknown"), m.get());
-    }
-    catch (const Ice::ObjectAdapterDeactivatedException& e)
-    {
-        IcePy::PyObjectHandle m = IcePy::createString(e.name);
-        PyObject_SetAttrString(p, STRCAST("name"), m.get());
-    }
-    catch (const Ice::ObjectAdapterIdInUseException& e)
-    {
-        IcePy::PyObjectHandle m = IcePy::createString(e.id);
-        PyObject_SetAttrString(p, STRCAST("id"), m.get());
-    }
-    catch (const Ice::NoEndpointException& e)
-    {
-        IcePy::PyObjectHandle m = IcePy::createString(e.proxy);
-        PyObject_SetAttrString(p, STRCAST("proxy"), m.get());
-    }
-    catch (const Ice::ParseException& e)
-    {
-        IcePy::PyObjectHandle m = IcePy::createString(e.what());
-        PyObject_SetAttrString(p, STRCAST("str"), m.get());
-    }
-    catch (const Ice::IllegalServantException& e)
-    {
-        IcePy::PyObjectHandle m = IcePy::createString(e.reason);
-        PyObject_SetAttrString(p, STRCAST("reason"), m.get());
-    }
-    catch (const Ice::RequestFailedException& e)
-    {
-        IcePy::PyObjectHandle m;
-        m = IcePy::createIdentity(e.id());
-        PyObject_SetAttrString(p, STRCAST("id"), m.get());
-        m = IcePy::createString(e.facet());
-        PyObject_SetAttrString(p, STRCAST("facet"), m.get());
-        m = IcePy::createString(e.operation());
-        PyObject_SetAttrString(p, STRCAST("operation"), m.get());
-    }
-    catch (const Ice::FileException& e)
-    {
-        IcePy::PyObjectHandle m = PyLong_FromLong(e.error);
-        PyObject_SetAttrString(p, STRCAST("error"), m.get());
-        m = IcePy::createString(e.path);
-        PyObject_SetAttrString(p, STRCAST("path"), m.get());
-    }
-    catch (const Ice::SyscallException& e) // This must appear after all subclasses of SyscallException.
-    {
-        IcePy::PyObjectHandle m = PyLong_FromLong(e.error);
-        PyObject_SetAttrString(p, STRCAST("error"), m.get());
-    }
-    catch (const Ice::DNSException& e)
-    {
-        IcePy::PyObjectHandle m;
-        m = PyLong_FromLong(e.error);
-        PyObject_SetAttrString(p, STRCAST("error"), m.get());
-        m = IcePy::createString(e.host);
-        PyObject_SetAttrString(p, STRCAST("host"), m.get());
-    }
-    catch (const Ice::ConnectionManuallyClosedException& e)
-    {
-        PyObject_SetAttrString(p, STRCAST("graceful"), e.graceful ? IcePy::getTrue() : IcePy::getFalse());
-    }
-    catch (const Ice::ProtocolException& e) // This must appear after all subclasses of ProtocolException.
-    {
-        IcePy::PyObjectHandle m = IcePy::createString(e.what());
-        PyObject_SetAttrString(p, STRCAST("reason"), m.get());
-    }
-    catch (const Ice::FeatureNotSupportedException& e)
-    {
-        IcePy::PyObjectHandle m = IcePy::createString(e.what());
-        PyObject_SetAttrString(p, STRCAST("unsupportedFeature"), m.get());
-    }
-    catch (const Ice::SecurityException& e)
-    {
-        IcePy::PyObjectHandle m = IcePy::createString(e.reason);
-        PyObject_SetAttrString(p, STRCAST("reason"), m.get());
-    }
-    catch (const Ice::LocalException&)
-    {
-        //
-        // Nothing to do.
-        //
-    }
-    catch (...)
-    {
-        assert(false);
+        PyObject* type = IcePy::lookupType(scopedToName(typeId));
+        if (!type)
+        {
+            if (fallbackToLocalException)
+            {
+                type = IcePy::lookupType("Ice.LocalException");
+            }
+            else
+            {
+                ostringstream os;
+                os << "unable to create Python exception class for type ID " << typeId;
+                return PyObject_CallFunction(PyExc_Exception, "s", os.str().c_str());
+            }
+        }
+        IcePy::PyObjectHandle pArgs = PyTuple_New(N);
+        for (size_t i = 0; i < N; ++i)
+        {
+            PyObject* pArg = args[i].get();
+            Py_INCREF(pArg); // PyTuple_SetItem steals a reference.
+            PyTuple_SetItem(pArgs.get(), static_cast<Py_ssize_t>(i), pArg);
+        }
+        return PyEval_CallObject(type, pArgs.get());
     }
 }
 
 PyObject*
 IcePy::convertException(std::exception_ptr ex)
 {
-    PyObjectHandle p;
-    PyObject* type;
+    const char* const localExceptionTypeId = "::Ice::LocalException";
 
+    // We cannot throw a C++ exception or raise a Python exception. If an error occurs while we are converting the
+    // exception, we do our best to _return_ an appropriate Python exception.
     try
     {
         rethrow_exception(ex);
     }
-    catch (const Ice::LocalException& e)
+    // First handle exceptions with extra fields we want to provide to Python users.
+    catch (const Ice::RequestFailedException& ex)
     {
-        type = lookupType(scopedToName(e.ice_id()));
-        if (type)
-        {
-            p = createExceptionInstance(type);
-            if (p.get())
-            {
-                convertLocalException(ex, p.get());
-            }
-        }
-        else
-        {
-            type = lookupType("Ice.UnknownLocalException");
-            assert(type);
-            p = createExceptionInstance(type);
-            if (p.get())
-            {
-                PyObjectHandle s = createString(e.what());
-                PyObject_SetAttrString(p.get(), STRCAST("unknown"), s.get());
-            }
-        }
-    }
-    catch (const Ice::UserException& e)
-    {
-        ostringstream ostr;
-        ostr << e;
-        string str = ostr.str();
+        std::array<IcePy::PyObjectHandle, 4> args = {
+            IcePy::createIdentity(ex.id()),
+            IcePy::createString(ex.facet()),
+            IcePy::createString(ex.operation()),
+            IcePy::createString(ex.what())};
 
-        type = lookupType("Ice.UnknownUserException");
-        assert(type);
-        p = createExceptionInstance(type);
-        if (p.get())
-        {
-            PyObjectHandle s = createString(str);
-            PyObject_SetAttrString(p.get(), STRCAST("unknown"), s.get());
-        }
+        return createPythonException(ex.ice_id(), std::move(args));
     }
-    catch (const Ice::Exception& e)
+    catch (const Ice::AlreadyRegisteredException& ex)
     {
-        ostringstream ostr;
-        ostr << e;
-        string str = ostr.str();
+        std::array<IcePy::PyObjectHandle, 3> args = {
+            IcePy::createString(ex.kindOfObject),
+            IcePy::createString(ex.id),
+            IcePy::createString(ex.what())};
 
-        type = lookupType("Ice.UnknownException");
-        assert(type);
-        p = createExceptionInstance(type);
-        if (p.get())
-        {
-            PyObjectHandle s = createString(str);
-            PyObject_SetAttrString(p.get(), STRCAST("unknown"), s.get());
-        }
+        return createPythonException(ex.ice_id(), std::move(args));
     }
-    catch (const std::exception& e)
+    catch (const Ice::NotRegisteredException& ex)
     {
-        string_view str = e.what();
+        std::array<IcePy::PyObjectHandle, 3> args = {
+            IcePy::createString(ex.kindOfObject),
+            IcePy::createString(ex.id),
+            IcePy::createString(ex.what())};
 
-        type = lookupType("Ice.UnknownException");
-        assert(type);
-        p = createExceptionInstance(type);
-        if (p.get())
-        {
-            PyObjectHandle s = createString(str);
-            PyObject_SetAttrString(p.get(), STRCAST("unknown"), s.get());
-        }
+        return createPythonException(ex.ice_id(), std::move(args));
+    }
+    // Then all other exceptions.
+    catch (const Ice::LocalException& ex)
+    {
+        std::array<IcePy::PyObjectHandle, 1> args = {IcePy::createString(ex.what())};
+        return createPythonException(ex.ice_id(), std::move(args), true);
+    }
+    catch (const std::exception& ex)
+    {
+        std::array<IcePy::PyObjectHandle, 1> args = {IcePy::createString(ex.what())};
+        return createPythonException(localExceptionTypeId, std::move(args));
     }
     catch (...)
     {
-        static constexpr string_view str = "unknown c++ exception";
-
-        type = lookupType("Ice.UnknownException");
-        assert(type);
-        p = createExceptionInstance(type);
-        if (p.get())
-        {
-            PyObjectHandle s = createString(str);
-            PyObject_SetAttrString(p.get(), STRCAST("unknown"), s.get());
-        }
+        std::array<IcePy::PyObjectHandle, 1> args = {IcePy::createString("unknown C++ exception")};
+        return createPythonException(localExceptionTypeId, std::move(args));
     }
-
-    return p.release();
 }
 
 void

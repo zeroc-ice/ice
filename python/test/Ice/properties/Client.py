@@ -106,7 +106,7 @@ class Client(TestHelper):
             properties = Ice.createProperties()
             properties.getIceProperty("Ice.UnknownProperty")
             test(False)
-        except Ice.UnknownException:
+        except Ice.LocalException:
             # We dont' have a specific exception for unknown properties
             pass
         print("ok")

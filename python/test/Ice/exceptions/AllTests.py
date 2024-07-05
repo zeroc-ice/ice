@@ -234,13 +234,13 @@ def allTests(helper, communicator):
     try:
         adapter.add(obj, Ice.Identity("", ""))
         test(False)
-    except Ice.IllegalIdentityException:
+    except Ice.LocalException:
         pass
 
     try:
         adapter.add(None, Ice.stringToIdentity("x"))
         test(False)
-    except Ice.IllegalServantException:
+    except Ice.LocalException:
         pass
 
     adapter.remove(Ice.stringToIdentity("x"))
@@ -838,15 +838,15 @@ def allTests(helper, communicator):
         try:
             thrower.throwMarshalException(context={"response": ""})
         except Ice.UnknownLocalException as ex:
-            test("::Ice::UnknownLocalException" in str(ex))
+            test("cannot marshal result" in str(ex))
         try:
             thrower.throwMarshalException(context={"param": ""})
         except Ice.UnknownLocalException as ex:
-            test("::Ice::UnknownLocalException" in str(ex))
+            test("cannot marshal result" in str(ex))
         try:
             thrower.throwMarshalException()
         except Ice.UnknownLocalException as ex:
-            test("::Ice::UnknownLocalException" in str(ex))
+            test("cannot marshal result" in str(ex))
     except Ice.OperationNotExistException:
         pass
     print("ok")
