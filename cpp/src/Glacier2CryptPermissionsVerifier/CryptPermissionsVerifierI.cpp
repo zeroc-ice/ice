@@ -11,7 +11,7 @@
 #include <fstream>
 #include <mutex>
 
-#if defined(__GLIBC__) || defined(_AIX)
+#if defined(__GLIBC__)
 #    include <crypt.h>
 #elif defined(__FreeBSD__)
 #    include <unistd.h>

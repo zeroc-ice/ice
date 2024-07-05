@@ -547,7 +547,10 @@ IcePHP::TypedInvocation::unmarshalException(zval* zex, pair<const byte*, const b
                 {
                     throw ExceptionReader(_communicator, info);
                 }
+                // It's ok for a user exception factory to not throw - it's equivalent to a null factory.
             });
+
+        assert(false); // throwException always throws an exception
     }
     catch (const ExceptionReader& r)
     {
@@ -559,21 +562,19 @@ IcePHP::TypedInvocation::unmarshalException(zval* zex, pair<const byte*, const b
         if (validateException(info))
         {
             ZVAL_COPY(zex, ex);
-            return;
         }
         else
         {
+            // TODO: provide convenience constructor / factory function for UnknownUserException.
             ostringstream os;
-            os << "operation raised undeclared exception `" << info->id << "'";
+            os << "operation raised undeclared exception '" << info->id << "'";
             convertException(zex, make_exception_ptr(Ice::UnknownUserException{__FILE__, __LINE__, os.str()}));
-            return;
         }
     }
-
-    // Getting here should be impossible: we can get here only if the sender has marshaled a sequence of type IDs, none
-    // of which we have a factory for. This means that sender and receiver disagree about the Slice definitions they
-    // use.
-    convertException(zex, make_exception_ptr(Ice::UnknownUserException{__FILE__, __LINE__, "unknown exception"}));
+    catch (...)
+    {
+        convertException(zex, current_exception());
+    }
 }
 
 bool

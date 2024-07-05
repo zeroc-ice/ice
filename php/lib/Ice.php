@@ -28,32 +28,19 @@ namespace Ice
     //
     // Exceptions.
     //
-    abstract class Exception extends \Exception
+    class Exception extends \Exception
     {
-        public function __construct($message = '')
-        {
-            parent::__construct($message);
-        }
+    }
 
-        abstract public function ice_id();
+    class LocalException extends Exception
+    {
     }
 
     abstract class UserException extends Exception
     {
+        abstract public function ice_id();
+
         public $_ice_slicedData;
-
-        public function __construct($message = '')
-        {
-            parent::__construct($message);
-        }
-    }
-
-    abstract class LocalException extends Exception
-    {
-        public function __construct($message = '')
-        {
-            parent::__construct($message);
-        }
     }
 
     class Value
@@ -171,7 +158,7 @@ namespace
     require_once 'IceLocal/Connection.php';
     require_once 'IceLocal/EndpointSelectionType.php';
     require_once 'Ice/EndpointTypes.php';
-    require_once 'IceLocal/LocalException.php';
+    require_once 'IceLocal/LocalExceptions.php';
     require_once 'Ice/Locator.php';
     require_once 'IceLocal/ValueFactory.php';
     require_once 'Ice/Process.php';

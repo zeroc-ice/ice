@@ -54,6 +54,12 @@ module Ice
     # Exceptions.
     #
     class Exception < ::StandardError
+    end
+
+    class LocalException < Exception
+    end
+
+    class UserException < Exception
         def ice_id
             to_s
         end
@@ -61,12 +67,6 @@ module Ice
         def inspect
             return ::Ice::__stringifyException(self)
         end
-    end
-
-    class UserException < Exception
-    end
-
-    class LocalException < Exception
     end
 
     #
@@ -233,20 +233,20 @@ end
 #
 require 'Ice/BuiltinSequences.rb'
 require 'Ice/Context.rb'
-require 'IceLocal/Current.rb'
-require 'IceLocal/Communicator.rb'
-require 'IceLocal/EndpointSelectionType.rb'
+require_relative 'IceLocal/Current.rb'
+require_relative 'IceLocal/Communicator.rb'
+require_relative 'IceLocal/EndpointSelectionType.rb'
 require 'Ice/EndpointTypes.rb'
-require 'IceLocal/LocalException.rb'
+require_relative 'IceLocal/LocalExceptions.rb'
 require 'Ice/Locator.rb'
-require 'IceLocal/Logger.rb'
-require 'IceLocal/ValueFactory.rb'
+require_relative 'IceLocal/Logger.rb'
+require_relative 'IceLocal/ValueFactory.rb'
 require 'Ice/OperationMode.rb'
 require 'Ice/Process.rb'
 require 'Ice/Router.rb'
-require 'IceLocal/Connection.rb'
+require_relative 'IceLocal/Connection.rb'
 require 'Ice/Version.rb'
-require 'IceLocal/Instrumentation.rb'
+require_relative 'IceLocal/Instrumentation.rb'
 require 'Ice/Metrics.rb'
 require 'Ice/RemoteLogger.rb'
 

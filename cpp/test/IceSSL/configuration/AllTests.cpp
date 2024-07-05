@@ -2451,8 +2451,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #endif
     }
 
-#if !defined(_AIX)
-    // On AIX 6.1, the default root certificates don't validate demo.zeroc.com.
     cout << "testing system CAs... " << flush;
     {
         //
@@ -2540,7 +2538,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         }
     }
     cout << "ok" << endl;
-#endif
 
     return factory;
 }

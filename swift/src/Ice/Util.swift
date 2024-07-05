@@ -16,11 +16,11 @@ func stringToEncodingVersion(_ s: String) throws -> EncodingVersion {
 func stringToMajorMinor(_ s: String) throws -> (UInt8, UInt8) {
     let components = s.components(separatedBy: ".")
     guard components.count == 2 else {
-        throw ParseException(str: "malformed Ice version string '\(s)'")
+        throw ParseException("malformed Ice version string '\(s)'")
     }
 
     guard let major = UInt8(components[0] as String), let minor = UInt8(components[1]) else {
-        throw ParseException(str: "invalid Ice version value '\(s)'")
+        throw ParseException("invalid Ice version value '\(s)'")
     }
 
     return (major, minor)
@@ -79,6 +79,6 @@ func checkSupportedEncoding(_ v: EncodingVersion) throws {
     let c = currentEncoding
     if v.major != c.major || v.minor > c.minor {
         throw MarshalException(
-            reason: "this Ice runtime does not support encoding version \(encodingVersionToString(v))")
+            "this Ice runtime does not support encoding version \(encodingVersionToString(v))")
     }
 }

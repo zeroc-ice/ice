@@ -292,7 +292,7 @@ public final class Util {
    * @return The string representation of the object identity.
    */
   public static String identityToString(Identity ident, ToStringMode toStringMode) {
-    if (ident.category == null || ident.category.length() == 0) {
+    if (ident.category == null || ident.category.isEmpty()) {
       return StringUtil.escapeString(ident.name, "/", toStringMode);
     } else {
       return StringUtil.escapeString(ident.category, "/", toStringMode)

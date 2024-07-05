@@ -24,7 +24,7 @@ extension InputStream {
     public func read() throws -> CompressBatch {
         let rawValue: UInt8 = try read(enumMaxValue: 2)
         guard let val = CompressBatch(rawValue: rawValue) else {
-            throw MarshalException(reason: "invalid enum value")
+            throw MarshalException("invalid enum value")
         }
         return val
     }
@@ -87,7 +87,7 @@ extension InputStream {
     public func read() throws -> ConnectionClose {
         let rawValue: UInt8 = try read(enumMaxValue: 2)
         guard let val = ConnectionClose(rawValue: rawValue) else {
-            throw MarshalException(reason: "invalid enum value")
+            throw MarshalException("invalid enum value")
         }
         return val
     }

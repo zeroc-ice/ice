@@ -144,7 +144,7 @@ public abstract class Application {
     // If the process logger is the default logger, we replace it with a
     // a logger which is using the program name for the prefix.
     //
-    if (!initData.properties.getProperty("Ice.ProgramName").equals("")
+    if (!initData.properties.getProperty("Ice.ProgramName").isEmpty()
         && Util.getProcessLogger() instanceof LoggerI) {
       Util.setProcessLogger(new LoggerI(initData.properties.getProperty("Ice.ProgramName"), ""));
     }

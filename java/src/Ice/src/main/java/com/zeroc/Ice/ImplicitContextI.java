@@ -9,7 +9,7 @@ package com.zeroc.Ice;
 //
 public abstract class ImplicitContextI implements ImplicitContext {
   public static ImplicitContextI create(String kind) {
-    if (kind.equals("None") || kind.equals("")) {
+    if (kind.isEmpty() || kind.equals("None")) {
       return null;
     } else if (kind.equals("Shared")) {
       return new Shared();

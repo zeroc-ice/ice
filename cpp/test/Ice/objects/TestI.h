@@ -63,7 +63,6 @@ public:
     Test::FPtr getF(const Ice::Current&) final;
 
     void setRecursive(Test::RecursivePtr, const Ice::Current&) final;
-    bool supportsClassGraphDepthMax(const Ice::Current&) final;
 
     void setCycle(Test::RecursivePtr, const Ice::Current&) final;
     bool acceptsClassCycles(const Ice::Current&) final;

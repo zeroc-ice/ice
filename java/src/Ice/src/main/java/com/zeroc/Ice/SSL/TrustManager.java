@@ -53,7 +53,7 @@ class TrustManager {
       if (!_rejectAllServer.isEmpty()) {
         reject.add(_rejectAllServer);
       }
-      if (info.adapterName.length() > 0) {
+      if (!info.adapterName.isEmpty()) {
         java.util.List<java.util.List<RFC2253.RDNPair>> p = _rejectServer.get(info.adapterName);
         if (p != null) {
           reject.add(p);
@@ -72,7 +72,7 @@ class TrustManager {
       if (!_acceptAllServer.isEmpty()) {
         accept.add(_acceptAllServer);
       }
-      if (info.adapterName.length() > 0) {
+      if (!info.adapterName.isEmpty()) {
         java.util.List<java.util.List<RFC2253.RDNPair>> p = _acceptServer.get(info.adapterName);
         if (p != null) {
           accept.add(p);
@@ -257,11 +257,11 @@ class TrustManager {
       boolean first = true;
       for (RFC2253.RDNPair pair : e.rdn) {
         if (!first) {
-          v.append(",");
+          v.append(',');
         }
         first = false;
         v.append(pair.key);
-        v.append("=");
+        v.append('=');
         v.append(pair.value);
       }
       javax.security.auth.x500.X500Principal princ =

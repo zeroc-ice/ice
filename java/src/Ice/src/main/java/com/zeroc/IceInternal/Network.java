@@ -61,16 +61,7 @@ public final class Network {
     if (msg != null) {
       msg = msg.toLowerCase();
 
-      final String[] msgs = {
-        "connection refused", // ECONNREFUSED
-        "remote host refused an attempted connect operation" // ECONNREFUSED (AIX JDK 1.4.2)
-      };
-
-      for (String m : msgs) {
-        if (msg.indexOf(m) != -1) {
-          return true;
-        }
-      }
+      return msg.indexOf("connection refused") != -1;
     }
 
     return false;
@@ -557,7 +548,7 @@ public final class Network {
 
   public static java.net.InetSocketAddress getAddressForServer(
       String host, int port, int protocol, boolean preferIPv6) {
-    if (host == null || host.length() == 0) {
+    if (host == null || host.isEmpty()) {
       try {
         if (protocol != EnableIPv4) {
           return new java.net.InetSocketAddress(java.net.InetAddress.getByName("::0"), port);
@@ -675,7 +666,7 @@ public final class Network {
     java.util.List<java.net.InetSocketAddress> addresses = new java.util.ArrayList<>();
     try {
       java.net.InetAddress[] addrs;
-      if (host == null || host.length() == 0) {
+      if (host == null || host.isEmpty()) {
         addrs = getLoopbackAddresses(protocol);
       } else {
         addrs = java.net.InetAddress.getAllByName(host);
@@ -1083,7 +1074,7 @@ public final class Network {
   }
 
   private static boolean isWildcard(String host) {
-    if (host == null || host.length() == 0) {
+    if (host == null || host.isEmpty()) {
       return true;
     }
     try {

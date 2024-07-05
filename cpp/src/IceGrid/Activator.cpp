@@ -35,7 +35,7 @@
 #    endif
 #endif
 
-#if defined(__linux__) || defined(__sun) || defined(_AIX) || defined(__GLIBC__)
+#if defined(__linux__) || defined(__GLIBC__)
 #    include <grp.h> // for setgroups
 #endif
 
@@ -654,47 +654,25 @@ Activator::activate(
     }
 
     vector<gid_t> groups;
-#    ifdef _AIX
-    char* grouplist = getgrset(pw->pw_name);
-    if (grouplist == 0)
-    {
-        throw SyscallException(__FILE__, __LINE__);
-    }
-    vector<string> grps;
-    if (IceInternal::splitString(grouplist, ",", grps))
-    {
-        for (vector<string>::const_iterator p = grps.begin(); p != grps.end(); ++p)
-        {
-            gid_t group;
-            istringstream is(*p);
-            if (is >> group)
-            {
-                groups.push_back(group);
-            }
-        }
-    }
-    free(grouplist);
-#    else
     groups.resize(20);
     int ngroups = static_cast<int>(groups.size());
-#        if defined(__APPLE__)
+#    if defined(__APPLE__)
     if (getgrouplist(pw->pw_name, static_cast<int>(gid), reinterpret_cast<int*>(&groups[0]), &ngroups) < 0)
-#        else
+#    else
     if (getgrouplist(pw->pw_name, gid, &groups[0], &ngroups) < 0)
-#        endif
+#    endif
     {
         groups.resize(static_cast<size_t>(ngroups));
-#        if defined(__APPLE__)
+#    if defined(__APPLE__)
         getgrouplist(pw->pw_name, static_cast<int>(gid), reinterpret_cast<int*>(&groups[0]), &ngroups);
-#        else
+#    else
         getgrouplist(pw->pw_name, gid, &groups[0], &ngroups);
-#        endif
+#    endif
     }
     else
     {
         groups.resize(static_cast<size_t>(ngroups));
     }
-#    endif
 
     if (groups.size() > NGROUPS_MAX)
     {

@@ -1441,14 +1441,14 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         {
             throw new ArgumentException("invalid connection passed to ice_fixed");
         }
-        var reference = _reference.changeConnection((Ice.ConnectionI)connection);
-        if (reference == _reference)
+
+        if (connection == _reference.getConnection())
         {
             return this;
         }
         else
         {
-            return iceNewInstance(reference);
+            return iceNewInstance(_reference.changeConnection((Ice.ConnectionI)connection));
         }
     }
 

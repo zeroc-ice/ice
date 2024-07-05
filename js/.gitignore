@@ -1,5 +1,6 @@
 dist
 lib
+docs
 node_modules
 npm-debug.log
 server-languages.json

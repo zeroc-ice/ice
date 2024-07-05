@@ -102,7 +102,7 @@ class ShowLogFileDialog extends JDialog {
     private void openError(final String message) {
       SwingUtilities.invokeLater(
           () -> {
-            if (_textArea.getText() == null || _textArea.getText().length() == 0) {
+            if (_textArea.getText() == null || _textArea.getText().isEmpty()) {
               close(true);
             } else {
               stopReading();

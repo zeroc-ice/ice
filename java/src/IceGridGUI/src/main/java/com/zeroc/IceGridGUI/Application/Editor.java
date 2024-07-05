@@ -161,9 +161,9 @@ public class Editor extends EditorBase {
     int errorCount = 0;
 
     for (int i = 1; i < nameValArray.length; i += 2) {
-      if (nameValArray[i] == null || nameValArray[i].length() == 0) {
+      if (nameValArray[i] == null || nameValArray[i].isEmpty()) {
         errorCount++;
-        if (emptyFields.length() > 0) {
+        if (!emptyFields.isEmpty()) {
           emptyFields += "\n";
         }
         emptyFields += "'" + nameValArray[i - 1] + "'";

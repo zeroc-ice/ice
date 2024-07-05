@@ -119,9 +119,6 @@ class InitialI(Test.Initial):
     def setRecursive(self, r, current):
         pass
 
-    def supportsClassGraphDepthMax(self, current):
-        return True
-
     def setCycle(self, r, current):
         pass
 

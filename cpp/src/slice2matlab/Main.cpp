@@ -3648,7 +3648,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     }
     out << nl << "otherwise";
     out.inc();
-    out << nl << "throw(Ice.MarshalException('', '', sprintf('enumerator value %d is out of range', v)));";
+    out << nl << "throw(Ice.MarshalException(sprintf('enumerator value %d is out of range', v)));";
     out.dec();
     out.dec();
     out << nl << "end";

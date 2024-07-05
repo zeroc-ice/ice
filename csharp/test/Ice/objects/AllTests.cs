@@ -309,31 +309,26 @@ namespace Ice
                     output.Write("testing recursive type... ");
                     output.Flush();
                     var top = new Test.Recursive();
-                    var p = top;
-                    int depth = 0;
+                    var bottom = top;
+                    int maxDepth = 10;
+                    for (int i = 1; i < maxDepth; i++)
+                    {
+                        bottom.v = new Test.Recursive();
+                        bottom = bottom.v;
+                    }
+                    initial.setRecursive(top);
+
+                    // Adding one more level would exceed the max class graph depth
+                    bottom.v = new Test.Recursive();
+                    bottom = bottom.v;
                     try
                     {
-                        for (; depth <= 1000; ++depth)
-                        {
-                            p.v = new Test.Recursive();
-                            p = p.v;
-                            if ((depth < 10 && (depth % 10) == 0) ||
-                              (depth < 1000 && (depth % 100) == 0) ||
-                              (depth < 10000 && (depth % 1000) == 0) ||
-                              (depth % 10000) == 0)
-                            {
-                                initial.setRecursive(top);
-                            }
-                        }
-                        test(!initial.supportsClassGraphDepthMax());
+                        initial.setRecursive(top);
+                        test(false);
                     }
                     catch (Ice.UnknownLocalException)
                     {
                         // Expected marshal exception from the server(max class graph depth reached)
-                    }
-                    catch (Ice.UnknownException)
-                    {
-                        // Expected stack overflow from the server(Java only)
                     }
                     initial.setRecursive(new Test.Recursive());
                     output.WriteLine("ok");

@@ -167,7 +167,7 @@ public final class ObjectAdapterFactory {
     return adapter;
   }
 
-  public ObjectAdapter findObjectAdapter(com.zeroc.Ice.ObjectPrx proxy) {
+  public ObjectAdapter findObjectAdapter(com.zeroc.IceInternal.Reference ref) {
     java.util.List<ObjectAdapter> adapters;
     synchronized (this) {
       if (_instance == null) {
@@ -179,7 +179,7 @@ public final class ObjectAdapterFactory {
 
     for (ObjectAdapter adapter : adapters) {
       try {
-        if (adapter.isLocal(proxy)) {
+        if (adapter.isLocal(ref)) {
           return adapter;
         }
       } catch (com.zeroc.Ice.ObjectAdapterDeactivatedException ex) {

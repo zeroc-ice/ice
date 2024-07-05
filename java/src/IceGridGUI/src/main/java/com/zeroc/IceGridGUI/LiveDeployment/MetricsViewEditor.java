@@ -76,8 +76,8 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
   //
   // This class allow to render a number with a format
   //
-  public static class FormatedNumberRenderer extends DefaultTableCellRenderer {
-    public FormatedNumberRenderer(String format) {
+  public static class FormattedNumberRenderer extends DefaultTableCellRenderer {
+    public FormattedNumberRenderer(String format) {
       _format = new DecimalFormat(format);
     }
 
@@ -184,7 +184,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
 
       for (String name : sectionSort) {
         String displayName = _properties.getPropertyWithDefault("IceGridGUI.Metrics." + name, "");
-        if (!displayName.equals("")) {
+        if (!displayName.isEmpty()) {
           _sectionNames.put(name, displayName);
         }
       }
@@ -227,7 +227,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
     public MetricsViewInfo(MetricsView view) {
       java.util.List<String> fullId = ((Communicator) view.getParent()).getFullId();
 
-      assert fullId.size() > 0;
+      assert !fullId.isEmpty();
 
       if (fullId.size() == 1) {
         component = "/";
@@ -475,7 +475,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
             cells.add(new MetricsCell(id, field.createField()));
           }
         }
-        if (cells.size() > 0) {
+        if (!cells.isEmpty()) {
           rows.put(id, cells);
         }
       }
@@ -499,7 +499,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
       TableModel model = (TableModel) table.getModel();
       Map<String, List<MetricsCell>> rows = getSelectedRows(table, true);
 
-      if (rows.size() > 0) {
+      if (!rows.isEmpty()) {
         return new Transferable(
             new MetricsViewTransferableData(
                 new MetricsViewInfo(_node), model.getMetricsName(), rows));
@@ -548,7 +548,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
             model.addField(field);
           }
         }
-        if (model.getMetricFields().size() == 0) {
+        if (model.getMetricFields().isEmpty()) {
           continue;
         }
 
@@ -605,7 +605,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
                   JMenu addToGraph = new JMenu("Add To Metrics Graph");
                   popup.add(addToGraph);
                   final Map<String, List<MetricsCell>> rows = getSelectedRows(table, true);
-                  addToGraph.setEnabled(rows.size() > 0);
+                  addToGraph.setEnabled(!rows.isEmpty());
                   JMenuItem newGraph = new JMenuItem("New Metrics Graph");
                   newGraph.addActionListener(
                       new ActionListener() {
@@ -684,7 +684,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
                 .getColumnModel()
                 .getColumnIndex(
                     _properties.getProperty("IceGridGUI.Metrics." + key + ".id.columnName"));
-        if (rows.size() > 0) {
+        if (!rows.isEmpty()) {
           for (int i = table.getRowCount() - 1; i >= 0; --i) {
             String id = (String) table.getValueAt(i, idColumn);
             List<MetricsCell> columns = rows.get(id);
@@ -736,14 +736,14 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
           continue;
         }
 
-        if (!propEntry.getKey().substring(0, propEntry.getKey().lastIndexOf(".")).equals(prefix)) {
+        if (!propEntry.getKey().substring(0, propEntry.getKey().lastIndexOf('.')).equals(prefix)) {
           //
           // Sub metric property.
           //
           continue;
         }
 
-        String setterName = propEntry.getKey().substring(propEntry.getKey().lastIndexOf(".") + 1);
+        String setterName = propEntry.getKey().substring(propEntry.getKey().lastIndexOf('.') + 1);
         setterName = "set" + Character.toUpperCase(setterName.charAt(0)) + setterName.substring(1);
 
         try {
@@ -778,7 +778,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
     Object[] elements = _selectedPath.getPath();
     for (Object element : elements) {
       sb.append(element.toString());
-      sb.append(".");
+      sb.append('.');
     }
 
     for (String name : _sectionSort) {
@@ -920,56 +920,56 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
     //
     // The metrics view where the field was added.
     //
-    public MetricsView getMetricsNode();
+    MetricsView getMetricsNode();
 
     //
     // Return the prefix of properties used to configure the field.
     //
-    public String getPropertyPrefix();
+    String getPropertyPrefix();
 
     //
     // Name of the metrics object.
     //
-    public String getMetricsName();
+    String getMetricsName();
 
     //
     // Name to identify the field.
     //
-    public String getFieldName();
+    String getFieldName();
 
     //
     // Name for display.
     //
-    public String getColumnName();
+    String getColumnName();
 
     //
     // ToolTip
     //
-    public String getColumnToolTip();
+    String getColumnToolTip();
 
     //
-    // The Java class correspoding to the field, is used in the table models.
+    // The Java class corresponding to the field, is used in the table models.
     //
-    public Class getColumnClass();
+    Class getColumnClass();
 
     //
     // Renderer used by JTable to render the field.
     //
-    public TableCellRenderer getCellRenderer();
+    TableCellRenderer getCellRenderer();
 
     //
     // Return the value of the field for the given metrics object.
     //
-    public Object getValue(com.zeroc.Ice.IceMX.Metrics m, long timestamp);
+    Object getValue(com.zeroc.Ice.IceMX.Metrics m, long timestamp);
 
     //
     // Set up a field identical to this but without the transient data.
     //
-    public MetricsField createField();
+    MetricsField createField();
 
-    public MetricsFieldContext getContext();
+    MetricsFieldContext getContext();
 
-    public void setContext(MetricsFieldContext context);
+    void setContext(MetricsFieldContext context);
   }
 
   public abstract static class AbstractField implements MetricsField {
@@ -1081,7 +1081,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
     }
 
     public void setFormat(String format) {
-      _cellRenderer = new FormatedNumberRenderer(format);
+      _cellRenderer = new FormattedNumberRenderer(format);
     }
 
     @Override
@@ -1112,7 +1112,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
     }
 
     public void setFormat(String format) {
-      _cellRenderer = new FormatedNumberRenderer(format);
+      _cellRenderer = new FormattedNumberRenderer(format);
     }
 
     @Override
@@ -1165,7 +1165,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
     }
 
     public void setFormat(String format) {
-      _cellRenderer = new FormatedNumberRenderer(format);
+      _cellRenderer = new FormattedNumberRenderer(format);
     }
 
     @Override
@@ -1420,7 +1420,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
                       model.addField(field);
                     }
                   }
-                  if (model.getMetricFields().size() == 0) {
+                  if (model.getMetricFields().isEmpty()) {
                     return;
                   }
 

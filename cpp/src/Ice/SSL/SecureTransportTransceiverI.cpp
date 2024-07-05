@@ -195,9 +195,9 @@ Ice::SSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuf
                 }
                 else if (_trust)
                 {
-                    for (CFIndex i = 0, count = SecTrustGetCertificateCount(_trust.get()); i < count; ++i)
+                    if (SecTrustGetCertificateCount(_trust.get()) > 0)
                     {
-                        SecCertificateRef peerCertificate = SecTrustGetCertificateAtIndex(_trust.get(), i);
+                        SecCertificateRef peerCertificate = SecTrustGetCertificateAtIndex(_trust.get(), 0);
                         CFRetain(peerCertificate);
                         _peerCertificate.reset(peerCertificate);
                     }

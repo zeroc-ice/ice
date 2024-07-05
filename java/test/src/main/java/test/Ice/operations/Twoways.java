@@ -274,7 +274,7 @@ class Twoways {
       r = p.opStruct(si1, si2);
       test(r.returnValue.p == null);
       test(r.returnValue.e == MyEnum.enum1);
-      test(r.returnValue.s.s.equals(""));
+      test(r.returnValue.s.s.isEmpty());
       test(r.p3.p == null);
       test(r.p3.e == MyEnum.enum1);
       test(r.p3.s.s.equals("a new string"));
@@ -566,10 +566,10 @@ class Twoways {
       test(r.p3[0][0][1].equals("de"));
       test(r.p3[0][1][0].equals("xyz"));
       test(r.p3[1][0][0].equals("hello"));
-      test(r.p3[2][0][0].equals(""));
-      test(r.p3[2][0][1].equals(""));
+      test(r.p3[2][0][0].isEmpty());
+      test(r.p3[2][0][1].isEmpty());
       test(r.p3[2][1][0].equals("abcd"));
-      test(r.p3[3][0][0].equals(""));
+      test(r.p3[3][0][0].isEmpty());
 
       test(r.returnValue.length == 3);
       test(r.returnValue[0].length == 0);
@@ -578,9 +578,9 @@ class Twoways {
       test(r.returnValue[2].length == 2);
       test(r.returnValue[2][0].length == 2);
       test(r.returnValue[2][1].length == 1);
-      test(r.returnValue[1][0][0].equals(""));
-      test(r.returnValue[2][0][0].equals(""));
-      test(r.returnValue[2][0][1].equals(""));
+      test(r.returnValue[1][0][0].isEmpty());
+      test(r.returnValue[2][0][0].isEmpty());
+      test(r.returnValue[2][0][1].isEmpty());
       test(r.returnValue[2][1][0].equals("abcd"));
     }
 
@@ -1347,7 +1347,7 @@ class Twoways {
 
           test(!ic.getImplicitContext().containsKey("zero"));
           String r = ic.getImplicitContext().put("zero", "ZERO");
-          test(r.equals(""));
+          test(r.isEmpty());
           test(ic.getImplicitContext().containsKey("zero"));
           test(ic.getImplicitContext().get("zero").equals("ZERO"));
 

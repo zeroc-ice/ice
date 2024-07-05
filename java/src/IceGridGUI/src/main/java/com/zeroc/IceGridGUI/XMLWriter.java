@@ -76,7 +76,7 @@ public class XMLWriter {
   }
 
   private void decreaseIndent() {
-    if (_indent.length() > 0) {
+    if (!_indent.isEmpty()) {
       _indent = _indent.substring(3);
     }
   }

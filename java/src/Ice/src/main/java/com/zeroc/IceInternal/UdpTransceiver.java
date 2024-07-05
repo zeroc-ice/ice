@@ -316,7 +316,7 @@ final class UdpTransceiver implements Transceiver {
       // connect is important for some OS such as macOS.
       //
       if (_addr.getAddress().isMulticastAddress()) {
-        if (mcastInterface.length() > 0) {
+        if (!mcastInterface.isEmpty()) {
           Network.setMcastInterface(_fd, mcastInterface);
         }
         if (mcastTtl != -1) {

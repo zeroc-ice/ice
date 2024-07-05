@@ -130,7 +130,7 @@ public class ParametersField extends JTable {
       if (name != null) {
         name = name.trim();
 
-        if (!name.equals("")) {
+        if (!name.isEmpty()) {
           names.add(name);
 
           String val = row.elementAt(1).toString();

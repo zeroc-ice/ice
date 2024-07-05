@@ -4,6 +4,7 @@
 
 package com.zeroc.IceInternal;
 
+import com.zeroc.Ice.CommunicatorDestroyedException;
 import com.zeroc.Ice.ConnectionOptions;
 import com.zeroc.Ice.Instrumentation.ThreadState;
 import com.zeroc.Ice.Properties;
@@ -48,7 +49,7 @@ public final class Instance implements java.util.function.Function<String, Class
     private final String _threadName;
     //
     // We use a volatile to avoid synchronization when reading
-    // _observer. Reference assignement is atomic in Java so it
+    // _observer. Reference assignment is atomic in Java so it
     // also doesn't need to be synchronized.
     //
     private volatile com.zeroc.Ice.Instrumentation.ThreadObserver _observer;
@@ -153,7 +154,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
   public synchronized RouterManager routerManager() {
     if (_state == StateDestroyed) {
-      throw new com.zeroc.Ice.CommunicatorDestroyedException();
+      throw new CommunicatorDestroyedException();
     }
 
     assert (_routerManager != null);
@@ -162,7 +163,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
   public synchronized LocatorManager locatorManager() {
     if (_state == StateDestroyed) {
-      throw new com.zeroc.Ice.CommunicatorDestroyedException();
+      throw new CommunicatorDestroyedException();
     }
 
     assert (_locatorManager != null);
@@ -171,7 +172,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
   public synchronized ReferenceFactory referenceFactory() {
     if (_state == StateDestroyed) {
-      throw new com.zeroc.Ice.CommunicatorDestroyedException();
+      throw new CommunicatorDestroyedException();
     }
 
     assert (_referenceFactory != null);
@@ -180,25 +181,16 @@ public final class Instance implements java.util.function.Function<String, Class
 
   public synchronized RequestHandlerFactory requestHandlerFactory() {
     if (_state == StateDestroyed) {
-      throw new com.zeroc.Ice.CommunicatorDestroyedException();
+      throw new CommunicatorDestroyedException();
     }
 
     assert (_requestHandlerFactory != null);
     return _requestHandlerFactory;
   }
 
-  public synchronized ProxyFactory proxyFactory() {
-    if (_state == StateDestroyed) {
-      throw new com.zeroc.Ice.CommunicatorDestroyedException();
-    }
-
-    assert (_proxyFactory != null);
-    return _proxyFactory;
-  }
-
   public synchronized OutgoingConnectionFactory outgoingConnectionFactory() {
     if (_state == StateDestroyed) {
-      throw new com.zeroc.Ice.CommunicatorDestroyedException();
+      throw new CommunicatorDestroyedException();
     }
 
     assert (_outgoingConnectionFactory != null);
@@ -207,7 +199,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
   public synchronized ObjectAdapterFactory objectAdapterFactory() {
     if (_state == StateDestroyed) {
-      throw new com.zeroc.Ice.CommunicatorDestroyedException();
+      throw new CommunicatorDestroyedException();
     }
 
     assert (_objectAdapterFactory != null);
@@ -228,7 +220,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
   public synchronized ThreadPool clientThreadPool() {
     if (_state == StateDestroyed) {
-      throw new com.zeroc.Ice.CommunicatorDestroyedException();
+      throw new CommunicatorDestroyedException();
     }
 
     assert (_clientThreadPool != null);
@@ -237,13 +229,13 @@ public final class Instance implements java.util.function.Function<String, Class
 
   public synchronized ThreadPool serverThreadPool() {
     if (_state == StateDestroyed) {
-      throw new com.zeroc.Ice.CommunicatorDestroyedException();
+      throw new CommunicatorDestroyedException();
     }
 
     if (_serverThreadPool == null) // Lazy initialization.
     {
       if (_state == StateDestroyInProgress) {
-        throw new com.zeroc.Ice.CommunicatorDestroyedException();
+        throw new CommunicatorDestroyedException();
       }
 
       int timeout = _initData.properties.getPropertyAsInt("Ice.ServerIdleTime");
@@ -255,7 +247,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
   public synchronized EndpointHostResolver endpointHostResolver() {
     if (_state == StateDestroyed) {
-      throw new com.zeroc.Ice.CommunicatorDestroyedException();
+      throw new CommunicatorDestroyedException();
     }
 
     assert (_endpointHostResolver != null);
@@ -264,16 +256,21 @@ public final class Instance implements java.util.function.Function<String, Class
 
   public synchronized RetryQueue retryQueue() {
     if (_state == StateDestroyed) {
-      throw new com.zeroc.Ice.CommunicatorDestroyedException();
+      throw new CommunicatorDestroyedException();
     }
 
     assert (_retryQueue != null);
     return _retryQueue;
   }
 
+  public int[] retryIntervals() {
+    // No mutex lock, we return a copy.
+    return _retryIntervals.clone();
+  }
+
   public synchronized java.util.concurrent.ScheduledExecutorService timer() {
     if (_state == StateDestroyed) {
-      throw new com.zeroc.Ice.CommunicatorDestroyedException();
+      throw new CommunicatorDestroyedException();
     }
 
     assert (_timer != null);
@@ -282,7 +279,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
   public synchronized EndpointFactoryManager endpointFactoryManager() {
     if (_state == StateDestroyed) {
-      throw new com.zeroc.Ice.CommunicatorDestroyedException();
+      throw new CommunicatorDestroyedException();
     }
 
     assert (_endpointFactoryManager != null);
@@ -291,7 +288,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
   public synchronized com.zeroc.Ice.PluginManager pluginManager() {
     if (_state == StateDestroyed) {
-      throw new com.zeroc.Ice.CommunicatorDestroyedException();
+      throw new CommunicatorDestroyedException();
     }
 
     assert (_pluginManager != null);
@@ -306,6 +303,11 @@ public final class Instance implements java.util.function.Function<String, Class
   public int batchAutoFlushSize() {
     // No mutex lock, immutable.
     return _batchAutoFlushSize;
+  }
+
+  public int classGraphDepthMax() {
+    // No mutex lock, immutable.
+    return _classGraphDepthMax;
   }
 
   public com.zeroc.Ice.ToStringMode toStringMode() {
@@ -332,7 +334,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
     synchronized (this) {
       if (_state == StateDestroyed) {
-        throw new com.zeroc.Ice.CommunicatorDestroyedException();
+        throw new CommunicatorDestroyedException();
       }
 
       if (adminIdentity == null || adminIdentity.name == null || adminIdentity.name.isEmpty()) {
@@ -390,7 +392,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
     synchronized (this) {
       if (_state == StateDestroyed) {
-        throw new com.zeroc.Ice.CommunicatorDestroyedException();
+        throw new CommunicatorDestroyedException();
       }
 
       if (_adminAdapter != null) {
@@ -438,7 +440,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
   public synchronized void addAdminFacet(com.zeroc.Ice.Object servant, String facet) {
     if (_state == StateDestroyed) {
-      throw new com.zeroc.Ice.CommunicatorDestroyedException();
+      throw new CommunicatorDestroyedException();
     }
 
     if (_adminAdapter == null
@@ -454,7 +456,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
   public synchronized com.zeroc.Ice.Object removeAdminFacet(String facet) {
     if (_state == StateDestroyed) {
-      throw new com.zeroc.Ice.CommunicatorDestroyedException();
+      throw new CommunicatorDestroyedException();
     }
 
     com.zeroc.Ice.Object result;
@@ -474,7 +476,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
   public synchronized com.zeroc.Ice.Object findAdminFacet(String facet) {
     if (_state == StateDestroyed) {
-      throw new com.zeroc.Ice.CommunicatorDestroyedException();
+      throw new CommunicatorDestroyedException();
     }
 
     com.zeroc.Ice.Object result = null;
@@ -491,7 +493,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
   public synchronized java.util.Map<String, com.zeroc.Ice.Object> findAllAdminFacets() {
     if (_state == StateDestroyed) {
-      throw new com.zeroc.Ice.CommunicatorDestroyedException();
+      throw new CommunicatorDestroyedException();
     }
 
     if (_adminAdapter == null) {
@@ -509,7 +511,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
   public synchronized void setDefaultLocator(com.zeroc.Ice.LocatorPrx locator) {
     if (_state == StateDestroyed) {
-      throw new com.zeroc.Ice.CommunicatorDestroyedException();
+      throw new CommunicatorDestroyedException();
     }
 
     _referenceFactory = _referenceFactory.setDefaultLocator(locator);
@@ -517,7 +519,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
   public synchronized void setDefaultRouter(com.zeroc.Ice.RouterPrx router) {
     if (_state == StateDestroyed) {
-      throw new com.zeroc.Ice.CommunicatorDestroyedException();
+      throw new CommunicatorDestroyedException();
     }
 
     _referenceFactory = _referenceFactory.setDefaultRouter(router);
@@ -612,7 +614,7 @@ public final class Instance implements java.util.function.Function<String, Class
       String packagePrefix = _initData.properties.getProperty("Ice.Default.Package");
       c =
           getConcreteClass(
-              packagePrefix.length() == 0
+              packagePrefix.isEmpty()
                   ? fullyQualifiedClassName
                   : packagePrefix + "." + fullyQualifiedClassName);
     }
@@ -683,7 +685,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
   public synchronized QueueExecutorService getQueueExecutor() {
     if (_state == StateDestroyed) {
-      throw new com.zeroc.Ice.CommunicatorDestroyedException();
+      throw new CommunicatorDestroyedException();
     }
     return _queueExecutorService;
   }
@@ -710,7 +712,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
           java.io.PrintStream outStream = null;
 
-          if (stdOut.length() > 0) {
+          if (!stdOut.isEmpty()) {
             //
             // We need to close the existing stdout for JVM thread dump to go
             // to the new file
@@ -725,7 +727,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
             System.setOut(outStream);
           }
-          if (stdErr.length() > 0) {
+          if (!stdErr.isEmpty()) {
             //
             // close for consistency with stdout
             //
@@ -746,10 +748,10 @@ public final class Instance implements java.util.function.Function<String, Class
       }
 
       if (_initData.logger == null) {
-        String logfile = properties.getIceProperty("Ice.LogFile");
+        String logFile = properties.getIceProperty("Ice.LogFile");
         if (properties.getIcePropertyAsInt("Ice.UseSyslog") > 0
             && !System.getProperty("os.name").startsWith("Windows")) {
-          if (logfile.length() != 0) {
+          if (!logFile.isEmpty()) {
             throw new com.zeroc.Ice.InitializationException(
                 "Both syslog and file logger cannot be enabled.");
           }
@@ -757,9 +759,9 @@ public final class Instance implements java.util.function.Function<String, Class
               new com.zeroc.Ice.SysLoggerI(
                   properties.getIceProperty("Ice.ProgramName"),
                   properties.getIceProperty("Ice.SyslogFacility"));
-        } else if (logfile.length() != 0) {
+        } else if (!logFile.isEmpty()) {
           _initData.logger =
-              new com.zeroc.Ice.LoggerI(properties.getIceProperty("Ice.ProgramName"), logfile);
+              new com.zeroc.Ice.LoggerI(properties.getIceProperty("Ice.ProgramName"), logFile);
         } else {
           _initData.logger = com.zeroc.Ice.Util.getProcessLogger();
           if (_initData.logger instanceof com.zeroc.Ice.LoggerI) {
@@ -814,6 +816,15 @@ public final class Instance implements java.util.function.Function<String, Class
         }
       }
 
+      {
+        var num = properties.getIcePropertyAsInt("Ice.ClassGraphDepthMax");
+        if (num < 1 || num > 0x7fffffff) {
+          _classGraphDepthMax = 0x7fffffff;
+        } else {
+          _classGraphDepthMax = num;
+        }
+      }
+
       String toStringModeStr = properties.getIceProperty("Ice.ToStringMode");
       if (toStringModeStr.equals("Unicode")) {
         _toStringMode = com.zeroc.Ice.ToStringMode.Unicode;
@@ -836,8 +847,6 @@ public final class Instance implements java.util.function.Function<String, Class
       _referenceFactory = new ReferenceFactory(this, communicator);
 
       _requestHandlerFactory = new RequestHandlerFactory(this);
-
-      _proxyFactory = new ProxyFactory(this);
 
       boolean isIPv6Supported = Network.isIPv6Supported();
       boolean ipv4 = properties.getIcePropertyAsInt("Ice.IPv4") > 0;
@@ -895,6 +904,31 @@ public final class Instance implements java.util.function.Function<String, Class
 
       _retryQueue = new RetryQueue(this);
 
+      String[] arr = properties.getPropertyAsList("Ice.RetryIntervals");
+      if (arr.length == 0) {
+        _retryIntervals = new int[] {0};
+      } else {
+        _retryIntervals = new int[arr.length];
+
+        for (int i = 0; i < arr.length; i++) {
+          int v;
+
+          try {
+            v = Integer.parseInt(arr[i]);
+          } catch (NumberFormatException ex) {
+            v = 0;
+          }
+
+          // If -1 is the first value, no retry and wait intervals.
+          if (i == 0 && v == -1) {
+            _retryIntervals = new int[0];
+            break;
+          }
+
+          _retryIntervals[i] = v > 0 ? v : 0;
+        }
+      }
+
       //
       // If Ice.ThreadInterruptSafe is set or we're running on Android all
       // IO is done on the background thread. For Android we use the queue
@@ -924,7 +958,6 @@ public final class Instance implements java.util.function.Function<String, Class
       com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_state == StateDestroyed);
       com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_referenceFactory == null);
       com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_requestHandlerFactory == null);
-      com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_proxyFactory == null);
       com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_outgoingConnectionFactory == null);
       com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_objectAdapterFactory == null);
       com.zeroc.IceUtilInternal.Assert.FinalizerAssert(_clientThreadPool == null);
@@ -1057,8 +1090,7 @@ public final class Instance implements java.util.function.Function<String, Class
     //
     if (_referenceFactory.getDefaultRouter() == null) {
       com.zeroc.Ice.RouterPrx router =
-          com.zeroc.Ice.RouterPrx.uncheckedCast(
-              _proxyFactory.propertyToProxy("Ice.Default.Router"));
+          com.zeroc.Ice.RouterPrx.uncheckedCast(communicator.propertyToProxy("Ice.Default.Router"));
       if (router != null) {
         _referenceFactory = _referenceFactory.setDefaultRouter(router);
       }
@@ -1067,7 +1099,7 @@ public final class Instance implements java.util.function.Function<String, Class
     if (_referenceFactory.getDefaultLocator() == null) {
       com.zeroc.Ice.LocatorPrx loc =
           com.zeroc.Ice.LocatorPrx.uncheckedCast(
-              _proxyFactory.propertyToProxy("Ice.Default.Locator"));
+              communicator.propertyToProxy("Ice.Default.Locator"));
       if (loc != null) {
         _referenceFactory = _referenceFactory.setDefaultLocator(loc);
       }
@@ -1104,7 +1136,6 @@ public final class Instance implements java.util.function.Function<String, Class
   //
   // Only for use by com.zeroc.Ice.Communicator
   //
-  @SuppressWarnings("deprecation")
   public void destroy(boolean interruptible) {
     if (interruptible && Thread.interrupted()) {
       throw new com.zeroc.Ice.OperationInterruptedException();
@@ -1233,7 +1264,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
       if (_initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0) {
         java.util.List<String> unusedProperties = _initData.properties.getUnusedProperties();
-        if (unusedProperties.size() != 0) {
+        if (!unusedProperties.isEmpty()) {
           StringBuilder message =
               new StringBuilder("The following properties were set but never read:");
           for (String p : unusedProperties) {
@@ -1268,7 +1299,6 @@ public final class Instance implements java.util.function.Function<String, Class
 
         _referenceFactory = null;
         _requestHandlerFactory = null;
-        _proxyFactory = null;
         _routerManager = null;
         _locatorManager = null;
         _endpointFactoryManager = null;
@@ -1366,7 +1396,7 @@ public final class Instance implements java.util.function.Function<String, Class
       _outgoingConnectionFactory.updateConnectionObservers();
       assert (_objectAdapterFactory != null);
       _objectAdapterFactory.updateConnectionObservers();
-    } catch (com.zeroc.Ice.CommunicatorDestroyedException ex) {
+    } catch (CommunicatorDestroyedException ex) {
     }
   }
 
@@ -1389,7 +1419,7 @@ public final class Instance implements java.util.function.Function<String, Class
       if (_queueExecutor != null) {
         _queueExecutor.updateObserver(_initData.observer);
       }
-    } catch (com.zeroc.Ice.CommunicatorDestroyedException ex) {
+    } catch (CommunicatorDestroyedException ex) {
     }
   }
 
@@ -1418,7 +1448,7 @@ public final class Instance implements java.util.function.Function<String, Class
     }
 
     String pkg = _initData.properties.getProperty("Ice.Default.Package");
-    if (pkg.length() > 0) {
+    if (!pkg.isEmpty()) {
       packages.add(pkg);
     }
     return packages.toArray(new String[packages.size()]);
@@ -1516,6 +1546,7 @@ public final class Instance implements java.util.function.Function<String, Class
   private DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
   private int _messageSizeMax; // Immutable, not reset by destroy().
   private int _batchAutoFlushSize; // Immutable, not reset by destroy().
+  private int _classGraphDepthMax; // Immutable, not reset by destroy().
   private com.zeroc.Ice.ToStringMode _toStringMode; // Immutable, not reset by destroy().
   private int _cacheMessageBuffers; // Immutable, not reset by destroy().
   private com.zeroc.Ice.ImplicitContextI _implicitContext;
@@ -1523,7 +1554,6 @@ public final class Instance implements java.util.function.Function<String, Class
   private LocatorManager _locatorManager;
   private ReferenceFactory _referenceFactory;
   private RequestHandlerFactory _requestHandlerFactory;
-  private ProxyFactory _proxyFactory;
   private OutgoingConnectionFactory _outgoingConnectionFactory;
   private ObjectAdapterFactory _objectAdapterFactory;
   private int _protocolSupport;
@@ -1533,6 +1563,7 @@ public final class Instance implements java.util.function.Function<String, Class
   private ThreadPool _serverThreadPool;
   private EndpointHostResolver _endpointHostResolver;
   private RetryQueue _retryQueue;
+  private int[] _retryIntervals;
   private Timer _timer;
   private EndpointFactoryManager _endpointFactoryManager;
   private com.zeroc.Ice.PluginManager _pluginManager;

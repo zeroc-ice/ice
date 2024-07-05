@@ -12,15 +12,15 @@ classdef ValueFactoryManagerI < Ice.ValueFactoryManager
         function add(obj, factory, id)
             if isempty(id)
                 if ~isempty(obj.defaultFactory)
-                    throw(Ice.AlreadyRegisteredException('', '', 'value factory', id));
+                    throw(Ice.AlreadyRegisteredException('value factory', id));
                 end
                 obj.defaultFactory = factory;
                 obj.hasFactories = true;
             else
                 if obj.factories.isKey(id)
-                    throw(Ice.AlreadyRegisteredException('', '', 'value factory', id));
+                    throw(Ice.AlreadyRegisteredException('value factory', id));
                 elseif ~isa(factory, 'function_handle')
-                    throw(MException('Ice:ArgumentException', 'factory argument is not a function handle'));
+                    throw(LocalException('Ice:ArgumentException', 'factory argument is not a function handle'));
                 else
                     obj.factories(id) = factory;
                     obj.hasFactories = true;

@@ -17,28 +17,28 @@ func testExceptions(_ obj: TestIntfPrx, _ helper: TestHelper) throws {
         try obj.unknownUserException()
         try helper.test(false)
     } catch let ex as Ice.UnknownUserException {
-        try helper.test(ex.unknown == "reason")
+        try helper.test(ex.message.contains("::Foo::BarException"))
     }
 
     do {
         try obj.unknownLocalException()
         try helper.test(false)
     } catch let ex as Ice.UnknownLocalException {
-        try helper.test(ex.unknown == "reason")
+        try helper.test(ex.message == "reason")
     }
 
     do {
         try obj.unknownException()
         try helper.test(false)
     } catch let ex as Ice.UnknownException {
-        try helper.test(ex.unknown == "reason")
+        try helper.test(ex.message == "reason")
     }
 
     do {
         try obj.userException()
         try helper.test(false)
     } catch let ex as Ice.UnknownUserException {
-        try helper.test(ex.unknown.contains("Test::TestIntfUserException"))
+        try helper.test(ex.message.contains("Test::TestIntfUserException"))
     } catch is Ice.OperationNotExistException {}
 
     do {
@@ -46,14 +46,14 @@ func testExceptions(_ obj: TestIntfPrx, _ helper: TestHelper) throws {
         try helper.test(false)
     } catch let ex as Ice.UnknownLocalException {
         try helper.test(
-            ex.unknown.contains("Ice::SocketException") || ex.unknown.contains("Ice.SocketException"))
+            ex.message.contains("Ice::SocketException") || ex.message.contains("Ice.SocketException"))
     }
 
     do {
         try obj.unknownExceptionWithServantException()
         try helper.test(false)
     } catch let ex as Ice.UnknownException {
-        try helper.test(ex.unknown == "reason")
+        try helper.test(ex.message == "reason")
     }
 
     do {
@@ -108,7 +108,7 @@ func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         _ = try o.ice_ids()
         try test(false)
     } catch let ex as Ice.UnknownUserException {
-        try test(ex.unknown == "::Test::TestIntfUserException")
+        try test(ex.message.contains("::Test::TestIntfUserException"))
     }
 
     do {
@@ -116,7 +116,7 @@ func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         _ = try o.ice_ids()
         try test(false)
     } catch let ex as Ice.UnknownUserException {
-        try test(ex.unknown == "::Test::TestIntfUserException")
+        try test(ex.message.contains("::Test::TestIntfUserException"))
     }
     output.writeLine("ok")
 
