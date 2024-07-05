@@ -1,0 +1,20 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) ZeroC, Inc. All rights reserved.
+#
+
+from .Object import Object
+
+class Blobject(Object):
+    """Special-purpose servant base class that allows a subclass to
+    handle synchronous Ice invocations as "blobs" of bytes."""
+
+    def ice_invoke(self, bytes, current):
+        """Dispatch a synchronous Ice invocation. The operation's
+        arguments are encoded in the bytes argument. The return
+        value must be a tuple of two values: the first is a
+        boolean indicating whether the operation succeeded (True)
+        or raised a user exception (False), and the second is
+        the encoded form of the operation's results or the user
+        exception."""
+        pass
