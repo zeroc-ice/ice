@@ -37,28 +37,13 @@ namespace Ice
     class ICE_API IconvInitializationException final : public LocalException
     {
     public:
-        /**
-         * Constructs the exception with a reason. The file and line number are required.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param reason More detail about the failure.
-         */
-        IconvInitializationException(const char* file, int line, std::string reason) noexcept;
+        using LocalException::LocalException;
 
         /**
          * Obtains the Slice type ID of this exception.
          * @return The fully-scoped type ID.
          */
         const char* ice_id() const noexcept final;
-
-        /**
-         * Prints a description of this exception to the given stream.
-         * @param str The output stream.
-         */
-        void ice_print(std::ostream& str) const final;
-
-    private:
-        std::string _reason;
     };
 }
 

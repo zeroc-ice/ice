@@ -882,10 +882,7 @@ OutgoingAsync::throwUserException()
         {
             _userException(ex);
         }
-        throw UnknownUserException{
-            __FILE__,
-            __LINE__,
-            "Received unknown user exception with type ID '" + string{ex.ice_id()} + "'"};
+        throw UnknownUserException::fromTypeId(__FILE__, __LINE__, ex.ice_id());
     }
 }
 

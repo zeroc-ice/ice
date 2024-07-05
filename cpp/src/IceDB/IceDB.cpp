@@ -14,7 +14,10 @@
 using namespace IceDB;
 using namespace std;
 
-LMDBException::LMDBException(const char* file, int line, int err) : Ice::LocalException(file, line), _error(err) {}
+LMDBException::LMDBException(const char* file, int line, int error)
+    : Ice::LocalException(file, line,  mdb_strerror(error))
+{
+}
 
 const char*
 LMDBException::ice_id() const noexcept
@@ -22,22 +25,18 @@ LMDBException::ice_id() const noexcept
     return "::IceDB::LMDBException";
 }
 
-void
-LMDBException::ice_print(ostream& out) const
+namespace
 {
-    Ice::LocalException::ice_print(out);
-    out << ": " << mdb_strerror(_error);
-}
-
-int
-LMDBException::error() const
-{
-    return _error;
+    inline string createKeyTooLongMessage(size_t size)
+    {
+        ostringstream os;
+        os << "requested LMDB key size (" << size << ") exceeds max size (" << maxKeySize << ")";
+        return os.str();
+    }
 }
 
 KeyTooLongException::KeyTooLongException(const char* file, int line, size_t size)
-    : Ice::LocalException(file, line),
-      _size(size)
+    : Ice::LocalException(file, line, createKeyTooLongMessage(size))
 {
 }
 
@@ -47,19 +46,18 @@ KeyTooLongException::ice_id() const noexcept
     return "::IceDB::KeyTooLongException";
 }
 
-void
-KeyTooLongException::ice_print(ostream& out) const
+namespace
 {
-    Ice::LocalException::ice_print(out);
-    out << ": ";
-    if (_size > 0)
+    inline string createBadEnvMessage(size_t size)
     {
-        out << "Key size = " << _size << ", ";
+        ostringstream os;
+        os << "the LMDB env max key size (" << size << ") is smaller than IceDB's max size (" << maxKeySize << ")";
+        return os.str();
     }
-    out << "Max size = " << maxKeySize;
 }
 
-BadEnvException::BadEnvException(const char* file, int line, size_t size) : Ice::LocalException(file, line), _size(size)
+BadEnvException::BadEnvException(const char* file, int line, size_t size)
+    : Ice::LocalException(file, line, createBadEnvMessage(size))
 {
 }
 
@@ -67,14 +65,6 @@ const char*
 BadEnvException::ice_id() const noexcept
 {
     return "::IceDB::BadEnvException";
-}
-
-void
-BadEnvException::ice_print(ostream& out) const
-{
-    Ice::LocalException::ice_print(out);
-    out << ": LMDB env max key size = " << _size;
-    out << ", IceDB max key size = " << maxKeySize;
 }
 
 Env::Env(const string& path, MDB_dbi maxDbs, size_t mapSize, unsigned int maxReaders)

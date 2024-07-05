@@ -543,7 +543,7 @@ Subscriber::queue(bool forwarded, const EventDataSeq& events)
                 {
                     if (_instance->sendQueueSizeMaxPolicy() == Instance::RemoveSubscriber)
                     {
-                        error(false, make_exception_ptr(SendQueueSizeMaxReached(__FILE__, __LINE__)));
+                        error(false, make_exception_ptr(SendQueueSizeMaxReached{__FILE__, __LINE__, "send queue size max reached"}));
                         return false;
                     }
                     else // DropEvents

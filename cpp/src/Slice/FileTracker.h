@@ -9,18 +9,12 @@
 
 namespace Slice
 {
-    class FileException : public ::Ice::LocalException
+    class FileException final : public Ice::LocalException
     {
     public:
-        FileException(const char*, int, const std::string&);
+        using Ice::LocalException::LocalException;
+
         const char* ice_id() const noexcept override;
-        void ice_print(std::ostream&) const override;
-
-        std::string reason() const;
-
-    private:
-        static const char* _name;
-        const std::string _reason;
     };
 
     class FileTracker;

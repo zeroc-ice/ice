@@ -180,16 +180,7 @@ namespace Ice
     class ICE_API UnknownException : public LocalException
     {
     public:
-        /**
-         * Constructs an UnknownException.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param message The message returned by what().
-         */
-        UnknownException(const char* file, int line, std::string message)
-            : LocalException(file, line, std::move(message))
-        {
-        }
+        using LocalException::LocalException;
 
         const char* ice_id() const noexcept override;
     };
@@ -215,6 +206,14 @@ namespace Ice
     public:
         using UnknownException::UnknownException;
 
+        /**
+         * Creates an UnknownUserException from the type ID of an unexpected exception.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         * @param typeId The type ID.
+         */
+        static UnknownUserException fromTypeId(const char* file, int line, const char* typeId);
+
         const char* ice_id() const noexcept final;
     };
 
@@ -229,16 +228,7 @@ namespace Ice
     class ICE_API ProtocolException : public LocalException
     {
     public:
-        /**
-         * Constructs a ProtocolException.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param message The message returned by what().
-         */
-        ProtocolException(const char* file, int line, std::string message)
-            : LocalException(file, line, std::move(message))
-        {
-        }
+        using LocalException::LocalException;
 
         const char* ice_id() const noexcept override;
     };
@@ -301,16 +291,7 @@ namespace Ice
     class ICE_API TimeoutException : public LocalException
     {
     public:
-        /**
-         * Constructs a TimeoutException.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param message The message returned by what().
-         */
-        TimeoutException(const char* file, int line, std::string message)
-            : LocalException(file, line, std::move(message))
-        {
-        }
+        using LocalException::LocalException;
 
         const char* ice_id() const noexcept override;
     };
@@ -696,16 +677,7 @@ namespace Ice
     class ICE_API ConnectionIdleException final : public LocalException
     {
     public:
-        /**
-         * Constructs a ConnectionIdleException.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param message The message returned by what().
-         */
-        ConnectionIdleException(const char* file, int line, std::string message)
-            : LocalException(file, line, std::move(message))
-        {
-        }
+        using LocalException::LocalException;
 
         const char* ice_id() const noexcept final;
     };
@@ -717,16 +689,7 @@ namespace Ice
     class ICE_API FeatureNotSupportedException final : public LocalException
     {
     public:
-        /**
-         * Constructs a FeatureNotSupportedException.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param message The message returned by what().
-         */
-        FeatureNotSupportedException(const char* file, int line, std::string message)
-            : LocalException(file, line, std::move(message))
-        {
-        }
+        using LocalException::LocalException;
 
         const char* ice_id() const noexcept final;
     };
@@ -758,16 +721,7 @@ namespace Ice
     class ICE_API InitializationException final : public LocalException
     {
     public:
-        /**
-         * Constructs a InitializationException.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param message The message returned by what().
-         */
-        InitializationException(const char* file, int line, std::string message)
-            : LocalException(file, line, std::move(message))
-        {
-        }
+        using LocalException::LocalException;
 
         const char* ice_id() const noexcept final;
     };
@@ -796,16 +750,7 @@ namespace Ice
     class ICE_API NoEndpointException final : public LocalException
     {
     public:
-        /**
-         * Constructs a NoEndpointException.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param message The message returned by what().
-         */
-        NoEndpointException(const char* file, int line, std::string message)
-            : LocalException(file, line, std::move(message))
-        {
-        }
+        using LocalException::LocalException;
 
         /**
          * Constructs a NoEndpointException.
@@ -911,15 +856,7 @@ namespace Ice
     class ICE_API ParseException final : public LocalException
     {
     public:
-        /**
-         * Constructs a ParseException.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param message The message returned by what().
-         */
-        ParseException(const char* file, int line, std::string message) : LocalException(file, line, std::move(message))
-        {
-        }
+        using LocalException::LocalException;
 
         const char* ice_id() const noexcept final;
     };
@@ -931,16 +868,7 @@ namespace Ice
     class ICE_API PluginInitializationException final : public LocalException
     {
     public:
-        /**
-         * Constructs a PluginInitializationException.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param message The message returned by what().
-         */
-        PluginInitializationException(const char* file, int line, std::string message)
-            : LocalException(file, line, std::move(message))
-        {
-        }
+        using LocalException::LocalException;
 
         const char* ice_id() const noexcept final;
     };
@@ -952,16 +880,7 @@ namespace Ice
     class ICE_API SecurityException final : public LocalException
     {
     public:
-        /**
-         * Constructs a SecurityException.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param message The message returned by what().
-         */
-        SecurityException(const char* file, int line, std::string message)
-            : LocalException(file, line, std::move(message))
-        {
-        }
+        using LocalException::LocalException;
 
         const char* ice_id() const noexcept final;
     };

@@ -125,6 +125,15 @@ Ice::UnknownLocalException::ice_id() const noexcept
     return "::Ice::UnknownLocalException";
 }
 
+UnknownUserException
+Ice::UnknownUserException::fromTypeId(const char* file, int line, const char* typeId)
+{
+    ostringstream os;
+    os << "the reply carries a user exception that does not conform to the exception specification of the operation: ";
+    os << typeId;
+    return UnknownUserException{file, line, os.str()};
+}
+
 const char*
 Ice::UnknownUserException::ice_id() const noexcept
 {
