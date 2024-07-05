@@ -3098,20 +3098,9 @@ IcePy::ClassInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectHi
         {
             PyObjectHandle iceType = getAttr(value, "_ice_type", false);
             ClassInfoPtr info;
-            if (!iceType.get())
-            {
-                //
-                // The _ice_type attribute will be missing in an instance of LocalObject
-                // that does not derive from a user-defined type.
-                //
-                assert(id == "::Ice::LocalObject");
-                info = shared_from_this();
-            }
-            else
-            {
-                info = dynamic_pointer_cast<ClassInfo>(getType(iceType.get()));
-                assert(info);
-            }
+            assert(iceType.get());
+            info = dynamic_pointer_cast<ClassInfo>(getType(iceType.get()));
+            assert(info);
             out << "object #" << history->index << " (" << info->id << ')';
             history->objects.insert(map<PyObject*, int>::value_type(value, history->index));
             ++history->index;
