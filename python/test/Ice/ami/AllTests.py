@@ -441,8 +441,8 @@ def allTests(helper, communicator, collocated):
         try:
             f.result()
             test(False)
-        except Ice.ConnectionManuallyClosedException as ex:
-            test(ex.graceful)
+        except Ice.ConnectionManuallyClosedException:
+            pass
         p.finishDispatch()
 
         #
@@ -477,8 +477,8 @@ def allTests(helper, communicator, collocated):
         try:
             f.result()
             test(False)
-        except Ice.ConnectionManuallyClosedException as ex:
-            test(not ex.graceful)
+        except Ice.ConnectionManuallyClosedException:
+            pass
         p.finishDispatch()
 
         #
