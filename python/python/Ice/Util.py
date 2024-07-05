@@ -25,8 +25,6 @@ def initialize(args=None, data=None):
     communicator = IcePy.Communicator(args, data)
     return CommunicatorI(communicator)
 
-
-
 def identityToString(id, toStringMode=None):
     return IcePy.identityToString(id, toStringMode)
 

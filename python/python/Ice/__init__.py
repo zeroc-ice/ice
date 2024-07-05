@@ -2,7 +2,7 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-# ruff: noqa: F401, F821, E402
+# ruff: noqa: F401, F821, E402, F403
 
 """
 Ice module

@@ -43,7 +43,7 @@ class Current(object):
             self.id = id
         self.facet = facet
         self.operation = operation
-        self.mode = mode 
+        self.mode = mode
         self.ctx = ctx
         self.requestId = requestId
         if encoding is Ice._struct_marker:
