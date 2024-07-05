@@ -294,12 +294,8 @@ def allTests(helper, communicator)
         uoet.op()
         test(false)
     rescue Ice::MarshalException => ex
-        test(ex.reason["::Test::AlsoEmpty"])
-        test(ex.reason["::Test::Empty"])
-    rescue Ice::UnmarshalOutOfBoundsException => ex
-        # This test raises Ice::UnmarshalOutOfBoundsException on Windows when the
-        # server is compiled with VC6.
-        test(RUBY_PLATFORM =~ /(win|w)32$/)
+        test(ex.message["::Test::AlsoEmpty"])
+        test(ex.message["::Test::Empty"])
     rescue Ice::Exception => ex
         puts $!
         print ex.backtrace.join("\n")

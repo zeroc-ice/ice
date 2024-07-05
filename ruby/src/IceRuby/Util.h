@@ -466,10 +466,9 @@ namespace IceRuby
     //
     VALUE createArray(long);
 
-    //
-    // Create the Ruby equivalent of an Ice local exception.
-    //
-    VALUE convertLocalException(std::exception_ptr);
+    // Convert an Ice::LocalException, std::exception or other C++ exception into an Ice Ruby local exception.
+    // Ice C++ exceptions that are not LocalException are handled as std::exceptions.
+    VALUE convertException(std::exception_ptr);
 }
 
 //
@@ -479,29 +478,15 @@ namespace IceRuby
 //
 #define ICE_RUBY_TRY                                                                                                   \
     volatile VALUE ex_ = Qnil;                                                                                         \
-                                                                                                                       \
-    goto ice_start;                                                                                                    \
-                                                                                                                       \
-ice_handle_exception:                                                                                                  \
-    rb_exc_raise(ex_);                                                                                                 \
-                                                                                                                       \
-ice_start:                                                                                                             \
     try
 
 #define ICE_RUBY_RETHROW(ex)                                                                                           \
     ex_ = ex;                                                                                                          \
-    goto ice_handle_exception;
+    rb_exc_raise(ex_);
 
 #define ICE_RUBY_CATCH                                                                                                 \
     catch (const ::IceRuby::RubyException& ex) { ICE_RUBY_RETHROW(ex.ex); }                                            \
-    catch (const ::Ice::LocalException&) { ICE_RUBY_RETHROW(convertLocalException(current_exception())); }             \
-    catch (const ::Ice::Exception& ex)                                                                                 \
-    {                                                                                                                  \
-        string msg_ = "unknown Ice exception: " + std::string{ex.ice_id()};                                            \
-        ICE_RUBY_RETHROW(rb_exc_new2(rb_eRuntimeError, msg_.c_str()));                                                 \
-    }                                                                                                                  \
-    catch (const std::bad_alloc& ex) { ICE_RUBY_RETHROW(rb_exc_new2(rb_eNoMemError, ex.what())); }                     \
-    catch (const std::exception& ex) { ICE_RUBY_RETHROW(rb_exc_new2(rb_eRuntimeError, ex.what())); }                   \
-    catch (...) { ICE_RUBY_RETHROW(rb_exc_new2(rb_eRuntimeError, "caught unknown C++ exception")); }
+    catch (const ::std::bad_alloc& ex) { ICE_RUBY_RETHROW(rb_exc_new2(rb_eNoMemError, ex.what())); }                   \
+    catch (...) { ICE_RUBY_RETHROW(convertException(current_exception())); }
 
 #endif
