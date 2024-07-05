@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import Foundation
 import Ice
@@ -97,17 +95,17 @@ class ServantLocatorI: Ice.ServantLocator {
             throw Ice.ObjectNotExistException(
                 id: current.id, facet: current.facet, operation: current.operation)
         } else if current.operation == "unknownUserException" {
-            throw Ice.UnknownUserException(unknown: "reason")
+            throw Ice.UnknownUserException(badTypeId: "::Foo::BarException")
         } else if current.operation == "unknownLocalException" {
-            throw Ice.UnknownLocalException(unknown: "reason")
+            throw Ice.UnknownLocalException("reason")
         } else if current.operation == "unknownException" {
-            throw Ice.UnknownException(unknown: "reason")
+            throw Ice.UnknownException("reason")
         } else if current.operation == "userException" {
             throw TestIntfUserException()
         } else if current.operation == "localException" {
-            throw Ice.SocketException(error: 0)
+            throw Ice.SocketException("socket error")
         } else if current.operation == "unknownExceptionWithServantException" {
-            throw Ice.UnknownException(unknown: "reason")
+            throw Ice.UnknownException("reason")
         } else if current.operation == "impossibleException" {
             throw TestIntfUserException()  // Yes, it really is meant to be TestIntfException.
         } else if current.operation == "intfUserException" {
