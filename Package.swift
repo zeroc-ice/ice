@@ -23,7 +23,7 @@ let iceUtilSources: [String] = [
     "src/Ice/Random.cpp",
     "src/Ice/StringConverter.cpp",
     "src/Ice/StringUtil.cpp",
-    "src/Ice/UUID.cpp"
+    "src/Ice/UUID.cpp",
 ]
 
 let package = Package(
@@ -42,7 +42,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/mxcl/PromiseKit.git", from: "8.1.2"),
-        .package(url: "https://github.com/zeroc-ice/mcpp.git", branch: "master")
+        .package(url: "https://github.com/zeroc-ice/mcpp.git", branch: "master"),
     ],
     targets: [
         .target(
@@ -135,7 +135,7 @@ let package = Package(
                 "src/IceDiscovery/msbuild",
                 "src/IceDiscovery/IceDiscovery.rc",
                 "src/IceDiscovery/Makefile.mk",
-                "src/IceDiscovery/generated/IceDiscovery.ice.d"
+                "src/IceDiscovery/generated/IceDiscovery.ice.d",
             ],
             sources: ["src/IceDiscovery"],
             publicHeadersPath: "src/IceDiscovery/generated",
@@ -151,7 +151,7 @@ let package = Package(
                 "src/IceLocatorDiscovery/msbuild",
                 "src/IceLocatorDiscovery/IceLocatorDiscovery.rc",
                 "src/IceLocatorDiscovery/Makefile.mk",
-                "src/IceLocatorDiscovery/generated/IceLocatorDiscovery.ice.d"
+                "src/IceLocatorDiscovery/generated/IceLocatorDiscovery.ice.d",
             ],
             sources: ["src/IceLocatorDiscovery"],
             publicHeadersPath: "src/IceLocatorDiscovery/generated",
@@ -165,10 +165,10 @@ let package = Package(
                 "test",
                 "src/IceUtil/build",
                 "src/IceUtil/msbuild",
-                "src/IceUtil/Makefile.mk"
+                "src/IceUtil/Makefile.mk",
             ],
             sources: iceUtilSources,
-            publicHeadersPath: "src/IceUtil", // dummy path as we can't re-use include/Ice
+            publicHeadersPath: "src/IceUtil",  // dummy path as we can't re-use include/Ice
             cxxSettings: iceCppSettings
         ),
         .target(
@@ -206,7 +206,7 @@ let package = Package(
             capability: .buildTool(),
             dependencies: ["slice2swift"],
             path: "swift/src/CompileSlicePlugin"
-        )
+        ),
     ],
     swiftLanguageVersions: [SwiftVersion.v5],
     cxxLanguageStandard: .cxx17

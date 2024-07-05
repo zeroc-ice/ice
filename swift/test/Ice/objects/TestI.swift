@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
+import Foundation
 import Ice
 import PromiseKit
-import Foundation
 
 public class BI: B {
     override public func ice_preMarshal() {

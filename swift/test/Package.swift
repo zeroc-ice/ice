@@ -64,7 +64,10 @@ let testDirectories: [String: TestConfig] = [
         sliceFiles: defaultSliceFiles + ["Derived.ice", "DerivedEx.ice", "Forward.ice"]
     ),
     "Ice/operations": TestConfig(
-        sources: defaultSources + ["BatchOneways.swift", "BatchOnewaysAMI.swift", "Oneways.swift", "OnewaysAMI.swift", "Twoways.swift", "TwowaysAMI.swift"],
+        sources: defaultSources + [
+            "BatchOneways.swift", "BatchOnewaysAMI.swift", "Oneways.swift", "OnewaysAMI.swift", "Twoways.swift",
+            "TwowaysAMI.swift",
+        ],
         amd: true
     ),
     "Ice/optional": TestConfig(
@@ -95,13 +98,13 @@ let testDirectories: [String: TestConfig] = [
     "Ice/slicing/exceptions": TestConfig(
         collocated: false,
         sliceFiles: defaultSliceFiles + ["ServerPrivate.ice"],
-        amd:true,
+        amd: true,
         amdSliceFiles: defaultAMDSliceFiles + ["ServerPrivateAMD.ice"]
     ),
     "Ice/slicing/objects": TestConfig(
         collocated: false,
         sliceFiles: defaultSliceFiles + ["ClientPrivate.ice", "ServerPrivate.ice"],
-        amd:true,
+        amd: true,
         amdSliceFiles: defaultAMDSliceFiles + ["ServerPrivateAMD.ice"]
     ),
     "Ice/stream": TestConfig(collocated: false, sources: ["Client.swift"]),
@@ -113,7 +116,7 @@ let testDirectories: [String: TestConfig] = [
             .copy("certs")
         ]
     ),
-    "Slice/escape": TestConfig(collocated:false, sources:["Client.swift"], sliceFiles: ["Clash.ice", "Key.ice"])
+    "Slice/escape": TestConfig(collocated: false, sources: ["Client.swift"], sliceFiles: ["Clash.ice", "Key.ice"]),
 ]
 
 func testPathToTargetName(_ path: String) -> String {
@@ -154,19 +157,19 @@ let testTargets = testDirectories.map { (testPath, testConfig) in
         ))
     testDriverDependencies.append(Target.Dependency(stringLiteral: name))
 
-     if testConfig.amd {
-         let amdName = name + "AMD"
-         targets.append(
-             Target.target(
-                 name: amdName,
-                 dependencies: dependencies,
-                 path: testPath,
-                 exclude: testConfig.amdExclude,
-                 resources: [.copy("amd/slice-plugin.json")],
-                 plugins: plugins
-             ))
-         testDriverDependencies.append(Target.Dependency(stringLiteral: amdName))
-     }
+    if testConfig.amd {
+        let amdName = name + "AMD"
+        targets.append(
+            Target.target(
+                name: amdName,
+                dependencies: dependencies,
+                path: testPath,
+                exclude: testConfig.amdExclude,
+                resources: [.copy("amd/slice-plugin.json")],
+                plugins: plugins
+            ))
+        testDriverDependencies.append(Target.Dependency(stringLiteral: amdName))
+    }
 
     return targets
 }
@@ -197,6 +200,7 @@ let package = Package(
             ],
             plugins: [.plugin(name: "CompileSlice", package: "ice")]
         ),
+        // TestBundle is a library target that contains all the test targets
         .target(
             name: "TestBundle",
             dependencies: [.target(name: "TestCommon")] + testDriverDependencies,

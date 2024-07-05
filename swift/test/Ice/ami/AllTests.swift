@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
+import Foundation
 import Ice
 import PromiseKit
 import TestCommon
-import Foundation
 
 func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {

@@ -57,7 +57,7 @@ class ProcessControllerI: CommonProcessController {
         current: Ice.Current
     ) throws -> CommonProcessPrx? {
         _view.println("starting \(testsuite) \(exe)... ")
-        
+
         _currentTest = testsuite.replacingOccurrences(of: "/", with: "_")
 
         if exe == "ServerAMD" {
@@ -194,9 +194,8 @@ class ControllerHelperI: ControllerHelper, TextWriter {
 
     public func run() {
 
-
         let className = "\(_testName).\(_exe)"
-        
+
         _queue.async {
             do {
                 let testHelper = TestBundle.getTestHelper(name: className)

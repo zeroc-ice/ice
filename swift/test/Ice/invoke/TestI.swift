@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
+import Foundation
 import Ice
 import PromiseKit
 import TestCommon
-import Foundation
 
 class BlobjectI: Ice.Blobject {
     func ice_invoke(inEncaps: Data, current: Ice.Current) throws -> (ok: Bool, outParams: Data) {

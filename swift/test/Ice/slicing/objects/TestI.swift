@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
+import Foundation
 import Ice
 import PromiseKit
 import TestCommon
-import Foundation
 
 class TestI: TestIntf {
     var _helper: TestHelper
