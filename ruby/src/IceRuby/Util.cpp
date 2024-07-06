@@ -586,30 +586,24 @@ IceRuby::convertException(std::exception_ptr eptr)
             rethrow_exception(eptr);
         }
         // First handle exceptions with extra fields we want to provide to Ruby users.
+        catch (const Ice::AlreadyRegisteredException& ex)
+        {
+            // We don't use what() since we have to use the constructor that the application code can call.
+            std::array args = {IceRuby::createString(ex.kindOfObject()), IceRuby::createString(ex.id())};
+            return createRubyException(ex.ice_id(), std::move(args));
+        }
+        catch (const Ice::NotRegisteredException& ex)
+        {
+            // Same code as AlreadyRegisteredException, for consistency.
+            std::array args = {IceRuby::createString(ex.kindOfObject()), IceRuby::createString(ex.id())};
+            return createRubyException(ex.ice_id(), std::move(args));
+        }
         catch (const Ice::RequestFailedException& ex)
         {
             std::array args = {
                 IceRuby::createIdentity(ex.id()),
                 IceRuby::createString(ex.facet()),
                 IceRuby::createString(ex.operation()),
-                IceRuby::createString(ex.what())};
-
-            return createRubyException(ex.ice_id(), std::move(args));
-        }
-        catch (const Ice::AlreadyRegisteredException& ex)
-        {
-            std::array args = {
-                IceRuby::createString(ex.kindOfObject()),
-                IceRuby::createString(ex.id()),
-                IceRuby::createString(ex.what())};
-
-            return createRubyException(ex.ice_id(), std::move(args));
-        }
-        catch (const Ice::NotRegisteredException& ex)
-        {
-            std::array args = {
-                IceRuby::createString(ex.kindOfObject()),
-                IceRuby::createString(ex.id()),
                 IceRuby::createString(ex.what())};
 
             return createRubyException(ex.ice_id(), std::move(args));
