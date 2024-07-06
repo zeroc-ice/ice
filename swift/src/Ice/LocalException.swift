@@ -22,23 +22,23 @@ public class LocalException: Exception, CustomStringConvertible {
         self.cxxDescription = nil
     }
 
+    /// Gets the type ID of the class, for example "::Ice::CommunicatorDestroyedException".
+    /// This type ID is provided for informational purposes.
+    /// - Returns: The type ID of the class.
+    public func ice_id() -> String {
+        "::" + String(reflecting: type(of: self)).replacingOccurrences(of: ".", with: "::")
+    }
+
     /// Creates a LocalException from an Ice C++ local exception.
     /// - Parameters:
     ///   - message: The exception message.
     ///   - cxxDescription: The C++ exception description.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
-    public required init(message: String, cxxDescription: String, file: String, line: Int32) {
+    internal required init(message: String, cxxDescription: String, file: String, line: Int32) {
         self.message = message
         self.file = file
         self.line = line
         self.cxxDescription = cxxDescription
-    }
-
-    /// Gets the type ID of the class, for example "::Ice::CommunicatorDestroyedException".
-    /// This type ID is provided for informational purposes.
-    /// - Returns: The type ID of the class.
-    public func ice_id() -> String {
-        "::" + String(reflecting: type(of: self)).replacingOccurrences(of: ".", with: "::")
     }
 }
