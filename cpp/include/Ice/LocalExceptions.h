@@ -365,6 +365,13 @@ namespace Ice
     class ICE_API SyscallException : public LocalException
     {
     public:
+        // The error code is a DWORD (unsigned long) on Windows and an int on other platforms.
+#ifdef _WIN32
+        using ErrorCode = unsigned long;
+#else
+        using ErrorCode = int;
+#endif
+
         /**
          * Constructs a SyscallException.
          * @param file The file where this exception is constructed. This C string is not copied.
@@ -372,14 +379,14 @@ namespace Ice
          * @param messagePrefix The start of the message returned by what().
          * @param error The error code.
          */
-        SyscallException(const char* file, int line, std::string messagePrefix, int error);
+        SyscallException(const char* file, int line, std::string messagePrefix, ErrorCode error);
 
         /**
          * Gets the error number describing the system exception. For C++ and Unix, this is equivalent to
          * <code>errno</code>. For C++ and Windows, this is the value returned by <code>GetLastError()</code> or
          * <code>WSAGetLastError()</code>.
          */
-        int error() const noexcept { return _error; }
+        ErrorCode error() const noexcept { return _error; }
 
         const char* ice_id() const noexcept override;
 
@@ -396,8 +403,8 @@ namespace Ice
             const char* file,
             int line,
             std::string messagePrefix,
-            int error,
-            std::function<std::string(int)> errorToString);
+            ErrorCode error,
+            std::function<std::string(ErrorCode)> errorToString);
 
         /**
          * Constructs a SyscallException without an error.
@@ -412,7 +419,8 @@ namespace Ice
         }
 
     private:
-        int _error;
+
+        ErrorCode _error;
     };
 
     /**
@@ -429,7 +437,7 @@ namespace Ice
          * @param error The error code.
          * @param host The host name that could not be resolved.
          */
-        DNSException(const char* file, int line, int error, std::string_view host);
+        DNSException(const char* file, int line, ErrorCode error, std::string_view host);
 
         const char* ice_id() const noexcept final;
     };
@@ -448,7 +456,7 @@ namespace Ice
          * @param path The path of the file that caused the exception.
          * @param error The error code.
          */
-        FileException(const char* file, int line, std::string_view path, int error = 0);
+        FileException(const char* file, int line, std::string_view path, ErrorCode error = 0);
 
         const char* ice_id() const noexcept final;
     };
@@ -471,7 +479,7 @@ namespace Ice
          * @param messagePrefix The start of the message returned by what().
          * @param error The error code.
          */
-        SocketException(const char* file, int line, std::string messagePrefix, int error);
+        SocketException(const char* file, int line, std::string messagePrefix, ErrorCode error);
 
         /**
          * Constructs a SocketException without a generic message.
@@ -479,7 +487,7 @@ namespace Ice
          * @param line The line where this exception is constructed.
          * @param error The error code.
          */
-        SocketException(const char* file, int line, int error) : SocketException(file, line, "socket error", error) {}
+        SocketException(const char* file, int line, ErrorCode error) : SocketException(file, line, "socket error", error) {}
 
         /**
          * Constructs a SocketException without an error.
@@ -522,7 +530,7 @@ namespace Ice
          * @param line The line where this exception is constructed.
          * @param error The error code.
          */
-        ConnectionLostException(const char* file, int line, int error);
+        ConnectionLostException(const char* file, int line, ErrorCode error);
 
         const char* ice_id() const noexcept final;
     };

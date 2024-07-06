@@ -200,7 +200,7 @@ Ice::InvocationTimeoutException::ice_id() const noexcept
 // Syscall exceptions
 //
 
-Ice::SyscallException::SyscallException(const char* file, int line, string messagePrefix, int error)
+Ice::SyscallException::SyscallException(const char* file, int line, string messagePrefix, SyscallException::ErrorCode error)
     : SyscallException(file, line, std::move(messagePrefix), error, IceInternal::errorToString)
 {
 }
@@ -209,8 +209,8 @@ Ice::SyscallException::SyscallException(
     const char* file,
     int line,
     string messagePrefix,
-    int error,
-    std::function<string(int)> errorToString)
+    ErrorCode error,
+    std::function<string(ErrorCode)> errorToString)
     : LocalException(file, line, messagePrefix + ": " + errorToString(error)),
       _error{error}
 {
@@ -222,19 +222,7 @@ Ice::SyscallException::ice_id() const noexcept
     return "::Ice::SyscallException";
 }
 
-/*
-Ice::SyscallException::SyscallException(const char* file, int line) noexcept
-    : LocalException(file, line),
-#ifdef _WIN32
-      error(GetLastError())
-#else
-      error(errno)
-#endif
-{
-}
-*/
-
-Ice::DNSException::DNSException(const char* file, int line, int error, string_view host)
+Ice::DNSException::DNSException(const char* file, int line, ErrorCode error, string_view host)
     : SyscallException(file, line, "cannot resolve DNS host '" + string{host} + "'", error, errorToStringDNS)
 {
 }
@@ -260,7 +248,7 @@ namespace
     }
 }
 
-Ice::FileException::FileException(const char* file, int line, string_view path, int error)
+Ice::FileException::FileException(const char* file, int line, string_view path, ErrorCode error)
     : SyscallException(file, line, "error while accessing file '" + string{path} + "'", error, fileErrorToString)
 {
 }
@@ -277,7 +265,7 @@ Ice::FileException::ice_id() const noexcept
 
 namespace
 {
-    string socketErrorToString(int error)
+    string socketErrorToString(ErrorCode error)
     {
         if (error == 0)
         {
@@ -287,7 +275,7 @@ namespace
     }
 }
 
-Ice::SocketException::SocketException(const char* file, int line, string messagePrefix, int error)
+Ice::SocketException::SocketException(const char* file, int line, string messagePrefix, ErrorCode error)
     : SyscallException(file, line, std::move(messagePrefix), error, socketErrorToString)
 {
 }
@@ -305,7 +293,7 @@ Ice::ConnectFailedException::ice_id() const noexcept
 }
 namespace
 {
-    string connectionLostErrorToString(int error)
+    inline string connectionLostErrorToString(ErrorCode error)
     {
         if (error == 0)
         {
@@ -318,7 +306,7 @@ namespace
     }
 }
 
-Ice::ConnectionLostException::ConnectionLostException(const char* file, int line, int error)
+Ice::ConnectionLostException::ConnectionLostException(const char* file, int line, ErrorCode error)
     : SocketException(file, line, "connection lost", error, connectionLostErrorToString)
 {
 }

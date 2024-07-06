@@ -807,7 +807,7 @@ IceInternal::match(const string& s, const string& pat, bool emptyMatch)
 #ifdef _WIN32
 
 string
-IceInternal::errorToString(int error, LPCVOID source)
+IceInternal::errorToStringWithSource(DWORD error, LPCVOID source)
 {
     if (error < WSABASEERR)
     {

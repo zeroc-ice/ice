@@ -763,7 +763,7 @@ IceInternal::noMoreFds(int error)
 }
 
 string
-IceInternal::errorToStringDNS(int error)
+IceInternal::errorToStringDNS(ErrorCode error)
 {
 #if defined(_WIN32)
     return IceInternal::errorToString(error);

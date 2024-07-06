@@ -299,7 +299,7 @@ Activator::Activator(const shared_ptr<TraceLevels>& traceLevels) : _traceLevels(
 
     if (_hIntr == nullptr)
     {
-        throw SyscallException(__FILE__, __LINE__);
+        throw SyscallException{__FILE__, __LINE__, "CreateEvent failed", GetLastError()};
     }
 #else
     int fds[2];
@@ -1004,7 +1004,7 @@ Activator::sendSignal(const string& name, int signal)
         }
         else if (GetLastError() != ERROR_INVALID_PARAMETER) // Process with pid doesn't exist anymore.
         {
-            throw SyscallException(__FILE__, __LINE__);
+            throw SyscallException{__FILE__, __LINE__, "GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT) failed", GetLastError()};
         }
     }
     else if (signal == SIGKILL)
@@ -1012,7 +1012,7 @@ Activator::sendSignal(const string& name, int signal)
         HANDLE hnd = OpenProcess(PROCESS_TERMINATE, FALSE, pid);
         if (hnd == nullptr)
         {
-            throw SyscallException(__FILE__, __LINE__);
+            throw SyscallException{__FILE__, __LINE__, "OpenProcess(PROCESS_TERMINATE) failed", GetLastError()};
         }
 
         TerminateProcess(hnd, 0); // We use 0 for the exit code to make sure it's not considered as a crash.
@@ -1186,7 +1186,7 @@ Activator::terminationListener()
         DWORD ret = WaitForSingleObject(_hIntr, INFINITE);
         if (ret == WAIT_FAILED)
         {
-            throw SyscallException(__FILE__, __LINE__);
+            throw SyscallException{__FILE__, __LINE__, "WaitForSingleObject failed", GetLastError()};
         }
         clearInterrupt();
 

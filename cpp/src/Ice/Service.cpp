@@ -158,7 +158,7 @@ namespace
             _source = RegisterEventSourceW(0, stringToWstring(mangleSource(source), _stringConverter).c_str());
             if (_source == 0)
             {
-                throw SyscallException(__FILE__, __LINE__);
+                throw SyscallException{__FILE__, __LINE__, "RegisterEventSourceW failed", GetLastError()};
             }
         }
 
@@ -176,7 +176,7 @@ namespace
             // Don't need to use a wide string converter as the wide string is passed
             // to Windows API.
             //
-            LONG err = RegCreateKeyExW(
+            LSTATUS err = RegCreateKeyExW(
                 HKEY_LOCAL_MACHINE,
                 stringToWstring(createKey(source), stringConverter).c_str(),
                 0,
@@ -189,7 +189,7 @@ namespace
 
             if (err != ERROR_SUCCESS)
             {
-                throw SyscallException(__FILE__, __LINE__, err);
+                throw SyscallException{__FILE__, __LINE__, "RegCreateKeyExW failed", static_cast<DWORD>(err)};
             }
 
             //
@@ -199,8 +199,9 @@ namespace
             assert(_module != 0);
             if (!GetModuleFileNameW(_module, path, _MAX_PATH))
             {
+                DWORD error = GetLastError();
                 RegCloseKey(hKey);
-                throw SyscallException(__FILE__, __LINE__);
+                throw SyscallException{__FILE__, __LINE__, "GetModuleFileNameW failed", error};
             }
 
             //
@@ -234,7 +235,7 @@ namespace
             if (err != ERROR_SUCCESS)
             {
                 RegCloseKey(hKey);
-                throw SyscallException(__FILE__, __LINE__, err);
+                throw SyscallException{__FILE__, __LINE__, "RegSetValueExW failed", static_cast<DWORD>(err)};
             }
 
             RegCloseKey(hKey);
@@ -246,10 +247,10 @@ namespace
             // Don't need to use a wide string converter as the wide string is passed
             // to Windows API.
             //
-            LONG err = RegDeleteKeyW(HKEY_LOCAL_MACHINE, stringToWstring(createKey(source), stringConverter).c_str());
+            LSTATUS err = RegDeleteKeyW(HKEY_LOCAL_MACHINE, stringToWstring(createKey(source), stringConverter).c_str());
             if (err != ERROR_SUCCESS)
             {
-                throw SyscallException(__FILE__, __LINE__, err);
+                throw SyscallException{__FILE__, __LINE__, "RegDeleteKeyW failed", static_cast<DWORD>(err)};
             }
         }
 
