@@ -280,9 +280,8 @@ public protocol Connection: AnyObject, CustomStringConvertible {
     func setBufferSize(rcvSize: Int32, sndSize: Int32) throws
 
     /// Throw an exception indicating the reason for connection closure. For example,
-    /// CloseConnectionException is raised if the connection was closed gracefully, whereas
-    /// ConnectionManuallyClosedException is raised if the connection was manually closed by
-    /// the application. This operation does nothing if the connection is not yet closed.
+    /// CloseConnectionException is raised if the connection was closed gracefully by the peer.
+    /// This operation does nothing if the connection is not yet closed.
     func throwException() throws
 }
 

@@ -272,21 +272,30 @@ public final class CommunicatorDestroyedException: LocalException {}
 /// This exception indicates that a connection was aborted by the idle check.
 public class ConnectionIdleException: LocalException {}
 
-/// To be removed
-public final class ConnectionManuallyClosedException: LocalException {
-    public var graceful: Bool
-
-    public init(graceful: Bool, file: String = #fileID, line: Int32 = #line) {
-        self.graceful = graceful
-        super.init("connection was manually closed", file: file, line: line)
-    }
+/// This exception indicates the connection was closed forcefully.
+public final class ConnectionAbortedException: LocalException {
+    public var closedByApplication: Bool
 
     public required init(message: String, cxxDescription: String, file: String, line: Int32) {
-        fatalError("ConnectionManuallyClosedException must be initialized with a graceful flag")
+        fatalError("ConnectionAbortedException must be initialized with a closedByApplication flag")
     }
 
-    internal init(graceful: Bool, message: String, cxxDescription: String, file: String, line: Int32) {
-        self.graceful = graceful
+    internal init(closedByApplication: Bool, message: String, cxxDescription: String, file: String, line: Int32) {
+        self.closedByApplication = closedByApplication
+        super.init(message: message, cxxDescription: cxxDescription, file: file, line: line)
+    }
+}
+
+/// This exception indicates the connection was closed gracefully.
+public final class ConnectionClosedException: LocalException {
+    public var closedByApplication: Bool
+
+    public required init(message: String, cxxDescription: String, file: String, line: Int32) {
+        fatalError("ConnectionClosedException must be initialized with a closedByApplication flag")
+    }
+
+    internal init(closedByApplication: Bool, message: String, cxxDescription: String, file: String, line: Int32) {
+        self.closedByApplication = closedByApplication
         super.init(message: message, cxxDescription: cxxDescription, file: file, line: line)
     }
 }

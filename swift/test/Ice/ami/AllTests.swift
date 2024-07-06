@@ -448,7 +448,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
             //
             // Local case: start an operation and then close the connection gracefully on the client side
             // without waiting for the pending invocation to complete. There will be no retry and we expect the
-            // invocation to fail with ConnectionManuallyClosedException.
+            // invocation to fail with ConnectionClosedException.
             //
             p = p.ice_connectionId("CloseGracefully")  // Start with a new connection.
             var con = try p.ice_getConnection()!
@@ -463,8 +463,8 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
             do {
                 try t.wait()
                 try test(false)
-            } catch let ex as Ice.ConnectionManuallyClosedException {
-                try test(ex.graceful)
+            } catch let ex as Ice.ConnectionClosedException {
+                try test(ex.closedByApplication)
             }
             try p.finishDispatch()
 
@@ -490,7 +490,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
         do {
             //
             // Local case: start an operation and then close the connection forcefully on the client side.
-            // There will be no retry and we expect the invocation to fail with ConnectionManuallyClosedException.
+            // There will be no retry and we expect the invocation to fail with ConnectionAbortedException.
             //
             try p.ice_ping()
             let con = try p.ice_getConnection()!
@@ -502,8 +502,8 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
             do {
                 try t.wait()
                 try test(false)
-            } catch let ex as Ice.ConnectionManuallyClosedException {
-                try test(!ex.graceful)
+            } catch let ex as Ice.ConnectionAbortedException {
+                try test(ex.closedByApplication)
             }
             try p.finishDispatch()
 
