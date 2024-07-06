@@ -274,8 +274,11 @@ public class ConnectionIdleException: LocalException {}
 
 /// This exception indicates the connection was closed forcefully.
 public final class ConnectionAbortedException: LocalException {
-    public var closedByApplication: Bool
+    /// When true, the connection was aborted by the application. When false, the connection was aborted by the Ice
+    /// runtime.
+    public let closedByApplication: Bool
 
+    /// Internal initializer - don't use.
     public required init(message: String, cxxDescription: String, file: String, line: Int32) {
         fatalError("ConnectionAbortedException must be initialized with a closedByApplication flag")
     }
@@ -288,8 +291,11 @@ public final class ConnectionAbortedException: LocalException {
 
 /// This exception indicates the connection was closed gracefully.
 public final class ConnectionClosedException: LocalException {
+    /// When true, the connection was aborted by the application. When false, the connection was aborted by the Ice
+    /// runtime.
     public var closedByApplication: Bool
 
+    /// Internal initializer - don't use.
     public required init(message: String, cxxDescription: String, file: String, line: Int32) {
         fatalError("ConnectionClosedException must be initialized with a closedByApplication flag")
     }

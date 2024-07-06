@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 /// Base class for Ice local exceptions.
-open class LocalException: Exception, CustomStringConvertible {
+public class LocalException: Exception, CustomStringConvertible {
     public let message: String
     public let file: String
     public let line: Int32
