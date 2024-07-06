@@ -88,7 +88,9 @@ final class AlreadyRegisteredException extends LocalException
 
 final class CommunicatorDestroyedException extends LocalException {}
 
-final class ConnectionIdleException extends LocalException {}
+final class ConnectionAbortedException extends LocalException {}
+
+final class ConnectionClosedException extends LocalException {}
 
 final class FixedProxyException extends LocalException {}
 

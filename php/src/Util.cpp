@@ -444,28 +444,6 @@ IcePHP::convertException(zval* zex, std::exception_ptr ex)
         rethrow_exception(ex);
     }
     // Write the PHP exception into zex
-    catch (const Ice::RequestFailedException& e)
-    {
-        zend_class_entry* cls = createPHPException(zex, e.ice_id());
-        if (!cls)
-        {
-            return;
-        }
-
-        zval id;
-        if (!createIdentity(&id, e.id()))
-        {
-            zval_ptr_dtor(&id);
-            return;
-        }
-        // It would be nicer to make the properties read-only and call the constructor; however, it's not easy to do
-        // with the PHP C API.
-        zendUpdateProperty(cls, zex, const_cast<char*>("id"), sizeof("id") - 1, &id);
-        zval_ptr_dtor(&id);
-        setStringMember(zex, "facet", e.facet());
-        setStringMember(zex, "operation", e.operation());
-        setStringMember(zex, "message", e.what()); // message is a protected property of the base class.
-    }
     catch (const Ice::AlreadyRegisteredException& e)
     {
         zend_class_entry* cls = createPHPException(zex, e.ice_id());
@@ -487,6 +465,28 @@ IcePHP::convertException(zval* zex, std::exception_ptr ex)
         setStringMember(zex, "kindOfObject", e.kindOfObject());
         setStringMember(zex, "id", e.id());
         setStringMember(zex, "message", e.what());
+    }
+    catch (const Ice::RequestFailedException& e)
+    {
+        zend_class_entry* cls = createPHPException(zex, e.ice_id());
+        if (!cls)
+        {
+            return;
+        }
+
+        zval id;
+        if (!createIdentity(&id, e.id()))
+        {
+            zval_ptr_dtor(&id);
+            return;
+        }
+        // It would be nicer to make the properties read-only and call the constructor; however, it's not easy to do
+        // with the PHP C API.
+        zendUpdateProperty(cls, zex, const_cast<char*>("id"), sizeof("id") - 1, &id);
+        zval_ptr_dtor(&id);
+        setStringMember(zex, "facet", e.facet());
+        setStringMember(zex, "operation", e.operation());
+        setStringMember(zex, "message", e.what()); // message is a protected property of the base class.
     }
     catch (const Ice::LocalException& e)
     {
