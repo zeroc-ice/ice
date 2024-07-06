@@ -293,7 +293,7 @@ public final class ConnectionAbortedException: LocalException {
 public final class ConnectionClosedException: LocalException {
     /// When true, the connection was aborted by the application. When false, the connection was aborted by the Ice
     /// runtime.
-    public var closedByApplication: Bool
+    public let closedByApplication: Bool
 
     internal init(closedByApplication: Bool, message: String, cxxDescription: String, file: String, line: Int32) {
         self.closedByApplication = closedByApplication
