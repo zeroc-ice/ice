@@ -105,7 +105,7 @@ class Client(TestHelper):
             properties.load("./config/xxx_client.config")
             test(False)
         except Ice.LocalException as ex:
-            test(str(ex) == "::Ice::FileException") # temporary C++ what() message
+            test("error while accessing file './config/xxx_client.config'" in str(ex))
         print("ok")
 
         sys.stdout.write(

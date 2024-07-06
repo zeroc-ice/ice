@@ -228,17 +228,32 @@ class CommunicatorDestroyedException(LocalException):
     """
 
 @final
-class ConnectionIdleException(LocalException):
+class ConnectionAbortedException(LocalException):
     """
-    This exception indicates that a connection was aborted by the idle check.
+    This exception indicates that a connection has been closed forcefully.
     """
 
+    def __init__(self, closedByApplication, msg):
+        LocalException.__init__(self, msg)
+        self.__closedByApplication = closedByApplication
+
+    @property
+    def closedByApplication(self):
+        return self.__closedByApplication
+
 @final
-class ConnectionManuallyClosedException(LocalException):
+class ConnectionClosedException(LocalException):
     """
-    This exception is raised by an operation call if the application closes the connection locally using
-    Connection#close.
+    This exception indicates that a connection has been closed gracefully.
     """
+
+    def __init__(self, closedByApplication, msg):
+        LocalException.__init__(self, msg)
+        self.__closedByApplication = closedByApplication
+
+    @property
+    def closedByApplication(self):
+        return self.__closedByApplication
 
 @final
 class FeatureNotSupportedException(LocalException):
