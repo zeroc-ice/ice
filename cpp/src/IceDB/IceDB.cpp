@@ -15,7 +15,7 @@ using namespace IceDB;
 using namespace std;
 
 LMDBException::LMDBException(const char* file, int line, int error)
-    : Ice::LocalException(file, line,  mdb_strerror(error))
+    : Ice::LocalException(file, line, mdb_strerror(error))
 {
 }
 

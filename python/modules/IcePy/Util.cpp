@@ -686,7 +686,8 @@ namespace
 {
     // This function takes ownership of each PyObject* in args.
     template<size_t N>
-    PyObject* createPythonException(const char* typeId, std::array<PyObject*, N> args, bool fallbackToLocalException = false)
+    PyObject*
+    createPythonException(const char* typeId, std::array<PyObject*, N> args, bool fallbackToLocalException = false)
     {
         PyObject* type = IcePy::lookupType(scopedToName(typeId));
         if (!type)
@@ -710,7 +711,7 @@ namespace
         IcePy::PyObjectHandle pArgs = PyTuple_New(N);
         for (size_t i = 0; i < N; ++i)
         {
-            // PyTuple_SetItem takes ownership of the reference.
+            // PyTuple_SetItem takes ownership of the args[i] reference.
             PyTuple_SetItem(pArgs.get(), static_cast<Py_ssize_t>(i), args[i]);
         }
         return PyEval_CallObject(type, pArgs.get());

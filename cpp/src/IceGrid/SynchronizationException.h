@@ -13,8 +13,7 @@ namespace IceGrid
     class SynchronizationException final : public Ice::LocalException
     {
     public:
-        SynchronizationException(const char* file, int line)
-            : Ice::LocalException(file, line, "synchronization error")
+        SynchronizationException(const char* file, int line) : Ice::LocalException(file, line, "synchronization error")
         {
         }
 

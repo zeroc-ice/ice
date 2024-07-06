@@ -22,10 +22,7 @@ namespace Ice
          * @param line The line where this exception is constructed.
          * @param message The error message adopted by this exception and returned by what().
          */
-        LocalException(const char* file, int line, std::string message)
-            : Exception(file, line, std::move(message))
-        {
-        }
+        LocalException(const char* file, int line, std::string message) : Exception(file, line, std::move(message)) {}
 
         const char* ice_id() const noexcept override;
     };
