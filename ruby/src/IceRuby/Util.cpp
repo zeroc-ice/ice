@@ -588,14 +588,20 @@ IceRuby::convertException(std::exception_ptr eptr)
         // First handle exceptions with extra fields we want to provide to Ruby users.
         catch (const Ice::AlreadyRegisteredException& ex)
         {
-            // We don't use what() since we have to use the constructor that the application code can call.
-            std::array args = {IceRuby::createString(ex.kindOfObject()), IceRuby::createString(ex.id())};
+            std::array args = {
+                IceRuby::createString(ex.kindOfObject()),
+                IceRuby::createString(ex.id()),
+                IceRuby::createString(ex.what())};
+
             return createRubyException(ex.ice_id(), std::move(args));
         }
         catch (const Ice::NotRegisteredException& ex)
         {
-            // Same code as AlreadyRegisteredException, for consistency.
-            std::array args = {IceRuby::createString(ex.kindOfObject()), IceRuby::createString(ex.id())};
+            std::array args = {
+                IceRuby::createString(ex.kindOfObject()),
+                IceRuby::createString(ex.id()),
+                IceRuby::createString(ex.what())};
+
             return createRubyException(ex.ice_id(), std::move(args));
         }
         catch (const Ice::RequestFailedException& ex)

@@ -91,7 +91,7 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   base = was existing base class
 
   New local exceptions:\
-  ConnectionAbortedException, ConnectionClosedException, ConnectionIdleException, ParseException
+  ConnectionAbortedException, ConnectionClosedException, ParseException
 
 ## Slice Language Changes
 

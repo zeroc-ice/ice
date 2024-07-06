@@ -2,7 +2,8 @@
 #
 # Copyright (c) ZeroC, Inc.
 
-# This file provides all the exceptions derived from Ice::LocalException.
+# This file provides all the exceptions derived from Ice::LocalException. Application code should not throw any of
+# these exceptions.
 
 module Ice
     #
@@ -101,10 +102,9 @@ module Ice
     # Other leaf local exceptions in alphabetical order.
     #
 
-    # The only exception that can be thrown by application code in Ruby.
     class AlreadyRegisteredException < LocalException
-        def initialize(kindOfObject, id)
-            super("another #{kindOfObject} is already registered with ID '#{id}'")
+        def initialize(kindOfObject, id, msg)
+            super(msg)
             @kindOfObject = kindOfObject
             @id = id
         end
@@ -136,10 +136,9 @@ module Ice
     class NoEndpointException < LocalException
     end
 
-    # API is like AlreadyRegisteredException even though it should not be thrown by application code.
     class NotRegisteredException < LocalException
-        def initialize(kindOfObject, id)
-            super("no #{kindOfObject} is registered with ID '#{id}'")
+        def initialize(kindOfObject, id, msg)
+            super(msg)
             @kindOfObject = kindOfObject
             @id = id
         end
