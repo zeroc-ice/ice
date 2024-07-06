@@ -36,7 +36,7 @@ class LocalExceptionFactory: ICELocalExceptionFactory {
     }
 
     static func connectionClosedException(
-         _ typeId: String, closedByApplication: Bool, message: String, cxxDescription: String, file: String, line: Int32
+        _ typeId: String, closedByApplication: Bool, message: String, cxxDescription: String, file: String, line: Int32
     ) -> Error {
         switch typeId {
         case "::Ice::ConnectionAbortedException":

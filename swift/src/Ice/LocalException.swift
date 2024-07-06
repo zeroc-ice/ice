@@ -2,9 +2,13 @@
 
 /// Base class for Ice local exceptions.
 public class LocalException: Exception, CustomStringConvertible {
+    /// The error message.
     public let message: String
+    /// The name of the file where this exception was thrown.
     public let file: String
+    /// The line number where this exception was thrown.
     public let line: Int32
+    /// The C++ exception description, when this exception is a C++ exception converted to Swift.
     private let cxxDescription: String?
 
     /// A textual representation of this Ice exception.
