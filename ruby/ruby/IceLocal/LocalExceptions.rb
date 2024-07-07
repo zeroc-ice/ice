@@ -116,6 +116,8 @@ module Ice
     end
 
     class ConnectionAbortedException < LocalException
+    # We don't map closedByApplication because it's very difficult to produce a ConnectionAbortedException or
+    # ConnectionClosedException without AMI.
     end
 
     class ConnectionClosedException < LocalException

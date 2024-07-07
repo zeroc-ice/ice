@@ -732,7 +732,7 @@ IcePy::convertException(std::exception_ptr exPtr)
     // First handle exceptions with extra fields we want to provide to Python users.
     catch (const Ice::AlreadyRegisteredException& ex)
     {
-        std::array args = {
+        std::array args{
             IcePy::createString(ex.kindOfObject()),
             IcePy::createString(ex.id()),
             IcePy::createString(ex.what())};
@@ -741,7 +741,7 @@ IcePy::convertException(std::exception_ptr exPtr)
     }
     catch (const Ice::NotRegisteredException& ex)
     {
-        std::array args = {
+        std::array args{
             IcePy::createString(ex.kindOfObject()),
             IcePy::createString(ex.id()),
             IcePy::createString(ex.what())};
@@ -750,17 +750,17 @@ IcePy::convertException(std::exception_ptr exPtr)
     }
     catch (const Ice::ConnectionAbortedException& ex)
     {
-        std::array args = {ex.closedByApplication() ? incTrue() : incFalse(), IcePy::createString(ex.what())};
+        std::array args{ex.closedByApplication() ? incTrue() : incFalse(), IcePy::createString(ex.what())};
         return createPythonException(ex.ice_id(), std::move(args));
     }
     catch (const Ice::ConnectionClosedException& ex)
     {
-        std::array args = {ex.closedByApplication() ? incTrue() : incFalse(), IcePy::createString(ex.what())};
+        std::array args{ex.closedByApplication() ? incTrue() : incFalse(), IcePy::createString(ex.what())};
         return createPythonException(ex.ice_id(), std::move(args));
     }
     catch (const Ice::RequestFailedException& ex)
     {
-        std::array args = {
+        std::array args{
             IcePy::createIdentity(ex.id()),
             IcePy::createString(ex.facet()),
             IcePy::createString(ex.operation()),
@@ -771,17 +771,17 @@ IcePy::convertException(std::exception_ptr exPtr)
     // Then all other exceptions.
     catch (const Ice::LocalException& ex)
     {
-        std::array args = {IcePy::createString(ex.what())};
+        std::array args{IcePy::createString(ex.what())};
         return createPythonException(ex.ice_id(), std::move(args), true);
     }
     catch (const std::exception& ex)
     {
-        std::array args = {IcePy::createString(ex.what())};
+        std::array args{IcePy::createString(ex.what())};
         return createPythonException(localExceptionTypeId, std::move(args));
     }
     catch (...)
     {
-        std::array args = {IcePy::createString("unknown C++ exception")};
+        std::array args{IcePy::createString("unknown C++ exception")};
         return createPythonException(localExceptionTypeId, std::move(args));
     }
 }
