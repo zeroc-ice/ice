@@ -421,7 +421,6 @@ IceMatlab::convertException(const std::exception_ptr exc)
             createIdentity(e.id()),
             createStringFromUTF8(e.facet()),
             createStringFromUTF8(e.operation()),
-
             createStringFromUTF8(errID),
             createStringFromUTF8(e.what())};
 
