@@ -495,6 +495,7 @@ namespace Ice
          * Constructs a SocketException without an error.
          * @param file The file where this exception is constructed. This C string is not copied.
          * @param line The line where this exception is constructed.
+         * @param message The message returned by what().
          */
         SocketException(const char* file, int line, std::string message)
             : SyscallException(file, line, std::move(message))
