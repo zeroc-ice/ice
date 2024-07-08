@@ -18,12 +18,9 @@ namespace Ice::SSL
     class ICE_API CertificateReadException final : public Ice::LocalException
     {
     public:
-        CertificateReadException(const char*, int, std::string) noexcept;
+        using Ice::LocalException::LocalException;
 
-        const char* ice_id() const noexcept override;
-
-        /** The reason for the exception. */
-        std::string reason;
+        const char* ice_id() const noexcept final;
     };
 
     /**
@@ -32,12 +29,9 @@ namespace Ice::SSL
     class ICE_API CertificateEncodingException final : public Ice::LocalException
     {
     public:
-        CertificateEncodingException(const char*, int, std::string) noexcept;
+        using Ice::LocalException::LocalException;
 
         const char* ice_id() const noexcept override;
-
-        /** The reason for the exception. */
-        std::string reason;
     };
 }
 

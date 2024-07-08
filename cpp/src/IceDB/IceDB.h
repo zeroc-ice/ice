@@ -42,53 +42,36 @@ namespace IceDB
     // LMDBException wraps an error condition (and error code)
     // returned by LMDB
     //
-    class ICE_DB_API LMDBException : public Ice::LocalException
+    class ICE_DB_API LMDBException final : public Ice::LocalException
     {
     public:
-        LMDBException(const char*, int, int);
+        LMDBException(const char* file, int line, int error);
 
-        const char* ice_id() const noexcept override;
-        void ice_print(std::ostream&) const override;
-
-        int error() const;
-
-    private:
-        const int _error;
-        static const char* _name;
+        const char* ice_id() const noexcept final;
     };
 
     //
     // KeyTooLongException is thrown if we attempt to marshal a
     // key with a marshaled representation longer than maxKeySize.
     //
-    class ICE_DB_API KeyTooLongException : public Ice::LocalException
+    class ICE_DB_API KeyTooLongException final : public Ice::LocalException
     {
     public:
-        KeyTooLongException(const char*, int, size_t);
+        KeyTooLongException(const char* file, int line, size_t size);
 
-        const char* ice_id() const noexcept override;
-        void ice_print(std::ostream&) const override;
-
-    private:
-        const size_t _size;
-        static const char* _name;
+        const char* ice_id() const noexcept final;
     };
 
     //
     // The creation of an Env fails with BadEnvException when this
     // Env's max key size is smaller than maxKeySize.
     //
-    class ICE_DB_API BadEnvException : public Ice::LocalException
+    class ICE_DB_API BadEnvException final : public Ice::LocalException
     {
     public:
         BadEnvException(const char*, int, size_t);
 
-        const char* ice_id() const noexcept override;
-        void ice_print(std::ostream&) const override;
-
-    private:
-        const size_t _size;
-        static const char* _name;
+        const char* ice_id() const noexcept final;
     };
 
     //

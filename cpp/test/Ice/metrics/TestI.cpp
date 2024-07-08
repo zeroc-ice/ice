@@ -35,7 +35,7 @@ MetricsI::opWithRequestFailedException(const Current&)
 void
 MetricsI::opWithLocalException(const Current&)
 {
-    throw SyscallException(__FILE__, __LINE__);
+    throw SyscallException{__FILE__, __LINE__, "opWithLocalException simulated failure", 0};
 }
 
 void

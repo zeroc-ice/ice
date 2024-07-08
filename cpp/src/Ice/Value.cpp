@@ -60,5 +60,5 @@ Ice::Value::ice_getSlicedData() const
 Ice::ValuePtr
 Ice::Value::_iceCloneImpl() const
 {
-    throw CloneNotImplementedException(__FILE__, __LINE__);
+    throw std::logic_error("clone is not implemented for this class");
 }

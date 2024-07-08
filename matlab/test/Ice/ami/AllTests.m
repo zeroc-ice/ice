@@ -184,7 +184,7 @@ classdef AllTests
                 %
                 % Local case: start an operation and then close the connection gracefully on the client side
                 % without waiting for the pending invocation to complete. There will be no retry and we expect the
-                % invocation to fail with ConnectionManuallyClosedException.
+                % invocation to fail with ConnectionClosedException.
                 %
                 p = p.ice_connectionId('CloseGracefully'); % Start with a new connection.
                 con = p.ice_getConnection();
@@ -197,9 +197,8 @@ classdef AllTests
                     f.fetchOutputs();
                     assert(false);
                 catch ex
-                    assert(isa(ex, 'Ice.ConnectionManuallyClosedException'));
-                    % TODO: refactor
-                    % assert(ex.graceful);
+                    assert(isa(ex, 'Ice.ConnectionClosedException'));
+                    assert(ex.closedByApplication);
                 end
                 p.finishDispatch();
 
@@ -218,7 +217,7 @@ classdef AllTests
 
                 %
                 % Local case: start an operation and then close the connection forcefully on the client side.
-                % There will be no retry and we expect the invocation to fail with ConnectionManuallyClosedException.
+                % There will be no retry and we expect the invocation to fail with ConnectionAbortedException.
                 %
                 p.ice_ping();
                 con = p.ice_getConnection();
@@ -231,9 +230,8 @@ classdef AllTests
                     f.fetchOutputs();
                     assert(false);
                 catch ex
-                    assert(isa(ex, 'Ice.ConnectionManuallyClosedException'));
-                    % TODO: refactor
-                    % assert(~ex.graceful);
+                    assert(isa(ex, 'Ice.ConnectionAbortedException'));
+                    assert(ex.closedByApplication);
                 end
                 p.finishDispatch();
 

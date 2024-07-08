@@ -2,7 +2,8 @@
 #
 # Copyright (c) ZeroC, Inc.
 
-# This file provides all the exceptions derived from Ice::LocalException.
+# This file provides all the exceptions derived from Ice::LocalException. Application code should not throw any of
+# these exceptions.
 
 module Ice
     #
@@ -47,9 +48,6 @@ module Ice
     end
 
     class CloseConnectionException < ProtocolException
-    end
-
-    class ConnectionManuallyClosedException < LocalException
     end
 
     class DatagramLimitException < ProtocolException
@@ -117,7 +115,12 @@ module Ice
     class CommunicatorDestroyedException < LocalException
     end
 
-    class ConnectionIdleException < LocalException
+    class ConnectionAbortedException < LocalException
+    # We don't map closedByApplication because it's very difficult to produce a ConnectionAbortedException or
+    # ConnectionClosedException without AMI.
+    end
+
+    class ConnectionClosedException < LocalException
     end
 
     class FeatureNotSupportedException < LocalException

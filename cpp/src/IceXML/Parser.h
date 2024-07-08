@@ -37,16 +37,9 @@ namespace IceXML
     class ICE_XML_API ParserException final : public Ice::LocalException
     {
     public:
-        ParserException(const char*, int, std::string) noexcept;
+        using Ice::LocalException::LocalException;
 
-        const char* ice_id() const noexcept override;
-        void ice_print(std::ostream&) const override;
-
-        std::string reason() const noexcept;
-
-    private:
-        std::string _reason;
-        static const char* _name;
+        const char* ice_id() const noexcept final;
     };
 
     class Document;

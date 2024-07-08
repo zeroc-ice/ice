@@ -93,8 +93,11 @@ namespace IceInternal
     //
     ICE_API std::string lastErrorToString();
 #ifdef _WIN32
-    ICE_API std::string errorToString(int, const void* = nullptr);
+    using ErrorCode = unsigned long; // DWORD
+    ICE_API std::string errorToStringWithSource(ErrorCode error, const void* source);
+    inline std::string errorToString(ErrorCode error) { return errorToStringWithSource(error, nullptr); }
 #else
+    using ErrorCode = int;
     ICE_API std::string errorToString(int);
 #endif
 

@@ -254,7 +254,7 @@ AdminI::getDefaultApplicationDescriptor(const Current& current) const
     }
     catch (const IceXML::ParserException& ex)
     {
-        throw DeploymentException("can't parse default templates:\n" + ex.reason());
+        throw DeploymentException("can't parse default templates:\n" + string{ex.what()});
     }
     desc.name = "";
     if (!desc.nodes.empty())

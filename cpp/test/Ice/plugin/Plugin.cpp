@@ -36,11 +36,11 @@ namespace
         bool _destroyed;
     };
 
-    class PluginInitializeFailExeption : public std::exception
+    class CustomPluginException : public std::exception
     {
     public:
-        PluginInitializeFailExeption() noexcept {}
-        virtual const char* what() const noexcept { return "PluginInitializeFailExeption"; }
+        CustomPluginException() noexcept {}
+        virtual const char* what() const noexcept { return "CustomPluginException"; }
     };
 
     class PluginInitializeFail : public Ice::Plugin
@@ -48,7 +48,7 @@ namespace
     public:
         PluginInitializeFail(const Ice::CommunicatorPtr& communicator) : _communicator(communicator) {}
 
-        void initialize() { throw PluginInitializeFailExeption(); }
+        void initialize() { throw CustomPluginException(); }
 
         void destroy() { test(false); }
 
@@ -235,7 +235,7 @@ namespace
     public:
         PluginThreeFail(const Ice::CommunicatorPtr& communicator) : BasePluginFail(communicator) {}
 
-        void initialize() { throw PluginInitializeFailExeption(); }
+        void initialize() { throw CustomPluginException(); }
 
         void destroy() { test(false); }
 

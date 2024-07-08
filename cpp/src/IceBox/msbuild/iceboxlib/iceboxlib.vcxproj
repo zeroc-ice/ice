@@ -105,7 +105,6 @@
     <ResourceCompile Include="..\..\IceBox.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Exception.cpp" />
     <ClCompile Include="..\..\Service.cpp" />
     <ClCompile Include="Win32\Debug\ServiceManager.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

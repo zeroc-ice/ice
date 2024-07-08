@@ -22,6 +22,7 @@
 #include <iostream>
 #include <mutex>
 #include <string>
+#include <typeinfo>
 
 #ifndef TEST_API
 #    if defined(ICE_STATIC_LIBS)
@@ -151,9 +152,14 @@ namespace Test
             T helper;
             helper.run(argc, argv);
         }
+        catch (const Ice::LocalException& ex)
+        {
+            std::cerr << "error: " << ex << std::endl;
+            status = 1;
+        }
         catch (const std::exception& ex)
         {
-            std::cerr << "error: " << ex.what() << std::endl;
+            std::cerr << "error: " << typeid(ex).name() << ' ' << ex.what() << std::endl;
             status = 1;
         }
         return status;

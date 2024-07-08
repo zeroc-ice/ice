@@ -8,7 +8,7 @@ $(project)_dependencies := Ice
 $(project)_sliceflags   := --include-dir IceBox
 
 IceBox_targetdir        := $(libdir)
-IceBox_sources          := $(slicedir)/IceBox/ServiceManager.ice $(currentdir)/Exception.cpp $(currentdir)/Service.cpp
+IceBox_sources          := $(slicedir)/IceBox/ServiceManager.ice $(currentdir)/Service.cpp
 
 icebox_targetdir        := $(bindir)
 icebox_sources          := $(currentdir)/IceBoxService.cpp $(currentdir)/ServiceManagerI.cpp

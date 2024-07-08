@@ -1608,9 +1608,7 @@ IcePy::Invocation::checkTwowayOnly(const OperationPtr& op, const Ice::ObjectPrx&
 {
     if ((op->returnType != 0 || !op->outParams.empty() || !op->exceptions.empty()) && !proxy->ice_isTwoway())
     {
-        Ice::TwowayOnlyException ex(__FILE__, __LINE__);
-        ex.operation = op->name;
-        throw ex;
+        throw Ice::TwowayOnlyException{__FILE__, __LINE__, op->name};
     }
 }
 

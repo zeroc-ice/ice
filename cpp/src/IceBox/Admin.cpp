@@ -76,7 +76,7 @@ run(const Ice::StringSeq& args)
     }
     catch (const IceInternal::BadOptException& e)
     {
-        consoleErr << e.reason << endl;
+        consoleErr << e.what() << endl;
         usage(args[0]);
         return 1;
     }

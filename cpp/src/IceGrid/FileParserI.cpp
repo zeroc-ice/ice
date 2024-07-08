@@ -25,6 +25,6 @@ FileParserI::parse(string file, optional<AdminPrx> admin, const Ice::Current& cu
     }
     catch (const IceXML::ParserException& e)
     {
-        throw ParseException(e.reason());
+        throw ParseException(e.what());
     }
 }

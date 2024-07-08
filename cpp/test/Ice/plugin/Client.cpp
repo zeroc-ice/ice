@@ -195,7 +195,7 @@ Client::run(int argc, char** argv)
     }
     catch (const Ice::PluginInitializationException& ex)
     {
-        test(ex.reason.find("PluginInitializeFailExeption") > 0);
+        test(string{ex.what()}.find("CustomPluginException") > 0);
     }
     cout << "ok" << endl;
 
@@ -264,7 +264,7 @@ Client::run(int argc, char** argv)
     }
     catch (const Ice::PluginInitializationException& ex)
     {
-        test(ex.reason.find("PluginInitializeFailExeption") > 0);
+        test(string{ex.what()}.find("CustomPluginException") > 0);
     }
     cout << "ok" << endl;
 }

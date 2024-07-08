@@ -36,7 +36,7 @@ namespace
 
     string pdhErrorToString(PDH_STATUS err)
     {
-        return IceInternal::errorToString(err, GetModuleHandle(TEXT("PDH.DLL")));
+        return IceInternal::errorToStringWithSource(err, GetModuleHandle(TEXT("PDH.DLL")));
     }
 
     static string getLocalizedPerfName(int idx, const Ice::LoggerPtr& logger)
@@ -58,7 +58,7 @@ namespace
             out << pdhErrorToString(err);
             out << "\nThis usually occurs when you do not have sufficient privileges";
 
-            throw Ice::SyscallException(__FILE__, __LINE__, err);
+            throw Ice::SyscallException{__FILE__, __LINE__, "PdhLookupPerfNameByIndex failed", static_cast<DWORD>(err)};
         }
         return string(&localized[0]);
     }
