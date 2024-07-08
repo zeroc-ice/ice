@@ -4365,9 +4365,9 @@ class SwiftMapping(Mapping):
         def __init__(self, options=[]):
             CppBasedClientMapping.Config.__init__(self, options)
             if self.buildConfig == platform.getDefaultBuildConfig():
-                # Check the OPTIMIZE environment variable to figure out if it's Debug/Release build
+                # Check the OPTIMIZE environment variable to figure out if it's debug/release build
                 self.buildConfig = (
-                    "Release" if os.environ.get("OPTIMIZE", "yes") != "no" else "Debug"
+                    "release" if os.environ.get("OPTIMIZE", "yes") != "no" else "debug"
                 )
 
     def getCommandLine(self, current, process, exe, args):
@@ -4377,7 +4377,9 @@ class SwiftMapping(Mapping):
             os.sep, "_"
         )
 
-        testDriver = "swift run --skip-build TestDriver"
+        testDriver = "swift run -c {0} --skip-build TestDriver".format(
+            current.config.buildConfig
+        )
 
         return "{0} {1} {2} {3}".format(testDriver, package, exe, args)
 
@@ -4404,7 +4406,7 @@ class SwiftMapping(Mapping):
                           -showBuildSettings \
                           -sdk {2}".format(
             self.getXcodeProject(current),
-            current.config.buildConfig,
+            current.config.buildConfig.capitalize(),  # SwiftPM uses lowercase. Xcode users uppercase.
             current.config.buildPlatform,
         )
         targetBuildDir = re.search(r"\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
