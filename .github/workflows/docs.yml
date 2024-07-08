@@ -48,6 +48,7 @@ jobs:
         run: |
           make doc
 
+      # TODO: Enable Swift documentation generation
       # - name: Generate Documentation for Swift
       #   working-directory: ./swift
       #   run: |
