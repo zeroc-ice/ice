@@ -4377,6 +4377,8 @@ class SwiftMapping(Mapping):
             os.sep, "_"
         )
 
+        print(current.config.buildConfig)
+
         testDriver = "swift run -c {0} --skip-build TestDriver".format(
             current.config.buildConfig
         )

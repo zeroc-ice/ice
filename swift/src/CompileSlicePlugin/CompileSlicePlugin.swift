@@ -25,6 +25,15 @@ enum PluginError: Error {
 }
 
 /// Represents the contents of a `slice-plugin.json` file
+/// - sources: List of Slice files or directories containing Slice files. Can not be empty.
+/// - search_paths: List of directories to add as search paths when calling slice2swift. Can be omitted.
+/// - Example:
+/// ```
+/// {
+///     "sources": ["Slice"],
+///     "search_paths": ["Slice", "../OtherModule/Slice"]
+/// }
+/// ```
 struct Config: Codable {
     /// List of Slice files or directories containing Slice files
     var sources: [String]
@@ -32,6 +41,10 @@ struct Config: Codable {
     var search_paths: [String]?
 }
 
+/// The CompileSlicePlugin for SwiftPM compiles Ice Slice files to Swift files using the `slice2swift` compiler.
+/// The plugin expects a `slice-plugin.json` file as one of the target's sources.
+/// The `slice-plugin.json` file must contain a list of Slice files or directories containing Slice files.
+/// SwiftPM will compile the Slice files to Swift files before compiling Swift sources.
 @main
 struct CompileSlicePlugin: BuildToolPlugin {
 
