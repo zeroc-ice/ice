@@ -10,7 +10,6 @@ using namespace IceGrid;
 
 ReapThread::ReapThread()
     : _closeCallback([this](const auto& con) { connectionClosed(con); }),
-      _heartbeatCallback([this](const auto& con) { connectionHeartbeat(con); }),
       _terminated(false),
       _thread([this] { run(); })
 {
@@ -86,7 +85,6 @@ ReapThread::run()
                         if (q->second.empty())
                         {
                             p->connection->setCloseCallback(nullptr);
-                            p->connection->setHeartbeatCallback(nullptr);
                             _connections.erase(q);
                         }
                     }
@@ -121,11 +119,9 @@ ReapThread::terminate()
         for (const auto& conn : _connections)
         {
             conn.first->setCloseCallback(nullptr);
-            conn.first->setHeartbeatCallback(nullptr);
         }
         _connections.clear();
         _closeCallback = nullptr;
-        _heartbeatCallback = nullptr;
     }
 
     for (const auto& r : reap)
@@ -174,7 +170,6 @@ ReapThread::add(
         {
             p = _connections.insert({connection, {}}).first;
             connection->setCloseCallback(_closeCallback);
-            connection->setHeartbeatCallback(_heartbeatCallback);
         }
         p->second.insert(reapable);
     }
@@ -199,25 +194,6 @@ ReapThread::add(
 }
 
 void
-ReapThread::connectionHeartbeat(const shared_ptr<Ice::Connection>& con)
-{
-    lock_guard lock(_mutex);
-
-    auto p = _connections.find(con);
-    if (p == _connections.end())
-    {
-        con->setCloseCallback(nullptr);
-        con->setHeartbeatCallback(nullptr);
-        return;
-    }
-
-    for (const auto& reapable : p->second)
-    {
-        reapable->heartbeat();
-    }
-}
-
-void
 ReapThread::connectionClosed(const shared_ptr<Ice::Connection>& con)
 {
     lock_guard lock(_mutex);
@@ -226,7 +202,6 @@ ReapThread::connectionClosed(const shared_ptr<Ice::Connection>& con)
     if (p == _connections.end())
     {
         con->setCloseCallback(nullptr);
-        con->setHeartbeatCallback(nullptr);
         return;
     }
 

@@ -13,8 +13,6 @@ classdef Connection < IceInternal.WrapperObject
     %     connection.
     %   flushBatchRequestsAsync - Flush any pending batch requests for this
     %     connection.
-    %   heartbeat - Send a heartbeat message.
-    %   heartbeatAsync - Send a heartbeat message.
     %   type - Return the connection type.
     %   toString - Return a description of the connection as human readable
     %     text, suitable for logging or error messages.
@@ -131,22 +129,6 @@ classdef Connection < IceInternal.WrapperObject
             obj.iceCall('flushBatchRequestsAsync', future);
             assert(~isNull(future));
             r = Ice.Future(future, 'flushBatchRequests', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
-        end
-        function heartbeat(obj)
-            % heartbeat   Send a heartbeat message.
-
-            obj.iceCall('heartbeat');
-        end
-        function r = heartbeatAsync(obj)
-            % heartbeatAsync   Send a heartbeat message.
-            %
-            % Returns (Ice.Future) - A future that will be completed when the
-            %   invocation completes.
-
-            future = libpointer('voidPtr');
-            obj.iceCall('heartbeatAsync', future);
-            assert(~isNull(future));
-            r = Ice.Future(future, 'heartbeat', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
         end
         function r = type(obj)
             % type   Return the connection type. This corresponds to the

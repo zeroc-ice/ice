@@ -62,7 +62,6 @@ class MessageInfo {
         this.servantManager = null;
         this.adapter = null;
         this.outAsync = null;
-        this.heartbeatCallback = null;
     }
 }
 
@@ -109,8 +108,7 @@ export class ConnectionI {
         // The number of user calls currently executed by the event-loop (servant dispatch, invocation response, etc.).
         this._upcallCount = 0;
 
-        // The number of outstanding dispatches. This does not include heartbeat messages, even when the heartbeat
-        // callback is not null. Maintained only while state is StateActive or StateHolding.
+        // The number of outstanding dispatches. Maintained only while state is StateActive or StateHolding.
         this._dispatchCount = 0;
 
         this._state = StateNotInitialized;
@@ -142,7 +140,6 @@ export class ConnectionI {
 
         this._servantManager = null;
         this._closeCallback = null;
-        this._heartbeatCallback = null;
     }
 
     start() {
@@ -369,19 +366,6 @@ export class ConnectionI {
         } else {
             this._closeCallback = callback;
         }
-    }
-
-    setHeartbeatCallback(callback) {
-        if (this._state >= StateClosed) {
-            return;
-        }
-        this._heartbeatCallback = callback;
-    }
-
-    heartbeat() {
-        const result = new HeartbeatAsync(this, this._communicator);
-        result.invoke();
-        return result;
     }
 
     asyncRequestCanceled(outAsync, ex) {
@@ -681,16 +665,6 @@ export class ConnectionI {
                 // decreased when the incoming reply is sent.
                 //
             }
-
-            if (info.heartbeatCallback) {
-                try {
-                    info.heartbeatCallback(this);
-                } catch (ex) {
-                    this._logger.error("connection callback exception:\n" + ex + "\n" + this._desc);
-                }
-                info.heartbeatCallback = null;
-                ++count;
-            }
         }
 
         //
@@ -820,8 +794,6 @@ export class ConnectionI {
             }
             this._closeCallback = null;
         }
-
-        this._heartbeatCallback = null;
 
         //
         // This must be done last as this will cause waitUntilFinished() to return (and communicator
@@ -1441,10 +1413,6 @@ export class ConnectionI {
 
                 case Protocol.validateConnectionMsg: {
                     TraceUtil.traceRecv(info.stream, this._logger, this._traceLevels);
-                    if (this._heartbeatCallback !== null) {
-                        info.heartbeatCallback = this._heartbeatCallback;
-                        ++this._upcallCount;
-                    }
                     break;
                 }
 

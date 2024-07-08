@@ -50,8 +50,6 @@ namespace Ice
 
     public delegate void CloseCallback(Connection con);
 
-    public delegate void HeartbeatCallback(Connection con);
-
     /// <summary>
     /// Determines the behavior when manually closing a connection.
     /// </summary>
@@ -146,23 +144,6 @@ namespace Ice
         /// </summary>
         ///  <param name="callback">The close callback object.</param>
         void setCloseCallback(CloseCallback callback);
-
-        /// <summary>
-        /// Set a heartbeat callback on the connection.
-        /// The callback is called by the connection when a heartbeat is
-        ///  received. The callback is called from the Ice thread pool associated with the connection.
-        /// </summary>
-        ///  <param name="callback">The heartbeat callback object.</param>
-        void setHeartbeatCallback(HeartbeatCallback callback);
-
-        /// <summary>
-        /// Send a heartbeat message.
-        /// </summary>
-        void heartbeat();
-
-        System.Threading.Tasks.Task heartbeatAsync(
-            System.IProgress<bool>? progress = null,
-            System.Threading.CancellationToken cancel = default);
 
         /// <summary>
         /// Return the connection type.

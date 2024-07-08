@@ -20,10 +20,7 @@ ICEIMPL_API @interface ICEConnection : ICELocalObject
                       exception:(void (^)(NSError*))exception
                            sent:(void (^_Nullable)(bool))sent;
 - (BOOL)setCloseCallback:(nullable void (^)(ICEConnection*))callback error:(NSError* _Nullable* _Nullable)error;
-- (void)setHeartbeatCallback:(nullable void (^)(ICEConnection*))callback;
-- (BOOL)heartbeat:(NSError* _Nullable* _Nullable)error;
-- (void)heartbeatAsync:(void (^)(NSError*))exception
-                  sent:(void (^_Nullable)(bool))sent NS_SWIFT_NAME(heartbeatAsync(exception:sent:));
+
 - (NSString*)type;
 - (NSString*)toString;
 - (nullable id)getInfo:(NSError* _Nullable* _Nullable)error;

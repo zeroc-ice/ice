@@ -111,52 +111,6 @@ namespace IcePy
         PyObject* _con;
     };
     using CloseCallbackWrapperPtr = shared_ptr<CloseCallbackWrapper>;
-
-    class HeartbeatCallbackWrapper final
-    {
-    public:
-        HeartbeatCallbackWrapper(PyObject* cb, PyObject* con) : _cb(cb), _con(con)
-        {
-            Py_INCREF(cb);
-            Py_INCREF(con);
-        }
-
-        ~HeartbeatCallbackWrapper()
-        {
-            AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
-
-            Py_DECREF(_cb);
-            Py_DECREF(_con);
-        }
-
-        void heartbeat()
-        {
-            AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
-
-            PyObjectHandle args = Py_BuildValue(STRCAST("(O)"), _con);
-            assert(_cb);
-            PyObjectHandle tmp = PyObject_Call(_cb, args.get(), 0);
-            if (PyErr_Occurred())
-            {
-                PyException ex; // Retrieve it before another Python API call clears it.
-
-                //
-                // A callback that calls sys.exit() will raise the SystemExit exception.
-                // This is normally caught by the interpreter, causing it to exit.
-                // However, we have no way to pass this exception to the interpreter,
-                // so we act on it directly.
-                //
-                ex.checkSystemExit();
-
-                ex.raise();
-            }
-        }
-
-    private:
-        PyObject* _cb;
-        PyObject* _con;
-    };
-    using HeartbeatCallbackWrapperPtr = shared_ptr<HeartbeatCallbackWrapper>;
 }
 
 #ifdef WIN32
@@ -523,77 +477,6 @@ extern "C"
 extern "C"
 #endif
     static PyObject*
-    connectionSetHeartbeatCallback(ConnectionObject* self, PyObject* args)
-{
-    assert(self->connection);
-
-    PyObject* cb;
-    if (!PyArg_ParseTuple(args, STRCAST("O"), &cb))
-    {
-        return 0;
-    }
-
-    PyObject* callbackType = lookupType("types.FunctionType");
-    if (cb != Py_None && !PyObject_IsInstance(cb, callbackType))
-    {
-        PyErr_Format(PyExc_ValueError, STRCAST("callback must be None or a function"));
-        return 0;
-    }
-
-    HeartbeatCallbackWrapperPtr wrapper;
-    if (cb != Py_None)
-    {
-        wrapper = make_shared<HeartbeatCallbackWrapper>(cb, reinterpret_cast<PyObject*>(self));
-    }
-
-    try
-    {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking invocations.
-        if (wrapper)
-        {
-            (*self->connection)->setHeartbeatCallback([wrapper](const Ice::ConnectionPtr&) { wrapper->heartbeat(); });
-        }
-        else
-        {
-            (*self->connection)->setHeartbeatCallback(nullptr);
-        }
-    }
-    catch (...)
-    {
-        setPythonException(current_exception());
-        return 0;
-    }
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionHeartbeat(ConnectionObject* self, PyObject* /*args*/)
-{
-    assert(self->connection);
-    try
-    {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-        (*self->connection)->heartbeat();
-    }
-    catch (...)
-    {
-        setPythonException(current_exception());
-        return 0;
-    }
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
     connectionType(ConnectionObject* self, PyObject* /*args*/)
 {
     assert(self->connection);
@@ -748,14 +631,6 @@ static PyMethodDef ConnectionMethods[] = {
      reinterpret_cast<PyCFunction>(connectionSetCloseCallback),
      METH_VARARGS,
      PyDoc_STR(STRCAST("setCloseCallback(Ice.CloseCallback) -> None"))},
-    {STRCAST("setHeartbeatCallback"),
-     reinterpret_cast<PyCFunction>(connectionSetHeartbeatCallback),
-     METH_VARARGS,
-     PyDoc_STR(STRCAST("setHeartbeatCallback(Ice.HeartbeatCallback) -> None"))},
-    {STRCAST("heartbeat"),
-     reinterpret_cast<PyCFunction>(connectionHeartbeat),
-     METH_NOARGS,
-     PyDoc_STR(STRCAST("heartbeat() -> None"))},
     {STRCAST("type"),
      reinterpret_cast<PyCFunction>(connectionType),
      METH_NOARGS,

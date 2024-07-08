@@ -136,41 +136,6 @@ if "CloseCallback" not in _M_Ice.__dict__:
     _M_Ice.CloseCallback = CloseCallback
     del CloseCallback
 
-if "HeartbeatCallback" not in _M_Ice.__dict__:
-    _M_Ice.HeartbeatCallback = Ice.createTempClass()
-
-    class HeartbeatCallback(object):
-        """
-        An application can implement this interface to receive notifications when a connection receives a heartbeat
-        message.
-        """
-
-        def __init__(self):
-            if Ice.getType(self) == _M_Ice.HeartbeatCallback:
-                raise RuntimeError("Ice.HeartbeatCallback is an abstract class")
-
-        def heartbeat(self, con):
-            """
-             This method is called by the connection when a heartbeat is received from the peer.
-            Arguments:
-            con -- The connection on which a heartbeat was received.
-            """
-            raise NotImplementedError("method 'heartbeat' not implemented")
-
-        def __str__(self):
-            return IcePy.stringify(self, _M_Ice._t_HeartbeatCallback)
-
-        __repr__ = __str__
-
-    _M_Ice._t_HeartbeatCallback = IcePy.defineValue(
-        "::Ice::HeartbeatCallback", HeartbeatCallback, -1, (), True, None, ()
-    )
-    HeartbeatCallback._ice_type = _M_Ice._t_HeartbeatCallback
-
-    _M_Ice.HeartbeatCallback = HeartbeatCallback
-    del HeartbeatCallback
-
-
 if "ConnectionClose" not in _M_Ice.__dict__:
     _M_Ice.ConnectionClose = Ice.createTempClass()
 
@@ -285,21 +250,6 @@ if "Connection" not in _M_Ice.__dict__:
             callback -- The close callback object.
             """
             raise NotImplementedError("method 'setCloseCallback' not implemented")
-
-        def setHeartbeatCallback(self, callback):
-            """
-             Set a heartbeat callback on the connection. The callback is called by the connection when a heartbeat is
-             received. The callback is called from the Ice thread pool associated with the connection.
-            Arguments:
-            callback -- The heartbeat callback object.
-            """
-            raise NotImplementedError("method 'setHeartbeatCallback' not implemented")
-
-        def heartbeat(self):
-            """
-            Send a heartbeat message.
-            """
-            raise NotImplementedError("method 'heartbeat' not implemented")
 
         def type(self):
             """

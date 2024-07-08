@@ -173,10 +173,6 @@ namespace Ice
             std::function<void(bool)> = nullptr) final;
 
         void setCloseCallback(CloseCallback) final;
-        void setHeartbeatCallback(HeartbeatCallback) final;
-
-        std::function<void()>
-            heartbeatAsync(std::function<void(std::exception_ptr)>, std::function<void(bool)> = nullptr) final;
 
         void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, std::exception_ptr) final;
 
@@ -374,8 +370,7 @@ namespace Ice
         // The number of user calls currently executed by the thread-pool (servant dispatch, invocation response, ...)
         int _upcallCount;
 
-        // The number of outstanding dispatches. This does not include heartbeat messages, even when the heartbeat
-        // callback is not null. Maintained only while state is StateActive or StateHolding.
+        // The number of outstanding dispatches. Maintained only while state is StateActive or StateHolding.
         int _dispatchCount = 0;
 
         State _state; // The current state.
@@ -384,7 +379,6 @@ namespace Ice
         bool _validated;
 
         CloseCallback _closeCallback;
-        HeartbeatCallback _heartbeatCallback;
 
         mutable std::mutex _mutex;
         mutable std::condition_variable _conditionVariable;

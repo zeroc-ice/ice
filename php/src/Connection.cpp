@@ -155,27 +155,6 @@ ZEND_METHOD(Ice_Connection, flushBatchRequests)
     }
 }
 
-ZEND_METHOD(Ice_Connection, heartbeat)
-{
-    if (ZEND_NUM_ARGS() > 0)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
-    assert(_this);
-
-    try
-    {
-        _this->heartbeat();
-    }
-    catch (...)
-    {
-        throwException(current_exception());
-        RETURN_NULL();
-    }
-}
-
 ZEND_METHOD(Ice_Connection, type)
 {
     if (ZEND_NUM_ARGS() > 0)
@@ -328,8 +307,6 @@ static zend_function_entry _connectionClassMethods[] = {
     ZEND_ME(Ice_Connection, getEndpoint, ice_void_arginfo, ZEND_ACC_PUBLIC)
     // flushBatchRequests
     ZEND_ME(Ice_Connection, flushBatchRequests, Ice_Connection_flushBatchRequests_arginfo, ZEND_ACC_PUBLIC)
-    // heartbeat
-    ZEND_ME(Ice_Connection, heartbeat, ice_void_arginfo, ZEND_ACC_PUBLIC)
     // type
     ZEND_ME(Ice_Connection, type, ice_void_arginfo, ZEND_ACC_PUBLIC)
     // toString

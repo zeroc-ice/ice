@@ -249,39 +249,6 @@ extern "C"
         return 0;
     }
 
-    mxArray* Ice_Connection_heartbeat(void* self)
-    {
-        try
-        {
-            deref<Ice::Connection>(self)->heartbeat();
-        }
-        catch (...)
-        {
-            return convertException(std::current_exception());
-        }
-        return 0;
-    }
-
-    mxArray* Ice_Connection_heartbeatAsync(void* self, void** future)
-    {
-        *future = 0;
-        auto f = make_shared<SimpleFuture>();
-
-        try
-        {
-            function<void()> token = deref<Ice::Connection>(self)->heartbeatAsync(
-                [f](exception_ptr e) { f->exception(e); },
-                [f](bool /*sentSynchronously*/) { f->done(); });
-            f->token(token);
-            *future = new shared_ptr<SimpleFuture>(move(f));
-        }
-        catch (...)
-        {
-            return convertException(std::current_exception());
-        }
-        return 0;
-    }
-
     mxArray* Ice_Connection_type(void* self)
     {
         try

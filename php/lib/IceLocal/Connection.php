@@ -55,16 +55,6 @@ namespace Ice
 
 namespace Ice
 {
-    global $Ice__t_HeartbeatCallback;
-    interface HeartbeatCallback
-    {
-        public function heartbeat($con);
-    }
-    $Ice__t_HeartbeatCallback = IcePHP_defineClass('::Ice::HeartbeatCallback', '\\Ice\\HeartbeatCallback', -1, true, null, null);
-}
-
-namespace Ice
-{
     global $Ice__t_ConnectionClose;
     class ConnectionClose
     {

@@ -353,89 +353,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   }
 
   @Override
-  public synchronized void setHeartbeatCallback(final HeartbeatCallback callback) {
-    if (_state >= StateClosed) {
-      return;
-    }
-    _heartbeatCallback = callback;
-  }
-
-  @Override
-  public void heartbeat() {
-    _iceI_heartbeatAsync().waitForResponse();
-  }
-
-  private class HeartbeatAsync extends com.zeroc.IceInternal.OutgoingAsyncBaseI<Void> {
-    public HeartbeatAsync(Communicator communicator, com.zeroc.IceInternal.Instance instance) {
-      super(communicator, instance, "heartbeat");
-    }
-
-    @Override
-    public Connection getConnection() {
-      return ConnectionI.this;
-    }
-
-    @Override
-    protected void markCompleted() {
-      complete(null);
-    }
-
-    public void invoke() {
-      try {
-        _os.writeBlob(Protocol.magic);
-        ProtocolVersion.ice_write(_os, Protocol.currentProtocol);
-        EncodingVersion.ice_write(_os, Protocol.currentProtocolEncoding);
-        _os.writeByte(Protocol.validateConnectionMsg);
-        _os.writeByte((byte) 0);
-        _os.writeInt(Protocol.headerSize); // Message size.
-
-        int status;
-        if (_instance.queueRequests()) {
-          status =
-              _instance
-                  .getQueueExecutor()
-                  .execute(
-                      new Callable<Integer>() {
-                        @Override
-                        public Integer call() throws com.zeroc.IceInternal.RetryException {
-                          return ConnectionI.this.sendAsyncRequest(
-                              HeartbeatAsync.this, false, false, 0);
-                        }
-                      });
-        } else {
-          status = ConnectionI.this.sendAsyncRequest(this, false, false, 0);
-        }
-
-        if ((status & AsyncStatus.Sent) > 0) {
-          _sentSynchronously = true;
-          if ((status & AsyncStatus.InvokeSentCallback) > 0) {
-            invokeSent();
-          }
-        }
-      } catch (com.zeroc.IceInternal.RetryException ex) {
-        if (completed(ex.get())) {
-          invokeCompletedAsync();
-        }
-      } catch (com.zeroc.Ice.Exception ex) {
-        if (completed(ex)) {
-          invokeCompletedAsync();
-        }
-      }
-    }
-  }
-
-  @Override
-  public java.util.concurrent.CompletableFuture<Void> heartbeatAsync() {
-    return _iceI_heartbeatAsync();
-  }
-
-  private HeartbeatAsync _iceI_heartbeatAsync() {
-    HeartbeatAsync f = new HeartbeatAsync(_communicator, _instance);
-    f.invoke();
-    return f;
-  }
-
-  @Override
   public synchronized void asyncRequestCanceled(OutgoingAsyncBase outAsync, LocalException ex) {
     if (_state >= StateClosed) {
       return; // The request has already been or will be shortly notified of the failure.
@@ -813,8 +730,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     {
       upcall(startCB, sentCBs, info);
     } else {
-      // No need for the stream if heartbeat callback
-      if (info != null && info.heartbeatCallback == null) {
+      if (info != null) {
         //
         // Create a new stream for the dispatch instead of using the
         // thread pool's thread stream.
@@ -824,7 +740,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         info.stream = new InputStream(_instance, Protocol.currentProtocolEncoding);
         info.stream.swap(stream);
       }
-
       final StartCallback finalStartCB = startCB;
       final java.util.List<OutgoingMessage> finalSentCBs = sentCBs;
       final MessageInfo finalInfo = info;
@@ -868,15 +783,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       //
       if (info.outAsync != null) {
         info.outAsync.invokeCompleted();
-        ++dispatchedCount;
-      }
-
-      if (info.heartbeatCallback != null) {
-        try {
-          info.heartbeatCallback.heartbeat(this);
-        } catch (Exception ex) {
-          _logger.error("connection callback exception:\n" + ex + '\n' + _desc);
-        }
         ++dispatchedCount;
       }
 
@@ -989,8 +895,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     if (_startCallback == null
         && _sendStreams.isEmpty()
         && _asyncRequests.isEmpty()
-        && _closeCallback == null
-        && _heartbeatCallback == null) {
+        && _closeCallback == null) {
       finish(close);
       return;
     }
@@ -1130,8 +1035,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
       }
       _closeCallback = null;
     }
-
-    _heartbeatCallback = null;
 
     //
     // This must be done last as this will cause waitUntilFinished() to
@@ -2027,7 +1930,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     com.zeroc.IceInternal.ServantManager servantManager;
     ObjectAdapter adapter;
     OutgoingAsyncBase outAsync;
-    HeartbeatCallback heartbeatCallback;
     int messageDispatchCount;
   }
 
@@ -2158,10 +2060,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         case Protocol.validateConnectionMsg:
           {
             TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
-            if (_heartbeatCallback != null) {
-              info.heartbeatCallback = _heartbeatCallback;
-              ++info.messageDispatchCount;
-            }
             break;
           }
 
@@ -2633,9 +2531,8 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   // response, etc.).
   private int _upcallCount;
 
-  // The number of outstanding dispatches. This does not include heartbeat messages, even when the
-  // heartbeat
-  // callback is not null. Maintained only while state is StateActive or StateHolding.
+  // The number of outstanding dispatches. Maintained only while state is StateActive or
+  // StateHolding.
   private int _dispatchCount;
 
   private int _state; // The current state.
@@ -2649,7 +2546,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
   private ConnectionInfo _info;
 
   private CloseCallback _closeCallback;
-  private HeartbeatCallback _heartbeatCallback;
 
   private static ConnectionState connectionStateMap[] = {
     ConnectionState.ConnectionStateValidating, // StateNotInitialized

@@ -107,10 +107,6 @@ module ::Ice
         T_CloseCallback = ::Ice::__declareLocalClass('::Ice::CloseCallback')
     end
 
-    if not defined?(::Ice::T_HeartbeatCallback)
-        T_HeartbeatCallback = ::Ice::__declareLocalClass('::Ice::HeartbeatCallback')
-    end
-
     if not defined?(::Ice::ConnectionClose)
         class ConnectionClose
             include Comparable
