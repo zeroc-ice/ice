@@ -200,7 +200,11 @@ Ice::InvocationTimeoutException::ice_id() const noexcept
 // Syscall exceptions
 //
 
-Ice::SyscallException::SyscallException(const char* file, int line, string messagePrefix, SyscallException::ErrorCode error)
+Ice::SyscallException::SyscallException(
+    const char* file,
+    int line,
+    string messagePrefix,
+    SyscallException::ErrorCode error)
     : SyscallException(file, line, std::move(messagePrefix), error, IceInternal::errorToString)
 {
 }

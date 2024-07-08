@@ -1004,7 +1004,11 @@ Activator::sendSignal(const string& name, int signal)
         }
         else if (GetLastError() != ERROR_INVALID_PARAMETER) // Process with pid doesn't exist anymore.
         {
-            throw SyscallException{__FILE__, __LINE__, "GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT) failed", GetLastError()};
+            throw SyscallException{
+                __FILE__,
+                __LINE__,
+                "GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT) failed",
+                GetLastError()};
         }
     }
     else if (signal == SIGKILL)

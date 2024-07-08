@@ -247,7 +247,8 @@ namespace
             // Don't need to use a wide string converter as the wide string is passed
             // to Windows API.
             //
-            LSTATUS err = RegDeleteKeyW(HKEY_LOCAL_MACHINE, stringToWstring(createKey(source), stringConverter).c_str());
+            LSTATUS err =
+                RegDeleteKeyW(HKEY_LOCAL_MACHINE, stringToWstring(createKey(source), stringConverter).c_str());
             if (err != ERROR_SUCCESS)
             {
                 throw SyscallException{__FILE__, __LINE__, "RegDeleteKeyW failed", static_cast<DWORD>(err)};

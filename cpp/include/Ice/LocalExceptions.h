@@ -419,7 +419,6 @@ namespace Ice
         }
 
     private:
-
         ErrorCode _error;
     };
 
@@ -487,7 +486,10 @@ namespace Ice
          * @param line The line where this exception is constructed.
          * @param error The error code.
          */
-        SocketException(const char* file, int line, ErrorCode error) : SocketException(file, line, "socket error", error) {}
+        SocketException(const char* file, int line, ErrorCode error)
+            : SocketException(file, line, "socket error", error)
+        {
+        }
 
         /**
          * Constructs a SocketException without an error.
