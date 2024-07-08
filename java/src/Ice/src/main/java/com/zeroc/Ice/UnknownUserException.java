@@ -24,25 +24,25 @@ package com.zeroc.Ice;
  * exceptions declared in the <code>throws</code> clause can be raised.
  */
 public class UnknownUserException extends UnknownException {
-  public UnknownUserException() {
-    super();
-  }
+    public UnknownUserException() {
+        super();
+    }
 
-  public UnknownUserException(Throwable cause) {
-    super(cause);
-  }
+    public UnknownUserException(Throwable cause) {
+        super(cause);
+    }
 
-  public UnknownUserException(String unknown) {
-    super(unknown);
-  }
+    public UnknownUserException(String unknown) {
+        super(unknown);
+    }
 
-  public UnknownUserException(String unknown, Throwable cause) {
-    super(unknown, cause);
-  }
+    public UnknownUserException(String unknown, Throwable cause) {
+        super(unknown, cause);
+    }
 
-  public String ice_id() {
-    return "::Ice::UnknownUserException";
-  }
+    public String ice_id() {
+        return "::Ice::UnknownUserException";
+    }
 
-  private static final long serialVersionUID = -6046568406824082586L;
+    private static final long serialVersionUID = -6046568406824082586L;
 }

@@ -17,15 +17,15 @@ package com.zeroc.Ice;
 
 /** This exception indicates a request was interrupted. */
 public class OperationInterruptedException extends LocalException {
-  public OperationInterruptedException() {}
+    public OperationInterruptedException() {}
 
-  public OperationInterruptedException(Throwable cause) {
-    super(cause);
-  }
+    public OperationInterruptedException(Throwable cause) {
+        super(cause);
+    }
 
-  public String ice_id() {
-    return "::Ice::OperationInterruptedException";
-  }
+    public String ice_id() {
+        return "::Ice::OperationInterruptedException";
+    }
 
-  private static final long serialVersionUID = -1099536335133286580L;
+    private static final long serialVersionUID = -1099536335133286580L;
 }

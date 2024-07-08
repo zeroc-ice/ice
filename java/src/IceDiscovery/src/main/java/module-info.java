@@ -3,7 +3,7 @@
 //
 
 module com.zeroc.icediscovery {
-  requires transitive com.zeroc.ice;
+    requires transitive com.zeroc.ice;
 
-  exports com.zeroc.IceDiscovery;
+    exports com.zeroc.IceDiscovery;
 }

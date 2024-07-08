@@ -21,25 +21,26 @@ package com.zeroc.Ice;
  * specification.
  */
 public class OperationNotExistException extends RequestFailedException {
-  public OperationNotExistException() {
-    super();
-  }
+    public OperationNotExistException() {
+        super();
+    }
 
-  public OperationNotExistException(Throwable cause) {
-    super(cause);
-  }
+    public OperationNotExistException(Throwable cause) {
+        super(cause);
+    }
 
-  public OperationNotExistException(Identity id, String facet, String operation) {
-    super(id, facet, operation);
-  }
+    public OperationNotExistException(Identity id, String facet, String operation) {
+        super(id, facet, operation);
+    }
 
-  public OperationNotExistException(Identity id, String facet, String operation, Throwable cause) {
-    super(id, facet, operation, cause);
-  }
+    public OperationNotExistException(
+            Identity id, String facet, String operation, Throwable cause) {
+        super(id, facet, operation, cause);
+    }
 
-  public String ice_id() {
-    return "::Ice::OperationNotExistException";
-  }
+    public String ice_id() {
+        return "::Ice::OperationNotExistException";
+    }
 
-  private static final long serialVersionUID = 3973646568523472620L;
+    private static final long serialVersionUID = 3973646568523472620L;
 }

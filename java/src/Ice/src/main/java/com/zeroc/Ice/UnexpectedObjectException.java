@@ -23,40 +23,40 @@ package com.zeroc.Ice;
  * instances and an operation is subscribed to the wrong topic.
  */
 public class UnexpectedObjectException extends MarshalException {
-  public UnexpectedObjectException() {
-    super();
-    this.type = "";
-    this.expectedType = "";
-  }
+    public UnexpectedObjectException() {
+        super();
+        this.type = "";
+        this.expectedType = "";
+    }
 
-  public UnexpectedObjectException(Throwable cause) {
-    super(cause);
-    this.type = "";
-    this.expectedType = "";
-  }
+    public UnexpectedObjectException(Throwable cause) {
+        super(cause);
+        this.type = "";
+        this.expectedType = "";
+    }
 
-  public UnexpectedObjectException(String reason, String type, String expectedType) {
-    super(reason);
-    this.type = type;
-    this.expectedType = expectedType;
-  }
+    public UnexpectedObjectException(String reason, String type, String expectedType) {
+        super(reason);
+        this.type = type;
+        this.expectedType = expectedType;
+    }
 
-  public UnexpectedObjectException(
-      String reason, String type, String expectedType, Throwable cause) {
-    super(reason, cause);
-    this.type = type;
-    this.expectedType = expectedType;
-  }
+    public UnexpectedObjectException(
+            String reason, String type, String expectedType, Throwable cause) {
+        super(reason, cause);
+        this.type = type;
+        this.expectedType = expectedType;
+    }
 
-  public String ice_id() {
-    return "::Ice::UnexpectedObjectException";
-  }
+    public String ice_id() {
+        return "::Ice::UnexpectedObjectException";
+    }
 
-  /** The Slice type ID of the class instance that was unmarshaled. */
-  public String type;
+    /** The Slice type ID of the class instance that was unmarshaled. */
+    public String type;
 
-  /** The Slice type ID that was expected by the receiving operation. */
-  public String expectedType;
+    /** The Slice type ID that was expected by the receiving operation. */
+    public String expectedType;
 
-  private static final long serialVersionUID = -5786936875383180611L;
+    private static final long serialVersionUID = -5786936875383180611L;
 }

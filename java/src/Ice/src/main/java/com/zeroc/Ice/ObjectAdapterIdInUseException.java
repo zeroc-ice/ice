@@ -20,30 +20,30 @@ package com.zeroc.Ice;
  * {@link Locator} detects another active {@link ObjectAdapter} with the same adapter id.
  */
 public class ObjectAdapterIdInUseException extends LocalException {
-  public ObjectAdapterIdInUseException() {
-    this.id = "";
-  }
+    public ObjectAdapterIdInUseException() {
+        this.id = "";
+    }
 
-  public ObjectAdapterIdInUseException(Throwable cause) {
-    super(cause);
-    this.id = "";
-  }
+    public ObjectAdapterIdInUseException(Throwable cause) {
+        super(cause);
+        this.id = "";
+    }
 
-  public ObjectAdapterIdInUseException(String id) {
-    this.id = id;
-  }
+    public ObjectAdapterIdInUseException(String id) {
+        this.id = id;
+    }
 
-  public ObjectAdapterIdInUseException(String id, Throwable cause) {
-    super(cause);
-    this.id = id;
-  }
+    public ObjectAdapterIdInUseException(String id, Throwable cause) {
+        super(cause);
+        this.id = id;
+    }
 
-  public String ice_id() {
-    return "::Ice::ObjectAdapterIdInUseException";
-  }
+    public String ice_id() {
+        return "::Ice::ObjectAdapterIdInUseException";
+    }
 
-  /** Adapter ID. */
-  public String id;
+    /** Adapter ID. */
+    public String id;
 
-  private static final long serialVersionUID = 609699148378869554L;
+    private static final long serialVersionUID = 609699148378869554L;
 }

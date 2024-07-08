@@ -20,25 +20,25 @@ package com.zeroc.Ice;
  * given identity exists.
  */
 public class FacetNotExistException extends RequestFailedException {
-  public FacetNotExistException() {
-    super();
-  }
+    public FacetNotExistException() {
+        super();
+    }
 
-  public FacetNotExistException(Throwable cause) {
-    super(cause);
-  }
+    public FacetNotExistException(Throwable cause) {
+        super(cause);
+    }
 
-  public FacetNotExistException(Identity id, String facet, String operation) {
-    super(id, facet, operation);
-  }
+    public FacetNotExistException(Identity id, String facet, String operation) {
+        super(id, facet, operation);
+    }
 
-  public FacetNotExistException(Identity id, String facet, String operation, Throwable cause) {
-    super(id, facet, operation, cause);
-  }
+    public FacetNotExistException(Identity id, String facet, String operation, Throwable cause) {
+        super(id, facet, operation, cause);
+    }
 
-  public String ice_id() {
-    return "::Ice::FacetNotExistException";
-  }
+    public String ice_id() {
+        return "::Ice::FacetNotExistException";
+    }
 
-  private static final long serialVersionUID = -584705670010603188L;
+    private static final long serialVersionUID = -584705670010603188L;
 }

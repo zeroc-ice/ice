@@ -17,17 +17,17 @@ package com.zeroc.Ice;
 
 /** This exception indicates a connection closure timeout condition. */
 public class CloseTimeoutException extends TimeoutException {
-  public CloseTimeoutException() {
-    super();
-  }
+    public CloseTimeoutException() {
+        super();
+    }
 
-  public CloseTimeoutException(Throwable cause) {
-    super(cause);
-  }
+    public CloseTimeoutException(Throwable cause) {
+        super(cause);
+    }
 
-  public String ice_id() {
-    return "::Ice::CloseTimeoutException";
-  }
+    public String ice_id() {
+        return "::Ice::CloseTimeoutException";
+    }
 
-  private static final long serialVersionUID = -702193953324375086L;
+    private static final long serialVersionUID = -702193953324375086L;
 }

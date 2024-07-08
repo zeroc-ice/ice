@@ -11,62 +11,62 @@ package com.zeroc.IceInternal;
 // for the BTS/iAPS endpoint factories).
 //
 public class UnderlyingEndpointFactory implements EndpointFactory {
-  public UnderlyingEndpointFactory(ProtocolInstance instance, short type, short underlying) {
-    _instance = instance;
-    _type = type;
-    _underlying = underlying;
-  }
-
-  public void initialize() {
-    //
-    // Get the endpoint factory of the given endpoint type. If it's a factory that
-    // delegates to an underlying endpoint, clone it and instruct it to delegate to
-    // our underlying factory.
-    //
-    EndpointFactory factory = _instance.getEndpointFactory(_type);
-    if (factory != null && factory instanceof EndpointFactoryWithUnderlying) {
-      EndpointFactoryWithUnderlying f = (EndpointFactoryWithUnderlying) factory;
-      _factory = f.cloneWithUnderlying(_instance, _underlying);
-      _factory.initialize();
+    public UnderlyingEndpointFactory(ProtocolInstance instance, short type, short underlying) {
+        _instance = instance;
+        _type = type;
+        _underlying = underlying;
     }
-  }
 
-  public short type() {
-    return _instance.type();
-  }
-
-  public String protocol() {
-    return _instance.protocol();
-  }
-
-  public EndpointI create(java.util.ArrayList<String> args, boolean oaEndpoint) {
-    if (_factory == null) {
-      return null;
+    public void initialize() {
+        //
+        // Get the endpoint factory of the given endpoint type. If it's a factory that
+        // delegates to an underlying endpoint, clone it and instruct it to delegate to
+        // our underlying factory.
+        //
+        EndpointFactory factory = _instance.getEndpointFactory(_type);
+        if (factory != null && factory instanceof EndpointFactoryWithUnderlying) {
+            EndpointFactoryWithUnderlying f = (EndpointFactoryWithUnderlying) factory;
+            _factory = f.cloneWithUnderlying(_instance, _underlying);
+            _factory.initialize();
+        }
     }
-    return _factory.create(args, oaEndpoint);
-  }
 
-  public EndpointI read(com.zeroc.Ice.InputStream s) {
-    if (_factory == null) {
-      return null;
+    public short type() {
+        return _instance.type();
     }
-    return _factory.read(s);
-  }
 
-  public void destroy() {
-    if (_factory != null) {
-      _factory.destroy();
+    public String protocol() {
+        return _instance.protocol();
     }
-    _instance = null;
-  }
 
-  public EndpointFactory clone(ProtocolInstance instance) {
-    return new UnderlyingEndpointFactory(instance, _type, _underlying);
-  }
+    public EndpointI create(java.util.ArrayList<String> args, boolean oaEndpoint) {
+        if (_factory == null) {
+            return null;
+        }
+        return _factory.create(args, oaEndpoint);
+    }
 
-  protected ProtocolInstance _instance;
+    public EndpointI read(com.zeroc.Ice.InputStream s) {
+        if (_factory == null) {
+            return null;
+        }
+        return _factory.read(s);
+    }
 
-  private final short _type;
-  private final short _underlying;
-  private EndpointFactory _factory;
+    public void destroy() {
+        if (_factory != null) {
+            _factory.destroy();
+        }
+        _instance = null;
+    }
+
+    public EndpointFactory clone(ProtocolInstance instance) {
+        return new UnderlyingEndpointFactory(instance, _type, _underlying);
+    }
+
+    protected ProtocolInstance _instance;
+
+    private final short _type;
+    private final short _underlying;
+    private EndpointFactory _factory;
 }

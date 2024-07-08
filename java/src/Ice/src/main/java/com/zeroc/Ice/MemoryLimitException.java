@@ -20,25 +20,25 @@ package com.zeroc.Ice;
  * limit specified by the <code>Ice.MessageSizeMax</code> property.
  */
 public class MemoryLimitException extends MarshalException {
-  public MemoryLimitException() {
-    super();
-  }
+    public MemoryLimitException() {
+        super();
+    }
 
-  public MemoryLimitException(Throwable cause) {
-    super(cause);
-  }
+    public MemoryLimitException(Throwable cause) {
+        super(cause);
+    }
 
-  public MemoryLimitException(String reason) {
-    super(reason);
-  }
+    public MemoryLimitException(String reason) {
+        super(reason);
+    }
 
-  public MemoryLimitException(String reason, Throwable cause) {
-    super(reason, cause);
-  }
+    public MemoryLimitException(String reason, Throwable cause) {
+        super(reason, cause);
+    }
 
-  public String ice_id() {
-    return "::Ice::MemoryLimitException";
-  }
+    public String ice_id() {
+        return "::Ice::MemoryLimitException";
+    }
 
-  private static final long serialVersionUID = 8256664949263546187L;
+    private static final long serialVersionUID = 8256664949263546187L;
 }

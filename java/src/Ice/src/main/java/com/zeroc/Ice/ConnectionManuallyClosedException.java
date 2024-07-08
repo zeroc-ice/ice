@@ -22,27 +22,27 @@ package com.zeroc.Ice;
  * @see Connection#close
  */
 public class ConnectionManuallyClosedException extends LocalException {
-  public ConnectionManuallyClosedException() {}
+    public ConnectionManuallyClosedException() {}
 
-  public ConnectionManuallyClosedException(Throwable cause) {
-    super(cause);
-  }
+    public ConnectionManuallyClosedException(Throwable cause) {
+        super(cause);
+    }
 
-  public ConnectionManuallyClosedException(boolean graceful) {
-    this.graceful = graceful;
-  }
+    public ConnectionManuallyClosedException(boolean graceful) {
+        this.graceful = graceful;
+    }
 
-  public ConnectionManuallyClosedException(boolean graceful, Throwable cause) {
-    super(cause);
-    this.graceful = graceful;
-  }
+    public ConnectionManuallyClosedException(boolean graceful, Throwable cause) {
+        super(cause);
+        this.graceful = graceful;
+    }
 
-  public String ice_id() {
-    return "::Ice::ConnectionManuallyClosedException";
-  }
+    public String ice_id() {
+        return "::Ice::ConnectionManuallyClosedException";
+    }
 
-  /** True if the connection was closed gracefully, false otherwise. */
-  public boolean graceful;
+    /** True if the connection was closed gracefully, false otherwise. */
+    public boolean graceful;
 
-  private static final long serialVersionUID = 1412128468475443570L;
+    private static final long serialVersionUID = 1412128468475443570L;
 }

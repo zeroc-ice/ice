@@ -5,7 +5,7 @@
 package com.zeroc.IceGridGUI.Application;
 
 interface DescriptorHolder {
-  Object saveDescriptor();
+    Object saveDescriptor();
 
-  void restoreDescriptor(Object descriptor);
+    void restoreDescriptor(Object descriptor);
 }

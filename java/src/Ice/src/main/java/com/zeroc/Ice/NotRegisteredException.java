@@ -23,41 +23,41 @@ package com.zeroc.Ice;
  * adapter when resolving an indirect proxy or when an object adapter is activated.
  */
 public class NotRegisteredException extends LocalException {
-  public NotRegisteredException() {
-    this.kindOfObject = "";
-    this.id = "";
-  }
+    public NotRegisteredException() {
+        this.kindOfObject = "";
+        this.id = "";
+    }
 
-  public NotRegisteredException(Throwable cause) {
-    super(cause);
-    this.kindOfObject = "";
-    this.id = "";
-  }
+    public NotRegisteredException(Throwable cause) {
+        super(cause);
+        this.kindOfObject = "";
+        this.id = "";
+    }
 
-  public NotRegisteredException(String kindOfObject, String id) {
-    this.kindOfObject = kindOfObject;
-    this.id = id;
-  }
+    public NotRegisteredException(String kindOfObject, String id) {
+        this.kindOfObject = kindOfObject;
+        this.id = id;
+    }
 
-  public NotRegisteredException(String kindOfObject, String id, Throwable cause) {
-    super(cause);
-    this.kindOfObject = kindOfObject;
-    this.id = id;
-  }
+    public NotRegisteredException(String kindOfObject, String id, Throwable cause) {
+        super(cause);
+        this.kindOfObject = kindOfObject;
+        this.id = id;
+    }
 
-  public String ice_id() {
-    return "::Ice::NotRegisteredException";
-  }
+    public String ice_id() {
+        return "::Ice::NotRegisteredException";
+    }
 
-  /**
-   * The kind of object that could not be removed: "servant", "facet", "object", "default servant",
-   * "servant locator", "value factory", "plugin", "object adapter", "object adapter with router",
-   * "replica group".
-   */
-  public String kindOfObject;
+    /**
+     * The kind of object that could not be removed: "servant", "facet", "object", "default
+     * servant", "servant locator", "value factory", "plugin", "object adapter", "object adapter
+     * with router", "replica group".
+     */
+    public String kindOfObject;
 
-  /** The ID (or name) of the object that could not be removed. */
-  public String id;
+    /** The ID (or name) of the object that could not be removed. */
+    public String id;
 
-  private static final long serialVersionUID = 3335358291266771447L;
+    private static final long serialVersionUID = 3335358291266771447L;
 }

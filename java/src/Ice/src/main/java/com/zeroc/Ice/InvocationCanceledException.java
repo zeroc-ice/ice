@@ -20,15 +20,15 @@ package com.zeroc.Ice;
  * explicitly by the user.
  */
 public class InvocationCanceledException extends LocalException {
-  public InvocationCanceledException() {}
+    public InvocationCanceledException() {}
 
-  public InvocationCanceledException(Throwable cause) {
-    super(cause);
-  }
+    public InvocationCanceledException(Throwable cause) {
+        super(cause);
+    }
 
-  public String ice_id() {
-    return "::Ice::InvocationCanceledException";
-  }
+    public String ice_id() {
+        return "::Ice::InvocationCanceledException";
+    }
 
-  private static final long serialVersionUID = -6429704142271073768L;
+    private static final long serialVersionUID = -6429704142271073768L;
 }

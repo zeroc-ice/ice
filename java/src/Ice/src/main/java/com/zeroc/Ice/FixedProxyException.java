@@ -20,15 +20,15 @@ package com.zeroc.Ice;
  * fixed proxy.
  */
 public class FixedProxyException extends LocalException {
-  public FixedProxyException() {}
+    public FixedProxyException() {}
 
-  public FixedProxyException(Throwable cause) {
-    super(cause);
-  }
+    public FixedProxyException(Throwable cause) {
+        super(cause);
+    }
 
-  public String ice_id() {
-    return "::Ice::FixedProxyException";
-  }
+    public String ice_id() {
+        return "::Ice::FixedProxyException";
+    }
 
-  private static final long serialVersionUID = 3198117120780643493L;
+    private static final long serialVersionUID = 3198117120780643493L;
 }

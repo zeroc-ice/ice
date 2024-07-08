@@ -17,17 +17,17 @@ package com.zeroc.Ice;
 
 /** This exception indicates a connection establishment timeout condition. */
 public class ConnectTimeoutException extends TimeoutException {
-  public ConnectTimeoutException() {
-    super();
-  }
+    public ConnectTimeoutException() {
+        super();
+    }
 
-  public ConnectTimeoutException(Throwable cause) {
-    super(cause);
-  }
+    public ConnectTimeoutException(Throwable cause) {
+        super(cause);
+    }
 
-  public String ice_id() {
-    return "::Ice::ConnectTimeoutException";
-  }
+    public String ice_id() {
+        return "::Ice::ConnectTimeoutException";
+    }
 
-  private static final long serialVersionUID = -1271371420507272518L;
+    private static final long serialVersionUID = -1271371420507272518L;
 }

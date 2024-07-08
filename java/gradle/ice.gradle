@@ -55,7 +55,17 @@ slice {
 }
 
 spotless {
+  format 'misc', {
+    // define the files to apply `misc` to
+    target '*.java', '*.gradle'
+
+    // define the steps to apply to those files
+    trimTrailingWhitespace()
+    endWithNewline()
+  }
   java {
+    toggleOffOn()
+
     target project.fileTree("src/main/java") {
         include '**/*.java'
     }
@@ -68,9 +78,15 @@ spotless {
     cleanthat()
 
     // Formatting
-    googleJavaFormat()
+    googleJavaFormat().aosp()
     formatAnnotations()
   }
+}
+
+// We want spotless to automatically apply its suggestions, instead of just reporting an error and leaving us to fix it.
+// Unless we're running in CI, then we want spotless to leave the code alone and just issue warnings like normal.
+if(System.getenv("CI") == null) {
+    spotlessCheck.finalizedBy 'spotlessApply'
 }
 
 // Android does not have a compileJava task

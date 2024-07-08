@@ -21,9 +21,9 @@ package com.zeroc.Ice;
  * plug-ins, and the second stage invokes {@link Plugin#initialize} on each one.
  */
 public interface Plugin {
-  /** Perform any necessary initialization steps. */
-  void initialize();
+    /** Perform any necessary initialization steps. */
+    void initialize();
 
-  /** Called when the communicator is being destroyed. */
-  void destroy();
+    /** Called when the communicator is being destroyed. */
+    void destroy();
 }

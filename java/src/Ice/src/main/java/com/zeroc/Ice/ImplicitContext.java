@@ -37,52 +37,52 @@ package com.zeroc.Ice;
  * java.lang.Object</code> replaced by <code>string</code> and null replaced by the empty-string.
  */
 public interface ImplicitContext {
-  /**
-   * Get a copy of the underlying context.
-   *
-   * @return A copy of the underlying context.
-   */
-  java.util.Map<java.lang.String, java.lang.String> getContext();
+    /**
+     * Get a copy of the underlying context.
+     *
+     * @return A copy of the underlying context.
+     */
+    java.util.Map<java.lang.String, java.lang.String> getContext();
 
-  /**
-   * Set the underlying context.
-   *
-   * @param newContext The new context.
-   */
-  void setContext(java.util.Map<java.lang.String, java.lang.String> newContext);
+    /**
+     * Set the underlying context.
+     *
+     * @param newContext The new context.
+     */
+    void setContext(java.util.Map<java.lang.String, java.lang.String> newContext);
 
-  /**
-   * Check if this key has an associated value in the underlying context.
-   *
-   * @param key The key.
-   * @return True if the key has an associated value, False otherwise.
-   */
-  boolean containsKey(String key);
+    /**
+     * Check if this key has an associated value in the underlying context.
+     *
+     * @param key The key.
+     * @return True if the key has an associated value, False otherwise.
+     */
+    boolean containsKey(String key);
 
-  /**
-   * Get the value associated with the given key in the underlying context. Returns an empty string
-   * if no value is associated with the key. {@link #containsKey} allows you to distinguish between
-   * an empty-string value and no value at all.
-   *
-   * @param key The key.
-   * @return The value associated with the key.
-   */
-  String get(String key);
+    /**
+     * Get the value associated with the given key in the underlying context. Returns an empty
+     * string if no value is associated with the key. {@link #containsKey} allows you to distinguish
+     * between an empty-string value and no value at all.
+     *
+     * @param key The key.
+     * @return The value associated with the key.
+     */
+    String get(String key);
 
-  /**
-   * Create or update a key/value entry in the underlying context.
-   *
-   * @param key The key.
-   * @param value The value.
-   * @return The previous value associated with the key, if any.
-   */
-  String put(String key, String value);
+    /**
+     * Create or update a key/value entry in the underlying context.
+     *
+     * @param key The key.
+     * @param value The value.
+     * @return The previous value associated with the key, if any.
+     */
+    String put(String key, String value);
 
-  /**
-   * Remove the entry for the given key in the underlying context.
-   *
-   * @param key The key.
-   * @return The value associated with the key, if any.
-   */
-  String remove(String key);
+    /**
+     * Remove the entry for the given key in the underlying context.
+     *
+     * @param key The key.
+     * @return The value associated with the key, if any.
+     */
+    String remove(String key);
 }

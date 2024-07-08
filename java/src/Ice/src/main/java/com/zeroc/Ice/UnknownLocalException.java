@@ -23,25 +23,25 @@ package com.zeroc.Ice;
  * even though they are declared <code>local</code>.
  */
 public class UnknownLocalException extends UnknownException {
-  public UnknownLocalException() {
-    super();
-  }
+    public UnknownLocalException() {
+        super();
+    }
 
-  public UnknownLocalException(Throwable cause) {
-    super(cause);
-  }
+    public UnknownLocalException(Throwable cause) {
+        super(cause);
+    }
 
-  public UnknownLocalException(String unknown) {
-    super(unknown);
-  }
+    public UnknownLocalException(String unknown) {
+        super(unknown);
+    }
 
-  public UnknownLocalException(String unknown, Throwable cause) {
-    super(unknown, cause);
-  }
+    public UnknownLocalException(String unknown, Throwable cause) {
+        super(unknown, cause);
+    }
 
-  public String ice_id() {
-    return "::Ice::UnknownLocalException";
-  }
+    public String ice_id() {
+        return "::Ice::UnknownLocalException";
+    }
 
-  private static final long serialVersionUID = 1374449481624773050L;
+    private static final long serialVersionUID = 1374449481624773050L;
 }

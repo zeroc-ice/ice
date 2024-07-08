@@ -19,56 +19,56 @@ import javax.swing.ScrollPaneConstants;
 // Base class for all editors
 //
 public abstract class EditorBase {
-  public JComponent getProperties() {
-    if (_propertiesPanel == null) {
-      buildPropertiesPanel();
-    }
-    return _propertiesPanel;
-  }
-
-  public JToolBar getToolBar() {
-    return null;
-  }
-
-  protected void appendProperties(DefaultFormBuilder builder) {}
-
-  protected JComponent createPropertiesPanel() {
-    return null;
-  }
-
-  protected void buildPropertiesPanel() {
-    JComponent contents = createPropertiesPanel();
-
-    if (contents == null) {
-      FormLayout layout = new FormLayout("right:pref, 3dlu, fill:pref:grow, 3dlu, pref", "");
-
-      DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-      builder.border(Borders.DLU2);
-      builder.rowGroupingEnabled(true);
-      builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
-
-      appendProperties(builder);
-
-      contents = builder.getPanel();
+    public JComponent getProperties() {
+        if (_propertiesPanel == null) {
+            buildPropertiesPanel();
+        }
+        return _propertiesPanel;
     }
 
-    JScrollPane scrollPane =
-        new JScrollPane(
-            contents,
-            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-
-    scrollPane.setBorder(Borders.DIALOG);
-
-    if (_propertiesPanel == null) {
-      _propertiesPanel = new JPanel(new BorderLayout());
-    } else {
-      _propertiesPanel.removeAll();
+    public JToolBar getToolBar() {
+        return null;
     }
-    _propertiesPanel.add(scrollPane, BorderLayout.CENTER);
-    _propertiesPanel.setBorder(Borders.EMPTY);
-    _propertiesPanel.revalidate();
-  }
 
-  protected JPanel _propertiesPanel;
+    protected void appendProperties(DefaultFormBuilder builder) {}
+
+    protected JComponent createPropertiesPanel() {
+        return null;
+    }
+
+    protected void buildPropertiesPanel() {
+        JComponent contents = createPropertiesPanel();
+
+        if (contents == null) {
+            FormLayout layout = new FormLayout("right:pref, 3dlu, fill:pref:grow, 3dlu, pref", "");
+
+            DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+            builder.border(Borders.DLU2);
+            builder.rowGroupingEnabled(true);
+            builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
+
+            appendProperties(builder);
+
+            contents = builder.getPanel();
+        }
+
+        JScrollPane scrollPane =
+                new JScrollPane(
+                        contents,
+                        ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                        ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+        scrollPane.setBorder(Borders.DIALOG);
+
+        if (_propertiesPanel == null) {
+            _propertiesPanel = new JPanel(new BorderLayout());
+        } else {
+            _propertiesPanel.removeAll();
+        }
+        _propertiesPanel.add(scrollPane, BorderLayout.CENTER);
+        _propertiesPanel.setBorder(Borders.EMPTY);
+        _propertiesPanel.revalidate();
+    }
+
+    protected JPanel _propertiesPanel;
 }

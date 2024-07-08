@@ -23,10 +23,10 @@ package com.zeroc.Ice;
  */
 @FunctionalInterface
 public interface HeartbeatCallback {
-  /**
-   * This method is called by the connection when a heartbeat is received from the peer.
-   *
-   * @param con The connection on which a heartbeat was received.
-   */
-  void heartbeat(Connection con);
+    /**
+     * This method is called by the connection when a heartbeat is received from the peer.
+     *
+     * @param con The connection on which a heartbeat was received.
+     */
+    void heartbeat(Connection con);
 }

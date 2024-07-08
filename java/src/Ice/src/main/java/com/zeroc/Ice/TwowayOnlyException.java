@@ -22,30 +22,30 @@ package com.zeroc.Ice;
  * out-parameters, or an exception specification.
  */
 public class TwowayOnlyException extends LocalException {
-  public TwowayOnlyException() {
-    this.operation = "";
-  }
+    public TwowayOnlyException() {
+        this.operation = "";
+    }
 
-  public TwowayOnlyException(Throwable cause) {
-    super(cause);
-    this.operation = "";
-  }
+    public TwowayOnlyException(Throwable cause) {
+        super(cause);
+        this.operation = "";
+    }
 
-  public TwowayOnlyException(String operation) {
-    this.operation = operation;
-  }
+    public TwowayOnlyException(String operation) {
+        this.operation = operation;
+    }
 
-  public TwowayOnlyException(String operation, Throwable cause) {
-    super(cause);
-    this.operation = operation;
-  }
+    public TwowayOnlyException(String operation, Throwable cause) {
+        super(cause);
+        this.operation = operation;
+    }
 
-  public String ice_id() {
-    return "::Ice::TwowayOnlyException";
-  }
+    public String ice_id() {
+        return "::Ice::TwowayOnlyException";
+    }
 
-  /** The name of the operation that was invoked. */
-  public String operation;
+    /** The name of the operation that was invoked. */
+    public String operation;
 
-  private static final long serialVersionUID = -7036652448391478186L;
+    private static final long serialVersionUID = -7036652448391478186L;
 }

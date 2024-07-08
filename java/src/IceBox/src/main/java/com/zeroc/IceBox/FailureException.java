@@ -21,30 +21,30 @@ package com.zeroc.IceBox;
  * service executable.
  */
 public class FailureException extends com.zeroc.Ice.LocalException {
-  public FailureException() {
-    this.reason = "";
-  }
+    public FailureException() {
+        this.reason = "";
+    }
 
-  public FailureException(Throwable cause) {
-    super(cause);
-    this.reason = "";
-  }
+    public FailureException(Throwable cause) {
+        super(cause);
+        this.reason = "";
+    }
 
-  public FailureException(String reason) {
-    this.reason = reason;
-  }
+    public FailureException(String reason) {
+        this.reason = reason;
+    }
 
-  public FailureException(String reason, Throwable cause) {
-    super(cause);
-    this.reason = reason;
-  }
+    public FailureException(String reason, Throwable cause) {
+        super(cause);
+        this.reason = reason;
+    }
 
-  public String ice_id() {
-    return "::IceBox::FailureException";
-  }
+    public String ice_id() {
+        return "::IceBox::FailureException";
+    }
 
-  /** The reason for the failure. */
-  public String reason;
+    /** The reason for the failure. */
+    public String reason;
 
-  private static final long serialVersionUID = -7740030157337496059L;
+    private static final long serialVersionUID = -7740030157337496059L;
 }

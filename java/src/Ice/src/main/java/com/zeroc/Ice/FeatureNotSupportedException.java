@@ -20,30 +20,30 @@ package com.zeroc.Ice;
  * contains the name of the unsupported feature.
  */
 public class FeatureNotSupportedException extends LocalException {
-  public FeatureNotSupportedException() {
-    this.unsupportedFeature = "";
-  }
+    public FeatureNotSupportedException() {
+        this.unsupportedFeature = "";
+    }
 
-  public FeatureNotSupportedException(Throwable cause) {
-    super(cause);
-    this.unsupportedFeature = "";
-  }
+    public FeatureNotSupportedException(Throwable cause) {
+        super(cause);
+        this.unsupportedFeature = "";
+    }
 
-  public FeatureNotSupportedException(String unsupportedFeature) {
-    this.unsupportedFeature = unsupportedFeature;
-  }
+    public FeatureNotSupportedException(String unsupportedFeature) {
+        this.unsupportedFeature = unsupportedFeature;
+    }
 
-  public FeatureNotSupportedException(String unsupportedFeature, Throwable cause) {
-    super(cause);
-    this.unsupportedFeature = unsupportedFeature;
-  }
+    public FeatureNotSupportedException(String unsupportedFeature, Throwable cause) {
+        super(cause);
+        this.unsupportedFeature = unsupportedFeature;
+    }
 
-  public String ice_id() {
-    return "::Ice::FeatureNotSupportedException";
-  }
+    public String ice_id() {
+        return "::Ice::FeatureNotSupportedException";
+    }
 
-  /** The name of the unsupported feature. */
-  public String unsupportedFeature;
+    /** The name of the unsupported feature. */
+    public String unsupportedFeature;
 
-  private static final long serialVersionUID = -4629958372080397318L;
+    private static final long serialVersionUID = -4629958372080397318L;
 }

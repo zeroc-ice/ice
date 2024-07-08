@@ -5,23 +5,23 @@
 package com.zeroc.IceGridGUI;
 
 public interface Tab {
-  void selected();
+    void selected();
 
-  void showNode(TreeNodeBase node);
+    void showNode(TreeNodeBase node);
 
-  void refresh();
+    void refresh();
 
-  void back();
+    void back();
 
-  void forward();
+    void forward();
 
-  boolean close();
+    boolean close();
 
-  void save();
+    void save();
 
-  void saveToRegistry(boolean restart);
+    void saveToRegistry(boolean restart);
 
-  void saveToFile();
+    void saveToFile();
 
-  void discardUpdates();
+    void discardUpdates();
 }

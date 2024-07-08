@@ -21,34 +21,34 @@ package com.zeroc.Ice;
  * SyscallException#error} should be inspected.
  */
 public class SyscallException extends LocalException {
-  public SyscallException() {
-    this.error = 0;
-  }
+    public SyscallException() {
+        this.error = 0;
+    }
 
-  public SyscallException(Throwable cause) {
-    super(cause);
-    this.error = 0;
-  }
+    public SyscallException(Throwable cause) {
+        super(cause);
+        this.error = 0;
+    }
 
-  public SyscallException(int error) {
-    this.error = error;
-  }
+    public SyscallException(int error) {
+        this.error = error;
+    }
 
-  public SyscallException(int error, Throwable cause) {
-    super(cause);
-    this.error = error;
-  }
+    public SyscallException(int error, Throwable cause) {
+        super(cause);
+        this.error = error;
+    }
 
-  public String ice_id() {
-    return "::Ice::SyscallException";
-  }
+    public String ice_id() {
+        return "::Ice::SyscallException";
+    }
 
-  /**
-   * The error number describing the system exception. For C++ and Unix, this is equivalent to
-   * <code>errno</code>. For C++ and Windows, this is the value returned by <code>GetLastError()
-   * </code> or <code>WSAGetLastError()</code>.
-   */
-  public int error;
+    /**
+     * The error number describing the system exception. For C++ and Unix, this is equivalent to
+     * <code>errno</code>. For C++ and Windows, this is the value returned by <code>GetLastError()
+     * </code> or <code>WSAGetLastError()</code>.
+     */
+    public int error;
 
-  private static final long serialVersionUID = -2440066513892919497L;
+    private static final long serialVersionUID = -2440066513892919497L;
 }

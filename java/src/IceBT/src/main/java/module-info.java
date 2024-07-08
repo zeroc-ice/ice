@@ -3,7 +3,7 @@
 //
 
 module com.zeroc.icebt {
-  requires transitive com.zeroc.ice;
+    requires transitive com.zeroc.ice;
 
-  exports com.zeroc.IceBT;
+    exports com.zeroc.IceBT;
 }

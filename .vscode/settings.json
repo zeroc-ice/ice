@@ -16,5 +16,6 @@
         "ostr",
         "Upcall"
     ],
-    "gradle.nestedProjects": true
+    "gradle.nestedProjects": true,
+    "java.format.enabled": false
 }

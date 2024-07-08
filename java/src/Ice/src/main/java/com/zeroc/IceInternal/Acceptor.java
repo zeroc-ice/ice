@@ -5,20 +5,20 @@
 package com.zeroc.IceInternal;
 
 public interface Acceptor {
-  java.nio.channels.ServerSocketChannel fd();
+    java.nio.channels.ServerSocketChannel fd();
 
-  void setReadyCallback(ReadyCallback callback);
+    void setReadyCallback(ReadyCallback callback);
 
-  void close();
+    void close();
 
-  EndpointI listen();
+    EndpointI listen();
 
-  Transceiver accept();
+    Transceiver accept();
 
-  String protocol();
+    String protocol();
 
-  @Override
-  String toString();
+    @Override
+    String toString();
 
-  String toDetailedString();
+    String toDetailedString();
 }

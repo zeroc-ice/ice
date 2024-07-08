@@ -25,32 +25,32 @@ package com.zeroc.Ice;
  * @see ValueFactoryManager#find
  */
 public class NoValueFactoryException extends MarshalException {
-  public NoValueFactoryException() {
-    super();
-    this.type = "";
-  }
+    public NoValueFactoryException() {
+        super();
+        this.type = "";
+    }
 
-  public NoValueFactoryException(Throwable cause) {
-    super(cause);
-    this.type = "";
-  }
+    public NoValueFactoryException(Throwable cause) {
+        super(cause);
+        this.type = "";
+    }
 
-  public NoValueFactoryException(String reason, String type) {
-    super(reason);
-    this.type = type;
-  }
+    public NoValueFactoryException(String reason, String type) {
+        super(reason);
+        this.type = type;
+    }
 
-  public NoValueFactoryException(String reason, String type, Throwable cause) {
-    super(reason, cause);
-    this.type = type;
-  }
+    public NoValueFactoryException(String reason, String type, Throwable cause) {
+        super(reason, cause);
+        this.type = type;
+    }
 
-  public String ice_id() {
-    return "::Ice::NoValueFactoryException";
-  }
+    public String ice_id() {
+        return "::Ice::NoValueFactoryException";
+    }
 
-  /** The Slice type ID of the class instance for which no factory could be found. */
-  public String type;
+    /** The Slice type ID of the class instance for which no factory could be found. */
+    public String type;
 
-  private static final long serialVersionUID = -4888152001471748622L;
+    private static final long serialVersionUID = -4888152001471748622L;
 }

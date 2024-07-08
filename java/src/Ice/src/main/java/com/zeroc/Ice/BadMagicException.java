@@ -20,30 +20,30 @@ package com.zeroc.Ice;
  * 'e', 'P').
  */
 public class BadMagicException extends ProtocolException {
-  public BadMagicException() {
-    super();
-  }
+    public BadMagicException() {
+        super();
+    }
 
-  public BadMagicException(Throwable cause) {
-    super(cause);
-  }
+    public BadMagicException(Throwable cause) {
+        super(cause);
+    }
 
-  public BadMagicException(String reason, byte[] badMagic) {
-    super(reason);
-    this.badMagic = badMagic;
-  }
+    public BadMagicException(String reason, byte[] badMagic) {
+        super(reason);
+        this.badMagic = badMagic;
+    }
 
-  public BadMagicException(String reason, byte[] badMagic, Throwable cause) {
-    super(reason, cause);
-    this.badMagic = badMagic;
-  }
+    public BadMagicException(String reason, byte[] badMagic, Throwable cause) {
+        super(reason, cause);
+        this.badMagic = badMagic;
+    }
 
-  public String ice_id() {
-    return "::Ice::BadMagicException";
-  }
+    public String ice_id() {
+        return "::Ice::BadMagicException";
+    }
 
-  /** A sequence containing the first four bytes of the incorrect message. */
-  public byte[] badMagic;
+    /** A sequence containing the first four bytes of the incorrect message. */
+    public byte[] badMagic;
 
-  private static final long serialVersionUID = -3934807911473944716L;
+    private static final long serialVersionUID = -3934807911473944716L;
 }
