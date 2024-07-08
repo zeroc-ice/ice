@@ -1,9 +1,4 @@
-//
-//  SceneDelegate.swift
-//  TestDriverApp
-//
-//  Created by Joe George on 6/11/24.
-//
+// Copyright (c) ZeroC, Inc.
 
 import UIKit
 
