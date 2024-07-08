@@ -3315,14 +3315,7 @@ public class InputStream
 
                 if ((_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
                 {
-                    if (mostDerivedId.StartsWith("::", StringComparison.Ordinal))
-                    {
-                        throw new UnknownUserException(mostDerivedId.Substring(2));
-                    }
-                    else
-                    {
-                        throw new UnknownUserException(mostDerivedId);
-                    }
+                    throw new MarshalException($"Cannot unmarshal exception with type ID '{mostDerivedId}'");
                 }
 
                 startSlice();
@@ -3505,14 +3498,7 @@ public class InputStream
                 }
                 else
                 {
-                    if (_current.typeId!.StartsWith("::", StringComparison.Ordinal))
-                    {
-                        throw new UnknownUserException(_current.typeId.Substring(2));
-                    }
-                    else
-                    {
-                        throw new UnknownUserException(_current.typeId);
-                    }
+                    throw new MarshalException($"Cannot find user exception for type ID '{_current.typeId}'");
                 }
             }
 
