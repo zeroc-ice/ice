@@ -61,10 +61,11 @@ namespace Slice
         // Is this Slice struct mapped to a C# class?
         static bool isMappedToClass(const StructPtr& p) { return !isValueType(p); }
 
-        // Is this Slice field type mapped to a non-nullable C# reference type?
-        static bool isNonNullableReferenceType(const TypePtr& p);
+        // Is the mapped C# type for this field a non-nullable C# reference type?
+        static bool isMappedToNonNullableReference(const DataMemberPtr& p);
 
-        // Is this Slice field mapped to a required C# field? (class and exception only)
+        // Is the mapped C# type for this field a non-nullable reference type?
+        // string fields are not included since they have a "" default.
         static bool isMappedToRequiredField(const DataMemberPtr&);
 
         //
