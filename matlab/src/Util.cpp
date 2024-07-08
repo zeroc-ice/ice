@@ -341,7 +341,7 @@ namespace
         return ex;
     }
 
-    // Create a "standard" MATLAB exception for the give typeId then fallback to LocalException.
+    // Create a "standard" MATLAB exception for the given typeId then fallback to LocalException.
     mxArray* createMatlabException(const char* typeId, const char* what)
     {
         string errID = replace(string{typeId}.substr(2), "::", ":");
@@ -354,8 +354,6 @@ namespace
         mexCallMATLABWithTrap(1, &ex, static_cast<int>(params.size()), params.data(), className.c_str());
         if (!ex)
         {
-            // Fallback to Ice.LocalException
-            params = {IceMatlab::createStringFromUTF8(errID), IceMatlab::createStringFromUTF8(what)};
             mexCallMATLAB(1, &ex, static_cast<int>(params.size()), params.data(), "Ice.LocalException");
         }
         return ex;
@@ -423,6 +421,7 @@ IceMatlab::convertException(const std::exception_ptr exc)
             createIdentity(e.id()),
             createStringFromUTF8(e.facet()),
             createStringFromUTF8(e.operation()),
+
             createStringFromUTF8(errID),
             createStringFromUTF8(e.what())};
 
