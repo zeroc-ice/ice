@@ -4377,9 +4377,7 @@ class SwiftMapping(Mapping):
             os.sep, "_"
         )
 
-        testDriver = "swift run -c {0} --skip-build TestDriver".format(
-            current.config.buildConfig
-        )
+        testDriver = "swift run -c {0} --skip-build TestDriver".format(self.buildConfig)
 
         return "{0} {1} {2} {3}".format(testDriver, package, exe, args)
 
@@ -4406,7 +4404,7 @@ class SwiftMapping(Mapping):
                           -showBuildSettings \
                           -sdk {2}".format(
             self.getXcodeProject(current),
-            current.config.buildConfig.capitalize(),  # SwiftPM uses lowercase. Xcode users uppercase.
+            self.buildConfig.capitalize(),  # SwiftPM uses lowercase. Xcode users uppercase.
             current.config.buildPlatform,
         )
         targetBuildDir = re.search(r"\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
