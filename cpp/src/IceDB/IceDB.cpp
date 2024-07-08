@@ -6,6 +6,7 @@
 #include "Ice/Initialize.h"
 
 #include <lmdb.h>
+#include <sstream>
 
 #ifndef _WIN32
 #    include <unistd.h>

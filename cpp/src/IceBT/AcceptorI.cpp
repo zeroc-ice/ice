@@ -72,11 +72,7 @@ IceBT::AcceptorI::listen()
     catch (const BluetoothException& ex)
     {
         ostringstream os;
-        os << "unable to register Bluetooth profile";
-        if (!ex.reason.empty())
-        {
-            os << "\n" << ex.reason;
-        }
+        os << "unable to register Bluetooth profile: " << ex.what();
         throw InitializationException(__FILE__, __LINE__, os.str());
     }
 
