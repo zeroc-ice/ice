@@ -534,138 +534,6 @@ IceRuby::callProtected(RubyFunction func, VALUE arg)
     return result;
 }
 
-static void
-setExceptionMembers(std::exception_ptr ex, VALUE p)
-{
-    //
-    // Transfer data members from c++ exception to Ruby exception.
-    //
-    try
-    {
-        rethrow_exception(ex);
-    }
-    catch (const Ice::InitializationException& e)
-    {
-        volatile VALUE v = createString(e.reason);
-        callRuby(rb_iv_set, p, "@reason", v);
-    }
-    catch (const Ice::PluginInitializationException& e)
-    {
-        volatile VALUE v = createString(e.reason);
-        callRuby(rb_iv_set, p, "@reason", v);
-    }
-    catch (const Ice::AlreadyRegisteredException& e)
-    {
-        volatile VALUE v;
-        v = createString(e.kindOfObject);
-        callRuby(rb_iv_set, p, "@kindOfObject", v);
-        v = createString(e.id);
-        callRuby(rb_iv_set, p, "@id", v);
-    }
-    catch (const Ice::NotRegisteredException& e)
-    {
-        volatile VALUE v;
-        v = createString(e.kindOfObject);
-        callRuby(rb_iv_set, p, "@kindOfObject", v);
-        v = createString(e.id);
-        callRuby(rb_iv_set, p, "@id", v);
-    }
-    catch (const Ice::TwowayOnlyException& e)
-    {
-        volatile VALUE v = createString(e.operation);
-        callRuby(rb_iv_set, p, "@operation", v);
-    }
-    catch (const Ice::UnknownException& e)
-    {
-        volatile VALUE v = createString(e.what());
-        callRuby(rb_iv_set, p, "@unknown", v);
-    }
-    catch (const Ice::ObjectAdapterDeactivatedException& e)
-    {
-        volatile VALUE v = createString(e.name);
-        callRuby(rb_iv_set, p, "@name", v);
-    }
-    catch (const Ice::ObjectAdapterIdInUseException& e)
-    {
-        volatile VALUE v = createString(e.id);
-        callRuby(rb_iv_set, p, "@id", v);
-    }
-    catch (const Ice::NoEndpointException& e)
-    {
-        volatile VALUE v = createString(e.proxy);
-        callRuby(rb_iv_set, p, "@proxy", v);
-    }
-    catch (const Ice::ParseException& e)
-    {
-        volatile VALUE v = createString(e.what());
-        callRuby(rb_iv_set, p, "@str", v);
-    }
-    catch (const Ice::IllegalServantException& e)
-    {
-        volatile VALUE v = createString(e.reason);
-        callRuby(rb_iv_set, p, "@reason", v);
-    }
-    catch (const Ice::RequestFailedException& e)
-    {
-        volatile VALUE v;
-        v = IceRuby::createIdentity(e.id());
-        callRuby(rb_iv_set, p, "@id", v);
-        v = createString(e.facet());
-        callRuby(rb_iv_set, p, "@facet", v);
-        v = createString(e.operation());
-        callRuby(rb_iv_set, p, "@operation", v);
-    }
-    catch (const Ice::FileException& e)
-    {
-        volatile VALUE v = INT2FIX(e.error);
-        callRuby(rb_iv_set, p, "@error", v);
-        v = createString(e.path);
-        callRuby(rb_iv_set, p, "@path", v);
-    }
-    catch (const Ice::SyscallException& e) // This must appear after all subclasses of SyscallException.
-    {
-        volatile VALUE v = INT2FIX(e.error);
-        callRuby(rb_iv_set, p, "@error", v);
-    }
-    catch (const Ice::DNSException& e)
-    {
-        volatile VALUE v;
-        v = INT2FIX(e.error);
-        callRuby(rb_iv_set, p, "@error", v);
-        v = createString(e.host);
-        callRuby(rb_iv_set, p, "@host", v);
-    }
-    catch (const Ice::ProtocolException& e) // This must appear after all subclasses of ProtocolException.
-    {
-        volatile VALUE v = createString(e.what());
-        callRuby(rb_iv_set, p, "@reason", v);
-    }
-    catch (const Ice::ConnectionManuallyClosedException& e)
-    {
-        callRuby(rb_iv_set, p, "@graceful", e.graceful ? Qtrue : Qfalse);
-    }
-    catch (const Ice::FeatureNotSupportedException& e)
-    {
-        volatile VALUE v = createString(e.what());
-        callRuby(rb_iv_set, p, "@unsupportedFeature", v);
-    }
-    catch (const Ice::SecurityException& e)
-    {
-        volatile VALUE v = createString(e.reason);
-        callRuby(rb_iv_set, p, "@reason", v);
-    }
-    catch (const Ice::LocalException&)
-    {
-        //
-        // Nothing to do.
-        //
-    }
-    catch (...)
-    {
-        assert(false);
-    }
-}
-
 VALUE
 IceRuby::createArray(long sz)
 {
@@ -677,41 +545,103 @@ IceRuby::createArray(long sz)
     return arr;
 }
 
-VALUE
-IceRuby::convertLocalException(std::exception_ptr eptr)
+namespace
 {
-    //
-    // We cannot throw a C++ exception or raise a Ruby exception. If an error
-    // occurs while we are converting the exception, we do our best to return
-    // an appropriate Ruby exception.
-    //
-    try
+    template<size_t N>
+    VALUE createRubyException(const char* typeId, std::array<VALUE, N> args, bool fallbackToLocalException = false)
     {
-        rethrow_exception(eptr);
+        string className = string{typeId}.substr(2);
+        VALUE rubyClass;
+        try
+        {
+            // callRuby throws a RubyException if rb_path2class fails.
+            rubyClass = callRuby(rb_path2class, className.c_str());
+        }
+        catch (const RubyException&)
+        {
+            if (fallbackToLocalException)
+            {
+                rubyClass = callRuby(rb_path2class, "Ice::LocalException");
+            }
+            else
+            {
+                throw;
+            }
+        }
+        return callRuby(rb_class_new_instance, N, args.data(), rubyClass);
     }
-    catch (const Ice::LocalException& ex)
+}
+
+VALUE
+IceRuby::convertException(std::exception_ptr eptr)
+{
+    const char* const localExceptionTypeId = "::Ice::LocalException";
+
+    // We cannot throw a C++ exception or raise a Ruby exception. If an error occurs while we are converting the
+    // exception, we do our best to _return_ an appropriate Ruby exception.
+    try
     {
         try
         {
-            string name = string{ex.ice_id()}.substr(2);
-            volatile VALUE cls = callRuby(rb_path2class, name.c_str());
-            if (NIL_P(cls))
-            {
-                throw RubyException(rb_eRuntimeError, "exception class `%s' not found", name.c_str());
-            }
-            volatile VALUE result = callRuby(rb_class_new_instance, 0, reinterpret_cast<VALUE*>(0), cls);
-            setExceptionMembers(eptr, result);
-            return result;
+            rethrow_exception(eptr);
         }
-        catch (const RubyException& e)
+        // First handle exceptions with extra fields we want to provide to Ruby users.
+        catch (const Ice::RequestFailedException& ex)
         {
-            return e.ex;
+            std::array args = {
+                IceRuby::createIdentity(ex.id()),
+                IceRuby::createString(ex.facet()),
+                IceRuby::createString(ex.operation()),
+                IceRuby::createString(ex.what())};
+
+            return createRubyException(ex.ice_id(), std::move(args));
+        }
+        catch (const Ice::AlreadyRegisteredException& ex)
+        {
+            std::array args = {
+                IceRuby::createString(ex.kindOfObject),
+                IceRuby::createString(ex.id),
+                IceRuby::createString(ex.what())};
+
+            return createRubyException(ex.ice_id(), std::move(args));
+        }
+        catch (const Ice::NotRegisteredException& ex)
+        {
+            std::array args = {
+                IceRuby::createString(ex.kindOfObject),
+                IceRuby::createString(ex.id),
+                IceRuby::createString(ex.what())};
+
+            return createRubyException(ex.ice_id(), std::move(args));
+        }
+        // Then all other exceptions.
+        catch (const Ice::LocalException& ex)
+        {
+            std::array args = {IceRuby::createString(ex.what())};
+            return createRubyException(ex.ice_id(), std::move(args), true);
+        }
+        catch (const std::exception& ex)
+        {
+            std::array args = {IceRuby::createString(ex.what())};
+            return createRubyException(localExceptionTypeId, std::move(args));
         }
         catch (...)
         {
-            string msg = "failure occurred while converting exception " + string{ex.ice_id()};
-            return rb_exc_new2(rb_eRuntimeError, msg.c_str());
+            std::array args = {IceRuby::createString("unknown C++ exception")};
+            return createRubyException(localExceptionTypeId, std::move(args));
         }
     }
-    // never reached since eptr is always a LocalException ptr
+    catch (const RubyException& e)
+    {
+        return e.ex;
+    }
+    catch (const std::exception& e)
+    {
+        string msg = "failure occurred while converting C++ exception to Ruby: " + string{e.what()};
+        return rb_exc_new2(rb_eRuntimeError, msg.c_str());
+    }
+    catch (...)
+    {
+        return rb_exc_new2(rb_eRuntimeError, "failure occurred while converting C++ exception to Ruby");
+    }
 }

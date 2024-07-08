@@ -48,7 +48,7 @@ class Client(TestHelper):
             )
             test(False)
         except Ice.UnknownLocalException as e:
-            test(e.unknown.find("ConnectionRefusedException"))
+            test(str(e).find("ConnectionRefusedException"))
             if sync:
                 hello.shutdown()
 

@@ -23,6 +23,16 @@ end
 class Client < ::TestHelper
     def run(args)
 
+        print "testing load properties exception... "
+        props = Ice.createProperties()
+        begin
+            props.load("./config/xxxx.config")
+        rescue Ice::LocalException => ex
+            # The corresponding C++ exception (Ice::FileException) is not mapped to Ruby.
+            test(ex.message == "::Ice::FileException") # TODO: temporary until C++ message is fixed
+        end
+        puts "ok"
+
         print "testing load properties from UTF-8 path... "
         properties = Ice.createProperties(args)
         properties.load("./config/中国_client.config")
@@ -103,8 +113,9 @@ class Client < ::TestHelper
             properties = Ice.createProperties(args)
             properties.getIceProperty("Ice.UnknownProperty")
             test(false)
-        rescue RuntimeError => ex
-            test ex.to_s == "unknown Ice property: Ice.UnknownProperty"
+        rescue Ice::LocalException => ex
+            # The corresponding C++ exception is std::invalid_argument.
+            test(ex.message["unknown Ice property: Ice.UnknownProperty"])
         end
         puts "ok"
 

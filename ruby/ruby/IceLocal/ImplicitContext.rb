@@ -15,7 +15,6 @@
 #
 
 require 'Ice'
-require 'IceLocal/LocalException.rb'
 require 'IceLocal/Current.rb'
 
 module ::Ice

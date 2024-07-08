@@ -72,7 +72,7 @@ class Callback(CallbackBase):
 
     def exception_SUnknownAsObject10(self, f):
         test(f.exception() is not None)
-        test(str(f.exception()) == "::Ice::MarshalException")
+        test("cannot find value factory for type ID '::Test::SUnknown'" in str(f.exception()))
         self.called()
 
     def response_SUnknownAsObject11(self, f):
@@ -757,9 +757,7 @@ def allTests(helper, communicator):
         test(b2.ice_id() == "::Test::B")  # No factory, must be sliced
         test(b2.sb == "D2.sb")
         test(b2.pb == b1)
-    except Ice.Exception as ex:
-        sys.stdout.write("failed: {0}\n".format(ex))
-        sys.stdout.flush()
+    except Ice.Exception:
         test(False)
     print("ok")
 
