@@ -345,7 +345,7 @@ namespace
     mxArray* createMatlabException(const char* typeId, const char* what)
     {
         string errID = replace(string{typeId}.substr(2), "::", ":");
-        std::array params{createStringFromUTF8(errID), createStringFromUTF8(what)};
+        std::array params{IceMatlab::createStringFromUTF8(errID), IceMatlab::createStringFromUTF8(what)};
 
         string className = replace(string{typeId}.substr(2), "::", ".");
         mxArray* ex;
@@ -355,7 +355,7 @@ namespace
         if (!ex)
         {
             // Fallback to Ice.LocalException
-            params = {createStringFromUTF8(errID), createStringFromUTF8(what)};
+            params = {IceMatlab::createStringFromUTF8(errID), IceMatlab::createStringFromUTF8(what)};
             mexCallMATLAB(1, &ex, static_cast<int>(params.size()), params.data(), "Ice.LocalException");
         }
         return ex;
@@ -390,7 +390,7 @@ IceMatlab::convertException(const std::exception_ptr exc)
     }
     catch (const Ice::ConnectionAbortedException& e)
     {
-        // No convience constructor since never thrown from MATLAB code.
+        // ConnectionAbortedException does not have a convenience constructor since it's never thrown from MATLAB code.
         string errID = replace(string{e.ice_id()}.substr(2), "::", ":");
         std::array params{
             createBool(e.closedByApplication()),
@@ -400,7 +400,7 @@ IceMatlab::convertException(const std::exception_ptr exc)
     }
     catch (const Ice::ConnectionClosedException& e)
     {
-        // No convience constructor since never thrown from MATLAB code.
+        // ConnectionClosedException does not have a convenience constructor since it's never thrown from MATLAB code.
         string errID = replace(string{e.ice_id()}.substr(2), "::", ":");
         std::array params{
             createBool(e.closedByApplication()),
@@ -434,7 +434,6 @@ IceMatlab::convertException(const std::exception_ptr exc)
         std::array params{createStringFromUTF8(""), createStringFromUTF8(e.what())};
         result = createMatlabException(e.ice_id(), std::move(params));
     }
-    cat
     catch (const Ice::TwowayOnlyException&)
     {
         // The Ice C++ client runtime does not throw this exception. We handle it here because it has a special
