@@ -564,7 +564,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                     _asyncRequests.Remove(o.requestId);
                 }
 
-                if (ex is ConnectionIdleException)
+                if (ex is ConnectionAbortedException)
                 {
                     setState(StateClosed, ex);
                 }
@@ -597,7 +597,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 {
                     if (kvp.Value == outAsync)
                     {
-                        if (ex is ConnectionIdleException)
+                        if (ex is ConnectionAbortedException)
                         {
                             setState(StateClosed, ex);
                         }
@@ -1278,7 +1278,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 if (!(_exception is CloseConnectionException ||
                      _exception is ConnectionAbortedException ||
                      _exception is ConnectionClosedException ||
-                     _exception is ConnectionIdleException ||
                      _exception is CommunicatorDestroyedException ||
                      _exception is ObjectAdapterDeactivatedException))
                 {
@@ -1526,7 +1525,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
     }
 
-    /// <summary>Aborts the connection with a <see cref="ConnectionIdleException" /> if the connection is active or
+    /// <summary>Aborts the connection with a <see cref="ConnectionAbortedException" /> if the connection is active or
     /// holding.</summary>
     internal void idleCheck(TimeSpan idleTimeout)
     {
@@ -1543,7 +1542,11 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         $"connection aborted by the idle check because it did not receive any bytes for {idleTimeoutInSeconds}s\n{_transceiver.toDetailedString()}");
                 }
 
-                setState(StateClosed, new ConnectionIdleException($"The connection was aborted by the idle check because it did not receive any bytes for {idleTimeoutInSeconds}s."));
+                setState(
+                    StateClosed,
+                    new ConnectionAbortedException(
+                        $"Connection aborted by the idle check because it did not receive any bytes for {idleTimeoutInSeconds}s.",
+                        closedByApplication: false));
             }
             // else nothing to do
         }
@@ -1619,7 +1622,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 if (!(_exception is CloseConnectionException ||
                      _exception is ConnectionAbortedException ||
                      _exception is ConnectionClosedException ||
-                     _exception is ConnectionIdleException ||
                      _exception is CommunicatorDestroyedException ||
                      _exception is ObjectAdapterDeactivatedException ||
                      (_exception is ConnectionLostException && _state >= StateClosing)))
@@ -1782,7 +1784,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 if (!(_exception is CloseConnectionException ||
                      _exception is ConnectionAbortedException ||
                      _exception is ConnectionClosedException ||
-                     _exception is ConnectionIdleException ||
                      _exception is CommunicatorDestroyedException ||
                      _exception is ObjectAdapterDeactivatedException ||
                      (_exception is ConnectionLostException && _state >= StateClosing)))

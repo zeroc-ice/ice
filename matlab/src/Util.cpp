@@ -7,7 +7,6 @@
 #include "ice.h"
 
 #include <array>
-#include <codecvt>
 #include <locale>
 #include <string>
 
@@ -50,45 +49,19 @@ namespace
 mxArray*
 IceMatlab::createStringFromUTF8(const string& s)
 {
-    if (s.empty())
-    {
-        return mxCreateString("");
-    }
-    else
-    {
-#if defined(_MSC_VER)
-        // Workaround for Visual Studio bug that causes a link error when using char16_t.
-        wstring utf16 = wstring_convert<codecvt_utf8_utf16<wchar_t>, wchar_t>{}.from_bytes(s.data());
-
-#else
-        u16string utf16 = wstring_convert<codecvt_utf8_utf16<char16_t>, char16_t>{}.from_bytes(s.data());
-#endif
-        mwSize dims[2] = {1, static_cast<mwSize>(utf16.size())};
-        auto r = mxCreateCharArray(2, dims);
-        auto buf = mxGetChars(r);
-        int i = 0;
-
-#if defined(_MSC_VER)
-        for (wchar_t c : utf16)
-#else
-        for (char16_t c : utf16)
-#endif
-        {
-            buf[i++] = static_cast<mxChar>(c);
-        }
-        return r;
-    }
+    // mxCreateString accepts a UTF-8 input since MATLAB 2020b.
+    return mxCreateString(s.c_str());
 }
 
 string
 IceMatlab::getStringFromUTF16(mxArray* p)
 {
-    auto s = mxArrayToUTF8String(p);
+    char* s = mxArrayToUTF8String(p);
     if (!s)
     {
         throw std::invalid_argument("value is not a char array");
     }
-    string str(s);
+    string str{s};
     mxFree(s);
     return str;
 }

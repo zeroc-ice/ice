@@ -126,6 +126,9 @@ public sealed class UnknownLocalException : UnknownException
 /// </summary>
 public sealed class UnknownUserException : UnknownException
 {
+    public static UnknownUserException fromTypeId(string typeId) =>
+        new($"The reply carries a user exception that does not conform to the exception specification of the operation: {typeId}");
+
     public UnknownUserException(string message)
         : base(message)
     {
@@ -413,19 +416,6 @@ public sealed class ConnectionClosedException : LocalException
         this.closedByApplication = closedByApplication;
 
     public override string ice_id() => "::Ice::ConnectionClosedException";
-}
-
-/// <summary>
-/// This exception indicates that a connection was aborted by the idle check.
-/// </summary>
-public sealed class ConnectionIdleException : LocalException
-{
-    public ConnectionIdleException(string message)
-        : base(message, innerException: null)
-    {
-    }
-
-    public override string ice_id() => "::Ice::ConnectionIdleException";
 }
 
 /// <summary>

@@ -38,35 +38,20 @@ public final class Options {
             switch (c) {
               case '\\':
                 {
+                  // Ignore a backslash at the end of the string, and strip backslash-newline pairs.
                   //
-                  // Ignore a backslash at the end of the string,
-                  // and strip backslash-newline pairs. If a
-                  // backslash is followed by a space, single quote,
-                  // double quote, or dollar sign, we drop the backslash
-                  // and write the space, single quote, double quote,
-                  // or dollar sign. This is necessary to allow quotes
-                  // to be escaped. Dropping the backslash preceding a
-                  // space deviates from bash quoting rules, but is
-                  // necessary so we don't drop backslashes from Windows
-                  // path names.)
-                  //
+                  // If a backslash comes before a space, single quote, double quote, or dollar sign
+                  // we drop the backslash, but still write the the space, quote, or dollar sign.
+                  // This is necessary to allow quotes to be escaped. Dropping the backslash
+                  // preceding a space deviates from bash quoting rules, but is necessary so we
+                  // don't drop backslashes from Windows path names.
                   if (i < line.length() - 1 && line.charAt(++i) != '\n') {
-                    switch (line.charAt(i)) {
-                      case ' ':
-                      case '$':
-                      case '\\':
-                      case '"':
-                        {
-                          arg.append(line.charAt(i));
-                          break;
-                        }
-                      default:
-                        {
-                          arg.append('\\');
-                          arg.append(line.charAt(i));
-                          break;
-                        }
+                    char nextChar = line.charAt(i);
+                    // TODO: comment says we should be checking single quotes here, but we aren't?
+                    if (nextChar != ' ' && nextChar != '$' && nextChar != '\\' && nextChar != '"') {
+                      arg.append('\\');
                     }
+                    arg.append(nextChar);
                   }
                   break;
                 }
@@ -113,28 +98,15 @@ public final class Options {
           }
         case DoubleQuoteState:
           {
-            //
-            // Within double quotes, only backslash retains its special
-            // meaning, and only if followed by double quote, backslash,
-            // or newline. If not followed by one of these characters,
-            // both the backslash and the character are preserved.
-            //
+            // Within double quotes, only backslash retains its special meaning,
+            // and only if followed by a double quote, backslash, or newline.
+            // Both the backslash and the character are preserved for any other character.
             if (c == '\\' && i < line.length() - 1) {
-              switch (c = line.charAt(++i)) {
-                case '"':
-                case '\\':
-                case '\n':
-                  {
-                    arg.append(c);
-                    break;
-                  }
-                default:
-                  {
-                    arg.append('\\');
-                    arg.append(c);
-                    break;
-                  }
+              c = line.charAt(++i);
+              if (c != '"' && c != '\\' && c != '\n') {
+                arg.append('\\');
               }
+              arg.append(c);
             } else if (c == '"') // End of double-quote mode.
             {
               state = NormalState;

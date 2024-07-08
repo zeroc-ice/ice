@@ -919,9 +919,8 @@ public class ServiceManagerI implements ServiceManager {
         properties.setProperty("Ice.Admin.Enabled", "1");
 
         if (!facetNames.isEmpty()) {
-          // TODO: need joinString with escape!
-          properties.setProperty(
-              "Ice.Admin.Facets", com.zeroc.IceUtilInternal.StringUtil.joinString(facetNames, " "));
+          // TODO: need join with escape!
+          properties.setProperty("Ice.Admin.Facets", String.join(" ", facetNames));
         }
         return true;
       }
