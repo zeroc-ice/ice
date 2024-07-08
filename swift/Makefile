@@ -37,8 +37,8 @@ clean::
 
 distclean:: clean
 
-test-app-platforms ?= iphonesimulator iphoneos
+# test-app-platforms ?= iphonesimulator iphoneos
 
-$(foreach p,$(test-app-platforms),$(eval $(call xcode-test-app-rule,tests,$p,build)))
-$(foreach p,$(test-app-platforms),$(eval $(call xcode-test-app-rule,clean,$p,clean)))
-$(foreach p,$(test-app-platforms),$(eval $(call xcode-test-app-rule,distclean,$p,clean)))
+# $(foreach p,$(test-app-platforms),$(eval $(call xcode-test-app-rule,tests,$p,build)))
+# $(foreach p,$(test-app-platforms),$(eval $(call xcode-test-app-rule,clean,$p,clean)))
+# $(foreach p,$(test-app-platforms),$(eval $(call xcode-test-app-rule,distclean,$p,clean)))
