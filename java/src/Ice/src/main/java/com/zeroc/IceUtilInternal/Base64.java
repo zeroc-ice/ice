@@ -11,9 +11,9 @@ package com.zeroc.IceUtilInternal;
 //
 public class Base64 {
     public static String encode(byte[] plainSeq) {
-// Intentionally broke formatting to make sure the build fails!
-if (plainSeq == null || plainSeq.length == 0) {
-                        return "";      
+        // Intentionally broke formatting to make sure the build fails!
+        if (plainSeq == null || plainSeq.length == 0) {
+            return "";
         }
 
         int base64Bytes = (((plainSeq.length * 4) / 3) + 1);
