@@ -4377,7 +4377,9 @@ class SwiftMapping(Mapping):
             os.sep, "_"
         )
 
-        testDriver = "swift run -c {0} --skip-build TestDriver".format(self.buildConfig)
+        testDriver = "swift run -c {0} --skip-build TestDriver".format(
+            current.config.buildConfig
+        )
 
         return "{0} {1} {2} {3}".format(testDriver, package, exe, args)
 
@@ -4404,22 +4406,11 @@ class SwiftMapping(Mapping):
                           -showBuildSettings \
                           -sdk {2}".format(
             self.getXcodeProject(current),
-            self.buildConfig.capitalize(),  # SwiftPM uses lowercase. Xcode users uppercase.
+            current.config.buildConfig.capitalize(),  # SwiftPM uses lowercase. Xcode users uppercase.
             current.config.buildPlatform,
         )
         targetBuildDir = re.search(r"\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
-
         testDriver = os.path.join(targetBuildDir, "TestDriverApp.app")
-        if not os.path.exists(testDriver):
-            # Fallback location, required with Xcode 14.2
-            testDriver = os.path.join(
-                current.testcase.getMapping().getPath(),
-                "build",
-                "{0}-{1}".format(
-                    current.config.buildConfig, current.config.buildPlatform
-                ),
-                "TestDriver.app",
-            )
         return testDriver
 
     def getSSLProps(self, process, current):
