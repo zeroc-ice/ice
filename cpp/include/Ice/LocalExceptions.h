@@ -382,8 +382,8 @@ namespace Ice
         SyscallException(const char* file, int line, std::string messagePrefix, ErrorCode error);
 
         /**
-         * Gets the error number describing the system exception. For C++ and Unix, this is equivalent to
-         * <code>errno</code>. For C++ and Windows, this is the value returned by <code>GetLastError()</code> or
+         * Gets the error number describing the system exception. On Unix, this is equivalent to
+         * <code>errno</code>. On Windows, this is the value returned by <code>GetLastError()</code> or
          * <code>WSAGetLastError()</code>.
          */
         ErrorCode error() const noexcept { return _error; }
