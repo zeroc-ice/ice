@@ -740,10 +740,11 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
 void
 Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& dataMembers, unsigned int baseTypes)
 {
-    // Generates "= null!" for each non-optional collection and struct-mapped-to-a-class field.
+    // Generates "= null!" for each required field. This wouldn't be necessary if we actually generated required
+    // fields and properties.
     for (const auto& q : dataMembers)
     {
-        if (!q->optional() && isNonNullableReferenceType(q->type(), false))
+        if (isMappedToRequiredField(q))
         {
             _out << nl << "this." << fixId(q->name(), baseTypes) << " = null!;";
         }
@@ -1675,9 +1676,9 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             string memberType = typeToString(q->type(), ns, q->optional());
             paramDecl.push_back(memberType + " " + memberName);
 
-            // Look for non-nullable fields to be initialized by the secondary constructor.
-            // false: we don't want to include strings since they are initialized to ""
-            if (!q->optional() && isNonNullableReferenceType(q->type(), false))
+            // The secondary constructor initializes the fields that would be marked "required" if we generated the
+            // required keyword.
+            if (isMappedToRequiredField(q))
             {
                 secondaryCtorParams.push_back(memberType + " " + memberName);
 
@@ -1699,8 +1700,8 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 string memberName = fixId(q->name(), DotNet::ICloneable);
                 baseParamNames.push_back(memberName);
 
-                // Look for non-nullable fields
-                if (!q->optional() && isNonNullableReferenceType(q->type(), false))
+                // Look for required fields
+                if (isMappedToRequiredField(q))
                 {
                     secondaryCtorBaseParamNames.push_back(memberName);
                 }
@@ -1711,7 +1712,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         for (const auto& q : dataMembers)
         {
             const string memberName = fixId(q->name(), DotNet::ICloneable);
-            if (!q->optional() && isNonNullableReferenceType(q->type()))
+            if (isMappedToNonNullableReference(q))
             {
                 _out << nl << "global::System.ArgumentNullException.ThrowIfNull(" << memberName << ");";
             }
@@ -1936,8 +1937,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         string memberType = typeToString(q->type(), ns, q->optional());
         paramDecl.push_back(memberType + " " + memberName);
 
-        // Look for non-nullable fields to be initialized by the secondary constructor.
-        if (!q->optional() && isNonNullableReferenceType(q->type(), false))
+        // Look for required fields to be initialized by the secondary constructor.
+        if (isMappedToRequiredField(q))
         {
             secondaryCtorParams.push_back(memberType + " " + memberName);
             if (find(dataMembers.begin(), dataMembers.end(), q) != dataMembers.end())
@@ -1976,8 +1977,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             string memberName = fixId(q->name(), DotNet::Exception);
             baseParamNames.push_back(memberName);
 
-            // Look for non-nullable fields
-            if (!q->optional() && isNonNullableReferenceType(q->type(), false))
+            // Look for required fields
+            if (isMappedToRequiredField(q))
             {
                 secondaryCtorBaseParamNames.push_back(memberName);
             }
@@ -1991,7 +1992,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     for (const auto& q : dataMembers)
     {
         const string memberName = fixId(q->name(), DotNet::Exception);
-        if (!q->optional() && isNonNullableReferenceType(q->type()))
+        if (isMappedToNonNullableReference(q))
         {
             _out << nl << "global::System.ArgumentNullException.ThrowIfNull(" << memberName << ");";
         }
@@ -2158,15 +2159,14 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     if (classMapping)
     {
-        // We generate a constructor that initializes all non-nullable fields (collections and structs mapped to
+        // We generate a constructor that initializes all required fields (collections and structs mapped to
         // classes). It can be parameterless.
 
         vector<string> ctorParams;
         vector<string> ctorParamNames;
         for (const auto& q : dataMembers)
         {
-            // false: we don't want to include strings since they are initialized to ""
-            if (isNonNullableReferenceType(q->type(), false))
+            if (isMappedToRequiredField(q))
             {
                 string memberName = fixId(q->name(), DotNet::ICloneable);
                 string memberType = typeToString(q->type(), ns, false);
@@ -2208,7 +2208,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     for (const auto& q : dataMembers)
     {
         string paramName = fixId(q->name(), classMapping ? DotNet::ICloneable : 0);
-        if (isNonNullableReferenceType(q->type()))
+        if (isMappedToNonNullableReference(q))
         {
             _out << nl << "global::System.ArgumentNullException.ThrowIfNull(" << paramName << ");";
         }
