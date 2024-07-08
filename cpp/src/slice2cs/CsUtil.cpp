@@ -509,15 +509,12 @@ Slice::CsGenerator::isValueType(const TypePtr& type)
 }
 
 bool
-Slice::CsGenerator::isNonNullableReferenceType(const TypePtr& p, bool includeString)
+Slice::CsGenerator::isNonNullableReferenceType(const TypePtr& p)
 {
-    if (includeString)
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p);
+    if (builtin)
     {
-        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p);
-        if (builtin)
-        {
-            return builtin->kind() == Builtin::KindString;
-        }
+        return builtin->kind() == Builtin::KindString;
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(p);
@@ -527,6 +524,27 @@ Slice::CsGenerator::isNonNullableReferenceType(const TypePtr& p, bool includeStr
     }
 
     return dynamic_pointer_cast<Sequence>(p) || dynamic_pointer_cast<Dictionary>(p);
+}
+
+bool
+Slice::CsGenerator::isMappedToRequiredField(const DataMemberPtr& p)
+{
+    if (p->optional())
+    {
+        return false;
+    }
+
+    // String fields get a "" default.
+
+    TypePtr type = p->type();
+
+    StructPtr st = dynamic_pointer_cast<Struct>(type);
+    if (st)
+    {
+        return isMappedToClass(st);
+    }
+
+    return dynamic_pointer_cast<Sequence>(type) || dynamic_pointer_cast<Dictionary>(type);
 }
 
 void
