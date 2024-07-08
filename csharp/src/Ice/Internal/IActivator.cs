@@ -26,7 +26,7 @@ internal interface IActivator
     /// <returns>An activator that activates the Slice types defined in <paramref name="assemblies" /> and their
     /// referenced assemblies. See <see cref="FromAssembly(Assembly)" />.</returns>
     internal static IActivator FromAssemblies(params Assembly[] assemblies) =>
-        Internal.Activator.Merge(assemblies.Select(ActivatorFactory.Instance.Get));
+        Activator.Merge(assemblies.Select(ActivatorFactory.Instance.Get));
 
     /// <summary>Creates an instance of a Slice class or exception based on a type ID.</summary>
     /// <param name="typeId">The Slice type ID.</param>
