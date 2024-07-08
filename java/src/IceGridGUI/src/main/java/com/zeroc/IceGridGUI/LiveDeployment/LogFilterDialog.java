@@ -61,9 +61,8 @@ class LogFilterDialog extends JDialog {
     String[] traceCategoryFilter = dialog.getTraceCategoryFilter();
     if (traceCategoryFilter != null) {
       // TODO: join with escapes!
-      traceCategories.setText(
-          com.zeroc.IceUtilInternal.StringUtil.joinString(
-              java.util.Arrays.asList(traceCategoryFilter), ", "));
+      String s = String.join(", ", java.util.Arrays.asList(traceCategoryFilter));
+      traceCategories.setText(s);
     } else {
       traceCategories.setText(null);
     }
