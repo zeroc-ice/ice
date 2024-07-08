@@ -62,17 +62,17 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   | Local exception in Ice 3.7          | Replacement                | Notes    |
   |-------------------------------------|----------------------------| ---------|
   | BadMagicException                   | ProtocolException (base)   |          |
-  | CFNetworkException                  | SocketsException (base)    |          |
-  | CloneNotImplementedException        | logic_error                | C++ only |
+  | CFNetworkException                  | SocketException (base)    |          |
+  | CloneNotImplementedException        | std::logic_error                | C++ only |
   | CompressionException                | ProtocolException (base)   |          |
   | ConnectionManuallyClosedException   | ConnectionAbortedException, ConnectionClosedException | |
   | ConnectionNotValidatedException     | ProtocolException (base)   |          |
   | EncapsulationException              | MarshalException (base)    |          |
   | EndpointParseException              | ParseException             |          |
   | EndpointSelectionTypeParseException | ParseException             |          |
-  | IllegalIdentityException            | ArgumentException (C#), invalid_argument (C++)     | |
+  | IllegalIdentityException            | ArgumentException (C#), std::invalid_argument (C++)     | |
   | IllegalMessageSizeException         | MarshalException           |          |
-  | IllegalServantException             | ArgumentNullException (C#), invalid_argument (C++) | |
+  | IllegalServantException             | ArgumentNullException (C#), std::invalid_argument (C++) | |
   | IdentityParseException              | ParseException             |          |
   | MemoryLimitException                | MarshalException (base)    |          |
   | NoValueFactoryException             | MarshalException (base)    |          |
