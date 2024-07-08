@@ -71,7 +71,6 @@ from .UnknownSlicedValue import UnknownSlicedValue, SlicedData, SliceInfo
 IcePy._t_Object = IcePy.declareClass("::Ice::Object")
 IcePy._t_Value = IcePy.declareValue("::Ice::Object")
 IcePy._t_ObjectPrx = IcePy.declareProxy("::Ice::Object")
-IcePy._t_LocalObject = IcePy.declareValue("::Ice::LocalObject")
 
 #
 # Import "local slice" and generated Ice modules.
@@ -199,10 +198,6 @@ Object._op_ice_id = IcePy.Operation(
     (),
     ((), IcePy._t_string, False, 0),
     (),
-)
-
-IcePy._t_LocalObject = IcePy.defineValue(
-    "::Ice::LocalObject", object, -1, (), False, None, ()
 )
 
 IcePy._t_UnknownSlicedValue = IcePy.defineValue(
