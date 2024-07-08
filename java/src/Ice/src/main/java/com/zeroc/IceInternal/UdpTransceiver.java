@@ -237,7 +237,7 @@ final class UdpTransceiver implements Transceiver {
     }
     if (!intfs.isEmpty()) {
       s.append("\nlocal interfaces = ");
-      s.append(com.zeroc.IceUtilInternal.StringUtil.joinString(intfs, ", "));
+      s.append(String.join(", ", intfs));
     }
     return s.toString();
   }

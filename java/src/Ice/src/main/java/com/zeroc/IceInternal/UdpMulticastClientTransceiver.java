@@ -147,7 +147,7 @@ final class UdpMulticastClientTransceiver implements Transceiver {
         Network.getInterfacesForMulticast(_mcastInterface, Network.getProtocolSupport(_addr));
     if (!intfs.isEmpty()) {
       s.append("\nlocal interfaces = ");
-      s.append(com.zeroc.IceUtilInternal.StringUtil.joinString(intfs, ", "));
+      s.append(String.join(", ", intfs));
     }
     return s.toString();
   }
