@@ -49,12 +49,11 @@ jobs:
           make doc
 
       - name: Generate Documentation for Swift
-        working-directory: ./swift
         run: |
-          mkdir docs
+          mkdir ./swift/docs
 
           for target in Ice Glacier2 IceGrid IceStorm; do
-            swift package --allow-writing-to-directory ./docs generate-documentation --output-path ./docs/$target \
+            swift package --allow-writing-to-directory ./swift/docs generate-documentation --output-path ./swift/docs/$target \
               --target $target --transform-for-static-hosting --hosting-base-path  /api/ice/main/swift/$target
           done
 
