@@ -2,10 +2,6 @@ classdef (Abstract) UserException < Ice.Exception
     % UserException   Summary of UserException
     %
     % Base class for exceptions defined in Slice.
-    %
-    % UserException Methods:
-    %   ice_getSlicedData - Obtain the SlicedData object that contains the
-    %     marshaled state of any slices for unknown exception types.
 
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
