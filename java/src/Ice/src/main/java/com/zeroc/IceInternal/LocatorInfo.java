@@ -598,5 +598,6 @@ public final class LocatorInfo {
   private final boolean _background;
 
   private final java.util.Map<String, Request> _adapterRequests = new java.util.HashMap<>();
-  private final java.util.Map<com.zeroc.Ice.Identity, Request> _objectRequests = new java.util.HashMap<>();
+  private final java.util.Map<com.zeroc.Ice.Identity, Request> _objectRequests =
+    new java.util.HashMap<>();
 }

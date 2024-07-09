@@ -169,7 +169,7 @@ public abstract class Reference implements Cloneable {
   public abstract Reference changeConnection(com.zeroc.Ice.ConnectionI connection);
 
   @Override
-  public  int hashCode() {
+  public int hashCode() {
     int h = 5381;
     h = HashUtil.hashAdd(h, _mode);
     h = HashUtil.hashAdd(h, _secure);

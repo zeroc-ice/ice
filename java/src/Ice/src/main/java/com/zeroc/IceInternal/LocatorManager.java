@@ -104,7 +104,9 @@ public final class LocatorManager {
 
   private final boolean _background;
 
-  private final java.util.HashMap<com.zeroc.Ice.LocatorPrx, LocatorInfo> _table = new java.util.HashMap<>();
-  private final java.util.HashMap<LocatorKey, LocatorTable> _locatorTables = new java.util.HashMap<>();
+  private final java.util.HashMap<com.zeroc.Ice.LocatorPrx, LocatorInfo> _table =
+    new java.util.HashMap<>();
+  private final java.util.HashMap<LocatorKey, LocatorTable> _locatorTables =
+    new java.util.HashMap<>();
   private final LocatorKey _lookupKey = new LocatorKey(); // A key used for the lookup
 }
