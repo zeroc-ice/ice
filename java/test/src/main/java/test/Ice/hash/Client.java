@@ -258,27 +258,27 @@ public class Client extends test.TestHelper {
       out.print("testing proxy hash of slightly different proxies... ");
       out.flush();
       {
-          final String[] proxyString = {
-            "test:tcp -p 10001 -h hello.zeroc.com",
-            "test:udp -p 10001 -h hello.zeroc.com",
-            "test:ssl -p 10001 -h hello.zeroc.com",
-            "test:tcp -p 10001 -h hello.zeroc.com -t 10000",
-            "test -f fa:tcp -p 10001 -h hello.zeroc.com",
-            "test @ adapt",
-            "test @ adapt2",
-            "test:opaque -t 12 -v abc",
-            "test:opaque -t 12 -v abcd",
-            "test:opaque -t 13 -v abc",
-            "test:opaque -t 13 -v abcd",
-            "test:opaque -t 13 -v abce",
-          };
+        final String[] proxyString = {
+          "test:tcp -p 10001 -h hello.zeroc.com",
+          "test:udp -p 10001 -h hello.zeroc.com",
+          "test:ssl -p 10001 -h hello.zeroc.com",
+          "test:tcp -p 10001 -h hello.zeroc.com -t 10000",
+          "test -f fa:tcp -p 10001 -h hello.zeroc.com",
+          "test @ adapt",
+          "test @ adapt2",
+          "test:opaque -t 12 -v abc",
+          "test:opaque -t 12 -v abcd",
+          "test:opaque -t 13 -v abc",
+          "test:opaque -t 13 -v abcd",
+          "test:opaque -t 13 -v abce",
+        };
 
-          var hashes = new java.util.HashSet<Integer>();
+        var hashes = new java.util.HashSet<Integer>();
 
-          for (String s : proxyString) {
-            boolean inserted = hashes.add(communicator.stringToProxy(s).hashCode());
-            test(inserted);
-          }
+        for (String s : proxyString) {
+          boolean inserted = hashes.add(communicator.stringToProxy(s).hashCode());
+          test(inserted);
+        }
       }
       out.println("ok");
 
