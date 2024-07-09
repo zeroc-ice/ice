@@ -72,28 +72,18 @@ IcePy._t_Object = IcePy.declareClass("::Ice::Object")
 IcePy._t_Value = IcePy.declareValue("::Ice::Object")
 IcePy._t_ObjectPrx = IcePy.declareProxy("::Ice::Object")
 
-#
-# Import "local slice" and generated Ice modules.
-#
-from .EnumBase import EnumBase
 
+from .EnumBase import EnumBase
 from .ToStringMode import ToStringMode
 from .Exception import Exception
 from .LocalException import LocalException
 from .UserException import UserException
-
 import Ice.BuiltinSequences_ice
 import Ice.OperationMode_ice
 from .Current import Current
-
 from .Communicator import Communicator
-
 from .ImplicitContext import ImplicitContext
-from .Endpoint import Endpoint
-from .EndpointInfo import EndpointInfo
 from .EndpointSelectionType import EndpointSelectionType
-
-
 import Ice.EndpointTypes_ice
 import Ice.Identity_ice
 import Ice.Locator_ice
@@ -106,14 +96,9 @@ import Ice.Router_ice
 from .ConnectionClose import ConnectionClose
 from .CompressBatch import CompressBatch
 from .ServantLocator import ServantLocator
-from .CloseCallback import CloseCallback
-from .Connection import Connection
-from .ConnectionInfo import *
 import Ice.Version_ice
 import Ice.Metrics_ice
-
 from .InitializationData import InitializationData
-
 from .Properties import Properties
 from .PropertiesI import PropertiesI
 from .ObjectAdapterI import ObjectAdapterI
@@ -121,8 +106,6 @@ from .ImplicitContextI import ImplicitContextI
 from .Logger import Logger
 from .LoggerI import LoggerI
 from .BatchRequestInterceptor import BatchRequestInterceptor
-
-# Local exceptions
 from .LocalExceptions import *
 
 #
