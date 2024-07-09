@@ -431,7 +431,7 @@ def allTests(helper, communicator, collocated):
         #
         # Local case: start an operation and then close the connection gracefully on the client side
         # without waiting for the pending invocation to complete. There will be no retry and we expect the
-        # invocation to fail with ConnectionManuallyClosedException.
+        # invocation to fail with ConnectionClosedException.
         #
         p = p.ice_connectionId("CloseGracefully")  # Start with a new connection.
         con = p.ice_getConnection()
@@ -441,8 +441,8 @@ def allTests(helper, communicator, collocated):
         try:
             f.result()
             test(False)
-        except Ice.ConnectionManuallyClosedException:
-            pass
+        except Ice.ConnectionClosedException as ex:
+            test(ex.closedByApplication)
         p.finishDispatch()
 
         #
@@ -467,7 +467,7 @@ def allTests(helper, communicator, collocated):
 
         #
         # Local case: start an operation and then close the connection forcefully on the client side.
-        # There will be no retry and we expect the invocation to fail with ConnectionManuallyClosedException.
+        # There will be no retry and we expect the invocation to fail with ConnectionAbortedException.
         #
         p.ice_ping()
         con = p.ice_getConnection()
@@ -477,8 +477,8 @@ def allTests(helper, communicator, collocated):
         try:
             f.result()
             test(False)
-        except Ice.ConnectionManuallyClosedException:
-            pass
+        except Ice.ConnectionAbortedException as ex:
+            test(ex.closedByApplication)
         p.finishDispatch()
 
         #

@@ -31,7 +31,7 @@ namespace Ice
                 }
                 catch (Ice.UnknownUserException ex)
                 {
-                    test(ex.unknown == "reason");
+                    test(ex.Message == "reason");
                 }
                 catch (Exception)
                 {
@@ -45,7 +45,7 @@ namespace Ice
                 }
                 catch (Ice.UnknownLocalException ex)
                 {
-                    test(ex.unknown == "reason");
+                    test(ex.Message == "reason");
                 }
                 catch (Exception)
                 {
@@ -59,7 +59,7 @@ namespace Ice
                 }
                 catch (Ice.UnknownException ex)
                 {
-                    test(ex.unknown == "reason");
+                    test(ex.Message == "reason");
                 }
                 catch (Exception)
                 {
@@ -73,8 +73,7 @@ namespace Ice
                 }
                 catch (Ice.UnknownUserException ex)
                 {
-                    //Console.Error.WriteLine(ex.unknown);
-                    test(ex.unknown.IndexOf("Test::TestIntfUserException") >= 0);
+                    test(ex.Message.Contains("Test::TestIntfUserException"));
                 }
                 catch (Ice.OperationNotExistException)
                 {
@@ -91,8 +90,8 @@ namespace Ice
                 }
                 catch (Ice.UnknownLocalException ex)
                 {
-                    test(ex.unknown.IndexOf("Ice::SocketException") >= 0 ||
-                         ex.unknown.IndexOf("Ice.SocketException") >= 0);
+                    test(ex.Message.Contains("Ice::SocketException") ||
+                         ex.Message.Contains("Ice.SocketException"));
                 }
                 catch (Exception)
                 {
@@ -106,7 +105,7 @@ namespace Ice
                 }
                 catch (Ice.UnknownException ex)
                 {
-                    test(ex.unknown.IndexOf("System.Exception") >= 0);
+                    test(ex.Message.Contains("System.Exception"));
                 }
                 catch (Ice.OperationNotExistException)
                 {
@@ -123,7 +122,7 @@ namespace Ice
                 }
                 catch (Ice.UnknownException ex)
                 {
-                    test(ex.unknown == "reason");
+                    test(ex.Message == "reason");
                 }
                 catch (Exception)
                 {
@@ -217,7 +216,7 @@ namespace Ice
                 }
                 catch (Ice.UnknownUserException ex)
                 {
-                    test(ex.unknown == "::Test::TestIntfUserException");
+                    test(ex.Message.Contains("::Test::TestIntfUserException"));
                 }
                 catch (Exception)
                 {
@@ -232,7 +231,7 @@ namespace Ice
                 }
                 catch (Ice.UnknownUserException ex)
                 {
-                    test(ex.unknown == "::Test::TestIntfUserException");
+                    test(ex.Message.Contains("::Test::TestIntfUserException"));
                 }
                 catch (Exception)
                 {

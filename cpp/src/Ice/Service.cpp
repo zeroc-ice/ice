@@ -158,7 +158,7 @@ namespace
             _source = RegisterEventSourceW(0, stringToWstring(mangleSource(source), _stringConverter).c_str());
             if (_source == 0)
             {
-                throw SyscallException(__FILE__, __LINE__);
+                throw SyscallException{__FILE__, __LINE__, "RegisterEventSourceW failed", GetLastError()};
             }
         }
 
@@ -176,7 +176,7 @@ namespace
             // Don't need to use a wide string converter as the wide string is passed
             // to Windows API.
             //
-            LONG err = RegCreateKeyExW(
+            LSTATUS err = RegCreateKeyExW(
                 HKEY_LOCAL_MACHINE,
                 stringToWstring(createKey(source), stringConverter).c_str(),
                 0,
@@ -189,7 +189,7 @@ namespace
 
             if (err != ERROR_SUCCESS)
             {
-                throw SyscallException(__FILE__, __LINE__, err);
+                throw SyscallException{__FILE__, __LINE__, "RegCreateKeyExW failed", static_cast<DWORD>(err)};
             }
 
             //
@@ -199,8 +199,9 @@ namespace
             assert(_module != 0);
             if (!GetModuleFileNameW(_module, path, _MAX_PATH))
             {
+                DWORD error = GetLastError();
                 RegCloseKey(hKey);
-                throw SyscallException(__FILE__, __LINE__);
+                throw SyscallException{__FILE__, __LINE__, "GetModuleFileNameW failed", error};
             }
 
             //
@@ -234,7 +235,7 @@ namespace
             if (err != ERROR_SUCCESS)
             {
                 RegCloseKey(hKey);
-                throw SyscallException(__FILE__, __LINE__, err);
+                throw SyscallException{__FILE__, __LINE__, "RegSetValueExW failed", static_cast<DWORD>(err)};
             }
 
             RegCloseKey(hKey);
@@ -246,10 +247,11 @@ namespace
             // Don't need to use a wide string converter as the wide string is passed
             // to Windows API.
             //
-            LONG err = RegDeleteKeyW(HKEY_LOCAL_MACHINE, stringToWstring(createKey(source), stringConverter).c_str());
+            LSTATUS err =
+                RegDeleteKeyW(HKEY_LOCAL_MACHINE, stringToWstring(createKey(source), stringConverter).c_str());
             if (err != ERROR_SUCCESS)
             {
-                throw SyscallException(__FILE__, __LINE__, err);
+                throw SyscallException{__FILE__, __LINE__, "RegDeleteKeyW failed", static_cast<DWORD>(err)};
             }
         }
 
@@ -1543,7 +1545,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
         //
         if (setsid() == -1)
         {
-            throw SyscallException(__FILE__, __LINE__);
+            throw SyscallException{__FILE__, __LINE__, "setsid failed", errno};
         }
 
         //
@@ -1558,7 +1560,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
         pid = fork();
         if (pid < 0)
         {
-            throw SyscallException(__FILE__, __LINE__);
+            throw SyscallException{__FILE__, __LINE__, "fork failed", errno};
         }
         if (pid != 0)
         {
@@ -1572,7 +1574,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             //
             if (chdir("/") != 0)
             {
-                throw SyscallException(__FILE__, __LINE__);
+                throw SyscallException{__FILE__, __LINE__, "chdir failed", errno};
             }
         }
 
@@ -1588,7 +1590,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             int fdMax = static_cast<int>(sysconf(_SC_OPEN_MAX));
             if (fdMax <= 0)
             {
-                throw SyscallException(__FILE__, __LINE__);
+                throw SyscallException{__FILE__, __LINE__, "sysconf failed", errno};
             }
 
             for (int i = 0; i < fdMax; ++i)
@@ -1648,7 +1650,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             assert(fd == 0);
             if (fd != 0)
             {
-                throw SyscallException(__FILE__, __LINE__);
+                throw SyscallException{__FILE__, __LINE__, "open /dev/null failed", errno};
             }
             if (stdOut.empty())
             {
@@ -1656,7 +1658,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
                 assert(fd == 1);
                 if (fd != 1)
                 {
-                    throw SyscallException(__FILE__, __LINE__);
+                    throw SyscallException{__FILE__, __LINE__, "dup2(0, 1) failed", errno};
                 }
             }
             if (stdErr.empty())
@@ -1665,7 +1667,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
                 assert(fd == 2);
                 if (fd != 2)
                 {
-                    throw SyscallException(__FILE__, __LINE__);
+                    throw SyscallException{__FILE__, __LINE__, "dup2(1, 2) failed", errno};
                 }
             }
         }

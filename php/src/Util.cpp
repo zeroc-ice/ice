@@ -444,6 +444,28 @@ IcePHP::convertException(zval* zex, std::exception_ptr ex)
         rethrow_exception(ex);
     }
     // Write the PHP exception into zex
+    catch (const Ice::AlreadyRegisteredException& e)
+    {
+        zend_class_entry* cls = createPHPException(zex, e.ice_id());
+        if (!cls)
+        {
+            return;
+        }
+        setStringMember(zex, "kindOfObject", e.kindOfObject());
+        setStringMember(zex, "id", e.id());
+        setStringMember(zex, "message", e.what());
+    }
+    catch (const Ice::NotRegisteredException& e)
+    {
+        zend_class_entry* cls = createPHPException(zex, e.ice_id());
+        if (!cls)
+        {
+            return;
+        }
+        setStringMember(zex, "kindOfObject", e.kindOfObject());
+        setStringMember(zex, "id", e.id());
+        setStringMember(zex, "message", e.what());
+    }
     catch (const Ice::RequestFailedException& e)
     {
         zend_class_entry* cls = createPHPException(zex, e.ice_id());
@@ -465,28 +487,6 @@ IcePHP::convertException(zval* zex, std::exception_ptr ex)
         setStringMember(zex, "facet", e.facet());
         setStringMember(zex, "operation", e.operation());
         setStringMember(zex, "message", e.what()); // message is a protected property of the base class.
-    }
-    catch (const Ice::AlreadyRegisteredException& e)
-    {
-        zend_class_entry* cls = createPHPException(zex, e.ice_id());
-        if (!cls)
-        {
-            return;
-        }
-        setStringMember(zex, "kindOfObject", e.kindOfObject);
-        setStringMember(zex, "id", e.id);
-        setStringMember(zex, "message", e.what());
-    }
-    catch (const Ice::NotRegisteredException& e)
-    {
-        zend_class_entry* cls = createPHPException(zex, e.ice_id());
-        if (!cls)
-        {
-            return;
-        }
-        setStringMember(zex, "kindOfObject", e.kindOfObject);
-        setStringMember(zex, "id", e.id);
-        setStringMember(zex, "message", e.what());
     }
     catch (const Ice::LocalException& e)
     {

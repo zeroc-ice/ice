@@ -208,33 +208,25 @@ namespace
         //
         if (ICE_INT_VERSION != version)
         {
-            throw VersionMismatchException(__FILE__, __LINE__);
+            throw InitializationException{
+                __FILE__,
+                __LINE__,
+                "version mismatch: runtime = " + to_string(ICE_INT_VERSION) +
+                    ", generated code = " + to_string(version)};
         }
 #    else
 
-        //
-        // Major and minor version numbers must match.
-        //
-        if (ICE_INT_VERSION / 100 != version / 100)
-        {
-            throw VersionMismatchException(__FILE__, __LINE__);
-        }
+        if ((ICE_INT_VERSION / 100 != version / 100) || // Major and minor version numbers must match.
+            (version % 100 > 50) ||                     // Reject beta caller
+            // The caller's patch level cannot be greater than library's patch level.
+            (version % 100 > ICE_INT_VERSION % 100))
 
-        //
-        // Reject beta caller
-        //
-        if (version % 100 > 50)
         {
-            throw VersionMismatchException(__FILE__, __LINE__);
-        }
-
-        //
-        // The caller's patch level cannot be greater than library's patch level. (Patch level changes are
-        // backward-compatible, but not forward-compatible.)
-        //
-        if (version % 100 > ICE_INT_VERSION % 100)
-        {
-            throw VersionMismatchException(__FILE__, __LINE__);
+            throw InitializationException{
+                __FILE__,
+                __LINE__,
+                "version mismatch: runtime = " + to_string(ICE_INT_VERSION) +
+                    ", generated code = " + to_string(version)};
         }
 
 #    endif

@@ -88,7 +88,7 @@ compile(const vector<string>& argv)
     }
     catch (const IceInternal::BadOptException& e)
     {
-        consoleErr << argv[0] << ": " << e.reason << endl;
+        consoleErr << argv[0] << ": " << e.what() << endl;
         if (!validate)
         {
             usage(argv[0]);
@@ -303,7 +303,7 @@ compile(const vector<string>& argv)
                         // cleanup any created files.
                         FileTracker::instance()->cleanup();
                         u->destroy();
-                        consoleErr << argv[0] << ": error: " << ex.reason() << endl;
+                        consoleErr << argv[0] << ": error: " << ex.what() << endl;
                         return EXIT_FAILURE;
                     }
                 }

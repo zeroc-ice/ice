@@ -300,9 +300,6 @@
     <ClCompile Include="..\..\HttpParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\IconvStringConverter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\IncomingRequest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

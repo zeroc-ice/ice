@@ -138,9 +138,23 @@ namespace
         {
             throw;
         }
-        catch (const Ice::ConnectionManuallyClosedException&)
+        catch (const ConnectionAbortedException& connectionAbortedException)
         {
-            throw;
+            if (connectionAbortedException.closedByApplication())
+            {
+                throw; // do not retry
+            }
+            errorMessage = connectionAbortedException.what();
+            // and retry
+        }
+        catch (const ConnectionClosedException& connectionClosedException)
+        {
+            if (connectionClosedException.closedByApplication())
+            {
+                throw; // do not retry
+            }
+            errorMessage = connectionClosedException.what();
+            // and retry
         }
         catch (const InvocationTimeoutException&)
         {

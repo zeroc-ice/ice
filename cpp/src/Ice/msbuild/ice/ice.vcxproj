@@ -530,7 +530,6 @@
     <ClCompile Include="..\..\EventHandler.cpp" />
     <ClCompile Include="..\..\FactoryTable.cpp" />
     <ClCompile Include="..\..\HttpParser.cpp" />
-    <ClCompile Include="..\..\IconvStringConverter.cpp" />
     <ClCompile Include="..\..\IncomingRequest.cpp" />
     <ClCompile Include="..\..\OutgoingResponse.cpp" />
     <ClCompile Include="..\..\LoggerMiddleware.cpp" />

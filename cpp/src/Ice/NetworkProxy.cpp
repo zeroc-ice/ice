@@ -139,7 +139,10 @@ SOCKSNetworkProxy::finish(Buffer& readBuffer, Buffer&)
     const byte b2 = *src++;
     if (b1 != byte{0x00} || b2 != byte{0x5a})
     {
-        throw Ice::ConnectFailedException(__FILE__, __LINE__);
+        throw Ice::ConnectFailedException{
+            __FILE__,
+            __LINE__,
+            "connection establishment failed due to an HTTP proxy error"};
     }
 }
 
@@ -226,7 +229,7 @@ HTTPNetworkProxy::endRead(Buffer& buf)
     {
         //
         // Read one more byte, we can't easily read bytes in advance
-        // since the transport implenentation might be be able to read
+        // since the transport implementation might be be able to read
         // the data from the memory instead of the socket. This is for
         // instance the case with the OpenSSL transport (or we would
         // have to use a buffering BIO).
@@ -245,7 +248,10 @@ HTTPNetworkProxy::finish(Buffer& readBuffer, Buffer&)
     parser.parse(readBuffer.b.begin(), readBuffer.b.end());
     if (parser.status() != 200)
     {
-        throw Ice::ConnectFailedException(__FILE__, __LINE__);
+        throw Ice::ConnectFailedException{
+            __FILE__,
+            __LINE__,
+            "connection establishment failed due to an HTTP proxy error: " + to_string(parser.status())};
     }
 }
 

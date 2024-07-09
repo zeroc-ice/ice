@@ -337,7 +337,7 @@ IceObjC::iAPTransceiver::read(Buffer& buf)
         NSInteger ret = [_readStream read:reinterpret_cast<UInt8*>(&*buf.i) maxLength:packetSize];
         if (ret == 0)
         {
-            throw ConnectionLostException(__FILE__, __LINE__);
+            throw ConnectionLostException{__FILE__, __LINE__, 0};
         }
 
         if (ret == SOCKET_ERROR)
@@ -442,7 +442,7 @@ IceObjC::iAPTransceiver::checkErrorStatus(NSStream* stream, const char* file, in
     NSStreamStatus status = [stream streamStatus];
     if (status == NSStreamStatusAtEnd || status == NSStreamStatusClosed)
     {
-        throw ConnectionLostException(file, line);
+        throw ConnectionLostException{file, line, 0};
     }
 
     assert(status == NSStreamStatusError);
@@ -459,29 +459,23 @@ IceObjC::iAPTransceiver::checkErrorStatus(NSStream* stream, const char* file, in
         }
         else if (connectionRefused())
         {
-            ConnectionRefusedException ex(file, line);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw ConnectionRefusedException{file, line};
         }
         else if (connectFailed())
         {
-            ConnectFailedException ex(file, line);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw ConnectFailedException{file, line, getSocketErrno()};
         }
         else
         {
-            SocketException ex(file, line);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw SocketException{file, line, "CFNetwork error", getSocketErrno()};
         }
     }
 
     // Otherwise throw a generic exception.
-    CFNetworkException ex(file, line);
-    ex.domain = [domain UTF8String];
-    ex.error = static_cast<int>([err code]);
-    throw ex;
+    throw SocketException{
+        file,
+        line,
+        "CFNetwork error in domain " + string{[domain UTF8String]} + ": " + to_string([err code])};
 }
 
 #endif

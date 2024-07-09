@@ -905,14 +905,14 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
             is_.startEncapsulation();
             is_.throwException();
         }
-        catch (Ice.UserException ex)
+        catch (UserException ex)
         {
             is_.endEncapsulation();
             if (userException_ != null)
             {
                 userException_.Invoke(ex);
             }
-            throw new Ice.UnknownUserException(ex.ice_id());
+            throw UnknownUserException.fromTypeId(ex.ice_id());
         }
     }
 

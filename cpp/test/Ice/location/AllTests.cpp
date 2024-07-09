@@ -218,8 +218,8 @@ allTests(Test::TestHelper* helper, const string& ref)
     }
     catch (const Ice::NotRegisteredException& ex)
     {
-        test(ex.kindOfObject == "object");
-        test(ex.id == "unknown/unknown");
+        test(ex.kindOfObject() == "object");
+        test(ex.id() == "unknown/unknown");
     }
     cout << "ok" << endl;
 
@@ -232,8 +232,8 @@ allTests(Test::TestHelper* helper, const string& ref)
     }
     catch (const Ice::NotRegisteredException& ex)
     {
-        test(ex.kindOfObject == "object adapter");
-        test(ex.id == "TestAdapterUnknown");
+        test(ex.kindOfObject() == "object adapter");
+        test(ex.id() == "TestAdapterUnknown");
     }
     cout << "ok" << endl;
 
@@ -353,8 +353,8 @@ allTests(Test::TestHelper* helper, const string& ref)
     }
     catch (const Ice::NotRegisteredException& ex)
     {
-        test(ex.kindOfObject == "object adapter");
-        test(ex.id == "TestAdapter3");
+        test(ex.kindOfObject() == "object adapter");
+        test(ex.id() == "TestAdapter3");
     }
     registry->setAdapterDirectProxy("TestAdapter3", locator->findAdapterById("TestAdapter"));
     try
@@ -407,8 +407,8 @@ allTests(Test::TestHelper* helper, const string& ref)
     }
     catch (const Ice::NotRegisteredException& ex)
     {
-        test(ex.kindOfObject == "object adapter");
-        test(ex.id == "TestUnknown");
+        test(ex.kindOfObject() == "object adapter");
+        test(ex.id() == "TestUnknown");
     }
     registry->addObject(ObjectPrx(communicator, "test3@TestAdapter4")); // Update
     registry->setAdapterDirectProxy("TestAdapter4", ObjectPrx(communicator, "dummy:" + helper->getTestEndpoint(99)));

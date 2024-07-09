@@ -11,6 +11,7 @@
 #include "Ice/EndpointTypes.h"
 #include "Ice/Logger.h"      // For setTcpBufSize
 #include "Ice/PropertiesF.h" // For setTcpBufSize
+#include "Ice/StringUtil.h"  // For ErrorCode
 #include "NetworkF.h"
 #include "NetworkProxyF.h"
 #include "Protocol.h"
@@ -189,7 +190,7 @@ namespace IceInternal
     using NativeInfoPtr = std::shared_ptr<NativeInfo>;
 
     ICE_API bool noMoreFds(int);
-    ICE_API std::string errorToStringDNS(int);
+    ICE_API std::string errorToStringDNS(ErrorCode);
     ICE_API std::vector<Address>
     getAddresses(const std::string&, int, ProtocolSupport, Ice::EndpointSelectionType, bool, bool);
     ICE_API ProtocolSupport getProtocolSupport(const Address&);

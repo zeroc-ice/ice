@@ -222,7 +222,7 @@ namespace Ice
 
         void closeCallback(const CloseCallback&);
 
-        /// Aborts the connection with a ConnectionIdleException unless any of the following is true:
+        /// Aborts the connection with a ConnectionAbortedException unless any of the following is true:
         /// - the connection is no longer active
         /// - its transceiver is waiting to be read
         /// - the idle check timer task has been rescheduled by a concurrent read

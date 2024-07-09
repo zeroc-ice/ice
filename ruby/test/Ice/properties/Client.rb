@@ -29,7 +29,7 @@ class Client < ::TestHelper
             props.load("./config/xxxx.config")
         rescue Ice::LocalException => ex
             # The corresponding C++ exception (Ice::FileException) is not mapped to Ruby.
-            test(ex.message == "::Ice::FileException") # TODO: temporary until C++ message is fixed
+            test(ex.message["error while accessing file './config/xxxx.config'"])
         end
         puts "ok"
 

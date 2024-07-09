@@ -35,11 +35,21 @@ class LocalExceptionFactory: ICELocalExceptionFactory {
         }
     }
 
-    static func connectionManuallyClosedException(
-        _ graceful: Bool, message: String, cxxDescription: String, file: String, line: Int32
+    static func connectionClosedException(
+        _ typeId: String, closedByApplication: Bool, message: String, cxxDescription: String, file: String, line: Int32
     ) -> Error {
-        ConnectionManuallyClosedException(
-            graceful: graceful, message: message, cxxDescription: cxxDescription, file: file, line: line)
+        switch typeId {
+        case "::Ice::ConnectionAbortedException":
+            ConnectionAbortedException(
+                closedByApplication: closedByApplication, message: message, cxxDescription: cxxDescription, file: file,
+                line: line)
+        case "::Ice::ConnectionClosedException":
+            ConnectionClosedException(
+                closedByApplication: closedByApplication, message: message, cxxDescription: cxxDescription, file: file,
+                line: line)
+        default:
+            fatalError("unexpected ConnectionClosedException type: \(typeId)")
+        }
     }
 
     static func localException(_ typeId: String, message: String, cxxDescription: String, file: String, line: Int32)

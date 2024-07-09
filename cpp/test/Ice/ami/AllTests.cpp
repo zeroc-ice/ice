@@ -1179,7 +1179,7 @@ allTests(TestHelper* helper, bool collocated)
                 //
                 // Local case: start an operation and then close the connection gracefully on the client side
                 // without waiting for the pending invocation to complete. There will be no retry and we expect the
-                // invocation to fail with ConnectionManuallyClosedException.
+                // invocation to fail with ConnectionClosedException.
                 //
                 p = p->ice_connectionId("CloseGracefully"); // Start with a new connection.
                 auto con = p->ice_getConnection();
@@ -1197,9 +1197,9 @@ allTests(TestHelper* helper, bool collocated)
                     f.get();
                     test(false);
                 }
-                catch (const ConnectionManuallyClosedException& ex)
+                catch (const ConnectionClosedException& ex)
                 {
-                    test(ex.graceful);
+                    test(ex.closedByApplication());
                 }
                 p->finishDispatch();
 
@@ -1231,7 +1231,7 @@ allTests(TestHelper* helper, bool collocated)
             {
                 //
                 // Local case: start a lengthy operation and then close the connection forcefully on the client side.
-                // There will be no retry and we expect the invocation to fail with ConnectionManuallyClosedException.
+                // There will be no retry and we expect the invocation to fail with ConnectionAbortedException.
                 //
                 p->ice_ping();
                 auto con = p->ice_getConnection();
@@ -1249,9 +1249,9 @@ allTests(TestHelper* helper, bool collocated)
                     f.get();
                     test(false);
                 }
-                catch (const ConnectionManuallyClosedException& ex)
+                catch (const ConnectionAbortedException& ex)
                 {
-                    test(!ex.graceful);
+                    test(ex.closedByApplication());
                 }
                 p->finishDispatch();
 

@@ -100,7 +100,10 @@ IceObjC::Instance::setupStreams(
         if (!CFReadStreamSetProperty(readStream, kCFStreamPropertySOCKSProxy, _proxySettings.get()) ||
             !CFWriteStreamSetProperty(writeStream, kCFStreamPropertySOCKSProxy, _proxySettings.get()))
         {
-            throw Ice::SyscallException(__FILE__, __LINE__);
+            throw Ice::SocketException{
+                __FILE__,
+                __LINE__,
+                "failed to set the SOCKS proxy property on CFNetwork streams"};
         }
     }
 }

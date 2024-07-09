@@ -25,7 +25,7 @@ public class RequestFailedException: LocalException {
     ///   - cxxDescription: The C++ exception description.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
-    public required init(
+    internal required init(
         id: Identity, facet: String, operation: String, message: String, cxxDescription: String, file: String,
         line: Int32
     ) {
@@ -33,11 +33,6 @@ public class RequestFailedException: LocalException {
         self.facet = facet
         self.operation = operation
         super.init(message: message, cxxDescription: cxxDescription, file: file, line: line)
-    }
-
-    /// Internal initializer - don't use.
-    public required init(message: String, cxxDescription: String, file: String, line: Int32) {
-        fatalError("RequestFailedException must be initialized with an id, facet, and operation")
     }
 
     internal init(typeName: String, id: Identity, facet: String, operation: String, file: String, line: Int32) {
@@ -53,6 +48,11 @@ public class RequestFailedException: LocalException {
         self.facet = ""
         self.operation = ""
         super.init(message, file: file, line: line)
+    }
+
+    // Don't use.
+    internal required init(message: String, cxxDescription: String, file: String, line: Int32) {
+        fatalError("RequestFailedException must be initialized with an id, facet, and operation")
     }
 
     internal class func makeMessage(typeName: String, id: Identity, facet: String, operation: String) -> String {
@@ -252,17 +252,17 @@ public final class AlreadyRegisteredException: LocalException {
         super.init("another \(kindOfObject) is already registered with ID '\(id)'", file: file, line: line)
     }
 
-    /// Internal initializer - don't use.
-    public required init(message: String, cxxDescription: String, file: String, line: Int32) {
-        fatalError("AlreadyRegisteredException must be initialized with a kindOfObject and id")
-    }
-
     // Initializer for C++ exceptions
     internal init(kindOfObject: String, id: String, message: String, cxxDescription: String, file: String, line: Int32)
     {
         self.kindOfObject = kindOfObject
         self.id = id
         super.init(message: message, cxxDescription: cxxDescription, file: file, line: line)
+    }
+
+    // Don't use.
+    internal required init(message: String, cxxDescription: String, file: String, line: Int32) {
+        fatalError("AlreadyRegisteredException must be initialized with a kindOfObject and id")
     }
 }
 
@@ -272,22 +272,37 @@ public final class CommunicatorDestroyedException: LocalException {}
 /// This exception indicates that a connection was aborted by the idle check.
 public class ConnectionIdleException: LocalException {}
 
-/// To be removed
-public final class ConnectionManuallyClosedException: LocalException {
-    public var graceful: Bool
+/// This exception indicates the connection was closed forcefully.
+public final class ConnectionAbortedException: LocalException {
+    /// When true, the connection was aborted by the application. When false, the connection was aborted by the Ice
+    /// runtime.
+    public let closedByApplication: Bool
 
-    public init(graceful: Bool, file: String = #fileID, line: Int32 = #line) {
-        self.graceful = graceful
-        super.init("connection was manually closed", file: file, line: line)
-    }
-
-    public required init(message: String, cxxDescription: String, file: String, line: Int32) {
-        fatalError("ConnectionManuallyClosedException must be initialized with a graceful flag")
-    }
-
-    internal init(graceful: Bool, message: String, cxxDescription: String, file: String, line: Int32) {
-        self.graceful = graceful
+    internal init(closedByApplication: Bool, message: String, cxxDescription: String, file: String, line: Int32) {
+        self.closedByApplication = closedByApplication
         super.init(message: message, cxxDescription: cxxDescription, file: file, line: line)
+    }
+
+    // Don't use.
+    internal required init(message: String, cxxDescription: String, file: String, line: Int32) {
+        fatalError("ConnectionAbortedException must be initialized with a closedByApplication flag")
+    }
+}
+
+/// This exception indicates the connection was closed gracefully.
+public final class ConnectionClosedException: LocalException {
+    /// When true, the connection was aborted by the application. When false, the connection was aborted by the Ice
+    /// runtime.
+    public let closedByApplication: Bool
+
+    internal init(closedByApplication: Bool, message: String, cxxDescription: String, file: String, line: Int32) {
+        self.closedByApplication = closedByApplication
+        super.init(message: message, cxxDescription: cxxDescription, file: file, line: line)
+    }
+
+    // Don't use.
+    internal required init(message: String, cxxDescription: String, file: String, line: Int32) {
+        fatalError("ConnectionClosedException must be initialized with a closedByApplication flag")
     }
 }
 
@@ -302,6 +317,7 @@ internal final class CxxLocalException: LocalException {
         super.init(message: message, cxxDescription: cxxDescription, file: file, line: line)
     }
 
+    // Don't use.
     internal required init(message: String, cxxDescription: String, file: String, line: Int32) {
         fatalError("CxxLocalException must be initialized with a typeId")
     }
@@ -356,17 +372,17 @@ public final class NotRegisteredException: LocalException {
         super.init("no \(kindOfObject) is registered with ID '\(id)'", file: file, line: line)
     }
 
-    /// Internal initializer - don't use.
-    public required init(message: String, cxxDescription: String, file: String, line: Int32) {
-        fatalError("NotRegisteredException must be initialized with a kindOfObject and id")
-    }
-
     // Initializer for C++ exceptions
     internal init(kindOfObject: String, id: String, message: String, cxxDescription: String, file: String, line: Int32)
     {
         self.kindOfObject = kindOfObject
         self.id = id
         super.init(message: message, cxxDescription: cxxDescription, file: file, line: line)
+    }
+
+    // Don't use.
+    internal required init(message: String, cxxDescription: String, file: String, line: Int32) {
+        fatalError("NotRegisteredException must be initialized with a kindOfObject and id")
     }
 }
 

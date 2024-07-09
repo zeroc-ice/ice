@@ -123,7 +123,7 @@ run(const Ice::StringSeq& args)
     }
     catch (const IceInternal::BadOptException& e)
     {
-        consoleErr << "Error:" << e.reason << endl;
+        consoleErr << "Error:" << e.what() << endl;
         usage(args[0]);
         return 1;
     }
