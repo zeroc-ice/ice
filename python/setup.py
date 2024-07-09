@@ -85,7 +85,10 @@ if sys.platform == 'darwin':
     libraries = ['iconv']
     extra_link_args = ['-framework', 'Security', '-framework', 'CoreFoundation']
 elif sys.platform == 'win32':
-    define_macros.extend([('WIN32_LEAN_AND_MEAN', None), ('_WIN32_WINNT', '0x0A00'), ('BZ_EXPORT', None)])
+    define_macros.extend(
+        [('WIN32_LEAN_AND_MEAN', None),
+         ('_WIN32_WINNT', '0x0A00'),
+         ('BZ_EXPORT', None)])
     extra_compile_args = ['/std:c++20', '/EHsc', '/Zi']
     extra_compile_args.extend(['/wd4018', '/wd4146', '/wd4244', '/wd4250', '/wd4251', '/wd4267', '/wd4275', '/wd4996'])
     extra_link_args = ['/DEBUG:FULL']
@@ -259,7 +262,7 @@ class CustomBuildExtCommand(_build_ext):
         _build_ext.run(self)
 
     def build_extension(self, ext):
-        original_compile = self.compiler.compile
+        original_compile = self.compiler._compile
 
         # Monkey-patch the compiler to add extra compile args for C++ files. This works around errors with Clang and
         # GCC as they don't accept --std=c++XX when compiling C files. The MSVC backend doesn't use _compile.
@@ -269,15 +272,14 @@ class CustomBuildExtCommand(_build_ext):
                 src,
                 ext,
                 cc_args,
-                extra_postargs + cpp_extra_compile_args if src.endswith('.cpp') else extra_postargs,
+                cpp_extra_compile_args + extra_postargs if src.endswith('.cpp') else extra_postargs,
                 pp_opts)
-            sys.exit(0)
 
         self.compiler._compile = _compile
         try:
             _build_ext.build_extension(self, ext)
         finally:
-            self.compiler.compile = original_compile
+            self.compiler._compile = original_compile
 
 # Customize the sdist command to ensure that the third-party sources and the generated sources are included in the
 # source distribution.
