@@ -113,11 +113,8 @@ namespace IcePy
     using CloseCallbackWrapperPtr = shared_ptr<CloseCallbackWrapper>;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static ConnectionObject*
-    connectionNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" ConnectionObject*
+connectionNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     assert(type && type->tp_alloc);
     ConnectionObject* self = reinterpret_cast<ConnectionObject*>(type->tp_alloc(type, 0));
@@ -130,22 +127,16 @@ extern "C"
     return self;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static void
-    connectionDealloc(ConnectionObject* self)
+extern "C" void
+connectionDealloc(ConnectionObject* self)
 {
     delete self->connection;
     delete self->communicator;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionCompare(ConnectionObject* c1, PyObject* other, int op)
+extern "C" PyObject*
+connectionCompare(ConnectionObject* c1, PyObject* other, int op)
 {
     bool result = false;
 
@@ -195,20 +186,14 @@ extern "C"
     return result ? incTrue() : incFalse();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static long
-    connectionHash(ConnectionObject* self)
+extern "C" long
+connectionHash(ConnectionObject* self)
 {
     return hashPointer((*self->connection).get());
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionClose(ConnectionObject* self, PyObject* args)
+extern "C" PyObject*
+connectionClose(ConnectionObject* self, PyObject* args)
 {
     PyObject* closeType = lookupType("Ice.ConnectionClose");
     PyObject* mode;
@@ -237,11 +222,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionCreateProxy(ConnectionObject* self, PyObject* args)
+extern "C" PyObject*
+connectionCreateProxy(ConnectionObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* id;
@@ -272,11 +254,8 @@ extern "C"
     return createProxy(proxy.value(), (*self->communicator));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionSetAdapter(ConnectionObject* self, PyObject* args)
+extern "C" PyObject*
+connectionSetAdapter(ConnectionObject* self, PyObject* args)
 {
     PyObject* adapter = Py_None;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &adapter))
@@ -309,11 +288,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionGetAdapter(ConnectionObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+connectionGetAdapter(ConnectionObject* self, PyObject* /*args*/)
 {
     Ice::ObjectAdapterPtr adapter;
 
@@ -340,11 +316,8 @@ extern "C"
     }
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionFlushBatchRequests(ConnectionObject* self, PyObject* args)
+extern "C" PyObject*
+connectionFlushBatchRequests(ConnectionObject* self, PyObject* args)
 {
     PyObject* compressBatchType = lookupType("Ice.CompressBatch");
     PyObject* compressBatch;
@@ -373,11 +346,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionFlushBatchRequestsAsync(ConnectionObject* self, PyObject* args)
+extern "C" PyObject*
+connectionFlushBatchRequestsAsync(ConnectionObject* self, PyObject* args)
 {
     PyObject* compressBatchType = lookupType("Ice.CompressBatch");
     PyObject* compressBatch;
@@ -424,11 +394,8 @@ extern "C"
     return future.release();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionSetCloseCallback(ConnectionObject* self, PyObject* args)
+extern "C" PyObject*
+connectionSetCloseCallback(ConnectionObject* self, PyObject* args)
 {
     assert(self->connection);
 
@@ -473,11 +440,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionType(ConnectionObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+connectionType(ConnectionObject* self, PyObject* /*args*/)
 {
     assert(self->connection);
     string type;
@@ -494,11 +458,8 @@ extern "C"
     return createString(type);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionToString(ConnectionObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+connectionToString(ConnectionObject* self, PyObject* /*args*/)
 {
     assert(self->connection);
     string str;
@@ -515,11 +476,8 @@ extern "C"
     return createString(str);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionGetInfo(ConnectionObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+connectionGetInfo(ConnectionObject* self, PyObject* /*args*/)
 {
     assert(self->connection);
     try
@@ -534,11 +492,8 @@ extern "C"
     }
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionGetEndpoint(ConnectionObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+connectionGetEndpoint(ConnectionObject* self, PyObject* /*args*/)
 {
     assert(self->connection);
     try
@@ -553,11 +508,8 @@ extern "C"
     }
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionSetBufferSize(ConnectionObject* self, PyObject* args)
+extern "C" PyObject*
+connectionSetBufferSize(ConnectionObject* self, PyObject* args)
 {
     int rcvSize;
     int sndSize;
@@ -581,11 +533,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    connectionThrowException(ConnectionObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+connectionThrowException(ConnectionObject* self, PyObject* /*args*/)
 {
     assert(self->connection);
     try

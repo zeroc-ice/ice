@@ -63,32 +63,23 @@ allocateProxy(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPtr& communica
     return p;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static ProxyObject*
-    proxyNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" ProxyObject*
+proxyNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     PyErr_Format(PyExc_RuntimeError, STRCAST("A proxy cannot be created directly"));
     return 0;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static void
-    proxyDealloc(ProxyObject* self)
+extern "C" void
+proxyDealloc(ProxyObject* self)
 {
     delete self->proxy;
     delete self->communicator;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyCompare(ProxyObject* p1, PyObject* other, int op)
+extern "C" PyObject*
+proxyCompare(ProxyObject* p1, PyObject* other, int op)
 {
     bool result = false;
 
@@ -142,39 +133,27 @@ extern "C"
     return result ? incTrue() : incFalse();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyRepr(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyRepr(ProxyObject* self, PyObject* /*args*/)
 {
     string str = (*self->proxy)->ice_toString();
     return createString(str);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static long
-    proxyHash(ProxyObject* self)
+extern "C" long
+proxyHash(ProxyObject* self)
 {
     return static_cast<long>(std::hash<Ice::ObjectPrx>{}(*self->proxy));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceGetCommunicator(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceGetCommunicator(ProxyObject* self, PyObject* /*args*/)
 {
     return getCommunicatorWrapper(*self->communicator);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceIsA(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIceIsA(ProxyObject* self, PyObject* args)
 {
     PyObject* type;
     PyObject* ctx = Py_None;
@@ -191,11 +170,8 @@ extern "C"
     return invokeBuiltin(reinterpret_cast<PyObject*>(self), "ice_isA", newArgs.get());
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceIsAAsync(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIceIsAAsync(ProxyObject* self, PyObject* args)
 {
     PyObject* type;
     PyObject* ctx = Py_None;
@@ -212,11 +188,8 @@ extern "C"
     return invokeBuiltinAsync(reinterpret_cast<PyObject*>(self), "ice_isA", newArgs.get());
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIcePing(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIcePing(ProxyObject* self, PyObject* args)
 {
     PyObject* ctx = Py_None;
     if (!PyArg_ParseTuple(args, STRCAST("|O!"), &PyDict_Type, &ctx))
@@ -232,11 +205,8 @@ extern "C"
     return invokeBuiltin(reinterpret_cast<PyObject*>(self), "ice_ping", newArgs.get());
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIcePingAsync(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIcePingAsync(ProxyObject* self, PyObject* args)
 {
     PyObject* ctx = Py_None;
     if (!PyArg_ParseTuple(args, STRCAST("|O!"), &PyDict_Type, &ctx))
@@ -252,11 +222,8 @@ extern "C"
     return invokeBuiltinAsync(reinterpret_cast<PyObject*>(self), "ice_ping", newArgs.get());
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceIds(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIceIds(ProxyObject* self, PyObject* args)
 {
     PyObject* ctx = Py_None;
     if (!PyArg_ParseTuple(args, STRCAST("|O!"), &PyDict_Type, &ctx))
@@ -272,11 +239,8 @@ extern "C"
     return invokeBuiltin(reinterpret_cast<PyObject*>(self), "ice_ids", newArgs.get());
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceIdsAsync(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIceIdsAsync(ProxyObject* self, PyObject* args)
 {
     PyObject* ctx = Py_None;
     if (!PyArg_ParseTuple(args, STRCAST("|O!"), &PyDict_Type, &ctx))
@@ -292,11 +256,8 @@ extern "C"
     return invokeBuiltinAsync(reinterpret_cast<PyObject*>(self), "ice_ids", newArgs.get());
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceId(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIceId(ProxyObject* self, PyObject* args)
 {
     PyObject* ctx = Py_None;
     if (!PyArg_ParseTuple(args, STRCAST("|O!"), &PyDict_Type, &ctx))
@@ -312,11 +273,8 @@ extern "C"
     return invokeBuiltin(reinterpret_cast<PyObject*>(self), "ice_id", newArgs.get());
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceIdAsync(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIceIdAsync(ProxyObject* self, PyObject* args)
 {
     PyObject* ctx = Py_None;
     if (!PyArg_ParseTuple(args, STRCAST("|O!"), &PyDict_Type, &ctx))
@@ -332,11 +290,8 @@ extern "C"
     return invokeBuiltinAsync(reinterpret_cast<PyObject*>(self), "ice_id", newArgs.get());
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceGetIdentity(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceGetIdentity(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -354,11 +309,8 @@ extern "C"
     return createIdentity(id);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceIdentity(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIceIdentity(ProxyObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     assert(identityType);
@@ -390,11 +342,8 @@ extern "C"
     return createProxy(newProxy.value(), *self->communicator);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceGetContext(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceGetContext(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -417,11 +366,8 @@ extern "C"
     return 0;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceContext(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIceContext(ProxyObject* self, PyObject* args)
 {
     PyObject* dict;
     if (!PyArg_ParseTuple(args, STRCAST("O!"), &PyDict_Type, &dict))
@@ -451,11 +397,8 @@ extern "C"
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceGetFacet(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceGetFacet(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -473,11 +416,8 @@ extern "C"
     return createString(facet);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceFacet(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIceFacet(ProxyObject* self, PyObject* args)
 {
     PyObject* facetObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &facetObj))
@@ -507,11 +447,8 @@ extern "C"
     return createProxy(newProxy.value(), *self->communicator);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceGetAdapterId(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceGetAdapterId(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -529,11 +466,8 @@ extern "C"
     return createString(id);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceAdapterId(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIceAdapterId(ProxyObject* self, PyObject* args)
 {
     PyObject* idObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &idObj))
@@ -563,11 +497,8 @@ extern "C"
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceGetEndpoints(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceGetEndpoints(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -598,11 +529,8 @@ extern "C"
     return result.release();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceEndpoints(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIceEndpoints(ProxyObject* self, PyObject* args)
 {
     PyObject* endpoints;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &endpoints))
@@ -638,11 +566,8 @@ extern "C"
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceGetLocatorCacheTimeout(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceGetLocatorCacheTimeout(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -658,11 +583,8 @@ extern "C"
     }
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceGetInvocationTimeout(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceGetInvocationTimeout(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -678,11 +600,8 @@ extern "C"
     }
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceGetConnectionId(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceGetConnectionId(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -698,11 +617,8 @@ extern "C"
     }
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceLocatorCacheTimeout(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIceLocatorCacheTimeout(ProxyObject* self, PyObject* args)
 {
     int timeout;
     if (!PyArg_ParseTuple(args, STRCAST("i"), &timeout))
@@ -731,11 +647,8 @@ extern "C"
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceInvocationTimeout(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIceInvocationTimeout(ProxyObject* self, PyObject* args)
 {
     int timeout;
     if (!PyArg_ParseTuple(args, STRCAST("i"), &timeout))
@@ -764,11 +677,8 @@ extern "C"
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceIsConnectionCached(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceIsConnectionCached(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -787,11 +697,8 @@ extern "C"
     return b;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceConnectionCached(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIceConnectionCached(ProxyObject* self, PyObject* args)
 {
     PyObject* flag;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &flag))
@@ -821,11 +728,8 @@ extern "C"
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceGetEndpointSelection(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceGetEndpointSelection(ProxyObject* self, PyObject* /*args*/)
 {
     PyObject* cls = lookupType("Ice.EndpointSelectionType");
     assert(cls);
@@ -860,11 +764,8 @@ extern "C"
     return type;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceEndpointSelection(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIceEndpointSelection(ProxyObject* self, PyObject* args)
 {
     PyObject* cls = lookupType("Ice.EndpointSelectionType");
     assert(cls);
@@ -909,11 +810,8 @@ extern "C"
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceIsSecure(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceIsSecure(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -932,11 +830,8 @@ extern "C"
     return b;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceSecure(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIceSecure(ProxyObject* self, PyObject* args)
 {
     PyObject* flag;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &flag))
@@ -966,11 +861,8 @@ extern "C"
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceGetEncodingVersion(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceGetEncodingVersion(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -989,11 +881,8 @@ extern "C"
     return version;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceEncodingVersion(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIceEncodingVersion(ProxyObject* self, PyObject* args)
 {
     PyObject* versionType = IcePy::lookupType("Ice.EncodingVersion");
     PyObject* p;
@@ -1025,11 +914,8 @@ extern "C"
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceIsPreferSecure(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceIsPreferSecure(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -1048,11 +934,8 @@ extern "C"
     return b;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIcePreferSecure(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIcePreferSecure(ProxyObject* self, PyObject* args)
 {
     PyObject* flag;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &flag))
@@ -1082,11 +965,8 @@ extern "C"
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceGetRouter(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceGetRouter(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -1112,11 +992,8 @@ extern "C"
     return createProxy(router.value(), *self->communicator, routerProxyType);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceRouter(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIceRouter(ProxyObject* self, PyObject* args)
 {
     PyObject* p;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &p))
@@ -1148,11 +1025,8 @@ extern "C"
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceGetLocator(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceGetLocator(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -1178,11 +1052,8 @@ extern "C"
     return createProxy(locator.value(), *self->communicator, locatorProxyType);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceLocator(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIceLocator(ProxyObject* self, PyObject* args)
 {
     PyObject* p;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &p))
@@ -1214,11 +1085,8 @@ extern "C"
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceTwoway(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceTwoway(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -1236,11 +1104,8 @@ extern "C"
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceIsTwoway(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceIsTwoway(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -1259,11 +1124,8 @@ extern "C"
     return b;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceOneway(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceOneway(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -1281,11 +1143,8 @@ extern "C"
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceIsOneway(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceIsOneway(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -1304,11 +1163,8 @@ extern "C"
     return b;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceBatchOneway(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceBatchOneway(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -1326,11 +1182,8 @@ extern "C"
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceIsBatchOneway(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceIsBatchOneway(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -1349,11 +1202,8 @@ extern "C"
     return b;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceDatagram(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceDatagram(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -1371,11 +1221,8 @@ extern "C"
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceIsDatagram(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceIsDatagram(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -1394,11 +1241,8 @@ extern "C"
     return b;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceBatchDatagram(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceBatchDatagram(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -1416,11 +1260,8 @@ extern "C"
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceIsBatchDatagram(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceIsBatchDatagram(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -1439,11 +1280,8 @@ extern "C"
     return b;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceCompress(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIceCompress(ProxyObject* self, PyObject* args)
 {
     PyObject* flag;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &flag))
@@ -1473,11 +1311,8 @@ extern "C"
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceGetCompress(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceGetCompress(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -1503,11 +1338,8 @@ extern "C"
     return b;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceIsCollocationOptimized(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceIsCollocationOptimized(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -1526,11 +1358,8 @@ extern "C"
     return b;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceCollocationOptimized(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIceCollocationOptimized(ProxyObject* self, PyObject* args)
 {
     PyObject* flag;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &flag))
@@ -1560,11 +1389,8 @@ extern "C"
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceConnectionId(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIceConnectionId(ProxyObject* self, PyObject* args)
 {
     PyObject* idObj;
     if (!PyArg_ParseTuple(args, STRCAST("O"), &idObj))
@@ -1594,11 +1420,8 @@ extern "C"
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceFixed(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIceFixed(ProxyObject* self, PyObject* args)
 {
     assert(self->proxy);
 
@@ -1633,11 +1456,8 @@ extern "C"
     return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceIsFixed(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceIsFixed(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -1656,11 +1476,8 @@ extern "C"
     return b;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceGetConnection(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceGetConnection(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -1686,11 +1503,8 @@ extern "C"
     }
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceGetConnectionAsync(ProxyObject* self, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" PyObject*
+proxyIceGetConnectionAsync(ProxyObject* self, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     assert(self->proxy);
     const string op = "ice_getConnection";
@@ -1725,11 +1539,8 @@ extern "C"
     return future.release();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceGetCachedConnection(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceGetCachedConnection(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -1755,11 +1566,8 @@ extern "C"
     }
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceFlushBatchRequests(ProxyObject* self, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceFlushBatchRequests(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
@@ -1778,11 +1586,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceFlushBatchRequestsAsync(ProxyObject* self, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" PyObject*
+proxyIceFlushBatchRequestsAsync(ProxyObject* self, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     assert(self->proxy);
     const string op = "ice_flushBatchRequests";
@@ -1817,20 +1622,14 @@ extern "C"
     return future.release();
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceInvoke(ProxyObject* self, PyObject* args)
+extern "C" PyObject*
+proxyIceInvoke(ProxyObject* self, PyObject* args)
 {
     return iceInvoke(reinterpret_cast<PyObject*>(self), args);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceInvokeAsync(ProxyObject* self, PyObject* args, PyObject* /*kwds*/)
+extern "C" PyObject*
+proxyIceInvokeAsync(ProxyObject* self, PyObject* args, PyObject* /*kwds*/)
 {
     return iceInvokeAsync(reinterpret_cast<PyObject*>(self), args);
 }
@@ -1884,11 +1683,8 @@ checkedCastImpl(ProxyObject* p, const string& id, PyObject* facet, PyObject* ctx
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceCheckedCast(PyObject* type, PyObject* args)
+extern "C" PyObject*
+proxyIceCheckedCast(PyObject* type, PyObject* args)
 {
     //
     // ice_checkedCast is called from generated code, therefore we always expect
@@ -1945,11 +1741,8 @@ extern "C"
     return checkedCastImpl(reinterpret_cast<ProxyObject*>(obj), id, facet, ctx, type);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceUncheckedCast(PyObject* type, PyObject* args)
+extern "C" PyObject*
+proxyIceUncheckedCast(PyObject* type, PyObject* args)
 {
     //
     // ice_uncheckedCast is called from generated code, therefore we always expect
@@ -1986,11 +1779,8 @@ extern "C"
     }
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyCheckedCast(PyObject* /*self*/, PyObject* args)
+extern "C" PyObject*
+proxyCheckedCast(PyObject* /*self*/, PyObject* args)
 {
     PyObject* obj;
     PyObject* arg1 = 0;
@@ -2064,11 +1854,8 @@ extern "C"
     return checkedCastImpl(reinterpret_cast<ProxyObject*>(obj), "::Ice::Object", facet, ctx, 0);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyUncheckedCast(PyObject* /*self*/, PyObject* args)
+extern "C" PyObject*
+proxyUncheckedCast(PyObject* /*self*/, PyObject* args)
 {
     PyObject* obj;
     PyObject* facetObj = 0;
@@ -2110,11 +1897,8 @@ extern "C"
     }
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    proxyIceStaticId(PyObject* /*self*/, PyObject* /*args*/)
+extern "C" PyObject*
+proxyIceStaticId(PyObject* /*self*/, PyObject* /*args*/)
 {
     return createString(Ice::Object::ice_staticId());
 }

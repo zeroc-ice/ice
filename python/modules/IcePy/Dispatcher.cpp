@@ -21,21 +21,15 @@ namespace IcePy
     };
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static void
-    dispatcherCallDealloc(DispatcherCallObject* self)
+extern "C" void
+dispatcherCallDealloc(DispatcherCallObject* self)
 {
     delete self->call;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    dispatcherCallInvoke(DispatcherCallObject* self, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" PyObject*
+dispatcherCallInvoke(DispatcherCallObject* self, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     try
     {

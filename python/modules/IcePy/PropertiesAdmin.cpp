@@ -20,32 +20,23 @@ namespace IcePy
     };
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static NativePropertiesAdminObject*
-    nativePropertiesAdminNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
+extern "C" NativePropertiesAdminObject*
+nativePropertiesAdminNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     PyErr_Format(PyExc_RuntimeError, STRCAST("This object cannot be created directly"));
     return 0;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static void
-    nativePropertiesAdminDealloc(NativePropertiesAdminObject* self)
+extern "C" void
+nativePropertiesAdminDealloc(NativePropertiesAdminObject* self)
 {
     delete self->admin;
     delete self->callbacks;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* args)
+extern "C" PyObject*
+nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* args)
 {
     PyObject* callbackType = lookupType("Ice.PropertiesAdminUpdateCallback");
     PyObject* callback;
@@ -90,11 +81,8 @@ extern "C"
     return Py_None;
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-    static PyObject*
-    nativePropertiesAdminRemoveUpdateCB(NativePropertiesAdminObject* self, PyObject* args)
+extern "C" PyObject*
+nativePropertiesAdminRemoveUpdateCB(NativePropertiesAdminObject* self, PyObject* args)
 {
     PyObject* callbackType = lookupType("Ice.PropertiesAdminUpdateCallback");
     PyObject* callback;
