@@ -1447,6 +1447,19 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         {
             if (isActiveOrHolding())
             {
+                // We check if the connection has become inactive.
+                if (
+                    _inactivityTimer is null &&           // timer not already scheduled
+                    _inactivityTimeout > TimeSpan.Zero && // inactivity timeout is enabled
+                    _state == StateActive &&              // only schedule the timer if the connection is active
+                    _dispatchCount == 0 &&                // no pending dispatch
+                    _asyncRequests.Count == 0 &&          // no pending invocation
+                    _readHeader &&                        // we're not waiting for the remainder of an incoming message
+                    _sendStreams.Count == 0)              // no pending outgoing messages
+                {
+                    scheduleInactivityTimer();
+                }
+
                 OutputStream os = new OutputStream(_instance, Util.currentProtocolEncoding);
                 os.writeBlob(Protocol.magic);
                 Util.currentProtocol.ice_writeMembers(os);
@@ -1456,7 +1469,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 os.writeInt(Protocol.headerSize); // Message size.
                 try
                 {
-                    sendMessage(new OutgoingMessage(os, false, false));
+                    _ = sendMessage(new OutgoingMessage(os, false, false));
                 }
                 catch (LocalException ex)
                 {
@@ -2024,46 +2037,20 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         {
             cancelInactivityTimer();
         }
-        // If we're sending a heartbeat, there is a chance the connection is inactive and that we need to schedule the
-        // inactivity timer. It's ok to do this before actually sending the heartbeat since the heartbeat does not count
-        // as an "activity".
-        else if (
-            _inactivityTimer is null &&           // timer not already scheduled
-            _inactivityTimeout > TimeSpan.Zero && // inactivity timeout is enabled
-            _state == StateActive &&              // only schedule the timer if the connection is active
-            _dispatchCount == 0 &&                // no pending dispatch
-            _asyncRequests.Count == 0 &&          // no pending invocation
-            _readHeader)                          // we're not waiting for the remainder of an incoming message
-        {
-            bool isInactive = true;
-
-            // We may become inactive while the peer is back-pressuring us. In this case, we only schedule the
-            // inactivity timer if all outgoing messages in _sendStreams are heartbeats.
-            foreach (OutgoingMessage queuedMessage in _sendStreams)
-            {
-                // TODO: temporary work-around for #2336
-                Ice.Internal.Buffer buffer = queuedMessage.stream.getBuffer();
-                if (!buffer.empty()) // should never happen
-                {
-                    if (buffer.b.get(8) != Protocol.validateConnectionMsg)
-                    {
-                        isInactive = false;
-                        break; // for
-                    }
-                }
-            }
-
-            if (isInactive)
-            {
-                scheduleInactivityTimer();
-            }
-        }
 
         if (_sendStreams.Count > 0)
         {
-            message.adopt();
-            _sendStreams.AddLast(message);
-            return OutgoingAsyncBase.AsyncStatusQueued;
+            if (isHeartbeat)
+            {
+                // The message already queued does the job of the heartbeat.
+                return OutgoingAsyncBase.AsyncStatusSent; // not used by the caller
+            }
+            else
+            {
+                message.adopt();
+                _sendStreams.AddLast(message);
+                return OutgoingAsyncBase.AsyncStatusQueued;
+            }
         }
 
         //
